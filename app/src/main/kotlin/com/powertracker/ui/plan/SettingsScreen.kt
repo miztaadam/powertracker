@@ -5,8 +5,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,20 +15,19 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,8 +46,17 @@ import com.powertracker.data.BackupFile
 import com.powertracker.data.BackupResult
 import com.powertracker.data.BackupService
 import com.powertracker.data.SettingsRepository
-import com.powertracker.ui.common.Stepper
-import com.powertracker.ui.common.formatRpe
+import com.powertracker.ui.components.ChoiceChip
+import com.powertracker.ui.components.PrimaryButton
+import com.powertracker.ui.components.PtCard
+import com.powertracker.ui.components.QuietButton
+import com.powertracker.ui.components.ScreenHeader
+import com.powertracker.ui.components.SecondaryButton
+import com.powertracker.ui.components.SectionHeader
+import com.powertracker.ui.components.Stepper
+import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.theme.PowertrackerTheme
+import com.powertracker.ui.theme.Space
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -69,7 +77,6 @@ fun checkBackupText(text: String): RestoreCheck = when (val r = Backup.decode(te
     is BackupResult.Corrupt -> RestoreCheck.Rejected("This file isn't a valid Powertracker backup.")
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
     settingsRepo: SettingsRepository,
@@ -115,58 +122,14 @@ fun SettingsScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Settings") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbar) },
-    ) { padding ->
-        Column(
-            Modifier.padding(padding).padding(16.dp).verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            SwitchRow("Change plates", settings.changePlates) { v -> update { it.copy(changePlates = v) } }
-            StepperRow(
-                "Default RPE", formatRpe(settings.defaultRpe), settings.defaultRpe > 6.0, settings.defaultRpe < 10.0,
-                { update { it.copy(defaultRpe = (it.defaultRpe - 0.5).coerceAtLeast(6.0)) } },
-                { update { it.copy(defaultRpe = (it.defaultRpe + 0.5).coerceAtMost(10.0)) } },
-            )
-
-            Text("Training days", style = MaterialTheme.typography.titleSmall)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                for (day in DayOfWeek.entries) {
-                    FilterChip(
-                        selected = day in settings.trainingDays,
-                        onClick = { update { s -> s.copy(trainingDays = if (day in s.trainingDays) s.trainingDays - day else s.trainingDays + day) } },
-                        label = { Text(day.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(3)) },
-                    )
-                }
-            }
-
-            StepperRow(
-                "Main lift rest", "${settings.restMainSec} s", settings.restMainSec > 60, settings.restMainSec < 600,
-                { update { it.copy(restMainSec = (it.restMainSec - 30).coerceAtLeast(60)) } },
-                { update { it.copy(restMainSec = (it.restMainSec + 30).coerceAtMost(600)) } },
-            )
-            StepperRow(
-                "Accessory rest", "${settings.restAccessorySec} s", settings.restAccessorySec > 30, settings.restAccessorySec < 300,
-                { update { it.copy(restAccessorySec = (it.restAccessorySec - 15).coerceAtLeast(30)) } },
-                { update { it.copy(restAccessorySec = (it.restAccessorySec + 15).coerceAtMost(300)) } },
-            )
-
-            SwitchRow("App lock", settings.appLock) { v -> update { it.copy(appLock = v) } }
-
-            OutlinedButton(onClick = { exportLauncher.launch("powertracker-backup-${today()}.json") }, modifier = Modifier.fillMaxWidth()) {
-                Text("Export backup")
-            }
-            OutlinedButton(onClick = { importLauncher.launch(arrayOf("*/*")) }, modifier = Modifier.fillMaxWidth()) {
-                Text("Restore backup")
-            }
-        }
-    }
+    SettingsContent(
+        settings = settings,
+        onUpdate = ::update,
+        onExport = { exportLauncher.launch("powertracker-backup-${today()}.json") },
+        onRestore = { importLauncher.launch(arrayOf("*/*")) },
+        onBack = onBack,
+        snackbar = snackbar,
+    )
 
     pendingRestore?.let { file ->
         AlertDialog(
@@ -174,35 +137,152 @@ fun SettingsScreen(
             title = { Text("Replace all data?") },
             text = { Text("Restoring replaces everything in Powertracker with the contents of this backup.") },
             confirmButton = {
-                TextButton(onClick = {
-                    pendingRestore = null
-                    scope.launch {
-                        val ok = runCatching { backup.restore(file) }.isSuccess
-                        snackbar.showSnackbar(if (ok) "Backup restored." else "Couldn't restore the backup.")
-                    }
-                }) { Text("Replace") }
+                PrimaryButton(
+                    "Replace",
+                    onClick = {
+                        pendingRestore = null
+                        scope.launch {
+                            val ok = runCatching { backup.restore(file) }.isSuccess
+                            snackbar.showSnackbar(if (ok) "Backup restored." else "Couldn't restore the backup.")
+                        }
+                    },
+                    compact = true,
+                )
             },
-            dismissButton = { TextButton(onClick = { pendingRestore = null }) { Text("Cancel") } },
+            dismissButton = { QuietButton("Cancel", { pendingRestore = null }) },
+        )
+    }
+}
+
+/** The Settings screen without its repositories or file pickers: grouped cards of rows. */
+@Composable
+fun SettingsContent(
+    settings: AppSettings,
+    onUpdate: ((AppSettings) -> AppSettings) -> Unit,
+    onExport: () -> Unit,
+    onRestore: () -> Unit,
+    onBack: () -> Unit,
+    snackbar: SnackbarHostState = remember { SnackbarHostState() },
+) {
+    val scheme = MaterialTheme.colorScheme
+    Scaffold(
+        containerColor = scheme.background,
+        topBar = {
+            ScreenHeader(
+                "Settings",
+                navigation = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbar) },
+    ) { padding ->
+        Column(
+            Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(start = Space.gutter, end = Space.gutter, bottom = Space.xl),
+        ) {
+            SectionHeader("Loading and targets")
+            Group {
+                SwitchRow("Change plates", "Adds 0.5 and 0.25 kg plates, so loads round to 0.5 kg", settings.changePlates) { v ->
+                    onUpdate { it.copy(changePlates = v) }
+                }
+                RowDivider()
+                StepperRow(
+                    "Default RPE", "Planned effort for main lifts", formatRpe(settings.defaultRpe), settings.defaultRpe > 6.0, settings.defaultRpe < 10.0,
+                    { onUpdate { it.copy(defaultRpe = (it.defaultRpe - 0.5).coerceAtLeast(6.0)) } },
+                    { onUpdate { it.copy(defaultRpe = (it.defaultRpe + 0.5).coerceAtMost(10.0)) } },
+                )
+            }
+
+            SectionHeader("Training days", Modifier.padding(top = Space.m))
+            PtCard(contentPadding = PaddingValues(horizontal = Space.s, vertical = Space.s)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.xxs)) {
+                    for (day in DayOfWeek.entries) {
+                        ChoiceChip(
+                            text = day.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(3),
+                            selected = day in settings.trainingDays,
+                            onClick = { onUpdate { s -> s.copy(trainingDays = if (day in s.trainingDays) s.trainingDays - day else s.trainingDays + day) } },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+            }
+
+            SectionHeader("Rest timer", Modifier.padding(top = Space.m))
+            Group {
+                StepperRow(
+                    "Main lift rest", "Squat, bench, deadlift", "${settings.restMainSec} s", settings.restMainSec > 60, settings.restMainSec < 600,
+                    { onUpdate { it.copy(restMainSec = (it.restMainSec - 30).coerceAtLeast(60)) } },
+                    { onUpdate { it.copy(restMainSec = (it.restMainSec + 30).coerceAtMost(600)) } },
+                )
+                RowDivider()
+                StepperRow(
+                    "Accessory rest", "Everything else", "${settings.restAccessorySec} s", settings.restAccessorySec > 30, settings.restAccessorySec < 300,
+                    { onUpdate { it.copy(restAccessorySec = (it.restAccessorySec - 15).coerceAtLeast(30)) } },
+                    { onUpdate { it.copy(restAccessorySec = (it.restAccessorySec + 15).coerceAtMost(300)) } },
+                )
+            }
+
+            SectionHeader("Privacy", Modifier.padding(top = Space.m))
+            Group {
+                SwitchRow("App lock", "Ask for your fingerprint or PIN when the app opens", settings.appLock) { v -> onUpdate { it.copy(appLock = v) } }
+            }
+
+            SectionHeader("Backup", Modifier.padding(top = Space.m))
+            PtCard {
+                Text(
+                    "Your log lives only on this phone. Export a file now and then so you can restore it.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = scheme.onSurfaceVariant,
+                )
+                SecondaryButton("Export backup", onExport, Modifier.fillMaxWidth(), icon = Icons.Filled.Upload)
+                SecondaryButton("Restore backup", onRestore, Modifier.fillMaxWidth(), icon = Icons.Filled.Download)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Group(content: @Composable ColumnScope.() -> Unit) {
+    PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp, content = content)
+}
+
+@Composable
+private fun RowDivider() = HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+
+@Composable
+private fun RowLabel(label: String, supporting: String, modifier: Modifier = Modifier) {
+    Column(modifier.padding(vertical = Space.m)) {
+        Text(label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+        Text(supporting, style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted)
+    }
+}
+
+@Composable
+private fun SwitchRow(label: String, supporting: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val pt = PowertrackerTheme.colors
+    Row(
+        Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Space.m),
+    ) {
+        RowLabel(label, supporting, Modifier.weight(1f))
+        Switch(
+            checked = checked,
+            onCheckedChange = null,
+            colors = SwitchDefaults.colors(
+                checkedTrackColor = pt.accent,
+                checkedThumbColor = pt.onAccent,
+                uncheckedTrackColor = scheme.surfaceContainerHighest,
+                uncheckedThumbColor = scheme.onSurfaceVariant,
+                uncheckedBorderColor = scheme.outline,
+            ),
         )
     }
 }
 
 @Composable
-private fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(label)
-        Switch(checked = checked, onCheckedChange = null)
-    }
-}
-
-@Composable
-private fun StepperRow(label: String, value: String, canDec: Boolean, canInc: Boolean, onDec: () -> Unit, onInc: () -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label)
+private fun StepperRow(label: String, supporting: String, value: String, canDec: Boolean, canInc: Boolean, onDec: () -> Unit, onInc: () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+        RowLabel(label, supporting, Modifier.weight(1f))
         Stepper(label, value, canDec, canInc, onDec, onInc)
     }
 }

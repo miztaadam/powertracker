@@ -1,48 +1,32 @@
 package com.powertracker.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 
-private val LightColors = lightColorScheme(
-    primary = LightPrimary,
-    onPrimary = LightOnPrimary,
-    primaryContainer = LightPrimaryContainer,
-    onPrimaryContainer = LightOnPrimaryContainer,
-    secondary = LightSecondary,
-    background = LightBackground,
-    onBackground = LightOnBackground,
-)
-
-private val DarkColors = darkColorScheme(
-    primary = DarkPrimary,
-    onPrimary = DarkOnPrimary,
-    primaryContainer = DarkPrimaryContainer,
-    onPrimaryContainer = DarkOnPrimaryContainer,
-    secondary = DarkSecondary,
-    background = DarkBackground,
-    onBackground = DarkOnBackground,
-)
-
+/**
+ * The brand theme. Android 12 dynamic colour is deliberately not used: the palette is part of the
+ * product and state colours must mean the same thing on every phone.
+ */
 @Composable
 fun PowertrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColors
-        else -> LightColors
+    CompositionLocalProvider(LocalPtColors provides if (darkTheme) DarkPtColors else LightPtColors) {
+        MaterialTheme(
+            colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
+            typography = PowertrackerTypography,
+            shapes = PowertrackerShapes,
+            content = content,
+        )
     }
-    MaterialTheme(colorScheme = colorScheme, typography = PowertrackerTypography, content = content)
+}
+
+object PowertrackerTheme {
+    /** Brand colours beyond the Material scheme (accent fill, state and lift colours). */
+    val colors: PtColors
+        @Composable @ReadOnlyComposable get() = LocalPtColors.current
 }
