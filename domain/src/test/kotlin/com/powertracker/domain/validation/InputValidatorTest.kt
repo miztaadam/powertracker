@@ -23,4 +23,11 @@ class InputValidatorTest {
             assertEquals(null, InputValidator.baselineKg(text), text)
         }
     }
+
+    @Test
+    fun addingWeightToABodyweightExercise_isNotABigJump() {
+        // Pull-ups logged at bodyweight (0 kg), then +5 kg: there is no meaningful "30% jump" from zero.
+        assertEquals(emptyList<InputWarning>(), InputValidator.check(5.0, 5, 0.0))
+        assertEquals(emptyList<InputWarning>(), InputValidator.check(20.0, 5, 0.0))
+    }
 }

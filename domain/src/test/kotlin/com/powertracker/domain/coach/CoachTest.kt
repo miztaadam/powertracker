@@ -355,6 +355,17 @@ class CoachTest {
     }
 
     @Test
+    fun reEntryCreatedAfterTheReturnDay_stillMeasuresFromThePreGapTopSet() {
+        // Back on day 28 after three weeks off; the lifter trains at the eased 85 but skips Finish,
+        // so the RE_ENTRY advice is only created at the next session, on day 30.
+        val reEntry = listOf(prior(AdviceType.RE_ENTRY, null, day(30), AdviceStatus.OPEN))
+        val h = benchThen(listOf(28 to 85.0, 30 to 85.0))
+        val target = targets(h, listOf(item(Ids.BENCH, weekday = day(32).dayOfWeek)), day(32), reEntry).single()
+        // 85% of the pre-gap 100, not 85% of the already-eased 85 (about 72).
+        assertEquals(85.0, target.target().weightKg)
+    }
+
+    @Test
     fun deloadClamp_usesPlannedRepsNotProgressionsExtraRep() {
         // Curl 20 x 10: the 5% cap blocks a load jump, so progression alone would ask for 11 reps.
         val h = history { for (d in listOf(0, 3, 7)) session(d) { set(Ids.CURL, 20.0, 10, isTopSet = true) } }

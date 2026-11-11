@@ -19,7 +19,8 @@ object InputValidator {
 
     fun check(weightKg: Double, reps: Int, lastWeightKg: Double?): List<InputWarning> = buildList {
         if (reps > MAX_TYPICAL_REPS) add(InputWarning.HighReps)
-        if (lastWeightKg != null && weightKg > lastWeightKg * MAX_JUMP_FACTOR) {
+        // From bodyweight (0 kg) any added load is "infinitely" more, so the jump check doesn't apply.
+        if (lastWeightKg != null && lastWeightKg > 0.0 && weightKg > lastWeightKg * MAX_JUMP_FACTOR) {
             add(InputWarning.BigJump(lastWeightKg))
         }
     }

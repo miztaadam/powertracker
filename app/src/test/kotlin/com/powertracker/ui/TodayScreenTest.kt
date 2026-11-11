@@ -240,4 +240,32 @@ class TodayScreenTest {
 
         waitForText("Set 1 of 3")
     }
+
+    @Test
+    fun appLeftOpenPastMidnight_planEditDoesNotStoreTargetsUnderYesterday() {
+        runBlocking { training.setBaseline(Baseline(squat.id, 170.0, today.minusDays(30))) }
+        var clock = today
+        compose.setContent {
+            PowertrackerTheme { TodayScreen(training, advice, settings, onOpenCoach = {}, today = { clock }) }
+        }
+        // Today's coach pass stores one squat suggestion dated today.
+        waitFor { runBlocking { advice.all() }.any { it.type == AdviceType.TARGET } }
+        val before = runBlocking { advice.all() }.filter { it.type == AdviceType.TARGET }
+        assertEquals(listOf(today), before.map { it.createdAt })
+
+        // Midnight passes without the screen resuming; then the plan for yesterday's weekday changes.
+        clock = today.plusDays(1)
+        val bench = runBlocking { training.exercises().first().first { it.name == "Bench" } }
+        runBlocking {
+            training.setBaseline(Baseline(bench.id, 120.0, today.minusDays(30)))
+            training.logSet(training.startSession(today.minusDays(6), null, null),
+                LoggedSet(bench.id, 100.0, 5, 7.0, failed = false, missPoint = null, isTopSet = false))
+            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, bench.id, sets = 3, reps = 5, targetRpe = 8.0, order = 1))
+        }
+        val deadline = System.currentTimeMillis() + 1_000
+        while (System.currentTimeMillis() < deadline) { compose.waitForIdle(); Thread.sleep(10) }
+
+        val datedYesterday = runBlocking { advice.all() }.filter { it.type == AdviceType.TARGET && it.createdAt == today }
+        assertEquals(before.map { it.id }, datedYesterday.map { it.id })
+    }
 }

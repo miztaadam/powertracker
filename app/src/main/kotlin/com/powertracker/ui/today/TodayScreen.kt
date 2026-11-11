@@ -88,7 +88,9 @@ fun TodayScreen(
         date = today()
         onPauseOrDispose {}
     }
-    val viewModel: TodayViewModel = viewModel(key = "today-$date", factory = TodayViewModel.factory(training, advice, settings) { date })
+    // The view model is keyed by the day it was opened for, but gets the real clock: a view model
+    // left over from an earlier day must see that the day has changed and stop writing.
+    val viewModel: TodayViewModel = viewModel(key = "today-$date", factory = TodayViewModel.factory(training, advice, settings, today))
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val setLogged by rememberUpdatedState(onSetLogged)

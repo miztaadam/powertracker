@@ -199,7 +199,14 @@ object Coach {
          * sessions does not compound), else the latest one for an exercise first done since.
          */
         fun capFor(advice: Advice, factor: Double): Double {
-            val reference = (stats.lastTopSet(item.exerciseId, advice.createdAt)?.second ?: last).weightKg
+            // A re-entry is measured from the last session before the break, even when the advice was
+            // only created a session or two after the return (e.g. Finish was skipped on the return day).
+            val referenceDate = if (advice.type == AdviceType.RE_ENTRY) {
+                stats.returnDateAfterGap(advice.createdAt)?.takeIf { it < advice.createdAt } ?: advice.createdAt
+            } else {
+                advice.createdAt
+            }
+            val reference = (stats.lastTopSet(item.exerciseId, referenceDate)?.second ?: last).weightKg
             val free = ProgressionRule.isFreeLoad(exercise, reference)
             return ProgressionRule.roundDown(reference * factor, reference, free, settings.changePlates)
         }
