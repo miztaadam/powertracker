@@ -15,6 +15,7 @@ object Sources {
     private const val L5 = "2026-11-11"
     private const val L6 = "2026-11-11"
     private const val L7 = "2026-11-11"
+    private const val L8 = "2026-11-11"
 
     // Main lifts and their variations
     val IPF_RULES_2026 = SourceId("ipf-technical-rules-2026")
@@ -245,6 +246,53 @@ object Sources {
     val EXRX_DB_WRIST_CURL = SourceId("exrx-dumbbell-wrist-curl")
     val EXRX_BB_REVERSE_WRIST_CURL = SourceId("exrx-barbell-reverse-wrist-curl")
     val EXRX_DB_REVERSE_WRIST_CURL = SourceId("exrx-dumbbell-reverse-wrist-curl")
+
+    // Quads (L8)
+    val EXRX_KB_GOBLET_SQUAT = SourceId("exrx-kettlebell-goblet-squat")
+    val ACE_GOBLET_SQUAT = SourceId("ace-goblet-squat")
+    val EXRX_DB_SQUAT = SourceId("exrx-dumbbell-squat")
+    val EXRX_BW_SQUAT = SourceId("exrx-bodyweight-squat")
+    val ACE_BODYWEIGHT_SQUAT = SourceId("ace-bodyweight-squat")
+    val EXRX_KB_FRONT_SQUAT = SourceId("exrx-kettlebell-front-squat")
+    val EXRX_BB_ZERCHER_SQUAT = SourceId("exrx-barbell-zercher-squat")
+    val NSCA_ZERCHER_SQUAT = SourceId("nsca-zercher-squat-field-alternative")
+    val EXRX_SQUAT_VARIATIONS = SourceId("exrx-squat-variations")
+    val PMC_HIGH_LOW_BAR_ACTIVATION = SourceId("pmc-high-bar-low-bar-muscle-activation")
+    val PMC_ECCENTRIC_TEMPO_SQUAT = SourceId("pmc-squat-eccentric-tempo")
+    val EXRX_SM_SQUAT = SourceId("exrx-smith-squat")
+    val EXRX_SM_FRONT_SQUAT = SourceId("exrx-smith-front-squat")
+    val EXRX_SM_SPLIT_SQUAT = SourceId("exrx-smith-split-squat")
+    val EXRX_SM_SEATED_CALF_RAISE = SourceId("exrx-smith-seated-calf-raise")
+    val EXRX_SL_45_LEG_PRESS = SourceId("exrx-sled-45-leg-press")
+    val EXRX_SL_45_LEG_PRESS_GLUTES = SourceId("exrx-sled-45-leg-press-glutes")
+    val ACE_SEATED_LEG_PRESS = SourceId("ace-seated-leg-press")
+    val EXRX_SL_SINGLE_LEG_PRESS = SourceId("exrx-sled-single-leg-45-leg-press")
+    val EXRX_SL_HACK_SQUAT = SourceId("exrx-sled-hack-squat")
+    val EXRX_LV_SQUAT = SourceId("exrx-lever-squat")
+    val EXRX_LV_SQUAT_PL = SourceId("exrx-lever-squat-plate-loaded")
+    val EXRX_DB_LUNGE = SourceId("exrx-dumbbell-lunge")
+    val ACE_FORWARD_LUNGE = SourceId("ace-forward-lunge")
+    val ACE_DB_LUNGE = SourceId("ace-lunge")
+    val EXRX_DB_WALKING_LUNGE = SourceId("exrx-dumbbell-walking-lunge")
+    val ACE_LUNGE_VARIATIONS = SourceId("ace-5-lunge-variations-you-need-to-try")
+    val EXRX_DB_REAR_LUNGE = SourceId("exrx-dumbbell-rear-lunge")
+    val ACE_REVERSE_LUNGE = SourceId("ace-reverse-lunge")
+    val EXRX_BB_LUNGE = SourceId("exrx-barbell-lunge")
+    val EXRX_DB_SIDE_LUNGE = SourceId("exrx-dumbbell-alternating-side-lunge")
+    val ACE_LATERAL_LUNGE = SourceId("ace-lateral-lunge")
+    val ACE_TOTAL_BODY_DB_WORKOUT = SourceId("ace-total-body-dumbbell-workout")
+    val ACE_BUTT_TONING_MOVES = SourceId("ace-8-butt-toning-moves")
+    val EXRX_DB_SPLIT_SQUAT = SourceId("exrx-dumbbell-split-squat")
+    val EXRX_DB_STEP_UP = SourceId("exrx-dumbbell-step-up")
+    val ACE_STEP_UP = SourceId("ace-step-up")
+    val ACE_SQUAT_ALTERNATIVES = SourceId("ace-6-lower-body-exercises-instead-of-squats")
+    val EXRX_DB_LATERAL_STEP_UP = SourceId("exrx-dumbbell-lateral-step-up")
+    val EXRX_SINGLE_LEG_BOX_SQUAT = SourceId("exrx-single-leg-box-squat")
+    val EXRX_LV_LEG_EXTENSION = SourceId("exrx-lever-leg-extension")
+    val EXRX_LV_ALT_LEG_EXTENSION = SourceId("exrx-lever-alternating-leg-extension")
+    val EXRX_SLED_PUSH = SourceId("exrx-sled-push")
+    val ACE_SQUAT_JUMPS = SourceId("ace-squat-jumps")
+    val ACE_SQUAT_JUMP = SourceId("ace-squat-jump")
 
     val all: Map<SourceId, Source> = mapOf(
         IPF_RULES_2026 to Source(
@@ -1057,6 +1105,186 @@ object Sources {
         PMC_BENCH_BAR_RING_DIPS to Source(
             "Bench, Bar, and Ring Dips: Do Kinematics and Muscle Activity Differ?", PMC,
             "https://pmc.ncbi.nlm.nih.gov/articles/PMC9603242/", L7,
+        ),
+        EXRX_KB_GOBLET_SQUAT to Source(
+            "Kettlebell Goblet Squat", EXRX,
+            "https://exrx.net/WeightExercises/Kettlebell/KBGobletSquat", L8,
+        ),
+        ACE_GOBLET_SQUAT to Source(
+            "Exercise Library: Goblet Squat", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/362/goblet-squat/", L8,
+        ),
+        EXRX_DB_SQUAT to Source(
+            "Dumbbell Squat", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/DBSquat", L8,
+        ),
+        EXRX_BW_SQUAT to Source(
+            "Squat", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/BWSquat", L8,
+        ),
+        ACE_BODYWEIGHT_SQUAT to Source(
+            "Exercise Library: Bodyweight Squat", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/", L8,
+        ),
+        EXRX_KB_FRONT_SQUAT to Source(
+            "Kettlebell Front Squat", EXRX,
+            "https://exrx.net/WeightExercises/Kettlebell/KBFrontSquat", L8,
+        ),
+        EXRX_BB_ZERCHER_SQUAT to Source(
+            "Barbell Zercher Squat", EXRX,
+            "https://exrx.net/WeightExercises/GluteusMaximus/BBZercherSquat", L8,
+        ),
+        NSCA_ZERCHER_SQUAT to Source(
+            "Zercher Squat: Field Alternative for Front Squat", NSCA,
+            "https://www.nsca.com/education/articles/kinetic-select/zercher-squat-field-alternative-for-front-squat/", L8,
+        ),
+        EXRX_SQUAT_VARIATIONS to Source(
+            "Squat Variations", EXRX,
+            "https://exrx.net/Kinesiology/SquatVariations", L8,
+        ),
+        PMC_HIGH_LOW_BAR_ACTIVATION to Source(
+            "Muscle activation varies between high-bar and low-bar back squat", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC7289144/", L8,
+        ),
+        PMC_ECCENTRIC_TEMPO_SQUAT to Source(
+            "The effects of eccentric phase tempo in squats on hypertrophy, strength, and contractile properties of the quadriceps femoris muscle", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC11754408/", L8,
+        ),
+        EXRX_SM_SQUAT to Source(
+            "Smith Squat", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/SMSquat", L8,
+        ),
+        EXRX_SM_FRONT_SQUAT to Source(
+            "Smith Front Squat", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/SMFrontSquat", L8,
+        ),
+        EXRX_SM_SPLIT_SQUAT to Source(
+            "Smith Split Squat", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/SMSplitSquat", L8,
+        ),
+        EXRX_SM_SEATED_CALF_RAISE to Source(
+            "Smith Seated Calf Raise", EXRX,
+            "https://exrx.net/WeightExercises/Soleus/SMSeatedCalfRaise", L8,
+        ),
+        EXRX_SL_45_LEG_PRESS to Source(
+            "Sled 45° Leg Press", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/SL45LegPress", L8,
+        ),
+        EXRX_SL_45_LEG_PRESS_GLUTES to Source(
+            "Sled 45° Leg Press (gluteus maximus)", EXRX,
+            "https://exrx.net/WeightExercises/GluteusMaximus/SL45LegPress", L8,
+        ),
+        ACE_SEATED_LEG_PRESS to Source(
+            "Seated Leg Press Exercise Guide", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/154/seated-leg-press/", L8,
+        ),
+        EXRX_SL_SINGLE_LEG_PRESS to Source(
+            "Sled Single Leg 45° Leg Press", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/SLSingleLeg45LegPress", L8,
+        ),
+        EXRX_SL_HACK_SQUAT to Source(
+            "Sled Hack Squat", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/SLHackSquat", L8,
+        ),
+        EXRX_LV_SQUAT to Source(
+            "Lever Squat", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/LVSquat", L8,
+        ),
+        EXRX_LV_SQUAT_PL to Source(
+            "Lever Squat (plate loaded)", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/LVSquatPL", L8,
+        ),
+        EXRX_DB_LUNGE to Source(
+            "Dumbbell Lunge", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/DBLunge", L8,
+        ),
+        ACE_FORWARD_LUNGE to Source(
+            "Exercise Library: Forward Lunge", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/", L8,
+        ),
+        ACE_DB_LUNGE to Source(
+            "Exercise Library: Lunge", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/363/lunge/", L8,
+        ),
+        EXRX_DB_WALKING_LUNGE to Source(
+            "Dumbbell Walking Lunge", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/DBWalkingLunge", L8,
+        ),
+        ACE_LUNGE_VARIATIONS to Source(
+            "5 Lunge Variations You Need to Try", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/5818/5-lunge-variations-you-need-to-try/", L8,
+        ),
+        EXRX_DB_REAR_LUNGE to Source(
+            "Dumbbell Rear Lunge", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/DBRearLunge", L8,
+        ),
+        ACE_REVERSE_LUNGE to Source(
+            "Exercise Library: Reverse Lunge", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/319/reverse-lunge/", L8,
+        ),
+        EXRX_BB_LUNGE to Source(
+            "Barbell Lunge", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/BBLunge", L8,
+        ),
+        EXRX_DB_SIDE_LUNGE to Source(
+            "Dumbbell Alternating Side Lunge", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/DBSideLunge", L8,
+        ),
+        ACE_LATERAL_LUNGE to Source(
+            "Exercise Library: Lateral Lunge", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/364/lateral-lunge/", L8,
+        ),
+        ACE_TOTAL_BODY_DB_WORKOUT to Source(
+            "Total-body Dumbbell Workout", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/3718/total-body-dumbbell-workout/", L8,
+        ),
+        ACE_BUTT_TONING_MOVES to Source(
+            "8 Butt-toning Moves", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/6355/8-butt-toning-moves/", L8,
+        ),
+        EXRX_DB_SPLIT_SQUAT to Source(
+            "Dumbbell Split Squat", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/DBSplitSquat", L8,
+        ),
+        EXRX_DB_STEP_UP to Source(
+            "Dumbbell Step-up", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/DBStepUp", L8,
+        ),
+        ACE_STEP_UP to Source(
+            "Exercise Library: Step-Up", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/28/step-up/", L8,
+        ),
+        ACE_SQUAT_ALTERNATIVES to Source(
+            "6 Lower Body Exercises to Do Instead of Squats", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/5028/6-lower-body-exercises-to-do-instead-of-squats/", L8,
+        ),
+        EXRX_DB_LATERAL_STEP_UP to Source(
+            "Dumbbell Lateral Step-up", EXRX,
+            "https://exrx.net/WeightExercises/GluteusMaximus/DBLateralStepUp", L8,
+        ),
+        EXRX_SINGLE_LEG_BOX_SQUAT to Source(
+            "Single Leg Box Squat (pistol)", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/BWSingleLegBoxSquat", L8,
+        ),
+        EXRX_LV_LEG_EXTENSION to Source(
+            "Lever Leg Extension", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/LVLegExtension", L8,
+        ),
+        EXRX_LV_ALT_LEG_EXTENSION to Source(
+            "Lever Alternating Leg Extension", EXRX,
+            "https://exrx.net/WeightExercises/Quadriceps/LVAlternatingLegExtension", L8,
+        ),
+        EXRX_SLED_PUSH to Source(
+            "Sled Push", EXRX,
+            "https://exrx.net/WeightExercises/Power/WTPushSprint", L8,
+        ),
+        ACE_SQUAT_JUMPS to Source(
+            "Exercise Library: Squat Jumps", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/116/squat-jumps/", L8,
+        ),
+        ACE_SQUAT_JUMP to Source(
+            "Exercise Library: Squat Jump", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/222/squat-jump/", L8,
         ),
     )
 }

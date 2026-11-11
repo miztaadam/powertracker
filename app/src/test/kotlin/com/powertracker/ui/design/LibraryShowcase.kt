@@ -25,7 +25,7 @@ import com.powertracker.ui.library.FormGuideContent
 @Composable
 fun ExercisePickerShowcase() {
     val seeded = SeedLibrary.exercises()
-    val own = Exercise(900, "Sled push", Category.ACCESSORY, null, listOf("Quads", "Glutes"), isBuiltIn = false)
+    val own = Exercise(900, "Tyre flip", Category.ACCESSORY, null, listOf("Quads", "Glutes"), isBuiltIn = false)
     val recent = listOf("Squat", "Bench", "RDL").map { name -> seeded.first { it.name == name }.id }
     ExercisePickerContent("Add to Monday", seeded + own, recent, onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {})
 }

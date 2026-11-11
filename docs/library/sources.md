@@ -58,6 +58,14 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Exercise Library: Front Squat](https://www.acefitness.org/resources/everyone/exercise-library/22/front-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Front Squat to Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/315/front-squat-to-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+### High-bar squat
+
+- [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
+- [Squat Variations](https://exrx.net/Kinesiology/SquatVariations). ExRx.net, accessed 2026-11-11.
+- [A Biomechanical Comparison of the Safety-Bar, High-Bar and Low-Bar Squat around the Sticking Region among Recreationally Resistance-Trained Men and Women](https://pmc.ncbi.nlm.nih.gov/articles/PMC8392107/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Muscle activation varies between high-bar and low-bar back squat](https://pmc.ncbi.nlm.nih.gov/articles/PMC7289144/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+
 ### Larsen press
 
 - [Barbell Bench Press](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress). ExRx.net, accessed 2026-11-11.
@@ -119,6 +127,13 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Back Squat Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/11/back-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
 - [The back squat: A proposed assessment of functional deficits and technical factors that limit performance](https://pmc.ncbi.nlm.nih.gov/articles/PMC4262933/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+
+### Tempo squat
+
+- [The back squat: A proposed assessment of functional deficits and technical factors that limit performance](https://pmc.ncbi.nlm.nih.gov/articles/PMC4262933/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [The effects of eccentric phase tempo in squats on hypertrophy, strength, and contractile properties of the quadriceps femoris muscle](https://pmc.ncbi.nlm.nih.gov/articles/PMC11754408/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
+- [Back Squat Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/11/back-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Wide-grip bench
 
@@ -826,10 +841,172 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 ## Quads
 
+### Barbell lunge
+
+- [Barbell Lunge](https://exrx.net/WeightExercises/Quadriceps/BBLunge). ExRx.net, accessed 2026-11-11.
+- [5 Lunge Variations You Need to Try](https://www.acefitness.org/resources/pros/expert-articles/5818/5-lunge-variations-you-need-to-try/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Forward Lunge](https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Barbell reverse lunge
+
+- [Exercise Library: Reverse Lunge](https://www.acefitness.org/resources/everyone/exercise-library/319/reverse-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [5 Lunge Variations You Need to Try](https://www.acefitness.org/resources/pros/expert-articles/5818/5-lunge-variations-you-need-to-try/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Rear Lunge](https://exrx.net/WeightExercises/Quadriceps/DBRearLunge). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Bodyweight squat
+
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Squat](https://exrx.net/WeightExercises/Quadriceps/BWSquat). ExRx.net, accessed 2026-11-11.
+
 ### Bulgarian split squat
 
 - [Dumbbell Single Leg Split Squat](https://exrx.net/WeightExercises/Quadriceps/DBSingleLegSplitSquat). ExRx.net, accessed 2026-11-11.
 - [Effects of rear-foot instability devices on lower-limb muscle activation during the Bulgarian split squat in male football players](https://pmc.ncbi.nlm.nih.gov/articles/PMC12819420/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+
+### Curtsy lunge
+
+- [8 Butt-toning Moves](https://www.acefitness.org/resources/pros/expert-articles/6355/8-butt-toning-moves/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### DB squat
+
+- [Dumbbell Squat](https://exrx.net/WeightExercises/Quadriceps/DBSquat). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Goblet squat
+
+- [Kettlebell Goblet Squat](https://exrx.net/WeightExercises/Kettlebell/KBGobletSquat). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Goblet Squat](https://www.acefitness.org/resources/everyone/exercise-library/362/goblet-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Hack squat
+
+- [Sled Hack Squat](https://exrx.net/WeightExercises/Quadriceps/SLHackSquat). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Jump squat
+
+- [Exercise Library: Squat Jumps](https://www.acefitness.org/resources/everyone/exercise-library/116/squat-jumps/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Squat Jump](https://www.acefitness.org/resources/everyone/exercise-library/222/squat-jump/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Kettlebell front squat
+
+- [Kettlebell Front Squat](https://exrx.net/WeightExercises/Kettlebell/KBFrontSquat). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Lateral lunge
+
+- [Dumbbell Alternating Side Lunge](https://exrx.net/WeightExercises/Quadriceps/DBSideLunge). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lateral Lunge](https://www.acefitness.org/resources/everyone/exercise-library/364/lateral-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Total-body Dumbbell Workout](https://www.acefitness.org/resources/pros/expert-articles/3718/total-body-dumbbell-workout/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Lateral step-up
+
+- [Dumbbell Lateral Step-up](https://exrx.net/WeightExercises/GluteusMaximus/DBLateralStepUp). ExRx.net, accessed 2026-11-11.
+- [6 Lower Body Exercises to Do Instead of Squats](https://www.acefitness.org/resources/pros/expert-articles/5028/6-lower-body-exercises-to-do-instead-of-squats/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Leg extension
+
+- [Lever Leg Extension](https://exrx.net/WeightExercises/Quadriceps/LVLegExtension). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Leg press
+
+- [Sled 45° Leg Press](https://exrx.net/WeightExercises/Quadriceps/SL45LegPress). ExRx.net, accessed 2026-11-11.
+- [Sled 45° Leg Press (gluteus maximus)](https://exrx.net/WeightExercises/GluteusMaximus/SL45LegPress). ExRx.net, accessed 2026-11-11.
+- [Seated Leg Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/154/seated-leg-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Sled Single Leg 45° Leg Press](https://exrx.net/WeightExercises/Quadriceps/SLSingleLeg45LegPress). ExRx.net, accessed 2026-11-11.
+
+### Lever squat
+
+- [Lever Squat](https://exrx.net/WeightExercises/Quadriceps/LVSquat). ExRx.net, accessed 2026-11-11.
+- [Lever Squat (plate loaded)](https://exrx.net/WeightExercises/Quadriceps/LVSquatPL). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Lunge
+
+- [Exercise Library: Forward Lunge](https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Lunge](https://exrx.net/WeightExercises/Quadriceps/DBLunge). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lunge](https://www.acefitness.org/resources/everyone/exercise-library/363/lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Reverse lunge
+
+- [Dumbbell Rear Lunge](https://exrx.net/WeightExercises/Quadriceps/DBRearLunge). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Reverse Lunge](https://www.acefitness.org/resources/everyone/exercise-library/319/reverse-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [5 Lunge Variations You Need to Try](https://www.acefitness.org/resources/pros/expert-articles/5818/5-lunge-variations-you-need-to-try/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Single-leg box squat
+
+- [Single Leg Box Squat (pistol)](https://exrx.net/WeightExercises/Quadriceps/BWSingleLegBoxSquat). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Single-leg leg extension
+
+- [Lever Alternating Leg Extension](https://exrx.net/WeightExercises/Quadriceps/LVAlternatingLegExtension). ExRx.net, accessed 2026-11-11.
+- [Lever Leg Extension](https://exrx.net/WeightExercises/Quadriceps/LVLegExtension). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Single-leg leg press
+
+- [Sled Single Leg 45° Leg Press](https://exrx.net/WeightExercises/Quadriceps/SLSingleLeg45LegPress). ExRx.net, accessed 2026-11-11.
+- [Seated Leg Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/154/seated-leg-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Sled 45° Leg Press (gluteus maximus)](https://exrx.net/WeightExercises/GluteusMaximus/SL45LegPress). ExRx.net, accessed 2026-11-11.
+
+### Sled push
+
+- [Sled Push](https://exrx.net/WeightExercises/Power/WTPushSprint). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Smith front squat
+
+- [Smith Front Squat](https://exrx.net/WeightExercises/Quadriceps/SMFrontSquat). ExRx.net, accessed 2026-11-11.
+- [Smith Seated Calf Raise](https://exrx.net/WeightExercises/Soleus/SMSeatedCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Smith split squat
+
+- [Smith Split Squat](https://exrx.net/WeightExercises/Quadriceps/SMSplitSquat). ExRx.net, accessed 2026-11-11.
+- [Smith Seated Calf Raise](https://exrx.net/WeightExercises/Soleus/SMSeatedCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Smith squat
+
+- [Smith Squat](https://exrx.net/WeightExercises/Quadriceps/SMSquat). ExRx.net, accessed 2026-11-11.
+- [Smith Seated Calf Raise](https://exrx.net/WeightExercises/Soleus/SMSeatedCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Split squat
+
+- [Dumbbell Split Squat](https://exrx.net/WeightExercises/Quadriceps/DBSplitSquat). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Step-up
+
+- [Dumbbell Step-up](https://exrx.net/WeightExercises/Quadriceps/DBStepUp). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Step-Up](https://www.acefitness.org/resources/everyone/exercise-library/28/step-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [6 Lower Body Exercises to Do Instead of Squats](https://www.acefitness.org/resources/pros/expert-articles/5028/6-lower-body-exercises-to-do-instead-of-squats/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Walking lunge
+
+- [Dumbbell Walking Lunge](https://exrx.net/WeightExercises/Quadriceps/DBWalkingLunge). ExRx.net, accessed 2026-11-11.
+- [5 Lunge Variations You Need to Try](https://www.acefitness.org/resources/pros/expert-articles/5818/5-lunge-variations-you-need-to-try/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Forward Lunge](https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Zercher squat
+
+- [Barbell Zercher Squat](https://exrx.net/WeightExercises/GluteusMaximus/BBZercherSquat). ExRx.net, accessed 2026-11-11.
+- [Zercher Squat: Field Alternative for Front Squat](https://www.nsca.com/education/articles/kinetic-select/zercher-squat-field-alternative-for-front-squat/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 
 ## Hamstrings and glutes
 

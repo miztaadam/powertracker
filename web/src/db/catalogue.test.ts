@@ -120,8 +120,8 @@ describe('resolveCatalogue', () => {
 
   it('unknownName_isRefused_andNothingIsWritten', async () => {
     const before = await db.exercises.toArray()
-    await expect(resolveCatalogue(db, 'Sled push')).rejects.toThrow('Sled push is not in the exercise catalogue')
-    await expect(addPlanItem(db, planItem(), 'Sled push')).rejects.toThrow()
+    await expect(resolveCatalogue(db, 'Tyre flip')).rejects.toThrow('Tyre flip is not in the exercise catalogue')
+    await expect(addPlanItem(db, planItem(), 'Tyre flip')).rejects.toThrow()
     expect(await db.exercises.toArray()).toEqual(before)
     expect(await db.planItems.count()).toBe(0)
   })

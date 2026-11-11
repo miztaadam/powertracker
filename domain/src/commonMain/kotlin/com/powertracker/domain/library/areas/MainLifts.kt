@@ -13,6 +13,8 @@ import com.powertracker.domain.model.MainLift
 // Shared lines, so the rack-safety and bracing wording is the same in every guide.
 private const val SQUAT_RACK = "Set the bar in the rack just below shoulder height."
 private const val SQUAT_SAFETY = "Set the safety pins or arms just below your lowest squat position, or use a spotter."
+// The owner's short form of the rack line (L8 onward): heavy barbell work in a rack only.
+internal const val RACK_SAFETY = "Set the safety pins, or use a spotter."
 private const val BAR_ON_BACK = "Step under the bar and rest it across your upper back."
 private const val SQUAT_STANCE = "Stand with your feet a little wider than your shoulders."
 private const val OWN_STANCE = "Set your feet in your normal squat stance."
@@ -250,6 +252,55 @@ internal val mainLifts: List<LibraryExercise> = listOf(
             mistakes = listOf("Dropping onto the box.", "Relaxing on the box and losing your brace."),
         ),
         listOf(Sources.EXRX_BB_BOX_SQUAT),
+    ),
+    variation(
+        "High-bar squat", emptyList(), MainLift.SQUAT, listOf("Quads", "Glutes"),
+        FormGuide(
+            purpose = "A back squat with the bar sitting higher on your back than in a low-bar squat. It usually keeps your torso more upright.",
+            setup = listOf(
+                SQUAT_RACK,
+                RACK_SAFETY,
+                "Step under the bar and rest it high on your upper back, on the top of the muscle just below your neck.",
+                "Grip the bar out to the sides. Stand up to lift it off the hooks, then step back.",
+                OWN_STANCE,
+                BRACE,
+            ),
+            steps = listOf(
+                "Push your hips back and let your knees bend forward. Keep your back straight and your torso upright.",
+                // ExRx BBSquat gives the depth; the stop-sooner rule is ACE's bodyweight squat limit, carried over.
+                "Go down until your thighs are just past level with the floor. Stop sooner if your heels lift or your back starts to round.",
+                "Drive up by straightening your hips and knees together.",
+                RACK_IT,
+            ),
+            cues = listOf("Knees point the same way as your feet.", "Weight over your whole foot.", "Chest up."),
+            mistakes = listOf("Heels lifting off the floor.", "Knees caving in.", "Losing your brace and letting your back round."),
+        ),
+        listOf(
+            Sources.EXRX_BB_SQUAT, Sources.EXRX_SQUAT_VARIATIONS, Sources.PMC_SAFETY_BAR_SQUAT,
+            Sources.PMC_HIGH_LOW_BAR_ACTIVATION, Sources.ACE_BODYWEIGHT_SQUAT,
+        ),
+    ),
+    variation(
+        "Tempo squat", listOf("Tempo back squat", "Slow-eccentric squat"), MainLift.SQUAT, listOf("Quads", "Glutes"),
+        FormGuide(
+            purpose = "A back squat where you lower yourself slowly and stand up at normal speed. It builds control on the way down, and one study found a slower way down may help quad growth.",
+            setup = listOf(SQUAT_RACK, RACK_SAFETY, BAR_ON_BACK, OWN_STANCE, BRACE),
+            steps = listOf(
+                "Lift the bar out and step back.",
+                // PMC4262933 suggests a descent at least twice as long as the ascent; only one source gives a ratio, so no number.
+                "Lower yourself slowly and under control. Take longer to go down than to come up.",
+                "Go down to your normal squat depth.",
+                "Drive up by straightening your hips and knees together.",
+                RACK_IT,
+            ),
+            cues = listOf("Slow on the way down.", "Stay braced the whole way down.", "Knees point the same way as your feet."),
+            mistakes = listOf(
+                "Speeding up or dropping near the bottom.",
+                "Losing your brace on the slow way down.",
+                "Heels lifting off the floor.",
+            ),
+        ),
+        listOf(Sources.PMC_BACK_SQUAT_ASSESSMENT, Sources.PMC_ECCENTRIC_TEMPO_SQUAT, Sources.EXRX_BB_SQUAT, Sources.ACE_BACK_SQUAT),
     ),
 
     // ---- Bench variations ----

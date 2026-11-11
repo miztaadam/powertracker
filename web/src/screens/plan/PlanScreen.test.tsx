@@ -124,7 +124,7 @@ describe('PlanScreen', () => {
     await userEvent.click(dialog().getByRole('button', { name: 'Create your own' }))
     const custom = () => within(screen.getByRole('dialog', { name: 'Add custom exercise' }))
     expect(custom().getByRole('button', { name: 'Create' })).toBeDisabled()
-    await userEvent.type(custom().getByRole('textbox', { name: 'Name' }), '  Tempo squat ')
+    await userEvent.type(custom().getByRole('textbox', { name: 'Name' }), '  Cluster squat ')
     // A variation needs its parent lift.
     await userEvent.click(custom().getByRole('checkbox', { name: 'Variation' }))
     expect(custom().getByRole('button', { name: 'Create' })).toBeDisabled()
@@ -133,9 +133,9 @@ describe('PlanScreen', () => {
     await userEvent.click(custom().getByRole('button', { name: 'Create' }))
 
     // Made, and added to the day like a picked one: a variation is a compound lift, 3 × 5.
-    await waitFor(async () => expect(rowsOf(await day('Wednesday'))).toEqual(['Tempo squat  3 × 5 @ 8']))
+    await waitFor(async () => expect(rowsOf(await day('Wednesday'))).toEqual(['Cluster squat  3 × 5 @ 8']))
     expect(screen.queryByRole('dialog')).toBeNull()
-    const made = await db.exercises.where('name').equals('Tempo squat').toArray()
+    const made = await db.exercises.where('name').equals('Cluster squat').toArray()
     expect(made).toHaveLength(1)
     expect(made[0]).toMatchObject({ category: 'VARIATION', parentLift: 'SQUAT', muscles: ['quads', 'glutes'], isBuiltIn: false, archived: false })
     expect(await storedPlan()).toEqual([{ weekday: 3, exerciseId: made[0]!.id, sets: 3, reps: 5, targetRpe: 8, order: 0 }])
@@ -180,7 +180,7 @@ describe('PlanScreen', () => {
   it('infoButton_opensGuide_fromEveryPlace', async () => {
     await plan(db, (await exerciseNamed(db, 'Bench')).id, { weekday: 1 })
     // The lifter's own exercise keeps the button; its sheet says there is no guide.
-    const sled = (await db.exercises.add({ name: 'Sled push', category: 'ACCESSORY', parentLift: null, muscles: [], isBuiltIn: false, archived: false })) as number
+    const sled = (await db.exercises.add({ name: 'Tyre flip', category: 'ACCESSORY', parentLift: null, muscles: [], isBuiltIn: false, archived: false })) as number
     await plan(db, sled, { weekday: 1, order: 1 })
     show()
     const monday = await day('Monday')
@@ -188,7 +188,7 @@ describe('PlanScreen', () => {
     const before = await storedPlan()
 
     await checkInfoButtonOpensGuide('Bench')
-    await checkInfoButtonOpensGuide('Sled push')
+    await checkInfoButtonOpensGuide('Tyre flip')
 
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(await storedPlan()).toEqual(before)

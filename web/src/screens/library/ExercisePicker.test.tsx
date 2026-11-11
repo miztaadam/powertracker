@@ -172,10 +172,10 @@ describe('ExercisePicker', () => {
 
     await userEvent.click(picker().getByRole('button', { name: 'Create your own' }))
     const custom = within(screen.getByRole('dialog', { name: 'Add custom exercise' }))
-    await userEvent.type(custom.getByRole('textbox', { name: 'Name' }), '  Sled push ')
+    await userEvent.type(custom.getByRole('textbox', { name: 'Name' }), '  Tyre flip ')
     await userEvent.click(custom.getByRole('button', { name: 'Create' }))
 
-    expect(created).toEqual([{ name: 'Sled push', category: 'ACCESSORY', parentLift: null, muscles: [] }])
+    expect(created).toEqual([{ name: 'Tyre flip', category: 'ACCESSORY', parentLift: null, muscles: [] }])
   })
 
   it('pickerInfo_opensGuideWithoutPicking', async () => {
@@ -236,33 +236,33 @@ describe('ExercisePicker', () => {
   it('yourExercises_listedFirst_whenNoQuery', async () => {
     const all = await stored()
     const bench = all.find((e) => e.name === 'Bench')!
-    const sled = own(900, 'Sled push', ['Quads'])
+    const sled = own(900, 'Tyre flip', ['Quads'])
     const archived = { ...own(901, 'Old lift'), archived: true }
 
     // Recently used first, then the lifter's own; none of them again under "All exercises".
     const list = pickerList('', null, [], [...all, sled, archived], [bench.id])
-    expect(names(list.yours)).toEqual(['Bench', 'Sled push'])
+    expect(names(list.yours)).toEqual(['Bench', 'Tyre flip'])
     expect(list.yours.map((e) => e.exerciseId)).toEqual([bench.id, 900])
     expect(names(list.all)).toEqual(libraryNames().filter((n) => n !== 'Bench'))
     // A search or a filter drops the section.
     expect(pickerList('s', null, [], [...all, sled], [bench.id]).yours).toEqual([])
     expect(pickerList('', 'BACK', [], [...all, sled], [bench.id]).yours).toEqual([])
     // The lifter's own exercise is searched by name and by muscle, and listed before the catalogue.
-    expect(names(pickerList('sled', null, [], [...all, sled], []).all)).toEqual(['Sled push'])
-    expect(pickerList('quads', null, [], [...all, sled], []).all[0]!.name).toBe('Sled push')
+    expect(names(pickerList('tyre', null, [], [...all, sled], []).all)).toEqual(['Tyre flip'])
+    expect(pickerList('quads', null, [], [...all, sled], []).all[0]!.name).toBe('Tyre flip')
     // It has no body area or equipment, so a filter hides it.
-    expect(names(pickerList('sled', 'BACK', [], [...all, sled], []).all)).toEqual([])
+    expect(names(pickerList('tyre', 'BACK', [], [...all, sled], []).all)).toEqual([])
 
     await showPicker([sled, archived], [bench.id])
     const yours = picker().getByRole('heading', { name: 'Your exercises' })
     const everything = picker().getByRole('heading', { name: 'All exercises' })
     const row = (name: string) => picker().getByRole('listitem', { name })
     const before = (a: HTMLElement, b: HTMLElement) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)
-    expect(before(yours, row('Bench')) && before(row('Bench'), row('Sled push')) && before(row('Sled push'), everything) && before(everything, row('Squat'))).toBe(true)
+    expect(before(yours, row('Bench')) && before(row('Bench'), row('Tyre flip')) && before(row('Tyre flip'), everything) && before(everything, row('Squat'))).toBe(true)
     expect(shownNames().filter((n) => n === 'Bench')).toHaveLength(1)
     expect(shows('Old lift')).toBe(false)
     // The lifter's own exercise says so where the catalogue's say what they need.
-    expect(row('Sled push')).toHaveTextContent('Your own')
+    expect(row('Tyre flip')).toHaveTextContent('Your own')
     expect(row('Squat')).toHaveTextContent('Barbell')
     expect(row('Squat')).toHaveTextContent('Quads, Glutes')
 

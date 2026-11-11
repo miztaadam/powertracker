@@ -190,7 +190,9 @@ class LibraryTest {
         assertTrue("DB press" in names(chestDumbbell))
         assertTrue(chestDumbbell.all { it.area == BodyArea.CHEST && Equipment.DUMBBELL in it.equipment })
         assertEquals(alphabetical(chestDumbbell), chestDumbbell)
-        assertEquals(listOf("Bulgarian split squat"), names(Library.search("squat", areas = setOf(BodyArea.QUADS))))
+        val quadSquats = Library.search("squat", areas = setOf(BodyArea.QUADS))
+        assertTrue("Bulgarian split squat" in names(quadSquats) && "Goblet squat" in names(quadSquats), "${names(quadSquats)}")
+        assertTrue(quadSquats.all { it.area == BodyArea.QUADS })
         assertEquals(
             listOf("Hip thrust", "RDL"),
             names(Library.search("", setOf(BodyArea.HAMSTRINGS_GLUTES, BodyArea.CALVES), setOf(Equipment.BARBELL))),
@@ -353,6 +355,66 @@ class LibraryTest {
         // Left out: bench dips (ACE warns they can put too much force on the shoulder) and a loaded barbell
         // held overhead for triceps extensions (no allowed source gives a way to get it there safely).
         assertNull(Library.find("bench dip"))
+    }
+
+    @Test
+    fun quads_findTheNamesPeopleType() {
+        val expected = mapOf(
+            "goblet" to "Goblet squat",
+            "KB goblet squat" to "Goblet squat",
+            "air squat" to "Bodyweight squat",
+            "hack" to "Hack squat",
+            "45 degree leg press" to "Leg press",
+            "single leg leg press" to "Single-leg leg press",
+            "walking lunge" to "Walking lunge",
+            "forward lunge" to "Lunge",
+            "rear lunge" to "Reverse lunge",
+            "side lunge" to "Lateral lunge",
+            "split squat" to "Split squat",
+            "step up" to "Step-up",
+            "leg ext" to "Leg extension",
+            "squat jump" to "Jump squat",
+            "prowler push" to "Sled push",
+            "bench pistol squat" to "Single-leg box squat",
+            "smith machine squat" to "Smith squat",
+        )
+        for ((typed, name) in expected) {
+            assertEquals(name, Library.find(typed)?.name, typed)
+            assertTrue(name in names(Library.search(typed)), "$typed: search misses $name")
+        }
+        val firstHit = mapOf(
+            "goblet" to "Goblet squat",
+            "hack" to "Hack squat",
+            "leg press" to "Leg press",
+            "walking lunge" to "Walking lunge",
+            "leg ext" to "Leg extension",
+            "zercher" to "Zercher squat",
+            "curtsy" to "Curtsy lunge",
+            "step up" to "Step-up",
+        )
+        for ((typed, name) in firstHit) assertEquals(name, Library.search(typed).firstOrNull()?.name, typed)
+        // Generic names that fit several entries are not aliases of one of them.
+        for (generic in listOf("squat machine", "machine squat", "box step-up", "machine leg extension", "sled", "dumbbell lunges")) {
+            assertNull(Library.find(generic), generic)
+        }
+        // The two squat variations sit with the main lifts, under the squat.
+        for (name in listOf("High-bar squat", "Tempo squat")) {
+            val e = assertNotNull(Library.find(name), name)
+            assertEquals(BodyArea.MAIN_LIFTS, e.area, name)
+            assertEquals(Category.VARIATION, e.category, name)
+            assertEquals(com.powertracker.domain.model.MainLift.SQUAT, e.parentLift, name)
+        }
+        val quads = all.filter { it.area == BodyArea.QUADS }
+        assertTrue(quads.size >= 27, "${quads.size} quad entries")
+        for (e in quads) {
+            assertEquals(Category.ACCESSORY, e.category, e.name)
+            assertNull(e.parentLift, e.name)
+        }
+        assertEquals(Kind.ACCESSORY, Library.find("Leg extension")?.kind)
+        assertEquals(Kind.COMPOUND, Library.find("Leg press")?.kind)
+        // Left out: no allowed source gives a safe technique for the sissy squat (ExRx lists it among the moves
+        // with the most knee torque), the cossack squat or the backward sled drag (forum posts only).
+        for (missing in listOf("sissy squat", "cossack squat", "sled drag")) assertNull(Library.find(missing), missing)
     }
 
     @Test

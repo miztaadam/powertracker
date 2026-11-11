@@ -174,7 +174,7 @@ test.describe('on a 375 px iPhone', () => {
     await monday.getByRole('button', { name: 'Add' }).click()
     await dialog.getByRole('button', { name: 'Create your own' }).click()
     const custom = page.getByRole('dialog', { name: 'Add custom exercise' })
-    await custom.getByRole('textbox', { name: 'Name' }).fill('Tempo squat')
+    await custom.getByRole('textbox', { name: 'Name' }).fill('Cluster squat')
     await custom.getByText('Variation').click()
     await custom.getByText('Squat', { exact: true }).click()
     expect(await overflowing(page)).toEqual([])
@@ -185,15 +185,15 @@ test.describe('on a 375 px iPhone', () => {
     // Its sets are changed from the row.
     await monday.getByRole('button', { name: 'More' }).last().click()
     await page.getByRole('menuitem', { name: 'Edit' }).click()
-    await expect(page.getByRole('dialog', { name: 'Edit Monday' }).getByRole('group', { name: 'Exercise' })).toContainText('Tempo squat')
+    await expect(page.getByRole('dialog', { name: 'Edit Monday' }).getByRole('group', { name: 'Exercise' })).toContainText('Cluster squat')
     expect(await overflowing(page)).toEqual([])
     expect(await smallTargets(page)).toEqual([])
     await dialog.getByRole('button', { name: 'Increase Sets' }).click()
     await dialog.getByRole('button', { name: 'Save' }).click()
-    await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Squat  3 × 5 @ 8', 'Tempo squat  4 × 5 @ 8'])
+    await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Squat  3 × 5 @ 8', 'Cluster squat  4 × 5 @ 8'])
 
     await monday.getByRole('button', { name: 'Move up' }).last().click()
-    await expect(monday.getByRole('listitem').first()).toHaveAttribute('aria-label', 'Tempo squat  4 × 5 @ 8')
+    await expect(monday.getByRole('listitem').first()).toHaveAttribute('aria-label', 'Cluster squat  4 × 5 @ 8')
 
     await page.getByRole('group', { name: 'Deadlift' }).getByRole('button', { name: 'Set best' }).click()
     await dialog.getByRole('textbox', { name: 'Estimated 1RM (kg)' }).fill('501')
@@ -204,7 +204,7 @@ test.describe('on a 375 px iPhone', () => {
 
     await page.reload()
     await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveCount(2)
-    await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Tempo squat  4 × 5 @ 8', 'Squat  3 × 5 @ 8'])
+    await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Cluster squat  4 × 5 @ 8', 'Squat  3 × 5 @ 8'])
   })
 
   test('a backup is exported, and restoring it asks before replacing everything', async ({ page }) => {

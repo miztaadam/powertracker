@@ -765,6 +765,12 @@ function sortedWith(_this__u8e3s4, comparator) {
   sortWith_0(this_1, comparator);
   return this_1;
 }
+function plus_0(_this__u8e3s4, element) {
+  var result = ArrayList_init_$Create$_0(_this__u8e3s4.o() + 1 | 0);
+  result.p(_this__u8e3s4);
+  result.i(element);
+  return result;
+}
 function sortedDescending(_this__u8e3s4) {
   return sortedWith(_this__u8e3s4, reverseOrder());
 }
@@ -1045,7 +1051,7 @@ function toString_0(_this__u8e3s4) {
   var tmp1_elvis_lhs = _this__u8e3s4 == null ? null : toString_1(_this__u8e3s4);
   return tmp1_elvis_lhs == null ? 'null' : tmp1_elvis_lhs;
 }
-function plus_0(_this__u8e3s4, other) {
+function plus_1(_this__u8e3s4, other) {
   var tmp = _this__u8e3s4 == null ? 'null' : _this__u8e3s4;
   var tmp2_elvis_lhs = other == null ? null : toString_1(other);
   return tmp + (tmp2_elvis_lhs == null ? 'null' : tmp2_elvis_lhs);
@@ -7433,6 +7439,7 @@ export {
   min as min1hp1v7yf4yjv0,
   mutableListOf as mutableListOf6oorvk2mtdmp,
   plus as plus310ted5e4i90h,
+  plus_0 as plus20p0vtfmu0596,
   removeLastOrNull as removeLastOrNull3odnlbetbttd4,
   removeLast as removeLast3759euu1xvfa3,
   singleOrNull as singleOrNullrknfaxokm1sl,
@@ -7571,7 +7578,7 @@ export {
   lazy_0 as lazy1261dae0bgscp,
   lazy as lazy2hsh8ze7j6ikd,
   noWhenBranchMatchedException as noWhenBranchMatchedException2a6r7ubxgky5j,
-  plus_0 as plus17rl43at52ays,
+  plus_1 as plus17rl43at52ays,
   toString_0 as toString30pk9tzaqopn,
   to as to2cs3ny02qtbcb,
 };

@@ -283,16 +283,16 @@ class TodayScreenTest {
     @Test
     fun createYourOwn_fromTodaysPicker_addsItToTheSession_withNoGuide() {
         showSession()
-        pickFromLibrary("Sled push")
+        pickFromLibrary("Tyre flip")
         compose.onNodeWithText("No exercises match. Try fewer filters, or create your own.").assertExists()
 
         compose.onNodeWithText("Create your own").performClick()
         compose.onNodeWithText("Create").performClick()
         waitForText("EXERCISE 2 OF 2")
 
-        val sled = exerciseRows("Sled push").single()
+        val sled = exerciseRows("Tyre flip").single()
         assertEquals(false, sled.isBuiltIn)
-        compose.checkInfoButtonOpensGuide("Sled push")
+        compose.checkInfoButtonOpensGuide("Tyre flip")
     }
 
     @Test

@@ -131,7 +131,7 @@ describe('useToday', () => {
 
     // A name the catalogue does not know adds nothing.
     let id: number | null = 0
-    act(() => void (id = vm.current.addFromCatalogue('Sled push')))
+    act(() => void (id = vm.current.addFromCatalogue('Tyre flip')))
     expect(id).toBeNull()
     expect(vm.current.items).toHaveLength(1)
 

@@ -120,15 +120,15 @@ class PlanScreenTest {
             training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, exercises.first { it.name == "Bench" }.id, sets = 4, reps = 6, targetRpe = 7.5, order = 0))
             training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, exercises.first { it.name == "Curl" }.id, sets = 3, reps = 10, targetRpe = 8.0, order = 1))
             // The lifter's own exercise has the button too, and a sheet that says there is no guide.
-            val own = training.addExercise(Exercise(0, "Sled push", Category.ACCESSORY, null, emptyList(), isBuiltIn = false))
+            val own = training.addExercise(Exercise(0, "Tyre flip", Category.ACCESSORY, null, emptyList(), isBuiltIn = false))
             training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, own, sets = 3, reps = 10, targetRpe = 8.0, order = 2))
         }
         compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
-        compose.waitUntil(5_000) { compose.onAllNodesWithText("Sled push  3 × 10 @ 8").fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Tyre flip  3 × 10 @ 8").fetchSemanticsNodes().isNotEmpty() }
 
         compose.checkInfoButtonOpensGuide("Bench")
         compose.checkInfoButtonOpensGuide("Curl")
-        compose.checkInfoButtonOpensGuide("Sled push")
+        compose.checkInfoButtonOpensGuide("Tyre flip")
 
         assertEquals(3, runBlocking { training.plan().first() }.size)
     }

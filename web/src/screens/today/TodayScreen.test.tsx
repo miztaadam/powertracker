@@ -472,18 +472,18 @@ describe('TodayScreen', () => {
     await startSession(db, TODAY)
     show()
     await openPicker()
-    await userEvent.type(picker().getByRole('textbox', { name: 'Search exercises' }), 'Sled push')
+    await userEvent.type(picker().getByRole('textbox', { name: 'Search exercises' }), 'Tyre flip')
     expect(picker().getByText('No exercises match. Try fewer filters, or create your own.')).toBeInTheDocument()
 
     await userEvent.click(picker().getByRole('button', { name: 'Create your own' }))
     await userEvent.click(within(screen.getByRole('dialog', { name: 'Add custom exercise' })).getByRole('button', { name: 'Create' }))
     expect(await screen.findByText('Exercise 2 of 2')).toBeInTheDocument()
-    expect(await screen.findByRole('heading', { name: 'Sled push' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Tyre flip' })).toBeInTheDocument()
 
-    const sled = await exerciseRows('Sled push')
+    const sled = await exerciseRows('Tyre flip')
     expect(sled).toHaveLength(1)
     expect(sled[0]!.isBuiltIn).toBe(false)
-    await checkInfoButtonOpensGuide('Sled push')
+    await checkInfoButtonOpensGuide('Tyre flip')
   })
 
   it('createCustom_withCatalogueName_usesTheCatalogueEntry', async () => {

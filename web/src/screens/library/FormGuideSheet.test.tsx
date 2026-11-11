@@ -72,13 +72,13 @@ describe('FormGuideSheet', () => {
   })
 
   it('customExercise_showsNoGuideText', () => {
-    render(<FormGuideSheet name="Sled push" onClose={() => {}} />)
+    render(<FormGuideSheet name="Tyre flip" onClose={() => {}} />)
 
     expect(NO_GUIDE).toBe('No form guide for your own exercises.')
     // The sheet still ends with the safety line.
-    expect(linesOf(sheet('Sled push'))).toEqual(['Sled push', NO_GUIDE, SAFETY])
-    expect(within(sheet('Sled push')).queryByText('Setup')).toBeNull()
-    expect(within(sheet('Sled push')).queryByText('Common mistakes')).toBeNull()
+    expect(linesOf(sheet('Tyre flip'))).toEqual(['Tyre flip', NO_GUIDE, SAFETY])
+    expect(within(sheet('Tyre flip')).queryByText('Setup')).toBeNull()
+    expect(within(sheet('Tyre flip')).queryByText('Common mistakes')).toBeNull()
   })
 
   it('closes_fromItsButton_andOnEscape', async () => {
@@ -97,13 +97,13 @@ describe('InfoButton', () => {
       // A row that is itself tapped, as in the picker and on Today.
       <div onClick={onRow}>
         <InfoButton name="Squat" />
-        <InfoButton name="Sled push" />
+        <InfoButton name="Tyre flip" />
       </div>,
     )
     expect(guideIsOpen()).toBe(false)
     await checkInfoButtonOpensGuide('Squat')
     // Custom exercises keep the button; the sheet says there is no guide.
-    await checkInfoButtonOpensGuide('Sled push')
+    await checkInfoButtonOpensGuide('Tyre flip')
     expect(onRow).not.toHaveBeenCalled()
   })
 

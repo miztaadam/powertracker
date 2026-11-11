@@ -174,12 +174,12 @@ test('the picker still settles within 100 ms with a few hundred exercises to lis
 
 test('the picker fits a 375 px phone with full-size targets', async ({ page }) => {
   await openOnWednesday(page, '#/plan')
-  await editExercises(page, { add: [{ name: 'Sled push with a very long name that has to wrap somewhere', isBuiltIn: false, archived: false }] })
+  await editExercises(page, { add: [{ name: 'Tyre flip with a very long name that has to wrap somewhere', isBuiltIn: false, archived: false }] })
   await openPlanPicker(page)
 
   // The lifter's own exercise leads the list; the catalogue follows under its own heading.
   await expect(picker(page).getByRole('heading', { name: 'Your exercises' })).toBeVisible()
-  await expect(pickerRow(page, 'Sled push with a very long name that has to wrap somewhere')).toContainText('Your own')
+  await expect(pickerRow(page, 'Tyre flip with a very long name that has to wrap somewhere')).toContainText('Your own')
   expect(await overflowing(page)).toEqual([])
   expect(await smallTargets(page, '.gr-dialog')).toEqual([])
   expect(await picker(page).getByRole('button', { name: /^Form guide for / }).count()).toBe(catalogue.length + 1)
@@ -220,14 +220,14 @@ test('the picker fits a 375 px phone with full-size targets', async ({ page }) =
   await expect.poll(async () => (await readAllTables(page)).planItems).toEqual([])
 
   // The long name is added and still fits its plan row, beside four full-size controls.
-  await pickerRow(page, 'Sled push with a very long name that has to wrap somewhere').getByRole('button').first().click()
+  await pickerRow(page, 'Tyre flip with a very long name that has to wrap somewhere').getByRole('button').first().click()
   await expect(picker(page)).toHaveCount(0)
-  await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveAttribute('aria-label', 'Sled push with a very long name that has to wrap somewhere  3 × 10 @ 8')
+  await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveAttribute('aria-label', 'Tyre flip with a very long name that has to wrap somewhere  3 × 10 @ 8')
   expect(await overflowing(page)).toEqual([])
   expect(await smallTargets(page)).toEqual([])
   // The numbers are whole and clear of the buttons.
   const dose = page.locator('.plan-row-dose')
-  const info = page.getByRole('button', { name: /^Form guide for Sled push/ })
+  const info = page.getByRole('button', { name: /^Form guide for Tyre flip/ })
   expect((await dose.boundingBox())!.x + (await dose.boundingBox())!.width).toBeLessThanOrEqual((await info.boundingBox())!.x + 0.5)
 })
 

@@ -259,11 +259,11 @@ class ExercisePickerTest {
 
         compose.onNodeWithTag("exercise-list").performScrollToNode(hasText("Create your own"))
         compose.onNodeWithText("Create your own").performClick()
-        compose.onNodeWithText("Name").performTextReplacement("  Sled push ")
+        compose.onNodeWithText("Name").performTextReplacement("  Tyre flip ")
         compose.onNodeWithText("Create").performClick()
         compose.waitForIdle()
 
-        assertEquals(listOf("Sled push"), created.toList())
+        assertEquals(listOf("Tyre flip"), created.toList())
     }
 
     @Test
@@ -332,26 +332,26 @@ class ExercisePickerTest {
     @Test
     fun yourExercises_listedFirst_whenNoQuery() {
         val bench = stored().first { it.name == "Bench" }
-        val sled = own(900, "Sled push", listOf("Quads"))
+        val sled = own(900, "Tyre flip", listOf("Quads"))
         val archived = own(901, "Old lift").copy(archived = true)
 
         // Recently used first, then the lifter's own; none of them again under "All exercises".
         val list = pickerList("", null, emptySet(), stored() + sled + archived, recentIds = listOf(bench.id))
-        assertEquals(listOf("Bench", "Sled push"), list.yours.map { it.name })
+        assertEquals(listOf("Bench", "Tyre flip"), list.yours.map { it.name })
         assertEquals(listOf(bench.id, 900L), list.yours.map { it.exerciseId })
         assertEquals(Library.search("").map { it.name } - "Bench", list.all.map { it.name })
         // A search or a filter drops the section.
         assertTrue(pickerList("s", null, emptySet(), stored() + sled, listOf(bench.id)).yours.isEmpty())
         assertTrue(pickerList("", BodyArea.BACK, emptySet(), stored() + sled, listOf(bench.id)).yours.isEmpty())
         // The lifter's own exercise is searched by name and by muscle, and listed before the catalogue.
-        assertEquals("Sled push", pickerList("sled", null, emptySet(), stored() + sled, emptyList()).all.single().name)
-        assertEquals("Sled push", pickerList("quads", null, emptySet(), stored() + sled, emptyList()).all.first().name)
+        assertEquals("Tyre flip", pickerList("tyre", null, emptySet(), stored() + sled, emptyList()).all.single().name)
+        assertEquals("Tyre flip", pickerList("quads", null, emptySet(), stored() + sled, emptyList()).all.first().name)
 
         showPicker(extra = listOf(sled, archived), recentIds = listOf(bench.id))
         fun top(tag: String) = compose.onNodeWithTag(tag).getUnclippedBoundsInRoot().top
         val yours = compose.onNodeWithText("YOUR EXERCISES").getUnclippedBoundsInRoot().top
         val all = compose.onNodeWithText("ALL EXERCISES").getUnclippedBoundsInRoot().top
-        assertTrue(yours < top("exercise-Bench") && top("exercise-Bench") < top("exercise-Sled push") && top("exercise-Sled push") < all)
+        assertTrue(yours < top("exercise-Bench") && top("exercise-Bench") < top("exercise-Tyre flip") && top("exercise-Tyre flip") < all)
         val firstCatalogueRow = list.all.first().name
         assertTrue(all < top("exercise-$firstCatalogueRow"))
         assertEquals(1, compose.onAllNodes(hasTestTag("exercise-Bench")).fetchSemanticsNodes().size)

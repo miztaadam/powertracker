@@ -94,9 +94,9 @@ class FormGuideSheetTest {
 
     @Test
     fun customExercise_showsNoGuideText() {
-        show("Sled push")
+        show("Tyre flip")
 
-        compose.onNode(hasText("Sled push") and inSheet).assertExists()
+        compose.onNode(hasText("Tyre flip") and inSheet).assertExists()
         compose.onNodeWithText("No form guide for your own exercises.").assertExists()
         compose.onNodeWithText("Setup").assertDoesNotExist()
         compose.onNodeWithText("Common mistakes").assertDoesNotExist()
