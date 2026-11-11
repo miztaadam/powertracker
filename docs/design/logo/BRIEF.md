@@ -83,3 +83,16 @@ its G would also make a good stand-alone symbol.
 Before shipping the chosen concept: convert the three layers to Android vector drawables
 (`ic_launcher_foreground`, `ic_launcher_background`, `ic_launcher_monochrome`), and check it on a
 device, since these were only checked in rendered montages.
+
+## Final choice (owner)
+
+**B · Barbell I, in steel grey — `b-barbell-grey`.** The owner chose concept B but without volt:
+the icon has no green at all. G, R and T stay chalk `#F3F4EF` on graphite `#131518`; the barbell
+I is two-tone steel — plates in the design system's plate grey `#B4BAC2`, bar and sleeve ends a
+step darker, `#7E858F`. The two greys keep the plates readable as plates at 48 px and keep the
+barbell clearly apart from the chalk letters. The geometry is the same as `b-barbell`.
+
+Files: `b-barbell-grey-icon-foreground.svg`, `b-barbell-grey-icon-background.svg`,
+`b-barbell-grey-icon-mono.svg`, `b-barbell-grey-icon.svg`; previews
+`b-barbell-grey-preview.png` (dark wallpaper) and `b-barbell-grey-preview-light.png`.
+The recommendation above (E) is kept for the record; it was not the owner's pick.

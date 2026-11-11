@@ -317,3 +317,54 @@ def montage(theme):
     h.append('</div>')
     open(os.path.join(HERE, 'montage-%s.html' % theme), 'w').write('\n'.join(h))
 montage('dark'); montage('light')
+
+# ===== FINAL · B Barbell I in steel grey (owner's choice: no volt) =====
+STEEL_LIGHT, STEEL_DARK = '#B4BAC2', '#7E858F'   # plates = the design system's plate grey; bar a step darker
+def concept_b_grey():
+    gr, w1 = text('GR', 100, track=1)
+    tt, w2 = text('T', 100)
+    steel, plates = barbell()
+    bx = w1 + 3 + 24
+    steel, plates = move(steel, bx, 0), move(plates, bx, 0)
+    tt = move(tt, bx + 24 + 3, 0)
+    return [(FULL, G1)], fit([(U(gr, tt), CHALK), (steel, STEEL_DARK), (plates, STEEL_LIGHT)])
+def final_b_grey():
+    cid, name = 'b-barbell-grey', 'B - Barbell I, steel grey (final)'
+    bg, fg = concept_b_grey()
+    mono = [(U(*[p for p, *_ in fg]), '#000000')]
+    write(cid + '-icon-background.svg', bg, 'Grit icon %s - adaptive background layer (108 dp)' % name)
+    write(cid + '-icon-foreground.svg', fg, 'Grit icon %s - adaptive foreground layer (108 dp, art inside the 66 dp safe zone)' % name)
+    write(cid + '-icon-mono.svg', mono, 'Grit icon %s - monochrome layer for themed icons (108 dp)' % name)
+    write(cid + '-icon.svg', bg + fg, 'Grit icon %s - flattened full-bleed preview' % name)
+    inner, monod = body(bg) + body(fg), d_of(mono[0][0])
+    for theme in ('dark', 'light'):
+        dark = theme == 'dark'
+        wall = 'linear-gradient(160deg,#343b45 0%,#1d2127 100%)' if dark else 'linear-gradient(160deg,#F7F7F3 0%,#DADFE2 100%)'
+        fgc, mut = ('#F3F4EF', '#959BA4') if dark else ('#111315', '#595E66')
+        tb, tf = ('#14171B', '#D5E89A') if dark else ('#E6F9A8', '#3F6100')
+        themed = '<rect width="108" height="108" fill="%s"/><path fill="%s" d="%s"/>' % (tb, tf, monod)
+        h = ['<!doctype html><meta charset="utf-8"><style>',
+             '@font-face{font-family:BC;src:url(file:///home/user/powertracker/app/src/main/res/font/barlow_condensed_bold.ttf)}',
+             '@font-face{font-family:B;src:url(file:///home/user/powertracker/app/src/main/res/font/barlow_semibold.ttf)}',
+             'body{margin:0;width:1500px;background:%s;color:%s;font-family:B,sans-serif}' % (wall, fgc),
+             '.wrap{padding:36px 44px 40px;display:flex;gap:56px;align-items:flex-start}h1{font:700 40px/1 BC;margin:0 0 6px}',
+             '.sub{color:%s;font-size:15px;margin-bottom:26px}' % mut,
+             '.cells{display:flex;gap:30px;align-items:flex-end;margin-bottom:26px}.grp{display:flex;gap:16px;align-items:flex-end}',
+             '.cell{display:flex;flex-direction:column;align-items:center;gap:6px}.cell span,.eyebrow{font-size:11px;letter-spacing:1.1px;text-transform:uppercase;color:%s}' % mut,
+             '.col{display:flex;flex-direction:column;gap:8px}svg{display:block}</style><div class="wrap">',
+             '<div>%s</div><div><h1>Grit — final icon · Barbell I, steel grey</h1>' % masked(inner, 'rounded', 480),
+             '<div class="sub">Chalk G, R, T on graphite · plates %s, bar %s · %s wallpaper</div>' % (STEEL_LIGHT, STEEL_DARK, theme)]
+        for mask, label in (('circle', 'Circle'), ('squircle', 'Squircle'), ('rounded', 'Rounded square')):
+            h.append('<div class="cells"><div class="col"><div class="eyebrow">%s</div><div class="grp">' % label)
+            for px in (192, 96, 48):
+                h.append('<div class="cell">%s<span>%d</span></div>' % (masked(inner, mask, px), px))
+            h.append('</div></div>')
+            if mask == 'circle':
+                h.append('<div class="col"><div class="eyebrow">Themed</div><div class="grp">')
+                for px in (96, 48):
+                    h.append('<div class="cell">%s<span>%d</span></div>' % (masked(themed, 'circle', px), px))
+                h.append('</div></div>')
+            h.append('</div>')
+        h.append('</div></div>')
+        open(os.path.join(HERE, 'final-%s.html' % theme), 'w').write('\n'.join(h))
+final_b_grey()
