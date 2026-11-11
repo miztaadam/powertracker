@@ -27,7 +27,20 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
   exercise picker. Opens a short sheet readable between sets.
 - Shipped in the app (works offline), defined once in the shared domain so both apps show identical text.
 - Custom exercises can hold the user's own form notes.
-- Text is drafted by Claude and **reviewed by the owner before it ships**.
+- **Owner decided: the text is checked against reliable published sources, not left to the owner's
+  review** (the owner doesn't have this expertise). Process:
+  - Every description is researched online against reputable sources: strength and conditioning bodies
+    (e.g. NSCA, ACSM, ACE), established exercise references (e.g. ExRx), and powerlifting federation
+    or coaching material for the competition lifts. Points that sources disagree on are left out or
+    stated in their most conservative form.
+  - Each exercise's sources are recorded alongside its text in the repo (not shown in the app), so
+    any tip can be traced.
+  - Safety comes first: setup and bracing before cues; safety bars/spotter notes for squat and bench;
+    no advice to train through pain; one standard line in every sheet: "Stop if you feel sharp pain.
+    For an injury or a condition, check with a doctor or physiotherapist."
+  - A separate independent review pass checks the text against the sources before it ships.
+  - The owner still sees the finished text and can flag anything that reads oddly, but is not asked
+    to judge technique.
 
 ## 4. Much bigger exercise library
 - Expand the built-in exercises so the Plan page can match an exact routine: lift variations, upper push
