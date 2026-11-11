@@ -3,7 +3,7 @@ package com.powertracker
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Text
+import com.powertracker.ui.AppShell
 import com.powertracker.ui.theme.PowertrackerTheme
 
 class MainActivity : ComponentActivity() {
@@ -11,7 +11,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PowertrackerTheme {
-                Text("Powertracker")
+                AppShell((application as PowertrackerApp).container)
             }
         }
     }
