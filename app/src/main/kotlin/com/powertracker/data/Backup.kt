@@ -34,16 +34,18 @@ data class BackupSettings(
     val restAccessorySec: Int,
     /** Added after the first backups were written: a file without it means the default, vibrate. */
     val restAlert: String = RestAlert.VIBRATE.name,
+    /** Written by the web app; an opaque string Android stores and returns untouched. Absent means unset. */
+    val webRestAlert: String? = null,
 ) {
     fun toAppSettings() = AppSettings(
         changePlates, defaultRpe, trainingDays.map { DayOfWeek(it) }.toSet(), appLock, restMainSec, restAccessorySec,
-        RestAlert.valueOf(restAlert),
+        RestAlert.valueOf(restAlert), webRestAlert,
     )
 
     companion object {
         fun of(s: AppSettings) = BackupSettings(
             s.changePlates, s.defaultRpe, s.trainingDays.sorted().map { it.isoDayNumber }, s.appLock, s.restMainSec, s.restAccessorySec,
-            s.restAlert.name,
+            s.restAlert.name, s.webRestAlert,
         )
     }
 }

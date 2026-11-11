@@ -11,7 +11,9 @@ import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.platform.systemToday
-import com.powertracker.ui.progress.ProgressMath.isCompletedMainSet
+import com.powertracker.domain.progress.Pr
+import com.powertracker.domain.progress.ProgressMath
+import com.powertracker.domain.progress.ProgressMath.isCompletedMainSet
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map

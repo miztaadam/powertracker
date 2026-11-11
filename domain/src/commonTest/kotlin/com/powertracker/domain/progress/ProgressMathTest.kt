@@ -1,4 +1,4 @@
-package com.powertracker.ui.progress
+package com.powertracker.domain.progress
 
 import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.Baseline
@@ -11,9 +11,9 @@ import com.powertracker.domain.model.TrainingHistory
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.Test
 
 class ProgressMathTest {
     private val squat = Exercise(1, "Squat", Category.SQUAT, null, emptyList(), isBuiltIn = true)

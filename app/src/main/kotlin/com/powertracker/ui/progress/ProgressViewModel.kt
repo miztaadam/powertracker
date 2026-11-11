@@ -9,6 +9,9 @@ import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.progress.Pr
+import com.powertracker.domain.progress.ProgressMath
+import com.powertracker.domain.progress.weekStart
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.coach.RatioUi

@@ -25,6 +25,8 @@ data class AppSettings(
     val restMainSec: Int = 180,
     val restAccessorySec: Int = 90,
     val restAlert: RestAlert = RestAlert.VIBRATE,
+    /** Written by the web app's rest alert setting; kept as an opaque string so a backup round-trips it untouched. */
+    val webRestAlert: String? = null,
 ) {
     fun coach(): CoachSettings = CoachSettings(defaultRpe = defaultRpe, changePlates = changePlates)
 }
@@ -49,6 +51,7 @@ class SettingsRepository(context: Context) {
         val REST_MAIN = intPreferencesKey("restMainSec")
         val REST_ACCESSORY = intPreferencesKey("restAccessorySec")
         val REST_ALERT = stringPreferencesKey("restAlert")
+        val WEB_REST_ALERT = stringPreferencesKey("webRestAlert")
 
         fun Preferences.toAppSettings(): AppSettings {
             val d = AppSettings()
@@ -60,6 +63,7 @@ class SettingsRepository(context: Context) {
                 restMainSec = this[REST_MAIN] ?: d.restMainSec,
                 restAccessorySec = this[REST_ACCESSORY] ?: d.restAccessorySec,
                 restAlert = this[REST_ALERT]?.let { name -> RestAlert.entries.firstOrNull { it.name == name } } ?: d.restAlert,
+                webRestAlert = this[WEB_REST_ALERT],
             )
         }
 
@@ -71,6 +75,8 @@ class SettingsRepository(context: Context) {
             this[REST_MAIN] = s.restMainSec
             this[REST_ACCESSORY] = s.restAccessorySec
             this[REST_ALERT] = s.restAlert.name
+            val web = s.webRestAlert
+            if (web != null) this[WEB_REST_ALERT] = web else remove(WEB_REST_ALERT)
         }
 
         fun parseDays(text: String): Set<DayOfWeek> =

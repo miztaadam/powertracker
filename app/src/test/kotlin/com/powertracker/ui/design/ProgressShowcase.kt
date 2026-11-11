@@ -14,7 +14,7 @@ import com.powertracker.ui.progress.LiftHistoryContent
 import com.powertracker.ui.progress.LiftHistoryViewModel
 import com.powertracker.ui.progress.ProgressContent
 import com.powertracker.ui.progress.ProgressViewModel
-import com.powertracker.ui.progress.weekStart
+import com.powertracker.domain.progress.weekStart
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus

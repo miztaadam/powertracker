@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.coach.AccessoryMap
+import com.powertracker.domain.seed.SeedLibrary
 import com.powertracker.domain.model.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -48,6 +49,14 @@ class TrainingRepositoryTest {
         assertEquals(Category.ACCESSORY, byName("Hip thrust").category)
         assertNull(byName("Hip thrust").parentLift)
         assertEquals(listOf("Glutes", "Hips", "Upper back"), byName("Hip thrust").muscles)
+    }
+
+    @Test
+    fun seedIds_unchanged() = runTest {
+        val all = training.exercises().first()
+        assertEquals(SeedLibrary.exercises(), all)
+        assertEquals(listOf("Squat" to 1L, "Bench" to 2L, "Deadlift" to 3L), all.take(3).map { it.name to it.id })
+        assertEquals((1L..all.size).toList(), all.map { it.id })
     }
 
     @Test

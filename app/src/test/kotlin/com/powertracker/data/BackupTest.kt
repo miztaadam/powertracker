@@ -132,6 +132,20 @@ class BackupTest {
     }
 
     @Test
+    fun webRestAlert_roundTripsOpaquely() = runTest {
+        seedData()
+        settings.update { it.copy(webRestAlert = "{\"sound\":true}") }
+        val text = Backup.encode(service.export(1L))
+        settings.update { AppSettings() }
+
+        service.restore((Backup.decode(text) as BackupResult.Ok).file)
+
+        assertEquals("{\"sound\":true}", settings.settings.first().webRestAlert)
+        settings.update { it.copy(webRestAlert = null) }
+        assertNull(settings.settings.first().webRestAlert)
+    }
+
+    @Test
     fun unknownRestAlert_isCorrupt() = runTest {
         val file = service.export(1L)
         val bad = file.copy(settings = file.settings.copy(restAlert = "LOUD"))
