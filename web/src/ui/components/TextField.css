@@ -63,3 +63,9 @@
   margin: 0;
   color: var(--danger);
 }
+
+/* A control at the end of the box sits in its middle and reaches the box's edge. */
+.gr-field-box-trailing {
+  align-items: center;
+  padding-right: var(--space-1);
+}

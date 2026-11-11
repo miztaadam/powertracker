@@ -82,6 +82,8 @@ const overflowing = (page: Page) =>
     if (main.scrollWidth > main.clientWidth) found.push('.shell-main')
     for (const el of document.querySelectorAll<HTMLElement>('.shell-main *, .gr-dialog *')) {
       const box = el.getBoundingClientRect()
+      // The picker's chip rows scroll sideways on purpose (e2e/library.spec.ts checks every chip can be reached).
+      if (el.closest('.lib-chips') && !el.classList.contains('lib-chips')) continue
       if (box.width > 0 && (box.right > window.innerWidth + 0.5 || box.left < -0.5) && !el.closest('.sr-only')) found.push(`${el.tagName.toLowerCase()}.${el.className}`)
     }
     return found
@@ -160,19 +162,17 @@ test.describe('on a 375 px iPhone', () => {
     const monday = page.getByRole('region', { name: 'Monday' })
     const dialog = page.getByRole('dialog')
 
+    // Picking from the library adds the exercise straight away, with its default sets and reps.
     await monday.getByRole('button', { name: 'Add' }).click()
     await expect(page.getByRole('dialog', { name: 'Add to Monday' })).toBeVisible()
     await dialog.getByRole('textbox', { name: 'Search exercises' }).fill('squat')
-    await dialog.getByRole('button', { name: 'Squat', exact: true }).click()
-    await expect(dialog.getByText('Selected: Squat')).toBeVisible()
-    expect(await overflowing(page)).toEqual([])
-    expect(await smallTargets(page)).toEqual([])
-    await dialog.getByRole('button', { name: 'Save' }).click()
+    await dialog.getByRole('listitem', { name: 'Squat', exact: true }).getByRole('button').first().click()
+    await expect(dialog).toHaveCount(0)
     await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Squat  3 × 5 @ 8'])
 
     // A custom variation, created from inside the picker.
     await monday.getByRole('button', { name: 'Add' }).click()
-    await dialog.getByRole('button', { name: 'Add custom exercise' }).click()
+    await dialog.getByRole('button', { name: 'Create your own' }).click()
     const custom = page.getByRole('dialog', { name: 'Add custom exercise' })
     await custom.getByRole('textbox', { name: 'Name' }).fill('Tempo squat')
     await custom.getByText('Variation').click()
@@ -180,10 +180,17 @@ test.describe('on a 375 px iPhone', () => {
     expect(await overflowing(page)).toEqual([])
     expect(await smallTargets(page)).toEqual([])
     await custom.getByRole('button', { name: 'Create' }).click()
-    await expect(dialog.getByText('Selected: Tempo squat')).toBeVisible()
+    await expect(monday.getByRole('listitem')).toHaveCount(2)
+
+    // Its sets are changed from the row.
+    await monday.getByRole('button', { name: 'More' }).last().click()
+    await page.getByRole('menuitem', { name: 'Edit' }).click()
+    await expect(page.getByRole('dialog', { name: 'Edit Monday' }).getByRole('group', { name: 'Exercise' })).toContainText('Tempo squat')
+    expect(await overflowing(page)).toEqual([])
+    expect(await smallTargets(page)).toEqual([])
     await dialog.getByRole('button', { name: 'Increase Sets' }).click()
     await dialog.getByRole('button', { name: 'Save' }).click()
-    await expect(monday.getByRole('listitem')).toHaveCount(2)
+    await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Squat  3 × 5 @ 8', 'Tempo squat  4 × 5 @ 8'])
 
     await monday.getByRole('button', { name: 'Move up' }).last().click()
     await expect(monday.getByRole('listitem').first()).toHaveAttribute('aria-label', 'Tempo squat  4 × 5 @ 8')

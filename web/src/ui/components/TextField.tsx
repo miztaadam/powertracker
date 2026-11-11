@@ -1,4 +1,4 @@
-import { useId } from 'react'
+import { useId, type ReactNode } from 'react'
 import { cx } from './format'
 import './TextField.css'
 
@@ -14,11 +14,15 @@ export type TextFieldProps = {
   /** What is wrong with the value; shown under the field and read with it. */
   error?: string
   autoFocus?: boolean
+  /** A control at the end of the box, e.g. an `IconButton` that clears a search. */
+  trailing?: ReactNode
+  /** What the keyboard's return key says: "done" (default) or "search". */
+  enterKeyHint?: 'done' | 'search'
   className?: string
 }
 
 /** A labelled one-line input. Text is 16 px so iOS does not zoom the page on focus. */
-export function TextField({ label, value, onChange, numeric = false, unit, placeholder, error, autoFocus, className }: TextFieldProps) {
+export function TextField({ label, value, onChange, numeric = false, unit, placeholder, error, autoFocus, trailing, enterKeyHint = 'done', className }: TextFieldProps) {
   const id = useId()
   const errorId = `${id}-error`
   return (
@@ -26,7 +30,7 @@ export function TextField({ label, value, onChange, numeric = false, unit, place
       <label htmlFor={id} className="gr-field-label eyebrow">
         {label}
       </label>
-      <div className="gr-field-box">
+      <div className={cx('gr-field-box', trailing != null && 'gr-field-box-trailing')}>
         <input
           id={id}
           className="gr-field-input"
@@ -34,7 +38,8 @@ export function TextField({ label, value, onChange, numeric = false, unit, place
           inputMode={numeric ? 'decimal' : undefined}
           autoComplete="off"
           autoCorrect="off"
-          enterKeyHint="done"
+          autoCapitalize={enterKeyHint === 'search' ? 'none' : undefined}
+          enterKeyHint={enterKeyHint}
           value={value}
           placeholder={placeholder}
           autoFocus={autoFocus}
@@ -43,6 +48,7 @@ export function TextField({ label, value, onChange, numeric = false, unit, place
           onChange={(e) => onChange(e.target.value)}
         />
         {unit != null && <span className="gr-field-unit title-small">{unit}</span>}
+        {trailing}
       </div>
       {error != null && (
         <p id={errorId} className="gr-field-error body-small">

@@ -56,3 +56,41 @@
   margin: var(--space-3) 0 0;
   color: var(--text);
 }
+
+/* A dialog that fills the phone: a task with a list of its own (the exercise picker). */
+.gr-dialog-scrim-screen {
+  padding: 0;
+  background: var(--bg);
+}
+
+.gr-dialog-screen {
+  gap: 0;
+  max-width: none;
+  height: 100%;
+  overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  border-radius: 0;
+  background: var(--bg);
+}
+
+/* A sheet from the bottom edge: something to read with the page still in view above it. */
+.gr-dialog-scrim-sheet {
+  align-items: flex-end;
+  padding: calc(var(--space-7) + env(safe-area-inset-top)) 0 0;
+}
+
+.gr-dialog-sheet {
+  gap: 0;
+  max-width: 560px;
+  padding: 0 0 env(safe-area-inset-bottom);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--surface);
+  overscroll-behavior: contain;
+  animation: gr-sheet-rise 200ms ease-out;
+}
+
+@keyframes gr-sheet-rise {
+  from {
+    transform: translateY(24px);
+  }
+}

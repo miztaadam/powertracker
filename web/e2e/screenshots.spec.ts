@@ -50,6 +50,23 @@ for (const scheme of ['dark', 'light'] as const) {
     await shoot(page, `today-rest-${scheme}`)
   })
 
+  test(`screenshots: the exercise picker and a form guide (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openOnWednesday(page)
+    await seedFlatBench(page)
+    await tap(page, 'Start session')
+    await tap(page, 'Add exercise')
+    await expect(page.getByRole('dialog', { name: 'Add exercise' }).getByRole('heading', { name: 'All exercises' })).toBeVisible()
+    await shoot(page, `exercise-picker-${scheme}`)
+
+    await page.getByRole('button', { name: 'Form guide for Squat' }).click()
+    await expect(page.getByRole('dialog', { name: 'Form guide for Squat' }).getByRole('heading', { name: 'How to do it' })).toBeVisible()
+    await shoot(page, `form-guide-${scheme}`)
+    // And its end: the last section and the safety line.
+    await page.getByRole('dialog', { name: 'Form guide for Squat' }).evaluate((el) => el.scrollTo(0, el.scrollHeight))
+    await shoot(page, `form-guide-end-${scheme}`)
+  })
+
   test(`screenshots: session saved (${scheme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme })
     await openOnWednesday(page)

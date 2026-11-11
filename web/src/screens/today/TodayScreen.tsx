@@ -10,7 +10,8 @@ import { Snackbar } from '../../ui/components/Snackbar'
 import { BackupReminderCard } from './BackupReminderCard'
 import { ExerciseCard, ExerciseRow, type NextStep } from './ExerciseCard'
 import { StartSessionCard, SummaryCard } from './SessionCards'
-import { ExercisePickerDialog, TypoDialog } from './TodayDialogs'
+import { ExercisePicker } from '../library/ExercisePicker'
+import { TypoDialog } from './TodayDialogs'
 import './today.css'
 
 export type TodayScreenProps = {
@@ -77,13 +78,22 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice }: Today
     dismissTarget: reported(raw.dismissTarget),
     finishSession: reported(raw.finishSession),
   }
+  const { resolved } = state
   const inSession = state.sessionId != null && state.summary == null
   const [activeId, setActiveId] = useState<number | null>(null)
   const [picking, setPicking] = useState(false)
   const { weekday, day, month } = dateParts(state.date)
 
+  // A catalogue exercise added without a row changes id when its first set saves the row: follow it.
+  const chosenId = activeId != null ? (resolved[activeId] ?? activeId) : null
+  useEffect(() => {
+    if (chosenId !== activeId) setActiveId(chosenId)
+  }, [chosenId, activeId])
+  // Its card keeps the key it was added under, so it is the same card before and after: no jump, no lost state.
+  const keyOf = (item: TodayItem) => Object.keys(resolved).find((standIn) => resolved[Number(standIn)] === item.exercise.id) ?? item.exercise.id
+
   // The exercise being logged: the one the lifter chose, else the first with sets left to do.
-  const active = items.find((i) => i.exercise.id === activeId) ?? items.find(hasWorkLeft) ?? items[items.length - 1]
+  const active = items.find((i) => i.exercise.id === chosenId) ?? items.find(hasWorkLeft) ?? items[items.length - 1]
   const activeExerciseId = active?.exercise.id ?? null
   // Pin it once chosen, so finishing its last set does not whisk the card (and its "where did it stall?") away.
   useEffect(() => {
@@ -117,7 +127,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice }: Today
           <>
             {items.map((item, i) =>
               item === active ? (
-                <div key={item.exercise.id} ref={activeCard}>
+                <div key={keyOf(item)} ref={activeCard}>
                   <ExerciseCard
                     item={item}
                     position={i + 1}
@@ -129,7 +139,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice }: Today
                   />
                 </div>
               ) : (
-                <ExerciseRow key={item.exercise.id} item={item} onClick={() => setActiveId(item.exercise.id)} />
+                <ExerciseRow key={keyOf(item)} item={item} onClick={() => setActiveId(item.exercise.id)} />
               ),
             )}
             {items.length === 0 && <EmptyState icon={<FitnessCenterIcon />} title="No exercises yet" body="Add what you are training today and log it set by set." />}
@@ -141,11 +151,21 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice }: Today
       {state.pending && <TypoDialog pending={state.pending} onConfirm={() => void actions.confirmPending()} onEdit={actions.cancelPending} />}
 
       {picking && (
-        <ExercisePickerDialog
-          exercises={state.addable}
-          onPick={(exerciseId) => {
-            actions.addExercise(exerciseId)
-            setActiveId(exerciseId)
+        <ExercisePicker
+          title="Add exercise"
+          exercises={state.exercises}
+          recentIds={state.recentIds}
+          // Picking one already in the session just opens its card.
+          onPick={(entry) => {
+            if (entry.library) setActiveId(actions.addFromCatalogue(entry.library.name))
+            else if (entry.exerciseId != null) {
+              actions.addExercise(entry.exerciseId)
+              setActiveId(entry.exerciseId)
+            }
+            setPicking(false)
+          }}
+          onCreateCustom={(exercise) => {
+            raw.createExercise(exercise).then(setActiveId, () => setFailures((n) => n + 1))
             setPicking(false)
           }}
           onDismiss={() => setPicking(false)}

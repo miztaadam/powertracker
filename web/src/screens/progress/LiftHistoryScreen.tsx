@@ -11,6 +11,7 @@ import { ArrowBackIcon, FitnessCenterIcon } from '../../ui/components/icons'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
 import { SetRow } from '../../ui/components/SetRow'
 import { StatTile } from '../../ui/components/StatTile'
+import { InfoButton } from '../library/InfoButton'
 import { formatDate, formatSessionDate } from './dates'
 import { LIFT_LABEL } from './lifts'
 import './progress.css'
@@ -41,6 +42,7 @@ export function LiftHistoryContent({ lift, state, onBack }: LiftHistoryContentPr
         title={`${name} history`}
         eyebrow={state.loading ? undefined : count === 1 ? '1 session' : `${count} sessions`}
         navigation={<IconButton label="Back" icon={<ArrowBackIcon />} onClick={onBack} />}
+        actions={<InfoButton name={name} />}
       />
       <div className="screen-body">
         {!state.loading && count === 0 && (

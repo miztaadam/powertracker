@@ -98,7 +98,20 @@
   color: var(--text);
 }
 
-/* Another exercise, folded to one line. */
+/* Another exercise, folded to one line: the row opens its card, the info button beside it only the guide. */
+
+.gr-card.today-row-card {
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  padding-right: var(--space-2);
+}
+
+.today-row-card .today-row {
+  flex: 1;
+  width: auto;
+  padding-right: var(--space-3);
+}
 
 .today-row {
   appearance: none;
@@ -216,37 +229,4 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-}
-
-.today-picker-list {
-  display: flex;
-  flex-direction: column;
-  max-height: 320px;
-  margin-top: var(--space-3);
-  overflow-y: auto;
-}
-
-.today-picker-item {
-  appearance: none;
-  flex: none;
-  display: flex;
-  align-items: center;
-  min-height: var(--touch);
-  margin: 0;
-  padding: 0 var(--space-4);
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: none;
-  color: var(--text);
-  text-align: left;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.today-picker-item:active {
-  background: var(--container-highest);
-}
-
-.today-picker-empty {
-  padding: var(--space-4);
 }

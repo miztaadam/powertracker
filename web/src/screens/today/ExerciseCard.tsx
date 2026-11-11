@@ -14,6 +14,7 @@ import { PlateStrip, PlateStripNote } from '../../ui/components/PlateStrip'
 import { SegmentedChoice } from '../../ui/components/SegmentedChoice'
 import { SetRow } from '../../ui/components/SetRow'
 import { StepperField } from '../../ui/components/StepperField'
+import { InfoButton } from '../library/InfoButton'
 import { MAX_KG, MAX_REPS, MAX_RPE, MIN_RPE, entryMessage, parseEntry, type EntryKind } from './entry'
 import './today.css'
 
@@ -98,6 +99,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         ) : (
           <Pill text={item.targetSets != null ? `Set ${nextNumber} of ${item.targetSets}` : `Set ${nextNumber}`} />
         )}
+        <InfoButton name={item.exercise.name} />
       </div>
 
       {item.suggestion && (
@@ -335,7 +337,7 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
 /** Another exercise in today's session, folded to one line. Tap to log it. */
 export function ExerciseRow({ item, onClick }: { item: TodayItem; onClick: () => void }) {
   return (
-    <Card contentPadding={0}>
+    <Card contentPadding={0} className="today-row-card">
       <button type="button" className="today-row" onClick={onClick}>
         <span className="today-grow today-ellipsis title-medium">{item.exercise.name}</span>
         {item.suggestion && (
@@ -352,6 +354,8 @@ export function ExerciseRow({ item, onClick }: { item: TodayItem; onClick: () =>
           item.sets.length > 0 && <Pill text={`${item.sets.length} ${item.sets.length === 1 ? 'set' : 'sets'}`} />
         )}
       </button>
+      {/* Beside the row's button, not inside it: reading the guide must not open the card. */}
+      <InfoButton name={item.exercise.name} />
     </Card>
   )
 }

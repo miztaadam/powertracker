@@ -119,6 +119,71 @@ describe('useToday', () => {
     expect(restarted.current.items[1]!.exercise.id).toBe(curl.id)
   })
 
+  it('catalogueExercise_withoutARow_isShownUnderAStandIn_untilItsFirstSet', async () => {
+    const curl = await exerciseNamed(db, 'Curl')
+    await db.exercises.delete(curl.id)
+    const before = await db.exercises.toArray()
+    await plan(db, squatId)
+    await startSession(db, TODAY)
+    const vm = show()
+    await waitFor(() => expect(vm.current.loading).toBe(false))
+    expect(vm.current.exercises.map((e) => e.id)).toEqual(before.map((e) => e.id))
+
+    // A name the catalogue does not know adds nothing.
+    let id: number | null = 0
+    act(() => void (id = vm.current.addFromCatalogue('Sled push')))
+    expect(id).toBeNull()
+    expect(vm.current.items).toHaveLength(1)
+
+    // By alias, in any case; twice is still one card.
+    act(() => void (id = vm.current.addFromCatalogue('BICEPS CURL')))
+    act(() => void vm.current.addFromCatalogue('Curl'))
+    const standIn = id as unknown as number
+    expect(standIn).toBeLessThan(0)
+    expect(vm.current.items.map((i) => [i.exercise.id, i.exercise.name, i.exercise.category])).toEqual([
+      [squatId, 'Squat', 'SQUAT'],
+      [standIn, 'Curl', 'ACCESSORY'],
+    ])
+    expect(vm.current.resolved).toEqual({})
+
+    // Its numbers are kept on screen, not in the database.
+    act(() => vm.current.edit(standIn, { weightKg: 20, reps: 12, rpe: 7 }))
+    expect(vm.current.items[1]!.editor).toEqual({ weightKg: 20, reps: 12, rpe: 7 })
+    await settle()
+    expect(await db.exercises.toArray()).toEqual(before)
+    expect(await db.meta.where('key').startsWith('editor:').count()).toBe(0)
+
+    // The first set saves the row with it; the card moves to the row's id and keeps its numbers.
+    fire(() => vm.current.logSet(standIn, input(20, { reps: 12, rpe: 7 })))
+    await waitFor(() => expect(vm.current.items[1]!.sets).toHaveLength(1))
+    const row = await exerciseNamed(db, 'Curl')
+    expect(row).toMatchObject({ isBuiltIn: true, archived: false, category: 'ACCESSORY' })
+    expect(vm.current.resolved).toEqual({ [standIn]: row.id })
+    expect(vm.current.items[1]!.exercise.id).toBe(row.id)
+    expect(vm.current.items[1]!.editor).toEqual({ weightKg: 20, reps: 12, rpe: 7 })
+    expect((await setsOn(db, TODAY)).map((s) => s.exerciseId)).toEqual([row.id])
+
+    // A second set under the old key lands on the same row.
+    fire(() => vm.current.logSet(standIn, input(20, { reps: 12, rpe: 7 })))
+    await waitFor(() => expect(vm.current.items[1]!.sets).toHaveLength(2))
+    expect((await setsOn(db, TODAY)).map((s) => s.exerciseId)).toEqual([row.id, row.id])
+    expect((await db.exercises.toArray()).filter((e) => e.name === 'Curl')).toHaveLength(1)
+  })
+
+  it('catalogueExercise_withARow_isAddedUnderItsRow', async () => {
+    const curl = await exerciseNamed(db, 'Curl')
+    await startSession(db, TODAY)
+    const vm = show()
+    await waitFor(() => expect(vm.current.loading).toBe(false))
+
+    let id: number | null = null
+    act(() => void (id = vm.current.addFromCatalogue('Curl')))
+    expect(id).toBe(curl.id)
+    expect(vm.current.items.map((i) => i.exercise.id)).toEqual([curl.id])
+    act(() => vm.current.removeExercise(curl.id))
+    expect(vm.current.items).toEqual([])
+  })
+
   it('exercisePlannedTwice_isOneCard_withOneTarget', async () => {
     await planSquatWithHistory()
     await plan(db, squatId, { sets: 2, reps: 8, targetRpe: 7, order: 1 })

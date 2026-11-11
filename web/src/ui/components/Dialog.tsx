@@ -1,4 +1,6 @@
 import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
+import { cx } from './format'
 import './Dialog.css'
 
 export type DialogProps = {
@@ -12,6 +14,16 @@ export type DialogProps = {
   onDismiss: () => void
   /** Default true: the rest of the page is inert while the dialog is open. Off only where a dialog is drawn as a sample. */
   isolate?: boolean
+  /**
+   * How it sits on the page. `dialog` (default) is the small centred panel. `screen` fills the phone,
+   * for a task with a list of its own. `sheet` rises from the bottom edge, for something to read
+   * with the page still in view behind it.
+   */
+  variant?: 'dialog' | 'screen' | 'sheet'
+  /** Drawn in place of the title line (a `screen` or `sheet` brings its own heading and close button). `title` still names the dialog. */
+  header?: ReactNode
+  /** Draws the dialog at the end of the page instead of where it is used: for one opened from inside a row, a heading or another dialog. */
+  portal?: boolean
 }
 
 const FOCUSABLE = 'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
@@ -30,11 +42,14 @@ function isolateFromPage(el: HTMLElement): () => void {
   return () => made.forEach((sibling) => sibling.removeAttribute('inert'))
 }
 
+/** The dialogs that are open, oldest first. Escape belongs to the last one only. */
+const openDialogs: object[] = []
+
 /**
  * A modal question or small form over a scrim. Focus moves into it, stays in it, and goes back on
  * close; the page behind it is inert meanwhile, so VoiceOver cannot wander out of it either.
  */
-export function Dialog({ open, title, children, actions, onDismiss, isolate = true }: DialogProps) {
+export function Dialog({ open, title, children, actions, onDismiss, isolate = true, variant = 'dialog', header, portal = false }: DialogProps) {
   const titleId = useId()
   const scrim = useRef<HTMLDivElement>(null)
   const panel = useRef<HTMLDivElement>(null)
@@ -57,12 +72,16 @@ export function Dialog({ open, title, children, actions, onDismiss, isolate = tr
     // A field inside that asked for the focus keeps it.
     if (!panel.current?.contains(document.activeElement)) panel.current?.focus()
     const release = isolate && scrim.current ? isolateFromPage(scrim.current) : () => {}
+    const me = {}
+    openDialogs.push(me)
     const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === 'Escape') dismiss.current()
+      // With one dialog over another, Escape closes the one on top.
+      if (e.key === 'Escape' && openDialogs.at(-1) === me) dismiss.current()
     }
     document.addEventListener('keydown', onKey)
     return () => {
       document.removeEventListener('keydown', onKey)
+      openDialogs.splice(openDialogs.indexOf(me), 1)
       release()
       if (before instanceof HTMLElement) before.focus()
     }
@@ -89,10 +108,10 @@ export function Dialog({ open, title, children, actions, onDismiss, isolate = tr
     }
   }
 
-  return (
+  const dialog = (
     <div
       ref={scrim}
-      className="gr-dialog-scrim"
+      className={cx('gr-dialog-scrim', variant !== 'dialog' && `gr-dialog-scrim-${variant}`)}
       onPointerDown={(e) => {
         pressedOnScrim.current = e.target === e.currentTarget
       }}
@@ -105,13 +124,26 @@ export function Dialog({ open, title, children, actions, onDismiss, isolate = tr
         releasedOnScrim.current = false
       }}
     >
-      <div ref={panel} className="gr-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} onKeyDown={trapTab}>
-        <h2 id={titleId} className="gr-dialog-title headline-small">
-          {title}
-        </h2>
-        {children != null && <div className="gr-dialog-body body-medium">{children}</div>}
+      <div
+        ref={panel}
+        className={cx('gr-dialog', variant !== 'dialog' && `gr-dialog-${variant}`)}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={header == null ? titleId : undefined}
+        aria-label={header != null ? title : undefined}
+        tabIndex={-1}
+        onKeyDown={trapTab}
+      >
+        {header ?? (
+          <h2 id={titleId} className="gr-dialog-title headline-small">
+            {title}
+          </h2>
+        )}
+        {/* A screen or a sheet lays out and styles its own content. */}
+        {children != null && (variant === 'dialog' ? <div className="gr-dialog-body body-medium">{children}</div> : children)}
         {actions != null && <div className="gr-dialog-actions">{actions}</div>}
       </div>
     </div>
   )
+  return portal ? createPortal(dialog, document.body) : dialog
 }

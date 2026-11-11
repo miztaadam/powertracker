@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { GritDb } from '../../db/db'
 import { updateSettings } from '../../db/db'
 import { advice, insertAdvice, payload, planOf, rx, statuses } from '../../test/coachFixture'
+import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, addDays, exerciseNamed, logSet, plan, set, startSession, todayFixture } from '../../test/todayFixture'
 import { CoachScreen } from './CoachScreen'
 
@@ -63,6 +64,20 @@ describe('CoachScreen', () => {
     expect(await planOf(db)).toHaveLength(5)
     expect(await screen.findByText('Added 2 exercises to Wednesday')).toBeInTheDocument()
     await waitFor(() => expect(screen.queryByText('Bench has stalled')).toBeNull())
+  })
+
+  it('infoButton_opensGuide_fromEveryPlace', async () => {
+    await insertStall()
+    show()
+    await screen.findByText('Bench has stalled')
+
+    // Every accessory the coach names has its guide beside it.
+    await checkInfoButtonOpensGuide('Close-grip bench')
+    await checkInfoButtonOpensGuide('JM press')
+
+    // Reading a guide applied nothing.
+    expect(await statuses(db)).toEqual(['OPEN'])
+    expect(await planOf(db)).toHaveLength(3)
   })
 
   it('dismiss_removesCard', async () => {

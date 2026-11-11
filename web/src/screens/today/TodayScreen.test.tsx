@@ -2,6 +2,7 @@ import { cleanup, render, screen, waitFor, within } from '@testing-library/react
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { GritDb } from '../../db/db'
+import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { DELOAD_ADVICE, TODAY, addDays, baseline, exerciseNamed, logSet, plan, set, setsOn, startSession, targets, todayFixture } from '../../test/todayFixture'
 import { TodayScreen } from './TodayScreen'
 
@@ -32,6 +33,12 @@ const tap = (name: string | RegExp) => userEvent.click(button(name))
 const findButton = (name: string | RegExp) => screen.findByRole('button', { name })
 const tapWhenShown = async (name: string | RegExp) => userEvent.click(await findButton(name))
 const waitForSets = (count: number) => waitFor(async () => expect(await setsOn(db, TODAY)).toHaveLength(count))
+
+const exerciseRows = async (name: string) => (await db.exercises.toArray()).filter((e) => e.name.toLowerCase() === name.toLowerCase())
+const picker = () => within(screen.getByRole('dialog', { name: 'Add exercise' }))
+/** The part of a picker row that picks the exercise. */
+const pickerRow = (name: string) => within(picker().getByRole('listitem', { name })).getAllByRole('button')[0]!
+const openPicker = () => tapWhenShown('Add exercise')
 
 const weightField = () => screen.getByRole('textbox', { name: 'Weight, kilograms' })
 const repsField = () => screen.getByRole('textbox', { name: 'Reps' })
@@ -324,18 +331,17 @@ describe('TodayScreen', () => {
   it('addExercise_picksFromTheLibrary_andCanBeRemoved', async () => {
     await startSession(db, TODAY)
     show()
-    await tapWhenShown('Add exercise')
-    const dialog = within(screen.getByRole('dialog', { name: 'Add exercise' }))
-    // Squat is already in the session.
-    expect(dialog.queryByRole('button', { name: 'Squat' })).toBeNull()
-    await userEvent.type(dialog.getByRole('textbox', { name: 'Search exercises' }), 'zzz')
-    expect(dialog.getByText('No exercise matches. Custom exercises are created on the Plan tab.')).toBeInTheDocument()
-    await userEvent.clear(dialog.getByRole('textbox'))
-    await userEvent.type(dialog.getByRole('textbox'), 'dead')
-    await userEvent.click(dialog.getByRole('button', { name: 'Deadlift' }))
+    await openPicker()
+    await userEvent.type(picker().getByRole('textbox', { name: 'Search exercises' }), 'zzz')
+    expect(picker().getByText('No exercises match. Try fewer filters, or create your own.')).toBeInTheDocument()
+    await userEvent.clear(picker().getByRole('textbox'))
+    await userEvent.type(picker().getByRole('textbox'), 'dead')
+    await userEvent.click(pickerRow('Deadlift'))
 
     // The added exercise is the one being logged, with no weight yet.
     expect(await screen.findByRole('heading', { name: 'Deadlift' })).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(screen.getByText('Exercise 2 of 2')).toBeInTheDocument()
     expect(screen.getByText('No weight yet')).toBeInTheDocument()
     expect(screen.getByText('Type the weight to see the plates.')).toBeInTheDocument()
     expect(weightField()).toHaveValue('')
@@ -343,6 +349,165 @@ describe('TodayScreen', () => {
     expect(button('Missed')).toBeDisabled()
     await tap('Remove')
     await waitFor(() => expect(screen.queryByRole('heading', { name: 'Deadlift' })).toBeNull())
+
+    // Picking one already in the session just opens its card.
+    await openPicker()
+    await userEvent.click(pickerRow('Squat'))
+    expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Squat' })).toBeInTheDocument()
+  })
+
+  // ---- The exercise library: the picker and the info button ----
+
+  it('infoButton_opensGuide_fromEveryPlace', async () => {
+    // Squat is the open card; bench is a second planned exercise, folded to a row.
+    await plan(db, (await exerciseNamed(db, 'Bench')).id, { sets: 3, order: 1 })
+    await startSession(db, TODAY)
+    show()
+    await findButton('Log set 1')
+    expect(screen.getByText('Exercise 1 of 2')).toBeInTheDocument()
+
+    await checkInfoButtonOpensGuide('Squat')
+    await checkInfoButtonOpensGuide('Bench')
+
+    // Reading the row's guide did not open its card, and nothing was logged.
+    expect(screen.getByText('Exercise 1 of 2')).toBeInTheDocument()
+    expect(button('Log set 1')).toBeInTheDocument()
+    expect(await setsOn(db, TODAY)).toEqual([])
+
+    // In the picker too, without adding the exercise to the session.
+    await openPicker()
+    await userEvent.type(picker().getByRole('textbox', { name: 'Search exercises' }), 'Curl')
+    await checkInfoButtonOpensGuide('Curl')
+    expect(picker().getByRole('textbox', { name: 'Search exercises' })).toBeInTheDocument()
+    await userEvent.click(picker().getByRole('button', { name: 'Close' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(screen.getByText('Exercise 1 of 2')).toBeInTheDocument()
+    expect(screen.queryByText('Curl')).toBeNull()
+  })
+
+  it('pickedLibraryExercise_getsItsRowWithItsFirstSet', async () => {
+    // A library exercise that has never been used has no row.
+    for (const row of await exerciseRows('Curl')) await db.exercises.delete(row.id!)
+    const before = await db.exercises.toArray()
+    await startSession(db, TODAY)
+    show()
+
+    await openPicker()
+    await userEvent.click(pickerRow('Curl'))
+    expect(await screen.findByText('Exercise 2 of 2')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Curl' })).toBeInTheDocument()
+    // On the card, not in the data: taking it back leaves nothing behind.
+    expect(await db.exercises.toArray()).toEqual(before)
+    await tap('Remove')
+    expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument()
+    expect(await db.exercises.toArray()).toEqual(before)
+
+    await openPicker()
+    await userEvent.click(pickerRow('Curl'))
+    expect(await screen.findByText('Exercise 2 of 2')).toBeInTheDocument()
+    await typeWeight('20')
+    await tap('Log set 1')
+    await waitForSets(1)
+
+    // One built-in row, saved with the set that needed it; the card stays open on it for set 2.
+    const curls = await exerciseRows('Curl')
+    expect(curls).toHaveLength(1)
+    expect(curls[0]!.isBuiltIn).toBe(true)
+    expect(await db.exercises.count()).toBe(before.length + 1)
+    expect(await setsOn(db, TODAY)).toMatchObject([{ exerciseId: curls[0]!.id, weightKg: 20, reps: 5, rpe: 8, failed: false, missPoint: null, isTopSet: false }])
+    await findButton('Log set 2')
+    expect(screen.getByText('Exercise 2 of 2')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Curl' })).toBeInTheDocument()
+    expect(weightField()).toHaveValue('20')
+
+    await typeWeight('22.5')
+    await tap('Log set 2')
+    await waitForSets(2)
+    expect((await setsOn(db, TODAY)).map((s) => s.exerciseId)).toEqual([curls[0]!.id, curls[0]!.id])
+    expect(await exerciseRows('Curl')).toHaveLength(1)
+    // The stand-in the card was shown under is never written, in the sets or beside them.
+    expect((await db.sets.toArray()).every((s) => s.exerciseId > 0)).toBe(true)
+    expect((await db.meta.toArray()).filter((row) => row.key.includes(':-'))).toEqual([])
+  })
+
+  it('pickedLibraryExercise_thatIsArchived_isRestoredWithItsFirstSet', async () => {
+    const [curl] = await exerciseRows('Curl')
+    await db.exercises.update(curl!.id!, { archived: true })
+    await startSession(db, TODAY)
+    show()
+
+    await openPicker()
+    await userEvent.click(pickerRow('Curl'))
+    expect(await screen.findByText('Exercise 2 of 2')).toBeInTheDocument()
+    expect((await exerciseRows('Curl'))[0]!.archived).toBe(true)
+
+    await typeWeight('20')
+    await tap('Log set 1')
+    await waitForSets(1)
+
+    expect(await exerciseRows('Curl')).toEqual([{ ...curl, archived: false }])
+    expect((await setsOn(db, TODAY))[0]!.exerciseId).toBe(curl!.id)
+  })
+
+  it('failedFirstSet_ofALibraryExercise_leavesNoRow', async () => {
+    for (const row of await exerciseRows('Curl')) await db.exercises.delete(row.id!)
+    const before = await db.exercises.toArray()
+    await startSession(db, TODAY)
+    show()
+    await openPicker()
+    await userEvent.click(pickerRow('Curl'))
+    await screen.findByText('Exercise 2 of 2')
+    await typeWeight('20')
+    vi.spyOn(db.sets, 'add').mockRejectedValue(new Error('disk full'))
+    await tap('Log set 1')
+
+    expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect(await db.exercises.toArray()).toEqual(before)
+    // The card is still there to try again.
+    expect(screen.getByRole('heading', { name: 'Curl' })).toBeInTheDocument()
+  })
+
+  it('createYourOwn_fromTodaysPicker_addsItToTheSession_withNoGuide', async () => {
+    await startSession(db, TODAY)
+    show()
+    await openPicker()
+    await userEvent.type(picker().getByRole('textbox', { name: 'Search exercises' }), 'Sled push')
+    expect(picker().getByText('No exercises match. Try fewer filters, or create your own.')).toBeInTheDocument()
+
+    await userEvent.click(picker().getByRole('button', { name: 'Create your own' }))
+    await userEvent.click(within(screen.getByRole('dialog', { name: 'Add custom exercise' })).getByRole('button', { name: 'Create' }))
+    expect(await screen.findByText('Exercise 2 of 2')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Sled push' })).toBeInTheDocument()
+
+    const sled = await exerciseRows('Sled push')
+    expect(sled).toHaveLength(1)
+    expect(sled[0]!.isBuiltIn).toBe(false)
+    await checkInfoButtonOpensGuide('Sled push')
+  })
+
+  it('createCustom_withCatalogueName_usesTheCatalogueEntry', async () => {
+    for (const row of await exerciseRows('Curl')) await db.exercises.delete(row.id!)
+    const before = await db.exercises.toArray()
+    await startSession(db, TODAY)
+    show()
+    await openPicker()
+    await userEvent.click(picker().getByRole('button', { name: 'Create your own' }))
+    const custom = within(screen.getByRole('dialog', { name: 'Add custom exercise' }))
+    await userEvent.type(custom.getByRole('textbox', { name: 'Name' }), 'biceps curl')
+    await userEvent.click(custom.getByRole('button', { name: 'Create' }))
+
+    // The catalogue's exercise, under its own name and with its guide; no row of the lifter's own.
+    expect(await screen.findByRole('heading', { name: 'Curl' })).toBeInTheDocument()
+    expect(await db.exercises.toArray()).toEqual(before)
+    await checkInfoButtonOpensGuide('Curl')
+    await typeWeight('20')
+    await tap('Log set 1')
+    await waitForSets(1)
+    const curls = await exerciseRows('Curl')
+    expect(curls).toHaveLength(1)
+    expect(curls[0]!.isBuiltIn).toBe(true)
+    expect(await exerciseRows('biceps curl')).toEqual([])
   })
 
   it('startCard_takesBodyweightAndReadiness', async () => {

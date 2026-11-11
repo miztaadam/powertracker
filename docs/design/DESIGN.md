@@ -143,6 +143,14 @@ production builds. Mockups: `docs/design/web/screens/showcase-{dark,light}.png`,
 `web/e2e/showcase.spec.ts`. A normal `npm run e2e` only writes them to `web/test-results/`; to update
 the committed PNGs run `UPDATE_SCREENSHOTS=1 npm run e2e` and look at them.
 
+The exercise library is in `web/src/screens/library/`: `InfoButton`, `FormGuideSheet` and
+`ExercisePicker`, as on Android. `Dialog` has two more variants for them: `screen` fills the phone
+(the picker), `sheet` rises from the bottom edge (the form guide, drawn at the end of the page so it
+can open from inside a row or another dialog). With one dialog over another, Escape closes the one
+on top. The picker's chip rows scroll sideways; its rows are a button to pick and the info button
+beside it. Mockups: `exercise-picker-*`, `form-guide-*` and `form-guide-end-*`, rendered by
+`web/e2e/screenshots.spec.ts`.
+
 **Accent: warm chalk**, the values in the colour table above.
 
 - The primary button is the brightest filled element on every screen. Keep one per card or screen region.

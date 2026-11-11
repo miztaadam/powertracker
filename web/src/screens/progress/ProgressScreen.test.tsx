@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { GritDb } from '../../db/db'
 import { goBack, navigate, useRoute } from '../../router'
+import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, addDays, exerciseNamed, set, todayFixture } from '../../test/todayFixture'
 import { LiftHistoryScreen } from './LiftHistoryScreen'
 import { ProgressScreen } from './ProgressScreen'
@@ -157,6 +158,18 @@ describe('ProgressScreen', () => {
     expect(screen.getByText('Log a squat, bench or deadlift session on Today and your charts will appear here.')).toBeInTheDocument()
     expect(screen.queryByText('Weekly best e1RM')).toBeNull()
     expect(screen.queryByText('Lift ratios')).toBeNull()
+  })
+
+  it('infoButton_opensGuide_fromEveryPlace', async () => {
+    // The history screens are named as the catalogue names the lifts, so each header opens that lift's guide.
+    for (const lift of ['SQUAT', 'BENCH', 'DEADLIFT'] as const) {
+      const name = lift[0] + lift.slice(1).toLowerCase()
+      const { unmount } = render(<LiftHistoryScreen db={db} lift={lift} onBack={() => {}} today={() => TODAY} />)
+      await screen.findByRole('heading', { level: 1, name: `${name} history` })
+      await checkInfoButtonOpensGuide(name)
+      expect(screen.getByRole('heading', { level: 1, name: `${name} history` })).toBeInTheDocument()
+      unmount()
+    }
   })
 
   it('liftHistory_emptyState', async () => {

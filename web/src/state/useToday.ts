@@ -1,9 +1,11 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { addSet } from '../db/catalogue'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
 import type { AdviceRow, PlanItemRow, SetRow } from '../db/schema'
-import { grit, JsCoachSettings, type JsExercise, type JsHistory, type JsSet } from '../domain'
+import { grit, JsCoachSettings, JsExercise, type JsHistory, type JsLibraryExercise, type JsSet } from '../domain'
+import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 
 /** The numbers in the steppers for the next set. `weightKg` is null until the lifter enters one. */
 export type SetEditor = { weightKg: number | null; reps: number; rpe: number }
@@ -53,8 +55,16 @@ export type TodayState = {
   items: TodayItem[]
   pending: PendingLog | null
   summary: FinishSummary | null
-  /** Exercises that can still be added to this session. */
-  addable: JsExercise[]
+  /** The lifter's exercises that are not archived, for the picker. */
+  exercises: JsExercise[]
+  /** Exercise ids, most recently logged first, for the picker's "Your exercises". */
+  recentIds: number[]
+  /**
+   * A catalogue exercise added before it has a row is shown under a stand-in id (a negative number,
+   * never stored). This maps each stand-in to the row's id once the row exists, so the screen can
+   * follow the card across.
+   */
+  resolved: Record<number, number>
   weightStepKg: number
   changePlates: boolean
   /** How many times today's targets have been worked out and stored (on open, again when the plan changes). */
@@ -84,6 +94,17 @@ export type TodayActions = {
   dismissTarget: (adviceId: number) => Promise<void>
   /** Adds an exercise for this session only; it is kept once a set is logged for it. */
   addExercise: (exerciseId: number) => void
+  /**
+   * Adds a catalogue exercise for this session and returns the id its card is shown under: its row's
+   * id when it has one, otherwise a stand-in. Nothing is stored until a set is logged for it: the
+   * row is saved with that set. Null for a name the catalogue does not know.
+   */
+  addFromCatalogue: (name: string) => number | null
+  /**
+   * Makes an exercise of the lifter's own, adds it to this session and resolves to the id its card
+   * is shown under. A catalogue name is added from the catalogue instead of being made again.
+   */
+  createExercise: (exercise: CustomExercise) => Promise<number | null>
   /** Takes back an added exercise that has no sets yet. */
   removeExercise: (exerciseId: number) => void
   /** Runs the coach over the history including today and stores what is new. */
@@ -243,8 +264,30 @@ function lastTopSet(history: JsHistory, exerciseId: number, before: string): JsS
   return top
 }
 
-function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'addable' | 'weightStepKg' | 'changePlates'> {
+/** The id a catalogue exercise is shown under while it has no row: negative, so it can never be a row's. */
+const standInId = (entry: JsLibraryExercise) => -(library().findIndex((e) => e.name === entry.name) + 1)
+
+/** The catalogue entry behind a stand-in id; null for a row's id. */
+const standInEntry = (id: number): JsLibraryExercise | null => (id < 0 ? (library()[-id - 1] ?? null) : null)
+
+const sameName = (a: string, b: string) => a.toLowerCase() === b.toLowerCase()
+
+function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'exercises' | 'recentIds' | 'resolved' | 'weightStepKg' | 'changePlates'> {
   const exercises = new Map(d.history.exercises.map((e) => [e.id, e]))
+  // Oldest first, like resolveCatalogue: with two rows of one name, the one shown is the one saved to.
+  const live = d.history.exercises.filter((e) => !e.archived).sort((a, b) => a.id - b.id)
+  // A catalogue exercise added without a row gets one with its first set (or from the Plan tab meanwhile).
+  const resolved: Record<number, number> = {}
+  const standInOf = new Map<number, number>()
+  for (const standIn of l.added) {
+    const name = standInEntry(standIn)?.name
+    const row = name != null ? live.find((e) => sameName(e.name, name)) : undefined
+    if (row) {
+      resolved[standIn] = row.id
+      standInOf.set(row.id, standIn)
+    }
+  }
+  const added = l.added.map((id) => resolved[id] ?? id)
   // One card per exercise: sets are stored per exercise, so a second plan line for the same one merges into the first.
   const planned: PlannedItem[] = []
   for (const p of d.plan.filter((p) => p.weekday === weekdayOf(d.date)).sort((a, b) => a.order - b.order)) {
@@ -252,7 +295,7 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'a
   }
   const plannedIds = new Set(planned.map((p) => p.exerciseId))
   const loggedIds = d.sets.map((s) => s.exerciseId)
-  const addedIds = [...new Set([...loggedIds.filter((id) => !l.added.includes(id)), ...l.added])].filter((id) => !plannedIds.has(id))
+  const addedIds = [...new Set([...loggedIds.filter((id) => !added.includes(id)), ...added])].filter((id) => !plannedIds.has(id))
 
   function item(exercise: JsExercise, plan: PlannedItem | null): TodayItem {
     const sets = d.sets.filter((s) => s.exerciseId === exercise.id)
@@ -263,6 +306,7 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'a
     const rpe = plan?.targetRpe ?? d.settings.defaultRpe
     const editor: SetEditor =
       l.editors[exercise.id] ??
+      l.editors[standInOf.get(exercise.id) ?? exercise.id] ??
       (lastToday != null
         ? { weightKg: lastToday.weightKg, reps: lastToday.reps, rpe: lastToday.rpe ?? rpe }
         : applied != null
@@ -289,14 +333,16 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'a
     if (exercise) items.push(item(exercise, p))
   }
   for (const id of addedIds) {
-    const exercise = exercises.get(id)
+    const entry = standInEntry(id)
+    const exercise = exercises.get(id) ?? (entry ? new JsExercise(id, entry.name, entry.category, entry.parentLift, [...entry.muscles], true, false) : undefined)
     if (exercise) items.push(item(exercise, null))
   }
-  const shown = new Set(items.map((i) => i.exercise.id))
   return {
     sessionId: d.sessionId,
     items,
-    addable: d.history.exercises.filter((e) => !e.archived && !shown.has(e.id)).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
+    exercises: live,
+    recentIds: recentExerciseIds(d.history.sessions),
+    resolved,
     weightStepKg: grit.loadStep(d.settings.changePlates),
     changePlates: d.settings.changePlates,
   }
@@ -428,7 +474,9 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     items: built?.items ?? [],
     pending: local.pending,
     summary: local.summary,
-    addable: built?.addable ?? [],
+    exercises: built?.exercises ?? [],
+    recentIds: built?.recentIds ?? [],
+    resolved: built?.resolved ?? {},
     weightStepKg: built?.weightStepKg ?? grit.loadStep(false),
     changePlates: built?.changePlates ?? false,
     coachPasses,
@@ -522,6 +570,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   const edit = useCallback(
     (exerciseId: number, editor: SetEditor) => {
       update((l) => ({ ...l, editors: { ...l.editors, [exerciseId]: editor } }))
+      // A stand-in id is never stored, and its card would not survive a reload anyway.
+      if (exerciseId < 0) return
       // The numbers are on screen either way; a failed write only costs them on a reload.
       db.meta.put({ key: editorKey(date, exerciseId), value: editor }).catch(() => {})
     },
@@ -560,7 +610,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         if (!(await loaded())) return
         const now = latest.current
         if (now.sessionId == null) throw new Error('There is no session to log to.')
-        const item = now.items.find((i) => i.exercise.id === itemKey)
+        const item = now.items.find((i) => i.exercise.id === (now.resolved[itemKey] ?? itemKey))
         const lastWeightKg = item?.lastWeightKg ?? null
         if (!confirmed) {
           const warnings = grit.checkInput(set.weightKg, set.reps, lastWeightKg) as InputWarning[]
@@ -570,12 +620,15 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
           }
         }
         // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
-        const setId = await db.sets.add({ sessionId: now.sessionId, exerciseId: itemKey, weightKg: set.weightKg, reps: set.reps, rpe: set.rpe, failed: set.failed, missPoint: null, isTopSet: false })
+        // A stand-in key means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
+        const entry = standInEntry(itemKey)
+        const row = { sessionId: now.sessionId, exerciseId: entry ? null : itemKey, weightKg: set.weightKg, reps: set.reps, rpe: set.rpe, failed: set.failed, missPoint: null, isTopSet: false }
+        const setId = await addSet(db, row, entry?.name ?? null)
         update((l) => ({ ...l, pending: null }))
         touch(now.date)
         setLogged.current?.(item?.exercise.category !== 'ACCESSORY')
         // Hold the guard until the new set is on screen, so the button the lifter sees is never stale.
-        await shown(setId as number)
+        await shown(setId)
       } finally {
         saving.current = false
       }
@@ -620,13 +673,34 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
 
   const addExercise = useCallback((exerciseId: number) => update((l) => (l.added.includes(exerciseId) ? l : { ...l, added: [...l.added, exerciseId] })), [update])
 
+  const addFromCatalogue = useCallback<TodayActions['addFromCatalogue']>(
+    (name) => {
+      const entry = grit.findInLibrary(name)
+      if (!entry) return null
+      const id = latest.current.exercises.find((e) => sameName(e.name, entry.name))?.id ?? standInId(entry)
+      addExercise(id)
+      return id
+    },
+    [addExercise],
+  )
+
+  const createExercise = useCallback<TodayActions['createExercise']>(
+    async (exercise) => {
+      const entry = await createCustomExercise(db, exercise)
+      if (entry.library) return addFromCatalogue(entry.library.name)
+      if (entry.exerciseId != null) addExercise(entry.exerciseId)
+      return entry.exerciseId
+    },
+    [db, addExercise, addFromCatalogue],
+  )
+
   const removeExercise = useCallback(
     (exerciseId: number) => {
-      update((l) => {
-        const { [exerciseId]: _removed, ...editors } = l.editors
-        return { ...l, added: l.added.filter((id) => id !== exerciseId), editors }
-      })
-      db.meta.delete(editorKey(date, exerciseId)).catch(() => {})
+      // The card may be shown under its row's id by now and still be listed under its stand-in.
+      const standIn = Object.entries(latest.current.resolved).find(([, id]) => id === exerciseId)?.[0]
+      const gone = new Set([exerciseId, ...(standIn != null ? [Number(standIn)] : [])])
+      update((l) => ({ ...l, added: l.added.filter((id) => !gone.has(id)), editors: Object.fromEntries(Object.entries(l.editors).filter(([id]) => !gone.has(Number(id)))) }))
+      if (exerciseId >= 0) db.meta.delete(editorKey(date, exerciseId)).catch(() => {})
     },
     [db, date, update],
   )
@@ -676,6 +750,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     applyTarget,
     dismissTarget,
     addExercise,
+    addFromCatalogue,
+    createExercise,
     removeExercise,
     finishSession,
     dismissSummary,

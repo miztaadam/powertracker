@@ -10,6 +10,8 @@ import { AddIcon, DeleteIcon, EditIcon, KeyboardArrowDownIcon, KeyboardArrowUpIc
 import { Menu } from '../../ui/components/Menu'
 import { ScreenHeader, SectionHeader } from '../../ui/components/ScreenHeader'
 import { Snackbar } from '../../ui/components/Snackbar'
+import { ExercisePicker } from '../library/ExercisePicker'
+import { InfoButton } from '../library/InfoButton'
 import { BaselineDialog, PlanItemDialog } from './PlanDialogs'
 import './plan.css'
 
@@ -31,7 +33,7 @@ export function planItemText(name: string, item: Pick<PlanItem, 'sets' | 'reps' 
   return `${name}  ${item.sets} × ${item.reps} @ ${formatRpe(item.targetRpe)}`
 }
 
-type OpenDialog = { kind: 'edit'; weekday: number; item: PlanItem | null } | { kind: 'baseline'; lift: PlanExercise } | null
+type OpenDialog = { kind: 'add'; weekday: number } | { kind: 'edit'; item: PlanItem; exerciseName: string } | { kind: 'baseline'; lift: PlanExercise } | null
 
 export type PlanContentProps = { state: PlanState; actions: PlanActions; onOpenSettings: () => void }
 
@@ -52,8 +54,8 @@ export function PlanContent({ state, actions, onOpenSettings }: PlanContentProps
           <DayCard
             key={section.weekday}
             section={section}
-            onAdd={() => setDialog({ kind: 'edit', weekday: section.weekday, item: null })}
-            onEdit={(item) => setDialog({ kind: 'edit', weekday: item.weekday, item })}
+            onAdd={() => setDialog({ kind: 'add', weekday: section.weekday })}
+            onEdit={(row) => setDialog({ kind: 'edit', item: row.item, exerciseName: row.exerciseName })}
             onMove={(item, direction) => reported(actions.move(item, direction))}
             onDelete={(item) => reported(actions.remove(item))}
           />
@@ -74,16 +76,34 @@ export function PlanContent({ state, actions, onOpenSettings }: PlanContentProps
         )}
       </div>
 
+      {/* Picking adds the exercise with its default sets and reps; they are edited from the row. */}
+      {dialog?.kind === 'add' && (
+        <ExercisePicker
+          title={`Add to ${dayName(dialog.weekday)}`}
+          exercises={state.exercises}
+          recentIds={state.recentIds}
+          onPick={(entry) => {
+            reported(actions.add(dialog.weekday, entry))
+            setDialog(null)
+          }}
+          onCreateCustom={(exercise) => {
+            reported(actions.addCustomExercise(exercise).then((entry) => actions.add(dialog.weekday, entry)))
+            setDialog(null)
+          }}
+          onDismiss={() => setDialog(null)}
+        />
+      )}
       {dialog?.kind === 'edit' && (
         <PlanItemDialog
-          title={`${dialog.item == null ? 'Add to' : 'Edit'} ${dayName(dialog.weekday)}`}
+          title={`Edit ${dayName(dialog.item.weekday)}`}
+          item={dialog.item}
+          exerciseName={dialog.exerciseName}
           exercises={state.exercises}
-          initial={dialog.item}
-          defaultRpe={state.defaultRpe}
+          recentIds={state.recentIds}
           onCreateCustom={actions.addCustomExercise}
           onFailure={() => setFailures((n) => n + 1)}
-          onSave={(exerciseId, sets, reps, rpe) => {
-            reported(actions.save(dialog.weekday, dialog.item, exerciseId, sets, reps, rpe))
+          onSave={(exercise, sets, reps, rpe) => {
+            reported(actions.save(dialog.item, exercise, sets, reps, rpe))
             setDialog(null)
           }}
           onDismiss={() => setDialog(null)}
@@ -108,7 +128,7 @@ export function PlanContent({ state, actions, onOpenSettings }: PlanContentProps
 type DayCardProps = {
   section: DaySection
   onAdd: () => void
-  onEdit: (item: PlanItem) => void
+  onEdit: (row: PlanRow) => void
   onMove: (item: PlanItem, direction: -1 | 1) => void
   onDelete: (item: PlanItem) => void
 }
@@ -138,7 +158,7 @@ function DayCard({ section, onAdd, onEdit, onMove, onDelete }: DayCardProps) {
                 canMoveUp={i > 0}
                 canMoveDown={i < rows.length - 1}
                 onMove={(direction) => onMove(row.item, direction)}
-                onEdit={() => onEdit(row.item)}
+                onEdit={() => onEdit(row)}
                 onDelete={() => onDelete(row.item)}
               />
             ))}
@@ -167,13 +187,14 @@ function PlanItemRow({ position, row, canMoveUp, canMoveDown, onMove, onEdit, on
         {position}
       </span>
       <div className="plan-grow plan-row-text" aria-hidden="true">
-        <p className="plan-ellipsis title-medium">{exerciseName}</p>
-        <p className="headline-small">
+        <p className="plan-row-name title-medium">{exerciseName}</p>
+        <p className="plan-row-dose headline-small">
           {item.sets} × {item.reps}
           <span className="plan-muted"> @ </span>
           {formatRpe(item.targetRpe)}
         </p>
       </div>
+      <InfoButton name={exerciseName} />
       <IconButton label="Move up" icon={<KeyboardArrowUpIcon />} onClick={() => onMove(-1)} enabled={canMoveUp} />
       <IconButton label="Move down" icon={<KeyboardArrowDownIcon />} onClick={() => onMove(1)} enabled={canMoveDown} />
       <Menu

@@ -10,6 +10,7 @@ import { RatioBar } from '../../ui/components/RatioBar'
 import { Sparkline } from '../../ui/components/Sparkline'
 import { StatTile } from '../../ui/components/StatTile'
 import type { Tone } from '../../ui/components/tone'
+import { InfoButton } from '../library/InfoButton'
 
 const LIFT_LABEL: Record<Lift, string> = { SQUAT: 'Squat', BENCH: 'Bench', DEADLIFT: 'Deadlift' }
 const CHART_COLOR: Record<Lift, string> = { SQUAT: 'var(--chart-squat)', BENCH: 'var(--chart-bench)', DEADLIFT: 'var(--chart-deadlift)' }
@@ -51,8 +52,9 @@ function PrescriptionList({ items }: { items: Prescription[] }) {
     <ul className="coach-list">
       {items.map((item) => (
         <li key={item.exerciseName} className="coach-list-row">
-          <span className="title-small">{item.exerciseName}</span>
+          <span className="coach-list-name title-small">{item.exerciseName}</span>
           <span className="coach-dose headline-small">{dose(item)}</span>
+          <InfoButton name={item.exerciseName} />
         </li>
       ))}
     </ul>

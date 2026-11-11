@@ -1,0 +1,229 @@
+/* Layout for the exercise picker and the form guide sheet. Colours, type and controls come from the components and tokens. */
+
+.lib-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.lib-contents {
+  display: contents;
+}
+
+/* The picker: header and search stay put; chips and rows scroll under them. */
+
+.lib-search {
+  flex: none;
+  padding: var(--space-3) var(--space-5);
+}
+
+.lib-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: var(--space-6);
+}
+
+/* One line of chips that scrolls sideways instead of wrapping into a wall. */
+.lib-chips {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding: 0 var(--space-5);
+  scrollbar-width: none;
+}
+
+.lib-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.lib-chips .gr-chip {
+  flex: none;
+}
+
+.lib-chips .gr-chip-face {
+  padding: 0 var(--space-4);
+}
+
+.lib-heading {
+  padding: var(--space-5) var(--space-5) 0;
+}
+
+.lib-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lib-row {
+  display: flex;
+  align-items: center;
+  margin-left: var(--space-5);
+  padding-right: var(--space-2);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.lib-row-main {
+  appearance: none;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 64px;
+  margin: 0 0 0 calc(-1 * var(--space-5));
+  padding: var(--space-3) 0 var(--space-3) var(--space-5);
+  border: 0;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.lib-row-main:active {
+  background: var(--container);
+}
+
+.lib-row-name,
+.lib-row-muscles {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.lib-row-muscles {
+  color: var(--text-secondary);
+}
+
+.lib-row-equipment {
+  flex: none;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.lib-create {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-5) var(--space-5) 0;
+}
+
+/* The custom-exercise dialog. */
+
+.lib-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--text);
+}
+
+.lib-form-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.lib-form-label {
+  margin: 0;
+}
+
+/* The form guide sheet: read one-handed between sets. The name and Close stay in reach while it scrolls. */
+
+.lib-guide-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-3) var(--space-3) var(--space-6);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.lib-guide-head h2 {
+  padding-top: var(--space-3);
+  overflow-wrap: anywhere;
+}
+
+.lib-guide-where {
+  margin-top: var(--space-2);
+  white-space: normal;
+}
+
+.lib-guide {
+  /* A comfortable line: never wider than about 60 characters. */
+  max-width: 34rem;
+  padding: 0 var(--space-6) var(--space-6);
+  color: var(--text);
+}
+
+.lib-guide p {
+  margin: 0;
+}
+
+.lib-guide-purpose {
+  color: var(--text-secondary);
+}
+
+.lib-guide-title {
+  margin: var(--space-6) 0 var(--space-3);
+}
+
+.lib-guide-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.lib-guide-lines li {
+  position: relative;
+  padding-left: 28px;
+  overflow-wrap: anywhere;
+}
+
+/* A drawn dot, centred on the first line of text. */
+.lib-guide-lines li::before {
+  content: '';
+  position: absolute;
+  left: var(--space-2);
+  top: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.lib-guide-steps li {
+  counter-increment: step;
+}
+
+.lib-guide-steps li::before {
+  content: counter(step);
+  left: 0;
+  top: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  color: var(--text-muted);
+  font: 600 16px/24px var(--font-text);
+}
+
+/* The fixed last line, set apart from the guide in its own block. */
+.lib-guide-safety {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--container-high);
+}
+
+.lib-guide-safety svg {
+  flex: none;
+  color: var(--text-secondary);
+}

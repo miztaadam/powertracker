@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import type { JsExercise } from '../../domain'
 import type { PendingLog } from '../../state/useToday'
 import { PrimaryButton, QuietButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
@@ -80,32 +79,6 @@ export function TypoDialog({ pending, onConfirm, onEdit }: TypoDialogProps) {
           </p>
         ))}
         <p className="today-muted">Nothing is saved yet.</p>
-      </div>
-    </Dialog>
-  )
-}
-
-export type ExercisePickerDialogProps = { exercises: JsExercise[]; onPick: (exerciseId: number) => void; onDismiss: () => void }
-
-/** Search the library and tap an exercise to add it to this session. */
-export function ExercisePickerDialog({ exercises, onPick, onDismiss }: ExercisePickerDialogProps) {
-  const [query, setQuery] = useState('')
-  const q = query.trim().toLowerCase()
-  const starts = (e: JsExercise) => (e.name.toLowerCase().startsWith(q) ? 0 : 1)
-  const matches = exercises
-    .filter((e) => q === '' || e.name.toLowerCase().includes(q))
-    .sort((a, b) => starts(a) - starts(b) || a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-
-  return (
-    <Dialog open title="Add exercise" onDismiss={onDismiss} actions={<QuietButton text="Cancel" onClick={onDismiss} />}>
-      <TextField label="Search exercises" value={query} onChange={setQuery} />
-      <div className="today-picker-list">
-        {matches.map((exercise) => (
-          <button key={exercise.id} type="button" className="today-picker-item body-large" onClick={() => onPick(exercise.id)}>
-            {exercise.name}
-          </button>
-        ))}
-        {matches.length === 0 && <p className="today-picker-empty">No exercise matches. Custom exercises are created on the Plan tab.</p>}
       </div>
     </Dialog>
   )

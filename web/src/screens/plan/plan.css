@@ -6,16 +6,8 @@
 }
 
 .plan-grow p,
-.plan-muted,
-.plan-selected,
-.plan-form-label {
+.plan-muted {
   margin: 0;
-}
-
-.plan-ellipsis {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .plan-muted {
@@ -54,6 +46,15 @@
   padding: var(--space-3) 0;
 }
 
+/* Four 48 px controls leave the text a narrow column on a small phone: the name wraps, the numbers never do. */
+.plan-row-name {
+  overflow-wrap: anywhere;
+}
+
+.plan-row-dose {
+  white-space: nowrap;
+}
+
 /* Known bests: a line of explanation, then one row per main lift. */
 
 .plan-bests {
@@ -81,54 +82,21 @@
   color: var(--text);
 }
 
-.plan-picker-list {
-  display: flex;
-  flex-direction: column;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.plan-picker-item {
-  appearance: none;
-  flex: none;
+/* The item's exercise, with the button that changes it. */
+.plan-exercise {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  min-height: var(--touch);
-  margin: 0;
-  padding: 0 var(--space-4);
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: none;
-  color: var(--text);
-  text-align: left;
-  cursor: pointer;
-  touch-action: manipulation;
+  padding-bottom: var(--space-3);
 }
 
-.plan-picker-item:active,
-.plan-picker-item-selected {
-  background: var(--container-highest);
-}
-
-.plan-picker-check {
-  flex: none;
-  color: var(--accent-text);
-}
-
-.plan-selected {
-  color: var(--text-secondary);
+.plan-exercise p {
+  overflow-wrap: anywhere;
 }
 
 .plan-stepper-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.plan-chips {
-  display: flex;
-  flex-wrap: wrap;
   gap: var(--space-3);
 }
