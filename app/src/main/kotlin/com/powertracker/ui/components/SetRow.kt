@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,7 +41,8 @@ enum class SetState { PLANNED, DONE, FAILED }
 
 /**
  * One set: number, weight × reps @ RPE, and its state. Planned sets are dimmed, done sets get a
- * green tick, failed sets a red cross and a "Failed" pill. Reads to TalkBack as one sentence.
+ * green tick, failed sets a red cross and a "Failed" pill; a personal record gets a "PR" pill.
+ * Reads to TalkBack as one sentence.
  */
 @Composable
 fun SetRow(
@@ -51,6 +53,7 @@ fun SetRow(
     state: SetState,
     modifier: Modifier = Modifier,
     isTopSet: Boolean = false,
+    isPr: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
@@ -61,6 +64,7 @@ fun SetRow(
         append("Set $index: ${formatKg(weightKg)} kg × $reps")
         if (rpe != null) append(" @ ${formatRpe(rpe)}")
         if (isTopSet) append(", top set")
+        if (isPr) append(", personal record")
         append(
             when (state) {
                 SetState.PLANNED -> ", planned"
@@ -98,6 +102,7 @@ fun SetRow(
         )
         Text(line, style = MaterialTheme.typography.headlineSmall, maxLines = 1)
         if (isTopSet) Pill("Top set")
+        if (isPr) Pill("PR", tone = Tone.SUCCESS, icon = Icons.Filled.EmojiEvents)
         Box(Modifier.weight(1f))
         when (state) {
             SetState.PLANNED -> Box(Modifier.padding(end = 2.dp).size(24.dp).border(1.5.dp, scheme.outline, CircleShape))

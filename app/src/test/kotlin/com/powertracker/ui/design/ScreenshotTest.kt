@@ -29,9 +29,10 @@ import java.io.File
  *
  * The Today and Coach mockups render the real `TodayContent` / `CoachContent` with sample state
  * (Today: mid-session, before the session, an exercise finished, after Finish; Coach: the feed, the
- * empty feed, and the rarer re-entry and miss-point cards). Today, Plan, Settings and the empty
- * Coach feed are phone size (412 × 915 dp); the other Coach captures and Progress are full-page
- * captures of a scrolling screen, so their height differs.
+ * empty feed, and the rarer re-entry and miss-point cards). Progress and lift history render the
+ * real `ProgressContent` / `LiftHistoryContent` from a sample training history. Today, Plan,
+ * Settings, lift history and the empty Coach feed are phone size (412 × 915 dp); the other Coach
+ * captures and Progress are full-page captures of a scrolling screen, so their height differs.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -89,8 +90,11 @@ class ScreenshotTest {
     fun coachMore() = render("coach-more", Tab.COACH) { CoachMoreShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1104dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1830dp-xhdpi")
     fun progress() = render("progress", Tab.PROGRESS) { ProgressShowcase() }
+
+    @Test
+    fun liftHistory() = render("lift-history", null) { LiftHistoryShowcase() }
 
     @Test
     fun plan() = render("plan", Tab.PLAN) { PlanShowcase() }

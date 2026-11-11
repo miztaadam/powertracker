@@ -5,7 +5,7 @@ big condensed tabular numerals you can read from the floor of a dim gym. One acc
 the single next action; every other colour means a state (PR, stall, deload) or a real object (a plate).
 
 Mockups: `docs/design/screens/` (rendered by `ScreenshotTest` from the real components; the
-`today-*` and `coach-*` ones are the real Today and Coach screens with sample state). A normal
+`today-*`, `coach-*`, `progress-*` and `lift-history-*` ones are the real screens with sample state). A normal
 test run only renders them to `app/build/screenshots/` as a smoke check. To update the committed
 PNGs after a visual change, run
 `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true` and look at them.
@@ -76,15 +76,15 @@ Depth comes from tone steps and a 1 dp hairline. No shadows.
 - `PrimaryButton` / `SecondaryButton` / `QuietButton` — volt, tonal, text; `compact` inside cards.
 - `NumberDisplay`, `Eyebrow` — label, big tabular value, small unit on the baseline.
 - `Stepper` — one-line − value + (settings, dialogs). `StepperField` — big value over two wide buttons (logging); with `onValueClick` the value is a button for typing the number.
-- `SetRow` — set number, weight × reps @ RPE, planned / done / failed, optional "Top set".
+- `SetRow` — set number, weight × reps @ RPE, planned / done / failed, optional "Top set" and "PR".
 - `SegmentedChoice` — pick one of a few (miss point Floor / Mid / Lockout, chart range). `ChoiceChip` — toggle (training days).
 - `Pill` — small status label in a tone.
 - `CoachSuggestion` — inline "Coach suggests 155 × 5 @ 8" with reason, Apply, Dismiss.
 - `AdviceCard` — coach card shell: toned icon + tag, title (what), body (why), detail slot, actions.
-- `StatTile` — labelled figure with a note.
+- `StatTile` — labelled figure with a note; with `onClick` it is a button with a chevron (lift tiles open the lift's history).
 - `PlateStrip` — one side of the bar drawn in IPF colours plus "25 + 25 + 15 + 2.5". `PlateStripNote` — the same block in words when there is nothing to draw ("Can't load 181 kg exactly").
 - `RestTimerBar` — countdown, progress line, −30 s, +30 s, Skip; docks above the bottom bar. The same rest shows as an ongoing notification (`platform/RestTimerService`): barbell status icon, accent tint, "Rest" with a countdown, +30 s and Skip.
-- `LineChart`, `Sparkline`, `ChartSeries` — e1RM over time with legend and latest values; tiny trend line. Give `Sparkline` a `minSpan` when a flat trend must look flat (the stall card uses 5% of the lift).
+- `LineChart`, `Sparkline`, `BarStrip`, `ChartSeries` — e1RM over time with legend and latest values (a null value is a week with no reading; the line runs across it); tiny trend line; a row of bars for one quantity per week (volume), with the figure in text beside it. Give `Sparkline` a `minSpan` when a flat trend must look flat (the stall card uses 5% of the lift).
 - `RatioBar` — lift ratio against its typical range.
 - `EmptyState` — icon, title, body, optional action.
 - `PtBottomBar` (in `ui/AppShell.kt`) — four tabs, volt indicator on the current one.

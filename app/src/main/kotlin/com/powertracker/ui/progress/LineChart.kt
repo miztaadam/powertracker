@@ -1,0 +1,47 @@
+package com.powertracker.ui.progress
+
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import com.powertracker.ui.components.ChartSeries
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import com.powertracker.ui.components.LineChart as SeriesChart
+
+private val DAY_LABEL = DateTimeFormatter.ofPattern("d MMM")
+private val MONTH_LABEL = DateTimeFormatter.ofPattern("MMM yy")
+
+/**
+ * Axis labels for evenly spaced [dates]: the first, the middle and the last, blank elsewhere.
+ * Past a year the day stops mattering, so the label is the month and year.
+ */
+internal fun axisLabels(dates: List<LocalDate>): List<String> {
+    if (dates.isEmpty()) return emptyList()
+    val format = if (ChronoUnit.DAYS.between(dates.first(), dates.last()) > 366) MONTH_LABEL else DAY_LABEL
+    val shown = when {
+        dates.size >= 5 -> setOf(0, dates.lastIndex / 2, dates.lastIndex)
+        else -> setOf(0, dates.lastIndex)
+    }
+    return dates.mapIndexed { i, date -> if (i in shown) format.format(date) else "" }
+}
+
+/**
+ * One measurement over time (bodyweight), drawn with the design system's chart. The points sit at
+ * their dates, so an uneven gap between them reads as one. [name] labels the latest value in the legend.
+ */
+@Composable
+fun LineChart(
+    points: List<Pair<LocalDate, Double>>,
+    modifier: Modifier = Modifier,
+    name: String = "Latest",
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+) {
+    if (points.isEmpty()) return
+    val byDate = points.toMap()
+    val first = points.minOf { it.first }
+    val last = points.maxOf { it.first }
+    val days = generateSequence(first) { it.plusDays(1) }.takeWhile { !it.isAfter(last) }.toList()
+    SeriesChart(listOf(ChartSeries(name, color, days.map { byDate[it]?.toFloat() })), axisLabels(days), modifier)
+}

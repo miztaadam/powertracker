@@ -76,9 +76,9 @@ import java.time.LocalDate
 // Mockups for owner approval: real components, hard-coded sample data. One lifter, one story:
 // squat e1RM 190, bench 122.5 (stalled), deadlift 250, on Wednesday 11 November.
 
-private val SQUAT = listOf(172.5f, 175f, 175f, 177.5f, 180f, 180f, 182.5f, 185f, 185f, 187.5f, 187.5f, 190f)
-private val BENCH = listOf(115f, 117.5f, 119f, 120f, 121f, 122.5f, 122f, 122.5f, 122.5f, 122f, 122.5f, 122.5f)
-private val DEADLIFT = listOf(232.5f, 235f, 237.5f, 237.5f, 240f, 242.5f, 242.5f, 245f, 247.5f, 247.5f, 250f, 250f)
+internal val SQUAT = listOf(172.5f, 175f, 175f, 177.5f, 180f, 180f, 182.5f, 185f, 185f, 187.5f, 187.5f, 190f)
+internal val BENCH = listOf(115f, 117.5f, 119f, 120f, 121f, 122.5f, 122f, 122.5f, 122.5f, 122f, 122.5f, 122.5f)
+internal val DEADLIFT = listOf(232.5f, 235f, 237.5f, 237.5f, 240f, 242.5f, 242.5f, 245f, 247.5f, 247.5f, 250f, 250f)
 
 /** Theme, background, a stand-in status bar, and the real bottom bar when [tab] is given. */
 @Composable
@@ -94,7 +94,7 @@ fun ShowcaseFrame(dark: Boolean, tab: Tab?, content: @Composable () -> Unit) {
     }
 }
 
-private val SHOWCASE_DATE: LocalDate = LocalDate.of(2026, 11, 11)
+internal val SHOWCASE_DATE: LocalDate = LocalDate.of(2026, 11, 11)
 
 private fun logged(id: Long, kg: Double, reps: Int, rpe: Double, failed: Boolean = false, miss: MissPoint? = null) =
     StoredSet(id, 1, LoggedSet(1, kg, reps, rpe, failed, miss, isTopSet = false))
@@ -241,66 +241,6 @@ fun CoachMoreShowcase() {
         ),
         onApply = {}, onDismiss = {},
     )
-}
-
-@Composable
-private fun PrLine(lift: String, detail: String, e1rm: String) {
-    val pt = PowertrackerTheme.colors
-    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-        Box(Modifier.size(36.dp).background(pt.successContainer, CircleShape), contentAlignment = Alignment.Center) {
-            Icon(Icons.Filled.EmojiEvents, contentDescription = null, tint = pt.success, modifier = Modifier.size(20.dp))
-        }
-        Column(Modifier.weight(1f)) {
-            Text(lift, style = MaterialTheme.typography.titleMedium)
-            Text(detail, style = MaterialTheme.typography.bodySmall, color = pt.muted)
-        }
-        NumberDisplay(e1rm, unit = "kg", size = NumberSize.MEDIUM)
-    }
-}
-
-@Composable
-fun ProgressShowcase() {
-    val pt = PowertrackerTheme.colors
-    val total = SQUAT.indices.map { SQUAT[it] + BENCH[it] + DEADLIFT[it] }
-    val weeks = listOf("25 Aug", "", "", "", "", "29 Sep", "", "", "", "", "", "10 Nov")
-    Column(Modifier.fillMaxSize()) {
-        ScreenHeader("Progress", eyebrow = "Estimated 1RM")
-        Column(Modifier.padding(horizontal = Space.gutter).padding(bottom = Space.l), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-            PtCard {
-                Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-                    Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
-                        NumberDisplay("562.5", unit = "kg", label = "Total", size = NumberSize.HERO)
-                        Pill("+42.5 kg in 12 weeks", tone = Tone.SUCCESS, icon = Icons.AutoMirrored.Filled.TrendingUp)
-                    }
-                    Sparkline(total, pt.accentText, Modifier.weight(1f).height(88.dp))
-                }
-            }
-            PtCard {
-                SegmentedChoice(listOf("4 wk", "12 wk", "1 yr", "All"), 1, {})
-                LineChart(
-                    listOf(ChartSeries("Squat", pt.squat, SQUAT), ChartSeries("Bench", pt.bench, BENCH), ChartSeries("Deadlift", pt.deadlift, DEADLIFT)),
-                    weeks,
-                )
-            }
-            Column {
-                SectionHeader("Recent PRs")
-                PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
-                    PrLine("Deadlift", "6 Nov · 225 × 3 @ 8.5", "250")
-                    HorizontalDivider(color = pt.hairline)
-                    PrLine("Squat", "4 Nov · 150 × 5 @ 7", "190")
-                    HorizontalDivider(color = pt.hairline)
-                    PrLine("Bench", "14 Oct · 105 × 5 @ 9", "122.5")
-                }
-            }
-            Column {
-                SectionHeader("Lift ratios")
-                PtCard(spacing = Space.l) {
-                    RatioBar("Squat ÷ Deadlift", 76, 80, 90)
-                    RatioBar("Bench ÷ Squat", 64, 60, 70)
-                }
-            }
-        }
-    }
 }
 
 private fun exercise(id: Long, name: String, category: Category = Category.ACCESSORY) = Exercise(id, name, category, null, emptyList(), isBuiltIn = true)

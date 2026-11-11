@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -34,10 +36,17 @@ import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.roundToInt
 
-/** One line on a chart. Use the lift colours from [PowertrackerTheme.colors] so a lift keeps its colour everywhere. */
+/**
+ * One line on a chart. Use the lift colours from [PowertrackerTheme.colors] so a lift keeps its colour everywhere.
+ * A null value is a point in time with no reading: the line runs straight across it.
+ */
 @Immutable
-data class ChartSeries(val name: String, val color: Color, val values: List<Float>)
+data class ChartSeries(val name: String, val color: Color, val values: List<Float?>)
+
+/** Chart figures to one decimal at most: 187.5, 92.4, 250. */
+private fun formatValue(value: Float): String = formatKg((value * 10).roundToInt() / 10.0)
 
 private fun niceStep(range: Float): Float =
     listOf(2.5f, 5f, 10f, 20f, 25f, 50f, 100f, 200f).firstOrNull { range / it <= 4f } ?: 500f
@@ -65,8 +74,8 @@ fun LineChart(series: List<ChartSeries>, xLabels: List<String>, modifier: Modifi
     val pt = PowertrackerTheme.colors
     val measurer = rememberTextMeasurer()
     val axisStyle = MaterialTheme.typography.bodySmall.copy(color = pt.muted)
-    val all = series.flatMap { it.values }
-    val summary = series.joinToString(", ") { "${it.name} ${formatKg(it.values.lastOrNull()?.toDouble() ?: 0.0)} $unit" }
+    val all = series.flatMap { it.values.filterNotNull() }
+    val summary = series.joinToString(", ") { "${it.name} ${formatValue(it.values.lastOrNull { v -> v != null } ?: 0f)} $unit" }
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
         Row(horizontalArrangement = Arrangement.spacedBy(Space.l), verticalAlignment = Alignment.CenterVertically) {
@@ -74,7 +83,7 @@ fun LineChart(series: List<ChartSeries>, xLabels: List<String>, modifier: Modifi
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Box(Modifier.size(8.dp).background(s.color, CircleShape))
                     Text(s.name, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
-                    Text(formatKg(s.values.lastOrNull()?.toDouble() ?: 0.0), style = MaterialTheme.typography.titleSmall, color = scheme.onSurface)
+                    Text(formatValue(s.values.lastOrNull { it != null } ?: 0f), style = MaterialTheme.typography.titleSmall, color = scheme.onSurface)
                 }
             }
         }
@@ -105,7 +114,7 @@ fun LineChart(series: List<ChartSeries>, xLabels: List<String>, modifier: Modifi
                 val lx = (x(i) - label.size.width / 2).coerceIn(left, size.width - label.size.width)
                 drawText(label, topLeft = Offset(lx, size.height - label.size.height))
             }
-            for (s in series) drawSeriesLine(s.values.mapIndexed { i, v -> Offset(x(i), y(v)) }, s.color, scheme.surface)
+            for (s in series) drawSeriesLine(s.values.mapIndexedNotNull { i, v -> v?.let { Offset(x(i), y(it)) } }, s.color, scheme.surface)
         }
     }
 }
@@ -141,6 +150,28 @@ fun Sparkline(values: List<Float>, color: Color, modifier: Modifier = Modifier, 
     }
 }
 
+/**
+ * A row of bars for one quantity over equal periods (weekly volume), oldest first, no axes: say the
+ * figure that matters in text next to it. Bars share the strip's own scale; an empty period keeps a
+ * stub on the baseline so the rhythm of the weeks stays visible.
+ */
+@Composable
+fun BarStrip(values: List<Float>, color: Color, modifier: Modifier = Modifier) {
+    val stub = MaterialTheme.colorScheme.surfaceContainerHighest
+    Canvas(modifier.clearAndSetSemantics { }) {
+        if (values.isEmpty()) return@Canvas
+        val gap = 4.dp.toPx()
+        val barW = (size.width - gap * (values.size - 1)) / values.size
+        val max = values.max().takeIf { it > 0f } ?: 1f
+        val stubH = 3.dp.toPx()
+        val r = CornerRadius(minOf(3.dp.toPx(), barW / 2))
+        values.forEachIndexed { i, v ->
+            val h = if (v > 0f) maxOf(v / max * size.height, stubH * 2) else stubH
+            drawRoundRect(if (v > 0f) color else stub, Offset(i * (barW + gap), size.height - h), Size(barW, h), r)
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun ChartsPreview() = PowertrackerTheme(darkTheme = true) {
@@ -154,5 +185,6 @@ private fun ChartsPreview() = PowertrackerTheme(darkTheme = true) {
             listOf("Aug", "", "", "", "Nov"),
         )
         Sparkline(listOf(1f, 2f, 2f, 3f, 5f), c.accentText, Modifier.fillMaxWidth().height(48.dp))
+        BarStrip(listOf(3f, 4f, 0f, 5f, 4.5f), c.squat, Modifier.fillMaxWidth().height(48.dp))
     }
 }
