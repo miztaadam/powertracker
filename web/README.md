@@ -14,6 +14,9 @@ npm run build        # production build in dist/
 npm run e2e -- --trace off
 ```
 
+The picker's timing checks ("picker speed") are their own Playwright project, `speed`, which runs after
+everything else so nothing competes with them. To run them alone: `npm run e2e -- --trace off --project=speed --no-deps`.
+
 After changing `../domain`, regenerate the committed JavaScript and check it is current:
 
 ```sh

@@ -10,6 +10,8 @@ import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.library.BodyArea
 import com.powertracker.domain.library.Equipment
 import com.powertracker.domain.library.Library
+import com.powertracker.domain.library.MuscleGroup
+import com.powertracker.domain.library.MuscleGroups
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
@@ -138,6 +140,25 @@ object GritDomain {
         Library.search(
             query,
             areas.map { parseEnum<BodyArea>("areas", it) }.toSet(),
+            equipment.map { parseEnum<Equipment>("equipment", it) }.toSet(),
+        ).map { it.toJs() }.toTypedArray()
+
+    /** The `MuscleGroup` names with at least one catalogue exercise, in the order the picker's grid shows them. */
+    fun muscleGroups(): Array<String> = Library.muscleGroups().map { it.name }.toTypedArray()
+
+    /** What the picker calls a `MuscleGroup`, e.g. "Upper back" for `UPPER_BACK`. */
+    fun muscleGroupLabel(group: String): String = parseEnum<MuscleGroup>("group", group).label
+
+    /** The `MuscleGroup` name a muscle string belongs to ("Pecs" is `CHEST`); null when it belongs to none. */
+    fun muscleGroupOf(muscle: String): String? = MuscleGroups.of(muscle)?.name
+
+    /**
+     * Every catalogue exercise that works [group] (a `MuscleGroup` name) with any of [equipment] (`Equipment` names;
+     * an empty array means no filter), alphabetically.
+     */
+    fun exercisesByMuscle(group: String, equipment: Array<String>): Array<JsLibraryExercise> =
+        Library.byMuscle(
+            parseEnum<MuscleGroup>("group", group),
             equipment.map { parseEnum<Equipment>("equipment", it) }.toSet(),
         ).map { it.toJs() }.toTypedArray()
 

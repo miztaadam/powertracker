@@ -35,6 +35,10 @@ export declare namespace GritDomain {
             library(): Array<JsLibraryExercise>;
             findInLibrary(name: string): Nullable<JsLibraryExercise>;
             searchLibrary(query: string, areas: Array<string>, equipment: Array<string>): Array<JsLibraryExercise>;
+            muscleGroups(): Array<string>;
+            muscleGroupLabel(group: string): string;
+            muscleGroupOf(muscle: string): Nullable<string>;
+            exercisesByMuscle(group: string, equipment: Array<string>): Array<JsLibraryExercise>;
             formGuide(name: string): Nullable<JsFormGuide>;
             safetyLine(): string;
             ratioRanges(): Array<JsRatioRange>;

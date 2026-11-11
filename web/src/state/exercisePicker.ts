@@ -38,6 +38,13 @@ export function library(): readonly JsLibraryExercise[] {
   return (catalogue ??= grit.library())
 }
 
+let groups: readonly { id: string; label: string }[] | undefined
+
+/** The muscle groups with at least one catalogue exercise, in the order the picker's grid shows them. */
+export function muscleGroups(): readonly { id: string; label: string }[] {
+  return (groups ??= grit.muscleGroups().map((id) => ({ id, label: grit.muscleGroupLabel(id) })))
+}
+
 /** A name as the search compares it: lower case, no accents, `-` and `_` as spaces, single spaces. */
 export function normalise(text: string): string {
   return text
@@ -77,8 +84,18 @@ function uniqueById(entries: PickerEntry[]): PickerEntry[] {
  * tied to the lifter's row of the same name (ignoring case) when there is one, so an exercise that
  * was seeded, restored from a backup or made by hand under a catalogue name shows once. The lifter's
  * other exercises have no body area or equipment, so they only show while no filter chip is on.
+ *
+ * `muscle` is the muscle group being browsed (a `MuscleGroup` name). It only counts while nothing
+ * is searched and no body area is chosen.
  */
-export function pickerList(query: string, area: string | null, equipment: readonly string[], exercises: readonly StoredExercise[], recentIds: readonly number[]): PickerList {
+export function pickerList(
+  query: string,
+  area: string | null,
+  equipment: readonly string[],
+  exercises: readonly StoredExercise[],
+  recentIds: readonly number[],
+  muscle: string | null = null,
+): PickerList {
   const live = exercises.filter((e) => !e.archived).sort((a, b) => a.id - b.id)
   // Oldest first, like resolveCatalogue: with two rows of one name, the one shown is the one saved to.
   const rowByName = new Map<string, StoredExercise>()
@@ -88,9 +105,16 @@ export function pickerList(query: string, area: string | null, equipment: readon
   const fromCatalogue = (e: JsLibraryExercise) => catalogueEntry(e, rowByName.get(e.name.toLowerCase())?.id ?? null)
   const owned = live.filter((e) => !byName.has(e.name.toLowerCase()))
   const byLowerName = (a: StoredExercise, b: StoredExercise) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-  const found = grit.searchLibrary(query, area != null ? [area] : [], [...equipment]).map(fromCatalogue)
-
   const q = normalise(query)
+  if (muscle != null && q === '' && area == null) {
+    // One alphabetical list: the catalogue's exercises for the muscle, and the lifter's own that name it.
+    const theirs = equipment.length === 0 ? owned.filter((e) => e.muscles.some((m) => grit.muscleGroupOf(m) === muscle)).map(ownEntry) : []
+    const all = [...grit.exercisesByMuscle(muscle, [...equipment]).map(fromCatalogue), ...theirs]
+    const keyed = all.map((entry) => ({ entry, key: normalise(entry.name) }))
+    keyed.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : a.entry.name < b.entry.name ? -1 : a.entry.name > b.entry.name ? 1 : 0))
+    return { yours: [], all: keyed.map(({ entry }) => entry) }
+  }
+  const found = grit.searchLibrary(query, area != null ? [area] : [], [...equipment]).map(fromCatalogue)
   if (q === '' && area == null && equipment.length === 0) {
     const byId = new Map(live.map((e) => [e.id, e]))
     const recent = recentIds.flatMap((id) => {

@@ -98,7 +98,7 @@ Depth comes from tone steps and a 1 dp hairline. No shadows.
 - `PtBottomBar` (in `ui/AppShell.kt`) — four tabs, accent indicator on the current one.
 - `InfoButton` (in `ui/library/`) — the outlined info icon beside an exercise's name, wherever one is shown (Today card and row, Plan rows, the coach's accessory lists, the lift-history header, picker rows). A 48 dp target labelled "Form guide for <name>"; it opens the sheet and does nothing else. Custom exercises keep it, so rows line up.
 - `FormGuideSheet` (in `ui/library/`) — the form guide as a bottom sheet, read between sets: name, area and equipment, purpose, then Setup (dots), How to do it (numbered), Cues and Common mistakes (dots) in 16 sp body text, and the safety line last in its own neutral block. Mockups `form-guide-*`.
-- `ExercisePickerScreen` (in `ui/library/`) — the full-screen exercise picker of Plan and Today: search, one row of body-area chips (one at a time) and one of equipment chips (any of the chosen) as `ChoiceChip`s that scroll sideways, then "Your exercises" and the catalogue. A row is name, muscles, equipment and the info button; tapping the row picks it. Mockups `exercise-picker-*`.
+- `ExercisePickerScreen` (in `ui/library/`) — the full-screen exercise picker of Plan and Today: search, one row of body-area chips (one at a time) and one of equipment chips (any of the chosen) as `ChoiceChip`s that scroll sideways, then "Your exercises" and the catalogue. A row is name, muscles, equipment and the info button; tapping the row picks it. While nothing is searched and no body area is chosen, "Browse by muscle" leads the list: a grid of muscle tiles, three to a row, each a tonal card (surface, hairline, medium radius, 56 dp tall, the name in `titleMedium`). A tile lists that muscle's exercises under "<Muscle> exercises" with a tonal "All muscles" button back to the grid; equipment chips still narrow it, and a search or a body area leaves it. Mockups `exercise-picker-*` (the grid) and `exercise-picker-muscle-*`.
 - `LockScreen` (in `ui/lock/`) — what stands in for the app while app lock holds it shut: the Grit icon, one line on why, one primary button (Unlock; Continue when the phone has no screen lock). Mockups `lock-*` and `lock-no-screen-lock-*`.
 
 ## Launcher icon
@@ -148,7 +148,7 @@ The exercise library is in `web/src/screens/library/`: `InfoButton`, `FormGuideS
 (the picker), `sheet` rises from the bottom edge (the form guide, drawn at the end of the page so it
 can open from inside a row or another dialog). With one dialog over another, Escape closes the one
 on top. The picker's chip rows scroll sideways; its rows are a button to pick and the info button
-beside it. Mockups: `exercise-picker-*`, `form-guide-*` and `form-guide-end-*`, rendered by
+beside it. The muscle grid and its list are as on Android (`.lib-muscles`, `.lib-muscle`). Mockups: `exercise-picker-*`, `exercise-picker-muscle-*`, `form-guide-*` and `form-guide-end-*`, rendered by
 `web/e2e/screenshots.spec.ts`.
 
 **Accent: warm chalk**, the values in the colour table above.

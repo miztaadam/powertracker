@@ -57,6 +57,17 @@ object Library {
             .map { it.second }
     }
 
+    /** The muscle groups with at least one catalogue exercise, in the enum's order. */
+    fun muscleGroups(): List<MuscleGroup> = groups
+
+    private val groups: List<MuscleGroup> by lazy { MuscleGroups.present(catalogue) }
+
+    /** Every entry that works [group] with any of its muscles and needs any of [equipment] (empty = any), alphabetically. */
+    fun byMuscle(group: MuscleGroup, equipment: Set<Equipment> = emptySet()): List<LibraryExercise> =
+        catalogue
+            .filter { e -> MuscleGroups.works(e.muscles, group) && (equipment.isEmpty() || e.equipment.any { it in equipment }) }
+            .sortedWith(alphabetical)
+
     private fun rank(e: LibraryExercise, q: String): Int? {
         val name = normalise(e.name)
         return when {

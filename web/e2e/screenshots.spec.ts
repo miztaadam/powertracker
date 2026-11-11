@@ -50,7 +50,7 @@ for (const scheme of ['dark', 'light'] as const) {
     await shoot(page, `today-rest-${scheme}`)
   })
 
-  test(`screenshots: the exercise picker and a form guide (${scheme})`, async ({ page }) => {
+  test(`screenshots: the exercise picker, one muscle and a form guide (${scheme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme })
     await openOnWednesday(page)
     await seedFlatBench(page)
@@ -58,6 +58,12 @@ for (const scheme of ['dark', 'light'] as const) {
     await tap(page, 'Add exercise')
     await expect(page.getByRole('dialog', { name: 'Add exercise' }).getByRole('heading', { name: 'All exercises' })).toBeVisible()
     await shoot(page, `exercise-picker-${scheme}`)
+
+    // One muscle chosen from the grid.
+    await page.getByRole('group', { name: 'Browse by muscle' }).getByRole('button', { name: 'Quads' }).click()
+    await expect(page.getByRole('dialog', { name: 'Add exercise' }).getByRole('heading', { name: 'Quads exercises' })).toBeVisible()
+    await shoot(page, `exercise-picker-muscle-${scheme}`)
+    await page.getByRole('button', { name: 'All muscles' }).click()
 
     await page.getByRole('button', { name: 'Form guide for Squat' }).click()
     await expect(page.getByRole('dialog', { name: 'Form guide for Squat' }).getByRole('heading', { name: 'How to do it' })).toBeVisible()

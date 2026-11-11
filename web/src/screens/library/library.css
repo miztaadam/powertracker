@@ -49,18 +49,70 @@
   padding: var(--space-5) var(--space-5) 0;
 }
 
+/* The muscle grid: tonal tiles, three to a row on the narrowest phone. */
+.lib-muscles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5) 0;
+}
+
+.lib-muscle {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 56px;
+  margin: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  text-align: center;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.lib-muscle:active {
+  background: var(--container);
+}
+
+.lib-muscle-back {
+  display: flex;
+  padding: var(--space-4) var(--space-5) 0;
+}
+
 .lib-rows {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/*
+ * Rows off screen are not laid out or painted until they are scrolled to, so the picker opens as
+ * fast with a few hundred rows as with a few dozen. A row therefore paints nothing outside its
+ * own box: it is the full width, and draws its hairline and focus ring inside itself.
+ */
 .lib-row {
+  position: relative;
   display: flex;
   align-items: center;
-  margin-left: var(--space-5);
-  padding-right: var(--space-2);
-  border-bottom: 1px solid var(--hairline);
+  padding: 0 var(--space-2) 1px 0;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 65px;
+}
+
+.lib-row::after {
+  content: '';
+  position: absolute;
+  left: var(--space-5);
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--hairline);
 }
 
 .lib-row-main {
@@ -71,7 +123,7 @@
   gap: var(--space-4);
   min-width: 0;
   min-height: 64px;
-  margin: 0 0 0 calc(-1 * var(--space-5));
+  margin: 0;
   padding: var(--space-3) 0 var(--space-3) var(--space-5);
   border: 0;
   background: none;
@@ -79,6 +131,10 @@
   text-align: left;
   cursor: pointer;
   touch-action: manipulation;
+}
+
+.lib-row-main:focus-visible {
+  outline-offset: -2px;
 }
 
 .lib-row-main:active {

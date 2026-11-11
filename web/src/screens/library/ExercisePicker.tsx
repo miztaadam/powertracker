@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { pickerList, type CustomExercise, type PickerEntry, type StoredExercise } from '../../state/exercisePicker'
+import { muscleGroups, normalise, pickerList, type CustomExercise, type PickerEntry, type StoredExercise } from '../../state/exercisePicker'
 import { IconButton, SecondaryButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
 import { EmptyState } from '../../ui/components/EmptyState'
-import { AddIcon, CloseIcon, SearchOffIcon } from '../../ui/components/icons'
+import { AddIcon, ArrowBackIcon, CloseIcon, SearchOffIcon } from '../../ui/components/icons'
 import { ScreenHeader, SectionHeader } from '../../ui/components/ScreenHeader'
 import { ChoiceChip } from '../../ui/components/SegmentedChoice'
 import { TextField } from '../../ui/components/TextField'
@@ -32,20 +32,27 @@ export type ExercisePickerProps = {
  * The full-screen exercise picker of Plan and Today: search, body-area chips (one at a time),
  * equipment chips (any of the chosen), then the lifter's exercises and the catalogue. Tapping a
  * row picks it; tapping its info button only opens the guide.
+ *
+ * While nothing is searched and no body area is chosen, a grid of muscle groups leads the list.
+ * Tapping one lists that muscle's exercises (equipment chips still narrow them) until "All muscles",
+ * a search or a body area leaves it.
  */
 export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCustom, onDismiss }: ExercisePickerProps) {
   const [query, setQuery] = useState('')
   const [area, setArea] = useState<string | null>(null)
   const [equipment, setEquipment] = useState<readonly string[]>([])
+  const [muscle, setMuscle] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
-  const list = useMemo(() => pickerList(query, area, equipment, exercises, recentIds), [query, area, equipment, exercises, recentIds])
+  const list = useMemo(() => pickerList(query, area, equipment, exercises, recentIds, muscle), [query, area, equipment, exercises, recentIds, muscle])
+  const showGrid = muscle == null && area == null && normalise(query) === ''
+  const browsed = muscle != null ? muscleGroups().find((g) => g.id === muscle) : undefined
   const isEmpty = list.yours.length === 0 && list.all.length === 0
 
   // A new search or filter starts from its best match, not from wherever the last list was scrolled to.
   const scroller = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (scroller.current) scroller.current.scrollTop = 0
-  }, [query, area, equipment])
+  }, [query, area, equipment, muscle])
 
   // One answer per opening: a double tap must not add the exercise twice.
   const answered = useRef(false)
@@ -57,6 +64,15 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
   const pick = once(onPick)
   const create = once(onCreateCustom)
 
+  // Searching is over everything, and a body area is its own way in: both leave the muscle.
+  const type = (text: string) => {
+    setQuery(text)
+    if (text !== '') setMuscle(null)
+  }
+  const chooseArea = (id: string | null) => {
+    setArea(id)
+    setMuscle(null)
+  }
   const toggleEquipment = (id: string) => setEquipment((chosen) => (chosen.includes(id) ? chosen.filter((e) => e !== id) : [...chosen, id]))
   const createButton = <SecondaryButton text="Create your own" onClick={() => setCreating(true)} icon={<AddIcon />} />
 
@@ -67,7 +83,7 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
           <TextField
             label="Search exercises"
             value={query}
-            onChange={setQuery}
+            onChange={type}
             enterKeyHint="search"
             trailing={query !== '' && <IconButton label="Clear search" icon={<CloseIcon />} onClick={() => setQuery('')} />}
           />
@@ -75,9 +91,9 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
         <div ref={scroller} className="lib-scroll">
           {/* The chips scroll away with the list, so the results get the room once a filter is set. */}
           <div className="lib-chips" role="group" aria-label="Body area">
-            <ChoiceChip text="All" selected={area == null} onClick={() => setArea(null)} />
+            <ChoiceChip text="All" selected={area == null} onClick={() => chooseArea(null)} />
             {AREAS.map((a) => (
-              <ChoiceChip key={a.id} text={a.label} selected={area === a.id} onClick={() => setArea(area === a.id ? null : a.id)} />
+              <ChoiceChip key={a.id} text={a.label} selected={area === a.id} onClick={() => chooseArea(area === a.id ? null : a.id)} />
             ))}
           </div>
           <div className="lib-chips" role="group" aria-label="Equipment">
@@ -85,6 +101,26 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
               <ChoiceChip key={e.id} text={e.label} selected={equipment.includes(e.id)} onClick={() => toggleEquipment(e.id)} />
             ))}
           </div>
+          {showGrid && (
+            <>
+              <SectionHeader className="lib-heading" title="Browse by muscle" />
+              <div className="lib-muscles" role="group" aria-label="Browse by muscle">
+                {muscleGroups().map((g) => (
+                  <button key={g.id} type="button" className="lib-muscle title-medium" onClick={() => setMuscle(g.id)}>
+                    {g.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+          {browsed && (
+            <>
+              <div className="lib-muscle-back">
+                <SecondaryButton text="All muscles" onClick={() => setMuscle(null)} icon={<ArrowBackIcon />} />
+              </div>
+              <SectionHeader className="lib-heading" title={`${browsed.label} exercises`} />
+            </>
+          )}
           {isEmpty ? (
             <EmptyState icon={<SearchOffIcon />} title={NO_MATCH} body="Your own exercises work everywhere, without a form guide." action={createButton} />
           ) : (

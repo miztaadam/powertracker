@@ -6,6 +6,7 @@ import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.library.BodyArea
 import com.powertracker.domain.library.Equipment
 import com.powertracker.domain.library.Library
+import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
@@ -289,6 +290,23 @@ class GritDomainTest {
         assertEquals(Library.all().size, GritDomain.searchLibrary("", emptyArray(), emptyArray()).size)
         assertFailsWith<IllegalArgumentException> { GritDomain.searchLibrary("", arrayOf("LEGS"), emptyArray()) }
         assertFailsWith<IllegalArgumentException> { GritDomain.searchLibrary("", emptyArray(), arrayOf("ROPE")) }
+    }
+
+    @Test
+    fun muscleGroups_takeEnumNamesAndRejectUnknownOnes() {
+        assertContentEquals(Library.muscleGroups().map { it.name }.toTypedArray(), GritDomain.muscleGroups())
+        assertEquals("CHEST", GritDomain.muscleGroups().first())
+        assertEquals("Upper back", GritDomain.muscleGroupLabel("UPPER_BACK"))
+        assertEquals("CHEST", GritDomain.muscleGroupOf("pecs"))
+        assertNull(GritDomain.muscleGroupOf("Whole body"))
+        assertEquals(
+            Library.byMuscle(MuscleGroup.CHEST, setOf(Equipment.DUMBBELL)).map { it.name },
+            GritDomain.exercisesByMuscle("CHEST", arrayOf("DUMBBELL")).map { it.name },
+        )
+        assertEquals(Library.byMuscle(MuscleGroup.GLUTES).size, GritDomain.exercisesByMuscle("GLUTES", emptyArray()).size)
+        assertFailsWith<IllegalArgumentException> { GritDomain.exercisesByMuscle("Chest", emptyArray()) }
+        assertFailsWith<IllegalArgumentException> { GritDomain.exercisesByMuscle("CHEST", arrayOf("ROPE")) }
+        assertFailsWith<IllegalArgumentException> { GritDomain.muscleGroupLabel("NECK") }
     }
 
     @Test

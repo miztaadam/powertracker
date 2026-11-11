@@ -7,7 +7,10 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
@@ -35,6 +38,7 @@ import com.powertracker.domain.library.BodyArea
 import com.powertracker.domain.library.Equipment
 import com.powertracker.domain.library.Kind
 import com.powertracker.domain.library.Library
+import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
@@ -390,6 +394,239 @@ class ExercisePickerTest {
         )
         waitFor { compose.onAllNodesWithText("Curl  3 × 10 @ 7.5").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("Squat  3 × 5 @ 7.5").assertExists()
+    }
+
+    private fun gridShown(): Boolean = compose.onAllNodes(hasTestTag("muscle-CHEST")).fetchSemanticsNodes().isNotEmpty()
+
+    private fun tapMuscle(group: MuscleGroup) {
+        scrollToTop()
+        compose.onNodeWithTag("muscle-${group.name}").performClick()
+        compose.waitForIdle()
+    }
+
+    /** The names a muscle group lists: the catalogue's, and [own] exercises of the lifter's, alphabetically. */
+    private fun inGroup(group: MuscleGroup, equipment: Set<Equipment> = emptySet(), own: List<String> = emptyList()): List<String> =
+        (Library.byMuscle(group, equipment).map { it.name } + own).sortedBy { Library.normalise(it) }
+
+    @Test
+    fun muscleGrid_showsWhenNoQueryOrArea() {
+        val bench = stored().first { it.name == "Bench" }
+        showPicker(recentIds = listOf(bench.id))
+
+        // Every group with an exercise has a tile, in the domain's order, above the lifter's own exercises.
+        compose.onNodeWithText("BROWSE BY MUSCLE").assertExists()
+        val groups = Library.muscleGroups()
+        assertEquals(MuscleGroup.entries.toList(), groups)
+        val boxes = groups.map { g ->
+            compose.onNode(hasTestTag("muscle-${g.name}") and hasText(g.label) and hasClickAction()).assertExists().getUnclippedBoundsInRoot()
+        }
+        val readingOrder = boxes.sortedWith(compareBy({ it.top.value }, { it.left.value }))
+        assertEquals(readingOrder, boxes)
+        assertTrue(boxes.maxOf { it.bottom } < compose.onNodeWithText("YOUR EXERCISES").getUnclippedBoundsInRoot().top)
+        assertTrue(compose.onNodeWithTag("area-all").getUnclippedBoundsInRoot().bottom < boxes.first().top)
+
+        // A search hides it; clearing the search brings it back.
+        search("s")
+        assertFalse(gridShown())
+        compose.onNodeWithText("BROWSE BY MUSCLE").assertDoesNotExist()
+        search("")
+        assertTrue(gridShown())
+
+        // So does a body area; "All" brings it back. Equipment leaves it where it is.
+        tapChip("area-BACK")
+        assertFalse(gridShown())
+        tapChip("area-all")
+        assertTrue(gridShown())
+        tapChip("equipment-DUMBBELL")
+        assertTrue(gridShown())
+        assertTrue(shows("exercise-DB press"))
+        assertFalse(shows("exercise-Squat"))
+    }
+
+    @Test
+    fun tapMuscle_listsItsExercises() {
+        val bench = stored().first { it.name == "Bench" }
+        val mine = own(900, "Tyre flip", listOf("pecs", "Whole body"))
+        val unmapped = own(901, "Tyre drag", listOf("Whole body"))
+        val archived = own(902, "Old press", listOf("Chest")).copy(archived = true)
+        val exercises = stored() + mine + unmapped + archived
+
+        // The catalogue's exercises and the lifter's own whose muscles are in the group, as one alphabetical list.
+        val chest = pickerList("", null, emptySet(), exercises, listOf(bench.id), MuscleGroup.CHEST)
+        assertTrue(chest.yours.isEmpty())
+        assertEquals(inGroup(MuscleGroup.CHEST, own = listOf("Tyre flip")), chest.all.map { it.name })
+        assertEquals(bench.id, chest.all.first { it.name == "Bench" }.exerciseId)
+        assertEquals(900L, chest.all.first { it.name == "Tyre flip" }.exerciseId)
+        // A muscle string with no group puts an exercise in none of them.
+        for (g in MuscleGroup.entries) {
+            assertFalse(g.label, pickerList("", null, emptySet(), exercises, emptyList(), g).all.any { it.name == "Tyre drag" || it.name == "Old press" })
+        }
+        // It is still found by search and under "Your exercises".
+        assertEquals("Tyre drag", pickerList("tyre drag", null, emptySet(), exercises, emptyList()).all.single().name)
+        assertTrue(pickerList("", null, emptySet(), exercises, emptyList()).yours.any { it.name == "Tyre drag" })
+
+        showPicker(extra = listOf(mine, unmapped, archived), recentIds = listOf(bench.id))
+        tapMuscle(MuscleGroup.CHEST)
+        compose.onNodeWithText("CHEST EXERCISES").assertExists()
+        compose.onNodeWithText("YOUR EXERCISES").assertDoesNotExist()
+        compose.onNodeWithText("ALL EXERCISES").assertDoesNotExist()
+        assertFalse(gridShown())
+        val listed = chest.all.map { it.name }.toSet()
+        for (e in Library.all()) assertEquals(e.name, e.name in listed, shows("exercise-${e.name}"))
+        assertTrue(shows("exercise-Tyre flip"))
+        assertFalse(shows("exercise-Tyre drag"))
+        assertFalse(shows("exercise-Old press"))
+
+        // A row picks, as anywhere else in the picker.
+        scrollToRow("exercise-Bench")
+        compose.onNodeWithTag("exercise-Bench").performClick()
+        assertEquals(listOf("Bench"), picked.map { it.name })
+        assertEquals(listOf(bench.id), picked.map { it.exerciseId })
+    }
+
+    @Test
+    fun muscleAndEquipment_combine() {
+        val mine = own(900, "Tyre flip", listOf("Chest"))
+        val exercises = stored() + mine
+        val dumbbell = pickerList("", null, setOf(Equipment.DUMBBELL), exercises, emptyList(), MuscleGroup.CHEST).all.map { it.name }
+        // The lifter's own exercises have no equipment, so a chosen equipment leaves them out, as it does everywhere.
+        assertEquals(inGroup(MuscleGroup.CHEST, setOf(Equipment.DUMBBELL)), dumbbell)
+        assertTrue("DB press" in dumbbell && "Bench" !in dumbbell)
+
+        showPicker(extra = listOf(mine))
+        tapMuscle(MuscleGroup.CHEST)
+        tapChip("equipment-DUMBBELL")
+        compose.onNodeWithTag("equipment-DUMBBELL").assertIsOn()
+        compose.onNodeWithText("CHEST EXERCISES").assertExists()
+        assertTrue(shows("exercise-DB press"))
+        assertFalse(shows("exercise-Bench"))
+        assertFalse(shows("exercise-Tyre flip"))
+
+        // A second equipment widens it (any of the chosen); none brings the whole group back.
+        tapChip("equipment-BARBELL")
+        assertTrue(shows("exercise-DB press") && shows("exercise-Bench"))
+        assertFalse(shows("exercise-Squat"))
+        tapChip("equipment-DUMBBELL")
+        tapChip("equipment-BARBELL")
+        assertTrue(shows("exercise-Tyre flip") && shows("exercise-Bench") && shows("exercise-DB press"))
+
+        // An equipment chosen before the muscle counts too; nothing left says so, and the way back stays.
+        tapChip("equipment-SPECIALTY_BAR")
+        assertTrue(Library.byMuscle(MuscleGroup.CHEST, setOf(Equipment.SPECIALTY_BAR)).isEmpty())
+        compose.onNodeWithText(NO_MATCH).assertExists()
+        compose.onNodeWithText("All muscles").assertExists()
+        compose.onNodeWithText("All muscles").performClick()
+        compose.waitForIdle()
+        tapMuscle(MuscleGroup.QUADS)
+        val quads = inGroup(MuscleGroup.QUADS, setOf(Equipment.SPECIALTY_BAR))
+        assertTrue(quads.isNotEmpty())
+        for (name in quads) assertTrue(name, shows("exercise-$name"))
+        assertFalse(shows("exercise-Squat"))
+    }
+
+    @Test
+    fun typing_leavesMuscleMode() {
+        showPicker()
+        tapMuscle(MuscleGroup.CHEST)
+        assertFalse(shows("exercise-Squat"))
+
+        // The search is the ordinary one, over everything.
+        search("squat")
+        compose.onNodeWithText("CHEST EXERCISES").assertDoesNotExist()
+        compose.onNodeWithText("All muscles").assertDoesNotExist()
+        for (name in Library.search("squat").map { it.name }) assertTrue(name, shows("exercise-$name"))
+        assertFalse(shows("exercise-Bench"))
+
+        // Clearing it is back at the grid, not in the muscle.
+        search("")
+        assertTrue(gridShown())
+        compose.onNodeWithText("CHEST EXERCISES").assertDoesNotExist()
+        assertTrue(shows("exercise-Squat"))
+
+        // A body area leaves the muscle too.
+        tapMuscle(MuscleGroup.CHEST)
+        tapChip("area-BACK")
+        compose.onNodeWithText("CHEST EXERCISES").assertDoesNotExist()
+        assertTrue(shows("exercise-Pull-up"))
+        assertFalse(shows("exercise-Bench"))
+    }
+
+    @Test
+    fun backFromMuscle_returnsToGrid() {
+        val bench = stored().first { it.name == "Bench" }
+        showPicker(recentIds = listOf(bench.id))
+        tapMuscle(MuscleGroup.CALVES)
+        assertFalse(gridShown())
+        assertFalse(shows("exercise-Bench"))
+
+        scrollToTop()
+        compose.onNodeWithText("All muscles").assertHeightIsAtLeast(48.dp).performClick()
+        compose.waitForIdle()
+        assertTrue(gridShown())
+        compose.onNodeWithText("CALVES EXERCISES").assertDoesNotExist()
+        compose.onNodeWithText("All muscles").assertDoesNotExist()
+        compose.onNodeWithText("YOUR EXERCISES").assertExists()
+        assertTrue(shows("exercise-Bench") && shows("exercise-Squat"))
+
+        // Another muscle can be opened straight away.
+        tapMuscle(MuscleGroup.QUADS)
+        compose.onNodeWithText("QUADS EXERCISES").assertExists()
+        assertTrue(shows("exercise-Squat"))
+    }
+
+    @Test
+    fun muscleInfo_opensGuideWithoutPicking() {
+        showPicker()
+        tapMuscle(MuscleGroup.QUADS)
+        scrollToRow("exercise-Squat")
+        compose.checkInfoButtonOpensGuide("Squat")
+        assertTrue("reading the guide picked the exercise", picked.isEmpty())
+        // The picker is where it was.
+        compose.onNodeWithText("QUADS EXERCISES").assertExists()
+        scrollToRow("exercise-Squat")
+        compose.onNodeWithTag("exercise-Squat").performClick()
+        assertEquals(listOf("Squat"), picked.map { it.name })
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h2400dp-xxhdpi")
+    fun muscleGrid_fitsASmallPhone_withFullSizeTargets() {
+        showPicker()
+        val width = compose.onRoot().getUnclippedBoundsInRoot().width
+        assertEquals(360.dp, width)
+        val tiles = Library.muscleGroups().map { g ->
+            val tile = compose.onNodeWithTag("muscle-${g.name}")
+            tile.assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+            // The name is on one line: nothing wrapped or cut.
+            val text = compose.onNode(hasText(g.label) and hasAnyAncestor(hasTestTag("muscle-${g.name}")), useUnmergedTree = true).fetchSemanticsNode()
+            val layouts = mutableListOf<TextLayoutResult>()
+            text.config[SemanticsActions.GetTextLayoutResult].action!!(layouts)
+            assertEquals(g.label, 1, layouts.single().lineCount)
+            // And it lies inside its tile.
+            val box = tile.getUnclippedBoundsInRoot()
+            val name = compose.onNode(hasText(g.label) and hasAnyAncestor(hasTestTag("muscle-${g.name}")), useUnmergedTree = true).getUnclippedBoundsInRoot()
+            assertTrue(g.label, name.left >= box.left && name.right <= box.right && name.top >= box.top && name.bottom <= box.bottom)
+            tile.getUnclippedBoundsInRoot()
+        }
+        for (b in tiles) assertTrue("a tile overflows", b.left >= 0.dp && b.right <= width)
+        // Two or three to a row, none overlapping.
+        val perRow = tiles.groupBy { it.top }.values.map { it.size }
+        assertTrue("$perRow", perRow.dropLast(1).all { it == perRow.first() } && perRow.first() in 2..3)
+        for (row in tiles.groupBy { it.top }.values) row.zipWithNext { a, b -> assertTrue(a.right <= b.left) }
+
+        // Inside a muscle: the way back and the rows.
+        tapMuscle(MuscleGroup.UPPER_BACK)
+        val back = compose.onNodeWithText("All muscles")
+        back.assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+        assertTrue(back.getUnclippedBoundsInRoot().right <= width)
+        val heading = compose.onNodeWithText("UPPER BACK EXERCISES").getUnclippedBoundsInRoot()
+        assertTrue(heading.left >= 0.dp && heading.right <= width)
+        for (name in inGroup(MuscleGroup.UPPER_BACK)) {
+            scrollToRow("exercise-$name")
+            val bounds = compose.onNodeWithTag("exercise-$name").getUnclippedBoundsInRoot()
+            assertTrue("$name row overflows", bounds.left >= 0.dp && bounds.right <= width)
+            compose.onNodeWithContentDescription("Form guide for $name").assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+        }
     }
 
     @Test

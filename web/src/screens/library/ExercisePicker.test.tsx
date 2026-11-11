@@ -43,6 +43,17 @@ const rowButton = (name: string) => within(picker().getByRole('listitem', { name
 const searchBox = () => picker().getByRole('textbox', { name: 'Search exercises' })
 const chip = (group: 'Body area' | 'Equipment', name: string) => within(picker().getByRole('group', { name: group })).getByRole('checkbox', { name })
 
+/** The muscle grid; null while it is not shown. */
+const grid = () => picker().queryByRole('group', { name: 'Browse by muscle' })
+const tile = (label: string) => within(grid()!).getByRole('button', { name: label })
+const heading = (name: string) => picker().queryByRole('heading', { name })
+const allMuscles = () => picker().queryByRole('button', { name: 'All muscles' })
+/** A name as the domain sorts it. */
+const key = (name: string) => name.toLowerCase().replace(/[-_]/g, ' ')
+/** The names a muscle group lists: the catalogue's, and `mine` of the lifter's own, alphabetically. */
+const inGroup = (group: string, equipment: string[] = [], mine: string[] = []) =>
+  [...grit.exercisesByMuscle(group, equipment).map((e) => e.name), ...mine].sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0))
+
 async function search(text: string) {
   await userEvent.clear(searchBox())
   if (text !== '') await userEvent.type(searchBox(), text)
@@ -269,6 +280,171 @@ describe('ExercisePicker', () => {
     await search('s')
     expect(picker().queryByRole('heading', { name: 'Your exercises' })).toBeNull()
     expect(picker().queryByRole('heading', { name: 'All exercises' })).toBeNull()
+  })
+
+  it('muscleGrid_showsWhenNoQueryOrArea', async () => {
+    const bench = (await stored()).find((e) => e.name === 'Bench')!
+    await showPicker([], [bench.id])
+
+    // Every group with an exercise has a tile, in the domain's order, above the lifter's own exercises.
+    expect(heading('Browse by muscle')).toBeInTheDocument()
+    const groups = grit.muscleGroups()
+    expect(groups).toHaveLength(18)
+    expect(within(grid()!).getAllByRole('button').map((b) => b.textContent)).toEqual(groups.map((g) => grit.muscleGroupLabel(g)))
+    expect(within(grid()!).getAllByRole('button').map((b) => b.textContent)).toEqual([
+      ...['Chest', 'Lats', 'Upper back', 'Traps', 'Lower back', 'Front delts', 'Side delts', 'Rear delts', 'Biceps'],
+      ...['Triceps', 'Forearms', 'Quads', 'Hamstrings', 'Glutes', 'Adductors', 'Calves', 'Abs', 'Obliques'],
+    ])
+    const before = (a: Element, b: Element) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(before(picker().getByRole('group', { name: 'Equipment' }), grid()!)).toBe(true)
+    expect(before(grid()!, heading('Your exercises')!)).toBe(true)
+    // The tiles are not rows: the list is still the exercises.
+    expect(shownNames()).toHaveLength(libraryNames().length)
+
+    // A search hides it; clearing the search brings it back.
+    await search('s')
+    expect(grid()).toBeNull()
+    expect(heading('Browse by muscle')).toBeNull()
+    await search('')
+    expect(grid()).toBeInTheDocument()
+
+    // So does a body area; "All" brings it back. Equipment leaves it where it is.
+    await userEvent.click(chip('Body area', 'Back'))
+    expect(grid()).toBeNull()
+    await userEvent.click(chip('Body area', 'All'))
+    expect(grid()).toBeInTheDocument()
+    await userEvent.click(chip('Equipment', 'Dumbbell'))
+    expect(grid()).toBeInTheDocument()
+    expect(shownNames()).toEqual(libraryNames('', [], ['DUMBBELL']))
+  })
+
+  it('tapMuscle_listsItsExercises', async () => {
+    const all = await stored()
+    const bench = all.find((e) => e.name === 'Bench')!
+    const mine = own(900, 'Tyre flip', ['pecs', 'Whole body'])
+    const unmapped = own(901, 'Tyre drag', ['Whole body'])
+    const archived = { ...own(902, 'Old press', ['Chest']), archived: true }
+    const exercises = [...all, mine, unmapped, archived]
+
+    // The catalogue's exercises and the lifter's own whose muscles are in the group, as one alphabetical list.
+    const chest = pickerList('', null, [], exercises, [bench.id], 'CHEST')
+    expect(chest.yours).toEqual([])
+    expect(names(chest.all)).toEqual(inGroup('CHEST', [], ['Tyre flip']))
+    expect(chest.all.find((e) => e.name === 'Bench')!.exerciseId).toBe(bench.id)
+    expect(chest.all.find((e) => e.name === 'Tyre flip')!.exerciseId).toBe(900)
+    // A muscle string with no group puts an exercise in none of them.
+    for (const g of grit.muscleGroups()) {
+      expect(names(pickerList('', null, [], exercises, [], g).all).filter((n) => n === 'Tyre drag' || n === 'Old press'), g).toEqual([])
+    }
+    // It is still found by search and under "Your exercises".
+    expect(names(pickerList('tyre drag', null, [], exercises, []).all)).toEqual(['Tyre drag'])
+    expect(names(pickerList('', null, [], exercises, []).yours)).toContain('Tyre drag')
+
+    const { picked } = await showPicker([mine, unmapped, archived], [bench.id])
+    await userEvent.click(tile('Chest'))
+    expect(heading('Chest exercises')).toBeInTheDocument()
+    expect(heading('Your exercises')).toBeNull()
+    expect(heading('All exercises')).toBeNull()
+    expect(grid()).toBeNull()
+    expect(shownNames()).toEqual(names(chest.all))
+    expect(shows('Tyre flip') && shows('Bench') && shows('DB press')).toBe(true)
+    expect(shows('Tyre drag') || shows('Old press') || shows('Squat')).toBe(false)
+    // Rows are the picker's rows.
+    expect(picker().getByRole('listitem', { name: 'Bench' })).toHaveTextContent('Pecs, Triceps, Front delts')
+    expect(picker().getByRole('listitem', { name: 'Bench' })).toHaveTextContent('Barbell')
+    expect(picker().getByRole('listitem', { name: 'Tyre flip' })).toHaveTextContent('Your own')
+
+    // A row picks, as anywhere else in the picker.
+    await userEvent.click(rowButton('Bench'))
+    expect(picked.map((e) => [e.name, e.exerciseId])).toEqual([['Bench', bench.id]])
+  })
+
+  it('muscleAndEquipment_combine', async () => {
+    const mine = own(900, 'Tyre flip', ['Chest'])
+    const exercises = [...(await stored()), mine]
+    // The lifter's own exercises have no equipment, so a chosen equipment leaves them out, as it does everywhere.
+    const dumbbell = names(pickerList('', null, ['DUMBBELL'], exercises, [], 'CHEST').all)
+    expect(dumbbell).toEqual(inGroup('CHEST', ['DUMBBELL']))
+    expect(dumbbell.includes('DB press') && !dumbbell.includes('Bench')).toBe(true)
+
+    await showPicker([mine])
+    await userEvent.click(tile('Chest'))
+    await userEvent.click(chip('Equipment', 'Dumbbell'))
+    expect(chip('Equipment', 'Dumbbell')).toBeChecked()
+    expect(heading('Chest exercises')).toBeInTheDocument()
+    expect(shownNames()).toEqual(dumbbell)
+
+    // A second equipment widens it (any of the chosen); none brings the whole group back.
+    await userEvent.click(chip('Equipment', 'Barbell'))
+    expect(shownNames()).toEqual(inGroup('CHEST', ['DUMBBELL', 'BARBELL']))
+    expect(shows('DB press') && shows('Bench') && !shows('Squat')).toBe(true)
+    await userEvent.click(chip('Equipment', 'Dumbbell'))
+    await userEvent.click(chip('Equipment', 'Barbell'))
+    expect(shownNames()).toEqual(inGroup('CHEST', [], ['Tyre flip']))
+
+    // Nothing left says so, and the way back stays. An equipment chosen before the muscle counts too.
+    await userEvent.click(chip('Equipment', 'Specialty bar'))
+    expect(grit.exercisesByMuscle('CHEST', ['SPECIALTY_BAR'])).toHaveLength(0)
+    expect(picker().getByText(NO_MATCH)).toBeInTheDocument()
+    await userEvent.click(allMuscles()!)
+    await userEvent.click(tile('Upper back'))
+    expect(inGroup('UPPER_BACK', ['SPECIALTY_BAR']).length).toBeGreaterThan(0)
+    expect(shownNames()).toEqual(inGroup('UPPER_BACK', ['SPECIALTY_BAR']))
+  })
+
+  it('typing_leavesMuscleMode', async () => {
+    await showPicker()
+    await userEvent.click(tile('Chest'))
+    expect(shows('Squat')).toBe(false)
+
+    // The search is the ordinary one, over everything.
+    await search('squat')
+    expect(heading('Chest exercises')).toBeNull()
+    expect(allMuscles()).toBeNull()
+    expect(shownNames()).toEqual(libraryNames('squat'))
+
+    // Clearing it is back at the grid, not in the muscle.
+    await search('')
+    expect(grid()).toBeInTheDocument()
+    expect(heading('Chest exercises')).toBeNull()
+    expect(shownNames()).toEqual(libraryNames())
+
+    // A body area leaves the muscle too.
+    await userEvent.click(tile('Chest'))
+    await userEvent.click(chip('Body area', 'Back'))
+    expect(heading('Chest exercises')).toBeNull()
+    expect(shownNames()).toEqual(libraryNames('', ['BACK']))
+  })
+
+  it('backFromMuscle_returnsToGrid', async () => {
+    const bench = (await stored()).find((e) => e.name === 'Bench')!
+    await showPicker([], [bench.id])
+    await userEvent.click(tile('Calves'))
+    expect(grid()).toBeNull()
+    expect(shows('Bench')).toBe(false)
+
+    await userEvent.click(allMuscles()!)
+    expect(grid()).toBeInTheDocument()
+    expect(heading('Calves exercises')).toBeNull()
+    expect(allMuscles()).toBeNull()
+    expect(heading('Your exercises')).toBeInTheDocument()
+    expect(shownNames()).toHaveLength(libraryNames().length)
+
+    // Another muscle can be opened straight away.
+    await userEvent.click(tile('Quads'))
+    expect(heading('Quads exercises')).toBeInTheDocument()
+    expect(shows('Squat')).toBe(true)
+  })
+
+  it('muscleInfo_opensGuideWithoutPicking', async () => {
+    const { picked } = await showPicker()
+    await userEvent.click(tile('Quads'))
+    await checkInfoButtonOpensGuide('Squat')
+    expect(picked).toEqual([])
+    // The picker is where it was.
+    expect(heading('Quads exercises')).toBeInTheDocument()
+    await userEvent.click(rowButton('Squat'))
+    expect(names(picked)).toEqual(['Squat'])
   })
 
   it('compoundDefaults3x5_accessory3x10', async () => {

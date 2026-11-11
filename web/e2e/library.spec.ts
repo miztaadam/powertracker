@@ -59,7 +59,7 @@ async function openPlanPicker(page: Page) {
  * takes until the result has been drawn: the change, its render, and two frames. Returns the time
  * and the rows then on screen.
  */
-function settle(page: Page, action: { open: true } | { type: string } | { chip: string }) {
+function settle(page: Page, action: { open: true } | { type: string } | { chip: string } | { muscle: string } | { allMuscles: true }) {
   return page.evaluate(async (action) => {
     const frame = () => new Promise<void>((done) => requestAnimationFrame(() => done()))
     const started = performance.now()
@@ -70,6 +70,10 @@ function settle(page: Page, action: { open: true } | { type: string } | { chip: 
       // What a keystroke does: the field's value changes and it fires `input`.
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, action.type)
       input.dispatchEvent(new Event('input', { bubbles: true }))
+    } else if ('muscle' in action) {
+      Array.from(document.querySelectorAll<HTMLElement>('.lib-muscle')).find((tile) => tile.textContent === action.muscle)!.click()
+    } else if ('allMuscles' in action) {
+      document.querySelector<HTMLElement>('.lib-muscle-back button')!.click()
     } else {
       const chip = Array.from(document.querySelectorAll<HTMLElement>('.lib-chips .gr-chip')).find((c) => c.textContent === action.chip)!
       chip.querySelector('input')!.click()
@@ -77,7 +81,11 @@ function settle(page: Page, action: { open: true } | { type: string } | { chip: 
     await frame()
     await frame()
     const ms = performance.now() - started
-    return { ms, rows: Array.from(document.querySelectorAll('.lib-row')).map((row) => row.getAttribute('aria-label')) }
+    return {
+      ms,
+      rows: Array.from(document.querySelectorAll('.lib-row')).map((row) => row.getAttribute('aria-label')),
+      tiles: Array.from(document.querySelectorAll('.lib-muscle')).map((tile) => tile.textContent),
+    }
   }, action)
 }
 
@@ -105,71 +113,181 @@ const overflowing = (page: Page) =>
       const box = el.getBoundingClientRect()
       if (box.width > 0 && (box.right > window.innerWidth + 0.5 || box.left < -0.5)) found.push(`${el.tagName.toLowerCase()}.${el.className}`)
       // Text that does not fit its own box.
-      if (el.matches('li, p, h1, h2, h3, .lib-row-name, .lib-row-muscles, .gr-btn-text, .gr-chip-face') && el.scrollWidth > el.clientWidth + 1) found.push(`clipped ${el.tagName.toLowerCase()}.${el.className}: ${el.textContent}`)
+      if (el.matches('li, p, h1, h2, h3, .lib-row-name, .lib-row-muscles, .lib-muscle, .gr-btn-text, .gr-chip-face') && el.scrollWidth > el.clientWidth + 1) found.push(`clipped ${el.tagName.toLowerCase()}.${el.className}: ${el.textContent}`)
     }
     return found
   })
 
-test('the picker settles within 100 ms when it opens, on every keystroke and on every filter change', async ({ page }) => {
-  await openOnWednesday(page, '#/plan')
-  await expect(page.getByRole('region', { name: 'Monday' })).toBeVisible()
-  expect(catalogue.length).toBeGreaterThanOrEqual(26)
+// The timing checks run one after another, and after every other spec has finished (the "speed" project in
+// playwright.config.ts): beside busy workers they would time the machine, not the picker.
+test.describe('picker speed', () => {
+  test.describe.configure({ mode: 'serial' })
 
-  // Opening it lists the whole catalogue.
-  const opened = await settle(page, { open: true })
-  expect(opened.rows).toEqual(grit.searchLibrary('', [], []).map((e) => e.name))
-  expect(opened.rows).toHaveLength(catalogue.length)
-  expect(opened.ms).toBeLessThan(SETTLE_MS)
+  test('the picker settles within 100 ms when it opens, on every keystroke and on every filter change', async ({ page }) => {
+    await openOnWednesday(page, '#/plan')
+    await expect(page.getByRole('region', { name: 'Monday' })).toBeVisible()
+    expect(catalogue.length).toBeGreaterThanOrEqual(26)
 
-  // Typing, one key at a time; then deleting it again.
-  for (const typed of ['s', 'sq', 'squ', 'squa', 'squat', 'squa', '', 'pull up', 'RDL', 'romanian']) {
-    const result = await settle(page, { type: typed })
-    expect(result.rows, `"${typed}"`).toEqual(grit.searchLibrary(typed, [], []).map((e) => e.name))
-    expect(result.ms, `"${typed}" took ${result.ms} ms`).toBeLessThan(SETTLE_MS)
-  }
-  expect(await shownNames(page)).toEqual(['RDL'])
-  await settle(page, { type: '' })
+    // Opening it lists the whole catalogue.
+    const opened = await settle(page, { open: true })
+    expect(opened.rows).toEqual(grit.searchLibrary('', [], []).map((e) => e.name))
+    expect(opened.rows).toHaveLength(catalogue.length)
+    expect(opened.ms).toBeLessThan(SETTLE_MS)
 
-  // Filters: one body area at a time, any of the chosen equipment.
-  const steps: [chip: string, areas: string[], equipment: string[]][] = [
-    ['Back', ['BACK'], []],
-    ['Bodyweight', ['BACK'], ['BODYWEIGHT']],
-    ['Barbell', ['BACK'], ['BODYWEIGHT', 'BARBELL']],
-    ['Main lifts', ['MAIN_LIFTS'], ['BODYWEIGHT', 'BARBELL']],
-    ['All', [], ['BODYWEIGHT', 'BARBELL']],
-    ['Bodyweight', [], ['BARBELL']],
-    ['Barbell', [], []],
-  ]
-  for (const [chip, areas, equipment] of steps) {
-    const result = await settle(page, { chip })
-    expect(result.rows, chip).toEqual(grit.searchLibrary('', areas, equipment).map((e) => e.name))
-    expect(result.ms, `${chip} took ${result.ms} ms`).toBeLessThan(SETTLE_MS)
-  }
-  expect(await shownNames(page)).toHaveLength(catalogue.length)
+    // Typing, one key at a time; then deleting it again.
+    for (const typed of ['s', 'sq', 'squ', 'squa', 'squat', 'squa', '', 'pull up', 'RDL', 'romanian']) {
+      const result = await settle(page, { type: typed })
+      expect(result.rows, `"${typed}"`).toEqual(grit.searchLibrary(typed, [], []).map((e) => e.name))
+      expect(result.ms, `"${typed}" took ${result.ms} ms`).toBeLessThan(SETTLE_MS)
+    }
+    expect(await shownNames(page)).toEqual(grit.searchLibrary('romanian', [], []).map((e) => e.name))
+    expect((await shownNames(page))[0]).toBe('RDL')
+    await settle(page, { type: '' })
+
+    // Filters: one body area at a time, any of the chosen equipment.
+    const steps: [chip: string, areas: string[], equipment: string[]][] = [
+      ['Back', ['BACK'], []],
+      ['Bodyweight', ['BACK'], ['BODYWEIGHT']],
+      ['Barbell', ['BACK'], ['BODYWEIGHT', 'BARBELL']],
+      ['Main lifts', ['MAIN_LIFTS'], ['BODYWEIGHT', 'BARBELL']],
+      ['All', [], ['BODYWEIGHT', 'BARBELL']],
+      ['Bodyweight', [], ['BARBELL']],
+      ['Barbell', [], []],
+    ]
+    for (const [chip, areas, equipment] of steps) {
+      const result = await settle(page, { chip })
+      expect(result.rows, chip).toEqual(grit.searchLibrary('', areas, equipment).map((e) => e.name))
+      expect(result.ms, `${chip} took ${result.ms} ms`).toBeLessThan(SETTLE_MS)
+    }
+    expect(await shownNames(page)).toHaveLength(catalogue.length)
+  })
+
+  test('the picker still settles within 100 ms with a few hundred exercises to list', async ({ page }) => {
+    // The catalogue grows to about 250 entries; until it has, the lifter's own exercises stand in for them.
+    const many = Array.from({ length: 250 }, (_, i) => ({ name: `Exercise ${String(i + 1).padStart(3, '0')}`, isBuiltIn: false, archived: false }))
+    await openOnWednesday(page, '#/plan')
+    await editExercises(page, { add: many })
+    await expect(page.getByRole('region', { name: 'Monday' })).toBeVisible()
+
+    const opened = await settle(page, { open: true })
+    expect(opened.rows).toHaveLength(catalogue.length + 250)
+    expect(opened.ms, `opening took ${opened.ms} ms`).toBeLessThan(SETTLE_MS)
+    for (const typed of ['e', 'ex', 'exercise 1', 'ex', '']) {
+      const result = await settle(page, { type: typed })
+      expect(result.rows.length, `"${typed}"`).toBeGreaterThanOrEqual(typed === 'exercise 1' ? 100 : 250)
+      expect(result.ms, `"${typed}" took ${result.ms} ms`).toBeLessThan(SETTLE_MS)
+    }
+    // A filter hides the lifter's own exercises and brings them back.
+    const filtered = await settle(page, { chip: 'Back' })
+    expect(filtered.rows).toEqual(grit.searchLibrary('', ['BACK'], []).map((e) => e.name))
+    expect(filtered.ms).toBeLessThan(SETTLE_MS)
+    const cleared = await settle(page, { chip: 'All' })
+    expect(cleared.rows).toHaveLength(catalogue.length + 250)
+    expect(cleared.ms, `clearing the filter took ${cleared.ms} ms`).toBeLessThan(SETTLE_MS)
+  })
+
+  test('browsing by muscle settles within 100 ms: opening on the grid, a muscle, its equipment and the way back', async ({ page }) => {
+    await openOnWednesday(page, '#/plan')
+    await expect(page.getByRole('region', { name: 'Monday' })).toBeVisible()
+    const labels = grit.muscleGroups().map((g) => grit.muscleGroupLabel(g))
+    const inGroup = (group: string, equipment: string[] = []) => grit.exercisesByMuscle(group, equipment).map((e) => e.name)
+
+    // Opening it draws the grid above the whole catalogue.
+    const opened = await settle(page, { open: true })
+    expect(opened.tiles).toEqual(labels)
+    expect(opened.rows).toHaveLength(catalogue.length)
+    expect(opened.ms, `opening took ${opened.ms} ms`).toBeLessThan(SETTLE_MS)
+
+    // Every muscle: tap it, read its list, go back to the grid.
+    for (const group of grit.muscleGroups()) {
+      const label = grit.muscleGroupLabel(group)
+      const listed = await settle(page, { muscle: label })
+      expect(listed.rows, label).toEqual(inGroup(group))
+      expect(listed.tiles, label).toEqual([])
+      expect(listed.ms, `${label} took ${listed.ms} ms`).toBeLessThan(SETTLE_MS)
+      const back = await settle(page, { allMuscles: true })
+      expect(back.tiles, label).toEqual(labels)
+      expect(back.rows, label).toHaveLength(catalogue.length)
+      expect(back.ms, `back from ${label} took ${back.ms} ms`).toBeLessThan(SETTLE_MS)
+    }
+
+    // Equipment inside a muscle, then typing, which leaves it.
+    await settle(page, { muscle: 'Glutes' })
+    const dumbbell = await settle(page, { chip: 'Dumbbell' })
+    expect(dumbbell.rows).toEqual(inGroup('GLUTES', ['DUMBBELL']))
+    expect(dumbbell.ms, `Dumbbell took ${dumbbell.ms} ms`).toBeLessThan(SETTLE_MS)
+    const all = await settle(page, { chip: 'Dumbbell' })
+    expect(all.rows).toEqual(inGroup('GLUTES'))
+    expect(all.ms, `clearing Dumbbell took ${all.ms} ms`).toBeLessThan(SETTLE_MS)
+    const typed = await settle(page, { type: 'squat' })
+    expect(typed.rows).toEqual(grit.searchLibrary('squat', [], []).map((e) => e.name))
+    expect(typed.ms, `typing took ${typed.ms} ms`).toBeLessThan(SETTLE_MS)
+  })
 })
 
-test('the picker still settles within 100 ms with a few hundred exercises to list', async ({ page }) => {
-  // The catalogue grows to about 250 entries; until it has, the lifter's own exercises stand in for them.
-  const many = Array.from({ length: 250 }, (_, i) => ({ name: `Exercise ${String(i + 1).padStart(3, '0')}`, isBuiltIn: false, archived: false }))
+test('the muscle grid fits a 375 px phone with full-size targets', async ({ page }) => {
   await openOnWednesday(page, '#/plan')
-  await editExercises(page, { add: many })
-  await expect(page.getByRole('region', { name: 'Monday' })).toBeVisible()
+  await editExercises(page, { add: [{ name: 'Tyre flip', isBuiltIn: false, archived: false }] })
+  await openPlanPicker(page)
 
-  const opened = await settle(page, { open: true })
-  expect(opened.rows).toHaveLength(catalogue.length + 250)
-  expect(opened.ms, `opening took ${opened.ms} ms`).toBeLessThan(SETTLE_MS)
-  for (const typed of ['e', 'ex', 'exercise 1', 'ex', '']) {
-    const result = await settle(page, { type: typed })
-    expect(result.rows.length, `"${typed}"`).toBeGreaterThanOrEqual(typed === 'exercise 1' ? 100 : 250)
-    expect(result.ms, `"${typed}" took ${result.ms} ms`).toBeLessThan(SETTLE_MS)
+  // The grid: every group, above the lifter's own exercises, two or three whole tiles to a row.
+  const grid = picker(page).getByRole('group', { name: 'Browse by muscle' })
+  const tiles = grid.getByRole('button')
+  await expect(tiles).toHaveText(grit.muscleGroups().map((g) => grit.muscleGroupLabel(g)))
+  const boxes = await tiles.evaluateAll((els) =>
+    els.map((el) => {
+      const box = el.getBoundingClientRect()
+      return { label: el.textContent, left: box.left, right: box.right, top: box.top, width: box.width, height: box.height, clipped: el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1 }
+    }),
+  )
+  for (const box of boxes) {
+    expect(box.width, box.label!).toBeGreaterThanOrEqual(48)
+    expect(box.height, box.label!).toBeGreaterThanOrEqual(48)
+    // One line of text: no tile grew to fit a wrapped name.
+    expect(box.height, box.label!).toBeLessThan(60)
+    expect(box.clipped, box.label!).toBe(false)
+    expect(box.left, box.label!).toBeGreaterThanOrEqual(0)
+    expect(box.right, box.label!).toBeLessThanOrEqual(375)
   }
-  // A filter hides the lifter's own exercises and brings them back.
-  const filtered = await settle(page, { chip: 'Back' })
-  expect(filtered.rows).toEqual(grit.searchLibrary('', ['BACK'], []).map((e) => e.name))
-  expect(filtered.ms).toBeLessThan(SETTLE_MS)
-  const cleared = await settle(page, { chip: 'All' })
-  expect(cleared.rows).toHaveLength(catalogue.length + 250)
-  expect(cleared.ms, `clearing the filter took ${cleared.ms} ms`).toBeLessThan(SETTLE_MS)
+  const perRow = new Map<number, number>()
+  for (const box of boxes) perRow.set(Math.round(box.top), (perRow.get(Math.round(box.top)) ?? 0) + 1)
+  expect([...perRow.values()].every((n) => n === 3)).toBe(true)
+  expect((await grid.boundingBox())!.y).toBeLessThan((await picker(page).getByRole('heading', { name: 'Your exercises' }).boundingBox())!.y)
+  expect(await overflowing(page)).toEqual([])
+  expect(await smallTargets(page, '.gr-dialog')).toEqual([])
+
+  // Inside a muscle: the heading, the way back and the rows all fit. The lifter's own exercise names quads.
+  await tiles.filter({ hasText: 'Quads' }).click()
+  await expect(picker(page).getByRole('heading', { name: 'Quads exercises' })).toBeVisible()
+  await expect(grid).toHaveCount(0)
+  const names = [...grit.exercisesByMuscle('QUADS', []).map((e) => e.name), 'Tyre flip'].sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? -1 : 1))
+  expect(await shownNames(page)).toEqual(names)
+  expect(await overflowing(page)).toEqual([])
+  expect(await smallTargets(page, '.gr-dialog')).toEqual([])
+
+  // The guide opens over the muscle's list and picks nothing.
+  await pickerRow(page, 'Squat').getByRole('button', { name: 'Form guide for Squat' }).click()
+  const guide = page.getByRole('dialog', { name: 'Form guide for Squat' })
+  await expect(guide.getByText(SAFETY)).toBeAttached()
+  await page.keyboard.press('Escape')
+  await expect(guide).toHaveCount(0)
+  await expect(picker(page).getByRole('heading', { name: 'Quads exercises' })).toBeVisible()
+  await expect.poll(async () => (await readAllTables(page)).planItems).toEqual([])
+
+  // Equipment narrows it; "All muscles" is back at the grid.
+  await picker(page).getByRole('group', { name: 'Equipment' }).locator('.gr-chip', { hasText: 'Kettlebell' }).click()
+  expect(await shownNames(page)).toEqual(grit.exercisesByMuscle('QUADS', ['KETTLEBELL']).map((e) => e.name))
+  await picker(page).getByRole('group', { name: 'Equipment' }).locator('.gr-chip', { hasText: 'Kettlebell' }).click()
+  await picker(page).getByRole('button', { name: 'All muscles' }).click()
+  await expect(grid).toBeVisible()
+  expect(await overflowing(page)).toEqual([])
+
+  // Picking from a muscle adds the exercise like any other row.
+  await tiles.filter({ hasText: 'Calves' }).click()
+  const calf = grit.exercisesByMuscle('CALVES', [])[0]!.name
+  await pickerRow(page, calf).getByRole('button').first().click()
+  await expect(picker(page)).toHaveCount(0)
+  await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveAttribute('aria-label', new RegExp(`^${calf}  3 × `))
 })
 
 test('the picker fits a 375 px phone with full-size targets', async ({ page }) => {

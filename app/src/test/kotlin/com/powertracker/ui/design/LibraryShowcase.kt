@@ -15,19 +15,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.seed.SeedLibrary
 import com.powertracker.ui.library.ExercisePickerContent
 import com.powertracker.ui.library.FormGuideContent
 
-/** The real picker as Plan opens it: the lifter's recent and own exercises, then the catalogue. */
+/** The real picker as Plan opens it: the muscle grid, the lifter's recent and own exercises, then the catalogue. */
 @Composable
-fun ExercisePickerShowcase() {
+fun ExercisePickerShowcase(muscle: MuscleGroup? = null) {
     val seeded = SeedLibrary.exercises()
     val own = Exercise(900, "Tyre flip", Category.ACCESSORY, null, listOf("Quads", "Glutes"), isBuiltIn = false)
     val recent = listOf("Squat", "Bench", "RDL").map { name -> seeded.first { it.name == name }.id }
-    ExercisePickerContent("Add to Monday", seeded + own, recent, onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {})
+    ExercisePickerContent("Add to Monday", seeded + own, recent, onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {}, initialMuscle = muscle)
 }
 
 /** The real guide content for the squat, in a stand-in for the bottom sheet it opens in. */

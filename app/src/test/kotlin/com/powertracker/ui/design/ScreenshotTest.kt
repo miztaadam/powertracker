@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.ui.Tab
 import com.powertracker.ui.lock.LockScreen
 import org.junit.Assert.assertEquals
@@ -32,7 +33,7 @@ import java.io.File
  * (Today: mid-session, before the session, an exercise finished, after Finish; Coach: the feed, the
  * empty feed, and the rarer re-entry and miss-point cards). Progress and lift history render the
  * real `ProgressContent` / `LiftHistoryContent` from a sample training history. The exercise picker
- * is the real `ExercisePickerContent`; the form guide is the real `FormGuideContent` in a stand-in
+ * is the real `ExercisePickerContent`, on its muscle grid and inside one muscle; the form guide is the real `FormGuideContent` in a stand-in
  * for the bottom sheet (the sheet itself is its own window, which this capture cannot see). Today, Plan,
  * the exercise picker,
  * lift history, the empty Coach feed and the two lock screens are phone size (412 × 915 dp); the
@@ -110,6 +111,9 @@ class ScreenshotTest {
 
     @Test
     fun exercisePicker() = render("exercise-picker", null) { ExercisePickerShowcase() }
+
+    @Test
+    fun exercisePickerMuscle() = render("exercise-picker-muscle", null) { ExercisePickerShowcase(MuscleGroup.QUADS) }
 
     @Test
     @Config(qualifiers = "w412dp-h1370dp-xhdpi")
