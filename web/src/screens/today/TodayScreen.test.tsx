@@ -33,6 +33,18 @@ const findButton = (name: string | RegExp) => screen.findByRole('button', { name
 const tapWhenShown = async (name: string | RegExp) => userEvent.click(await findButton(name))
 const waitForSets = (count: number) => waitFor(async () => expect(await setsOn(db, TODAY)).toHaveLength(count))
 
+const weightField = () => screen.getByRole('textbox', { name: 'Weight, kilograms' })
+const repsField = () => screen.getByRole('textbox', { name: 'Reps' })
+const rpeField = () => screen.getByRole('textbox', { name: 'RPE' })
+
+/** Types a weight into the exercise card and leaves the field. */
+async function typeWeight(text: string) {
+  await userEvent.clear(weightField())
+  await userEvent.type(weightField(), text)
+  await userEvent.keyboard('{Enter}')
+}
+
+/** Fills in the bodyweight dialog. */
 async function typeNumber(text: string) {
   const field = within(screen.getByRole('dialog')).getByRole('textbox')
   await userEvent.clear(field)
@@ -50,7 +62,7 @@ describe('TodayScreen', () => {
     await userEvent.click(await findButton('Start session'))
 
     await findButton('Log set 1')
-    expect(screen.getByLabelText('Weight 150 kg, type Weight')).toBeInTheDocument()
+    expect(weightField()).toHaveValue('150')
     await tap('Log set 1')
 
     await waitForSets(1)
@@ -106,11 +118,11 @@ describe('TodayScreen', () => {
     expect(await screen.findByText('155 × 5 @ 8')).toBeInTheDocument()
     expect(screen.getByText('Coach suggests')).toBeInTheDocument()
     // Still the planned numbers: nothing changes until Apply.
-    expect(screen.getByLabelText('Weight 150 kg, type Weight')).toBeInTheDocument()
+    expect(weightField()).toHaveValue('150')
 
     await tap('Apply')
 
-    expect(await screen.findByLabelText('Weight 155 kg, type Weight')).toBeInTheDocument()
+    await waitFor(() => expect(weightField()).toHaveValue('155'))
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Apply' })).toBeNull())
     expect((await targets(db)).map((a) => a.status)).toEqual(['APPLIED'])
     expect(await setsOn(db, TODAY), 'applying a suggestion must not log anything').toEqual([])
@@ -146,8 +158,8 @@ describe('TodayScreen', () => {
   it('bigJump_promptsWithTheLastWeight', async () => {
     await startSession(db, TODAY)
     show()
-    await userEvent.click(await screen.findByLabelText('Weight 150 kg, type Weight'))
-    await typeNumber('250')
+    await findButton('Log set 1')
+    await typeWeight('250')
     await tap('Log set 1')
     const dialog = await screen.findByRole('dialog', { name: 'Did you mean 250 kg × 5?' })
     expect(within(dialog).getByText('That is a big jump from 150 kg.')).toBeInTheDocument()
@@ -159,32 +171,26 @@ describe('TodayScreen', () => {
     await findButton('Log set 1')
     expect(screen.getByText('25 + 25 + 15')).toBeInTheDocument() // 150 kg
 
-    await userEvent.click(screen.getByLabelText('Weight 150 kg, type Weight'))
-    // Opens with the current value in the field.
-    expect(within(screen.getByRole('dialog', { name: 'Weight' })).getByRole('textbox')).toHaveValue('150')
-    await typeNumber('182,5')
+    await typeWeight('182,5')
 
     expect(await screen.findByText('25 + 25 + 25 + 5 + 1.25')).toBeInTheDocument()
 
     // 181 kg cannot be loaded with 1.25 kg plates: say so instead of drawing a wrong bar.
-    await userEvent.click(screen.getByLabelText('Weight 182.5 kg, type Weight'))
-    await typeNumber('181')
+    await typeWeight('181')
     expect(await screen.findByText("Can't load 181 kg exactly")).toBeInTheDocument()
     expect(screen.getByText('Nearest is 180 kg.')).toBeInTheDocument()
   })
 
-  it('numberEntry_rejectsWhatIsOutOfRange', async () => {
-    await startSession(db, TODAY)
+  it('bodyweightEntry_rejectsWhatIsOutOfRange', async () => {
     show()
-    await userEvent.click(await screen.findByLabelText('Weight 150 kg, type Weight'))
+    await tapWhenShown('Add')
     const dialog = within(screen.getByRole('dialog'))
-    await userEvent.clear(dialog.getByRole('textbox'))
     expect(dialog.getByRole('button', { name: 'Set' })).toBeDisabled()
     await userEvent.type(dialog.getByRole('textbox'), '1001')
     expect(dialog.getByRole('button', { name: 'Set' })).toBeDisabled()
     expect(dialog.getByRole('textbox')).toBeInvalid()
     await userEvent.click(dialog.getByRole('button', { name: 'Cancel' }))
-    expect(screen.getByLabelText('Weight 150 kg, type Weight')).toBeInTheDocument()
+    expect(button('Add')).toBeInTheDocument()
   })
 
   it('appliedDeloadTarget_showsSetOfFewerSets', async () => {
@@ -219,9 +225,9 @@ describe('TodayScreen', () => {
     // Straight back in the session: no start card, the logged set and the unlogged numbers are there.
     await findButton('Log set 2')
     expect(button('Set 1: 150 kg × 5 at RPE 8, done')).toBeInTheDocument()
-    expect(screen.getByLabelText('Weight 152.5 kg, type Weight')).toBeInTheDocument()
-    expect(screen.getByLabelText('Reps 4, type Reps')).toBeInTheDocument()
-    expect(screen.getByLabelText('RPE 8.5')).toBeInTheDocument()
+    expect(weightField()).toHaveValue('152.5')
+    expect(repsField()).toHaveValue('4')
+    expect(rpeField()).toHaveValue('8.5')
     expect(screen.queryByRole('button', { name: 'Start session' })).toBeNull()
   })
 
@@ -253,7 +259,7 @@ describe('TodayScreen', () => {
       await tap('Log set 2')
       expect(await screen.findByRole('status')).toHaveTextContent("Couldn't save — try again.")
       expect(button('Log set 2')).toBeEnabled()
-      expect(screen.getByLabelText('Weight 150 kg, type Weight')).toBeInTheDocument()
+      expect(weightField()).toHaveValue('150')
       add.mockRestore()
 
       // Deleting a set, then applying and dismissing the coach's target.
@@ -297,8 +303,7 @@ describe('TodayScreen', () => {
     await tapWhenShown('Next: Bench')
     expect(await screen.findByText('Exercise 2 of 2')).toBeInTheDocument()
     expect(button(/^Squat/)).toHaveTextContent('Done')
-    await userEvent.click(screen.getByLabelText('Weight – kg, type Weight'))
-    await typeNumber('100')
+    await typeWeight('100')
     await tapWhenShown('Log set 1')
 
     // Nothing left: the last card offers Finish, as the header does.
@@ -332,6 +337,8 @@ describe('TodayScreen', () => {
     // The added exercise is the one being logged, with no weight yet.
     expect(await screen.findByRole('heading', { name: 'Deadlift' })).toBeInTheDocument()
     expect(screen.getByText('No weight yet')).toBeInTheDocument()
+    expect(screen.getByText('Type the weight to see the plates.')).toBeInTheDocument()
+    expect(weightField()).toHaveValue('')
     expect(button('Log set 1')).toBeDisabled()
     expect(button('Missed')).toBeDisabled()
     await tap('Remove')

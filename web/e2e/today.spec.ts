@@ -1,6 +1,7 @@
 import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
+import { repsField, rpeField, typeInto, weightField } from './helpers'
 
 // The Today screen with the same sample story as the Android mockup (docs/design/screens/today-dark.png):
 // Wednesday 11 November, squat 5 × 5 @ 8 planned, last week's top set 150 × 5 @ 7.
@@ -68,17 +69,56 @@ async function logMockupSets(page: Page) {
   await expect(page.getByTestId('miss-row-3').getByRole('radio', { name: 'Floor' })).toBeChecked()
   await tap(page, 'Increase Reps', 2)
   await tap(page, 'Decrease RPE', 4)
-  await expect(page.getByLabel('Weight 155 kg, type Weight')).toBeVisible()
+  await expect(weightField(page)).toHaveValue('155')
 }
 
-/** Buttons, links and choices smaller than 48 px in either direction (to within sub-pixel rounding). */
+/** Buttons, links, choices and typed figures smaller than 48 px in either direction (to within sub-pixel rounding). */
 const smallTargets = (page: Page) =>
   page.evaluate(() =>
-    Array.from(document.querySelectorAll<HTMLElement>('button, a[href], label.gr-segment, label.gr-chip'))
+    Array.from(document.querySelectorAll<HTMLElement>('button, a[href], label.gr-segment, label.gr-chip, label.gr-stepper-figure'))
       .map((el) => ({ el, box: el.getBoundingClientRect() }))
       .filter(({ box }) => box.width < 47.5 || box.height < 47.5)
       .map(({ el, box }) => `${el.className} ${Math.round(box.width)}×${Math.round(box.height)}`),
   )
+
+/** The three typed figures on the exercise card: big enough that iOS does not zoom, readable in full, and clear of each other. */
+const typedFields = (page: Page) =>
+  page.evaluate(() => {
+    const inputs = Array.from(document.querySelectorAll<HTMLInputElement>('.today-steppers input'))
+    return {
+      count: inputs.length,
+      smallestFontPx: Math.min(...inputs.map((i) => parseFloat(getComputedStyle(i).fontSize))),
+      // The value is readable in full: the field is as wide as its figures.
+      cutOff: inputs.some((i) => i.scrollWidth > i.clientWidth),
+      // A wide figure may reach into the gap beside its column, never into its neighbour or out of the card.
+      colliding: (() => {
+        const card = inputs[0]!.closest<HTMLElement>('.gr-card')!.getBoundingClientRect()
+        const rows = inputs.map((i) => i.closest<HTMLElement>('.gr-numfield-row')!.getBoundingClientRect())
+        return rows.some((r, n) => r.left < card.left || r.right > card.right || (n > 0 && r.left < rows[n - 1]!.right))
+      })(),
+      keypads: inputs.map((i) => i.inputMode),
+    }
+  })
+
+/** Today's logged sets as [kg, reps, RPE], read from IndexedDB. */
+const loggedSets = (page: Page) =>
+  page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((done, fail) => {
+      const request = indexedDB.open('grit')
+      request.onsuccess = () => done(request.result)
+      request.onerror = () => fail(request.error)
+    })
+    const read = <T,>(store: string) =>
+      new Promise<T[]>((done, fail) => {
+        const all = db.transaction(store).objectStore(store).getAll()
+        all.onsuccess = () => done(all.result as T[])
+        all.onerror = () => fail(all.error)
+      })
+    const today = (await read<{ id: number; date: string }>('sessions')).find((s) => s.date === '2026-11-11')
+    const sets = (await read<{ sessionId: number; weightKg: number; reps: number; rpe: number }>('sets')).filter((s) => s.sessionId === today?.id)
+    db.close()
+    return sets.map((s) => [s.weightKg, s.reps, s.rpe])
+  })
 
 const fitsThePhone = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
 
@@ -111,10 +151,13 @@ test.describe('on a 375 px iPhone', () => {
     await openWithSampleData(page)
     await logMockupSets(page)
     // The widest value the weight stepper shows in practice.
-    await page.getByLabel('Weight 155 kg, type Weight').click()
-    await page.getByRole('dialog').getByRole('textbox').fill('182.5')
-    await page.getByRole('dialog').getByRole('button', { name: 'Set' }).click()
+    await typeInto(page, weightField(page), '182.5')
+    // The plates follow the typing, before the field is left.
     await expect(page.getByText('25 + 25 + 25 + 5 + 1.25')).toBeVisible()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await page.keyboard.press('Enter')
+    await expect(weightField(page)).not.toBeFocused()
+    await expect(weightField(page)).toHaveValue('182.5')
 
     expect(await fitsThePhone(page)).toBe(true)
     expect(await smallTargets(page)).toEqual([])
@@ -134,9 +177,69 @@ test.describe('on a 375 px iPhone', () => {
     })
     expect(layout).toEqual({ count: 6, rowOverflows: false, narrowest: expect.any(Number), insideCard: true, overlapping: false, platesCutOff: false })
     expect(layout.narrowest).toBeGreaterThanOrEqual(48)
+    expect(await typedFields(page)).toEqual({ count: 3, smallestFontPx: 44, cutOff: false, colliding: false, keypads: ['decimal', 'numeric', 'decimal'] })
 
     mkdirSync(resolve(process.cwd(), 'test-results/screens'), { recursive: true })
     await page.screenshot({ path: resolve(process.cwd(), 'test-results/screens/today-375.png'), fullPage: true, animations: 'disabled' })
+
+    // A refused entry and its message, and far too many figures: the row and the buttons stay as they were.
+    await typeInto(page, weightField(page), '1234567.25')
+    await typeInto(page, repsField(page), '0')
+    await typeInto(page, rpeField(page), '11')
+    await page.getByRole('heading', { level: 1, name: 'Today' }).click()
+    await expect(page.getByText('0 to 1000 kg')).toBeVisible()
+    await expect(page.getByText('Whole, 1 to 99')).toBeVisible()
+    await expect(page.getByText('6 to 10', { exact: true })).toBeVisible()
+    expect(await fitsThePhone(page)).toBe(true)
+    expect(await smallTargets(page)).toEqual([])
+    const refused = await page.evaluate(() => {
+      const row = document.querySelector<HTMLElement>('.today-steppers')!
+      const buttons = Array.from(row.querySelectorAll<HTMLElement>('.gr-step-btn')).map((b) => b.getBoundingClientRect())
+      return { rowOverflows: row.scrollWidth > row.clientWidth, narrowest: Math.min(...buttons.map((b) => b.width)), buttonTops: new Set(buttons.map((b) => Math.round(b.top))).size }
+    })
+    expect(refused).toEqual({ rowOverflows: false, narrowest: expect.any(Number), buttonTops: 1 })
+    expect(refused.narrowest).toBeGreaterThanOrEqual(48)
+    expect((await typedFields(page)).colliding).toBe(false)
+    await page.screenshot({ path: resolve(process.cwd(), 'test-results/screens/today-375-refused.png'), fullPage: true, animations: 'disabled' })
+  })
+
+  test('typing on the card: tap selects, the keypad replaces, and Log set takes what is typed', async ({ page }) => {
+    await openWithSampleData(page)
+    await tap(page, 'Start session')
+    await expect(weightField(page)).toHaveValue('150')
+
+    // A tap selects the value, so the first key replaces it; no dialog opens.
+    await typeInto(page, weightField(page), '140')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.getByText('25 + 25 + 10', { exact: true })).toBeVisible()
+    // Straight from the keypad to Log set.
+    await tap(page, 'Log set 1')
+    await expect(page.getByRole('button', { name: 'Log set 2' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Set 1: 140 kg × 5 at RPE 8, done' })).toBeVisible()
+    await expect.poll(() => loggedSets(page)).toEqual([[140, 5, 8]])
+
+    // Typed, then +: the step starts from the typed number.
+    await typeInto(page, weightField(page), '102,5')
+    await tap(page, 'Increase Weight')
+    await expect(weightField(page)).toHaveValue('105')
+    await typeInto(page, rpeField(page), '8.3')
+    await page.keyboard.press('Enter')
+    await expect(rpeField(page)).toHaveValue('8.5')
+    await typeInto(page, repsField(page), '3')
+    await tap(page, 'Log set 2')
+    await expect(page.getByRole('button', { name: 'Log set 3' })).toBeVisible()
+    await expect.poll(() => loggedSets(page)).toEqual([[140, 5, 8], [105, 3, 8.5]])
+
+    // A number the card refuses is not logged at the old weight: the message shows and the cursor goes back to it.
+    await typeInto(page, weightField(page), '1200')
+    await tap(page, 'Log set 3')
+    await expect(page.getByText('0 to 1000 kg')).toBeVisible()
+    await expect(weightField(page)).toBeFocused()
+    await expect(page.getByRole('button', { name: 'Log set 3' })).toBeVisible()
+    await expect.poll(() => loggedSets(page)).toEqual([[140, 5, 8], [105, 3, 8.5]])
+    await page.keyboard.type('120')
+    await tap(page, 'Log set 3')
+    await expect.poll(() => loggedSets(page)).toEqual([[140, 5, 8], [105, 3, 8.5], [120, 3, 8.5]])
   })
 })
 

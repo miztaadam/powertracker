@@ -71,17 +71,15 @@
   font: inherit;
 }
 
-button.gr-stepper-figure {
-  cursor: pointer;
+label.gr-stepper-figure {
+  cursor: text;
   touch-action: manipulation;
 }
 
-button.gr-stepper-figure:active {
-  background: var(--container);
-}
-
+/* The buttons of three steppers stay on one line when a message makes one figure taller. */
 .gr-stepper-buttons {
   display: flex;
   gap: var(--space-2);
+  margin-top: auto;
   padding-top: var(--space-3);
 }

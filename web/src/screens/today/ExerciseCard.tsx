@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { grit } from '../../domain'
-import type { MissPoint, PlannedItem, StoredSet, Suggestion, Target, TodayActions, TodayItem } from '../../state/useToday'
+import type { MissPoint, PlannedItem, SetEditor, StoredSet, Suggestion, Target, TodayActions, TodayItem } from '../../state/useToday'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
 import { CoachSuggestion } from '../../ui/components/CoachSuggestion'
@@ -8,22 +8,19 @@ import { Dialog } from '../../ui/components/Dialog'
 import { formatKg, formatRpe } from '../../ui/components/format'
 import { ArrowForwardIcon, BoltIcon, CheckIcon, CloseIcon } from '../../ui/components/icons'
 import { Eyebrow } from '../../ui/components/NumberDisplay'
+import { NumberField } from '../../ui/components/NumberField'
 import { Pill } from '../../ui/components/Pill'
 import { PlateStrip, PlateStripNote } from '../../ui/components/PlateStrip'
 import { SegmentedChoice } from '../../ui/components/SegmentedChoice'
 import { SetRow } from '../../ui/components/SetRow'
 import { StepperField } from '../../ui/components/StepperField'
-import { NumberEntryDialog } from './TodayDialogs'
+import { MAX_KG, MAX_REPS, MAX_RPE, MIN_RPE, entryMessage, parseEntry, type EntryKind } from './entry'
 import './today.css'
 
 /** Where the accent button leads once an exercise's sets are done: the next exercise, or Finish. */
 export type NextStep = { label: string; onClick: () => void }
 
 const BAR_KG = 20
-const MAX_KG = 1000
-const MAX_REPS = 99
-const MIN_RPE = 6
-const MAX_RPE = 10
 
 /** RPE from which a set counts as a grind worth asking "where?" about. */
 const GRIND_RPE = 9.5
@@ -188,54 +185,134 @@ function MissRow({ number, set, onSelect }: { number: number; set: StoredSet; on
   )
 }
 
+/** The editor value each field types into. */
+const FIELD_OF = { kg: 'weightKg', reps: 'reps', rpe: 'rpe' } as const satisfies Record<EntryKind, keyof SetEditor>
+const KINDS: readonly EntryKind[] = ['kg', 'reps', 'rpe']
+
+/**
+ * Text in a field that is not the editor's value (yet). `base` is the editor value it was typed over:
+ * when that has changed since (the coach's Apply), the text is stale and is never saved over the
+ * newer value. `error` is set once the text has been refused.
+ */
+type Draft = { text: string; base: number | null; error?: string }
+type Drafts = Partial<Record<EntryKind, Draft>>
+
+/** Puts every typed number that is good into the editor. What was refused stays, with its message; the rest is dropped. */
+function settle(editor: SetEditor, drafts: Drafts): { editor: SetEditor; drafts: Drafts } {
+  const next = { ...editor }
+  const kept: Drafts = {}
+  for (const kind of KINDS) {
+    const draft = drafts[kind]
+    if (draft == null || draft.base !== editor[FIELD_OF[kind]]) continue
+    if (draft.error != null) {
+      kept[kind] = draft
+      continue
+    }
+    const entry = parseEntry(draft.text, kind)
+    if (entry.ok) next[FIELD_OF[kind]] = entry.value
+    else if (entry.reason !== 'empty') kept[kind] = { ...draft, error: entryMessage(kind, entry.reason) }
+  }
+  return { editor: next, drafts: kept }
+}
+
+const sameEditor = (a: SetEditor, b: SetEditor) => a.weightKg === b.weightKg && a.reps === b.reps && a.rpe === b.rpe
+
 function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem; weightStepKg: number; changePlates: boolean; actions: TodayActions }) {
   const id = item.exercise.id
   const e = item.editor
-  const weight = e.weightKg
-  const [entry, setEntry] = useState<'weight' | 'reps' | null>(null)
+  const [drafts, setDrafts] = useState<Drafts>({})
   const isBarbellLift = item.exercise.category !== 'ACCESSORY'
-  const log = (failed: boolean) => {
-    if (weight != null) void actions.logSet(id, { weightKg: weight, reps: e.reps, rpe: e.rpe, failed })
+
+  // What a field shows instead of the editor's value. Text being typed stays even when the value under
+  // it changes; a refused entry gives way to a newer value.
+  const shown = (kind: EntryKind): Draft | undefined => {
+    const draft = drafts[kind]
+    return draft != null && (draft.error == null || draft.base === e[FIELD_OF[kind]]) ? draft : undefined
   }
+  // The editor as it will be once the typing is committed: the plates and the buttons follow the typing.
+  const typed = settle(e, drafts).editor
+  const weight = typed.weightKg
+  const perSide = weight == null ? null : weight === e.weightKg ? item.perSide : (grit.platesPerSide(weight, changePlates) ?? null)
+
+  /** Leaving a field commits what was typed into it. */
+  const commit = (kind: EntryKind) => {
+    const settled = settle(e, { [kind]: drafts[kind] })
+    setDrafts({ ...drafts, [kind]: settled.drafts[kind] })
+    if (!sameEditor(settled.editor, e)) actions.edit(id, settled.editor)
+  }
+  /** − or +: steps from what is typed, or from the last good value when that was refused, and clears the message. */
+  const step = (kind: EntryKind, next: (editor: SetEditor) => number) => {
+    const settled = settle(e, drafts)
+    setDrafts({ ...settled.drafts, [kind]: undefined })
+    actions.edit(id, { ...settled.editor, [FIELD_OF[kind]]: next(settled.editor) })
+  }
+  const fields = useRef<HTMLDivElement>(null)
+  /** Log set or Missed. A refused entry on the card stops it: the lifter meant some other number, so the cursor goes to it instead. */
+  const log = (failed: boolean) => {
+    const settled = settle(e, drafts)
+    const refused = KINDS.findIndex((kind) => settled.drafts[kind] != null)
+    // The cursor moves first: the field it leaves commits its own entry, and the whole card's is stored after it.
+    if (refused >= 0) fields.current?.querySelectorAll('input')[refused]?.focus()
+    setDrafts(settled.drafts)
+    if (!sameEditor(settled.editor, e)) actions.edit(id, settled.editor)
+    if (refused >= 0) return
+    const now = settled.editor
+    if (now.weightKg != null) void actions.logSet(id, { weightKg: now.weightKg, reps: now.reps, rpe: now.rpe, failed })
+  }
+
+  const field = (kind: EntryKind, label: string, valueText: string, inputMode: 'decimal' | 'numeric', unit?: string) => (
+    <NumberField
+      label={label}
+      valueText={shown(kind)?.text ?? valueText}
+      unit={unit}
+      placeholder={unit}
+      inputMode={inputMode}
+      error={shown(kind)?.error}
+      onDraft={(text) => setDrafts({ ...drafts, [kind]: { text, base: e[FIELD_OF[kind]] } })}
+      onCommit={() => commit(kind)}
+    />
+  )
+  const weightText = e.weightKg != null ? formatKg(e.weightKg) : ''
 
   return (
     <>
-      <div className="today-steppers">
+      <div className="today-steppers" ref={fields}>
         <StepperField
           className="today-stepper-weight"
           label="Weight"
-          valueText={weight != null ? formatKg(weight) : '–'}
+          valueText={weightText}
           unit="kg"
           canDecrement={weight != null && weight > 0}
           canIncrement={weight == null || weight < MAX_KG}
-          onDecrement={() => actions.edit(id, { ...e, weightKg: stepWeight(weight, -weightStepKg) })}
-          onIncrement={() => actions.edit(id, { ...e, weightKg: stepWeight(weight, weightStepKg) })}
-          onValueClick={() => setEntry('weight')}
+          onDecrement={() => step('kg', (now) => stepWeight(now.weightKg, -weightStepKg))}
+          onIncrement={() => step('kg', (now) => stepWeight(now.weightKg, weightStepKg))}
+          field={field('kg', 'Weight, kilograms', weightText, 'decimal', 'kg')}
         />
         <StepperField
           label="Reps"
           valueText={String(e.reps)}
-          canDecrement={e.reps > 1}
-          canIncrement={e.reps < MAX_REPS}
-          onDecrement={() => actions.edit(id, { ...e, reps: e.reps - 1 })}
-          onIncrement={() => actions.edit(id, { ...e, reps: e.reps + 1 })}
-          onValueClick={() => setEntry('reps')}
+          canDecrement={typed.reps > 1}
+          canIncrement={typed.reps < MAX_REPS}
+          onDecrement={() => step('reps', (now) => now.reps - 1)}
+          onIncrement={() => step('reps', (now) => now.reps + 1)}
+          field={field('reps', 'Reps', String(e.reps), 'numeric')}
         />
         <StepperField
           label="RPE"
           valueText={formatRpe(e.rpe)}
-          canDecrement={e.rpe > MIN_RPE}
-          canIncrement={e.rpe < MAX_RPE}
-          onDecrement={() => actions.edit(id, { ...e, rpe: Math.max(MIN_RPE, e.rpe - 0.5) })}
-          onIncrement={() => actions.edit(id, { ...e, rpe: Math.min(MAX_RPE, e.rpe + 0.5) })}
+          canDecrement={typed.rpe > MIN_RPE}
+          canIncrement={typed.rpe < MAX_RPE}
+          onDecrement={() => step('rpe', (now) => Math.max(MIN_RPE, now.rpe - 0.5))}
+          onIncrement={() => step('rpe', (now) => Math.min(MAX_RPE, now.rpe + 0.5))}
+          field={field('rpe', 'RPE', formatRpe(e.rpe), 'decimal')}
         />
       </div>
 
       {weight == null ? (
-        <PlateStripNote title="No weight yet" caption="Tap the number to type it in." />
-      ) : item.perSide != null ? (
+        <PlateStripNote title="No weight yet" caption="Type the weight to see the plates." />
+      ) : perSide != null ? (
         // Accessories may be dumbbells or machines: only draw a bar when there are plates to put on it.
-        (isBarbellLift || item.perSide.length > 0) && <PlateStrip perSide={item.perSide} totalKg={weight} />
+        (isBarbellLift || perSide.length > 0) && <PlateStrip perSide={perSide} totalKg={weight} />
       ) : (
         isBarbellLift && <PlateStrip perSide={null} totalKg={weight} nearestKg={grit.roundLoad(weight, changePlates)} />
       )}
@@ -244,37 +321,6 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
         <SecondaryButton text="Missed" onClick={() => log(true)} enabled={weight != null} icon={<CloseIcon />} />
         <PrimaryButton className="today-grow" text={`Log set ${item.sets.length + 1}`} onClick={() => log(false)} enabled={weight != null} icon={<CheckIcon />} />
       </div>
-
-      {entry === 'weight' && (
-        <NumberEntryDialog
-          title="Weight"
-          label="Kilograms"
-          unit="kg"
-          initial={weight}
-          max={MAX_KG}
-          whole={false}
-          onDismiss={() => setEntry(null)}
-          onSet={(kg) => {
-            actions.edit(id, { ...e, weightKg: kg })
-            setEntry(null)
-          }}
-        />
-      )}
-      {entry === 'reps' && (
-        <NumberEntryDialog
-          title="Reps"
-          label="Reps in the set"
-          initial={e.reps}
-          min={1}
-          max={MAX_REPS}
-          whole
-          onDismiss={() => setEntry(null)}
-          onSet={(reps) => {
-            actions.edit(id, { ...e, reps })
-            setEntry(null)
-          }}
-        />
-      )}
     </>
   )
 }

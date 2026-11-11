@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { cx } from './format'
 import { AddIcon, RemoveIcon } from './icons'
-import { NumberDisplay } from './NumberDisplay'
+import { Eyebrow, NumberDisplay } from './NumberDisplay'
 import './StepperField.css'
 
 export type StepperProps = {
@@ -17,8 +17,8 @@ export type StepperProps = {
 
 export type StepperFieldProps = StepperProps & {
   unit?: string
-  /** Makes the value a button for typing the number. */
-  onValueClick?: () => void
+  /** Shown in place of the figure: a NumberField for typing the number. The caption above it stays. */
+  field?: ReactNode
 }
 
 function StepButton({ label, icon, enabled, onClick, wide }: { label: string; icon: ReactNode; enabled: boolean; onClick: () => void; wide: boolean }) {
@@ -44,20 +44,21 @@ export function Stepper({ label, valueText, canDecrement, canIncrement, onDecrem
 
 /**
  * The in-session stepper: label, a big number, and two wide buttons underneath. Place three in a row.
- * The figure reads as one phrase ("Weight 155 kg"); with `onValueClick` it is a button for typing it.
+ * The figure reads as one phrase ("Weight 155 kg"); with `field` the number is typed into instead,
+ * and a tap anywhere on the caption or the figure puts the cursor in it.
  */
-export function StepperField({ label, valueText, unit, canDecrement, canIncrement, onDecrement, onIncrement, onValueClick, className }: StepperFieldProps) {
+export function StepperField({ label, valueText, unit, canDecrement, canIncrement, onDecrement, onIncrement, field, className }: StepperFieldProps) {
   const spoken = [label, valueText, unit].filter(Boolean).join(' ')
-  const figure = <NumberDisplay value={valueText} unit={unit} label={label} size="large" centered />
   return (
     <div className={cx('gr-stepper-field', className)}>
-      {onValueClick ? (
-        <button type="button" className="gr-stepper-figure" aria-label={`${spoken}, type ${label}`} onClick={onValueClick}>
-          {figure}
-        </button>
+      {field != null ? (
+        <label className="gr-stepper-figure">
+          <Eyebrow text={label} />
+          {field}
+        </label>
       ) : (
         <div className="gr-stepper-figure" role="group" aria-label={spoken}>
-          {figure}
+          <NumberDisplay value={valueText} unit={unit} label={label} size="large" centered />
         </div>
       )}
       <div className="gr-stepper-buttons">

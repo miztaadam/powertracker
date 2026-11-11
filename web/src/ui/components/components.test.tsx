@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { AdviceCard } from './AdviceCard'
 import { PrimaryButton, QuietButton, SecondaryButton } from './Button'
@@ -18,6 +19,7 @@ import { SetRow } from './SetRow'
 import { Snackbar } from './Snackbar'
 import { formatKg } from './format'
 import { StatTile } from './StatTile'
+import { NumberField } from './NumberField'
 import { Stepper, StepperField } from './StepperField'
 import { Switch } from './Switch'
 import { TabBar } from './TabBar'
@@ -81,13 +83,26 @@ describe('StepperField and Stepper', () => {
     expect(screen.getByRole('button', { name: 'Increase Reps' })).toBeEnabled()
   })
 
-  it('makes the value a button for typing when onValueClick is given', async () => {
-    const onValueClick = vi.fn()
+  it('shows a field in place of the figure when one is given', async () => {
     render(
-      <StepperField label="Weight" valueText="155" unit="kg" canDecrement canIncrement onDecrement={() => {}} onIncrement={() => {}} onValueClick={onValueClick} />,
+      <StepperField
+        label="Weight"
+        valueText="155"
+        unit="kg"
+        canDecrement
+        canIncrement
+        onDecrement={() => {}}
+        onIncrement={() => {}}
+        field={<NumberField label="Weight, kilograms" valueText="155" unit="kg" inputMode="decimal" onDraft={() => {}} onCommit={() => {}} />}
+      />,
     )
-    await userEvent.click(screen.getByRole('button', { name: 'Weight 155 kg, type Weight' }))
-    expect(onValueClick).toHaveBeenCalledOnce()
+    expect(screen.getByRole('textbox', { name: 'Weight, kilograms' })).toHaveValue('155')
+    expect(screen.getByRole('button', { name: 'Decrease Weight' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Increase Weight' })).toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Weight 155 kg' })).toBeNull()
+    // The caption and the unit belong to the field: a tap on either puts the cursor in it.
+    await userEvent.click(screen.getByText('Weight'))
+    expect(screen.getByRole('textbox')).toHaveFocus()
   })
 
   it('the one-line Stepper uses the same labels', () => {
@@ -610,5 +625,58 @@ describe('RestFlash', () => {
     expect(normal).toMatch(/pointer-events:\s*none/)
     // The app-wide reduced-motion rule cuts every animation to nothing; the fade has to outrank it.
     expect(reduced).toMatch(/animation:\s*gr-rest-fade [^;]*!important/)
+  })
+})
+
+describe('NumberField', () => {
+  function Typed({ onCommit = () => {}, error }: { onCommit?: (text: string) => void; error?: string }) {
+    const [text, setText] = useState('155')
+    return <NumberField label="Weight, kilograms" valueText={text} unit="kg" placeholder="kg" inputMode="decimal" error={error} onDraft={setText} onCommit={onCommit} />
+  }
+
+  it('is a labelled input with the keypad it asks for', () => {
+    render(<NumberField label="Reps" valueText="5" inputMode="numeric" onDraft={() => {}} onCommit={() => {}} />)
+    const input = screen.getByRole('textbox', { name: 'Reps' })
+    expect(input).toHaveValue('5')
+    expect(input).toHaveAttribute('inputmode', 'numeric')
+    expect(input).toHaveAttribute('type', 'text')
+    expect(input).toBeValid()
+  })
+
+  it('selects the value on focus, reports each keystroke, and commits on Enter and on blur', async () => {
+    const onCommit = vi.fn()
+    render(<Typed onCommit={onCommit} />)
+    const input = screen.getByRole<HTMLInputElement>('textbox')
+    await userEvent.click(input)
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 3])
+    await userEvent.keyboard('16')
+    expect(input).toHaveValue('16')
+    expect(onCommit).not.toHaveBeenCalled()
+
+    // Enter leaves the field, which commits once.
+    await userEvent.keyboard('{Enter}')
+    expect(input).not.toHaveFocus()
+    expect(onCommit).toHaveBeenCalledExactlyOnceWith('16')
+
+    await userEvent.click(input)
+    await userEvent.keyboard('170')
+    await userEvent.tab()
+    expect(onCommit).toHaveBeenLastCalledWith('170')
+    expect(onCommit).toHaveBeenCalledTimes(2)
+  })
+
+  it('shows the placeholder instead of the unit while empty', () => {
+    const { rerender } = render(<NumberField label="Weight, kilograms" valueText="" unit="kg" placeholder="kg" inputMode="decimal" onDraft={() => {}} onCommit={() => {}} />)
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'kg')
+    expect(screen.queryByText('kg')).toBeNull()
+    rerender(<NumberField label="Weight, kilograms" valueText="60" unit="kg" placeholder="kg" inputMode="decimal" onDraft={() => {}} onCommit={() => {}} />)
+    expect(screen.getByText('kg')).toBeInTheDocument()
+  })
+
+  it('reads the error with the field', () => {
+    render(<Typed error="0 to 1000 kg" />)
+    expect(screen.getByRole('textbox')).toBeInvalid()
+    expect(screen.getByRole('textbox')).toHaveAccessibleDescription('0 to 1000 kg')
+    expect(screen.getByRole('alert')).toHaveTextContent('0 to 1000 kg')
   })
 })

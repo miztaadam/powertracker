@@ -10,6 +10,7 @@ import * as icons from '../components/icons'
 import { Menu } from '../components/Menu'
 import { LineChart } from '../components/LineChart'
 import { Eyebrow, NumberDisplay } from '../components/NumberDisplay'
+import { NumberField } from '../components/NumberField'
 import { Pill } from '../components/Pill'
 import { PlateStrip, PlateStripNote } from '../components/PlateStrip'
 import { RatioBar } from '../components/RatioBar'
@@ -71,6 +72,7 @@ export default function Showcase() {
   const [plates, setPlates] = useState(true)
   const [lock, setLock] = useState(false)
   const [weight, setWeight] = useState(155)
+  const [weightDraft, setWeightDraft] = useState<string | null>(null)
   const [typed, setTyped] = useState('152.5')
 
   return (
@@ -106,9 +108,31 @@ export default function Showcase() {
               canIncrement
               onDecrement={() => setWeight(weight - 2.5)}
               onIncrement={() => setWeight(weight + 2.5)}
-              onValueClick={noop}
+              field={
+                <NumberField
+                  label="Weight, kilograms"
+                  valueText={weightDraft ?? String(weight)}
+                  unit="kg"
+                  placeholder="kg"
+                  inputMode="decimal"
+                  onDraft={setWeightDraft}
+                  onCommit={(text) => {
+                    const kg = Number(text.replace(',', '.'))
+                    if (text.trim() !== '' && Number.isFinite(kg)) setWeight(kg)
+                    setWeightDraft(null)
+                  }}
+                />
+              }
             />
-            <StepperField label="Reps" valueText="5" canDecrement canIncrement onDecrement={noop} onIncrement={noop} />
+            <StepperField
+              label="Reps"
+              valueText="5"
+              canDecrement
+              canIncrement
+              onDecrement={noop}
+              onIncrement={noop}
+              field={<NumberField label="Reps" valueText="0" inputMode="numeric" error="Whole, 1 to 99" onDraft={noop} onCommit={noop} />}
+            />
             <StepperField label="RPE" valueText="8" canDecrement canIncrement onDecrement={noop} onIncrement={noop} />
           </div>
           <PlateStrip perSide={[25, 25, 15, 2.5]} totalKg={155} />
@@ -133,7 +157,7 @@ export default function Showcase() {
         <PlateStrip perSide={[20, 10, 5, 2.5, 1.25, 0.5, 0.25]} totalKg={98.5} />
         <PlateStrip perSide={[]} totalKg={20} />
         <PlateStrip perSide={null} totalKg={181} nearestKg={180} />
-        <PlateStripNote title="No weight yet" caption="Tap the number to type it in." />
+        <PlateStripNote title="No weight yet" caption="Type the weight to see the plates." />
       </div>
 
       <ScreenHeader title="Coach" eyebrow="3 open suggestions" />

@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 
 /** The sample Wednesday the flows run on. */
 export const WEDNESDAY = new Date('2026-11-11T09:41:00')
@@ -7,6 +7,19 @@ export const tabBar = (page: Page) => page.getByRole('navigation', { name: 'Main
 
 export async function tap(page: Page, name: string, times = 1) {
   for (let i = 0; i < times; i++) await page.getByRole('button', { name, exact: true }).click()
+}
+
+/** The exercise card's typed fields, by their spoken names. */
+export const weightField = (page: Page) => page.getByRole('textbox', { name: 'Weight, kilograms' })
+export const repsField = (page: Page) => page.getByRole('textbox', { name: 'Reps', exact: true })
+export const rpeField = (page: Page) => page.getByRole('textbox', { name: 'RPE', exact: true })
+
+/** Taps a field on the exercise card and types over its value, as a thumb on the keypad does. Nothing is committed yet. */
+export async function typeInto(page: Page, field: Locator, text: string) {
+  await field.tap()
+  await expect(field).toBeFocused()
+  await page.keyboard.type(text)
+  await expect(field).toHaveValue(text)
 }
 
 /** Opens Grit on the sample Wednesday, with the database created and the first screen showing. */
