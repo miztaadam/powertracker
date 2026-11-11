@@ -13,7 +13,9 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
 - Add STRICT PRESS alongside squat, bench and deadlift: progression targets, stall detection, an
   accessory map by sticking point (e.g. lockout → triceps; off the shoulders → front delts / upper chest),
   Progress charts and records, lift history.
-- **Owner decided: it counts towards the total** (total becomes squat + bench + deadlift + strict press).
+- **Owner decided: adding it to the total is optional.** A setting ("Include strict press in total",
+  off by default) switches between the powerlifting total (squat + bench + deadlift) and squat + bench +
+  deadlift + strict press. Progress labels the total so it is clear which one is shown.
 - **Owner decided: no ratio against bench**, so the weak-point check leaves strict press alone.
 - Compatibility: append to the end of the built-in exercise list so existing ids and data are unchanged.
   The backup gains a new lift name, so both apps update together (older versions reject it).
