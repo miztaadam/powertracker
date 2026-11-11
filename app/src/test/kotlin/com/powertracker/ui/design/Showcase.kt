@@ -70,8 +70,9 @@ import com.powertracker.ui.today.TodayActions
 import com.powertracker.ui.today.TodayContent
 import com.powertracker.ui.today.TodayItem
 import com.powertracker.ui.today.TodayState
-import java.time.DayOfWeek
-import java.time.LocalDate
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.isoDayNumber
 
 // Mockups for owner approval: real components, hard-coded sample data. One lifter, one story:
 // squat e1RM 190, bench 122.5 (stalled), deadlift 250, on Wednesday 11 November.
@@ -94,7 +95,7 @@ fun ShowcaseFrame(dark: Boolean, tab: Tab?, content: @Composable () -> Unit) {
     }
 }
 
-internal val SHOWCASE_DATE: LocalDate = LocalDate.of(2026, 11, 11)
+internal val SHOWCASE_DATE: LocalDate = LocalDate(2026, 11, 11)
 
 private fun logged(id: Long, kg: Double, reps: Int, rpe: Double, failed: Boolean = false, miss: MissPoint? = null) =
     StoredSet(id, 1, LoggedSet(1, kg, reps, rpe, failed, miss, isTopSet = false))
@@ -247,7 +248,7 @@ private fun exercise(id: Long, name: String, category: Category = Category.ACCES
 
 private fun day(day: DayOfWeek, vararg rows: Triple<String, Pair<Int, Int>, Double>) = DaySection(
     day,
-    rows.mapIndexed { i, (name, dose, rpe) -> PlanRow(PlanItem(day.value * 10L + i, day, i.toLong(), dose.first, dose.second, rpe, i), name) },
+    rows.mapIndexed { i, (name, dose, rpe) -> PlanRow(PlanItem(day.isoDayNumber * 10L + i, day, i.toLong(), dose.first, dose.second, rpe, i), name) },
 )
 
 @Composable

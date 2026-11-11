@@ -31,7 +31,7 @@ class SettingsRepositoryTest {
     @Test
     fun everySetting_roundTrips() = runTest {
         val all = AppSettings(
-            changePlates = true, defaultRpe = 7.5, trainingDays = setOf(java.time.DayOfWeek.SUNDAY), appLock = true,
+            changePlates = true, defaultRpe = 7.5, trainingDays = setOf(kotlinx.datetime.DayOfWeek.SUNDAY), appLock = true,
             restMainSec = 240, restAccessorySec = 75, restAlert = RestAlert.OFF,
         )
         settings.update { all }

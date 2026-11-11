@@ -8,10 +8,12 @@ import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingHistory
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.plus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.time.LocalDate
 
 class ProgressMathTest {
     private val squat = Exercise(1, "Squat", Category.SQUAT, null, emptyList(), isBuiltIn = true)
@@ -21,7 +23,7 @@ class ProgressMathTest {
     private val exercises = listOf(squat, bench, deadlift, pauseSquat).associateBy { it.id }
 
     // Monday 2 November 2026.
-    private val monday: LocalDate = LocalDate.of(2026, 11, 2)
+    private val monday: LocalDate = LocalDate(2026, 11, 2)
 
     private fun set(exercise: Exercise, kg: Double, reps: Int = 1, rpe: Double? = 10.0, failed: Boolean = false) =
         LoggedSet(exercise.id, kg, reps, rpe, failed, null, isTopSet = false)
@@ -37,23 +39,23 @@ class ProgressMathTest {
         // A single at RPE 10 has an e1RM equal to its weight: 100, 105, 103, 110.
         val history = history(
             monday to listOf(set(squat, 100.0)),
-            monday.plusDays(7) to listOf(set(squat, 105.0)),
-            monday.plusDays(14) to listOf(set(squat, 103.0)),
-            monday.plusDays(21) to listOf(set(squat, 110.0)),
+            monday.plus(7, DateTimeUnit.DAY) to listOf(set(squat, 105.0)),
+            monday.plus(14, DateTimeUnit.DAY) to listOf(set(squat, 103.0)),
+            monday.plus(21, DateTimeUnit.DAY) to listOf(set(squat, 110.0)),
         )
 
         val prs = ProgressMath.prs(history, MainLift.SQUAT)
 
         assertEquals(listOf(100.0, 105.0, 110.0), prs.map { it.e1rmKg })
-        assertEquals(listOf(monday, monday.plusDays(7), monday.plusDays(21)), prs.map { it.date })
-        assertEquals(Pr(monday.plusDays(21), 110.0, 110.0, 1, 10.0), prs.last())
+        assertEquals(listOf(monday, monday.plus(7, DateTimeUnit.DAY), monday.plus(21, DateTimeUnit.DAY)), prs.map { it.date })
+        assertEquals(Pr(monday.plus(21, DateTimeUnit.DAY), 110.0, 110.0, 1, 10.0), prs.last())
     }
 
     @Test
     fun prs_ignoreFailedSetsVariationsAndOtherLifts() {
         val history = history(
             monday to listOf(set(squat, 100.0)),
-            monday.plusDays(7) to listOf(set(squat, 120.0, failed = true), set(pauseSquat, 130.0), set(bench, 140.0)),
+            monday.plus(7, DateTimeUnit.DAY) to listOf(set(squat, 120.0, failed = true), set(pauseSquat, 130.0), set(bench, 140.0)),
         )
 
         assertEquals(listOf(100.0), ProgressMath.prs(history, MainLift.SQUAT).map { it.e1rmKg })
@@ -71,9 +73,9 @@ class ProgressMathTest {
         val history = history(
             // Week of 2 Nov: 100 × 5 + 110 × 3 on Monday, 90 × 5 on Friday = 1280.
             monday to listOf(set(squat, 100.0, reps = 5, rpe = 8.0), set(squat, 110.0, reps = 3, rpe = 9.0)),
-            monday.plusDays(4) to listOf(set(squat, 90.0, reps = 5, rpe = 7.0)),
+            monday.plus(4, DateTimeUnit.DAY) to listOf(set(squat, 90.0, reps = 5, rpe = 7.0)),
             // Week of 9 Nov: only the completed main-lift set counts = 500.
-            monday.plusDays(8) to listOf(
+            monday.plus(8, DateTimeUnit.DAY) to listOf(
                 set(squat, 100.0, reps = 5, rpe = 8.0),
                 set(squat, 120.0, reps = 2, failed = true),
                 set(pauseSquat, 80.0, reps = 5),
@@ -82,14 +84,14 @@ class ProgressMathTest {
         )
 
         assertEquals(
-            listOf(monday to 1280.0, monday.plusDays(7) to 500.0),
+            listOf(monday to 1280.0, monday.plus(7, DateTimeUnit.DAY) to 500.0),
             ProgressMath.weeklyVolume(history, MainLift.SQUAT),
         )
     }
 
     @Test
     fun total_nullUnlessAllThreeLifts() {
-        val until = monday.plusDays(2)
+        val until = monday.plus(2, DateTimeUnit.DAY)
         val twoLifts = history(monday to listOf(set(squat, 180.0), set(bench, 120.0)))
         val allThree = history(monday to listOf(set(squat, 180.0), set(bench, 120.0), set(deadlift, 240.0)))
 

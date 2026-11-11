@@ -28,6 +28,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -36,12 +40,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 class CoachViewModelTest {
-    private val today: LocalDate = LocalDate.of(2026, 11, 11) // a Wednesday
+    private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
     private lateinit var db: AppDatabase
     private lateinit var training: TrainingRepository
@@ -111,7 +113,7 @@ class CoachViewModelTest {
     fun cards_leaveOutTargets_andOrderByTypeThenNewest() {
         insert(
             weakPoint(MainLift.SQUAT, MissPoint.FLOOR),
-            Advice(AdviceType.STALL, MainLift.BENCH, today.minusDays(3), "older", 3, AdvicePayload.Accessories(emptyList())),
+            Advice(AdviceType.STALL, MainLift.BENCH, today.minus(3, DateTimeUnit.DAY), "older", 3, AdvicePayload.Accessories(emptyList())),
             Advice(AdviceType.STALL, MainLift.SQUAT, today, "newer", 3, AdvicePayload.Accessories(emptyList())),
             Advice(AdviceType.TARGET, MainLift.SQUAT, today, "target", 0, AdvicePayload.Target(id("Squat"), 155.0, 5, 8.0)),
             Advice(AdviceType.RE_ENTRY, null, today, "back", 20, AdvicePayload.ReEntry()),
@@ -260,10 +262,10 @@ class CoachViewModelTest {
     @Test
     fun feed_hidesOpenDeloadAndReEntryOlderThanFourteenDays() {
         insert(
-            Advice(AdviceType.DELOAD, null, today.minusDays(15), "stale deload", 2, AdvicePayload.Deload()),
-            Advice(AdviceType.RE_ENTRY, null, today.minusDays(14), "stale re-entry", 20, AdvicePayload.ReEntry()),
-            Advice(AdviceType.DELOAD, null, today.minusDays(13), "fresh deload", 2, AdvicePayload.Deload()),
-            Advice(AdviceType.STALL, MainLift.BENCH, today.minusDays(40), "old stall", 3, AdvicePayload.Accessories(emptyList())),
+            Advice(AdviceType.DELOAD, null, today.minus(15, DateTimeUnit.DAY), "stale deload", 2, AdvicePayload.Deload()),
+            Advice(AdviceType.RE_ENTRY, null, today.minus(14, DateTimeUnit.DAY), "stale re-entry", 20, AdvicePayload.ReEntry()),
+            Advice(AdviceType.DELOAD, null, today.minus(13, DateTimeUnit.DAY), "fresh deload", 2, AdvicePayload.Deload()),
+            Advice(AdviceType.STALL, MainLift.BENCH, today.minus(40, DateTimeUnit.DAY), "old stall", 3, AdvicePayload.Accessories(emptyList())),
         )
         val state = viewModel().await { it.cards.isNotEmpty() }
         assertEquals(listOf("fresh deload", "old stall"), state.cards.map { it.advice.reason })

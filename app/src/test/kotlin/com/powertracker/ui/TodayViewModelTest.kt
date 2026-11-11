@@ -23,6 +23,11 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -30,12 +35,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 class TodayViewModelTest {
-    private val today: LocalDate = LocalDate.of(2026, 11, 11) // a Wednesday
+    private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
     private lateinit var db: AppDatabase
     private lateinit var training: TrainingRepository
@@ -86,7 +89,7 @@ class TodayViewModelTest {
     fun finishSession_insertsCoachAdvice() {
         // Back after a 30-day gap: finishing today's session should store a re-entry note.
         runBlocking {
-            training.logSet(training.startSession(today.minusDays(30), null, null), set(squat, 150.0))
+            training.logSet(training.startSession(today.minus(30, DateTimeUnit.DAY), null, null), set(squat, 150.0))
             training.logSet(training.startSession(today, null, null), set(squat, 140.0))
         }
         val vm = viewModel()
@@ -105,8 +108,8 @@ class TodayViewModelTest {
     fun targets_areStoredOncePerDay() {
         runBlocking {
             training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
-            training.setBaseline(Baseline(squat.id, 190.0, today.minusDays(30)))
-            training.logSet(training.startSession(today.minusDays(7), null, null), set(squat, 150.0).copy(rpe = 7.0))
+            training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY)))
+            training.logSet(training.startSession(today.minus(7, DateTimeUnit.DAY), null, null), set(squat, 150.0).copy(rpe = 7.0))
         }
         val first = viewModel()
         await("suggestion") { first.state.value.items.firstOrNull()?.suggestion != null }
@@ -148,8 +151,8 @@ class TodayViewModelTest {
     }
 
     private fun planSquatWithHistory() = runBlocking {
-        training.setBaseline(Baseline(squat.id, 190.0, today.minusDays(30)))
-        training.logSet(training.startSession(today.minusDays(7), null, null), set(squat, 150.0).copy(rpe = 7.0))
+        training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY)))
+        training.logSet(training.startSession(today.minus(7, DateTimeUnit.DAY), null, null), set(squat, 150.0).copy(rpe = 7.0))
         training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
     }
 
@@ -239,8 +242,8 @@ class TodayViewModelTest {
         val bench = runBlocking { training.exercises().first().first { it.name == "Bench" } }
         planSquatWithHistory()
         runBlocking {
-            training.setBaseline(Baseline(bench.id, 120.0, today.minusDays(30)))
-            training.logSet(training.startSession(today.minusDays(6), null, null), set(bench, 100.0).copy(rpe = 7.0))
+            training.setBaseline(Baseline(bench.id, 120.0, today.minus(30, DateTimeUnit.DAY)))
+            training.logSet(training.startSession(today.minus(6, DateTimeUnit.DAY), null, null), set(bench, 100.0).copy(rpe = 7.0))
         }
         var clock = today
         val vm = TodayViewModel(training, advice, settings) { clock }.also { v -> collectors.launch { v.state.collect {} } }
@@ -248,7 +251,7 @@ class TodayViewModelTest {
         assertEquals(listOf(squat.id), runBlocking { advice.all() }.filter { it.type == AdviceType.TARGET }.map { targetExercise(it) })
 
         // Midnight passes with yesterday's view model still alive; then the plan for its weekday changes.
-        clock = today.plusDays(1)
+        clock = today.plus(1, DateTimeUnit.DAY)
         val passes = vm.coachPasses.value
         runBlocking { training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, bench.id, sets = 3, reps = 5, targetRpe = 8.0, order = 1)) }
         // Give the old view model every chance to react to the plan change.

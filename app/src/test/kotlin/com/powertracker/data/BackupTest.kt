@@ -7,14 +7,14 @@ import com.powertracker.data.db.SessionEntity
 import com.powertracker.data.db.SetEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 class BackupTest {
@@ -38,7 +38,7 @@ class BackupTest {
     private suspend fun seedData() {
         settings.update { AppSettings(changePlates = true, defaultRpe = 7.5, trainingDays = setOf(DayOfWeek.TUESDAY, DayOfWeek.SATURDAY)) }
         val ex = db.exercises().all().first().id
-        val s = db.sessions().insert(SessionEntity(date = LocalDate.of(2026, 5, 4), bodyweightKg = 90.5, readiness = 4))
+        val s = db.sessions().insert(SessionEntity(date = LocalDate(2026, 5, 4), bodyweightKg = 90.5, readiness = 4))
         db.sets().insert(SetEntity(sessionId = s, exerciseId = ex, weightKg = 100.0, reps = 5, rpe = 8.0, failed = false, missPoint = null, isTopSet = true))
     }
 
@@ -71,7 +71,7 @@ class BackupTest {
         val exported = service.export(1L)
         db.sets().clear()
         db.sessions().clear()
-        db.sessions().insert(SessionEntity(date = LocalDate.of(2026, 6, 1), bodyweightKg = null, readiness = null))
+        db.sessions().insert(SessionEntity(date = LocalDate(2026, 6, 1), bodyweightKg = null, readiness = null))
         settings.update { AppSettings() }
 
         service.restore(exported)
@@ -136,5 +136,12 @@ class BackupTest {
         val file = service.export(1L)
         val bad = file.copy(settings = file.settings.copy(restAlert = "LOUD"))
         assertTrue(Backup.decode(Backup.encode(bad)) is BackupResult.Corrupt)
+    }
+
+    @Test
+    fun outOfRangeAdviceDate_isCorrupt() = runTest {
+        val file = service.export(1L)
+        val advice = AdviceDto(1, "DELOAD", null, Long.MAX_VALUE, "Take a lighter week", 2, """{"type":"deload"}""", "OPEN")
+        assertTrue(Backup.decode(Backup.encode(file.copy(advice = listOf(advice)))) is BackupResult.Corrupt)
     }
 }

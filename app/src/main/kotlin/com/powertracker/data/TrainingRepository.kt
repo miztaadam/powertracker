@@ -16,7 +16,7 @@ import com.powertracker.domain.model.TrainingHistory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 /** A logged set together with its row ids, for editing and deleting. */
 data class StoredSet(val id: Long, val sessionId: Long, val set: LoggedSet)

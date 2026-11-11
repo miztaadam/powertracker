@@ -9,8 +9,8 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
-import java.time.DayOfWeek
-import java.time.LocalDate
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
 
 @Entity(tableName = "exercise", indices = [Index("name")])
 data class ExerciseEntity(

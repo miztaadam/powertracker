@@ -24,6 +24,10 @@ import com.powertracker.ui.coach.CoachScreen
 import com.powertracker.ui.theme.PowertrackerTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -32,8 +36,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
@@ -41,7 +43,7 @@ class CoachScreenTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val today: LocalDate = LocalDate.of(2026, 11, 11) // a Wednesday
+    private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
     private lateinit var db: AppDatabase
     private lateinit var training: TrainingRepository
@@ -74,7 +76,7 @@ class CoachScreenTest {
         training.savePlanItem(PlanItem(0, DayOfWeek.FRIDAY, id("Bench"), sets = 3, reps = 5, targetRpe = 8.0, order = 0))
         training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, id("Bench"), sets = 4, reps = 6, targetRpe = 8.0, order = 0))
         training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, id("Squat"), sets = 5, reps = 5, targetRpe = 8.0, order = 1))
-        val session = training.startSession(today.minusDays(2), null, null)
+        val session = training.startSession(today.minus(2, DateTimeUnit.DAY), null, null)
         training.logSet(session, LoggedSet(id("Bench"), 105.0, 5, 9.0, failed = false, missPoint = null, isTopSet = false))
         val payload = AdvicePayload.Accessories(
             listOf(AccessoryPrescription("Close-grip bench", 3, 3, 5), AccessoryPrescription("JM press", 3, 8, 10)),

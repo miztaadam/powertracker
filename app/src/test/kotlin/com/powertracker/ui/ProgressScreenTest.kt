@@ -21,6 +21,9 @@ import com.powertracker.ui.progress.ProgressScreen
 import com.powertracker.ui.theme.PowertrackerTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -29,7 +32,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
@@ -37,7 +39,7 @@ class ProgressScreenTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val today: LocalDate = LocalDate.of(2026, 11, 11) // a Wednesday
+    private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
     private lateinit var db: AppDatabase
     private lateinit var training: TrainingRepository
@@ -65,9 +67,9 @@ class ProgressScreenTest {
 
     /** Two weeks of all three lifts; the second squat session beats the first. */
     private fun seed() {
-        log(today.minusDays(9), 92.0, set("Squat", 140.0, 5, 8.0), set("Bench", 100.0, 5, 8.0), set("Deadlift", 180.0, 5, 8.0))
+        log(today.minus(9, DateTimeUnit.DAY), 92.0, set("Squat", 140.0, 5, 8.0), set("Bench", 100.0, 5, 8.0), set("Deadlift", 180.0, 5, 8.0))
         log(
-            today.minusDays(2), 92.5,
+            today.minus(2, DateTimeUnit.DAY), 92.5,
             set("Squat", 145.0, 5, 8.0), set("Squat", 150.0, 3, 10.0, failed = true), set("Pause squat", 120.0, 3, 8.0),
             set("Bench", 100.0, 5, 8.0), set("Deadlift", 185.0, 5, 8.0),
         )
@@ -138,7 +140,7 @@ class ProgressScreenTest {
 
     @Test
     fun ratio_hiddenWhenALiftHasNoE1rm() {
-        log(today.minusDays(2), null, set("Squat", 145.0, 5, 8.0), set("Bench", 100.0, 5, 8.0))
+        log(today.minus(2, DateTimeUnit.DAY), null, set("Squat", 145.0, 5, 8.0), set("Bench", 100.0, 5, 8.0))
         show()
 
         compose.onNodeWithText("Bench ÷ Squat").performScrollTo().assertIsDisplayed()
@@ -148,7 +150,7 @@ class ProgressScreenTest {
 
     @Test
     fun rangeWithNoSessions_keepsTheSelectorAndSaysSo() {
-        log(today.minusWeeks(10), null, set("Squat", 140.0, 5, 8.0))
+        log(today.minus(10, DateTimeUnit.WEEK), null, set("Squat", 140.0, 5, 8.0))
         show()
 
         compose.onNodeWithText("8 wk").performClick()

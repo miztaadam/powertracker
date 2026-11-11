@@ -14,13 +14,14 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.validation.InputValidator
+import com.powertracker.platform.systemToday
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
-import java.time.LocalDate
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
 
 data class PlanRow(val item: PlanItem, val exerciseName: String)
 
@@ -38,7 +39,7 @@ data class PlanUiState(
 class PlanViewModel(
     private val training: TrainingRepository,
     settings: SettingsRepository,
-    private val today: () -> LocalDate = LocalDate::now,
+    private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
 
     val state: StateFlow<PlanUiState> = combine(training.plan(), training.exercises(), settings.settings) { plan, exercises, s ->
@@ -104,7 +105,7 @@ class PlanViewModel(
     companion object {
         private val MAIN_CATEGORIES = setOf(Category.SQUAT, Category.BENCH, Category.DEADLIFT)
 
-        fun factory(training: TrainingRepository, settings: SettingsRepository, today: () -> LocalDate = LocalDate::now): ViewModelProvider.Factory =
+        fun factory(training: TrainingRepository, settings: SettingsRepository, today: () -> LocalDate = ::systemToday): ViewModelProvider.Factory =
             viewModelFactory { initializer { PlanViewModel(training, settings, today) } }
     }
 }

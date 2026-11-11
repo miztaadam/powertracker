@@ -47,6 +47,7 @@ import com.powertracker.data.BackupResult
 import com.powertracker.data.BackupService
 import com.powertracker.data.RestAlert
 import com.powertracker.data.SettingsRepository
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.ChoiceChip
 import com.powertracker.ui.components.PrimaryButton
 import com.powertracker.ui.components.PtCard
@@ -62,8 +63,9 @@ import com.powertracker.ui.theme.Space
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.DayOfWeek
-import java.time.LocalDate
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -93,7 +95,7 @@ fun SettingsScreen(
     settingsRepo: SettingsRepository,
     backup: BackupService,
     onBack: () -> Unit,
-    today: () -> LocalDate = LocalDate::now,
+    today: () -> LocalDate = ::systemToday,
     now: () -> Long = System::currentTimeMillis,
 ) {
     val settings by settingsRepo.settings.collectAsState(initial = AppSettings())
@@ -207,7 +209,7 @@ fun SettingsContent(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.xxs)) {
                     for (day in DayOfWeek.entries) {
                         ChoiceChip(
-                            text = day.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(3),
+                            text = day.toJavaDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(3),
                             selected = day in settings.trainingDays,
                             onClick = { onUpdate { s -> s.copy(trainingDays = if (day in s.trainingDays) s.trainingDays - day else s.trainingDays + day) } },
                             modifier = Modifier.weight(1f),

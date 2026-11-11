@@ -45,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.MainLift
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.coach.RatioUi
 import com.powertracker.ui.components.BarStrip
 import com.powertracker.ui.components.ChartSeries
@@ -65,7 +66,8 @@ import com.powertracker.ui.components.formatRpe
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.abs
@@ -77,7 +79,7 @@ import com.powertracker.ui.components.LineChart as SeriesChart
 fun ProgressScreen(
     training: TrainingRepository,
     onOpenLift: (MainLift) -> Unit,
-    today: () -> LocalDate = LocalDate::now,
+    today: () -> LocalDate = ::systemToday,
 ) {
     val viewModel: ProgressViewModel = viewModel(factory = ProgressViewModel.factory(training, today))
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -249,7 +251,7 @@ private fun PrSection(prs: List<PrUi>) {
         PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
             prs.forEachIndexed { i, (lift, pr) ->
                 if (i > 0) HorizontalDivider(color = pt.hairline)
-                val date = (if (pr.date.year == thisYear) PR_DATE else PR_DATE_WITH_YEAR).format(pr.date)
+                val date = (if (pr.date.year == thisYear) PR_DATE else PR_DATE_WITH_YEAR).format(pr.date.toJavaLocalDate())
                 val set = "${formatKg(pr.weightKg)} × ${pr.reps}" + (pr.rpe?.let { " @ ${formatRpe(it)}" } ?: "")
                 val e1rm = formatKg(pr.e1rmKg.toHalfKg())
                 Row(
@@ -306,7 +308,7 @@ private fun VolumeSection(state: ProgressState) {
                 Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
                     Spacer(Modifier.width(VOLUME_LABEL_WIDTH))
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(state.volumeFrom?.let { "Week of ${PR_DATE.format(it)}" }.orEmpty(), style = MaterialTheme.typography.bodySmall, color = pt.muted)
+                        Text(state.volumeFrom?.let { "Week of ${PR_DATE.format(it.toJavaLocalDate())}" }.orEmpty(), style = MaterialTheme.typography.bodySmall, color = pt.muted)
                         Text("This week", style = MaterialTheme.typography.bodySmall, color = pt.muted)
                     }
                 }

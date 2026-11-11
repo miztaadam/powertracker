@@ -10,13 +10,17 @@ import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.coach.RatioUi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import java.time.LocalDate
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -65,7 +69,7 @@ internal fun Double.toHalfKg(): Double = (this * 2).roundToLong() / 2.0
 
 class ProgressViewModel(
     training: TrainingRepository,
-    private val today: () -> LocalDate = LocalDate::now,
+    private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
 
     private val range = MutableStateFlow(ChartRange.MONTHS_6)
@@ -97,7 +101,7 @@ class ProgressViewModel(
             if (!hasData) return ProgressState(loading = false, hasData = false, range = range)
 
             val stats = HistoryStats(history)
-            val before = today.minusDays(CHANGE_DAYS)
+            val before = today.minus(CHANGE_DAYS, DateTimeUnit.DAY)
             val current = MainLift.entries.associateWith { stats.currentE1rm(it, today) }
             val lifts = MainLift.entries.map { lift ->
                 val now = current[lift]?.toHalfKg()
@@ -111,17 +115,17 @@ class ProgressViewModel(
             val trends = MainLift.entries.associateWith { lift -> stats.weeklyTrend(lift, today).associate { it.weekStart to it.e1rmKg } }
             val thisWeek = weekStart(today)
             val firstWeek = trends.values.flatMap { it.keys }.minOrNull() ?: thisWeek
-            val rangeStart = range.weeks?.let { thisWeek.minusWeeks(it - 1L) }
-            val from = if (rangeStart != null && rangeStart.isAfter(firstWeek)) rangeStart else firstWeek
-            val weeks = generateSequence(from) { it.plusWeeks(1) }.takeWhile { !it.isAfter(thisWeek) }.toList()
+            val rangeStart = range.weeks?.let { thisWeek.minus(it - 1, DateTimeUnit.WEEK) }
+            val from = if (rangeStart != null && rangeStart > firstWeek) rangeStart else firstWeek
+            val weeks = generateSequence(from) { it.plus(1, DateTimeUnit.WEEK) }.takeWhile { it <= thisWeek }.toList()
 
             val bodyweight = history.sessions
-                .filter { it.bodyweightKg != null && !it.date.isBefore(rangeStart ?: LocalDate.MIN) && !it.date.isAfter(today) }
+                .filter { it.bodyweightKg != null && (rangeStart == null || it.date >= rangeStart) && it.date <= today }
                 .sortedBy { it.date }
                 .associate { it.date to it.bodyweightKg!! } // the last session of a day wins
                 .toList()
 
-            val volumeWeeks = List(VOLUME_WEEKS) { thisWeek.minusWeeks((VOLUME_WEEKS - 1 - it).toLong()) }
+            val volumeWeeks = List(VOLUME_WEEKS) { thisWeek.minus(VOLUME_WEEKS - 1 - it, DateTimeUnit.WEEK) }
             val volume = MainLift.entries.map { lift ->
                 val byWeek = ProgressMath.weeklyVolume(history, lift).toMap()
                 VolumeUi(lift, volumeWeeks.map { (byWeek[it] ?: 0.0).toFloat() })
@@ -156,7 +160,7 @@ class ProgressViewModel(
             )
         }
 
-        fun factory(training: TrainingRepository, today: () -> LocalDate = LocalDate::now): ViewModelProvider.Factory =
+        fun factory(training: TrainingRepository, today: () -> LocalDate = ::systemToday): ViewModelProvider.Factory =
             viewModelFactory { initializer { ProgressViewModel(training, today) } }
     }
 }

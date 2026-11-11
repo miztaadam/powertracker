@@ -15,6 +15,9 @@ import com.powertracker.ui.progress.LiftHistoryViewModel
 import com.powertracker.ui.progress.ProgressContent
 import com.powertracker.ui.progress.ProgressViewModel
 import com.powertracker.ui.progress.weekStart
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlin.math.abs
 
 // The Progress and lift-history mockups are the real screens fed a sample training history: the
@@ -55,21 +58,21 @@ private fun work(exerciseId: Long, e1rmKg: Float, backOffs: Int): List<LoggedSet
 }
 
 private val SAMPLE_HISTORY: TrainingHistory = run {
-    val firstMonday = weekStart(SHOWCASE_DATE).minusWeeks(SQUAT.size - 1L)
+    val firstMonday = weekStart(SHOWCASE_DATE).minus(SQUAT.size - 1, DateTimeUnit.WEEK)
     var id = 0L
     val sessions = SQUAT.indices.flatMap { week ->
-        val monday = firstMonday.plusWeeks(week.toLong())
+        val monday = firstMonday.plus(week, DateTimeUnit.WEEK)
         val pauseSquats = if (week % 2 == 1) List(3) { LoggedSet(PAUSE_SQUAT_ID, 130.0 + 2.5 * (week / 2), 3, 7.5, false, null, false) } else emptyList()
         // Week 10: a squat single that did not go, before the back-off work.
         val miss = if (week == 9) listOf(LoggedSet(SQUAT_ID, 170.0, 1, 10.0, true, MissPoint.FLOOR, false)) else emptyList()
         val squatDay = work(SQUAT_ID, SQUAT[week], backOffs = 3 + week % 2)
         listOf(
             LoggedSession(++id, monday, BODYWEIGHT[week], null, squatDay.take(1) + miss + squatDay.drop(1) + pauseSquats),
-            LoggedSession(++id, monday.plusDays(2), null, null, work(BENCH_ID, BENCH[week], backOffs = 3)),
-            LoggedSession(++id, monday.plusDays(4), BODYWEIGHT[week] + 0.3, null, work(DEADLIFT_ID, DEADLIFT[week], backOffs = 2 + week % 2) + work(BENCH_ID, BENCH[week] * 0.96f, backOffs = 2).map { it.copy(isTopSet = false) }),
+            LoggedSession(++id, monday.plus(2, DateTimeUnit.DAY), null, null, work(BENCH_ID, BENCH[week], backOffs = 3)),
+            LoggedSession(++id, monday.plus(4, DateTimeUnit.DAY), BODYWEIGHT[week] + 0.3, null, work(DEADLIFT_ID, DEADLIFT[week], backOffs = 2 + week % 2) + work(BENCH_ID, BENCH[week] * 0.96f, backOffs = 2).map { it.copy(isTopSet = false) }),
         )
     }
-    TrainingHistory(sessions.filter { !it.date.isAfter(SHOWCASE_DATE) }, EXERCISES, emptyList())
+    TrainingHistory(sessions.filter { it.date <= SHOWCASE_DATE }, EXERCISES, emptyList())
 }
 
 @Composable

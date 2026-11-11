@@ -14,14 +14,15 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import kotlinx.coroutines.flow.first
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.isoDayNumber
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.intOrNull
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @Serializable
 data class BackupSettings(
@@ -35,13 +36,13 @@ data class BackupSettings(
     val restAlert: String = RestAlert.VIBRATE.name,
 ) {
     fun toAppSettings() = AppSettings(
-        changePlates, defaultRpe, trainingDays.map { DayOfWeek.of(it) }.toSet(), appLock, restMainSec, restAccessorySec,
+        changePlates, defaultRpe, trainingDays.map { DayOfWeek(it) }.toSet(), appLock, restMainSec, restAccessorySec,
         RestAlert.valueOf(restAlert),
     )
 
     companion object {
         fun of(s: AppSettings) = BackupSettings(
-            s.changePlates, s.defaultRpe, s.trainingDays.sorted().map { it.value }, s.appLock, s.restMainSec, s.restAccessorySec,
+            s.changePlates, s.defaultRpe, s.trainingDays.sorted().map { it.isoDayNumber }, s.appLock, s.restMainSec, s.restAccessorySec,
             s.restAlert.name,
         )
     }
@@ -57,7 +58,7 @@ data class ExerciseDto(
 
 @Serializable
 data class SessionDto(val id: Long, val date: Long, val bodyweightKg: Double?, val readiness: Int?) {
-    fun toEntity() = SessionEntity(id, LocalDate.ofEpochDay(date), bodyweightKg, readiness)
+    fun toEntity() = SessionEntity(id, LocalDate.fromEpochDays(date), bodyweightKg, readiness)
 }
 
 @Serializable
@@ -73,7 +74,7 @@ data class PlanItemDto(
     val id: Long, val weekday: Int, val exerciseId: Long, val sets: Int, val reps: Int,
     val targetRpe: Double, val sortOrder: Int,
 ) {
-    fun toEntity() = PlanItemEntity(id, DayOfWeek.of(weekday), exerciseId, sets, reps, targetRpe, sortOrder)
+    fun toEntity() = PlanItemEntity(id, DayOfWeek(weekday), exerciseId, sets, reps, targetRpe, sortOrder)
 }
 
 @Serializable
@@ -82,14 +83,14 @@ data class AdviceDto(
     val severity: Int, val payload: String, val status: String,
 ) {
     fun toEntity() = AdviceEntity(
-        id, AdviceType.valueOf(type), lift?.let(MainLift::valueOf), LocalDate.ofEpochDay(createdAt),
+        id, AdviceType.valueOf(type), lift?.let(MainLift::valueOf), LocalDate.fromEpochDays(createdAt),
         reason, severity, payload, AdviceStatus.valueOf(status),
     )
 }
 
 @Serializable
 data class BaselineDto(val exerciseId: Long, val e1rmKg: Double, val date: Long) {
-    fun toEntity() = BaselineEntity(exerciseId, e1rmKg, LocalDate.ofEpochDay(date))
+    fun toEntity() = BaselineEntity(exerciseId, e1rmKg, LocalDate.fromEpochDays(date))
 }
 
 @Serializable
@@ -134,8 +135,6 @@ object Backup {
             file.advice.forEach { it.toEntity() }
             file.settings.toAppSettings()
             return BackupResult.Ok(file)
-        } catch (e: java.time.DateTimeException) {
-            return BackupResult.Corrupt(e.message ?: "Unreadable backup")
         } catch (e: SerializationException) {
             return BackupResult.Corrupt(e.message ?: "Unreadable backup")
         } catch (e: IllegalArgumentException) {
@@ -155,17 +154,17 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
                 exercises = db.exercises().all().map {
                     ExerciseDto(it.id, it.name, it.category.name, it.parentLift?.name, it.muscles, it.isBuiltIn, it.archived)
                 },
-                sessions = db.sessions().all().map { SessionDto(it.id, it.date.toEpochDay(), it.bodyweightKg, it.readiness) },
+                sessions = db.sessions().all().map { SessionDto(it.id, it.date.toEpochDays(), it.bodyweightKg, it.readiness) },
                 sets = db.sets().all().map {
                     SetDto(it.id, it.sessionId, it.exerciseId, it.weightKg, it.reps, it.rpe, it.failed, it.missPoint?.name, it.isTopSet)
                 },
                 planItems = db.plan().all().map {
-                    PlanItemDto(it.id, it.weekday.value, it.exerciseId, it.sets, it.reps, it.targetRpe, it.sortOrder)
+                    PlanItemDto(it.id, it.weekday.isoDayNumber, it.exerciseId, it.sets, it.reps, it.targetRpe, it.sortOrder)
                 },
                 advice = db.advice().all().map {
-                    AdviceDto(it.id, it.type.name, it.lift?.name, it.createdAt.toEpochDay(), it.reason, it.severity, it.payload, it.status.name)
+                    AdviceDto(it.id, it.type.name, it.lift?.name, it.createdAt.toEpochDays(), it.reason, it.severity, it.payload, it.status.name)
                 },
-                baselines = db.baselines().all().map { BaselineDto(it.exerciseId, it.e1rmKg, it.date.toEpochDay()) },
+                baselines = db.baselines().all().map { BaselineDto(it.exerciseId, it.e1rmKg, it.date.toEpochDays()) },
             )
         }
     }

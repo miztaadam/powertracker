@@ -32,6 +32,11 @@ import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.today.TodayScreen
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -41,8 +46,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
@@ -50,7 +53,7 @@ class TodayScreenTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val today: LocalDate = LocalDate.of(2026, 11, 11) // a Wednesday
+    private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
     private lateinit var db: AppDatabase
     private lateinit var training: TrainingRepository
@@ -70,7 +73,7 @@ class TodayScreenTest {
             squat = training.exercises().first().first { it.name == "Squat" }
             // Planned today: squat 5 × 5 @ 8. Last week's top set: 150 × 5 @ 7.
             training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
-            val lastWeek = training.startSession(today.minusDays(7), null, null)
+            val lastWeek = training.startSession(today.minus(7, DateTimeUnit.DAY), null, null)
             training.logSet(lastWeek, LoggedSet(squat.id, 150.0, 5, 7.0, failed = false, missPoint = null, isTopSet = false))
         }
     }
@@ -160,7 +163,7 @@ class TodayScreenTest {
     @Test
     fun coachChip_changesNothingUntilApplied() {
         // A known best gives the coach enough history to suggest a target: 150 @ 7 -> 155 × 5 @ 8.
-        runBlocking { training.setBaseline(Baseline(squat.id, 190.0, today.minusDays(30))) }
+        runBlocking { training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY))) }
         startSession()
         show()
 
@@ -227,7 +230,7 @@ class TodayScreenTest {
     @Test
     fun appliedDeloadTarget_showsSetOfFewerSets() {
         runBlocking {
-            training.setBaseline(Baseline(squat.id, 190.0, today.minusDays(30)))
+            training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY)))
             advice.insert(listOf(Advice(AdviceType.DELOAD, null, today, "Take a deload week.", 2, AdvicePayload.Deload())))
         }
         startSession()
@@ -243,7 +246,7 @@ class TodayScreenTest {
 
     @Test
     fun appLeftOpenPastMidnight_planEditDoesNotStoreTargetsUnderYesterday() {
-        runBlocking { training.setBaseline(Baseline(squat.id, 170.0, today.minusDays(30))) }
+        runBlocking { training.setBaseline(Baseline(squat.id, 170.0, today.minus(30, DateTimeUnit.DAY))) }
         var clock = today
         compose.setContent {
             PowertrackerTheme { TodayScreen(training, advice, settings, onOpenCoach = {}, today = { clock }) }
@@ -254,11 +257,11 @@ class TodayScreenTest {
         assertEquals(listOf(today), before.map { it.createdAt })
 
         // Midnight passes without the screen resuming; then the plan for yesterday's weekday changes.
-        clock = today.plusDays(1)
+        clock = today.plus(1, DateTimeUnit.DAY)
         val bench = runBlocking { training.exercises().first().first { it.name == "Bench" } }
         runBlocking {
-            training.setBaseline(Baseline(bench.id, 120.0, today.minusDays(30)))
-            training.logSet(training.startSession(today.minusDays(6), null, null),
+            training.setBaseline(Baseline(bench.id, 120.0, today.minus(30, DateTimeUnit.DAY)))
+            training.logSet(training.startSession(today.minus(6, DateTimeUnit.DAY), null, null),
                 LoggedSet(bench.id, 100.0, 5, 7.0, failed = false, missPoint = null, isTopSet = false))
             training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, bench.id, sets = 3, reps = 5, targetRpe = 8.0, order = 1))
         }

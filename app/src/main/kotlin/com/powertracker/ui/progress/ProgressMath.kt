@@ -5,15 +5,14 @@ import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingHistory
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.temporal.TemporalAdjusters
+import com.powertracker.domain.time.mondayOfWeek
+import kotlinx.datetime.LocalDate
 
 /** A set whose e1RM beat every earlier set of the same main lift. */
 data class Pr(val date: LocalDate, val e1rmKg: Double, val weightKg: Double, val reps: Int, val rpe: Double?)
 
 /** The Monday of the ISO week [date] falls in. */
-fun weekStart(date: LocalDate): LocalDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+fun weekStart(date: LocalDate): LocalDate = date.mondayOfWeek()
 
 /** The figures the Progress screens derive from history. Pure, so it is tested on the JVM. */
 object ProgressMath {

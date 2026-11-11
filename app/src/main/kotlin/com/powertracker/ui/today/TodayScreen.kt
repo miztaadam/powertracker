@@ -30,12 +30,15 @@ import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.EmptyState
 import com.powertracker.ui.components.RestTimerBar
 import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.theme.Space
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaDayOfWeek
+import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
@@ -78,7 +81,7 @@ fun TodayScreen(
     advice: AdviceRepository,
     settings: SettingsRepository,
     onOpenCoach: () -> Unit,
-    today: () -> LocalDate = LocalDate::now,
+    today: () -> LocalDate = ::systemToday,
     onSetLogged: (isMainOrVariation: Boolean) -> Unit = {},
     restTimer: RestTimerUi? = null,
 ) {
@@ -152,7 +155,7 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            ScreenHeader("Today", eyebrow = state.date.format(HEADER_DATE.withLocale(Locale.getDefault()))) {
+            ScreenHeader("Today", eyebrow = state.date.toJavaLocalDate().format(HEADER_DATE.withLocale(Locale.getDefault()))) {
                 if (inSession) SecondaryButton("Finish", actions.onFinish, compact = true, modifier = Modifier.padding(end = Space.s))
             }
         },
@@ -177,7 +180,7 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
                     SummaryCard(state.summary, onOpenCoach = actions.onOpenCoach, onKeepLogging = actions.onKeepLogging)
                 }
                 state.sessionId == null -> item(key = "start") {
-                    StartSessionCard(items, state.date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()), actions.onStartSession)
+                    StartSessionCard(items, state.date.dayOfWeek.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()), actions.onStartSession)
                 }
                 else -> {
                     itemsIndexed(items, key = { _, item -> item.exercise.id }) { i, item ->

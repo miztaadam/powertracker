@@ -27,6 +27,8 @@ import com.powertracker.ui.plan.backupFileName
 import com.powertracker.ui.plan.checkBackupText
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -35,8 +37,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(qualifiers = "w411dp-h2400dp-xxhdpi")
@@ -138,7 +138,7 @@ class PlanScreenTest {
             RestoreCheck.Rejected("This backup is from a newer version of Grit."),
             checkBackupText("""{"version":${Backup.VERSION + 1}}"""),
         )
-        assertEquals("grit-backup-2026-11-11.json", backupFileName(LocalDate.of(2026, 11, 11)))
+        assertEquals("grit-backup-2026-11-11.json", backupFileName(LocalDate(2026, 11, 11)))
     }
 
     @Test

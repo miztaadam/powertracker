@@ -22,6 +22,7 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.platform.systemToday
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -34,8 +35,11 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
-import java.time.LocalDate
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
+import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -69,7 +73,7 @@ class CoachViewModel(
     private val training: TrainingRepository,
     private val advice: AdviceRepository,
     private val settings: SettingsRepository,
-    private val today: () -> LocalDate = LocalDate::now,
+    private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
 
     private val _messages = Channel<String>(Channel.BUFFERED)
@@ -97,7 +101,7 @@ class CoachViewModel(
     /** An OPEN deload or re-entry stops counting after 14 days (see [Coach.OPEN_ACTIVE_DAYS]), so it leaves the feed too. */
     private fun expired(advice: Advice, date: LocalDate): Boolean =
         (advice.type == AdviceType.DELOAD || advice.type == AdviceType.RE_ENTRY) &&
-            advice.createdAt.isBefore(date.minusDays(Coach.OPEN_ACTIVE_DAYS - 1))
+            advice.createdAt < date.minus(Coach.OPEN_ACTIVE_DAYS - 1, DateTimeUnit.DAY)
 
     private fun detail(advice: Advice, stats: HistoryStats, date: LocalDate, plan: List<PlanItem>, exercises: List<Exercise>): CardDetail? =
         when (val payload = advice.payload) {
@@ -193,7 +197,7 @@ class CoachViewModel(
             training.savePlanItem(PlanItem(0, day, exercise.id, sets = p.sets, reps = p.repsHigh, targetRpe = current.defaultRpe, order = order++))
             added++
         }
-        val dayName = day.getDisplayName(TextStyle.FULL, Locale.getDefault())
+        val dayName = day.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
         return when (added) {
             0 -> "Already in your plan on $dayName"
             1 -> "Added 1 exercise to $dayName"
@@ -230,7 +234,7 @@ class CoachViewModel(
             training: TrainingRepository,
             advice: AdviceRepository,
             settings: SettingsRepository,
-            today: () -> LocalDate = LocalDate::now,
+            today: () -> LocalDate = ::systemToday,
         ): ViewModelProvider.Factory = viewModelFactory { initializer { CoachViewModel(training, advice, settings, today) } }
     }
 }

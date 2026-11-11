@@ -7,7 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.powertracker.domain.model.AdviceStatus
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 @Dao
 interface ExerciseDao {

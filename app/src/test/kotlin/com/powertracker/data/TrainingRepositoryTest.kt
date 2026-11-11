@@ -7,14 +7,14 @@ import com.powertracker.domain.coach.AccessoryMap
 import com.powertracker.domain.model.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 class TrainingRepositoryTest {
@@ -53,7 +53,7 @@ class TrainingRepositoryTest {
     @Test
     fun logAndReadHistory_roundTrips() = runTest {
         val squat = byName("Squat")
-        val date = LocalDate.of(2026, 11, 2)
+        val date = LocalDate(2026, 11, 2)
         val sessionId = training.startSession(date, 82.5, null)
         training.logSet(sessionId, LoggedSet(squat.id, 140.0, 5, 8.5, false, null, true))
         training.logSet(sessionId, LoggedSet(squat.id, 150.0, 3, null, true, MissPoint.MID, false))
@@ -80,7 +80,7 @@ class TrainingRepositoryTest {
     @Test
     fun setsForSessionAndSessionOn() = runTest {
         val squat = byName("Squat")
-        val date = LocalDate.of(2026, 11, 3)
+        val date = LocalDate(2026, 11, 3)
         assertNull(training.sessionOn(date).first())
         val sid = training.startSession(date, null, 4)
         val set = LoggedSet(squat.id, 100.0, 5, 7.0, false, null, false)
@@ -96,7 +96,7 @@ class TrainingRepositoryTest {
     @Test
     fun deleteExerciseWithSets_throws_archiveWorks() = runTest {
         val bench = byName("Bench")
-        val sid = training.startSession(LocalDate.of(2026, 11, 2), null, null)
+        val sid = training.startSession(LocalDate(2026, 11, 2), null, null)
         training.logSet(sid, LoggedSet(bench.id, 100.0, 5, 8.0, false, null, true))
 
         assertThrows(ExerciseInUseException::class.java) { kotlinx.coroutines.runBlocking { training.deleteExercise(bench.id) } }
@@ -125,7 +125,7 @@ class TrainingRepositoryTest {
 
     @Test
     fun advicePayload_roundTrips() = runTest {
-        val date = LocalDate.of(2026, 11, 9)
+        val date = LocalDate(2026, 11, 9)
         val payloads = listOf(
             AdviceType.TARGET to AdvicePayload.Target(1, 142.5, 5, 8.0, 3),
             AdviceType.TARGET to AdvicePayload.Accessories(listOf(AccessoryPrescription("Pause squat", 3, 3, 5))),

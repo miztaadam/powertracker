@@ -6,19 +6,20 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.isoDayNumber
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 /** Column encodings: enums as name TEXT, LocalDate as epochDay, DayOfWeek as 1-7, lists as JSON. */
 class Converters {
-    @TypeConverter fun dateToDb(d: LocalDate): Long = d.toEpochDay()
-    @TypeConverter fun dateFromDb(v: Long): LocalDate = LocalDate.ofEpochDay(v)
+    @TypeConverter fun dateToDb(d: LocalDate): Long = d.toEpochDays()
+    @TypeConverter fun dateFromDb(v: Long): LocalDate = LocalDate.fromEpochDays(v)
 
-    @TypeConverter fun weekdayToDb(d: DayOfWeek): Int = d.value
-    @TypeConverter fun weekdayFromDb(v: Int): DayOfWeek = DayOfWeek.of(v)
+    @TypeConverter fun weekdayToDb(d: DayOfWeek): Int = d.isoDayNumber
+    @TypeConverter fun weekdayFromDb(v: Int): DayOfWeek = DayOfWeek(v)
 
     @TypeConverter fun categoryToDb(c: Category): String = c.name
     @TypeConverter fun categoryFromDb(v: String): Category = Category.valueOf(v)

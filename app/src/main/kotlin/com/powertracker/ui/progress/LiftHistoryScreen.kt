@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.MainLift
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.EmptyState
 import com.powertracker.ui.components.PtCard
 import com.powertracker.ui.components.ScreenHeader
@@ -41,7 +42,8 @@ import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
 
 /** Every session of one lift, newest first. [lift] is the route argument: a [MainLift] name. */
@@ -50,7 +52,7 @@ fun LiftHistoryScreen(
     training: TrainingRepository,
     lift: String,
     onBack: () -> Unit,
-    today: () -> LocalDate = LocalDate::now,
+    today: () -> LocalDate = ::systemToday,
 ) {
     val mainLift = MainLift.entries.firstOrNull { it.name == lift } ?: MainLift.SQUAT
     val viewModel: LiftHistoryViewModel = viewModel(key = mainLift.name, factory = LiftHistoryViewModel.factory(training, mainLift, today))
@@ -109,7 +111,7 @@ private fun Summary(state: LiftHistoryState) {
             StatTile("Current e1RM", formatKg(state.currentE1rmKg.toHalfKg()), tile, unit = "kg", note = "Best of the last 4 weeks")
         }
         if (state.best != null) {
-            StatTile("Best e1RM", formatKg(state.best.e1rmKg.toHalfKg()), tile, unit = "kg", note = BEST_DATE.format(state.best.date), noteTone = Tone.SUCCESS)
+            StatTile("Best e1RM", formatKg(state.best.e1rmKg.toHalfKg()), tile, unit = "kg", note = BEST_DATE.format(state.best.date.toJavaLocalDate()), noteTone = Tone.SUCCESS)
         }
     }
 }
@@ -120,7 +122,7 @@ private fun SessionCard(session: HistorySession) {
     val pt = PowertrackerTheme.colors
     PtCard(contentPadding = PaddingValues(start = Space.l, end = Space.l, top = Space.m, bottom = Space.s), spacing = Space.xs) {
         Text(
-            SESSION_DATE.format(session.date),
+            SESSION_DATE.format(session.date.toJavaLocalDate()),
             style = MaterialTheme.typography.titleMedium,
             color = scheme.onSurface,
             modifier = Modifier.semantics { heading() },

@@ -10,12 +10,13 @@ import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.progress.ProgressMath.isCompletedMainSet
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 /** [index] counts from 1 within the exercise in that session. */
 data class HistorySet(val index: Int, val set: LoggedSet, val isPr: Boolean)
@@ -36,7 +37,7 @@ data class LiftHistoryState(
 class LiftHistoryViewModel(
     training: TrainingRepository,
     lift: MainLift,
-    private val today: () -> LocalDate = LocalDate::now,
+    private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
 
     val state: StateFlow<LiftHistoryState> = training.history()
@@ -78,7 +79,7 @@ class LiftHistoryViewModel(
             )
         }
 
-        fun factory(training: TrainingRepository, lift: MainLift, today: () -> LocalDate = LocalDate::now): ViewModelProvider.Factory =
+        fun factory(training: TrainingRepository, lift: MainLift, today: () -> LocalDate = ::systemToday): ViewModelProvider.Factory =
             viewModelFactory { initializer { LiftHistoryViewModel(training, lift, today) } }
     }
 }

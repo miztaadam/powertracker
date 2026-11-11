@@ -66,6 +66,7 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.validation.InputValidator
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.ChoiceChip
 import com.powertracker.ui.components.PrimaryButton
 import com.powertracker.ui.components.PtCard
@@ -77,15 +78,16 @@ import com.powertracker.ui.components.Stepper
 import com.powertracker.ui.components.formatRpe
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
-import java.time.DayOfWeek
-import java.time.LocalDate
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
 
 /** The text shown for one plan item, e.g. "Squat  3 × 5 @ 8". */
 fun planItemText(name: String, item: PlanItem): String = "$name  ${item.sets} × ${item.reps} @ ${formatRpe(item.targetRpe)}"
 
-fun dayName(day: DayOfWeek): String = day.getDisplayName(TextStyle.FULL, Locale.getDefault())
+fun dayName(day: DayOfWeek): String = day.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
 
 // Dialogs holding text fields use full-width properties: with the platform-default width the field
 // never settles under Robolectric (the Compose test never goes idle).
@@ -101,7 +103,7 @@ fun PlanScreen(
     training: TrainingRepository,
     settings: SettingsRepository,
     onOpenSettings: () -> Unit,
-    today: () -> LocalDate = LocalDate::now,
+    today: () -> LocalDate = ::systemToday,
     viewModel: PlanViewModel = viewModel(factory = PlanViewModel.factory(training, settings, today)),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()

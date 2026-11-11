@@ -12,7 +12,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.powertracker.domain.coach.CoachSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.time.DayOfWeek
+import kotlinx.datetime.DayOfWeek
 
 /** How the end of a rest is announced. */
 enum class RestAlert { VIBRATE, SOUND_AND_VIBRATE, OFF }

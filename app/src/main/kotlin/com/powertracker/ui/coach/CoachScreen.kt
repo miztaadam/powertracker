@@ -22,11 +22,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.EmptyState
 import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.theme.Space
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 /** The coach's open advice, most urgent first. Nothing changes until the lifter taps Apply. */
 @Composable
@@ -34,7 +35,7 @@ fun CoachScreen(
     training: TrainingRepository,
     advice: AdviceRepository,
     settings: SettingsRepository,
-    today: () -> LocalDate = LocalDate::now,
+    today: () -> LocalDate = ::systemToday,
 ) {
     val viewModel: CoachViewModel = viewModel(factory = CoachViewModel.factory(training, advice, settings, today))
     val state by viewModel.state.collectAsStateWithLifecycle()

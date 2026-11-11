@@ -25,6 +25,7 @@ import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.domain.validation.InputValidator
 import com.powertracker.domain.validation.InputWarning
+import com.powertracker.platform.systemToday
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,7 +43,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 /** The numbers in the steppers for the next set. [weightKg] is null until the lifter enters one. */
 data class SetEditor(val weightKg: Double?, val reps: Int, val rpe: Double)
@@ -96,7 +97,7 @@ class TodayViewModel(
     private val training: TrainingRepository,
     private val advice: AdviceRepository,
     private val settings: SettingsRepository,
-    private val today: () -> LocalDate = LocalDate::now,
+    private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
 
     private val date: LocalDate = today()
@@ -343,7 +344,7 @@ class TodayViewModel(
             training: TrainingRepository,
             advice: AdviceRepository,
             settings: SettingsRepository,
-            today: () -> LocalDate = LocalDate::now,
+            today: () -> LocalDate = ::systemToday,
         ): ViewModelProvider.Factory = viewModelFactory { initializer { TodayViewModel(training, advice, settings, today) } }
     }
 }
