@@ -3,6 +3,7 @@ package com.powertracker.platform
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
+import com.powertracker.data.RestAlert
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,9 +21,15 @@ object RestTimer {
     @Volatile
     internal var now: () -> Long = System::currentTimeMillis
 
-    /** Starts a rest of [seconds], replacing any that is running. */
-    fun start(ctx: Context, seconds: Int) {
+    /** How the running rest ends: read by [RestTimerService] at zero. */
+    @Volatile
+    internal var alert: RestAlert = RestAlert.VIBRATE
+        private set
+
+    /** Starts a rest of [seconds], replacing any that is running. At zero it is announced as [alert] says. */
+    fun start(ctx: Context, seconds: Int, alert: RestAlert = RestAlert.VIBRATE) {
         if (seconds <= 0) return stop(ctx)
+        this.alert = alert
         _state.value = RestTimerState(now() + seconds * 1000L, seconds)
         // Rests start from a tap in the app, where starting a foreground service is allowed.
         runCatching { ContextCompat.startForegroundService(ctx, Intent(ctx, RestTimerService::class.java)) }

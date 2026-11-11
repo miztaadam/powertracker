@@ -9,6 +9,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -24,11 +26,13 @@ import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.powertracker.MainActivity
 import com.powertracker.R
+import com.powertracker.data.RestAlert
 import java.util.Date
 
 /**
  * Keeps the rest countdown alive while the phone is locked or the app is in the background: an
- * ongoing notification that counts down, one buzz at zero, then it stops itself. It holds no time
+ * ongoing notification that counts down, the alert chosen in Settings at zero (a buzz, a buzz and a
+ * tone, or nothing), then it stops itself. It holds no time
  * of its own; every command makes it look at [RestTimer.state] again.
  */
 class RestTimerService : Service() {
@@ -94,9 +98,16 @@ class RestTimerService : Service() {
         stopSelf()
     }
 
-    /** Zero: buzz once, swap the countdown for a quiet "Rest over" and stop. */
+    /** Zero: alert once as Settings says, swap the countdown for a quiet "Rest over" and stop. */
     private fun finish() {
-        buzz()
+        when (RestTimer.alert) {
+            RestAlert.VIBRATE -> buzz()
+            RestAlert.SOUND_AND_VIBRATE -> {
+                buzz()
+                runCatching { playTone() }
+            }
+            RestAlert.OFF -> Unit
+        }
         RestTimer.clear()
         if (!foreground) enterForeground(restOver())
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
@@ -207,7 +218,24 @@ class RestTimerService : Service() {
         internal var alive = false
             private set
 
+        /** Plays the tone of "Sound + vibrate"; tests replace it. */
+        @Volatile
+        internal var playTone: () -> Unit = ::beep
+
+        /**
+         * One short alert tone on the alarm stream: like the buzz, it is meant to be noticed on a
+         * phone set to silent, and it follows the alarm volume.
+         */
+        internal fun beep() {
+            val tone = ToneGenerator(AudioManager.STREAM_ALARM, TONE_VOLUME)
+            tone.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, TONE_MS)
+            // The service is gone by then, so the main looper lets go of the tone generator.
+            Handler(Looper.getMainLooper()).postDelayed({ tone.release() }, TONE_MS + 500L)
+        }
+
         private val BUZZ = longArrayOf(0, 300, 150, 300)
+        private const val TONE_VOLUME = 90
+        private const val TONE_MS = 900
         private const val WAKE_MARGIN_MS = 5_000L
         private const val REST_OVER_SHOWN_MS = 60_000L
     }

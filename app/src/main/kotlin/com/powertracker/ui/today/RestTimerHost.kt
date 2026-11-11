@@ -53,7 +53,8 @@ fun rememberRestTimerHooks(settings: SettingsRepository): RestTimerHooks {
     val onSetLogged: (Boolean) -> Unit = remember(settings, context) {
         { isMainOrVariation ->
             scope.launch {
-                RestTimer.start(context, settings.settings.first().restSeconds(isMainOrVariation))
+                val current = settings.settings.first()
+                RestTimer.start(context, current.restSeconds(isMainOrVariation), current.restAlert)
                 if (shouldAskToNotify(context)) askToNotify.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }

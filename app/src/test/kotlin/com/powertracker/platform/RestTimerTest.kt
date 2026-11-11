@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.powertracker.data.RestAlert
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -28,10 +29,12 @@ class RestTimerTest {
     private val notifications get() = shadowOf(app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
     private var clock = 50_000L
     private var service: ServiceController<RestTimerService>? = null
+    private var tones = 0
 
     @Before
     fun setUp() {
         RestTimer.now = { clock }
+        RestTimerService.playTone = { tones++ }
         RestTimer.stop(app)
         shadowOf(app).clearStartedServices()
     }
@@ -41,6 +44,64 @@ class RestTimerTest {
         service?.destroy()
         RestTimer.stop(app)
         RestTimer.now = System::currentTimeMillis
+        RestTimerService.playTone = RestTimerService.Companion::beep
+    }
+
+    /** Runs a 180 s rest to zero with [alert] set and hands back the service. */
+    private fun restToZero(alert: RestAlert?): RestTimerService {
+        if (alert == null) RestTimer.start(app, 180) else RestTimer.start(app, 180, alert)
+        val running = deliver()
+        clock += 180_000
+        shadowOf(Looper.getMainLooper()).idleFor(180, TimeUnit.SECONDS)
+        return running
+    }
+
+    private fun assertRestOverShown(running: RestTimerService) {
+        assertNull(RestTimer.state.value.endsAtMillis)
+        assertEquals("Rest over", checkNotNull(timerNotification()).extras.getString(Notification.EXTRA_TITLE))
+        assertTrue(shadowOf(running).isStoppedBySelf)
+    }
+
+    @Test
+    fun `vibrate only buzzes without a tone, and is the default`() {
+        for (alert in listOf(RestAlert.VIBRATE, null)) {
+            val running = restToZero(alert)
+
+            assertTrue(shadowOf(running.vibrator()).isVibrating)
+            assertEquals(0, tones)
+            assertRestOverShown(running)
+            running.vibrator().cancel()
+            service?.destroy()
+            service = null
+            shadowOf(app).clearStartedServices()
+        }
+    }
+
+    @Test
+    fun `sound and vibrate buzzes and plays the tone once`() {
+        val running = restToZero(RestAlert.SOUND_AND_VIBRATE)
+
+        assertTrue(shadowOf(running.vibrator()).isVibrating)
+        assertEquals(1, tones)
+        assertRestOverShown(running)
+    }
+
+    @Test
+    fun `off stays silent and still, but still says rest is over`() {
+        val running = restToZero(RestAlert.OFF)
+
+        assertFalse(shadowOf(running.vibrator()).isVibrating)
+        assertEquals(0, tones)
+        assertRestOverShown(running)
+    }
+
+    @Test
+    fun `a skipped rest never plays the tone`() {
+        RestTimer.start(app, 180, RestAlert.SOUND_AND_VIBRATE)
+        deliver()
+        deliver(Intent(app, RestTimerService::class.java).setAction(RestTimerService.ACTION_SKIP))
+
+        assertEquals(0, tones)
     }
 
     /** Hands the last intent sent to the service to a real service instance, as the system would. */

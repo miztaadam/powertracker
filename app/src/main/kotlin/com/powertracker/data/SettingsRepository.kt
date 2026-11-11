@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.DayOfWeek
 
+/** How the end of a rest is announced. */
+enum class RestAlert { VIBRATE, SOUND_AND_VIBRATE, OFF }
+
 data class AppSettings(
     val changePlates: Boolean = false,
     val defaultRpe: Double = 8.0,
@@ -21,6 +24,7 @@ data class AppSettings(
     val appLock: Boolean = false,
     val restMainSec: Int = 180,
     val restAccessorySec: Int = 90,
+    val restAlert: RestAlert = RestAlert.VIBRATE,
 ) {
     fun coach(): CoachSettings = CoachSettings(defaultRpe = defaultRpe, changePlates = changePlates)
 }
@@ -44,6 +48,7 @@ class SettingsRepository(context: Context) {
         val APP_LOCK = booleanPreferencesKey("appLock")
         val REST_MAIN = intPreferencesKey("restMainSec")
         val REST_ACCESSORY = intPreferencesKey("restAccessorySec")
+        val REST_ALERT = stringPreferencesKey("restAlert")
 
         fun Preferences.toAppSettings(): AppSettings {
             val d = AppSettings()
@@ -54,6 +59,7 @@ class SettingsRepository(context: Context) {
                 appLock = this[APP_LOCK] ?: d.appLock,
                 restMainSec = this[REST_MAIN] ?: d.restMainSec,
                 restAccessorySec = this[REST_ACCESSORY] ?: d.restAccessorySec,
+                restAlert = this[REST_ALERT]?.let { name -> RestAlert.entries.firstOrNull { it.name == name } } ?: d.restAlert,
             )
         }
 
@@ -64,6 +70,7 @@ class SettingsRepository(context: Context) {
             this[APP_LOCK] = s.appLock
             this[REST_MAIN] = s.restMainSec
             this[REST_ACCESSORY] = s.restAccessorySec
+            this[REST_ALERT] = s.restAlert.name
         }
 
         fun parseDays(text: String): Set<DayOfWeek> =

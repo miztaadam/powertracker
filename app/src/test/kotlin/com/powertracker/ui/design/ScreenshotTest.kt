@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.powertracker.ui.Tab
+import com.powertracker.ui.lock.LockScreen
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -31,8 +32,9 @@ import java.io.File
  * (Today: mid-session, before the session, an exercise finished, after Finish; Coach: the feed, the
  * empty feed, and the rarer re-entry and miss-point cards). Progress and lift history render the
  * real `ProgressContent` / `LiftHistoryContent` from a sample training history. Today, Plan,
- * Settings, lift history and the empty Coach feed are phone size (412 × 915 dp); the other Coach
- * captures and Progress are full-page captures of a scrolling screen, so their height differs.
+ * lift history, the empty Coach feed and the two lock screens are phone size (412 × 915 dp); the
+ * other Coach captures, Progress and Settings are full-page captures of a scrolling screen, so
+ * their height differs. The launcher icon is rendered by [LauncherIconTest].
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -100,5 +102,12 @@ class ScreenshotTest {
     fun plan() = render("plan", Tab.PLAN) { PlanShowcase() }
 
     @Test
+    @Config(qualifiers = "w412dp-h1030dp-xhdpi")
     fun settings() = render("settings", null) { SettingsShowcase() }
+
+    @Test
+    fun lock() = render("lock", null) { LockScreen(noDeviceLock = false, onUnlock = {}, onContinue = {}) }
+
+    @Test
+    fun lockNoScreenLock() = render("lock-no-screen-lock", null) { LockScreen(noDeviceLock = true, onUnlock = {}, onContinue = {}) }
 }

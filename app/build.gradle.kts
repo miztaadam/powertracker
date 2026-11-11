@@ -67,6 +67,9 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.biometric)
+    // BiometricPrompt needs a FragmentActivity; biometric alone pulls in a fragment library too old for the current activity library.
+    implementation(libs.androidx.fragment)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.room.runtime)

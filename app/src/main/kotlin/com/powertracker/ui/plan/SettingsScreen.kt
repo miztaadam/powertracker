@@ -45,6 +45,7 @@ import com.powertracker.data.Backup
 import com.powertracker.data.BackupFile
 import com.powertracker.data.BackupResult
 import com.powertracker.data.BackupService
+import com.powertracker.data.RestAlert
 import com.powertracker.data.SettingsRepository
 import com.powertracker.ui.components.ChoiceChip
 import com.powertracker.ui.components.PrimaryButton
@@ -53,6 +54,7 @@ import com.powertracker.ui.components.QuietButton
 import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.components.SectionHeader
+import com.powertracker.ui.components.SegmentedChoice
 import com.powertracker.ui.components.Stepper
 import com.powertracker.ui.components.formatRpe
 import com.powertracker.ui.theme.PowertrackerTheme
@@ -73,9 +75,18 @@ sealed interface RestoreCheck {
 
 fun checkBackupText(text: String): RestoreCheck = when (val r = Backup.decode(text)) {
     is BackupResult.Ok -> RestoreCheck.Ready(r.file)
-    is BackupResult.TooNew -> RestoreCheck.Rejected("This backup is from a newer version of Powertracker.")
-    is BackupResult.Corrupt -> RestoreCheck.Rejected("This file isn't a valid Powertracker backup.")
+    is BackupResult.TooNew -> RestoreCheck.Rejected("This backup is from a newer version of Grit.")
+    is BackupResult.Corrupt -> RestoreCheck.Rejected("This file isn't a valid Grit backup.")
 }
+
+/** The name offered when exporting a backup on [date]. */
+fun backupFileName(date: LocalDate): String = "grit-backup-$date.json"
+
+private val REST_ALERT_LABELS = listOf(
+    RestAlert.VIBRATE to "Vibrate only",
+    RestAlert.SOUND_AND_VIBRATE to "Sound + vibrate",
+    RestAlert.OFF to "Off",
+)
 
 @Composable
 fun SettingsScreen(
@@ -114,7 +125,7 @@ fun SettingsScreen(
             val text = runCatching {
                 withContext(Dispatchers.IO) { context.contentResolver.openInputStream(uri)?.use { String(it.readBytes()) } }
             }.getOrNull()
-            val check = if (text == null) RestoreCheck.Rejected("This file isn't a valid Powertracker backup.") else checkBackupText(text)
+            val check = if (text == null) RestoreCheck.Rejected("This file isn't a valid Grit backup.") else checkBackupText(text)
             when (check) {
                 is RestoreCheck.Ready -> pendingRestore = check.file
                 is RestoreCheck.Rejected -> snackbar.showSnackbar(check.message)
@@ -125,7 +136,7 @@ fun SettingsScreen(
     SettingsContent(
         settings = settings,
         onUpdate = ::update,
-        onExport = { exportLauncher.launch("powertracker-backup-${today()}.json") },
+        onExport = { exportLauncher.launch(backupFileName(today())) },
         onRestore = { importLauncher.launch(arrayOf("*/*")) },
         onBack = onBack,
         snackbar = snackbar,
@@ -135,7 +146,7 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { pendingRestore = null },
             title = { Text("Replace all data?") },
-            text = { Text("Restoring replaces everything in Powertracker with the contents of this backup.") },
+            text = { Text("Restoring replaces everything in Grit with the contents of this backup.") },
             confirmButton = {
                 PrimaryButton(
                     "Replace",
@@ -218,11 +229,19 @@ fun SettingsContent(
                     { onUpdate { it.copy(restAccessorySec = (it.restAccessorySec - 15).coerceAtLeast(30)) } },
                     { onUpdate { it.copy(restAccessorySec = (it.restAccessorySec + 15).coerceAtMost(300)) } },
                 )
+                RowDivider()
+                RowLabel("Rest alert", "How you're told the rest is over")
+                SegmentedChoice(
+                    REST_ALERT_LABELS.map { it.second },
+                    REST_ALERT_LABELS.indexOfFirst { it.first == settings.restAlert },
+                    { i -> onUpdate { it.copy(restAlert = REST_ALERT_LABELS[i].first) } },
+                    Modifier.padding(bottom = Space.m),
+                )
             }
 
             SectionHeader("Privacy", Modifier.padding(top = Space.m))
             Group {
-                SwitchRow("App lock", "Ask for your fingerprint or PIN when the app opens", settings.appLock) { v -> onUpdate { it.copy(appLock = v) } }
+                SwitchRow("App lock", "Ask for your fingerprint, face or screen lock when Grit opens, and after a minute away", settings.appLock) { v -> onUpdate { it.copy(appLock = v) } }
             }
 
             SectionHeader("Backup", Modifier.padding(top = Space.m))

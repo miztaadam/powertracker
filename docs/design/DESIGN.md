@@ -1,4 +1,7 @@
-# Powertracker design system
+# Grit design system
+
+The app is called **Grit**. The repository, the Gradle modules and the package (`com.powertracker`,
+`PowertrackerTheme`, …) keep the original name, Powertracker.
 
 **Direction.** A training instrument, not a lifestyle app: graphite surfaces, chalk-white type and
 big condensed tabular numerals you can read from the floor of a dim gym. One accent — volt — marks
@@ -88,6 +91,16 @@ Depth comes from tone steps and a 1 dp hairline. No shadows.
 - `RatioBar` — lift ratio against its typical range.
 - `EmptyState` — icon, title, body, optional action.
 - `PtBottomBar` (in `ui/AppShell.kt`) — four tabs, volt indicator on the current one.
+- `LockScreen` (in `ui/lock/`) — what stands in for the app while app lock holds it shut: the Grit icon, one line on why, one volt button (Unlock; Continue when the phone has no screen lock). Mockups `lock-*` and `lock-no-screen-lock-*`.
+
+## Launcher icon
+
+Concept "Barbell I, steel grey" from `docs/design/logo/` (see `BRIEF.md` there): chalk G, R, T on
+graphite, the I a steel barbell, no volt. In the app it is three vector drawables converted from
+the SVGs without changing the paths (`ic_launcher_foreground`, `ic_launcher_background`,
+`ic_launcher_monochrome`) behind the adaptive icons `mipmap-anydpi-v26/ic_launcher(.round).xml`.
+`LauncherIconTest` draws it as a launcher would (circle, rounded square, themed) to
+`docs/design/screens/launcher-icon.png`, with the same `-Pscreenshots.update=true` switch.
 
 ## Rules for later screens
 

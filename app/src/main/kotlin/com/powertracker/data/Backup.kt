@@ -31,14 +31,18 @@ data class BackupSettings(
     val appLock: Boolean,
     val restMainSec: Int,
     val restAccessorySec: Int,
+    /** Added after the first backups were written: a file without it means the default, vibrate. */
+    val restAlert: String = RestAlert.VIBRATE.name,
 ) {
     fun toAppSettings() = AppSettings(
         changePlates, defaultRpe, trainingDays.map { DayOfWeek.of(it) }.toSet(), appLock, restMainSec, restAccessorySec,
+        RestAlert.valueOf(restAlert),
     )
 
     companion object {
         fun of(s: AppSettings) = BackupSettings(
             s.changePlates, s.defaultRpe, s.trainingDays.sorted().map { it.value }, s.appLock, s.restMainSec, s.restAccessorySec,
+            s.restAlert.name,
         )
     }
 }

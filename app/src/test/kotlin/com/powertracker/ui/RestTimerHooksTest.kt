@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.AppSettings
+import com.powertracker.data.RestAlert
 import com.powertracker.data.SettingsRepository
 import com.powertracker.platform.RestTimer
 import com.powertracker.ui.components.RestTimerBar
@@ -93,6 +94,16 @@ class RestTimerHooksTest {
 
         assertEquals(clock + 240_000, RestTimer.state.value.endsAtMillis)
         compose.onNodeWithContentDescription("Rest, 4:00 left").assertIsDisplayed()
+    }
+
+    @Test
+    fun `a logged set hands the rest alert from Settings to the timer`() {
+        shadowOf(app).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        runBlocking { settings.update { it.copy(restAlert = RestAlert.SOUND_AND_VIBRATE) } }
+        show()
+        logSet(isMainOrVariation = true)
+
+        assertEquals(RestAlert.SOUND_AND_VIBRATE, RestTimer.alert)
     }
 
     @Test

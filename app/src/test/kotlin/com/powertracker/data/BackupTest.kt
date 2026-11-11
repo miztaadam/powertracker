@@ -102,4 +102,39 @@ class BackupTest {
         assertEquals(before, service.export(1L))
         assertTrue(Backup.decode(Backup.encode(bad)) is BackupResult.Corrupt)
     }
+
+    @Test
+    fun restAlert_roundTripsThroughBackup() = runTest {
+        seedData()
+        settings.update { it.copy(restAlert = RestAlert.SOUND_AND_VIBRATE) }
+        val text = Backup.encode(service.export(1L))
+        settings.update { AppSettings() }
+
+        service.restore((Backup.decode(text) as BackupResult.Ok).file)
+
+        assertEquals(RestAlert.SOUND_AND_VIBRATE, settings.settings.first().restAlert)
+    }
+
+    /** A file written before the rest alert existed (and before the app was called Grit) still restores. */
+    @Test
+    fun backupWithoutRestAlert_decodesWithVibrate() {
+        val old = """{"version":1,"exportedAt":1,"settings":{"changePlates":true,"defaultRpe":7.5,"trainingDays":[2,6],""" +
+            """"appLock":false,"restMainSec":180,"restAccessorySec":90},"exercises":[],"sessions":[],"sets":[],""" +
+            """"planItems":[],"advice":[],"baselines":[]}"""
+
+        val result = Backup.decode(old)
+
+        assertTrue(result.toString(), result is BackupResult.Ok)
+        val restored = (result as BackupResult.Ok).file.settings.toAppSettings()
+        assertEquals(RestAlert.VIBRATE, restored.restAlert)
+        assertTrue(restored.changePlates)
+        assertEquals(Backup.VERSION, 1)
+    }
+
+    @Test
+    fun unknownRestAlert_isCorrupt() = runTest {
+        val file = service.export(1L)
+        val bad = file.copy(settings = file.settings.copy(restAlert = "LOUD"))
+        assertTrue(Backup.decode(Backup.encode(bad)) is BackupResult.Corrupt)
+    }
 }

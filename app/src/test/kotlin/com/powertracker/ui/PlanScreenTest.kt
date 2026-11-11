@@ -1,6 +1,7 @@
 package com.powertracker.ui
 
 import android.content.Context
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -10,16 +11,22 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.core.app.ApplicationProvider
+import com.powertracker.data.Backup
 import com.powertracker.data.BackupService
+import com.powertracker.data.RestAlert
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.ui.plan.PlanScreen
+import com.powertracker.ui.plan.RestoreCheck
 import com.powertracker.ui.plan.SettingsScreen
+import com.powertracker.ui.plan.backupFileName
+import com.powertracker.ui.plan.checkBackupText
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -27,6 +34,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.time.DayOfWeek
+import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(qualifiers = "w411dp-h2400dp-xxhdpi")
@@ -99,5 +107,35 @@ class PlanScreenTest {
 
         compose.waitUntil(5_000) { runBlocking { settings.settings.first().changePlates } }
         assertTrue(runBlocking { settings.settings.first().changePlates })
+    }
+
+    @Test
+    fun settings_restAlert_showsThreeChoicesAndPersists() {
+        compose.setContent { SettingsScreen(settings, BackupService(db, settings), onBack = {}) }
+
+        compose.onNodeWithText("Rest alert").assertExists()
+        compose.onNodeWithText("Vibrate only").assertIsSelected()
+        compose.onNodeWithText("Off").assertExists()
+        compose.onNodeWithText("Sound + vibrate").performClick()
+
+        compose.waitUntil(5_000) { runBlocking { settings.settings.first().restAlert } == RestAlert.SOUND_AND_VIBRATE }
+        compose.onNodeWithText("Sound + vibrate").assertIsSelected()
+    }
+
+    @Test
+    fun settings_appLockRow_saysWhatItDoes() {
+        compose.setContent { SettingsScreen(settings, BackupService(db, settings), onBack = {}) }
+
+        compose.onNodeWithText("Ask for your fingerprint, face or screen lock when Grit opens, and after a minute away").assertExists()
+    }
+
+    @Test
+    fun settings_copy_saysGrit() {
+        assertEquals(RestoreCheck.Rejected("This file isn't a valid Grit backup."), checkBackupText("not json"))
+        assertEquals(
+            RestoreCheck.Rejected("This backup is from a newer version of Grit."),
+            checkBackupText("""{"version":${Backup.VERSION + 1}}"""),
+        )
+        assertEquals("grit-backup-2026-11-11.json", backupFileName(LocalDate.of(2026, 11, 11)))
     }
 }
