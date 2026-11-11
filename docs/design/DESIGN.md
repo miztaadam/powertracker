@@ -83,7 +83,7 @@ Depth comes from tone steps and a 1 dp hairline. No shadows.
 - `AdviceCard` — coach card shell: toned icon + tag, title (what), body (why), detail slot, actions.
 - `StatTile` — labelled figure with a note.
 - `PlateStrip` — one side of the bar drawn in IPF colours plus "25 + 25 + 15 + 2.5". `PlateStripNote` — the same block in words when there is nothing to draw ("Can't load 181 kg exactly").
-- `RestTimerBar` — countdown, progress line, +30 s, Skip; docks above the bottom bar.
+- `RestTimerBar` — countdown, progress line, −30 s, +30 s, Skip; docks above the bottom bar. The same rest shows as an ongoing notification (`platform/RestTimerService`): barbell status icon, accent tint, "Rest" with a countdown, +30 s and Skip.
 - `LineChart`, `Sparkline`, `ChartSeries` — e1RM over time with legend and latest values; tiny trend line.
 - `RatioBar` — lift ratio against its typical range.
 - `EmptyState` — icon, title, body, optional action.

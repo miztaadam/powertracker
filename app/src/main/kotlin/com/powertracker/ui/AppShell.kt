@@ -34,6 +34,7 @@ import com.powertracker.ui.progress.LiftHistoryScreen
 import com.powertracker.ui.progress.ProgressScreen
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.today.TodayScreen
+import com.powertracker.ui.today.rememberRestTimerHooks
 
 enum class Tab(val route: String, val label: String, val icon: ImageVector) {
     TODAY("today", "Today", Icons.Filled.FitnessCenter),
@@ -68,7 +69,13 @@ fun AppShell(container: AppContainer) {
     ) { padding ->
         NavHost(nav, startDestination = Tab.TODAY.route, modifier = Modifier.padding(padding).consumeWindowInsets(padding)) {
             composable(Tab.TODAY.route) {
-                TodayScreen(container.training, container.advice, container.settings, onOpenCoach = { openTab(Tab.COACH) })
+                val rest = rememberRestTimerHooks(container.settings)
+                TodayScreen(
+                    container.training, container.advice, container.settings,
+                    onOpenCoach = { openTab(Tab.COACH) },
+                    onSetLogged = rest.onSetLogged,
+                    restTimer = rest.restTimer,
+                )
             }
             composable(Tab.COACH.route) { CoachScreen() }
             composable(Tab.PROGRESS.route) { ProgressScreen() }

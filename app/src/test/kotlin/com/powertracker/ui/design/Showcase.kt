@@ -150,7 +150,7 @@ fun TodayShowcase() {
     TodayContent(
         TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = todayItems(squatSets, suggest = true)),
         TodayActions(),
-        restTimer = RestTimerUi(108, 180, {}, {}),
+        restTimer = RestTimerUi(108, 180, {}, {}, {}),
     )
 }
 

@@ -26,10 +26,17 @@ fun formatClock(seconds: Int): String = "${seconds / 60}:${(seconds % 60).toStri
 
 /**
  * The rest countdown docked above the bottom bar: time left in big figures, a volt line along the
- * top edge that empties as the rest runs out, and +30 s / Skip.
+ * top edge that empties as the rest runs out, and −30 s / +30 s / Skip.
  */
 @Composable
-fun RestTimerBar(remainingSec: Int, totalSec: Int, onAddThirty: () -> Unit, onSkip: () -> Unit, modifier: Modifier = Modifier) {
+fun RestTimerBar(
+    remainingSec: Int,
+    totalSec: Int,
+    onSubtractThirty: () -> Unit,
+    onAddThirty: () -> Unit,
+    onSkip: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val scheme = MaterialTheme.colorScheme
     val accent = PowertrackerTheme.colors.accentText
     val track = scheme.surfaceContainerHighest
@@ -50,6 +57,7 @@ fun RestTimerBar(remainingSec: Int, totalSec: Int, onAddThirty: () -> Unit, onSk
                 Eyebrow("Rest")
                 Text(formatClock(remainingSec), style = MaterialTheme.typography.displaySmall, color = scheme.onSurface, maxLines = 1)
             }
+            SecondaryButton("−30 s", onSubtractThirty, compact = true)
             SecondaryButton("+30 s", onAddThirty, compact = true)
             QuietButton("Skip", onSkip)
         }
@@ -59,5 +67,5 @@ fun RestTimerBar(remainingSec: Int, totalSec: Int, onAddThirty: () -> Unit, onSk
 @Preview
 @Composable
 private fun RestTimerBarPreview() = PowertrackerTheme(darkTheme = true) {
-    RestTimerBar(108, 180, {}, {})
+    RestTimerBar(108, 180, {}, {}, {})
 }

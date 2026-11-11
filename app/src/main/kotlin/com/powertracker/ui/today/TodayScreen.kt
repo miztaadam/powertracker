@@ -41,7 +41,13 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 /** The rest countdown to dock above the bottom bar; supplied by whoever runs the timer. */
-data class RestTimerUi(val remainingSec: Int, val totalSec: Int, val onAddThirty: () -> Unit, val onSkip: () -> Unit)
+data class RestTimerUi(
+    val remainingSec: Int,
+    val totalSec: Int,
+    val onSubtractThirty: () -> Unit,
+    val onAddThirty: () -> Unit,
+    val onSkip: () -> Unit,
+)
 
 /** Everything the Today screen can ask for. Defaults do nothing, for previews and mockups. */
 class TodayActions(
@@ -151,7 +157,7 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
         bottomBar = {
             if (restTimer != null) {
                 RestTimerBar(
-                    restTimer.remainingSec, restTimer.totalSec, restTimer.onAddThirty, restTimer.onSkip,
+                    restTimer.remainingSec, restTimer.totalSec, restTimer.onSubtractThirty, restTimer.onAddThirty, restTimer.onSkip,
                     Modifier.padding(horizontal = Space.gutter).padding(top = Space.xs, bottom = Space.s),
                 )
             }

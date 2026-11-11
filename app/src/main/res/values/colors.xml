@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Accent as text" from the design system (ui/theme/Color.kt), for the system to tint notifications with. -->
+    <color name="notification_accent">#3F6100</color>
+</resources>
