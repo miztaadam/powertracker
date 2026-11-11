@@ -1,0 +1,81 @@
+/* Layout for the Settings screen. Colours, type and controls come from the components and tokens. */
+
+.settings-body {
+  gap: var(--space-3);
+}
+
+/* A section's name sits closer to its own card than to the card above. */
+.settings-body > .gr-section-header:not(:first-child) {
+  margin-top: var(--space-4);
+}
+
+.settings-group {
+  padding: var(--space-2) var(--space-5);
+}
+
+/* Rows of a group, with a hairline between them. */
+.settings-group > * + * {
+  border-top: 1px solid var(--hairline);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 64px;
+}
+
+label.settings-row {
+  cursor: pointer;
+}
+
+.settings-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4) 0;
+  color: var(--text);
+}
+
+.settings-supporting {
+  color: var(--text-muted);
+}
+
+/* A label with its control underneath (the rest alert). */
+.settings-block {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--space-4);
+}
+
+/* Seven days share the card's width: each chip keeps its 48 px, so the faces give up their side padding. */
+.settings-days {
+  padding: var(--space-3) var(--space-2);
+}
+
+.settings-days-row {
+  display: flex;
+}
+
+.settings-days-row .gr-chip {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-days-row .gr-chip-face {
+  margin: 0 var(--space-1);
+  padding: 0;
+}
+
+.settings-text,
+.settings-status p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.settings-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}

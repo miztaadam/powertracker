@@ -6,6 +6,7 @@ import type { AdviceRow, ExerciseRow, PlanItemRow } from '../db/schema'
 import { grit, type JsExercise, type JsHistory } from '../domain'
 import type { Lift } from '../router'
 import type { MissPoint } from './useToday'
+import { dayName } from './weekdayNames'
 
 /** An accessory and its dose, as the coach prescribes it. */
 export type Prescription = { exerciseName: string; sets: number; repsLow: number; repsHigh: number }
@@ -96,12 +97,6 @@ type Stored = { today: string; open: StoredAdvice[]; history: JsHistory; plan: S
 async function readStored(db: GritDb, today: string): Promise<Stored> {
   const [open, history, plan] = await Promise.all([db.advice.where('status').equals('OPEN').toArray(), loadHistory(db), db.planItems.toArray()])
   return { today, open: open as StoredAdvice[], history, plan: plan as StoredPlanItem[] }
-}
-
-/** The weekday's full name in the device's language, as Android shows it. 1 = Monday. */
-function dayName(weekday: number): string {
-  // 5 January 2026 is a Monday.
-  return new Intl.DateTimeFormat(undefined, { weekday: 'long', timeZone: 'UTC' }).format(new Date(Date.UTC(2026, 0, 4 + weekday)))
 }
 
 function minusDays(iso: string, days: number): string {

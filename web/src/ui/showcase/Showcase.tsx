@@ -7,6 +7,7 @@ import { CoachSuggestion } from '../components/CoachSuggestion'
 import { Dialog } from '../components/Dialog'
 import { EmptyState } from '../components/EmptyState'
 import * as icons from '../components/icons'
+import { Menu } from '../components/Menu'
 import { LineChart } from '../components/LineChart'
 import { Eyebrow, NumberDisplay } from '../components/NumberDisplay'
 import { Pill } from '../components/Pill'
@@ -272,6 +273,13 @@ export default function Showcase() {
             <SecondaryButton text="Missed" onClick={noop} compact enabled={false} />
             <QuietButton text="Dismiss" onClick={noop} />
             <QuietButton text="Skip" onClick={noop} enabled={false} />
+            <Menu
+              label="More"
+              items={[
+                { text: 'Edit', icon: <icons.EditIcon />, onSelect: noop },
+                { text: 'Delete', icon: <icons.DeleteIcon />, danger: true, onSelect: noop },
+              ]}
+            />
           </div>
           <div className="sc-row sc-gap-s sc-wrap">
             <Pill text="PR" tone="success" icon={<icons.EmojiEventsIcon />} />

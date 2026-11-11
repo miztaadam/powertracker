@@ -6,6 +6,7 @@ import { PrimaryButton, QuietButton, SecondaryButton } from './Button'
 import { CoachSuggestion } from './CoachSuggestion'
 import { Dialog } from './Dialog'
 import { LineChart } from './LineChart'
+import { Menu } from './Menu'
 import { PlateStrip, platesLabel } from './PlateStrip'
 import { RatioBar } from './RatioBar'
 import { RestTimerBar, formatClock } from './RestTimerBar'
@@ -513,5 +514,58 @@ describe('Switch and TextField', () => {
     expect(input).toHaveAttribute('inputmode', 'decimal')
     await userEvent.type(input, '1')
     expect(onChange).toHaveBeenCalledWith('1')
+  })
+})
+
+describe('Menu', () => {
+  const show = (onEdit = vi.fn(), onDelete = vi.fn()) => {
+    render(
+      <>
+        <Menu
+          label="More"
+          items={[
+            { text: 'Edit', onSelect: onEdit },
+            { text: 'Delete', danger: true, onSelect: onDelete },
+          ]}
+        />
+        <p>Elsewhere</p>
+      </>,
+    )
+    return { onEdit, onDelete, trigger: screen.getByRole('button', { name: 'More' }) }
+  }
+
+  it('opens under its button, and choosing an action closes it', async () => {
+    const { onEdit, onDelete, trigger } = show()
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('menu')).toBeNull()
+
+    await userEvent.click(trigger)
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getAllByRole('menuitem').map((item) => item.textContent)).toEqual(['Edit', 'Delete'])
+    expect(screen.getByRole('menuitem', { name: 'Edit' })).toHaveFocus()
+
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Delete' }))
+    expect(onDelete).toHaveBeenCalledOnce()
+    expect(onEdit).not.toHaveBeenCalled()
+    expect(screen.queryByRole('menu')).toBeNull()
+    expect(trigger).toHaveFocus()
+  })
+
+  it('closes on Escape and on a tap outside, without choosing', async () => {
+    const { onEdit, onDelete, trigger } = show()
+    await userEvent.click(trigger)
+    await userEvent.keyboard('{ArrowDown}')
+    expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus()
+    await userEvent.keyboard('{ArrowDown}')
+    expect(screen.getByRole('menuitem', { name: 'Edit' })).toHaveFocus()
+    await userEvent.keyboard('{Escape}')
+    expect(screen.queryByRole('menu')).toBeNull()
+    expect(trigger).toHaveFocus()
+
+    await userEvent.click(trigger)
+    await userEvent.click(screen.getByText('Elsewhere'))
+    expect(screen.queryByRole('menu')).toBeNull()
+    expect(onEdit).not.toHaveBeenCalled()
+    expect(onDelete).not.toHaveBeenCalled()
   })
 })

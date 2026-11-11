@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { GritDb } from '../../db/db'
 import { todayIso } from '../../domain'
 import { useToday, type TodayActions, type TodayItem, type TodayState } from '../../state/useToday'
@@ -7,6 +7,7 @@ import { EmptyState } from '../../ui/components/EmptyState'
 import { AddIcon, FitnessCenterIcon } from '../../ui/components/icons'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
 import { Snackbar } from '../../ui/components/Snackbar'
+import { BackupReminderCard } from './BackupReminderCard'
 import { ExerciseCard, ExerciseRow, type NextStep } from './ExerciseCard'
 import { StartSessionCard, SummaryCard } from './SessionCards'
 import { ExercisePickerDialog, TypoDialog } from './TodayDialogs'
@@ -19,12 +20,15 @@ export type TodayScreenProps = {
   today?: () => string
   /** Fires after each saved set (true for a main lift or variation), so a rest timer can start. */
   onSetLogged?: (isMainOrVariation: boolean) => void
+  /** Opens Settings, for the backup reminder. Without it there is no reminder. */
+  onOpenSettings?: () => void
 }
 
 /** The logging screen: start card, the session's exercises, or the finish summary. */
-export function TodayScreen({ db, onOpenCoach, today = todayIso, onSetLogged }: TodayScreenProps) {
+export function TodayScreen({ db, onOpenCoach, today = todayIso, onSetLogged, onOpenSettings }: TodayScreenProps) {
   const session = useToday(db, today, onSetLogged)
-  return <TodayContent state={session} actions={session} onOpenCoach={onOpenCoach} />
+  const notice = onOpenSettings && <BackupReminderCard db={db} today={today()} onBackUp={onOpenSettings} />
+  return <TodayContent state={session} actions={session} onOpenCoach={onOpenCoach} notice={notice} />
 }
 
 function dateParts(isoDate: string): { weekday: string; day: string; month: string } {
@@ -36,12 +40,18 @@ function dateParts(isoDate: string): { weekday: string; day: string; month: stri
 /** Planned sets still to do, or an added exercise with nothing logged yet. */
 const hasWorkLeft = (item: TodayItem) => (item.targetSets != null ? !item.isComplete : item.sets.length === 0)
 
-export type TodayContentProps = { state: TodayState; actions: TodayActions; onOpenCoach: () => void }
+export type TodayContentProps = {
+  state: TodayState
+  actions: TodayActions
+  onOpenCoach: () => void
+  /** Shown above the start card or the summary, never while a session is being logged. */
+  notice?: ReactNode
+}
 
 const SAVE_FAILED = "Couldn't save — try again."
 
 /** The Today screen without its data source. A write that fails says so; it never fails silently. */
-export function TodayContent({ state, actions: raw, onOpenCoach }: TodayContentProps) {
+export function TodayContent({ state, actions: raw, onOpenCoach, notice }: TodayContentProps) {
   const { items } = state
   // Counts failed writes: 0 shows nothing, and each new failure shows the message afresh.
   const [failures, setFailures] = useState(0)
@@ -91,6 +101,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach }: TodayContentP
         actions={inSession && <SecondaryButton className="today-finish" text="Finish" onClick={() => void actions.finishSession()} compact />}
       />
       <div className="screen-body">
+        {!state.loading && !inSession && notice}
         {state.loading ? null : state.summary != null ? (
           <SummaryCard summary={state.summary} onOpenCoach={onOpenCoach} onKeepLogging={actions.dismissSummary} />
         ) : state.sessionId == null ? (
