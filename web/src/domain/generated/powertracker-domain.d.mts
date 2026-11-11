@@ -32,6 +32,11 @@ export declare namespace GritDomain {
             lastTopSet(history: JsHistory, exerciseId: number, before: string): Nullable<JsSet>;
             openAdviceExpired(type: string, createdAt: string, today: string): boolean;
             advicePayload(payloadJson: string): Nullable<JsAdvicePayload>;
+            library(): Array<JsLibraryExercise>;
+            findInLibrary(name: string): Nullable<JsLibraryExercise>;
+            searchLibrary(query: string, areas: Array<string>, equipment: Array<string>): Array<JsLibraryExercise>;
+            formGuide(name: string): Nullable<JsFormGuide>;
+            safetyLine(): string;
             ratioRanges(): Array<JsRatioRange>;
             private constructor();
         }
@@ -287,5 +292,45 @@ export declare namespace JsAdvicePayload {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsAdvicePayload;
+    }
+}
+export declare class JsFormGuide {
+    constructor(purpose: string, setup: Array<string>, steps: Array<string>, cues: Array<string>, mistakes: Array<string>);
+    get purpose(): string;
+    get setup(): Array<string>;
+    get steps(): Array<string>;
+    get cues(): Array<string>;
+    get mistakes(): Array<string>;
+    copy(purpose?: string, setup?: Array<string>, steps?: Array<string>, cues?: Array<string>, mistakes?: Array<string>): JsFormGuide;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsFormGuide {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsFormGuide;
+    }
+}
+export declare class JsLibraryExercise {
+    constructor(name: string, aliases: Array<string>, area: string, equipment: Array<string>, muscles: Array<string>, kind: string, category: string, parentLift: Nullable<string>, guide: JsFormGuide);
+    get name(): string;
+    get aliases(): Array<string>;
+    get area(): string;
+    get equipment(): Array<string>;
+    get muscles(): Array<string>;
+    get kind(): string;
+    get category(): string;
+    get parentLift(): Nullable<string>;
+    get guide(): JsFormGuide;
+    copy(name?: string, aliases?: Array<string>, area?: string, equipment?: Array<string>, muscles?: Array<string>, kind?: string, category?: string, parentLift?: Nullable<string>, guide?: JsFormGuide): JsLibraryExercise;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsLibraryExercise {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsLibraryExercise;
     }
 }

@@ -3,6 +3,7 @@ package com.powertracker.domain.web
 import com.powertracker.domain.ExpectedAdvice
 import com.powertracker.domain.GoldenScenario
 import com.powertracker.domain.coach.Coach
+import com.powertracker.domain.library.Library
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
@@ -257,5 +258,45 @@ class GritDomainTest {
         for (bad in listOf("", "{}", "not json", """{"type":"$prefix.Nope"}""", """{"type":"$prefix.Target","exerciseId":"x"}""")) {
             assertNull(GritDomain.advicePayload(bad), bad)
         }
+    }
+
+    @Test
+    fun library_isPlainDataWithEnumsByName() {
+        val all = GritDomain.library()
+        assertEquals(Library.all().size, all.size)
+        val squat = all.first { it.name == "Squat" }
+        assertEquals("MAIN_LIFTS", squat.area)
+        assertEquals("SQUAT", squat.category)
+        assertEquals("COMPOUND", squat.kind)
+        assertNull(squat.parentLift)
+        assertContentEquals(arrayOf("BARBELL"), squat.equipment)
+        assertContentEquals(arrayOf("Quads", "Glutes"), squat.muscles)
+        assertEquals("SQUAT", all.first { it.name == "Pause squat" }.parentLift)
+
+        assertEquals("Pull-up", GritDomain.findInLibrary("pull up")?.name)
+        assertEquals("RDL", GritDomain.findInLibrary("Romanian deadlift")?.name)
+        assertNull(GritDomain.findInLibrary("My own exercise"))
+    }
+
+    @Test
+    fun searchLibrary_takesEnumNamesAndRejectsUnknownOnes() {
+        assertContentEquals(arrayOf("DB press"), GritDomain.searchLibrary("", arrayOf("CHEST"), arrayOf("DUMBBELL")).map { it.name }.toTypedArray())
+        assertEquals("RDL", GritDomain.searchLibrary("romanian", emptyArray(), emptyArray()).first().name)
+        assertEquals(Library.all().size, GritDomain.searchLibrary("", emptyArray(), emptyArray()).size)
+        assertFailsWith<IllegalArgumentException> { GritDomain.searchLibrary("", arrayOf("LEGS"), emptyArray()) }
+        assertFailsWith<IllegalArgumentException> { GritDomain.searchLibrary("", emptyArray(), arrayOf("ROPE")) }
+    }
+
+    @Test
+    fun formGuide_matchesTheCatalogue() {
+        val guide = GritDomain.formGuide("rdl")
+        val expected = Library.find("RDL")!!.guide
+        assertEquals(expected.purpose, guide?.purpose)
+        assertContentEquals(expected.setup.toTypedArray(), guide?.setup)
+        assertContentEquals(expected.steps.toTypedArray(), guide?.steps)
+        assertContentEquals(expected.cues.toTypedArray(), guide?.cues)
+        assertContentEquals(expected.mistakes.toTypedArray(), guide?.mistakes)
+        assertNull(GritDomain.formGuide("My own exercise"))
+        assertEquals(Library.SAFETY_LINE, GritDomain.safetyLine())
     }
 }

@@ -32,6 +32,14 @@ kotlin {
     }
 }
 
+// docs/library/sources.md is generated from the catalogue by SourcesDocTest, and only rewritten with -Psources.update=true.
+val sourcesDoc = rootProject.layout.projectDirectory.file("docs/library/sources.md")
+tasks.named<Test>("jvmTest") {
+    systemProperty("sources.file", sourcesDoc.asFile.absolutePath)
+    systemProperty("sources.update", (project.findProperty("sources.update") ?: "false").toString())
+    inputs.files(sourcesDoc).withPropertyName("sourcesDoc")
+}
+
 // Node.js comes from the repository declared in settings.gradle.kts (project repositories are refused),
 // so the Kotlin plugin must not add its own.
 rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin> {

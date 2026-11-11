@@ -7,6 +7,9 @@ import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.e1rm.E1rm
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.library.BodyArea
+import com.powertracker.domain.library.Equipment
+import com.powertracker.domain.library.Library
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
@@ -120,6 +123,29 @@ object GritDomain {
 
     /** Decodes a stored advice payload, filling in Android's defaults; null when it is not an `AdvicePayload`. */
     fun advicePayload(payloadJson: String): JsAdvicePayload? = decodePayload(payloadJson)
+
+    /** The whole exercise catalogue, area by area. */
+    fun library(): Array<JsLibraryExercise> = Library.all().map { it.toJs() }.toTypedArray()
+
+    /** The catalogue entry whose name or alias matches [name] ignoring case, hyphens and spacing; null when there is none. */
+    fun findInLibrary(name: String): JsLibraryExercise? = Library.find(name)?.toJs()
+
+    /**
+     * Catalogue search: [areas] are `BodyArea` names and [equipment] `Equipment` names; an empty array means no filter.
+     * Ranked names-start, names-contain, aliases, muscles; alphabetical within a rank.
+     */
+    fun searchLibrary(query: String, areas: Array<String>, equipment: Array<String>): Array<JsLibraryExercise> =
+        Library.search(
+            query,
+            areas.map { parseEnum<BodyArea>("areas", it) }.toSet(),
+            equipment.map { parseEnum<Equipment>("equipment", it) }.toSet(),
+        ).map { it.toJs() }.toTypedArray()
+
+    /** The form guide of the catalogue entry [name] resolves to; null for anything not in the catalogue. */
+    fun formGuide(name: String): JsFormGuide? = Library.find(name)?.guide?.toJs()
+
+    /** The fixed last line of every guide sheet, which the UI appends after the guide. */
+    fun safetyLine(): String = Library.SAFETY_LINE
 
     /** Typical strength ratios: squat ÷ deadlift, then bench ÷ squat. */
     fun ratioRanges(): Array<JsRatioRange> = arrayOf(

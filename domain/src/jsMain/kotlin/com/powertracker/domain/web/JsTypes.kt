@@ -17,6 +17,8 @@ import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.coach.AccessoryOption
 import com.powertracker.domain.coach.CoachSettings
+import com.powertracker.domain.library.FormGuide
+import com.powertracker.domain.library.LibraryExercise
 import com.powertracker.domain.progress.Pr
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -130,6 +132,33 @@ data class JsAdvicePayload(
     val missPoint: String? = null,
 )
 
+/** A form guide: [purpose] is one or two sentences; the UI appends `GritDomain.safetyLine()` after [mistakes]. */
+@JsExport
+data class JsFormGuide(
+    val purpose: String,
+    val setup: Array<String>,
+    val steps: Array<String>,
+    val cues: Array<String>,
+    val mistakes: Array<String>,
+)
+
+/**
+ * A catalogue exercise. [area] is a `BodyArea` name, [equipment] `Equipment` names (first = primary), [kind]
+ * "COMPOUND" or "ACCESSORY", [category] and [parentLift] as on [JsExercise].
+ */
+@JsExport
+data class JsLibraryExercise(
+    val name: String,
+    val aliases: Array<String>,
+    val area: String,
+    val equipment: Array<String>,
+    val muscles: Array<String>,
+    val kind: String,
+    val category: String,
+    val parentLift: String?,
+    val guide: JsFormGuide,
+)
+
 // ---- converters (internal: not part of the JS API) ----
 
 private val androidJson = Json
@@ -240,3 +269,12 @@ internal fun decodePayload(payloadJson: String): JsAdvicePayload? {
         is AdvicePayload.ReEntry -> JsAdvicePayload("ReEntry", loadFactor = payload.loadFactor)
     }
 }
+
+internal fun FormGuide.toJs() = JsFormGuide(
+    purpose, setup.toTypedArray(), steps.toTypedArray(), cues.toTypedArray(), mistakes.toTypedArray(),
+)
+
+internal fun LibraryExercise.toJs() = JsLibraryExercise(
+    name, aliases.toTypedArray(), area.name, equipment.map { it.name }.toTypedArray(), muscles.toTypedArray(),
+    kind.name, category.name, parentLift?.name, guide.toJs(),
+)
