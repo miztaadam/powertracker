@@ -5,3 +5,7 @@ build/
 .idea/
 *.iml
 .kotlin/
+web/node_modules/
+web/dist/
+web/test-results/
+web/playwright-report/

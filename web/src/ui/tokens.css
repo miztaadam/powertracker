@@ -1,0 +1,180 @@
+/* Grit design tokens (docs/design/DESIGN.md). Dark is the default; light follows the system. */
+@font-face {
+  font-family: 'Barlow';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/barlow-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Barlow';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/barlow-medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Barlow';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/barlow-semibold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/barlow-condensed-semibold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/barlow-condensed-bold.woff2') format('woff2');
+}
+
+:root {
+  color-scheme: dark;
+
+  --bg: #0B0C0E;
+  --surface: #131518;
+  --container: #1A1D21;
+  --container-high: #22262B;
+  --container-highest: #2B3036;
+  --hairline: #262A30;
+
+  --text: #F3F4EF;
+  --text-secondary: #A9AEB6;
+  --text-muted: #959BA4;
+
+  --accent: #C9F73A;
+  --accent-ink: #121700;
+  --accent-text: #C9F73A;
+  --accent-container: #25300A;
+  --accent-on-container: #DDFB86;
+
+  --success: #3DD68C;
+  --success-container: #0F2A1D;
+  --warning: #FFB627;
+  --warning-container: #33250A;
+  --danger: #FF6B6B;
+  --danger-container: #3A1416;
+  --info: #6AA8FA;
+  --info-container: #10233F;
+
+  --chart-squat: #3987E5;
+  --chart-bench: #D95926;
+  --chart-deadlift: #199E70;
+
+  --plate-25: #D8262C;
+  --plate-20: #1F5FBF;
+  --plate-15: #F2C417;
+  --plate-10: #1E9E4A;
+  --plate-5: #F2F2EE;
+  --plate-2p5: #08080A;
+  --plate-small: #B4BAC2;
+
+  --font-text: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 8px;
+  --space-4: 12px;
+  --space-5: 16px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --touch: 48px;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+
+    --bg: #F4F4F0;
+    --surface: #FFFFFF;
+    --container: #EEEEE9;
+    --container-high: #E6E6E0;
+    --container-highest: #DCDCD5;
+    --hairline: #E0E0D9;
+
+    --text: #111315;
+    --text-secondary: #4D525A;
+    --text-muted: #595E66;
+
+    --accent-text: #3F6100;
+    --accent-container: #E6F9A8;
+    --accent-on-container: #2A3F00;
+
+    --success: #0F6B3D;
+    --success-container: #DDF5E7;
+    --warning: #7A5200;
+    --warning-container: #FFEFC7;
+    --danger: #B3232B;
+    --danger-container: #FDE1E0;
+    --info: #1A55AD;
+    --info-container: #DFEAFB;
+
+    --chart-squat: #2A78D6;
+    --chart-bench: #EB6834;
+    --chart-deadlift: #1BAF7A;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-text);
+  font-size: 16px;
+  line-height: 1.4;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+/* Numbers and titles: condensed, tabular. */
+.display-large { font: 700 64px/64px var(--font-display); font-feature-settings: 'tnum'; }
+.display-medium { font: 700 44px/46px var(--font-display); font-feature-settings: 'tnum'; }
+.display-small { font: 600 30px/34px var(--font-display); font-feature-settings: 'tnum'; }
+.headline-large { font: 700 34px/38px var(--font-display); font-feature-settings: 'tnum'; }
+.headline-medium { font: 600 26px/30px var(--font-display); font-feature-settings: 'tnum'; }
+.headline-small { font: 600 22px/26px var(--font-display); font-feature-settings: 'tnum'; }
+.title-large { font: 600 20px/26px var(--font-text); }
+.title-medium { font: 600 16px/22px var(--font-text); }
+.title-small { font: 600 14px/20px var(--font-text); }
+.body-large { font: 400 16px/22px var(--font-text); }
+.body-medium { font: 400 14px/20px var(--font-text); }
+.body-small { font: 400 12px/16px var(--font-text); }
+.label-large { font: 600 15px/20px var(--font-text); }
+.label-medium { font: 600 12px/16px var(--font-text); }
+.eyebrow {
+  font: 600 11px/16px var(--font-text);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
