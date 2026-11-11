@@ -12,8 +12,15 @@ data class AccessoryPrescription(val exerciseName: String, val sets: Int, val re
 
 @Serializable
 sealed interface AdvicePayload {
+    /** [sets] overrides the planned set count (e.g. during a deload); null means use the plan's sets. */
     @Serializable
-    data class Target(val exerciseId: Long, val weightKg: Double, val reps: Int, val rpe: Double) : AdvicePayload
+    data class Target(
+        val exerciseId: Long,
+        val weightKg: Double,
+        val reps: Int,
+        val rpe: Double,
+        val sets: Int? = null,
+    ) : AdvicePayload
 
     @Serializable
     data class Accessories(val items: List<AccessoryPrescription>) : AdvicePayload

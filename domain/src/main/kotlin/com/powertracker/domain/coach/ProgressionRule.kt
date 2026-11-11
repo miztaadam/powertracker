@@ -47,7 +47,7 @@ object ProgressionRule {
             }
         }
 
-        val reason = "${lastTime(last)} Coach suggests ${fmt(weight)} × $reps @ ${fmt(item.targetRpe)}."
+        val reason = describe(last, weight, reps, item.targetRpe)
         return Advice(
             type = AdviceType.TARGET,
             lift = exercise.mainLift,
@@ -95,6 +95,10 @@ object ProgressionRule {
             ChronoUnit.DAYS.between(prevDate, lastDate) in 0..RECENT_JUMP_DAYS &&
             lastRpe > prevRpe
     }
+
+    /** The TARGET reason text: what was done last time and what the coach suggests now. */
+    internal fun describe(last: LoggedSet, weightKg: Double, reps: Int, rpe: Double): String =
+        "${lastTime(last)} Coach suggests ${fmt(weightKg)} × $reps @ ${fmt(rpe)}."
 
     private fun lastTime(last: LoggedSet): String {
         val base = "Last time: ${fmt(last.weightKg)} × ${last.reps}"
