@@ -27,9 +27,11 @@ import java.io.File
  * `app/build/screenshots/`. The committed copies in `docs/design/screens/` are only rewritten with
  * `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`.
  *
- * The Today mockups render the real `TodayContent` with sample state (mid-session, before the
- * session, an exercise finished, after Finish). Today, Plan and Settings are phone size (412 × 915 dp); Coach and Progress are full-page
- * captures of a scrolling screen, so they are taller.
+ * The Today and Coach mockups render the real `TodayContent` / `CoachContent` with sample state
+ * (Today: mid-session, before the session, an exercise finished, after Finish; Coach: the feed, the
+ * empty feed, and the rarer re-entry and miss-point cards). Today, Plan, Settings and the empty
+ * Coach feed are phone size (412 × 915 dp); the other Coach captures and Progress are full-page
+ * captures of a scrolling screen, so their height differs.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -76,8 +78,15 @@ class ScreenshotTest {
     fun todaySummary() = render("today-summary", Tab.TODAY) { TodaySummaryShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1256dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1400dp-xhdpi")
     fun coach() = render("coach", Tab.COACH) { CoachShowcase() }
+
+    @Test
+    fun coachEmpty() = render("coach-empty", Tab.COACH) { CoachEmptyShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h984dp-xhdpi")
+    fun coachMore() = render("coach-more", Tab.COACH) { CoachMoreShowcase() }
 
     @Test
     @Config(qualifiers = "w412dp-h1104dp-xhdpi")

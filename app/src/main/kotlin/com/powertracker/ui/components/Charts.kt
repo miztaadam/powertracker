@@ -110,15 +110,21 @@ fun LineChart(series: List<ChartSeries>, xLabels: List<String>, modifier: Modifi
     }
 }
 
-/** A tiny trend line with no axes, for stat tiles and coach cards. Say the trend in words next to it. */
+/**
+ * A tiny trend line with no axes, for stat tiles and coach cards. Say the trend in words next to it.
+ * The line fills the height unless the values vary by less than [minSpan]: then it is drawn to that
+ * scale, so a flat trend looks flat instead of having its noise stretched.
+ */
 @Composable
-fun Sparkline(values: List<Float>, color: Color, modifier: Modifier = Modifier, fill: Boolean = true) {
+fun Sparkline(values: List<Float>, color: Color, modifier: Modifier = Modifier, fill: Boolean = true, minSpan: Float = 0f) {
     val ring = MaterialTheme.colorScheme.surface
     Canvas(modifier.clearAndSetSemantics { }) {
         if (values.size < 2) return@Canvas
         val pad = 6.dp.toPx()
-        val lo = values.min()
-        val span = (values.max() - lo).takeIf { it > 0f } ?: 1f
+        val range = values.max() - values.min()
+        val span = maxOf(range, minSpan).takeIf { it > 0f } ?: 1f
+        // Centre the values when the scale is wider than they are.
+        val lo = values.min() - (span - range) / 2
         val points = values.mapIndexed { i, v ->
             Offset(pad + (size.width - 2 * pad) * i / (values.size - 1), size.height - pad - (v - lo) / span * (size.height - 2 * pad))
         }

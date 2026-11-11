@@ -14,11 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.Balance
-import androidx.compose.material.icons.filled.BatteryAlert
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -30,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.powertracker.data.AppSettings
 import com.powertracker.data.StoredSet
+import com.powertracker.domain.model.AccessoryPrescription
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
@@ -42,28 +39,22 @@ import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.ui.PtBottomBar
 import com.powertracker.ui.Tab
-import com.powertracker.ui.components.AdviceCard
+import com.powertracker.ui.coach.CardDetail
+import com.powertracker.ui.coach.CoachCard
+import com.powertracker.ui.coach.CoachContent
+import com.powertracker.ui.coach.CoachState
+import com.powertracker.ui.coach.RatioUi
 import com.powertracker.ui.components.ChartSeries
-import com.powertracker.ui.components.CoachSuggestion
-import com.powertracker.ui.components.Eyebrow
 import com.powertracker.ui.components.LineChart
 import com.powertracker.ui.components.NumberDisplay
 import com.powertracker.ui.components.NumberSize
 import com.powertracker.ui.components.Pill
-import com.powertracker.ui.components.PlateStrip
-import com.powertracker.ui.components.PrimaryButton
 import com.powertracker.ui.components.PtCard
 import com.powertracker.ui.components.RatioBar
-import com.powertracker.ui.components.RestTimerBar
 import com.powertracker.ui.components.ScreenHeader
-import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.components.SectionHeader
 import com.powertracker.ui.components.SegmentedChoice
-import com.powertracker.ui.components.SetRow
-import com.powertracker.ui.components.SetState
 import com.powertracker.ui.components.Sparkline
-import com.powertracker.ui.components.StatTile
-import com.powertracker.ui.components.StepperField
 import com.powertracker.ui.plan.DaySection
 import com.powertracker.ui.plan.PlanContent
 import com.powertracker.ui.plan.PlanRow
@@ -178,60 +169,78 @@ fun TodaySummaryShowcase() {
     )
 }
 
-@Composable
-private fun AccessoryLine(name: String, dose: String) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 40.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(name, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-        Text(dose, style = MaterialTheme.typography.headlineSmall)
-    }
-}
-
+/** The real Coach screen with one card of each of the three commonest kinds. */
 @Composable
 fun CoachShowcase() {
-    val scheme = MaterialTheme.colorScheme
-    val pt = PowertrackerTheme.colors
-    Column(Modifier.fillMaxSize()) {
-        ScreenHeader("Coach", eyebrow = "3 open suggestions")
-        Column(Modifier.padding(horizontal = Space.gutter).padding(bottom = Space.l), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-            AdviceCard(
-                tone = Tone.WARNING, icon = Icons.AutoMirrored.Filled.TrendingFlat, tag = "Stall · Bench",
-                title = "Bench has stalled",
-                body = "Your best weekly e1RM has been flat for 3 weeks, and your misses are at lockout. Add triceps work:",
-                primaryAction = "Add to plan", secondaryAction = "Dismiss",
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-                    NumberDisplay("122.5", unit = "kg", label = "Bench e1RM", size = NumberSize.MEDIUM)
-                    Sparkline(BENCH, pt.bench, Modifier.weight(1f).height(48.dp))
-                }
-                Column(Modifier.background(scheme.surfaceContainer, MaterialTheme.shapes.medium).padding(horizontal = Space.m, vertical = Space.xs)) {
-                    AccessoryLine("Close-grip bench", "3 × 3–5")
-                    HorizontalDivider(color = pt.hairline)
-                    AccessoryLine("JM press", "3 × 8–10")
-                    HorizontalDivider(color = pt.hairline)
-                    AccessoryLine("Board press", "3 × 3–5")
-                }
-            }
-            AdviceCard(
-                tone = Tone.DANGER, icon = Icons.Filled.BatteryAlert, tag = "Deload · All lifts",
-                title = "Take a deload week",
-                body = "Two fatigue signs in the last 2 weeks: RPE is up a full point at the same load on squat and deadlift, and 3 reps failed on main lifts.",
-                primaryAction = "Apply deload", secondaryAction = "Dismiss",
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-                    StatTile("Volume", "60", Modifier.weight(1f), unit = "%", note = "of your usual sets")
-                    StatTile("Load", "90", Modifier.weight(1f), unit = "%", note = "of your last top sets")
-                }
-            }
-            AdviceCard(
-                tone = Tone.INFO, icon = Icons.Filled.Balance, tag = "Weak point · Squat",
-                title = "Squat is lagging your deadlift",
-                body = "It has been below the typical range for 4 weeks. Give squat priority before it stalls.",
-                primaryAction = "Prioritise squat", secondaryAction = "Dismiss",
-            ) {
-                RatioBar("Squat ÷ Deadlift", 76, 80, 90)
-            }
-        }
-    }
+    val stall = Advice(
+        AdviceType.STALL, MainLift.BENCH, SHOWCASE_DATE,
+        "Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.", 3,
+        AdvicePayload.Accessories(listOf(AccessoryPrescription("Close-grip bench", 3, 3, 5), AccessoryPrescription("JM press", 3, 8, 10), AccessoryPrescription("Board press", 3, 3, 5))),
+        id = 1,
+    )
+    val deload = Advice(
+        AdviceType.DELOAD, null, SHOWCASE_DATE,
+        "Signs of fatigue: RPE rising at the same load on squat and deadlift; 3 failed reps. Take a deload week: about 60% of the volume at about 90% of the load.", 2,
+        AdvicePayload.Deload(), id = 2,
+    )
+    val weak = Advice(
+        AdviceType.WEAK_POINT, MainLift.SQUAT, SHOWCASE_DATE,
+        "Your squat is low relative to your deadlift (76% vs a typical 80–90%). Prioritise squat.", 4,
+        AdvicePayload.WeakPoint(MainLift.SQUAT, null), id = 3,
+    )
+    CoachContent(
+        CoachState(
+            loading = false,
+            cards = listOf(
+                CoachCard(deload, CardDetail.Deload(volumePct = 60, loadPct = 90)),
+                CoachCard(stall, CardDetail.Stall(BENCH.takeLast(6), 122.5, (stall.payload as AdvicePayload.Accessories).items)),
+                CoachCard(
+                    weak,
+                    CardDetail.WeakPoint(
+                        RatioUi(MainLift.SQUAT, MainLift.DEADLIFT, 76, 80, 90), null, emptyList(),
+                        listOf(AccessoryPrescription("Pause squat", 3, 5, 5), AccessoryPrescription("Front squat", 3, 5, 5)),
+                    ),
+                ),
+            ),
+        ),
+        onApply = {}, onDismiss = {},
+    )
+}
+
+/** A quiet week: nothing open. */
+@Composable
+fun CoachEmptyShowcase() {
+    CoachContent(CoachState(loading = false), onApply = {}, onDismiss = {})
+}
+
+/** The two rarer cards: back after a break, and a weak point found from where reps are missed. */
+@Composable
+fun CoachMoreShowcase() {
+    val back = Advice(
+        AdviceType.RE_ENTRY, null, SHOWCASE_DATE,
+        "Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.", 21,
+        AdvicePayload.ReEntry(), id = 1,
+    )
+    val weak = Advice(
+        AdviceType.WEAK_POINT, MainLift.DEADLIFT, SHOWCASE_DATE, "You've missed deadlift off the floor 3 times in the last 4 weeks.", 3,
+        AdvicePayload.WeakPoint(MainLift.DEADLIFT, MissPoint.FLOOR), id = 2,
+    )
+    CoachContent(
+        CoachState(
+            loading = false,
+            cards = listOf(
+                CoachCard(back, CardDetail.ReEntry(85)),
+                CoachCard(
+                    weak,
+                    CardDetail.WeakPoint(
+                        null, MissPoint.FLOOR, listOf("Quads", "Lats", "Position"),
+                        listOf(AccessoryPrescription("Deficit deadlift", 3, 5, 5), AccessoryPrescription("Paused deadlift", 3, 5, 5)),
+                    ),
+                ),
+            ),
+        ),
+        onApply = {}, onDismiss = {},
+    )
 }
 
 @Composable

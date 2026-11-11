@@ -5,7 +5,7 @@ big condensed tabular numerals you can read from the floor of a dim gym. One acc
 the single next action; every other colour means a state (PR, stall, deload) or a real object (a plate).
 
 Mockups: `docs/design/screens/` (rendered by `ScreenshotTest` from the real components; the
-`today-*` ones are the real Today screen with sample state). A normal
+`today-*` and `coach-*` ones are the real Today and Coach screens with sample state). A normal
 test run only renders them to `app/build/screenshots/` as a smoke check. To update the committed
 PNGs after a visual change, run
 `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true` and look at them.
@@ -84,7 +84,7 @@ Depth comes from tone steps and a 1 dp hairline. No shadows.
 - `StatTile` — labelled figure with a note.
 - `PlateStrip` — one side of the bar drawn in IPF colours plus "25 + 25 + 15 + 2.5". `PlateStripNote` — the same block in words when there is nothing to draw ("Can't load 181 kg exactly").
 - `RestTimerBar` — countdown, progress line, −30 s, +30 s, Skip; docks above the bottom bar. The same rest shows as an ongoing notification (`platform/RestTimerService`): barbell status icon, accent tint, "Rest" with a countdown, +30 s and Skip.
-- `LineChart`, `Sparkline`, `ChartSeries` — e1RM over time with legend and latest values; tiny trend line.
+- `LineChart`, `Sparkline`, `ChartSeries` — e1RM over time with legend and latest values; tiny trend line. Give `Sparkline` a `minSpan` when a flat trend must look flat (the stall card uses 5% of the lift).
 - `RatioBar` — lift ratio against its typical range.
 - `EmptyState` — icon, title, body, optional action.
 - `PtBottomBar` (in `ui/AppShell.kt`) — four tabs, volt indicator on the current one.
