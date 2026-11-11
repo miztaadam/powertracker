@@ -12,6 +12,7 @@ object Sources {
     private const val PMC = "PubMed Central (peer-reviewed)"
     private const val L1 = "2026-11-11"
     private const val L4 = "2026-11-11"
+    private const val L5 = "2026-11-11"
 
     // Main lifts and their variations
     val IPF_RULES_2026 = SourceId("ipf-technical-rules-2026")
@@ -109,6 +110,55 @@ object Sources {
     val EXRX_BB_FLOOR_PRESS = SourceId("exrx-barbell-floor-press")
     val PMC_GRIP_BENCH_VS_SEATED_PRESS = SourceId("pmc-bench-seated-chest-press-grips")
     val PMC_GRIP_WIDTH_NOVICE_TRAINED = SourceId("pmc-bench-grip-width-novice-trained")
+
+    // Back (L5)
+    val EXRX_DB_BENT_OVER_ROW = SourceId("exrx-dumbbell-bent-over-row")
+    val ACE_SINGLE_ARM_ROW = SourceId("ace-single-arm-row")
+    val ACE_CABLE_SINGLE_ARM_ROW = SourceId("ace-cable-single-arm-row")
+    val EXRX_CB_STRAIGHT_BACK_SEATED_ROW = SourceId("exrx-cable-straight-back-seated-row")
+    val EXRX_CB_SEATED_ROW = SourceId("exrx-cable-seated-row")
+    val EXRX_CB_WIDE_GRIP_STR_BACK_ROW = SourceId("exrx-cable-wide-grip-straight-back-seated-row")
+    val EXRX_CB_WIDE_GRIP_SEATED_ROW = SourceId("exrx-cable-wide-grip-seated-row")
+    val EXRX_CB_ONE_ARM_ROW = SourceId("exrx-cable-one-arm-seated-row")
+    val ACE_SEATED_ROW = SourceId("ace-seated-row")
+    val ACE_CABLE_SEATED_ROW = SourceId("ace-cable-seated-row")
+    val EXRX_WT_45_HYPEREXTENSION = SourceId("exrx-weighted-45-hyperextension")
+    val EXRX_LV_SEATED_ROW = SourceId("exrx-lever-seated-row")
+    val EXRX_DB_INCLINE_ROW = SourceId("exrx-dumbbell-incline-row")
+    val EXRX_DB_LYING_ROW = SourceId("exrx-dumbbell-lying-row")
+    val EXRX_CAMBERED_LYING_ROW = SourceId("exrx-cambered-barbell-lying-row")
+    val EXRX_LV_T_BAR_ROW = SourceId("exrx-lever-t-bar-row")
+    val EXRX_LV_CLOSE_GRIP_T_BAR_ROW = SourceId("exrx-lever-close-grip-t-bar-row")
+    val EXRX_LV_CLOSE_GRIP_T_BAR_ROW_LM = SourceId("exrx-lever-close-grip-t-bar-row-landmine")
+    val EXRX_LV_INCLINE_ROW = SourceId("exrx-lever-incline-row")
+    val EXRX_INVERTED_ROW = SourceId("exrx-inverted-row")
+    val ACE_BENT_OVER_ROW = SourceId("ace-bent-over-row")
+    val EXRX_CB_PULLDOWN = SourceId("exrx-cable-pulldown")
+    val ACE_SEATED_LAT_PULLDOWN = SourceId("ace-seated-lat-pulldown")
+    val EXRX_CB_CLOSE_GRIP_PULLDOWN = SourceId("exrx-cable-close-grip-pulldown")
+    val EXRX_CB_UNDERHAND_PULLDOWN = SourceId("exrx-cable-underhand-pulldown")
+    val EXRX_LV_FRONT_PULLDOWN = SourceId("exrx-lever-front-pulldown")
+    val EXRX_CB_ONE_ARM_PULLDOWN = SourceId("exrx-cable-one-arm-pulldown")
+    val EXRX_CB_SEATED_PULLOVER = SourceId("exrx-cable-seated-pullover")
+    val EXRX_CHIN_UP = SourceId("exrx-chin-up")
+    val EXRX_WEIGHTED_PULL_UP = SourceId("exrx-weighted-pull-up")
+    val EXRX_WEIGHTED_CHIN_UP = SourceId("exrx-weighted-chin-up")
+    val EXRX_ASSISTED_PULL_UP = SourceId("exrx-machine-assisted-pull-up")
+    val EXRX_ASSISTED_CHIN_UP = SourceId("exrx-machine-assisted-chin-up")
+    val EXRX_BAND_ASSISTED_PULL_UP = SourceId("exrx-band-assisted-pull-up")
+    val EXRX_NEUTRAL_GRIP_PULL_UP = SourceId("exrx-neutral-grip-pull-up")
+    val EXRX_PARALLEL_CLOSE_GRIP_PULL_UP = SourceId("exrx-parallel-close-grip-pull-up")
+    val EXRX_DB_PULLOVER = SourceId("exrx-dumbbell-pullover")
+    val EXRX_LV_PULLOVER = SourceId("exrx-lever-pullover")
+    val EXRX_BB_SHRUG = SourceId("exrx-barbell-shrug")
+    val EXRX_DB_SHRUG = SourceId("exrx-dumbbell-shrug")
+    val EXRX_TRAP_BAR_SHRUG = SourceId("exrx-trap-bar-shrug")
+    val EXRX_45_HYPEREXTENSION = SourceId("exrx-45-hyperextension-hands-behind-hips")
+    val EXRX_WT_45_BACK_EXTENSION = SourceId("exrx-weighted-45-back-extension")
+    val PMC_ROMAN_CHAIR = SourceId("pmc-roman-chair-pain-thresholds")
+    val PMC_BACK_EXTENSION_LOADING = SourceId("pmc-back-extension-loading")
+    val NSCA_FACE_PULL = SourceId("nsca-face-pull-machine")
+    val EXRX_CB_REAR_DELT_ROW_ROPE = SourceId("exrx-cable-standing-rear-delt-row-rope")
     val all: Map<SourceId, Source> = mapOf(
         IPF_RULES_2026 to Source(
             "IPF Technical Rulebook 2026", IPF,
@@ -412,6 +462,194 @@ object Sources {
         PMC_GRIP_WIDTH_NOVICE_TRAINED to Source(
             "The Effect of Grip Width on Muscle Strength and Electromyographic Activity in Bench Press among Novice- and Resistance-Trained Men", PMC,
             "https://pmc.ncbi.nlm.nih.gov/articles/PMC8296276/", L4,
+        ),
+        EXRX_DB_BENT_OVER_ROW to Source(
+            "Dumbbell Bent-over Row", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/DBBentOverRow", L5,
+        ),
+        ACE_SINGLE_ARM_ROW to Source(
+            "Single Arm Row Exercise Guide", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/126/single-arm-row/", L5,
+        ),
+        ACE_CABLE_SINGLE_ARM_ROW to Source(
+            "Exercise Library: Single Arm Row (cable)", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/337/single-arm-row/", L5,
+        ),
+        EXRX_CB_STRAIGHT_BACK_SEATED_ROW to Source(
+            "Cable Straight Back Seated Row", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/CBStraightBackSeatedRow", L5,
+        ),
+        EXRX_CB_SEATED_ROW to Source(
+            "Cable Seated Row", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/CBSeatedRow", L5,
+        ),
+        EXRX_CB_WIDE_GRIP_STR_BACK_ROW to Source(
+            "Cable Wide Grip Straight Back Seated Row", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/CBWideGripStrBackSeatedRow", L5,
+        ),
+        EXRX_CB_WIDE_GRIP_SEATED_ROW to Source(
+            "Cable Wide Grip Seated Row", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/CBWideGripSeatedRow", L5,
+        ),
+        EXRX_CB_ONE_ARM_ROW to Source(
+            "Cable One Arm Seated Row", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/CBOneArmRow", L5,
+        ),
+        ACE_SEATED_ROW to Source(
+            "Seated Row", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/168/seated-row/", L5,
+        ),
+        EXRX_LV_SEATED_ROW to Source(
+            "Lever Seated Row", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/LVSeatedRow", L5,
+        ),
+        EXRX_DB_INCLINE_ROW to Source(
+            "Dumbbell Incline Row", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/DBInclineRow", L5,
+        ),
+        EXRX_DB_LYING_ROW to Source(
+            "Dumbbell Lying Row", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/DBLyingRow", L5,
+        ),
+        EXRX_CAMBERED_LYING_ROW to Source(
+            "Cambered Barbell Lying Row", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/CamberedBarLyingRow", L5,
+        ),
+        EXRX_LV_T_BAR_ROW to Source(
+            "Lever T-bar Row (plate loaded)", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/LVTBarRow", L5,
+        ),
+        EXRX_LV_CLOSE_GRIP_T_BAR_ROW to Source(
+            "Lever Close Grip T-bar Row (plate loaded)", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/LVCloseGripTBarRow", L5,
+        ),
+        EXRX_LV_CLOSE_GRIP_T_BAR_ROW_LM to Source(
+            "Lever Close Grip T-bar Row (plate loaded, landmine)", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/LVCloseGripTBarRowLM", L5,
+        ),
+        EXRX_LV_INCLINE_ROW to Source(
+            "Lever Incline Row (plate loaded)", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/LVInclineRow", L5,
+        ),
+        EXRX_INVERTED_ROW to Source(
+            "Inverted Row", EXRX,
+            "https://exrx.net/WeightExercises/BackGeneral/BWSupineRow", L5,
+        ),
+        ACE_BENT_OVER_ROW to Source(
+            "Bent-Over Row", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/12/bent-over-row/", L5,
+        ),
+        EXRX_CB_PULLDOWN to Source(
+            "Cable Pulldown", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/CBFrontPulldown", L5,
+        ),
+        ACE_SEATED_LAT_PULLDOWN to Source(
+            "Seated Lat Pulldown", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/", L5,
+        ),
+        EXRX_CB_CLOSE_GRIP_PULLDOWN to Source(
+            "Cable Close Grip Pulldown", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/CBCloseGripPulldown", L5,
+        ),
+        EXRX_CB_UNDERHAND_PULLDOWN to Source(
+            "Cable Underhand Pulldown", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/CBUnderhandPulldown", L5,
+        ),
+        EXRX_LV_FRONT_PULLDOWN to Source(
+            "Lever Front Pulldown", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/LVFrontPulldown", L5,
+        ),
+        EXRX_CB_ONE_ARM_PULLDOWN to Source(
+            "Cable One Arm Pulldown", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/CBOneArmPulldown", L5,
+        ),
+        EXRX_CB_SEATED_PULLOVER to Source(
+            "Cable Seated Pullover (straight-arm pulldown)", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/CBSeatedStraightArmPullover", L5,
+        ),
+        EXRX_CHIN_UP to Source(
+            "Chin-up", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/BWUnderhandChinup", L5,
+        ),
+        EXRX_WEIGHTED_PULL_UP to Source(
+            "Weighted Pull-up", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/WtPullup", L5,
+        ),
+        EXRX_WEIGHTED_CHIN_UP to Source(
+            "Weighted Chin-up", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/WtUnderhandChinup", L5,
+        ),
+        EXRX_ASSISTED_PULL_UP to Source(
+            "Machine-assisted Pull-up", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/AsPullupKneeling", L5,
+        ),
+        EXRX_ASSISTED_CHIN_UP to Source(
+            "Machine-assisted Chin-up", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/AsUnderhandChinup", L5,
+        ),
+        EXRX_BAND_ASSISTED_PULL_UP to Source(
+            "Band-assisted Pull-up", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/ASPullupBand", L5,
+        ),
+        EXRX_NEUTRAL_GRIP_PULL_UP to Source(
+            "Neutral Grip Pull-up", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/BWPullupN", L5,
+        ),
+        EXRX_PARALLEL_CLOSE_GRIP_PULL_UP to Source(
+            "Parallel Close Grip Pull-up", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/BWCloseGripChinup", L5,
+        ),
+        EXRX_DB_PULLOVER to Source(
+            "Dumbbell Pullover", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/DBPullover", L5,
+        ),
+        EXRX_LV_PULLOVER to Source(
+            "Lever Pullover", EXRX,
+            "https://exrx.net/WeightExercises/LatissimusDorsi/LVPullover", L5,
+        ),
+        EXRX_BB_SHRUG to Source(
+            "Barbell Shrug", EXRX,
+            "https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug", L5,
+        ),
+        EXRX_DB_SHRUG to Source(
+            "Dumbbell Shrug", EXRX,
+            "https://exrx.net/WeightExercises/TrapeziusUpper/DBShrug", L5,
+        ),
+        EXRX_TRAP_BAR_SHRUG to Source(
+            "Trap Bar Shrug", EXRX,
+            "https://exrx.net/WeightExercises/TrapeziusUpper/TBShrug", L5,
+        ),
+        EXRX_45_HYPEREXTENSION to Source(
+            "45° Hyperextension (hands behind hips)", EXRX,
+            "https://exrx.net/WeightExercises/ErectorSpinae/BW45HyperextensionHips", L5,
+        ),
+        EXRX_WT_45_BACK_EXTENSION to Source(
+            "Weighted 45° Back Extension (on hyperextension apparatus)", EXRX,
+            "https://exrx.net/WeightExercises/ErectorSpinae/Wt45BackExtension", L5,
+        ),
+        PMC_ROMAN_CHAIR to Source(
+            "Reliability of Pain Thresholds and Exercise-Induced Hypoalgesia Following 45-Degree Roman Chair Exercise", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC11964695/", L5,
+        ),
+        PMC_BACK_EXTENSION_LOADING to Source(
+            "Loading conditions in the spine, hip and knee during different executions of back extension exercises", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC5404334/", L5,
+        ),
+        NSCA_FACE_PULL to Source(
+            "Face Pull (Machine)", NSCA,
+            "https://www.nsca.com/education/articles/kinetic-select/face-pull-machine/", L5,
+        ),
+        EXRX_CB_REAR_DELT_ROW_ROPE to Source(
+            "Cable Standing Rear Delt Row (with rope)", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingRearDeltRowRope", L5,
+        ),
+        ACE_CABLE_SEATED_ROW to Source(
+            "Seated Row (cable)", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/48/seated-row/", L5,
+        ),
+        EXRX_WT_45_HYPEREXTENSION to Source(
+            "Weighted 45° Hyperextension", EXRX,
+            "https://exrx.net/WeightExercises/ErectorSpinae/Wt45Hyperextension", L5,
         ),
     )
 }

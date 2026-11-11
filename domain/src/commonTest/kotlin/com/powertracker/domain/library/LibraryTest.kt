@@ -221,6 +221,50 @@ class LibraryTest {
     }
 
     @Test
+    fun back_findsTheNamesPeopleType() {
+        val expected = mapOf(
+            "BB row" to "Row",
+            "Pendlay row" to "Row",
+            "Seal row" to "Seal row",
+            "lat pulldown" to "Lat pulldown",
+            "chin up" to "Chin-up",
+            "chinup" to "Chin-up",
+            "straight-arm pulldown" to "Straight-arm pulldown",
+            "DB row" to "One-arm DB row",
+            "cable row" to "Seated cable row",
+            "T-bar" to "T-bar row",
+            "hyperextension" to "Back extension",
+            "shrug" to "Barbell shrug",
+            "face pull" to "Face pull",
+            "pullup" to "Pull-up",
+        )
+        for ((typed, name) in expected) {
+            assertEquals(name, Library.find(typed)?.name, typed)
+            assertTrue(name in names(Library.search(typed)), "$typed: search misses $name")
+        }
+        // Typed the way people type, the intended entry is the top search result.
+        val firstHit = mapOf(
+            "lat pulldown" to "Lat pulldown",
+            "chin up" to "Chin-up",
+            "chinup" to "Chin-up",
+            "pendlay" to "Row",
+            "seal row" to "Seal row",
+            "straight arm" to "Straight-arm pulldown",
+            "hyperextension" to "Back extension",
+            "shrug" to "Barbell shrug",
+            "face pull" to "Face pull",
+            "t bar" to "T-bar row",
+        )
+        for ((typed, name) in firstHit) assertEquals(name, Library.search(typed).firstOrNull()?.name, typed)
+        val back = all.filter { it.area == BodyArea.BACK }
+        assertTrue(back.size >= 32, "${back.size} back entries")
+        for (e in back) {
+            assertEquals(Category.ACCESSORY, e.category, e.name)
+            assertNull(e.parentLift, e.name)
+        }
+    }
+
+    @Test
     fun search_emptyQueryReturnsAllInFilters() {
         assertEquals(alphabetical(all), Library.search(""))
         assertEquals(alphabetical(all), Library.search("  - "))

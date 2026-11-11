@@ -303,6 +303,119 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 ## Back
 
+### Assisted chin-up
+
+- [Machine-assisted Chin-up](https://exrx.net/WeightExercises/LatissimusDorsi/AsUnderhandChinup). ExRx.net, accessed 2026-11-11.
+- [Calculating Actual Resistance](https://exrx.net/WeightTraining/Bodyweight). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Assisted pull-up
+
+- [Machine-assisted Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/AsPullupKneeling). ExRx.net, accessed 2026-11-11.
+- [Calculating Actual Resistance](https://exrx.net/WeightTraining/Bodyweight). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Back extension
+
+- [45° Hyperextension (hands behind hips)](https://exrx.net/WeightExercises/ErectorSpinae/BW45HyperextensionHips). ExRx.net, accessed 2026-11-11.
+- [Reliability of Pain Thresholds and Exercise-Induced Hypoalgesia Following 45-Degree Roman Chair Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC11964695/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Loading conditions in the spine, hip and knee during different executions of back extension exercises](https://pmc.ncbi.nlm.nih.gov/articles/PMC5404334/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Band-assisted pull-up
+
+- [Band-assisted Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/ASPullupBand). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Barbell shrug
+
+- [Barbell Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Chest-supported row
+
+- [Dumbbell Incline Row](https://exrx.net/WeightExercises/BackGeneral/DBInclineRow). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Lying Row](https://exrx.net/WeightExercises/BackGeneral/DBLyingRow). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Chest-supported T-bar row
+
+- [Lever Incline Row (plate loaded)](https://exrx.net/WeightExercises/BackGeneral/LVInclineRow). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Chin-up
+
+- [Chin-up](https://exrx.net/WeightExercises/LatissimusDorsi/BWUnderhandChinup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Close-grip pulldown
+
+- [Cable Close Grip Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBCloseGripPulldown). ExRx.net, accessed 2026-11-11.
+- [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### DB pullover
+
+- [Dumbbell Pullover](https://exrx.net/WeightExercises/PectoralSternal/DBPullover). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### DB shrug
+
+- [Dumbbell Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/DBShrug). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Face pull
+
+- [Face Pull (Machine)](https://www.nsca.com/education/articles/kinetic-select/face-pull-machine/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Cable Standing Rear Delt Row (with rope)](https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingRearDeltRowRope). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Inverted row
+
+- [Inverted Row](https://exrx.net/WeightExercises/BackGeneral/BWSupineRow). ExRx.net, accessed 2026-11-11.
+
+### Lat pulldown
+
+- [Cable Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBFrontPulldown). ExRx.net, accessed 2026-11-11.
+- [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Machine pulldown
+
+- [Lever Front Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/LVFrontPulldown). ExRx.net, accessed 2026-11-11.
+- [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Machine pullover
+
+- [Lever Pullover](https://exrx.net/WeightExercises/LatissimusDorsi/LVPullover). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Machine row
+
+- [Lever Seated Row](https://exrx.net/WeightExercises/BackGeneral/LVSeatedRow). ExRx.net, accessed 2026-11-11.
+- [Seated Row](https://www.acefitness.org/resources/everyone/exercise-library/168/seated-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Neutral-grip pull-up
+
+- [Neutral Grip Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/BWPullupN). ExRx.net, accessed 2026-11-11.
+- [Parallel Close Grip Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/BWCloseGripChinup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### One-arm cable row
+
+- [Cable One Arm Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBOneArmRow). ExRx.net, accessed 2026-11-11.
+- [Cable Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBSeatedRow). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Single Arm Row (cable)](https://www.acefitness.org/resources/everyone/exercise-library/337/single-arm-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### One-arm DB row
+
+- [Dumbbell Bent-over Row](https://exrx.net/WeightExercises/BackGeneral/DBBentOverRow). ExRx.net, accessed 2026-11-11.
+- [Single Arm Row Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/126/single-arm-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### One-arm pulldown
+
+- [Cable One Arm Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBOneArmPulldown). ExRx.net, accessed 2026-11-11.
+- [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+
 ### Pull-up
 
 - [Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/BWPullup). ExRx.net, accessed 2026-11-11.
@@ -311,6 +424,67 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 ### Row
 
 - [Barbell Bent-over Row](https://exrx.net/WeightExercises/BackGeneral/BBBentOverRow). ExRx.net, accessed 2026-11-11.
+
+### Seal row
+
+- [Cambered Barbell Lying Row](https://exrx.net/WeightExercises/BackGeneral/CamberedBarLyingRow). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Lying Row](https://exrx.net/WeightExercises/BackGeneral/DBLyingRow). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Seated cable row
+
+- [Cable Straight Back Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBStraightBackSeatedRow). ExRx.net, accessed 2026-11-11.
+- [Cable Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBSeatedRow). ExRx.net, accessed 2026-11-11.
+- [Seated Row (cable)](https://www.acefitness.org/resources/everyone/exercise-library/48/seated-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Straight-arm pulldown
+
+- [Cable Seated Pullover (straight-arm pulldown)](https://exrx.net/WeightExercises/LatissimusDorsi/CBSeatedStraightArmPullover). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### T-bar row
+
+- [Lever T-bar Row (plate loaded)](https://exrx.net/WeightExercises/BackGeneral/LVTBarRow). ExRx.net, accessed 2026-11-11.
+- [Lever Close Grip T-bar Row (plate loaded)](https://exrx.net/WeightExercises/BackGeneral/LVCloseGripTBarRow). ExRx.net, accessed 2026-11-11.
+- [Lever Close Grip T-bar Row (plate loaded, landmine)](https://exrx.net/WeightExercises/BackGeneral/LVCloseGripTBarRowLM). ExRx.net, accessed 2026-11-11.
+- [Bent-Over Row](https://www.acefitness.org/resources/everyone/exercise-library/12/bent-over-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Trap-bar shrug
+
+- [Trap Bar Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/TBShrug). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/DBShrug). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Underhand pulldown
+
+- [Cable Underhand Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBUnderhandPulldown). ExRx.net, accessed 2026-11-11.
+- [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Weighted back extension
+
+- [Weighted 45° Hyperextension](https://exrx.net/WeightExercises/ErectorSpinae/Wt45Hyperextension). ExRx.net, accessed 2026-11-11.
+- [Weighted 45° Back Extension (on hyperextension apparatus)](https://exrx.net/WeightExercises/ErectorSpinae/Wt45BackExtension). ExRx.net, accessed 2026-11-11.
+- [Reliability of Pain Thresholds and Exercise-Induced Hypoalgesia Following 45-Degree Roman Chair Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC11964695/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Loading conditions in the spine, hip and knee during different executions of back extension exercises](https://pmc.ncbi.nlm.nih.gov/articles/PMC5404334/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Weighted chin-up
+
+- [Weighted Chin-up](https://exrx.net/WeightExercises/LatissimusDorsi/WtUnderhandChinup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Weighted pull-up
+
+- [Weighted Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/WtPullup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Wide-grip cable row
+
+- [Cable Wide Grip Straight Back Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBWideGripStrBackSeatedRow). ExRx.net, accessed 2026-11-11.
+- [Cable Wide Grip Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBWideGripSeatedRow). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ## Shoulders
 
