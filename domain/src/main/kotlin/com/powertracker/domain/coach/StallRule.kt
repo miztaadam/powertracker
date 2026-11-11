@@ -6,7 +6,6 @@ import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
-import com.powertracker.domain.model.MissPoint
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -77,15 +76,5 @@ object StallRule {
         MainLift.SQUAT -> "Squat"
         MainLift.BENCH -> "Bench"
         MainLift.DEADLIFT -> "Deadlift"
-    }
-
-    private fun missPhrase(lift: MainLift, miss: MissPoint) = when (miss) {
-        MissPoint.LOCKOUT -> "at lockout"
-        MissPoint.MID -> "mid-range"
-        MissPoint.FLOOR -> when (lift) {
-            MainLift.SQUAT -> "out of the hole"
-            MainLift.BENCH -> "off the chest"
-            MainLift.DEADLIFT -> "off the floor"
-        }
     }
 }
