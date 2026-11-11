@@ -1,0 +1,6 @@
+.gr-tone-neutral { --tone: var(--text-secondary); --tone-container: var(--container-high); }
+.gr-tone-accent { --tone: var(--accent-text); --tone-container: var(--accent-container); }
+.gr-tone-success { --tone: var(--success); --tone-container: var(--success-container); }
+.gr-tone-warning { --tone: var(--warning); --tone-container: var(--warning-container); }
+.gr-tone-danger { --tone: var(--danger); --tone-container: var(--danger-container); }
+.gr-tone-info { --tone: var(--info); --tone-container: var(--info-container); }

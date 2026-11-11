@@ -1,0 +1,51 @@
+.gr-plates {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--container);
+}
+
+.gr-plates-bar {
+  flex: none;
+}
+
+.gr-plate {
+  stroke: color-mix(in srgb, var(--text) 40%, transparent);
+  stroke-width: 1px;
+}
+
+.gr-plates-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.gr-plates-label,
+.gr-plates-caption {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gr-plates-label,
+.gr-plates-note-title {
+  color: var(--text);
+}
+
+.gr-plates-caption,
+.gr-plates-note-caption {
+  color: var(--text-muted);
+}
+
+.gr-plates-note {
+  min-height: 64px;
+}
+
+.gr-plates-note-icon {
+  flex: none;
+  display: flex;
+  color: var(--tone);
+}

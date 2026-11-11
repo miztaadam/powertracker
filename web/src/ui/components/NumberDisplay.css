@@ -1,0 +1,27 @@
+.gr-number {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.gr-number-centered {
+  align-items: center;
+}
+
+.gr-number-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  max-width: 100%;
+}
+
+.gr-number-value {
+  color: var(--number-color, var(--text));
+  white-space: nowrap;
+}
+
+.gr-number-unit {
+  color: var(--text-muted);
+  white-space: nowrap;
+}

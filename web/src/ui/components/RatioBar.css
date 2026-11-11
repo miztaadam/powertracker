@@ -1,0 +1,66 @@
+.gr-ratio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.gr-ratio-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.gr-ratio-label {
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+}
+
+.gr-ratio-value {
+  color: var(--text);
+}
+
+.gr-ratio-bar {
+  position: relative;
+  height: 34px;
+  color: var(--text-muted);
+}
+
+.gr-ratio-track,
+.gr-ratio-band {
+  position: absolute;
+  top: 4px;
+  height: 8px;
+  border-radius: 4px;
+}
+
+.gr-ratio-track {
+  left: 0;
+  right: 0;
+  background: var(--container-highest);
+}
+
+.gr-ratio-band {
+  background: color-mix(in srgb, var(--text) 32%, transparent);
+}
+
+/* The marker with a surface ring, kept inside the track at either end. */
+.gr-ratio-marker {
+  position: absolute;
+  top: 0;
+  left: clamp(3px, var(--x), 100% - 3px);
+  width: 6px;
+  height: 16px;
+  margin-left: -3px;
+  border-radius: 3px;
+  background: var(--tone);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+.gr-ratio-bound {
+  position: absolute;
+  bottom: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}

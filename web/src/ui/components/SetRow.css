@@ -1,0 +1,88 @@
+.gr-set {
+  appearance: none;
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: var(--touch);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text);
+  text-align: left;
+}
+
+button.gr-set {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button.gr-set:active {
+  background: var(--container);
+}
+
+.gr-set-visual {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--touch);
+}
+
+.gr-set-index {
+  flex: none;
+  width: 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.gr-set-line {
+  flex: none;
+  white-space: nowrap;
+}
+
+.gr-set-planned .gr-set-line {
+  color: var(--text-secondary);
+}
+
+.gr-set-line .gr-set-soft {
+  color: var(--text-muted);
+}
+
+/* The Android row spaces the signs with literal spaces: two each side of ×, three before @, one after. */
+.gr-set-times {
+  margin: 0 0.4em;
+}
+
+.gr-set-at {
+  margin: 0 0.2em 0 0.6em;
+}
+
+.gr-set-spacer {
+  flex: 1;
+}
+
+.gr-set-dot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 2px;
+  border-radius: 50%;
+}
+
+.gr-set-dot-planned {
+  border: 1.5px solid var(--outline);
+}
+
+.gr-set-dot-done {
+  background: var(--success-container);
+  color: var(--success);
+}
+
+.gr-set-dot-failed {
+  background: var(--danger-container);
+  color: var(--danger);
+}

@@ -121,3 +121,14 @@ Don't
 - Don't put two y-scales on one chart; show the total as its own figure.
 - Don't shrink a tap target below 48 dp or body text below 12 sp.
 - Don't use arrow or tick characters in text (the font has none): use icons.
+
+## Web (`web/`)
+
+The iPhone web app uses the same tokens (`web/src/ui/tokens.css`, CSS variables; light follows the
+system) and the same components, ported to React in `web/src/ui/components/` with the Android names
+and props in camelCase (`PtCard` is `Card`, `PtBottomBar` is `TabBar`; `Dialog`, `Snackbar`,
+`Switch` and `TextField` stand in for the Material ones). Icons are inline SVG in `icons.tsx`.
+Every component in its states is on the dev-only page `#/showcase` (`npm run dev`); it is not in
+production builds. Mockups: `docs/design/web/screens/showcase-{dark,light}.png`, rendered by
+`web/e2e/showcase.spec.ts`. A normal `npm run e2e` only writes them to `web/test-results/`; to update
+the committed PNGs run `UPDATE_SCREENSHOTS=1 npm run e2e` and look at them.

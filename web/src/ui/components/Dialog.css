@@ -1,0 +1,52 @@
+.gr-dialog-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: var(--scrim);
+  animation: gr-fade 150ms ease;
+}
+
+.gr-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  min-width: 0;
+  max-width: 400px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: var(--space-6);
+  border-radius: 28px;
+  background: var(--container-high);
+}
+
+.gr-dialog:focus {
+  outline: none;
+}
+
+.gr-dialog-title {
+  color: var(--text);
+}
+
+.gr-dialog-body {
+  color: var(--text-secondary);
+}
+
+.gr-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+@keyframes gr-fade {
+  from {
+    opacity: 0;
+  }
+}

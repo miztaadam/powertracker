@@ -1,0 +1,337 @@
+import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
+import { AdviceCard } from './AdviceCard'
+import { PrimaryButton, QuietButton, SecondaryButton } from './Button'
+import { CoachSuggestion } from './CoachSuggestion'
+import { Dialog } from './Dialog'
+import { LineChart } from './LineChart'
+import { PlateStrip, platesLabel } from './PlateStrip'
+import { RatioBar } from './RatioBar'
+import { RestTimerBar, formatClock } from './RestTimerBar'
+import { ChoiceChip, SegmentedChoice } from './SegmentedChoice'
+import { SetRow } from './SetRow'
+import { Snackbar } from './Snackbar'
+import { StatTile } from './StatTile'
+import { Stepper, StepperField } from './StepperField'
+import { Switch } from './Switch'
+import { TabBar } from './TabBar'
+import { TextField } from './TextField'
+import { BoltIcon } from './icons'
+
+describe('SetRow', () => {
+  it('reads a done set as one sentence', () => {
+    render(<SetRow index={1} weightKg={150} reps={5} rpe={8} state="done" />)
+    expect(screen.getByText('Set 1: 150 kg × 5 at RPE 8, done')).toBeInTheDocument()
+  })
+
+  it('reads a failed set and shows the Failed pill', () => {
+    const { container } = render(<SetRow index={3} weightKg={155} reps={3} rpe={10} state="failed" />)
+    expect(screen.getByText('Set 3: 155 kg × 3 at RPE 10, failed')).toBeInTheDocument()
+    expect(container.querySelector('[aria-hidden="true"]')).toHaveTextContent('Failed')
+  })
+
+  it('reads top set and personal record, and half-kilo weights and RPE', () => {
+    render(<SetRow index={2} weightKg={152.5} reps={5} rpe={8.5} state="done" isTopSet isPr />)
+    expect(screen.getByText('Set 2: 152.5 kg × 5 at RPE 8.5, top set, personal record, done')).toBeInTheDocument()
+  })
+
+  it('reads a planned set without RPE', () => {
+    render(<SetRow index={4} weightKg={150} reps={5} rpe={null} state="planned" />)
+    expect(screen.getByText('Set 4: 150 kg × 5, planned')).toBeInTheDocument()
+  })
+
+  it('is a button named by the sentence when it has onClick', async () => {
+    const onClick = vi.fn()
+    render(<SetRow index={1} weightKg={150} reps={5} rpe={8} state="done" onClick={onClick} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Set 1: 150 kg × 5 at RPE 8, done' }))
+    expect(onClick).toHaveBeenCalledOnce()
+  })
+})
+
+describe('StepperField and Stepper', () => {
+  it('has labelled − and + buttons that call back', async () => {
+    const onDecrement = vi.fn()
+    const onIncrement = vi.fn()
+    render(
+      <StepperField label="Weight" valueText="155" unit="kg" canDecrement canIncrement onDecrement={onDecrement} onIncrement={onIncrement} />,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Decrease Weight' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Increase Weight' }))
+    expect(onDecrement).toHaveBeenCalledOnce()
+    expect(onIncrement).toHaveBeenCalledOnce()
+    expect(screen.getByLabelText('Weight 155 kg')).toBeInTheDocument()
+  })
+
+  it('disables a button at its limit', () => {
+    render(<StepperField label="Reps" valueText="1" canDecrement={false} canIncrement onDecrement={() => {}} onIncrement={() => {}} />)
+    expect(screen.getByRole('button', { name: 'Decrease Reps' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Increase Reps' })).toBeEnabled()
+  })
+
+  it('makes the value a button for typing when onValueClick is given', async () => {
+    const onValueClick = vi.fn()
+    render(
+      <StepperField label="Weight" valueText="155" unit="kg" canDecrement canIncrement onDecrement={() => {}} onIncrement={() => {}} onValueClick={onValueClick} />,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Weight 155 kg, type Weight' }))
+    expect(onValueClick).toHaveBeenCalledOnce()
+  })
+
+  it('the one-line Stepper uses the same labels', () => {
+    render(<Stepper label="Default RPE" valueText="8" canDecrement canIncrement onDecrement={() => {}} onIncrement={() => {}} />)
+    expect(screen.getByRole('button', { name: 'Decrease Default RPE' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Increase Default RPE' })).toBeInTheDocument()
+  })
+})
+
+describe('PlateStrip', () => {
+  it('labels 182.5 kg as 25 + 25 + 25 + 5 + 1.25', () => {
+    render(<PlateStrip perSide={[25, 25, 25, 5, 1.25]} totalKg={182.5} />)
+    expect(screen.getByText('25 + 25 + 25 + 5 + 1.25')).toBeInTheDocument()
+    expect(screen.getByText('per side · 20 kg bar')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Plates per side: 25 + 25 + 25 + 5 + 1.25' })).toBeInTheDocument()
+  })
+
+  it('says Empty bar for no plates', () => {
+    expect(platesLabel([])).toBe('Empty bar')
+    render(<PlateStrip perSide={[]} totalKg={20} />)
+    expect(screen.getByText('Empty bar')).toBeInTheDocument()
+  })
+
+  it('says so in words when the weight cannot be loaded', () => {
+    render(<PlateStrip perSide={null} totalKg={181} nearestKg={180} />)
+    expect(screen.getByText("Can't load 181 kg exactly")).toBeInTheDocument()
+    expect(screen.getByText('Nearest is 180 kg.')).toBeInTheDocument()
+  })
+
+  it('says when the weight is lighter than the bar', () => {
+    render(<PlateStrip perSide={null} totalKg={15} />)
+    expect(screen.getByText('Lighter than the bar')).toBeInTheDocument()
+    expect(screen.getByText('The bar alone weighs 20 kg.')).toBeInTheDocument()
+  })
+})
+
+describe('RatioBar', () => {
+  it('says In range inside the range, bounds included', () => {
+    render(<RatioBar label="Bench ÷ Squat" valuePct={64} lowPct={60} highPct={70} />)
+    expect(screen.getByText('In range')).toBeInTheDocument()
+    expect(screen.getByText('64%')).toBeInTheDocument()
+  })
+
+  it('says Below range and Above range outside it', () => {
+    const { rerender } = render(<RatioBar label="Squat ÷ Deadlift" valuePct={76} lowPct={80} highPct={90} />)
+    expect(screen.getByText('Below range')).toBeInTheDocument()
+    expect(screen.getByText('80%')).toBeInTheDocument()
+    expect(screen.getByText('90%')).toBeInTheDocument()
+    rerender(<RatioBar label="Squat ÷ Deadlift" valuePct={93} lowPct={80} highPct={90} />)
+    expect(screen.getByText('Above range')).toBeInTheDocument()
+  })
+})
+
+describe('buttons', () => {
+  it('click, and stay inert when disabled', async () => {
+    const onClick = vi.fn()
+    render(
+      <>
+        <PrimaryButton text="Log set 4" onClick={onClick} />
+        <SecondaryButton text="Missed" onClick={onClick} enabled={false} />
+        <QuietButton text="Dismiss" onClick={onClick} />
+      </>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Log set 4' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Missed' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
+    expect(onClick).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('SegmentedChoice and ChoiceChip', () => {
+  it('is a radio group that reports the picked index', async () => {
+    const onSelect = vi.fn()
+    render(<SegmentedChoice label="Where did it stall?" options={['Floor', 'Mid', 'Lockout']} selectedIndex={0} onSelect={onSelect} />)
+    const group = screen.getByRole('radiogroup', { name: 'Where did it stall?' })
+    expect(within(group).getByRole('radio', { name: 'Floor' })).toBeChecked()
+    await userEvent.click(within(group).getByRole('radio', { name: 'Lockout' }))
+    expect(onSelect).toHaveBeenCalledWith(2)
+  })
+
+  it('has nothing checked when selectedIndex is null', () => {
+    render(<SegmentedChoice label="Range" options={['A', 'B']} selectedIndex={null} onSelect={() => {}} />)
+    expect(screen.getAllByRole('radio').every((r) => !(r as HTMLInputElement).checked)).toBe(true)
+  })
+
+  it('a chip is a checkbox', async () => {
+    const onClick = vi.fn()
+    render(<ChoiceChip text="Mon" selected onClick={onClick} />)
+    const chip = screen.getByRole('checkbox', { name: 'Mon' })
+    expect(chip).toBeChecked()
+    await userEvent.click(chip)
+    expect(onClick).toHaveBeenCalledOnce()
+  })
+})
+
+describe('CoachSuggestion and AdviceCard', () => {
+  it('offers Apply and Dismiss', async () => {
+    const onApply = vi.fn()
+    const onDismiss = vi.fn()
+    render(<CoachSuggestion headline="155 × 5 @ 8" reason="Last time: 150 × 5 @ 7." onApply={onApply} onDismiss={onDismiss} />)
+    expect(screen.getByText('Coach suggests')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Apply' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
+    expect(onApply).toHaveBeenCalledOnce()
+    expect(onDismiss).toHaveBeenCalledOnce()
+  })
+
+  it('shows tag, title, body, detail and actions', async () => {
+    const onPrimary = vi.fn()
+    render(
+      <AdviceCard tone="warning" icon={<BoltIcon />} tag="Stall · Bench" title="Bench has stalled" body="Flat for 3 weeks." primaryAction="Add to plan" onPrimary={onPrimary} secondaryAction="Dismiss">
+        <p>detail</p>
+      </AdviceCard>,
+    )
+    expect(screen.getByRole('heading', { name: 'Bench has stalled' })).toBeInTheDocument()
+    expect(screen.getByText('Stall · Bench')).toBeInTheDocument()
+    expect(screen.getByText('detail')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Add to plan' }))
+    expect(onPrimary).toHaveBeenCalledOnce()
+    expect(screen.getByRole('button', { name: 'Dismiss' })).toBeInTheDocument()
+  })
+})
+
+describe('StatTile', () => {
+  it('is plain without onClick and a labelled button with it', async () => {
+    const onClick = vi.fn()
+    const { rerender } = render(<StatTile label="Squat" value="190.5" unit="kg" note="+5.5 kg" noteTone="success" />)
+    expect(screen.queryByRole('button')).toBeNull()
+    expect(screen.getByText('+5.5 kg')).toBeInTheDocument()
+    rerender(<StatTile label="Squat" value="190.5" unit="kg" onClick={onClick} onClickLabel="Open squat history" />)
+    await userEvent.click(screen.getByRole('button', { name: /Open squat history/ }))
+    expect(onClick).toHaveBeenCalledOnce()
+  })
+})
+
+describe('LineChart', () => {
+  it('names the latest values and shows them in the legend, skipping missing weeks', () => {
+    render(
+      <LineChart
+        series={[
+          { name: 'Squat', color: 'var(--chart-squat)', values: [170, null, 187.5, null] },
+          { name: 'Bench', color: 'var(--chart-bench)', values: [110, 112.5, 112.46, 122.5] },
+        ]}
+        xLabels={['Aug', '', '', 'Nov']}
+      />,
+    )
+    expect(screen.getByRole('img', { name: 'Line chart. Latest: Squat 187.5 kg, Bench 122.5 kg' })).toBeInTheDocument()
+    expect(screen.getByText('187.5')).toBeInTheDocument()
+  })
+})
+
+describe('RestTimerBar', () => {
+  it('formats the clock', () => {
+    expect(formatClock(108)).toBe('1:48')
+    expect(formatClock(5)).toBe('0:05')
+  })
+
+  it('shows time left and the three actions', async () => {
+    const onSubtractThirty = vi.fn()
+    const onAddThirty = vi.fn()
+    const onSkip = vi.fn()
+    render(<RestTimerBar remainingSec={108} totalSec={180} onSubtractThirty={onSubtractThirty} onAddThirty={onAddThirty} onSkip={onSkip} />)
+    expect(screen.getByRole('timer', { name: 'Rest, 1:48 left' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: '−30 s' }))
+    await userEvent.click(screen.getByRole('button', { name: '+30 s' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Skip' }))
+    expect(onSubtractThirty).toHaveBeenCalledOnce()
+    expect(onAddThirty).toHaveBeenCalledOnce()
+    expect(onSkip).toHaveBeenCalledOnce()
+  })
+})
+
+describe('TabBar', () => {
+  it('links the four tabs and marks the current one', () => {
+    render(<TabBar current="coach" />)
+    const nav = screen.getByRole('navigation', { name: 'Main' })
+    expect(within(nav).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(['#/today', '#/coach', '#/progress', '#/plan'])
+    expect(within(nav).getByRole('link', { name: 'Coach' })).toHaveAttribute('aria-current', 'page')
+    expect(within(nav).getByRole('link', { name: 'Today' })).not.toHaveAttribute('aria-current')
+  })
+})
+
+describe('Dialog', () => {
+  it('renders nothing when closed', () => {
+    render(<Dialog open={false} title="Replace all data?" onDismiss={() => {}} />)
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('is a labelled modal that takes focus and closes on Escape', async () => {
+    const onDismiss = vi.fn()
+    render(
+      <Dialog open title="Replace all data?" onDismiss={onDismiss} actions={<PrimaryButton text="Replace" onClick={() => {}} compact />}>
+        Restoring replaces everything in Grit with the contents of this backup.
+      </Dialog>,
+    )
+    const dialog = screen.getByRole('dialog', { name: 'Replace all data?' })
+    expect(dialog).toHaveAttribute('aria-modal', 'true')
+    expect(dialog.contains(document.activeElement)).toBe(true)
+    await userEvent.keyboard('{Escape}')
+    expect(onDismiss).toHaveBeenCalledOnce()
+  })
+
+  it('keeps Tab inside the dialog', async () => {
+    render(
+      <>
+        <button>outside</button>
+        <Dialog open title="T" onDismiss={() => {}} actions={<><QuietButton text="Cancel" onClick={() => {}} /><PrimaryButton text="OK" onClick={() => {}} compact /></>} />
+      </>,
+    )
+    await userEvent.tab()
+    await userEvent.tab()
+    await userEvent.tab()
+    expect(screen.getByRole('dialog').contains(document.activeElement)).toBe(true)
+  })
+})
+
+describe('Snackbar', () => {
+  it('announces the message politely and offers its action', async () => {
+    const onAction = vi.fn()
+    render(<Snackbar message="Update ready — tap to refresh" actionLabel="Refresh" onAction={onAction} />)
+    expect(screen.getByRole('status')).toHaveTextContent('Update ready — tap to refresh')
+    await userEvent.click(screen.getByRole('button', { name: 'Refresh' }))
+    expect(onAction).toHaveBeenCalledOnce()
+  })
+
+  it('dismisses itself after its duration and shows nothing for null', () => {
+    vi.useFakeTimers()
+    try {
+      const onDismiss = vi.fn()
+      const { rerender } = render(<Snackbar message="Backup saved." onDismiss={onDismiss} durationMs={4000} />)
+      vi.advanceTimersByTime(3999)
+      expect(onDismiss).not.toHaveBeenCalled()
+      vi.advanceTimersByTime(1)
+      expect(onDismiss).toHaveBeenCalledOnce()
+      rerender(<Snackbar message={null} />)
+      expect(screen.getByRole('status')).toBeEmptyDOMElement()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
+
+describe('Switch and TextField', () => {
+  it('a switch reports the new value', async () => {
+    const onChange = vi.fn()
+    render(<Switch label="Change plates" checked={false} onChange={onChange} />)
+    await userEvent.click(screen.getByRole('switch', { name: 'Change plates' }))
+    expect(onChange).toHaveBeenCalledWith(true)
+  })
+
+  it('a numeric field asks for the decimal keypad', async () => {
+    const onChange = vi.fn()
+    render(<TextField label="Weight" value="" onChange={onChange} numeric unit="kg" />)
+    const input = screen.getByLabelText('Weight')
+    expect(input).toHaveAttribute('inputmode', 'decimal')
+    await userEvent.type(input, '1')
+    expect(onChange).toHaveBeenCalledWith('1')
+  })
+})

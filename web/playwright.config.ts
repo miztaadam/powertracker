@@ -14,10 +14,19 @@ export default defineConfig({
     ...iphone,
     launchOptions: existsSync(CHROMIUM) ? { executablePath: CHROMIUM } : {},
   },
-  webServer: {
-    command: 'npm run build && npm run preview -- --port 4173 --strictPort',
-    url: 'http://localhost:4173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: 'npm run build && npm run preview -- --port 4173 --strictPort',
+      url: 'http://localhost:4173',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+    {
+      // The dev server, for the dev-only design-system showcase (e2e/showcase.spec.ts).
+      command: 'npm run dev -- --port 4174 --strictPort',
+      url: 'http://localhost:4174',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+  ],
 })

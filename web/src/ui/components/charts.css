@@ -1,0 +1,175 @@
+/* Charts are laid out in percentages, so they need no measuring: lines are SVG stretched to the
+   box with non-scaling strokes, and round things (end markers, labels) are HTML on top. */
+
+.gr-linechart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.gr-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-5);
+}
+
+.gr-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.gr-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.gr-legend-name {
+  color: var(--text-secondary);
+}
+
+.gr-legend-value {
+  color: var(--text);
+}
+
+/* 168 px tall: 8 px of headroom (half a label), the plot, 8 px, then a 16 px row of x labels. */
+.gr-plot {
+  display: flex;
+  height: 168px;
+  color: var(--text-muted);
+}
+
+.gr-plot-y {
+  position: relative;
+  flex: none;
+  height: 136px;
+  margin: 8px 8px 0 0;
+}
+
+.gr-plot-y-sizer {
+  visibility: hidden;
+}
+
+.gr-plot-y-label {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
+.gr-plot-area {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 136px;
+  margin-top: 8px;
+}
+
+.gr-plot-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  margin-top: -0.5px;
+  background: var(--hairline);
+}
+
+.gr-plot-lines {
+  position: absolute;
+  inset: 0 8px 0 0;
+}
+
+.gr-plot-lines svg,
+.gr-spark-line svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.gr-plot-lines polyline,
+.gr-spark-line polyline {
+  fill: none;
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.gr-plot-marker {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+.gr-plot-x {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  height: 16px;
+}
+
+.gr-plot-x-label {
+  position: absolute;
+  left: calc((100% - 8px) * var(--x));
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.gr-plot-x-first {
+  left: 0;
+  transform: none;
+}
+
+.gr-plot-x-last {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.gr-spark {
+  position: relative;
+  min-width: 0;
+}
+
+.gr-spark-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(color-mix(in srgb, var(--spark-color) 22%, transparent), transparent);
+}
+
+.gr-spark-line {
+  position: absolute;
+  inset: 6px;
+}
+
+.gr-spark-line polyline {
+  stroke: var(--spark-color);
+}
+
+.gr-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.gr-bar {
+  flex: 1;
+  min-height: 6px;
+  border-radius: 3px;
+}
+
+.gr-bar-stub {
+  height: 3px;
+  min-height: 0;
+  background: var(--container-highest);
+}

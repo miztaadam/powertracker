@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
-import { TABS, routeToHash, useRoute, type Route, type Tab } from './router'
+import { useRoute, type Route, type Tab } from './router'
+import { ScreenHeader } from './ui/components/ScreenHeader'
+import { TabBar } from './ui/components/TabBar'
 import './ui/shell.css'
 
 const TAB_LABEL: Record<Tab, string> = { today: 'Today', coach: 'Coach', progress: 'Progress', plan: 'Plan' }
@@ -8,8 +10,7 @@ const LIFT_LABEL = { SQUAT: 'Squat', BENCH: 'Bench', DEADLIFT: 'Deadlift' } as c
 function Placeholder({ title, eyebrow }: { title: string; eyebrow: string }) {
   return (
     <section className="screen">
-      <p className="eyebrow">{eyebrow}</p>
-      <h1 className="headline-large">{title}</h1>
+      <ScreenHeader title={title} eyebrow={eyebrow} />
     </section>
   )
 }
@@ -26,18 +27,7 @@ export function App() {
   return (
     <div className="shell">
       <main className="shell-main">{screenFor(route)}</main>
-      <nav className="tabbar" aria-label="Main">
-        {TABS.map((tab) => (
-          <a
-            key={tab}
-            href={routeToHash({ tab })}
-            className="tab label-medium"
-            aria-current={activeTab === tab ? 'page' : undefined}
-          >
-            {TAB_LABEL[tab]}
-          </a>
-        ))}
-      </nav>
+      <TabBar current={activeTab} />
     </div>
   )
 }

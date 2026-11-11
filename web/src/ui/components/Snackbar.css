@@ -1,0 +1,59 @@
+/* Sits above the tab bar; a screen without one can set --snackbar-bottom. */
+.gr-snackbar-host {
+  position: fixed;
+  left: calc(var(--space-5) + env(safe-area-inset-left));
+  right: calc(var(--space-5) + env(safe-area-inset-right));
+  bottom: var(--snackbar-bottom, calc(80px + var(--space-4) + env(safe-area-inset-bottom)));
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.gr-snackbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 480px;
+  min-height: var(--touch);
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-xs);
+  background: var(--inverse-surface);
+  color: var(--inverse-on-surface);
+  pointer-events: auto;
+  animation: gr-snackbar-in 150ms ease;
+}
+
+.gr-snackbar-message {
+  flex: 1;
+  padding: 14px 0;
+}
+
+.gr-snackbar-action {
+  appearance: none;
+  flex: none;
+  min-width: var(--touch);
+  min-height: var(--touch);
+  margin: 0 calc(-1 * var(--space-4)) 0 0;
+  padding: 0 var(--space-4);
+  border: 0;
+  background: none;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.gr-snackbar-action:focus-visible {
+  outline-color: var(--inverse-on-surface);
+  outline-offset: -4px;
+}
+
+@keyframes gr-snackbar-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}

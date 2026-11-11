@@ -1,0 +1,45 @@
+import { useId } from 'react'
+import { cx } from './format'
+import './SegmentedChoice.css'
+
+export type SegmentedChoiceProps = {
+  options: readonly string[]
+  /** null when nothing is picked yet. */
+  selectedIndex: number | null
+  onSelect: (index: number) => void
+  /** Names the group for screen readers, e.g. "Where did it stall?". */
+  label?: string
+  className?: string
+}
+
+export type ChoiceChipProps = {
+  text: string
+  selected: boolean
+  onClick: () => void
+  className?: string
+}
+
+/** Pick exactly one (or none yet) of a few short options: miss point, chart range. */
+export function SegmentedChoice({ options, selectedIndex, onSelect, label, className }: SegmentedChoiceProps) {
+  const name = useId()
+  return (
+    <div className={cx('gr-segmented', className)} role="radiogroup" aria-label={label}>
+      {options.map((option, i) => (
+        <label key={option} className="gr-segment">
+          <input type="radio" className="sr-only" name={name} checked={i === selectedIndex} onChange={() => onSelect(i)} />
+          <span className="gr-segment-face label-large">{option}</span>
+        </label>
+      ))}
+    </div>
+  )
+}
+
+/** A toggle chip. Selected is ink-on-chalk (inverse), so volt stays reserved for the main action. */
+export function ChoiceChip({ text, selected, onClick, className }: ChoiceChipProps) {
+  return (
+    <label className={cx('gr-chip', className)}>
+      <input type="checkbox" className="sr-only" checked={selected} onChange={onClick} />
+      <span className="gr-chip-face label-large">{text}</span>
+    </label>
+  )
+}

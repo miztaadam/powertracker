@@ -1,0 +1,46 @@
+.gr-tabbar {
+  flex: none;
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--hairline);
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.gr-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  height: 80px;
+  padding-top: var(--space-4);
+  color: var(--text-secondary);
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.gr-tab:focus-visible {
+  outline-offset: -4px;
+}
+
+.gr-tab-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 32px;
+  border-radius: 16px;
+  transition: background-color 150ms ease;
+}
+
+.gr-tab[aria-current='page'] {
+  color: var(--text);
+}
+
+.gr-tab[aria-current='page'] .gr-tab-indicator {
+  background: var(--accent);
+  color: var(--accent-ink);
+}

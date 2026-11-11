@@ -1,0 +1,15 @@
+.gr-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap, var(--space-4));
+  width: 100%;
+  min-width: 0;
+  padding: var(--card-padding, var(--space-5));
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+}
+
+.gr-card > * {
+  min-width: 0;
+}
