@@ -27,6 +27,17 @@ class LibraryTest {
     }
 
     @Test
+    fun catalogue_hasAtLeast200Entries() {
+        assertTrue(all.size >= 200, "only ${all.size} entries")
+    }
+
+    @Test
+    fun noAreaFileIsEmpty() {
+        val empty = BodyArea.entries.filter { area -> all.none { it.area == area } }
+        assertTrue(empty.isEmpty(), "areas with no entries: $empty")
+    }
+
+    @Test
     fun everyGuide_isComplete() {
         val sentenceEnd = Regex("[.!?](\\s|$)")
         for (e in all) {

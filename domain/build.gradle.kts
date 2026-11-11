@@ -38,6 +38,11 @@ tasks.named<Test>("jvmTest") {
     systemProperty("sources.file", sourcesDoc.asFile.absolutePath)
     systemProperty("sources.update", (project.findProperty("sources.update") ?: "false").toString())
     inputs.files(sourcesDoc).withPropertyName("sourcesDoc")
+    // docs/library/guides.html is generated the same way by GuidesDocTest, rewritten with -Pguides.update=true.
+    val guidesDoc = rootProject.layout.projectDirectory.file("docs/library/guides.html")
+    systemProperty("guides.file", guidesDoc.asFile.absolutePath)
+    systemProperty("guides.update", (project.findProperty("guides.update") ?: "false").toString())
+    inputs.files(guidesDoc).withPropertyName("guidesDoc")
 }
 
 // Node.js comes from the repository declared in settings.gradle.kts (project repositories are refused),

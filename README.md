@@ -58,6 +58,8 @@ Grit also runs on iPhone as a web app. It works offline and keeps your log on th
 2. Tap Share, then Add to Home Screen.
 3. Open Grit from the Home Screen. Installed, your log is protected from being cleared.
 
+In the exercise picker, tap the ⓘ beside an exercise for its form guide, or use "Browse by muscle" to find exercises by muscle.
+
 The installed app keeps its own log, apart from Safari's, and starts empty. If you have already
 logged in Safari, do this so the log comes along:
 
