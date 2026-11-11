@@ -3,6 +3,7 @@ package com.powertracker.ui
 import android.content.Context
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
@@ -30,6 +31,9 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.AppSettings
@@ -613,7 +617,8 @@ class TodayScreenTest {
         restoration.emulateSavedInstanceStateRestore()
 
         waitForText("Log set 1")
-        assertEquals(listOf("162,5", "3", "9"), listOf(weight.typed(), reps.typed(), rpe.typed()))
+        // The rebuild took the cursor out of the weight field, which committed it: the field shows the value, as after any blur.
+        assertEquals(listOf("162.5", "3", "9"), listOf(weight.typed(), reps.typed(), rpe.typed()))
         compose.onNodeWithText("Log set 1").performClick()
         waitForSets(1)
         assertEquals(listOf(LoggedSet(squat.id, 162.5, 3, 9.0, failed = false, missPoint = null, isTopSet = false)), loggedToday())
@@ -635,6 +640,73 @@ class TodayScreenTest {
         waitForText("Log set 1")
         assertEquals("1200", weight.typed())
         assertEquals("0 to 1000 kg", weight.message())
+    }
+
+    @Test
+    fun configurationChange_thenApply_showsTheAppliedValue() {
+        runBlocking { training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY))) }
+        startSession()
+        val restoration = StateRestorationTester(compose)
+        restoration.setContent {
+            PowertrackerTheme { TodayScreen(training, advice, settings, onOpenCoach = {}, today = { today }) }
+        }
+        waitForText("155 × 5 @ 8")
+        // The weight is still being typed when the screen is rebuilt: the number comes back, the cursor does not.
+        weight.type("14")
+
+        restoration.emulateSavedInstanceStateRestore()
+
+        waitForText("Apply")
+        weight.assertIsNotFocused()
+        assertEquals("14", weight.typed())
+
+        // Nothing leaves a field without the cursor, so the applied value has to show at once.
+        compose.onNodeWithText("Apply").performClick()
+        waitForText("25 + 25 + 15 + 2.5")
+        waitForField({ weight }, "155")
+        assertNull(weight.message())
+
+        // The field and the logged set agree.
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForSets(1)
+        assertEquals(155.0, loggedToday().single().weightKg, 0.0)
+        assertEquals("155", weight.typed())
+    }
+
+    @Test
+    fun processDeath_showsTheEditorValue_notTheStaleTypedOne() {
+        startSession()
+        // A fresh store stands in for the process that was killed: the view model, and its editor, start over.
+        fun freshStore() = object : ViewModelStoreOwner {
+            override val viewModelStore = ViewModelStore()
+        }
+        var models: ViewModelStoreOwner = freshStore()
+        val restoration = StateRestorationTester(compose)
+        restoration.setContent {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides models) {
+                PowertrackerTheme { TodayScreen(training, advice, settings, onOpenCoach = {}, today = { today }) }
+            }
+        }
+        waitForText("Log set 1")
+        // + takes the weight to 152.5; "160" is typed over that and never committed.
+        compose.onNodeWithContentDescription("Increase Weight").performClick()
+        waitForField({ weight }, "152.5")
+        weight.type("160")
+
+        models = freshStore()
+        restoration.emulateSavedInstanceStateRestore()
+
+        // The editor is rebuilt from history at 150. What was typed over 152.5 is stale: it is not shown.
+        waitForText("Log set 1")
+        waitForField({ weight }, "150")
+        assertNull(weight.message())
+        compose.onNodeWithText("25 + 25 + 15").assertExists()
+
+        // The field and the logged set agree.
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForSets(1)
+        assertEquals(150.0, loggedToday().single().weightKg, 0.0)
+        assertEquals("150", weight.typed())
     }
 
     @Test

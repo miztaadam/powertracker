@@ -104,6 +104,7 @@ fun Stepper(
  *
  * [onDraft] gets every keystroke; the owner hands the text back as the field's `valueText`.
  * [onCommit] fires when the cursor leaves the field, which Done on the keyboard also does.
+ * [onFocusChange] says when the cursor enters the field and, after the commit, when it has left.
  * [error] says what is wrong with the entry: it is shown under the field and read with it.
  * [label] is the field's spoken name ("Weight, kilograms"); [focus] lets the owner put the cursor in it.
  */
@@ -113,6 +114,7 @@ data class StepperEntry(
     val error: String?,
     val onDraft: (String) -> Unit,
     val onCommit: (String) -> Unit,
+    val onFocusChange: (Boolean) -> Unit = {},
     val label: String? = null,
     val focus: FocusRequester? = null,
 )
@@ -205,6 +207,7 @@ private fun EntryFigure(label: String, valueText: String, unit: String?, entry: 
                     .focusRequester(requester)
                     .onFocusChanged {
                         if (focused && !it.isFocused) current.onCommit(text)
+                        if (focused != it.isFocused) current.onFocusChange(it.isFocused)
                         focused = it.isFocused
                     }
                     .drawBehind {

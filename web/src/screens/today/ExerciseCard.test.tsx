@@ -360,6 +360,31 @@ describe('typed numbers on the exercise card', () => {
     expect((await targets(db)).map((a) => a.status)).toEqual(['APPLIED'])
   })
 
+  it('applyAfterTyping_inAFieldWithoutTheCursor_showsTheAppliedValue', async () => {
+    await baseline(db, squatId, 190, addDays(TODAY, -30))
+    show()
+    await ready()
+    await screen.findByText('155 × 5 @ 8')
+
+    // Text lands in the field without the cursor ever being in it, so nothing will leave it either.
+    fireEvent.change(weight(), { target: { value: '14' } })
+    expect(weight()).not.toHaveFocus()
+    expect(weight()).toHaveValue('14')
+    fireEvent.click(button('Apply'))
+    await waitFor(async () => expect(await savedEditor()).toMatchObject({ weightKg: 155 }))
+
+    // The applied value shows at once: what was typed over the older value is stale.
+    await waitFor(() => expect(weight()).toHaveValue('155'))
+    expect(weight()).toBeValid()
+    expect(screen.getByText('25 + 25 + 15 + 2.5')).toBeInTheDocument()
+
+    // The field and the logged set agree.
+    fireEvent.click(button('Log set 1'))
+    await waitForSets(1)
+    expect(await setsOn(db, TODAY)).toMatchObject([{ weightKg: 155, reps: 5, rpe: 8 }])
+    expect(weight()).toHaveValue('155')
+  })
+
   it('applyWhileTyping_thenTypingOn_keepsWhatWasTyped', async () => {
     await baseline(db, squatId, 190, addDays(TODAY, -30))
     show()

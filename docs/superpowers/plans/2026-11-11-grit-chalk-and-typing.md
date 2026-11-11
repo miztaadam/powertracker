@@ -51,7 +51,7 @@
   - RPE: 6–10, snapped to 0.5.
 - **Comma decimals.** `"102,5"` is read as 102.5.
 - **Step sizes:**
-  - weight: ±2.5 kg, or ±1.25 kg when change plates are on;
+  - weight: ±2.5 kg, or ±0.5 kg when change plates are on;
   - reps: ±1;
   - RPE: ±0.5.
 - **Web inputs:**

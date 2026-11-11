@@ -71,6 +71,12 @@ describe.each([
       expect(ratio(get(fg), get(bg))).toBeGreaterThanOrEqual(4.5)
     })
   }
+  // The outline is the only edge of a selected chip or segment, which is filled with container-highest.
+  for (const s of ['--container-high', '--container-highest']) {
+    it(`--outline against ${s} is at least 3:1`, () => {
+      expect(ratio(get('--outline'), get(s))).toBeGreaterThanOrEqual(3)
+    })
+  }
 })
 
 /** `fg` at `alpha` over an opaque `bg`, as the browser composites it (Button.css's disabled fill). */

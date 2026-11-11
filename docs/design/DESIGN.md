@@ -140,9 +140,7 @@ production builds. Mockups: `docs/design/web/screens/showcase-{dark,light}.png`,
 `web/e2e/showcase.spec.ts`. A normal `npm run e2e` only writes them to `web/test-results/`; to update
 the committed PNGs run `UPDATE_SCREENSHOTS=1 npm run e2e` and look at them.
 
-**Accent: warm chalk**, the values in the colour table above. One token differs for now: the web
-`--outline` is still `#5A616B` (dark) and `#8C9098` (light), below 3:1 on container high and highest;
-Android raised it in its own change.
+**Accent: warm chalk**, the values in the colour table above.
 
 - The primary button is the brightest filled element on every screen. Keep one per card or screen region.
 - Selected segments and chips are tonal: container-highest fill, text colour, a 1 px outline. They are

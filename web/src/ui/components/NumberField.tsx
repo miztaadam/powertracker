@@ -18,6 +18,8 @@ export type NumberFieldProps = {
   onDraft: (text: string) => void
   /** The lifter left the field, or pressed Enter. */
   onCommit: (text: string) => void
+  /** The cursor entered the field, or has left it (after the commit). */
+  onFocusChange?: (focused: boolean) => void
   className?: string
 }
 
@@ -26,7 +28,7 @@ export type NumberFieldProps = {
  * field. Focus selects the value, so typing replaces it. The text is far above 16 px, so iOS does
  * not zoom the page.
  */
-export function NumberField({ label, valueText, unit, placeholder, inputMode, error, onDraft, onCommit, className }: NumberFieldProps) {
+export function NumberField({ label, valueText, unit, placeholder, inputMode, error, onDraft, onCommit, onFocusChange, className }: NumberFieldProps) {
   const errorId = `${useId()}-error`
   // A tap focuses on the way down; the default on the way up would put the caret where the finger is and drop the selection.
   const justFocused = useRef(false)
@@ -52,6 +54,7 @@ export function NumberField({ label, valueText, unit, placeholder, inputMode, er
             onFocus={(e) => {
               justFocused.current = true
               e.currentTarget.select()
+              onFocusChange?.(true)
             }}
             onMouseUp={(e) => {
               if (justFocused.current) e.preventDefault()
@@ -60,6 +63,7 @@ export function NumberField({ label, valueText, unit, placeholder, inputMode, er
             onBlur={(e) => {
               justFocused.current = false
               onCommit(e.currentTarget.value)
+              onFocusChange?.(false)
             }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') e.currentTarget.blur()

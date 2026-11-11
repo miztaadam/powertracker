@@ -8,15 +8,21 @@ export type EntryKind = 'kg' | 'reps' | 'rpe'
 
 export type EntryResult = { ok: true; value: number } | { ok: false; reason: 'empty' | 'nan' | 'range' }
 
+// Digits with at most one decimal mark, a point or a comma. No sign and no exponent.
+const NUMBER = /^(\d+[.,]?\d*|[.,]\d+)$/
+
+// "1,000": a comma with exactly three digits after it is a thousands separator, not a decimal mark.
+const THOUSANDS = /^\d*,\d{3}$/
+
 /**
  * Reads what was typed into a number field. A comma counts as the decimal point. Weight is 0–1000 kg
  * rounded to two decimals, reps a whole number 1–99, RPE 6–10 snapped to the nearest half.
  */
 export function parseEntry(text: string, kind: EntryKind): EntryResult {
-  const typed = text.trim().replace(',', '.')
+  const typed = text.trim()
   if (typed === '') return { ok: false, reason: 'empty' }
-  if (!/^-?(\d+\.?\d*|\.\d+)$/.test(typed)) return { ok: false, reason: 'nan' }
-  const n = Number(typed)
+  if (!NUMBER.test(typed) || THOUSANDS.test(typed)) return { ok: false, reason: 'nan' }
+  const n = Number(typed.replace(',', '.'))
   const range = { ok: false, reason: 'range' } as const
   switch (kind) {
     case 'kg':

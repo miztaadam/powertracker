@@ -119,7 +119,7 @@ The exercise card has three big figures: weight, reps and RPE. Each becomes an i
 - **Typo guard:** the existing "Did you mean…?" check, for a >30% jump or reps above 12, still runs when
   the set is logged.
 - **The + and − buttons stay** under each field:
-  - weight: ±2.5 kg, or ±1.25 kg with change plates on
+  - weight: ±2.5 kg, or ±0.5 kg with change plates on
   - reps: ±1
   - RPE: ±0.5
 

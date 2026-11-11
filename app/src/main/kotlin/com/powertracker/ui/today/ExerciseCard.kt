@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -216,10 +217,16 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
     val e = item.editor
     var drafts by rememberSaveable(id, stateSaver = DraftsSaver) { mutableStateOf<Drafts>(emptyMap()) }
     val focus = remember { EntryKind.entries.associateWith { FocusRequester() } }
+    var focused by remember { mutableStateOf<EntryKind?>(null) }
 
-    // What a field shows instead of the editor's value. Text being typed stays even when the value under
-    // it changes; a refused entry gives way to a newer value.
-    fun shown(kind: EntryKind): Draft? = drafts[kind]?.takeIf { it.error == null || it.base == e.valueOf(kind) }
+    // What a field shows instead of the editor's value. Text typed over an older value is stale: it
+    // stays only where the cursor is, so the typing is not cut short. Anywhere else the newer value
+    // shows, which is also what Log set saves. A refused entry always gives way to a newer value.
+    fun shown(kind: EntryKind): Draft? =
+        drafts[kind]?.takeIf { it.base == e.valueOf(kind) || (it.error == null && kind == focused) }
+    // What is not shown is dropped, so it cannot come back if the value returns to what it was.
+    val live = drafts.filterKeys { shown(it) != null }
+    if (live.size != drafts.size) SideEffect { drafts = live }
     // The editor as it will be once the typing is committed: the plates and the buttons follow the typing.
     val typed = settle(e, drafts).editor
     val weight = typed.weightKg
@@ -255,6 +262,7 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
         error = shown(kind)?.error,
         onDraft = { drafts = drafts + (kind to Draft(it, e.valueOf(kind))) },
         onCommit = { commit(kind) },
+        onFocusChange = { has -> if (has) focused = kind else if (focused == kind) focused = null },
         label = label,
         focus = focus.getValue(kind),
     )

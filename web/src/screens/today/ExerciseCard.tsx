@@ -221,13 +221,19 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
   const id = item.exercise.id
   const e = item.editor
   const [drafts, setDrafts] = useState<Drafts>({})
+  const [focused, setFocused] = useState<EntryKind | null>(null)
   const isBarbellLift = item.exercise.category !== 'ACCESSORY'
 
-  // What a field shows instead of the editor's value. Text being typed stays even when the value under
-  // it changes; a refused entry gives way to a newer value.
+  // What a field shows instead of the editor's value. Text typed over an older value is stale: it
+  // stays only where the cursor is, so the typing is not cut short. Anywhere else the newer value
+  // shows, which is also what Log set saves. A refused entry always gives way to a newer value.
   const shown = (kind: EntryKind): Draft | undefined => {
     const draft = drafts[kind]
-    return draft != null && (draft.error == null || draft.base === e[FIELD_OF[kind]]) ? draft : undefined
+    return draft != null && (draft.base === e[FIELD_OF[kind]] || (draft.error == null && kind === focused)) ? draft : undefined
+  }
+  // What is not shown is dropped, so it cannot come back if the value returns to what it was.
+  if (KINDS.some((kind) => drafts[kind] != null && shown(kind) == null)) {
+    setDrafts(Object.fromEntries(KINDS.map((kind) => [kind, shown(kind)])))
   }
   // The editor as it will be once the typing is committed: the plates and the buttons follow the typing.
   const typed = settle(e, drafts).editor
@@ -270,6 +276,7 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
       error={shown(kind)?.error}
       onDraft={(text) => setDrafts({ ...drafts, [kind]: { text, base: e[FIELD_OF[kind]] } })}
       onCommit={() => commit(kind)}
+      onFocusChange={(has) => setFocused((now) => (has ? kind : now === kind ? null : now))}
     />
   )
   const weightText = e.weightKg != null ? formatKg(e.weightKg) : ''
