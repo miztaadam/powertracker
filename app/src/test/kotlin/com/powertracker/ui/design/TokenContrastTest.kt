@@ -25,6 +25,7 @@ class TokenContrastTest {
             "surface" to scheme.surface,
             "surfaceContainer" to scheme.surfaceContainer,
             "surfaceContainerHigh" to scheme.surfaceContainerHigh,
+            "surfaceContainerHighest" to scheme.surfaceContainerHighest,
         )
         val texts = mapOf(
             "onSurface" to scheme.onSurface,

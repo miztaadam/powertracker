@@ -1,17 +1,24 @@
 package com.powertracker.ui.design
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import com.powertracker.ui.components.AdviceCard
 import com.powertracker.ui.components.PlateStrip
+import com.powertracker.ui.components.PrimaryButton
+import com.powertracker.ui.components.QuietButton
+import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.components.SetRow
 import com.powertracker.ui.components.SetState
 import com.powertracker.ui.components.Stepper
@@ -54,6 +61,22 @@ class ComponentsTest {
         compose.onNodeWithContentDescription("Decrease Sets").assertIsNotEnabled()
         compose.onNodeWithContentDescription("Increase Sets").assertIsEnabled().performClick()
         assertEquals(2, value)
+    }
+
+    @Test
+    fun compactButtons_keepA48dpTouchTarget() {
+        compose.setContent {
+            PowertrackerTheme {
+                Column {
+                    PrimaryButton("Apply", {}, compact = true)
+                    SecondaryButton("+30 s", {}, compact = true)
+                    QuietButton("Skip", {})
+                }
+            }
+        }
+        for (label in listOf("Apply", "+30 s", "Skip")) {
+            compose.onNodeWithText(label).assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+        }
     }
 
     @Test

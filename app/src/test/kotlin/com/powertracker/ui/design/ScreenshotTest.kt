@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.powertracker.ui.Tab
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -20,7 +21,12 @@ import org.robolectric.annotation.GraphicsMode
 import java.io.File
 
 /**
- * Renders the mockups in docs/design/screens (dark and light) from the real components.
+ * Renders the mockups (dark and light) from the real components.
+ *
+ * A normal test run is a smoke check: every screen must render, and the PNGs go to
+ * `app/build/screenshots/`. The committed copies in `docs/design/screens/` are only rewritten with
+ * `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`.
+ *
  * Today, Plan and Settings are phone size (412 × 915 dp); Coach and Progress are full-page
  * captures of a scrolling screen, so they are taller.
  */
@@ -31,8 +37,8 @@ class ScreenshotTest {
     @get:Rule
     val compose = createComposeRule()
 
-    // Unit tests run with the module directory as the working directory.
-    private val outDir = File("../docs/design/screens").apply { mkdirs() }
+    // Unit tests run with the module directory (app/) as the working directory.
+    private val outDir = File(if (System.getProperty("screenshots.update") == "true") "../docs/design/screens" else "build/screenshots").apply { mkdirs() }
 
     private fun render(name: String, tab: Tab?, content: @Composable () -> Unit) {
         var dark by mutableStateOf(true)
@@ -40,13 +46,19 @@ class ScreenshotTest {
         for (mode in listOf(true, false)) {
             dark = mode
             compose.waitForIdle()
-            val file = File(outDir, "$name-${if (mode) "dark" else "light"}.png")
-            // captureToImage() never gets its frame callback under Robolectric, so draw the view directly.
+            // Not captureToImage(): under Robolectric it waits for a frame-drawn callback that never
+            // comes and times out. Drawing the Compose root view into a bitmap gives the same pixels
+            // with native graphics.
             val view = (compose.onRoot().fetchSemanticsNode().root as ViewRootForTest).view
             val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
             view.draw(Canvas(bitmap))
+            assertEquals("$name should be 412 dp wide at 2x", 824, bitmap.width)
+            // Something was actually drawn: the frame is not one flat colour.
+            val corner = bitmap.getPixel(0, 0)
+            val pixels = IntArray(bitmap.width * bitmap.height).also { bitmap.getPixels(it, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height) }
+            assertTrue("$name rendered blank", pixels.count { it != corner } > pixels.size / 20)
+            val file = File(outDir, "$name-${if (mode) "dark" else "light"}.png")
             file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
-            assertTrue("$file should be a real image", file.length() > 10_000)
         }
     }
 

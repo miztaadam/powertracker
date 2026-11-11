@@ -4,7 +4,10 @@
 big condensed tabular numerals you can read from the floor of a dim gym. One accent — volt — marks
 the single next action; every other colour means a state (PR, stall, deload) or a real object (a plate).
 
-Mockups: `docs/design/screens/` (rendered by `ScreenshotTest` from the real components).
+Mockups: `docs/design/screens/` (rendered by `ScreenshotTest` from the real components). A normal
+test run only renders them to `app/build/screenshots/` as a smoke check. To update the committed
+PNGs after a visual change, run
+`./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true` and look at them.
 Code: tokens in `ui/theme/`, components in `ui/components/`.
 
 ## Colour
@@ -20,7 +23,7 @@ Dark is the primary theme; light mirrors it. Dynamic colour (Android 12+) is off
 | Hairline | `#262A30` | `#E0E0D9` | Card borders, row dividers |
 | Text | `#F3F4EF` | `#111315` | Values, titles |
 | Text secondary | `#A9AEB6` | `#4D525A` | Body copy |
-| Text muted | `#8D939C` | `#5F646C` | Eyebrows, units, axis labels |
+| Text muted | `#959BA4` | `#595E66` | Eyebrows, units, axis labels |
 | **Accent fill (volt)** | `#C9F73A` + ink `#121700` | same | Primary button, current tab, switch on |
 | Accent as text | `#C9F73A` | `#3F6100` | Rest progress, links, selected ticks |
 | Accent container | `#25300A` | `#E6F9A8` | Coach suggestion chip |
@@ -31,7 +34,11 @@ Dark is the primary theme; light mirrors it. Dynamic colour (Android 12+) is off
 | Chart: squat / bench / deadlift | `#3987E5` / `#D95926` / `#199E70` | `#2A78D6` / `#EB6834` / `#1BAF7A` | Lift identity in charts only |
 | Plates (both themes) | 25 `#D8262C` · 20 `#1F5FBF` · 15 `#F2C417` · 10 `#1E9E4A` · 5 `#F2F2EE` · 2.5 `#08080A` · ≤1.25 `#B4BAC2` | | `PlateStrip` only |
 
-All text pairings above meet WCAG AA (4.5:1); `TokenContrastTest` enforces it.
+Every text colour (text, secondary, muted, accent-as-text, the four state colours) meets WCAG AA
+(4.5:1) on every surface from background up to container highest, and on its own container;
+`TokenContrastTest` enforces it. The chart and plate colours are graphics, not text: they follow
+the 3:1 rule for marks, are always named by a legend or figures, and must never colour text
+(light-theme deadlift green is 2.8:1 on white, which is why the legend with values is mandatory).
 Read colours through `MaterialTheme.colorScheme`, `PowertrackerTheme.colors` and `Tone.color()` / `Tone.container()`.
 
 ## Type

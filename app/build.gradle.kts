@@ -41,6 +41,8 @@ android {
             isIncludeAndroidResources = true
             // Robolectric (SDK 37) reaches into JDK internals; JDK 17+ needs these opened.
             all {
+                // Mockup PNGs in docs/design/screens are only rewritten with -Pscreenshots.update=true.
+                it.systemProperty("screenshots.update", (project.findProperty("screenshots.update") ?: "false").toString())
                 it.jvmArgs(
                     "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
                     "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
