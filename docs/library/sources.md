@@ -488,7 +488,158 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 ## Shoulders
 
-No exercises yet.
+### Arnold press
+
+- [Dumbbell Arnold Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBArnoldPress). ExRx.net, accessed 2026-11-11.
+- [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Barbell front raise
+
+- [Barbell Front Raise](https://exrx.net/WeightExercises/DeltoidAnterior/BBFrontRaise). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Cable external rotation
+
+- [Cable Standing Shoulder External Rotation](https://exrx.net/WeightExercises/Infraspinatus/CBStandingExternalRotation). ExRx.net, accessed 2026-11-11.
+- [Rotator Cuff External Rotation](https://www.acefitness.org/resources/everyone/exercise-library/352/rotator-cuff-external-rotation/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Cable front raise
+
+- [Cable One Arm Front Raise](https://exrx.net/WeightExercises/DeltoidAnterior/CBFrontRaise). ExRx.net, accessed 2026-11-11.
+- [Front Raise](https://www.acefitness.org/resources/everyone/exercise-library/54/front-raise/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Cable internal rotation
+
+- [Cable Standing Shoulder Internal Rotation](https://exrx.net/WeightExercises/Subscapularis/CBStandingInternalRotation). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Cable lateral raise
+
+- [Cable One Arm Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/CBOneArmLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Cable rear delt row
+
+- [Cable Rear Delt Row](https://exrx.net/WeightExercises/DeltoidPosterior/CBRearDeltRow). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Cable reverse fly
+
+- [Cable Isolateral Reverse Fly](https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingReverseFly). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Chest-supported rear delt raise
+
+- [Dumbbell Lying Rear Lateral Raise](https://exrx.net/WeightExercises/DeltoidPosterior/DBLyingRearLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Rear Lateral Raise](https://exrx.net/WeightExercises/DeltoidPosterior/DBRearLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### DB shoulder press
+
+- [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBShoulderPress). ExRx.net, accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+
+### Front raise
+
+- [Front Raise](https://www.acefitness.org/resources/everyone/exercise-library/54/front-raise/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Front Raise](https://exrx.net/WeightExercises/DeltoidAnterior/DBFrontRaise). ExRx.net, accessed 2026-11-11.
+
+### Kettlebell press
+
+- [Single-arm Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/395/single-arm-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Landmine press
+
+- [Lever One Arm Shoulder Press (plate loaded)](https://exrx.net/WeightExercises/DeltoidAnterior/LVOneArmShoulderPress). ExRx.net, accessed 2026-11-11.
+- [Certified September 2025: The ACE Workout Builder for Landmine Training](https://www.acefitness.org/continuing-education/certified/september-2025/8948/the-ace-workout-builder-for-landmine-training/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Lateral raise
+
+- [Dumbbell Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Lateral Raise](https://www.acefitness.org/resources/everyone/exercise-library/26/lateral-raise/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Machine lateral raise
+
+- [Lever Isolateral Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/LVLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Machine reverse fly
+
+- [Lever Seated Reverse Fly (overhand grip)](https://exrx.net/WeightExercises/DeltoidPosterior/LVReverseFlyOverhand). ExRx.net, accessed 2026-11-11.
+- [Cable Isolateral Reverse Fly](https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingReverseFly). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Machine shoulder press
+
+- [Seated Shoulder Press (machine)](https://www.acefitness.org/resources/everyone/exercise-library/186/seated-shoulder-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lever Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/LVShoulderPress). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Seated Machine Close-Grip Shoulder Press](https://www.acefitness.org/resources/everyone/exercise-library/187/seated-machine-close-grip-shoulder-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### One-arm DB press
+
+- [Dumbbell One Arm Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBOneArmShoulderPress). ExRx.net, accessed 2026-11-11.
+- [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Overhead press
+
+- [Barbell Military Press](https://exrx.net/WeightExercises/DeltoidAnterior/BBMilitaryPress). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Standing Shoulder Press](https://www.acefitness.org/resources/everyone/exercise-library/71/standing-shoulder-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Upper extremity weightlifting injuries: Diagnosis and management](https://pmc.ncbi.nlm.nih.gov/articles/PMC5895929/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Rear delt raise
+
+- [Dumbbell Rear Lateral Raise](https://exrx.net/WeightExercises/DeltoidPosterior/DBRearLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Seated barbell press
+
+- [Exercise Library: Seated Shoulder Press (barbell)](https://www.acefitness.org/resources/everyone/exercise-library/43/seated-shoulder-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Barbell Seated Military Press](https://exrx.net/WeightExercises/DeltoidAnterior/BBSeatedMilitaryPress). ExRx.net, accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Upper extremity weightlifting injuries: Diagnosis and management](https://pmc.ncbi.nlm.nih.gov/articles/PMC5895929/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+
+### Seated lateral raise
+
+- [Dumbbell Seated Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/DBSeatedLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Seated rear delt raise
+
+- [Dumbbell Seated Rear Lateral Raise](https://exrx.net/WeightExercises/DeltoidPosterior/DBSeatedRearLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Rear Lateral Raise](https://exrx.net/WeightExercises/DeltoidPosterior/DBRearLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Side-lying external rotation
+
+- [Dumbbell Lying Shoulder External Rotation](https://exrx.net/WeightExercises/Infraspinatus/DBLyingExternalRotation). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Smith shoulder press
+
+- [Smith Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/SMShoulderPress). ExRx.net, accessed 2026-11-11.
+- [Gym Etiquette](https://exrx.net/ExInfo/Etiquette). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ## Arms
 

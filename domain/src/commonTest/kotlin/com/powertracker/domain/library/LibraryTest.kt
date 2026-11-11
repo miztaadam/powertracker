@@ -265,6 +265,49 @@ class LibraryTest {
     }
 
     @Test
+    fun shoulders_findTheNamesPeopleType() {
+        val expected = mapOf(
+            "OHP" to "Overhead press",
+            "military press" to "Overhead press",
+            "shoulder press" to "Overhead press",
+            "seated military press" to "Seated barbell press",
+            "dumbbell shoulder press" to "DB shoulder press",
+            "shoulder press machine" to "Machine shoulder press",
+            "landmine press" to "Landmine press",
+            "laterals" to "Lateral raise",
+            "side raise" to "Lateral raise",
+            "front raise" to "Front raise",
+            "rear delt fly" to "Rear delt raise",
+            "reverse fly" to "Rear delt raise",
+            "reverse pec deck" to "Machine reverse fly",
+            "rear delt row" to "Cable rear delt row",
+            "external rotation" to "Cable external rotation",
+            "band external rotation" to "Cable external rotation",
+            "KB press" to "Kettlebell press",
+        )
+        for ((typed, name) in expected) {
+            assertEquals(name, Library.find(typed)?.name, typed)
+            assertTrue(name in names(Library.search(typed)), "$typed: search misses $name")
+        }
+        val firstHit = mapOf(
+            "overhead press" to "Overhead press",
+            "lateral raise" to "Lateral raise",
+            "arnold" to "Arnold press",
+            "landmine" to "Landmine press",
+        )
+        for ((typed, name) in firstHit) assertEquals(name, Library.search(typed).firstOrNull()?.name, typed)
+        val shoulders = all.filter { it.area == BodyArea.SHOULDERS }
+        assertTrue(shoulders.size >= 25, "${shoulders.size} shoulder entries")
+        for (e in shoulders) {
+            assertEquals(Category.ACCESSORY, e.category, e.name)
+            assertNull(e.parentLift, e.name)
+        }
+        // Left out: behind-the-neck pressing (no allowed source gives a safe technique) and upright rows (ACE advises against them).
+        assertNull(Library.find("behind the neck press"))
+        assertNull(Library.find("upright row"))
+    }
+
+    @Test
     fun search_emptyQueryReturnsAllInFilters() {
         assertEquals(alphabetical(all), Library.search(""))
         assertEquals(alphabetical(all), Library.search("  - "))

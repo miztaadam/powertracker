@@ -13,6 +13,7 @@ object Sources {
     private const val L1 = "2026-11-11"
     private const val L4 = "2026-11-11"
     private const val L5 = "2026-11-11"
+    private const val L6 = "2026-11-11"
 
     // Main lifts and their variations
     val IPF_RULES_2026 = SourceId("ipf-technical-rules-2026")
@@ -159,6 +160,45 @@ object Sources {
     val PMC_BACK_EXTENSION_LOADING = SourceId("pmc-back-extension-loading")
     val NSCA_FACE_PULL = SourceId("nsca-face-pull-machine")
     val EXRX_CB_REAR_DELT_ROW_ROPE = SourceId("exrx-cable-standing-rear-delt-row-rope")
+
+    // Shoulders (L6)
+    val EXRX_BB_MILITARY_PRESS = SourceId("exrx-barbell-military-press")
+    val ACE_STANDING_SHOULDER_PRESS = SourceId("ace-standing-shoulder-press")
+    val EXRX_BB_SEATED_MILITARY_PRESS = SourceId("exrx-barbell-seated-military-press")
+    val ACE_SEATED_BB_SHOULDER_PRESS = SourceId("ace-seated-shoulder-press-barbell")
+    val PMC_UPPER_EXTREMITY_LIFTING_INJURIES = SourceId("pmc-upper-extremity-weightlifting-injuries")
+    val ACE_SEATED_OVERHEAD_PRESS = SourceId("ace-seated-overhead-press")
+    val EXRX_DB_SHOULDER_PRESS = SourceId("exrx-dumbbell-shoulder-press")
+    val EXRX_DB_ONE_ARM_SHOULDER_PRESS = SourceId("exrx-dumbbell-one-arm-shoulder-press")
+    val EXRX_DB_ARNOLD_PRESS = SourceId("exrx-dumbbell-arnold-press")
+    val EXRX_LV_SHOULDER_PRESS = SourceId("exrx-lever-shoulder-press")
+    val ACE_SEATED_MACHINE_SHOULDER_PRESS = SourceId("ace-seated-shoulder-press-machine")
+    val ACE_SEATED_MACHINE_CLOSE_GRIP_SHOULDER_PRESS = SourceId("ace-seated-machine-close-grip-shoulder-press")
+    val EXRX_SM_SHOULDER_PRESS = SourceId("exrx-smith-shoulder-press")
+    val EXRX_LV_ONE_ARM_SHOULDER_PRESS = SourceId("exrx-lever-one-arm-shoulder-press-landmine")
+    val ACE_LANDMINE_WORKOUT_BUILDER = SourceId("ace-workout-builder-landmine-training")
+    val ACE_SINGLE_ARM_OVERHEAD_PRESS = SourceId("ace-single-arm-overhead-press")
+    val EXRX_DB_LATERAL_RAISE = SourceId("exrx-dumbbell-lateral-raise")
+    val ACE_LATERAL_RAISE = SourceId("ace-lateral-raise")
+    val EXRX_ERRORS = SourceId("exrx-common-resistance-training-mistakes")
+    val EXRX_CB_ONE_ARM_LATERAL_RAISE = SourceId("exrx-cable-one-arm-lateral-raise")
+    val EXRX_LV_LATERAL_RAISE = SourceId("exrx-lever-isolateral-lateral-raise")
+    val EXRX_DB_SEATED_LATERAL_RAISE = SourceId("exrx-dumbbell-seated-lateral-raise")
+    val EXRX_DB_FRONT_RAISE = SourceId("exrx-dumbbell-front-raise")
+    val ACE_FRONT_RAISE = SourceId("ace-front-raise")
+    val EXRX_BB_FRONT_RAISE = SourceId("exrx-barbell-front-raise")
+    val EXRX_CB_ONE_ARM_FRONT_RAISE = SourceId("exrx-cable-one-arm-front-raise")
+    val EXRX_DB_REAR_LATERAL_RAISE = SourceId("exrx-dumbbell-rear-lateral-raise")
+    val EXRX_DB_SEATED_REAR_LATERAL_RAISE = SourceId("exrx-dumbbell-seated-rear-lateral-raise")
+    val EXRX_DB_LYING_REAR_LATERAL_RAISE = SourceId("exrx-dumbbell-lying-rear-lateral-raise")
+    val EXRX_LV_REVERSE_FLY = SourceId("exrx-lever-seated-reverse-fly-overhand")
+    val EXRX_CB_REVERSE_FLY = SourceId("exrx-cable-isolateral-reverse-fly")
+    val EXRX_CB_REAR_DELT_ROW = SourceId("exrx-cable-rear-delt-row")
+    val EXRX_CB_EXTERNAL_ROTATION = SourceId("exrx-cable-standing-shoulder-external-rotation")
+    val ACE_ROTATOR_CUFF_EXTERNAL_ROTATION = SourceId("ace-rotator-cuff-external-rotation")
+    val EXRX_DB_LYING_EXTERNAL_ROTATION = SourceId("exrx-dumbbell-lying-shoulder-external-rotation")
+    val EXRX_CB_INTERNAL_ROTATION = SourceId("exrx-cable-standing-shoulder-internal-rotation")
+
     val all: Map<SourceId, Source> = mapOf(
         IPF_RULES_2026 to Source(
             "IPF Technical Rulebook 2026", IPF,
@@ -650,6 +690,150 @@ object Sources {
         EXRX_WT_45_HYPEREXTENSION to Source(
             "Weighted 45° Hyperextension", EXRX,
             "https://exrx.net/WeightExercises/ErectorSpinae/Wt45Hyperextension", L5,
+        ),
+        EXRX_BB_MILITARY_PRESS to Source(
+            "Barbell Military Press", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidAnterior/BBMilitaryPress", L6,
+        ),
+        ACE_STANDING_SHOULDER_PRESS to Source(
+            "Exercise Library: Standing Shoulder Press", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/71/standing-shoulder-press/", L6,
+        ),
+        EXRX_BB_SEATED_MILITARY_PRESS to Source(
+            "Barbell Seated Military Press", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidAnterior/BBSeatedMilitaryPress", L6,
+        ),
+        ACE_SEATED_BB_SHOULDER_PRESS to Source(
+            "Exercise Library: Seated Shoulder Press (barbell)", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/43/seated-shoulder-press/", L6,
+        ),
+        PMC_UPPER_EXTREMITY_LIFTING_INJURIES to Source(
+            "Upper extremity weightlifting injuries: Diagnosis and management", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC5895929/", L6,
+        ),
+        ACE_SEATED_OVERHEAD_PRESS to Source(
+            "Seated Overhead Press", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/", L6,
+        ),
+        EXRX_DB_SHOULDER_PRESS to Source(
+            "Dumbbell Shoulder Press", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidAnterior/DBShoulderPress", L6,
+        ),
+        EXRX_DB_ONE_ARM_SHOULDER_PRESS to Source(
+            "Dumbbell One Arm Shoulder Press", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidAnterior/DBOneArmShoulderPress", L6,
+        ),
+        EXRX_DB_ARNOLD_PRESS to Source(
+            "Dumbbell Arnold Press", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidAnterior/DBArnoldPress", L6,
+        ),
+        EXRX_LV_SHOULDER_PRESS to Source(
+            "Lever Shoulder Press", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidAnterior/LVShoulderPress", L6,
+        ),
+        ACE_SEATED_MACHINE_SHOULDER_PRESS to Source(
+            "Seated Shoulder Press (machine)", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/186/seated-shoulder-press/", L6,
+        ),
+        ACE_SEATED_MACHINE_CLOSE_GRIP_SHOULDER_PRESS to Source(
+            "Exercise Library: Seated Machine Close-Grip Shoulder Press", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/187/seated-machine-close-grip-shoulder-press/", L6,
+        ),
+        EXRX_SM_SHOULDER_PRESS to Source(
+            "Smith Shoulder Press", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidAnterior/SMShoulderPress", L6,
+        ),
+        ACE_LANDMINE_WORKOUT_BUILDER to Source(
+            "Certified September 2025: The ACE Workout Builder for Landmine Training", ACE,
+            "https://www.acefitness.org/continuing-education/certified/september-2025/8948/the-ace-workout-builder-for-landmine-training/", L6,
+        ),
+        EXRX_LV_ONE_ARM_SHOULDER_PRESS to Source(
+            "Lever One Arm Shoulder Press (plate loaded)", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidAnterior/LVOneArmShoulderPress", L6,
+        ),
+        ACE_SINGLE_ARM_OVERHEAD_PRESS to Source(
+            "Single-arm Overhead Press", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/395/single-arm-overhead-press/", L6,
+        ),
+        EXRX_DB_LATERAL_RAISE to Source(
+            "Dumbbell Lateral Raise", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise", L6,
+        ),
+        ACE_LATERAL_RAISE to Source(
+            "Lateral Raise", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/26/lateral-raise/", L6,
+        ),
+        EXRX_ERRORS to Source(
+            "Common Resistance Training Mistakes", EXRX,
+            "https://exrx.net/Kinesiology/Errors", L6,
+        ),
+        EXRX_CB_ONE_ARM_LATERAL_RAISE to Source(
+            "Cable One Arm Lateral Raise", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidLateral/CBOneArmLateralRaise", L6,
+        ),
+        EXRX_DB_SEATED_LATERAL_RAISE to Source(
+            "Dumbbell Seated Lateral Raise", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidLateral/DBSeatedLateralRaise", L6,
+        ),
+        EXRX_LV_LATERAL_RAISE to Source(
+            "Lever Isolateral Lateral Raise", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidLateral/LVLateralRaise", L6,
+        ),
+        EXRX_DB_FRONT_RAISE to Source(
+            "Dumbbell Front Raise", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidAnterior/DBFrontRaise", L6,
+        ),
+        ACE_FRONT_RAISE to Source(
+            "Front Raise", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/54/front-raise/", L6,
+        ),
+        EXRX_BB_FRONT_RAISE to Source(
+            "Barbell Front Raise", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidAnterior/BBFrontRaise", L6,
+        ),
+        EXRX_CB_ONE_ARM_FRONT_RAISE to Source(
+            "Cable One Arm Front Raise", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidAnterior/CBFrontRaise", L6,
+        ),
+        EXRX_DB_REAR_LATERAL_RAISE to Source(
+            "Dumbbell Rear Lateral Raise", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidPosterior/DBRearLateralRaise", L6,
+        ),
+        EXRX_DB_SEATED_REAR_LATERAL_RAISE to Source(
+            "Dumbbell Seated Rear Lateral Raise", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidPosterior/DBSeatedRearLateralRaise", L6,
+        ),
+        EXRX_DB_LYING_REAR_LATERAL_RAISE to Source(
+            "Dumbbell Lying Rear Lateral Raise", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidPosterior/DBLyingRearLateralRaise", L6,
+        ),
+        EXRX_LV_REVERSE_FLY to Source(
+            "Lever Seated Reverse Fly (overhand grip)", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidPosterior/LVReverseFlyOverhand", L6,
+        ),
+        EXRX_CB_REVERSE_FLY to Source(
+            "Cable Isolateral Reverse Fly", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingReverseFly", L6,
+        ),
+        EXRX_CB_REAR_DELT_ROW to Source(
+            "Cable Rear Delt Row", EXRX,
+            "https://exrx.net/WeightExercises/DeltoidPosterior/CBRearDeltRow", L6,
+        ),
+        EXRX_CB_EXTERNAL_ROTATION to Source(
+            "Cable Standing Shoulder External Rotation", EXRX,
+            "https://exrx.net/WeightExercises/Infraspinatus/CBStandingExternalRotation", L6,
+        ),
+        ACE_ROTATOR_CUFF_EXTERNAL_ROTATION to Source(
+            "Rotator Cuff External Rotation", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/352/rotator-cuff-external-rotation/", L6,
+        ),
+        EXRX_DB_LYING_EXTERNAL_ROTATION to Source(
+            "Dumbbell Lying Shoulder External Rotation", EXRX,
+            "https://exrx.net/WeightExercises/Infraspinatus/DBLyingExternalRotation", L6,
+        ),
+        EXRX_CB_INTERNAL_ROTATION to Source(
+            "Cable Standing Shoulder Internal Rotation", EXRX,
+            "https://exrx.net/WeightExercises/Subscapularis/CBStandingInternalRotation", L6,
         ),
     )
 }
