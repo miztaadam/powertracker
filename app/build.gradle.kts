@@ -39,7 +39,18 @@ android {
         unitTests {
             // Robolectric needs merged resources/manifest.
             isIncludeAndroidResources = true
+            // Robolectric (SDK 37) reaches into JDK internals; JDK 17+ needs these opened.
+            all {
+                it.jvmArgs(
+                    "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
+                    "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
+                )
+            }
         }
+    }
+    sourceSets {
+        // Exported Room schemas, read by MigrationTestHelper under Robolectric (debug assets reach unit tests; release is unaffected).
+        getByName("debug").assets.directories.add("$projectDir/schemas")
     }
 }
 
@@ -54,6 +65,10 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
@@ -63,6 +78,10 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.core.ktx)
+    testImplementation(libs.androidx.junit)
+    testImplementation(libs.androidx.room.testing)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.androidx.compose.ui.test.junit4)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
