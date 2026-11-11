@@ -14,6 +14,7 @@ interface ExerciseDao {
     @Query("SELECT * FROM exercise ORDER BY id") fun observeAll(): Flow<List<ExerciseEntity>>
     @Insert suspend fun insert(e: ExerciseEntity): Long
     @Query("UPDATE exercise SET archived = 1 WHERE id = :id") suspend fun archive(id: Long)
+    @Query("UPDATE exercise SET archived = 0 WHERE id = :id") suspend fun restore(id: Long)
     @Query("DELETE FROM exercise WHERE id = :id") suspend fun delete(id: Long)
     @Query("SELECT COUNT(*) FROM logged_set WHERE exerciseId = :id") suspend fun setCount(id: Long): Int
     @Query("SELECT * FROM exercise ORDER BY id") suspend fun all(): List<ExerciseEntity>

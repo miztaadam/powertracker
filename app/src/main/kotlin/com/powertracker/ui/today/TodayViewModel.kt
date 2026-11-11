@@ -12,6 +12,8 @@ import com.powertracker.data.StoredSet
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.library.Library
+import com.powertracker.domain.library.LibraryExercise
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceStatus
@@ -19,6 +21,7 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
@@ -26,6 +29,7 @@ import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.domain.validation.InputValidator
 import com.powertracker.domain.validation.InputWarning
 import com.powertracker.platform.systemToday
+import com.powertracker.ui.library.recentExerciseIds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -79,8 +83,15 @@ data class TodayState(
     val items: List<TodayItem> = emptyList(),
     val pending: PendingLog? = null,
     val summary: FinishSummary? = null,
-    /** Exercises that can still be added to this session. */
-    val addable: List<Exercise> = emptyList(),
+    /** The lifter's non-archived exercises, for the picker. */
+    val exercises: List<Exercise> = emptyList(),
+    /** Exercise ids, most recently logged first, for the picker's "Your exercises". */
+    val recentIds: List<Long> = emptyList(),
+    /**
+     * A catalogue exercise added before it had a row is shown under a stand-in id; this maps each
+     * stand-in to the row's id once the row exists, so the screen can follow the card across.
+     */
+    val resolved: Map<Long, Long> = emptyMap(),
     val weightStepKg: Double = 2.5,
     val changePlates: Boolean = false,
 ) {
@@ -178,7 +189,15 @@ class TodayViewModel(
         val planned = d.plan.filter { it.weekday == date.dayOfWeek }.sortedBy { it.order }.distinctBy { it.exerciseId }
         val plannedIds = planned.map { it.exerciseId }.toSet()
         val loggedIds = d.sets.map { it.set.exerciseId }.distinct()
-        val addedIds = (loggedIds.filter { it !in l.added } + l.added).filter { it !in plannedIds }.distinct()
+        // A catalogue exercise added without a row gets one with its first set (or from the Plan tab meanwhile).
+        val live = d.history.exercises.values.filter { !it.archived }.sortedBy { it.id }
+        val resolved = l.added.filter { it < 0 }.mapNotNull { standIn ->
+            val name = catalogueEntry(standIn)?.name ?: return@mapNotNull null
+            live.firstOrNull { it.name.equals(name, ignoreCase = true) }?.let { standIn to it.id }
+        }.toMap()
+        val standInOf = resolved.entries.associate { (standIn, id) -> id to standIn }
+        val added = l.added.map { resolved[it] ?: it }
+        val addedIds = (loggedIds.filter { it !in added } + added).filter { it !in plannedIds }.distinct()
 
         fun item(exercise: Exercise, plan: PlanItem?): TodayItem {
             val sets = d.sets.filter { it.set.exerciseId == exercise.id }
@@ -187,7 +206,7 @@ class TodayViewModel(
             val top = stats.lastTopSet(exercise.id, date)?.second
             val lastToday = sets.lastOrNull()?.set
             val rpe = plan?.targetRpe ?: d.settings.defaultRpe
-            val editor = l.editors[exercise.id] ?: when {
+            val editor = l.editors[exercise.id] ?: l.editors[standInOf[exercise.id]] ?: when {
                 lastToday != null -> SetEditor(lastToday.weightKg, lastToday.reps, lastToday.rpe ?: rpe)
                 applied != null -> SetEditor(applied.weightKg, applied.reps, applied.rpe)
                 else -> SetEditor(top?.weightKg, plan?.reps ?: top?.reps ?: DEFAULT_REPS, rpe)
@@ -205,8 +224,7 @@ class TodayViewModel(
         }
 
         val items = planned.mapNotNull { p -> d.history.exercises[p.exerciseId]?.let { item(it, p) } } +
-            addedIds.mapNotNull { id -> d.history.exercises[id]?.let { item(it, null) } }
-        val shown = items.map { it.exercise.id }.toSet()
+            addedIds.mapNotNull { id -> (d.history.exercises[id] ?: catalogueEntry(id)?.standIn(id))?.let { item(it, null) } }
         return TodayState(
             date = date,
             loading = false,
@@ -214,7 +232,9 @@ class TodayViewModel(
             items = items,
             pending = l.pending,
             summary = l.summary,
-            addable = d.history.exercises.values.filter { !it.archived && it.id !in shown }.sortedBy { it.name.lowercase() },
+            exercises = live,
+            recentIds = recentExerciseIds(d.history),
+            resolved = resolved,
             weightStepKg = PlateLoader.step(d.settings.changePlates),
             changePlates = d.settings.changePlates,
         )
@@ -258,7 +278,8 @@ class TodayViewModel(
                     }
                 }
                 // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
-                val setId = training.logSet(sessionId, set.copy(exerciseId = exerciseId, isTopSet = false))
+                // A stand-in id means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
+                val setId = training.logSet(sessionId, set.copy(exerciseId = exerciseId, isTopSet = false), catalogueName = catalogueEntry(exerciseId)?.name)
                 local.update { it.copy(pending = null) }
                 _events.emit(TodayEvent.SetLogged(isMainOrVariation = item?.exercise?.category != Category.ACCESSORY))
                 // Hold the guard until the new set is on screen, so the button the lifter sees is never stale.
@@ -306,9 +327,31 @@ class TodayViewModel(
         local.update { if (exerciseId in it.added) it else it.copy(added = it.added + exerciseId) }
     }
 
+    /**
+     * Adds a catalogue exercise for this session and returns the id its card is shown under: its
+     * row's id when it has one, otherwise a stand-in. Nothing is stored until a set is logged for it.
+     */
+    fun addFromCatalogue(name: String): Long {
+        val entry = Library.find(name) ?: return 0
+        val row = state.value.exercises.firstOrNull { it.name.equals(entry.name, ignoreCase = true) }
+        val id = row?.id ?: standInId(entry)
+        addExercise(id)
+        return id
+    }
+
+    /** Creates a custom exercise, adds it to this session and reports its id. */
+    fun createExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onCreated: (Long) -> Unit) {
+        viewModelScope.launch {
+            val id = training.addExercise(Exercise(0, name.trim(), category, parentLift, muscles, isBuiltIn = false))
+            addExercise(id)
+            onCreated(id)
+        }
+    }
+
     /** Takes back an added exercise that has no sets yet. */
     fun removeExercise(exerciseId: Long) {
-        local.update { it.copy(added = it.added - exerciseId, editors = it.editors - exerciseId) }
+        val standIn = state.value.resolved.entries.firstOrNull { it.value == exerciseId }?.key
+        local.update { it.copy(added = it.added - exerciseId - listOfNotNull(standIn).toSet(), editors = it.editors - exerciseId - listOfNotNull(standIn).toSet()) }
     }
 
     /** Runs the coach over the history including today and stores what is new. */
@@ -339,6 +382,14 @@ class TodayViewModel(
         private const val SHOWN_TIMEOUT_MS = 2_000L
 
         private fun Advice.exerciseId(): Long? = (payload as? AdvicePayload.Target)?.exerciseId
+
+        /** The id a catalogue exercise is shown under while it has no row: negative, so it can never be a row's. */
+        private fun standInId(entry: LibraryExercise): Long = -(Library.all().indexOf(entry) + 1L)
+
+        /** The catalogue entry behind a stand-in id; null for a row's id. */
+        private fun catalogueEntry(id: Long): LibraryExercise? = if (id < 0) Library.all().getOrNull((-id - 1).toInt()) else null
+
+        private fun LibraryExercise.standIn(id: Long) = Exercise(id, name, category, parentLift, muscles, isBuiltIn = true)
 
         fun factory(
             training: TrainingRepository,

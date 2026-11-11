@@ -21,6 +21,7 @@ import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.ui.coach.CoachScreen
+import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.theme.PowertrackerTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -119,6 +120,21 @@ class CoachScreenTest {
         )
         waitFor { shows("Added 2 exercises to Wednesday") }
         waitFor { !shows("Bench has stalled") }
+    }
+
+    @Test
+    fun infoButton_opensGuide_fromEveryPlace() {
+        insertStall()
+        show()
+        waitFor { shows("Bench has stalled") }
+
+        // Every accessory the coach offers has its guide beside it.
+        compose.checkInfoButtonOpensGuide("Close-grip bench")
+        compose.checkInfoButtonOpensGuide("JM press")
+
+        // Reading one applies nothing.
+        assertEquals(AdviceStatus.OPEN, runBlocking { advice.all() }.single().status)
+        assertEquals(3, runBlocking { training.plan().first() }.size)
     }
 
     @Test

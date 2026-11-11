@@ -16,6 +16,7 @@ import com.powertracker.data.TrainingRepository
 import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
+import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.progress.LiftHistoryScreen
 import com.powertracker.ui.progress.ProgressScreen
 import com.powertracker.ui.theme.PowertrackerTheme
@@ -98,6 +99,18 @@ class ProgressScreenTest {
             }
         }
         waitFor { shows(expect) }
+    }
+
+    @Test
+    fun infoButton_opensGuide_fromEveryPlace() {
+        seed()
+        show()
+        compose.onNodeWithContentDescription("Squat history", substring = true).performScrollTo().performClick()
+        waitFor { shows("Mon 9 Nov 2026") }
+
+        // The lift-history header carries the lift's guide.
+        compose.checkInfoButtonOpensGuide("Squat")
+        compose.onNodeWithText("Squat history").assertIsDisplayed()
     }
 
     @Test

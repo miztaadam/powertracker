@@ -96,6 +96,9 @@ Depth comes from tone steps and a 1 dp hairline. No shadows.
 - `RatioBar` — lift ratio against its typical range.
 - `EmptyState` — icon, title, body, optional action.
 - `PtBottomBar` (in `ui/AppShell.kt`) — four tabs, accent indicator on the current one.
+- `InfoButton` (in `ui/library/`) — the outlined info icon beside an exercise's name, wherever one is shown (Today card and row, Plan rows, the coach's accessory lists, the lift-history header, picker rows). A 48 dp target labelled "Form guide for <name>"; it opens the sheet and does nothing else. Custom exercises keep it, so rows line up.
+- `FormGuideSheet` (in `ui/library/`) — the form guide as a bottom sheet, read between sets: name, area and equipment, purpose, then Setup (dots), How to do it (numbered), Cues and Common mistakes (dots) in 16 sp body text, and the safety line last in its own neutral block. Mockups `form-guide-*`.
+- `ExercisePickerScreen` (in `ui/library/`) — the full-screen exercise picker of Plan and Today: search, one row of body-area chips (one at a time) and one of equipment chips (any of the chosen) as `ChoiceChip`s that scroll sideways, then "Your exercises" and the catalogue. A row is name, muscles, equipment and the info button; tapping the row picks it. Mockups `exercise-picker-*`.
 - `LockScreen` (in `ui/lock/`) — what stands in for the app while app lock holds it shut: the Grit icon, one line on why, one primary button (Unlock; Continue when the phone has no screen lock). Mockups `lock-*` and `lock-no-screen-lock-*`.
 
 ## Launcher icon

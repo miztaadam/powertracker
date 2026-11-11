@@ -25,6 +25,8 @@ class ExerciseInUseException(val exerciseId: Long) :
     IllegalStateException("Exercise $exerciseId has logged sets; archive it instead")
 
 class TrainingRepository(private val db: AppDatabase) {
+    private val catalogue = CatalogueResolver(db)
+
     fun history(): Flow<TrainingHistory> = combine(
         db.sessions().observeAll(),
         db.sets().observeAll(),
@@ -52,7 +54,16 @@ class TrainingRepository(private val db: AppDatabase) {
     suspend fun startSession(date: LocalDate, bodyweightKg: Double?, readiness: Int?): Long =
         db.sessions().insert(SessionEntity(date = date, bodyweightKg = bodyweightKg, readiness = readiness))
 
-    suspend fun logSet(sessionId: Long, set: LoggedSet): Long = db.sets().insert(set.toEntity(0, sessionId))
+    /**
+     * Saves [set]. With a [catalogueName] the set is for that catalogue exercise, whatever its
+     * `exerciseId` says: the exercise row is found, restored or inserted in the same transaction.
+     */
+    suspend fun logSet(sessionId: Long, set: LoggedSet, catalogueName: String? = null): Long {
+        if (catalogueName == null) return db.sets().insert(set.toEntity(0, sessionId))
+        return db.withTransaction {
+            db.sets().insert(set.copy(exerciseId = catalogue.resolve(catalogueName)).toEntity(0, sessionId))
+        }
+    }
 
     suspend fun updateSet(setId: Long, set: LoggedSet) {
         val existing = db.sets().byId(setId) ?: return
@@ -61,10 +72,16 @@ class TrainingRepository(private val db: AppDatabase) {
 
     suspend fun deleteSet(setId: Long) = db.sets().delete(setId)
 
-    /** Inserts a new item (id 0) or replaces the item with the same id. */
-    suspend fun savePlanItem(item: PlanItem): Long = db.plan().upsert(
-        PlanItemEntity(item.id, item.weekday, item.exerciseId, item.sets, item.reps, item.targetRpe, item.order),
-    )
+    /**
+     * Inserts a new item (id 0) or replaces the item with the same id. With a [catalogueName] the item
+     * is for that catalogue exercise, whatever its `exerciseId` says: the exercise row is found,
+     * restored or inserted in the same transaction.
+     */
+    suspend fun savePlanItem(item: PlanItem, catalogueName: String? = null): Long {
+        fun entity(exerciseId: Long) = PlanItemEntity(item.id, item.weekday, exerciseId, item.sets, item.reps, item.targetRpe, item.order)
+        if (catalogueName == null) return db.plan().upsert(entity(item.exerciseId))
+        return db.withTransaction { db.plan().upsert(entity(catalogue.resolve(catalogueName))) }
+    }
 
     suspend fun deletePlanItem(id: Long) = db.plan().delete(id)
 

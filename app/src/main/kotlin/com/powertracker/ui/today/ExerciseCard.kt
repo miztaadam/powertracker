@@ -62,6 +62,7 @@ import com.powertracker.ui.components.StepperEntry
 import com.powertracker.ui.components.StepperField
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -138,6 +139,7 @@ fun ExerciseCard(
                 item.targetSets != null -> Pill("Set ${item.sets.size + 1} of ${item.targetSets}")
                 else -> Pill("Set ${item.sets.size + 1}")
             }
+            InfoButton(item.exercise.name)
         }
 
         item.suggestion?.let { advice ->
@@ -341,6 +343,7 @@ fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modif
                 item.sets.isNotEmpty() && item.targetSets != null -> Pill("${item.sets.size} of ${item.targetSets}")
                 item.sets.isNotEmpty() -> Pill("${item.sets.size} ${if (item.sets.size == 1) "set" else "sets"}")
             }
+            InfoButton(item.exercise.name)
         }
     }
 }

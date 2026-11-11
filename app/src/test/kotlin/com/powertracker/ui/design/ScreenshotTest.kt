@@ -31,9 +31,12 @@ import java.io.File
  * The Today and Coach mockups render the real `TodayContent` / `CoachContent` with sample state
  * (Today: mid-session, before the session, an exercise finished, after Finish; Coach: the feed, the
  * empty feed, and the rarer re-entry and miss-point cards). Progress and lift history render the
- * real `ProgressContent` / `LiftHistoryContent` from a sample training history. Today, Plan,
+ * real `ProgressContent` / `LiftHistoryContent` from a sample training history. The exercise picker
+ * is the real `ExercisePickerContent`; the form guide is the real `FormGuideContent` in a stand-in
+ * for the bottom sheet (the sheet itself is its own window, which this capture cannot see). Today, Plan,
+ * the exercise picker,
  * lift history, the empty Coach feed and the two lock screens are phone size (412 × 915 dp); the
- * other Coach captures, Progress and Settings are full-page captures of a scrolling screen, so
+ * other Coach captures, Progress, Settings and the form guide are full-page captures of a scrolling screen, so
  * their height differs. The launcher icon is rendered by [LauncherIconTest].
  */
 @RunWith(RobolectricTestRunner::class)
@@ -81,14 +84,14 @@ class ScreenshotTest {
     fun todaySummary() = render("today-summary", Tab.TODAY) { TodaySummaryShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1400dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1440dp-xhdpi")
     fun coach() = render("coach", Tab.COACH) { CoachShowcase() }
 
     @Test
     fun coachEmpty() = render("coach-empty", Tab.COACH) { CoachEmptyShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h984dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1000dp-xhdpi")
     fun coachMore() = render("coach-more", Tab.COACH) { CoachMoreShowcase() }
 
     @Test
@@ -104,6 +107,13 @@ class ScreenshotTest {
     @Test
     @Config(qualifiers = "w412dp-h1030dp-xhdpi")
     fun settings() = render("settings", null) { SettingsShowcase() }
+
+    @Test
+    fun exercisePicker() = render("exercise-picker", null) { ExercisePickerShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1370dp-xhdpi")
+    fun formGuide() = render("form-guide", null) { FormGuideShowcase() }
 
     @Test
     fun lock() = render("lock", null) { LockScreen(noDeviceLock = false, onUnlock = {}, onContinue = {}) }

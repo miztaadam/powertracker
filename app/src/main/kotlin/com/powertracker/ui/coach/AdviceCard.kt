@@ -35,6 +35,7 @@ import com.powertracker.ui.components.RatioBar
 import com.powertracker.ui.components.Sparkline
 import com.powertracker.ui.components.StatTile
 import com.powertracker.ui.components.formatKg
+import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -126,6 +127,7 @@ private fun PrescriptionList(items: List<AccessoryPrescription>) {
             ) {
                 Text(item.exerciseName, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
                 Text(item.dose(), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+                InfoButton(item.exerciseName)
             }
         }
     }

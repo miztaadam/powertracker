@@ -1,7 +1,6 @@
 package com.powertracker.ui.plan
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +17,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -43,8 +41,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -67,7 +63,7 @@ import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.validation.InputValidator
 import com.powertracker.platform.systemToday
-import com.powertracker.ui.components.ChoiceChip
+import com.powertracker.ui.components.Eyebrow
 import com.powertracker.ui.components.PrimaryButton
 import com.powertracker.ui.components.PtCard
 import com.powertracker.ui.components.QuietButton
@@ -76,6 +72,9 @@ import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.components.SectionHeader
 import com.powertracker.ui.components.Stepper
 import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.library.ExercisePickerScreen
+import com.powertracker.ui.library.InfoButton
+import com.powertracker.ui.library.PickerEntry
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import kotlinx.datetime.DayOfWeek
@@ -94,7 +93,9 @@ fun dayName(day: DayOfWeek): String = day.toJavaDayOfWeek().getDisplayName(TextS
 private val TEXT_FIELD_DIALOG = DialogProperties(usePlatformDefaultWidth = false)
 
 private sealed interface PlanDialog {
-    data class Edit(val day: DayOfWeek, val item: PlanItem?) : PlanDialog
+    /** The full-screen picker, adding to [day]. */
+    data class Add(val day: DayOfWeek) : PlanDialog
+    data class Edit(val item: PlanItem) : PlanDialog
     data class Baseline(val lift: Exercise) : PlanDialog
 }
 
@@ -112,22 +113,36 @@ fun PlanScreen(
     PlanContent(
         state = state,
         onOpenSettings = onOpenSettings,
-        onAdd = { day -> dialog = PlanDialog.Edit(day, null) },
-        onEdit = { item -> dialog = PlanDialog.Edit(item.weekday, item) },
+        onAdd = { day -> dialog = PlanDialog.Add(day) },
+        onEdit = { item -> dialog = PlanDialog.Edit(item) },
         onMove = viewModel::move,
         onDelete = viewModel::delete,
         onSetBaseline = { lift -> dialog = PlanDialog.Baseline(lift) },
     )
 
     when (val d = dialog) {
-        is PlanDialog.Edit -> PlanItemDialog(
-            title = "${if (d.item == null) "Add to" else "Edit"} ${dayName(d.day)}",
+        // Picking adds the exercise with its default sets and reps; they are edited from the row, as before.
+        is PlanDialog.Add -> ExercisePickerScreen(
+            title = "Add to ${dayName(d.day)}",
             exercises = state.exercises,
-            initial = d.item,
-            defaultRpe = state.defaultRpe,
+            recentIds = state.recentIds,
+            onPick = { entry ->
+                viewModel.add(d.day, entry)
+                dialog = null
+            },
+            onCreateCustom = { name, category, parent, muscles ->
+                viewModel.addCustomExercise(name, category, parent, muscles) { entry -> viewModel.add(d.day, entry) }
+                dialog = null
+            },
+            onDismiss = { dialog = null },
+        )
+        is PlanDialog.Edit -> PlanItemDialog(
+            title = "Edit ${dayName(d.item.weekday)}",
+            state = state,
+            item = d.item,
             onCreateCustom = viewModel::addCustomExercise,
-            onSave = { exerciseId, sets, reps, rpe ->
-                viewModel.save(d.day, d.item, exerciseId, sets, reps, rpe)
+            onSave = { exercise, sets, reps, rpe ->
+                viewModel.save(d.item, exercise, sets, reps, rpe)
                 dialog = null
             },
             onDismiss = { dialog = null },
@@ -266,6 +281,7 @@ private fun PlanItemRow(
             Text(name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
             Text(prescription, style = MaterialTheme.typography.headlineSmall, color = scheme.onSurface)
         }
+        InfoButton(name)
         IconButton(onClick = { onMove(-1) }, enabled = canMoveUp) { Icon(Icons.Filled.KeyboardArrowUp, "Move up") }
         IconButton(onClick = { onMove(1) }, enabled = canMoveDown) { Icon(Icons.Filled.KeyboardArrowDown, "Move down") }
         Box {
@@ -292,27 +308,23 @@ private fun PlanItemRow(
     }
 }
 
+/** Sets, reps and RPE of a plan item, and its exercise, which "Change" swaps through the picker. */
 @Composable
 private fun PlanItemDialog(
     title: String,
-    exercises: List<Exercise>,
-    initial: PlanItem?,
-    defaultRpe: Double,
-    onCreateCustom: (String, Category, MainLift?, List<String>, (Long) -> Unit) -> Unit,
-    onSave: (exerciseId: Long, sets: Int, reps: Int, rpe: Double) -> Unit,
+    state: PlanUiState,
+    item: PlanItem,
+    onCreateCustom: (String, Category, MainLift?, List<String>, (PickerEntry) -> Unit) -> Unit,
+    onSave: (exercise: PickerEntry?, sets: Int, reps: Int, rpe: Double) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var query by rememberSaveable { mutableStateOf("") }
-    var selectedId by rememberSaveable { mutableStateOf(initial?.exerciseId) }
-    var sets by rememberSaveable { mutableStateOf(initial?.sets ?: 3) }
-    var reps by rememberSaveable { mutableStateOf(initial?.reps ?: 5) }
-    var rpe by rememberSaveable { mutableStateOf(initial?.targetRpe ?: defaultRpe.coerceIn(6.0, 10.0)) }
-    var showCustom by rememberSaveable { mutableStateOf(false) }
-
-    val q = query.trim().lowercase()
-    val matches = exercises.filter { q.isEmpty() || it.name.lowercase().contains(q) }
-        .sortedWith(compareByDescending<Exercise> { it.name.lowercase().startsWith(q) }.thenBy { it.name.lowercase() })
-    val selected = exercises.firstOrNull { it.id == selectedId }
+    // Null until the exercise is changed; saved with the item, not before.
+    var changed by rememberSaveable(stateSaver = PickerEntry.Saver) { mutableStateOf(null) }
+    var sets by rememberSaveable { mutableStateOf(item.sets) }
+    var reps by rememberSaveable { mutableStateOf(item.reps) }
+    var rpe by rememberSaveable { mutableStateOf(item.targetRpe) }
+    var picking by rememberSaveable { mutableStateOf(false) }
+    val name = changed?.name ?: state.exercises.firstOrNull { it.id == item.exerciseId }?.name ?: "Unknown exercise"
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -321,52 +333,36 @@ private fun PlanItemDialog(
         title = { Text(title) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                OutlinedTextField(
-                    value = query, onValueChange = { query = it }, label = { Text("Search exercises") },
-                    singleLine = true, modifier = Modifier.fillMaxWidth().testTag("exercise-search"),
-                )
-                Column(Modifier.heightIn(max = 200.dp).verticalScroll(rememberScrollState())) {
-                    for (ex in matches) {
-                        val isSelected = ex.id == selectedId
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = Space.touch)
-                                .clip(MaterialTheme.shapes.small)
-                                .background(if (isSelected) MaterialTheme.colorScheme.surfaceContainerHighest else Color.Transparent)
-                                .clickable { selectedId = ex.id }
-                                .padding(horizontal = Space.m)
-                                .testTag("exercise-${ex.name}"),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(ex.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                            if (isSelected) Icon(Icons.Filled.Check, contentDescription = "Selected", tint = PowertrackerTheme.colors.accentText)
-                        }
+                Row(Modifier.fillMaxWidth().padding(bottom = Space.s), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Eyebrow("Exercise")
+                        Text(name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                     }
+                    SecondaryButton("Change", { picking = true }, compact = true, modifier = Modifier.semantics { contentDescription = "Change exercise" })
                 }
-                QuietButton("Add custom exercise", { showCustom = true })
-                Text(
-                    "Selected: ${selected?.name ?: "none"}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = Space.s),
-                )
                 LabeledStepper("Sets", sets.toString(), sets > 1, sets < 10, { sets-- }, { sets++ })
                 LabeledStepper("Reps", reps.toString(), reps > 1, reps < 20, { reps-- }, { reps++ })
-                LabeledStepper("RPE", formatRpe(rpe), rpe > 6.0, rpe < 10.0, { rpe -= 0.5 }, { rpe += 0.5 })
+                LabeledStepper("RPE", formatRpe(rpe), rpe > PlanViewModel.MIN_RPE, rpe < PlanViewModel.MAX_RPE, { rpe -= 0.5 }, { rpe += 0.5 })
             }
         },
-        confirmButton = { PrimaryButton("Save", { onSave(selectedId!!, sets, reps, rpe) }, enabled = selected != null, compact = true) },
+        confirmButton = { PrimaryButton("Save", { onSave(changed, sets, reps, rpe) }, compact = true) },
         dismissButton = { QuietButton("Cancel", onDismiss) },
     )
 
-    if (showCustom) {
-        CustomExerciseDialog(
-            onCreate = { name, category, parent, muscles ->
-                onCreateCustom(name, category, parent, muscles) { id -> selectedId = id }
-                showCustom = false
+    if (picking) {
+        ExercisePickerScreen(
+            title = "Change exercise",
+            exercises = state.exercises,
+            recentIds = state.recentIds,
+            onPick = { entry ->
+                changed = entry
+                picking = false
             },
-            onDismiss = { showCustom = false },
+            onCreateCustom = { customName, category, parent, muscles ->
+                onCreateCustom(customName, category, parent, muscles) { entry -> changed = entry }
+                picking = false
+            },
+            onDismiss = { picking = false },
         )
     }
 }
@@ -377,57 +373,6 @@ private fun LabeledStepper(label: String, value: String, canDec: Boolean, canInc
         Text(label, style = MaterialTheme.typography.titleMedium)
         Stepper(label, value, canDec, canInc, onDec, onInc)
     }
-}
-
-@Composable
-private fun CustomExerciseDialog(
-    onCreate: (String, Category, MainLift?, List<String>) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    var name by rememberSaveable { mutableStateOf("") }
-    var category by rememberSaveable { mutableStateOf(Category.ACCESSORY) }
-    var parent by rememberSaveable { mutableStateOf<MainLift?>(null) }
-    var muscles by rememberSaveable { mutableStateOf("") }
-    val valid = name.isNotBlank() && (category != Category.VARIATION || parent != null)
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        properties = TEXT_FIELD_DIALOG,
-        modifier = Modifier.padding(horizontal = 16.dp),
-        title = { Text("Add custom exercise") },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(name, { name = it }, label = { Text("Name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ChoiceChip("Variation", category == Category.VARIATION, { category = Category.VARIATION })
-                    ChoiceChip("Accessory", category == Category.ACCESSORY, { category = Category.ACCESSORY })
-                }
-                if (category == Category.VARIATION) {
-                    Text("Parent lift", style = MaterialTheme.typography.titleSmall)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        for (lift in MainLift.entries) {
-                            ChoiceChip(lift.name.lowercase().replaceFirstChar { it.uppercase() }, parent == lift, { parent = lift })
-                        }
-                    }
-                }
-                OutlinedTextField(
-                    muscles, { muscles = it }, label = { Text("Muscles (comma-separated)") }, modifier = Modifier.fillMaxWidth(),
-                )
-            }
-        },
-        confirmButton = {
-            PrimaryButton(
-                "Create",
-                onClick = {
-                    val list = muscles.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                    onCreate(name, category, if (category == Category.VARIATION) parent else null, list)
-                },
-                enabled = valid,
-                compact = true,
-            )
-        },
-        dismissButton = { QuietButton("Cancel", onDismiss) },
-    )
 }
 
 @Composable

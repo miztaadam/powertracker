@@ -1,0 +1,398 @@
+package com.powertracker.ui.library
+
+import android.content.Context
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.width
+import androidx.test.core.app.ApplicationProvider
+import com.powertracker.data.AppSettings
+import com.powertracker.data.SettingsRepository
+import com.powertracker.data.TrainingRepository
+import com.powertracker.data.db.AppDatabase
+import com.powertracker.data.db.ExerciseEntity
+import com.powertracker.domain.library.BodyArea
+import com.powertracker.domain.library.Equipment
+import com.powertracker.domain.library.Kind
+import com.powertracker.domain.library.Library
+import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.Exercise
+import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.model.PlanItem
+import com.powertracker.ui.plan.PlanScreen
+import com.powertracker.ui.theme.PowertrackerTheme
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+
+// Native graphics, so text is measured at its real size: the layout checks here depend on it.
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(qualifiers = "w411dp-h2400dp-xxhdpi")
+class ExercisePickerTest {
+    @get:Rule
+    val compose = createComposeRule()
+
+    private lateinit var db: AppDatabase
+    private lateinit var training: TrainingRepository
+    private lateinit var settings: SettingsRepository
+
+    /** What the picker reported, in order. */
+    private val picked = mutableStateListOf<PickerEntry>()
+    private val created = mutableStateListOf<String>()
+
+    @Before
+    fun setUp() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        db = AppDatabase.inMemory(context)
+        training = TrainingRepository(db)
+        settings = SettingsRepository(context)
+        runBlocking { settings.update { AppSettings() } }
+    }
+
+    @After
+    fun tearDown() = db.close()
+
+    private fun stored(): List<Exercise> = runBlocking { training.exercises().first() }
+
+    private fun rows(name: String): List<ExerciseEntity> = runBlocking { db.exercises().all() }.filter { it.name.equals(name, ignoreCase = true) }
+
+    private fun plan(): List<PlanItem> = runBlocking { training.plan().first() }
+
+    private fun waitFor(condition: () -> Boolean) = compose.waitUntil(5_000) {
+        compose.waitForIdle()
+        condition()
+    }
+
+    private fun shows(tag: String) = compose.onAllNodes(hasTestTag(tag)).fetchSemanticsNodes().isNotEmpty()
+
+    /** The chip rows scroll sideways: bring the chip on screen, then tap it. */
+    private fun tapChip(tag: String) {
+        compose.onNodeWithTag(tag).performScrollTo().performClick()
+        compose.waitForIdle()
+    }
+
+    private fun search(text: String) {
+        compose.onNodeWithTag("exercise-search").performTextReplacement(text)
+        compose.waitForIdle()
+    }
+
+    /** The picker on its own, over the seeded exercises (and [extra]), reporting into [picked] and [created]. */
+    private fun showPicker(extra: List<Exercise> = emptyList(), recentIds: List<Long> = emptyList()) {
+        val exercises = stored() + extra
+        compose.setContent {
+            PowertrackerTheme {
+                ExercisePickerContent(
+                    "Add exercise", exercises, recentIds,
+                    onPick = { picked += it },
+                    onCreateCustom = { name, _, _, _ -> created += name },
+                    onClose = {},
+                )
+            }
+        }
+        compose.waitForIdle()
+    }
+
+    /** The real Plan screen with the picker open for Monday. */
+    private fun showPlanPicker() {
+        compose.setContent { PowertrackerTheme { PlanScreen(training, settings, onOpenSettings = {}) } }
+        waitFor { shows("add-MONDAY") }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        waitFor { shows("exercise-search") }
+    }
+
+    private fun own(id: Long, name: String, muscles: List<String> = emptyList()) = Exercise(id, name, Category.ACCESSORY, null, muscles, isBuiltIn = false)
+
+    @Test
+    fun search_filtersAsYouType() {
+        showPicker()
+        assertTrue(shows("exercise-Squat") && shows("exercise-Pull-up"))
+
+        search("pu")
+        assertTrue(shows("exercise-Pull-up"))
+        assertFalse(shows("exercise-Squat"))
+
+        // Typed the way people type: no hyphen, any case, an alias.
+        search("pull up")
+        assertTrue(shows("exercise-Pull-up"))
+        search("PULL-UP")
+        assertTrue(shows("exercise-Pull-up"))
+        search("romanian")
+        assertTrue(shows("exercise-RDL"))
+        assertFalse(shows("exercise-Pull-up"))
+
+        // Every row on screen is one the shared search returns, in its order.
+        search("squat")
+        val expected = Library.search("squat").map { it.name }
+        assertTrue(expected.size > 1)
+        val tops = expected.map { compose.onNodeWithTag("exercise-$it").getUnclippedBoundsInRoot().top }
+        assertEquals(tops.sortedBy { it.value }, tops)
+        assertFalse(shows("exercise-Bench"))
+
+        compose.onNodeWithContentDescription("Clear search").performClick()
+        compose.waitForIdle()
+        assertTrue(shows("exercise-Bench"))
+    }
+
+    @Test
+    fun areaAndEquipmentChips_filter() {
+        showPicker()
+
+        tapChip("area-BACK")
+        compose.waitForIdle()
+        compose.onNodeWithTag("area-BACK").assertIsOn()
+        compose.onNodeWithTag("area-all").assertIsOff()
+        for (e in Library.all()) assertEquals(e.name, e.area == BodyArea.BACK, shows("exercise-${e.name}"))
+        assertTrue(shows("exercise-Row") && shows("exercise-Pull-up"))
+
+        // Equipment narrows it; a second equipment chip widens it again (any of the chosen).
+        tapChip("equipment-BODYWEIGHT")
+        compose.waitForIdle()
+        assertTrue(shows("exercise-Pull-up"))
+        assertFalse(shows("exercise-Row"))
+        tapChip("equipment-BARBELL")
+        compose.waitForIdle()
+        compose.onNodeWithTag("equipment-BODYWEIGHT").assertIsOn()
+        compose.onNodeWithTag("equipment-BARBELL").assertIsOn()
+        assertTrue(shows("exercise-Pull-up") && shows("exercise-Row"))
+
+        // One body area at a time.
+        tapChip("area-ARMS")
+        compose.waitForIdle()
+        compose.onNodeWithTag("area-BACK").assertIsOff()
+        val arms = Library.search("", setOf(BodyArea.ARMS), setOf(Equipment.BODYWEIGHT, Equipment.BARBELL)).map { it.name }
+        assertTrue(arms.isNotEmpty())
+        for (e in Library.all()) assertEquals(e.name, e.name in arms, shows("exercise-${e.name}"))
+
+        // "All" with no equipment brings everything back.
+        tapChip("area-all")
+        tapChip("equipment-BODYWEIGHT")
+        tapChip("equipment-BARBELL")
+        compose.waitForIdle()
+        assertTrue(shows("exercise-Squat") && shows("exercise-Pull-up") && shows("exercise-Curl"))
+    }
+
+    @Test
+    fun emptyResult_showsMessage() {
+        showPicker()
+
+        search("zercher carry")
+
+        compose.onNodeWithText("No exercises match. Try fewer filters, or create your own.").assertExists()
+        assertFalse(shows("exercise-Squat"))
+        // The custom-exercise action comes with it, and starts from what was typed.
+        compose.onNodeWithText("Create your own").performClick()
+        compose.onNodeWithText("Add custom exercise").assertExists()
+        compose.onNode(hasText("zercher carry") and hasAnyAncestor(isDialog())).assertExists()
+        compose.onNodeWithText("Create").performClick()
+        compose.waitForIdle()
+        assertEquals(listOf("zercher carry"), created.toList())
+        assertTrue(picked.isEmpty())
+
+        // Filters with nothing in them say the same.
+        search("")
+        tapChip("area-BACK")
+        tapChip("equipment-KETTLEBELL")
+        compose.waitForIdle()
+        assertTrue(Library.search("", setOf(BodyArea.BACK), setOf(Equipment.KETTLEBELL)).isEmpty())
+        compose.onNodeWithText("No exercises match. Try fewer filters, or create your own.").assertExists()
+    }
+
+    @Test
+    fun createYourOwn_isOfferedBelowTheList() {
+        showPicker()
+
+        compose.onNodeWithText("Create your own").performScrollTo().performClick()
+        compose.onNodeWithText("Name").performTextReplacement("  Sled push ")
+        compose.onNodeWithText("Create").performClick()
+        compose.waitForIdle()
+
+        assertEquals(listOf("Sled push"), created.toList())
+    }
+
+    @Test
+    fun pickerInfo_opensGuideWithoutPicking() {
+        // On its own: the info button reports no pick.
+        showPicker()
+        compose.checkInfoButtonOpensGuide("Squat")
+        assertTrue("reading the guide picked the exercise", picked.isEmpty())
+        compose.onNodeWithTag("exercise-Squat").performClick()
+        assertEquals(listOf("Squat"), picked.map { it.name })
+    }
+
+    @Test
+    fun pickerInfo_opensGuideWithoutPicking_inThePlan() {
+        // A library exercise with no row yet: reading its guide must not store one either.
+        runBlocking { rows("Curl").forEach { db.exercises().delete(it.id) } }
+        val before = runBlocking { db.exercises().all() }
+        showPlanPicker()
+
+        compose.checkInfoButtonOpensGuide("Curl")
+
+        assertTrue("the picker stays open", shows("exercise-search"))
+        assertTrue(plan().isEmpty())
+        assertEquals(before, runBlocking { db.exercises().all() })
+
+        // Tapping the row itself is what adds it.
+        compose.onNodeWithTag("exercise-Curl").performClick()
+        waitFor { plan().size == 1 }
+        assertFalse(shows("exercise-search"))
+        assertEquals(rows("Curl").single().id, plan().single().exerciseId)
+    }
+
+    @Test
+    fun restoredBuiltIn_appearsOnce_andIsReused() {
+        // A restore replaces the table: "Curl" comes back as an ordinary row under whatever id the backup had.
+        val restored = runBlocking {
+            rows("Curl").forEach { db.exercises().delete(it.id) }
+            db.exercises().insertAll(listOf(ExerciseEntity(77, "Curl", Category.ACCESSORY, null, listOf("Biceps"), isBuiltIn = true)))
+            // Recently used, so it is also one of "Your exercises".
+            training.logSet(training.startSession(LocalDate(2026, 11, 9), null, null), LoggedSet(77, 30.0, 10, 8.0, failed = false, missPoint = null, isTopSet = false))
+            rows("Curl").single()
+        }
+        assertEquals(77L, restored.id)
+
+        // Browsing and searching both list it once, tied to the restored row.
+        for (query in listOf("", "curl")) {
+            val list = pickerList(query, null, emptySet(), stored(), recentIds = listOf(77))
+            val curls = (list.yours + list.all).filter { it.name.equals("Curl", ignoreCase = true) }
+            assertEquals("query \"$query\"", listOf(77L), curls.map { it.exerciseId })
+            assertEquals("Curl", curls.single().catalogueName)
+        }
+
+        showPlanPicker()
+        assertEquals(1, compose.onAllNodes(hasTestTag("exercise-Curl")).fetchSemanticsNodes().size)
+        compose.onNodeWithTag("exercise-Curl").performClick()
+        waitFor { plan().size == 1 }
+
+        assertEquals(77L, plan().single().exerciseId)
+        assertEquals(listOf(restored), rows("Curl"))
+    }
+
+    @Test
+    fun yourExercises_listedFirst_whenNoQuery() {
+        val bench = stored().first { it.name == "Bench" }
+        val sled = own(900, "Sled push", listOf("Quads"))
+        val archived = own(901, "Old lift").copy(archived = true)
+
+        // Recently used first, then the lifter's own; none of them again under "All exercises".
+        val list = pickerList("", null, emptySet(), stored() + sled + archived, recentIds = listOf(bench.id))
+        assertEquals(listOf("Bench", "Sled push"), list.yours.map { it.name })
+        assertEquals(listOf(bench.id, 900L), list.yours.map { it.exerciseId })
+        assertEquals(Library.search("").map { it.name } - "Bench", list.all.map { it.name })
+        // A search or a filter drops the section.
+        assertTrue(pickerList("s", null, emptySet(), stored() + sled, listOf(bench.id)).yours.isEmpty())
+        assertTrue(pickerList("", BodyArea.BACK, emptySet(), stored() + sled, listOf(bench.id)).yours.isEmpty())
+        // The lifter's own exercise is searched by name and by muscle, and listed before the catalogue.
+        assertEquals("Sled push", pickerList("sled", null, emptySet(), stored() + sled, emptyList()).all.single().name)
+        assertEquals("Sled push", pickerList("quads", null, emptySet(), stored() + sled, emptyList()).all.first().name)
+
+        showPicker(extra = listOf(sled, archived), recentIds = listOf(bench.id))
+        fun top(tag: String) = compose.onNodeWithTag(tag).getUnclippedBoundsInRoot().top
+        val yours = compose.onNodeWithText("YOUR EXERCISES").getUnclippedBoundsInRoot().top
+        val all = compose.onNodeWithText("ALL EXERCISES").getUnclippedBoundsInRoot().top
+        assertTrue(yours < top("exercise-Bench") && top("exercise-Bench") < top("exercise-Sled push") && top("exercise-Sled push") < all)
+        assertTrue(all < top("exercise-Squat"))
+        assertEquals(1, compose.onAllNodes(hasTestTag("exercise-Bench")).fetchSemanticsNodes().size)
+        assertFalse(shows("exercise-Old lift"))
+
+        search("s")
+        compose.onNodeWithText("YOUR EXERCISES").assertDoesNotExist()
+        compose.onNodeWithText("ALL EXERCISES").assertDoesNotExist()
+    }
+
+    @Test
+    fun compoundDefaults3x5_accessory3x10() {
+        assertEquals(Kind.COMPOUND, Library.find("Squat")!!.kind)
+        assertEquals(Kind.ACCESSORY, Library.find("Curl")!!.kind)
+        runBlocking { settings.update { it.copy(defaultRpe = 7.5) } }
+        showPlanPicker()
+
+        search("squat")
+        compose.onNodeWithTag("exercise-Squat").performClick()
+        waitFor { plan().size == 1 }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        waitFor { shows("exercise-search") }
+        search("curl")
+        compose.onNodeWithTag("exercise-Curl").performClick()
+        waitFor { plan().size == 2 }
+
+        val squat = stored().first { it.name == "Squat" }
+        val curl = stored().first { it.name == "Curl" }
+        assertEquals(
+            listOf(
+                PlanItem(0, DayOfWeek.MONDAY, squat.id, sets = 3, reps = 5, targetRpe = 7.5, order = 0),
+                PlanItem(0, DayOfWeek.MONDAY, curl.id, sets = 3, reps = 10, targetRpe = 7.5, order = 1),
+            ),
+            plan().map { it.copy(id = 0) },
+        )
+        waitFor { compose.onAllNodesWithText("Curl  3 × 10 @ 7.5").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("Squat  3 × 5 @ 7.5").assertExists()
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h2400dp-xxhdpi")
+    fun picker_fitsASmallPhone_withFullSizeTargets() {
+        showPicker(extra = listOf(own(900, "Sled push with a long name to wrap", listOf("Quads", "Glutes", "Hamstrings", "Calves"))), recentIds = listOf(900))
+        val width = compose.onRoot().getUnclippedBoundsInRoot().width
+        assertEquals(360.dp, width)
+
+        // Rows, search and the header stay inside the screen.
+        val names = Library.all().map { it.name } + "Sled push with a long name to wrap"
+        for (name in names) {
+            val row = compose.onNodeWithTag("exercise-$name")
+            val bounds = row.getUnclippedBoundsInRoot()
+            assertTrue("$name row overflows", bounds.left >= 0.dp && bounds.right <= width)
+            row.assertHeightIsAtLeast(48.dp)
+            val info = compose.onNodeWithContentDescription("Form guide for $name")
+            info.assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+            val b = info.getUnclippedBoundsInRoot()
+            assertTrue("$name info button overflows", b.right <= width && b.top >= bounds.top && b.bottom <= bounds.bottom)
+        }
+        val search = compose.onNodeWithTag("exercise-search")
+        search.assertHeightIsAtLeast(48.dp)
+        assertTrue(search.getUnclippedBoundsInRoot().right <= width)
+        compose.onNodeWithContentDescription("Close").assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+
+        // Chips are full-size targets; the rows of chips scroll sideways instead of overflowing.
+        val chips = listOf("area-all") + BodyArea.entries.map { "area-${it.name}" } + Equipment.entries.map { "equipment-${it.name}" }
+        for (tag in chips) {
+            val chip = compose.onNodeWithTag(tag).performScrollTo()
+            chip.assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+            val b = chip.getUnclippedBoundsInRoot()
+            assertTrue("$tag is cut off", b.left >= 0.dp && b.right <= width)
+        }
+        compose.onNodeWithText("Create your own").assertHeightIsAtLeast(48.dp)
+        assertEquals(0, compose.onAllNodesWithContentDescription("Form guide for Squat").fetchSemanticsNodes().size - 1)
+    }
+}

@@ -28,13 +28,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
+import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.EmptyState
 import com.powertracker.ui.components.RestTimerBar
 import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.components.SecondaryButton
+import com.powertracker.ui.library.ExercisePickerScreen
 import com.powertracker.ui.theme.Space
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaDayOfWeek
@@ -65,6 +68,9 @@ class TodayActions(
     val onApply: (adviceId: Long) -> Unit = {},
     val onDismiss: (adviceId: Long) -> Unit = {},
     val onAddExercise: (exerciseId: Long) -> Unit = {},
+    /** Adds a catalogue exercise by name; returns the id its card is shown under. */
+    val onAddFromCatalogue: (name: String) -> Long = { 0 },
+    val onCreateExercise: (name: String, Category, parentLift: MainLift?, muscles: List<String>, onCreated: (Long) -> Unit) -> Unit = { _, _, _, _, _ -> },
     val onRemoveExercise: (exerciseId: Long) -> Unit = {},
     val onFinish: () -> Unit = {},
     val onKeepLogging: () -> Unit = {},
@@ -124,6 +130,8 @@ fun TodayScreen(
             onApply = viewModel::applyTarget,
             onDismiss = viewModel::dismissTarget,
             onAddExercise = viewModel::addExercise,
+            onAddFromCatalogue = viewModel::addFromCatalogue,
+            onCreateExercise = viewModel::createExercise,
             onRemoveExercise = viewModel::removeExercise,
             onFinish = viewModel::finishSession,
             onKeepLogging = viewModel::dismissSummary,
@@ -143,8 +151,12 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
     var activeId by rememberSaveable { mutableStateOf<Long?>(null) }
     var picking by rememberSaveable { mutableStateOf(false) }
 
+    // A catalogue exercise added without a row changes id when its first set saves the row: follow it.
+    val chosenId = activeId?.let { state.resolved[it] ?: it }
+    LaunchedEffect(chosenId) { if (chosenId != activeId) activeId = chosenId }
+
     // The exercise being logged: the one the lifter chose, else the first with sets left to do.
-    val active = items.firstOrNull { it.exercise.id == activeId } ?: items.firstOrNull { it.hasWorkLeft() } ?: items.lastOrNull()
+    val active = items.firstOrNull { it.exercise.id == chosenId } ?: items.firstOrNull { it.hasWorkLeft() } ?: items.lastOrNull()
     // Pin it once chosen, so finishing its last set does not whisk the card (and its "where did it stall?") away.
     LaunchedEffect(active?.exercise?.id) { if (activeId == null) activeId = active?.exercise?.id }
 
@@ -212,11 +224,18 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
     state.pending?.let { TypoDialog(it, onConfirm = actions.onConfirmPending, onEdit = actions.onEditPending) }
 
     if (picking) {
-        ExercisePickerDialog(
-            state.addable,
-            onPick = { id ->
-                actions.onAddExercise(id)
-                activeId = id
+        ExercisePickerScreen(
+            title = "Add exercise",
+            exercises = state.exercises,
+            recentIds = state.recentIds,
+            // Picking one already in the session just opens its card.
+            onPick = { entry ->
+                val name = entry.catalogueName
+                activeId = if (name != null) actions.onAddFromCatalogue(name) else entry.exerciseId?.also(actions.onAddExercise)
+                picking = false
+            },
+            onCreateCustom = { name, category, parent, muscles ->
+                actions.onCreateExercise(name, category, parent, muscles) { id -> activeId = id }
                 picking = false
             },
             onDismiss = { picking = false },

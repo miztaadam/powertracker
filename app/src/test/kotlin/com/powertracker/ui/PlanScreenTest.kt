@@ -1,11 +1,21 @@
 package com.powertracker.ui
 
 import android.content.Context
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.width
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -19,7 +29,10 @@ import com.powertracker.data.RestAlert
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.data.db.AppDatabase
+import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.plan.PlanScreen
 import com.powertracker.ui.plan.RestoreCheck
 import com.powertracker.ui.plan.SettingsScreen
@@ -68,9 +81,8 @@ class PlanScreenTest {
         compose.onNodeWithTag("add-MONDAY").performClick()
         compose.onNodeWithTag("exercise-search").performTextReplacement("Squat")
         compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("exercise-Squat")).fetchSemanticsNodes().isNotEmpty() }
+        // Picking adds it straight away. Defaults for a compound lift are 3 sets x 5 reps @ RPE 8.
         compose.onNodeWithTag("exercise-Squat").performClick()
-        // Defaults are 3 sets x 5 reps @ RPE 8.
-        compose.onNodeWithText("Save").performClick()
 
         compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  3 × 5 @ 8").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("Squat  3 × 5 @ 8").assertExists()
@@ -89,7 +101,7 @@ class PlanScreenTest {
         compose.onNodeWithContentDescription("More").performClick()
         compose.onNodeWithText("Edit").performClick()
         compose.onNodeWithText("Edit Monday").assertExists()
-        compose.onNodeWithText("Selected: Bench").assertExists()
+        compose.onNode(hasText("Bench") and hasAnyAncestor(isDialog())).assertExists()
         compose.onNodeWithText("4").assertExists()
         compose.onNodeWithText("6").assertExists()
         compose.onNodeWithText("7.5").assertExists()
@@ -99,6 +111,86 @@ class PlanScreenTest {
         compose.onNodeWithText("Delete").performClick()
         compose.waitUntil(5_000) { compose.onAllNodesWithText(row).fetchSemanticsNodes().isEmpty() }
         assertTrue(runBlocking { training.plan().first().isEmpty() })
+    }
+
+    @Test
+    fun infoButton_opensGuide_fromEveryPlace() {
+        runBlocking {
+            val exercises = training.exercises().first()
+            training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, exercises.first { it.name == "Bench" }.id, sets = 4, reps = 6, targetRpe = 7.5, order = 0))
+            training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, exercises.first { it.name == "Curl" }.id, sets = 3, reps = 10, targetRpe = 8.0, order = 1))
+            // The lifter's own exercise has the button too, and a sheet that says there is no guide.
+            val own = training.addExercise(Exercise(0, "Sled push", Category.ACCESSORY, null, emptyList(), isBuiltIn = false))
+            training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, own, sets = 3, reps = 10, targetRpe = 8.0, order = 2))
+        }
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Sled push  3 × 10 @ 8").fetchSemanticsNodes().isNotEmpty() }
+
+        compose.checkInfoButtonOpensGuide("Bench")
+        compose.checkInfoButtonOpensGuide("Curl")
+        compose.checkInfoButtonOpensGuide("Sled push")
+
+        assertEquals(3, runBlocking { training.plan().first() }.size)
+    }
+
+    @Test
+    fun edit_changeExercise_swapsItThroughThePicker_onSave() {
+        runBlocking {
+            val bench = training.exercises().first().first { it.name == "Bench" }
+            training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, bench.id, sets = 4, reps = 6, targetRpe = 7.5, order = 0))
+            // The exercise to change to has no row yet.
+            db.exercises().all().filter { it.name == "Curl" }.forEach { db.exercises().delete(it.id) }
+        }
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Bench  4 × 6 @ 7.5").fetchSemanticsNodes().isNotEmpty() }
+
+        compose.onNodeWithContentDescription("More").performClick()
+        compose.onNodeWithText("Edit").performClick()
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        compose.onNodeWithTag("exercise-search").performTextReplacement("curl")
+        compose.onNodeWithTag("exercise-Curl").performClick()
+        // Chosen, not saved: Cancel would still leave bench, and no row for the curl.
+        compose.onNodeWithText("Edit Monday").assertExists()
+        assertTrue(runBlocking { db.exercises().all() }.none { it.name == "Curl" })
+        compose.onNodeWithText("Save").performClick()
+
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Curl  4 × 6 @ 7.5").fetchSemanticsNodes().isNotEmpty() }
+        val curl = runBlocking { db.exercises().all() }.single { it.name == "Curl" }
+        assertEquals(listOf(curl.id), runBlocking { training.plan().first() }.map { it.exerciseId })
+    }
+
+    // Native graphics, so text is measured at its real width.
+    @Test
+    @org.robolectric.annotation.Config(qualifiers = "w360dp-h2400dp-xxhdpi")
+    @org.robolectric.annotation.GraphicsMode(org.robolectric.annotation.GraphicsMode.Mode.NATIVE)
+    fun planRows_fitASmallPhone_withFullSizeTargets() {
+        runBlocking {
+            val exercises = training.exercises().first()
+            training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, exercises.first { it.name == "Bulgarian split squat" }.id, sets = 3, reps = 10, targetRpe = 7.5, order = 0))
+            training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, exercises.first { it.name == "Squat" }.id, sets = 3, reps = 5, targetRpe = 8.0, order = 1))
+        }
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  3 × 5 @ 8").fetchSemanticsNodes().isNotEmpty() }
+        val width = compose.onRoot().getUnclippedBoundsInRoot().width
+        assertEquals(360.dp, width)
+
+        for (name in listOf("Bulgarian split squat", "Squat")) {
+            compose.onNodeWithContentDescription("Form guide for $name").assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+        }
+        // The info button and the row's own controls are all on screen, side by side.
+        val controls = listOf("Form guide for Bulgarian split squat", "Form guide for Squat").map { compose.onNodeWithContentDescription(it) } +
+            listOf("Move up", "Move down", "More").flatMap { d -> List(2) { compose.onAllNodesWithContentDescription(d)[it] } }
+        for (control in controls) {
+            val b = control.getUnclippedBoundsInRoot()
+            assertTrue(b.left >= 0.dp && b.right <= width)
+        }
+        val firstRow = listOf("Form guide for Bulgarian split squat", "Move up", "Move down", "More").map { compose.onAllNodesWithContentDescription(it)[0].getUnclippedBoundsInRoot() }
+        assertTrue(firstRow.zipWithNext().all { (a, b) -> a.right <= b.left })
+        // The text keeps a readable share of the row: it wraps, it is not squeezed out.
+        for (text in listOf("Bulgarian split squat  3 × 10 @ 7.5", "Squat  3 × 5 @ 8")) {
+            val b = compose.onNodeWithText(text).getUnclippedBoundsInRoot()
+            assertTrue("$text is ${b.width} wide", b.width >= 80.dp && b.left >= 0.dp)
+        }
     }
 
     @Test

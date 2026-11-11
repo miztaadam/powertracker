@@ -27,6 +27,7 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.text.TextRange
@@ -51,6 +52,7 @@ import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.ui.components.formatKg
+import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.today.TodayScreen
 import kotlinx.coroutines.flow.first
@@ -172,6 +174,120 @@ class TodayScreenTest {
         startSession()
         show()
         waitForText("155 × 5 @ 8")
+    }
+
+    // ---- The exercise library: the picker and the info button ----
+
+    private fun exerciseRows(name: String) = runBlocking { db.exercises().all() }.filter { it.name.equals(name, ignoreCase = true) }
+
+    /** Opens the picker from the session and searches for [name] in it. */
+    private fun pickFromLibrary(name: String) {
+        compose.onNodeWithText("Add exercise").performScrollTo().performClick()
+        waitFor { compose.onAllNodes(hasTestTag("exercise-search")).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("exercise-search").performTextReplacement(name)
+        compose.waitForIdle()
+    }
+
+    @Test
+    fun infoButton_opensGuide_fromEveryPlace() {
+        // Squat is the open card; bench is a second planned exercise, folded to a row.
+        runBlocking {
+            val bench = training.exercises().first().first { it.name == "Bench" }
+            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, bench.id, sets = 3, reps = 5, targetRpe = 8.0, order = 1))
+        }
+        showSession()
+        compose.onNodeWithText("EXERCISE 1 OF 2").assertExists()
+
+        compose.checkInfoButtonOpensGuide("Squat")
+        compose.checkInfoButtonOpensGuide("Bench")
+
+        // Reading the row's guide did not open its card, and nothing was logged.
+        compose.onNodeWithText("EXERCISE 1 OF 2").assertExists()
+        compose.onNodeWithText("Log set 1").assertExists()
+        assertTrue(loggedToday().isEmpty())
+
+        // In the picker too, without adding the exercise to the session.
+        pickFromLibrary("Curl")
+        compose.checkInfoButtonOpensGuide("Curl")
+        compose.onNodeWithTag("exercise-search").assertExists()
+        compose.onNodeWithContentDescription("Close").performClick()
+        waitForText("EXERCISE 1 OF 2")
+        compose.onNodeWithText("Curl").assertDoesNotExist()
+    }
+
+    @Test
+    fun pickedLibraryExercise_getsItsRowWithItsFirstSet() {
+        // A library exercise that has never been used has no row.
+        runBlocking { exerciseRows("Curl").forEach { db.exercises().delete(it.id) } }
+        val before = runBlocking { db.exercises().all() }
+        showSession()
+
+        pickFromLibrary("Curl")
+        compose.onNodeWithTag("exercise-Curl").performClick()
+        waitForText("EXERCISE 2 OF 2")
+        compose.onNodeWithText("Curl").assertExists()
+        // On the card, not in the data: taking it back leaves nothing behind.
+        assertEquals(before, runBlocking { db.exercises().all() })
+        compose.onNodeWithText("Remove").performClick()
+        waitForText("EXERCISE 1 OF 1")
+        assertEquals(before, runBlocking { db.exercises().all() })
+
+        pickFromLibrary("Curl")
+        compose.onNodeWithTag("exercise-Curl").performClick()
+        waitForText("EXERCISE 2 OF 2")
+        weight.type("20")
+        waitFor { compose.onAllNodesWithText("Log set 1").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("Log set 1").assertIsEnabled().performClick()
+        waitForSets(1)
+
+        // One built-in row, saved with the set that needed it; the card stays open on it for set 2.
+        val curl = exerciseRows("Curl").single()
+        assertTrue(curl.isBuiltIn)
+        assertEquals(before.size + 1, runBlocking { db.exercises().all() }.size)
+        assertEquals(listOf(LoggedSet(curl.id, 20.0, 5, 8.0, failed = false, missPoint = null, isTopSet = false)), loggedToday())
+        waitForText("Log set 2")
+        compose.onNodeWithText("EXERCISE 2 OF 2").assertExists()
+        assertEquals("20", weight.typed())
+
+        weight.type("22.5")
+        compose.onNodeWithText("Log set 2").performClick()
+        waitForSets(2)
+        assertEquals(listOf(curl.id, curl.id), loggedToday().map { it.exerciseId })
+        assertEquals(1, exerciseRows("Curl").size)
+    }
+
+    @Test
+    fun pickedLibraryExercise_thatIsArchived_isRestoredWithItsFirstSet() {
+        val curl = exerciseRows("Curl").single()
+        runBlocking { training.archiveExercise(curl.id) }
+        showSession()
+
+        pickFromLibrary("Curl")
+        compose.onNodeWithTag("exercise-Curl").performClick()
+        waitForText("EXERCISE 2 OF 2")
+        assertTrue(exerciseRows("Curl").single().archived)
+
+        weight.type("20")
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForSets(1)
+
+        assertEquals(listOf(curl.copy(archived = false)), exerciseRows("Curl"))
+        assertEquals(curl.id, loggedToday().single().exerciseId)
+    }
+
+    @Test
+    fun createYourOwn_fromTodaysPicker_addsItToTheSession_withNoGuide() {
+        showSession()
+        pickFromLibrary("Sled push")
+        compose.onNodeWithText("No exercises match. Try fewer filters, or create your own.").assertExists()
+
+        compose.onNodeWithText("Create your own").performClick()
+        compose.onNodeWithText("Create").performClick()
+        waitForText("EXERCISE 2 OF 2")
+
+        val sled = exerciseRows("Sled push").single()
+        assertEquals(false, sled.isBuiltIn)
+        compose.checkInfoButtonOpensGuide("Sled push")
     }
 
     @Test

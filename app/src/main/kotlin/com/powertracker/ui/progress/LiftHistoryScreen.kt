@@ -39,6 +39,7 @@ import com.powertracker.ui.components.SetRow
 import com.powertracker.ui.components.SetState
 import com.powertracker.ui.components.StatTile
 import com.powertracker.ui.components.formatKg
+import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -78,7 +79,7 @@ fun LiftHistoryContent(lift: MainLift, state: LiftHistoryState, onBack: () -> Un
                     else -> "$count sessions"
                 },
                 navigation = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
-            )
+            ) { InfoButton(lift.label) }
         },
     ) { padding ->
         LazyColumn(
