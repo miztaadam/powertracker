@@ -122,7 +122,16 @@ object Backup {
             val v = (root["version"] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull
             if (v == null || v <= 0) return BackupResult.Corrupt("Missing or invalid version")
             if (v > VERSION) return BackupResult.TooNew(v)
-            return BackupResult.Ok(strict.decodeFromJsonElement(BackupFile.serializer(), root))
+            val file = strict.decodeFromJsonElement(BackupFile.serializer(), root)
+            // Reject bad enum names / out-of-range weekdays here rather than at restore time.
+            file.exercises.forEach { it.toEntity() }
+            file.sets.forEach { it.toEntity() }
+            file.planItems.forEach { it.toEntity() }
+            file.advice.forEach { it.toEntity() }
+            file.settings.toAppSettings()
+            return BackupResult.Ok(file)
+        } catch (e: java.time.DateTimeException) {
+            return BackupResult.Corrupt(e.message ?: "Unreadable backup")
         } catch (e: SerializationException) {
             return BackupResult.Corrupt(e.message ?: "Unreadable backup")
         } catch (e: IllegalArgumentException) {
@@ -159,6 +168,14 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
 
     /** Replaces all data in one transaction; any failure rolls back and leaves existing data untouched. */
     suspend fun restore(file: BackupFile) {
+        // Map everything first so any bad file content fails before a single row is deleted.
+        val exercises = file.exercises.map { it.toEntity() }
+        val sessions = file.sessions.map { it.toEntity() }
+        val sets = file.sets.map { it.toEntity() }
+        val planItems = file.planItems.map { it.toEntity() }
+        val advice = file.advice.map { it.toEntity() }
+        val baselines = file.baselines.map { it.toEntity() }
+        val newSettings = file.settings.toAppSettings()
         db.withTransaction {
             db.sets().clear()
             db.advice().clear()
@@ -166,13 +183,13 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
             db.baselines().clear()
             db.sessions().clear()
             db.exercises().clear()
-            db.exercises().insertAll(file.exercises.map { it.toEntity() })
-            db.sessions().insertAll(file.sessions.map { it.toEntity() })
-            db.sets().insertAll(file.sets.map { it.toEntity() })
-            db.plan().insertAll(file.planItems.map { it.toEntity() })
-            db.advice().insert(file.advice.map { it.toEntity() })
-            db.baselines().insertAll(file.baselines.map { it.toEntity() })
+            db.exercises().insertAll(exercises)
+            db.sessions().insertAll(sessions)
+            db.sets().insertAll(sets)
+            db.plan().insertAll(planItems)
+            db.advice().insert(advice)
+            db.baselines().insertAll(baselines)
         }
-        settings.update { file.settings.toAppSettings() }
+        settings.update { newSettings }
     }
 }

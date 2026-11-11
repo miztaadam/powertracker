@@ -90,4 +90,16 @@ class BackupTest {
 
         assertEquals(before, service.export(1L))
     }
+
+    @Test
+    fun restore_invalidSettings_leavesDataUntouched() = runTest {
+        seedData()
+        val before = service.export(1L)
+        val bad = before.copy(settings = before.settings.copy(trainingDays = listOf(9)))
+
+        assertThrows(Exception::class.java) { kotlinx.coroutines.runBlocking { service.restore(bad) } }
+
+        assertEquals(before, service.export(1L))
+        assertTrue(Backup.decode(Backup.encode(bad)) is BackupResult.Corrupt)
+    }
 }
