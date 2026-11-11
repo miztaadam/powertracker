@@ -13,7 +13,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["vite/client", "vitest/globals", "node"]
+    "types": ["vite/client", "vite-plugin-pwa/client", "vitest/globals", "node"]
   },
   "include": ["src", "e2e", "scripts/*.d.ts", "vitest.config.ts", "playwright.config.ts"]
 }

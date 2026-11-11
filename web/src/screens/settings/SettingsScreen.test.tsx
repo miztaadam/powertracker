@@ -5,7 +5,9 @@ import { resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { decodeBackup, encodeBackup, exportBackup } from '../../backup/backup'
 import { getSettings, readSafetyCopy, updateSettings, writeSafetyCopy, type GritDb } from '../../db/db'
+import { CREDENTIAL_KEY } from '../../platform/passkeyLock'
 import { TODAY, exerciseNamed, plan, todayFixture } from '../../test/todayFixture'
+import { CREDENTIAL_ID, cancelled, clearWebAuthn, mockWebAuthn } from '../../test/webauthn'
 import { SettingsScreen } from './SettingsScreen'
 
 const WEB_BACKUP = readFileSync(resolve(__dirname, '../../backup/__fixtures__/web-v1.json'), 'utf8')
@@ -30,6 +32,7 @@ afterEach(async () => {
   cleanup()
   await fx.dispose()
   setNavigator({ share: undefined, canShare: undefined, storage: undefined })
+  clearWebAuthn()
   vi.restoreAllMocks()
 })
 
@@ -58,6 +61,7 @@ describe('SettingsScreen', () => {
   })
 
   it('settings_everySettingPersists', async () => {
+    mockWebAuthn()
     show()
     await screen.findByRole('switch', { name: 'Change plates' })
 
@@ -85,6 +89,48 @@ describe('SettingsScreen', () => {
     await waitFor(() => expect(screen.getByRole('radio', { name: 'Silent' })).toBeChecked())
     expect(stepper('Main lift rest').getByText('210 s')).toBeInTheDocument()
     expect(screen.getAllByRole('radio').map((r) => r.parentElement?.textContent)).toEqual(['Sound', 'Silent', 'Off'])
+  })
+
+  it('appLock_on_makesThePasskey_off_forgetsIt', async () => {
+    const { create } = mockWebAuthn()
+    show()
+    const toggle = await screen.findByRole('switch', { name: 'App lock' })
+
+    await userEvent.click(toggle)
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-checked', 'true'))
+    expect(create).toHaveBeenCalledTimes(1)
+    expect((await db.meta.get(CREDENTIAL_KEY))?.value).toBe(CREDENTIAL_ID)
+    expect((await getSettings(db)).appLock).toBe(true)
+
+    await userEvent.click(toggle)
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-checked', 'false'))
+    await waitFor(async () => expect(await db.meta.get(CREDENTIAL_KEY)).toBeUndefined())
+    expect((await getSettings(db)).appLock).toBe(false)
+  })
+
+  it('appLock_cancelled_staysOff', async () => {
+    mockWebAuthn().create.mockRejectedValueOnce(cancelled())
+    show()
+    const toggle = await screen.findByRole('switch', { name: 'App lock' })
+
+    await userEvent.click(toggle)
+
+    expect(await screen.findByText('App lock stays off.')).toBeInTheDocument()
+    expect(toggle).toHaveAttribute('aria-checked', 'false')
+    expect((await getSettings(db)).appLock).toBe(false)
+    expect(await db.meta.get(CREDENTIAL_KEY)).toBeUndefined()
+  })
+
+  it('unsupported_explainsAndStaysUnlocked', async () => {
+    // No WebAuthn here, as in a browser without Face ID, Touch ID or a passcode.
+    show()
+    const toggle = await screen.findByRole('switch', { name: 'App lock' })
+
+    await userEvent.click(toggle)
+
+    expect(await screen.findByText("This browser can't use Face ID, Touch ID or a passcode for Grit, so App lock stays off.")).toBeInTheDocument()
+    expect(toggle).toHaveAttribute('aria-checked', 'false')
+    expect((await getSettings(db)).appLock).toBe(false)
   })
 
   it('settings_steppersStopAtTheirLimits', async () => {

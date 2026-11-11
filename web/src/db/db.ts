@@ -12,6 +12,7 @@ import {
   type SessionRow,
   type SetRow,
 } from './schema'
+import { isQuotaError } from '../platform/storage'
 import { writeSafetyCopy } from './safety'
 
 export { ensureSeeded } from './seed'
@@ -26,10 +27,28 @@ export function onDbVersionChange(cb: () => void): () => void {
   return () => versionChangeListeners.delete(cb)
 }
 
-/** Thrown by `openGritDb` when a schema upgrade failed. Data is untouched; a safety copy exists. */
+const quotaListeners = new Set<() => void>()
+
+/** Calls `cb` each time a write fails because the phone's storage is full. Returns an unsubscribe. */
+export function onQuotaExceeded(cb: () => void): () => void {
+  quotaListeners.add(cb)
+  return () => quotaListeners.delete(cb)
+}
+
+function reportQuota(error: unknown): void {
+  if (isQuotaError(error)) quotaListeners.forEach((cb) => cb())
+}
+
+/**
+ * Thrown by `openGritDb` when a schema upgrade failed. Data is untouched. `safetyCopySaved` says
+ * whether the copy of it was written first: false when writing the copy is what failed.
+ */
 export class UpgradeFailedError extends Error {
-  constructor(cause: unknown) {
-    super('Upgrading the Grit database failed. Your data is unchanged and a safety copy was saved.', { cause })
+  constructor(
+    cause: unknown,
+    readonly safetyCopySaved: boolean,
+  ) {
+    super(`Upgrading the Grit database failed. Your data is unchanged${safetyCopySaved ? ' and a safety copy was saved' : ''}.`, { cause })
     this.name = 'UpgradeFailedError'
   }
 }
@@ -50,6 +69,38 @@ export class GritDb extends Dexie {
       const version = this.version(v.version).stores(v.stores)
       if (v.upgrade) version.upgrade(v.upgrade)
     }
+    // Every write passes here, so a full phone is noticed whichever screen was saving. The write
+    // still fails for its caller, and its transaction rolls back: nothing is half-written.
+    this.use({
+      stack: 'dbcore',
+      name: 'grit-quota',
+      create: (down) => ({
+        ...down,
+        transaction: (stores, mode, options) => {
+          const tx = down.transaction(stores, mode, options)
+          // The browser may only notice at commit: then the transaction aborts with the error.
+          if (mode === 'readwrite') (tx as unknown as IDBTransaction).addEventListener('abort', (event) => reportQuota((event.target as IDBTransaction | null)?.error))
+          return tx
+        },
+        table: (tableName) => {
+          const table = down.table(tableName)
+          return {
+            ...table,
+            mutate: (request) =>
+              table.mutate(request).then(
+                (response) => {
+                  if (response.numFailures > 0) Object.values(response.failures).forEach(reportQuota)
+                  return response
+                },
+                (error: unknown) => {
+                  reportQuota(error)
+                  throw error
+                },
+              ),
+          }
+        },
+      }),
+    })
     // Another tab/version wants to upgrade: release the connection and never reopen
     // with this (older) schema. The UI prompts for a reload.
     this.on('versionchange', () => {
@@ -98,7 +149,7 @@ export async function openGritDb(
     try {
       await writeSafetyCopy(current)
     } catch (e) {
-      throw new UpgradeFailedError(e)
+      throw new UpgradeFailedError(e, false)
     } finally {
       current.close()
     }
@@ -109,7 +160,7 @@ export async function openGritDb(
     await db.open()
   } catch (e) {
     db.close()
-    if (installed > 0 && installed < target) throw new UpgradeFailedError(e)
+    if (installed > 0 && installed < target) throw new UpgradeFailedError(e, true)
     throw e
   }
   return db

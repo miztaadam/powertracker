@@ -13,7 +13,7 @@ export type SafetyCopy = { kind: 'backup' | 'raw'; json: string }
  *
  * It must never block startup: if the export throws (for example a malformed stored date), it falls
  * back to `{ kind: 'raw', schemaVersion, tables }`, a plain dump of every table that recovery can
- * only offer to export.
+ * only offer to export. Both kinds carry when they were made (`exportedAt`, `savedAt`).
  */
 export async function snapshotForSafety(db: Dexie): Promise<SafetyCopy> {
   try {
@@ -27,7 +27,7 @@ export async function snapshotForSafety(db: Dexie): Promise<SafetyCopy> {
           table.name === 'meta' ? rows.filter((r: { key: string }) => r.key !== SAFETY_COPY_KEY) : rows
       }
     })
-    return { kind: 'raw', json: JSON.stringify({ kind: 'raw', schemaVersion: db.verno, tables }) }
+    return { kind: 'raw', json: JSON.stringify({ kind: 'raw', schemaVersion: db.verno, savedAt: Date.now(), tables }) }
   }
 }
 
@@ -47,4 +47,17 @@ export async function readSafetyCopy(db: Dexie): Promise<SafetyCopy | null> {
     kind = 'raw'
   }
   return { kind, json: row.value }
+}
+
+/** The device's calendar date (`YYYY-MM-DD`) on which a safety copy was made; null when it does not say. */
+export function safetyCopyDate(copy: SafetyCopy): string | null {
+  try {
+    const parsed = JSON.parse(copy.json) as { exportedAt?: unknown; savedAt?: unknown }
+    const at = copy.kind === 'backup' ? parsed.exportedAt : parsed.savedAt
+    if (typeof at !== 'number' || !Number.isFinite(at)) return null
+    const d = new Date(at)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  } catch {
+    return null
+  }
 }

@@ -22,12 +22,19 @@ export type TodayScreenProps = {
   onSetLogged?: (isMainOrVariation: boolean) => void
   /** Opens Settings, for the backup reminder. Without it there is no reminder. */
   onOpenSettings?: () => void
+  /** A card shown above the start card, before the backup reminder: the install card. */
+  banner?: ReactNode
 }
 
 /** The logging screen: start card, the session's exercises, or the finish summary. */
-export function TodayScreen({ db, onOpenCoach, today = todayIso, onSetLogged, onOpenSettings }: TodayScreenProps) {
+export function TodayScreen({ db, onOpenCoach, today = todayIso, onSetLogged, onOpenSettings, banner }: TodayScreenProps) {
   const session = useToday(db, today, onSetLogged)
-  const notice = onOpenSettings && <BackupReminderCard db={db} today={today()} onBackUp={onOpenSettings} />
+  const notice = (
+    <>
+      {banner}
+      {onOpenSettings && <BackupReminderCard db={db} today={today()} onBackUp={onOpenSettings} />}
+    </>
+  )
   return <TodayContent state={session} actions={session} onOpenCoach={onOpenCoach} notice={notice} />
 }
 

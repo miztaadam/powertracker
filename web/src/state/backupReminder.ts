@@ -1,8 +1,8 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useState } from 'react'
 import { getSettings, type GritDb } from '../db/db'
-import { storageProtected } from '../platform/storage'
 import { daysBetween } from './isoDate'
+import { useStorageProtected } from './useStorageProtected'
 
 /** Days without an export before Grit reminds; sooner when the browser may clear its storage. */
 export const REMIND_AFTER_DAYS = 14
@@ -59,23 +59,12 @@ export type BackupReminderState = BackupReminder & {
 /** The backup reminder for the Today screen. Not due until everything it depends on has been read. */
 export function useBackupReminder(db: GritDb, today: string): BackupReminderState {
   const [stored, setStored] = useState<Stored | null>(null)
-  const [isProtected, setProtected] = useState<boolean | null>(null)
+  const isProtected = useStorageProtected()
   useEffect(() => {
     // A failed read only means no reminder; the screen's own reads report a broken database.
     const subscription = liveQuery(() => readStored(db)).subscribe({ next: setStored, error: () => setStored(null) })
     return () => subscription.unsubscribe()
   }, [db])
-  useEffect(() => {
-    let stale = false
-    storageProtected()
-      .then((value) => {
-        if (!stale) setProtected(value)
-      })
-      .catch(() => {})
-    return () => {
-      stale = true
-    }
-  }, [])
   const snooze = useCallback(async () => {
     await db.meta.put({ key: REMINDER_SNOOZED_KEY, value: today })
   }, [db, today])

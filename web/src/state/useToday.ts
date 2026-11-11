@@ -327,7 +327,7 @@ function useDay(today: () => string, holds: { current: () => boolean }): [date: 
 /** When the session of `date` was last started or logged to; kept in `meta` so a reload knows too. */
 type Activity = { date: string; at: number }
 
-const ACTIVITY_KEY = 'today:active'
+export const ACTIVITY_KEY = 'today:active'
 
 /** How long after its last set an unfinished session still keeps the screen once its day is over. */
 const HOLD_MS = 6 * 60 * 60 * 1000
@@ -337,6 +337,11 @@ function recentActivity(value: unknown): Activity | null {
   const v = value as Record<string, unknown>
   if (typeof v.date !== 'string' || typeof v.at !== 'number') return null
   return Date.now() - v.at < HOLD_MS ? { date: v.date, at: v.at } : null
+}
+
+/** Whether the stored `today:active` note says a session is being logged: started or logged to recently, and not finished. */
+export function sessionInProgress(note: unknown): boolean {
+  return recentActivity(note) != null
 }
 
 /**

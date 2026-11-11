@@ -1,6 +1,7 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { AppSettings, GritDb } from '../../db/db'
 import { todayIso } from '../../domain'
+import { clearLock, createLock, lockSupported } from '../../platform/passkeyLock'
 import { useSettings, type SettingsActions, type SettingsState } from '../../state/useSettings'
 import { dayName } from '../../state/weekdayNames'
 import { IconButton } from '../../ui/components/Button'
@@ -12,6 +13,7 @@ import { ChoiceChip, SegmentedChoice } from '../../ui/components/SegmentedChoice
 import { Snackbar } from '../../ui/components/Snackbar'
 import { Stepper } from '../../ui/components/StepperField'
 import { Switch } from '../../ui/components/Switch'
+import { LOCK_UNSUPPORTED } from '../lock/LockScreen'
 import { BackupCard } from './BackupCard'
 import './settings.css'
 
@@ -37,13 +39,42 @@ export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }:
   // The newest message for the snackbar; `id` changes with each one, also when the text repeats.
   const [message, setMessage] = useState<{ id: number; text: string } | null>(null)
   const say = (text: string) => setMessage((last) => ({ id: (last?.id ?? 0) + 1, text }))
+  // Turning App lock on makes this phone's passkey first, so the setting is never on without one;
+  // closing the Face ID sheet, or a browser that has none, leaves it off. One change at a time.
+  const lockBusy = useRef(false)
+  // Asked ahead of time, so that the tap itself goes straight to the Face ID sheet (Safari shows it only then).
+  const lockSupport = useRef<boolean | null>(null)
+  useEffect(() => {
+    lockSupported()
+      .then((value) => {
+        lockSupport.current = value
+      })
+      .catch(() => {})
+  }, [])
+  const setAppLock = (on: boolean) => {
+    if (lockBusy.current) return
+    lockBusy.current = true
+    void (async () => {
+      if (!on) {
+        await settings.update((s) => ({ ...s, appLock: false }))
+        return clearLock(db)
+      }
+      const result = await createLock(db, lockSupport.current)
+      if (result === 'ok') await settings.update((s) => ({ ...s, appLock: true }))
+      else say(result === 'unsupported' ? `${LOCK_UNSUPPORTED}, so App lock stays off.` : 'App lock stays off.')
+    })()
+      .catch(() => say(SAVE_FAILED))
+      .finally(() => {
+        lockBusy.current = false
+      })
+  }
   return (
     <section className="screen">
       <ScreenHeader title="Settings" navigation={<IconButton label="Back" icon={<ArrowBackIcon />} onClick={onBack} />} />
       <div className="screen-body settings-body">
         {!settings.loading && (
           <>
-            <SettingsContent settings={settings.settings} onUpdate={(change) => void settings.update(change).catch(() => say(SAVE_FAILED))} />
+            <SettingsContent settings={settings.settings} onUpdate={(change) => void settings.update(change).catch(() => say(SAVE_FAILED))} onAppLock={setAppLock} />
             <SectionHeader title="Backup" />
             <BackupCard db={db} lastBackupAt={settings.settings.lastBackupAt} storageProtected={settings.storageProtected} safetyCopy={settings.safetyCopy} today={today} now={now} onMessage={say} />
           </>
@@ -54,10 +85,15 @@ export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }:
   )
 }
 
-export type SettingsContentProps = { settings: SettingsState['settings']; onUpdate: (change: Parameters<SettingsActions['update']>[0]) => void }
+export type SettingsContentProps = {
+  settings: SettingsState['settings']
+  onUpdate: (change: Parameters<SettingsActions['update']>[0]) => void
+  /** App lock is not just stored: turning it on makes a passkey. */
+  onAppLock: (on: boolean) => void
+}
 
 /** The settings themselves, as grouped cards of rows. */
-export function SettingsContent({ settings, onUpdate }: SettingsContentProps) {
+export function SettingsContent({ settings, onUpdate, onAppLock }: SettingsContentProps) {
   return (
     <>
       <SectionHeader title="Loading and targets" />
@@ -119,7 +155,7 @@ export function SettingsContent({ settings, onUpdate }: SettingsContentProps) {
 
       <SectionHeader title="Privacy" />
       <Group>
-        <SwitchRow label="App lock" supporting="Ask for Face ID, Touch ID or your passcode when Grit opens, and after a minute away" checked={settings.appLock} onChange={(v) => onUpdate((s) => ({ ...s, appLock: v }))} />
+        <SwitchRow label="App lock" supporting="Ask for Face ID, Touch ID or your passcode when Grit opens, and after a minute away" checked={settings.appLock} onChange={onAppLock} />
       </Group>
     </>
   )

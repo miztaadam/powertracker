@@ -26,6 +26,8 @@ export function todayFixture() {
   }
 
   return {
+    /** The database's name, for code that opens it itself. */
+    name,
     open,
     async dispose() {
       for (const db of opened.splice(0)) db.close()

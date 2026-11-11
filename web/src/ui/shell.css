@@ -39,3 +39,24 @@
 .shell {
   --snackbar-bottom: calc(80px + var(--rest-dock-height, 0px) + var(--space-4) + env(safe-area-inset-bottom));
 }
+
+/* "Update ready — tap to refresh", docked with the rest bar: the whole strip is the button. */
+.shell-update {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: var(--touch);
+  margin: 0;
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--container-high);
+  color: var(--accent-text);
+  text-align: center;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.shell-update + * {
+  margin-top: var(--space-3);
+}

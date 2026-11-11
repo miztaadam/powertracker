@@ -1,7 +1,7 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useState } from 'react'
 import { DEFAULT_SETTINGS, getSettings, readSafetyCopy, updateSettings, type AppSettings, type GritDb } from '../db/db'
-import { storageProtected } from '../platform/storage'
+import { useStorageProtected } from './useStorageProtected'
 
 export type SettingsState = {
   loading: boolean
@@ -28,22 +28,11 @@ async function readStored(db: GritDb): Promise<Stored> {
 export function useSettings(db: GritDb): SettingsState & SettingsActions {
   const [stored, setStored] = useState<Stored | null>(null)
   const [readError, setReadError] = useState<unknown>(null)
-  const [isProtected, setProtected] = useState<boolean | null>(null)
+  const isProtected = useStorageProtected()
   useEffect(() => {
     const subscription = liveQuery(() => readStored(db)).subscribe({ next: setStored, error: setReadError })
     return () => subscription.unsubscribe()
   }, [db])
-  useEffect(() => {
-    let stale = false
-    storageProtected()
-      .then((value) => {
-        if (!stale) setProtected(value)
-      })
-      .catch(() => {})
-    return () => {
-      stale = true
-    }
-  }, [])
   // A failed read is for the app's error boundary, not for a screen of default settings.
   if (readError != null) throw readError
 

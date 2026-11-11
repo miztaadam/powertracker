@@ -50,3 +50,9 @@
     opacity: 0;
   }
 }
+
+/* A line inside the body on what an action just did ("Backup saved."). */
+.gr-dialog-note {
+  margin: var(--space-3) 0 0;
+  color: var(--text);
+}
