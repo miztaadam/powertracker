@@ -116,17 +116,17 @@ for (const scheme of ['dark', 'light'] as const) {
 
 test('a suggestion changes nothing until it is applied', async ({ page }) => {
   await openWithSampleData(page)
-  expect(await planSize(page)).toBe(2)
+  await expect.poll(() => planSize(page)).toBe(2)
 
   await page.getByRole('button', { name: 'Add to plan' }).click()
   await expect(page.getByText('Added 3 exercises to Wednesday')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Bench has stalled' })).toHaveCount(0)
   await expect(page.getByText('2 open suggestions')).toBeVisible()
-  expect(await planSize(page)).toBe(5)
+  await expect.poll(() => planSize(page)).toBe(5)
 
   await page.getByRole('button', { name: 'Dismiss' }).first().click()
   await expect(page.getByText('1 open suggestion')).toBeVisible()
-  expect(await planSize(page)).toBe(5)
+  await expect.poll(() => planSize(page)).toBe(5)
 
   // Applied and dismissed advice stays gone after a reload.
   await page.reload()

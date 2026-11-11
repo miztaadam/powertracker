@@ -3,10 +3,10 @@ import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { openOnWednesday, seedFlatBench, tap } from './helpers'
 
-// The built service worker script, as `vite preview` serves it.
-const SW_PATH = resolve(process.cwd(), 'dist/sw.js')
-
-// It rewrites the built dist/sw.js for a moment; nothing else in this file runs beside it.
+// This spec has its own copy of the build (dist-update, served on 4175; see playwright.config.ts),
+// because it rewrites sw.js to fake a new deploy and specs in other workers must not see that.
+const SW_PATH = resolve(process.cwd(), 'dist-update/sw.js')
+test.use({ baseURL: 'http://localhost:4175' })
 test.describe.configure({ mode: 'serial' })
 
 test('updateDoesNotReloadDuringSession', async ({ page }) => {

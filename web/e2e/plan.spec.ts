@@ -113,10 +113,10 @@ for (const scheme of ['dark', 'light'] as const) {
 
     // The narrowest iPhone.
     await page.setViewportSize(narrowPhone)
-    expect(await rowsOf(page, 'Monday')).toEqual(['Squat  5 × 5 @ 8', 'Bench  4 × 6 @ 7.5', 'Row  3 × 8 @ 8'])
+    await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Squat  5 × 5 @ 8', 'Bench  4 × 6 @ 7.5', 'Row  3 × 8 @ 8'])
     await expect(page.getByRole('region', { name: 'Monday' }).getByText('3 exercises · 12 sets')).toBeVisible()
-    expect(await rowsOf(page, 'Wednesday')).toEqual(['Deadlift  3 × 3 @ 8', 'Close-grip bench  3 × 5 @ 8'])
-    expect(await rowsOf(page, 'Friday')).toEqual(['Bench  3 × 5 @ 8', 'Pause squat  3 × 4 @ 7.5'])
+    await expect.poll(() => rowsOf(page, 'Wednesday')).toEqual(['Deadlift  3 × 3 @ 8', 'Close-grip bench  3 × 5 @ 8'])
+    await expect.poll(() => rowsOf(page, 'Friday')).toEqual(['Bench  3 × 5 @ 8', 'Pause squat  3 × 4 @ 7.5'])
     await expect(page.getByRole('heading', { name: 'Known bests' })).toBeVisible()
     expect(await overflowing(page)).toEqual([])
     expect(await smallTargets(page)).toEqual([])
@@ -168,7 +168,7 @@ test.describe('on a 375 px iPhone', () => {
     expect(await overflowing(page)).toEqual([])
     expect(await smallTargets(page)).toEqual([])
     await dialog.getByRole('button', { name: 'Save' }).click()
-    expect(await rowsOf(page, 'Monday')).toEqual(['Squat  3 × 5 @ 8'])
+    await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Squat  3 × 5 @ 8'])
 
     // A custom variation, created from inside the picker.
     await monday.getByRole('button', { name: 'Add' }).click()
@@ -197,7 +197,7 @@ test.describe('on a 375 px iPhone', () => {
 
     await page.reload()
     await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveCount(2)
-    expect(await rowsOf(page, 'Monday')).toEqual(['Tempo squat  4 × 5 @ 8', 'Squat  3 × 5 @ 8'])
+    await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Tempo squat  4 × 5 @ 8', 'Squat  3 × 5 @ 8'])
   })
 
   test('a backup is exported, and restoring it asks before replacing everything', async ({ page }) => {
@@ -240,7 +240,7 @@ test.describe('on a 375 px iPhone', () => {
 
     await page.getByRole('button', { name: 'Back', exact: true }).click()
     await expect(page).toHaveURL(/#\/plan$/)
-    expect(await rowsOf(page, 'Monday')).toEqual(['Squat  5 × 5 @ 8', 'Bench  4 × 6 @ 7.5', 'Row  3 × 8 @ 8'])
+    await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Squat  5 × 5 @ 8', 'Bench  4 × 6 @ 7.5', 'Row  3 × 8 @ 8'])
   })
 
   test('Today reminds about a backup and leads to Settings', async ({ page }) => {
