@@ -83,17 +83,33 @@ tasks.register("checkWebDomain") {
             dir.walkTopDown().filter { it.isFile }.associate { it.relativeTo(dir).path to it.readBytes() }
         val expected = files(fresh.get().asFile)
         val actual = files(committed.asFile)
-        // The Kotlin compiler orders some import lines and interface lists (`[Encoder, CompositeEncoder]`) in the
-        // stdlib and serialization-json modules differently from run to run, so a file also counts as unchanged
-        // when it holds the same lines once those lists are sorted.
-        val list = Regex("\\[([^\\[\\]]*)]")
-        fun normalised(bytes: ByteArray) = bytes.decodeToString().lines()
-            .map { line -> list.replace(line) { m -> m.groupValues[1].split(", ").sorted().joinToString(", ", "[", "]") } }
-            .sorted()
-        fun sameLines(a: ByteArray?, b: ByteArray?) = a != null && b != null && normalised(a) == normalised(b)
-        val stale = (expected.keys + actual.keys)
-            .filter { !(expected[it] contentEquals actual[it]) && !sameLines(expected[it], actual[it]) }
-            .sorted()
+        // Across forced rebuilds only two third-party files vary, and only in two constructs: the member lines
+        // of an `import { ... } from` block, and the trailing interface list of `initMetadataForClass(...)`.
+        // Those are compared order-insensitively; everything else, and every other file (in particular
+        // powertracker-domain.mjs and powertracker-domain.d.mts), must match byte for byte.
+        val tolerant = setOf("kotlin-kotlin-stdlib.mjs", "kotlinx-serialization-kotlinx-serialization-json.mjs")
+        val interfaces = Regex("^(initMetadataForClass\\(.*, )\\[([^\\[\\]]*)]\\);$")
+        fun normalised(bytes: ByteArray): List<String> {
+            val out = mutableListOf<String>()
+            val members = mutableListOf<String>()
+            var inImport = false
+            for (line in bytes.decodeToString().lines()) {
+                when {
+                    line == "import {" -> { inImport = true; out += line }
+                    inImport && line.startsWith("} from ") -> {
+                        out += members.sorted(); members.clear(); inImport = false; out += line
+                    }
+                    inImport -> members += line
+                    else -> out += interfaces.replace(line) { m ->
+                        m.groupValues[1] + m.groupValues[2].split(", ").sorted().joinToString(", ", "[", "]") + ");"
+                    }
+                }
+            }
+            return out
+        }
+        fun same(name: String, a: ByteArray?, b: ByteArray?) =
+            a contentEquals b || (name in tolerant && a != null && b != null && normalised(a) == normalised(b))
+        val stale = (expected.keys + actual.keys).filter { !same(it, expected[it], actual[it]) }.sorted()
         if (stale.isNotEmpty()) {
             throw GradleException(
                 "web/src/domain/generated is out of date (${stale.joinToString()}). " +
