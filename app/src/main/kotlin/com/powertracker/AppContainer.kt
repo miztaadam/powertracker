@@ -2,6 +2,8 @@ package com.powertracker
 
 import android.content.Context
 import com.powertracker.data.AdviceRepository
+import com.powertracker.data.BackupService
+import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.data.db.AppDatabase
 
@@ -10,4 +12,6 @@ class AppContainer(context: Context) {
     val db: AppDatabase = AppDatabase.build(context)
     val training = TrainingRepository(db)
     val advice = AdviceRepository(db)
+    val settings = SettingsRepository(context)
+    val backup = BackupService(db, settings)
 }

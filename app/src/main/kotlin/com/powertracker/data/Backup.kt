@@ -1,0 +1,178 @@
+package com.powertracker.data
+
+import androidx.room.withTransaction
+import com.powertracker.data.db.AdviceEntity
+import com.powertracker.data.db.AppDatabase
+import com.powertracker.data.db.BaselineEntity
+import com.powertracker.data.db.ExerciseEntity
+import com.powertracker.data.db.PlanItemEntity
+import com.powertracker.data.db.SessionEntity
+import com.powertracker.data.db.SetEntity
+import com.powertracker.domain.model.AdviceStatus
+import com.powertracker.domain.model.AdviceType
+import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.model.MissPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.intOrNull
+import java.time.DayOfWeek
+import java.time.LocalDate
+
+@Serializable
+data class BackupSettings(
+    val changePlates: Boolean,
+    val defaultRpe: Double,
+    val trainingDays: List<Int>,
+    val appLock: Boolean,
+    val restMainSec: Int,
+    val restAccessorySec: Int,
+) {
+    fun toAppSettings() = AppSettings(
+        changePlates, defaultRpe, trainingDays.map { DayOfWeek.of(it) }.toSet(), appLock, restMainSec, restAccessorySec,
+    )
+
+    companion object {
+        fun of(s: AppSettings) = BackupSettings(
+            s.changePlates, s.defaultRpe, s.trainingDays.sorted().map { it.value }, s.appLock, s.restMainSec, s.restAccessorySec,
+        )
+    }
+}
+
+@Serializable
+data class ExerciseDto(
+    val id: Long, val name: String, val category: String, val parentLift: String?,
+    val muscles: List<String>, val isBuiltIn: Boolean, val archived: Boolean,
+) {
+    fun toEntity() = ExerciseEntity(id, name, Category.valueOf(category), parentLift?.let(MainLift::valueOf), muscles, isBuiltIn, archived)
+}
+
+@Serializable
+data class SessionDto(val id: Long, val date: Long, val bodyweightKg: Double?, val readiness: Int?) {
+    fun toEntity() = SessionEntity(id, LocalDate.ofEpochDay(date), bodyweightKg, readiness)
+}
+
+@Serializable
+data class SetDto(
+    val id: Long, val sessionId: Long, val exerciseId: Long, val weightKg: Double, val reps: Int,
+    val rpe: Double?, val failed: Boolean, val missPoint: String?, val isTopSet: Boolean,
+) {
+    fun toEntity() = SetEntity(id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint?.let(MissPoint::valueOf), isTopSet)
+}
+
+@Serializable
+data class PlanItemDto(
+    val id: Long, val weekday: Int, val exerciseId: Long, val sets: Int, val reps: Int,
+    val targetRpe: Double, val sortOrder: Int,
+) {
+    fun toEntity() = PlanItemEntity(id, DayOfWeek.of(weekday), exerciseId, sets, reps, targetRpe, sortOrder)
+}
+
+@Serializable
+data class AdviceDto(
+    val id: Long, val type: String, val lift: String?, val createdAt: Long, val reason: String,
+    val severity: Int, val payload: String, val status: String,
+) {
+    fun toEntity() = AdviceEntity(
+        id, AdviceType.valueOf(type), lift?.let(MainLift::valueOf), LocalDate.ofEpochDay(createdAt),
+        reason, severity, payload, AdviceStatus.valueOf(status),
+    )
+}
+
+@Serializable
+data class BaselineDto(val exerciseId: Long, val e1rmKg: Double, val date: Long) {
+    fun toEntity() = BaselineEntity(exerciseId, e1rmKg, LocalDate.ofEpochDay(date))
+}
+
+@Serializable
+data class BackupFile(
+    val version: Int,
+    val exportedAt: Long,
+    val settings: BackupSettings,
+    val exercises: List<ExerciseDto>,
+    val sessions: List<SessionDto>,
+    val sets: List<SetDto>,
+    val planItems: List<PlanItemDto>,
+    val advice: List<AdviceDto>,
+    val baselines: List<BaselineDto>,
+)
+
+sealed interface BackupResult {
+    data class Ok(val file: BackupFile) : BackupResult
+    data class TooNew(val version: Int) : BackupResult
+    data class Corrupt(val message: String) : BackupResult
+}
+
+object Backup {
+    const val VERSION = 1
+
+    private val strict = Json { ignoreUnknownKeys = false }
+    private val writer = Json { encodeDefaults = true }
+
+    fun encode(file: BackupFile): String = writer.encodeToString(BackupFile.serializer(), file)
+
+    fun decode(text: String): BackupResult {
+        try {
+            val root = strict.parseToJsonElement(text) as? JsonObject
+                ?: return BackupResult.Corrupt("Not a backup file")
+            val v = (root["version"] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull
+            if (v == null || v <= 0) return BackupResult.Corrupt("Missing or invalid version")
+            if (v > VERSION) return BackupResult.TooNew(v)
+            return BackupResult.Ok(strict.decodeFromJsonElement(BackupFile.serializer(), root))
+        } catch (e: SerializationException) {
+            return BackupResult.Corrupt(e.message ?: "Unreadable backup")
+        } catch (e: IllegalArgumentException) {
+            return BackupResult.Corrupt(e.message ?: "Unreadable backup")
+        }
+    }
+}
+
+class BackupService(private val db: AppDatabase, private val settings: SettingsRepository) {
+    suspend fun export(nowMillis: Long): BackupFile {
+        val s = settings.settings.first()
+        return db.withTransaction {
+            BackupFile(
+                version = Backup.VERSION,
+                exportedAt = nowMillis,
+                settings = BackupSettings.of(s),
+                exercises = db.exercises().all().map {
+                    ExerciseDto(it.id, it.name, it.category.name, it.parentLift?.name, it.muscles, it.isBuiltIn, it.archived)
+                },
+                sessions = db.sessions().all().map { SessionDto(it.id, it.date.toEpochDay(), it.bodyweightKg, it.readiness) },
+                sets = db.sets().all().map {
+                    SetDto(it.id, it.sessionId, it.exerciseId, it.weightKg, it.reps, it.rpe, it.failed, it.missPoint?.name, it.isTopSet)
+                },
+                planItems = db.plan().all().map {
+                    PlanItemDto(it.id, it.weekday.value, it.exerciseId, it.sets, it.reps, it.targetRpe, it.sortOrder)
+                },
+                advice = db.advice().all().map {
+                    AdviceDto(it.id, it.type.name, it.lift?.name, it.createdAt.toEpochDay(), it.reason, it.severity, it.payload, it.status.name)
+                },
+                baselines = db.baselines().all().map { BaselineDto(it.exerciseId, it.e1rmKg, it.date.toEpochDay()) },
+            )
+        }
+    }
+
+    /** Replaces all data in one transaction; any failure rolls back and leaves existing data untouched. */
+    suspend fun restore(file: BackupFile) {
+        db.withTransaction {
+            db.sets().clear()
+            db.advice().clear()
+            db.plan().clear()
+            db.baselines().clear()
+            db.sessions().clear()
+            db.exercises().clear()
+            db.exercises().insertAll(file.exercises.map { it.toEntity() })
+            db.sessions().insertAll(file.sessions.map { it.toEntity() })
+            db.sets().insertAll(file.sets.map { it.toEntity() })
+            db.plan().insertAll(file.planItems.map { it.toEntity() })
+            db.advice().insert(file.advice.map { it.toEntity() })
+            db.baselines().insertAll(file.baselines.map { it.toEntity() })
+        }
+        settings.update { file.settings.toAppSettings() }
+    }
+}
