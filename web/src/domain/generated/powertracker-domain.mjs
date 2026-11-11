@@ -4622,6 +4622,9 @@ function InputValidator_getInstance() {
 function GritDomain$accessoryOptions$lambda(it) {
   return it.f1_1;
 }
+function GritDomain$accessoryMuscles$lambda(it) {
+  return it.f1_1;
+}
 function GritDomain() {
 }
 protoOf(GritDomain).estimateE1rm = function (weightKg, reps, rpe) {
@@ -4850,6 +4853,47 @@ protoOf(GritDomain).accessoryOptions = function (lift, miss) {
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination);
+};
+protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
+  var tmp = AccessoryMap_getInstance();
+  var tmp_0 = parseLift('lift', lift);
+  var tmp_1;
+  if (miss == null) {
+    tmp_1 = null;
+  } else {
+    // Inline function 'kotlin.let' call
+    // Inline function 'com.powertracker.domain.web.parseEnum' call
+    // Inline function 'kotlin.enumValues' call
+    var tmp0 = values_3();
+    var tmp$ret$4;
+    $l$block: {
+      // Inline function 'kotlin.collections.firstOrNull' call
+      var inductionVariable = 0;
+      var last = tmp0.length;
+      while (inductionVariable < last) {
+        var element = tmp0[inductionVariable];
+        inductionVariable = inductionVariable + 1 | 0;
+        if (element.f1_1 === miss) {
+          tmp$ret$4 = element;
+          break $l$block;
+        }
+      }
+      tmp$ret$4 = null;
+    }
+    var tmp0_elvis_lhs = tmp$ret$4;
+    var tmp_2;
+    if (tmp0_elvis_lhs == null) {
+      // Inline function 'kotlin.enumValues' call
+      var tmp_3 = values_3();
+      throw IllegalArgumentException_init_$Create$('miss' + ": '" + miss + "' is not one of " + joinToString_0(tmp_3, VOID, VOID, VOID, VOID, VOID, GritDomain$accessoryMuscles$lambda));
+    } else {
+      tmp_2 = tmp0_elvis_lhs;
+    }
+    tmp_1 = tmp_2;
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var this_0 = tmp.o12(tmp_0, tmp_1);
+  return copyToArray(this_0);
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call

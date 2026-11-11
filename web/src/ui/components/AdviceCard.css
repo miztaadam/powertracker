@@ -21,7 +21,8 @@
   height: 20px;
 }
 
-.gr-advice-tag {
+/* Two classes, so the tone wins over the eyebrow's muted colour whatever order the stylesheets load in. */
+.gr-advice .gr-advice-tag {
   color: var(--tone);
 }
 

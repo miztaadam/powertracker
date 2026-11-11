@@ -1,0 +1,61 @@
+/* Layout for the Coach screen. Colours, type and controls come from the components and tokens. */
+
+.coach-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.coach-row > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The lift's e1RM with its trend beside it. */
+.coach-trend {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.coach-spark {
+  flex: 1;
+  height: 48px;
+}
+
+.coach-additions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.coach-muted {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/* The accessories on offer, one per line: name on the left, sets × reps on the right. */
+.coach-list {
+  margin: 0;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--container);
+  list-style: none;
+}
+
+.coach-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 44px;
+  color: var(--text);
+}
+
+.coach-list-row + .coach-list-row {
+  border-top: 1px solid var(--hairline);
+}
+
+.coach-dose {
+  flex: none;
+  white-space: nowrap;
+}

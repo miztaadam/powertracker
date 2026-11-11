@@ -141,6 +141,9 @@ class GritDomainTest {
         assertNull(GritDomain.parseBaselineKg("abc"))
         assertContentEquals(doubleArrayOf(0.80, 0.90, 0.60, 0.70).toTypedArray(), GritDomain.ratioRanges())
         assertEquals(listOf("Close-grip bench", "JM press", "Board press"), GritDomain.accessoryOptions("BENCH", "LOCKOUT").map { it.name })
+        assertEquals(listOf("Triceps"), GritDomain.accessoryMuscles("BENCH", "LOCKOUT").toList())
+        assertEquals(listOf("Quads", "Lats", "Position"), GritDomain.accessoryMuscles("DEADLIFT", "FLOOR").toList())
+        assertEquals(emptyList(), GritDomain.accessoryMuscles("SQUAT", null).toList())
         assertTrue(GritDomain.seedExercises().any { it.name == "Squat" })
     }
 

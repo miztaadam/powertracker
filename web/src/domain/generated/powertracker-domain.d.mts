@@ -24,6 +24,7 @@ export declare namespace GritDomain {
             prs(history: JsHistory, lift: string): Array<JsPr>;
             weeklyVolume(history: JsHistory, lift: string): Array<JsWeeklyPoint>;
             accessoryOptions(lift: string, miss: Nullable<string>): Array<JsAccessoryOption>;
+            accessoryMuscles(lift: string, miss: Nullable<string>): Array<string>;
             seedExercises(): Array<JsExercise>;
             ratioRanges(): Array<number>;
             private constructor();

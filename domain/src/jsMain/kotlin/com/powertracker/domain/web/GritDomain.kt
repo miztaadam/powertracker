@@ -90,6 +90,10 @@ object GritDomain {
         AccessoryMap.options(parseLift("lift", lift), miss?.let { parseEnum<MissPoint>("miss", it) })
             .map { it.toJs() }.toTypedArray()
 
+    /** The muscles behind a sticking point, e.g. `["Quads", "Glutes"]`; empty when no miss point is given. */
+    fun accessoryMuscles(lift: String, miss: String?): Array<String> =
+        AccessoryMap.muscles(parseLift("lift", lift), miss?.let { parseEnum<MissPoint>("miss", it) }).toTypedArray()
+
     fun seedExercises(): Array<JsExercise> = SeedLibrary.exercises().map { it.toJs() }.toTypedArray()
 
     /** Typical strength ratios as `[sdLo, sdHi, bsLo, bsHi]`: squat ÷ deadlift, then bench ÷ squat. */
