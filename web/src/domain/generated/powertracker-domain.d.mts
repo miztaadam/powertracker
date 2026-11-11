@@ -26,7 +26,10 @@ export declare namespace GritDomain {
             accessoryOptions(lift: string, miss: Nullable<string>): Array<JsAccessoryOption>;
             accessoryMuscles(lift: string, miss: Nullable<string>): Array<string>;
             seedExercises(): Array<JsExercise>;
-            ratioRanges(): Array<number>;
+            total(history: JsHistory, until: string): Nullable<number>;
+            mainLiftOf(exercise: JsExercise): Nullable<string>;
+            isMainLift(exercise: JsExercise): boolean;
+            ratioRanges(): Array<JsRatioRange>;
             private constructor();
         }
     }
@@ -223,5 +226,22 @@ export declare namespace JsAccessoryOption {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsAccessoryOption;
+    }
+}
+export declare class JsRatioRange {
+    constructor(numerator: string, denominator: string, low: number, high: number);
+    get numerator(): string;
+    get denominator(): string;
+    get low(): number;
+    get high(): number;
+    copy(numerator?: string, denominator?: string, low?: number, high?: number): JsRatioRange;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsRatioRange {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsRatioRange;
     }
 }

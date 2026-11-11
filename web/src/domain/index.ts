@@ -9,6 +9,7 @@ export {
   JsHistory,
   JsPlanItem,
   JsPr,
+  JsRatioRange,
   JsSession,
   JsSet,
   JsWeeklyPoint,

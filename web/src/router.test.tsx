@@ -36,7 +36,7 @@ describe('app shell routing', () => {
   it('renders the lift page for #/lift/BENCH', () => {
     window.location.hash = '#/lift/BENCH'
     render(<App />)
-    expect(screen.getByRole('heading', { level: 1, name: 'Bench' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Bench history' })).toBeInTheDocument()
   })
 
   it('renders settings and reacts to hash changes', () => {
@@ -57,6 +57,6 @@ describe('app shell routing', () => {
     render(<App />)
     act(() => navigate({ page: 'lift', lift: 'DEADLIFT' }))
     expect(window.location.hash).toBe('#/lift/DEADLIFT')
-    expect(await screen.findByRole('heading', { level: 1, name: 'Deadlift' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Deadlift history' })).toBeInTheDocument()
   })
 })

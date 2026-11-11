@@ -1,8 +1,9 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
-import type { AdviceRow, PlanItemRow } from '../db/schema'
-import { grit, type JsHistory } from '../domain'
+import { exerciseToJs } from '../db/mapping'
+import type { AdviceRow, ExerciseRow, PlanItemRow } from '../db/schema'
+import { grit, type JsExercise, type JsHistory } from '../domain'
 import type { Lift } from '../router'
 import type { MissPoint } from './useToday'
 
@@ -87,8 +88,7 @@ function parsePayload(payloadJson: string): Payload | null {
 }
 
 type StoredAdvice = AdviceRow & { id: number }
-/** What the plan insertion needs to know of an exercise. */
-type LibraryExercise = { id: number; name: string; category: string; archived: boolean }
+type LibraryExercise = JsExercise
 type StoredPlanItem = PlanItemRow & { id: number }
 
 type Stored = { today: string; open: StoredAdvice[]; history: JsHistory; plan: StoredPlanItem[] }
@@ -122,19 +122,15 @@ const findExercise = (exercises: LibraryExercise[], name: string) => exercises.f
  * figures, so a ratio flag always has its bar.
  */
 function ratioFor(lift: Lift, history: JsHistory, today: string, flaggedOnly: boolean): RatioUi | null {
-  const [sdLow = 0, sdHigh = 0, bsLow = 0, bsHigh = 0] = grit.ratioRanges()
-  const pairs: { numerator: Lift; denominator: Lift; low: number; high: number }[] = [
-    { numerator: 'SQUAT', denominator: 'DEADLIFT', low: sdLow, high: sdHigh },
-    { numerator: 'BENCH', denominator: 'SQUAT', low: bsLow, high: bsHigh },
-  ]
-  const known = pairs
-    .filter((pair) => lift === pair.numerator || lift === pair.denominator)
-    .flatMap((pair): RatioUi[] => {
-      const num = grit.currentE1rm(history, pair.numerator, today, E1RM_DAYS)
-      const den = grit.currentE1rm(history, pair.denominator, today, E1RM_DAYS)
-      if (num == null || den == null || den <= 0) return []
-      return [{ numerator: pair.numerator, denominator: pair.denominator, valuePct: percent(num / den), lowPct: percent(pair.low), highPct: percent(pair.high) }]
-    })
+  const known = grit.ratioRanges().flatMap((pair): RatioUi[] => {
+    const numerator = asLift(pair.numerator)
+    const denominator = asLift(pair.denominator)
+    if (!numerator || !denominator || (lift !== numerator && lift !== denominator)) return []
+    const num = grit.currentE1rm(history, numerator, today, E1RM_DAYS)
+    const den = grit.currentE1rm(history, denominator, today, E1RM_DAYS)
+    if (num == null || den == null || den <= 0) return []
+    return [{ numerator, denominator, valuePct: percent(num / den), lowPct: percent(pair.low), highPct: percent(pair.high) }]
+  })
   const flagged = known.find((r) => (lift === r.numerator ? r.valuePct < r.lowPct : r.valuePct > r.highPct))
   return flagged ?? (flaggedOnly ? null : (known[0] ?? null))
 }
@@ -189,7 +185,7 @@ function build(d: Stored, busy: ReadonlySet<number>): CoachCard[] {
 
 /** The earliest weekday that already trains the lift; else the first training day; else Monday. */
 function dayFor(lift: Lift | null, plan: PlanItemRow[], exercises: LibraryExercise[], settings: AppSettings): number {
-  const mainIds = new Set(exercises.filter((e) => e.category === lift).map((e) => e.id))
+  const mainIds = new Set(exercises.filter((e) => grit.isMainLift(e) && grit.mainLiftOf(e) === lift).map((e) => e.id))
   const days = plan.filter((p) => mainIds.has(p.exerciseId)).map((p) => p.weekday)
   if (days.length > 0) return Math.min(...days)
   return settings.trainingDays.length > 0 ? Math.min(...settings.trainingDays) : 1
@@ -229,7 +225,7 @@ function applyAdvice(db: GritDb, adviceId: number): Promise<string | null> {
     else if (payload.kind === 'reEntry') message = 'Easing back in for 7 days'
     else {
       const [plan, rows] = await Promise.all([db.planItems.toArray(), db.exercises.toArray()])
-      const exercises = rows as LibraryExercise[]
+      const exercises = rows.map((row) => exerciseToJs(row as ExerciseRow & { id: number }))
       message =
         payload.kind === 'accessories'
           ? await addToPlan(db, asLift(target.lift), payload.items, plan, exercises)

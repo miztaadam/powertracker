@@ -50,8 +50,13 @@ export function SetRow(props: SetRowProps) {
             </>
           )}
         </span>
-        {isTopSet && <Pill text="Top set" />}
-        {isPr && <Pill text="PR" tone="success" icon={<EmojiEventsIcon />} />}
+        {(isTopSet || isPr) && (
+          // Both pills stay on one line where they fit; on a narrow phone with a long weight the second goes under the first.
+          <span className="gr-set-pills">
+            {isTopSet && <Pill text="Top set" />}
+            {isPr && <Pill text="PR" tone="success" icon={<EmojiEventsIcon />} />}
+          </span>
+        )}
         <span className="gr-set-spacer" />
         {state === 'planned' && <span className="gr-set-dot gr-set-dot-planned" />}
         {state === 'done' && (

@@ -91,6 +91,7 @@ import {
   add85si75olwt6n as add,
   modulo3mmbfwxzpcw3a as modulo,
   toList2zksu85ukrmi as toList,
+  sum2ku6kbgxq0lee as sum,
   LinkedHashSet_init_$Create$vv7nkva6wxy5 as LinkedHashSet_init_$Create$,
   IllegalStateException_init_$Create$38ax6c90susjc as IllegalStateException_init_$Create$,
   toList3jhuyej2anx2q as toList_0,
@@ -222,6 +223,7 @@ initMetadataForClass(JsCoachSettings, 'JsCoachSettings');
 initMetadataForClass(JsWeeklyPoint, 'JsWeeklyPoint');
 initMetadataForClass(JsPr, 'JsPr');
 initMetadataForClass(JsAccessoryOption, 'JsAccessoryOption');
+initMetadataForClass(JsRatioRange, 'JsRatioRange');
 //endregion
 function AccessoryOption(exerciseName, heavy) {
   this.i12_1 = exerciseName;
@@ -2694,6 +2696,10 @@ protoOf(HistoryStats).w17 = function (lift, until, days) {
   var tmp0_safe_receiver_0 = tmp$ret$24;
   return tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.h13_1;
 };
+protoOf(HistoryStats).x17 = function (lift, until, days, $super) {
+  days = days === VOID ? new Long(28, 0) : days;
+  return $super === VOID ? this.w17(lift, until, days) : $super.w17.call(this, lift, until, days);
+};
 protoOf(HistoryStats).s13 = function (lift) {
   var tmp0 = this.a13_1;
   var tmp$ret$0;
@@ -2924,22 +2930,22 @@ function $serializer() {
   tmp0_serialDesc.zi('sets', false);
   tmp0_serialDesc.zi('repsLow', false);
   tmp0_serialDesc.zi('repsHigh', false);
-  this.x17_1 = tmp0_serialDesc;
+  this.y17_1 = tmp0_serialDesc;
 }
-protoOf($serializer).y17 = function (encoder, value) {
-  var tmp0_desc = this.x17_1;
+protoOf($serializer).z17 = function (encoder, value) {
+  var tmp0_desc = this.y17_1;
   var tmp1_output = encoder.ef(tmp0_desc);
-  tmp1_output.cg(tmp0_desc, 0, value.z17_1);
-  tmp1_output.zf(tmp0_desc, 1, value.a18_1);
-  tmp1_output.zf(tmp0_desc, 2, value.b18_1);
-  tmp1_output.zf(tmp0_desc, 3, value.c18_1);
+  tmp1_output.cg(tmp0_desc, 0, value.a18_1);
+  tmp1_output.zf(tmp0_desc, 1, value.b18_1);
+  tmp1_output.zf(tmp0_desc, 2, value.c18_1);
+  tmp1_output.zf(tmp0_desc, 3, value.d18_1);
   tmp1_output.ff(tmp0_desc);
 };
 protoOf($serializer).mc = function (encoder, value) {
-  return this.y17(encoder, value instanceof AccessoryPrescription ? value : THROW_CCE());
+  return this.z17(encoder, value instanceof AccessoryPrescription ? value : THROW_CCE());
 };
 protoOf($serializer).lc = function (decoder) {
-  var tmp0_desc = this.x17_1;
+  var tmp0_desc = this.y17_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -2988,7 +2994,7 @@ protoOf($serializer).lc = function (decoder) {
   return AccessoryPrescription_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, tmp6_local2, tmp7_local3, null);
 };
 protoOf($serializer).kc = function () {
-  return this.x17_1;
+  return this.y17_1;
 };
 protoOf($serializer).oj = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -3004,31 +3010,31 @@ function $serializer_getInstance() {
 }
 function AccessoryPrescription_init_$Init$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker, $this) {
   if (!(15 === (15 & seen0))) {
-    throwMissingFieldException(seen0, 15, $serializer_getInstance().x17_1);
+    throwMissingFieldException(seen0, 15, $serializer_getInstance().y17_1);
   }
-  $this.z17_1 = exerciseName;
-  $this.a18_1 = sets;
-  $this.b18_1 = repsLow;
-  $this.c18_1 = repsHigh;
+  $this.a18_1 = exerciseName;
+  $this.b18_1 = sets;
+  $this.c18_1 = repsLow;
+  $this.d18_1 = repsHigh;
   return $this;
 }
 function AccessoryPrescription_init_$Create$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker) {
   return AccessoryPrescription_init_$Init$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker, objectCreate(protoOf(AccessoryPrescription)));
 }
 function AccessoryPrescription(exerciseName, sets, repsLow, repsHigh) {
-  this.z17_1 = exerciseName;
-  this.a18_1 = sets;
-  this.b18_1 = repsLow;
-  this.c18_1 = repsHigh;
+  this.a18_1 = exerciseName;
+  this.b18_1 = sets;
+  this.c18_1 = repsLow;
+  this.d18_1 = repsHigh;
 }
 protoOf(AccessoryPrescription).toString = function () {
-  return 'AccessoryPrescription(exerciseName=' + this.z17_1 + ', sets=' + this.a18_1 + ', repsLow=' + this.b18_1 + ', repsHigh=' + this.c18_1 + ')';
+  return 'AccessoryPrescription(exerciseName=' + this.a18_1 + ', sets=' + this.b18_1 + ', repsLow=' + this.c18_1 + ', repsHigh=' + this.d18_1 + ')';
 };
 protoOf(AccessoryPrescription).hashCode = function () {
-  var result = getStringHashCode(this.z17_1);
-  result = imul(result, 31) + this.a18_1 | 0;
+  var result = getStringHashCode(this.a18_1);
   result = imul(result, 31) + this.b18_1 | 0;
   result = imul(result, 31) + this.c18_1 | 0;
+  result = imul(result, 31) + this.d18_1 | 0;
   return result;
 };
 protoOf(AccessoryPrescription).equals = function (other) {
@@ -3036,13 +3042,13 @@ protoOf(AccessoryPrescription).equals = function (other) {
     return true;
   if (!(other instanceof AccessoryPrescription))
     return false;
-  if (!(this.z17_1 === other.z17_1))
-    return false;
   if (!(this.a18_1 === other.a18_1))
     return false;
   if (!(this.b18_1 === other.b18_1))
     return false;
   if (!(this.c18_1 === other.c18_1))
+    return false;
+  if (!(this.d18_1 === other.d18_1))
     return false;
   return true;
 };
@@ -3060,10 +3066,10 @@ function $serializer_0() {
   tmp0_serialDesc.zi('reps', false);
   tmp0_serialDesc.zi('rpe', false);
   tmp0_serialDesc.zi('sets', true);
-  this.d18_1 = tmp0_serialDesc;
+  this.e18_1 = tmp0_serialDesc;
 }
-protoOf($serializer_0).e18 = function (encoder, value) {
-  var tmp0_desc = this.d18_1;
+protoOf($serializer_0).f18 = function (encoder, value) {
+  var tmp0_desc = this.e18_1;
   var tmp1_output = encoder.ef(tmp0_desc);
   tmp1_output.ag(tmp0_desc, 0, value.o14_1);
   tmp1_output.bg(tmp0_desc, 1, value.p14_1);
@@ -3075,10 +3081,10 @@ protoOf($serializer_0).e18 = function (encoder, value) {
   tmp1_output.ff(tmp0_desc);
 };
 protoOf($serializer_0).mc = function (encoder, value) {
-  return this.e18(encoder, value instanceof Target ? value : THROW_CCE());
+  return this.f18(encoder, value instanceof Target ? value : THROW_CCE());
 };
 protoOf($serializer_0).lc = function (decoder) {
-  var tmp0_desc = this.d18_1;
+  var tmp0_desc = this.e18_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -3134,7 +3140,7 @@ protoOf($serializer_0).lc = function (decoder) {
   return Target_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, tmp6_local2, tmp7_local3, tmp8_local4, null);
 };
 protoOf($serializer_0).kc = function () {
-  return this.d18_1;
+  return this.e18_1;
 };
 protoOf($serializer_0).oj = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -3150,7 +3156,7 @@ function $serializer_getInstance_0() {
 }
 function Target_init_$Init$(seen0, exerciseId, weightKg, reps, rpe, sets, serializationConstructorMarker, $this) {
   if (!(15 === (15 & seen0))) {
-    throwMissingFieldException(seen0, 15, $serializer_getInstance_0().d18_1);
+    throwMissingFieldException(seen0, 15, $serializer_getInstance_0().e18_1);
   }
   $this.o14_1 = exerciseId;
   $this.p14_1 = weightKg;
@@ -3175,7 +3181,7 @@ function Companion_1() {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  tmp.f18_1 = [lazy(tmp_0, AdvicePayload$Accessories$Companion$$childSerializers$_anonymous__5pmo3s)];
+  tmp.g18_1 = [lazy(tmp_0, AdvicePayload$Accessories$Companion$$childSerializers$_anonymous__5pmo3s)];
 }
 var Companion_instance_1;
 function Companion_getInstance_3() {
@@ -3187,26 +3193,26 @@ function $serializer_1() {
   $serializer_instance_1 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.Accessories', this, 1);
   tmp0_serialDesc.zi('items', false);
-  this.g18_1 = tmp0_serialDesc;
+  this.h18_1 = tmp0_serialDesc;
 }
-protoOf($serializer_1).h18 = function (encoder, value) {
-  var tmp0_desc = this.g18_1;
+protoOf($serializer_1).i18 = function (encoder, value) {
+  var tmp0_desc = this.h18_1;
   var tmp1_output = encoder.ef(tmp0_desc);
-  var tmp2_cached = Companion_getInstance_3().f18_1;
-  tmp1_output.dg(tmp0_desc, 0, tmp2_cached[0].t(), value.i18_1);
+  var tmp2_cached = Companion_getInstance_3().g18_1;
+  tmp1_output.dg(tmp0_desc, 0, tmp2_cached[0].t(), value.j18_1);
   tmp1_output.ff(tmp0_desc);
 };
 protoOf($serializer_1).mc = function (encoder, value) {
-  return this.h18(encoder, value instanceof Accessories ? value : THROW_CCE());
+  return this.i18(encoder, value instanceof Accessories ? value : THROW_CCE());
 };
 protoOf($serializer_1).lc = function (decoder) {
-  var tmp0_desc = this.g18_1;
+  var tmp0_desc = this.h18_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
   var tmp4_local0 = null;
   var tmp5_input = decoder.ef(tmp0_desc);
-  var tmp6_cached = Companion_getInstance_3().f18_1;
+  var tmp6_cached = Companion_getInstance_3().g18_1;
   if (tmp5_input.of()) {
     tmp4_local0 = tmp5_input.kf(tmp0_desc, 0, tmp6_cached[0].t(), tmp4_local0);
     tmp3_bitMask0 = tmp3_bitMask0 | 1;
@@ -3229,13 +3235,13 @@ protoOf($serializer_1).lc = function (decoder) {
   return Accessories_init_$Create$(tmp3_bitMask0, tmp4_local0, null);
 };
 protoOf($serializer_1).kc = function () {
-  return this.g18_1;
+  return this.h18_1;
 };
 protoOf($serializer_1).oj = function () {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  return [Companion_getInstance_3().f18_1[0].t()];
+  return [Companion_getInstance_3().g18_1[0].t()];
 };
 var $serializer_instance_1;
 function $serializer_getInstance_1() {
@@ -3245,9 +3251,9 @@ function $serializer_getInstance_1() {
 }
 function Accessories_init_$Init$(seen0, items, serializationConstructorMarker, $this) {
   if (!(1 === (1 & seen0))) {
-    throwMissingFieldException(seen0, 1, $serializer_getInstance_1().g18_1);
+    throwMissingFieldException(seen0, 1, $serializer_getInstance_1().h18_1);
   }
-  $this.i18_1 = items;
+  $this.j18_1 = items;
   return $this;
 }
 function Accessories_init_$Create$(seen0, items, serializationConstructorMarker) {
@@ -3264,10 +3270,10 @@ function $serializer_2() {
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.Deload', this, 2);
   tmp0_serialDesc.zi('volumeFactor', true);
   tmp0_serialDesc.zi('loadFactor', true);
-  this.j18_1 = tmp0_serialDesc;
+  this.k18_1 = tmp0_serialDesc;
 }
-protoOf($serializer_2).k18 = function (encoder, value) {
-  var tmp0_desc = this.j18_1;
+protoOf($serializer_2).l18 = function (encoder, value) {
+  var tmp0_desc = this.k18_1;
   var tmp1_output = encoder.ef(tmp0_desc);
   if (tmp1_output.jg(tmp0_desc, 0) ? true : !equals(value.t14_1, 0.6)) {
     tmp1_output.bg(tmp0_desc, 0, value.t14_1);
@@ -3278,10 +3284,10 @@ protoOf($serializer_2).k18 = function (encoder, value) {
   tmp1_output.ff(tmp0_desc);
 };
 protoOf($serializer_2).mc = function (encoder, value) {
-  return this.k18(encoder, value instanceof Deload ? value : THROW_CCE());
+  return this.l18(encoder, value instanceof Deload ? value : THROW_CCE());
 };
 protoOf($serializer_2).lc = function (decoder) {
-  var tmp0_desc = this.j18_1;
+  var tmp0_desc = this.k18_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -3316,7 +3322,7 @@ protoOf($serializer_2).lc = function (decoder) {
   return Deload_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, null);
 };
 protoOf($serializer_2).kc = function () {
-  return this.j18_1;
+  return this.k18_1;
 };
 protoOf($serializer_2).oj = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -3332,7 +3338,7 @@ function $serializer_getInstance_2() {
 }
 function Deload_init_$Init$(seen0, volumeFactor, loadFactor, serializationConstructorMarker, $this) {
   if (!(0 === (0 & seen0))) {
-    throwMissingFieldException(seen0, 0, $serializer_getInstance_2().j18_1);
+    throwMissingFieldException(seen0, 0, $serializer_getInstance_2().k18_1);
   }
   if (0 === (seen0 & 1))
     $this.t14_1 = 0.6;
@@ -3362,7 +3368,7 @@ function Companion_3() {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  tmp.l18_1 = [tmp_1, lazy(tmp_2, AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8_0)];
+  tmp.m18_1 = [tmp_1, lazy(tmp_2, AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8_0)];
 }
 var Companion_instance_3;
 function Companion_getInstance_5() {
@@ -3375,28 +3381,28 @@ function $serializer_3() {
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.WeakPoint', this, 2);
   tmp0_serialDesc.zi('lift', false);
   tmp0_serialDesc.zi('missPoint', false);
-  this.m18_1 = tmp0_serialDesc;
+  this.n18_1 = tmp0_serialDesc;
 }
-protoOf($serializer_3).n18 = function (encoder, value) {
-  var tmp0_desc = this.m18_1;
+protoOf($serializer_3).o18 = function (encoder, value) {
+  var tmp0_desc = this.n18_1;
   var tmp1_output = encoder.ef(tmp0_desc);
-  var tmp2_cached = Companion_getInstance_5().l18_1;
-  tmp1_output.dg(tmp0_desc, 0, tmp2_cached[0].t(), value.o18_1);
-  tmp1_output.fg(tmp0_desc, 1, tmp2_cached[1].t(), value.p18_1);
+  var tmp2_cached = Companion_getInstance_5().m18_1;
+  tmp1_output.dg(tmp0_desc, 0, tmp2_cached[0].t(), value.p18_1);
+  tmp1_output.fg(tmp0_desc, 1, tmp2_cached[1].t(), value.q18_1);
   tmp1_output.ff(tmp0_desc);
 };
 protoOf($serializer_3).mc = function (encoder, value) {
-  return this.n18(encoder, value instanceof WeakPoint ? value : THROW_CCE());
+  return this.o18(encoder, value instanceof WeakPoint ? value : THROW_CCE());
 };
 protoOf($serializer_3).lc = function (decoder) {
-  var tmp0_desc = this.m18_1;
+  var tmp0_desc = this.n18_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
   var tmp4_local0 = null;
   var tmp5_local1 = null;
   var tmp6_input = decoder.ef(tmp0_desc);
-  var tmp7_cached = Companion_getInstance_5().l18_1;
+  var tmp7_cached = Companion_getInstance_5().m18_1;
   if (tmp6_input.of()) {
     tmp4_local0 = tmp6_input.kf(tmp0_desc, 0, tmp7_cached[0].t(), tmp4_local0);
     tmp3_bitMask0 = tmp3_bitMask0 | 1;
@@ -3425,10 +3431,10 @@ protoOf($serializer_3).lc = function (decoder) {
   return WeakPoint_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, null);
 };
 protoOf($serializer_3).kc = function () {
-  return this.m18_1;
+  return this.n18_1;
 };
 protoOf($serializer_3).oj = function () {
-  var tmp0_cached = Companion_getInstance_5().l18_1;
+  var tmp0_cached = Companion_getInstance_5().m18_1;
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
@@ -3442,10 +3448,10 @@ function $serializer_getInstance_3() {
 }
 function WeakPoint_init_$Init$(seen0, lift, missPoint, serializationConstructorMarker, $this) {
   if (!(3 === (3 & seen0))) {
-    throwMissingFieldException(seen0, 3, $serializer_getInstance_3().m18_1);
+    throwMissingFieldException(seen0, 3, $serializer_getInstance_3().n18_1);
   }
-  $this.o18_1 = lift;
-  $this.p18_1 = missPoint;
+  $this.p18_1 = lift;
+  $this.q18_1 = missPoint;
   return $this;
 }
 function WeakPoint_init_$Create$(seen0, lift, missPoint, serializationConstructorMarker) {
@@ -3461,10 +3467,10 @@ function $serializer_4() {
   $serializer_instance_4 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.ReEntry', this, 1);
   tmp0_serialDesc.zi('loadFactor', true);
-  this.q18_1 = tmp0_serialDesc;
+  this.r18_1 = tmp0_serialDesc;
 }
-protoOf($serializer_4).r18 = function (encoder, value) {
-  var tmp0_desc = this.q18_1;
+protoOf($serializer_4).s18 = function (encoder, value) {
+  var tmp0_desc = this.r18_1;
   var tmp1_output = encoder.ef(tmp0_desc);
   if (tmp1_output.jg(tmp0_desc, 0) ? true : !equals(value.c13_1, 0.85)) {
     tmp1_output.bg(tmp0_desc, 0, value.c13_1);
@@ -3472,10 +3478,10 @@ protoOf($serializer_4).r18 = function (encoder, value) {
   tmp1_output.ff(tmp0_desc);
 };
 protoOf($serializer_4).mc = function (encoder, value) {
-  return this.r18(encoder, value instanceof ReEntry ? value : THROW_CCE());
+  return this.s18(encoder, value instanceof ReEntry ? value : THROW_CCE());
 };
 protoOf($serializer_4).lc = function (decoder) {
-  var tmp0_desc = this.q18_1;
+  var tmp0_desc = this.r18_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -3503,7 +3509,7 @@ protoOf($serializer_4).lc = function (decoder) {
   return ReEntry_init_$Create$(tmp3_bitMask0, tmp4_local0, null);
 };
 protoOf($serializer_4).kc = function () {
-  return this.q18_1;
+  return this.r18_1;
 };
 protoOf($serializer_4).oj = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -3519,7 +3525,7 @@ function $serializer_getInstance_4() {
 }
 function ReEntry_init_$Init$(seen0, loadFactor, serializationConstructorMarker, $this) {
   if (!(0 === (0 & seen0))) {
-    throwMissingFieldException(seen0, 0, $serializer_getInstance_4().q18_1);
+    throwMissingFieldException(seen0, 0, $serializer_getInstance_4().r18_1);
   }
   if (0 === (seen0 & 1))
     $this.c13_1 = 0.85;
@@ -3538,7 +3544,7 @@ function Target(exerciseId, weightKg, reps, rpe, sets) {
   this.r14_1 = rpe;
   this.s14_1 = sets;
 }
-protoOf(Target).s18 = function (exerciseId, weightKg, reps, rpe, sets) {
+protoOf(Target).t18 = function (exerciseId, weightKg, reps, rpe, sets) {
   return new Target(exerciseId, weightKg, reps, rpe, sets);
 };
 protoOf(Target).z14 = function (exerciseId, weightKg, reps, rpe, sets, $super) {
@@ -3547,7 +3553,7 @@ protoOf(Target).z14 = function (exerciseId, weightKg, reps, rpe, sets, $super) {
   reps = reps === VOID ? this.q14_1 : reps;
   rpe = rpe === VOID ? this.r14_1 : rpe;
   sets = sets === VOID ? this.s14_1 : sets;
-  return $super === VOID ? this.s18(exerciseId, weightKg, reps, rpe, sets) : $super.s18.call(this, exerciseId, weightKg, reps, rpe, sets);
+  return $super === VOID ? this.t18(exerciseId, weightKg, reps, rpe, sets) : $super.t18.call(this, exerciseId, weightKg, reps, rpe, sets);
 };
 protoOf(Target).toString = function () {
   return 'Target(exerciseId=' + this.o14_1.toString() + ', weightKg=' + this.p14_1 + ', reps=' + this.q14_1 + ', rpe=' + this.r14_1 + ', sets=' + this.s14_1 + ')';
@@ -3579,20 +3585,20 @@ protoOf(Target).equals = function (other) {
 };
 function Accessories(items) {
   Companion_getInstance_3();
-  this.i18_1 = items;
+  this.j18_1 = items;
 }
 protoOf(Accessories).toString = function () {
-  return 'Accessories(items=' + toString(this.i18_1) + ')';
+  return 'Accessories(items=' + toString(this.j18_1) + ')';
 };
 protoOf(Accessories).hashCode = function () {
-  return hashCode(this.i18_1);
+  return hashCode(this.j18_1);
 };
 protoOf(Accessories).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof Accessories))
     return false;
-  if (!equals(this.i18_1, other.i18_1))
+  if (!equals(this.j18_1, other.j18_1))
     return false;
   return true;
 };
@@ -3623,15 +3629,15 @@ protoOf(Deload).equals = function (other) {
 };
 function WeakPoint(lift, missPoint) {
   Companion_getInstance_5();
-  this.o18_1 = lift;
-  this.p18_1 = missPoint;
+  this.p18_1 = lift;
+  this.q18_1 = missPoint;
 }
 protoOf(WeakPoint).toString = function () {
-  return 'WeakPoint(lift=' + this.o18_1.toString() + ', missPoint=' + toString_0(this.p18_1) + ')';
+  return 'WeakPoint(lift=' + this.p18_1.toString() + ', missPoint=' + toString_0(this.q18_1) + ')';
 };
 protoOf(WeakPoint).hashCode = function () {
-  var result = this.o18_1.hashCode();
-  result = imul(result, 31) + (this.p18_1 == null ? 0 : this.p18_1.hashCode()) | 0;
+  var result = this.p18_1.hashCode();
+  result = imul(result, 31) + (this.q18_1 == null ? 0 : this.q18_1.hashCode()) | 0;
   return result;
 };
 protoOf(WeakPoint).equals = function (other) {
@@ -3639,9 +3645,9 @@ protoOf(WeakPoint).equals = function (other) {
     return true;
   if (!(other instanceof WeakPoint))
     return false;
-  if (!this.o18_1.equals(other.o18_1))
+  if (!this.p18_1.equals(other.p18_1))
     return false;
-  if (!equals(this.p18_1, other.p18_1))
+  if (!equals(this.q18_1, other.q18_1))
     return false;
   return true;
 };
@@ -3666,7 +3672,7 @@ protoOf(ReEntry).equals = function (other) {
 };
 function Companion_5() {
 }
-protoOf(Companion_5).t18 = function () {
+protoOf(Companion_5).u18 = function () {
   var tmp = getKClass(AdvicePayload);
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
@@ -3700,7 +3706,7 @@ function Advice(type, lift, createdAt, reason, severity, payload, status, id) {
   this.x12_1 = status;
   this.y12_1 = id;
 }
-protoOf(Advice).u18 = function (type, lift, createdAt, reason, severity, payload, status, id) {
+protoOf(Advice).v18 = function (type, lift, createdAt, reason, severity, payload, status, id) {
   return new Advice(type, lift, createdAt, reason, severity, payload, status, id);
 };
 protoOf(Advice).a15 = function (type, lift, createdAt, reason, severity, payload, status, id, $super) {
@@ -3712,7 +3718,7 @@ protoOf(Advice).a15 = function (type, lift, createdAt, reason, severity, payload
   payload = payload === VOID ? this.w12_1 : payload;
   status = status === VOID ? this.x12_1 : status;
   id = id === VOID ? this.y12_1 : id;
-  return $super === VOID ? this.u18(type, lift, createdAt, reason, severity, payload, status, id) : $super.u18.call(this, type, lift, createdAt, reason, severity, payload, status, id);
+  return $super === VOID ? this.v18(type, lift, createdAt, reason, severity, payload, status, id) : $super.v18.call(this, type, lift, createdAt, reason, severity, payload, status, id);
 };
 protoOf(Advice).toString = function () {
   return 'Advice(type=' + this.r12_1.toString() + ', lift=' + toString_0(this.s12_1) + ', createdAt=' + this.t12_1.toString() + ', reason=' + this.u12_1 + ', severity=' + this.v12_1 + ', payload=' + toString(this.w12_1) + ', status=' + this.x12_1.toString() + ', id=' + this.y12_1.toString() + ')';
@@ -3895,10 +3901,10 @@ protoOf(Exercise).r13 = function () {
 protoOf(Exercise).q13 = function () {
   return this.l13_1.equals(Category_SQUAT_getInstance()) || this.l13_1.equals(Category_BENCH_getInstance()) || this.l13_1.equals(Category_DEADLIFT_getInstance());
 };
-protoOf(Exercise).v18 = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(Exercise).w18 = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
-protoOf(Exercise).w18 = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
+protoOf(Exercise).x18 = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
   id = id === VOID ? this.j13_1 : id;
   name = name === VOID ? this.k13_1 : name;
   category = category === VOID ? this.l13_1 : category;
@@ -3906,7 +3912,7 @@ protoOf(Exercise).w18 = function (id, name, category, parentLift, muscles, isBui
   muscles = muscles === VOID ? this.n13_1 : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.o13_1 : isBuiltIn;
   archived = archived === VOID ? this.p13_1 : archived;
-  return $super === VOID ? this.v18(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.v18.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.w18(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.w18.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(Exercise).toString = function () {
   return 'Exercise(id=' + this.j13_1.toString() + ', name=' + this.k13_1 + ', category=' + this.l13_1.toString() + ', parentLift=' + toString_0(this.m13_1) + ', muscles=' + toString(this.n13_1) + ', isBuiltIn=' + this.o13_1 + ', archived=' + this.p13_1 + ')';
@@ -4176,11 +4182,11 @@ function PlateLoader() {
   this.d17_1 = 100.0;
   this.e17_1 = toHundredths(this, 20.0);
 }
-protoOf(PlateLoader).x18 = function (changePlates) {
+protoOf(PlateLoader).y18 = function (changePlates) {
   return changePlates ? sortedDescending(plus(this.a17_1, this.b17_1)) : this.a17_1;
 };
 protoOf(PlateLoader).i17 = function (changePlates) {
-  return 2 * min(this.x18(changePlates));
+  return 2 * min(this.y18(changePlates));
 };
 protoOf(PlateLoader).f17 = function (kg, changePlates) {
   var step = toHundredths(this, this.i17(changePlates));
@@ -4237,7 +4243,7 @@ protoOf(PlateLoader).g17 = function (anchor, kg, changePlates) {
   var tmp$ret$3 = compare(tmp0, b) >= 0 ? tmp0 : b;
   return fromHundredths(this, tmp$ret$3);
 };
-protoOf(PlateLoader).y18 = function (totalKg, changePlates) {
+protoOf(PlateLoader).z18 = function (totalKg, changePlates) {
   var beyondBar = subtract(toHundredths(this, totalKg), this.e17_1);
   if (compare(beyondBar, new Long(0, 0)) < 0 || !equalsLong(modulo(beyondBar, new Long(2, 0)), new Long(0, 0)))
     return null;
@@ -4245,7 +4251,7 @@ protoOf(PlateLoader).y18 = function (totalKg, changePlates) {
   var remaining = divide(beyondBar, fromInt(2));
   // Inline function 'kotlin.collections.mutableListOf' call
   var result = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = this.x18(changePlates).j();
+  var _iterator__ex2g4s = this.y18(changePlates).j();
   while (_iterator__ex2g4s.k()) {
     var plate = _iterator__ex2g4s.l();
     var p = toHundredths(this, plate);
@@ -4264,21 +4270,21 @@ function PlateLoader_getInstance() {
   return PlateLoader_instance;
 }
 function Pr(date, e1rmKg, weightKg, reps, rpe) {
-  this.z18_1 = date;
-  this.a19_1 = e1rmKg;
-  this.b19_1 = weightKg;
-  this.c19_1 = reps;
-  this.d19_1 = rpe;
+  this.a19_1 = date;
+  this.b19_1 = e1rmKg;
+  this.c19_1 = weightKg;
+  this.d19_1 = reps;
+  this.e19_1 = rpe;
 }
 protoOf(Pr).toString = function () {
-  return 'Pr(date=' + this.z18_1.toString() + ', e1rmKg=' + this.a19_1 + ', weightKg=' + this.b19_1 + ', reps=' + this.c19_1 + ', rpe=' + this.d19_1 + ')';
+  return 'Pr(date=' + this.a19_1.toString() + ', e1rmKg=' + this.b19_1 + ', weightKg=' + this.c19_1 + ', reps=' + this.d19_1 + ', rpe=' + this.e19_1 + ')';
 };
 protoOf(Pr).hashCode = function () {
-  var result = this.z18_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.a19_1) | 0;
+  var result = this.a19_1.hashCode();
   result = imul(result, 31) + getNumberHashCode(this.b19_1) | 0;
-  result = imul(result, 31) + this.c19_1 | 0;
-  result = imul(result, 31) + (this.d19_1 == null ? 0 : getNumberHashCode(this.d19_1)) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.c19_1) | 0;
+  result = imul(result, 31) + this.d19_1 | 0;
+  result = imul(result, 31) + (this.e19_1 == null ? 0 : getNumberHashCode(this.e19_1)) | 0;
   return result;
 };
 protoOf(Pr).equals = function (other) {
@@ -4286,15 +4292,15 @@ protoOf(Pr).equals = function (other) {
     return true;
   if (!(other instanceof Pr))
     return false;
-  if (!this.z18_1.equals(other.z18_1))
-    return false;
-  if (!equals(this.a19_1, other.a19_1))
+  if (!this.a19_1.equals(other.a19_1))
     return false;
   if (!equals(this.b19_1, other.b19_1))
     return false;
-  if (!(this.c19_1 === other.c19_1))
+  if (!equals(this.c19_1, other.c19_1))
     return false;
-  if (!equals(this.d19_1, other.d19_1))
+  if (!(this.d19_1 === other.d19_1))
+    return false;
+  if (!equals(this.e19_1, other.e19_1))
     return false;
   return true;
 };
@@ -4302,16 +4308,16 @@ function weekStart(date) {
   return mondayOfWeek(date);
 }
 function sam$kotlin_Comparator$0_4(function_0) {
-  this.e19_1 = function_0;
+  this.f19_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_4).b9 = function (a, b) {
-  return this.e19_1(a, b);
+  return this.f19_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_4).compare = function (a, b) {
   return this.b9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_4).p1 = function () {
-  return this.e19_1;
+  return this.f19_1;
 };
 protoOf(sam$kotlin_Comparator$0_4).equals = function (other) {
   var tmp;
@@ -4332,16 +4338,16 @@ protoOf(sam$kotlin_Comparator$0_4).hashCode = function () {
   return hashCode(this.p1());
 };
 function sam$kotlin_Comparator$0_5(function_0) {
-  this.f19_1 = function_0;
+  this.g19_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_5).b9 = function (a, b) {
-  return this.f19_1(a, b);
+  return this.g19_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_5).compare = function (a, b) {
   return this.b9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_5).p1 = function () {
-  return this.f19_1;
+  return this.g19_1;
 };
 protoOf(sam$kotlin_Comparator$0_5).equals = function (other) {
   var tmp;
@@ -4375,7 +4381,7 @@ function ProgressMath$weeklyVolume$lambda(a, b) {
 }
 function ProgressMath() {
 }
-protoOf(ProgressMath).g19 = function (_this__u8e3s4, set, lift) {
+protoOf(ProgressMath).h19 = function (_this__u8e3s4, set, lift) {
   var tmp;
   if (!set.h15_1) {
     var tmp0_safe_receiver = _this__u8e3s4.e13_1.c1(set.d15_1);
@@ -4392,7 +4398,7 @@ protoOf(ProgressMath).g19 = function (_this__u8e3s4, set, lift) {
   }
   return tmp;
 };
-protoOf(ProgressMath).h19 = function (history, lift) {
+protoOf(ProgressMath).i19 = function (history, lift) {
   // Inline function 'kotlin.collections.mutableListOf' call
   var prs = ArrayList_init_$Create$();
   var best = 0.0;
@@ -4407,7 +4413,7 @@ protoOf(ProgressMath).h19 = function (history, lift) {
     var _iterator__ex2g4s_0 = session.s16_1.j();
     $l$loop: while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (!this.g19(history, set, lift))
+      if (!this.h19(history, set, lift))
         continue $l$loop;
       var e1rm = E1rm_getInstance().t17(set.e15_1, set.f15_1, set.g15_1);
       if (e1rm > best) {
@@ -4420,7 +4426,7 @@ protoOf(ProgressMath).h19 = function (history, lift) {
   }
   return prs;
 };
-protoOf(ProgressMath).i19 = function (history, lift) {
+protoOf(ProgressMath).j19 = function (history, lift) {
   // Inline function 'kotlin.collections.mutableMapOf' call
   var volume = LinkedHashMap_init_$Create$();
   var _iterator__ex2g4s = history.d13_1.j();
@@ -4429,7 +4435,7 @@ protoOf(ProgressMath).i19 = function (history, lift) {
     var _iterator__ex2g4s_0 = session.s16_1.j();
     while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (this.g19(history, set, lift)) {
+      if (this.h19(history, set, lift)) {
         var week = weekStart(session.p16_1);
         var tmp0_elvis_lhs = volume.c1(week);
         // Inline function 'kotlin.collections.set' call
@@ -4444,6 +4450,27 @@ protoOf(ProgressMath).i19 = function (history, lift) {
   var tmp = ProgressMath$weeklyVolume$lambda;
   var tmp$ret$3 = new sam$kotlin_Comparator$0_5(tmp);
   return sortedWith(this_0, tmp$ret$3);
+};
+protoOf(ProgressMath).k19 = function (stats, until) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = get_entries();
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp0_elvis_lhs = stats.x17(item, until);
+    var tmp;
+    if (tmp0_elvis_lhs == null) {
+      return null;
+    } else {
+      tmp = tmp0_elvis_lhs;
+    }
+    var tmp$ret$2 = tmp;
+    destination.i(tmp$ret$2);
+  }
+  var lifts = destination;
+  return sum(lifts);
 };
 var ProgressMath_instance;
 function ProgressMath_getInstance() {
@@ -4461,13 +4488,13 @@ function SeedLibrary$exercises$Acc(heavy, lift, muscles) {
     tmp = muscles;
   }
   muscles = tmp;
-  this.j19_1 = heavy;
-  this.k19_1 = lift;
-  this.l19_1 = muscles;
+  this.l19_1 = heavy;
+  this.m19_1 = lift;
+  this.n19_1 = muscles;
 }
 function SeedLibrary() {
 }
-protoOf(SeedLibrary).m19 = function () {
+protoOf(SeedLibrary).o19 = function () {
   var found = LinkedHashMap_init_$Create$();
   var _iterator__ex2g4s = get_entries().j();
   while (_iterator__ex2g4s.k()) {
@@ -4491,7 +4518,7 @@ protoOf(SeedLibrary).m19 = function () {
           tmp = value;
         }
         // Inline function 'kotlin.collections.plusAssign' call
-        var this_0 = tmp.l19_1;
+        var this_0 = tmp.n19_1;
         addAll(this_0, muscles);
       }
     }
@@ -4511,7 +4538,7 @@ protoOf(SeedLibrary).m19 = function () {
     var name = item.s();
     // Inline function 'kotlin.collections.component2' call
     var acc = item.t();
-    var tmp$ret$7 = new Exercise(new Long(0, 0), name, acc.j19_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.j19_1 ? acc.k19_1 : null, toList_0(acc.l19_1), true);
+    var tmp$ret$7 = new Exercise(new Long(0, 0), name, acc.l19_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.l19_1 ? acc.m19_1 : null, toList_0(acc.n19_1), true);
     destination.i(tmp$ret$7);
   }
   var mapped = destination;
@@ -4526,7 +4553,7 @@ protoOf(SeedLibrary).m19 = function () {
     var _unary__edvuaz = index;
     index = _unary__edvuaz + 1 | 0;
     var i = checkIndexOverflow(_unary__edvuaz);
-    var tmp$ret$12 = item_0.w18(add(numberToLong(i), new Long(1, 0)));
+    var tmp$ret$12 = item_0.x18(add(numberToLong(i), new Long(1, 0)));
     destination_0.i(tmp$ret$12);
   }
   return destination_0;
@@ -4558,32 +4585,32 @@ function HighReps_getInstance() {
   return HighReps_instance;
 }
 function BigJump(fromKg) {
-  this.n19_1 = fromKg;
+  this.p19_1 = fromKg;
 }
 protoOf(BigJump).toString = function () {
-  return 'BigJump(fromKg=' + this.n19_1 + ')';
+  return 'BigJump(fromKg=' + this.p19_1 + ')';
 };
 protoOf(BigJump).hashCode = function () {
-  return getNumberHashCode(this.n19_1);
+  return getNumberHashCode(this.p19_1);
 };
 protoOf(BigJump).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BigJump))
     return false;
-  if (!equals(this.n19_1, other.n19_1))
+  if (!equals(this.p19_1, other.p19_1))
     return false;
   return true;
 };
 function InputValidator() {
-  this.o19_1 = 12;
-  this.p19_1 = 1.3;
-  this.q19_1 = 500.0;
+  this.q19_1 = 12;
+  this.r19_1 = 1.3;
+  this.s19_1 = 500.0;
 }
-protoOf(InputValidator).r19 = function (kg) {
+protoOf(InputValidator).t19 = function (kg) {
   return isFinite(kg) && kg > 0.0 && kg <= 500.0;
 };
-protoOf(InputValidator).s19 = function (text) {
+protoOf(InputValidator).u19 = function (text) {
   // Inline function 'kotlin.text.trim' call
   var tmp$ret$0 = toString(trim(isCharSequence(text) ? text : THROW_CCE()));
   var tmp0_safe_receiver = toDoubleOrNull(replace(tmp$ret$0, _Char___init__impl__6a9atx(44), _Char___init__impl__6a9atx(46)));
@@ -4593,7 +4620,7 @@ protoOf(InputValidator).s19 = function (text) {
   } else {
     // Inline function 'kotlin.takeIf' call
     var tmp_0;
-    if (this.r19(tmp0_safe_receiver)) {
+    if (this.t19(tmp0_safe_receiver)) {
       tmp_0 = tmp0_safe_receiver;
     } else {
       tmp_0 = null;
@@ -4602,7 +4629,7 @@ protoOf(InputValidator).s19 = function (text) {
   }
   return tmp;
 };
-protoOf(InputValidator).t19 = function (weightKg, reps, lastWeightKg) {
+protoOf(InputValidator).v19 = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
@@ -4619,6 +4646,9 @@ var InputValidator_instance;
 function InputValidator_getInstance() {
   return InputValidator_instance;
 }
+function ratioRange($this, numerator, denominator, typical) {
+  return new JsRatioRange(numerator.f1_1, denominator.f1_1, typical.xa(), typical.bb());
+}
 function GritDomain$accessoryOptions$lambda(it) {
   return it.f1_1;
 }
@@ -4631,7 +4661,7 @@ protoOf(GritDomain).estimateE1rm = function (weightKg, reps, rpe) {
   return E1rm_getInstance().t17(weightKg, reps, rpe);
 };
 protoOf(GritDomain).platesPerSide = function (totalKg, changePlates) {
-  var tmp0_safe_receiver = PlateLoader_getInstance().y18(totalKg, changePlates);
+  var tmp0_safe_receiver = PlateLoader_getInstance().z18(totalKg, changePlates);
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
@@ -4649,7 +4679,7 @@ protoOf(GritDomain).loadStep = function (changePlates) {
 };
 protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = InputValidator_instance.t19(weightKg, reps, lastWeightKg);
+  var this_0 = InputValidator_instance.v19(weightKg, reps, lastWeightKg);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -4672,7 +4702,7 @@ protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   return copyToArray(destination);
 };
 protoOf(GritDomain).parseBaselineKg = function (text) {
-  return InputValidator_instance.s19(text);
+  return InputValidator_instance.u19(text);
 };
 protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, today, prior) {
   var tmp = Coach_getInstance();
@@ -4776,7 +4806,7 @@ protoOf(GritDomain).currentE1rm = function (history, lift, until, days) {
 };
 protoOf(GritDomain).prs = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_instance.h19(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_instance.i19(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -4790,7 +4820,7 @@ protoOf(GritDomain).prs = function (history, lift) {
 };
 protoOf(GritDomain).weeklyVolume = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_instance.i19(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_instance.j19(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -4897,7 +4927,7 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = SeedLibrary_instance.m19();
+  var this_0 = SeedLibrary_instance.o19();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -4909,11 +4939,21 @@ protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination);
 };
+protoOf(GritDomain).total = function (history, until) {
+  return ProgressMath_instance.k19(new HistoryStats(toDomain_4(history)), parseDate('until', until));
+};
+protoOf(GritDomain).mainLiftOf = function (exercise) {
+  var tmp0_safe_receiver = toDomain(exercise).r13();
+  return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.f1_1;
+};
+protoOf(GritDomain).isMainLift = function (exercise) {
+  return toDomain(exercise).q13();
+};
 protoOf(GritDomain).ratioRanges = function () {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  return [WeakPointRule_getInstance().c16_1.xa(), WeakPointRule_getInstance().c16_1.bb(), WeakPointRule_getInstance().d16_1.xa(), WeakPointRule_getInstance().d16_1.bb()];
+  return [ratioRange(this, MainLift_SQUAT_getInstance(), MainLift_DEADLIFT_getInstance(), WeakPointRule_getInstance().c16_1), ratioRange(this, MainLift_BENCH_getInstance(), MainLift_SQUAT_getInstance(), WeakPointRule_getInstance().d16_1)];
 };
 var GritDomain_instance;
 function GritDomain_getInstance() {
@@ -4933,25 +4973,25 @@ function JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived
   this.isBuiltIn = isBuiltIn;
   this.archived = archived;
 }
-protoOf(JsExercise).u19 = function () {
+protoOf(JsExercise).w19 = function () {
   return this.id;
 };
 protoOf(JsExercise).aq = function () {
   return this.name;
 };
-protoOf(JsExercise).v19 = function () {
+protoOf(JsExercise).x19 = function () {
   return this.category;
 };
-protoOf(JsExercise).w19 = function () {
+protoOf(JsExercise).y19 = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).x19 = function () {
+protoOf(JsExercise).z19 = function () {
   return this.muscles;
 };
-protoOf(JsExercise).y19 = function () {
+protoOf(JsExercise).a1a = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).z19 = function () {
+protoOf(JsExercise).b1a = function () {
   return this.archived;
 };
 protoOf(JsExercise).y9 = function () {
@@ -4960,22 +5000,22 @@ protoOf(JsExercise).y9 = function () {
 protoOf(JsExercise).z9 = function () {
   return this.name;
 };
-protoOf(JsExercise).a1a = function () {
+protoOf(JsExercise).c1a = function () {
   return this.category;
 };
-protoOf(JsExercise).b1a = function () {
+protoOf(JsExercise).d1a = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).c1a = function () {
+protoOf(JsExercise).e1a = function () {
   return this.muscles;
 };
-protoOf(JsExercise).d1a = function () {
+protoOf(JsExercise).f1a = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).e1a = function () {
+protoOf(JsExercise).g1a = function () {
   return this.archived;
 };
-protoOf(JsExercise).f1a = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(JsExercise).h1a = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
@@ -4986,7 +5026,7 @@ protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, is
   muscles = muscles === VOID ? this.muscles : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.isBuiltIn : isBuiltIn;
   archived = archived === VOID ? this.archived : archived;
-  return $super === VOID ? this.f1a(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.f1a.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.h1a(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.h1a.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).toString = function () {
   return 'JsExercise(id=' + this.id + ', name=' + this.name + ', category=' + this.category + ', parentLift=' + this.parentLift + ', muscles=' + toString(this.muscles) + ', isBuiltIn=' + this.isBuiltIn + ', archived=' + this.archived + ')';
@@ -5031,25 +5071,25 @@ function JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   this.missPoint = missPoint;
   this.isTopSet = isTopSet;
 }
-protoOf(JsSet).g1a = function () {
+protoOf(JsSet).i1a = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).h1a = function () {
+protoOf(JsSet).j1a = function () {
   return this.weightKg;
 };
-protoOf(JsSet).i1a = function () {
+protoOf(JsSet).k1a = function () {
   return this.reps;
 };
-protoOf(JsSet).j1a = function () {
+protoOf(JsSet).l1a = function () {
   return this.rpe;
 };
-protoOf(JsSet).k1a = function () {
+protoOf(JsSet).m1a = function () {
   return this.failed;
 };
-protoOf(JsSet).l1a = function () {
+protoOf(JsSet).n1a = function () {
   return this.missPoint;
 };
-protoOf(JsSet).m1a = function () {
+protoOf(JsSet).o1a = function () {
   return this.isTopSet;
 };
 protoOf(JsSet).y9 = function () {
@@ -5058,22 +5098,22 @@ protoOf(JsSet).y9 = function () {
 protoOf(JsSet).z9 = function () {
   return this.weightKg;
 };
-protoOf(JsSet).a1a = function () {
+protoOf(JsSet).c1a = function () {
   return this.reps;
 };
-protoOf(JsSet).b1a = function () {
+protoOf(JsSet).d1a = function () {
   return this.rpe;
 };
-protoOf(JsSet).c1a = function () {
+protoOf(JsSet).e1a = function () {
   return this.failed;
 };
-protoOf(JsSet).d1a = function () {
+protoOf(JsSet).f1a = function () {
   return this.missPoint;
 };
-protoOf(JsSet).e1a = function () {
+protoOf(JsSet).g1a = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).n1a = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
+protoOf(JsSet).p1a = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   return new JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, $super) {
@@ -5084,7 +5124,7 @@ protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoi
   failed = failed === VOID ? this.failed : failed;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   isTopSet = isTopSet === VOID ? this.isTopSet : isTopSet;
-  return $super === VOID ? this.n1a(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.n1a.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
+  return $super === VOID ? this.p1a(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.p1a.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).toString = function () {
   return 'JsSet(exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', failed=' + this.failed + ', missPoint=' + this.missPoint + ', isTopSet=' + this.isTopSet + ')';
@@ -5127,19 +5167,19 @@ function JsSession(id, date, bodyweightKg, readiness, sets) {
   this.readiness = readiness;
   this.sets = sets;
 }
-protoOf(JsSession).u19 = function () {
+protoOf(JsSession).w19 = function () {
   return this.id;
 };
-protoOf(JsSession).o1a = function () {
+protoOf(JsSession).q1a = function () {
   return this.date;
 };
-protoOf(JsSession).p1a = function () {
+protoOf(JsSession).r1a = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).q1a = function () {
+protoOf(JsSession).s1a = function () {
   return this.readiness;
 };
-protoOf(JsSession).r1a = function () {
+protoOf(JsSession).t1a = function () {
   return this.sets;
 };
 protoOf(JsSession).y9 = function () {
@@ -5148,16 +5188,16 @@ protoOf(JsSession).y9 = function () {
 protoOf(JsSession).z9 = function () {
   return this.date;
 };
-protoOf(JsSession).a1a = function () {
+protoOf(JsSession).c1a = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).b1a = function () {
+protoOf(JsSession).d1a = function () {
   return this.readiness;
 };
-protoOf(JsSession).c1a = function () {
+protoOf(JsSession).e1a = function () {
   return this.sets;
 };
-protoOf(JsSession).s1a = function (id, date, bodyweightKg, readiness, sets) {
+protoOf(JsSession).u1a = function (id, date, bodyweightKg, readiness, sets) {
   return new JsSession(id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $super) {
@@ -5166,7 +5206,7 @@ protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $su
   bodyweightKg = bodyweightKg === VOID ? this.bodyweightKg : bodyweightKg;
   readiness = readiness === VOID ? this.readiness : readiness;
   sets = sets === VOID ? this.sets : sets;
-  return $super === VOID ? this.s1a(id, date, bodyweightKg, readiness, sets) : $super.s1a.call(this, id, date, bodyweightKg, readiness, sets);
+  return $super === VOID ? this.u1a(id, date, bodyweightKg, readiness, sets) : $super.u1a.call(this, id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).toString = function () {
   return 'JsSession(id=' + this.id + ', date=' + this.date + ', bodyweightKg=' + this.bodyweightKg + ', readiness=' + this.readiness + ', sets=' + toString(this.sets) + ')';
@@ -5205,25 +5245,25 @@ function JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order) {
   this.targetRpe = targetRpe;
   this.order = order;
 }
-protoOf(JsPlanItem).u19 = function () {
+protoOf(JsPlanItem).w19 = function () {
   return this.id;
 };
-protoOf(JsPlanItem).t1a = function () {
+protoOf(JsPlanItem).v1a = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).g1a = function () {
+protoOf(JsPlanItem).i1a = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).r1a = function () {
+protoOf(JsPlanItem).t1a = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).i1a = function () {
+protoOf(JsPlanItem).k1a = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).u1a = function () {
+protoOf(JsPlanItem).w1a = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).v1a = function () {
+protoOf(JsPlanItem).x1a = function () {
   return this.order;
 };
 protoOf(JsPlanItem).y9 = function () {
@@ -5232,22 +5272,22 @@ protoOf(JsPlanItem).y9 = function () {
 protoOf(JsPlanItem).z9 = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).a1a = function () {
+protoOf(JsPlanItem).c1a = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).b1a = function () {
+protoOf(JsPlanItem).d1a = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).c1a = function () {
+protoOf(JsPlanItem).e1a = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).d1a = function () {
+protoOf(JsPlanItem).f1a = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).e1a = function () {
+protoOf(JsPlanItem).g1a = function () {
   return this.order;
 };
-protoOf(JsPlanItem).w1a = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
+protoOf(JsPlanItem).y1a = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
   return new JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, targetRpe, order, $super) {
@@ -5258,7 +5298,7 @@ protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, target
   reps = reps === VOID ? this.reps : reps;
   targetRpe = targetRpe === VOID ? this.targetRpe : targetRpe;
   order = order === VOID ? this.order : order;
-  return $super === VOID ? this.w1a(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.w1a.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
+  return $super === VOID ? this.y1a(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.y1a.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).toString = function () {
   return 'JsPlanItem(id=' + this.id + ', weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', sets=' + this.sets + ', reps=' + this.reps + ', targetRpe=' + this.targetRpe + ', order=' + this.order + ')';
@@ -5299,13 +5339,13 @@ function JsBaseline(exerciseId, e1rmKg, date) {
   this.e1rmKg = e1rmKg;
   this.date = date;
 }
-protoOf(JsBaseline).g1a = function () {
+protoOf(JsBaseline).i1a = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).x1a = function () {
+protoOf(JsBaseline).z1a = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).o1a = function () {
+protoOf(JsBaseline).q1a = function () {
   return this.date;
 };
 protoOf(JsBaseline).y9 = function () {
@@ -5314,17 +5354,17 @@ protoOf(JsBaseline).y9 = function () {
 protoOf(JsBaseline).z9 = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).a1a = function () {
+protoOf(JsBaseline).c1a = function () {
   return this.date;
 };
-protoOf(JsBaseline).y1a = function (exerciseId, e1rmKg, date) {
+protoOf(JsBaseline).a1b = function (exerciseId, e1rmKg, date) {
   return new JsBaseline(exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).copy = function (exerciseId, e1rmKg, date, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   e1rmKg = e1rmKg === VOID ? this.e1rmKg : e1rmKg;
   date = date === VOID ? this.date : date;
-  return $super === VOID ? this.y1a(exerciseId, e1rmKg, date) : $super.y1a.call(this, exerciseId, e1rmKg, date);
+  return $super === VOID ? this.a1b(exerciseId, e1rmKg, date) : $super.a1b.call(this, exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).toString = function () {
   return 'JsBaseline(exerciseId=' + this.exerciseId + ', e1rmKg=' + this.e1rmKg + ', date=' + this.date + ')';
@@ -5358,28 +5398,28 @@ function JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJs
   this.status = status;
   this.payloadJson = payloadJson;
 }
-protoOf(JsAdvice).u19 = function () {
+protoOf(JsAdvice).w19 = function () {
   return this.id;
 };
-protoOf(JsAdvice).z1a = function () {
+protoOf(JsAdvice).b1b = function () {
   return this.type;
 };
-protoOf(JsAdvice).a1b = function () {
+protoOf(JsAdvice).c1b = function () {
   return this.lift;
 };
-protoOf(JsAdvice).b1b = function () {
+protoOf(JsAdvice).d1b = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).c1b = function () {
+protoOf(JsAdvice).e1b = function () {
   return this.reason;
 };
-protoOf(JsAdvice).d1b = function () {
+protoOf(JsAdvice).f1b = function () {
   return this.severity;
 };
-protoOf(JsAdvice).e1b = function () {
+protoOf(JsAdvice).g1b = function () {
   return this.status;
 };
-protoOf(JsAdvice).f1b = function () {
+protoOf(JsAdvice).h1b = function () {
   return this.payloadJson;
 };
 protoOf(JsAdvice).y9 = function () {
@@ -5388,25 +5428,25 @@ protoOf(JsAdvice).y9 = function () {
 protoOf(JsAdvice).z9 = function () {
   return this.type;
 };
-protoOf(JsAdvice).a1a = function () {
+protoOf(JsAdvice).c1a = function () {
   return this.lift;
 };
-protoOf(JsAdvice).b1a = function () {
+protoOf(JsAdvice).d1a = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).c1a = function () {
+protoOf(JsAdvice).e1a = function () {
   return this.reason;
 };
-protoOf(JsAdvice).d1a = function () {
+protoOf(JsAdvice).f1a = function () {
   return this.severity;
 };
-protoOf(JsAdvice).e1a = function () {
+protoOf(JsAdvice).g1a = function () {
   return this.status;
 };
-protoOf(JsAdvice).g1b = function () {
+protoOf(JsAdvice).i1b = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).h1b = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
+protoOf(JsAdvice).j1b = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
   return new JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, status, payloadJson, $super) {
@@ -5418,7 +5458,7 @@ protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, 
   severity = severity === VOID ? this.severity : severity;
   status = status === VOID ? this.status : status;
   payloadJson = payloadJson === VOID ? this.payloadJson : payloadJson;
-  return $super === VOID ? this.h1b(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.h1b.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
+  return $super === VOID ? this.j1b(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.j1b.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).toString = function () {
   return 'JsAdvice(id=' + this.id + ', type=' + this.type + ', lift=' + this.lift + ', createdAt=' + this.createdAt + ', reason=' + this.reason + ', severity=' + this.severity + ', status=' + this.status + ', payloadJson=' + this.payloadJson + ')';
@@ -5462,13 +5502,13 @@ function JsHistory(sessions, exercises, baselines) {
   this.exercises = exercises;
   this.baselines = baselines;
 }
-protoOf(JsHistory).i1b = function () {
+protoOf(JsHistory).k1b = function () {
   return this.sessions;
 };
-protoOf(JsHistory).j1b = function () {
+protoOf(JsHistory).l1b = function () {
   return this.exercises;
 };
-protoOf(JsHistory).k1b = function () {
+protoOf(JsHistory).m1b = function () {
   return this.baselines;
 };
 protoOf(JsHistory).y9 = function () {
@@ -5477,17 +5517,17 @@ protoOf(JsHistory).y9 = function () {
 protoOf(JsHistory).z9 = function () {
   return this.exercises;
 };
-protoOf(JsHistory).a1a = function () {
+protoOf(JsHistory).c1a = function () {
   return this.baselines;
 };
-protoOf(JsHistory).l1b = function (sessions, exercises, baselines) {
+protoOf(JsHistory).n1b = function (sessions, exercises, baselines) {
   return new JsHistory(sessions, exercises, baselines);
 };
 protoOf(JsHistory).copy = function (sessions, exercises, baselines, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   exercises = exercises === VOID ? this.exercises : exercises;
   baselines = baselines === VOID ? this.baselines : baselines;
-  return $super === VOID ? this.l1b(sessions, exercises, baselines) : $super.l1b.call(this, sessions, exercises, baselines);
+  return $super === VOID ? this.n1b(sessions, exercises, baselines) : $super.n1b.call(this, sessions, exercises, baselines);
 };
 protoOf(JsHistory).toString = function () {
   return 'JsHistory(sessions=' + toString(this.sessions) + ', exercises=' + toString(this.exercises) + ', baselines=' + toString(this.baselines) + ')';
@@ -5515,10 +5555,10 @@ function JsCoachSettings(defaultRpe, changePlates) {
   this.defaultRpe = defaultRpe;
   this.changePlates = changePlates;
 }
-protoOf(JsCoachSettings).m1b = function () {
+protoOf(JsCoachSettings).o1b = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).n1b = function () {
+protoOf(JsCoachSettings).p1b = function () {
   return this.changePlates;
 };
 protoOf(JsCoachSettings).y9 = function () {
@@ -5527,13 +5567,13 @@ protoOf(JsCoachSettings).y9 = function () {
 protoOf(JsCoachSettings).z9 = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).o1b = function (defaultRpe, changePlates) {
+protoOf(JsCoachSettings).q1b = function (defaultRpe, changePlates) {
   return new JsCoachSettings(defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).copy = function (defaultRpe, changePlates, $super) {
   defaultRpe = defaultRpe === VOID ? this.defaultRpe : defaultRpe;
   changePlates = changePlates === VOID ? this.changePlates : changePlates;
-  return $super === VOID ? this.o1b(defaultRpe, changePlates) : $super.o1b.call(this, defaultRpe, changePlates);
+  return $super === VOID ? this.q1b(defaultRpe, changePlates) : $super.q1b.call(this, defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).toString = function () {
   return 'JsCoachSettings(defaultRpe=' + this.defaultRpe + ', changePlates=' + this.changePlates + ')';
@@ -5558,7 +5598,7 @@ function JsWeeklyPoint(weekStart, value) {
   this.weekStart = weekStart;
   this.value = value;
 }
-protoOf(JsWeeklyPoint).p1b = function () {
+protoOf(JsWeeklyPoint).r1b = function () {
   return this.weekStart;
 };
 protoOf(JsWeeklyPoint).t = function () {
@@ -5570,13 +5610,13 @@ protoOf(JsWeeklyPoint).y9 = function () {
 protoOf(JsWeeklyPoint).z9 = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).q1b = function (weekStart, value) {
+protoOf(JsWeeklyPoint).s1b = function (weekStart, value) {
   return new JsWeeklyPoint(weekStart, value);
 };
 protoOf(JsWeeklyPoint).copy = function (weekStart, value, $super) {
   weekStart = weekStart === VOID ? this.weekStart : weekStart;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.q1b(weekStart, value) : $super.q1b.call(this, weekStart, value);
+  return $super === VOID ? this.s1b(weekStart, value) : $super.s1b.call(this, weekStart, value);
 };
 protoOf(JsWeeklyPoint).toString = function () {
   return 'JsWeeklyPoint(weekStart=' + this.weekStart + ', value=' + this.value + ')';
@@ -5604,19 +5644,19 @@ function JsPr(date, e1rmKg, weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsPr).o1a = function () {
+protoOf(JsPr).q1a = function () {
   return this.date;
 };
-protoOf(JsPr).x1a = function () {
+protoOf(JsPr).z1a = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).h1a = function () {
+protoOf(JsPr).j1a = function () {
   return this.weightKg;
 };
-protoOf(JsPr).i1a = function () {
+protoOf(JsPr).k1a = function () {
   return this.reps;
 };
-protoOf(JsPr).j1a = function () {
+protoOf(JsPr).l1a = function () {
   return this.rpe;
 };
 protoOf(JsPr).y9 = function () {
@@ -5625,16 +5665,16 @@ protoOf(JsPr).y9 = function () {
 protoOf(JsPr).z9 = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).a1a = function () {
+protoOf(JsPr).c1a = function () {
   return this.weightKg;
 };
-protoOf(JsPr).b1a = function () {
+protoOf(JsPr).d1a = function () {
   return this.reps;
 };
-protoOf(JsPr).c1a = function () {
+protoOf(JsPr).e1a = function () {
   return this.rpe;
 };
-protoOf(JsPr).r1b = function (date, e1rmKg, weightKg, reps, rpe) {
+protoOf(JsPr).t1b = function (date, e1rmKg, weightKg, reps, rpe) {
   return new JsPr(date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
@@ -5643,7 +5683,7 @@ protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.r1b(date, e1rmKg, weightKg, reps, rpe) : $super.r1b.call(this, date, e1rmKg, weightKg, reps, rpe);
+  return $super === VOID ? this.t1b(date, e1rmKg, weightKg, reps, rpe) : $super.t1b.call(this, date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).toString = function () {
   return 'JsPr(date=' + this.date + ', e1rmKg=' + this.e1rmKg + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -5680,7 +5720,7 @@ function JsAccessoryOption(name, heavy) {
 protoOf(JsAccessoryOption).aq = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).s1b = function () {
+protoOf(JsAccessoryOption).u1b = function () {
   return this.heavy;
 };
 protoOf(JsAccessoryOption).y9 = function () {
@@ -5689,13 +5729,13 @@ protoOf(JsAccessoryOption).y9 = function () {
 protoOf(JsAccessoryOption).z9 = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).t1b = function (name, heavy) {
+protoOf(JsAccessoryOption).v1b = function (name, heavy) {
   return new JsAccessoryOption(name, heavy);
 };
 protoOf(JsAccessoryOption).copy = function (name, heavy, $super) {
   name = name === VOID ? this.name : name;
   heavy = heavy === VOID ? this.heavy : heavy;
-  return $super === VOID ? this.t1b(name, heavy) : $super.t1b.call(this, name, heavy);
+  return $super === VOID ? this.v1b(name, heavy) : $super.v1b.call(this, name, heavy);
 };
 protoOf(JsAccessoryOption).toString = function () {
   return 'JsAccessoryOption(name=' + this.name + ', heavy=' + this.heavy + ')';
@@ -5713,6 +5753,71 @@ protoOf(JsAccessoryOption).equals = function (other) {
   if (!(this.name === other.name))
     return false;
   if (!(this.heavy === other.heavy))
+    return false;
+  return true;
+};
+function JsRatioRange(numerator, denominator, low, high) {
+  this.numerator = numerator;
+  this.denominator = denominator;
+  this.low = low;
+  this.high = high;
+}
+protoOf(JsRatioRange).w1b = function () {
+  return this.numerator;
+};
+protoOf(JsRatioRange).x1b = function () {
+  return this.denominator;
+};
+protoOf(JsRatioRange).y1b = function () {
+  return this.low;
+};
+protoOf(JsRatioRange).z1b = function () {
+  return this.high;
+};
+protoOf(JsRatioRange).y9 = function () {
+  return this.numerator;
+};
+protoOf(JsRatioRange).z9 = function () {
+  return this.denominator;
+};
+protoOf(JsRatioRange).c1a = function () {
+  return this.low;
+};
+protoOf(JsRatioRange).d1a = function () {
+  return this.high;
+};
+protoOf(JsRatioRange).a1c = function (numerator, denominator, low, high) {
+  return new JsRatioRange(numerator, denominator, low, high);
+};
+protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super) {
+  numerator = numerator === VOID ? this.numerator : numerator;
+  denominator = denominator === VOID ? this.denominator : denominator;
+  low = low === VOID ? this.low : low;
+  high = high === VOID ? this.high : high;
+  return $super === VOID ? this.a1c(numerator, denominator, low, high) : $super.a1c.call(this, numerator, denominator, low, high);
+};
+protoOf(JsRatioRange).toString = function () {
+  return 'JsRatioRange(numerator=' + this.numerator + ', denominator=' + this.denominator + ', low=' + this.low + ', high=' + this.high + ')';
+};
+protoOf(JsRatioRange).hashCode = function () {
+  var result = getStringHashCode(this.numerator);
+  result = imul(result, 31) + getStringHashCode(this.denominator) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.low) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.high) | 0;
+  return result;
+};
+protoOf(JsRatioRange).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsRatioRange))
+    return false;
+  if (!(this.numerator === other.numerator))
+    return false;
+  if (!(this.denominator === other.denominator))
+    return false;
+  if (!equals(this.low, other.low))
+    return false;
+  if (!equals(this.high, other.high))
     return false;
   return true;
 };
@@ -5963,7 +6068,7 @@ function toDomain_6(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   try {
-    tmp = get_androidJson().xs(Companion_instance_5.t18(), _this__u8e3s4.payloadJson);
+    tmp = get_androidJson().xs(Companion_instance_5.u18(), _this__u8e3s4.payloadJson);
   } catch ($p) {
     var tmp_0;
     if ($p instanceof SerializationException) {
@@ -6050,11 +6155,11 @@ function toJs_0(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp = toFacadeId(_this__u8e3s4.y12_1, 'advice.id');
   var tmp0_safe_receiver = _this__u8e3s4.s12_1;
-  return new JsAdvice(tmp, _this__u8e3s4.r12_1.f1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.f1_1, _this__u8e3s4.t12_1.toString(), _this__u8e3s4.u12_1, _this__u8e3s4.v12_1, _this__u8e3s4.x12_1.f1_1, get_androidJson().ws(Companion_instance_5.t18(), _this__u8e3s4.w12_1));
+  return new JsAdvice(tmp, _this__u8e3s4.r12_1.f1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.f1_1, _this__u8e3s4.t12_1.toString(), _this__u8e3s4.u12_1, _this__u8e3s4.v12_1, _this__u8e3s4.x12_1.f1_1, get_androidJson().ws(Companion_instance_5.u18(), _this__u8e3s4.w12_1));
 }
 function toJs_1(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return new JsPr(_this__u8e3s4.z18_1.toString(), _this__u8e3s4.a19_1, _this__u8e3s4.b19_1, _this__u8e3s4.c19_1, _this__u8e3s4.d19_1);
+  return new JsPr(_this__u8e3s4.a19_1.toString(), _this__u8e3s4.b19_1, _this__u8e3s4.c19_1, _this__u8e3s4.d19_1, _this__u8e3s4.e19_1);
 }
 function toJs_2(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -6124,6 +6229,7 @@ export {
   JsWeeklyPoint as JsWeeklyPoint,
   JsPr as JsPr,
   JsAccessoryOption as JsAccessoryOption,
+  JsRatioRange as JsRatioRange,
 };
 //endregion
 

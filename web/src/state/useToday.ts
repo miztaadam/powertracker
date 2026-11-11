@@ -394,9 +394,14 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   useEffect(() => {
     if (!resumed) return
     let stale = false
-    void readEditors(db, date).then((saved) => {
-      if (!stale) update((l) => ({ ...l, restored: true, editors: { ...saved, ...l.editors } }))
-    })
+    readEditors(db, date)
+      .then((saved) => {
+        if (!stale) update((l) => ({ ...l, restored: true, editors: { ...saved, ...l.editors } }))
+      })
+      // Once the screen has moved on (or the database closed under it) the failure concerns nobody.
+      .catch((e: unknown) => {
+        if (!stale) setReadError(e)
+      })
     return () => {
       stale = true
     }
@@ -445,9 +450,13 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   useEffect(() => {
     if (planKey == null) return
     let stale = false
-    void coachPass(db, date, () => clock.current()).then((ran) => {
-      if (ran && !stale) setCoachPasses((n) => n + 1)
-    })
+    coachPass(db, date, () => clock.current())
+      .then((ran) => {
+        if (ran && !stale) setCoachPasses((n) => n + 1)
+      })
+      .catch((e: unknown) => {
+        if (!stale) setReadError(e)
+      })
     return () => {
       stale = true
     }

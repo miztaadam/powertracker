@@ -102,6 +102,10 @@ data class JsPr(val date: String, val e1rmKg: Double, val weightKg: Double, val 
 @JsExport
 data class JsAccessoryOption(val name: String, val heavy: Boolean)
 
+/** The typical range of one lift as a share of another: [low]..[high] are factors, e.g. 0.8..0.9. */
+@JsExport
+data class JsRatioRange(val numerator: String, val denominator: String, val low: Double, val high: Double)
+
 // ---- converters (internal: not part of the JS API) ----
 
 private val androidJson = Json

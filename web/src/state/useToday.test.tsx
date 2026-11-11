@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { act, cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { GritDb } from '../db/db'
 import { DELOAD_ADVICE, TODAY, addDays, baseline, exerciseNamed, logSet, plan, set, setsOn, startSession, targets, todayFixture } from '../test/todayFixture'
@@ -15,7 +15,11 @@ beforeEach(async () => {
   squatId = (await exerciseNamed(db, 'Squat')).id
   benchId = (await exerciseNamed(db, 'Bench')).id
 })
-afterEach(() => fx.dispose())
+// Unmount before the database closes: Vitest runs this before the cleanup registered in the test setup.
+afterEach(async () => {
+  cleanup()
+  await fx.dispose()
+})
 
 const input = (weightKg: number, over: Partial<SetInput> = {}): SetInput => ({ weightKg, reps: 5, rpe: 8, failed: false, ...over })
 

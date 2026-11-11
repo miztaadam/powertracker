@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { act, cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { GritDb } from '../db/db'
 import { updateSettings } from '../db/db'
@@ -14,9 +14,11 @@ beforeEach(async () => {
   fx = todayFixture()
   db = await fx.open()
 })
-afterEach(() => {
+// Unmount before the database closes: Vitest runs this before the cleanup registered in the test setup.
+afterEach(async () => {
+  cleanup()
   vi.restoreAllMocks()
-  return fx.dispose()
+  await fx.dispose()
 })
 
 const id = async (name: string) => (await exerciseNamed(db, name)).id

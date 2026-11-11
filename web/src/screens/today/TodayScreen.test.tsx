@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { GritDb } from '../../db/db'
@@ -17,7 +17,11 @@ beforeEach(async () => {
   await plan(db, squatId)
   await logSet(db, await startSession(db, addDays(TODAY, -7)), set(squatId, 150, { rpe: 7 }))
 })
-afterEach(() => fx.dispose())
+// Unmount before the database closes: Vitest runs this before the cleanup registered in the test setup.
+afterEach(async () => {
+  cleanup()
+  await fx.dispose()
+})
 
 function show(database: GritDb = db, props: { onOpenCoach?: () => void; onSetLogged?: (main: boolean) => void } = {}) {
   return render(<TodayScreen db={database} today={() => TODAY} onOpenCoach={props.onOpenCoach ?? (() => {})} onSetLogged={props.onSetLogged} />)

@@ -139,7 +139,10 @@ class GritDomainTest {
         assertContentEquals(arrayOf("HIGH_REPS", "BIG_JUMP"), GritDomain.checkInput(140.0, 15, 100.0))
         assertEquals(182.5, GritDomain.parseBaselineKg("182,5"))
         assertNull(GritDomain.parseBaselineKg("abc"))
-        assertContentEquals(doubleArrayOf(0.80, 0.90, 0.60, 0.70).toTypedArray(), GritDomain.ratioRanges())
+        assertEquals(
+            listOf(JsRatioRange("SQUAT", "DEADLIFT", 0.80, 0.90), JsRatioRange("BENCH", "SQUAT", 0.60, 0.70)),
+            GritDomain.ratioRanges().toList(),
+        )
         assertEquals(listOf("Close-grip bench", "JM press", "Board press"), GritDomain.accessoryOptions("BENCH", "LOCKOUT").map { it.name })
         assertEquals(listOf("Triceps"), GritDomain.accessoryMuscles("BENCH", "LOCKOUT").toList())
         assertEquals(listOf("Quads", "Lats", "Position"), GritDomain.accessoryMuscles("DEADLIFT", "FLOOR").toList())
@@ -158,5 +161,20 @@ class GritDomainTest {
         assertEquals(450.0, volume.first().value)
         assertTrue(GritDomain.currentE1rm(history, "SQUAT", "2026-03-16", 28)!! > 0.0)
         assertNull(GritDomain.currentE1rm(history, "SQUAT", "2025-01-01", 28))
+        val total = MainLift.entries.sumOf { GritDomain.currentE1rm(history, it.name, "2026-03-16", 28)!! }
+        assertEquals(total, GritDomain.total(history, "2026-03-16"))
+        assertNull(GritDomain.total(history, "2025-01-01"))
+    }
+
+    @Test
+    fun mainLiftOfAnExercise() {
+        fun exercise(category: String, parentLift: String?) = JsExercise(1, "x", category, parentLift, emptyArray(), true, false)
+        assertEquals("BENCH", GritDomain.mainLiftOf(exercise("BENCH", null)))
+        assertTrue(GritDomain.isMainLift(exercise("BENCH", null)))
+        // A variation trains its parent lift but is not the lift itself.
+        assertEquals("SQUAT", GritDomain.mainLiftOf(exercise("VARIATION", "SQUAT")))
+        assertTrue(!GritDomain.isMainLift(exercise("VARIATION", "SQUAT")))
+        assertNull(GritDomain.mainLiftOf(exercise("ACCESSORY", null)))
+        assertTrue(!GritDomain.isMainLift(exercise("ACCESSORY", null)))
     }
 }

@@ -84,13 +84,13 @@ initMetadataForClass(AbstractCollection, 'AbstractCollection', VOID, VOID, [Coll
 initMetadataForClass(AbstractMutableCollection, 'AbstractMutableCollection', VOID, AbstractCollection, [Collection]);
 initMetadataForClass(IteratorImpl, 'IteratorImpl');
 initMetadataForClass(ListIteratorImpl, 'ListIteratorImpl', VOID, IteratorImpl);
-initMetadataForClass(AbstractMutableList, 'AbstractMutableList', VOID, AbstractMutableCollection, [KtList, Collection]);
+initMetadataForClass(AbstractMutableList, 'AbstractMutableList', VOID, AbstractMutableCollection, [Collection, KtList]);
 initMetadataForClass(AbstractMap, 'AbstractMap', VOID, VOID, [KtMap]);
 initMetadataForClass(AbstractMutableMap, 'AbstractMutableMap', VOID, AbstractMap, [KtMap]);
 initMetadataForClass(AbstractMutableSet, 'AbstractMutableSet', VOID, AbstractMutableCollection, [Collection, KtSet]);
 initMetadataForCompanion(Companion_1);
 initMetadataForInterface(RandomAccess, 'RandomAccess');
-initMetadataForClass(ArrayList, 'ArrayList', ArrayList_init_$Create$, AbstractMutableList, [KtList, Collection, RandomAccess]);
+initMetadataForClass(ArrayList, 'ArrayList', ArrayList_init_$Create$, AbstractMutableList, [Collection, KtList, RandomAccess]);
 initMetadataForClass(HashMap, 'HashMap', HashMap_init_$Create$, AbstractMutableMap, [KtMap]);
 initMetadataForClass(HashMapKeys, 'HashMapKeys', VOID, AbstractMutableSet, [Collection, KtSet]);
 initMetadataForClass(HashMapValues, 'HashMapValues', VOID, AbstractMutableCollection, [Collection]);
@@ -762,6 +762,15 @@ function min(_this__u8e3s4) {
     min = Math.min(a, e);
   }
   return min;
+}
+function sum(_this__u8e3s4) {
+  var sum = 0.0;
+  var _iterator__ex2g4s = _this__u8e3s4.j();
+  while (_iterator__ex2g4s.k()) {
+    var element = _iterator__ex2g4s.l();
+    sum = sum + element;
+  }
+  return sum;
 }
 function toList_0(_this__u8e3s4) {
   if (isInterface(_this__u8e3s4, Collection)) {
@@ -7319,6 +7328,7 @@ export {
   sortedDescending as sortedDescending1829b1te0xwte,
   sortedWith as sortedWith2csnbbb21k0lg,
   sorted as sorted354mfsiv4s7x5,
+  sum as sum2ku6kbgxq0lee,
   takeLast as takeLasttm5u17ojwaaq,
   take as take3onnpy6q7ctcz,
   toBooleanArray as toBooleanArray2u3qw7fjwsmuh,

@@ -37,6 +37,13 @@ describe('SetRow', () => {
     expect(screen.getByText('Set 2: 152.5 kg × 5 at RPE 8.5, top set, personal record, done')).toBeInTheDocument()
   })
 
+  it('groups the top set and record pills so they can stack on a narrow phone', () => {
+    const { container } = render(<SetRow index={2} weightKg={152.5} reps={5} rpe={8.5} state="done" isTopSet isPr />)
+    expect(Array.from(container.querySelectorAll('.gr-set-pills > .gr-pill')).map((p) => p.textContent)).toEqual(['Top set', 'PR'])
+    const plain = render(<SetRow index={1} weightKg={150} reps={5} rpe={8} state="done" />)
+    expect(plain.container.querySelector('.gr-set-pills')).toBeNull()
+  })
+
   it('reads a planned set without RPE', () => {
     render(<SetRow index={4} weightKg={150} reps={5} rpe={null} state="planned" />)
     expect(screen.getByText('Set 4: 150 kg × 5, planned')).toBeInTheDocument()

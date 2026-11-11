@@ -24,9 +24,27 @@ export function routeToHash(route: Route): string {
   return `#/lift/${route.lift}`
 }
 
+/** Kept on a history entry: the hash of the page it was opened from inside the app. */
+type EntryState = { gritFrom?: string } | null
+
 export function navigate(route: Route): void {
   const hash = routeToHash(route)
-  if (window.location.hash !== hash) window.location.hash = hash
+  const from = window.location.hash
+  if (from === hash) return
+  window.location.hash = hash
+  // Remember on the new entry where it was opened from, so `goBack` can return there.
+  window.history.replaceState({ gritFrom: from }, '')
+}
+
+/**
+ * Leaves a page for `to`. When the page was opened from `to` inside the app this is one step back in
+ * history, so no entry is added and a later swipe back does not return here. Otherwise (a deep link,
+ * a cold start) `to` takes this page's place in history.
+ */
+export function goBack(to: Route): void {
+  const hash = routeToHash(to)
+  if ((window.history.state as EntryState)?.gritFrom === hash) window.history.back()
+  else window.location.replace(hash)
 }
 
 function subscribe(onChange: () => void): () => void {

@@ -96,9 +96,22 @@ object GritDomain {
 
     fun seedExercises(): Array<JsExercise> = SeedLibrary.exercises().map { it.toJs() }.toTypedArray()
 
-    /** Typical strength ratios as `[sdLo, sdHi, bsLo, bsHi]`: squat ÷ deadlift, then bench ÷ squat. */
-    fun ratioRanges(): Array<Double> = arrayOf(
-        WeakPointRule.SQUAT_TO_DEADLIFT.start, WeakPointRule.SQUAT_TO_DEADLIFT.endInclusive,
-        WeakPointRule.BENCH_TO_SQUAT.start, WeakPointRule.BENCH_TO_SQUAT.endInclusive,
+    /** Squat + bench + deadlift current e1RM as of [until]; null until all three have one. */
+    fun total(history: JsHistory, until: String): Double? =
+        ProgressMath.total(HistoryStats(history.toDomain()), parseDate("until", until))
+
+    /** The main lift an exercise trains: itself for squat, bench and deadlift, its parent for a variation, null for an accessory. */
+    fun mainLiftOf(exercise: JsExercise): String? = exercise.toDomain().mainLift?.name
+
+    /** True for the squat, bench or deadlift itself; false for variations and accessories. */
+    fun isMainLift(exercise: JsExercise): Boolean = exercise.toDomain().isMainLift
+
+    /** Typical strength ratios: squat ÷ deadlift, then bench ÷ squat. */
+    fun ratioRanges(): Array<JsRatioRange> = arrayOf(
+        ratioRange(MainLift.SQUAT, MainLift.DEADLIFT, WeakPointRule.SQUAT_TO_DEADLIFT),
+        ratioRange(MainLift.BENCH, MainLift.SQUAT, WeakPointRule.BENCH_TO_SQUAT),
     )
+
+    private fun ratioRange(numerator: MainLift, denominator: MainLift, typical: ClosedFloatingPointRange<Double>) =
+        JsRatioRange(numerator.name, denominator.name, typical.start, typical.endInclusive)
 }
