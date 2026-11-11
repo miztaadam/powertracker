@@ -39,7 +39,10 @@ class TrainingRepositoryTest {
     @Test
     fun seedContainsEveryAccessoryMapName() = runTest {
         val names = training.exercises().first().map { it.name }.toSet()
-        assertTrue(names.containsAll(AccessoryMap.allExerciseNames))
+        // The squat, bench and deadlift rows' names. Strict press's rows are not seeded: they come from the catalogue.
+        val seeded = listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT).flatMap { lift -> AccessoryMap.allOptions(lift).map { it.exerciseName } }
+        assertTrue(names.containsAll(seeded))
+        assertTrue("Strict press" !in names)
         assertTrue(names.containsAll(listOf("Squat", "Bench", "Deadlift", "Curl", "Row", "Pull-up")))
         val all = training.exercises().first()
         assertTrue(all.all { it.isBuiltIn })

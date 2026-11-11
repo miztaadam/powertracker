@@ -50,19 +50,36 @@ object AccessoryMap {
             listOf("Glutes", "Upper back"),
             listOf(heavy("Block pull"), light("Hip thrust"), light("RDL")),
         ),
+        // Strict press (strict press spec §3.2). "Delts" and "Upper chest" are mapped in MuscleGroups.
+        (MainLift.STRICT_PRESS to MissPoint.FLOOR) to Row(
+            listOf("Front delts", "Upper chest"),
+            listOf(light("Seated barbell press"), light("Incline bench press"), light("Landmine press")),
+        ),
+        (MainLift.STRICT_PRESS to MissPoint.MID) to Row(
+            listOf("Delts", "Triceps"),
+            listOf(light("DB shoulder press"), light("Arnold press"), light("One-arm DB press")),
+        ),
+        (MainLift.STRICT_PRESS to MissPoint.LOCKOUT) to Row(
+            listOf("Triceps", "Upper back"),
+            // Close-grip bench stays heavy: it is a bench variation.
+            listOf(heavy("Close-grip bench"), light("JM press"), light("DB overhead triceps extension")),
+        ),
     )
 
     /** Muscles worked for the miss point; empty for the fallback (null). */
     fun muscles(lift: MainLift, miss: MissPoint?): List<String> =
         miss?.let { table.getValue(lift to it).muscles }.orEmpty()
 
-    /** Options in table order; with no miss point, the lift's first two heavy variations. */
+    /**
+     * Options in table order; with no miss point, the lift's first two heavy variations. A lift with fewer than two
+     * (strict press has only Close-grip bench) is filled up from its other options in table order.
+     */
     fun options(lift: MainLift, miss: MissPoint?): List<AccessoryOption> =
         if (miss != null) {
             table.getValue(lift to miss).options
         } else {
-            MissPoint.entries.flatMap { table.getValue(lift to it).options }
-                .filter { it.heavy }.distinct().take(2)
+            val all = MissPoint.entries.flatMap { table.getValue(lift to it).options }.distinct()
+            (all.filter { it.heavy } + all.filterNot { it.heavy }).take(2)
         }
 
     /** Every option for [lift], miss points in table order, each exercise once. */

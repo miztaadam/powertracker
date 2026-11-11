@@ -55,7 +55,8 @@ fun CustomExerciseDialog(
                 if (category == Category.VARIATION) {
                     Text("Parent lift", style = MaterialTheme.typography.titleSmall)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        for (lift in MainLift.entries) {
+                        // Squat, bench and deadlift only: this project adds no strict press variations.
+                        for (lift in listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT)) {
                             ChoiceChip(lift.name.lowercase().replaceFirstChar { it.uppercase() }, parent == lift, { parent = lift })
                         }
                     }

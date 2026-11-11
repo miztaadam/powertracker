@@ -4,6 +4,7 @@ import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.model.AdvicePayload
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
 class GoldenScenarioTest {
     @Test
@@ -33,5 +34,34 @@ class GoldenScenarioTest {
         for (t in GoldenScenario.checkpoints.last().expectedTargets) {
             assertEquals(true, t.weightKg <= lastTop.getValue(t.exerciseId) * 0.85, "exercise ${t.exerciseId}")
         }
+    }
+
+    /**
+     * A lifter who never presses gets exactly what they got before strict press existed. Every coach and Progress
+     * figure for the golden scenario (days 0-100) and a second mixed history (days 0-63), rendered by [CoachSnapshot],
+     * matches what was captured at BASE (ff633da) before any strict press change: the full text on the JVM (from
+     * jvmTest/resources/snapshots, naming the first line that differs) and its hash on every platform.
+     */
+    @Test
+    fun noStrictPressHistory_coachOutputUnchanged() {
+        assertSnapshot("golden", CoachSnapshot.golden(), "ae05c47f678286fc", 196645)
+        assertSnapshot("mixed", CoachSnapshot.mixed(), "c871a8e131d334d1", 203975)
+    }
+
+    private fun assertSnapshot(name: String, actual: String, hash: String, length: Int) {
+        snapshotBaseline(name)?.let { base ->
+            val expectedLines = base.lines()
+            val actualLines = actual.lines()
+            val i = (0 until maxOf(expectedLines.size, actualLines.size)).firstOrNull { expectedLines.getOrNull(it) != actualLines.getOrNull(it) }
+            if (i != null) {
+                // The date header the differing line falls under, so the day is easy to find.
+                val day = actualLines.take(i + 1).lastOrNull { it.startsWith("== ") }
+                fail(
+                    "$name output changed at line ${i + 1} ($day):\n" +
+                        "  expected: ${expectedLines.getOrNull(i)}\n  actual:   ${actualLines.getOrNull(i)}",
+                )
+            }
+        }
+        assertEquals(hash to length, CoachSnapshot.hash(actual) to actual.length, "$name output changed")
     }
 }

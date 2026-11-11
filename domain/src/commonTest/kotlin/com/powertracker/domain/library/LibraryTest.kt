@@ -234,11 +234,12 @@ class LibraryTest {
         assertNull(Library.find("Not an exercise"))
     }
 
-    /** The rank the search rules give [e] for [q]: 0 name starts, 1 name contains, 2 alias, 3 muscle, null none. */
+    /** The rank the search rules give [e] for [q]: -1 exact name or alias, 0 name starts, 1 name contains, 2 alias, 3 muscle, null none. */
     private fun ruleRank(e: LibraryExercise, q: String): Int? {
         val n = Library.normalise(q)
         val name = Library.normalise(e.name)
         return when {
+            name == n || e.aliases.any { Library.normalise(it) == n } -> -1
             name.startsWith(n) -> 0
             n in name -> 1
             e.aliases.any { n in Library.normalise(it) } -> 2
@@ -261,8 +262,12 @@ class LibraryTest {
         val byName = all.associateBy { it.name }
         fun rankOf(name: String, q: String) = ruleRank(byName.getValue(name), q)
 
-        // "deadlift": Deadlift starts with it, Deficit deadlift contains it, RDL has it only in an alias.
-        assertEquals(listOf(0, 1, 2), listOf("Deadlift", "Deficit deadlift", "RDL").map { rankOf(it, "deadlift") })
+        // "deadlift": Deadlift is exactly it, Deficit deadlift contains it, RDL has it only in an alias.
+        assertEquals(listOf(-1, 1, 2), listOf("Deadlift", "Deficit deadlift", "RDL").map { rankOf(it, "deadlift") })
+        // "dead": Deadlift only starts with it.
+        assertEquals(0, rankOf("Deadlift", "dead"))
+        // "overhead press": an exact alias of Strict press (its former name) comes before other aliases containing it.
+        assertEquals(listOf(-1, 2), listOf("Strict press", "DB shoulder press").map { rankOf(it, "overhead press") })
         val deadlift = names(assertRankedAndAlphabetical("deadlift"))
         assertTrue(deadlift.indexOf("Deadlift") < deadlift.indexOf("Deficit deadlift"), "$deadlift")
         assertTrue(deadlift.indexOf("Deficit deadlift") < deadlift.indexOf("RDL"), "$deadlift")
@@ -272,7 +277,7 @@ class LibraryTest {
         val back = names(assertRankedAndAlphabetical("back"))
         assertTrue(back.indexOf("Squat") in 0 until back.indexOf("Row"), "$back")
 
-        for (q in listOf("press", "squat", "triceps", "glutes", "pull")) assertRankedAndAlphabetical(q)
+        for (q in listOf("press", "squat", "triceps", "glutes", "pull", "overhead press", "bench press")) assertRankedAndAlphabetical(q)
     }
 
     @Test
@@ -372,8 +377,9 @@ class LibraryTest {
     @Test
     fun shoulders_findTheNamesPeopleType() {
         val expected = mapOf(
-            "OHP" to "Overhead press",
-            "military press" to "Overhead press",
+            "OHP" to "Strict press",
+            "military press" to "Strict press",
+            "overhead press" to "Strict press",
             "seated military press" to "Seated barbell press",
             "dumbbell shoulder press" to "DB shoulder press",
             "shoulder press machine" to "Machine shoulder press",
@@ -393,14 +399,16 @@ class LibraryTest {
             assertTrue(name in names(Library.search(typed)), "$typed: search misses $name")
         }
         val firstHit = mapOf(
-            "overhead press" to "Overhead press",
+            "overhead press" to "Strict press",
+            "strict press" to "Strict press",
             "lateral raise" to "Lateral raise",
             "arnold" to "Arnold press",
             "landmine" to "Landmine press",
         )
         for ((typed, name) in firstHit) assertEquals(name, Library.search(typed).firstOrNull()?.name, typed)
         val shoulders = all.filter { it.area == BodyArea.SHOULDERS }
-        assertTrue(shoulders.size >= 25, "${shoulders.size} shoulder entries")
+        // 24 since the overhead press moved to the main lifts as Strict press.
+        assertTrue(shoulders.size >= 24, "${shoulders.size} shoulder entries")
         for (e in shoulders) {
             assertEquals(Category.ACCESSORY, e.category, e.name)
             assertNull(e.parentLift, e.name)

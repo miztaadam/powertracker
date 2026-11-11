@@ -9,8 +9,8 @@ import com.powertracker.domain.library.SourceId
 import com.powertracker.domain.library.Sources
 import com.powertracker.domain.model.Category
 
-// Shared lines, so the bracing wording is the same in every shoulder guide.
-private const val PRESS_BRACE = "Breathe in and brace your abs before each rep."
+// Shared lines, so the bracing wording is the same in every shoulder guide. PRESS_BRACE and BEHIND_NECK are in
+// Shared.kt: the strict press in MainLifts.kt uses them too.
 private const val MACHINE_BRACE = "Brace your abs, but don't press your lower back into the backrest."
 private const val LIGHT_BRACE = "Brace your abs lightly, and keep breathing."
 private const val BENT_BRACE = "Brace your abs and keep your back flat."
@@ -20,7 +20,6 @@ private const val LOWER_SLOWLY = "Lower under control."
 private const val SWITCH_ARMS = "Do all your reps, then switch arms."
 private const val ELBOWS_TO_SHOULDER = "Raise your upper arms out to the sides until your elbows are at shoulder height."
 private const val SAME_BEND = "Keep the bend in your elbows the same."
-private const val BEHIND_NECK = "Lowering the bar behind your neck."
 private const val ARCHING = "Arching your lower back to get the weight up."
 private const val THROWING = "Throwing the weight up with your hips or back. Use a lighter weight."
 private const val ELBOWS_BELOW_WRISTS = "Letting your elbows drop below your wrists, which moves the work to the front of your shoulders."
@@ -53,37 +52,6 @@ private fun shoulderEntry(
 /** BodyArea.SHOULDERS entries. */
 internal val shoulders: List<LibraryExercise> = listOf(
     // ---- Presses ----
-    shoulderEntry(
-        "Overhead press",
-        listOf(
-            "OHP", "Military press", "Standing press", "Barbell overhead press", "Standing barbell press",
-            "Barbell military press",
-        ),
-        listOf(Equipment.BARBELL), PRESS_MUSCLES, Kind.COMPOUND,
-        FormGuide(
-            purpose = "A standing barbell press from your shoulders to overhead. It works your shoulders and triceps.",
-            setup = listOf(
-                "Set the bar in the rack at about shoulder height.",
-                RACK_SAFETY,
-                "Grip the bar a little wider than your shoulders.",
-                "Take the bar across the front of your shoulders and step back.",
-                "Stand with your feet shoulder-width apart, or with one foot a little in front of the other.",
-                PRESS_BRACE,
-            ),
-            steps = listOf(
-                "Press the bar overhead until your arms are straight.",
-                "Keep your back straight and tall.",
-                "Lower the bar under control to the front of your neck.",
-                RACK_IT,
-            ),
-            cues = listOf("Back straight and tall.", "Press to straight arms."),
-            mistakes = listOf("Leaning back instead of keeping your back straight and tall.", BEHIND_NECK),
-        ),
-        listOf(
-            Sources.EXRX_BB_MILITARY_PRESS, Sources.ACE_STANDING_SHOULDER_PRESS, Sources.NSCA_STANDARDS_SUMMARY,
-            Sources.PMC_UPPER_EXTREMITY_LIFTING_INJURIES, Sources.ACE_BRACE_OR_BREATHE,
-        ),
-    ),
     shoulderEntry(
         "Seated barbell press",
         listOf("Seated military press", "Seated barbell shoulder press", "Seated OHP"),

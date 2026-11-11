@@ -16,10 +16,12 @@ const weeksAgo = (n: number) => addDays(thisWeek, -7 * n)
 /** A single at RPE 10: its e1RM is its weight. */
 const single = (exercise: JsExercise, kg: number, failed = false) => new JsSet(exercise.id, kg, 1, 10, failed, null, false)
 
+const press = new JsExercise(4, 'Strict press', 'STRICT_PRESS', null, [], true, false)
+
 const history = (...sessions: [string, JsSet[]][]) =>
   new JsHistory(
     sessions.map(([date, sets], i) => new JsSession(i + 1, date, null, null, sets)),
-    [squat, bench, deadlift],
+    [squat, bench, deadlift, press],
     [],
   )
 
@@ -109,6 +111,13 @@ describe('buildProgress', () => {
     expect(build(history()).hasData).toBe(false)
     expect(build(history([today, [single(squat, 100, true)]])).hasData).toBe(false)
     expect(build(history([today, [single(squat, 100, true), single(squat, 90)]])).hasData).toBe(true)
+  })
+
+  it('hasData_ignoresAStrictPressOnlyHistory', () => {
+    expect(build(history([today, [single(press, 60)]])).hasData).toBe(false)
+    const both = build(history([today, [single(press, 60), single(squat, 100)]]))
+    expect(both.hasData).toBe(true)
+    expect(both.lifts.map((l) => l.lift)).toEqual(['SQUAT', 'BENCH', 'DEADLIFT'])
   })
 
   it('ratios_areEachPairAgainstItsTypicalRange', () => {

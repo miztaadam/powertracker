@@ -165,9 +165,35 @@ class GritDomainTest {
         assertEquals(450.0, volume.first().value)
         assertTrue(GritDomain.currentE1rm(history, "SQUAT", "2026-03-16", 28)!! > 0.0)
         assertNull(GritDomain.currentE1rm(history, "SQUAT", "2025-01-01", 28))
-        val total = MainLift.entries.sumOf { GritDomain.currentE1rm(history, it.name, "2026-03-16", 28)!! }
-        assertEquals(total, GritDomain.total(history, "2026-03-16"))
-        assertNull(GritDomain.total(history, "2025-01-01"))
+        val sbd = listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT)
+        val total = sbd.sumOf { GritDomain.currentE1rm(history, it.name, "2026-03-16", 28)!! }
+        assertEquals(total, GritDomain.total(history, "2026-03-16", false))
+        assertNull(GritDomain.total(history, "2025-01-01", false))
+        // The golden scenario has no strict press, so a total that includes it is not known yet.
+        assertNull(GritDomain.total(history, "2026-03-16", true))
+    }
+
+    @Test
+    fun strictPress_liftsLabelsAndRatios() {
+        assertContentEquals(arrayOf("SQUAT", "BENCH", "DEADLIFT", "STRICT_PRESS"), GritDomain.mainLifts())
+        assertEquals("Strict press", GritDomain.liftLabel("STRICT_PRESS"))
+        assertEquals("Off the shoulders", GritDomain.missPointLabel("STRICT_PRESS", "FLOOR"))
+        assertEquals("Mid", GritDomain.missPointLabel("STRICT_PRESS", "MID"))
+        assertEquals("Lockout", GritDomain.missPointLabel("STRICT_PRESS", "LOCKOUT"))
+        assertEquals("Floor", GritDomain.missPointLabel("BENCH", "FLOOR"))
+        assertFailsWith<IllegalArgumentException> { GritDomain.missPointLabel("PRESS", "FLOOR") }
+        assertTrue(GritDomain.ratioRanges().none { it.numerator == "STRICT_PRESS" || it.denominator == "STRICT_PRESS" })
+        assertEquals(
+            listOf("Seated barbell press", "Incline bench press", "Landmine press"),
+            GritDomain.accessoryOptions("STRICT_PRESS", "FLOOR").map { it.name },
+        )
+        assertEquals("STRICT_PRESS", GritDomain.mainLiftOf(JsExercise(4, "Strict press", "STRICT_PRESS", null, emptyArray(), true, false)))
+        assertTrue(GritDomain.isMainLift(JsExercise(4, "Strict press", "STRICT_PRESS", null, emptyArray(), true, false)))
+        val entry = GritDomain.findInLibrary("Overhead press")!!
+        assertEquals("Strict press", entry.name)
+        assertEquals("STRICT_PRESS", entry.category)
+        assertEquals("MAIN_LIFTS", entry.area)
+        assertTrue(GritDomain.seedExercises().none { it.category == "STRICT_PRESS" })
     }
 
     @Test

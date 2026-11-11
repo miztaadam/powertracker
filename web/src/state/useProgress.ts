@@ -80,7 +80,8 @@ const perLift = <T>(value: (lift: Lift) => T): Record<Lift, T> => ({ SQUAT: valu
 
 /** Everything the Progress screen shows, from one snapshot of history. `today` is `YYYY-MM-DD`. */
 export function buildProgress(history: JsHistory, range: ChartRange = DEFAULT_RANGE, today: string): ProgressState {
-  const mainIds = new Set(history.exercises.filter((e) => grit.isMainLift(e)).map((e) => e.id))
+  // Squat, bench and deadlift only, as on Android: a strict press joins Progress behind its setting in a later change.
+  const mainIds = new Set(history.exercises.filter((e) => grit.isMainLift(e) && asLift(grit.mainLiftOf(e) ?? '') != null).map((e) => e.id))
   const hasData = history.sessions.some((s) => s.sets.some((set) => !set.failed && mainIds.has(set.exerciseId)))
   if (!hasData) return empty(false, range)
 
@@ -92,8 +93,9 @@ export function buildProgress(history: JsHistory, range: ChartRange = DEFAULT_RA
     const then = earlier[lift] == null ? null : toHalfKg(earlier[lift])
     return { lift, e1rmKg: now, changeKg: now != null && then != null ? now - then : null }
   })
-  const totalNow = grit.total(history, today) ?? null
-  const totalBefore = grit.total(history, before) ?? null
+  // Squat, bench and deadlift only: strict press joins the total behind its setting in a later change.
+  const totalNow = grit.total(history, today, false) ?? null
+  const totalBefore = grit.total(history, before, false) ?? null
   const totalKg = totalNow == null ? null : toHalfKg(totalNow)
 
   // One continuous run of weeks, so time is to scale even when a week was missed.

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.powertracker.domain.model.AccessoryPrescription
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.model.liftLabel
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.ui.components.AdviceCard
 import com.powertracker.ui.components.Eyebrow
@@ -135,7 +136,7 @@ private fun PrescriptionList(items: List<AccessoryPrescription>) {
 
 private fun AccessoryPrescription.dose(): String = if (repsLow == repsHigh) "$sets × $repsHigh" else "$sets × $repsLow–$repsHigh"
 
-private fun MainLift.label(): String = name.lowercase().replaceFirstChar { it.uppercase() }
+private fun MainLift.label(): String = liftLabel(this)
 
 private fun MissPoint.label(lift: MainLift): String = when (this) {
     MissPoint.LOCKOUT -> "Lockout"
@@ -144,6 +145,7 @@ private fun MissPoint.label(lift: MainLift): String = when (this) {
         MainLift.SQUAT -> "Out of the hole"
         MainLift.BENCH -> "Off the chest"
         MainLift.DEADLIFT -> "Off the floor"
+        MainLift.STRICT_PRESS -> "Off the shoulders"
     }
 }
 
@@ -157,6 +159,7 @@ private fun MainLift?.chartColor(): Color {
         MainLift.SQUAT -> pt.squat
         MainLift.BENCH -> pt.bench
         MainLift.DEADLIFT -> pt.deadlift
-        null -> pt.muted
+        // No chart colour of its own yet (the Progress screen shows strict press from a later change).
+        MainLift.STRICT_PRESS, null -> pt.muted
     }
 }

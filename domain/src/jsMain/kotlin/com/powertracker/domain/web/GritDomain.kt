@@ -15,6 +15,8 @@ import com.powertracker.domain.library.MuscleGroups
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.liftLabel as domainLiftLabel
+import com.powertracker.domain.model.missPointLabel as domainMissPointLabel
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.domain.progress.ProgressMath
 import com.powertracker.domain.seed.SeedLibrary
@@ -102,14 +104,27 @@ object GritDomain {
 
     fun seedExercises(): Array<JsExercise> = SeedLibrary.exercises().map { it.toJs() }.toTypedArray()
 
-    /** Squat + bench + deadlift current e1RM as of [until]; null until all three have one. */
-    fun total(history: JsHistory, until: String): Double? =
-        ProgressMath.total(HistoryStats(history.toDomain()), parseDate("until", until))
+    /**
+     * Squat + bench + deadlift current e1RM as of [until], plus strict press when [includeStrictPress]; null until every
+     * included lift has one.
+     */
+    fun total(history: JsHistory, until: String, includeStrictPress: Boolean): Double? =
+        ProgressMath.total(HistoryStats(history.toDomain()), parseDate("until", until), includeStrictPress)
 
-    /** The main lift an exercise trains: itself for squat, bench and deadlift, its parent for a variation, null for an accessory. */
+    /** Every `MainLift` name in order: SQUAT, BENCH, DEADLIFT, STRICT_PRESS. */
+    fun mainLifts(): Array<String> = MainLift.entries.map { it.name }.toTypedArray()
+
+    /** What the apps call [lift] (a `MainLift` name), e.g. "Strict press". */
+    fun liftLabel(lift: String): String = domainLiftLabel(parseLift("lift", lift))
+
+    /** The label of the miss-point choice [point] (a `MissPoint` name) when logging [lift]: "Off the shoulders" for a strict press floor miss. */
+    fun missPointLabel(lift: String, point: String): String =
+        domainMissPointLabel(parseLift("lift", lift), parseEnum<MissPoint>("point", point))
+
+    /** The main lift an exercise trains: itself for a main lift, its parent for a variation, null for an accessory. */
     fun mainLiftOf(exercise: JsExercise): String? = exercise.toDomain().mainLift?.name
 
-    /** True for the squat, bench or deadlift itself; false for variations and accessories. */
+    /** True for a main lift itself (squat, bench, deadlift or strict press); false for variations and accessories. */
     fun isMainLift(exercise: JsExercise): Boolean = exercise.toDomain().isMainLift
 
     /**
@@ -168,7 +183,7 @@ object GritDomain {
     /** The fixed last line of every guide sheet, which the UI appends after the guide. */
     fun safetyLine(): String = Library.SAFETY_LINE
 
-    /** Typical strength ratios: squat ÷ deadlift, then bench ÷ squat. */
+    /** Typical strength ratios: squat ÷ deadlift, then bench ÷ squat. Strict press is never in one. */
     fun ratioRanges(): Array<JsRatioRange> = arrayOf(
         ratioRange(MainLift.SQUAT, MainLift.DEADLIFT, WeakPointRule.SQUAT_TO_DEADLIFT),
         ratioRange(MainLift.BENCH, MainLift.SQUAT, WeakPointRule.BENCH_TO_SQUAT),

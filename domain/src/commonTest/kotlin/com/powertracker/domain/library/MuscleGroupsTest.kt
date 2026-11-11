@@ -1,5 +1,8 @@
 package com.powertracker.domain.library
 
+import com.powertracker.domain.coach.AccessoryMap
+import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.model.MissPoint
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -19,8 +22,9 @@ class MuscleGroupsTest {
             assertEquals(1, MuscleGroups.table.count { (key, _) -> key == Library.normalise(s) }, s)
         }
         assertEquals(MuscleGroups.table.size, MuscleGroups.table.map { it.first }.toSet().size, "a muscle is listed twice")
-        // The table holds nothing the catalogue does not use, apart from the groups' own names.
-        val known = strings.map { Library.normalise(it) } + MuscleGroup.entries.map { Library.normalise(it.label) }
+        // The table holds nothing the catalogue or the coach's accessory map does not use, apart from the groups' own names.
+        val coachMuscles = MainLift.entries.flatMap { lift -> MissPoint.entries.flatMap { AccessoryMap.muscles(lift, it) } }
+        val known = (strings + coachMuscles).map { Library.normalise(it) } + MuscleGroup.entries.map { Library.normalise(it.label) }
         assertEquals(emptyList(), MuscleGroups.table.map { it.first }.filter { it !in known })
         // Every group answers to its own name, so an exercise of the lifter's own tagged "Chest" is found.
         for (g in MuscleGroup.entries) assertEquals(g, MuscleGroups.of(g.label))
@@ -42,6 +46,8 @@ class MuscleGroupsTest {
         assertEquals(MuscleGroup.ABS, MuscleGroups.of("Trunk"))
         assertEquals(MuscleGroup.ABS, MuscleGroups.of("Abs"))
         assertEquals(MuscleGroup.OBLIQUES, MuscleGroups.of("Obliques"))
+        assertEquals(MuscleGroup.FRONT_DELTS, MuscleGroups.of("Delts"))
+        assertEquals(MuscleGroup.CHEST, MuscleGroups.of("Upper chest"))
         // Anything else belongs to no group.
         assertNull(MuscleGroups.of("Whole body"))
         assertNull(MuscleGroups.of(""))

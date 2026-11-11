@@ -8,6 +8,7 @@ import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.liftLabel
 import com.powertracker.domain.time.mondayOfWeek
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -52,7 +53,7 @@ object FatigueRule {
 
     private fun percent(factor: Double) = (factor * 100).roundToLong()
 
-    private fun liftNames(lifts: List<MainLift>) = lifts.joinToString(" and ") { it.name.lowercase() }
+    private fun liftNames(lifts: List<MainLift>) = lifts.joinToString(" and ") { liftLabel(it).lowercase() }
 
     private fun mainSets(session: LoggedSession, history: TrainingHistory): List<LoggedSet> =
         session.sets.filter { history.exercises[it.exerciseId]?.isMainLift == true }

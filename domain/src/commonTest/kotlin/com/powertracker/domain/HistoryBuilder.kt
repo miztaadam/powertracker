@@ -16,6 +16,7 @@ object Ids {
     const val SQUAT = 1L
     const val BENCH = 2L
     const val DEADLIFT = 3L
+    const val STRICT_PRESS = 4L
     const val PAUSE_BENCH = 10L
     const val CURL = 50L
     const val PULL_UP = 51L
@@ -48,6 +49,7 @@ class HistoryBuilder(private val start: LocalDate) {
             Exercise(Ids.SQUAT, "Squat", Category.SQUAT, null, emptyList(), true),
             Exercise(Ids.BENCH, "Bench", Category.BENCH, null, emptyList(), true),
             Exercise(Ids.DEADLIFT, "Deadlift", Category.DEADLIFT, null, emptyList(), true),
+            Exercise(Ids.STRICT_PRESS, "Strict press", Category.STRICT_PRESS, null, emptyList(), true),
             Exercise(Ids.PAUSE_BENCH, "Pause Bench", Category.VARIATION, MainLift.BENCH, emptyList(), true),
             Exercise(Ids.CURL, "Curl", Category.ACCESSORY, null, emptyList(), true),
             Exercise(Ids.PULL_UP, "Pull-up", Category.ACCESSORY, null, emptyList(), true),
@@ -68,6 +70,9 @@ class SessionBuilder {
 
     fun deadlift(kg: Double, reps: Int, rpe: Double? = 8.0, failed: Boolean = false, miss: MissPoint? = null) =
         set(Ids.DEADLIFT, kg, reps, rpe, failed, miss, isTopSet = true)
+
+    fun press(kg: Double, reps: Int, rpe: Double? = 8.0, failed: Boolean = false, miss: MissPoint? = null) =
+        set(Ids.STRICT_PRESS, kg, reps, rpe, failed, miss, isTopSet = true)
 
     fun set(
         exerciseId: Long,

@@ -38,7 +38,7 @@ object Library {
 
     /**
      * Entries in [areas] (empty = any) that need any of [equipment] (empty = any) and match [query]. Ranked:
-     * names starting with the query, names containing it, aliases, then muscles; alphabetical within a rank.
+     * an exact name or alias, names starting with the query, names containing it, aliases, then muscles; alphabetical within a rank.
      * A blank query returns every entry in the filters, alphabetically.
      */
     fun search(
@@ -71,6 +71,8 @@ object Library {
     private fun rank(e: LibraryExercise, q: String): Int? {
         val name = normalise(e.name)
         return when {
+            // An exact name or alias first, so a former name ("Overhead press") still leads to its entry.
+            name == q || e.aliases.any { normalise(it) == q } -> -1
             name.startsWith(q) -> 0
             q in name -> 1
             e.aliases.any { q in normalise(it) } -> 2

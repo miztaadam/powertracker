@@ -54,9 +54,15 @@ object ProgressMath {
         return volume.toList().sortedBy { it.first }
     }
 
-    /** Squat + bench + deadlift current e1RM as of [until]; null until all three have one. */
-    fun total(stats: HistoryStats, until: LocalDate): Double? {
-        val lifts = MainLift.entries.map { stats.currentE1rm(it, until) ?: return null }
+    private val SBD = listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT)
+
+    /**
+     * Squat + bench + deadlift current e1RM as of [until], plus strict press when [includeStrictPress]; null until
+     * every included lift has one.
+     */
+    fun total(stats: HistoryStats, until: LocalDate, includeStrictPress: Boolean): Double? {
+        val included = if (includeStrictPress) SBD + MainLift.STRICT_PRESS else SBD
+        val lifts = included.map { stats.currentE1rm(it, until) ?: return null }
         return lifts.sum()
     }
 }

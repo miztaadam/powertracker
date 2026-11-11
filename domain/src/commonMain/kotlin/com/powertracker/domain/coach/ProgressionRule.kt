@@ -93,6 +93,7 @@ object ProgressionRule {
             delta >= 1.5 -> Change.Scale(0.975)
             delta > 0.5 -> Change.Repeat
             delta >= -0.5 -> if (recentJumpWithRisingRpe(last, previous, lastDate)) Change.Repeat else Change.Add(2.5)
+            // Bench, strict press and everything else jump 2.5 kg.
             delta <= -1.0 &&
                 (exercise.category == Category.SQUAT || exercise.category == Category.DEADLIFT) -> Change.Add(5.0)
             else -> Change.Add(2.5)

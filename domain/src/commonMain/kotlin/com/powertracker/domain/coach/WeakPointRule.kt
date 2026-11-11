@@ -6,6 +6,7 @@ import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.liftLabel
 import com.powertracker.domain.time.mondayOfWeek
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -30,6 +31,7 @@ object WeakPointRule {
         val range: ClosedFloatingPointRange<Double>,
     )
 
+    // The only ratios: strict press is never part of one, so it is never flagged as lagging another lift.
     private val pairs = listOf(
         LiftPair(MainLift.SQUAT, MainLift.DEADLIFT, SQUAT_TO_DEADLIFT),
         LiftPair(MainLift.BENCH, MainLift.SQUAT, BENCH_TO_SQUAT),
@@ -94,5 +96,5 @@ object WeakPointRule {
         return if (top.value >= MIN_MISSES && top.value >= MISS_SHARE * misses.size) top.key to top.value else null
     }
 
-    private fun MainLift.lower() = name.lowercase()
+    private fun MainLift.lower() = liftLabel(this).lowercase()
 }

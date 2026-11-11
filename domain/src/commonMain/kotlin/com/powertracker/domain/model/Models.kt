@@ -3,11 +3,28 @@ package com.powertracker.domain.model
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 
-enum class MainLift { SQUAT, BENCH, DEADLIFT }
+/** New values go last: the names are stored in databases and backups, and some lists keep this order. */
+enum class MainLift { SQUAT, BENCH, DEADLIFT, STRICT_PRESS }
 
-enum class Category { SQUAT, BENCH, DEADLIFT, VARIATION, ACCESSORY }
+/** The main-lift categories map one-to-one to [MainLift]; new main lifts go before VARIATION. */
+enum class Category { SQUAT, BENCH, DEADLIFT, STRICT_PRESS, VARIATION, ACCESSORY }
 
 enum class MissPoint { FLOOR, MID, LOCKOUT }
+
+/** What the apps call [lift]: "Squat", "Bench", "Deadlift" or "Strict press". */
+fun liftLabel(lift: MainLift): String = when (lift) {
+    MainLift.SQUAT -> "Squat"
+    MainLift.BENCH -> "Bench"
+    MainLift.DEADLIFT -> "Deadlift"
+    MainLift.STRICT_PRESS -> "Strict press"
+}
+
+/** The label of a miss-point choice when logging [lift]: "Floor", "Mid", "Lockout"; strict press's floor is "Off the shoulders". */
+fun missPointLabel(lift: MainLift, point: MissPoint): String = when (point) {
+    MissPoint.FLOOR -> if (lift == MainLift.STRICT_PRESS) "Off the shoulders" else "Floor"
+    MissPoint.MID -> "Mid"
+    MissPoint.LOCKOUT -> "Lockout"
+}
 
 data class Exercise(
     val id: Long,
@@ -18,19 +35,23 @@ data class Exercise(
     val isBuiltIn: Boolean,
     val archived: Boolean = false,
 ) {
-    /** SQUAT/BENCH/DEADLIFT category -> that lift; VARIATION -> [parentLift]; ACCESSORY -> null. */
+    /** A main-lift category -> that lift; VARIATION -> [parentLift]; ACCESSORY -> null. */
     val mainLift: MainLift?
         get() = when (category) {
             Category.SQUAT -> MainLift.SQUAT
             Category.BENCH -> MainLift.BENCH
             Category.DEADLIFT -> MainLift.DEADLIFT
+            Category.STRICT_PRESS -> MainLift.STRICT_PRESS
             Category.VARIATION -> parentLift
             Category.ACCESSORY -> null
         }
 
-    /** True when the category is SQUAT, BENCH or DEADLIFT. */
+    /** True when the category is a main lift's own (SQUAT, BENCH, DEADLIFT or STRICT_PRESS). */
     val isMainLift: Boolean
-        get() = category == Category.SQUAT || category == Category.BENCH || category == Category.DEADLIFT
+        get() = when (category) {
+            Category.SQUAT, Category.BENCH, Category.DEADLIFT, Category.STRICT_PRESS -> true
+            Category.VARIATION, Category.ACCESSORY -> false
+        }
 }
 
 data class LoggedSet(

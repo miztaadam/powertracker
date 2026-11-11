@@ -26,7 +26,10 @@ export declare namespace GritDomain {
             accessoryOptions(lift: string, miss: Nullable<string>): Array<JsAccessoryOption>;
             accessoryMuscles(lift: string, miss: Nullable<string>): Array<string>;
             seedExercises(): Array<JsExercise>;
-            total(history: JsHistory, until: string): Nullable<number>;
+            total(history: JsHistory, until: string, includeStrictPress: boolean): Nullable<number>;
+            mainLifts(): Array<string>;
+            liftLabel(lift: string): string;
+            missPointLabel(lift: string, point: string): string;
             mainLiftOf(exercise: JsExercise): Nullable<string>;
             isMainLift(exercise: JsExercise): boolean;
             lastTopSet(history: JsHistory, exerciseId: number, before: string): Nullable<JsSet>;

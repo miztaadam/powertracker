@@ -33,14 +33,17 @@ object MuscleGroups {
     /** Normalised muscle string to its group. A group's own name is always one of its strings. */
     internal val table: List<Pair<String, MuscleGroup>> = listOf(
         // "Pecs" is the catalogue's word for the chest; the group carries the name a newcomer looks for.
-        MuscleGroup.CHEST to listOf("Chest", "Pecs"),
+        // "Upper chest" is the coach's word for strict press misses off the shoulders (AccessoryMap, fixed).
+        MuscleGroup.CHEST to listOf("Chest", "Pecs", "Upper chest"),
         MuscleGroup.LATS to listOf("Lats"),
         MuscleGroup.UPPER_BACK to listOf("Upper back"),
         MuscleGroup.TRAPS to listOf("Traps"),
         // "Position" is the coach's set-up word for deadlift variations that train holding the back flat
         // (it comes from AccessoryMap, which is fixed). It maps here so they list under Lower back.
         MuscleGroup.LOWER_BACK to listOf("Lower back", "Position"),
-        MuscleGroup.FRONT_DELTS to listOf("Front delts"),
+        // "Delts" is the coach's word for strict press misses mid-range (AccessoryMap, fixed). Pressing overhead works
+        // the front of the shoulder first (the catalogue lists every overhead press as "Front delts" first).
+        MuscleGroup.FRONT_DELTS to listOf("Front delts", "Delts"),
         MuscleGroup.SIDE_DELTS to listOf("Side delts"),
         // The rotator cuff has no tile of its own (three exercises). Its rotation drills are done for
         // the back of the shoulder, and are looked for beside the rear delt work.

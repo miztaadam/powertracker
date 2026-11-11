@@ -35,7 +35,7 @@ class HistoryStats(private val history: TrainingHistory) {
                 if (set.failed || liftOf(set) != lift) continue
                 val factor = when (categoryOf(set)) {
                     Category.VARIATION -> 0.9
-                    Category.SQUAT, Category.BENCH, Category.DEADLIFT -> 1.0
+                    Category.SQUAT, Category.BENCH, Category.DEADLIFT, Category.STRICT_PRESS -> 1.0
                     else -> continue
                 }
                 val e = factor * E1rm.estimate(set.weightKg, set.reps, set.rpe)

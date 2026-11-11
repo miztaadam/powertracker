@@ -14,17 +14,24 @@ object SeedLibrary {
     private fun main(name: String, category: Category, muscles: List<String>) =
         Exercise(0, name, category, parentLift = null, muscles = muscles, isBuiltIn = true)
 
+    /**
+     * The lifts whose accessory rows are seeded, fixed at the three the first release shipped. Strict press is not
+     * seeded and its rows add nothing here: a new seed row, or a muscle unioned into an existing one, would change
+     * what existing installs were seeded with. Its exercises come from the catalogue when they are first used.
+     */
+    private val SEEDED_LIFTS = listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT)
+
     fun exercises(): List<Exercise> {
         // name -> (heavy, first lift listing it, muscles unioned over every row listing it)
         class Acc(val heavy: Boolean, val lift: MainLift, val muscles: LinkedHashSet<String> = linkedSetOf())
         val found = LinkedHashMap<String, Acc>()
-        for (lift in MainLift.entries) for (miss in MissPoint.entries) {
+        for (lift in SEEDED_LIFTS) for (miss in MissPoint.entries) {
             val muscles = AccessoryMap.muscles(lift, miss)
             for (option in AccessoryMap.options(lift, miss)) {
                 found.getOrPut(option.exerciseName) { Acc(option.heavy, lift) }.muscles += muscles
             }
         }
-        check(found.keys == AccessoryMap.allExerciseNames)
+        check(found.keys == SEEDED_LIFTS.flatMap { lift -> AccessoryMap.allOptions(lift).map { it.exerciseName } }.toSet())
 
         val mapped = found.map { (name, acc) ->
             Exercise(

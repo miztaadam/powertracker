@@ -51,7 +51,7 @@ private fun variation(
     parentLift = parent, guide = guide, sources = sources,
 )
 
-/** BodyArea.MAIN_LIFTS: squat, bench and deadlift, and the coach's heavy variations of them. */
+/** BodyArea.MAIN_LIFTS: squat, bench, deadlift and strict press, and the coach's heavy variations of the first three. */
 internal val mainLifts: List<LibraryExercise> = listOf(
     mainLift(
         "Squat", listOf("Back squat", "Barbell back squat"), Category.SQUAT, listOf("Quads", "Glutes"),
@@ -125,6 +125,39 @@ internal val mainLifts: List<LibraryExercise> = listOf(
             ),
         ),
         listOf(Sources.IPF_RULES_2026, Sources.EXRX_BB_DEADLIFT, Sources.ACE_DEADLIFT, Sources.ACE_HOW_TO_DEADLIFT, Sources.ACE_BRACE_OR_BREATHE),
+    ),
+
+    // The strict press: the catalogue's "Overhead press" until it became the fourth main lift, so that name is an alias.
+    mainLift(
+        "Strict press",
+        listOf(
+            "Overhead press", "OHP", "Military press", "Standing press", "Barbell overhead press", "Standing barbell press",
+            "Barbell military press",
+        ),
+        Category.STRICT_PRESS, listOf("Front delts", "Side delts", "Triceps"),
+        FormGuide(
+            purpose = "The strict press: a standing barbell press from your shoulders to overhead. It works your shoulders and triceps.",
+            setup = listOf(
+                "Set the bar in the rack at about shoulder height.",
+                RACK_SAFETY,
+                "Grip the bar a little wider than your shoulders.",
+                "Take the bar across the front of your shoulders and step back.",
+                "Stand with your feet shoulder-width apart, or with one foot a little in front of the other.",
+                PRESS_BRACE,
+            ),
+            steps = listOf(
+                "Press the bar overhead until your arms are straight.",
+                "Keep your back straight and tall.",
+                "Lower the bar under control to the front of your neck.",
+                RACK_IT,
+            ),
+            cues = listOf("Back straight and tall.", "Press to straight arms."),
+            mistakes = listOf("Leaning back instead of keeping your back straight and tall.", BEHIND_NECK),
+        ),
+        listOf(
+            Sources.EXRX_BB_MILITARY_PRESS, Sources.ACE_STANDING_SHOULDER_PRESS, Sources.NSCA_STANDARDS_SUMMARY,
+            Sources.PMC_UPPER_EXTREMITY_LIFTING_INJURIES, Sources.ACE_BRACE_OR_BREATHE,
+        ),
     ),
 
     // ---- Squat variations ----

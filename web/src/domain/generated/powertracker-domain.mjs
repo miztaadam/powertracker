@@ -16,6 +16,7 @@ import {
   getValue48kllevslyh6 as getValue,
   emptyList1g2z5xcrvp2zy as emptyList,
   distinct10qe1scfdvu5k as distinct,
+  plus310ted5e4i90h as plus,
   take3onnpy6q7ctcz as take,
   HashSet_init_$Create$b2fvq2b4c4v2 as HashSet_init_$Create$,
   initMetadataForObject1cxne3s9w65el as initMetadataForObject,
@@ -75,7 +76,6 @@ import {
   getPropertyCallableRef3hckxc0xueiaj as getPropertyCallableRef,
   contains3ue2qo8xhmpf1 as contains_0,
   startsWith26w8qjqapeeq6 as startsWith,
-  plus310ted5e4i90h as plus,
   constructCallableReference23y65rf941mch as constructCallableReference,
   charSequenceLength3278n89t01tmv as charSequenceLength,
   charSequenceGet1vxk1y5n17t1z as charSequenceGet,
@@ -292,7 +292,7 @@ function light($this, name) {
 }
 function AccessoryMap() {
   AccessoryMap_instance = this;
-  this.z12_1 = mapOf([to(to(MainLift_SQUAT_getInstance(), MissPoint_FLOOR_getInstance()), new Row(listOf(['Quads', 'Glutes']), listOf([heavy(this, 'Pause squat'), heavy(this, 'Front squat'), light(this, 'Bulgarian split squat')]))), to(to(MainLift_SQUAT_getInstance(), MissPoint_MID_getInstance()), new Row(listOf(['Upper back', 'Trunk']), listOf([heavy(this, 'Pin squat'), heavy(this, 'Safety-bar squat'), heavy(this, 'Front squat')]))), to(to(MainLift_SQUAT_getInstance(), MissPoint_LOCKOUT_getInstance()), new Row(listOf(['Glutes', 'Hips']), listOf([light(this, 'Hip thrust'), heavy(this, 'Box squat')]))), to(to(MainLift_BENCH_getInstance(), MissPoint_FLOOR_getInstance()), new Row(listOf(['Pecs', 'Front delts']), listOf([heavy(this, 'Spoto press'), heavy(this, 'Long-pause bench'), light(this, 'DB press')]))), to(to(MainLift_BENCH_getInstance(), MissPoint_MID_getInstance()), new Row(listOf(['Pecs', 'Triceps']), listOf([heavy(this, 'Pin press'), heavy(this, 'Larsen press')]))), to(to(MainLift_BENCH_getInstance(), MissPoint_LOCKOUT_getInstance()), new Row(listOf_0('Triceps'), listOf([heavy(this, 'Close-grip bench'), light(this, 'JM press'), heavy(this, 'Board press')]))), to(to(MainLift_DEADLIFT_getInstance(), MissPoint_FLOOR_getInstance()), new Row(listOf(['Quads', 'Lats', 'Position']), listOf([heavy(this, 'Deficit deadlift'), heavy(this, 'Paused deadlift')]))), to(to(MainLift_DEADLIFT_getInstance(), MissPoint_MID_getInstance()), new Row(listOf(['Hamstrings', 'Lats']), listOf([light(this, 'RDL'), heavy(this, 'Paused deadlift at the knee')]))), to(to(MainLift_DEADLIFT_getInstance(), MissPoint_LOCKOUT_getInstance()), new Row(listOf(['Glutes', 'Upper back']), listOf([heavy(this, 'Block pull'), light(this, 'Hip thrust'), light(this, 'RDL')])))]);
+  this.z12_1 = mapOf([to(to(MainLift_SQUAT_getInstance(), MissPoint_FLOOR_getInstance()), new Row(listOf(['Quads', 'Glutes']), listOf([heavy(this, 'Pause squat'), heavy(this, 'Front squat'), light(this, 'Bulgarian split squat')]))), to(to(MainLift_SQUAT_getInstance(), MissPoint_MID_getInstance()), new Row(listOf(['Upper back', 'Trunk']), listOf([heavy(this, 'Pin squat'), heavy(this, 'Safety-bar squat'), heavy(this, 'Front squat')]))), to(to(MainLift_SQUAT_getInstance(), MissPoint_LOCKOUT_getInstance()), new Row(listOf(['Glutes', 'Hips']), listOf([light(this, 'Hip thrust'), heavy(this, 'Box squat')]))), to(to(MainLift_BENCH_getInstance(), MissPoint_FLOOR_getInstance()), new Row(listOf(['Pecs', 'Front delts']), listOf([heavy(this, 'Spoto press'), heavy(this, 'Long-pause bench'), light(this, 'DB press')]))), to(to(MainLift_BENCH_getInstance(), MissPoint_MID_getInstance()), new Row(listOf(['Pecs', 'Triceps']), listOf([heavy(this, 'Pin press'), heavy(this, 'Larsen press')]))), to(to(MainLift_BENCH_getInstance(), MissPoint_LOCKOUT_getInstance()), new Row(listOf_0('Triceps'), listOf([heavy(this, 'Close-grip bench'), light(this, 'JM press'), heavy(this, 'Board press')]))), to(to(MainLift_DEADLIFT_getInstance(), MissPoint_FLOOR_getInstance()), new Row(listOf(['Quads', 'Lats', 'Position']), listOf([heavy(this, 'Deficit deadlift'), heavy(this, 'Paused deadlift')]))), to(to(MainLift_DEADLIFT_getInstance(), MissPoint_MID_getInstance()), new Row(listOf(['Hamstrings', 'Lats']), listOf([light(this, 'RDL'), heavy(this, 'Paused deadlift at the knee')]))), to(to(MainLift_DEADLIFT_getInstance(), MissPoint_LOCKOUT_getInstance()), new Row(listOf(['Glutes', 'Upper back']), listOf([heavy(this, 'Block pull'), light(this, 'Hip thrust'), light(this, 'RDL')]))), to(to(MainLift_STRICT_PRESS_getInstance(), MissPoint_FLOOR_getInstance()), new Row(listOf(['Front delts', 'Upper chest']), listOf([light(this, 'Seated barbell press'), light(this, 'Incline bench press'), light(this, 'Landmine press')]))), to(to(MainLift_STRICT_PRESS_getInstance(), MissPoint_MID_getInstance()), new Row(listOf(['Delts', 'Triceps']), listOf([light(this, 'DB shoulder press'), light(this, 'Arnold press'), light(this, 'One-arm DB press')]))), to(to(MainLift_STRICT_PRESS_getInstance(), MissPoint_LOCKOUT_getInstance()), new Row(listOf(['Triceps', 'Upper back']), listOf([heavy(this, 'Close-grip bench'), light(this, 'JM press'), light(this, 'DB overhead triceps extension')])))]);
   var tmp = this;
   // Inline function 'kotlin.collections.flatMap' call
   var tmp0 = this.z12_1.q1();
@@ -343,17 +343,29 @@ protoOf(AccessoryMap).c13 = function (lift, miss) {
       var list = getValue(AccessoryMap_getInstance().z12_1, to(lift, element)).y12_1;
       addAll(destination, list);
     }
+    var all = distinct(destination);
     // Inline function 'kotlin.collections.filter' call
     // Inline function 'kotlin.collections.filterTo' call
     var destination_0 = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_0 = destination.j();
+    var _iterator__ex2g4s_0 = all.j();
     while (_iterator__ex2g4s_0.k()) {
       var element_0 = _iterator__ex2g4s_0.l();
       if (element_0.w12_1) {
         destination_0.i(element_0);
       }
     }
-    tmp = take(distinct(destination_0), 2);
+    var tmp_0 = destination_0;
+    // Inline function 'kotlin.collections.filterNot' call
+    // Inline function 'kotlin.collections.filterNotTo' call
+    var destination_1 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_1 = all.j();
+    while (_iterator__ex2g4s_1.k()) {
+      var element_1 = _iterator__ex2g4s_1.l();
+      if (!element_1.w12_1) {
+        destination_1.i(element_1);
+      }
+    }
+    tmp = take(plus(tmp_0, destination_1), 2);
   }
   return tmp;
 };
@@ -1501,7 +1513,7 @@ function FatigueRule$signals$lambda(a, b) {
 function FatigueRule$liftNames$lambda(it) {
   // Inline function 'kotlin.text.lowercase' call
   // Inline function 'kotlin.js.asDynamic' call
-  return it.r1_1.toLowerCase();
+  return liftLabel(it).toLowerCase();
 }
 function FatigueRule() {
   FatigueRule_instance = this;
@@ -1570,6 +1582,9 @@ function missPhrase(lift, miss) {
           break;
         case 2:
           tmp_0 = 'off the floor';
+          break;
+        case 3:
+          tmp_0 = 'off the shoulders';
           break;
         default:
           noWhenBranchMatchedException();
@@ -1787,24 +1802,6 @@ function ProgressionRule_getInstance() {
     new ProgressionRule();
   return ProgressionRule_instance;
 }
-function displayName($this, $receiver) {
-  var tmp;
-  switch ($receiver.s1_1) {
-    case 0:
-      tmp = 'Squat';
-      break;
-    case 1:
-      tmp = 'Bench';
-      break;
-    case 2:
-      tmp = 'Deadlift';
-      break;
-    default:
-      noWhenBranchMatchedException();
-      break;
-  }
-  return tmp;
-}
 function StallRule$evaluate$lambda(it) {
   return it.t().o();
 }
@@ -1948,7 +1945,7 @@ protoOf(StallRule).o16 = function (lift, stats, settings, today, currentAccessor
     destination_1.i(tmp$ret$18);
   }
   var items = destination_1;
-  var name = displayName(this, lift);
+  var name = liftLabel(lift);
   var head = name + " e1RM hasn't improved for " + weeksSincePeak + ' weeks.';
   var tmp_3;
   if (miss == null) {
@@ -2154,7 +2151,7 @@ function missFlag($this, lift, stats, today) {
 function lower($this, $receiver) {
   // Inline function 'kotlin.text.lowercase' call
   // Inline function 'kotlin.js.asDynamic' call
-  return $receiver.r1_1.toLowerCase();
+  return liftLabel($receiver).toLowerCase();
 }
 function sam$kotlin_Comparator$0_1(function_0) {
   this.e18_1 = function_0;
@@ -2563,12 +2560,13 @@ protoOf(HistoryStats).h17 = function (lift, until) {
       var tmp0_subject = categoryOf(this, set);
       var tmp;
       switch (tmp0_subject == null ? -1 : tmp0_subject.s1_1) {
-        case 3:
+        case 4:
           tmp = 0.9;
           break;
         case 0:
         case 1:
         case 2:
+        case 3:
           tmp = 1.0;
           break;
         default:
@@ -2943,50 +2941,56 @@ function _get_groups__sds409($this) {
 function rank($this, e, q) {
   var name = $this.c19(e.s18_1);
   var tmp;
-  if (startsWith(name, q)) {
-    tmp = 0;
+  var tmp_0;
+  if (name === q) {
+    tmp_0 = true;
   } else {
-    if (contains_0(name, q)) {
-      tmp = 1;
-    } else {
-      var tmp0 = e.t18_1;
-      var tmp$ret$0;
-      $l$block_0: {
-        // Inline function 'kotlin.collections.any' call
-        var tmp_0;
-        if (isInterface(tmp0, Collection)) {
-          tmp_0 = tmp0.m();
-        } else {
-          tmp_0 = false;
-        }
-        if (tmp_0) {
-          tmp$ret$0 = false;
+    var tmp0 = e.t18_1;
+    var tmp$ret$0;
+    $l$block_0: {
+      // Inline function 'kotlin.collections.any' call
+      var tmp_1;
+      if (isInterface(tmp0, Collection)) {
+        tmp_1 = tmp0.m();
+      } else {
+        tmp_1 = false;
+      }
+      if (tmp_1) {
+        tmp$ret$0 = false;
+        break $l$block_0;
+      }
+      var _iterator__ex2g4s = tmp0.j();
+      while (_iterator__ex2g4s.k()) {
+        var element = _iterator__ex2g4s.l();
+        if (Library_getInstance().c19(element) === q) {
+          tmp$ret$0 = true;
           break $l$block_0;
         }
-        var _iterator__ex2g4s = tmp0.j();
-        while (_iterator__ex2g4s.k()) {
-          var element = _iterator__ex2g4s.l();
-          if (contains_0(Library_getInstance().c19(element), q)) {
-            tmp$ret$0 = true;
-            break $l$block_0;
-          }
-        }
-        tmp$ret$0 = false;
       }
-      if (tmp$ret$0) {
-        tmp = 2;
+      tmp$ret$0 = false;
+    }
+    tmp_0 = tmp$ret$0;
+  }
+  if (tmp_0) {
+    tmp = -1;
+  } else {
+    if (startsWith(name, q)) {
+      tmp = 0;
+    } else {
+      if (contains_0(name, q)) {
+        tmp = 1;
       } else {
-        var tmp0_0 = e.w18_1;
+        var tmp0_0 = e.t18_1;
         var tmp$ret$2;
         $l$block_2: {
           // Inline function 'kotlin.collections.any' call
-          var tmp_1;
+          var tmp_2;
           if (isInterface(tmp0_0, Collection)) {
-            tmp_1 = tmp0_0.m();
+            tmp_2 = tmp0_0.m();
           } else {
-            tmp_1 = false;
+            tmp_2 = false;
           }
-          if (tmp_1) {
+          if (tmp_2) {
             tmp$ret$2 = false;
             break $l$block_2;
           }
@@ -3001,9 +3005,37 @@ function rank($this, e, q) {
           tmp$ret$2 = false;
         }
         if (tmp$ret$2) {
-          tmp = 3;
+          tmp = 2;
         } else {
-          tmp = null;
+          var tmp0_1 = e.w18_1;
+          var tmp$ret$4;
+          $l$block_4: {
+            // Inline function 'kotlin.collections.any' call
+            var tmp_3;
+            if (isInterface(tmp0_1, Collection)) {
+              tmp_3 = tmp0_1.m();
+            } else {
+              tmp_3 = false;
+            }
+            if (tmp_3) {
+              tmp$ret$4 = false;
+              break $l$block_4;
+            }
+            var _iterator__ex2g4s_1 = tmp0_1.j();
+            while (_iterator__ex2g4s_1.k()) {
+              var element_1 = _iterator__ex2g4s_1.l();
+              if (contains_0(Library_getInstance().c19(element_1), q)) {
+                tmp$ret$4 = true;
+                break $l$block_4;
+              }
+            }
+            tmp$ret$4 = false;
+          }
+          if (tmp$ret$4) {
+            tmp = 3;
+          } else {
+            tmp = null;
+          }
         }
       }
     }
@@ -3688,7 +3720,7 @@ function MuscleGroups() {
   MuscleGroups_instance = this;
   var tmp = this;
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = listOf([to(MuscleGroup_CHEST_getInstance(), listOf(['Chest', 'Pecs'])), to(MuscleGroup_LATS_getInstance(), listOf_0('Lats')), to(MuscleGroup_UPPER_BACK_getInstance(), listOf_0('Upper back')), to(MuscleGroup_TRAPS_getInstance(), listOf_0('Traps')), to(MuscleGroup_LOWER_BACK_getInstance(), listOf(['Lower back', 'Position'])), to(MuscleGroup_FRONT_DELTS_getInstance(), listOf_0('Front delts')), to(MuscleGroup_SIDE_DELTS_getInstance(), listOf_0('Side delts')), to(MuscleGroup_REAR_DELTS_getInstance(), listOf(['Rear delts', 'Rotator cuff'])), to(MuscleGroup_BICEPS_getInstance(), listOf(['Biceps', 'Brachialis'])), to(MuscleGroup_TRICEPS_getInstance(), listOf_0('Triceps')), to(MuscleGroup_FOREARMS_getInstance(), listOf(['Forearms', 'Grip'])), to(MuscleGroup_QUADS_getInstance(), listOf_0('Quads')), to(MuscleGroup_HAMSTRINGS_getInstance(), listOf_0('Hamstrings')), to(MuscleGroup_GLUTES_getInstance(), listOf(['Glutes', 'Hips'])), to(MuscleGroup_ADDUCTORS_getInstance(), listOf_0('Adductors')), to(MuscleGroup_CALVES_getInstance(), listOf_0('Calves')), to(MuscleGroup_ABS_getInstance(), listOf(['Abs', 'Trunk'])), to(MuscleGroup_OBLIQUES_getInstance(), listOf_0('Obliques'))]);
+  var tmp0 = listOf([to(MuscleGroup_CHEST_getInstance(), listOf(['Chest', 'Pecs', 'Upper chest'])), to(MuscleGroup_LATS_getInstance(), listOf_0('Lats')), to(MuscleGroup_UPPER_BACK_getInstance(), listOf_0('Upper back')), to(MuscleGroup_TRAPS_getInstance(), listOf_0('Traps')), to(MuscleGroup_LOWER_BACK_getInstance(), listOf(['Lower back', 'Position'])), to(MuscleGroup_FRONT_DELTS_getInstance(), listOf(['Front delts', 'Delts'])), to(MuscleGroup_SIDE_DELTS_getInstance(), listOf_0('Side delts')), to(MuscleGroup_REAR_DELTS_getInstance(), listOf(['Rear delts', 'Rotator cuff'])), to(MuscleGroup_BICEPS_getInstance(), listOf(['Biceps', 'Brachialis'])), to(MuscleGroup_TRICEPS_getInstance(), listOf_0('Triceps')), to(MuscleGroup_FOREARMS_getInstance(), listOf(['Forearms', 'Grip'])), to(MuscleGroup_QUADS_getInstance(), listOf_0('Quads')), to(MuscleGroup_HAMSTRINGS_getInstance(), listOf_0('Hamstrings')), to(MuscleGroup_GLUTES_getInstance(), listOf(['Glutes', 'Hips'])), to(MuscleGroup_ADDUCTORS_getInstance(), listOf_0('Adductors')), to(MuscleGroup_CALVES_getInstance(), listOf_0('Calves')), to(MuscleGroup_ABS_getInstance(), listOf(['Abs', 'Trunk'])), to(MuscleGroup_OBLIQUES_getInstance(), listOf_0('Obliques'))]);
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -4450,7 +4482,7 @@ var properties_initialized_MainLifts_kt_m5ic81;
 function _init_properties_MainLifts_kt__yvcjdp() {
   if (!properties_initialized_MainLifts_kt_m5ic81) {
     properties_initialized_MainLifts_kt_m5ic81 = true;
-    mainLifts = listOf([mainLift('Squat', listOf(['Back squat', 'Barbell back squat']), Category_SQUAT_getInstance(), listOf(['Quads', 'Glutes']), new FormGuide('The competition squat. It builds strength in your legs and hips.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Grip the bar wider than your shoulders. Stand up to lift it off the hooks, then step back.', 'Stand with your feet a little wider than your shoulders.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Bend your hips and knees to lower yourself.', 'Keep your chest up and your back flat.', 'Go down until the crease of your hip is below the top of your knee. This is competition depth.', 'Drive up by straightening your hips and knees together.', 'Stand tall with your knees locked. Breathe, then brace again for the next rep.', 'After the last rep, walk the bar forward into the hooks.']), listOf(['Knees track over your feet.', 'Keep your whole foot on the floor.', 'Chest up.']), listOf(['Heels lifting off the floor.', 'Knees caving in as you stand up.', 'Losing your brace and letting your back round.', 'Cutting depth on heavy sets.'])), listOf([new SourceId(Sources_getInstance().p1a_1), new SourceId(Sources_getInstance().q1a_1), new SourceId(Sources_getInstance().r1a_1), new SourceId(Sources_getInstance().s1a_1)])), mainLift('Bench', listOf(['Bench press', 'Barbell bench press']), Category_BENCH_getInstance(), listOf(['Pecs', 'Triceps', 'Front delts']), new FormGuide('The competition bench press. It builds pressing strength in your chest, shoulders and triceps.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar a little wider than your shoulders.', 'Keep a slight arch in your back.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar under control to your chest.', 'Pause with the bar still on your chest.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Feet stay planted.', 'Head, shoulders and buttocks stay on the bench.', 'Pause on your chest before you press.']), listOf(['Bouncing the bar off your chest.', 'Lifting your buttocks off the bench.', 'Gripping so wide that the range of motion gets short.'])), listOf([new SourceId(Sources_getInstance().p1a_1), new SourceId(Sources_getInstance().b1b_1), new SourceId(Sources_getInstance().c1b_1), new SourceId(Sources_getInstance().d1b_1)])), mainLift('Deadlift', listOf(['Conventional deadlift', 'Barbell deadlift']), Category_DEADLIFT_getInstance(), listOf(['Hamstrings', 'Glutes', 'Lats']), new FormGuide('The competition deadlift. It builds strength in your hips, legs and back.', listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Bend down and grip the bar shoulder-width or a little wider. Use both palms down, or one up and one down.', 'Pull your shoulders down and back, and lift your chest.', 'Brace your trunk before you pull.']), listOf(['Push through your heels to start the lift.', 'Keep the bar close to your legs as it rises. Raise it at the same rate as your hips.', 'Stand tall with your knees locked and your shoulders back.', 'Lower the bar under control by pushing your hips back and bending your knees.', 'Let the bar settle on the floor before the next rep.']), listOf(['Keep the bar close.', 'Lift with your hips, not just your back.', 'Keep your back flat.']), listOf(['Rounding your back.', 'Lifting with your back instead of your hips.', 'Letting the bar drift away from your legs.'])), listOf([new SourceId(Sources_getInstance().p1a_1), new SourceId(Sources_getInstance().j1b_1), new SourceId(Sources_getInstance().k1b_1), new SourceId(Sources_getInstance().l1b_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Pause squat', listOf_0('Paused squat'), MainLift_SQUAT_getInstance(), listOf(['Quads', 'Glutes']), new FormGuide('A back squat with a still pause at the bottom. It builds strength out of the bottom without a bounce.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Stand with your feet a little wider than your shoulders.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Squat down under control to your normal depth.', 'Hold still at the bottom for a short pause. Stay braced.', 'Drive up by straightening your hips and knees together.', 'Stand tall, breathe, and brace again for the next rep.']), listOf(['Stay braced in the pause.', 'Knees track over your feet.', 'Drive up hard from a dead stop.']), listOf(['Relaxing at the bottom.', 'Bouncing out instead of pausing.', 'Heels lifting off the floor.'])), listOf([new SourceId(Sources_getInstance().r1a_1), new SourceId(Sources_getInstance().q1a_1), new SourceId(Sources_getInstance().z1a_1)])), variation('Front squat', listOf_0('Barbell front squat'), MainLift_SQUAT_getInstance(), listOf(['Quads', 'Glutes', 'Upper back', 'Trunk']), new FormGuide('A squat with the bar on the front of your shoulders. It puts more of the work on your quads and needs an upright trunk.', listOf(['Set the bar in the rack at upper-chest height.', 'Set the safety pins, or use a spotter.', 'Grip the bar about shoulder-width apart and step under it.', 'Rest the bar across the front of your shoulders, palms facing up and elbows pointing straight ahead.', 'Set your feet in your normal squat stance.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Lift the bar out and step back.', 'Squat down, keeping your torso upright and your back straight.', 'Go down until your thighs are level with the floor. Stop sooner if your heels lift or your back starts to round.', 'Drive up by straightening your hips and knees.', 'Put the bar back in the rack after the last rep.']), listOf(['Elbows point straight ahead.', 'Weight over your whole foot.', 'Knees in line with your toes.']), listOf(['Keeping your shins too upright, so your torso tips forward.', 'Your back starting to round.', 'Heels lifting off the floor.'])), listOf([new SourceId(Sources_getInstance().t1a_1), new SourceId(Sources_getInstance().u1a_1), new SourceId(Sources_getInstance().v1a_1)])), variation('Pin squat', listOf_0('Squat from pins'), MainLift_SQUAT_getInstance(), listOf(['Upper back', 'Trunk']), new FormGuide('A squat that starts from a dead stop on the safety pins. It builds strength at the point where your squat slows down.', listOf(['Set the safety pins in the rack at the height you want to start from, often just below where your squat slows down.', "Rest the bar on the pins. The pins also catch the bar if you can't stand up.", 'Get under the bar and rest it across your upper back.', 'Stand with your feet a little wider than your shoulders.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Drive the bar up off the pins by straightening your hips and knees together.', 'Stand tall with your knees locked.', 'Squat back down under control until the bar rests on the pins.', 'Let the bar settle, brace again, then drive up for the next rep.']), listOf(['Brace before the bar leaves the pins.', 'Chest up.', 'Knees track over your feet.']), listOf(['Relaxing on the pins and losing your brace.', 'Dropping the bar onto the pins.', 'Starting with your back rounded.'])), listOf([new SourceId(Sources_getInstance().r1a_1), new SourceId(Sources_getInstance().q1a_1), new SourceId(Sources_getInstance().z1a_1)])), variation('Safety-bar squat', listOf(['SSB squat', 'Safety squat bar squat']), MainLift_SQUAT_getInstance(), listOf(['Upper back', 'Trunk']), new FormGuide('A squat with a safety squat bar, which has a padded yoke and handles. It keeps your torso more upright than a high-bar squat.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Step under the bar and rest the pads on your upper back and shoulders.', 'Hold the handles in front of you.', 'Set your feet in your normal squat stance.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Lift the bar out and take a few short steps back.', 'Squat down until your thighs are just below level with the floor.', 'Drive up by straightening your hips and knees together.', 'Put the bar back in the rack after the last rep.']), listOf(['Knees track over your feet.', 'Stay upright.']), listOf(['Knees caving in.', 'Losing your brace at the bottom.', 'Cutting depth short.'])), listOf([new SourceId(Sources_getInstance().w1a_1), new SourceId(Sources_getInstance().x1a_1)]), listOf_0(Equipment_SPECIALTY_BAR_getInstance())), variation('Box squat', listOf_0('Barbell box squat'), MainLift_SQUAT_getInstance(), listOf(['Glutes', 'Hips']), new FormGuide('A squat to a box set at your target depth. It teaches you to sit back and stand up from a still start.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Place a sturdy box behind you at the height of your target depth.', 'Step under the bar and rest it across your upper back.', 'Lift the bar out and step back until the box is just behind you.', 'Set your feet in your normal squat stance.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Sit back by bending your hips and knees. Keep your shins close to upright.', "Sit on the box under control. Don't drop onto it.", 'Pause briefly on the box while staying braced.', 'Drive up from the box to standing.']), listOf(['Sit back, not down.', 'Stay braced on the box.', 'Shins close to upright.']), listOf(['Dropping onto the box.', 'Relaxing on the box and losing your brace.'])), listOf_0(new SourceId(Sources_getInstance().y1a_1))), variation('High-bar squat', emptyList(), MainLift_SQUAT_getInstance(), listOf(['Quads', 'Glutes']), new FormGuide('A back squat with the bar sitting higher on your back than in a low-bar squat. It usually keeps your torso more upright.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Step under the bar and rest it high on your upper back, on the top of the muscle just below your neck.', 'Grip the bar out to the sides. Stand up to lift it off the hooks, then step back.', 'Set your feet in your normal squat stance.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Push your hips back and let your knees bend forward. Keep your back straight and your torso upright.', 'Go down until your thighs are just past level with the floor. Stop sooner if your heels lift or your back starts to round.', 'Drive up by straightening your hips and knees together.', 'Put the bar back in the rack after the last rep.']), listOf(['Knees point the same way as your feet.', 'Weight over your whole foot.', 'Chest up.']), listOf(['Heels lifting off the floor.', 'Knees caving in.', 'Losing your brace and letting your back round.'])), listOf([new SourceId(Sources_getInstance().r1a_1), new SourceId(Sources_getInstance().f1j_1), new SourceId(Sources_getInstance().x1a_1), new SourceId(Sources_getInstance().g1j_1), new SourceId(Sources_getInstance().b1j_1)])), variation('Tempo squat', listOf(['Tempo back squat', 'Slow-eccentric squat']), MainLift_SQUAT_getInstance(), listOf(['Quads', 'Glutes']), new FormGuide('A back squat where you lower yourself slowly and stand up at normal speed. It builds control on the way down, and one study found a slower way down may help quad growth.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Set your feet in your normal squat stance.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Lift the bar out and step back.', 'Lower yourself slowly and under control. Take longer to go down than to come up.', 'Go down to your normal squat depth.', 'Drive up by straightening your hips and knees together.', 'Put the bar back in the rack after the last rep.']), listOf(['Slow on the way down.', 'Stay braced the whole way down.', 'Knees point the same way as your feet.']), listOf(['Speeding up or dropping near the bottom.', 'Losing your brace on the slow way down.', 'Heels lifting off the floor.'])), listOf([new SourceId(Sources_getInstance().s1a_1), new SourceId(Sources_getInstance().h1j_1), new SourceId(Sources_getInstance().r1a_1), new SourceId(Sources_getInstance().q1a_1)])), variation('Spoto press', emptyList(), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Front delts']), new FormGuide('A bench press that stops just above your chest. It builds control and strength near the bottom of the press.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar a little wider than your shoulders.', 'Keep a slight arch in your back.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar under control.', 'Stop it just above your chest, without touching. Hold it still for a moment.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(["Stop the bar, don't let it sink.", 'Stay braced in the pause.', 'Feet stay planted.']), listOf(['Touching your chest.', 'Bouncing out of the pause.', 'Losing your upper-back position.'])), listOf([new SourceId(Sources_getInstance().b1b_1), new SourceId(Sources_getInstance().d1b_1), new SourceId(Sources_getInstance().c1b_1)])), variation('Long-pause bench', listOf_0('Long-pause bench press'), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Front delts']), new FormGuide('A bench press with a longer pause on your chest than in competition. It builds strength off the chest with no help from a bounce.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar a little wider than your shoulders.', 'Keep a slight arch in your back.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar under control to your chest.', 'Hold it still on your chest for a few seconds, longer than a competition pause.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Stay braced in the pause.', 'Keep the bar still.', 'Feet stay planted.']), listOf(['Letting the bar sink into your chest during the pause.', 'Relaxing during the pause.', 'Lifting your buttocks off the bench to start the press.'])), listOf([new SourceId(Sources_getInstance().p1a_1), new SourceId(Sources_getInstance().d1b_1), new SourceId(Sources_getInstance().c1b_1)])), variation('Pin press', listOf_0('Bench pin press'), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Triceps']), new FormGuide('A bench press from a dead stop on the safety pins. It builds strength at the point where your press slows down.', listOf(['Set a bench inside a power rack. The bar starts on the hooks.', 'Set the safety pins at the height you want to press from, often where your bench slows down. The pins are the bottom stop, and they catch the bar if you miss.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar a little wider than your shoulders.', 'Keep a slight arch in your back.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar off the hooks and hold it over your shoulders with straight arms.', 'Lower the bar under control until it rests on the pins.', 'Let it settle for a moment. Stay braced.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Lower softly onto the pins.', 'Stay braced on the pins.', 'Feet stay planted.']), listOf(['Dropping the bar onto the pins.', 'Relaxing on the pins.', 'Losing your feet or upper-back position.'])), listOf([new SourceId(Sources_getInstance().z1a_1), new SourceId(Sources_getInstance().e1b_1), new SourceId(Sources_getInstance().b1b_1), new SourceId(Sources_getInstance().c1b_1)])), variation('Larsen press', emptyList(), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Triceps']), new FormGuide('A bench press with your feet off the floor. With no help from your legs, your upper body does more of the work.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench.', 'Grip the bar a little wider than your shoulders.', 'Keep a slight arch in your back.', 'Lift your feet off the floor and hold your legs still.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar under control to your chest.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Legs still.', 'Shoulders and buttocks stay on the bench.', 'Lower slowly, press hard.']), listOf(['Twisting or shifting on the bench.', 'Lifting your buttocks off the bench.'])), listOf([new SourceId(Sources_getInstance().b1b_1), new SourceId(Sources_getInstance().f1b_1), new SourceId(Sources_getInstance().c1b_1)])), variation('Close-grip bench', listOf(['Close-grip bench press', 'CGBP']), MainLift_BENCH_getInstance(), listOf_0('Triceps'), new FormGuide('A bench press with a narrower grip. It puts more of the work on your triceps.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar with your hands about in line with your shoulders, or a little narrower. Not too close.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar to your chest, keeping your elbows close to your ribs.', 'Push your feet into the floor and press the bar back up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Elbows close to your ribs.', 'Feet push into the floor.', 'Hips stay on the bench.']), listOf(['Gripping too close, which makes the bar less stable.', 'Flaring your elbows out wide.'])), listOf([new SourceId(Sources_getInstance().g1b_1), new SourceId(Sources_getInstance().h1b_1)])), variation('Board press', listOf_0('Bench board press'), MainLift_BENCH_getInstance(), listOf_0('Triceps'), new FormGuide('A bench press to a board on your chest. It shortens the range and builds strength in the middle of the press.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar a little wider than your shoulders.', 'A partner holds the board on your lower chest, or you strap it to your body. A thicker board shortens the range more.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar under control until it touches the board.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Lower under control to the board.', 'Stay braced at the board.', 'Feet stay planted.']), listOf(['Bouncing the bar off the board.', 'Letting the board slip.', 'Relaxing on the board.'])), listOf([new SourceId(Sources_getInstance().i1b_1), new SourceId(Sources_getInstance().z1a_1), new SourceId(Sources_getInstance().c1b_1)])), variation('Barbell floor press', listOf_0('Floor press'), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Triceps']), new FormGuide('A barbell press lying on the floor inside a power rack. Your upper arms touch the floor at the bottom, which is said to take away the stretch and rebound of a normal bench.', listOf(['Lie on the floor inside a power rack, under the bar, with your knees bent.', 'Set the safety pins, or use a spotter.', 'Grip the bar overhand, a little wider than your shoulders.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out of the rack and hold it over your chest with straight arms.', 'Lower the bar until your upper arms touch the floor.', 'Pause there for a moment.', 'Press the bar up until your arms are straight.', 'Put the bar back in the rack after the last rep.']), listOf(['Upper arms touch, then pause.', 'Press from a still start.']), listOf(['Bouncing your arms off the floor.', 'Pressing before your upper arms touch the floor.'])), listOf([new SourceId(Sources_getInstance().x1d_1), new SourceId(Sources_getInstance().v1d_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Wide-grip bench', listOf_0('Wide-grip bench press'), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Front delts']), new FormGuide('A bench press with a wider grip than your normal one. It shortens the range of motion and can put more of the work on your chest.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar wider than your normal bench grip, but no wider than you can control.', 'Keep a slight arch in your back.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar to your chest.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Feet stay planted.', 'Head, shoulders and buttocks stay on the bench.']), listOf(['Gripping so wide that the range of motion gets very short.', "Going very wide. Some researchers link very wide grips with a higher risk of shoulder injury. Don't go wider than you can control."])), listOf([new SourceId(Sources_getInstance().b1b_1), new SourceId(Sources_getInstance().c1b_1), new SourceId(Sources_getInstance().z1d_1), new SourceId(Sources_getInstance().y1d_1), new SourceId(Sources_getInstance().v1d_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Deficit deadlift', listOf_0('Deficit pull'), MainLift_DEADLIFT_getInstance(), listOf(['Quads', 'Lats', 'Position']), new FormGuide('A deadlift standing on a low platform. It builds strength in the first part of the pull from the floor.', listOf(['Stand on a weight plate or a low, sturdy platform, with the bar over your feet.', 'Squat down and grip the bar.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Brace your trunk before you pull.']), listOf(['Stand up by straightening your hips and knees. Keep the bar close to your legs.', 'Stand tall with your knees locked.', 'Lower the bar by pushing your hips back, then let it settle on the floor.']), listOf(['Hips low, shoulders high.', 'Back flat.', 'Bar close.']), listOf(['Rounding your back off the floor.', "Using a platform so high that you can't keep your back flat."])), listOf([new SourceId(Sources_getInstance().m1b_1), new SourceId(Sources_getInstance().j1b_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Paused deadlift', listOf_0('Pause deadlift'), MainLift_DEADLIFT_getInstance(), listOf(['Quads', 'Lats', 'Position']), new FormGuide('A deadlift with a short pause just after the bar leaves the floor. It builds strength and position in the first part of the pull.', listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Bend down and grip the bar shoulder-width or a little wider. Use both palms down, or one up and one down.', 'Pull your shoulders down and back, and lift your chest.', 'Brace your trunk before you pull.']), listOf(['Pull the bar off the floor as in your normal deadlift.', 'Stop just after it leaves the floor and hold still for a moment.', 'Keep your back flat and the bar close during the pause.', 'Finish the lift and stand tall with your knees locked.', 'Lower the bar under control and let it settle on the floor.']), listOf(['Stay braced in the pause.', 'Bar close.', 'Back flat.']), listOf(['Your back rounding during the pause.', 'The bar drifting forward during the pause.', 'Pausing so long that you lose your brace.'])), listOf([new SourceId(Sources_getInstance().j1b_1), new SourceId(Sources_getInstance().k1b_1), new SourceId(Sources_getInstance().z1a_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Paused deadlift at the knee', listOf_0('Knee-pause deadlift'), MainLift_DEADLIFT_getInstance(), listOf(['Hamstrings', 'Lats']), new FormGuide('A deadlift with a pause just below the knee. It builds strength around the knee, where the deadlift often slows down.', listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Bend down and grip the bar shoulder-width or a little wider. Use both palms down, or one up and one down.', 'Pull your shoulders down and back, and lift your chest.', 'Brace your trunk before you pull.']), listOf(['Pull the bar off the floor as in your normal deadlift.', 'Stop with the bar just below your knees and hold still for a moment.', 'Keep your back flat and the bar close during the pause.', 'Finish the lift and stand tall with your knees locked.', 'Lower the bar under control and let it settle on the floor.']), listOf(['Stay braced in the pause.', 'Bar close to your legs.', 'Back flat.']), listOf(['Your back rounding during the pause.', 'Letting the bar drift away from your legs.', 'Pausing so long that you lose your brace.'])), listOf([new SourceId(Sources_getInstance().j1b_1), new SourceId(Sources_getInstance().k1b_1), new SourceId(Sources_getInstance().a1b_1), new SourceId(Sources_getInstance().z1a_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Block pull', listOf_0('Deadlift off blocks'), MainLift_DEADLIFT_getInstance(), listOf(['Glutes', 'Upper back']), new FormGuide('A deadlift from a bar resting on blocks. It builds strength in the middle of the pull and lets you use more weight.', listOf(['Set the plates on sturdy blocks, about 5, 10 or 15 cm high.', 'Take your normal deadlift stance under the bar.', 'Grip the bar shoulder-width or a little wider, palms down or one up and one down. Chalk or straps can help your grip.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Brace your trunk before you pull.']), listOf(['Stand up by straightening your hips and knees. Keep the bar close to your legs.', 'Stand tall with your knees locked.', 'Lower the bar back to the blocks under control.']), listOf(['Bar close.', 'Back straight.', 'Knees point the same way as your feet.']), listOf(['Rounding your back.', 'Letting the bar drift away from your legs.'])), listOf([new SourceId(Sources_getInstance().o1b_1), new SourceId(Sources_getInstance().n1b_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Sumo deadlift', listOf(['Sumo', 'Sumo pull', 'Barbell sumo deadlift']), MainLift_DEADLIFT_getInstance(), listOf(['Glutes', 'Adductors', 'Quads']), new FormGuide('A deadlift with a very wide stance and your hands inside your legs. It builds strength in your hips, legs and back.', listOf(['Stand with your feet very wide and under the bar.', 'Squat down and grip the bar between your legs, shoulder-width apart, with a mixed grip: one palm up, one down.', 'Keep your arms straight, your chest high, your hips low and your back straight.', 'Brace your trunk before you pull.']), listOf(['Pull the bar up by driving your feet out to the sides while lifting your chest.', 'Straighten your knees once the bar passes them.', 'At the top, stand tall with your shoulders back.', 'Lower the bar by pushing your hips back with your knees pointing out. Keep your chest high and your back straight.']), listOf(['Push your feet out, not just down.', 'Knees out.', 'Bar close.']), listOf(['Letting your knees cave in.', 'Rounding your back.', 'Gripping narrower than shoulder-width, which makes the lockout harder.'])), listOf([new SourceId(Sources_getInstance().c1m_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Trap-bar deadlift', listOf_0('Hex bar deadlift'), MainLift_DEADLIFT_getInstance(), listOf(['Glutes', 'Quads', 'Adductors']), new FormGuide('A deadlift standing inside a trap bar and holding its side handles. It builds strength in your hips and legs.', listOf(['Stand inside the bar with your feet shoulder-width apart or narrower.', 'Squat down with your feet flat and grip the handles.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Brace your trunk before you pull.']), listOf(['Stand up by straightening your hips and knees fully.', 'If your shoulders have rounded, pull them back at the top.', 'Lower the bar by pushing your hips back and letting your knees bend forward slightly. Keep your back straight.']), listOf(['Hips low, shoulders high.', 'Knees point the same way as your feet.', 'Back straight.']), listOf(['Rounding your back.', 'Letting your knees cave in.'])), listOf([new SourceId(Sources_getInstance().d1m_1), new SourceId(Sources_getInstance().u1d_1)]), listOf_0(Equipment_SPECIALTY_BAR_getInstance()))]);
+    mainLifts = listOf([mainLift('Squat', listOf(['Back squat', 'Barbell back squat']), Category_SQUAT_getInstance(), listOf(['Quads', 'Glutes']), new FormGuide('The competition squat. It builds strength in your legs and hips.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Grip the bar wider than your shoulders. Stand up to lift it off the hooks, then step back.', 'Stand with your feet a little wider than your shoulders.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Bend your hips and knees to lower yourself.', 'Keep your chest up and your back flat.', 'Go down until the crease of your hip is below the top of your knee. This is competition depth.', 'Drive up by straightening your hips and knees together.', 'Stand tall with your knees locked. Breathe, then brace again for the next rep.', 'After the last rep, walk the bar forward into the hooks.']), listOf(['Knees track over your feet.', 'Keep your whole foot on the floor.', 'Chest up.']), listOf(['Heels lifting off the floor.', 'Knees caving in as you stand up.', 'Losing your brace and letting your back round.', 'Cutting depth on heavy sets.'])), listOf([new SourceId(Sources_getInstance().p1a_1), new SourceId(Sources_getInstance().q1a_1), new SourceId(Sources_getInstance().r1a_1), new SourceId(Sources_getInstance().s1a_1)])), mainLift('Bench', listOf(['Bench press', 'Barbell bench press']), Category_BENCH_getInstance(), listOf(['Pecs', 'Triceps', 'Front delts']), new FormGuide('The competition bench press. It builds pressing strength in your chest, shoulders and triceps.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar a little wider than your shoulders.', 'Keep a slight arch in your back.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar under control to your chest.', 'Pause with the bar still on your chest.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Feet stay planted.', 'Head, shoulders and buttocks stay on the bench.', 'Pause on your chest before you press.']), listOf(['Bouncing the bar off your chest.', 'Lifting your buttocks off the bench.', 'Gripping so wide that the range of motion gets short.'])), listOf([new SourceId(Sources_getInstance().p1a_1), new SourceId(Sources_getInstance().b1b_1), new SourceId(Sources_getInstance().c1b_1), new SourceId(Sources_getInstance().d1b_1)])), mainLift('Deadlift', listOf(['Conventional deadlift', 'Barbell deadlift']), Category_DEADLIFT_getInstance(), listOf(['Hamstrings', 'Glutes', 'Lats']), new FormGuide('The competition deadlift. It builds strength in your hips, legs and back.', listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Bend down and grip the bar shoulder-width or a little wider. Use both palms down, or one up and one down.', 'Pull your shoulders down and back, and lift your chest.', 'Brace your trunk before you pull.']), listOf(['Push through your heels to start the lift.', 'Keep the bar close to your legs as it rises. Raise it at the same rate as your hips.', 'Stand tall with your knees locked and your shoulders back.', 'Lower the bar under control by pushing your hips back and bending your knees.', 'Let the bar settle on the floor before the next rep.']), listOf(['Keep the bar close.', 'Lift with your hips, not just your back.', 'Keep your back flat.']), listOf(['Rounding your back.', 'Lifting with your back instead of your hips.', 'Letting the bar drift away from your legs.'])), listOf([new SourceId(Sources_getInstance().p1a_1), new SourceId(Sources_getInstance().j1b_1), new SourceId(Sources_getInstance().k1b_1), new SourceId(Sources_getInstance().l1b_1), new SourceId(Sources_getInstance().u1d_1)])), mainLift('Strict press', listOf(['Overhead press', 'OHP', 'Military press', 'Standing press', 'Barbell overhead press', 'Standing barbell press', 'Barbell military press']), Category_STRICT_PRESS_getInstance(), listOf(['Front delts', 'Side delts', 'Triceps']), new FormGuide('The strict press: a standing barbell press from your shoulders to overhead. It works your shoulders and triceps.', listOf(['Set the bar in the rack at about shoulder height.', 'Set the safety pins, or use a spotter.', 'Grip the bar a little wider than your shoulders.', 'Take the bar across the front of your shoulders and step back.', 'Stand with your feet shoulder-width apart, or with one foot a little in front of the other.', 'Breathe in and brace your abs before each rep.']), listOf(['Press the bar overhead until your arms are straight.', 'Keep your back straight and tall.', 'Lower the bar under control to the front of your neck.', 'Put the bar back in the rack after the last rep.']), listOf(['Back straight and tall.', 'Press to straight arms.']), listOf(['Leaning back instead of keeping your back straight and tall.', 'Lowering the bar behind your neck.'])), listOf([new SourceId(Sources_getInstance().v1f_1), new SourceId(Sources_getInstance().w1f_1), new SourceId(Sources_getInstance().v1d_1), new SourceId(Sources_getInstance().z1f_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Pause squat', listOf_0('Paused squat'), MainLift_SQUAT_getInstance(), listOf(['Quads', 'Glutes']), new FormGuide('A back squat with a still pause at the bottom. It builds strength out of the bottom without a bounce.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Stand with your feet a little wider than your shoulders.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Squat down under control to your normal depth.', 'Hold still at the bottom for a short pause. Stay braced.', 'Drive up by straightening your hips and knees together.', 'Stand tall, breathe, and brace again for the next rep.']), listOf(['Stay braced in the pause.', 'Knees track over your feet.', 'Drive up hard from a dead stop.']), listOf(['Relaxing at the bottom.', 'Bouncing out instead of pausing.', 'Heels lifting off the floor.'])), listOf([new SourceId(Sources_getInstance().r1a_1), new SourceId(Sources_getInstance().q1a_1), new SourceId(Sources_getInstance().z1a_1)])), variation('Front squat', listOf_0('Barbell front squat'), MainLift_SQUAT_getInstance(), listOf(['Quads', 'Glutes', 'Upper back', 'Trunk']), new FormGuide('A squat with the bar on the front of your shoulders. It puts more of the work on your quads and needs an upright trunk.', listOf(['Set the bar in the rack at upper-chest height.', 'Set the safety pins, or use a spotter.', 'Grip the bar about shoulder-width apart and step under it.', 'Rest the bar across the front of your shoulders, palms facing up and elbows pointing straight ahead.', 'Set your feet in your normal squat stance.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Lift the bar out and step back.', 'Squat down, keeping your torso upright and your back straight.', 'Go down until your thighs are level with the floor. Stop sooner if your heels lift or your back starts to round.', 'Drive up by straightening your hips and knees.', 'Put the bar back in the rack after the last rep.']), listOf(['Elbows point straight ahead.', 'Weight over your whole foot.', 'Knees in line with your toes.']), listOf(['Keeping your shins too upright, so your torso tips forward.', 'Your back starting to round.', 'Heels lifting off the floor.'])), listOf([new SourceId(Sources_getInstance().t1a_1), new SourceId(Sources_getInstance().u1a_1), new SourceId(Sources_getInstance().v1a_1)])), variation('Pin squat', listOf_0('Squat from pins'), MainLift_SQUAT_getInstance(), listOf(['Upper back', 'Trunk']), new FormGuide('A squat that starts from a dead stop on the safety pins. It builds strength at the point where your squat slows down.', listOf(['Set the safety pins in the rack at the height you want to start from, often just below where your squat slows down.', "Rest the bar on the pins. The pins also catch the bar if you can't stand up.", 'Get under the bar and rest it across your upper back.', 'Stand with your feet a little wider than your shoulders.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Drive the bar up off the pins by straightening your hips and knees together.', 'Stand tall with your knees locked.', 'Squat back down under control until the bar rests on the pins.', 'Let the bar settle, brace again, then drive up for the next rep.']), listOf(['Brace before the bar leaves the pins.', 'Chest up.', 'Knees track over your feet.']), listOf(['Relaxing on the pins and losing your brace.', 'Dropping the bar onto the pins.', 'Starting with your back rounded.'])), listOf([new SourceId(Sources_getInstance().r1a_1), new SourceId(Sources_getInstance().q1a_1), new SourceId(Sources_getInstance().z1a_1)])), variation('Safety-bar squat', listOf(['SSB squat', 'Safety squat bar squat']), MainLift_SQUAT_getInstance(), listOf(['Upper back', 'Trunk']), new FormGuide('A squat with a safety squat bar, which has a padded yoke and handles. It keeps your torso more upright than a high-bar squat.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Step under the bar and rest the pads on your upper back and shoulders.', 'Hold the handles in front of you.', 'Set your feet in your normal squat stance.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Lift the bar out and take a few short steps back.', 'Squat down until your thighs are just below level with the floor.', 'Drive up by straightening your hips and knees together.', 'Put the bar back in the rack after the last rep.']), listOf(['Knees track over your feet.', 'Stay upright.']), listOf(['Knees caving in.', 'Losing your brace at the bottom.', 'Cutting depth short.'])), listOf([new SourceId(Sources_getInstance().w1a_1), new SourceId(Sources_getInstance().x1a_1)]), listOf_0(Equipment_SPECIALTY_BAR_getInstance())), variation('Box squat', listOf_0('Barbell box squat'), MainLift_SQUAT_getInstance(), listOf(['Glutes', 'Hips']), new FormGuide('A squat to a box set at your target depth. It teaches you to sit back and stand up from a still start.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Place a sturdy box behind you at the height of your target depth.', 'Step under the bar and rest it across your upper back.', 'Lift the bar out and step back until the box is just behind you.', 'Set your feet in your normal squat stance.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Sit back by bending your hips and knees. Keep your shins close to upright.', "Sit on the box under control. Don't drop onto it.", 'Pause briefly on the box while staying braced.', 'Drive up from the box to standing.']), listOf(['Sit back, not down.', 'Stay braced on the box.', 'Shins close to upright.']), listOf(['Dropping onto the box.', 'Relaxing on the box and losing your brace.'])), listOf_0(new SourceId(Sources_getInstance().y1a_1))), variation('High-bar squat', emptyList(), MainLift_SQUAT_getInstance(), listOf(['Quads', 'Glutes']), new FormGuide('A back squat with the bar sitting higher on your back than in a low-bar squat. It usually keeps your torso more upright.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Step under the bar and rest it high on your upper back, on the top of the muscle just below your neck.', 'Grip the bar out to the sides. Stand up to lift it off the hooks, then step back.', 'Set your feet in your normal squat stance.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Push your hips back and let your knees bend forward. Keep your back straight and your torso upright.', 'Go down until your thighs are just past level with the floor. Stop sooner if your heels lift or your back starts to round.', 'Drive up by straightening your hips and knees together.', 'Put the bar back in the rack after the last rep.']), listOf(['Knees point the same way as your feet.', 'Weight over your whole foot.', 'Chest up.']), listOf(['Heels lifting off the floor.', 'Knees caving in.', 'Losing your brace and letting your back round.'])), listOf([new SourceId(Sources_getInstance().r1a_1), new SourceId(Sources_getInstance().f1j_1), new SourceId(Sources_getInstance().x1a_1), new SourceId(Sources_getInstance().g1j_1), new SourceId(Sources_getInstance().b1j_1)])), variation('Tempo squat', listOf(['Tempo back squat', 'Slow-eccentric squat']), MainLift_SQUAT_getInstance(), listOf(['Quads', 'Glutes']), new FormGuide('A back squat where you lower yourself slowly and stand up at normal speed. It builds control on the way down, and one study found a slower way down may help quad growth.', listOf(['Set the bar in the rack just below shoulder height.', 'Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Set your feet in your normal squat stance.', 'Take a big breath into your belly and brace your trunk before each rep.']), listOf(['Lift the bar out and step back.', 'Lower yourself slowly and under control. Take longer to go down than to come up.', 'Go down to your normal squat depth.', 'Drive up by straightening your hips and knees together.', 'Put the bar back in the rack after the last rep.']), listOf(['Slow on the way down.', 'Stay braced the whole way down.', 'Knees point the same way as your feet.']), listOf(['Speeding up or dropping near the bottom.', 'Losing your brace on the slow way down.', 'Heels lifting off the floor.'])), listOf([new SourceId(Sources_getInstance().s1a_1), new SourceId(Sources_getInstance().h1j_1), new SourceId(Sources_getInstance().r1a_1), new SourceId(Sources_getInstance().q1a_1)])), variation('Spoto press', emptyList(), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Front delts']), new FormGuide('A bench press that stops just above your chest. It builds control and strength near the bottom of the press.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar a little wider than your shoulders.', 'Keep a slight arch in your back.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar under control.', 'Stop it just above your chest, without touching. Hold it still for a moment.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(["Stop the bar, don't let it sink.", 'Stay braced in the pause.', 'Feet stay planted.']), listOf(['Touching your chest.', 'Bouncing out of the pause.', 'Losing your upper-back position.'])), listOf([new SourceId(Sources_getInstance().b1b_1), new SourceId(Sources_getInstance().d1b_1), new SourceId(Sources_getInstance().c1b_1)])), variation('Long-pause bench', listOf_0('Long-pause bench press'), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Front delts']), new FormGuide('A bench press with a longer pause on your chest than in competition. It builds strength off the chest with no help from a bounce.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar a little wider than your shoulders.', 'Keep a slight arch in your back.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar under control to your chest.', 'Hold it still on your chest for a few seconds, longer than a competition pause.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Stay braced in the pause.', 'Keep the bar still.', 'Feet stay planted.']), listOf(['Letting the bar sink into your chest during the pause.', 'Relaxing during the pause.', 'Lifting your buttocks off the bench to start the press.'])), listOf([new SourceId(Sources_getInstance().p1a_1), new SourceId(Sources_getInstance().d1b_1), new SourceId(Sources_getInstance().c1b_1)])), variation('Pin press', listOf_0('Bench pin press'), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Triceps']), new FormGuide('A bench press from a dead stop on the safety pins. It builds strength at the point where your press slows down.', listOf(['Set a bench inside a power rack. The bar starts on the hooks.', 'Set the safety pins at the height you want to press from, often where your bench slows down. The pins are the bottom stop, and they catch the bar if you miss.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar a little wider than your shoulders.', 'Keep a slight arch in your back.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar off the hooks and hold it over your shoulders with straight arms.', 'Lower the bar under control until it rests on the pins.', 'Let it settle for a moment. Stay braced.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Lower softly onto the pins.', 'Stay braced on the pins.', 'Feet stay planted.']), listOf(['Dropping the bar onto the pins.', 'Relaxing on the pins.', 'Losing your feet or upper-back position.'])), listOf([new SourceId(Sources_getInstance().z1a_1), new SourceId(Sources_getInstance().e1b_1), new SourceId(Sources_getInstance().b1b_1), new SourceId(Sources_getInstance().c1b_1)])), variation('Larsen press', emptyList(), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Triceps']), new FormGuide('A bench press with your feet off the floor. With no help from your legs, your upper body does more of the work.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench.', 'Grip the bar a little wider than your shoulders.', 'Keep a slight arch in your back.', 'Lift your feet off the floor and hold your legs still.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar under control to your chest.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Legs still.', 'Shoulders and buttocks stay on the bench.', 'Lower slowly, press hard.']), listOf(['Twisting or shifting on the bench.', 'Lifting your buttocks off the bench.'])), listOf([new SourceId(Sources_getInstance().b1b_1), new SourceId(Sources_getInstance().f1b_1), new SourceId(Sources_getInstance().c1b_1)])), variation('Close-grip bench', listOf(['Close-grip bench press', 'CGBP']), MainLift_BENCH_getInstance(), listOf_0('Triceps'), new FormGuide('A bench press with a narrower grip. It puts more of the work on your triceps.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar with your hands about in line with your shoulders, or a little narrower. Not too close.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar to your chest, keeping your elbows close to your ribs.', 'Push your feet into the floor and press the bar back up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Elbows close to your ribs.', 'Feet push into the floor.', 'Hips stay on the bench.']), listOf(['Gripping too close, which makes the bar less stable.', 'Flaring your elbows out wide.'])), listOf([new SourceId(Sources_getInstance().g1b_1), new SourceId(Sources_getInstance().h1b_1)])), variation('Board press', listOf_0('Bench board press'), MainLift_BENCH_getInstance(), listOf_0('Triceps'), new FormGuide('A bench press to a board on your chest. It shortens the range and builds strength in the middle of the press.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar a little wider than your shoulders.', 'A partner holds the board on your lower chest, or you strap it to your body. A thicker board shortens the range more.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar under control until it touches the board.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Lower under control to the board.', 'Stay braced at the board.', 'Feet stay planted.']), listOf(['Bouncing the bar off the board.', 'Letting the board slip.', 'Relaxing on the board.'])), listOf([new SourceId(Sources_getInstance().i1b_1), new SourceId(Sources_getInstance().z1a_1), new SourceId(Sources_getInstance().c1b_1)])), variation('Barbell floor press', listOf_0('Floor press'), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Triceps']), new FormGuide('A barbell press lying on the floor inside a power rack. Your upper arms touch the floor at the bottom, which is said to take away the stretch and rebound of a normal bench.', listOf(['Lie on the floor inside a power rack, under the bar, with your knees bent.', 'Set the safety pins, or use a spotter.', 'Grip the bar overhand, a little wider than your shoulders.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out of the rack and hold it over your chest with straight arms.', 'Lower the bar until your upper arms touch the floor.', 'Pause there for a moment.', 'Press the bar up until your arms are straight.', 'Put the bar back in the rack after the last rep.']), listOf(['Upper arms touch, then pause.', 'Press from a still start.']), listOf(['Bouncing your arms off the floor.', 'Pressing before your upper arms touch the floor.'])), listOf([new SourceId(Sources_getInstance().x1d_1), new SourceId(Sources_getInstance().v1d_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Wide-grip bench', listOf_0('Wide-grip bench press'), MainLift_BENCH_getInstance(), listOf(['Pecs', 'Front delts']), new FormGuide('A bench press with a wider grip than your normal one. It shortens the range of motion and can put more of the work on your chest.', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar wider than your normal bench grip, but no wider than you can control.', 'Keep a slight arch in your back.', 'Breathe in and brace before you lift the bar out.']), listOf(['Lift the bar out and hold it over your shoulders with straight arms.', 'Lower the bar to your chest.', 'Press the bar up until your elbows lock.', 'Put the bar back in the rack after the last rep.']), listOf(['Feet stay planted.', 'Head, shoulders and buttocks stay on the bench.']), listOf(['Gripping so wide that the range of motion gets very short.', "Going very wide. Some researchers link very wide grips with a higher risk of shoulder injury. Don't go wider than you can control."])), listOf([new SourceId(Sources_getInstance().b1b_1), new SourceId(Sources_getInstance().c1b_1), new SourceId(Sources_getInstance().z1d_1), new SourceId(Sources_getInstance().y1d_1), new SourceId(Sources_getInstance().v1d_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Deficit deadlift', listOf_0('Deficit pull'), MainLift_DEADLIFT_getInstance(), listOf(['Quads', 'Lats', 'Position']), new FormGuide('A deadlift standing on a low platform. It builds strength in the first part of the pull from the floor.', listOf(['Stand on a weight plate or a low, sturdy platform, with the bar over your feet.', 'Squat down and grip the bar.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Brace your trunk before you pull.']), listOf(['Stand up by straightening your hips and knees. Keep the bar close to your legs.', 'Stand tall with your knees locked.', 'Lower the bar by pushing your hips back, then let it settle on the floor.']), listOf(['Hips low, shoulders high.', 'Back flat.', 'Bar close.']), listOf(['Rounding your back off the floor.', "Using a platform so high that you can't keep your back flat."])), listOf([new SourceId(Sources_getInstance().m1b_1), new SourceId(Sources_getInstance().j1b_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Paused deadlift', listOf_0('Pause deadlift'), MainLift_DEADLIFT_getInstance(), listOf(['Quads', 'Lats', 'Position']), new FormGuide('A deadlift with a short pause just after the bar leaves the floor. It builds strength and position in the first part of the pull.', listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Bend down and grip the bar shoulder-width or a little wider. Use both palms down, or one up and one down.', 'Pull your shoulders down and back, and lift your chest.', 'Brace your trunk before you pull.']), listOf(['Pull the bar off the floor as in your normal deadlift.', 'Stop just after it leaves the floor and hold still for a moment.', 'Keep your back flat and the bar close during the pause.', 'Finish the lift and stand tall with your knees locked.', 'Lower the bar under control and let it settle on the floor.']), listOf(['Stay braced in the pause.', 'Bar close.', 'Back flat.']), listOf(['Your back rounding during the pause.', 'The bar drifting forward during the pause.', 'Pausing so long that you lose your brace.'])), listOf([new SourceId(Sources_getInstance().j1b_1), new SourceId(Sources_getInstance().k1b_1), new SourceId(Sources_getInstance().z1a_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Paused deadlift at the knee', listOf_0('Knee-pause deadlift'), MainLift_DEADLIFT_getInstance(), listOf(['Hamstrings', 'Lats']), new FormGuide('A deadlift with a pause just below the knee. It builds strength around the knee, where the deadlift often slows down.', listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Bend down and grip the bar shoulder-width or a little wider. Use both palms down, or one up and one down.', 'Pull your shoulders down and back, and lift your chest.', 'Brace your trunk before you pull.']), listOf(['Pull the bar off the floor as in your normal deadlift.', 'Stop with the bar just below your knees and hold still for a moment.', 'Keep your back flat and the bar close during the pause.', 'Finish the lift and stand tall with your knees locked.', 'Lower the bar under control and let it settle on the floor.']), listOf(['Stay braced in the pause.', 'Bar close to your legs.', 'Back flat.']), listOf(['Your back rounding during the pause.', 'Letting the bar drift away from your legs.', 'Pausing so long that you lose your brace.'])), listOf([new SourceId(Sources_getInstance().j1b_1), new SourceId(Sources_getInstance().k1b_1), new SourceId(Sources_getInstance().a1b_1), new SourceId(Sources_getInstance().z1a_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Block pull', listOf_0('Deadlift off blocks'), MainLift_DEADLIFT_getInstance(), listOf(['Glutes', 'Upper back']), new FormGuide('A deadlift from a bar resting on blocks. It builds strength in the middle of the pull and lets you use more weight.', listOf(['Set the plates on sturdy blocks, about 5, 10 or 15 cm high.', 'Take your normal deadlift stance under the bar.', 'Grip the bar shoulder-width or a little wider, palms down or one up and one down. Chalk or straps can help your grip.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Brace your trunk before you pull.']), listOf(['Stand up by straightening your hips and knees. Keep the bar close to your legs.', 'Stand tall with your knees locked.', 'Lower the bar back to the blocks under control.']), listOf(['Bar close.', 'Back straight.', 'Knees point the same way as your feet.']), listOf(['Rounding your back.', 'Letting the bar drift away from your legs.'])), listOf([new SourceId(Sources_getInstance().o1b_1), new SourceId(Sources_getInstance().n1b_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Sumo deadlift', listOf(['Sumo', 'Sumo pull', 'Barbell sumo deadlift']), MainLift_DEADLIFT_getInstance(), listOf(['Glutes', 'Adductors', 'Quads']), new FormGuide('A deadlift with a very wide stance and your hands inside your legs. It builds strength in your hips, legs and back.', listOf(['Stand with your feet very wide and under the bar.', 'Squat down and grip the bar between your legs, shoulder-width apart, with a mixed grip: one palm up, one down.', 'Keep your arms straight, your chest high, your hips low and your back straight.', 'Brace your trunk before you pull.']), listOf(['Pull the bar up by driving your feet out to the sides while lifting your chest.', 'Straighten your knees once the bar passes them.', 'At the top, stand tall with your shoulders back.', 'Lower the bar by pushing your hips back with your knees pointing out. Keep your chest high and your back straight.']), listOf(['Push your feet out, not just down.', 'Knees out.', 'Bar close.']), listOf(['Letting your knees cave in.', 'Rounding your back.', 'Gripping narrower than shoulder-width, which makes the lockout harder.'])), listOf([new SourceId(Sources_getInstance().c1m_1), new SourceId(Sources_getInstance().u1d_1)])), variation('Trap-bar deadlift', listOf_0('Hex bar deadlift'), MainLift_DEADLIFT_getInstance(), listOf(['Glutes', 'Quads', 'Adductors']), new FormGuide('A deadlift standing inside a trap bar and holding its side handles. It builds strength in your hips and legs.', listOf(['Stand inside the bar with your feet shoulder-width apart or narrower.', 'Squat down with your feet flat and grip the handles.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Brace your trunk before you pull.']), listOf(['Stand up by straightening your hips and knees fully.', 'If your shoulders have rounded, pull them back at the top.', 'Lower the bar by pushing your hips back and letting your knees bend forward slightly. Keep your back straight.']), listOf(['Hips low, shoulders high.', 'Knees point the same way as your feet.', 'Back straight.']), listOf(['Rounding your back.', 'Letting your knees cave in.'])), listOf([new SourceId(Sources_getInstance().d1m_1), new SourceId(Sources_getInstance().u1d_1)]), listOf_0(Equipment_SPECIALTY_BAR_getInstance()))]);
   }
 }
 function get_SQUAT_MUSCLES() {
@@ -4525,7 +4557,7 @@ function _init_properties_Shoulders_kt__i33an3() {
     FRONT = listOf_0('Front delts');
     REAR = listOf(['Rear delts', 'Upper back']);
     CUFF = listOf_0('Rotator cuff');
-    shoulders = listOf([shoulderEntry('Overhead press', listOf(['OHP', 'Military press', 'Standing press', 'Barbell overhead press', 'Standing barbell press', 'Barbell military press']), listOf_0(Equipment_BARBELL_getInstance()), get_PRESS_MUSCLES_0(), Kind_COMPOUND_getInstance(), new FormGuide('A standing barbell press from your shoulders to overhead. It works your shoulders and triceps.', listOf(['Set the bar in the rack at about shoulder height.', 'Set the safety pins, or use a spotter.', 'Grip the bar a little wider than your shoulders.', 'Take the bar across the front of your shoulders and step back.', 'Stand with your feet shoulder-width apart, or with one foot a little in front of the other.', 'Breathe in and brace your abs before each rep.']), listOf(['Press the bar overhead until your arms are straight.', 'Keep your back straight and tall.', 'Lower the bar under control to the front of your neck.', 'Put the bar back in the rack after the last rep.']), listOf(['Back straight and tall.', 'Press to straight arms.']), listOf(['Leaning back instead of keeping your back straight and tall.', 'Lowering the bar behind your neck.'])), listOf([new SourceId(Sources_getInstance().v1f_1), new SourceId(Sources_getInstance().w1f_1), new SourceId(Sources_getInstance().v1d_1), new SourceId(Sources_getInstance().z1f_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Seated barbell press', listOf(['Seated military press', 'Seated barbell shoulder press', 'Seated OHP']), listOf_0(Equipment_BARBELL_getInstance()), get_PRESS_MUSCLES_0(), Kind_COMPOUND_getInstance(), new FormGuide('A barbell press done seated, with your back supported. It works your shoulders and triceps.', listOf(['Sit on a shoulder-press bench in the rack, with your back straight against the pad.', 'Set the safety pins, or use a spotter.', 'Grip the bar a little wider than your shoulders.', 'Press your feet into the floor and brace your abs.']), listOf(['Lift the bar out of the rack.', 'Lower it to the front of your shoulders, to about chin height.', 'Press it overhead until your arms are straight, keeping your elbows forward.', 'Put the bar back in the rack after the last rep.']), listOf(['Back on the pad.', 'Elbows forward.', 'Feet pressed into the floor.']), listOf(['Arching your back off the pad.', 'Lowering the bar behind your neck.'])), listOf([new SourceId(Sources_getInstance().y1f_1), new SourceId(Sources_getInstance().x1f_1), new SourceId(Sources_getInstance().v1d_1), new SourceId(Sources_getInstance().z1f_1)])), shoulderEntry('DB shoulder press', listOf(['Dumbbell shoulder press', 'Seated DB press', 'Seated dumbbell press', 'Seated dumbbell shoulder press', 'DB overhead press', 'Dumbbell overhead press']), listOf_0(Equipment_DUMBBELL_getInstance()), get_PRESS_MUSCLES_0(), Kind_COMPOUND_getInstance(), new FormGuide('A seated press with a dumbbell in each hand. It works your shoulders and triceps, each arm on its own.', listOf(['Sit on a bench with back support. Keep your head, back and buttocks against it, and your feet flat on the floor.', 'Start with the dumbbells at your shoulders, palms facing forward and wrists straight.', 'Hold them beside your shoulders, with your elbows under your wrists.', 'Brace your abs. Pull your shoulder blades down and back, and hold them there for the whole set.']), listOf(['Breathe out and press the dumbbells overhead until your elbows are straight.', 'Breathe in and lower them under control to shoulder height.', 'Keep your torso still the whole time.']), listOf(['Elbows under wrists.', 'Back against the bench.', "Pull the weights down; don't let them drop."]), listOf(['Arching your lower back to get the weight up.', 'Letting the dumbbells drop on the way down.'])), listOf([new SourceId(Sources_getInstance().a1g_1), new SourceId(Sources_getInstance().b1g_1)])), shoulderEntry('One-arm DB press', listOf(['Single-arm DB press', 'One-arm dumbbell shoulder press', 'Single-arm dumbbell press', 'One-arm overhead press']), listOf_0(Equipment_DUMBBELL_getInstance()), listOf(['Front delts', 'Triceps']), Kind_COMPOUND_getInstance(), new FormGuide('A shoulder press with one dumbbell, one arm at a time. It works your front delts and triceps.', listOf(['Stand tall. Start with a dumbbell at one shoulder, with your elbow under your wrist.', 'Breathe in and brace your abs before each rep.']), listOf(['Press the dumbbell overhead until your arm is straight.', 'Lower it back to your shoulder.', 'Do all your reps, then switch arms.']), listOf(['Elbow under wrist.', 'Press to a straight arm.']), listOf(['Arching your lower back to get the weight up.', 'Letting your elbow drift out from under your wrist.'])), listOf([new SourceId(Sources_getInstance().c1g_1), new SourceId(Sources_getInstance().a1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Arnold press', listOf(['Arnold dumbbell press', 'DB Arnold press', 'Dumbbell Arnold press']), listOf_0(Equipment_DUMBBELL_getInstance()), get_PRESS_MUSCLES_0(), Kind_COMPOUND_getInstance(), new FormGuide('A dumbbell press that starts with your palms facing you and opens out as you press. It works your front and side delts.', listOf(['Stand. Start with the dumbbells in front of your shoulders, palms facing you, with your elbows under your wrists.', 'Breathe in and brace your abs before each rep.']), listOf(['Move your elbows out to the sides.', 'Then press the dumbbells overhead until your arms are straight.', 'Lower them the same way, back to the start.']), listOf(['Elbows out, then press.', 'Reverse the path on the way down.']), listOf(['Just twisting your forearms instead of moving your elbows out to the sides.', 'Arching your lower back to get the weight up.'])), listOf([new SourceId(Sources_getInstance().d1g_1), new SourceId(Sources_getInstance().a1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Machine shoulder press', listOf(['Shoulder press machine', 'Lever shoulder press', 'Seated machine shoulder press', 'Machine overhead press']), listOf_0(Equipment_MACHINE_getInstance()), get_PRESS_MUSCLES_0(), Kind_COMPOUND_getInstance(), new FormGuide('A seated shoulder press on a machine. It works your shoulders and triceps.', listOf(['Set the seat so the handles are level with your shoulders or a little above.', 'Sit with your back against the pad.', 'Grip the handles with your palms facing forward.', "Brace your abs, but don't press your lower back into the backrest."]), listOf(['Press the handles up until your elbows are nearly straight.', 'Lower them under control, then repeat.']), listOf(['Back on the pad.', 'Control the way down.']), listOf(['Locking your elbows hard at the top.', 'Letting the weight drop between reps.'])), listOf([new SourceId(Sources_getInstance().f1g_1), new SourceId(Sources_getInstance().e1g_1), new SourceId(Sources_getInstance().g1g_1)])), shoulderEntry('Smith shoulder press', listOf(['Smith machine shoulder press', 'Smith overhead press', 'Smith military press']), listOf_0(Equipment_SMITH_getInstance()), get_PRESS_MUSCLES_0(), Kind_COMPOUND_getInstance(), new FormGuide('A seated shoulder press on a Smith machine, where the bar runs on fixed rails. It works your shoulders and triceps.', listOf(["Set the safety stops so the bar can't come down below your shoulders.", 'Sit on the bench with the bar in front of your shoulders.', 'On an angled Smith machine, face away from the angle, so the bar starts in front of you and moves overhead.', 'Grip the bar wider than your shoulders, but not so wide that the range gets short.', 'Breathe in and brace before you unhook the bar.']), listOf(['Unhook the bar by lifting it and turning it back.', 'Press overhead until your arms are straight.', "Lower it to the front of your shoulders. Pull your head back slightly so the bar doesn't touch it.", 'After the last rep, turn the bar to set it back on the hooks.']), listOf(['Head back slightly.', 'Not too wide a grip.']), listOf(['Gripping so wide that the range of motion gets short.', 'Letting the bar touch your head on the way down.'])), listOf([new SourceId(Sources_getInstance().h1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Landmine press', listOf(['One-arm landmine press', 'Single-arm landmine press', 'Landmine shoulder press']), listOf_0(Equipment_BARBELL_getInstance()), listOf(['Front delts', 'Triceps']), Kind_COMPOUND_getInstance(), new FormGuide('A one-arm press of the end of a barbell, up and forward. It works your front delts and triceps.', listOf(['A landmine holds one end of a barbell on the floor, in a special attachment or a corner of the room. Load the other end.', 'Keep your back straight as you lift the loaded end off the floor.', 'Hold the end of the bar near your shoulder.', 'Set your feet far apart, with the leg on the pressing side back and the other leg forward and bent.', 'Breathe in and brace your abs before each rep.']), listOf(['Press the end of the bar up and forward until your arm is straight.', 'Lower it back to your shoulder.', 'Do all your reps, then switch sides.']), listOf(['Up and forward.', 'Back straight.']), listOf(['Rounding your back as you lift the bar off the floor.', 'Pushing with your legs. In this version, only your arm and shoulder move the bar.'])), listOf([new SourceId(Sources_getInstance().i1g_1), new SourceId(Sources_getInstance().j1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Kettlebell press', listOf(['KB press', 'Single-arm kettlebell press', 'One-arm kettlebell press', 'Kettlebell overhead press']), listOf_0(Equipment_KETTLEBELL_getInstance()), listOf(['Front delts', 'Triceps']), Kind_COMPOUND_getInstance(), new FormGuide('A one-arm press of a kettlebell from your shoulder to overhead. It works your front delts and triceps.', listOf(['Stand with your feet hip-width apart, one foot slightly in front of the other.', 'Start with the kettlebell on the same side as your front foot, held in front of your chest near your shoulder and resting on your forearm.', 'Breathe in and brace your abs before each rep.']), listOf(['Push your front foot into the floor to shift your weight forward, and press the kettlebell straight overhead.', 'Pull your elbow back down to your ribs to lower it.', 'Do all your reps, then switch arms.']), listOf(['Press straight up.', 'Elbow back down to your ribs.']), listOf(['Letting the kettlebell drop instead of pulling it down.', 'Pressing out to the side instead of straight overhead.'])), listOf([new SourceId(Sources_getInstance().k1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Lateral raise', listOf(['DB lateral raise', 'Dumbbell lateral raise', 'Laterals', 'Side raise', 'Side lateral raise', 'Standing lateral raise']), listOf_0(Equipment_DUMBBELL_getInstance()), get_SIDE(), Kind_ACCESSORY_getInstance(), new FormGuide('A raise of your arms out to the sides with dumbbells. It works the side of your shoulders.', listOf(['Stand holding a dumbbell in each hand, palms facing your body.', 'Set your feet a little wider than hip-width, or in a split stance.', 'Bend your elbows slightly and point them back.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your upper arms out to the sides until your elbows are at shoulder height.', "At the top, your elbows are out to the sides of your shoulders. The dumbbells don't need to be.", 'Lower under control.']), listOf(['Elbows to shoulder height.', 'Elbows slightly bent and pointing back.']), listOf(['Throwing the weight up with your hips or back. Use a lighter weight.', 'Letting your elbows drop below your wrists, which moves the work to the front of your shoulders.', 'Letting your elbows travel behind your shoulders.'])), listOf([new SourceId(Sources_getInstance().l1g_1), new SourceId(Sources_getInstance().m1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Seated lateral raise', listOf(['Seated DB lateral raise', 'Seated dumbbell lateral raise', 'Seated side raise']), listOf_0(Equipment_DUMBBELL_getInstance()), get_SIDE(), Kind_ACCESSORY_getInstance(), new FormGuide('A lateral raise done seated on the end of a bench. It works the side of your shoulders.', listOf(['Sit on the end of a bench with your legs together, holding a dumbbell in each hand.', 'Let your arms hang down, slightly bent, with your palms facing in.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your upper arms out to the sides until your elbows are at shoulder height.', 'Keep the bend in your elbows the same.', 'Lower under control.']), listOf(['Elbows to shoulder height.', 'Same elbow bend all the way.']), listOf(['Throwing the weight up with your hips or back. Use a lighter weight.', 'Letting your elbows drop below your wrists, which moves the work to the front of your shoulders.'])), listOf([new SourceId(Sources_getInstance().r1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable lateral raise', listOf(['One-arm cable lateral raise', 'Single-arm cable lateral raise', 'Cable side raise']), listOf_0(Equipment_CABLE_getInstance()), get_SIDE(), Kind_ACCESSORY_getInstance(), new FormGuide('A one-arm lateral raise with a low cable. It works the side of your shoulder.', listOf(['Set a handle on a low pulley.', 'Stand side-on to the pulley, with your free arm nearest to it. Grip the handle with your other hand.', 'Bend your elbow slightly and point it back.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your arm out to the side, away from the pulley, until your elbow is at shoulder height.', 'Lower under control.', 'Do all your reps, then switch arms.']), listOf(['Elbow to shoulder height.', 'Elbow slightly bent.']), listOf(['Letting your elbow drop, which moves the work to the front of your shoulder.', 'Throwing the weight up with your hips or back. Use a lighter weight.'])), listOf([new SourceId(Sources_getInstance().p1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Machine lateral raise', listOf(['Lateral raise machine', 'Lever lateral raise', 'Machine side raise']), listOf_0(Equipment_MACHINE_getInstance()), get_SIDE(), Kind_ACCESSORY_getInstance(), new FormGuide('A lateral raise on a machine, pushing out against pads on your arms. It works the side of your shoulders.', listOf(['Sit in the machine with your bent arms between the pads and your sides, so the pads rest on the outside of your arms.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your arms out to the sides until your upper arms are level with the floor.', 'Lower under control.']), listOf(['Upper arms to level.', 'If your elbows drift behind you, lean forward slightly.']), listOf(['Throwing the weight up with your hips or back. Use a lighter weight.', 'Letting your elbows travel behind your shoulders.'])), listOf([new SourceId(Sources_getInstance().q1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().l1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Front raise', listOf(['DB front raise', 'Dumbbell front raise']), listOf_0(Equipment_DUMBBELL_getInstance()), get_FRONT(), Kind_ACCESSORY_getInstance(), new FormGuide('A raise of dumbbells straight out in front of you. It works the front of your shoulders.', listOf(['Stand holding a dumbbell in each hand, resting against your thighs, palms facing your thighs.', 'Brace your abs, and pull your shoulder blades down and back.']), listOf(['Breathe out and raise the dumbbells forward and up until your arms are at shoulder height.', 'Keep your elbows straight or slightly bent.', 'Breathe in and lower them slowly.']), listOf(['Arms to shoulder height.', 'Shoulder blades down and back.', 'Lower slowly.']), listOf(['Raising the dumbbells higher than your shoulders.', 'Dropping the weights fast on the way down.'])), listOf([new SourceId(Sources_getInstance().t1g_1), new SourceId(Sources_getInstance().s1g_1)])), shoulderEntry('Barbell front raise', listOf_0('BB front raise'), listOf_0(Equipment_BARBELL_getInstance()), get_FRONT(), Kind_ACCESSORY_getInstance(), new FormGuide('A front raise with a barbell. It works the front of your shoulders.', listOf(['Stand holding a barbell in front of your thighs, palms facing your thighs.', 'Keep your elbows nearly straight.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise the bar forward and up to about shoulder height.', 'Lower under control.']), listOf(['Bar to shoulder height.', 'Elbows nearly straight.']), listOf(['Raising the bar higher than your shoulders.', 'Leaning back or using your hips to swing the bar up.'])), listOf([new SourceId(Sources_getInstance().u1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable front raise', listOf(['One-arm cable front raise', 'Single-arm cable front raise']), listOf_0(Equipment_CABLE_getInstance()), get_FRONT(), Kind_ACCESSORY_getInstance(), new FormGuide('A one-arm front raise with a low cable. It works the front of your shoulder.', listOf(['Set a handle on a low pulley and grip it with one hand.', 'Stand a little away from the pulley, with your arm slightly back at your side.', 'Keep your elbow straight or slightly bent.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise the handle forward and up to about shoulder height.', 'Lower under control.', 'Do all your reps, then switch arms.']), listOf(['Arm to shoulder height.', 'Elbow straight or slightly bent.']), listOf(['Raising the handle higher than your shoulder.', 'Leaning back or using your hips to swing the handle up.'])), listOf([new SourceId(Sources_getInstance().v1g_1), new SourceId(Sources_getInstance().t1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Rear delt raise', listOf(['Rear delt fly', 'Bent-over reverse fly', 'Bent-over lateral raise', 'Bent-over rear delt raise', 'Rear lateral raise', 'DB rear delt raise', 'Dumbbell reverse fly']), listOf_0(Equipment_DUMBBELL_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A bent-over raise of dumbbells out to the sides. It works your rear delts and upper back.', listOf(['Hold a dumbbell in each hand, palms facing each other.', 'Bend your knees and bend over at your hips, until your torso is close to level with the floor.', 'Bend your elbows slightly.', 'Brace your abs and keep your back flat.']), listOf(['Raise your upper arms out to the sides until your elbows are at shoulder height.', 'Keep your upper arms straight out from your shoulders, and keep the bend in your elbows the same.', 'Lower under control.']), listOf(['Torso close to level.', 'Elbows straight out from your shoulders.']), listOf(["Rounding your lower back. If it rounds, bend your knees more or don't bend over as far.", 'Not bending over far enough, which moves the work away from your rear delts.', 'Letting your elbows drift toward your hips, which moves the work to your lats.', 'Throwing the weight up.'])), listOf([new SourceId(Sources_getInstance().w1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Seated rear delt raise', listOf(['Seated rear lateral raise', 'Seated reverse fly', 'Seated bent-over raise']), listOf_0(Equipment_DUMBBELL_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A rear delt raise done sitting, with your chest resting on your thighs. It works your rear delts and upper back.', listOf(['Sit on the edge of a bench, holding a dumbbell in each hand.', 'Bend over and rest your chest on your thighs.', 'Bend your elbows slightly.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your upper arms out to the sides until your elbows are at shoulder height.', 'Keep the bend in your elbows the same.', 'Lower under control.']), listOf(['Chest on your thighs.', 'Elbows to shoulder height.']), listOf(['Sitting up as you lift, which moves the work away from your rear delts.', 'Letting your elbows drift toward your hips, which moves the work to your lats.'])), listOf([new SourceId(Sources_getInstance().x1g_1), new SourceId(Sources_getInstance().w1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Chest-supported rear delt raise', listOf(['Lying rear delt raise', 'Prone rear delt raise', 'Lying rear lateral raise', 'Chest-supported reverse fly']), listOf_0(Equipment_DUMBBELL_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A rear delt raise lying face down on a bench. It works your rear delts and upper back, with your chest supported.', listOf(['Set a bench flat or close to flat, high enough that the dumbbells clear the floor.', 'Lie face down on it, holding a dumbbell in each hand.', 'Bend your elbows slightly.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your upper arms out to the sides until your elbows are at shoulder height.', 'Keep the bend in your elbows the same.', 'Lower under control.']), listOf(['Bench close to flat.', 'Elbows to shoulder height.']), listOf(['Setting the bench at a steep incline, which moves the work away from your rear delts.', 'Letting your elbows drift toward your hips, which moves the work to your lats.'])), listOf([new SourceId(Sources_getInstance().y1g_1), new SourceId(Sources_getInstance().w1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Machine reverse fly', listOf(['Reverse pec deck', 'Rear delt machine', 'Reverse machine fly', 'Lever reverse fly', 'Machine rear delt fly']), listOf_0(Equipment_MACHINE_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A reverse fly on a machine, facing the pad. It works your rear delts and upper back.', listOf(['Set the seat so the handles are at shoulder height.', 'Sit facing the machine with your chest against the pad.', 'Grip the handles palms down, with your elbows raised to shoulder height.', 'Brace your abs lightly, and keep breathing.']), listOf(['Pull the handles apart and back until your elbows are just behind your torso.', 'Keep your elbows at shoulder height.', 'Return under control.']), listOf(['Elbows at shoulder height.', 'Chest on the pad.']), listOf(['Letting your elbows drop toward your sides, which moves the work to your lats.', 'Pulling your elbows far past your torso.'])), listOf([new SourceId(Sources_getInstance().z1g_1), new SourceId(Sources_getInstance().a1h_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable reverse fly', listOf(['Cable rear delt fly', 'Standing cable reverse fly', 'Cable rear delt raise']), listOf_0(Equipment_CABLE_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A reverse fly with two cables at shoulder height. It works your rear delts and upper back.', listOf(['Set two pulleys close together, at about shoulder height.', 'Face the pulleys and grip a handle in each hand. Step back until the cables are tight.', 'Stand with your feet staggered. Keep your arms straight or slightly bent, with your elbows pointing out.', 'Brace your abs lightly, and keep breathing.']), listOf(['Pull the handles out to the sides.', 'Keep your upper arms moving level, at shoulder height, and keep the bend in your elbows the same.', 'Return under control.']), listOf(['Arms level at shoulder height.', 'Elbows stay fixed.']), listOf(['Letting your arms drop below shoulder height, which brings in your lats.', 'Bending and straightening your elbows during the rep.'])), listOf([new SourceId(Sources_getInstance().a1h_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable rear delt row', listOf(['Rear delt row', 'Seated cable rear delt row', 'Seated rear delt row']), listOf_0(Equipment_CABLE_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A seated cable row to the upper chest, with your elbows up and out. It works your rear delts and upper back.', listOf(['Attach a bar to a seated cable row.', 'Sit slightly forward to grip the bar palms down, with your hands about elbow-width apart.', 'Sit up straight and slide your hips back until your knees are only slightly bent.', 'Brace your abs and keep your back straight.']), listOf(['Pull the bar toward your upper chest, just below your neck, with your elbows up and out to the sides.', 'Keep your upper arms level.', 'Stop when your elbows are slightly behind your back.', 'Return under control.']), listOf(['Elbows up and out.', 'Torso upright.']), listOf(['Letting your elbows drop toward your sides, which moves the work to your lats.', 'Leaning forward past upright, which also brings in your lats.'])), listOf([new SourceId(Sources_getInstance().b1h_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable external rotation', listOf(['Band external rotation', 'Cable shoulder external rotation', 'Standing external rotation', 'Rotator cuff external rotation']), listOf([Equipment_CABLE_getInstance(), Equipment_BAND_getInstance()]), get_CUFF(), Kind_ACCESSORY_getInstance(), new FormGuide('Turning your arm outward against a cable or band, with your elbow at your side. It works your rotator cuff.', listOf(['Set a cable handle at about waist height. With a band, fix it at the same height.', 'Stand side-on to it and hold the handle in the hand farther from it.', 'Bend your elbow and keep it against your side, with your forearm across your belly.', 'Brace your abs lightly, and keep breathing.']), listOf(['Turn your arm outward, moving your hand away from your body.', 'Pause briefly, then return slowly.', 'Do all your reps, then switch arms.']), listOf(['Elbow against your side.', 'Same elbow bend all the way.']), listOf(['Letting your elbow drift away from your side.', 'Changing the bend in your elbow during the rep.'])), listOf([new SourceId(Sources_getInstance().c1h_1), new SourceId(Sources_getInstance().d1h_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Side-lying external rotation', listOf(['Lying external rotation', 'DB external rotation', 'Dumbbell external rotation', 'Side-lying DB external rotation']), listOf_0(Equipment_DUMBBELL_getInstance()), get_CUFF(), Kind_ACCESSORY_getInstance(), new FormGuide('Turning your upper arm outward with a dumbbell while lying on your side. It works your rotator cuff.', listOf(['Lie on your side, with your legs apart for support.', 'Hold a dumbbell in your top hand.', 'Bend your elbow and keep it against your side, with your forearm across your belly.', 'Brace your abs lightly, and keep breathing.']), listOf(['Turn your upper arm outward to raise the dumbbell, keeping your elbow against your side.', 'Lower under control.', 'Do all your reps, then switch sides.']), listOf(['Elbow against your side.', 'Same elbow bend all the way.']), listOf(['Letting your elbow drift away from your side.', 'Changing the bend in your elbow during the rep.', 'Doing it standing with a dumbbell. Lie on your side, so the weight works against the turn.'])), listOf([new SourceId(Sources_getInstance().e1h_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable internal rotation', listOf(['Internal rotation', 'Cable shoulder internal rotation', 'Standing internal rotation']), listOf_0(Equipment_CABLE_getInstance()), get_CUFF(), Kind_ACCESSORY_getInstance(), new FormGuide('Turning your arm inward against a cable, with your elbow at your side. It works your rotator cuff.', listOf(['Set a handle on a cable at about elbow height.', 'Stand side-on to the pulley and hold the handle in the hand nearer to it.', 'Bend your elbow and keep it against your side.', 'Brace your abs lightly, and keep breathing.']), listOf(['Turn your arm inward, bringing your forearm across your belly.', 'Return under control.', 'Do all your reps, then switch arms.']), listOf(['Elbow against your side.', 'Same elbow bend all the way.']), listOf(['Letting your elbow drift away from your side.', 'Changing the bend in your elbow during the rep.'])), listOf([new SourceId(Sources_getInstance().f1h_1), new SourceId(Sources_getInstance().u1d_1)]))]);
+    shoulders = listOf([shoulderEntry('Seated barbell press', listOf(['Seated military press', 'Seated barbell shoulder press', 'Seated OHP']), listOf_0(Equipment_BARBELL_getInstance()), get_PRESS_MUSCLES_0(), Kind_COMPOUND_getInstance(), new FormGuide('A barbell press done seated, with your back supported. It works your shoulders and triceps.', listOf(['Sit on a shoulder-press bench in the rack, with your back straight against the pad.', 'Set the safety pins, or use a spotter.', 'Grip the bar a little wider than your shoulders.', 'Press your feet into the floor and brace your abs.']), listOf(['Lift the bar out of the rack.', 'Lower it to the front of your shoulders, to about chin height.', 'Press it overhead until your arms are straight, keeping your elbows forward.', 'Put the bar back in the rack after the last rep.']), listOf(['Back on the pad.', 'Elbows forward.', 'Feet pressed into the floor.']), listOf(['Arching your back off the pad.', 'Lowering the bar behind your neck.'])), listOf([new SourceId(Sources_getInstance().y1f_1), new SourceId(Sources_getInstance().x1f_1), new SourceId(Sources_getInstance().v1d_1), new SourceId(Sources_getInstance().z1f_1)])), shoulderEntry('DB shoulder press', listOf(['Dumbbell shoulder press', 'Seated DB press', 'Seated dumbbell press', 'Seated dumbbell shoulder press', 'DB overhead press', 'Dumbbell overhead press']), listOf_0(Equipment_DUMBBELL_getInstance()), get_PRESS_MUSCLES_0(), Kind_COMPOUND_getInstance(), new FormGuide('A seated press with a dumbbell in each hand. It works your shoulders and triceps, each arm on its own.', listOf(['Sit on a bench with back support. Keep your head, back and buttocks against it, and your feet flat on the floor.', 'Start with the dumbbells at your shoulders, palms facing forward and wrists straight.', 'Hold them beside your shoulders, with your elbows under your wrists.', 'Brace your abs. Pull your shoulder blades down and back, and hold them there for the whole set.']), listOf(['Breathe out and press the dumbbells overhead until your elbows are straight.', 'Breathe in and lower them under control to shoulder height.', 'Keep your torso still the whole time.']), listOf(['Elbows under wrists.', 'Back against the bench.', "Pull the weights down; don't let them drop."]), listOf(['Arching your lower back to get the weight up.', 'Letting the dumbbells drop on the way down.'])), listOf([new SourceId(Sources_getInstance().a1g_1), new SourceId(Sources_getInstance().b1g_1)])), shoulderEntry('One-arm DB press', listOf(['Single-arm DB press', 'One-arm dumbbell shoulder press', 'Single-arm dumbbell press', 'One-arm overhead press']), listOf_0(Equipment_DUMBBELL_getInstance()), listOf(['Front delts', 'Triceps']), Kind_COMPOUND_getInstance(), new FormGuide('A shoulder press with one dumbbell, one arm at a time. It works your front delts and triceps.', listOf(['Stand tall. Start with a dumbbell at one shoulder, with your elbow under your wrist.', 'Breathe in and brace your abs before each rep.']), listOf(['Press the dumbbell overhead until your arm is straight.', 'Lower it back to your shoulder.', 'Do all your reps, then switch arms.']), listOf(['Elbow under wrist.', 'Press to a straight arm.']), listOf(['Arching your lower back to get the weight up.', 'Letting your elbow drift out from under your wrist.'])), listOf([new SourceId(Sources_getInstance().c1g_1), new SourceId(Sources_getInstance().a1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Arnold press', listOf(['Arnold dumbbell press', 'DB Arnold press', 'Dumbbell Arnold press']), listOf_0(Equipment_DUMBBELL_getInstance()), get_PRESS_MUSCLES_0(), Kind_COMPOUND_getInstance(), new FormGuide('A dumbbell press that starts with your palms facing you and opens out as you press. It works your front and side delts.', listOf(['Stand. Start with the dumbbells in front of your shoulders, palms facing you, with your elbows under your wrists.', 'Breathe in and brace your abs before each rep.']), listOf(['Move your elbows out to the sides.', 'Then press the dumbbells overhead until your arms are straight.', 'Lower them the same way, back to the start.']), listOf(['Elbows out, then press.', 'Reverse the path on the way down.']), listOf(['Just twisting your forearms instead of moving your elbows out to the sides.', 'Arching your lower back to get the weight up.'])), listOf([new SourceId(Sources_getInstance().d1g_1), new SourceId(Sources_getInstance().a1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Machine shoulder press', listOf(['Shoulder press machine', 'Lever shoulder press', 'Seated machine shoulder press', 'Machine overhead press']), listOf_0(Equipment_MACHINE_getInstance()), get_PRESS_MUSCLES_0(), Kind_COMPOUND_getInstance(), new FormGuide('A seated shoulder press on a machine. It works your shoulders and triceps.', listOf(['Set the seat so the handles are level with your shoulders or a little above.', 'Sit with your back against the pad.', 'Grip the handles with your palms facing forward.', "Brace your abs, but don't press your lower back into the backrest."]), listOf(['Press the handles up until your elbows are nearly straight.', 'Lower them under control, then repeat.']), listOf(['Back on the pad.', 'Control the way down.']), listOf(['Locking your elbows hard at the top.', 'Letting the weight drop between reps.'])), listOf([new SourceId(Sources_getInstance().f1g_1), new SourceId(Sources_getInstance().e1g_1), new SourceId(Sources_getInstance().g1g_1)])), shoulderEntry('Smith shoulder press', listOf(['Smith machine shoulder press', 'Smith overhead press', 'Smith military press']), listOf_0(Equipment_SMITH_getInstance()), get_PRESS_MUSCLES_0(), Kind_COMPOUND_getInstance(), new FormGuide('A seated shoulder press on a Smith machine, where the bar runs on fixed rails. It works your shoulders and triceps.', listOf(["Set the safety stops so the bar can't come down below your shoulders.", 'Sit on the bench with the bar in front of your shoulders.', 'On an angled Smith machine, face away from the angle, so the bar starts in front of you and moves overhead.', 'Grip the bar wider than your shoulders, but not so wide that the range gets short.', 'Breathe in and brace before you unhook the bar.']), listOf(['Unhook the bar by lifting it and turning it back.', 'Press overhead until your arms are straight.', "Lower it to the front of your shoulders. Pull your head back slightly so the bar doesn't touch it.", 'After the last rep, turn the bar to set it back on the hooks.']), listOf(['Head back slightly.', 'Not too wide a grip.']), listOf(['Gripping so wide that the range of motion gets short.', 'Letting the bar touch your head on the way down.'])), listOf([new SourceId(Sources_getInstance().h1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Landmine press', listOf(['One-arm landmine press', 'Single-arm landmine press', 'Landmine shoulder press']), listOf_0(Equipment_BARBELL_getInstance()), listOf(['Front delts', 'Triceps']), Kind_COMPOUND_getInstance(), new FormGuide('A one-arm press of the end of a barbell, up and forward. It works your front delts and triceps.', listOf(['A landmine holds one end of a barbell on the floor, in a special attachment or a corner of the room. Load the other end.', 'Keep your back straight as you lift the loaded end off the floor.', 'Hold the end of the bar near your shoulder.', 'Set your feet far apart, with the leg on the pressing side back and the other leg forward and bent.', 'Breathe in and brace your abs before each rep.']), listOf(['Press the end of the bar up and forward until your arm is straight.', 'Lower it back to your shoulder.', 'Do all your reps, then switch sides.']), listOf(['Up and forward.', 'Back straight.']), listOf(['Rounding your back as you lift the bar off the floor.', 'Pushing with your legs. In this version, only your arm and shoulder move the bar.'])), listOf([new SourceId(Sources_getInstance().i1g_1), new SourceId(Sources_getInstance().j1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Kettlebell press', listOf(['KB press', 'Single-arm kettlebell press', 'One-arm kettlebell press', 'Kettlebell overhead press']), listOf_0(Equipment_KETTLEBELL_getInstance()), listOf(['Front delts', 'Triceps']), Kind_COMPOUND_getInstance(), new FormGuide('A one-arm press of a kettlebell from your shoulder to overhead. It works your front delts and triceps.', listOf(['Stand with your feet hip-width apart, one foot slightly in front of the other.', 'Start with the kettlebell on the same side as your front foot, held in front of your chest near your shoulder and resting on your forearm.', 'Breathe in and brace your abs before each rep.']), listOf(['Push your front foot into the floor to shift your weight forward, and press the kettlebell straight overhead.', 'Pull your elbow back down to your ribs to lower it.', 'Do all your reps, then switch arms.']), listOf(['Press straight up.', 'Elbow back down to your ribs.']), listOf(['Letting the kettlebell drop instead of pulling it down.', 'Pressing out to the side instead of straight overhead.'])), listOf([new SourceId(Sources_getInstance().k1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Lateral raise', listOf(['DB lateral raise', 'Dumbbell lateral raise', 'Laterals', 'Side raise', 'Side lateral raise', 'Standing lateral raise']), listOf_0(Equipment_DUMBBELL_getInstance()), get_SIDE(), Kind_ACCESSORY_getInstance(), new FormGuide('A raise of your arms out to the sides with dumbbells. It works the side of your shoulders.', listOf(['Stand holding a dumbbell in each hand, palms facing your body.', 'Set your feet a little wider than hip-width, or in a split stance.', 'Bend your elbows slightly and point them back.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your upper arms out to the sides until your elbows are at shoulder height.', "At the top, your elbows are out to the sides of your shoulders. The dumbbells don't need to be.", 'Lower under control.']), listOf(['Elbows to shoulder height.', 'Elbows slightly bent and pointing back.']), listOf(['Throwing the weight up with your hips or back. Use a lighter weight.', 'Letting your elbows drop below your wrists, which moves the work to the front of your shoulders.', 'Letting your elbows travel behind your shoulders.'])), listOf([new SourceId(Sources_getInstance().l1g_1), new SourceId(Sources_getInstance().m1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Seated lateral raise', listOf(['Seated DB lateral raise', 'Seated dumbbell lateral raise', 'Seated side raise']), listOf_0(Equipment_DUMBBELL_getInstance()), get_SIDE(), Kind_ACCESSORY_getInstance(), new FormGuide('A lateral raise done seated on the end of a bench. It works the side of your shoulders.', listOf(['Sit on the end of a bench with your legs together, holding a dumbbell in each hand.', 'Let your arms hang down, slightly bent, with your palms facing in.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your upper arms out to the sides until your elbows are at shoulder height.', 'Keep the bend in your elbows the same.', 'Lower under control.']), listOf(['Elbows to shoulder height.', 'Same elbow bend all the way.']), listOf(['Throwing the weight up with your hips or back. Use a lighter weight.', 'Letting your elbows drop below your wrists, which moves the work to the front of your shoulders.'])), listOf([new SourceId(Sources_getInstance().r1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable lateral raise', listOf(['One-arm cable lateral raise', 'Single-arm cable lateral raise', 'Cable side raise']), listOf_0(Equipment_CABLE_getInstance()), get_SIDE(), Kind_ACCESSORY_getInstance(), new FormGuide('A one-arm lateral raise with a low cable. It works the side of your shoulder.', listOf(['Set a handle on a low pulley.', 'Stand side-on to the pulley, with your free arm nearest to it. Grip the handle with your other hand.', 'Bend your elbow slightly and point it back.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your arm out to the side, away from the pulley, until your elbow is at shoulder height.', 'Lower under control.', 'Do all your reps, then switch arms.']), listOf(['Elbow to shoulder height.', 'Elbow slightly bent.']), listOf(['Letting your elbow drop, which moves the work to the front of your shoulder.', 'Throwing the weight up with your hips or back. Use a lighter weight.'])), listOf([new SourceId(Sources_getInstance().p1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Machine lateral raise', listOf(['Lateral raise machine', 'Lever lateral raise', 'Machine side raise']), listOf_0(Equipment_MACHINE_getInstance()), get_SIDE(), Kind_ACCESSORY_getInstance(), new FormGuide('A lateral raise on a machine, pushing out against pads on your arms. It works the side of your shoulders.', listOf(['Sit in the machine with your bent arms between the pads and your sides, so the pads rest on the outside of your arms.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your arms out to the sides until your upper arms are level with the floor.', 'Lower under control.']), listOf(['Upper arms to level.', 'If your elbows drift behind you, lean forward slightly.']), listOf(['Throwing the weight up with your hips or back. Use a lighter weight.', 'Letting your elbows travel behind your shoulders.'])), listOf([new SourceId(Sources_getInstance().q1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().l1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Front raise', listOf(['DB front raise', 'Dumbbell front raise']), listOf_0(Equipment_DUMBBELL_getInstance()), get_FRONT(), Kind_ACCESSORY_getInstance(), new FormGuide('A raise of dumbbells straight out in front of you. It works the front of your shoulders.', listOf(['Stand holding a dumbbell in each hand, resting against your thighs, palms facing your thighs.', 'Brace your abs, and pull your shoulder blades down and back.']), listOf(['Breathe out and raise the dumbbells forward and up until your arms are at shoulder height.', 'Keep your elbows straight or slightly bent.', 'Breathe in and lower them slowly.']), listOf(['Arms to shoulder height.', 'Shoulder blades down and back.', 'Lower slowly.']), listOf(['Raising the dumbbells higher than your shoulders.', 'Dropping the weights fast on the way down.'])), listOf([new SourceId(Sources_getInstance().t1g_1), new SourceId(Sources_getInstance().s1g_1)])), shoulderEntry('Barbell front raise', listOf_0('BB front raise'), listOf_0(Equipment_BARBELL_getInstance()), get_FRONT(), Kind_ACCESSORY_getInstance(), new FormGuide('A front raise with a barbell. It works the front of your shoulders.', listOf(['Stand holding a barbell in front of your thighs, palms facing your thighs.', 'Keep your elbows nearly straight.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise the bar forward and up to about shoulder height.', 'Lower under control.']), listOf(['Bar to shoulder height.', 'Elbows nearly straight.']), listOf(['Raising the bar higher than your shoulders.', 'Leaning back or using your hips to swing the bar up.'])), listOf([new SourceId(Sources_getInstance().u1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable front raise', listOf(['One-arm cable front raise', 'Single-arm cable front raise']), listOf_0(Equipment_CABLE_getInstance()), get_FRONT(), Kind_ACCESSORY_getInstance(), new FormGuide('A one-arm front raise with a low cable. It works the front of your shoulder.', listOf(['Set a handle on a low pulley and grip it with one hand.', 'Stand a little away from the pulley, with your arm slightly back at your side.', 'Keep your elbow straight or slightly bent.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise the handle forward and up to about shoulder height.', 'Lower under control.', 'Do all your reps, then switch arms.']), listOf(['Arm to shoulder height.', 'Elbow straight or slightly bent.']), listOf(['Raising the handle higher than your shoulder.', 'Leaning back or using your hips to swing the handle up.'])), listOf([new SourceId(Sources_getInstance().v1g_1), new SourceId(Sources_getInstance().t1g_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Rear delt raise', listOf(['Rear delt fly', 'Bent-over reverse fly', 'Bent-over lateral raise', 'Bent-over rear delt raise', 'Rear lateral raise', 'DB rear delt raise', 'Dumbbell reverse fly']), listOf_0(Equipment_DUMBBELL_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A bent-over raise of dumbbells out to the sides. It works your rear delts and upper back.', listOf(['Hold a dumbbell in each hand, palms facing each other.', 'Bend your knees and bend over at your hips, until your torso is close to level with the floor.', 'Bend your elbows slightly.', 'Brace your abs and keep your back flat.']), listOf(['Raise your upper arms out to the sides until your elbows are at shoulder height.', 'Keep your upper arms straight out from your shoulders, and keep the bend in your elbows the same.', 'Lower under control.']), listOf(['Torso close to level.', 'Elbows straight out from your shoulders.']), listOf(["Rounding your lower back. If it rounds, bend your knees more or don't bend over as far.", 'Not bending over far enough, which moves the work away from your rear delts.', 'Letting your elbows drift toward your hips, which moves the work to your lats.', 'Throwing the weight up.'])), listOf([new SourceId(Sources_getInstance().w1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Seated rear delt raise', listOf(['Seated rear lateral raise', 'Seated reverse fly', 'Seated bent-over raise']), listOf_0(Equipment_DUMBBELL_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A rear delt raise done sitting, with your chest resting on your thighs. It works your rear delts and upper back.', listOf(['Sit on the edge of a bench, holding a dumbbell in each hand.', 'Bend over and rest your chest on your thighs.', 'Bend your elbows slightly.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your upper arms out to the sides until your elbows are at shoulder height.', 'Keep the bend in your elbows the same.', 'Lower under control.']), listOf(['Chest on your thighs.', 'Elbows to shoulder height.']), listOf(['Sitting up as you lift, which moves the work away from your rear delts.', 'Letting your elbows drift toward your hips, which moves the work to your lats.'])), listOf([new SourceId(Sources_getInstance().x1g_1), new SourceId(Sources_getInstance().w1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Chest-supported rear delt raise', listOf(['Lying rear delt raise', 'Prone rear delt raise', 'Lying rear lateral raise', 'Chest-supported reverse fly']), listOf_0(Equipment_DUMBBELL_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A rear delt raise lying face down on a bench. It works your rear delts and upper back, with your chest supported.', listOf(['Set a bench flat or close to flat, high enough that the dumbbells clear the floor.', 'Lie face down on it, holding a dumbbell in each hand.', 'Bend your elbows slightly.', 'Brace your abs lightly, and keep breathing.']), listOf(['Raise your upper arms out to the sides until your elbows are at shoulder height.', 'Keep the bend in your elbows the same.', 'Lower under control.']), listOf(['Bench close to flat.', 'Elbows to shoulder height.']), listOf(['Setting the bench at a steep incline, which moves the work away from your rear delts.', 'Letting your elbows drift toward your hips, which moves the work to your lats.'])), listOf([new SourceId(Sources_getInstance().y1g_1), new SourceId(Sources_getInstance().w1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Machine reverse fly', listOf(['Reverse pec deck', 'Rear delt machine', 'Reverse machine fly', 'Lever reverse fly', 'Machine rear delt fly']), listOf_0(Equipment_MACHINE_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A reverse fly on a machine, facing the pad. It works your rear delts and upper back.', listOf(['Set the seat so the handles are at shoulder height.', 'Sit facing the machine with your chest against the pad.', 'Grip the handles palms down, with your elbows raised to shoulder height.', 'Brace your abs lightly, and keep breathing.']), listOf(['Pull the handles apart and back until your elbows are just behind your torso.', 'Keep your elbows at shoulder height.', 'Return under control.']), listOf(['Elbows at shoulder height.', 'Chest on the pad.']), listOf(['Letting your elbows drop toward your sides, which moves the work to your lats.', 'Pulling your elbows far past your torso.'])), listOf([new SourceId(Sources_getInstance().z1g_1), new SourceId(Sources_getInstance().a1h_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable reverse fly', listOf(['Cable rear delt fly', 'Standing cable reverse fly', 'Cable rear delt raise']), listOf_0(Equipment_CABLE_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A reverse fly with two cables at shoulder height. It works your rear delts and upper back.', listOf(['Set two pulleys close together, at about shoulder height.', 'Face the pulleys and grip a handle in each hand. Step back until the cables are tight.', 'Stand with your feet staggered. Keep your arms straight or slightly bent, with your elbows pointing out.', 'Brace your abs lightly, and keep breathing.']), listOf(['Pull the handles out to the sides.', 'Keep your upper arms moving level, at shoulder height, and keep the bend in your elbows the same.', 'Return under control.']), listOf(['Arms level at shoulder height.', 'Elbows stay fixed.']), listOf(['Letting your arms drop below shoulder height, which brings in your lats.', 'Bending and straightening your elbows during the rep.'])), listOf([new SourceId(Sources_getInstance().a1h_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable rear delt row', listOf(['Rear delt row', 'Seated cable rear delt row', 'Seated rear delt row']), listOf_0(Equipment_CABLE_getInstance()), get_REAR(), Kind_ACCESSORY_getInstance(), new FormGuide('A seated cable row to the upper chest, with your elbows up and out. It works your rear delts and upper back.', listOf(['Attach a bar to a seated cable row.', 'Sit slightly forward to grip the bar palms down, with your hands about elbow-width apart.', 'Sit up straight and slide your hips back until your knees are only slightly bent.', 'Brace your abs and keep your back straight.']), listOf(['Pull the bar toward your upper chest, just below your neck, with your elbows up and out to the sides.', 'Keep your upper arms level.', 'Stop when your elbows are slightly behind your back.', 'Return under control.']), listOf(['Elbows up and out.', 'Torso upright.']), listOf(['Letting your elbows drop toward your sides, which moves the work to your lats.', 'Leaning forward past upright, which also brings in your lats.'])), listOf([new SourceId(Sources_getInstance().b1h_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable external rotation', listOf(['Band external rotation', 'Cable shoulder external rotation', 'Standing external rotation', 'Rotator cuff external rotation']), listOf([Equipment_CABLE_getInstance(), Equipment_BAND_getInstance()]), get_CUFF(), Kind_ACCESSORY_getInstance(), new FormGuide('Turning your arm outward against a cable or band, with your elbow at your side. It works your rotator cuff.', listOf(['Set a cable handle at about waist height. With a band, fix it at the same height.', 'Stand side-on to it and hold the handle in the hand farther from it.', 'Bend your elbow and keep it against your side, with your forearm across your belly.', 'Brace your abs lightly, and keep breathing.']), listOf(['Turn your arm outward, moving your hand away from your body.', 'Pause briefly, then return slowly.', 'Do all your reps, then switch arms.']), listOf(['Elbow against your side.', 'Same elbow bend all the way.']), listOf(['Letting your elbow drift away from your side.', 'Changing the bend in your elbow during the rep.'])), listOf([new SourceId(Sources_getInstance().c1h_1), new SourceId(Sources_getInstance().d1h_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Side-lying external rotation', listOf(['Lying external rotation', 'DB external rotation', 'Dumbbell external rotation', 'Side-lying DB external rotation']), listOf_0(Equipment_DUMBBELL_getInstance()), get_CUFF(), Kind_ACCESSORY_getInstance(), new FormGuide('Turning your upper arm outward with a dumbbell while lying on your side. It works your rotator cuff.', listOf(['Lie on your side, with your legs apart for support.', 'Hold a dumbbell in your top hand.', 'Bend your elbow and keep it against your side, with your forearm across your belly.', 'Brace your abs lightly, and keep breathing.']), listOf(['Turn your upper arm outward to raise the dumbbell, keeping your elbow against your side.', 'Lower under control.', 'Do all your reps, then switch sides.']), listOf(['Elbow against your side.', 'Same elbow bend all the way.']), listOf(['Letting your elbow drift away from your side.', 'Changing the bend in your elbow during the rep.', 'Doing it standing with a dumbbell. Lie on your side, so the weight works against the turn.'])), listOf([new SourceId(Sources_getInstance().e1h_1), new SourceId(Sources_getInstance().n1g_1), new SourceId(Sources_getInstance().u1d_1)])), shoulderEntry('Cable internal rotation', listOf(['Internal rotation', 'Cable shoulder internal rotation', 'Standing internal rotation']), listOf_0(Equipment_CABLE_getInstance()), get_CUFF(), Kind_ACCESSORY_getInstance(), new FormGuide('Turning your arm inward against a cable, with your elbow at your side. It works your rotator cuff.', listOf(['Set a handle on a cable at about elbow height.', 'Stand side-on to the pulley and hold the handle in the hand nearer to it.', 'Bend your elbow and keep it against your side.', 'Brace your abs lightly, and keep breathing.']), listOf(['Turn your arm inward, bringing your forearm across your belly.', 'Return under control.', 'Do all your reps, then switch arms.']), listOf(['Elbow against your side.', 'Same elbow bend all the way.']), listOf(['Letting your elbow drift away from your side.', 'Changing the bend in your elbow during the rep.'])), listOf([new SourceId(Sources_getInstance().f1h_1), new SourceId(Sources_getInstance().u1d_1)]))]);
   }
 }
 var static_init_called_3;
@@ -5450,13 +5482,15 @@ function static_init_5() {
   MainLift_SQUAT_instance = new MainLift('SQUAT', 0);
   MainLift_BENCH_instance = new MainLift('BENCH', 1);
   MainLift_DEADLIFT_instance = new MainLift('DEADLIFT', 2);
+  MainLift_STRICT_PRESS_instance = new MainLift('STRICT_PRESS', 3);
 }
 var MainLift_SQUAT_instance;
 var MainLift_BENCH_instance;
 var MainLift_DEADLIFT_instance;
+var MainLift_STRICT_PRESS_instance;
 function values_4() {
   static_init_5();
-  return [MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()];
+  return [MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance(), MainLift_STRICT_PRESS_getInstance()];
 }
 function get_entries_0() {
   static_init_5();
@@ -5476,17 +5510,19 @@ function static_init_6() {
   Category_SQUAT_instance = new Category('SQUAT', 0);
   Category_BENCH_instance = new Category('BENCH', 1);
   Category_DEADLIFT_instance = new Category('DEADLIFT', 2);
-  Category_VARIATION_instance = new Category('VARIATION', 3);
-  Category_ACCESSORY_instance = new Category('ACCESSORY', 4);
+  Category_STRICT_PRESS_instance = new Category('STRICT_PRESS', 3);
+  Category_VARIATION_instance = new Category('VARIATION', 4);
+  Category_ACCESSORY_instance = new Category('ACCESSORY', 5);
 }
 var Category_SQUAT_instance;
 var Category_BENCH_instance;
 var Category_DEADLIFT_instance;
+var Category_STRICT_PRESS_instance;
 var Category_VARIATION_instance;
 var Category_ACCESSORY_instance;
 function values_5() {
   static_init_6();
-  return [Category_SQUAT_getInstance(), Category_BENCH_getInstance(), Category_DEADLIFT_getInstance(), Category_VARIATION_getInstance(), Category_ACCESSORY_getInstance()];
+  return [Category_SQUAT_getInstance(), Category_BENCH_getInstance(), Category_DEADLIFT_getInstance(), Category_STRICT_PRESS_getInstance(), Category_VARIATION_getInstance(), Category_ACCESSORY_getInstance()];
 }
 function Category(name, ordinal) {
   Enum.call(this, name, ordinal);
@@ -5517,6 +5553,45 @@ var $ENTRIES_1;
 function MissPoint(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
+function liftLabel(lift) {
+  var tmp;
+  switch (lift.s1_1) {
+    case 0:
+      tmp = 'Squat';
+      break;
+    case 1:
+      tmp = 'Bench';
+      break;
+    case 2:
+      tmp = 'Deadlift';
+      break;
+    case 3:
+      tmp = 'Strict press';
+      break;
+    default:
+      noWhenBranchMatchedException();
+      break;
+  }
+  return tmp;
+}
+function missPointLabel(lift, point) {
+  var tmp;
+  switch (point.s1_1) {
+    case 0:
+      tmp = lift.equals(MainLift_STRICT_PRESS_getInstance()) ? 'Off the shoulders' : 'Floor';
+      break;
+    case 1:
+      tmp = 'Mid';
+      break;
+    case 2:
+      tmp = 'Lockout';
+      break;
+    default:
+      noWhenBranchMatchedException();
+      break;
+  }
+  return tmp;
+}
 function Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived) {
   archived = archived === VOID ? false : archived;
   this.w13_1 = id;
@@ -5540,9 +5615,12 @@ protoOf(Exercise).e14 = function () {
       tmp = MainLift_DEADLIFT_getInstance();
       break;
     case 3:
-      tmp = this.z13_1;
+      tmp = MainLift_STRICT_PRESS_getInstance();
       break;
     case 4:
+      tmp = this.z13_1;
+      break;
+    case 5:
       tmp = null;
       break;
     default:
@@ -5552,7 +5630,23 @@ protoOf(Exercise).e14 = function () {
   return tmp;
 };
 protoOf(Exercise).d14 = function () {
-  return this.y13_1.equals(Category_SQUAT_getInstance()) || this.y13_1.equals(Category_BENCH_getInstance()) || this.y13_1.equals(Category_DEADLIFT_getInstance());
+  var tmp;
+  switch (this.y13_1.s1_1) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      tmp = true;
+      break;
+    case 4:
+    case 5:
+      tmp = false;
+      break;
+    default:
+      noWhenBranchMatchedException();
+      break;
+  }
+  return tmp;
 };
 protoOf(Exercise).m1o = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
@@ -5788,6 +5882,10 @@ function MainLift_DEADLIFT_getInstance() {
   static_init_5();
   return MainLift_DEADLIFT_instance;
 }
+function MainLift_STRICT_PRESS_getInstance() {
+  static_init_5();
+  return MainLift_STRICT_PRESS_instance;
+}
 function Category_SQUAT_getInstance() {
   static_init_6();
   return Category_SQUAT_instance;
@@ -5799,6 +5897,10 @@ function Category_BENCH_getInstance() {
 function Category_DEADLIFT_getInstance() {
   static_init_6();
   return Category_DEADLIFT_instance;
+}
+function Category_STRICT_PRESS_getInstance() {
+  static_init_6();
+  return Category_STRICT_PRESS_instance;
 }
 function Category_VARIATION_getInstance() {
   static_init_6();
@@ -6033,8 +6135,10 @@ function ProgressMath$weeklyVolume$lambda(a, b) {
   return compareValues(tmp, tmp$ret$2);
 }
 function ProgressMath() {
+  ProgressMath_instance = this;
+  this.x1o_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(ProgressMath).x1o = function (_this__u8e3s4, set, lift) {
+protoOf(ProgressMath).y1o = function (_this__u8e3s4, set, lift) {
   var tmp;
   if (!set.u15_1) {
     var tmp0_safe_receiver = _this__u8e3s4.r13_1.o1(set.q15_1);
@@ -6051,7 +6155,7 @@ protoOf(ProgressMath).x1o = function (_this__u8e3s4, set, lift) {
   }
   return tmp;
 };
-protoOf(ProgressMath).y1o = function (history, lift) {
+protoOf(ProgressMath).z1o = function (history, lift) {
   // Inline function 'kotlin.collections.mutableListOf' call
   var prs = ArrayList_init_$Create$();
   var best = 0.0;
@@ -6066,7 +6170,7 @@ protoOf(ProgressMath).y1o = function (history, lift) {
     var _iterator__ex2g4s_0 = session.g17_1.j();
     $l$loop: while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (!this.x1o(history, set, lift))
+      if (!this.y1o(history, set, lift))
         continue $l$loop;
       var e1rm = E1rm_getInstance().h18(set.r15_1, set.s15_1, set.t15_1);
       if (e1rm > best) {
@@ -6079,7 +6183,7 @@ protoOf(ProgressMath).y1o = function (history, lift) {
   }
   return prs;
 };
-protoOf(ProgressMath).z1o = function (history, lift) {
+protoOf(ProgressMath).a1p = function (history, lift) {
   // Inline function 'kotlin.collections.mutableMapOf' call
   var volume = LinkedHashMap_init_$Create$();
   var _iterator__ex2g4s = history.q13_1.j();
@@ -6088,7 +6192,7 @@ protoOf(ProgressMath).z1o = function (history, lift) {
     var _iterator__ex2g4s_0 = session.g17_1.j();
     while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (this.x1o(history, set, lift)) {
+      if (this.y1o(history, set, lift)) {
         var week = weekStart(session.d17_1);
         var tmp0_elvis_lhs = volume.o1(week);
         // Inline function 'kotlin.collections.set' call
@@ -6104,12 +6208,12 @@ protoOf(ProgressMath).z1o = function (history, lift) {
   var tmp$ret$3 = new sam$kotlin_Comparator$0_6(tmp);
   return sortedWith(this_0, tmp$ret$3);
 };
-protoOf(ProgressMath).a1p = function (stats, until) {
+protoOf(ProgressMath).b1p = function (stats, until, includeStrictPress) {
+  var included = includeStrictPress ? plus_0(this.x1o_1, MainLift_STRICT_PRESS_getInstance()) : this.x1o_1;
   // Inline function 'kotlin.collections.map' call
-  var this_0 = get_entries_0();
   // Inline function 'kotlin.collections.mapTo' call
-  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
-  var _iterator__ex2g4s = this_0.j();
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(included, 10));
+  var _iterator__ex2g4s = included.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
     var tmp0_elvis_lhs = stats.l18(item, until);
@@ -6127,6 +6231,8 @@ protoOf(ProgressMath).a1p = function (stats, until) {
 };
 var ProgressMath_instance;
 function ProgressMath_getInstance() {
+  if (ProgressMath_instance == null)
+    new ProgressMath();
   return ProgressMath_instance;
 }
 function main($this, name, category, muscles) {
@@ -6141,15 +6247,17 @@ function SeedLibrary$exercises$Acc(heavy, lift, muscles) {
     tmp = muscles;
   }
   muscles = tmp;
-  this.b1p_1 = heavy;
-  this.c1p_1 = lift;
-  this.d1p_1 = muscles;
+  this.c1p_1 = heavy;
+  this.d1p_1 = lift;
+  this.e1p_1 = muscles;
 }
 function SeedLibrary() {
+  SeedLibrary_instance = this;
+  this.f1p_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(SeedLibrary).e1p = function () {
+protoOf(SeedLibrary).g1p = function () {
   var found = LinkedHashMap_init_$Create$();
-  var _iterator__ex2g4s = get_entries_0().j();
+  var _iterator__ex2g4s = this.f1p_1.j();
   while (_iterator__ex2g4s.k()) {
     var lift = _iterator__ex2g4s.l();
     var _iterator__ex2g4s_0 = get_entries_1().j();
@@ -6171,48 +6279,71 @@ protoOf(SeedLibrary).e1p = function () {
           tmp = value;
         }
         // Inline function 'kotlin.collections.plusAssign' call
-        var this_0 = tmp.d1p_1;
+        var this_0 = tmp.e1p_1;
         addAll(this_0, muscles);
       }
     }
   }
+  var tmp_0 = found.p1();
+  // Inline function 'kotlin.collections.flatMap' call
+  var tmp0 = this.f1p_1;
+  // Inline function 'kotlin.collections.flatMapTo' call
+  var destination = ArrayList_init_$Create$();
+  var _iterator__ex2g4s_2 = tmp0.j();
+  while (_iterator__ex2g4s_2.k()) {
+    var element = _iterator__ex2g4s_2.l();
+    // Inline function 'kotlin.collections.map' call
+    var this_1 = AccessoryMap_getInstance().d13(element);
+    // Inline function 'kotlin.collections.mapTo' call
+    var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
+    var _iterator__ex2g4s_3 = this_1.j();
+    while (_iterator__ex2g4s_3.k()) {
+      var item = _iterator__ex2g4s_3.l();
+      var tmp$ret$8 = item.v12_1;
+      destination_0.i(tmp$ret$8);
+    }
+    var list = destination_0;
+    addAll(destination, list);
+  }
   // Inline function 'kotlin.check' call
-  if (!equals(found.p1(), AccessoryMap_getInstance().a13_1)) {
+  if (!equals(tmp_0, toSet(destination))) {
     throw IllegalStateException_init_$Create$('Check failed.');
   }
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
-  var destination = ArrayList_init_$Create$_0(found.o());
+  var destination_1 = ArrayList_init_$Create$_0(found.o());
   // Inline function 'kotlin.collections.iterator' call
-  var _iterator__ex2g4s_2 = found.r().j();
-  while (_iterator__ex2g4s_2.k()) {
-    var item = _iterator__ex2g4s_2.l();
+  var _iterator__ex2g4s_4 = found.r().j();
+  while (_iterator__ex2g4s_4.k()) {
+    var item_0 = _iterator__ex2g4s_4.l();
     // Inline function 'kotlin.collections.component1' call
-    var name = item.s();
+    var name = item_0.s();
     // Inline function 'kotlin.collections.component2' call
-    var acc = item.t();
-    var tmp$ret$7 = new Exercise(new Long(0, 0), name, acc.b1p_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.b1p_1 ? acc.c1p_1 : null, toList_0(acc.d1p_1), true);
-    destination.i(tmp$ret$7);
+    var acc = item_0.t();
+    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.c1p_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.c1p_1 ? acc.d1p_1 : null, toList_0(acc.e1p_1), true);
+    destination_1.i(tmp$ret$13);
   }
-  var mapped = destination;
+  var mapped = destination_1;
   var all = plus(plus(listOf([main(this, 'Squat', Category_SQUAT_getInstance(), listOf(['Quads', 'Glutes'])), main(this, 'Bench', Category_BENCH_getInstance(), listOf(['Pecs', 'Triceps', 'Front delts'])), main(this, 'Deadlift', Category_DEADLIFT_getInstance(), listOf(['Hamstrings', 'Glutes', 'Lats']))]), mapped), listOf([main(this, 'Curl', Category_ACCESSORY_getInstance(), listOf_0('Biceps')), main(this, 'Row', Category_ACCESSORY_getInstance(), listOf(['Lats', 'Upper back'])), main(this, 'Pull-up', Category_ACCESSORY_getInstance(), listOf(['Lats', 'Biceps']))]));
   // Inline function 'kotlin.collections.mapIndexed' call
   // Inline function 'kotlin.collections.mapIndexedTo' call
-  var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(all, 10));
+  var destination_2 = ArrayList_init_$Create$_0(collectionSizeOrDefault(all, 10));
   var index = 0;
-  var _iterator__ex2g4s_3 = all.j();
-  while (_iterator__ex2g4s_3.k()) {
-    var item_0 = _iterator__ex2g4s_3.l();
+  var _iterator__ex2g4s_5 = all.j();
+  while (_iterator__ex2g4s_5.k()) {
+    var item_1 = _iterator__ex2g4s_5.l();
     var _unary__edvuaz = index;
     index = _unary__edvuaz + 1 | 0;
     var i = checkIndexOverflow(_unary__edvuaz);
-    var tmp$ret$12 = item_0.n1o(add(numberToLong(i), new Long(1, 0)));
-    destination_0.i(tmp$ret$12);
+    var tmp$ret$18 = item_1.n1o(add(numberToLong(i), new Long(1, 0)));
+    destination_2.i(tmp$ret$18);
   }
-  return destination_0;
+  return destination_2;
 };
 var SeedLibrary_instance;
 function SeedLibrary_getInstance() {
+  if (SeedLibrary_instance == null)
+    new SeedLibrary();
   return SeedLibrary_instance;
 }
 function mondayOfWeek(_this__u8e3s4) {
@@ -6238,32 +6369,32 @@ function HighReps_getInstance() {
   return HighReps_instance;
 }
 function BigJump(fromKg) {
-  this.f1p_1 = fromKg;
+  this.h1p_1 = fromKg;
 }
 protoOf(BigJump).toString = function () {
-  return 'BigJump(fromKg=' + this.f1p_1 + ')';
+  return 'BigJump(fromKg=' + this.h1p_1 + ')';
 };
 protoOf(BigJump).hashCode = function () {
-  return getNumberHashCode(this.f1p_1);
+  return getNumberHashCode(this.h1p_1);
 };
 protoOf(BigJump).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BigJump))
     return false;
-  if (!equals(this.f1p_1, other.f1p_1))
+  if (!equals(this.h1p_1, other.h1p_1))
     return false;
   return true;
 };
 function InputValidator() {
-  this.g1p_1 = 12;
-  this.h1p_1 = 1.3;
-  this.i1p_1 = 500.0;
+  this.i1p_1 = 12;
+  this.j1p_1 = 1.3;
+  this.k1p_1 = 500.0;
 }
-protoOf(InputValidator).j1p = function (kg) {
+protoOf(InputValidator).l1p = function (kg) {
   return isFinite(kg) && kg > 0.0 && kg <= 500.0;
 };
-protoOf(InputValidator).k1p = function (text) {
+protoOf(InputValidator).m1p = function (text) {
   // Inline function 'kotlin.text.trim' call
   var tmp$ret$0 = toString(trim(isCharSequence(text) ? text : THROW_CCE()));
   var tmp0_safe_receiver = toDoubleOrNull(replace(tmp$ret$0, _Char___init__impl__6a9atx(44), _Char___init__impl__6a9atx(46)));
@@ -6273,7 +6404,7 @@ protoOf(InputValidator).k1p = function (text) {
   } else {
     // Inline function 'kotlin.takeIf' call
     var tmp_0;
-    if (this.j1p(tmp0_safe_receiver)) {
+    if (this.l1p(tmp0_safe_receiver)) {
       tmp_0 = tmp0_safe_receiver;
     } else {
       tmp_0 = null;
@@ -6282,7 +6413,7 @@ protoOf(InputValidator).k1p = function (text) {
   }
   return tmp;
 };
-protoOf(InputValidator).l1p = function (weightKg, reps, lastWeightKg) {
+protoOf(InputValidator).n1p = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
@@ -6306,6 +6437,9 @@ function GritDomain$accessoryOptions$lambda(it) {
   return it.r1_1;
 }
 function GritDomain$accessoryMuscles$lambda(it) {
+  return it.r1_1;
+}
+function GritDomain$missPointLabel$lambda(it) {
   return it.r1_1;
 }
 function GritDomain$openAdviceExpired$lambda(it) {
@@ -6350,7 +6484,7 @@ protoOf(GritDomain).loadStep = function (changePlates) {
 };
 protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = InputValidator_instance.l1p(weightKg, reps, lastWeightKg);
+  var this_0 = InputValidator_instance.n1p(weightKg, reps, lastWeightKg);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -6373,7 +6507,7 @@ protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   return copyToArray(destination);
 };
 protoOf(GritDomain).parseBaselineKg = function (text) {
-  return InputValidator_instance.k1p(text);
+  return InputValidator_instance.m1p(text);
 };
 protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, today, prior) {
   var tmp = Coach_getInstance();
@@ -6477,7 +6611,7 @@ protoOf(GritDomain).currentE1rm = function (history, lift, until, days) {
 };
 protoOf(GritDomain).prs = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_instance.y1o(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().z1o(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -6491,7 +6625,7 @@ protoOf(GritDomain).prs = function (history, lift) {
 };
 protoOf(GritDomain).weeklyVolume = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_instance.z1o(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().a1p(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -6598,7 +6732,7 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = SeedLibrary_instance.e1p();
+  var this_0 = SeedLibrary_getInstance().g1p();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -6610,8 +6744,57 @@ protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination);
 };
-protoOf(GritDomain).total = function (history, until) {
-  return ProgressMath_instance.a1p(new HistoryStats(toDomain_4(history)), parseDate('until', until));
+protoOf(GritDomain).total = function (history, until, includeStrictPress) {
+  return ProgressMath_getInstance().b1p(new HistoryStats(toDomain_4(history)), parseDate('until', until), includeStrictPress);
+};
+protoOf(GritDomain).mainLifts = function () {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = get_entries_0();
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = item.r1_1;
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
+};
+protoOf(GritDomain).liftLabel = function (lift) {
+  return liftLabel(parseLift('lift', lift));
+};
+protoOf(GritDomain).missPointLabel = function (lift, point) {
+  var tmp = parseLift('lift', lift);
+  // Inline function 'com.powertracker.domain.web.parseEnum' call
+  // Inline function 'kotlin.enumValues' call
+  var tmp0 = values_6();
+  var tmp$ret$2;
+  $l$block: {
+    // Inline function 'kotlin.collections.firstOrNull' call
+    var inductionVariable = 0;
+    var last = tmp0.length;
+    while (inductionVariable < last) {
+      var element = tmp0[inductionVariable];
+      inductionVariable = inductionVariable + 1 | 0;
+      if (element.r1_1 === point) {
+        tmp$ret$2 = element;
+        break $l$block;
+      }
+    }
+    tmp$ret$2 = null;
+  }
+  var tmp0_elvis_lhs = tmp$ret$2;
+  var tmp_0;
+  if (tmp0_elvis_lhs == null) {
+    // Inline function 'kotlin.enumValues' call
+    var tmp_1 = values_6();
+    throw IllegalArgumentException_init_$Create$('point' + ": '" + point + "' is not one of " + joinToString_0(tmp_1, VOID, VOID, VOID, VOID, VOID, GritDomain$missPointLabel$lambda));
+  } else {
+    tmp_0 = tmp0_elvis_lhs;
+  }
+  var tmp$ret$0 = tmp_0;
+  return missPointLabel(tmp, tmp$ret$0);
 };
 protoOf(GritDomain).mainLiftOf = function (exercise) {
   var tmp0_safe_receiver = toDomain(exercise).e14();
@@ -6933,25 +7116,25 @@ function JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived
   this.isBuiltIn = isBuiltIn;
   this.archived = archived;
 }
-protoOf(JsExercise).m1p = function () {
+protoOf(JsExercise).o1p = function () {
   return this.id;
 };
 protoOf(JsExercise).nq = function () {
   return this.name;
 };
-protoOf(JsExercise).n1p = function () {
+protoOf(JsExercise).p1p = function () {
   return this.category;
 };
-protoOf(JsExercise).o1p = function () {
+protoOf(JsExercise).q1p = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).p1p = function () {
+protoOf(JsExercise).r1p = function () {
   return this.muscles;
 };
-protoOf(JsExercise).q1p = function () {
+protoOf(JsExercise).s1p = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).r1p = function () {
+protoOf(JsExercise).t1p = function () {
   return this.archived;
 };
 protoOf(JsExercise).ma = function () {
@@ -6960,22 +7143,22 @@ protoOf(JsExercise).ma = function () {
 protoOf(JsExercise).na = function () {
   return this.name;
 };
-protoOf(JsExercise).s1p = function () {
+protoOf(JsExercise).u1p = function () {
   return this.category;
 };
-protoOf(JsExercise).t1p = function () {
+protoOf(JsExercise).v1p = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).u1p = function () {
+protoOf(JsExercise).w1p = function () {
   return this.muscles;
 };
-protoOf(JsExercise).v1p = function () {
+protoOf(JsExercise).x1p = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).w1p = function () {
+protoOf(JsExercise).y1p = function () {
   return this.archived;
 };
-protoOf(JsExercise).x1p = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(JsExercise).z1p = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
@@ -6986,7 +7169,7 @@ protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, is
   muscles = muscles === VOID ? this.muscles : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.isBuiltIn : isBuiltIn;
   archived = archived === VOID ? this.archived : archived;
-  return $super === VOID ? this.x1p(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.x1p.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.z1p(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.z1p.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).toString = function () {
   return 'JsExercise(id=' + this.id + ', name=' + this.name + ', category=' + this.category + ', parentLift=' + this.parentLift + ', muscles=' + toString(this.muscles) + ', isBuiltIn=' + this.isBuiltIn + ', archived=' + this.archived + ')';
@@ -7031,25 +7214,25 @@ function JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   this.missPoint = missPoint;
   this.isTopSet = isTopSet;
 }
-protoOf(JsSet).y1p = function () {
+protoOf(JsSet).a1q = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).z1p = function () {
+protoOf(JsSet).b1q = function () {
   return this.weightKg;
 };
-protoOf(JsSet).a1q = function () {
+protoOf(JsSet).c1q = function () {
   return this.reps;
 };
-protoOf(JsSet).b1q = function () {
+protoOf(JsSet).d1q = function () {
   return this.rpe;
 };
-protoOf(JsSet).c1q = function () {
+protoOf(JsSet).e1q = function () {
   return this.failed;
 };
-protoOf(JsSet).d1q = function () {
+protoOf(JsSet).f1q = function () {
   return this.missPoint;
 };
-protoOf(JsSet).e1q = function () {
+protoOf(JsSet).g1q = function () {
   return this.isTopSet;
 };
 protoOf(JsSet).ma = function () {
@@ -7058,22 +7241,22 @@ protoOf(JsSet).ma = function () {
 protoOf(JsSet).na = function () {
   return this.weightKg;
 };
-protoOf(JsSet).s1p = function () {
+protoOf(JsSet).u1p = function () {
   return this.reps;
 };
-protoOf(JsSet).t1p = function () {
+protoOf(JsSet).v1p = function () {
   return this.rpe;
 };
-protoOf(JsSet).u1p = function () {
+protoOf(JsSet).w1p = function () {
   return this.failed;
 };
-protoOf(JsSet).v1p = function () {
+protoOf(JsSet).x1p = function () {
   return this.missPoint;
 };
-protoOf(JsSet).w1p = function () {
+protoOf(JsSet).y1p = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).f1q = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
+protoOf(JsSet).h1q = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   return new JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, $super) {
@@ -7084,7 +7267,7 @@ protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoi
   failed = failed === VOID ? this.failed : failed;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   isTopSet = isTopSet === VOID ? this.isTopSet : isTopSet;
-  return $super === VOID ? this.f1q(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.f1q.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
+  return $super === VOID ? this.h1q(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.h1q.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).toString = function () {
   return 'JsSet(exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', failed=' + this.failed + ', missPoint=' + this.missPoint + ', isTopSet=' + this.isTopSet + ')';
@@ -7127,19 +7310,19 @@ function JsSession(id, date, bodyweightKg, readiness, sets) {
   this.readiness = readiness;
   this.sets = sets;
 }
-protoOf(JsSession).m1p = function () {
+protoOf(JsSession).o1p = function () {
   return this.id;
 };
-protoOf(JsSession).g1q = function () {
+protoOf(JsSession).i1q = function () {
   return this.date;
 };
-protoOf(JsSession).h1q = function () {
+protoOf(JsSession).j1q = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).i1q = function () {
+protoOf(JsSession).k1q = function () {
   return this.readiness;
 };
-protoOf(JsSession).j1q = function () {
+protoOf(JsSession).l1q = function () {
   return this.sets;
 };
 protoOf(JsSession).ma = function () {
@@ -7148,16 +7331,16 @@ protoOf(JsSession).ma = function () {
 protoOf(JsSession).na = function () {
   return this.date;
 };
-protoOf(JsSession).s1p = function () {
+protoOf(JsSession).u1p = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).t1p = function () {
+protoOf(JsSession).v1p = function () {
   return this.readiness;
 };
-protoOf(JsSession).u1p = function () {
+protoOf(JsSession).w1p = function () {
   return this.sets;
 };
-protoOf(JsSession).k1q = function (id, date, bodyweightKg, readiness, sets) {
+protoOf(JsSession).m1q = function (id, date, bodyweightKg, readiness, sets) {
   return new JsSession(id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $super) {
@@ -7166,7 +7349,7 @@ protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $su
   bodyweightKg = bodyweightKg === VOID ? this.bodyweightKg : bodyweightKg;
   readiness = readiness === VOID ? this.readiness : readiness;
   sets = sets === VOID ? this.sets : sets;
-  return $super === VOID ? this.k1q(id, date, bodyweightKg, readiness, sets) : $super.k1q.call(this, id, date, bodyweightKg, readiness, sets);
+  return $super === VOID ? this.m1q(id, date, bodyweightKg, readiness, sets) : $super.m1q.call(this, id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).toString = function () {
   return 'JsSession(id=' + this.id + ', date=' + this.date + ', bodyweightKg=' + this.bodyweightKg + ', readiness=' + this.readiness + ', sets=' + toString(this.sets) + ')';
@@ -7205,25 +7388,25 @@ function JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order) {
   this.targetRpe = targetRpe;
   this.order = order;
 }
-protoOf(JsPlanItem).m1p = function () {
+protoOf(JsPlanItem).o1p = function () {
   return this.id;
 };
-protoOf(JsPlanItem).l1q = function () {
+protoOf(JsPlanItem).n1q = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).y1p = function () {
+protoOf(JsPlanItem).a1q = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).j1q = function () {
+protoOf(JsPlanItem).l1q = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).a1q = function () {
+protoOf(JsPlanItem).c1q = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).m1q = function () {
+protoOf(JsPlanItem).o1q = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).n1q = function () {
+protoOf(JsPlanItem).p1q = function () {
   return this.order;
 };
 protoOf(JsPlanItem).ma = function () {
@@ -7232,22 +7415,22 @@ protoOf(JsPlanItem).ma = function () {
 protoOf(JsPlanItem).na = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).s1p = function () {
+protoOf(JsPlanItem).u1p = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).t1p = function () {
+protoOf(JsPlanItem).v1p = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).u1p = function () {
+protoOf(JsPlanItem).w1p = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).v1p = function () {
+protoOf(JsPlanItem).x1p = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).w1p = function () {
+protoOf(JsPlanItem).y1p = function () {
   return this.order;
 };
-protoOf(JsPlanItem).o1q = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
+protoOf(JsPlanItem).q1q = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
   return new JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, targetRpe, order, $super) {
@@ -7258,7 +7441,7 @@ protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, target
   reps = reps === VOID ? this.reps : reps;
   targetRpe = targetRpe === VOID ? this.targetRpe : targetRpe;
   order = order === VOID ? this.order : order;
-  return $super === VOID ? this.o1q(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.o1q.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
+  return $super === VOID ? this.q1q(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.q1q.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).toString = function () {
   return 'JsPlanItem(id=' + this.id + ', weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', sets=' + this.sets + ', reps=' + this.reps + ', targetRpe=' + this.targetRpe + ', order=' + this.order + ')';
@@ -7299,13 +7482,13 @@ function JsBaseline(exerciseId, e1rmKg, date) {
   this.e1rmKg = e1rmKg;
   this.date = date;
 }
-protoOf(JsBaseline).y1p = function () {
+protoOf(JsBaseline).a1q = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).p1q = function () {
+protoOf(JsBaseline).r1q = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).g1q = function () {
+protoOf(JsBaseline).i1q = function () {
   return this.date;
 };
 protoOf(JsBaseline).ma = function () {
@@ -7314,17 +7497,17 @@ protoOf(JsBaseline).ma = function () {
 protoOf(JsBaseline).na = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).s1p = function () {
+protoOf(JsBaseline).u1p = function () {
   return this.date;
 };
-protoOf(JsBaseline).q1q = function (exerciseId, e1rmKg, date) {
+protoOf(JsBaseline).s1q = function (exerciseId, e1rmKg, date) {
   return new JsBaseline(exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).copy = function (exerciseId, e1rmKg, date, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   e1rmKg = e1rmKg === VOID ? this.e1rmKg : e1rmKg;
   date = date === VOID ? this.date : date;
-  return $super === VOID ? this.q1q(exerciseId, e1rmKg, date) : $super.q1q.call(this, exerciseId, e1rmKg, date);
+  return $super === VOID ? this.s1q(exerciseId, e1rmKg, date) : $super.s1q.call(this, exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).toString = function () {
   return 'JsBaseline(exerciseId=' + this.exerciseId + ', e1rmKg=' + this.e1rmKg + ', date=' + this.date + ')';
@@ -7358,28 +7541,28 @@ function JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJs
   this.status = status;
   this.payloadJson = payloadJson;
 }
-protoOf(JsAdvice).m1p = function () {
+protoOf(JsAdvice).o1p = function () {
   return this.id;
 };
-protoOf(JsAdvice).r1q = function () {
+protoOf(JsAdvice).t1q = function () {
   return this.type;
 };
-protoOf(JsAdvice).s1q = function () {
+protoOf(JsAdvice).u1q = function () {
   return this.lift;
 };
-protoOf(JsAdvice).t1q = function () {
+protoOf(JsAdvice).v1q = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).u1q = function () {
+protoOf(JsAdvice).w1q = function () {
   return this.reason;
 };
-protoOf(JsAdvice).v1q = function () {
+protoOf(JsAdvice).x1q = function () {
   return this.severity;
 };
-protoOf(JsAdvice).w1q = function () {
+protoOf(JsAdvice).y1q = function () {
   return this.status;
 };
-protoOf(JsAdvice).x1q = function () {
+protoOf(JsAdvice).z1q = function () {
   return this.payloadJson;
 };
 protoOf(JsAdvice).ma = function () {
@@ -7388,25 +7571,25 @@ protoOf(JsAdvice).ma = function () {
 protoOf(JsAdvice).na = function () {
   return this.type;
 };
-protoOf(JsAdvice).s1p = function () {
+protoOf(JsAdvice).u1p = function () {
   return this.lift;
 };
-protoOf(JsAdvice).t1p = function () {
+protoOf(JsAdvice).v1p = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).u1p = function () {
+protoOf(JsAdvice).w1p = function () {
   return this.reason;
 };
-protoOf(JsAdvice).v1p = function () {
+protoOf(JsAdvice).x1p = function () {
   return this.severity;
 };
-protoOf(JsAdvice).w1p = function () {
+protoOf(JsAdvice).y1p = function () {
   return this.status;
 };
-protoOf(JsAdvice).y1q = function () {
+protoOf(JsAdvice).a1r = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).z1q = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
+protoOf(JsAdvice).b1r = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
   return new JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, status, payloadJson, $super) {
@@ -7418,7 +7601,7 @@ protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, 
   severity = severity === VOID ? this.severity : severity;
   status = status === VOID ? this.status : status;
   payloadJson = payloadJson === VOID ? this.payloadJson : payloadJson;
-  return $super === VOID ? this.z1q(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.z1q.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
+  return $super === VOID ? this.b1r(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.b1r.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).toString = function () {
   return 'JsAdvice(id=' + this.id + ', type=' + this.type + ', lift=' + this.lift + ', createdAt=' + this.createdAt + ', reason=' + this.reason + ', severity=' + this.severity + ', status=' + this.status + ', payloadJson=' + this.payloadJson + ')';
@@ -7462,13 +7645,13 @@ function JsHistory(sessions, exercises, baselines) {
   this.exercises = exercises;
   this.baselines = baselines;
 }
-protoOf(JsHistory).a1r = function () {
+protoOf(JsHistory).c1r = function () {
   return this.sessions;
 };
-protoOf(JsHistory).b1r = function () {
+protoOf(JsHistory).d1r = function () {
   return this.exercises;
 };
-protoOf(JsHistory).c1r = function () {
+protoOf(JsHistory).e1r = function () {
   return this.baselines;
 };
 protoOf(JsHistory).ma = function () {
@@ -7477,17 +7660,17 @@ protoOf(JsHistory).ma = function () {
 protoOf(JsHistory).na = function () {
   return this.exercises;
 };
-protoOf(JsHistory).s1p = function () {
+protoOf(JsHistory).u1p = function () {
   return this.baselines;
 };
-protoOf(JsHistory).d1r = function (sessions, exercises, baselines) {
+protoOf(JsHistory).f1r = function (sessions, exercises, baselines) {
   return new JsHistory(sessions, exercises, baselines);
 };
 protoOf(JsHistory).copy = function (sessions, exercises, baselines, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   exercises = exercises === VOID ? this.exercises : exercises;
   baselines = baselines === VOID ? this.baselines : baselines;
-  return $super === VOID ? this.d1r(sessions, exercises, baselines) : $super.d1r.call(this, sessions, exercises, baselines);
+  return $super === VOID ? this.f1r(sessions, exercises, baselines) : $super.f1r.call(this, sessions, exercises, baselines);
 };
 protoOf(JsHistory).toString = function () {
   return 'JsHistory(sessions=' + toString(this.sessions) + ', exercises=' + toString(this.exercises) + ', baselines=' + toString(this.baselines) + ')';
@@ -7515,10 +7698,10 @@ function JsCoachSettings(defaultRpe, changePlates) {
   this.defaultRpe = defaultRpe;
   this.changePlates = changePlates;
 }
-protoOf(JsCoachSettings).e1r = function () {
+protoOf(JsCoachSettings).g1r = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).f1r = function () {
+protoOf(JsCoachSettings).h1r = function () {
   return this.changePlates;
 };
 protoOf(JsCoachSettings).ma = function () {
@@ -7527,13 +7710,13 @@ protoOf(JsCoachSettings).ma = function () {
 protoOf(JsCoachSettings).na = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).g1r = function (defaultRpe, changePlates) {
+protoOf(JsCoachSettings).i1r = function (defaultRpe, changePlates) {
   return new JsCoachSettings(defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).copy = function (defaultRpe, changePlates, $super) {
   defaultRpe = defaultRpe === VOID ? this.defaultRpe : defaultRpe;
   changePlates = changePlates === VOID ? this.changePlates : changePlates;
-  return $super === VOID ? this.g1r(defaultRpe, changePlates) : $super.g1r.call(this, defaultRpe, changePlates);
+  return $super === VOID ? this.i1r(defaultRpe, changePlates) : $super.i1r.call(this, defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).toString = function () {
   return 'JsCoachSettings(defaultRpe=' + this.defaultRpe + ', changePlates=' + this.changePlates + ')';
@@ -7558,7 +7741,7 @@ function JsWeeklyPoint(weekStart, value) {
   this.weekStart = weekStart;
   this.value = value;
 }
-protoOf(JsWeeklyPoint).h1r = function () {
+protoOf(JsWeeklyPoint).j1r = function () {
   return this.weekStart;
 };
 protoOf(JsWeeklyPoint).t = function () {
@@ -7570,13 +7753,13 @@ protoOf(JsWeeklyPoint).ma = function () {
 protoOf(JsWeeklyPoint).na = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).i1r = function (weekStart, value) {
+protoOf(JsWeeklyPoint).k1r = function (weekStart, value) {
   return new JsWeeklyPoint(weekStart, value);
 };
 protoOf(JsWeeklyPoint).copy = function (weekStart, value, $super) {
   weekStart = weekStart === VOID ? this.weekStart : weekStart;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.i1r(weekStart, value) : $super.i1r.call(this, weekStart, value);
+  return $super === VOID ? this.k1r(weekStart, value) : $super.k1r.call(this, weekStart, value);
 };
 protoOf(JsWeeklyPoint).toString = function () {
   return 'JsWeeklyPoint(weekStart=' + this.weekStart + ', value=' + this.value + ')';
@@ -7604,19 +7787,19 @@ function JsPr(date, e1rmKg, weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsPr).g1q = function () {
+protoOf(JsPr).i1q = function () {
   return this.date;
 };
-protoOf(JsPr).p1q = function () {
+protoOf(JsPr).r1q = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).z1p = function () {
+protoOf(JsPr).b1q = function () {
   return this.weightKg;
 };
-protoOf(JsPr).a1q = function () {
+protoOf(JsPr).c1q = function () {
   return this.reps;
 };
-protoOf(JsPr).b1q = function () {
+protoOf(JsPr).d1q = function () {
   return this.rpe;
 };
 protoOf(JsPr).ma = function () {
@@ -7625,16 +7808,16 @@ protoOf(JsPr).ma = function () {
 protoOf(JsPr).na = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).s1p = function () {
+protoOf(JsPr).u1p = function () {
   return this.weightKg;
 };
-protoOf(JsPr).t1p = function () {
+protoOf(JsPr).v1p = function () {
   return this.reps;
 };
-protoOf(JsPr).u1p = function () {
+protoOf(JsPr).w1p = function () {
   return this.rpe;
 };
-protoOf(JsPr).j1r = function (date, e1rmKg, weightKg, reps, rpe) {
+protoOf(JsPr).l1r = function (date, e1rmKg, weightKg, reps, rpe) {
   return new JsPr(date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
@@ -7643,7 +7826,7 @@ protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.j1r(date, e1rmKg, weightKg, reps, rpe) : $super.j1r.call(this, date, e1rmKg, weightKg, reps, rpe);
+  return $super === VOID ? this.l1r(date, e1rmKg, weightKg, reps, rpe) : $super.l1r.call(this, date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).toString = function () {
   return 'JsPr(date=' + this.date + ', e1rmKg=' + this.e1rmKg + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -7680,7 +7863,7 @@ function JsAccessoryOption(name, heavy) {
 protoOf(JsAccessoryOption).nq = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).k1r = function () {
+protoOf(JsAccessoryOption).m1r = function () {
   return this.heavy;
 };
 protoOf(JsAccessoryOption).ma = function () {
@@ -7689,13 +7872,13 @@ protoOf(JsAccessoryOption).ma = function () {
 protoOf(JsAccessoryOption).na = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).l1r = function (name, heavy) {
+protoOf(JsAccessoryOption).n1r = function (name, heavy) {
   return new JsAccessoryOption(name, heavy);
 };
 protoOf(JsAccessoryOption).copy = function (name, heavy, $super) {
   name = name === VOID ? this.name : name;
   heavy = heavy === VOID ? this.heavy : heavy;
-  return $super === VOID ? this.l1r(name, heavy) : $super.l1r.call(this, name, heavy);
+  return $super === VOID ? this.n1r(name, heavy) : $super.n1r.call(this, name, heavy);
 };
 protoOf(JsAccessoryOption).toString = function () {
   return 'JsAccessoryOption(name=' + this.name + ', heavy=' + this.heavy + ')';
@@ -7722,16 +7905,16 @@ function JsRatioRange(numerator, denominator, low, high) {
   this.low = low;
   this.high = high;
 }
-protoOf(JsRatioRange).m1r = function () {
+protoOf(JsRatioRange).o1r = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).n1r = function () {
+protoOf(JsRatioRange).p1r = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).o1r = function () {
+protoOf(JsRatioRange).q1r = function () {
   return this.low;
 };
-protoOf(JsRatioRange).p1r = function () {
+protoOf(JsRatioRange).r1r = function () {
   return this.high;
 };
 protoOf(JsRatioRange).ma = function () {
@@ -7740,13 +7923,13 @@ protoOf(JsRatioRange).ma = function () {
 protoOf(JsRatioRange).na = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).s1p = function () {
+protoOf(JsRatioRange).u1p = function () {
   return this.low;
 };
-protoOf(JsRatioRange).t1p = function () {
+protoOf(JsRatioRange).v1p = function () {
   return this.high;
 };
-protoOf(JsRatioRange).q1r = function (numerator, denominator, low, high) {
+protoOf(JsRatioRange).s1r = function (numerator, denominator, low, high) {
   return new JsRatioRange(numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super) {
@@ -7754,7 +7937,7 @@ protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super
   denominator = denominator === VOID ? this.denominator : denominator;
   low = low === VOID ? this.low : low;
   high = high === VOID ? this.high : high;
-  return $super === VOID ? this.q1r(numerator, denominator, low, high) : $super.q1r.call(this, numerator, denominator, low, high);
+  return $super === VOID ? this.s1r(numerator, denominator, low, high) : $super.s1r.call(this, numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).toString = function () {
   return 'JsRatioRange(numerator=' + this.numerator + ', denominator=' + this.denominator + ', low=' + this.low + ', high=' + this.high + ')';
@@ -7787,16 +7970,16 @@ function JsPrescription(exerciseName, sets, repsLow, repsHigh) {
   this.repsLow = repsLow;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPrescription).r1r = function () {
+protoOf(JsPrescription).t1r = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).j1q = function () {
+protoOf(JsPrescription).l1q = function () {
   return this.sets;
 };
-protoOf(JsPrescription).s1r = function () {
+protoOf(JsPrescription).u1r = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).t1r = function () {
+protoOf(JsPrescription).v1r = function () {
   return this.repsHigh;
 };
 protoOf(JsPrescription).ma = function () {
@@ -7805,13 +7988,13 @@ protoOf(JsPrescription).ma = function () {
 protoOf(JsPrescription).na = function () {
   return this.sets;
 };
-protoOf(JsPrescription).s1p = function () {
+protoOf(JsPrescription).u1p = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).t1p = function () {
+protoOf(JsPrescription).v1p = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).u1r = function (exerciseName, sets, repsLow, repsHigh) {
+protoOf(JsPrescription).w1r = function (exerciseName, sets, repsLow, repsHigh) {
   return new JsPrescription(exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, $super) {
@@ -7819,7 +8002,7 @@ protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, 
   sets = sets === VOID ? this.sets : sets;
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.u1r(exerciseName, sets, repsLow, repsHigh) : $super.u1r.call(this, exerciseName, sets, repsLow, repsHigh);
+  return $super === VOID ? this.w1r(exerciseName, sets, repsLow, repsHigh) : $super.w1r.call(this, exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).toString = function () {
   return 'JsPrescription(exerciseName=' + this.exerciseName + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ')';
@@ -7879,34 +8062,34 @@ function JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, vol
 protoOf(JsAdvicePayload).ee = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).y1p = function () {
+protoOf(JsAdvicePayload).a1q = function () {
   return this.exerciseId;
 };
-protoOf(JsAdvicePayload).z1p = function () {
+protoOf(JsAdvicePayload).b1q = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).a1q = function () {
+protoOf(JsAdvicePayload).c1q = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).b1q = function () {
+protoOf(JsAdvicePayload).d1q = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).j1q = function () {
+protoOf(JsAdvicePayload).l1q = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).v1r = function () {
+protoOf(JsAdvicePayload).x1r = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).w1r = function () {
+protoOf(JsAdvicePayload).y1r = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).x1r = function () {
+protoOf(JsAdvicePayload).z1r = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).s1q = function () {
+protoOf(JsAdvicePayload).u1q = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).d1q = function () {
+protoOf(JsAdvicePayload).f1q = function () {
   return this.missPoint;
 };
 protoOf(JsAdvicePayload).ma = function () {
@@ -7915,34 +8098,34 @@ protoOf(JsAdvicePayload).ma = function () {
 protoOf(JsAdvicePayload).na = function () {
   return this.exerciseId;
 };
-protoOf(JsAdvicePayload).s1p = function () {
+protoOf(JsAdvicePayload).u1p = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).t1p = function () {
+protoOf(JsAdvicePayload).v1p = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).u1p = function () {
+protoOf(JsAdvicePayload).w1p = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).v1p = function () {
+protoOf(JsAdvicePayload).x1p = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).w1p = function () {
+protoOf(JsAdvicePayload).y1p = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).y1q = function () {
+protoOf(JsAdvicePayload).a1r = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).y1r = function () {
+protoOf(JsAdvicePayload).a1s = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).z1r = function () {
+protoOf(JsAdvicePayload).b1s = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).a1s = function () {
+protoOf(JsAdvicePayload).c1s = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).b1s = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) {
+protoOf(JsAdvicePayload).d1s = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) {
   return new JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
 };
 protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, $super) {
@@ -7957,7 +8140,7 @@ protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe,
   loadFactor = loadFactor === VOID ? this.loadFactor : loadFactor;
   lift = lift === VOID ? this.lift : lift;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
-  return $super === VOID ? this.b1s(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) : $super.b1s.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
+  return $super === VOID ? this.d1s(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) : $super.d1s.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
 };
 protoOf(JsAdvicePayload).toString = function () {
   return 'JsAdvicePayload(kind=' + this.kind + ', exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', sets=' + this.sets + ', items=' + toString(this.items) + ', volumeFactor=' + this.volumeFactor + ', loadFactor=' + this.loadFactor + ', lift=' + this.lift + ', missPoint=' + this.missPoint + ')';
@@ -8012,19 +8195,19 @@ function JsFormGuide(purpose, setup, steps, cues, mistakes) {
   this.cues = cues;
   this.mistakes = mistakes;
 }
-protoOf(JsFormGuide).c1s = function () {
+protoOf(JsFormGuide).e1s = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).d1s = function () {
+protoOf(JsFormGuide).f1s = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).e1s = function () {
+protoOf(JsFormGuide).g1s = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).f1s = function () {
+protoOf(JsFormGuide).h1s = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).g1s = function () {
+protoOf(JsFormGuide).i1s = function () {
   return this.mistakes;
 };
 protoOf(JsFormGuide).ma = function () {
@@ -8033,16 +8216,16 @@ protoOf(JsFormGuide).ma = function () {
 protoOf(JsFormGuide).na = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).s1p = function () {
+protoOf(JsFormGuide).u1p = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).t1p = function () {
+protoOf(JsFormGuide).v1p = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).u1p = function () {
+protoOf(JsFormGuide).w1p = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).h1s = function (purpose, setup, steps, cues, mistakes) {
+protoOf(JsFormGuide).j1s = function (purpose, setup, steps, cues, mistakes) {
   return new JsFormGuide(purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $super) {
@@ -8051,7 +8234,7 @@ protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $su
   steps = steps === VOID ? this.steps : steps;
   cues = cues === VOID ? this.cues : cues;
   mistakes = mistakes === VOID ? this.mistakes : mistakes;
-  return $super === VOID ? this.h1s(purpose, setup, steps, cues, mistakes) : $super.h1s.call(this, purpose, setup, steps, cues, mistakes);
+  return $super === VOID ? this.j1s(purpose, setup, steps, cues, mistakes) : $super.j1s.call(this, purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).toString = function () {
   return 'JsFormGuide(purpose=' + this.purpose + ', setup=' + toString(this.setup) + ', steps=' + toString(this.steps) + ', cues=' + toString(this.cues) + ', mistakes=' + toString(this.mistakes) + ')';
@@ -8095,28 +8278,28 @@ function JsLibraryExercise(name, aliases, area, equipment, muscles, kind, catego
 protoOf(JsLibraryExercise).nq = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).i1s = function () {
+protoOf(JsLibraryExercise).k1s = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).j1s = function () {
+protoOf(JsLibraryExercise).l1s = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).k1s = function () {
+protoOf(JsLibraryExercise).m1s = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).p1p = function () {
+protoOf(JsLibraryExercise).r1p = function () {
   return this.muscles;
 };
 protoOf(JsLibraryExercise).ee = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).n1p = function () {
+protoOf(JsLibraryExercise).p1p = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).o1p = function () {
+protoOf(JsLibraryExercise).q1p = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).l1s = function () {
+protoOf(JsLibraryExercise).n1s = function () {
   return this.guide;
 };
 protoOf(JsLibraryExercise).ma = function () {
@@ -8125,28 +8308,28 @@ protoOf(JsLibraryExercise).ma = function () {
 protoOf(JsLibraryExercise).na = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).s1p = function () {
+protoOf(JsLibraryExercise).u1p = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).t1p = function () {
+protoOf(JsLibraryExercise).v1p = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).u1p = function () {
+protoOf(JsLibraryExercise).w1p = function () {
   return this.muscles;
 };
-protoOf(JsLibraryExercise).v1p = function () {
+protoOf(JsLibraryExercise).x1p = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).w1p = function () {
+protoOf(JsLibraryExercise).y1p = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).y1q = function () {
+protoOf(JsLibraryExercise).a1r = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).y1r = function () {
+protoOf(JsLibraryExercise).a1s = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).m1s = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
+protoOf(JsLibraryExercise).o1s = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
   return new JsLibraryExercise(name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide, $super) {
@@ -8159,7 +8342,7 @@ protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, musc
   category = category === VOID ? this.category : category;
   parentLift = parentLift === VOID ? this.parentLift : parentLift;
   guide = guide === VOID ? this.guide : guide;
-  return $super === VOID ? this.m1s(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.m1s.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
+  return $super === VOID ? this.o1s(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.o1s.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).toString = function () {
   return 'JsLibraryExercise(name=' + this.name + ', aliases=' + toString(this.aliases) + ', area=' + this.area + ', equipment=' + toString(this.equipment) + ', muscles=' + toString(this.muscles) + ', kind=' + this.kind + ', category=' + this.category + ', parentLift=' + this.parentLift + ', guide=' + this.guide.toString() + ')';
@@ -8685,8 +8868,6 @@ Companion_instance_0 = new Companion_0();
 Companion_instance_2 = new Companion_2();
 Companion_instance_4 = new Companion_4();
 Companion_instance_5 = new Companion_5();
-ProgressMath_instance = new ProgressMath();
-SeedLibrary_instance = new SeedLibrary();
 HighReps_instance = new HighReps();
 InputValidator_instance = new InputValidator();
 GritDomain_instance = new GritDomain();

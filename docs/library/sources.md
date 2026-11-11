@@ -133,6 +133,14 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
 - [The back squat: A proposed assessment of functional deficits and technical factors that limit performance](https://pmc.ncbi.nlm.nih.gov/articles/PMC4262933/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 
+### Strict press
+
+- [Barbell Military Press](https://exrx.net/WeightExercises/DeltoidAnterior/BBMilitaryPress). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Standing Shoulder Press](https://www.acefitness.org/resources/everyone/exercise-library/71/standing-shoulder-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Upper extremity weightlifting injuries: Diagnosis and management](https://pmc.ncbi.nlm.nih.gov/articles/PMC5895929/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
 ### Sumo deadlift
 
 - [Barbell Sumo Deadlift](https://exrx.net/WeightExercises/ErectorSpinae/BBSumoDeadlift). ExRx.net, accessed 2026-11-11.
@@ -632,14 +640,6 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 - [Dumbbell One Arm Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBOneArmShoulderPress). ExRx.net, accessed 2026-11-11.
 - [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
-- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
-
-### Overhead press
-
-- [Barbell Military Press](https://exrx.net/WeightExercises/DeltoidAnterior/BBMilitaryPress). ExRx.net, accessed 2026-11-11.
-- [Exercise Library: Standing Shoulder Press](https://www.acefitness.org/resources/everyone/exercise-library/71/standing-shoulder-press/). American Council on Exercise (ACE), accessed 2026-11-11.
-- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
-- [Upper extremity weightlifting injuries: Diagnosis and management](https://pmc.ncbi.nlm.nih.gov/articles/PMC5895929/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Rear delt raise

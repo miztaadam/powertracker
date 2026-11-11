@@ -95,7 +95,7 @@ class ProgressMathTest {
         val twoLifts = history(monday to listOf(set(squat, 180.0), set(bench, 120.0)))
         val allThree = history(monday to listOf(set(squat, 180.0), set(bench, 120.0), set(deadlift, 240.0)))
 
-        assertNull(ProgressMath.total(HistoryStats(twoLifts), until))
-        assertEquals(540.0, ProgressMath.total(HistoryStats(allThree), until)!!, 1e-9)
+        assertNull(ProgressMath.total(HistoryStats(twoLifts), until, includeStrictPress = false))
+        assertEquals(540.0, ProgressMath.total(HistoryStats(allThree), until, includeStrictPress = false)!!, 1e-9)
     }
 }

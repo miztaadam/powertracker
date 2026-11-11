@@ -6,6 +6,7 @@ import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.model.liftLabel
 import com.powertracker.domain.time.mondayOfWeek
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -25,6 +26,7 @@ object StallRule {
         today: LocalDate,
         currentAccessoryNames: Set<String>,
     ): Advice? {
+        // Strict press uses the 3-week window, like squat and bench; only deadlift waits longer.
         val n = if (lift == MainLift.DEADLIFT) settings.deadliftStallWeeks else settings.stallWeeks
         val trend = stats.weeklyTrend(lift, today)
         if (trend.isEmpty()) return null
@@ -63,7 +65,7 @@ object StallRule {
             .take(MAX_ITEMS)
             .map { if (it.heavy) AccessoryPrescription(it.exerciseName, 3, 3, 5) else AccessoryPrescription(it.exerciseName, 3, 8, 10) }
 
-        val name = lift.displayName()
+        val name = liftLabel(lift)
         val head = "$name e1RM hasn't improved for $weeksSincePeak weeks."
         val reason = if (miss == null) {
             "$head Add one set, change the rep range (5s → 3s or 8s), or swap to a variation."
@@ -84,11 +86,5 @@ object StallRule {
             severity = weeksSincePeak,
             payload = AdvicePayload.Accessories(items),
         )
-    }
-
-    private fun MainLift.displayName() = when (this) {
-        MainLift.SQUAT -> "Squat"
-        MainLift.BENCH -> "Bench"
-        MainLift.DEADLIFT -> "Deadlift"
     }
 }

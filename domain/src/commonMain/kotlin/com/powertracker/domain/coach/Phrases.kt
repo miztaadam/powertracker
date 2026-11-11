@@ -11,5 +11,6 @@ internal fun missPhrase(lift: MainLift, miss: MissPoint): String = when (miss) {
         MainLift.SQUAT -> "out of the hole"
         MainLift.BENCH -> "off the chest"
         MainLift.DEADLIFT -> "off the floor"
+        MainLift.STRICT_PRESS -> "off the shoulders"
     }
 }

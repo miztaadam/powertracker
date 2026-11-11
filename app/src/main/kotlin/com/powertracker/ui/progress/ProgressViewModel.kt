@@ -89,6 +89,9 @@ class ProgressViewModel(
         private const val CHANGE_DAYS = 28L
         private const val VOLUME_WEEKS = 8
 
+        /** The lifts Progress shows. Strict press joins them behind its setting in a later change. */
+        private val SHOWN = listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT)
+
         private val RATIOS = listOf(
             Triple(MainLift.SQUAT, MainLift.DEADLIFT, WeakPointRule.SQUAT_TO_DEADLIFT),
             Triple(MainLift.BENCH, MainLift.SQUAT, WeakPointRule.BENCH_TO_SQUAT),
@@ -99,23 +102,23 @@ class ProgressViewModel(
         /** Everything the screen shows, from one snapshot of history. */
         internal fun build(history: TrainingHistory, range: ChartRange, today: LocalDate): ProgressState {
             val hasData = history.sessions.any { s ->
-                s.sets.any { set -> !set.failed && history.exercises[set.exerciseId]?.isMainLift == true }
+                s.sets.any { set -> !set.failed && history.exercises[set.exerciseId]?.let { it.isMainLift && it.mainLift in SHOWN } == true }
             }
             if (!hasData) return ProgressState(loading = false, hasData = false, range = range)
 
             val stats = HistoryStats(history)
             val before = today.minus(CHANGE_DAYS, DateTimeUnit.DAY)
-            val current = MainLift.entries.associateWith { stats.currentE1rm(it, today) }
-            val lifts = MainLift.entries.map { lift ->
+            val current = SHOWN.associateWith { stats.currentE1rm(it, today) }
+            val lifts = SHOWN.map { lift ->
                 val now = current[lift]?.toHalfKg()
                 val then = stats.currentE1rm(lift, before)?.toHalfKg()
                 LiftSummary(lift, now, if (now != null && then != null) now - then else null)
             }
-            val total = ProgressMath.total(stats, today)?.toHalfKg()
-            val totalBefore = ProgressMath.total(stats, before)?.toHalfKg()
+            val total = ProgressMath.total(stats, today, includeStrictPress = false)?.toHalfKg()
+            val totalBefore = ProgressMath.total(stats, before, includeStrictPress = false)?.toHalfKg()
 
             // One continuous run of weeks, so time is to scale even when a week was missed.
-            val trends = MainLift.entries.associateWith { lift -> stats.weeklyTrend(lift, today).associate { it.weekStart to it.e1rmKg } }
+            val trends = SHOWN.associateWith { lift -> stats.weeklyTrend(lift, today).associate { it.weekStart to it.e1rmKg } }
             val thisWeek = weekStart(today)
             val firstWeek = trends.values.flatMap { it.keys }.minOrNull() ?: thisWeek
             val rangeStart = range.weeks?.let { thisWeek.minus(it - 1, DateTimeUnit.WEEK) }
@@ -129,7 +132,7 @@ class ProgressViewModel(
                 .toList()
 
             val volumeWeeks = List(VOLUME_WEEKS) { thisWeek.minus(VOLUME_WEEKS - 1 - it, DateTimeUnit.WEEK) }
-            val volume = MainLift.entries.map { lift ->
+            val volume = SHOWN.map { lift ->
                 val byWeek = ProgressMath.weeklyVolume(history, lift).toMap()
                 VolumeUi(lift, volumeWeeks.map { (byWeek[it] ?: 0.0).toFloat() })
             }
@@ -154,7 +157,7 @@ class ProgressViewModel(
                     week to points.sum()
                 },
                 bodyweight = bodyweight,
-                prs = MainLift.entries
+                prs = SHOWN
                     .mapNotNull { lift -> ProgressMath.prs(history, lift).lastOrNull()?.let { PrUi(lift, it) } }
                     .sortedByDescending { it.pr.date },
                 volumeFrom = volumeWeeks.first(),

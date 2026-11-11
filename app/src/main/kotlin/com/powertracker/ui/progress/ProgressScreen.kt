@@ -123,6 +123,7 @@ internal val MainLift.label: String
         MainLift.SQUAT -> "Squat"
         MainLift.BENCH -> "Bench"
         MainLift.DEADLIFT -> "Deadlift"
+        MainLift.STRICT_PRESS -> "Strict press"
     }
 
 @Composable
@@ -132,6 +133,8 @@ private fun MainLift.chartColor(): Color {
         MainLift.SQUAT -> pt.squat
         MainLift.BENCH -> pt.bench
         MainLift.DEADLIFT -> pt.deadlift
+        // Not shown on Progress yet: ProgressViewModel lists squat, bench and deadlift only.
+        MainLift.STRICT_PRESS -> pt.muted
     }
 }
 
