@@ -1,23 +1,15 @@
 import type Dexie from 'dexie'
+import { encodeBackup, exportBackup } from '../backup/backup'
 
 export const SAFETY_COPY_KEY = 'safetyCopy'
 
 /**
- * Serialises every table to JSON. Temporary: W6 swaps this body for the real
- * backup export (`exportBackup`), and nothing else here needs to change.
+ * The safety copy is a full Android-compatible backup JSON, so recovery can restore it with
+ * `decodeBackup` + `restoreBackup`. Takes any Dexie: it also runs against a database still on its
+ * old schema, just before an upgrade.
  */
 export async function snapshotForSafety(db: Dexie): Promise<string> {
-  const tables: Record<string, unknown[]> = {}
-  await db.transaction('r', db.tables, async () => {
-    for (const table of db.tables) {
-      const rows = await table.toArray()
-      tables[table.name] =
-        table.name === 'meta'
-          ? rows.filter((r: { key: string }) => r.key !== SAFETY_COPY_KEY)
-          : rows
-    }
-  })
-  return JSON.stringify({ kind: 'grit-safety-copy', version: db.verno, tables })
+  return encodeBackup(await exportBackup(db, Date.now()))
 }
 
 /** Stores a snapshot in `meta` (its own transaction, so it is committed before any upgrade). */

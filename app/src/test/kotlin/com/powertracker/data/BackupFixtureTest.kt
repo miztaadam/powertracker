@@ -22,13 +22,15 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.doubleOrNull
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -115,7 +117,14 @@ class BackupFixtureTest {
 
     private fun tree(text: String): JsonElement = Json.parseToJsonElement(text)
     private fun withoutExportedAt(e: JsonElement): JsonElement =
-        JsonObject((e as JsonObject).filterKeys { it != "exportedAt" })
+        normalize(JsonObject((e as JsonObject).filterKeys { it != "exportedAt" }))
+
+    /** Numbers compare by value ("100" == "100.0"): JSON literals otherwise compare by their text. */
+    private fun normalize(e: JsonElement): JsonElement = when (e) {
+        is JsonObject -> JsonObject(e.mapValues { normalize(it.value) })
+        is JsonArray -> JsonArray(e.map(::normalize))
+        is JsonPrimitive -> if (e.isString) e else e.doubleOrNull?.let(::JsonPrimitive) ?: e
+    }
 
     private val pretty = Json { prettyPrint = true; encodeDefaults = true }
 
@@ -137,13 +146,20 @@ class BackupFixtureTest {
         assertTrue(Backup.decode(androidFixture.readText()) is BackupResult.Ok)
     }
 
-    @Ignore("enabled in W6 when web-v1.json exists")
     @Test
     fun webFixture_restoresOnAndroid() = runTest {
+        assertTrue("Missing ${webFixture.path}; generate it with UPDATE_FIXTURES=1 npm test in web/", webFixture.exists())
         val result = Backup.decode(webFixture.readText())
         assertTrue(result.toString(), result is BackupResult.Ok)
         service.restore((result as BackupResult.Ok).file)
-        assertTrue(db.exercises().all().isNotEmpty())
+
+        // Restored data matches the fixture semantically (exportedAt ignored), webRestAlert included.
+        val expected = withoutExportedAt(tree(webFixture.readText()))
+        val actual = withoutExportedAt(tree(pretty.encodeToString(BackupFile.serializer(), service.export(EXPORTED_AT))))
+        assertEquals(expected, actual)
+        val settingsJson = (actual as JsonObject).getValue("settings") as JsonObject
+        assertEquals("SILENT", (settingsJson.getValue("webRestAlert") as JsonPrimitive).content)
+        assertEquals("VIBRATE", (settingsJson.getValue("restAlert") as JsonPrimitive).content)
     }
 
     private companion object {

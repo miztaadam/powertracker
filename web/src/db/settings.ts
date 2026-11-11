@@ -1,4 +1,5 @@
 import type { GritDb } from './db'
+import type { KeyValueRow } from './schema'
 
 export type AppSettings = {
   changePlates: boolean
@@ -31,8 +32,8 @@ function sameKind(value: unknown, def: unknown): boolean {
   return typeof value === typeof def
 }
 
-export async function getSettings(db: GritDb): Promise<AppSettings> {
-  const rows = await db.settings.toArray()
+/** Builds settings from stored rows; unknown keys and wrong-typed values fall back to defaults. */
+export function settingsFromRows(rows: KeyValueRow[]): AppSettings {
   const merged: Record<string, unknown> = { ...DEFAULT_SETTINGS, trainingDays: [...DEFAULT_SETTINGS.trainingDays] }
   for (const r of rows) {
     if (r.key in DEFAULT_SETTINGS && sameKind(r.value, DEFAULT_SETTINGS[r.key as keyof AppSettings])) {
@@ -41,6 +42,10 @@ export async function getSettings(db: GritDb): Promise<AppSettings> {
   }
   if (!['SOUND', 'SILENT', 'OFF'].includes(merged.restAlert as string)) merged.restAlert = DEFAULT_SETTINGS.restAlert
   return merged as AppSettings
+}
+
+export async function getSettings(db: GritDb): Promise<AppSettings> {
+  return settingsFromRows(await db.settings.toArray())
 }
 
 /** Applies `fn` to the current settings and stores every value that changed. */

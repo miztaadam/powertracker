@@ -167,7 +167,7 @@ describe('upgrades', () => {
       }),
     )
     const copy = JSON.parse((await readSafetyCopy(db))!)
-    expect(copy.tables.sessions).toEqual([{ id: 1, date: '2026-11-02', bodyweightKg: 80, readiness: null }])
+    expect(copy.sessions).toEqual([{ id: 1, date: 20759, bodyweightKg: 80, readiness: null }])
     const row = (await db.sessions.toArray())[0] as unknown as Record<string, unknown>
     expect(row.bodyweight).toBe(80)
     expect(row.bodyweightKg).toBeUndefined()
@@ -207,7 +207,7 @@ describe('upgrades', () => {
       { id: 1, date: '2026-11-02', bodyweightKg: 80, readiness: null },
     ])
     const copy = JSON.parse((await readSafetyCopy(again))!)
-    expect(copy.tables.sessions).toEqual([{ id: 1, date: '2026-11-02', bodyweightKg: 80, readiness: null }])
+    expect(copy.sessions).toEqual([{ id: 1, date: 20759, bodyweightKg: 80, readiness: null }])
   })
 
   it('freshInstall_writesNoSafetyCopy', async () => {
