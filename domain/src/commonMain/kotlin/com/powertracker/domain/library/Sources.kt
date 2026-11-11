@@ -11,6 +11,7 @@ object Sources {
     private const val NSCA = "National Strength and Conditioning Association (NSCA)"
     private const val PMC = "PubMed Central (peer-reviewed)"
     private const val L1 = "2026-11-11"
+    private const val L4 = "2026-11-11"
 
     // Main lifts and their variations
     val IPF_RULES_2026 = SourceId("ipf-technical-rules-2026")
@@ -57,6 +58,57 @@ object Sources {
     val EXRX_PULL_UP = SourceId("exrx-pull-up")
     val ACE_PULL_UPS = SourceId("ace-pull-ups")
 
+    // Chest (L4)
+    val EXRX_BB_INCLINE_BENCH = SourceId("exrx-barbell-incline-bench-press")
+    val EXRX_BB_DECLINE_BENCH = SourceId("exrx-barbell-decline-bench-press")
+    val EXRX_DB_INCLINE_BENCH = SourceId("exrx-dumbbell-incline-bench-press")
+    val EXRX_DB_DECLINE_BENCH = SourceId("exrx-dumbbell-decline-bench-press")
+    val EXRX_DB_FLY = SourceId("exrx-dumbbell-fly")
+    val EXRX_DB_INCLINE_FLY = SourceId("exrx-dumbbell-incline-fly")
+    val EXRX_DB_DECLINE_FLY = SourceId("exrx-dumbbell-decline-fly")
+    val EXRX_LV_CHEST_PRESS = SourceId("exrx-lever-chest-press")
+    val EXRX_LV_INCLINE_CHEST_PRESS = SourceId("exrx-lever-incline-chest-press")
+    val EXRX_LV_DECLINE_CHEST_PRESS = SourceId("exrx-lever-decline-chest-press-plate-loaded")
+    val EXRX_LV_SEATED_FLY = SourceId("exrx-lever-isolateral-seated-fly")
+    val EXRX_LV_PEC_DECK = SourceId("exrx-lever-isolateral-pec-deck-fly")
+    val EXRX_SM_BENCH = SourceId("exrx-smith-bench-press")
+    val EXRX_SM_INCLINE_BENCH = SourceId("exrx-smith-incline-bench-press")
+    val EXRX_SM_DECLINE_BENCH = SourceId("exrx-smith-decline-bench-press")
+    val EXRX_GYM_ETIQUETTE = SourceId("exrx-gym-etiquette")
+    val EXRX_CB_STANDING_FLY = SourceId("exrx-cable-isolateral-standing-fly")
+    val EXRX_CB_STANDING_INCLINE_FLY = SourceId("exrx-cable-standing-incline-fly")
+    val EXRX_CB_STANDING_CHEST_PRESS = SourceId("exrx-cable-isolateral-standing-chest-press")
+    val EXRX_CB_LYING_FLY = SourceId("exrx-cable-isolateral-lying-fly")
+    val EXRX_CB_INCLINE_FLY = SourceId("exrx-cable-isolateral-incline-fly")
+    val EXRX_CB_SEATED_FLY = SourceId("exrx-cable-isolateral-cable-fly")
+    val EXRX_CHEST_DIP = SourceId("exrx-chest-dip")
+    val EXRX_WEIGHTED_CHEST_DIP = SourceId("exrx-weighted-chest-dip")
+    val EXRX_ASSISTED_CHEST_DIP = SourceId("exrx-machine-assisted-chest-dip")
+    val EXRX_ASSISTED_CHEST_DIP_KNEELING = SourceId("exrx-machine-assisted-chest-dip-kneeling")
+    val EXRX_ACTUAL_RESISTANCE = SourceId("exrx-calculating-actual-resistance")
+    val EXRX_PUSH_UP = SourceId("exrx-push-up")
+    val EXRX_INCLINE_PUSH_UP = SourceId("exrx-incline-push-up")
+    val EXRX_DECLINE_PUSH_UP = SourceId("exrx-decline-push-up")
+    val EXRX_KNEE_PUSH_UP = SourceId("exrx-push-up-on-knees")
+    val EXRX_ARCHER_PUSH_UP = SourceId("exrx-archer-push-up")
+    val EXRX_CLAP_PUSH_UP = SourceId("exrx-clap-push-up")
+    val EXRX_WEIGHTED_PUSH_UP = SourceId("exrx-weighted-push-up")
+    val EXRX_WEIGHTED_PUSH_UP_HANDLES = SourceId("exrx-weighted-push-up-on-handles")
+    val ACE_INCLINE_CHEST_PRESS = SourceId("ace-incline-chest-press")
+    val ACE_LYING_CHEST_FLY = SourceId("ace-lying-chest-fly")
+    val ACE_SEATED_CHEST_PRESS = SourceId("ace-seated-chest-press")
+    val ACE_SEATED_CABLE_PRESS = SourceId("ace-seated-cable-press")
+    val ACE_STANDING_CHEST_FLY = SourceId("ace-standing-chest-fly")
+    val ACE_STANDING_INCLINE_CABLE_FLYES = SourceId("ace-standing-incline-cable-flyes")
+    val ACE_PUSH_UP = SourceId("ace-push-up")
+    val ACE_BENT_KNEE_PUSH_UP = SourceId("ace-bent-knee-push-up")
+    val ACE_BRACE_OR_BREATHE = SourceId("ace-spinal-stability-brace-or-breathe")
+    val NSCA_STANDARDS_SUMMARY = SourceId("nsca-standards-and-guidelines-summary")
+
+    val ACE_SEATED_CLOSE_GRIP_CHEST_PRESS = SourceId("ace-seated-close-grip-chest-press")
+    val EXRX_BB_FLOOR_PRESS = SourceId("exrx-barbell-floor-press")
+    val PMC_GRIP_BENCH_VS_SEATED_PRESS = SourceId("pmc-bench-seated-chest-press-grips")
+    val PMC_GRIP_WIDTH_NOVICE_TRAINED = SourceId("pmc-bench-grip-width-novice-trained")
     val all: Map<SourceId, Source> = mapOf(
         IPF_RULES_2026 to Source(
             "IPF Technical Rulebook 2026", IPF,
@@ -164,6 +216,202 @@ object Sources {
         EXRX_PULL_UP to Source("Pull-up", EXRX, "https://exrx.net/WeightExercises/LatissimusDorsi/BWPullup", L1),
         ACE_PULL_UPS to Source(
             "Exercise Library: Pull-ups", ACE, "https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/", L1,
+        ),
+        EXRX_BB_INCLINE_BENCH to Source(
+            "Barbell Incline Bench Press", EXRX,
+            "https://exrx.net/WeightExercises/PectoralClavicular/BBInclineBenchPress", L4,
+        ),
+        EXRX_BB_DECLINE_BENCH to Source(
+            "Barbell Decline Bench Press", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/BBDeclineBenchPress", L4,
+        ),
+        EXRX_DB_INCLINE_BENCH to Source(
+            "Dumbbell Incline Bench Press", EXRX,
+            "https://exrx.net/WeightExercises/PectoralClavicular/DBInclineBenchPress", L4,
+        ),
+        EXRX_DB_DECLINE_BENCH to Source(
+            "Dumbbell Decline Bench Press", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/DBDeclineBenchPress", L4,
+        ),
+        EXRX_DB_FLY to Source(
+            "Dumbbell Fly", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/DBFly", L4,
+        ),
+        EXRX_DB_INCLINE_FLY to Source(
+            "Dumbbell Incline Fly", EXRX,
+            "https://exrx.net/WeightExercises/PectoralClavicular/DBInclineFly", L4,
+        ),
+        EXRX_DB_DECLINE_FLY to Source(
+            "Dumbbell Decline Fly", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/DBDeclineFly", L4,
+        ),
+        EXRX_LV_CHEST_PRESS to Source(
+            "Lever Chest Press", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/LVChestPress", L4,
+        ),
+        EXRX_LV_INCLINE_CHEST_PRESS to Source(
+            "Lever Incline Chest Press", EXRX,
+            "https://exrx.net/WeightExercises/PectoralClavicular/LVInclineChestPress", L4,
+        ),
+        EXRX_LV_DECLINE_CHEST_PRESS to Source(
+            "Lever Decline Chest Press (plate loaded)", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/LVDeclineChestPressPL", L4,
+        ),
+        EXRX_LV_SEATED_FLY to Source(
+            "Lever Isolateral Seated Fly", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/LVSeatedFly", L4,
+        ),
+        EXRX_LV_PEC_DECK to Source(
+            "Lever Isolateral Pec Deck Fly", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/LVPecDeckFly", L4,
+        ),
+        EXRX_SM_BENCH to Source(
+            "Smith Bench Press", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/SMBenchPress", L4,
+        ),
+        EXRX_SM_INCLINE_BENCH to Source(
+            "Smith Incline Bench Press", EXRX,
+            "https://exrx.net/WeightExercises/PectoralClavicular/SMInclineBenchPress", L4,
+        ),
+        EXRX_SM_DECLINE_BENCH to Source(
+            "Smith Decline Bench Press", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/SMDeclineBenchPress", L4,
+        ),
+        EXRX_GYM_ETIQUETTE to Source(
+            "Gym Etiquette", EXRX,
+            "https://exrx.net/ExInfo/Etiquette", L4,
+        ),
+        EXRX_CB_STANDING_FLY to Source(
+            "Cable Isolateral Standing Fly", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/CBStandingFly", L4,
+        ),
+        EXRX_CB_STANDING_INCLINE_FLY to Source(
+            "Cable Standing Incline Fly", EXRX,
+            "https://exrx.net/WeightExercises/PectoralClavicular/CBStandingInclineFly", L4,
+        ),
+        EXRX_CB_STANDING_CHEST_PRESS to Source(
+            "Cable Isolateral Standing Chest Press", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/CBStandingChestPress", L4,
+        ),
+        EXRX_CB_LYING_FLY to Source(
+            "Cable Isolateral Lying Fly", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/CBLyingFly", L4,
+        ),
+        EXRX_CB_INCLINE_FLY to Source(
+            "Cable Isolateral Incline Fly", EXRX,
+            "https://exrx.net/WeightExercises/PectoralClavicular/CBInclineFly", L4,
+        ),
+        EXRX_CB_SEATED_FLY to Source(
+            "Cable Isolateral Cable Fly", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/CBSeatedFly", L4,
+        ),
+        EXRX_CHEST_DIP to Source(
+            "Chest Dip", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/BWChestDip", L4,
+        ),
+        EXRX_WEIGHTED_CHEST_DIP to Source(
+            "Weighted Chest Dip", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/WtChestDip", L4,
+        ),
+        EXRX_ASSISTED_CHEST_DIP to Source(
+            "Machine-assisted Chest Dip", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/AsChestDip", L4,
+        ),
+        EXRX_ASSISTED_CHEST_DIP_KNEELING to Source(
+            "Machine-assisted Chest Dip (kneeling)", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/AsChestDipKneeling", L4,
+        ),
+        EXRX_ACTUAL_RESISTANCE to Source(
+            "Calculating Actual Resistance", EXRX,
+            "https://exrx.net/WeightTraining/Bodyweight", L4,
+        ),
+        EXRX_PUSH_UP to Source(
+            "Push-up", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/BWPushup", L4,
+        ),
+        EXRX_INCLINE_PUSH_UP to Source(
+            "Incline Push-up", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/BWInclinePushup", L4,
+        ),
+        EXRX_DECLINE_PUSH_UP to Source(
+            "Decline Push-up", EXRX,
+            "https://exrx.net/WeightExercises/PectoralClavicular/BWDeclinePushup", L4,
+        ),
+        EXRX_KNEE_PUSH_UP to Source(
+            "Push-up (on knees)", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/BWPushupKnee", L4,
+        ),
+        EXRX_ARCHER_PUSH_UP to Source(
+            "Archer Push-up", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/BWArcherPushup", L4,
+        ),
+        EXRX_CLAP_PUSH_UP to Source(
+            "Clap Push-up", EXRX,
+            "https://exrx.net/Plyometrics/ClapPushUp", L4,
+        ),
+        EXRX_WEIGHTED_PUSH_UP to Source(
+            "Weighted Push-up", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/WtPushup", L4,
+        ),
+        EXRX_WEIGHTED_PUSH_UP_HANDLES to Source(
+            "Weighted Push-up (on handles)", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/WtPushupHandles", L4,
+        ),
+        ACE_INCLINE_CHEST_PRESS to Source(
+            "Exercise Library: Incline Chest Press", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/25/incline-chest-press/", L4,
+        ),
+        ACE_LYING_CHEST_FLY to Source(
+            "Exercise Library: Lying Chest Fly", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/", L4,
+        ),
+        ACE_SEATED_CHEST_PRESS to Source(
+            "Seated Chest Press Exercise Guide", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/188/seated-chest-press/", L4,
+        ),
+        ACE_SEATED_CABLE_PRESS to Source(
+            "Exercise Library: Seated Cable Press", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/165/seated-cable-press/", L4,
+        ),
+        ACE_STANDING_CHEST_FLY to Source(
+            "Exercise Library: Standing Chest Fly", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/160/standing-chest-fly/", L4,
+        ),
+        ACE_STANDING_INCLINE_CABLE_FLYES to Source(
+            "Exercise Library: Standing Incline Cable Flyes", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/163/standing-incline-cable-flyes/", L4,
+        ),
+        ACE_PUSH_UP to Source(
+            "Exercise Library: Push-ups", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/", L4,
+        ),
+        ACE_BENT_KNEE_PUSH_UP to Source(
+            "Exercise Library: Bent-knee Push-up", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/13/bent-knee-push-up/", L4,
+        ),
+        ACE_BRACE_OR_BREATHE to Source(
+            "Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe", ACE,
+            "https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/", L4,
+        ),
+        NSCA_STANDARDS_SUMMARY to Source(
+            "Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)", NSCA,
+            "https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf", L4,
+        ),
+        ACE_SEATED_CLOSE_GRIP_CHEST_PRESS to Source(
+            "Exercise Library: Seated Close-Grip Chest Press", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/189/seated-close-grip-chest-press/", L4,
+        ),
+        EXRX_BB_FLOOR_PRESS to Source(
+            "Barbell Floor Press", EXRX,
+            "https://exrx.net/WeightExercises/PectoralSternal/BBFloorPress", L4,
+        ),
+        PMC_GRIP_BENCH_VS_SEATED_PRESS to Source(
+            "Comparison of Muscle Activity between the Horizontal Bench Press and the Seated Chest Press Exercises Using Several Grips", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC10203828/", L4,
+        ),
+        PMC_GRIP_WIDTH_NOVICE_TRAINED to Source(
+            "The Effect of Grip Width on Muscle Strength and Electromyographic Activity in Bench Press among Novice- and Resistance-Trained Men", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC8296276/", L4,
         ),
     )
 }

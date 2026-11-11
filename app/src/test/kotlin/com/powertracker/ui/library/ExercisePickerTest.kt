@@ -20,6 +20,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
@@ -94,10 +96,31 @@ class ExercisePickerTest {
         condition()
     }
 
-    private fun shows(tag: String) = compose.onAllNodes(hasTestTag(tag)).fetchSemanticsNodes().isNotEmpty()
+    /**
+     * Whether the list holds a row tagged [tag]. The list is lazy and longer than the screen, so this scrolls the row
+     * into view first; the checks don't depend on how many entries the catalogue has.
+     */
+    private fun shows(tag: String): Boolean {
+        scrollToRow(tag)
+        return compose.onAllNodes(hasTestTag(tag)).fetchSemanticsNodes().isNotEmpty()
+    }
+
+    /** Scrolls the lazy list until the row tagged [tag] is on screen; does nothing when the list has no such row. */
+    private fun scrollToRow(tag: String) {
+        if (compose.onAllNodes(hasTestTag("exercise-list")).fetchSemanticsNodes().isEmpty()) return
+        runCatching { compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag(tag)) }
+        compose.waitForIdle()
+    }
+
+    /** Scrolls the list back to the top, where the search box and the chips are. */
+    private fun scrollToTop() {
+        compose.onNodeWithTag("exercise-list").performScrollToIndex(0)
+        compose.waitForIdle()
+    }
 
     /** The chip rows scroll sideways: bring the chip on screen, then tap it. */
     private fun tapChip(tag: String) {
+        scrollToTop()
         compose.onNodeWithTag(tag).performScrollTo().performClick()
         compose.waitForIdle()
     }
@@ -153,12 +176,14 @@ class ExercisePickerTest {
 
         // Every row on screen is one the shared search returns, in its order.
         search("squat")
+        scrollToTop()
         val expected = Library.search("squat").map { it.name }
         assertTrue(expected.size > 1)
         val tops = expected.map { compose.onNodeWithTag("exercise-$it").getUnclippedBoundsInRoot().top }
         assertEquals(tops.sortedBy { it.value }, tops)
         assertFalse(shows("exercise-Bench"))
 
+        scrollToTop()
         compose.onNodeWithContentDescription("Clear search").performClick()
         compose.waitForIdle()
         assertTrue(shows("exercise-Bench"))
@@ -232,7 +257,8 @@ class ExercisePickerTest {
     fun createYourOwn_isOfferedBelowTheList() {
         showPicker()
 
-        compose.onNodeWithText("Create your own").performScrollTo().performClick()
+        compose.onNodeWithTag("exercise-list").performScrollToNode(hasText("Create your own"))
+        compose.onNodeWithText("Create your own").performClick()
         compose.onNodeWithText("Name").performTextReplacement("  Sled push ")
         compose.onNodeWithText("Create").performClick()
         compose.waitForIdle()
@@ -244,6 +270,7 @@ class ExercisePickerTest {
     fun pickerInfo_opensGuideWithoutPicking() {
         // On its own: the info button reports no pick.
         showPicker()
+        scrollToRow("exercise-Squat")
         compose.checkInfoButtonOpensGuide("Squat")
         assertTrue("reading the guide picked the exercise", picked.isEmpty())
         compose.onNodeWithTag("exercise-Squat").performClick()
@@ -257,6 +284,7 @@ class ExercisePickerTest {
         val before = runBlocking { db.exercises().all() }
         showPlanPicker()
 
+        scrollToRow("exercise-Curl")
         compose.checkInfoButtonOpensGuide("Curl")
 
         assertTrue("the picker stays open", shows("exercise-search"))
@@ -264,6 +292,7 @@ class ExercisePickerTest {
         assertEquals(before, runBlocking { db.exercises().all() })
 
         // Tapping the row itself is what adds it.
+        scrollToRow("exercise-Curl")
         compose.onNodeWithTag("exercise-Curl").performClick()
         waitFor { plan().size == 1 }
         assertFalse(shows("exercise-search"))
@@ -291,6 +320,7 @@ class ExercisePickerTest {
         }
 
         showPlanPicker()
+        scrollToRow("exercise-Curl")
         assertEquals(1, compose.onAllNodes(hasTestTag("exercise-Curl")).fetchSemanticsNodes().size)
         compose.onNodeWithTag("exercise-Curl").performClick()
         waitFor { plan().size == 1 }
@@ -322,10 +352,12 @@ class ExercisePickerTest {
         val yours = compose.onNodeWithText("YOUR EXERCISES").getUnclippedBoundsInRoot().top
         val all = compose.onNodeWithText("ALL EXERCISES").getUnclippedBoundsInRoot().top
         assertTrue(yours < top("exercise-Bench") && top("exercise-Bench") < top("exercise-Sled push") && top("exercise-Sled push") < all)
-        assertTrue(all < top("exercise-Squat"))
+        val firstCatalogueRow = list.all.first().name
+        assertTrue(all < top("exercise-$firstCatalogueRow"))
         assertEquals(1, compose.onAllNodes(hasTestTag("exercise-Bench")).fetchSemanticsNodes().size)
         assertFalse(shows("exercise-Old lift"))
 
+        scrollToTop()
         search("s")
         compose.onNodeWithText("YOUR EXERCISES").assertDoesNotExist()
         compose.onNodeWithText("ALL EXERCISES").assertDoesNotExist()
@@ -370,6 +402,7 @@ class ExercisePickerTest {
         // Rows, search and the header stay inside the screen.
         val names = Library.all().map { it.name } + "Sled push with a long name to wrap"
         for (name in names) {
+            scrollToRow("exercise-$name")
             val row = compose.onNodeWithTag("exercise-$name")
             val bounds = row.getUnclippedBoundsInRoot()
             assertTrue("$name row overflows", bounds.left >= 0.dp && bounds.right <= width)
@@ -379,6 +412,7 @@ class ExercisePickerTest {
             val b = info.getUnclippedBoundsInRoot()
             assertTrue("$name info button overflows", b.right <= width && b.top >= bounds.top && b.bottom <= bounds.bottom)
         }
+        scrollToTop()
         val search = compose.onNodeWithTag("exercise-search")
         search.assertHeightIsAtLeast(48.dp)
         assertTrue(search.getUnclippedBoundsInRoot().right <= width)
@@ -392,7 +426,9 @@ class ExercisePickerTest {
             val b = chip.getUnclippedBoundsInRoot()
             assertTrue("$tag is cut off", b.left >= 0.dp && b.right <= width)
         }
+        compose.onNodeWithTag("exercise-list").performScrollToNode(hasText("Create your own"))
         compose.onNodeWithText("Create your own").assertHeightIsAtLeast(48.dp)
+        scrollToRow("exercise-Squat")
         assertEquals(0, compose.onAllNodesWithContentDescription("Form guide for Squat").fetchSemanticsNodes().size - 1)
     }
 }

@@ -186,12 +186,38 @@ class LibraryTest {
         assertTrue(anyOf.containsAll(listOf("Safety-bar squat", "Pull-up")), "$anyOf")
         assertTrue("Squat" !in anyOf)
 
-        assertEquals(listOf("DB press"), names(Library.search("", setOf(BodyArea.CHEST), setOf(Equipment.DUMBBELL))))
+        val chestDumbbell = Library.search("", setOf(BodyArea.CHEST), setOf(Equipment.DUMBBELL))
+        assertTrue("DB press" in names(chestDumbbell))
+        assertTrue(chestDumbbell.all { it.area == BodyArea.CHEST && Equipment.DUMBBELL in it.equipment })
+        assertEquals(alphabetical(chestDumbbell), chestDumbbell)
         assertEquals(listOf("Bulgarian split squat"), names(Library.search("squat", areas = setOf(BodyArea.QUADS))))
         assertEquals(
             listOf("Hip thrust", "RDL"),
             names(Library.search("", setOf(BodyArea.HAMSTRINGS_GLUTES, BodyArea.CALVES), setOf(Equipment.BARBELL))),
         )
+    }
+
+    @Test
+    fun chest_findsTheNamesPeopleType() {
+        val expected = mapOf(
+            "DB bench" to "DB press",
+            "incline DB" to "Incline DB press",
+            "Incline bench" to "Incline bench press",
+            "pec deck" to "Pec deck",
+            "cable crossover" to "Cable crossover",
+            "Dumbbell fly" to "DB fly",
+            "parallel bar dip" to "Chest dip",
+            "pushup" to "Push-up",
+            "Smith machine bench press" to "Smith bench press",
+        )
+        for ((typed, name) in expected) assertEquals(name, Library.find(typed)?.name, typed)
+        assertEquals("Pec deck", Library.search("pec deck").first().name)
+        val chest = all.filter { it.area == BodyArea.CHEST }
+        assertTrue(chest.size >= 30, "${chest.size} chest entries")
+        for (e in chest) {
+            assertEquals(Category.ACCESSORY, e.category, e.name)
+            assertNull(e.parentLift, e.name)
+        }
     }
 
     @Test

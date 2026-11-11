@@ -3,6 +3,8 @@ package com.powertracker.domain.web
 import com.powertracker.domain.ExpectedAdvice
 import com.powertracker.domain.GoldenScenario
 import com.powertracker.domain.coach.Coach
+import com.powertracker.domain.library.BodyArea
+import com.powertracker.domain.library.Equipment
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
@@ -280,7 +282,9 @@ class GritDomainTest {
 
     @Test
     fun searchLibrary_takesEnumNamesAndRejectsUnknownOnes() {
-        assertContentEquals(arrayOf("DB press"), GritDomain.searchLibrary("", arrayOf("CHEST"), arrayOf("DUMBBELL")).map { it.name }.toTypedArray())
+        val chestDumbbell = GritDomain.searchLibrary("", arrayOf("CHEST"), arrayOf("DUMBBELL")).map { it.name }
+        assertEquals(Library.search("", setOf(BodyArea.CHEST), setOf(Equipment.DUMBBELL)).map { it.name }, chestDumbbell)
+        assertTrue("DB press" in chestDumbbell)
         assertEquals("RDL", GritDomain.searchLibrary("romanian", emptyArray(), emptyArray()).first().name)
         assertEquals(Library.all().size, GritDomain.searchLibrary("", emptyArray(), emptyArray()).size)
         assertFailsWith<IllegalArgumentException> { GritDomain.searchLibrary("", arrayOf("LEGS"), emptyArray()) }

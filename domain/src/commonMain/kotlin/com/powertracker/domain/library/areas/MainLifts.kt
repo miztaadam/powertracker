@@ -17,14 +17,14 @@ private const val BAR_ON_BACK = "Step under the bar and rest it across your uppe
 private const val SQUAT_STANCE = "Stand with your feet a little wider than your shoulders."
 private const val OWN_STANCE = "Set your feet in your normal squat stance."
 private const val BRACE = "Take a big breath into your belly and brace your trunk before each rep."
-private const val BENCH_SAFETY = "Set the safety arms just below the height of your chest, or use a spotter."
+internal const val BENCH_SAFETY = "Set the safety arms just below the height of your chest, or use a spotter."
 private const val BENCH_LIE = "Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor."
 private const val BENCH_GRIP = "Grip the bar a little wider than your shoulders."
 private const val BENCH_BACK = "Keep a slight arch in your back."
-private const val BENCH_BRACE = "Breathe in and brace before you lift the bar out."
+internal const val BENCH_BRACE = "Breathe in and brace before you lift the bar out."
 private const val UNRACK = "Lift the bar out and hold it over your shoulders with straight arms."
 private const val LOCKOUT = "Press the bar up until your elbows lock."
-private const val RACK_IT = "Put the bar back in the rack after the last rep."
+internal const val RACK_IT = "Put the bar back in the rack after the last rep."
 private const val PULL_STANCE = "Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it."
 private const val PULL_GRIP = "Bend down and grip the bar shoulder-width or a little wider. Use both palms down, or one up and one down."
 private const val PULL_CHEST = "Pull your shoulders down and back, and lift your chest."
@@ -384,6 +384,57 @@ internal val mainLifts: List<LibraryExercise> = listOf(
             mistakes = listOf("Bouncing the bar off the board.", "Letting the board slip.", "Relaxing on the board."),
         ),
         listOf(Sources.EXRX_BOARD_PRESS, Sources.PMC_STICKING_POINT_REVIEW, Sources.EXRX_BB_BENCH_POWER),
+    ),
+
+    variation(
+        "Barbell floor press", listOf("Floor press"), MainLift.BENCH, listOf("Pecs", "Triceps"),
+        FormGuide(
+            purpose = "A barbell press lying on the floor inside a power rack. Your upper arms touch the floor at the bottom, which is said to take away the stretch and rebound of a normal bench.",
+            setup = listOf(
+                "Lie on the floor inside a power rack, under the bar, with your knees bent.",
+                "Set the safety pins or arms so they catch the bar if you can't press it, or use a spotter.",
+                "Grip the bar overhand, a little wider than your shoulders.",
+                BENCH_BRACE,
+            ),
+            steps = listOf(
+                "Lift the bar out of the rack and hold it over your chest with straight arms.",
+                "Lower the bar until your upper arms touch the floor.",
+                "Pause there for a moment.",
+                "Press the bar up until your arms are straight.",
+                RACK_IT,
+            ),
+            cues = listOf("Upper arms touch, then pause.", "Press from a still start."),
+            mistakes = listOf("Bouncing your arms off the floor.", "Pressing without safety pins, safety arms or a spotter."),
+        ),
+        listOf(Sources.EXRX_BB_FLOOR_PRESS, Sources.NSCA_STANDARDS_SUMMARY, Sources.ACE_BRACE_OR_BREATHE),
+    ),
+    variation(
+        "Wide-grip bench", listOf("Wide-grip bench press"), MainLift.BENCH, listOf("Pecs", "Front delts"),
+        FormGuide(
+            purpose = "A bench press with a wider grip than your normal one. It shortens the range of motion and can put more of the work on your chest.",
+            setup = listOf(
+                BENCH_SAFETY,
+                BENCH_LIE,
+                "Grip the bar wider than your normal bench grip, but no wider than you can control.",
+                BENCH_BACK,
+                BENCH_BRACE,
+            ),
+            steps = listOf(
+                UNRACK,
+                "Lower the bar to your chest.",
+                LOCKOUT,
+                RACK_IT,
+            ),
+            cues = listOf("Feet stay planted.", "Head, shoulders and buttocks stay on the bench."),
+            mistakes = listOf(
+                "Gripping so wide that the range of motion gets very short.",
+                "Going very wide. Some researchers link very wide grips with a higher risk of shoulder injury. Don't go wider than you can control.",
+            ),
+        ),
+        listOf(
+            Sources.EXRX_BB_BENCH, Sources.EXRX_BB_BENCH_POWER, Sources.PMC_GRIP_WIDTH_NOVICE_TRAINED,
+            Sources.PMC_GRIP_BENCH_VS_SEATED_PRESS, Sources.NSCA_STANDARDS_SUMMARY, Sources.ACE_BRACE_OR_BREATHE,
+        ),
     ),
 
     // ---- Deadlift variations ----
