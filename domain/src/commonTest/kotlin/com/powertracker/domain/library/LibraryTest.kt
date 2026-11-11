@@ -194,7 +194,7 @@ class LibraryTest {
         assertTrue("Bulgarian split squat" in names(quadSquats) && "Goblet squat" in names(quadSquats), "${names(quadSquats)}")
         assertTrue(quadSquats.all { it.area == BodyArea.QUADS })
         assertEquals(
-            listOf("Hip thrust", "RDL"),
+            listOf("Barbell glute bridge", "Good morning", "Hip thrust", "RDL", "Stiff-leg deadlift"),
             names(Library.search("", setOf(BodyArea.HAMSTRINGS_GLUTES, BodyArea.CALVES), setOf(Equipment.BARBELL))),
         )
     }
@@ -322,9 +322,9 @@ class LibraryTest {
             "skull crusher" to "Skull crusher",
             "French press" to "Skull crusher",
             "dumbbell overhead triceps extension" to "DB overhead triceps extension",
-            "kickback" to "Triceps kickback",
             "dips" to "Triceps dip",
             "weighted dip" to "Triceps dip",
+            "kickback" to "Triceps kickback",
             "diamond push-up" to "Triangle push-up",
             "wrist curl" to "Wrist curl",
         )
@@ -415,6 +415,74 @@ class LibraryTest {
         // Left out: no allowed source gives a safe technique for the sissy squat (ExRx lists it among the moves
         // with the most knee torque), the cossack squat or the backward sled drag (forum posts only).
         for (missing in listOf("sissy squat", "cossack squat", "sled drag")) assertNull(Library.find(missing), missing)
+    }
+
+    @Test
+    fun hamstringsGlutes_findTheNamesPeopleType() {
+        val expected = mapOf(
+            "SLDL" to "Stiff-leg deadlift",
+            "stiff-leg" to "Stiff-leg deadlift",
+            "dumbbell RDL" to "DB RDL",
+            "single leg RDL" to "Single-leg RDL",
+            "GHR" to "Glute-ham raise",
+            "Nordic" to "Nordic curl",
+            "nordic hamstring curl" to "Nordic curl",
+            "KB swing" to "Kettlebell swing",
+            "glute bridge" to "Glute bridge",
+            "hip abduction" to "Machine hip abduction",
+            "hip adduction" to "Machine hip adduction",
+            "donkey kick" to "Quadruped hip extension",
+            "reverse hyperextension" to "Reverse hyper",
+            "swiss ball leg curl" to "Stability ball leg curl",
+            "prone leg curl" to "Lying leg curl",
+            "lever hip thrust" to "Machine hip thrust",
+            "dumbbell hip thrust" to "DB hip thrust",
+            "hex bar deadlift" to "Trap-bar deadlift",
+            "sumo" to "Sumo deadlift",
+            "clam" to "Clamshell",
+        )
+        for ((typed, name) in expected) {
+            assertEquals(name, Library.find(typed)?.name, typed)
+            assertTrue(name in names(Library.search(typed)), "$typed: search misses $name")
+        }
+        val firstHit = mapOf(
+            "good morning" to "Good morning",
+            "nordic" to "Nordic curl",
+            "seated leg curl" to "Seated leg curl",
+            "glute bridge" to "Glute bridge",
+            "kettlebell swing" to "Kettlebell swing",
+            "clamshell" to "Clamshell",
+        )
+        for ((typed, name) in firstHit) assertEquals(name, Library.search(typed).firstOrNull()?.name, typed)
+        // Generic names that fit several entries are not aliases of one of them.
+        for (generic in listOf("leg curl", "hamstring curl", "swing", "hip bridge")) {
+            assertNull(Library.find(generic), generic)
+        }
+        // The two deadlift variations sit with the main lifts, under the deadlift.
+        for (name in listOf("Sumo deadlift", "Trap-bar deadlift")) {
+            val e = assertNotNull(Library.find(name), name)
+            assertEquals(BodyArea.MAIN_LIFTS, e.area, name)
+            assertEquals(Category.VARIATION, e.category, name)
+            assertEquals(com.powertracker.domain.model.MainLift.DEADLIFT, e.parentLift, name)
+        }
+        val area = all.filter { it.area == BodyArea.HAMSTRINGS_GLUTES }
+        assertTrue(area.size >= 28, "${area.size} hamstring and glute entries")
+        for (e in area) {
+            assertEquals(Category.ACCESSORY, e.category, e.name)
+            assertNull(e.parentLift, e.name)
+        }
+        for (name in listOf("Lying leg curl", "Nordic curl", "Machine hip abduction", "Quadruped hip extension")) {
+            assertEquals(Kind.ACCESSORY, Library.find(name)?.kind, name)
+        }
+        for (name in listOf("Good morning", "Glute bridge", "Kettlebell swing", "Stiff-leg deadlift")) {
+            assertEquals(Kind.COMPOUND, Library.find(name)?.kind, name)
+        }
+        // Left out: no allowed source gives a technique for the cable pull-through or the snatch-grip deadlift
+        // (ExRx forum only), or for a single-leg hip thrust on a bench. The cable glute kickback was removed in
+        // review: its source states no mistakes.
+        for (missing in listOf("cable pull through", "pull through", "snatch grip deadlift", "single leg hip thrust", "glute kickback")) {
+            assertNull(Library.find(missing), missing)
+        }
     }
 
     @Test

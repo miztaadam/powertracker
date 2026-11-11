@@ -16,6 +16,7 @@ object Sources {
     private const val L6 = "2026-11-11"
     private const val L7 = "2026-11-11"
     private const val L8 = "2026-11-11"
+    private const val L9 = "2026-11-11"
 
     // Main lifts and their variations
     val IPF_RULES_2026 = SourceId("ipf-technical-rules-2026")
@@ -293,6 +294,48 @@ object Sources {
     val EXRX_SLED_PUSH = SourceId("exrx-sled-push")
     val ACE_SQUAT_JUMPS = SourceId("ace-squat-jumps")
     val ACE_SQUAT_JUMP = SourceId("ace-squat-jump")
+
+    // Hamstrings and glutes (L9)
+    val EXRX_BB_SB_STIFF_LEG_DL = SourceId("exrx-barbell-straight-back-stiff-leg-deadlift")
+    val EXRX_BB_STIFF_LEG_DL = SourceId("exrx-barbell-stiff-leg-deadlift")
+    val EXRX_BB_STRAIGHT_LEG_DL = SourceId("exrx-barbell-straight-leg-deadlift")
+    val ACE_RDL_TECHNIQUE = SourceId("ace-prosource-romanian-deadlift")
+    val ACE_SA_SL_RDL = SourceId("ace-single-arm-single-leg-romanian-deadlift")
+    val ACE_SL_RDL = SourceId("ace-single-leg-romanian-deadlift")
+    val EXRX_DB_SL_STIFF_LEG_DL = SourceId("exrx-dumbbell-single-leg-stiff-leg-deadlift")
+    val EXRX_BB_GOOD_MORNING = SourceId("exrx-barbell-good-morning")
+    val EXRX_BB_BENT_KNEE_GOOD_MORNING = SourceId("exrx-barbell-bent-knee-good-morning")
+    val EXRX_LV_LYING_LEG_CURL = SourceId("exrx-lever-lying-leg-curl")
+    val ACE_LYING_HAMSTRINGS_CURL = SourceId("ace-lying-hamstrings-curl")
+    val EXRX_LV_SEATED_LEG_CURL = SourceId("exrx-lever-seated-leg-curl")
+    val EXRX_LV_STANDING_LEG_CURL = SourceId("exrx-lever-standing-leg-curl")
+    val EXRX_LV_STANDING_LEG_CURL_MULTI_HIP = SourceId("exrx-lever-standing-leg-curl-multi-hip")
+    val EXRX_CB_STANDING_LEG_CURL = SourceId("exrx-cable-standing-leg-curl")
+    val EXRX_CB_BENT_OVER_LEG_CURL = SourceId("exrx-cable-bent-over-leg-curl")
+    val ACE_STABILITY_BALL_HAMSTRING_CURL = SourceId("ace-stability-ball-hamstring-curl")
+    val EXRX_SELF_ASSISTED_INVERSE_LEG_CURL_FLOOR = SourceId("exrx-self-assisted-inverse-leg-curl-floor")
+    val EXRX_INVERSE_LEG_CURL = SourceId("exrx-inverse-leg-curl")
+    val ACE_GLUTE_BRIDGE = SourceId("ace-glute-bridge")
+    val ACE_SINGLE_LEG_GLUTE_BRIDGE = SourceId("ace-glute-bridge-single-leg-progression")
+    val EXRX_SINGLE_LEG_HIP_BRIDGE = SourceId("exrx-single-leg-hip-bridge")
+    val ACE_HIP_BRIDGE = SourceId("ace-hip-bridge")
+    val ACE_ELEVATED_GLUTE_BRIDGE = SourceId("ace-elevated-glute-bridge")
+    val EXRX_LV_HIP_THRUST = SourceId("exrx-lever-hip-thrust")
+    val ACE_KB_SWING = SourceId("ace-swing")
+    val ACE_KB_SWING_TECHNIQUE = SourceId("ace-certified-two-handed-kettlebell-swing")
+    val NSCA_KB_SWING = SourceId("nsca-two-arm-kettlebell-swing")
+    val EXRX_KB_TWO_ARM_SWING = SourceId("exrx-kettlebell-two-arm-swing")
+    val ACE_KB_SINGLE_ARM_SWING = SourceId("ace-single-arm-swing")
+    val EXRX_REVERSE_HYPER = SourceId("exrx-reverse-hyperextension")
+    val ACE_QUADRUPED_HIP_EXTENSION = SourceId("ace-quadruped-bent-knee-hip-extensions")
+    val EXRX_CB_HIP_ABDUCTION = SourceId("exrx-cable-hip-abduction")
+    val EXRX_LV_SEATED_HIP_ABDUCTION = SourceId("exrx-lever-seated-hip-abduction")
+    val ACE_SIDE_LYING_HIP_ABDUCTION = SourceId("ace-side-lying-hip-abduction")
+    val ACE_GLUTE_MEDIUS_EXERCISES = SourceId("ace-6-glute-medius-exercises")
+    val ACE_JOINT_FRIENDLY_LOWER_BODY = SourceId("ace-10-joint-friendly-lower-extremity-exercises")
+    val EXRX_LV_SEATED_HIP_ADDUCTION = SourceId("exrx-lever-seated-hip-adduction")
+    val EXRX_BB_SUMO_DEADLIFT = SourceId("exrx-barbell-sumo-deadlift")
+    val EXRX_TB_DEADLIFT = SourceId("exrx-trap-bar-deadlift")
 
     val all: Map<SourceId, Source> = mapOf(
         IPF_RULES_2026 to Source(
@@ -1285,6 +1328,166 @@ object Sources {
         ACE_SQUAT_JUMP to Source(
             "Exercise Library: Squat Jump", ACE,
             "https://www.acefitness.org/resources/everyone/exercise-library/222/squat-jump/", L8,
+        ),
+        EXRX_BB_SB_STIFF_LEG_DL to Source(
+            "Barbell Straight-back Stiff-leg Deadlift", EXRX,
+            "https://exrx.net/WeightExercises/GluteusMaximus/BBStrBackStiffLegDeadlift", L9,
+        ),
+        EXRX_BB_STIFF_LEG_DL to Source(
+            "Barbell Stiff Leg Deadlift", EXRX,
+            "https://exrx.net/WeightExercises/GluteusMaximus/BBStiffLegDeadlift", L9,
+        ),
+        EXRX_BB_STRAIGHT_LEG_DL to Source(
+            "Barbell Straight Leg Deadlift", EXRX,
+            "https://exrx.net/WeightExercises/Hamstrings/BBStraightLegDeadlift", L9,
+        ),
+        ACE_RDL_TECHNIQUE to Source(
+            "ProSource January 2016: ACE Technique Series: Romanian Deadlift", ACE,
+            "https://www.acefitness.org/continuing-education/prosource/january-2016/5767/ace-technique-series-romanian-deadlift/", L9,
+        ),
+        ACE_SA_SL_RDL to Source(
+            "Exercise Library: Single-Arm Single-Leg Romanian Deadlift", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/127/single-arm-single-leg-romanian-dead-lift/", L9,
+        ),
+        ACE_SL_RDL to Source(
+            "Exercise Library: Single-Leg Romanian Deadlift", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/329/single-leg-romanian-deadlift/", L9,
+        ),
+        EXRX_DB_SL_STIFF_LEG_DL to Source(
+            "Dumbbell Single Leg Stiff-leg Deadlift", EXRX,
+            "https://exrx.net/WeightExercises/GluteusMaximus/DBSingleLegStiffLegDeadlift", L9,
+        ),
+        EXRX_BB_GOOD_MORNING to Source(
+            "Barbell Good-morning", EXRX,
+            "https://exrx.net/WeightExercises/Hamstrings/BBGoodMorning", L9,
+        ),
+        EXRX_BB_BENT_KNEE_GOOD_MORNING to Source(
+            "Barbell Bent Knee Good-morning", EXRX,
+            "https://exrx.net/WeightExercises/GluteusMaximus/BBBentKneeGoodMorning", L9,
+        ),
+        EXRX_LV_LYING_LEG_CURL to Source(
+            "Lever Lying Leg Curl", EXRX,
+            "https://exrx.net/WeightExercises/Hamstrings/LVLyingLegCurl", L9,
+        ),
+        ACE_LYING_HAMSTRINGS_CURL to Source(
+            "Exercise Library: Lying Hamstrings Curl", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/153/lying-hamstrings-curl/", L9,
+        ),
+        EXRX_LV_SEATED_LEG_CURL to Source(
+            "Lever Seated Leg Curl", EXRX,
+            "https://exrx.net/WeightExercises/Hamstrings/LVSeatedLegCurl", L9,
+        ),
+        EXRX_LV_STANDING_LEG_CURL to Source(
+            "Lever Standing Leg Curl", EXRX,
+            "https://exrx.net/WeightExercises/Hamstrings/LVStandingLegCurl", L9,
+        ),
+        EXRX_LV_STANDING_LEG_CURL_MULTI_HIP to Source(
+            "Lever Standing Leg Curl (on multi-hip machine)", EXRX,
+            "https://exrx.net/WeightExercises/Hamstrings/LVStandingLegCurlMultiHip", L9,
+        ),
+        EXRX_CB_STANDING_LEG_CURL to Source(
+            "Cable Standing Leg Curl", EXRX,
+            "https://exrx.net/WeightExercises/Hamstrings/CBStandingLegCurl", L9,
+        ),
+        EXRX_CB_BENT_OVER_LEG_CURL to Source(
+            "Cable Bent-over Leg Curl", EXRX,
+            "https://exrx.net/WeightExercises/Hamstrings/CBBentOverLegCurl", L9,
+        ),
+        ACE_STABILITY_BALL_HAMSTRING_CURL to Source(
+            "Exercise Library: Stability Ball Hamstring Curl", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/59/stability-ball-hamstring-curl/", L9,
+        ),
+        EXRX_SELF_ASSISTED_INVERSE_LEG_CURL_FLOOR to Source(
+            "Self-assisted Inverse Leg Curl (on floor)", EXRX,
+            "https://exrx.net/WeightExercises/Hamstrings/ASHamstringRaiseSelfFloor", L9,
+        ),
+        EXRX_INVERSE_LEG_CURL to Source(
+            "Inverse Leg Curl", EXRX,
+            "https://exrx.net/WeightExercises/Hamstrings/BWHamstringRaise", L9,
+        ),
+        ACE_GLUTE_BRIDGE to Source(
+            "Exercise Library: Glute Bridge", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/49/glute-bridge/", L9,
+        ),
+        ACE_SINGLE_LEG_GLUTE_BRIDGE to Source(
+            "Exercise Library: Glute Bridge: Single-Leg Progression", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/145/glute-bridge-single-leg-progression/", L9,
+        ),
+        EXRX_SINGLE_LEG_HIP_BRIDGE to Source(
+            "Single Leg Hip Bridge", EXRX,
+            "https://exrx.net/WeightExercises/GluteusMaximus/BWLyingHipExtension", L9,
+        ),
+        ACE_HIP_BRIDGE to Source(
+            "Exercise Library: Hip Bridge", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/318/hip-bridge/", L9,
+        ),
+        ACE_ELEVATED_GLUTE_BRIDGE to Source(
+            "Exercise Library: Elevated Glute Bridge", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/367/elevated-glute-bridge/", L9,
+        ),
+        EXRX_LV_HIP_THRUST to Source(
+            "Lever Hip Thrust", EXRX,
+            "https://exrx.net/WeightExercises/GluteusMaximus/LVHipThrustPL", L9,
+        ),
+        ACE_KB_SWING to Source(
+            "Exercise Library: Swing", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/391/swing/", L9,
+        ),
+        ACE_KB_SWING_TECHNIQUE to Source(
+            "Certified January 2025: The ACE Do it Better Series: The Two-handed Kettlebell Swing", ACE,
+            "https://www.acefitness.org/continuing-education/certified/january-2025/8788/the-ace-do-it-better-series-the-two-handed-kettlebell-swing/", L9,
+        ),
+        NSCA_KB_SWING to Source(
+            "Two-Arm Kettlebell Swing", NSCA,
+            "https://www.nsca.com/education/articles/kinetic-select/two-arm-kettlebell-swing/", L9,
+        ),
+        EXRX_KB_TWO_ARM_SWING to Source(
+            "Kettlebell Two Arm Swing", EXRX,
+            "https://exrx.net/WeightExercises/Kettlebell/KBTwoArmSwing", L9,
+        ),
+        ACE_KB_SINGLE_ARM_SWING to Source(
+            "Exercise Library: Single Arm Swing", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/392/single-arm-swing/", L9,
+        ),
+        EXRX_REVERSE_HYPER to Source(
+            "Reverse Hyper-extension", EXRX,
+            "https://exrx.net/WeightExercises/GluteusMaximus/BWReverseHyperextension", L9,
+        ),
+        ACE_QUADRUPED_HIP_EXTENSION to Source(
+            "Exercise Library: Quadruped Bent-knee Hip Extensions", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/270/quadruped-bent-knee-hip-extensions/", L9,
+        ),
+        EXRX_CB_HIP_ABDUCTION to Source(
+            "Cable Hip Abduction", EXRX,
+            "https://exrx.net/WeightExercises/HipAbductor/CBHipAbduction", L9,
+        ),
+        EXRX_LV_SEATED_HIP_ABDUCTION to Source(
+            "Lever Seated Hip Abduction", EXRX,
+            "https://exrx.net/WeightExercises/HipAbductor/LVSeatedHipAbduction", L9,
+        ),
+        ACE_SIDE_LYING_HIP_ABDUCTION to Source(
+            "Exercise Library: Side Lying Hip Abduction", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/38/side-lying-hip-abduction/", L9,
+        ),
+        ACE_GLUTE_MEDIUS_EXERCISES to Source(
+            "6 Glute Medius Exercises for Strength and Stability", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/6936/6-glute-medius-exercises-for-strength-amp-stability/", L9,
+        ),
+        ACE_JOINT_FRIENDLY_LOWER_BODY to Source(
+            "Ankles, Knees and Hips: 10 Joint-Friendly Exercises for the Lower Extremity", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/9158/ankles-knees-and-hips-10-joint-friendly-exercises-for-the-lower-extremity/", L9,
+        ),
+        EXRX_LV_SEATED_HIP_ADDUCTION to Source(
+            "Lever Seated Hip Adduction", EXRX,
+            "https://exrx.net/WeightExercises/HipAdductors/LVSeatedHipAdduction", L9,
+        ),
+        EXRX_BB_SUMO_DEADLIFT to Source(
+            "Barbell Sumo Deadlift", EXRX,
+            "https://exrx.net/WeightExercises/ErectorSpinae/BBSumoDeadlift", L9,
+        ),
+        EXRX_TB_DEADLIFT to Source(
+            "Trap Bar Deadlift", EXRX,
+            "https://exrx.net/WeightExercises/GluteusMaximus/TBDeadlift", L9,
         ),
     )
 }

@@ -576,4 +576,50 @@ internal val mainLifts: List<LibraryExercise> = listOf(
         ),
         listOf(Sources.EXRX_BB_BLOCK_PULL, Sources.EXRX_RACK_PULL),
     ),
+    variation(
+        "Sumo deadlift", listOf("Sumo", "Sumo pull", "Barbell sumo deadlift"), MainLift.DEADLIFT, listOf("Glutes", "Adductors", "Quads"),
+        FormGuide(
+            purpose = "A deadlift with a very wide stance and your hands inside your legs. It builds strength in your hips, legs and back.",
+            setup = listOf(
+                "Stand with your feet very wide and under the bar.",
+                "Squat down and grip the bar between your legs, shoulder-width apart, with a mixed grip: one palm up, one down.",
+                "Keep your arms straight, your chest high, your hips low and your back straight.",
+                PULL_BRACE,
+            ),
+            steps = listOf(
+                "Pull the bar up by driving your feet out to the sides while lifting your chest.",
+                "Straighten your knees once the bar passes them.",
+                "At the top, stand tall with your shoulders back.",
+                "Lower the bar by pushing your hips back with your knees pointing out. Keep your chest high and your back straight.",
+            ),
+            cues = listOf("Push your feet out, not just down.", "Knees out.", "Bar close."),
+            mistakes = listOf(
+                "Letting your knees cave in.",
+                "Rounding your back.",
+                "Gripping narrower than shoulder-width, which makes the lockout harder.",
+            ),
+        ),
+        listOf(Sources.EXRX_BB_SUMO_DEADLIFT, Sources.ACE_BRACE_OR_BREATHE),
+    ),
+    variation(
+        "Trap-bar deadlift", listOf("Hex bar deadlift"), MainLift.DEADLIFT, listOf("Glutes", "Quads", "Adductors"),
+        FormGuide(
+            purpose = "A deadlift standing inside a trap bar and holding its side handles. It builds strength in your hips and legs.",
+            setup = listOf(
+                "Stand inside the bar with your feet shoulder-width apart or narrower.",
+                "Squat down with your feet flat and grip the handles.",
+                "Keep your hips low, your shoulders high, and your arms and back straight.",
+                PULL_BRACE,
+            ),
+            steps = listOf(
+                "Stand up by straightening your hips and knees fully.",
+                "If your shoulders have rounded, pull them back at the top.",
+                "Lower the bar by pushing your hips back and letting your knees bend forward slightly. Keep your back straight.",
+            ),
+            cues = listOf("Hips low, shoulders high.", "Knees point the same way as your feet.", "Back straight."),
+            mistakes = listOf("Rounding your back.", "Letting your knees cave in."),
+        ),
+        listOf(Sources.EXRX_TB_DEADLIFT, Sources.ACE_BRACE_OR_BREATHE),
+        equipment = listOf(Equipment.SPECIALTY_BAR),
+    ),
 )
