@@ -17,6 +17,7 @@ object Sources {
     private const val L7 = "2026-11-11"
     private const val L8 = "2026-11-11"
     private const val L9 = "2026-11-11"
+    private const val L10 = "2026-11-11"
 
     // Main lifts and their variations
     val IPF_RULES_2026 = SourceId("ipf-technical-rules-2026")
@@ -337,6 +338,43 @@ object Sources {
     val EXRX_BB_SUMO_DEADLIFT = SourceId("exrx-barbell-sumo-deadlift")
     val EXRX_TB_DEADLIFT = SourceId("exrx-trap-bar-deadlift")
 
+    // Calves (L10)
+    val EXRX_LV_STANDING_CALF_RAISE = SourceId("exrx-lever-standing-calf-raise")
+    val ACE_STRONGER_CALVES = SourceId("ace-get-stronger-calves-5-exercises")
+    val EXRX_SL_45_CALF_PRESS = SourceId("exrx-sled-45-calf-press")
+    val EXRX_LV_SEATED_CALF_RAISE = SourceId("exrx-lever-seated-calf-raise")
+    val EXRX_LV_SEATED_CALF_RAISE_PL = SourceId("exrx-lever-seated-calf-raise-plate-loaded")
+    val EXRX_LV_DONKEY_CALF_RAISE = SourceId("exrx-lever-donkey-calf-raise")
+    val EXRX_BB_STANDING_CALF_RAISE = SourceId("exrx-barbell-standing-calf-raise")
+    val ACE_BB_CALF_RAISES = SourceId("ace-calf-raises-barbell")
+    val EXRX_SM_STANDING_CALF_RAISE = SourceId("exrx-smith-standing-calf-raise")
+    val EXRX_DB_STANDING_CALF_RAISE = SourceId("exrx-dumbbell-standing-calf-raise")
+    val EXRX_DB_SINGLE_LEG_CALF_RAISE = SourceId("exrx-dumbbell-single-leg-calf-raise")
+    // Core (L10)
+    val ACE_FRONT_PLANK = SourceId("ace-front-plank")
+    val EXRX_FRONT_PLANK = SourceId("exrx-front-plank")
+    val ACE_SIDE_PLANK_STRAIGHT_LEG = SourceId("ace-side-plank-straight-leg")
+    val ACE_SIDE_PLANK = SourceId("ace-side-plank")
+    val EXRX_SIDE_PLANK = SourceId("exrx-side-plank")
+    val ACE_FARMERS_CARRY = SourceId("ace-farmers-carry")
+    val ACE_FUNCTIONAL_SC_EXERCISES = SourceId("ace-6-functional-strength-conditioning-exercises")
+    val ACE_STRONGMAN_EXERCISES = SourceId("ace-strongman-exercises-for-fitness-clients")
+    val NSCA_LOADED_CARRIES = SourceId("nsca-hip-trunk-stability-loaded-carries")
+    val ACE_SUITCASE_CARRY = SourceId("ace-suitcase-carry")
+    val NSCA_CORE_TRAINING_CONCEPTS = SourceId("nsca-core-training-concepts-strength-training")
+    val ACE_STANDING_ANTI_ROTATION_PRESS = SourceId("ace-standing-anti-rotation-press")
+    val ACE_ANTI_ROTATION_PROGRESSION = SourceId("ace-anti-rotation-progression-sequence")
+    val ACE_STANDING_ROTATIONAL_CHOP = SourceId("ace-standing-rotational-chop")
+    val EXRX_WHEEL_ROLLOUT = SourceId("exrx-kneeling-wheel-rollout")
+    val ACE_TRX_FRONT_ROLLOUT = SourceId("ace-trx-front-rollout")
+    val ACE_STABILITY_BALL_CORE = SourceId("ace-core-strengthening-stability-ball-workout")
+    val ACE_REVERSE_CRUNCH = SourceId("ace-reverse-crunch")
+    val ACE_CRUNCH = SourceId("ace-crunch")
+    val EXRX_CB_KNEELING_CRUNCH = SourceId("exrx-cable-kneeling-crunch")
+    val EXRX_LV_SEATED_CRUNCH = SourceId("exrx-lever-seated-crunch-chest-pad")
+    val ACE_BICYCLE_CRUNCH = SourceId("ace-supine-bicycle-crunches")
+    val ACE_DEAD_BUG = SourceId("ace-supine-dead-bug")
+    val ACE_BIRD_DOG = SourceId("ace-bird-dog")
     val all: Map<SourceId, Source> = mapOf(
         IPF_RULES_2026 to Source(
             "IPF Technical Rulebook 2026", IPF,
@@ -1488,6 +1526,146 @@ object Sources {
         EXRX_TB_DEADLIFT to Source(
             "Trap Bar Deadlift", EXRX,
             "https://exrx.net/WeightExercises/GluteusMaximus/TBDeadlift", L9,
+        ),
+        EXRX_LV_STANDING_CALF_RAISE to Source(
+            "Lever Standing Calf Raise", EXRX,
+            "https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise", L10,
+        ),
+        ACE_STRONGER_CALVES to Source(
+            "Get Stronger Calves with These 5 Exercises", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/", L10,
+        ),
+        EXRX_SL_45_CALF_PRESS to Source(
+            "Sled 45° Calf Press", EXRX,
+            "https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress", L10,
+        ),
+        EXRX_LV_SEATED_CALF_RAISE to Source(
+            "Lever Seated Calf Raise", EXRX,
+            "https://exrx.net/WeightExercises/Soleus/LVSeatedCalfRaise", L10,
+        ),
+        EXRX_LV_SEATED_CALF_RAISE_PL to Source(
+            "Lever Seated Calf Raise (plate loaded)", EXRX,
+            "https://exrx.net/WeightExercises/Soleus/LVSeatedCalfRaiseH", L10,
+        ),
+        EXRX_LV_DONKEY_CALF_RAISE to Source(
+            "Lever Donkey Calf Raise", EXRX,
+            "https://exrx.net/WeightExercises/Gastrocnemius/LVDonkeyCalfRaise", L10,
+        ),
+        EXRX_BB_STANDING_CALF_RAISE to Source(
+            "Barbell Standing Leg Calf Raise", EXRX,
+            "https://exrx.net/WeightExercises/Gastrocnemius/BBStandingCalfRaise", L10,
+        ),
+        ACE_BB_CALF_RAISES to Source(
+            "Exercise Library: Calf Raises", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/51/calf-raises/", L10,
+        ),
+        EXRX_SM_STANDING_CALF_RAISE to Source(
+            "Smith Standing Leg Calf Raise", EXRX,
+            "https://exrx.net/WeightExercises/Gastrocnemius/SMStandingCalfRaise", L10,
+        ),
+        EXRX_DB_STANDING_CALF_RAISE to Source(
+            "Dumbbell Standing Calf Raise", EXRX,
+            "https://exrx.net/WeightExercises/Gastrocnemius/DBStandingCalfRaise", L10,
+        ),
+        EXRX_DB_SINGLE_LEG_CALF_RAISE to Source(
+            "Dumbbell Single Leg Calf Raise", EXRX,
+            "https://exrx.net/WeightExercises/Gastrocnemius/DBSingleLegCalfRaise", L10,
+        ),
+        ACE_FRONT_PLANK to Source(
+            "Exercise Library: Front Plank", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/", L10,
+        ),
+        EXRX_FRONT_PLANK to Source(
+            "Front Plank", EXRX,
+            "https://exrx.net/WeightExercises/RectusAbdominis/BWFrontPlank", L10,
+        ),
+        ACE_SIDE_PLANK_STRAIGHT_LEG to Source(
+            "Exercise Library: Side Plank with Straight Leg", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/101/side-plank-with-straight-leg/", L10,
+        ),
+        ACE_SIDE_PLANK to Source(
+            "Exercise Library: Side Plank", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/303/side-plank/", L10,
+        ),
+        EXRX_SIDE_PLANK to Source(
+            "Side Plank", EXRX,
+            "https://exrx.net/WeightExercises/Obliques/BWSidePlank", L10,
+        ),
+        ACE_FARMERS_CARRY to Source(
+            "Exercise Library: Farmer's Carry", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/359/farmer-s-carry/", L10,
+        ),
+        ACE_FUNCTIONAL_SC_EXERCISES to Source(
+            "6 Functional Strength and Conditioning Exercises You're Not Using With Your Clients", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/5616/6-functional-strength-and-conditioning-exercises-you-re-not-using-with-your-clients/", L10,
+        ),
+        ACE_STRONGMAN_EXERCISES to Source(
+            "Strongman Exercises That Work Great for Fitness Clients", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/", L10,
+        ),
+        NSCA_LOADED_CARRIES to Source(
+            "Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance", NSCA,
+            "https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/", L10,
+        ),
+        ACE_SUITCASE_CARRY to Source(
+            "Exercise Library: Suitcase Carry", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/358/suitcase-carry/", L10,
+        ),
+        NSCA_CORE_TRAINING_CONCEPTS to Source(
+            "NSCA Coach 7.1: Implementing Core Training Concepts into Strength Training for Sport", NSCA,
+            "https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf", L10,
+        ),
+        ACE_STANDING_ANTI_ROTATION_PRESS to Source(
+            "Exercise Library: Standing Anti-Rotation Press", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/332/standing-anti-rotation-press/", L10,
+        ),
+        ACE_ANTI_ROTATION_PROGRESSION to Source(
+            "7 Exercises to Create an Anti-Rotation Progression Sequence", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/5625/7-exercises-to-create-an-anti-rotation-progression-sequence/", L10,
+        ),
+        ACE_STANDING_ROTATIONAL_CHOP to Source(
+            "Exercise Library: Standing Rotational Chop", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/349/standing-rotational-chop/", L10,
+        ),
+        EXRX_WHEEL_ROLLOUT to Source(
+            "Wheel Rollout", EXRX,
+            "https://exrx.net/WeightExercises/HipFlexors/BWKneelingWheelRollout", L10,
+        ),
+        ACE_TRX_FRONT_ROLLOUT to Source(
+            "Exercise Library: TRX Front Rollout", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/79/trx-reg-front-rollout/", L10,
+        ),
+        ACE_STABILITY_BALL_CORE to Source(
+            "Core-strengthening Stability Ball Workout", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/5123/core-strengthening-stability-ball-workout/", L10,
+        ),
+        ACE_REVERSE_CRUNCH to Source(
+            "Exercise Library: Reverse Crunch", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/76/reverse-crunch/", L10,
+        ),
+        ACE_CRUNCH to Source(
+            "Exercise Library: Crunch", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/52/crunch/", L10,
+        ),
+        EXRX_CB_KNEELING_CRUNCH to Source(
+            "Cable Kneeling Crunch", EXRX,
+            "https://exrx.net/WeightExercises/RectusAbdominis/CBKneelingCrunch", L10,
+        ),
+        EXRX_LV_SEATED_CRUNCH to Source(
+            "Lever Seated Crunch (chest pad)", EXRX,
+            "https://exrx.net/WeightExercises/RectusAbdominis/LVSeatedCrunchChestPad", L10,
+        ),
+        ACE_BICYCLE_CRUNCH to Source(
+            "Exercise Library: Supine Bicycle Crunches", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/241/supine-bicycle-crunches/", L10,
+        ),
+        ACE_DEAD_BUG to Source(
+            "Exercise Library: Supine Dead Bug", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/147/supine-dead-bug/", L10,
+        ),
+        ACE_BIRD_DOG to Source(
+            "Exercise Library: Bird Dog", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/14/bird-dog/", L10,
         ),
     )
 }

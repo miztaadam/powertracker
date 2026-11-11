@@ -194,7 +194,7 @@ class LibraryTest {
         assertTrue("Bulgarian split squat" in names(quadSquats) && "Goblet squat" in names(quadSquats), "${names(quadSquats)}")
         assertTrue(quadSquats.all { it.area == BodyArea.QUADS })
         assertEquals(
-            listOf("Barbell glute bridge", "Good morning", "Hip thrust", "RDL", "Stiff-leg deadlift"),
+            listOf("Barbell calf raise", "Barbell glute bridge", "Good morning", "Hip thrust", "RDL", "Stiff-leg deadlift"),
             names(Library.search("", setOf(BodyArea.HAMSTRINGS_GLUTES, BodyArea.CALVES), setOf(Equipment.BARBELL))),
         )
     }
@@ -483,6 +483,77 @@ class LibraryTest {
         for (missing in listOf("cable pull through", "pull through", "snatch grip deadlift", "single leg hip thrust", "glute kickback")) {
             assertNull(Library.find(missing), missing)
         }
+    }
+
+    @Test
+    fun calvesAndCore_findTheNamesPeopleType() {
+        val expected = mapOf(
+            "donkey calf raise" to "Donkey calf raise",
+            "calf press" to "Leg press calf raise",
+            "seated heel raise" to "Seated dumbbell calf raise",
+            "single leg calf raise" to "Single-leg calf raise",
+            "DB calf raise" to "Dumbbell calf raise",
+            "smith machine calf raise" to "Smith calf raise",
+            "machine calf raise" to "Standing calf raise",
+            "farmer carry" to "Farmer's walk",
+            "farmers walk" to "Farmer's walk",
+            "suitcase carry" to "Suitcase carry",
+            "waiters walk" to "Waiter's carry",
+            "overhead carry" to "Waiter's carry",
+            "pinch carry" to "Plate pinch carry",
+            "Pallof" to "Pallof press",
+            "anti-rotation press" to "Pallof press",
+            "woodchop" to "Cable woodchop",
+            "ab wheel" to "Ab wheel rollout",
+            "swiss ball rollout" to "Stability ball rollout",
+            "rope crunch" to "Cable crunch",
+            "ab crunch machine" to "Machine crunch",
+            "bicycle crunches" to "Bicycle crunch",
+            "deadbug" to "Dead bug",
+            "birddog" to "Bird dog",
+            "forearm plank" to "Front plank",
+            "side bridge" to "Side plank",
+        )
+        for ((typed, name) in expected) {
+            assertEquals(name, Library.find(typed)?.name, typed)
+            assertTrue(name in names(Library.search(typed)), "$typed: search misses $name")
+        }
+        val firstHit = mapOf(
+            "farmer" to "Farmer's walk",
+            "pallof" to "Pallof press",
+            "plank" to "Front plank",
+            "seated calf" to "Seated calf raise",
+            "reverse crunch" to "Reverse crunch",
+        )
+        for ((typed, name) in firstHit) assertEquals(name, Library.search(typed).firstOrNull()?.name, typed)
+        // Generic names that fit several entries are not aliases of one of them.
+        for (generic in listOf("calf raise", "plank", "crunch", "leg raise", "carry", "rollout", "heel raise")) {
+            assertNull(Library.find(generic), generic)
+        }
+        // A leg-press calf raise must not take the leg press's names.
+        assertEquals("Leg press", Library.find("sled leg press")?.name)
+        for (area in listOf(BodyArea.CALVES, BodyArea.CORE)) {
+            val entries = all.filter { it.area == area }
+            for (e in entries) {
+                assertEquals(Category.ACCESSORY, e.category, e.name)
+                assertNull(e.parentLift, e.name)
+            }
+        }
+        assertTrue(all.count { it.area == BodyArea.CALVES } >= 8, "calf entries")
+        assertTrue(all.count { it.area == BodyArea.CORE } >= 17, "core entries")
+        // Loaded carries are COMPOUND; every other calf and core entry is ACCESSORY.
+        val carries = setOf("Farmer's walk", "Suitcase carry", "Waiter's carry", "Plate pinch carry")
+        for (e in all.filter { it.area == BodyArea.CALVES || it.area == BodyArea.CORE }) {
+            assertEquals(if (e.name in carries) Kind.COMPOUND else Kind.ACCESSORY, e.kind, e.name)
+        }
+        // Left out: no allowed source gives a training technique for a back-extension hold (only endurance tests),
+        // or a positional limit and sourced mistakes for the dumbbell side bend. The hanging and captain's chair raises
+        // were removed in review: their sources give only one mistake (swinging).
+        val leftOut = listOf(
+            "back extension hold", "side bend", "dumbbell side bend",
+            "hanging leg raise", "hanging knee raise", "captain's chair", "captain's chair knee raise",
+        )
+        for (missing in leftOut) assertNull(Library.find(missing), missing)
     }
 
     @Test

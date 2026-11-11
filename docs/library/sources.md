@@ -1179,8 +1179,172 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 ## Calves
 
-No exercises yet.
+### Barbell calf raise
+
+- [Barbell Standing Leg Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/BBStandingCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Calf Raises](https://www.acefitness.org/resources/everyone/exercise-library/51/calf-raises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Donkey calf raise
+
+- [Lever Donkey Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/LVDonkeyCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Dumbbell calf raise
+
+- [Dumbbell Standing Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/DBStandingCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Leg press calf raise
+
+- [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Sled Single Leg 45° Leg Press](https://exrx.net/WeightExercises/Quadriceps/SLSingleLeg45LegPress). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Seated calf raise
+
+- [Lever Seated Calf Raise](https://exrx.net/WeightExercises/Soleus/LVSeatedCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Lever Seated Calf Raise (plate loaded)](https://exrx.net/WeightExercises/Soleus/LVSeatedCalfRaiseH). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Seated dumbbell calf raise
+
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Single-leg calf raise
+
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Single Leg Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/DBSingleLegCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Smith calf raise
+
+- [Smith Standing Leg Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/SMStandingCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Smith Seated Calf Raise](https://exrx.net/WeightExercises/Soleus/SMSeatedCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Standing calf raise
+
+- [Lever Standing Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ## Core
 
-No exercises yet.
+### Ab wheel rollout
+
+- [Wheel Rollout](https://exrx.net/WeightExercises/HipFlexors/BWKneelingWheelRollout). ExRx.net, accessed 2026-11-11.
+- [Core-strengthening Stability Ball Workout](https://www.acefitness.org/resources/pros/expert-articles/5123/core-strengthening-stability-ball-workout/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: TRX Front Rollout](https://www.acefitness.org/resources/everyone/exercise-library/79/trx-reg-front-rollout/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Bicycle crunch
+
+- [Exercise Library: Supine Bicycle Crunches](https://www.acefitness.org/resources/everyone/exercise-library/241/supine-bicycle-crunches/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Bird dog
+
+- [Exercise Library: Bird Dog](https://www.acefitness.org/resources/everyone/exercise-library/14/bird-dog/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Cable crunch
+
+- [Cable Kneeling Crunch](https://exrx.net/WeightExercises/RectusAbdominis/CBKneelingCrunch). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Cable woodchop
+
+- [Exercise Library: Standing Rotational Chop](https://www.acefitness.org/resources/everyone/exercise-library/349/standing-rotational-chop/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [7 Exercises to Create an Anti-Rotation Progression Sequence](https://www.acefitness.org/resources/pros/expert-articles/5625/7-exercises-to-create-an-anti-rotation-progression-sequence/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Dead bug
+
+- [Exercise Library: Supine Dead Bug](https://www.acefitness.org/resources/everyone/exercise-library/147/supine-dead-bug/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Farmer's walk
+
+- [Exercise Library: Farmer's Carry](https://www.acefitness.org/resources/everyone/exercise-library/359/farmer-s-carry/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [6 Functional Strength and Conditioning Exercises You're Not Using With Your Clients](https://www.acefitness.org/resources/pros/expert-articles/5616/6-functional-strength-and-conditioning-exercises-you-re-not-using-with-your-clients/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Strongman Exercises That Work Great for Fitness Clients](https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+
+### Floor crunch
+
+- [Exercise Library: Crunch](https://www.acefitness.org/resources/everyone/exercise-library/52/crunch/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Front plank
+
+- [Exercise Library: Front Plank](https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Front Plank](https://exrx.net/WeightExercises/RectusAbdominis/BWFrontPlank). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Machine crunch
+
+- [Lever Seated Crunch (chest pad)](https://exrx.net/WeightExercises/RectusAbdominis/LVSeatedCrunchChestPad). ExRx.net, accessed 2026-11-11.
+- [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Pallof press
+
+- [Exercise Library: Standing Anti-Rotation Press](https://www.acefitness.org/resources/everyone/exercise-library/332/standing-anti-rotation-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [7 Exercises to Create an Anti-Rotation Progression Sequence](https://www.acefitness.org/resources/pros/expert-articles/5625/7-exercises-to-create-an-anti-rotation-progression-sequence/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Plate pinch carry
+
+- [How to Improve Grip Strength](https://www.acefitness.org/resources/pros/expert-articles/5765/how-to-improve-grip-strength/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Strongman Exercises That Work Great for Fitness Clients](https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Reverse crunch
+
+- [Exercise Library: Reverse Crunch](https://www.acefitness.org/resources/everyone/exercise-library/76/reverse-crunch/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Side plank
+
+- [Exercise Library: Side Plank with Straight Leg](https://www.acefitness.org/resources/everyone/exercise-library/101/side-plank-with-straight-leg/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Side Plank](https://www.acefitness.org/resources/everyone/exercise-library/303/side-plank/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Side Plank](https://exrx.net/WeightExercises/Obliques/BWSidePlank). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Stability ball rollout
+
+- [Core-strengthening Stability Ball Workout](https://www.acefitness.org/resources/pros/expert-articles/5123/core-strengthening-stability-ball-workout/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Suitcase carry
+
+- [Exercise Library: Suitcase Carry](https://www.acefitness.org/resources/everyone/exercise-library/358/suitcase-carry/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [NSCA Coach 7.1: Implementing Core Training Concepts into Strength Training for Sport](https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Strongman Exercises That Work Great for Fitness Clients](https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Waiter's carry
+
+- [NSCA Coach 7.1: Implementing Core Training Concepts into Strength Training for Sport](https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Strongman Exercises That Work Great for Fitness Clients](https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/). American Council on Exercise (ACE), accessed 2026-11-11.
