@@ -8,6 +8,9 @@ import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.data.db.AppDatabase
+import com.powertracker.domain.model.Advice
+import com.powertracker.domain.model.AdvicePayload
+import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.Exercise
@@ -113,8 +116,9 @@ class TodayViewModelTest {
         first.dismissTarget(suggestion.id)
         await("dismissal") { first.state.value.items.first().suggestion == null }
         val second = viewModel()
+        // Only after the second view model's own coach pass can a duplicate exist.
+        await("second coach pass") { second.coachPasses.value >= 1 }
         await("second state") { !second.state.value.loading }
-        shadowOf(Looper.getMainLooper()).idle()
 
         assertEquals(1, runBlocking { advice.all() }.count { it.type == AdviceType.TARGET })
         assertEquals(null, second.state.value.items.first().suggestion)
@@ -141,5 +145,93 @@ class TodayViewModelTest {
         val restarted = viewModel()
         await("restarted") { restarted.state.value.items.size == 2 }
         assertEquals(curl.id, restarted.state.value.items[1].exercise.id)
+    }
+
+    private fun planSquatWithHistory() = runBlocking {
+        training.setBaseline(Baseline(squat.id, 190.0, today.minusDays(30)))
+        training.logSet(training.startSession(today.minusDays(7), null, null), set(squat, 150.0).copy(rpe = 7.0))
+        training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
+    }
+
+    @Test
+    fun exercisePlannedTwice_isOneCard_withOneTarget() {
+        planSquatWithHistory()
+        runBlocking { training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 2, reps = 8, targetRpe = 7.0, order = 1)) }
+        val vm = viewModel()
+        await("coach pass") { vm.coachPasses.value >= 1 }
+        await("suggestion") { vm.state.value.items.firstOrNull()?.suggestion != null }
+
+        assertEquals(listOf(squat.id), vm.state.value.items.map { it.exercise.id })
+        assertEquals(5, vm.state.value.items.single().targetSets)
+        assertEquals(1, runBlocking { advice.all() }.count { it.type == AdviceType.TARGET })
+    }
+
+    @Test
+    fun appliedTarget_withFewerSets_changesTheSetCount() {
+        planSquatWithHistory()
+        // An open deload makes the coach cut the 5 planned sets to 3.
+        runBlocking { advice.insert(listOf(Advice(AdviceType.DELOAD, null, today, "Take a deload week.", 2, AdvicePayload.Deload()))) }
+        val vm = viewModel()
+        await("suggestion") { vm.state.value.items.firstOrNull()?.suggestion != null }
+        val item = vm.state.value.items.single()
+        val target = item.suggestion!!.payload as AdvicePayload.Target
+        assertEquals(3, target.sets)
+        assertEquals("nothing changes before Apply", 5, item.targetSets)
+        assertEquals(150.0, item.editor.weightKg)
+
+        vm.applyTarget(item.suggestion!!.id)
+
+        await("applied") { vm.state.value.items.single().suggestion == null }
+        await("editor") { vm.state.value.items.single().editor.weightKg == target.weightKg }
+        assertEquals(3, vm.state.value.items.single().targetSets)
+        assertEquals(AdviceStatus.APPLIED, runBlocking { advice.all() }.single { it.type == AdviceType.TARGET }.status)
+    }
+
+    @Test
+    fun doubleTap_savesOneSet() {
+        val sessionId = runBlocking {
+            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
+            training.startSession(today, null, null)
+        }
+        val vm = viewModel()
+        await("state") { !vm.state.value.loading }
+
+        vm.logSet(null, squat.id, set(squat, 100.0))
+        vm.logSet(null, squat.id, set(squat, 100.0))
+
+        await("logged") { vm.state.value.items.single().logged.isNotEmpty() }
+        repeat(20) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(5)
+        }
+        assertEquals(1, runBlocking { training.setsForSession(sessionId).first() }.size)
+
+        // Once the first set is on screen the button works again.
+        vm.logSet(null, squat.id, set(squat, 100.0))
+        await("second set") { vm.state.value.items.single().logged.size == 2 }
+    }
+
+    @Test
+    fun doubleTapOnConfirm_savesOneSet() {
+        val sessionId = runBlocking {
+            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
+            training.startSession(today, null, null)
+        }
+        val vm = viewModel()
+        await("state") { !vm.state.value.loading }
+        vm.logSet(null, squat.id, set(squat, 100.0).copy(reps = 13))
+        await("held back") { vm.state.value.pending != null }
+        val held = vm.state.value.pending!!
+
+        vm.logSet(held.planItemId, held.exerciseId, held.set, confirmed = true)
+        vm.logSet(held.planItemId, held.exerciseId, held.set, confirmed = true)
+
+        await("logged") { vm.state.value.items.single().logged.isNotEmpty() }
+        repeat(20) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(5)
+        }
+        assertEquals(1, runBlocking { training.setsForSession(sessionId).first() }.size)
+        assertEquals(null, vm.state.value.pending)
     }
 }

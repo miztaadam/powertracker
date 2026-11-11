@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.time.LocalDate
 
 /** The numbers in the steppers for the next set. [weightKg] is null until the lifter enters one. */
@@ -120,6 +121,14 @@ class TodayViewModel(
     private val local = MutableStateFlow(Local())
     private val starting = MutableStateFlow(false)
 
+    /** True while a set is being saved; further log taps are ignored until the screen shows it. */
+    private val saving = MutableStateFlow(false)
+
+    private val _coachPasses = MutableStateFlow(0)
+
+    /** How many times today's targets have been worked out and stored (once on open, again when the plan changes). */
+    val coachPasses: StateFlow<Int> = _coachPasses
+
     private val _events = MutableSharedFlow<TodayEvent>(extraBufferCapacity = 8)
     val events: SharedFlow<TodayEvent> = _events
 
@@ -151,6 +160,7 @@ class TodayViewModel(
                         .filter { it.exerciseId() !in known }
                         .distinctBy { it.exerciseId() }
                     if (fresh.isNotEmpty()) advice.insert(fresh)
+                    _coachPasses.update { it + 1 }
                 }
         }
     }
@@ -229,21 +239,29 @@ class TodayViewModel(
      * reps, or a jump of more than 30% from the last weight) is held in [TodayState.pending] instead.
      */
     fun logSet(planItemId: Long?, exerciseId: Long, set: LoggedSet, confirmed: Boolean = false) {
+        // A fast double tap must not save the set twice.
+        if (!saving.compareAndSet(expect = false, update = true)) return
         viewModelScope.launch {
-            val now = loaded()
-            val sessionId = now.sessionId ?: return@launch
-            val item = now.items.firstOrNull { it.exercise.id == exerciseId }
-            if (!confirmed) {
-                val warnings = InputValidator.check(set.weightKg, set.reps, item?.lastWeightKg)
-                if (warnings.isNotEmpty()) {
-                    local.update { it.copy(pending = PendingLog(planItemId, exerciseId, set, warnings)) }
-                    return@launch
+            try {
+                val now = loaded()
+                val sessionId = now.sessionId ?: return@launch
+                val item = now.items.firstOrNull { it.exercise.id == exerciseId }
+                if (!confirmed) {
+                    val warnings = InputValidator.check(set.weightKg, set.reps, item?.lastWeightKg)
+                    if (warnings.isNotEmpty()) {
+                        local.update { it.copy(pending = PendingLog(planItemId, exerciseId, set, warnings)) }
+                        return@launch
+                    }
                 }
+                // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
+                val setId = training.logSet(sessionId, set.copy(exerciseId = exerciseId, isTopSet = false))
+                local.update { it.copy(pending = null) }
+                _events.emit(TodayEvent.SetLogged(isMainOrVariation = item?.exercise?.category != Category.ACCESSORY))
+                // Hold the guard until the new set is on screen, so the button the lifter sees is never stale.
+                withTimeoutOrNull(SHOWN_TIMEOUT_MS) { state.first { s -> s.items.any { i -> i.sets.any { it.id == setId } } } }
+            } finally {
+                saving.value = false
             }
-            // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
-            training.logSet(sessionId, set.copy(exerciseId = exerciseId, isTopSet = false))
-            local.update { it.copy(pending = null) }
-            _events.emit(TodayEvent.SetLogged(isMainOrVariation = item?.exercise?.category != Category.ACCESSORY))
         }
     }
 
@@ -269,8 +287,9 @@ class TodayViewModel(
         viewModelScope.launch {
             val target = loaded().items.mapNotNull { it.suggestion }.firstOrNull { it.id == adviceId } ?: return@launch
             val payload = target.payload as? AdvicePayload.Target ?: return@launch
-            edit(payload.exerciseId, SetEditor(payload.weightKg, payload.reps, payload.rpe))
+            // Status first: if storing it fails, the editor keeps its numbers and the chip stays.
             advice.setStatus(adviceId, AdviceStatus.APPLIED)
+            edit(payload.exerciseId, SetEditor(payload.weightKg, payload.reps, payload.rpe))
         }
     }
 
@@ -313,6 +332,7 @@ class TodayViewModel(
 
     companion object {
         private const val DEFAULT_REPS = 5
+        private const val SHOWN_TIMEOUT_MS = 2_000L
 
         private fun Advice.exerciseId(): Long? = (payload as? AdvicePayload.Target)?.exerciseId
 

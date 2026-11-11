@@ -19,6 +19,8 @@ import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.data.db.AppDatabase
+import com.powertracker.domain.model.Advice
+import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Baseline
@@ -220,5 +222,22 @@ class TodayScreenTest {
         compose.onNodeWithTag("number-entry").performTextReplacement("181")
         compose.onNodeWithText("Set").performClick()
         waitForText("Can't load 181 kg exactly")
+    }
+
+    @Test
+    fun appliedDeloadTarget_showsSetOfFewerSets() {
+        runBlocking {
+            training.setBaseline(Baseline(squat.id, 190.0, today.minusDays(30)))
+            advice.insert(listOf(Advice(AdviceType.DELOAD, null, today, "Take a deload week.", 2, AdvicePayload.Deload())))
+        }
+        startSession()
+        show()
+
+        waitForText("· 3 sets")
+        compose.onNodeWithText("Set 1 of 5").assertExists()
+
+        compose.onNodeWithText("Apply").performClick()
+
+        waitForText("Set 1 of 3")
     }
 }
