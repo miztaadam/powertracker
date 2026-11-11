@@ -89,6 +89,14 @@
 - Header "Exercises", with the eyebrow "<N> exercises".
 - Five tabs must fit at 375 px and 360 dp, with targets ≥ 48 and no ellipsised labels.
 
+**Muscles drop-down (tab only)**
+- A multi-select "Muscles" drop-down filter on the tab. The picker keeps its tile grid.
+- It shows exercises that work any ticked group, combined with search and equipment.
+- Ticked groups show as removable chips with "Clear".
+- With nothing ticked, every exercise is listed, grouped by area.
+- The ticked groups persist with the tab state.
+- Domain: `Library.byMuscles(groups: Set<MuscleGroup>, equipment: Set<Equipment>)`, on the facade as `grit.exercisesByMuscles(groups, equipment)`.
+
 **Tab actions**
 
 | Action | When it shows | Behaviour | Snackbar |
@@ -269,7 +277,7 @@
 - Create: `ui/library/ExercisesScreen.kt` and the sheet actions.
 - Modify: `ui/AppShell.kt` to add the fifth tab.
 - Modify: the Plan and Today add paths so they're callable from the tab. Reuse the existing view-model actions and the resolver.
-- Test: `app/src/test/.../ui/library/ExercisesScreenTest.kt` with all the test names from spec §6, plus `addToToday_afterFinish_doesNotAdd`. Extend the tab bar tests. Add screenshots.
+- Test: `app/src/test/.../ui/library/ExercisesScreenTest.kt` with all the test names from spec §6 (including the three `musclesDropdown_*` tests), plus `addToToday_afterFinish_doesNotAdd`. Add `Library.byMuscles` to the domain with a test, `byMuscles_anyOf_alphabetical_filtersEquipment`, in E1. Extend the tab bar tests. Add screenshots.
 
 **Interfaces:**
 - Produces: `@Composable fun ExerciseBrowser(state, onRow: (entry) -> Unit, onInfo: (entry) -> Unit)`. Both the picker and the tab use it.

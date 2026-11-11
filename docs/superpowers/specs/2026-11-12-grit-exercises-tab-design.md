@@ -38,6 +38,13 @@ The library has 225 exercises, each with a form guide. At the moment the only wa
 
   The browsing content is extracted into a shared component used by both the picker dialog and this tab. On Android it is a composable. On the web it is a component.
 - The pick, double-tap and custom-name rules don't apply here, because a row tap opens the guide instead of picking.
+- **Muscles drop-down (owner decision).** The tab replaces the single-tap muscle grid with a **"Muscles" drop-down filter** at the top, next to the equipment filter. The picker keeps its grid.
+  - The drop-down lists the 18 muscle groups in `MuscleGroup` order, and the lifter can tick any number of them.
+  - The list shows every exercise that works **any** ticked group. It combines with search and with the equipment filter, which already matches any ticked equipment.
+  - Ticked groups appear as removable chips under the filter bar. "Clear" removes them all.
+  - With nothing ticked, the tab lists every exercise, grouped by body area.
+  - Ticked groups persist with the rest of the tab state (§3, last bullet).
+  - Domain: add `Library.byMuscles(groups: Set<MuscleGroup>, equipment: Set<Equipment>)`, any-of and alphabetical, and expose it on the JS facade.
 - The lifter's own (custom) exercises appear under "Your exercises", the same as in the picker. Their sheet shows the existing "No form guide for your own exercises." text, with the add buttons.
 - The tab keeps its search, filters and muscle mode while the lifter switches tabs, but not across an app reload.
 
@@ -66,6 +73,9 @@ There is no schema, setting or backup change. Writes go through the existing pla
 
 - `exercisesTab_isTheFourthOfFiveTabs_andFits`
 - `exercisesTab_browseByMuscleAndSearchWork`
+- `musclesDropdown_multiSelect_showsAnyOf`
+- `musclesDropdown_combinesWithEquipmentAndSearch`
+- `musclesDropdown_chipsRemoveAndClear`
 - `tapRow_opensGuideWithActions`
 - `addToPlan_choosesDay_andUsesDefaults`
 - `addToPlan_alreadyOnDay_saysSo`
