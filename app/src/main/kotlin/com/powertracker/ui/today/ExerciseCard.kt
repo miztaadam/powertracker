@@ -30,9 +30,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.powertracker.data.StoredSet
@@ -55,6 +57,7 @@ import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.components.SegmentedChoice
 import com.powertracker.ui.components.SetRow
 import com.powertracker.ui.components.SetState
+import com.powertracker.ui.components.StepperEntry
 import com.powertracker.ui.components.StepperField
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.components.formatRpe
@@ -66,10 +69,6 @@ import kotlin.math.roundToLong
 /** Where the primary button leads once an exercise's sets are done: the next exercise, or Finish. */
 class NextStep(val label: String, val onClick: () -> Unit)
 
-private const val MAX_KG = 1000.0
-private const val MAX_REPS = 99
-private const val MIN_RPE = 6.0
-private const val MAX_RPE = 10.0
 
 /** RPE from which a set counts as a grind worth asking "where?" about. */
 private const val GRIND_RPE = 9.5
@@ -211,46 +210,93 @@ private fun MissRow(number: Int, set: LoggedSet, onSelect: (MissPoint?) -> Unit)
     }
 }
 
-private enum class Entry { WEIGHT, REPS }
-
 @Composable
 private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean, actions: TodayActions) {
     val id = item.exercise.id
     val e = item.editor
-    val weight = e.weightKg
-    var entry by remember { mutableStateOf<Entry?>(null) }
+    var drafts by rememberSaveable(id, stateSaver = DraftsSaver) { mutableStateOf<Drafts>(emptyMap()) }
+    val focus = remember { EntryKind.entries.associateWith { FocusRequester() } }
+
+    // What a field shows instead of the editor's value. Text being typed stays even when the value under
+    // it changes; a refused entry gives way to a newer value.
+    fun shown(kind: EntryKind): Draft? = drafts[kind]?.takeIf { it.error == null || it.base == e.valueOf(kind) }
+    // The editor as it will be once the typing is committed: the plates and the buttons follow the typing.
+    val typed = settle(e, drafts).editor
+    val weight = typed.weightKg
+
+    /** Leaving a field commits what was typed into it. */
+    fun commit(kind: EntryKind) {
+        val settled = settle(e, drafts.filterKeys { it == kind })
+        drafts = drafts - kind + settled.drafts
+        if (settled.editor != e) actions.onEdit(id, settled.editor)
+    }
+
+    /** − or +: steps from what is typed, or from the last good value when that was refused, and clears the message. */
+    fun step(kind: EntryKind, next: (SetEditor) -> SetEditor) {
+        val settled = settle(e, drafts)
+        drafts = settled.drafts - kind
+        actions.onEdit(id, next(settled.editor))
+    }
+
+    /** Log set or Missed. A refused entry on the card stops it: the lifter meant some other number, so the cursor goes to it instead. */
+    fun log(failed: Boolean) {
+        val settled = settle(e, drafts)
+        val refused = EntryKind.entries.firstOrNull { it in settled.drafts }
+        // The cursor moves first: the field it leaves commits its own entry, and the whole card's is stored after it.
+        if (refused != null) focus.getValue(refused).requestFocus()
+        drafts = settled.drafts
+        if (settled.editor != e) actions.onEdit(id, settled.editor)
+        if (refused == null && settled.editor.weightKg != null) actions.onLogSet(item.copy(editor = settled.editor), failed)
+    }
+
+    fun entry(kind: EntryKind, label: String, keyboard: KeyboardType, placeholder: String? = null) = StepperEntry(
+        keyboard = keyboard,
+        placeholder = placeholder,
+        error = shown(kind)?.error,
+        onDraft = { drafts = drafts + (kind to Draft(it, e.valueOf(kind))) },
+        onCommit = { commit(kind) },
+        label = label,
+        focus = focus.getValue(kind),
+    )
 
     Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
         StepperField(
-            "Weight", weight?.let(::formatKg) ?: "–",
+            "Weight", shown(EntryKind.KG)?.text ?: e.weightKg?.let(::formatKg).orEmpty(),
             canDecrement = weight != null && weight > 0.0,
             canIncrement = weight == null || weight < MAX_KG,
-            onDecrement = { actions.onEdit(id, e.copy(weightKg = stepWeight(weight, -weightStepKg))) },
-            onIncrement = { actions.onEdit(id, e.copy(weightKg = stepWeight(weight, weightStepKg))) },
-            modifier = Modifier.weight(1.25f), unit = "kg", onValueClick = { entry = Entry.WEIGHT },
+            onDecrement = { step(EntryKind.KG) { it.copy(weightKg = stepWeight(it.weightKg, -weightStepKg)) } },
+            onIncrement = { step(EntryKind.KG) { it.copy(weightKg = stepWeight(it.weightKg, weightStepKg)) } },
+            modifier = Modifier.weight(1.25f), unit = "kg",
+            entry = entry(EntryKind.KG, "Weight, kilograms", KeyboardType.Decimal, placeholder = "kg"),
         )
         StepperField(
-            "Reps", e.reps.toString(),
-            canDecrement = e.reps > 1,
-            canIncrement = e.reps < MAX_REPS,
-            onDecrement = { actions.onEdit(id, e.copy(reps = e.reps - 1)) },
-            onIncrement = { actions.onEdit(id, e.copy(reps = e.reps + 1)) },
-            modifier = Modifier.weight(1f), onValueClick = { entry = Entry.REPS },
-        )
-        StepperField(
-            "RPE", formatRpe(e.rpe),
-            canDecrement = e.rpe > MIN_RPE,
-            canIncrement = e.rpe < MAX_RPE,
-            onDecrement = { actions.onEdit(id, e.copy(rpe = (e.rpe - 0.5).coerceAtLeast(MIN_RPE))) },
-            onIncrement = { actions.onEdit(id, e.copy(rpe = (e.rpe + 0.5).coerceAtMost(MAX_RPE))) },
+            "Reps", shown(EntryKind.REPS)?.text ?: e.reps.toString(),
+            canDecrement = typed.reps > 1,
+            canIncrement = typed.reps < MAX_REPS,
+            onDecrement = { step(EntryKind.REPS) { it.copy(reps = it.reps - 1) } },
+            onIncrement = { step(EntryKind.REPS) { it.copy(reps = it.reps + 1) } },
             modifier = Modifier.weight(1f),
+            entry = entry(EntryKind.REPS, "Reps", KeyboardType.Number),
+        )
+        StepperField(
+            "RPE", shown(EntryKind.RPE)?.text ?: formatRpe(e.rpe),
+            canDecrement = typed.rpe > MIN_RPE,
+            canIncrement = typed.rpe < MAX_RPE,
+            onDecrement = { step(EntryKind.RPE) { it.copy(rpe = (it.rpe - 0.5).coerceAtLeast(MIN_RPE)) } },
+            onIncrement = { step(EntryKind.RPE) { it.copy(rpe = (it.rpe + 0.5).coerceAtMost(MAX_RPE)) } },
+            modifier = Modifier.weight(1f),
+            entry = entry(EntryKind.RPE, "RPE", KeyboardType.Decimal),
         )
     }
 
-    val perSide = item.perSide
+    val perSide = when (weight) {
+        null -> null
+        e.weightKg -> item.perSide
+        else -> PlateLoader.perSide(weight, changePlates)
+    }
     val isBarbellLift = item.exercise.category != Category.ACCESSORY
     when {
-        weight == null -> PlateStripNote("No weight yet", "Tap the number to type it in.")
+        weight == null -> PlateStripNote("No weight yet", "Type the weight to see the plates.")
         // Accessories may be dumbbells or machines: only draw a bar when there are plates to put on it.
         perSide != null -> if (isBarbellLift || perSide.isNotEmpty()) PlateStrip(perSide)
         !isBarbellLift -> Unit
@@ -263,20 +309,8 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
     }
 
     Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-        SecondaryButton("Missed", { actions.onLogSet(item, true) }, enabled = weight != null, icon = Icons.Filled.Close)
-        PrimaryButton("Log set ${item.sets.size + 1}", { actions.onLogSet(item, false) }, Modifier.weight(1f), enabled = weight != null, icon = Icons.Filled.Check)
-    }
-
-    when (entry) {
-        Entry.WEIGHT -> NumberEntryDialog("Weight", "kg", weight, max = MAX_KG, whole = false, onDismiss = { entry = null }) {
-            actions.onEdit(id, e.copy(weightKg = it))
-            entry = null
-        }
-        Entry.REPS -> NumberEntryDialog("Reps", null, e.reps.toDouble(), min = 1.0, max = MAX_REPS.toDouble(), whole = true, onDismiss = { entry = null }) {
-            actions.onEdit(id, e.copy(reps = it.toInt()))
-            entry = null
-        }
-        null -> Unit
+        SecondaryButton("Missed", { log(true) }, enabled = weight != null, icon = Icons.Filled.Close)
+        PrimaryButton("Log set ${item.sets.size + 1}", { log(false) }, Modifier.weight(1f), enabled = weight != null, icon = Icons.Filled.Check)
     }
 }
 

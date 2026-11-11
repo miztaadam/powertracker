@@ -83,7 +83,7 @@ Depth comes from tone steps and a 1 dp hairline. No shadows.
 - `PtCard` — the standard container (surface + hairline).
 - `PrimaryButton` / `SecondaryButton` / `QuietButton` — accent fill, tonal, text; `compact` inside cards.
 - `NumberDisplay`, `Eyebrow` — label, big tabular value, small unit on the baseline.
-- `Stepper` — one-line − value + (settings, dialogs). `StepperField` — big value over two wide buttons (logging); with `onValueClick` the value is a button for typing the number.
+- `Stepper` — one-line − value + (settings, dialogs). `StepperField` — big value over two wide buttons (logging); with `entry` the value is a number field typed straight into (select-all on focus, Done or leaving it commits, the message of a refused entry underneath).
 - `SetRow` — set number, weight × reps @ RPE, planned / done / failed, optional "Top set" and "PR".
 - `SegmentedChoice` — pick one of a few (miss point Floor / Mid / Lockout, chart range). `ChoiceChip` — toggle (training days). Selected is tonal in both: container-highest fill, text colour, a 1 dp outline.
 - `Pill` — small status label in a tone.
