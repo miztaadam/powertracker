@@ -79,17 +79,18 @@ export const TABLE_NAMES = [
   'meta',
 ] as const
 
-/** Every schema change appends a numbered version here, with an upgrade test. */
+/** Only fields that are valid IndexedDB keys and get queried are indexed (booleans are not keys).
+ * Every schema change appends a numbered version here, with an upgrade test. */
 export const SCHEMA_VERSIONS: SchemaVersion[] = [
   {
     version: 1,
     stores: {
-      exercises: '++id, name, category, parentLift, muscles, isBuiltIn, archived',
+      exercises: '++id, name, category, parentLift',
       sessions: '++id, &date',
-      sets: '++id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet',
-      planItems: '++id, weekday, exerciseId, sets, reps, targetRpe, order',
-      advice: '++id, type, lift, createdAt, reason, severity, status, payloadJson',
-      baselines: 'exerciseId, e1rmKg, date',
+      sets: '++id, sessionId, exerciseId',
+      planItems: '++id, weekday, exerciseId',
+      advice: '++id, type, lift, createdAt, status',
+      baselines: 'exerciseId',
       settings: 'key',
       meta: 'key',
     },

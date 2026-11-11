@@ -8,13 +8,15 @@ export const SAFETY_COPY_KEY = 'safetyCopy'
  */
 export async function snapshotForSafety(db: Dexie): Promise<string> {
   const tables: Record<string, unknown[]> = {}
-  for (const table of db.tables) {
-    const rows = await table.toArray()
-    tables[table.name] =
-      table.name === 'meta'
-        ? rows.filter((r: { key: string }) => r.key !== SAFETY_COPY_KEY)
-        : rows
-  }
+  await db.transaction('r', db.tables, async () => {
+    for (const table of db.tables) {
+      const rows = await table.toArray()
+      tables[table.name] =
+        table.name === 'meta'
+          ? rows.filter((r: { key: string }) => r.key !== SAFETY_COPY_KEY)
+          : rows
+    }
+  })
   return JSON.stringify({ kind: 'grit-safety-copy', version: db.verno, tables })
 }
 

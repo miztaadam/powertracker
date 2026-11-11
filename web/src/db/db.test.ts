@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import Dexie from 'dexie'
-import { grit, JsBaseline, JsSession, JsSet } from '../domain'
+import { grit, JsAdvice, JsBaseline, JsPlanItem, JsSession, JsSet } from '../domain'
 import {
   ensureSeeded,
   getSettings,
   loadHistory,
+  installedVersion,
   openGritDb,
   readSafetyCopy,
   updateSettings,
@@ -12,7 +13,15 @@ import {
   type GritDb,
 } from './db'
 import { SCHEMA_VERSIONS, type SchemaVersion } from './schema'
-import { sessionFromJs, setFromJs, baselineFromJs } from './mapping'
+import {
+  adviceFromJs,
+  adviceToJs,
+  baselineFromJs,
+  planItemFromJs,
+  planItemToJs,
+  sessionFromJs,
+  setFromJs,
+} from './mapping'
 
 let n = 0
 let name = ''
@@ -71,6 +80,41 @@ describe('history', () => {
   })
 })
 
+describe('mapping', () => {
+  it('rawRows_structure_withExplicitNulls', () => {
+    expect(setFromJs(new JsSet(1, 100, 5, null, true, 'MIDPOINT', false), 7)).toEqual({
+      sessionId: 7, exerciseId: 1, weightKg: 100, reps: 5, rpe: null, failed: true, missPoint: 'MIDPOINT', isTopSet: false,
+    })
+    expect(setFromJs(new JsSet(1, 100, 5, 8, false, null, true), 7).missPoint).toBeNull()
+    expect(sessionFromJs(new JsSession(3, '2026-11-02', null, null, []))).toEqual({
+      id: 3, date: '2026-11-02', bodyweightKg: null, readiness: null,
+    })
+    expect(baselineFromJs(new JsBaseline(1, 140, '2026-10-01'))).toEqual({ exerciseId: 1, e1rmKg: 140, date: '2026-10-01' })
+  })
+
+  it('planItem_andAdvice_roundTrip', async () => {
+    const db = await openDb()
+    const p = new JsPlanItem(1, 3, 2, 4, 6, 8.5, 0)
+    await db.planItems.put(planItemFromJs(p))
+    expect(String(planItemToJs((await db.planItems.get(1))! as never))).toBe(String(p))
+    const payload = '{"kind":"x","n":[1,2]}'
+    const a = new JsAdvice(1, 'DELOAD', null, '2026-11-02', 'why', 2, 'OPEN', payload)
+    await db.advice.put(adviceFromJs(a))
+    const row = (await db.advice.get(1))!
+    expect(row.payloadJson).toBe(payload)
+    expect(row.lift).toBeNull()
+    expect(String(adviceToJs(row as never))).toBe(String(a))
+  })
+
+  it('sessionDate_isUnique', async () => {
+    const db = await openDb()
+    await db.sessions.add({ date: '2026-11-02', bodyweightKg: null, readiness: null })
+    await expect(
+      db.sessions.add({ date: '2026-11-02', bodyweightKg: null, readiness: null }),
+    ).rejects.toMatchObject({ name: 'ConstraintError' })
+  })
+})
+
 describe('settings', () => {
   it('settings_defaults_andUpdate', async () => {
     const db = await openDb()
@@ -91,6 +135,15 @@ describe('settings', () => {
     expect(s.trainingDays).toEqual([2, 4])
     expect(s.lastBackupAt).toBe('2026-11-11')
     expect(s.restMainSec).toBe(180)
+    expect((await db.settings.toArray()).map((r) => r.key).sort()).toEqual(['changePlates', 'lastBackupAt', 'trainingDays'])
+    await db.settings.put({ key: 'defaultRpe', value: 'oops' })
+    expect((await getSettings(db)).defaultRpe).toBe(8.0)
+  })
+
+  it('defaults_areNotShared', async () => {
+    const db = await openDb()
+    ;(await getSettings(db)).trainingDays.push(7)
+    expect((await getSettings(db)).trainingDays).toEqual([1, 3, 5])
   })
 })
 
@@ -125,20 +178,36 @@ describe('upgrades', () => {
     await v1.sessions.add({ date: '2026-11-02', bodyweightKg: 80, readiness: null })
     v1.close()
 
-    await expect(
-      openGritDb(name, {
-        schemaVersions: v2(() => {
+    // The upgrade mutates a row and adds a store, THEN throws: only a real abort leaves v1 intact.
+    const failing: SchemaVersion[] = [
+      ...SCHEMA_VERSIONS,
+      {
+        version: 2,
+        stores: { extra: '++id' },
+        upgrade: async (tx) => {
+          await tx.table('sessions').toCollection().modify({ bodyweightKg: 999 })
+          await tx.table('extra').add({ x: 1 })
           throw new Error('boom')
-        }),
-      }),
-    ).rejects.toBeInstanceOf(UpgradeFailedError)
+        },
+      },
+    ]
+    await expect(openGritDb(name, { schemaVersions: failing })).rejects.toBeInstanceOf(UpgradeFailedError)
+
+    expect(await installedVersion(name)).toBe(1)
+    const raw = await new Promise<IDBDatabase>((res, rej) => {
+      const r = indexedDB.open(name)
+      r.onsuccess = () => res(r.result)
+      r.onerror = () => rej(r.error)
+    })
+    expect(Array.from(raw.objectStoreNames)).not.toContain('extra')
+    raw.close()
 
     const again = await openDb()
     expect(await again.sessions.toArray()).toEqual([
       { id: 1, date: '2026-11-02', bodyweightKg: 80, readiness: null },
     ])
     const copy = JSON.parse((await readSafetyCopy(again))!)
-    expect(copy.tables.sessions).toHaveLength(1)
+    expect(copy.tables.sessions).toEqual([{ id: 1, date: '2026-11-02', bodyweightKg: 80, readiness: null }])
   })
 
   it('freshInstall_writesNoSafetyCopy', async () => {

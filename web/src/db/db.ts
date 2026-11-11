@@ -18,10 +18,18 @@ export { ensureSeeded } from './seed'
 export { readSafetyCopy, writeSafetyCopy } from './safety'
 export { DEFAULT_SETTINGS, getSettings, updateSettings, type AppSettings } from './settings'
 
+const versionChangeListeners = new Set<() => void>()
+
+/** Calls `cb` when another tab needs a newer schema and this connection was closed. Returns an unsubscribe. */
+export function onDbVersionChange(cb: () => void): () => void {
+  versionChangeListeners.add(cb)
+  return () => versionChangeListeners.delete(cb)
+}
+
 /** Thrown by `openGritDb` when a schema upgrade failed. Data is untouched; a safety copy exists. */
 export class UpgradeFailedError extends Error {
-  constructor(public readonly cause: unknown) {
-    super('Upgrading the Grit database failed. Your data is unchanged and a safety copy was saved.')
+  constructor(cause: unknown) {
+    super('Upgrading the Grit database failed. Your data is unchanged and a safety copy was saved.', { cause })
     this.name = 'UpgradeFailedError'
   }
 }
@@ -42,11 +50,18 @@ export class GritDb extends Dexie {
       const version = this.version(v.version).stores(v.stores)
       if (v.upgrade) version.upgrade(v.upgrade)
     }
+    // Another tab/version wants to upgrade: release the connection and never reopen
+    // with this (older) schema. The UI prompts for a reload.
+    this.on('versionchange', () => {
+      this.close({ disableAutoOpen: true })
+      versionChangeListeners.forEach((cb) => cb())
+      return false
+    })
   }
 }
 
 /** Installed Dexie version of `name`, or 0 if the database does not exist (and is not created). */
-async function installedVersion(name: string): Promise<number> {
+export async function installedVersion(name: string): Promise<number> {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(name)
     let existed = true
@@ -55,9 +70,9 @@ async function installedVersion(name: string): Promise<number> {
       req.transaction?.abort()
     }
     req.onsuccess = () => {
-      const idbVersion = req.result.version
+      const { version, objectStoreNames } = req.result
       req.result.close()
-      resolve(existed ? idbVersion / 10 : 0)
+      resolve(existed && objectStoreNames.length > 0 ? Math.round(version / 10) : 0)
     }
     req.onerror = () => (existed ? reject(req.error) : resolve(0))
     req.onblocked = () => reject(new Error('Grit database is blocked by another tab'))
