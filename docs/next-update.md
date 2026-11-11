@@ -1,7 +1,7 @@
 # Grit — next update (after the web app ships)
 
 Requested by the owner during the web build. Applies to **both** the Android app and the web app,
-through the shared `:domain` module and design tokens. Each item gets its own spec → plan → build.
+through the shared `:domain` module and design tokens. Each item gets its own spec → plan → build. Order agreed with the owner: (1) chalk accent + typed numbers on Today — shipped; (2) exercise library + form guides (items 3 and 4); (3) strict press.
 
 ## 1. Chalky grey buttons
 - Change primary buttons from volt green (`#C9F73A`) to a chalky grey.
