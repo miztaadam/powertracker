@@ -4,7 +4,7 @@ The app is called **Grit**. The repository, the Gradle modules and the package (
 `PowertrackerTheme`, …) keep the original name, Powertracker.
 
 **Direction.** A training instrument, not a lifestyle app: graphite surfaces, chalk-white type and
-big condensed tabular numerals you can read from the floor of a dim gym. One accent — volt — marks
+big condensed tabular numerals you can read from the floor of a dim gym. One accent — warm chalk — marks
 the single next action; every other colour means a state (PR, stall, deload) or a real object (a plate).
 
 Mockups: `docs/design/screens/` (rendered by `ScreenshotTest` from the real components; the
@@ -28,9 +28,10 @@ Dark is the primary theme; light mirrors it. Dynamic colour (Android 12+) is off
 | Text | `#F3F4EF` | `#111315` | Values, titles |
 | Text secondary | `#A9AEB6` | `#4D525A` | Body copy |
 | Text muted | `#959BA4` | `#595E66` | Eyebrows, units, axis labels |
-| **Accent fill (volt)** | `#C9F73A` + ink `#121700` | same | Primary button, current tab, switch on |
-| Accent as text | `#C9F73A` | `#3F6100` | Rest progress, links, selected ticks |
-| Accent container | `#25300A` | `#E6F9A8` | Coach suggestion chip |
+| Outline | `#717A86` | `#787C83` | Selected chip and segment border, planned-set ring, switch-off border |
+| **Accent fill (warm chalk)** + ink | `#DCD6C8` + `#1A1812` | `#46423B` + `#FBF8F1` | Primary button, current tab, switch on |
+| Accent as text | `#DCD6C8` | `#4B463E` | Rest progress, links, the total sparkline |
+| Accent container + text | `#332F26` + `#EAE4D5` | `#E8E2D4` + `#39342B` | Coach suggestion chip |
 | Success | `#3DD68C` on `#0F2A1D` | `#0F6B3D` on `#DDF5E7` | PR, progress, set done, in range |
 | Warning | `#FFB627` on `#33250A` | `#7A5200` on `#FFEFC7` | Stall, out of range |
 | Danger | `#FF6B6B` on `#3A1416` | `#B3232B` on `#FDE1E0` | Deload, failed rep, delete |
@@ -40,7 +41,11 @@ Dark is the primary theme; light mirrors it. Dynamic colour (Android 12+) is off
 
 Every text colour (text, secondary, muted, accent-as-text, the four state colours) meets WCAG AA
 (4.5:1) on every surface from background up to container highest, and on its own container;
-`TokenContrastTest` enforces it. The chart and plate colours are graphics, not text: they follow
+`TokenContrastTest` enforces it. It also pins the accent values and the 3:1 minimums around them:
+the accent fill against every surface and against the secondary and disabled button fills, and the
+outline against container high and highest (the outline is what marks a selected chip or segment).
+`NoVoltTest` fails if the retired green accent comes back, by value or by name, in the app's sources
+or in this document. The chart and plate colours are graphics, not text: they follow
 the 3:1 rule for marks, are always named by a legend or figures, and must never colour text
 (light-theme deadlift green is 2.8:1 on white, which is why the legend with values is mandatory).
 Read colours through `MaterialTheme.colorScheme`, `PowertrackerTheme.colors` and `Tone.color()` / `Tone.container()`.
@@ -76,11 +81,11 @@ Depth comes from tone steps and a 1 dp hairline. No shadows.
 - `ScreenHeader` — eyebrow + big title + actions; top of every screen.
 - `SectionHeader` — upper-case group label with optional action.
 - `PtCard` — the standard container (surface + hairline).
-- `PrimaryButton` / `SecondaryButton` / `QuietButton` — volt, tonal, text; `compact` inside cards.
+- `PrimaryButton` / `SecondaryButton` / `QuietButton` — accent fill, tonal, text; `compact` inside cards.
 - `NumberDisplay`, `Eyebrow` — label, big tabular value, small unit on the baseline.
 - `Stepper` — one-line − value + (settings, dialogs). `StepperField` — big value over two wide buttons (logging); with `onValueClick` the value is a button for typing the number.
 - `SetRow` — set number, weight × reps @ RPE, planned / done / failed, optional "Top set" and "PR".
-- `SegmentedChoice` — pick one of a few (miss point Floor / Mid / Lockout, chart range). `ChoiceChip` — toggle (training days).
+- `SegmentedChoice` — pick one of a few (miss point Floor / Mid / Lockout, chart range). `ChoiceChip` — toggle (training days). Selected is tonal in both: container-highest fill, text colour, a 1 dp outline.
 - `Pill` — small status label in a tone.
 - `CoachSuggestion` — inline "Coach suggests 155 × 5 @ 8" with reason, Apply, Dismiss.
 - `AdviceCard` — coach card shell: toned icon + tag, title (what), body (why), detail slot, actions.
@@ -90,13 +95,13 @@ Depth comes from tone steps and a 1 dp hairline. No shadows.
 - `LineChart`, `Sparkline`, `BarStrip`, `ChartSeries` — e1RM over time with legend and latest values (a null value is a week with no reading; the line runs across it); tiny trend line; a row of bars for one quantity per week (volume), with the figure in text beside it. Give `Sparkline` a `minSpan` when a flat trend must look flat (the stall card uses 5% of the lift).
 - `RatioBar` — lift ratio against its typical range.
 - `EmptyState` — icon, title, body, optional action.
-- `PtBottomBar` (in `ui/AppShell.kt`) — four tabs, volt indicator on the current one.
-- `LockScreen` (in `ui/lock/`) — what stands in for the app while app lock holds it shut: the Grit icon, one line on why, one volt button (Unlock; Continue when the phone has no screen lock). Mockups `lock-*` and `lock-no-screen-lock-*`.
+- `PtBottomBar` (in `ui/AppShell.kt`) — four tabs, accent indicator on the current one.
+- `LockScreen` (in `ui/lock/`) — what stands in for the app while app lock holds it shut: the Grit icon, one line on why, one primary button (Unlock; Continue when the phone has no screen lock). Mockups `lock-*` and `lock-no-screen-lock-*`.
 
 ## Launcher icon
 
 Concept "Barbell I, steel grey" from `docs/design/logo/` (see `BRIEF.md` there): chalk G, R, T on
-graphite, the I a steel barbell, no volt. In the app it is three vector drawables converted from
+graphite, the I a steel barbell, no green. In the app it is three vector drawables converted from
 the SVGs without changing the paths (`ic_launcher_foreground`, `ic_launcher_background`,
 `ic_launcher_monochrome`) behind the adaptive icons `mipmap-anydpi-v26/ic_launcher(.round).xml`.
 `LauncherIconTest` draws it as a launcher would (circle, rounded square, themed) to
@@ -107,7 +112,8 @@ the SVGs without changing the paths (`ic_launcher_foreground`, `ic_launcher_back
 Do
 - Build from these components and tokens; add a component here before styling one-off in a screen.
 - Put numbers in a condensed style (`headlineSmall` or a display style) and units in muted small text.
-- Keep one volt button per card or screen region: the thing to do next.
+- Keep one primary button per card or screen region: the thing to do next. It is the brightest filled
+  element on every screen.
 - Map advice to tones: TARGET → accent chip, STALL → warning, DELOAD → danger, WEAK_POINT / RE_ENTRY → info.
 - Pair every state colour with words or an icon ("Failed", "Below range", tick, cross).
 - Use the squat / bench / deadlift colours only for chart marks, always with a legend; text stays in text colours.
@@ -115,7 +121,8 @@ Do
 - Check both themes; add the screen to `Showcase.kt` / `ScreenshotTest` and look at the PNGs.
 
 Don't
-- Don't use volt for decoration, selection, charts or success. Selected chips are inverse (chalk on ink).
+- Don't use the accent for decoration, selection or success. Selected chips and segments are tonal, not
+  inverse: chalk on ink would outshine a chalk button.
 - Don't use raw hex, default Material purple, dynamic colour, or elevation shadows.
 - Don't use state colours as chart series, or plate colours anywhere but plates.
 - Don't put two y-scales on one chart; show the total as its own figure.
@@ -133,14 +140,9 @@ production builds. Mockups: `docs/design/web/screens/showcase-{dark,light}.png`,
 `web/e2e/showcase.spec.ts`. A normal `npm run e2e` only writes them to `web/test-results/`; to update
 the committed PNGs run `UPDATE_SCREENSHOTS=1 npm run e2e` and look at them.
 
-**Accent: warm chalk.** The web app's accent is warm chalk, not the green in the colour table above
-(the Android app follows in its own change). The other tokens are the same.
-
-| Role | Dark | Light | Use |
-|---|---|---|---|
-| Accent fill + ink | `#DCD6C8` + `#1A1812` | `#46423B` + `#FBF8F1` | Primary button, current tab, switch on |
-| Accent as text | `#DCD6C8` | `#4B463E` | Rest progress, links, the total sparkline |
-| Accent container + text | `#332F26` + `#EAE4D5` | `#E8E2D4` + `#39342B` | Coach suggestion chip |
+**Accent: warm chalk**, the values in the colour table above. One token differs for now: the web
+`--outline` is still `#5A616B` (dark) and `#8C9098` (light), below 3:1 on container high and highest;
+Android raised it in its own change.
 
 - The primary button is the brightest filled element on every screen. Keep one per card or screen region.
 - Selected segments and chips are tonal: container-highest fill, text colour, a 1 px outline. They are

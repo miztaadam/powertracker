@@ -25,7 +25,7 @@ import com.powertracker.ui.theme.Space
 fun formatClock(seconds: Int): String = "${seconds / 60}:${(seconds % 60).toString().padStart(2, '0')}"
 
 /**
- * The rest countdown docked above the bottom bar: time left in big figures, a volt line along the
+ * The rest countdown docked above the bottom bar: time left in big figures, an accent line along the
  * top edge that empties as the rest runs out, and −30 s / +30 s / Skip.
  */
 @Composable

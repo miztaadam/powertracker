@@ -63,7 +63,7 @@ import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
 import kotlin.math.roundToLong
 
-/** Where the volt button leads once an exercise's sets are done: the next exercise, or Finish. */
+/** Where the primary button leads once an exercise's sets are done: the next exercise, or Finish. */
 class NextStep(val label: String, val onClick: () -> Unit)
 
 private const val MAX_KG = 1000.0

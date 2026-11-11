@@ -152,7 +152,7 @@ fun TodayStartShowcase() {
     TodayContent(TodayState(SHOWCASE_DATE, loading = false, items = todayItems(emptyList(), suggest = true)), TodayActions())
 }
 
-/** The planned sets are done: the volt button moves on to the next exercise. */
+/** The planned sets are done: the primary button moves on to the next exercise. */
 @Composable
 fun TodayNextShowcase() {
     val squatSets = listOf(logged(1, 150.0, 5, 7.5), logged(2, 155.0, 5, 8.0), logged(3, 155.0, 5, 8.5), logged(4, 155.0, 5, 9.0), logged(5, 155.0, 5, 9.5))

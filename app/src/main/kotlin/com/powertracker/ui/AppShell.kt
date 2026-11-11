@@ -94,7 +94,7 @@ fun AppShell(container: AppContainer) {
     }
 }
 
-/** The four-tab bottom bar. The current tab gets the volt indicator; everything else stays quiet. */
+/** The four-tab bottom bar. The current tab gets the accent indicator; everything else stays quiet. */
 @Composable
 fun PtBottomBar(currentRoute: String?, onSelect: (Tab) -> Unit) {
     val scheme = MaterialTheme.colorScheme

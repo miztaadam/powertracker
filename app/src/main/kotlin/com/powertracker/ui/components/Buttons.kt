@@ -33,7 +33,7 @@ private fun Label(text: String, icon: ImageVector?) {
 // Compact buttons are 40 dp tall to look at, but Material pads their touch target to 48 dp
 // (minimum interactive size), so they still meet Space.touch. ComponentsTest checks this.
 
-/** The one volt-filled action on a screen or card. [compact] is for use inside cards and rows. */
+/** The one accent-filled action on a screen or card. [compact] is for use inside cards and rows. */
 @Composable
 fun PrimaryButton(
     text: String,

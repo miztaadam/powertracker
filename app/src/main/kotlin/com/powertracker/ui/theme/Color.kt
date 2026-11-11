@@ -7,14 +7,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-/** The one signature accent ("volt"). Fills use it in both themes; ink sits on top. */
-val Volt = Color(0xFFC9F73A)
-val VoltInk = Color(0xFF121700)
-
 /** Brand colours Material's scheme has no slot for. Read through [PowertrackerTheme.colors]. */
 @Immutable
 data class PtColors(
-    /** Accent as a fill (buttons, progress, selected states). */
+    /** The one accent, warm chalk, as a fill: the primary button, the current tab, a switch that is on. */
     val accent: Color,
     val onAccent: Color,
     /** Accent as text or icon on a neutral surface. */
@@ -44,11 +40,11 @@ data class PtColors(
 )
 
 val DarkPtColors = PtColors(
-    accent = Volt,
-    onAccent = VoltInk,
-    accentText = Volt,
-    accentContainer = Color(0xFF25300A),
-    onAccentContainer = Color(0xFFDDFB86),
+    accent = Color(0xFFDCD6C8),
+    onAccent = Color(0xFF1A1812),
+    accentText = Color(0xFFDCD6C8),
+    accentContainer = Color(0xFF332F26),
+    onAccentContainer = Color(0xFFEAE4D5),
     muted = Color(0xFF959BA4),
     success = Color(0xFF3DD68C),
     successContainer = Color(0xFF0F2A1D),
@@ -65,11 +61,11 @@ val DarkPtColors = PtColors(
 )
 
 val LightPtColors = PtColors(
-    accent = Volt,
-    onAccent = VoltInk,
-    accentText = Color(0xFF3F6100),
-    accentContainer = Color(0xFFE6F9A8),
-    onAccentContainer = Color(0xFF2A3F00),
+    accent = Color(0xFF46423B),
+    onAccent = Color(0xFFFBF8F1),
+    accentText = Color(0xFF4B463E),
+    accentContainer = Color(0xFFE8E2D4),
+    onAccentContainer = Color(0xFF39342B),
     muted = Color(0xFF595E66),
     success = Color(0xFF0F6B3D),
     successContainer = Color(0xFFDDF5E7),
@@ -89,8 +85,8 @@ val LocalPtColors = staticCompositionLocalOf { DarkPtColors }
 
 /** Dark first: graphite surfaces stepping up in tone, chalk text. */
 val DarkColorScheme: ColorScheme = darkColorScheme(
-    primary = Volt,
-    onPrimary = VoltInk,
+    primary = DarkPtColors.accent,
+    onPrimary = DarkPtColors.onAccent,
     primaryContainer = DarkPtColors.accentContainer,
     onPrimaryContainer = DarkPtColors.onAccentContainer,
     secondary = Color(0xFFA9AEB6),
@@ -119,7 +115,8 @@ val DarkColorScheme: ColorScheme = darkColorScheme(
     surfaceContainerHigh = Color(0xFF22262B),
     surfaceContainerHighest = Color(0xFF2B3036),
     surfaceTint = Color.Transparent,
-    outline = Color(0xFF5A616B),
+    // Selected chips and segments are told apart by this outline: 3:1 on container high and highest.
+    outline = Color(0xFF717A86),
     outlineVariant = Color(0xFF2E333A),
     inverseSurface = Color(0xFFF3F4EF),
     inverseOnSurface = Color(0xFF131518),
@@ -127,7 +124,7 @@ val DarkColorScheme: ColorScheme = darkColorScheme(
     scrim = Color(0xFF000000),
 )
 
-/** Light: chalk-paper background, white cards, ink text. Same volt fills. */
+/** Light: chalk-paper background, white cards, ink text. The accent turns from chalk to graphite. */
 val LightColorScheme: ColorScheme = lightColorScheme(
     primary = LightPtColors.accentText,
     onPrimary = Color(0xFFFFFFFF),
@@ -159,11 +156,11 @@ val LightColorScheme: ColorScheme = lightColorScheme(
     surfaceContainerHigh = Color(0xFFE6E6E0),
     surfaceContainerHighest = Color(0xFFDCDCD5),
     surfaceTint = Color.Transparent,
-    outline = Color(0xFF8C9098),
+    outline = Color(0xFF787C83),
     outlineVariant = Color(0xFFD6D6CE),
     inverseSurface = Color(0xFF131518),
     inverseOnSurface = Color(0xFFF3F4EF),
-    inversePrimary = Volt,
+    inversePrimary = DarkPtColors.accent,
     scrim = Color(0xFF000000),
 )
 
