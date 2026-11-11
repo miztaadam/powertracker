@@ -13,6 +13,8 @@ import {
   markBackedUp,
   restoreBackup,
   webRestAlertOf,
+  isoToEpochDay,
+  epochDayToIso,
 } from './backup'
 import type { BackupFile } from './format'
 
@@ -149,6 +151,35 @@ describe('backup', () => {
     expect(await exportBackup(db, EXPORTED_AT)).toEqual(first)
   })
 
+  it('duplicateSessionDates_areMerged', async () => {
+    const o = readJson(ANDROID_FIXTURE) as unknown as BackupFile
+    o.sessions.push({ id: 3, date: o.sessions[0]!.date, bodyweightKg: 90, readiness: 2 })
+    o.sessions[0]!.bodyweightKg = null // first non-null (by id) wins per field
+    o.sets.push({ id: 6, sessionId: 3, exerciseId: 2, weightKg: 60, reps: 8, rpe: null, failed: false, missPoint: null, isTopSet: false })
+    const db = await openDb()
+    await restoreBackup(db, decodeOk(JSON.stringify(o)))
+    const sessions = await db.sessions.toArray()
+    expect(sessions.map((s) => s.id)).toEqual([1, 2])
+    expect(sessions[0]).toMatchObject({ bodyweightKg: 90, readiness: 4 })
+    expect((await db.sets.where('sessionId').equals(1).toArray()).map((s) => s.id).sort()).toEqual([1, 2, 3, 6])
+    const out = await exportBackup(db, EXPORTED_AT)
+    expect(out.sessions.map((s) => s.id)).toEqual([1, 2])
+    expect(out.sets.map((s) => s.id)).toEqual([1, 2, 3, 4, 5, 6])
+    expect(decodeBackup(encodeBackup(out)).ok).toBe(true)
+  })
+
+  it('isoToEpochDay_validatesCalendar', () => {
+    expect(() => isoToEpochDay('2026-02-31')).toThrow()
+    expect(() => isoToEpochDay('2026-13-01')).toThrow()
+    expect(epochDayToIso(isoToEpochDay('0050-03-04'))).toBe('0050-03-04')
+    expect(isoToEpochDay('2026-10-27')).toBe(20753)
+  })
+
+  it('restore_unknownWebRestAlert_fallsBackToAndroidValue', () => {
+    expect(webRestAlertOf('OFF', 'LOUD')).toBe('OFF')
+    expect(webRestAlertOf('VIBRATE', 'LOUD')).toBe('SOUND')
+  })
+
   it('backupFileName_format', () => {
     expect(backupFileName('2026-11-11')).toBe('grit-backup-2026-11-11.json')
   })
@@ -211,7 +242,13 @@ describe('backup', () => {
     corrupt(mut((o) => (o.sets[0]!.reps = 1.5)))
     corrupt(mut((o) => ((o.sets[0] as unknown as Record<string, unknown>).weightKg = '100')))
     corrupt(mut((o) => (o.sets[0]!.sessionId = 99)))
-    corrupt(mut((o) => (o.sessions[1]!.date = o.sessions[0]!.date)))
+    corrupt(mut((o) => (o.sessions[1]!.id = o.sessions[0]!.id)))
+    corrupt(mut((o) => (o.exercises[1]!.id = o.exercises[0]!.id)))
+    corrupt(mut((o) => (o.sets[1]!.id = o.sets[0]!.id)))
+    corrupt(mut((o) => o.baselines.push({ ...o.baselines[0]! })))
+    corrupt(mut((o) => (o.planItems[0]!.exerciseId = 9999)))
+    corrupt(mut((o) => (o.baselines[0]!.exerciseId = 9999)))
+    corrupt(mut((o) => (o.sessions[0]!.date = 99_999_999)))
     expect(decodeBackup(JSON.stringify(valid)).ok).toBe(true)
   })
 
@@ -258,7 +295,7 @@ describe('backup', () => {
     await buildSampleDb(db)
     const { writeSafetyCopy } = await import('../db/safety')
     await writeSafetyCopy(db)
-    const copy = decodeOk((await readSafetyCopy(db))!)
+    const copy = decodeOk((await readSafetyCopy(db))!.json)
     expect(copy.sessions).toHaveLength(2)
     expect(copy.version).toBe(1)
   })

@@ -97,6 +97,8 @@ export async function openGritDb(
     await current.open()
     try {
       await writeSafetyCopy(current)
+    } catch (e) {
+      throw new UpgradeFailedError(e)
     } finally {
       current.close()
     }

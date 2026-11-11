@@ -3,22 +3,48 @@ import { encodeBackup, exportBackup } from '../backup/backup'
 
 export const SAFETY_COPY_KEY = 'safetyCopy'
 
+export type SafetyCopy = { kind: 'backup' | 'raw'; json: string }
+
 /**
- * The safety copy is a full Android-compatible backup JSON, so recovery can restore it with
- * `decodeBackup` + `restoreBackup`. Takes any Dexie: it also runs against a database still on its
- * old schema, just before an upgrade.
+ * The safety copy is normally a full Android-compatible backup JSON, so recovery can restore it
+ * with `decodeBackup` + `restoreBackup`. It runs against a database still on its old schema, so the
+ * backup kind is only valid while the stored shape matches the exporter: future renames must keep
+ * old field names readable, or rely on the raw fallback below.
+ *
+ * It must never block startup: if the export throws (for example a malformed stored date), it falls
+ * back to `{ kind: 'raw', schemaVersion, tables }`, a plain dump of every table that recovery can
+ * only offer to export.
  */
-export async function snapshotForSafety(db: Dexie): Promise<string> {
-  return encodeBackup(await exportBackup(db, Date.now()))
+export async function snapshotForSafety(db: Dexie): Promise<SafetyCopy> {
+  try {
+    return { kind: 'backup', json: encodeBackup(await exportBackup(db, Date.now())) }
+  } catch {
+    const tables: Record<string, unknown[]> = {}
+    await db.transaction('r', db.tables, async () => {
+      for (const table of db.tables) {
+        const rows = await table.toArray()
+        tables[table.name] =
+          table.name === 'meta' ? rows.filter((r: { key: string }) => r.key !== SAFETY_COPY_KEY) : rows
+      }
+    })
+    return { kind: 'raw', json: JSON.stringify({ kind: 'raw', schemaVersion: db.verno, tables }) }
+  }
 }
 
 /** Stores a snapshot in `meta` (its own transaction, so it is committed before any upgrade). */
 export async function writeSafetyCopy(db: Dexie): Promise<void> {
-  const json = await snapshotForSafety(db)
-  await db.table('meta').put({ key: SAFETY_COPY_KEY, value: json })
+  const copy = await snapshotForSafety(db)
+  await db.table('meta').put({ key: SAFETY_COPY_KEY, value: copy.json })
 }
 
-export async function readSafetyCopy(db: Dexie): Promise<string | null> {
+export async function readSafetyCopy(db: Dexie): Promise<SafetyCopy | null> {
   const row = await db.table('meta').get(SAFETY_COPY_KEY)
-  return typeof row?.value === 'string' ? row.value : null
+  if (typeof row?.value !== 'string') return null
+  let kind: SafetyCopy['kind'] = 'backup'
+  try {
+    if ((JSON.parse(row.value) as { kind?: unknown }).kind === 'raw') kind = 'raw'
+  } catch {
+    kind = 'raw'
+  }
+  return { kind, json: row.value }
 }

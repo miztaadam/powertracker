@@ -166,7 +166,7 @@ describe('upgrades', () => {
         })
       }),
     )
-    const copy = JSON.parse((await readSafetyCopy(db))!)
+    const copy = JSON.parse((await readSafetyCopy(db))!.json)
     expect(copy.sessions).toEqual([{ id: 1, date: 20759, bodyweightKg: 80, readiness: null }])
     const row = (await db.sessions.toArray())[0] as unknown as Record<string, unknown>
     expect(row.bodyweight).toBe(80)
@@ -206,8 +206,48 @@ describe('upgrades', () => {
     expect(await again.sessions.toArray()).toEqual([
       { id: 1, date: '2026-11-02', bodyweightKg: 80, readiness: null },
     ])
-    const copy = JSON.parse((await readSafetyCopy(again))!)
+    const copy = JSON.parse((await readSafetyCopy(again))!.json)
     expect(copy.sessions).toEqual([{ id: 1, date: 20759, bodyweightKg: 80, readiness: null }])
+  })
+
+  it('upgrade_malformedStoredDate_fallsBackToRawCopyAndProceeds', async () => {
+    const v1 = await openDb()
+    await v1.sessions.add({ date: 'garbage', bodyweightKg: 80, readiness: null })
+    v1.close()
+    const db = await openDb(v2(undefined))
+    const copy = (await readSafetyCopy(db))!
+    expect(copy.kind).toBe('raw')
+    const parsed = JSON.parse(copy.json)
+    expect(parsed.kind).toBe('raw')
+    expect(parsed.tables.sessions[0].date).toBe('garbage')
+    expect(await installedVersion(name)).toBe(2)
+  })
+
+  it('upgrade_copyWriteFails_throwsUpgradeFailedError', async () => {
+    const v1 = await openDb()
+    await v1.sessions.add({ date: '2026-11-02', bodyweightKg: 80, readiness: null })
+    v1.close()
+    const failMetaWrites = (d: Dexie) => {
+      if (d.name !== name) return
+      d.use({
+        stack: 'dbcore',
+        name: 'failMeta',
+        create: (down) => ({
+          ...down,
+          table: (n) => {
+            const t = down.table(n)
+            return n === 'meta' ? { ...t, mutate: () => Promise.reject(new Error('quota')) } : t
+          },
+        }),
+      })
+    }
+    Dexie.addons.push(failMetaWrites)
+    try {
+      await expect(openGritDb(name, { schemaVersions: v2(undefined) })).rejects.toBeInstanceOf(UpgradeFailedError)
+    } finally {
+      Dexie.addons.splice(Dexie.addons.indexOf(failMetaWrites), 1)
+    }
+    expect(await installedVersion(name)).toBe(1)
   })
 
   it('freshInstall_writesNoSafetyCopy', async () => {

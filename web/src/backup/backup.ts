@@ -59,7 +59,11 @@ const MAX_EPOCH_DAY = 2_932_896 // 9999-12-31
 export function isoToEpochDay(iso: string): number {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso)
   if (!m) return bad(`Invalid date ${iso}`)
-  return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) / DAY_MS
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])]
+  const t = new Date(0)
+  t.setUTCFullYear(y, mo - 1, d) // Date.UTC would read years 0-99 as 1900-1999
+  if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return bad(`Invalid date ${iso}`)
+  return t.getTime() / DAY_MS
 }
 
 export function epochDayToIso(day: number): string {
@@ -295,15 +299,29 @@ function mapBackup(file: BackupFile): Mapped {
     isBuiltIn: e.isBuiltIn,
     archived: e.archived,
   }))
-  const sessions = file.sessions.map((s) => ({
-    id: s.id,
-    date: epochDayToIso(s.date),
-    bodyweightKg: s.bodyweightKg,
-    readiness: s.readiness,
-  }))
+  unique(file.sessions.map((s) => s.id), 'session id')
+  // Android's date index is not unique, so a real export can hold several sessions on one date.
+  // Web keeps one per date: merge into the lowest id; the other sessions' sets move to it, and the
+  // first non-null bodyweight / readiness (by id) wins.
+  const sessions: { id: number; date: string; bodyweightKg: number | null; readiness: number | null }[] = []
+  const mergedInto = new Map<number, number>()
+  const byDate = new Map<string, (typeof sessions)[number]>()
+  for (const s of [...file.sessions].sort((a, b) => a.id - b.id)) {
+    const date = epochDayToIso(s.date)
+    const keep = byDate.get(date)
+    if (keep) {
+      mergedInto.set(s.id, keep.id)
+      keep.bodyweightKg ??= s.bodyweightKg
+      keep.readiness ??= s.readiness
+    } else {
+      const row = { id: s.id, date, bodyweightKg: s.bodyweightKg, readiness: s.readiness }
+      byDate.set(date, row)
+      sessions.push(row)
+    }
+  }
   const sets = file.sets.map((s) => ({
     id: s.id,
-    sessionId: s.sessionId,
+    sessionId: mergedInto.get(s.sessionId) ?? s.sessionId,
     exerciseId: s.exerciseId,
     weightKg: s.weightKg,
     reps: s.reps,
@@ -334,8 +352,6 @@ function mapBackup(file: BackupFile): Mapped {
   const baselines = file.baselines.map((b) => ({ exerciseId: b.exerciseId, e1rmKg: b.e1rmKg, date: epochDayToIso(b.date) }))
 
   unique(exercises.map((e) => e.id), 'exercise id')
-  unique(sessions.map((s) => s.id), 'session id')
-  unique(sessions.map((s) => s.date), 'session date')
   unique(sets.map((s) => s.id), 'set id')
   unique(planItems.map((p) => p.id), 'plan item id')
   unique(advice.map((a) => a.id), 'advice id')
