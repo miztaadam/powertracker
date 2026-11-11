@@ -62,13 +62,13 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExternalResource
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -76,7 +76,15 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
 class TodayScreenTest {
-    @get:Rule
+    /** Outermost: the database closes only after the compose rule has disposed the composition and cleared the activity's view models. */
+    @get:Rule(order = 0)
+    val closeDatabase = object : ExternalResource() {
+        override fun after() {
+            if (::db.isInitialized) db.close()
+        }
+    }
+
+    @get:Rule(order = 1)
     val compose = createComposeRule()
 
     private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
@@ -104,9 +112,6 @@ class TodayScreenTest {
             training.logSet(lastWeek, LoggedSet(squat.id, 150.0, 5, 7.0, failed = false, missPoint = null, isTopSet = false))
         }
     }
-
-    @After
-    fun tearDown() = db.close()
 
     private fun startSession() = runBlocking { training.startSession(today, null, null) }
 
@@ -793,36 +798,42 @@ class TodayScreenTest {
     fun processDeath_showsTheEditorValue_notTheStaleTypedOne() {
         startSession()
         // A fresh store stands in for the process that was killed: the view model, and its editor, start over.
+        val stores = mutableListOf<ViewModelStore>()
         fun freshStore() = object : ViewModelStoreOwner {
-            override val viewModelStore = ViewModelStore()
+            override val viewModelStore = ViewModelStore().also { stores += it }
         }
-        var models: ViewModelStoreOwner = freshStore()
-        val restoration = StateRestorationTester(compose)
-        restoration.setContent {
-            CompositionLocalProvider(LocalViewModelStoreOwner provides models) {
-                PowertrackerTheme { TodayScreen(training, advice, settings, onOpenCoach = {}, today = { today }) }
+        // These stores are not an activity's, so nothing else clears them. Clear them while the database is still open.
+        try {
+            var models: ViewModelStoreOwner = freshStore()
+            val restoration = StateRestorationTester(compose)
+            restoration.setContent {
+                CompositionLocalProvider(LocalViewModelStoreOwner provides models) {
+                    PowertrackerTheme { TodayScreen(training, advice, settings, onOpenCoach = {}, today = { today }) }
+                }
             }
+            waitForText("Log set 1")
+            // + takes the weight to 152.5; "160" is typed over that and never committed.
+            compose.onNodeWithContentDescription("Increase Weight").performClick()
+            waitForField({ weight }, "152.5")
+            weight.type("160")
+
+            models = freshStore()
+            restoration.emulateSavedInstanceStateRestore()
+
+            // The editor is rebuilt from history at 150. What was typed over 152.5 is stale: it is not shown.
+            waitForText("Log set 1")
+            waitForField({ weight }, "150")
+            assertNull(weight.message())
+            compose.onNodeWithText("25 + 25 + 15").assertExists()
+
+            // The field and the logged set agree.
+            compose.onNodeWithText("Log set 1").performClick()
+            waitForSets(1)
+            assertEquals(150.0, loggedToday().single().weightKg, 0.0)
+            assertEquals("150", weight.typed())
+        } finally {
+            stores.forEach { it.clear() }
         }
-        waitForText("Log set 1")
-        // + takes the weight to 152.5; "160" is typed over that and never committed.
-        compose.onNodeWithContentDescription("Increase Weight").performClick()
-        waitForField({ weight }, "152.5")
-        weight.type("160")
-
-        models = freshStore()
-        restoration.emulateSavedInstanceStateRestore()
-
-        // The editor is rebuilt from history at 150. What was typed over 152.5 is stale: it is not shown.
-        waitForText("Log set 1")
-        waitForField({ weight }, "150")
-        assertNull(weight.message())
-        compose.onNodeWithText("25 + 25 + 15").assertExists()
-
-        // The field and the logged set agree.
-        compose.onNodeWithText("Log set 1").performClick()
-        waitForSets(1)
-        assertEquals(150.0, loggedToday().single().weightKg, 0.0)
-        assertEquals("150", weight.typed())
     }
 
     @Test
