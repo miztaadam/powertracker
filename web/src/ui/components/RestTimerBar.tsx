@@ -3,6 +3,7 @@ import { cx } from './format'
 import './RestTimerBar.css'
 
 export type RestTimerBarProps = {
+  /** Seconds left. Shown as whole seconds, and as 0:00 for anything below zero. */
   remainingSec: number
   totalSec: number
   onSubtractThirty: () => void
@@ -21,8 +22,10 @@ export function formatClock(seconds: number): string {
  * edge that empties as the rest runs out, and −30 s / +30 s / Skip.
  */
 export function RestTimerBar({ remainingSec, totalSec, onSubtractThirty, onAddThirty, onSkip, className }: RestTimerBarProps) {
-  const fraction = totalSec > 0 ? Math.min(1, Math.max(0, remainingSec / totalSec)) : 0
-  const clock = formatClock(remainingSec)
+  // Whole seconds, never below zero: a caller's fraction or overshoot must not reach the clock.
+  const left = Number.isFinite(remainingSec) ? Math.max(0, Math.floor(remainingSec)) : 0
+  const fraction = totalSec > 0 ? Math.min(1, left / totalSec) : 0
+  const clock = formatClock(left)
   return (
     <div className={cx('gr-rest', className)}>
       <div className="gr-rest-track" aria-hidden="true">

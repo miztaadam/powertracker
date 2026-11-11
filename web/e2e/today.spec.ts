@@ -139,3 +139,70 @@ test.describe('on a 375 px iPhone', () => {
     await page.screenshot({ path: resolve(process.cwd(), 'test-results/screens/today-375.png'), fullPage: true, animations: 'disabled' })
   })
 })
+
+test('a logged set starts the rest timer, and it survives a reload', async ({ page }) => {
+  const at = (seconds: number) => page.clock.setFixedTime(new Date(new Date('2026-11-11T09:41:00').getTime() + seconds * 1000))
+  await openWithSampleData(page)
+  await tap(page, 'Start session')
+  await expect(page.getByRole('timer')).toHaveCount(0)
+  await tap(page, 'Log set 1')
+  await expect(page.getByRole('timer', { name: 'Rest, 3:00 left' })).toBeVisible()
+  expect(await smallTargets(page)).toEqual([])
+  expect(await fitsThePhone(page)).toBe(true)
+  // Docked above the tab bar, inside the screen.
+  const layout = await page.evaluate(() => {
+    const bar = document.querySelector('.gr-rest')!.getBoundingClientRect()
+    const tabs = document.querySelector('.gr-tabbar')!.getBoundingClientRect()
+    return { aboveTabs: bar.bottom <= tabs.top, onScreen: bar.top >= 0 && tabs.bottom <= window.innerHeight }
+  })
+  expect(layout).toEqual({ aboveTabs: true, onScreen: true })
+  mkdirSync(resolve(process.cwd(), 'test-results/screens'), { recursive: true })
+  await page.screenshot({ path: resolve(process.cwd(), 'test-results/screens/today-rest.png'), animations: 'disabled' })
+
+  // A message never covers the bar's buttons, however tall the bar is (larger text makes it taller).
+  await page.evaluate(() => {
+    IDBObjectStore.prototype.add = () => {
+      throw new DOMException('full', 'QuotaExceededError')
+    }
+  })
+  await tap(page, 'Log set 2')
+  const message = page.getByText("Couldn't save — try again.")
+  await expect(message).toBeVisible()
+  const clearance = () =>
+    page.evaluate(() => {
+      const snackbar = document.querySelector('.gr-snackbar')!.getBoundingClientRect()
+      const bar = document.querySelector('.gr-rest')!.getBoundingClientRect()
+      return { barHeight: Math.round(bar.height), gap: Math.round(bar.top - snackbar.bottom) }
+    })
+  const normal = await clearance()
+  expect(normal.gap).toBeGreaterThanOrEqual(4)
+  await page.addStyleTag({ content: '.gr-rest-row { padding-block: 40px !important }' })
+  await expect.poll(async () => (await clearance()).barHeight).toBeGreaterThan(normal.barHeight + 40)
+  await expect.poll(async () => (await clearance()).gap).toBeGreaterThanOrEqual(4)
+
+  // The time left follows the clock, and a reload mid-rest keeps the countdown.
+  await at(60)
+  await expect(page.getByRole('timer', { name: 'Rest, 2:00 left' })).toBeVisible()
+  await page.reload()
+  await expect(page.getByRole('timer', { name: 'Rest, 2:00 left' })).toBeVisible()
+  await tap(page, '+30 s')
+  await expect(page.getByRole('timer', { name: 'Rest, 2:30 left' })).toBeVisible()
+
+  // The bar belongs to Today; the rest runs on behind the other tabs.
+  await page.getByRole('link', { name: 'Coach' }).click()
+  await expect(page.getByRole('timer')).toHaveCount(0)
+  await page.getByRole('link', { name: 'Today' }).click()
+  await expect(page.getByRole('timer', { name: 'Rest, 2:30 left' })).toBeVisible()
+
+  // Zero: the bar goes and the screen flashes.
+  await at(210)
+  await expect(page.getByTestId('rest-flash')).toBeAttached()
+  await expect(page.getByRole('timer')).toHaveCount(0)
+  await expect(page.getByTestId('rest-flash')).toHaveCount(0)
+
+  // A missed set rests too, and Skip ends it.
+  await tap(page, 'Missed')
+  await expect(page.getByRole('timer', { name: 'Rest, 3:00 left' })).toBeVisible()
+  await tap(page, 'Skip')
+  await expect(page.getByRole('timer')).toHaveCount(0)
+})

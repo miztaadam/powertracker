@@ -1,4 +1,6 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { AdviceCard } from './AdviceCard'
@@ -9,6 +11,7 @@ import { LineChart } from './LineChart'
 import { Menu } from './Menu'
 import { PlateStrip, platesLabel } from './PlateStrip'
 import { RatioBar } from './RatioBar'
+import { RestFlash } from './RestFlash'
 import { RestTimerBar, formatClock } from './RestTimerBar'
 import { ChoiceChip, SegmentedChoice } from './SegmentedChoice'
 import { SetRow } from './SetRow'
@@ -240,6 +243,17 @@ describe('RestTimerBar', () => {
   it('formats the clock', () => {
     expect(formatClock(108)).toBe('1:48')
     expect(formatClock(5)).toBe('0:05')
+  })
+
+  it('floors a fraction of a second and never shows less than zero', () => {
+    const props = { totalSec: 180, onSubtractThirty: () => {}, onAddThirty: () => {}, onSkip: () => {} }
+    const { rerender, container } = render(<RestTimerBar remainingSec={108.5} {...props} />)
+    expect(screen.getByRole('timer', { name: 'Rest, 1:48 left' })).toHaveTextContent('1:48')
+    rerender(<RestTimerBar remainingSec={-3} {...props} />)
+    expect(screen.getByRole('timer', { name: 'Rest, 0:00 left' })).toHaveTextContent('0:00')
+    expect(container.querySelector<HTMLElement>('.gr-rest-fill')!.style.width).toBe('0%')
+    rerender(<RestTimerBar remainingSec={Number.NaN} {...props} />)
+    expect(screen.getByRole('timer', { name: 'Rest, 0:00 left' })).toBeInTheDocument()
   })
 
   it('shows time left and the three actions', async () => {
@@ -567,5 +581,34 @@ describe('Menu', () => {
     expect(screen.queryByRole('menu')).toBeNull()
     expect(onEdit).not.toHaveBeenCalled()
     expect(onDelete).not.toHaveBeenCalled()
+  })
+})
+
+describe('RestFlash', () => {
+  it('shows nothing until a rest ends, then one overlay that removes itself', () => {
+    vi.useFakeTimers()
+    try {
+      const { rerender } = render(<RestFlash showId={0} />)
+      expect(screen.queryByTestId('rest-flash')).toBeNull()
+      rerender(<RestFlash showId={1} />)
+      expect(screen.getByTestId('rest-flash')).toHaveAttribute('aria-hidden', 'true')
+      act(() => void vi.advanceTimersByTime(1_500))
+      expect(screen.queryByTestId('rest-flash')).toBeNull()
+      // The next rest flashes again.
+      rerender(<RestFlash showId={2} />)
+      expect(screen.getByTestId('rest-flash')).toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('is a 300 ms accent overlay, and a fade where motion is reduced', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/ui/components/RestFlash.css'), 'utf8')
+    const [normal, reduced] = css.split('@media (prefers-reduced-motion: reduce)') as [string, string]
+    expect(normal).toMatch(/\.gr-rest-flash\s*\{[^}]*background:\s*var\(--accent\)/)
+    expect(normal).toMatch(/animation:\s*gr-rest-flash 300ms/)
+    expect(normal).toMatch(/pointer-events:\s*none/)
+    // The app-wide reduced-motion rule cuts every animation to nothing; the fade has to outrank it.
+    expect(reduced).toMatch(/animation:\s*gr-rest-fade [^;]*!important/)
   })
 })

@@ -1,0 +1,40 @@
+/* Over everything, dialogs included: the rest is over whatever is on screen. */
+.gr-rest-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  animation: gr-rest-flash 300ms ease-out;
+}
+
+@keyframes gr-rest-flash {
+  0%,
+  35% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes gr-rest-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.4;
+  }
+}
+
+/* Reduced motion: no sudden flash, a dimmer overlay that eases in and out. tokens.css cuts every
+   animation to 0.01 ms for these lifters, which would leave Silent with no alert at all, so this
+   one rule outranks it. */
+@media (prefers-reduced-motion: reduce) {
+  .gr-rest-flash {
+    animation: gr-rest-fade 900ms ease-in-out !important;
+    animation-duration: 900ms !important;
+  }
+}

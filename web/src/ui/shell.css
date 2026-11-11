@@ -27,3 +27,15 @@
   gap: var(--space-4);
   padding: var(--space-3) var(--space-5) var(--space-5);
 }
+
+/* The rest bar, docked between the screen and the tab bar. */
+.shell-rest {
+  flex: none;
+  padding: var(--space-2) calc(var(--space-4) + env(safe-area-inset-right)) var(--space-2) calc(var(--space-4) + env(safe-area-inset-left));
+}
+
+/* Messages sit above the tab bar and above the rest bar while it shows. App sets
+   --rest-dock-height to the measured height of .shell-rest, 0 when there is none. */
+.shell {
+  --snackbar-bottom: calc(80px + var(--rest-dock-height, 0px) + var(--space-4) + env(safe-area-inset-bottom));
+}
