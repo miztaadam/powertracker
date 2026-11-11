@@ -40,7 +40,7 @@ data class VolumeUi(val lift: MainLift, val weeks: List<Float>) {
 
 data class ProgressState(
     val loading: Boolean = true,
-    /** False until a main-lift set has been logged: the screen then shows only a hint. */
+    /** False until a main-lift set has been completed: the screen then shows only a hint. */
     val hasData: Boolean = false,
     val range: ChartRange = ChartRange.MONTHS_6,
     val totalKg: Double? = null,
@@ -92,7 +92,7 @@ class ProgressViewModel(
         /** Everything the screen shows, from one snapshot of history. */
         internal fun build(history: TrainingHistory, range: ChartRange, today: LocalDate): ProgressState {
             val hasData = history.sessions.any { s ->
-                s.sets.any { set -> history.exercises[set.exerciseId]?.isMainLift == true }
+                s.sets.any { set -> !set.failed && history.exercises[set.exerciseId]?.isMainLift == true }
             }
             if (!hasData) return ProgressState(loading = false, hasData = false, range = range)
 

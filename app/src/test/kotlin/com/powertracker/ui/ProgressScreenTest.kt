@@ -129,7 +129,7 @@ class ProgressScreenTest {
         show()
 
         compose.onNodeWithText("Weekly best e1RM", ignoreCase = true).assertIsDisplayed()
-        compose.onNodeWithText("Recent PRs", ignoreCase = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Records", ignoreCase = true).performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Weekly volume", ignoreCase = true).performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Bodyweight", ignoreCase = true).performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Squat ÷ Deadlift").performScrollTo().assertIsDisplayed()
@@ -144,6 +144,19 @@ class ProgressScreenTest {
         compose.onNodeWithText("Bench ÷ Squat").performScrollTo().assertIsDisplayed()
         assertEquals(0, compose.onAllNodesWithText("Squat ÷ Deadlift").fetchSemanticsNodes().size)
         assertEquals(0, compose.onAllNodesWithText("Bodyweight", ignoreCase = true).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun rangeWithNoSessions_keepsTheSelectorAndSaysSo() {
+        log(today.minusWeeks(10), null, set("Squat", 140.0, 5, 8.0))
+        show()
+
+        compose.onNodeWithText("8 wk").performClick()
+        waitFor { shows("No sessions in this range") }
+
+        // The selector is still there, so the lifter can get back to a range with data.
+        compose.onNodeWithText("All").performClick()
+        waitFor { !shows("No sessions in this range") }
     }
 
     @Test

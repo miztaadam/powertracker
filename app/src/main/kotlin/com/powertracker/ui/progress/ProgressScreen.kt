@@ -219,14 +219,21 @@ private fun SummaryCard(state: ProgressState, onOpenLift: (MainLift) -> Unit) {
 @Composable
 private fun TrendCard(state: ProgressState, onRange: (ChartRange) -> Unit) {
     PtCard {
+        val series = MainLift.entries
+            .filter { lift -> state.e1rm[lift].orEmpty().any { it != null } }
+            .map { lift -> ChartSeries(lift.label, lift.chartColor(), state.e1rm.getValue(lift)) }
         SegmentedChoice(ChartRange.entries.map { it.label }, state.range.ordinal, { onRange(ChartRange.entries[it]) })
         Eyebrow("Weekly best e1RM")
-        SeriesChart(
-            MainLift.entries
-                .filter { lift -> state.e1rm[lift].orEmpty().any { it != null } }
-                .map { lift -> ChartSeries(lift.label, lift.chartColor(), state.e1rm.getValue(lift)) },
-            axisLabels(state.weeks),
-        )
+        if (series.isNotEmpty()) {
+            SeriesChart(series, axisLabels(state.weeks))
+        } else {
+            // The range selector stays, so a longer range is one tap away.
+            Text(
+                "No sessions in this range. Try a longer one.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
@@ -238,7 +245,7 @@ private fun PrSection(prs: List<PrUi>) {
     val pt = PowertrackerTheme.colors
     val thisYear = prs.maxOf { it.pr.date }.year
     Column {
-        SectionHeader("Recent PRs")
+        SectionHeader("Records")
         PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
             prs.forEachIndexed { i, (lift, pr) ->
                 if (i > 0) HorizontalDivider(color = pt.hairline)
