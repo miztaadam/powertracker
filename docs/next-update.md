@@ -5,16 +5,16 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
 
 ## 1. Chalky grey buttons
 - Change primary buttons from volt green (`#C9F73A`) to a chalky grey.
-- Open question for the owner: **buttons only**, or **every volt accent** too (current tab, switches,
-  rest-timer progress, coach suggestion chip)?
+- **Owner decided: every volt accent**: buttons, current tab, switches, rest-timer progress, coach
+  suggestion chip, chart highlights. The green goes everywhere; chalky grey replaces it throughout.
 - Must still pass the automated contrast tests (Android `TokenContrastTest`, web `tokens.test.ts`).
 
 ## 2. Strict press as a main lift
 - Add STRICT PRESS alongside squat, bench and deadlift: progression targets, stall detection, an
   accessory map by sticking point (e.g. lockout → triceps; off the shoulders → front delts / upper chest),
   Progress charts and records, lift history.
-- Open questions: is it **in the total** (powerlifting total is S+B+D; assumption: no, own chart and
-  records only)? A weak-point **ratio vs bench** (typically ~60–70%)?
+- **Owner decided: it counts towards the total** (total becomes squat + bench + deadlift + strict press).
+- **Owner decided: no ratio against bench**, so the weak-point check leaves strict press alone.
 - Compatibility: append to the end of the built-in exercise list so existing ids and data are unchanged.
   The backup gains a new lift name, so both apps update together (older versions reject it).
 
@@ -33,5 +33,7 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
 - Plan exercise picker gets search plus category and muscle filters.
 - New exercises are appended (existing ids, plans, history and backups unaffected); each one gets a form
   description (item 3).
-- Ask the owner first for must-have exercises and equipment (e.g. cambered bar, safety squat bar, bands,
-  chains, machines).
+- **Owner decided: as vast as possible**: every common equipment type (barbell and specialty bars,
+  dumbbells, kettlebells, cables, machines, bands, chains, bodyweight), while staying **easy to find**
+  (search, category and muscle filters, plus an equipment filter) and with **a description and ⓘ info
+  button for every exercise** (item 3).
