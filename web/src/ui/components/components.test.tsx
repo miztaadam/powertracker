@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { AdviceCard } from './AdviceCard'
@@ -12,6 +12,7 @@ import { RestTimerBar, formatClock } from './RestTimerBar'
 import { ChoiceChip, SegmentedChoice } from './SegmentedChoice'
 import { SetRow } from './SetRow'
 import { Snackbar } from './Snackbar'
+import { formatKg } from './format'
 import { StatTile } from './StatTile'
 import { Stepper, StepperField } from './StepperField'
 import { Switch } from './Switch'
@@ -292,7 +293,179 @@ describe('Dialog', () => {
   })
 })
 
+describe('Dialog carry-ins', () => {
+  function withInput(onDismiss: () => void) {
+    render(
+      <Dialog open title="Weight" onDismiss={onDismiss}>
+        <input aria-label="kg" defaultValue="150" />
+      </Dialog>,
+    )
+    const scrim = screen.getByRole('dialog').parentElement!
+    return { scrim, input: screen.getByLabelText('kg') }
+  }
+
+  it('closes on a tap that starts and ends on the scrim', () => {
+    const onDismiss = vi.fn()
+    const { scrim } = withInput(onDismiss)
+    fireEvent.pointerDown(scrim)
+    fireEvent.pointerUp(scrim)
+    fireEvent.click(scrim)
+    expect(onDismiss).toHaveBeenCalledOnce()
+  })
+
+  it('stays open when a press starts inside the dialog and ends on the scrim', () => {
+    const onDismiss = vi.fn()
+    const { scrim, input } = withInput(onDismiss)
+    // Selecting the text in the field and letting go outside the dialog: the click lands on the scrim.
+    fireEvent.pointerDown(input)
+    fireEvent.pointerUp(scrim)
+    fireEvent.click(scrim)
+    expect(onDismiss).not.toHaveBeenCalled()
+    // The next real tap on the scrim still closes it.
+    fireEvent.pointerDown(scrim)
+    fireEvent.pointerUp(scrim)
+    fireEvent.click(scrim)
+    expect(onDismiss).toHaveBeenCalledOnce()
+  })
+
+  it('stays open when a press starts on the scrim and ends inside the dialog', () => {
+    const onDismiss = vi.fn()
+    const { scrim, input } = withInput(onDismiss)
+    // The browser sends the click to the nearest element both ends share: the scrim.
+    fireEvent.pointerDown(scrim)
+    fireEvent.pointerUp(input)
+    fireEvent.click(scrim)
+    expect(onDismiss).not.toHaveBeenCalled()
+  })
+
+  it('makes everything behind it inert while open, and usable again on close', () => {
+    function Page({ open }: { open: boolean }) {
+      return (
+        <>
+          <nav data-testid="tabs" />
+          <main data-testid="main">
+            <button>behind</button>
+            <section data-testid="screen">
+              <p data-testid="content" />
+              <Dialog open={open} title="T" onDismiss={() => {}} />
+            </section>
+          </main>
+        </>
+      )
+    }
+    // Something outside the React root, as a second root or a browser extension would add.
+    const outside = document.createElement('div')
+    document.body.append(outside)
+    try {
+      const { rerender, container } = render(<Page open />)
+      for (const id of ['tabs', 'content']) expect(screen.getByTestId(id)).toHaveAttribute('inert')
+      expect(screen.getByRole('button', { name: 'behind', hidden: true })).toHaveAttribute('inert')
+      expect(outside).toHaveAttribute('inert')
+      // The dialog and the elements it sits in stay reachable.
+      for (const el of [screen.getByTestId('main'), screen.getByTestId('screen'), container, screen.getByRole('dialog')]) expect(el).not.toHaveAttribute('inert')
+
+      rerender(<Page open={false} />)
+      expect(document.querySelectorAll('[inert]')).toHaveLength(0)
+    } finally {
+      outside.remove()
+    }
+  })
+
+  it('leaves alone what was already inert', () => {
+    const page = (open: boolean) => (
+      <>
+        <aside data-testid="aside" />
+        <Dialog open={open} title="T" onDismiss={() => {}} />
+      </>
+    )
+    const { rerender } = render(page(false))
+    screen.getByTestId('aside').setAttribute('inert', '')
+    rerender(page(true))
+    rerender(page(false))
+    expect(screen.getByTestId('aside')).toHaveAttribute('inert')
+  })
+
+  it('does not make the page inert when isolate is off (the showcase)', () => {
+    render(
+      <>
+        <button>behind</button>
+        <Dialog open title="T" onDismiss={() => {}} isolate={false} />
+      </>,
+    )
+    expect(screen.getByRole('button', { name: 'behind' })).not.toHaveAttribute('inert')
+  })
+
+  it('leaves the focus on a field that asked for it', () => {
+    render(
+      <Dialog open title="Weight" onDismiss={() => {}}>
+        <TextField label="Kilograms" value="150" onChange={() => {}} autoFocus />
+      </Dialog>,
+    )
+    expect(screen.getByLabelText('Kilograms')).toHaveFocus()
+  })
+
+  it('gives the focus back to what opened it, also when a field inside took the focus', () => {
+    const page = (open: boolean) => (
+      <>
+        <button>opener</button>
+        {open && (
+          <Dialog open title="Weight" onDismiss={() => {}}>
+            <TextField label="Kilograms" value="150" onChange={() => {}} autoFocus />
+          </Dialog>
+        )}
+      </>
+    )
+    const { rerender } = render(page(false))
+    screen.getByRole('button', { name: 'opener' }).focus()
+    rerender(page(true))
+    expect(screen.getByLabelText('Kilograms')).toHaveFocus()
+    rerender(page(false))
+    expect(screen.getByRole('button', { name: 'opener' })).toHaveFocus()
+  })
+})
+
+describe('formatKg', () => {
+  it('hides float noise and trailing zeros', () => {
+    expect(formatKg(152.50000000000003)).toBe('152.5')
+    expect(formatKg(0.1 + 0.2)).toBe('0.3')
+    expect(formatKg(155)).toBe('155')
+    expect(formatKg(181.25)).toBe('181.25')
+    expect(formatKg(60.004)).toBe('60')
+  })
+})
+
+describe('SegmentedChoice reselect', () => {
+  it('reports a tap on the option that is already selected, so a caller can clear it', async () => {
+    const onSelect = vi.fn()
+    render(<SegmentedChoice options={['Floor', 'Mid', 'Lockout']} selectedIndex={2} onSelect={onSelect} label="Where did it stall?" />)
+    await userEvent.click(screen.getByRole('radio', { name: 'Lockout' }))
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(2)
+    await userEvent.click(screen.getByRole('radio', { name: 'Mid' }))
+    expect(onSelect).toHaveBeenCalledTimes(2)
+    expect(onSelect).toHaveBeenLastCalledWith(1)
+  })
+})
+
 describe('Snackbar', () => {
+  it('restarts its timer when the same message is shown again', () => {
+    vi.useFakeTimers()
+    try {
+      const onDismiss = vi.fn()
+      const { rerender } = render(<Snackbar message="Set deleted." showId={1} onDismiss={onDismiss} durationMs={4000} />)
+      const firstNode = screen.getByText('Set deleted.').parentElement
+      vi.advanceTimersByTime(3000)
+      rerender(<Snackbar message="Set deleted." showId={2} onDismiss={onDismiss} durationMs={4000} />)
+      // A new element, so the entry animation plays again.
+      expect(screen.getByText('Set deleted.').parentElement).not.toBe(firstNode)
+      vi.advanceTimersByTime(3999)
+      expect(onDismiss).not.toHaveBeenCalled()
+      vi.advanceTimersByTime(1)
+      expect(onDismiss).toHaveBeenCalledOnce()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('announces the message politely and offers its action', async () => {
     const onAction = vi.fn()
     render(<Snackbar message="Update ready — tap to refresh" actionLabel="Refresh" onAction={onAction} />)

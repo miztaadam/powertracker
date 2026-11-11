@@ -123,6 +123,18 @@ describe('backup', () => {
     expect(withoutExportedAt(out)).toEqual(expected)
   })
 
+  it('restore_forgetsTheTodayScreensNotesAboutTheReplacedData', async () => {
+    const db = await openDb()
+    // What the Today screen keeps for a reload: the session being logged and the unlogged numbers.
+    await db.meta.bulkPut([
+      { key: 'today:active', value: { date: '2026-11-11', at: Date.now() } },
+      { key: 'editor:2026-11-11:1', value: { weightKg: 152.5, reps: 3, rpe: 9 } },
+      { key: 'unrelated', value: 'kept' },
+    ])
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_FIXTURE, 'utf8')))
+    expect(await db.meta.toCollection().primaryKeys()).toEqual(['unrelated'])
+  })
+
   it('restore_keepsWebOnlySettingsAndNeverTouchesLastBackupAt', async () => {
     const db = await openDb()
     await updateSettings(db, (s) => ({ ...s, keepAwake: false, lastBackupAt: '2026-01-01T00:00:00.000Z' }))

@@ -289,6 +289,7 @@ export default function Showcase() {
             open
             title="Replace all data?"
             onDismiss={noop}
+            isolate={false}
             actions={
               <>
                 <QuietButton text="Cancel" onClick={noop} />

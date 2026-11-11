@@ -6,6 +6,7 @@ export type SegmentedChoiceProps = {
   options: readonly string[]
   /** null when nothing is picked yet. */
   selectedIndex: number | null
+  /** Called for every tap, also on the option that is already selected (a caller may clear it then). */
   onSelect: (index: number) => void
   /** Names the group for screen readers, e.g. "Where did it stall?". */
   label?: string
@@ -26,7 +27,15 @@ export function SegmentedChoice({ options, selectedIndex, onSelect, label, class
     <div className={cx('gr-segmented', className)} role="radiogroup" aria-label={label}>
       {options.map((option, i) => (
         <label key={option} className="gr-segment">
-          <input type="radio" className="sr-only" name={name} checked={i === selectedIndex} onChange={() => onSelect(i)} />
+          <input
+            type="radio"
+            className="sr-only"
+            name={name}
+            checked={i === selectedIndex}
+            onChange={() => onSelect(i)}
+            // A radio that is already checked fires no change; report the tap so a caller can clear the choice.
+            onClick={() => i === selectedIndex && onSelect(i)}
+          />
           <span className="gr-segment-face label-large">{option}</span>
         </label>
       ))}

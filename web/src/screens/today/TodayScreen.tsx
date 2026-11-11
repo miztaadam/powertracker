@@ -1,0 +1,140 @@
+import { useEffect, useRef, useState } from 'react'
+import type { GritDb } from '../../db/db'
+import { todayIso } from '../../domain'
+import { useToday, type TodayActions, type TodayItem, type TodayState } from '../../state/useToday'
+import { SecondaryButton } from '../../ui/components/Button'
+import { EmptyState } from '../../ui/components/EmptyState'
+import { AddIcon, FitnessCenterIcon } from '../../ui/components/icons'
+import { ScreenHeader } from '../../ui/components/ScreenHeader'
+import { Snackbar } from '../../ui/components/Snackbar'
+import { ExerciseCard, ExerciseRow, type NextStep } from './ExerciseCard'
+import { StartSessionCard, SummaryCard } from './SessionCards'
+import { ExercisePickerDialog, TypoDialog } from './TodayDialogs'
+import './today.css'
+
+export type TodayScreenProps = {
+  db: GritDb
+  onOpenCoach: () => void
+  /** The real clock, as `YYYY-MM-DD`. Default is the device's local date. */
+  today?: () => string
+  /** Fires after each saved set (true for a main lift or variation), so a rest timer can start. */
+  onSetLogged?: (isMainOrVariation: boolean) => void
+}
+
+/** The logging screen: start card, the session's exercises, or the finish summary. */
+export function TodayScreen({ db, onOpenCoach, today = todayIso, onSetLogged }: TodayScreenProps) {
+  const session = useToday(db, today, onSetLogged)
+  return <TodayContent state={session} actions={session} onOpenCoach={onOpenCoach} />
+}
+
+function dateParts(isoDate: string): { weekday: string; day: string; month: string } {
+  const parts = new Intl.DateTimeFormat(undefined, { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).formatToParts(new Date(`${isoDate}T00:00:00Z`))
+  const part = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
+  return { weekday: part('weekday'), day: part('day'), month: part('month') }
+}
+
+/** Planned sets still to do, or an added exercise with nothing logged yet. */
+const hasWorkLeft = (item: TodayItem) => (item.targetSets != null ? !item.isComplete : item.sets.length === 0)
+
+export type TodayContentProps = { state: TodayState; actions: TodayActions; onOpenCoach: () => void }
+
+const SAVE_FAILED = "Couldn't save — try again."
+
+/** The Today screen without its data source. A write that fails says so; it never fails silently. */
+export function TodayContent({ state, actions: raw, onOpenCoach }: TodayContentProps) {
+  const { items } = state
+  // Counts failed writes: 0 shows nothing, and each new failure shows the message afresh.
+  const [failures, setFailures] = useState(0)
+  const reported =
+    <A extends unknown[]>(action: (...args: A) => Promise<void>) =>
+    (...args: A) =>
+      action(...args).catch(() => setFailures((n) => n + 1))
+  const actions: TodayActions = {
+    ...raw,
+    startSession: reported(raw.startSession),
+    logSet: reported(raw.logSet),
+    confirmPending: reported(raw.confirmPending),
+    setMissPoint: reported(raw.setMissPoint),
+    deleteSet: reported(raw.deleteSet),
+    applyTarget: reported(raw.applyTarget),
+    dismissTarget: reported(raw.dismissTarget),
+    finishSession: reported(raw.finishSession),
+  }
+  const inSession = state.sessionId != null && state.summary == null
+  const [activeId, setActiveId] = useState<number | null>(null)
+  const [picking, setPicking] = useState(false)
+  const { weekday, day, month } = dateParts(state.date)
+
+  // The exercise being logged: the one the lifter chose, else the first with sets left to do.
+  const active = items.find((i) => i.exercise.id === activeId) ?? items.find(hasWorkLeft) ?? items[items.length - 1]
+  const activeExerciseId = active?.exercise.id ?? null
+  // Pin it once chosen, so finishing its last set does not whisk the card (and its "where did it stall?") away.
+  useEffect(() => {
+    if (activeId == null && activeExerciseId != null) setActiveId(activeExerciseId)
+  }, [activeId, activeExerciseId])
+
+  const activeCard = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (inSession && activeExerciseId != null) activeCard.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
+  }, [inSession, activeExerciseId])
+
+  function nextStep(index: number): NextStep {
+    const upNext = [...items.slice(index + 1), ...items.slice(0, index)].find(hasWorkLeft)
+    return upNext ? { label: `Next: ${upNext.exercise.name}`, onClick: () => setActiveId(upNext.exercise.id) } : { label: 'Finish session', onClick: () => void actions.finishSession() }
+  }
+
+  return (
+    <section className="screen">
+      <ScreenHeader
+        title="Today"
+        eyebrow={`${weekday} ${day} ${month}`}
+        actions={inSession && <SecondaryButton className="today-finish" text="Finish" onClick={() => void actions.finishSession()} compact />}
+      />
+      <div className="screen-body">
+        {state.loading ? null : state.summary != null ? (
+          <SummaryCard summary={state.summary} onOpenCoach={onOpenCoach} onKeepLogging={actions.dismissSummary} />
+        ) : state.sessionId == null ? (
+          <StartSessionCard items={items} dayName={weekday} onStart={(bodyweightKg, readiness) => void actions.startSession(bodyweightKg, readiness)} />
+        ) : (
+          <>
+            {items.map((item, i) =>
+              item === active ? (
+                <div key={item.exercise.id} ref={activeCard}>
+                  <ExerciseCard
+                    item={item}
+                    position={i + 1}
+                    count={items.length}
+                    weightStepKg={state.weightStepKg}
+                    changePlates={state.changePlates}
+                    next={nextStep(i)}
+                    actions={actions}
+                  />
+                </div>
+              ) : (
+                <ExerciseRow key={item.exercise.id} item={item} onClick={() => setActiveId(item.exercise.id)} />
+              ),
+            )}
+            {items.length === 0 && <EmptyState icon={<FitnessCenterIcon />} title="No exercises yet" body="Add what you are training today and log it set by set." />}
+            <SecondaryButton text="Add exercise" onClick={() => setPicking(true)} icon={<AddIcon />} />
+          </>
+        )}
+      </div>
+
+      {state.pending && <TypoDialog pending={state.pending} onConfirm={() => void actions.confirmPending()} onEdit={actions.cancelPending} />}
+
+      {picking && (
+        <ExercisePickerDialog
+          exercises={state.addable}
+          onPick={(exerciseId) => {
+            actions.addExercise(exerciseId)
+            setActiveId(exerciseId)
+            setPicking(false)
+          }}
+          onDismiss={() => setPicking(false)}
+        />
+      )}
+
+      <Snackbar message={failures > 0 ? SAVE_FAILED : null} showId={failures} onDismiss={() => setFailures(0)} />
+    </section>
+  )
+}

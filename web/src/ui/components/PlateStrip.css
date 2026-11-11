@@ -23,7 +23,7 @@
   min-width: 0;
 }
 
-.gr-plates-label,
+/* The label is the list the lifter loads from: on a narrow phone it wraps rather than lose a plate. */
 .gr-plates-caption {
   white-space: nowrap;
   overflow: hidden;

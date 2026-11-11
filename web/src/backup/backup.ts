@@ -415,9 +415,13 @@ export function decodeBackup(text: string): DecodeResult {
 export async function restoreBackup(db: Dexie, file: BackupFile): Promise<void> {
   const { rows, settings } = mapBackup(file)
   const t = <T>(name: string) => db.table(name) as Table<T>
-  const stores = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'settings']
+  const stores = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'settings', 'meta']
   await db.transaction('rw', stores, async () => {
     for (const name of ['sets', 'advice', 'planItems', 'baselines', 'sessions', 'exercises']) await t(name).clear()
+    // What the Today screen noted about the replaced data (the session being logged, unlogged numbers) goes with it.
+    await t<KeyValueRow>('meta')
+      .filter((row) => row.key === 'today:active' || row.key.startsWith('editor:'))
+      .delete()
     await t<ExerciseRow>('exercises').bulkAdd(rows.exercises)
     await t<SessionRow>('sessions').bulkAdd(rows.sessions)
     await t<SetRow>('sets').bulkAdd(rows.sets)

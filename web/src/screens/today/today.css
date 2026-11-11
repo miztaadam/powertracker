@@ -1,0 +1,250 @@
+/* Layout for the Today screen. Colours, type and controls come from the components and tokens. */
+
+.today-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.today-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.today-nowrap {
+  white-space: nowrap;
+}
+
+.today-center {
+  display: flex;
+  justify-content: center;
+}
+
+.today-secondary {
+  color: var(--text-secondary);
+}
+
+.today-muted {
+  color: var(--text-muted);
+}
+
+.today-hairline {
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--hairline);
+}
+
+/* The header's Finish button lines up with the cards' right edge. */
+.today-finish {
+  margin-right: var(--space-3);
+}
+
+/* The exercise being logged. */
+
+.today-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.today-miss {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2) 0 var(--space-2) var(--space-3);
+}
+
+.today-miss-question {
+  flex: none;
+  color: var(--text-secondary);
+}
+
+/* Three steppers need 3 × (48 + 4 + 48) + 2 × 8 = 316 px. */
+.today-steppers {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.today-stepper-weight {
+  flex: 1.25;
+}
+
+/* On a 375 px iPhone the card has 309 px inside its padding: the row reaches 4 px into the padding
+   on each side rather than squeeze a − or + below 48 px. */
+@media (max-width: 389px) {
+  .today-steppers {
+    margin-inline: calc(-1 * var(--space-2));
+  }
+}
+
+.today-log {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.today-next {
+  margin-top: var(--space-2);
+}
+
+.today-danger {
+  color: var(--danger);
+}
+
+.today-dose {
+  color: var(--text);
+}
+
+/* Another exercise, folded to one line. */
+
+.today-row {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  min-height: 56px;
+  margin: 0;
+  padding: var(--space-3) var(--space-5);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.today-row:active {
+  background: var(--container);
+}
+
+.today-row-bolt {
+  display: inline-flex;
+  color: var(--accent-text);
+}
+
+.today-row-plan {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* The start card. */
+
+.today-plan {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.today-plan-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 56px;
+  padding: var(--space-2) 0;
+}
+
+.today-plan-line + .today-plan-line {
+  border-top: 1px solid var(--hairline);
+}
+
+.today-plan-suggestion {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--accent-text);
+}
+
+.today-plan-suggestion svg {
+  flex: none;
+}
+
+.today-checkin {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.today-readiness {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.today-readiness-chips {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.today-start {
+  margin-top: var(--space-2);
+}
+
+/* The finish summary. */
+
+.today-summary-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.today-summary-tick {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--success-container);
+  color: var(--success);
+}
+
+.today-summary-stats {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* Dialogs. */
+
+.today-dialog-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.today-picker-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 320px;
+  margin-top: var(--space-3);
+  overflow-y: auto;
+}
+
+.today-picker-item {
+  appearance: none;
+  flex: none;
+  display: flex;
+  align-items: center;
+  min-height: var(--touch);
+  margin: 0;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.today-picker-item:active {
+  background: var(--container-highest);
+}
+
+.today-picker-empty {
+  padding: var(--space-4);
+}
