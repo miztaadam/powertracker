@@ -1,6 +1,13 @@
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+
+// The production headers live in vercel.json. `vite preview` sends the same Content-Security-Policy,
+// so the end-to-end tests run under the policy the deployed app has.
+type VercelHeaders = { headers: { source: string; headers: { key: string; value: string }[] }[] }
+const vercel = JSON.parse(readFileSync(new URL('./vercel.json', import.meta.url), 'utf8')) as VercelHeaders
+const csp = vercel.headers.find((h) => h.source === '/(.*)')?.headers.find((h) => h.key === 'Content-Security-Policy')?.value
 
 export default defineConfig({
   plugins: [
@@ -17,4 +24,5 @@ export default defineConfig({
     }),
   ],
   build: { target: 'es2022' },
+  preview: { headers: csp != null ? { 'Content-Security-Policy': csp } : {} },
 })

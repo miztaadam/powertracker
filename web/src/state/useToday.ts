@@ -126,14 +126,9 @@ export function weekdayOf(isoDate: string): number {
 }
 
 function parseTarget(payloadJson: string): Target | null {
-  try {
-    const p = JSON.parse(payloadJson) as Record<string, unknown>
-    if (typeof p.type !== 'string' || !p.type.endsWith('.Target')) return null
-    if (typeof p.exerciseId !== 'number' || typeof p.weightKg !== 'number' || typeof p.reps !== 'number' || typeof p.rpe !== 'number') return null
-    return { exerciseId: p.exerciseId, weightKg: p.weightKg, reps: p.reps, rpe: p.rpe, sets: typeof p.sets === 'number' ? p.sets : null }
-  } catch {
-    return null
-  }
+  const p = grit.advicePayload(payloadJson)
+  if (p?.kind !== 'Target' || p.exerciseId == null || p.weightKg == null || p.reps == null || p.rpe == null) return null
+  return { exerciseId: p.exerciseId, weightKg: p.weightKg, reps: p.reps, rpe: p.rpe, sets: p.sets ?? null }
 }
 
 /** The TARGET advice stored for `date`, in every status, oldest first. */
@@ -189,51 +184,63 @@ const withoutId = (row: AdviceRow): AdviceRow => {
   return rest
 }
 
+/** Thrown by `coachPass` when storing its results failed. The reads worked: the log itself is fine. */
+class CoachWriteError extends Error {
+  constructor(cause: unknown) {
+    super("The coach could not store today's targets.", { cause })
+    this.name = 'CoachWriteError'
+  }
+}
+
 /**
  * Works out today's targets and stores the ones not stored yet, one per exercise. Returns false and
  * writes nothing when `date` is no longer today: a screen left open past midnight must not store
- * targets dated the day before.
+ * targets dated the day before. Rejects with `CoachWriteError` when the reads worked but storing
+ * failed (a full phone); nothing is half-written then.
  */
 async function coachPass(db: GritDb, date: string, today: () => string): Promise<boolean> {
   if (today() !== date) return false
-  // One transaction, so two passes (two tabs, a remount) cannot both find the target missing.
-  await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.meta], async () => {
-    const [history, plan, settings, advice] = await Promise.all([loadHistory(db), db.planItems.toArray(), getSettings(db), db.advice.toArray()])
-    const known = new Set(todaysTargets(advice, date).map((t) => t.target.exerciseId))
-    const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
-    const fresh: AdviceRow[] = []
-    for (const a of grit.targetsFor(weekdayOf(date), history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), date, prior)) {
-      const exerciseId = parseTarget(a.payloadJson)?.exerciseId
-      if (exerciseId == null || known.has(exerciseId)) continue
-      known.add(exerciseId)
-      fresh.push(withoutId(adviceFromJs(a)))
-    }
-    if (fresh.length > 0) await db.advice.bulkAdd(fresh)
-    // Editor values are kept for a reload during the session; earlier days' are of no use any more.
-    await db.meta
-      .where('key')
-      .startsWith('editor:')
-      .filter((row) => !row.key.startsWith(`editor:${date}:`))
-      .delete()
-  })
+  let writing = false
+  try {
+    // One transaction, so two passes (two tabs, a remount) cannot both find the target missing.
+    await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.meta], async () => {
+      const [history, plan, settings, advice] = await Promise.all([loadHistory(db), db.planItems.toArray(), getSettings(db), db.advice.toArray()])
+      const known = new Set(todaysTargets(advice, date).map((t) => t.target.exerciseId))
+      const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
+      const fresh: AdviceRow[] = []
+      for (const a of grit.targetsFor(weekdayOf(date), history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), date, prior)) {
+        const exerciseId = parseTarget(a.payloadJson)?.exerciseId
+        if (exerciseId == null || known.has(exerciseId)) continue
+        known.add(exerciseId)
+        fresh.push(withoutId(adviceFromJs(a)))
+      }
+      writing = true
+      if (fresh.length > 0) await db.advice.bulkAdd(fresh)
+      // Editor values are kept for a reload during the session; earlier days' are of no use any more.
+      await db.meta
+        .where('key')
+        .startsWith('editor:')
+        .filter((row) => !row.key.startsWith(`editor:${date}:`))
+        .delete()
+    })
+  } catch (e) {
+    throw writing ? new CoachWriteError(e) : e
+  }
   return true
 }
 
-/** The set a session's top set is taken from: flagged, else the heaviest good set, else the heaviest. Ties go to the later set. */
-function topSetOf(sets: JsSet[]): JsSet | null {
-  const heaviest = (list: JsSet[]) => list.reduce<JsSet | null>((best, s) => (best == null || s.weightKg >= best.weightKg ? s : best), null)
-  return heaviest(sets.filter((s) => s.isTopSet).slice(-1)) ?? heaviest(sets.filter((s) => !s.failed)) ?? heaviest(sets)
-}
+// The domain reads the whole history for each answer, and the screen rebuilds on every stepper tap:
+// answers are kept for as long as the history object they were worked out from.
+const topSets = new WeakMap<JsHistory, Map<string, JsSet | null>>()
 
-/** The top set of the latest session before `before` that has this exercise. */
+/** The top set of the latest session before `before` that has this exercise, as the coach picks it. */
 function lastTopSet(history: JsHistory, exerciseId: number, before: string): JsSet | null {
-  for (let i = history.sessions.length - 1; i >= 0; i--) {
-    const session = history.sessions[i]
-    if (session == null || session.date >= before) continue
-    const top = topSetOf(session.sets.filter((s) => s.exerciseId === exerciseId))
-    if (top) return top
-  }
-  return null
+  let known = topSets.get(history)
+  if (!known) topSets.set(history, (known = new Map()))
+  const key = `${exerciseId}:${before}`
+  let top = known.get(key)
+  if (top === undefined) known.set(key, (top = grit.lastTopSet(history, exerciseId, before) ?? null))
+  return top
 }
 
 function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'addable' | 'weightStepKg' | 'changePlates'> {
@@ -460,7 +467,10 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         if (ran && !stale) setCoachPasses((n) => n + 1)
       })
       .catch((e: unknown) => {
-        if (!stale) setReadError(e)
+        // A failed write (a full phone) costs today's targets, nothing else: the screen stays, and
+        // the storage-full dialog has already been raised by the database. Only a failed read means
+        // the log cannot be shown.
+        if (!stale && !(e instanceof CoachWriteError)) setReadError(e)
       })
     return () => {
       stale = true
@@ -621,23 +631,31 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     [db, date, update],
   )
 
+  // True while the coach runs for Finish; a second tap must not run it again and replace the summary.
+  const finishing = useRef(false)
   const finishSession = useCallback(async () => {
     const now = latest.current
-    if (now.loading || now.sessionId == null) return
-    // Advice is dated by the real clock: a session finished after midnight stores nothing under the day before.
-    const clockDay = clock.current()
-    const newNotes = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice], async () => {
-      const [history, plan, settings, advice] = await Promise.all([loadHistory(db), db.planItems.toArray(), getSettings(db), db.advice.toArray()])
-      const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
-      const fresh = grit.evaluate(history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), clockDay, prior)
-      if (fresh.length > 0) await db.advice.bulkAdd(fresh.map((a) => withoutId(adviceFromJs(a))))
-      return fresh.length
-    })
-    // Finished: it no longer keeps the screen, here or after a reload.
-    activity.current = null
-    db.meta.delete(ACTIVITY_KEY).catch(() => {})
-    const done = now.items.filter((i) => i.sets.length > 0)
-    update((l) => ({ ...l, summary: { setCount: done.reduce((n, i) => n + i.sets.length, 0), exerciseCount: done.length, newNotes } }))
+    if (finishing.current || now.summary != null || now.loading || now.sessionId == null) return
+    finishing.current = true
+    try {
+      // Advice is dated by the real clock: a session finished after midnight stores nothing under the day before.
+      const clockDay = clock.current()
+      const newNotes = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice], async () => {
+        const [history, plan, settings, advice] = await Promise.all([loadHistory(db), db.planItems.toArray(), getSettings(db), db.advice.toArray()])
+        const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
+        const fresh = grit.evaluate(history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), clockDay, prior)
+        if (fresh.length > 0) await db.advice.bulkAdd(fresh.map((a) => withoutId(adviceFromJs(a))))
+        return fresh.length
+      })
+      // Finished: it no longer keeps the screen, here or after a reload.
+      activity.current = null
+      db.meta.delete(ACTIVITY_KEY).catch(() => {})
+      const done = now.items.filter((i) => i.sets.length > 0)
+      // A summary already up is kept: it is the one that counted the new notes.
+      update((l) => (l.summary != null ? l : { ...l, summary: { setCount: done.reduce((n, i) => n + i.sets.length, 0), exerciseCount: done.length, newNotes } }))
+    } finally {
+      finishing.current = false
+    }
   }, [db, update])
 
   const dismissSummary = useCallback(() => {

@@ -289,6 +289,72 @@ describe('SettingsScreen', () => {
     expect(await readSafetyCopy(db)).not.toBeNull()
   })
 
+  it('restore_savesASafetyCopyFirst_soAWrongFileCanBeUndone', async () => {
+    show()
+    const before = await data()
+    await pick(WEB_BACKUP)
+    await screen.findByRole('dialog')
+    // Nothing is written while the question is up.
+    expect(await readSafetyCopy(db)).toBeNull()
+    await userEvent.click(dialog().getByRole('button', { name: 'Replace' }))
+    expect(await screen.findByText('Backup restored.')).toBeInTheDocument()
+    expect(await data()).not.toBe(before)
+
+    // The copy holds what the restore replaced, and the row says when it was made.
+    const made = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date())
+    expect(await screen.findByText(`Grit saved a safety copy of your data on ${made}, before its last update or restore.`)).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Restore safety copy' }))
+    expect(dialog().getByText(`Restoring replaces everything in Grit with the safety copy saved on ${made}.`)).toBeInTheDocument()
+    const copy = (await readSafetyCopy(db))!.json
+    await userEvent.click(dialog().getByRole('button', { name: 'Replace' }))
+    await waitFor(async () => expect(await data()).toBe(before))
+    // Restoring the copy leaves it in place.
+    expect((await readSafetyCopy(db))!.json).toBe(copy)
+  })
+
+  it('restore_whenTheSafetyCopyCannotBeSaved_saysSo_andStillRestores', async () => {
+    show()
+    const before = await data()
+    await pick(WEB_BACKUP)
+    await screen.findByRole('dialog')
+    const put = vi.spyOn(table('meta'), 'put').mockRejectedValue(new Error('disk full'))
+    await userEvent.click(dialog().getByRole('button', { name: 'Replace' }))
+
+    // Asked again, with the warning; nothing has been replaced.
+    expect(await screen.findByText(/Grit couldn't save a safety copy of your current data first, so this can't be undone\./)).toBeInTheDocument()
+    expect(dialog().getAllByRole('button').map((b) => b.textContent)).toEqual(['Cancel', 'Replace anyway'])
+    expect(await data()).toBe(before)
+
+    await userEvent.click(dialog().getByRole('button', { name: 'Replace anyway' }))
+    expect(await screen.findByText('Backup restored.')).toBeInTheDocument()
+    put.mockRestore()
+    expect(await data()).not.toBe(before)
+    expect(await readSafetyCopy(db)).toBeNull()
+  })
+
+  it('restoreSafetyCopy_thatFails_leavesTheCopyAsItWas_andStillRestorable', async () => {
+    // The good data is in the safety copy; the live data is the wrong file's.
+    await writeSafetyCopy(db)
+    const good = (await readSafetyCopy(db))!.json
+    const goodPlan = (await exportBackup(db, 0)).planItems
+    await db.planItems.clear()
+    show()
+    await userEvent.click(await screen.findByRole('button', { name: 'Restore safety copy' }))
+    const failing = vi.spyOn(table('sets'), 'bulkAdd').mockRejectedValue(new Error('disk full'))
+    await userEvent.click(dialog().getByRole('button', { name: 'Replace' }))
+    expect(await screen.findByText("Couldn't restore the backup.")).toBeInTheDocument()
+
+    // The copy was not overwritten with the wrong data.
+    expect((await readSafetyCopy(db))!.json).toBe(good)
+    failing.mockRestore()
+
+    // And it restores once the phone lets it.
+    await userEvent.click(screen.getByRole('button', { name: 'Restore safety copy' }))
+    await userEvent.click(dialog().getByRole('button', { name: 'Replace' }))
+    await waitFor(async () => expect((await exportBackup(db, 0)).planItems).toEqual(goodPlan))
+    expect((await readSafetyCopy(db))!.json).toBe(good)
+  })
+
   it('safetyCopy_rawDump_canOnlyBeExported', async () => {
     await db.meta.put({ key: 'safetyCopy', value: JSON.stringify({ kind: 'raw', schemaVersion: 1, tables: {} }) })
     const share = vi.fn(async (_data: ShareData) => {})

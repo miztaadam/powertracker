@@ -83,8 +83,11 @@ web/      React + TypeScript + Vite PWA
 ### 3.2 Web app
 
 - React 18 + TypeScript (strict) + Vite.
-- A small typed router: a bottom tab bar (Today / Coach / Progress / Plan), plus the `liftHistory/:lift`,
-  `settings`, `lock` and `install` routes.
+- A small typed router: a bottom tab bar (Today / Coach / Progress / Plan), plus the `liftHistory/:lift`
+  and `settings` routes.
+  - The lock and the install card are not routes. The lock is a gate around the whole app: while it
+    is locked nothing else is rendered, and where the lifter was comes back after unlocking. The
+    install card is a dismissible card at the top of Today.
 - State lives in hooks over Dexie live queries. Coach calls go through the facade, and the logic mirrors
   the Android view models: TARGET dedupe per exercise per day, Apply-only edits, typo confirm,
   double-tap guards, and Finish → evaluate → insert advice.
@@ -122,8 +125,12 @@ Every screen behaves as on Android. The Android code and tests are the reference
 - Touch targets ≥ 48 px.
 - Inputs at ≥ 16 px (no iOS zoom), with `inputmode="decimal"` for numbers.
 - No overscroll bounce inside the app shell.
-- **Install card:** when the site runs in Safari and not as an installed app, a card explains Share →
-  Add to Home Screen and why it protects the data. The app still works without installing.
+- **Install card:** when the site runs in Safari and not as an installed app, a dismissible card on
+  Today explains Share → Add to Home Screen and why it protects the data. The app still works without
+  installing.
+  - A Home Screen app keeps its own storage, apart from Safari's. When the Safari copy already has a
+    log, the card also says to export a backup first and restore it in the installed app, and has an
+    Export backup button.
 
 ### Rest timer
 
@@ -141,10 +148,16 @@ Every screen behaves as on Android. The Android code and tests are the reference
 - Turning it on creates a passkey: WebAuthn with a platform authenticator and user verification
   required, relying party = Grit's own origin. The credential id is stored locally.
 - Unlocking calls `navigator.credentials.get` with user verification.
-- Grit asks on launch and after ≥ 60 s in the background (`visibilitychange` timestamps), and keeps the
-  first hide time until the next unlock.
+- Grit asks on launch and after ≥ 60 s in the background (`visibilitychange` timestamps). As on
+  Android, a shorter trip is forgotten when the lifter comes back: it does not count towards a later
+  lock. While the app is locked, the first hide time is kept, so the lock cannot be waited out.
 - Content is not rendered while locked.
-- If WebAuthn or a platform authenticator is unavailable, Grit explains that and doesn't lock.
+- If WebAuthn or a platform authenticator is unavailable, Grit explains that and doesn't lock. If the
+  browser does not answer whether one is available within about a second, the lock screen shows
+  anyway; a timeout never opens the app.
+- "Can't unlock?" on the lock screen has the phone verify its owner by making a new passkey, which
+  replaces the old one.
+- App lock and its passkey belong to the device. A restore never changes them.
 
 ## 5. Data, updates and safety
 
@@ -157,8 +170,13 @@ Every screen behaves as on Android. The Android code and tests are the reference
   - every schema change is a numbered Dexie version with an upgrade function and a test (data from
     version N−1 upgrades correctly);
   - before running any upgrade, Grit writes a **safety copy** (a full backup JSON) into `meta`;
-  - if an upgrade throws, the app opens in recovery mode offering to restore the safety copy or export
-    it.
+  - if an upgrade throws, the app opens in recovery mode. Recovery only exports: the safety copy, or
+    the data as it is now. It never restores or deletes. With App lock on, an export there asks for
+    Face ID first, and "Can't unlock?" is available there too;
+  - the safety copy is restored from Settings ("Restore safety copy"), which shows the date it was made;
+  - a restore of a backup file in Settings also writes a safety copy of the current data first, so a wrong file can be
+    undone. If that copy cannot be written, the confirm dialog says so and the restore is still allowed.
+    Restoring the safety copy itself never overwrites it, so it survives a restore that fails.
 - **App updates:**
   - the service worker precaches the build;
   - a new version installs in the background and shows "Update ready — tap to refresh";
@@ -185,13 +203,16 @@ Every screen behaves as on Android. The Android code and tests are the reference
     - Web restore uses `webRestAlert` when it is present. Otherwise it maps `VIBRATE` /
       `SOUND_AND_VIBRATE` → Sound and `OFF` → Off.
 - **Privacy:** a Content-Security-Policy of `default-src 'self'` (fonts and images self-hosted,
-  `connect-src 'self'`). No analytics, no third-party requests.
+  `connect-src 'self'`), with `frame-ancestors 'none'`, `base-uri 'self'` and `form-action 'self'`. No
+  analytics, no third-party requests.
 
 ## 6. Edge cases
 
 - Private browsing or storage unavailable: a blocking warning that data won't be kept, with an export
   button.
 - Storage full (QuotaExceeded): a clear error on that action, no partial writes, and an offer to export.
+  This also holds for writes the app makes by itself (storing the day's coach targets when Today opens):
+  the storage-full dialog shows and Today stays usable, without targets.
 - Reload or app kill mid-session: the session and sets are already stored, and editor values persist
   per exercise.
 - Two tabs open: the second shows "Grit is open in another tab", using a BroadcastChannel / Web Locks

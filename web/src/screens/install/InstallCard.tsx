@@ -1,30 +1,55 @@
 import { liveQuery } from 'dexie'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { exportBackupFile } from '../../backup/exportFile'
 import type { GritDb } from '../../db/db'
+import { todayIso } from '../../domain'
 import { isStandalone } from '../../platform/storage'
-import { QuietButton } from '../../ui/components/Button'
+import { QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
+import { UploadIcon } from '../../ui/components/icons'
 import './install.css'
 
 /** In `meta`: true once the lifter answered the card with "Not now". */
 export const INSTALL_DISMISSED_KEY = 'install:dismissed'
 
+type Shown = { dismissed: boolean; hasLog: boolean }
+
+/** Whether there is anything here that an installed copy would start without: a session, a plan or a baseline. */
+async function read(db: GritDb): Promise<Shown> {
+  const [answer, sessions, planItems, baselines] = await Promise.all([db.meta.get(INSTALL_DISMISSED_KEY), db.sessions.count(), db.planItems.count(), db.baselines.count()])
+  return { dismissed: answer?.value === true, hasLog: sessions + planItems + baselines > 0 }
+}
+
 /**
  * Shown while Grit runs in a browser tab and not from the Home Screen: how to install it, and why
- * (an installed app's storage is not cleared by the browser). Grit works without installing, so
- * "Not now" puts the card away for good.
+ * (an installed app's storage is not cleared by the browser). On iPhone the installed app has its
+ * own storage, apart from Safari's, so when there is already a log here the card also says to export
+ * it first and restore it in the installed app, and offers the export. Grit works without
+ * installing, so "Not now" puts the card away for good.
  */
 export function InstallCard({ db }: { db: GritDb }) {
   const [standalone] = useState(isStandalone)
   // Hidden until the stored answer has been read, so the card does not flash for someone who said no.
-  const [dismissed, setDismissed] = useState(true)
+  const [shown, setShown] = useState<Shown>({ dismissed: true, hasLog: false })
+  const [note, setNote] = useState<string | null>(null)
+  const exporting = useRef(false)
   useEffect(() => {
     if (standalone) return
     // A failed read only means no card; the screen's own reads report a broken database.
-    const subscription = liveQuery(async () => (await db.meta.get(INSTALL_DISMISSED_KEY))?.value === true).subscribe({ next: setDismissed, error: () => setDismissed(true) })
+    const subscription = liveQuery(() => read(db)).subscribe({ next: setShown, error: () => setShown({ dismissed: true, hasLog: false }) })
     return () => subscription.unsubscribe()
   }, [db, standalone])
-  if (standalone || dismissed) return null
+  if (standalone || shown.dismissed) return null
+  const exportNow = () => {
+    if (exporting.current) return
+    exporting.current = true
+    exportBackupFile(db, todayIso(), Date.now())
+      .then((result) => setNote(result === 'saved' ? 'Backup saved.' : null))
+      .catch(() => setNote("Couldn't save the backup."))
+      .finally(() => {
+        exporting.current = false
+      })
+  }
   return (
     <Card className="install-card">
       <div className="install-head">
@@ -32,15 +57,26 @@ export function InstallCard({ db }: { db: GritDb }) {
         <h2 className="install-title headline-small">Install Grit</h2>
       </div>
       <p className="install-body body-medium">Add Grit to your Home Screen: tap Share, then Add to Home Screen. Installed, your training log is protected from being cleared.</p>
+      {shown.hasLog && (
+        <p className="install-body body-medium">
+          The installed app keeps its own log, apart from Safari's, and starts empty. You have already logged here: tap Export backup before you add Grit to the Home Screen, then restore that file in the installed app (Plan, Settings, Restore backup).
+        </p>
+      )}
+      {note != null && (
+        <p className="install-body body-medium" role="status">
+          {note}
+        </p>
+      )}
       <div className="install-actions">
         <QuietButton
           text="Not now"
           onClick={() => {
             // Hidden at once, also if remembering the answer fails.
-            setDismissed(true)
+            setShown((s) => ({ ...s, dismissed: true }))
             db.meta.put({ key: INSTALL_DISMISSED_KEY, value: true }).catch(() => {})
           }}
         />
+        {shown.hasLog && <SecondaryButton text="Export backup" onClick={exportNow} icon={<UploadIcon />} compact />}
       </div>
     </Card>
   )

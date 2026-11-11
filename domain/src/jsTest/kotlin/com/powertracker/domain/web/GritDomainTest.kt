@@ -177,4 +177,85 @@ class GritDomainTest {
         assertNull(GritDomain.mainLiftOf(exercise("ACCESSORY", null)))
         assertTrue(!GritDomain.isMainLift(exercise("ACCESSORY", null)))
     }
+
+    @Test
+    fun lastTopSet_matchesHistoryStats() {
+        fun set(kg: Double, failed: Boolean = false, top: Boolean = false) = JsSet(1, kg, 5, 8.0, failed, null, top)
+        fun session(id: Int, date: String, vararg sets: JsSet) = JsSession(id, date, null, null, arrayOf(*sets))
+        val history = JsHistory(
+            arrayOf(
+                // Flagged wins over heavier; the last flagged one if several.
+                session(1, "2026-01-05", set(100.0, top = true), set(120.0), set(90.0, top = true)),
+                // No flag: the heaviest good set, the later one on a tie; a heavier failed set does not count.
+                session(2, "2026-01-07", set(110.0), JsSet(1, 110.0, 3, 9.0, false, null, false), set(130.0, failed = true)),
+                // Every set failed: the heaviest failed set.
+                session(3, "2026-01-09", set(140.0, failed = true), set(135.0, failed = true)),
+                session(4, "2026-01-11", JsSet(2, 60.0, 8, null, false, null, false)),
+            ),
+            arrayOf(JsExercise(1, "Squat", "SQUAT", null, emptyArray(), true, false)),
+            emptyArray(),
+        )
+        assertNull(GritDomain.lastTopSet(history, 1, "2026-01-05"))
+        assertEquals(90.0, GritDomain.lastTopSet(history, 1, "2026-01-07")!!.weightKg)
+        assertEquals(3, GritDomain.lastTopSet(history, 1, "2026-01-09")!!.reps)
+        // A session without the exercise is skipped, and `before` is exclusive.
+        assertEquals(140.0, GritDomain.lastTopSet(history, 1, "2026-01-12")!!.weightKg)
+        assertNull(GritDomain.lastTopSet(history, 3, "2026-01-12"))
+        // The same answer as the domain gives on the golden history.
+        val golden = GoldenScenario.historyUntil(GoldenScenario.day(70))
+        val stats = com.powertracker.domain.history.HistoryStats(golden)
+        for (id in golden.exercises.keys) {
+            val expected = stats.lastTopSet(id, GoldenScenario.day(70))?.second
+            val actual = GritDomain.lastTopSet(jsHistory(GoldenScenario.day(70)), id.toInt(), GoldenScenario.day(70).toString())
+            assertEquals(expected?.let { listOf(it.weightKg, it.reps, it.rpe) }, actual?.let { listOf(it.weightKg, it.reps, it.rpe) })
+        }
+    }
+
+    @Test
+    fun openAdviceExpired_after14Days() {
+        // Created 2026-03-01: day 14 is 2026-03-14, the last day it counts.
+        for (type in listOf("DELOAD", "RE_ENTRY")) {
+            assertTrue(!GritDomain.openAdviceExpired(type, "2026-03-01", "2026-03-14"))
+            assertTrue(GritDomain.openAdviceExpired(type, "2026-03-01", "2026-03-15"))
+        }
+        for (type in listOf("STALL", "WEAK_POINT", "TARGET")) {
+            assertTrue(!GritDomain.openAdviceExpired(type, "2026-03-01", "2027-03-15"))
+        }
+        assertEquals(Coach.OPEN_ACTIVE_DAYS, 14L)
+        assertFailsWith<IllegalArgumentException> { GritDomain.openAdviceExpired("NOPE", "2026-03-01", "2026-03-15") }
+    }
+
+    @Test
+    fun advicePayload_decodesWithAndroidDefaults() {
+        val prefix = "com.powertracker.domain.model.AdvicePayload"
+        val deload = GritDomain.advicePayload("""{"type":"$prefix.Deload"}""")!!
+        assertEquals(listOf<Any?>("Deload", 0.6, 0.9), listOf(deload.kind, deload.volumeFactor, deload.loadFactor))
+        val reEntry = GritDomain.advicePayload("""{"type":"$prefix.ReEntry"}""")!!
+        assertEquals(listOf<Any?>("ReEntry", 0.85, null), listOf(reEntry.kind, reEntry.loadFactor, reEntry.volumeFactor))
+        assertEquals(0.8, GritDomain.advicePayload("""{"type":"$prefix.Deload","volumeFactor":0.5,"loadFactor":0.8}""")!!.loadFactor)
+
+        val target = GritDomain.advicePayload("""{"type":"$prefix.Target","exerciseId":3,"weightKg":102.5,"reps":5,"rpe":8}""")!!
+        assertEquals(listOf<Any?>("Target", 3, 102.5, 5, 8.0, null), listOf(target.kind, target.exerciseId, target.weightKg, target.reps, target.rpe, target.sets))
+        assertEquals(2, GritDomain.advicePayload("""{"type":"$prefix.Target","exerciseId":3,"weightKg":102.5,"reps":5,"rpe":8,"sets":2}""")!!.sets)
+
+        val accessories = GritDomain.advicePayload(
+            """{"type":"$prefix.Accessories","items":[{"exerciseName":"Pause squat","sets":3,"repsLow":3,"repsHigh":5}]}""",
+        )!!
+        assertEquals("Accessories", accessories.kind)
+        assertEquals(listOf(JsPrescription("Pause squat", 3, 3, 5)), accessories.items.toList())
+
+        val weak = GritDomain.advicePayload("""{"type":"$prefix.WeakPoint","lift":"BENCH","missPoint":"LOCKOUT"}""")!!
+        assertEquals(listOf<Any?>("WeakPoint", "BENCH", "LOCKOUT"), listOf(weak.kind, weak.lift, weak.missPoint))
+        assertNull(GritDomain.advicePayload("""{"type":"$prefix.WeakPoint","lift":"SQUAT","missPoint":null}""")!!.missPoint)
+
+        // What the facade itself encodes decodes again.
+        val cp = GoldenScenario.checkpoints.first { it.label == "fatigue" }
+        for (a in GritDomain.evaluate(jsHistory(cp.today), jsPlan, jsSettings, cp.today.toString(), emptyArray())) {
+            assertTrue(GritDomain.advicePayload(a.payloadJson) != null, a.payloadJson)
+        }
+        // Anything unreadable is null, never a throw.
+        for (bad in listOf("", "{}", "not json", """{"type":"$prefix.Nope"}""", """{"type":"$prefix.Target","exerciseId":"x"}""")) {
+            assertNull(GritDomain.advicePayload(bad), bad)
+        }
+    }
 }

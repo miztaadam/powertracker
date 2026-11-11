@@ -148,6 +148,13 @@ object Coach {
 
     private fun expiresWhenOpen(type: AdviceType) = type == AdviceType.DELOAD || type == AdviceType.RE_ENTRY
 
+    /**
+     * True once an OPEN deload or re-entry created on [createdAt] no longer counts on [today]: it is older than
+     * [OPEN_ACTIVE_DAYS]. Other advice stays open until it is acted on.
+     */
+    fun openExpired(type: AdviceType, createdAt: LocalDate, today: LocalDate): Boolean =
+        expiresWhenOpen(type) && createdAt < today.minus(OPEN_ACTIVE_DAYS - 1, DateTimeUnit.DAY)
+
     /** No new deload while one is active, nor within 21 days of an applied one. */
     private fun deloadBlocked(prior: List<Advice>, today: LocalDate): Boolean =
         activeAdvice(AdviceType.DELOAD, prior, today) != null ||

@@ -2,7 +2,7 @@ import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { flushSync } from 'react-dom'
 import { getSettings, type GritDb } from '../../db/db'
-import { CREDENTIAL_KEY, RELOCK_AFTER_MS, createLockState, lockSupported, makePasskey, readCredentialId, unlock } from '../../platform/passkeyLock'
+import { CREDENTIAL_KEY, LOCK_CHECK_TIMEOUT_MS, RELOCK_AFTER_MS, createLockState, lockSupported, makePasskey, readCredentialId, unlock } from '../../platform/passkeyLock'
 import { BlankScreen } from './GateScreen'
 import { LockCover, LockScreen } from './LockScreen'
 import { LockSetupDialog } from './LockSetupDialog'
@@ -45,15 +45,24 @@ export function LockGateHost({ db, now = Date.now, children }: LockGateHostProps
     return () => subscription.unsubscribe()
   }, [db])
 
+  // The browser's check can hang (WebKit). After about a second the lock screen shows anyway, with
+  // Unlock and "Can't unlock?": never a blank screen, and never an open app, on a timeout. An answer
+  // that comes late still counts.
+  const [checkTimedOut, setCheckTimedOut] = useState(false)
   useEffect(() => {
     let stale = false
+    const timer = setTimeout(() => {
+      if (!stale) setCheckTimedOut(true)
+    }, LOCK_CHECK_TIMEOUT_MS)
     lockSupported()
       .then((value) => {
+        clearTimeout(timer)
         if (!stale) setSupported(value)
       })
       .catch(() => {})
     return () => {
       stale = true
+      clearTimeout(timer)
     }
   }, [])
 
@@ -140,7 +149,7 @@ export function LockGateHost({ db, now = Date.now, children }: LockGateHostProps
       .catch(() => {})
   }, [db, supported, lock, redraw])
 
-  const gate = lock.lockGate(now(), enabled, supported)
+  const gate = lock.lockGate(now(), enabled, supported ?? (checkTimedOut ? true : null))
 
   // Becoming locked while on screen brings up the system prompt right away, as on Android.
   useEffect(() => {

@@ -58,6 +58,17 @@ Grit also runs on iPhone as a web app. It works offline and keeps your log on th
 2. Tap Share, then Add to Home Screen.
 3. Open Grit from the Home Screen. Installed, your log is protected from being cleared.
 
+The installed app keeps its own log, apart from Safari's, and starts empty. If you have already
+logged in Safari, do this so the log comes along:
+
+1. In Safari, tap Export backup before you add Grit to the Home Screen. The button is on the install
+   card on Today, and in Plan, Settings.
+2. Add Grit to the Home Screen and open it from there.
+3. In the installed app, open Plan, then Settings, then Restore backup, and pick that file.
+
+From then on, use only the installed app. Safari clears the data of sites you have not opened for a
+while, so a log left behind in the Safari tab can disappear.
+
 ## Moving from Android
 
 1. In the Android app, open Settings and tap Export backup.
@@ -85,6 +96,7 @@ cd ..
 The automated tests run in Chromium, not Safari. Tick these off on a real iPhone, at the gym if you can.
 
 - [ ] Install: the install card shows in Safari, and is gone when opened from the Home Screen.
+- [ ] Separate storage: log a set in Safari, then add Grit to the Home Screen and open it. Note whether the installed app starts empty on your iOS version (Grit assumes it does). If it does, the Safari card's "Export backup", then Restore backup in the installed app, brings the log over.
 - [ ] Storage: Settings says "Storage: protected" after installing.
 - [ ] A private Safari window shows the warning. A normal window and the installed app do not. "Continue anyway" is remembered.
 - [ ] Offline in the gym: turn on airplane mode, close Grit, open it, and log a set.
@@ -100,7 +112,8 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] The screen stays awake during a rest (wake lock).
 - [ ] With Reduce Motion on, the rest alert fades instead of flashing.
 - [ ] Backup: Export backup opens the share sheet. Save it to iCloud Drive.
-- [ ] Restore: pick that file with the file picker. Confirm. The data matches.
+- [ ] Recovery export with App lock on: on the recovery screen, an export asks for Face ID first, so the file may be downloaded (Files, Downloads) instead of opening the share sheet. Note which happens, and check the file is there.
+- [ ] Restore: pick that file with the file picker. Confirm. The data matches. App lock is as it was on this phone, and "Restore safety copy" in Settings brings back what the restore replaced.
 - [ ] Two tabs: open Grit in a second tab while a first is suspended. The second asks before taking over.
 - [ ] Update: deploy a second version. The prompt "Update ready — tap to refresh" shows only after you finish a session, and the app reloads only when tapped.
 

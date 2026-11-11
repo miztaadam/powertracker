@@ -29,6 +29,9 @@ export declare namespace GritDomain {
             total(history: JsHistory, until: string): Nullable<number>;
             mainLiftOf(exercise: JsExercise): Nullable<string>;
             isMainLift(exercise: JsExercise): boolean;
+            lastTopSet(history: JsHistory, exerciseId: number, before: string): Nullable<JsSet>;
+            openAdviceExpired(type: string, createdAt: string, today: string): boolean;
+            advicePayload(payloadJson: string): Nullable<JsAdvicePayload>;
             ratioRanges(): Array<JsRatioRange>;
             private constructor();
         }
@@ -243,5 +246,46 @@ export declare namespace JsRatioRange {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsRatioRange;
+    }
+}
+export declare class JsPrescription {
+    constructor(exerciseName: string, sets: number, repsLow: number, repsHigh: number);
+    get exerciseName(): string;
+    get sets(): number;
+    get repsLow(): number;
+    get repsHigh(): number;
+    copy(exerciseName?: string, sets?: number, repsLow?: number, repsHigh?: number): JsPrescription;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsPrescription {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsPrescription;
+    }
+}
+export declare class JsAdvicePayload {
+    constructor(kind: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>);
+    get kind(): string;
+    get exerciseId(): Nullable<number>;
+    get weightKg(): Nullable<number>;
+    get reps(): Nullable<number>;
+    get rpe(): Nullable<number>;
+    get sets(): Nullable<number>;
+    get items(): Array<JsPrescription>;
+    get volumeFactor(): Nullable<number>;
+    get loadFactor(): Nullable<number>;
+    get lift(): Nullable<string>;
+    get missPoint(): Nullable<string>;
+    copy(kind?: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>): JsAdvicePayload;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsAdvicePayload {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsAdvicePayload;
     }
 }

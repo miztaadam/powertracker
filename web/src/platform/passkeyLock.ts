@@ -105,6 +105,25 @@ export async function lockSupported(): Promise<boolean> {
   }
 }
 
+/** How long the browser gets to say whether it has an authenticator before Grit stops waiting. */
+export const LOCK_CHECK_TIMEOUT_MS = 1000
+
+/**
+ * `lockSupported`, never kept waiting: null when the browser has not answered within `timeoutMs`
+ * (WebKit's check can hang). Null is "not known", never a yes: the prompt itself decides.
+ */
+export async function lockSupportedWithin(timeoutMs = LOCK_CHECK_TIMEOUT_MS): Promise<boolean | null> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const tooSlow = new Promise<null>((done) => {
+    timer = setTimeout(() => done(null), timeoutMs)
+  })
+  try {
+    return await Promise.race([lockSupported(), tooSlow])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 /** This phone's passkey id, or null when none was made here. */
 export async function readCredentialId(db: Dexie): Promise<string | null> {
   const value: unknown = (await db.table('meta').get(CREDENTIAL_KEY))?.value
@@ -113,7 +132,8 @@ export async function readCredentialId(db: Dexie): Promise<string | null> {
 
 /** A failed prompt: the browser cannot do it at all, or the lifter (or the phone) said no. */
 async function failure(e: unknown): Promise<'unsupported' | 'cancelled'> {
-  return UNSUPPORTED_ERRORS.includes(errorName(e)) || !(await lockSupported()) ? 'unsupported' : 'cancelled'
+  // No answer about the authenticator is not a no: the attempt failed, and can be made again.
+  return UNSUPPORTED_ERRORS.includes(errorName(e)) || (await lockSupportedWithin()) === false ? 'unsupported' : 'cancelled'
 }
 
 /**

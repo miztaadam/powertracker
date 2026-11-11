@@ -25,6 +25,8 @@ After changing `../domain`, regenerate the committed JavaScript and check it is 
 
 They run in Chromium with iPhone 13 emulation against `vite preview` (there is no WebKit in the
 container). Real Safari checks are the manual list in the top-level `README.md`.
+`vite preview` sends the Content-Security-Policy from `vercel.json`, so the tests run under the
+policy the deployed app has.
 
 Screenshots of every screen, dark and light, are written to `test-results/screens/` on a normal run.
 To rewrite the committed ones in `docs/design/web/screens/`:

@@ -1,5 +1,6 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { onDataReplaced } from '../backup/backup'
 import { getSettings, type AppSettings, type GritDb } from '../db/db'
 import { playRestTone, unlockAudioOnGesture } from '../platform/audio'
 import { RestTimerStore, useRestTimer, type RestTimerState, type RestTimerStorage } from '../platform/restTimer'
@@ -64,6 +65,9 @@ export function useRest(db: GritDb | null): Rest {
       detach()
     }
   }, [db, store])
+
+  // A restore replaces the session the rest belonged to: the rest ends with it, without an alert.
+  useEffect(() => onDataReplaced(() => store.skip()), [store])
 
   useEffect(() => unlockAudioOnGesture(), [])
 

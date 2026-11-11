@@ -106,6 +106,30 @@ data class JsAccessoryOption(val name: String, val heavy: Boolean)
 @JsExport
 data class JsRatioRange(val numerator: String, val denominator: String, val low: Double, val high: Double)
 
+/** An accessory and its dose, as the coach prescribes it. */
+@JsExport
+data class JsPrescription(val exerciseName: String, val sets: Int, val repsLow: Int, val repsHigh: Int)
+
+/**
+ * A decoded `AdvicePayload`. [kind] is "Target", "Accessories", "Deload", "WeakPoint" or "ReEntry"; only the
+ * fields of that kind are set, with Android's defaults where the JSON leaves one out.
+ */
+@JsExport
+data class JsAdvicePayload(
+    val kind: String,
+    val exerciseId: Int? = null,
+    val weightKg: Double? = null,
+    val reps: Int? = null,
+    val rpe: Double? = null,
+    /** Target: the coach's set count, or null to keep the plan's. */
+    val sets: Int? = null,
+    val items: Array<JsPrescription> = emptyArray(),
+    val volumeFactor: Double? = null,
+    val loadFactor: Double? = null,
+    val lift: String? = null,
+    val missPoint: String? = null,
+)
+
 // ---- converters (internal: not part of the JS API) ----
 
 private val androidJson = Json
@@ -191,3 +215,28 @@ internal fun Advice.toJs() = JsAdvice(
 internal fun Pr.toJs() = JsPr(date.toString(), e1rmKg, weightKg, reps, rpe)
 
 internal fun AccessoryOption.toJs() = JsAccessoryOption(exerciseName, heavy)
+
+internal fun LoggedSet.toJs() = JsSet(exerciseId.toFacadeId("set.exerciseId"), weightKg, reps, rpe, failed, missPoint?.name, isTopSet)
+
+/** Null when [payloadJson] is not an `AdvicePayload` as Android stores it. */
+internal fun decodePayload(payloadJson: String): JsAdvicePayload? {
+    val payload = try {
+        androidJson.decodeFromString(AdvicePayload.serializer(), payloadJson)
+    } catch (e: IllegalArgumentException) {
+        // SerializationException is an IllegalArgumentException.
+        return null
+    }
+    return when (payload) {
+        is AdvicePayload.Target -> JsAdvicePayload(
+            "Target", exerciseId = payload.exerciseId.toFacadeId("payload.exerciseId"), weightKg = payload.weightKg,
+            reps = payload.reps, rpe = payload.rpe, sets = payload.sets,
+        )
+        is AdvicePayload.Accessories -> JsAdvicePayload(
+            "Accessories",
+            items = payload.items.map { JsPrescription(it.exerciseName, it.sets, it.repsLow, it.repsHigh) }.toTypedArray(),
+        )
+        is AdvicePayload.Deload -> JsAdvicePayload("Deload", volumeFactor = payload.volumeFactor, loadFactor = payload.loadFactor)
+        is AdvicePayload.WeakPoint -> JsAdvicePayload("WeakPoint", lift = payload.lift.name, missPoint = payload.missPoint?.name)
+        is AdvicePayload.ReEntry -> JsAdvicePayload("ReEntry", loadFactor = payload.loadFactor)
+    }
+}

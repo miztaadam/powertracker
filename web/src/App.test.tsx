@@ -8,7 +8,9 @@ import { SCHEMA_VERSIONS, type SchemaVersion } from './db/schema'
 import { CREDENTIAL_KEY } from './platform/passkeyLock'
 import type { RegisterSW } from './platform/update'
 import { locksHeldElsewhere } from './test/tabs'
-import { TODAY, startSession, todayFixture } from './test/todayFixture'
+import { TODAY, addDays, baseline, exerciseNamed, logSet, plan, set, startSession, targets, todayFixture } from './test/todayFixture'
+import { todayIso } from './domain'
+import { weekdayOf } from './state/useToday'
 import { CREDENTIAL_ID, cancelled, clearWebAuthn, mockWebAuthn } from './test/webauthn'
 import { RecoveryScreen } from './screens/recovery/RecoveryScreen'
 import { UpgradeFailedError } from './db/db'
@@ -171,6 +173,34 @@ describe('App safeguards', () => {
     expect(file.name).toMatch(/^grit-backup-\d{4}-\d{2}-\d{2}\.json$/)
     const decoded = decodeBackup(await file.text())
     expect(decoded.ok && decoded.file.sessions).toHaveLength(1)
+  })
+
+  it('quotaInCoachPass_showsStorageFullNotRecovery', async () => {
+    // A plan for today with a known strength: opening Today makes the coach store a target.
+    const squat = await exerciseNamed(db, 'Squat')
+    await plan(db, squat.id, { weekday: weekdayOf(todayIso()) })
+    await baseline(db, squat.id, 190, addDays(todayIso(), -30))
+    await logSet(db, await startSession(db, addDays(todayIso(), -7)), set(squat.id, 150, { rpe: 7 }))
+    // The phone is full: the browser refuses every write.
+    const refuse = () => {
+      throw new DOMException('The quota has been exceeded.', 'QuotaExceededError')
+    }
+    const add = vi.spyOn(IDBObjectStore.prototype, 'add').mockImplementation(refuse)
+    const put = vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementation(refuse)
+    show()
+
+    expect(await screen.findByRole('dialog', { name: 'Storage is full' })).toBeInTheDocument()
+    // Today is still there, without targets; the app did not fall back to the recovery screen.
+    expect(await screen.findByRole('button', { name: 'Start session' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: "Grit couldn't open your log" })).toBeNull()
+    expect(nav()).not.toBeNull()
+    add.mockRestore()
+    put.mockRestore()
+    expect(await targets(db)).toHaveLength(0)
+    // The rest of the app is reachable.
+    await userEvent.click(within(screen.getByRole('dialog', { name: 'Storage is full' })).getByRole('button', { name: 'Close' }))
+    await userEvent.click(within(nav()!).getByRole('link', { name: 'Plan' }))
+    expect(await screen.findByRole('heading', { name: 'Plan' })).toBeInTheDocument()
   })
 
   it('privateMode_warns', async () => {

@@ -1,6 +1,7 @@
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { decodeBackup, encodeBackup, exportBackup, restoreBackup } from '../backup/backup'
 import { updateSettings, type AppSettings, type GritDb } from '../db/db'
 import { RestBar } from '../screens/today/RestBar'
 import { TodayScreen } from '../screens/today/TodayScreen'
@@ -280,6 +281,26 @@ describe('useRest', () => {
       await aMoment()
       expect(clock()).toBe('Rest, 3:00 left')
     })
+  })
+
+  it('a restore stops the rest that was running', async () => {
+    render(<Host database={db} />)
+    await tap('main set')
+    await showsClock('Rest, 3:00 left')
+    await waitFor(async () => expect(await storedRest()).toBeDefined())
+
+    const file = decodeBackup(encodeBackup(await exportBackup(db, NOW)))
+    if (!file.ok) throw new Error('the export must decode')
+    await act(() => restoreBackup(db, file.file))
+
+    await restOver()
+    expect(await storedRest()).toBeUndefined()
+    // It ended; it did not reach zero: no tone and no flash, now or later.
+    vi.setSystemTime(NOW + 181_000)
+    await aMoment()
+    expect(beeps).toEqual([])
+    expect(screen.queryByTestId('rest-flash')).toBeNull()
+    expect(await storedRest()).toBeUndefined()
   })
 
   describe('reload mid-rest', () => {

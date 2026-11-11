@@ -35,10 +35,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.minus
 import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
@@ -98,10 +96,8 @@ class CoachViewModel(
             CoachState(loading = false, cards = cards)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CoachState())
 
-    /** An OPEN deload or re-entry stops counting after 14 days (see [Coach.OPEN_ACTIVE_DAYS]), so it leaves the feed too. */
-    private fun expired(advice: Advice, date: LocalDate): Boolean =
-        (advice.type == AdviceType.DELOAD || advice.type == AdviceType.RE_ENTRY) &&
-            advice.createdAt < date.minus(Coach.OPEN_ACTIVE_DAYS - 1, DateTimeUnit.DAY)
+    /** An OPEN deload or re-entry stops counting after 14 days (see [Coach.openExpired]), so it leaves the feed too. */
+    private fun expired(advice: Advice, date: LocalDate): Boolean = Coach.openExpired(advice.type, advice.createdAt, date)
 
     private fun detail(advice: Advice, stats: HistoryStats, date: LocalDate, plan: List<PlanItem>, exercises: List<Exercise>): CardDetail? =
         when (val payload = advice.payload) {

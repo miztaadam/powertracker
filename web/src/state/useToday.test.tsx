@@ -60,6 +60,24 @@ describe('useToday', () => {
     expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1 })
   })
 
+  it('finishTappedTwice_keepsTheFirstSummary', async () => {
+    await logSet(db, await startSession(db, addDays(TODAY, -30)), set(squatId, 150))
+    await logSet(db, await startSession(db, TODAY), set(squatId, 140))
+    const vm = show()
+    await waitFor(() => expect(vm.current.loading).toBe(false))
+
+    // A fast double tap: the second run would find the note already stored and report none.
+    await act(async () => {
+      await Promise.all([vm.current.finishSession(), vm.current.finishSession()])
+    })
+    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1 })
+
+    // Nor does a tap while the summary is up replace it.
+    await act(() => vm.current.finishSession())
+    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1 })
+    expect((await db.advice.toArray()).map((a) => a.type)).toEqual(['RE_ENTRY'])
+  })
+
   it('targets_areStoredOncePerDay', async () => {
     await planSquatWithHistory()
     const first = show()

@@ -11,6 +11,7 @@ import {
   encodeBackup,
   exportBackup,
   markBackedUp,
+  onDataReplaced,
   restoreBackup,
   webRestAlertOf,
   isoToEpochDay,
@@ -120,6 +121,9 @@ describe('backup', () => {
     expect((expected.settings as Record<string, unknown>).webRestAlert).toBeNull()
     expect((expected.settings as Record<string, unknown>).restAlert).toBe('SOUND_AND_VIBRATE')
     ;(expected.settings as Record<string, unknown>).webRestAlert = 'SOUND'
+    // And App lock is this device's own: the backup's phone was locked, this one is not and stays so.
+    expect((expected.settings as Record<string, unknown>).appLock).toBe(true)
+    ;(expected.settings as Record<string, unknown>).appLock = false
     expect(withoutExportedAt(out)).toEqual(expected)
   })
 
@@ -133,6 +137,44 @@ describe('backup', () => {
     ])
     await restoreBackup(db, decodeOk(readFileSync(ANDROID_FIXTURE, 'utf8')))
     expect(await db.meta.toCollection().primaryKeys()).toEqual(['unrelated'])
+  })
+
+  it('restore_clearsTheRestTimer_keepsWhatBelongsToThisDevice_andTellsListeners', async () => {
+    const db = await openDb()
+    await db.meta.bulkPut([
+      { key: 'restTimer', value: { endsAtMs: Date.now() + 60_000, totalSec: 180 } },
+      { key: 'lock:credentialId', value: 'AQID' },
+      { key: 'install:dismissed', value: true },
+      { key: 'backupReminder:snoozedOn', value: '2026-11-11' },
+      { key: 'safetyCopy', value: '{}' },
+    ])
+    let told = 0
+    const stop = onDataReplaced(() => told++)
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_FIXTURE, 'utf8')))
+    stop()
+    expect(await db.meta.toCollection().primaryKeys()).toEqual(['backupReminder:snoozedOn', 'install:dismissed', 'lock:credentialId', 'safetyCopy'])
+    expect(told).toBe(1)
+
+    // A restore that fails replaced nothing, and says nothing.
+    const bad = structuredClone(decodeOk(readFileSync(ANDROID_FIXTURE, 'utf8')))
+    bad.sets[0]!.exerciseId = 9999
+    const stopBad = onDataReplaced(() => told++)
+    await expect(restoreBackup(db, bad)).rejects.toThrow()
+    stopBad()
+    expect(told).toBe(1)
+  })
+
+  it('restore_neverChangesThisDevicesAppLock', async () => {
+    const db = await openDb()
+    const fixture = decodeOk(readFileSync(ANDROID_FIXTURE, 'utf8'))
+    // Locked here, and the backup comes from a phone without a lock: still locked.
+    await updateSettings(db, (s) => ({ ...s, appLock: true }))
+    await restoreBackup(db, { ...fixture, settings: { ...fixture.settings, appLock: false } })
+    expect((await getSettings(db)).appLock).toBe(true)
+    // Not locked here, and the backup's phone was: this one has no passkey, and stays open.
+    await updateSettings(db, (s) => ({ ...s, appLock: false }))
+    await restoreBackup(db, { ...fixture, settings: { ...fixture.settings, appLock: true } })
+    expect((await getSettings(db)).appLock).toBe(false)
   })
 
   it('restore_keepsWebOnlySettingsAndNeverTouchesLastBackupAt', async () => {

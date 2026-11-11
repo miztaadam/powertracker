@@ -1,7 +1,7 @@
 import { useRef, useState, type ChangeEvent } from 'react'
 import { backupFileName, decodeBackup, encodeBackup, exportBackup, markBackedUp, restoreBackup } from '../../backup/backup'
 import type { BackupFile } from '../../backup/format'
-import { readSafetyCopy, type GritDb } from '../../db/db'
+import { readSafetyCopy, writeSafetyCopy, type GritDb } from '../../db/db'
 import { safetyCopyDate } from '../../db/safety'
 import { saveJsonFile } from '../../platform/saveFile'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
@@ -17,6 +17,8 @@ export type BackupCardProps = {
   /** null while the browser has not answered. */
   storageProtected: boolean | null
   safetyCopy: 'backup' | 'raw' | null
+  /** The day the safety copy was made, `YYYY-MM-DD`; null when unknown. */
+  safetyCopyDate?: string | null
   today: () => string
   now: () => number
   /** One line for the snackbar. */
@@ -27,18 +29,30 @@ const TOO_NEW = 'This backup is from a newer version of Grit.'
 const NOT_A_BACKUP = "This file isn't a valid Grit backup."
 
 /** What replaces the data once confirmed, and how the question describes it. */
-type PendingRestore = { file: BackupFile; what: string }
+type PendingRestore = { file: BackupFile; what: string; /** The file is the safety copy itself, which then stays as it is. */ fromSafetyCopy?: boolean; /** The copy of the current data could not be saved: this restore cannot be undone. */ noSafetyCopy?: boolean }
+
+const mediumDate = (date: Date) => new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(date)
+
+/** " on 11 Nov 2026" for the safety copy's day, or nothing when it is not known. */
+function onDay(isoDate: string | null | undefined): string {
+  const date = isoDate != null ? new Date(`${isoDate}T00:00:00`) : null
+  return date != null && !Number.isNaN(date.getTime()) ? ` on ${mediumDate(date)}` : ''
+}
 
 function lastBackupText(lastBackupAt: string | null): string {
   const date = lastBackupAt != null ? new Date(lastBackupAt) : null
-  return date != null && !Number.isNaN(date.getTime()) ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(date) : 'never'
+  return date != null && !Number.isNaN(date.getTime()) ? mediumDate(date) : 'never'
 }
 
 /**
  * Export, restore, and how safe the data is right now. A restore replaces everything, so it always
- * asks first; it runs in one transaction, so a failed restore leaves the data as it was.
+ * asks first; it runs in one transaction, so a failed restore leaves the data as it was. Before it
+ * replaces anything, the data as it is goes into the safety copy, so a wrong file can be undone with
+ * "Restore safety copy"; if that copy cannot be saved, the question is asked again and says so.
+ * Restoring the safety copy itself leaves the copy untouched: it may be the only place the good
+ * data is, and must survive a restore that fails.
  */
-export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, today, now, onMessage }: BackupCardProps) {
+export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, safetyCopyDate: copyDate, today, now, onMessage }: BackupCardProps) {
   const fileInput = useRef<HTMLInputElement>(null)
   const [pending, setPending] = useState<PendingRestore | null>(null)
   // One export or restore at a time: a second tap while one runs does nothing.
@@ -65,9 +79,9 @@ export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, tod
     })
 
   /** Checks a backup's text; a valid one waits for the lifter's confirmation. */
-  const offer = (text: string | null, what: string) => {
+  const offer = (text: string | null, what: string, fromSafetyCopy = false) => {
     const decoded = text != null ? decodeBackup(text) : null
-    if (decoded?.ok) setPending({ file: decoded.file, what })
+    if (decoded?.ok) setPending({ file: decoded.file, what, fromSafetyCopy })
     else onMessage(decoded?.kind === 'TOO_NEW' ? TOO_NEW : NOT_A_BACKUP)
   }
 
@@ -90,7 +104,7 @@ export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, tod
     exclusive(async () => {
       try {
         const copy = await readSafetyCopy(db)
-        offer(copy?.kind === 'backup' ? copy.json : null, 'the safety copy saved before the last update')
+        offer(copy?.kind === 'backup' ? copy.json : null, `the safety copy saved${onDay(copy ? safetyCopyDate(copy) : null)}`, true)
       } catch {
         onMessage(NOT_A_BACKUP)
       }
@@ -108,10 +122,19 @@ export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, tod
       }
     })
 
-  const restore = (file: BackupFile) =>
+  const restore = (confirmed: PendingRestore) =>
     exclusive(async () => {
+      if (!confirmed.noSafetyCopy && !confirmed.fromSafetyCopy) {
+        try {
+          await writeSafetyCopy(db)
+        } catch {
+          // The restore is still theirs to make, knowing it cannot be undone.
+          setPending({ ...confirmed, noSafetyCopy: true })
+          return
+        }
+      }
       try {
-        await restoreBackup(db, file)
+        await restoreBackup(db, confirmed.file)
         onMessage('Backup restored.')
       } catch {
         onMessage("Couldn't restore the backup.")
@@ -131,7 +154,7 @@ export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, tod
       {safetyCopy != null && (
         <>
           <p className="settings-text body-medium">
-            {safetyCopy === 'backup' ? 'Grit saved a copy of your data before its last update.' : 'Grit saved a copy of your data before its last update. It can be exported, but not restored here.'}
+            Grit saved a safety copy of your data{onDay(copyDate)}, before its last update or restore.{safetyCopy === 'raw' && ' It can be exported, but not restored here.'}
           </p>
           {safetyCopy === 'backup' ? (
             <SecondaryButton text="Restore safety copy" onClick={offerSafetyCopy} icon={<ReplayIcon />} />
@@ -150,10 +173,10 @@ export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, tod
             <>
               <QuietButton text="Cancel" onClick={() => setPending(null)} />
               <PrimaryButton
-                text="Replace"
+                text={pending.noSafetyCopy ? 'Replace anyway' : 'Replace'}
                 onClick={() => {
                   setPending(null)
-                  restore(pending.file)
+                  restore(pending)
                 }}
                 compact
               />
@@ -161,6 +184,11 @@ export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, tod
           }
         >
           Restoring replaces everything in Grit with {pending.what}.
+          {pending.noSafetyCopy && (
+            <p className="gr-dialog-note" role="status">
+              Grit couldn't save a safety copy of your current data first, so this can't be undone. Export a backup before you go on, if you can.
+            </p>
+          )}
         </Dialog>
       )}
     </Card>

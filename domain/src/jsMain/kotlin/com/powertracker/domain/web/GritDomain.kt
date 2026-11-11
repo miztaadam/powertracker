@@ -7,6 +7,7 @@ import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.e1rm.E1rm
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.plates.PlateLoader
@@ -105,6 +106,20 @@ object GritDomain {
 
     /** True for the squat, bench or deadlift itself; false for variations and accessories. */
     fun isMainLift(exercise: JsExercise): Boolean = exercise.toDomain().isMainLift
+
+    /**
+     * The top set of the latest session strictly before [before] that has the exercise: the flagged set, else the
+     * heaviest good set, else the heaviest. Null when it was never logged before then.
+     */
+    fun lastTopSet(history: JsHistory, exerciseId: Int, before: String): JsSet? =
+        HistoryStats(history.toDomain()).lastTopSet(exerciseId.toLong(), parseDate("before", before))?.second?.toJs()
+
+    /** True once open advice of [type] created on [createdAt] no longer counts on [today] (a deload or re-entry after 14 days). */
+    fun openAdviceExpired(type: String, createdAt: String, today: String): Boolean =
+        Coach.openExpired(parseEnum<AdviceType>("type", type), parseDate("createdAt", createdAt), parseDate("today", today))
+
+    /** Decodes a stored advice payload, filling in Android's defaults; null when it is not an `AdvicePayload`. */
+    fun advicePayload(payloadJson: String): JsAdvicePayload? = decodePayload(payloadJson)
 
     /** Typical strength ratios: squat ÷ deadlift, then bench ÷ squat. */
     fun ratioRanges(): Array<JsRatioRange> = arrayOf(

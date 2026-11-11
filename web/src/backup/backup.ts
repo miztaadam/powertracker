@@ -407,10 +407,24 @@ export function decodeBackup(text: string): DecodeResult {
 
 // ---- restore -------------------------------------------------------------------------------------
 
+const replacedListeners = new Set<() => void>()
+
+/** Calls `cb` each time a restore has replaced the data, so what runs on the old data (a rest) can stop. Returns an unsubscribe. */
+export function onDataReplaced(cb: () => void): () => void {
+  replacedListeners.add(cb)
+  return () => replacedListeners.delete(cb)
+}
+
+/** `meta` rows about the replaced data: the session being logged, unlogged numbers, the running rest. */
+const aboutReplacedData = (key: string) => key === 'today:active' || key === 'restTimer' || key.startsWith('editor:')
+
 /**
  * Replaces all data. Everything is validated and mapped first, so bad content fails before a
  * single row is deleted; then one transaction clears, inserts and applies the settings.
- * `keepAwake` and `lastBackupAt` stay as they are.
+ *
+ * What belongs to this device stays as it is, whatever the backup says: `keepAwake`, `lastBackupAt`
+ * and `appLock` (its passkey exists only on this phone), and in `meta` the passkey id, the safety
+ * copy, the dismissed install card and the snoozed backup reminder.
  */
 export async function restoreBackup(db: Dexie, file: BackupFile): Promise<void> {
   const { rows, settings } = mapBackup(file)
@@ -418,9 +432,8 @@ export async function restoreBackup(db: Dexie, file: BackupFile): Promise<void> 
   const stores = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'settings', 'meta']
   await db.transaction('rw', stores, async () => {
     for (const name of ['sets', 'advice', 'planItems', 'baselines', 'sessions', 'exercises']) await t(name).clear()
-    // What the Today screen noted about the replaced data (the session being logged, unlogged numbers) goes with it.
     await t<KeyValueRow>('meta')
-      .filter((row) => row.key === 'today:active' || row.key.startsWith('editor:'))
+      .filter((row) => aboutReplacedData(row.key))
       .delete()
     await t<ExerciseRow>('exercises').bulkAdd(rows.exercises)
     await t<SessionRow>('sessions').bulkAdd(rows.sessions)
@@ -428,10 +441,11 @@ export async function restoreBackup(db: Dexie, file: BackupFile): Promise<void> 
     await t<PlanItemRow>('planItems').bulkAdd(rows.planItems)
     await t<AdviceRow>('advice').bulkAdd(rows.advice)
     await t<BaselineRow>('baselines').bulkAdd(rows.baselines)
-    const kept: (keyof AppSettings)[] = ['keepAwake', 'lastBackupAt']
+    const kept: (keyof AppSettings)[] = ['keepAwake', 'lastBackupAt', 'appLock']
     const entries = (Object.keys(DEFAULT_SETTINGS) as (keyof AppSettings)[])
       .filter((k) => !kept.includes(k))
       .map((key) => ({ key, value: settings[key as keyof typeof settings] }))
     await t<KeyValueRow>('settings').bulkPut(entries)
   })
+  replacedListeners.forEach((cb) => cb())
 }

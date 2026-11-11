@@ -43,8 +43,6 @@ const FEED_ORDER = ['DELOAD', 'RE_ENTRY', 'STALL', 'WEAK_POINT']
 const TREND_WEEKS = 6
 const WEAK_POINT_ADDITIONS = 2
 const E1RM_DAYS = 28
-/** An OPEN deload or re-entry stops counting after this many days (the domain's `Coach.OPEN_ACTIVE_DAYS`). */
-const OPEN_ACTIVE_DAYS = 14
 const UPDATE_FAILED = "Couldn't update — try again"
 const LIFTS: readonly Lift[] = ['SQUAT', 'BENCH', 'DEADLIFT']
 const MISS_POINTS: readonly MissPoint[] = ['FLOOR', 'MID', 'LOCKOUT']
@@ -56,35 +54,24 @@ type Payload =
   | { kind: 'weakPoint'; lift: Lift; missPoint: MissPoint | null }
 
 const asLift = (value: unknown): Lift | null => (LIFTS.includes(value as Lift) ? (value as Lift) : null)
-const numberOr = (value: unknown, fallback: number) => (typeof value === 'number' ? value : fallback)
 
-function isPrescription(value: unknown): value is Prescription {
-  if (typeof value !== 'object' || value === null) return false
-  const v = value as Record<string, unknown>
-  return typeof v.exerciseName === 'string' && typeof v.sets === 'number' && typeof v.repsLow === 'number' && typeof v.repsHigh === 'number'
-}
-
-/** Reads the Android `AdvicePayload` JSON; fields Android leaves out carry its defaults. Null for a target or anything unreadable. */
+/** Reads the Android `AdvicePayload` JSON through the domain, which fills in Android's defaults. Null for a target or anything unreadable. */
 function parsePayload(payloadJson: string): Payload | null {
-  try {
-    const p = JSON.parse(payloadJson) as Record<string, unknown>
-    switch (typeof p.type === 'string' ? p.type.slice(p.type.lastIndexOf('.') + 1) : '') {
-      case 'Accessories':
-        return { kind: 'accessories', items: Array.isArray(p.items) ? p.items.filter(isPrescription) : [] }
-      case 'Deload':
-        return { kind: 'deload', volumeFactor: numberOr(p.volumeFactor, 0.6), loadFactor: numberOr(p.loadFactor, 0.9) }
-      case 'ReEntry':
-        return { kind: 'reEntry', loadFactor: numberOr(p.loadFactor, 0.85) }
-      case 'WeakPoint': {
-        const lift = asLift(p.lift)
-        const missPoint = MISS_POINTS.includes(p.missPoint as MissPoint) ? (p.missPoint as MissPoint) : null
-        return lift ? { kind: 'weakPoint', lift, missPoint } : null
-      }
-      default:
-        return null
+  const p = grit.advicePayload(payloadJson)
+  switch (p?.kind) {
+    case 'Accessories':
+      return { kind: 'accessories', items: p.items.map((i) => ({ exerciseName: i.exerciseName, sets: i.sets, repsLow: i.repsLow, repsHigh: i.repsHigh })) }
+    case 'Deload':
+      return p.volumeFactor != null && p.loadFactor != null ? { kind: 'deload', volumeFactor: p.volumeFactor, loadFactor: p.loadFactor } : null
+    case 'ReEntry':
+      return p.loadFactor != null ? { kind: 'reEntry', loadFactor: p.loadFactor } : null
+    case 'WeakPoint': {
+      const lift = asLift(p.lift)
+      const missPoint = MISS_POINTS.includes(p.missPoint as MissPoint) ? (p.missPoint as MissPoint) : null
+      return lift ? { kind: 'weakPoint', lift, missPoint } : null
     }
-  } catch {
-    return null
+    default:
+      return null
   }
 }
 
@@ -99,13 +86,8 @@ async function readStored(db: GritDb, today: string): Promise<Stored> {
   return { today, open: open as StoredAdvice[], history, plan: plan as StoredPlanItem[] }
 }
 
-function minusDays(iso: string, days: number): string {
-  const d = new Date(`${iso}T00:00:00Z`)
-  d.setUTCDate(d.getUTCDate() - days)
-  return d.toISOString().slice(0, 10)
-}
-
-const expired = (a: AdviceRow, today: string) => (a.type === 'DELOAD' || a.type === 'RE_ENTRY') && a.createdAt < minusDays(today, OPEN_ACTIVE_DAYS - 1)
+/** An OPEN deload or re-entry stops counting after two weeks; the domain decides when. */
+const expired = (a: AdviceRow, today: string) => grit.openAdviceExpired(a.type, a.createdAt, today)
 
 const percent = (factor: number) => Math.round(factor * 100)
 

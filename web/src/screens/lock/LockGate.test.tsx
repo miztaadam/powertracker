@@ -89,6 +89,25 @@ describe('LockGateHost', () => {
     await screen.findByRole('heading', { name: 'Grit is locked' })
   })
 
+  it('availabilityCheckHangs_showsTheLockScreen_neverBlankNeverOpen', async () => {
+    const { get } = mockWebAuthn()
+    // WebKit never answers whether Face ID is there.
+    vi.stubGlobal('PublicKeyCredential', { isUserVerifyingPlatformAuthenticatorAvailable: () => new Promise<boolean>(() => {}) })
+    get.mockRejectedValue(cancelled())
+    await lockOn()
+    show()
+
+    // After about a second the lock screen is up, with both ways in. Waiting never opens the app.
+    expect(await screen.findByRole('heading', { name: 'Grit is locked' }, { timeout: 3000 })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: "Can't unlock?" })).toBeInTheDocument()
+    expect(content()).toBeNull()
+
+    // Unlock still asks the phone, and only its yes opens the app.
+    get.mockResolvedValue({ type: 'public-key', rawId: new Uint8Array([1]).buffer })
+    await userEvent.click(screen.getByRole('button', { name: 'Unlock' }))
+    await waitFor(() => expect(content()).toBeInTheDocument())
+  })
+
   it('lockOff_showsTheContent', async () => {
     show()
     expect(await screen.findByText('the training log')).toBeInTheDocument()
