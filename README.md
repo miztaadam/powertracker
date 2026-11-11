@@ -50,6 +50,60 @@ adb install grit.apk
 
 After building a release, open it once on a phone: R8 problems only show at run time.
 
+## Grit on iPhone
+
+Grit also runs on iPhone as a web app. It works offline and keeps your log on the phone.
+
+1. Open the Grit address in Safari.
+2. Tap Share, then Add to Home Screen.
+3. Open Grit from the Home Screen. Installed, your log is protected from being cleared.
+
+## Moving from Android
+
+1. In the Android app, open Settings and tap Export backup.
+2. Send the file to the iPhone with AirDrop, or save it in iCloud Drive.
+3. In Grit on the iPhone, open Plan, then Settings, then Restore backup, and pick the file.
+4. Confirm "Replace all data?". Your log, plan and coach notes come over.
+
+The backup format is the same in both apps, so you can also go from iPhone back to Android.
+
+## Developing
+
+The web app is in `web/`. See `web/README.md` for the full notes.
+
+```sh
+cd web
+npm ci
+npm test            # unit tests
+npm run e2e         # end-to-end tests (Chromium with iPhone 13 emulation)
+cd ..
+./gradlew :domain:syncWebDomain   # rebuild the shared Kotlin domain for the web app
+```
+
+## Owner's manual iPhone checks
+
+The automated tests run in Chromium, not Safari. Tick these off on a real iPhone, at the gym if you can.
+
+- [ ] Install: the install card shows in Safari, and is gone when opened from the Home Screen.
+- [ ] Storage: Settings says "Storage: protected" after installing.
+- [ ] A private Safari window shows the warning. A normal window and the installed app do not. "Continue anyway" is remembered.
+- [ ] Offline in the gym: turn on airplane mode, close Grit, open it, and log a set.
+- [ ] Face ID lock: turn on App lock and make the passkey. It unlocks on launch and after a minute away.
+- [ ] The passkey works on the final address. A passkey made on a preview address will not work on the real one.
+- [ ] Safari may show the Face ID prompt on launch without a tap. Note whether it does.
+- [ ] After a cancelled prompt, the Unlock button brings up Face ID.
+- [ ] "Can't unlock?": delete the Grit passkey in Settings, Passwords. Tap Unlock (it fails). Tap "Can't unlock?" (Face ID, the app opens). Check there is one Grit passkey. Relaunch and unlock with it. Try the same from the Recovery screen if you can reach it.
+- [ ] App switcher: with App lock on, swipe to the app switcher. The card shows the Grit icon, not your log.
+- [ ] A 30 second trip to another app mid-session does not lock the app later.
+- [ ] Rest tone with the ringer on, and with the ringer off.
+- [ ] Audio: the tone plays after the first tap. Check it still plays after a phone call or music interrupts the audio.
+- [ ] The screen stays awake during a rest (wake lock).
+- [ ] With Reduce Motion on, the rest alert fades instead of flashing.
+- [ ] Backup: Export backup opens the share sheet. Save it to iCloud Drive.
+- [ ] Restore: pick that file with the file picker. Confirm. The data matches.
+- [ ] Two tabs: open Grit in a second tab while a first is suspended. The second asks before taking over.
+- [ ] Update: deploy a second version. The prompt "Update ready — tap to refresh" shows only after you finish a session, and the app reloads only when tapped.
+
 ## Where things are
 
 - `domain/` — pure Kotlin: e1RM, plate maths, history statistics and the coach rules.

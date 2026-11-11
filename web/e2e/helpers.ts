@@ -1,0 +1,72 @@
+import { expect, type Page } from '@playwright/test'
+
+/** The sample Wednesday the flows run on. */
+export const WEDNESDAY = new Date('2026-11-11T09:41:00')
+
+export const tabBar = (page: Page) => page.getByRole('navigation', { name: 'Main' })
+
+export async function tap(page: Page, name: string, times = 1) {
+  for (let i = 0; i < times; i++) await page.getByRole('button', { name, exact: true }).click()
+}
+
+/** Opens Grit on the sample Wednesday, with the database created and the first screen showing. */
+export async function openOnWednesday(page: Page, hash = '#/today') {
+  await page.clock.setFixedTime(WEDNESDAY)
+  await page.goto(`/${hash}`)
+  await expect(tabBar(page)).toBeVisible()
+}
+
+/**
+ * Writes a bench day on Wednesdays and six flat weeks of bench (100 x 5 @ 8.5) straight into
+ * IndexedDB, then reloads: finishing one more such session makes the coach call a stall.
+ */
+export async function seedFlatBench(page: Page) {
+  await page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((done, fail) => {
+      const request = indexedDB.open('grit')
+      request.onsuccess = () => done(request.result)
+      request.onerror = () => fail(request.error)
+    })
+    const tx = db.transaction(['exercises', 'planItems', 'sessions', 'sets'], 'readwrite')
+    const settled = new Promise<void>((done, fail) => {
+      tx.oncomplete = () => done()
+      tx.onerror = () => fail(tx.error)
+    })
+    const exercises = await new Promise<{ id: number; name: string }[]>((done) => {
+      const all = tx.objectStore('exercises').getAll()
+      all.onsuccess = () => done(all.result)
+    })
+    const bench = exercises.find((e) => e.name === 'Bench')!.id
+    tx.objectStore('planItems').add({ weekday: 3, exerciseId: bench, sets: 3, reps: 5, targetRpe: 8, order: 0 })
+    for (let week = 0; week < 6; week++) {
+      const date = new Date(Date.UTC(2026, 9, 5 + week * 7)).toISOString().slice(0, 10)
+      const session = tx.objectStore('sessions').add({ date, bodyweightKg: null, readiness: null })
+      session.onsuccess = () => tx.objectStore('sets').add({ sessionId: session.result, exerciseId: bench, weightKg: 100, reps: 5, rpe: 8.5, failed: false, missPoint: null, isTopSet: false })
+    }
+    await settled
+    db.close()
+  })
+  await page.reload()
+  await expect(page.getByText('Wednesday · 1 exercise')).toBeVisible()
+}
+
+/** Every row of every table, as the app stores it: what the "same data" checks compare. */
+export function readAllTables(page: Page) {
+  return page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((done, fail) => {
+      const request = indexedDB.open('grit')
+      request.onsuccess = () => done(request.result)
+      request.onerror = () => fail(request.error)
+    })
+    const out: Record<string, unknown[]> = {}
+    for (const name of ['exercises', 'sessions', 'sets', 'planItems', 'baselines', 'advice', 'settings']) {
+      out[name] = await new Promise<unknown[]>((done, fail) => {
+        const all = db.transaction(name).objectStore(name).getAll()
+        all.onsuccess = () => done(all.result)
+        all.onerror = () => fail(all.error)
+      })
+    }
+    db.close()
+    return out
+  })
+}

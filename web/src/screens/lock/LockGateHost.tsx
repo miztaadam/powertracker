@@ -2,7 +2,7 @@ import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { flushSync } from 'react-dom'
 import { getSettings, type GritDb } from '../../db/db'
-import { RELOCK_AFTER_MS, createLock, createLockState, lockSupported, readCredentialId, unlock } from '../../platform/passkeyLock'
+import { CREDENTIAL_KEY, RELOCK_AFTER_MS, createLockState, lockSupported, makePasskey, readCredentialId, unlock } from '../../platform/passkeyLock'
 import { BlankScreen } from './GateScreen'
 import { LockCover, LockScreen } from './LockScreen'
 import { LockSetupDialog } from './LockSetupDialog'
@@ -126,13 +126,17 @@ export function LockGateHost({ db, now = Date.now, children }: LockGateHostProps
   const remake = useCallback(() => {
     prompt.current?.abort()
     prompt.current = null
-    createLock(db, supported)
-      .then((result) => {
-        if (result === 'ok') lock.markUnlocked()
-        else if (result === 'unsupported') setSupported(false)
+    makePasskey(supported)
+      .then(async (made) => {
+        if (made.result === 'unsupported') setSupported(false)
+        if (made.result !== 'ok') return redraw()
+        // The phone verified its owner: that opens the app, even if the new id cannot be kept (a full
+        // phone). The next launch then finds the old id and "Can't unlock?" is there again.
+        lock.markUnlocked()
         redraw()
+        await db.table('meta').put({ key: CREDENTIAL_KEY, value: made.credentialId })
       })
-      // Not verified, or not stored: still locked.
+      // Not verified, or not stored: the app is open if it was verified, still locked if not.
       .catch(() => {})
   }, [db, supported, lock, redraw])
 

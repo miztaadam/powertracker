@@ -1,13 +1,9 @@
-import { mkdirSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+import { tabBar } from './helpers'
 
 // App lock, the install card and the one-tab guard in a real browser. Chromium stands in for
 // iPhone Safari (see playwright.config.ts): Face ID is a virtual authenticator here, so the real
 // passkey sheet, the Home Screen install and the storage prompt stay manual iPhone checks.
-const outDir = resolve(process.cwd(), process.env.UPDATE_SCREENSHOTS === '1' ? '../docs/design/web/screens' : 'test-results/screens')
-
-const tabBar = (page: Page) => page.getByRole('navigation', { name: 'Main' })
 
 test('install card shows in a browser tab until it is put away', async ({ page }) => {
   await page.goto('/#/today')
@@ -68,9 +64,6 @@ test('app lock: a passkey locks the app on launch and nothing shows behind it', 
   await expect(page.getByRole('heading', { name: 'Grit is locked' })).toBeVisible()
   await expect(tabBar(page)).toHaveCount(0)
   await expect(page.locator('.shell')).toHaveCount(0)
-  await page.emulateMedia({ colorScheme: 'dark' })
-  mkdirSync(outDir, { recursive: true })
-  await page.screenshot({ path: resolve(outDir, 'lock-dark.png') })
 
   await cdp.send('WebAuthn.setUserVerified', { authenticatorId, isUserVerified: true })
   await page.getByRole('button', { name: 'Unlock', exact: true }).click()

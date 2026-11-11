@@ -1,6 +1,6 @@
 import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getSettings, updateSettings, type GritDb } from '../../db/db'
 import { CREDENTIAL_KEY } from '../../platform/passkeyLock'
 import { todayFixture } from '../../test/todayFixture'
@@ -21,6 +21,7 @@ afterEach(async () => {
   cleanup()
   await fx.dispose()
   clearWebAuthn()
+  vi.restoreAllMocks()
   setVisibility('visible')
 })
 
@@ -234,7 +235,26 @@ describe('LockGateHost', () => {
     expect(await screen.findByText('the training log')).toBeInTheDocument()
     expect(create).toHaveBeenCalledTimes(1)
     // The new passkey takes the old one's place.
-    expect((await db.meta.get(CREDENTIAL_KEY))?.value).toBe(NEW_ID)
+    await waitFor(async () => expect((await db.meta.get(CREDENTIAL_KEY))?.value).toBe(NEW_ID))
+    // The new id arriving does not bring up the system prompt again: only the launch asked.
+    await new Promise((done) => setTimeout(done, 50))
+    expect(get).toHaveBeenCalledTimes(1)
+  })
+
+  it('cantUnlock_idCannotBeStored_stillOpens', async () => {
+    // The phone verified its owner; a full phone then refuses the write.
+    const { create, get } = mockWebAuthn()
+    get.mockRejectedValue(cancelled())
+    create.mockResolvedValue(passkey([9, 9, 9]))
+    await lockOn()
+    show()
+    await screen.findByRole('heading', { name: 'Grit is locked' })
+    vi.spyOn(db.table('meta'), 'put').mockRejectedValue(new DOMException('full', 'QuotaExceededError'))
+
+    await userEvent.click(screen.getByRole('button', { name: "Can't unlock?" }))
+
+    expect(await screen.findByText('the training log')).toBeInTheDocument()
+    expect((await db.meta.get(CREDENTIAL_KEY))?.value).toBe(CREDENTIAL_ID)
   })
 
   it('cantUnlock_cancelled_staysLocked', async () => {

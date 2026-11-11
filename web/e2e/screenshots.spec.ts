@@ -1,0 +1,142 @@
+import { mkdirSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { expect, test, type Page } from '@playwright/test'
+import { openOnWednesday, seedFlatBench, tabBar, tap } from './helpers'
+
+// The screens that need a particular state to be seen, dark and light. The rest (today, coach, progress,
+// lift history, plan, settings and the showcase) are written by the specs that exercise them. A normal run writes to test-results/screens/;
+// UPDATE_SCREENSHOTS=1 rewrites the committed PNGs in docs/design/web/screens/. Look at them after a visual change.
+const outDir = resolve(process.cwd(), process.env.UPDATE_SCREENSHOTS === '1' ? '../docs/design/web/screens' : 'test-results/screens')
+
+async function shoot(page: Page, name: string) {
+  mkdirSync(outDir, { recursive: true })
+  await page.evaluate(() => document.fonts.ready)
+  await page.screenshot({ path: resolve(outDir, `${name}.png`), animations: 'disabled' })
+}
+
+for (const scheme of ['dark', 'light'] as const) {
+  test(`screenshots: lock (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    const cdp = await page.context().newCDPSession(page)
+    await cdp.send('WebAuthn.enable')
+    const { authenticatorId } = await cdp.send('WebAuthn.addVirtualAuthenticator', {
+      options: { protocol: 'ctap2', transport: 'internal', hasResidentKey: true, hasUserVerification: true, isUserVerified: true, automaticPresenceSimulation: true },
+    })
+    await page.goto('/#/settings')
+    await page.getByRole('switch', { name: 'App lock' }).click()
+    await expect(page.getByRole('switch', { name: 'App lock' })).toHaveAttribute('aria-checked', 'true')
+    // The next launch, with a face the phone does not know.
+    await cdp.send('WebAuthn.setUserVerified', { authenticatorId, isUserVerified: false })
+    await page.reload()
+    await expect(page.getByRole('heading', { name: 'Grit is locked' })).toBeVisible()
+    await shoot(page, `lock-${scheme}`)
+  })
+
+  test(`screenshots: today with the install card (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await page.clock.setFixedTime(new Date('2026-11-11T09:41:00'))
+    await page.goto('/#/today')
+    await expect(page.getByRole('heading', { name: 'Install Grit' })).toBeVisible()
+    await shoot(page, `today-install-${scheme}`)
+  })
+
+  test(`screenshots: today in a session with the rest bar (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openOnWednesday(page)
+    await seedFlatBench(page)
+    await tap(page, 'Start session')
+    await tap(page, 'Log set 1')
+    await expect(page.getByRole('timer', { name: 'Rest, 3:00 left' })).toBeVisible()
+    await shoot(page, `today-rest-${scheme}`)
+  })
+
+  test(`screenshots: session saved (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openOnWednesday(page)
+    await seedFlatBench(page)
+    await tap(page, 'Start session')
+    await tap(page, 'Log set 1')
+    await tap(page, 'Finish')
+    await expect(page.getByRole('heading', { name: 'Session saved' })).toBeVisible()
+    await tap(page, 'Skip')
+    await shoot(page, `session-saved-${scheme}`)
+  })
+
+  test(`screenshots: recovery (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openOnWednesday(page)
+    // A database from a newer Grit cannot be opened by this one.
+    await page.evaluate(async () => {
+      await new Promise<void>((done, fail) => {
+        const del = indexedDB.deleteDatabase('grit')
+        del.onsuccess = () => done()
+        del.onerror = () => fail(del.error)
+        del.onblocked = () => done()
+      })
+      await new Promise<void>((done, fail) => {
+        const open = indexedDB.open('grit', 9999)
+        open.onsuccess = () => {
+          open.result.close()
+          done()
+        }
+        open.onerror = () => fail(open.error)
+      })
+    })
+    await page.reload()
+    await expect(page.getByRole('heading', { name: /^Grit couldn't/ })).toBeVisible()
+    await shoot(page, `recovery-${scheme}`)
+  })
+
+  test(`screenshots: private window (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    // What Safari's private windows do: no file storage.
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator.storage, 'getDirectory', { value: () => Promise.reject(new DOMException('no', 'SecurityError')) })
+    })
+    await page.goto('/#/today')
+    await expect(page.getByRole('heading', { name: "Private browsing won't keep your log" })).toBeVisible()
+    await shoot(page, `private-mode-${scheme}`)
+  })
+
+  test(`screenshots: set up App lock again (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openOnWednesday(page)
+    // App lock on in a backup restored from another phone: no passkey here.
+    await page.evaluate(async () => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      await new Promise<void>((done, fail) => {
+        const tx = db.transaction('settings', 'readwrite')
+        tx.objectStore('settings').put({ key: 'appLock', value: true })
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      db.close()
+    })
+    await page.reload()
+    await expect(page.getByRole('dialog', { name: 'Set up App lock again?' })).toBeVisible()
+    await shoot(page, `lock-setup-${scheme}`)
+  })
+
+  test(`screenshots: replace all data (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await page.goto('/#/settings')
+    await page.getByLabel('Backup file').setInputFiles(resolve(process.cwd(), 'src/backup/__fixtures__/web-v1.json'))
+    await expect(page.getByRole('dialog', { name: 'Replace all data?' })).toBeVisible()
+    await shoot(page, `restore-confirm-${scheme}`)
+  })
+
+  test(`screenshots: another tab (${scheme})`, async ({ page, context }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await page.goto('/#/today')
+    await expect(tabBar(page)).toBeVisible()
+    const second = await context.newPage()
+    await second.emulateMedia({ colorScheme: scheme })
+    await second.goto('/#/today')
+    await expect(second.getByRole('heading', { name: 'Grit is open in another tab' })).toBeVisible()
+    await shoot(second, `other-tab-${scheme}`)
+  })
+}

@@ -2,6 +2,7 @@ import { useRef, useState, type ChangeEvent } from 'react'
 import { backupFileName, decodeBackup, encodeBackup, exportBackup, markBackedUp, restoreBackup } from '../../backup/backup'
 import type { BackupFile } from '../../backup/format'
 import { readSafetyCopy, type GritDb } from '../../db/db'
+import { safetyCopyDate } from '../../db/safety'
 import { saveJsonFile } from '../../platform/saveFile'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
@@ -101,7 +102,7 @@ export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, tod
         const copy = await readSafetyCopy(db)
         if (copy == null) return
         // Not recorded as a backup: the copy is older than the data it sits beside.
-        if ((await saveJsonFile(`grit-safety-copy-${today()}.json`, copy.json)) === 'saved') onMessage('Safety copy saved.')
+        if ((await saveJsonFile(`grit-safety-copy-${safetyCopyDate(copy) ?? 'undated'}.json`, copy.json)) === 'saved') onMessage('Safety copy saved.')
       } catch {
         onMessage("Couldn't save the safety copy.")
       }

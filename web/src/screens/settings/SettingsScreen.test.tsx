@@ -296,10 +296,21 @@ describe('SettingsScreen', () => {
     show()
     await userEvent.click(await screen.findByRole('button', { name: 'Export safety copy' }))
     await waitFor(() => expect(share).toHaveBeenCalled())
-    expect(share.mock.calls[0]![0].files![0]!.name).toBe('grit-safety-copy-2026-11-11.json')
+    expect(share.mock.calls[0]![0].files![0]!.name).toBe('grit-safety-copy-undated.json')
     expect(screen.queryByRole('button', { name: 'Restore safety copy' })).toBeNull()
     // Not a backup the lifter made of the current data.
     expect((await getSettings(db)).lastBackupAt).toBeNull()
+  })
+
+  it('safetyCopy_export_isNamedForTheDayItWasMade', async () => {
+    const savedAt = new Date(2026, 9, 3, 12).getTime()
+    await db.meta.put({ key: 'safetyCopy', value: JSON.stringify({ kind: 'raw', schemaVersion: 1, savedAt, tables: {} }) })
+    const share = vi.fn(async (_data: ShareData) => {})
+    setNavigator({ share, canShare: () => true })
+    show()
+    await userEvent.click(await screen.findByRole('button', { name: 'Export safety copy' }))
+    await waitFor(() => expect(share).toHaveBeenCalled())
+    expect(share.mock.calls[0]![0].files![0]!.name).toBe('grit-safety-copy-2026-10-03.json')
   })
 
   it('back_leavesSettings', async () => {
