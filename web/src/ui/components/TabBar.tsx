@@ -14,7 +14,7 @@ const TAB: Record<Tab, { label: string; Icon: IconComponent }> = {
   plan: { label: 'Plan', Icon: CalendarMonthIcon },
 }
 
-/** The four-tab bottom bar. The current tab gets the volt indicator; everything else stays quiet. */
+/** The four-tab bottom bar. The current tab gets the accent indicator; everything else stays quiet. */
 export function TabBar({ current }: TabBarProps) {
   return (
     <nav className="gr-tabbar" aria-label="Main">

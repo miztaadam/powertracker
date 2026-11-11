@@ -16,7 +16,7 @@ import { StepperField } from '../../ui/components/StepperField'
 import { NumberEntryDialog } from './TodayDialogs'
 import './today.css'
 
-/** Where the volt button leads once an exercise's sets are done: the next exercise, or Finish. */
+/** Where the accent button leads once an exercise's sets are done: the next exercise, or Finish. */
 export type NextStep = { label: string; onClick: () => void }
 
 const BAR_KG = 20

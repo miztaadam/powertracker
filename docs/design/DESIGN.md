@@ -132,3 +132,21 @@ Every component in its states is on the dev-only page `#/showcase` (`npm run dev
 production builds. Mockups: `docs/design/web/screens/showcase-{dark,light}.png`, rendered by
 `web/e2e/showcase.spec.ts`. A normal `npm run e2e` only writes them to `web/test-results/`; to update
 the committed PNGs run `UPDATE_SCREENSHOTS=1 npm run e2e` and look at them.
+
+**Accent: warm chalk.** The web app's accent is warm chalk, not the green in the colour table above
+(the Android app follows in its own change). The other tokens are the same.
+
+| Role | Dark | Light | Use |
+|---|---|---|---|
+| Accent fill + ink | `#DCD6C8` + `#1A1812` | `#46423B` + `#FBF8F1` | Primary button, current tab, switch on |
+| Accent as text | `#DCD6C8` | `#4B463E` | Rest progress, links, the total sparkline |
+| Accent container + text | `#332F26` + `#EAE4D5` | `#E8E2D4` + `#39342B` | Coach suggestion chip |
+
+- The primary button is the brightest filled element on every screen. Keep one per card or screen region.
+- Selected segments and chips are tonal: container-highest fill, text colour, a 1 px outline. They are
+  not inverse, because chalk on ink would outshine a chalk button. The `Snackbar` keeps the inverse style.
+- The accent differs from text mostly by warmth, so the rest line and the sparkline read as plain light
+  lines. That is accepted.
+- `tokens.test.ts` checks the values and the contrast minimums (label on fill 4.5, fill against every
+  surface and against the secondary and disabled fills 3, accent text 4.5, chip text 4.5).
+  `noVolt.test.ts` fails if a retired green value comes back.

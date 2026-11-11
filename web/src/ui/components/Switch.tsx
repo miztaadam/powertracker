@@ -10,7 +10,7 @@ export type SwitchProps = {
   className?: string
 }
 
-/** An on/off setting. On is volt with an ink thumb; off is an outlined track. */
+/** An on/off setting. On is the accent with an ink thumb; off is an outlined track. */
 export function Switch({ label, checked, onChange, enabled = true, className }: SwitchProps) {
   return (
     <button type="button" role="switch" className={cx('gr-switch', className)} aria-checked={checked} aria-label={label} disabled={!enabled} onClick={() => onChange(!checked)}>

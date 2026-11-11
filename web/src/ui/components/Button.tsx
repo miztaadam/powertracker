@@ -36,7 +36,7 @@ function Base({ text, onClick, enabled = true, icon, compact = false, className,
   )
 }
 
-/** The one volt-filled action on a screen or card. `compact` is for use inside cards and rows. */
+/** The one accent-filled action on a screen or card. `compact` is for use inside cards and rows. */
 export function PrimaryButton(props: ButtonProps) {
   return <Base {...props} kind="gr-btn-primary" />
 }

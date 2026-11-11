@@ -49,11 +49,11 @@
   --text-secondary: #A9AEB6;
   --text-muted: #959BA4;
 
-  --accent: #C9F73A;
-  --accent-ink: #121700;
-  --accent-text: #C9F73A;
-  --accent-container: #25300A;
-  --accent-on-container: #DDFB86;
+  --accent: #DCD6C8;
+  --accent-ink: #1A1812;
+  --accent-text: #DCD6C8;
+  --accent-container: #332F26;
+  --accent-on-container: #EAE4D5;
 
   --success: #3DD68C;
   --success-container: #0F2A1D;
@@ -115,9 +115,11 @@
     --text-secondary: #4D525A;
     --text-muted: #595E66;
 
-    --accent-text: #3F6100;
-    --accent-container: #E6F9A8;
-    --accent-on-container: #2A3F00;
+    --accent: #46423B;
+    --accent-ink: #FBF8F1;
+    --accent-text: #4B463E;
+    --accent-container: #E8E2D4;
+    --accent-on-container: #39342B;
 
     --success: #0F6B3D;
     --success-container: #DDF5E7;
@@ -218,7 +220,7 @@ h3 {
   border: 0;
 }
 
-/* Keyboard focus: a chalk ring outside the control, never volt (volt marks the next action). */
+/* Keyboard focus: a text-coloured ring outside the control, never the accent (the accent marks the next action). */
 :focus-visible {
   outline: 2px solid var(--text);
   outline-offset: 2px;

@@ -73,12 +73,84 @@ describe.each([
   }
 })
 
+/** `fg` at `alpha` over an opaque `bg`, as the browser composites it (Button.css's disabled fill). */
+function over(fg: string, bg: string, alpha: number): string {
+  return (
+    '#' +
+    [1, 3, 5]
+      .map((i) => {
+        const f = parseInt(fg.slice(i, i + 2), 16)
+        const b = parseInt(bg.slice(i, i + 2), 16)
+        return Math.round(f * alpha + b * (1 - alpha))
+          .toString(16)
+          .padStart(2, '0')
+      })
+      .join('')
+  )
+}
+
+const accent = {
+  dark: {
+    '--accent': '#DCD6C8',
+    '--accent-ink': '#1A1812',
+    '--accent-text': '#DCD6C8',
+    '--accent-container': '#332F26',
+    '--accent-on-container': '#EAE4D5',
+  },
+  light: {
+    '--accent': '#46423B',
+    '--accent-ink': '#FBF8F1',
+    '--accent-text': '#4B463E',
+    '--accent-container': '#E8E2D4',
+    '--accent-on-container': '#39342B',
+  },
+} as const
+
+describe.each([
+  ['dark', dark],
+  ['light', light],
+] as const)('%s accent (warm chalk)', (name, theme) => {
+  const get = (k: string): string => {
+    const v = theme[k]
+    if (!v) throw new Error(`missing token ${k}`)
+    return v
+  }
+  for (const [token, hex] of Object.entries(accent[name])) {
+    it(`${token} is ${hex}`, () => {
+      expect(theme[token]).toBe(hex)
+    })
+  }
+  it('button label on the fill is at least 4.5:1', () => {
+    expect(ratio(get('--accent-ink'), get('--accent'))).toBeGreaterThanOrEqual(4.5)
+  })
+  it('chip tag on the chip is at least 4.5:1', () => {
+    expect(ratio(get('--accent-on-container'), get('--accent-container'))).toBeGreaterThanOrEqual(4.5)
+  })
+  for (const s of surfaces) {
+    it(`the fill against ${s} is at least 3:1`, () => {
+      expect(ratio(get('--accent'), get(s))).toBeGreaterThanOrEqual(3)
+    })
+    it(`accent text on ${s} is at least 4.5:1`, () => {
+      expect(ratio(get('--accent-text'), get(s))).toBeGreaterThanOrEqual(4.5)
+    })
+    it(`the fill against the disabled-button fill on ${s} is at least 3:1`, () => {
+      expect(ratio(get('--accent'), over(get('--text'), get(s), 0.12))).toBeGreaterThanOrEqual(3)
+    })
+  }
+  it('the fill against the secondary-button fill is at least 3:1', () => {
+    expect(ratio(get('--accent'), get('--container-highest'))).toBeGreaterThanOrEqual(3)
+  })
+})
+
 describe('token set', () => {
   it('matches the DESIGN.md anchors', () => {
     expect(dark['--bg']).toBe('#0B0C0E')
-    expect(dark['--accent']).toBe('#C9F73A')
     expect(light['--bg']).toBe('#F4F4F0')
-    expect(light['--accent-text']).toBe('#3F6100')
+  })
+  it('gives the light theme its own accent fill and ink', () => {
+    const lightOnly = block(css, /@media\s*\(prefers-color-scheme:\s*light\)\s*\{\s*:root\s*\{/)
+    expect(lightOnly['--accent']).toBeDefined()
+    expect(lightOnly['--accent-ink']).toBeDefined()
   })
   it('defines chart and plate colours', () => {
     for (const k of ['--chart-squat', '--chart-bench', '--chart-deadlift', '--plate-25', '--plate-20', '--plate-15', '--plate-10', '--plate-5', '--plate-2p5', '--plate-small']) {

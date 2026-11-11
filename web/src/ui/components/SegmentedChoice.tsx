@@ -43,7 +43,7 @@ export function SegmentedChoice({ options, selectedIndex, onSelect, label, class
   )
 }
 
-/** A toggle chip. Selected is ink-on-chalk (inverse), so volt stays reserved for the main action. */
+/** A toggle chip. Selected is tonal (container-highest, an outline), so the accent stays reserved for the main action. */
 export function ChoiceChip({ text, selected, onClick, className }: ChoiceChipProps) {
   return (
     <label className={cx('gr-chip', className)}>
