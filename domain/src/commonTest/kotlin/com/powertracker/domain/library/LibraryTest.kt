@@ -308,6 +308,54 @@ class LibraryTest {
     }
 
     @Test
+    fun arms_findTheNamesPeopleType() {
+        val expected = mapOf(
+            "EZ curl" to "EZ-bar curl",
+            "barbell curl" to "Curl",
+            "dumbbell curl" to "DB curl",
+            "hammer curl" to "Hammer curl",
+            "Scott curl" to "Preacher curl",
+            "rope pushdown" to "Rope pushdown",
+            "tricep pushdown" to "Triceps pushdown",
+            "skull crusher" to "Skull crusher",
+            "French press" to "Skull crusher",
+            "dumbbell overhead triceps extension" to "DB overhead triceps extension",
+            "kickback" to "Triceps kickback",
+            "dips" to "Triceps dip",
+            "weighted dip" to "Triceps dip",
+            "diamond push-up" to "Triangle push-up",
+            "wrist curl" to "Wrist curl",
+        )
+        for ((typed, name) in expected) {
+            assertEquals(name, Library.find(typed)?.name, typed)
+            assertTrue(name in names(Library.search(typed)), "$typed: search misses $name")
+        }
+        val firstHit = mapOf(
+            "dips" to "Triceps dip",
+            "skull" to "Skull crusher",
+            "rope pushdown" to "Rope pushdown",
+            "preacher" to "Preacher curl",
+            "concentration" to "Concentration curl",
+        )
+        for ((typed, name) in firstHit) assertEquals(name, Library.search(typed).firstOrNull()?.name, typed)
+        // Generic names that fit several entries are not aliases of one of them.
+        for (generic in listOf("pushdown", "triceps extension", "tricep extension", "lying triceps extension", "alternating curl")) {
+            assertNull(Library.find(generic), generic)
+        }
+        // The triceps dip and the chest dip stay separate entries.
+        assertEquals("Chest dip", Library.find("parallel bar dip")?.name)
+        val arms = all.filter { it.area == BodyArea.ARMS }
+        assertTrue(arms.size >= 30, "${arms.size} arm entries")
+        for (e in arms) {
+            assertEquals(Category.ACCESSORY, e.category, e.name)
+            assertNull(e.parentLift, e.name)
+        }
+        // Left out: bench dips (ACE warns they can put too much force on the shoulder) and a loaded barbell
+        // held overhead for triceps extensions (no allowed source gives a way to get it there safely).
+        assertNull(Library.find("bench dip"))
+    }
+
+    @Test
     fun search_emptyQueryReturnsAllInFilters() {
         assertEquals(alphabetical(all), Library.search(""))
         assertEquals(alphabetical(all), Library.search("  - "))

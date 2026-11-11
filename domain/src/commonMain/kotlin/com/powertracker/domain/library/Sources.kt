@@ -14,6 +14,7 @@ object Sources {
     private const val L4 = "2026-11-11"
     private const val L5 = "2026-11-11"
     private const val L6 = "2026-11-11"
+    private const val L7 = "2026-11-11"
 
     // Main lifts and their variations
     val IPF_RULES_2026 = SourceId("ipf-technical-rules-2026")
@@ -198,6 +199,52 @@ object Sources {
     val ACE_ROTATOR_CUFF_EXTERNAL_ROTATION = SourceId("ace-rotator-cuff-external-rotation")
     val EXRX_DB_LYING_EXTERNAL_ROTATION = SourceId("exrx-dumbbell-lying-shoulder-external-rotation")
     val EXRX_CB_INTERNAL_ROTATION = SourceId("exrx-cable-standing-shoulder-internal-rotation")
+
+    // Arms (L7)
+    val EXRX_DB_CURL = SourceId("exrx-dumbbell-alternating-curl")
+    val EXRX_DB_SEATED_CURL = SourceId("exrx-dumbbell-seated-curl")
+    val EXRX_DB_HAMMER_CURL = SourceId("exrx-dumbbell-alternating-hammer-curl")
+    val ACE_HAMMER_CURL = SourceId("ace-hammer-curl")
+    val EXRX_CB_HAMMER_CURL = SourceId("exrx-cable-hammer-curl")
+    val EXRX_DB_INCLINE_CURL = SourceId("exrx-dumbbell-alternating-incline-curl")
+    val EXRX_BB_PREACHER_CURL = SourceId("exrx-barbell-preacher-curl")
+    val EXRX_DB_PREACHER_CURL = SourceId("exrx-dumbbell-one-arm-preacher-curl")
+    val EXRX_LV_PREACHER_CURL = SourceId("exrx-lever-isolateral-preacher-curl-plate-loaded")
+    val ACE_SEATED_BICEPS_CURL = SourceId("ace-seated-biceps-curl")
+    val EXRX_CB_CURL = SourceId("exrx-cable-curl")
+    val EXRX_CB_ONE_ARM_CURL = SourceId("exrx-cable-one-arm-curl")
+    val EXRX_DB_CONCENTRATION_CURL = SourceId("exrx-dumbbell-concentration-curl")
+    val EXRX_BB_DRAG_CURL = SourceId("exrx-barbell-drag-curl")
+    val EXRX_BB_PRONE_INCLINE_CURL = SourceId("exrx-barbell-prone-incline-curl")
+    val EXRX_BB_REVERSE_CURL = SourceId("exrx-barbell-reverse-curl")
+    val ACE_REVERSE_BICEP_CURL = SourceId("ace-reverse-bicep-curl")
+    val ACE_GRIP_STRENGTH = SourceId("ace-how-to-improve-grip-strength")
+    val EXRX_CB_PUSHDOWN = SourceId("exrx-cable-pushdown")
+    val EXRX_CB_PUSHDOWN_VBAR = SourceId("exrx-cable-pushdown-v-bar")
+    val ACE_TRICEPS_PUSHDOWNS = SourceId("ace-triceps-pushdowns")
+    val EXRX_CB_PUSHDOWN_ROPE = SourceId("exrx-cable-pushdown-rope")
+    val EXRX_CB_ONE_ARM_PUSHDOWN = SourceId("exrx-cable-one-arm-pushdown")
+    val EXRX_CB_TRI_EXT_ROPE = SourceId("exrx-cable-triceps-extension-rope")
+    val ACE_TRICEPS_EXTENSION = SourceId("ace-triceps-extension")
+    val EXRX_DB_TRI_EXT = SourceId("exrx-dumbbell-triceps-extension")
+    val ACE_LYING_BB_TRI_EXT = SourceId("ace-lying-barbell-triceps-extensions")
+    val EXRX_BB_SKULL_CRUSHER = SourceId("exrx-barbell-lying-triceps-extension-skull-crusher")
+    val ACE_BARBELL_EXERCISES = SourceId("ace-9-exercises-with-a-barbell")
+    val EXRX_DB_LYING_TRI_EXT = SourceId("exrx-dumbbell-lying-triceps-extension")
+    val EXRX_DB_DECLINE_TRI_EXT = SourceId("exrx-dumbbell-decline-triceps-extension")
+    val EXRX_LV_TRI_EXT = SourceId("exrx-lever-triceps-extension")
+    val ACE_TRICEPS_KICKBACK = SourceId("ace-triceps-kickback")
+    val EXRX_DB_KICKBACK = SourceId("exrx-dumbbell-kickback")
+    val EXRX_WT_TRI_DIP = SourceId("exrx-weighted-triceps-dip")
+    val EXRX_ST_TRI_DIP = SourceId("exrx-suspended-triceps-dip")
+    val ACE_TONE_TRICEPS = SourceId("ace-tone-up-your-triceps")
+    val ACE_DANGEROUS_DIPS = SourceId("ace-follow-up-dangerous-dips")
+    val PMC_BENCH_BAR_RING_DIPS = SourceId("pmc-bench-bar-ring-dips")
+    val EXRX_CLOSE_GRIP_PUSH_UP = SourceId("exrx-close-grip-push-up")
+    val EXRX_BB_WRIST_CURL = SourceId("exrx-barbell-wrist-curl")
+    val EXRX_DB_WRIST_CURL = SourceId("exrx-dumbbell-wrist-curl")
+    val EXRX_BB_REVERSE_WRIST_CURL = SourceId("exrx-barbell-reverse-wrist-curl")
+    val EXRX_DB_REVERSE_WRIST_CURL = SourceId("exrx-dumbbell-reverse-wrist-curl")
 
     val all: Map<SourceId, Source> = mapOf(
         IPF_RULES_2026 to Source(
@@ -834,6 +881,182 @@ object Sources {
         EXRX_CB_INTERNAL_ROTATION to Source(
             "Cable Standing Shoulder Internal Rotation", EXRX,
             "https://exrx.net/WeightExercises/Subscapularis/CBStandingInternalRotation", L6,
+        ),
+        EXRX_DB_CURL to Source(
+            "Dumbbell Alternating Curl", EXRX,
+            "https://exrx.net/WeightExercises/Biceps/DBCurl", L7,
+        ),
+        EXRX_DB_SEATED_CURL to Source(
+            "Dumbbell Seated Curl", EXRX,
+            "https://exrx.net/WeightExercises/Biceps/DBSeatedCurl", L7,
+        ),
+        EXRX_DB_HAMMER_CURL to Source(
+            "Dumbbell Alternating Hammer Curl", EXRX,
+            "https://exrx.net/WeightExercises/Brachioradialis/DBHammerCurl", L7,
+        ),
+        ACE_HAMMER_CURL to Source(
+            "Exercise Library: Hammer Curl", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/10/hammer-curl/", L7,
+        ),
+        EXRX_CB_HAMMER_CURL to Source(
+            "Cable Hammer Curl", EXRX,
+            "https://exrx.net/WeightExercises/Brachioradialis/CBHammerCurl", L7,
+        ),
+        EXRX_DB_INCLINE_CURL to Source(
+            "Dumbbell Alternating Incline Curl", EXRX,
+            "https://exrx.net/WeightExercises/Biceps/DBInclineCurl", L7,
+        ),
+        EXRX_BB_PREACHER_CURL to Source(
+            "Barbell Preacher Curl", EXRX,
+            "https://exrx.net/WeightExercises/Brachialis/BBPreacherCurl", L7,
+        ),
+        EXRX_DB_PREACHER_CURL to Source(
+            "Dumbbell One Arm Preacher Curl", EXRX,
+            "https://exrx.net/WeightExercises/Brachialis/DBPreacherCurl", L7,
+        ),
+        EXRX_LV_PREACHER_CURL to Source(
+            "Lever Isolateral Preacher Curl (plate loaded)", EXRX,
+            "https://exrx.net/WeightExercises/Brachialis/LVPreacherCurlH", L7,
+        ),
+        ACE_SEATED_BICEPS_CURL to Source(
+            "Exercise Library: Seated Biceps Curl", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/184/seated-biceps-curl/", L7,
+        ),
+        EXRX_CB_CURL to Source(
+            "Cable Curl", EXRX,
+            "https://exrx.net/WeightExercises/Biceps/CBCurl", L7,
+        ),
+        EXRX_CB_ONE_ARM_CURL to Source(
+            "Cable One Arm Curl", EXRX,
+            "https://exrx.net/WeightExercises/Biceps/CBOneArmCurl", L7,
+        ),
+        EXRX_DB_CONCENTRATION_CURL to Source(
+            "Dumbbell Concentration Curl", EXRX,
+            "https://exrx.net/WeightExercises/Brachialis/DBConcentrationCurl", L7,
+        ),
+        EXRX_BB_DRAG_CURL to Source(
+            "Barbell Drag Curl", EXRX,
+            "https://exrx.net/WeightExercises/Biceps/BBDragCurl", L7,
+        ),
+        EXRX_BB_PRONE_INCLINE_CURL to Source(
+            "Barbell Prone Incline Curl", EXRX,
+            "https://exrx.net/WeightExercises/Brachialis/BBProneInclineCurl", L7,
+        ),
+        EXRX_BB_REVERSE_CURL to Source(
+            "Barbell Reverse Curl", EXRX,
+            "https://exrx.net/WeightExercises/Brachioradialis/BBReverseCurl", L7,
+        ),
+        ACE_REVERSE_BICEP_CURL to Source(
+            "Exercise Library: Reverse Bicep Curl", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/310/reverse-bicep-curl/", L7,
+        ),
+        ACE_GRIP_STRENGTH to Source(
+            "How to Improve Grip Strength", ACE,
+            "https://www.acefitness.org/resources/pros/expert-articles/5765/how-to-improve-grip-strength/", L7,
+        ),
+        EXRX_CB_PUSHDOWN to Source(
+            "Cable Pushdown", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/CBPushdown", L7,
+        ),
+        EXRX_CB_PUSHDOWN_VBAR to Source(
+            "Cable Pushdown (with V-bar)", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/CBPushdownVBar", L7,
+        ),
+        ACE_TRICEPS_PUSHDOWNS to Source(
+            "Exercise Library: Triceps Pushdowns", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/", L7,
+        ),
+        EXRX_CB_PUSHDOWN_ROPE to Source(
+            "Cable Pushdown (with rope attachment)", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/CBPushdownRope", L7,
+        ),
+        EXRX_CB_ONE_ARM_PUSHDOWN to Source(
+            "Cable One Arm Pushdown", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/CBOneArmPushdown", L7,
+        ),
+        EXRX_CB_TRI_EXT_ROPE to Source(
+            "Cable Triceps Extension (with rope)", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/CBStandingTricepsExtensionRope", L7,
+        ),
+        ACE_TRICEPS_EXTENSION to Source(
+            "Exercise Library: Triceps Extension", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/74/triceps-extension/", L7,
+        ),
+        EXRX_DB_TRI_EXT to Source(
+            "Dumbbell Triceps Extension", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/DBTriExt", L7,
+        ),
+        ACE_LYING_BB_TRI_EXT to Source(
+            "Exercise Library: Lying Barbell Triceps Extensions", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/36/lying-barbell-triceps-extensions/", L7,
+        ),
+        EXRX_BB_SKULL_CRUSHER to Source(
+            "Barbell Lying Triceps Extension \"Skull Crusher\"", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/BBLyingTriExtSC", L7,
+        ),
+        ACE_BARBELL_EXERCISES to Source(
+            "9 Exercises You Didn't Know You Could Do With a Barbell", ACE,
+            "https://www.acefitness.org/resources/everyone/blog/5366/9-exercises-you-didn-t-know-you-could-do-with-a-barbell/", L7,
+        ),
+        EXRX_DB_LYING_TRI_EXT to Source(
+            "Dumbbell Lying Triceps Extension", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/DBLyingTriExt", L7,
+        ),
+        EXRX_LV_TRI_EXT to Source(
+            "Lever Triceps Extension", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/LVTriExt", L7,
+        ),
+        ACE_TRICEPS_KICKBACK to Source(
+            "Exercise Library: Triceps Kickback", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/55/triceps-kickback/", L7,
+        ),
+        EXRX_DB_KICKBACK to Source(
+            "Dumbbell Kickback", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/DBKickback", L7,
+        ),
+        EXRX_WT_TRI_DIP to Source(
+            "Weighted Triceps Dip", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/WtTriDip", L7,
+        ),
+        EXRX_ST_TRI_DIP to Source(
+            "Suspended Triceps Dip", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/STTriDip", L7,
+        ),
+        ACE_TONE_TRICEPS to Source(
+            "Tone Up Your Triceps with These Three Exercises", ACE,
+            "https://www.acefitness.org/resources/everyone/blog/4930/tone-up-your-triceps-with-these-three-exercises/", L7,
+        ),
+        ACE_DANGEROUS_DIPS to Source(
+            "Follow-up Q and A: Dangerous Dips", ACE,
+            "https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/", L7,
+        ),
+        EXRX_CLOSE_GRIP_PUSH_UP to Source(
+            "Close Grip Push-up", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/BWCloseGripPushup", L7,
+        ),
+        EXRX_BB_WRIST_CURL to Source(
+            "Barbell Wrist Curl", EXRX,
+            "https://exrx.net/WeightExercises/WristFlexors/BBWristCurl", L7,
+        ),
+        EXRX_DB_WRIST_CURL to Source(
+            "Dumbbell Wrist Curl", EXRX,
+            "https://exrx.net/WeightExercises/WristFlexors/DBWristCurl", L7,
+        ),
+        EXRX_BB_REVERSE_WRIST_CURL to Source(
+            "Barbell Reverse Wrist Curl", EXRX,
+            "https://exrx.net/WeightExercises/WristExtensors/BBReverseWristCurl", L7,
+        ),
+        EXRX_DB_REVERSE_WRIST_CURL to Source(
+            "Dumbbell Reverse Wrist Curl", EXRX,
+            "https://exrx.net/WeightExercises/WristExtensors/DBReverseWristCurl", L7,
+        ),
+        EXRX_DB_DECLINE_TRI_EXT to Source(
+            "Dumbbell Decline Triceps Extension", EXRX,
+            "https://exrx.net/WeightExercises/Triceps/DBDeclineTriExt", L7,
+        ),
+        PMC_BENCH_BAR_RING_DIPS to Source(
+            "Bench, Bar, and Ring Dips: Do Kinematics and Muscle Activity Differ?", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC9603242/", L7,
         ),
     )
 }

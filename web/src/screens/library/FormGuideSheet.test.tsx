@@ -54,17 +54,21 @@ describe('FormGuideSheet', () => {
     expect(within(sheet('Bulgarian split squat')).getByText('Quads · Dumbbell or barbell')).toBeInTheDocument()
   })
 
-  it('everyCatalogueName_andAlias_showsItsGuide', () => {
-    for (const entry of grit.library()) {
+  // One case per body area, and one sheet re-rendered per name, so each case stays fast as the catalogue grows.
+  const areas = [...new Set(grit.library().map((e) => e.area))]
+  it.each(areas)('everyCatalogueName_andAlias_showsItsGuide (%s)', (area) => {
+    const entries = grit.library().filter((e) => e.area === area)
+    const { rerender, unmount } = render(<FormGuideSheet name={entries[0]!.name} onClose={() => {}} />)
+    for (const entry of entries) {
       for (const name of [entry.name, ...entry.aliases]) {
-        const { unmount } = render(<FormGuideSheet name={name} onClose={() => {}} />)
+        rerender(<FormGuideSheet name={name} onClose={() => {}} />)
         const lines = linesOf(sheet(name))
         expect(lines[0]).toBe(name)
         expect(lines).toContain(entry.guide.purpose)
         expect(lines.at(-1)).toBe(SAFETY)
-        unmount()
       }
     }
+    unmount()
   })
 
   it('customExercise_showsNoGuideText', () => {

@@ -643,14 +643,186 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 ## Arms
 
+### Cable curl
+
+- [Cable Curl](https://exrx.net/WeightExercises/Biceps/CBCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Cable hammer curl
+
+- [Cable Hammer Curl](https://exrx.net/WeightExercises/Brachioradialis/CBHammerCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Cable overhead triceps extension
+
+- [Cable Triceps Extension (with rope)](https://exrx.net/WeightExercises/Triceps/CBStandingTricepsExtensionRope). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Close-grip push-up
+
+- [Close Grip Push-up](https://exrx.net/WeightExercises/Triceps/BWCloseGripPushup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Concentration curl
+
+- [Dumbbell Concentration Curl](https://exrx.net/WeightExercises/Brachialis/DBConcentrationCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
 ### Curl
 
 - [Barbell Curl](https://exrx.net/WeightExercises/Biceps/BBCurl). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+### DB curl
+
+- [Dumbbell Alternating Curl](https://exrx.net/WeightExercises/Biceps/DBCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### DB lying triceps extension
+
+- [Dumbbell Lying Triceps Extension](https://exrx.net/WeightExercises/Triceps/DBLyingTriExt). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Decline Triceps Extension](https://exrx.net/WeightExercises/Triceps/DBDeclineTriExt). ExRx.net, accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### DB overhead triceps extension
+
+- [Exercise Library: Triceps Extension](https://www.acefitness.org/resources/everyone/exercise-library/74/triceps-extension/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Triceps Extension](https://exrx.net/WeightExercises/Triceps/DBTriExt). ExRx.net, accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+
+### DB preacher curl
+
+- [Dumbbell One Arm Preacher Curl](https://exrx.net/WeightExercises/Brachialis/DBPreacherCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Drag curl
+
+- [Barbell Drag Curl](https://exrx.net/WeightExercises/Biceps/BBDragCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### EZ-bar curl
+
+- [Barbell Curl](https://exrx.net/WeightExercises/Biceps/BBCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Hammer curl
+
+- [Exercise Library: Hammer Curl](https://www.acefitness.org/resources/everyone/exercise-library/10/hammer-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Alternating Hammer Curl](https://exrx.net/WeightExercises/Brachioradialis/DBHammerCurl). ExRx.net, accessed 2026-11-11.
+
+### Incline DB curl
+
+- [Dumbbell Alternating Incline Curl](https://exrx.net/WeightExercises/Biceps/DBInclineCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
 ### JM press
 
 - [Barbell JM Bench Press](https://exrx.net/WeightExercises/Triceps/BBJMPress). ExRx.net, accessed 2026-11-11.
+
+### Machine curl
+
+- [Exercise Library: Seated Biceps Curl](https://www.acefitness.org/resources/everyone/exercise-library/184/seated-biceps-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lever Isolateral Preacher Curl (plate loaded)](https://exrx.net/WeightExercises/Brachialis/LVPreacherCurlH). ExRx.net, accessed 2026-11-11.
+
+### Machine triceps extension
+
+- [Lever Triceps Extension](https://exrx.net/WeightExercises/Triceps/LVTriExt). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### One-arm cable curl
+
+- [Cable One Arm Curl](https://exrx.net/WeightExercises/Biceps/CBOneArmCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### One-arm pushdown
+
+- [Cable One Arm Pushdown](https://exrx.net/WeightExercises/Triceps/CBOneArmPushdown). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Preacher curl
+
+- [Barbell Preacher Curl](https://exrx.net/WeightExercises/Brachialis/BBPreacherCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Reverse curl
+
+- [Exercise Library: Reverse Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/310/reverse-bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Barbell Reverse Curl](https://exrx.net/WeightExercises/Brachioradialis/BBReverseCurl). ExRx.net, accessed 2026-11-11.
+- [How to Improve Grip Strength](https://www.acefitness.org/resources/pros/expert-articles/5765/how-to-improve-grip-strength/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Reverse wrist curl
+
+- [Barbell Reverse Wrist Curl](https://exrx.net/WeightExercises/WristExtensors/BBReverseWristCurl). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Reverse Wrist Curl](https://exrx.net/WeightExercises/WristExtensors/DBReverseWristCurl). ExRx.net, accessed 2026-11-11.
+- [How to Improve Grip Strength](https://www.acefitness.org/resources/pros/expert-articles/5765/how-to-improve-grip-strength/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Rope pushdown
+
+- [Cable Pushdown (with rope attachment)](https://exrx.net/WeightExercises/Triceps/CBPushdownRope). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Seated DB curl
+
+- [Dumbbell Seated Curl](https://exrx.net/WeightExercises/Biceps/DBSeatedCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Skull crusher
+
+- [Exercise Library: Lying Barbell Triceps Extensions](https://www.acefitness.org/resources/everyone/exercise-library/36/lying-barbell-triceps-extensions/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Barbell Lying Triceps Extension "Skull Crusher"](https://exrx.net/WeightExercises/Triceps/BBLyingTriExtSC). ExRx.net, accessed 2026-11-11.
+- [9 Exercises You Didn't Know You Could Do With a Barbell](https://www.acefitness.org/resources/everyone/blog/5366/9-exercises-you-didn-t-know-you-could-do-with-a-barbell/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Spider curl
+
+- [Barbell Prone Incline Curl](https://exrx.net/WeightExercises/Brachialis/BBProneInclineCurl). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Triangle push-up
+
+- [Tone Up Your Triceps with These Three Exercises](https://www.acefitness.org/resources/everyone/blog/4930/tone-up-your-triceps-with-these-three-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Triceps dip
+
+- [Weighted Triceps Dip](https://exrx.net/WeightExercises/Triceps/WtTriDip). ExRx.net, accessed 2026-11-11.
+- [Suspended Triceps Dip](https://exrx.net/WeightExercises/Triceps/STTriDip). ExRx.net, accessed 2026-11-11.
+- [Tone Up Your Triceps with These Three Exercises](https://www.acefitness.org/resources/everyone/blog/4930/tone-up-your-triceps-with-these-three-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Bench, Bar, and Ring Dips: Do Kinematics and Muscle Activity Differ?](https://pmc.ncbi.nlm.nih.gov/articles/PMC9603242/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Follow-up Q and A: Dangerous Dips](https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Triceps kickback
+
+- [Exercise Library: Triceps Kickback](https://www.acefitness.org/resources/everyone/exercise-library/55/triceps-kickback/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Kickback](https://exrx.net/WeightExercises/Triceps/DBKickback). ExRx.net, accessed 2026-11-11.
+
+### Triceps pushdown
+
+- [Cable Pushdown](https://exrx.net/WeightExercises/Triceps/CBPushdown). ExRx.net, accessed 2026-11-11.
+- [Cable Pushdown (with V-bar)](https://exrx.net/WeightExercises/Triceps/CBPushdownVBar). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+### Wrist curl
+
+- [Barbell Wrist Curl](https://exrx.net/WeightExercises/WristFlexors/BBWristCurl). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Wrist Curl](https://exrx.net/WeightExercises/WristFlexors/DBWristCurl). ExRx.net, accessed 2026-11-11.
+- [How to Improve Grip Strength](https://www.acefitness.org/resources/pros/expert-articles/5765/how-to-improve-grip-strength/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ## Quads
 
