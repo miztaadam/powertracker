@@ -54,22 +54,22 @@ fun AppShell(container: AppContainer) {
     val current by nav.currentBackStackEntryAsState()
     val route = current?.destination?.route
 
+    fun openTab(tab: Tab) = nav.navigate(tab.route) {
+        popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            if (Tab.entries.any { it.route == route }) {
-                PtBottomBar(route) { tab ->
-                    nav.navigate(tab.route) {
-                        popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            }
+            if (Tab.entries.any { it.route == route }) PtBottomBar(route, ::openTab)
         },
     ) { padding ->
         NavHost(nav, startDestination = Tab.TODAY.route, modifier = Modifier.padding(padding).consumeWindowInsets(padding)) {
-            composable(Tab.TODAY.route) { TodayScreen() }
+            composable(Tab.TODAY.route) {
+                TodayScreen(container.training, container.advice, container.settings, onOpenCoach = { openTab(Tab.COACH) })
+            }
             composable(Tab.COACH.route) { CoachScreen() }
             composable(Tab.PROGRESS.route) { ProgressScreen() }
             composable(Tab.PLAN.route) {

@@ -4,7 +4,8 @@
 big condensed tabular numerals you can read from the floor of a dim gym. One accent — volt — marks
 the single next action; every other colour means a state (PR, stall, deload) or a real object (a plate).
 
-Mockups: `docs/design/screens/` (rendered by `ScreenshotTest` from the real components). A normal
+Mockups: `docs/design/screens/` (rendered by `ScreenshotTest` from the real components; the
+`today-*` ones are the real Today screen with sample state). A normal
 test run only renders them to `app/build/screenshots/` as a smoke check. To update the committed
 PNGs after a visual change, run
 `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true` and look at them.
@@ -74,14 +75,14 @@ Depth comes from tone steps and a 1 dp hairline. No shadows.
 - `PtCard` — the standard container (surface + hairline).
 - `PrimaryButton` / `SecondaryButton` / `QuietButton` — volt, tonal, text; `compact` inside cards.
 - `NumberDisplay`, `Eyebrow` — label, big tabular value, small unit on the baseline.
-- `Stepper` — one-line − value + (settings, dialogs). `StepperField` — big value over two wide buttons (logging).
+- `Stepper` — one-line − value + (settings, dialogs). `StepperField` — big value over two wide buttons (logging); with `onValueClick` the value is a button for typing the number.
 - `SetRow` — set number, weight × reps @ RPE, planned / done / failed, optional "Top set".
 - `SegmentedChoice` — pick one of a few (miss point Floor / Mid / Lockout, chart range). `ChoiceChip` — toggle (training days).
 - `Pill` — small status label in a tone.
 - `CoachSuggestion` — inline "Coach suggests 155 × 5 @ 8" with reason, Apply, Dismiss.
 - `AdviceCard` — coach card shell: toned icon + tag, title (what), body (why), detail slot, actions.
 - `StatTile` — labelled figure with a note.
-- `PlateStrip` — one side of the bar drawn in IPF colours plus "25 + 25 + 15 + 2.5".
+- `PlateStrip` — one side of the bar drawn in IPF colours plus "25 + 25 + 15 + 2.5". `PlateStripNote` — the same block in words when there is nothing to draw ("Can't load 181 kg exactly").
 - `RestTimerBar` — countdown, progress line, +30 s, Skip; docks above the bottom bar.
 - `LineChart`, `Sparkline`, `ChartSeries` — e1RM over time with legend and latest values; tiny trend line.
 - `RatioBar` — lift ratio against its typical range.

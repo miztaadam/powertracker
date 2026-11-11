@@ -22,6 +22,7 @@ import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.components.SetRow
 import com.powertracker.ui.components.SetState
 import com.powertracker.ui.components.Stepper
+import com.powertracker.ui.components.StepperField
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.components.platesLabel
 import com.powertracker.ui.theme.DarkPtColors
@@ -114,5 +115,15 @@ class ComponentsTest {
         compose.onNodeWithText("Add to plan").performClick()
         compose.onNodeWithText("Dismiss").performClick()
         assertEquals(1 to 1, applied to dismissed)
+    }
+
+    @Test
+    fun stepperField_valueReadsAsOnePhrase_andOpensTyping() {
+        var typed = 0
+        compose.setContent {
+            PowertrackerTheme { StepperField("Weight", "182.5", true, true, {}, {}, unit = "kg", onValueClick = { typed++ }) }
+        }
+        compose.onNodeWithContentDescription("Weight 182.5 kg").assertHeightIsAtLeast(48.dp).performClick()
+        assertEquals(1, typed)
     }
 }

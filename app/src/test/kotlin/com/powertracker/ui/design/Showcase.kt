@@ -29,9 +29,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.powertracker.data.AppSettings
+import com.powertracker.data.StoredSet
+import com.powertracker.domain.model.Advice
+import com.powertracker.domain.model.AdvicePayload
+import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
+import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.ui.PtBottomBar
 import com.powertracker.ui.Tab
 import com.powertracker.ui.components.AdviceCard
@@ -64,7 +72,15 @@ import com.powertracker.ui.plan.SettingsContent
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
+import com.powertracker.ui.today.FinishSummary
+import com.powertracker.ui.today.RestTimerUi
+import com.powertracker.ui.today.SetEditor
+import com.powertracker.ui.today.TodayActions
+import com.powertracker.ui.today.TodayContent
+import com.powertracker.ui.today.TodayItem
+import com.powertracker.ui.today.TodayState
 import java.time.DayOfWeek
+import java.time.LocalDate
 
 // Mockups for owner approval: real components, hard-coded sample data. One lifter, one story:
 // squat e1RM 190, bench 122.5 (stalled), deadlift 250, on Wednesday 11 November.
@@ -87,44 +103,79 @@ fun ShowcaseFrame(dark: Boolean, tab: Tab?, content: @Composable () -> Unit) {
     }
 }
 
+private val SHOWCASE_DATE: LocalDate = LocalDate.of(2026, 11, 11)
+
+private fun logged(id: Long, kg: Double, reps: Int, rpe: Double, failed: Boolean = false, miss: MissPoint? = null) =
+    StoredSet(id, 1, LoggedSet(1, kg, reps, rpe, failed, miss, isTopSet = false))
+
+private fun todayItem(
+    id: Long,
+    name: String,
+    category: Category,
+    sets: Int,
+    reps: Int,
+    rpe: Double,
+    weightKg: Double,
+    done: List<StoredSet> = emptyList(),
+    suggestion: Advice? = null,
+) = TodayItem(
+    exercise = exercise(id, name, category),
+    planned = PlanItem(id, DayOfWeek.WEDNESDAY, id, sets, reps, rpe, id.toInt()),
+    suggestion = suggestion,
+    sets = done,
+    editor = SetEditor(weightKg, reps, rpe),
+    targetSets = sets,
+    perSide = PlateLoader.perSide(weightKg, changePlates = false),
+    lastWeightKg = weightKg,
+)
+
+private fun todayItems(squatSets: List<StoredSet>, suggest: Boolean) = listOf(
+    todayItem(
+        1, "Squat", Category.SQUAT, 5, 5, 8.0, 155.0, squatSets,
+        suggestion = if (suggest) {
+            Advice(AdviceType.TARGET, MainLift.SQUAT, SHOWCASE_DATE, "Last time: 150 × 5 @ 7. Coach suggests 155 × 5 @ 8.", 0, AdvicePayload.Target(1, 155.0, 5, 8.0), id = 1)
+        } else {
+            null
+        },
+    ),
+    todayItem(2, "Bench", Category.BENCH, 4, 6, 7.5, 100.0),
+    todayItem(3, "Barbell row", Category.ACCESSORY, 3, 8, 8.0, 80.0),
+    todayItem(4, "Triceps pushdown", Category.ACCESSORY, 3, 12, 8.0, 30.0),
+)
+
+/** The real Today screen mid-session: third squat set missed, coach chip still open, rest timer running. */
 @Composable
 fun TodayShowcase() {
-    val scheme = MaterialTheme.colorScheme
-    Column(Modifier.fillMaxSize()) {
-        ScreenHeader("Today", eyebrow = "Wednesday 11 November") {
-            SecondaryButton("Finish", {}, compact = true, modifier = Modifier.padding(end = Space.s))
-        }
-        Column(Modifier.weight(1f).padding(horizontal = Space.gutter), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-            PtCard(spacing = Space.s) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Eyebrow("Exercise 1 of 4")
-                        Text("Squat", style = MaterialTheme.typography.headlineMedium)
-                    }
-                    Pill("Set 4 of 5")
-                }
-                CoachSuggestion("155 × 5 @ 8", "Last time you hit 150 × 5 @ 7.", {}, {})
-                Column {
-                    SetRow(1, 155.0, 5, 8.0, SetState.DONE, isTopSet = true)
-                    SetRow(2, 155.0, 5, 8.5, SetState.DONE)
-                    SetRow(3, 155.0, 3, 10.0, SetState.FAILED)
-                    Row(Modifier.padding(start = 32.dp, top = Space.xs, bottom = Space.xs), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-                        Text("Where did it stall?", style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
-                        SegmentedChoice(listOf("Floor", "Mid", "Lockout"), 0, {})
-                    }
-                }
-                HorizontalDivider(color = PowertrackerTheme.colors.hairline)
-                Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-                    StepperField("Weight", "155", true, true, {}, {}, Modifier.weight(1.25f), unit = "kg")
-                    StepperField("Reps", "5", true, true, {}, {}, Modifier.weight(1f))
-                    StepperField("RPE", "8", true, true, {}, {}, Modifier.weight(1f))
-                }
-                PlateStrip(listOf(25.0, 25.0, 15.0, 2.5))
-                PrimaryButton("Log set 4", {}, Modifier.fillMaxWidth(), icon = Icons.Filled.Check)
-            }
-        }
-        RestTimerBar(108, 180, {}, {}, Modifier.padding(horizontal = Space.gutter).padding(bottom = Space.s))
-    }
+    val squatSets = listOf(logged(1, 150.0, 5, 7.5), logged(2, 155.0, 5, 8.5), logged(3, 155.0, 3, 10.0, failed = true, miss = MissPoint.FLOOR))
+    TodayContent(
+        TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = todayItems(squatSets, suggest = true)),
+        TodayActions(),
+        restTimer = RestTimerUi(108, 180, {}, {}),
+    )
+}
+
+/** Before the session: the plan for the day and the optional check-in. */
+@Composable
+fun TodayStartShowcase() {
+    TodayContent(TodayState(SHOWCASE_DATE, loading = false, items = todayItems(emptyList(), suggest = true)), TodayActions())
+}
+
+/** The planned sets are done: the volt button moves on to the next exercise. */
+@Composable
+fun TodayNextShowcase() {
+    val squatSets = listOf(logged(1, 150.0, 5, 7.5), logged(2, 155.0, 5, 8.0), logged(3, 155.0, 5, 8.5), logged(4, 155.0, 5, 9.0), logged(5, 155.0, 5, 9.5))
+    val items = todayItems(squatSets, suggest = false).toMutableList()
+    items[1] = items[1].copy(sets = listOf(logged(6, 100.0, 6, 7.5)))
+    TodayContent(TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = items), TodayActions())
+}
+
+/** After Finish. */
+@Composable
+fun TodaySummaryShowcase() {
+    TodayContent(
+        TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = todayItems(emptyList(), suggest = false), summary = FinishSummary(setCount = 15, exerciseCount = 4, newNotes = 2)),
+        TodayActions(),
+    )
 }
 
 @Composable

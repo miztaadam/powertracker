@@ -27,7 +27,8 @@ import java.io.File
  * `app/build/screenshots/`. The committed copies in `docs/design/screens/` are only rewritten with
  * `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`.
  *
- * Today, Plan and Settings are phone size (412 × 915 dp); Coach and Progress are full-page
+ * The Today mockups render the real `TodayContent` with sample state (mid-session, before the
+ * session, an exercise finished, after Finish). Today, Plan and Settings are phone size (412 × 915 dp); Coach and Progress are full-page
  * captures of a scrolling screen, so they are taller.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -64,6 +65,15 @@ class ScreenshotTest {
 
     @Test
     fun today() = render("today", Tab.TODAY) { TodayShowcase() }
+
+    @Test
+    fun todayStart() = render("today-start", Tab.TODAY) { TodayStartShowcase() }
+
+    @Test
+    fun todayNext() = render("today-next", Tab.TODAY) { TodayNextShowcase() }
+
+    @Test
+    fun todaySummary() = render("today-summary", Tab.TODAY) { TodaySummaryShowcase() }
 
     @Test
     @Config(qualifiers = "w412dp-h1256dp-xhdpi")

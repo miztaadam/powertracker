@@ -7,8 +7,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.WarningAmber
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import com.powertracker.ui.theme.PlateColors
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
+import com.powertracker.ui.theme.Tone
+import com.powertracker.ui.theme.color
 
 /** "25 + 20 + 2.5" for the plates on one side, heaviest first; "Empty bar" for none. */
 fun platesLabel(perSide: List<Double>): String =
@@ -82,11 +90,34 @@ fun PlateStrip(perSide: List<Double>, modifier: Modifier = Modifier, caption: St
     }
 }
 
+/** Stands in for [PlateStrip] when there is nothing to draw: no weight yet, or one the plates cannot make. */
+@Composable
+fun PlateStripNote(title: String, caption: String, modifier: Modifier = Modifier, tone: Tone = Tone.NEUTRAL) {
+    val scheme = MaterialTheme.colorScheme
+    Row(
+        modifier.fillMaxWidth().background(scheme.surfaceContainer, MaterialTheme.shapes.medium).heightIn(min = 64.dp).padding(horizontal = Space.m, vertical = Space.s),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Space.m),
+    ) {
+        Icon(
+            if (tone == Tone.NEUTRAL) Icons.Filled.FitnessCenter else Icons.Filled.WarningAmber,
+            contentDescription = null,
+            tint = tone.color(),
+            modifier = Modifier.size(24.dp),
+        )
+        Column {
+            Text(title, style = MaterialTheme.typography.titleSmall, color = scheme.onSurface)
+            Text(caption, style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted)
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun PlateStripPreview() = PowertrackerTheme(darkTheme = true) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         PlateStrip(listOf(25.0, 25.0, 15.0, 2.5))
         PlateStrip(listOf(20.0, 10.0, 5.0, 2.5, 1.25, 0.5, 0.25))
+        PlateStripNote("Can't load 181 kg exactly", "Nearest is 180 kg.", tone = Tone.WARNING)
     }
 }

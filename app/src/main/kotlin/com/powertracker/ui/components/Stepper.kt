@@ -1,5 +1,6 @@
 package com.powertracker.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +20,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -67,7 +72,10 @@ fun Stepper(
     }
 }
 
-/** The in-session stepper: label, a big number, and two wide buttons underneath. Place three in a row. */
+/**
+ * The in-session stepper: label, a big number, and two wide buttons underneath. Place three in a row.
+ * Pass [onValueClick] to let the lifter tap the number and type it.
+ */
 @Composable
 fun StepperField(
     label: String,
@@ -78,9 +86,19 @@ fun StepperField(
     onIncrement: () -> Unit,
     modifier: Modifier = Modifier,
     unit: String? = null,
+    onValueClick: (() -> Unit)? = null,
 ) {
+    val spoken = listOfNotNull(label, valueText, unit).joinToString(" ")
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        NumberDisplay(valueText, unit = unit, label = label, size = NumberSize.LARGE, centered = true)
+        // The figure reads as one phrase ("Weight 155 kg"); with [onValueClick] it is also a button for typing the value.
+        NumberDisplay(
+            valueText, unit = unit, label = label, size = NumberSize.LARGE, centered = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(MaterialTheme.shapes.small)
+                .then(if (onValueClick != null) Modifier.clickable(onClickLabel = "Type $label", role = Role.Button, onClick = onValueClick) else Modifier)
+                .clearAndSetSemantics { contentDescription = spoken },
+        )
         Row(Modifier.fillMaxWidth().padding(top = Space.s), horizontalArrangement = Arrangement.spacedBy(Space.xs)) {
             StepButton(Icons.Filled.Remove, "Decrease $label", canDecrement, onDecrement, Modifier.weight(1f).height(Space.touch))
             StepButton(Icons.Filled.Add, "Increase $label", canIncrement, onIncrement, Modifier.weight(1f).height(Space.touch))
