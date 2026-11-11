@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -52,6 +53,7 @@ import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -63,6 +65,7 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.validation.InputValidator
 import com.powertracker.ui.components.ChoiceChip
 import com.powertracker.ui.components.PrimaryButton
 import com.powertracker.ui.components.PtCard
@@ -428,7 +431,8 @@ private fun CustomExerciseDialog(
 @Composable
 private fun BaselineDialog(lift: Exercise, onSave: (Double) -> Unit, onDismiss: () -> Unit) {
     var text by rememberSaveable { mutableStateOf("") }
-    val kg = text.replace(',', '.').toDoubleOrNull()?.takeIf { it > 0 }
+    // Only finite values up to 500 kg: anything else would be nonsense advice, and non-finite numbers break backups.
+    val kg = InputValidator.baselineKg(text)
     AlertDialog(
         onDismissRequest = onDismiss,
         properties = TEXT_FIELD_DIALOG,
@@ -437,6 +441,7 @@ private fun BaselineDialog(lift: Exercise, onSave: (Double) -> Unit, onDismiss: 
         text = {
             OutlinedTextField(
                 text, { text = it }, label = { Text("Estimated 1RM (kg)") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
         },
         confirmButton = { PrimaryButton("Save", { onSave(kg!!) }, enabled = kg != null, compact = true) },

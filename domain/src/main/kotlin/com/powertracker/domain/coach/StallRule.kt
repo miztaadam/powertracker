@@ -35,21 +35,29 @@ object StallRule {
         }
 
         val thisWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-        val weeksSincePeak = ChronoUnit.WEEKS.between(peak.weekStart, thisWeek).toInt()
+        // Weeks off are not stall weeks: after a return from a gap of 14+ days, count from the return week.
+        val returnWeek = stats.returnDateAfterGap(today)?.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val since = if (returnWeek != null && returnWeek.isAfter(peak.weekStart)) returnWeek else peak.weekStart
+        val weeksSincePeak = ChronoUnit.WEEKS.between(since, thisWeek).toInt()
         if (weeksSincePeak < n) return null
 
         val windowStart = thisWeek.minusWeeks(n - 1L)
         if (trend.count { !it.weekStart.isBefore(windowStart) } < n - 1) return null
 
-        val miss = stats.missPoints(lift, peak.weekStart.plusWeeks(1), today)
+        val missesFrom = if (since == peak.weekStart) peak.weekStart.plusWeeks(1) else since
+        val miss = stats.missPoints(lift, missesFrom, today)
             .withIndex()
             .groupBy { it.value }
             .maxWithOrNull(compareBy({ it.value.size }, { it.value.last().index }))
             ?.key
 
         val owned = currentAccessoryNames.map { it.lowercase() }.toSet()
-        val items = AccessoryMap.options(lift, miss)
-            .filter { it.exerciseName.lowercase() !in owned }
+        fun notPlanned(options: List<AccessoryOption>) = options.filter { it.exerciseName.lowercase() !in owned }
+        val forMiss = notPlanned(AccessoryMap.options(lift, miss))
+        // Everything for this miss point is already planned: offer the lift's other options; with none left, say nothing.
+        val options = forMiss.ifEmpty { notPlanned(AccessoryMap.allOptions(lift)) }
+        if (options.isEmpty()) return null
+        val items = options
             .take(MAX_ITEMS)
             .map { if (it.heavy) AccessoryPrescription(it.exerciseName, 3, 3, 5) else AccessoryPrescription(it.exerciseName, 3, 8, 10) }
 
@@ -59,7 +67,11 @@ object StallRule {
             "$head Add one set, change the rep range (5s → 3s or 8s), or swap to a variation."
         } else {
             val muscles = AccessoryMap.muscles(lift, miss).joinToString(" and ") { it.lowercase() }
-            "$head You've mostly missed ${missPhrase(lift, miss)} — this works the $muscles."
+            if (forMiss.isEmpty()) {
+                "$head You've mostly missed ${missPhrase(lift, miss)} — your plan already works the $muscles, so try another variation."
+            } else {
+                "$head You've mostly missed ${missPhrase(lift, miss)} — this works the $muscles."
+            }
         }
 
         return Advice(

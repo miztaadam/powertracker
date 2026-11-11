@@ -6,10 +6,10 @@ import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
-import com.powertracker.domain.plates.PlateLoader
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -24,6 +24,14 @@ object Coach {
     private const val RECENT_DAYS = 7L
     private const val RE_ENTRY_SHOW_DAYS = 7L
     private const val STALL_PAUSE_DAYS = 14L
+    private const val GAP_DAYS = 14L
+
+    /** An OPEN deload or re-entry clamps (and blocks a new one) only this long; then the feed hides it. */
+    const val OPEN_ACTIVE_DAYS = 14L
+    private const val APPLIED_ACTIVE_DAYS = 7L
+    private const val DELOAD_COOLDOWN_DAYS = 21L
+    private const val DISMISSED_MEMORY_DAYS = 28L
+    private const val STALL_APPLIED_COOLDOWN_DAYS = 28L
 
     /** Within one evaluate call, the advice kept for a lift: earlier in this list wins. */
     private val LIFT_PRIORITY = listOf(AdviceType.STALL, AdviceType.WEAK_POINT)
@@ -45,7 +53,7 @@ object Coach {
         val returnDate = stats.returnDateAfterGap(today)
         if (returnDate != null) reEntry(stats, returnDate, today, priorAdvice)?.let(candidates::add)
 
-        FatigueRule.evaluate(stats, history, today)?.let(candidates::add)
+        if (!deloadBlocked(priorAdvice, today)) FatigueRule.evaluate(stats, history, today)?.let(candidates::add)
 
         val stallsPaused = returnDate != null && today.isBefore(returnDate.plusDays(STALL_PAUSE_DAYS))
         if (!stallsPaused) {
@@ -61,7 +69,8 @@ object Coach {
 
         val kept = candidates.filter { advice ->
             val lift = advice.lift
-            notRepeated(advice, priorAdvice) &&
+            notRepeated(advice, priorAdvice, today) &&
+                !stallCoolingDown(advice, priorAdvice, today) &&
                 (lift == null || (hasMinimumHistory(lift, stats, history) && !shownThisWeek(lift, priorAdvice, today)))
         }
         return onePerLift(kept)
@@ -70,8 +79,10 @@ object Coach {
     /**
      * TARGET advice for today's plan items only (used by the Today screen), in plan order.
      * Skips items whose exercise is missing or archived, and main-lift/variation items whose lift lacks
-     * minimum history. While a DELOAD or RE_ENTRY is OPEN, or APPLIED within the last 7 days, loads are
-     * capped (and, for a deload, sets reduced). Does not dedupe against prior TARGET advice: the app does that.
+     * minimum history. While a DELOAD or RE_ENTRY is OPEN (for 14 days) or APPLIED within the last 7 days,
+     * loads are capped against the top set from before that advice (and, for a deload, sets reduced). On the
+     * first day back after a gap of 14 days or more, re-entry applies even before any RE_ENTRY advice exists.
+     * Does not dedupe against prior TARGET advice: the app does that.
      */
     fun targetsFor(
         day: DayOfWeek,
@@ -83,13 +94,16 @@ object Coach {
     ): List<Advice> {
         val stats = HistoryStats(history)
         val deload = activeAdvice(AdviceType.DELOAD, priorAdvice, today)
+        val lastSession = stats.lastSessionDate(today)
+        val firstDayBack = lastSession != null && ChronoUnit.DAYS.between(lastSession, today) >= GAP_DAYS
         val reEntry = activeAdvice(AdviceType.RE_ENTRY, priorAdvice, today)
+            ?: if (firstDayBack) Advice(AdviceType.RE_ENTRY, null, today, "", 0, AdvicePayload.ReEntry()) else null
         return plan.filter { it.weekday == day }.sortedBy { it.order }.mapNotNull { item ->
             val exercise = history.exercises[item.exerciseId]?.takeUnless { it.archived } ?: return@mapNotNull null
             val lift = exercise.mainLift
             if (lift != null && !hasMinimumHistory(lift, stats, history)) return@mapNotNull null
             val target = ProgressionRule.target(item, exercise, stats, settings, today) ?: return@mapNotNull null
-            clamp(target, item, stats, settings, today, deload, reEntry)
+            clamp(target, item, exercise, stats, settings, today, deload, reEntry)
         }
     }
 
@@ -113,15 +127,34 @@ object Coach {
     private fun shownThisWeek(lift: MainLift, prior: List<Advice>, today: LocalDate): Boolean =
         prior.any { it.type != AdviceType.TARGET && it.lift == lift && withinLastWeek(it.createdAt, today) }
 
-    /** False if the same type + lift is still OPEN, or its latest dismissal was at least as severe. */
-    private fun notRepeated(advice: Advice, prior: List<Advice>): Boolean {
+    /**
+     * False if the same type + lift is still OPEN (a deload or re-entry only for its first 14 days), or its
+     * latest dismissal within the last 28 days was at least as severe.
+     */
+    private fun notRepeated(advice: Advice, prior: List<Advice>, today: LocalDate): Boolean {
         val same = prior.filter { it.type == advice.type && it.lift == advice.lift }
-        if (same.any { it.status == AdviceStatus.OPEN }) return false
+        if (same.any { it.status == AdviceStatus.OPEN && (!expiresWhenOpen(it.type) || within(it.createdAt, today, OPEN_ACTIVE_DAYS)) }) {
+            return false
+        }
         val lastDismissed = same
-            .filter { it.status == AdviceStatus.DISMISSED }
+            .filter { it.status == AdviceStatus.DISMISSED && within(it.createdAt, today, DISMISSED_MEMORY_DAYS) }
             .maxWithOrNull(compareBy({ it.createdAt }, { it.id }))
         return lastDismissed == null || advice.severity > lastDismissed.severity
     }
+
+    private fun expiresWhenOpen(type: AdviceType) = type == AdviceType.DELOAD || type == AdviceType.RE_ENTRY
+
+    /** No new deload while one is active, nor within 21 days of an applied one. */
+    private fun deloadBlocked(prior: List<Advice>, today: LocalDate): Boolean =
+        activeAdvice(AdviceType.DELOAD, prior, today) != null ||
+            prior.any { it.type == AdviceType.DELOAD && it.status == AdviceStatus.APPLIED && within(it.createdAt, today, DELOAD_COOLDOWN_DAYS) }
+
+    /** A stall the lifter applied gets 28 days for its accessories to work before the lift can stall again. */
+    private fun stallCoolingDown(advice: Advice, prior: List<Advice>, today: LocalDate): Boolean =
+        advice.type == AdviceType.STALL && prior.any {
+            it.type == AdviceType.STALL && it.lift == advice.lift && it.status == AdviceStatus.APPLIED &&
+                within(it.createdAt, today, STALL_APPLIED_COOLDOWN_DAYS)
+        }
 
     private fun onePerLift(advice: List<Advice>): List<Advice> {
         val chosen = advice.filter { it.lift != null }
@@ -131,19 +164,26 @@ object Coach {
         return advice.filter { a -> a.lift == null || chosen.any { it === a } }
     }
 
-    private fun withinLastWeek(date: LocalDate, today: LocalDate): Boolean =
-        !date.isBefore(today.minusDays(RECENT_DAYS - 1)) && !date.isAfter(today)
+    private fun withinLastWeek(date: LocalDate, today: LocalDate): Boolean = within(date, today, RECENT_DAYS)
 
-    /** The latest advice of [type] that is OPEN, or APPLIED within the last 7 days. */
+    /** [date] is one of the [days] days ending today (today − (days − 1) … today). */
+    private fun within(date: LocalDate, today: LocalDate, days: Long): Boolean =
+        !date.isBefore(today.minusDays(days - 1)) && !date.isAfter(today)
+
+    /** The latest advice of [type] that is OPEN (created within 14 days), or APPLIED within the last 7 days. */
     private fun activeAdvice(type: AdviceType, prior: List<Advice>, today: LocalDate): Advice? =
         prior.filter {
             it.type == type &&
-                (it.status == AdviceStatus.OPEN || (it.status == AdviceStatus.APPLIED && withinLastWeek(it.createdAt, today)))
+                (
+                    (it.status == AdviceStatus.OPEN && within(it.createdAt, today, OPEN_ACTIVE_DAYS)) ||
+                        (it.status == AdviceStatus.APPLIED && within(it.createdAt, today, APPLIED_ACTIVE_DAYS))
+                    )
         }.maxByOrNull { it.createdAt }
 
     private fun clamp(
         target: Advice,
         item: PlanItem,
+        exercise: Exercise,
         stats: HistoryStats,
         settings: CoachSettings,
         today: LocalDate,
@@ -153,29 +193,36 @@ object Coach {
         if (deload == null && reEntry == null) return target
         val (_, last) = stats.lastTopSet(item.exerciseId, today) ?: return target
         val payload = target.payload as AdvicePayload.Target
+
+        /**
+         * [factor] of a fixed reference: the top set from before [advice] was created (so a week of lighter
+         * sessions does not compound), else the latest one for an exercise first done since.
+         */
+        fun capFor(advice: Advice, factor: Double): Double {
+            val reference = (stats.lastTopSet(item.exerciseId, advice.createdAt)?.second ?: last).weightKg
+            val free = ProgressionRule.isFreeLoad(exercise, reference)
+            return ProgressionRule.roundDown(reference * factor, reference, free, settings.changePlates)
+        }
+
         var weight = payload.weightKg
         var sets = payload.sets
         var notes = ""
         if (deload != null) {
             val factors = deload.payload as? AdvicePayload.Deload ?: AdvicePayload.Deload()
-            weight = minOf(weight, roundDown(last.weightKg * factors.loadFactor, settings.changePlates))
+            weight = minOf(weight, capFor(deload, factors.loadFactor))
             sets = maxOf(1, (item.sets * factors.volumeFactor).roundToInt())
             notes += DELOAD_NOTE
         }
         if (reEntry != null) {
             val factors = reEntry.payload as? AdvicePayload.ReEntry ?: AdvicePayload.ReEntry()
-            weight = minOf(weight, roundDown(last.weightKg * factors.loadFactor, settings.changePlates))
+            weight = minOf(weight, capFor(reEntry, factors.loadFactor))
             notes += RE_ENTRY_NOTE
         }
+        // A lighter week does the planned reps, not progression's extra rep.
+        val reps = item.reps
         return target.copy(
-            reason = ProgressionRule.describe(last, weight, payload.reps, payload.rpe) + notes,
-            payload = payload.copy(weightKg = weight, sets = sets),
+            reason = ProgressionRule.describe(last, weight, reps, payload.rpe) + notes,
+            payload = payload.copy(weightKg = weight, reps = reps, sets = sets),
         )
-    }
-
-    /** Nearest loadable weight not above [kg] (never below the empty bar). */
-    private fun roundDown(kg: Double, changePlates: Boolean): Double {
-        val rounded = PlateLoader.round(kg, changePlates)
-        return if (rounded > kg) PlateLoader.round(rounded - PlateLoader.step(changePlates), changePlates) else rounded
     }
 }

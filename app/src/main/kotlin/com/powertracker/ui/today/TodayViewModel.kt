@@ -96,7 +96,7 @@ class TodayViewModel(
     private val training: TrainingRepository,
     private val advice: AdviceRepository,
     private val settings: SettingsRepository,
-    today: () -> LocalDate = LocalDate::now,
+    private val today: () -> LocalDate = LocalDate::now,
 ) : ViewModel() {
 
     private val date: LocalDate = today()
@@ -154,6 +154,9 @@ class TodayViewModel(
             combine(training.plan(), settings.settings) { plan, s -> plan to s.coach() }
                 .distinctUntilChanged()
                 .collect { (plan, coach) ->
+                    // A view model kept from an earlier day (the screen keys a new one per day) must not
+                    // store targets dated that day any more.
+                    if (today() != date) return@collect
                     val prior = advice.all()
                     val known = todaysTargets(prior).map { it.exerciseId() }.toSet()
                     val fresh = Coach.targetsFor(date.dayOfWeek, training.history().first(), plan, coach, date, prior)

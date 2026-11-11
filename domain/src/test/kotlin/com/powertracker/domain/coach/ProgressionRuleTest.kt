@@ -122,4 +122,49 @@ class ProgressionRuleTest {
         val h = history { session(0) { bench(100.0, 5) } }
         assertNull(run(h, Ids.SQUAT))
     }
+    // --- final review: sub-bar and bodyweight loads are not floored at the empty bar ---
+
+    @Test
+    fun subBarAccessory_curlTwelveKgStaysTwelve_addsRep() {
+        val h = history { session(0) { set(Ids.CURL, 12.0, 10, rpe = 8.0, isTopSet = true) } }
+        val t = target(run(h, Ids.CURL, reps = 10))
+        assertEquals(12.0, t.weightKg)
+        assertEquals(11, t.reps)
+    }
+
+    @Test
+    fun bodyweightPullUp_zeroStaysZero() {
+        val h = history { session(0) { set(Ids.PULL_UP, 0.0, 8, rpe = 8.0, isTopSet = true) } }
+        val t = target(run(h, Ids.PULL_UP, reps = 8))
+        assertEquals(0.0, t.weightKg)
+        assertEquals(9, t.reps)
+        val failed = history { session(0) { set(Ids.PULL_UP, 0.0, 8, rpe = null, failed = true, isTopSet = true) } }
+        assertEquals(0.0, target(run(failed, Ids.PULL_UP, reps = 8)).weightKg)
+    }
+
+    @Test
+    fun dbPressFifteenAtRpeSix_neverAboveFivePercent_staysFifteenPlusRep() {
+        val h = history { session(0) { set(Ids.DB_PRESS, 15.0, 10, rpe = 6.0, isTopSet = true) } }
+        val t = target(run(h, Ids.DB_PRESS, reps = 10))
+        assertTrue(t.weightKg <= 15.75, "got ${t.weightKg}")
+        assertEquals(15.0, t.weightKg)
+        assertEquals(11, t.reps)
+    }
+
+    @Test
+    fun subBarAccessory_neverAboveFivePercent_anyRpe() {
+        for (last in listOf(0.0, 5.0, 8.0, 12.0, 14.0, 15.0, 17.5, 19.0)) {
+            for (rpe in listOf(5.0, 7.0, 8.0, 9.0, 10.0)) {
+                val h = history { session(0) { set(Ids.CURL, last, 8, rpe = rpe, isTopSet = true) } }
+                val w = target(run(h, Ids.CURL, reps = 8)).weightKg
+                assertTrue(w <= last * 1.05 + 1e-9, "last=$last rpe=$rpe got $w")
+            }
+        }
+    }
+
+    @Test
+    fun mainLift_keepsBarFloor() {
+        val h = history { session(0) { bench(20.0, 5, rpe = null, failed = true) } }
+        assertEquals(20.0, target(run(h, Ids.BENCH)).weightKg)
+    }
 }

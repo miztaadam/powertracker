@@ -65,6 +65,10 @@ object AccessoryMap {
                 .filter { it.heavy }.distinct().take(2)
         }
 
+    /** Every option for [lift], miss points in table order, each exercise once. */
+    fun allOptions(lift: MainLift): List<AccessoryOption> =
+        MissPoint.entries.flatMap { table.getValue(lift to it).options }.distinctBy { it.exerciseName }
+
     val allExerciseNames: Set<String> =
         table.values.flatMap { row -> row.options.map { it.exerciseName } }.toSet()
 }

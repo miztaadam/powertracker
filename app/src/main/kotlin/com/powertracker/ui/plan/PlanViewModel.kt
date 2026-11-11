@@ -13,6 +13,7 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.validation.InputValidator
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -94,7 +95,9 @@ class PlanViewModel(
         }
     }
 
+    /** Ignores values the dialog would not accept (non-finite, 0 or below, above 500 kg). */
     fun setBaseline(mainExerciseId: Long, e1rmKg: Double) {
+        if (!InputValidator.isValidBaselineKg(e1rmKg)) return
         viewModelScope.launch { training.setBaseline(Baseline(mainExerciseId, e1rmKg, today())) }
     }
 

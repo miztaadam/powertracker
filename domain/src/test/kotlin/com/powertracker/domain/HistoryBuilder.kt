@@ -16,6 +16,8 @@ object Ids {
     const val DEADLIFT = 3L
     const val PAUSE_BENCH = 10L
     const val CURL = 50L
+    const val PULL_UP = 51L
+    const val DB_PRESS = 52L
 }
 
 /** Builds a [TrainingHistory]. [start] (a Monday by default) is day 0; `dayOffset` counts days from it. */
@@ -46,6 +48,8 @@ class HistoryBuilder(private val start: LocalDate) {
             Exercise(Ids.DEADLIFT, "Deadlift", Category.DEADLIFT, null, emptyList(), true),
             Exercise(Ids.PAUSE_BENCH, "Pause Bench", Category.VARIATION, MainLift.BENCH, emptyList(), true),
             Exercise(Ids.CURL, "Curl", Category.ACCESSORY, null, emptyList(), true),
+            Exercise(Ids.PULL_UP, "Pull-up", Category.ACCESSORY, null, emptyList(), true),
+            Exercise(Ids.DB_PRESS, "DB press", Category.ACCESSORY, null, emptyList(), true),
         ).associateBy { it.id }
     }
 }

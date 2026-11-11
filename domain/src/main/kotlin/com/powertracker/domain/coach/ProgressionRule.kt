@@ -28,23 +28,23 @@ object ProgressionRule {
     ): Advice? {
         val (lastDate, last) = stats.lastTopSet(item.exerciseId, today) ?: return null
         val previous = stats.previousTopSet(item.exerciseId, today)
-        val step = settings.changePlates
+        val plates = settings.changePlates
+        val free = isFreeLoad(exercise, last.weightKg)
         val cap = last.weightKg * MAX_INCREASE
+        fun loadable(kg: Double) = round(kg, last.weightKg, free, plates)
 
         var reps = item.reps
-        val weight = when (val change = change(last, item.targetRpe, exercise, previous, lastDate)) {
-            is Change.Scale -> PlateLoader.round(last.weightKg * change.factor, step)
-            Change.Repeat -> PlateLoader.round(last.weightKg, step)
-            is Change.Add -> {
-                var w = PlateLoader.round(minOf(last.weightKg + change.kg, cap), step)
-                if (w > cap) w = PlateLoader.round(w - PlateLoader.step(step), step)
-                if (w <= last.weightKg) {
-                    reps = minOf(last.reps + 1, MAX_REPS)
-                    last.weightKg
-                } else {
-                    w
-                }
-            }
+        val change = change(last, item.targetRpe, exercise, previous, lastDate)
+        var weight = when (change) {
+            is Change.Scale -> loadable(last.weightKg * change.factor)
+            Change.Repeat -> loadable(last.weightKg)
+            is Change.Add -> loadable(minOf(last.weightKg + change.kg, cap))
+        }
+        // Rounding can land above the 5% cap: step down until it does not.
+        while (weight > cap && weight > 0.0) weight = round(weight - PlateLoader.step(plates), last.weightKg, free, plates)
+        if (change is Change.Add && weight <= last.weightKg) {
+            reps = minOf(last.reps + 1, MAX_REPS)
+            weight = last.weightKg
         }
 
         val reason = describe(last, weight, reps, item.targetRpe)
@@ -56,6 +56,21 @@ object ProgressionRule {
             severity = 0,
             payload = AdvicePayload.Target(item.exerciseId, weight, reps, item.targetRpe),
         )
+    }
+
+    /** Accessories, and anything logged below the empty bar, are not loaded on a barbell: no bar floor. */
+    internal fun isFreeLoad(exercise: Exercise, lastKg: Double): Boolean =
+        exercise.category == Category.ACCESSORY || lastKg < PlateLoader.BAR_KG
+
+    /** Nearest loadable weight: on the bar's plate grid, or for a [free] load on [anchorKg]'s own grid. */
+    private fun round(kg: Double, anchorKg: Double, free: Boolean, changePlates: Boolean): Double =
+        if (free) PlateLoader.roundFrom(anchorKg, kg, changePlates) else PlateLoader.round(kg, changePlates)
+
+    /** Nearest loadable weight not above [kg] (never below the empty bar unless [free], never below 0). */
+    internal fun roundDown(kg: Double, anchorKg: Double, free: Boolean, changePlates: Boolean): Double {
+        val rounded = round(kg, anchorKg, free, changePlates)
+        if (rounded <= kg) return rounded
+        return maxOf(0.0, round(rounded - PlateLoader.step(changePlates), anchorKg, free, changePlates))
     }
 
     private sealed interface Change {

@@ -10,14 +10,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class AdviceRepository(private val db: AppDatabase) {
+/** Open so tests can fake a failing write. */
+open class AdviceRepository(private val db: AppDatabase) {
     fun open(): Flow<List<Advice>> = db.advice().observeOpen().map { list -> list.map { it.toDomain() } }
 
     suspend fun all(): List<Advice> = db.advice().all().map { it.toDomain() }
 
     suspend fun insert(advice: List<Advice>) = db.advice().insert(advice.map { it.toEntity() })
 
-    suspend fun setStatus(id: Long, status: AdviceStatus) = db.advice().setStatus(id, status)
+    open suspend fun setStatus(id: Long, status: AdviceStatus) = db.advice().setStatus(id, status)
 }
 
 private fun Advice.toEntity() = AdviceEntity(

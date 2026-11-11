@@ -72,7 +72,7 @@ class CoachViewModelTest {
 
     private fun id(name: String) = exercises.first { it.name == name }.id
 
-    private fun viewModel() = CoachViewModel(training, advice, settings) { today }.also { vm ->
+    private fun viewModel(repository: AdviceRepository = advice) = CoachViewModel(training, repository, settings) { today }.also { vm ->
         collectors.launch { vm.state.collect {} }
         collectors.launch { vm.messages.collect { messages += it } }
     }
@@ -153,7 +153,7 @@ class CoachViewModelTest {
         assertEquals(MissPoint.FLOOR, detail.missPoint)
         assertNull(detail.ratio)
         assertEquals(
-            listOf(AccessoryPrescription("Front squat", 3, 5, 5), AccessoryPrescription("Bulgarian split squat", 3, 10, 10)),
+            listOf(AccessoryPrescription("Front squat", 3, 3, 5), AccessoryPrescription("Bulgarian split squat", 3, 8, 10)),
             detail.additions,
         )
 
@@ -225,5 +225,47 @@ class CoachViewModelTest {
         vm.await { it.cards.isEmpty() }
         awaitStatuses(AdviceStatus.DISMISSED)
         assertEquals(emptyList<String>(), messages)
+    }
+    // --- final review regressions ---
+
+    @Test
+    fun applyOrDismiss_whenStoringFails_restoresTheCardAndSaysSo() {
+        val failing = object : AdviceRepository(db) {
+            override suspend fun setStatus(id: Long, status: AdviceStatus) = throw IllegalStateException("disk full")
+        }
+        insert(Advice(AdviceType.DELOAD, null, today, "Signs of fatigue.", 2, AdvicePayload.Deload()))
+        val vm = viewModel(failing)
+        val id = vm.await { it.cards.size == 1 }.cards.single().advice.id
+
+        vm.apply(id)
+        awaitMessages(1)
+        assertEquals(listOf(id), vm.await { it.cards.size == 1 }.cards.map { it.advice.id })
+        assertEquals(listOf("Couldn't update — try again"), messages)
+
+        vm.dismiss(id)
+        awaitMessages(2)
+        assertEquals(listOf(id), vm.await { it.cards.size == 1 }.cards.map { it.advice.id })
+        assertEquals(listOf(AdviceStatus.OPEN), stored().map { it.status })
+    }
+
+    private fun awaitMessages(count: Int) {
+        val deadline = System.currentTimeMillis() + 5_000
+        while (messages.size < count) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(5)
+            check(System.currentTimeMillis() < deadline) { "Timed out; messages $messages" }
+        }
+    }
+
+    @Test
+    fun feed_hidesOpenDeloadAndReEntryOlderThanFourteenDays() {
+        insert(
+            Advice(AdviceType.DELOAD, null, today.minusDays(15), "stale deload", 2, AdvicePayload.Deload()),
+            Advice(AdviceType.RE_ENTRY, null, today.minusDays(14), "stale re-entry", 20, AdvicePayload.ReEntry()),
+            Advice(AdviceType.DELOAD, null, today.minusDays(13), "fresh deload", 2, AdvicePayload.Deload()),
+            Advice(AdviceType.STALL, MainLift.BENCH, today.minusDays(40), "old stall", 3, AdvicePayload.Accessories(emptyList())),
+        )
+        val state = viewModel().await { it.cards.isNotEmpty() }
+        assertEquals(listOf("fresh deload", "old stall"), state.cards.map { it.advice.reason })
     }
 }

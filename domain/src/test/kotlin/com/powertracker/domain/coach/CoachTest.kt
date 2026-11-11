@@ -91,7 +91,7 @@ class CoachTest {
         val plan = listOf(item(Ids.SQUAT, weekday = today.dayOfWeek))
         fun weight(vararg prior: Advice) = targets(fatigued, plan, today, prior.toList()).single().target().weightKg
 
-        assertEquals(90.0, weight(prior(AdviceType.DELOAD, null, today.minusDays(30), AdviceStatus.OPEN)))
+        assertEquals(90.0, weight(prior(AdviceType.DELOAD, null, today.minusDays(13), AdviceStatus.OPEN)))
         assertEquals(90.0, weight(prior(AdviceType.DELOAD, null, today.minusDays(6), AdviceStatus.APPLIED)))
         assertEquals(105.0, weight(prior(AdviceType.DELOAD, null, today.minusDays(7), AdviceStatus.APPLIED)))
         assertEquals(105.0, weight(prior(AdviceType.DELOAD, null, today, AdviceStatus.DISMISSED)))
@@ -163,10 +163,12 @@ class CoachTest {
         }
         assertTrue(bench(prior(AdviceType.WEAK_POINT, MainLift.BENCH, today.minusDays(6), AdviceStatus.APPLIED)).isEmpty())
 
+        // The weekly cap ends after 7 days (an APPLIED stall has its own 28-day cooldown, tested below).
         for (status in listOf(AdviceStatus.APPLIED, AdviceStatus.DISMISSED)) {
-            assertEquals(1, bench(prior(AdviceType.STALL, MainLift.BENCH, today.minusDays(8), status)).size, "$status 8 days ago")
+            assertEquals(1, bench(prior(AdviceType.WEAK_POINT, MainLift.BENCH, today.minusDays(8), status)).size, "$status 8 days ago")
         }
-        assertEquals(1, bench(prior(AdviceType.STALL, MainLift.BENCH, today.minusDays(7), AdviceStatus.APPLIED)).size)
+        assertEquals(1, bench(prior(AdviceType.WEAK_POINT, MainLift.BENCH, today.minusDays(7), AdviceStatus.APPLIED)).size)
+        assertEquals(1, bench(prior(AdviceType.STALL, MainLift.BENCH, today.minusDays(8), AdviceStatus.DISMISSED)).size)
         // An OPEN card blocks a duplicate whatever its age.
         assertTrue(bench(prior(AdviceType.STALL, MainLift.BENCH, today.minusDays(8), AdviceStatus.OPEN)).isEmpty())
         // Other lifts are unaffected.
@@ -248,9 +250,10 @@ class CoachTest {
     @Test
     fun gapPausesStallDetectionForTwoWeeks() {
         // Flat bench weeks 0-4, a 21-day gap, then flat again from day 49 (the return date).
-        val h = history { for (d in listOf(0, 7, 14, 21, 28, 49, 56)) session(d) { bench(100.0, 5) } }
-        for (d in 49 until 63) assertTrue(evaluate(h, day(d)).none { it.type == AdviceType.STALL }, "day $d")
-        assertEquals(1, evaluate(h, day(63)).count { it.type == AdviceType.STALL })
+        // Stall weeks count from the return week, so the first stall comes 3 weeks after it.
+        val h = history { for (d in listOf(0, 7, 14, 21, 28, 49, 56, 63, 70)) session(d) { bench(100.0, 5) } }
+        for (d in 49 until 70) assertTrue(evaluate(h, day(d)).none { it.type == AdviceType.STALL }, "day $d")
+        assertEquals(1, evaluate(h, day(70)).count { it.type == AdviceType.STALL })
     }
 
     @Test
@@ -319,5 +322,124 @@ class CoachTest {
         assertTrue(stall.reason.contains("at lockout") && stall.reason.contains("triceps"), stall.reason)
         val names = (stall.payload as AdvicePayload.Accessories).items.map { it.exerciseName }
         assertEquals(listOf("JM press", "Board press"), names) // close-grip bench is already in the plan
+    }
+    // --- final review regressions ---
+
+    /** Bench 100 x 5 on days 0, 3 and 7, then whatever [logged] adds (day to weight, 5 reps @ 8). */
+    private fun benchThen(logged: List<Pair<Int, Double>>) = history {
+        for (d in listOf(0, 3, 7)) session(d) { bench(100.0, 5) }
+        for ((d, kg) in logged) session(d) { bench(kg, 5) }
+    }
+
+    /** Walks [days], taking today's bench target and logging it as done; returns the targets. */
+    private fun followTargets(days: List<Int>, prior: List<Advice>): List<Double> {
+        val logged = mutableListOf<Pair<Int, Double>>()
+        for (d in days) {
+            val today = day(d)
+            val target = targets(benchThen(logged), listOf(item(Ids.BENCH, weekday = today.dayOfWeek)), today, prior).single()
+            logged += d to target.target().weightKg
+        }
+        return logged.map { it.second }
+    }
+
+    @Test
+    fun appliedDeload_twiceAWeek_everyTargetIsNinetyPercentOfThePreDeloadTopSet() {
+        val deload = listOf(prior(AdviceType.DELOAD, null, day(8), AdviceStatus.APPLIED))
+        assertEquals(listOf(90.0, 90.0, 90.0), followTargets(listOf(9, 12, 14), deload))
+    }
+
+    @Test
+    fun appliedReEntry_everyTargetIsEightyFivePercentOfThePreGapTopSet() {
+        val reEntry = listOf(prior(AdviceType.RE_ENTRY, null, day(28), AdviceStatus.APPLIED))
+        assertEquals(listOf(85.0, 85.0, 85.0, 85.0), followTargets(listOf(28, 30, 32, 34), reEntry))
+    }
+
+    @Test
+    fun deloadClamp_usesPlannedRepsNotProgressionsExtraRep() {
+        // Curl 20 x 10: the 5% cap blocks a load jump, so progression alone would ask for 11 reps.
+        val h = history { for (d in listOf(0, 3, 7)) session(d) { set(Ids.CURL, 20.0, 10, isTopSet = true) } }
+        val today = day(9)
+        val plan = listOf(PlanItem(1, today.dayOfWeek, Ids.CURL, 3, 10, 8.0, 0))
+        assertEquals(11, targets(h, plan, today).single().target().reps)
+        val clamped = targets(h, plan, today, listOf(prior(AdviceType.DELOAD, null, day(8), AdviceStatus.OPEN))).single().target()
+        assertEquals(10, clamped.reps)
+        assertEquals(17.5, clamped.weightKg) // 90% of 20 = 18, rounded down without the bar floor
+    }
+
+    @Test
+    fun deloadWeek_doesNotCreateASecondDeload() {
+        val applied = listOf(prior(AdviceType.DELOAD, null, day(10), AdviceStatus.APPLIED, severity = 2))
+        // The fatigue signals from days 0-8 are still inside the 14-day window during the deload week.
+        for (d in 11..13) assertTrue(evaluate(fatigued, day(d), applied).none { it.type == AdviceType.DELOAD }, "day $d")
+
+        // Fatigue again three weeks later: suppressed until 21 days after the applied deload, then allowed.
+        val later = history {
+            session(0, readiness = 2) { squat(100.0, 5, rpe = 7.0) }
+            session(4, readiness = 2) { squat(100.0, 5, rpe = 7.0) }
+            session(8, readiness = 2) { squat(100.0, 5, rpe = 7.0) }
+            for (d in listOf(24, 26, 28)) session(d, readiness = 2) {
+                squat(90.0, 5, rpe = 7.0)
+                set(Ids.SQUAT, 90.0, 5, failed = true)
+            }
+        }
+        assertTrue(evaluate(later, day(30), applied).none { it.type == AdviceType.DELOAD })
+        assertEquals(1, evaluate(later, day(31), applied).count { it.type == AdviceType.DELOAD })
+    }
+
+    @Test
+    fun openDeloadOrReEntry_expiresAfterFourteenDays() {
+        val today = day(10)
+        val plan = listOf(item(Ids.SQUAT, weekday = today.dayOfWeek))
+        fun weight(vararg prior: Advice) = targets(fatigued, plan, today, prior.toList()).single().target().weightKg
+        assertEquals(90.0, weight(prior(AdviceType.DELOAD, null, today.minusDays(13), AdviceStatus.OPEN)))
+        assertEquals(105.0, weight(prior(AdviceType.DELOAD, null, today.minusDays(15), AdviceStatus.OPEN)))
+        assertEquals(105.0, weight(prior(AdviceType.RE_ENTRY, null, today.minusDays(15), AdviceStatus.OPEN)))
+        // A stale OPEN deload no longer blocks a new one.
+        val stale = listOf(prior(AdviceType.DELOAD, null, today.minusDays(15), AdviceStatus.OPEN))
+        assertEquals(1, evaluate(fatigued, today, stale).count { it.type == AdviceType.DELOAD })
+    }
+
+    @Test
+    fun dismissedStall_onlySuppressesForTwentyEightDays() {
+        val today = day(28) // benchFlat(5) stalls with severity 4
+        val old = listOf(prior(AdviceType.STALL, MainLift.BENCH, today.minusDays(30), AdviceStatus.DISMISSED, severity = 4))
+        assertEquals(1, evaluate(benchFlat(5), today, old).count { it.type == AdviceType.STALL })
+        val recent = listOf(prior(AdviceType.STALL, MainLift.BENCH, today.minusDays(27), AdviceStatus.DISMISSED, severity = 4))
+        assertTrue(evaluate(benchFlat(5), today, recent).none { it.type == AdviceType.STALL })
+    }
+
+    @Test
+    fun returnDayAfterHoliday_targetIsAtMostEightyFivePercentOfThePreGapLoad() {
+        val h = benchThen(emptyList())
+        val today = day(28) // 21 days after the last session; no RE_ENTRY advice exists yet
+        val target = targets(h, listOf(item(Ids.BENCH, weekday = today.dayOfWeek)), today).single()
+        assertTrue(target.target().weightKg <= 85.0, "got ${target.target().weightKg}")
+        assertEquals(85.0, target.target().weightKg)
+        assertTrue(target.reason.endsWith("Easing back in: lighter load."), target.reason)
+        // Two days later, with no advice and no gap, the ordinary target is back.
+        assertEquals(102.5, targets(h, listOf(item(Ids.BENCH, weekday = day(9).dayOfWeek)), day(9)).single().target().weightKg)
+    }
+
+    @Test
+    fun appliedStall_suppressesStallForThatLiftForTwentyEightDays() {
+        val h = benchFlat(9)
+        val today = day(56)
+        fun stalls(appliedDaysAgo: Long) =
+            evaluate(h, today, listOf(prior(AdviceType.STALL, MainLift.BENCH, today.minusDays(appliedDaysAgo), AdviceStatus.APPLIED)))
+                .count { it.type == AdviceType.STALL && it.lift == MainLift.BENCH }
+        assertEquals(0, stalls(10))
+        assertEquals(0, stalls(27))
+        assertEquals(1, stalls(28))
+        // Another lift's applied stall does not count.
+        assertEquals(1, evaluate(h, today, listOf(prior(AdviceType.STALL, MainLift.SQUAT, today.minusDays(10), AdviceStatus.APPLIED))).count { it.type == AdviceType.STALL })
+    }
+
+    @Test
+    fun stallAfterHoliday_onlyAfterNRealWeeksSinceReturn() {
+        val h = history { for (d in listOf(0, 7, 14, 35, 42, 49, 56)) session(d) { bench(100.0, 5) } }
+        assertTrue(evaluate(h, day(49)).none { it.type == AdviceType.STALL })
+        val stall = evaluate(h, day(56)).single { it.type == AdviceType.STALL }
+        assertEquals(3, stall.severity)
+        assertTrue(stall.reason.contains("3 weeks"), stall.reason)
     }
 }

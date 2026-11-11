@@ -10,6 +10,7 @@ import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.coach.AccessoryMap
+import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.AccessoryPrescription
@@ -21,6 +22,7 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -86,11 +88,16 @@ class CoachViewModel(
             val stats = HistoryStats(history)
             val date = today()
             val cards = open
-                .filter { it.type in FEED_ORDER && it.id !in busy }
+                .filter { it.type in FEED_ORDER && it.id !in busy && !expired(it, date) }
                 .sortedWith(compareBy<Advice> { FEED_ORDER.indexOf(it.type) }.thenByDescending { it.createdAt }.thenByDescending { it.id })
                 .mapNotNull { a -> detail(a, stats, date, plan, exercises)?.let { CoachCard(a, it) } }
             CoachState(loading = false, cards = cards)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CoachState())
+
+    /** An OPEN deload or re-entry stops counting after 14 days (see [Coach.OPEN_ACTIVE_DAYS]), so it leaves the feed too. */
+    private fun expired(advice: Advice, date: LocalDate): Boolean =
+        (advice.type == AdviceType.DELOAD || advice.type == AdviceType.RE_ENTRY) &&
+            advice.createdAt.isBefore(date.minusDays(Coach.OPEN_ACTIVE_DAYS - 1))
 
     private fun detail(advice: Advice, stats: HistoryStats, date: LocalDate, plan: List<PlanItem>, exercises: List<Exercise>): CardDetail? =
         when (val payload = advice.payload) {
@@ -127,13 +134,13 @@ class CoachViewModel(
         return flagged ?: known.firstOrNull().takeUnless { flaggedOnly }
     }
 
-    /** The first two options for the weak point that are in the library and not in the plan yet. */
+    /** The first two options for the weak point that are in the library and not in the plan yet, dosed like a stall card's. */
     private fun weakPointAdditions(payload: AdvicePayload.WeakPoint, plan: List<PlanItem>, exercises: List<Exercise>): List<AccessoryPrescription> {
         val planned = plan.map { it.exerciseId }.toSet()
         return AccessoryMap.options(payload.lift, payload.missPoint)
             .mapNotNull { option -> exercises.find(option.exerciseName)?.takeIf { it.id !in planned }?.let { it to option.heavy } }
             .take(WEAK_POINT_ADDITIONS)
-            .map { (exercise, heavy) -> if (heavy) AccessoryPrescription(exercise.name, 3, 5, 5) else AccessoryPrescription(exercise.name, 3, 10, 10) }
+            .map { (exercise, heavy) -> if (heavy) AccessoryPrescription(exercise.name, 3, 3, 5) else AccessoryPrescription(exercise.name, 3, 8, 10) }
     }
 
     /** Carries out the advice: accessories go into the plan; a deload or re-entry only needs to be accepted. */
@@ -159,9 +166,13 @@ class CoachViewModel(
             // Kept hidden on success: the stored status reaches the feed a moment after this returns.
             try {
                 block()
-            } catch (e: Exception) {
+            } catch (e: CancellationException) {
                 busy.update { it - adviceId }
                 throw e
+            } catch (e: Exception) {
+                // A failed write must not crash the app: the card comes back and the lifter can try again.
+                busy.update { it - adviceId }
+                _messages.send(UPDATE_FAILED)
             }
         }
     }
@@ -206,6 +217,7 @@ class CoachViewModel(
         private val FEED_ORDER = listOf(AdviceType.DELOAD, AdviceType.RE_ENTRY, AdviceType.STALL, AdviceType.WEAK_POINT)
         private const val TREND_WEEKS = 6
         private const val WEAK_POINT_ADDITIONS = 2
+        private const val UPDATE_FAILED = "Couldn't update — try again"
 
         private val PAIRS = listOf(
             LiftPair(MainLift.SQUAT, MainLift.DEADLIFT, WeakPointRule.SQUAT_TO_DEADLIFT),

@@ -234,4 +234,33 @@ class TodayViewModelTest {
         assertEquals(1, runBlocking { training.setsForSession(sessionId).first() }.size)
         assertEquals(null, vm.state.value.pending)
     }
+    @Test
+    fun planChangeAfterTheDayRollsOver_doesNotInsertTargetsDatedYesterday() {
+        val bench = runBlocking { training.exercises().first().first { it.name == "Bench" } }
+        planSquatWithHistory()
+        runBlocking {
+            training.setBaseline(Baseline(bench.id, 120.0, today.minusDays(30)))
+            training.logSet(training.startSession(today.minusDays(6), null, null), set(bench, 100.0).copy(rpe = 7.0))
+        }
+        var clock = today
+        val vm = TodayViewModel(training, advice, settings) { clock }.also { v -> collectors.launch { v.state.collect {} } }
+        await("first coach pass") { vm.coachPasses.value >= 1 }
+        assertEquals(listOf(squat.id), runBlocking { advice.all() }.filter { it.type == AdviceType.TARGET }.map { targetExercise(it) })
+
+        // Midnight passes with yesterday's view model still alive; then the plan for its weekday changes.
+        clock = today.plusDays(1)
+        val passes = vm.coachPasses.value
+        runBlocking { training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, bench.id, sets = 3, reps = 5, targetRpe = 8.0, order = 1)) }
+        // Give the old view model every chance to react to the plan change.
+        val deadline = System.currentTimeMillis() + 500
+        while (System.currentTimeMillis() < deadline) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(5)
+        }
+        assertEquals(passes, vm.coachPasses.value)
+        val yesterdays = runBlocking { advice.all() }.filter { it.type == AdviceType.TARGET && it.createdAt == today }
+        assertEquals(listOf(squat.id), yesterdays.map { targetExercise(it) })
+    }
+
+    private fun targetExercise(a: Advice) = (a.payload as AdvicePayload.Target).exerciseId
 }

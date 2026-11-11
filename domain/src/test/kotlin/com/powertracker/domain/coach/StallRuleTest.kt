@@ -131,4 +131,31 @@ class StallRuleTest {
     fun noStall_withoutAnyHistory() {
         assertNull(evaluate(history { }, MainLift.SQUAT, day(28)))
     }
+    // --- final review: never an empty stall card; holiday weeks are not stall weeks ---
+
+    @Test
+    fun stall_missOptionsAllPlanned_fallsBackToOtherOptionsForTheLift() {
+        val owned = setOf("Close-grip bench", "JM press", "Board press")
+        val advice = assertNotNull(evaluate(benchFlat(5, MissPoint.LOCKOUT), MainLift.BENCH, day(28), owned))
+        val items = (advice.payload as AdvicePayload.Accessories).items
+        assertEquals(listOf("Spoto press", "Long-pause bench", "DB press"), items.map { it.exerciseName })
+        assertEquals(Triple(3, 8, 10), items.last().let { Triple(it.sets, it.repsLow, it.repsHigh) })
+    }
+
+    @Test
+    fun stall_everyOptionForTheLiftPlanned_noStall() {
+        val owned = AccessoryMap.allExerciseNames
+        assertNull(evaluate(benchFlat(5, MissPoint.LOCKOUT), MainLift.BENCH, day(28), owned))
+        assertNull(evaluate(benchFlat(5), MainLift.BENCH, day(28), owned))
+    }
+
+    @Test
+    fun stall_afterGap_countsWeeksFromTheReturnWeek() {
+        // Flat bench weeks 0-2, three weeks off, back on day 35 and flat again.
+        val h = history { for (d in listOf(0, 7, 14, 35, 42, 49, 56)) session(d) { bench(100.0, 5) } }
+        assertNull(evaluate(h, MainLift.BENCH, day(49)))
+        val advice = assertNotNull(evaluate(h, MainLift.BENCH, day(56)))
+        assertEquals(3, advice.severity)
+        assertTrue(advice.reason.startsWith("Bench e1RM hasn't improved for 3 weeks."), advice.reason)
+    }
 }

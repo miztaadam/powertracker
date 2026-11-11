@@ -11,4 +11,16 @@ class InputValidatorTest {
         assertEquals(listOf(InputWarning.BigJump(100.0)), InputValidator.check(131.0, 5, 100.0))
     @Test fun exactlyThirtyPercentAllowed() = assertEquals(emptyList(), InputValidator.check(130.0, 5, 100.0))
     @Test fun noLastWeight() = assertEquals(emptyList(), InputValidator.check(100.0, 5, null))
+
+    @Test fun baseline_acceptsDecimalsWithCommaOrPoint() {
+        assertEquals(182.5, InputValidator.baselineKg("182.5"))
+        assertEquals(182.5, InputValidator.baselineKg(" 182,5 "))
+        assertEquals(500.0, InputValidator.baselineKg("500"))
+    }
+
+    @Test fun baseline_rejectsNonFiniteZeroAndAboveFiveHundred() {
+        for (text in listOf("Infinity", "-Infinity", "NaN", "1e400", "0", "-5", "500.5", "1e3", "", "abc")) {
+            assertEquals(null, InputValidator.baselineKg(text), text)
+        }
+    }
 }

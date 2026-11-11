@@ -198,7 +198,7 @@ fun CoachShowcase() {
                     weak,
                     CardDetail.WeakPoint(
                         RatioUi(MainLift.SQUAT, MainLift.DEADLIFT, 76, 80, 90), null, emptyList(),
-                        listOf(AccessoryPrescription("Pause squat", 3, 5, 5), AccessoryPrescription("Front squat", 3, 5, 5)),
+                        listOf(AccessoryPrescription("Pause squat", 3, 3, 5), AccessoryPrescription("Front squat", 3, 3, 5)),
                     ),
                 ),
             ),
@@ -234,7 +234,7 @@ fun CoachMoreShowcase() {
                     weak,
                     CardDetail.WeakPoint(
                         null, MissPoint.FLOOR, listOf("Quads", "Lats", "Position"),
-                        listOf(AccessoryPrescription("Deficit deadlift", 3, 5, 5), AccessoryPrescription("Paused deadlift", 3, 5, 5)),
+                        listOf(AccessoryPrescription("Deficit deadlift", 3, 3, 5), AccessoryPrescription("Paused deadlift", 3, 3, 5)),
                     ),
                 ),
             ),

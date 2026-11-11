@@ -1,6 +1,8 @@
 package com.powertracker.ui
 
 import android.content.Context
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.hasTestTag
@@ -137,5 +139,26 @@ class PlanScreenTest {
             checkBackupText("""{"version":${Backup.VERSION + 1}}"""),
         )
         assertEquals("grit-backup-2026-11-11.json", backupFileName(LocalDate.of(2026, 11, 11)))
+    }
+
+    @Test
+    fun baselineDialog_rejectsInfinityAndOverFiveHundred_andBackupStillEncodes() {
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("baseline-Squat")).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("baseline-Squat").performClick()
+
+        val field = compose.onNodeWithText("Estimated 1RM (kg)")
+        for (text in listOf("Infinity", "1e400", "NaN", "501")) {
+            field.performTextReplacement(text)
+            compose.onNodeWithText("Save").assertIsNotEnabled()
+        }
+        field.performTextReplacement("182,5")
+        compose.onNodeWithText("Save").assertIsEnabled().performClick()
+
+        compose.waitUntil(5_000) { runBlocking { training.history().first().baselines.isNotEmpty() } }
+        assertEquals(listOf(182.5), runBlocking { training.history().first().baselines.map { it.e1rmKg } })
+        // Every stored double is finite, so the strict JSON writer cannot fail on export.
+        val text = runBlocking { Backup.encode(BackupService(db, settings).export(0L)) }
+        assertTrue(text.contains("182.5"))
     }
 }
