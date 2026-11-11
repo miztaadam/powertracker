@@ -9,24 +9,21 @@ import com.powertracker.domain.library.SourceId
 import com.powertracker.domain.library.Sources
 import com.powertracker.domain.model.Category
 
-// Shared lines, so the safety and bracing wording is the same in every chest guide.
+// Shared lines, so the bracing wording is the same in every chest guide.
 private const val DB_BRACE = "Brace your trunk and don't arch your lower back."
 private const val FLY_BRACE = "Brace your trunk lightly, and keep breathing."
 private const val MACHINE_BRACE = "Brace your abs, but don't press your lower back into the backrest."
 private const val CABLE_BRACE = "Brace your abs so your lower back doesn't arch."
 private const val BODY_BRACE = "Brace your trunk."
 private const val PUSH_UP_BRACE = "Brace your trunk and squeeze your glutes and thighs. Keep your head in line with your spine."
-private const val SPOT_HEAVY = "Ask for a spot when you go heavy."
 private const val SMITH_BRACE = "Breathe in and brace before you unhook the bar."
 private const val SMITH_UNHOOK = "Unhook the bar by lifting it and turning it back."
 private const val SMITH_REHOOK = "After the last rep, turn the bar to set it back on the hooks."
-private const val DECLINE_SAFETY = "Use a spotter. If your bench is in a power rack, set its safety arms too."
 private const val SMITH_STOPS = "Set the safety stops so the bar can't come down below your chest."
 private const val BAR_GRIP = "Grip the bar wider than your shoulders."
 private const val PRESS_UP = "Press the bar up until your arms are straight."
 private const val TOO_WIDE = "Gripping so wide that the range of motion gets short."
-private const val NO_SPOT = "Pressing without a spotter or safety arms."
-private const val FAILURE_ALONE = "Training to failure without a spotter."
+private const val BOUNCE_BAR = "Bouncing the bar off your chest."
 private const val ELBOWS_CHANGE = "Changing the bend in your elbows during the rep."
 private const val LEANING = "Leaning forward, which adds stress to your shoulders. It often means the weight is too heavy."
 private const val BODY_STRAIGHT = "Body in one straight line."
@@ -65,11 +62,10 @@ internal val chest: List<LibraryExercise> = listOf(
                 "Sit on the end of a flat bench with the dumbbells resting on your lower thighs.",
                 "Bring the dumbbells up to your shoulders and lie back. Hold them at the sides of your chest.",
                 "Keep your back neutral and brace your trunk.",
-                "Use a spotter for heavy sets.",
             ),
             steps = listOf(
                 "Press the dumbbells up until your arms are straight. They move slightly in, ending over your shoulders.",
-                "Lower them under control to the sides of your chest, until you feel a slight stretch.",
+                "Lower them under control to the sides of your chest.",
                 "Repeat for all your reps.",
             ),
             cues = listOf(
@@ -84,11 +80,11 @@ internal val chest: List<LibraryExercise> = listOf(
 
     // ---- Barbell ----
     chestEntry(
-        "Incline bench press", listOf("Incline bench", "Barbell incline bench press"), listOf(Equipment.BARBELL), PRESS_MUSCLES,
+        "Incline bench press", listOf("Barbell incline bench press"), listOf(Equipment.BARBELL), PRESS_MUSCLES,
         Kind.COMPOUND,
         FormGuide(
             purpose = "A barbell bench press on an incline bench. It puts more of the work on the upper part of your chest.",
-            setup = listOf(BENCH_SAFETY, "Lie back on the incline bench.", BAR_GRIP, BENCH_BRACE),
+            setup = listOf(RACK_SAFETY, "Lie back on the incline bench.", BAR_GRIP, BENCH_BRACE),
             steps = listOf(
                 "Lift the bar out and hold it over your upper chest with straight arms.",
                 "Lower the bar to your chest.",
@@ -96,16 +92,19 @@ internal val chest: List<LibraryExercise> = listOf(
                 RACK_IT,
             ),
             cues = listOf("Start with the bar over your upper chest.", "Not too wide a grip.", "Press until your arms are straight."),
-            mistakes = listOf(TOO_WIDE, NO_SPOT),
+            mistakes = listOf(TOO_WIDE, BOUNCE_BAR),
         ),
-        listOf(Sources.EXRX_BB_INCLINE_BENCH, Sources.EXRX_BB_BENCH, Sources.NSCA_STANDARDS_SUMMARY, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(
+            Sources.EXRX_BB_INCLINE_BENCH, Sources.EXRX_BB_BENCH, Sources.EXRX_BENCH_ANALYSES, Sources.NSCA_STANDARDS_SUMMARY,
+            Sources.ACE_BRACE_OR_BREATHE,
+        ),
     ),
     chestEntry(
         "Decline bench press", listOf("Decline bench", "Barbell decline bench press"), listOf(Equipment.BARBELL), PRESS_MUSCLES,
         Kind.COMPOUND,
         FormGuide(
             purpose = "A barbell bench press on a decline bench. It works mainly the lower part of your chest.",
-            setup = listOf(DECLINE_SAFETY, "Lie back on the decline bench with your feet hooked under the leg brace.", BAR_GRIP, BENCH_BRACE),
+            setup = listOf(RACK_SAFETY, "Lie back on the decline bench with your feet hooked under the leg brace.", BAR_GRIP, BENCH_BRACE),
             steps = listOf(
                 "Lift the bar out and hold it over your chest with straight arms.",
                 "Lower the bar to your chest.",
@@ -113,14 +112,14 @@ internal val chest: List<LibraryExercise> = listOf(
                 RACK_IT,
             ),
             cues = listOf("Feet stay hooked under the brace.", "Not too wide a grip."),
-            mistakes = listOf(TOO_WIDE, NO_SPOT),
+            mistakes = listOf(TOO_WIDE, BOUNCE_BAR),
         ),
-        listOf(Sources.EXRX_BB_DECLINE_BENCH, Sources.NSCA_STANDARDS_SUMMARY, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_BB_DECLINE_BENCH, Sources.EXRX_BENCH_ANALYSES, Sources.NSCA_STANDARDS_SUMMARY, Sources.ACE_BRACE_OR_BREATHE),
     ),
 
     // ---- Dumbbell ----
     chestEntry(
-        "Incline DB press", listOf("Incline dumbbell press", "Incline dumbbell bench press", "Incline DB"),
+        "Incline DB press", listOf("Incline dumbbell press", "Incline dumbbell bench press"),
         listOf(Equipment.DUMBBELL), PRESS_MUSCLES, Kind.COMPOUND,
         FormGuide(
             purpose = "A dumbbell press on an incline bench. It puts more of the work on the upper part of your chest.",
@@ -131,17 +130,15 @@ internal val chest: List<LibraryExercise> = listOf(
                 "Keep your head, shoulders and buttocks on the bench and your feet on the floor.",
                 "Pull your shoulder blades back and down.",
                 DB_BRACE,
-                SPOT_HEAVY,
             ),
             steps = listOf(
                 "Press the dumbbells up until your arms are straight. They move in a slight arc, ending over your shoulders.",
-                "Lower them under control to your upper chest, until you feel a slight stretch.",
-                "If you have a spotter, they take the dumbbells from you at the end of the set.",
+                "Lower them under control to the sides of your upper chest.",
             ),
             cues = listOf("Finish over your shoulders.", "Shoulder blades back and down.", "Wrists straight."),
-            mistakes = listOf("Bouncing the dumbbells off your chest.", "Arching your lower back off the bench.", FAILURE_ALONE),
+            mistakes = listOf("Bouncing the dumbbells off your chest.", "Arching your lower back off the bench."),
         ),
-        listOf(Sources.EXRX_DB_INCLINE_BENCH, Sources.ACE_INCLINE_CHEST_PRESS, Sources.EXRX_GYM_ETIQUETTE),
+        listOf(Sources.EXRX_DB_INCLINE_BENCH, Sources.ACE_INCLINE_CHEST_PRESS, Sources.EXRX_BENCH_ANALYSES),
     ),
     chestEntry(
         "Decline DB press", listOf("Decline dumbbell press", "Decline dumbbell bench press"),
@@ -152,17 +149,18 @@ internal val chest: List<LibraryExercise> = listOf(
                 "Sit on the decline bench with your feet under the leg brace and the dumbbells resting on your thighs.",
                 "Lie back and hold the dumbbells at the sides of your chest, with each forearm under its dumbbell.",
                 DB_BRACE,
-                SPOT_HEAVY,
             ),
             steps = listOf(
                 "Press the dumbbells up, elbows out to the sides, until your arms are straight.",
                 "They move in a slight arc, ending over your shoulders.",
-                "Lower them to the sides of your chest, until you feel a slight stretch in your chest or shoulders.",
+                "Lower them to the sides of your chest.",
             ),
-            cues = listOf("Finish over your shoulders.", "Elbows out to the sides.", "Stop at a slight stretch."),
-            mistakes = listOf("Lowering further than a slight stretch in your chest or shoulders.", FAILURE_ALONE),
+            cues = listOf("Finish over your shoulders.", "Elbows out to the sides.", "Lower to the sides of your chest."),
+            mistakes = listOf("Bouncing the dumbbells off your chest.", "Arching your lower back off the bench."),
         ),
-        listOf(Sources.EXRX_DB_DECLINE_BENCH, Sources.ACE_DB_CHEST_PRESS, Sources.EXRX_GYM_ETIQUETTE, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(
+            Sources.EXRX_DB_DECLINE_BENCH, Sources.ACE_DB_CHEST_PRESS, Sources.EXRX_BENCH_ANALYSES, Sources.ACE_BRACE_OR_BREATHE,
+        ),
     ),
     chestEntry(
         "DB fly", listOf("Dumbbell fly", "Dumbbell flye", "Chest fly", "Flat fly"), listOf(Equipment.DUMBBELL), FLY_MUSCLES,
@@ -175,7 +173,6 @@ internal val chest: List<LibraryExercise> = listOf(
                 "Pull your shoulder blades down and back.",
                 "Hold the dumbbells over your chest, arms straight but elbows slightly bent.",
                 FLY_BRACE,
-                "A spotter can hand you the dumbbells.",
             ),
             steps = listOf(
                 "Breathe in and lower the dumbbells out to the sides in a wide arc, until they are level with your shoulders or chest.",
@@ -202,13 +199,14 @@ internal val chest: List<LibraryExercise> = listOf(
             ),
             steps = listOf(
                 "Lower the dumbbells out to the sides of your shoulders. Keep the bend in your elbows fixed.",
-                "When you feel a stretch in your chest or shoulders, bring the dumbbells back up in a hugging motion.",
+                // ACE's flat-fly limit (no lower than shoulder level), carried over: ExRx gives only a stretch here.
+                "When the dumbbells are level with your shoulders, bring them back up in a hugging motion.",
                 "Stop when they are nearly together over your upper chest.",
             ),
-            cues = listOf("Elbows fixed, slightly bent.", "Stop at the stretch.", "Expect less range than on a flat bench."),
+            cues = listOf("Elbows fixed, slightly bent.", "Stop at shoulder level.", "Expect less range than on a flat bench."),
             mistakes = listOf(ELBOWS_CHANGE, "Forcing the same range as a flat fly. Your shoulders have less range on an incline."),
         ),
-        listOf(Sources.EXRX_DB_INCLINE_FLY, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_DB_INCLINE_FLY, Sources.ACE_LYING_CHEST_FLY, Sources.ACE_BRACE_OR_BREATHE),
     ),
     chestEntry(
         "Decline DB fly", listOf("Decline dumbbell fly", "Decline fly"), listOf(Equipment.DUMBBELL), FLY_MUSCLES, Kind.ACCESSORY,
@@ -220,13 +218,14 @@ internal val chest: List<LibraryExercise> = listOf(
                 FLY_BRACE,
             ),
             steps = listOf(
-                "Lower the dumbbells out to the sides until you feel a stretch in your chest. Keep the bend in your elbows fixed.",
+                // ACE's flat-fly limit (no lower than shoulder level), carried over: ExRx gives only a stretch here.
+                "Lower the dumbbells out to the sides until they are level with your shoulders. Keep the bend in your elbows fixed.",
                 "Bring them back together in a wide hugging arc, until they nearly touch.",
             ),
-            cues = listOf("Elbows fixed and pointing out.", "Stop at the stretch."),
+            cues = listOf("Elbows fixed and pointing out.", "Stop at shoulder level."),
             mistakes = listOf(ELBOWS_CHANGE, "Holding the dumbbells over your face instead of your upper abdomen."),
         ),
-        listOf(Sources.EXRX_DB_DECLINE_FLY, Sources.EXRX_DB_DECLINE_BENCH, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_DB_DECLINE_FLY, Sources.EXRX_DB_DECLINE_BENCH, Sources.ACE_LYING_CHEST_FLY, Sources.ACE_BRACE_OR_BREATHE),
     ),
 
     // ---- Machine ----
@@ -244,7 +243,7 @@ internal val chest: List<LibraryExercise> = listOf(
             ),
             steps = listOf(
                 "Breathe out and press the handles forward until your arms are straight, without locking your elbows.",
-                "Let the handles come back slowly, until you feel a slight stretch in your chest.",
+                "Let the handles come back slowly to the start, level with the middle of your chest.",
                 "After the last rep, push the foot lever again before you let go of the handles.",
             ),
             cues = listOf("Shoulder blades stay on the backrest.", "Head in line with your spine.", "Don't lock your elbows."),
@@ -266,7 +265,7 @@ internal val chest: List<LibraryExercise> = listOf(
             ),
             steps = listOf(
                 "Press until your arms are straight, without locking your elbows.",
-                "Let the handles come back slowly, until you feel a slight stretch in your chest or shoulders.",
+                "Let the handles come back slowly to the start.",
             ),
             cues = listOf("Back and shoulder blades on the pad.", "Slow on the way back.", "Not too wide a grip."),
             mistakes = listOf("Rounding your shoulders forward off the pad.", TOO_WIDE),
@@ -285,9 +284,9 @@ internal val chest: List<LibraryExercise> = listOf(
             ),
             steps = listOf(
                 "Press until your arms are straight.",
-                "Let the weight come back until you feel a slight stretch in your chest.",
+                "Let the handles come back slowly to the start.",
             ),
-            cues = listOf("Elbows just below your shoulders.", "Stop at a slight stretch."),
+            cues = listOf("Elbows just below your shoulders.", "Hands back to the start."),
             mistakes = listOf(TOO_WIDE, "Rounding your shoulders forward off the backrest."),
         ),
         listOf(Sources.EXRX_LV_DECLINE_CHEST_PRESS, Sources.ACE_SEATED_CHEST_PRESS, Sources.ACE_SEATED_CLOSE_GRIP_CHEST_PRESS),
@@ -305,11 +304,11 @@ internal val chest: List<LibraryExercise> = listOf(
             ),
             steps = listOf(
                 "Bring the handles forward and together.",
-                "Let them go back until you feel a mild stretch in your chest or shoulders.",
+                "Let them go back slowly to the start.",
                 "Repeat for all your reps.",
             ),
-            cues = listOf("Back on the pad.", "Elbows slightly bent.", "Stop at a mild stretch."),
-            mistakes = listOf("Letting the handles pull your arms back past a mild stretch.", "Leaning forward off the pad."),
+            cues = listOf("Back on the pad.", "Elbows slightly bent."),
+            mistakes = listOf("Letting the handles pull your arms back past the start.", "Leaning forward off the pad."),
         ),
         listOf(Sources.EXRX_LV_SEATED_FLY, Sources.EXRX_LV_PEC_DECK, Sources.ACE_BRACE_OR_BREATHE),
     ),
@@ -320,12 +319,12 @@ internal val chest: List<LibraryExercise> = listOf(
         Kind.COMPOUND,
         FormGuide(
             purpose = "A bench press on a Smith machine, where the bar runs on fixed rails. It works your chest, front shoulders and triceps.",
-            setup = listOf(SMITH_STOPS, "Lie on the bench with your chest under the bar.", BAR_GRIP, SPOT_HEAVY, SMITH_BRACE),
+            setup = listOf(SMITH_STOPS, "Lie on the bench with your chest under the bar.", BAR_GRIP, SMITH_BRACE),
             steps = listOf(SMITH_UNHOOK, "Lower the bar to your chest.", PRESS_UP, SMITH_REHOOK),
             cues = listOf("Chest under the bar.", "Not too wide a grip."),
-            mistakes = listOf(TOO_WIDE, FAILURE_ALONE),
+            mistakes = listOf(TOO_WIDE, BOUNCE_BAR),
         ),
-        listOf(Sources.EXRX_SM_BENCH, Sources.EXRX_GYM_ETIQUETTE, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_SM_BENCH, Sources.EXRX_BENCH_ANALYSES, Sources.ACE_BRACE_OR_BREATHE),
     ),
     chestEntry(
         "Smith incline press", listOf("Smith machine incline press", "Smith incline bench press", "Smith incline"),
@@ -336,14 +335,13 @@ internal val chest: List<LibraryExercise> = listOf(
                 SMITH_STOPS,
                 "Lie back on an incline bench in the Smith machine, with the bar over your chest.",
                 BAR_GRIP,
-                SPOT_HEAVY,
                 SMITH_BRACE,
             ),
             steps = listOf(SMITH_UNHOOK, "Lower the bar to your chest.", PRESS_UP, SMITH_REHOOK),
             cues = listOf("Bar over your chest.", "Not too wide a grip."),
-            mistakes = listOf(TOO_WIDE, FAILURE_ALONE),
+            mistakes = listOf(TOO_WIDE, BOUNCE_BAR),
         ),
-        listOf(Sources.EXRX_SM_INCLINE_BENCH, Sources.EXRX_GYM_ETIQUETTE, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_SM_INCLINE_BENCH, Sources.EXRX_BENCH_ANALYSES, Sources.ACE_BRACE_OR_BREATHE),
     ),
     chestEntry(
         "Smith decline press", listOf("Smith machine decline press", "Smith decline bench press"),
@@ -354,20 +352,19 @@ internal val chest: List<LibraryExercise> = listOf(
                 SMITH_STOPS,
                 "Lie back on a decline bench in the Smith machine, feet under the leg brace and your lower chest under the bar.",
                 BAR_GRIP,
-                SPOT_HEAVY,
                 SMITH_BRACE,
             ),
             steps = listOf(SMITH_UNHOOK, "Lower the bar to your lower chest.", PRESS_UP, SMITH_REHOOK),
             cues = listOf("Lower chest under the bar.", "Feet stay under the brace."),
-            mistakes = listOf(TOO_WIDE, FAILURE_ALONE),
+            mistakes = listOf(TOO_WIDE, BOUNCE_BAR),
         ),
-        listOf(Sources.EXRX_SM_DECLINE_BENCH, Sources.EXRX_GYM_ETIQUETTE, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_SM_DECLINE_BENCH, Sources.EXRX_BENCH_ANALYSES, Sources.ACE_BRACE_OR_BREATHE),
     ),
 
     // ---- Cable ----
     chestEntry(
         "Cable crossover",
-        listOf("Cable fly", "Standing cable fly", "Cable crossover fly", "Crossovers", "High-to-low cable fly", "High cable fly"),
+        listOf("Standing cable fly", "Cable crossover fly", "Crossovers", "High-to-low cable fly"),
         listOf(Equipment.CABLE), FLY_MUSCLES, Kind.ACCESSORY,
         FormGuide(
             purpose = "A standing chest fly between two high cable pulleys. It works your chest through a hugging motion.",
@@ -380,7 +377,7 @@ internal val chest: List<LibraryExercise> = listOf(
             steps = listOf(
                 "Bring your hands together in front of you in a hugging arc. Keep the bend in your elbows fixed.",
                 "Pause for about a second with your hands together.",
-                "Let your arms go back slowly, until you feel a stretch in your chest.",
+                "Let your arms go back slowly to the start, out to your sides.",
             ),
             cues = listOf("Elbows fixed, slightly bent.", "Stay upright.", "Slow on the way back."),
             mistakes = listOf(LEANING, "Arching your lower back."),
@@ -401,8 +398,7 @@ internal val chest: List<LibraryExercise> = listOf(
             steps = listOf(
                 "Bring your hands forward and up in an arc, until they meet at about face height.",
                 "Keep a slight bend in your elbows.",
-                "Lower your arms back slowly, until you feel a stretch in your chest or shoulders.",
-                "As your arms open, don't let your hands go back past the level of your armpits.",
+                "Lower your arms back slowly. As they open, don't let your hands go back past the level of your armpits.",
             ),
             cues = listOf("Up and in.", "Slight bend in your elbows.", "Stay upright."),
             mistakes = listOf(LEANING, "Arching your lower back."),
@@ -424,7 +420,7 @@ internal val chest: List<LibraryExercise> = listOf(
             ),
             steps = listOf(
                 "Press the handles forward until your arms are straight and level.",
-                "Let them come back until you feel a slight stretch in your chest or shoulders.",
+                "Let them come back slowly until the handles are close to your chest.",
             ),
             cues = listOf("Split stance.", "Press straight forward.", "Shoulder blades back and down."),
             mistakes = listOf("Rounding your shoulders forward as you press.", "Pushing your head forward."),
@@ -444,12 +440,13 @@ internal val chest: List<LibraryExercise> = listOf(
             ),
             steps = listOf(
                 "Bring the handles together over your chest in a hugging arc. Keep the bend in your elbows fixed.",
-                "Let them go back out until you feel a slight stretch.",
+                // ACE's flat-fly limit (no lower than shoulder level), carried over: ExRx gives only a stretch here.
+                "Let them go back out until your hands are level with your shoulders.",
             ),
             cues = listOf("Elbows fixed.", "Hugging arc."),
-            mistakes = listOf(ELBOWS_CHANGE, "Letting the cables pull your arms back past a slight stretch."),
+            mistakes = listOf(ELBOWS_CHANGE, "Lowering your hands below the level of your shoulders."),
         ),
-        listOf(Sources.EXRX_CB_LYING_FLY, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_CB_LYING_FLY, Sources.ACE_LYING_CHEST_FLY, Sources.ACE_BRACE_OR_BREATHE),
     ),
     chestEntry(
         "Incline bench cable fly", listOf("Incline cable fly on bench", "Cable incline bench fly"),
@@ -465,12 +462,13 @@ internal val chest: List<LibraryExercise> = listOf(
             ),
             steps = listOf(
                 "Lower the handles out to the sides of your shoulders. Keep the bend in your elbows fixed.",
-                "When you feel a stretch in your chest or shoulders, bring them back together over your upper chest in a hugging motion.",
+                // ACE's flat-fly limit (no lower than shoulder level), carried over: ExRx gives only a stretch here.
+                "When your hands are level with your shoulders, bring them back together over your upper chest in a hugging motion.",
             ),
             cues = listOf("Elbows fixed, slightly bent.", "Expect less range than on a flat bench."),
             mistakes = listOf(ELBOWS_CHANGE, "Forcing the same range as a flat fly. Your shoulders have less range on an incline."),
         ),
-        listOf(Sources.EXRX_CB_INCLINE_FLY, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_CB_INCLINE_FLY, Sources.ACE_LYING_CHEST_FLY, Sources.ACE_BRACE_OR_BREATHE),
     ),
     chestEntry(
         "Seated cable fly", listOf("Cable seated fly"), listOf(Equipment.CABLE), FLY_MUSCLES, Kind.ACCESSORY,
@@ -483,10 +481,10 @@ internal val chest: List<LibraryExercise> = listOf(
             ),
             steps = listOf(
                 "Keep your elbows high and bring the handles together in a hugging arc. Keep the bend in your elbows fixed.",
-                "Let them go back until you feel a slight stretch.",
+                "Let them go back under control.",
             ),
             cues = listOf("Elbows high.", "Elbows fixed, slightly bent."),
-            mistakes = listOf(ELBOWS_CHANGE, "Letting the cables pull your arms back past a slight stretch."),
+            mistakes = listOf(ELBOWS_CHANGE, "Letting your elbows drop instead of keeping them high."),
         ),
         listOf(Sources.EXRX_CB_SEATED_FLY, Sources.ACE_BRACE_OR_BREATHE),
     ),
@@ -505,15 +503,19 @@ internal val chest: List<LibraryExercise> = listOf(
             ),
             steps = listOf(
                 "Lower yourself by bending your arms. Let your elbows flare out to the sides.",
-                "When you feel a slight stretch in your chest or shoulders, push back up until your arms are straight.",
+                // ExRx gives only a stretch; the triceps dip's upper-arms-level limit is carried over (see Arms.kt).
+                "Stop when your upper arms are level with the floor, then push back up until your arms are straight.",
             ),
-            cues = listOf("Stop at a slight stretch.", "Push up to straight arms."),
+            cues = listOf("Upper arms level, no deeper.", "Push up to straight arms."),
             mistakes = listOf(
-                "Going deeper than a slight stretch in your chest or shoulders.",
-                "Doing full dips before you're ready. A machine or a partner can help until you are.",
+                "Going deeper than upper arms level with the floor.",
+                "Keeping your elbows tucked in instead of letting them flare out to the sides.",
             ),
         ),
-        listOf(Sources.EXRX_CHEST_DIP, Sources.EXRX_WEIGHTED_CHEST_DIP, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(
+            Sources.EXRX_CHEST_DIP, Sources.EXRX_WEIGHTED_CHEST_DIP, Sources.PMC_BENCH_BAR_RING_DIPS, Sources.ACE_DANGEROUS_DIPS,
+            Sources.ACE_BRACE_OR_BREATHE,
+        ),
     ),
     chestEntry(
         "Assisted dip", listOf("Machine-assisted dip", "Assisted chest dip"), listOf(Equipment.MACHINE), PRESS_MUSCLES,
@@ -528,17 +530,18 @@ internal val chest: List<LibraryExercise> = listOf(
             ),
             steps = listOf(
                 "Lower yourself by bending your arms. Let your elbows flare out to the sides.",
-                "When you feel a slight stretch in your chest or shoulders, push back up until your arms are straight.",
+                // ExRx gives only a stretch; the triceps dip's upper-arms-level limit is carried over (see Arms.kt).
+                "Stop when your upper arms are level with the floor, then push back up until your arms are straight.",
             ),
-            cues = listOf("Shoulders over your hands at the top.", "Stop at a slight stretch."),
+            cues = listOf("Shoulders over your hands at the top.", "Upper arms level, no deeper."),
             mistakes = listOf(
-                "Going deeper than a slight stretch in your chest or shoulders.",
+                "Going deeper than upper arms level with the floor.",
                 "Losing the position with your shoulders over your hands.",
             ),
         ),
         listOf(
             Sources.EXRX_ASSISTED_CHEST_DIP, Sources.EXRX_ASSISTED_CHEST_DIP_KNEELING, Sources.EXRX_ACTUAL_RESISTANCE,
-            Sources.ACE_BRACE_OR_BREATHE,
+            Sources.PMC_BENCH_BAR_RING_DIPS, Sources.ACE_DANGEROUS_DIPS, Sources.ACE_BRACE_OR_BREATHE,
         ),
     ),
 
@@ -551,7 +554,6 @@ internal val chest: List<LibraryExercise> = listOf(
                 "Place your hands on the floor about shoulder-width apart, or slightly wider.",
                 "Push up onto your toes with straight arms, so your body is in a straight line.",
                 PUSH_UP_BRACE,
-                "If full push-ups are too hard, put your hands on a raised surface or do them on your knees.",
             ),
             steps = listOf(
                 "Bend your elbows to lower your chest toward the floor. Keep your body straight.",
@@ -599,7 +601,7 @@ internal val chest: List<LibraryExercise> = listOf(
                 "Push up until your arms are straight.",
             ),
             cues = listOf(BODY_STRAIGHT, "A higher bench makes it harder."),
-            mistakes = listOf("Arching your back to get lower.", "Starting with a bench that is too high."),
+            mistakes = listOf("Arching your back to get lower.", HIPS_SAG),
         ),
         listOf(Sources.EXRX_DECLINE_PUSH_UP, Sources.ACE_PUSH_UP),
     ),
@@ -639,7 +641,7 @@ internal val chest: List<LibraryExercise> = listOf(
                 "To work the other side, turn your head and shift your body toward the other arm.",
             ),
             cues = listOf("Body fairly straight.", "The bent arm does the work."),
-            mistakes = listOf("Twisting more than a little.", "Trying it before standard push-ups are easy."),
+            mistakes = listOf("Twisting more than a little.", HIPS_SAG),
         ),
         listOf(Sources.EXRX_ARCHER_PUSH_UP, Sources.ACE_PUSH_UP),
     ),
@@ -648,10 +650,8 @@ internal val chest: List<LibraryExercise> = listOf(
         FormGuide(
             purpose = "A fast push-up where you push off the floor and clap. It trains upper-body power.",
             setup = listOf(
-                "Build a solid strength base with standard push-ups first.",
                 "Get into a push-up position, hands shoulder-width or slightly wider, arms and body straight.",
                 PUSH_UP_BRACE,
-                "To make it easier, do it from your knees.",
             ),
             steps = listOf(
                 "Lower your chest toward the floor.",
@@ -659,7 +659,7 @@ internal val chest: List<LibraryExercise> = listOf(
                 "Clap quickly, then put your hands back in place and catch yourself.",
             ),
             cues = listOf("Hips and waist straight.", "Catch yourself, then go again."),
-            mistakes = listOf("Trying it before you have a solid strength base.", HIPS_SAG),
+            mistakes = listOf(HIPS_SAG, "Lifting your hips."),
         ),
         listOf(Sources.EXRX_CLAP_PUSH_UP, Sources.ACE_PUSH_UP),
     ),

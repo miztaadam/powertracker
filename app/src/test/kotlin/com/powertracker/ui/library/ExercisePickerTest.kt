@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.hasAnyAncestor
@@ -331,6 +332,69 @@ class ExercisePickerTest {
 
         assertEquals(77L, plan().single().exerciseId)
         assertEquals(listOf(restored), rows("Curl"))
+    }
+
+    /** Runs [node]'s click twice in one go on the UI thread, as two taps landing in the same frame would. */
+    private fun doubleTap(node: SemanticsNodeInteraction) {
+        val click = node.fetchSemanticsNode().config[SemanticsActions.OnClick].action!!
+        compose.runOnUiThread {
+            click()
+            click()
+        }
+    }
+
+    @Test
+    fun pickerRow_doubleTap_addsOnce() {
+        showPlanPicker()
+        search("curl")
+
+        // Two taps inside one frame, before the picker can close: the second picks nothing more.
+        doubleTap(compose.onNodeWithTag("exercise-Curl"))
+        waitFor { plan().isNotEmpty() }
+        compose.waitForIdle()
+        assertEquals(1, plan().size)
+
+        // The same for "Create" in the custom-exercise dialog: one row, one plan item.
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        waitFor { shows("exercise-search") }
+        search("Tyre flip")
+        compose.onNodeWithText("Create your own").performClick()
+        doubleTap(compose.onNodeWithText("Create"))
+        waitFor { plan().size >= 2 }
+        compose.waitForIdle()
+        assertEquals(1, rows("Tyre flip").size)
+        assertEquals(2, plan().size)
+    }
+
+    @Test
+    fun createCustom_withCatalogueName_usesTheCatalogueEntry() {
+        val before = runBlocking { db.exercises().all() }
+        val squat = rows("Squat").single()
+        showPlanPicker()
+
+        // A catalogue alias typed as a new exercise: the catalogue's Squat is used, and no row is made.
+        search("zzz")
+        compose.onNodeWithText("Create your own").performClick()
+        compose.onNodeWithText("Name").performTextReplacement(" Back squat ")
+        compose.onNodeWithText("Create").performClick()
+        waitFor { plan().size == 1 }
+        assertEquals(squat.id, plan().single().exerciseId)
+        assertEquals(before, runBlocking { db.exercises().all() })
+
+        // A catalogue name with no row yet gets its row the catalogue way: built in, with the catalogue muscles.
+        runBlocking { rows("Leg press").forEach { db.exercises().delete(it.id) } }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        waitFor { shows("exercise-search") }
+        search("zzz")
+        compose.onNodeWithText("Create your own").performClick()
+        compose.onNodeWithText("Name").performTextReplacement("leg press")
+        compose.onNodeWithText("Create").performClick()
+        waitFor { plan().size == 2 }
+        val legPress = rows("Leg press").single()
+        assertEquals("Leg press", legPress.name)
+        assertTrue(legPress.isBuiltIn)
+        assertEquals(Library.find("Leg press")!!.muscles, legPress.muscles)
+        assertEquals(legPress.id, plan().last().exerciseId)
     }
 
     @Test

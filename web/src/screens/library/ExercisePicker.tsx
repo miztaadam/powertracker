@@ -35,7 +35,7 @@ export type ExercisePickerProps = {
  *
  * While nothing is searched and no body area is chosen, a grid of muscle groups leads the list.
  * Tapping one lists that muscle's exercises (equipment chips still narrow them) until "All muscles",
- * a search or a body area leaves it.
+ * Escape, a search or a body area leaves it.
  */
 export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCustom, onDismiss }: ExercisePickerProps) {
   const [query, setQuery] = useState('')
@@ -74,11 +74,13 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
     setMuscle(null)
   }
   const toggleEquipment = (id: string) => setEquipment((chosen) => (chosen.includes(id) ? chosen.filter((e) => e !== id) : [...chosen, id]))
+  // Escape steps back out of a muscle to the grid first, like Android's back button; then it closes the picker.
+  const stepBack = () => (muscle != null ? setMuscle(null) : onDismiss())
   const createButton = <SecondaryButton text="Create your own" onClick={() => setCreating(true)} icon={<AddIcon />} />
 
   return (
     <>
-      <Dialog open variant="screen" title={title} onDismiss={onDismiss} header={<ScreenHeader title={title} navigation={<IconButton label="Close" icon={<CloseIcon />} onClick={onDismiss} />} />}>
+      <Dialog open variant="screen" title={title} onDismiss={stepBack} header={<ScreenHeader title={title} navigation={<IconButton label="Close" icon={<CloseIcon />} onClick={onDismiss} />} />}>
         <div className="lib-search">
           <TextField
             label="Search exercises"

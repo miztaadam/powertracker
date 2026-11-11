@@ -436,6 +436,22 @@ describe('ExercisePicker', () => {
     expect(shows('Squat')).toBe(true)
   })
 
+  it('escapeFromMuscle_returnsToGrid_thenCloses', async () => {
+    // Like Android's back button: Escape steps out of a muscle first, and only then closes the picker.
+    const onDismiss = vi.fn()
+    render(<ExercisePicker title="Add exercise" exercises={await stored()} recentIds={[]} onPick={() => {}} onCreateCustom={() => {}} onDismiss={onDismiss} />)
+    await userEvent.click(tile('Calves'))
+    expect(heading('Calves exercises')).toBeInTheDocument()
+
+    await userEvent.keyboard('{Escape}')
+    expect(grid()).toBeInTheDocument()
+    expect(heading('Calves exercises')).toBeNull()
+    expect(onDismiss).not.toHaveBeenCalled()
+
+    await userEvent.keyboard('{Escape}')
+    expect(onDismiss).toHaveBeenCalledTimes(1)
+  })
+
   it('muscleInfo_opensGuideWithoutPicking', async () => {
     const { picked } = await showPicker()
     await userEvent.click(tile('Quads'))

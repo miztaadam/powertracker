@@ -37,8 +37,8 @@ object MuscleGroups {
         MuscleGroup.LATS to listOf("Lats"),
         MuscleGroup.UPPER_BACK to listOf("Upper back"),
         MuscleGroup.TRAPS to listOf("Traps"),
-        // "Position" is the coach's word on the deficit and paused deadlift for holding your back
-        // position off the floor. That is the lower back's work, so those two list here.
+        // "Position" is the coach's set-up word for deadlift variations that train holding the back flat
+        // (it comes from AccessoryMap, which is fixed). It maps here so they list under Lower back.
         MuscleGroup.LOWER_BACK to listOf("Lower back", "Position"),
         MuscleGroup.FRONT_DELTS to listOf("Front delts"),
         MuscleGroup.SIDE_DELTS to listOf("Side delts"),

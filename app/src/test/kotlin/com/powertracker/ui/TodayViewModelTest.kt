@@ -30,6 +30,8 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -125,6 +127,13 @@ class TodayViewModelTest {
 
         assertEquals(1, runBlocking { advice.all() }.count { it.type == AdviceType.TARGET })
         assertEquals(null, second.state.value.items.first().suggestion)
+    }
+
+    @Test
+    fun addFromCatalogue_unknownName_isNull() {
+        val vm = viewModel()
+        assertNull(vm.addFromCatalogue("Not an exercise"))
+        assertNotNull(vm.addFromCatalogue("Goblet squat"))
     }
 
     @Test

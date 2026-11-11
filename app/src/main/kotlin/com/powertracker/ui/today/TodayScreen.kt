@@ -69,7 +69,7 @@ class TodayActions(
     val onDismiss: (adviceId: Long) -> Unit = {},
     val onAddExercise: (exerciseId: Long) -> Unit = {},
     /** Adds a catalogue exercise by name; returns the id its card is shown under. */
-    val onAddFromCatalogue: (name: String) -> Long = { 0 },
+    val onAddFromCatalogue: (name: String) -> Long? = { null },
     val onCreateExercise: (name: String, Category, parentLift: MainLift?, muscles: List<String>, onCreated: (Long) -> Unit) -> Unit = { _, _, _, _, _ -> },
     val onRemoveExercise: (exerciseId: Long) -> Unit = {},
     val onFinish: () -> Unit = {},

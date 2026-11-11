@@ -230,6 +230,20 @@ fun ExercisePickerContent(
     var equipment by rememberSaveable { mutableStateOf(emptySet<Equipment>()) }
     var muscle by rememberSaveable { mutableStateOf(initialMuscle) }
     var creating by rememberSaveable { mutableStateOf(false) }
+    // The picker answers once: a second tap landing before it closes (a double tap) picks or creates nothing more.
+    val answered = remember { mutableStateOf(false) }
+    val pick: (PickerEntry) -> Unit = { entry ->
+        if (!answered.value) {
+            answered.value = true
+            onPick(entry)
+        }
+    }
+    val createCustom: (String, Category, MainLift?, List<String>) -> Unit = { name, category, parent, muscles ->
+        if (!answered.value) {
+            answered.value = true
+            onCreateCustom(name, category, parent, muscles)
+        }
+    }
 
     val list = remember(query, area, equipment, exercises, recentIds, muscle) { pickerList(query, area, equipment, exercises, recentIds, muscle) }
     val showGrid = muscle == null && area == null && Library.normalise(query).isEmpty()
@@ -309,10 +323,10 @@ fun ExercisePickerContent(
             } else {
                 if (list.yours.isNotEmpty()) {
                     item(key = "yours") { ListHeading("Your exercises") }
-                    items(list.yours, key = { "yours-${it.exerciseId}" }) { entry -> PickerRow(entry, onPick) }
+                    items(list.yours, key = { "yours-${it.exerciseId}" }) { entry -> PickerRow(entry, pick) }
                     item(key = "all") { ListHeading("All exercises") }
                 }
-                items(list.all, key = { it.catalogueName ?: "own-${it.exerciseId}" }) { entry -> PickerRow(entry, onPick) }
+                items(list.all, key = { it.catalogueName ?: "own-${it.exerciseId}" }) { entry -> PickerRow(entry, pick) }
                 item(key = "create") {
                     Column(Modifier.fillMaxWidth().padding(top = Space.l), horizontalAlignment = Alignment.CenterHorizontally) {
                         SecondaryButton("Create your own", { creating = true }, icon = Icons.Filled.Add)
@@ -327,7 +341,7 @@ fun ExercisePickerContent(
             initialName = query.trim(),
             onCreate = { name, category, parent, muscles ->
                 creating = false
-                onCreateCustom(name, category, parent, muscles)
+                createCustom(name, category, parent, muscles)
             },
             onDismiss = { creating = false },
         )

@@ -120,7 +120,7 @@ const overflowing = (page: Page) =>
 
 // The timing checks run one after another, and after every other spec has finished (the "speed" project in
 // playwright.config.ts): beside busy workers they would time the machine, not the picker.
-test.describe('picker speed', () => {
+test.describe('picker speed', { tag: '@speed' }, () => {
   test.describe.configure({ mode: 'serial' })
 
   test('the picker settles within 100 ms when it opens, on every keystroke and on every filter change', async ({ page }) => {

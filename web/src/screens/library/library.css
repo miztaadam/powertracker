@@ -71,7 +71,10 @@
   background: var(--surface);
   color: var(--text);
   text-align: center;
-  overflow-wrap: anywhere;
+  /* Labels wrap only at spaces, never mid-word, also at 130% zoom. */
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
   cursor: pointer;
   touch-action: manipulation;
 }
@@ -113,6 +116,13 @@
   bottom: 0;
   height: 1px;
   background: var(--hairline);
+}
+
+/* Forced colours drop backgrounds: draw the hairline in the system text colour so it stays visible. */
+@media (forced-colors: active) {
+  .lib-row::after {
+    background: CanvasText;
+  }
 }
 
 .lib-row-main {

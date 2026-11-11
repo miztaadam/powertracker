@@ -89,6 +89,7 @@ tasks.register("checkWebDomain") {
     group = "verification"
     description = "Fails if web/src/domain/generated/ differs from the current Kotlin/JS library."
     dependsOn(regenerateWebDomain)
+    mustRunAfter("syncWebDomain")
     val fresh = layout.buildDirectory.dir("webDomainCheck")
     val committed = webDomainDir
     doLast {

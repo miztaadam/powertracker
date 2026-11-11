@@ -220,7 +220,7 @@ internal val calves: List<LibraryExercise> = listOf(
                 "Raise your heel by pointing your ankle, keeping your knee straight.",
                 SWITCH_LEGS,
             ),
-                    cues = listOf("Knee straight.", "Use the support for balance only."),
+            cues = listOf("Knee straight.", "Use the support for balance only."),
             mistakes = listOf(BENDING_KNEES, BOUNCING, "Letting your foot slip on the step. Stop and reset it if it moves."),
         ),
         listOf(

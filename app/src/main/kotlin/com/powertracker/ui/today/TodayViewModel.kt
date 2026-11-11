@@ -329,18 +329,27 @@ class TodayViewModel(
 
     /**
      * Adds a catalogue exercise for this session and returns the id its card is shown under: its
-     * row's id when it has one, otherwise a stand-in. Nothing is stored until a set is logged for it.
+     * row's id when it has one, otherwise a stand-in; null for a name the catalogue doesn't know.
+     * Nothing is stored until a set is logged for it.
      */
-    fun addFromCatalogue(name: String): Long {
-        val entry = Library.find(name) ?: return 0
+    fun addFromCatalogue(name: String): Long? {
+        val entry = Library.find(name) ?: return null
         val row = state.value.exercises.firstOrNull { it.name.equals(entry.name, ignoreCase = true) }
         val id = row?.id ?: standInId(entry)
         addExercise(id)
         return id
     }
 
-    /** Creates a custom exercise, adds it to this session and reports its id. */
+    /**
+     * Creates a custom exercise, adds it to this session and reports its id. A name the catalogue knows
+     * (a name or an alias, ignoring case) is added from the catalogue instead, as if it had been picked.
+     */
     fun createExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onCreated: (Long) -> Unit) {
+        val known = Library.find(name.trim())
+        if (known != null) {
+            addFromCatalogue(known.name)?.let(onCreated)
+            return
+        }
         viewModelScope.launch {
             val id = training.addExercise(Exercise(0, name.trim(), category, parentLift, muscles, isBuiltIn = false))
             addExercise(id)

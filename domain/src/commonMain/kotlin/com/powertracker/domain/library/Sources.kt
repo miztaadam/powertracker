@@ -18,6 +18,7 @@ object Sources {
     private const val L8 = "2026-11-11"
     private const val L9 = "2026-11-11"
     private const val L10 = "2026-11-11"
+    private const val FIX = "2026-11-11"
 
     // Main lifts and their variations
     val IPF_RULES_2026 = SourceId("ipf-technical-rules-2026")
@@ -80,7 +81,6 @@ object Sources {
     val EXRX_SM_BENCH = SourceId("exrx-smith-bench-press")
     val EXRX_SM_INCLINE_BENCH = SourceId("exrx-smith-incline-bench-press")
     val EXRX_SM_DECLINE_BENCH = SourceId("exrx-smith-decline-bench-press")
-    val EXRX_GYM_ETIQUETTE = SourceId("exrx-gym-etiquette")
     val EXRX_CB_STANDING_FLY = SourceId("exrx-cable-isolateral-standing-fly")
     val EXRX_CB_STANDING_INCLINE_FLY = SourceId("exrx-cable-standing-incline-fly")
     val EXRX_CB_STANDING_CHEST_PRESS = SourceId("exrx-cable-isolateral-standing-chest-press")
@@ -185,6 +185,7 @@ object Sources {
     val EXRX_DB_LATERAL_RAISE = SourceId("exrx-dumbbell-lateral-raise")
     val ACE_LATERAL_RAISE = SourceId("ace-lateral-raise")
     val EXRX_ERRORS = SourceId("exrx-common-resistance-training-mistakes")
+    val EXRX_MISTAKES = SourceId("exrx-most-common-weight-training-mistakes")
     val EXRX_CB_ONE_ARM_LATERAL_RAISE = SourceId("exrx-cable-one-arm-lateral-raise")
     val EXRX_LV_LATERAL_RAISE = SourceId("exrx-lever-isolateral-lateral-raise")
     val EXRX_DB_SEATED_LATERAL_RAISE = SourceId("exrx-dumbbell-seated-lateral-raise")
@@ -232,7 +233,6 @@ object Sources {
     val EXRX_DB_TRI_EXT = SourceId("exrx-dumbbell-triceps-extension")
     val ACE_LYING_BB_TRI_EXT = SourceId("ace-lying-barbell-triceps-extensions")
     val EXRX_BB_SKULL_CRUSHER = SourceId("exrx-barbell-lying-triceps-extension-skull-crusher")
-    val ACE_BARBELL_EXERCISES = SourceId("ace-9-exercises-with-a-barbell")
     val EXRX_DB_LYING_TRI_EXT = SourceId("exrx-dumbbell-lying-triceps-extension")
     val EXRX_DB_DECLINE_TRI_EXT = SourceId("exrx-dumbbell-decline-triceps-extension")
     val EXRX_LV_TRI_EXT = SourceId("exrx-lever-triceps-extension")
@@ -240,7 +240,7 @@ object Sources {
     val EXRX_DB_KICKBACK = SourceId("exrx-dumbbell-kickback")
     val EXRX_WT_TRI_DIP = SourceId("exrx-weighted-triceps-dip")
     val EXRX_ST_TRI_DIP = SourceId("exrx-suspended-triceps-dip")
-    val ACE_TONE_TRICEPS = SourceId("ace-tone-up-your-triceps")
+    val ACE_TRICEPS_STUDY = SourceId("ace-study-best-triceps-exercises")
     val ACE_DANGEROUS_DIPS = SourceId("ace-follow-up-dangerous-dips")
     val PMC_BENCH_BAR_RING_DIPS = SourceId("pmc-bench-bar-ring-dips")
     val EXRX_CLOSE_GRIP_PUSH_UP = SourceId("exrx-close-grip-push-up")
@@ -542,10 +542,6 @@ object Sources {
         EXRX_SM_DECLINE_BENCH to Source(
             "Smith Decline Bench Press", EXRX,
             "https://exrx.net/WeightExercises/PectoralSternal/SMDeclineBenchPress", L4,
-        ),
-        EXRX_GYM_ETIQUETTE to Source(
-            "Gym Etiquette", EXRX,
-            "https://exrx.net/ExInfo/Etiquette", L4,
         ),
         EXRX_CB_STANDING_FLY to Source(
             "Cable Isolateral Standing Fly", EXRX,
@@ -943,6 +939,10 @@ object Sources {
             "Common Resistance Training Mistakes", EXRX,
             "https://exrx.net/Kinesiology/Errors", L6,
         ),
+        EXRX_MISTAKES to Source(
+            "Most Common Weight Training Mistakes", EXRX,
+            "https://exrx.net/WeightTraining/Mistakes", FIX,
+        ),
         EXRX_CB_ONE_ARM_LATERAL_RAISE to Source(
             "Cable One Arm Lateral Raise", EXRX,
             "https://exrx.net/WeightExercises/DeltoidLateral/CBOneArmLateralRaise", L6,
@@ -1123,10 +1123,6 @@ object Sources {
             "Barbell Lying Triceps Extension \"Skull Crusher\"", EXRX,
             "https://exrx.net/WeightExercises/Triceps/BBLyingTriExtSC", L7,
         ),
-        ACE_BARBELL_EXERCISES to Source(
-            "9 Exercises You Didn't Know You Could Do With a Barbell", ACE,
-            "https://www.acefitness.org/resources/everyone/blog/5366/9-exercises-you-didn-t-know-you-could-do-with-a-barbell/", L7,
-        ),
         EXRX_DB_LYING_TRI_EXT to Source(
             "Dumbbell Lying Triceps Extension", EXRX,
             "https://exrx.net/WeightExercises/Triceps/DBLyingTriExt", L7,
@@ -1151,9 +1147,9 @@ object Sources {
             "Suspended Triceps Dip", EXRX,
             "https://exrx.net/WeightExercises/Triceps/STTriDip", L7,
         ),
-        ACE_TONE_TRICEPS to Source(
-            "Tone Up Your Triceps with These Three Exercises", ACE,
-            "https://www.acefitness.org/resources/everyone/blog/4930/tone-up-your-triceps-with-these-three-exercises/", L7,
+        ACE_TRICEPS_STUDY to Source(
+            "ACE Study Identifies Best Triceps Exercises", ACE,
+            "https://www.acefitness.org/certifiednewsarticle/3008/ace-study-identifies-best-triceps-exercises/", FIX,
         ),
         ACE_DANGEROUS_DIPS to Source(
             "Follow-up Q and A: Dangerous Dips", ACE,

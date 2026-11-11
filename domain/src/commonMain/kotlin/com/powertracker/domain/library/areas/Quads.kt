@@ -73,7 +73,7 @@ internal val quads: List<LibraryExercise> = listOf(
         guide = FormGuide(
             purpose = "A single-leg squat with your rear foot up on a bench. It trains each leg on its own, mostly the quads and glutes.",
             setup = listOf(
-                "Hold a dumbbell in each hand at your sides. With a barbell, take it from a rack with the safety pins set, or use a spotter.",
+                "Hold a dumbbell in each hand at your sides, or rest a barbell across your upper back.",
                 "Stand facing away from a bench.",
                 "Reach one leg back and rest the top of that foot on the bench.",
                 "Brace your trunk.",

@@ -10,27 +10,21 @@ import com.powertracker.domain.library.Sources
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.MainLift
 
-// Shared lines, so the rack-safety and bracing wording is the same in every guide.
+// Shared lines, so the bracing and set-up wording is the same in every main-lift guide. RACK_SAFETY is in Shared.kt.
 private const val SQUAT_RACK = "Set the bar in the rack just below shoulder height."
-private const val SQUAT_SAFETY = "Set the safety pins or arms just below your lowest squat position, or use a spotter."
-// The owner's short form of the rack line (L8 onward): heavy barbell work in a rack only.
-internal const val RACK_SAFETY = "Set the safety pins, or use a spotter."
 private const val BAR_ON_BACK = "Step under the bar and rest it across your upper back."
 private const val SQUAT_STANCE = "Stand with your feet a little wider than your shoulders."
 private const val OWN_STANCE = "Set your feet in your normal squat stance."
 private const val BRACE = "Take a big breath into your belly and brace your trunk before each rep."
-internal const val BENCH_SAFETY = "Set the safety arms just below the height of your chest, or use a spotter."
 private const val BENCH_LIE = "Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor."
 private const val BENCH_GRIP = "Grip the bar a little wider than your shoulders."
 private const val BENCH_BACK = "Keep a slight arch in your back."
-internal const val BENCH_BRACE = "Breathe in and brace before you lift the bar out."
 private const val UNRACK = "Lift the bar out and hold it over your shoulders with straight arms."
 private const val LOCKOUT = "Press the bar up until your elbows lock."
-internal const val RACK_IT = "Put the bar back in the rack after the last rep."
 private const val PULL_STANCE = "Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it."
 private const val PULL_GRIP = "Bend down and grip the bar shoulder-width or a little wider. Use both palms down, or one up and one down."
 private const val PULL_CHEST = "Pull your shoulders down and back, and lift your chest."
-private const val PULL_BRACE = "Take a big breath and brace your trunk before you pull."
+private const val PULL_BRACE = "Brace your trunk before you pull."
 
 private fun mainLift(
     name: String,
@@ -65,7 +59,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
             purpose = "The competition squat. It builds strength in your legs and hips.",
             setup = listOf(
                 SQUAT_RACK,
-                SQUAT_SAFETY,
+                RACK_SAFETY,
                 BAR_ON_BACK,
                 "Grip the bar wider than your shoulders. Stand up to lift it off the hooks, then step back.",
                 SQUAT_STANCE,
@@ -93,7 +87,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
         "Bench", listOf("Bench press", "Barbell bench press"), Category.BENCH, listOf("Pecs", "Triceps", "Front delts"),
         FormGuide(
             purpose = "The competition bench press. It builds pressing strength in your chest, shoulders and triceps.",
-            setup = listOf(BENCH_SAFETY, BENCH_LIE, BENCH_GRIP, BENCH_BACK, BENCH_BRACE),
+            setup = listOf(RACK_SAFETY, BENCH_LIE, BENCH_GRIP, BENCH_BACK, BENCH_BRACE),
             steps = listOf(
                 UNRACK,
                 "Lower the bar under control to your chest.",
@@ -128,10 +122,9 @@ internal val mainLifts: List<LibraryExercise> = listOf(
                 "Rounding your back.",
                 "Lifting with your back instead of your hips.",
                 "Letting the bar drift away from your legs.",
-                "Going too heavy too soon.",
             ),
         ),
-        listOf(Sources.IPF_RULES_2026, Sources.EXRX_BB_DEADLIFT, Sources.ACE_DEADLIFT, Sources.ACE_HOW_TO_DEADLIFT),
+        listOf(Sources.IPF_RULES_2026, Sources.EXRX_BB_DEADLIFT, Sources.ACE_DEADLIFT, Sources.ACE_HOW_TO_DEADLIFT, Sources.ACE_BRACE_OR_BREATHE),
     ),
 
     // ---- Squat variations ----
@@ -139,14 +132,14 @@ internal val mainLifts: List<LibraryExercise> = listOf(
         "Pause squat", listOf("Paused squat"), MainLift.SQUAT, listOf("Quads", "Glutes"),
         FormGuide(
             purpose = "A back squat with a still pause at the bottom. It builds strength out of the bottom without a bounce.",
-            setup = listOf(SQUAT_RACK, SQUAT_SAFETY, BAR_ON_BACK, SQUAT_STANCE, "Use less weight than for your normal squat.", BRACE),
+            setup = listOf(SQUAT_RACK, RACK_SAFETY, BAR_ON_BACK, SQUAT_STANCE, BRACE),
             steps = listOf(
                 "Squat down under control to your normal depth.",
-                "Hold still at the bottom for a short pause. Stay tight and braced.",
+                "Hold still at the bottom for a short pause. Stay braced.",
                 "Drive up by straightening your hips and knees together.",
                 "Stand tall, breathe, and brace again for the next rep.",
             ),
-            cues = listOf("Stay tight in the pause.", "Knees track over your feet.", "Drive up hard from a dead stop."),
+            cues = listOf("Stay braced in the pause.", "Knees track over your feet.", "Drive up hard from a dead stop."),
             mistakes = listOf("Relaxing at the bottom.", "Bouncing out instead of pausing.", "Heels lifting off the floor."),
         ),
         listOf(Sources.EXRX_BB_SQUAT, Sources.ACE_BACK_SQUAT, Sources.PMC_STICKING_POINT_REVIEW),
@@ -157,7 +150,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
             purpose = "A squat with the bar on the front of your shoulders. It puts more of the work on your quads and needs an upright trunk.",
             setup = listOf(
                 "Set the bar in the rack at upper-chest height.",
-                SQUAT_SAFETY,
+                RACK_SAFETY,
                 "Grip the bar about shoulder-width apart and step under it.",
                 "Rest the bar across the front of your shoulders, palms facing up and elbows pointing straight ahead.",
                 OWN_STANCE,
@@ -211,7 +204,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
             purpose = "A squat with a safety squat bar, which has a padded yoke and handles. It keeps your torso more upright than a high-bar squat.",
             setup = listOf(
                 SQUAT_RACK,
-                SQUAT_SAFETY,
+                RACK_SAFETY,
                 "Step under the bar and rest the pads on your upper back and shoulders.",
                 "Hold the handles in front of you.",
                 OWN_STANCE,
@@ -235,7 +228,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
             purpose = "A squat to a box set at your target depth. It teaches you to sit back and stand up from a still start.",
             setup = listOf(
                 SQUAT_RACK,
-                SQUAT_SAFETY,
+                RACK_SAFETY,
                 "Place a sturdy box behind you at the height of your target depth.",
                 BAR_ON_BACK,
                 "Lift the bar out and step back until the box is just behind you.",
@@ -245,10 +238,10 @@ internal val mainLifts: List<LibraryExercise> = listOf(
             steps = listOf(
                 "Sit back by bending your hips and knees. Keep your shins close to upright.",
                 "Sit on the box under control. Don't drop onto it.",
-                "Pause briefly on the box while staying tight.",
+                "Pause briefly on the box while staying braced.",
                 "Drive up from the box to standing.",
             ),
-            cues = listOf("Sit back, not down.", "Stay tight on the box.", "Shins close to upright."),
+            cues = listOf("Sit back, not down.", "Stay braced on the box.", "Shins close to upright."),
             mistakes = listOf("Dropping onto the box.", "Relaxing on the box and losing your brace."),
         ),
         listOf(Sources.EXRX_BB_BOX_SQUAT),
@@ -308,7 +301,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
         "Spoto press", emptyList(), MainLift.BENCH, listOf("Pecs", "Front delts"),
         FormGuide(
             purpose = "A bench press that stops just above your chest. It builds control and strength near the bottom of the press.",
-            setup = listOf(BENCH_SAFETY, BENCH_LIE, BENCH_GRIP, BENCH_BACK, BENCH_BRACE),
+            setup = listOf(RACK_SAFETY, BENCH_LIE, BENCH_GRIP, BENCH_BACK, BENCH_BRACE),
             steps = listOf(
                 UNRACK,
                 "Lower the bar under control.",
@@ -316,7 +309,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
                 LOCKOUT,
                 RACK_IT,
             ),
-            cues = listOf("Stop the bar, don't let it sink.", "Stay tight in the pause.", "Feet stay planted."),
+            cues = listOf("Stop the bar, don't let it sink.", "Stay braced in the pause.", "Feet stay planted."),
             mistakes = listOf("Touching your chest.", "Bouncing out of the pause.", "Losing your upper-back position."),
         ),
         listOf(Sources.EXRX_BB_BENCH, Sources.EXRX_BENCH_ANALYSES, Sources.EXRX_BB_BENCH_POWER),
@@ -325,7 +318,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
         "Long-pause bench", listOf("Long-pause bench press"), MainLift.BENCH, listOf("Pecs", "Front delts"),
         FormGuide(
             purpose = "A bench press with a longer pause on your chest than in competition. It builds strength off the chest with no help from a bounce.",
-            setup = listOf(BENCH_SAFETY, BENCH_LIE, BENCH_GRIP, BENCH_BACK, BENCH_BRACE),
+            setup = listOf(RACK_SAFETY, BENCH_LIE, BENCH_GRIP, BENCH_BACK, BENCH_BRACE),
             steps = listOf(
                 UNRACK,
                 "Lower the bar under control to your chest.",
@@ -333,7 +326,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
                 LOCKOUT,
                 RACK_IT,
             ),
-            cues = listOf("Stay tight in the pause.", "Keep the bar still.", "Feet stay planted."),
+            cues = listOf("Stay braced in the pause.", "Keep the bar still.", "Feet stay planted."),
             mistakes = listOf(
                 "Letting the bar sink into your chest during the pause.",
                 "Relaxing during the pause.",
@@ -357,11 +350,11 @@ internal val mainLifts: List<LibraryExercise> = listOf(
             steps = listOf(
                 "Lift the bar off the hooks and hold it over your shoulders with straight arms.",
                 "Lower the bar under control until it rests on the pins.",
-                "Let it settle for a moment. Stay tight.",
+                "Let it settle for a moment. Stay braced.",
                 LOCKOUT,
                 RACK_IT,
             ),
-            cues = listOf("Lower softly onto the pins.", "Stay tight on the pins.", "Feet stay planted."),
+            cues = listOf("Lower softly onto the pins.", "Stay braced on the pins.", "Feet stay planted."),
             mistakes = listOf(
                 "Dropping the bar onto the pins.",
                 "Relaxing on the pins.",
@@ -375,12 +368,12 @@ internal val mainLifts: List<LibraryExercise> = listOf(
         FormGuide(
             purpose = "A bench press with your feet off the floor. With no help from your legs, your upper body does more of the work.",
             setup = listOf(
-                BENCH_SAFETY,
+                RACK_SAFETY,
                 "Lie on the bench with your head, shoulders and buttocks on the bench.",
                 BENCH_GRIP,
                 BENCH_BACK,
                 "Lift your feet off the floor and hold your legs still.",
-                "Use less weight than for your normal bench. Brace before you lift the bar out.",
+                BENCH_BRACE,
             ),
             steps = listOf(
                 UNRACK,
@@ -398,7 +391,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
         FormGuide(
             purpose = "A bench press with a narrower grip. It puts more of the work on your triceps.",
             setup = listOf(
-                BENCH_SAFETY,
+                RACK_SAFETY,
                 BENCH_LIE,
                 "Grip the bar with your hands about in line with your shoulders, or a little narrower. Not too close.",
                 BENCH_BRACE,
@@ -419,7 +412,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
         FormGuide(
             purpose = "A bench press to a board on your chest. It shortens the range and builds strength in the middle of the press.",
             setup = listOf(
-                BENCH_SAFETY,
+                RACK_SAFETY,
                 BENCH_LIE,
                 BENCH_GRIP,
                 "A partner holds the board on your lower chest, or you strap it to your body. A thicker board shortens the range more.",
@@ -431,7 +424,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
                 LOCKOUT,
                 RACK_IT,
             ),
-            cues = listOf("Lower under control to the board.", "Stay tight at the board.", "Feet stay planted."),
+            cues = listOf("Lower under control to the board.", "Stay braced at the board.", "Feet stay planted."),
             mistakes = listOf("Bouncing the bar off the board.", "Letting the board slip.", "Relaxing on the board."),
         ),
         listOf(Sources.EXRX_BOARD_PRESS, Sources.PMC_STICKING_POINT_REVIEW, Sources.EXRX_BB_BENCH_POWER),
@@ -443,7 +436,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
             purpose = "A barbell press lying on the floor inside a power rack. Your upper arms touch the floor at the bottom, which is said to take away the stretch and rebound of a normal bench.",
             setup = listOf(
                 "Lie on the floor inside a power rack, under the bar, with your knees bent.",
-                "Set the safety pins or arms so they catch the bar if you can't press it, or use a spotter.",
+                RACK_SAFETY,
                 "Grip the bar overhand, a little wider than your shoulders.",
                 BENCH_BRACE,
             ),
@@ -455,7 +448,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
                 RACK_IT,
             ),
             cues = listOf("Upper arms touch, then pause.", "Press from a still start."),
-            mistakes = listOf("Bouncing your arms off the floor.", "Pressing without safety pins, safety arms or a spotter."),
+            mistakes = listOf("Bouncing your arms off the floor.", "Pressing before your upper arms touch the floor."),
         ),
         listOf(Sources.EXRX_BB_FLOOR_PRESS, Sources.NSCA_STANDARDS_SUMMARY, Sources.ACE_BRACE_OR_BREATHE),
     ),
@@ -464,7 +457,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
         FormGuide(
             purpose = "A bench press with a wider grip than your normal one. It shortens the range of motion and can put more of the work on your chest.",
             setup = listOf(
-                BENCH_SAFETY,
+                RACK_SAFETY,
                 BENCH_LIE,
                 "Grip the bar wider than your normal bench grip, but no wider than you can control.",
                 BENCH_BACK,
@@ -508,10 +501,9 @@ internal val mainLifts: List<LibraryExercise> = listOf(
             mistakes = listOf(
                 "Rounding your back off the floor.",
                 "Using a platform so high that you can't keep your back flat.",
-                "Standing on something that wobbles.",
             ),
         ),
-        listOf(Sources.EXRX_DEFICIT_DEADLIFT, Sources.EXRX_BB_DEADLIFT),
+        listOf(Sources.EXRX_DEFICIT_DEADLIFT, Sources.EXRX_BB_DEADLIFT, Sources.ACE_BRACE_OR_BREATHE),
     ),
     variation(
         "Paused deadlift", listOf("Pause deadlift"), MainLift.DEADLIFT, listOf("Quads", "Lats", "Position"),
@@ -532,7 +524,7 @@ internal val mainLifts: List<LibraryExercise> = listOf(
                 "Pausing so long that you lose your brace.",
             ),
         ),
-        listOf(Sources.EXRX_BB_DEADLIFT, Sources.ACE_DEADLIFT, Sources.PMC_STICKING_POINT_REVIEW),
+        listOf(Sources.EXRX_BB_DEADLIFT, Sources.ACE_DEADLIFT, Sources.PMC_STICKING_POINT_REVIEW, Sources.ACE_BRACE_OR_BREATHE),
     ),
     variation(
         "Paused deadlift at the knee", listOf("Knee-pause deadlift"), MainLift.DEADLIFT, listOf("Hamstrings", "Lats"),
@@ -553,7 +545,10 @@ internal val mainLifts: List<LibraryExercise> = listOf(
                 "Pausing so long that you lose your brace.",
             ),
         ),
-        listOf(Sources.EXRX_BB_DEADLIFT, Sources.ACE_DEADLIFT, Sources.PMC_STICKING_POINT_THREE_LIFTS, Sources.PMC_STICKING_POINT_REVIEW),
+        listOf(
+            Sources.EXRX_BB_DEADLIFT, Sources.ACE_DEADLIFT, Sources.PMC_STICKING_POINT_THREE_LIFTS, Sources.PMC_STICKING_POINT_REVIEW,
+            Sources.ACE_BRACE_OR_BREATHE,
+        ),
     ),
     variation(
         "Block pull", listOf("Deadlift off blocks"), MainLift.DEADLIFT, listOf("Glutes", "Upper back"),
@@ -572,9 +567,9 @@ internal val mainLifts: List<LibraryExercise> = listOf(
                 "Lower the bar back to the blocks under control.",
             ),
             cues = listOf("Bar close.", "Back straight.", "Knees point the same way as your feet."),
-            mistakes = listOf("Rounding your back.", "Letting the bar drift away from your legs.", "Using blocks that wobble."),
+            mistakes = listOf("Rounding your back.", "Letting the bar drift away from your legs."),
         ),
-        listOf(Sources.EXRX_BB_BLOCK_PULL, Sources.EXRX_RACK_PULL),
+        listOf(Sources.EXRX_BB_BLOCK_PULL, Sources.EXRX_RACK_PULL, Sources.ACE_BRACE_OR_BREATHE),
     ),
     variation(
         "Sumo deadlift", listOf("Sumo", "Sumo pull", "Barbell sumo deadlift"), MainLift.DEADLIFT, listOf("Glutes", "Adductors", "Quads"),

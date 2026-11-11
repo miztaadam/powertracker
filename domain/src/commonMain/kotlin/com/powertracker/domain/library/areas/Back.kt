@@ -98,7 +98,6 @@ internal val back: List<LibraryExercise> = listOf(
                 "Hang with straight arms.",
                 "Pull your shoulders back and down, and hold them there for the whole set.",
                 "Cross one leg over the other, and brace your abs.",
-                "If you can't do a full pull-up yet, use a band or an assisted machine.",
             ),
             steps = listOf(
                 "Pull yourself up until your chin clears the bar.",
@@ -146,7 +145,7 @@ internal val back: List<LibraryExercise> = listOf(
     ),
     backEntry(
         "Seated cable row",
-        listOf("Cable row", "Seated row", "Cable seated row", "Low row"),
+        listOf("Seated row", "Cable seated row", "Low row"),
         listOf(Equipment.CABLE), ROW_MUSCLES, Kind.COMPOUND,
         FormGuide(
             purpose = "A seated row on a low cable, with your back kept straight. It works your upper back and lats.",
@@ -188,7 +187,6 @@ internal val back: List<LibraryExercise> = listOf(
             mistakes = listOf(
                 LEAN_BACK,
                 NO_BOUNCE,
-                "Lowering the weight past a mild stretch.",
             ),
         ),
         listOf(Sources.EXRX_CB_WIDE_GRIP_STR_BACK_ROW, Sources.EXRX_CB_WIDE_GRIP_SEATED_ROW, Sources.ACE_BRACE_OR_BREATHE),
@@ -292,7 +290,7 @@ internal val back: List<LibraryExercise> = listOf(
     ),
     backEntry(
         "T-bar row",
-        listOf("T-bar", "Lever T-bar row", "Close-grip T-bar row", "Landmine row"),
+        listOf("Lever T-bar row", "Close-grip T-bar row", "Landmine row"),
         listOf(Equipment.MACHINE, Equipment.BARBELL), listOf("Upper back", "Lats", "Rear delts"), Kind.COMPOUND,
         FormGuide(
             purpose = "A bent-over row on a plate-loaded T-bar lever. It works your upper back and lats.",
@@ -353,10 +351,8 @@ internal val back: List<LibraryExercise> = listOf(
             purpose = "A bodyweight row, pulling your chest up to a fixed bar. It works your upper back and lats.",
             setup = listOf(
                 "Set a fixed bar just high enough that your arms can fully straighten when you hang under it.",
-                "Check that the bar is locked in place before you start.",
                 "Lie on your back under the bar and grip it overhand, with a wide grip.",
                 "Brace your trunk so your body stays rigid and straight, with your heels on the floor.",
-                "To make it easier, raise the bar.",
             ),
             steps = listOf(
                 "Pull your chest up to the bar.",
@@ -511,7 +507,6 @@ internal val back: List<LibraryExercise> = listOf(
                 "Grip the bar underhand, about shoulder-width apart, thumbs wrapped around the bar.",
                 "Hang with straight arms.",
                 HANG_BRACE,
-                "If you can't do a full chin-up yet, use a band or an assisted machine.",
             ),
             steps = listOf(
                 "Pull yourself up until your elbows are at your sides.",
@@ -665,6 +660,7 @@ internal val back: List<LibraryExercise> = listOf(
         FormGuide(
             purpose = "One dumbbell moved in an arc from over your chest to behind your head. It works your chest and lats.",
             setup = listOf(
+                OVER_FACE_SPOT,
                 "Lie with your upper back across a flat bench, your body at a right angle to it.",
                 "Let your hips and legs extend off the bench. They act as a counterweight.",
                 "Hold one dumbbell with both hands under its inner plate, over your chest, with your elbows slightly bent.",
@@ -680,7 +676,7 @@ internal val back: List<LibraryExercise> = listOf(
                 "Forcing the weight lower than your shoulders can go. How far you can go depends on your shoulder flexibility.",
             ),
         ),
-        listOf(Sources.EXRX_DB_PULLOVER, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_DB_PULLOVER, Sources.NSCA_STANDARDS_SUMMARY, Sources.ACE_BRACE_OR_BREATHE),
     ),
     backEntry(
         "Machine pullover",
@@ -711,7 +707,7 @@ internal val back: List<LibraryExercise> = listOf(
     // ---- Shrugs ----
     backEntry(
         "Barbell shrug",
-        listOf("Shrug", "BB shrug"),
+        listOf("BB shrug"),
         listOf(Equipment.BARBELL), listOf("Traps"), Kind.ACCESSORY,
         FormGuide(
             purpose = "Lifting your shoulders straight up while holding a barbell. It works your upper traps.",
@@ -781,19 +777,18 @@ internal val back: List<LibraryExercise> = listOf(
             setup = listOf(
                 "Set the thigh pad high enough to spread your weight over your thighs, but not so high that it limits your range. Your belly shouldn't press on the pad at the bottom.",
                 "Hook your heels under the foot pad.",
-                "Start with your hands low on your body, which is easiest. Over time, move them up, for example crossed on your chest.",
+                "Cross your hands on your chest, or keep them low on your body.",
                 EXTENSION_BRACE,
             ),
             steps = listOf(
                 "Lower your upper body by bending at the hips, keeping your back neutral.",
-                "Stop at a mild stretch in your hamstrings.",
+                "Stop when your torso is about at a right angle to your legs.",
                 "Use your lower back, glutes and hamstrings to raise your body until your back is neutral and in line with your legs.",
             ),
-            cues = listOf("Back neutral.", "Stop at a mild stretch in your hamstrings.", "Rise until you're in line with your legs."),
+            cues = listOf("Back neutral.", "Stop at a right angle to your legs.", "Rise until you're in line with your legs."),
             mistakes = listOf(
                 "Arching your back at the top.",
                 NO_BOUNCE,
-                "Moving your arms up too soon. Raise them over time so your lower back can adapt.",
             ),
         ),
         listOf(
@@ -812,16 +807,14 @@ internal val back: List<LibraryExercise> = listOf(
                 "Hook your heels under the foot pad.",
                 "Hold a weight to your chest.",
                 EXTENSION_BRACE,
-                "Start with bodyweight only, and add weight slowly.",
             ),
             steps = listOf(
                 "Lower your upper body by bending at the hips, keeping your back neutral.",
-                "Stop at a mild stretch in your hamstrings.",
+                "Stop when your torso is about at a right angle to your legs.",
                 "Use your lower back, glutes and hamstrings to raise your body until your back is neutral and in line with your legs.",
             ),
-            cues = listOf("Back neutral.", "Stop at a mild stretch in your hamstrings."),
+            cues = listOf("Back neutral.", "Stop at a right angle to your legs."),
             mistakes = listOf(
-                "Adding weight too fast.",
                 NO_BOUNCE,
                 "Arching your back at the top.",
             ),

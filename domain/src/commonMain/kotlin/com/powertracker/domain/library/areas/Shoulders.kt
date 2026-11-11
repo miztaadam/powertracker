@@ -9,23 +9,18 @@ import com.powertracker.domain.library.SourceId
 import com.powertracker.domain.library.Sources
 import com.powertracker.domain.model.Category
 
-// Shared lines, so the safety and bracing wording is the same in every shoulder guide.
-private const val BAR_SAFETY = "Use a spotter. If you press in a power rack, set its safety pins too."
-private const val OVERHEAD_SPOT = "Use a spotter. They stand behind you, with their hands near your wrists."
-private const val SPOTTER_BEHIND = "Use a spotter. They stand behind you, ready to help."
+// Shared lines, so the bracing wording is the same in every shoulder guide.
 private const val PRESS_BRACE = "Breathe in and brace your abs before each rep."
 private const val MACHINE_BRACE = "Brace your abs, but don't press your lower back into the backrest."
 private const val LIGHT_BRACE = "Brace your abs lightly, and keep breathing."
 private const val BENT_BRACE = "Brace your abs and keep your back flat."
 private const val SMITH_BRACE = "Breathe in and brace before you unhook the bar."
-private const val SPOT_HEAVY = "Ask for a spot when you go heavy."
 private const val PRESS_OVERHEAD = "Press overhead until your arms are straight."
 private const val LOWER_SLOWLY = "Lower under control."
 private const val SWITCH_ARMS = "Do all your reps, then switch arms."
 private const val ELBOWS_TO_SHOULDER = "Raise your upper arms out to the sides until your elbows are at shoulder height."
 private const val SAME_BEND = "Keep the bend in your elbows the same."
 private const val BEHIND_NECK = "Lowering the bar behind your neck."
-private const val NO_SPOTTER = "Pressing without a spotter."
 private const val ARCHING = "Arching your lower back to get the weight up."
 private const val THROWING = "Throwing the weight up with your hips or back. Use a lighter weight."
 private const val ELBOWS_BELOW_WRISTS = "Letting your elbows drop below your wrists, which moves the work to the front of your shoulders."
@@ -61,15 +56,15 @@ internal val shoulders: List<LibraryExercise> = listOf(
     shoulderEntry(
         "Overhead press",
         listOf(
-            "OHP", "Military press", "Shoulder press", "Standing press", "Barbell overhead press", "Standing barbell press",
+            "OHP", "Military press", "Standing press", "Barbell overhead press", "Standing barbell press",
             "Barbell military press",
         ),
         listOf(Equipment.BARBELL), PRESS_MUSCLES, Kind.COMPOUND,
         FormGuide(
             purpose = "A standing barbell press from your shoulders to overhead. It works your shoulders and triceps.",
             setup = listOf(
-                BAR_SAFETY,
                 "Set the bar in the rack at about shoulder height.",
+                RACK_SAFETY,
                 "Grip the bar a little wider than your shoulders.",
                 "Take the bar across the front of your shoulders and step back.",
                 "Stand with your feet shoulder-width apart, or with one foot a little in front of the other.",
@@ -82,7 +77,7 @@ internal val shoulders: List<LibraryExercise> = listOf(
                 RACK_IT,
             ),
             cues = listOf("Back straight and tall.", "Press to straight arms."),
-            mistakes = listOf("Leaning back instead of keeping your back straight and tall.", BEHIND_NECK, NO_SPOTTER),
+            mistakes = listOf("Leaning back instead of keeping your back straight and tall.", BEHIND_NECK),
         ),
         listOf(
             Sources.EXRX_BB_MILITARY_PRESS, Sources.ACE_STANDING_SHOULDER_PRESS, Sources.NSCA_STANDARDS_SUMMARY,
@@ -96,8 +91,8 @@ internal val shoulders: List<LibraryExercise> = listOf(
         FormGuide(
             purpose = "A barbell press done seated, with your back supported. It works your shoulders and triceps.",
             setup = listOf(
-                "Set the rack's safety pins, and use a spotter.",
                 "Sit on a shoulder-press bench in the rack, with your back straight against the pad.",
+                RACK_SAFETY,
                 "Grip the bar a little wider than your shoulders.",
                 "Press your feet into the floor and brace your abs.",
             ),
@@ -108,7 +103,7 @@ internal val shoulders: List<LibraryExercise> = listOf(
                 RACK_IT,
             ),
             cues = listOf("Back on the pad.", "Elbows forward.", "Feet pressed into the floor."),
-            mistakes = listOf("Arching your back off the pad.", BEHIND_NECK, NO_SPOTTER),
+            mistakes = listOf("Arching your back off the pad.", BEHIND_NECK),
         ),
         listOf(
             Sources.ACE_SEATED_BB_SHOULDER_PRESS, Sources.EXRX_BB_SEATED_MILITARY_PRESS, Sources.NSCA_STANDARDS_SUMMARY,
@@ -129,7 +124,6 @@ internal val shoulders: List<LibraryExercise> = listOf(
                 "Start with the dumbbells at your shoulders, palms facing forward and wrists straight.",
                 "Hold them beside your shoulders, with your elbows under your wrists.",
                 "Brace your abs. Pull your shoulder blades down and back, and hold them there for the whole set.",
-                OVERHEAD_SPOT,
             ),
             steps = listOf(
                 "Breathe out and press the dumbbells overhead until your elbows are straight.",
@@ -139,7 +133,7 @@ internal val shoulders: List<LibraryExercise> = listOf(
             cues = listOf("Elbows under wrists.", "Back against the bench.", "Pull the weights down; don't let them drop."),
             mistakes = listOf(ARCHING, "Letting the dumbbells drop on the way down."),
         ),
-        listOf(Sources.ACE_SEATED_OVERHEAD_PRESS, Sources.EXRX_DB_SHOULDER_PRESS, Sources.NSCA_STANDARDS_SUMMARY),
+        listOf(Sources.ACE_SEATED_OVERHEAD_PRESS, Sources.EXRX_DB_SHOULDER_PRESS),
     ),
     shoulderEntry(
         "One-arm DB press",
@@ -150,20 +144,17 @@ internal val shoulders: List<LibraryExercise> = listOf(
             setup = listOf(
                 "Stand tall. Start with a dumbbell at one shoulder, with your elbow under your wrist.",
                 PRESS_BRACE,
-                SPOTTER_BEHIND,
             ),
             steps = listOf(
                 "Press the dumbbell overhead until your arm is straight.",
                 "Lower it back to your shoulder.",
-                "Keep your torso upright.",
                 SWITCH_ARMS,
             ),
-            cues = listOf("Elbow under wrist.", "Torso upright."),
+            cues = listOf("Elbow under wrist.", "Press to a straight arm."),
             mistakes = listOf(ARCHING, "Letting your elbow drift out from under your wrist."),
         ),
         listOf(
-            Sources.EXRX_DB_ONE_ARM_SHOULDER_PRESS, Sources.ACE_SEATED_OVERHEAD_PRESS, Sources.NSCA_STANDARDS_SUMMARY,
-            Sources.ACE_BRACE_OR_BREATHE,
+            Sources.EXRX_DB_ONE_ARM_SHOULDER_PRESS, Sources.ACE_SEATED_OVERHEAD_PRESS, Sources.ACE_BRACE_OR_BREATHE,
         ),
     ),
     shoulderEntry(
@@ -175,7 +166,6 @@ internal val shoulders: List<LibraryExercise> = listOf(
             setup = listOf(
                 "Stand. Start with the dumbbells in front of your shoulders, palms facing you, with your elbows under your wrists.",
                 PRESS_BRACE,
-                SPOTTER_BEHIND,
             ),
             steps = listOf(
                 "Move your elbows out to the sides.",
@@ -189,8 +179,7 @@ internal val shoulders: List<LibraryExercise> = listOf(
             ),
         ),
         listOf(
-            Sources.EXRX_DB_ARNOLD_PRESS, Sources.ACE_SEATED_OVERHEAD_PRESS, Sources.NSCA_STANDARDS_SUMMARY,
-            Sources.ACE_BRACE_OR_BREATHE,
+            Sources.EXRX_DB_ARNOLD_PRESS, Sources.ACE_SEATED_OVERHEAD_PRESS, Sources.ACE_BRACE_OR_BREATHE,
         ),
     ),
     shoulderEntry(
@@ -228,7 +217,6 @@ internal val shoulders: List<LibraryExercise> = listOf(
                 "Sit on the bench with the bar in front of your shoulders.",
                 "On an angled Smith machine, face away from the angle, so the bar starts in front of you and moves overhead.",
                 "Grip the bar wider than your shoulders, but not so wide that the range gets short.",
-                SPOT_HEAVY,
                 SMITH_BRACE,
             ),
             steps = listOf(
@@ -238,9 +226,9 @@ internal val shoulders: List<LibraryExercise> = listOf(
                 "After the last rep, turn the bar to set it back on the hooks.",
             ),
             cues = listOf("Head back slightly.", "Not too wide a grip."),
-            mistakes = listOf("Gripping so wide that the range of motion gets short.", "Training to failure without a spotter."),
+            mistakes = listOf("Gripping so wide that the range of motion gets short.", "Letting the bar touch your head on the way down."),
         ),
-        listOf(Sources.EXRX_SM_SHOULDER_PRESS, Sources.EXRX_GYM_ETIQUETTE, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_SM_SHOULDER_PRESS, Sources.ACE_BRACE_OR_BREATHE),
     ),
     shoulderEntry(
         "Landmine press",
@@ -250,7 +238,7 @@ internal val shoulders: List<LibraryExercise> = listOf(
             purpose = "A one-arm press of the end of a barbell, up and forward. It works your front delts and triceps.",
             setup = listOf(
                 "A landmine holds one end of a barbell on the floor, in a special attachment or a corner of the room. Load the other end.",
-                "Stand beside the loaded end. Keep your back straight as you lift it off the floor.",
+                "Keep your back straight as you lift the loaded end off the floor.",
                 "Hold the end of the bar near your shoulder.",
                 "Set your feet far apart, with the leg on the pressing side back and the other leg forward and bent.",
                 PRESS_BRACE,
@@ -278,7 +266,6 @@ internal val shoulders: List<LibraryExercise> = listOf(
                 "Stand with your feet hip-width apart, one foot slightly in front of the other.",
                 "Start with the kettlebell on the same side as your front foot, held in front of your chest near your shoulder and resting on your forearm.",
                 PRESS_BRACE,
-                SPOTTER_BEHIND,
             ),
             steps = listOf(
                 "Push your front foot into the floor to shift your weight forward, and press the kettlebell straight overhead.",
@@ -291,7 +278,7 @@ internal val shoulders: List<LibraryExercise> = listOf(
                 "Pressing out to the side instead of straight overhead.",
             ),
         ),
-        listOf(Sources.ACE_SINGLE_ARM_OVERHEAD_PRESS, Sources.NSCA_STANDARDS_SUMMARY, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.ACE_SINGLE_ARM_OVERHEAD_PRESS, Sources.ACE_BRACE_OR_BREATHE),
     ),
 
     // ---- Lateral raises ----
@@ -444,7 +431,7 @@ internal val shoulders: List<LibraryExercise> = listOf(
     shoulderEntry(
         "Rear delt raise",
         listOf(
-            "Rear delt fly", "Reverse fly", "Bent-over reverse fly", "Bent-over lateral raise", "Bent-over rear delt raise",
+            "Rear delt fly", "Bent-over reverse fly", "Bent-over lateral raise", "Bent-over rear delt raise",
             "Rear lateral raise", "DB rear delt raise", "Dumbbell reverse fly",
         ),
         listOf(Equipment.DUMBBELL), REAR, Kind.ACCESSORY,
@@ -588,7 +575,7 @@ internal val shoulders: List<LibraryExercise> = listOf(
     shoulderEntry(
         "Cable external rotation",
         listOf(
-            "External rotation", "Band external rotation", "Cable shoulder external rotation", "Standing external rotation",
+            "Band external rotation", "Cable shoulder external rotation", "Standing external rotation",
             "Rotator cuff external rotation",
         ),
         listOf(Equipment.CABLE, Equipment.BAND), CUFF, Kind.ACCESSORY,

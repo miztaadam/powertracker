@@ -355,7 +355,7 @@ internal val core: List<LibraryExercise> = listOf(
                 "Throwing your body weight down so momentum does the work.",
             ),
         ),
-        listOf(Sources.EXRX_CB_KNEELING_CRUNCH, Sources.EXRX_ERRORS, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_CB_KNEELING_CRUNCH, Sources.EXRX_ERRORS, Sources.EXRX_MISTAKES, Sources.ACE_BRACE_OR_BREATHE),
     ),
     coreEntry(
         "Machine crunch", listOf("Ab crunch machine", "Seated crunch machine", "Lever seated crunch", "Ab machine"),
@@ -378,7 +378,7 @@ internal val core: List<LibraryExercise> = listOf(
                 "Throwing the pad down so momentum does the work.",
             ),
         ),
-        listOf(Sources.EXRX_LV_SEATED_CRUNCH, Sources.EXRX_ERRORS, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_LV_SEATED_CRUNCH, Sources.EXRX_ERRORS, Sources.EXRX_MISTAKES, Sources.ACE_BRACE_OR_BREATHE),
     ),
     coreEntry(
         "Bicycle crunch", listOf("Bicycle crunches", "Supine bicycle crunch"),
@@ -432,7 +432,7 @@ internal val core: List<LibraryExercise> = listOf(
             purpose = "Raising one arm and the opposite leg from your hands and knees. It trains your trunk to stay still while your limbs move.",
             setup = listOf(
                 "Get on your hands and knees, knees and feet hip-width apart.",
-                "Brace your trunk to keep your back in its natural line, not arched or rounded.",
+                "Brace your trunk to keep your back in its natural line, not sagging or arched.",
             ),
             steps = listOf(
                 "Raise one leg and the opposite arm toward level with the floor. Raise them only as high as you can keep your lower back still.",

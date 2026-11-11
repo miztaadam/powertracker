@@ -91,7 +91,8 @@ internal val hamstringsGlutes: List<LibraryExercise> = listOf(
         guide = FormGuide(
             purpose = "A hip hinge that starts from standing. It builds your hamstrings, glutes and back.",
             setup = listOf(
-                "Take the bar from a rack with the safety pins set, or deadlift it up from the floor.",
+                "Take the bar from a rack, or deadlift it up from the floor.",
+                RACK_SAFETY,
                 "Grip the bar a little wider than your shoulders.",
                 "Stand tall with your knees slightly bent.",
                 "Brace your trunk before each rep.",
@@ -99,7 +100,7 @@ internal val hamstringsGlutes: List<LibraryExercise> = listOf(
             steps = listOf(
                 "Push your hips back. Keep the same slight bend in your knees.",
                 "Slide the bar down close to your legs.",
-                "Lower until you feel tension in the back of your thighs. For most people this is about knee height.",
+                HINGE_DEPTH,
                 "Stand back up by driving your hips forward, keeping the bar close.",
             ),
             cues = listOf("Hips back, not down.", "Bar close to your legs.", "Back neutral."),
@@ -590,7 +591,7 @@ internal val hamstringsGlutes: List<LibraryExercise> = listOf(
 
     // ---- Abduction and adduction ----
     hamGluteEntry(
-        "Machine hip abduction", listOf("Hip abduction", "Seated hip abduction", "Hip abduction machine", "Abductor machine"),
+        "Machine hip abduction", listOf("Seated hip abduction", "Hip abduction machine", "Abductor machine"),
         listOf(Equipment.MACHINE), ABDUCTION_MUSCLES,
         FormGuide(
             purpose = "Pushing your legs apart against the pads of a seated machine. It works the outer hip muscles.",

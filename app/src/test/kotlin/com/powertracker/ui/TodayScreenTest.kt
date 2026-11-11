@@ -281,6 +281,23 @@ class TodayScreenTest {
     }
 
     @Test
+    fun createCustom_withCatalogueName_usesTheCatalogueEntry() {
+        runBlocking { exerciseRows("Goblet squat").forEach { db.exercises().delete(it.id) } }
+        val before = runBlocking { db.exercises().all() }
+        showSession()
+        pickFromLibrary("zzz")
+
+        // An alias typed as a new exercise opens the catalogue's card, with its guide, and stores nothing yet.
+        compose.onNodeWithText("Create your own").performClick()
+        compose.onNodeWithText("Name").performTextReplacement("KB goblet squat")
+        compose.onNodeWithText("Create").performClick()
+        waitForText("EXERCISE 2 OF 2")
+        assertTrue(compose.onAllNodesWithText("Goblet squat").fetchSemanticsNodes().isNotEmpty())
+        assertEquals(before, runBlocking { db.exercises().all() })
+        compose.checkInfoButtonOpensGuide("Goblet squat")
+    }
+
+    @Test
     fun createYourOwn_fromTodaysPicker_addsItToTheSession_withNoGuide() {
         showSession()
         pickFromLibrary("Tyre flip")

@@ -1,6 +1,9 @@
 package com.powertracker.domain.library
 
 import com.powertracker.domain.coach.AccessoryMap
+import com.powertracker.domain.library.areas.OVER_FACE_SPOT
+import com.powertracker.domain.library.areas.RACK_IT
+import com.powertracker.domain.library.areas.RACK_SAFETY
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.seed.SeedLibrary
 import kotlin.test.Test
@@ -74,6 +77,7 @@ class LibraryTest {
             assertTrue(s.url.startsWith("https://"), "${id.key}: not https")
             assertTrue(allowed.any { host == it || host == "www.$it" }, "${id.key}: $host is not an allowed source")
             assertTrue("/forum/" !in s.url, "${id.key}: forum thread")
+            assertTrue("/blog/" !in s.url, "${id.key}: blog post")
             assertTrue(s.title.isNotBlank() && s.publisher.isNotBlank(), id.key)
             assertTrue(Regex("\\d{4}-\\d{2}-\\d{2}").matches(s.accessed), "${id.key}: accessed")
         }
@@ -82,15 +86,98 @@ class LibraryTest {
     }
 
     @Test
-    fun everyGuide_bracesInSetup_andRackedBarbellsNameSafetyOrSpotter() {
+    fun everyGuide_bracesInSetup() {
         for (e in all) {
-            val setup = e.guide.setup.map { it.lowercase() }
-            assertTrue(setup.any { "brace" in it }, "${e.name}: setup has no bracing line")
-            val barbell = e.equipment.any { it == Equipment.BARBELL || it == Equipment.SPECIALTY_BAR }
-            if (barbell && setup.any { "rack" in it }) {
-                assertTrue(setup.any { "safety" in it || "spotter" in it }, "${e.name}: racked barbell without safety pins, arms or spotter")
+            assertTrue(e.guide.setup.any { "brace" in it.lowercase() }, "${e.name}: setup has no bracing line")
+        }
+    }
+
+    private fun lines(g: FormGuide) = g.setup + g.steps + g.cues + g.mistakes
+
+    /** Barbell work set up in a rack: the owner's "heavy barbell work in a rack". */
+    private fun isRackedBarbell(e: LibraryExercise): Boolean {
+        val barbell = e.equipment.any { it == Equipment.BARBELL || it == Equipment.SPECIALTY_BAR }
+        val rackWords = listOf("in the rack", "from a rack", "power rack", "out of the rack")
+        val racked = (e.guide.setup + e.guide.steps).any { line -> line == RACK_IT || rackWords.any { it in line.lowercase() } }
+        return barbell && racked
+    }
+
+    // A free weight moved over the face (NSCA spotting rule). The standing DB overhead triceps extension goes over the
+    // head, not the face, so it is not one.
+    private val overFace = setOf("Skull crusher", "DB lying triceps extension", "DB pullover")
+
+    // Pin squat and Pin press start from the pins, and their own setup lines already name the safety pins.
+    private val pinsAreTheSetup = setOf("Pin squat", "Pin press")
+
+    @Test
+    fun rackedBarbellWork_andOverFaceWork_haveTheShortLine_once() {
+        for (e in all) {
+            val setup = e.guide.setup
+            if (isRackedBarbell(e) && e.name !in pinsAreTheSetup) {
+                assertEquals(1, setup.count { it == RACK_SAFETY }, "${e.name}: racked barbell work needs the short rack line once")
+            }
+            if (e.name in overFace) {
+                assertEquals(1, setup.count { it == OVER_FACE_SPOT }, "${e.name}: over-face work needs the short spotter line once")
             }
         }
+        assertEquals(overFace, all.filter { e -> e.name in overFace }.map { it.name }.toSet(), "over-face entries renamed")
+        assertEquals("Set the safety pins, or use a spotter.", RACK_SAFETY)
+        assertEquals("Use a spotter.", OVER_FACE_SPOT)
+    }
+
+    @Test
+    fun spotterLine_onlyWhereTheOwnerWantsIt() {
+        for (e in all) {
+            val g = e.guide
+            for (line in lines(g).filter { "spot" in it.lowercase() }) {
+                assertTrue(line == RACK_SAFETY || line == OVER_FACE_SPOT, "${e.name}: spotter line not in short form: $line")
+            }
+            assertTrue((g.steps + g.cues + g.mistakes).none { "spot" in it.lowercase() }, "${e.name}: spotter outside the setup")
+            if (RACK_SAFETY in g.setup) assertTrue(isRackedBarbell(e), "${e.name}: rack line on work that is not racked barbell work")
+            if (OVER_FACE_SPOT in g.setup) assertTrue(e.name in overFace, "${e.name}: spotter line on a lighter move")
+        }
+    }
+
+    @Test
+    fun noBeginnerOrSensationWording() {
+        val banned = listOf(
+            // beginner, etiquette and equipment-check reminders
+            "collar", "clip", "start light", "empty bar", "warm up", "warm-up", "trainer", "check that", "check the",
+            "clear the area", "wobble",
+            // regress and start-light lines
+            "if you can't do", "to make it easier", "too hard", "before you're ready", "new to you", "before you have",
+            "too soon", "too fast", "over time", "add weight slowly", "use less weight", "adding weight",
+            // sensation range limits
+            "you feel", "feels", "slight stretch", "mild stretch", "at the stretch", "tension in", "comfortable",
+            // jargon
+            "stay tight",
+        )
+        for (e in all) {
+            for (line in listOf(e.guide.purpose) + lines(e.guide)) {
+                val lower = line.lowercase()
+                for (b in banned) assertTrue(b !in lower, "${e.name}: \"$b\" in \"$line\"")
+            }
+        }
+    }
+
+    @Test
+    fun noGenericAlias() {
+        // Each alias names exactly one entry: it is not part of another entry's name. "Bench press" is the competition
+        // lift's own name, "Leg ext" an abbreviation, and "Dip"/"Dips" stay on Triceps dip by ruling.
+        val allowed = setOf("bench press", "leg ext", "dip", "dips")
+        for (e in all) {
+            for (alias in e.aliases.map { Library.normalise(it) }) {
+                if (alias in allowed) continue
+                val others = all.filter { it !== e && alias in Library.normalise(it.name) }.map { it.name }
+                assertTrue(others.isEmpty(), "${e.name}: alias \"$alias\" also fits $others")
+            }
+        }
+        // Removed in the final review: each fitted several entries.
+        val removed = listOf(
+            "Shoulder press", "Shrug", "Reverse fly", "External rotation", "Hip abduction", "Cable fly", "High cable fly",
+            "Cable row", "T-bar", "Incline DB", "Incline bench", "Narrow push-up", "Forearm curl",
+        )
+        for (generic in removed) assertNull(Library.find(generic), generic)
     }
 
     @Test
@@ -138,6 +225,11 @@ class LibraryTest {
         assertEquals("RDL", Library.find("Romanian deadlift")?.name)
         assertEquals("Squat", Library.find("back squat")?.name)
         assertEquals("Bulgarian split squat", Library.find("RFESS")?.name)
+        assertEquals("Triceps kickback", Library.find("kickback")?.name)
+        assertEquals("Triceps dip", Library.find("dip")?.name)
+        assertEquals("Triceps dip", Library.find("dips")?.name)
+        assertNull(Library.find("narrow push-up"), "generic: fits Close-grip and Triangle push-up")
+        assertNull(Library.find("forearm curl"), "generic: fits Wrist curl and Reverse wrist curl")
         assertNull(Library.find("romanian"), "find matches whole names only")
         assertNull(Library.find("Not an exercise"))
     }
@@ -214,8 +306,8 @@ class LibraryTest {
     fun chest_findsTheNamesPeopleType() {
         val expected = mapOf(
             "DB bench" to "DB press",
-            "incline DB" to "Incline DB press",
-            "Incline bench" to "Incline bench press",
+            "incline dumbbell press" to "Incline DB press",
+            "barbell incline bench press" to "Incline bench press",
             "pec deck" to "Pec deck",
             "cable crossover" to "Cable crossover",
             "Dumbbell fly" to "DB fly",
@@ -244,10 +336,10 @@ class LibraryTest {
             "chinup" to "Chin-up",
             "straight-arm pulldown" to "Straight-arm pulldown",
             "DB row" to "One-arm DB row",
-            "cable row" to "Seated cable row",
-            "T-bar" to "T-bar row",
+            "seated row" to "Seated cable row",
+            "lever T-bar row" to "T-bar row",
             "hyperextension" to "Back extension",
-            "shrug" to "Barbell shrug",
+            "BB shrug" to "Barbell shrug",
             "face pull" to "Face pull",
             "pullup" to "Pull-up",
         )
@@ -282,7 +374,6 @@ class LibraryTest {
         val expected = mapOf(
             "OHP" to "Overhead press",
             "military press" to "Overhead press",
-            "shoulder press" to "Overhead press",
             "seated military press" to "Seated barbell press",
             "dumbbell shoulder press" to "DB shoulder press",
             "shoulder press machine" to "Machine shoulder press",
@@ -291,10 +382,9 @@ class LibraryTest {
             "side raise" to "Lateral raise",
             "front raise" to "Front raise",
             "rear delt fly" to "Rear delt raise",
-            "reverse fly" to "Rear delt raise",
+            "bent-over reverse fly" to "Rear delt raise",
             "reverse pec deck" to "Machine reverse fly",
             "rear delt row" to "Cable rear delt row",
-            "external rotation" to "Cable external rotation",
             "band external rotation" to "Cable external rotation",
             "KB press" to "Kettlebell press",
         )
@@ -440,7 +530,7 @@ class LibraryTest {
             "nordic hamstring curl" to "Nordic curl",
             "KB swing" to "Kettlebell swing",
             "glute bridge" to "Glute bridge",
-            "hip abduction" to "Machine hip abduction",
+            "seated hip abduction" to "Machine hip abduction",
             "hip adduction" to "Machine hip adduction",
             "donkey kick" to "Quadruped hip extension",
             "reverse hyperextension" to "Reverse hyper",

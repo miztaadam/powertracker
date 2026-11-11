@@ -5,6 +5,12 @@ import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.db.AppDatabase
 import com.powertracker.data.db.SessionEntity
 import com.powertracker.data.db.SetEntity
+import com.powertracker.domain.library.Library
+import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.model.PlanItem
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.DayOfWeek
@@ -40,6 +46,45 @@ class BackupTest {
         val ex = db.exercises().all().first().id
         val s = db.sessions().insert(SessionEntity(date = LocalDate(2026, 5, 4), bodyweightKg = 90.5, readiness = 4))
         db.sets().insert(SetEntity(sessionId = s, exerciseId = ex, weightKg = 100.0, reps = 5, rpe = 8.0, failed = false, missPoint = null, isTopSet = true))
+    }
+
+    /** Spec §5: a backup made after adding catalogue exercises restores on this version, and holds only ordinary rows. */
+    @Test
+    fun backupAfterCatalogueAdd_roundTrips() = runTest {
+        val training = TrainingRepository(db)
+        val name = "Goblet squat"
+        for (row in db.exercises().all().filter { it.name.equals(name, ignoreCase = true) }) db.exercises().delete(row.id)
+        training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, 0, sets = 3, reps = 10, targetRpe = 8.0, order = 0), name)
+        val session = training.startSession(LocalDate(2026, 11, 10), null, null)
+        training.logSet(session, LoggedSet(0, 24.0, 10, 8.0, failed = false, missPoint = null, isTopSet = false), name)
+
+        val exported = service.export(1L)
+        val text = Backup.encode(exported)
+        val row = exported.exercises.single { it.name == name }
+        assertTrue(row.isBuiltIn)
+        assertEquals(Library.find(name)!!.muscles, row.muscles)
+        assertEquals(row.id, exported.planItems.single().exerciseId)
+        assertEquals(row.id, exported.sets.single().exerciseId)
+        // Every exercise is an ordinary row: the same fields as before the catalogue, and no catalogue data.
+        val ordinary = setOf("id", "name", "category", "parentLift", "muscles", "isBuiltIn", "archived")
+        for (e in Json.parseToJsonElement(text).jsonObject.getValue("exercises").jsonArray) assertEquals(ordinary, e.jsonObject.keys)
+
+        // Restored into an empty app on this version, it comes back the same.
+        val decoded = Backup.decode(text)
+        assertTrue(decoded is BackupResult.Ok)
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val fresh = AppDatabase.inMemory(context)
+        try {
+            val restoredService = BackupService(fresh, settings)
+            restoredService.restore((decoded as BackupResult.Ok).file)
+            assertEquals(exported, restoredService.export(1L))
+            val restored = fresh.exercises().all().single { it.name == name }
+            assertEquals(row.id, restored.id)
+            assertTrue(restored.isBuiltIn)
+            assertEquals(row.id, TrainingRepository(fresh).plan().first().single().exerciseId)
+        } finally {
+            fresh.close()
+        }
     }
 
     @Test

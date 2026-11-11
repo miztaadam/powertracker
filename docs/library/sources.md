@@ -24,6 +24,7 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 - [Barbell Block Pull](https://exrx.net/WeightExercises/GluteusMaximus/BBBlockPull). ExRx.net, accessed 2026-11-11.
 - [Barbell Rack Pull](https://exrx.net/WeightExercises/ErectorSpinae/BBRackPull). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Board press
 
@@ -46,11 +47,13 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Barbell Deadlift](https://exrx.net/WeightExercises/GluteusMaximus/BBDeadlift). ExRx.net, accessed 2026-11-11.
 - [Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/6/deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [ProSource September 2015: Technique Series: How to Deadlift](https://www.acefitness.org/continuing-education/prosource/september-2015/5579/technique-series-how-to-deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Deficit deadlift
 
 - [Barbell Deficit Deadlift](https://exrx.net/WeightExercises/ErectorSpinae/BBDeficitDeadlift). ExRx.net, accessed 2026-11-11.
 - [Barbell Deadlift](https://exrx.net/WeightExercises/GluteusMaximus/BBDeadlift). ExRx.net, accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Front squat
 
@@ -89,6 +92,7 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Barbell Deadlift](https://exrx.net/WeightExercises/GluteusMaximus/BBDeadlift). ExRx.net, accessed 2026-11-11.
 - [Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/6/deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Paused deadlift at the knee
 
@@ -96,6 +100,7 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/6/deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [The Sticking Point in the Bench Press, the Squat, and the Deadlift: Similarities and Differences, and Their Significance for Research and Practice](https://pmc.ncbi.nlm.nih.gov/articles/PMC5357260/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Pin press
 
@@ -166,6 +171,8 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Machine-assisted Chest Dip](https://exrx.net/WeightExercises/PectoralSternal/AsChestDip). ExRx.net, accessed 2026-11-11.
 - [Machine-assisted Chest Dip (kneeling)](https://exrx.net/WeightExercises/PectoralSternal/AsChestDipKneeling). ExRx.net, accessed 2026-11-11.
 - [Calculating Actual Resistance](https://exrx.net/WeightTraining/Bodyweight). ExRx.net, accessed 2026-11-11.
+- [Bench, Bar, and Ring Dips: Do Kinematics and Muscle Activity Differ?](https://pmc.ncbi.nlm.nih.gov/articles/PMC9603242/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Follow-up Q and A: Dangerous Dips](https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Cable chest press
@@ -183,6 +190,8 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 - [Chest Dip](https://exrx.net/WeightExercises/PectoralSternal/BWChestDip). ExRx.net, accessed 2026-11-11.
 - [Weighted Chest Dip](https://exrx.net/WeightExercises/PectoralSternal/WtChestDip). ExRx.net, accessed 2026-11-11.
+- [Bench, Bar, and Ring Dips: Do Kinematics and Muscle Activity Differ?](https://pmc.ncbi.nlm.nih.gov/articles/PMC9603242/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Follow-up Q and A: Dangerous Dips](https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Clap push-up
@@ -204,6 +213,7 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 ### Decline bench press
 
 - [Barbell Decline Bench Press](https://exrx.net/WeightExercises/PectoralSternal/BBDeclineBenchPress). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
@@ -211,13 +221,14 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 - [Dumbbell Decline Fly](https://exrx.net/WeightExercises/PectoralSternal/DBDeclineFly). ExRx.net, accessed 2026-11-11.
 - [Dumbbell Decline Bench Press](https://exrx.net/WeightExercises/PectoralSternal/DBDeclineBenchPress). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Decline DB press
 
 - [Dumbbell Decline Bench Press](https://exrx.net/WeightExercises/PectoralSternal/DBDeclineBenchPress). ExRx.net, accessed 2026-11-11.
 - [How To Do a Chest Press](https://www.acefitness.org/resources/everyone/exercise-library/19/chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
-- [Gym Etiquette](https://exrx.net/ExInfo/Etiquette). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Decline machine press
@@ -234,25 +245,28 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 ### Incline bench cable fly
 
 - [Cable Isolateral Incline Fly](https://exrx.net/WeightExercises/PectoralClavicular/CBInclineFly). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Incline bench press
 
 - [Barbell Incline Bench Press](https://exrx.net/WeightExercises/PectoralClavicular/BBInclineBenchPress). ExRx.net, accessed 2026-11-11.
 - [Barbell Bench Press](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Incline DB fly
 
 - [Dumbbell Incline Fly](https://exrx.net/WeightExercises/PectoralClavicular/DBInclineFly). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Incline DB press
 
 - [Dumbbell Incline Bench Press](https://exrx.net/WeightExercises/PectoralClavicular/DBInclineBenchPress). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Incline Chest Press](https://www.acefitness.org/resources/everyone/exercise-library/25/incline-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
-- [Gym Etiquette](https://exrx.net/ExInfo/Etiquette). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 
 ### Incline machine press
 
@@ -278,6 +292,7 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 ### Lying cable fly
 
 - [Cable Isolateral Lying Fly](https://exrx.net/WeightExercises/PectoralSternal/CBLyingFly). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Machine chest press
@@ -305,19 +320,19 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 ### Smith bench press
 
 - [Smith Bench Press](https://exrx.net/WeightExercises/PectoralSternal/SMBenchPress). ExRx.net, accessed 2026-11-11.
-- [Gym Etiquette](https://exrx.net/ExInfo/Etiquette). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Smith decline press
 
 - [Smith Decline Bench Press](https://exrx.net/WeightExercises/PectoralSternal/SMDeclineBenchPress). ExRx.net, accessed 2026-11-11.
-- [Gym Etiquette](https://exrx.net/ExInfo/Etiquette). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Smith incline press
 
 - [Smith Incline Bench Press](https://exrx.net/WeightExercises/PectoralClavicular/SMInclineBenchPress). ExRx.net, accessed 2026-11-11.
-- [Gym Etiquette](https://exrx.net/ExInfo/Etiquette). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Weighted push-up
@@ -381,6 +396,7 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 ### DB pullover
 
 - [Dumbbell Pullover](https://exrx.net/WeightExercises/PectoralSternal/DBPullover). ExRx.net, accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### DB shrug
@@ -517,7 +533,6 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 - [Dumbbell Arnold Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBArnoldPress). ExRx.net, accessed 2026-11-11.
 - [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
-- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Barbell front raise
@@ -570,7 +585,6 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 - [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Dumbbell Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBShoulderPress). ExRx.net, accessed 2026-11-11.
-- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 
 ### Front raise
 
@@ -580,7 +594,6 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 ### Kettlebell press
 
 - [Single-arm Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/395/single-arm-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
-- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Landmine press
@@ -619,7 +632,6 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 - [Dumbbell One Arm Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBOneArmShoulderPress). ExRx.net, accessed 2026-11-11.
 - [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
-- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Overhead press
@@ -663,7 +675,6 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 ### Smith shoulder press
 
 - [Smith Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/SMShoulderPress). ExRx.net, accessed 2026-11-11.
-- [Gym Etiquette](https://exrx.net/ExInfo/Etiquette). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ## Arms
@@ -717,7 +728,6 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 - [Exercise Library: Triceps Extension](https://www.acefitness.org/resources/everyone/exercise-library/74/triceps-extension/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Dumbbell Triceps Extension](https://exrx.net/WeightExercises/Triceps/DBTriExt). ExRx.net, accessed 2026-11-11.
-- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 
 ### DB preacher curl
 
@@ -751,6 +761,8 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 ### JM press
 
 - [Barbell JM Bench Press](https://exrx.net/WeightExercises/Triceps/BBJMPress). ExRx.net, accessed 2026-11-11.
+- [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Machine curl
 
@@ -807,7 +819,6 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 - [Exercise Library: Lying Barbell Triceps Extensions](https://www.acefitness.org/resources/everyone/exercise-library/36/lying-barbell-triceps-extensions/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Barbell Lying Triceps Extension "Skull Crusher"](https://exrx.net/WeightExercises/Triceps/BBLyingTriExtSC). ExRx.net, accessed 2026-11-11.
-- [9 Exercises You Didn't Know You Could Do With a Barbell](https://www.acefitness.org/resources/everyone/blog/5366/9-exercises-you-didn-t-know-you-could-do-with-a-barbell/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
@@ -819,14 +830,13 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 ### Triangle push-up
 
-- [Tone Up Your Triceps with These Three Exercises](https://www.acefitness.org/resources/everyone/blog/4930/tone-up-your-triceps-with-these-three-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [ACE Study Identifies Best Triceps Exercises](https://www.acefitness.org/certifiednewsarticle/3008/ace-study-identifies-best-triceps-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Triceps dip
 
 - [Weighted Triceps Dip](https://exrx.net/WeightExercises/Triceps/WtTriDip). ExRx.net, accessed 2026-11-11.
 - [Suspended Triceps Dip](https://exrx.net/WeightExercises/Triceps/STTriDip). ExRx.net, accessed 2026-11-11.
-- [Tone Up Your Triceps with These Three Exercises](https://www.acefitness.org/resources/everyone/blog/4930/tone-up-your-triceps-with-these-three-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Bench, Bar, and Ring Dips: Do Kinematics and Muscle Activity Differ?](https://pmc.ncbi.nlm.nih.gov/articles/PMC9603242/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Follow-up Q and A: Dangerous Dips](https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
@@ -1273,6 +1283,7 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 - [Cable Kneeling Crunch](https://exrx.net/WeightExercises/RectusAbdominis/CBKneelingCrunch). ExRx.net, accessed 2026-11-11.
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Most Common Weight Training Mistakes](https://exrx.net/WeightTraining/Mistakes). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Cable woodchop
@@ -1307,6 +1318,7 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 
 - [Lever Seated Crunch (chest pad)](https://exrx.net/WeightExercises/RectusAbdominis/LVSeatedCrunchChestPad). ExRx.net, accessed 2026-11-11.
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
+- [Most Common Weight Training Mistakes](https://exrx.net/WeightTraining/Mistakes). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Pallof press

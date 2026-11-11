@@ -9,14 +9,12 @@ import com.powertracker.domain.library.SourceId
 import com.powertracker.domain.library.Sources
 import com.powertracker.domain.model.Category
 
-// Shared lines, so the safety and bracing wording is the same in every arm guide.
+// Shared lines, so the bracing wording is the same in every arm guide. OVER_FACE_SPOT is in Shared.kt.
 private const val STAND_BRACE = "Stand tall and brace your abs, so your body stays still."
 private const val SEATED_BRACE = "Sit tall and brace your abs lightly, and keep breathing."
 private const val LIGHT_BRACE = "Brace your abs lightly, and keep breathing."
 private const val CABLE_BRACE = "Brace your abs, and pull your shoulder blades down and back."
 private const val BODY_BRACE = "Brace your trunk and keep your body in one straight line."
-private const val OVER_FACE_SPOT = "Use a spotter. The weight moves over your head or face."
-private const val NO_SPOTTER = "Doing it without a spotter."
 private const val ELBOWS_AT_SIDES = "Elbows at your sides."
 private const val LOWER_TO_STRAIGHT = "Lower under control until your arms are straight."
 private const val CURL_TO_VERTICAL = "Bend your elbows to curl the weight up until your forearms are upright."
@@ -69,25 +67,25 @@ internal val arms: List<LibraryExercise> = listOf(
         guide = FormGuide(
             purpose = "A mix of a close-grip bench press and a triceps extension. It builds triceps strength for the bench lockout.",
             setup = listOf(
-                "Set the safety arms just below the height of your chest, or use a spotter.",
+                RACK_SAFETY,
                 "Lie on the bench with your feet flat on the floor.",
                 "Grip the bar with your hands about 40 cm apart.",
-                "Breathe in and brace before you lift the bar out.",
+                BENCH_BRACE,
             ),
             steps = listOf(
                 "Lift the bar out and hold it over your shoulders with straight arms.",
                 "Lower the bar toward your upper chest, keeping your elbows high.",
                 "Stop when your forearms press against your upper arms.",
                 "Press back up until your elbows lock.",
-                "Put the bar back in the rack after the last rep.",
+                RACK_IT,
             ),
             cues = listOf("Elbows stay high.", "Bar between your chin and upper chest."),
             mistakes = listOf(
                 "Letting your elbows drop, so it turns into a close-grip bench.",
-                "Adding weight before the movement feels smooth.",
+                "Lowering the bar to your lower chest instead of between your chin and upper chest.",
             ),
         ),
-        sources = listOf(Sources.EXRX_JM_PRESS),
+        sources = listOf(Sources.EXRX_JM_PRESS, Sources.NSCA_STANDARDS_SUMMARY, Sources.ACE_BRACE_OR_BREATHE),
     ),
     LibraryExercise(
         name = "Curl",
@@ -394,7 +392,7 @@ internal val arms: List<LibraryExercise> = listOf(
             setup = listOf(
                 "Lie face down on an incline bench, with your shoulders near the top.",
                 "Rest your knees on the seat, or put your legs out to the sides.",
-                "Have a spotter hand you a curl bar, or take it from a low rack. Hold it with an underhand grip, about shoulder-width apart.",
+                "Hold a curl bar with an underhand grip, about shoulder-width apart.",
                 LIGHT_BRACE,
             ),
             steps = listOf(
@@ -525,7 +523,6 @@ internal val arms: List<LibraryExercise> = listOf(
         FormGuide(
             purpose = "A triceps extension holding one dumbbell in both hands, lowering it behind your head. It works your triceps with your arms up.",
             setup = listOf(
-                OVER_FACE_SPOT,
                 "Stand with one foot a little in front of the other. Hold one dumbbell with both hands.",
                 "Brace your abs and pull your shoulder blades down and back. Keep your head in line with your spine.",
                 "Press the dumbbell overhead until your arms are upright.",
@@ -537,9 +534,9 @@ internal val arms: List<LibraryExercise> = listOf(
                 "You can also do this seated on a bench with back support.",
             ),
             cues = listOf("Upper arms still.", "Lower slowly."),
-            mistakes = listOf("Hitting the back of your head or neck with the dumbbell.", "Letting your upper arms move during the rep.", NO_SPOTTER),
+            mistakes = listOf("Hitting the back of your head or neck with the dumbbell.", "Letting your upper arms move during the rep."),
         ),
-        listOf(Sources.ACE_TRICEPS_EXTENSION, Sources.EXRX_DB_TRI_EXT, Sources.NSCA_STANDARDS_SUMMARY),
+        listOf(Sources.ACE_TRICEPS_EXTENSION, Sources.EXRX_DB_TRI_EXT),
     ),
     armEntry(
         "Skull crusher",
@@ -563,10 +560,10 @@ internal val arms: List<LibraryExercise> = listOf(
                 "Breathe out and press the bar back up, without locking your elbows.",
             ),
             cues = listOf("Upper arms upright.", "Slow near your forehead.", "Elbows about shoulder-width apart."),
-            mistakes = listOf(NO_SPOTTER, "Letting your upper arms drift back.", "Letting the bar drop fast toward your face."),
+            mistakes = listOf("Letting your upper arms drift back.", "Letting the bar drop fast toward your face."),
         ),
         listOf(
-            Sources.ACE_LYING_BB_TRI_EXT, Sources.EXRX_BB_SKULL_CRUSHER, Sources.ACE_BARBELL_EXERCISES,
+            Sources.ACE_LYING_BB_TRI_EXT, Sources.EXRX_BB_SKULL_CRUSHER,
             Sources.NSCA_STANDARDS_SUMMARY, Sources.ACE_BRACE_OR_BREATHE,
         ),
     ),
@@ -587,7 +584,7 @@ internal val arms: List<LibraryExercise> = listOf(
                 "Straighten your arms to raise them back up.",
             ),
             cues = listOf("Dumbbells beside your head, not over your face.", "Lower slowly."),
-            mistakes = listOf(NO_SPOTTER, "Lowering the dumbbells toward your face instead of beside your head."),
+            mistakes = listOf("Lowering the dumbbells toward your face instead of beside your head.", DROPPING),
         ),
         listOf(
             Sources.EXRX_DB_LYING_TRI_EXT, Sources.EXRX_DB_DECLINE_TRI_EXT, Sources.NSCA_STANDARDS_SUMMARY,
@@ -663,7 +660,7 @@ internal val arms: List<LibraryExercise> = listOf(
             ),
         ),
         listOf(
-            Sources.EXRX_WT_TRI_DIP, Sources.EXRX_ST_TRI_DIP, Sources.ACE_TONE_TRICEPS, Sources.PMC_BENCH_BAR_RING_DIPS,
+            Sources.EXRX_WT_TRI_DIP, Sources.EXRX_ST_TRI_DIP, Sources.PMC_BENCH_BAR_RING_DIPS,
             Sources.ACE_DANGEROUS_DIPS, Sources.ACE_BRACE_OR_BREATHE,
         ),
         kind = Kind.COMPOUND,
@@ -677,7 +674,6 @@ internal val arms: List<LibraryExercise> = listOf(
                 "Place your hands on the floor under your shoulders, or a little narrower.",
                 "Push up onto your toes with straight arms.",
                 BODY_BRACE,
-                "To make it easier, do it on your knees or with your hands on a raised surface.",
             ),
             steps = listOf(
                 "Bend your arms to lower your body toward the floor. Keep your body straight.",
@@ -698,16 +694,15 @@ internal val arms: List<LibraryExercise> = listOf(
                 "Place your hands together on the floor under your chest, so your thumbs and index fingers make a triangle.",
                 "Push up onto your toes with straight arms.",
                 "Brace your trunk so your body stays rigid. Keep your head in line with your spine.",
-                "If this is new to you, do it on your knees first.",
             ),
             steps = listOf(
-                "Bend your elbows to lower your body until your chest or chin touches the floor.",
+                "Bend your elbows to lower your chest toward the floor. Keep your body rigid.",
                 "Push back up until your elbows are straight.",
             ),
             cues = listOf("Body rigid.", "Head in line with your spine."),
-            mistakes = listOf("Letting your hips sag.", "Trying it before you have mastered easier push-ups."),
+            mistakes = listOf("Letting your hips sag.", "Lifting your hips."),
         ),
-        listOf(Sources.ACE_TONE_TRICEPS, Sources.ACE_PUSH_UP),
+        listOf(Sources.ACE_TRICEPS_STUDY, Sources.ACE_PUSH_UP),
         kind = Kind.COMPOUND,
     ),
 

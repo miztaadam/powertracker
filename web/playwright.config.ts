@@ -6,10 +6,10 @@ import { defineConfig, devices } from '@playwright/test'
 const CHROMIUM = '/opt/pw-browsers/chromium'
 const iphone = { ...devices['iPhone 13'], browserName: 'chromium' as const }
 
-// The timing checks ("picker speed" in e2e/library.spec.ts) hold the picker to 100 ms on the page's own
+// The timing checks (tagged @speed in e2e/library.spec.ts) hold the picker to 100 ms on the page's own
 // clock. Beside other workers they measure the machine, not the picker, so they are their own project
 // and run once everything else has finished, one after another.
-const SPEED = /picker speed/
+const SPEED = /@speed/
 
 export default defineConfig({
   testDir: './e2e',

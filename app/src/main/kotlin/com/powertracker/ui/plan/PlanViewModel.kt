@@ -9,6 +9,7 @@ import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.library.Kind
+import com.powertracker.domain.library.Library
 import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
@@ -102,11 +103,23 @@ class PlanViewModel(
         }
     }
 
-    /** Creates a custom exercise and reports it as a picker entry, ready to [add] or [save]. */
+    /**
+     * Creates a custom exercise and reports it as a picker entry, ready to [add] or [save]. A name the
+     * catalogue knows (a name or an alias, ignoring case) is not made again: the catalogue's entry is
+     * reported instead, tied to its oldest live row if it has one, and gets its row like any other
+     * catalogue exercise when it is saved.
+     */
     fun addCustomExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onCreated: (PickerEntry) -> Unit) {
+        val trimmed = name.trim()
+        val known = Library.find(trimmed)
+        if (known != null) {
+            val row = state.value.exercises.filter { !it.archived && it.name.equals(known.name, ignoreCase = true) }.minByOrNull { it.id }
+            onCreated(PickerEntry(known.name, known.muscles, known.kind, known, row?.id))
+            return
+        }
         viewModelScope.launch {
-            val id = training.addExercise(Exercise(0, name.trim(), category, parentLift, muscles, isBuiltIn = false))
-            onCreated(PickerEntry(name.trim(), muscles, if (category == Category.ACCESSORY) Kind.ACCESSORY else Kind.COMPOUND, library = null, exerciseId = id))
+            val id = training.addExercise(Exercise(0, trimmed, category, parentLift, muscles, isBuiltIn = false))
+            onCreated(PickerEntry(trimmed, muscles, if (category == Category.ACCESSORY) Kind.ACCESSORY else Kind.COMPOUND, library = null, exerciseId = id))
         }
     }
 

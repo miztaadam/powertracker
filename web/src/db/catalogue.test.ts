@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import Dexie from 'dexie'
 import { grit } from '../domain'
 import { TODAY, startSession, todayFixture } from '../test/todayFixture'
+import { decodeBackup, encodeBackup, exportBackup, restoreBackup } from '../backup/backup'
 import { addPlanItem, addSet, resolveCatalogue, updatePlanItem } from './catalogue'
-import type { GritDb } from './db'
+import { openGritDb, type GritDb } from './db'
 import type { ExerciseRow } from './schema'
 
 let fx: ReturnType<typeof todayFixture>
@@ -147,5 +149,43 @@ describe('resolveCatalogue', () => {
     const sessionId = await startSession(db, TODAY)
     const setId = await addSet(db, { ...set(squat), sessionId }, null)
     expect((await db.sets.get(setId))!.exerciseId).toBe(squat)
+  })
+})
+
+describe('backup', () => {
+  // Spec §5: a backup made after adding catalogue exercises restores on this version, and holds only ordinary rows.
+  it('backupAfterCatalogueAdd_roundTrips', async () => {
+    const name = 'Goblet squat'
+    await unseed(name)
+    await addPlanItem(db, planItem(), name)
+    const sessionId = await startSession(db, TODAY)
+    await addSet(db, { ...set(), sessionId }, name)
+
+    const exported = await exportBackup(db, 1)
+    const text = encodeBackup(exported)
+    const row = exported.exercises.find((e) => e.name === name)!
+    expect(row.isBuiltIn).toBe(true)
+    expect(row.muscles).toEqual([...grit.findInLibrary(name)!.muscles])
+    expect(exported.planItems.map((p) => p.exerciseId)).toEqual([row.id])
+    expect(exported.sets.map((s) => s.exerciseId)).toEqual([row.id])
+    // Every exercise is an ordinary row: the same fields as before the catalogue, and no catalogue data.
+    const ordinary = ['archived', 'category', 'id', 'isBuiltIn', 'muscles', 'name', 'parentLift']
+    for (const e of (JSON.parse(text) as { exercises: Record<string, unknown>[] }).exercises) expect(Object.keys(e).sort()).toEqual(ordinary)
+
+    // Restored into an empty app on this version, it comes back the same.
+    const decoded = decodeBackup(text)
+    if (!decoded.ok) throw new Error(`decode failed: ${JSON.stringify(decoded)}`)
+    const freshName = `${fx.name}-restored`
+    const fresh = await openGritDb(freshName)
+    try {
+      await restoreBackup(fresh, decoded.file)
+      expect(await exportBackup(fresh, 1)).toEqual(exported)
+      const restored = (await fresh.exercises.toArray()).filter((e) => e.name === name)
+      expect(restored).toEqual([expect.objectContaining({ id: row.id, isBuiltIn: true, archived: false })])
+      expect((await fresh.planItems.toArray()).map((p) => p.exerciseId)).toEqual([row.id])
+    } finally {
+      fresh.close()
+      await Dexie.delete(freshName)
+    }
   })
 })
