@@ -11,6 +11,8 @@ export type AppSettings = {
   restAlert: 'SOUND' | 'SILENT' | 'OFF'
   keepAwake: boolean
   lastBackupAt: string | null
+  /** Strict press on Progress and in the total (strict press spec §4.2). Coaching ignores it. */
+  showStrictPress: boolean
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -23,6 +25,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   restAlert: 'SOUND',
   keepAwake: true,
   lastBackupAt: null,
+  showStrictPress: false,
 }
 
 /** Stored values of the wrong type fall back to the default. `null` defaults accept string or null. */

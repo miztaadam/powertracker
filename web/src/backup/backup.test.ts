@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import Dexie from 'dexie'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { resolveCatalogue } from '../db/catalogue'
 import { ensureSeeded, getSettings, openGritDb, updateSettings, type GritDb } from '../db/db'
 import { readSafetyCopy } from '../db/safety'
 import {
@@ -17,11 +18,15 @@ import {
   isoToEpochDay,
   epochDayToIso,
 } from './backup'
-import type { BackupFile } from './format'
+import { BACKUP_VERSION, type BackupFile } from './format'
 
 const FIXTURES = resolve(__dirname, '__fixtures__')
+/** What the previous apps wrote (version 1): frozen, and must keep restoring. */
 const ANDROID_FIXTURE = resolve(FIXTURES, 'android-v1.json')
-const WEB_FIXTURE = resolve(FIXTURES, 'web-v1.json')
+const WEB_V1_FIXTURE = resolve(FIXTURES, 'web-v1.json')
+/** What the apps write now (version 2). Android regenerates its own; this app regenerates web-v2 (UPDATE_FIXTURES=1). */
+const ANDROID_V2_FIXTURE = resolve(FIXTURES, 'android-v2.json')
+const WEB_FIXTURE = resolve(FIXTURES, 'web-v2.json')
 const EXPORTED_AT = 1_793_000_000_000
 
 let n = 0
@@ -51,8 +56,11 @@ const decodeOk = (text: string): BackupFile => {
   return r.file
 }
 
-/** Mirrors the Android fixture's breadth, deterministically. */
-async function buildSampleDb(db: GritDb) {
+/**
+ * Mirrors the Android fixture's breadth, deterministically. `strictPress` adds what version 2 brought, as
+ * Android's fixture has it: the switch on and a catalogue "Strict press" row with an "off the shoulders" miss.
+ */
+async function buildSampleDb(db: GritDb, { strictPress = false } = {}) {
   await ensureSeeded(db)
   const byName = new Map((await db.exercises.toArray()).map((e) => [e.name, e.id as number]))
   const squat = byName.get('Squat')!
@@ -105,6 +113,25 @@ async function buildSampleDb(db: GritDb) {
     adv('RE_ENTRY', null, 'Back after a break', 1, `{"type":"${P}ReEntry"}`, 'OPEN'),
   ])
   await db.baselines.put({ exerciseId: squat, e1rmKg: 172.5, date: '2026-09-01' })
+  if (strictPress) {
+    await updateSettings(db, (s) => ({ ...s, showStrictPress: true }))
+    const press = await resolveCatalogue(db, 'Strict press')
+    await set(s2, press, 60, 5, 8.5, false, null, true)
+    await set(s2, press, 65, 2, 10, true, 'FLOOR', false)
+  }
+}
+
+/** What a version-1 file with no strict press row exports as once restored here: version 2, switch off. */
+function asUpgradedV1(v1: Record<string, unknown>): Record<string, unknown> {
+  expect(v1.version).toBe(1)
+  return withoutExportedAt({ ...v1, version: BACKUP_VERSION, settings: { ...(v1.settings as object), showStrictPress: false } })
+}
+
+/** `text` as the previous app wrote it: version 1, and no setting it did not have. */
+function asVersion1(text: string): string {
+  const root = JSON.parse(text) as Record<string, unknown>
+  const { showStrictPress: _dropped, ...settings } = root.settings as Record<string, unknown>
+  return JSON.stringify({ ...root, version: 1, settings })
 }
 
 describe('backup', () => {
@@ -116,7 +143,8 @@ describe('backup', () => {
     await restoreBackup(db, decodeOk(fixtureText))
     const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
 
-    const expected = withoutExportedAt(readJson(ANDROID_FIXTURE))
+    // A version-1 file exports again as version 2 with the strict press switch off.
+    const expected = asUpgradedV1(readJson(ANDROID_FIXTURE))
     // The documented differences: web fills webRestAlert, and restAlert round-trips through web SOUND.
     expect((expected.settings as Record<string, unknown>).webRestAlert).toBeNull()
     expect((expected.settings as Record<string, unknown>).restAlert).toBe('SOUND_AND_VIBRATE')
@@ -279,7 +307,7 @@ describe('backup', () => {
       expect(r.ok === false && r.kind).toBe('CORRUPT')
     }
     for (const t of ['not json', '[1]', '{}', '{"version":"x"}', '{"version":0}', '{"version":-1}', '{"version":"1"}', 'null']) corrupt(t)
-    expect(decodeBackup('{"version":2}')).toEqual({ ok: false, kind: 'TOO_NEW', version: 2 })
+    expect(decodeBackup(`{"version":${BACKUP_VERSION + 1}}`)).toEqual({ ok: false, kind: 'TOO_NEW', version: BACKUP_VERSION + 1 })
     corrupt(mut((o) => (o.exercises[0]!.category = 'NOPE')))
     corrupt(mut((o) => (o.exercises[3]!.parentLift = 'ROW')))
     corrupt(mut((o) => (o.sets[1]!.missPoint = 'TOP')))
@@ -351,12 +379,12 @@ describe('backup', () => {
     await writeSafetyCopy(db)
     const copy = decodeOk((await readSafetyCopy(db))!.json)
     expect(copy.sessions).toHaveLength(2)
-    expect(copy.version).toBe(1)
+    expect(copy.version).toBe(BACKUP_VERSION)
   })
 
   it('webFixture_isUpToDate', async () => {
     const db = await openDb()
-    await buildSampleDb(db)
+    await buildSampleDb(db, { strictPress: true })
     const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
     if (process.env.UPDATE_FIXTURES === '1') {
       writeFileSync(WEB_FIXTURE, JSON.stringify(JSON.parse(text), null, 4) + '\n')
@@ -366,5 +394,116 @@ describe('backup', () => {
     const file = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
     expect(file.settings.restAlert).toBe('VIBRATE')
     expect(file.settings.webRestAlert).toBe('SILENT')
+    expect(file.version).toBe(2)
+    expect(file.settings.showStrictPress).toBe(true)
+    expect(file.exercises.filter((e) => e.category === 'STRICT_PRESS').map((e) => e.name)).toEqual(['Strict press'])
+  })
+
+  /** The previous web app's backup restores, and exports again as version 2 with the strict press switch off. */
+  it('webV1Fixture_restoresOnWeb', async () => {
+    const db = await openDb()
+    await restoreBackup(db, decodeOk(readFileSync(WEB_V1_FIXTURE, 'utf8')))
+    const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
+    const expected = asUpgradedV1(readJson(WEB_V1_FIXTURE))
+    // App lock is this device's own (see androidFixture_restoresExactly).
+    ;(expected.settings as Record<string, unknown>).appLock = false
+    expect(withoutExportedAt(out)).toEqual(expected)
+  })
+
+  /** Android's version-2 backup restores exactly: its strict press row, its sets and the switch. */
+  it('androidV2Fixture_restoresOnWeb', async () => {
+    const db = await openDb()
+    await ensureSeeded(db)
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_V2_FIXTURE, 'utf8')))
+    const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
+
+    const expected = withoutExportedAt(readJson(ANDROID_V2_FIXTURE))
+    const settings = expected.settings as Record<string, unknown>
+    expect(expected.version).toBe(2)
+    expect(settings.showStrictPress).toBe(true)
+    // The same documented differences as for version 1: webRestAlert is filled, App lock stays this device's.
+    expect(settings.webRestAlert).toBeNull()
+    settings.webRestAlert = 'SOUND'
+    expect(settings.appLock).toBe(true)
+    settings.appLock = false
+    expect(withoutExportedAt(out)).toEqual(expected)
+
+    expect((await getSettings(db)).showStrictPress).toBe(true)
+    const press = (await db.exercises.toArray()).filter((e) => e.category === 'STRICT_PRESS')
+    expect(press.map((e) => [e.name, e.isBuiltIn])).toEqual([['Strict press', true]])
+    expect((await db.sets.toArray()).some((s) => s.exerciseId === press[0]!.id && s.missPoint === 'FLOOR')).toBe(true)
+  })
+
+  /** Strict press spec §4.3: a version-1 file's "Overhead press" row is converted on restore by the §4.1 rule. */
+  it('v1Restore_convertsOverheadPress', async () => {
+    const db = await openDb()
+    await buildSampleDb(db)
+    const add = (name: string) =>
+      db.exercises.add({ name, category: 'ACCESSORY', parentLift: null, muscles: ['Delts'], isBuiltIn: false, archived: false }) as Promise<number>
+    const ohp = await add('Overhead press')
+    const mil = await add('Military press')
+    const archived = (await db.exercises.add({ name: 'OHP', category: 'ACCESSORY', parentLift: null, muscles: ['Delts'], isBuiltIn: false, archived: true })) as number
+    const session = (await db.sessions.toCollection().first())!.id!
+    await db.sets.bulkAdd([
+      { sessionId: session, exerciseId: ohp, weightKg: 60, reps: 5, rpe: 8, failed: false, missPoint: null, isTopSet: true },
+      { sessionId: session, exerciseId: mil, weightKg: 55, reps: 5, rpe: 8, failed: false, missPoint: null, isTopSet: false },
+    ])
+    const before = await exportBackup(db, EXPORTED_AT)
+    const v1 = asVersion1(encodeBackup(before))
+
+    const decoded = decodeOk(v1)
+    expect(decoded.version).toBe(1)
+    expect(decoded.settings.showStrictPress).toBe(false)
+    await updateSettings(db, (s) => ({ ...s, showStrictPress: true }))
+    await restoreBackup(db, decoded)
+
+    const after = await exportBackup(db, EXPORTED_AT)
+    expect(after.version).toBe(BACKUP_VERSION)
+    expect(after.exercises.find((e) => e.id === ohp)).toEqual({ id: ohp, name: 'Strict press', category: 'STRICT_PRESS', parentLift: null, muscles: ['Delts'], isBuiltIn: true, archived: false })
+    expect(after.exercises.find((e) => e.id === mil)).toEqual({ id: mil, name: 'Military press', category: 'STRICT_PRESS', parentLift: null, muscles: ['Delts'], isBuiltIn: false, archived: false })
+    // Nothing else changes: the other rows (the archived one included), every set and the settings (a v1 file means off).
+    const others = (f: BackupFile) => f.exercises.filter((e) => e.id !== ohp && e.id !== mil)
+    expect(others(after)).toEqual(others(before))
+    expect(after.exercises.find((e) => e.id === archived)?.category).toBe('ACCESSORY')
+    expect(after.sets).toEqual(before.sets)
+    expect(after.settings).toEqual({ ...before.settings, showStrictPress: false })
+    expect((await getSettings(db)).showStrictPress).toBe(false)
+  })
+
+  it('v2RoundTrip_keepsShowStrictPress', async () => {
+    const db = await openDb()
+    await buildSampleDb(db, { strictPress: true })
+    // A version-2 file is already upgraded: a row named like the strict press is left as it is.
+    await db.exercises.add({ name: 'OHP', category: 'ACCESSORY', parentLift: null, muscles: ['Delts'], isBuiltIn: false, archived: false })
+    const exported = await exportBackup(db, EXPORTED_AT)
+    const text = encodeBackup(exported)
+    const json = JSON.parse(text) as { version: number; settings: Record<string, unknown> }
+    expect(json.version).toBe(2)
+    expect(json.settings.showStrictPress).toBe(true)
+    await updateSettings(db, (s) => ({ ...s, showStrictPress: false }))
+
+    await restoreBackup(db, decodeOk(text))
+
+    expect((await getSettings(db)).showStrictPress).toBe(true)
+    expect(await exportBackup(db, EXPORTED_AT)).toEqual(exported)
+  })
+
+  /** An app that only reads version 1 turns a version-2 file away with the existing "too new" result. */
+  it('v2File_onVersion1Decoder_isTooNew', async () => {
+    const db = await openDb()
+    await buildSampleDb(db, { strictPress: true })
+    const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
+
+    expect(decodeBackup(text, 1)).toEqual({ ok: false, kind: 'TOO_NEW', version: 2 })
+    expect(decodeBackup(text).ok).toBe(true)
+  })
+
+  it('decode_showStrictPress_isOptionalButTyped', () => {
+    const o = readJson(WEB_FIXTURE) as { settings: Record<string, unknown> }
+    delete o.settings.showStrictPress
+    expect(decodeOk(JSON.stringify(o)).settings.showStrictPress).toBe(false)
+    o.settings.showStrictPress = 'yes'
+    const r = decodeBackup(JSON.stringify(o))
+    expect(r.ok === false && r.kind).toBe('CORRUPT')
   })
 })

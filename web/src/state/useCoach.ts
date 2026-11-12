@@ -1,6 +1,7 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
+import { resolveCatalogue } from '../db/catalogue'
 import { exerciseToJs } from '../db/mapping'
 import type { AdviceRow, ExerciseRow, PlanItemRow } from '../db/schema'
 import { grit, type JsExercise, type JsHistory } from '../domain'
@@ -112,14 +113,19 @@ function ratioFor(lift: Lift, history: JsHistory, today: string, flaggedOnly: bo
   return flagged ?? (flaggedOnly ? null : (known[0] ?? null))
 }
 
-/** The first two options for the weak point that are in the library and not in the plan yet, dosed like a stall card's. */
+/**
+ * The first two options for the weak point that are not in the plan yet, dosed like a stall card's. An option is the
+ * lifter's row of that name, else the catalogue entry, whose row Apply adds.
+ */
 function weakPointAdditions(lift: Lift, missPoint: MissPoint | null, plan: PlanItemRow[], exercises: LibraryExercise[]): Prescription[] {
   const planned = new Set(plan.map((p) => p.exerciseId))
   return grit
     .accessoryOptions(lift, missPoint)
     .flatMap((option) => {
       const exercise = findExercise(exercises, option.name)
-      return exercise && !planned.has(exercise.id) ? [{ name: exercise.name, heavy: option.heavy }] : []
+      if (exercise) return planned.has(exercise.id) ? [] : [{ name: exercise.name, heavy: option.heavy }]
+      const entry = grit.findInLibrary(option.name)
+      return entry ? [{ name: entry.name, heavy: option.heavy }] : []
     })
     .slice(0, WEAK_POINT_ADDITIONS)
     .map(({ name, heavy }) => (heavy ? { exerciseName: name, sets: 3, repsLow: 3, repsHigh: 5 } : { exerciseName: name, sets: 3, repsLow: 8, repsHigh: 10 }))
@@ -168,7 +174,11 @@ function dayFor(lift: Lift | null, plan: PlanItemRow[], exercises: LibraryExerci
   return settings.trainingDays.length > 0 ? Math.min(...settings.trainingDays) : 1
 }
 
-/** Adds the prescriptions to the day that trains `lift`, skipping any already there. Returns what to tell the lifter. */
+/**
+ * Adds the prescriptions to the day that trains `lift`, skipping any already there and any name that is neither a row
+ * nor in the catalogue. A catalogue exercise without a row gets one (`resolveCatalogue`), in the caller's transaction,
+ * so it lands with the plan items or not at all. Returns what to tell the lifter.
+ */
 async function addToPlan(db: GritDb, lift: Lift | null, prescriptions: Prescription[], plan: PlanItemRow[], exercises: LibraryExercise[]): Promise<string> {
   const settings = await getSettings(db)
   const day = dayFor(lift, plan, exercises, settings)
@@ -177,10 +187,10 @@ async function addToPlan(db: GritDb, lift: Lift | null, prescriptions: Prescript
   let order = Math.max(-1, ...onDay.map((p) => p.order)) + 1
   let added = 0
   for (const p of prescriptions) {
-    const exercise = findExercise(exercises, p.exerciseName)
-    if (!exercise || taken.has(exercise.id)) continue
-    taken.add(exercise.id)
-    await db.planItems.add({ weekday: day, exerciseId: exercise.id, sets: p.sets, reps: p.repsHigh, targetRpe: settings.defaultRpe, order: order++ })
+    const exerciseId = findExercise(exercises, p.exerciseName)?.id ?? (grit.findInLibrary(p.exerciseName) ? await resolveCatalogue(db, p.exerciseName) : null)
+    if (exerciseId == null || taken.has(exerciseId)) continue
+    taken.add(exerciseId)
+    await db.planItems.add({ weekday: day, exerciseId, sets: p.sets, reps: p.repsHigh, targetRpe: settings.defaultRpe, order: order++ })
     added++
   }
   const name = dayName(day)

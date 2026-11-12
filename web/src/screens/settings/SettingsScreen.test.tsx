@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { decodeBackup, encodeBackup, exportBackup } from '../../backup/backup'
+import { BACKUP_VERSION } from '../../backup/format'
 import { getSettings, readSafetyCopy, updateSettings, writeSafetyCopy, type GritDb } from '../../db/db'
 import { CREDENTIAL_KEY } from '../../platform/passkeyLock'
 import { TODAY, exerciseNamed, plan, todayFixture } from '../../test/todayFixture'
@@ -146,7 +147,7 @@ describe('SettingsScreen', () => {
   it('restore_tooNew_showsMessage', async () => {
     show()
     const before = await data()
-    await pick('{"version":2}')
+    await pick(`{"version":${BACKUP_VERSION + 1}}`)
     expect(await screen.findByText('This backup is from a newer version of Grit.')).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(await data()).toBe(before)

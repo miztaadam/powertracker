@@ -17,7 +17,11 @@ export type SafetyCopy = { kind: 'backup' | 'raw'; json: string }
  */
 export async function snapshotForSafety(db: Dexie): Promise<SafetyCopy> {
   try {
-    return { kind: 'backup', json: encodeBackup(await exportBackup(db, Date.now())) }
+    const file = await exportBackup(db, Date.now())
+    // Data still on schema 1 has not had the strict press upgrade: label it as the version-1 backup it is, so
+    // restoring it applies the upgrade, as a restored version-1 file does.
+    if (db.verno < 2) file.version = 1
+    return { kind: 'backup', json: encodeBackup(file) }
   } catch {
     const tables: Record<string, unknown[]> = {}
     await db.transaction('r', db.tables, async () => {

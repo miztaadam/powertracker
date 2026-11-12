@@ -135,6 +135,74 @@ describe('useCoach', () => {
     expect(result.current.message?.text).toBe('Added 1 exercise to Sonntag')
   })
 
+  /**
+   * Strict press accessories have no seeded rows. Apply finds or adds their catalogue rows in the same transaction
+   * as the plan items, instead of silently skipping them.
+   */
+  it('applyStall_pressAccessories_resolvesCatalogueRows', async () => {
+    const names = ['Seated barbell press', 'Incline bench press', 'Landmine press']
+    expect((await db.exercises.toArray()).filter((e) => names.includes(e.name))).toEqual([])
+    const items = [
+      rx('Seated barbell press', 3, 8, 10),
+      // An alias or another case still lands on the catalogue name.
+      rx('incline BENCH press', 3, 8, 10),
+      rx('Landmine press', 3, 8, 10),
+      rx('No such lift', 3, 8, 10),
+    ]
+    await insertAdvice(db, advice('STALL', 'STRICT_PRESS', "Strict press e1RM hasn't improved for 3 weeks.", payload.accessories(items)))
+    const result = await coach(1)
+
+    await act(() => result.current.apply(result.current.cards[0]!.advice.id))
+
+    await waitFor(() => expect(result.current.cards).toHaveLength(0))
+    expect(await statuses(db)).toEqual(['APPLIED'])
+    expect(result.current.message?.text).toBe('Added 3 exercises to Monday')
+    const rows = new Map((await db.exercises.toArray()).map((e) => [e.id, e]))
+    const added = await planOf(db)
+    expect(added.map((p) => rows.get(p.exerciseId)?.name)).toEqual(names)
+    for (const [i, item] of added.entries()) {
+      const row = rows.get(item.exerciseId)!
+      expect(row).toMatchObject({ isBuiltIn: true, archived: false, muscles: [...grit.findInLibrary(row.name)!.muscles] })
+      expect(item).toEqual({ weekday: 1, exerciseId: row.id, sets: 3, reps: 10, targetRpe: 8, order: i })
+    }
+    expect((await db.exercises.toArray()).filter((e) => e.name === 'No such lift')).toEqual([])
+  })
+
+  it('applyStall_whenAPlanWriteFails_addsNoCatalogueRow', async () => {
+    await insertAdvice(db, advice('STALL', 'STRICT_PRESS', 'Stalled.', payload.accessories([rx('Landmine press', 3, 8, 10), rx('Seated barbell press', 3, 8, 10)])))
+    const before = await db.exercises.count()
+    const result = await coach(1)
+    let calls = 0
+    const add = db.planItems.add.bind(db.planItems)
+    // The second plan item fails, after the first catalogue row and plan item were written.
+    vi.spyOn(db.planItems, 'add').mockImplementation((...args) => {
+      if (++calls === 2) throw new Error('disk full')
+      return add(...args)
+    })
+
+    await act(() => result.current.apply(result.current.cards[0]!.advice.id))
+
+    expect(result.current.message?.text).toBe("Couldn't update — try again")
+    expect(await db.exercises.count()).toBe(before)
+    expect(await planOf(db)).toEqual([])
+    expect(await statuses(db)).toEqual(['OPEN'])
+  })
+
+  /** A weak point's options come from the catalogue: one without a row is still offered, and Apply adds its row. */
+  it('weakPointApply_unseededAccessory_resolvesCatalogueRow', async () => {
+    await db.exercises.delete(await id('Front squat'))
+    await insertAdvice(db, advice('WEAK_POINT', 'SQUAT', 'Prioritise it.', payload.weakPoint('SQUAT', 'FLOOR')))
+    const result = await coach(1)
+    expect(result.current.cards[0]?.detail).toMatchObject({ additions: [rx('Pause squat', 3, 3, 5), rx('Front squat', 3, 3, 5)] })
+
+    await act(() => result.current.apply(result.current.cards[0]!.advice.id))
+
+    expect(result.current.message?.text).toBe('Added 2 exercises to Monday')
+    const front = await exerciseNamed(db, 'Front squat')
+    expect(front).toMatchObject({ isBuiltIn: true, archived: false, category: 'VARIATION', parentLift: 'SQUAT' })
+    expect((await planOf(db)).map((p) => p.exerciseId)).toEqual([await id('Pause squat'), front.id])
+  })
+
   it('dismiss_marksDismissed', async () => {
     await insertAdvice(db, advice('DELOAD', null, 'Signs of fatigue.', payload.deload()))
     const result = await coach(1)

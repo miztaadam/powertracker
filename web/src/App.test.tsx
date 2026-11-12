@@ -1,9 +1,10 @@
 import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import Dexie from 'dexie'
 import { App } from './App'
 import { decodeBackup } from './backup/backup'
-import { getSettings, updateSettings, type GritDb } from './db/db'
+import { ensureSeeded, getSettings, installedVersion, openGritDb, updateSettings, type GritDb } from './db/db'
 import { SCHEMA_VERSIONS, type SchemaVersion } from './db/schema'
 import { CREDENTIAL_KEY } from './platform/passkeyLock'
 import type { RegisterSW } from './platform/update'
@@ -260,6 +261,62 @@ describe('App safeguards', () => {
     cleanup()
     const again = await fx.open()
     expect((await again.sessions.toArray()).map((s) => s.date)).toEqual(['2026-11-04'])
+  })
+
+  it('upgradeFailure_stillOpensRecovery', async () => {
+    // The real strict press upgrade fails part-way: a version-1 log with an "Overhead press" row whose rewrite is refused.
+    const share = shareSheet()
+    expectRenderError()
+    db.close()
+    await Dexie.delete(fx.name)
+    const V1 = SCHEMA_VERSIONS.filter((v) => v.version === 1)
+    const v1 = await openGritDb(fx.name, { schemaVersions: V1 })
+    await ensureSeeded(v1)
+    const ohp = (await v1.exercises.add({ name: 'Overhead press', category: 'ACCESSORY', parentLift: null, muscles: ['Delts'], isBuiltIn: true, archived: false })) as number
+    const sessionId = await startSession(v1, '2026-11-04')
+    await logSet(v1, sessionId, set(ohp, 60, { isTopSet: true }))
+    v1.close()
+    const failExerciseWrites = (d: Dexie) => {
+      if (d.name !== fx.name) return
+      d.use({
+        stack: 'dbcore',
+        name: 'failExerciseWrites',
+        create: (down) => ({
+          ...down,
+          table: (n) => {
+            const t = down.table(n)
+            return n === 'exercises' ? { ...t, mutate: () => Promise.reject(new Error('disk error')) } : t
+          },
+        }),
+      })
+    }
+    Dexie.addons.push(failExerciseWrites)
+    try {
+      show()
+
+      expect(await screen.findByRole('heading', { name: "Grit couldn't update its storage" })).toBeInTheDocument()
+      expect(await screen.findByText(/Your log is unchanged, and Grit saved a safety copy of it before the update/)).toBeInTheDocument()
+      expect(nav()).toBeNull()
+
+      // The safety copy holds the log as it was before the upgrade.
+      await userEvent.click(await screen.findByRole('button', { name: 'Export safety copy' }))
+      await waitFor(() => expect(share).toHaveBeenCalledTimes(1))
+      const decoded = decodeBackup(await sharedFile(share).text())
+      expect(decoded.ok && decoded.file.exercises.find((e) => e.id === ohp)).toMatchObject({ name: 'Overhead press', category: 'ACCESSORY' })
+      expect(decoded.ok && decoded.file.sets.map((s) => s.exerciseId)).toEqual([ohp])
+    } finally {
+      cleanup()
+      Dexie.addons.splice(Dexie.addons.indexOf(failExerciseWrites), 1)
+    }
+
+    // Nothing was changed: still version 1, the row as it was; the next launch upgrades it.
+    expect(await installedVersion(fx.name)).toBe(1)
+    const old = await openGritDb(fx.name, { schemaVersions: V1 })
+    expect(await old.exercises.get(ohp)).toMatchObject({ name: 'Overhead press', category: 'ACCESSORY' })
+    old.close()
+    const again = await fx.open()
+    expect(await again.exercises.get(ohp)).toMatchObject({ name: 'Strict press', category: 'STRICT_PRESS', isBuiltIn: true })
+    expect((await again.sets.toArray()).map((s) => s.exerciseId)).toEqual([ohp])
   })
 
   it('recovery_withAppLockOn_asksBeforeExporting', async () => {

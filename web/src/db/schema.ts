@@ -1,4 +1,5 @@
 import type { Transaction } from 'dexie'
+import { runStrictPressUpgrade } from './strictPressUpgrade'
 
 export type ExerciseRow = {
   id?: number
@@ -95,4 +96,7 @@ export const SCHEMA_VERSIONS: SchemaVersion[] = [
       meta: 'key',
     },
   },
+  // The strict press release: no table changes, only data. The safety copy is written before it runs
+  // (see openGritDb), and a failure aborts it, leaving version 1 as it was.
+  { version: 2, stores: {}, upgrade: runStrictPressUpgrade },
 ]

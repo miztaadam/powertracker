@@ -10,6 +10,7 @@ import type {
   SetRow,
 } from '../db/schema'
 import { DEFAULT_SETTINGS, settingsFromRows, type AppSettings } from '../db/settings'
+import { applyStrictPressUpgrade } from '../db/strictPressUpgrade'
 import {
   ADVICE_STATUSES,
   ADVICE_TYPES,
@@ -112,6 +113,7 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
         restAccessorySec: settings.restAccessorySec,
         restAlert: androidRestAlertOf(settings.restAlert),
         webRestAlert: settings.restAlert,
+        showStrictPress: settings.showStrictPress,
       },
       exercises: exercises.map((e) => ({
         id: e.id,
@@ -199,7 +201,7 @@ function parseBackup(root: Obj): BackupFile {
     o.settings,
     'settings',
     ['changePlates', 'defaultRpe', 'trainingDays', 'appLock', 'restMainSec', 'restAccessorySec'],
-    ['restAlert', 'webRestAlert'],
+    ['restAlert', 'webRestAlert', 'showStrictPress'],
   )
   return {
     version: int(o, 'version'),
@@ -213,6 +215,7 @@ function parseBackup(root: Obj): BackupFile {
       restAccessorySec: int(s, 'restAccessorySec'),
       restAlert: 'restAlert' in s ? str(s, 'restAlert') : 'VIBRATE',
       webRestAlert: 'webRestAlert' in s ? nullable(s, 'webRestAlert', str) : null,
+      showStrictPress: 'showStrictPress' in s ? bool(s, 'showStrictPress') : false,
     },
     exercises: list(o.exercises, 'exercises', (v, p) => {
       const e = obj(v, p, ['id', 'name', 'category', 'parentLift', 'muscles', 'isBuiltIn', 'archived'])
@@ -288,9 +291,12 @@ function unique(ids: (number | string)[], what: string) {
   if (new Set(ids).size !== ids.length) bad(`Duplicate ${what}`)
 }
 
-/** Validates every row (enums, weekdays, dates, references, uniqueness) and maps it. Throws before any write. */
+/**
+ * Validates every row (enums, weekdays, dates, references, uniqueness) and maps it. Throws before any write.
+ * A version-1 file gets the strict press upgrade on the way in, as the database got schema version 2.
+ */
 function mapBackup(file: BackupFile): Mapped {
-  const exercises = file.exercises.map((e) => ({
+  const mappedExercises = file.exercises.map((e) => ({
     id: e.id,
     name: e.name,
     category: oneOf(e.category, CATEGORIES, 'category'),
@@ -299,6 +305,7 @@ function mapBackup(file: BackupFile): Mapped {
     isBuiltIn: e.isBuiltIn,
     archived: e.archived,
   }))
+  const exercises = file.version < 2 ? applyStrictPressUpgrade(mappedExercises) : mappedExercises
   unique(file.sessions.map((s) => s.id), 'session id')
   // Android's date index is not unique, so a real export can hold several sessions on one date.
   // Web keeps one per date: merge into the lowest id; the other sessions' sets move to it, and the
@@ -377,11 +384,13 @@ function mapBackup(file: BackupFile): Mapped {
       restMainSec: st.restMainSec,
       restAccessorySec: st.restAccessorySec,
       restAlert: webRestAlertOf(st.restAlert, st.webRestAlert),
+      showStrictPress: st.showStrictPress,
     },
   }
 }
 
-export function decodeBackup(text: string): DecodeResult {
+/** `supportedVersion` is the newest version this app reads; tests lower it to stand in for an older app. */
+export function decodeBackup(text: string, supportedVersion: number = BACKUP_VERSION): DecodeResult {
   const corrupt = (message: string): DecodeResult => ({ ok: false, kind: 'CORRUPT', message })
   let root: unknown
   try {
@@ -394,7 +403,7 @@ export function decodeBackup(text: string): DecodeResult {
   if (typeof version !== 'number' || !Number.isInteger(version) || version <= 0) {
     return corrupt('Missing or invalid version')
   }
-  if (version > BACKUP_VERSION) return { ok: false, kind: 'TOO_NEW', version }
+  if (version > supportedVersion) return { ok: false, kind: 'TOO_NEW', version }
   try {
     const file = parseBackup(root as Obj)
     mapBackup(file)

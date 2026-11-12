@@ -1,12 +1,13 @@
 /**
- * Android backup format, version 1: mirrors `BackupFile` and its DTOs in
+ * Android backup format, version 2: mirrors `BackupFile` and its DTOs in
  * app/src/main/kotlin/com/powertracker/data/Backup.kt field for field.
  * Dates are epochDay, weekdays 1–7 (Monday = 1), enums are their Kotlin names.
  */
-export const BACKUP_VERSION = 1
+/** 2: the strict press release (category STRICT_PRESS, `settings.showStrictPress`). Version 1 files still restore. */
+export const BACKUP_VERSION = 2
 
-export const CATEGORIES = ['SQUAT', 'BENCH', 'DEADLIFT', 'VARIATION', 'ACCESSORY'] as const
-export const MAIN_LIFTS = ['SQUAT', 'BENCH', 'DEADLIFT'] as const
+export const CATEGORIES = ['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS', 'VARIATION', 'ACCESSORY'] as const
+export const MAIN_LIFTS = ['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS'] as const
 export const MISS_POINTS = ['FLOOR', 'MID', 'LOCKOUT'] as const
 export const ADVICE_TYPES = ['TARGET', 'STALL', 'DELOAD', 'WEAK_POINT', 'RE_ENTRY'] as const
 export const ADVICE_STATUSES = ['OPEN', 'APPLIED', 'DISMISSED'] as const
@@ -27,6 +28,8 @@ export type BackupSettings = {
   restAccessorySec: number
   restAlert: string
   webRestAlert: string | null
+  /** Version 2. A version-1 file has none, which means off. */
+  showStrictPress: boolean
 }
 
 export type ExerciseDto = {
