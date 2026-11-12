@@ -417,6 +417,12 @@ internal fun FixedProp.surfaces(view: View): Map<Surface, List<Slab>> = when (th
     is StandingLegCurlMachine -> mapOf(Surface.THIGH_PAD to listOf(thighSlab()), Surface.SHIN_PAD to listOf(rollerSlab()), Surface.HANDLE to listOf(handleSlab()))
     is HipThrustMachine -> mapOf(Surface.BENCH to listOf(benchSlab()), Surface.FOOT_PLATE to listOf(platformSlab()), Surface.HIP_PAD to listOf(padSlab()))
     is HipMachine -> mapOf(Surface.SEAT to listOf(seatSlab())) + (handleSlabs().takeIf { it.isNotEmpty() }?.let { mapOf(Surface.HANDLE to it) } ?: emptyMap())
+    // Task 12.
+    is StandingCalfMachine -> mapOf(Surface.HANDLE to listOf(handleSlab()))
+    is SeatedCalfMachine -> mapOf(Surface.SEAT to listOf(seatSlab()), Surface.THIGH_PAD to listOf(padSlab()))
+    is DonkeyCalfMachine -> mapOf(Surface.ARM_PAD to listOf(supportSlab()), Surface.HIP_PAD to listOf(padSlab()))
+    is CrunchMachine -> mapOf(Surface.SEAT to listOf(seatSlab()), Surface.HIP_PAD to listOf(hipPadSlab()), Surface.CHEST_PAD to listOf(padSlab()))
+    is SupportPost -> mapOf(Surface.HANDLE to listOf(gripSlab()))
     is PullUpBar -> mapOf(
         Surface.PULL_UP_BAR to listOf(if (view == View.SIDE) Slab(x, -height, 2 * PullUpBar.RADIUS, 2 * PullUpBar.RADIUS) else Slab(x, -height, 120.0, 2 * PullUpBar.RADIUS)),
     )
@@ -475,6 +481,10 @@ internal fun FixedProp.solids(view: View): List<Solid> = when (this) {
     is LyingLegCurlMachine -> listOf(Solid("bench", padSlab(), stopsArms = false))
     is SeatedLegCurlMachine -> listOf(Solid("machine", seatSlab(), stopsArms = false), Solid("machine", backSlab(), stopsArms = false))
     is HipThrustMachine -> listOf(Solid("bench", benchSlab(), stopsArms = false), Solid("platform", platformSlab(), stopsArms = false))
+    // Task 12. The pads ride on the body and the forearm support is under the forearms: only seats stop it.
+    is StandingCalfMachine, is DonkeyCalfMachine, is SupportPost -> emptyList()
+    is SeatedCalfMachine -> listOf(Solid("seat", seatSlab(), stopsArms = false))
+    is CrunchMachine -> listOf(Solid("seat", seatSlab(), stopsArms = false), Solid("hip pad", hipPadSlab(), stopsArms = false))
     is PressMachine -> parts().toList().map { Solid("machine", it, false) }
     // Front-view seats: the seated legs are in front of them.
     is PecDeck, is Seat, is LateralRaiseMachine -> emptyList()
@@ -616,6 +626,11 @@ internal fun FixedProp.draw(view: View, held: Point?, s: Skeleton? = null): List
         is StandingLegCurlMachine -> drawOf()
         is HipThrustMachine -> drawOf()
         is HipMachine -> drawOf(s)
+        is StandingCalfMachine -> drawOf()
+        is SeatedCalfMachine -> drawOf()
+        is DonkeyCalfMachine -> drawOf()
+        is CrunchMachine -> drawOf()
+        is SupportPost -> drawOf()
         is PressMachine -> drawOf(s?.near?.grip)
         is PecDeck -> drawOf(s?.near?.grip, s?.far?.grip)
         is LateralRaiseMachine -> drawOf()
@@ -671,6 +686,11 @@ internal fun FixedProp.drawFront(view: View, held: Point? = null, s: Skeleton? =
     view == View.SIDE && this is HipThrustMachine -> drawFrontOf()
     view == View.FRONT && this is HipMachine -> drawFrontOf(s)
     view == View.SIDE && this is ReverseHyperBench -> drawFrontOf()
+    view == View.SIDE && this is StandingCalfMachine -> drawFrontOf()
+    view == View.SIDE && this is SeatedCalfMachine -> drawFrontOf()
+    view == View.SIDE && this is DonkeyCalfMachine -> drawFrontOf()
+    view == View.SIDE && this is CrunchMachine -> drawFrontOf()
+    view == View.SIDE && this is SupportPost -> drawFrontOf()
     view == View.FRONT && this is LateralRaiseMachine -> drawFrontOf(s)
     view == View.FRONT && this is PecDeck -> drawFrontOf()
     // Front view: the thigh pad's roller lies on top of the thighs, in front of the torso.
@@ -722,6 +742,8 @@ internal fun HeldProp.center(s: Skeleton): Point = when (this) {
     is AnkleStrap -> centerOn(s)
     EZBar -> grips(s)
     OverheadDumbbell -> OverheadDumbbell.centerOn(s)
+    AbWheel -> grips(s)
+    is PinchPlate -> centerOn(s)
 }
 
 /**
@@ -828,6 +850,8 @@ internal fun HeldProp.draw(s: Skeleton): List<Placed> {
         is AnkleStrap -> drawOn(s)
         EZBar -> EZBar.drawOn(s)
         OverheadDumbbell -> OverheadDumbbell.drawOn(s)
+        AbWheel -> AbWheel.drawOn(s)
+        is PinchPlate -> drawOn(s)
         LatBar -> if (side) {
             listOf(Circle(a, c.x, c.y, 2.0))
         } else {

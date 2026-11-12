@@ -404,7 +404,8 @@ describe('exercise pictures', () => {
     const near = names.filter((_, i) => i * 64 < 1100)
     const figuredNear = near.filter((name) => fresh.hasFigure(name))
     expect(names.length).toBeGreaterThan(near.length + 100)
-    expect(figuredNear).toEqual(leading)
+    // With every catalogue exercise drawn (Task 12) the near rows after the leading eight have figures too.
+    expect(figuredNear.slice(0, leading.length)).toEqual(leading)
     expect(names.filter((name) => fresh.hasFigure(name)).length).toBeGreaterThan(figuredNear.length + 10)
     // Every row asked only whether it has a figure; only the near rows with one built it.
     expect(new Set(has.mock.calls.map(([name]) => name))).toEqual(new Set(names))

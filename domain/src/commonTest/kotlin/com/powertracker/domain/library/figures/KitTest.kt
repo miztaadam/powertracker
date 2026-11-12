@@ -1107,4 +1107,95 @@ class KitTest {
         assertTrue((rack - (s.near.grip + f * SWING_DROP)).length() > 5.0)
         assertRenders(figureOf(View.SIDE, Scene(pose, listOf(Floor, Kettlebell(Side.NEAR, KettlebellHold.SWING)))), setOf(Role.BODY, Role.ACCENT, Role.ACCENT_FILL))
     }
+
+    // ---- Task 12: the calf and core kit ----
+
+    @Test
+    fun standingCalfMachine_padAndHandle_drawnInFront_handleIsAGrip() {
+        val m = StandingCalfMachine(columnX = -45.0, pivot = Point(-45.0, -150.0), pad = Point(-2.0, -155.0), handle = Point(18.0, -135.0))
+        assertEquals(setOf(Surface.HANDLE), m.surfaces(View.SIDE).keys)
+        assertEquals(0.0, m.surfaces(View.SIDE).getValue(Surface.HANDLE).single().signedDistance(Point(18.0, -135.0)).coerceAtLeast(0.0))
+        assertEquals(emptyList(), m.solids(View.SIDE))
+        // The lever from the pivot to the pad behind the body; the pad and the handle's grip in front, with gap rings.
+        assertTrue(m.draw(View.SIDE, null).map { it.shape }.any { it is Capsule && Point(it.x1, it.y1) == m.pivot && Point(it.x2, it.y2) == m.pad })
+        val front = m.drawFront(View.SIDE).map { it.shape }.filterIsInstance<Circle>()
+        assertTrue(front.any { it.role == Role.EQUIPMENT && it.cx == -2.0 && it.r == StandingCalfMachine.PAD_RADIUS })
+        assertTrue(front.any { it.role == Role.GAP })
+        assertEquals(emptyList(), m.drawFront(View.FRONT))
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT, Role.GAP))
+    }
+
+    @Test
+    fun seatedCalfMachine_seatAndKneePad_leverDrawnInFront() {
+        val m = SeatedCalfMachine(seatX = -40.0, seatHeight = 50.0, pivot = Point(50.0, -62.0), pad = Point(0.0, -70.0))
+        assertEquals(setOf(Surface.SEAT, Surface.THIGH_PAD), m.surfaces(View.SIDE).keys)
+        assertEquals(-50.0, m.surfaces(View.SIDE).getValue(Surface.SEAT).single().let { it.cy - it.thickness / 2 }, 1e-9)
+        assertEquals(0.0, m.surfaces(View.SIDE).getValue(Surface.THIGH_PAD).single().signedDistance(Point(0.0, -70.0 - SeatedCalfMachine.PAD_RADIUS)), 1e-9)
+        assertEquals(listOf("seat"), m.solids(View.SIDE).map { it.label })
+        val lever = m.drawFront(View.SIDE).map { it.shape }.filterIsInstance<Capsule>().first { it.role == Role.EQUIPMENT }
+        assertEquals(m.pivot, Point(lever.x1, lever.y1))
+        assertEquals(m.pad, Point(lever.x2, lever.y2))
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT, Role.GAP))
+    }
+
+    @Test
+    fun donkeyCalfMachine_forearmSupportAndHipPad_drawnInFront() {
+        val m = DonkeyCalfMachine(columnX = 80.0, supportHeight = 100.0, supportLength = 40.0, pivot = Point(80.0, -120.0), pad = Point(0.0, -110.0))
+        assertEquals(setOf(Surface.ARM_PAD, Surface.HIP_PAD), m.surfaces(View.SIDE).keys)
+        val support = m.surfaces(View.SIDE).getValue(Surface.ARM_PAD).single()
+        assertEquals(-100.0, support.cy - support.thickness / 2, 1e-9)
+        assertEquals(40.0, support.length, 1e-9)
+        assertEquals(80.0, support.cx + support.length / 2, 1e-9)
+        assertEquals(emptyList(), m.solids(View.SIDE))
+        assertTrue(m.drawFront(View.SIDE).any { it.shape is RoundRect && it.shape.role == Role.EQUIPMENT })
+        assertTrue(m.drawFront(View.SIDE).any { it.shape is Circle && it.shape.role == Role.EQUIPMENT })
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT, Role.GAP))
+    }
+
+    @Test
+    fun crunchMachine_seatHipPadAndChestPad_padDrawnInFront() {
+        val m = CrunchMachine(seatFront = 25.0, seatHeight = 45.0, hipPadX = -10.0, feet = Point(30.0, -6.0), pivot = Point(-30.0, -100.0), pad = Point(20.0, -120.0))
+        assertEquals(setOf(Surface.SEAT, Surface.HIP_PAD, Surface.CHEST_PAD), m.surfaces(View.SIDE).keys)
+        val hip = m.surfaces(View.SIDE).getValue(Surface.HIP_PAD).single()
+        assertEquals(-10.0, hip.cx + hip.length / 2, 1e-9)
+        assertEquals(-45.0, hip.cy + hip.thickness / 2, 1e-9)
+        assertEquals(listOf("seat", "hip pad"), m.solids(View.SIDE).map { it.label })
+        assertTrue(m.draw(View.SIDE, null).map { it.shape }.any { it is Capsule && Point(it.x1, it.y1) == m.pivot && Point(it.x2, it.y2) == m.pad })
+        assertEquals(setOf(Role.GAP, Role.EQUIPMENT), m.drawFront(View.SIDE).map { it.shape.role }.toSet())
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT))
+    }
+
+    @Test
+    fun supportPost_aHeldGripAtItsHeight() {
+        val post = SupportPost(x = 40.0, gripHeight = 110.0)
+        val grip = post.surfaces(View.SIDE).getValue(Surface.HANDLE).single()
+        assertEquals(0.0, grip.signedDistance(Point(34.0, -110.0)).coerceAtLeast(0.0))
+        assertEquals(emptyList(), post.solids(View.SIDE))
+        assertTrue(post.drawFront(View.SIDE).any { it.shape.role == Role.GAP })
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, post))), setOf(Role.BODY, Role.EQUIPMENT))
+    }
+
+    @Test
+    fun abWheel_inBothHands_atTheGrip_twoHanded() {
+        val pose = standing(arm = Arm(shoulder = 60.0, elbow = 0.0))
+        val s = pose.skeleton()
+        assertEquals(s.near.grip, AbWheel.center(s))
+        assertTrue(AbWheel.draw(s).any { it.shape is Circle && it.shape.r == AbWheel.RADIUS })
+        assertRenders(figureOf(View.SIDE, Scene(pose, listOf(Floor, AbWheel))), setOf(Role.BODY, Role.ACCENT, Role.ACCENT_FILL))
+        // Two-handed: hands apart on it is a problem.
+        val apart = figureOf(View.SIDE, Scene(pose.copy(farArm = Arm(0.0, 0.0)), listOf(Floor, AbWheel)))
+        assertTrue(problems(apart).any { it.message.startsWith("held: the hands are") })
+    }
+
+    @Test
+    fun pinchPlate_rimInTheHand_faceFromTheSide_edgeFromTheFront() {
+        val pose = standing()
+        val s = pose.skeleton()
+        val plate = PinchPlate(Side.NEAR)
+        assertEquals(s.near.grip + Point(0.0, PinchPlate.RADIUS - PinchPlate.PINCH), plate.center(s))
+        assertTrue(plate.draw(s).any { it.shape is Circle && it.shape.r == PinchPlate.RADIUS })
+        val front = pose.skeleton(View.FRONT)
+        assertTrue(plate.draw(front).single().shape is RoundRect)
+        assertRenders(figureOf(View.SIDE, Scene(pose, listOf(Floor, plate, PinchPlate(Side.FAR)))), setOf(Role.BODY, Role.ACCENT, Role.ACCENT_FILL))
+    }
 }
