@@ -7,6 +7,7 @@ import com.powertracker.domain.library.BodyArea
 import com.powertracker.domain.library.Equipment
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.MuscleGroup
+import com.powertracker.domain.library.RpeGuide
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
@@ -346,5 +347,12 @@ class GritDomainTest {
         assertContentEquals(expected.mistakes.toTypedArray(), guide?.mistakes)
         assertNull(GritDomain.formGuide("My own exercise"))
         assertEquals(Library.SAFETY_LINE, GritDomain.safetyLine())
+    }
+
+    @Test
+    fun rpeGuide_matchesTheDomain() {
+        val guide = GritDomain.rpeGuide()
+        assertEquals(RpeGuide.title, guide.title)
+        assertContentEquals(RpeGuide.lines.toTypedArray(), guide.lines)
     }
 }

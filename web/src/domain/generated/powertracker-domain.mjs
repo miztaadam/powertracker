@@ -195,6 +195,7 @@ initMetadataForClass(Kind, 'Kind', VOID, Enum);
 initMetadataForClass(SourceId, 'SourceId');
 initMetadataForClass(MuscleGroup, 'MuscleGroup', VOID, Enum);
 initMetadataForObject(MuscleGroups, 'MuscleGroups');
+initMetadataForObject(RpeGuide, 'RpeGuide');
 initMetadataForClass(Source, 'Source');
 initMetadataForObject(Sources, 'Sources');
 initMetadataForClass(AdviceType, 'AdviceType', VOID, Enum);
@@ -255,6 +256,7 @@ initMetadataForClass(JsRatioRange, 'JsRatioRange');
 initMetadataForClass(JsPrescription, 'JsPrescription');
 initMetadataForClass(JsAdvicePayload, 'JsAdvicePayload');
 initMetadataForClass(JsFormGuide, 'JsFormGuide');
+initMetadataForClass(JsRpeGuide, 'JsRpeGuide');
 initMetadataForClass(JsLibraryExercise, 'JsLibraryExercise');
 //endregion
 function AccessoryOption(exerciseName, heavy) {
@@ -3890,20 +3892,32 @@ function MuscleGroup_OBLIQUES_getInstance() {
   static_init_2();
   return MuscleGroup_OBLIQUES_instance;
 }
+function RpeGuide() {
+  RpeGuide_instance = this;
+  this.x19_1 = 'RPE: reps in reserve';
+  this.y19_1 = listOf(['RPE here counts reps in reserve: how many more reps you had left at the end of the set.', '10: no more reps possible.', '9.5: no more reps, but you could have added load.', '9: one more rep.', '8.5: one rep left, maybe two.', '8: two more.', '7: three more.', '6: four to six more; the scale gives 5\u20136 as one range.', 'Grit takes 6 to 10, in steps of 0.5.']);
+  this.z19_1 = listOf([new SourceId(Sources_getInstance().n1n_1), new SourceId(Sources_getInstance().o1n_1), new SourceId(Sources_getInstance().p1n_1)]);
+}
+var RpeGuide_instance;
+function RpeGuide_getInstance() {
+  if (RpeGuide_instance == null)
+    new RpeGuide();
+  return RpeGuide_instance;
+}
 function Source(title, publisher, url, accessed) {
-  this.x19_1 = title;
-  this.y19_1 = publisher;
-  this.z19_1 = url;
-  this.a1a_1 = accessed;
+  this.r1n_1 = title;
+  this.s1n_1 = publisher;
+  this.t1n_1 = url;
+  this.u1n_1 = accessed;
 }
 protoOf(Source).toString = function () {
-  return 'Source(title=' + this.x19_1 + ', publisher=' + this.y19_1 + ', url=' + this.z19_1 + ', accessed=' + this.a1a_1 + ')';
+  return 'Source(title=' + this.r1n_1 + ', publisher=' + this.s1n_1 + ', url=' + this.t1n_1 + ', accessed=' + this.u1n_1 + ')';
 };
 protoOf(Source).hashCode = function () {
-  var result = getStringHashCode(this.x19_1);
-  result = imul(result, 31) + getStringHashCode(this.y19_1) | 0;
-  result = imul(result, 31) + getStringHashCode(this.z19_1) | 0;
-  result = imul(result, 31) + getStringHashCode(this.a1a_1) | 0;
+  var result = getStringHashCode(this.r1n_1);
+  result = imul(result, 31) + getStringHashCode(this.s1n_1) | 0;
+  result = imul(result, 31) + getStringHashCode(this.t1n_1) | 0;
+  result = imul(result, 31) + getStringHashCode(this.u1n_1) | 0;
   return result;
 };
 protoOf(Source).equals = function (other) {
@@ -3911,23 +3925,24 @@ protoOf(Source).equals = function (other) {
     return true;
   if (!(other instanceof Source))
     return false;
-  if (!(this.x19_1 === other.x19_1))
+  if (!(this.r1n_1 === other.r1n_1))
     return false;
-  if (!(this.y19_1 === other.y19_1))
+  if (!(this.s1n_1 === other.s1n_1))
     return false;
-  if (!(this.z19_1 === other.z19_1))
+  if (!(this.t1n_1 === other.t1n_1))
     return false;
-  if (!(this.a1a_1 === other.a1a_1))
+  if (!(this.u1n_1 === other.u1n_1))
     return false;
   return true;
 };
 function Sources() {
   Sources_instance = this;
-  this.b1a_1 = 'American Council on Exercise (ACE)';
-  this.c1a_1 = 'ExRx.net';
-  this.d1a_1 = 'International Powerlifting Federation (IPF)';
-  this.e1a_1 = 'National Strength and Conditioning Association (NSCA)';
-  this.f1a_1 = 'PubMed Central (peer-reviewed)';
+  this.a1a_1 = 'American Council on Exercise (ACE)';
+  this.b1a_1 = 'ExRx.net';
+  this.c1a_1 = 'International Powerlifting Federation (IPF)';
+  this.d1a_1 = 'National Strength and Conditioning Association (NSCA)';
+  this.e1a_1 = 'PubMed Central (peer-reviewed)';
+  this.f1a_1 = '2026-11-11';
   this.g1a_1 = '2026-11-11';
   this.h1a_1 = '2026-11-11';
   this.i1a_1 = '2026-11-11';
@@ -3936,7 +3951,7 @@ function Sources() {
   this.l1a_1 = '2026-11-11';
   this.m1a_1 = '2026-11-11';
   this.n1a_1 = '2026-11-11';
-  this.o1a_1 = '2026-11-11';
+  this.o1a_1 = '2026-11-12';
   this.p1a_1 = _SourceId___init__impl__px94yd('ipf-technical-rules-2026');
   this.q1a_1 = _SourceId___init__impl__px94yd('ace-back-squat');
   this.r1a_1 = _SourceId___init__impl__px94yd('exrx-barbell-squat');
@@ -4273,7 +4288,10 @@ function Sources() {
   this.k1n_1 = _SourceId___init__impl__px94yd('ace-supine-bicycle-crunches');
   this.l1n_1 = _SourceId___init__impl__px94yd('ace-supine-dead-bug');
   this.m1n_1 = _SourceId___init__impl__px94yd('ace-bird-dog');
-  this.n1n_1 = mapOf([to(new SourceId(this.p1a_1), new Source('IPF Technical Rulebook 2026', 'International Powerlifting Federation (IPF)', 'https://www.powerlifting.sport/fileadmin/ipf/data/rules/technical-rules/english/2026_IPF_Technical_Rulebook__effective_01_March_2026__v3.pdf', '2026-11-11')), to(new SourceId(this.q1a_1), new Source('Back Squat Exercise Guide', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/11/back-squat/', '2026-11-11')), to(new SourceId(this.r1a_1), new Source('Barbell Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/BBSquat', '2026-11-11')), to(new SourceId(this.s1a_1), new Source('The back squat: A proposed assessment of functional deficits and technical factors that limit performance', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4262933/', '2026-11-11')), to(new SourceId(this.t1a_1), new Source('Barbell Front Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/BBFrontSquat', '2026-11-11')), to(new SourceId(this.u1a_1), new Source('Exercise Library: Front Squat', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/22/front-squat/', '2026-11-11')), to(new SourceId(this.v1a_1), new Source('Front Squat to Overhead Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/315/front-squat-to-overhead-press/', '2026-11-11')), to(new SourceId(this.w1a_1), new Source('Safety Barbell Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/SBSquat', '2026-11-11')), to(new SourceId(this.x1a_1), new Source('A Biomechanical Comparison of the Safety-Bar, High-Bar and Low-Bar Squat around the Sticking Region among Recreationally Resistance-Trained Men and Women', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8392107/', '2026-11-11')), to(new SourceId(this.y1a_1), new Source('Barbell Box Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBBoxSquat', '2026-11-11')), to(new SourceId(this.z1a_1), new Source('Understanding and Overcoming the Sticking Point in Resistance Exercise', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/', '2026-11-11')), to(new SourceId(this.a1b_1), new Source('The Sticking Point in the Bench Press, the Squat, and the Deadlift: Similarities and Differences, and Their Significance for Research and Practice', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5357260/', '2026-11-11')), to(new SourceId(this.b1b_1), new Source('Barbell Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress', '2026-11-11')), to(new SourceId(this.c1b_1), new Source('Barbell Bench Press (power lift)', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift', '2026-11-11')), to(new SourceId(this.d1b_1), new Source('Bench Press Analyses', 'ExRx.net', 'https://exrx.net/Kinesiology/BenchPress', '2026-11-11')), to(new SourceId(this.e1b_1), new Source('Decoding the Contribution of Shoulder and Elbow Mechanics to Barbell Kinematics and the Sticking Region in Bench and Overhead Press Exercises', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12372072/', '2026-11-11')), to(new SourceId(this.f1b_1), new Source('Neuromuscular Control During the Bench Press Movement in an Elite Disabled and Able-Bodied Athlete', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5765801/', '2026-11-11')), to(new SourceId(this.g1b_1), new Source('Exercise Library: Close-grip Bench Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/311/close-grip-bench-press/', '2026-11-11')), to(new SourceId(this.h1b_1), new Source('Barbell Close Grip Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/BBCloseGripBenchPress', '2026-11-11')), to(new SourceId(this.i1b_1), new Source('Barbell Board Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BBBoardPress', '2026-11-11')), to(new SourceId(this.j1b_1), new Source('Barbell Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBDeadlift', '2026-11-11')), to(new SourceId(this.k1b_1), new Source('Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/6/deadlift/', '2026-11-11')), to(new SourceId(this.l1b_1), new Source('ProSource September 2015: Technique Series: How to Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/prosource/september-2015/5579/technique-series-how-to-deadlift/', '2026-11-11')), to(new SourceId(this.m1b_1), new Source('Barbell Deficit Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/BBDeficitDeadlift', '2026-11-11')), to(new SourceId(this.o1b_1), new Source('Barbell Block Pull', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBBlockPull', '2026-11-11')), to(new SourceId(this.n1b_1), new Source('Barbell Rack Pull', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/BBRackPull', '2026-11-11')), to(new SourceId(this.p1b_1), new Source('Dumbbell Single Leg Split Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBSingleLegSplitSquat', '2026-11-11')), to(new SourceId(this.q1b_1), new Source('Effects of rear-foot instability devices on lower-limb muscle activation during the Bulgarian split squat in male football players', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12819420/', '2026-11-11')), to(new SourceId(this.r1b_1), new Source('Barbell Hip Thrust', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBHipThrust', '2026-11-11')), to(new SourceId(this.s1b_1), new Source('Certified November 2019: Understanding the Barbell Hip Thrust', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/certified/november-2019/7403/understanding-the-barbell-hip-thrust/', '2026-11-11')), to(new SourceId(this.t1b_1), new Source('Dumbbell Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/DBBenchPress', '2026-11-11')), to(new SourceId(this.u1b_1), new Source('How To Do a Chest Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/19/chest-press/', '2026-11-11')), to(new SourceId(this.v1b_1), new Source('Barbell JM Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/BBJMPress', '2026-11-11')), to(new SourceId(this.w1b_1), new Source('Romanian Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/OlympicLifts/RomanianDeadlift', '2026-11-11')), to(new SourceId(this.x1b_1), new Source('Exercise Library: Romanian Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/317/romanian-deadlift/', '2026-11-11')), to(new SourceId(this.y1b_1), new Source('Romanian Deadlift (RDL)', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/education/articles/kinetic-select/romanian-deadlift-rdl/', '2026-11-11')), to(new SourceId(this.z1b_1), new Source('Barbell Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/BBCurl', '2026-11-11')), to(new SourceId(this.a1c_1), new Source('Exercise Library: Bicep Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/', '2026-11-11')), to(new SourceId(this.b1c_1), new Source('Barbell Bent-over Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/BBBentOverRow', '2026-11-11')), to(new SourceId(this.c1c_1), new Source('Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/BWPullup', '2026-11-11')), to(new SourceId(this.d1c_1), new Source('Exercise Library: Pull-ups', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/', '2026-11-11')), to(new SourceId(this.e1c_1), new Source('Barbell Incline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/BBInclineBenchPress', '2026-11-11')), to(new SourceId(this.f1c_1), new Source('Barbell Decline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BBDeclineBenchPress', '2026-11-11')), to(new SourceId(this.g1c_1), new Source('Dumbbell Incline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/DBInclineBenchPress', '2026-11-11')), to(new SourceId(this.h1c_1), new Source('Dumbbell Decline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/DBDeclineBenchPress', '2026-11-11')), to(new SourceId(this.i1c_1), new Source('Dumbbell Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/DBFly', '2026-11-11')), to(new SourceId(this.j1c_1), new Source('Dumbbell Incline Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/DBInclineFly', '2026-11-11')), to(new SourceId(this.k1c_1), new Source('Dumbbell Decline Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/DBDeclineFly', '2026-11-11')), to(new SourceId(this.l1c_1), new Source('Lever Chest Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/LVChestPress', '2026-11-11')), to(new SourceId(this.m1c_1), new Source('Lever Incline Chest Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/LVInclineChestPress', '2026-11-11')), to(new SourceId(this.n1c_1), new Source('Lever Decline Chest Press (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/LVDeclineChestPressPL', '2026-11-11')), to(new SourceId(this.o1c_1), new Source('Lever Isolateral Seated Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/LVSeatedFly', '2026-11-11')), to(new SourceId(this.p1c_1), new Source('Lever Isolateral Pec Deck Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/LVPecDeckFly', '2026-11-11')), to(new SourceId(this.q1c_1), new Source('Smith Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/SMBenchPress', '2026-11-11')), to(new SourceId(this.r1c_1), new Source('Smith Incline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/SMInclineBenchPress', '2026-11-11')), to(new SourceId(this.s1c_1), new Source('Smith Decline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/SMDeclineBenchPress', '2026-11-11')), to(new SourceId(this.t1c_1), new Source('Cable Isolateral Standing Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/CBStandingFly', '2026-11-11')), to(new SourceId(this.u1c_1), new Source('Cable Standing Incline Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/CBStandingInclineFly', '2026-11-11')), to(new SourceId(this.v1c_1), new Source('Cable Isolateral Standing Chest Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/CBStandingChestPress', '2026-11-11')), to(new SourceId(this.w1c_1), new Source('Cable Isolateral Lying Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/CBLyingFly', '2026-11-11')), to(new SourceId(this.x1c_1), new Source('Cable Isolateral Incline Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/CBInclineFly', '2026-11-11')), to(new SourceId(this.y1c_1), new Source('Cable Isolateral Cable Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/CBSeatedFly', '2026-11-11')), to(new SourceId(this.z1c_1), new Source('Chest Dip', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BWChestDip', '2026-11-11')), to(new SourceId(this.a1d_1), new Source('Weighted Chest Dip', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/WtChestDip', '2026-11-11')), to(new SourceId(this.b1d_1), new Source('Machine-assisted Chest Dip', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/AsChestDip', '2026-11-11')), to(new SourceId(this.c1d_1), new Source('Machine-assisted Chest Dip (kneeling)', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/AsChestDipKneeling', '2026-11-11')), to(new SourceId(this.d1d_1), new Source('Calculating Actual Resistance', 'ExRx.net', 'https://exrx.net/WeightTraining/Bodyweight', '2026-11-11')), to(new SourceId(this.e1d_1), new Source('Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BWPushup', '2026-11-11')), to(new SourceId(this.f1d_1), new Source('Incline Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BWInclinePushup', '2026-11-11')), to(new SourceId(this.g1d_1), new Source('Decline Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/BWDeclinePushup', '2026-11-11')), to(new SourceId(this.h1d_1), new Source('Push-up (on knees)', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BWPushupKnee', '2026-11-11')), to(new SourceId(this.i1d_1), new Source('Archer Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BWArcherPushup', '2026-11-11')), to(new SourceId(this.j1d_1), new Source('Clap Push-up', 'ExRx.net', 'https://exrx.net/Plyometrics/ClapPushUp', '2026-11-11')), to(new SourceId(this.k1d_1), new Source('Weighted Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/WtPushup', '2026-11-11')), to(new SourceId(this.l1d_1), new Source('Weighted Push-up (on handles)', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/WtPushupHandles', '2026-11-11')), to(new SourceId(this.m1d_1), new Source('Exercise Library: Incline Chest Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/25/incline-chest-press/', '2026-11-11')), to(new SourceId(this.n1d_1), new Source('Exercise Library: Lying Chest Fly', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/', '2026-11-11')), to(new SourceId(this.o1d_1), new Source('Seated Chest Press Exercise Guide', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/188/seated-chest-press/', '2026-11-11')), to(new SourceId(this.p1d_1), new Source('Exercise Library: Seated Cable Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/165/seated-cable-press/', '2026-11-11')), to(new SourceId(this.q1d_1), new Source('Exercise Library: Standing Chest Fly', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/160/standing-chest-fly/', '2026-11-11')), to(new SourceId(this.r1d_1), new Source('Exercise Library: Standing Incline Cable Flyes', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/163/standing-incline-cable-flyes/', '2026-11-11')), to(new SourceId(this.s1d_1), new Source('Exercise Library: Push-ups', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/', '2026-11-11')), to(new SourceId(this.t1d_1), new Source('Exercise Library: Bent-knee Push-up', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/13/bent-knee-push-up/', '2026-11-11')), to(new SourceId(this.u1d_1), new Source('Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/', '2026-11-11')), to(new SourceId(this.v1d_1), new Source('Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf', '2026-11-11')), to(new SourceId(this.w1d_1), new Source('Exercise Library: Seated Close-Grip Chest Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/189/seated-close-grip-chest-press/', '2026-11-11')), to(new SourceId(this.x1d_1), new Source('Barbell Floor Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BBFloorPress', '2026-11-11')), to(new SourceId(this.y1d_1), new Source('Comparison of Muscle Activity between the Horizontal Bench Press and the Seated Chest Press Exercises Using Several Grips', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10203828/', '2026-11-11')), to(new SourceId(this.z1d_1), new Source('The Effect of Grip Width on Muscle Strength and Electromyographic Activity in Bench Press among Novice- and Resistance-Trained Men', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8296276/', '2026-11-11')), to(new SourceId(this.a1e_1), new Source('Dumbbell Bent-over Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/DBBentOverRow', '2026-11-11')), to(new SourceId(this.b1e_1), new Source('Single Arm Row Exercise Guide', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/126/single-arm-row/', '2026-11-11')), to(new SourceId(this.c1e_1), new Source('Exercise Library: Single Arm Row (cable)', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/337/single-arm-row/', '2026-11-11')), to(new SourceId(this.d1e_1), new Source('Cable Straight Back Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CBStraightBackSeatedRow', '2026-11-11')), to(new SourceId(this.e1e_1), new Source('Cable Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CBSeatedRow', '2026-11-11')), to(new SourceId(this.f1e_1), new Source('Cable Wide Grip Straight Back Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CBWideGripStrBackSeatedRow', '2026-11-11')), to(new SourceId(this.g1e_1), new Source('Cable Wide Grip Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CBWideGripSeatedRow', '2026-11-11')), to(new SourceId(this.h1e_1), new Source('Cable One Arm Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CBOneArmRow', '2026-11-11')), to(new SourceId(this.i1e_1), new Source('Seated Row', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/168/seated-row/', '2026-11-11')), to(new SourceId(this.l1e_1), new Source('Lever Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/LVSeatedRow', '2026-11-11')), to(new SourceId(this.m1e_1), new Source('Dumbbell Incline Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/DBInclineRow', '2026-11-11')), to(new SourceId(this.n1e_1), new Source('Dumbbell Lying Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/DBLyingRow', '2026-11-11')), to(new SourceId(this.o1e_1), new Source('Cambered Barbell Lying Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CamberedBarLyingRow', '2026-11-11')), to(new SourceId(this.p1e_1), new Source('Lever T-bar Row (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/LVTBarRow', '2026-11-11')), to(new SourceId(this.q1e_1), new Source('Lever Close Grip T-bar Row (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/LVCloseGripTBarRow', '2026-11-11')), to(new SourceId(this.r1e_1), new Source('Lever Close Grip T-bar Row (plate loaded, landmine)', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/LVCloseGripTBarRowLM', '2026-11-11')), to(new SourceId(this.s1e_1), new Source('Lever Incline Row (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/LVInclineRow', '2026-11-11')), to(new SourceId(this.t1e_1), new Source('Inverted Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/BWSupineRow', '2026-11-11')), to(new SourceId(this.u1e_1), new Source('Bent-Over Row', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/12/bent-over-row/', '2026-11-11')), to(new SourceId(this.v1e_1), new Source('Cable Pulldown', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/CBFrontPulldown', '2026-11-11')), to(new SourceId(this.w1e_1), new Source('Seated Lat Pulldown', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/', '2026-11-11')), to(new SourceId(this.x1e_1), new Source('Cable Close Grip Pulldown', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/CBCloseGripPulldown', '2026-11-11')), to(new SourceId(this.y1e_1), new Source('Cable Underhand Pulldown', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/CBUnderhandPulldown', '2026-11-11')), to(new SourceId(this.z1e_1), new Source('Lever Front Pulldown', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/LVFrontPulldown', '2026-11-11')), to(new SourceId(this.a1f_1), new Source('Cable One Arm Pulldown', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/CBOneArmPulldown', '2026-11-11')), to(new SourceId(this.b1f_1), new Source('Cable Seated Pullover (straight-arm pulldown)', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/CBSeatedStraightArmPullover', '2026-11-11')), to(new SourceId(this.c1f_1), new Source('Chin-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/BWUnderhandChinup', '2026-11-11')), to(new SourceId(this.d1f_1), new Source('Weighted Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/WtPullup', '2026-11-11')), to(new SourceId(this.e1f_1), new Source('Weighted Chin-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/WtUnderhandChinup', '2026-11-11')), to(new SourceId(this.f1f_1), new Source('Machine-assisted Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/AsPullupKneeling', '2026-11-11')), to(new SourceId(this.g1f_1), new Source('Machine-assisted Chin-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/AsUnderhandChinup', '2026-11-11')), to(new SourceId(this.h1f_1), new Source('Band-assisted Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/ASPullupBand', '2026-11-11')), to(new SourceId(this.i1f_1), new Source('Neutral Grip Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/BWPullupN', '2026-11-11')), to(new SourceId(this.j1f_1), new Source('Parallel Close Grip Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/BWCloseGripChinup', '2026-11-11')), to(new SourceId(this.k1f_1), new Source('Dumbbell Pullover', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/DBPullover', '2026-11-11')), to(new SourceId(this.l1f_1), new Source('Lever Pullover', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/LVPullover', '2026-11-11')), to(new SourceId(this.m1f_1), new Source('Barbell Shrug', 'ExRx.net', 'https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug', '2026-11-11')), to(new SourceId(this.n1f_1), new Source('Dumbbell Shrug', 'ExRx.net', 'https://exrx.net/WeightExercises/TrapeziusUpper/DBShrug', '2026-11-11')), to(new SourceId(this.o1f_1), new Source('Trap Bar Shrug', 'ExRx.net', 'https://exrx.net/WeightExercises/TrapeziusUpper/TBShrug', '2026-11-11')), to(new SourceId(this.p1f_1), new Source('45\xB0 Hyperextension (hands behind hips)', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/BW45HyperextensionHips', '2026-11-11')), to(new SourceId(this.q1f_1), new Source('Weighted 45\xB0 Back Extension (on hyperextension apparatus)', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/Wt45BackExtension', '2026-11-11')), to(new SourceId(this.r1f_1), new Source('Reliability of Pain Thresholds and Exercise-Induced Hypoalgesia Following 45-Degree Roman Chair Exercise', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11964695/', '2026-11-11')), to(new SourceId(this.s1f_1), new Source('Loading conditions in the spine, hip and knee during different executions of back extension exercises', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5404334/', '2026-11-11')), to(new SourceId(this.t1f_1), new Source('Face Pull (Machine)', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/education/articles/kinetic-select/face-pull-machine/', '2026-11-11')), to(new SourceId(this.u1f_1), new Source('Cable Standing Rear Delt Row (with rope)', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingRearDeltRowRope', '2026-11-11')), to(new SourceId(this.j1e_1), new Source('Seated Row (cable)', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/48/seated-row/', '2026-11-11')), to(new SourceId(this.k1e_1), new Source('Weighted 45\xB0 Hyperextension', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/Wt45Hyperextension', '2026-11-11')), to(new SourceId(this.v1f_1), new Source('Barbell Military Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/BBMilitaryPress', '2026-11-11')), to(new SourceId(this.w1f_1), new Source('Exercise Library: Standing Shoulder Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/71/standing-shoulder-press/', '2026-11-11')), to(new SourceId(this.x1f_1), new Source('Barbell Seated Military Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/BBSeatedMilitaryPress', '2026-11-11')), to(new SourceId(this.y1f_1), new Source('Exercise Library: Seated Shoulder Press (barbell)', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/43/seated-shoulder-press/', '2026-11-11')), to(new SourceId(this.z1f_1), new Source('Upper extremity weightlifting injuries: Diagnosis and management', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5895929/', '2026-11-11')), to(new SourceId(this.a1g_1), new Source('Seated Overhead Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/', '2026-11-11')), to(new SourceId(this.b1g_1), new Source('Dumbbell Shoulder Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/DBShoulderPress', '2026-11-11')), to(new SourceId(this.c1g_1), new Source('Dumbbell One Arm Shoulder Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/DBOneArmShoulderPress', '2026-11-11')), to(new SourceId(this.d1g_1), new Source('Dumbbell Arnold Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/DBArnoldPress', '2026-11-11')), to(new SourceId(this.e1g_1), new Source('Lever Shoulder Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/LVShoulderPress', '2026-11-11')), to(new SourceId(this.f1g_1), new Source('Seated Shoulder Press (machine)', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/186/seated-shoulder-press/', '2026-11-11')), to(new SourceId(this.g1g_1), new Source('Exercise Library: Seated Machine Close-Grip Shoulder Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/187/seated-machine-close-grip-shoulder-press/', '2026-11-11')), to(new SourceId(this.h1g_1), new Source('Smith Shoulder Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/SMShoulderPress', '2026-11-11')), to(new SourceId(this.j1g_1), new Source('Certified September 2025: The ACE Workout Builder for Landmine Training', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/certified/september-2025/8948/the-ace-workout-builder-for-landmine-training/', '2026-11-11')), to(new SourceId(this.i1g_1), new Source('Lever One Arm Shoulder Press (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/LVOneArmShoulderPress', '2026-11-11')), to(new SourceId(this.k1g_1), new Source('Single-arm Overhead Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/395/single-arm-overhead-press/', '2026-11-11')), to(new SourceId(this.l1g_1), new Source('Dumbbell Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise', '2026-11-11')), to(new SourceId(this.m1g_1), new Source('Lateral Raise', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/26/lateral-raise/', '2026-11-11')), to(new SourceId(this.n1g_1), new Source('Common Resistance Training Mistakes', 'ExRx.net', 'https://exrx.net/Kinesiology/Errors', '2026-11-11')), to(new SourceId(this.o1g_1), new Source('Most Common Weight Training Mistakes', 'ExRx.net', 'https://exrx.net/WeightTraining/Mistakes', '2026-11-11')), to(new SourceId(this.p1g_1), new Source('Cable One Arm Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidLateral/CBOneArmLateralRaise', '2026-11-11')), to(new SourceId(this.r1g_1), new Source('Dumbbell Seated Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidLateral/DBSeatedLateralRaise', '2026-11-11')), to(new SourceId(this.q1g_1), new Source('Lever Isolateral Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidLateral/LVLateralRaise', '2026-11-11')), to(new SourceId(this.s1g_1), new Source('Dumbbell Front Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/DBFrontRaise', '2026-11-11')), to(new SourceId(this.t1g_1), new Source('Front Raise', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/54/front-raise/', '2026-11-11')), to(new SourceId(this.u1g_1), new Source('Barbell Front Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/BBFrontRaise', '2026-11-11')), to(new SourceId(this.v1g_1), new Source('Cable One Arm Front Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/CBFrontRaise', '2026-11-11')), to(new SourceId(this.w1g_1), new Source('Dumbbell Rear Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/DBRearLateralRaise', '2026-11-11')), to(new SourceId(this.x1g_1), new Source('Dumbbell Seated Rear Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/DBSeatedRearLateralRaise', '2026-11-11')), to(new SourceId(this.y1g_1), new Source('Dumbbell Lying Rear Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/DBLyingRearLateralRaise', '2026-11-11')), to(new SourceId(this.z1g_1), new Source('Lever Seated Reverse Fly (overhand grip)', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/LVReverseFlyOverhand', '2026-11-11')), to(new SourceId(this.a1h_1), new Source('Cable Isolateral Reverse Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingReverseFly', '2026-11-11')), to(new SourceId(this.b1h_1), new Source('Cable Rear Delt Row', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/CBRearDeltRow', '2026-11-11')), to(new SourceId(this.c1h_1), new Source('Cable Standing Shoulder External Rotation', 'ExRx.net', 'https://exrx.net/WeightExercises/Infraspinatus/CBStandingExternalRotation', '2026-11-11')), to(new SourceId(this.d1h_1), new Source('Rotator Cuff External Rotation', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/352/rotator-cuff-external-rotation/', '2026-11-11')), to(new SourceId(this.e1h_1), new Source('Dumbbell Lying Shoulder External Rotation', 'ExRx.net', 'https://exrx.net/WeightExercises/Infraspinatus/DBLyingExternalRotation', '2026-11-11')), to(new SourceId(this.f1h_1), new Source('Cable Standing Shoulder Internal Rotation', 'ExRx.net', 'https://exrx.net/WeightExercises/Subscapularis/CBStandingInternalRotation', '2026-11-11')), to(new SourceId(this.g1h_1), new Source('Dumbbell Alternating Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/DBCurl', '2026-11-11')), to(new SourceId(this.h1h_1), new Source('Dumbbell Seated Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/DBSeatedCurl', '2026-11-11')), to(new SourceId(this.i1h_1), new Source('Dumbbell Alternating Hammer Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachioradialis/DBHammerCurl', '2026-11-11')), to(new SourceId(this.j1h_1), new Source('Exercise Library: Hammer Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/10/hammer-curl/', '2026-11-11')), to(new SourceId(this.k1h_1), new Source('Cable Hammer Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachioradialis/CBHammerCurl', '2026-11-11')), to(new SourceId(this.l1h_1), new Source('Dumbbell Alternating Incline Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/DBInclineCurl', '2026-11-11')), to(new SourceId(this.m1h_1), new Source('Barbell Preacher Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachialis/BBPreacherCurl', '2026-11-11')), to(new SourceId(this.n1h_1), new Source('Dumbbell One Arm Preacher Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachialis/DBPreacherCurl', '2026-11-11')), to(new SourceId(this.o1h_1), new Source('Lever Isolateral Preacher Curl (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachialis/LVPreacherCurlH', '2026-11-11')), to(new SourceId(this.p1h_1), new Source('Exercise Library: Seated Biceps Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/184/seated-biceps-curl/', '2026-11-11')), to(new SourceId(this.q1h_1), new Source('Cable Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/CBCurl', '2026-11-11')), to(new SourceId(this.r1h_1), new Source('Cable One Arm Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/CBOneArmCurl', '2026-11-11')), to(new SourceId(this.s1h_1), new Source('Dumbbell Concentration Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachialis/DBConcentrationCurl', '2026-11-11')), to(new SourceId(this.t1h_1), new Source('Barbell Drag Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/BBDragCurl', '2026-11-11')), to(new SourceId(this.u1h_1), new Source('Barbell Prone Incline Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachialis/BBProneInclineCurl', '2026-11-11')), to(new SourceId(this.v1h_1), new Source('Barbell Reverse Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachioradialis/BBReverseCurl', '2026-11-11')), to(new SourceId(this.w1h_1), new Source('Exercise Library: Reverse Bicep Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/310/reverse-bicep-curl/', '2026-11-11')), to(new SourceId(this.x1h_1), new Source('How to Improve Grip Strength', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5765/how-to-improve-grip-strength/', '2026-11-11')), to(new SourceId(this.y1h_1), new Source('Cable Pushdown', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/CBPushdown', '2026-11-11')), to(new SourceId(this.z1h_1), new Source('Cable Pushdown (with V-bar)', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/CBPushdownVBar', '2026-11-11')), to(new SourceId(this.a1i_1), new Source('Exercise Library: Triceps Pushdowns', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/', '2026-11-11')), to(new SourceId(this.b1i_1), new Source('Cable Pushdown (with rope attachment)', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/CBPushdownRope', '2026-11-11')), to(new SourceId(this.c1i_1), new Source('Cable One Arm Pushdown', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/CBOneArmPushdown', '2026-11-11')), to(new SourceId(this.d1i_1), new Source('Cable Triceps Extension (with rope)', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/CBStandingTricepsExtensionRope', '2026-11-11')), to(new SourceId(this.e1i_1), new Source('Exercise Library: Triceps Extension', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/74/triceps-extension/', '2026-11-11')), to(new SourceId(this.f1i_1), new Source('Dumbbell Triceps Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/DBTriExt', '2026-11-11')), to(new SourceId(this.g1i_1), new Source('Exercise Library: Lying Barbell Triceps Extensions', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/36/lying-barbell-triceps-extensions/', '2026-11-11')), to(new SourceId(this.h1i_1), new Source('Barbell Lying Triceps Extension "Skull Crusher"', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/BBLyingTriExtSC', '2026-11-11')), to(new SourceId(this.i1i_1), new Source('Dumbbell Lying Triceps Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/DBLyingTriExt', '2026-11-11')), to(new SourceId(this.k1i_1), new Source('Lever Triceps Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/LVTriExt', '2026-11-11')), to(new SourceId(this.l1i_1), new Source('Exercise Library: Triceps Kickback', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/55/triceps-kickback/', '2026-11-11')), to(new SourceId(this.m1i_1), new Source('Dumbbell Kickback', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/DBKickback', '2026-11-11')), to(new SourceId(this.n1i_1), new Source('Weighted Triceps Dip', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/WtTriDip', '2026-11-11')), to(new SourceId(this.o1i_1), new Source('Suspended Triceps Dip', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/STTriDip', '2026-11-11')), to(new SourceId(this.p1i_1), new Source('ACE Study Identifies Best Triceps Exercises', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/certifiednewsarticle/3008/ace-study-identifies-best-triceps-exercises/', '2026-11-11')), to(new SourceId(this.q1i_1), new Source('Follow-up Q and A: Dangerous Dips', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/', '2026-11-11')), to(new SourceId(this.s1i_1), new Source('Close Grip Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/BWCloseGripPushup', '2026-11-11')), to(new SourceId(this.t1i_1), new Source('Barbell Wrist Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/WristFlexors/BBWristCurl', '2026-11-11')), to(new SourceId(this.u1i_1), new Source('Dumbbell Wrist Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/WristFlexors/DBWristCurl', '2026-11-11')), to(new SourceId(this.v1i_1), new Source('Barbell Reverse Wrist Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/WristExtensors/BBReverseWristCurl', '2026-11-11')), to(new SourceId(this.w1i_1), new Source('Dumbbell Reverse Wrist Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/WristExtensors/DBReverseWristCurl', '2026-11-11')), to(new SourceId(this.j1i_1), new Source('Dumbbell Decline Triceps Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/DBDeclineTriExt', '2026-11-11')), to(new SourceId(this.r1i_1), new Source('Bench, Bar, and Ring Dips: Do Kinematics and Muscle Activity Differ?', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9603242/', '2026-11-11')), to(new SourceId(this.x1i_1), new Source('Kettlebell Goblet Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Kettlebell/KBGobletSquat', '2026-11-11')), to(new SourceId(this.y1i_1), new Source('Exercise Library: Goblet Squat', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/362/goblet-squat/', '2026-11-11')), to(new SourceId(this.z1i_1), new Source('Dumbbell Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBSquat', '2026-11-11')), to(new SourceId(this.a1j_1), new Source('Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/BWSquat', '2026-11-11')), to(new SourceId(this.b1j_1), new Source('Exercise Library: Bodyweight Squat', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/', '2026-11-11')), to(new SourceId(this.c1j_1), new Source('Kettlebell Front Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Kettlebell/KBFrontSquat', '2026-11-11')), to(new SourceId(this.d1j_1), new Source('Barbell Zercher Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBZercherSquat', '2026-11-11')), to(new SourceId(this.e1j_1), new Source('Zercher Squat: Field Alternative for Front Squat', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/education/articles/kinetic-select/zercher-squat-field-alternative-for-front-squat/', '2026-11-11')), to(new SourceId(this.f1j_1), new Source('Squat Variations', 'ExRx.net', 'https://exrx.net/Kinesiology/SquatVariations', '2026-11-11')), to(new SourceId(this.g1j_1), new Source('Muscle activation varies between high-bar and low-bar back squat', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7289144/', '2026-11-11')), to(new SourceId(this.h1j_1), new Source('The effects of eccentric phase tempo in squats on hypertrophy, strength, and contractile properties of the quadriceps femoris muscle', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11754408/', '2026-11-11')), to(new SourceId(this.i1j_1), new Source('Smith Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SMSquat', '2026-11-11')), to(new SourceId(this.j1j_1), new Source('Smith Front Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SMFrontSquat', '2026-11-11')), to(new SourceId(this.k1j_1), new Source('Smith Split Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SMSplitSquat', '2026-11-11')), to(new SourceId(this.l1j_1), new Source('Smith Seated Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Soleus/SMSeatedCalfRaise', '2026-11-11')), to(new SourceId(this.m1j_1), new Source('Sled 45\xB0 Leg Press', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SL45LegPress', '2026-11-11')), to(new SourceId(this.n1j_1), new Source('Sled 45\xB0 Leg Press (gluteus maximus)', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/SL45LegPress', '2026-11-11')), to(new SourceId(this.o1j_1), new Source('Seated Leg Press Exercise Guide', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/154/seated-leg-press/', '2026-11-11')), to(new SourceId(this.p1j_1), new Source('Sled Single Leg 45\xB0 Leg Press', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SLSingleLeg45LegPress', '2026-11-11')), to(new SourceId(this.q1j_1), new Source('Sled Hack Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SLHackSquat', '2026-11-11')), to(new SourceId(this.r1j_1), new Source('Lever Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/LVSquat', '2026-11-11')), to(new SourceId(this.s1j_1), new Source('Lever Squat (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/LVSquatPL', '2026-11-11')), to(new SourceId(this.t1j_1), new Source('Dumbbell Lunge', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBLunge', '2026-11-11')), to(new SourceId(this.u1j_1), new Source('Exercise Library: Forward Lunge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/', '2026-11-11')), to(new SourceId(this.v1j_1), new Source('Exercise Library: Lunge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/363/lunge/', '2026-11-11')), to(new SourceId(this.w1j_1), new Source('Dumbbell Walking Lunge', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBWalkingLunge', '2026-11-11')), to(new SourceId(this.x1j_1), new Source('5 Lunge Variations You Need to Try', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5818/5-lunge-variations-you-need-to-try/', '2026-11-11')), to(new SourceId(this.y1j_1), new Source('Dumbbell Rear Lunge', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBRearLunge', '2026-11-11')), to(new SourceId(this.z1j_1), new Source('Exercise Library: Reverse Lunge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/319/reverse-lunge/', '2026-11-11')), to(new SourceId(this.a1k_1), new Source('Barbell Lunge', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/BBLunge', '2026-11-11')), to(new SourceId(this.b1k_1), new Source('Dumbbell Alternating Side Lunge', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBSideLunge', '2026-11-11')), to(new SourceId(this.c1k_1), new Source('Exercise Library: Lateral Lunge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/364/lateral-lunge/', '2026-11-11')), to(new SourceId(this.d1k_1), new Source('Total-body Dumbbell Workout', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/3718/total-body-dumbbell-workout/', '2026-11-11')), to(new SourceId(this.e1k_1), new Source('8 Butt-toning Moves', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/6355/8-butt-toning-moves/', '2026-11-11')), to(new SourceId(this.f1k_1), new Source('Dumbbell Split Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBSplitSquat', '2026-11-11')), to(new SourceId(this.g1k_1), new Source('Dumbbell Step-up', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBStepUp', '2026-11-11')), to(new SourceId(this.h1k_1), new Source('Exercise Library: Step-Up', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/28/step-up/', '2026-11-11')), to(new SourceId(this.i1k_1), new Source('6 Lower Body Exercises to Do Instead of Squats', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5028/6-lower-body-exercises-to-do-instead-of-squats/', '2026-11-11')), to(new SourceId(this.j1k_1), new Source('Dumbbell Lateral Step-up', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/DBLateralStepUp', '2026-11-11')), to(new SourceId(this.k1k_1), new Source('Single Leg Box Squat (pistol)', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/BWSingleLegBoxSquat', '2026-11-11')), to(new SourceId(this.l1k_1), new Source('Lever Leg Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/LVLegExtension', '2026-11-11')), to(new SourceId(this.m1k_1), new Source('Lever Alternating Leg Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/LVAlternatingLegExtension', '2026-11-11')), to(new SourceId(this.n1k_1), new Source('Sled Push', 'ExRx.net', 'https://exrx.net/WeightExercises/Power/WTPushSprint', '2026-11-11')), to(new SourceId(this.o1k_1), new Source('Exercise Library: Squat Jumps', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/116/squat-jumps/', '2026-11-11')), to(new SourceId(this.p1k_1), new Source('Exercise Library: Squat Jump', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/222/squat-jump/', '2026-11-11')), to(new SourceId(this.q1k_1), new Source('Barbell Straight-back Stiff-leg Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBStrBackStiffLegDeadlift', '2026-11-11')), to(new SourceId(this.r1k_1), new Source('Barbell Stiff Leg Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBStiffLegDeadlift', '2026-11-11')), to(new SourceId(this.s1k_1), new Source('Barbell Straight Leg Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/BBStraightLegDeadlift', '2026-11-11')), to(new SourceId(this.t1k_1), new Source('ProSource January 2016: ACE Technique Series: Romanian Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/prosource/january-2016/5767/ace-technique-series-romanian-deadlift/', '2026-11-11')), to(new SourceId(this.u1k_1), new Source('Exercise Library: Single-Arm Single-Leg Romanian Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/127/single-arm-single-leg-romanian-dead-lift/', '2026-11-11')), to(new SourceId(this.v1k_1), new Source('Exercise Library: Single-Leg Romanian Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/329/single-leg-romanian-deadlift/', '2026-11-11')), to(new SourceId(this.w1k_1), new Source('Dumbbell Single Leg Stiff-leg Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/DBSingleLegStiffLegDeadlift', '2026-11-11')), to(new SourceId(this.x1k_1), new Source('Barbell Good-morning', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/BBGoodMorning', '2026-11-11')), to(new SourceId(this.y1k_1), new Source('Barbell Bent Knee Good-morning', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBBentKneeGoodMorning', '2026-11-11')), to(new SourceId(this.z1k_1), new Source('Lever Lying Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/LVLyingLegCurl', '2026-11-11')), to(new SourceId(this.a1l_1), new Source('Exercise Library: Lying Hamstrings Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/153/lying-hamstrings-curl/', '2026-11-11')), to(new SourceId(this.b1l_1), new Source('Lever Seated Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/LVSeatedLegCurl', '2026-11-11')), to(new SourceId(this.c1l_1), new Source('Lever Standing Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/LVStandingLegCurl', '2026-11-11')), to(new SourceId(this.d1l_1), new Source('Lever Standing Leg Curl (on multi-hip machine)', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/LVStandingLegCurlMultiHip', '2026-11-11')), to(new SourceId(this.e1l_1), new Source('Cable Standing Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/CBStandingLegCurl', '2026-11-11')), to(new SourceId(this.f1l_1), new Source('Cable Bent-over Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/CBBentOverLegCurl', '2026-11-11')), to(new SourceId(this.g1l_1), new Source('Exercise Library: Stability Ball Hamstring Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/59/stability-ball-hamstring-curl/', '2026-11-11')), to(new SourceId(this.h1l_1), new Source('Self-assisted Inverse Leg Curl (on floor)', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/ASHamstringRaiseSelfFloor', '2026-11-11')), to(new SourceId(this.i1l_1), new Source('Inverse Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/BWHamstringRaise', '2026-11-11')), to(new SourceId(this.j1l_1), new Source('Exercise Library: Glute Bridge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/49/glute-bridge/', '2026-11-11')), to(new SourceId(this.k1l_1), new Source('Exercise Library: Glute Bridge: Single-Leg Progression', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/145/glute-bridge-single-leg-progression/', '2026-11-11')), to(new SourceId(this.l1l_1), new Source('Single Leg Hip Bridge', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BWLyingHipExtension', '2026-11-11')), to(new SourceId(this.m1l_1), new Source('Exercise Library: Hip Bridge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/318/hip-bridge/', '2026-11-11')), to(new SourceId(this.n1l_1), new Source('Exercise Library: Elevated Glute Bridge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/367/elevated-glute-bridge/', '2026-11-11')), to(new SourceId(this.o1l_1), new Source('Lever Hip Thrust', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/LVHipThrustPL', '2026-11-11')), to(new SourceId(this.p1l_1), new Source('Exercise Library: Swing', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/391/swing/', '2026-11-11')), to(new SourceId(this.q1l_1), new Source('Certified January 2025: The ACE Do it Better Series: The Two-handed Kettlebell Swing', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/certified/january-2025/8788/the-ace-do-it-better-series-the-two-handed-kettlebell-swing/', '2026-11-11')), to(new SourceId(this.r1l_1), new Source('Two-Arm Kettlebell Swing', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/education/articles/kinetic-select/two-arm-kettlebell-swing/', '2026-11-11')), to(new SourceId(this.s1l_1), new Source('Kettlebell Two Arm Swing', 'ExRx.net', 'https://exrx.net/WeightExercises/Kettlebell/KBTwoArmSwing', '2026-11-11')), to(new SourceId(this.t1l_1), new Source('Exercise Library: Single Arm Swing', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/392/single-arm-swing/', '2026-11-11')), to(new SourceId(this.u1l_1), new Source('Reverse Hyper-extension', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BWReverseHyperextension', '2026-11-11')), to(new SourceId(this.v1l_1), new Source('Exercise Library: Quadruped Bent-knee Hip Extensions', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/270/quadruped-bent-knee-hip-extensions/', '2026-11-11')), to(new SourceId(this.w1l_1), new Source('Cable Hip Abduction', 'ExRx.net', 'https://exrx.net/WeightExercises/HipAbductor/CBHipAbduction', '2026-11-11')), to(new SourceId(this.x1l_1), new Source('Lever Seated Hip Abduction', 'ExRx.net', 'https://exrx.net/WeightExercises/HipAbductor/LVSeatedHipAbduction', '2026-11-11')), to(new SourceId(this.y1l_1), new Source('Exercise Library: Side Lying Hip Abduction', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/38/side-lying-hip-abduction/', '2026-11-11')), to(new SourceId(this.z1l_1), new Source('6 Glute Medius Exercises for Strength and Stability', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/6936/6-glute-medius-exercises-for-strength-amp-stability/', '2026-11-11')), to(new SourceId(this.a1m_1), new Source('Ankles, Knees and Hips: 10 Joint-Friendly Exercises for the Lower Extremity', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/9158/ankles-knees-and-hips-10-joint-friendly-exercises-for-the-lower-extremity/', '2026-11-11')), to(new SourceId(this.b1m_1), new Source('Lever Seated Hip Adduction', 'ExRx.net', 'https://exrx.net/WeightExercises/HipAdductors/LVSeatedHipAdduction', '2026-11-11')), to(new SourceId(this.c1m_1), new Source('Barbell Sumo Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/BBSumoDeadlift', '2026-11-11')), to(new SourceId(this.d1m_1), new Source('Trap Bar Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/TBDeadlift', '2026-11-11')), to(new SourceId(this.e1m_1), new Source('Lever Standing Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise', '2026-11-11')), to(new SourceId(this.f1m_1), new Source('Get Stronger Calves with These 5 Exercises', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/', '2026-11-11')), to(new SourceId(this.g1m_1), new Source('Sled 45\xB0 Calf Press', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress', '2026-11-11')), to(new SourceId(this.h1m_1), new Source('Lever Seated Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Soleus/LVSeatedCalfRaise', '2026-11-11')), to(new SourceId(this.i1m_1), new Source('Lever Seated Calf Raise (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/Soleus/LVSeatedCalfRaiseH', '2026-11-11')), to(new SourceId(this.j1m_1), new Source('Lever Donkey Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/LVDonkeyCalfRaise', '2026-11-11')), to(new SourceId(this.k1m_1), new Source('Barbell Standing Leg Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/BBStandingCalfRaise', '2026-11-11')), to(new SourceId(this.l1m_1), new Source('Exercise Library: Calf Raises', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/51/calf-raises/', '2026-11-11')), to(new SourceId(this.m1m_1), new Source('Smith Standing Leg Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/SMStandingCalfRaise', '2026-11-11')), to(new SourceId(this.n1m_1), new Source('Dumbbell Standing Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/DBStandingCalfRaise', '2026-11-11')), to(new SourceId(this.o1m_1), new Source('Dumbbell Single Leg Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/DBSingleLegCalfRaise', '2026-11-11')), to(new SourceId(this.p1m_1), new Source('Exercise Library: Front Plank', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/', '2026-11-11')), to(new SourceId(this.q1m_1), new Source('Front Plank', 'ExRx.net', 'https://exrx.net/WeightExercises/RectusAbdominis/BWFrontPlank', '2026-11-11')), to(new SourceId(this.r1m_1), new Source('Exercise Library: Side Plank with Straight Leg', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/101/side-plank-with-straight-leg/', '2026-11-11')), to(new SourceId(this.s1m_1), new Source('Exercise Library: Side Plank', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/303/side-plank/', '2026-11-11')), to(new SourceId(this.t1m_1), new Source('Side Plank', 'ExRx.net', 'https://exrx.net/WeightExercises/Obliques/BWSidePlank', '2026-11-11')), to(new SourceId(this.u1m_1), new Source("Exercise Library: Farmer's Carry", 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/359/farmer-s-carry/', '2026-11-11')), to(new SourceId(this.v1m_1), new Source("6 Functional Strength and Conditioning Exercises You're Not Using With Your Clients", 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5616/6-functional-strength-and-conditioning-exercises-you-re-not-using-with-your-clients/', '2026-11-11')), to(new SourceId(this.w1m_1), new Source('Strongman Exercises That Work Great for Fitness Clients', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/', '2026-11-11')), to(new SourceId(this.x1m_1), new Source('Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/', '2026-11-11')), to(new SourceId(this.y1m_1), new Source('Exercise Library: Suitcase Carry', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/358/suitcase-carry/', '2026-11-11')), to(new SourceId(this.z1m_1), new Source('NSCA Coach 7.1: Implementing Core Training Concepts into Strength Training for Sport', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf', '2026-11-11')), to(new SourceId(this.a1n_1), new Source('Exercise Library: Standing Anti-Rotation Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/332/standing-anti-rotation-press/', '2026-11-11')), to(new SourceId(this.b1n_1), new Source('7 Exercises to Create an Anti-Rotation Progression Sequence', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5625/7-exercises-to-create-an-anti-rotation-progression-sequence/', '2026-11-11')), to(new SourceId(this.c1n_1), new Source('Exercise Library: Standing Rotational Chop', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/349/standing-rotational-chop/', '2026-11-11')), to(new SourceId(this.d1n_1), new Source('Wheel Rollout', 'ExRx.net', 'https://exrx.net/WeightExercises/HipFlexors/BWKneelingWheelRollout', '2026-11-11')), to(new SourceId(this.e1n_1), new Source('Exercise Library: TRX Front Rollout', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/79/trx-reg-front-rollout/', '2026-11-11')), to(new SourceId(this.f1n_1), new Source('Core-strengthening Stability Ball Workout', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5123/core-strengthening-stability-ball-workout/', '2026-11-11')), to(new SourceId(this.g1n_1), new Source('Exercise Library: Reverse Crunch', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/76/reverse-crunch/', '2026-11-11')), to(new SourceId(this.h1n_1), new Source('Exercise Library: Crunch', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/52/crunch/', '2026-11-11')), to(new SourceId(this.i1n_1), new Source('Cable Kneeling Crunch', 'ExRx.net', 'https://exrx.net/WeightExercises/RectusAbdominis/CBKneelingCrunch', '2026-11-11')), to(new SourceId(this.j1n_1), new Source('Lever Seated Crunch (chest pad)', 'ExRx.net', 'https://exrx.net/WeightExercises/RectusAbdominis/LVSeatedCrunchChestPad', '2026-11-11')), to(new SourceId(this.k1n_1), new Source('Exercise Library: Supine Bicycle Crunches', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/241/supine-bicycle-crunches/', '2026-11-11')), to(new SourceId(this.l1n_1), new Source('Exercise Library: Supine Dead Bug', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/147/supine-dead-bug/', '2026-11-11')), to(new SourceId(this.m1n_1), new Source('Exercise Library: Bird Dog', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/14/bird-dog/', '2026-11-11'))]);
+  this.n1n_1 = _SourceId___init__impl__px94yd('pmc-rir-based-rpe-scale-application');
+  this.o1n_1 = _SourceId___init__impl__px94yd('pmc-rpe-scales-validity-systematic-review');
+  this.p1n_1 = _SourceId___init__impl__px94yd('pmc-methods-regulating-monitoring-resistance-training');
+  this.q1n_1 = mapOf([to(new SourceId(this.p1a_1), new Source('IPF Technical Rulebook 2026', 'International Powerlifting Federation (IPF)', 'https://www.powerlifting.sport/fileadmin/ipf/data/rules/technical-rules/english/2026_IPF_Technical_Rulebook__effective_01_March_2026__v3.pdf', '2026-11-11')), to(new SourceId(this.q1a_1), new Source('Back Squat Exercise Guide', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/11/back-squat/', '2026-11-11')), to(new SourceId(this.r1a_1), new Source('Barbell Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/BBSquat', '2026-11-11')), to(new SourceId(this.s1a_1), new Source('The back squat: A proposed assessment of functional deficits and technical factors that limit performance', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4262933/', '2026-11-11')), to(new SourceId(this.t1a_1), new Source('Barbell Front Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/BBFrontSquat', '2026-11-11')), to(new SourceId(this.u1a_1), new Source('Exercise Library: Front Squat', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/22/front-squat/', '2026-11-11')), to(new SourceId(this.v1a_1), new Source('Front Squat to Overhead Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/315/front-squat-to-overhead-press/', '2026-11-11')), to(new SourceId(this.w1a_1), new Source('Safety Barbell Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/SBSquat', '2026-11-11')), to(new SourceId(this.x1a_1), new Source('A Biomechanical Comparison of the Safety-Bar, High-Bar and Low-Bar Squat around the Sticking Region among Recreationally Resistance-Trained Men and Women', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8392107/', '2026-11-11')), to(new SourceId(this.y1a_1), new Source('Barbell Box Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBBoxSquat', '2026-11-11')), to(new SourceId(this.z1a_1), new Source('Understanding and Overcoming the Sticking Point in Resistance Exercise', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/', '2026-11-11')), to(new SourceId(this.a1b_1), new Source('The Sticking Point in the Bench Press, the Squat, and the Deadlift: Similarities and Differences, and Their Significance for Research and Practice', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5357260/', '2026-11-11')), to(new SourceId(this.b1b_1), new Source('Barbell Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress', '2026-11-11')), to(new SourceId(this.c1b_1), new Source('Barbell Bench Press (power lift)', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift', '2026-11-11')), to(new SourceId(this.d1b_1), new Source('Bench Press Analyses', 'ExRx.net', 'https://exrx.net/Kinesiology/BenchPress', '2026-11-11')), to(new SourceId(this.e1b_1), new Source('Decoding the Contribution of Shoulder and Elbow Mechanics to Barbell Kinematics and the Sticking Region in Bench and Overhead Press Exercises', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12372072/', '2026-11-11')), to(new SourceId(this.f1b_1), new Source('Neuromuscular Control During the Bench Press Movement in an Elite Disabled and Able-Bodied Athlete', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5765801/', '2026-11-11')), to(new SourceId(this.g1b_1), new Source('Exercise Library: Close-grip Bench Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/311/close-grip-bench-press/', '2026-11-11')), to(new SourceId(this.h1b_1), new Source('Barbell Close Grip Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/BBCloseGripBenchPress', '2026-11-11')), to(new SourceId(this.i1b_1), new Source('Barbell Board Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BBBoardPress', '2026-11-11')), to(new SourceId(this.j1b_1), new Source('Barbell Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBDeadlift', '2026-11-11')), to(new SourceId(this.k1b_1), new Source('Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/6/deadlift/', '2026-11-11')), to(new SourceId(this.l1b_1), new Source('ProSource September 2015: Technique Series: How to Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/prosource/september-2015/5579/technique-series-how-to-deadlift/', '2026-11-11')), to(new SourceId(this.m1b_1), new Source('Barbell Deficit Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/BBDeficitDeadlift', '2026-11-11')), to(new SourceId(this.o1b_1), new Source('Barbell Block Pull', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBBlockPull', '2026-11-11')), to(new SourceId(this.n1b_1), new Source('Barbell Rack Pull', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/BBRackPull', '2026-11-11')), to(new SourceId(this.p1b_1), new Source('Dumbbell Single Leg Split Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBSingleLegSplitSquat', '2026-11-11')), to(new SourceId(this.q1b_1), new Source('Effects of rear-foot instability devices on lower-limb muscle activation during the Bulgarian split squat in male football players', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12819420/', '2026-11-11')), to(new SourceId(this.r1b_1), new Source('Barbell Hip Thrust', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBHipThrust', '2026-11-11')), to(new SourceId(this.s1b_1), new Source('Certified November 2019: Understanding the Barbell Hip Thrust', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/certified/november-2019/7403/understanding-the-barbell-hip-thrust/', '2026-11-11')), to(new SourceId(this.t1b_1), new Source('Dumbbell Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/DBBenchPress', '2026-11-11')), to(new SourceId(this.u1b_1), new Source('How To Do a Chest Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/19/chest-press/', '2026-11-11')), to(new SourceId(this.v1b_1), new Source('Barbell JM Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/BBJMPress', '2026-11-11')), to(new SourceId(this.w1b_1), new Source('Romanian Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/OlympicLifts/RomanianDeadlift', '2026-11-11')), to(new SourceId(this.x1b_1), new Source('Exercise Library: Romanian Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/317/romanian-deadlift/', '2026-11-11')), to(new SourceId(this.y1b_1), new Source('Romanian Deadlift (RDL)', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/education/articles/kinetic-select/romanian-deadlift-rdl/', '2026-11-11')), to(new SourceId(this.z1b_1), new Source('Barbell Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/BBCurl', '2026-11-11')), to(new SourceId(this.a1c_1), new Source('Exercise Library: Bicep Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/', '2026-11-11')), to(new SourceId(this.b1c_1), new Source('Barbell Bent-over Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/BBBentOverRow', '2026-11-11')), to(new SourceId(this.c1c_1), new Source('Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/BWPullup', '2026-11-11')), to(new SourceId(this.d1c_1), new Source('Exercise Library: Pull-ups', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/', '2026-11-11')), to(new SourceId(this.e1c_1), new Source('Barbell Incline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/BBInclineBenchPress', '2026-11-11')), to(new SourceId(this.f1c_1), new Source('Barbell Decline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BBDeclineBenchPress', '2026-11-11')), to(new SourceId(this.g1c_1), new Source('Dumbbell Incline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/DBInclineBenchPress', '2026-11-11')), to(new SourceId(this.h1c_1), new Source('Dumbbell Decline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/DBDeclineBenchPress', '2026-11-11')), to(new SourceId(this.i1c_1), new Source('Dumbbell Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/DBFly', '2026-11-11')), to(new SourceId(this.j1c_1), new Source('Dumbbell Incline Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/DBInclineFly', '2026-11-11')), to(new SourceId(this.k1c_1), new Source('Dumbbell Decline Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/DBDeclineFly', '2026-11-11')), to(new SourceId(this.l1c_1), new Source('Lever Chest Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/LVChestPress', '2026-11-11')), to(new SourceId(this.m1c_1), new Source('Lever Incline Chest Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/LVInclineChestPress', '2026-11-11')), to(new SourceId(this.n1c_1), new Source('Lever Decline Chest Press (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/LVDeclineChestPressPL', '2026-11-11')), to(new SourceId(this.o1c_1), new Source('Lever Isolateral Seated Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/LVSeatedFly', '2026-11-11')), to(new SourceId(this.p1c_1), new Source('Lever Isolateral Pec Deck Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/LVPecDeckFly', '2026-11-11')), to(new SourceId(this.q1c_1), new Source('Smith Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/SMBenchPress', '2026-11-11')), to(new SourceId(this.r1c_1), new Source('Smith Incline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/SMInclineBenchPress', '2026-11-11')), to(new SourceId(this.s1c_1), new Source('Smith Decline Bench Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/SMDeclineBenchPress', '2026-11-11')), to(new SourceId(this.t1c_1), new Source('Cable Isolateral Standing Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/CBStandingFly', '2026-11-11')), to(new SourceId(this.u1c_1), new Source('Cable Standing Incline Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/CBStandingInclineFly', '2026-11-11')), to(new SourceId(this.v1c_1), new Source('Cable Isolateral Standing Chest Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/CBStandingChestPress', '2026-11-11')), to(new SourceId(this.w1c_1), new Source('Cable Isolateral Lying Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/CBLyingFly', '2026-11-11')), to(new SourceId(this.x1c_1), new Source('Cable Isolateral Incline Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/CBInclineFly', '2026-11-11')), to(new SourceId(this.y1c_1), new Source('Cable Isolateral Cable Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/CBSeatedFly', '2026-11-11')), to(new SourceId(this.z1c_1), new Source('Chest Dip', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BWChestDip', '2026-11-11')), to(new SourceId(this.a1d_1), new Source('Weighted Chest Dip', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/WtChestDip', '2026-11-11')), to(new SourceId(this.b1d_1), new Source('Machine-assisted Chest Dip', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/AsChestDip', '2026-11-11')), to(new SourceId(this.c1d_1), new Source('Machine-assisted Chest Dip (kneeling)', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/AsChestDipKneeling', '2026-11-11')), to(new SourceId(this.d1d_1), new Source('Calculating Actual Resistance', 'ExRx.net', 'https://exrx.net/WeightTraining/Bodyweight', '2026-11-11')), to(new SourceId(this.e1d_1), new Source('Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BWPushup', '2026-11-11')), to(new SourceId(this.f1d_1), new Source('Incline Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BWInclinePushup', '2026-11-11')), to(new SourceId(this.g1d_1), new Source('Decline Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralClavicular/BWDeclinePushup', '2026-11-11')), to(new SourceId(this.h1d_1), new Source('Push-up (on knees)', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BWPushupKnee', '2026-11-11')), to(new SourceId(this.i1d_1), new Source('Archer Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BWArcherPushup', '2026-11-11')), to(new SourceId(this.j1d_1), new Source('Clap Push-up', 'ExRx.net', 'https://exrx.net/Plyometrics/ClapPushUp', '2026-11-11')), to(new SourceId(this.k1d_1), new Source('Weighted Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/WtPushup', '2026-11-11')), to(new SourceId(this.l1d_1), new Source('Weighted Push-up (on handles)', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/WtPushupHandles', '2026-11-11')), to(new SourceId(this.m1d_1), new Source('Exercise Library: Incline Chest Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/25/incline-chest-press/', '2026-11-11')), to(new SourceId(this.n1d_1), new Source('Exercise Library: Lying Chest Fly', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/', '2026-11-11')), to(new SourceId(this.o1d_1), new Source('Seated Chest Press Exercise Guide', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/188/seated-chest-press/', '2026-11-11')), to(new SourceId(this.p1d_1), new Source('Exercise Library: Seated Cable Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/165/seated-cable-press/', '2026-11-11')), to(new SourceId(this.q1d_1), new Source('Exercise Library: Standing Chest Fly', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/160/standing-chest-fly/', '2026-11-11')), to(new SourceId(this.r1d_1), new Source('Exercise Library: Standing Incline Cable Flyes', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/163/standing-incline-cable-flyes/', '2026-11-11')), to(new SourceId(this.s1d_1), new Source('Exercise Library: Push-ups', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/', '2026-11-11')), to(new SourceId(this.t1d_1), new Source('Exercise Library: Bent-knee Push-up', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/13/bent-knee-push-up/', '2026-11-11')), to(new SourceId(this.u1d_1), new Source('Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/', '2026-11-11')), to(new SourceId(this.v1d_1), new Source('Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf', '2026-11-11')), to(new SourceId(this.w1d_1), new Source('Exercise Library: Seated Close-Grip Chest Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/189/seated-close-grip-chest-press/', '2026-11-11')), to(new SourceId(this.x1d_1), new Source('Barbell Floor Press', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/BBFloorPress', '2026-11-11')), to(new SourceId(this.y1d_1), new Source('Comparison of Muscle Activity between the Horizontal Bench Press and the Seated Chest Press Exercises Using Several Grips', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10203828/', '2026-11-11')), to(new SourceId(this.z1d_1), new Source('The Effect of Grip Width on Muscle Strength and Electromyographic Activity in Bench Press among Novice- and Resistance-Trained Men', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8296276/', '2026-11-11')), to(new SourceId(this.a1e_1), new Source('Dumbbell Bent-over Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/DBBentOverRow', '2026-11-11')), to(new SourceId(this.b1e_1), new Source('Single Arm Row Exercise Guide', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/126/single-arm-row/', '2026-11-11')), to(new SourceId(this.c1e_1), new Source('Exercise Library: Single Arm Row (cable)', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/337/single-arm-row/', '2026-11-11')), to(new SourceId(this.d1e_1), new Source('Cable Straight Back Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CBStraightBackSeatedRow', '2026-11-11')), to(new SourceId(this.e1e_1), new Source('Cable Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CBSeatedRow', '2026-11-11')), to(new SourceId(this.f1e_1), new Source('Cable Wide Grip Straight Back Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CBWideGripStrBackSeatedRow', '2026-11-11')), to(new SourceId(this.g1e_1), new Source('Cable Wide Grip Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CBWideGripSeatedRow', '2026-11-11')), to(new SourceId(this.h1e_1), new Source('Cable One Arm Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CBOneArmRow', '2026-11-11')), to(new SourceId(this.i1e_1), new Source('Seated Row', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/168/seated-row/', '2026-11-11')), to(new SourceId(this.l1e_1), new Source('Lever Seated Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/LVSeatedRow', '2026-11-11')), to(new SourceId(this.m1e_1), new Source('Dumbbell Incline Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/DBInclineRow', '2026-11-11')), to(new SourceId(this.n1e_1), new Source('Dumbbell Lying Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/DBLyingRow', '2026-11-11')), to(new SourceId(this.o1e_1), new Source('Cambered Barbell Lying Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/CamberedBarLyingRow', '2026-11-11')), to(new SourceId(this.p1e_1), new Source('Lever T-bar Row (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/LVTBarRow', '2026-11-11')), to(new SourceId(this.q1e_1), new Source('Lever Close Grip T-bar Row (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/LVCloseGripTBarRow', '2026-11-11')), to(new SourceId(this.r1e_1), new Source('Lever Close Grip T-bar Row (plate loaded, landmine)', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/LVCloseGripTBarRowLM', '2026-11-11')), to(new SourceId(this.s1e_1), new Source('Lever Incline Row (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/LVInclineRow', '2026-11-11')), to(new SourceId(this.t1e_1), new Source('Inverted Row', 'ExRx.net', 'https://exrx.net/WeightExercises/BackGeneral/BWSupineRow', '2026-11-11')), to(new SourceId(this.u1e_1), new Source('Bent-Over Row', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/12/bent-over-row/', '2026-11-11')), to(new SourceId(this.v1e_1), new Source('Cable Pulldown', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/CBFrontPulldown', '2026-11-11')), to(new SourceId(this.w1e_1), new Source('Seated Lat Pulldown', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/', '2026-11-11')), to(new SourceId(this.x1e_1), new Source('Cable Close Grip Pulldown', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/CBCloseGripPulldown', '2026-11-11')), to(new SourceId(this.y1e_1), new Source('Cable Underhand Pulldown', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/CBUnderhandPulldown', '2026-11-11')), to(new SourceId(this.z1e_1), new Source('Lever Front Pulldown', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/LVFrontPulldown', '2026-11-11')), to(new SourceId(this.a1f_1), new Source('Cable One Arm Pulldown', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/CBOneArmPulldown', '2026-11-11')), to(new SourceId(this.b1f_1), new Source('Cable Seated Pullover (straight-arm pulldown)', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/CBSeatedStraightArmPullover', '2026-11-11')), to(new SourceId(this.c1f_1), new Source('Chin-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/BWUnderhandChinup', '2026-11-11')), to(new SourceId(this.d1f_1), new Source('Weighted Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/WtPullup', '2026-11-11')), to(new SourceId(this.e1f_1), new Source('Weighted Chin-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/WtUnderhandChinup', '2026-11-11')), to(new SourceId(this.f1f_1), new Source('Machine-assisted Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/AsPullupKneeling', '2026-11-11')), to(new SourceId(this.g1f_1), new Source('Machine-assisted Chin-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/AsUnderhandChinup', '2026-11-11')), to(new SourceId(this.h1f_1), new Source('Band-assisted Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/ASPullupBand', '2026-11-11')), to(new SourceId(this.i1f_1), new Source('Neutral Grip Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/BWPullupN', '2026-11-11')), to(new SourceId(this.j1f_1), new Source('Parallel Close Grip Pull-up', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/BWCloseGripChinup', '2026-11-11')), to(new SourceId(this.k1f_1), new Source('Dumbbell Pullover', 'ExRx.net', 'https://exrx.net/WeightExercises/PectoralSternal/DBPullover', '2026-11-11')), to(new SourceId(this.l1f_1), new Source('Lever Pullover', 'ExRx.net', 'https://exrx.net/WeightExercises/LatissimusDorsi/LVPullover', '2026-11-11')), to(new SourceId(this.m1f_1), new Source('Barbell Shrug', 'ExRx.net', 'https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug', '2026-11-11')), to(new SourceId(this.n1f_1), new Source('Dumbbell Shrug', 'ExRx.net', 'https://exrx.net/WeightExercises/TrapeziusUpper/DBShrug', '2026-11-11')), to(new SourceId(this.o1f_1), new Source('Trap Bar Shrug', 'ExRx.net', 'https://exrx.net/WeightExercises/TrapeziusUpper/TBShrug', '2026-11-11')), to(new SourceId(this.p1f_1), new Source('45\xB0 Hyperextension (hands behind hips)', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/BW45HyperextensionHips', '2026-11-11')), to(new SourceId(this.q1f_1), new Source('Weighted 45\xB0 Back Extension (on hyperextension apparatus)', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/Wt45BackExtension', '2026-11-11')), to(new SourceId(this.r1f_1), new Source('Reliability of Pain Thresholds and Exercise-Induced Hypoalgesia Following 45-Degree Roman Chair Exercise', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11964695/', '2026-11-11')), to(new SourceId(this.s1f_1), new Source('Loading conditions in the spine, hip and knee during different executions of back extension exercises', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5404334/', '2026-11-11')), to(new SourceId(this.t1f_1), new Source('Face Pull (Machine)', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/education/articles/kinetic-select/face-pull-machine/', '2026-11-11')), to(new SourceId(this.u1f_1), new Source('Cable Standing Rear Delt Row (with rope)', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingRearDeltRowRope', '2026-11-11')), to(new SourceId(this.j1e_1), new Source('Seated Row (cable)', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/48/seated-row/', '2026-11-11')), to(new SourceId(this.k1e_1), new Source('Weighted 45\xB0 Hyperextension', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/Wt45Hyperextension', '2026-11-11')), to(new SourceId(this.v1f_1), new Source('Barbell Military Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/BBMilitaryPress', '2026-11-11')), to(new SourceId(this.w1f_1), new Source('Exercise Library: Standing Shoulder Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/71/standing-shoulder-press/', '2026-11-11')), to(new SourceId(this.x1f_1), new Source('Barbell Seated Military Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/BBSeatedMilitaryPress', '2026-11-11')), to(new SourceId(this.y1f_1), new Source('Exercise Library: Seated Shoulder Press (barbell)', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/43/seated-shoulder-press/', '2026-11-11')), to(new SourceId(this.z1f_1), new Source('Upper extremity weightlifting injuries: Diagnosis and management', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5895929/', '2026-11-11')), to(new SourceId(this.a1g_1), new Source('Seated Overhead Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/', '2026-11-11')), to(new SourceId(this.b1g_1), new Source('Dumbbell Shoulder Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/DBShoulderPress', '2026-11-11')), to(new SourceId(this.c1g_1), new Source('Dumbbell One Arm Shoulder Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/DBOneArmShoulderPress', '2026-11-11')), to(new SourceId(this.d1g_1), new Source('Dumbbell Arnold Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/DBArnoldPress', '2026-11-11')), to(new SourceId(this.e1g_1), new Source('Lever Shoulder Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/LVShoulderPress', '2026-11-11')), to(new SourceId(this.f1g_1), new Source('Seated Shoulder Press (machine)', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/186/seated-shoulder-press/', '2026-11-11')), to(new SourceId(this.g1g_1), new Source('Exercise Library: Seated Machine Close-Grip Shoulder Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/187/seated-machine-close-grip-shoulder-press/', '2026-11-11')), to(new SourceId(this.h1g_1), new Source('Smith Shoulder Press', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/SMShoulderPress', '2026-11-11')), to(new SourceId(this.j1g_1), new Source('Certified September 2025: The ACE Workout Builder for Landmine Training', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/certified/september-2025/8948/the-ace-workout-builder-for-landmine-training/', '2026-11-11')), to(new SourceId(this.i1g_1), new Source('Lever One Arm Shoulder Press (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/LVOneArmShoulderPress', '2026-11-11')), to(new SourceId(this.k1g_1), new Source('Single-arm Overhead Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/395/single-arm-overhead-press/', '2026-11-11')), to(new SourceId(this.l1g_1), new Source('Dumbbell Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise', '2026-11-11')), to(new SourceId(this.m1g_1), new Source('Lateral Raise', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/26/lateral-raise/', '2026-11-11')), to(new SourceId(this.n1g_1), new Source('Common Resistance Training Mistakes', 'ExRx.net', 'https://exrx.net/Kinesiology/Errors', '2026-11-11')), to(new SourceId(this.o1g_1), new Source('Most Common Weight Training Mistakes', 'ExRx.net', 'https://exrx.net/WeightTraining/Mistakes', '2026-11-11')), to(new SourceId(this.p1g_1), new Source('Cable One Arm Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidLateral/CBOneArmLateralRaise', '2026-11-11')), to(new SourceId(this.r1g_1), new Source('Dumbbell Seated Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidLateral/DBSeatedLateralRaise', '2026-11-11')), to(new SourceId(this.q1g_1), new Source('Lever Isolateral Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidLateral/LVLateralRaise', '2026-11-11')), to(new SourceId(this.s1g_1), new Source('Dumbbell Front Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/DBFrontRaise', '2026-11-11')), to(new SourceId(this.t1g_1), new Source('Front Raise', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/54/front-raise/', '2026-11-11')), to(new SourceId(this.u1g_1), new Source('Barbell Front Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/BBFrontRaise', '2026-11-11')), to(new SourceId(this.v1g_1), new Source('Cable One Arm Front Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidAnterior/CBFrontRaise', '2026-11-11')), to(new SourceId(this.w1g_1), new Source('Dumbbell Rear Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/DBRearLateralRaise', '2026-11-11')), to(new SourceId(this.x1g_1), new Source('Dumbbell Seated Rear Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/DBSeatedRearLateralRaise', '2026-11-11')), to(new SourceId(this.y1g_1), new Source('Dumbbell Lying Rear Lateral Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/DBLyingRearLateralRaise', '2026-11-11')), to(new SourceId(this.z1g_1), new Source('Lever Seated Reverse Fly (overhand grip)', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/LVReverseFlyOverhand', '2026-11-11')), to(new SourceId(this.a1h_1), new Source('Cable Isolateral Reverse Fly', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingReverseFly', '2026-11-11')), to(new SourceId(this.b1h_1), new Source('Cable Rear Delt Row', 'ExRx.net', 'https://exrx.net/WeightExercises/DeltoidPosterior/CBRearDeltRow', '2026-11-11')), to(new SourceId(this.c1h_1), new Source('Cable Standing Shoulder External Rotation', 'ExRx.net', 'https://exrx.net/WeightExercises/Infraspinatus/CBStandingExternalRotation', '2026-11-11')), to(new SourceId(this.d1h_1), new Source('Rotator Cuff External Rotation', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/352/rotator-cuff-external-rotation/', '2026-11-11')), to(new SourceId(this.e1h_1), new Source('Dumbbell Lying Shoulder External Rotation', 'ExRx.net', 'https://exrx.net/WeightExercises/Infraspinatus/DBLyingExternalRotation', '2026-11-11')), to(new SourceId(this.f1h_1), new Source('Cable Standing Shoulder Internal Rotation', 'ExRx.net', 'https://exrx.net/WeightExercises/Subscapularis/CBStandingInternalRotation', '2026-11-11')), to(new SourceId(this.g1h_1), new Source('Dumbbell Alternating Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/DBCurl', '2026-11-11')), to(new SourceId(this.h1h_1), new Source('Dumbbell Seated Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/DBSeatedCurl', '2026-11-11')), to(new SourceId(this.i1h_1), new Source('Dumbbell Alternating Hammer Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachioradialis/DBHammerCurl', '2026-11-11')), to(new SourceId(this.j1h_1), new Source('Exercise Library: Hammer Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/10/hammer-curl/', '2026-11-11')), to(new SourceId(this.k1h_1), new Source('Cable Hammer Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachioradialis/CBHammerCurl', '2026-11-11')), to(new SourceId(this.l1h_1), new Source('Dumbbell Alternating Incline Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/DBInclineCurl', '2026-11-11')), to(new SourceId(this.m1h_1), new Source('Barbell Preacher Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachialis/BBPreacherCurl', '2026-11-11')), to(new SourceId(this.n1h_1), new Source('Dumbbell One Arm Preacher Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachialis/DBPreacherCurl', '2026-11-11')), to(new SourceId(this.o1h_1), new Source('Lever Isolateral Preacher Curl (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachialis/LVPreacherCurlH', '2026-11-11')), to(new SourceId(this.p1h_1), new Source('Exercise Library: Seated Biceps Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/184/seated-biceps-curl/', '2026-11-11')), to(new SourceId(this.q1h_1), new Source('Cable Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/CBCurl', '2026-11-11')), to(new SourceId(this.r1h_1), new Source('Cable One Arm Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/CBOneArmCurl', '2026-11-11')), to(new SourceId(this.s1h_1), new Source('Dumbbell Concentration Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachialis/DBConcentrationCurl', '2026-11-11')), to(new SourceId(this.t1h_1), new Source('Barbell Drag Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Biceps/BBDragCurl', '2026-11-11')), to(new SourceId(this.u1h_1), new Source('Barbell Prone Incline Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachialis/BBProneInclineCurl', '2026-11-11')), to(new SourceId(this.v1h_1), new Source('Barbell Reverse Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Brachioradialis/BBReverseCurl', '2026-11-11')), to(new SourceId(this.w1h_1), new Source('Exercise Library: Reverse Bicep Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/310/reverse-bicep-curl/', '2026-11-11')), to(new SourceId(this.x1h_1), new Source('How to Improve Grip Strength', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5765/how-to-improve-grip-strength/', '2026-11-11')), to(new SourceId(this.y1h_1), new Source('Cable Pushdown', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/CBPushdown', '2026-11-11')), to(new SourceId(this.z1h_1), new Source('Cable Pushdown (with V-bar)', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/CBPushdownVBar', '2026-11-11')), to(new SourceId(this.a1i_1), new Source('Exercise Library: Triceps Pushdowns', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/', '2026-11-11')), to(new SourceId(this.b1i_1), new Source('Cable Pushdown (with rope attachment)', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/CBPushdownRope', '2026-11-11')), to(new SourceId(this.c1i_1), new Source('Cable One Arm Pushdown', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/CBOneArmPushdown', '2026-11-11')), to(new SourceId(this.d1i_1), new Source('Cable Triceps Extension (with rope)', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/CBStandingTricepsExtensionRope', '2026-11-11')), to(new SourceId(this.e1i_1), new Source('Exercise Library: Triceps Extension', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/74/triceps-extension/', '2026-11-11')), to(new SourceId(this.f1i_1), new Source('Dumbbell Triceps Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/DBTriExt', '2026-11-11')), to(new SourceId(this.g1i_1), new Source('Exercise Library: Lying Barbell Triceps Extensions', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/36/lying-barbell-triceps-extensions/', '2026-11-11')), to(new SourceId(this.h1i_1), new Source('Barbell Lying Triceps Extension "Skull Crusher"', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/BBLyingTriExtSC', '2026-11-11')), to(new SourceId(this.i1i_1), new Source('Dumbbell Lying Triceps Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/DBLyingTriExt', '2026-11-11')), to(new SourceId(this.k1i_1), new Source('Lever Triceps Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/LVTriExt', '2026-11-11')), to(new SourceId(this.l1i_1), new Source('Exercise Library: Triceps Kickback', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/55/triceps-kickback/', '2026-11-11')), to(new SourceId(this.m1i_1), new Source('Dumbbell Kickback', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/DBKickback', '2026-11-11')), to(new SourceId(this.n1i_1), new Source('Weighted Triceps Dip', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/WtTriDip', '2026-11-11')), to(new SourceId(this.o1i_1), new Source('Suspended Triceps Dip', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/STTriDip', '2026-11-11')), to(new SourceId(this.p1i_1), new Source('ACE Study Identifies Best Triceps Exercises', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/certifiednewsarticle/3008/ace-study-identifies-best-triceps-exercises/', '2026-11-11')), to(new SourceId(this.q1i_1), new Source('Follow-up Q and A: Dangerous Dips', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/', '2026-11-11')), to(new SourceId(this.s1i_1), new Source('Close Grip Push-up', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/BWCloseGripPushup', '2026-11-11')), to(new SourceId(this.t1i_1), new Source('Barbell Wrist Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/WristFlexors/BBWristCurl', '2026-11-11')), to(new SourceId(this.u1i_1), new Source('Dumbbell Wrist Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/WristFlexors/DBWristCurl', '2026-11-11')), to(new SourceId(this.v1i_1), new Source('Barbell Reverse Wrist Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/WristExtensors/BBReverseWristCurl', '2026-11-11')), to(new SourceId(this.w1i_1), new Source('Dumbbell Reverse Wrist Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/WristExtensors/DBReverseWristCurl', '2026-11-11')), to(new SourceId(this.j1i_1), new Source('Dumbbell Decline Triceps Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Triceps/DBDeclineTriExt', '2026-11-11')), to(new SourceId(this.r1i_1), new Source('Bench, Bar, and Ring Dips: Do Kinematics and Muscle Activity Differ?', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9603242/', '2026-11-11')), to(new SourceId(this.x1i_1), new Source('Kettlebell Goblet Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Kettlebell/KBGobletSquat', '2026-11-11')), to(new SourceId(this.y1i_1), new Source('Exercise Library: Goblet Squat', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/362/goblet-squat/', '2026-11-11')), to(new SourceId(this.z1i_1), new Source('Dumbbell Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBSquat', '2026-11-11')), to(new SourceId(this.a1j_1), new Source('Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/BWSquat', '2026-11-11')), to(new SourceId(this.b1j_1), new Source('Exercise Library: Bodyweight Squat', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/', '2026-11-11')), to(new SourceId(this.c1j_1), new Source('Kettlebell Front Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Kettlebell/KBFrontSquat', '2026-11-11')), to(new SourceId(this.d1j_1), new Source('Barbell Zercher Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBZercherSquat', '2026-11-11')), to(new SourceId(this.e1j_1), new Source('Zercher Squat: Field Alternative for Front Squat', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/education/articles/kinetic-select/zercher-squat-field-alternative-for-front-squat/', '2026-11-11')), to(new SourceId(this.f1j_1), new Source('Squat Variations', 'ExRx.net', 'https://exrx.net/Kinesiology/SquatVariations', '2026-11-11')), to(new SourceId(this.g1j_1), new Source('Muscle activation varies between high-bar and low-bar back squat', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7289144/', '2026-11-11')), to(new SourceId(this.h1j_1), new Source('The effects of eccentric phase tempo in squats on hypertrophy, strength, and contractile properties of the quadriceps femoris muscle', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11754408/', '2026-11-11')), to(new SourceId(this.i1j_1), new Source('Smith Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SMSquat', '2026-11-11')), to(new SourceId(this.j1j_1), new Source('Smith Front Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SMFrontSquat', '2026-11-11')), to(new SourceId(this.k1j_1), new Source('Smith Split Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SMSplitSquat', '2026-11-11')), to(new SourceId(this.l1j_1), new Source('Smith Seated Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Soleus/SMSeatedCalfRaise', '2026-11-11')), to(new SourceId(this.m1j_1), new Source('Sled 45\xB0 Leg Press', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SL45LegPress', '2026-11-11')), to(new SourceId(this.n1j_1), new Source('Sled 45\xB0 Leg Press (gluteus maximus)', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/SL45LegPress', '2026-11-11')), to(new SourceId(this.o1j_1), new Source('Seated Leg Press Exercise Guide', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/154/seated-leg-press/', '2026-11-11')), to(new SourceId(this.p1j_1), new Source('Sled Single Leg 45\xB0 Leg Press', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SLSingleLeg45LegPress', '2026-11-11')), to(new SourceId(this.q1j_1), new Source('Sled Hack Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/SLHackSquat', '2026-11-11')), to(new SourceId(this.r1j_1), new Source('Lever Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/LVSquat', '2026-11-11')), to(new SourceId(this.s1j_1), new Source('Lever Squat (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/LVSquatPL', '2026-11-11')), to(new SourceId(this.t1j_1), new Source('Dumbbell Lunge', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBLunge', '2026-11-11')), to(new SourceId(this.u1j_1), new Source('Exercise Library: Forward Lunge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/', '2026-11-11')), to(new SourceId(this.v1j_1), new Source('Exercise Library: Lunge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/363/lunge/', '2026-11-11')), to(new SourceId(this.w1j_1), new Source('Dumbbell Walking Lunge', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBWalkingLunge', '2026-11-11')), to(new SourceId(this.x1j_1), new Source('5 Lunge Variations You Need to Try', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5818/5-lunge-variations-you-need-to-try/', '2026-11-11')), to(new SourceId(this.y1j_1), new Source('Dumbbell Rear Lunge', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBRearLunge', '2026-11-11')), to(new SourceId(this.z1j_1), new Source('Exercise Library: Reverse Lunge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/319/reverse-lunge/', '2026-11-11')), to(new SourceId(this.a1k_1), new Source('Barbell Lunge', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/BBLunge', '2026-11-11')), to(new SourceId(this.b1k_1), new Source('Dumbbell Alternating Side Lunge', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBSideLunge', '2026-11-11')), to(new SourceId(this.c1k_1), new Source('Exercise Library: Lateral Lunge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/364/lateral-lunge/', '2026-11-11')), to(new SourceId(this.d1k_1), new Source('Total-body Dumbbell Workout', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/3718/total-body-dumbbell-workout/', '2026-11-11')), to(new SourceId(this.e1k_1), new Source('8 Butt-toning Moves', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/6355/8-butt-toning-moves/', '2026-11-11')), to(new SourceId(this.f1k_1), new Source('Dumbbell Split Squat', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBSplitSquat', '2026-11-11')), to(new SourceId(this.g1k_1), new Source('Dumbbell Step-up', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/DBStepUp', '2026-11-11')), to(new SourceId(this.h1k_1), new Source('Exercise Library: Step-Up', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/28/step-up/', '2026-11-11')), to(new SourceId(this.i1k_1), new Source('6 Lower Body Exercises to Do Instead of Squats', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5028/6-lower-body-exercises-to-do-instead-of-squats/', '2026-11-11')), to(new SourceId(this.j1k_1), new Source('Dumbbell Lateral Step-up', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/DBLateralStepUp', '2026-11-11')), to(new SourceId(this.k1k_1), new Source('Single Leg Box Squat (pistol)', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/BWSingleLegBoxSquat', '2026-11-11')), to(new SourceId(this.l1k_1), new Source('Lever Leg Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/LVLegExtension', '2026-11-11')), to(new SourceId(this.m1k_1), new Source('Lever Alternating Leg Extension', 'ExRx.net', 'https://exrx.net/WeightExercises/Quadriceps/LVAlternatingLegExtension', '2026-11-11')), to(new SourceId(this.n1k_1), new Source('Sled Push', 'ExRx.net', 'https://exrx.net/WeightExercises/Power/WTPushSprint', '2026-11-11')), to(new SourceId(this.o1k_1), new Source('Exercise Library: Squat Jumps', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/116/squat-jumps/', '2026-11-11')), to(new SourceId(this.p1k_1), new Source('Exercise Library: Squat Jump', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/222/squat-jump/', '2026-11-11')), to(new SourceId(this.q1k_1), new Source('Barbell Straight-back Stiff-leg Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBStrBackStiffLegDeadlift', '2026-11-11')), to(new SourceId(this.r1k_1), new Source('Barbell Stiff Leg Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBStiffLegDeadlift', '2026-11-11')), to(new SourceId(this.s1k_1), new Source('Barbell Straight Leg Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/BBStraightLegDeadlift', '2026-11-11')), to(new SourceId(this.t1k_1), new Source('ProSource January 2016: ACE Technique Series: Romanian Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/prosource/january-2016/5767/ace-technique-series-romanian-deadlift/', '2026-11-11')), to(new SourceId(this.u1k_1), new Source('Exercise Library: Single-Arm Single-Leg Romanian Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/127/single-arm-single-leg-romanian-dead-lift/', '2026-11-11')), to(new SourceId(this.v1k_1), new Source('Exercise Library: Single-Leg Romanian Deadlift', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/329/single-leg-romanian-deadlift/', '2026-11-11')), to(new SourceId(this.w1k_1), new Source('Dumbbell Single Leg Stiff-leg Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/DBSingleLegStiffLegDeadlift', '2026-11-11')), to(new SourceId(this.x1k_1), new Source('Barbell Good-morning', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/BBGoodMorning', '2026-11-11')), to(new SourceId(this.y1k_1), new Source('Barbell Bent Knee Good-morning', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BBBentKneeGoodMorning', '2026-11-11')), to(new SourceId(this.z1k_1), new Source('Lever Lying Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/LVLyingLegCurl', '2026-11-11')), to(new SourceId(this.a1l_1), new Source('Exercise Library: Lying Hamstrings Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/153/lying-hamstrings-curl/', '2026-11-11')), to(new SourceId(this.b1l_1), new Source('Lever Seated Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/LVSeatedLegCurl', '2026-11-11')), to(new SourceId(this.c1l_1), new Source('Lever Standing Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/LVStandingLegCurl', '2026-11-11')), to(new SourceId(this.d1l_1), new Source('Lever Standing Leg Curl (on multi-hip machine)', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/LVStandingLegCurlMultiHip', '2026-11-11')), to(new SourceId(this.e1l_1), new Source('Cable Standing Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/CBStandingLegCurl', '2026-11-11')), to(new SourceId(this.f1l_1), new Source('Cable Bent-over Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/CBBentOverLegCurl', '2026-11-11')), to(new SourceId(this.g1l_1), new Source('Exercise Library: Stability Ball Hamstring Curl', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/59/stability-ball-hamstring-curl/', '2026-11-11')), to(new SourceId(this.h1l_1), new Source('Self-assisted Inverse Leg Curl (on floor)', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/ASHamstringRaiseSelfFloor', '2026-11-11')), to(new SourceId(this.i1l_1), new Source('Inverse Leg Curl', 'ExRx.net', 'https://exrx.net/WeightExercises/Hamstrings/BWHamstringRaise', '2026-11-11')), to(new SourceId(this.j1l_1), new Source('Exercise Library: Glute Bridge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/49/glute-bridge/', '2026-11-11')), to(new SourceId(this.k1l_1), new Source('Exercise Library: Glute Bridge: Single-Leg Progression', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/145/glute-bridge-single-leg-progression/', '2026-11-11')), to(new SourceId(this.l1l_1), new Source('Single Leg Hip Bridge', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BWLyingHipExtension', '2026-11-11')), to(new SourceId(this.m1l_1), new Source('Exercise Library: Hip Bridge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/318/hip-bridge/', '2026-11-11')), to(new SourceId(this.n1l_1), new Source('Exercise Library: Elevated Glute Bridge', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/367/elevated-glute-bridge/', '2026-11-11')), to(new SourceId(this.o1l_1), new Source('Lever Hip Thrust', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/LVHipThrustPL', '2026-11-11')), to(new SourceId(this.p1l_1), new Source('Exercise Library: Swing', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/391/swing/', '2026-11-11')), to(new SourceId(this.q1l_1), new Source('Certified January 2025: The ACE Do it Better Series: The Two-handed Kettlebell Swing', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/continuing-education/certified/january-2025/8788/the-ace-do-it-better-series-the-two-handed-kettlebell-swing/', '2026-11-11')), to(new SourceId(this.r1l_1), new Source('Two-Arm Kettlebell Swing', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/education/articles/kinetic-select/two-arm-kettlebell-swing/', '2026-11-11')), to(new SourceId(this.s1l_1), new Source('Kettlebell Two Arm Swing', 'ExRx.net', 'https://exrx.net/WeightExercises/Kettlebell/KBTwoArmSwing', '2026-11-11')), to(new SourceId(this.t1l_1), new Source('Exercise Library: Single Arm Swing', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/392/single-arm-swing/', '2026-11-11')), to(new SourceId(this.u1l_1), new Source('Reverse Hyper-extension', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/BWReverseHyperextension', '2026-11-11')), to(new SourceId(this.v1l_1), new Source('Exercise Library: Quadruped Bent-knee Hip Extensions', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/270/quadruped-bent-knee-hip-extensions/', '2026-11-11')), to(new SourceId(this.w1l_1), new Source('Cable Hip Abduction', 'ExRx.net', 'https://exrx.net/WeightExercises/HipAbductor/CBHipAbduction', '2026-11-11')), to(new SourceId(this.x1l_1), new Source('Lever Seated Hip Abduction', 'ExRx.net', 'https://exrx.net/WeightExercises/HipAbductor/LVSeatedHipAbduction', '2026-11-11')), to(new SourceId(this.y1l_1), new Source('Exercise Library: Side Lying Hip Abduction', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/38/side-lying-hip-abduction/', '2026-11-11')), to(new SourceId(this.z1l_1), new Source('6 Glute Medius Exercises for Strength and Stability', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/6936/6-glute-medius-exercises-for-strength-amp-stability/', '2026-11-11')), to(new SourceId(this.a1m_1), new Source('Ankles, Knees and Hips: 10 Joint-Friendly Exercises for the Lower Extremity', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/9158/ankles-knees-and-hips-10-joint-friendly-exercises-for-the-lower-extremity/', '2026-11-11')), to(new SourceId(this.b1m_1), new Source('Lever Seated Hip Adduction', 'ExRx.net', 'https://exrx.net/WeightExercises/HipAdductors/LVSeatedHipAdduction', '2026-11-11')), to(new SourceId(this.c1m_1), new Source('Barbell Sumo Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/ErectorSpinae/BBSumoDeadlift', '2026-11-11')), to(new SourceId(this.d1m_1), new Source('Trap Bar Deadlift', 'ExRx.net', 'https://exrx.net/WeightExercises/GluteusMaximus/TBDeadlift', '2026-11-11')), to(new SourceId(this.e1m_1), new Source('Lever Standing Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise', '2026-11-11')), to(new SourceId(this.f1m_1), new Source('Get Stronger Calves with These 5 Exercises', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/', '2026-11-11')), to(new SourceId(this.g1m_1), new Source('Sled 45\xB0 Calf Press', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress', '2026-11-11')), to(new SourceId(this.h1m_1), new Source('Lever Seated Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Soleus/LVSeatedCalfRaise', '2026-11-11')), to(new SourceId(this.i1m_1), new Source('Lever Seated Calf Raise (plate loaded)', 'ExRx.net', 'https://exrx.net/WeightExercises/Soleus/LVSeatedCalfRaiseH', '2026-11-11')), to(new SourceId(this.j1m_1), new Source('Lever Donkey Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/LVDonkeyCalfRaise', '2026-11-11')), to(new SourceId(this.k1m_1), new Source('Barbell Standing Leg Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/BBStandingCalfRaise', '2026-11-11')), to(new SourceId(this.l1m_1), new Source('Exercise Library: Calf Raises', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/51/calf-raises/', '2026-11-11')), to(new SourceId(this.m1m_1), new Source('Smith Standing Leg Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/SMStandingCalfRaise', '2026-11-11')), to(new SourceId(this.n1m_1), new Source('Dumbbell Standing Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/DBStandingCalfRaise', '2026-11-11')), to(new SourceId(this.o1m_1), new Source('Dumbbell Single Leg Calf Raise', 'ExRx.net', 'https://exrx.net/WeightExercises/Gastrocnemius/DBSingleLegCalfRaise', '2026-11-11')), to(new SourceId(this.p1m_1), new Source('Exercise Library: Front Plank', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/', '2026-11-11')), to(new SourceId(this.q1m_1), new Source('Front Plank', 'ExRx.net', 'https://exrx.net/WeightExercises/RectusAbdominis/BWFrontPlank', '2026-11-11')), to(new SourceId(this.r1m_1), new Source('Exercise Library: Side Plank with Straight Leg', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/101/side-plank-with-straight-leg/', '2026-11-11')), to(new SourceId(this.s1m_1), new Source('Exercise Library: Side Plank', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/303/side-plank/', '2026-11-11')), to(new SourceId(this.t1m_1), new Source('Side Plank', 'ExRx.net', 'https://exrx.net/WeightExercises/Obliques/BWSidePlank', '2026-11-11')), to(new SourceId(this.u1m_1), new Source("Exercise Library: Farmer's Carry", 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/359/farmer-s-carry/', '2026-11-11')), to(new SourceId(this.v1m_1), new Source("6 Functional Strength and Conditioning Exercises You're Not Using With Your Clients", 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5616/6-functional-strength-and-conditioning-exercises-you-re-not-using-with-your-clients/', '2026-11-11')), to(new SourceId(this.w1m_1), new Source('Strongman Exercises That Work Great for Fitness Clients', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/', '2026-11-11')), to(new SourceId(this.x1m_1), new Source('Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/', '2026-11-11')), to(new SourceId(this.y1m_1), new Source('Exercise Library: Suitcase Carry', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/358/suitcase-carry/', '2026-11-11')), to(new SourceId(this.z1m_1), new Source('NSCA Coach 7.1: Implementing Core Training Concepts into Strength Training for Sport', 'National Strength and Conditioning Association (NSCA)', 'https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf', '2026-11-11')), to(new SourceId(this.a1n_1), new Source('Exercise Library: Standing Anti-Rotation Press', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/332/standing-anti-rotation-press/', '2026-11-11')), to(new SourceId(this.b1n_1), new Source('7 Exercises to Create an Anti-Rotation Progression Sequence', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5625/7-exercises-to-create-an-anti-rotation-progression-sequence/', '2026-11-11')), to(new SourceId(this.c1n_1), new Source('Exercise Library: Standing Rotational Chop', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/349/standing-rotational-chop/', '2026-11-11')), to(new SourceId(this.d1n_1), new Source('Wheel Rollout', 'ExRx.net', 'https://exrx.net/WeightExercises/HipFlexors/BWKneelingWheelRollout', '2026-11-11')), to(new SourceId(this.e1n_1), new Source('Exercise Library: TRX Front Rollout', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/79/trx-reg-front-rollout/', '2026-11-11')), to(new SourceId(this.f1n_1), new Source('Core-strengthening Stability Ball Workout', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/pros/expert-articles/5123/core-strengthening-stability-ball-workout/', '2026-11-11')), to(new SourceId(this.g1n_1), new Source('Exercise Library: Reverse Crunch', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/76/reverse-crunch/', '2026-11-11')), to(new SourceId(this.h1n_1), new Source('Exercise Library: Crunch', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/52/crunch/', '2026-11-11')), to(new SourceId(this.i1n_1), new Source('Cable Kneeling Crunch', 'ExRx.net', 'https://exrx.net/WeightExercises/RectusAbdominis/CBKneelingCrunch', '2026-11-11')), to(new SourceId(this.j1n_1), new Source('Lever Seated Crunch (chest pad)', 'ExRx.net', 'https://exrx.net/WeightExercises/RectusAbdominis/LVSeatedCrunchChestPad', '2026-11-11')), to(new SourceId(this.k1n_1), new Source('Exercise Library: Supine Bicycle Crunches', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/241/supine-bicycle-crunches/', '2026-11-11')), to(new SourceId(this.l1n_1), new Source('Exercise Library: Supine Dead Bug', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/147/supine-dead-bug/', '2026-11-11')), to(new SourceId(this.m1n_1), new Source('Exercise Library: Bird Dog', 'American Council on Exercise (ACE)', 'https://www.acefitness.org/resources/everyone/exercise-library/14/bird-dog/', '2026-11-11')), to(new SourceId(this.n1n_1), new Source('Application of the Repetitions in Reserve-Based Rating of Perceived Exertion Scale for Resistance Training', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4961270/', '2026-11-12')), to(new SourceId(this.o1n_1), new Source('Validity of Rating of Perceived Exertion Scales in Relation to Movement Velocity and Exercise Intensity During Resistance-Exercise: A Systematic Review', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11569527/', '2026-11-12')), to(new SourceId(this.p1n_1), new Source('Methods for Regulating and Monitoring Resistance Training', 'PubMed Central (peer-reviewed)', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7706636/', '2026-11-12'))]);
 }
 var Sources_instance;
 function Sources_getInstance() {
@@ -4615,22 +4633,22 @@ function $serializer() {
   tmp0_serialDesc.mj('sets', false);
   tmp0_serialDesc.mj('repsLow', false);
   tmp0_serialDesc.mj('repsHigh', false);
-  this.o1n_1 = tmp0_serialDesc;
+  this.v1n_1 = tmp0_serialDesc;
 }
-protoOf($serializer).p1n = function (encoder, value) {
-  var tmp0_desc = this.o1n_1;
+protoOf($serializer).w1n = function (encoder, value) {
+  var tmp0_desc = this.v1n_1;
   var tmp1_output = encoder.rf(tmp0_desc);
-  tmp1_output.pg(tmp0_desc, 0, value.q1n_1);
-  tmp1_output.mg(tmp0_desc, 1, value.r1n_1);
-  tmp1_output.mg(tmp0_desc, 2, value.s1n_1);
-  tmp1_output.mg(tmp0_desc, 3, value.t1n_1);
+  tmp1_output.pg(tmp0_desc, 0, value.x1n_1);
+  tmp1_output.mg(tmp0_desc, 1, value.y1n_1);
+  tmp1_output.mg(tmp0_desc, 2, value.z1n_1);
+  tmp1_output.mg(tmp0_desc, 3, value.a1o_1);
   tmp1_output.sf(tmp0_desc);
 };
 protoOf($serializer).zc = function (encoder, value) {
-  return this.p1n(encoder, value instanceof AccessoryPrescription ? value : THROW_CCE());
+  return this.w1n(encoder, value instanceof AccessoryPrescription ? value : THROW_CCE());
 };
 protoOf($serializer).yc = function (decoder) {
-  var tmp0_desc = this.o1n_1;
+  var tmp0_desc = this.v1n_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -4679,7 +4697,7 @@ protoOf($serializer).yc = function (decoder) {
   return AccessoryPrescription_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, tmp6_local2, tmp7_local3, null);
 };
 protoOf($serializer).xc = function () {
-  return this.o1n_1;
+  return this.v1n_1;
 };
 protoOf($serializer).bk = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -4695,31 +4713,31 @@ function $serializer_getInstance() {
 }
 function AccessoryPrescription_init_$Init$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker, $this) {
   if (!(15 === (15 & seen0))) {
-    throwMissingFieldException(seen0, 15, $serializer_getInstance().o1n_1);
+    throwMissingFieldException(seen0, 15, $serializer_getInstance().v1n_1);
   }
-  $this.q1n_1 = exerciseName;
-  $this.r1n_1 = sets;
-  $this.s1n_1 = repsLow;
-  $this.t1n_1 = repsHigh;
+  $this.x1n_1 = exerciseName;
+  $this.y1n_1 = sets;
+  $this.z1n_1 = repsLow;
+  $this.a1o_1 = repsHigh;
   return $this;
 }
 function AccessoryPrescription_init_$Create$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker) {
   return AccessoryPrescription_init_$Init$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker, objectCreate(protoOf(AccessoryPrescription)));
 }
 function AccessoryPrescription(exerciseName, sets, repsLow, repsHigh) {
-  this.q1n_1 = exerciseName;
-  this.r1n_1 = sets;
-  this.s1n_1 = repsLow;
-  this.t1n_1 = repsHigh;
+  this.x1n_1 = exerciseName;
+  this.y1n_1 = sets;
+  this.z1n_1 = repsLow;
+  this.a1o_1 = repsHigh;
 }
 protoOf(AccessoryPrescription).toString = function () {
-  return 'AccessoryPrescription(exerciseName=' + this.q1n_1 + ', sets=' + this.r1n_1 + ', repsLow=' + this.s1n_1 + ', repsHigh=' + this.t1n_1 + ')';
+  return 'AccessoryPrescription(exerciseName=' + this.x1n_1 + ', sets=' + this.y1n_1 + ', repsLow=' + this.z1n_1 + ', repsHigh=' + this.a1o_1 + ')';
 };
 protoOf(AccessoryPrescription).hashCode = function () {
-  var result = getStringHashCode(this.q1n_1);
-  result = imul(result, 31) + this.r1n_1 | 0;
-  result = imul(result, 31) + this.s1n_1 | 0;
-  result = imul(result, 31) + this.t1n_1 | 0;
+  var result = getStringHashCode(this.x1n_1);
+  result = imul(result, 31) + this.y1n_1 | 0;
+  result = imul(result, 31) + this.z1n_1 | 0;
+  result = imul(result, 31) + this.a1o_1 | 0;
   return result;
 };
 protoOf(AccessoryPrescription).equals = function (other) {
@@ -4727,13 +4745,13 @@ protoOf(AccessoryPrescription).equals = function (other) {
     return true;
   if (!(other instanceof AccessoryPrescription))
     return false;
-  if (!(this.q1n_1 === other.q1n_1))
+  if (!(this.x1n_1 === other.x1n_1))
     return false;
-  if (!(this.r1n_1 === other.r1n_1))
+  if (!(this.y1n_1 === other.y1n_1))
     return false;
-  if (!(this.s1n_1 === other.s1n_1))
+  if (!(this.z1n_1 === other.z1n_1))
     return false;
-  if (!(this.t1n_1 === other.t1n_1))
+  if (!(this.a1o_1 === other.a1o_1))
     return false;
   return true;
 };
@@ -4751,10 +4769,10 @@ function $serializer_0() {
   tmp0_serialDesc.mj('reps', false);
   tmp0_serialDesc.mj('rpe', false);
   tmp0_serialDesc.mj('sets', true);
-  this.u1n_1 = tmp0_serialDesc;
+  this.b1o_1 = tmp0_serialDesc;
 }
-protoOf($serializer_0).v1n = function (encoder, value) {
-  var tmp0_desc = this.u1n_1;
+protoOf($serializer_0).c1o = function (encoder, value) {
+  var tmp0_desc = this.b1o_1;
   var tmp1_output = encoder.rf(tmp0_desc);
   tmp1_output.ng(tmp0_desc, 0, value.b15_1);
   tmp1_output.og(tmp0_desc, 1, value.c15_1);
@@ -4766,10 +4784,10 @@ protoOf($serializer_0).v1n = function (encoder, value) {
   tmp1_output.sf(tmp0_desc);
 };
 protoOf($serializer_0).zc = function (encoder, value) {
-  return this.v1n(encoder, value instanceof Target ? value : THROW_CCE());
+  return this.c1o(encoder, value instanceof Target ? value : THROW_CCE());
 };
 protoOf($serializer_0).yc = function (decoder) {
-  var tmp0_desc = this.u1n_1;
+  var tmp0_desc = this.b1o_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -4825,7 +4843,7 @@ protoOf($serializer_0).yc = function (decoder) {
   return Target_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, tmp6_local2, tmp7_local3, tmp8_local4, null);
 };
 protoOf($serializer_0).xc = function () {
-  return this.u1n_1;
+  return this.b1o_1;
 };
 protoOf($serializer_0).bk = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -4841,7 +4859,7 @@ function $serializer_getInstance_0() {
 }
 function Target_init_$Init$(seen0, exerciseId, weightKg, reps, rpe, sets, serializationConstructorMarker, $this) {
   if (!(15 === (15 & seen0))) {
-    throwMissingFieldException(seen0, 15, $serializer_getInstance_0().u1n_1);
+    throwMissingFieldException(seen0, 15, $serializer_getInstance_0().b1o_1);
   }
   $this.b15_1 = exerciseId;
   $this.c15_1 = weightKg;
@@ -4866,7 +4884,7 @@ function Companion_1() {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  tmp.w1n_1 = [lazy_0(tmp_0, AdvicePayload$Accessories$Companion$$childSerializers$_anonymous__5pmo3s)];
+  tmp.d1o_1 = [lazy_0(tmp_0, AdvicePayload$Accessories$Companion$$childSerializers$_anonymous__5pmo3s)];
 }
 var Companion_instance_1;
 function Companion_getInstance_3() {
@@ -4878,26 +4896,26 @@ function $serializer_1() {
   $serializer_instance_1 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.Accessories', this, 1);
   tmp0_serialDesc.mj('items', false);
-  this.x1n_1 = tmp0_serialDesc;
+  this.e1o_1 = tmp0_serialDesc;
 }
-protoOf($serializer_1).y1n = function (encoder, value) {
-  var tmp0_desc = this.x1n_1;
+protoOf($serializer_1).f1o = function (encoder, value) {
+  var tmp0_desc = this.e1o_1;
   var tmp1_output = encoder.rf(tmp0_desc);
-  var tmp2_cached = Companion_getInstance_3().w1n_1;
-  tmp1_output.qg(tmp0_desc, 0, tmp2_cached[0].t(), value.z1n_1);
+  var tmp2_cached = Companion_getInstance_3().d1o_1;
+  tmp1_output.qg(tmp0_desc, 0, tmp2_cached[0].t(), value.g1o_1);
   tmp1_output.sf(tmp0_desc);
 };
 protoOf($serializer_1).zc = function (encoder, value) {
-  return this.y1n(encoder, value instanceof Accessories ? value : THROW_CCE());
+  return this.f1o(encoder, value instanceof Accessories ? value : THROW_CCE());
 };
 protoOf($serializer_1).yc = function (decoder) {
-  var tmp0_desc = this.x1n_1;
+  var tmp0_desc = this.e1o_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
   var tmp4_local0 = null;
   var tmp5_input = decoder.rf(tmp0_desc);
-  var tmp6_cached = Companion_getInstance_3().w1n_1;
+  var tmp6_cached = Companion_getInstance_3().d1o_1;
   if (tmp5_input.bg()) {
     tmp4_local0 = tmp5_input.xf(tmp0_desc, 0, tmp6_cached[0].t(), tmp4_local0);
     tmp3_bitMask0 = tmp3_bitMask0 | 1;
@@ -4920,13 +4938,13 @@ protoOf($serializer_1).yc = function (decoder) {
   return Accessories_init_$Create$(tmp3_bitMask0, tmp4_local0, null);
 };
 protoOf($serializer_1).xc = function () {
-  return this.x1n_1;
+  return this.e1o_1;
 };
 protoOf($serializer_1).bk = function () {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  return [Companion_getInstance_3().w1n_1[0].t()];
+  return [Companion_getInstance_3().d1o_1[0].t()];
 };
 var $serializer_instance_1;
 function $serializer_getInstance_1() {
@@ -4936,9 +4954,9 @@ function $serializer_getInstance_1() {
 }
 function Accessories_init_$Init$(seen0, items, serializationConstructorMarker, $this) {
   if (!(1 === (1 & seen0))) {
-    throwMissingFieldException(seen0, 1, $serializer_getInstance_1().x1n_1);
+    throwMissingFieldException(seen0, 1, $serializer_getInstance_1().e1o_1);
   }
-  $this.z1n_1 = items;
+  $this.g1o_1 = items;
   return $this;
 }
 function Accessories_init_$Create$(seen0, items, serializationConstructorMarker) {
@@ -4955,10 +4973,10 @@ function $serializer_2() {
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.Deload', this, 2);
   tmp0_serialDesc.mj('volumeFactor', true);
   tmp0_serialDesc.mj('loadFactor', true);
-  this.a1o_1 = tmp0_serialDesc;
+  this.h1o_1 = tmp0_serialDesc;
 }
-protoOf($serializer_2).b1o = function (encoder, value) {
-  var tmp0_desc = this.a1o_1;
+protoOf($serializer_2).i1o = function (encoder, value) {
+  var tmp0_desc = this.h1o_1;
   var tmp1_output = encoder.rf(tmp0_desc);
   if (tmp1_output.wg(tmp0_desc, 0) ? true : !equals(value.g15_1, 0.6)) {
     tmp1_output.og(tmp0_desc, 0, value.g15_1);
@@ -4969,10 +4987,10 @@ protoOf($serializer_2).b1o = function (encoder, value) {
   tmp1_output.sf(tmp0_desc);
 };
 protoOf($serializer_2).zc = function (encoder, value) {
-  return this.b1o(encoder, value instanceof Deload ? value : THROW_CCE());
+  return this.i1o(encoder, value instanceof Deload ? value : THROW_CCE());
 };
 protoOf($serializer_2).yc = function (decoder) {
-  var tmp0_desc = this.a1o_1;
+  var tmp0_desc = this.h1o_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -5007,7 +5025,7 @@ protoOf($serializer_2).yc = function (decoder) {
   return Deload_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, null);
 };
 protoOf($serializer_2).xc = function () {
-  return this.a1o_1;
+  return this.h1o_1;
 };
 protoOf($serializer_2).bk = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -5023,7 +5041,7 @@ function $serializer_getInstance_2() {
 }
 function Deload_init_$Init$(seen0, volumeFactor, loadFactor, serializationConstructorMarker, $this) {
   if (!(0 === (0 & seen0))) {
-    throwMissingFieldException(seen0, 0, $serializer_getInstance_2().a1o_1);
+    throwMissingFieldException(seen0, 0, $serializer_getInstance_2().h1o_1);
   }
   if (0 === (seen0 & 1))
     $this.g15_1 = 0.6;
@@ -5053,7 +5071,7 @@ function Companion_3() {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  tmp.c1o_1 = [tmp_1, lazy_0(tmp_2, AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8_0)];
+  tmp.j1o_1 = [tmp_1, lazy_0(tmp_2, AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8_0)];
 }
 var Companion_instance_3;
 function Companion_getInstance_5() {
@@ -5066,28 +5084,28 @@ function $serializer_3() {
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.WeakPoint', this, 2);
   tmp0_serialDesc.mj('lift', false);
   tmp0_serialDesc.mj('missPoint', false);
-  this.d1o_1 = tmp0_serialDesc;
+  this.k1o_1 = tmp0_serialDesc;
 }
-protoOf($serializer_3).e1o = function (encoder, value) {
-  var tmp0_desc = this.d1o_1;
+protoOf($serializer_3).l1o = function (encoder, value) {
+  var tmp0_desc = this.k1o_1;
   var tmp1_output = encoder.rf(tmp0_desc);
-  var tmp2_cached = Companion_getInstance_5().c1o_1;
-  tmp1_output.qg(tmp0_desc, 0, tmp2_cached[0].t(), value.f1o_1);
-  tmp1_output.sg(tmp0_desc, 1, tmp2_cached[1].t(), value.g1o_1);
+  var tmp2_cached = Companion_getInstance_5().j1o_1;
+  tmp1_output.qg(tmp0_desc, 0, tmp2_cached[0].t(), value.m1o_1);
+  tmp1_output.sg(tmp0_desc, 1, tmp2_cached[1].t(), value.n1o_1);
   tmp1_output.sf(tmp0_desc);
 };
 protoOf($serializer_3).zc = function (encoder, value) {
-  return this.e1o(encoder, value instanceof WeakPoint ? value : THROW_CCE());
+  return this.l1o(encoder, value instanceof WeakPoint ? value : THROW_CCE());
 };
 protoOf($serializer_3).yc = function (decoder) {
-  var tmp0_desc = this.d1o_1;
+  var tmp0_desc = this.k1o_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
   var tmp4_local0 = null;
   var tmp5_local1 = null;
   var tmp6_input = decoder.rf(tmp0_desc);
-  var tmp7_cached = Companion_getInstance_5().c1o_1;
+  var tmp7_cached = Companion_getInstance_5().j1o_1;
   if (tmp6_input.bg()) {
     tmp4_local0 = tmp6_input.xf(tmp0_desc, 0, tmp7_cached[0].t(), tmp4_local0);
     tmp3_bitMask0 = tmp3_bitMask0 | 1;
@@ -5116,10 +5134,10 @@ protoOf($serializer_3).yc = function (decoder) {
   return WeakPoint_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, null);
 };
 protoOf($serializer_3).xc = function () {
-  return this.d1o_1;
+  return this.k1o_1;
 };
 protoOf($serializer_3).bk = function () {
-  var tmp0_cached = Companion_getInstance_5().c1o_1;
+  var tmp0_cached = Companion_getInstance_5().j1o_1;
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
@@ -5133,10 +5151,10 @@ function $serializer_getInstance_3() {
 }
 function WeakPoint_init_$Init$(seen0, lift, missPoint, serializationConstructorMarker, $this) {
   if (!(3 === (3 & seen0))) {
-    throwMissingFieldException(seen0, 3, $serializer_getInstance_3().d1o_1);
+    throwMissingFieldException(seen0, 3, $serializer_getInstance_3().k1o_1);
   }
-  $this.f1o_1 = lift;
-  $this.g1o_1 = missPoint;
+  $this.m1o_1 = lift;
+  $this.n1o_1 = missPoint;
   return $this;
 }
 function WeakPoint_init_$Create$(seen0, lift, missPoint, serializationConstructorMarker) {
@@ -5152,10 +5170,10 @@ function $serializer_4() {
   $serializer_instance_4 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.ReEntry', this, 1);
   tmp0_serialDesc.mj('loadFactor', true);
-  this.h1o_1 = tmp0_serialDesc;
+  this.o1o_1 = tmp0_serialDesc;
 }
-protoOf($serializer_4).i1o = function (encoder, value) {
-  var tmp0_desc = this.h1o_1;
+protoOf($serializer_4).p1o = function (encoder, value) {
+  var tmp0_desc = this.o1o_1;
   var tmp1_output = encoder.rf(tmp0_desc);
   if (tmp1_output.wg(tmp0_desc, 0) ? true : !equals(value.p13_1, 0.85)) {
     tmp1_output.og(tmp0_desc, 0, value.p13_1);
@@ -5163,10 +5181,10 @@ protoOf($serializer_4).i1o = function (encoder, value) {
   tmp1_output.sf(tmp0_desc);
 };
 protoOf($serializer_4).zc = function (encoder, value) {
-  return this.i1o(encoder, value instanceof ReEntry ? value : THROW_CCE());
+  return this.p1o(encoder, value instanceof ReEntry ? value : THROW_CCE());
 };
 protoOf($serializer_4).yc = function (decoder) {
-  var tmp0_desc = this.h1o_1;
+  var tmp0_desc = this.o1o_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -5194,7 +5212,7 @@ protoOf($serializer_4).yc = function (decoder) {
   return ReEntry_init_$Create$(tmp3_bitMask0, tmp4_local0, null);
 };
 protoOf($serializer_4).xc = function () {
-  return this.h1o_1;
+  return this.o1o_1;
 };
 protoOf($serializer_4).bk = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -5210,7 +5228,7 @@ function $serializer_getInstance_4() {
 }
 function ReEntry_init_$Init$(seen0, loadFactor, serializationConstructorMarker, $this) {
   if (!(0 === (0 & seen0))) {
-    throwMissingFieldException(seen0, 0, $serializer_getInstance_4().h1o_1);
+    throwMissingFieldException(seen0, 0, $serializer_getInstance_4().o1o_1);
   }
   if (0 === (seen0 & 1))
     $this.p13_1 = 0.85;
@@ -5229,7 +5247,7 @@ function Target(exerciseId, weightKg, reps, rpe, sets) {
   this.e15_1 = rpe;
   this.f15_1 = sets;
 }
-protoOf(Target).j1o = function (exerciseId, weightKg, reps, rpe, sets) {
+protoOf(Target).q1o = function (exerciseId, weightKg, reps, rpe, sets) {
   return new Target(exerciseId, weightKg, reps, rpe, sets);
 };
 protoOf(Target).m15 = function (exerciseId, weightKg, reps, rpe, sets, $super) {
@@ -5238,7 +5256,7 @@ protoOf(Target).m15 = function (exerciseId, weightKg, reps, rpe, sets, $super) {
   reps = reps === VOID ? this.d15_1 : reps;
   rpe = rpe === VOID ? this.e15_1 : rpe;
   sets = sets === VOID ? this.f15_1 : sets;
-  return $super === VOID ? this.j1o(exerciseId, weightKg, reps, rpe, sets) : $super.j1o.call(this, exerciseId, weightKg, reps, rpe, sets);
+  return $super === VOID ? this.q1o(exerciseId, weightKg, reps, rpe, sets) : $super.q1o.call(this, exerciseId, weightKg, reps, rpe, sets);
 };
 protoOf(Target).toString = function () {
   return 'Target(exerciseId=' + this.b15_1.toString() + ', weightKg=' + this.c15_1 + ', reps=' + this.d15_1 + ', rpe=' + this.e15_1 + ', sets=' + this.f15_1 + ')';
@@ -5270,20 +5288,20 @@ protoOf(Target).equals = function (other) {
 };
 function Accessories(items) {
   Companion_getInstance_3();
-  this.z1n_1 = items;
+  this.g1o_1 = items;
 }
 protoOf(Accessories).toString = function () {
-  return 'Accessories(items=' + toString(this.z1n_1) + ')';
+  return 'Accessories(items=' + toString(this.g1o_1) + ')';
 };
 protoOf(Accessories).hashCode = function () {
-  return hashCode(this.z1n_1);
+  return hashCode(this.g1o_1);
 };
 protoOf(Accessories).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof Accessories))
     return false;
-  if (!equals(this.z1n_1, other.z1n_1))
+  if (!equals(this.g1o_1, other.g1o_1))
     return false;
   return true;
 };
@@ -5314,15 +5332,15 @@ protoOf(Deload).equals = function (other) {
 };
 function WeakPoint(lift, missPoint) {
   Companion_getInstance_5();
-  this.f1o_1 = lift;
-  this.g1o_1 = missPoint;
+  this.m1o_1 = lift;
+  this.n1o_1 = missPoint;
 }
 protoOf(WeakPoint).toString = function () {
-  return 'WeakPoint(lift=' + this.f1o_1.toString() + ', missPoint=' + toString_0(this.g1o_1) + ')';
+  return 'WeakPoint(lift=' + this.m1o_1.toString() + ', missPoint=' + toString_0(this.n1o_1) + ')';
 };
 protoOf(WeakPoint).hashCode = function () {
-  var result = this.f1o_1.hashCode();
-  result = imul(result, 31) + (this.g1o_1 == null ? 0 : this.g1o_1.hashCode()) | 0;
+  var result = this.m1o_1.hashCode();
+  result = imul(result, 31) + (this.n1o_1 == null ? 0 : this.n1o_1.hashCode()) | 0;
   return result;
 };
 protoOf(WeakPoint).equals = function (other) {
@@ -5330,9 +5348,9 @@ protoOf(WeakPoint).equals = function (other) {
     return true;
   if (!(other instanceof WeakPoint))
     return false;
-  if (!this.f1o_1.equals(other.f1o_1))
+  if (!this.m1o_1.equals(other.m1o_1))
     return false;
-  if (!equals(this.g1o_1, other.g1o_1))
+  if (!equals(this.n1o_1, other.n1o_1))
     return false;
   return true;
 };
@@ -5357,7 +5375,7 @@ protoOf(ReEntry).equals = function (other) {
 };
 function Companion_5() {
 }
-protoOf(Companion_5).k1o = function () {
+protoOf(Companion_5).r1o = function () {
   var tmp = getKClass(AdvicePayload);
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
@@ -5391,7 +5409,7 @@ function Advice(type, lift, createdAt, reason, severity, payload, status, id) {
   this.k13_1 = status;
   this.l13_1 = id;
 }
-protoOf(Advice).l1o = function (type, lift, createdAt, reason, severity, payload, status, id) {
+protoOf(Advice).s1o = function (type, lift, createdAt, reason, severity, payload, status, id) {
   return new Advice(type, lift, createdAt, reason, severity, payload, status, id);
 };
 protoOf(Advice).n15 = function (type, lift, createdAt, reason, severity, payload, status, id, $super) {
@@ -5403,7 +5421,7 @@ protoOf(Advice).n15 = function (type, lift, createdAt, reason, severity, payload
   payload = payload === VOID ? this.j13_1 : payload;
   status = status === VOID ? this.k13_1 : status;
   id = id === VOID ? this.l13_1 : id;
-  return $super === VOID ? this.l1o(type, lift, createdAt, reason, severity, payload, status, id) : $super.l1o.call(this, type, lift, createdAt, reason, severity, payload, status, id);
+  return $super === VOID ? this.s1o(type, lift, createdAt, reason, severity, payload, status, id) : $super.s1o.call(this, type, lift, createdAt, reason, severity, payload, status, id);
 };
 protoOf(Advice).toString = function () {
   return 'Advice(type=' + this.e13_1.toString() + ', lift=' + toString_0(this.f13_1) + ', createdAt=' + this.g13_1.toString() + ', reason=' + this.h13_1 + ', severity=' + this.i13_1 + ', payload=' + toString(this.j13_1) + ', status=' + this.k13_1.toString() + ', id=' + this.l13_1.toString() + ')';
@@ -5648,10 +5666,10 @@ protoOf(Exercise).d14 = function () {
   }
   return tmp;
 };
-protoOf(Exercise).m1o = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(Exercise).t1o = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
-protoOf(Exercise).n1o = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
+protoOf(Exercise).u1o = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
   id = id === VOID ? this.w13_1 : id;
   name = name === VOID ? this.x13_1 : name;
   category = category === VOID ? this.y13_1 : category;
@@ -5659,7 +5677,7 @@ protoOf(Exercise).n1o = function (id, name, category, parentLift, muscles, isBui
   muscles = muscles === VOID ? this.a14_1 : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.b14_1 : isBuiltIn;
   archived = archived === VOID ? this.c14_1 : archived;
-  return $super === VOID ? this.m1o(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.m1o.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.t1o(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.t1o.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(Exercise).toString = function () {
   return 'Exercise(id=' + this.w13_1.toString() + ', name=' + this.x13_1 + ', category=' + this.y13_1.toString() + ', parentLift=' + toString_0(this.z13_1) + ', muscles=' + toString(this.a14_1) + ', isBuiltIn=' + this.b14_1 + ', archived=' + this.c14_1 + ')';
@@ -5937,11 +5955,11 @@ function PlateLoader() {
   this.r17_1 = 100.0;
   this.s17_1 = toHundredths(this, 20.0);
 }
-protoOf(PlateLoader).o1o = function (changePlates) {
+protoOf(PlateLoader).v1o = function (changePlates) {
   return changePlates ? sortedDescending(plus(this.o17_1, this.p17_1)) : this.o17_1;
 };
 protoOf(PlateLoader).w17 = function (changePlates) {
-  return 2 * min(this.o1o(changePlates));
+  return 2 * min(this.v1o(changePlates));
 };
 protoOf(PlateLoader).t17 = function (kg, changePlates) {
   var step = toHundredths(this, this.w17(changePlates));
@@ -5998,7 +6016,7 @@ protoOf(PlateLoader).u17 = function (anchor, kg, changePlates) {
   var tmp$ret$3 = compare(tmp0, b) >= 0 ? tmp0 : b;
   return fromHundredths(this, tmp$ret$3);
 };
-protoOf(PlateLoader).p1o = function (totalKg, changePlates) {
+protoOf(PlateLoader).w1o = function (totalKg, changePlates) {
   var beyondBar = subtract(toHundredths(this, totalKg), this.s17_1);
   if (compare(beyondBar, new Long(0, 0)) < 0 || !equalsLong(modulo(beyondBar, new Long(2, 0)), new Long(0, 0)))
     return null;
@@ -6006,7 +6024,7 @@ protoOf(PlateLoader).p1o = function (totalKg, changePlates) {
   var remaining = divide(beyondBar, fromInt(2));
   // Inline function 'kotlin.collections.mutableListOf' call
   var result = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = this.o1o(changePlates).j();
+  var _iterator__ex2g4s = this.v1o(changePlates).j();
   while (_iterator__ex2g4s.k()) {
     var plate = _iterator__ex2g4s.l();
     var p = toHundredths(this, plate);
@@ -6025,21 +6043,21 @@ function PlateLoader_getInstance() {
   return PlateLoader_instance;
 }
 function Pr(date, e1rmKg, weightKg, reps, rpe) {
-  this.q1o_1 = date;
-  this.r1o_1 = e1rmKg;
-  this.s1o_1 = weightKg;
-  this.t1o_1 = reps;
-  this.u1o_1 = rpe;
+  this.x1o_1 = date;
+  this.y1o_1 = e1rmKg;
+  this.z1o_1 = weightKg;
+  this.a1p_1 = reps;
+  this.b1p_1 = rpe;
 }
 protoOf(Pr).toString = function () {
-  return 'Pr(date=' + this.q1o_1.toString() + ', e1rmKg=' + this.r1o_1 + ', weightKg=' + this.s1o_1 + ', reps=' + this.t1o_1 + ', rpe=' + this.u1o_1 + ')';
+  return 'Pr(date=' + this.x1o_1.toString() + ', e1rmKg=' + this.y1o_1 + ', weightKg=' + this.z1o_1 + ', reps=' + this.a1p_1 + ', rpe=' + this.b1p_1 + ')';
 };
 protoOf(Pr).hashCode = function () {
-  var result = this.q1o_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.r1o_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.s1o_1) | 0;
-  result = imul(result, 31) + this.t1o_1 | 0;
-  result = imul(result, 31) + (this.u1o_1 == null ? 0 : getNumberHashCode(this.u1o_1)) | 0;
+  var result = this.x1o_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.y1o_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.z1o_1) | 0;
+  result = imul(result, 31) + this.a1p_1 | 0;
+  result = imul(result, 31) + (this.b1p_1 == null ? 0 : getNumberHashCode(this.b1p_1)) | 0;
   return result;
 };
 protoOf(Pr).equals = function (other) {
@@ -6047,15 +6065,15 @@ protoOf(Pr).equals = function (other) {
     return true;
   if (!(other instanceof Pr))
     return false;
-  if (!this.q1o_1.equals(other.q1o_1))
+  if (!this.x1o_1.equals(other.x1o_1))
     return false;
-  if (!equals(this.r1o_1, other.r1o_1))
+  if (!equals(this.y1o_1, other.y1o_1))
     return false;
-  if (!equals(this.s1o_1, other.s1o_1))
+  if (!equals(this.z1o_1, other.z1o_1))
     return false;
-  if (!(this.t1o_1 === other.t1o_1))
+  if (!(this.a1p_1 === other.a1p_1))
     return false;
-  if (!equals(this.u1o_1, other.u1o_1))
+  if (!equals(this.b1p_1, other.b1p_1))
     return false;
   return true;
 };
@@ -6063,16 +6081,16 @@ function weekStart(date) {
   return mondayOfWeek(date);
 }
 function sam$kotlin_Comparator$0_5(function_0) {
-  this.v1o_1 = function_0;
+  this.c1p_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_5).p9 = function (a, b) {
-  return this.v1o_1(a, b);
+  return this.c1p_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_5).compare = function (a, b) {
   return this.p9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_5).b2 = function () {
-  return this.v1o_1;
+  return this.c1p_1;
 };
 protoOf(sam$kotlin_Comparator$0_5).equals = function (other) {
   var tmp;
@@ -6093,16 +6111,16 @@ protoOf(sam$kotlin_Comparator$0_5).hashCode = function () {
   return hashCode(this.b2());
 };
 function sam$kotlin_Comparator$0_6(function_0) {
-  this.w1o_1 = function_0;
+  this.d1p_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_6).p9 = function (a, b) {
-  return this.w1o_1(a, b);
+  return this.d1p_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_6).compare = function (a, b) {
   return this.p9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_6).b2 = function () {
-  return this.w1o_1;
+  return this.d1p_1;
 };
 protoOf(sam$kotlin_Comparator$0_6).equals = function (other) {
   var tmp;
@@ -6136,9 +6154,9 @@ function ProgressMath$weeklyVolume$lambda(a, b) {
 }
 function ProgressMath() {
   ProgressMath_instance = this;
-  this.x1o_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.e1p_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(ProgressMath).y1o = function (_this__u8e3s4, set, lift) {
+protoOf(ProgressMath).f1p = function (_this__u8e3s4, set, lift) {
   var tmp;
   if (!set.u15_1) {
     var tmp0_safe_receiver = _this__u8e3s4.r13_1.o1(set.q15_1);
@@ -6155,7 +6173,7 @@ protoOf(ProgressMath).y1o = function (_this__u8e3s4, set, lift) {
   }
   return tmp;
 };
-protoOf(ProgressMath).z1o = function (history, lift) {
+protoOf(ProgressMath).g1p = function (history, lift) {
   // Inline function 'kotlin.collections.mutableListOf' call
   var prs = ArrayList_init_$Create$();
   var best = 0.0;
@@ -6170,7 +6188,7 @@ protoOf(ProgressMath).z1o = function (history, lift) {
     var _iterator__ex2g4s_0 = session.g17_1.j();
     $l$loop: while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (!this.y1o(history, set, lift))
+      if (!this.f1p(history, set, lift))
         continue $l$loop;
       var e1rm = E1rm_getInstance().h18(set.r15_1, set.s15_1, set.t15_1);
       if (e1rm > best) {
@@ -6183,7 +6201,7 @@ protoOf(ProgressMath).z1o = function (history, lift) {
   }
   return prs;
 };
-protoOf(ProgressMath).a1p = function (history, lift) {
+protoOf(ProgressMath).h1p = function (history, lift) {
   // Inline function 'kotlin.collections.mutableMapOf' call
   var volume = LinkedHashMap_init_$Create$();
   var _iterator__ex2g4s = history.q13_1.j();
@@ -6192,7 +6210,7 @@ protoOf(ProgressMath).a1p = function (history, lift) {
     var _iterator__ex2g4s_0 = session.g17_1.j();
     while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (this.y1o(history, set, lift)) {
+      if (this.f1p(history, set, lift)) {
         var week = weekStart(session.d17_1);
         var tmp0_elvis_lhs = volume.o1(week);
         // Inline function 'kotlin.collections.set' call
@@ -6208,8 +6226,8 @@ protoOf(ProgressMath).a1p = function (history, lift) {
   var tmp$ret$3 = new sam$kotlin_Comparator$0_6(tmp);
   return sortedWith(this_0, tmp$ret$3);
 };
-protoOf(ProgressMath).b1p = function (stats, until, includeStrictPress) {
-  var included = includeStrictPress ? plus_0(this.x1o_1, MainLift_STRICT_PRESS_getInstance()) : this.x1o_1;
+protoOf(ProgressMath).i1p = function (stats, until, includeStrictPress) {
+  var included = includeStrictPress ? plus_0(this.e1p_1, MainLift_STRICT_PRESS_getInstance()) : this.e1p_1;
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(included, 10));
@@ -6247,17 +6265,17 @@ function SeedLibrary$exercises$Acc(heavy, lift, muscles) {
     tmp = muscles;
   }
   muscles = tmp;
-  this.c1p_1 = heavy;
-  this.d1p_1 = lift;
-  this.e1p_1 = muscles;
+  this.j1p_1 = heavy;
+  this.k1p_1 = lift;
+  this.l1p_1 = muscles;
 }
 function SeedLibrary() {
   SeedLibrary_instance = this;
-  this.f1p_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.m1p_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(SeedLibrary).g1p = function () {
+protoOf(SeedLibrary).n1p = function () {
   var found = LinkedHashMap_init_$Create$();
-  var _iterator__ex2g4s = this.f1p_1.j();
+  var _iterator__ex2g4s = this.m1p_1.j();
   while (_iterator__ex2g4s.k()) {
     var lift = _iterator__ex2g4s.l();
     var _iterator__ex2g4s_0 = get_entries_1().j();
@@ -6279,14 +6297,14 @@ protoOf(SeedLibrary).g1p = function () {
           tmp = value;
         }
         // Inline function 'kotlin.collections.plusAssign' call
-        var this_0 = tmp.e1p_1;
+        var this_0 = tmp.l1p_1;
         addAll(this_0, muscles);
       }
     }
   }
   var tmp_0 = found.p1();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = this.f1p_1;
+  var tmp0 = this.m1p_1;
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s_2 = tmp0.j();
@@ -6320,7 +6338,7 @@ protoOf(SeedLibrary).g1p = function () {
     var name = item_0.s();
     // Inline function 'kotlin.collections.component2' call
     var acc = item_0.t();
-    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.c1p_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.c1p_1 ? acc.d1p_1 : null, toList_0(acc.e1p_1), true);
+    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.j1p_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.j1p_1 ? acc.k1p_1 : null, toList_0(acc.l1p_1), true);
     destination_1.i(tmp$ret$13);
   }
   var mapped = destination_1;
@@ -6335,7 +6353,7 @@ protoOf(SeedLibrary).g1p = function () {
     var _unary__edvuaz = index;
     index = _unary__edvuaz + 1 | 0;
     var i = checkIndexOverflow(_unary__edvuaz);
-    var tmp$ret$18 = item_1.n1o(add(numberToLong(i), new Long(1, 0)));
+    var tmp$ret$18 = item_1.u1o(add(numberToLong(i), new Long(1, 0)));
     destination_2.i(tmp$ret$18);
   }
   return destination_2;
@@ -6369,32 +6387,32 @@ function HighReps_getInstance() {
   return HighReps_instance;
 }
 function BigJump(fromKg) {
-  this.h1p_1 = fromKg;
+  this.o1p_1 = fromKg;
 }
 protoOf(BigJump).toString = function () {
-  return 'BigJump(fromKg=' + this.h1p_1 + ')';
+  return 'BigJump(fromKg=' + this.o1p_1 + ')';
 };
 protoOf(BigJump).hashCode = function () {
-  return getNumberHashCode(this.h1p_1);
+  return getNumberHashCode(this.o1p_1);
 };
 protoOf(BigJump).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BigJump))
     return false;
-  if (!equals(this.h1p_1, other.h1p_1))
+  if (!equals(this.o1p_1, other.o1p_1))
     return false;
   return true;
 };
 function InputValidator() {
-  this.i1p_1 = 12;
-  this.j1p_1 = 1.3;
-  this.k1p_1 = 500.0;
+  this.p1p_1 = 12;
+  this.q1p_1 = 1.3;
+  this.r1p_1 = 500.0;
 }
-protoOf(InputValidator).l1p = function (kg) {
+protoOf(InputValidator).s1p = function (kg) {
   return isFinite(kg) && kg > 0.0 && kg <= 500.0;
 };
-protoOf(InputValidator).m1p = function (text) {
+protoOf(InputValidator).t1p = function (text) {
   // Inline function 'kotlin.text.trim' call
   var tmp$ret$0 = toString(trim(isCharSequence(text) ? text : THROW_CCE()));
   var tmp0_safe_receiver = toDoubleOrNull(replace(tmp$ret$0, _Char___init__impl__6a9atx(44), _Char___init__impl__6a9atx(46)));
@@ -6404,7 +6422,7 @@ protoOf(InputValidator).m1p = function (text) {
   } else {
     // Inline function 'kotlin.takeIf' call
     var tmp_0;
-    if (this.l1p(tmp0_safe_receiver)) {
+    if (this.s1p(tmp0_safe_receiver)) {
       tmp_0 = tmp0_safe_receiver;
     } else {
       tmp_0 = null;
@@ -6413,7 +6431,7 @@ protoOf(InputValidator).m1p = function (text) {
   }
   return tmp;
 };
-protoOf(InputValidator).n1p = function (weightKg, reps, lastWeightKg) {
+protoOf(InputValidator).u1p = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
@@ -6466,7 +6484,7 @@ protoOf(GritDomain).estimateE1rm = function (weightKg, reps, rpe) {
   return E1rm_getInstance().h18(weightKg, reps, rpe);
 };
 protoOf(GritDomain).platesPerSide = function (totalKg, changePlates) {
-  var tmp0_safe_receiver = PlateLoader_getInstance().p1o(totalKg, changePlates);
+  var tmp0_safe_receiver = PlateLoader_getInstance().w1o(totalKg, changePlates);
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
@@ -6484,7 +6502,7 @@ protoOf(GritDomain).loadStep = function (changePlates) {
 };
 protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = InputValidator_instance.n1p(weightKg, reps, lastWeightKg);
+  var this_0 = InputValidator_instance.u1p(weightKg, reps, lastWeightKg);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -6507,7 +6525,7 @@ protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   return copyToArray(destination);
 };
 protoOf(GritDomain).parseBaselineKg = function (text) {
-  return InputValidator_instance.m1p(text);
+  return InputValidator_instance.t1p(text);
 };
 protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, today, prior) {
   var tmp = Coach_getInstance();
@@ -6611,7 +6629,7 @@ protoOf(GritDomain).currentE1rm = function (history, lift, until, days) {
 };
 protoOf(GritDomain).prs = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().z1o(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().g1p(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -6625,7 +6643,7 @@ protoOf(GritDomain).prs = function (history, lift) {
 };
 protoOf(GritDomain).weeklyVolume = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().a1p(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().h1p(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -6732,7 +6750,7 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = SeedLibrary_getInstance().g1p();
+  var this_0 = SeedLibrary_getInstance().n1p();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -6745,7 +6763,7 @@ protoOf(GritDomain).seedExercises = function () {
   return copyToArray(destination);
 };
 protoOf(GritDomain).total = function (history, until, includeStrictPress) {
-  return ProgressMath_getInstance().b1p(new HistoryStats(toDomain_4(history)), parseDate('until', until), includeStrictPress);
+  return ProgressMath_getInstance().i1p(new HistoryStats(toDomain_4(history)), parseDate('until', until), includeStrictPress);
 };
 protoOf(GritDomain).mainLifts = function () {
   // Inline function 'kotlin.collections.map' call
@@ -7092,6 +7110,13 @@ protoOf(GritDomain).formGuide = function (name) {
 protoOf(GritDomain).safetyLine = function () {
   return 'Stop if you feel sharp pain. For an injury or a condition, check with a doctor or physiotherapist.';
 };
+protoOf(GritDomain).rpeGuide = function () {
+  var tmp = RpeGuide_getInstance().x19_1;
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var this_0 = RpeGuide_getInstance().y19_1;
+  var tmp$ret$0 = copyToArray(this_0);
+  return new JsRpeGuide(tmp, tmp$ret$0);
+};
 protoOf(GritDomain).ratioRanges = function () {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
@@ -7116,25 +7141,25 @@ function JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived
   this.isBuiltIn = isBuiltIn;
   this.archived = archived;
 }
-protoOf(JsExercise).o1p = function () {
+protoOf(JsExercise).v1p = function () {
   return this.id;
 };
 protoOf(JsExercise).nq = function () {
   return this.name;
 };
-protoOf(JsExercise).p1p = function () {
+protoOf(JsExercise).w1p = function () {
   return this.category;
 };
-protoOf(JsExercise).q1p = function () {
+protoOf(JsExercise).x1p = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).r1p = function () {
+protoOf(JsExercise).y1p = function () {
   return this.muscles;
 };
-protoOf(JsExercise).s1p = function () {
+protoOf(JsExercise).z1p = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).t1p = function () {
+protoOf(JsExercise).a1q = function () {
   return this.archived;
 };
 protoOf(JsExercise).ma = function () {
@@ -7143,22 +7168,22 @@ protoOf(JsExercise).ma = function () {
 protoOf(JsExercise).na = function () {
   return this.name;
 };
-protoOf(JsExercise).u1p = function () {
+protoOf(JsExercise).b1q = function () {
   return this.category;
 };
-protoOf(JsExercise).v1p = function () {
+protoOf(JsExercise).c1q = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).w1p = function () {
+protoOf(JsExercise).d1q = function () {
   return this.muscles;
 };
-protoOf(JsExercise).x1p = function () {
+protoOf(JsExercise).e1q = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).y1p = function () {
+protoOf(JsExercise).f1q = function () {
   return this.archived;
 };
-protoOf(JsExercise).z1p = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(JsExercise).g1q = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
@@ -7169,7 +7194,7 @@ protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, is
   muscles = muscles === VOID ? this.muscles : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.isBuiltIn : isBuiltIn;
   archived = archived === VOID ? this.archived : archived;
-  return $super === VOID ? this.z1p(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.z1p.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.g1q(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.g1q.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).toString = function () {
   return 'JsExercise(id=' + this.id + ', name=' + this.name + ', category=' + this.category + ', parentLift=' + this.parentLift + ', muscles=' + toString(this.muscles) + ', isBuiltIn=' + this.isBuiltIn + ', archived=' + this.archived + ')';
@@ -7214,25 +7239,25 @@ function JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   this.missPoint = missPoint;
   this.isTopSet = isTopSet;
 }
-protoOf(JsSet).a1q = function () {
+protoOf(JsSet).h1q = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).b1q = function () {
+protoOf(JsSet).i1q = function () {
   return this.weightKg;
 };
-protoOf(JsSet).c1q = function () {
+protoOf(JsSet).j1q = function () {
   return this.reps;
 };
-protoOf(JsSet).d1q = function () {
+protoOf(JsSet).k1q = function () {
   return this.rpe;
 };
-protoOf(JsSet).e1q = function () {
+protoOf(JsSet).l1q = function () {
   return this.failed;
 };
-protoOf(JsSet).f1q = function () {
+protoOf(JsSet).m1q = function () {
   return this.missPoint;
 };
-protoOf(JsSet).g1q = function () {
+protoOf(JsSet).n1q = function () {
   return this.isTopSet;
 };
 protoOf(JsSet).ma = function () {
@@ -7241,22 +7266,22 @@ protoOf(JsSet).ma = function () {
 protoOf(JsSet).na = function () {
   return this.weightKg;
 };
-protoOf(JsSet).u1p = function () {
+protoOf(JsSet).b1q = function () {
   return this.reps;
 };
-protoOf(JsSet).v1p = function () {
+protoOf(JsSet).c1q = function () {
   return this.rpe;
 };
-protoOf(JsSet).w1p = function () {
+protoOf(JsSet).d1q = function () {
   return this.failed;
 };
-protoOf(JsSet).x1p = function () {
+protoOf(JsSet).e1q = function () {
   return this.missPoint;
 };
-protoOf(JsSet).y1p = function () {
+protoOf(JsSet).f1q = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).h1q = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
+protoOf(JsSet).o1q = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   return new JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, $super) {
@@ -7267,7 +7292,7 @@ protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoi
   failed = failed === VOID ? this.failed : failed;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   isTopSet = isTopSet === VOID ? this.isTopSet : isTopSet;
-  return $super === VOID ? this.h1q(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.h1q.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
+  return $super === VOID ? this.o1q(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.o1q.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).toString = function () {
   return 'JsSet(exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', failed=' + this.failed + ', missPoint=' + this.missPoint + ', isTopSet=' + this.isTopSet + ')';
@@ -7310,19 +7335,19 @@ function JsSession(id, date, bodyweightKg, readiness, sets) {
   this.readiness = readiness;
   this.sets = sets;
 }
-protoOf(JsSession).o1p = function () {
+protoOf(JsSession).v1p = function () {
   return this.id;
 };
-protoOf(JsSession).i1q = function () {
+protoOf(JsSession).p1q = function () {
   return this.date;
 };
-protoOf(JsSession).j1q = function () {
+protoOf(JsSession).q1q = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).k1q = function () {
+protoOf(JsSession).r1q = function () {
   return this.readiness;
 };
-protoOf(JsSession).l1q = function () {
+protoOf(JsSession).s1q = function () {
   return this.sets;
 };
 protoOf(JsSession).ma = function () {
@@ -7331,16 +7356,16 @@ protoOf(JsSession).ma = function () {
 protoOf(JsSession).na = function () {
   return this.date;
 };
-protoOf(JsSession).u1p = function () {
+protoOf(JsSession).b1q = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).v1p = function () {
+protoOf(JsSession).c1q = function () {
   return this.readiness;
 };
-protoOf(JsSession).w1p = function () {
+protoOf(JsSession).d1q = function () {
   return this.sets;
 };
-protoOf(JsSession).m1q = function (id, date, bodyweightKg, readiness, sets) {
+protoOf(JsSession).t1q = function (id, date, bodyweightKg, readiness, sets) {
   return new JsSession(id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $super) {
@@ -7349,7 +7374,7 @@ protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $su
   bodyweightKg = bodyweightKg === VOID ? this.bodyweightKg : bodyweightKg;
   readiness = readiness === VOID ? this.readiness : readiness;
   sets = sets === VOID ? this.sets : sets;
-  return $super === VOID ? this.m1q(id, date, bodyweightKg, readiness, sets) : $super.m1q.call(this, id, date, bodyweightKg, readiness, sets);
+  return $super === VOID ? this.t1q(id, date, bodyweightKg, readiness, sets) : $super.t1q.call(this, id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).toString = function () {
   return 'JsSession(id=' + this.id + ', date=' + this.date + ', bodyweightKg=' + this.bodyweightKg + ', readiness=' + this.readiness + ', sets=' + toString(this.sets) + ')';
@@ -7388,25 +7413,25 @@ function JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order) {
   this.targetRpe = targetRpe;
   this.order = order;
 }
-protoOf(JsPlanItem).o1p = function () {
+protoOf(JsPlanItem).v1p = function () {
   return this.id;
 };
-protoOf(JsPlanItem).n1q = function () {
+protoOf(JsPlanItem).u1q = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).a1q = function () {
+protoOf(JsPlanItem).h1q = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).l1q = function () {
+protoOf(JsPlanItem).s1q = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).c1q = function () {
+protoOf(JsPlanItem).j1q = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).o1q = function () {
+protoOf(JsPlanItem).v1q = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).p1q = function () {
+protoOf(JsPlanItem).w1q = function () {
   return this.order;
 };
 protoOf(JsPlanItem).ma = function () {
@@ -7415,22 +7440,22 @@ protoOf(JsPlanItem).ma = function () {
 protoOf(JsPlanItem).na = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).u1p = function () {
+protoOf(JsPlanItem).b1q = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).v1p = function () {
+protoOf(JsPlanItem).c1q = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).w1p = function () {
+protoOf(JsPlanItem).d1q = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).x1p = function () {
+protoOf(JsPlanItem).e1q = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).y1p = function () {
+protoOf(JsPlanItem).f1q = function () {
   return this.order;
 };
-protoOf(JsPlanItem).q1q = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
+protoOf(JsPlanItem).x1q = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
   return new JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, targetRpe, order, $super) {
@@ -7441,7 +7466,7 @@ protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, target
   reps = reps === VOID ? this.reps : reps;
   targetRpe = targetRpe === VOID ? this.targetRpe : targetRpe;
   order = order === VOID ? this.order : order;
-  return $super === VOID ? this.q1q(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.q1q.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
+  return $super === VOID ? this.x1q(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.x1q.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).toString = function () {
   return 'JsPlanItem(id=' + this.id + ', weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', sets=' + this.sets + ', reps=' + this.reps + ', targetRpe=' + this.targetRpe + ', order=' + this.order + ')';
@@ -7482,13 +7507,13 @@ function JsBaseline(exerciseId, e1rmKg, date) {
   this.e1rmKg = e1rmKg;
   this.date = date;
 }
-protoOf(JsBaseline).a1q = function () {
+protoOf(JsBaseline).h1q = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).r1q = function () {
+protoOf(JsBaseline).y1q = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).i1q = function () {
+protoOf(JsBaseline).p1q = function () {
   return this.date;
 };
 protoOf(JsBaseline).ma = function () {
@@ -7497,17 +7522,17 @@ protoOf(JsBaseline).ma = function () {
 protoOf(JsBaseline).na = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).u1p = function () {
+protoOf(JsBaseline).b1q = function () {
   return this.date;
 };
-protoOf(JsBaseline).s1q = function (exerciseId, e1rmKg, date) {
+protoOf(JsBaseline).z1q = function (exerciseId, e1rmKg, date) {
   return new JsBaseline(exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).copy = function (exerciseId, e1rmKg, date, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   e1rmKg = e1rmKg === VOID ? this.e1rmKg : e1rmKg;
   date = date === VOID ? this.date : date;
-  return $super === VOID ? this.s1q(exerciseId, e1rmKg, date) : $super.s1q.call(this, exerciseId, e1rmKg, date);
+  return $super === VOID ? this.z1q(exerciseId, e1rmKg, date) : $super.z1q.call(this, exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).toString = function () {
   return 'JsBaseline(exerciseId=' + this.exerciseId + ', e1rmKg=' + this.e1rmKg + ', date=' + this.date + ')';
@@ -7541,28 +7566,28 @@ function JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJs
   this.status = status;
   this.payloadJson = payloadJson;
 }
-protoOf(JsAdvice).o1p = function () {
+protoOf(JsAdvice).v1p = function () {
   return this.id;
 };
-protoOf(JsAdvice).t1q = function () {
+protoOf(JsAdvice).a1r = function () {
   return this.type;
 };
-protoOf(JsAdvice).u1q = function () {
+protoOf(JsAdvice).b1r = function () {
   return this.lift;
 };
-protoOf(JsAdvice).v1q = function () {
+protoOf(JsAdvice).c1r = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).w1q = function () {
+protoOf(JsAdvice).d1r = function () {
   return this.reason;
 };
-protoOf(JsAdvice).x1q = function () {
+protoOf(JsAdvice).e1r = function () {
   return this.severity;
 };
-protoOf(JsAdvice).y1q = function () {
+protoOf(JsAdvice).f1r = function () {
   return this.status;
 };
-protoOf(JsAdvice).z1q = function () {
+protoOf(JsAdvice).g1r = function () {
   return this.payloadJson;
 };
 protoOf(JsAdvice).ma = function () {
@@ -7571,25 +7596,25 @@ protoOf(JsAdvice).ma = function () {
 protoOf(JsAdvice).na = function () {
   return this.type;
 };
-protoOf(JsAdvice).u1p = function () {
+protoOf(JsAdvice).b1q = function () {
   return this.lift;
 };
-protoOf(JsAdvice).v1p = function () {
+protoOf(JsAdvice).c1q = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).w1p = function () {
+protoOf(JsAdvice).d1q = function () {
   return this.reason;
 };
-protoOf(JsAdvice).x1p = function () {
+protoOf(JsAdvice).e1q = function () {
   return this.severity;
 };
-protoOf(JsAdvice).y1p = function () {
+protoOf(JsAdvice).f1q = function () {
   return this.status;
 };
-protoOf(JsAdvice).a1r = function () {
+protoOf(JsAdvice).h1r = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).b1r = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
+protoOf(JsAdvice).i1r = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
   return new JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, status, payloadJson, $super) {
@@ -7601,7 +7626,7 @@ protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, 
   severity = severity === VOID ? this.severity : severity;
   status = status === VOID ? this.status : status;
   payloadJson = payloadJson === VOID ? this.payloadJson : payloadJson;
-  return $super === VOID ? this.b1r(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.b1r.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
+  return $super === VOID ? this.i1r(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.i1r.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).toString = function () {
   return 'JsAdvice(id=' + this.id + ', type=' + this.type + ', lift=' + this.lift + ', createdAt=' + this.createdAt + ', reason=' + this.reason + ', severity=' + this.severity + ', status=' + this.status + ', payloadJson=' + this.payloadJson + ')';
@@ -7645,13 +7670,13 @@ function JsHistory(sessions, exercises, baselines) {
   this.exercises = exercises;
   this.baselines = baselines;
 }
-protoOf(JsHistory).c1r = function () {
+protoOf(JsHistory).j1r = function () {
   return this.sessions;
 };
-protoOf(JsHistory).d1r = function () {
+protoOf(JsHistory).k1r = function () {
   return this.exercises;
 };
-protoOf(JsHistory).e1r = function () {
+protoOf(JsHistory).l1r = function () {
   return this.baselines;
 };
 protoOf(JsHistory).ma = function () {
@@ -7660,17 +7685,17 @@ protoOf(JsHistory).ma = function () {
 protoOf(JsHistory).na = function () {
   return this.exercises;
 };
-protoOf(JsHistory).u1p = function () {
+protoOf(JsHistory).b1q = function () {
   return this.baselines;
 };
-protoOf(JsHistory).f1r = function (sessions, exercises, baselines) {
+protoOf(JsHistory).m1r = function (sessions, exercises, baselines) {
   return new JsHistory(sessions, exercises, baselines);
 };
 protoOf(JsHistory).copy = function (sessions, exercises, baselines, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   exercises = exercises === VOID ? this.exercises : exercises;
   baselines = baselines === VOID ? this.baselines : baselines;
-  return $super === VOID ? this.f1r(sessions, exercises, baselines) : $super.f1r.call(this, sessions, exercises, baselines);
+  return $super === VOID ? this.m1r(sessions, exercises, baselines) : $super.m1r.call(this, sessions, exercises, baselines);
 };
 protoOf(JsHistory).toString = function () {
   return 'JsHistory(sessions=' + toString(this.sessions) + ', exercises=' + toString(this.exercises) + ', baselines=' + toString(this.baselines) + ')';
@@ -7698,10 +7723,10 @@ function JsCoachSettings(defaultRpe, changePlates) {
   this.defaultRpe = defaultRpe;
   this.changePlates = changePlates;
 }
-protoOf(JsCoachSettings).g1r = function () {
+protoOf(JsCoachSettings).n1r = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).h1r = function () {
+protoOf(JsCoachSettings).o1r = function () {
   return this.changePlates;
 };
 protoOf(JsCoachSettings).ma = function () {
@@ -7710,13 +7735,13 @@ protoOf(JsCoachSettings).ma = function () {
 protoOf(JsCoachSettings).na = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).i1r = function (defaultRpe, changePlates) {
+protoOf(JsCoachSettings).p1r = function (defaultRpe, changePlates) {
   return new JsCoachSettings(defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).copy = function (defaultRpe, changePlates, $super) {
   defaultRpe = defaultRpe === VOID ? this.defaultRpe : defaultRpe;
   changePlates = changePlates === VOID ? this.changePlates : changePlates;
-  return $super === VOID ? this.i1r(defaultRpe, changePlates) : $super.i1r.call(this, defaultRpe, changePlates);
+  return $super === VOID ? this.p1r(defaultRpe, changePlates) : $super.p1r.call(this, defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).toString = function () {
   return 'JsCoachSettings(defaultRpe=' + this.defaultRpe + ', changePlates=' + this.changePlates + ')';
@@ -7741,7 +7766,7 @@ function JsWeeklyPoint(weekStart, value) {
   this.weekStart = weekStart;
   this.value = value;
 }
-protoOf(JsWeeklyPoint).j1r = function () {
+protoOf(JsWeeklyPoint).q1r = function () {
   return this.weekStart;
 };
 protoOf(JsWeeklyPoint).t = function () {
@@ -7753,13 +7778,13 @@ protoOf(JsWeeklyPoint).ma = function () {
 protoOf(JsWeeklyPoint).na = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).k1r = function (weekStart, value) {
+protoOf(JsWeeklyPoint).r1r = function (weekStart, value) {
   return new JsWeeklyPoint(weekStart, value);
 };
 protoOf(JsWeeklyPoint).copy = function (weekStart, value, $super) {
   weekStart = weekStart === VOID ? this.weekStart : weekStart;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.k1r(weekStart, value) : $super.k1r.call(this, weekStart, value);
+  return $super === VOID ? this.r1r(weekStart, value) : $super.r1r.call(this, weekStart, value);
 };
 protoOf(JsWeeklyPoint).toString = function () {
   return 'JsWeeklyPoint(weekStart=' + this.weekStart + ', value=' + this.value + ')';
@@ -7787,10 +7812,25 @@ function JsPr(date, e1rmKg, weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsPr).i1q = function () {
+protoOf(JsPr).p1q = function () {
   return this.date;
 };
-protoOf(JsPr).r1q = function () {
+protoOf(JsPr).y1q = function () {
+  return this.e1rmKg;
+};
+protoOf(JsPr).i1q = function () {
+  return this.weightKg;
+};
+protoOf(JsPr).j1q = function () {
+  return this.reps;
+};
+protoOf(JsPr).k1q = function () {
+  return this.rpe;
+};
+protoOf(JsPr).ma = function () {
+  return this.date;
+};
+protoOf(JsPr).na = function () {
   return this.e1rmKg;
 };
 protoOf(JsPr).b1q = function () {
@@ -7802,22 +7842,7 @@ protoOf(JsPr).c1q = function () {
 protoOf(JsPr).d1q = function () {
   return this.rpe;
 };
-protoOf(JsPr).ma = function () {
-  return this.date;
-};
-protoOf(JsPr).na = function () {
-  return this.e1rmKg;
-};
-protoOf(JsPr).u1p = function () {
-  return this.weightKg;
-};
-protoOf(JsPr).v1p = function () {
-  return this.reps;
-};
-protoOf(JsPr).w1p = function () {
-  return this.rpe;
-};
-protoOf(JsPr).l1r = function (date, e1rmKg, weightKg, reps, rpe) {
+protoOf(JsPr).s1r = function (date, e1rmKg, weightKg, reps, rpe) {
   return new JsPr(date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
@@ -7826,7 +7851,7 @@ protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.l1r(date, e1rmKg, weightKg, reps, rpe) : $super.l1r.call(this, date, e1rmKg, weightKg, reps, rpe);
+  return $super === VOID ? this.s1r(date, e1rmKg, weightKg, reps, rpe) : $super.s1r.call(this, date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).toString = function () {
   return 'JsPr(date=' + this.date + ', e1rmKg=' + this.e1rmKg + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -7863,7 +7888,7 @@ function JsAccessoryOption(name, heavy) {
 protoOf(JsAccessoryOption).nq = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).m1r = function () {
+protoOf(JsAccessoryOption).t1r = function () {
   return this.heavy;
 };
 protoOf(JsAccessoryOption).ma = function () {
@@ -7872,13 +7897,13 @@ protoOf(JsAccessoryOption).ma = function () {
 protoOf(JsAccessoryOption).na = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).n1r = function (name, heavy) {
+protoOf(JsAccessoryOption).u1r = function (name, heavy) {
   return new JsAccessoryOption(name, heavy);
 };
 protoOf(JsAccessoryOption).copy = function (name, heavy, $super) {
   name = name === VOID ? this.name : name;
   heavy = heavy === VOID ? this.heavy : heavy;
-  return $super === VOID ? this.n1r(name, heavy) : $super.n1r.call(this, name, heavy);
+  return $super === VOID ? this.u1r(name, heavy) : $super.u1r.call(this, name, heavy);
 };
 protoOf(JsAccessoryOption).toString = function () {
   return 'JsAccessoryOption(name=' + this.name + ', heavy=' + this.heavy + ')';
@@ -7905,16 +7930,16 @@ function JsRatioRange(numerator, denominator, low, high) {
   this.low = low;
   this.high = high;
 }
-protoOf(JsRatioRange).o1r = function () {
+protoOf(JsRatioRange).v1r = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).p1r = function () {
+protoOf(JsRatioRange).w1r = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).q1r = function () {
+protoOf(JsRatioRange).x1r = function () {
   return this.low;
 };
-protoOf(JsRatioRange).r1r = function () {
+protoOf(JsRatioRange).y1r = function () {
   return this.high;
 };
 protoOf(JsRatioRange).ma = function () {
@@ -7923,13 +7948,13 @@ protoOf(JsRatioRange).ma = function () {
 protoOf(JsRatioRange).na = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).u1p = function () {
+protoOf(JsRatioRange).b1q = function () {
   return this.low;
 };
-protoOf(JsRatioRange).v1p = function () {
+protoOf(JsRatioRange).c1q = function () {
   return this.high;
 };
-protoOf(JsRatioRange).s1r = function (numerator, denominator, low, high) {
+protoOf(JsRatioRange).z1r = function (numerator, denominator, low, high) {
   return new JsRatioRange(numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super) {
@@ -7937,7 +7962,7 @@ protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super
   denominator = denominator === VOID ? this.denominator : denominator;
   low = low === VOID ? this.low : low;
   high = high === VOID ? this.high : high;
-  return $super === VOID ? this.s1r(numerator, denominator, low, high) : $super.s1r.call(this, numerator, denominator, low, high);
+  return $super === VOID ? this.z1r(numerator, denominator, low, high) : $super.z1r.call(this, numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).toString = function () {
   return 'JsRatioRange(numerator=' + this.numerator + ', denominator=' + this.denominator + ', low=' + this.low + ', high=' + this.high + ')';
@@ -7970,16 +7995,16 @@ function JsPrescription(exerciseName, sets, repsLow, repsHigh) {
   this.repsLow = repsLow;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPrescription).t1r = function () {
+protoOf(JsPrescription).a1s = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).l1q = function () {
+protoOf(JsPrescription).s1q = function () {
   return this.sets;
 };
-protoOf(JsPrescription).u1r = function () {
+protoOf(JsPrescription).b1s = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).v1r = function () {
+protoOf(JsPrescription).c1s = function () {
   return this.repsHigh;
 };
 protoOf(JsPrescription).ma = function () {
@@ -7988,13 +8013,13 @@ protoOf(JsPrescription).ma = function () {
 protoOf(JsPrescription).na = function () {
   return this.sets;
 };
-protoOf(JsPrescription).u1p = function () {
+protoOf(JsPrescription).b1q = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).v1p = function () {
+protoOf(JsPrescription).c1q = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).w1r = function (exerciseName, sets, repsLow, repsHigh) {
+protoOf(JsPrescription).d1s = function (exerciseName, sets, repsLow, repsHigh) {
   return new JsPrescription(exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, $super) {
@@ -8002,7 +8027,7 @@ protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, 
   sets = sets === VOID ? this.sets : sets;
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.w1r(exerciseName, sets, repsLow, repsHigh) : $super.w1r.call(this, exerciseName, sets, repsLow, repsHigh);
+  return $super === VOID ? this.d1s(exerciseName, sets, repsLow, repsHigh) : $super.d1s.call(this, exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).toString = function () {
   return 'JsPrescription(exerciseName=' + this.exerciseName + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ')';
@@ -8062,7 +8087,40 @@ function JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, vol
 protoOf(JsAdvicePayload).ee = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).a1q = function () {
+protoOf(JsAdvicePayload).h1q = function () {
+  return this.exerciseId;
+};
+protoOf(JsAdvicePayload).i1q = function () {
+  return this.weightKg;
+};
+protoOf(JsAdvicePayload).j1q = function () {
+  return this.reps;
+};
+protoOf(JsAdvicePayload).k1q = function () {
+  return this.rpe;
+};
+protoOf(JsAdvicePayload).s1q = function () {
+  return this.sets;
+};
+protoOf(JsAdvicePayload).e1s = function () {
+  return this.items;
+};
+protoOf(JsAdvicePayload).f1s = function () {
+  return this.volumeFactor;
+};
+protoOf(JsAdvicePayload).g1s = function () {
+  return this.loadFactor;
+};
+protoOf(JsAdvicePayload).b1r = function () {
+  return this.lift;
+};
+protoOf(JsAdvicePayload).m1q = function () {
+  return this.missPoint;
+};
+protoOf(JsAdvicePayload).ma = function () {
+  return this.kind;
+};
+protoOf(JsAdvicePayload).na = function () {
   return this.exerciseId;
 };
 protoOf(JsAdvicePayload).b1q = function () {
@@ -8074,58 +8132,25 @@ protoOf(JsAdvicePayload).c1q = function () {
 protoOf(JsAdvicePayload).d1q = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).l1q = function () {
+protoOf(JsAdvicePayload).e1q = function () {
   return this.sets;
-};
-protoOf(JsAdvicePayload).x1r = function () {
-  return this.items;
-};
-protoOf(JsAdvicePayload).y1r = function () {
-  return this.volumeFactor;
-};
-protoOf(JsAdvicePayload).z1r = function () {
-  return this.loadFactor;
-};
-protoOf(JsAdvicePayload).u1q = function () {
-  return this.lift;
 };
 protoOf(JsAdvicePayload).f1q = function () {
-  return this.missPoint;
-};
-protoOf(JsAdvicePayload).ma = function () {
-  return this.kind;
-};
-protoOf(JsAdvicePayload).na = function () {
-  return this.exerciseId;
-};
-protoOf(JsAdvicePayload).u1p = function () {
-  return this.weightKg;
-};
-protoOf(JsAdvicePayload).v1p = function () {
-  return this.reps;
-};
-protoOf(JsAdvicePayload).w1p = function () {
-  return this.rpe;
-};
-protoOf(JsAdvicePayload).x1p = function () {
-  return this.sets;
-};
-protoOf(JsAdvicePayload).y1p = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).a1r = function () {
+protoOf(JsAdvicePayload).h1r = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).a1s = function () {
+protoOf(JsAdvicePayload).h1s = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).b1s = function () {
+protoOf(JsAdvicePayload).i1s = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).c1s = function () {
+protoOf(JsAdvicePayload).j1s = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).d1s = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) {
+protoOf(JsAdvicePayload).k1s = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) {
   return new JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
 };
 protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, $super) {
@@ -8140,7 +8165,7 @@ protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe,
   loadFactor = loadFactor === VOID ? this.loadFactor : loadFactor;
   lift = lift === VOID ? this.lift : lift;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
-  return $super === VOID ? this.d1s(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) : $super.d1s.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
+  return $super === VOID ? this.k1s(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) : $super.k1s.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
 };
 protoOf(JsAdvicePayload).toString = function () {
   return 'JsAdvicePayload(kind=' + this.kind + ', exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', sets=' + this.sets + ', items=' + toString(this.items) + ', volumeFactor=' + this.volumeFactor + ', loadFactor=' + this.loadFactor + ', lift=' + this.lift + ', missPoint=' + this.missPoint + ')';
@@ -8195,19 +8220,19 @@ function JsFormGuide(purpose, setup, steps, cues, mistakes) {
   this.cues = cues;
   this.mistakes = mistakes;
 }
-protoOf(JsFormGuide).e1s = function () {
+protoOf(JsFormGuide).l1s = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).f1s = function () {
+protoOf(JsFormGuide).m1s = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).g1s = function () {
+protoOf(JsFormGuide).n1s = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).h1s = function () {
+protoOf(JsFormGuide).o1s = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).i1s = function () {
+protoOf(JsFormGuide).p1s = function () {
   return this.mistakes;
 };
 protoOf(JsFormGuide).ma = function () {
@@ -8216,16 +8241,16 @@ protoOf(JsFormGuide).ma = function () {
 protoOf(JsFormGuide).na = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).u1p = function () {
+protoOf(JsFormGuide).b1q = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).v1p = function () {
+protoOf(JsFormGuide).c1q = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).w1p = function () {
+protoOf(JsFormGuide).d1q = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).j1s = function (purpose, setup, steps, cues, mistakes) {
+protoOf(JsFormGuide).q1s = function (purpose, setup, steps, cues, mistakes) {
   return new JsFormGuide(purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $super) {
@@ -8234,7 +8259,7 @@ protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $su
   steps = steps === VOID ? this.steps : steps;
   cues = cues === VOID ? this.cues : cues;
   mistakes = mistakes === VOID ? this.mistakes : mistakes;
-  return $super === VOID ? this.j1s(purpose, setup, steps, cues, mistakes) : $super.j1s.call(this, purpose, setup, steps, cues, mistakes);
+  return $super === VOID ? this.q1s(purpose, setup, steps, cues, mistakes) : $super.q1s.call(this, purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).toString = function () {
   return 'JsFormGuide(purpose=' + this.purpose + ', setup=' + toString(this.setup) + ', steps=' + toString(this.steps) + ', cues=' + toString(this.cues) + ', mistakes=' + toString(this.mistakes) + ')';
@@ -8264,6 +8289,49 @@ protoOf(JsFormGuide).equals = function (other) {
     return false;
   return true;
 };
+function JsRpeGuide(title, lines) {
+  this.title = title;
+  this.lines = lines;
+}
+protoOf(JsRpeGuide).r1s = function () {
+  return this.title;
+};
+protoOf(JsRpeGuide).s1s = function () {
+  return this.lines;
+};
+protoOf(JsRpeGuide).ma = function () {
+  return this.title;
+};
+protoOf(JsRpeGuide).na = function () {
+  return this.lines;
+};
+protoOf(JsRpeGuide).t1s = function (title, lines) {
+  return new JsRpeGuide(title, lines);
+};
+protoOf(JsRpeGuide).copy = function (title, lines, $super) {
+  title = title === VOID ? this.title : title;
+  lines = lines === VOID ? this.lines : lines;
+  return $super === VOID ? this.t1s(title, lines) : $super.t1s.call(this, title, lines);
+};
+protoOf(JsRpeGuide).toString = function () {
+  return 'JsRpeGuide(title=' + this.title + ', lines=' + toString(this.lines) + ')';
+};
+protoOf(JsRpeGuide).hashCode = function () {
+  var result = getStringHashCode(this.title);
+  result = imul(result, 31) + hashCode(this.lines) | 0;
+  return result;
+};
+protoOf(JsRpeGuide).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsRpeGuide))
+    return false;
+  if (!(this.title === other.title))
+    return false;
+  if (!equals(this.lines, other.lines))
+    return false;
+  return true;
+};
 function JsLibraryExercise(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
   this.name = name;
   this.aliases = aliases;
@@ -8278,28 +8346,28 @@ function JsLibraryExercise(name, aliases, area, equipment, muscles, kind, catego
 protoOf(JsLibraryExercise).nq = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).k1s = function () {
+protoOf(JsLibraryExercise).u1s = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).l1s = function () {
+protoOf(JsLibraryExercise).v1s = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).m1s = function () {
+protoOf(JsLibraryExercise).w1s = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).r1p = function () {
+protoOf(JsLibraryExercise).y1p = function () {
   return this.muscles;
 };
 protoOf(JsLibraryExercise).ee = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).p1p = function () {
+protoOf(JsLibraryExercise).w1p = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).q1p = function () {
+protoOf(JsLibraryExercise).x1p = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).n1s = function () {
+protoOf(JsLibraryExercise).x1s = function () {
   return this.guide;
 };
 protoOf(JsLibraryExercise).ma = function () {
@@ -8308,28 +8376,28 @@ protoOf(JsLibraryExercise).ma = function () {
 protoOf(JsLibraryExercise).na = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).u1p = function () {
+protoOf(JsLibraryExercise).b1q = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).v1p = function () {
+protoOf(JsLibraryExercise).c1q = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).w1p = function () {
+protoOf(JsLibraryExercise).d1q = function () {
   return this.muscles;
 };
-protoOf(JsLibraryExercise).x1p = function () {
+protoOf(JsLibraryExercise).e1q = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).y1p = function () {
+protoOf(JsLibraryExercise).f1q = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).a1r = function () {
+protoOf(JsLibraryExercise).h1r = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).a1s = function () {
+protoOf(JsLibraryExercise).h1s = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).o1s = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
+protoOf(JsLibraryExercise).y1s = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
   return new JsLibraryExercise(name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide, $super) {
@@ -8342,7 +8410,7 @@ protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, musc
   category = category === VOID ? this.category : category;
   parentLift = parentLift === VOID ? this.parentLift : parentLift;
   guide = guide === VOID ? this.guide : guide;
-  return $super === VOID ? this.o1s(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.o1s.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
+  return $super === VOID ? this.y1s(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.y1s.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).toString = function () {
   return 'JsLibraryExercise(name=' + this.name + ', aliases=' + toString(this.aliases) + ', area=' + this.area + ', equipment=' + toString(this.equipment) + ', muscles=' + toString(this.muscles) + ', kind=' + this.kind + ', category=' + this.category + ', parentLift=' + this.parentLift + ', guide=' + this.guide.toString() + ')';
@@ -8631,7 +8699,7 @@ function toDomain_6(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   try {
-    tmp = get_androidJson().kt(Companion_instance_5.k1o(), _this__u8e3s4.payloadJson);
+    tmp = get_androidJson().kt(Companion_instance_5.r1o(), _this__u8e3s4.payloadJson);
   } catch ($p) {
     var tmp_0;
     if ($p instanceof SerializationException) {
@@ -8718,11 +8786,11 @@ function toJs_0(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp = toFacadeId(_this__u8e3s4.l13_1, 'advice.id');
   var tmp0_safe_receiver = _this__u8e3s4.f13_1;
-  return new JsAdvice(tmp, _this__u8e3s4.e13_1.r1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.r1_1, _this__u8e3s4.g13_1.toString(), _this__u8e3s4.h13_1, _this__u8e3s4.i13_1, _this__u8e3s4.k13_1.r1_1, get_androidJson().jt(Companion_instance_5.k1o(), _this__u8e3s4.j13_1));
+  return new JsAdvice(tmp, _this__u8e3s4.e13_1.r1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.r1_1, _this__u8e3s4.g13_1.toString(), _this__u8e3s4.h13_1, _this__u8e3s4.i13_1, _this__u8e3s4.k13_1.r1_1, get_androidJson().jt(Companion_instance_5.r1o(), _this__u8e3s4.j13_1));
 }
 function toJs_1(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return new JsPr(_this__u8e3s4.q1o_1.toString(), _this__u8e3s4.r1o_1, _this__u8e3s4.s1o_1, _this__u8e3s4.t1o_1, _this__u8e3s4.u1o_1);
+  return new JsPr(_this__u8e3s4.x1o_1.toString(), _this__u8e3s4.y1o_1, _this__u8e3s4.z1o_1, _this__u8e3s4.a1p_1, _this__u8e3s4.b1p_1);
 }
 function toJs_2(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -8738,7 +8806,7 @@ function decodePayload(payloadJson) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   try {
-    tmp = get_androidJson().kt(Companion_instance_5.k1o(), payloadJson);
+    tmp = get_androidJson().kt(Companion_instance_5.r1o(), payloadJson);
   } catch ($p) {
     var tmp_0;
     if ($p instanceof IllegalArgumentException) {
@@ -8755,13 +8823,13 @@ function decodePayload(payloadJson) {
   } else {
     if (payload instanceof Accessories) {
       // Inline function 'kotlin.collections.map' call
-      var this_0 = payload.z1n_1;
+      var this_0 = payload.g1o_1;
       // Inline function 'kotlin.collections.mapTo' call
       var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
       var _iterator__ex2g4s = this_0.j();
       while (_iterator__ex2g4s.k()) {
         var item = _iterator__ex2g4s.l();
-        var tmp$ret$2 = new JsPrescription(item.q1n_1, item.r1n_1, item.s1n_1, item.t1n_1);
+        var tmp$ret$2 = new JsPrescription(item.x1n_1, item.y1n_1, item.z1n_1, item.a1o_1);
         destination.i(tmp$ret$2);
       }
       // Inline function 'kotlin.collections.toTypedArray' call
@@ -8772,8 +8840,8 @@ function decodePayload(payloadJson) {
         tmp_1 = new JsAdvicePayload('Deload', VOID, VOID, VOID, VOID, VOID, VOID, payload.g15_1, payload.h15_1);
       } else {
         if (payload instanceof WeakPoint) {
-          var tmp1_safe_receiver = payload.g1o_1;
-          tmp_1 = new JsAdvicePayload('WeakPoint', VOID, VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.f1o_1.r1_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.r1_1);
+          var tmp1_safe_receiver = payload.n1o_1;
+          tmp_1 = new JsAdvicePayload('WeakPoint', VOID, VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.m1o_1.r1_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.r1_1);
         } else {
           if (payload instanceof ReEntry) {
             tmp_1 = new JsAdvicePayload('ReEntry', VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.p13_1);
@@ -8891,6 +8959,7 @@ export {
   JsPrescription as JsPrescription,
   JsAdvicePayload as JsAdvicePayload,
   JsFormGuide as JsFormGuide,
+  JsRpeGuide as JsRpeGuide,
   JsLibraryExercise as JsLibraryExercise,
 };
 //endregion

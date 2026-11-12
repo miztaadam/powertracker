@@ -19,6 +19,7 @@ object Sources {
     private const val L9 = "2026-11-11"
     private const val L10 = "2026-11-11"
     private const val FIX = "2026-11-11"
+    private const val RPE = "2026-11-12"
 
     // Main lifts and their variations
     val IPF_RULES_2026 = SourceId("ipf-technical-rules-2026")
@@ -375,6 +376,11 @@ object Sources {
     val ACE_BICYCLE_CRUNCH = SourceId("ace-supine-bicycle-crunches")
     val ACE_DEAD_BUG = SourceId("ace-supine-dead-bug")
     val ACE_BIRD_DOG = SourceId("ace-bird-dog")
+
+    // RPE scale (the RPE sheet, not an exercise)
+    val PMC_RIR_RPE_APPLICATION = SourceId("pmc-rir-based-rpe-scale-application")
+    val PMC_RPE_SCALES_VALIDITY_REVIEW = SourceId("pmc-rpe-scales-validity-systematic-review")
+    val PMC_REGULATING_MONITORING_RT = SourceId("pmc-methods-regulating-monitoring-resistance-training")
     val all: Map<SourceId, Source> = mapOf(
         IPF_RULES_2026 to Source(
             "IPF Technical Rulebook 2026", IPF,
@@ -1662,6 +1668,19 @@ object Sources {
         ACE_BIRD_DOG to Source(
             "Exercise Library: Bird Dog", ACE,
             "https://www.acefitness.org/resources/everyone/exercise-library/14/bird-dog/", L10,
+        ),
+        PMC_RIR_RPE_APPLICATION to Source(
+            "Application of the Repetitions in Reserve-Based Rating of Perceived Exertion Scale for Resistance Training", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC4961270/", RPE,
+        ),
+        PMC_RPE_SCALES_VALIDITY_REVIEW to Source(
+            "Validity of Rating of Perceived Exertion Scales in Relation to Movement Velocity and Exercise Intensity " +
+                "During Resistance-Exercise: A Systematic Review", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC11569527/", RPE,
+        ),
+        PMC_REGULATING_MONITORING_RT to Source(
+            "Methods for Regulating and Monitoring Resistance Training", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC7706636/", RPE,
         ),
     )
 }

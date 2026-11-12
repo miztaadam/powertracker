@@ -142,6 +142,10 @@ data class JsFormGuide(
     val mistakes: Array<String>,
 )
 
+/** The RPE sheet's heading and its lines, in order. Unlike a form guide it takes no safety line. */
+@JsExport
+data class JsRpeGuide(val title: String, val lines: Array<String>)
+
 /**
  * A catalogue exercise. [area] is a `BodyArea` name, [equipment] `Equipment` names (first = primary), [kind]
  * "COMPOUND" or "ACCESSORY", [category] and [parentLift] as on [JsExercise].

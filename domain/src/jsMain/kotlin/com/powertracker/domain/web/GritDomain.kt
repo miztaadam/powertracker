@@ -12,6 +12,7 @@ import com.powertracker.domain.library.Equipment
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.library.MuscleGroups
+import com.powertracker.domain.library.RpeGuide
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
@@ -182,6 +183,9 @@ object GritDomain {
 
     /** The fixed last line of every guide sheet, which the UI appends after the guide. */
     fun safetyLine(): String = Library.SAFETY_LINE
+
+    /** The "What RPE means" sheet: RPE as reps in reserve. It has no safety line; its sources are not shown. */
+    fun rpeGuide(): JsRpeGuide = JsRpeGuide(RpeGuide.title, RpeGuide.lines.toTypedArray())
 
     /** Typical strength ratios: squat ÷ deadlift, then bench ÷ squat. Strict press is never in one. */
     fun ratioRanges(): Array<JsRatioRange> = arrayOf(

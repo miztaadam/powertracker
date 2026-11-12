@@ -81,8 +81,9 @@ class LibraryTest {
             assertTrue(s.title.isNotBlank() && s.publisher.isNotBlank(), id.key)
             assertTrue(Regex("\\d{4}-\\d{2}-\\d{2}").matches(s.accessed), "${id.key}: accessed")
         }
-        val used = all.flatMap { it.sources }.toSet()
-        assertEquals(Sources.all.keys, used, "registry holds sources no entry uses")
+        // The RPE sheet cites the registry too.
+        val used = all.flatMap { it.sources }.toSet() + RpeGuide.sources
+        assertEquals(Sources.all.keys, used, "registry holds sources no entry or the RPE sheet uses")
     }
 
     @Test

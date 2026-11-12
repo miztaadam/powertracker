@@ -1,6 +1,6 @@
 # Exercise library sources
 
-Generated from `Library.all()` and `Sources.all` by `SourcesDocTest`. Do not edit by hand. Regenerate with
+Generated from `Library.all()`, `RpeGuide` and `Sources.all` by `SourcesDocTest`. Do not edit by hand. Regenerate with
 `./gradlew :domain:jvmTest --tests '*SourcesDocTest*' -Psources.update=true`.
 
 Each exercise lists the sources its form guide was checked against. Sources are not shown in the app.
@@ -1360,3 +1360,11 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [NSCA Coach 7.1: Implementing Core Training Concepts into Strength Training for Sport](https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Strongman Exercises That Work Great for Fitness Clients](https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+## RPE scale
+
+The sources of the "What RPE means" sheet.
+
+- [Application of the Repetitions in Reserve-Based Rating of Perceived Exertion Scale for Resistance Training](https://pmc.ncbi.nlm.nih.gov/articles/PMC4961270/). PubMed Central (peer-reviewed), accessed 2026-11-12.
+- [Validity of Rating of Perceived Exertion Scales in Relation to Movement Velocity and Exercise Intensity During Resistance-Exercise: A Systematic Review](https://pmc.ncbi.nlm.nih.gov/articles/PMC11569527/). PubMed Central (peer-reviewed), accessed 2026-11-12.
+- [Methods for Regulating and Monitoring Resistance Training](https://pmc.ncbi.nlm.nih.gov/articles/PMC7706636/). PubMed Central (peer-reviewed), accessed 2026-11-12.

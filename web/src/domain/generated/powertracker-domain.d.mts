@@ -44,6 +44,7 @@ export declare namespace GritDomain {
             exercisesByMuscle(group: string, equipment: Array<string>): Array<JsLibraryExercise>;
             formGuide(name: string): Nullable<JsFormGuide>;
             safetyLine(): string;
+            rpeGuide(): JsRpeGuide;
             ratioRanges(): Array<JsRatioRange>;
             private constructor();
         }
@@ -317,6 +318,21 @@ export declare namespace JsFormGuide {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsFormGuide;
+    }
+}
+export declare class JsRpeGuide {
+    constructor(title: string, lines: Array<string>);
+    get title(): string;
+    get lines(): Array<string>;
+    copy(title?: string, lines?: Array<string>): JsRpeGuide;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsRpeGuide {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsRpeGuide;
     }
 }
 export declare class JsLibraryExercise {

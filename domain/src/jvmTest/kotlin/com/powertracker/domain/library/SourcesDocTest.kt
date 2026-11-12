@@ -5,8 +5,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * docs/library/sources.md lists every catalogue exercise's sources, by area. It is generated from [Library.all] and
- * [Sources.all]; this test fails when it is stale and rewrites it with
+ * docs/library/sources.md lists every catalogue exercise's sources, by area, then the RPE sheet's. It is generated
+ * from [Library.all], [RpeGuide] and [Sources.all]; this test fails when it is stale and rewrites it with
  * `./gradlew :domain:jvmTest --tests '*SourcesDocTest*' -Psources.update=true`.
  */
 class SourcesDocTest {
@@ -24,7 +24,7 @@ class SourcesDocTest {
     private fun render(): String = buildString {
         appendLine("# Exercise library sources")
         appendLine()
-        appendLine("Generated from `Library.all()` and `Sources.all` by `SourcesDocTest`. Do not edit by hand. Regenerate with")
+        appendLine("Generated from `Library.all()`, `RpeGuide` and `Sources.all` by `SourcesDocTest`. Do not edit by hand. Regenerate with")
         appendLine("`./gradlew :domain:jvmTest --tests '*SourcesDocTest*' -Psources.update=true`.")
         appendLine()
         appendLine("Each exercise lists the sources its form guide was checked against. Sources are not shown in the app.")
@@ -41,11 +41,21 @@ class SourcesDocTest {
                 appendLine("### ${e.name}")
                 appendLine()
                 for (id in e.sources) {
-                    val s = Sources.all.getValue(id)
-                    appendLine("- [${s.title}](${s.url}). ${s.publisher}, accessed ${s.accessed}.")
+                    appendLine(line(id))
                 }
             }
         }
+        appendLine()
+        appendLine("## RPE scale")
+        appendLine()
+        appendLine("The sources of the \"What RPE means\" sheet.")
+        appendLine()
+        for (id in RpeGuide.sources) appendLine(line(id))
+    }
+
+    private fun line(id: SourceId): String {
+        val s = Sources.all.getValue(id)
+        return "- [${s.title}](${s.url}). ${s.publisher}, accessed ${s.accessed}."
     }
 
     private fun title(area: BodyArea) = when (area) {
