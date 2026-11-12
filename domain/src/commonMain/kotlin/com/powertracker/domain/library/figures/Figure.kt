@@ -65,6 +65,9 @@ enum class Surface(val grip: Boolean = false) {
 
     /** A chest pad: a row machine's upright pad, or the face of a chest-supported row's incline pad. */
     CHEST_PAD,
+
+    /** The top face of a preacher bench's or an arm machine's sloped arm pad, under the backs of the upper arms (Task 9). */
+    ARM_PAD,
 }
 
 /** [point] rests on [surface] (within the contact tolerance) in the panels in [at]. */

@@ -73,17 +73,17 @@ import kotlin.math.sqrt
 /** The near shoulder's 3D point in a side view: on the torso's axis, half the shoulders' width towards the camera. */
 private fun sideShoulder(s: Skeleton) = v3(s.shoulder, Body.SHOULDER_HALF_WIDTH)
 
-private val SIDE_ARMS_DOWN = Arm(0.0, 0.0)
+internal val SIDE_ARMS_DOWN = Arm(0.0, 0.0)
 
 /** Lying face up on the flat bench, as the approved Bench: pelvis, torso and the legs with the feet flat. */
-private val FLAT_TORSO = 180.0
-private val FLAT_PELVIS = Point(95.0, -(FlatBench.HEIGHT + Body.TORSO_RADIUS))
-private val flatLegs by lazy { Reach.leg(FLAT_PELVIS, Point(127.0, -Body.ANKLE_HEIGHT), FLAT_TORSO, foot = 0.0) }
-private val flatBare by lazy { Pose(FLAT_PELVIS.x, FLAT_PELVIS.y, FLAT_TORSO, nearArm = SIDE_ARMS_DOWN, nearLeg = flatLegs).skeleton() }
+internal val FLAT_TORSO = 180.0
+internal val FLAT_PELVIS = Point(95.0, -(FlatBench.HEIGHT + Body.TORSO_RADIUS))
+internal val flatLegs by lazy { Reach.leg(FLAT_PELVIS, Point(127.0, -Body.ANKLE_HEIGHT), FLAT_TORSO, foot = 0.0) }
+internal val flatBare by lazy { Pose(FLAT_PELVIS.x, FLAT_PELVIS.y, FLAT_TORSO, nearArm = SIDE_ARMS_DOWN, nearLeg = flatLegs).skeleton() }
 
-private fun flatPose(arm: Arm) = Pose(FLAT_PELVIS.x, FLAT_PELVIS.y, FLAT_TORSO, nearArm = arm, nearLeg = flatLegs)
+internal fun flatPose(arm: Arm) = Pose(FLAT_PELVIS.x, FLAT_PELVIS.y, FLAT_TORSO, nearArm = arm, nearLeg = flatLegs)
 
-private val LYING_CONTACTS = listOf(
+internal val LYING_CONTACTS = listOf(
     Contact(BodyPoint.FEET, Surface.FLOOR, BOTH),
     Contact(BodyPoint.HEAD, Surface.BENCH, BOTH),
     Contact(BodyPoint.UPPER_BACK, Surface.BENCH, BOTH),
@@ -1083,7 +1083,7 @@ private val assistedDip: ExerciseFigure by lazy {
  * conservative wrist range), so the hand is drawn bent [PUSH_UP_WRIST]° from the forearm, the heel of the palm a little
  * raised, the fingers on the floor (on a bench's top, with the arm leaning towards the head, it lies flat).
  */
-private const val PUSH_UP_WRIST = 60.0
+internal const val PUSH_UP_WRIST = 60.0
 
 /** Hands "about shoulder-width apart, or slightly wider": 10 cm wider each side than the shoulder joints (neutral). */
 private const val HANDS_OUT = Body.SHOULDER_HALF_WIDTH + 10.0
@@ -1092,13 +1092,13 @@ private const val HANDS_OUT = Body.SHOULDER_HALF_WIDTH + 10.0
 private const val KNEE_SHIN = 172.0
 
 /** How a push-up's lower body rests: on the toes on the floor or on a bench top, or on the knees. */
-private enum class Support { TOES, KNEES }
+internal enum class Support { TOES, KNEES }
 
 /**
  * A prone pose for a body straight from the head to the [support] ([torso]° above level, facing +x), its feet or
  * knees resting on a surface [supportHeight] up at x = 0, the arm [arm].
  */
-private fun pronePose(torso: Double, support: Support, supportHeight: Double, arm: Arm, neck: Double = 0.0): Pose {
+internal fun pronePose(torso: Double, support: Support, supportHeight: Double, arm: Arm, neck: Double = 0.0): Pose {
     val leg = when (support) {
         Support.TOES -> Leg(hip = 0.0, knee = 0.0, ankle = 0.0)
         // The lower legs lie back along the floor, 8° up from it, the same in both panels: the knee is the pivot.
@@ -1119,7 +1119,7 @@ private fun pronePose(torso: Double, support: Support, supportHeight: Double, ar
  * forearm drawn at [fore]° (the hand drawn [scale] of its length): of the two ways it can touch, the one the wrist
  * bends to least; a flat hand ([flat]) stays flat.
  */
-private fun handOn(w: Point, fore: Double, scale: Double, surface: Double, flat: Boolean): Double {
+internal fun handOn(w: Point, fore: Double, scale: Double, surface: Double, flat: Boolean): Double {
     if (flat) return 0.0
     val v = ((surface - Body.HAND_WIDTH / 2 - w.y) / (Segment.HAND.length * scale)).coerceIn(-1.0, 1.0)
     val right = -asin(v) * DEG
@@ -1128,7 +1128,7 @@ private fun handOn(w: Point, fore: Double, scale: Double, surface: Double, flat:
 }
 
 /** The arm from the shoulder of [p] whose wrist lands on [wrist] (3D), the elbow towards [hint], the hand on [surface]. */
-private fun pushArm(p: Pose, wrist: V3, hint: V3, surface: Double, flat: Boolean): Arm {
+internal fun pushArm(p: Pose, wrist: V3, hint: V3, surface: Double, flat: Boolean): Arm {
     val sh = sideShoulder(p.skeleton())
     val a = Segment.UPPER_ARM.length
     val b = Segment.FOREARM.length
@@ -1146,11 +1146,11 @@ private fun pushArm(p: Pose, wrist: V3, hint: V3, surface: Double, flat: Boolean
 }
 
 /** The bottom of a hand with its wrist at [w], pointing [hand]° and drawn [scale] of its length: its lowest y plus its radius. */
-private fun handBottom(w: Point, hand: Double, scale: Double = 1.0): Double =
+internal fun handBottom(w: Point, hand: Double, scale: Double = 1.0): Double =
     maxOf(w.y, (w + unit(hand) * (Segment.HAND.length * scale)).y) + Body.HAND_WIDTH / 2
 
 /** The torso angle in [lo]..[hi] where [f] crosses zero (bisection; [f] rises with the angle). */
-private fun solveAngle(lo: Double, hi: Double, f: (Double) -> Double): Double {
+internal fun solveAngle(lo: Double, hi: Double, f: (Double) -> Double): Double {
     var a = lo
     var b = hi
     val rising = f(hi) > f(lo)
@@ -1205,7 +1205,7 @@ private val PUSH_UP_CONTACTS_TOES = listOf(Contact(BodyPoint.FEET, Surface.FLOOR
  * The push-ups' depth: the chest lowered to 6 cm off the floor ("toward the floor"; ACE lowers until the chest reaches
  * it, so 6 cm is the shallower, conservative side, and keeps the elbow inside its range with this body's arms).
  */
-private const val CHEST_GAP = 6.0
+internal const val CHEST_GAP = 6.0
 private val floorPushUp by lazy {
     pushUp(Support.TOES, 0.0, 0.0, { -90.0 }, -90.0 + PUSH_UP_WRIST, bottom = { -it.chest().y - CHEST_GAP })
 }

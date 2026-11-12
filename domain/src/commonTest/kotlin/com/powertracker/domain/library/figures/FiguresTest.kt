@@ -111,6 +111,6 @@ class FiguresTest {
     }
 
     private companion object {
-        const val GOLDEN = "114:817892063d845bbc"
+        const val GOLDEN = "145:4ac19b1768653a16"
     }
 }

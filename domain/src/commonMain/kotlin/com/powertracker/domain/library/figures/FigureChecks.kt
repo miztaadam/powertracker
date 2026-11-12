@@ -121,7 +121,7 @@ object FigureChecks {
                 continue
             }
             val twoHanded = (held is Barbell && held.on == BarHold.HANDS) || held is LatBar || held == TrapBar ||
-                held is CableAttachment || held is CamberedBar || held == PulloverDumbbell
+                held is CableAttachment || held is CamberedBar || held == PulloverDumbbell || held == EZBar || held == OverheadDumbbell
             if (!twoHanded) continue
             val off = if (view == View.SIDE) (s.near.grip - s.far.grip).length() else abs(s.near.grip.y - s.far.grip.y)
             if (off > CONTACT_TOLERANCE) add("held: the hands are ${round1(off)} cm apart on the bar")
@@ -163,6 +163,8 @@ object FigureChecks {
             is CamberedBar -> Barbell.SHAFT_RADIUS
             PulloverDumbbell -> Dumbbell.HEAD_RADIUS
             is Kettlebell -> 0.0
+            EZBar -> Barbell.SHAFT_RADIUS
+            OverheadDumbbell -> Dumbbell.HEAD_RADIUS
         }
         return when (check) {
             is BarTouches -> {

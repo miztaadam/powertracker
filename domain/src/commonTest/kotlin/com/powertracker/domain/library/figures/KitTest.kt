@@ -775,4 +775,79 @@ class KitTest {
         assertTrue(shapes.any { it is Circle && Point(it.cx, it.cy) == s.near.grip })
         assertTrue(m.copy(handleEndOn = false).draw(View.SIDE, null, s).map { it.shape }.none { it is Circle && Point(it.cx, it.cy) == s.near.grip })
     }
+
+    // ---- Task 9: the arm batch's pieces ----
+
+    @Test
+    fun ezBar_endOnWithSmallerPlates_inBothHands_frontViewZigzag() {
+        val s = standing(arm = Arm(8.0, 145.0)).skeleton()
+        assertEquals(s.near.grip, EZBar.center(s))
+        val side = EZBar.draw(s).map { it.shape }
+        val plate = side.filterIsInstance<Circle>().single { it.role == Role.ACCENT_FILL }
+        assertEquals(EZBar.PLATE_DIAMETER / 2, plate.r, 1e-9)
+        assertTrue(EZBar.PLATE_DIAMETER < Barbell.PLATE_DIAMETER)
+        val front = standing(arm = Arm(10.0, 0.0)).skeleton(View.FRONT)
+        val shaft = EZBar.draw(front).map { it.shape }.filterIsInstance<Capsule>()
+        // The cambered middle: some shaft pieces are not level.
+        assertTrue(shaft.any { abs(it.y1 - it.y2) > 1.0 })
+        assertRenders(figureOf(View.SIDE, Scene(standing(arm = Arm(8.0, 145.0)), listOf(Floor, EZBar))), setOf(Role.BODY, Role.ACCENT, Role.ACCENT_FILL))
+        // Two-handed: the hands apart on the bar is caught.
+        val apart = figureOf(View.SIDE, Scene(standing(arm = Arm(8.0, 145.0), farArm = Arm(0.0, 0.0)), listOf(Floor, EZBar)))
+        assertTrue(problems(apart).any { it.message.startsWith("held: the hands are") })
+    }
+
+    @Test
+    fun overheadDumbbell_hangsStraightDownFromTheHands_inProfile() {
+        val s = standing(arm = Arm(175.0, 95.0)).skeleton()
+        val c = OverheadDumbbell.center(s)
+        assertEquals(s.near.grip.x, c.x, 1e-9)
+        assertEquals(s.near.grip.y + Dumbbell.HANDLE / 2 + 2.5, c.y, 1e-9)
+        val shapes = OverheadDumbbell.draw(s).map { it.shape }
+        val handle = shapes.filterIsInstance<Capsule>().single()
+        assertEquals(handle.x1, handle.x2, 1e-9)
+        assertEquals(2, shapes.filterIsInstance<Polygon>().size)
+        assertRenders(figureOf(View.SIDE, Scene(standing(arm = Arm(175.0, 95.0)), listOf(Floor, OverheadDumbbell))), setOf(Role.BODY, Role.ACCENT))
+    }
+
+    @Test
+    fun dumbbell_squareToForearm_profileCrossesTheHand_defaultUnchanged() {
+        val s = standing(arm = Arm(0.0, 0.0)).skeleton()
+        val square = Dumbbell(Side.NEAR, neutral = true, squareToForearm = true).draw(s).map { it.shape }.filterIsInstance<Capsule>().single()
+        // The hand hangs straight down, so the handle is level.
+        assertEquals(square.y1, square.y2, 1e-9)
+        // The default neutral profile still runs along the torso (upright: a vertical handle).
+        val along = Dumbbell(Side.NEAR, neutral = true).draw(s).map { it.shape }.filterIsInstance<Capsule>().single()
+        assertEquals(along.x1, along.x2, 1e-9)
+    }
+
+    @Test
+    fun preacherBench_seatAndSlopedArmPad_surfacesAndSolids() {
+        val b = PreacherBench(seatX = -10.0, seatHeight = 55.0, padTop = Point(0.7, -107.6), padAngle = 45.0)
+        val pad = b.surfaces(View.SIDE).getValue(Surface.ARM_PAD).single()
+        assertEquals(-45.0, pad.angle, 1e-9)
+        assertEquals(PreacherBench.PAD_THICKNESS, pad.thickness, 1e-9)
+        // The pad's top face starts at padTop: its upper corner on the face is there.
+        assertTrue(pad.corners().any { (it - b.padTop).length() < 1e-6 })
+        assertEquals(-55.0, b.surfaces(View.SIDE).getValue(Surface.SEAT).single().let { it.cy - it.thickness / 2 }, 1e-9)
+        // Only the seat is an obstacle (the pad is beside the torso).
+        assertEquals(listOf("bench"), b.solids(View.SIDE).map { it.label })
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, b))), setOf(Role.BODY, Role.EQUIPMENT))
+    }
+
+    @Test
+    fun armPadMachine_leverFromThePivotToTheHand_drawnInFront_curlAndExtensionUses() {
+        val pose = standing(arm = Arm(50.0, 130.0))
+        val s = pose.skeleton()
+        for (angle in listOf(40.0, 35.0)) {
+            val m = ArmPadMachine(seatX = -12.0, seatHeight = 50.0, padTop = Point(1.0, -100.0), padAngle = angle, pivot = s.near.elbow, stackX = 90.0)
+            assertEquals(setOf(Surface.SEAT, Surface.ARM_PAD), m.surfaces(View.SIDE).keys)
+            val front = m.drawFront(View.SIDE, null, s).map { it.shape }
+            val lever = front.filterIsInstance<Capsule>().single { it.role == Role.EQUIPMENT }
+            assertEquals(s.near.elbow, Point(lever.x1, lever.y1))
+            assertEquals(s.near.grip, Point(lever.x2, lever.y2))
+            assertTrue(front.any { it.role == Role.GAP })
+            assertEquals(emptyList(), m.drawFront(View.FRONT, null, pose.skeleton(View.FRONT)))
+            assertRenders(figureOf(View.SIDE, Scene(pose, listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT))
+        }
+    }
 }
