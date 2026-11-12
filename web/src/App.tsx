@@ -66,6 +66,14 @@ function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: 
   const session = useToday(db, todayIso, rest.onSetLogged)
   const browser = useExerciseBrowser()
   const activeTab = 'tab' in route ? route.tab : null
+  // The session outlives the Today tab, so coming back to the tab reads the clock again, as coming
+  // back to the front does (a finish summary up, or a session being logged, keeps the day).
+  const { refreshDay } = session
+  const shownTab = useRef(activeTab)
+  useEffect(() => {
+    if (activeTab === 'today' && shownTab.current !== 'today') refreshDay()
+    shownTab.current = activeTab
+  }, [activeTab, refreshDay])
   // As on Android, the bar is part of Today; the alert at zero shows on every screen.
   const showRestBar = activeTab === 'today' && rest.running
   const showDock = showRestBar || update.ready

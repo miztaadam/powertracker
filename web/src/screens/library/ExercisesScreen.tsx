@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import type { GritDb } from '../../db/db'
 import { todayIso } from '../../domain'
-import { exerciseCount, useExerciseBrowser, type ExerciseBrowser as BrowserState, type PickerEntry } from '../../state/exercisePicker'
+import { exerciseCount, type ExerciseBrowser as BrowserState, type PickerEntry } from '../../state/exercisePicker'
 import { planDayChoices, usePlan } from '../../state/usePlan'
 import type { TodayActions, TodayState } from '../../state/useToday'
 import { dayName } from '../../state/weekdayNames'
@@ -26,8 +26,8 @@ export type ExercisesScreenProps = {
   session: Pick<TodayState, 'loading' | 'sessionId' | 'summary'> & Pick<TodayActions, 'addToOpenSession'>
   onOpenPlan: () => void
   onOpenToday: () => void
-  /** The search and filters, when something above the tab keeps them while other tabs are on screen. */
-  browser?: BrowserState
+  /** The search and filters, kept above the tab so they outlast a visit to another tab. */
+  browser: BrowserState
   /** The real clock, as `YYYY-MM-DD`. Default is the device's local date. */
   today?: () => string
 }
@@ -41,7 +41,6 @@ type Message = { id: number; text: string; actionLabel?: string; onAction?: () =
  */
 export function ExercisesScreen({ db, session, onOpenPlan, onOpenToday, browser, today = todayIso }: ExercisesScreenProps) {
   const plan = usePlan(db, today)
-  const own = useExerciseBrowser()
   // The exercise whose sheet is open, and whether the sheet is on its guide or on the day to add it to.
   const [open, setOpen] = useState<PickerEntry | null>(null)
   const [choosingDay, setChoosingDay] = useState(false)
@@ -97,7 +96,7 @@ export function ExercisesScreen({ db, session, onOpenPlan, onOpenToday, browser,
   return (
     <section className="screen lib-screen">
       <ScreenHeader title="Exercises" eyebrow={plan.loading ? undefined : `${exerciseCount(plan.exercises)} exercises`} />
-      <ExerciseBrowser state={browser ?? own} muscleFilter="dropdown" exercises={plan.exercises} recentIds={plan.recentIds} onRow={show} onInfo={show} rowLabel={(name) => `Open ${name}`} />
+      <ExerciseBrowser state={browser} muscleFilter="dropdown" exercises={plan.exercises} recentIds={plan.recentIds} onRow={show} onInfo={show} rowLabel={(name) => `Open ${name}`} />
 
       {open != null && !choosingDay && (
         <FormGuideSheet

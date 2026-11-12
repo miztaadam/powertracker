@@ -292,6 +292,26 @@ describe('TodayScreen', () => {
     }
   })
 
+  it('failedMissPointWrite_showsMessage', async () => {
+    await logSet(db, await startSession(db, TODAY), { ...set(squatId, 150), failed: true })
+    show()
+    await findButton('Log set 2')
+    const unhandled = vi.fn()
+    process.on('unhandledRejection', unhandled)
+    const update = vi.spyOn(db.sets, 'update').mockRejectedValue(new Error('QuotaExceededError'))
+    try {
+      await userEvent.click(within(screen.getByTestId('miss-row-1')).getByRole('radio', { name: 'Lockout' }))
+      await waitFor(() => expect(update).toHaveBeenCalled())
+      expect(await screen.findByRole('status')).toHaveTextContent("Couldn't save — try again.")
+      expect((await setsOn(db, TODAY))[0]!.missPoint).toBeNull()
+      await new Promise((r) => setTimeout(r, 50))
+      expect(unhandled).not.toHaveBeenCalled()
+    } finally {
+      update.mockRestore()
+      process.off('unhandledRejection', unhandled)
+    }
+  })
+
   it('finish_inTheHeaderAndOnTheLastCard_showsTheSummary', async () => {
     const onOpenCoach = vi.fn()
     await db.planItems.clear()

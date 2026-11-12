@@ -327,6 +327,28 @@ describe('useToday', () => {
       window.dispatchEvent(new Event('pageshow'))
     })
 
+  it('refreshDay_movesToTheClocksDay_unlessASummaryIsUp', async () => {
+    // What coming back to the Today tab does: the same as coming back to the front.
+    let clock = TODAY
+    const vm = show(db, () => clock)
+    await waitFor(() => expect(vm.current.loading).toBe(false))
+    clock = addDays(TODAY, 1)
+    act(() => vm.current.refreshDay())
+    await waitFor(() => expect(vm.current.date).toBe(addDays(TODAY, 1)))
+    await waitFor(() => expect(vm.current.loading).toBe(false))
+
+    // A finish summary up keeps the screen where it is.
+    await logSet(db, await startSession(db, addDays(TODAY, 1)), set(squatId, 150))
+    await waitFor(() => expect(vm.current.sessionId).not.toBeNull())
+    fire(() => vm.current.finishSession())
+    await waitFor(() => expect(vm.current.summary).not.toBeNull())
+    clock = addDays(TODAY, 2)
+    act(() => vm.current.refreshDay())
+    await settle()
+    expect(vm.current.date).toBe(addDays(TODAY, 1))
+    expect(vm.current.summary).not.toBeNull()
+  })
+
   it('lockedAndUnlockedAfterMidnight_staysOnTheOpenSession', async () => {
     // Started at 23:50; the phone locks between sets and is unlocked at 00:05.
     await logSet(db, await startSession(db, addDays(TODAY, -7)), set(squatId, 150))

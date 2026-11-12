@@ -101,6 +101,30 @@ describe('App safeguards', () => {
     expect(await screen.findByText('Storage: not protected')).toBeInTheDocument()
   })
 
+  it('backOnTheTodayTab_readsTheClockAgain', async () => {
+    // The session outlives the tab: coming back to Today after midnight shows the new day, as coming back to the front does.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    try {
+      vi.setSystemTime(new Date(2026, 2, 10, 23, 50)) // a Tuesday
+      show()
+      expect(await screen.findByText(/Tuesday/)).toBeInTheDocument()
+      act(() => {
+        window.location.hash = '#/exercises'
+        window.dispatchEvent(new HashChangeEvent('hashchange'))
+      })
+      await screen.findByRole('heading', { name: 'Exercises' })
+      vi.setSystemTime(new Date(2026, 2, 11, 0, 5))
+      act(() => {
+        window.location.hash = '#/today'
+        window.dispatchEvent(new HashChangeEvent('hashchange'))
+      })
+      expect(await screen.findByText(/Wednesday/)).toBeInTheDocument()
+      expect(screen.queryByText(/Tuesday/)).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('updatePrompt_neverReloadsDuringSession', async () => {
     const sw = updates()
     // A session is being logged.

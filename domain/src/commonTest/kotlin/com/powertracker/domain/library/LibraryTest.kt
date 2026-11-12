@@ -674,4 +674,22 @@ class LibraryTest {
         assertEquals(alphabetical(all.filter { it.area == BodyArea.BACK }), back)
         assertEquals(emptyList(), Library.search("zzz no such exercise"))
     }
+
+    @Test
+    fun strictPressUpgradeNames_areFrozen() {
+        // The names the one-time upgrade matches: the entry's name and the aliases it had when the upgrade shipped, normalised.
+        assertEquals(
+            setOf(
+                "strict press", "overhead press", "ohp", "military press", "standing press", "barbell overhead press",
+                "standing barbell press", "barbell military press",
+            ),
+            Library.STRICT_PRESS_UPGRADE_NAMES,
+        )
+        // Today that is exactly what the catalogue finds as Strict press; a later alias must not widen the upgrade.
+        val entry = assertNotNull(Library.find("Strict press"))
+        assertEquals((listOf(entry.name) + entry.aliases).map { Library.normalise(it) }.toSet(), Library.STRICT_PRESS_UPGRADE_NAMES)
+        assertTrue(Library.isStrictPressUpgradeName("Overhead-Press "))
+        assertTrue(Library.isStrictPressUpgradeName("OHP"))
+        assertTrue(!Library.isStrictPressUpgradeName("Seated barbell press"))
+    }
 }

@@ -123,6 +123,19 @@ class TokenContrastTest {
         assertEquals(LightPtColors.accentText, LightColorScheme.primary)
     }
 
+    /** The strict press chart colour, as on the web (`--chart-press`): a line and a dot must stand out from what they are drawn on. */
+    private fun checkPress(name: String, scheme: ColorScheme, pt: PtColors, expected: Color) {
+        assertEquals(expected, pt.press)
+        for ((sn, s) in surfaces(scheme)) assertTrue("$name: press against $sn is ${ratio(pt.press, s)}", ratio(pt.press, s) >= 3.0)
+        for (other in listOf(pt.squat, pt.bench, pt.deadlift)) assertTrue("$name: press is its own colour", pt.press != other)
+    }
+
+    @Test
+    fun darkPress_isPinned() = checkPress("dark", DarkColorScheme, DarkPtColors, Color(0xFFA98BF0))
+
+    @Test
+    fun lightPress_isPinned() = checkPress("light", LightColorScheme, LightPtColors, Color(0xFF7C52CC))
+
     @Test
     fun darkAccent_meetsTheMinimums() = checkAccent("dark", DarkColorScheme, DarkPtColors)
 

@@ -30,6 +30,7 @@ import com.powertracker.domain.validation.InputValidator
 import com.powertracker.domain.validation.InputWarning
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.library.recentExerciseIds
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -109,7 +110,7 @@ enum class TodayAdd {
     /** The exercise is already in today's session; nothing changed. */
     ALREADY_THERE,
 
-    /** There is no open, unfinished session to add to (or no such exercise); nothing changed. */
+    /** There is no open, unfinished session to add to (or no such exercise), or it failed; nothing changed. */
     REFUSED,
 }
 
@@ -362,7 +363,8 @@ class TodayViewModel(
      * Adds an exercise from another screen (the Exercises tab) the way "Add exercise" here does: a
      * catalogue exercise by [catalogueName], with no row until its first set; the lifter's own by
      * [exerciseId]. The session is checked when this is called, not when the button was drawn: with no
-     * session, or one finished meanwhile, nothing is added. [onResult] hears how it went, once; a
+     * session, or one finished meanwhile, nothing is added. A session still on screen after midnight
+     * takes it, as Today's own "Add exercise" does. [onResult] hears how it went, once; a
      * second call before that (a double tap) does nothing.
      */
     fun addToOpenSession(catalogueName: String?, exerciseId: Long?, onResult: (TodayAdd) -> Unit) {
@@ -375,7 +377,7 @@ class TodayViewModel(
                 val id = if (catalogueName != null) catalogueId(catalogueName, now) else exerciseId
                 when {
                     // The summary is read where Finish writes it, so a Finish a moment ago counts.
-                    now.sessionId == null || local.value.summary != null || today() != date || id == null -> TodayAdd.REFUSED
+                    now.sessionId == null || local.value.summary != null || id == null -> TodayAdd.REFUSED
                     now.items.any { it.exercise.id == id } -> TodayAdd.ALREADY_THERE
                     else -> {
                         addExercise(id)
@@ -384,6 +386,11 @@ class TodayViewModel(
                         TodayAdd.ADDED
                     }
                 }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A failed read must not crash the app: nothing was added, and the lifter is told.
+                TodayAdd.REFUSED
             } finally {
                 addingToSession.value = false
             }

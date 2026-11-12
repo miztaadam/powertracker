@@ -159,7 +159,7 @@ private fun MainLift?.chartColor(): Color {
         MainLift.SQUAT -> pt.squat
         MainLift.BENCH -> pt.bench
         MainLift.DEADLIFT -> pt.deadlift
-        // No chart colour of its own yet (the Progress screen shows strict press from a later change).
-        MainLift.STRICT_PRESS, null -> pt.muted
+        MainLift.STRICT_PRESS -> pt.press
+        null -> pt.muted
     }
 }

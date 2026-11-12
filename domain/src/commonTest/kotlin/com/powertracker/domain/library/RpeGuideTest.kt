@@ -1,6 +1,7 @@
 package com.powertracker.domain.library
 
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -25,7 +26,7 @@ class RpeGuideTest {
         assertTrue("one more" in line("9"), "9")
         assertTrue("two more" in line("8"), "8")
         assertTrue("three more" in line("7"), "7")
-        assertTrue("four to six more" in line("6"), "6")
+        assertEquals("6: four to six more.", lines.first { it.startsWith("6:") })
         assertTrue(lines.any { "reps in reserve" in it.lowercase() }, "names reps in reserve")
     }
 

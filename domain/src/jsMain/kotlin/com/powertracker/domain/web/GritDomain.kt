@@ -148,6 +148,9 @@ object GritDomain {
     /** The catalogue entry whose name or alias matches [name] ignoring case, hyphens and spacing; null when there is none. */
     fun findInLibrary(name: String): JsLibraryExercise? = Library.find(name)?.toJs()
 
+    /** Whether the one-time strict press upgrade matches a row named [name]: its frozen name list, normalised as the catalogue matches. */
+    fun isStrictPressUpgradeName(name: String): Boolean = Library.isStrictPressUpgradeName(name)
+
     /**
      * Catalogue search: [areas] are `BodyArea` names and [equipment] `Equipment` names; an empty array means no filter.
      * Ranked names-start, names-contain, aliases, muscles; alphabetical within a rank.

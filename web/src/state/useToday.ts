@@ -127,6 +127,11 @@ export type TodayActions = {
   finishSession: () => Promise<void>
   /** Back to logging after the summary; if midnight has passed meanwhile, on to the new day. */
   dismissSummary: () => void
+  /**
+   * Reads the clock again, as coming back to the front does: on to the clock's day, unless a finish
+   * summary is up or an unfinished session keeps the screen.
+   */
+  refreshDay: () => void
 }
 
 const DEFAULT_REPS = 5
@@ -374,16 +379,23 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
 /**
  * The calendar day on screen: the clock's day when the screen opens, read again whenever the app
  * comes back to the front, unless `holds` says an open session keeps the screen (a session belongs
- * to the day it was started, and a phone locks between sets). `syncDay()` reads the clock now, moves
- * the screen to that day and returns it; `showDay` puts a given day on screen.
+ * to the day it was started, and a phone locks between sets). `refreshDay()` does what coming back
+ * to the front does. `syncDay()` reads the clock now, moves the screen to that day and returns it;
+ * `showDay` puts a given day on screen.
  */
-function useDay(today: () => string, holds: { current: () => boolean }): [date: string, syncDay: () => string, showDay: (date: string) => void] {
+function useDay(
+  today: () => string,
+  holds: { current: () => boolean },
+): [date: string, syncDay: () => string, showDay: (date: string) => void, refreshDay: () => void] {
   const [date, setDate] = useState(today)
   const clock = useRef(today)
   clock.current = today
+  const refreshDay = useCallback(() => {
+    if (!holds.current()) setDate(clock.current())
+  }, [holds])
   useEffect(() => {
     const refresh = () => {
-      if (document.visibilityState === 'visible' && !holds.current()) setDate(clock.current())
+      if (document.visibilityState === 'visible') refreshDay()
     }
     document.addEventListener('visibilitychange', refresh)
     window.addEventListener('pageshow', refresh)
@@ -391,13 +403,13 @@ function useDay(today: () => string, holds: { current: () => boolean }): [date: 
       document.removeEventListener('visibilitychange', refresh)
       window.removeEventListener('pageshow', refresh)
     }
-  }, [holds])
+  }, [refreshDay])
   const syncDay = useCallback(() => {
     const now = clock.current()
     setDate(now)
     return now
   }, [])
-  return [date, syncDay, setDate]
+  return [date, syncDay, setDate, refreshDay]
 }
 
 /** When the session of `date` was last started or logged to; kept in `meta` so a reload knows too. */
@@ -430,7 +442,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   const clock = useRef(today)
   clock.current = today
   const holds = useRef<() => boolean>(() => false)
-  const [date, syncDay, showDay] = useDay(today, holds)
+  const [date, syncDay, showDay, refreshDay] = useDay(today, holds)
 
   // After a reload past midnight, come back to the session that was being logged, not to the new day's
   // start card. Nothing is read or written for the clock's day until that is settled.
@@ -803,5 +815,6 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     removeExercise,
     finishSession,
     dismissSummary,
+    refreshDay,
   }
 }

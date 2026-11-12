@@ -33,6 +33,19 @@ object Library {
     /** The whole catalogue, area by area. */
     fun all(): List<LibraryExercise> = catalogue
 
+    /**
+     * The names the one-time strict press upgrade matches (strict press spec §4.1), as [normalise] gives them: the
+     * "Strict press" entry's name and the aliases it had when the upgrade shipped. Frozen, so a later alias never
+     * re-categorises a row the lifter named; the upgrade on both apps (and restoring a version-1 backup) reads this.
+     */
+    val STRICT_PRESS_UPGRADE_NAMES: Set<String> = setOf(
+        "strict press", "overhead press", "ohp", "military press", "standing press", "barbell overhead press",
+        "standing barbell press", "barbell military press",
+    )
+
+    /** Whether the strict press upgrade matches a row named [name]: one of [STRICT_PRESS_UPGRADE_NAMES] once normalised. */
+    fun isStrictPressUpgradeName(name: String): Boolean = normalise(name) in STRICT_PRESS_UPGRADE_NAMES
+
     /** The entry whose name or alias equals [name] once both are normalised; null when there is none. */
     fun find(name: String): LibraryExercise? = byKey[normalise(name)]
 

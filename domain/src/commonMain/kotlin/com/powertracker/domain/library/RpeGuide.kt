@@ -23,7 +23,7 @@ object RpeGuide {
         "8.5: one rep left, maybe two.",
         "8: two more.",
         "7: three more.",
-        "6: four to six more; the scale gives 5–6 as one range.",
+        "6: four to six more.",
         "Grit takes 6 to 10, in steps of 0.5.",
     )
 

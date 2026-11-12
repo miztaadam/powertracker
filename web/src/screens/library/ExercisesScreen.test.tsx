@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from '../../App'
 import { updateSettings, type GritDb } from '../../db/db'
 import { grit, todayIso } from '../../domain'
-import { pickerList, type StoredExercise } from '../../state/exercisePicker'
+import { pickerList, useExerciseBrowser, type StoredExercise } from '../../state/exercisePicker'
 import { useToday, weekdayOf, type TodayActions, type TodayState } from '../../state/useToday'
 import { TODAY, exerciseNamed, plan, setsOn, startSession, todayFixture } from '../../test/todayFixture'
 import { ExercisesScreen } from './ExercisesScreen'
@@ -47,9 +47,10 @@ async function showTab({ stale = false }: { stale?: boolean } = {}): Promise<Sho
   const onOpenToday = vi.fn()
   function Harness() {
     const session = useToday(db, () => TODAY)
+    const browser = useExerciseBrowser()
     latest = session
     if (stale && !session.loading) frozen ??= session
-    return <ExercisesScreen db={db} session={stale && frozen ? { ...session, loading: frozen.loading, sessionId: frozen.sessionId, summary: frozen.summary } : session} today={() => TODAY} onOpenPlan={onOpenPlan} onOpenToday={onOpenToday} />
+    return <ExercisesScreen db={db} session={stale && frozen ? { ...session, loading: frozen.loading, sessionId: frozen.sessionId, summary: frozen.summary } : session} browser={browser} today={() => TODAY} onOpenPlan={onOpenPlan} onOpenToday={onOpenToday} />
   }
   render(<Harness />)
   await waitFor(() => expect(latest?.loading).toBe(false))

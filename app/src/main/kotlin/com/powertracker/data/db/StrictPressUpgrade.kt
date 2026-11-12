@@ -10,8 +10,9 @@ import com.powertracker.domain.model.liftLabel
  * The one-time strict press upgrade (strict press spec §4.1), run by [MIGRATION_1_2] and when a version-1 backup is
  * restored.
  *
- * The rows that match are the non-archived ones whose name is the catalogue's "Strict press" or any of its aliases
- * ("Overhead press", "OHP", ...), as [Library.find] matches them. The oldest (lowest id) becomes the main lift: named
+ * The rows that match are the non-archived ones whose name is "Strict press" or one of the aliases the entry had when
+ * the upgrade shipped ("Overhead press", "OHP", ...): [Library.STRICT_PRESS_UPGRADE_NAMES], matched as [Library.find]
+ * matches names. Frozen, so a later alias never widens it. The oldest (lowest id) becomes the main lift: named
  * "Strict press", category STRICT_PRESS, built in. The others become STRICT_PRESS under their own names. Ids never
  * change, so every set, plan item and baseline stays attached. Running it again changes nothing more.
  */
@@ -20,7 +21,7 @@ object StrictPressUpgrade {
 
     /** The ids of the matching rows, oldest first: the first becomes the main lift, the rest are only re-categorised. */
     fun matching(rows: List<Triple<Long, String, Boolean>>): List<Long> =
-        rows.filter { (_, name, archived) -> !archived && Library.find(name) == entry }.map { it.first }.sorted()
+        rows.filter { (_, name, archived) -> !archived && Library.isStrictPressUpgradeName(name) }.map { it.first }.sorted()
 
     /** Applies the rule to restored rows before they are written. */
     fun apply(rows: List<ExerciseEntity>): List<ExerciseEntity> {

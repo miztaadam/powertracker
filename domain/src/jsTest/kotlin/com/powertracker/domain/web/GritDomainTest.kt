@@ -195,6 +195,8 @@ class GritDomainTest {
         assertEquals("STRICT_PRESS", entry.category)
         assertEquals("MAIN_LIFTS", entry.area)
         assertTrue(GritDomain.seedExercises().none { it.category == "STRICT_PRESS" })
+        assertTrue(GritDomain.isStrictPressUpgradeName("overhead  press"))
+        assertTrue(!GritDomain.isStrictPressUpgradeName("Landmine press"))
     }
 
     @Test

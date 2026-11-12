@@ -37,6 +37,7 @@ export declare namespace GritDomain {
             advicePayload(payloadJson: string): Nullable<JsAdvicePayload>;
             library(): Array<JsLibraryExercise>;
             findInLibrary(name: string): Nullable<JsLibraryExercise>;
+            isStrictPressUpgradeName(name: string): boolean;
             searchLibrary(query: string, areas: Array<string>, equipment: Array<string>): Array<JsLibraryExercise>;
             muscleGroups(): Array<string>;
             muscleGroupLabel(group: string): string;

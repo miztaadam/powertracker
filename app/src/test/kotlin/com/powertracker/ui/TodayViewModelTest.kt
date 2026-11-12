@@ -16,6 +16,7 @@ import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.ui.today.TodayAdd
 import com.powertracker.ui.today.TodayViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -272,6 +273,23 @@ class TodayViewModelTest {
         assertEquals(passes, vm.coachPasses.value)
         val yesterdays = runBlocking { advice.all() }.filter { it.type == AdviceType.TARGET && it.createdAt == today }
         assertEquals(listOf(squat.id), yesterdays.map { targetExercise(it) })
+    }
+
+    @Test
+    fun addToOpenSession_pastMidnight_stillAdds() {
+        // A session started before midnight and still on screen after it: "Add to today" follows what Today shows.
+        runBlocking { training.startSession(today, null, null) }
+        var clock = today
+        val vm = TodayViewModel(training, advice, settings) { clock }.also { v -> collectors.launch { v.state.collect {} } }
+        await("state") { !vm.state.value.loading }
+
+        clock = today.plus(1, DateTimeUnit.DAY)
+        val results = mutableListOf<TodayAdd>()
+        vm.addToOpenSession("Hammer curl", null) { results += it }
+        await("result") { results.isNotEmpty() }
+
+        assertEquals(listOf(TodayAdd.ADDED), results)
+        assertEquals(listOf("Hammer curl"), vm.state.value.items.map { it.exercise.name })
     }
 
     private fun targetExercise(a: Advice) = (a.payload as AdvicePayload.Target).exerciseId
