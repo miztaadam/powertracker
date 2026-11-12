@@ -2,17 +2,16 @@
 
 This folder is a tracked copy of the plan's working notes, which normally live in the git-ignored `.superpowers/sdd/2026-11-12-grit-exercise-pictures/`. It is synced so a new session can take over if this one ends.
 
-## Where things stand (synced after Task 8)
+## Where things stand (synced after Task 10)
 
 - **Spec:** `docs/superpowers/specs/2026-11-12-grit-exercise-pictures-design.md` (binding authority).
 - **Plan:** `docs/superpowers/plans/2026-11-12-grit-exercise-pictures.md` (13 tasks).
-- **Ledger:** `progress.md` in this folder. Read it all: rulings R1–R14, parked findings, per-task status.
-- **Done, reviewed and pushed:** Tasks 1–8. 114 of 225 pictures: main lifts 25, chest 30, back 33, shoulders 24, plus Leg press and RDL. Branch head after Task 8: `779d924` (golden `114:817892063d845bbc`).
-- **Task 9 (arms, 31):** brief `task-9-brief.md`, builder dispatched on BASE `779d924`. If no `feat(domain): arm pictures` commit exists on the branch, start it again from the brief.
-- **Briefs ready:** `task-10-brief.md` (quads, 27 new; set its BASE to the reviewed Task 9 commit).
-- **Still to brief:** Task 11 hamstrings and glutes (27 new; RDL exists), Task 12 calves 9 + core 17, Task 13.
+- **Ledger:** `progress.md` in this folder. Read it all: rulings R1–R18, parked findings, per-task status.
+- **Done, reviewed and pushed:** Tasks 1–10. 172 of 225 pictures: main lifts 25, chest 30, back 33, shoulders 24, arms 31, quads 28, plus RDL. Branch head after Task 10: `8ed18d4` (golden `172:84a1fde1ff223652`).
+- **Task 11 (hamstrings and glutes, 27 new):** brief `task-11-brief.md`, builder dispatched on BASE `8ed18d4`. If no `feat(domain): hamstring and glute pictures` commit exists on the branch, start it again from the brief. Its review brief is `review-11-brief.md` (fill in `__HEAD__` and `__BASE__`).
+- **Briefs ready (set `__BASE__` in each):** `task-12-brief.md` (calves 9 + core 17), `task-13a-brief.md` (build-time thumbnails, Ruling R15), `task-13b-brief.md` (completeness check on, screenshots, pictures page).
 
-## The cycle for each batch (Tasks 9–12)
+## The cycle for each batch (Tasks 11–12)
 
 1. opus-builder builds from the brief: one local commit, full suites, report `task-N-report.md`.
 2. sonnet-checker reviews from `review-N-brief.md` (copy the last one and adapt): every picture against its guide, older figures pixel-identical, tests real. It has no WebSearch, so the controller spot-checks five citations with WebSearch `allowed_domains`.
@@ -21,11 +20,12 @@ This folder is a tracked copy of the plan's working notes, which normally live i
 
 ## Task 13 (after Task 12)
 
-- Switch on `everyCatalogueExercise_hasFigure`; re-record screenshots; build `docs/library/pictures.html` with `npm run figures:page`.
-- **Speed work (see the "Speed finding" entry in progress.md):** the thumbnail warm-up competes with the first taps after start-up; the picker "few hundred" check fails about 1 run in 10 (102–113 ms). Two candidate designs are written there: (a) prioritise and pause the warm-up, (b) build-time thumbnail shapes. Gate: 3 consecutive quiet speed runs pass. Also re-check the Exercises tab opened cold, and rethink the web test `exercisesTab_coldList_buildsOnlyTheNearTilesFigures` (its fixture was reordered in Task 7).
-- Parked: PMC ankle/hip limit sources (R7), JS coach golden mocha timeout under load.
-- Final whole-branch review by sonnet-checker against the owner's goal; fix what it finds.
-- Delete this tracked folder (`docs/superpowers/sdd/`) before the merge. Then STOP: the merge to `main` needs the owner's yes (phone notification).
+1. `task-13a-brief.md`: thumbnails worked out at build time (Ruling R15; measurements in progress.md under "Speed finding" and "T13 speed design input"). One commit, reviewed by sonnet-checker. Gate: all four @speed checks pass in 5 consecutive quiet runs. Fallback if the numbers are poor: a prioritised, input-paused warm-up.
+2. `task-13b-brief.md`: switch on `everyCatalogueExercise_hasFigure`, clear leftovers, re-record screenshots, build `docs/library/pictures.html`. One commit, reviewed.
+3. Send the owner the pictures page; fix any flags.
+4. Final whole-branch review by sonnet-checker against the owner's goal (every catalogue exercise has a correct two-pose picture and thumbnail in both apps, speed within budget, nothing else changed); one fix wave.
+5. Parked items to close or carry: PMC ankle/hip limit sources (R7), the JS coach golden's mocha timeout under load, Android has no speed check for the thumbnail list.
+6. Delete this tracked folder (`docs/superpowers/sdd/`) before the merge. Then STOP: the merge to `main` needs the owner's yes (phone notification).
 
 ## Rules that carry over
 
