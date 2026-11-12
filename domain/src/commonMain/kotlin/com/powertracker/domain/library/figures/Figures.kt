@@ -12,18 +12,25 @@ import com.powertracker.domain.library.figures.areas.shoulderFigures
 import kotlin.concurrent.Volatile
 import kotlin.math.roundToLong
 
-/** Every exercise figure, keyed by catalogue name, merged from the area files under `figures/areas/`. */
+/**
+ * Every exercise figure, keyed by catalogue name, merged from the area files under `figures/areas/`.
+ *
+ * The rule for area files: an area's map must not build its figures. Each entry is a `Lazy` (`"Name" to lazy { x }`
+ * over a private `by lazy` figure), so listing the map solves no pose, and a figure is built, and its poses solved,
+ * only when it is first looked up. Looking up one exercise must never build another.
+ */
 object Figures {
+    /**
+     * The figures by name. Its names, size and `in` build nothing; `get` builds only the figure asked for; walking its
+     * entries or values (the checks, the fingerprint) builds them all.
+     */
     val all: Map<String, ExerciseFigure> by lazy {
-        val areas = listOf(
-            mainLiftFigures, chestFigures, backFigures, shoulderFigures, armFigures, quadFigures,
-            hamstringGluteFigures, calfFigures, coreFigures,
+        lazyFigures(
+            listOf(
+                mainLiftFigures, chestFigures, backFigures, shoulderFigures, armFigures, quadFigures,
+                hamstringGluteFigures, calfFigures, coreFigures,
+            ),
         )
-        buildMap {
-            for (area in areas) for ((name, figure) in area) {
-                require(put(name, figure) == null) { "two figures for $name" }
-            }
-        }
     }
 
     /** Test-only entries, consulted before [all] by [byName] and never part of [all] or the fingerprint. */
@@ -72,5 +79,31 @@ object Figures {
             hash *= 0x100000001b3UL
         }
         return "${all.size}:" + hash.toString(16).padStart(16, '0')
+    }
+}
+
+/** The areas' figures as one map that builds each figure on first use; two figures under one name are refused. */
+internal fun lazyFigures(areas: List<Map<String, Lazy<ExerciseFigure>>>): Map<String, ExerciseFigure> {
+    val merged = LinkedHashMap<String, Lazy<ExerciseFigure>>()
+    for (area in areas) for ((name, figure) in area) {
+        require(merged.put(name, figure) == null) { "two figures for $name" }
+    }
+    return LazyFigureMap(merged)
+}
+
+private class LazyFigureMap(private val figures: Map<String, Lazy<ExerciseFigure>>) : AbstractMap<String, ExerciseFigure>() {
+    override val keys: Set<String> get() = figures.keys
+    override val size: Int get() = figures.size
+    override fun containsKey(key: String): Boolean = key in figures
+    override fun get(key: String): ExerciseFigure? = figures[key]?.value
+    override fun isEmpty(): Boolean = figures.isEmpty()
+
+    override val entries: Set<Map.Entry<String, ExerciseFigure>> by lazy {
+        figures.entries.mapTo(LinkedHashSet()) { (name, figure) ->
+            object : Map.Entry<String, ExerciseFigure> {
+                override val key: String = name
+                override val value: ExerciseFigure get() = figure.value
+            }
+        }
     }
 }

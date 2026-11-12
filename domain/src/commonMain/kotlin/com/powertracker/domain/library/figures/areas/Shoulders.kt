@@ -76,4 +76,4 @@ private val dbShoulderPress: ExerciseFigure by lazy {
     )
 }
 
-internal val shoulderFigures: Map<String, ExerciseFigure> by lazy { mapOf("DB shoulder press" to dbShoulderPress) }
+internal val shoulderFigures: Map<String, Lazy<ExerciseFigure>> by lazy { mapOf("DB shoulder press" to lazy { dbShoulderPress }) }

@@ -81,4 +81,4 @@ private val legPress: ExerciseFigure by lazy {
     )
 }
 
-internal val quadFigures: Map<String, ExerciseFigure> by lazy { mapOf("Leg press" to legPress) }
+internal val quadFigures: Map<String, Lazy<ExerciseFigure>> by lazy { mapOf("Leg press" to lazy { legPress }) }

@@ -131,22 +131,22 @@ function whenIdle(run: (timeLeft: () => number) => void): () => void {
 
 /**
  * Works out every catalogue thumbnail in the browser's idle time after start-up, in the list's order, a little at a
- * time, so the Exercises tab opens with its drawings already made: working a figure out cold is what made the tab
- * slow to open, and the cost grew with every figure on its first screen. Each slice does one piece, then as many more
- * as its idle time allows. Whatever a screen needs before this reaches it is worked out there and then, as before,
- * and kept for both. Returns how to stop it.
+ * time, so the Exercises tab opens with its drawings already made: the tab looks up every row's figure as it opens,
+ * and building a figure cold (solving its poses) is what made it slow. Each slice does one piece (the catalogue, or
+ * one figure and its thumbnail), then as many more as its idle time allows. Whatever a screen needs before this
+ * reaches it is worked out there and then, as before, and kept for both. Returns how to stop it.
  */
 export function prepareThumbnails(): () => void {
-  // The catalogue and its order first (the picker reads them too), then the figures (the domain builds them all on
-  // the first look-up), then one thumbnail at a time.
-  let names: readonly string[] = []
+  // The catalogue and its order first (the picker reads them too), then one figure at a time: the domain builds a
+  // figure, solving its poses, on its first look-up, and then its thumbnail is drawn.
   const pieces: (() => void)[] = [
     () => void library(),
-    () => (names = grit.searchLibrary('', [], []).map((e) => e.name)),
     () => {
-      for (const name of names) {
-        const figure = grit.figureInfo(name)
-        if (figure != null) pieces.push(() => prepareDrawing(name, figure.thumbnail === 'start' ? 'start' : 'end'))
+      for (const { name } of grit.searchLibrary('', [], [])) {
+        pieces.push(() => {
+          const figure = grit.figureInfo(name)
+          if (figure != null) prepareDrawing(name, figure.thumbnail === 'start' ? 'start' : 'end')
+        })
       }
     },
   ]

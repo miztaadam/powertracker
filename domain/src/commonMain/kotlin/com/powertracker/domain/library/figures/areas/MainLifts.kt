@@ -1068,17 +1068,19 @@ private val trapBarDeadlift: ExerciseFigure by lazy {
     )
 }
 
-internal val mainLiftFigures: Map<String, ExerciseFigure> by lazy {
+internal val mainLiftFigures: Map<String, Lazy<ExerciseFigure>> by lazy {
     mapOf(
-        "Squat" to squat, "Bench" to bench, "Deadlift" to deadlift, "Strict press" to strictPress,
-        "Pause squat" to pauseSquat, "Front squat" to frontSquat, "Pin squat" to pinSquat,
-        "Safety-bar squat" to safetyBarSquat, "Box squat" to boxSquat, "High-bar squat" to highBarSquat,
-        "Tempo squat" to tempoSquat,
-        "Spoto press" to spotoPress, "Long-pause bench" to longPauseBench, "Pin press" to pinPress,
-        "Larsen press" to larsenPress, "Close-grip bench" to closeGripBench, "Board press" to boardPress,
-        "Barbell floor press" to floorPress, "Wide-grip bench" to wideGripBench,
-        "Deficit deadlift" to deficitDeadlift, "Paused deadlift" to pausedDeadlift,
-        "Paused deadlift at the knee" to pausedDeadliftAtKnee, "Block pull" to blockPull,
-        "Sumo deadlift" to sumoDeadlift, "Trap-bar deadlift" to trapBarDeadlift,
+        "Squat" to lazy { squat }, "Bench" to lazy { bench }, "Deadlift" to lazy { deadlift },
+        "Strict press" to lazy { strictPress }, "Pause squat" to lazy { pauseSquat },
+        "Front squat" to lazy { frontSquat }, "Pin squat" to lazy { pinSquat },
+        "Safety-bar squat" to lazy { safetyBarSquat }, "Box squat" to lazy { boxSquat },
+        "High-bar squat" to lazy { highBarSquat }, "Tempo squat" to lazy { tempoSquat },
+        "Spoto press" to lazy { spotoPress }, "Long-pause bench" to lazy { longPauseBench },
+        "Pin press" to lazy { pinPress }, "Larsen press" to lazy { larsenPress },
+        "Close-grip bench" to lazy { closeGripBench }, "Board press" to lazy { boardPress },
+        "Barbell floor press" to lazy { floorPress }, "Wide-grip bench" to lazy { wideGripBench },
+        "Deficit deadlift" to lazy { deficitDeadlift }, "Paused deadlift" to lazy { pausedDeadlift },
+        "Paused deadlift at the knee" to lazy { pausedDeadliftAtKnee }, "Block pull" to lazy { blockPull },
+        "Sumo deadlift" to lazy { sumoDeadlift }, "Trap-bar deadlift" to lazy { trapBarDeadlift },
     )
 }

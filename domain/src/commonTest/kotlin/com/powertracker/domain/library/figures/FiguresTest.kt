@@ -5,6 +5,7 @@ import com.powertracker.domain.library.figure
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertSame
@@ -51,6 +52,31 @@ class FiguresTest {
         assertSame(bench, Library.figure("Barbell bench press"))
         assertSame(bench, Library.figure("bench press"))
         assertNull(Library.figure("My own exercise"))
+    }
+
+    @Test
+    fun figures_areBuiltOnFirstUse() {
+        // Two areas whose figures count how often they are built.
+        val built = mutableListOf<String>()
+        val fixture = FigureFixtures.benchDraft()
+        fun counted(name: String) = lazy { built += name; fixture }
+        val figures = lazyFigures(listOf(mapOf("A" to counted("A")), mapOf("B" to counted("B"), "C" to counted("C"))))
+        // Listing the names, counting them and asking which there are builds none.
+        assertEquals(listOf("A", "B", "C"), figures.keys.toList())
+        assertEquals(3, figures.size)
+        assertTrue("B" in figures && "Z" !in figures)
+        assertNull(figures["Z"])
+        assertEquals(emptyList(), built)
+        // Looking one up builds that one only, once.
+        assertSame(fixture, figures["B"])
+        assertSame(fixture, figures["B"])
+        assertEquals(listOf("B"), built)
+        // Walking them all builds the rest, in order.
+        assertEquals(3, figures.entries.count { it.value === fixture })
+        assertEquals(listOf("B", "A", "C"), built)
+        // Two figures under one name are still refused, without building either.
+        assertFailsWith<IllegalArgumentException> { lazyFigures(listOf(mapOf("A" to counted("A2")), mapOf("A" to counted("A3")))) }
+        assertEquals(listOf("B", "A", "C"), built)
     }
 
     @Test

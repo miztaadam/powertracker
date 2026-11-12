@@ -180,6 +180,6 @@ private val oneArmRow: ExerciseFigure by lazy {
     )
 }
 
-internal val backFigures: Map<String, ExerciseFigure> by lazy {
-    mapOf("Pull-up" to pullUp, "Lat pulldown" to latPulldown, "One-arm DB row" to oneArmRow)
+internal val backFigures: Map<String, Lazy<ExerciseFigure>> by lazy {
+    mapOf("Pull-up" to lazy { pullUp }, "Lat pulldown" to lazy { latPulldown }, "One-arm DB row" to lazy { oneArmRow })
 }

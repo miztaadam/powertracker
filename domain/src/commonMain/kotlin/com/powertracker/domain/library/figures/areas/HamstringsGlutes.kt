@@ -78,4 +78,4 @@ private val rdl: ExerciseFigure by lazy {
     )
 }
 
-internal val hamstringGluteFigures: Map<String, ExerciseFigure> by lazy { mapOf("RDL" to rdl) }
+internal val hamstringGluteFigures: Map<String, Lazy<ExerciseFigure>> by lazy { mapOf("RDL" to lazy { rdl }) }
