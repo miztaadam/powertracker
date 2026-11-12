@@ -202,4 +202,24 @@ class BodyTest {
         // Negative out (back towards the body's middle) is allowed in both views, past ±90 is not.
         assertEquals(emptyList(), JointLimits.problems(Pose(0.0, -100.0, nearArm = Arm(90.0, 0.0, out = -20.0, forearmOut = -20.0), nearLeg = Leg(0.0, 0.0)), View.SIDE))
     }
+
+    @Test
+    fun shrug_liftsTheArmsRootsAndShoulderTops_notTheAxisOrHead() {
+        val plain = Pose(0.0, -95.0, nearArm = Arm(0.0, 0.0), nearLeg = Leg(0.0, 0.0))
+        val up = plain.copy(shrug = 7.0)
+        for (view in View.entries) {
+            val a = plain.skeleton(view)
+            val b = up.skeleton(view)
+            assertEquals(a.near.shoulder.y - 7.0, b.near.shoulder.y, 1e-9)
+            assertEquals(a.far.grip.y - 7.0, b.far.grip.y, 1e-9)
+            assertEquals(a.head, b.head)
+            assertEquals(a.shoulder, b.shoulder)
+            assertEquals(a.pelvis, b.pelvis)
+            // The drawn shoulders' tops rise; the outline is unchanged without a shrug.
+            val fig = FigureFixtures.figureOf(view, Scene(plain, emptyList()), Scene(up, emptyList()))
+            val top = { w: Which -> (FigureRenderer.world(fig.scene(w), view).first { it.shape is Polygon }.shape as Polygon).points.filterIndexed { i, _ -> i % 2 == 1 }.min() }
+            assertTrue(top(Which.END) < top(Which.START), "$view: the shoulders' tops rise")
+        }
+        assertEquals(Pose(0.0, -95.0, nearArm = Arm(0.0, 0.0), nearLeg = Leg(0.0, 0.0)).skeleton(), plain.copy(shrug = 0.0).skeleton())
+    }
 }

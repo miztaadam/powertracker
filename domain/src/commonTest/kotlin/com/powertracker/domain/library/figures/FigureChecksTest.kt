@@ -304,4 +304,14 @@ class FigureChecksTest {
         assertEquals(emptyList(), one(down, listOf(Floor), ShouldersOverHands(1.0, Which.START)))
         assertTrue(one(down.copy(nearArm = Arm(20.0, 0.0)), listOf(Floor), ShouldersOverHands(5.0, Which.START)).any { "shoulders" in it.message })
     }
+
+    @Test
+    fun upperArmDown_passAndFail() {
+        // Upright: hanging along the torso passes; raised 30° forward fails a 20° bound. Bent over, the torso's line counts.
+        val down = FigureFixtures.standing(arm = Arm(5.0, 120.0))
+        assertEquals(emptyList(), one(down, listOf(Floor), UpperArmDown(10.0, Which.START)).filter { "torso's line" in it.message })
+        assertTrue(one(down.copy(nearArm = Arm(30.0, 120.0)), listOf(Floor), UpperArmDown(20.0, Which.START)).any { "off the torso's line" in it.message })
+        val bent = Pose(0.0, -90.0, torso = 30.0, nearArm = Arm(0.0, 0.0), nearLeg = Leg(60.0, 0.0))
+        assertTrue(one(bent, emptyList(), UpperArmDown(2.0, Which.START)).none { "torso's line" in it.message })
+    }
 }

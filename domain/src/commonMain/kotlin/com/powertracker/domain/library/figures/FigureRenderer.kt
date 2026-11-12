@@ -1,6 +1,7 @@
 package com.powertracker.domain.library.figures
 
 import kotlin.concurrent.Volatile
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
@@ -65,7 +66,7 @@ object FigureRenderer {
         val s = scene.pose.skeleton(view)
         val fixed = scene.props.filterIsInstance<FixedProp>()
         val held = scene.props.filterIsInstance<HeldProp>()
-        val cableEnd = held.firstOrNull { it is LatBar || it == CableHandles }?.center(s)
+        val cableEnd = held.firstOrNull { it is LatBar || it == CableHandles || it is CableAttachment || it is CableHandle }?.center(s)
         val farRole = if (view == View.SIDE) Role.BODY_FAR else Role.BODY
         return buildList {
             // Front view, legs pointing straight away from the camera (a push-up seen head-on): they lie behind the
@@ -83,7 +84,7 @@ object FigureRenderer {
                 for (seg in limb) add(Placed(seg.capsule(Role.BODY)))
             }
             for (p in held) addAll(p.draw(s))
-            for (p in fixed) addAll(p.drawFront(view, cableEnd))
+            for (p in fixed) addAll(p.drawFront(view, cableEnd, s))
         }
     }
 
@@ -128,7 +129,22 @@ object FigureRenderer {
 
     private fun torso(s: Skeleton): Polygon {
         val outline = if (s.view == View.SIDE) sideOutline else frontOutline
-        return Polygon(Role.BODY, outline.flatMap { (along, front) -> s.onTorso(along, front).let { listOf(it.x, it.y) } })
+        val l = Segment.TORSO.length
+        return Polygon(
+            Role.BODY,
+            outline.flatMap { (along, front) ->
+                // A shrug lifts the tops of the shoulders with the arms' roots; the base of the neck rises much less,
+                // so the shoulders come up beside it (Pose.shrug). Unshrugged outlines are unchanged.
+                val lift = when {
+                    s.shrug == 0.0 || along < l - 4.5 -> 0.0
+                    s.view == View.FRONT && abs(front) < 15.0 -> s.shrug * 0.3
+                    s.view == View.FRONT -> s.shrug
+                    along > l + 2.5 -> s.shrug * 0.3
+                    else -> s.shrug
+                }
+                s.onTorso(along + lift, front).let { listOf(it.x, it.y) }
+            },
+        )
     }
 
     /** The shared transform from world cm to view-box units. */

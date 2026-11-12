@@ -119,6 +119,13 @@ object Body {
      */
     const val UPPER_CHEST_BELOW_SHOULDER = 12.0
     const val UPPER_CHEST_DEPTH = 12.5
+
+    /**
+     * The waist: [WAIST_ABOVE_HIP] above the hip joint along the torso, at about the navel, [WAIST_DEPTH] in front of
+     * the axis (the drawn belly's front). A neutral drawing estimate.
+     */
+    const val WAIST_ABOVE_HIP = 16.0
+    const val WAIST_DEPTH = 9.0
 }
 
 enum class Joint { NECK, SHOULDER, ELBOW, WRIST, HIP, KNEE, ANKLE }
@@ -177,7 +184,9 @@ data class Leg(val hip: Double, val knee: Double, val ankle: Double = 0.0, val o
  * projection, like [Arm.out]). The head stays at its full height above the shoulders (the lifter looks forward),
  * unless [neckOut] is given: front view only, the neck and head pointing out of the plane, towards the camera, so the
  * head is drawn that much closer to the shoulders (times cos([neckOut])), as when the head stays in line with a
- * torso that leans towards the camera (a push-up seen from the front).
+ * torso that leans towards the camera (a push-up seen from the front). [shrug] lifts the shoulder girdle: the arms'
+ * roots (the shoulder joints of the limbs) rise that many cm along the torso, and the drawn tops of the shoulders with
+ * them, while the torso's axis, the neck's base and the head stay put (a shrug: the shoulders rise towards the ears).
  */
 data class Pose(
     val pelvisX: Double,
@@ -190,6 +199,7 @@ data class Pose(
     val farLeg: Leg = nearLeg,
     val lean: Double = 0.0,
     val neckOut: Double = 0.0,
+    val shrug: Double = 0.0,
 )
 
 /** One side's joint positions. [hand] is the end of the hand; [grip] is where a held handle sits. */
@@ -218,6 +228,8 @@ data class Skeleton(
     val far: LimbPoints,
     /** How much of the torso's length shows: cos of the front view's [Pose.lean], 1 otherwise. */
     val alongScale: Double = 1.0,
+    /** The pose's [Pose.shrug]: how far the shoulder girdle is lifted along the torso, cm. */
+    val shrug: Double = 0.0,
 ) {
     fun side(side: Side): LimbPoints = if (side == Side.NEAR) near else far
 
@@ -241,7 +253,8 @@ fun Pose.skeleton(view: View = View.SIDE): Skeleton {
         val sign = if (side == Side.NEAR) 1.0 else -1.0
         val front = view == View.FRONT
         val across = dir(torso - 90.0)
-        val s = if (front) shoulder + across * (sign * Body.SHOULDER_HALF_WIDTH) else shoulder
+        val root = shoulder + dir(torso) * (shrug * alongScale)
+        val s = if (front) root + across * (sign * Body.SHOULDER_HALF_WIDTH) else root
         val h = if (front) pelvis + across * (sign * Body.HIP_HALF_WIDTH) else pelvis
         fun mirrored(a: Double) = if (front && side == Side.FAR) 2 * torso - a else a
         val upperArm = torso + 180.0 + arm.shoulder
@@ -271,7 +284,7 @@ fun Pose.skeleton(view: View = View.SIDE): Skeleton {
         val toe = ankle + sole + footDir * (footLength * 0.8 - r)
         return LimbPoints(s, elbow, wrist, hand, grip, h, knee, ankle, heel, toe)
     }
-    return Skeleton(view, torso, pelvis, shoulder, shoulder, head, limb(Side.NEAR), limb(Side.FAR), alongScale)
+    return Skeleton(view, torso, pelvis, shoulder, shoulder, head, limb(Side.NEAR), limb(Side.FAR), alongScale, shrug)
 }
 
 /** A joint's allowed range in degrees, inclusive. */

@@ -520,4 +520,172 @@ class KitTest {
         assertEquals(emptyList(), stack.copy(cableInFront = false).drawFront(View.SIDE, grip))
         assertTrue(stack.copy(cableInFront = false).draw(View.SIDE, grip, s).map { it.shape }.any { it is Capsule && it.width < 1.0 })
     }
+
+    // ---- Task 7: the back batch's kit ----
+
+    @Test
+    fun rowStation_seatFootPlateAndLowPulley_cabledToTheAttachment() {
+        val station = RowStation(seatX = 14.0, seatHeight = 42.0, plate = Point(85.0, -37.0), pulley = Point(107.0, -41.0))
+        val surfaces = station.surfaces(View.SIDE)
+        val seat = surfaces.getValue(Surface.SEAT).single()
+        assertEquals(-42.0, seat.cy - seat.thickness / 2, 1e-9)
+        val plate = surfaces.getValue(Surface.FOOT_PLATE).single()
+        assertEquals(75.0, plate.angle, 1e-9)
+        // The plate's face (towards the lifter) passes through the given point.
+        assertEquals(0.0, plate.signedDistance(Point(85.0, -37.0)), 1e-6)
+        val grip = Point(60.0, -85.0)
+        val cable = station.draw(View.SIDE, grip).map { it.shape }.filterIsInstance<Capsule>().single { it.width < 1.0 }
+        assertEquals(listOf(Point(107.0, -41.0), grip), listOf(Point(cable.x1, cable.y1), Point(cable.x2, cable.y2)))
+        assertEquals(2, station.solids(View.SIDE).size)
+    }
+
+    @Test
+    fun rowMachine_chestPadAndLever_followTheHand() {
+        val m = RowMachine(seatX = 14.0, seatHeight = 45.0, padFace = 12.5, padHeight = 125.0, pivot = Point(40.0, -40.0))
+        val pad = m.surfaces(View.SIDE).getValue(Surface.CHEST_PAD).single()
+        assertEquals(12.5, pad.cx - pad.length / 2, 1e-9)
+        assertEquals(-125.0, pad.cy, 1e-9)
+        val s = standing(arm = Arm(90.0, 0.0)).skeleton()
+        val lever = m.draw(View.SIDE, null, s).map { it.shape }.filterIsInstance<Capsule>().single { it.x1 == 40.0 && it.y1 == -40.0 }
+        assertEquals(s.near.grip, Point(lever.x2, lever.y2))
+    }
+
+    @Test
+    fun proneBench_padRisesTowardsTheHead_optionalPlatform() {
+        val b = ProneBench(low = Point(0.0, -62.0), angle = 30.0, length = 65.0)
+        val pad = b.surfaces(View.SIDE).getValue(Surface.CHEST_PAD).single()
+        assertEquals(30.0, pad.angle, 1e-9)
+        // Its top line starts at the low point.
+        assertEquals(0.0, pad.signedDistance(Point(0.0, -62.0) + dir(30.0) * 10.0), 1e-6)
+        assertEquals(null, b.surfaces(View.SIDE)[Surface.FOOT_PLATE])
+        val withPlate = b.copy(footPlate = Point(-60.0, -15.0))
+        assertEquals(-15.0, withPlate.surfaces(View.SIDE).getValue(Surface.FOOT_PLATE).single().let { it.cy - it.thickness / 2 }, 1e-9)
+        assertRenders(figureOf(View.SIDE, Scene(standing(x = -80.0), listOf(Floor, withPlate))), setOf(Role.EQUIPMENT))
+    }
+
+    @Test
+    fun tBarLever_fromThePivotThroughTheHandle_platesAlongIt_inTheAccent() {
+        val pose = standing(arm = Arm(30.0, 0.0))
+        val s = pose.skeleton()
+        val lever = TBarLever(pivot = Point(-150.0, -4.0), plateAlong = 140.0)
+        val shapes = lever.draw(View.SIDE, null, s).map { it.shape }
+        val tube = shapes.filterIsInstance<Capsule>().single { it.width == TBarLever.TUBE }
+        assertEquals(Role.ACCENT, tube.role)
+        assertEquals(Point(-150.0, -4.0), Point(tube.x1, tube.y1))
+        // The plates sit on the lever's line, 140 cm from the pivot.
+        val plate = shapes.filterIsInstance<Circle>().single { it.role == Role.ACCENT_FILL }
+        val d = (s.near.grip - lever.pivot).let { it * (1.0 / it.length()) }
+        assertEquals(lever.pivot + d * 140.0, Point(plate.cx, plate.cy))
+        assertEquals(Barbell.PLATE_DIAMETER / 2, plate.r, 1e-9)
+        assertEquals(emptyMap(), lever.surfaces(View.SIDE))
+    }
+
+    @Test
+    fun rackBarAssistMachineAndParallelHandles_holdTheHands_drawnInFront() {
+        val rack = RackBar(x = 10.0, height = 95.0)
+        assertEquals(-95.0, rack.surfaces(View.SIDE).getValue(Surface.PULL_UP_BAR).single().cy, 1e-9)
+        assertEquals(listOf(Role.GAP, Role.EQUIPMENT), rack.drawFront(View.SIDE).map { it.shape.role })
+        val m = AssistPullUpMachine(x = 50.0, barX = 0.0, barHeight = 215.0, padX = -10.0, padHeight = 90.0, pivot = Point(41.0, -60.0))
+        val pad = m.surfaces(View.SIDE).getValue(Surface.ASSIST_STEP).single()
+        assertEquals(-90.0, pad.cy - pad.thickness / 2, 1e-9)
+        assertEquals(AssistPullUpMachine.PAD, pad.length, 1e-9)
+        assertEquals(listOf("knee pad"), m.solids(View.SIDE).map { it.label })
+        assertEquals(2, m.drawFront(View.SIDE).size)
+        val handles = ParallelHandles(x = 0.0, height = 200.0)
+        val h = handles.surfaces(View.SIDE).getValue(Surface.PULL_UP_BAR).single()
+        assertEquals(18.0, h.length, 1e-9)
+        // Seen in profile: the handle runs front to back, in front of the hands.
+        val front = handles.drawFront(View.SIDE).map { it.shape as Capsule }
+        assertEquals(listOf(-9.0, 9.0), front.last().let { listOf(it.x1, it.x2) })
+        for (piece in listOf(rack, m, handles)) assertRenders(figureOf(View.SIDE, Scene(standing(x = 0.0), listOf(Floor, piece))), setOf(Role.EQUIPMENT))
+    }
+
+    @Test
+    fun bandDipBeltAndChestPlate_followTheBody() {
+        val pose = standing(arm = Arm(180.0, 0.0))
+        val s = pose.skeleton()
+        // The band's two strands run from the bar to under the near foot, in front of the body.
+        val band = PullUpBand(Point(0.0, -230.0))
+        val strands = band.drawFront(View.SIDE, null, s).map { it.shape as Capsule }.filter { it.role == Role.EQUIPMENT }
+        assertEquals(2, strands.size)
+        for (c in strands) assertTrue(c.y2 > maxOf(s.near.heel.y, s.near.toe.y), "below the sole")
+        assertEquals(emptyList(), band.draw(View.SIDE, null, s))
+        // The dip belt's plate hangs below the hips: a disc from the side, edge-on from the front.
+        val belt = DipBelt(drop = 60.0)
+        assertTrue(belt.draw(View.SIDE, null, s).any { it.shape is Circle && (it.shape as Circle).r == 15.0 })
+        val f = pose.skeleton(View.FRONT)
+        assertTrue(belt.draw(View.FRONT, null, f).any { it.shape is RoundRect && (it.shape as RoundRect).w == 3.0 })
+        assertEquals(belt.hook(s) + Point(0.0, 60.0), belt.plateCentre(s))
+        assertTrue(belt.hook(s).x > s.pelvis.x, "the chain hangs from the front of the hips")
+        // The chest plate lies flat on the front of the chest, edge-on.
+        val plate = ChestPlate().draw(View.SIDE, null, s).map { it.shape }.last() as Polygon
+        val xs = plate.points.filterIndexed { i, _ -> i % 2 == 0 }
+        assertTrue(xs.min() >= s.pelvis.x + Body.CHEST_DEPTH - 0.1, "in front of the chest")
+        assertEquals(ChestPlate.THICKNESS, xs.max() - xs.min(), 1e-6)
+    }
+
+    @Test
+    fun pulldownLeverPulloverMachineHyperBenchAndSpotter_drawAndHold() {
+        val s = standing(arm = Arm(150.0, 0.0)).skeleton()
+        val lever = PulldownLever(pivot = Point(-40.0, -200.0))
+        val shapes = lever.draw(View.SIDE, null, s).map { it.shape }
+        // The lever runs from the plate horn behind the pivot to the handle in the hand.
+        val arm = shapes.filterIsInstance<Capsule>().single { it.width == 4.0 }
+        assertEquals(s.near.grip, Point(arm.x2, arm.y2))
+        assertTrue(arm.x1 < -40.0, "horn behind the pivot")
+        val m = PulloverMachine(seatX = 20.0, seatHeight = 41.0, backAngle = 85.0, pivot = s.shoulder)
+        assertEquals(setOf(Surface.SEAT, Surface.BACK_PAD), m.surfaces(View.SIDE).keys)
+        // The lever and elbow pad are outside the near arm: drawn in front of it, from the pivot.
+        val front = m.drawFront(View.SIDE, null, s).map { it.shape }
+        assertTrue(front.any { it is Capsule && it.role == Role.EQUIPMENT && Point(it.x1, it.y1) == s.shoulder })
+        val bench = HyperBench(pad = Point(-10.0, -95.0), footPlate = Point(-70.0, -40.0), roller = Point(-60.0, -55.0))
+        assertEquals(setOf(Surface.THIGH_PAD, Surface.FOOT_PLATE, Surface.LEG_BRACE), bench.surfaces(View.SIDE).keys)
+        assertEquals(45.0, bench.surfaces(View.SIDE).getValue(Surface.THIGH_PAD).single().angle, 1e-9)
+        assertEquals(0.0, bench.surfaces(View.SIDE).getValue(Surface.THIGH_PAD).single().signedDistance(Point(-10.0, -95.0)), 1e-6)
+        assertEquals(3, bench.solids(View.SIDE).size)
+        val spotter = Spotter(standing(x = -80.0))
+        val body = spotter.draw(View.SIDE, null).map { it.shape }
+        assertTrue(body.isNotEmpty() && body.all { it.role == Role.BODY_FAR })
+        assertEquals(emptyList(), spotter.solids(View.SIDE))
+    }
+
+    @Test
+    fun cableAttachmentsHandleCamberedBarAndPulloverDumbbell_inTheHands() {
+        val s = standing(arm = Arm(90.0, 30.0)).skeleton()
+        for (kind in Attachment.entries) {
+            val a = CableAttachment(kind)
+            assertEquals(s.near.grip, a.center(s))
+            assertTrue(a.draw(s).all { it.shape.role == Role.ACCENT })
+        }
+        // The V-handle's grip is square to the forearm, centred in the hand.
+        val v = CableAttachment(Attachment.V_HANDLE).draw(s).first().shape as Capsule
+        val f = s.near.wrist - s.near.elbow
+        assertEquals(0.0, (v.x2 - v.x1) * f.x + (v.y2 - v.y1) * f.y, 1e-6)
+        assertEquals(s.near.grip, Point((v.x1 + v.x2) / 2, (v.y1 + v.y2) / 2))
+        val front = standing(arm = Arm(150.0, 0.0)).skeleton(View.FRONT)
+        assertEquals((front.near.grip + front.far.grip) * 0.5, CableAttachment(Attachment.STRAIGHT_BAR).center(front))
+        assertEquals(s.far.grip, CableHandle(Side.FAR).center(s))
+        assertEquals(1, CableHandle(Side.NEAR).draw(front).size)
+        val bar = CamberedBar(drop = 12.0)
+        val plate = bar.draw(s).map { it.shape }.filterIsInstance<Circle>().single { it.role == Role.ACCENT_FILL }
+        assertEquals(s.near.grip + Point(0.0, 12.0), Point(plate.cx, plate.cy))
+        val pull = PulloverDumbbell.center(s)
+        assertEquals(Dumbbell.HANDLE / 2 + 2.5, (pull - s.near.grip).length(), 1e-6)
+        assertEquals(3, PulloverDumbbell.draw(s).size)
+        // The front view's end-on dumbbell is a disc; the default front drawing is unchanged.
+        val down = standing(arm = Arm(8.0, 0.0)).skeleton(View.FRONT)
+        assertTrue(Dumbbell(Side.NEAR, endOnFront = true).draw(down).any { it.shape is Circle })
+        assertTrue(Dumbbell(Side.NEAR).draw(down).none { it.shape is Circle })
+    }
+
+    @Test
+    fun latPulldownSeat_frontView_rollerAcrossTheThighs_drawnInFront() {
+        val seat = LatPulldownSeat(x = 0.0, padX = 0.0, seatHeight = 47.0, padHeight = 70.0)
+        val pad = seat.surfaces(View.FRONT).getValue(Surface.THIGH_PAD).single()
+        assertEquals(2 * LatPulldownSeat.FRONT_HALF, pad.length, 1e-9)
+        assertEquals(emptyList(), seat.solids(View.FRONT))
+        assertEquals(listOf(Role.GAP, Role.EQUIPMENT), seat.drawFront(View.FRONT).map { it.shape.role })
+        // The side view is unchanged: nothing in front.
+        assertEquals(emptyList(), seat.drawFront(View.SIDE))
+    }
 }

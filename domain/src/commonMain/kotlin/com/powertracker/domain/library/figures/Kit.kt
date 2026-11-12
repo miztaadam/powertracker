@@ -147,9 +147,10 @@ data class BenchBoards(val x: Double, val bottom: Double, val boards: Int = 2) :
  * A dumbbell in one hand. With the usual grip (palms towards the feet, as in a press or a row) its handle points across
  * the body, so the side view sees it end-on, a disc. With a [neutral] grip (palms facing each other, as in a fly) the
  * handle runs along the body, so the side view sees it in profile: the handle with a head at each end, along the
- * torso's line (Task 6). The front view draws the profile either way.
+ * torso's line (Task 6). The front view draws the profile either way, unless [endOnFront]: a dumbbell held at the
+ * side with the palm facing in points its handle at the camera, so the front view sees it end-on, a disc (Task 7).
  */
-data class Dumbbell(val hand: Side, val neutral: Boolean = false) : HeldProp {
+data class Dumbbell(val hand: Side, val neutral: Boolean = false, val endOnFront: Boolean = false) : HeldProp {
     companion object {
         const val HEAD_RADIUS = 10.0
         const val HANDLE = 14.0
@@ -189,6 +190,9 @@ data object LatBar : HeldProp {
 data class LatPulldownSeat(val x: Double, val padX: Double, val seatHeight: Double = 48.0, val padHeight: Double = 66.0) : FixedProp {
     companion object {
         const val PAD_RADIUS = 6.0
+
+        /** Front view (Task 7): the roller pads reach this far either side of the middle, over both thighs. */
+        const val FRONT_HALF = 24.0
     }
 }
 
@@ -365,12 +369,24 @@ internal fun FixedProp.surfaces(view: View): Map<Surface, List<Slab>> = when (th
     is BenchBoards -> mapOf(Surface.BOARD to listOf(boardSlab()))
     is LatPulldownSeat -> mapOf(
         Surface.SEAT to listOf(Slab(x, -seatHeight + 3.5, 44.0, 7.0)),
-        Surface.THIGH_PAD to listOf(Slab(padX, -padHeight, 0.0, 0.0, radius = LatPulldownSeat.PAD_RADIUS)),
+        Surface.THIGH_PAD to listOf(
+            if (view == View.FRONT) Slab(x, -padHeight, 2 * LatPulldownSeat.FRONT_HALF, 0.0, radius = LatPulldownSeat.PAD_RADIUS)
+            else Slab(padX, -padHeight, 0.0, 0.0, radius = LatPulldownSeat.PAD_RADIUS),
+        ),
     )
     is LegPress45 -> legPressParts(this).let { (seat, back, plate) ->
         mapOf(Surface.SEAT to listOf(seat), Surface.BACK_PAD to listOf(back), Surface.FOOT_PLATE to listOf(plate))
     }
     is AdjustableBench -> adjustableParts(this).let { (seat, back) -> mapOf(Surface.SEAT to listOf(seat), Surface.BACK_PAD to listOf(back)) }
+    is RowStation -> mapOf(Surface.SEAT to listOf(seatSlab()), Surface.FOOT_PLATE to listOf(plateSlab()))
+    is RowMachine -> mapOf(Surface.SEAT to listOf(seatSlab()), Surface.CHEST_PAD to listOf(padSlab()))
+    is ProneBench -> mapOf(Surface.CHEST_PAD to listOf(padSlab())) + (platformSlab()?.let { mapOf(Surface.FOOT_PLATE to listOf(it)) } ?: emptyMap())
+    is TBarLever, is PullUpBand, is DipBelt, is PulldownLever, is ChestPlate, is Spotter -> emptyMap()
+    is RackBar -> mapOf(Surface.PULL_UP_BAR to listOf(barSlab()))
+    is AssistPullUpMachine -> mapOf(Surface.PULL_UP_BAR to listOf(barSlab()), Surface.ASSIST_STEP to listOf(padSlab()))
+    is ParallelHandles -> mapOf(Surface.PULL_UP_BAR to listOf(handleSlab()))
+    is PulloverMachine -> parts().let { (seat, back) -> mapOf(Surface.SEAT to listOf(seat), Surface.BACK_PAD to listOf(back)) }
+    is HyperBench -> mapOf(Surface.THIGH_PAD to listOf(padSlab()), Surface.FOOT_PLATE to listOf(plateSlab()), Surface.LEG_BRACE to listOf(rollerSlab()))
     is PullUpBar -> mapOf(
         Surface.PULL_UP_BAR to listOf(if (view == View.SIDE) Slab(x, -height, 2 * PullUpBar.RADIUS, 2 * PullUpBar.RADIUS) else Slab(x, -height, 120.0, 2 * PullUpBar.RADIUS)),
     )
@@ -407,6 +423,13 @@ internal fun FixedProp.solids(view: View): List<Solid> = when (this) {
         }
         ).map { Solid("bench", it, stopsArms = false, stopsNearLimbs = !nearLimbsBeside) }
     is PowerRack, is CableStack, is PullUpBar, is PullingBlocks, is BenchBoards, is SmithMachine, is DipBars -> emptyList()
+    is TBarLever, is RackBar, is ParallelHandles, is PullUpBand, is DipBelt, is PulldownLever, is ChestPlate, is Spotter -> emptyList()
+    is RowStation -> listOf(Solid("bench", seatSlab(), stopsArms = false), Solid("foot plate", plateSlab(), stopsArms = false))
+    is RowMachine -> listOf(Solid("machine", seatSlab(), stopsArms = false), Solid("chest pad", padSlab(), stopsArms = false))
+    is ProneBench -> listOfNotNull(padSlab(), platformSlab()).map { Solid("bench", it, stopsArms = false) }
+    is AssistPullUpMachine -> listOf(Solid("knee pad", padSlab(), stopsArms = false))
+    is PulloverMachine -> parts().toList().map { Solid("machine", it, false) }
+    is HyperBench -> listOf(padSlab(), plateSlab(), rollerSlab()).map { Solid("bench", it, stopsArms = false) }
     is DeclineBench -> solidsOf()
     is PressMachine -> parts().toList().map { Solid("machine", it, false) }
     // Front-view seats: the seated legs are in front of them.
@@ -416,7 +439,8 @@ internal fun FixedProp.solids(view: View): List<Solid> = when (this) {
     // The box stops the body (it is behind the legs, under the hips); the platform stops the feet like the floor.
     is SquatBox -> listOf(Solid("box", boxSlab(), stopsArms = false))
     is DeficitPlatform -> surfaces(view).values.flatten().map { Solid("platform", it, stopsArms = true) }
-    is LatPulldownSeat -> surfaces(view).values.flatten().map { Solid("lat pulldown", it, false) }
+    // Front view: the seated legs are in front of the seat, and the roller lies on the thighs.
+    is LatPulldownSeat -> if (view == View.FRONT) emptyList() else surfaces(view).values.flatten().map { Solid("lat pulldown", it, false) }
     is LegPress45 -> surfaces(view).values.flatten().map { Solid("leg press", it, false) }
     is AdjustableBench -> surfaces(view).values.flatten().map { Solid("bench", it, false) } +
         Solid("bench", Slab.box(x - AdjustableBench.SEAT_LENGTH / 2 - 2.5, -FlatBench.HEIGHT + FlatBench.PAD, x - AdjustableBench.SEAT_LENGTH / 2 + 2.5, 0.0), false)
@@ -481,7 +505,13 @@ internal fun FixedProp.draw(view: View, held: Point?, s: Skeleton? = null): List
                 }
             }
         }
-        is LatPulldownSeat -> buildList {
+        is LatPulldownSeat -> if (view == View.FRONT) {
+            listOf(
+                eq(RoundRect(e, x - 22.0, -seatHeight, 44.0, 7.0, 2.5)),
+                eq(Capsule(e, x, -seatHeight + 7.0, x, -1.5, 6.0)),
+                eq(Capsule(e, x - 30.0, -1.5, x + 30.0, -1.5, 3.0)),
+            )
+        } else buildList {
             add(eq(RoundRect(e, x - 22.0, -seatHeight, 44.0, 7.0, 2.5)))
             add(eq(Capsule(e, x, -seatHeight + 7.0, x, -1.5, 6.0)))
             add(eq(Capsule(e, x - 30.0, -1.5, x + 30.0, -1.5, 3.0)))
@@ -512,6 +542,20 @@ internal fun FixedProp.draw(view: View, held: Point?, s: Skeleton? = null): List
             add(eq(slabShape(e, plate, 1.5)))
         }
         is DeclineBench -> drawOf()
+        is RowStation -> drawOf(held)
+        is RowMachine -> drawOf(s?.near?.grip)
+        is ProneBench -> drawOf()
+        is TBarLever -> drawOf(s?.near?.grip)
+        is RackBar -> drawOf()
+        is AssistPullUpMachine -> drawOf()
+        is ParallelHandles -> drawOf()
+        is PullUpBand -> emptyList()
+        is DipBelt -> drawOf(s)
+        is PulldownLever -> drawOf(s?.near?.grip)
+        is PulloverMachine -> drawOf(s)
+        is HyperBench -> drawOf()
+        is ChestPlate -> drawOf(s)
+        is Spotter -> drawOf()
         is SmithMachine -> drawOf()
         is PressMachine -> drawOf(s?.near?.grip)
         is PecDeck -> drawOf(s?.near?.grip, s?.far?.grip)
@@ -549,7 +593,18 @@ internal fun FixedProp.draw(view: View, held: Point?, s: Skeleton? = null): List
  * otherwise be hidden under them. Drawn at [PullUpBar.DRAWN_RADIUS] with a gap ring so it shows at phone size. And a
  * side-view cable stack's cable with [CableStack.cableInFront]: from its pulley to [held], the handle in the hand.
  */
-internal fun FixedProp.drawFront(view: View, held: Point? = null): List<Placed> = when {
+internal fun FixedProp.drawFront(view: View, held: Point? = null, s: Skeleton? = null): List<Placed> = when {
+    view == View.SIDE && this is RackBar -> barEndOn(x, height)
+    view == View.SIDE && this is AssistPullUpMachine -> barEndOn(barX, barHeight)
+    view == View.SIDE && this is ParallelHandles -> drawFrontOf()
+    this is PullUpBand -> drawFrontOf(s)
+    this is DipBelt -> drawFrontOf(s)
+    view == View.SIDE && this is PulloverMachine -> drawFrontOf(s)
+    // Front view: the thigh pad's roller lies on top of the thighs, in front of the torso.
+    view == View.FRONT && this is LatPulldownSeat -> listOf(
+        eq(Capsule(Role.GAP, x - LatPulldownSeat.FRONT_HALF, -padHeight, x + LatPulldownSeat.FRONT_HALF, -padHeight, 2 * LatPulldownSeat.PAD_RADIUS + Body.GAP_EXTRA)),
+        eq(Capsule(Role.EQUIPMENT, x - LatPulldownSeat.FRONT_HALF, -padHeight, x + LatPulldownSeat.FRONT_HALF, -padHeight, 2 * LatPulldownSeat.PAD_RADIUS)),
+    )
     // Set off by a gap outline, so it shows over the pulley housing and the bench, which share its colour.
     this is CableStack && view == View.SIDE && cableInFront && held != null -> Point(x + reach, -pulleyHeight).let { p ->
         listOf(
@@ -585,6 +640,10 @@ internal fun HeldProp.center(s: Skeleton): Point = when (this) {
     LatBar -> grips(s)
     CableHandles -> grips(s)
     is BackPlates -> centerOn(s)
+    is CableAttachment -> grips(s)
+    is CableHandle -> s.side(hand).grip
+    is CamberedBar -> s.near.grip
+    PulloverDumbbell -> PulloverDumbbell.centerOn(s)
 }
 
 /**
@@ -665,7 +724,7 @@ internal fun HeldProp.draw(s: Skeleton): List<Placed> {
                 val m = c + along * (sgn * (h + 2.5))
                 Polygon(a, Slab(m.x, m.y, 5.0, 2 * Dumbbell.HEAD_RADIUS, s.torso, 0.0).corners().flatMap { listOf(it.x, it.y) })
             }
-        } else if (side) {
+        } else if (side || endOnFront) {
             listOf(
                 Circle(f, c.x, c.y, Dumbbell.HEAD_RADIUS),
                 ring(a, c.x, c.y, Dumbbell.HEAD_RADIUS, Dumbbell.HEAD_RADIUS - 1.2),
@@ -681,6 +740,10 @@ internal fun HeldProp.draw(s: Skeleton): List<Placed> {
         }
         CableHandles -> CableHandles.drawOn(s)
         is BackPlates -> drawOn(s)
+        is CableAttachment -> drawOn(s)
+        is CableHandle -> drawOn(s)
+        is CamberedBar -> drawOn(s)
+        PulloverDumbbell -> PulloverDumbbell.drawOn(s)
         LatBar -> if (side) {
             listOf(Circle(a, c.x, c.y, 2.0))
         } else {

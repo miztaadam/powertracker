@@ -378,10 +378,12 @@ describe('exercise pictures', () => {
         unobserve() {}
       },
     )
-    // Eight exercises with figures lead the list; the others with figures are far down it.
+    // Eight exercises with figures lead the list, then the ones without; the others with figures are far down it
+    // (the catalogue's own order would put more drawn exercises near the top as the batches land).
     const catalogue = fresh.searchLibrary('', [], []).map((e) => e.name)
     const leading = catalogue.filter((name) => fresh.hasFigure(name)).slice(0, 8)
-    const names = [...leading, ...catalogue.filter((name) => !leading.includes(name))]
+    const rest = catalogue.filter((name) => !leading.includes(name))
+    const names = [...leading, ...rest.filter((name) => !fresh.hasFigure(name)), ...rest.filter((name) => fresh.hasFigure(name))]
     // The list is 500 px tall at the top of the screen; rows are 64 px each, one after another.
     const box = (top: number, height: number) => ({ top, bottom: top + height, left: 0, right: 375, width: 375, height, x: 0, y: top, toJSON: () => ({}) })
     vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {

@@ -120,7 +120,8 @@ object FigureChecks {
                 }
                 continue
             }
-            val twoHanded = (held is Barbell && held.on == BarHold.HANDS) || held is LatBar || held == TrapBar
+            val twoHanded = (held is Barbell && held.on == BarHold.HANDS) || held is LatBar || held == TrapBar ||
+                held is CableAttachment || held is CamberedBar || held == PulloverDumbbell
             if (!twoHanded) continue
             val off = if (view == View.SIDE) (s.near.grip - s.far.grip).length() else abs(s.near.grip.y - s.far.grip.y)
             if (off > CONTACT_TOLERANCE) add("held: the hands are ${round1(off)} cm apart on the bar")
@@ -157,7 +158,10 @@ object FigureChecks {
             is Barbell, SafetySquatBar, TrapBar -> Barbell.SHAFT_RADIUS
             is Dumbbell -> Dumbbell.HEAD_RADIUS
             LatBar -> 1.3
-            CableHandles, is BackPlates -> 0.0
+            CableHandles, is BackPlates, is CableHandle -> 0.0
+            is CableAttachment -> if (bar.kind == Attachment.STRAIGHT_BAR) 1.3 else 0.0
+            is CamberedBar -> Barbell.SHAFT_RADIUS
+            PulloverDumbbell -> Dumbbell.HEAD_RADIUS
         }
         return when (check) {
             is BarTouches -> {
@@ -210,6 +214,7 @@ object FigureChecks {
             }
             is HipDepth, is ChinOverBar, is HandsInsideKnees, is ElbowBend, is HandsLevelWith, is HeldOver, is HeldBeside,
             is HandsTogether, is ChestOffFloor, is UpperArmLevel, is ShouldersOverHands, is BarOnRails, is HandsOffFloor,
+            is UpperArmDown,
             -> null // handled above
         }
     }
@@ -266,6 +271,11 @@ object FigureChecks {
                 val rails = scene.props.filterIsInstance<SmithMachine>().firstOrNull() ?: return "bar on rails: no Smith machine in the scene"
                 val c = held() ?: return "bar on rails: no bar in the scene"
                 if (abs(c.x - rails.x) > CONTACT_TOLERANCE) "bar ${round1(c.x - rails.x)} cm off the rails" else pass
+            }
+            is UpperArmDown -> {
+                val v = s.near.elbow - s.near.shoulder
+                val off = abs(fold(angleOf(v) - (s.torso + 180.0)))
+                if (off > check.within) "upper arm ${round1(off)}° off the torso's line, more than ${check.within}" else pass
             }
             is HandsOffFloor -> {
                 val low = Side.entries.minOf { side -> s.side(side).let { -max(it.wrist.y, it.hand.y) } } - Body.HAND_WIDTH / 2

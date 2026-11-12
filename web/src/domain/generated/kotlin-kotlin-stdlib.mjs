@@ -103,19 +103,19 @@ initMetadataForInterface(RandomAccess, 'RandomAccess');
 initMetadataForClass(SubList, 'SubList', VOID, AbstractMutableList, [RandomAccess]);
 initMetadataForClass(AbstractMap, 'AbstractMap', VOID, VOID, [KtMap]);
 initMetadataForClass(AbstractMutableMap, 'AbstractMutableMap', VOID, AbstractMap, [KtMap]);
-initMetadataForClass(AbstractMutableSet, 'AbstractMutableSet', VOID, AbstractMutableCollection, [Collection, KtSet]);
+initMetadataForClass(AbstractMutableSet, 'AbstractMutableSet', VOID, AbstractMutableCollection, [KtSet, Collection]);
 initMetadataForCompanion(Companion_2);
 initMetadataForClass(ArrayList, 'ArrayList', ArrayList_init_$Create$, AbstractMutableList, [KtList, Collection, RandomAccess]);
 initMetadataForClass(HashMap, 'HashMap', HashMap_init_$Create$, AbstractMutableMap, [KtMap]);
-initMetadataForClass(HashMapKeys, 'HashMapKeys', VOID, AbstractMutableSet, [Collection, KtSet]);
+initMetadataForClass(HashMapKeys, 'HashMapKeys', VOID, AbstractMutableSet, [KtSet, Collection]);
 initMetadataForClass(HashMapValues, 'HashMapValues', VOID, AbstractMutableCollection, [Collection]);
-initMetadataForClass(HashMapEntrySetBase, 'HashMapEntrySetBase', VOID, AbstractMutableSet, [Collection, KtSet]);
+initMetadataForClass(HashMapEntrySetBase, 'HashMapEntrySetBase', VOID, AbstractMutableSet, [KtSet, Collection]);
 initMetadataForClass(HashMapEntrySet, 'HashMapEntrySet', VOID, HashMapEntrySetBase);
 initMetadataForClass(HashMapKeysDefault$iterator$1);
 initMetadataForClass(HashMapKeysDefault, 'HashMapKeysDefault', VOID, AbstractMutableSet);
 initMetadataForClass(HashMapValuesDefault$iterator$1);
 initMetadataForClass(HashMapValuesDefault, 'HashMapValuesDefault', VOID, AbstractMutableCollection);
-initMetadataForClass(HashSet, 'HashSet', HashSet_init_$Create$, AbstractMutableSet, [Collection, KtSet]);
+initMetadataForClass(HashSet, 'HashSet', HashSet_init_$Create$, AbstractMutableSet, [KtSet, Collection]);
 initMetadataForCompanion(Companion_3);
 initMetadataForClass(Itr, 'Itr');
 initMetadataForClass(KeysItr, 'KeysItr', VOID, Itr);
@@ -161,7 +161,7 @@ initMetadataForInterface(InternalMap, 'InternalMap');
 initMetadataForClass(InternalHashMap, 'InternalHashMap', InternalHashMap_init_$Create$, VOID, [InternalMap]);
 initMetadataForObject(EmptyHolder, 'EmptyHolder');
 initMetadataForClass(LinkedHashMap, 'LinkedHashMap', LinkedHashMap_init_$Create$, HashMap, [KtMap]);
-initMetadataForClass(LinkedHashSet, 'LinkedHashSet', LinkedHashSet_init_$Create$, HashSet, [Collection, KtSet]);
+initMetadataForClass(LinkedHashSet, 'LinkedHashSet', LinkedHashSet_init_$Create$, HashSet, [KtSet, Collection]);
 initMetadataForInterface(Continuation, 'Continuation');
 initMetadataForClass(InterceptedCoroutine, 'InterceptedCoroutine', VOID, VOID, [Continuation]);
 initMetadataForClass(CoroutineImpl, 'CoroutineImpl', VOID, InterceptedCoroutine, [Continuation]);
@@ -3251,21 +3251,24 @@ protoOf(HashMap).l2 = function (key, value) {
 protoOf(HashMap).o = function () {
   return this.g4_1.o();
 };
+protoOf(HashMap).j4 = function (from) {
+  return this.g4_1.j4(from);
+};
 function HashMap() {
   this.h4_1 = null;
 }
 function HashMapKeys(backing) {
   AbstractMutableSet.call(this);
-  this.j4_1 = backing;
+  this.k4_1 = backing;
 }
 protoOf(HashMapKeys).o = function () {
-  return this.j4_1.o();
+  return this.k4_1.o();
 };
 protoOf(HashMapKeys).m = function () {
-  return this.j4_1.o() === 0;
+  return this.k4_1.o() === 0;
 };
 protoOf(HashMapKeys).m1 = function (element) {
-  return this.j4_1.i4(element);
+  return this.k4_1.i4(element);
 };
 protoOf(HashMapKeys).i = function (element) {
   throw UnsupportedOperationException_init_$Create$();
@@ -3274,107 +3277,107 @@ protoOf(HashMapKeys).p = function (elements) {
   throw UnsupportedOperationException_init_$Create$();
 };
 protoOf(HashMapKeys).j = function () {
-  return this.j4_1.k4();
+  return this.k4_1.l4();
 };
 protoOf(HashMapKeys).p2 = function () {
-  return this.j4_1.l4();
+  return this.k4_1.m4();
 };
 function HashMapValues(backing) {
   AbstractMutableCollection.call(this);
-  this.m4_1 = backing;
+  this.n4_1 = backing;
 }
 protoOf(HashMapValues).o = function () {
-  return this.m4_1.o();
+  return this.n4_1.o();
 };
 protoOf(HashMapValues).m = function () {
-  return this.m4_1.o() === 0;
+  return this.n4_1.o() === 0;
 };
-protoOf(HashMapValues).n4 = function (element) {
-  return this.m4_1.r1(element);
+protoOf(HashMapValues).o4 = function (element) {
+  return this.n4_1.r1(element);
 };
 protoOf(HashMapValues).m1 = function (element) {
   if (!true)
     return false;
-  return this.n4(element);
+  return this.o4(element);
 };
-protoOf(HashMapValues).o4 = function (element) {
+protoOf(HashMapValues).p4 = function (element) {
   throw UnsupportedOperationException_init_$Create$();
 };
 protoOf(HashMapValues).i = function (element) {
-  return this.o4(element);
+  return this.p4(element);
 };
-protoOf(HashMapValues).p4 = function (elements) {
+protoOf(HashMapValues).q4 = function (elements) {
   throw UnsupportedOperationException_init_$Create$();
 };
 protoOf(HashMapValues).p = function (elements) {
-  return this.p4(elements);
+  return this.q4(elements);
 };
 protoOf(HashMapValues).j = function () {
-  return this.m4_1.q4();
+  return this.n4_1.r4();
 };
 protoOf(HashMapValues).p2 = function () {
-  return this.m4_1.l4();
+  return this.n4_1.m4();
 };
 function HashMapEntrySet(backing) {
   HashMapEntrySetBase.call(this, backing);
 }
 protoOf(HashMapEntrySet).j = function () {
-  return this.s4_1.t4();
+  return this.t4_1.u4();
 };
 function HashMapEntrySetBase(backing) {
   AbstractMutableSet.call(this);
-  this.s4_1 = backing;
+  this.t4_1 = backing;
 }
 protoOf(HashMapEntrySetBase).o = function () {
-  return this.s4_1.o();
+  return this.t4_1.o();
 };
 protoOf(HashMapEntrySetBase).m = function () {
-  return this.s4_1.o() === 0;
+  return this.t4_1.o() === 0;
 };
-protoOf(HashMapEntrySetBase).u4 = function (element) {
-  return this.s4_1.w4(element);
+protoOf(HashMapEntrySetBase).v4 = function (element) {
+  return this.t4_1.x4(element);
 };
 protoOf(HashMapEntrySetBase).m1 = function (element) {
   if (!(!(element == null) ? isInterface(element, Entry) : false))
     return false;
-  return this.u4((!(element == null) ? isInterface(element, Entry) : false) ? element : THROW_CCE());
+  return this.v4((!(element == null) ? isInterface(element, Entry) : false) ? element : THROW_CCE());
 };
-protoOf(HashMapEntrySetBase).v4 = function (element) {
+protoOf(HashMapEntrySetBase).w4 = function (element) {
   throw UnsupportedOperationException_init_$Create$();
 };
 protoOf(HashMapEntrySetBase).i = function (element) {
-  return this.v4((!(element == null) ? isInterface(element, Entry) : false) ? element : THROW_CCE());
+  return this.w4((!(element == null) ? isInterface(element, Entry) : false) ? element : THROW_CCE());
 };
 protoOf(HashMapEntrySetBase).p = function (elements) {
   throw UnsupportedOperationException_init_$Create$();
 };
 protoOf(HashMapEntrySetBase).n1 = function (elements) {
-  return this.s4_1.x4(elements);
+  return this.t4_1.y4(elements);
 };
 protoOf(HashMapEntrySetBase).p2 = function () {
-  return this.s4_1.l4();
+  return this.t4_1.m4();
 };
 function HashMapKeysDefault$iterator$1($entryIterator) {
-  this.y4_1 = $entryIterator;
+  this.z4_1 = $entryIterator;
 }
 protoOf(HashMapKeysDefault$iterator$1).k = function () {
-  return this.y4_1.k();
+  return this.z4_1.k();
 };
 protoOf(HashMapKeysDefault$iterator$1).l = function () {
-  return this.y4_1.l().s();
+  return this.z4_1.l().s();
 };
 function HashMapKeysDefault(backingMap) {
   AbstractMutableSet.call(this);
-  this.z4_1 = backingMap;
+  this.a5_1 = backingMap;
 }
-protoOf(HashMapKeysDefault).a5 = function (element) {
+protoOf(HashMapKeysDefault).b5 = function (element) {
   throw UnsupportedOperationException_init_$Create$_0('Add is not supported on keys');
 };
 protoOf(HashMapKeysDefault).i = function (element) {
-  return this.a5(element);
+  return this.b5(element);
 };
 protoOf(HashMapKeysDefault).i4 = function (element) {
-  return this.z4_1.q1(element);
+  return this.a5_1.q1(element);
 };
 protoOf(HashMapKeysDefault).m1 = function (element) {
   if (!true)
@@ -3382,56 +3385,56 @@ protoOf(HashMapKeysDefault).m1 = function (element) {
   return this.i4(element);
 };
 protoOf(HashMapKeysDefault).j = function () {
-  var entryIterator = this.z4_1.r().j();
+  var entryIterator = this.a5_1.r().j();
   return new HashMapKeysDefault$iterator$1(entryIterator);
 };
 protoOf(HashMapKeysDefault).o = function () {
-  return this.z4_1.o();
+  return this.a5_1.o();
 };
 protoOf(HashMapKeysDefault).p2 = function () {
-  return this.z4_1.p2();
+  return this.a5_1.p2();
 };
 function HashMapValuesDefault$iterator$1($entryIterator) {
-  this.b5_1 = $entryIterator;
+  this.c5_1 = $entryIterator;
 }
 protoOf(HashMapValuesDefault$iterator$1).k = function () {
-  return this.b5_1.k();
+  return this.c5_1.k();
 };
 protoOf(HashMapValuesDefault$iterator$1).l = function () {
-  return this.b5_1.l().t();
+  return this.c5_1.l().t();
 };
 function HashMapValuesDefault(backingMap) {
   AbstractMutableCollection.call(this);
-  this.c5_1 = backingMap;
+  this.d5_1 = backingMap;
 }
-protoOf(HashMapValuesDefault).o4 = function (element) {
+protoOf(HashMapValuesDefault).p4 = function (element) {
   throw UnsupportedOperationException_init_$Create$_0('Add is not supported on values');
 };
 protoOf(HashMapValuesDefault).i = function (element) {
-  return this.o4(element);
+  return this.p4(element);
 };
-protoOf(HashMapValuesDefault).n4 = function (element) {
-  return this.c5_1.r1(element);
+protoOf(HashMapValuesDefault).o4 = function (element) {
+  return this.d5_1.r1(element);
 };
 protoOf(HashMapValuesDefault).m1 = function (element) {
   if (!true)
     return false;
-  return this.n4(element);
+  return this.o4(element);
 };
 protoOf(HashMapValuesDefault).j = function () {
-  var entryIterator = this.c5_1.r().j();
+  var entryIterator = this.d5_1.r().j();
   return new HashMapValuesDefault$iterator$1(entryIterator);
 };
 protoOf(HashMapValuesDefault).o = function () {
-  return this.c5_1.o();
+  return this.d5_1.o();
 };
 protoOf(HashMapValuesDefault).p2 = function () {
-  return this.c5_1.p2();
+  return this.d5_1.p2();
 };
 function HashSet_init_$Init$(map, $this) {
   AbstractMutableSet.call($this);
   HashSet.call($this);
-  $this.d5_1 = map;
+  $this.e5_1 = map;
   return $this;
 }
 function HashSet_init_$Init$_0($this) {
@@ -3446,7 +3449,7 @@ function HashSet_init_$Init$_1(elements, $this) {
   var _iterator__ex2g4s = elements.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    $this.d5_1.l2(element, true);
+    $this.e5_1.l2(element, true);
   }
   return $this;
 }
@@ -3462,19 +3465,19 @@ function HashSet_init_$Create$_0(initialCapacity) {
   return HashSet_init_$Init$_3(initialCapacity, objectCreate(protoOf(HashSet)));
 }
 protoOf(HashSet).i = function (element) {
-  return this.d5_1.l2(element, true) == null;
+  return this.e5_1.l2(element, true) == null;
 };
 protoOf(HashSet).m1 = function (element) {
-  return this.d5_1.i4(element);
+  return this.e5_1.i4(element);
 };
 protoOf(HashSet).m = function () {
-  return this.d5_1.o() === 0;
+  return this.e5_1.o() === 0;
 };
 protoOf(HashSet).j = function () {
-  return this.d5_1.k4();
+  return this.e5_1.l4();
 };
 protoOf(HashSet).o = function () {
-  return this.d5_1.o();
+  return this.e5_1.o();
 };
 function HashSet() {
 }
@@ -3486,7 +3489,7 @@ function computeShift($this, hashSize) {
   return clz32(hashSize) + 1 | 0;
 }
 function checkForComodification($this) {
-  if (!($this.o5_1.l5_1 === $this.q5_1))
+  if (!($this.p5_1.m5_1 === $this.r5_1))
     throw ConcurrentModificationException_init_$Create$_0('The backing map has been modified after this entry was obtained.');
 }
 function InternalHashMap_init_$Init$($this) {
@@ -3505,7 +3508,7 @@ function InternalHashMap_init_$Create$_0(initialCapacity) {
 }
 function InternalHashMap_init_$Init$_1(original, $this) {
   InternalHashMap_init_$Init$_0(original.o(), $this);
-  $this.r5(original);
+  $this.j4(original);
   return $this;
 }
 function InternalHashMap_init_$Create$_1(original) {
@@ -3524,24 +3527,24 @@ function InternalHashMap_init_$Create$_2(initialCapacity, loadFactor) {
   return InternalHashMap_init_$Init$_2(initialCapacity, loadFactor, objectCreate(protoOf(InternalHashMap)));
 }
 function _get_capacity__a9k9f3($this) {
-  return $this.e5_1.length;
+  return $this.f5_1.length;
 }
 function _get_hashSize__tftcho($this) {
-  return $this.h5_1.length;
+  return $this.i5_1.length;
 }
 function registerModification($this) {
-  $this.l5_1 = $this.l5_1 + 1 | 0;
+  $this.m5_1 = $this.m5_1 + 1 | 0;
 }
 function ensureExtraCapacity($this, n) {
   if (shouldCompact($this, n)) {
     compact($this, true);
   } else {
-    ensureCapacity($this, $this.j5_1 + n | 0);
+    ensureCapacity($this, $this.k5_1 + n | 0);
   }
 }
 function shouldCompact($this, extraCapacity) {
-  var spareCapacity = _get_capacity__a9k9f3($this) - $this.j5_1 | 0;
-  var gaps = $this.j5_1 - $this.o() | 0;
+  var spareCapacity = _get_capacity__a9k9f3($this) - $this.k5_1 | 0;
+  var gaps = $this.k5_1 - $this.o() | 0;
   return spareCapacity < extraCapacity && (gaps + spareCapacity | 0) >= extraCapacity && gaps >= (_get_capacity__a9k9f3($this) / 4 | 0);
 }
 function ensureCapacity($this, minCapacity) {
@@ -3549,11 +3552,11 @@ function ensureCapacity($this, minCapacity) {
     throw RuntimeException_init_$Create$_0('too many elements');
   if (minCapacity > _get_capacity__a9k9f3($this)) {
     var newSize = Companion_instance_5.s5(_get_capacity__a9k9f3($this), minCapacity);
-    $this.e5_1 = copyOfUninitializedElements($this.e5_1, newSize);
+    $this.f5_1 = copyOfUninitializedElements($this.f5_1, newSize);
     var tmp = $this;
-    var tmp0_safe_receiver = $this.f5_1;
-    tmp.f5_1 = tmp0_safe_receiver == null ? null : copyOfUninitializedElements(tmp0_safe_receiver, newSize);
-    $this.g5_1 = copyOf($this.g5_1, newSize);
+    var tmp0_safe_receiver = $this.g5_1;
+    tmp.g5_1 = tmp0_safe_receiver == null ? null : copyOfUninitializedElements(tmp0_safe_receiver, newSize);
+    $this.h5_1 = copyOf($this.h5_1, newSize);
     var newHashSize = computeHashSize(Companion_instance_3, newSize);
     if (newHashSize > _get_hashSize__tftcho($this)) {
       rehash($this, newHashSize);
@@ -3561,52 +3564,52 @@ function ensureCapacity($this, minCapacity) {
   }
 }
 function allocateValuesArray($this) {
-  var curValuesArray = $this.f5_1;
+  var curValuesArray = $this.g5_1;
   if (!(curValuesArray == null))
     return curValuesArray;
   var newValuesArray = arrayOfUninitializedElements(_get_capacity__a9k9f3($this));
-  $this.f5_1 = newValuesArray;
+  $this.g5_1 = newValuesArray;
   return newValuesArray;
 }
 function hash($this, key) {
-  return key == null ? 0 : imul_0(hashCode_0(key), -1640531527) >>> $this.k5_1 | 0;
+  return key == null ? 0 : imul_0(hashCode_0(key), -1640531527) >>> $this.l5_1 | 0;
 }
 function compact($this, updateHashArray) {
   var i = 0;
   var j = 0;
-  var valuesArray = $this.f5_1;
-  while (i < $this.j5_1) {
-    var hash = $this.g5_1[i];
+  var valuesArray = $this.g5_1;
+  while (i < $this.k5_1) {
+    var hash = $this.h5_1[i];
     if (hash >= 0) {
-      $this.e5_1[j] = $this.e5_1[i];
+      $this.f5_1[j] = $this.f5_1[i];
       if (!(valuesArray == null)) {
         valuesArray[j] = valuesArray[i];
       }
       if (updateHashArray) {
-        $this.g5_1[j] = hash;
-        $this.h5_1[hash] = j + 1 | 0;
+        $this.h5_1[j] = hash;
+        $this.i5_1[hash] = j + 1 | 0;
       }
       j = j + 1 | 0;
     }
     i = i + 1 | 0;
   }
-  resetRange($this.e5_1, j, $this.j5_1);
+  resetRange($this.f5_1, j, $this.k5_1);
   if (valuesArray == null)
     null;
   else {
-    resetRange(valuesArray, j, $this.j5_1);
+    resetRange(valuesArray, j, $this.k5_1);
   }
-  $this.j5_1 = j;
+  $this.k5_1 = j;
 }
 function rehash($this, newHashSize) {
   registerModification($this);
-  if ($this.j5_1 > $this.m5_1) {
+  if ($this.k5_1 > $this.n5_1) {
     compact($this, false);
   }
-  $this.h5_1 = new Int32Array(newHashSize);
-  $this.k5_1 = computeShift(Companion_instance_3, newHashSize);
+  $this.i5_1 = new Int32Array(newHashSize);
+  $this.l5_1 = computeShift(Companion_instance_3, newHashSize);
   var i = 0;
-  while (i < $this.j5_1) {
+  while (i < $this.k5_1) {
     var _unary__edvuaz = i;
     i = _unary__edvuaz + 1 | 0;
     if (!putRehash($this, _unary__edvuaz)) {
@@ -3615,13 +3618,13 @@ function rehash($this, newHashSize) {
   }
 }
 function putRehash($this, i) {
-  var hash_0 = hash($this, $this.e5_1[i]);
-  var probesLeft = $this.i5_1;
+  var hash_0 = hash($this, $this.f5_1[i]);
+  var probesLeft = $this.j5_1;
   while (true) {
-    var index = $this.h5_1[hash_0];
+    var index = $this.i5_1[hash_0];
     if (index === 0) {
-      $this.h5_1[hash_0] = i + 1 | 0;
-      $this.g5_1[i] = hash_0;
+      $this.i5_1[hash_0] = i + 1 | 0;
+      $this.h5_1[i] = hash_0;
       return true;
     }
     probesLeft = probesLeft - 1 | 0;
@@ -3635,12 +3638,12 @@ function putRehash($this, i) {
 }
 function findKey($this, key) {
   var hash_0 = hash($this, key);
-  var probesLeft = $this.i5_1;
+  var probesLeft = $this.j5_1;
   while (true) {
-    var index = $this.h5_1[hash_0];
+    var index = $this.i5_1[hash_0];
     if (index === 0)
       return -1;
-    if (equals($this.e5_1[index - 1 | 0], key))
+    if (equals($this.f5_1[index - 1 | 0], key))
       return index - 1 | 0;
     probesLeft = probesLeft - 1 | 0;
     if (probesLeft < 0)
@@ -3652,43 +3655,43 @@ function findKey($this, key) {
   }
 }
 function findValue($this, value) {
-  var i = $this.j5_1;
+  var i = $this.k5_1;
   $l$loop: while (true) {
     i = i - 1 | 0;
     if (!(i >= 0)) {
       break $l$loop;
     }
-    if ($this.g5_1[i] >= 0 && equals(ensureNotNull($this.f5_1)[i], value))
+    if ($this.h5_1[i] >= 0 && equals(ensureNotNull($this.g5_1)[i], value))
       return i;
   }
   return -1;
 }
 function addKey($this, key) {
-  $this.l4();
+  $this.m4();
   retry: while (true) {
     var hash_0 = hash($this, key);
-    var tentativeMaxProbeDistance = coerceAtMost(imul_0($this.i5_1, 2), _get_hashSize__tftcho($this) / 2 | 0);
+    var tentativeMaxProbeDistance = coerceAtMost(imul_0($this.j5_1, 2), _get_hashSize__tftcho($this) / 2 | 0);
     var probeDistance = 0;
     while (true) {
-      var index = $this.h5_1[hash_0];
+      var index = $this.i5_1[hash_0];
       if (index === 0) {
-        if ($this.j5_1 >= _get_capacity__a9k9f3($this)) {
+        if ($this.k5_1 >= _get_capacity__a9k9f3($this)) {
           ensureExtraCapacity($this, 1);
           continue retry;
         }
-        var _unary__edvuaz = $this.j5_1;
-        $this.j5_1 = _unary__edvuaz + 1 | 0;
+        var _unary__edvuaz = $this.k5_1;
+        $this.k5_1 = _unary__edvuaz + 1 | 0;
         var putIndex = _unary__edvuaz;
-        $this.e5_1[putIndex] = key;
-        $this.g5_1[putIndex] = hash_0;
-        $this.h5_1[hash_0] = putIndex + 1 | 0;
-        $this.m5_1 = $this.m5_1 + 1 | 0;
+        $this.f5_1[putIndex] = key;
+        $this.h5_1[putIndex] = hash_0;
+        $this.i5_1[hash_0] = putIndex + 1 | 0;
+        $this.n5_1 = $this.n5_1 + 1 | 0;
         registerModification($this);
-        if (probeDistance > $this.i5_1)
-          $this.i5_1 = probeDistance;
+        if (probeDistance > $this.j5_1)
+          $this.j5_1 = probeDistance;
         return putIndex;
       }
-      if (equals($this.e5_1[index - 1 | 0], key)) {
+      if (equals($this.f5_1[index - 1 | 0], key)) {
         return -index | 0;
       }
       probeDistance = probeDistance + 1 | 0;
@@ -3704,7 +3707,7 @@ function addKey($this, key) {
   }
 }
 function contentEquals_0($this, other) {
-  return $this.m5_1 === other.o() && $this.x4(other.r());
+  return $this.n5_1 === other.o() && $this.y4(other.r());
 }
 function putEntry($this, entry) {
   var index = addKey($this, entry.s());
@@ -3746,19 +3749,19 @@ function Itr(map) {
   this.x5_1 = map;
   this.y5_1 = 0;
   this.z5_1 = -1;
-  this.a6_1 = this.x5_1.l5_1;
+  this.a6_1 = this.x5_1.m5_1;
   this.b6();
 }
 protoOf(Itr).b6 = function () {
-  while (this.y5_1 < this.x5_1.j5_1 && this.x5_1.g5_1[this.y5_1] < 0) {
+  while (this.y5_1 < this.x5_1.k5_1 && this.x5_1.h5_1[this.y5_1] < 0) {
     this.y5_1 = this.y5_1 + 1 | 0;
   }
 };
 protoOf(Itr).k = function () {
-  return this.y5_1 < this.x5_1.j5_1;
+  return this.y5_1 < this.x5_1.k5_1;
 };
 protoOf(Itr).c6 = function () {
-  if (!(this.x5_1.l5_1 === this.a6_1))
+  if (!(this.x5_1.m5_1 === this.a6_1))
     throw ConcurrentModificationException_init_$Create$();
 };
 function KeysItr(map) {
@@ -3766,13 +3769,13 @@ function KeysItr(map) {
 }
 protoOf(KeysItr).l = function () {
   this.c6();
-  if (this.y5_1 >= this.x5_1.j5_1)
+  if (this.y5_1 >= this.x5_1.k5_1)
     throw NoSuchElementException_init_$Create$();
   var tmp = this;
   var _unary__edvuaz = this.y5_1;
   this.y5_1 = _unary__edvuaz + 1 | 0;
   tmp.z5_1 = _unary__edvuaz;
-  var result = this.x5_1.e5_1[this.z5_1];
+  var result = this.x5_1.f5_1[this.z5_1];
   this.b6();
   return result;
 };
@@ -3781,13 +3784,13 @@ function ValuesItr(map) {
 }
 protoOf(ValuesItr).l = function () {
   this.c6();
-  if (this.y5_1 >= this.x5_1.j5_1)
+  if (this.y5_1 >= this.x5_1.k5_1)
     throw NoSuchElementException_init_$Create$();
   var tmp = this;
   var _unary__edvuaz = this.y5_1;
   this.y5_1 = _unary__edvuaz + 1 | 0;
   tmp.z5_1 = _unary__edvuaz;
-  var result = ensureNotNull(this.x5_1.f5_1)[this.z5_1];
+  var result = ensureNotNull(this.x5_1.g5_1)[this.z5_1];
   this.b6();
   return result;
 };
@@ -3796,7 +3799,7 @@ function EntriesItr(map) {
 }
 protoOf(EntriesItr).l = function () {
   this.c6();
-  if (this.y5_1 >= this.x5_1.j5_1)
+  if (this.y5_1 >= this.x5_1.k5_1)
     throw NoSuchElementException_init_$Create$();
   var tmp = this;
   var _unary__edvuaz = this.y5_1;
@@ -3807,37 +3810,37 @@ protoOf(EntriesItr).l = function () {
   return result;
 };
 protoOf(EntriesItr).p6 = function () {
-  if (this.y5_1 >= this.x5_1.j5_1)
+  if (this.y5_1 >= this.x5_1.k5_1)
     throw NoSuchElementException_init_$Create$();
   var tmp = this;
   var _unary__edvuaz = this.y5_1;
   this.y5_1 = _unary__edvuaz + 1 | 0;
   tmp.z5_1 = _unary__edvuaz;
   // Inline function 'kotlin.hashCode' call
-  var tmp0_safe_receiver = this.x5_1.e5_1[this.z5_1];
+  var tmp0_safe_receiver = this.x5_1.f5_1[this.z5_1];
   var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : hashCode_0(tmp0_safe_receiver);
   var tmp_0 = tmp1_elvis_lhs == null ? 0 : tmp1_elvis_lhs;
   // Inline function 'kotlin.hashCode' call
-  var tmp0_safe_receiver_0 = ensureNotNull(this.x5_1.f5_1)[this.z5_1];
+  var tmp0_safe_receiver_0 = ensureNotNull(this.x5_1.g5_1)[this.z5_1];
   var tmp1_elvis_lhs_0 = tmp0_safe_receiver_0 == null ? null : hashCode_0(tmp0_safe_receiver_0);
   var result = tmp_0 ^ (tmp1_elvis_lhs_0 == null ? 0 : tmp1_elvis_lhs_0);
   this.b6();
   return result;
 };
 protoOf(EntriesItr).q6 = function (sb) {
-  if (this.y5_1 >= this.x5_1.j5_1)
+  if (this.y5_1 >= this.x5_1.k5_1)
     throw NoSuchElementException_init_$Create$();
   var tmp = this;
   var _unary__edvuaz = this.y5_1;
   this.y5_1 = _unary__edvuaz + 1 | 0;
   tmp.z5_1 = _unary__edvuaz;
-  var key = this.x5_1.e5_1[this.z5_1];
+  var key = this.x5_1.f5_1[this.z5_1];
   if (equals(key, this.x5_1))
     sb.t6('(this Map)');
   else
     sb.s6(key);
   sb.u6(_Char___init__impl__6a9atx(61));
-  var value = ensureNotNull(this.x5_1.f5_1)[this.z5_1];
+  var value = ensureNotNull(this.x5_1.g5_1)[this.z5_1];
   if (equals(value, this.x5_1))
     sb.t6('(this Map)');
   else
@@ -3845,17 +3848,17 @@ protoOf(EntriesItr).q6 = function (sb) {
   this.b6();
 };
 function EntryRef(map, index) {
-  this.o5_1 = map;
-  this.p5_1 = index;
-  this.q5_1 = this.o5_1.l5_1;
+  this.p5_1 = map;
+  this.q5_1 = index;
+  this.r5_1 = this.p5_1.m5_1;
 }
 protoOf(EntryRef).s = function () {
   checkForComodification(this);
-  return this.o5_1.e5_1[this.p5_1];
+  return this.p5_1.f5_1[this.q5_1];
 };
 protoOf(EntryRef).t = function () {
   checkForComodification(this);
-  return ensureNotNull(this.o5_1.f5_1)[this.p5_1];
+  return ensureNotNull(this.p5_1.g5_1)[this.q5_1];
 };
 protoOf(EntryRef).equals = function (other) {
   var tmp;
@@ -3886,23 +3889,23 @@ protoOf(EntryRef).toString = function () {
   return toString_0(this.s()) + '=' + toString_0(this.t());
 };
 function InternalHashMap(keysArray, valuesArray, presenceArray, hashArray, maxProbeDistance, length) {
-  this.e5_1 = keysArray;
-  this.f5_1 = valuesArray;
-  this.g5_1 = presenceArray;
-  this.h5_1 = hashArray;
-  this.i5_1 = maxProbeDistance;
-  this.j5_1 = length;
-  this.k5_1 = computeShift(Companion_instance_3, _get_hashSize__tftcho(this));
-  this.l5_1 = 0;
+  this.f5_1 = keysArray;
+  this.g5_1 = valuesArray;
+  this.h5_1 = presenceArray;
+  this.i5_1 = hashArray;
+  this.j5_1 = maxProbeDistance;
+  this.k5_1 = length;
+  this.l5_1 = computeShift(Companion_instance_3, _get_hashSize__tftcho(this));
   this.m5_1 = 0;
-  this.n5_1 = false;
+  this.n5_1 = 0;
+  this.o5_1 = false;
 }
 protoOf(InternalHashMap).o = function () {
-  return this.m5_1;
+  return this.n5_1;
 };
 protoOf(InternalHashMap).v6 = function () {
-  this.l4();
-  this.n5_1 = true;
+  this.m4();
+  this.o5_1 = true;
 };
 protoOf(InternalHashMap).r1 = function (value) {
   return findValue(this, value) >= 0;
@@ -3911,7 +3914,7 @@ protoOf(InternalHashMap).s1 = function (key) {
   var index = findKey(this, key);
   if (index < 0)
     return null;
-  return ensureNotNull(this.f5_1)[index];
+  return ensureNotNull(this.g5_1)[index];
 };
 protoOf(InternalHashMap).i4 = function (key) {
   return findKey(this, key) >= 0;
@@ -3928,8 +3931,8 @@ protoOf(InternalHashMap).l2 = function (key, value) {
     return null;
   }
 };
-protoOf(InternalHashMap).r5 = function (from) {
-  this.l4();
+protoOf(InternalHashMap).j4 = function (from) {
+  this.m4();
   putAllEntries(this, from.r());
 };
 protoOf(InternalHashMap).equals = function (other) {
@@ -3949,17 +3952,17 @@ protoOf(InternalHashMap).equals = function (other) {
 };
 protoOf(InternalHashMap).hashCode = function () {
   var result = 0;
-  var it = this.t4();
+  var it = this.u4();
   while (it.k()) {
     result = result + it.p6() | 0;
   }
   return result;
 };
 protoOf(InternalHashMap).toString = function () {
-  var sb = StringBuilder_init_$Create$(2 + imul_0(this.m5_1, 3) | 0);
+  var sb = StringBuilder_init_$Create$(2 + imul_0(this.n5_1, 3) | 0);
   sb.t6('{');
   var i = 0;
-  var it = this.t4();
+  var it = this.u4();
   while (it.k()) {
     if (i > 0) {
       sb.t6(', ');
@@ -3970,26 +3973,26 @@ protoOf(InternalHashMap).toString = function () {
   sb.t6('}');
   return sb.toString();
 };
-protoOf(InternalHashMap).l4 = function () {
-  if (this.n5_1)
+protoOf(InternalHashMap).m4 = function () {
+  if (this.o5_1)
     throw UnsupportedOperationException_init_$Create$();
 };
-protoOf(InternalHashMap).w4 = function (entry) {
+protoOf(InternalHashMap).x4 = function (entry) {
   var index = findKey(this, entry.s());
   if (index < 0)
     return false;
-  return equals(ensureNotNull(this.f5_1)[index], entry.t());
+  return equals(ensureNotNull(this.g5_1)[index], entry.t());
 };
 protoOf(InternalHashMap).w6 = function (entry) {
-  return this.w4(isInterface(entry, Entry) ? entry : THROW_CCE());
+  return this.x4(isInterface(entry, Entry) ? entry : THROW_CCE());
 };
-protoOf(InternalHashMap).k4 = function () {
+protoOf(InternalHashMap).l4 = function () {
   return new KeysItr(this);
 };
-protoOf(InternalHashMap).q4 = function () {
+protoOf(InternalHashMap).r4 = function () {
   return new ValuesItr(this);
 };
-protoOf(InternalHashMap).t4 = function () {
+protoOf(InternalHashMap).u4 = function () {
   return new EntriesItr(this);
 };
 function InternalMap() {
@@ -4053,7 +4056,7 @@ protoOf(LinkedHashMap).z3 = function () {
   return tmp;
 };
 protoOf(LinkedHashMap).p2 = function () {
-  return this.g4_1.l4();
+  return this.g4_1.m4();
 };
 function LinkedHashMap() {
 }
@@ -4086,7 +4089,7 @@ function LinkedHashSet_init_$Create$_1(initialCapacity) {
   return LinkedHashSet_init_$Init$_2(initialCapacity, objectCreate(protoOf(LinkedHashSet)));
 }
 protoOf(LinkedHashSet).p2 = function () {
-  return this.d5_1.l4();
+  return this.e5_1.m4();
 };
 function LinkedHashSet() {
 }
@@ -5696,13 +5699,13 @@ function AbstractMap$values$1(this$0) {
   this.ka_1 = this$0;
   AbstractCollection.call(this);
 }
-protoOf(AbstractMap$values$1).n4 = function (element) {
+protoOf(AbstractMap$values$1).o4 = function (element) {
   return this.ka_1.r1(element);
 };
 protoOf(AbstractMap$values$1).m1 = function (element) {
   if (!true)
     return false;
-  return this.n4(element);
+  return this.o4(element);
 };
 protoOf(AbstractMap$values$1).j = function () {
   var entryIterator = this.ka_1.r().j();
@@ -6116,6 +6119,12 @@ function plus_2(_this__u8e3s4, pair) {
     tmp = this_0;
   }
   return tmp;
+}
+function plus_3(_this__u8e3s4, map) {
+  // Inline function 'kotlin.apply' call
+  var this_0 = LinkedHashMap_init_$Create$_1(_this__u8e3s4);
+  this_0.j4(map);
+  return this_0;
 }
 function toMap_0(_this__u8e3s4, destination) {
   // Inline function 'kotlin.apply' call
@@ -7562,7 +7571,7 @@ function _UShort___get_data__impl__g0245($this) {
   return $this;
 }
 //region block: post-declaration
-protoOf(InternalHashMap).x4 = containsAllEntries;
+protoOf(InternalHashMap).y4 = containsAllEntries;
 //endregion
 //region block: init
 Companion_instance_0 = new Companion_0();
@@ -7668,6 +7677,7 @@ export {
   max as max3idzx6y8yn3fk,
   min as min1hp1v7yf4yjv0,
   mutableListOf as mutableListOf6oorvk2mtdmp,
+  plus_3 as plus2m1vv33moko5t,
   plus_2 as plus2lr02ok6jhhxu,
   plus as plus310ted5e4i90h,
   plus_0 as plus20p0vtfmu0596,

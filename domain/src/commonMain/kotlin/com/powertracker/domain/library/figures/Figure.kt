@@ -24,6 +24,12 @@ enum class BodyPoint {
 
     /** The upper abdomen: on the front of the torso, a hand's width below the chest touch point. */
     UPPER_ABDOMEN,
+
+    /** The neck: halfway from the shoulder joints' line to the chin, on the neck's axis ("your neck reaches your hands"). */
+    NECK,
+
+    /** The waist: on the front of the torso, [Body.WAIST_ABOVE_HIP] above the hip joint (a seated row's handle "to your waist"). */
+    WAIST,
 }
 
 /**
@@ -54,8 +60,11 @@ enum class Surface(val grip: Boolean = false) {
     /** Parallel dip bars (or an assisted dip machine's handles), held. */
     DIP_BAR(grip = true),
 
-    /** The top of an assisted dip machine's step lever, the feet on it. */
+    /** The top of an assisted dip machine's step lever, the feet on it (or an assisted pull-up machine's knee pad). */
     ASSIST_STEP,
+
+    /** A chest pad: a row machine's upright pad, or the face of a chest-supported row's incline pad. */
+    CHEST_PAD,
 }
 
 /** [point] rests on [surface] (within the contact tolerance) in the panels in [at]. */
@@ -150,6 +159,12 @@ data class BarOnRails(override val at: Which) : KeyCheck
 /** Both hands are at least [min] cm off the floor (clap push-up: "your hands leave the floor"). */
 data class HandsOffFloor(val min: Double, override val at: Which) : KeyCheck
 
+/**
+ * The near upper arm hangs down beside the torso: within [within]° of the torso's line, pointing down it, in the drawn
+ * plane (chin-ups: "until your elbows are at your sides"; a seated row's elbows close to the ribs).
+ */
+data class UpperArmDown(val within: Double, override val at: Which) : KeyCheck
+
 /** One exercise's two-pose picture. Keyed by catalogue name in [Figures]. */
 data class ExerciseFigure(
     val view: View,
@@ -198,6 +213,8 @@ internal fun Skeleton.probes(point: BodyPoint): List<Probe> {
         BodyPoint.UPPER_ABDOMEN -> onTorso(Segment.TORSO.length - Body.CHEST_BELOW_SHOULDER - 10.0, Body.CHEST_DEPTH - 1.5).let {
             listOf(Probe("upper abdomen", it, it, 0.0))
         }
+        BodyPoint.NECK -> ((shoulder + chin()) * 0.5).let { listOf(Probe("neck", it, it, 0.0)) }
+        BodyPoint.WAIST -> onTorso(Body.WAIST_ABOVE_HIP, Body.WAIST_DEPTH).let { listOf(Probe("waist", it, it, 0.0)) }
     }
 }
 

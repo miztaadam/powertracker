@@ -68,62 +68,6 @@ import kotlin.math.sqrt
 // view shows; the arm out to the side is then drawn foreshortened (Arm.out), the dumbbell beside the shoulder.
 // Every position a guide does not fix is sourced in its comment, or kept neutral and marked so.
 
-// ---- 3D arms ----
-
-/** A point or direction in 3D: x and y as in the picture (y down), z out of the picture towards the camera. */
-private data class V3(val x: Double, val y: Double, val z: Double) {
-    operator fun plus(o: V3) = V3(x + o.x, y + o.y, z + o.z)
-    operator fun minus(o: V3) = V3(x - o.x, y - o.y, z - o.z)
-    operator fun times(k: Double) = V3(x * k, y * k, z * k)
-    fun dot(o: V3) = x * o.x + y * o.y + z * o.z
-    fun length() = sqrt(dot(this))
-    fun unit() = this * (1.0 / length())
-    val flat: Point get() = Point(x, y)
-}
-
-private fun v3(p: Point, z: Double) = V3(p.x, p.y, z)
-
-private const val DEG = 180 / PI
-
-/** Shoulder to grip along the forearm and hand, with the wrist straight. */
-private val FORE_LINK = Segment.FOREARM.length + Segment.HAND.length * Body.GRIP
-
-/**
- * The arm whose grip lands on [grip] from [shoulder] (3D), its elbow on the side [hint] points to, for a torso at
- * [torso]°: the upper arm's and forearm's angles out of the picture become [Arm.out] and [Arm.forearmOut]. In the
- * front view the far arm is drawn as the near one's mirror image, so its points are passed mirrored ([mirror]).
- */
-private fun arm3(shoulder: V3, grip: V3, hint: V3, torso: Double): Arm {
-    val a = Segment.UPPER_ARM.length
-    val b = FORE_LINK
-    val g = grip - shoulder
-    val d = g.length()
-    require(d <= a + b + 1e-6 && d >= abs(a - b) - 1e-6) { "grip out of reach: ${(d * 10).toLong() / 10.0} cm" }
-    val gu = g.unit()
-    val alpha = acos(((a * a + d * d - b * b) / (2 * a * d)).coerceIn(-1.0, 1.0))
-    val h = hint - gu * hint.dot(gu)
-    val n = if (h.length() < 1e-9) V3(0.0, 1.0, 0.0) else h.unit()
-    val elbow = shoulder + (gu * cos(alpha) + n * sin(alpha)) * a
-    val u = (elbow - shoulder).unit()
-    val f = (grip - elbow).unit()
-    return armFrom(u, f, torso)
-}
-
-/** The [Arm] for a 3D upper arm [u] and forearm [f] (unit vectors), the wrist straight. */
-private fun armFrom(u: V3, f: V3, torso: Double): Arm {
-    val upper = angleTo(u.flat)
-    val fore = if (f.flat.length() < 1e-9) upper else angleTo(f.flat)
-    return Arm(
-        shoulder = fold180(upper - torso - 180.0),
-        elbow = fold180(fore - upper),
-        out = asin(u.z.coerceIn(-1.0, 1.0)) * DEG,
-        forearmOut = asin(f.z.coerceIn(-1.0, 1.0)) * DEG,
-    )
-}
-
-/** A 3D point mirrored across the vertical line x = [axis] (the front view's far side drawn as the near one). */
-private fun V3.mirror(axis: Double) = V3(2 * axis - x, y, z)
-
 // ---- shared bodies ----
 
 /** The near shoulder's 3D point in a side view: on the torso's axis, half the shoulders' width towards the camera. */
