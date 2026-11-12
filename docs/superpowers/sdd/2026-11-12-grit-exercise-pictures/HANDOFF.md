@@ -1,30 +1,38 @@
 # Handover: exercise pictures (plan in progress)
 
-This folder is a tracked copy of the plan's working notes, which normally live in the git-ignored `.superpowers/sdd/2026-11-12-grit-exercise-pictures/`. The earlier session stopped here so a new session can take over.
+This folder is a tracked copy of the plan's working notes, which normally live in the git-ignored `.superpowers/sdd/2026-11-12-grit-exercise-pictures/`. It is synced so a new session can take over if this one ends.
 
-## Where things stand
+## Where things stand (synced after Task 8)
 
 - **Spec:** `docs/superpowers/specs/2026-11-12-grit-exercise-pictures-design.md` (binding authority).
 - **Plan:** `docs/superpowers/plans/2026-11-12-grit-exercise-pictures.md` (13 tasks).
-- **Ledger:** `progress.md` in this folder. Read it all: preflight table, rulings R1–R7, parked findings, per-task status.
-- **Done:** Tasks 1–3 (kit, Android, web + tools), reviewed and pushed.
-- **Task 4 (first 10 figures):** built, reviewed, and fix round 1 applied (commit `757f2ee`, golden `10:d2bea818efe378a3`). Not yet marked complete.
+- **Ledger:** `progress.md` in this folder. Read it all: rulings R1–R14, parked findings, per-task status.
+- **Done, reviewed and pushed:** Tasks 1–8. 114 of 225 pictures: main lifts 25, chest 30, back 33, shoulders 24, plus Leg press and RDL. Branch head after Task 8: `779d924` (golden `114:817892063d845bbc`).
+- **Task 9 (arms, 31):** brief `task-9-brief.md`, builder dispatched on BASE `779d924`. If no `feat(domain): arm pictures` commit exists on the branch, start it again from the brief.
+- **Briefs ready:** `task-10-brief.md` (quads, 27 new; set its BASE to the reviewed Task 9 commit).
+- **Still to brief:** Task 11 hamstrings and glutes (27 new; RDL exists), Task 12 calves 9 + core 17, Task 13.
 
-## Next steps
+## The cycle for each batch (Tasks 9–12)
 
-1. Copy this folder back to the working location: `mkdir -p .superpowers/sdd && cp -r docs/superpowers/sdd/2026-11-12-grit-exercise-pictures .superpowers/sdd/`. Work from there, as before.
-2. **Scoped re-review of Task 4's fix round 1** against `review-4-report.md` (the 6 Important findings) and the "Fix round 1" section of `task-4-report.md`. Re-render the sheets first:
-   `cd web && npm ci && npm run figures:sheet -- --label batch1 Squat Bench Deadlift "Strict press" "DB shoulder press" "Lat pulldown" "Leg press" Pull-up "One-arm DB row" "Romanian deadlift"` (check the exact catalogue names). Sheets land in `web/.figure-sheets/` (git-ignored). Crop them to look at detail; they are very wide.
-3. Fix anything the re-review finds (amend the single Task 4 commit if it is still unpushed, otherwise one fix commit).
-4. **STOP for the owner's style approval.** Send the owner the dark and light sheets, with a phone notification, and wait for their go-ahead. Style changes go into the kit and renderer before Task 5. Known open points to mention honestly: the pull-up figure is still small; the leg-press back pad is reclined flatter than a typical machine; DB shoulder press is side-on.
-5. Then Tasks 5–12 (one per body area; the controller writes their briefs, Ruling R5) and Task 13 (completeness check on, screenshots, pictures page, final review, merge decision).
+1. opus-builder builds from the brief: one local commit, full suites, report `task-N-report.md`.
+2. sonnet-checker reviews from `review-N-brief.md` (copy the last one and adapt): every picture against its guide, older figures pixel-identical, tests real. It has no WebSearch, so the controller spot-checks five citations with WebSearch `allowed_domains`.
+3. The controller looks at every render too, rules on the findings, writes `task-N-fix1-brief.md`, and resumes the builder to amend its commit.
+4. The controller checks the fixed renders, runs `./gradlew :domain:jvmTest --tests '*figures*' :domain:checkWebDomain`, stops Gradle (`./gradlew --stop; pkill -f kotlin-daemon`), waits about a minute, runs the speed project 3 times (`cd web && npx playwright test --project=speed --no-deps --trace off`), pushes, renders `npm run figures:sheet -- --label <area> <area>` and sends the dark and light sheets to the owner with a phone notification. The owner said to carry on without waiting; they flag pictures afterwards.
+
+## Task 13 (after Task 12)
+
+- Switch on `everyCatalogueExercise_hasFigure`; re-record screenshots; build `docs/library/pictures.html` with `npm run figures:page`.
+- **Speed work (see the "Speed finding" entry in progress.md):** the thumbnail warm-up competes with the first taps after start-up; the picker "few hundred" check fails about 1 run in 10 (102–113 ms). Two candidate designs are written there: (a) prioritise and pause the warm-up, (b) build-time thumbnail shapes. Gate: 3 consecutive quiet speed runs pass. Also re-check the Exercises tab opened cold, and rethink the web test `exercisesTab_coldList_buildsOnlyTheNearTilesFigures` (its fixture was reordered in Task 7).
+- Parked: PMC ankle/hip limit sources (R7), JS coach golden mocha timeout under load.
+- Final whole-branch review by sonnet-checker against the owner's goal; fix what it finds.
+- Delete this tracked folder (`docs/superpowers/sdd/`) before the merge. Then STOP: the merge to `main` needs the owner's yes (phone notification).
 
 ## Rules that carry over
 
-- One reviewed commit per task, on branch `ccr-2f9842b5-owq43n`. Push the branch after each task completes. Never push or merge to `main`, and no pull request, without the owner's yes.
-- Owner testing preference: focused tests while building; the full Android, domain, web and e2e suites once per task before its commit; once more on main before pushing.
-- Sources only from acefitness.org, exrx.net, nsca.com, acsm.org, pmc.ncbi.nlm.nih.gov, powerlifting.sport. No blogs or forums.
-- Owner content directions: the audience is experienced lifters; pins or spotter only on heavy barbell rack work and weights moved over the face.
+- One reviewed commit per task, on branch `ccr-2f9842b5-owq43n`. Push the branch after each task completes. Never push or merge to `main`, and no pull request, without the owner's yes. No force-push without the owner's yes (so never push a commit that will be amended).
+- Never give two subagents the same files at the same time: batches run one after another (they share the kit files).
+- Sources only from acefitness.org, exrx.net, nsca.com, acsm.org, pmc.ncbi.nlm.nih.gov, powerlifting.sport. No blogs or forums; never fetch those sites directly.
+- Audience: experienced lifters; pins or spotter only on heavy barbell rack work and weights moved over the face.
 - Never run `playwright install`. Run e2e with `--trace off`.
 - Release all 225 pictures at once; the work stays on the branch until then.
-- Before the final merge, delete this tracked folder (`docs/superpowers/sdd/`) so the notes don't ship to `main`.
+- Cloud environment "powertracker": Android SDK at `/opt/android-sdk`, `local.properties` has `sdk.dir` (git-ignored); the saved setup script is unproven until a fresh container is built.
