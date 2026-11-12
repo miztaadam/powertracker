@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import type { GritDb } from '../db/db'
 import { grit, type JsLibraryExercise } from '../domain'
 import type { Lift } from '../router'
@@ -45,6 +46,12 @@ export function muscleGroups(): readonly { id: string; label: string }[] {
   return (groups ??= grit.muscleGroups().map((id) => ({ id, label: grit.muscleGroupLabel(id) })))
 }
 
+/** How many exercises there are to browse: the catalogue, and the lifter's own that it does not have. */
+export function exerciseCount(exercises: readonly StoredExercise[]): number {
+  const names = new Set(library().map((e) => e.name.toLowerCase()))
+  return names.size + exercises.filter((e) => !e.archived && !names.has(e.name.toLowerCase())).length
+}
+
 /** A name as the search compares it: lower case, no accents, `-` and `_` as spaces, single spaces. */
 export function normalise(text: string): string {
   return text
@@ -86,7 +93,8 @@ function uniqueById(entries: PickerEntry[]): PickerEntry[] {
  * other exercises have no body area or equipment, so they only show while no filter chip is on.
  *
  * `muscle` is the muscle group being browsed (a `MuscleGroup` name). It only counts while nothing
- * is searched and no body area is chosen.
+ * is searched and no body area is chosen. `muscles` are the groups ticked in the Muscles drop-down:
+ * any of them, on top of the search and the other filters.
  */
 export function pickerList(
   query: string,
@@ -95,6 +103,7 @@ export function pickerList(
   exercises: readonly StoredExercise[],
   recentIds: readonly number[],
   muscle: string | null = null,
+  muscles: readonly string[] = [],
 ): PickerList {
   const live = exercises.filter((e) => !e.archived).sort((a, b) => a.id - b.id)
   // Oldest first, like resolveCatalogue: with two rows of one name, the one shown is the one saved to.
@@ -106,13 +115,36 @@ export function pickerList(
   const owned = live.filter((e) => !byName.has(e.name.toLowerCase()))
   const byLowerName = (a: StoredExercise, b: StoredExercise) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())
   const q = normalise(query)
+  // Searched like the catalogue: names starting with the query, then names containing it, then muscles.
+  const searched = (own: readonly StoredExercise[]) =>
+    own
+      .flatMap((e) => {
+        const name = normalise(e.name)
+        const rank = name.startsWith(q) ? 0 : name.includes(q) ? 1 : e.muscles.some((m) => normalise(m).includes(q)) ? 2 : null
+        return rank == null ? [] : [{ rank, e }]
+      })
+      .sort((a, b) => a.rank - b.rank || byLowerName(a.e, b.e))
+      .map(({ e }) => ownEntry(e))
+  const alphabetical = (entries: PickerEntry[]) => {
+    const keyed = entries.map((entry) => ({ entry, key: normalise(entry.name) }))
+    keyed.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : a.entry.name < b.entry.name ? -1 : a.entry.name > b.entry.name ? 1 : 0))
+    return keyed.map(({ entry }) => entry)
+  }
+  const works = (e: StoredExercise, group: string) => e.muscles.some((m) => grit.muscleGroupOf(m) === group)
+  if (muscles.length > 0) {
+    const inGroups = grit.exercisesByMuscles([...muscles], [...equipment]).filter((e) => area == null || e.area === area)
+    // The lifter's own have no body area or equipment: they only show while neither is chosen.
+    const theirs = equipment.length === 0 && area == null ? owned.filter((e) => muscles.some((group) => works(e, group))) : []
+    if (q === '') return { yours: [], all: alphabetical([...inGroups.map(fromCatalogue), ...theirs.map(ownEntry)]) }
+    // Ranked like any search, kept to the ticked muscles.
+    const names = new Set(inGroups.map((e) => e.name))
+    const found = grit.searchLibrary(query, area != null ? [area] : [], [...equipment]).filter((e) => names.has(e.name))
+    return { yours: [], all: [...searched(theirs), ...found.map(fromCatalogue)] }
+  }
   if (muscle != null && q === '' && area == null) {
     // One alphabetical list: the catalogue's exercises for the muscle, and the lifter's own that name it.
-    const theirs = equipment.length === 0 ? owned.filter((e) => e.muscles.some((m) => grit.muscleGroupOf(m) === muscle)).map(ownEntry) : []
-    const all = [...grit.exercisesByMuscle(muscle, [...equipment]).map(fromCatalogue), ...theirs]
-    const keyed = all.map((entry) => ({ entry, key: normalise(entry.name) }))
-    keyed.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : a.entry.name < b.entry.name ? -1 : a.entry.name > b.entry.name ? 1 : 0))
-    return { yours: [], all: keyed.map(({ entry }) => entry) }
+    const theirs = equipment.length === 0 ? owned.filter((e) => works(e, muscle)).map(ownEntry) : []
+    return { yours: [], all: alphabetical([...grit.exercisesByMuscle(muscle, [...equipment]).map(fromCatalogue), ...theirs]) }
   }
   const found = grit.searchLibrary(query, area != null ? [area] : [], [...equipment]).map(fromCatalogue)
   if (q === '' && area == null && equipment.length === 0) {
@@ -128,16 +160,7 @@ export function pickerList(
     return { yours, all: found.filter((e) => !shown.has(e.name)) }
   }
   if (area != null || equipment.length > 0) return { yours: [], all: found }
-  // Searched like the catalogue: names starting with the query, then names containing it, then muscles.
-  const mine = owned
-    .flatMap((e) => {
-      const name = normalise(e.name)
-      const rank = name.startsWith(q) ? 0 : name.includes(q) ? 1 : e.muscles.some((m) => normalise(m).includes(q)) ? 2 : null
-      return rank == null ? [] : [{ rank, e }]
-    })
-    .sort((a, b) => a.rank - b.rank || byLowerName(a.e, b.e))
-    .map(({ e }) => ownEntry(e))
-  return { yours: [], all: [...mine, ...found] }
+  return { yours: [], all: [...searched(owned), ...found] }
 }
 
 /**
@@ -156,4 +179,53 @@ export async function createCustomExercise(db: GritDb, { name, category, parentL
   const row = { name: trimmed, category, parentLift: category === 'VARIATION' ? parentLift : null, muscles, isBuiltIn: false, archived: false }
   const id = (await db.exercises.add(row)) as number
   return ownEntry({ ...row, id })
+}
+
+/** What an exercise browser is showing: the search, the filter chips, and the muscle or muscles chosen. */
+export type ExerciseBrowserState = {
+  query: string
+  /** The one body area chosen, or null for all. */
+  area: string | null
+  /** Any of these; none means any equipment. */
+  equipment: readonly string[]
+  /** The muscle group opened from the picker's grid. */
+  muscle: string | null
+  /** The muscle groups ticked in the Exercises tab's drop-down. */
+  muscles: readonly string[]
+}
+
+export type ExerciseBrowser = ExerciseBrowserState & {
+  search: (text: string) => void
+  /** Chooses the body area, or none for a second tap on the chosen one or for null. */
+  chooseArea: (id: string | null) => void
+  toggleEquipment: (id: string) => void
+  browse: (muscle: string | null) => void
+  toggleMuscle: (group: string) => void
+  clearMuscles: () => void
+}
+
+const EMPTY_BROWSER: ExerciseBrowserState = { query: '', area: null, equipment: [], muscle: null, muscles: [] }
+
+const toggled = (list: readonly string[], id: string) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id])
+
+/**
+ * The state of an exercise browser, kept by whoever must outlive it: the picker keeps its own for
+ * one opening, the app's shell keeps the Exercises tab's while other tabs are on screen. It lives in
+ * memory only.
+ */
+export function useExerciseBrowser(): ExerciseBrowser {
+  const [state, setState] = useState(EMPTY_BROWSER)
+  const actions = useMemo(
+    () => ({
+      // Searching is over everything, and a body area is its own way in: both leave the grid's muscle.
+      search: (text: string) => setState((s) => ({ ...s, query: text, muscle: text !== '' ? null : s.muscle })),
+      chooseArea: (id: string | null) => setState((s) => ({ ...s, area: id === s.area ? null : id, muscle: null })),
+      toggleEquipment: (id: string) => setState((s) => ({ ...s, equipment: toggled(s.equipment, id) })),
+      browse: (muscle: string | null) => setState((s) => ({ ...s, muscle })),
+      toggleMuscle: (group: string) => setState((s) => ({ ...s, muscles: toggled(s.muscles, group) })),
+      clearMuscles: () => setState((s) => ({ ...s, muscles: [] })),
+    }),
+    [],
+  )
+  return useMemo(() => ({ ...state, ...actions }), [state, actions])
 }

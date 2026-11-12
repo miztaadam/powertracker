@@ -1,4 +1,4 @@
-/* Layout for the exercise picker and the form guide sheet. Colours, type and controls come from the components and tokens. */
+/* Layout for the exercise browser (the picker and the Exercises tab) and the form guide sheet. Colours, type and controls come from the components and tokens. */
 
 .lib-grow {
   flex: 1;
@@ -43,6 +43,108 @@
 
 .lib-chips .gr-chip-face {
   padding: 0 var(--space-4);
+}
+
+/* The Exercises tab: the browser as a screen of its own. The header and search stay put; the list scrolls. */
+.lib-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* The "Muscles" drop-down: a chip that opens the sheet of muscle groups. Tonal once any is ticked. */
+.lib-dropdown,
+.lib-ticked-chip {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  min-width: var(--touch);
+  min-height: var(--touch);
+  margin: 0;
+  padding: var(--space-2) 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.lib-dropdown-face,
+.lib-ticked-face {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3) 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--container-high);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.lib-dropdown[aria-pressed='true'] .lib-dropdown-face,
+.lib-ticked-face {
+  border-color: var(--outline);
+  background: var(--container-highest);
+  color: var(--text);
+}
+
+.lib-dropdown:focus-visible,
+.lib-ticked-chip:focus-visible {
+  outline: none;
+}
+
+.lib-dropdown:focus-visible .lib-dropdown-face,
+.lib-ticked-chip:focus-visible .lib-ticked-face {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* The ticked muscles, each a chip that takes itself away, then "Clear". They wrap, so none is hidden. */
+.lib-ticked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-3);
+  padding: 0 var(--space-5);
+}
+
+.lib-ticked-face svg {
+  color: var(--text-secondary);
+}
+
+/* The muscle groups to tick, two to a row; each row of the grid is a full-size target. */
+.lib-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--space-3);
+  padding: 0 var(--space-6) var(--space-6);
+  color: var(--text);
+}
+
+.lib-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: var(--touch);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.lib-option input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0 var(--space-1);
+  accent-color: var(--accent);
 }
 
 .lib-heading {
@@ -291,6 +393,36 @@
 
 .lib-guide-safety svg {
   flex: none;
+  color: var(--text-secondary);
+}
+
+/* What can be done with the exercise, under the guide: in reach however long the guide is. */
+.lib-guide-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: calc(-1 * env(safe-area-inset-bottom));
+  padding: var(--space-4) var(--space-6) calc(var(--space-4) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+.lib-guide-actions .gr-btn {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The second step of "Add to plan": which day. */
+.lib-days {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+.lib-days p {
+  margin: 0;
   color: var(--text-secondary);
 }
 

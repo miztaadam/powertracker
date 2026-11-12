@@ -73,6 +73,34 @@ for (const scheme of ['dark', 'light'] as const) {
     await shoot(page, `form-guide-end-${scheme}`)
   })
 
+  test(`screenshots: the Exercises tab, its muscles, a guide with actions and the day chooser (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openOnWednesday(page)
+    await seedFlatBench(page)
+    await tap(page, 'Start session')
+    await tabBar(page).getByRole('link', { name: 'Exercises' }).click()
+    await expect(page.getByRole('heading', { name: 'Main lifts' })).toBeVisible()
+    await shoot(page, `exercises-${scheme}`)
+
+    // Two muscle groups ticked, with the drop-down still open over the tab.
+    await page.getByRole('button', { name: 'Muscles' }).click()
+    const muscles = page.getByRole('dialog', { name: 'Muscles' })
+    await muscles.getByRole('checkbox', { name: 'Quads' }).check()
+    await muscles.getByRole('checkbox', { name: 'Calves' }).check()
+    await expect(page.getByRole('button', { name: 'Muscles · 2' })).toBeAttached()
+    await shoot(page, `exercises-muscles-${scheme}`)
+    await muscles.getByRole('button', { name: 'Close' }).click()
+    await shoot(page, `exercises-muscles-chosen-${scheme}`)
+
+    // A session is open: the guide offers today as well as the plan.
+    await page.getByRole('button', { name: 'Open Goblet squat', exact: true }).click()
+    await expect(page.getByRole('dialog', { name: 'Form guide for Goblet squat' }).getByRole('button', { name: 'Add to today' })).toBeVisible()
+    await shoot(page, `exercise-guide-actions-${scheme}`)
+    await page.getByRole('dialog', { name: 'Form guide for Goblet squat' }).getByRole('button', { name: 'Add to plan' }).click()
+    await expect(page.getByRole('dialog', { name: 'Add to plan' }).getByText('Which day?')).toBeVisible()
+    await shoot(page, `exercise-day-chooser-${scheme}`)
+  })
+
   test(`screenshots: session saved (${scheme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme })
     await openOnWednesday(page)

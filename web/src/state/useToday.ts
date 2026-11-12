@@ -45,6 +45,14 @@ export type InputWarning = 'HIGH_REPS' | 'BIG_JUMP'
 /** A set held back because it looks like a typo; saved only after the lifter confirms. */
 export type PendingLog = { exerciseId: number; set: SetInput; warnings: InputWarning[]; lastWeightKg: number | null }
 
+/** How adding an exercise to today's session from outside the Today screen went. */
+export type TodayAdd =
+  | 'ADDED'
+  /** The exercise is already in today's session; nothing changed. */
+  | 'ALREADY_THERE'
+  /** There is no open, unfinished session to add to (or no such exercise); nothing changed. */
+  | 'REFUSED'
+
 export type FinishSummary = { setCount: number; exerciseCount: number; newNotes: number }
 
 export type TodayState = {
@@ -105,6 +113,14 @@ export type TodayActions = {
    * is shown under. A catalogue name is added from the catalogue instead of being made again.
    */
   createExercise: (exercise: CustomExercise) => Promise<number | null>
+  /**
+   * Adds an exercise from another screen (the Exercises tab) the way "Add exercise" here does: a
+   * catalogue exercise by `catalogueName`, with no row until its first set; the lifter's own by
+   * `exerciseId`. The session is looked at when this is called, not when the button was drawn: with
+   * no session, or one finished meanwhile, nothing is added. Resolves to null for a call made while
+   * another is still at work (a double tap), which does nothing. Rejects when the session cannot be read.
+   */
+  addToOpenSession: (catalogueName: string | null, exerciseId: number | null) => Promise<TodayAdd | null>
   /** Takes back an added exercise that has no sets yet. */
   removeExercise: (exerciseId: number) => void
   /** Runs the coach over the history including today and stores what is new. */
@@ -271,6 +287,13 @@ const standInId = (entry: JsLibraryExercise) => -(library().findIndex((e) => e.n
 const standInEntry = (id: number): JsLibraryExercise | null => (id < 0 ? (library()[-id - 1] ?? null) : null)
 
 const sameName = (a: string, b: string) => a.toLowerCase() === b.toLowerCase()
+
+/** The id a catalogue exercise's card is shown under: its row's when it has one, otherwise a stand-in. Null for a name the catalogue does not know. */
+function catalogueId(name: string, exercises: readonly JsExercise[]): number | null {
+  const entry = grit.findInLibrary(name)
+  if (!entry) return null
+  return exercises.find((e) => sameName(e.name, entry.name))?.id ?? standInId(entry)
+}
 
 function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'exercises' | 'recentIds' | 'resolved' | 'weightStepKg' | 'changePlates'> {
   const exercises = new Map(d.history.exercises.map((e) => [e.id, e]))
@@ -675,13 +698,39 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
 
   const addFromCatalogue = useCallback<TodayActions['addFromCatalogue']>(
     (name) => {
-      const entry = grit.findInLibrary(name)
-      if (!entry) return null
-      const id = latest.current.exercises.find((e) => sameName(e.name, entry.name))?.id ?? standInId(entry)
-      addExercise(id)
+      const id = catalogueId(name, latest.current.exercises)
+      if (id != null) addExercise(id)
       return id
     },
     [addExercise],
+  )
+
+  // True while the coach runs for Finish; a second tap must not run it again and replace the summary.
+  const finishing = useRef(false)
+  // True while `addToOpenSession` is at work; further calls are ignored until it has answered.
+  const addingToSession = useRef(false)
+  const addToOpenSession = useCallback<TodayActions['addToOpenSession']>(
+    async (catalogueName, exerciseId) => {
+      if (addingToSession.current) return null
+      addingToSession.current = true
+      try {
+        if (!(await loaded())) return 'REFUSED'
+        const sessionId = latest.current.sessionId
+        // The session as it is stored now, then as this screen has it: a Finish a moment ago counts,
+        // also one still running the coach.
+        if (sessionId == null || (await db.sessions.get(sessionId)) == null) return 'REFUSED'
+        const now = latest.current
+        if (now.sessionId !== sessionId || now.summary != null || finishing.current) return 'REFUSED'
+        const id = catalogueName != null ? catalogueId(catalogueName, now.exercises) : now.exercises.find((e) => e.id === exerciseId)?.id
+        if (id == null) return 'REFUSED'
+        if (now.items.some((i) => i.exercise.id === id)) return 'ALREADY_THERE'
+        addExercise(id)
+        return 'ADDED'
+      } finally {
+        addingToSession.current = false
+      }
+    },
+    [db, loaded, addExercise],
   )
 
   const createExercise = useCallback<TodayActions['createExercise']>(
@@ -705,8 +754,6 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     [db, date, update],
   )
 
-  // True while the coach runs for Finish; a second tap must not run it again and replace the summary.
-  const finishing = useRef(false)
   const finishSession = useCallback(async () => {
     const now = latest.current
     if (finishing.current || now.summary != null || now.loading || now.sessionId == null) return
@@ -751,6 +798,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     dismissTarget,
     addExercise,
     addFromCatalogue,
+    addToOpenSession,
     createExercise,
     removeExercise,
     finishSession,

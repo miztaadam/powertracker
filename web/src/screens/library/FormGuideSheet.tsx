@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { grit } from '../../domain'
 import { IconButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
@@ -8,14 +9,19 @@ import './library.css'
 /** What the sheet says for an exercise the catalogue does not know. */
 export const NO_GUIDE = 'No form guide for your own exercises.'
 
-export type FormGuideSheetProps = { name: string; onClose: () => void }
+export type FormGuideSheetProps = {
+  name: string
+  onClose: () => void
+  /** Buttons for what can be done with the exercise (the Exercises tab's "Add to plan"). They stay in view under the guide. */
+  actions?: ReactNode
+}
 
 /**
  * The form guide for the exercise `name`, as a sheet to read between sets. The guide follows the
  * name: a catalogue name or alias shows the catalogue guide, whoever made the row; any other name
- * shows `NO_GUIDE`. Every sheet ends with the safety line.
+ * shows `NO_GUIDE`. Every guide ends with the safety line; `actions` sit below it.
  */
-export function FormGuideSheet({ name, onClose }: FormGuideSheetProps) {
+export function FormGuideSheet({ name, onClose, actions }: FormGuideSheetProps) {
   const entry = grit.findInLibrary(name)
   const guide = entry?.guide
   return (
@@ -52,6 +58,7 @@ export function FormGuideSheet({ name, onClose }: FormGuideSheetProps) {
           <p className="lib-grow body-large">{grit.safetyLine()}</p>
         </div>
       </div>
+      {actions != null && <div className="lib-guide-actions">{actions}</div>}
     </Dialog>
   )
 }

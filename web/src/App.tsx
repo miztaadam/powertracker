@@ -7,6 +7,7 @@ import { UPDATE_READY, useUpdatePrompt, type RegisterSW } from './platform/updat
 import { goBack, navigate, useRoute, type Route } from './router'
 import { CoachScreen } from './screens/coach/CoachScreen'
 import { InstallCard } from './screens/install/InstallCard'
+import { ExercisesScreen } from './screens/library/ExercisesScreen'
 import { BlankScreen } from './screens/lock/GateScreen'
 import { LockGateHost } from './screens/lock/LockGateHost'
 import { PlanScreen } from './screens/plan/PlanScreen'
@@ -19,9 +20,12 @@ import { RecoveryScreen } from './screens/recovery/RecoveryScreen'
 import { StorageFullDialog } from './screens/recovery/StorageFullDialog'
 import { SettingsScreen } from './screens/settings/SettingsScreen'
 import { RestBar } from './screens/today/RestBar'
-import { TodayScreen } from './screens/today/TodayScreen'
+import { TodayView } from './screens/today/TodayScreen'
+import { todayIso } from './domain'
+import { useExerciseBrowser, type ExerciseBrowser } from './state/exercisePicker'
 import { useGritDb } from './state/useGritDb'
 import { useRest, type Rest } from './state/useRest'
+import { useToday, type TodayActions, type TodayState } from './state/useToday'
 import { RestFlash } from './ui/components/RestFlash'
 import { TabBar } from './ui/components/TabBar'
 import { useElementHeight } from './ui/useElementHeight'
@@ -36,12 +40,16 @@ export type AppProps = {
   registerSW?: RegisterSW
 }
 
-function screenFor(route: Route, db: GritDb, onSetLogged: (isMainOrVariation: boolean) => void): ReactNode {
+/** What outlives the screens: today's session, shared by the Today and Exercises tabs, and the Exercises tab's search and filters. */
+type Kept = { session: TodayState & TodayActions; browser: ExerciseBrowser }
+
+function screenFor(route: Route, db: GritDb, { session, browser }: Kept): ReactNode {
   const openSettings = () => navigate({ page: 'settings' })
   if ('tab' in route) {
-    if (route.tab === 'today') return <TodayScreen db={db} onOpenCoach={() => navigate({ tab: 'coach' })} onSetLogged={onSetLogged} onOpenSettings={openSettings} banner={<InstallCard db={db} />} />
+    if (route.tab === 'today') return <TodayView db={db} session={session} onOpenCoach={() => navigate({ tab: 'coach' })} onOpenSettings={openSettings} banner={<InstallCard db={db} />} />
     if (route.tab === 'coach') return <CoachScreen db={db} />
     if (route.tab === 'progress') return <ProgressScreen db={db} onOpenLift={(lift) => navigate({ page: 'lift', lift })} />
+    if (route.tab === 'exercises') return <ExercisesScreen db={db} session={session} browser={browser} onOpenPlan={() => navigate({ tab: 'plan' })} onOpenToday={() => navigate({ tab: 'today' })} />
     return <PlanScreen db={db} onOpenSettings={openSettings} />
   }
   if (route.page === 'settings') return <SettingsScreen db={db} onBack={() => goBack({ tab: 'plan' })} />
@@ -52,6 +60,11 @@ function screenFor(route: Route, db: GritDb, onSetLogged: (isMainOrVariation: bo
 function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: RegisterSW }) {
   const route = useRoute()
   const update = useUpdatePrompt(db, registerSW)
+  // Kept here, above the screens: the session is the same one on the Today and Exercises tabs, and an
+  // exercise added from one is there on the other. The Exercises tab's search and filters last while
+  // other tabs are on screen, and no longer than the page.
+  const session = useToday(db, todayIso, rest.onSetLogged)
+  const browser = useExerciseBrowser()
   const activeTab = 'tab' in route ? route.tab : null
   // As on Android, the bar is part of Today; the alert at zero shows on every screen.
   const showRestBar = activeTab === 'today' && rest.running
@@ -61,7 +74,7 @@ function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: 
   const dockHeight = useElementHeight(dock, showDock)
   return (
     <div className="shell" style={{ '--rest-dock-height': `${dockHeight}px` } as CSSProperties}>
-      <main className="shell-main">{screenFor(route, db, rest.onSetLogged)}</main>
+      <main className="shell-main">{screenFor(route, db, { session, browser })}</main>
       {showDock && (
         <div className="shell-rest" ref={dock}>
           {update.ready && (

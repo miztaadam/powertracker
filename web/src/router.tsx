@@ -2,10 +2,11 @@ import { useSyncExternalStore } from 'react'
 
 /** The main lifts, in the domain's order. */
 export type Lift = 'SQUAT' | 'BENCH' | 'DEADLIFT' | 'STRICT_PRESS'
-export type Tab = 'today' | 'coach' | 'progress' | 'plan'
+export type Tab = 'today' | 'coach' | 'progress' | 'exercises' | 'plan'
 export type Route = { tab: Tab } | { page: 'settings' } | { page: 'lift'; lift: Lift }
 
-export const TABS: readonly Tab[] = ['today', 'coach', 'progress', 'plan']
+/** The tabs, in the order the bar shows them. */
+export const TABS: readonly Tab[] = ['today', 'coach', 'progress', 'exercises', 'plan']
 export const LIFTS: readonly Lift[] = ['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS']
 
 const TODAY: Route = { tab: 'today' }

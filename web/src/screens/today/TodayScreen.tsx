@@ -27,9 +27,19 @@ export type TodayScreenProps = {
   banner?: ReactNode
 }
 
-/** The logging screen: start card, the session's exercises, or the finish summary. */
-export function TodayScreen({ db, onOpenCoach, today = todayIso, onSetLogged, onOpenSettings, banner }: TodayScreenProps) {
-  const session = useToday(db, today, onSetLogged)
+/** The logging screen with a session of its own: start card, the session's exercises, or the finish summary. */
+export function TodayScreen({ onSetLogged, ...props }: TodayScreenProps) {
+  const session = useToday(props.db, props.today ?? todayIso, onSetLogged)
+  return <TodayView session={session} {...props} />
+}
+
+export type TodayViewProps = Omit<TodayScreenProps, 'onSetLogged'> & {
+  /** The session to show, from `useToday`: the app's shell keeps one for the Today and Exercises tabs alike. */
+  session: TodayState & TodayActions
+}
+
+/** The logging screen over a session kept elsewhere, so that it outlives the screen. */
+export function TodayView({ session, db, onOpenCoach, today = todayIso, onOpenSettings, banner }: TodayViewProps) {
   const notice = (
     <>
       {banner}

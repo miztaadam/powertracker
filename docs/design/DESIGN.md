@@ -154,6 +154,19 @@ on top. The picker's chip rows scroll sideways; its rows are a button to pick an
 beside it. The muscle grid and its list are as on Android (`.lib-muscles`, `.lib-muscle`). Mockups: `exercise-picker-*`, `exercise-picker-muscle-*`, `form-guide-*` and `form-guide-end-*`, rendered by
 `web/e2e/screenshots.spec.ts`.
 
+The browsing itself is `ExerciseBrowser`, shared by the picker (the grid) and the Exercises tab
+(`ExercisesScreen`, `#/exercises`, the fourth of five tabs; its icon is a list). On the tab the
+"Muscles" drop-down (`.lib-dropdown`) leads the equipment chips and opens a sheet of the 18 muscle
+groups to tick, two to a row (`.lib-options`); the ticked ones wrap under the chips as tonal chips
+with a cross, then "Clear" (`.lib-ticked`). The header and the search stay put while the list
+scrolls. A row or its info button opens the form guide's sheet with the actions kept in view under
+the guide (`.lib-guide-actions`): the primary "Add to plan" and, while today's session is open, the
+tonal "Add to today" to its left. "Add to plan" swaps the sheet for the day chooser. The outcome is
+a snackbar on the tab. The tab's search and filters are kept in memory by the app's shell, as is
+today's session, which the Today and Exercises tabs share. Mockups: `exercises-*`,
+`exercises-muscles-*`, `exercises-muscles-chosen-*`, `exercise-guide-actions-*` and
+`exercise-day-chooser-*`, also rendered by `web/e2e/screenshots.spec.ts`.
+
 **Accent: warm chalk**, the values in the colour table above.
 
 - The primary button is the brightest filled element on every screen. Keep one per card or screen region.

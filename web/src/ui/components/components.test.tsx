@@ -287,10 +287,10 @@ describe('RestTimerBar', () => {
 })
 
 describe('TabBar', () => {
-  it('links the four tabs and marks the current one', () => {
+  it('links the five tabs and marks the current one', () => {
     render(<TabBar current="coach" />)
     const nav = screen.getByRole('navigation', { name: 'Main' })
-    expect(within(nav).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(['#/today', '#/coach', '#/progress', '#/plan'])
+    expect(within(nav).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(['#/today', '#/coach', '#/progress', '#/exercises', '#/plan'])
     expect(within(nav).getByRole('link', { name: 'Coach' })).toHaveAttribute('aria-current', 'page')
     expect(within(nav).getByRole('link', { name: 'Today' })).not.toHaveAttribute('aria-current')
   })

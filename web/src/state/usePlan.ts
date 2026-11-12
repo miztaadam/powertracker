@@ -26,6 +26,17 @@ export type PlanState = {
   /** The squat, bench and deadlift themselves, for "Set best". */
   mainExercises: PlanExercise[]
   defaultRpe: number
+  /** The days the lifter trains (1 = Monday), from Settings; a day can have plan items without being one. */
+  trainingDays: number[]
+}
+
+/** How adding an exercise from the Exercises tab went: added, or already on that day and left alone. */
+export type PlanAdd = 'ADDED' | 'ALREADY_THERE'
+
+/** The days "Add to plan" offers: the lifter's training days in weekday order, or the whole week when none are set. */
+export function planDayChoices(trainingDays: readonly number[]): number[] {
+  const days = [...new Set(trainingDays)].sort((a, b) => a - b)
+  return days.length > 0 ? days : [1, 2, 3, 4, 5, 6, 7]
 }
 
 export const MIN_RPE = 6
@@ -37,6 +48,12 @@ export type PlanActions = {
    * at the default RPE. A catalogue exercise gets its row, if it has none yet, in the same transaction.
    */
   add: (weekday: number, entry: PickerEntry) => Promise<void>
+  /**
+   * `add` for the Exercises tab, where the day is chosen after the exercise: the same defaults and the
+   * same single transaction, but an exercise already on that day is left alone. It reads what is
+   * stored at the moment of the call. Rejects when the write fails; nothing is changed then.
+   */
+  addOnce: (weekday: number, entry: PickerEntry) => Promise<PlanAdd>
   /** Updates the item in place. `exercise` is set when the exercise itself was changed. */
   save: (existing: PlanItem, exercise: PickerEntry | null, sets: number, reps: number, targetRpe: number) => Promise<void>
   remove: (item: PlanItem) => Promise<void>
@@ -71,10 +88,17 @@ function build({ plan, exercises, settings, recentIds }: Stored): Omit<PlanState
     recentIds,
     mainExercises: exercises.filter((e) => grit.isMainLift(exerciseToJs(e))),
     defaultRpe: settings.defaultRpe,
+    trainingDays: settings.trainingDays,
   }
 }
 
-const EMPTY: Omit<PlanState, 'loading'> = { sections: [], exercises: [], recentIds: [], mainExercises: [], defaultRpe: 8 }
+/** What was picked as a new plan item for the day: 3 × 5 or 3 × 10, at the default RPE as stored now. */
+async function newItem(db: GritDb, weekday: number, entry: PickerEntry) {
+  const { defaultRpe } = await getSettings(db)
+  return { weekday, exerciseId: entry.exerciseId, sets: DEFAULT_SETS, reps: defaultReps(entry), targetRpe: Math.min(MAX_RPE, Math.max(MIN_RPE, defaultRpe)) }
+}
+
+const EMPTY: Omit<PlanState, 'loading'> = { sections: [], exercises: [], recentIds: [], mainExercises: [], defaultRpe: 8, trainingDays: [] }
 
 /** The weekly plan, read live from the database, and the edits the Plan screen makes to it. */
 export function usePlan(db: GritDb, today: () => string): PlanState & PlanActions {
@@ -89,10 +113,22 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
 
   const add = useCallback<PlanActions['add']>(
     async (weekday, entry) => {
-      const { defaultRpe } = await getSettings(db)
-      const targetRpe = Math.min(MAX_RPE, Math.max(MIN_RPE, defaultRpe))
-      await addPlanItem(db, { weekday, exerciseId: entry.exerciseId, sets: DEFAULT_SETS, reps: defaultReps(entry), targetRpe }, entry.library?.name ?? null)
+      await addPlanItem(db, await newItem(db, weekday, entry), entry.library?.name ?? null)
     },
+    [db],
+  )
+
+  const addOnce = useCallback<PlanActions['addOnce']>(
+    (weekday, entry) =>
+      // One transaction: the check, the exercise's row and the plan item stand or fall together.
+      db.transaction('rw', db.exercises, db.planItems, db.settings, async () => {
+        const name = entry.library?.name ?? null
+        // The row a catalogue name would be saved to (the oldest live one, as resolveCatalogue picks it), if it has one yet.
+        const rowId = name == null ? entry.exerciseId : ((await db.exercises.toArray()).find((e) => !e.archived && e.name.toLowerCase() === name.toLowerCase())?.id ?? null)
+        if (rowId != null && (await planItemsOn(db, weekday)).some((p) => p.exerciseId === rowId)) return 'ALREADY_THERE'
+        await addPlanItem(db, await newItem(db, weekday, entry), name)
+        return 'ADDED'
+      }),
     [db],
   )
 
@@ -139,5 +175,5 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
   )
 
   const state = useMemo(() => (stored ? build(stored) : EMPTY), [stored])
-  return { loading: stored == null, ...state, add, save, remove, move, addCustomExercise, setBaseline }
+  return { loading: stored == null, ...state, add, addOnce, save, remove, move, addCustomExercise, setBaseline }
 }
