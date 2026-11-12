@@ -30,7 +30,15 @@ export function ProgressContent({ state, onRange, onOpenLift }: ProgressContentP
       <ScreenHeader title="Progress" eyebrow="Estimated 1RM" />
       <div className="screen-body">
         {!state.loading && !state.hasData && (
-          <EmptyState icon={<InsightsIcon />} title="No lifts logged yet" body="Log a squat, bench or deadlift session on Today and your charts will appear here." />
+          <EmptyState
+            icon={<InsightsIcon />}
+            title="No lifts logged yet"
+            body={
+              state.showStrictPress
+                ? 'Log a squat, bench, deadlift or strict press session on Today and your charts will appear here.'
+                : 'Log a squat, bench or deadlift session on Today and your charts will appear here.'
+            }
+          />
         )}
         {state.hasData && (
           <>

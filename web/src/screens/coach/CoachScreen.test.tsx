@@ -1,6 +1,7 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { resolveCatalogue } from '../../db/catalogue'
 import type { GritDb } from '../../db/db'
 import { updateSettings } from '../../db/db'
 import { advice, insertAdvice, payload, planOf, rx, statuses } from '../../test/coachFixture'
@@ -176,5 +177,44 @@ describe('CoachScreen', () => {
     expect(await screen.findByText("Couldn't update — try again")).toBeInTheDocument()
     expect(await screen.findByText('Bench has stalled')).toBeInTheDocument()
     expect(await statuses(db)).toEqual(['OPEN'])
+  })
+
+  // ---- Strict press cards (strict press spec §5.3) ----
+
+  it('pressStallCard_isNamedForStrictPress_andAddsToThePressDay', async () => {
+    const press = await resolveCatalogue(db, 'Strict press')
+    await plan(db, await id('Squat'), { weekday: 1, order: 0 })
+    await plan(db, press, { weekday: 4, sets: 3, reps: 5, order: 0 })
+    await logSet(db, await startSession(db, addDays(TODAY, -2)), set(press, 60, { reps: 1, rpe: 10 }))
+    await insertAdvice(db, advice('STALL', 'STRICT_PRESS', "Strict press e1RM hasn't improved for 3 weeks.", payload.accessories([rx('Landmine press', 3, 8, 10)])))
+    show()
+
+    expect(await screen.findByRole('heading', { name: 'Strict press has stalled' })).toBeInTheDocument()
+    expect(screen.getByText('Stall · Strict press')).toBeInTheDocument()
+    expect(screen.getByText('Strict press e1RM')).toBeInTheDocument()
+    expect(screen.queryByText('All lifts')).toBeNull()
+
+    await tap('Add to plan')
+
+    expect(await screen.findByText('Added 1 exercise to Thursday')).toBeInTheDocument()
+    expect((await planOf(db)).filter((p) => p.weekday === 4)).toHaveLength(2)
+  })
+
+  it('pressWeakPointCard_saysOffTheShoulders', async () => {
+    await insertAdvice(db, advice('WEAK_POINT', 'STRICT_PRESS', 'Prioritise it.', payload.weakPoint('STRICT_PRESS', 'FLOOR'), { severity: 4 }))
+    show()
+
+    expect(await screen.findByRole('heading', { name: 'Strict press is lagging' })).toBeInTheDocument()
+    expect(screen.getByText('Weak point · Strict press')).toBeInTheDocument()
+    expect(screen.getByText('Sticking point')).toBeInTheDocument()
+    expect(screen.getByText('Off the shoulders')).toBeInTheDocument()
+    expect(screen.getByText('Works front delts, upper chest')).toBeInTheDocument()
+    expect(screen.getByText('Seated barbell press')).toBeInTheDocument()
+    expect(screen.getByText('Incline bench press')).toBeInTheDocument()
+
+    await tap('Prioritise strict press')
+
+    await waitFor(async () => expect(await statuses(db)).toEqual(['APPLIED']))
+    expect(await screen.findByText('Added 2 exercises to Monday')).toBeInTheDocument()
   })
 })

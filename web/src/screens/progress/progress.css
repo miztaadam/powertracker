@@ -31,6 +31,12 @@
   gap: var(--space-3);
 }
 
+/* Two to a row, each row as tall as its taller tile. */
+.progress-tiles-pairs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .progress-note {
   margin: 0;
   color: var(--text-secondary);
@@ -88,6 +94,11 @@
 .progress-volume-label {
   flex: none;
   width: 128px;
+}
+
+/* Wide enough for "Strict press · this week" on one line, and no wider: the bars keep room for the two captions under them. */
+.progress-volume-wide .progress-volume-label {
+  width: 148px;
 }
 
 .progress-volume-name {

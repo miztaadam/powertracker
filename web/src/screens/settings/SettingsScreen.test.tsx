@@ -386,4 +386,23 @@ describe('SettingsScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Back' }))
     expect(onBack).toHaveBeenCalledOnce()
   })
+
+  // ---- Strict press: the Progress switch (strict press spec §4.2) ----
+
+  it('settings_strictPressSwitch_saysWhatItDoes_andPersists', async () => {
+    show()
+    const toggle = await screen.findByRole('switch', { name: 'Strict press' })
+    expect(toggle).toHaveAttribute('aria-checked', 'false')
+    expect(screen.getByText('Show it on Progress and add it to your total.')).toBeInTheDocument()
+    // Its own group, after "Loading and targets".
+    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent).slice(0, 3)).toEqual(['Loading and targets', 'Progress', 'Training days'])
+
+    // The whole row toggles it.
+    await userEvent.click(screen.getByText('Show it on Progress and add it to your total.'))
+    await waitFor(async () => expect((await getSettings(db)).showStrictPress).toBe(true))
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-checked', 'true'))
+
+    await userEvent.click(toggle)
+    await waitFor(async () => expect((await getSettings(db)).showStrictPress).toBe(false))
+  })
 })

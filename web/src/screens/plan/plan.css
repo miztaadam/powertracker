@@ -100,3 +100,10 @@
   justify-content: space-between;
   gap: var(--space-3);
 }
+
+/* A stepper's label with a small action right after it (the RPE info button). */
+.plan-stepper-label {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}

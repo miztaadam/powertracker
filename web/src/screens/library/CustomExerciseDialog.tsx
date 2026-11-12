@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import type { Lift } from '../../router'
 import type { CustomExercise } from '../../state/exercisePicker'
-import { LIFTS } from '../../state/useProgress'
 import { PrimaryButton, QuietButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
 import { ChoiceChip } from '../../ui/components/SegmentedChoice'
@@ -15,6 +14,9 @@ export type CustomExerciseDialogProps = {
   onCreate: (exercise: CustomExercise) => void
   onDismiss: () => void
 }
+
+/** The lifts a variation can belong to: squat, bench and deadlift, as on Android. */
+const PARENT_LIFTS: readonly Lift[] = ['SQUAT', 'BENCH', 'DEADLIFT']
 
 /** Name a new exercise the catalogue does not have: a variation of a main lift, or an accessory. */
 export function CustomExerciseDialog({ initialName, onCreate, onDismiss }: CustomExerciseDialogProps) {
@@ -58,7 +60,7 @@ export function CustomExerciseDialog({ initialName, onCreate, onDismiss }: Custo
               Parent lift
             </p>
             <div className="lib-form-chips">
-              {LIFTS.map((lift) => (
+              {PARENT_LIFTS.map((lift) => (
                 <ChoiceChip key={lift} text={LIFT_LABEL[lift]} selected={parent === lift} onClick={() => setParent(lift)} />
               ))}
             </div>

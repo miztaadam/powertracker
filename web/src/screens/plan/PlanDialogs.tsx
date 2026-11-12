@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { grit } from '../../domain'
 import type { CustomExercise, PickerEntry, StoredExercise } from '../../state/exercisePicker'
 import { MAX_RPE, MIN_RPE, type PlanItem } from '../../state/usePlan'
@@ -9,6 +9,7 @@ import { Eyebrow } from '../../ui/components/NumberDisplay'
 import { Stepper } from '../../ui/components/StepperField'
 import { TextField } from '../../ui/components/TextField'
 import { ExercisePicker } from '../library/ExercisePicker'
+import { RpeInfoButton } from '../library/RpeSheet'
 import './plan.css'
 
 export type PlanItemDialogProps = {
@@ -60,7 +61,7 @@ export function PlanItemDialog({ title, item, exerciseName, exercises, recentIds
           </div>
           <LabeledStepper label="Sets" value={String(sets)} canDecrement={sets > 1} canIncrement={sets < 10} onStep={(by) => setSets(sets + by)} />
           <LabeledStepper label="Reps" value={String(reps)} canDecrement={reps > 1} canIncrement={reps < 20} onStep={(by) => setReps(reps + by)} />
-          <LabeledStepper label="RPE" value={formatRpe(rpe)} canDecrement={rpe > MIN_RPE} canIncrement={rpe < MAX_RPE} onStep={(by) => setRpe(rpe + by * 0.5)} />
+          <LabeledStepper label="RPE" value={formatRpe(rpe)} canDecrement={rpe > MIN_RPE} canIncrement={rpe < MAX_RPE} onStep={(by) => setRpe(rpe + by * 0.5)} labelAction={<RpeInfoButton />} />
         </div>
       </Dialog>
       {picking && (
@@ -83,11 +84,29 @@ export function PlanItemDialog({ title, item, exerciseName, exercises, recentIds
   )
 }
 
-function LabeledStepper({ label, value, canDecrement, canIncrement, onStep }: { label: string; value: string; canDecrement: boolean; canIncrement: boolean; onStep: (by: -1 | 1) => void }) {
+function LabeledStepper({
+  label,
+  value,
+  canDecrement,
+  canIncrement,
+  onStep,
+  labelAction,
+}: {
+  label: string
+  value: string
+  canDecrement: boolean
+  canIncrement: boolean
+  onStep: (by: -1 | 1) => void
+  /** Goes right after the label (the RPE info button). */
+  labelAction?: ReactNode
+}) {
   return (
     <div className="plan-stepper-row">
-      <span className="title-medium" aria-hidden="true">
-        {label}
+      <span className="plan-stepper-label">
+        <span className="title-medium" aria-hidden="true">
+          {label}
+        </span>
+        {labelAction}
       </span>
       <Stepper label={label} valueText={value} canDecrement={canDecrement} canIncrement={canIncrement} onDecrement={() => onStep(-1)} onIncrement={() => onStep(1)} />
     </div>

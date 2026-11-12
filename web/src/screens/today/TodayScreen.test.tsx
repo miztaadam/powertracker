@@ -1,6 +1,7 @@
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { resolveCatalogue } from '../../db/catalogue'
 import type { GritDb } from '../../db/db'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { DELOAD_ADVICE, TODAY, addDays, baseline, exerciseNamed, logSet, plan, set, setsOn, startSession, targets, todayFixture } from '../../test/todayFixture'
@@ -532,5 +533,53 @@ describe('TodayScreen', () => {
     await tap('Start session')
     expect(await screen.findByText('No exercises yet')).toBeInTheDocument()
     expect(screen.getByText('Add what you are training today and log it set by set.')).toBeInTheDocument()
+  })
+
+  // ---- Strict press is a main lift on Today (strict press spec §5.1) ----
+
+  /** Strict press replaces the squat as today's plan: 3 × 5 @ 8, with no history, so no weight yet. */
+  async function strictPressDay() {
+    await db.planItems.clear()
+    await plan(db, await resolveCatalogue(db, 'Strict press'), { sets: 3 })
+  }
+
+  it('today_strictPressMissLabel', async () => {
+    await strictPressDay()
+    await startSession(db, TODAY)
+    show()
+    await findButton('Log set 1')
+
+    await typeWeight('60')
+    await tap('Missed')
+    await findButton('Log set 2')
+
+    // A press stalls off the shoulders, not off the floor.
+    const row = within(screen.getByTestId('miss-row-1'))
+    expect(row.getAllByRole('radio').map((r) => r.parentElement?.textContent)).toEqual(['Off the shoulders', 'Mid', 'Lockout'])
+    expect(row.queryByText('Floor')).toBeNull()
+
+    // It is the same stored point as the other lifts' "Floor".
+    await userEvent.click(row.getByRole('radio', { name: 'Off the shoulders' }))
+    await waitFor(async () => expect((await setsOn(db, TODAY))[0]!.missPoint).toBe('FLOOR'))
+    await waitFor(() => expect(within(screen.getByTestId('miss-row-1')).getByRole('radio', { name: 'Off the shoulders' })).toBeChecked())
+  })
+
+  it('today_strictPress_getsThePlateStripAndTheMainLiftRest', async () => {
+    await strictPressDay()
+    await startSession(db, TODAY)
+    const rests: boolean[] = []
+    show(db, { onSetLogged: (main) => rests.push(main) })
+    await findButton('Log set 1')
+
+    // The plate strip treats it as a barbell lift: only those are told a weight is under the bar.
+    await typeWeight('15')
+    expect(await screen.findByText('Lighter than the bar')).toBeInTheDocument()
+    await typeWeight('62.5')
+    expect(await screen.findByText('20 + 1.25')).toBeInTheDocument()
+
+    await tap('Log set 1')
+    await waitForSets(1)
+    // A strict press set starts the main-lift rest.
+    await waitFor(() => expect(rests).toEqual([true]))
   })
 })

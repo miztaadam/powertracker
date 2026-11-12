@@ -143,7 +143,33 @@ for (const scheme of ['dark', 'light'] as const) {
     expect(await overflowing(page)).toEqual([])
     expect(await smallTargets(page)).toEqual([])
     expect(await spilledText(page)).toEqual([])
-    await shoot(page, `settings-${scheme}`, 1390)
+    await shoot(page, `settings-${scheme}`, 1530)
+
+    // The strict press switch: its own group, the whole row a target, and the screen still fits with it on.
+    await page.setViewportSize(narrowPhone)
+    await expect(page.getByRole('switch', { name: 'Strict press' })).not.toBeChecked()
+    await page.getByText('Show it on Progress and add it to your total.').click()
+    await expect(page.getByRole('switch', { name: 'Strict press' })).toBeChecked()
+    expect((await page.locator('label.settings-row', { hasText: 'Strict press' }).boundingBox())!.height).toBeGreaterThanOrEqual(48)
+    expect(await overflowing(page)).toEqual([])
+    expect(await smallTargets(page)).toEqual([])
+    expect(await spilledText(page)).toEqual([])
+
+    // The RPE info button beside "Default RPE": a full target, clear of the stepper, and the label still on one line.
+    const info = (await page.getByRole('button', { name: 'What RPE means' }).boundingBox())!
+    const minus = (await page.getByRole('button', { name: 'Decrease Default RPE' }).boundingBox())!
+    expect(Math.min(info.width, info.height)).toBeGreaterThanOrEqual(47.5)
+    expect(info.x).toBeGreaterThanOrEqual(0)
+    expect(info.x + info.width).toBeLessThanOrEqual(minus.x + 0.5)
+    expect((await page.getByText('Default RPE', { exact: true }).boundingBox())!.height).toBeLessThan(30)
+    await shoot(page, `settings-strict-press-${scheme}`, 1530)
+
+    await page.setViewportSize(narrowPhone)
+    await page.getByRole('button', { name: 'What RPE means' }).click()
+    await expect(page.getByRole('dialog', { name: 'RPE: reps in reserve' })).toBeVisible()
+    await page.getByRole('dialog', { name: 'RPE: reps in reserve' }).getByRole('button', { name: 'Close' }).click()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.getByRole('group', { name: 'Default RPE' })).toContainText('8')
 
     // Back is one step back in history, not a new entry.
     await page.getByRole('button', { name: 'Back', exact: true }).click()

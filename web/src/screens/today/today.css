@@ -61,12 +61,25 @@
   color: var(--text-secondary);
 }
 
+/* The question above the points. A segment is then as wide as its label plus an equal share of what is left. */
+.today-miss-stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.today-miss-stacked .gr-segment {
+  flex: 1 1 auto;
+}
+
 /* Three steppers need 3 × (48 + 4 + 48) + 2 × 8 = 316 px. */
 .today-steppers {
   display: flex;
   gap: var(--space-3);
   /* "182.5 kg" is wider than a third of the card: a typed figure may use all but 1 px of the gap beside it. */
   --numfield-bleed: calc(var(--space-3) - 1px);
+  /* Room on the caption line for the RPE info button: its 48 px target then reaches 10 px over the figure and no further up than the hairline. */
+  --stepper-caption: 28px;
 }
 
 .today-stepper-weight {

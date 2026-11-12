@@ -54,6 +54,14 @@ describe('app shell routing', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Bench history' })).toBeInTheDocument()
   })
 
+  it('renders the lift page for #/lift/STRICT_PRESS', async () => {
+    window.location.hash = '#/lift/STRICT_PRESS'
+    show()
+    await opened()
+    expect(screen.getByRole('heading', { level: 1, name: 'Strict press history' })).toBeInTheDocument()
+    expect(await screen.findByText('No strict press sessions yet')).toBeInTheDocument()
+  })
+
   it('renders settings and reacts to hash changes', async () => {
     show()
     await opened()

@@ -67,6 +67,7 @@
   --chart-squat: #3987E5;
   --chart-bench: #D95926;
   --chart-deadlift: #199E70;
+  --chart-press: #A98BF0;
 
   --plate-25: #D8262C;
   --plate-20: #1F5FBF;
@@ -138,6 +139,7 @@
     --chart-squat: #2A78D6;
     --chart-bench: #EB6834;
     --chart-deadlift: #1BAF7A;
+    --chart-press: #7C52CC;
   }
 }
 

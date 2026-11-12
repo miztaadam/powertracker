@@ -38,6 +38,13 @@ label.settings-row {
   color: var(--text);
 }
 
+/* A label with a small action after it; the label stays on one line. */
+.settings-title {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
 .settings-supporting {
   color: var(--text-muted);
 }

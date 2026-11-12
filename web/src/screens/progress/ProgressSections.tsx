@@ -2,10 +2,10 @@ import type { ReactNode } from 'react'
 import type { Lift } from '../../router'
 import { addDays } from '../../state/isoDate'
 import type { RatioUi } from '../../state/useCoach'
-import { CHART_RANGES, LIFTS, toHalfKg, type ChartRange, type PrUi, type ProgressState } from '../../state/useProgress'
+import { CHART_RANGES, toHalfKg, type ChartRange, type PrUi, type ProgressState } from '../../state/useProgress'
 import { BarStrip } from '../../ui/components/BarStrip'
 import { Card } from '../../ui/components/Card'
-import { formatKg, formatRpe } from '../../ui/components/format'
+import { cx, formatKg, formatRpe } from '../../ui/components/format'
 import { EmojiEventsIcon, TrendingDownIcon, TrendingFlatIcon, TrendingUpIcon } from '../../ui/components/icons'
 import { LineChart } from '../../ui/components/LineChart'
 import { Eyebrow, NumberDisplay } from '../../ui/components/NumberDisplay'
@@ -29,27 +29,32 @@ function change(kg: number): { text: string; tone: Tone; icon: ReactNode } {
   return { text: 'No change', tone: 'neutral', icon: <TrendingFlatIcon /> }
 }
 
+const TILES_IN_ONE_ROW = 3
+
 /** The total as the hero figure with its trend, then each lift as a tile that opens its history. */
 export function SummaryCard({ state, onOpenLift }: { state: ProgressState; onOpenLift: (lift: Lift) => void }) {
   const totalChange = state.totalChangeKg == null ? null : change(state.totalChangeKg)
+  // The total always says what it adds up.
+  const totalLabel = state.showStrictPress ? 'Total (S+B+D+P)' : 'Total (S+B+D)'
   return (
     <Card spacing={16}>
       {state.totalKg != null ? (
         <div className="progress-total">
           <div className="progress-total-figure">
-            <NumberDisplay value={formatKg(state.totalKg)} unit="kg" label="Total" size="hero" />
+            <NumberDisplay value={formatKg(state.totalKg)} unit="kg" label={totalLabel} size="hero" />
             {totalChange && <Pill text={`${totalChange.text} in 4 weeks`} tone={totalChange.tone} icon={totalChange.icon} />}
           </div>
           {state.totalTrend.length >= 2 && <Sparkline values={state.totalTrend.map((p) => p.kg)} color="var(--accent-text)" className="progress-total-spark" />}
         </div>
       ) : (
         <div>
-          <Eyebrow text="Total" />
-          <p className="progress-note body-medium">Log all three lifts to see your total.</p>
+          <Eyebrow text={totalLabel} />
+          <p className="progress-note body-medium">{state.showStrictPress ? 'Log all four lifts, strict press included, to see your total.' : 'Log all three lifts to see your total.'}</p>
         </div>
       )}
       <div className="progress-lifts">
-        <div className="progress-tiles">
+        {/* Four tiles do not fit side by side on a phone: with the fourth lift they go two to a row. */}
+        <div className={cx('progress-tiles', state.lifts.length > TILES_IN_ONE_ROW && 'progress-tiles-pairs')}>
           {state.lifts.map((summary) => {
             const moved = summary.changeKg == null ? null : change(summary.changeKg)
             const name = LIFT_LABEL[summary.lift]
@@ -73,9 +78,12 @@ export function SummaryCard({ state, onOpenLift }: { state: ProgressState; onOpe
   )
 }
 
-/** The three lifts on one axis over the chosen range. */
+/** The shown lifts on one axis over the chosen range. */
 export function TrendCard({ state, onRange }: { state: ProgressState; onRange: (range: ChartRange) => void }) {
-  const series = LIFTS.filter((lift) => state.e1rm[lift].some((v) => v != null)).map((lift) => ({ name: LIFT_LABEL[lift], color: LIFT_COLOR[lift], values: state.e1rm[lift] }))
+  const series = state.lifts.flatMap(({ lift }) => {
+    const values = state.e1rm[lift] ?? []
+    return values.some((v) => v != null) ? [{ name: LIFT_LABEL[lift], color: LIFT_COLOR[lift], values }] : []
+  })
   return (
     <Card>
       <SegmentedChoice
@@ -135,7 +143,8 @@ const formatVolume = (kg: number) => Math.round(kg).toLocaleString('en-US')
 /** One strip of eight weekly bars per lift, each on its own scale, with this week's figure beside it. */
 export function VolumeSection({ state }: { state: ProgressState }) {
   return (
-    <section>
+    // "Strict press · this week" needs a wider label column than the other three lifts' names.
+    <section className={state.showStrictPress ? 'progress-volume-wide' : undefined}>
       <SectionHeader title="Weekly volume" />
       <Card spacing={16}>
         {state.volume.map(({ lift, weeks }) => {

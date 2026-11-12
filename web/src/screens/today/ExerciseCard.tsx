@@ -5,7 +5,7 @@ import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components
 import { Card } from '../../ui/components/Card'
 import { CoachSuggestion } from '../../ui/components/CoachSuggestion'
 import { Dialog } from '../../ui/components/Dialog'
-import { formatKg, formatRpe } from '../../ui/components/format'
+import { cx, formatKg, formatRpe } from '../../ui/components/format'
 import { ArrowForwardIcon, BoltIcon, CheckIcon, CloseIcon } from '../../ui/components/icons'
 import { Eyebrow } from '../../ui/components/NumberDisplay'
 import { NumberField } from '../../ui/components/NumberField'
@@ -15,6 +15,7 @@ import { SegmentedChoice } from '../../ui/components/SegmentedChoice'
 import { SetRow } from '../../ui/components/SetRow'
 import { StepperField } from '../../ui/components/StepperField'
 import { InfoButton } from '../library/InfoButton'
+import { RpeInfoButton } from '../library/RpeSheet'
 import { MAX_KG, MAX_REPS, MAX_RPE, MIN_RPE, entryMessage, parseEntry, type EntryKind } from './entry'
 import './today.css'
 
@@ -27,7 +28,9 @@ const BAR_KG = 20
 const GRIND_RPE = 9.5
 
 const MISS_POINTS: readonly MissPoint[] = ['FLOOR', 'MID', 'LOCKOUT']
-const MISS_LABELS = ['Floor', 'Mid', 'Lockout']
+
+/** "Floor / Mid / Lockout", or "Off the shoulders / …" for a strict press. An accessory has no lift: it gets the plain names. */
+const missLabels = (lift: string | null) => MISS_POINTS.map((point) => grit.missPointLabel(lift ?? 'SQUAT', point))
 
 /** "155 × 5 @ 8". */
 export function doseText(weightKg: number, reps: number, rpe: number | null): string {
@@ -124,7 +127,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
                 isTopSet={i === top}
                 onClick={() => setSelected({ number: i + 1, set })}
               />
-              {(set.failed || (set.rpe ?? 0) >= GRIND_RPE) && <MissRow number={i + 1} set={set} onSelect={(point) => void actions.setMissPoint(set.id, point)} />}
+              {(set.failed || (set.rpe ?? 0) >= GRIND_RPE) && <MissRow number={i + 1} set={set} lift={grit.mainLiftOf(item.exercise) ?? null} onSelect={(point) => void actions.setMissPoint(set.id, point)} />}
             </div>
           ))}
         </div>
@@ -170,15 +173,16 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
   )
 }
 
-function MissRow({ number, set, onSelect }: { number: number; set: StoredSet; onSelect: (point: MissPoint | null) => void }) {
+function MissRow({ number, set, lift, onSelect }: { number: number; set: StoredSet; lift: string | null; onSelect: (point: MissPoint | null) => void }) {
   const question = set.failed ? 'Where did it stall?' : 'Where was it slow?'
   const chosen = MISS_POINTS.indexOf(set.missPoint as MissPoint)
   return (
-    <div className="today-miss" data-testid={`miss-row-${number}`}>
+    // "Off the shoulders" needs the whole width: the question goes above the points, not beside them.
+    <div className={cx('today-miss', lift === 'STRICT_PRESS' && 'today-miss-stacked')} data-testid={`miss-row-${number}`}>
       <span className="today-miss-question body-small">{question}</span>
       <SegmentedChoice
         label={`Set ${number}: ${question}`}
-        options={MISS_LABELS}
+        options={missLabels(lift)}
         selectedIndex={chosen >= 0 ? chosen : null}
         // Tapping the chosen point again clears it.
         onSelect={(i) => onSelect(i === chosen ? null : (MISS_POINTS[i] ?? null))}
@@ -314,6 +318,7 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
           onDecrement={() => step('rpe', (now) => Math.max(MIN_RPE, now.rpe - 0.5))}
           onIncrement={() => step('rpe', (now) => Math.min(MAX_RPE, now.rpe + 0.5))}
           field={field('rpe', 'RPE', formatRpe(e.rpe), 'decimal')}
+          labelAction={<RpeInfoButton inline />}
         />
       </div>
 

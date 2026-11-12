@@ -2,6 +2,7 @@ import { cleanup, render, screen, waitFor, within } from '@testing-library/react
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { encodeBackup, exportBackup } from '../../backup/backup'
+import { resolveCatalogue } from '../../db/catalogue'
 import type { GritDb } from '../../db/db'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, exerciseNamed, plan, todayFixture } from '../../test/todayFixture'
@@ -231,5 +232,19 @@ describe('PlanScreen', () => {
     await userEvent.click(pickerRow('Squat'))
     expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
     expect(await storedPlan()).toEqual([])
+  })
+
+  // ---- Strict press: the known bests ----
+
+  it('knownBests_includeStrictPress_onceItHasARow', async () => {
+    show()
+    await screen.findByRole('group', { name: 'Squat' })
+    expect(screen.queryByRole('group', { name: 'Strict press' })).toBeNull()
+
+    await resolveCatalogue(db, 'Strict press')
+
+    // It is a main lift like the other three: it can be given a known best.
+    expect(await screen.findByRole('group', { name: 'Strict press' })).toBeInTheDocument()
+    for (const lift of ['Squat', 'Bench', 'Deadlift']) expect(screen.getByRole('group', { name: lift })).toBeInTheDocument()
   })
 })

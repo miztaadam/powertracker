@@ -1,6 +1,7 @@
 import { act, cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { GritDb } from '../db/db'
+import { resolveCatalogue } from '../db/catalogue'
 import { updateSettings } from '../db/db'
 import { advice, insertAdvice, payload, planOf, rx, statuses } from '../test/coachFixture'
 import { TODAY, addDays, baseline, exerciseNamed, plan, todayFixture } from '../test/todayFixture'
@@ -255,5 +256,62 @@ describe('useCoach', () => {
     )
     const result = await coach(2)
     expect(result.current.cards.map((c) => c.advice.reason)).toEqual(['fresh deload', 'old stall'])
+  })
+
+  // ---- Strict press cards (strict press spec §5.3): shown whatever the Progress switch says ----
+
+  /** A strict press miss off the shoulders offers catalogue accessories that have no row yet, and Apply adds them. */
+  it('weakPointApply_pressMissOffTheShoulders_resolvesCatalogueRows', async () => {
+    await insertAdvice(db, advice('WEAK_POINT', 'STRICT_PRESS', 'Prioritise it.', payload.weakPoint('STRICT_PRESS', 'FLOOR')))
+    const result = await coach(1)
+    const card = result.current.cards[0]!
+    expect(card.advice.lift).toBe('STRICT_PRESS')
+    // Strict press is in no ratio: the card shows the sticking point and its muscles only.
+    expect(card.detail).toEqual({
+      kind: 'weakPoint',
+      ratio: null,
+      missPoint: 'FLOOR',
+      muscles: ['Front delts', 'Upper chest'],
+      additions: [rx('Seated barbell press', 3, 8, 10), rx('Incline bench press', 3, 8, 10)],
+    })
+
+    await act(() => result.current.apply(card.advice.id))
+
+    await waitFor(() => expect(result.current.cards).toHaveLength(0))
+    expect(await statuses(db)).toEqual(['APPLIED'])
+    expect(result.current.message?.text).toBe('Added 2 exercises to Monday')
+    const rows = new Map((await db.exercises.toArray()).map((e) => [e.id, e.name]))
+    expect((await planOf(db)).map((p) => rows.get(p.exerciseId))).toEqual(['Seated barbell press', 'Incline bench press'])
+  })
+
+  it('pressStall_knowsItsLift_andApplyUsesThePressDay', async () => {
+    const press = await resolveCatalogue(db, 'Strict press')
+    // Squat on Monday (the first training day), strict press on Thursday and Saturday.
+    await plan(db, await id('Squat'), { weekday: 1 })
+    await plan(db, press, { weekday: 6 })
+    await plan(db, press, { weekday: 4 })
+    const session = (await db.sessions.add({ date: addDays(TODAY, -2), bodyweightKg: null, readiness: null })) as number
+    await db.sets.add({ sessionId: session, exerciseId: press, weightKg: 60, reps: 1, rpe: 10, failed: false, missPoint: null, isTopSet: false })
+    await insertAdvice(db, advice('STALL', 'STRICT_PRESS', "Strict press e1RM hasn't improved for 3 weeks.", payload.accessories([rx('Landmine press', 3, 8, 10)])))
+    const result = await coach(1)
+
+    // The card is the press's own: its lift, its e1RM and its trend.
+    expect(result.current.cards[0]!.advice.lift).toBe('STRICT_PRESS')
+    expect(result.current.cards[0]!.detail).toMatchObject({ kind: 'stall', e1rmKg: 60, trend: [60] })
+
+    await act(() => result.current.apply(result.current.cards[0]!.advice.id))
+
+    expect(result.current.message?.text).toBe('Added 1 exercise to Thursday')
+    expect((await planOf(db)).filter((p) => p.weekday === 4).map((p) => p.order)).toEqual([0, 1])
+  })
+
+  it('pressCards_showWithTheProgressSwitchOff', async () => {
+    expect((await updateSettings(db, (s) => s)).showStrictPress).toBe(false)
+    await insertAdvice(db, advice('STALL', 'STRICT_PRESS', 'Stalled.', payload.accessories([rx('Landmine press', 3, 8, 10)])), advice('WEAK_POINT', 'STRICT_PRESS', 'Prioritise it.', payload.weakPoint('STRICT_PRESS', 'LOCKOUT')))
+    const result = await coach(2)
+    expect(result.current.cards.map((c) => [c.advice.type, c.advice.lift])).toEqual([
+      ['STALL', 'STRICT_PRESS'],
+      ['WEAK_POINT', 'STRICT_PRESS'],
+    ])
   })
 })

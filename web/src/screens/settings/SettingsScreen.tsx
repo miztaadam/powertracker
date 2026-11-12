@@ -13,6 +13,7 @@ import { ChoiceChip, SegmentedChoice } from '../../ui/components/SegmentedChoice
 import { Snackbar } from '../../ui/components/Snackbar'
 import { Stepper } from '../../ui/components/StepperField'
 import { Switch } from '../../ui/components/Switch'
+import { RpeInfoButton } from '../library/RpeSheet'
 import { LOCK_UNSUPPORTED } from '../lock/LockScreen'
 import { BackupCard } from './BackupCard'
 import './settings.css'
@@ -106,7 +107,13 @@ export function SettingsContent({ settings, onUpdate, onAppLock }: SettingsConte
           canDecrement={settings.defaultRpe > 6}
           canIncrement={settings.defaultRpe < 10}
           onStep={(by) => onUpdate((s) => ({ ...s, defaultRpe: clamp(s.defaultRpe + by * 0.5, 6, 10) }))}
+          labelAction={<RpeInfoButton inline />}
         />
+      </Group>
+
+      <SectionHeader title="Progress" />
+      <Group>
+        <SwitchRow label="Strict press" supporting="Show it on Progress and add it to your total." checked={settings.showStrictPress} onChange={(v) => onUpdate((s) => ({ ...s, showStrictPress: v }))} />
       </Group>
 
       <SectionHeader title="Training days" />
@@ -169,10 +176,18 @@ function Group({ children }: { children: ReactNode }) {
   )
 }
 
-function RowLabel({ label, supporting }: { label: string; supporting: string }) {
+/** `labelAction` goes right of the label, on its line (the RPE info button). */
+function RowLabel({ label, supporting, labelAction }: { label: string; supporting: string; labelAction?: ReactNode }) {
   return (
     <span className="settings-label">
-      <span className="title-medium">{label}</span>
+      {labelAction != null ? (
+        <span className="settings-title">
+          <span className="title-medium">{label}</span>
+          {labelAction}
+        </span>
+      ) : (
+        <span className="title-medium">{label}</span>
+      )}
       <span className="settings-supporting body-small">{supporting}</span>
     </span>
   )
@@ -188,10 +203,26 @@ function SwitchRow({ label, supporting, checked, onChange }: { label: string; su
   )
 }
 
-function StepperRow({ label, supporting, value, canDecrement, canIncrement, onStep }: { label: string; supporting: string; value: string; canDecrement: boolean; canIncrement: boolean; onStep: (by: -1 | 1) => void }) {
+function StepperRow({
+  label,
+  supporting,
+  value,
+  canDecrement,
+  canIncrement,
+  onStep,
+  labelAction,
+}: {
+  label: string
+  supporting: string
+  value: string
+  canDecrement: boolean
+  canIncrement: boolean
+  onStep: (by: -1 | 1) => void
+  labelAction?: ReactNode
+}) {
   return (
     <div className="settings-row">
-      <RowLabel label={label} supporting={supporting} />
+      <RowLabel label={label} supporting={supporting} labelAction={labelAction} />
       <Stepper label={label} valueText={value} canDecrement={canDecrement} canIncrement={canIncrement} onDecrement={() => onStep(-1)} onIncrement={() => onStep(1)} />
     </div>
   )

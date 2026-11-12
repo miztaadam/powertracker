@@ -25,7 +25,20 @@ const history = (...sessions: [string, JsSet[]][]) =>
     [],
   )
 
-const build = (h: JsHistory, range: ChartRange = '6m') => buildProgress(h, range, today)
+const build = (h: JsHistory, range: ChartRange = '6m', showStrictPress = false) => buildProgress(h, range, today, showStrictPress)
+
+/** Two weeks of all four lifts. */
+const allFour = history(
+  [weeksAgo(1), [single(squat, 180), single(bench, 120), single(deadlift, 210), single(press, 70)]],
+  [thisWeek, [single(squat, 182.5), single(bench, 120), single(deadlift, 215), single(press, 72.5)]],
+)
+
+const without = (h: JsHistory, exercise: JsExercise) =>
+  new JsHistory(
+    h.sessions.map((s) => new JsSession(s.id, s.date, s.bodyweightKg, s.readiness, s.sets.filter((set) => set.exerciseId !== exercise.id))),
+    h.exercises,
+    h.baselines,
+  )
 const points = (values: readonly (number | null)[]) => values.filter((v) => v != null)
 
 /** Squat nine weeks ago and this week. */
@@ -172,5 +185,60 @@ describe('buildProgress', () => {
       { date: today, kg: 92.5 },
     ])
     expect(build(h, 'all').bodyweight).toHaveLength(3)
+  })
+
+  // ---- Strict press behind its setting (strict press spec §5.2) ----
+
+  it('switchOff_progressUnchanged', () => {
+    const off = build(allFour)
+
+    // Strict press sets change nothing: the state is the one a lifter who never pressed gets.
+    expect(off).toEqual(build(without(allFour, press)))
+    expect(off.showStrictPress).toBe(false)
+    expect(off.lifts.map((l) => l.lift)).toEqual(['SQUAT', 'BENCH', 'DEADLIFT'])
+    expect(Object.keys(off.e1rm)).toEqual(['SQUAT', 'BENCH', 'DEADLIFT'])
+    expect(off.volume.map((v) => v.lift)).toEqual(['SQUAT', 'BENCH', 'DEADLIFT'])
+    expect(off.prs.some((p) => p.lift === 'STRICT_PRESS')).toBe(false)
+    expect(off.totalKg).toBeCloseTo(517.5, 9)
+    // Strict press alone is not something Progress has to show.
+    expect(build(history([thisWeek, [single(press, 70)]])).hasData).toBe(false)
+  })
+
+  it('switchOn_showsStrictPressEverywhere', () => {
+    const on = build(allFour, '6m', true)
+
+    expect(on.showStrictPress).toBe(true)
+    expect(on.lifts.map((l) => l.lift)).toEqual(['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS'])
+    expect(on.lifts.at(-1)!.e1rmKg).toBeCloseTo(72.5, 9)
+    expect(on.e1rm.STRICT_PRESS).toEqual([70, 72.5])
+    expect(on.prs.find((p) => p.lift === 'STRICT_PRESS')!.pr.e1rmKg).toBeCloseTo(72.5, 9)
+    expect(on.volume.find((v) => v.lift === 'STRICT_PRESS')!.weeks.at(-1)).toBeCloseTo(72.5, 9)
+    // The total and its trend count all four.
+    expect(on.totalKg).toBeCloseTo(590, 9)
+    expect(on.totalTrend).toEqual([
+      { week: weeksAgo(1), kg: 580 },
+      { week: thisWeek, kg: 590 },
+    ])
+    // Strict press is in no ratio.
+    expect(on.ratios).toHaveLength(2)
+    expect(on.ratios.some((r) => r.numerator === 'STRICT_PRESS' || r.denominator === 'STRICT_PRESS')).toBe(false)
+    // With the switch on, strict press alone is something to show.
+    expect(build(history([thisWeek, [single(press, 70)]]), '6m', true).hasData).toBe(true)
+  })
+
+  it('switchOn_noPressData_totalExplains', () => {
+    const noPress = without(allFour, press)
+    const on = build(noPress, '6m', true)
+
+    // Every included lift needs data: no total, no change, no trend. The other lifts are untouched.
+    expect(on.totalKg).toBeNull()
+    expect(on.totalChangeKg).toBeNull()
+    expect(on.totalTrend).toEqual([])
+    expect(on.lifts.at(-1)).toEqual({ lift: 'STRICT_PRESS', e1rmKg: null, changeKg: null })
+    expect(on.e1rm.STRICT_PRESS).toEqual([null, null])
+    expect(on.volume.find((v) => v.lift === 'STRICT_PRESS')!.weeks.at(-1)).toBe(0)
+    expect(on.prs.some((p) => p.lift === 'STRICT_PRESS')).toBe(false)
+    expect(on.lifts.slice(0, -1)).toEqual(build(noPress).lifts)
+    expect(build(noPress).totalKg).toBeCloseTo(517.5, 9)
   })
 })

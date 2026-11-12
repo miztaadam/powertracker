@@ -29,3 +29,25 @@ export async function checkInfoButtonOpensGuide(name: string, index = 0) {
   await userEvent.click(sheet.getByRole('button', { name: 'Close guide' }))
   await waitFor(() => expect(guideIsOpen()).toBe(false))
 }
+
+export const rpeSheet = () => screen.queryByRole('dialog', { name: grit.rpeGuide().title })
+
+export const rpeSheetIsOpen = () => rpeSheet() != null
+
+/**
+ * Taps the "What RPE means" button (within `root` when given), checks that the sheet opens with the
+ * whole explainer and no exercise safety line, then closes the sheet.
+ */
+export async function checkRpeInfoOpensSheet(root: HTMLElement = document.body) {
+  const guide = grit.rpeGuide()
+  await userEvent.click(await within(root).findByRole('button', { name: 'What RPE means' }))
+  const sheet = within(await screen.findByRole('dialog', { name: guide.title }))
+
+  expect(sheet.getByRole('heading', { level: 2, name: guide.title })).toBeInTheDocument()
+  for (const line of guide.lines) expect(sheet.getByText(line)).toBeInTheDocument()
+  // It explains a scale, not an exercise: no safety line.
+  expect(screen.queryByText(grit.safetyLine())).toBeNull()
+
+  await userEvent.click(sheet.getByRole('button', { name: 'Close' }))
+  await waitFor(() => expect(rpeSheetIsOpen()).toBe(false))
+}

@@ -8,17 +8,30 @@ import { expect, test, type Page } from '@playwright/test'
 // PNGs in docs/design/web/screens/. Look at them after a visual change.
 const outDir = resolve(process.cwd(), process.env.UPDATE_SCREENSHOTS === '1' ? '../docs/design/web/screens' : 'test-results/screens')
 
-/** Opens Progress on the sample Wednesday and writes twelve weeks of sessions straight into IndexedDB. */
-async function openWithSampleData(page: Page) {
+/**
+ * Opens Progress on the sample Wednesday and writes twelve weeks of sessions straight into IndexedDB.
+ * With `strictPress`, the lift has its row and a session a week too, and its Progress setting is on.
+ */
+async function openWithSampleData(page: Page, strictPress = false) {
   await page.clock.setFixedTime(new Date('2026-11-11T09:41:00'))
   await page.goto('/#/progress')
   await expect(page.getByText('No lifts logged yet')).toBeVisible()
-  await page.evaluate(async () => {
+  await page.evaluate(async (strictPress) => {
     const db = await new Promise<IDBDatabase>((done, fail) => {
       const request = indexedDB.open('grit')
       request.onsuccess = () => done(request.result)
       request.onerror = () => fail(request.error)
     })
+    if (strictPress) {
+      // A new install has no strict press row until the lift is first used.
+      const first = db.transaction(['exercises', 'settings'], 'readwrite')
+      first.objectStore('exercises').add({ name: 'Strict press', category: 'STRICT_PRESS', parentLift: null, muscles: ['Front delts', 'Side delts', 'Triceps'], isBuiltIn: true, archived: false })
+      first.objectStore('settings').put({ key: 'showStrictPress', value: true })
+      await new Promise<void>((done, fail) => {
+        first.oncomplete = () => done()
+        first.onerror = () => fail(first.error)
+      })
+    }
     const tx = db.transaction(['exercises', 'sessions', 'sets'], 'readwrite')
     const settled = new Promise<void>((done, fail) => {
       tx.oncomplete = () => done()
@@ -60,10 +73,16 @@ async function openWithSampleData(page: Page) {
         ['Deadlift', 185 + 2.5 * week, 3, 7.5, 1, true],
         ['Deadlift', 160, 5, 6, 2 + (week % 2)],
       ])
+      if (strictPress) {
+        session(week * 7 + 2, [
+          ['Strict press', 62.5 + 2.5 * Math.floor(week / 2), 3, 8.5, 1, true],
+          ['Strict press', 52.5, 5, 7, 3],
+        ])
+      }
     }
     await settled
     db.close()
-  })
+  }, strictPress)
   await page.reload()
   await expect(page.getByText('Weekly best e1RM')).toBeVisible()
 }
@@ -141,6 +160,81 @@ for (const scheme of ['dark', 'light'] as const) {
     await expect(page.getByText('Weekly best e1RM')).toBeVisible()
   })
 }
+
+for (const scheme of ['dark', 'light'] as const) {
+  test(`progress with strict press fits the narrowest iPhone (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openWithSampleData(page, true)
+
+    await page.setViewportSize({ width: 375, height: 812 })
+    await expect(page.getByText('Total (S+B+D+P)')).toBeVisible()
+    await expect(page.getByText('in 4 weeks')).toBeVisible()
+    await expect(page.getByRole('img', { name: /Line chart. Latest: Squat 190.5 kg, Bench .* kg, Deadlift .* kg, Strict press .* kg/ })).toBeVisible()
+    await expect(page.getByText(/^Strict press record: /)).toBeAttached()
+    await expect(page.getByText(/^Strict press volume this week: /)).toBeAttached()
+    expect(await overflowing(page)).toEqual([])
+    expect(await clippedText(page)).toEqual([])
+    expect(await smallTargets(page)).toEqual([])
+
+    // Four lift tiles, two to a row, none over another.
+    const tiles = await page.getByRole('button', { name: /history$/i }).evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect))
+    expect(tiles).toHaveLength(4)
+    for (const [i, a] of tiles.entries()) {
+      for (const b of tiles.slice(i + 1)) expect(a.right <= b.left + 0.5 || b.right <= a.left + 0.5 || a.bottom <= b.top + 0.5 || b.bottom <= a.top + 0.5).toBe(true)
+    }
+    expect(tiles.map((t) => Math.round(t.top))).toEqual([tiles[0]!.top, tiles[0]!.top, tiles[2]!.top, tiles[2]!.top].map(Math.round))
+    expect(tiles[2]!.top).toBeGreaterThan(tiles[0]!.bottom)
+
+    // The four legend entries stay whole, with their figures.
+    const legend = await page.locator('.gr-legend').first().locator('.gr-legend-item').evaluateAll((els) => els.map((el) => ({ text: el.textContent, right: el.getBoundingClientRect().right })))
+    expect(legend.map((l) => l.text?.replace(/[\d. kg]+$/, ''))).toEqual(['Squat', 'Bench', 'Deadlift', 'Strict press'])
+
+    // "Strict press · this week" stays on one line inside its column, and the captions under the bars neither wrap nor meet.
+    const names = await page.locator('.progress-volume-name').evaluateAll((els) =>
+      els.map((el) => {
+        const text = document.createRange()
+        text.selectNodeContents(el)
+        return { text: el.textContent, height: el.getBoundingClientRect().height, right: text.getBoundingClientRect().right, column: el.parentElement!.getBoundingClientRect().right }
+      }),
+    )
+    expect(names.map((n) => n.text)).toEqual(['Squat · this week', 'Bench · this week', 'Deadlift · this week', 'Strict press · this week'])
+    for (const n of names) {
+      expect(n.height, n.text ?? '').toBeLessThan(20)
+      expect(n.right, n.text ?? '').toBeLessThanOrEqual(n.column + 0.5)
+    }
+    const [from, to] = await page.locator('.progress-volume-span > span').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect))
+    expect(from!.right).toBeLessThan(to!.left)
+    expect(from!.height).toBeLessThan(20)
+    expect(to!.height).toBeLessThan(20)
+    await shoot(page, `progress-strict-press-${scheme}`, 2020)
+
+    // The fourth tile opens the lift's own history.
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.getByRole('button', { name: /strict press history/i }).click()
+    await expect(page).toHaveURL(/#\/lift\/STRICT_PRESS$/)
+    await expect(page.getByRole('heading', { level: 1, name: 'Strict press history' })).toBeVisible()
+    await expect(page.getByText('12 sessions')).toBeVisible()
+    expect(await overflowing(page)).toEqual([])
+    expect(await smallTargets(page)).toEqual([])
+  })
+}
+
+test('the strict press switch in Settings changes Progress and its total', async ({ page }) => {
+  await openWithSampleData(page, true)
+  await expect(page.getByText('Total (S+B+D+P)')).toBeVisible()
+  const withPress = await page.locator('.progress-total-figure .gr-number-value').first().textContent()
+
+  await page.goto('/#/settings')
+  await page.getByText('Show it on Progress and add it to your total.').click()
+  await expect(page.getByRole('switch', { name: 'Strict press' })).not.toBeChecked()
+  await page.goto('/#/progress')
+
+  // Off: the screen is the three-lift one, as if strict press had never been logged.
+  await expect(page.getByText('Total (S+B+D)', { exact: true })).toBeVisible()
+  await expect(page.getByText(/strict press/i)).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /history$/i })).toHaveCount(3)
+  await expect.poll(() => page.locator('.progress-total-figure .gr-number-value').first().textContent()).not.toBe(withPress)
+})
 
 test('the chart range is chosen with one tap', async ({ page }) => {
   await openWithSampleData(page)

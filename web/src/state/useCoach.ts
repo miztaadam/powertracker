@@ -5,7 +5,7 @@ import { resolveCatalogue } from '../db/catalogue'
 import { exerciseToJs } from '../db/mapping'
 import type { AdviceRow, ExerciseRow, PlanItemRow } from '../db/schema'
 import { grit, type JsExercise, type JsHistory } from '../domain'
-import type { Lift } from '../router'
+import { LIFTS, type Lift } from '../router'
 import type { MissPoint } from './useToday'
 import { dayName } from './weekdayNames'
 
@@ -45,7 +45,6 @@ const TREND_WEEKS = 6
 const WEAK_POINT_ADDITIONS = 2
 const E1RM_DAYS = 28
 const UPDATE_FAILED = "Couldn't update — try again"
-const LIFTS: readonly Lift[] = ['SQUAT', 'BENCH', 'DEADLIFT']
 const MISS_POINTS: readonly MissPoint[] = ['FLOOR', 'MID', 'LOCKOUT']
 
 type Payload =
@@ -54,6 +53,7 @@ type Payload =
   | { kind: 'reEntry'; loadFactor: number }
   | { kind: 'weakPoint'; lift: Lift; missPoint: MissPoint | null }
 
+/** Any main lift, strict press included: its advice shows whatever the Progress setting says. */
 const asLift = (value: unknown): Lift | null => (LIFTS.includes(value as Lift) ? (value as Lift) : null)
 
 /** Reads the Android `AdvicePayload` JSON through the domain, which fills in Android's defaults. Null for a target or anything unreadable. */

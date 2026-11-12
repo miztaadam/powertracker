@@ -293,3 +293,30 @@
   flex: none;
   color: var(--text-secondary);
 }
+
+/* The RPE sheet: the same sheet without sections, so its blocks keep their own distance. */
+.lib-rpe {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/*
+ * The RPE info button in a caption or a row title: the room of its icon and no height. The 48 px
+ * button is centred on that spot, so its target reaches past it on every side.
+ */
+.lib-rpe-inline {
+  position: relative;
+  flex: none;
+  display: inline-block;
+  width: 24px;
+  height: 0;
+  vertical-align: middle;
+}
+
+.lib-rpe-inline .gr-icon-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

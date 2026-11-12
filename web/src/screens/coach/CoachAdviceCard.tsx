@@ -11,10 +11,10 @@ import { Sparkline } from '../../ui/components/Sparkline'
 import { StatTile } from '../../ui/components/StatTile'
 import type { Tone } from '../../ui/components/tone'
 import { InfoButton } from '../library/InfoButton'
+import { LIFT_COLOR, LIFT_LABEL } from '../progress/lifts'
 
-const LIFT_LABEL: Record<Lift, string> = { SQUAT: 'Squat', BENCH: 'Bench', DEADLIFT: 'Deadlift' }
-const CHART_COLOR: Record<Lift, string> = { SQUAT: 'var(--chart-squat)', BENCH: 'var(--chart-bench)', DEADLIFT: 'var(--chart-deadlift)' }
-const FLOOR_LABEL: Record<Lift, string> = { SQUAT: 'Out of the hole', BENCH: 'Off the chest', DEADLIFT: 'Off the floor' }
+/** Where each lift starts, as the coach names it on a card. */
+const FLOOR_LABEL: Record<Lift, string> = { SQUAT: 'Out of the hole', BENCH: 'Off the chest', DEADLIFT: 'Off the floor', STRICT_PRESS: 'Off the shoulders' }
 
 /** A stall's trend is scaled to at least 5% of the lift, so it reads as the flat line it is. */
 const STALL_TREND_SPAN = 0.05
@@ -70,7 +70,7 @@ function Detail({ lift, detail }: { lift: Lift | null; detail: CardDetail }) {
             <div className="coach-trend">
               <NumberDisplay value={formatKg(toHalfKg(detail.e1rmKg))} unit="kg" label={lift ? `${LIFT_LABEL[lift]} e1RM` : 'e1RM'} size="medium" />
               {detail.trend.length >= 2 && (
-                <Sparkline className="coach-spark" values={detail.trend} color={lift ? CHART_COLOR[lift] : 'var(--text-muted)'} minSpan={detail.e1rmKg * STALL_TREND_SPAN} />
+                <Sparkline className="coach-spark" values={detail.trend} color={lift ? LIFT_COLOR[lift] : 'var(--text-muted)'} minSpan={detail.e1rmKg * STALL_TREND_SPAN} />
               )}
             </div>
           )}

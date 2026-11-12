@@ -148,6 +148,27 @@ describe.each([
   })
 })
 
+// The strict press chart colour, as on Android (Color.kt `press`): a line and a dot must stand out from what they are drawn on.
+const press = { dark: '#A98BF0', light: '#7C52CC' } as const
+
+describe.each([
+  ['dark', dark],
+  ['light', light],
+] as const)('%s strict press chart colour', (name, theme) => {
+  it(`--chart-press is ${press[name]}`, () => {
+    expect(theme['--chart-press']).toBe(press[name])
+  })
+  for (const s of ['--bg', '--surface', '--container']) {
+    it(`against ${s} is at least 3:1`, () => {
+      expect(ratio(theme['--chart-press'] ?? '#000000', theme[s]!)).toBeGreaterThanOrEqual(3)
+      expect(theme['--chart-press']).toBeDefined()
+    })
+  }
+  it('is not one of the other lifts\' colours', () => {
+    for (const k of ['--chart-squat', '--chart-bench', '--chart-deadlift']) expect(theme['--chart-press']).not.toBe(theme[k])
+  })
+})
+
 describe('token set', () => {
   it('matches the DESIGN.md anchors', () => {
     expect(dark['--bg']).toBe('#0B0C0E')
@@ -159,7 +180,7 @@ describe('token set', () => {
     expect(lightOnly['--accent-ink']).toBeDefined()
   })
   it('defines chart and plate colours', () => {
-    for (const k of ['--chart-squat', '--chart-bench', '--chart-deadlift', '--plate-25', '--plate-20', '--plate-15', '--plate-10', '--plate-5', '--plate-2p5', '--plate-small']) {
+    for (const k of ['--chart-squat', '--chart-bench', '--chart-deadlift', '--chart-press', '--plate-25', '--plate-20', '--plate-15', '--plate-10', '--plate-5', '--plate-2p5', '--plate-small']) {
       expect(dark[k], k).toBeDefined()
     }
   })

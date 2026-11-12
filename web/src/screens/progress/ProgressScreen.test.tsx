@@ -1,7 +1,8 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type { GritDb } from '../../db/db'
+import { resolveCatalogue } from '../../db/catalogue'
+import { updateSettings, type GritDb } from '../../db/db'
 import { goBack, navigate, useRoute } from '../../router'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, addDays, exerciseNamed, set, todayFixture } from '../../test/todayFixture'
@@ -37,6 +38,23 @@ async function log(date: string, bodyweightKg: number | null, ...sets: Logged[])
 async function seed() {
   await log(addDays(TODAY, -9), 92, ['Squat', 140, 5, 8], ['Bench', 100, 5, 8], ['Deadlift', 180, 5, 8])
   await log(addDays(TODAY, -2), 92.5, ['Squat', 145, 5, 8], ['Squat', 150, 3, 10, true], ['Pause squat', 120, 3, 8], ['Bench', 100, 5, 8], ['Deadlift', 185, 5, 8])
+}
+
+/** `seed`, with a strict press top set in both sessions. */
+async function seedWithPress() {
+  // A new install has no strict press row until the lift is first used.
+  await resolveCatalogue(db, 'Strict press')
+  await log(addDays(TODAY, -9), 92, ['Squat', 140, 5, 8], ['Bench', 100, 5, 8], ['Deadlift', 180, 5, 8], ['Strict press', 60, 5, 8])
+  await log(addDays(TODAY, -2), 92.5, ['Squat', 145, 5, 8], ['Bench', 100, 5, 8], ['Deadlift', 185, 5, 8], ['Strict press', 62.5, 5, 8])
+}
+
+const showStrictPress = (on: boolean) => updateSettings(db, (s) => ({ ...s, showStrictPress: on }))
+
+/** How often `text` is on the screen, in any case, as text or as a spoken name. */
+function count(text: string): number {
+  const needle = text.toLowerCase()
+  const named = Array.from(document.body.querySelectorAll('[aria-label]')).filter((el) => el.getAttribute('aria-label')!.toLowerCase().includes(needle)).length
+  return screen.queryAllByText((content) => content.toLowerCase().includes(needle)).length + named
 }
 
 /** Progress and lift history wired the way the app shell wires them. */
@@ -110,7 +128,8 @@ describe('ProgressScreen', () => {
     await show()
 
     expect(screen.getByText('Estimated 1RM')).toBeInTheDocument()
-    expect(screen.getByText('Total')).toBeInTheDocument()
+    // The total always says what it adds up.
+    expect(screen.getByText('Total (S+B+D)')).toBeInTheDocument()
     expect(screen.getByText('Change over the last 4 weeks. Tap a lift for its history.')).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: '6 mo' })).toBeChecked()
     expect(screen.getByRole('heading', { name: 'Records' })).toBeInTheDocument()
@@ -179,5 +198,98 @@ describe('ProgressScreen', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Deadlift history' })).toBeInTheDocument()
     expect(screen.getByText('0 sessions')).toBeInTheDocument()
     expect(screen.getByText('Every set you log for this lift and its variations will be listed here.')).toBeInTheDocument()
+  })
+
+  // ---- Strict press behind its setting (strict press spec §5.2) ----
+
+  it('switchOff_progressUnchanged', async () => {
+    await seedWithPress()
+    await show()
+
+    // Logged strict press sets show nowhere: not as a tile, a line, a record or a volume row.
+    expect(count('Strict press')).toBe(0)
+    expect(screen.getByText('Total (S+B+D)')).toBeInTheDocument()
+    expect(count('S+B+D+P')).toBe(0)
+    for (const lift of ['squat', 'bench', 'deadlift']) expect(screen.getByRole('button', { name: new RegExp(`open ${lift} history`, 'i') })).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /history/i })).toHaveLength(3)
+  })
+
+  it('switchOn_showsStrictPressEverywhere', async () => {
+    await seedWithPress()
+    await showStrictPress(true)
+    await show()
+
+    // The tile, the chart legend, the record and the volume row.
+    const tile = screen.getByRole('button', { name: /strict press, 77 kg.*open strict press history/i })
+    expect(screen.getByRole('img', { name: /Line chart. Latest: Squat .* kg, Bench .* kg, Deadlift .* kg, Strict press 77 kg/ })).toBeInTheDocument()
+    expect(screen.getByText('Strict press record: estimated 1RM 77 kg, from 62.5 × 5 @ 8 on 9 Nov')).toBeInTheDocument()
+    expect(screen.getByText('Strict press volume this week: 313 kg')).toBeInTheDocument()
+    // It is in no ratio.
+    expect(screen.queryByText(/Strict press ÷|÷ Strict press/)).toBeNull()
+
+    // Its tile opens its own history page.
+    await userEvent.click(tile)
+    expect(await screen.findByRole('heading', { level: 1, name: 'Strict press history' })).toBeInTheDocument()
+    expect(window.location.hash).toBe('#/lift/STRICT_PRESS')
+    expect(await screen.findByText('Set 1: 62.5 kg × 5 at RPE 8, personal record, done')).toBeInTheDocument()
+    expect(screen.getByText('Set 1: 60 kg × 5 at RPE 8, personal record, done')).toBeInTheDocument()
+    expect(screen.queryByText(/185 kg/)).toBeNull()
+    // The header's info button opens the strict press guide.
+    await checkInfoButtonOpensGuide('Strict press')
+  })
+
+  it('totalLabel_bothWays', async () => {
+    await seedWithPress()
+    await show()
+    expect(screen.getByText('Total (S+B+D)')).toBeInTheDocument()
+
+    // The label follows the switch while the screen is open.
+    await showStrictPress(true)
+    expect(await screen.findByText('Total (S+B+D+P)')).toBeInTheDocument()
+    expect(screen.queryByText('Total (S+B+D)')).toBeNull()
+
+    await showStrictPress(false)
+    expect(await screen.findByText('Total (S+B+D)')).toBeInTheDocument()
+    expect(count('S+B+D+P')).toBe(0)
+  })
+
+  it('switchOn_noPressData_totalExplains', async () => {
+    await seed()
+    await showStrictPress(true)
+    await show()
+
+    // No total without every included lift: the note says which lift it is waiting for.
+    expect(screen.getByText('Total (S+B+D+P)')).toBeInTheDocument()
+    expect(screen.getByText('Log all four lifts, strict press included, to see your total.')).toBeInTheDocument()
+    // The empty lift has its tile and volume row, and nothing crashes on its empty series.
+    const tile = screen.getByRole('button', { name: /strict press, –, open strict press history/i })
+    expect(screen.getByText('Strict press volume this week: 0 kg')).toBeInTheDocument()
+    expect(screen.queryByText(/Strict press record:/)).toBeNull()
+    expect(screen.getByText('Squat ÷ Deadlift')).toBeInTheDocument()
+
+    // Its history page opens empty.
+    await userEvent.click(tile)
+    expect(await screen.findByText('No strict press sessions yet')).toBeInTheDocument()
+
+    // Switched off again, the three-lift total is back.
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }))
+    await showStrictPress(false)
+    await waitFor(() => expect(screen.queryByText(/Log all four lifts/)).toBeNull())
+    expect(await screen.findByText('Total (S+B+D)')).toBeInTheDocument()
+  })
+
+  it('switchOff_noDeadliftData_keepsTheThreeLiftNote', async () => {
+    await log(addDays(TODAY, -2), null, ['Squat', 145, 5, 8], ['Bench', 100, 5, 8])
+    await show()
+
+    expect(screen.getByText('Total (S+B+D)')).toBeInTheDocument()
+    expect(screen.getByText('Log all three lifts to see your total.')).toBeInTheDocument()
+  })
+
+  it('emptyState_namesStrictPress_whenTheSwitchIsOn', async () => {
+    await showStrictPress(true)
+    await show('No lifts logged yet')
+
+    expect(screen.getByText('Log a squat, bench, deadlift or strict press session on Today and your charts will appear here.')).toBeInTheDocument()
   })
 })

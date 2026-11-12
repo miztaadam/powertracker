@@ -49,6 +49,7 @@
 
 /* Never narrower than two 48 px buttons and the gap between them. */
 .gr-stepper-field {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -69,6 +70,46 @@
   background: none;
   color: inherit;
   font: inherit;
+}
+
+/* A row of steppers may give its captions more height (`--stepper-caption`), so an action beside one has room. */
+.gr-stepper-figure > .eyebrow {
+  line-height: var(--stepper-caption, 14px);
+}
+
+/* The caption moves over by the action's width, so the two are centred together. */
+.gr-stepper-field-action .gr-stepper-figure > .eyebrow {
+  padding-right: var(--stepper-action-width);
+}
+
+.gr-stepper-field-action {
+  --stepper-action-width: 24px;
+}
+
+/* The caption's line again, laid over it: an unseen copy of the caption, then the action. Taps go through it, except on the action. */
+.gr-stepper-action {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--stepper-caption, 14px);
+  pointer-events: none;
+}
+
+.gr-stepper-action-spacer {
+  flex: none;
+  visibility: hidden;
+}
+
+.gr-stepper-action-spacer::before {
+  content: attr(data-text);
+}
+
+.gr-stepper-action button {
+  pointer-events: auto;
 }
 
 label.gr-stepper-figure {
