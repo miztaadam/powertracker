@@ -147,3 +147,9 @@ object Library {
  * former names (an "Overhead press" row shows the Strict press picture); null for anything without one.
  */
 fun Library.figure(name: String): ExerciseFigure? = find(name)?.let { Figures.byName(it.name) }
+
+/**
+ * Whether the catalogue entry [name] resolves to (as [Library.figure]) has a picture, without building it: a list can
+ * ask this of every row and build only the figures it draws.
+ */
+fun Library.hasFigure(name: String): Boolean = find(name)?.let { Figures.has(it.name) } ?: false

@@ -47,6 +47,9 @@ object Figures {
     /** The figure stored under the catalogue name [name] exactly; `Library.figure` resolves aliases first. */
     internal fun byName(name: String): ExerciseFigure? = testFigures[name] ?: all[name]
 
+    /** Whether a figure is stored under the catalogue name [name] exactly, without building it. */
+    internal fun has(name: String): Boolean = name in testFigures || name in all
+
     /**
      * A hash of every figure's shape lists (both panels, names in order, numbers in hundredths), so the JVM and JS
      * builds can be checked against one golden value.

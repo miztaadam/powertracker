@@ -11,6 +11,7 @@ import com.powertracker.domain.library.BodyArea
 import com.powertracker.domain.library.Equipment
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.figure
+import com.powertracker.domain.library.hasFigure
 import com.powertracker.domain.library.figures.FigureRenderer
 import com.powertracker.domain.library.figures.Which
 import com.powertracker.domain.library.MuscleGroup
@@ -207,6 +208,12 @@ object GritDomain {
             arrayOf(FigureRenderer.viewBox.width, FigureRenderer.viewBox.height),
         )
     }
+
+    /**
+     * Whether the catalogue entry [name] resolves to has a picture (the same names as [figureInfo]), without building
+     * it: cheap enough to ask of every row of a list.
+     */
+    fun hasFigure(name: String): Boolean = Library.hasFigure(name)
 
     /** The shapes of one panel ([which] "start" or "end"), in draw order; null when [name] has no picture. */
     fun figureShapes(name: String, which: String): Array<JsFigureShape>? {

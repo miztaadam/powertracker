@@ -83,13 +83,14 @@ function watch(placed: Element, scroller: Element | null, onNear: () => void): (
  * beside it names the exercise, so it is hidden from screen readers.
  *
  * The drawing is only made for a tile on or near the screen, and then kept: a list of a few hundred rows opens
- * without building a few hundred drawings.
+ * without building a few hundred drawings. Until then the row only asks whether there is a figure, which builds
+ * none: building a figure (solving its poses) is the slow part.
  */
 export const ExerciseThumbnail = memo(function ExerciseThumbnail({ name }: { name?: string | null }) {
-  const figure = name != null ? grit.figureInfo(name) : null
+  const drawable = name != null && grit.hasFigure(name)
   const tile = useRef<HTMLSpanElement>(null)
   const [near, setNear] = useState(false)
-  const waits = figure != null && !near
+  const waits = drawable && !near
   // Before the first paint, so a tile that starts on screen is never seen empty.
   useLayoutEffect(() => {
     if (!waits || tile.current == null) return
@@ -108,13 +109,17 @@ export const ExerciseThumbnail = memo(function ExerciseThumbnail({ name }: { nam
   }, [waits])
   return (
     <span ref={tile} className="lib-thumb" aria-hidden="true">
-      {figure != null && near && <FigureSvg name={name!} pose={figure.thumbnail === 'start' ? 'start' : 'end'} viewBox={figure.viewBox} />}
+      {drawable && near && <ThumbnailFigure name={name!} />}
     </span>
   )
 })
 
-/** How long a slice of idle time is where the browser has no idle callbacks (Safari). */
-const FALLBACK_SLICE_MS = 8
+/** The thumbnail's pose of `name`'s figure, built here on first use. */
+function ThumbnailFigure({ name }: { name: string }) {
+  const figure = grit.figureInfo(name)
+  if (figure == null) return null
+  return <FigureSvg name={name} pose={figure.thumbnail === 'start' ? 'start' : 'end'} viewBox={figure.viewBox} />
+}
 
 /** Runs `run` when the browser is next idle, with how long it may take; returns how to call it off. */
 function whenIdle(run: (timeLeft: () => number) => void): () => void {
@@ -122,39 +127,54 @@ function whenIdle(run: (timeLeft: () => number) => void): () => void {
     const id = requestIdleCallback((deadline) => run(() => deadline.timeRemaining()))
     return () => cancelIdleCallback(id)
   }
-  const id = setTimeout(() => {
-    const started = performance.now()
-    run(() => FALLBACK_SLICE_MS - (performance.now() - started))
-  }, 1)
+  // No idle callbacks (Safari): a timer that reports no room, so each turn runs its one piece and stays small.
+  const id = setTimeout(() => run(() => 0), 1)
   return () => clearTimeout(id)
 }
 
+/** A piece of the work, and the idle time it needs ahead of it: a little more than it takes, cold, on a phone. */
+type Piece = { run: () => void; needs: number }
+
+/** The catalogue, its order and which entries have figures: about 40 ms cold. */
+const CATALOGUE_NEEDS_MS = 45
+/** One figure, built and drawn: about 1–3 ms cold, the slowest (Leg press) up to about 25 ms on a fast machine. */
+const FIGURE_NEEDS_MS = 10
+
 /**
  * Works out every catalogue thumbnail in the browser's idle time after start-up, in the list's order, a little at a
- * time, so the Exercises tab opens with its drawings already made: the tab looks up every row's figure as it opens,
- * and building a figure cold (solving its poses) is what made it slow. Each slice does one piece (the catalogue, or
- * one figure and its thumbnail), then as many more as its idle time allows. Whatever a screen needs before this
- * reaches it is worked out there and then, as before, and kept for both. Returns how to stop it.
+ * time, so the Exercises tab opens with its drawings already made: building a figure cold (solving its poses) is
+ * the slow part of drawing it. Each idle callback (or fallback timer) runs one piece, then more only while the idle
+ * time left has room for the next, so at most one small piece lands in a short gap between two frames. Whatever a
+ * screen needs before this reaches it is worked out there and then, and kept for both. Returns how to stop it.
  */
 export function prepareThumbnails(): () => void {
-  // The catalogue and its order first (the picker reads them too), then one figure at a time: the domain builds a
-  // figure, solving its poses, on its first look-up, and then its thumbnail is drawn.
-  const pieces: (() => void)[] = [
-    () => void library(),
-    () => {
-      for (const { name } of grit.searchLibrary('', [], [])) {
-        pieces.push(() => {
-          const figure = grit.figureInfo(name)
-          if (figure != null) prepareDrawing(name, figure.thumbnail === 'start' ? 'start' : 'end')
-        })
-      }
+  // The catalogue first (the picker reads it too), then one figure at a time.
+  const pieces: Piece[] = [
+    {
+      run: () => {
+        library()
+        for (const { name } of grit.searchLibrary('', [], [])) {
+          if (!grit.hasFigure(name)) continue
+          pieces.push({
+            run: () => {
+              const figure = grit.figureInfo(name)
+              if (figure != null) prepareDrawing(name, figure.thumbnail === 'start' ? 'start' : 'end')
+            },
+            needs: FIGURE_NEEDS_MS,
+          })
+        }
+      },
+      needs: CATALOGUE_NEEDS_MS,
     },
   ]
   let next = 0
   let cancel: (() => void) | null = null
   const slice = (timeLeft: () => number) => {
-    do pieces[next++]!()
-    while (next < pieces.length && timeLeft() > 0)
+    // One piece always: the browser calls an idle callback only when it is idle, and a piece is small (the catalogue,
+    // or one figure). A fixed test clock reports 0 ms of room in every idle callback, so waiting for room would never
+    // run anything there. More pieces only while the time left has room for the next.
+    pieces[next++]!.run()
+    while (next < pieces.length && timeLeft() >= pieces[next]!.needs) pieces[next++]!.run()
     cancel = next < pieces.length ? whenIdle(slice) : null
   }
   cancel = whenIdle(slice)

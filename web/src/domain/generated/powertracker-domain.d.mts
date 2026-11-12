@@ -46,6 +46,7 @@ export declare namespace GritDomain {
             exercisesByMuscles(groups: Array<string>, equipment: Array<string>): Array<JsLibraryExercise>;
             formGuide(name: string): Nullable<JsFormGuide>;
             figureInfo(name: string): Nullable<JsFigureInfo>;
+            hasFigure(name: string): boolean;
             figureShapes(name: string, which: string): Nullable<Array<JsFigureShape>>;
             safetyLine(): string;
             rpeGuide(): JsRpeGuide;

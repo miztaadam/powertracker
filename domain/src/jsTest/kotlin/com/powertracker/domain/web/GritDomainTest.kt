@@ -26,6 +26,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -406,6 +407,9 @@ class GritDomainTest {
         }
         assertTrue(GritDomain.figureShapes("Bench", "start")!!.map { it.kind }.toSet().containsAll(listOf("circle", "capsule", "rect", "polygon")))
 
+        assertTrue(GritDomain.hasFigure("bench press"))
+        assertTrue(GritDomain.hasFigure("Barbell bench press"))
+        assertFalse(GritDomain.hasFigure("My own exercise"))
         assertNull(GritDomain.figureInfo("My own exercise"))
         assertNull(GritDomain.figureShapes("My own exercise", "start"))
         assertFailsWith<IllegalArgumentException> { GritDomain.figureShapes("Bench", "START") }

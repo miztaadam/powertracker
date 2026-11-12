@@ -2,9 +2,11 @@ package com.powertracker.domain.library.figures
 
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.figure
+import com.powertracker.domain.library.hasFigure
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -52,6 +54,28 @@ class FiguresTest {
         assertSame(bench, Library.figure("Barbell bench press"))
         assertSame(bench, Library.figure("bench press"))
         assertNull(Library.figure("My own exercise"))
+    }
+
+    @Test
+    fun hasFigure_resolvesNamesLikeFigure() {
+        // Names, aliases and former names, the same as Library.figure; nothing for the lifter's own exercise.
+        for (name in listOf("Bench", "bench press", "Barbell bench press", "Overhead press", "OHP", "  overhead-press ")) {
+            assertTrue(Library.hasFigure(name), name)
+        }
+        assertFalse(Library.hasFigure("My own exercise"))
+        assertFalse(Library.hasFigure(""))
+        // A catalogue exercise not drawn yet has none, until a test registers one under its name.
+        val undrawn = assertNotNull(Library.all().firstOrNull { it.name !in Figures.all }, "every exercise is drawn").name
+        assertFalse(Library.hasFigure(undrawn))
+        Figures.registerForTest(undrawn, FigureFixtures.benchDraft())
+        try {
+            assertTrue(Library.hasFigure(undrawn))
+        } finally {
+            Figures.unregisterForTest(undrawn)
+        }
+        assertFalse(Library.hasFigure(undrawn))
+        // The same answer as looking the figure up, for every catalogue name.
+        for (entry in Library.all()) assertEquals(Library.figure(entry.name) != null, Library.hasFigure(entry.name), entry.name)
     }
 
     @Test
