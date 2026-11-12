@@ -39,6 +39,27 @@ export function library(): readonly JsLibraryExercise[] {
   return (catalogue ??= grit.library())
 }
 
+/**
+ * Works the catalogue out once, in one task right after the app's first paint: the list and the full search the
+ * picker and the Exercises tab open on. Cold, they cost about 30 ms (more on a phone), which the first open after a
+ * launch would otherwise pay. The catalogue only, never figures: the tab's thumbnails are worked out when the app is
+ * built, and a guide sheet works out its one figure when it opens. A failure is ignored: whoever needs the catalogue
+ * works it out there and then, as without this. Not an idle callback: a fixed test clock fakes those and Safari has
+ * none, and no tap lands within a few tens of ms of the first paint anyway.
+ */
+export function warmCatalogue(): void {
+  requestAnimationFrame(() =>
+    setTimeout(() => {
+      try {
+        library()
+        grit.searchLibrary('', [], [])
+      } catch {
+        // Only a head start.
+      }
+    }, 0),
+  )
+}
+
 let groups: readonly { id: string; label: string }[] | undefined
 
 /** The muscle groups with at least one catalogue exercise, in the order the picker's grid shows them. */

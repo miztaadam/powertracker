@@ -10,7 +10,7 @@ type Circle = { kind: 'circle'; role: string; cx: number; cy: number; r: number 
 type Capsule = { kind: 'capsule'; role: string; x1: number; y1: number; x2: number; y2: number; width: number }
 type Rect = { kind: 'rect'; role: string; x: number; y: number; w: number; h: number; radius: number }
 type Polygon = { kind: 'polygon'; role: string; points: readonly number[] }
-type Shape = Circle | Capsule | Rect | Polygon
+export type Shape = Circle | Capsule | Rect | Polygon
 
 /** The class that colours a role (figure.css): `BODY_FAR` is `fig-body-far`. */
 const roleClass = (role: string) => `fig-${role.toLowerCase().replace(/_/g, '-')}`
@@ -48,14 +48,6 @@ function drawing(name: string, pose: Pose): readonly ReactElement[] | null {
   return found
 }
 
-/**
- * Works out `name`'s `pose` ahead of time, so the first screen that shows it only has to put it on the page. Working a
- * figure out cold (the domain solves its pose) is the slow part of drawing it.
- */
-export function prepareDrawing(name: string, pose: Pose): void {
-  drawing(name, pose)
-}
-
 export type FigureSvgProps = {
   /** The exercise, by any name the catalogue knows it under. */
   name: string
@@ -72,9 +64,29 @@ export type FigureSvgProps = {
 export function FigureSvg({ name, pose, viewBox }: FigureSvgProps) {
   const shapes = drawing(name, pose)
   if (shapes == null) return null
+  return <Svg viewBox={viewBox}>{shapes}</Svg>
+}
+
+function Svg({ viewBox, children }: { viewBox: readonly number[]; children: readonly ReactElement[] }) {
   return (
     <svg className="fig" viewBox={`0 0 ${viewBox[0]} ${viewBox[1]}`} aria-hidden="true" focusable="false">
-      {shapes}
+      {children}
     </svg>
   )
+}
+
+/** Shapes' drawings, by the list they were made from: built once, however many rows show it. */
+const drawn = new WeakMap<readonly Shape[], readonly ReactElement[]>()
+
+/**
+ * Shapes already worked out (the Exercises tab's thumbnails, worked out when the app is built) drawn as `FigureSvg`
+ * draws a pose: the same elements, colours and order, with nothing asked of the domain.
+ */
+export function ShapesSvg({ shapes, viewBox }: { shapes: readonly Shape[]; viewBox: readonly number[] }) {
+  let elements = drawn.get(shapes)
+  if (elements == null) {
+    elements = shapes.map(element)
+    drawn.set(shapes, elements)
+  }
+  return <Svg viewBox={viewBox}>{elements}</Svg>
 }

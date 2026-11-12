@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
-import { prepareThumbnails } from './screens/library/ExercisePicture'
+import { warmCatalogue } from './state/exercisePicker'
 import { syncThemeColor } from './ui/theme'
 import './ui/tokens.css'
 
@@ -27,6 +27,6 @@ if (import.meta.env.DEV && window.location.hash === '#/showcase') {
       <App />
     </StrictMode>,
   )
-  // The Exercises tab's thumbnails, worked out while the app is idle, so the tab opens without working them out.
-  prepareThumbnails()
+  // The catalogue the picker and the Exercises tab open on, worked out once just after the first paint.
+  warmCatalogue()
 }

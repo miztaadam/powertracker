@@ -1,7 +1,7 @@
 import { memo, useLayoutEffect, useRef, useState } from 'react'
 import { grit } from '../../domain'
-import { library } from '../../state/exercisePicker'
-import { FigureSvg, prepareDrawing, type Pose } from './FigureSvg'
+import { FigureSvg, ShapesSvg, type Pose } from './FigureSvg'
+import { hasThumbnail, thumbnailOf } from './thumbnails'
 import './library.css'
 
 type FigureInfo = NonNullable<ReturnType<typeof grit.figureInfo>>
@@ -82,12 +82,13 @@ function watch(placed: Element, scroller: Element | null, onNear: () => void): (
  * `name` (the lifter's own exercise) or no figure for it, so names stay aligned down the list. Decorative: the row
  * beside it names the exercise, so it is hidden from screen readers.
  *
- * The drawing is only made for a tile on or near the screen, and then kept: a list of a few hundred rows opens
- * without building a few hundred drawings. Until then the row only asks whether there is a figure, which builds
- * none: building a figure (solving its poses) is the slow part.
+ * Its shapes were worked out when the app was built (thumbnails.ts), so it never asks the domain to solve a pose,
+ * and whether it has a figure is a look-up in that data, keyed by catalogue name as the rows give it. The drawing is
+ * still only made for a tile on or near the screen, and then kept: a list of a few hundred rows opens without putting
+ * a few hundred drawings, several thousand SVG elements, on the page.
  */
 export const ExerciseThumbnail = memo(function ExerciseThumbnail({ name }: { name?: string | null }) {
-  const drawable = name != null && grit.hasFigure(name)
+  const drawable = name != null && hasThumbnail(name)
   const tile = useRef<HTMLSpanElement>(null)
   const [near, setNear] = useState(false)
   const waits = drawable && !near
@@ -114,77 +115,9 @@ export const ExerciseThumbnail = memo(function ExerciseThumbnail({ name }: { nam
   )
 })
 
-/** The thumbnail's pose of `name`'s figure, built here on first use. */
+/** The thumbnail's pose of `name`'s figure, as worked out when the app was built. */
 function ThumbnailFigure({ name }: { name: string }) {
-  const figure = grit.figureInfo(name)
-  if (figure == null) return null
-  return <FigureSvg name={name} pose={figure.thumbnail === 'start' ? 'start' : 'end'} viewBox={figure.viewBox} />
-}
-
-/** Runs `run` when the browser is next idle, with how long it may take; returns how to call it off. */
-function whenIdle(run: (timeLeft: () => number) => void): () => void {
-  if (typeof requestIdleCallback === 'function') {
-    const id = requestIdleCallback((deadline) => run(() => deadline.timeRemaining()))
-    return () => cancelIdleCallback(id)
-  }
-  // No idle callbacks (Safari): a timer that reports no room, so each turn runs its one piece and stays small.
-  const id = setTimeout(() => run(() => 0), 1)
-  return () => clearTimeout(id)
-}
-
-/** A piece of the work, and the idle time it needs ahead of it: a little more than it takes, cold, on a phone. */
-type Piece = { run: () => void; needs: number }
-
-/** The catalogue, its order and which entries have figures: about 40 ms cold. */
-const CATALOGUE_NEEDS_MS = 45
-/** One figure, built and drawn: about 1–3 ms cold, the slowest (Leg press) up to about 25 ms on a fast machine. */
-const FIGURE_NEEDS_MS = 10
-
-/**
- * Works out every catalogue thumbnail in the browser's idle time after start-up, in the list's order, a little at a
- * time, so the Exercises tab opens with its drawings already made: building a figure cold (solving its poses) is
- * the slow part of drawing it. Each idle callback (or fallback timer) runs one piece, then more only while the idle
- * time left has room for the next, so at most one small piece lands in a short gap between two frames. Whatever a
- * screen needs before this reaches it is worked out there and then, and kept for both. Returns how to stop it.
- */
-export function prepareThumbnails(): () => void {
-  // The catalogue first (the picker reads it too), then one figure at a time.
-  const pieces: Piece[] = [
-    {
-      run: () => {
-        library()
-        for (const { name } of grit.searchLibrary('', [], [])) {
-          if (!grit.hasFigure(name)) continue
-          pieces.push({
-            run: () => {
-              const figure = grit.figureInfo(name)
-              if (figure != null) prepareDrawing(name, figure.thumbnail === 'start' ? 'start' : 'end')
-            },
-            needs: FIGURE_NEEDS_MS,
-          })
-        }
-      },
-      needs: CATALOGUE_NEEDS_MS,
-    },
-  ]
-  let next = 0
-  let cancel: (() => void) | null = null
-  // A piece that fails is skipped: its tile still works its drawing out when it comes near, and the rest go on.
-  const run = (piece: Piece) => {
-    try {
-      piece.run()
-    } catch {
-      // Nothing to do: the warm-up is only a head start.
-    }
-  }
-  const slice = (timeLeft: () => number) => {
-    // One piece always: the browser calls an idle callback only when it is idle, and a piece is small (the catalogue,
-    // or one figure). A fixed test clock reports 0 ms of room in every idle callback, so waiting for room would never
-    // run anything there. More pieces only while the time left has room for the next.
-    run(pieces[next++]!)
-    while (next < pieces.length && timeLeft() >= pieces[next]!.needs) run(pieces[next++]!)
-    cancel = next < pieces.length ? whenIdle(slice) : null
-  }
-  cancel = whenIdle(slice)
-  return () => cancel?.()
+  const thumbnail = thumbnailOf(name)
+  if (thumbnail == null) return null
+  return <ShapesSvg shapes={thumbnail.shapes} viewBox={thumbnail.viewBox} />
 }

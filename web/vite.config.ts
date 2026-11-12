@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { figureThumbnailsPlugin } from './plugins/figureThumbnails'
 
 // The production headers live in vercel.json. `vite preview` sends the same Content-Security-Policy,
 // so the end-to-end tests run under the policy the deployed app has.
@@ -12,6 +13,7 @@ const csp = vercel.headers.find((h) => h.source === '/(.*)')?.headers.find((h) =
 export default defineConfig({
   plugins: [
     react(),
+    figureThumbnailsPlugin(),
     VitePWA({
       registerType: 'prompt',
       manifest: false,

@@ -244,132 +244,12 @@ describe('exercise pictures', () => {
     vi.unstubAllGlobals()
   })
 
-  it('exercisesTab_thumbnailsArePreparedInIdleTime_soTheTabOpensWithoutWorkingThemOut', async () => {
-    // A fresh domain and fresh drawings, as at start-up: nothing has been worked out yet.
+  it('exercisesTab_coldList_drawsOnlyTheNearTiles_fromBuildTimeData_withoutTheDomain', async () => {
+    // A fresh domain and fresh drawings, as at start-up, and every catalogue exercise in one scrolling list, with the
+    // lifter's own exercise among them.
     vi.resetModules()
     const fresh = (await import('../../domain')).grit
-    const shapes = vi.spyOn(fresh, 'figureShapes')
-    const info = vi.spyOn(fresh, 'figureInfo')
-    const search = vi.spyOn(fresh, 'searchLibrary')
-    const { ExerciseThumbnail: Thumbnail, prepareThumbnails } = await import('./ExercisePicture')
-    // The browser's idle time, handed out by the test: each slice has as long as the test says, and once it has been
-    // asked, nothing more (as the time is used up).
-    const slices: IdleRequestCallback[] = []
-    vi.stubGlobal('requestIdleCallback', (callback: IdleRequestCallback) => slices.push(callback))
-    vi.stubGlobal('cancelIdleCallback', () => {})
-    const idle = (ms: number, lasting = false) => {
-      let left = ms
-      slices.shift()!({
-        didTimeout: false,
-        timeRemaining: () => {
-          const now = left
-          if (!lasting) left = 0
-          return now
-        },
-      })
-    }
-
-    prepareThumbnails()
-    // Asked for idle time, and nothing done yet.
-    expect(slices).toHaveLength(1)
-    expect(search).not.toHaveBeenCalled()
-
-    // Each idle callback runs one piece, even with no room reported (a fixed test clock reports none): the catalogue
-    // and its order. 9 ms left is no room for a figure after it (one needs 10).
-    idle(9)
-    expect(search).toHaveBeenCalledTimes(1)
-    expect(info).not.toHaveBeenCalled()
-    expect(slices).toHaveLength(1)
-    // One figure per callback with no room...
-    idle(0)
-    expect(info).toHaveBeenCalledTimes(1)
-    expect(shapes).toHaveBeenCalledTimes(1)
-    // ... and more only while there is room for the next: 9 ms is not room for one more figure, 10 ms is (once).
-    idle(9, true)
-    expect(info).toHaveBeenCalledTimes(2)
-    idle(10)
-    expect(info).toHaveBeenCalledTimes(4)
-    expect(slices).toHaveLength(1)
-    // The rest in one long slice: every catalogue entry with a figure, in the list's order, its thumbnail's pose once.
-    while (slices.length > 0) idle(1000, true)
-    const figured = fresh.searchLibrary('', [], []).flatMap((e) => {
-      const found = fresh.figureInfo(e.name)
-      return found == null ? [] : [[e.name, found.thumbnail]]
-    })
-    expect(figured.length).toBeGreaterThan(10)
-    expect(shapes.mock.calls).toEqual(figured)
-
-    // Opening the tab now works nothing out: the drawing is the one already made.
-    shapes.mockClear()
-    render(<Thumbnail name="Bench" />)
-    expect(drawn(thumbnails()[0]!.querySelector('svg')!)).toEqual(expected('Bench', bench.thumbnail as 'start' | 'end'))
-    expect(shapes).not.toHaveBeenCalled()
-    cleanup()
-    vi.unstubAllGlobals()
-  })
-
-  it('exercisesTab_thumbnailPreparation_withoutIdleCallbacks_usesTimers_onePieceAtATime_andCanBeStopped', async () => {
-    vi.resetModules()
-    const fresh = (await import('../../domain')).grit
-    const { prepareThumbnails } = await import('./ExercisePicture')
-    vi.stubGlobal('requestIdleCallback', undefined)
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
-    try {
-      // Stopped before it starts: nothing is ever worked out.
-      const shapes = vi.spyOn(fresh, 'figureShapes')
-      const search = vi.spyOn(fresh, 'searchLibrary')
-      prepareThumbnails()()
-      await vi.runAllTimersAsync()
-      expect(search).not.toHaveBeenCalled()
-      // Left to run, each timer does one small piece: at most one figure at a time.
-      prepareThumbnails()
-      expect(search).not.toHaveBeenCalled()
-      let ticks = 0
-      while (vi.getTimerCount() > 0) {
-        const before = shapes.mock.calls.length
-        await vi.advanceTimersToNextTimerAsync()
-        expect(shapes.mock.calls.length - before).toBeLessThanOrEqual(1)
-        ticks++
-      }
-      const figured = fresh.searchLibrary('', [], []).filter((e) => fresh.figureInfo(e.name) != null)
-      expect(shapes).toHaveBeenCalledTimes(figured.length)
-      expect(ticks).toBeGreaterThanOrEqual(figured.length)
-    } finally {
-      vi.useRealTimers()
-      vi.unstubAllGlobals()
-    }
-  })
-
-  it('exercisesTab_thumbnailPreparation_aPieceThatFails_isSkipped_andTheRestStillRun', async () => {
-    vi.resetModules()
-    const fresh = (await import('../../domain')).grit
-    const { prepareThumbnails } = await import('./ExercisePicture')
-    vi.stubGlobal('requestIdleCallback', undefined)
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
-    try {
-      const real = fresh.figureShapes.bind(fresh)
-      // Bench's drawing fails to be worked out; every other figure still is.
-      const shapes = vi.spyOn(fresh, 'figureShapes').mockImplementation((name, pose) => {
-        if (name === 'Bench') throw new Error('broken figure')
-        return real(name, pose)
-      })
-      prepareThumbnails()
-      await vi.runAllTimersAsync()
-      const figured = fresh.searchLibrary('', [], []).filter((e) => fresh.figureInfo(e.name) != null)
-      expect(figured.map((e) => e.name)).toContain('Bench')
-      expect(shapes).toHaveBeenCalledTimes(figured.length)
-    } finally {
-      vi.useRealTimers()
-      vi.unstubAllGlobals()
-    }
-  })
-
-  it('exercisesTab_coldList_buildsOnlyTheNearTilesFigures', async () => {
-    // A fresh domain, as at start-up, and every catalogue exercise in one scrolling list.
-    vi.resetModules()
-    const fresh = (await import('../../domain')).grit
-    const info = vi.spyOn(fresh, 'figureInfo')
-    const has = vi.spyOn(fresh, 'hasFigure')
+    const asked = [vi.spyOn(fresh, 'figureInfo'), vi.spyOn(fresh, 'figureShapes'), vi.spyOn(fresh, 'hasFigure')]
     const { ExerciseThumbnail: Thumbnail } = await import('./ExercisePicture')
     vi.stubGlobal(
       'IntersectionObserver',
@@ -378,12 +258,8 @@ describe('exercise pictures', () => {
         unobserve() {}
       },
     )
-    // Eight exercises with figures lead the list, then the ones without; the others with figures are far down it
-    // (the catalogue's own order would put more drawn exercises near the top as the batches land).
     const catalogue = fresh.searchLibrary('', [], []).map((e) => e.name)
-    const leading = catalogue.filter((name) => fresh.hasFigure(name)).slice(0, 8)
-    const rest = catalogue.filter((name) => !leading.includes(name))
-    const names = [...leading, ...rest.filter((name) => !fresh.hasFigure(name)), ...rest.filter((name) => fresh.hasFigure(name))]
+    const names = [...catalogue.slice(0, 5), 'Tyre flip', ...catalogue.slice(5)]
     // The list is 500 px tall at the top of the screen; rows are 64 px each, one after another.
     const box = (top: number, height: number) => ({ top, bottom: top + height, left: 0, right: 375, width: 375, height, x: 0, y: top, toJSON: () => ({}) })
     vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
@@ -391,6 +267,7 @@ describe('exercise pictures', () => {
       const index = Number((this as HTMLElement).dataset.index ?? 0)
       return box(index * 64, 64)
     })
+    for (const spy of asked) spy.mockClear()
     render(
       <ul className="lib-scroll">
         {names.map((name, i) => (
@@ -400,18 +277,50 @@ describe('exercise pictures', () => {
         ))}
       </ul>,
     )
-    // On screen or within 600 px of the list: rows that start above 1100 px.
+    // On screen or within 600 px of the list: rows that start above 1100 px. Those are drawn at once, the lifter's own
+    // tile stays empty, and the rest wait.
     const near = names.filter((_, i) => i * 64 < 1100)
-    const figuredNear = near.filter((name) => fresh.hasFigure(name))
     expect(names.length).toBeGreaterThan(near.length + 100)
-    // With every catalogue exercise drawn (Task 12) the near rows after the leading eight have figures too.
-    expect(figuredNear.slice(0, leading.length)).toEqual(leading)
-    expect(names.filter((name) => fresh.hasFigure(name)).length).toBeGreaterThan(figuredNear.length + 10)
-    // Every row asked only whether it has a figure; only the near rows with one built it.
-    expect(new Set(has.mock.calls.map(([name]) => name))).toEqual(new Set(names))
-    expect(info.mock.calls.map(([name]) => name).sort()).toEqual([...figuredNear].sort())
-    expect(document.querySelectorAll('.lib-thumb svg.fig')).toHaveLength(figuredNear.length)
+    const tiles = thumbnails()
+    expect(tiles.map((tile) => tile.childElementCount)).toEqual(names.map((name) => (near.includes(name) && name !== 'Tyre flip' ? 1 : 0)))
+    // Each the thumbnail's pose, worked out when the app was built: the domain was not asked anything.
+    for (const spy of asked) expect(spy).not.toHaveBeenCalled()
+    for (const spy of asked) spy.mockRestore()
+    near.forEach((name, i) => {
+      if (name === 'Tyre flip') return
+      const pose = fresh.figureInfo(name)!.thumbnail as 'start' | 'end'
+      expect(drawn(tiles[i]!.querySelector('svg')!), name).toEqual(expected(name, pose))
+    })
     vi.unstubAllGlobals()
+  })
+
+  it('exercisesTab_thumbnailData_isEveryFiguresThumbnailPose_asTheDomainDrawsIt', async () => {
+    const { default: data } = await import('virtual:figure-thumbnails')
+    const { thumbnailOf } = await import('./thumbnails')
+    // One entry for each catalogue exercise with a figure, under its catalogue name.
+    const figured = grit.library().filter((e) => grit.hasFigure(e.name)).map((e) => e.name)
+    expect(figured).toHaveLength(225)
+    expect(Object.keys(data).sort()).toEqual([...figured].sort())
+    // Each the same shapes, kinds and roles as the domain's, in its order, every number within a twentieth of a
+    // view-box unit: 0.007 px on the 56 x 40 tile (400 units across 56 px).
+    const numbers = (s: Record<string, unknown>) => Object.entries(s).flatMap(([key, v]) => (key === 'points' ? (v as number[]) : typeof v === 'number' ? [v] : []))
+    let worst = 0
+    for (const name of figured) {
+      const info = grit.figureInfo(name)!
+      const want = grit.figureShapes(name, info.thumbnail)! as unknown as Record<string, unknown>[]
+      const got = thumbnailOf(name)!
+      expect(got.viewBox, name).toEqual(info.viewBox)
+      expect(got.shapes.map((s) => `${s.kind} ${s.role}`), name).toEqual(want.map((s) => `${s.kind} ${s.role}`))
+      got.shapes.forEach((s, i) => {
+        const a = numbers(s as unknown as Record<string, unknown>)
+        const b = numbers({ ...want[i]! })
+        expect(a.length, `${name} shape ${i}`).toBe(b.length)
+        a.forEach((v, j) => (worst = Math.max(worst, Math.abs(v - b[j]!))))
+      })
+    }
+    expect(worst).toBeLessThanOrEqual(0.05 + 1e-9)
+    // A name it does not have: nothing.
+    expect(thumbnailOf('Tyre flip')).toBeNull()
   })
 
   it('exercisesTab_customExercise_showsEmptyTile', async () => {
@@ -427,11 +336,10 @@ describe('exercise pictures', () => {
     expect(thumbnails(row('Bench'))[0]!.childElementCount).toBe(1)
     cleanup()
 
-    // A catalogue exercise with no figure gets the same empty tile; so does no name at all.
-    vi.spyOn(grit, 'figureInfo').mockReturnValue(null)
+    // A name the build-time data has no figure for gets the same empty tile; so does no name at all.
     render(
       <>
-        <ExerciseThumbnail name="Bench" />
+        <ExerciseThumbnail name="Not in the catalogue" />
         <ExerciseThumbnail />
       </>,
     )

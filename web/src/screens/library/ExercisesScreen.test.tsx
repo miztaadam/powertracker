@@ -29,6 +29,7 @@ afterEach(async () => {
   cleanup()
   await fx.dispose()
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
 })
 
 type Session = TodayState & TodayActions
@@ -140,8 +141,15 @@ describe('Exercises tab', () => {
   })
 
   it('exercisesTab_browseByMuscleAndSearchWork', async () => {
+    // Laid out as on a phone, so only the rows near the screen draw their thumbnails, as in a browser. jsdom lays
+    // nothing out: every row would be at the top, all 226 thumbnails drawn, and each query below would walk their
+    // several thousand shapes. Drawing thumbnails is covered in ExercisePicture.test.tsx; this is about the rows.
+    layOutLikeAPhone()
     await own('Tyre flip', ['Quads'])
     await showTab()
+    // Only the rows near the top drew theirs.
+    expect(document.querySelectorAll('.lib-thumb svg.fig').length).toBeGreaterThan(0)
+    expect(document.querySelectorAll('.lib-thumb svg.fig').length).toBeLessThan(30)
 
     // The catalogue and the lifter's own that it does not have.
     expect(grit.library()).toHaveLength(225)
@@ -178,6 +186,27 @@ describe('Exercises tab', () => {
     expect(shownNames()).toEqual(sorted([...inGroups(['QUADS']), 'Tyre flip']))
     expect(headings()).toEqual([])
   })
+
+  /**
+   * Gives the tab's list a phone screen's height and each row its place down it, 64 px apart in the order shown, and
+   * an `IntersectionObserver` that reports nothing: a row's thumbnail is drawn only while it starts within 600 px of
+   * the list, and the rest wait, as they do in a browser until scrolled near.
+   */
+  function layOutLikeAPhone() {
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        observe() {}
+        unobserve() {}
+      },
+    )
+    const box = (top: number, height: number) => ({ top, bottom: top + height, left: 0, right: 375, width: 375, height, x: 0, y: top, toJSON: () => ({}) })
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      if (this.classList.contains('lib-scroll')) return box(0, 700)
+      if (this.classList.contains('lib-row')) return box(Array.prototype.indexOf.call(document.querySelectorAll('.lib-row'), this) * 64, 64)
+      return box(0, 0)
+    })
+  }
 
   it('musclesDropdown_multiSelect_showsAnyOf', async () => {
     await showTab()
