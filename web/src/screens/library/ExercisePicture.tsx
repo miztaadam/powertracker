@@ -169,12 +169,20 @@ export function prepareThumbnails(): () => void {
   ]
   let next = 0
   let cancel: (() => void) | null = null
+  // A piece that fails is skipped: its tile still works its drawing out when it comes near, and the rest go on.
+  const run = (piece: Piece) => {
+    try {
+      piece.run()
+    } catch {
+      // Nothing to do: the warm-up is only a head start.
+    }
+  }
   const slice = (timeLeft: () => number) => {
     // One piece always: the browser calls an idle callback only when it is idle, and a piece is small (the catalogue,
     // or one figure). A fixed test clock reports 0 ms of room in every idle callback, so waiting for room would never
     // run anything there. More pieces only while the time left has room for the next.
-    pieces[next++]!.run()
-    while (next < pieces.length && timeLeft() >= pieces[next]!.needs) pieces[next++]!.run()
+    run(pieces[next++]!)
+    while (next < pieces.length && timeLeft() >= pieces[next]!.needs) run(pieces[next++]!)
     cancel = next < pieces.length ? whenIdle(slice) : null
   }
   cancel = whenIdle(slice)

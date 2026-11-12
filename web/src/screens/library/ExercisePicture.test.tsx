@@ -340,6 +340,30 @@ describe('exercise pictures', () => {
     }
   })
 
+  it('exercisesTab_thumbnailPreparation_aPieceThatFails_isSkipped_andTheRestStillRun', async () => {
+    vi.resetModules()
+    const fresh = (await import('../../domain')).grit
+    const { prepareThumbnails } = await import('./ExercisePicture')
+    vi.stubGlobal('requestIdleCallback', undefined)
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      const real = fresh.figureShapes.bind(fresh)
+      // Bench's drawing fails to be worked out; every other figure still is.
+      const shapes = vi.spyOn(fresh, 'figureShapes').mockImplementation((name, pose) => {
+        if (name === 'Bench') throw new Error('broken figure')
+        return real(name, pose)
+      })
+      prepareThumbnails()
+      await vi.runAllTimersAsync()
+      const figured = fresh.searchLibrary('', [], []).filter((e) => fresh.figureInfo(e.name) != null)
+      expect(figured.map((e) => e.name)).toContain('Bench')
+      expect(shapes).toHaveBeenCalledTimes(figured.length)
+    } finally {
+      vi.useRealTimers()
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('exercisesTab_coldList_buildsOnlyTheNearTilesFigures', async () => {
     // A fresh domain, as at start-up, and every catalogue exercise in one scrolling list.
     vi.resetModules()
