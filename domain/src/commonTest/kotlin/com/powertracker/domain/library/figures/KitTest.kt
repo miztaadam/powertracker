@@ -1160,7 +1160,9 @@ class KitTest {
         assertEquals(-10.0, hip.cx + hip.length / 2, 1e-9)
         assertEquals(-45.0, hip.cy + hip.thickness / 2, 1e-9)
         assertEquals(listOf("seat", "hip pad"), m.solids(View.SIDE).map { it.label })
-        assertTrue(m.draw(View.SIDE, null).map { it.shape }.any { it is Capsule && Point(it.x1, it.y1) == m.pivot && Point(it.x2, it.y2) == m.pad })
+        // The lever from the pivot to the pad is drawn in front, with the pad, both set off by gaps.
+        assertTrue(m.drawFront(View.SIDE).map { it.shape }.any { it is Capsule && it.role == Role.EQUIPMENT && Point(it.x1, it.y1) == m.pivot && Point(it.x2, it.y2) == m.pad })
+        assertTrue(m.draw(View.SIDE, null).map { it.shape }.none { it is Capsule && Point(it.x2, it.y2) == m.pad })
         assertEquals(setOf(Role.GAP, Role.EQUIPMENT), m.drawFront(View.SIDE).map { it.shape.role }.toSet())
         assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT))
     }

@@ -33,9 +33,10 @@ data class DeclineBench(
  * A Smith machine seen from the side: the bar runs on vertical rails at [x] (the two rails, one at each end of the
  * bar, are one line from the side), [height] tall, with the safety stops' tops [stopHeight] above the floor. A typical
  * Smith machine: rails about 215 cm tall, stops that clamp to the frame; neutral sizes. The bar itself is the held
- * [Barbell]; [BarOnRails] checks it sits on the rails.
+ * [Barbell]; [BarOnRails] checks it sits on the rails. [stopBehind]: how far the stop reaches behind the rails, away
+ * from the lifter (Task 12: 6 cm, as before, unless a figure needs the stop to show past a back under the bar).
  */
-data class SmithMachine(val x: Double, val stopHeight: Double, val height: Double = 215.0) : FixedProp
+data class SmithMachine(val x: Double, val stopHeight: Double, val height: Double = 215.0, val stopBehind: Double = 6.0) : FixedProp
 
 /**
  * Cable handles (D-handles), one in each hand, each on its own cable from a [CableStack]'s pulley. In the side view
@@ -167,12 +168,12 @@ internal fun DeclineBench.drawOf(): List<Placed> = buildList {
     add(Placed(Circle(E, brace.x, brace.y, DeclineBench.ROLLER_RADIUS)))
 }
 
-internal fun SmithMachine.stopSlab(): Slab = Slab.box(x - 6.0, -stopHeight, x + 6.0, -stopHeight + 5.0)
+internal fun SmithMachine.stopSlab(): Slab = Slab.box(x - stopBehind, -stopHeight, x + 6.0, -stopHeight + 5.0)
 
 internal fun SmithMachine.drawOf(): List<Placed> = listOf(
     Placed(Capsule(E, x, -1.5, x, -height, 4.0), fit = false),
     Placed(Capsule(E, x - 25.0, -1.5, x + 25.0, -1.5, 3.0)),
-    Placed(RoundRect(E, x - 6.0, -stopHeight, 12.0, 5.0, 1.5)),
+    Placed(RoundRect(E, x - stopBehind, -stopHeight, stopBehind + 6.0, 5.0, 1.5)),
 )
 
 /** The press machine's seat and back pad. */

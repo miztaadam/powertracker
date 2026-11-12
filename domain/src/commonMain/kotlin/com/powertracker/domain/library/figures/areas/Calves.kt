@@ -207,7 +207,8 @@ private val smithCalfRaise: ExerciseFigure by lazy {
     val end = st.pose(Which.END, { barArm(st.high.first) })
     val bar = Barbell(BarHold.UPPER_BACK)
     val low = bar.center(start.skeleton())
-    val smith = SmithMachine(x = low.x, stopHeight = -low.y - Barbell.SHAFT_RADIUS - 4.0)
+    // The stop reaches 20 cm back from the rails, so it shows past the back under the bar (fix round 1).
+    val smith = SmithMachine(x = low.x, stopHeight = -low.y - Barbell.SHAFT_RADIUS - 4.0, stopBehind = 20.0)
     figure(
         View.SIDE, start, end, listOf(Floor, calfBlock, smith, bar),
         startCaption = HEELS_BELOW,

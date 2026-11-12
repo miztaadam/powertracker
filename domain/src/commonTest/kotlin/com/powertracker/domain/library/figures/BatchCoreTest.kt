@@ -29,7 +29,7 @@ class BatchCoreTest {
         assertEquals(17, area.size)
         val problems = area.flatMap { name -> Figures.all[name]?.let { FigureChecks.check(name, it) } ?: listOf(FigureProblem(name, null, "no figure")) }
         assertEquals(emptyList(), problems.map { "${it.name} ${it.which}: ${it.message}" })
-        val front = setOf("Side plank", "Cable woodchop", "Suitcase carry")
+        val front = setOf("Side plank", "Cable woodchop", "Suitcase carry", "Farmer's walk")
         for (name in area) assertEquals(if (name in front) View.FRONT else View.SIDE, figure(name).view, name)
     }
 
@@ -108,7 +108,7 @@ class BatchCoreTest {
         val b = s(n, Which.END)
         inRange(n, "knees over the hips (START)", abs(a.near.knee.x - a.pelvis.x), 0.0..1.0)
         inRange(n, "hips on the floor (START)", a.pelvis.y + Body.TORSO_RADIUS, -0.5..0.5)
-        inRange(n, "hips rolled up off the floor (END)", -(b.pelvis.y + Body.TORSO_RADIUS), 6.0..14.0)
+        inRange(n, "hips rolled up off the floor (END)", -(b.pelvis.y + Body.TORSO_RADIUS), 12.0..16.0)
         inRange(n, "thighs towards the ribs (END)", thigh(b.near), 115.0..135.0)
         for (w in Which.entries) inRange(n, "knee bend the same ($w)", pose(n, w).nearLeg.knee, 89.9..90.1)
         inRange(n, "shoulders stay down", (a.shoulder - b.shoulder).length(), 0.0..0.01)
@@ -174,6 +174,12 @@ class BatchCoreTest {
             inRange(n, "legs straight ($w)", pose(n, w).nearLeg.knee + pose(n, w).farLeg.knee, 0.0..0.1)
         }
         assertEquals(0.0, p.farArm.out, "END: the upper arm upright in the picture, under the shoulder")
+        // START: the bottom upper arm points out of the picture towards the camera (the shoulder is lower than the arm's
+        // length), the forearm on the floor towards the camera; a wrong-way arm (away from it) fails.
+        val p0 = pose(n, Which.START)
+        inRange(n, "bottom upper arm towards the camera (START)", p0.farArm.out, 20.0..80.0)
+        inRange(n, "bottom forearm towards the camera (START)", p0.farArm.forearmOut, 79.9..80.1)
+        inRange(n, "bottom forearm towards the camera (END)", p.farArm.forearmOut, 79.9..80.1)
         inRange(n, "hips lifted", a.pelvis.y - b.pelvis.y, 10.0..40.0)
         inRange(n, "hips off the floor (END)", -b.pelvis.y - 16.0, 8.0..40.0)
     }
@@ -253,6 +259,12 @@ class BatchCoreTest {
         for (w in Which.entries) inRange(n, "rope by the head ($w)", (s(n, w).near.grip - s(n, w).head).length(), 0.0..14.0)
         assertTrue(props(n).any { it is CableAttachment && it.kind == Attachment.ROPE })
         val stack = props(n).filterIsInstance<CableStack>().single()
+        // The head and the rope clear the column (its left edge 9 cm before its middle) in both panels.
+        for (w in Which.entries) {
+            val sk = s(n, w)
+            inRange(n, "head clear of the column ($w)", stack.x - 9.0 - (sk.head.x + Body.HEAD_RADIUS), 5.0..60.0)
+            inRange(n, "rope clear of the column ($w)", stack.x - 9.0 - maxOf(sk.near.hand.x, sk.near.grip.x) - Body.HAND_WIDTH / 2, 5.0..60.0)
+        }
         for (w in Which.entries) inRange(n, "pulley above the head ($w)", -stack.pulleyHeight - s(n, w).head.y, -200.0..-30.0)
     }
 
@@ -270,6 +282,9 @@ class BatchCoreTest {
             inRange(n, "back of the hips on the hip pad ($w)", sk.pelvis.x - Body.TORSO_RADIUS - ms[i].hipPadX, -0.5..0.5)
         }
         inRange(n, "lever the same length", abs((ms[0].pad - ms[0].pivot).length() - (ms[1].pad - ms[1].pivot).length()), 0.0..0.01)
+        // The lever turns about the hips' axis and is drawn in front of the body, so the pad is plainly attached.
+        inRange(n, "pivot at the hips", (ms[0].pivot - s(n, Which.START).pelvis).length(), 0.0..0.01)
+        assertTrue(ms[0].drawFront(View.SIDE).any { val c = it.shape; c is Capsule && c.role == Role.EQUIPMENT && Point(c.x2, c.y2) == ms[0].pad })
     }
 
     // ---- standing ----
@@ -296,28 +311,41 @@ class BatchCoreTest {
     }
 
     @Test
-    fun cableWoodchop_frontView_highNearShoulderToFarHip_armsNearlyStraight() {
+    fun cableWoodchop_frontView_trunkTurns_aboveTheNearShoulderToTheFarHip_armsNearlyStraight() {
         val n = "Cable woodchop"
         val a = s(n, Which.START)
         val b = s(n, Which.END)
-        inRange(n, "hands high above the shoulders (START)", a.near.shoulder.y - a.near.grip.y, 38.0..50.0)
-        inRange(n, "hands on the near side (START)", a.near.grip.x - a.pelvis.x, 5.0..20.0)
-        inRange(n, "hands at the far hip's height (END)", abs(b.near.grip.y - b.far.hip.y), 0.0..5.0)
-        inRange(n, "hands on the far side (END)", a.pelvis.x - b.near.grip.x, 5.0..20.0)
+        // The trunk turns towards the machine at the top and away at the bottom; the shoulders narrow with the turn.
+        inRange(n, "turned towards the machine (START)", pose(n, Which.START).twist, 25.0..35.0)
+        inRange(n, "turned away (END)", pose(n, Which.END).twist, -35.0..-25.0)
+        inRange(n, "shoulders narrowed by the turn", abs(a.near.shoulder.x - a.far.shoulder.x), 2 * Body.SHOULDER_HALF_WIDTH * 0.8..2 * Body.SHOULDER_HALF_WIDTH * 0.9)
+        inRange(n, "hips square", abs(a.near.hip.x - a.far.hip.x), 2 * Body.HIP_HALF_WIDTH - 0.01..2 * Body.HIP_HALF_WIDTH + 0.01)
+        // START above and outside the near shoulder, clear of the head; END at the far hip's height, outside it.
+        inRange(n, "hands above the shoulders (START)", a.near.shoulder.y - a.near.grip.y, 30.0..40.0)
+        inRange(n, "hands outside the near shoulder (START)", a.near.grip.x - a.near.shoulder.x, 3.0..25.0)
+        inRange(n, "hands clear of the head (START)", a.near.grip.x - a.head.x - Body.HEAD_RADIUS, 5.0..40.0)
+        inRange(n, "hands at the far hip's height (END)", abs(b.near.grip.y - b.far.hip.y), 0.0..1.0)
+        inRange(n, "hands outside the far hip (END)", b.far.hip.x - b.near.grip.x, 8.0..30.0)
+        inRange(n, "sideways sweep", a.near.grip.x - b.near.grip.x, 35.0..70.0)
         for (w in Which.entries) {
             val p = pose(n, w)
             val sk = s(n, w)
-            // The shoulders cannot turn in this view: the arm on the handle's side softens, the other stays straight.
-            val bends = listOf(JointLimits.elbowBend(p.nearArm), JointLimits.elbowBend(p.farArm)).sorted()
-            inRange(n, "one arm nearly straight ($w)", bends[0], 0.0..12.0)
-            inRange(n, "other arm softened at most ($w)", bends[1], 0.0..38.0)
+            for ((label, arm) in listOf("near" to p.nearArm, "far" to p.farArm)) {
+                inRange(n, "$label elbow nearly straight ($w)", JointLimits.elbowBend(arm), 5.0..12.0)
+                // The arms reach out in front, and the slight bend points the elbow back towards the body: the upper
+                // arm points less out of the picture than the forearm. A wrong-way elbow (bent out towards the
+                // camera) reverses this.
+                inRange(n, "$label arm out in front ($w)", arm.out, 10.0..80.0)
+                inRange(n, "$label elbow towards the body ($w)", arm.forearmOut - arm.out, 1.0..20.0)
+            }
             inRange(n, "hands together ($w)", abs(sk.near.grip.x - sk.far.grip.x) + abs(sk.near.grip.y - sk.far.grip.y), 0.0..0.5)
-            inRange(n, "feet wider than the shoulders ($w)", abs(sk.near.ankle.x - sk.far.ankle.x) - abs(sk.near.shoulder.x - sk.far.shoulder.x), 5.0..40.0)
+            inRange(n, "feet wider than the shoulders ($w)", abs(sk.near.ankle.x - sk.far.ankle.x) - 2 * Body.SHOULDER_HALF_WIDTH, 5.0..40.0)
             inRange(n, "knees straight ($w)", p.nearLeg.knee + p.farLeg.knee, 0.0..0.1)
+            inRange(n, "torso upright ($w)", p.torso, 89.9..90.1)
         }
         val stack = props(n).filterIsInstance<CableStack>().single()
-        inRange(n, "column on the near side", stack.x - a.near.shoulder.x, 30.0..120.0)
-        inRange(n, "pulley at shoulder height", abs(-stack.pulleyHeight - a.near.shoulder.y), 0.0..0.5)
+        inRange(n, "column on the near side, clear of the hands", stack.x - 9.0 - a.near.hand.x, 10.0..120.0)
+        inRange(n, "pulley at shoulder height", abs(-stack.pulleyHeight - s(n, Which.END).near.shoulder.y), 0.0..0.5)
     }
 
     // ---- carries ----
@@ -345,17 +373,30 @@ class BatchCoreTest {
     }
 
     @Test
-    fun farmersWalk_aWeightInEachHandAtTheSides_upright_thenMidStride() {
+    fun farmersWalk_frontView_aWeightInEachHand_shouldersLevel_noLean() {
         val n = "Farmer's walk"
         upright(n)
-        midStride(n)
         val dbs = props(n).filterIsInstance<Dumbbell>()
         assertEquals(setOf(Side.NEAR, Side.FAR), dbs.map { it.hand }.toSet())
-        assertTrue(dbs.all { it.neutral }, "palms in: in profile")
-        for (w in Which.entries) for (side in Side.entries) {
-            val l = s(n, w).side(side)
-            inRange(n, "${side.label} arm straight down ($w)", abs(l.wrist.x - l.shoulder.x), 0.0..0.5)
+        assertTrue(dbs.all { it.endOnFront }, "palms in: end on from the front")
+        for (w in Which.entries) {
+            val sk = s(n, w)
+            inRange(n, "shoulders level ($w)", abs(sk.near.shoulder.y - sk.far.shoulder.y), 0.0..0.01)
+            for (side in Side.entries) {
+                val l = sk.side(side)
+                val arm = pose(n, w).let { if (side == Side.NEAR) it.nearArm else it.farArm }
+                inRange(n, "${side.label} arm straight ($w)", arm.elbow, 0.0..0.1)
+                inRange(n, "${side.label} arm close to the side ($w)", arm.shoulder, 0.0..15.0)
+                // Both weights clear of the thighs, the same on each side.
+                inRange(n, "${side.label} weight clear of the thigh ($w)", abs(l.grip.x - sk.pelvis.x) - Dumbbell.HEAD_RADIUS - (abs(l.hip.x - sk.pelvis.x) + Body.THIGH_WIDTH / 2), 1.0..3.0)
+            }
+            inRange(n, "loads level ($w)", abs(sk.near.grip.y - sk.far.grip.y), 0.0..0.01)
         }
+        inRange(n, "far foot swinging through, off the floor (END)", footUp(s(n, Which.END).far), 3.0..20.0)
+        inRange(n, "standing leg straight", pose(n, Which.END).nearLeg.knee, 0.0..0.1)
+        // Lessons 9 and 10: it differs from the suitcase carry by its second load, and from the side-view carries by its camera.
+        assertEquals(1, figure("Suitcase carry").scene(Which.START).props.filterIsInstance<Dumbbell>().size)
+        assertEquals(View.SIDE, figure("Plate pinch carry").view)
     }
 
     @Test

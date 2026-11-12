@@ -22,8 +22,9 @@ import kotlin.math.sqrt
 // - Cable woodchop: the front view. The sweep is a diagonal across the body, from above the near shoulder down to the
 //   far hip, which a side view would fold onto one line; from the front the cable's line from the pulley beside the
 //   lifter and the arms' path both show. The trunk's turn is out of the picture and is not drawn.
-// - Suitcase carry: the front view, so the load on one side only and the level shoulders and upright trunk show
-//   (lessons 9 and 10: the farmer's walk, both hands loaded, is the side view).
+// - Suitcase carry and farmer's walk: the front view, so the load on one side only, or on both, and the level
+//   shoulders and upright trunk show (lessons 9 and 10; fix round 1 moved the farmer's walk here, so it no longer looks
+//   like the side-view plate pinch carry at thumbnail size).
 // The carries' START and END would be the same pose, so they show what each guide stresses: START standing tall with
 // the load where the guide puts it, END mid-stride with it still there (each figure says what its panels are).
 // Every position a guide does not fix is sourced in its comment (allowed domains only), or kept neutral and marked so.
@@ -132,7 +133,7 @@ private val bicycleCrunch: ExerciseFigure by lazy {
     }
     figure(
         View.SIDE, pose(nearIn = false), pose(nearIn = true), listOf(Floor),
-        startCaption = "Elbow to opposite knee",
+        startCaption = "Straighten other leg",
         endCaption = "Switch sides",
         thumbnail = Which.START,
         guideLines = listOf(
@@ -149,7 +150,7 @@ private val bicycleCrunch: ExerciseFigure by lazy {
 private fun floorArm(torso: Double) = armAt(-2.0, torso)
 
 /** How far the hips roll up off the floor at the reverse crunch's top, cm (neutral: the hips plainly up, the upper back down). */
-private const val ROLL_UP = 9.0
+private const val ROLL_UP = 14.0
 
 /**
  * Reverse crunch. Lying on the back, the arms along the floor. START the feet off the floor, the knees over the hips
@@ -535,7 +536,9 @@ private val cableCrunch: ExerciseFigure by lazy {
     }
     val start = pose(75.0, 5.0)
     val end = pose(CABLE_CRUNCH_END, 20.0)
-    val stack = CableStack(x = kneeP.x + 75.0, pulleyHeight = 190.0, reach = -45.0)
+    // The column 95 cm in front of the knees, so the head and rope clear it in both panels (fix round 1); the pulley
+    // still over the knees' front.
+    val stack = CableStack(x = kneeP.x + 95.0, pulleyHeight = 190.0, reach = -65.0)
     figure(
         View.SIDE, start, end, listOf(Floor, stack, CableAttachment(Attachment.ROPE)),
         startCaption = "Rope by your head",
@@ -572,7 +575,8 @@ private val machineCrunch: ExerciseFigure by lazy {
     val start = pose(90.0, 0.0)
     val end = pose(45.0, 15.0)
     val hipPadX = pelvis.x - Body.TORSO_RADIUS
-    val pivot = leverPivot(pad(start.skeleton()), pad(end.skeleton()), pelvis.x - 30.0)
+    // The pad's lever turns about the hips' axis, beside the seat, so it follows the chest as the trunk curls.
+    val pivot = pelvis
     fun machine(p: Pose) = CrunchMachine(
         seatFront = pelvis.x + 25.0, seatHeight = seatH, hipPadX = hipPadX,
         feet = Point(pelvis.x + Segment.THIGH.length - 12.0, -CrunchMachine.ROLLER_RADIUS - 1.0), pivot = pivot, pad = pad(p.skeleton()),
@@ -591,13 +595,6 @@ private val machineCrunch: ExerciseFigure by lazy {
         checks = emptyList(),
         endProps = listOf(Floor, machine(end)),
     )
-}
-
-/** The point on the perpendicular bisector of [a] and [b] at x = [x]: a pivot whose lever is the same length to both. */
-private fun leverPivot(a: Point, b: Point, x: Double): Point {
-    val m = (a + b) * 0.5
-    val d = b - a
-    return if (abs(d.y) < 1e-9) Point(x, m.y - 40.0) else Point(x, m.y - (x - m.x) * d.x / d.y)
 }
 
 // ---- standing: the cable drills and the carries ----
@@ -639,18 +636,22 @@ private val pallofPress: ExerciseFigure by lazy {
     )
 }
 
+/** The woodchop's trunk turn, degrees each way (Pose.twist): towards the machine at the top, away at the bottom (neutral, inside the 35° limit, Body.kt). */
+private const val CHOP_TURN = 30.0
+
+/** The woodchop's elbows: nearly straight, bent 8° (neutral), the elbow towards the body. */
+private const val CHOP_ELBOW = 8.0
+
 /**
  * Cable woodchop. The front view (the header), the column on the lifter's near side (the right of the picture), the
  * pulley at shoulder height; the feet wider than the shoulders (each leg 12° out, neutral), the knees straight, the
- * torso upright. The hands laced on one handle, out in front of the body. The figure's shoulders cannot turn towards
- * the machine (the turn is out of the picture), and two straight arms from square shoulders can only meet on the
- * body's middle line; so the handle is drawn 6 cm to the near side of the middle at the top and 6 cm to the far side at
- * the bottom, the trade between the diagonal showing and the arms staying nearly straight: the arm on the handle's
- * side bends up to about 35°, the other is straight (neutral). START the handle high on the near side, 42 cm above
- * the shoulders, 6 cm towards the near side (neutral); END swept down across the body to the far hip's height, 6 cm to
- * the far side. The cable
- * runs from the pulley to the handle in both panels. ACE standing rotational chop
- * (https://www.acefitness.org/resources/everyone/exercise-library/349/standing-rotational-chop/, Sources.kt).
+ * hips square. The trunk turns with the sweep ([CHOP_TURN], Pose.twist: the shoulders narrower across the picture by
+ * the turn's cosine): towards the machine at the top, away from it at the bottom ("chest and belly turn together").
+ * The hands laced on one handle out in front of the body, both arms nearly straight ([CHOP_ELBOW]): with the shoulders
+ * turned, two straight arms meet where the turned chest points, so the handle sits well to the side. START the handle
+ * above and outside the near shoulder (35 cm above the shoulders); END swept down across the body to the far hip's
+ * height, outside the far hip. The cable runs from the pulley to the handle in both panels. ACE standing rotational
+ * chop (https://www.acefitness.org/resources/everyone/exercise-library/349/standing-rotational-chop/, Sources.kt).
  */
 private val cableWoodchop: ExerciseFigure by lazy {
     val view = View.FRONT
@@ -658,31 +659,36 @@ private val cableWoodchop: ExerciseFigure by lazy {
     val legLen = Segment.THIGH.length + Segment.SHIN.length
     val pelvis = Point(0.0, -(Body.ANKLE_HEIGHT + legLen * cos(apart / DEG)))
     val legs = Leg(hip = apart, knee = 0.0)
-    val bare = Pose(pelvis.x, pelvis.y, 90.0, nearArm = HANG, nearLeg = legs).skeleton(view)
-    val nearSh = bare.near.shoulder
-    val farSh = bare.far.shoulder
-    // The hands at [p] in the picture, as far in front of the body as the longer arm needs to be nearly straight.
-    fun armsTo(p: Point): Pair<Arm, Arm> {
-        val far = maxOf((p - farSh).length(), (p - nearSh).length())
-        val z = sqrt(maxOf(ARM_REACH * ARM_REACH * 0.997 - far * far, 0.0))
-        val g = v3(p, z)
-        val hint = V3(0.0, 0.0, -1.0)
-        val near = arm3(v3(nearSh, 0.0), g, hint, 90.0)
+    val reach = sqrt(
+        Segment.UPPER_ARM.length * Segment.UPPER_ARM.length + FORE_LINK * FORE_LINK +
+            2 * Segment.UPPER_ARM.length * FORE_LINK * cos(CHOP_ELBOW / DEG),
+    ) - 1e-6
+    val hint = V3(0.0, 0.0, -1.0)
+    /** The pose with the trunk turned [turn]° and the hands at height [y], where both arms reach bent [CHOP_ELBOW]°. */
+    fun pose(turn: Double, y: Double): Pose {
+        val bare = Pose(pelvis.x, pelvis.y, 90.0, nearArm = HANG, nearLeg = legs, twist = turn).skeleton(view)
+        val r = turn / DEG
+        // The shoulders in 3D: the near one turned back from the camera for a positive turn, the far one forward.
+        val nearSh = v3(bare.near.shoulder, -Body.SHOULDER_HALF_WIDTH * sin(r))
+        val farSh = v3(bare.far.shoulder, Body.SHOULDER_HALF_WIDTH * sin(r))
+        // On the plane square to the shoulders' line through their middle: x = z tan(turn) from the axis.
+        fun grip(z: Double) = V3(pelvis.x + z * kotlin.math.tan(r), y, z)
+        val z = solveAngle(0.0, 70.0) { zz -> (grip(zz) - nearSh).length() - reach }
+        val g = grip(z)
         val axis = pelvis.x
+        val near = arm3(nearSh, g, hint, 90.0)
         // The far arm is drawn as the near one's mirror image: its shoulder and the hands' point mirrored.
-        val farArm = arm3(v3(farSh, 0.0).mirror(axis), g.mirror(axis), hint, 90.0)
-        return near to farArm
+        val far = arm3(farSh.mirror(axis), g.mirror(axis), hint, 90.0)
+        return Pose(pelvis.x, pelvis.y, 90.0, nearArm = near, nearLeg = legs, farArm = far, twist = turn)
     }
-    val high = Point(pelvis.x + 6.0, nearSh.y - 42.0)
-    val low = Point(pelvis.x - 6.0, bare.far.hip.y)
-    fun pose(p: Point) = armsTo(p).let { (n, f) -> Pose(pelvis.x, pelvis.y, 90.0, nearArm = n, nearLeg = legs, farArm = f) }
-    val start = pose(high)
-    val end = pose(low)
-    val stack = CableStack(x = nearSh.x + 75.0, pulleyHeight = -nearSh.y, reach = -12.0, cableInFront = true)
+    val shoulderY = Pose(pelvis.x, pelvis.y, 90.0, nearArm = HANG, nearLeg = legs).skeleton(view).near.shoulder.y
+    val start = pose(CHOP_TURN, shoulderY - 35.0)
+    val end = pose(-CHOP_TURN, pelvis.y)
+    val stack = CableStack(x = pelvis.x + Body.SHOULDER_HALF_WIDTH + 75.0, pulleyHeight = -shoulderY, reach = -12.0, cableInFront = true)
     figure(
         view, start, end, listOf(Floor, stack, CableHandle(Side.NEAR)),
-        startCaption = "High on the near side",
-        endCaption = "Down toward far hip",
+        startCaption = "Above your near shoulder",
+        endCaption = "Down to your far hip",
         thumbnail = Which.END,
         guideLines = listOf(
             "Set a single handle on a cable at shoulder height.",
@@ -736,16 +742,39 @@ private val tall by lazy { stand() }
 
 private val STRIDE_CONTACTS = listOf(Contact(BodyPoint.FEET, Surface.FLOOR, BOTH))
 
+/** A carry seen from the front: the hip joint over a straight standing leg. */
+private val CARRY_PELVIS = Point(0.0, -(Body.ANKLE_HEIGHT + Segment.THIGH.length + Segment.SHIN.length))
+private val CARRY_STANCE = Leg(hip = 0.0, knee = 0.0)
+
+/** The front view's walking step: the far foot swinging through, off the floor (the thigh 25° towards the camera, the knee 40°: neutral). */
+private val CARRY_SWING = Leg(hip = 0.0, knee = 40.0, out = 25.0, shinOut = -15.0)
+
+/** The arm hanging straight, out from the side until a dumbbell disc held end on is 1.5 cm clear of the thigh's outside. */
+private val CARRY_ARM: Arm by lazy {
+    val abduct = solveAngle(0.0, 30.0) { a ->
+        val s = Pose(CARRY_PELVIS.x, CARRY_PELVIS.y, 90.0, nearArm = Arm(a, 0.0), nearLeg = CARRY_STANCE).skeleton(View.FRONT)
+        (s.near.grip.x - Dumbbell.HEAD_RADIUS) - (s.near.hip.x + Body.THIGH_WIDTH / 2) - 1.5
+    }
+    Arm(abduct, 0.0)
+}
+
+private fun frontCarry(far: Leg, farArm: Arm) =
+    Pose(CARRY_PELVIS.x, CARRY_PELVIS.y, 90.0, nearArm = CARRY_ARM, nearLeg = CARRY_STANCE, farArm = farArm, farLeg = far)
+
+private val FRONT_CARRY_CONTACTS = listOf(Contact(BodyPoint.FEET, Surface.FLOOR, setOf(Which.START)), Contact(BodyPoint.NEAR_FOOT, Surface.FLOOR, BOTH))
+
 /**
- * Farmer's walk. A heavy dumbbell in each hand, the palms in (handles front to back: seen in profile from the side,
- * lesson 2), the arms straight at the sides. START standing tall after the pick-up; END mid-stride ([stride]), the
- * back upright and the head up, the weights still at the sides. ACE farmer's carry
+ * Farmer's walk. The front view, as the Suitcase carry (fix round 1: from the side it could not be told from the Plate
+ * pinch carry at thumbnail size): a heavy dumbbell in each hand, held at the sides with the palms in, so the front view
+ * sees each end on (a disc); both arms hanging straight, just clear of the thighs; the shoulders level, the torso
+ * upright. Both sides loaded is what sets it apart from the suitcase carry. START standing tall after the pick-up; END
+ * mid-step, the far foot swinging through, the back upright. ACE farmer's carry
  * (https://www.acefitness.org/resources/everyone/exercise-library/359/farmer-s-carry/, Sources.kt).
  */
 private val farmersWalk: ExerciseFigure by lazy {
-    val props = listOf(Floor, Dumbbell(Side.FAR, neutral = true, squareToForearm = true), Dumbbell(Side.NEAR, neutral = true, squareToForearm = true))
+    val props = listOf(Floor, Dumbbell(Side.FAR, endOnFront = true), Dumbbell(Side.NEAR, endOnFront = true))
     figure(
-        View.SIDE, standOn(tall, 90.0, HANG), striding(HANG), props,
+        View.FRONT, frontCarry(CARRY_STANCE, CARRY_ARM), frontCarry(CARRY_SWING, CARRY_ARM), props,
         startCaption = "Arms straight at sides",
         endCaption = "Back upright, head up",
         thumbnail = Which.END,
@@ -754,7 +783,7 @@ private val farmersWalk: ExerciseFigure by lazy {
             "Walk a set distance, keeping your back upright and your head up.",
             WALK_SLOW,
         ),
-        contacts = STRIDE_CONTACTS,
+        contacts = FRONT_CARRY_CONTACTS,
         checks = emptyList(),
     )
 }
@@ -768,20 +797,10 @@ private val farmersWalk: ExerciseFigure by lazy {
  * (https://www.acefitness.org/resources/everyone/exercise-library/358/suitcase-carry/, Sources.kt).
  */
 private val suitcaseCarry: ExerciseFigure by lazy {
-    val view = View.FRONT
-    val pelvis = Point(0.0, -(Body.ANKLE_HEIGHT + Segment.THIGH.length + Segment.SHIN.length))
-    val stance = Leg(hip = 0.0, knee = 0.0)
-    // The near arm out from the side until the disc's edge is 1.5 cm clear of the thigh's outside.
-    fun posed(far: Leg, arm: Arm) = Pose(pelvis.x, pelvis.y, 90.0, nearArm = arm, nearLeg = stance, farArm = Arm(4.0, 0.0), farLeg = far)
-    val abduct = solveAngle(0.0, 30.0) { a ->
-        val s = posed(stance, Arm(a, 0.0)).skeleton(view)
-        (s.near.grip.x - Dumbbell.HEAD_RADIUS) - (s.near.hip.x + Body.THIGH_WIDTH / 2) - 1.5
-    }
-    val arm = Arm(abduct, 0.0)
-    val swing = Leg(hip = 0.0, knee = 40.0, out = 25.0, shinOut = -15.0)
     val props = listOf(Floor, Dumbbell(Side.NEAR, endOnFront = true))
+    val free = Arm(4.0, 0.0)
     figure(
-        view, posed(stance, arm), posed(swing, arm), props,
+        View.FRONT, frontCarry(CARRY_STANCE, free), frontCarry(CARRY_SWING, free), props,
         startCaption = "Arm hangs straight",
         endCaption = "Stay upright",
         thumbnail = Which.END,
@@ -791,7 +810,7 @@ private val suitcaseCarry: ExerciseFigure by lazy {
             "Walk a set distance, keeping your torso upright.",
             WALK_SLOW,
         ),
-        contacts = listOf(Contact(BodyPoint.FEET, Surface.FLOOR, setOf(Which.START)), Contact(BodyPoint.NEAR_FOOT, Surface.FLOOR, BOTH)),
+        contacts = FRONT_CARRY_CONTACTS,
         checks = emptyList(),
     )
 }

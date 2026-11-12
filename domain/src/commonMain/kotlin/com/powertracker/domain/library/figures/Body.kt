@@ -187,6 +187,11 @@ data class Leg(val hip: Double, val knee: Double, val ankle: Double = 0.0, val o
  * torso that leans towards the camera (a push-up seen from the front). [shrug] lifts the shoulder girdle: the arms'
  * roots (the shoulder joints of the limbs) rise that many cm along the torso, and the drawn tops of the shoulders with
  * them, while the torso's axis, the neck's base and the head stay put (a shrug: the shoulders rise towards the ears).
+ * [twist] is for the front view only (Task 12): the shoulders turned about the torso's long axis by that many degrees,
+ * the near shoulder back from the camera for a positive twist (a woodchop's turn towards a machine on the near side).
+ * Seen from the front the shoulders are then closer together, [Body.SHOULDER_HALF_WIDTH] times cos([twist]) either
+ * side of the axis, and the torso's outline narrows with them towards the top (a projection, not a change of
+ * proportions); the hips stay square. 0 leaves the front view unchanged.
  */
 data class Pose(
     val pelvisX: Double,
@@ -200,6 +205,7 @@ data class Pose(
     val lean: Double = 0.0,
     val neckOut: Double = 0.0,
     val shrug: Double = 0.0,
+    val twist: Double = 0.0,
 )
 
 /** One side's joint positions. [hand] is the end of the hand; [grip] is where a held handle sits. */
@@ -230,6 +236,8 @@ data class Skeleton(
     val alongScale: Double = 1.0,
     /** The pose's [Pose.shrug]: how far the shoulder girdle is lifted along the torso, cm. */
     val shrug: Double = 0.0,
+    /** cos of the front view's [Pose.twist] (1 otherwise): how much of the shoulders' width shows. */
+    val shoulderScale: Double = 1.0,
 ) {
     fun side(side: Side): LimbPoints = if (side == Side.NEAR) near else far
 
@@ -241,6 +249,7 @@ data class Skeleton(
 fun Pose.skeleton(view: View = View.SIDE): Skeleton {
     val pelvis = Point(pelvisX, pelvisY)
     val alongScale = if (view == View.FRONT) kotlin.math.cos(lean * kotlin.math.PI / 180) else 1.0
+    val shoulderScale = if (view == View.FRONT && twist != 0.0) kotlin.math.cos(twist * kotlin.math.PI / 180) else 1.0
     val shoulder = pelvis + dir(torso) * (Segment.TORSO.length * alongScale)
     val headDir = torso - neck
     // The head circle's top is at the crown (see Body.HEAD_RADIUS).
@@ -254,7 +263,7 @@ fun Pose.skeleton(view: View = View.SIDE): Skeleton {
         val front = view == View.FRONT
         val across = dir(torso - 90.0)
         val root = shoulder + dir(torso) * (shrug * alongScale)
-        val s = if (front) root + across * (sign * Body.SHOULDER_HALF_WIDTH) else root
+        val s = if (front) root + across * (sign * Body.SHOULDER_HALF_WIDTH * shoulderScale) else root
         val h = if (front) pelvis + across * (sign * Body.HIP_HALF_WIDTH) else pelvis
         fun mirrored(a: Double) = if (front && side == Side.FAR) 2 * torso - a else a
         val upperArm = torso + 180.0 + arm.shoulder
@@ -284,7 +293,7 @@ fun Pose.skeleton(view: View = View.SIDE): Skeleton {
         val toe = ankle + sole + footDir * (footLength * 0.8 - r)
         return LimbPoints(s, elbow, wrist, hand, grip, h, knee, ankle, heel, toe)
     }
-    return Skeleton(view, torso, pelvis, shoulder, shoulder, head, limb(Side.NEAR), limb(Side.FAR), alongScale, shrug)
+    return Skeleton(view, torso, pelvis, shoulder, shoulder, head, limb(Side.NEAR), limb(Side.FAR), alongScale, shrug, shoulderScale)
 }
 
 /** A joint's allowed range in degrees, inclusive. */
@@ -410,6 +419,11 @@ object JointLimits {
             if (angle !in range) add("$label ${round1(angle)}° outside ${range.min}..${range.max}")
         }
         check("neck", Joint.NECK, pose.neck)
+        // The trunk's turn (Task 12): about 35° each way, thoracic and lumbar together, the conservative textbook value
+        // beside the 42.5–47.7° "normal" seated group in https://pmc.ncbi.nlm.nih.gov/articles/PMC3461891/ (seen in the
+        // search result). Drawn only from the front.
+        if (pose.twist != 0.0 && view != View.FRONT) add("twist ${round1(pose.twist)}° in a side view")
+        if (abs(pose.twist) > 35.0 + 1e-6) add("twist ${round1(pose.twist)}° outside -35.0..35.0")
         for ((side, arm, leg) in listOf(Triple("near", pose.nearArm, pose.nearLeg), Triple("far", pose.farArm, pose.farLeg))) {
             if (arm.out == 0.0) {
                 check("$side shoulder", Joint.SHOULDER, arm.shoulder)

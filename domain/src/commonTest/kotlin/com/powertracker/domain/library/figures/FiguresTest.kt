@@ -64,19 +64,6 @@ class FiguresTest {
         }
         assertFalse(Library.hasFigure("My own exercise"))
         assertFalse(Library.hasFigure(""))
-        // A catalogue exercise not drawn yet has none, until a test registers one under its name. Since Task 12 every
-        // catalogue exercise is drawn, so there is none left to try this on.
-        val undrawn = Library.all().firstOrNull { it.name !in Figures.all }?.name
-        if (undrawn != null) {
-            assertFalse(Library.hasFigure(undrawn))
-            Figures.registerForTest(undrawn, FigureFixtures.benchDraft())
-            try {
-                assertTrue(Library.hasFigure(undrawn))
-            } finally {
-                Figures.unregisterForTest(undrawn)
-            }
-            assertFalse(Library.hasFigure(undrawn))
-        }
         // The same answer as looking the figure up, for every catalogue name.
         for (entry in Library.all()) assertEquals(Library.figure(entry.name) != null, Library.hasFigure(entry.name), entry.name)
     }
@@ -114,6 +101,6 @@ class FiguresTest {
     }
 
     private companion object {
-        const val GOLDEN = "225:f0c60837400511bf"
+        const val GOLDEN = "225:4cef8580b4d880a3"
     }
 }

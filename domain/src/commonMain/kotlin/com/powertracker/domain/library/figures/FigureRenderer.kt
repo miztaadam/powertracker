@@ -146,7 +146,9 @@ object FigureRenderer {
                     along > l + 2.5 -> s.shrug * 0.3
                     else -> s.shrug
                 }
-                s.onTorso(along + lift, front).let { listOf(it.x, it.y) }
+                // A front view's twist narrows the outline towards the shoulders (Pose.twist); the hips stay square.
+                val across = if (s.shoulderScale == 1.0) front else front * (1.0 + (s.shoulderScale - 1.0) * (along / l).coerceIn(0.0, 1.0))
+                s.onTorso(along + lift, across).let { listOf(it.x, it.y) }
             },
         )
     }

@@ -132,6 +132,8 @@ class BatchCalvesTest {
         val smith = props(n).filterIsInstance<SmithMachine>().single()
         val bar = Barbell(BarHold.UPPER_BACK).center(s(n, Which.START))
         inRange(n, "stops just below the lowest bar", -bar.y - Barbell.SHAFT_RADIUS - smith.stopHeight, 2.0..6.0)
+        // The stop shows past the back in both panels (the torso's back is 10 cm behind its axis).
+        for (w in Which.entries) inRange(n, "stop shows behind the back ($w)", (s(n, w).pelvis.x - Body.TORSO_RADIUS) - (smith.x - smith.stopBehind), 5.0..30.0)
     }
 
     @Test

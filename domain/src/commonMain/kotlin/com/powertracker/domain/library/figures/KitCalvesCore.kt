@@ -62,7 +62,8 @@ data class DonkeyCalfMachine(
  * [seatHeight] up; an upright hip pad behind the hips at [hipPadX] (its front face); foot rollers at [feet]; and a
  * lever that turns about [pivot] to the chest pad on the upper chest at [pad] (in this panel; the pivot is set so the
  * lever is the same length in both panels), drawn in front of the chest. A typical machine: a 40 cm seat about 45 cm
- * up, a hip pad 30 cm tall, a chest pad about 14 cm across; neutral sizes.
+ * up, a hip pad 30 cm tall, a chest pad about 14 cm across; neutral sizes. The lever runs beside the lifter from the
+ * pivot (at the hips' axis on the figure) to the pad, so it is drawn in front of the body with the pad (fix round 1).
  */
 data class CrunchMachine(
     val seatFront: Double,
@@ -104,11 +105,12 @@ data object AbWheel : HeldProp {
 /**
  * A weight plate pinched by its rim in one hand ([hand]): its top edge in the hand, so its centre hangs [RADIUS] −
  * [PINCH] below the grip. Its face is parallel to the body's side, so the side view sees the face (a disc) and the
- * front view its edge. A typical 10 kg plate is about 30 cm across and 3 cm thick (neutral).
+ * front view its edge. A typical 10 kg bumper plate is 45 cm across (the standard full-size disc) and about 3 cm thick
+ * at its rim (neutral); fix round 1 drew it at that size, so it reads as a plate at thumbnail size.
  */
 data class PinchPlate(val hand: Side) : HeldProp {
     companion object {
-        const val RADIUS = 15.0
+        const val RADIUS = 22.5
         const val THICKNESS = 3.0
 
         /** How far the fingers reach down the plate's face from its rim, cm. */
@@ -206,12 +208,10 @@ internal fun CrunchMachine.drawOf(): List<Placed> = buildList {
     val mid = seatFront - CrunchMachine.SEAT_LENGTH / 2
     add(Placed(Capsule(E, hipPadX - 30.0, -1.5, feet.x + 15.0, -1.5, 3.0)))
     add(Placed(Capsule(E, mid, -seatHeight + FlatBench.PAD, mid, -1.5, 6.0)))
-    // The frame post behind the hip pad up to the pivot, and the lever from the pivot to the chest pad (behind).
+    // The frame post behind the hip pad up to the pivot's height, and the beam to the pivot (behind the body).
     val postX = hipPadX - CrunchMachine.HIP_PAD_THICKNESS - 6.0
     add(Placed(Capsule(E, postX, -1.5, postX, pivot.y, 6.0)))
     add(Placed(cap(E, Point(postX, pivot.y), pivot, 5.0)))
-    add(Placed(cap(E, pivot, pad, 4.0)))
-    add(Placed(Circle(E, pivot.x, pivot.y, 4.0)))
     // The foot rollers' stem from under the seat's front.
     add(Placed(cap(E, Point(seatFront - 4.0, -seatHeight + FlatBench.PAD), feet, 3.5)))
     add(Placed(Circle(E, feet.x, feet.y, CrunchMachine.ROLLER_RADIUS)))
@@ -219,8 +219,11 @@ internal fun CrunchMachine.drawOf(): List<Placed> = buildList {
     add(Placed(box(E, seatSlab())))
 }
 
-/** The chest pad over the upper chest, set off by a gap ring. */
-internal fun CrunchMachine.drawFrontOf(): List<Placed> = frontRoller(pad, CrunchMachine.PAD_RADIUS)
+/** The lever from the pivot to the chest pad, the pad over the upper chest and the pivot's hub, set off by gaps. */
+internal fun CrunchMachine.drawFrontOf(): List<Placed> = listOf(
+    Placed(cap(Role.GAP, pivot, pad, 4.0 + Body.GAP_EXTRA)),
+    Placed(cap(E, pivot, pad, 4.0)),
+) + frontRoller(pad, CrunchMachine.PAD_RADIUS) + frontRoller(pivot, 4.0)
 
 // SupportPost
 
@@ -256,7 +259,7 @@ internal fun PinchPlate.drawOn(s: Skeleton): List<Shape> {
     val c = centerOn(s)
     val r = PinchPlate.RADIUS
     return if (s.view == View.SIDE) {
-        listOf(Circle(Role.ACCENT_FILL, c.x, c.y, r), ring(Role.ACCENT, c.x, c.y, r, r - 1.3), ring(Role.ACCENT, c.x, c.y, 3.0, 2.2))
+        listOf(Circle(Role.ACCENT_FILL, c.x, c.y, r), ring(Role.ACCENT, c.x, c.y, r, r - 2.0), ring(Role.ACCENT, c.x, c.y, 5.5, 4.0))
     } else {
         listOf(RoundRect(Role.ACCENT, c.x - PinchPlate.THICKNESS / 2, c.y - r, PinchPlate.THICKNESS, 2 * r, 1.2))
     }

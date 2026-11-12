@@ -5122,7 +5122,7 @@ protoOf(Leg).equals = function (other) {
     return false;
   return true;
 };
-function Pose(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug) {
+function Pose(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug, twist) {
   torso = torso === VOID ? 90.0 : torso;
   neck = neck === VOID ? 0.0 : neck;
   farArm = farArm === VOID ? nearArm : farArm;
@@ -5130,6 +5130,7 @@ function Pose(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, l
   lean = lean === VOID ? 0.0 : lean;
   neckOut = neckOut === VOID ? 0.0 : neckOut;
   shrug = shrug === VOID ? 0.0 : shrug;
+  twist = twist === VOID ? 0.0 : twist;
   this.n1p_1 = pelvisX;
   this.o1p_1 = pelvisY;
   this.p1p_1 = torso;
@@ -5141,11 +5142,12 @@ function Pose(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, l
   this.v1p_1 = lean;
   this.w1p_1 = neckOut;
   this.x1p_1 = shrug;
+  this.y1p_1 = twist;
 }
-protoOf(Pose).y1p = function (pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug) {
-  return new Pose(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug);
+protoOf(Pose).z1p = function (pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug, twist) {
+  return new Pose(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug, twist);
 };
-protoOf(Pose).z1p = function (pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug, $super) {
+protoOf(Pose).a1q = function (pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug, twist, $super) {
   pelvisX = pelvisX === VOID ? this.n1p_1 : pelvisX;
   pelvisY = pelvisY === VOID ? this.o1p_1 : pelvisY;
   torso = torso === VOID ? this.p1p_1 : torso;
@@ -5157,10 +5159,11 @@ protoOf(Pose).z1p = function (pelvisX, pelvisY, torso, neck, nearArm, nearLeg, f
   lean = lean === VOID ? this.v1p_1 : lean;
   neckOut = neckOut === VOID ? this.w1p_1 : neckOut;
   shrug = shrug === VOID ? this.x1p_1 : shrug;
-  return $super === VOID ? this.y1p(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug) : $super.y1p.call(this, pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug);
+  twist = twist === VOID ? this.y1p_1 : twist;
+  return $super === VOID ? this.z1p(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug, twist) : $super.z1p.call(this, pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, neckOut, shrug, twist);
 };
 protoOf(Pose).toString = function () {
-  return 'Pose(pelvisX=' + this.n1p_1 + ', pelvisY=' + this.o1p_1 + ', torso=' + this.p1p_1 + ', neck=' + this.q1p_1 + ', nearArm=' + this.r1p_1.toString() + ', nearLeg=' + this.s1p_1.toString() + ', farArm=' + this.t1p_1.toString() + ', farLeg=' + this.u1p_1.toString() + ', lean=' + this.v1p_1 + ', neckOut=' + this.w1p_1 + ', shrug=' + this.x1p_1 + ')';
+  return 'Pose(pelvisX=' + this.n1p_1 + ', pelvisY=' + this.o1p_1 + ', torso=' + this.p1p_1 + ', neck=' + this.q1p_1 + ', nearArm=' + this.r1p_1.toString() + ', nearLeg=' + this.s1p_1.toString() + ', farArm=' + this.t1p_1.toString() + ', farLeg=' + this.u1p_1.toString() + ', lean=' + this.v1p_1 + ', neckOut=' + this.w1p_1 + ', shrug=' + this.x1p_1 + ', twist=' + this.y1p_1 + ')';
 };
 protoOf(Pose).hashCode = function () {
   var result = getNumberHashCode(this.n1p_1);
@@ -5174,6 +5177,7 @@ protoOf(Pose).hashCode = function () {
   result = imul(result, 31) + getNumberHashCode(this.v1p_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.w1p_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.x1p_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y1p_1) | 0;
   return result;
 };
 protoOf(Pose).equals = function (other) {
@@ -5203,26 +5207,27 @@ protoOf(Pose).equals = function (other) {
     return false;
   if (!equals(this.x1p_1, other.x1p_1))
     return false;
+  if (!equals(this.y1p_1, other.y1p_1))
+    return false;
   return true;
 };
 function LimbPoints(shoulder, elbow, wrist, hand, grip, hip, knee, ankle, heel, toe) {
-  this.a1q_1 = shoulder;
-  this.b1q_1 = elbow;
-  this.c1q_1 = wrist;
-  this.d1q_1 = hand;
-  this.e1q_1 = grip;
-  this.f1q_1 = hip;
-  this.g1q_1 = knee;
-  this.h1q_1 = ankle;
-  this.i1q_1 = heel;
-  this.j1q_1 = toe;
+  this.b1q_1 = shoulder;
+  this.c1q_1 = elbow;
+  this.d1q_1 = wrist;
+  this.e1q_1 = hand;
+  this.f1q_1 = grip;
+  this.g1q_1 = hip;
+  this.h1q_1 = knee;
+  this.i1q_1 = ankle;
+  this.j1q_1 = heel;
+  this.k1q_1 = toe;
 }
 protoOf(LimbPoints).toString = function () {
-  return 'LimbPoints(shoulder=' + this.a1q_1.toString() + ', elbow=' + this.b1q_1.toString() + ', wrist=' + this.c1q_1.toString() + ', hand=' + this.d1q_1.toString() + ', grip=' + this.e1q_1.toString() + ', hip=' + this.f1q_1.toString() + ', knee=' + this.g1q_1.toString() + ', ankle=' + this.h1q_1.toString() + ', heel=' + this.i1q_1.toString() + ', toe=' + this.j1q_1.toString() + ')';
+  return 'LimbPoints(shoulder=' + this.b1q_1.toString() + ', elbow=' + this.c1q_1.toString() + ', wrist=' + this.d1q_1.toString() + ', hand=' + this.e1q_1.toString() + ', grip=' + this.f1q_1.toString() + ', hip=' + this.g1q_1.toString() + ', knee=' + this.h1q_1.toString() + ', ankle=' + this.i1q_1.toString() + ', heel=' + this.j1q_1.toString() + ', toe=' + this.k1q_1.toString() + ')';
 };
 protoOf(LimbPoints).hashCode = function () {
-  var result = this.a1q_1.hashCode();
-  result = imul(result, 31) + this.b1q_1.hashCode() | 0;
+  var result = this.b1q_1.hashCode();
   result = imul(result, 31) + this.c1q_1.hashCode() | 0;
   result = imul(result, 31) + this.d1q_1.hashCode() | 0;
   result = imul(result, 31) + this.e1q_1.hashCode() | 0;
@@ -5231,14 +5236,13 @@ protoOf(LimbPoints).hashCode = function () {
   result = imul(result, 31) + this.h1q_1.hashCode() | 0;
   result = imul(result, 31) + this.i1q_1.hashCode() | 0;
   result = imul(result, 31) + this.j1q_1.hashCode() | 0;
+  result = imul(result, 31) + this.k1q_1.hashCode() | 0;
   return result;
 };
 protoOf(LimbPoints).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof LimbPoints))
-    return false;
-  if (!this.a1q_1.equals(other.a1q_1))
     return false;
   if (!this.b1q_1.equals(other.b1q_1))
     return false;
@@ -5258,42 +5262,47 @@ protoOf(LimbPoints).equals = function (other) {
     return false;
   if (!this.j1q_1.equals(other.j1q_1))
     return false;
+  if (!this.k1q_1.equals(other.k1q_1))
+    return false;
   return true;
 };
-function Skeleton(view, torso, pelvis, shoulder, neckBase, head, near, far, alongScale, shrug) {
+function Skeleton(view, torso, pelvis, shoulder, neckBase, head, near, far, alongScale, shrug, shoulderScale) {
   alongScale = alongScale === VOID ? 1.0 : alongScale;
   shrug = shrug === VOID ? 0.0 : shrug;
-  this.k1q_1 = view;
-  this.l1q_1 = torso;
-  this.m1q_1 = pelvis;
-  this.n1q_1 = shoulder;
-  this.o1q_1 = neckBase;
-  this.p1q_1 = head;
-  this.q1q_1 = near;
-  this.r1q_1 = far;
-  this.s1q_1 = alongScale;
-  this.t1q_1 = shrug;
+  shoulderScale = shoulderScale === VOID ? 1.0 : shoulderScale;
+  this.l1q_1 = view;
+  this.m1q_1 = torso;
+  this.n1q_1 = pelvis;
+  this.o1q_1 = shoulder;
+  this.p1q_1 = neckBase;
+  this.q1q_1 = head;
+  this.r1q_1 = near;
+  this.s1q_1 = far;
+  this.t1q_1 = alongScale;
+  this.u1q_1 = shrug;
+  this.v1q_1 = shoulderScale;
 }
-protoOf(Skeleton).u1q = function (side) {
-  return side.equals(Side_NEAR_getInstance()) ? this.q1q_1 : this.r1q_1;
+protoOf(Skeleton).w1q = function (side) {
+  return side.equals(Side_NEAR_getInstance()) ? this.r1q_1 : this.s1q_1;
 };
-protoOf(Skeleton).v1q = function (along, front) {
-  return this.m1q_1.r1o(dir(this.l1q_1).t1o(along * this.s1q_1)).r1o(dir(this.l1q_1 - 90.0).t1o(front));
+protoOf(Skeleton).x1q = function (along, front) {
+  return this.n1q_1.r1o(dir(this.m1q_1).t1o(along * this.t1q_1)).r1o(dir(this.m1q_1 - 90.0).t1o(front));
 };
 protoOf(Skeleton).toString = function () {
-  return 'Skeleton(view=' + this.k1q_1.toString() + ', torso=' + this.l1q_1 + ', pelvis=' + this.m1q_1.toString() + ', shoulder=' + this.n1q_1.toString() + ', neckBase=' + this.o1q_1.toString() + ', head=' + this.p1q_1.toString() + ', near=' + this.q1q_1.toString() + ', far=' + this.r1q_1.toString() + ', alongScale=' + this.s1q_1 + ', shrug=' + this.t1q_1 + ')';
+  return 'Skeleton(view=' + this.l1q_1.toString() + ', torso=' + this.m1q_1 + ', pelvis=' + this.n1q_1.toString() + ', shoulder=' + this.o1q_1.toString() + ', neckBase=' + this.p1q_1.toString() + ', head=' + this.q1q_1.toString() + ', near=' + this.r1q_1.toString() + ', far=' + this.s1q_1.toString() + ', alongScale=' + this.t1q_1 + ', shrug=' + this.u1q_1 + ', shoulderScale=' + this.v1q_1 + ')';
 };
 protoOf(Skeleton).hashCode = function () {
-  var result = this.k1q_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.l1q_1) | 0;
-  result = imul(result, 31) + this.m1q_1.hashCode() | 0;
+  var result = this.l1q_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.m1q_1) | 0;
   result = imul(result, 31) + this.n1q_1.hashCode() | 0;
   result = imul(result, 31) + this.o1q_1.hashCode() | 0;
   result = imul(result, 31) + this.p1q_1.hashCode() | 0;
   result = imul(result, 31) + this.q1q_1.hashCode() | 0;
   result = imul(result, 31) + this.r1q_1.hashCode() | 0;
-  result = imul(result, 31) + getNumberHashCode(this.s1q_1) | 0;
+  result = imul(result, 31) + this.s1q_1.hashCode() | 0;
   result = imul(result, 31) + getNumberHashCode(this.t1q_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.u1q_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.v1q_1) | 0;
   return result;
 };
 protoOf(Skeleton).equals = function (other) {
@@ -5301,11 +5310,9 @@ protoOf(Skeleton).equals = function (other) {
     return true;
   if (!(other instanceof Skeleton))
     return false;
-  if (!this.k1q_1.equals(other.k1q_1))
+  if (!this.l1q_1.equals(other.l1q_1))
     return false;
-  if (!equals(this.l1q_1, other.l1q_1))
-    return false;
-  if (!this.m1q_1.equals(other.m1q_1))
+  if (!equals(this.m1q_1, other.m1q_1))
     return false;
   if (!this.n1q_1.equals(other.n1q_1))
     return false;
@@ -5317,9 +5324,13 @@ protoOf(Skeleton).equals = function (other) {
     return false;
   if (!this.r1q_1.equals(other.r1q_1))
     return false;
-  if (!equals(this.s1q_1, other.s1q_1))
+  if (!this.s1q_1.equals(other.s1q_1))
     return false;
   if (!equals(this.t1q_1, other.t1q_1))
+    return false;
+  if (!equals(this.u1q_1, other.u1q_1))
+    return false;
+  if (!equals(this.v1q_1, other.v1q_1))
     return false;
   return true;
 };
@@ -5335,19 +5346,28 @@ function skeleton(_this__u8e3s4, view) {
     tmp = 1.0;
   }
   var alongScale = tmp;
-  var shoulder = pelvis.r1o(dir(_this__u8e3s4.p1p_1).t1o(Segment_TORSO_getInstance().a() * alongScale));
-  var headDir = _this__u8e3s4.p1p_1 - _this__u8e3s4.q1p_1;
   var tmp_0;
-  if (view.equals(View_FRONT_getInstance())) {
+  if (view.equals(View_FRONT_getInstance()) && !(_this__u8e3s4.y1p_1 === 0.0)) {
     // Inline function 'kotlin.math.cos' call
-    var x_0 = _this__u8e3s4.w1p_1 * 3.141592653589793 / 180;
+    var x_0 = _this__u8e3s4.y1p_1 * 3.141592653589793 / 180;
     tmp_0 = Math.cos(x_0);
   } else {
     tmp_0 = 1.0;
   }
-  var headScale = tmp_0;
+  var shoulderScale = tmp_0;
+  var shoulder = pelvis.r1o(dir(_this__u8e3s4.p1p_1).t1o(Segment_TORSO_getInstance().a() * alongScale));
+  var headDir = _this__u8e3s4.p1p_1 - _this__u8e3s4.q1p_1;
+  var tmp_1;
+  if (view.equals(View_FRONT_getInstance())) {
+    // Inline function 'kotlin.math.cos' call
+    var x_1 = _this__u8e3s4.w1p_1 * 3.141592653589793 / 180;
+    tmp_1 = Math.cos(x_1);
+  } else {
+    tmp_1 = 1.0;
+  }
+  var headScale = tmp_1;
   var head = shoulder.r1o(dir(headDir).t1o((Segment_NECK_getInstance().a() + Segment_HEAD_getInstance().a() - 10.0) * headScale));
-  return new Skeleton(view, _this__u8e3s4.p1p_1, pelvis, shoulder, shoulder, head, skeleton$limb(_this__u8e3s4, view, shoulder, alongScale, pelvis, Side_NEAR_getInstance()), skeleton$limb(_this__u8e3s4, view, shoulder, alongScale, pelvis, Side_FAR_getInstance()), alongScale, _this__u8e3s4.x1p_1);
+  return new Skeleton(view, _this__u8e3s4.p1p_1, pelvis, shoulder, shoulder, head, skeleton$limb(_this__u8e3s4, view, shoulder, alongScale, shoulderScale, pelvis, Side_NEAR_getInstance()), skeleton$limb(_this__u8e3s4, view, shoulder, alongScale, shoulderScale, pelvis, Side_FAR_getInstance()), alongScale, _this__u8e3s4.x1p_1, shoulderScale);
 }
 function round1(v) {
   return round(v * 10) / 10;
@@ -5378,7 +5398,7 @@ function twoLink($this, base, target, a, b, bendPositive) {
 }
 function Reach() {
 }
-protoOf(Reach).w1q = function (shoulder, target, torso, wrist, turnedOut) {
+protoOf(Reach).y1q = function (shoulder, target, torso, wrist, turnedOut) {
   var g = Segment_HAND_getInstance().a() * 0.45;
   var w = wrist * 3.141592653589793 / 180;
   var bend = turnedOut ? -1.0 : 1.0;
@@ -5402,12 +5422,12 @@ protoOf(Reach).w1q = function (shoulder, target, torso, wrist, turnedOut) {
   var forearm = lower - bend * offset;
   return new Arm(fold(upper - torso - 180.0), bend * fold(forearm - upper), wrist, turnedOut);
 };
-protoOf(Reach).x1q = function (shoulder, target, torso, wrist, turnedOut, $super) {
+protoOf(Reach).z1q = function (shoulder, target, torso, wrist, turnedOut, $super) {
   wrist = wrist === VOID ? 0.0 : wrist;
   turnedOut = turnedOut === VOID ? false : turnedOut;
-  return $super === VOID ? this.w1q(shoulder, target, torso, wrist, turnedOut) : $super.w1q.call(this, shoulder, target, torso, wrist, turnedOut);
+  return $super === VOID ? this.y1q(shoulder, target, torso, wrist, turnedOut) : $super.y1q.call(this, shoulder, target, torso, wrist, turnedOut);
 };
-protoOf(Reach).y1q = function (hip, ankle, torso, foot) {
+protoOf(Reach).a1r = function (hip, ankle, torso, foot) {
   var _destruct__k2r9zo = twoLink(this, hip, ankle, Segment_THIGH_getInstance().a(), Segment_SHIN_getInstance().a(), false);
   var thigh = _destruct__k2r9zo.ya();
   var shin = _destruct__k2r9zo.za();
@@ -5420,14 +5440,14 @@ function Reach_getInstance() {
 function skeleton$limb$mirrored(front, $side, $this_skeleton, a) {
   return front && $side.equals(Side_FAR_getInstance()) ? 2 * $this_skeleton.p1p_1 - a : a;
 }
-function skeleton$limb($this_skeleton, $view, shoulder, alongScale, pelvis, side) {
+function skeleton$limb($this_skeleton, $view, shoulder, alongScale, shoulderScale, pelvis, side) {
   var arm = side.equals(Side_NEAR_getInstance()) ? $this_skeleton.r1p_1 : $this_skeleton.t1p_1;
   var leg = side.equals(Side_NEAR_getInstance()) ? $this_skeleton.s1p_1 : $this_skeleton.u1p_1;
   var sign = side.equals(Side_NEAR_getInstance()) ? 1.0 : -1.0;
   var front = $view.equals(View_FRONT_getInstance());
   var across = dir($this_skeleton.p1p_1 - 90.0);
   var root = shoulder.r1o(dir($this_skeleton.p1p_1).t1o($this_skeleton.x1p_1 * alongScale));
-  var s = front ? root.r1o(across.t1o(sign * 18.0)) : root;
+  var s = front ? root.r1o(across.t1o(sign * 18.0 * shoulderScale)) : root;
   var h = front ? pelvis.r1o(across.t1o(sign * 9.0)) : pelvis;
   var upperArm = $this_skeleton.p1p_1 + 180.0 + arm.y1o_1;
   var bend = arm.b1p_1 && !front ? -1.0 : 1.0;
@@ -5557,23 +5577,23 @@ function Which(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
 function Scene(pose, props) {
-  this.z1q_1 = pose;
-  this.a1r_1 = props;
+  this.b1r_1 = pose;
+  this.c1r_1 = props;
 }
-protoOf(Scene).b1r = function (pose, props) {
+protoOf(Scene).d1r = function (pose, props) {
   return new Scene(pose, props);
 };
-protoOf(Scene).c1r = function (pose, props, $super) {
-  pose = pose === VOID ? this.z1q_1 : pose;
-  props = props === VOID ? this.a1r_1 : props;
-  return $super === VOID ? this.b1r(pose, props) : $super.b1r.call(this, pose, props);
+protoOf(Scene).e1r = function (pose, props, $super) {
+  pose = pose === VOID ? this.b1r_1 : pose;
+  props = props === VOID ? this.c1r_1 : props;
+  return $super === VOID ? this.d1r(pose, props) : $super.d1r.call(this, pose, props);
 };
 protoOf(Scene).toString = function () {
-  return 'Scene(pose=' + this.z1q_1.toString() + ', props=' + toString(this.a1r_1) + ')';
+  return 'Scene(pose=' + this.b1r_1.toString() + ', props=' + toString(this.c1r_1) + ')';
 };
 protoOf(Scene).hashCode = function () {
-  var result = this.z1q_1.hashCode();
-  result = imul(result, 31) + hashCode(this.a1r_1) | 0;
+  var result = this.b1r_1.hashCode();
+  result = imul(result, 31) + hashCode(this.c1r_1) | 0;
   return result;
 };
 protoOf(Scene).equals = function (other) {
@@ -5581,9 +5601,9 @@ protoOf(Scene).equals = function (other) {
     return true;
   if (!(other instanceof Scene))
     return false;
-  if (!this.z1q_1.equals(other.z1q_1))
+  if (!this.b1r_1.equals(other.b1r_1))
     return false;
-  if (!equals(this.a1r_1, other.a1r_1))
+  if (!equals(this.c1r_1, other.c1r_1))
     return false;
   return true;
 };
@@ -5697,20 +5717,20 @@ var Surface_HIP_PAD_instance;
 function Surface(name, ordinal, grip) {
   grip = grip === VOID ? false : grip;
   Enum.call(this, name, ordinal);
-  this.f1r_1 = grip;
+  this.h1r_1 = grip;
 }
 function Contact(point, surface, at) {
-  this.g1r_1 = point;
-  this.h1r_1 = surface;
-  this.i1r_1 = at;
+  this.i1r_1 = point;
+  this.j1r_1 = surface;
+  this.k1r_1 = at;
 }
 protoOf(Contact).toString = function () {
-  return 'Contact(point=' + this.g1r_1.toString() + ', surface=' + this.h1r_1.toString() + ', at=' + toString(this.i1r_1) + ')';
+  return 'Contact(point=' + this.i1r_1.toString() + ', surface=' + this.j1r_1.toString() + ', at=' + toString(this.k1r_1) + ')';
 };
 protoOf(Contact).hashCode = function () {
-  var result = this.g1r_1.hashCode();
-  result = imul(result, 31) + this.h1r_1.hashCode() | 0;
-  result = imul(result, 31) + hashCode(this.i1r_1) | 0;
+  var result = this.i1r_1.hashCode();
+  result = imul(result, 31) + this.j1r_1.hashCode() | 0;
+  result = imul(result, 31) + hashCode(this.k1r_1) | 0;
   return result;
 };
 protoOf(Contact).equals = function (other) {
@@ -5718,25 +5738,25 @@ protoOf(Contact).equals = function (other) {
     return true;
   if (!(other instanceof Contact))
     return false;
-  if (!this.g1r_1.equals(other.g1r_1))
+  if (!this.i1r_1.equals(other.i1r_1))
     return false;
-  if (!this.h1r_1.equals(other.h1r_1))
+  if (!this.j1r_1.equals(other.j1r_1))
     return false;
-  if (!equals(this.i1r_1, other.i1r_1))
+  if (!equals(this.k1r_1, other.k1r_1))
     return false;
   return true;
 };
 function BarTouches(point, at) {
   at = at === VOID ? Which_START_getInstance() : at;
-  this.j1r_1 = point;
-  this.k1r_1 = at;
+  this.l1r_1 = point;
+  this.m1r_1 = at;
 }
 protoOf(BarTouches).toString = function () {
-  return 'BarTouches(point=' + this.j1r_1.toString() + ', at=' + this.k1r_1.toString() + ')';
+  return 'BarTouches(point=' + this.l1r_1.toString() + ', at=' + this.m1r_1.toString() + ')';
 };
 protoOf(BarTouches).hashCode = function () {
-  var result = this.j1r_1.hashCode();
-  result = imul(result, 31) + this.k1r_1.hashCode() | 0;
+  var result = this.l1r_1.hashCode();
+  result = imul(result, 31) + this.m1r_1.hashCode() | 0;
   return result;
 };
 protoOf(BarTouches).equals = function (other) {
@@ -5744,61 +5764,61 @@ protoOf(BarTouches).equals = function (other) {
     return true;
   if (!(other instanceof BarTouches))
     return false;
-  if (!this.j1r_1.equals(other.j1r_1))
+  if (!this.l1r_1.equals(other.l1r_1))
     return false;
-  if (!this.k1r_1.equals(other.k1r_1))
+  if (!this.m1r_1.equals(other.m1r_1))
     return false;
   return true;
 };
 function LockoutOverShoulders(at) {
   at = at === VOID ? Which_END_getInstance() : at;
-  this.l1r_1 = at;
+  this.n1r_1 = at;
 }
 protoOf(LockoutOverShoulders).toString = function () {
-  return 'LockoutOverShoulders(at=' + this.l1r_1.toString() + ')';
+  return 'LockoutOverShoulders(at=' + this.n1r_1.toString() + ')';
 };
 protoOf(LockoutOverShoulders).hashCode = function () {
-  return this.l1r_1.hashCode();
+  return this.n1r_1.hashCode();
 };
 protoOf(LockoutOverShoulders).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof LockoutOverShoulders))
     return false;
-  if (!this.l1r_1.equals(other.l1r_1))
+  if (!this.n1r_1.equals(other.n1r_1))
     return false;
   return true;
 };
 function BarOverMidfoot(at) {
   at = at === VOID ? Which_START_getInstance() : at;
-  this.m1r_1 = at;
+  this.o1r_1 = at;
 }
 protoOf(BarOverMidfoot).toString = function () {
-  return 'BarOverMidfoot(at=' + this.m1r_1.toString() + ')';
+  return 'BarOverMidfoot(at=' + this.o1r_1.toString() + ')';
 };
 protoOf(BarOverMidfoot).hashCode = function () {
-  return this.m1r_1.hashCode();
+  return this.o1r_1.hashCode();
 };
 protoOf(BarOverMidfoot).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BarOverMidfoot))
     return false;
-  if (!this.m1r_1.equals(other.m1r_1))
+  if (!this.o1r_1.equals(other.o1r_1))
     return false;
   return true;
 };
 function HipDepth(belowKnee, at) {
   at = at === VOID ? Which_END_getInstance() : at;
-  this.n1r_1 = belowKnee;
-  this.o1r_1 = at;
+  this.p1r_1 = belowKnee;
+  this.q1r_1 = at;
 }
 protoOf(HipDepth).toString = function () {
-  return 'HipDepth(belowKnee=' + this.n1r_1 + ', at=' + this.o1r_1.toString() + ')';
+  return 'HipDepth(belowKnee=' + this.p1r_1 + ', at=' + this.q1r_1.toString() + ')';
 };
 protoOf(HipDepth).hashCode = function () {
-  var result = getNumberHashCode(this.n1r_1);
-  result = imul(result, 31) + this.o1r_1.hashCode() | 0;
+  var result = getNumberHashCode(this.p1r_1);
+  result = imul(result, 31) + this.q1r_1.hashCode() | 0;
   return result;
 };
 protoOf(HipDepth).equals = function (other) {
@@ -5806,23 +5826,23 @@ protoOf(HipDepth).equals = function (other) {
     return true;
   if (!(other instanceof HipDepth))
     return false;
-  if (!equals(this.n1r_1, other.n1r_1))
+  if (!equals(this.p1r_1, other.p1r_1))
     return false;
-  if (!this.o1r_1.equals(other.o1r_1))
+  if (!this.q1r_1.equals(other.q1r_1))
     return false;
   return true;
 };
 function BarNearLegs(within, at) {
   at = at === VOID ? Which_START_getInstance() : at;
-  this.p1r_1 = within;
-  this.q1r_1 = at;
+  this.r1r_1 = within;
+  this.s1r_1 = at;
 }
 protoOf(BarNearLegs).toString = function () {
-  return 'BarNearLegs(within=' + this.p1r_1 + ', at=' + this.q1r_1.toString() + ')';
+  return 'BarNearLegs(within=' + this.r1r_1 + ', at=' + this.s1r_1.toString() + ')';
 };
 protoOf(BarNearLegs).hashCode = function () {
-  var result = getNumberHashCode(this.p1r_1);
-  result = imul(result, 31) + this.q1r_1.hashCode() | 0;
+  var result = getNumberHashCode(this.r1r_1);
+  result = imul(result, 31) + this.s1r_1.hashCode() | 0;
   return result;
 };
 protoOf(BarNearLegs).equals = function (other) {
@@ -5830,24 +5850,24 @@ protoOf(BarNearLegs).equals = function (other) {
     return true;
   if (!(other instanceof BarNearLegs))
     return false;
-  if (!equals(this.p1r_1, other.p1r_1))
+  if (!equals(this.r1r_1, other.r1r_1))
     return false;
-  if (!this.q1r_1.equals(other.q1r_1))
+  if (!this.s1r_1.equals(other.s1r_1))
     return false;
   return true;
 };
 function ChinOverBar(margin, at) {
   margin = margin === VOID ? 4.0 : margin;
   at = at === VOID ? Which_END_getInstance() : at;
-  this.r1r_1 = margin;
-  this.s1r_1 = at;
+  this.t1r_1 = margin;
+  this.u1r_1 = at;
 }
 protoOf(ChinOverBar).toString = function () {
-  return 'ChinOverBar(margin=' + this.r1r_1 + ', at=' + this.s1r_1.toString() + ')';
+  return 'ChinOverBar(margin=' + this.t1r_1 + ', at=' + this.u1r_1.toString() + ')';
 };
 protoOf(ChinOverBar).hashCode = function () {
-  var result = getNumberHashCode(this.r1r_1);
-  result = imul(result, 31) + this.s1r_1.hashCode() | 0;
+  var result = getNumberHashCode(this.t1r_1);
+  result = imul(result, 31) + this.u1r_1.hashCode() | 0;
   return result;
 };
 protoOf(ChinOverBar).equals = function (other) {
@@ -5855,27 +5875,27 @@ protoOf(ChinOverBar).equals = function (other) {
     return true;
   if (!(other instanceof ChinOverBar))
     return false;
-  if (!equals(this.r1r_1, other.r1r_1))
+  if (!equals(this.t1r_1, other.t1r_1))
     return false;
-  if (!this.s1r_1.equals(other.s1r_1))
+  if (!this.u1r_1.equals(other.u1r_1))
     return false;
   return true;
 };
 function BarAbove(point, min, max, at) {
   at = at === VOID ? Which_START_getInstance() : at;
-  this.t1r_1 = point;
-  this.u1r_1 = min;
-  this.v1r_1 = max;
-  this.w1r_1 = at;
+  this.v1r_1 = point;
+  this.w1r_1 = min;
+  this.x1r_1 = max;
+  this.y1r_1 = at;
 }
 protoOf(BarAbove).toString = function () {
-  return 'BarAbove(point=' + this.t1r_1.toString() + ', min=' + this.u1r_1 + ', max=' + this.v1r_1 + ', at=' + this.w1r_1.toString() + ')';
+  return 'BarAbove(point=' + this.v1r_1.toString() + ', min=' + this.w1r_1 + ', max=' + this.x1r_1 + ', at=' + this.y1r_1.toString() + ')';
 };
 protoOf(BarAbove).hashCode = function () {
-  var result = this.t1r_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.u1r_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.v1r_1) | 0;
-  result = imul(result, 31) + this.w1r_1.hashCode() | 0;
+  var result = this.v1r_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.w1r_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x1r_1) | 0;
+  result = imul(result, 31) + this.y1r_1.hashCode() | 0;
   return result;
 };
 protoOf(BarAbove).equals = function (other) {
@@ -5883,27 +5903,27 @@ protoOf(BarAbove).equals = function (other) {
     return true;
   if (!(other instanceof BarAbove))
     return false;
-  if (!this.t1r_1.equals(other.t1r_1))
+  if (!this.v1r_1.equals(other.v1r_1))
     return false;
-  if (!equals(this.u1r_1, other.u1r_1))
+  if (!equals(this.w1r_1, other.w1r_1))
     return false;
-  if (!equals(this.v1r_1, other.v1r_1))
+  if (!equals(this.x1r_1, other.x1r_1))
     return false;
-  if (!this.w1r_1.equals(other.w1r_1))
+  if (!this.y1r_1.equals(other.y1r_1))
     return false;
   return true;
 };
 function BarRestsOn(surface, at) {
   at = at === VOID ? Which_START_getInstance() : at;
-  this.x1r_1 = surface;
-  this.y1r_1 = at;
+  this.z1r_1 = surface;
+  this.a1s_1 = at;
 }
 protoOf(BarRestsOn).toString = function () {
-  return 'BarRestsOn(surface=' + this.x1r_1.toString() + ', at=' + this.y1r_1.toString() + ')';
+  return 'BarRestsOn(surface=' + this.z1r_1.toString() + ', at=' + this.a1s_1.toString() + ')';
 };
 protoOf(BarRestsOn).hashCode = function () {
-  var result = this.x1r_1.hashCode();
-  result = imul(result, 31) + this.y1r_1.hashCode() | 0;
+  var result = this.z1r_1.hashCode();
+  result = imul(result, 31) + this.a1s_1.hashCode() | 0;
   return result;
 };
 protoOf(BarRestsOn).equals = function (other) {
@@ -5911,23 +5931,23 @@ protoOf(BarRestsOn).equals = function (other) {
     return true;
   if (!(other instanceof BarRestsOn))
     return false;
-  if (!this.x1r_1.equals(other.x1r_1))
+  if (!this.z1r_1.equals(other.z1r_1))
     return false;
-  if (!this.y1r_1.equals(other.y1r_1))
+  if (!this.a1s_1.equals(other.a1s_1))
     return false;
   return true;
 };
 function HandlesBesideLegs(within, at) {
   at = at === VOID ? Which_START_getInstance() : at;
-  this.z1r_1 = within;
-  this.a1s_1 = at;
+  this.b1s_1 = within;
+  this.c1s_1 = at;
 }
 protoOf(HandlesBesideLegs).toString = function () {
-  return 'HandlesBesideLegs(within=' + this.z1r_1 + ', at=' + this.a1s_1.toString() + ')';
+  return 'HandlesBesideLegs(within=' + this.b1s_1 + ', at=' + this.c1s_1.toString() + ')';
 };
 protoOf(HandlesBesideLegs).hashCode = function () {
-  var result = getNumberHashCode(this.z1r_1);
-  result = imul(result, 31) + this.a1s_1.hashCode() | 0;
+  var result = getNumberHashCode(this.b1s_1);
+  result = imul(result, 31) + this.c1s_1.hashCode() | 0;
   return result;
 };
 protoOf(HandlesBesideLegs).equals = function (other) {
@@ -5935,46 +5955,46 @@ protoOf(HandlesBesideLegs).equals = function (other) {
     return true;
   if (!(other instanceof HandlesBesideLegs))
     return false;
-  if (!equals(this.z1r_1, other.z1r_1))
+  if (!equals(this.b1s_1, other.b1s_1))
     return false;
-  if (!this.a1s_1.equals(other.a1s_1))
+  if (!this.c1s_1.equals(other.c1s_1))
     return false;
   return true;
 };
 function HandsInsideKnees(at) {
   at = at === VOID ? Which_START_getInstance() : at;
-  this.b1s_1 = at;
+  this.d1s_1 = at;
 }
 protoOf(HandsInsideKnees).toString = function () {
-  return 'HandsInsideKnees(at=' + this.b1s_1.toString() + ')';
+  return 'HandsInsideKnees(at=' + this.d1s_1.toString() + ')';
 };
 protoOf(HandsInsideKnees).hashCode = function () {
-  return this.b1s_1.hashCode();
+  return this.d1s_1.hashCode();
 };
 protoOf(HandsInsideKnees).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof HandsInsideKnees))
     return false;
-  if (!this.b1s_1.equals(other.b1s_1))
+  if (!this.d1s_1.equals(other.d1s_1))
     return false;
   return true;
 };
 function ElbowBend(min, max, at, side) {
   side = side === VOID ? null : side;
-  this.c1s_1 = min;
-  this.d1s_1 = max;
-  this.e1s_1 = at;
-  this.f1s_1 = side;
+  this.e1s_1 = min;
+  this.f1s_1 = max;
+  this.g1s_1 = at;
+  this.h1s_1 = side;
 }
 protoOf(ElbowBend).toString = function () {
-  return 'ElbowBend(min=' + this.c1s_1 + ', max=' + this.d1s_1 + ', at=' + this.e1s_1.toString() + ', side=' + toString_0(this.f1s_1) + ')';
+  return 'ElbowBend(min=' + this.e1s_1 + ', max=' + this.f1s_1 + ', at=' + this.g1s_1.toString() + ', side=' + toString_0(this.h1s_1) + ')';
 };
 protoOf(ElbowBend).hashCode = function () {
-  var result = getNumberHashCode(this.c1s_1);
-  result = imul(result, 31) + getNumberHashCode(this.d1s_1) | 0;
-  result = imul(result, 31) + this.e1s_1.hashCode() | 0;
-  result = imul(result, 31) + (this.f1s_1 == null ? 0 : this.f1s_1.hashCode()) | 0;
+  var result = getNumberHashCode(this.e1s_1);
+  result = imul(result, 31) + getNumberHashCode(this.f1s_1) | 0;
+  result = imul(result, 31) + this.g1s_1.hashCode() | 0;
+  result = imul(result, 31) + (this.h1s_1 == null ? 0 : this.h1s_1.hashCode()) | 0;
   return result;
 };
 protoOf(ElbowBend).equals = function (other) {
@@ -5982,28 +6002,28 @@ protoOf(ElbowBend).equals = function (other) {
     return true;
   if (!(other instanceof ElbowBend))
     return false;
-  if (!equals(this.c1s_1, other.c1s_1))
-    return false;
-  if (!equals(this.d1s_1, other.d1s_1))
-    return false;
-  if (!this.e1s_1.equals(other.e1s_1))
+  if (!equals(this.e1s_1, other.e1s_1))
     return false;
   if (!equals(this.f1s_1, other.f1s_1))
+    return false;
+  if (!this.g1s_1.equals(other.g1s_1))
+    return false;
+  if (!equals(this.h1s_1, other.h1s_1))
     return false;
   return true;
 };
 function HandsLevelWith(point, within, at) {
-  this.g1s_1 = point;
-  this.h1s_1 = within;
-  this.i1s_1 = at;
+  this.i1s_1 = point;
+  this.j1s_1 = within;
+  this.k1s_1 = at;
 }
 protoOf(HandsLevelWith).toString = function () {
-  return 'HandsLevelWith(point=' + this.g1s_1.toString() + ', within=' + this.h1s_1 + ', at=' + this.i1s_1.toString() + ')';
+  return 'HandsLevelWith(point=' + this.i1s_1.toString() + ', within=' + this.j1s_1 + ', at=' + this.k1s_1.toString() + ')';
 };
 protoOf(HandsLevelWith).hashCode = function () {
-  var result = this.g1s_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.h1s_1) | 0;
-  result = imul(result, 31) + this.i1s_1.hashCode() | 0;
+  var result = this.i1s_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.j1s_1) | 0;
+  result = imul(result, 31) + this.k1s_1.hashCode() | 0;
   return result;
 };
 protoOf(HandsLevelWith).equals = function (other) {
@@ -6011,26 +6031,26 @@ protoOf(HandsLevelWith).equals = function (other) {
     return true;
   if (!(other instanceof HandsLevelWith))
     return false;
-  if (!this.g1s_1.equals(other.g1s_1))
-    return false;
-  if (!equals(this.h1s_1, other.h1s_1))
-    return false;
   if (!this.i1s_1.equals(other.i1s_1))
+    return false;
+  if (!equals(this.j1s_1, other.j1s_1))
+    return false;
+  if (!this.k1s_1.equals(other.k1s_1))
     return false;
   return true;
 };
 function HeldOver(point, within, at) {
-  this.j1s_1 = point;
-  this.k1s_1 = within;
-  this.l1s_1 = at;
+  this.l1s_1 = point;
+  this.m1s_1 = within;
+  this.n1s_1 = at;
 }
 protoOf(HeldOver).toString = function () {
-  return 'HeldOver(point=' + this.j1s_1.toString() + ', within=' + this.k1s_1 + ', at=' + this.l1s_1.toString() + ')';
+  return 'HeldOver(point=' + this.l1s_1.toString() + ', within=' + this.m1s_1 + ', at=' + this.n1s_1.toString() + ')';
 };
 protoOf(HeldOver).hashCode = function () {
-  var result = this.j1s_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.k1s_1) | 0;
-  result = imul(result, 31) + this.l1s_1.hashCode() | 0;
+  var result = this.l1s_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.m1s_1) | 0;
+  result = imul(result, 31) + this.n1s_1.hashCode() | 0;
   return result;
 };
 protoOf(HeldOver).equals = function (other) {
@@ -6038,26 +6058,26 @@ protoOf(HeldOver).equals = function (other) {
     return true;
   if (!(other instanceof HeldOver))
     return false;
-  if (!this.j1s_1.equals(other.j1s_1))
-    return false;
-  if (!equals(this.k1s_1, other.k1s_1))
-    return false;
   if (!this.l1s_1.equals(other.l1s_1))
+    return false;
+  if (!equals(this.m1s_1, other.m1s_1))
+    return false;
+  if (!this.n1s_1.equals(other.n1s_1))
     return false;
   return true;
 };
 function HeldBeside(point, within, at) {
-  this.m1s_1 = point;
-  this.n1s_1 = within;
-  this.o1s_1 = at;
+  this.o1s_1 = point;
+  this.p1s_1 = within;
+  this.q1s_1 = at;
 }
 protoOf(HeldBeside).toString = function () {
-  return 'HeldBeside(point=' + this.m1s_1.toString() + ', within=' + this.n1s_1 + ', at=' + this.o1s_1.toString() + ')';
+  return 'HeldBeside(point=' + this.o1s_1.toString() + ', within=' + this.p1s_1 + ', at=' + this.q1s_1.toString() + ')';
 };
 protoOf(HeldBeside).hashCode = function () {
-  var result = this.m1s_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.n1s_1) | 0;
-  result = imul(result, 31) + this.o1s_1.hashCode() | 0;
+  var result = this.o1s_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.p1s_1) | 0;
+  result = imul(result, 31) + this.q1s_1.hashCode() | 0;
   return result;
 };
 protoOf(HeldBeside).equals = function (other) {
@@ -6065,30 +6085,7 @@ protoOf(HeldBeside).equals = function (other) {
     return true;
   if (!(other instanceof HeldBeside))
     return false;
-  if (!this.m1s_1.equals(other.m1s_1))
-    return false;
-  if (!equals(this.n1s_1, other.n1s_1))
-    return false;
   if (!this.o1s_1.equals(other.o1s_1))
-    return false;
-  return true;
-};
-function HandsTogether(within, at) {
-  this.p1s_1 = within;
-  this.q1s_1 = at;
-}
-protoOf(HandsTogether).toString = function () {
-  return 'HandsTogether(within=' + this.p1s_1 + ', at=' + this.q1s_1.toString() + ')';
-};
-protoOf(HandsTogether).hashCode = function () {
-  var result = getNumberHashCode(this.p1s_1);
-  result = imul(result, 31) + this.q1s_1.hashCode() | 0;
-  return result;
-};
-protoOf(HandsTogether).equals = function (other) {
-  if (this === other)
-    return true;
-  if (!(other instanceof HandsTogether))
     return false;
   if (!equals(this.p1s_1, other.p1s_1))
     return false;
@@ -6096,18 +6093,41 @@ protoOf(HandsTogether).equals = function (other) {
     return false;
   return true;
 };
+function HandsTogether(within, at) {
+  this.r1s_1 = within;
+  this.s1s_1 = at;
+}
+protoOf(HandsTogether).toString = function () {
+  return 'HandsTogether(within=' + this.r1s_1 + ', at=' + this.s1s_1.toString() + ')';
+};
+protoOf(HandsTogether).hashCode = function () {
+  var result = getNumberHashCode(this.r1s_1);
+  result = imul(result, 31) + this.s1s_1.hashCode() | 0;
+  return result;
+};
+protoOf(HandsTogether).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof HandsTogether))
+    return false;
+  if (!equals(this.r1s_1, other.r1s_1))
+    return false;
+  if (!this.s1s_1.equals(other.s1s_1))
+    return false;
+  return true;
+};
 function ChestOffFloor(min, max, at) {
-  this.r1s_1 = min;
-  this.s1s_1 = max;
-  this.t1s_1 = at;
+  this.t1s_1 = min;
+  this.u1s_1 = max;
+  this.v1s_1 = at;
 }
 protoOf(ChestOffFloor).toString = function () {
-  return 'ChestOffFloor(min=' + this.r1s_1 + ', max=' + this.s1s_1 + ', at=' + this.t1s_1.toString() + ')';
+  return 'ChestOffFloor(min=' + this.t1s_1 + ', max=' + this.u1s_1 + ', at=' + this.v1s_1.toString() + ')';
 };
 protoOf(ChestOffFloor).hashCode = function () {
-  var result = getNumberHashCode(this.r1s_1);
-  result = imul(result, 31) + getNumberHashCode(this.s1s_1) | 0;
-  result = imul(result, 31) + this.t1s_1.hashCode() | 0;
+  var result = getNumberHashCode(this.t1s_1);
+  result = imul(result, 31) + getNumberHashCode(this.u1s_1) | 0;
+  result = imul(result, 31) + this.v1s_1.hashCode() | 0;
   return result;
 };
 protoOf(ChestOffFloor).equals = function (other) {
@@ -6115,30 +6135,7 @@ protoOf(ChestOffFloor).equals = function (other) {
     return true;
   if (!(other instanceof ChestOffFloor))
     return false;
-  if (!equals(this.r1s_1, other.r1s_1))
-    return false;
-  if (!equals(this.s1s_1, other.s1s_1))
-    return false;
-  if (!this.t1s_1.equals(other.t1s_1))
-    return false;
-  return true;
-};
-function UpperArmLevel(within, at) {
-  this.u1s_1 = within;
-  this.v1s_1 = at;
-}
-protoOf(UpperArmLevel).toString = function () {
-  return 'UpperArmLevel(within=' + this.u1s_1 + ', at=' + this.v1s_1.toString() + ')';
-};
-protoOf(UpperArmLevel).hashCode = function () {
-  var result = getNumberHashCode(this.u1s_1);
-  result = imul(result, 31) + this.v1s_1.hashCode() | 0;
-  return result;
-};
-protoOf(UpperArmLevel).equals = function (other) {
-  if (this === other)
-    return true;
-  if (!(other instanceof UpperArmLevel))
+  if (!equals(this.t1s_1, other.t1s_1))
     return false;
   if (!equals(this.u1s_1, other.u1s_1))
     return false;
@@ -6146,22 +6143,22 @@ protoOf(UpperArmLevel).equals = function (other) {
     return false;
   return true;
 };
-function ShouldersOverHands(within, at) {
+function UpperArmLevel(within, at) {
   this.w1s_1 = within;
   this.x1s_1 = at;
 }
-protoOf(ShouldersOverHands).toString = function () {
-  return 'ShouldersOverHands(within=' + this.w1s_1 + ', at=' + this.x1s_1.toString() + ')';
+protoOf(UpperArmLevel).toString = function () {
+  return 'UpperArmLevel(within=' + this.w1s_1 + ', at=' + this.x1s_1.toString() + ')';
 };
-protoOf(ShouldersOverHands).hashCode = function () {
+protoOf(UpperArmLevel).hashCode = function () {
   var result = getNumberHashCode(this.w1s_1);
   result = imul(result, 31) + this.x1s_1.hashCode() | 0;
   return result;
 };
-protoOf(ShouldersOverHands).equals = function (other) {
+protoOf(UpperArmLevel).equals = function (other) {
   if (this === other)
     return true;
-  if (!(other instanceof ShouldersOverHands))
+  if (!(other instanceof UpperArmLevel))
     return false;
   if (!equals(this.w1s_1, other.w1s_1))
     return false;
@@ -6169,34 +6166,57 @@ protoOf(ShouldersOverHands).equals = function (other) {
     return false;
   return true;
 };
+function ShouldersOverHands(within, at) {
+  this.y1s_1 = within;
+  this.z1s_1 = at;
+}
+protoOf(ShouldersOverHands).toString = function () {
+  return 'ShouldersOverHands(within=' + this.y1s_1 + ', at=' + this.z1s_1.toString() + ')';
+};
+protoOf(ShouldersOverHands).hashCode = function () {
+  var result = getNumberHashCode(this.y1s_1);
+  result = imul(result, 31) + this.z1s_1.hashCode() | 0;
+  return result;
+};
+protoOf(ShouldersOverHands).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof ShouldersOverHands))
+    return false;
+  if (!equals(this.y1s_1, other.y1s_1))
+    return false;
+  if (!this.z1s_1.equals(other.z1s_1))
+    return false;
+  return true;
+};
 function BarOnRails(at) {
-  this.y1s_1 = at;
+  this.a1t_1 = at;
 }
 protoOf(BarOnRails).toString = function () {
-  return 'BarOnRails(at=' + this.y1s_1.toString() + ')';
+  return 'BarOnRails(at=' + this.a1t_1.toString() + ')';
 };
 protoOf(BarOnRails).hashCode = function () {
-  return this.y1s_1.hashCode();
+  return this.a1t_1.hashCode();
 };
 protoOf(BarOnRails).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BarOnRails))
     return false;
-  if (!this.y1s_1.equals(other.y1s_1))
+  if (!this.a1t_1.equals(other.a1t_1))
     return false;
   return true;
 };
 function HandsOffFloor(min, at) {
-  this.z1s_1 = min;
-  this.a1t_1 = at;
+  this.b1t_1 = min;
+  this.c1t_1 = at;
 }
 protoOf(HandsOffFloor).toString = function () {
-  return 'HandsOffFloor(min=' + this.z1s_1 + ', at=' + this.a1t_1.toString() + ')';
+  return 'HandsOffFloor(min=' + this.b1t_1 + ', at=' + this.c1t_1.toString() + ')';
 };
 protoOf(HandsOffFloor).hashCode = function () {
-  var result = getNumberHashCode(this.z1s_1);
-  result = imul(result, 31) + this.a1t_1.hashCode() | 0;
+  var result = getNumberHashCode(this.b1t_1);
+  result = imul(result, 31) + this.c1t_1.hashCode() | 0;
   return result;
 };
 protoOf(HandsOffFloor).equals = function (other) {
@@ -6204,22 +6224,22 @@ protoOf(HandsOffFloor).equals = function (other) {
     return true;
   if (!(other instanceof HandsOffFloor))
     return false;
-  if (!equals(this.z1s_1, other.z1s_1))
+  if (!equals(this.b1t_1, other.b1t_1))
     return false;
-  if (!this.a1t_1.equals(other.a1t_1))
+  if (!this.c1t_1.equals(other.c1t_1))
     return false;
   return true;
 };
 function UpperArmDown(within, at) {
-  this.b1t_1 = within;
-  this.c1t_1 = at;
+  this.d1t_1 = within;
+  this.e1t_1 = at;
 }
 protoOf(UpperArmDown).toString = function () {
-  return 'UpperArmDown(within=' + this.b1t_1 + ', at=' + this.c1t_1.toString() + ')';
+  return 'UpperArmDown(within=' + this.d1t_1 + ', at=' + this.e1t_1.toString() + ')';
 };
 protoOf(UpperArmDown).hashCode = function () {
-  var result = getNumberHashCode(this.b1t_1);
-  result = imul(result, 31) + this.c1t_1.hashCode() | 0;
+  var result = getNumberHashCode(this.d1t_1);
+  result = imul(result, 31) + this.e1t_1.hashCode() | 0;
   return result;
 };
 protoOf(UpperArmDown).equals = function (other) {
@@ -6227,22 +6247,22 @@ protoOf(UpperArmDown).equals = function (other) {
     return true;
   if (!(other instanceof UpperArmDown))
     return false;
-  if (!equals(this.b1t_1, other.b1t_1))
+  if (!equals(this.d1t_1, other.d1t_1))
     return false;
-  if (!this.c1t_1.equals(other.c1t_1))
+  if (!this.e1t_1.equals(other.e1t_1))
     return false;
   return true;
 };
 function FeetOffFloor(min, at) {
-  this.d1t_1 = min;
-  this.e1t_1 = at;
+  this.f1t_1 = min;
+  this.g1t_1 = at;
 }
 protoOf(FeetOffFloor).toString = function () {
-  return 'FeetOffFloor(min=' + this.d1t_1 + ', at=' + this.e1t_1.toString() + ')';
+  return 'FeetOffFloor(min=' + this.f1t_1 + ', at=' + this.g1t_1.toString() + ')';
 };
 protoOf(FeetOffFloor).hashCode = function () {
-  var result = getNumberHashCode(this.d1t_1);
-  result = imul(result, 31) + this.e1t_1.hashCode() | 0;
+  var result = getNumberHashCode(this.f1t_1);
+  result = imul(result, 31) + this.g1t_1.hashCode() | 0;
   return result;
 };
 protoOf(FeetOffFloor).equals = function (other) {
@@ -6250,54 +6270,54 @@ protoOf(FeetOffFloor).equals = function (other) {
     return true;
   if (!(other instanceof FeetOffFloor))
     return false;
-  if (!equals(this.d1t_1, other.d1t_1))
+  if (!equals(this.f1t_1, other.f1t_1))
     return false;
-  if (!this.e1t_1.equals(other.e1t_1))
+  if (!this.g1t_1.equals(other.g1t_1))
     return false;
   return true;
 };
 function ExerciseFigure(view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks) {
-  this.f1t_1 = view;
-  this.g1t_1 = start;
-  this.h1t_1 = end;
-  this.i1t_1 = startCaption;
-  this.j1t_1 = endCaption;
-  this.k1t_1 = thumbnail;
-  this.l1t_1 = guideLines;
-  this.m1t_1 = contacts;
-  this.n1t_1 = checks;
+  this.h1t_1 = view;
+  this.i1t_1 = start;
+  this.j1t_1 = end;
+  this.k1t_1 = startCaption;
+  this.l1t_1 = endCaption;
+  this.m1t_1 = thumbnail;
+  this.n1t_1 = guideLines;
+  this.o1t_1 = contacts;
+  this.p1t_1 = checks;
 }
-protoOf(ExerciseFigure).o1t = function (which) {
-  return which.equals(Which_START_getInstance()) ? this.g1t_1 : this.h1t_1;
+protoOf(ExerciseFigure).q1t = function (which) {
+  return which.equals(Which_START_getInstance()) ? this.i1t_1 : this.j1t_1;
 };
-protoOf(ExerciseFigure).p1t = function (view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks) {
+protoOf(ExerciseFigure).r1t = function (view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks) {
   return new ExerciseFigure(view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks);
 };
-protoOf(ExerciseFigure).q1t = function (view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks, $super) {
-  view = view === VOID ? this.f1t_1 : view;
-  start = start === VOID ? this.g1t_1 : start;
-  end = end === VOID ? this.h1t_1 : end;
-  startCaption = startCaption === VOID ? this.i1t_1 : startCaption;
-  endCaption = endCaption === VOID ? this.j1t_1 : endCaption;
-  thumbnail = thumbnail === VOID ? this.k1t_1 : thumbnail;
-  guideLines = guideLines === VOID ? this.l1t_1 : guideLines;
-  contacts = contacts === VOID ? this.m1t_1 : contacts;
-  checks = checks === VOID ? this.n1t_1 : checks;
-  return $super === VOID ? this.p1t(view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks) : $super.p1t.call(this, view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks);
+protoOf(ExerciseFigure).s1t = function (view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks, $super) {
+  view = view === VOID ? this.h1t_1 : view;
+  start = start === VOID ? this.i1t_1 : start;
+  end = end === VOID ? this.j1t_1 : end;
+  startCaption = startCaption === VOID ? this.k1t_1 : startCaption;
+  endCaption = endCaption === VOID ? this.l1t_1 : endCaption;
+  thumbnail = thumbnail === VOID ? this.m1t_1 : thumbnail;
+  guideLines = guideLines === VOID ? this.n1t_1 : guideLines;
+  contacts = contacts === VOID ? this.o1t_1 : contacts;
+  checks = checks === VOID ? this.p1t_1 : checks;
+  return $super === VOID ? this.r1t(view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks) : $super.r1t.call(this, view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks);
 };
 protoOf(ExerciseFigure).toString = function () {
-  return 'ExerciseFigure(view=' + this.f1t_1.toString() + ', start=' + this.g1t_1.toString() + ', end=' + this.h1t_1.toString() + ', startCaption=' + this.i1t_1 + ', endCaption=' + this.j1t_1 + ', thumbnail=' + this.k1t_1.toString() + ', guideLines=' + toString(this.l1t_1) + ', contacts=' + toString(this.m1t_1) + ', checks=' + toString(this.n1t_1) + ')';
+  return 'ExerciseFigure(view=' + this.h1t_1.toString() + ', start=' + this.i1t_1.toString() + ', end=' + this.j1t_1.toString() + ', startCaption=' + this.k1t_1 + ', endCaption=' + this.l1t_1 + ', thumbnail=' + this.m1t_1.toString() + ', guideLines=' + toString(this.n1t_1) + ', contacts=' + toString(this.o1t_1) + ', checks=' + toString(this.p1t_1) + ')';
 };
 protoOf(ExerciseFigure).hashCode = function () {
-  var result = this.f1t_1.hashCode();
-  result = imul(result, 31) + this.g1t_1.hashCode() | 0;
-  result = imul(result, 31) + this.h1t_1.hashCode() | 0;
-  result = imul(result, 31) + getStringHashCode(this.i1t_1) | 0;
-  result = imul(result, 31) + getStringHashCode(this.j1t_1) | 0;
-  result = imul(result, 31) + this.k1t_1.hashCode() | 0;
-  result = imul(result, 31) + hashCode(this.l1t_1) | 0;
-  result = imul(result, 31) + hashCode(this.m1t_1) | 0;
+  var result = this.h1t_1.hashCode();
+  result = imul(result, 31) + this.i1t_1.hashCode() | 0;
+  result = imul(result, 31) + this.j1t_1.hashCode() | 0;
+  result = imul(result, 31) + getStringHashCode(this.k1t_1) | 0;
+  result = imul(result, 31) + getStringHashCode(this.l1t_1) | 0;
+  result = imul(result, 31) + this.m1t_1.hashCode() | 0;
   result = imul(result, 31) + hashCode(this.n1t_1) | 0;
+  result = imul(result, 31) + hashCode(this.o1t_1) | 0;
+  result = imul(result, 31) + hashCode(this.p1t_1) | 0;
   return result;
 };
 protoOf(ExerciseFigure).equals = function (other) {
@@ -6305,43 +6325,43 @@ protoOf(ExerciseFigure).equals = function (other) {
     return true;
   if (!(other instanceof ExerciseFigure))
     return false;
-  if (!this.f1t_1.equals(other.f1t_1))
-    return false;
-  if (!this.g1t_1.equals(other.g1t_1))
-    return false;
   if (!this.h1t_1.equals(other.h1t_1))
     return false;
-  if (!(this.i1t_1 === other.i1t_1))
+  if (!this.i1t_1.equals(other.i1t_1))
     return false;
-  if (!(this.j1t_1 === other.j1t_1))
+  if (!this.j1t_1.equals(other.j1t_1))
     return false;
-  if (!this.k1t_1.equals(other.k1t_1))
+  if (!(this.k1t_1 === other.k1t_1))
     return false;
-  if (!equals(this.l1t_1, other.l1t_1))
+  if (!(this.l1t_1 === other.l1t_1))
     return false;
-  if (!equals(this.m1t_1, other.m1t_1))
+  if (!this.m1t_1.equals(other.m1t_1))
     return false;
   if (!equals(this.n1t_1, other.n1t_1))
+    return false;
+  if (!equals(this.o1t_1, other.o1t_1))
+    return false;
+  if (!equals(this.p1t_1, other.p1t_1))
     return false;
   return true;
 };
 function Probe(label, a, b, radius, handGrip) {
   handGrip = handGrip === VOID ? null : handGrip;
-  this.r1t_1 = label;
-  this.s1t_1 = a;
-  this.t1t_1 = b;
-  this.u1t_1 = radius;
-  this.v1t_1 = handGrip;
+  this.t1t_1 = label;
+  this.u1t_1 = a;
+  this.v1t_1 = b;
+  this.w1t_1 = radius;
+  this.x1t_1 = handGrip;
 }
 protoOf(Probe).toString = function () {
-  return 'Probe(label=' + this.r1t_1 + ', a=' + this.s1t_1.toString() + ', b=' + this.t1t_1.toString() + ', radius=' + this.u1t_1 + ', handGrip=' + toString_0(this.v1t_1) + ')';
+  return 'Probe(label=' + this.t1t_1 + ', a=' + this.u1t_1.toString() + ', b=' + this.v1t_1.toString() + ', radius=' + this.w1t_1 + ', handGrip=' + toString_0(this.x1t_1) + ')';
 };
 protoOf(Probe).hashCode = function () {
-  var result = getStringHashCode(this.r1t_1);
-  result = imul(result, 31) + this.s1t_1.hashCode() | 0;
-  result = imul(result, 31) + this.t1t_1.hashCode() | 0;
-  result = imul(result, 31) + getNumberHashCode(this.u1t_1) | 0;
-  result = imul(result, 31) + (this.v1t_1 == null ? 0 : this.v1t_1.hashCode()) | 0;
+  var result = getStringHashCode(this.t1t_1);
+  result = imul(result, 31) + this.u1t_1.hashCode() | 0;
+  result = imul(result, 31) + this.v1t_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.w1t_1) | 0;
+  result = imul(result, 31) + (this.x1t_1 == null ? 0 : this.x1t_1.hashCode()) | 0;
   return result;
 };
 protoOf(Probe).equals = function (other) {
@@ -6349,15 +6369,15 @@ protoOf(Probe).equals = function (other) {
     return true;
   if (!(other instanceof Probe))
     return false;
-  if (!(this.r1t_1 === other.r1t_1))
+  if (!(this.t1t_1 === other.t1t_1))
     return false;
-  if (!this.s1t_1.equals(other.s1t_1))
+  if (!this.u1t_1.equals(other.u1t_1))
     return false;
-  if (!this.t1t_1.equals(other.t1t_1))
+  if (!this.v1t_1.equals(other.v1t_1))
     return false;
-  if (!equals(this.u1t_1, other.u1t_1))
+  if (!equals(this.w1t_1, other.w1t_1))
     return false;
-  if (!equals(this.v1t_1, other.v1t_1))
+  if (!equals(this.x1t_1, other.x1t_1))
     return false;
   return true;
 };
@@ -6365,7 +6385,7 @@ function probes(_this__u8e3s4, point) {
   var tmp;
   switch (point.w1_1) {
     case 0:
-      tmp = listOf_0(new Probe('head', _this__u8e3s4.p1q_1, _this__u8e3s4.p1q_1, 10.0));
+      tmp = listOf_0(new Probe('head', _this__u8e3s4.q1q_1, _this__u8e3s4.q1q_1, 10.0));
       break;
     case 1:
       // Inline function 'kotlin.let' call
@@ -6382,11 +6402,11 @@ function probes(_this__u8e3s4, point) {
     case 3:
       // Inline function 'kotlin.let' call
 
-      var it_1 = _this__u8e3s4.v1q(Segment_TORSO_getInstance().a() - 8.0, 0.0);
+      var it_1 = _this__u8e3s4.x1q(Segment_TORSO_getInstance().a() - 8.0, 0.0);
       tmp = listOf_0(new Probe('upper back', it_1, it_1, 10.0));
       break;
     case 4:
-      tmp = listOf_0(new Probe('hips', _this__u8e3s4.m1q_1, _this__u8e3s4.m1q_1, 10.0));
+      tmp = listOf_0(new Probe('hips', _this__u8e3s4.n1q_1, _this__u8e3s4.n1q_1, 10.0));
       break;
     case 5:
       // Inline function 'kotlin.collections.map' call
@@ -6399,8 +6419,8 @@ function probes(_this__u8e3s4, point) {
       while (_iterator__ex2g4s.k()) {
         var item = _iterator__ex2g4s.l();
         // Inline function 'kotlin.let' call
-        var it_2 = _this__u8e3s4.u1q(item);
-        var tmp$ret$8 = new Probe(get_label(item) + ' thigh', it_2.f1q_1, it_2.g1q_1, 14.0 / 2);
+        var it_2 = _this__u8e3s4.w1q(item);
+        var tmp$ret$8 = new Probe(get_label(item) + ' thigh', it_2.g1q_1, it_2.h1q_1, 14.0 / 2);
         destination.i(tmp$ret$8);
       }
 
@@ -6483,7 +6503,7 @@ function probes(_this__u8e3s4, point) {
       while (_iterator__ex2g4s_3.k()) {
         var item_3 = _iterator__ex2g4s_3.l();
         // Inline function 'kotlin.let' call
-        var it_3 = _this__u8e3s4.u1q(item_3).b1q_1;
+        var it_3 = _this__u8e3s4.w1q(item_3).c1q_1;
         var tmp$ret$22 = new Probe(get_label(item_3) + ' elbow', it_3, it_3, 10.0 / 2);
         destination_3.i(tmp$ret$22);
       }
@@ -6501,7 +6521,7 @@ function probes(_this__u8e3s4, point) {
       while (_iterator__ex2g4s_4.k()) {
         var item_4 = _iterator__ex2g4s_4.l();
         // Inline function 'kotlin.let' call
-        var it_4 = _this__u8e3s4.u1q(item_4).a1q_1;
+        var it_4 = _this__u8e3s4.w1q(item_4).b1q_1;
         var tmp$ret$27 = new Probe(get_label(item_4) + ' shoulder', it_4, it_4, 0.0);
         destination_4.i(tmp$ret$27);
       }
@@ -6519,8 +6539,8 @@ function probes(_this__u8e3s4, point) {
       while (_iterator__ex2g4s_5.k()) {
         var item_5 = _iterator__ex2g4s_5.l();
         // Inline function 'kotlin.let' call
-        var it_5 = _this__u8e3s4.u1q(item_5);
-        var tmp$ret$32 = new Probe(get_label(item_5) + ' shin', it_5.g1q_1, it_5.h1q_1, 11.0 / 2);
+        var it_5 = _this__u8e3s4.w1q(item_5);
+        var tmp$ret$32 = new Probe(get_label(item_5) + ' shin', it_5.h1q_1, it_5.i1q_1, 11.0 / 2);
         destination_5.i(tmp$ret$32);
       }
 
@@ -6529,31 +6549,31 @@ function probes(_this__u8e3s4, point) {
     case 21:
       // Inline function 'kotlin.let' call
 
-      var it_6 = _this__u8e3s4.q1q_1;
-      tmp = listOf_0(new Probe('near thigh', it_6.f1q_1, it_6.g1q_1, 14.0 / 2));
+      var it_6 = _this__u8e3s4.r1q_1;
+      tmp = listOf_0(new Probe('near thigh', it_6.g1q_1, it_6.h1q_1, 14.0 / 2));
       break;
     case 22:
       // Inline function 'kotlin.let' call
 
-      var it_7 = _this__u8e3s4.q1q_1;
-      tmp = listOf_0(new Probe('near shin', it_7.g1q_1, it_7.h1q_1, 11.0 / 2));
+      var it_7 = _this__u8e3s4.r1q_1;
+      tmp = listOf_0(new Probe('near shin', it_7.h1q_1, it_7.i1q_1, 11.0 / 2));
       break;
     case 18:
       // Inline function 'kotlin.let' call
 
-      var it_8 = _this__u8e3s4.v1q(Segment_TORSO_getInstance().a() - 17.0 - 10.0, 12.5 - 1.5);
+      var it_8 = _this__u8e3s4.x1q(Segment_TORSO_getInstance().a() - 17.0 - 10.0, 12.5 - 1.5);
       tmp = listOf_0(new Probe('upper abdomen', it_8, it_8, 0.0));
       break;
     case 19:
       // Inline function 'kotlin.let' call
 
-      var it_9 = _this__u8e3s4.n1q_1.r1o(chin(_this__u8e3s4)).t1o(0.5);
+      var it_9 = _this__u8e3s4.o1q_1.r1o(chin(_this__u8e3s4)).t1o(0.5);
       tmp = listOf_0(new Probe('neck', it_9, it_9, 0.0));
       break;
     case 20:
       // Inline function 'kotlin.let' call
 
-      var it_10 = _this__u8e3s4.v1q(16.0, 9.0);
+      var it_10 = _this__u8e3s4.x1q(16.0, 9.0);
       tmp = listOf_0(new Probe('waist', it_10, it_10, 0.0));
       break;
     default:
@@ -6568,33 +6588,33 @@ function get_label(_this__u8e3s4) {
   return _this__u8e3s4.v1_1.toLowerCase();
 }
 function chest_0(_this__u8e3s4) {
-  return _this__u8e3s4.v1q(Segment_TORSO_getInstance().a() - 17.0, 12.5);
+  return _this__u8e3s4.x1q(Segment_TORSO_getInstance().a() - 17.0, 12.5);
 }
 function upperChest(_this__u8e3s4) {
-  return _this__u8e3s4.v1q(Segment_TORSO_getInstance().a() - 12.0, 12.5);
+  return _this__u8e3s4.x1q(Segment_TORSO_getInstance().a() - 12.0, 12.5);
 }
 function chin(_this__u8e3s4) {
-  return _this__u8e3s4.n1q_1.r1o(_this__u8e3s4.p1q_1.s1o(_this__u8e3s4.n1q_1).t1o(Segment_NECK_getInstance().a() / (Segment_NECK_getInstance().a() + Segment_HEAD_getInstance().a() - 10.0)));
+  return _this__u8e3s4.o1q_1.r1o(_this__u8e3s4.q1q_1.s1o(_this__u8e3s4.o1q_1).t1o(Segment_NECK_getInstance().a() / (Segment_NECK_getInstance().a() + Segment_HEAD_getInstance().a() - 10.0)));
 }
 function point(_this__u8e3s4, point) {
   // Inline function 'kotlin.let' call
   var it = first(probes(_this__u8e3s4, point));
-  return it.s1t_1.r1o(it.t1t_1).t1o(0.5);
+  return it.u1t_1.r1o(it.v1t_1).t1o(0.5);
 }
 function probes$foot($this_probes, side) {
   // Inline function 'kotlin.let' call
-  var it = $this_probes.u1q(side);
-  return new Probe(get_label(side) + ' foot', it.i1q_1, it.j1q_1, 7.0 / 2);
+  var it = $this_probes.w1q(side);
+  return new Probe(get_label(side) + ' foot', it.j1q_1, it.k1q_1, 7.0 / 2);
 }
 function probes$knee($this_probes, side) {
   // Inline function 'kotlin.let' call
-  var it = $this_probes.u1q(side).g1q_1;
+  var it = $this_probes.w1q(side).h1q_1;
   return new Probe(get_label(side) + ' knee', it, it, 11.0 / 2);
 }
 function probes$hand($this_probes, side) {
   // Inline function 'kotlin.let' call
-  var it = $this_probes.u1q(side);
-  return new Probe(get_label(side) + ' hand', it.c1q_1, it.d1q_1, 6.0 / 2, it.e1q_1);
+  var it = $this_probes.w1q(side);
+  return new Probe(get_label(side) + ' hand', it.d1q_1, it.e1q_1, 6.0 / 2, it.f1q_1);
 }
 function View_SIDE_getInstance() {
   static_init_5();
@@ -6803,18 +6823,18 @@ function clip($this, s) {
   } else {
     if (s instanceof RoundRect) {
       // Inline function 'kotlin.math.max' call
-      var a = s.x1t_1;
+      var a = s.z1t_1;
       var x1 = Math.max(a, 0.0);
       // Inline function 'kotlin.math.max' call
-      var a_0 = s.y1t_1;
+      var a_0 = s.a1u_1;
       var y1 = Math.max(a_0, 0.0);
-      var tmp0 = s.x1t_1 + s.z1t_1;
+      var tmp0 = s.z1t_1 + s.b1u_1;
       // Inline function 'kotlin.math.min' call
-      var b = FigureRenderer_getInstance().e1u_1.c1u_1;
+      var b = FigureRenderer_getInstance().g1u_1.e1u_1;
       var x2 = Math.min(tmp0, b);
-      var tmp0_0 = s.y1t_1 + s.a1u_1;
+      var tmp0_0 = s.a1u_1 + s.c1u_1;
       // Inline function 'kotlin.math.min' call
-      var b_0 = FigureRenderer_getInstance().e1u_1.d1u_1;
+      var b_0 = FigureRenderer_getInstance().g1u_1.f1u_1;
       var y2 = Math.min(tmp0_0, b_0);
       var tmp_0;
       if (x2 <= x1 || y2 <= y1) {
@@ -6822,14 +6842,14 @@ function clip($this, s) {
       } else {
         var tmp_1 = x2 - x1;
         var tmp_2 = y2 - y1;
-        var tmp0_1 = s.b1u_1;
+        var tmp0_1 = s.d1u_1;
         var tmp0_2 = x2 - x1;
         // Inline function 'kotlin.math.min' call
         var b_1 = y2 - y1;
         // Inline function 'kotlin.math.min' call
         var b_2 = Math.min(tmp0_2, b_1) / 2;
         var tmp$ret$5 = Math.min(tmp0_1, b_2);
-        tmp_0 = s.k1u(VOID, x1, y1, tmp_1, tmp_2, tmp$ret$5);
+        tmp_0 = s.m1u(VOID, x1, y1, tmp_1, tmp_2, tmp$ret$5);
       }
       tmp = tmp_0;
     } else {
@@ -6839,16 +6859,16 @@ function clip($this, s) {
   return tmp;
 }
 function clipCapsule($this, c) {
-  var h = c.q1u_1 / 2;
+  var h = c.s1u_1 / 2;
   var minX = h;
   var minY = h;
-  var maxX = FigureRenderer_getInstance().e1u_1.c1u_1 - h;
-  var maxY = FigureRenderer_getInstance().e1u_1.d1u_1 - h;
-  var dx = c.o1u_1 - c.m1u_1;
-  var dy = c.p1u_1 - c.n1u_1;
+  var maxX = FigureRenderer_getInstance().g1u_1.e1u_1 - h;
+  var maxY = FigureRenderer_getInstance().g1u_1.f1u_1 - h;
+  var dx = c.q1u_1 - c.o1u_1;
+  var dy = c.r1u_1 - c.p1u_1;
   var t0 = 0.0;
   var t1 = 1.0;
-  var _iterator__ex2g4s = listOf([to(-dx, c.m1u_1 - minX), to(dx, maxX - c.m1u_1), to(-dy, c.n1u_1 - minY), to(dy, maxY - c.n1u_1)]).j();
+  var _iterator__ex2g4s = listOf([to(-dx, c.o1u_1 - minX), to(dx, maxX - c.o1u_1), to(-dy, c.p1u_1 - minY), to(dy, maxY - c.p1u_1)]).j();
   while (_iterator__ex2g4s.k()) {
     var _destruct__k2r9zo = _iterator__ex2g4s.l();
     var p = _destruct__k2r9zo.ya();
@@ -6871,29 +6891,29 @@ function clipCapsule($this, c) {
   }
   if (t0 > t1)
     return null;
-  return c.r1u(VOID, c.m1u_1 + t0 * dx, c.n1u_1 + t0 * dy, c.m1u_1 + t1 * dx, c.n1u_1 + t1 * dy);
+  return c.t1u(VOID, c.o1u_1 + t0 * dx, c.p1u_1 + t0 * dy, c.o1u_1 + t1 * dx, c.p1u_1 + t1 * dy);
 }
 function LimbSegment(label, a, b, width) {
-  this.s1u_1 = label;
-  this.t1u_1 = a;
-  this.u1u_1 = b;
-  this.v1u_1 = width;
+  this.u1u_1 = label;
+  this.v1u_1 = a;
+  this.w1u_1 = b;
+  this.x1u_1 = width;
 }
-protoOf(LimbSegment).w1u = function (role, extra) {
-  return new Capsule(role, this.t1u_1.p1o_1, this.t1u_1.q1o_1, this.u1u_1.p1o_1, this.u1u_1.q1o_1, this.v1u_1 + extra);
+protoOf(LimbSegment).y1u = function (role, extra) {
+  return new Capsule(role, this.v1u_1.p1o_1, this.v1u_1.q1o_1, this.w1u_1.p1o_1, this.w1u_1.q1o_1, this.x1u_1 + extra);
 };
-protoOf(LimbSegment).x1u = function (role, extra, $super) {
+protoOf(LimbSegment).z1u = function (role, extra, $super) {
   extra = extra === VOID ? 0.0 : extra;
-  return $super === VOID ? this.w1u(role, extra) : $super.w1u.call(this, role, extra);
+  return $super === VOID ? this.y1u(role, extra) : $super.y1u.call(this, role, extra);
 };
 protoOf(LimbSegment).toString = function () {
-  return 'LimbSegment(label=' + this.s1u_1 + ', a=' + this.t1u_1.toString() + ', b=' + this.u1u_1.toString() + ', width=' + this.v1u_1 + ')';
+  return 'LimbSegment(label=' + this.u1u_1 + ', a=' + this.v1u_1.toString() + ', b=' + this.w1u_1.toString() + ', width=' + this.x1u_1 + ')';
 };
 protoOf(LimbSegment).hashCode = function () {
-  var result = getStringHashCode(this.s1u_1);
-  result = imul(result, 31) + this.t1u_1.hashCode() | 0;
-  result = imul(result, 31) + this.u1u_1.hashCode() | 0;
-  result = imul(result, 31) + getNumberHashCode(this.v1u_1) | 0;
+  var result = getStringHashCode(this.u1u_1);
+  result = imul(result, 31) + this.v1u_1.hashCode() | 0;
+  result = imul(result, 31) + this.w1u_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x1u_1) | 0;
   return result;
 };
 protoOf(LimbSegment).equals = function (other) {
@@ -6901,32 +6921,32 @@ protoOf(LimbSegment).equals = function (other) {
     return true;
   if (!(other instanceof LimbSegment))
     return false;
-  if (!(this.s1u_1 === other.s1u_1))
+  if (!(this.u1u_1 === other.u1u_1))
     return false;
-  if (!this.t1u_1.equals(other.t1u_1))
+  if (!this.v1u_1.equals(other.v1u_1))
     return false;
-  if (!this.u1u_1.equals(other.u1u_1))
+  if (!this.w1u_1.equals(other.w1u_1))
     return false;
-  if (!equals(this.v1u_1, other.v1u_1))
+  if (!equals(this.x1u_1, other.x1u_1))
     return false;
   return true;
 };
 function _get_sideOutline__9srzei($this) {
-  var tmp0 = $this.i1u_1;
+  var tmp0 = $this.k1u_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('sideOutline', 1, tmp, FigureRenderer$_get_sideOutline_$ref_55h0jc(), null);
   return tmp0.t();
 }
 function _get_frontOutline__9swgb6($this) {
-  var tmp0 = $this.j1u_1;
+  var tmp0 = $this.l1u_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('frontOutline', 1, tmp, FigureRenderer$_get_frontOutline_$ref_ipn4ri(), null);
   return tmp0.t();
 }
 function torso($this, s) {
-  var outline = s.k1q_1.equals(View_SIDE_getInstance()) ? _get_sideOutline__9srzei($this) : _get_frontOutline__9swgb6($this);
+  var outline = s.l1q_1.equals(View_SIDE_getInstance()) ? _get_sideOutline__9srzei($this) : _get_frontOutline__9swgb6($this);
   var l = Segment_TORSO_getInstance().a();
   var tmp = Role_BODY_getInstance();
   // Inline function 'kotlin.collections.flatMap' call
@@ -6938,75 +6958,76 @@ function torso($this, s) {
     var along = element.ya();
     var front = element.za();
     var tmp_0;
-    if (s.t1q_1 === 0.0 || along < l - 4.5) {
+    if (s.u1q_1 === 0.0 || along < l - 4.5) {
       tmp_0 = 0.0;
     } else {
       var tmp_1;
-      if (s.k1q_1.equals(View_FRONT_getInstance())) {
+      if (s.l1q_1.equals(View_FRONT_getInstance())) {
         // Inline function 'kotlin.math.abs' call
         tmp_1 = Math.abs(front) < 15.0;
       } else {
         tmp_1 = false;
       }
       if (tmp_1) {
-        tmp_0 = s.t1q_1 * 0.3;
+        tmp_0 = s.u1q_1 * 0.3;
       } else {
-        if (s.k1q_1.equals(View_FRONT_getInstance())) {
-          tmp_0 = s.t1q_1;
+        if (s.l1q_1.equals(View_FRONT_getInstance())) {
+          tmp_0 = s.u1q_1;
         } else {
           if (along > l + 2.5) {
-            tmp_0 = s.t1q_1 * 0.3;
+            tmp_0 = s.u1q_1 * 0.3;
           } else {
-            tmp_0 = s.t1q_1;
+            tmp_0 = s.u1q_1;
           }
         }
       }
     }
     var lift = tmp_0;
+    var across = s.v1q_1 === 1.0 ? front : front * (1.0 + (s.v1q_1 - 1.0) * coerceIn(along / l, 0.0, 1.0));
     // Inline function 'kotlin.let' call
-    var it = s.v1q(along + lift, front);
+    var it = s.x1q(along + lift, across);
     var list = listOf([it.p1o_1, it.q1o_1]);
     addAll(destination, list);
   }
   return new Polygon(tmp, destination);
 }
 function Fit(scale, ox, oy, marginX) {
-  this.y1u_1 = scale;
-  this.z1u_1 = ox;
-  this.a1v_1 = oy;
-  this.b1v_1 = marginX;
+  this.a1v_1 = scale;
+  this.b1v_1 = ox;
+  this.c1v_1 = oy;
+  this.d1v_1 = marginX;
 }
-protoOf(Fit).c1v = function (v) {
-  return v * this.y1u_1 + this.z1u_1;
+protoOf(Fit).e1v = function (v) {
+  return v * this.a1v_1 + this.b1v_1;
 };
-protoOf(Fit).d1v = function (v) {
-  return v * this.y1u_1 + this.a1v_1;
+protoOf(Fit).f1v = function (v) {
+  return v * this.a1v_1 + this.c1v_1;
 };
-protoOf(Fit).e1v = function (p) {
-  var s = p.f1v_1;
+protoOf(Fit).g1v = function (p) {
+  var s = p.h1v_1;
   var tmp;
-  if (p.h1v_1) {
+  if (p.j1v_1) {
     tmp = s instanceof Capsule;
   } else {
     tmp = false;
   }
   if (tmp) {
-    var w = s.q1u_1 * this.y1u_1;
-    return new Capsule(s.l1u_1, r(FigureRenderer_getInstance(), this.b1v_1 + w / 2), r(FigureRenderer_getInstance(), this.d1v(s.n1u_1)), r(FigureRenderer_getInstance(), FigureRenderer_getInstance().e1u_1.c1u_1 - this.b1v_1 - w / 2), r(FigureRenderer_getInstance(), this.d1v(s.p1u_1)), r(FigureRenderer_getInstance(), w));
+    var w = s.s1u_1 * this.a1v_1;
+    return new Capsule(s.n1u_1, r(FigureRenderer_getInstance(), this.d1v_1 + w / 2), r(FigureRenderer_getInstance(), this.f1v(s.p1u_1)), r(FigureRenderer_getInstance(), FigureRenderer_getInstance().g1u_1.e1u_1 - this.d1v_1 - w / 2), r(FigureRenderer_getInstance(), this.f1v(s.r1u_1)), r(FigureRenderer_getInstance(), w));
   }
   var tmp_0;
   if (s instanceof Circle) {
-    tmp_0 = new Circle(s.k1v_1, this.c1v(s.l1v_1), this.d1v(s.m1v_1), s.n1v_1 * this.y1u_1);
+    tmp_0 = new Circle(s.m1v_1, this.e1v(s.n1v_1), this.f1v(s.o1v_1), s.p1v_1 * this.a1v_1);
   } else {
     if (s instanceof Capsule) {
-      tmp_0 = new Capsule(s.l1u_1, this.c1v(s.m1u_1), this.d1v(s.n1u_1), this.c1v(s.o1u_1), this.d1v(s.p1u_1), s.q1u_1 * this.y1u_1);
+      tmp_0 = new Capsule(s.n1u_1, this.e1v(s.o1u_1), this.f1v(s.p1u_1), this.e1v(s.q1u_1), this.f1v(s.r1u_1), s.s1u_1 * this.a1v_1);
     } else {
       if (s instanceof RoundRect) {
-        tmp_0 = new RoundRect(s.w1t_1, this.c1v(s.x1t_1), this.d1v(s.y1t_1), s.z1t_1 * this.y1u_1, s.a1u_1 * this.y1u_1, s.b1u_1 * this.y1u_1);
+        tmp_0 = new RoundRect(s.y1t_1, this.e1v(s.z1t_1), this.f1v(s.a1u_1), s.b1u_1 * this.a1v_1, s.c1u_1 * this.a1v_1, s.d1u_1 * this.a1v_1);
       } else {
         if (s instanceof Polygon) {
           // Inline function 'kotlin.collections.mapIndexed' call
-          var this_0 = s.j1v_1;
+          var this_0 = s.l1v_1;
           // Inline function 'kotlin.collections.mapIndexedTo' call
           var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
           var index = 0;
@@ -7015,10 +7036,10 @@ protoOf(Fit).e1v = function (p) {
             var item = _iterator__ex2g4s.l();
             var _unary__edvuaz = index;
             index = _unary__edvuaz + 1 | 0;
-            var tmp$ret$2 = (checkIndexOverflow(_unary__edvuaz) % 2 | 0) === 0 ? this.c1v(item) : this.d1v(item);
+            var tmp$ret$2 = (checkIndexOverflow(_unary__edvuaz) % 2 | 0) === 0 ? this.e1v(item) : this.f1v(item);
             destination.i(tmp$ret$2);
           }
-          tmp_0 = new Polygon(s.i1v_1, destination);
+          tmp_0 = new Polygon(s.k1v_1, destination);
         } else {
           noWhenBranchMatchedException();
         }
@@ -7026,7 +7047,7 @@ protoOf(Fit).e1v = function (p) {
     }
   }
   var t = tmp_0;
-  var tmp1_safe_receiver = p.g1v_1 ? t : clip(this, t);
+  var tmp1_safe_receiver = p.i1v_1 ? t : clip(this, t);
   var tmp_1;
   if (tmp1_safe_receiver == null) {
     tmp_1 = null;
@@ -7043,17 +7064,17 @@ function r($this, v) {
 function rounded($this, s) {
   var tmp;
   if (s instanceof Circle) {
-    tmp = s.p1v(VOID, r($this, s.l1v_1), r($this, s.m1v_1), r($this, s.n1v_1));
+    tmp = s.r1v(VOID, r($this, s.n1v_1), r($this, s.o1v_1), r($this, s.p1v_1));
   } else {
     if (s instanceof Capsule) {
-      tmp = s.r1u(VOID, r($this, s.m1u_1), r($this, s.n1u_1), r($this, s.o1u_1), r($this, s.p1u_1), r($this, s.q1u_1));
+      tmp = s.t1u(VOID, r($this, s.o1u_1), r($this, s.p1u_1), r($this, s.q1u_1), r($this, s.r1u_1), r($this, s.s1u_1));
     } else {
       if (s instanceof RoundRect) {
-        tmp = s.k1u(VOID, r($this, s.x1t_1), r($this, s.y1t_1), r($this, s.z1t_1), r($this, s.a1u_1), r($this, s.b1u_1));
+        tmp = s.m1u(VOID, r($this, s.z1t_1), r($this, s.a1u_1), r($this, s.b1u_1), r($this, s.c1u_1), r($this, s.d1u_1));
       } else {
         if (s instanceof Polygon) {
           // Inline function 'kotlin.collections.map' call
-          var this_0 = s.j1v_1;
+          var this_0 = s.l1v_1;
           // Inline function 'kotlin.collections.mapTo' call
           var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
           var _iterator__ex2g4s = this_0.j();
@@ -7062,7 +7083,7 @@ function rounded($this, s) {
             var tmp$ret$2 = r($this, item);
             destination.i(tmp$ret$2);
           }
-          tmp = s.o1v(VOID, destination);
+          tmp = s.q1v(VOID, destination);
         } else {
           noWhenBranchMatchedException();
         }
@@ -7093,34 +7114,34 @@ function FigureRenderer$_get_frontOutline_$ref_ipn4ri() {
 }
 function FigureRenderer() {
   FigureRenderer_instance = this;
-  this.e1u_1 = new ViewBox(400.0, 300.0);
-  this.f1u_1 = 0.06;
-  this.g1u_1 = emptyMap();
-  this.h1u_1 = emptyMap();
+  this.g1u_1 = new ViewBox(400.0, 300.0);
+  this.h1u_1 = 0.06;
+  this.i1u_1 = emptyMap();
+  this.j1u_1 = emptyMap();
   var tmp = this;
-  tmp.i1u_1 = lazy(FigureRenderer$sideOutline$delegate$lambda);
+  tmp.k1u_1 = lazy(FigureRenderer$sideOutline$delegate$lambda);
   var tmp_0 = this;
-  tmp_0.j1u_1 = lazy(FigureRenderer$frontOutline$delegate$lambda);
+  tmp_0.l1u_1 = lazy(FigureRenderer$frontOutline$delegate$lambda);
 }
-protoOf(FigureRenderer).q1v = function (figure, which) {
+protoOf(FigureRenderer).s1v = function (figure, which) {
   var key = to(figure, which);
-  var tmp0_safe_receiver = this.g1u_1.s1(key);
+  var tmp0_safe_receiver = this.i1u_1.s1(key);
   if (tmp0_safe_receiver == null)
     null;
   else {
     // Inline function 'kotlin.let' call
     return tmp0_safe_receiver;
   }
-  var fit = this.r1v(figure);
+  var fit = this.t1v(figure);
   // Inline function 'kotlin.collections.mapNotNull' call
-  var tmp0 = this.s1v(figure.o1t(which), figure.f1t_1);
+  var tmp0 = this.u1v(figure.q1t(which), figure.h1t_1);
   // Inline function 'kotlin.collections.mapNotNullTo' call
   var destination = ArrayList_init_$Create$();
   // Inline function 'kotlin.collections.forEach' call
   var _iterator__ex2g4s = tmp0.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    var tmp0_safe_receiver_0 = fit.e1v(element);
+    var tmp0_safe_receiver_0 = fit.g1v(element);
     if (tmp0_safe_receiver_0 == null)
       null;
     else {
@@ -7129,14 +7150,14 @@ protoOf(FigureRenderer).q1v = function (figure, which) {
     }
   }
   var out = destination;
-  var stored = this.g1u_1.s1(key);
+  var stored = this.i1u_1.s1(key);
   if (!(stored == null))
     return stored;
-  this.g1u_1 = plus_1(this.g1u_1, to(key, out));
+  this.i1u_1 = plus_1(this.i1u_1, to(key, out));
   return out;
 };
-protoOf(FigureRenderer).r1v = function (figure) {
-  var tmp0_safe_receiver = this.h1u_1.s1(figure);
+protoOf(FigureRenderer).t1v = function (figure) {
+  var tmp0_safe_receiver = this.j1u_1.s1(figure);
   if (tmp0_safe_receiver == null)
     null;
   else {
@@ -7150,7 +7171,7 @@ protoOf(FigureRenderer).r1v = function (figure) {
   var _iterator__ex2g4s = tmp0.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    var list = FigureRenderer_getInstance().s1v(figure.o1t(element), figure.f1t_1);
+    var list = FigureRenderer_getInstance().u1v(figure.q1t(element), figure.h1t_1);
     addAll(destination, list);
   }
   var placed = destination;
@@ -7159,16 +7180,16 @@ protoOf(FigureRenderer).r1v = function (figure) {
   var _iterator__ex2g4s_0 = placed.j();
   $l$loop: while (_iterator__ex2g4s_0.k()) {
     var p = _iterator__ex2g4s_0.l();
-    if (!p.g1v_1)
+    if (!p.i1v_1)
       continue $l$loop;
-    var b = bounds(p.f1v_1);
-    if (p.h1v_1) {
+    var b = bounds(p.h1v_1);
+    if (p.j1v_1) {
       var tmp1_safe_receiver = floor;
-      var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.x1v(b);
+      var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.z1v(b);
       floor = tmp2_elvis_lhs == null ? b : tmp2_elvis_lhs;
     } else {
       var tmp3_safe_receiver = content;
-      var tmp4_elvis_lhs = tmp3_safe_receiver == null ? null : tmp3_safe_receiver.x1v(b);
+      var tmp4_elvis_lhs = tmp3_safe_receiver == null ? null : tmp3_safe_receiver.z1v(b);
       content = tmp4_elvis_lhs == null ? b : tmp4_elvis_lhs;
     }
   }
@@ -7180,41 +7201,41 @@ protoOf(FigureRenderer).r1v = function (figure) {
     tmp = null;
   } else {
     // Inline function 'kotlin.let' call
-    var tmp0_0 = c.u1v_1;
+    var tmp0_0 = c.w1v_1;
     // Inline function 'kotlin.math.min' call
-    var b_0 = tmp6_safe_receiver.u1v_1;
+    var b_0 = tmp6_safe_receiver.w1v_1;
     var tmp_0 = Math.min(tmp0_0, b_0);
-    var tmp0_1 = c.w1v_1;
+    var tmp0_1 = c.y1v_1;
     // Inline function 'kotlin.math.max' call
-    var b_1 = tmp6_safe_receiver.w1v_1;
+    var b_1 = tmp6_safe_receiver.y1v_1;
     var tmp$ret$8 = Math.max(tmp0_1, b_1);
-    tmp = new Bounds(c.t1v_1, tmp_0, c.v1v_1, tmp$ret$8);
+    tmp = new Bounds(c.v1v_1, tmp_0, c.x1v_1, tmp$ret$8);
   }
   var tmp7_elvis_lhs = tmp;
   var all = tmp7_elvis_lhs == null ? c : tmp7_elvis_lhs;
-  var mx = this.e1u_1.c1u_1 * 0.06;
-  var my = this.e1u_1.d1u_1 * 0.06;
-  var tmp_1 = this.e1u_1.c1u_1 - 2 * mx;
+  var mx = this.g1u_1.e1u_1 * 0.06;
+  var my = this.g1u_1.f1u_1 * 0.06;
+  var tmp_1 = this.g1u_1.e1u_1 - 2 * mx;
   // Inline function 'kotlin.math.max' call
-  var a = all.y1v();
+  var a = all.a1w();
   var tmp0_2 = tmp_1 / Math.max(a, 1.0E-6);
-  var tmp_2 = this.e1u_1.d1u_1 - 2 * my;
+  var tmp_2 = this.g1u_1.f1u_1 - 2 * my;
   // Inline function 'kotlin.math.max' call
-  var a_0 = all.z1v();
+  var a_0 = all.b1w();
   // Inline function 'kotlin.math.min' call
   var b_2 = tmp_2 / Math.max(a_0, 1.0E-6);
   var scale = Math.min(tmp0_2, b_2);
-  var ox = (this.e1u_1.c1u_1 - all.y1v() * scale) / 2 - all.t1v_1 * scale;
-  var oy = !(floor == null) ? this.e1u_1.d1u_1 - my - all.w1v_1 * scale : (this.e1u_1.d1u_1 - all.z1v() * scale) / 2 - all.u1v_1 * scale;
+  var ox = (this.g1u_1.e1u_1 - all.a1w() * scale) / 2 - all.v1v_1 * scale;
+  var oy = !(floor == null) ? this.g1u_1.f1u_1 - my - all.y1v_1 * scale : (this.g1u_1.f1u_1 - all.b1w() * scale) / 2 - all.w1v_1 * scale;
   // Inline function 'kotlin.also' call
   var this_0 = new Fit(scale, ox, oy, mx);
-  FigureRenderer_getInstance().h1u_1 = plus_1(FigureRenderer_getInstance().h1u_1, to(figure, this_0));
+  FigureRenderer_getInstance().j1u_1 = plus_1(FigureRenderer_getInstance().j1u_1, to(figure, this_0));
   return this_0;
 };
-protoOf(FigureRenderer).s1v = function (scene, view) {
-  var s = skeleton(scene.z1q_1, view);
+protoOf(FigureRenderer).u1v = function (scene, view) {
+  var s = skeleton(scene.b1r_1, view);
   // Inline function 'kotlin.collections.filterIsInstance' call
-  var tmp0 = scene.a1r_1;
+  var tmp0 = scene.c1r_1;
   // Inline function 'kotlin.collections.filterIsInstanceTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -7226,7 +7247,7 @@ protoOf(FigureRenderer).s1v = function (scene, view) {
   }
   var fixed = destination;
   // Inline function 'kotlin.collections.filterIsInstance' call
-  var tmp0_0 = scene.a1r_1;
+  var tmp0_0 = scene.c1r_1;
   // Inline function 'kotlin.collections.filterIsInstanceTo' call
   var destination_0 = ArrayList_init_$Create$();
   var _iterator__ex2g4s_0 = tmp0_0.j();
@@ -7281,7 +7302,7 @@ protoOf(FigureRenderer).s1v = function (scene, view) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  var legsHidden = view.equals(View_FRONT_getInstance()) && FigureRenderer_getInstance().a1w(scene.z1q_1.s1p_1) && FigureRenderer_getInstance().a1w(scene.z1q_1.u1p_1);
+  var legsHidden = view.equals(View_FRONT_getInstance()) && FigureRenderer_getInstance().c1w(scene.b1r_1.s1p_1) && FigureRenderer_getInstance().c1w(scene.b1r_1.u1p_1);
   // Inline function 'kotlin.collections.partition' call
   var first = ArrayList_init_$Create$();
   var second = ArrayList_init_$Create$();
@@ -7290,7 +7311,7 @@ protoOf(FigureRenderer).s1v = function (scene, view) {
     var element_2 = _iterator__ex2g4s_2.l();
     var tmp_3;
     if (element_2 instanceof CableStack) {
-      tmp_3 = element_2.i1w_1;
+      tmp_3 = element_2.k1w_1;
     } else {
       tmp_3 = false;
     }
@@ -7308,21 +7329,21 @@ protoOf(FigureRenderer).s1v = function (scene, view) {
     var p = _iterator__ex2g4s_3.l();
     this_0.p(draw(p, view, cableEnd, s));
   }
-  var far = FigureRenderer_getInstance().j1w(s.r1q_1);
+  var far = FigureRenderer_getInstance().l1w(s.s1q_1);
   var _iterator__ex2g4s_4 = (legsHidden ? far.p1(3, 6) : far).j();
   while (_iterator__ex2g4s_4.k()) {
     var seg = _iterator__ex2g4s_4.l();
-    this_0.i(new Placed(seg.x1u(farRole)));
+    this_0.i(new Placed(seg.z1u(farRole)));
   }
   var _iterator__ex2g4s_5 = rest.j();
   while (_iterator__ex2g4s_5.k()) {
     var p_0 = _iterator__ex2g4s_5.l();
     this_0.p(draw(p_0, view, cableEnd, s));
   }
-  var near = FigureRenderer_getInstance().j1w(s.q1q_1);
+  var near = FigureRenderer_getInstance().l1w(s.r1q_1);
   this_0.i(new Placed(torso(FigureRenderer_getInstance(), s)));
-  this_0.i(new Placed(new Capsule(Role_BODY_getInstance(), s.o1q_1.p1o_1, s.o1q_1.q1o_1, s.p1q_1.p1o_1, s.p1q_1.q1o_1, 9.0)));
-  this_0.i(new Placed(new Circle(Role_BODY_getInstance(), s.p1q_1.p1o_1, s.p1q_1.q1o_1, 10.0)));
+  this_0.i(new Placed(new Capsule(Role_BODY_getInstance(), s.p1q_1.p1o_1, s.p1q_1.q1o_1, s.q1q_1.p1o_1, s.q1q_1.q1o_1, 9.0)));
+  this_0.i(new Placed(new Circle(Role_BODY_getInstance(), s.q1q_1.p1o_1, s.q1q_1.q1o_1, 10.0)));
   // Inline function 'kotlin.takeUnless' call
   var this_1 = near.p1(0, 3);
   var tmp_4;
@@ -7338,12 +7359,12 @@ protoOf(FigureRenderer).s1v = function (scene, view) {
     var _iterator__ex2g4s_7 = limb.j();
     while (_iterator__ex2g4s_7.k()) {
       var seg_0 = _iterator__ex2g4s_7.l();
-      this_0.i(new Placed(seg_0.w1u(Role_GAP_getInstance(), 3.0)));
+      this_0.i(new Placed(seg_0.y1u(Role_GAP_getInstance(), 3.0)));
     }
     var _iterator__ex2g4s_8 = limb.j();
     while (_iterator__ex2g4s_8.k()) {
       var seg_1 = _iterator__ex2g4s_8.l();
-      this_0.i(new Placed(seg_1.x1u(Role_BODY_getInstance())));
+      this_0.i(new Placed(seg_1.z1u(Role_BODY_getInstance())));
     }
   }
   var _iterator__ex2g4s_9 = held.j();
@@ -7358,11 +7379,11 @@ protoOf(FigureRenderer).s1v = function (scene, view) {
   }
   return this_0.z3();
 };
-protoOf(FigureRenderer).a1w = function (leg) {
+protoOf(FigureRenderer).c1w = function (leg) {
   return leg.j1p_1 <= -89.9 && leg.k1p_1 <= -89.9;
 };
-protoOf(FigureRenderer).j1w = function (l) {
-  return listOf([new LimbSegment('thigh', l.f1q_1, l.g1q_1, 14.0), new LimbSegment('shin', l.g1q_1, l.h1q_1, 11.0), new LimbSegment('foot', l.i1q_1, l.j1q_1, 7.0), new LimbSegment('upper arm', l.a1q_1, l.b1q_1, 10.0), new LimbSegment('forearm', l.b1q_1, l.c1q_1, 8.5), new LimbSegment('hand', l.c1q_1, l.d1q_1, 6.0)]);
+protoOf(FigureRenderer).l1w = function (l) {
+  return listOf([new LimbSegment('thigh', l.g1q_1, l.h1q_1, 14.0), new LimbSegment('shin', l.h1q_1, l.i1q_1, 11.0), new LimbSegment('foot', l.j1q_1, l.k1q_1, 7.0), new LimbSegment('upper arm', l.b1q_1, l.c1q_1, 10.0), new LimbSegment('forearm', l.c1q_1, l.d1q_1, 8.5), new LimbSegment('hand', l.d1q_1, l.e1q_1, 6.0)]);
 };
 var FigureRenderer_instance;
 function FigureRenderer_getInstance() {
@@ -7375,7 +7396,7 @@ function Figures$all$delegate$lambda() {
 }
 function Figures$_get_all_$ref_10q60m() {
   return constructCallableReference(function (p0) {
-    return p0.k1w();
+    return p0.m1w();
   }, 1, 0, 29);
 }
 function Figures() {
@@ -7384,7 +7405,7 @@ function Figures() {
   tmp.d1a_1 = lazy(Figures$all$delegate$lambda);
   this.e1a_1 = emptyMap();
 }
-protoOf(Figures).k1w = function () {
+protoOf(Figures).m1w = function () {
   var tmp0 = this.d1a_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
@@ -7393,7 +7414,7 @@ protoOf(Figures).k1w = function () {
 };
 protoOf(Figures).f1a = function (name) {
   var tmp0_elvis_lhs = this.e1a_1.s1(name);
-  return tmp0_elvis_lhs == null ? this.k1w().s1(name) : tmp0_elvis_lhs;
+  return tmp0_elvis_lhs == null ? this.m1w().s1(name) : tmp0_elvis_lhs;
 };
 protoOf(Figures).g1a = function (name) {
   var tmp;
@@ -7405,7 +7426,7 @@ protoOf(Figures).g1a = function (name) {
   } else {
     // Inline function 'kotlin.collections.contains' call
     // Inline function 'kotlin.collections.containsKey' call
-    var this_1 = this.k1w();
+    var this_1 = this.m1w();
     tmp = (isInterface(this_1, KtMap) ? this_1 : THROW_CCE()).q1(name);
   }
   return tmp;
@@ -7439,18 +7460,18 @@ function lazyFigures(areas) {
   return new LazyFigureMap(merged);
 }
 function LazyFigureMap$entries$2$1($name, $figure) {
-  this.m1w_1 = $figure;
-  this.l1w_1 = $name;
+  this.o1w_1 = $figure;
+  this.n1w_1 = $name;
 }
 protoOf(LazyFigureMap$entries$2$1).s = function () {
-  return this.l1w_1;
+  return this.n1w_1;
 };
 protoOf(LazyFigureMap$entries$2$1).t = function () {
-  return this.m1w_1.t();
+  return this.o1w_1.t();
 };
 function LazyFigureMap$entries$delegate$lambda(this$0) {
   return function () {
-    var tmp0 = this$0.p1w_1.r();
+    var tmp0 = this$0.r1w_1.r();
     // Inline function 'kotlin.collections.mapTo' call
     var destination = LinkedHashSet_init_$Create$();
     var _iterator__ex2g4s = tmp0.j();
@@ -7473,20 +7494,20 @@ function LazyFigureMap$_get_entries_$ref_ufti40() {
 }
 function LazyFigureMap(figures) {
   AbstractMap.call(this);
-  this.p1w_1 = figures;
+  this.r1w_1 = figures;
   var tmp = this;
-  tmp.q1w_1 = lazy(LazyFigureMap$entries$delegate$lambda(this));
+  tmp.s1w_1 = lazy(LazyFigureMap$entries$delegate$lambda(this));
 }
 protoOf(LazyFigureMap).t1 = function () {
-  return this.p1w_1.t1();
+  return this.r1w_1.t1();
 };
 protoOf(LazyFigureMap).o = function () {
-  return this.p1w_1.o();
+  return this.r1w_1.o();
 };
 protoOf(LazyFigureMap).iv = function (key) {
   // Inline function 'kotlin.collections.contains' call
   // Inline function 'kotlin.collections.containsKey' call
-  var this_0 = this.p1w_1;
+  var this_0 = this.r1w_1;
   return (isInterface(this_0, KtMap) ? this_0 : THROW_CCE()).q1(key);
 };
 protoOf(LazyFigureMap).q1 = function (key) {
@@ -7495,7 +7516,7 @@ protoOf(LazyFigureMap).q1 = function (key) {
   return this.iv((!(key == null) ? typeof key === 'string' : false) ? key : THROW_CCE());
 };
 protoOf(LazyFigureMap).jv = function (key) {
-  var tmp0_safe_receiver = this.p1w_1.s1(key);
+  var tmp0_safe_receiver = this.r1w_1.s1(key);
   return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.t();
 };
 protoOf(LazyFigureMap).s1 = function (key) {
@@ -7504,10 +7525,10 @@ protoOf(LazyFigureMap).s1 = function (key) {
   return this.jv((!(key == null) ? typeof key === 'string' : false) ? key : THROW_CCE());
 };
 protoOf(LazyFigureMap).m = function () {
-  return this.p1w_1.m();
+  return this.r1w_1.m();
 };
 protoOf(LazyFigureMap).r = function () {
-  var tmp0 = this.q1w_1;
+  var tmp0 = this.s1w_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('entries', 1, tmp, LazyFigureMap$_get_entries_$ref_ufti40(), null);
@@ -7542,11 +7563,11 @@ function Floor_getInstance() {
   return Floor_instance;
 }
 function Companion() {
-  this.r1w_1 = 43.0;
-  this.s1w_1 = 122.0;
-  this.t1w_1 = 6.0;
-  this.u1w_1 = 30.0;
-  this.v1w_1 = 15.0;
+  this.t1w_1 = 43.0;
+  this.u1w_1 = 122.0;
+  this.v1w_1 = 6.0;
+  this.w1w_1 = 30.0;
+  this.x1w_1 = 15.0;
 }
 var Companion_instance;
 function Companion_getInstance_1() {
@@ -7557,19 +7578,19 @@ function FlatBench(x, length, height, nearLimbsBeside) {
   length = length === VOID ? 122.0 : length;
   height = height === VOID ? 43.0 : height;
   nearLimbsBeside = nearLimbsBeside === VOID ? false : nearLimbsBeside;
-  this.w1w_1 = x;
-  this.x1w_1 = length;
-  this.y1w_1 = height;
-  this.z1w_1 = nearLimbsBeside;
+  this.y1w_1 = x;
+  this.z1w_1 = length;
+  this.a1x_1 = height;
+  this.b1x_1 = nearLimbsBeside;
 }
 protoOf(FlatBench).toString = function () {
-  return 'FlatBench(x=' + this.w1w_1 + ', length=' + this.x1w_1 + ', height=' + this.y1w_1 + ', nearLimbsBeside=' + this.z1w_1 + ')';
+  return 'FlatBench(x=' + this.y1w_1 + ', length=' + this.z1w_1 + ', height=' + this.a1x_1 + ', nearLimbsBeside=' + this.b1x_1 + ')';
 };
 protoOf(FlatBench).hashCode = function () {
-  var result = getNumberHashCode(this.w1w_1);
-  result = imul(result, 31) + getNumberHashCode(this.x1w_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.y1w_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.z1w_1) | 0;
+  var result = getNumberHashCode(this.y1w_1);
+  result = imul(result, 31) + getNumberHashCode(this.z1w_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a1x_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.b1x_1) | 0;
   return result;
 };
 protoOf(FlatBench).equals = function (other) {
@@ -7577,13 +7598,13 @@ protoOf(FlatBench).equals = function (other) {
     return true;
   if (!(other instanceof FlatBench))
     return false;
-  if (!equals(this.w1w_1, other.w1w_1))
-    return false;
-  if (!equals(this.x1w_1, other.x1w_1))
-    return false;
   if (!equals(this.y1w_1, other.y1w_1))
     return false;
-  if (!(this.z1w_1 === other.z1w_1))
+  if (!equals(this.z1w_1, other.z1w_1))
+    return false;
+  if (!equals(this.a1x_1, other.a1x_1))
+    return false;
+  if (!(this.b1x_1 === other.b1x_1))
     return false;
   return true;
 };
@@ -7591,23 +7612,23 @@ function PowerRack(x, jHookHeight, safetyHeight, armLength, height, lifterLeft) 
   armLength = armLength === VOID ? 80.0 : armLength;
   height = height === VOID ? 230.0 : height;
   lifterLeft = lifterLeft === VOID ? false : lifterLeft;
-  this.a1x_1 = x;
-  this.b1x_1 = jHookHeight;
-  this.c1x_1 = safetyHeight;
-  this.d1x_1 = armLength;
-  this.e1x_1 = height;
-  this.f1x_1 = lifterLeft;
+  this.c1x_1 = x;
+  this.d1x_1 = jHookHeight;
+  this.e1x_1 = safetyHeight;
+  this.f1x_1 = armLength;
+  this.g1x_1 = height;
+  this.h1x_1 = lifterLeft;
 }
 protoOf(PowerRack).toString = function () {
-  return 'PowerRack(x=' + this.a1x_1 + ', jHookHeight=' + this.b1x_1 + ', safetyHeight=' + this.c1x_1 + ', armLength=' + this.d1x_1 + ', height=' + this.e1x_1 + ', lifterLeft=' + this.f1x_1 + ')';
+  return 'PowerRack(x=' + this.c1x_1 + ', jHookHeight=' + this.d1x_1 + ', safetyHeight=' + this.e1x_1 + ', armLength=' + this.f1x_1 + ', height=' + this.g1x_1 + ', lifterLeft=' + this.h1x_1 + ')';
 };
 protoOf(PowerRack).hashCode = function () {
-  var result = getNumberHashCode(this.a1x_1);
-  result = imul(result, 31) + getNumberHashCode(this.b1x_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.c1x_1) | 0;
+  var result = getNumberHashCode(this.c1x_1);
   result = imul(result, 31) + getNumberHashCode(this.d1x_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.e1x_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.f1x_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.f1x_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.g1x_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.h1x_1) | 0;
   return result;
 };
 protoOf(PowerRack).equals = function (other) {
@@ -7615,17 +7636,17 @@ protoOf(PowerRack).equals = function (other) {
     return true;
   if (!(other instanceof PowerRack))
     return false;
-  if (!equals(this.a1x_1, other.a1x_1))
-    return false;
-  if (!equals(this.b1x_1, other.b1x_1))
-    return false;
   if (!equals(this.c1x_1, other.c1x_1))
     return false;
   if (!equals(this.d1x_1, other.d1x_1))
     return false;
   if (!equals(this.e1x_1, other.e1x_1))
     return false;
-  if (!(this.f1x_1 === other.f1x_1))
+  if (!equals(this.f1x_1, other.f1x_1))
+    return false;
+  if (!equals(this.g1x_1, other.g1x_1))
+    return false;
+  if (!(this.h1x_1 === other.h1x_1))
     return false;
   return true;
 };
@@ -7647,11 +7668,11 @@ function BarHold(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
 function Companion_0() {
-  this.g1x_1 = 45.0;
-  this.h1x_1 = 1.45;
-  this.i1x_1 = 2.5;
-  this.j1x_1 = 220.0;
-  this.k1x_1 = 131.0;
+  this.i1x_1 = 45.0;
+  this.j1x_1 = 1.45;
+  this.k1x_1 = 2.5;
+  this.l1x_1 = 220.0;
+  this.m1x_1 = 131.0;
 }
 var Companion_instance_0;
 function Companion_getInstance_2() {
@@ -7659,29 +7680,29 @@ function Companion_getInstance_2() {
 }
 function Barbell(on) {
   on = on === VOID ? BarHold_HANDS_getInstance() : on;
-  this.l1x_1 = on;
+  this.n1x_1 = on;
 }
 protoOf(Barbell).toString = function () {
-  return 'Barbell(on=' + this.l1x_1.toString() + ')';
+  return 'Barbell(on=' + this.n1x_1.toString() + ')';
 };
 protoOf(Barbell).hashCode = function () {
-  return this.l1x_1.hashCode();
+  return this.n1x_1.hashCode();
 };
 protoOf(Barbell).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof Barbell))
     return false;
-  if (!this.l1x_1.equals(other.l1x_1))
+  if (!this.n1x_1.equals(other.n1x_1))
     return false;
   return true;
 };
 function SafetySquatBar() {
-  this.m1x_1 = 15.0;
-  this.n1x_1 = 8.0;
-  this.o1x_1 = 5.0;
-  this.p1x_1 = 12.0;
-  this.q1x_1 = 24.0;
+  this.o1x_1 = 15.0;
+  this.p1x_1 = 8.0;
+  this.q1x_1 = 5.0;
+  this.r1x_1 = 12.0;
+  this.s1x_1 = 24.0;
 }
 protoOf(SafetySquatBar).toString = function () {
   return 'SafetySquatBar';
@@ -7701,7 +7722,7 @@ function SafetySquatBar_getInstance() {
   return SafetySquatBar_instance;
 }
 function TrapBar() {
-  this.r1x_1 = 65.0;
+  this.t1x_1 = 65.0;
 }
 protoOf(TrapBar).toString = function () {
   return 'TrapBar';
@@ -7722,17 +7743,17 @@ function TrapBar_getInstance() {
 }
 function SquatBox(x, height, depth) {
   depth = depth === VOID ? 50.0 : depth;
-  this.s1x_1 = x;
-  this.t1x_1 = height;
-  this.u1x_1 = depth;
+  this.u1x_1 = x;
+  this.v1x_1 = height;
+  this.w1x_1 = depth;
 }
 protoOf(SquatBox).toString = function () {
-  return 'SquatBox(x=' + this.s1x_1 + ', height=' + this.t1x_1 + ', depth=' + this.u1x_1 + ')';
+  return 'SquatBox(x=' + this.u1x_1 + ', height=' + this.v1x_1 + ', depth=' + this.w1x_1 + ')';
 };
 protoOf(SquatBox).hashCode = function () {
-  var result = getNumberHashCode(this.s1x_1);
-  result = imul(result, 31) + getNumberHashCode(this.t1x_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.u1x_1) | 0;
+  var result = getNumberHashCode(this.u1x_1);
+  result = imul(result, 31) + getNumberHashCode(this.v1x_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.w1x_1) | 0;
   return result;
 };
 protoOf(SquatBox).equals = function (other) {
@@ -7740,28 +7761,28 @@ protoOf(SquatBox).equals = function (other) {
     return true;
   if (!(other instanceof SquatBox))
     return false;
-  if (!equals(this.s1x_1, other.s1x_1))
-    return false;
-  if (!equals(this.t1x_1, other.t1x_1))
-    return false;
   if (!equals(this.u1x_1, other.u1x_1))
+    return false;
+  if (!equals(this.v1x_1, other.v1x_1))
+    return false;
+  if (!equals(this.w1x_1, other.w1x_1))
     return false;
   return true;
 };
 function DeficitPlatform(x, height, length) {
   height = height === VOID ? 5.0 : height;
   length = length === VOID ? 60.0 : length;
-  this.v1x_1 = x;
-  this.w1x_1 = height;
-  this.x1x_1 = length;
+  this.x1x_1 = x;
+  this.y1x_1 = height;
+  this.z1x_1 = length;
 }
 protoOf(DeficitPlatform).toString = function () {
-  return 'DeficitPlatform(x=' + this.v1x_1 + ', height=' + this.w1x_1 + ', length=' + this.x1x_1 + ')';
+  return 'DeficitPlatform(x=' + this.x1x_1 + ', height=' + this.y1x_1 + ', length=' + this.z1x_1 + ')';
 };
 protoOf(DeficitPlatform).hashCode = function () {
-  var result = getNumberHashCode(this.v1x_1);
-  result = imul(result, 31) + getNumberHashCode(this.w1x_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.x1x_1) | 0;
+  var result = getNumberHashCode(this.x1x_1);
+  result = imul(result, 31) + getNumberHashCode(this.y1x_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.z1x_1) | 0;
   return result;
 };
 protoOf(DeficitPlatform).equals = function (other) {
@@ -7769,27 +7790,27 @@ protoOf(DeficitPlatform).equals = function (other) {
     return true;
   if (!(other instanceof DeficitPlatform))
     return false;
-  if (!equals(this.v1x_1, other.v1x_1))
-    return false;
-  if (!equals(this.w1x_1, other.w1x_1))
-    return false;
   if (!equals(this.x1x_1, other.x1x_1))
+    return false;
+  if (!equals(this.y1x_1, other.y1x_1))
+    return false;
+  if (!equals(this.z1x_1, other.z1x_1))
     return false;
   return true;
 };
 function PullingBlocks(x, height, length) {
   length = length === VOID ? 42.0 : length;
-  this.y1x_1 = x;
-  this.z1x_1 = height;
-  this.a1y_1 = length;
+  this.a1y_1 = x;
+  this.b1y_1 = height;
+  this.c1y_1 = length;
 }
 protoOf(PullingBlocks).toString = function () {
-  return 'PullingBlocks(x=' + this.y1x_1 + ', height=' + this.z1x_1 + ', length=' + this.a1y_1 + ')';
+  return 'PullingBlocks(x=' + this.a1y_1 + ', height=' + this.b1y_1 + ', length=' + this.c1y_1 + ')';
 };
 protoOf(PullingBlocks).hashCode = function () {
-  var result = getNumberHashCode(this.y1x_1);
-  result = imul(result, 31) + getNumberHashCode(this.z1x_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.a1y_1) | 0;
+  var result = getNumberHashCode(this.a1y_1);
+  result = imul(result, 31) + getNumberHashCode(this.b1y_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.c1y_1) | 0;
   return result;
 };
 protoOf(PullingBlocks).equals = function (other) {
@@ -7797,17 +7818,17 @@ protoOf(PullingBlocks).equals = function (other) {
     return true;
   if (!(other instanceof PullingBlocks))
     return false;
-  if (!equals(this.y1x_1, other.y1x_1))
-    return false;
-  if (!equals(this.z1x_1, other.z1x_1))
-    return false;
   if (!equals(this.a1y_1, other.a1y_1))
+    return false;
+  if (!equals(this.b1y_1, other.b1y_1))
+    return false;
+  if (!equals(this.c1y_1, other.c1y_1))
     return false;
   return true;
 };
 function Companion_1() {
-  this.b1y_1 = 3.8;
-  this.c1y_1 = 30.0;
+  this.d1y_1 = 3.8;
+  this.e1y_1 = 30.0;
 }
 var Companion_instance_1;
 function Companion_getInstance_3() {
@@ -7815,20 +7836,20 @@ function Companion_getInstance_3() {
 }
 function BenchBoards(x, bottom, boards) {
   boards = boards === VOID ? 2 : boards;
-  this.d1y_1 = x;
-  this.e1y_1 = bottom;
-  this.f1y_1 = boards;
+  this.f1y_1 = x;
+  this.g1y_1 = bottom;
+  this.h1y_1 = boards;
 }
-protoOf(BenchBoards).g1y = function () {
-  return this.f1y_1 * 3.8;
+protoOf(BenchBoards).i1y = function () {
+  return this.h1y_1 * 3.8;
 };
 protoOf(BenchBoards).toString = function () {
-  return 'BenchBoards(x=' + this.d1y_1 + ', bottom=' + this.e1y_1 + ', boards=' + this.f1y_1 + ')';
+  return 'BenchBoards(x=' + this.f1y_1 + ', bottom=' + this.g1y_1 + ', boards=' + this.h1y_1 + ')';
 };
 protoOf(BenchBoards).hashCode = function () {
-  var result = getNumberHashCode(this.d1y_1);
-  result = imul(result, 31) + getNumberHashCode(this.e1y_1) | 0;
-  result = imul(result, 31) + this.f1y_1 | 0;
+  var result = getNumberHashCode(this.f1y_1);
+  result = imul(result, 31) + getNumberHashCode(this.g1y_1) | 0;
+  result = imul(result, 31) + this.h1y_1 | 0;
   return result;
 };
 protoOf(BenchBoards).equals = function (other) {
@@ -7836,17 +7857,17 @@ protoOf(BenchBoards).equals = function (other) {
     return true;
   if (!(other instanceof BenchBoards))
     return false;
-  if (!equals(this.d1y_1, other.d1y_1))
+  if (!equals(this.f1y_1, other.f1y_1))
     return false;
-  if (!equals(this.e1y_1, other.e1y_1))
+  if (!equals(this.g1y_1, other.g1y_1))
     return false;
-  if (!(this.f1y_1 === other.f1y_1))
+  if (!(this.h1y_1 === other.h1y_1))
     return false;
   return true;
 };
 function Companion_2() {
-  this.h1y_1 = 10.0;
-  this.i1y_1 = 14.0;
+  this.j1y_1 = 10.0;
+  this.k1y_1 = 14.0;
 }
 var Companion_instance_2;
 function Companion_getInstance_4() {
@@ -7856,19 +7877,19 @@ function Dumbbell(hand, neutral, endOnFront, squareToForearm) {
   neutral = neutral === VOID ? false : neutral;
   endOnFront = endOnFront === VOID ? false : endOnFront;
   squareToForearm = squareToForearm === VOID ? false : squareToForearm;
-  this.j1y_1 = hand;
-  this.k1y_1 = neutral;
-  this.l1y_1 = endOnFront;
-  this.m1y_1 = squareToForearm;
+  this.l1y_1 = hand;
+  this.m1y_1 = neutral;
+  this.n1y_1 = endOnFront;
+  this.o1y_1 = squareToForearm;
 }
 protoOf(Dumbbell).toString = function () {
-  return 'Dumbbell(hand=' + this.j1y_1.toString() + ', neutral=' + this.k1y_1 + ', endOnFront=' + this.l1y_1 + ', squareToForearm=' + this.m1y_1 + ')';
+  return 'Dumbbell(hand=' + this.l1y_1.toString() + ', neutral=' + this.m1y_1 + ', endOnFront=' + this.n1y_1 + ', squareToForearm=' + this.o1y_1 + ')';
 };
 protoOf(Dumbbell).hashCode = function () {
-  var result = this.j1y_1.hashCode();
-  result = imul(result, 31) + getBooleanHashCode(this.k1y_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.l1y_1) | 0;
+  var result = this.l1y_1.hashCode();
   result = imul(result, 31) + getBooleanHashCode(this.m1y_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.n1y_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.o1y_1) | 0;
   return result;
 };
 protoOf(Dumbbell).equals = function (other) {
@@ -7876,18 +7897,18 @@ protoOf(Dumbbell).equals = function (other) {
     return true;
   if (!(other instanceof Dumbbell))
     return false;
-  if (!this.j1y_1.equals(other.j1y_1))
-    return false;
-  if (!(this.k1y_1 === other.k1y_1))
-    return false;
-  if (!(this.l1y_1 === other.l1y_1))
+  if (!this.l1y_1.equals(other.l1y_1))
     return false;
   if (!(this.m1y_1 === other.m1y_1))
+    return false;
+  if (!(this.n1y_1 === other.n1y_1))
+    return false;
+  if (!(this.o1y_1 === other.o1y_1))
     return false;
   return true;
 };
 function Companion_3() {
-  this.n1y_1 = 1.4;
+  this.p1y_1 = 1.4;
 }
 var Companion_instance_3;
 function Companion_getInstance_5() {
@@ -7901,27 +7922,27 @@ function CableStack(x, pulleyHeight, reach, height, halfSpan, cableInFront, cros
   cableInFront = cableInFront === VOID ? false : cableInFront;
   crossed = crossed === VOID ? false : crossed;
   beyond = beyond === VOID ? false : beyond;
-  this.b1w_1 = x;
-  this.c1w_1 = pulleyHeight;
-  this.d1w_1 = reach;
-  this.e1w_1 = height;
-  this.f1w_1 = halfSpan;
-  this.g1w_1 = cableInFront;
-  this.h1w_1 = crossed;
-  this.i1w_1 = beyond;
+  this.d1w_1 = x;
+  this.e1w_1 = pulleyHeight;
+  this.f1w_1 = reach;
+  this.g1w_1 = height;
+  this.h1w_1 = halfSpan;
+  this.i1w_1 = cableInFront;
+  this.j1w_1 = crossed;
+  this.k1w_1 = beyond;
 }
 protoOf(CableStack).toString = function () {
-  return 'CableStack(x=' + this.b1w_1 + ', pulleyHeight=' + this.c1w_1 + ', reach=' + this.d1w_1 + ', height=' + this.e1w_1 + ', halfSpan=' + this.f1w_1 + ', cableInFront=' + this.g1w_1 + ', crossed=' + this.h1w_1 + ', beyond=' + this.i1w_1 + ')';
+  return 'CableStack(x=' + this.d1w_1 + ', pulleyHeight=' + this.e1w_1 + ', reach=' + this.f1w_1 + ', height=' + this.g1w_1 + ', halfSpan=' + this.h1w_1 + ', cableInFront=' + this.i1w_1 + ', crossed=' + this.j1w_1 + ', beyond=' + this.k1w_1 + ')';
 };
 protoOf(CableStack).hashCode = function () {
-  var result = getNumberHashCode(this.b1w_1);
-  result = imul(result, 31) + getNumberHashCode(this.c1w_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.d1w_1) | 0;
+  var result = getNumberHashCode(this.d1w_1);
   result = imul(result, 31) + getNumberHashCode(this.e1w_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.f1w_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.g1w_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.h1w_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.g1w_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.h1w_1) | 0;
   result = imul(result, 31) + getBooleanHashCode(this.i1w_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.j1w_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.k1w_1) | 0;
   return result;
 };
 protoOf(CableStack).equals = function (other) {
@@ -7929,26 +7950,26 @@ protoOf(CableStack).equals = function (other) {
     return true;
   if (!(other instanceof CableStack))
     return false;
-  if (!equals(this.b1w_1, other.b1w_1))
-    return false;
-  if (!equals(this.c1w_1, other.c1w_1))
-    return false;
   if (!equals(this.d1w_1, other.d1w_1))
     return false;
   if (!equals(this.e1w_1, other.e1w_1))
     return false;
   if (!equals(this.f1w_1, other.f1w_1))
     return false;
-  if (!(this.g1w_1 === other.g1w_1))
+  if (!equals(this.g1w_1, other.g1w_1))
     return false;
-  if (!(this.h1w_1 === other.h1w_1))
+  if (!equals(this.h1w_1, other.h1w_1))
     return false;
   if (!(this.i1w_1 === other.i1w_1))
+    return false;
+  if (!(this.j1w_1 === other.j1w_1))
+    return false;
+  if (!(this.k1w_1 === other.k1w_1))
     return false;
   return true;
 };
 function LatBar() {
-  this.o1y_1 = 60.0;
+  this.q1y_1 = 60.0;
 }
 protoOf(LatBar).toString = function () {
   return 'LatBar';
@@ -7968,8 +7989,8 @@ function LatBar_getInstance() {
   return LatBar_instance;
 }
 function Companion_4() {
-  this.p1y_1 = 6.0;
-  this.q1y_1 = 24.0;
+  this.r1y_1 = 6.0;
+  this.s1y_1 = 24.0;
 }
 var Companion_instance_4;
 function Companion_getInstance_6() {
@@ -7978,19 +7999,19 @@ function Companion_getInstance_6() {
 function LatPulldownSeat(x, padX, seatHeight, padHeight) {
   seatHeight = seatHeight === VOID ? 48.0 : seatHeight;
   padHeight = padHeight === VOID ? 66.0 : padHeight;
-  this.r1y_1 = x;
-  this.s1y_1 = padX;
-  this.t1y_1 = seatHeight;
-  this.u1y_1 = padHeight;
+  this.t1y_1 = x;
+  this.u1y_1 = padX;
+  this.v1y_1 = seatHeight;
+  this.w1y_1 = padHeight;
 }
 protoOf(LatPulldownSeat).toString = function () {
-  return 'LatPulldownSeat(x=' + this.r1y_1 + ', padX=' + this.s1y_1 + ', seatHeight=' + this.t1y_1 + ', padHeight=' + this.u1y_1 + ')';
+  return 'LatPulldownSeat(x=' + this.t1y_1 + ', padX=' + this.u1y_1 + ', seatHeight=' + this.v1y_1 + ', padHeight=' + this.w1y_1 + ')';
 };
 protoOf(LatPulldownSeat).hashCode = function () {
-  var result = getNumberHashCode(this.r1y_1);
-  result = imul(result, 31) + getNumberHashCode(this.s1y_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.t1y_1) | 0;
+  var result = getNumberHashCode(this.t1y_1);
   result = imul(result, 31) + getNumberHashCode(this.u1y_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.v1y_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.w1y_1) | 0;
   return result;
 };
 protoOf(LatPulldownSeat).equals = function (other) {
@@ -7998,38 +8019,38 @@ protoOf(LatPulldownSeat).equals = function (other) {
     return true;
   if (!(other instanceof LatPulldownSeat))
     return false;
-  if (!equals(this.r1y_1, other.r1y_1))
-    return false;
-  if (!equals(this.s1y_1, other.s1y_1))
-    return false;
   if (!equals(this.t1y_1, other.t1y_1))
     return false;
   if (!equals(this.u1y_1, other.u1y_1))
     return false;
+  if (!equals(this.v1y_1, other.v1y_1))
+    return false;
+  if (!equals(this.w1y_1, other.w1y_1))
+    return false;
   return true;
 };
 function Companion_5() {
-  this.v1y_1 = 45.0;
-  this.w1y_1 = 155.0;
   this.x1y_1 = 45.0;
-  this.y1y_1 = 52.0;
-  this.z1y_1 = 10.0;
-  this.a1z_1 = 125.0;
+  this.y1y_1 = 155.0;
+  this.z1y_1 = 45.0;
+  this.a1z_1 = 52.0;
+  this.b1z_1 = 10.0;
+  this.c1z_1 = 125.0;
 }
 var Companion_instance_5;
 function Companion_getInstance_7() {
   return Companion_instance_5;
 }
 function LegPress45(x, sled) {
-  this.b1z_1 = x;
-  this.c1z_1 = sled;
+  this.d1z_1 = x;
+  this.e1z_1 = sled;
 }
 protoOf(LegPress45).toString = function () {
-  return 'LegPress45(x=' + this.b1z_1 + ', sled=' + this.c1z_1 + ')';
+  return 'LegPress45(x=' + this.d1z_1 + ', sled=' + this.e1z_1 + ')';
 };
 protoOf(LegPress45).hashCode = function () {
-  var result = getNumberHashCode(this.b1z_1);
-  result = imul(result, 31) + getNumberHashCode(this.c1z_1) | 0;
+  var result = getNumberHashCode(this.d1z_1);
+  result = imul(result, 31) + getNumberHashCode(this.e1z_1) | 0;
   return result;
 };
 protoOf(LegPress45).equals = function (other) {
@@ -8037,15 +8058,15 @@ protoOf(LegPress45).equals = function (other) {
     return true;
   if (!(other instanceof LegPress45))
     return false;
-  if (!equals(this.b1z_1, other.b1z_1))
+  if (!equals(this.d1z_1, other.d1z_1))
     return false;
-  if (!equals(this.c1z_1, other.c1z_1))
+  if (!equals(this.e1z_1, other.e1z_1))
     return false;
   return true;
 };
 function Companion_6() {
-  this.d1z_1 = 1.6;
-  this.e1z_1 = 3.0;
+  this.f1z_1 = 1.6;
+  this.g1z_1 = 3.0;
 }
 var Companion_instance_6;
 function Companion_getInstance_8() {
@@ -8053,15 +8074,15 @@ function Companion_getInstance_8() {
 }
 function PullUpBar(x, height) {
   height = height === VOID ? 230.0 : height;
-  this.f1z_1 = x;
-  this.g1z_1 = height;
+  this.h1z_1 = x;
+  this.i1z_1 = height;
 }
 protoOf(PullUpBar).toString = function () {
-  return 'PullUpBar(x=' + this.f1z_1 + ', height=' + this.g1z_1 + ')';
+  return 'PullUpBar(x=' + this.h1z_1 + ', height=' + this.i1z_1 + ')';
 };
 protoOf(PullUpBar).hashCode = function () {
-  var result = getNumberHashCode(this.f1z_1);
-  result = imul(result, 31) + getNumberHashCode(this.g1z_1) | 0;
+  var result = getNumberHashCode(this.h1z_1);
+  result = imul(result, 31) + getNumberHashCode(this.i1z_1) | 0;
   return result;
 };
 protoOf(PullUpBar).equals = function (other) {
@@ -8069,15 +8090,15 @@ protoOf(PullUpBar).equals = function (other) {
     return true;
   if (!(other instanceof PullUpBar))
     return false;
-  if (!equals(this.f1z_1, other.f1z_1))
+  if (!equals(this.h1z_1, other.h1z_1))
     return false;
-  if (!equals(this.g1z_1, other.g1z_1))
+  if (!equals(this.i1z_1, other.i1z_1))
     return false;
   return true;
 };
 function Companion_7() {
-  this.h1z_1 = 40.0;
-  this.i1z_1 = 85.0;
+  this.j1z_1 = 40.0;
+  this.k1z_1 = 85.0;
 }
 var Companion_instance_7;
 function Companion_getInstance_9() {
@@ -8085,15 +8106,15 @@ function Companion_getInstance_9() {
 }
 function AdjustableBench(x, backAngle) {
   backAngle = backAngle === VOID ? 90.0 : backAngle;
-  this.j1z_1 = x;
-  this.k1z_1 = backAngle;
+  this.l1z_1 = x;
+  this.m1z_1 = backAngle;
 }
 protoOf(AdjustableBench).toString = function () {
-  return 'AdjustableBench(x=' + this.j1z_1 + ', backAngle=' + this.k1z_1 + ')';
+  return 'AdjustableBench(x=' + this.l1z_1 + ', backAngle=' + this.m1z_1 + ')';
 };
 protoOf(AdjustableBench).hashCode = function () {
-  var result = getNumberHashCode(this.j1z_1);
-  result = imul(result, 31) + getNumberHashCode(this.k1z_1) | 0;
+  var result = getNumberHashCode(this.l1z_1);
+  result = imul(result, 31) + getNumberHashCode(this.m1z_1) | 0;
   return result;
 };
 protoOf(AdjustableBench).equals = function (other) {
@@ -8101,15 +8122,15 @@ protoOf(AdjustableBench).equals = function (other) {
     return true;
   if (!(other instanceof AdjustableBench))
     return false;
-  if (!equals(this.j1z_1, other.j1z_1))
+  if (!equals(this.l1z_1, other.l1z_1))
     return false;
-  if (!equals(this.k1z_1, other.k1z_1))
+  if (!equals(this.m1z_1, other.m1z_1))
     return false;
   return true;
 };
 function Companion_8() {
 }
-protoOf(Companion_8).l1z = function (x1, y1, x2, y2) {
+protoOf(Companion_8).n1z = function (x1, y1, x2, y2) {
   var tmp = (x1 + x2) / 2;
   var tmp_0 = (y1 + y2) / 2;
   // Inline function 'kotlin.math.abs' call
@@ -8127,51 +8148,47 @@ function Companion_getInstance_10() {
 function Slab(cx, cy, length, thickness, angle, radius) {
   angle = angle === VOID ? 0.0 : angle;
   radius = radius === VOID ? 0.0 : radius;
-  this.m1z_1 = cx;
-  this.n1z_1 = cy;
-  this.o1z_1 = length;
-  this.p1z_1 = thickness;
-  this.q1z_1 = angle;
-  this.r1z_1 = radius;
+  this.o1z_1 = cx;
+  this.p1z_1 = cy;
+  this.q1z_1 = length;
+  this.r1z_1 = thickness;
+  this.s1z_1 = angle;
+  this.t1z_1 = radius;
 }
-protoOf(Slab).s1z = function () {
-  var c = new Point(this.m1z_1, this.n1z_1);
-  var a = dir(this.q1z_1).t1o(this.o1z_1 / 2);
-  var b = dir(this.q1z_1 + 90.0).t1o(this.p1z_1 / 2);
+protoOf(Slab).u1z = function () {
+  var c = new Point(this.o1z_1, this.p1z_1);
+  var a = dir(this.s1z_1).t1o(this.q1z_1 / 2);
+  var b = dir(this.s1z_1 + 90.0).t1o(this.r1z_1 / 2);
   return listOf([c.s1o(a).s1o(b), c.r1o(a).s1o(b), c.r1o(a).r1o(b), c.s1o(a).r1o(b)]);
 };
-protoOf(Slab).t1z = function (cx, cy, length, thickness, angle, radius) {
+protoOf(Slab).v1z = function (cx, cy, length, thickness, angle, radius) {
   return new Slab(cx, cy, length, thickness, angle, radius);
 };
-protoOf(Slab).u1z = function (cx, cy, length, thickness, angle, radius, $super) {
-  cx = cx === VOID ? this.m1z_1 : cx;
-  cy = cy === VOID ? this.n1z_1 : cy;
-  length = length === VOID ? this.o1z_1 : length;
-  thickness = thickness === VOID ? this.p1z_1 : thickness;
-  angle = angle === VOID ? this.q1z_1 : angle;
-  radius = radius === VOID ? this.r1z_1 : radius;
-  return $super === VOID ? this.t1z(cx, cy, length, thickness, angle, radius) : $super.t1z.call(this, cx, cy, length, thickness, angle, radius);
+protoOf(Slab).w1z = function (cx, cy, length, thickness, angle, radius, $super) {
+  cx = cx === VOID ? this.o1z_1 : cx;
+  cy = cy === VOID ? this.p1z_1 : cy;
+  length = length === VOID ? this.q1z_1 : length;
+  thickness = thickness === VOID ? this.r1z_1 : thickness;
+  angle = angle === VOID ? this.s1z_1 : angle;
+  radius = radius === VOID ? this.t1z_1 : radius;
+  return $super === VOID ? this.v1z(cx, cy, length, thickness, angle, radius) : $super.v1z.call(this, cx, cy, length, thickness, angle, radius);
 };
 protoOf(Slab).toString = function () {
-  return 'Slab(cx=' + this.m1z_1 + ', cy=' + this.n1z_1 + ', length=' + this.o1z_1 + ', thickness=' + this.p1z_1 + ', angle=' + this.q1z_1 + ', radius=' + this.r1z_1 + ')';
+  return 'Slab(cx=' + this.o1z_1 + ', cy=' + this.p1z_1 + ', length=' + this.q1z_1 + ', thickness=' + this.r1z_1 + ', angle=' + this.s1z_1 + ', radius=' + this.t1z_1 + ')';
 };
 protoOf(Slab).hashCode = function () {
-  var result = getNumberHashCode(this.m1z_1);
-  result = imul(result, 31) + getNumberHashCode(this.n1z_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.o1z_1) | 0;
+  var result = getNumberHashCode(this.o1z_1);
   result = imul(result, 31) + getNumberHashCode(this.p1z_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.q1z_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.r1z_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.s1z_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.t1z_1) | 0;
   return result;
 };
 protoOf(Slab).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof Slab))
-    return false;
-  if (!equals(this.m1z_1, other.m1z_1))
-    return false;
-  if (!equals(this.n1z_1, other.n1z_1))
     return false;
   if (!equals(this.o1z_1, other.o1z_1))
     return false;
@@ -8181,22 +8198,26 @@ protoOf(Slab).equals = function (other) {
     return false;
   if (!equals(this.r1z_1, other.r1z_1))
     return false;
+  if (!equals(this.s1z_1, other.s1z_1))
+    return false;
+  if (!equals(this.t1z_1, other.t1z_1))
+    return false;
   return true;
 };
 function Placed(shape, fit, floor) {
   fit = fit === VOID ? true : fit;
   floor = floor === VOID ? false : floor;
-  this.f1v_1 = shape;
-  this.g1v_1 = fit;
-  this.h1v_1 = floor;
+  this.h1v_1 = shape;
+  this.i1v_1 = fit;
+  this.j1v_1 = floor;
 }
 protoOf(Placed).toString = function () {
-  return 'Placed(shape=' + toString(this.f1v_1) + ', fit=' + this.g1v_1 + ', floor=' + this.h1v_1 + ')';
+  return 'Placed(shape=' + toString(this.h1v_1) + ', fit=' + this.i1v_1 + ', floor=' + this.j1v_1 + ')';
 };
 protoOf(Placed).hashCode = function () {
-  var result = hashCode(this.f1v_1);
-  result = imul(result, 31) + getBooleanHashCode(this.g1v_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.h1v_1) | 0;
+  var result = hashCode(this.h1v_1);
+  result = imul(result, 31) + getBooleanHashCode(this.i1v_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.j1v_1) | 0;
   return result;
 };
 protoOf(Placed).equals = function (other) {
@@ -8204,11 +8225,11 @@ protoOf(Placed).equals = function (other) {
     return true;
   if (!(other instanceof Placed))
     return false;
-  if (!equals(this.f1v_1, other.f1v_1))
+  if (!equals(this.h1v_1, other.h1v_1))
     return false;
-  if (!(this.g1v_1 === other.g1v_1))
+  if (!(this.i1v_1 === other.i1v_1))
     return false;
-  if (!(this.h1v_1 === other.h1v_1))
+  if (!(this.j1v_1 === other.j1v_1))
     return false;
   return true;
 };
@@ -8224,11 +8245,11 @@ function capsule(role, a, b, width) {
 function slabShape(role, s, radius) {
   _init_properties_Kit_kt__h0vep0();
   var tmp;
-  if (s.q1z_1 % 180.0 === 0.0) {
-    tmp = new RoundRect(role, s.m1z_1 - s.o1z_1 / 2, s.n1z_1 - s.p1z_1 / 2, s.o1z_1, s.p1z_1, radius);
+  if (s.s1z_1 % 180.0 === 0.0) {
+    tmp = new RoundRect(role, s.o1z_1 - s.q1z_1 / 2, s.p1z_1 - s.r1z_1 / 2, s.q1z_1, s.r1z_1, radius);
   } else {
     // Inline function 'kotlin.collections.flatMap' call
-    var tmp0 = s.s1z();
+    var tmp0 = s.u1z();
     // Inline function 'kotlin.collections.flatMapTo' call
     var destination = ArrayList_init_$Create$();
     var _iterator__ex2g4s = tmp0.j();
@@ -8283,8 +8304,8 @@ function ring(role, cx, cy, outer, inner, steps) {
 }
 function legPressParts(p) {
   _init_properties_Kit_kt__h0vep0();
-  var seat = new Slab(p.b1z_1 - 15.0, -45.0 + 3.0, 30.0, 6.0);
-  var corner = new Point(p.b1z_1 - 30.0, -45.0);
+  var seat = new Slab(p.d1z_1 - 15.0, -45.0 + 3.0, 30.0, 6.0);
+  var corner = new Point(p.d1z_1 - 30.0, -45.0);
   var backCentre = corner.r1o(dir(155.0).t1o(35.0)).r1o(dir(155.0 - 90.0).t1o(3.0));
   var back = new Slab(backCentre.p1o_1, backCentre.q1o_1, 70.0, 6.0, 155.0);
   var plateCentre = legPressCarriage(p).r1o(dir(45.0 + 90.0).t1o(52.0));
@@ -8294,23 +8315,23 @@ function legPressParts(p) {
 function adjustableParts(b) {
   _init_properties_Kit_kt__h0vep0();
   var pad = 6.0;
-  var seat = Companion_instance_8.l1z(b.j1z_1 - 40.0, -43.0, b.j1z_1, -43.0 + pad);
+  var seat = Companion_instance_8.n1z(b.l1z_1 - 40.0, -43.0, b.l1z_1, -43.0 + pad);
   var hinge = adjustableHinge(b);
-  var along = 180.0 - b.k1z_1;
+  var along = 180.0 - b.m1z_1;
   var c = hinge.r1o(dir(along).t1o(85.0 / 2)).r1o(dir(along + 90.0).t1o(pad / 2));
   return to(seat, new Slab(c.p1o_1, c.q1o_1, 85.0, pad, along));
 }
 function adjustableHinge(b) {
   _init_properties_Kit_kt__h0vep0();
-  return new Point(b.j1z_1 - 40.0, -43.0);
+  return new Point(b.l1z_1 - 40.0, -43.0);
 }
 function legPressRailStart(p) {
   _init_properties_Kit_kt__h0vep0();
-  return new Point(p.b1z_1 + 25.0, -30.0);
+  return new Point(p.d1z_1 + 25.0, -30.0);
 }
 function legPressCarriage(p) {
   _init_properties_Kit_kt__h0vep0();
-  return legPressRailStart(p).r1o(dir(45.0).t1o(40.0 + p.c1z_1));
+  return legPressRailStart(p).r1o(dir(45.0).t1o(40.0 + p.e1z_1));
 }
 function surfaces(_this__u8e3s4, view) {
   _init_properties_Kit_kt__h0vep0();
@@ -8356,16 +8377,16 @@ function surfaces(_this__u8e3s4, view) {
                           tmp = mapOf_0(to(Surface_BOX_getInstance(), listOf_0(boxSlab(_this__u8e3s4))));
                         } else {
                           if (_this__u8e3s4 instanceof DeficitPlatform) {
-                            tmp = mapOf_0(to(Surface_PLATFORM_getInstance(), listOf_0(Companion_instance_8.l1z(_this__u8e3s4.v1x_1 - _this__u8e3s4.x1x_1 / 2, -_this__u8e3s4.w1x_1, _this__u8e3s4.v1x_1 + _this__u8e3s4.x1x_1 / 2, 0.0))));
+                            tmp = mapOf_0(to(Surface_PLATFORM_getInstance(), listOf_0(Companion_instance_8.n1z(_this__u8e3s4.x1x_1 - _this__u8e3s4.z1x_1 / 2, -_this__u8e3s4.y1x_1, _this__u8e3s4.x1x_1 + _this__u8e3s4.z1x_1 / 2, 0.0))));
                           } else {
                             if (_this__u8e3s4 instanceof PullingBlocks) {
-                              tmp = mapOf_0(to(Surface_BLOCK_getInstance(), listOf_0(Companion_instance_8.l1z(_this__u8e3s4.y1x_1 - _this__u8e3s4.a1y_1 / 2, -_this__u8e3s4.z1x_1, _this__u8e3s4.y1x_1 + _this__u8e3s4.a1y_1 / 2, 0.0))));
+                              tmp = mapOf_0(to(Surface_BLOCK_getInstance(), listOf_0(Companion_instance_8.n1z(_this__u8e3s4.a1y_1 - _this__u8e3s4.c1y_1 / 2, -_this__u8e3s4.b1y_1, _this__u8e3s4.a1y_1 + _this__u8e3s4.c1y_1 / 2, 0.0))));
                             } else {
                               if (_this__u8e3s4 instanceof BenchBoards) {
                                 tmp = mapOf_0(to(Surface_BOARD_getInstance(), listOf_0(boardSlab(_this__u8e3s4))));
                               } else {
                                 if (_this__u8e3s4 instanceof LatPulldownSeat) {
-                                  tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(new Slab(_this__u8e3s4.r1y_1, -_this__u8e3s4.t1y_1 + 3.5, 44.0, 7.0))), to(Surface_THIGH_PAD_getInstance(), listOf_0(view.equals(View_FRONT_getInstance()) ? new Slab(_this__u8e3s4.r1y_1, -_this__u8e3s4.u1y_1, 2 * 24.0, 0.0, VOID, 6.0) : new Slab(_this__u8e3s4.s1y_1, -_this__u8e3s4.u1y_1, 0.0, 0.0, VOID, 6.0)))]);
+                                  tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(new Slab(_this__u8e3s4.t1y_1, -_this__u8e3s4.v1y_1 + 3.5, 44.0, 7.0))), to(Surface_THIGH_PAD_getInstance(), listOf_0(view.equals(View_FRONT_getInstance()) ? new Slab(_this__u8e3s4.t1y_1, -_this__u8e3s4.w1y_1, 2 * 24.0, 0.0, VOID, 6.0) : new Slab(_this__u8e3s4.u1y_1, -_this__u8e3s4.w1y_1, 0.0, 0.0, VOID, 6.0)))]);
                                 } else {
                                   if (_this__u8e3s4 instanceof LegPress45) {
                                     // Inline function 'kotlin.let' call
@@ -8536,7 +8557,7 @@ function surfaces(_this__u8e3s4, view) {
                                                                                                   tmp = mapOf_0(to(Surface_HANDLE_getInstance(), listOf_0(gripSlab(_this__u8e3s4))));
                                                                                                 } else {
                                                                                                   if (_this__u8e3s4 instanceof PullUpBar) {
-                                                                                                    tmp = mapOf_0(to(Surface_PULL_UP_BAR_getInstance(), listOf_0(view.equals(View_SIDE_getInstance()) ? new Slab(_this__u8e3s4.f1z_1, -_this__u8e3s4.g1z_1, 2 * 1.6, 2 * 1.6) : new Slab(_this__u8e3s4.f1z_1, -_this__u8e3s4.g1z_1, 120.0, 2 * 1.6))));
+                                                                                                    tmp = mapOf_0(to(Surface_PULL_UP_BAR_getInstance(), listOf_0(view.equals(View_SIDE_getInstance()) ? new Slab(_this__u8e3s4.h1z_1, -_this__u8e3s4.i1z_1, 2 * 1.6, 2 * 1.6) : new Slab(_this__u8e3s4.h1z_1, -_this__u8e3s4.i1z_1, 120.0, 2 * 1.6))));
                                                                                                   } else {
                                                                                                     noWhenBranchMatchedException();
                                                                                                   }
@@ -8592,26 +8613,26 @@ function surfaces(_this__u8e3s4, view) {
 }
 function boxSlab(_this__u8e3s4) {
   _init_properties_Kit_kt__h0vep0();
-  return Companion_instance_8.l1z(_this__u8e3s4.s1x_1 - _this__u8e3s4.u1x_1 / 2, -_this__u8e3s4.t1x_1, _this__u8e3s4.s1x_1 + _this__u8e3s4.u1x_1 / 2, 0.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.u1x_1 - _this__u8e3s4.w1x_1 / 2, -_this__u8e3s4.v1x_1, _this__u8e3s4.u1x_1 + _this__u8e3s4.w1x_1 / 2, 0.0);
 }
 function boardSlab(_this__u8e3s4) {
   _init_properties_Kit_kt__h0vep0();
-  return Companion_instance_8.l1z(_this__u8e3s4.d1y_1 - 30.0 / 2, _this__u8e3s4.e1y_1 - _this__u8e3s4.g1y(), _this__u8e3s4.d1y_1 + 30.0 / 2, _this__u8e3s4.e1y_1);
+  return Companion_instance_8.n1z(_this__u8e3s4.f1y_1 - 30.0 / 2, _this__u8e3s4.g1y_1 - _this__u8e3s4.i1y(), _this__u8e3s4.f1y_1 + 30.0 / 2, _this__u8e3s4.g1y_1);
 }
 function safetyArms(_this__u8e3s4, view) {
   _init_properties_Kit_kt__h0vep0();
   var tmp;
   if (view.equals(View_SIDE_getInstance())) {
-    var m = _this__u8e3s4.f1x_1 ? -1.0 : 1.0;
-    var a = _this__u8e3s4.a1x_1 + m * -14.0;
-    var b = _this__u8e3s4.a1x_1 + m * _this__u8e3s4.d1x_1;
+    var m = _this__u8e3s4.h1x_1 ? -1.0 : 1.0;
+    var a = _this__u8e3s4.c1x_1 + m * -14.0;
+    var b = _this__u8e3s4.c1x_1 + m * _this__u8e3s4.f1x_1;
     var tmp_0 = Companion_instance_8;
     // Inline function 'kotlin.math.min' call
     var tmp_1 = Math.min(a, b);
-    var tmp_2 = -_this__u8e3s4.c1x_1;
+    var tmp_2 = -_this__u8e3s4.e1x_1;
     // Inline function 'kotlin.math.max' call
     var tmp$ret$1 = Math.max(a, b);
-    tmp = listOf_0(tmp_0.l1z(tmp_1, tmp_2, tmp$ret$1, -_this__u8e3s4.c1x_1 + 4.0));
+    tmp = listOf_0(tmp_0.n1z(tmp_1, tmp_2, tmp$ret$1, -_this__u8e3s4.e1x_1 + 4.0));
   } else {
     // Inline function 'kotlin.collections.map' call
     var this_0 = listOf([-1.0, 1.0]);
@@ -8621,16 +8642,16 @@ function safetyArms(_this__u8e3s4, view) {
     while (_iterator__ex2g4s.k()) {
       var item = _iterator__ex2g4s.l();
       // Inline function 'kotlin.let' call
-      var px = _this__u8e3s4.a1x_1 + item * 60.0;
+      var px = _this__u8e3s4.c1x_1 + item * 60.0;
       var tmp_3 = Companion_instance_8;
       // Inline function 'kotlin.math.min' call
       var b_0 = px - item * 10.0;
       var tmp_4 = Math.min(px, b_0);
-      var tmp_5 = -_this__u8e3s4.c1x_1;
+      var tmp_5 = -_this__u8e3s4.e1x_1;
       // Inline function 'kotlin.math.max' call
       var b_1 = px - item * 10.0;
       var tmp$ret$8 = Math.max(px, b_1);
-      var tmp$ret$4 = tmp_3.l1z(tmp_4, tmp_5, tmp$ret$8, -_this__u8e3s4.c1x_1 + 4.0);
+      var tmp$ret$4 = tmp_3.n1z(tmp_4, tmp_5, tmp$ret$8, -_this__u8e3s4.e1x_1 + 4.0);
       destination.i(tmp$ret$4);
     }
     tmp = destination;
@@ -8639,11 +8660,11 @@ function safetyArms(_this__u8e3s4, view) {
 }
 function benchPad(_this__u8e3s4, view) {
   _init_properties_Kit_kt__h0vep0();
-  return view.equals(View_SIDE_getInstance()) ? Companion_instance_8.l1z(_this__u8e3s4.w1w_1, -_this__u8e3s4.y1w_1, _this__u8e3s4.w1w_1 + _this__u8e3s4.x1w_1, -_this__u8e3s4.y1w_1 + 6.0) : Companion_instance_8.l1z(_this__u8e3s4.w1w_1 - 30.0 / 2, -_this__u8e3s4.y1w_1, _this__u8e3s4.w1w_1 + 30.0 / 2, -_this__u8e3s4.y1w_1 + 6.0);
+  return view.equals(View_SIDE_getInstance()) ? Companion_instance_8.n1z(_this__u8e3s4.y1w_1, -_this__u8e3s4.a1x_1, _this__u8e3s4.y1w_1 + _this__u8e3s4.z1w_1, -_this__u8e3s4.a1x_1 + 6.0) : Companion_instance_8.n1z(_this__u8e3s4.y1w_1 - 30.0 / 2, -_this__u8e3s4.a1x_1, _this__u8e3s4.y1w_1 + 30.0 / 2, -_this__u8e3s4.a1x_1 + 6.0);
 }
 function legXs(_this__u8e3s4, view) {
   _init_properties_Kit_kt__h0vep0();
-  return view.equals(View_SIDE_getInstance()) ? listOf([_this__u8e3s4.w1w_1 + 15.0, _this__u8e3s4.w1w_1 + _this__u8e3s4.x1w_1 - 15.0]) : listOf_0(_this__u8e3s4.w1w_1);
+  return view.equals(View_SIDE_getInstance()) ? listOf([_this__u8e3s4.y1w_1 + 15.0, _this__u8e3s4.y1w_1 + _this__u8e3s4.z1w_1 - 15.0]) : listOf_0(_this__u8e3s4.y1w_1);
 }
 function draw(_this__u8e3s4, view, held, s) {
   s = s === VOID ? null : s;
@@ -8662,7 +8683,7 @@ function draw(_this__u8e3s4, view, held, s) {
       var _iterator__ex2g4s = legXs(_this__u8e3s4, view).j();
       while (_iterator__ex2g4s.k()) {
         var lx = _iterator__ex2g4s.l();
-        this_0.i(eq(new Capsule(e, lx, -_this__u8e3s4.y1w_1 + 6.0, lx, -1.5, 5.0)));
+        this_0.i(eq(new Capsule(e, lx, -_this__u8e3s4.a1x_1 + 6.0, lx, -1.5, 5.0)));
         this_0.i(eq(new Capsule(e, lx - 12.0, -1.5, lx + 12.0, -1.5, 3.0)));
       }
       tmp = this_0.z3();
@@ -8670,7 +8691,7 @@ function draw(_this__u8e3s4, view, held, s) {
       if (_this__u8e3s4 instanceof PowerRack) {
         var tmp_0;
         if (view.equals(View_SIDE_getInstance())) {
-          var m = _this__u8e3s4.f1x_1 ? -1.0 : 1.0;
+          var m = _this__u8e3s4.h1x_1 ? -1.0 : 1.0;
           // Inline function 'kotlin.collections.buildList' call
           // Inline function 'kotlin.collections.buildListInternal' call
           // Inline function 'kotlin.apply' call
@@ -8678,12 +8699,12 @@ function draw(_this__u8e3s4, view, held, s) {
           var _iterator__ex2g4s_0 = listOf([-3.0, -11.0]).j();
           while (_iterator__ex2g4s_0.k()) {
             var dx = _iterator__ex2g4s_0.l();
-            this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, dx), -1.5, draw$at(_this__u8e3s4, m, dx), -_this__u8e3s4.e1x_1, 6.0), false));
+            this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, dx), -1.5, draw$at(_this__u8e3s4, m, dx), -_this__u8e3s4.g1x_1, 6.0), false));
           }
           this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, -28.0), -1.5, draw$at(_this__u8e3s4, m, 10.0), -1.5, 3.0)));
-          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, 0.0), -_this__u8e3s4.b1x_1 + 1.75, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.b1x_1 + 1.75, 3.5)));
-          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.b1x_1 + 1.75, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.b1x_1 - 3.0, 3.0)));
-          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, -14.0), -_this__u8e3s4.c1x_1 + 2.0, draw$at(_this__u8e3s4, m, _this__u8e3s4.d1x_1), -_this__u8e3s4.c1x_1 + 2.0, 4.0)));
+          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, 0.0), -_this__u8e3s4.d1x_1 + 1.75, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.d1x_1 + 1.75, 3.5)));
+          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.d1x_1 + 1.75, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.d1x_1 - 3.0, 3.0)));
+          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, -14.0), -_this__u8e3s4.e1x_1 + 2.0, draw$at(_this__u8e3s4, m, _this__u8e3s4.f1x_1), -_this__u8e3s4.e1x_1 + 2.0, 4.0)));
           tmp_0 = this_1.z3();
         } else {
           // Inline function 'kotlin.collections.buildList' call
@@ -8693,38 +8714,38 @@ function draw(_this__u8e3s4, view, held, s) {
           var _iterator__ex2g4s_1 = listOf([-1.0, 1.0]).j();
           while (_iterator__ex2g4s_1.k()) {
             var s_0 = _iterator__ex2g4s_1.l();
-            var px = _this__u8e3s4.a1x_1 + s_0 * 60.0;
-            this_2.i(eq(new Capsule(e, px, -1.5, px, -_this__u8e3s4.e1x_1, 6.0), false));
-            this_2.i(eq(new Capsule(e, px, -_this__u8e3s4.b1x_1 + 1.75, px - s_0 * 7.0, -_this__u8e3s4.b1x_1 + 1.75, 3.5)));
+            var px = _this__u8e3s4.c1x_1 + s_0 * 60.0;
+            this_2.i(eq(new Capsule(e, px, -1.5, px, -_this__u8e3s4.g1x_1, 6.0), false));
+            this_2.i(eq(new Capsule(e, px, -_this__u8e3s4.d1x_1 + 1.75, px - s_0 * 7.0, -_this__u8e3s4.d1x_1 + 1.75, 3.5)));
             // Inline function 'kotlin.math.min' call
             var b = px - s_0 * 10.0;
             var tmp$ret$12 = Math.min(px, b);
-            this_2.i(eq(new RoundRect(e, tmp$ret$12, -_this__u8e3s4.c1x_1, 10.0, 4.0, 1.0)));
+            this_2.i(eq(new RoundRect(e, tmp$ret$12, -_this__u8e3s4.e1x_1, 10.0, 4.0, 1.0)));
           }
-          this_2.i(eq(new Capsule(e, _this__u8e3s4.a1x_1 - 75.0, -1.5, _this__u8e3s4.a1x_1 + 75.0, -1.5, 3.0)));
+          this_2.i(eq(new Capsule(e, _this__u8e3s4.c1x_1 - 75.0, -1.5, _this__u8e3s4.c1x_1 + 75.0, -1.5, 3.0)));
           tmp_0 = this_2.z3();
         }
         tmp = tmp_0;
       } else {
         if (_this__u8e3s4 instanceof CableStack) {
           var tmp_1;
-          if (view.equals(View_FRONT_getInstance()) && _this__u8e3s4.f1w_1 > 0.0) {
-            var tmp2_safe_receiver = s == null ? null : s.q1q_1;
-            var tmp_2 = tmp2_safe_receiver == null ? null : tmp2_safe_receiver.e1q_1;
-            var tmp4_safe_receiver = s == null ? null : s.r1q_1;
-            tmp_1 = drawFrontOf_9(_this__u8e3s4, tmp_2, tmp4_safe_receiver == null ? null : tmp4_safe_receiver.e1q_1);
+          if (view.equals(View_FRONT_getInstance()) && _this__u8e3s4.h1w_1 > 0.0) {
+            var tmp2_safe_receiver = s == null ? null : s.r1q_1;
+            var tmp_2 = tmp2_safe_receiver == null ? null : tmp2_safe_receiver.f1q_1;
+            var tmp4_safe_receiver = s == null ? null : s.s1q_1;
+            tmp_1 = drawFrontOf_9(_this__u8e3s4, tmp_2, tmp4_safe_receiver == null ? null : tmp4_safe_receiver.f1q_1);
           } else {
             // Inline function 'kotlin.collections.buildList' call
             // Inline function 'kotlin.collections.buildListInternal' call
             // Inline function 'kotlin.apply' call
             var this_3 = ArrayList_init_$Create$();
-            var pulley = new Point(_this__u8e3s4.b1w_1 + _this__u8e3s4.d1w_1, -_this__u8e3s4.c1w_1);
-            this_3.i(eq(new RoundRect(e, _this__u8e3s4.b1w_1 - 9.0, -_this__u8e3s4.e1w_1, 18.0, _this__u8e3s4.e1w_1 - 1.5, 3.0), false));
-            this_3.i(eq(new Capsule(e, _this__u8e3s4.b1w_1, -_this__u8e3s4.c1w_1, pulley.p1o_1, pulley.q1o_1, 5.0)));
+            var pulley = new Point(_this__u8e3s4.d1w_1 + _this__u8e3s4.f1w_1, -_this__u8e3s4.e1w_1);
+            this_3.i(eq(new RoundRect(e, _this__u8e3s4.d1w_1 - 9.0, -_this__u8e3s4.g1w_1, 18.0, _this__u8e3s4.g1w_1 - 1.5, 3.0), false));
+            this_3.i(eq(new Capsule(e, _this__u8e3s4.d1w_1, -_this__u8e3s4.e1w_1, pulley.p1o_1, pulley.q1o_1, 5.0)));
             this_3.i(eq(new Circle(e, pulley.p1o_1, pulley.q1o_1, 4.0)));
-            this_3.i(eq(new RoundRect(e, _this__u8e3s4.b1w_1 - 7.0, -62.0, 14.0, 50.0, 2.0)));
+            this_3.i(eq(new RoundRect(e, _this__u8e3s4.d1w_1 - 7.0, -62.0, 14.0, 50.0, 2.0)));
             var end = held == null ? pulley.r1o(new Point(0.0, 40.0)) : held;
-            if (!_this__u8e3s4.g1w_1 || held == null) {
+            if (!_this__u8e3s4.i1w_1 || held == null) {
               this_3.i(eq(capsule(e, pulley, end, 0.8)));
             }
             tmp_1 = this_3.z3();
@@ -8732,13 +8753,13 @@ function draw(_this__u8e3s4, view, held, s) {
           tmp = tmp_1;
         } else {
           if (_this__u8e3s4 instanceof SquatBox) {
-            tmp = listOf_0(eq(new RoundRect(e, _this__u8e3s4.s1x_1 - _this__u8e3s4.u1x_1 / 2, -_this__u8e3s4.t1x_1, _this__u8e3s4.u1x_1, _this__u8e3s4.t1x_1 - 0.75, 2.0)));
+            tmp = listOf_0(eq(new RoundRect(e, _this__u8e3s4.u1x_1 - _this__u8e3s4.w1x_1 / 2, -_this__u8e3s4.v1x_1, _this__u8e3s4.w1x_1, _this__u8e3s4.v1x_1 - 0.75, 2.0)));
           } else {
             if (_this__u8e3s4 instanceof DeficitPlatform) {
-              tmp = listOf_0(eq(new RoundRect(e, _this__u8e3s4.v1x_1 - _this__u8e3s4.x1x_1 / 2, -_this__u8e3s4.w1x_1, _this__u8e3s4.x1x_1, _this__u8e3s4.w1x_1 - 0.75, 1.0)));
+              tmp = listOf_0(eq(new RoundRect(e, _this__u8e3s4.x1x_1 - _this__u8e3s4.z1x_1 / 2, -_this__u8e3s4.y1x_1, _this__u8e3s4.z1x_1, _this__u8e3s4.y1x_1 - 0.75, 1.0)));
             } else {
               if (_this__u8e3s4 instanceof PullingBlocks) {
-                tmp = listOf_0(eq(new RoundRect(e, _this__u8e3s4.y1x_1 - _this__u8e3s4.a1y_1 / 2, -_this__u8e3s4.z1x_1, _this__u8e3s4.a1y_1, _this__u8e3s4.z1x_1 - 0.75, 1.0)));
+                tmp = listOf_0(eq(new RoundRect(e, _this__u8e3s4.a1y_1 - _this__u8e3s4.c1y_1 / 2, -_this__u8e3s4.b1y_1, _this__u8e3s4.c1y_1, _this__u8e3s4.b1y_1 - 0.75, 1.0)));
               } else {
                 if (_this__u8e3s4 instanceof BenchBoards) {
                   // Inline function 'kotlin.let' call
@@ -8748,14 +8769,14 @@ function draw(_this__u8e3s4, view, held, s) {
                   // Inline function 'kotlin.apply' call
                   var this_4 = ArrayList_init_$Create$();
                   var inductionVariable = 0;
-                  var last = _this__u8e3s4.f1y_1;
+                  var last = _this__u8e3s4.h1y_1;
                   if (inductionVariable < last)
                     do {
                       var i = inductionVariable;
                       inductionVariable = inductionVariable + 1 | 0;
-                      var top = _this__u8e3s4.e1y_1 - (i + 1 | 0) * 3.8;
-                      this_4.i(eq(new RoundRect(Role_GAP_getInstance(), b_0.m1z_1 - b_0.o1z_1 / 2 - 0.5, top - 0.5, b_0.o1z_1 + 1.0, 3.8 + 1.0, 1.0)));
-                      this_4.i(eq(new RoundRect(e, b_0.m1z_1 - b_0.o1z_1 / 2, top, b_0.o1z_1, 3.8 - 0.4, 0.8)));
+                      var top = _this__u8e3s4.g1y_1 - (i + 1 | 0) * 3.8;
+                      this_4.i(eq(new RoundRect(Role_GAP_getInstance(), b_0.o1z_1 - b_0.q1z_1 / 2 - 0.5, top - 0.5, b_0.q1z_1 + 1.0, 3.8 + 1.0, 1.0)));
+                      this_4.i(eq(new RoundRect(e, b_0.o1z_1 - b_0.q1z_1 / 2, top, b_0.q1z_1, 3.8 - 0.4, 0.8)));
                     }
                      while (inductionVariable < last);
                   tmp = this_4.z3();
@@ -8763,17 +8784,17 @@ function draw(_this__u8e3s4, view, held, s) {
                   if (_this__u8e3s4 instanceof LatPulldownSeat) {
                     var tmp_3;
                     if (view.equals(View_FRONT_getInstance())) {
-                      tmp_3 = listOf([eq(new RoundRect(e, _this__u8e3s4.r1y_1 - 22.0, -_this__u8e3s4.t1y_1, 44.0, 7.0, 2.5)), eq(new Capsule(e, _this__u8e3s4.r1y_1, -_this__u8e3s4.t1y_1 + 7.0, _this__u8e3s4.r1y_1, -1.5, 6.0)), eq(new Capsule(e, _this__u8e3s4.r1y_1 - 30.0, -1.5, _this__u8e3s4.r1y_1 + 30.0, -1.5, 3.0))]);
+                      tmp_3 = listOf([eq(new RoundRect(e, _this__u8e3s4.t1y_1 - 22.0, -_this__u8e3s4.v1y_1, 44.0, 7.0, 2.5)), eq(new Capsule(e, _this__u8e3s4.t1y_1, -_this__u8e3s4.v1y_1 + 7.0, _this__u8e3s4.t1y_1, -1.5, 6.0)), eq(new Capsule(e, _this__u8e3s4.t1y_1 - 30.0, -1.5, _this__u8e3s4.t1y_1 + 30.0, -1.5, 3.0))]);
                     } else {
                       // Inline function 'kotlin.collections.buildList' call
                       // Inline function 'kotlin.collections.buildListInternal' call
                       // Inline function 'kotlin.apply' call
                       var this_5 = ArrayList_init_$Create$();
-                      this_5.i(eq(new RoundRect(e, _this__u8e3s4.r1y_1 - 22.0, -_this__u8e3s4.t1y_1, 44.0, 7.0, 2.5)));
-                      this_5.i(eq(new Capsule(e, _this__u8e3s4.r1y_1, -_this__u8e3s4.t1y_1 + 7.0, _this__u8e3s4.r1y_1, -1.5, 6.0)));
-                      this_5.i(eq(new Capsule(e, _this__u8e3s4.r1y_1 - 30.0, -1.5, _this__u8e3s4.r1y_1 + 30.0, -1.5, 3.0)));
-                      this_5.i(eq(new Capsule(e, _this__u8e3s4.s1y_1, -_this__u8e3s4.u1y_1, _this__u8e3s4.s1y_1 + 14.0, -_this__u8e3s4.t1y_1 + 4.0, 3.0)));
-                      this_5.i(eq(new Circle(e, _this__u8e3s4.s1y_1, -_this__u8e3s4.u1y_1, 6.0)));
+                      this_5.i(eq(new RoundRect(e, _this__u8e3s4.t1y_1 - 22.0, -_this__u8e3s4.v1y_1, 44.0, 7.0, 2.5)));
+                      this_5.i(eq(new Capsule(e, _this__u8e3s4.t1y_1, -_this__u8e3s4.v1y_1 + 7.0, _this__u8e3s4.t1y_1, -1.5, 6.0)));
+                      this_5.i(eq(new Capsule(e, _this__u8e3s4.t1y_1 - 30.0, -1.5, _this__u8e3s4.t1y_1 + 30.0, -1.5, 3.0)));
+                      this_5.i(eq(new Capsule(e, _this__u8e3s4.u1y_1, -_this__u8e3s4.w1y_1, _this__u8e3s4.u1y_1 + 14.0, -_this__u8e3s4.v1y_1 + 4.0, 3.0)));
+                      this_5.i(eq(new Circle(e, _this__u8e3s4.u1y_1, -_this__u8e3s4.w1y_1, 6.0)));
                       tmp_3 = this_5.z3();
                     }
                     tmp = tmp_3;
@@ -8789,17 +8810,17 @@ function draw(_this__u8e3s4, view, held, s) {
                       var plate = _destruct__k2r9zo.jd();
                       var railStart = legPressRailStart(_this__u8e3s4);
                       var railEnd = railStart.r1o(dir(45.0).t1o(160.0));
-                      this_6.i(eq(new Capsule(e, _this__u8e3s4.b1z_1 - 70.0, -1.5, railEnd.p1o_1, -1.5, 3.0)));
-                      this_6.i(eq(new Capsule(e, seat.m1z_1, seat.n1z_1, seat.m1z_1, -1.5, 5.0)));
-                      this_6.i(eq(new Capsule(e, _this__u8e3s4.b1z_1 - 30.0, -45.0, _this__u8e3s4.b1z_1 - 40.0, -1.5, 5.0)));
+                      this_6.i(eq(new Capsule(e, _this__u8e3s4.d1z_1 - 70.0, -1.5, railEnd.p1o_1, -1.5, 3.0)));
+                      this_6.i(eq(new Capsule(e, seat.o1z_1, seat.p1z_1, seat.o1z_1, -1.5, 5.0)));
+                      this_6.i(eq(new Capsule(e, _this__u8e3s4.d1z_1 - 30.0, -45.0, _this__u8e3s4.d1z_1 - 40.0, -1.5, 5.0)));
                       this_6.i(eq(new Capsule(e, railEnd.p1o_1, railEnd.q1o_1, railEnd.p1o_1, -1.5, 5.0)));
                       this_6.i(eq(capsule(e, railStart, railEnd, 5.0)));
                       this_6.i(eq(slabShape(e, seat, 2.0)));
                       this_6.i(eq(slabShape(e, back, 2.0)));
                       var carriage = legPressCarriage(_this__u8e3s4);
                       var rail = dir(45.0);
-                      var along = dir(125.0).t1o(plate.o1z_1 / 2);
-                      var plateBack = (new Point(plate.m1z_1, plate.n1z_1)).r1o(dir(125.0 - 90.0).t1o(plate.p1z_1 / 2));
+                      var along = dir(125.0).t1o(plate.q1z_1 / 2);
+                      var plateBack = (new Point(plate.o1z_1, plate.p1z_1)).r1o(dir(125.0 - 90.0).t1o(plate.r1z_1 / 2));
                       var sled = listOf([plateBack.r1o(along), plateBack.s1o(along), carriage.s1o(rail.t1o(12.0)), carriage.r1o(rail.t1o(12.0))]);
                       // Inline function 'kotlin.collections.flatMap' call
                       // Inline function 'kotlin.collections.flatMapTo' call
@@ -8811,7 +8832,7 @@ function draw(_this__u8e3s4, view, held, s) {
                         addAll(destination, list);
                       }
                       this_6.i(eq(new Polygon(e, destination)));
-                      this_6.i(eq(slabShape(Role_GAP_getInstance(), plate.u1z(VOID, VOID, plate.o1z_1 + 3.0, plate.p1z_1 + 3.0), 2.5)));
+                      this_6.i(eq(slabShape(Role_GAP_getInstance(), plate.w1z(VOID, VOID, plate.q1z_1 + 3.0, plate.r1z_1 + 3.0), 2.5)));
                       this_6.i(eq(slabShape(e, plate, 1.5)));
                       tmp = this_6.z3();
                     } else {
@@ -8822,8 +8843,8 @@ function draw(_this__u8e3s4, view, held, s) {
                           tmp = drawOf_1(_this__u8e3s4, held);
                         } else {
                           if (_this__u8e3s4 instanceof RowMachine) {
-                            var tmp6_safe_receiver = s == null ? null : s.q1q_1;
-                            tmp = drawOf_2(_this__u8e3s4, tmp6_safe_receiver == null ? null : tmp6_safe_receiver.e1q_1);
+                            var tmp6_safe_receiver = s == null ? null : s.r1q_1;
+                            tmp = drawOf_2(_this__u8e3s4, tmp6_safe_receiver == null ? null : tmp6_safe_receiver.f1q_1);
                           } else {
                             if (_this__u8e3s4 instanceof ProneBench) {
                               tmp = drawOf_3(_this__u8e3s4);
@@ -8835,8 +8856,8 @@ function draw(_this__u8e3s4, view, held, s) {
                                   tmp = drawOf_0(_this__u8e3s4);
                                 } else {
                                   if (_this__u8e3s4 instanceof TBarLever) {
-                                    var tmp8_safe_receiver = s == null ? null : s.q1q_1;
-                                    tmp = drawOf_4(_this__u8e3s4, tmp8_safe_receiver == null ? null : tmp8_safe_receiver.e1q_1);
+                                    var tmp8_safe_receiver = s == null ? null : s.r1q_1;
+                                    tmp = drawOf_4(_this__u8e3s4, tmp8_safe_receiver == null ? null : tmp8_safe_receiver.f1q_1);
                                   } else {
                                     if (_this__u8e3s4 instanceof RackBar) {
                                       tmp = drawOf_5(_this__u8e3s4);
@@ -8854,8 +8875,8 @@ function draw(_this__u8e3s4, view, held, s) {
                                               tmp = drawOf_8(_this__u8e3s4, s);
                                             } else {
                                               if (_this__u8e3s4 instanceof PulldownLever) {
-                                                var tmp10_safe_receiver = s == null ? null : s.q1q_1;
-                                                tmp = drawOf_9(_this__u8e3s4, tmp10_safe_receiver == null ? null : tmp10_safe_receiver.e1q_1);
+                                                var tmp10_safe_receiver = s == null ? null : s.r1q_1;
+                                                tmp = drawOf_9(_this__u8e3s4, tmp10_safe_receiver == null ? null : tmp10_safe_receiver.f1q_1);
                                               } else {
                                                 if (_this__u8e3s4 instanceof PulloverMachine) {
                                                   tmp = drawOf_10(_this__u8e3s4, s);
@@ -8927,14 +8948,14 @@ function draw(_this__u8e3s4, view, held, s) {
                                                                                               tmp = drawOf_18(_this__u8e3s4);
                                                                                             } else {
                                                                                               if (_this__u8e3s4 instanceof PressMachine) {
-                                                                                                var tmp12_safe_receiver = s == null ? null : s.q1q_1;
-                                                                                                tmp = drawOf_21(_this__u8e3s4, tmp12_safe_receiver == null ? null : tmp12_safe_receiver.e1q_1);
+                                                                                                var tmp12_safe_receiver = s == null ? null : s.r1q_1;
+                                                                                                tmp = drawOf_21(_this__u8e3s4, tmp12_safe_receiver == null ? null : tmp12_safe_receiver.f1q_1);
                                                                                               } else {
                                                                                                 if (_this__u8e3s4 instanceof PecDeck) {
-                                                                                                  var tmp14_safe_receiver = s == null ? null : s.q1q_1;
-                                                                                                  var tmp_4 = tmp14_safe_receiver == null ? null : tmp14_safe_receiver.e1q_1;
-                                                                                                  var tmp16_safe_receiver = s == null ? null : s.r1q_1;
-                                                                                                  tmp = drawOf_22(_this__u8e3s4, tmp_4, tmp16_safe_receiver == null ? null : tmp16_safe_receiver.e1q_1);
+                                                                                                  var tmp14_safe_receiver = s == null ? null : s.r1q_1;
+                                                                                                  var tmp_4 = tmp14_safe_receiver == null ? null : tmp14_safe_receiver.f1q_1;
+                                                                                                  var tmp16_safe_receiver = s == null ? null : s.s1q_1;
+                                                                                                  tmp = drawOf_22(_this__u8e3s4, tmp_4, tmp16_safe_receiver == null ? null : tmp16_safe_receiver.f1q_1);
                                                                                                 } else {
                                                                                                   if (_this__u8e3s4 instanceof LateralRaiseMachine) {
                                                                                                     tmp = drawOf_38(_this__u8e3s4);
@@ -8956,7 +8977,7 @@ function draw(_this__u8e3s4, view, held, s) {
                                                                                                             var _destruct__k2r9zo_0 = adjustableParts(_this__u8e3s4);
                                                                                                             var seat_0 = _destruct__k2r9zo_0.ya();
                                                                                                             var back_0 = _destruct__k2r9zo_0.za();
-                                                                                                            var mid = _this__u8e3s4.j1z_1 - 40.0 / 2;
+                                                                                                            var mid = _this__u8e3s4.l1z_1 - 40.0 / 2;
                                                                                                             this_7.i(eq(new Capsule(e, mid, -43.0 + 6.0, mid, -1.5, 5.0)));
                                                                                                             this_7.i(eq(new Capsule(e, mid - 22.0, -1.5, mid + 22.0, -1.5, 3.0)));
                                                                                                             this_7.i(eq(slabShape(e, seat_0, 2.0)));
@@ -8966,9 +8987,9 @@ function draw(_this__u8e3s4, view, held, s) {
                                                                                                             if (_this__u8e3s4 instanceof PullUpBar) {
                                                                                                               var tmp_5;
                                                                                                               if (view.equals(View_SIDE_getInstance())) {
-                                                                                                                tmp_5 = listOf([eq(new Capsule(e, _this__u8e3s4.f1z_1 - 45.0, -_this__u8e3s4.g1z_1, _this__u8e3s4.f1z_1, -_this__u8e3s4.g1z_1, 2.5)), eq(new Capsule(e, _this__u8e3s4.f1z_1 - 45.0, -_this__u8e3s4.g1z_1 - 15.0, _this__u8e3s4.f1z_1 - 45.0, -_this__u8e3s4.g1z_1 + 15.0, 5.0))]);
+                                                                                                                tmp_5 = listOf([eq(new Capsule(e, _this__u8e3s4.h1z_1 - 45.0, -_this__u8e3s4.i1z_1, _this__u8e3s4.h1z_1, -_this__u8e3s4.i1z_1, 2.5)), eq(new Capsule(e, _this__u8e3s4.h1z_1 - 45.0, -_this__u8e3s4.i1z_1 - 15.0, _this__u8e3s4.h1z_1 - 45.0, -_this__u8e3s4.i1z_1 + 15.0, 5.0))]);
                                                                                                               } else {
-                                                                                                                tmp_5 = listOf([eq(new Capsule(e, _this__u8e3s4.f1z_1 - 60.0, -_this__u8e3s4.g1z_1, _this__u8e3s4.f1z_1 - 60.0, -_this__u8e3s4.g1z_1 - 40.0, 4.0), false), eq(new Capsule(e, _this__u8e3s4.f1z_1 + 60.0, -_this__u8e3s4.g1z_1, _this__u8e3s4.f1z_1 + 60.0, -_this__u8e3s4.g1z_1 - 40.0, 4.0), false), eq(new Capsule(e, _this__u8e3s4.f1z_1 - 60.0, -_this__u8e3s4.g1z_1, _this__u8e3s4.f1z_1 + 60.0, -_this__u8e3s4.g1z_1, 2 * 1.6))]);
+                                                                                                                tmp_5 = listOf([eq(new Capsule(e, _this__u8e3s4.h1z_1 - 60.0, -_this__u8e3s4.i1z_1, _this__u8e3s4.h1z_1 - 60.0, -_this__u8e3s4.i1z_1 - 40.0, 4.0), false), eq(new Capsule(e, _this__u8e3s4.h1z_1 + 60.0, -_this__u8e3s4.i1z_1, _this__u8e3s4.h1z_1 + 60.0, -_this__u8e3s4.i1z_1 - 40.0, 4.0), false), eq(new Capsule(e, _this__u8e3s4.h1z_1 - 60.0, -_this__u8e3s4.i1z_1, _this__u8e3s4.h1z_1 + 60.0, -_this__u8e3s4.i1z_1, 2 * 1.6))]);
                                                                                                               }
                                                                                                               tmp = tmp_5;
                                                                                                             } else {
@@ -9041,7 +9062,7 @@ function drawFront(_this__u8e3s4, view, held, s) {
     tmp_0 = false;
   }
   if (tmp_0) {
-    tmp = barEndOn(_this__u8e3s4.b20_1, _this__u8e3s4.c20_1);
+    tmp = barEndOn(_this__u8e3s4.d20_1, _this__u8e3s4.e20_1);
   } else {
     var tmp_1;
     if (view.equals(View_SIDE_getInstance())) {
@@ -9050,7 +9071,7 @@ function drawFront(_this__u8e3s4, view, held, s) {
       tmp_1 = false;
     }
     if (tmp_1) {
-      tmp = barEndOn(_this__u8e3s4.w1z_1, _this__u8e3s4.x1z_1);
+      tmp = barEndOn(_this__u8e3s4.y1z_1, _this__u8e3s4.z1z_1);
     } else {
       var tmp_2;
       if (view.equals(View_SIDE_getInstance())) {
@@ -9239,18 +9260,18 @@ function drawFront(_this__u8e3s4, view, held, s) {
                                                     tmp_21 = false;
                                                   }
                                                   if (tmp_21) {
-                                                    tmp = listOf([eq(new Capsule(Role_GAP_getInstance(), _this__u8e3s4.r1y_1 - 24.0, -_this__u8e3s4.u1y_1, _this__u8e3s4.r1y_1 + 24.0, -_this__u8e3s4.u1y_1, 2 * 6.0 + 3.0)), eq(new Capsule(Role_EQUIPMENT_getInstance(), _this__u8e3s4.r1y_1 - 24.0, -_this__u8e3s4.u1y_1, _this__u8e3s4.r1y_1 + 24.0, -_this__u8e3s4.u1y_1, 2 * 6.0))]);
+                                                    tmp = listOf([eq(new Capsule(Role_GAP_getInstance(), _this__u8e3s4.t1y_1 - 24.0, -_this__u8e3s4.w1y_1, _this__u8e3s4.t1y_1 + 24.0, -_this__u8e3s4.w1y_1, 2 * 6.0 + 3.0)), eq(new Capsule(Role_EQUIPMENT_getInstance(), _this__u8e3s4.t1y_1 - 24.0, -_this__u8e3s4.w1y_1, _this__u8e3s4.t1y_1 + 24.0, -_this__u8e3s4.w1y_1, 2 * 6.0))]);
                                                   } else {
                                                     var tmp_22;
                                                     var tmp_23;
                                                     var tmp_24;
                                                     if (_this__u8e3s4 instanceof CableStack) {
-                                                      tmp_24 = view.equals(View_SIDE_getInstance()) || _this__u8e3s4.f1w_1 === 0.0;
+                                                      tmp_24 = view.equals(View_SIDE_getInstance()) || _this__u8e3s4.h1w_1 === 0.0;
                                                     } else {
                                                       tmp_24 = false;
                                                     }
                                                     if (tmp_24) {
-                                                      tmp_23 = _this__u8e3s4.g1w_1;
+                                                      tmp_23 = _this__u8e3s4.i1w_1;
                                                     } else {
                                                       tmp_23 = false;
                                                     }
@@ -9261,7 +9282,7 @@ function drawFront(_this__u8e3s4, view, held, s) {
                                                     }
                                                     if (tmp_22) {
                                                       // Inline function 'kotlin.let' call
-                                                      var p = new Point(_this__u8e3s4.b1w_1 + _this__u8e3s4.d1w_1, -_this__u8e3s4.c1w_1);
+                                                      var p = new Point(_this__u8e3s4.d1w_1 + _this__u8e3s4.f1w_1, -_this__u8e3s4.e1w_1);
                                                       tmp = listOf([eq(capsule(Role_GAP_getInstance(), p, held, 1.4 + 3.0 / 2)), eq(capsule(Role_EQUIPMENT_getInstance(), p, held, 1.4))]);
                                                     } else {
                                                       var tmp_25;
@@ -9271,7 +9292,7 @@ function drawFront(_this__u8e3s4, view, held, s) {
                                                         tmp_25 = false;
                                                       }
                                                       if (tmp_25) {
-                                                        tmp = listOf([eq(new Circle(Role_GAP_getInstance(), _this__u8e3s4.f1z_1, -_this__u8e3s4.g1z_1, 3.0 + 3.0 / 2)), eq(new Circle(Role_EQUIPMENT_getInstance(), _this__u8e3s4.f1z_1, -_this__u8e3s4.g1z_1, 3.0))]);
+                                                        tmp = listOf([eq(new Circle(Role_GAP_getInstance(), _this__u8e3s4.h1z_1, -_this__u8e3s4.i1z_1, 3.0 + 3.0 / 2)), eq(new Circle(Role_EQUIPMENT_getInstance(), _this__u8e3s4.h1z_1, -_this__u8e3s4.i1z_1, 3.0))]);
                                                       } else {
                                                         tmp = emptyList();
                                                       }
@@ -9308,15 +9329,15 @@ function center(_this__u8e3s4, s) {
   var tmp;
   if (_this__u8e3s4 instanceof Barbell) {
     var tmp_0;
-    switch (_this__u8e3s4.l1x_1.w1_1) {
+    switch (_this__u8e3s4.n1x_1.w1_1) {
       case 0:
         tmp_0 = grips(s);
         break;
       case 1:
-        tmp_0 = s.k1q_1.equals(View_SIDE_getInstance()) ? s.v1q(Segment_TORSO_getInstance().a() - 4.0, -(10.0 + 1.45)) : s.v1q(Segment_TORSO_getInstance().a() - 4.0, 0.0);
+        tmp_0 = s.l1q_1.equals(View_SIDE_getInstance()) ? s.x1q(Segment_TORSO_getInstance().a() - 4.0, -(10.0 + 1.45)) : s.x1q(Segment_TORSO_getInstance().a() - 4.0, 0.0);
         break;
       case 2:
-        tmp_0 = s.k1q_1.equals(View_SIDE_getInstance()) ? s.v1q(Segment_TORSO_getInstance().a() + 6.5, 9.0) : s.v1q(Segment_TORSO_getInstance().a() + 6.5, 0.0);
+        tmp_0 = s.l1q_1.equals(View_SIDE_getInstance()) ? s.x1q(Segment_TORSO_getInstance().a() + 6.5, 9.0) : s.x1q(Segment_TORSO_getInstance().a() + 6.5, 0.0);
         break;
       case 3:
         tmp_0 = crookOf(s);
@@ -9328,13 +9349,13 @@ function center(_this__u8e3s4, s) {
     tmp = tmp_0;
   } else {
     if (equals(_this__u8e3s4, SafetySquatBar_instance)) {
-      tmp = s.k1q_1.equals(View_SIDE_getInstance()) ? s.v1q(Segment_TORSO_getInstance().a() - 2.0, -(10.0 + 5.0)) : s.v1q(Segment_TORSO_getInstance().a() - 2.0, 0.0);
+      tmp = s.l1q_1.equals(View_SIDE_getInstance()) ? s.x1q(Segment_TORSO_getInstance().a() - 2.0, -(10.0 + 5.0)) : s.x1q(Segment_TORSO_getInstance().a() - 2.0, 0.0);
     } else {
       if (equals(_this__u8e3s4, TrapBar_instance)) {
         tmp = grips(s);
       } else {
         if (_this__u8e3s4 instanceof Dumbbell) {
-          tmp = s.u1q(_this__u8e3s4.j1y_1).e1q_1;
+          tmp = s.w1q(_this__u8e3s4.l1y_1).f1q_1;
         } else {
           if (equals(_this__u8e3s4, LatBar_instance)) {
             tmp = grips(s);
@@ -9349,16 +9370,16 @@ function center(_this__u8e3s4, s) {
                   tmp = grips(s);
                 } else {
                   if (_this__u8e3s4 instanceof CableHandle) {
-                    tmp = s.u1q(_this__u8e3s4.f20_1).e1q_1;
+                    tmp = s.w1q(_this__u8e3s4.h20_1).f1q_1;
                   } else {
                     if (_this__u8e3s4 instanceof CamberedBar) {
-                      tmp = s.q1q_1.e1q_1;
+                      tmp = s.r1q_1.f1q_1;
                     } else {
                       if (equals(_this__u8e3s4, PulloverDumbbell_instance)) {
                         tmp = centerOn_0(PulloverDumbbell_instance, s);
                       } else {
                         if (_this__u8e3s4 instanceof Kettlebell) {
-                          tmp = s.u1q(_this__u8e3s4.d20_1).e1q_1;
+                          tmp = s.w1q(_this__u8e3s4.f20_1).f1q_1;
                         } else {
                           if (_this__u8e3s4 instanceof AnkleStrap) {
                             tmp = centerOn_3(_this__u8e3s4, s);
@@ -9401,18 +9422,18 @@ function safetyBarLoad(s) {
 }
 function safetyBarHandle(s) {
   _init_properties_Kit_kt__h0vep0();
-  return s.v1q(Segment_TORSO_getInstance().a() - 12.0, 24.0);
+  return s.x1q(Segment_TORSO_getInstance().a() - 12.0, 24.0);
 }
 function grips(s) {
   _init_properties_Kit_kt__h0vep0();
-  return s.k1q_1.equals(View_SIDE_getInstance()) ? s.q1q_1.e1q_1 : s.q1q_1.e1q_1.r1o(s.r1q_1.e1q_1).t1o(0.5);
+  return s.l1q_1.equals(View_SIDE_getInstance()) ? s.r1q_1.f1q_1 : s.r1q_1.f1q_1.r1o(s.s1q_1.f1q_1).t1o(0.5);
 }
 function draw_0(_this__u8e3s4, s) {
   _init_properties_Kit_kt__h0vep0();
   var c = center(_this__u8e3s4, s);
   var a = Role_ACCENT_getInstance();
   var f = Role_ACCENT_FILL_getInstance();
-  var side = s.k1q_1.equals(View_SIDE_getInstance());
+  var side = s.l1q_1.equals(View_SIDE_getInstance());
   var tmp;
   if (_this__u8e3s4 instanceof Barbell) {
     var tmp_0;
@@ -9450,14 +9471,14 @@ function draw_0(_this__u8e3s4, s) {
       } else {
         if (_this__u8e3s4 instanceof Dumbbell) {
           var tmp_1;
-          if (side && _this__u8e3s4.k1y_1) {
+          if (side && _this__u8e3s4.m1y_1) {
             var tmp_2;
-            if (_this__u8e3s4.m1y_1) {
+            if (_this__u8e3s4.o1y_1) {
               // Inline function 'kotlin.let' call
-              var it = s.u1q(_this__u8e3s4.j1y_1);
-              tmp_2 = angleOf(it.d1q_1.s1o(it.c1q_1)) + 90.0;
+              var it = s.w1q(_this__u8e3s4.l1y_1);
+              tmp_2 = angleOf(it.e1q_1.s1o(it.d1q_1)) + 90.0;
             } else {
-              tmp_2 = s.l1q_1;
+              tmp_2 = s.m1q_1;
             }
             var angle = tmp_2;
             var along = dir(angle);
@@ -9472,7 +9493,7 @@ function draw_0(_this__u8e3s4, s) {
               var item = _iterator__ex2g4s_0.l();
               var m = c.r1o(along.t1o(item * (h + 2.5)));
               // Inline function 'kotlin.collections.flatMap' call
-              var tmp0 = (new Slab(m.p1o_1, m.q1o_1, 5.0, 2 * 10.0, angle, 0.0)).s1z();
+              var tmp0 = (new Slab(m.p1o_1, m.q1o_1, 5.0, 2 * 10.0, angle, 0.0)).u1z();
               // Inline function 'kotlin.collections.flatMapTo' call
               var destination_0 = ArrayList_init_$Create$();
               var _iterator__ex2g4s_1 = tmp0.j();
@@ -9485,7 +9506,7 @@ function draw_0(_this__u8e3s4, s) {
               destination.i(tmp$ret$8);
             }
             tmp_1 = plus(tmp_3, destination);
-          } else if (side || _this__u8e3s4.l1y_1) {
+          } else if (side || _this__u8e3s4.n1y_1) {
             tmp_1 = listOf([new Circle(f, c.p1o_1, c.q1o_1, 10.0), ring(a, c.p1o_1, c.q1o_1, 10.0, 10.0 - 1.2), new Circle(a, c.p1o_1, c.q1o_1, 1.6)]);
           } else {
             var h_0 = 14.0 / 2;
@@ -9572,7 +9593,7 @@ function draw_0(_this__u8e3s4, s) {
   return destination_1;
 }
 function draw$at($this_draw, m, dx) {
-  return $this_draw.a1x_1 + m * dx;
+  return $this_draw.c1x_1 + m * dx;
 }
 function BarHold_HANDS_getInstance() {
   static_init_9();
@@ -9608,9 +9629,9 @@ function get_A() {
 }
 var A;
 function EZBar() {
-  this.g20_1 = 30.0;
-  this.h20_1 = 60.0;
-  this.i20_1 = 40.0;
+  this.i20_1 = 30.0;
+  this.j20_1 = 60.0;
+  this.k20_1 = 40.0;
 }
 protoOf(EZBar).toString = function () {
   return 'EZBar';
@@ -9649,8 +9670,8 @@ function OverheadDumbbell_getInstance() {
   return OverheadDumbbell_instance;
 }
 function Companion_9() {
-  this.j20_1 = 14.0;
-  this.k20_1 = 30.0;
+  this.l20_1 = 14.0;
+  this.m20_1 = 30.0;
 }
 var Companion_instance_9;
 function Companion_getInstance_11() {
@@ -9659,21 +9680,21 @@ function Companion_getInstance_11() {
 function PreacherBench(seatX, seatHeight, padTop, padAngle, padLength) {
   padAngle = padAngle === VOID ? 45.0 : padAngle;
   padLength = padLength === VOID ? 35.0 : padLength;
-  this.l20_1 = seatX;
-  this.m20_1 = seatHeight;
-  this.n20_1 = padTop;
-  this.o20_1 = padAngle;
-  this.p20_1 = padLength;
+  this.n20_1 = seatX;
+  this.o20_1 = seatHeight;
+  this.p20_1 = padTop;
+  this.q20_1 = padAngle;
+  this.r20_1 = padLength;
 }
 protoOf(PreacherBench).toString = function () {
-  return 'PreacherBench(seatX=' + this.l20_1 + ', seatHeight=' + this.m20_1 + ', padTop=' + this.n20_1.toString() + ', padAngle=' + this.o20_1 + ', padLength=' + this.p20_1 + ')';
+  return 'PreacherBench(seatX=' + this.n20_1 + ', seatHeight=' + this.o20_1 + ', padTop=' + this.p20_1.toString() + ', padAngle=' + this.q20_1 + ', padLength=' + this.r20_1 + ')';
 };
 protoOf(PreacherBench).hashCode = function () {
-  var result = getNumberHashCode(this.l20_1);
-  result = imul(result, 31) + getNumberHashCode(this.m20_1) | 0;
-  result = imul(result, 31) + this.n20_1.hashCode() | 0;
+  var result = getNumberHashCode(this.n20_1);
   result = imul(result, 31) + getNumberHashCode(this.o20_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.p20_1) | 0;
+  result = imul(result, 31) + this.p20_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.q20_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.r20_1) | 0;
   return result;
 };
 protoOf(PreacherBench).equals = function (other) {
@@ -9681,21 +9702,21 @@ protoOf(PreacherBench).equals = function (other) {
     return true;
   if (!(other instanceof PreacherBench))
     return false;
-  if (!equals(this.l20_1, other.l20_1))
-    return false;
-  if (!equals(this.m20_1, other.m20_1))
-    return false;
-  if (!this.n20_1.equals(other.n20_1))
+  if (!equals(this.n20_1, other.n20_1))
     return false;
   if (!equals(this.o20_1, other.o20_1))
     return false;
-  if (!equals(this.p20_1, other.p20_1))
+  if (!this.p20_1.equals(other.p20_1))
+    return false;
+  if (!equals(this.q20_1, other.q20_1))
+    return false;
+  if (!equals(this.r20_1, other.r20_1))
     return false;
   return true;
 };
 function Companion_10() {
-  this.q20_1 = 35.0;
-  this.r20_1 = 150.0;
+  this.s20_1 = 35.0;
+  this.t20_1 = 150.0;
 }
 var Companion_instance_10;
 function Companion_getInstance_12() {
@@ -9703,25 +9724,25 @@ function Companion_getInstance_12() {
 }
 function ArmPadMachine(seatX, seatHeight, padTop, padAngle, pivot, stackX, padLength) {
   padLength = padLength === VOID ? 30.0 : padLength;
-  this.s20_1 = seatX;
-  this.t20_1 = seatHeight;
-  this.u20_1 = padTop;
-  this.v20_1 = padAngle;
-  this.w20_1 = pivot;
-  this.x20_1 = stackX;
-  this.y20_1 = padLength;
+  this.u20_1 = seatX;
+  this.v20_1 = seatHeight;
+  this.w20_1 = padTop;
+  this.x20_1 = padAngle;
+  this.y20_1 = pivot;
+  this.z20_1 = stackX;
+  this.a21_1 = padLength;
 }
 protoOf(ArmPadMachine).toString = function () {
-  return 'ArmPadMachine(seatX=' + this.s20_1 + ', seatHeight=' + this.t20_1 + ', padTop=' + this.u20_1.toString() + ', padAngle=' + this.v20_1 + ', pivot=' + this.w20_1.toString() + ', stackX=' + this.x20_1 + ', padLength=' + this.y20_1 + ')';
+  return 'ArmPadMachine(seatX=' + this.u20_1 + ', seatHeight=' + this.v20_1 + ', padTop=' + this.w20_1.toString() + ', padAngle=' + this.x20_1 + ', pivot=' + this.y20_1.toString() + ', stackX=' + this.z20_1 + ', padLength=' + this.a21_1 + ')';
 };
 protoOf(ArmPadMachine).hashCode = function () {
-  var result = getNumberHashCode(this.s20_1);
-  result = imul(result, 31) + getNumberHashCode(this.t20_1) | 0;
-  result = imul(result, 31) + this.u20_1.hashCode() | 0;
+  var result = getNumberHashCode(this.u20_1);
   result = imul(result, 31) + getNumberHashCode(this.v20_1) | 0;
   result = imul(result, 31) + this.w20_1.hashCode() | 0;
   result = imul(result, 31) + getNumberHashCode(this.x20_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.y20_1) | 0;
+  result = imul(result, 31) + this.y20_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.z20_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a21_1) | 0;
   return result;
 };
 protoOf(ArmPadMachine).equals = function (other) {
@@ -9729,11 +9750,7 @@ protoOf(ArmPadMachine).equals = function (other) {
     return true;
   if (!(other instanceof ArmPadMachine))
     return false;
-  if (!equals(this.s20_1, other.s20_1))
-    return false;
-  if (!equals(this.t20_1, other.t20_1))
-    return false;
-  if (!this.u20_1.equals(other.u20_1))
+  if (!equals(this.u20_1, other.u20_1))
     return false;
   if (!equals(this.v20_1, other.v20_1))
     return false;
@@ -9741,7 +9758,11 @@ protoOf(ArmPadMachine).equals = function (other) {
     return false;
   if (!equals(this.x20_1, other.x20_1))
     return false;
-  if (!equals(this.y20_1, other.y20_1))
+  if (!this.y20_1.equals(other.y20_1))
+    return false;
+  if (!equals(this.z20_1, other.z20_1))
+    return false;
+  if (!equals(this.a21_1, other.a21_1))
     return false;
   return true;
 };
@@ -9752,7 +9773,7 @@ function cap(role, a, b, width) {
 function slabPolygon(role, s) {
   _init_properties_KitArms_kt__i3gahx();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = s.s1z();
+  var tmp0 = s.u1z();
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -9770,7 +9791,7 @@ function armPadSlab(top, angle, length, thickness) {
 }
 function seatSlab(x, height, length) {
   _init_properties_KitArms_kt__i3gahx();
-  return Companion_instance_8.l1z(x - length / 2, -height, x + length / 2, -height + 6.0);
+  return Companion_instance_8.n1z(x - length / 2, -height, x + length / 2, -height + 6.0);
 }
 function seatOnPost(x, height, length) {
   _init_properties_KitArms_kt__i3gahx();
@@ -9778,33 +9799,33 @@ function seatOnPost(x, height, length) {
   var tmp_0 = new Placed(new Capsule(get_E(), x - 15.0, -1.5, x + 15.0, -1.5, 3.0));
   // Inline function 'kotlin.let' call
   var it = seatSlab(x, height, length);
-  var tmp$ret$0 = new RoundRect(get_E(), it.m1z_1 - it.o1z_1 / 2, it.n1z_1 - it.p1z_1 / 2, it.o1z_1, it.p1z_1, 2.0);
+  var tmp$ret$0 = new RoundRect(get_E(), it.o1z_1 - it.q1z_1 / 2, it.p1z_1 - it.r1z_1 / 2, it.q1z_1, it.r1z_1, 2.0);
   return listOf([tmp, tmp_0, new Placed(tmp$ret$0)]);
 }
 function padOnStrut(pad, angle) {
   _init_properties_KitArms_kt__i3gahx();
-  var under = (new Point(pad.m1z_1, pad.n1z_1)).r1o(dir(-angle - 90.0).t1o(pad.p1z_1 / 2));
+  var under = (new Point(pad.o1z_1, pad.p1z_1)).r1o(dir(-angle - 90.0).t1o(pad.r1z_1 / 2));
   return listOf([new Placed(cap(get_E(), under, new Point(under.p1o_1, -1.5), 5.0)), new Placed(new Capsule(get_E(), under.p1o_1 - 14.0, -1.5, under.p1o_1 + 14.0, -1.5, 3.0)), new Placed(slabPolygon(get_E(), pad))]);
 }
 function padSlab(_this__u8e3s4) {
   _init_properties_KitArms_kt__i3gahx();
-  return armPadSlab(_this__u8e3s4.n20_1, _this__u8e3s4.o20_1, _this__u8e3s4.p20_1, 14.0);
+  return armPadSlab(_this__u8e3s4.p20_1, _this__u8e3s4.q20_1, _this__u8e3s4.r20_1, 14.0);
 }
 function seat(_this__u8e3s4) {
   _init_properties_KitArms_kt__i3gahx();
-  return seatSlab(_this__u8e3s4.l20_1, _this__u8e3s4.m20_1, 30.0);
+  return seatSlab(_this__u8e3s4.n20_1, _this__u8e3s4.o20_1, 30.0);
 }
 function drawOf(_this__u8e3s4) {
   _init_properties_KitArms_kt__i3gahx();
-  return plus(seatOnPost(_this__u8e3s4.l20_1, _this__u8e3s4.m20_1, 30.0), padOnStrut(padSlab(_this__u8e3s4), _this__u8e3s4.o20_1));
+  return plus(seatOnPost(_this__u8e3s4.n20_1, _this__u8e3s4.o20_1, 30.0), padOnStrut(padSlab(_this__u8e3s4), _this__u8e3s4.q20_1));
 }
 function padSlab_0(_this__u8e3s4) {
   _init_properties_KitArms_kt__i3gahx();
-  return armPadSlab(_this__u8e3s4.u20_1, _this__u8e3s4.v20_1, _this__u8e3s4.y20_1, 14.0);
+  return armPadSlab(_this__u8e3s4.w20_1, _this__u8e3s4.x20_1, _this__u8e3s4.a21_1, 14.0);
 }
 function seat_0(_this__u8e3s4) {
   _init_properties_KitArms_kt__i3gahx();
-  return seatSlab(_this__u8e3s4.s20_1, _this__u8e3s4.t20_1, 35.0);
+  return seatSlab(_this__u8e3s4.u20_1, _this__u8e3s4.v20_1, 35.0);
 }
 function drawOf_0(_this__u8e3s4) {
   _init_properties_KitArms_kt__i3gahx();
@@ -9812,29 +9833,29 @@ function drawOf_0(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.p(seatOnPost(_this__u8e3s4.s20_1, _this__u8e3s4.t20_1, 35.0));
-  this_0.i(new Placed(new RoundRect(get_E(), _this__u8e3s4.x20_1 - 9.0, -150.0, 18.0, 150.0 - 1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E(), _this__u8e3s4.x20_1 - 15.0, -1.5, _this__u8e3s4.x20_1 + 15.0, -1.5, 3.0)));
-  this_0.i(new Placed(cap(get_E(), new Point(_this__u8e3s4.x20_1, _this__u8e3s4.w20_1.q1o_1), _this__u8e3s4.w20_1, 5.0)));
-  this_0.p(padOnStrut(padSlab_0(_this__u8e3s4), _this__u8e3s4.v20_1));
+  this_0.p(seatOnPost(_this__u8e3s4.u20_1, _this__u8e3s4.v20_1, 35.0));
+  this_0.i(new Placed(new RoundRect(get_E(), _this__u8e3s4.z20_1 - 9.0, -150.0, 18.0, 150.0 - 1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E(), _this__u8e3s4.z20_1 - 15.0, -1.5, _this__u8e3s4.z20_1 + 15.0, -1.5, 3.0)));
+  this_0.i(new Placed(cap(get_E(), new Point(_this__u8e3s4.z20_1, _this__u8e3s4.y20_1.q1o_1), _this__u8e3s4.y20_1, 5.0)));
+  this_0.p(padOnStrut(padSlab_0(_this__u8e3s4), _this__u8e3s4.x20_1));
   return this_0.z3();
 }
 function drawFrontOf(_this__u8e3s4, s) {
   _init_properties_KitArms_kt__i3gahx();
-  if (s == null || !s.k1q_1.equals(View_SIDE_getInstance()))
+  if (s == null || !s.l1q_1.equals(View_SIDE_getInstance()))
     return emptyList();
-  var g = s.q1q_1.e1q_1;
-  return listOf([new Placed(cap(Role_GAP_getInstance(), _this__u8e3s4.w20_1, g, 3.0 + 3.0)), new Placed(cap(get_E(), _this__u8e3s4.w20_1, g, 3.0)), new Placed(new Circle(Role_GAP_getInstance(), g.p1o_1, g.q1o_1, 2.8 + 3.0 / 2)), new Placed(new Circle(get_E(), g.p1o_1, g.q1o_1, 2.8)), new Placed(new Circle(Role_GAP_getInstance(), _this__u8e3s4.w20_1.p1o_1, _this__u8e3s4.w20_1.q1o_1, 3.5 + 3.0 / 2)), new Placed(new Circle(get_E(), _this__u8e3s4.w20_1.p1o_1, _this__u8e3s4.w20_1.q1o_1, 3.5))]);
+  var g = s.r1q_1.f1q_1;
+  return listOf([new Placed(cap(Role_GAP_getInstance(), _this__u8e3s4.y20_1, g, 3.0 + 3.0)), new Placed(cap(get_E(), _this__u8e3s4.y20_1, g, 3.0)), new Placed(new Circle(Role_GAP_getInstance(), g.p1o_1, g.q1o_1, 2.8 + 3.0 / 2)), new Placed(new Circle(get_E(), g.p1o_1, g.q1o_1, 2.8)), new Placed(new Circle(Role_GAP_getInstance(), _this__u8e3s4.y20_1.p1o_1, _this__u8e3s4.y20_1.q1o_1, 3.5 + 3.0 / 2)), new Placed(new Circle(get_E(), _this__u8e3s4.y20_1.p1o_1, _this__u8e3s4.y20_1.q1o_1, 3.5))]);
 }
 function drawOn(_this__u8e3s4, s) {
   _init_properties_KitArms_kt__i3gahx();
   var r = 30.0 / 2;
   var tmp;
-  if (s.k1q_1.equals(View_SIDE_getInstance())) {
-    var c = s.q1q_1.e1q_1;
+  if (s.l1q_1.equals(View_SIDE_getInstance())) {
+    var c = s.r1q_1.f1q_1;
     tmp = listOf([new Circle(Role_ACCENT_FILL_getInstance(), c.p1o_1, c.q1o_1, r), ring(get_A(), c.p1o_1, c.q1o_1, r, r - 1.3), ring(get_A(), c.p1o_1, c.q1o_1, 4.5, 3.6), new Circle(get_A(), c.p1o_1, c.q1o_1, 2.5)]);
   } else {
-    var c_0 = s.q1q_1.e1q_1.r1o(s.r1q_1.e1q_1).t1o(0.5);
+    var c_0 = s.r1q_1.f1q_1.r1o(s.s1q_1.f1q_1).t1o(0.5);
     var w = 2 * 1.45;
     // Inline function 'kotlin.collections.map' call
     var this_0 = listOf([to(-60.0, 0.0), to(-26.0, 0.0), to(-18.0, -3.0), to(-8.0, 3.0), to(0.0, 0.0), to(8.0, 3.0), to(18.0, -3.0), to(26.0, 0.0), to(60.0, 0.0)]);
@@ -9887,7 +9908,7 @@ function drawOn(_this__u8e3s4, s) {
 }
 function centerOn(_this__u8e3s4, s) {
   _init_properties_KitArms_kt__i3gahx();
-  var g = s.k1q_1.equals(View_SIDE_getInstance()) ? s.q1q_1.e1q_1 : s.q1q_1.e1q_1.r1o(s.r1q_1.e1q_1).t1o(0.5);
+  var g = s.l1q_1.equals(View_SIDE_getInstance()) ? s.r1q_1.f1q_1 : s.r1q_1.f1q_1.r1o(s.s1q_1.f1q_1).t1o(0.5);
   return g.r1o(new Point(0.0, 14.0 / 2 + 2.5));
 }
 function drawOn_0(_this__u8e3s4, s) {
@@ -9905,7 +9926,7 @@ function drawOn_0(_this__u8e3s4, s) {
     var m = c.r1o(new Point(0.0, item * (h + 2.5)));
     var tmp_0 = get_A();
     // Inline function 'kotlin.collections.flatMap' call
-    var tmp0 = (new Slab(m.p1o_1, m.q1o_1, 5.0, 2 * 10.0, 90.0, 0.0)).s1z();
+    var tmp0 = (new Slab(m.p1o_1, m.q1o_1, 5.0, 2 * 10.0, 90.0, 0.0)).u1z();
     // Inline function 'kotlin.collections.flatMapTo' call
     var destination_0 = ArrayList_init_$Create$();
     var _iterator__ex2g4s_0 = tmp0.j();
@@ -9938,9 +9959,9 @@ function get_A_0() {
 }
 var A_0;
 function Companion_11() {
-  this.z20_1 = 70.0;
-  this.a21_1 = 35.0;
-  this.b21_1 = 4.0;
+  this.b21_1 = 70.0;
+  this.c21_1 = 35.0;
+  this.d21_1 = 4.0;
 }
 var Companion_instance_11;
 function Companion_getInstance_13() {
@@ -9948,24 +9969,24 @@ function Companion_getInstance_13() {
 }
 function RowStation(seatX, seatHeight, plate, pulley, plateTilt) {
   plateTilt = plateTilt === VOID ? 15.0 : plateTilt;
-  this.c21_1 = seatX;
-  this.d21_1 = seatHeight;
-  this.e21_1 = plate;
-  this.f21_1 = pulley;
-  this.g21_1 = plateTilt;
+  this.e21_1 = seatX;
+  this.f21_1 = seatHeight;
+  this.g21_1 = plate;
+  this.h21_1 = pulley;
+  this.i21_1 = plateTilt;
 }
-protoOf(RowStation).h21 = function () {
-  return 90.0 - this.g21_1;
+protoOf(RowStation).j21 = function () {
+  return 90.0 - this.i21_1;
 };
 protoOf(RowStation).toString = function () {
-  return 'RowStation(seatX=' + this.c21_1 + ', seatHeight=' + this.d21_1 + ', plate=' + this.e21_1.toString() + ', pulley=' + this.f21_1.toString() + ', plateTilt=' + this.g21_1 + ')';
+  return 'RowStation(seatX=' + this.e21_1 + ', seatHeight=' + this.f21_1 + ', plate=' + this.g21_1.toString() + ', pulley=' + this.h21_1.toString() + ', plateTilt=' + this.i21_1 + ')';
 };
 protoOf(RowStation).hashCode = function () {
-  var result = getNumberHashCode(this.c21_1);
-  result = imul(result, 31) + getNumberHashCode(this.d21_1) | 0;
-  result = imul(result, 31) + this.e21_1.hashCode() | 0;
-  result = imul(result, 31) + this.f21_1.hashCode() | 0;
-  result = imul(result, 31) + getNumberHashCode(this.g21_1) | 0;
+  var result = getNumberHashCode(this.e21_1);
+  result = imul(result, 31) + getNumberHashCode(this.f21_1) | 0;
+  result = imul(result, 31) + this.g21_1.hashCode() | 0;
+  result = imul(result, 31) + this.h21_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.i21_1) | 0;
   return result;
 };
 protoOf(RowStation).equals = function (other) {
@@ -9973,43 +9994,43 @@ protoOf(RowStation).equals = function (other) {
     return true;
   if (!(other instanceof RowStation))
     return false;
-  if (!equals(this.c21_1, other.c21_1))
+  if (!equals(this.e21_1, other.e21_1))
     return false;
-  if (!equals(this.d21_1, other.d21_1))
+  if (!equals(this.f21_1, other.f21_1))
     return false;
-  if (!this.e21_1.equals(other.e21_1))
+  if (!this.g21_1.equals(other.g21_1))
     return false;
-  if (!this.f21_1.equals(other.f21_1))
+  if (!this.h21_1.equals(other.h21_1))
     return false;
-  if (!equals(this.g21_1, other.g21_1))
+  if (!equals(this.i21_1, other.i21_1))
     return false;
   return true;
 };
 function Companion_12() {
-  this.i21_1 = 40.0;
-  this.j21_1 = 30.0;
-  this.k21_1 = 8.0;
+  this.k21_1 = 40.0;
+  this.l21_1 = 30.0;
+  this.m21_1 = 8.0;
 }
 var Companion_instance_12;
 function Companion_getInstance_14() {
   return Companion_instance_12;
 }
 function RowMachine(seatX, seatHeight, padFace, padHeight, pivot) {
-  this.l21_1 = seatX;
-  this.m21_1 = seatHeight;
-  this.n21_1 = padFace;
-  this.o21_1 = padHeight;
-  this.p21_1 = pivot;
+  this.n21_1 = seatX;
+  this.o21_1 = seatHeight;
+  this.p21_1 = padFace;
+  this.q21_1 = padHeight;
+  this.r21_1 = pivot;
 }
 protoOf(RowMachine).toString = function () {
-  return 'RowMachine(seatX=' + this.l21_1 + ', seatHeight=' + this.m21_1 + ', padFace=' + this.n21_1 + ', padHeight=' + this.o21_1 + ', pivot=' + this.p21_1.toString() + ')';
+  return 'RowMachine(seatX=' + this.n21_1 + ', seatHeight=' + this.o21_1 + ', padFace=' + this.p21_1 + ', padHeight=' + this.q21_1 + ', pivot=' + this.r21_1.toString() + ')';
 };
 protoOf(RowMachine).hashCode = function () {
-  var result = getNumberHashCode(this.l21_1);
-  result = imul(result, 31) + getNumberHashCode(this.m21_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.n21_1) | 0;
+  var result = getNumberHashCode(this.n21_1);
   result = imul(result, 31) + getNumberHashCode(this.o21_1) | 0;
-  result = imul(result, 31) + this.p21_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.p21_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.q21_1) | 0;
+  result = imul(result, 31) + this.r21_1.hashCode() | 0;
   return result;
 };
 protoOf(RowMachine).equals = function (other) {
@@ -10017,21 +10038,21 @@ protoOf(RowMachine).equals = function (other) {
     return true;
   if (!(other instanceof RowMachine))
     return false;
-  if (!equals(this.l21_1, other.l21_1))
-    return false;
-  if (!equals(this.m21_1, other.m21_1))
-    return false;
   if (!equals(this.n21_1, other.n21_1))
     return false;
   if (!equals(this.o21_1, other.o21_1))
     return false;
-  if (!this.p21_1.equals(other.p21_1))
+  if (!equals(this.p21_1, other.p21_1))
+    return false;
+  if (!equals(this.q21_1, other.q21_1))
+    return false;
+  if (!this.r21_1.equals(other.r21_1))
     return false;
   return true;
 };
 function Companion_13() {
-  this.q21_1 = 6.0;
-  this.r21_1 = 40.0;
+  this.s21_1 = 6.0;
+  this.t21_1 = 40.0;
 }
 var Companion_instance_13;
 function Companion_getInstance_15() {
@@ -10040,19 +10061,19 @@ function Companion_getInstance_15() {
 function ProneBench(low, angle, length, footPlate) {
   length = length === VOID ? 85.0 : length;
   footPlate = footPlate === VOID ? null : footPlate;
-  this.s21_1 = low;
-  this.t21_1 = angle;
-  this.u21_1 = length;
-  this.v21_1 = footPlate;
+  this.u21_1 = low;
+  this.v21_1 = angle;
+  this.w21_1 = length;
+  this.x21_1 = footPlate;
 }
 protoOf(ProneBench).toString = function () {
-  return 'ProneBench(low=' + this.s21_1.toString() + ', angle=' + this.t21_1 + ', length=' + this.u21_1 + ', footPlate=' + toString_0(this.v21_1) + ')';
+  return 'ProneBench(low=' + this.u21_1.toString() + ', angle=' + this.v21_1 + ', length=' + this.w21_1 + ', footPlate=' + toString_0(this.x21_1) + ')';
 };
 protoOf(ProneBench).hashCode = function () {
-  var result = this.s21_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.t21_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.u21_1) | 0;
-  result = imul(result, 31) + (this.v21_1 == null ? 0 : this.v21_1.hashCode()) | 0;
+  var result = this.u21_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.v21_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.w21_1) | 0;
+  result = imul(result, 31) + (this.x21_1 == null ? 0 : this.x21_1.hashCode()) | 0;
   return result;
 };
 protoOf(ProneBench).equals = function (other) {
@@ -10060,33 +10081,33 @@ protoOf(ProneBench).equals = function (other) {
     return true;
   if (!(other instanceof ProneBench))
     return false;
-  if (!this.s21_1.equals(other.s21_1))
-    return false;
-  if (!equals(this.t21_1, other.t21_1))
-    return false;
-  if (!equals(this.u21_1, other.u21_1))
+  if (!this.u21_1.equals(other.u21_1))
     return false;
   if (!equals(this.v21_1, other.v21_1))
+    return false;
+  if (!equals(this.w21_1, other.w21_1))
+    return false;
+  if (!equals(this.x21_1, other.x21_1))
     return false;
   return true;
 };
 function Companion_14() {
-  this.w21_1 = 4.0;
+  this.y21_1 = 4.0;
 }
 var Companion_instance_14;
 function Companion_getInstance_16() {
   return Companion_instance_14;
 }
 function TBarLever(pivot, plateAlong) {
-  this.x21_1 = pivot;
-  this.y21_1 = plateAlong;
+  this.z21_1 = pivot;
+  this.a22_1 = plateAlong;
 }
 protoOf(TBarLever).toString = function () {
-  return 'TBarLever(pivot=' + this.x21_1.toString() + ', plateAlong=' + this.y21_1 + ')';
+  return 'TBarLever(pivot=' + this.z21_1.toString() + ', plateAlong=' + this.a22_1 + ')';
 };
 protoOf(TBarLever).hashCode = function () {
-  var result = this.x21_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.y21_1) | 0;
+  var result = this.z21_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.a22_1) | 0;
   return result;
 };
 protoOf(TBarLever).equals = function (other) {
@@ -10094,22 +10115,22 @@ protoOf(TBarLever).equals = function (other) {
     return true;
   if (!(other instanceof TBarLever))
     return false;
-  if (!this.x21_1.equals(other.x21_1))
+  if (!this.z21_1.equals(other.z21_1))
     return false;
-  if (!equals(this.y21_1, other.y21_1))
+  if (!equals(this.a22_1, other.a22_1))
     return false;
   return true;
 };
 function RackBar(x, height) {
-  this.b20_1 = x;
-  this.c20_1 = height;
+  this.d20_1 = x;
+  this.e20_1 = height;
 }
 protoOf(RackBar).toString = function () {
-  return 'RackBar(x=' + this.b20_1 + ', height=' + this.c20_1 + ')';
+  return 'RackBar(x=' + this.d20_1 + ', height=' + this.e20_1 + ')';
 };
 protoOf(RackBar).hashCode = function () {
-  var result = getNumberHashCode(this.b20_1);
-  result = imul(result, 31) + getNumberHashCode(this.c20_1) | 0;
+  var result = getNumberHashCode(this.d20_1);
+  result = imul(result, 31) + getNumberHashCode(this.e20_1) | 0;
   return result;
 };
 protoOf(RackBar).equals = function (other) {
@@ -10117,37 +10138,37 @@ protoOf(RackBar).equals = function (other) {
     return true;
   if (!(other instanceof RackBar))
     return false;
-  if (!equals(this.b20_1, other.b20_1))
+  if (!equals(this.d20_1, other.d20_1))
     return false;
-  if (!equals(this.c20_1, other.c20_1))
+  if (!equals(this.e20_1, other.e20_1))
     return false;
   return true;
 };
 function Companion_15() {
-  this.z21_1 = 30.0;
+  this.b22_1 = 30.0;
 }
 var Companion_instance_15;
 function Companion_getInstance_17() {
   return Companion_instance_15;
 }
 function AssistPullUpMachine(x, barX, barHeight, padX, padHeight, pivot) {
-  this.v1z_1 = x;
-  this.w1z_1 = barX;
-  this.x1z_1 = barHeight;
-  this.y1z_1 = padX;
-  this.z1z_1 = padHeight;
-  this.a20_1 = pivot;
+  this.x1z_1 = x;
+  this.y1z_1 = barX;
+  this.z1z_1 = barHeight;
+  this.a20_1 = padX;
+  this.b20_1 = padHeight;
+  this.c20_1 = pivot;
 }
 protoOf(AssistPullUpMachine).toString = function () {
-  return 'AssistPullUpMachine(x=' + this.v1z_1 + ', barX=' + this.w1z_1 + ', barHeight=' + this.x1z_1 + ', padX=' + this.y1z_1 + ', padHeight=' + this.z1z_1 + ', pivot=' + this.a20_1.toString() + ')';
+  return 'AssistPullUpMachine(x=' + this.x1z_1 + ', barX=' + this.y1z_1 + ', barHeight=' + this.z1z_1 + ', padX=' + this.a20_1 + ', padHeight=' + this.b20_1 + ', pivot=' + this.c20_1.toString() + ')';
 };
 protoOf(AssistPullUpMachine).hashCode = function () {
-  var result = getNumberHashCode(this.v1z_1);
-  result = imul(result, 31) + getNumberHashCode(this.w1z_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.x1z_1) | 0;
+  var result = getNumberHashCode(this.x1z_1);
   result = imul(result, 31) + getNumberHashCode(this.y1z_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.z1z_1) | 0;
-  result = imul(result, 31) + this.a20_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a20_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.b20_1) | 0;
+  result = imul(result, 31) + this.c20_1.hashCode() | 0;
   return result;
 };
 protoOf(AssistPullUpMachine).equals = function (other) {
@@ -10155,33 +10176,33 @@ protoOf(AssistPullUpMachine).equals = function (other) {
     return true;
   if (!(other instanceof AssistPullUpMachine))
     return false;
-  if (!equals(this.v1z_1, other.v1z_1))
-    return false;
-  if (!equals(this.w1z_1, other.w1z_1))
-    return false;
   if (!equals(this.x1z_1, other.x1z_1))
     return false;
   if (!equals(this.y1z_1, other.y1z_1))
     return false;
   if (!equals(this.z1z_1, other.z1z_1))
     return false;
-  if (!this.a20_1.equals(other.a20_1))
+  if (!equals(this.a20_1, other.a20_1))
+    return false;
+  if (!equals(this.b20_1, other.b20_1))
+    return false;
+  if (!this.c20_1.equals(other.c20_1))
     return false;
   return true;
 };
 function ParallelHandles(x, height, length) {
   length = length === VOID ? 18.0 : length;
-  this.a22_1 = x;
-  this.b22_1 = height;
-  this.c22_1 = length;
+  this.c22_1 = x;
+  this.d22_1 = height;
+  this.e22_1 = length;
 }
 protoOf(ParallelHandles).toString = function () {
-  return 'ParallelHandles(x=' + this.a22_1 + ', height=' + this.b22_1 + ', length=' + this.c22_1 + ')';
+  return 'ParallelHandles(x=' + this.c22_1 + ', height=' + this.d22_1 + ', length=' + this.e22_1 + ')';
 };
 protoOf(ParallelHandles).hashCode = function () {
-  var result = getNumberHashCode(this.a22_1);
-  result = imul(result, 31) + getNumberHashCode(this.b22_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.c22_1) | 0;
+  var result = getNumberHashCode(this.c22_1);
+  result = imul(result, 31) + getNumberHashCode(this.d22_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.e22_1) | 0;
   return result;
 };
 protoOf(ParallelHandles).equals = function (other) {
@@ -10189,51 +10210,51 @@ protoOf(ParallelHandles).equals = function (other) {
     return true;
   if (!(other instanceof ParallelHandles))
     return false;
-  if (!equals(this.a22_1, other.a22_1))
-    return false;
-  if (!equals(this.b22_1, other.b22_1))
-    return false;
   if (!equals(this.c22_1, other.c22_1))
+    return false;
+  if (!equals(this.d22_1, other.d22_1))
+    return false;
+  if (!equals(this.e22_1, other.e22_1))
     return false;
   return true;
 };
 function Companion_16() {
-  this.d22_1 = 1.6;
+  this.f22_1 = 1.6;
 }
 var Companion_instance_16;
 function Companion_getInstance_18() {
   return Companion_instance_16;
 }
 function PullUpBand(bar) {
-  this.e22_1 = bar;
+  this.g22_1 = bar;
 }
 protoOf(PullUpBand).toString = function () {
-  return 'PullUpBand(bar=' + this.e22_1.toString() + ')';
+  return 'PullUpBand(bar=' + this.g22_1.toString() + ')';
 };
 protoOf(PullUpBand).hashCode = function () {
-  return this.e22_1.hashCode();
+  return this.g22_1.hashCode();
 };
 protoOf(PullUpBand).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof PullUpBand))
     return false;
-  if (!this.e22_1.equals(other.e22_1))
+  if (!this.g22_1.equals(other.g22_1))
     return false;
   return true;
 };
 function DipBelt(plate, drop) {
   plate = plate === VOID ? 30.0 : plate;
   drop = drop === VOID ? 38.0 : drop;
-  this.f22_1 = plate;
-  this.g22_1 = drop;
+  this.h22_1 = plate;
+  this.i22_1 = drop;
 }
 protoOf(DipBelt).toString = function () {
-  return 'DipBelt(plate=' + this.f22_1 + ', drop=' + this.g22_1 + ')';
+  return 'DipBelt(plate=' + this.h22_1 + ', drop=' + this.i22_1 + ')';
 };
 protoOf(DipBelt).hashCode = function () {
-  var result = getNumberHashCode(this.f22_1);
-  result = imul(result, 31) + getNumberHashCode(this.g22_1) | 0;
+  var result = getNumberHashCode(this.h22_1);
+  result = imul(result, 31) + getNumberHashCode(this.i22_1) | 0;
   return result;
 };
 protoOf(DipBelt).equals = function (other) {
@@ -10241,23 +10262,23 @@ protoOf(DipBelt).equals = function (other) {
     return true;
   if (!(other instanceof DipBelt))
     return false;
-  if (!equals(this.f22_1, other.f22_1))
+  if (!equals(this.h22_1, other.h22_1))
     return false;
-  if (!equals(this.g22_1, other.g22_1))
+  if (!equals(this.i22_1, other.i22_1))
     return false;
   return true;
 };
 function PulldownLever(pivot, horn) {
   horn = horn === VOID ? 35.0 : horn;
-  this.h22_1 = pivot;
-  this.i22_1 = horn;
+  this.j22_1 = pivot;
+  this.k22_1 = horn;
 }
 protoOf(PulldownLever).toString = function () {
-  return 'PulldownLever(pivot=' + this.h22_1.toString() + ', horn=' + this.i22_1 + ')';
+  return 'PulldownLever(pivot=' + this.j22_1.toString() + ', horn=' + this.k22_1 + ')';
 };
 protoOf(PulldownLever).hashCode = function () {
-  var result = this.h22_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.i22_1) | 0;
+  var result = this.j22_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.k22_1) | 0;
   return result;
 };
 protoOf(PulldownLever).equals = function (other) {
@@ -10265,35 +10286,35 @@ protoOf(PulldownLever).equals = function (other) {
     return true;
   if (!(other instanceof PulldownLever))
     return false;
-  if (!this.h22_1.equals(other.h22_1))
+  if (!this.j22_1.equals(other.j22_1))
     return false;
-  if (!equals(this.i22_1, other.i22_1))
+  if (!equals(this.k22_1, other.k22_1))
     return false;
   return true;
 };
 function Companion_17() {
-  this.j22_1 = 40.0;
-  this.k22_1 = 70.0;
-  this.l22_1 = 24.0;
+  this.l22_1 = 40.0;
+  this.m22_1 = 70.0;
+  this.n22_1 = 24.0;
 }
 var Companion_instance_17;
 function Companion_getInstance_19() {
   return Companion_instance_17;
 }
 function PulloverMachine(seatX, seatHeight, backAngle, pivot) {
-  this.m22_1 = seatX;
-  this.n22_1 = seatHeight;
-  this.o22_1 = backAngle;
-  this.p22_1 = pivot;
+  this.o22_1 = seatX;
+  this.p22_1 = seatHeight;
+  this.q22_1 = backAngle;
+  this.r22_1 = pivot;
 }
 protoOf(PulloverMachine).toString = function () {
-  return 'PulloverMachine(seatX=' + this.m22_1 + ', seatHeight=' + this.n22_1 + ', backAngle=' + this.o22_1 + ', pivot=' + this.p22_1.toString() + ')';
+  return 'PulloverMachine(seatX=' + this.o22_1 + ', seatHeight=' + this.p22_1 + ', backAngle=' + this.q22_1 + ', pivot=' + this.r22_1.toString() + ')';
 };
 protoOf(PulloverMachine).hashCode = function () {
-  var result = getNumberHashCode(this.m22_1);
-  result = imul(result, 31) + getNumberHashCode(this.n22_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.o22_1) | 0;
-  result = imul(result, 31) + this.p22_1.hashCode() | 0;
+  var result = getNumberHashCode(this.o22_1);
+  result = imul(result, 31) + getNumberHashCode(this.p22_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.q22_1) | 0;
+  result = imul(result, 31) + this.r22_1.hashCode() | 0;
   return result;
 };
 protoOf(PulloverMachine).equals = function (other) {
@@ -10301,21 +10322,21 @@ protoOf(PulloverMachine).equals = function (other) {
     return true;
   if (!(other instanceof PulloverMachine))
     return false;
-  if (!equals(this.m22_1, other.m22_1))
-    return false;
-  if (!equals(this.n22_1, other.n22_1))
-    return false;
   if (!equals(this.o22_1, other.o22_1))
     return false;
-  if (!this.p22_1.equals(other.p22_1))
+  if (!equals(this.p22_1, other.p22_1))
+    return false;
+  if (!equals(this.q22_1, other.q22_1))
+    return false;
+  if (!this.r22_1.equals(other.r22_1))
     return false;
   return true;
 };
 function Companion_18() {
-  this.q22_1 = 30.0;
-  this.r22_1 = 10.0;
   this.s22_1 = 30.0;
-  this.t22_1 = 6.0;
+  this.t22_1 = 10.0;
+  this.u22_1 = 30.0;
+  this.v22_1 = 6.0;
 }
 var Companion_instance_18;
 function Companion_getInstance_20() {
@@ -10323,19 +10344,19 @@ function Companion_getInstance_20() {
 }
 function HyperBench(pad, footPlate, roller, angle) {
   angle = angle === VOID ? 45.0 : angle;
-  this.u22_1 = pad;
-  this.v22_1 = footPlate;
-  this.w22_1 = roller;
-  this.x22_1 = angle;
+  this.w22_1 = pad;
+  this.x22_1 = footPlate;
+  this.y22_1 = roller;
+  this.z22_1 = angle;
 }
 protoOf(HyperBench).toString = function () {
-  return 'HyperBench(pad=' + this.u22_1.toString() + ', footPlate=' + this.v22_1.toString() + ', roller=' + this.w22_1.toString() + ', angle=' + this.x22_1 + ')';
+  return 'HyperBench(pad=' + this.w22_1.toString() + ', footPlate=' + this.x22_1.toString() + ', roller=' + this.y22_1.toString() + ', angle=' + this.z22_1 + ')';
 };
 protoOf(HyperBench).hashCode = function () {
-  var result = this.u22_1.hashCode();
-  result = imul(result, 31) + this.v22_1.hashCode() | 0;
-  result = imul(result, 31) + this.w22_1.hashCode() | 0;
-  result = imul(result, 31) + getNumberHashCode(this.x22_1) | 0;
+  var result = this.w22_1.hashCode();
+  result = imul(result, 31) + this.x22_1.hashCode() | 0;
+  result = imul(result, 31) + this.y22_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.z22_1) | 0;
   return result;
 };
 protoOf(HyperBench).equals = function (other) {
@@ -10343,18 +10364,18 @@ protoOf(HyperBench).equals = function (other) {
     return true;
   if (!(other instanceof HyperBench))
     return false;
-  if (!this.u22_1.equals(other.u22_1))
-    return false;
-  if (!this.v22_1.equals(other.v22_1))
-    return false;
   if (!this.w22_1.equals(other.w22_1))
     return false;
-  if (!equals(this.x22_1, other.x22_1))
+  if (!this.x22_1.equals(other.x22_1))
+    return false;
+  if (!this.y22_1.equals(other.y22_1))
+    return false;
+  if (!equals(this.z22_1, other.z22_1))
     return false;
   return true;
 };
 function Companion_19() {
-  this.y22_1 = 4.0;
+  this.a23_1 = 4.0;
 }
 var Companion_instance_19;
 function Companion_getInstance_21() {
@@ -10362,38 +10383,38 @@ function Companion_getInstance_21() {
 }
 function ChestPlate(diameter) {
   diameter = diameter === VOID ? 35.0 : diameter;
-  this.z22_1 = diameter;
+  this.b23_1 = diameter;
 }
 protoOf(ChestPlate).toString = function () {
-  return 'ChestPlate(diameter=' + this.z22_1 + ')';
+  return 'ChestPlate(diameter=' + this.b23_1 + ')';
 };
 protoOf(ChestPlate).hashCode = function () {
-  return getNumberHashCode(this.z22_1);
+  return getNumberHashCode(this.b23_1);
 };
 protoOf(ChestPlate).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof ChestPlate))
     return false;
-  if (!equals(this.z22_1, other.z22_1))
+  if (!equals(this.b23_1, other.b23_1))
     return false;
   return true;
 };
 function Spotter(pose) {
-  this.a23_1 = pose;
+  this.c23_1 = pose;
 }
 protoOf(Spotter).toString = function () {
-  return 'Spotter(pose=' + this.a23_1.toString() + ')';
+  return 'Spotter(pose=' + this.c23_1.toString() + ')';
 };
 protoOf(Spotter).hashCode = function () {
-  return this.a23_1.hashCode();
+  return this.c23_1.hashCode();
 };
 protoOf(Spotter).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof Spotter))
     return false;
-  if (!this.a23_1.equals(other.a23_1))
+  if (!this.c23_1.equals(other.c23_1))
     return false;
   return true;
 };
@@ -10413,65 +10434,65 @@ function Attachment(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
 function Companion_20() {
-  this.b23_1 = 45.0;
-  this.c23_1 = 12.0;
+  this.d23_1 = 45.0;
+  this.e23_1 = 12.0;
 }
 var Companion_instance_20;
 function Companion_getInstance_22() {
   return Companion_instance_20;
 }
 function CableAttachment(kind) {
-  this.d23_1 = kind;
+  this.f23_1 = kind;
 }
 protoOf(CableAttachment).toString = function () {
-  return 'CableAttachment(kind=' + this.d23_1.toString() + ')';
+  return 'CableAttachment(kind=' + this.f23_1.toString() + ')';
 };
 protoOf(CableAttachment).hashCode = function () {
-  return this.d23_1.hashCode();
+  return this.f23_1.hashCode();
 };
 protoOf(CableAttachment).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof CableAttachment))
     return false;
-  if (!this.d23_1.equals(other.d23_1))
+  if (!this.f23_1.equals(other.f23_1))
     return false;
   return true;
 };
 function CableHandle(hand) {
-  this.f20_1 = hand;
+  this.h20_1 = hand;
 }
 protoOf(CableHandle).toString = function () {
-  return 'CableHandle(hand=' + this.f20_1.toString() + ')';
+  return 'CableHandle(hand=' + this.h20_1.toString() + ')';
 };
 protoOf(CableHandle).hashCode = function () {
-  return this.f20_1.hashCode();
+  return this.h20_1.hashCode();
 };
 protoOf(CableHandle).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof CableHandle))
     return false;
-  if (!this.f20_1.equals(other.f20_1))
+  if (!this.h20_1.equals(other.h20_1))
     return false;
   return true;
 };
 function CamberedBar(drop) {
   drop = drop === VOID ? 12.0 : drop;
-  this.e23_1 = drop;
+  this.g23_1 = drop;
 }
 protoOf(CamberedBar).toString = function () {
-  return 'CamberedBar(drop=' + this.e23_1 + ')';
+  return 'CamberedBar(drop=' + this.g23_1 + ')';
 };
 protoOf(CamberedBar).hashCode = function () {
-  return getNumberHashCode(this.e23_1);
+  return getNumberHashCode(this.g23_1);
 };
 protoOf(CamberedBar).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof CamberedBar))
     return false;
-  if (!equals(this.e23_1, other.e23_1))
+  if (!equals(this.g23_1, other.g23_1))
     return false;
   return true;
 };
@@ -10501,7 +10522,7 @@ function cap_0(role, a, b, width) {
 function slabPolygon_0(role, s) {
   _init_properties_KitBack_kt__uk31zp();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = s.s1z();
+  var tmp0 = s.u1z();
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -10515,7 +10536,7 @@ function slabPolygon_0(role, s) {
 function box(role, s, radius) {
   radius = radius === VOID ? 2.0 : radius;
   _init_properties_KitBack_kt__uk31zp();
-  return new RoundRect(role, s.m1z_1 - s.o1z_1 / 2, s.n1z_1 - s.p1z_1 / 2, s.o1z_1, s.p1z_1, radius);
+  return new RoundRect(role, s.o1z_1 - s.q1z_1 / 2, s.p1z_1 - s.r1z_1 / 2, s.q1z_1, s.r1z_1, radius);
 }
 function plateDisc(c, r) {
   _init_properties_KitBack_kt__uk31zp();
@@ -10523,12 +10544,12 @@ function plateDisc(c, r) {
 }
 function seatSlab_0(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  return Companion_instance_8.l1z(_this__u8e3s4.c21_1 - 70.0, -_this__u8e3s4.d21_1, _this__u8e3s4.c21_1, -_this__u8e3s4.d21_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.e21_1 - 70.0, -_this__u8e3s4.f21_1, _this__u8e3s4.e21_1, -_this__u8e3s4.f21_1 + 6.0);
 }
 function plateSlab(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  var c = _this__u8e3s4.e21_1.r1o(dir(_this__u8e3s4.h21() - 90.0).t1o(4.0 / 2));
-  return new Slab(c.p1o_1, c.q1o_1, 35.0, 4.0, _this__u8e3s4.h21());
+  var c = _this__u8e3s4.g21_1.r1o(dir(_this__u8e3s4.j21() - 90.0).t1o(4.0 / 2));
+  return new Slab(c.p1o_1, c.q1o_1, 35.0, 4.0, _this__u8e3s4.j21());
 }
 function drawOf_1(_this__u8e3s4, held) {
   _init_properties_KitBack_kt__uk31zp();
@@ -10537,31 +10558,31 @@ function drawOf_1(_this__u8e3s4, held) {
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
   var seat = seatSlab_0(_this__u8e3s4);
-  var column = _this__u8e3s4.f21_1.p1o_1 + 14.0;
-  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.c21_1 - 70.0 + 10.0, -1.5, column + 12.0, -1.5, 3.0)));
-  var _iterator__ex2g4s = listOf([_this__u8e3s4.c21_1 - 70.0 + 10.0, _this__u8e3s4.c21_1 - 10.0]).j();
+  var column = _this__u8e3s4.h21_1.p1o_1 + 14.0;
+  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.e21_1 - 70.0 + 10.0, -1.5, column + 12.0, -1.5, 3.0)));
+  var _iterator__ex2g4s = listOf([_this__u8e3s4.e21_1 - 70.0 + 10.0, _this__u8e3s4.e21_1 - 10.0]).j();
   while (_iterator__ex2g4s.k()) {
     var lx = _iterator__ex2g4s.l();
-    this_0.i(new Placed(new Capsule(get_E_0(), lx, -_this__u8e3s4.d21_1 + 6.0, lx, -1.5, 5.0)));
+    this_0.i(new Placed(new Capsule(get_E_0(), lx, -_this__u8e3s4.f21_1 + 6.0, lx, -1.5, 5.0)));
   }
   this_0.i(new Placed(box(get_E_0(), seat)));
   var p = plateSlab(_this__u8e3s4);
-  this_0.i(new Placed(new Capsule(get_E_0(), p.m1z_1 + 4.0, p.n1z_1 + 6.0, p.m1z_1 + 4.0, -1.5, 4.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), p.o1z_1 + 4.0, p.p1z_1 + 6.0, p.o1z_1 + 4.0, -1.5, 4.0)));
   this_0.i(new Placed(slabPolygon_0(get_E_0(), p)));
   this_0.i(new Placed(new RoundRect(get_E_0(), column - 9.0, -200.0, 18.0, 198.5, 3.0), false));
-  this_0.i(new Placed(new Capsule(get_E_0(), column, _this__u8e3s4.f21_1.q1o_1, _this__u8e3s4.f21_1.p1o_1, _this__u8e3s4.f21_1.q1o_1, 5.0)));
-  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.f21_1.p1o_1, _this__u8e3s4.f21_1.q1o_1, 4.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), column, _this__u8e3s4.h21_1.q1o_1, _this__u8e3s4.h21_1.p1o_1, _this__u8e3s4.h21_1.q1o_1, 5.0)));
+  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.h21_1.p1o_1, _this__u8e3s4.h21_1.q1o_1, 4.0)));
   var tmp = get_E_0();
-  this_0.i(new Placed(cap_0(tmp, _this__u8e3s4.f21_1, held == null ? _this__u8e3s4.f21_1.r1o(new Point(-30.0, 0.0)) : held, 0.8)));
+  this_0.i(new Placed(cap_0(tmp, _this__u8e3s4.h21_1, held == null ? _this__u8e3s4.h21_1.r1o(new Point(-30.0, 0.0)) : held, 0.8)));
   return this_0.z3();
 }
 function seatSlab_1(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  return Companion_instance_8.l1z(_this__u8e3s4.l21_1 - 40.0, -_this__u8e3s4.m21_1, _this__u8e3s4.l21_1, -_this__u8e3s4.m21_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.n21_1 - 40.0, -_this__u8e3s4.o21_1, _this__u8e3s4.n21_1, -_this__u8e3s4.o21_1 + 6.0);
 }
 function padSlab_1(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  return Companion_instance_8.l1z(_this__u8e3s4.n21_1, -_this__u8e3s4.o21_1 - 30.0 / 2, _this__u8e3s4.n21_1 + 8.0, -_this__u8e3s4.o21_1 + 30.0 / 2);
+  return Companion_instance_8.n1z(_this__u8e3s4.p21_1, -_this__u8e3s4.q21_1 - 30.0 / 2, _this__u8e3s4.p21_1 + 8.0, -_this__u8e3s4.q21_1 + 30.0 / 2);
 }
 function drawOf_2(_this__u8e3s4, grip) {
   _init_properties_KitBack_kt__uk31zp();
@@ -10571,36 +10592,36 @@ function drawOf_2(_this__u8e3s4, grip) {
   var this_0 = ArrayList_init_$Create$();
   var seat = seatSlab_1(_this__u8e3s4);
   var pad = padSlab_1(_this__u8e3s4);
-  var postX = _this__u8e3s4.n21_1 + 8.0 + 12.0;
-  var mid = _this__u8e3s4.l21_1 - 40.0 / 2;
+  var postX = _this__u8e3s4.p21_1 + 8.0 + 12.0;
+  var mid = _this__u8e3s4.n21_1 - 40.0 / 2;
   this_0.i(new Placed(new Capsule(get_E_0(), mid - 20.0, -1.5, postX + 25.0, -1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E_0(), mid, -_this__u8e3s4.m21_1 + 6.0, mid, -1.5, 5.0)));
-  this_0.i(new Placed(new Capsule(get_E_0(), postX, -1.5, postX, _this__u8e3s4.p21_1.q1o_1, 6.0)));
-  this_0.i(new Placed(new Capsule(get_E_0(), postX, _this__u8e3s4.p21_1.q1o_1, _this__u8e3s4.p21_1.p1o_1, _this__u8e3s4.p21_1.q1o_1, 5.0)));
-  this_0.i(new Placed(new Capsule(get_E_0(), pad.m1z_1, pad.n1z_1, postX, pad.n1z_1, 4.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), mid, -_this__u8e3s4.o21_1 + 6.0, mid, -1.5, 5.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), postX, -1.5, postX, _this__u8e3s4.r21_1.q1o_1, 6.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), postX, _this__u8e3s4.r21_1.q1o_1, _this__u8e3s4.r21_1.p1o_1, _this__u8e3s4.r21_1.q1o_1, 5.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), pad.o1z_1, pad.p1z_1, postX, pad.p1z_1, 4.0)));
   this_0.i(new Placed(box(get_E_0(), seat)));
   this_0.i(new Placed(box(get_E_0(), pad, 3.0)));
   if (!(grip == null)) {
-    this_0.i(new Placed(cap_0(get_E_0(), _this__u8e3s4.p21_1, grip, 4.0)));
+    this_0.i(new Placed(cap_0(get_E_0(), _this__u8e3s4.r21_1, grip, 4.0)));
     this_0.i(new Placed(new Capsule(get_E_0(), grip.p1o_1, grip.q1o_1 - 7.0, grip.p1o_1, grip.q1o_1 + 7.0, 3.5)));
   }
-  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.p21_1.p1o_1, _this__u8e3s4.p21_1.q1o_1, 4.0)));
+  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.r21_1.p1o_1, _this__u8e3s4.r21_1.q1o_1, 4.0)));
   return this_0.z3();
 }
 function padSlab_2(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  var c = _this__u8e3s4.s21_1.r1o(dir(_this__u8e3s4.t21_1).t1o(_this__u8e3s4.u21_1 / 2)).r1o(dir(_this__u8e3s4.t21_1 - 90.0).t1o(6.0 / 2));
-  return new Slab(c.p1o_1, c.q1o_1, _this__u8e3s4.u21_1, 6.0, _this__u8e3s4.t21_1);
+  var c = _this__u8e3s4.u21_1.r1o(dir(_this__u8e3s4.v21_1).t1o(_this__u8e3s4.w21_1 / 2)).r1o(dir(_this__u8e3s4.v21_1 - 90.0).t1o(6.0 / 2));
+  return new Slab(c.p1o_1, c.q1o_1, _this__u8e3s4.w21_1, 6.0, _this__u8e3s4.v21_1);
 }
 function platformSlab(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  var tmp0_safe_receiver = _this__u8e3s4.v21_1;
+  var tmp0_safe_receiver = _this__u8e3s4.x21_1;
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
   } else {
     // Inline function 'kotlin.let' call
-    tmp = Companion_instance_8.l1z(tmp0_safe_receiver.p1o_1 - 40.0 / 2, tmp0_safe_receiver.q1o_1, tmp0_safe_receiver.p1o_1 + 40.0 / 2, tmp0_safe_receiver.q1o_1 + 5.0);
+    tmp = Companion_instance_8.n1z(tmp0_safe_receiver.p1o_1 - 40.0 / 2, tmp0_safe_receiver.q1o_1, tmp0_safe_receiver.p1o_1 + 40.0 / 2, tmp0_safe_receiver.q1o_1 + 5.0);
   }
   return tmp;
 }
@@ -10610,12 +10631,12 @@ function drawOf_3(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  var under = dir(_this__u8e3s4.t21_1 - 90.0).t1o(6.0);
-  var lowLeg = _this__u8e3s4.s21_1.r1o(dir(_this__u8e3s4.t21_1).t1o(12.0)).r1o(under);
-  var highLeg = _this__u8e3s4.s21_1.r1o(dir(_this__u8e3s4.t21_1).t1o(_this__u8e3s4.u21_1 - 12.0)).r1o(under);
+  var under = dir(_this__u8e3s4.v21_1 - 90.0).t1o(6.0);
+  var lowLeg = _this__u8e3s4.u21_1.r1o(dir(_this__u8e3s4.v21_1).t1o(12.0)).r1o(under);
+  var highLeg = _this__u8e3s4.u21_1.r1o(dir(_this__u8e3s4.v21_1).t1o(_this__u8e3s4.w21_1 - 12.0)).r1o(under);
   var tmp = get_E_0();
   var tmp0 = lowLeg.p1o_1;
-  var tmp0_safe_receiver = _this__u8e3s4.v21_1;
+  var tmp0_safe_receiver = _this__u8e3s4.x21_1;
   var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.p1o_1;
   // Inline function 'kotlin.math.min' call
   var b = tmp1_elvis_lhs == null ? lowLeg.p1o_1 : tmp1_elvis_lhs;
@@ -10628,7 +10649,7 @@ function drawOf_3(_this__u8e3s4) {
     null;
   else {
     // Inline function 'kotlin.let' call
-    this_0.i(new Placed(new Capsule(get_E_0(), tmp2_safe_receiver.m1z_1, tmp2_safe_receiver.n1z_1, tmp2_safe_receiver.m1z_1, -1.5, 5.0)));
+    this_0.i(new Placed(new Capsule(get_E_0(), tmp2_safe_receiver.o1z_1, tmp2_safe_receiver.p1z_1, tmp2_safe_receiver.o1z_1, -1.5, 5.0)));
     this_0.i(new Placed(box(get_E_0(), tmp2_safe_receiver, 1.5)));
   }
   this_0.i(new Placed(slabPolygon_0(get_E_0(), padSlab_2(_this__u8e3s4))));
@@ -10636,23 +10657,23 @@ function drawOf_3(_this__u8e3s4) {
 }
 function drawOf_4(_this__u8e3s4, grip) {
   _init_properties_KitBack_kt__uk31zp();
-  var g = grip == null ? _this__u8e3s4.x21_1.r1o(new Point(100.0, -20.0)) : grip;
+  var g = grip == null ? _this__u8e3s4.z21_1.r1o(new Point(100.0, -20.0)) : grip;
   // Inline function 'kotlin.let' call
-  var it = g.s1o(_this__u8e3s4.x21_1);
+  var it = g.s1o(_this__u8e3s4.z21_1);
   var d = it.t1o(1.0 / it.u1o());
-  var plates = _this__u8e3s4.x21_1.r1o(d.t1o(_this__u8e3s4.y21_1));
-  var tmp0 = _this__u8e3s4.y21_1 + 6.0;
+  var plates = _this__u8e3s4.z21_1.r1o(d.t1o(_this__u8e3s4.a22_1));
+  var tmp0 = _this__u8e3s4.a22_1 + 6.0;
   // Inline function 'kotlin.math.max' call
-  var b = g.s1o(_this__u8e3s4.x21_1).u1o() + 4.0;
+  var b = g.s1o(_this__u8e3s4.z21_1).u1o() + 4.0;
   var tmp$ret$2 = Math.max(tmp0, b);
-  var end = _this__u8e3s4.x21_1.r1o(d.t1o(tmp$ret$2));
+  var end = _this__u8e3s4.z21_1.r1o(d.t1o(tmp$ret$2));
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.x21_1.p1o_1, _this__u8e3s4.x21_1.q1o_1, 4.0)));
-  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.x21_1.p1o_1 - 10.0, -1.5, _this__u8e3s4.x21_1.p1o_1 + 10.0, -1.5, 3.0)));
-  this_0.i(new Placed(cap_0(get_A_0(), _this__u8e3s4.x21_1, end, 4.0)));
+  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.z21_1.p1o_1, _this__u8e3s4.z21_1.q1o_1, 4.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.z21_1.p1o_1 - 10.0, -1.5, _this__u8e3s4.z21_1.p1o_1 + 10.0, -1.5, 3.0)));
+  this_0.i(new Placed(cap_0(get_A_0(), _this__u8e3s4.z21_1, end, 4.0)));
   var _iterator__ex2g4s = plateDisc(plates, 45.0 / 2).j();
   while (_iterator__ex2g4s.k()) {
     var shape = _iterator__ex2g4s.l();
@@ -10663,11 +10684,11 @@ function drawOf_4(_this__u8e3s4, grip) {
 }
 function barSlab(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  return new Slab(_this__u8e3s4.b20_1, -_this__u8e3s4.c20_1, 2 * 1.6, 2 * 1.6);
+  return new Slab(_this__u8e3s4.d20_1, -_this__u8e3s4.e20_1, 2 * 1.6, 2 * 1.6);
 }
 function drawOf_5(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  return listOf([new Placed(new Capsule(get_E_0(), _this__u8e3s4.b20_1 + 6.0, -1.5, _this__u8e3s4.b20_1 + 6.0, -230.0, 6.0), false), new Placed(new Capsule(get_E_0(), _this__u8e3s4.b20_1 - 6.0, -1.5, _this__u8e3s4.b20_1 + 18.0, -1.5, 3.0)), new Placed(new Capsule(get_E_0(), _this__u8e3s4.b20_1 + 6.0, -_this__u8e3s4.c20_1 + 1.6 + 1.75, _this__u8e3s4.b20_1 - 2.0, -_this__u8e3s4.c20_1 + 1.6 + 1.75, 3.5))]);
+  return listOf([new Placed(new Capsule(get_E_0(), _this__u8e3s4.d20_1 + 6.0, -1.5, _this__u8e3s4.d20_1 + 6.0, -230.0, 6.0), false), new Placed(new Capsule(get_E_0(), _this__u8e3s4.d20_1 - 6.0, -1.5, _this__u8e3s4.d20_1 + 18.0, -1.5, 3.0)), new Placed(new Capsule(get_E_0(), _this__u8e3s4.d20_1 + 6.0, -_this__u8e3s4.e20_1 + 1.6 + 1.75, _this__u8e3s4.d20_1 - 2.0, -_this__u8e3s4.e20_1 + 1.6 + 1.75, 3.5))]);
 }
 function barEndOn(x, height) {
   _init_properties_KitBack_kt__uk31zp();
@@ -10675,11 +10696,11 @@ function barEndOn(x, height) {
 }
 function barSlab_0(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  return new Slab(_this__u8e3s4.w1z_1, -_this__u8e3s4.x1z_1, 2 * 1.6, 2 * 1.6);
+  return new Slab(_this__u8e3s4.y1z_1, -_this__u8e3s4.z1z_1, 2 * 1.6, 2 * 1.6);
 }
 function padSlab_3(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  return Companion_instance_8.l1z(_this__u8e3s4.y1z_1 - 30.0 / 2, -_this__u8e3s4.z1z_1, _this__u8e3s4.y1z_1 + 30.0 / 2, -_this__u8e3s4.z1z_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.a20_1 - 30.0 / 2, -_this__u8e3s4.b20_1, _this__u8e3s4.a20_1 + 30.0 / 2, -_this__u8e3s4.b20_1 + 6.0);
 }
 function drawOf_6(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
@@ -10687,34 +10708,34 @@ function drawOf_6(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new RoundRect(get_E_0(), _this__u8e3s4.v1z_1 - 9.0, -232.0, 18.0, 230.5, 3.0), false));
-  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.v1z_1 - 30.0, -1.5, _this__u8e3s4.v1z_1 + 30.0, -1.5, 3.0)));
-  this_0.i(new Placed(new RoundRect(get_E_0(), _this__u8e3s4.v1z_1 - 7.0, -62.0, 14.0, 50.0, 2.0)));
-  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.v1z_1, -_this__u8e3s4.x1z_1 - 6.0, _this__u8e3s4.w1z_1, -_this__u8e3s4.x1z_1 - 6.0, 5.0)));
-  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.w1z_1, -_this__u8e3s4.x1z_1 - 6.0, _this__u8e3s4.w1z_1, -_this__u8e3s4.x1z_1, 3.0)));
+  this_0.i(new Placed(new RoundRect(get_E_0(), _this__u8e3s4.x1z_1 - 9.0, -232.0, 18.0, 230.5, 3.0), false));
+  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.x1z_1 - 30.0, -1.5, _this__u8e3s4.x1z_1 + 30.0, -1.5, 3.0)));
+  this_0.i(new Placed(new RoundRect(get_E_0(), _this__u8e3s4.x1z_1 - 7.0, -62.0, 14.0, 50.0, 2.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.x1z_1, -_this__u8e3s4.z1z_1 - 6.0, _this__u8e3s4.y1z_1, -_this__u8e3s4.z1z_1 - 6.0, 5.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.y1z_1, -_this__u8e3s4.z1z_1 - 6.0, _this__u8e3s4.y1z_1, -_this__u8e3s4.z1z_1, 3.0)));
   var pad = padSlab_3(_this__u8e3s4);
-  this_0.i(new Placed(cap_0(get_E_0(), _this__u8e3s4.a20_1, new Point(pad.m1z_1, pad.n1z_1 + 3.0), 5.0)));
-  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.a20_1.p1o_1, _this__u8e3s4.a20_1.q1o_1, 4.0)));
+  this_0.i(new Placed(cap_0(get_E_0(), _this__u8e3s4.c20_1, new Point(pad.o1z_1, pad.p1z_1 + 3.0), 5.0)));
+  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.c20_1.p1o_1, _this__u8e3s4.c20_1.q1o_1, 4.0)));
   this_0.i(new Placed(box(get_E_0(), pad)));
   return this_0.z3();
 }
 function handleSlab(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  return new Slab(_this__u8e3s4.a22_1, -_this__u8e3s4.b22_1, _this__u8e3s4.c22_1, 2 * 1.6);
+  return new Slab(_this__u8e3s4.c22_1, -_this__u8e3s4.d22_1, _this__u8e3s4.e22_1, 2 * 1.6);
 }
 function drawOf_7(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  return listOf([new Placed(new Capsule(get_E_0(), _this__u8e3s4.a22_1 - _this__u8e3s4.c22_1 / 2, -_this__u8e3s4.b22_1, _this__u8e3s4.a22_1 - _this__u8e3s4.c22_1 / 2, -_this__u8e3s4.b22_1 - 14.0, 3.0)), new Placed(new Capsule(get_E_0(), _this__u8e3s4.a22_1 - _this__u8e3s4.c22_1 / 2, -_this__u8e3s4.b22_1 - 14.0, _this__u8e3s4.a22_1 - 55.0, -_this__u8e3s4.b22_1 - 14.0, 3.0)), new Placed(new Capsule(get_E_0(), _this__u8e3s4.a22_1 - 55.0, -_this__u8e3s4.b22_1 - 30.0, _this__u8e3s4.a22_1 - 55.0, -_this__u8e3s4.b22_1 + 2.0, 5.0))]);
+  return listOf([new Placed(new Capsule(get_E_0(), _this__u8e3s4.c22_1 - _this__u8e3s4.e22_1 / 2, -_this__u8e3s4.d22_1, _this__u8e3s4.c22_1 - _this__u8e3s4.e22_1 / 2, -_this__u8e3s4.d22_1 - 14.0, 3.0)), new Placed(new Capsule(get_E_0(), _this__u8e3s4.c22_1 - _this__u8e3s4.e22_1 / 2, -_this__u8e3s4.d22_1 - 14.0, _this__u8e3s4.c22_1 - 55.0, -_this__u8e3s4.d22_1 - 14.0, 3.0)), new Placed(new Capsule(get_E_0(), _this__u8e3s4.c22_1 - 55.0, -_this__u8e3s4.d22_1 - 30.0, _this__u8e3s4.c22_1 - 55.0, -_this__u8e3s4.d22_1 + 2.0, 5.0))]);
 }
 function drawFrontOf_0(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  return listOf([new Placed(new Capsule(Role_GAP_getInstance(), _this__u8e3s4.a22_1 - _this__u8e3s4.c22_1 / 2, -_this__u8e3s4.b22_1, _this__u8e3s4.a22_1 + _this__u8e3s4.c22_1 / 2, -_this__u8e3s4.b22_1, 2 * 3.0 + 3.0 / 2)), new Placed(new Capsule(get_E_0(), _this__u8e3s4.a22_1 - _this__u8e3s4.c22_1 / 2, -_this__u8e3s4.b22_1, _this__u8e3s4.a22_1 + _this__u8e3s4.c22_1 / 2, -_this__u8e3s4.b22_1, 2 * 3.0))]);
+  return listOf([new Placed(new Capsule(Role_GAP_getInstance(), _this__u8e3s4.c22_1 - _this__u8e3s4.e22_1 / 2, -_this__u8e3s4.d22_1, _this__u8e3s4.c22_1 + _this__u8e3s4.e22_1 / 2, -_this__u8e3s4.d22_1, 2 * 3.0 + 3.0 / 2)), new Placed(new Capsule(get_E_0(), _this__u8e3s4.c22_1 - _this__u8e3s4.e22_1 / 2, -_this__u8e3s4.d22_1, _this__u8e3s4.c22_1 + _this__u8e3s4.e22_1 / 2, -_this__u8e3s4.d22_1, 2 * 3.0))]);
 }
 function bandFoot(s) {
   _init_properties_KitBack_kt__uk31zp();
-  var n = s.q1q_1;
-  var mid = n.i1q_1.r1o(n.j1q_1).t1o(0.5);
-  var down = dir(angleOf(n.j1q_1.s1o(n.i1q_1)) - 90.0);
+  var n = s.r1q_1;
+  var mid = n.j1q_1.r1o(n.k1q_1).t1o(0.5);
+  var down = dir(angleOf(n.k1q_1.s1o(n.j1q_1)) - 90.0);
   return mid.r1o(down.t1o(7.0 / 2 + 1.6 / 2));
 }
 function drawFrontOf_1(_this__u8e3s4, s) {
@@ -10729,24 +10750,24 @@ function drawFrontOf_1(_this__u8e3s4, s) {
   var _iterator__ex2g4s = listOf([-1.6, 1.6]).j();
   while (_iterator__ex2g4s.k()) {
     var dx = _iterator__ex2g4s.l();
-    var a = _this__u8e3s4.e22_1.r1o(new Point(dx, 1.6));
+    var a = _this__u8e3s4.g22_1.r1o(new Point(dx, 1.6));
     var b = f.r1o(new Point(dx, 0.0));
     this_0.i(new Placed(cap_0(Role_GAP_getInstance(), a, b, 1.6 + 3.0 / 2)));
   }
   var _iterator__ex2g4s_0 = listOf([-1.6, 1.6]).j();
   while (_iterator__ex2g4s_0.k()) {
     var dx_0 = _iterator__ex2g4s_0.l();
-    this_0.i(new Placed(cap_0(get_E_0(), _this__u8e3s4.e22_1.r1o(new Point(dx_0, 1.6)), f.r1o(new Point(dx_0, 0.0)), 1.6)));
+    this_0.i(new Placed(cap_0(get_E_0(), _this__u8e3s4.g22_1.r1o(new Point(dx_0, 1.6)), f.r1o(new Point(dx_0, 0.0)), 1.6)));
   }
   return this_0.z3();
 }
 function hook(_this__u8e3s4, s) {
   _init_properties_KitBack_kt__uk31zp();
-  return s.k1q_1.equals(View_SIDE_getInstance()) ? s.v1q(-2.0, 10.0 - 1.0) : s.m1q_1.r1o(new Point(0.0, 4.0));
+  return s.l1q_1.equals(View_SIDE_getInstance()) ? s.x1q(-2.0, 10.0 - 1.0) : s.n1q_1.r1o(new Point(0.0, 4.0));
 }
 function plateCentre(_this__u8e3s4, s) {
   _init_properties_KitBack_kt__uk31zp();
-  return hook(_this__u8e3s4, s).r1o(new Point(0.0, _this__u8e3s4.g22_1));
+  return hook(_this__u8e3s4, s).r1o(new Point(0.0, _this__u8e3s4.i22_1));
 }
 function drawOf_8(_this__u8e3s4, s) {
   _init_properties_KitBack_kt__uk31zp();
@@ -10754,31 +10775,31 @@ function drawOf_8(_this__u8e3s4, s) {
     return emptyList();
   var h = hook(_this__u8e3s4, s);
   var c = plateCentre(_this__u8e3s4, s);
-  var r = _this__u8e3s4.f22_1 / 2;
+  var r = _this__u8e3s4.h22_1 / 2;
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  if (!s.k1q_1.equals(View_SIDE_getInstance())) {
+  if (!s.l1q_1.equals(View_SIDE_getInstance())) {
     this_0.i(new Placed(cap_0(get_E_0(), h, c.r1o(new Point(0.0, -r + 3.0)), 1.2)));
   }
-  if (s.k1q_1.equals(View_SIDE_getInstance())) {
+  if (s.l1q_1.equals(View_SIDE_getInstance())) {
     var _iterator__ex2g4s = plateDisc(c, r).j();
     while (_iterator__ex2g4s.k()) {
       var shape = _iterator__ex2g4s.l();
       this_0.i(new Placed(shape));
     }
   } else {
-    this_0.i(new Placed(new RoundRect(Role_ACCENT_getInstance(), c.p1o_1 - 1.5, c.q1o_1 - r, 3.0, _this__u8e3s4.f22_1, 1.0)));
+    this_0.i(new Placed(new RoundRect(Role_ACCENT_getInstance(), c.p1o_1 - 1.5, c.q1o_1 - r, 3.0, _this__u8e3s4.h22_1, 1.0)));
   }
   return this_0.z3();
 }
 function drawFrontOf_2(_this__u8e3s4, s) {
   _init_properties_KitBack_kt__uk31zp();
-  if (s == null || !s.k1q_1.equals(View_SIDE_getInstance()))
+  if (s == null || !s.l1q_1.equals(View_SIDE_getInstance()))
     return emptyList();
   var a = hook(_this__u8e3s4, s);
-  var b = plateCentre(_this__u8e3s4, s).r1o(new Point(0.0, -_this__u8e3s4.f22_1 / 2 + 3.0));
+  var b = plateCentre(_this__u8e3s4, s).r1o(new Point(0.0, -_this__u8e3s4.h22_1 / 2 + 3.0));
   return listOf([new Placed(cap_0(Role_GAP_getInstance(), a, b, 1.2 + 3.0 / 2)), new Placed(cap_0(get_E_0(), a, b, 1.2))]);
 }
 function drawOf_9(_this__u8e3s4, grip) {
@@ -10787,29 +10808,29 @@ function drawOf_9(_this__u8e3s4, grip) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  var g = grip == null ? _this__u8e3s4.h22_1.r1o(new Point(80.0, 0.0)) : grip;
+  var g = grip == null ? _this__u8e3s4.j22_1.r1o(new Point(80.0, 0.0)) : grip;
   // Inline function 'kotlin.let' call
-  var it = _this__u8e3s4.h22_1.s1o(g);
+  var it = _this__u8e3s4.j22_1.s1o(g);
   var d = it.t1o(1.0 / it.u1o());
-  var horn = _this__u8e3s4.h22_1.r1o(d.t1o(_this__u8e3s4.i22_1));
-  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.h22_1.p1o_1 - 6.0, -1.5, _this__u8e3s4.h22_1.p1o_1 - 6.0, _this__u8e3s4.h22_1.q1o_1, 6.0), false));
-  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.h22_1.p1o_1 - 40.0, -1.5, _this__u8e3s4.h22_1.p1o_1 + 25.0, -1.5, 3.0)));
+  var horn = _this__u8e3s4.j22_1.r1o(d.t1o(_this__u8e3s4.k22_1));
+  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.j22_1.p1o_1 - 6.0, -1.5, _this__u8e3s4.j22_1.p1o_1 - 6.0, _this__u8e3s4.j22_1.q1o_1, 6.0), false));
+  this_0.i(new Placed(new Capsule(get_E_0(), _this__u8e3s4.j22_1.p1o_1 - 40.0, -1.5, _this__u8e3s4.j22_1.p1o_1 + 25.0, -1.5, 3.0)));
   var _iterator__ex2g4s = plateDisc(horn, 45.0 / 2).j();
   while (_iterator__ex2g4s.k()) {
     var shape = _iterator__ex2g4s.l();
     this_0.i(new Placed(shape));
   }
   this_0.i(new Placed(cap_0(get_E_0(), horn, g, 4.0)));
-  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.h22_1.p1o_1, _this__u8e3s4.h22_1.q1o_1, 4.0)));
+  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.j22_1.p1o_1, _this__u8e3s4.j22_1.q1o_1, 4.0)));
   this_0.i(new Placed(new Capsule(get_E_0(), g.p1o_1 - 6.0, g.q1o_1, g.p1o_1 + 6.0, g.q1o_1, 3.5)));
   return this_0.z3();
 }
 function parts(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
   var pad = 6.0;
-  var seat = Companion_instance_8.l1z(_this__u8e3s4.m22_1 - 40.0, -_this__u8e3s4.n22_1, _this__u8e3s4.m22_1, -_this__u8e3s4.n22_1 + pad);
-  var hinge = new Point(_this__u8e3s4.m22_1 - 40.0, -_this__u8e3s4.n22_1);
-  var along = 180.0 - _this__u8e3s4.o22_1;
+  var seat = Companion_instance_8.n1z(_this__u8e3s4.o22_1 - 40.0, -_this__u8e3s4.p22_1, _this__u8e3s4.o22_1, -_this__u8e3s4.p22_1 + pad);
+  var hinge = new Point(_this__u8e3s4.o22_1 - 40.0, -_this__u8e3s4.p22_1);
+  var along = 180.0 - _this__u8e3s4.q22_1;
   var c = hinge.r1o(dir(along).t1o(70.0 / 2)).r1o(dir(along + 90.0).t1o(pad / 2));
   return to(seat, new Slab(c.p1o_1, c.q1o_1, 70.0, pad, along));
 }
@@ -10822,15 +10843,15 @@ function drawOf_10(_this__u8e3s4, s) {
   var _destruct__k2r9zo = parts(_this__u8e3s4);
   var seat = _destruct__k2r9zo.ya();
   var back = _destruct__k2r9zo.za();
-  var mid = _this__u8e3s4.m22_1 - 40.0 / 2;
-  var postX = _this__u8e3s4.m22_1 - 40.0 - 16.0;
-  this_0.i(new Placed(new Capsule(get_E_0(), postX - 15.0, -1.5, _this__u8e3s4.m22_1 + 15.0, -1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E_0(), mid, -_this__u8e3s4.n22_1 + 6.0, mid, -1.5, 5.0)));
-  this_0.i(new Placed(new Capsule(get_E_0(), postX, -1.5, postX, _this__u8e3s4.p22_1.q1o_1 - 10.0, 6.0)));
-  this_0.i(new Placed(new Capsule(get_E_0(), postX, _this__u8e3s4.p22_1.q1o_1 - 10.0, _this__u8e3s4.p22_1.p1o_1, _this__u8e3s4.p22_1.q1o_1, 5.0)));
+  var mid = _this__u8e3s4.o22_1 - 40.0 / 2;
+  var postX = _this__u8e3s4.o22_1 - 40.0 - 16.0;
+  this_0.i(new Placed(new Capsule(get_E_0(), postX - 15.0, -1.5, _this__u8e3s4.o22_1 + 15.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), mid, -_this__u8e3s4.p22_1 + 6.0, mid, -1.5, 5.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), postX, -1.5, postX, _this__u8e3s4.r22_1.q1o_1 - 10.0, 6.0)));
+  this_0.i(new Placed(new Capsule(get_E_0(), postX, _this__u8e3s4.r22_1.q1o_1 - 10.0, _this__u8e3s4.r22_1.p1o_1, _this__u8e3s4.r22_1.q1o_1, 5.0)));
   this_0.i(new Placed(box(get_E_0(), seat)));
   this_0.i(new Placed(slabPolygon_0(get_E_0(), back)));
-  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.p22_1.p1o_1, _this__u8e3s4.p22_1.q1o_1, 4.0)));
+  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.r22_1.p1o_1, _this__u8e3s4.r22_1.q1o_1, 4.0)));
   return this_0.z3();
 }
 function drawFrontOf_3(_this__u8e3s4, s) {
@@ -10843,36 +10864,36 @@ function drawFrontOf_3(_this__u8e3s4, s) {
     if (s == null) {
       break $l$block;
     }
-    var n = s.q1q_1;
+    var n = s.r1q_1;
     // Inline function 'kotlin.let' call
-    var it = n.b1q_1.s1o(n.a1q_1);
+    var it = n.c1q_1.s1o(n.b1q_1);
     var u = it.t1o(1.0 / it.u1o());
-    var f = n.c1q_1.s1o(n.b1q_1);
+    var f = n.d1q_1.s1o(n.c1q_1);
     var behind = dir(angleOf(u) + (u.p1o_1 * f.q1o_1 - u.q1o_1 * f.p1o_1 > 0 ? 90.0 : -90.0));
     var half = 24.0 / 2;
-    var padMid = n.b1q_1.s1o(u.t1o(half - 2.0)).r1o(behind.t1o(10.0 / 2 + 2.5));
-    this_0.i(new Placed(cap_0(Role_GAP_getInstance(), _this__u8e3s4.p22_1, padMid.r1o(u.t1o(half)), 4.0 + 3.0)));
-    this_0.i(new Placed(cap_0(get_E_0(), _this__u8e3s4.p22_1, padMid.r1o(u.t1o(half)), 4.0)));
+    var padMid = n.c1q_1.s1o(u.t1o(half - 2.0)).r1o(behind.t1o(10.0 / 2 + 2.5));
+    this_0.i(new Placed(cap_0(Role_GAP_getInstance(), _this__u8e3s4.r22_1, padMid.r1o(u.t1o(half)), 4.0 + 3.0)));
+    this_0.i(new Placed(cap_0(get_E_0(), _this__u8e3s4.r22_1, padMid.r1o(u.t1o(half)), 4.0)));
     this_0.i(new Placed(cap_0(Role_GAP_getInstance(), padMid.s1o(u.t1o(half)), padMid.r1o(u.t1o(half)), 5.0 + 3.0)));
     this_0.i(new Placed(cap_0(get_E_0(), padMid.s1o(u.t1o(half)), padMid.r1o(u.t1o(half)), 5.0)));
-    this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.p22_1.p1o_1, _this__u8e3s4.p22_1.q1o_1, 4.0)));
-    this_0.i(new Placed(new Circle(get_E_0(), n.e1q_1.p1o_1, n.e1q_1.q1o_1, 2.2)));
+    this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.r22_1.p1o_1, _this__u8e3s4.r22_1.q1o_1, 4.0)));
+    this_0.i(new Placed(new Circle(get_E_0(), n.f1q_1.p1o_1, n.f1q_1.q1o_1, 2.2)));
   }
   return this_0.z3();
 }
 function padSlab_4(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  var c = _this__u8e3s4.u22_1.r1o(dir(_this__u8e3s4.x22_1 - 90.0).t1o(10.0 / 2));
-  return new Slab(c.p1o_1, c.q1o_1, 30.0, 10.0, _this__u8e3s4.x22_1);
+  var c = _this__u8e3s4.w22_1.r1o(dir(_this__u8e3s4.z22_1 - 90.0).t1o(10.0 / 2));
+  return new Slab(c.p1o_1, c.q1o_1, 30.0, 10.0, _this__u8e3s4.z22_1);
 }
 function plateSlab_0(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  var c = _this__u8e3s4.v22_1.r1o(dir(_this__u8e3s4.x22_1 + 180.0).t1o(2.0));
-  return new Slab(c.p1o_1, c.q1o_1, 30.0, 4.0, _this__u8e3s4.x22_1 - 90.0);
+  var c = _this__u8e3s4.x22_1.r1o(dir(_this__u8e3s4.z22_1 + 180.0).t1o(2.0));
+  return new Slab(c.p1o_1, c.q1o_1, 30.0, 4.0, _this__u8e3s4.z22_1 - 90.0);
 }
 function rollerSlab(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  return new Slab(_this__u8e3s4.w22_1.p1o_1, _this__u8e3s4.w22_1.q1o_1, 0.0, 0.0, VOID, 6.0);
+  return new Slab(_this__u8e3s4.y22_1.p1o_1, _this__u8e3s4.y22_1.q1o_1, 0.0, 0.0, VOID, 6.0);
 }
 function drawOf_11(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
@@ -10882,59 +10903,59 @@ function drawOf_11(_this__u8e3s4) {
   var this_0 = ArrayList_init_$Create$();
   var p = padSlab_4(_this__u8e3s4);
   var f = plateSlab_0(_this__u8e3s4);
-  var padBack = (new Point(p.m1z_1, p.n1z_1)).r1o(dir(_this__u8e3s4.x22_1 - 90.0).t1o(10.0 / 2 + 4.0));
-  var plateBack = (new Point(f.m1z_1, f.n1z_1)).r1o(dir(_this__u8e3s4.x22_1 + 180.0).t1o(3.0)).r1o(dir(_this__u8e3s4.x22_1 - 90.0).t1o(6.0));
+  var padBack = (new Point(p.o1z_1, p.p1z_1)).r1o(dir(_this__u8e3s4.z22_1 - 90.0).t1o(10.0 / 2 + 4.0));
+  var plateBack = (new Point(f.o1z_1, f.p1z_1)).r1o(dir(_this__u8e3s4.z22_1 + 180.0).t1o(3.0)).r1o(dir(_this__u8e3s4.z22_1 - 90.0).t1o(6.0));
   this_0.i(new Placed(new Capsule(get_E_0(), plateBack.p1o_1 - 15.0, -1.5, padBack.p1o_1 + 25.0, -1.5, 3.0)));
   this_0.i(new Placed(cap_0(get_E_0(), plateBack, padBack, 5.0)));
   this_0.i(new Placed(new Capsule(get_E_0(), padBack.p1o_1, padBack.q1o_1, padBack.p1o_1 + 12.0, -1.5, 5.0)));
   this_0.i(new Placed(new Capsule(get_E_0(), plateBack.p1o_1, plateBack.q1o_1, plateBack.p1o_1, -1.5, 5.0)));
-  this_0.i(new Placed(cap_0(get_E_0(), plateBack.r1o(dir(_this__u8e3s4.x22_1).t1o(10.0)), _this__u8e3s4.w22_1, 3.5)));
+  this_0.i(new Placed(cap_0(get_E_0(), plateBack.r1o(dir(_this__u8e3s4.z22_1).t1o(10.0)), _this__u8e3s4.y22_1, 3.5)));
   this_0.i(new Placed(slabPolygon_0(get_E_0(), f)));
   this_0.i(new Placed(slabPolygon_0(get_E_0(), p)));
-  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.w22_1.p1o_1, _this__u8e3s4.w22_1.q1o_1, 6.0)));
+  this_0.i(new Placed(new Circle(get_E_0(), _this__u8e3s4.y22_1.p1o_1, _this__u8e3s4.y22_1.q1o_1, 6.0)));
   return this_0.z3();
 }
 function drawOf_12(_this__u8e3s4, s) {
   _init_properties_KitBack_kt__uk31zp();
   if (s == null)
     return emptyList();
-  var c = s.v1q(Segment_TORSO_getInstance().a() - 17.0 + 2.0, 12.5 + 4.0 / 2 + 0.3);
-  var plate = new Slab(c.p1o_1, c.q1o_1, _this__u8e3s4.z22_1, 4.0, s.l1q_1);
-  return listOf([new Placed(slabPolygon_0(Role_GAP_getInstance(), plate.u1z(VOID, VOID, plate.o1z_1 + 1.0, plate.p1z_1 + 1.0))), new Placed(slabPolygon_0(Role_ACCENT_getInstance(), plate))]);
+  var c = s.x1q(Segment_TORSO_getInstance().a() - 17.0 + 2.0, 12.5 + 4.0 / 2 + 0.3);
+  var plate = new Slab(c.p1o_1, c.q1o_1, _this__u8e3s4.b23_1, 4.0, s.m1q_1);
+  return listOf([new Placed(slabPolygon_0(Role_GAP_getInstance(), plate.w1z(VOID, VOID, plate.q1z_1 + 1.0, plate.r1z_1 + 1.0))), new Placed(slabPolygon_0(Role_ACCENT_getInstance(), plate))]);
 }
 function drawOf_13(_this__u8e3s4) {
   _init_properties_KitBack_kt__uk31zp();
-  var s = skeleton(_this__u8e3s4.a23_1);
+  var s = skeleton(_this__u8e3s4.c23_1);
   var f = Role_BODY_FAR_getInstance();
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = listOf([s.r1q_1, s.q1q_1]).j();
+  var _iterator__ex2g4s = listOf([s.s1q_1, s.r1q_1]).j();
   while (_iterator__ex2g4s.k()) {
     var side = _iterator__ex2g4s.l();
-    var _iterator__ex2g4s_0 = FigureRenderer_getInstance().j1w(side).j();
+    var _iterator__ex2g4s_0 = FigureRenderer_getInstance().l1w(side).j();
     while (_iterator__ex2g4s_0.k()) {
       var seg = _iterator__ex2g4s_0.l();
-      this_0.i(new Placed(seg.x1u(f)));
+      this_0.i(new Placed(seg.z1u(f)));
     }
   }
-  this_0.i(new Placed(cap_0(f, s.m1q_1.r1o(dir(s.l1q_1).t1o(-2.0)), s.n1q_1.r1o(dir(s.l1q_1).t1o(2.0)), 2 * 10.0)));
-  this_0.i(new Placed(cap_0(f, s.o1q_1, s.p1q_1, 9.0)));
-  this_0.i(new Placed(new Circle(f, s.p1q_1.p1o_1, s.p1q_1.q1o_1, 10.0)));
+  this_0.i(new Placed(cap_0(f, s.n1q_1.r1o(dir(s.m1q_1).t1o(-2.0)), s.o1q_1.r1o(dir(s.m1q_1).t1o(2.0)), 2 * 10.0)));
+  this_0.i(new Placed(cap_0(f, s.p1q_1, s.q1q_1, 9.0)));
+  this_0.i(new Placed(new Circle(f, s.q1q_1.p1o_1, s.q1q_1.q1o_1, 10.0)));
   return this_0.z3();
 }
 function drawOn_1(_this__u8e3s4, s) {
   _init_properties_KitBack_kt__uk31zp();
-  var side = s.k1q_1.equals(View_SIDE_getInstance());
+  var side = s.l1q_1.equals(View_SIDE_getInstance());
   var tmp;
-  switch (_this__u8e3s4.d23_1.w1_1) {
+  switch (_this__u8e3s4.f23_1.w1_1) {
     case 1:
       var tmp_0;
       if (side) {
-        tmp_0 = listOf_0(new Circle(get_A_0(), s.q1q_1.e1q_1.p1o_1, s.q1q_1.e1q_1.q1o_1, 2.0));
+        tmp_0 = listOf_0(new Circle(get_A_0(), s.r1q_1.f1q_1.p1o_1, s.r1q_1.f1q_1.q1o_1, 2.0));
       } else {
-        var c = s.q1q_1.e1q_1.r1o(s.r1q_1.e1q_1).t1o(0.5);
+        var c = s.r1q_1.f1q_1.r1o(s.s1q_1.f1q_1).t1o(0.5);
         tmp_0 = listOf_0(new Capsule(get_A_0(), c.p1o_1 - 45.0, c.q1o_1, c.p1o_1 + 45.0, c.q1o_1, 2.6));
       }
 
@@ -10943,9 +10964,9 @@ function drawOn_1(_this__u8e3s4, s) {
     case 0:
       var tmp_1;
       if (side) {
-        var g = s.q1q_1.e1q_1;
+        var g = s.r1q_1.f1q_1;
         // Inline function 'kotlin.let' call
-        var it = s.q1q_1.c1q_1.s1o(s.q1q_1.b1q_1);
+        var it = s.r1q_1.d1q_1.s1o(s.r1q_1.c1q_1);
         var f = it.t1o(1.0 / it.u1o());
         var across = new Point(-f.q1o_1, f.p1o_1);
         var h = 12.0 / 2;
@@ -10960,7 +10981,7 @@ function drawOn_1(_this__u8e3s4, s) {
         while (_iterator__ex2g4s.k()) {
           var item = _iterator__ex2g4s.l();
           // Inline function 'kotlin.let' call
-          var it_0 = s.u1q(item).e1q_1;
+          var it_0 = s.w1q(item).f1q_1;
           var tmp$ret$4 = new Capsule(get_A_0(), it_0.p1o_1, it_0.q1o_1 - 6.0, it_0.p1o_1, it_0.q1o_1 + 6.0, 2.6);
           destination.i(tmp$ret$4);
         }
@@ -10972,13 +10993,13 @@ function drawOn_1(_this__u8e3s4, s) {
     case 2:
       var tmp_2;
       if (side) {
-        var g_0 = s.q1q_1.e1q_1;
+        var g_0 = s.r1q_1.f1q_1;
         // Inline function 'kotlin.let' call
-        var it_1 = s.q1q_1.c1q_1.s1o(s.q1q_1.b1q_1);
+        var it_1 = s.r1q_1.d1q_1.s1o(s.r1q_1.c1q_1);
         var f_0 = it_1.t1o(1.0 / it_1.u1o());
         tmp_2 = listOf([cap_0(get_A_0(), g_0.s1o(f_0.t1o(3.0)), g_0.r1o(f_0.t1o(10.0)), 2.4), new Circle(get_A_0(), g_0.p1o_1 - f_0.p1o_1 * 4.0, g_0.q1o_1 - f_0.q1o_1 * 4.0, 2.4)]);
       } else {
-        var c_0 = s.q1q_1.e1q_1.r1o(s.r1q_1.e1q_1).t1o(0.5).r1o(new Point(0.0, -6.0));
+        var c_0 = s.r1q_1.f1q_1.r1o(s.s1q_1.f1q_1).t1o(0.5).r1o(new Point(0.0, -6.0));
         // Inline function 'kotlin.collections.map' call
         var this_1 = get_entries_0();
         // Inline function 'kotlin.collections.mapTo' call
@@ -10987,7 +11008,7 @@ function drawOn_1(_this__u8e3s4, s) {
         while (_iterator__ex2g4s_0.k()) {
           var item_0 = _iterator__ex2g4s_0.l();
           // Inline function 'kotlin.let' call
-          var it_2 = s.u1q(item_0).e1q_1;
+          var it_2 = s.w1q(item_0).f1q_1;
           var tmp$ret$11 = cap_0(get_A_0(), c_0, it_2, 2.4);
           destination_0.i(tmp$ret$11);
         }
@@ -11005,31 +11026,31 @@ function drawOn_1(_this__u8e3s4, s) {
 function drawOn_2(_this__u8e3s4, s) {
   _init_properties_KitBack_kt__uk31zp();
   // Inline function 'kotlin.let' call
-  var it = s.u1q(_this__u8e3s4.f20_1).e1q_1;
-  return s.k1q_1.equals(View_SIDE_getInstance()) ? listOf_0(ring(get_A_0(), it.p1o_1, it.q1o_1, 3.4, 2.2)) : listOf_0(new Capsule(get_A_0(), it.p1o_1, it.q1o_1 - 5.0, it.p1o_1, it.q1o_1 + 5.0, 2.6));
+  var it = s.w1q(_this__u8e3s4.h20_1).f1q_1;
+  return s.l1q_1.equals(View_SIDE_getInstance()) ? listOf_0(ring(get_A_0(), it.p1o_1, it.q1o_1, 3.4, 2.2)) : listOf_0(new Capsule(get_A_0(), it.p1o_1, it.q1o_1 - 5.0, it.p1o_1, it.q1o_1 + 5.0, 2.6));
 }
 function load(_this__u8e3s4, s) {
   _init_properties_KitBack_kt__uk31zp();
-  return s.q1q_1.e1q_1.r1o(new Point(0.0, _this__u8e3s4.e23_1));
+  return s.r1q_1.f1q_1.r1o(new Point(0.0, _this__u8e3s4.g23_1));
 }
 function drawOn_3(_this__u8e3s4, s) {
   _init_properties_KitBack_kt__uk31zp();
-  var g = s.q1q_1.e1q_1;
+  var g = s.r1q_1.f1q_1;
   var p = load(_this__u8e3s4, s);
   return plus(plus(listOf_0(cap_0(get_A_0(), g, p, 2 * 1.45)), plateDisc(p, 45.0 / 2)), listOf_0(new Circle(get_A_0(), g.p1o_1, g.q1o_1, 1.8)));
 }
 function centerOn_0(_this__u8e3s4, s) {
   _init_properties_KitBack_kt__uk31zp();
   // Inline function 'kotlin.let' call
-  var it = s.q1q_1.c1q_1.s1o(s.q1q_1.b1q_1);
+  var it = s.r1q_1.d1q_1.s1o(s.r1q_1.c1q_1);
   var f = it.t1o(1.0 / it.u1o());
-  return s.q1q_1.e1q_1.s1o(f.t1o(14.0 / 2 + 2.5));
+  return s.r1q_1.f1q_1.s1o(f.t1o(14.0 / 2 + 2.5));
 }
 function drawOn_4(_this__u8e3s4, s) {
   _init_properties_KitBack_kt__uk31zp();
   var c = centerOn_0(_this__u8e3s4, s);
   // Inline function 'kotlin.let' call
-  var it = s.q1q_1.c1q_1.s1o(s.q1q_1.b1q_1);
+  var it = s.r1q_1.d1q_1.s1o(s.r1q_1.c1q_1);
   var along = it.t1o(1.0 / it.u1o());
   var angle = angleOf(along);
   var h = 14.0 / 2;
@@ -11044,7 +11065,7 @@ function drawOn_4(_this__u8e3s4, s) {
     var m = c.r1o(along.t1o(item * (h + 2.5)));
     var tmp_0 = get_A_0();
     // Inline function 'kotlin.collections.flatMap' call
-    var tmp0 = (new Slab(m.p1o_1, m.q1o_1, 5.0, 2 * 10.0, angle)).s1z();
+    var tmp0 = (new Slab(m.p1o_1, m.q1o_1, 5.0, 2 * 10.0, angle)).u1z();
     // Inline function 'kotlin.collections.flatMapTo' call
     var destination_0 = ArrayList_init_$Create$();
     var _iterator__ex2g4s_0 = tmp0.j();
@@ -11084,27 +11105,27 @@ function get_E_1() {
 }
 var E_1;
 function Companion_21() {
-  this.f23_1 = 6.0;
-  this.g23_1 = 200.0;
+  this.h23_1 = 6.0;
+  this.i23_1 = 200.0;
 }
 var Companion_instance_21;
 function Companion_getInstance_23() {
   return Companion_instance_21;
 }
 function StandingCalfMachine(columnX, pivot, pad, handle) {
-  this.h23_1 = columnX;
-  this.i23_1 = pivot;
-  this.j23_1 = pad;
-  this.k23_1 = handle;
+  this.j23_1 = columnX;
+  this.k23_1 = pivot;
+  this.l23_1 = pad;
+  this.m23_1 = handle;
 }
 protoOf(StandingCalfMachine).toString = function () {
-  return 'StandingCalfMachine(columnX=' + this.h23_1 + ', pivot=' + this.i23_1.toString() + ', pad=' + this.j23_1.toString() + ', handle=' + this.k23_1.toString() + ')';
+  return 'StandingCalfMachine(columnX=' + this.j23_1 + ', pivot=' + this.k23_1.toString() + ', pad=' + this.l23_1.toString() + ', handle=' + this.m23_1.toString() + ')';
 };
 protoOf(StandingCalfMachine).hashCode = function () {
-  var result = getNumberHashCode(this.h23_1);
-  result = imul(result, 31) + this.i23_1.hashCode() | 0;
-  result = imul(result, 31) + this.j23_1.hashCode() | 0;
+  var result = getNumberHashCode(this.j23_1);
   result = imul(result, 31) + this.k23_1.hashCode() | 0;
+  result = imul(result, 31) + this.l23_1.hashCode() | 0;
+  result = imul(result, 31) + this.m23_1.hashCode() | 0;
   return result;
 };
 protoOf(StandingCalfMachine).equals = function (other) {
@@ -11112,38 +11133,38 @@ protoOf(StandingCalfMachine).equals = function (other) {
     return true;
   if (!(other instanceof StandingCalfMachine))
     return false;
-  if (!equals(this.h23_1, other.h23_1))
-    return false;
-  if (!this.i23_1.equals(other.i23_1))
-    return false;
-  if (!this.j23_1.equals(other.j23_1))
+  if (!equals(this.j23_1, other.j23_1))
     return false;
   if (!this.k23_1.equals(other.k23_1))
+    return false;
+  if (!this.l23_1.equals(other.l23_1))
+    return false;
+  if (!this.m23_1.equals(other.m23_1))
     return false;
   return true;
 };
 function Companion_22() {
-  this.l23_1 = 40.0;
-  this.m23_1 = 6.0;
+  this.n23_1 = 40.0;
+  this.o23_1 = 6.0;
 }
 var Companion_instance_22;
 function Companion_getInstance_24() {
   return Companion_instance_22;
 }
 function SeatedCalfMachine(seatX, seatHeight, pivot, pad) {
-  this.n23_1 = seatX;
-  this.o23_1 = seatHeight;
-  this.p23_1 = pivot;
-  this.q23_1 = pad;
+  this.p23_1 = seatX;
+  this.q23_1 = seatHeight;
+  this.r23_1 = pivot;
+  this.s23_1 = pad;
 }
 protoOf(SeatedCalfMachine).toString = function () {
-  return 'SeatedCalfMachine(seatX=' + this.n23_1 + ', seatHeight=' + this.o23_1 + ', pivot=' + this.p23_1.toString() + ', pad=' + this.q23_1.toString() + ')';
+  return 'SeatedCalfMachine(seatX=' + this.p23_1 + ', seatHeight=' + this.q23_1 + ', pivot=' + this.r23_1.toString() + ', pad=' + this.s23_1.toString() + ')';
 };
 protoOf(SeatedCalfMachine).hashCode = function () {
-  var result = getNumberHashCode(this.n23_1);
-  result = imul(result, 31) + getNumberHashCode(this.o23_1) | 0;
-  result = imul(result, 31) + this.p23_1.hashCode() | 0;
-  result = imul(result, 31) + this.q23_1.hashCode() | 0;
+  var result = getNumberHashCode(this.p23_1);
+  result = imul(result, 31) + getNumberHashCode(this.q23_1) | 0;
+  result = imul(result, 31) + this.r23_1.hashCode() | 0;
+  result = imul(result, 31) + this.s23_1.hashCode() | 0;
   return result;
 };
 protoOf(SeatedCalfMachine).equals = function (other) {
@@ -11151,40 +11172,40 @@ protoOf(SeatedCalfMachine).equals = function (other) {
     return true;
   if (!(other instanceof SeatedCalfMachine))
     return false;
-  if (!equals(this.n23_1, other.n23_1))
+  if (!equals(this.p23_1, other.p23_1))
     return false;
-  if (!equals(this.o23_1, other.o23_1))
+  if (!equals(this.q23_1, other.q23_1))
     return false;
-  if (!this.p23_1.equals(other.p23_1))
+  if (!this.r23_1.equals(other.r23_1))
     return false;
-  if (!this.q23_1.equals(other.q23_1))
+  if (!this.s23_1.equals(other.s23_1))
     return false;
   return true;
 };
 function Companion_23() {
-  this.r23_1 = 7.0;
-  this.s23_1 = 6.0;
+  this.t23_1 = 7.0;
+  this.u23_1 = 6.0;
 }
 var Companion_instance_23;
 function Companion_getInstance_25() {
   return Companion_instance_23;
 }
 function DonkeyCalfMachine(columnX, supportHeight, supportLength, pivot, pad) {
-  this.t23_1 = columnX;
-  this.u23_1 = supportHeight;
-  this.v23_1 = supportLength;
-  this.w23_1 = pivot;
-  this.x23_1 = pad;
+  this.v23_1 = columnX;
+  this.w23_1 = supportHeight;
+  this.x23_1 = supportLength;
+  this.y23_1 = pivot;
+  this.z23_1 = pad;
 }
 protoOf(DonkeyCalfMachine).toString = function () {
-  return 'DonkeyCalfMachine(columnX=' + this.t23_1 + ', supportHeight=' + this.u23_1 + ', supportLength=' + this.v23_1 + ', pivot=' + this.w23_1.toString() + ', pad=' + this.x23_1.toString() + ')';
+  return 'DonkeyCalfMachine(columnX=' + this.v23_1 + ', supportHeight=' + this.w23_1 + ', supportLength=' + this.x23_1 + ', pivot=' + this.y23_1.toString() + ', pad=' + this.z23_1.toString() + ')';
 };
 protoOf(DonkeyCalfMachine).hashCode = function () {
-  var result = getNumberHashCode(this.t23_1);
-  result = imul(result, 31) + getNumberHashCode(this.u23_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.v23_1) | 0;
-  result = imul(result, 31) + this.w23_1.hashCode() | 0;
-  result = imul(result, 31) + this.x23_1.hashCode() | 0;
+  var result = getNumberHashCode(this.v23_1);
+  result = imul(result, 31) + getNumberHashCode(this.w23_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x23_1) | 0;
+  result = imul(result, 31) + this.y23_1.hashCode() | 0;
+  result = imul(result, 31) + this.z23_1.hashCode() | 0;
   return result;
 };
 protoOf(DonkeyCalfMachine).equals = function (other) {
@@ -11192,47 +11213,47 @@ protoOf(DonkeyCalfMachine).equals = function (other) {
     return true;
   if (!(other instanceof DonkeyCalfMachine))
     return false;
-  if (!equals(this.t23_1, other.t23_1))
-    return false;
-  if (!equals(this.u23_1, other.u23_1))
-    return false;
   if (!equals(this.v23_1, other.v23_1))
     return false;
-  if (!this.w23_1.equals(other.w23_1))
+  if (!equals(this.w23_1, other.w23_1))
     return false;
-  if (!this.x23_1.equals(other.x23_1))
+  if (!equals(this.x23_1, other.x23_1))
+    return false;
+  if (!this.y23_1.equals(other.y23_1))
+    return false;
+  if (!this.z23_1.equals(other.z23_1))
     return false;
   return true;
 };
 function Companion_24() {
-  this.y23_1 = 40.0;
-  this.z23_1 = 30.0;
-  this.a24_1 = 6.0;
-  this.b24_1 = 7.0;
-  this.c24_1 = 5.0;
+  this.a24_1 = 40.0;
+  this.b24_1 = 30.0;
+  this.c24_1 = 6.0;
+  this.d24_1 = 7.0;
+  this.e24_1 = 5.0;
 }
 var Companion_instance_24;
 function Companion_getInstance_26() {
   return Companion_instance_24;
 }
 function CrunchMachine(seatFront, seatHeight, hipPadX, feet, pivot, pad) {
-  this.d24_1 = seatFront;
-  this.e24_1 = seatHeight;
-  this.f24_1 = hipPadX;
-  this.g24_1 = feet;
-  this.h24_1 = pivot;
-  this.i24_1 = pad;
+  this.f24_1 = seatFront;
+  this.g24_1 = seatHeight;
+  this.h24_1 = hipPadX;
+  this.i24_1 = feet;
+  this.j24_1 = pivot;
+  this.k24_1 = pad;
 }
 protoOf(CrunchMachine).toString = function () {
-  return 'CrunchMachine(seatFront=' + this.d24_1 + ', seatHeight=' + this.e24_1 + ', hipPadX=' + this.f24_1 + ', feet=' + this.g24_1.toString() + ', pivot=' + this.h24_1.toString() + ', pad=' + this.i24_1.toString() + ')';
+  return 'CrunchMachine(seatFront=' + this.f24_1 + ', seatHeight=' + this.g24_1 + ', hipPadX=' + this.h24_1 + ', feet=' + this.i24_1.toString() + ', pivot=' + this.j24_1.toString() + ', pad=' + this.k24_1.toString() + ')';
 };
 protoOf(CrunchMachine).hashCode = function () {
-  var result = getNumberHashCode(this.d24_1);
-  result = imul(result, 31) + getNumberHashCode(this.e24_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.f24_1) | 0;
-  result = imul(result, 31) + this.g24_1.hashCode() | 0;
-  result = imul(result, 31) + this.h24_1.hashCode() | 0;
+  var result = getNumberHashCode(this.f24_1);
+  result = imul(result, 31) + getNumberHashCode(this.g24_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.h24_1) | 0;
   result = imul(result, 31) + this.i24_1.hashCode() | 0;
+  result = imul(result, 31) + this.j24_1.hashCode() | 0;
+  result = imul(result, 31) + this.k24_1.hashCode() | 0;
   return result;
 };
 protoOf(CrunchMachine).equals = function (other) {
@@ -11240,37 +11261,37 @@ protoOf(CrunchMachine).equals = function (other) {
     return true;
   if (!(other instanceof CrunchMachine))
     return false;
-  if (!equals(this.d24_1, other.d24_1))
-    return false;
-  if (!equals(this.e24_1, other.e24_1))
-    return false;
   if (!equals(this.f24_1, other.f24_1))
     return false;
-  if (!this.g24_1.equals(other.g24_1))
+  if (!equals(this.g24_1, other.g24_1))
     return false;
-  if (!this.h24_1.equals(other.h24_1))
+  if (!equals(this.h24_1, other.h24_1))
     return false;
   if (!this.i24_1.equals(other.i24_1))
+    return false;
+  if (!this.j24_1.equals(other.j24_1))
+    return false;
+  if (!this.k24_1.equals(other.k24_1))
     return false;
   return true;
 };
 function Companion_25() {
-  this.j24_1 = 150.0;
+  this.l24_1 = 150.0;
 }
 var Companion_instance_25;
 function Companion_getInstance_27() {
   return Companion_instance_25;
 }
 function SupportPost(x, gripHeight) {
-  this.k24_1 = x;
-  this.l24_1 = gripHeight;
+  this.m24_1 = x;
+  this.n24_1 = gripHeight;
 }
 protoOf(SupportPost).toString = function () {
-  return 'SupportPost(x=' + this.k24_1 + ', gripHeight=' + this.l24_1 + ')';
+  return 'SupportPost(x=' + this.m24_1 + ', gripHeight=' + this.n24_1 + ')';
 };
 protoOf(SupportPost).hashCode = function () {
-  var result = getNumberHashCode(this.k24_1);
-  result = imul(result, 31) + getNumberHashCode(this.l24_1) | 0;
+  var result = getNumberHashCode(this.m24_1);
+  result = imul(result, 31) + getNumberHashCode(this.n24_1) | 0;
   return result;
 };
 protoOf(SupportPost).equals = function (other) {
@@ -11278,14 +11299,14 @@ protoOf(SupportPost).equals = function (other) {
     return true;
   if (!(other instanceof SupportPost))
     return false;
-  if (!equals(this.k24_1, other.k24_1))
+  if (!equals(this.m24_1, other.m24_1))
     return false;
-  if (!equals(this.l24_1, other.l24_1))
+  if (!equals(this.n24_1, other.n24_1))
     return false;
   return true;
 };
 function AbWheel() {
-  this.m24_1 = 9.0;
+  this.o24_1 = 9.0;
 }
 protoOf(AbWheel).toString = function () {
   return 'AbWheel';
@@ -11305,29 +11326,29 @@ function AbWheel_getInstance() {
   return AbWheel_instance;
 }
 function Companion_26() {
-  this.n24_1 = 15.0;
-  this.o24_1 = 3.0;
-  this.p24_1 = 3.0;
+  this.p24_1 = 22.5;
+  this.q24_1 = 3.0;
+  this.r24_1 = 3.0;
 }
 var Companion_instance_26;
 function Companion_getInstance_28() {
   return Companion_instance_26;
 }
 function PinchPlate(hand) {
-  this.q24_1 = hand;
+  this.s24_1 = hand;
 }
 protoOf(PinchPlate).toString = function () {
-  return 'PinchPlate(hand=' + this.q24_1.toString() + ')';
+  return 'PinchPlate(hand=' + this.s24_1.toString() + ')';
 };
 protoOf(PinchPlate).hashCode = function () {
-  return this.q24_1.hashCode();
+  return this.s24_1.hashCode();
 };
 protoOf(PinchPlate).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof PinchPlate))
     return false;
-  if (!this.q24_1.equals(other.q24_1))
+  if (!this.s24_1.equals(other.s24_1))
     return false;
   return true;
 };
@@ -11338,7 +11359,7 @@ function cap_1(role, a, b, width) {
 function box_0(role, s, radius) {
   radius = radius === VOID ? 2.0 : radius;
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return new RoundRect(role, s.m1z_1 - s.o1z_1 / 2, s.n1z_1 - s.p1z_1 / 2, s.o1z_1, s.p1z_1, radius);
+  return new RoundRect(role, s.o1z_1 - s.q1z_1 / 2, s.p1z_1 - s.r1z_1 / 2, s.q1z_1, s.r1z_1, radius);
 }
 function roller(p, r) {
   _init_properties_KitCalvesCore_kt__56f7tl();
@@ -11350,7 +11371,7 @@ function frontRoller(p, r) {
 }
 function handleSlab_0(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return roller(_this__u8e3s4.k23_1, 1.6);
+  return roller(_this__u8e3s4.m23_1, 1.6);
 }
 function drawOf_14(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
@@ -11358,24 +11379,24 @@ function drawOf_14(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.h23_1 - 25.0, -1.5, _this__u8e3s4.h23_1 + 25.0, -1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.h23_1, -1.5, _this__u8e3s4.h23_1, -200.0, 7.0)));
-  this_0.i(new Placed(cap_1(get_E_1(), _this__u8e3s4.i23_1, _this__u8e3s4.j23_1, 5.0)));
-  this_0.i(new Placed(new Circle(get_E_1(), _this__u8e3s4.i23_1.p1o_1, _this__u8e3s4.i23_1.q1o_1, 4.0)));
-  this_0.i(new Placed(cap_1(get_E_1(), _this__u8e3s4.j23_1, _this__u8e3s4.k23_1, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.j23_1 - 25.0, -1.5, _this__u8e3s4.j23_1 + 25.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.j23_1, -1.5, _this__u8e3s4.j23_1, -200.0, 7.0)));
+  this_0.i(new Placed(cap_1(get_E_1(), _this__u8e3s4.k23_1, _this__u8e3s4.l23_1, 5.0)));
+  this_0.i(new Placed(new Circle(get_E_1(), _this__u8e3s4.k23_1.p1o_1, _this__u8e3s4.k23_1.q1o_1, 4.0)));
+  this_0.i(new Placed(cap_1(get_E_1(), _this__u8e3s4.l23_1, _this__u8e3s4.m23_1, 3.0)));
   return this_0.z3();
 }
 function drawFrontOf_4(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return plus(frontRoller(_this__u8e3s4.j23_1, 6.0), frontRoller(_this__u8e3s4.k23_1, 2.2));
+  return plus(frontRoller(_this__u8e3s4.l23_1, 6.0), frontRoller(_this__u8e3s4.m23_1, 2.2));
 }
 function seatSlab_2(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return Companion_instance_8.l1z(_this__u8e3s4.n23_1 - 40.0 / 2, -_this__u8e3s4.o23_1, _this__u8e3s4.n23_1 + 40.0 / 2, -_this__u8e3s4.o23_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.p23_1 - 40.0 / 2, -_this__u8e3s4.q23_1, _this__u8e3s4.p23_1 + 40.0 / 2, -_this__u8e3s4.q23_1 + 6.0);
 }
 function padSlab_5(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return roller(_this__u8e3s4.q23_1, 6.0);
+  return roller(_this__u8e3s4.s23_1, 6.0);
 }
 function drawOf_15(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
@@ -11383,23 +11404,23 @@ function drawOf_15(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.n23_1 - 25.0, -1.5, _this__u8e3s4.p23_1.p1o_1 + 15.0, -1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.n23_1, -_this__u8e3s4.o23_1 + 6.0, _this__u8e3s4.n23_1, -1.5, 6.0)));
-  this_0.i(new Placed(cap_1(get_E_1(), new Point(_this__u8e3s4.p23_1.p1o_1, -1.5), _this__u8e3s4.p23_1, 6.0)));
+  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.p23_1 - 25.0, -1.5, _this__u8e3s4.r23_1.p1o_1 + 15.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.p23_1, -_this__u8e3s4.q23_1 + 6.0, _this__u8e3s4.p23_1, -1.5, 6.0)));
+  this_0.i(new Placed(cap_1(get_E_1(), new Point(_this__u8e3s4.r23_1.p1o_1, -1.5), _this__u8e3s4.r23_1, 6.0)));
   this_0.i(new Placed(box_0(get_E_1(), seatSlab_2(_this__u8e3s4))));
   return this_0.z3();
 }
 function drawFrontOf_5(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return plus(plus(listOf([new Placed(cap_1(Role_GAP_getInstance(), _this__u8e3s4.p23_1, _this__u8e3s4.q23_1, 4.0 + 3.0)), new Placed(cap_1(get_E_1(), _this__u8e3s4.p23_1, _this__u8e3s4.q23_1, 4.0))]), frontRoller(_this__u8e3s4.q23_1, 6.0)), frontRoller(_this__u8e3s4.p23_1, 3.5));
+  return plus(plus(listOf([new Placed(cap_1(Role_GAP_getInstance(), _this__u8e3s4.r23_1, _this__u8e3s4.s23_1, 4.0 + 3.0)), new Placed(cap_1(get_E_1(), _this__u8e3s4.r23_1, _this__u8e3s4.s23_1, 4.0))]), frontRoller(_this__u8e3s4.s23_1, 6.0)), frontRoller(_this__u8e3s4.r23_1, 3.5));
 }
 function supportSlab(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return Companion_instance_8.l1z(_this__u8e3s4.t23_1 - _this__u8e3s4.v23_1, -_this__u8e3s4.u23_1, _this__u8e3s4.t23_1, -_this__u8e3s4.u23_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.v23_1 - _this__u8e3s4.x23_1, -_this__u8e3s4.w23_1, _this__u8e3s4.v23_1, -_this__u8e3s4.w23_1 + 6.0);
 }
 function padSlab_6(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return roller(_this__u8e3s4.x23_1, 7.0);
+  return roller(_this__u8e3s4.z23_1, 7.0);
 }
 function drawOf_16(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
@@ -11407,38 +11428,38 @@ function drawOf_16(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.t23_1 - 20.0, -1.5, _this__u8e3s4.t23_1 + 25.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.v23_1 - 20.0, -1.5, _this__u8e3s4.v23_1 + 25.0, -1.5, 3.0)));
   var tmp = get_E_1();
   var tmp_0 = -1.5;
-  var tmp0 = _this__u8e3s4.w23_1.q1o_1;
+  var tmp0 = _this__u8e3s4.y23_1.q1o_1;
   // Inline function 'kotlin.comparisons.minOf' call
-  var b = -_this__u8e3s4.u23_1;
+  var b = -_this__u8e3s4.w23_1;
   var tmp$ret$4 = Math.min(tmp0, b);
-  this_0.i(new Placed(new Capsule(tmp, _this__u8e3s4.t23_1, tmp_0, _this__u8e3s4.t23_1, tmp$ret$4 - 4.0, 7.0)));
-  this_0.i(new Placed(cap_1(get_E_1(), _this__u8e3s4.w23_1, _this__u8e3s4.x23_1, 5.0)));
-  this_0.i(new Placed(new Circle(get_E_1(), _this__u8e3s4.w23_1.p1o_1, _this__u8e3s4.w23_1.q1o_1, 4.0)));
+  this_0.i(new Placed(new Capsule(tmp, _this__u8e3s4.v23_1, tmp_0, _this__u8e3s4.v23_1, tmp$ret$4 - 4.0, 7.0)));
+  this_0.i(new Placed(cap_1(get_E_1(), _this__u8e3s4.y23_1, _this__u8e3s4.z23_1, 5.0)));
+  this_0.i(new Placed(new Circle(get_E_1(), _this__u8e3s4.y23_1.p1o_1, _this__u8e3s4.y23_1.q1o_1, 4.0)));
   return this_0.z3();
 }
 function drawFrontOf_6(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  var tmp = frontRoller(_this__u8e3s4.x23_1, 7.0);
+  var tmp = frontRoller(_this__u8e3s4.z23_1, 7.0);
   var tmp_0 = Role_GAP_getInstance();
   // Inline function 'kotlin.let' call
   var it = supportSlab(_this__u8e3s4);
-  var tmp$ret$0 = it.u1z(VOID, VOID, it.o1z_1 + 3.0, it.p1z_1 + 3.0);
+  var tmp$ret$0 = it.w1z(VOID, VOID, it.q1z_1 + 3.0, it.r1z_1 + 3.0);
   return plus(tmp, listOf([new Placed(box_0(tmp_0, tmp$ret$0, 3.0)), new Placed(box_0(get_E_1(), supportSlab(_this__u8e3s4)))]));
 }
 function seatSlab_3(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return Companion_instance_8.l1z(_this__u8e3s4.d24_1 - 40.0, -_this__u8e3s4.e24_1, _this__u8e3s4.d24_1, -_this__u8e3s4.e24_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.f24_1 - 40.0, -_this__u8e3s4.g24_1, _this__u8e3s4.f24_1, -_this__u8e3s4.g24_1 + 6.0);
 }
 function hipPadSlab(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return Companion_instance_8.l1z(_this__u8e3s4.f24_1 - 6.0, -_this__u8e3s4.e24_1 - 30.0, _this__u8e3s4.f24_1, -_this__u8e3s4.e24_1);
+  return Companion_instance_8.n1z(_this__u8e3s4.h24_1 - 6.0, -_this__u8e3s4.g24_1 - 30.0, _this__u8e3s4.h24_1, -_this__u8e3s4.g24_1);
 }
 function padSlab_7(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return roller(_this__u8e3s4.i24_1, 7.0);
+  return roller(_this__u8e3s4.k24_1, 7.0);
 }
 function drawOf_17(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
@@ -11446,52 +11467,50 @@ function drawOf_17(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  var mid = _this__u8e3s4.d24_1 - 40.0 / 2;
-  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.f24_1 - 30.0, -1.5, _this__u8e3s4.g24_1.p1o_1 + 15.0, -1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E_1(), mid, -_this__u8e3s4.e24_1 + 6.0, mid, -1.5, 6.0)));
-  var postX = _this__u8e3s4.f24_1 - 6.0 - 6.0;
-  this_0.i(new Placed(new Capsule(get_E_1(), postX, -1.5, postX, _this__u8e3s4.h24_1.q1o_1, 6.0)));
-  this_0.i(new Placed(cap_1(get_E_1(), new Point(postX, _this__u8e3s4.h24_1.q1o_1), _this__u8e3s4.h24_1, 5.0)));
-  this_0.i(new Placed(cap_1(get_E_1(), _this__u8e3s4.h24_1, _this__u8e3s4.i24_1, 4.0)));
-  this_0.i(new Placed(new Circle(get_E_1(), _this__u8e3s4.h24_1.p1o_1, _this__u8e3s4.h24_1.q1o_1, 4.0)));
-  this_0.i(new Placed(cap_1(get_E_1(), new Point(_this__u8e3s4.d24_1 - 4.0, -_this__u8e3s4.e24_1 + 6.0), _this__u8e3s4.g24_1, 3.5)));
-  this_0.i(new Placed(new Circle(get_E_1(), _this__u8e3s4.g24_1.p1o_1, _this__u8e3s4.g24_1.q1o_1, 5.0)));
+  var mid = _this__u8e3s4.f24_1 - 40.0 / 2;
+  this_0.i(new Placed(new Capsule(get_E_1(), _this__u8e3s4.h24_1 - 30.0, -1.5, _this__u8e3s4.i24_1.p1o_1 + 15.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_1(), mid, -_this__u8e3s4.g24_1 + 6.0, mid, -1.5, 6.0)));
+  var postX = _this__u8e3s4.h24_1 - 6.0 - 6.0;
+  this_0.i(new Placed(new Capsule(get_E_1(), postX, -1.5, postX, _this__u8e3s4.j24_1.q1o_1, 6.0)));
+  this_0.i(new Placed(cap_1(get_E_1(), new Point(postX, _this__u8e3s4.j24_1.q1o_1), _this__u8e3s4.j24_1, 5.0)));
+  this_0.i(new Placed(cap_1(get_E_1(), new Point(_this__u8e3s4.f24_1 - 4.0, -_this__u8e3s4.g24_1 + 6.0), _this__u8e3s4.i24_1, 3.5)));
+  this_0.i(new Placed(new Circle(get_E_1(), _this__u8e3s4.i24_1.p1o_1, _this__u8e3s4.i24_1.q1o_1, 5.0)));
   this_0.i(new Placed(box_0(get_E_1(), hipPadSlab(_this__u8e3s4))));
   this_0.i(new Placed(box_0(get_E_1(), seatSlab_3(_this__u8e3s4))));
   return this_0.z3();
 }
 function drawFrontOf_7(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return frontRoller(_this__u8e3s4.i24_1, 7.0);
+  return plus(plus(listOf([new Placed(cap_1(Role_GAP_getInstance(), _this__u8e3s4.j24_1, _this__u8e3s4.k24_1, 4.0 + 3.0)), new Placed(cap_1(get_E_1(), _this__u8e3s4.j24_1, _this__u8e3s4.k24_1, 4.0))]), frontRoller(_this__u8e3s4.k24_1, 7.0)), frontRoller(_this__u8e3s4.j24_1, 4.0));
 }
 function gripSlab(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return new Slab(_this__u8e3s4.k24_1 - 6.0, -_this__u8e3s4.l24_1, 12.0, 3.0);
+  return new Slab(_this__u8e3s4.m24_1 - 6.0, -_this__u8e3s4.n24_1, 12.0, 3.0);
 }
 function drawOf_18(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return listOf([new Placed(new Capsule(get_E_1(), _this__u8e3s4.k24_1 - 15.0, -1.5, _this__u8e3s4.k24_1 + 15.0, -1.5, 3.0)), new Placed(new Capsule(get_E_1(), _this__u8e3s4.k24_1, -1.5, _this__u8e3s4.k24_1, -150.0, 4.0))]);
+  return listOf([new Placed(new Capsule(get_E_1(), _this__u8e3s4.m24_1 - 15.0, -1.5, _this__u8e3s4.m24_1 + 15.0, -1.5, 3.0)), new Placed(new Capsule(get_E_1(), _this__u8e3s4.m24_1, -1.5, _this__u8e3s4.m24_1, -150.0, 4.0))]);
 }
 function drawFrontOf_8(_this__u8e3s4) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return listOf([new Placed(new Capsule(Role_GAP_getInstance(), _this__u8e3s4.k24_1 - 12.0, -_this__u8e3s4.l24_1, _this__u8e3s4.k24_1, -_this__u8e3s4.l24_1, 3.5 + 3.0)), new Placed(new Capsule(get_E_1(), _this__u8e3s4.k24_1 - 12.0, -_this__u8e3s4.l24_1, _this__u8e3s4.k24_1, -_this__u8e3s4.l24_1, 3.5))]);
+  return listOf([new Placed(new Capsule(Role_GAP_getInstance(), _this__u8e3s4.m24_1 - 12.0, -_this__u8e3s4.n24_1, _this__u8e3s4.m24_1, -_this__u8e3s4.n24_1, 3.5 + 3.0)), new Placed(new Capsule(get_E_1(), _this__u8e3s4.m24_1 - 12.0, -_this__u8e3s4.n24_1, _this__u8e3s4.m24_1, -_this__u8e3s4.n24_1, 3.5))]);
 }
 function drawOn_5(_this__u8e3s4, s) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  var c = s.k1q_1.equals(View_SIDE_getInstance()) ? s.q1q_1.e1q_1 : s.q1q_1.e1q_1.r1o(s.r1q_1.e1q_1).t1o(0.5);
+  var c = s.l1q_1.equals(View_SIDE_getInstance()) ? s.r1q_1.f1q_1 : s.r1q_1.f1q_1.r1o(s.s1q_1.f1q_1).t1o(0.5);
   return listOf([new Circle(Role_ACCENT_FILL_getInstance(), c.p1o_1, c.q1o_1, 9.0), ring(Role_ACCENT_getInstance(), c.p1o_1, c.q1o_1, 9.0, 9.0 - 2.2), new Circle(Role_ACCENT_getInstance(), c.p1o_1, c.q1o_1, 2.0)]);
 }
 function centerOn_1(_this__u8e3s4, s) {
   _init_properties_KitCalvesCore_kt__56f7tl();
-  return s.u1q(_this__u8e3s4.q24_1).e1q_1.r1o(new Point(0.0, 15.0 - 3.0));
+  return s.w1q(_this__u8e3s4.s24_1).f1q_1.r1o(new Point(0.0, 22.5 - 3.0));
 }
 function drawOn_6(_this__u8e3s4, s) {
   _init_properties_KitCalvesCore_kt__56f7tl();
   var c = centerOn_1(_this__u8e3s4, s);
-  var r = 15.0;
+  var r = 22.5;
   var tmp;
-  if (s.k1q_1.equals(View_SIDE_getInstance())) {
-    tmp = listOf([new Circle(Role_ACCENT_FILL_getInstance(), c.p1o_1, c.q1o_1, r), ring(Role_ACCENT_getInstance(), c.p1o_1, c.q1o_1, r, r - 1.3), ring(Role_ACCENT_getInstance(), c.p1o_1, c.q1o_1, 3.0, 2.2)]);
+  if (s.l1q_1.equals(View_SIDE_getInstance())) {
+    tmp = listOf([new Circle(Role_ACCENT_FILL_getInstance(), c.p1o_1, c.q1o_1, r), ring(Role_ACCENT_getInstance(), c.p1o_1, c.q1o_1, r, r - 2.0), ring(Role_ACCENT_getInstance(), c.p1o_1, c.q1o_1, 5.5, 4.0)]);
   } else {
     tmp = listOf_0(new RoundRect(Role_ACCENT_getInstance(), c.p1o_1 - 3.0 / 2, c.q1o_1 - r, 3.0, 2 * r, 1.2));
   }
@@ -11510,7 +11529,7 @@ function get_E_2() {
 }
 var E_2;
 function Companion_27() {
-  this.r24_1 = 6.0;
+  this.t24_1 = 6.0;
 }
 var Companion_instance_27;
 function Companion_getInstance_29() {
@@ -11520,27 +11539,27 @@ function DeclineBench(x, brace, angle, topHeight, length) {
   angle = angle === VOID ? 25.0 : angle;
   topHeight = topHeight === VOID ? 68.0 : topHeight;
   length = length === VOID ? 100.0 : length;
-  this.s24_1 = x;
-  this.t24_1 = brace;
-  this.u24_1 = angle;
-  this.v24_1 = topHeight;
-  this.w24_1 = length;
+  this.u24_1 = x;
+  this.v24_1 = brace;
+  this.w24_1 = angle;
+  this.x24_1 = topHeight;
+  this.y24_1 = length;
 }
-protoOf(DeclineBench).x24 = function () {
-  return dir(180.0 + this.u24_1);
+protoOf(DeclineBench).z24 = function () {
+  return dir(180.0 + this.w24_1);
 };
-protoOf(DeclineBench).y24 = function () {
-  return new Point(this.s24_1, -this.v24_1);
+protoOf(DeclineBench).a25 = function () {
+  return new Point(this.u24_1, -this.x24_1);
 };
 protoOf(DeclineBench).toString = function () {
-  return 'DeclineBench(x=' + this.s24_1 + ', brace=' + this.t24_1.toString() + ', angle=' + this.u24_1 + ', topHeight=' + this.v24_1 + ', length=' + this.w24_1 + ')';
+  return 'DeclineBench(x=' + this.u24_1 + ', brace=' + this.v24_1.toString() + ', angle=' + this.w24_1 + ', topHeight=' + this.x24_1 + ', length=' + this.y24_1 + ')';
 };
 protoOf(DeclineBench).hashCode = function () {
-  var result = getNumberHashCode(this.s24_1);
-  result = imul(result, 31) + this.t24_1.hashCode() | 0;
-  result = imul(result, 31) + getNumberHashCode(this.u24_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.v24_1) | 0;
+  var result = getNumberHashCode(this.u24_1);
+  result = imul(result, 31) + this.v24_1.hashCode() | 0;
   result = imul(result, 31) + getNumberHashCode(this.w24_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x24_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y24_1) | 0;
   return result;
 };
 protoOf(DeclineBench).equals = function (other) {
@@ -11548,31 +11567,34 @@ protoOf(DeclineBench).equals = function (other) {
     return true;
   if (!(other instanceof DeclineBench))
     return false;
-  if (!equals(this.s24_1, other.s24_1))
-    return false;
-  if (!this.t24_1.equals(other.t24_1))
-    return false;
   if (!equals(this.u24_1, other.u24_1))
     return false;
-  if (!equals(this.v24_1, other.v24_1))
+  if (!this.v24_1.equals(other.v24_1))
     return false;
   if (!equals(this.w24_1, other.w24_1))
     return false;
+  if (!equals(this.x24_1, other.x24_1))
+    return false;
+  if (!equals(this.y24_1, other.y24_1))
+    return false;
   return true;
 };
-function SmithMachine(x, stopHeight, height) {
+function SmithMachine(x, stopHeight, height, stopBehind) {
   height = height === VOID ? 215.0 : height;
-  this.z24_1 = x;
-  this.a25_1 = stopHeight;
-  this.b25_1 = height;
+  stopBehind = stopBehind === VOID ? 6.0 : stopBehind;
+  this.b25_1 = x;
+  this.c25_1 = stopHeight;
+  this.d25_1 = height;
+  this.e25_1 = stopBehind;
 }
 protoOf(SmithMachine).toString = function () {
-  return 'SmithMachine(x=' + this.z24_1 + ', stopHeight=' + this.a25_1 + ', height=' + this.b25_1 + ')';
+  return 'SmithMachine(x=' + this.b25_1 + ', stopHeight=' + this.c25_1 + ', height=' + this.d25_1 + ', stopBehind=' + this.e25_1 + ')';
 };
 protoOf(SmithMachine).hashCode = function () {
-  var result = getNumberHashCode(this.z24_1);
-  result = imul(result, 31) + getNumberHashCode(this.a25_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.b25_1) | 0;
+  var result = getNumberHashCode(this.b25_1);
+  result = imul(result, 31) + getNumberHashCode(this.c25_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.d25_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.e25_1) | 0;
   return result;
 };
 protoOf(SmithMachine).equals = function (other) {
@@ -11580,11 +11602,13 @@ protoOf(SmithMachine).equals = function (other) {
     return true;
   if (!(other instanceof SmithMachine))
     return false;
-  if (!equals(this.z24_1, other.z24_1))
-    return false;
-  if (!equals(this.a25_1, other.a25_1))
-    return false;
   if (!equals(this.b25_1, other.b25_1))
+    return false;
+  if (!equals(this.c25_1, other.c25_1))
+    return false;
+  if (!equals(this.d25_1, other.d25_1))
+    return false;
+  if (!equals(this.e25_1, other.e25_1))
     return false;
   return true;
 };
@@ -11608,8 +11632,8 @@ function CableHandles_getInstance() {
   return CableHandles_instance;
 }
 function Companion_28() {
-  this.c25_1 = 40.0;
-  this.d25_1 = 70.0;
+  this.f25_1 = 40.0;
+  this.g25_1 = 70.0;
 }
 var Companion_instance_28;
 function Companion_getInstance_30() {
@@ -11617,21 +11641,21 @@ function Companion_getInstance_30() {
 }
 function PressMachine(x, seatHeight, backAngle, pivot, handleEndOn) {
   handleEndOn = handleEndOn === VOID ? false : handleEndOn;
-  this.e25_1 = x;
-  this.f25_1 = seatHeight;
-  this.g25_1 = backAngle;
-  this.h25_1 = pivot;
-  this.i25_1 = handleEndOn;
+  this.h25_1 = x;
+  this.i25_1 = seatHeight;
+  this.j25_1 = backAngle;
+  this.k25_1 = pivot;
+  this.l25_1 = handleEndOn;
 }
 protoOf(PressMachine).toString = function () {
-  return 'PressMachine(x=' + this.e25_1 + ', seatHeight=' + this.f25_1 + ', backAngle=' + this.g25_1 + ', pivot=' + this.h25_1.toString() + ', handleEndOn=' + this.i25_1 + ')';
+  return 'PressMachine(x=' + this.h25_1 + ', seatHeight=' + this.i25_1 + ', backAngle=' + this.j25_1 + ', pivot=' + this.k25_1.toString() + ', handleEndOn=' + this.l25_1 + ')';
 };
 protoOf(PressMachine).hashCode = function () {
-  var result = getNumberHashCode(this.e25_1);
-  result = imul(result, 31) + getNumberHashCode(this.f25_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.g25_1) | 0;
-  result = imul(result, 31) + this.h25_1.hashCode() | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.i25_1) | 0;
+  var result = getNumberHashCode(this.h25_1);
+  result = imul(result, 31) + getNumberHashCode(this.i25_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.j25_1) | 0;
+  result = imul(result, 31) + this.k25_1.hashCode() | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.l25_1) | 0;
   return result;
 };
 protoOf(PressMachine).equals = function (other) {
@@ -11639,38 +11663,38 @@ protoOf(PressMachine).equals = function (other) {
     return true;
   if (!(other instanceof PressMachine))
     return false;
-  if (!equals(this.e25_1, other.e25_1))
+  if (!equals(this.h25_1, other.h25_1))
     return false;
-  if (!equals(this.f25_1, other.f25_1))
+  if (!equals(this.i25_1, other.i25_1))
     return false;
-  if (!equals(this.g25_1, other.g25_1))
+  if (!equals(this.j25_1, other.j25_1))
     return false;
-  if (!this.h25_1.equals(other.h25_1))
+  if (!this.k25_1.equals(other.k25_1))
     return false;
-  if (!(this.i25_1 === other.i25_1))
+  if (!(this.l25_1 === other.l25_1))
     return false;
   return true;
 };
 function PecDeck(x, seatHeight, padTop, pivotHeight, pivotHalf, facingPad) {
   pivotHalf = pivotHalf === VOID ? 18.0 : pivotHalf;
   facingPad = facingPad === VOID ? false : facingPad;
-  this.j25_1 = x;
-  this.k25_1 = seatHeight;
-  this.l25_1 = padTop;
-  this.m25_1 = pivotHeight;
-  this.n25_1 = pivotHalf;
-  this.o25_1 = facingPad;
+  this.m25_1 = x;
+  this.n25_1 = seatHeight;
+  this.o25_1 = padTop;
+  this.p25_1 = pivotHeight;
+  this.q25_1 = pivotHalf;
+  this.r25_1 = facingPad;
 }
 protoOf(PecDeck).toString = function () {
-  return 'PecDeck(x=' + this.j25_1 + ', seatHeight=' + this.k25_1 + ', padTop=' + this.l25_1 + ', pivotHeight=' + this.m25_1 + ', pivotHalf=' + this.n25_1 + ', facingPad=' + this.o25_1 + ')';
+  return 'PecDeck(x=' + this.m25_1 + ', seatHeight=' + this.n25_1 + ', padTop=' + this.o25_1 + ', pivotHeight=' + this.p25_1 + ', pivotHalf=' + this.q25_1 + ', facingPad=' + this.r25_1 + ')';
 };
 protoOf(PecDeck).hashCode = function () {
-  var result = getNumberHashCode(this.j25_1);
-  result = imul(result, 31) + getNumberHashCode(this.k25_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.l25_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.m25_1) | 0;
+  var result = getNumberHashCode(this.m25_1);
   result = imul(result, 31) + getNumberHashCode(this.n25_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.o25_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.o25_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.p25_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.q25_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.r25_1) | 0;
   return result;
 };
 protoOf(PecDeck).equals = function (other) {
@@ -11678,33 +11702,33 @@ protoOf(PecDeck).equals = function (other) {
     return true;
   if (!(other instanceof PecDeck))
     return false;
-  if (!equals(this.j25_1, other.j25_1))
-    return false;
-  if (!equals(this.k25_1, other.k25_1))
-    return false;
-  if (!equals(this.l25_1, other.l25_1))
-    return false;
   if (!equals(this.m25_1, other.m25_1))
     return false;
   if (!equals(this.n25_1, other.n25_1))
     return false;
-  if (!(this.o25_1 === other.o25_1))
+  if (!equals(this.o25_1, other.o25_1))
+    return false;
+  if (!equals(this.p25_1, other.p25_1))
+    return false;
+  if (!equals(this.q25_1, other.q25_1))
+    return false;
+  if (!(this.r25_1 === other.r25_1))
     return false;
   return true;
 };
 function Seat(x, height, width) {
   width = width === VOID ? 40.0 : width;
-  this.p25_1 = x;
-  this.q25_1 = height;
-  this.r25_1 = width;
+  this.s25_1 = x;
+  this.t25_1 = height;
+  this.u25_1 = width;
 }
 protoOf(Seat).toString = function () {
-  return 'Seat(x=' + this.p25_1 + ', height=' + this.q25_1 + ', width=' + this.r25_1 + ')';
+  return 'Seat(x=' + this.s25_1 + ', height=' + this.t25_1 + ', width=' + this.u25_1 + ')';
 };
 protoOf(Seat).hashCode = function () {
-  var result = getNumberHashCode(this.p25_1);
-  result = imul(result, 31) + getNumberHashCode(this.q25_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.r25_1) | 0;
+  var result = getNumberHashCode(this.s25_1);
+  result = imul(result, 31) + getNumberHashCode(this.t25_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.u25_1) | 0;
   return result;
 };
 protoOf(Seat).equals = function (other) {
@@ -11712,16 +11736,16 @@ protoOf(Seat).equals = function (other) {
     return true;
   if (!(other instanceof Seat))
     return false;
-  if (!equals(this.p25_1, other.p25_1))
+  if (!equals(this.s25_1, other.s25_1))
     return false;
-  if (!equals(this.q25_1, other.q25_1))
+  if (!equals(this.t25_1, other.t25_1))
     return false;
-  if (!equals(this.r25_1, other.r25_1))
+  if (!equals(this.u25_1, other.u25_1))
     return false;
   return true;
 };
 function Companion_29() {
-  this.s25_1 = 4.0;
+  this.v25_1 = 4.0;
 }
 var Companion_instance_29;
 function Companion_getInstance_31() {
@@ -11730,17 +11754,17 @@ function Companion_getInstance_31() {
 function DipBars(x, height, length) {
   height = height === VOID ? 120.0 : height;
   length = length === VOID ? 50.0 : length;
-  this.t25_1 = x;
-  this.u25_1 = height;
-  this.v25_1 = length;
+  this.w25_1 = x;
+  this.x25_1 = height;
+  this.y25_1 = length;
 }
 protoOf(DipBars).toString = function () {
-  return 'DipBars(x=' + this.t25_1 + ', height=' + this.u25_1 + ', length=' + this.v25_1 + ')';
+  return 'DipBars(x=' + this.w25_1 + ', height=' + this.x25_1 + ', length=' + this.y25_1 + ')';
 };
 protoOf(DipBars).hashCode = function () {
-  var result = getNumberHashCode(this.t25_1);
-  result = imul(result, 31) + getNumberHashCode(this.u25_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.v25_1) | 0;
+  var result = getNumberHashCode(this.w25_1);
+  result = imul(result, 31) + getNumberHashCode(this.x25_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y25_1) | 0;
   return result;
 };
 protoOf(DipBars).equals = function (other) {
@@ -11748,39 +11772,39 @@ protoOf(DipBars).equals = function (other) {
     return true;
   if (!(other instanceof DipBars))
     return false;
-  if (!equals(this.t25_1, other.t25_1))
+  if (!equals(this.w25_1, other.w25_1))
     return false;
-  if (!equals(this.u25_1, other.u25_1))
+  if (!equals(this.x25_1, other.x25_1))
     return false;
-  if (!equals(this.v25_1, other.v25_1))
+  if (!equals(this.y25_1, other.y25_1))
     return false;
   return true;
 };
 function Companion_30() {
-  this.w25_1 = 30.0;
+  this.z25_1 = 30.0;
 }
 var Companion_instance_30;
 function Companion_getInstance_32() {
   return Companion_instance_30;
 }
 function AssistedDipMachine(x, handleHeight, handleEnd, stepX, stepHeight, pivot) {
-  this.x25_1 = x;
-  this.y25_1 = handleHeight;
-  this.z25_1 = handleEnd;
-  this.a26_1 = stepX;
-  this.b26_1 = stepHeight;
-  this.c26_1 = pivot;
+  this.a26_1 = x;
+  this.b26_1 = handleHeight;
+  this.c26_1 = handleEnd;
+  this.d26_1 = stepX;
+  this.e26_1 = stepHeight;
+  this.f26_1 = pivot;
 }
 protoOf(AssistedDipMachine).toString = function () {
-  return 'AssistedDipMachine(x=' + this.x25_1 + ', handleHeight=' + this.y25_1 + ', handleEnd=' + this.z25_1 + ', stepX=' + this.a26_1 + ', stepHeight=' + this.b26_1 + ', pivot=' + this.c26_1.toString() + ')';
+  return 'AssistedDipMachine(x=' + this.a26_1 + ', handleHeight=' + this.b26_1 + ', handleEnd=' + this.c26_1 + ', stepX=' + this.d26_1 + ', stepHeight=' + this.e26_1 + ', pivot=' + this.f26_1.toString() + ')';
 };
 protoOf(AssistedDipMachine).hashCode = function () {
-  var result = getNumberHashCode(this.x25_1);
-  result = imul(result, 31) + getNumberHashCode(this.y25_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.z25_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.a26_1) | 0;
+  var result = getNumberHashCode(this.a26_1);
   result = imul(result, 31) + getNumberHashCode(this.b26_1) | 0;
-  result = imul(result, 31) + this.c26_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.c26_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.d26_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.e26_1) | 0;
+  result = imul(result, 31) + this.f26_1.hashCode() | 0;
   return result;
 };
 protoOf(AssistedDipMachine).equals = function (other) {
@@ -11788,23 +11812,23 @@ protoOf(AssistedDipMachine).equals = function (other) {
     return true;
   if (!(other instanceof AssistedDipMachine))
     return false;
-  if (!equals(this.x25_1, other.x25_1))
-    return false;
-  if (!equals(this.y25_1, other.y25_1))
-    return false;
-  if (!equals(this.z25_1, other.z25_1))
-    return false;
   if (!equals(this.a26_1, other.a26_1))
     return false;
   if (!equals(this.b26_1, other.b26_1))
     return false;
-  if (!this.c26_1.equals(other.c26_1))
+  if (!equals(this.c26_1, other.c26_1))
+    return false;
+  if (!equals(this.d26_1, other.d26_1))
+    return false;
+  if (!equals(this.e26_1, other.e26_1))
+    return false;
+  if (!this.f26_1.equals(other.f26_1))
     return false;
   return true;
 };
 function Companion_31() {
-  this.d26_1 = 3.0;
-  this.e26_1 = 0.62;
+  this.g26_1 = 3.0;
+  this.h26_1 = 0.62;
 }
 var Companion_instance_31;
 function Companion_getInstance_33() {
@@ -11812,20 +11836,20 @@ function Companion_getInstance_33() {
 }
 function BackPlates(count) {
   count = count === VOID ? 2 : count;
-  this.f26_1 = count;
+  this.i26_1 = count;
 }
 protoOf(BackPlates).toString = function () {
-  return 'BackPlates(count=' + this.f26_1 + ')';
+  return 'BackPlates(count=' + this.i26_1 + ')';
 };
 protoOf(BackPlates).hashCode = function () {
-  return this.f26_1;
+  return this.i26_1;
 };
 protoOf(BackPlates).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BackPlates))
     return false;
-  if (!(this.f26_1 === other.f26_1))
+  if (!(this.i26_1 === other.i26_1))
     return false;
   return true;
 };
@@ -11836,7 +11860,7 @@ function cap_2(role, a, b, width) {
 function slabPolygon_1(role, s) {
   _init_properties_KitChest_kt__uxotqt();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = s.s1z();
+  var tmp0 = s.u1z();
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -11849,18 +11873,18 @@ function slabPolygon_1(role, s) {
 }
 function padSlab_8(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
-  var c = _this__u8e3s4.y24().r1o(_this__u8e3s4.x24().t1o(_this__u8e3s4.w24_1 / 2)).r1o(dir(270.0 + _this__u8e3s4.u24_1).t1o(6.0 / 2));
-  return new Slab(c.p1o_1, c.q1o_1, _this__u8e3s4.w24_1, 6.0, 180.0 + _this__u8e3s4.u24_1);
+  var c = _this__u8e3s4.a25().r1o(_this__u8e3s4.z24().t1o(_this__u8e3s4.y24_1 / 2)).r1o(dir(270.0 + _this__u8e3s4.w24_1).t1o(6.0 / 2));
+  return new Slab(c.p1o_1, c.q1o_1, _this__u8e3s4.y24_1, 6.0, 180.0 + _this__u8e3s4.w24_1);
 }
 function legs(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
-  var high = _this__u8e3s4.y24().r1o(new Point(-10.0, 6.0));
-  var lowTop = _this__u8e3s4.y24().r1o(_this__u8e3s4.x24().t1o(_this__u8e3s4.w24_1 - 12.0)).r1o(dir(270.0 + _this__u8e3s4.u24_1).t1o(6.0));
+  var high = _this__u8e3s4.a25().r1o(new Point(-10.0, 6.0));
+  var lowTop = _this__u8e3s4.a25().r1o(_this__u8e3s4.z24().t1o(_this__u8e3s4.y24_1 - 12.0)).r1o(dir(270.0 + _this__u8e3s4.w24_1).t1o(6.0));
   return listOf([to(high, new Point(high.p1o_1, 0.0)), to(lowTop, new Point(lowTop.p1o_1, 0.0))]);
 }
 function surfacesOf(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
-  return mapOf([to(Surface_BENCH_getInstance(), listOf_0(padSlab_8(_this__u8e3s4))), to(Surface_LEG_BRACE_getInstance(), listOf_0(new Slab(_this__u8e3s4.t24_1.p1o_1, _this__u8e3s4.t24_1.q1o_1, 0.0, 0.0, VOID, 6.0)))]);
+  return mapOf([to(Surface_BENCH_getInstance(), listOf_0(padSlab_8(_this__u8e3s4))), to(Surface_LEG_BRACE_getInstance(), listOf_0(new Slab(_this__u8e3s4.v24_1.p1o_1, _this__u8e3s4.v24_1.q1o_1, 0.0, 0.0, VOID, 6.0)))]);
 }
 function drawOf_19(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
@@ -11876,31 +11900,31 @@ function drawOf_19(_this__u8e3s4) {
     this_0.i(new Placed(cap_2(get_E_2(), a, new Point(b.p1o_1, -1.5), 5.0)));
     this_0.i(new Placed(new Capsule(get_E_2(), b.p1o_1 - 12.0, -1.5, b.p1o_1 + 12.0, -1.5, 3.0)));
   }
-  this_0.i(new Placed(cap_2(get_E_2(), _this__u8e3s4.y24().r1o(new Point(-4.0, 6.0 + 4.0)), _this__u8e3s4.t24_1, 4.0)));
+  this_0.i(new Placed(cap_2(get_E_2(), _this__u8e3s4.a25().r1o(new Point(-4.0, 6.0 + 4.0)), _this__u8e3s4.v24_1, 4.0)));
   this_0.i(new Placed(slabPolygon_1(get_E_2(), padSlab_8(_this__u8e3s4))));
-  this_0.i(new Placed(new Circle(get_E_2(), _this__u8e3s4.t24_1.p1o_1, _this__u8e3s4.t24_1.q1o_1, 6.0)));
+  this_0.i(new Placed(new Circle(get_E_2(), _this__u8e3s4.v24_1.p1o_1, _this__u8e3s4.v24_1.q1o_1, 6.0)));
   return this_0.z3();
 }
 function stopSlab(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
-  return Companion_instance_8.l1z(_this__u8e3s4.z24_1 - 6.0, -_this__u8e3s4.a25_1, _this__u8e3s4.z24_1 + 6.0, -_this__u8e3s4.a25_1 + 5.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.b25_1 - _this__u8e3s4.e25_1, -_this__u8e3s4.c25_1, _this__u8e3s4.b25_1 + 6.0, -_this__u8e3s4.c25_1 + 5.0);
 }
 function drawOf_20(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
-  return listOf([new Placed(new Capsule(get_E_2(), _this__u8e3s4.z24_1, -1.5, _this__u8e3s4.z24_1, -_this__u8e3s4.b25_1, 4.0), false), new Placed(new Capsule(get_E_2(), _this__u8e3s4.z24_1 - 25.0, -1.5, _this__u8e3s4.z24_1 + 25.0, -1.5, 3.0)), new Placed(new RoundRect(get_E_2(), _this__u8e3s4.z24_1 - 6.0, -_this__u8e3s4.a25_1, 12.0, 5.0, 1.5))]);
+  return listOf([new Placed(new Capsule(get_E_2(), _this__u8e3s4.b25_1, -1.5, _this__u8e3s4.b25_1, -_this__u8e3s4.d25_1, 4.0), false), new Placed(new Capsule(get_E_2(), _this__u8e3s4.b25_1 - 25.0, -1.5, _this__u8e3s4.b25_1 + 25.0, -1.5, 3.0)), new Placed(new RoundRect(get_E_2(), _this__u8e3s4.b25_1 - _this__u8e3s4.e25_1, -_this__u8e3s4.c25_1, _this__u8e3s4.e25_1 + 6.0, 5.0, 1.5))]);
 }
 function parts_0(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
   var pad = 6.0;
-  var seat = Companion_instance_8.l1z(_this__u8e3s4.e25_1 - 40.0, -_this__u8e3s4.f25_1, _this__u8e3s4.e25_1, -_this__u8e3s4.f25_1 + pad);
+  var seat = Companion_instance_8.n1z(_this__u8e3s4.h25_1 - 40.0, -_this__u8e3s4.i25_1, _this__u8e3s4.h25_1, -_this__u8e3s4.i25_1 + pad);
   var hinge = pressHinge(_this__u8e3s4);
-  var along = 180.0 - _this__u8e3s4.g25_1;
+  var along = 180.0 - _this__u8e3s4.j25_1;
   var c = hinge.r1o(dir(along).t1o(70.0 / 2)).r1o(dir(along + 90.0).t1o(pad / 2));
   return to(seat, new Slab(c.p1o_1, c.q1o_1, 70.0, pad, along));
 }
 function pressHinge(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
-  return new Point(_this__u8e3s4.e25_1 - 40.0, -_this__u8e3s4.f25_1);
+  return new Point(_this__u8e3s4.h25_1 - 40.0, -_this__u8e3s4.i25_1);
 }
 function drawOf_21(_this__u8e3s4, grip) {
   _init_properties_KitChest_kt__uxotqt();
@@ -11911,31 +11935,31 @@ function drawOf_21(_this__u8e3s4, grip) {
   var _destruct__k2r9zo = parts_0(_this__u8e3s4);
   var seat = _destruct__k2r9zo.ya();
   var back = _destruct__k2r9zo.za();
-  var mid = _this__u8e3s4.e25_1 - 40.0 / 2;
+  var mid = _this__u8e3s4.h25_1 - 40.0 / 2;
   var postX = pressHinge(_this__u8e3s4).p1o_1 - 22.0;
-  this_0.i(new Placed(new Capsule(get_E_2(), mid, -_this__u8e3s4.f25_1 + 6.0, mid, -1.5, 5.0)));
-  this_0.i(new Placed(new Capsule(get_E_2(), postX - 15.0, -1.5, _this__u8e3s4.e25_1 + 10.0, -1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E_2(), postX, -1.5, postX, _this__u8e3s4.h25_1.q1o_1, 6.0)));
-  this_0.i(new Placed(new Capsule(get_E_2(), postX, _this__u8e3s4.h25_1.q1o_1, _this__u8e3s4.h25_1.p1o_1, _this__u8e3s4.h25_1.q1o_1, 5.0)));
+  this_0.i(new Placed(new Capsule(get_E_2(), mid, -_this__u8e3s4.i25_1 + 6.0, mid, -1.5, 5.0)));
+  this_0.i(new Placed(new Capsule(get_E_2(), postX - 15.0, -1.5, _this__u8e3s4.h25_1 + 10.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_2(), postX, -1.5, postX, _this__u8e3s4.k25_1.q1o_1, 6.0)));
+  this_0.i(new Placed(new Capsule(get_E_2(), postX, _this__u8e3s4.k25_1.q1o_1, _this__u8e3s4.k25_1.p1o_1, _this__u8e3s4.k25_1.q1o_1, 5.0)));
   this_0.i(new Placed(slabShape_0(get_E_2(), seat)));
   this_0.i(new Placed(slabPolygon_1(get_E_2(), back)));
   if (!(grip == null)) {
-    this_0.i(new Placed(cap_2(get_E_2(), _this__u8e3s4.h25_1, grip, 4.0)));
-    if (_this__u8e3s4.i25_1)
+    this_0.i(new Placed(cap_2(get_E_2(), _this__u8e3s4.k25_1, grip, 4.0)));
+    if (_this__u8e3s4.l25_1)
       this_0.i(new Placed(new Circle(get_E_2(), grip.p1o_1, grip.q1o_1, 2.6)));
     else
       this_0.i(new Placed(new Capsule(get_E_2(), grip.p1o_1, grip.q1o_1 - 6.0, grip.p1o_1, grip.q1o_1 + 6.0, 3.5)));
   }
-  this_0.i(new Placed(new Circle(get_E_2(), _this__u8e3s4.h25_1.p1o_1, _this__u8e3s4.h25_1.q1o_1, 4.0)));
+  this_0.i(new Placed(new Circle(get_E_2(), _this__u8e3s4.k25_1.p1o_1, _this__u8e3s4.k25_1.q1o_1, 4.0)));
   return this_0.z3();
 }
 function slabShape_0(role, s) {
   _init_properties_KitChest_kt__uxotqt();
-  return new RoundRect(role, s.m1z_1 - s.o1z_1 / 2, s.n1z_1 - s.p1z_1 / 2, s.o1z_1, s.p1z_1, 2.0);
+  return new RoundRect(role, s.o1z_1 - s.q1z_1 / 2, s.p1z_1 - s.r1z_1 / 2, s.q1z_1, s.r1z_1, 2.0);
 }
 function seatSlab_4(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
-  return Companion_instance_8.l1z(_this__u8e3s4.j25_1 - 20.0, -_this__u8e3s4.k25_1, _this__u8e3s4.j25_1 + 20.0, -_this__u8e3s4.k25_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.m25_1 - 20.0, -_this__u8e3s4.n25_1, _this__u8e3s4.m25_1 + 20.0, -_this__u8e3s4.n25_1 + 6.0);
 }
 function drawOf_22(_this__u8e3s4, near, far) {
   _init_properties_KitChest_kt__uxotqt();
@@ -11943,23 +11967,23 @@ function drawOf_22(_this__u8e3s4, near, far) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.j25_1, -_this__u8e3s4.k25_1 + 6.0, _this__u8e3s4.j25_1, -1.5, 6.0)));
-  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.j25_1 - 25.0, -1.5, _this__u8e3s4.j25_1 + 25.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.m25_1, -_this__u8e3s4.n25_1 + 6.0, _this__u8e3s4.m25_1, -1.5, 6.0)));
+  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.m25_1 - 25.0, -1.5, _this__u8e3s4.m25_1 + 25.0, -1.5, 3.0)));
   this_0.i(new Placed(slabShape_0(get_E_2(), seatSlab_4(_this__u8e3s4))));
-  if (!_this__u8e3s4.o25_1) {
-    this_0.i(new Placed(new RoundRect(get_E_2(), _this__u8e3s4.j25_1 - 17.0, -_this__u8e3s4.l25_1, 34.0, _this__u8e3s4.l25_1 - _this__u8e3s4.k25_1 - 2.0, 3.0)));
+  if (!_this__u8e3s4.r25_1) {
+    this_0.i(new Placed(new RoundRect(get_E_2(), _this__u8e3s4.m25_1 - 17.0, -_this__u8e3s4.o25_1, 34.0, _this__u8e3s4.o25_1 - _this__u8e3s4.n25_1 - 2.0, 3.0)));
   }
-  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.j25_1, -_this__u8e3s4.l25_1, _this__u8e3s4.j25_1, -_this__u8e3s4.m25_1, 5.0)));
-  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.j25_1 - _this__u8e3s4.n25_1 - 6.0, -_this__u8e3s4.m25_1, _this__u8e3s4.j25_1 + _this__u8e3s4.n25_1 + 6.0, -_this__u8e3s4.m25_1, 5.0)));
+  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.m25_1, -_this__u8e3s4.o25_1, _this__u8e3s4.m25_1, -_this__u8e3s4.p25_1, 5.0)));
+  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.m25_1 - _this__u8e3s4.q25_1 - 6.0, -_this__u8e3s4.p25_1, _this__u8e3s4.m25_1 + _this__u8e3s4.q25_1 + 6.0, -_this__u8e3s4.p25_1, 5.0)));
   var _iterator__ex2g4s = listOf([to(1.0, near), to(-1.0, far)]).j();
   while (_iterator__ex2g4s.k()) {
     var _destruct__k2r9zo = _iterator__ex2g4s.l();
     var sgn = _destruct__k2r9zo.ya();
     var grip = _destruct__k2r9zo.za();
-    var pivot = new Point(_this__u8e3s4.j25_1 + sgn * _this__u8e3s4.n25_1, -_this__u8e3s4.m25_1);
+    var pivot = new Point(_this__u8e3s4.m25_1 + sgn * _this__u8e3s4.q25_1, -_this__u8e3s4.p25_1);
     if (!(grip == null)) {
       this_0.i(new Placed(cap_2(get_E_2(), pivot, grip, 4.0)));
-      if (_this__u8e3s4.o25_1)
+      if (_this__u8e3s4.r25_1)
         this_0.i(new Placed(new Capsule(get_E_2(), grip.p1o_1 - 6.0, grip.q1o_1, grip.p1o_1 + 6.0, grip.q1o_1, 3.5)));
       else
         this_0.i(new Placed(new Capsule(get_E_2(), grip.p1o_1, grip.q1o_1 - 7.0, grip.p1o_1, grip.q1o_1 + 7.0, 3.5)));
@@ -11970,15 +11994,15 @@ function drawOf_22(_this__u8e3s4, near, far) {
 }
 function slab(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
-  return Companion_instance_8.l1z(_this__u8e3s4.p25_1 - _this__u8e3s4.r25_1 / 2, -_this__u8e3s4.q25_1, _this__u8e3s4.p25_1 + _this__u8e3s4.r25_1 / 2, -_this__u8e3s4.q25_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.s25_1 - _this__u8e3s4.u25_1 / 2, -_this__u8e3s4.t25_1, _this__u8e3s4.s25_1 + _this__u8e3s4.u25_1 / 2, -_this__u8e3s4.t25_1 + 6.0);
 }
 function drawOf_23(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
-  return listOf([new Placed(new Capsule(get_E_2(), _this__u8e3s4.p25_1, -_this__u8e3s4.q25_1 + 6.0, _this__u8e3s4.p25_1, -1.5, 6.0)), new Placed(new Capsule(get_E_2(), _this__u8e3s4.p25_1 - 25.0, -1.5, _this__u8e3s4.p25_1 + 25.0, -1.5, 3.0)), new Placed(slabShape_0(get_E_2(), slab(_this__u8e3s4)))]);
+  return listOf([new Placed(new Capsule(get_E_2(), _this__u8e3s4.s25_1, -_this__u8e3s4.t25_1 + 6.0, _this__u8e3s4.s25_1, -1.5, 6.0)), new Placed(new Capsule(get_E_2(), _this__u8e3s4.s25_1 - 25.0, -1.5, _this__u8e3s4.s25_1 + 25.0, -1.5, 3.0)), new Placed(slabShape_0(get_E_2(), slab(_this__u8e3s4)))]);
 }
 function barSlab_1(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
-  return new Slab(_this__u8e3s4.t25_1, -_this__u8e3s4.u25_1, _this__u8e3s4.v25_1, 4.0);
+  return new Slab(_this__u8e3s4.w25_1, -_this__u8e3s4.x25_1, _this__u8e3s4.y25_1, 4.0);
 }
 function drawOf_24(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
@@ -11986,32 +12010,32 @@ function drawOf_24(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = listOf([_this__u8e3s4.t25_1 - _this__u8e3s4.v25_1 / 2 + 3.0, _this__u8e3s4.t25_1 + _this__u8e3s4.v25_1 / 2 - 3.0]).j();
+  var _iterator__ex2g4s = listOf([_this__u8e3s4.w25_1 - _this__u8e3s4.y25_1 / 2 + 3.0, _this__u8e3s4.w25_1 + _this__u8e3s4.y25_1 / 2 - 3.0]).j();
   while (_iterator__ex2g4s.k()) {
     var end = _iterator__ex2g4s.l();
-    this_0.i(new Placed(new Capsule(get_E_2(), end, -_this__u8e3s4.u25_1, end, -1.5, 5.0)));
+    this_0.i(new Placed(new Capsule(get_E_2(), end, -_this__u8e3s4.x25_1, end, -1.5, 5.0)));
     this_0.i(new Placed(new Capsule(get_E_2(), end - 10.0, -1.5, end + 10.0, -1.5, 3.0)));
   }
-  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.t25_1 - _this__u8e3s4.v25_1 / 2, -_this__u8e3s4.u25_1, _this__u8e3s4.t25_1 + _this__u8e3s4.v25_1 / 2, -_this__u8e3s4.u25_1, 4.0)));
+  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.w25_1 - _this__u8e3s4.y25_1 / 2, -_this__u8e3s4.x25_1, _this__u8e3s4.w25_1 + _this__u8e3s4.y25_1 / 2, -_this__u8e3s4.x25_1, 4.0)));
   return this_0.z3();
 }
 function handleSlab_1(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
   var tmp = Companion_instance_8;
-  var tmp0 = _this__u8e3s4.x25_1;
+  var tmp0 = _this__u8e3s4.a26_1;
   // Inline function 'kotlin.math.min' call
-  var b = _this__u8e3s4.z25_1;
+  var b = _this__u8e3s4.c26_1;
   var tmp_0 = Math.min(tmp0, b);
-  var tmp_1 = -_this__u8e3s4.y25_1 - 2.0;
-  var tmp0_0 = _this__u8e3s4.x25_1;
+  var tmp_1 = -_this__u8e3s4.b26_1 - 2.0;
+  var tmp0_0 = _this__u8e3s4.a26_1;
   // Inline function 'kotlin.math.max' call
-  var b_0 = _this__u8e3s4.z25_1;
+  var b_0 = _this__u8e3s4.c26_1;
   var tmp$ret$1 = Math.max(tmp0_0, b_0);
-  return tmp.l1z(tmp_0, tmp_1, tmp$ret$1, -_this__u8e3s4.y25_1 + 2.0);
+  return tmp.n1z(tmp_0, tmp_1, tmp$ret$1, -_this__u8e3s4.b26_1 + 2.0);
 }
 function stepSlab(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
-  return Companion_instance_8.l1z(_this__u8e3s4.a26_1 - 30.0 / 2, -_this__u8e3s4.b26_1, _this__u8e3s4.a26_1 + 30.0 / 2, -_this__u8e3s4.b26_1 + 4.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.d26_1 - 30.0 / 2, -_this__u8e3s4.e26_1, _this__u8e3s4.d26_1 + 30.0 / 2, -_this__u8e3s4.e26_1 + 4.0);
 }
 function drawOf_25(_this__u8e3s4) {
   _init_properties_KitChest_kt__uxotqt();
@@ -12019,13 +12043,13 @@ function drawOf_25(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new RoundRect(get_E_2(), _this__u8e3s4.x25_1 - 9.0, -220.0, 18.0, 218.5, 3.0), false));
-  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.x25_1 - 25.0, -1.5, _this__u8e3s4.x25_1 + 25.0, -1.5, 3.0)));
-  this_0.i(new Placed(new RoundRect(get_E_2(), _this__u8e3s4.x25_1 - 7.0, -62.0, 14.0, 50.0, 2.0)));
-  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.x25_1, -_this__u8e3s4.y25_1, _this__u8e3s4.z25_1, -_this__u8e3s4.y25_1, 4.0)));
+  this_0.i(new Placed(new RoundRect(get_E_2(), _this__u8e3s4.a26_1 - 9.0, -220.0, 18.0, 218.5, 3.0), false));
+  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.a26_1 - 25.0, -1.5, _this__u8e3s4.a26_1 + 25.0, -1.5, 3.0)));
+  this_0.i(new Placed(new RoundRect(get_E_2(), _this__u8e3s4.a26_1 - 7.0, -62.0, 14.0, 50.0, 2.0)));
+  this_0.i(new Placed(new Capsule(get_E_2(), _this__u8e3s4.a26_1, -_this__u8e3s4.b26_1, _this__u8e3s4.c26_1, -_this__u8e3s4.b26_1, 4.0)));
   var step = stepSlab(_this__u8e3s4);
-  this_0.i(new Placed(cap_2(get_E_2(), _this__u8e3s4.c26_1, new Point(step.m1z_1, step.n1z_1 + 2.0), 5.0)));
-  this_0.i(new Placed(new Circle(get_E_2(), _this__u8e3s4.c26_1.p1o_1, _this__u8e3s4.c26_1.q1o_1, 4.0)));
+  this_0.i(new Placed(cap_2(get_E_2(), _this__u8e3s4.f26_1, new Point(step.o1z_1, step.p1z_1 + 2.0), 5.0)));
+  this_0.i(new Placed(new Circle(get_E_2(), _this__u8e3s4.f26_1.p1o_1, _this__u8e3s4.f26_1.q1o_1, 4.0)));
   this_0.i(new Placed(slabShape_0(get_E_2(), step)));
   return this_0.z3();
 }
@@ -12035,16 +12059,16 @@ function drawFrontOf_9(_this__u8e3s4, near, far) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  var ends = _this__u8e3s4.h1w_1 ? listOf([to(1.0, far), to(-1.0, near)]) : listOf([to(1.0, near), to(-1.0, far)]);
+  var ends = _this__u8e3s4.j1w_1 ? listOf([to(1.0, far), to(-1.0, near)]) : listOf([to(1.0, near), to(-1.0, far)]);
   var _iterator__ex2g4s = ends.j();
   while (_iterator__ex2g4s.k()) {
     var _destruct__k2r9zo = _iterator__ex2g4s.l();
     var sgn = _destruct__k2r9zo.ya();
     var end = _destruct__k2r9zo.za();
-    var cx = _this__u8e3s4.b1w_1 + sgn * _this__u8e3s4.f1w_1;
-    var pulley = new Point(cx - sgn * _this__u8e3s4.d1w_1, -_this__u8e3s4.c1w_1);
-    this_0.i(new Placed(new RoundRect(get_E_2(), cx - 9.0, -_this__u8e3s4.e1w_1, 18.0, _this__u8e3s4.e1w_1 - 1.5, 3.0), false));
-    this_0.i(new Placed(new Capsule(get_E_2(), cx, -_this__u8e3s4.c1w_1, pulley.p1o_1, pulley.q1o_1, 5.0)));
+    var cx = _this__u8e3s4.d1w_1 + sgn * _this__u8e3s4.h1w_1;
+    var pulley = new Point(cx - sgn * _this__u8e3s4.f1w_1, -_this__u8e3s4.e1w_1);
+    this_0.i(new Placed(new RoundRect(get_E_2(), cx - 9.0, -_this__u8e3s4.g1w_1, 18.0, _this__u8e3s4.g1w_1 - 1.5, 3.0), false));
+    this_0.i(new Placed(new Capsule(get_E_2(), cx, -_this__u8e3s4.e1w_1, pulley.p1o_1, pulley.q1o_1, 5.0)));
     this_0.i(new Placed(new Circle(get_E_2(), pulley.p1o_1, pulley.q1o_1, 4.0)));
     this_0.i(new Placed(new RoundRect(get_E_2(), cx - 7.0, -62.0, 14.0, 50.0, 2.0)));
     var tmp = get_E_2();
@@ -12054,7 +12078,7 @@ function drawFrontOf_9(_this__u8e3s4, near, far) {
 }
 function centerOn_2(_this__u8e3s4, s) {
   _init_properties_KitChest_kt__uxotqt();
-  return s.v1q(Segment_TORSO_getInstance().a() * 0.62, -(10.0 + _this__u8e3s4.f26_1 * 3.0 / 2));
+  return s.x1q(Segment_TORSO_getInstance().a() * 0.62, -(10.0 + _this__u8e3s4.i26_1 * 3.0 / 2));
 }
 function drawOn_7(_this__u8e3s4, s) {
   _init_properties_KitChest_kt__uxotqt();
@@ -12063,14 +12087,14 @@ function drawOn_7(_this__u8e3s4, s) {
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
   var inductionVariable = 0;
-  var last = _this__u8e3s4.f26_1;
+  var last = _this__u8e3s4.i26_1;
   if (inductionVariable < last)
     do {
       var i = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
-      var c = s.v1q(Segment_TORSO_getInstance().a() * 0.62, -(10.0 + (i + 0.5) * 3.0));
-      var plate = new Slab(c.p1o_1, c.q1o_1, 45.0, 3.0 - 0.4, s.l1q_1);
-      this_0.i(slabPolygon_1(Role_GAP_getInstance(), plate.u1z(VOID, VOID, plate.o1z_1 + 1.0, plate.p1z_1 + 0.8)));
+      var c = s.x1q(Segment_TORSO_getInstance().a() * 0.62, -(10.0 + (i + 0.5) * 3.0));
+      var plate = new Slab(c.p1o_1, c.q1o_1, 45.0, 3.0 - 0.4, s.m1q_1);
+      this_0.i(slabPolygon_1(Role_GAP_getInstance(), plate.w1z(VOID, VOID, plate.q1z_1 + 1.0, plate.r1z_1 + 0.8)));
       this_0.i(slabPolygon_1(Role_ACCENT_getInstance(), plate));
     }
      while (inductionVariable < last);
@@ -12079,8 +12103,8 @@ function drawOn_7(_this__u8e3s4, s) {
 function drawOn_8(_this__u8e3s4, s) {
   _init_properties_KitChest_kt__uxotqt();
   var tmp;
-  if (s.k1q_1.equals(View_SIDE_getInstance())) {
-    tmp = listOf_0(ring(Role_ACCENT_getInstance(), s.q1q_1.e1q_1.p1o_1, s.q1q_1.e1q_1.q1o_1, 3.4, 2.2));
+  if (s.l1q_1.equals(View_SIDE_getInstance())) {
+    tmp = listOf_0(ring(Role_ACCENT_getInstance(), s.r1q_1.f1q_1.p1o_1, s.r1q_1.f1q_1.q1o_1, 3.4, 2.2));
   } else {
     // Inline function 'kotlin.collections.map' call
     var this_0 = get_entries_0();
@@ -12090,7 +12114,7 @@ function drawOn_8(_this__u8e3s4, s) {
     while (_iterator__ex2g4s.k()) {
       var item = _iterator__ex2g4s.l();
       // Inline function 'kotlin.let' call
-      var it = s.u1q(item).e1q_1;
+      var it = s.w1q(item).f1q_1;
       var tmp$ret$2 = new Capsule(Role_ACCENT_getInstance(), it.p1o_1, it.q1o_1 - 5.0, it.p1o_1, it.q1o_1 + 5.0, 2.6);
       destination.i(tmp$ret$2);
     }
@@ -12124,9 +12148,9 @@ function BandAt(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
 function Companion_32() {
-  this.g26_1 = 2.5;
-  this.h26_1 = 7.0;
-  this.i26_1 = 6.0;
+  this.j26_1 = 2.5;
+  this.k26_1 = 7.0;
+  this.l26_1 = 6.0;
 }
 var Companion_instance_32;
 function Companion_getInstance_34() {
@@ -12134,25 +12158,25 @@ function Companion_getInstance_34() {
 }
 function MiniBand(at) {
   at = at === VOID ? BandAt_KNEES_getInstance() : at;
-  this.j26_1 = at;
+  this.m26_1 = at;
 }
 protoOf(MiniBand).toString = function () {
-  return 'MiniBand(at=' + this.j26_1.toString() + ')';
+  return 'MiniBand(at=' + this.m26_1.toString() + ')';
 };
 protoOf(MiniBand).hashCode = function () {
-  return this.j26_1.hashCode();
+  return this.m26_1.hashCode();
 };
 protoOf(MiniBand).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof MiniBand))
     return false;
-  if (!this.j26_1.equals(other.j26_1))
+  if (!this.m26_1.equals(other.m26_1))
     return false;
   return true;
 };
 function Companion_33() {
-  this.k26_1 = 65.0;
+  this.n26_1 = 65.0;
 }
 var Companion_instance_33;
 function Companion_getInstance_35() {
@@ -12160,18 +12184,18 @@ function Companion_getInstance_35() {
 }
 function StabilityBall(x, diameter) {
   diameter = diameter === VOID ? 65.0 : diameter;
-  this.l26_1 = x;
-  this.m26_1 = diameter;
+  this.o26_1 = x;
+  this.p26_1 = diameter;
 }
-protoOf(StabilityBall).n26 = function () {
-  return this.m26_1 / 2;
+protoOf(StabilityBall).q26 = function () {
+  return this.p26_1 / 2;
 };
 protoOf(StabilityBall).toString = function () {
-  return 'StabilityBall(x=' + this.l26_1 + ', diameter=' + this.m26_1 + ')';
+  return 'StabilityBall(x=' + this.o26_1 + ', diameter=' + this.p26_1 + ')';
 };
 protoOf(StabilityBall).hashCode = function () {
-  var result = getNumberHashCode(this.l26_1);
-  result = imul(result, 31) + getNumberHashCode(this.m26_1) | 0;
+  var result = getNumberHashCode(this.o26_1);
+  result = imul(result, 31) + getNumberHashCode(this.p26_1) | 0;
   return result;
 };
 protoOf(StabilityBall).equals = function (other) {
@@ -12179,58 +12203,58 @@ protoOf(StabilityBall).equals = function (other) {
     return true;
   if (!(other instanceof StabilityBall))
     return false;
-  if (!equals(this.l26_1, other.l26_1))
+  if (!equals(this.o26_1, other.o26_1))
     return false;
-  if (!equals(this.m26_1, other.m26_1))
+  if (!equals(this.p26_1, other.p26_1))
     return false;
   return true;
 };
 function Companion_34() {
-  this.o26_1 = 5.0;
+  this.r26_1 = 5.0;
 }
 var Companion_instance_34;
 function Companion_getInstance_36() {
   return Companion_instance_34;
 }
 function AnkleStrap(side) {
-  this.p26_1 = side;
+  this.s26_1 = side;
 }
 protoOf(AnkleStrap).toString = function () {
-  return 'AnkleStrap(side=' + this.p26_1.toString() + ')';
+  return 'AnkleStrap(side=' + this.s26_1.toString() + ')';
 };
 protoOf(AnkleStrap).hashCode = function () {
-  return this.p26_1.hashCode();
+  return this.s26_1.hashCode();
 };
 protoOf(AnkleStrap).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof AnkleStrap))
     return false;
-  if (!this.p26_1.equals(other.p26_1))
+  if (!this.s26_1.equals(other.s26_1))
     return false;
   return true;
 };
 function Companion_35() {
-  this.q26_1 = 6.0;
+  this.t26_1 = 6.0;
 }
 var Companion_instance_35;
 function Companion_getInstance_37() {
   return Companion_instance_35;
 }
 function NordicStation(padFrom, padTo, padHeight, roller) {
-  this.r26_1 = padFrom;
-  this.s26_1 = padTo;
-  this.t26_1 = padHeight;
-  this.u26_1 = roller;
+  this.u26_1 = padFrom;
+  this.v26_1 = padTo;
+  this.w26_1 = padHeight;
+  this.x26_1 = roller;
 }
 protoOf(NordicStation).toString = function () {
-  return 'NordicStation(padFrom=' + this.r26_1 + ', padTo=' + this.s26_1 + ', padHeight=' + this.t26_1 + ', roller=' + this.u26_1.toString() + ')';
+  return 'NordicStation(padFrom=' + this.u26_1 + ', padTo=' + this.v26_1 + ', padHeight=' + this.w26_1 + ', roller=' + this.x26_1.toString() + ')';
 };
 protoOf(NordicStation).hashCode = function () {
-  var result = getNumberHashCode(this.r26_1);
-  result = imul(result, 31) + getNumberHashCode(this.s26_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.t26_1) | 0;
-  result = imul(result, 31) + this.u26_1.hashCode() | 0;
+  var result = getNumberHashCode(this.u26_1);
+  result = imul(result, 31) + getNumberHashCode(this.v26_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.w26_1) | 0;
+  result = imul(result, 31) + this.x26_1.hashCode() | 0;
   return result;
 };
 protoOf(NordicStation).equals = function (other) {
@@ -12238,18 +12262,18 @@ protoOf(NordicStation).equals = function (other) {
     return true;
   if (!(other instanceof NordicStation))
     return false;
-  if (!equals(this.r26_1, other.r26_1))
+  if (!equals(this.u26_1, other.u26_1))
     return false;
-  if (!equals(this.s26_1, other.s26_1))
+  if (!equals(this.v26_1, other.v26_1))
     return false;
-  if (!equals(this.t26_1, other.t26_1))
+  if (!equals(this.w26_1, other.w26_1))
     return false;
-  if (!this.u26_1.equals(other.u26_1))
+  if (!this.x26_1.equals(other.x26_1))
     return false;
   return true;
 };
 function Companion_36() {
-  this.v26_1 = 8.0;
+  this.y26_1 = 8.0;
 }
 var Companion_instance_36;
 function Companion_getInstance_38() {
@@ -12257,19 +12281,19 @@ function Companion_getInstance_38() {
 }
 function ReverseHyperBench(edge, height, handle, length) {
   length = length === VOID ? 45.0 : length;
-  this.w26_1 = edge;
-  this.x26_1 = height;
-  this.y26_1 = handle;
-  this.z26_1 = length;
+  this.z26_1 = edge;
+  this.a27_1 = height;
+  this.b27_1 = handle;
+  this.c27_1 = length;
 }
 protoOf(ReverseHyperBench).toString = function () {
-  return 'ReverseHyperBench(edge=' + this.w26_1 + ', height=' + this.x26_1 + ', handle=' + this.y26_1.toString() + ', length=' + this.z26_1 + ')';
+  return 'ReverseHyperBench(edge=' + this.z26_1 + ', height=' + this.a27_1 + ', handle=' + this.b27_1.toString() + ', length=' + this.c27_1 + ')';
 };
 protoOf(ReverseHyperBench).hashCode = function () {
-  var result = getNumberHashCode(this.w26_1);
-  result = imul(result, 31) + getNumberHashCode(this.x26_1) | 0;
-  result = imul(result, 31) + this.y26_1.hashCode() | 0;
-  result = imul(result, 31) + getNumberHashCode(this.z26_1) | 0;
+  var result = getNumberHashCode(this.z26_1);
+  result = imul(result, 31) + getNumberHashCode(this.a27_1) | 0;
+  result = imul(result, 31) + this.b27_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.c27_1) | 0;
   return result;
 };
 protoOf(ReverseHyperBench).equals = function (other) {
@@ -12277,19 +12301,19 @@ protoOf(ReverseHyperBench).equals = function (other) {
     return true;
   if (!(other instanceof ReverseHyperBench))
     return false;
-  if (!equals(this.w26_1, other.w26_1))
-    return false;
-  if (!equals(this.x26_1, other.x26_1))
-    return false;
-  if (!this.y26_1.equals(other.y26_1))
-    return false;
   if (!equals(this.z26_1, other.z26_1))
+    return false;
+  if (!equals(this.a27_1, other.a27_1))
+    return false;
+  if (!this.b27_1.equals(other.b27_1))
+    return false;
+  if (!equals(this.c27_1, other.c27_1))
     return false;
   return true;
 };
 function Companion_37() {
-  this.a27_1 = 8.0;
-  this.b27_1 = 6.0;
+  this.d27_1 = 8.0;
+  this.e27_1 = 6.0;
 }
 var Companion_instance_37;
 function Companion_getInstance_39() {
@@ -12297,23 +12321,23 @@ function Companion_getInstance_39() {
 }
 function LyingLegCurlMachine(kneeEnd, height, pivot, roller, handle, length) {
   length = length === VOID ? 110.0 : length;
-  this.c27_1 = kneeEnd;
-  this.d27_1 = height;
-  this.e27_1 = pivot;
-  this.f27_1 = roller;
-  this.g27_1 = handle;
-  this.h27_1 = length;
+  this.f27_1 = kneeEnd;
+  this.g27_1 = height;
+  this.h27_1 = pivot;
+  this.i27_1 = roller;
+  this.j27_1 = handle;
+  this.k27_1 = length;
 }
 protoOf(LyingLegCurlMachine).toString = function () {
-  return 'LyingLegCurlMachine(kneeEnd=' + this.c27_1 + ', height=' + this.d27_1 + ', pivot=' + this.e27_1.toString() + ', roller=' + this.f27_1.toString() + ', handle=' + this.g27_1.toString() + ', length=' + this.h27_1 + ')';
+  return 'LyingLegCurlMachine(kneeEnd=' + this.f27_1 + ', height=' + this.g27_1 + ', pivot=' + this.h27_1.toString() + ', roller=' + this.i27_1.toString() + ', handle=' + this.j27_1.toString() + ', length=' + this.k27_1 + ')';
 };
 protoOf(LyingLegCurlMachine).hashCode = function () {
-  var result = getNumberHashCode(this.c27_1);
-  result = imul(result, 31) + getNumberHashCode(this.d27_1) | 0;
-  result = imul(result, 31) + this.e27_1.hashCode() | 0;
-  result = imul(result, 31) + this.f27_1.hashCode() | 0;
-  result = imul(result, 31) + this.g27_1.hashCode() | 0;
-  result = imul(result, 31) + getNumberHashCode(this.h27_1) | 0;
+  var result = getNumberHashCode(this.f27_1);
+  result = imul(result, 31) + getNumberHashCode(this.g27_1) | 0;
+  result = imul(result, 31) + this.h27_1.hashCode() | 0;
+  result = imul(result, 31) + this.i27_1.hashCode() | 0;
+  result = imul(result, 31) + this.j27_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k27_1) | 0;
   return result;
 };
 protoOf(LyingLegCurlMachine).equals = function (other) {
@@ -12321,49 +12345,49 @@ protoOf(LyingLegCurlMachine).equals = function (other) {
     return true;
   if (!(other instanceof LyingLegCurlMachine))
     return false;
-  if (!equals(this.c27_1, other.c27_1))
+  if (!equals(this.f27_1, other.f27_1))
     return false;
-  if (!equals(this.d27_1, other.d27_1))
+  if (!equals(this.g27_1, other.g27_1))
     return false;
-  if (!this.e27_1.equals(other.e27_1))
+  if (!this.h27_1.equals(other.h27_1))
     return false;
-  if (!this.f27_1.equals(other.f27_1))
+  if (!this.i27_1.equals(other.i27_1))
     return false;
-  if (!this.g27_1.equals(other.g27_1))
+  if (!this.j27_1.equals(other.j27_1))
     return false;
-  if (!equals(this.h27_1, other.h27_1))
+  if (!equals(this.k27_1, other.k27_1))
     return false;
   return true;
 };
 function Companion_38() {
-  this.i27_1 = 40.0;
-  this.j27_1 = 60.0;
-  this.k27_1 = 6.0;
+  this.l27_1 = 40.0;
+  this.m27_1 = 60.0;
+  this.n27_1 = 6.0;
 }
 var Companion_instance_38;
 function Companion_getInstance_40() {
   return Companion_instance_38;
 }
 function SeatedLegCurlMachine(seatFront, seatHeight, backAngle, pivot, roller, lap, handle) {
-  this.l27_1 = seatFront;
-  this.m27_1 = seatHeight;
-  this.n27_1 = backAngle;
-  this.o27_1 = pivot;
-  this.p27_1 = roller;
-  this.q27_1 = lap;
-  this.r27_1 = handle;
+  this.o27_1 = seatFront;
+  this.p27_1 = seatHeight;
+  this.q27_1 = backAngle;
+  this.r27_1 = pivot;
+  this.s27_1 = roller;
+  this.t27_1 = lap;
+  this.u27_1 = handle;
 }
 protoOf(SeatedLegCurlMachine).toString = function () {
-  return 'SeatedLegCurlMachine(seatFront=' + this.l27_1 + ', seatHeight=' + this.m27_1 + ', backAngle=' + this.n27_1 + ', pivot=' + this.o27_1.toString() + ', roller=' + this.p27_1.toString() + ', lap=' + this.q27_1.toString() + ', handle=' + this.r27_1.toString() + ')';
+  return 'SeatedLegCurlMachine(seatFront=' + this.o27_1 + ', seatHeight=' + this.p27_1 + ', backAngle=' + this.q27_1 + ', pivot=' + this.r27_1.toString() + ', roller=' + this.s27_1.toString() + ', lap=' + this.t27_1.toString() + ', handle=' + this.u27_1.toString() + ')';
 };
 protoOf(SeatedLegCurlMachine).hashCode = function () {
-  var result = getNumberHashCode(this.l27_1);
-  result = imul(result, 31) + getNumberHashCode(this.m27_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.n27_1) | 0;
-  result = imul(result, 31) + this.o27_1.hashCode() | 0;
-  result = imul(result, 31) + this.p27_1.hashCode() | 0;
-  result = imul(result, 31) + this.q27_1.hashCode() | 0;
+  var result = getNumberHashCode(this.o27_1);
+  result = imul(result, 31) + getNumberHashCode(this.p27_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.q27_1) | 0;
   result = imul(result, 31) + this.r27_1.hashCode() | 0;
+  result = imul(result, 31) + this.s27_1.hashCode() | 0;
+  result = imul(result, 31) + this.t27_1.hashCode() | 0;
+  result = imul(result, 31) + this.u27_1.hashCode() | 0;
   return result;
 };
 protoOf(SeatedLegCurlMachine).equals = function (other) {
@@ -12371,45 +12395,45 @@ protoOf(SeatedLegCurlMachine).equals = function (other) {
     return true;
   if (!(other instanceof SeatedLegCurlMachine))
     return false;
-  if (!equals(this.l27_1, other.l27_1))
+  if (!equals(this.o27_1, other.o27_1))
     return false;
-  if (!equals(this.m27_1, other.m27_1))
+  if (!equals(this.p27_1, other.p27_1))
     return false;
-  if (!equals(this.n27_1, other.n27_1))
-    return false;
-  if (!this.o27_1.equals(other.o27_1))
-    return false;
-  if (!this.p27_1.equals(other.p27_1))
-    return false;
-  if (!this.q27_1.equals(other.q27_1))
+  if (!equals(this.q27_1, other.q27_1))
     return false;
   if (!this.r27_1.equals(other.r27_1))
+    return false;
+  if (!this.s27_1.equals(other.s27_1))
+    return false;
+  if (!this.t27_1.equals(other.t27_1))
+    return false;
+  if (!this.u27_1.equals(other.u27_1))
     return false;
   return true;
 };
 function Companion_39() {
-  this.s27_1 = 6.0;
+  this.v27_1 = 6.0;
 }
 var Companion_instance_39;
 function Companion_getInstance_41() {
   return Companion_instance_39;
 }
 function StandingLegCurlMachine(postX, thighPad, pivot, roller, handle) {
-  this.t27_1 = postX;
-  this.u27_1 = thighPad;
-  this.v27_1 = pivot;
-  this.w27_1 = roller;
-  this.x27_1 = handle;
+  this.w27_1 = postX;
+  this.x27_1 = thighPad;
+  this.y27_1 = pivot;
+  this.z27_1 = roller;
+  this.a28_1 = handle;
 }
 protoOf(StandingLegCurlMachine).toString = function () {
-  return 'StandingLegCurlMachine(postX=' + this.t27_1 + ', thighPad=' + this.u27_1.toString() + ', pivot=' + this.v27_1.toString() + ', roller=' + this.w27_1.toString() + ', handle=' + this.x27_1.toString() + ')';
+  return 'StandingLegCurlMachine(postX=' + this.w27_1 + ', thighPad=' + this.x27_1.toString() + ', pivot=' + this.y27_1.toString() + ', roller=' + this.z27_1.toString() + ', handle=' + this.a28_1.toString() + ')';
 };
 protoOf(StandingLegCurlMachine).hashCode = function () {
-  var result = getNumberHashCode(this.t27_1);
-  result = imul(result, 31) + this.u27_1.hashCode() | 0;
-  result = imul(result, 31) + this.v27_1.hashCode() | 0;
-  result = imul(result, 31) + this.w27_1.hashCode() | 0;
+  var result = getNumberHashCode(this.w27_1);
   result = imul(result, 31) + this.x27_1.hashCode() | 0;
+  result = imul(result, 31) + this.y27_1.hashCode() | 0;
+  result = imul(result, 31) + this.z27_1.hashCode() | 0;
+  result = imul(result, 31) + this.a28_1.hashCode() | 0;
   return result;
 };
 protoOf(StandingLegCurlMachine).equals = function (other) {
@@ -12417,44 +12441,44 @@ protoOf(StandingLegCurlMachine).equals = function (other) {
     return true;
   if (!(other instanceof StandingLegCurlMachine))
     return false;
-  if (!equals(this.t27_1, other.t27_1))
-    return false;
-  if (!this.u27_1.equals(other.u27_1))
-    return false;
-  if (!this.v27_1.equals(other.v27_1))
-    return false;
-  if (!this.w27_1.equals(other.w27_1))
+  if (!equals(this.w27_1, other.w27_1))
     return false;
   if (!this.x27_1.equals(other.x27_1))
+    return false;
+  if (!this.y27_1.equals(other.y27_1))
+    return false;
+  if (!this.z27_1.equals(other.z27_1))
+    return false;
+  if (!this.a28_1.equals(other.a28_1))
     return false;
   return true;
 };
 function Companion_40() {
-  this.y27_1 = 30.0;
-  this.z27_1 = 50.0;
-  this.a28_1 = 5.0;
-  this.b28_1 = 7.0;
+  this.b28_1 = 30.0;
+  this.c28_1 = 50.0;
+  this.d28_1 = 5.0;
+  this.e28_1 = 7.0;
 }
 var Companion_instance_40;
 function Companion_getInstance_42() {
   return Companion_instance_40;
 }
 function HipThrustMachine(benchEdge, benchHeight, platform, pivot, pad) {
-  this.c28_1 = benchEdge;
-  this.d28_1 = benchHeight;
-  this.e28_1 = platform;
-  this.f28_1 = pivot;
-  this.g28_1 = pad;
+  this.f28_1 = benchEdge;
+  this.g28_1 = benchHeight;
+  this.h28_1 = platform;
+  this.i28_1 = pivot;
+  this.j28_1 = pad;
 }
 protoOf(HipThrustMachine).toString = function () {
-  return 'HipThrustMachine(benchEdge=' + this.c28_1 + ', benchHeight=' + this.d28_1 + ', platform=' + this.e28_1.toString() + ', pivot=' + this.f28_1.toString() + ', pad=' + this.g28_1.toString() + ')';
+  return 'HipThrustMachine(benchEdge=' + this.f28_1 + ', benchHeight=' + this.g28_1 + ', platform=' + this.h28_1.toString() + ', pivot=' + this.i28_1.toString() + ', pad=' + this.j28_1.toString() + ')';
 };
 protoOf(HipThrustMachine).hashCode = function () {
-  var result = getNumberHashCode(this.c28_1);
-  result = imul(result, 31) + getNumberHashCode(this.d28_1) | 0;
-  result = imul(result, 31) + this.e28_1.hashCode() | 0;
-  result = imul(result, 31) + this.f28_1.hashCode() | 0;
-  result = imul(result, 31) + this.g28_1.hashCode() | 0;
+  var result = getNumberHashCode(this.f28_1);
+  result = imul(result, 31) + getNumberHashCode(this.g28_1) | 0;
+  result = imul(result, 31) + this.h28_1.hashCode() | 0;
+  result = imul(result, 31) + this.i28_1.hashCode() | 0;
+  result = imul(result, 31) + this.j28_1.hashCode() | 0;
   return result;
 };
 protoOf(HipThrustMachine).equals = function (other) {
@@ -12462,22 +12486,22 @@ protoOf(HipThrustMachine).equals = function (other) {
     return true;
   if (!(other instanceof HipThrustMachine))
     return false;
-  if (!equals(this.c28_1, other.c28_1))
+  if (!equals(this.f28_1, other.f28_1))
     return false;
-  if (!equals(this.d28_1, other.d28_1))
+  if (!equals(this.g28_1, other.g28_1))
     return false;
-  if (!this.e28_1.equals(other.e28_1))
+  if (!this.h28_1.equals(other.h28_1))
     return false;
-  if (!this.f28_1.equals(other.f28_1))
+  if (!this.i28_1.equals(other.i28_1))
     return false;
-  if (!this.g28_1.equals(other.g28_1))
+  if (!this.j28_1.equals(other.j28_1))
     return false;
   return true;
 };
 function Companion_41() {
-  this.h28_1 = 44.0;
-  this.i28_1 = 25.0;
-  this.j28_1 = 4.0;
+  this.k28_1 = 44.0;
+  this.l28_1 = 25.0;
+  this.m28_1 = 4.0;
 }
 var Companion_instance_41;
 function Companion_getInstance_43() {
@@ -12485,21 +12509,21 @@ function Companion_getInstance_43() {
 }
 function HipMachine(x, seatHeight, padTop, padsOutside, handle) {
   handle = handle === VOID ? null : handle;
-  this.k28_1 = x;
-  this.l28_1 = seatHeight;
-  this.m28_1 = padTop;
-  this.n28_1 = padsOutside;
-  this.o28_1 = handle;
+  this.n28_1 = x;
+  this.o28_1 = seatHeight;
+  this.p28_1 = padTop;
+  this.q28_1 = padsOutside;
+  this.r28_1 = handle;
 }
 protoOf(HipMachine).toString = function () {
-  return 'HipMachine(x=' + this.k28_1 + ', seatHeight=' + this.l28_1 + ', padTop=' + this.m28_1 + ', padsOutside=' + this.n28_1 + ', handle=' + toString_0(this.o28_1) + ')';
+  return 'HipMachine(x=' + this.n28_1 + ', seatHeight=' + this.o28_1 + ', padTop=' + this.p28_1 + ', padsOutside=' + this.q28_1 + ', handle=' + toString_0(this.r28_1) + ')';
 };
 protoOf(HipMachine).hashCode = function () {
-  var result = getNumberHashCode(this.k28_1);
-  result = imul(result, 31) + getNumberHashCode(this.l28_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.m28_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.n28_1) | 0;
-  result = imul(result, 31) + (this.o28_1 == null ? 0 : this.o28_1.hashCode()) | 0;
+  var result = getNumberHashCode(this.n28_1);
+  result = imul(result, 31) + getNumberHashCode(this.o28_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.p28_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.q28_1) | 0;
+  result = imul(result, 31) + (this.r28_1 == null ? 0 : this.r28_1.hashCode()) | 0;
   return result;
 };
 protoOf(HipMachine).equals = function (other) {
@@ -12507,15 +12531,15 @@ protoOf(HipMachine).equals = function (other) {
     return true;
   if (!(other instanceof HipMachine))
     return false;
-  if (!equals(this.k28_1, other.k28_1))
-    return false;
-  if (!equals(this.l28_1, other.l28_1))
-    return false;
-  if (!equals(this.m28_1, other.m28_1))
-    return false;
-  if (!(this.n28_1 === other.n28_1))
+  if (!equals(this.n28_1, other.n28_1))
     return false;
   if (!equals(this.o28_1, other.o28_1))
+    return false;
+  if (!equals(this.p28_1, other.p28_1))
+    return false;
+  if (!(this.q28_1 === other.q28_1))
+    return false;
+  if (!equals(this.r28_1, other.r28_1))
     return false;
   return true;
 };
@@ -12526,12 +12550,12 @@ function cap_3(role, a, b, width) {
 function box_1(role, s, radius) {
   radius = radius === VOID ? 2.0 : radius;
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return new RoundRect(role, s.m1z_1 - s.o1z_1 / 2, s.n1z_1 - s.p1z_1 / 2, s.o1z_1, s.p1z_1, radius);
+  return new RoundRect(role, s.o1z_1 - s.q1z_1 / 2, s.p1z_1 - s.r1z_1 / 2, s.q1z_1, s.r1z_1, radius);
 }
 function slabPolygon_2(role, s) {
   _init_properties_KitHamstrings_kt__p3a3ym();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = s.s1z();
+  var tmp0 = s.u1z();
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -12561,7 +12585,7 @@ function unitOf(v) {
 }
 function ends(_this__u8e3s4, s) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return to(ends$at(_this__u8e3s4, s.q1q_1), ends$at(_this__u8e3s4, s.r1q_1));
+  return to(ends$at(_this__u8e3s4, s.r1q_1), ends$at(_this__u8e3s4, s.s1q_1));
 }
 function drawFrontOf_10(_this__u8e3s4, s) {
   _init_properties_KitHamstrings_kt__p3a3ym();
@@ -12574,33 +12598,33 @@ function drawFrontOf_10(_this__u8e3s4, s) {
 }
 function slab_0(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return roller_0(new Point(_this__u8e3s4.l26_1, -_this__u8e3s4.n26()), _this__u8e3s4.n26());
+  return roller_0(new Point(_this__u8e3s4.o26_1, -_this__u8e3s4.q26()), _this__u8e3s4.q26());
 }
 function drawOf_26(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return listOf([new Placed(new Circle(get_E_3(), _this__u8e3s4.l26_1, -_this__u8e3s4.n26(), _this__u8e3s4.n26())), new Placed(ring(Role_GAP_getInstance(), _this__u8e3s4.l26_1, -_this__u8e3s4.n26(), _this__u8e3s4.n26() * 0.62, _this__u8e3s4.n26() * 0.62 - 0.8))]);
+  return listOf([new Placed(new Circle(get_E_3(), _this__u8e3s4.o26_1, -_this__u8e3s4.q26(), _this__u8e3s4.q26())), new Placed(ring(Role_GAP_getInstance(), _this__u8e3s4.o26_1, -_this__u8e3s4.q26(), _this__u8e3s4.q26() * 0.62, _this__u8e3s4.q26() * 0.62 - 0.8))]);
 }
 function centerOn_3(_this__u8e3s4, s) {
   _init_properties_KitHamstrings_kt__p3a3ym();
   // Inline function 'kotlin.let' call
-  var it = s.u1q(_this__u8e3s4.p26_1);
-  return it.h1q_1.r1o(unitOf(it.g1q_1.s1o(it.h1q_1)).t1o(5.0));
+  var it = s.w1q(_this__u8e3s4.s26_1);
+  return it.i1q_1.r1o(unitOf(it.h1q_1.s1o(it.i1q_1)).t1o(5.0));
 }
 function drawOn_9(_this__u8e3s4, s) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  var l = s.u1q(_this__u8e3s4.p26_1);
+  var l = s.w1q(_this__u8e3s4.s26_1);
   var c = centerOn_3(_this__u8e3s4, s);
-  var along = unitOf(l.g1q_1.s1o(l.h1q_1));
+  var along = unitOf(l.h1q_1.s1o(l.i1q_1));
   var across = (new Point(-along.q1o_1, along.p1o_1)).t1o(11.0 / 2 + 1.0);
   return listOf_0(cap_3(Role_ACCENT_getInstance(), c.s1o(across), c.r1o(across), 3.0));
 }
 function padSlab_9(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return Companion_instance_8.l1z(_this__u8e3s4.r26_1, -_this__u8e3s4.t26_1, _this__u8e3s4.s26_1, 0.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.u26_1, -_this__u8e3s4.w26_1, _this__u8e3s4.v26_1, 0.0);
 }
 function rollerSlab_0(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return roller_0(_this__u8e3s4.u26_1, 6.0);
+  return roller_0(_this__u8e3s4.x26_1, 6.0);
 }
 function drawOf_27(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
@@ -12608,38 +12632,38 @@ function drawOf_27(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  var base = _this__u8e3s4.u26_1.p1o_1 - 32.0;
+  var base = _this__u8e3s4.x26_1.p1o_1 - 32.0;
   this_0.i(new Placed(new Capsule(get_E_3(), base - 15.0, -1.5, base + 15.0, -1.5, 3.0)));
-  this_0.i(new Placed(cap_3(get_E_3(), new Point(base, -1.5), _this__u8e3s4.u26_1, 4.0)));
+  this_0.i(new Placed(cap_3(get_E_3(), new Point(base, -1.5), _this__u8e3s4.x26_1, 4.0)));
   this_0.i(new Placed(box_1(get_E_3(), padSlab_9(_this__u8e3s4), 2.0)));
-  this_0.i(new Placed(new Circle(get_E_3(), _this__u8e3s4.u26_1.p1o_1, _this__u8e3s4.u26_1.q1o_1, 6.0)));
+  this_0.i(new Placed(new Circle(get_E_3(), _this__u8e3s4.x26_1.p1o_1, _this__u8e3s4.x26_1.q1o_1, 6.0)));
   return this_0.z3();
 }
 function padSlab_10(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return Companion_instance_8.l1z(_this__u8e3s4.w26_1, -_this__u8e3s4.x26_1, _this__u8e3s4.w26_1 + _this__u8e3s4.z26_1, -_this__u8e3s4.x26_1 + 8.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.z26_1, -_this__u8e3s4.a27_1, _this__u8e3s4.z26_1 + _this__u8e3s4.c27_1, -_this__u8e3s4.a27_1 + 8.0);
 }
 function handleSlab_2(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return new Slab(_this__u8e3s4.y26_1.p1o_1, _this__u8e3s4.y26_1.q1o_1, 6.0, 3.0);
+  return new Slab(_this__u8e3s4.b27_1.p1o_1, _this__u8e3s4.b27_1.q1o_1, 6.0, 3.0);
 }
 function posts(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
   // Inline function 'kotlin.collections.map' call
-  var this_0 = listOf([_this__u8e3s4.w26_1 + 24.0, _this__u8e3s4.w26_1 + _this__u8e3s4.z26_1 - 8.0]);
+  var this_0 = listOf([_this__u8e3s4.z26_1 + 24.0, _this__u8e3s4.z26_1 + _this__u8e3s4.c27_1 - 8.0]);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = Companion_instance_8.l1z(item - 2.5, -_this__u8e3s4.x26_1 + 8.0, item + 2.5, 0.0);
+    var tmp$ret$2 = Companion_instance_8.n1z(item - 2.5, -_this__u8e3s4.a27_1 + 8.0, item + 2.5, 0.0);
     destination.i(tmp$ret$2);
   }
   return destination;
 }
 function drawFrontOf_11(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return frontRoller_0(_this__u8e3s4.y26_1, 2.2);
+  return frontRoller_0(_this__u8e3s4.b27_1, 2.2);
 }
 function drawOf_28(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
@@ -12647,29 +12671,29 @@ function drawOf_28(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.w26_1 - 5.0, -1.5, _this__u8e3s4.w26_1 + _this__u8e3s4.z26_1 + 15.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.z26_1 - 5.0, -1.5, _this__u8e3s4.z26_1 + _this__u8e3s4.c27_1 + 15.0, -1.5, 3.0)));
   var _iterator__ex2g4s = posts(_this__u8e3s4).j();
   while (_iterator__ex2g4s.k()) {
     var p = _iterator__ex2g4s.l();
-    this_0.i(new Placed(new Capsule(get_E_3(), p.m1z_1, p.n1z_1 - p.p1z_1 / 2, p.m1z_1, -1.5, 5.0)));
+    this_0.i(new Placed(new Capsule(get_E_3(), p.o1z_1, p.p1z_1 - p.r1z_1 / 2, p.o1z_1, -1.5, 5.0)));
   }
-  var top = new Point(_this__u8e3s4.w26_1 + _this__u8e3s4.z26_1 - 4.0, -_this__u8e3s4.x26_1 + 8.0);
-  this_0.i(new Placed(cap_3(get_E_3(), top, _this__u8e3s4.y26_1, 3.5)));
-  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.y26_1.p1o_1 - 3.0, _this__u8e3s4.y26_1.q1o_1, _this__u8e3s4.y26_1.p1o_1 + 3.0, _this__u8e3s4.y26_1.q1o_1, 3.5)));
+  var top = new Point(_this__u8e3s4.z26_1 + _this__u8e3s4.c27_1 - 4.0, -_this__u8e3s4.a27_1 + 8.0);
+  this_0.i(new Placed(cap_3(get_E_3(), top, _this__u8e3s4.b27_1, 3.5)));
+  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.b27_1.p1o_1 - 3.0, _this__u8e3s4.b27_1.q1o_1, _this__u8e3s4.b27_1.p1o_1 + 3.0, _this__u8e3s4.b27_1.q1o_1, 3.5)));
   this_0.i(new Placed(box_1(get_E_3(), padSlab_10(_this__u8e3s4), 2.5)));
   return this_0.z3();
 }
 function padSlab_11(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return Companion_instance_8.l1z(_this__u8e3s4.c27_1, -_this__u8e3s4.d27_1, _this__u8e3s4.c27_1 + _this__u8e3s4.h27_1, -_this__u8e3s4.d27_1 + 8.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.f27_1, -_this__u8e3s4.g27_1, _this__u8e3s4.f27_1 + _this__u8e3s4.k27_1, -_this__u8e3s4.g27_1 + 8.0);
 }
 function rollerSlab_1(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return roller_0(_this__u8e3s4.f27_1, 6.0);
+  return roller_0(_this__u8e3s4.i27_1, 6.0);
 }
 function handleSlab_3(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return new Slab(_this__u8e3s4.g27_1.p1o_1, _this__u8e3s4.g27_1.q1o_1, 6.0, 3.0);
+  return new Slab(_this__u8e3s4.j27_1.p1o_1, _this__u8e3s4.j27_1.q1o_1, 6.0, 3.0);
 }
 function drawOf_29(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
@@ -12677,44 +12701,44 @@ function drawOf_29(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  var underside = -_this__u8e3s4.d27_1 + 8.0;
-  var back = _this__u8e3s4.c27_1 + 12.0;
-  var front = _this__u8e3s4.c27_1 + _this__u8e3s4.h27_1 - 15.0;
+  var underside = -_this__u8e3s4.g27_1 + 8.0;
+  var back = _this__u8e3s4.f27_1 + 12.0;
+  var front = _this__u8e3s4.f27_1 + _this__u8e3s4.k27_1 - 15.0;
   this_0.i(new Placed(new Capsule(get_E_3(), back - 15.0, -1.5, front + 25.0, -1.5, 3.0)));
   this_0.i(new Placed(new Capsule(get_E_3(), back, underside, back, -1.5, 5.0)));
   this_0.i(new Placed(new Capsule(get_E_3(), front, underside, front, -1.5, 5.0)));
-  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.c27_1 + 6.0, underside), _this__u8e3s4.e27_1, 5.0)));
-  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.c27_1 + _this__u8e3s4.h27_1 - 6.0, underside), _this__u8e3s4.g27_1, 3.5)));
-  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.g27_1.p1o_1 - 3.0, _this__u8e3s4.g27_1.q1o_1, _this__u8e3s4.g27_1.p1o_1 + 3.0, _this__u8e3s4.g27_1.q1o_1, 3.5)));
+  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.f27_1 + 6.0, underside), _this__u8e3s4.h27_1, 5.0)));
+  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.f27_1 + _this__u8e3s4.k27_1 - 6.0, underside), _this__u8e3s4.j27_1, 3.5)));
+  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.j27_1.p1o_1 - 3.0, _this__u8e3s4.j27_1.q1o_1, _this__u8e3s4.j27_1.p1o_1 + 3.0, _this__u8e3s4.j27_1.q1o_1, 3.5)));
   this_0.i(new Placed(box_1(get_E_3(), padSlab_11(_this__u8e3s4), 2.5)));
   return this_0.z3();
 }
 function drawFrontOf_12(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return plus(plus(frontLever(_this__u8e3s4.e27_1, _this__u8e3s4.f27_1), frontRoller_0(_this__u8e3s4.f27_1, 6.0)), frontRoller_0(_this__u8e3s4.e27_1, 3.5));
+  return plus(plus(frontLever(_this__u8e3s4.h27_1, _this__u8e3s4.i27_1), frontRoller_0(_this__u8e3s4.i27_1, 6.0)), frontRoller_0(_this__u8e3s4.h27_1, 3.5));
 }
 function seatSlab_5(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return Companion_instance_8.l1z(_this__u8e3s4.l27_1 - 40.0, -_this__u8e3s4.m27_1, _this__u8e3s4.l27_1, -_this__u8e3s4.m27_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.o27_1 - 40.0, -_this__u8e3s4.p27_1, _this__u8e3s4.o27_1, -_this__u8e3s4.p27_1 + 6.0);
 }
 function backSlab(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  var hinge = new Point(_this__u8e3s4.l27_1 - 40.0, -_this__u8e3s4.m27_1);
-  var along = 180.0 - _this__u8e3s4.n27_1;
+  var hinge = new Point(_this__u8e3s4.o27_1 - 40.0, -_this__u8e3s4.p27_1);
+  var along = 180.0 - _this__u8e3s4.q27_1;
   var c = hinge.r1o(dir(along).t1o(60.0 / 2)).r1o(dir(along + 90.0).t1o(6.0 / 2));
   return new Slab(c.p1o_1, c.q1o_1, 60.0, 6.0, along);
 }
 function rollerSlab_2(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return roller_0(_this__u8e3s4.p27_1, 6.0);
+  return roller_0(_this__u8e3s4.s27_1, 6.0);
 }
 function lapSlab(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return roller_0(_this__u8e3s4.q27_1, 6.0);
+  return roller_0(_this__u8e3s4.t27_1, 6.0);
 }
 function handleSlab_4(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return new Slab(_this__u8e3s4.r27_1.p1o_1, _this__u8e3s4.r27_1.q1o_1, 3.0, 6.0);
+  return new Slab(_this__u8e3s4.u27_1.p1o_1, _this__u8e3s4.u27_1.q1o_1, 3.0, 6.0);
 }
 function drawOf_30(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
@@ -12723,12 +12747,12 @@ function drawOf_30(_this__u8e3s4) {
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
   var seat = seatSlab_5(_this__u8e3s4);
-  var mid = _this__u8e3s4.l27_1 - 40.0 / 2;
-  this_0.i(new Placed(new Capsule(get_E_3(), mid - 30.0, -1.5, _this__u8e3s4.o27_1.p1o_1 + 25.0, -1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E_3(), mid, -_this__u8e3s4.m27_1 + 6.0, mid, -1.5, 6.0)));
-  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.l27_1 - 4.0, -_this__u8e3s4.m27_1 + 6.0 + 2.0), new Point(_this__u8e3s4.o27_1.p1o_1 + 4.0, -_this__u8e3s4.m27_1 + 6.0 + 2.0), 5.0)));
-  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.o27_1.p1o_1 + 4.0, -1.5), _this__u8e3s4.o27_1, 5.0)));
-  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.r27_1.p1o_1 - 6.0, -_this__u8e3s4.m27_1 + 6.0), _this__u8e3s4.r27_1, 3.0)));
+  var mid = _this__u8e3s4.o27_1 - 40.0 / 2;
+  this_0.i(new Placed(new Capsule(get_E_3(), mid - 30.0, -1.5, _this__u8e3s4.r27_1.p1o_1 + 25.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_3(), mid, -_this__u8e3s4.p27_1 + 6.0, mid, -1.5, 6.0)));
+  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.o27_1 - 4.0, -_this__u8e3s4.p27_1 + 6.0 + 2.0), new Point(_this__u8e3s4.r27_1.p1o_1 + 4.0, -_this__u8e3s4.p27_1 + 6.0 + 2.0), 5.0)));
+  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.r27_1.p1o_1 + 4.0, -1.5), _this__u8e3s4.r27_1, 5.0)));
+  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.u27_1.p1o_1 - 6.0, -_this__u8e3s4.p27_1 + 6.0), _this__u8e3s4.u27_1, 3.0)));
   this_0.i(new Placed(box_1(get_E_3(), seat)));
   this_0.i(new Placed(slabPolygon_2(get_E_3(), backSlab(_this__u8e3s4))));
   return this_0.z3();
@@ -12736,19 +12760,19 @@ function drawOf_30(_this__u8e3s4) {
 function drawFrontOf_13(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
   var r = 6.0;
-  return plus(plus(plus(plus(frontLever(_this__u8e3s4.o27_1, _this__u8e3s4.p27_1), frontRoller_0(_this__u8e3s4.p27_1, r)), frontLever(_this__u8e3s4.o27_1, _this__u8e3s4.q27_1, 3.5)), frontRoller_0(_this__u8e3s4.q27_1, r)), frontRoller_0(_this__u8e3s4.o27_1, 3.5));
+  return plus(plus(plus(plus(frontLever(_this__u8e3s4.r27_1, _this__u8e3s4.s27_1), frontRoller_0(_this__u8e3s4.s27_1, r)), frontLever(_this__u8e3s4.r27_1, _this__u8e3s4.t27_1, 3.5)), frontRoller_0(_this__u8e3s4.t27_1, r)), frontRoller_0(_this__u8e3s4.r27_1, 3.5));
 }
 function thighSlab(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return roller_0(_this__u8e3s4.u27_1, 6.0);
+  return roller_0(_this__u8e3s4.x27_1, 6.0);
 }
 function rollerSlab_3(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return roller_0(_this__u8e3s4.w27_1, 6.0);
+  return roller_0(_this__u8e3s4.z27_1, 6.0);
 }
 function handleSlab_5(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return new Slab(_this__u8e3s4.x27_1.p1o_1, _this__u8e3s4.x27_1.q1o_1, 3.0, 6.0);
+  return new Slab(_this__u8e3s4.a28_1.p1o_1, _this__u8e3s4.a28_1.q1o_1, 3.0, 6.0);
 }
 function drawOf_31(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
@@ -12756,34 +12780,34 @@ function drawOf_31(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  var tmp0 = _this__u8e3s4.x27_1.q1o_1;
+  var tmp0 = _this__u8e3s4.a28_1.q1o_1;
   // Inline function 'kotlin.math.min' call
-  var b = _this__u8e3s4.u27_1.q1o_1;
+  var b = _this__u8e3s4.x27_1.q1o_1;
   var top = Math.min(tmp0, b) - 4.0;
-  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.t27_1 - 25.0, -1.5, _this__u8e3s4.t27_1 + 25.0, -1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.t27_1, -1.5, _this__u8e3s4.t27_1, top, 6.0)));
-  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.t27_1, _this__u8e3s4.x27_1.q1o_1), _this__u8e3s4.x27_1, 3.5)));
-  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.x27_1.p1o_1, _this__u8e3s4.x27_1.q1o_1 - 4.0, _this__u8e3s4.x27_1.p1o_1, _this__u8e3s4.x27_1.q1o_1 + 4.0, 3.5)));
-  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.t27_1, _this__u8e3s4.u27_1.q1o_1), _this__u8e3s4.u27_1, 4.0)));
-  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.t27_1, _this__u8e3s4.v27_1.q1o_1), _this__u8e3s4.v27_1, 4.0)));
-  this_0.i(new Placed(new Circle(get_E_3(), _this__u8e3s4.u27_1.p1o_1, _this__u8e3s4.u27_1.q1o_1, 6.0)));
+  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.w27_1 - 25.0, -1.5, _this__u8e3s4.w27_1 + 25.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.w27_1, -1.5, _this__u8e3s4.w27_1, top, 6.0)));
+  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.w27_1, _this__u8e3s4.a28_1.q1o_1), _this__u8e3s4.a28_1, 3.5)));
+  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.a28_1.p1o_1, _this__u8e3s4.a28_1.q1o_1 - 4.0, _this__u8e3s4.a28_1.p1o_1, _this__u8e3s4.a28_1.q1o_1 + 4.0, 3.5)));
+  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.w27_1, _this__u8e3s4.x27_1.q1o_1), _this__u8e3s4.x27_1, 4.0)));
+  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.w27_1, _this__u8e3s4.y27_1.q1o_1), _this__u8e3s4.y27_1, 4.0)));
+  this_0.i(new Placed(new Circle(get_E_3(), _this__u8e3s4.x27_1.p1o_1, _this__u8e3s4.x27_1.q1o_1, 6.0)));
   return this_0.z3();
 }
 function drawFrontOf_14(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return plus(plus(frontLever(_this__u8e3s4.v27_1, _this__u8e3s4.w27_1), frontRoller_0(_this__u8e3s4.w27_1, 6.0)), frontRoller_0(_this__u8e3s4.v27_1, 3.5));
+  return plus(plus(frontLever(_this__u8e3s4.y27_1, _this__u8e3s4.z27_1), frontRoller_0(_this__u8e3s4.z27_1, 6.0)), frontRoller_0(_this__u8e3s4.y27_1, 3.5));
 }
 function benchSlab(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return Companion_instance_8.l1z(_this__u8e3s4.c28_1 - 30.0, -_this__u8e3s4.d28_1, _this__u8e3s4.c28_1, -_this__u8e3s4.d28_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.f28_1 - 30.0, -_this__u8e3s4.g28_1, _this__u8e3s4.f28_1, -_this__u8e3s4.g28_1 + 6.0);
 }
 function platformSlab_0(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return Companion_instance_8.l1z(_this__u8e3s4.e28_1.p1o_1 - 50.0 / 2, _this__u8e3s4.e28_1.q1o_1, _this__u8e3s4.e28_1.p1o_1 + 50.0 / 2, _this__u8e3s4.e28_1.q1o_1 + 5.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.h28_1.p1o_1 - 50.0 / 2, _this__u8e3s4.h28_1.q1o_1, _this__u8e3s4.h28_1.p1o_1 + 50.0 / 2, _this__u8e3s4.h28_1.q1o_1 + 5.0);
 }
 function padSlab_12(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return roller_0(_this__u8e3s4.g28_1, 7.0);
+  return roller_0(_this__u8e3s4.j28_1, 7.0);
 }
 function drawOf_32(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
@@ -12793,40 +12817,40 @@ function drawOf_32(_this__u8e3s4) {
   var this_0 = ArrayList_init_$Create$();
   var bench = benchSlab(_this__u8e3s4);
   var plate = platformSlab_0(_this__u8e3s4);
-  var postX = bench.m1z_1;
+  var postX = bench.o1z_1;
   var tmp = get_E_3();
-  var tmp_0 = bench.m1z_1 - bench.o1z_1 / 2 - 5.0;
+  var tmp_0 = bench.o1z_1 - bench.q1z_1 / 2 - 5.0;
   var tmp_1 = -1.5;
-  var tmp0 = plate.m1z_1 + plate.o1z_1 / 2;
+  var tmp0 = plate.o1z_1 + plate.q1z_1 / 2;
   // Inline function 'kotlin.math.max' call
-  var b = _this__u8e3s4.f28_1.p1o_1;
+  var b = _this__u8e3s4.i28_1.p1o_1;
   var tmp$ret$4 = Math.max(tmp0, b);
   this_0.i(new Placed(new Capsule(tmp, tmp_0, tmp_1, tmp$ret$4 + 5.0, -1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E_3(), postX, -_this__u8e3s4.d28_1 + 6.0, postX, -1.5, 6.0)));
-  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.f28_1.p1o_1, -1.5), _this__u8e3s4.f28_1, 6.0)));
-  this_0.i(new Placed(cap_3(get_E_3(), _this__u8e3s4.f28_1, _this__u8e3s4.g28_1, 5.0)));
-  this_0.i(new Placed(new Circle(get_E_3(), _this__u8e3s4.f28_1.p1o_1, _this__u8e3s4.f28_1.q1o_1, 4.0)));
+  this_0.i(new Placed(new Capsule(get_E_3(), postX, -_this__u8e3s4.g28_1 + 6.0, postX, -1.5, 6.0)));
+  this_0.i(new Placed(cap_3(get_E_3(), new Point(_this__u8e3s4.i28_1.p1o_1, -1.5), _this__u8e3s4.i28_1, 6.0)));
+  this_0.i(new Placed(cap_3(get_E_3(), _this__u8e3s4.i28_1, _this__u8e3s4.j28_1, 5.0)));
+  this_0.i(new Placed(new Circle(get_E_3(), _this__u8e3s4.i28_1.p1o_1, _this__u8e3s4.i28_1.q1o_1, 4.0)));
   this_0.i(new Placed(box_1(get_E_3(), plate, 1.5)));
   this_0.i(new Placed(box_1(get_E_3(), bench)));
   return this_0.z3();
 }
 function drawFrontOf_15(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return frontRoller_0(_this__u8e3s4.g28_1, 7.0);
+  return frontRoller_0(_this__u8e3s4.j28_1, 7.0);
 }
 function seatSlab_6(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  return Companion_instance_8.l1z(_this__u8e3s4.k28_1 - 44.0 / 2, -_this__u8e3s4.l28_1, _this__u8e3s4.k28_1 + 44.0 / 2, -_this__u8e3s4.l28_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.n28_1 - 44.0 / 2, -_this__u8e3s4.o28_1, _this__u8e3s4.n28_1 + 44.0 / 2, -_this__u8e3s4.o28_1 + 6.0);
 }
 function handles(_this__u8e3s4) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  var tmp0_safe_receiver = _this__u8e3s4.o28_1;
+  var tmp0_safe_receiver = _this__u8e3s4.r28_1;
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
   } else {
     // Inline function 'kotlin.let' call
-    tmp = listOf([tmp0_safe_receiver, new Point(2 * _this__u8e3s4.k28_1 - tmp0_safe_receiver.p1o_1, tmp0_safe_receiver.q1o_1)]);
+    tmp = listOf([tmp0_safe_receiver, new Point(2 * _this__u8e3s4.n28_1 - tmp0_safe_receiver.p1o_1, tmp0_safe_receiver.q1o_1)]);
   }
   var tmp1_elvis_lhs = tmp;
   return tmp1_elvis_lhs == null ? emptyList() : tmp1_elvis_lhs;
@@ -12847,9 +12871,9 @@ function handleSlabs(_this__u8e3s4) {
 }
 function kneePad(_this__u8e3s4, side, s) {
   _init_properties_KitHamstrings_kt__p3a3ym();
-  var k = s.u1q(side).g1q_1;
-  var outward = k.p1o_1 - _this__u8e3s4.k28_1 >= 0.0 ? 1.0 : -1.0;
-  var toward = _this__u8e3s4.n28_1 ? outward : -outward;
+  var k = s.w1q(side).h1q_1;
+  var outward = k.p1o_1 - _this__u8e3s4.n28_1 >= 0.0 ? 1.0 : -1.0;
+  var toward = _this__u8e3s4.q28_1 ? outward : -outward;
   var c = k.r1o(new Point(toward * (11.0 / 2 + 4.0), 0.0));
   var h = 25.0 / 2 - 4.0;
   return to(new Point(c.p1o_1, c.q1o_1 - h + 4.0), new Point(c.p1o_1, c.q1o_1 + h + 4.0));
@@ -12860,34 +12884,34 @@ function drawOf_33(_this__u8e3s4, s) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.k28_1 - 30.0, -1.5, _this__u8e3s4.k28_1 + 30.0, -1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.k28_1, -_this__u8e3s4.l28_1 + 6.0, _this__u8e3s4.k28_1, -1.5, 7.0)));
-  this_0.i(new Placed(new RoundRect(get_E_3(), _this__u8e3s4.k28_1 - 19.0, -_this__u8e3s4.m28_1, 38.0, _this__u8e3s4.m28_1 - _this__u8e3s4.l28_1 - 26.0, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.n28_1 - 30.0, -1.5, _this__u8e3s4.n28_1 + 30.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_3(), _this__u8e3s4.n28_1, -_this__u8e3s4.o28_1 + 6.0, _this__u8e3s4.n28_1, -1.5, 7.0)));
+  this_0.i(new Placed(new RoundRect(get_E_3(), _this__u8e3s4.n28_1 - 19.0, -_this__u8e3s4.p28_1, 38.0, _this__u8e3s4.p28_1 - _this__u8e3s4.o28_1 - 26.0, 3.0)));
   this_0.i(new Placed(box_1(get_E_3(), seatSlab_6(_this__u8e3s4))));
-  if (!(s == null) && s.k1q_1.equals(View_FRONT_getInstance())) {
+  if (!(s == null) && s.l1q_1.equals(View_FRONT_getInstance())) {
     var _iterator__ex2g4s = get_entries_0().j();
     while (_iterator__ex2g4s.k()) {
       var side = _iterator__ex2g4s.l();
       var b = kneePad(_this__u8e3s4, side, s).za();
-      this_0.i(new Placed(cap_3(get_E_3(), b, new Point(_this__u8e3s4.k28_1, -_this__u8e3s4.l28_1 + 12.0), 3.5)));
+      this_0.i(new Placed(cap_3(get_E_3(), b, new Point(_this__u8e3s4.n28_1, -_this__u8e3s4.o28_1 + 12.0), 3.5)));
     }
   }
-  this_0.i(new Placed(new Circle(get_E_3(), _this__u8e3s4.k28_1, -_this__u8e3s4.l28_1 + 12.0, 3.5)));
+  this_0.i(new Placed(new Circle(get_E_3(), _this__u8e3s4.n28_1, -_this__u8e3s4.o28_1 + 12.0, 3.5)));
   var _iterator__ex2g4s_0 = handles(_this__u8e3s4).j();
   while (_iterator__ex2g4s_0.k()) {
     var h = _iterator__ex2g4s_0.l();
-    this_0.i(new Placed(new Capsule(get_E_3(), h.p1o_1, h.q1o_1, h.p1o_1, -_this__u8e3s4.l28_1 + 6.0, 3.0)));
+    this_0.i(new Placed(new Capsule(get_E_3(), h.p1o_1, h.q1o_1, h.p1o_1, -_this__u8e3s4.o28_1 + 6.0, 3.0)));
   }
   if (!(s == null)) {
     var _iterator__ex2g4s_1 = get_entries_0().j();
     while (_iterator__ex2g4s_1.k()) {
       var side_0 = _iterator__ex2g4s_1.l();
-      var l = s.u1q(side_0);
-      var tmp0 = l.i1q_1.q1o_1;
+      var l = s.w1q(side_0);
+      var tmp0 = l.j1q_1.q1o_1;
       // Inline function 'kotlin.math.max' call
-      var b_0 = l.j1q_1.q1o_1;
+      var b_0 = l.k1q_1.q1o_1;
       var y = Math.max(tmp0, b_0) + 7.0 / 2 + 1.5;
-      this_0.i(new Placed(new Capsule(get_E_3(), l.h1q_1.p1o_1 - 7.0, y, l.h1q_1.p1o_1 + 7.0, y, 3.0)));
+      this_0.i(new Placed(new Capsule(get_E_3(), l.i1q_1.p1o_1 - 7.0, y, l.i1q_1.p1o_1 + 7.0, y, 3.0)));
     }
   }
   return this_0.z3();
@@ -12899,7 +12923,7 @@ function drawFrontOf_16(_this__u8e3s4, s) {
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
   $l$block: {
-    if (s == null || !s.k1q_1.equals(View_FRONT_getInstance())) {
+    if (s == null || !s.l1q_1.equals(View_FRONT_getInstance())) {
       break $l$block;
     }
     var _iterator__ex2g4s = handles(_this__u8e3s4).j();
@@ -12921,12 +12945,12 @@ function drawFrontOf_16(_this__u8e3s4, s) {
 }
 function ends$at($this_ends, l) {
   var tmp;
-  switch ($this_ends.j26_1.w1_1) {
+  switch ($this_ends.m26_1.w1_1) {
     case 0:
-      tmp = l.g1q_1.r1o(unitOf(l.f1q_1.s1o(l.g1q_1)).t1o(7.0));
+      tmp = l.h1q_1.r1o(unitOf(l.g1q_1.s1o(l.h1q_1)).t1o(7.0));
       break;
     case 1:
-      tmp = l.h1q_1.r1o(unitOf(l.g1q_1.s1o(l.h1q_1)).t1o(6.0));
+      tmp = l.i1q_1.r1o(unitOf(l.h1q_1.s1o(l.i1q_1)).t1o(6.0));
       break;
     default:
       noWhenBranchMatchedException();
@@ -12951,13 +12975,13 @@ function get_E_4() {
 }
 var E_4;
 function Companion_42() {
-  this.p28_1 = 50.0;
-  this.q28_1 = 14.0;
-  this.r28_1 = 5.0;
-  this.s28_1 = 6.0;
-  this.t28_1 = 12.0;
-  this.u28_1 = 52.0;
-  this.v28_1 = 5.0;
+  this.s28_1 = 50.0;
+  this.t28_1 = 14.0;
+  this.u28_1 = 5.0;
+  this.v28_1 = 6.0;
+  this.w28_1 = 12.0;
+  this.x28_1 = 52.0;
+  this.y28_1 = 5.0;
 }
 var Companion_instance_42;
 function Companion_getInstance_44() {
@@ -12965,17 +12989,17 @@ function Companion_getInstance_44() {
 }
 function HackSquatMachine(origin, pelvis, angle) {
   angle = angle === VOID ? 45.0 : angle;
-  this.w28_1 = origin;
-  this.x28_1 = pelvis;
-  this.y28_1 = angle;
+  this.z28_1 = origin;
+  this.a29_1 = pelvis;
+  this.b29_1 = angle;
 }
 protoOf(HackSquatMachine).toString = function () {
-  return 'HackSquatMachine(origin=' + this.w28_1.toString() + ', pelvis=' + this.x28_1.toString() + ', angle=' + this.y28_1 + ')';
+  return 'HackSquatMachine(origin=' + this.z28_1.toString() + ', pelvis=' + this.a29_1.toString() + ', angle=' + this.b29_1 + ')';
 };
 protoOf(HackSquatMachine).hashCode = function () {
-  var result = this.w28_1.hashCode();
-  result = imul(result, 31) + this.x28_1.hashCode() | 0;
-  result = imul(result, 31) + getNumberHashCode(this.y28_1) | 0;
+  var result = this.z28_1.hashCode();
+  result = imul(result, 31) + this.a29_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.b29_1) | 0;
   return result;
 };
 protoOf(HackSquatMachine).equals = function (other) {
@@ -12983,31 +13007,31 @@ protoOf(HackSquatMachine).equals = function (other) {
     return true;
   if (!(other instanceof HackSquatMachine))
     return false;
-  if (!this.w28_1.equals(other.w28_1))
+  if (!this.z28_1.equals(other.z28_1))
     return false;
-  if (!this.x28_1.equals(other.x28_1))
+  if (!this.a29_1.equals(other.a29_1))
     return false;
-  if (!equals(this.y28_1, other.y28_1))
+  if (!equals(this.b29_1, other.b29_1))
     return false;
   return true;
 };
 function Companion_43() {
-  this.z28_1 = 6.0;
+  this.c29_1 = 6.0;
 }
 var Companion_instance_43;
 function Companion_getInstance_45() {
   return Companion_instance_43;
 }
 function LeverSquatMachine(pivot, pad) {
-  this.a29_1 = pivot;
-  this.b29_1 = pad;
+  this.d29_1 = pivot;
+  this.e29_1 = pad;
 }
 protoOf(LeverSquatMachine).toString = function () {
-  return 'LeverSquatMachine(pivot=' + this.a29_1.toString() + ', pad=' + this.b29_1.toString() + ')';
+  return 'LeverSquatMachine(pivot=' + this.d29_1.toString() + ', pad=' + this.e29_1.toString() + ')';
 };
 protoOf(LeverSquatMachine).hashCode = function () {
-  var result = this.a29_1.hashCode();
-  result = imul(result, 31) + this.b29_1.hashCode() | 0;
+  var result = this.d29_1.hashCode();
+  result = imul(result, 31) + this.e29_1.hashCode() | 0;
   return result;
 };
 protoOf(LeverSquatMachine).equals = function (other) {
@@ -13015,16 +13039,16 @@ protoOf(LeverSquatMachine).equals = function (other) {
     return true;
   if (!(other instanceof LeverSquatMachine))
     return false;
-  if (!this.a29_1.equals(other.a29_1))
+  if (!this.d29_1.equals(other.d29_1))
     return false;
-  if (!this.b29_1.equals(other.b29_1))
+  if (!this.e29_1.equals(other.e29_1))
     return false;
   return true;
 };
 function Companion_44() {
-  this.c29_1 = 40.0;
-  this.d29_1 = 60.0;
-  this.e29_1 = 6.0;
+  this.f29_1 = 40.0;
+  this.g29_1 = 60.0;
+  this.h29_1 = 6.0;
 }
 var Companion_instance_44;
 function Companion_getInstance_46() {
@@ -13032,25 +13056,25 @@ function Companion_getInstance_46() {
 }
 function LegExtensionMachine(seatFront, seatHeight, backAngle, pivot, roller, handle, farRoller) {
   farRoller = farRoller === VOID ? null : farRoller;
-  this.f29_1 = seatFront;
-  this.g29_1 = seatHeight;
-  this.h29_1 = backAngle;
-  this.i29_1 = pivot;
-  this.j29_1 = roller;
-  this.k29_1 = handle;
-  this.l29_1 = farRoller;
+  this.i29_1 = seatFront;
+  this.j29_1 = seatHeight;
+  this.k29_1 = backAngle;
+  this.l29_1 = pivot;
+  this.m29_1 = roller;
+  this.n29_1 = handle;
+  this.o29_1 = farRoller;
 }
 protoOf(LegExtensionMachine).toString = function () {
-  return 'LegExtensionMachine(seatFront=' + this.f29_1 + ', seatHeight=' + this.g29_1 + ', backAngle=' + this.h29_1 + ', pivot=' + this.i29_1.toString() + ', roller=' + this.j29_1.toString() + ', handle=' + this.k29_1.toString() + ', farRoller=' + toString_0(this.l29_1) + ')';
+  return 'LegExtensionMachine(seatFront=' + this.i29_1 + ', seatHeight=' + this.j29_1 + ', backAngle=' + this.k29_1 + ', pivot=' + this.l29_1.toString() + ', roller=' + this.m29_1.toString() + ', handle=' + this.n29_1.toString() + ', farRoller=' + toString_0(this.o29_1) + ')';
 };
 protoOf(LegExtensionMachine).hashCode = function () {
-  var result = getNumberHashCode(this.f29_1);
-  result = imul(result, 31) + getNumberHashCode(this.g29_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.h29_1) | 0;
-  result = imul(result, 31) + this.i29_1.hashCode() | 0;
-  result = imul(result, 31) + this.j29_1.hashCode() | 0;
-  result = imul(result, 31) + this.k29_1.hashCode() | 0;
-  result = imul(result, 31) + (this.l29_1 == null ? 0 : this.l29_1.hashCode()) | 0;
+  var result = getNumberHashCode(this.i29_1);
+  result = imul(result, 31) + getNumberHashCode(this.j29_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k29_1) | 0;
+  result = imul(result, 31) + this.l29_1.hashCode() | 0;
+  result = imul(result, 31) + this.m29_1.hashCode() | 0;
+  result = imul(result, 31) + this.n29_1.hashCode() | 0;
+  result = imul(result, 31) + (this.o29_1 == null ? 0 : this.o29_1.hashCode()) | 0;
   return result;
 };
 protoOf(LegExtensionMachine).equals = function (other) {
@@ -13058,25 +13082,25 @@ protoOf(LegExtensionMachine).equals = function (other) {
     return true;
   if (!(other instanceof LegExtensionMachine))
     return false;
-  if (!equals(this.f29_1, other.f29_1))
+  if (!equals(this.i29_1, other.i29_1))
     return false;
-  if (!equals(this.g29_1, other.g29_1))
+  if (!equals(this.j29_1, other.j29_1))
     return false;
-  if (!equals(this.h29_1, other.h29_1))
+  if (!equals(this.k29_1, other.k29_1))
     return false;
-  if (!this.i29_1.equals(other.i29_1))
+  if (!this.l29_1.equals(other.l29_1))
     return false;
-  if (!this.j29_1.equals(other.j29_1))
+  if (!this.m29_1.equals(other.m29_1))
     return false;
-  if (!this.k29_1.equals(other.k29_1))
+  if (!this.n29_1.equals(other.n29_1))
     return false;
-  if (!equals(this.l29_1, other.l29_1))
+  if (!equals(this.o29_1, other.o29_1))
     return false;
   return true;
 };
 function Companion_45() {
-  this.m29_1 = 100.0;
-  this.n29_1 = 4.0;
+  this.p29_1 = 100.0;
+  this.q29_1 = 4.0;
 }
 var Companion_instance_45;
 function Companion_getInstance_47() {
@@ -13084,15 +13108,15 @@ function Companion_getInstance_47() {
 }
 function PushSled(x, handleTop) {
   handleTop = handleTop === VOID ? 125.0 : handleTop;
-  this.o29_1 = x;
-  this.p29_1 = handleTop;
+  this.r29_1 = x;
+  this.s29_1 = handleTop;
 }
 protoOf(PushSled).toString = function () {
-  return 'PushSled(x=' + this.o29_1 + ', handleTop=' + this.p29_1 + ')';
+  return 'PushSled(x=' + this.r29_1 + ', handleTop=' + this.s29_1 + ')';
 };
 protoOf(PushSled).hashCode = function () {
-  var result = getNumberHashCode(this.o29_1);
-  result = imul(result, 31) + getNumberHashCode(this.p29_1) | 0;
+  var result = getNumberHashCode(this.r29_1);
+  result = imul(result, 31) + getNumberHashCode(this.s29_1) | 0;
   return result;
 };
 protoOf(PushSled).equals = function (other) {
@@ -13100,9 +13124,9 @@ protoOf(PushSled).equals = function (other) {
     return true;
   if (!(other instanceof PushSled))
     return false;
-  if (!equals(this.o29_1, other.o29_1))
+  if (!equals(this.r29_1, other.r29_1))
     return false;
-  if (!equals(this.p29_1, other.p29_1))
+  if (!equals(this.s29_1, other.s29_1))
     return false;
   return true;
 };
@@ -13113,7 +13137,7 @@ function cap_4(role, a, b, width) {
 function slabPolygon_3(role, s) {
   _init_properties_KitQuads_kt__1i9vjq();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = s.s1z();
+  var tmp0 = s.u1z();
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -13126,44 +13150,44 @@ function slabPolygon_3(role, s) {
 }
 function crookOf(s) {
   _init_properties_KitQuads_kt__1i9vjq();
-  var l = s.q1q_1;
+  var l = s.r1q_1;
   // Inline function 'kotlin.let' call
-  var it = l.a1q_1.s1o(l.b1q_1);
+  var it = l.b1q_1.s1o(l.c1q_1);
   var u = it.t1o(1.0 / it.u1o());
   // Inline function 'kotlin.let' call
-  var it_0 = l.c1q_1.s1o(l.b1q_1);
+  var it_0 = l.d1q_1.s1o(l.c1q_1);
   var f = it_0.t1o(1.0 / it_0.u1o());
   // Inline function 'kotlin.let' call
   var it_1 = u.r1o(f);
   var b = it_1.t1o(1.0 / it_1.u1o());
-  return l.b1q_1.r1o(b.t1o(8.5 / 2 + 1.45 + 1.0));
+  return l.c1q_1.r1o(b.t1o(8.5 / 2 + 1.45 + 1.0));
 }
 function up(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
-  return dir(180.0 - _this__u8e3s4.y28_1);
+  return dir(180.0 - _this__u8e3s4.b29_1);
 }
 function forward(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
-  return dir(_this__u8e3s4.y28_1);
+  return dir(_this__u8e3s4.b29_1);
 }
 function padSlab_13(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
-  var c = _this__u8e3s4.x28_1.r1o(up(_this__u8e3s4).t1o((52.0 - 12.0) / 2)).s1o(forward(_this__u8e3s4).t1o(10.0 + 6.0 / 2));
-  return new Slab(c.p1o_1, c.q1o_1, 12.0 + 52.0, 6.0, 180.0 - _this__u8e3s4.y28_1);
+  var c = _this__u8e3s4.a29_1.r1o(up(_this__u8e3s4).t1o((52.0 - 12.0) / 2)).s1o(forward(_this__u8e3s4).t1o(10.0 + 6.0 / 2));
+  return new Slab(c.p1o_1, c.q1o_1, 12.0 + 52.0, 6.0, 180.0 - _this__u8e3s4.b29_1);
 }
 function plateSlab_1(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
   var along = 50.0 / 2 - 14.0;
-  var c = _this__u8e3s4.w28_1.r1o(forward(_this__u8e3s4).t1o(along)).s1o(up(_this__u8e3s4).t1o(5.0 / 2));
-  return new Slab(c.p1o_1, c.q1o_1, 50.0, 5.0, _this__u8e3s4.y28_1);
+  var c = _this__u8e3s4.z28_1.r1o(forward(_this__u8e3s4).t1o(along)).s1o(up(_this__u8e3s4).t1o(5.0 / 2));
+  return new Slab(c.p1o_1, c.q1o_1, 50.0, 5.0, _this__u8e3s4.b29_1);
 }
 function shoulderPad(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
-  return _this__u8e3s4.x28_1.r1o(up(_this__u8e3s4).t1o(Segment_TORSO_getInstance().a() + 5.0 + 5.0));
+  return _this__u8e3s4.a29_1.r1o(up(_this__u8e3s4).t1o(Segment_TORSO_getInstance().a() + 5.0 + 5.0));
 }
 function rail(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
-  var base = _this__u8e3s4.x28_1.r1o(forward(_this__u8e3s4).t1o(-(10.0 + 16.0)));
+  var base = _this__u8e3s4.a29_1.r1o(forward(_this__u8e3s4).t1o(-(10.0 + 16.0)));
   return to(rail$at(base, _this__u8e3s4, -12.0), rail$at(base, _this__u8e3s4, -190.0));
 }
 function drawOf_34(_this__u8e3s4) {
@@ -13176,7 +13200,7 @@ function drawOf_34(_this__u8e3s4) {
   var low = _destruct__k2r9zo.ya();
   var high = _destruct__k2r9zo.za();
   var plate = plateSlab_1(_this__u8e3s4);
-  var plateLow = (new Point(plate.m1z_1, plate.n1z_1)).s1o(forward(_this__u8e3s4).t1o(plate.o1z_1 / 2 - 6.0)).s1o(up(_this__u8e3s4).t1o(plate.p1z_1 / 2));
+  var plateLow = (new Point(plate.o1z_1, plate.p1z_1)).s1o(forward(_this__u8e3s4).t1o(plate.q1z_1 / 2 - 6.0)).s1o(up(_this__u8e3s4).t1o(plate.r1z_1 / 2));
   var tmp = get_E_4();
   var tmp0 = low.p1o_1;
   // Inline function 'kotlin.comparisons.minOf' call
@@ -13192,15 +13216,15 @@ function drawOf_34(_this__u8e3s4) {
   this_0.i(new Placed(cap_4(get_E_4(), low, high, 7.0), false));
   this_0.i(new Placed(cap_4(get_E_4(), plateLow, new Point(plateLow.p1o_1, -1.5), 5.0)));
   var pad = padSlab_13(_this__u8e3s4);
-  var padBack = (new Point(pad.m1z_1, pad.n1z_1)).s1o(forward(_this__u8e3s4).t1o(pad.p1z_1 / 2));
+  var padBack = (new Point(pad.o1z_1, pad.p1z_1)).s1o(forward(_this__u8e3s4).t1o(pad.r1z_1 / 2));
   var _iterator__ex2g4s = listOf([-0.3, 0.3]).j();
   while (_iterator__ex2g4s.k()) {
     var k = _iterator__ex2g4s.l();
-    var a = padBack.r1o(up(_this__u8e3s4).t1o(pad.o1z_1 * k));
+    var a = padBack.r1o(up(_this__u8e3s4).t1o(pad.q1z_1 * k));
     this_0.i(new Placed(cap_4(get_E_4(), a, a.s1o(forward(_this__u8e3s4).t1o(16.0 - 6.0 / 2)), 4.0)));
   }
   this_0.i(new Placed(slabPolygon_3(get_E_4(), pad)));
-  this_0.i(new Placed(slabPolygon_3(Role_GAP_getInstance(), plate.u1z(VOID, VOID, plate.o1z_1 + 3.0, plate.p1z_1 + 3.0))));
+  this_0.i(new Placed(slabPolygon_3(Role_GAP_getInstance(), plate.w1z(VOID, VOID, plate.q1z_1 + 3.0, plate.r1z_1 + 3.0))));
   this_0.i(new Placed(slabPolygon_3(get_E_4(), plate)));
   return this_0.z3();
 }
@@ -13217,37 +13241,37 @@ function drawOf_35(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new Capsule(get_E_4(), _this__u8e3s4.a29_1.p1o_1 - 15.0, -1.5, _this__u8e3s4.b29_1.p1o_1 + 45.0, -1.5, 3.0)));
-  this_0.i(new Placed(cap_4(get_E_4(), _this__u8e3s4.a29_1, new Point(_this__u8e3s4.a29_1.p1o_1, -1.5), 7.0)));
-  this_0.i(new Placed(cap_4(get_E_4(), _this__u8e3s4.a29_1, _this__u8e3s4.b29_1, 6.0)));
+  this_0.i(new Placed(new Capsule(get_E_4(), _this__u8e3s4.d29_1.p1o_1 - 15.0, -1.5, _this__u8e3s4.e29_1.p1o_1 + 45.0, -1.5, 3.0)));
+  this_0.i(new Placed(cap_4(get_E_4(), _this__u8e3s4.d29_1, new Point(_this__u8e3s4.d29_1.p1o_1, -1.5), 7.0)));
+  this_0.i(new Placed(cap_4(get_E_4(), _this__u8e3s4.d29_1, _this__u8e3s4.e29_1, 6.0)));
   // Inline function 'kotlin.let' call
-  var it = _this__u8e3s4.b29_1.s1o(_this__u8e3s4.a29_1);
+  var it = _this__u8e3s4.e29_1.s1o(_this__u8e3s4.d29_1);
   var along = it.t1o(1.0 / it.u1o());
-  var horn = _this__u8e3s4.a29_1.r1o(along.t1o(25.0));
+  var horn = _this__u8e3s4.d29_1.r1o(along.t1o(25.0));
   this_0.i(new Placed(cap_4(get_E_4(), horn, horn.r1o(dir(angleOf(along) + 90.0).t1o(12.0)), 4.0)));
-  this_0.i(new Placed(new Circle(get_E_4(), _this__u8e3s4.a29_1.p1o_1, _this__u8e3s4.a29_1.q1o_1, 5.0)));
+  this_0.i(new Placed(new Circle(get_E_4(), _this__u8e3s4.d29_1.p1o_1, _this__u8e3s4.d29_1.q1o_1, 5.0)));
   return this_0.z3();
 }
 function drawFrontOf_18(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
   var r = 6.0;
-  return listOf([new Placed(new Circle(Role_GAP_getInstance(), _this__u8e3s4.b29_1.p1o_1, _this__u8e3s4.b29_1.q1o_1, r + 3.0 / 2)), new Placed(new Circle(get_E_4(), _this__u8e3s4.b29_1.p1o_1, _this__u8e3s4.b29_1.q1o_1, r))]);
+  return listOf([new Placed(new Circle(Role_GAP_getInstance(), _this__u8e3s4.e29_1.p1o_1, _this__u8e3s4.e29_1.q1o_1, r + 3.0 / 2)), new Placed(new Circle(get_E_4(), _this__u8e3s4.e29_1.p1o_1, _this__u8e3s4.e29_1.q1o_1, r))]);
 }
 function seatSlab_7(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
-  return Companion_instance_8.l1z(_this__u8e3s4.f29_1 - 40.0, -_this__u8e3s4.g29_1, _this__u8e3s4.f29_1, -_this__u8e3s4.g29_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.i29_1 - 40.0, -_this__u8e3s4.j29_1, _this__u8e3s4.i29_1, -_this__u8e3s4.j29_1 + 6.0);
 }
 function backSlab_0(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
-  var hinge = new Point(_this__u8e3s4.f29_1 - 40.0, -_this__u8e3s4.g29_1);
-  var along = 180.0 - _this__u8e3s4.h29_1;
+  var hinge = new Point(_this__u8e3s4.i29_1 - 40.0, -_this__u8e3s4.j29_1);
+  var along = 180.0 - _this__u8e3s4.k29_1;
   var c = hinge.r1o(dir(along).t1o(60.0 / 2)).r1o(dir(along + 90.0).t1o(6.0 / 2));
   return new Slab(c.p1o_1, c.q1o_1, 60.0, 6.0, along);
 }
 function rollerSlabs(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
   // Inline function 'kotlin.collections.map' call
-  var this_0 = listOfNotNull([_this__u8e3s4.j29_1, _this__u8e3s4.l29_1]);
+  var this_0 = listOfNotNull([_this__u8e3s4.m29_1, _this__u8e3s4.o29_1]);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -13265,19 +13289,19 @@ function drawOf_36(_this__u8e3s4) {
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
   var seat = seatSlab_7(_this__u8e3s4);
-  var mid = _this__u8e3s4.f29_1 - 40.0 / 2;
-  this_0.i(new Placed(new Capsule(get_E_4(), mid - 30.0, -1.5, _this__u8e3s4.i29_1.p1o_1 + 20.0, -1.5, 3.0)));
-  this_0.i(new Placed(new Capsule(get_E_4(), mid, -_this__u8e3s4.g29_1 + 6.0, mid, -1.5, 6.0)));
-  this_0.i(new Placed(cap_4(get_E_4(), new Point(_this__u8e3s4.f29_1 - 4.0, -_this__u8e3s4.g29_1 + 6.0 + 2.0), _this__u8e3s4.i29_1, 5.0)));
-  this_0.i(new Placed(cap_4(get_E_4(), new Point(_this__u8e3s4.k29_1.p1o_1 - 6.0, -_this__u8e3s4.g29_1 + 6.0), _this__u8e3s4.k29_1, 3.0)));
-  this_0.i(new Placed(new RoundRect(get_E_4(), seat.m1z_1 - seat.o1z_1 / 2, seat.n1z_1 - seat.p1z_1 / 2, seat.o1z_1, seat.p1z_1, 2.0)));
+  var mid = _this__u8e3s4.i29_1 - 40.0 / 2;
+  this_0.i(new Placed(new Capsule(get_E_4(), mid - 30.0, -1.5, _this__u8e3s4.l29_1.p1o_1 + 20.0, -1.5, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_4(), mid, -_this__u8e3s4.j29_1 + 6.0, mid, -1.5, 6.0)));
+  this_0.i(new Placed(cap_4(get_E_4(), new Point(_this__u8e3s4.i29_1 - 4.0, -_this__u8e3s4.j29_1 + 6.0 + 2.0), _this__u8e3s4.l29_1, 5.0)));
+  this_0.i(new Placed(cap_4(get_E_4(), new Point(_this__u8e3s4.n29_1.p1o_1 - 6.0, -_this__u8e3s4.j29_1 + 6.0), _this__u8e3s4.n29_1, 3.0)));
+  this_0.i(new Placed(new RoundRect(get_E_4(), seat.o1z_1 - seat.q1z_1 / 2, seat.p1z_1 - seat.r1z_1 / 2, seat.q1z_1, seat.r1z_1, 2.0)));
   this_0.i(new Placed(slabPolygon_3(get_E_4(), backSlab_0(_this__u8e3s4))));
-  var tmp0_safe_receiver = _this__u8e3s4.l29_1;
+  var tmp0_safe_receiver = _this__u8e3s4.o29_1;
   if (tmp0_safe_receiver == null)
     null;
   else {
     // Inline function 'kotlin.let' call
-    this_0.i(new Placed(cap_4(get_E_4(), _this__u8e3s4.i29_1, tmp0_safe_receiver, 4.0)));
+    this_0.i(new Placed(cap_4(get_E_4(), _this__u8e3s4.l29_1, tmp0_safe_receiver, 4.0)));
     this_0.i(new Placed(new Circle(get_E_4(), tmp0_safe_receiver.p1o_1, tmp0_safe_receiver.q1o_1, 6.0)));
   }
   return this_0.z3();
@@ -13285,11 +13309,11 @@ function drawOf_36(_this__u8e3s4) {
 function drawFrontOf_19(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
   var r = 6.0;
-  return listOf([new Placed(cap_4(Role_GAP_getInstance(), _this__u8e3s4.i29_1, _this__u8e3s4.j29_1, 4.0 + 3.0)), new Placed(cap_4(get_E_4(), _this__u8e3s4.i29_1, _this__u8e3s4.j29_1, 4.0)), new Placed(new Circle(Role_GAP_getInstance(), _this__u8e3s4.j29_1.p1o_1, _this__u8e3s4.j29_1.q1o_1, r + 3.0 / 2)), new Placed(new Circle(get_E_4(), _this__u8e3s4.j29_1.p1o_1, _this__u8e3s4.j29_1.q1o_1, r)), new Placed(new Circle(Role_GAP_getInstance(), _this__u8e3s4.i29_1.p1o_1, _this__u8e3s4.i29_1.q1o_1, 3.5 + 3.0 / 2)), new Placed(new Circle(get_E_4(), _this__u8e3s4.i29_1.p1o_1, _this__u8e3s4.i29_1.q1o_1, 3.5))]);
+  return listOf([new Placed(cap_4(Role_GAP_getInstance(), _this__u8e3s4.l29_1, _this__u8e3s4.m29_1, 4.0 + 3.0)), new Placed(cap_4(get_E_4(), _this__u8e3s4.l29_1, _this__u8e3s4.m29_1, 4.0)), new Placed(new Circle(Role_GAP_getInstance(), _this__u8e3s4.m29_1.p1o_1, _this__u8e3s4.m29_1.q1o_1, r + 3.0 / 2)), new Placed(new Circle(get_E_4(), _this__u8e3s4.m29_1.p1o_1, _this__u8e3s4.m29_1.q1o_1, r)), new Placed(new Circle(Role_GAP_getInstance(), _this__u8e3s4.l29_1.p1o_1, _this__u8e3s4.l29_1.q1o_1, 3.5 + 3.0 / 2)), new Placed(new Circle(get_E_4(), _this__u8e3s4.l29_1.p1o_1, _this__u8e3s4.l29_1.q1o_1, 3.5))]);
 }
 function postSlab(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
-  return Companion_instance_8.l1z(_this__u8e3s4.o29_1 - 4.0 / 2, -_this__u8e3s4.p29_1, _this__u8e3s4.o29_1 + 4.0 / 2, -12.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.r29_1 - 4.0 / 2, -_this__u8e3s4.s29_1, _this__u8e3s4.r29_1 + 4.0 / 2, -12.0);
 }
 function drawOf_37(_this__u8e3s4) {
   _init_properties_KitQuads_kt__1i9vjq();
@@ -13297,10 +13321,10 @@ function drawOf_37(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new RoundRect(get_E_4(), _this__u8e3s4.o29_1 - 4.0, -12.0, 100.0 + 4.0, 10.5, 2.0)));
+  this_0.i(new Placed(new RoundRect(get_E_4(), _this__u8e3s4.r29_1 - 4.0, -12.0, 100.0 + 4.0, 10.5, 2.0)));
   var post = postSlab(_this__u8e3s4);
-  this_0.i(new Placed(new RoundRect(get_E_4(), post.m1z_1 - post.o1z_1 / 2, post.n1z_1 - post.p1z_1 / 2, post.o1z_1, post.p1z_1, 2.0)));
-  var px = _this__u8e3s4.o29_1 + 100.0 / 2;
+  this_0.i(new Placed(new RoundRect(get_E_4(), post.o1z_1 - post.q1z_1 / 2, post.p1z_1 - post.r1z_1 / 2, post.q1z_1, post.r1z_1, 2.0)));
+  var px = _this__u8e3s4.r29_1 + 100.0 / 2;
   this_0.i(new Placed(new Capsule(get_E_4(), px, -12.0, px, -42.0, 4.0)));
   var inductionVariable = 0;
   if (inductionVariable < 3)
@@ -13350,23 +13374,23 @@ function KettlebellHold(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
 function Companion_46() {
-  this.q29_1 = 10.5;
-  this.r29_1 = 3.0;
+  this.t29_1 = 10.5;
+  this.u29_1 = 3.0;
 }
 var Companion_instance_46;
 function Companion_getInstance_48() {
   return Companion_instance_46;
 }
 function Kettlebell(hand, hold) {
-  this.d20_1 = hand;
-  this.e20_1 = hold;
+  this.f20_1 = hand;
+  this.g20_1 = hold;
 }
 protoOf(Kettlebell).toString = function () {
-  return 'Kettlebell(hand=' + this.d20_1.toString() + ', hold=' + this.e20_1.toString() + ')';
+  return 'Kettlebell(hand=' + this.f20_1.toString() + ', hold=' + this.g20_1.toString() + ')';
 };
 protoOf(Kettlebell).hashCode = function () {
-  var result = this.d20_1.hashCode();
-  result = imul(result, 31) + this.e20_1.hashCode() | 0;
+  var result = this.f20_1.hashCode();
+  result = imul(result, 31) + this.g20_1.hashCode() | 0;
   return result;
 };
 protoOf(Kettlebell).equals = function (other) {
@@ -13374,34 +13398,34 @@ protoOf(Kettlebell).equals = function (other) {
     return true;
   if (!(other instanceof Kettlebell))
     return false;
-  if (!this.d20_1.equals(other.d20_1))
+  if (!this.f20_1.equals(other.f20_1))
     return false;
-  if (!this.e20_1.equals(other.e20_1))
+  if (!this.g20_1.equals(other.g20_1))
     return false;
   return true;
 };
 function Companion_47() {
-  this.s29_1 = 20.0;
-  this.t29_1 = 4.5;
+  this.v29_1 = 20.0;
+  this.w29_1 = 4.5;
 }
 var Companion_instance_47;
 function Companion_getInstance_49() {
   return Companion_instance_47;
 }
 function LateralRaiseMachine(x, seatHeight, padTop, pivotHeight) {
-  this.u29_1 = x;
-  this.v29_1 = seatHeight;
-  this.w29_1 = padTop;
-  this.x29_1 = pivotHeight;
+  this.x29_1 = x;
+  this.y29_1 = seatHeight;
+  this.z29_1 = padTop;
+  this.a2a_1 = pivotHeight;
 }
 protoOf(LateralRaiseMachine).toString = function () {
-  return 'LateralRaiseMachine(x=' + this.u29_1 + ', seatHeight=' + this.v29_1 + ', padTop=' + this.w29_1 + ', pivotHeight=' + this.x29_1 + ')';
+  return 'LateralRaiseMachine(x=' + this.x29_1 + ', seatHeight=' + this.y29_1 + ', padTop=' + this.z29_1 + ', pivotHeight=' + this.a2a_1 + ')';
 };
 protoOf(LateralRaiseMachine).hashCode = function () {
-  var result = getNumberHashCode(this.u29_1);
-  result = imul(result, 31) + getNumberHashCode(this.v29_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.w29_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.x29_1) | 0;
+  var result = getNumberHashCode(this.x29_1);
+  result = imul(result, 31) + getNumberHashCode(this.y29_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.z29_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a2a_1) | 0;
   return result;
 };
 protoOf(LateralRaiseMachine).equals = function (other) {
@@ -13409,13 +13433,13 @@ protoOf(LateralRaiseMachine).equals = function (other) {
     return true;
   if (!(other instanceof LateralRaiseMachine))
     return false;
-  if (!equals(this.u29_1, other.u29_1))
-    return false;
-  if (!equals(this.v29_1, other.v29_1))
-    return false;
-  if (!equals(this.w29_1, other.w29_1))
-    return false;
   if (!equals(this.x29_1, other.x29_1))
+    return false;
+  if (!equals(this.y29_1, other.y29_1))
+    return false;
+  if (!equals(this.z29_1, other.z29_1))
+    return false;
+  if (!equals(this.a2a_1, other.a2a_1))
     return false;
   return true;
 };
@@ -13429,19 +13453,19 @@ function unitOf_0(v) {
 }
 function bellCentre(_this__u8e3s4, s) {
   _init_properties_KitShoulders_kt__3pxvp9();
-  var l = s.u1q(_this__u8e3s4.d20_1);
-  var f = unitOf_0(l.c1q_1.s1o(l.b1q_1));
+  var l = s.w1q(_this__u8e3s4.f20_1);
+  var f = unitOf_0(l.d1q_1.s1o(l.c1q_1));
   var back = dir(angleOf(f) + 90.0);
   var tmp;
-  switch (_this__u8e3s4.e20_1.w1_1) {
+  switch (_this__u8e3s4.g20_1.w1_1) {
     case 0:
-      tmp = l.c1q_1.s1o(f.t1o(4.0)).s1o(back.t1o(8.5 / 2 + 10.5 - 3.0));
+      tmp = l.d1q_1.s1o(f.t1o(4.0)).s1o(back.t1o(8.5 / 2 + 10.5 - 3.0));
       break;
     case 1:
-      tmp = l.c1q_1.s1o(f.t1o(4.0)).r1o(back.t1o(8.5 / 2 + 10.5 - 1.5));
+      tmp = l.d1q_1.s1o(f.t1o(4.0)).r1o(back.t1o(8.5 / 2 + 10.5 - 1.5));
       break;
     case 2:
-      tmp = l.e1q_1.r1o(f.t1o(15.5));
+      tmp = l.f1q_1.r1o(f.t1o(15.5));
       break;
     default:
       noWhenBranchMatchedException();
@@ -13451,7 +13475,7 @@ function bellCentre(_this__u8e3s4, s) {
 }
 function drawOn_10(_this__u8e3s4, s) {
   _init_properties_KitShoulders_kt__3pxvp9();
-  var g = s.u1q(_this__u8e3s4.d20_1).e1q_1;
+  var g = s.w1q(_this__u8e3s4.f20_1).f1q_1;
   var c = bellCentre(_this__u8e3s4, s);
   var r = 10.5;
   var up = angleOf(g.s1o(c));
@@ -13481,18 +13505,18 @@ function drawOn_10(_this__u8e3s4, s) {
 }
 function seatSlab_8(_this__u8e3s4) {
   _init_properties_KitShoulders_kt__3pxvp9();
-  return Companion_instance_8.l1z(_this__u8e3s4.u29_1 - 20.0, -_this__u8e3s4.v29_1, _this__u8e3s4.u29_1 + 20.0, -_this__u8e3s4.v29_1 + 6.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.x29_1 - 20.0, -_this__u8e3s4.y29_1, _this__u8e3s4.x29_1 + 20.0, -_this__u8e3s4.y29_1 + 6.0);
 }
 function pivot(_this__u8e3s4, side) {
   _init_properties_KitShoulders_kt__3pxvp9();
-  return new Point(_this__u8e3s4.u29_1 + (side.equals(Side_NEAR_getInstance()) ? 1.0 : -1.0) * 18.0, -_this__u8e3s4.x29_1);
+  return new Point(_this__u8e3s4.x29_1 + (side.equals(Side_NEAR_getInstance()) ? 1.0 : -1.0) * 18.0, -_this__u8e3s4.a2a_1);
 }
 function armPad(_this__u8e3s4, side, s) {
   _init_properties_KitShoulders_kt__3pxvp9();
-  var l = s.u1q(side);
-  var u = unitOf_0(l.b1q_1.s1o(l.a1q_1));
+  var l = s.w1q(side);
+  var u = unitOf_0(l.c1q_1.s1o(l.b1q_1));
   var out = dir(angleOf(u) + (side.equals(Side_NEAR_getInstance()) ? 90.0 : -90.0));
-  var mid = l.b1q_1.s1o(u.t1o(20.0 / 2 - 2.0)).r1o(out.t1o(10.0 / 2 + 4.5));
+  var mid = l.c1q_1.s1o(u.t1o(20.0 / 2 - 2.0)).r1o(out.t1o(10.0 / 2 + 4.5));
   var half = u.t1o(20.0 / 2 - 4.5);
   return to(mid.s1o(half), mid.r1o(half));
 }
@@ -13502,10 +13526,10 @@ function drawOf_38(_this__u8e3s4) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  this_0.i(new Placed(new Capsule(get_E_5(), _this__u8e3s4.u29_1, -_this__u8e3s4.v29_1 + 6.0, _this__u8e3s4.u29_1, -1.5, 6.0)));
-  this_0.i(new Placed(new Capsule(get_E_5(), _this__u8e3s4.u29_1 - 25.0, -1.5, _this__u8e3s4.u29_1 + 25.0, -1.5, 3.0)));
-  this_0.i(new Placed(new RoundRect(get_E_5(), _this__u8e3s4.u29_1 - 20.0, -_this__u8e3s4.v29_1, 40.0, 6.0, 2.0)));
-  this_0.i(new Placed(new RoundRect(get_E_5(), _this__u8e3s4.u29_1 - 17.0, -_this__u8e3s4.w29_1, 34.0, _this__u8e3s4.w29_1 - _this__u8e3s4.v29_1 - 2.0, 3.0)));
+  this_0.i(new Placed(new Capsule(get_E_5(), _this__u8e3s4.x29_1, -_this__u8e3s4.y29_1 + 6.0, _this__u8e3s4.x29_1, -1.5, 6.0)));
+  this_0.i(new Placed(new Capsule(get_E_5(), _this__u8e3s4.x29_1 - 25.0, -1.5, _this__u8e3s4.x29_1 + 25.0, -1.5, 3.0)));
+  this_0.i(new Placed(new RoundRect(get_E_5(), _this__u8e3s4.x29_1 - 20.0, -_this__u8e3s4.y29_1, 40.0, 6.0, 2.0)));
+  this_0.i(new Placed(new RoundRect(get_E_5(), _this__u8e3s4.x29_1 - 17.0, -_this__u8e3s4.z29_1, 34.0, _this__u8e3s4.z29_1 - _this__u8e3s4.y29_1 - 2.0, 3.0)));
   return this_0.z3();
 }
 function drawFrontOf_20(_this__u8e3s4, s) {
@@ -13515,7 +13539,7 @@ function drawFrontOf_20(_this__u8e3s4, s) {
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
   $l$block: {
-    if (s == null || !s.k1q_1.equals(View_FRONT_getInstance())) {
+    if (s == null || !s.l1q_1.equals(View_FRONT_getInstance())) {
       break $l$block;
     }
     var _iterator__ex2g4s = get_entries_0().j();
@@ -13536,17 +13560,17 @@ function drawFrontOf_20(_this__u8e3s4, s) {
 }
 function chestPad(_this__u8e3s4) {
   _init_properties_KitShoulders_kt__3pxvp9();
-  return Companion_instance_8.l1z(_this__u8e3s4.j25_1 - 14.0, -_this__u8e3s4.l25_1, _this__u8e3s4.j25_1 + 14.0, -_this__u8e3s4.l25_1 + 36.0);
+  return Companion_instance_8.n1z(_this__u8e3s4.m25_1 - 14.0, -_this__u8e3s4.o25_1, _this__u8e3s4.m25_1 + 14.0, -_this__u8e3s4.o25_1 + 36.0);
 }
 function drawFrontOf_21(_this__u8e3s4) {
   _init_properties_KitShoulders_kt__3pxvp9();
   var tmp;
-  if (!_this__u8e3s4.o25_1) {
+  if (!_this__u8e3s4.r25_1) {
     tmp = emptyList();
   } else {
     // Inline function 'kotlin.let' call
     var p = chestPad(_this__u8e3s4);
-    tmp = listOf([new Placed(new RoundRect(Role_GAP_getInstance(), p.m1z_1 - p.o1z_1 / 2 - 1.5, p.n1z_1 - p.p1z_1 / 2 - 1.5, p.o1z_1 + 3.0, p.p1z_1 + 3.0, 4.0)), new Placed(new RoundRect(get_E_5(), p.m1z_1 - p.o1z_1 / 2, p.n1z_1 - p.p1z_1 / 2, p.o1z_1, p.p1z_1, 3.0))]);
+    tmp = listOf([new Placed(new RoundRect(Role_GAP_getInstance(), p.o1z_1 - p.q1z_1 / 2 - 1.5, p.p1z_1 - p.r1z_1 / 2 - 1.5, p.q1z_1 + 3.0, p.r1z_1 + 3.0, 4.0)), new Placed(new RoundRect(get_E_5(), p.o1z_1 - p.q1z_1 / 2, p.p1z_1 - p.r1z_1 / 2, p.q1z_1, p.r1z_1, 3.0))]);
   }
   return tmp;
 }
@@ -13592,29 +13616,29 @@ function Role(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
 function Circle(role, cx, cy, r) {
-  this.k1v_1 = role;
-  this.l1v_1 = cx;
-  this.m1v_1 = cy;
-  this.n1v_1 = r;
+  this.m1v_1 = role;
+  this.n1v_1 = cx;
+  this.o1v_1 = cy;
+  this.p1v_1 = r;
 }
-protoOf(Circle).y29 = function (role, cx, cy, r) {
+protoOf(Circle).b2a = function (role, cx, cy, r) {
   return new Circle(role, cx, cy, r);
 };
-protoOf(Circle).p1v = function (role, cx, cy, r, $super) {
-  role = role === VOID ? this.k1v_1 : role;
-  cx = cx === VOID ? this.l1v_1 : cx;
-  cy = cy === VOID ? this.m1v_1 : cy;
-  r = r === VOID ? this.n1v_1 : r;
-  return $super === VOID ? this.y29(role, cx, cy, r) : $super.y29.call(this, role, cx, cy, r);
+protoOf(Circle).r1v = function (role, cx, cy, r, $super) {
+  role = role === VOID ? this.m1v_1 : role;
+  cx = cx === VOID ? this.n1v_1 : cx;
+  cy = cy === VOID ? this.o1v_1 : cy;
+  r = r === VOID ? this.p1v_1 : r;
+  return $super === VOID ? this.b2a(role, cx, cy, r) : $super.b2a.call(this, role, cx, cy, r);
 };
 protoOf(Circle).toString = function () {
-  return 'Circle(role=' + this.k1v_1.toString() + ', cx=' + this.l1v_1 + ', cy=' + this.m1v_1 + ', r=' + this.n1v_1 + ')';
+  return 'Circle(role=' + this.m1v_1.toString() + ', cx=' + this.n1v_1 + ', cy=' + this.o1v_1 + ', r=' + this.p1v_1 + ')';
 };
 protoOf(Circle).hashCode = function () {
-  var result = this.k1v_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.l1v_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.m1v_1) | 0;
+  var result = this.m1v_1.hashCode();
   result = imul(result, 31) + getNumberHashCode(this.n1v_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.o1v_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.p1v_1) | 0;
   return result;
 };
 protoOf(Circle).equals = function (other) {
@@ -13622,46 +13646,46 @@ protoOf(Circle).equals = function (other) {
     return true;
   if (!(other instanceof Circle))
     return false;
-  if (!this.k1v_1.equals(other.k1v_1))
-    return false;
-  if (!equals(this.l1v_1, other.l1v_1))
-    return false;
-  if (!equals(this.m1v_1, other.m1v_1))
+  if (!this.m1v_1.equals(other.m1v_1))
     return false;
   if (!equals(this.n1v_1, other.n1v_1))
+    return false;
+  if (!equals(this.o1v_1, other.o1v_1))
+    return false;
+  if (!equals(this.p1v_1, other.p1v_1))
     return false;
   return true;
 };
 function Capsule(role, x1, y1, x2, y2, width) {
-  this.l1u_1 = role;
-  this.m1u_1 = x1;
-  this.n1u_1 = y1;
-  this.o1u_1 = x2;
-  this.p1u_1 = y2;
-  this.q1u_1 = width;
+  this.n1u_1 = role;
+  this.o1u_1 = x1;
+  this.p1u_1 = y1;
+  this.q1u_1 = x2;
+  this.r1u_1 = y2;
+  this.s1u_1 = width;
 }
-protoOf(Capsule).z29 = function (role, x1, y1, x2, y2, width) {
+protoOf(Capsule).c2a = function (role, x1, y1, x2, y2, width) {
   return new Capsule(role, x1, y1, x2, y2, width);
 };
-protoOf(Capsule).r1u = function (role, x1, y1, x2, y2, width, $super) {
-  role = role === VOID ? this.l1u_1 : role;
-  x1 = x1 === VOID ? this.m1u_1 : x1;
-  y1 = y1 === VOID ? this.n1u_1 : y1;
-  x2 = x2 === VOID ? this.o1u_1 : x2;
-  y2 = y2 === VOID ? this.p1u_1 : y2;
-  width = width === VOID ? this.q1u_1 : width;
-  return $super === VOID ? this.z29(role, x1, y1, x2, y2, width) : $super.z29.call(this, role, x1, y1, x2, y2, width);
+protoOf(Capsule).t1u = function (role, x1, y1, x2, y2, width, $super) {
+  role = role === VOID ? this.n1u_1 : role;
+  x1 = x1 === VOID ? this.o1u_1 : x1;
+  y1 = y1 === VOID ? this.p1u_1 : y1;
+  x2 = x2 === VOID ? this.q1u_1 : x2;
+  y2 = y2 === VOID ? this.r1u_1 : y2;
+  width = width === VOID ? this.s1u_1 : width;
+  return $super === VOID ? this.c2a(role, x1, y1, x2, y2, width) : $super.c2a.call(this, role, x1, y1, x2, y2, width);
 };
 protoOf(Capsule).toString = function () {
-  return 'Capsule(role=' + this.l1u_1.toString() + ', x1=' + this.m1u_1 + ', y1=' + this.n1u_1 + ', x2=' + this.o1u_1 + ', y2=' + this.p1u_1 + ', width=' + this.q1u_1 + ')';
+  return 'Capsule(role=' + this.n1u_1.toString() + ', x1=' + this.o1u_1 + ', y1=' + this.p1u_1 + ', x2=' + this.q1u_1 + ', y2=' + this.r1u_1 + ', width=' + this.s1u_1 + ')';
 };
 protoOf(Capsule).hashCode = function () {
-  var result = this.l1u_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.m1u_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.n1u_1) | 0;
+  var result = this.n1u_1.hashCode();
   result = imul(result, 31) + getNumberHashCode(this.o1u_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.p1u_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.q1u_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.r1u_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.s1u_1) | 0;
   return result;
 };
 protoOf(Capsule).equals = function (other) {
@@ -13669,11 +13693,7 @@ protoOf(Capsule).equals = function (other) {
     return true;
   if (!(other instanceof Capsule))
     return false;
-  if (!this.l1u_1.equals(other.l1u_1))
-    return false;
-  if (!equals(this.m1u_1, other.m1u_1))
-    return false;
-  if (!equals(this.n1u_1, other.n1u_1))
+  if (!this.n1u_1.equals(other.n1u_1))
     return false;
   if (!equals(this.o1u_1, other.o1u_1))
     return false;
@@ -13681,38 +13701,42 @@ protoOf(Capsule).equals = function (other) {
     return false;
   if (!equals(this.q1u_1, other.q1u_1))
     return false;
+  if (!equals(this.r1u_1, other.r1u_1))
+    return false;
+  if (!equals(this.s1u_1, other.s1u_1))
+    return false;
   return true;
 };
 function RoundRect(role, x, y, w, h, radius) {
-  this.w1t_1 = role;
-  this.x1t_1 = x;
-  this.y1t_1 = y;
-  this.z1t_1 = w;
-  this.a1u_1 = h;
-  this.b1u_1 = radius;
+  this.y1t_1 = role;
+  this.z1t_1 = x;
+  this.a1u_1 = y;
+  this.b1u_1 = w;
+  this.c1u_1 = h;
+  this.d1u_1 = radius;
 }
-protoOf(RoundRect).z29 = function (role, x, y, w, h, radius) {
+protoOf(RoundRect).c2a = function (role, x, y, w, h, radius) {
   return new RoundRect(role, x, y, w, h, radius);
 };
-protoOf(RoundRect).k1u = function (role, x, y, w, h, radius, $super) {
-  role = role === VOID ? this.w1t_1 : role;
-  x = x === VOID ? this.x1t_1 : x;
-  y = y === VOID ? this.y1t_1 : y;
-  w = w === VOID ? this.z1t_1 : w;
-  h = h === VOID ? this.a1u_1 : h;
-  radius = radius === VOID ? this.b1u_1 : radius;
-  return $super === VOID ? this.z29(role, x, y, w, h, radius) : $super.z29.call(this, role, x, y, w, h, radius);
+protoOf(RoundRect).m1u = function (role, x, y, w, h, radius, $super) {
+  role = role === VOID ? this.y1t_1 : role;
+  x = x === VOID ? this.z1t_1 : x;
+  y = y === VOID ? this.a1u_1 : y;
+  w = w === VOID ? this.b1u_1 : w;
+  h = h === VOID ? this.c1u_1 : h;
+  radius = radius === VOID ? this.d1u_1 : radius;
+  return $super === VOID ? this.c2a(role, x, y, w, h, radius) : $super.c2a.call(this, role, x, y, w, h, radius);
 };
 protoOf(RoundRect).toString = function () {
-  return 'RoundRect(role=' + this.w1t_1.toString() + ', x=' + this.x1t_1 + ', y=' + this.y1t_1 + ', w=' + this.z1t_1 + ', h=' + this.a1u_1 + ', radius=' + this.b1u_1 + ')';
+  return 'RoundRect(role=' + this.y1t_1.toString() + ', x=' + this.z1t_1 + ', y=' + this.a1u_1 + ', w=' + this.b1u_1 + ', h=' + this.c1u_1 + ', radius=' + this.d1u_1 + ')';
 };
 protoOf(RoundRect).hashCode = function () {
-  var result = this.w1t_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.x1t_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.y1t_1) | 0;
+  var result = this.y1t_1.hashCode();
   result = imul(result, 31) + getNumberHashCode(this.z1t_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.a1u_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.b1u_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.c1u_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.d1u_1) | 0;
   return result;
 };
 protoOf(RoundRect).equals = function (other) {
@@ -13720,11 +13744,7 @@ protoOf(RoundRect).equals = function (other) {
     return true;
   if (!(other instanceof RoundRect))
     return false;
-  if (!this.w1t_1.equals(other.w1t_1))
-    return false;
-  if (!equals(this.x1t_1, other.x1t_1))
-    return false;
-  if (!equals(this.y1t_1, other.y1t_1))
+  if (!this.y1t_1.equals(other.y1t_1))
     return false;
   if (!equals(this.z1t_1, other.z1t_1))
     return false;
@@ -13732,26 +13752,30 @@ protoOf(RoundRect).equals = function (other) {
     return false;
   if (!equals(this.b1u_1, other.b1u_1))
     return false;
+  if (!equals(this.c1u_1, other.c1u_1))
+    return false;
+  if (!equals(this.d1u_1, other.d1u_1))
+    return false;
   return true;
 };
 function Polygon(role, points) {
-  this.i1v_1 = role;
-  this.j1v_1 = points;
+  this.k1v_1 = role;
+  this.l1v_1 = points;
 }
-protoOf(Polygon).a2a = function (role, points) {
+protoOf(Polygon).d2a = function (role, points) {
   return new Polygon(role, points);
 };
-protoOf(Polygon).o1v = function (role, points, $super) {
-  role = role === VOID ? this.i1v_1 : role;
-  points = points === VOID ? this.j1v_1 : points;
-  return $super === VOID ? this.a2a(role, points) : $super.a2a.call(this, role, points);
+protoOf(Polygon).q1v = function (role, points, $super) {
+  role = role === VOID ? this.k1v_1 : role;
+  points = points === VOID ? this.l1v_1 : points;
+  return $super === VOID ? this.d2a(role, points) : $super.d2a.call(this, role, points);
 };
 protoOf(Polygon).toString = function () {
-  return 'Polygon(role=' + this.i1v_1.toString() + ', points=' + toString(this.j1v_1) + ')';
+  return 'Polygon(role=' + this.k1v_1.toString() + ', points=' + toString(this.l1v_1) + ')';
 };
 protoOf(Polygon).hashCode = function () {
-  var result = this.i1v_1.hashCode();
-  result = imul(result, 31) + hashCode(this.j1v_1) | 0;
+  var result = this.k1v_1.hashCode();
+  result = imul(result, 31) + hashCode(this.l1v_1) | 0;
   return result;
 };
 protoOf(Polygon).equals = function (other) {
@@ -13759,22 +13783,22 @@ protoOf(Polygon).equals = function (other) {
     return true;
   if (!(other instanceof Polygon))
     return false;
-  if (!this.i1v_1.equals(other.i1v_1))
+  if (!this.k1v_1.equals(other.k1v_1))
     return false;
-  if (!equals(this.j1v_1, other.j1v_1))
+  if (!equals(this.l1v_1, other.l1v_1))
     return false;
   return true;
 };
 function ViewBox(width, height) {
-  this.c1u_1 = width;
-  this.d1u_1 = height;
+  this.e1u_1 = width;
+  this.f1u_1 = height;
 }
 protoOf(ViewBox).toString = function () {
-  return 'ViewBox(width=' + this.c1u_1 + ', height=' + this.d1u_1 + ')';
+  return 'ViewBox(width=' + this.e1u_1 + ', height=' + this.f1u_1 + ')';
 };
 protoOf(ViewBox).hashCode = function () {
-  var result = getNumberHashCode(this.c1u_1);
-  result = imul(result, 31) + getNumberHashCode(this.d1u_1) | 0;
+  var result = getNumberHashCode(this.e1u_1);
+  result = imul(result, 31) + getNumberHashCode(this.f1u_1) | 0;
   return result;
 };
 protoOf(ViewBox).equals = function (other) {
@@ -13782,51 +13806,51 @@ protoOf(ViewBox).equals = function (other) {
     return true;
   if (!(other instanceof ViewBox))
     return false;
-  if (!equals(this.c1u_1, other.c1u_1))
+  if (!equals(this.e1u_1, other.e1u_1))
     return false;
-  if (!equals(this.d1u_1, other.d1u_1))
+  if (!equals(this.f1u_1, other.f1u_1))
     return false;
   return true;
 };
 function Bounds(minX, minY, maxX, maxY) {
-  this.t1v_1 = minX;
-  this.u1v_1 = minY;
-  this.v1v_1 = maxX;
-  this.w1v_1 = maxY;
+  this.v1v_1 = minX;
+  this.w1v_1 = minY;
+  this.x1v_1 = maxX;
+  this.y1v_1 = maxY;
 }
-protoOf(Bounds).y1v = function () {
-  return this.v1v_1 - this.t1v_1;
+protoOf(Bounds).a1w = function () {
+  return this.x1v_1 - this.v1v_1;
 };
-protoOf(Bounds).z1v = function () {
-  return this.w1v_1 - this.u1v_1;
+protoOf(Bounds).b1w = function () {
+  return this.y1v_1 - this.w1v_1;
 };
-protoOf(Bounds).x1v = function (o) {
-  var tmp0 = this.t1v_1;
+protoOf(Bounds).z1v = function (o) {
+  var tmp0 = this.v1v_1;
   // Inline function 'kotlin.math.min' call
-  var b = o.t1v_1;
+  var b = o.v1v_1;
   var tmp = Math.min(tmp0, b);
-  var tmp0_0 = this.u1v_1;
+  var tmp0_0 = this.w1v_1;
   // Inline function 'kotlin.math.min' call
-  var b_0 = o.u1v_1;
+  var b_0 = o.w1v_1;
   var tmp_0 = Math.min(tmp0_0, b_0);
-  var tmp0_1 = this.v1v_1;
+  var tmp0_1 = this.x1v_1;
   // Inline function 'kotlin.math.max' call
-  var b_1 = o.v1v_1;
+  var b_1 = o.x1v_1;
   var tmp_1 = Math.max(tmp0_1, b_1);
-  var tmp0_2 = this.w1v_1;
+  var tmp0_2 = this.y1v_1;
   // Inline function 'kotlin.math.max' call
-  var b_2 = o.w1v_1;
+  var b_2 = o.y1v_1;
   var tmp$ret$3 = Math.max(tmp0_2, b_2);
   return new Bounds(tmp, tmp_0, tmp_1, tmp$ret$3);
 };
 protoOf(Bounds).toString = function () {
-  return 'Bounds(minX=' + this.t1v_1 + ', minY=' + this.u1v_1 + ', maxX=' + this.v1v_1 + ', maxY=' + this.w1v_1 + ')';
+  return 'Bounds(minX=' + this.v1v_1 + ', minY=' + this.w1v_1 + ', maxX=' + this.x1v_1 + ', maxY=' + this.y1v_1 + ')';
 };
 protoOf(Bounds).hashCode = function () {
-  var result = getNumberHashCode(this.t1v_1);
-  result = imul(result, 31) + getNumberHashCode(this.u1v_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.v1v_1) | 0;
+  var result = getNumberHashCode(this.v1v_1);
   result = imul(result, 31) + getNumberHashCode(this.w1v_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x1v_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y1v_1) | 0;
   return result;
 };
 protoOf(Bounds).equals = function (other) {
@@ -13834,48 +13858,48 @@ protoOf(Bounds).equals = function (other) {
     return true;
   if (!(other instanceof Bounds))
     return false;
-  if (!equals(this.t1v_1, other.t1v_1))
-    return false;
-  if (!equals(this.u1v_1, other.u1v_1))
-    return false;
   if (!equals(this.v1v_1, other.v1v_1))
     return false;
   if (!equals(this.w1v_1, other.w1v_1))
+    return false;
+  if (!equals(this.x1v_1, other.x1v_1))
+    return false;
+  if (!equals(this.y1v_1, other.y1v_1))
     return false;
   return true;
 };
 function bounds(_this__u8e3s4) {
   var tmp;
   if (_this__u8e3s4 instanceof Circle) {
-    tmp = new Bounds(_this__u8e3s4.l1v_1 - _this__u8e3s4.n1v_1, _this__u8e3s4.m1v_1 - _this__u8e3s4.n1v_1, _this__u8e3s4.l1v_1 + _this__u8e3s4.n1v_1, _this__u8e3s4.m1v_1 + _this__u8e3s4.n1v_1);
+    tmp = new Bounds(_this__u8e3s4.n1v_1 - _this__u8e3s4.p1v_1, _this__u8e3s4.o1v_1 - _this__u8e3s4.p1v_1, _this__u8e3s4.n1v_1 + _this__u8e3s4.p1v_1, _this__u8e3s4.o1v_1 + _this__u8e3s4.p1v_1);
   } else {
     if (_this__u8e3s4 instanceof Capsule) {
       // Inline function 'kotlin.let' call
-      var h = _this__u8e3s4.q1u_1 / 2;
-      var tmp0 = _this__u8e3s4.m1u_1;
+      var h = _this__u8e3s4.s1u_1 / 2;
+      var tmp0 = _this__u8e3s4.o1u_1;
       // Inline function 'kotlin.math.min' call
-      var b = _this__u8e3s4.o1u_1;
+      var b = _this__u8e3s4.q1u_1;
       var tmp_0 = Math.min(tmp0, b) - h;
-      var tmp0_0 = _this__u8e3s4.n1u_1;
+      var tmp0_0 = _this__u8e3s4.p1u_1;
       // Inline function 'kotlin.math.min' call
-      var b_0 = _this__u8e3s4.p1u_1;
+      var b_0 = _this__u8e3s4.r1u_1;
       var tmp_1 = Math.min(tmp0_0, b_0) - h;
-      var tmp0_1 = _this__u8e3s4.m1u_1;
+      var tmp0_1 = _this__u8e3s4.o1u_1;
       // Inline function 'kotlin.math.max' call
-      var b_1 = _this__u8e3s4.o1u_1;
+      var b_1 = _this__u8e3s4.q1u_1;
       var tmp_2 = Math.max(tmp0_1, b_1) + h;
-      var tmp0_2 = _this__u8e3s4.n1u_1;
+      var tmp0_2 = _this__u8e3s4.p1u_1;
       // Inline function 'kotlin.math.max' call
-      var b_2 = _this__u8e3s4.p1u_1;
+      var b_2 = _this__u8e3s4.r1u_1;
       var tmp$ret$5 = Math.max(tmp0_2, b_2);
       tmp = new Bounds(tmp_0, tmp_1, tmp_2, tmp$ret$5 + h);
     } else {
       if (_this__u8e3s4 instanceof RoundRect) {
-        tmp = new Bounds(_this__u8e3s4.x1t_1, _this__u8e3s4.y1t_1, _this__u8e3s4.x1t_1 + _this__u8e3s4.z1t_1, _this__u8e3s4.y1t_1 + _this__u8e3s4.a1u_1);
+        tmp = new Bounds(_this__u8e3s4.z1t_1, _this__u8e3s4.a1u_1, _this__u8e3s4.z1t_1 + _this__u8e3s4.b1u_1, _this__u8e3s4.a1u_1 + _this__u8e3s4.c1u_1);
       } else {
         if (_this__u8e3s4 instanceof Polygon) {
           // Inline function 'kotlin.collections.filterIndexed' call
-          var tmp0_3 = _this__u8e3s4.j1v_1;
+          var tmp0_3 = _this__u8e3s4.l1v_1;
           // Inline function 'kotlin.collections.filterIndexedTo' call
           var destination = ArrayList_init_$Create$();
           // Inline function 'kotlin.collections.forEachIndexed' call
@@ -13891,7 +13915,7 @@ function bounds(_this__u8e3s4) {
           }
           var xs = destination;
           // Inline function 'kotlin.collections.filterIndexed' call
-          var tmp0_4 = _this__u8e3s4.j1v_1;
+          var tmp0_4 = _this__u8e3s4.l1v_1;
           // Inline function 'kotlin.collections.filterIndexedTo' call
           var destination_0 = ArrayList_init_$Create$();
           // Inline function 'kotlin.collections.forEachIndexed' call
@@ -14362,23 +14386,23 @@ function stand(near, far) {
   return standOn(get_tall(), 90.0, near, far);
 }
 function Stagger(pelvis, back, front) {
-  this.b2a_1 = pelvis;
-  this.c2a_1 = back;
-  this.d2a_1 = front;
+  this.e2a_1 = pelvis;
+  this.f2a_1 = back;
+  this.g2a_1 = front;
 }
 function stagger(torso, half, drop) {
   torso = torso === VOID ? 90.0 : torso;
   half = half === VOID ? 15.0 : half;
   drop = drop === VOID ? 2.0 : drop;
   _init_properties_Arms_kt__e6cjp3_0();
-  var pelvis = new Point(0.0, get_tall().g2a_1.q1o_1 + drop);
-  return new Stagger(pelvis, Reach_instance.y1q(pelvis, new Point(-half, -6.825), torso, 0.0), Reach_instance.y1q(pelvis, new Point(half, -6.825), torso, 0.0));
+  var pelvis = new Point(0.0, get_tall().j2a_1.q1o_1 + drop);
+  return new Stagger(pelvis, Reach_instance.a1r(pelvis, new Point(-half, -6.825), torso, 0.0), Reach_instance.a1r(pelvis, new Point(half, -6.825), torso, 0.0));
 }
 function pose(_this__u8e3s4, near, far, torso) {
   far = far === VOID ? near : far;
   torso = torso === VOID ? 90.0 : torso;
   _init_properties_Arms_kt__e6cjp3_0();
-  return new Pose(_this__u8e3s4.b2a_1.p1o_1, _this__u8e3s4.b2a_1.q1o_1, torso, VOID, near, _this__u8e3s4.c2a_1, far, _this__u8e3s4.d2a_1);
+  return new Pose(_this__u8e3s4.e2a_1.p1o_1, _this__u8e3s4.e2a_1.q1o_1, torso, VOID, near, _this__u8e3s4.f2a_1, far, _this__u8e3s4.g2a_1);
 }
 function inFront(clear) {
   _init_properties_Arms_kt__e6cjp3_0();
@@ -14390,7 +14414,7 @@ function inFront(clear) {
 function seatedLegs(torso, ahead) {
   ahead = ahead === VOID ? 44.0 : ahead;
   _init_properties_Arms_kt__e6cjp3_0();
-  return Reach_instance.y1q(get_SEAT_PELVIS(), new Point(get_SEAT_PELVIS().p1o_1 + ahead, -6.825), torso, 0.0);
+  return Reach_instance.a1r(get_SEAT_PELVIS(), new Point(get_SEAT_PELVIS().p1o_1 + ahead, -6.825), torso, 0.0);
 }
 function seated(near, far, torso) {
   far = far === VOID ? near : far;
@@ -14437,9 +14461,9 @@ function shoulderFor(pelvis, elbow) {
   return tmp$ret$1;
 }
 function Lean(torso, shoulder, upper) {
-  this.i2a_1 = torso;
-  this.j2a_1 = shoulder;
-  this.k2a_1 = upper;
+  this.l2a_1 = torso;
+  this.m2a_1 = shoulder;
+  this.n2a_1 = upper;
 }
 function leanTo(elbow) {
   _init_properties_Arms_kt__e6cjp3_0();
@@ -14449,7 +14473,7 @@ function leanTo(elbow) {
 function arm(_this__u8e3s4, fore, wrist) {
   wrist = wrist === VOID ? 0.0 : wrist;
   _init_properties_Arms_kt__e6cjp3_0();
-  return new Arm(fold180(_this__u8e3s4.k2a_1 - _this__u8e3s4.i2a_1 - 180.0), fold180(fore - _this__u8e3s4.k2a_1), wrist);
+  return new Arm(fold180(_this__u8e3s4.n2a_1 - _this__u8e3s4.l2a_1 - 180.0), fold180(fore - _this__u8e3s4.n2a_1), wrist);
 }
 function onThigh(along, above) {
   _init_properties_Arms_kt__e6cjp3_0();
@@ -14474,7 +14498,7 @@ function wristCurlPose(wrist) {
   var elbow = w.s1o(d.t1o(Segment_FOREARM_getInstance().a()));
   var lean = leanTo(elbow);
   var fore = angleTo(d);
-  return seated(arm(lean, fore, wrist), arm(lean, fore), lean.i2a_1);
+  return seated(arm(lean, fore, wrist), arm(lean, fore), lean.l2a_1);
 }
 function reclinedPelvis(hinge, back) {
   _init_properties_Arms_kt__e6cjp3_0();
@@ -14493,27 +14517,27 @@ function ankleOnToes(ankleX, foot) {
   return new Point(ankleX, -r - toe.q1o_1);
 }
 function PadBody(seatHeight, padAngle) {
-  this.l2a_1 = seatHeight;
-  this.m2a_1 = padAngle;
-  this.n2a_1 = new Point(0.0, -(this.l2a_1 + 10.0));
-  this.o2a_1 = shoulderOf(this.n2a_1, 90.0);
-  this.p2a_1 = Reach_instance.y1q(this.n2a_1, new Point(this.n2a_1.p1o_1 + 55.0, -6.825), 90.0, 0.0);
-  this.q2a_1 = this.o2a_1.r1o(unit(-this.m2a_1).t1o(6.0)).r1o(unit(-this.m2a_1 - 90.0).t1o(10.0 / 2));
-  this.r2a_1 = this.o2a_1.r1o(unit(-this.m2a_1).t1o(Segment_UPPER_ARM_getInstance().a()));
+  this.o2a_1 = seatHeight;
+  this.p2a_1 = padAngle;
+  this.q2a_1 = new Point(0.0, -(this.o2a_1 + 10.0));
+  this.r2a_1 = shoulderOf(this.q2a_1, 90.0);
+  this.s2a_1 = Reach_instance.a1r(this.q2a_1, new Point(this.q2a_1.p1o_1 + 55.0, -6.825), 90.0, 0.0);
+  this.t2a_1 = this.r2a_1.r1o(unit(-this.p2a_1).t1o(6.0)).r1o(unit(-this.p2a_1 - 90.0).t1o(10.0 / 2));
+  this.u2a_1 = this.r2a_1.r1o(unit(-this.p2a_1).t1o(Segment_UPPER_ARM_getInstance().a()));
 }
-protoOf(PadBody).s2a = function (bend) {
-  return new Arm(90.0 - this.m2a_1, bend);
+protoOf(PadBody).v2a = function (bend) {
+  return new Arm(90.0 - this.p2a_1, bend);
 };
-protoOf(PadBody).t2a = function (near, far) {
-  return new Pose(this.n2a_1.p1o_1, this.n2a_1.q1o_1, 90.0, VOID, near, this.p2a_1, far);
+protoOf(PadBody).w2a = function (near, far) {
+  return new Pose(this.q2a_1.p1o_1, this.q2a_1.q1o_1, 90.0, VOID, near, this.s2a_1, far);
 };
-protoOf(PadBody).u2a = function (near, far, $super) {
+protoOf(PadBody).x2a = function (near, far, $super) {
   far = far === VOID ? near : far;
-  return $super === VOID ? this.t2a(near, far) : $super.t2a.call(this, near, far);
+  return $super === VOID ? this.w2a(near, far) : $super.w2a.call(this, near, far);
 };
 function armMachine(body) {
   _init_properties_Arms_kt__e6cjp3_0();
-  return new ArmPadMachine(-12.0, body.l2a_1, body.q2a_1, body.m2a_1, body.r2a_1, body.r2a_1.p1o_1 + get_FORE_LINK() + 20.0);
+  return new ArmPadMachine(-12.0, body.o2a_1, body.t2a_1, body.p2a_1, body.u2a_1, body.u2a_1.p1o_1 + get_FORE_LINK() + 20.0);
 }
 function spotter(p) {
   _init_properties_Arms_kt__e6cjp3_0();
@@ -14521,11 +14545,11 @@ function spotter(p) {
   var kneel = new Leg(10.0, 90.0, -45.0);
   var front = new Leg(100.0, 90.0, 0.0);
   var pelvisY = -(Segment_THIGH_getInstance().a() + 11.0 / 2);
-  var sp = new Pose(s.p1q_1.p1o_1 - 45.0, pelvisY, 80.0, VOID, get_HANG(), front, VOID, kneel);
-  var tsh = skeleton(sp).n1q_1;
-  var target = s.q1q_1.c1q_1.r1o(new Point(-8.0, 6.0));
+  var sp = new Pose(s.q1q_1.p1o_1 - 45.0, pelvisY, 80.0, VOID, get_HANG(), front, VOID, kneel);
+  var tsh = skeleton(sp).o1q_1;
+  var target = s.r1q_1.d1q_1.r1o(new Point(-8.0, 6.0));
   var reach = target.s1o(tsh).u1o() < get_ARM_REACH() - 1.0 ? armTo(tsh, target, 80.0) : straightArm(tsh, target, 80.0);
-  return new Spotter(sp.z1p(VOID, VOID, VOID, VOID, reach, VOID, reach));
+  return new Spotter(sp.a1q(VOID, VOID, VOID, VOID, reach, VOID, reach));
 }
 function bendUntil(from, done) {
   _init_properties_Arms_kt__e6cjp3_0();
@@ -14556,7 +14580,7 @@ function closePushUp(handsOut, armAngle, hint, gap) {
   var t = solveAngle(tmp_0, top, closePushUp$lambda_0(gap));
   var lowPose = closePushUp$low(t);
   var bent = pushArm(lowPose, new V3(w.p1o_1, w.q1o_1, handsOut), hint, 0.0, false);
-  return to(start, lowPose.z1p(VOID, VOID, VOID, VOID, bent, VOID, bent));
+  return to(start, lowPose.a1q(VOID, VOID, VOID, VOID, bent, VOID, bent));
 }
 function tall$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
@@ -14661,8 +14685,8 @@ function _get_oneArmCableCurl_$ref_v5gvn7() {
 function dragCurl$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
   var bare = skeleton(stand(get_HANG()));
-  var bar = bare.v1q(Segment_TORSO_getInstance().a() - 17.0 - 10.0, 12.5 - 1.5 + 1.45 + 0.5);
-  var up = Reach_instance.x1q(bare.n1q_1, bar, 90.0);
+  var bar = bare.x1q(Segment_TORSO_getInstance().a() - 17.0 - 10.0, 12.5 - 1.5 + 1.45 + 0.5);
+  var up = Reach_instance.z1q(bare.o1q_1, bar, 90.0);
   return figure_0(View_SIDE_getInstance(), stand(get_BAR_HANG()), stand(up), listOf([Floor_instance, new Barbell()]), 'Arms straight', 'Elbows travel back', Which_END_getInstance(), listOf(['Stand tall holding a barbell with an underhand grip, arms straight.', 'Pull the bar straight up, letting your elbows travel back. Keep the bar close to your hips and waist.']), get_FEET_DOWN(), listOf([new ElbowBend(0.0, 1.0, Which_START_getInstance()), new BarTouches(BodyPoint_UPPER_ABDOMEN_getInstance(), Which_END_getInstance())]));
 }
 function _get_dragCurl_$ref_dkbebq() {
@@ -14691,8 +14715,8 @@ function _get_seatedDbCurl_$ref_6p7qr0() {
 function seatedThigh$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
   // Inline function 'kotlin.let' call
-  var it = skeleton(seated(get_HANG())).q1q_1;
-  return to(it.f1q_1, it.g1q_1);
+  var it = skeleton(seated(get_HANG())).r1q_1;
+  return to(it.g1q_1, it.h1q_1);
 }
 function _get_seatedThigh_$ref_bmmr72() {
   return constructCallableReference(function () {
@@ -14703,10 +14727,10 @@ function concentrationCurl$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
   var elbow = onThigh(0.8, 8.0);
   var lean = leanTo(elbow);
-  var down = arm(lean, lean.k2a_1);
-  var up = arm(lean, lean.k2a_1 + 145.0);
-  var free = new Arm(270.0 - (lean.i2a_1 + 180.0), 0.0);
-  return figure_0(View_SIDE_getInstance(), seated(down, free, lean.i2a_1), seated(up, free, lean.i2a_1), listOf([Floor_instance, get_endOfBench(), new Dumbbell(Side_NEAR_getInstance())]), 'Arm against your thigh', 'Toward your shoulder', Which_END_getInstance(), listOf(['Sit on a bench with a dumbbell between your feet.', 'Hold the dumbbell and rest the back of your upper arm against your inner thigh.', 'Curl the dumbbell up toward the front of your shoulder.', 'Lower under control until your arm is straight.']), get_SEATED_CONTACTS(), listOf([new ElbowBend(0.0, 1.0, Which_START_getInstance(), Side_NEAR_getInstance()), new ElbowBend(140.0, 148.0, Which_END_getInstance(), Side_NEAR_getInstance())]));
+  var down = arm(lean, lean.n2a_1);
+  var up = arm(lean, lean.n2a_1 + 145.0);
+  var free = new Arm(270.0 - (lean.l2a_1 + 180.0), 0.0);
+  return figure_0(View_SIDE_getInstance(), seated(down, free, lean.l2a_1), seated(up, free, lean.l2a_1), listOf([Floor_instance, get_endOfBench(), new Dumbbell(Side_NEAR_getInstance())]), 'Arm against your thigh', 'Toward your shoulder', Which_END_getInstance(), listOf(['Sit on a bench with a dumbbell between your feet.', 'Hold the dumbbell and rest the back of your upper arm against your inner thigh.', 'Curl the dumbbell up toward the front of your shoulder.', 'Lower under control until your arm is straight.']), get_SEATED_CONTACTS(), listOf([new ElbowBend(0.0, 1.0, Which_START_getInstance(), Side_NEAR_getInstance()), new ElbowBend(140.0, 148.0, Which_END_getInstance(), Side_NEAR_getInstance())]));
 }
 function _get_concentrationCurl_$ref_wp6g4n() {
   return constructCallableReference(function () {
@@ -14736,7 +14760,7 @@ function inclineDbCurl$delegate$lambda() {
   var bench = new AdjustableBench(30.0, 60.0);
   var torso = 180.0 - 60.0;
   var pelvis = reclinedPelvis(adjustableHinge(bench), 60.0);
-  var legs = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 + 46.0, -6.825), torso, 0.0);
+  var legs = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 + 46.0, -6.825), torso, 0.0);
   var hangDown = new Arm(270.0 - (torso + 180.0), 0.0);
   var tmp0_view = View_SIDE_getInstance();
   var tmp1_start = invoke$pose(pelvis, torso, legs, hangDown);
@@ -14779,7 +14803,7 @@ function spiderCurl$delegate$lambda() {
   var x_1 = trail * trail - dy * dy;
   var tmp$ret$4 = Math.sqrt(x_1);
   var ankle = new Point(pelvis.p1o_1 - tmp$ret$4, a.q1o_1);
-  var legs = Reach_instance.y1q(pelvis, ankle, angle, -55.0);
+  var legs = Reach_instance.a1r(pelvis, ankle, angle, -55.0);
   var down = new Arm(270.0 - (angle + 180.0), 0.0);
   return figure_0(View_SIDE_getInstance(), invoke$pose_0(pelvis, angle, legs, down), invoke$pose_0(pelvis, angle, legs, down.f1p(VOID, 145.0)), listOf([Floor_instance, bench, EZBar_instance]), 'Arms hang straight down', 'As far as elbows bend', Which_END_getInstance(), listOf(['Lie face down on an incline bench, with your shoulders near the top.', 'Hold a curl bar with an underhand grip, about shoulder-width apart.', 'Curl the bar up as far as your elbows bend.', 'Lower under control until your arms are straight.']), listOf([new Contact(BodyPoint_CHEST_getInstance(), Surface_CHEST_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), listOf([new ElbowBend(0.0, 1.0, Which_START_getInstance()), new ElbowBend(140.0, 148.0, Which_END_getInstance())]));
 }
@@ -14802,7 +14826,7 @@ function _get_preacher_$ref_ed5jka() {
 }
 function preacherBench$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
-  return new PreacherBench(-10.0, 55.0, get_preacher().q2a_1, 45.0);
+  return new PreacherBench(-10.0, 55.0, get_preacher().t2a_1, 45.0);
 }
 function _get_preacherBench_$ref_tcz600() {
   return constructCallableReference(function () {
@@ -14811,7 +14835,7 @@ function _get_preacherBench_$ref_tcz600() {
 }
 function preacherCurl$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
-  return figure_0(View_SIDE_getInstance(), get_preacher().u2a(get_preacher().s2a(0.0)), get_preacher().u2a(get_preacher().s2a(135.0)), listOf([Floor_instance, get_preacherBench(), EZBar_instance]), 'Arms straight on the pad', 'Forearms upright', Which_END_getInstance(), listOf(['Set the seat so your armpit rests near the top of the pad.', 'Sit with the backs of your upper arms on the pad.', 'Curl the bar up until your forearms are upright.', 'Lower under control until your arms are straight.', 'Keep the back of your upper arm on the pad the whole time.']), get_PAD_CONTACTS(), listOf([new ElbowBend(0.0, 1.0, Which_START_getInstance()), new ElbowBend(135.0 - 1.0, 135.0 + 1.0, Which_END_getInstance())]));
+  return figure_0(View_SIDE_getInstance(), get_preacher().x2a(get_preacher().v2a(0.0)), get_preacher().x2a(get_preacher().v2a(135.0)), listOf([Floor_instance, get_preacherBench(), EZBar_instance]), 'Arms straight on the pad', 'Forearms upright', Which_END_getInstance(), listOf(['Set the seat so your armpit rests near the top of the pad.', 'Sit with the backs of your upper arms on the pad.', 'Curl the bar up until your forearms are upright.', 'Lower under control until your arms are straight.', 'Keep the back of your upper arm on the pad the whole time.']), get_PAD_CONTACTS(), listOf([new ElbowBend(0.0, 1.0, Which_START_getInstance()), new ElbowBend(135.0 - 1.0, 135.0 + 1.0, Which_END_getInstance())]));
 }
 function _get_preacherCurl_$ref_2obzsy() {
   return constructCallableReference(function () {
@@ -14820,8 +14844,8 @@ function _get_preacherCurl_$ref_2obzsy() {
 }
 function dbPreacherCurl$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
-  var rest = get_preacher().s2a(0.0);
-  return figure_0(View_SIDE_getInstance(), get_preacher().u2a(rest), get_preacher().t2a(get_preacher().s2a(135.0), rest), listOf([Floor_instance, get_preacherBench(), new Dumbbell(Side_NEAR_getInstance())]), 'Arm straight on the pad', 'Forearm upright', Which_END_getInstance(), listOf(['Set the seat so your armpit rests near the top of the pad.', 'Sit with the back of your working arm on the pad, holding the dumbbell with your palm up.', 'Curl the dumbbell up until your forearm is upright.', 'Lower under control until your arm is straight.', 'Keep the back of your upper arm on the pad the whole time.']), get_PAD_CONTACTS(), listOf([new ElbowBend(0.0, 1.0, Which_START_getInstance(), Side_NEAR_getInstance()), new ElbowBend(135.0 - 1.0, 135.0 + 1.0, Which_END_getInstance(), Side_NEAR_getInstance())]));
+  var rest = get_preacher().v2a(0.0);
+  return figure_0(View_SIDE_getInstance(), get_preacher().x2a(rest), get_preacher().w2a(get_preacher().v2a(135.0), rest), listOf([Floor_instance, get_preacherBench(), new Dumbbell(Side_NEAR_getInstance())]), 'Arm straight on the pad', 'Forearm upright', Which_END_getInstance(), listOf(['Set the seat so your armpit rests near the top of the pad.', 'Sit with the back of your working arm on the pad, holding the dumbbell with your palm up.', 'Curl the dumbbell up until your forearm is upright.', 'Lower under control until your arm is straight.', 'Keep the back of your upper arm on the pad the whole time.']), get_PAD_CONTACTS(), listOf([new ElbowBend(0.0, 1.0, Which_START_getInstance(), Side_NEAR_getInstance()), new ElbowBend(135.0 - 1.0, 135.0 + 1.0, Which_END_getInstance(), Side_NEAR_getInstance())]));
 }
 function _get_dbPreacherCurl_$ref_ard0bk() {
   return constructCallableReference(function () {
@@ -14831,7 +14855,7 @@ function _get_dbPreacherCurl_$ref_ard0bk() {
 function machineCurl$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
   var body = new PadBody(50.0, 40.0);
-  return figure_0(View_SIDE_getInstance(), body.u2a(body.s2a(15.0)), body.u2a(body.s2a(130.0)), listOf([Floor_instance, armMachine(body)]), 'Arms nearly straight', 'Curl toward your chest', Which_END_getInstance(), listOf(["Set the seat so the middle of your elbows lines up with the machine's pivot.", 'Sit with your arms over the pad. Grip the handles firmly, with your wrists straight.', 'Breathe out and curl the handles toward your chest.', 'Breathe in and lower slowly until your arms are nearly straight.']), get_PAD_CONTACTS(), listOf([new ElbowBend(10.0, 20.0, Which_START_getInstance()), new ElbowBend(125.0, 135.0, Which_END_getInstance())]));
+  return figure_0(View_SIDE_getInstance(), body.x2a(body.v2a(15.0)), body.x2a(body.v2a(130.0)), listOf([Floor_instance, armMachine(body)]), 'Arms nearly straight', 'Curl toward your chest', Which_END_getInstance(), listOf(["Set the seat so the middle of your elbows lines up with the machine's pivot.", 'Sit with your arms over the pad. Grip the handles firmly, with your wrists straight.', 'Breathe out and curl the handles toward your chest.', 'Breathe in and lower slowly until your arms are nearly straight.']), get_PAD_CONTACTS(), listOf([new ElbowBend(10.0, 20.0, Which_START_getInstance()), new ElbowBend(125.0, 135.0, Which_END_getInstance())]));
 }
 function _get_machineCurl_$ref_35mzw3() {
   return constructCallableReference(function () {
@@ -14841,7 +14865,7 @@ function _get_machineCurl_$ref_35mzw3() {
 function machineTricepsExtension$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
   var body = new PadBody(50.0, 35.0);
-  return figure_0(View_SIDE_getInstance(), body.u2a(body.s2a(145.0)), body.u2a(body.s2a(0.0)), listOf([Floor_instance, armMachine(body)]), 'Forearms to upper arms', 'Arms straight', Which_START_getInstance(), listOf(['Set the seat so the backs of your upper arms rest on the pad.', "Sit and grip the handles. Line up your elbows with the machine's pivot.", 'Push the handles down until your arms are straight.', 'Return under control until your forearms touch your upper arms.']), get_PAD_CONTACTS(), listOf([new ElbowBend(140.0, 148.0, Which_START_getInstance()), new ElbowBend(0.0, 1.0, Which_END_getInstance())]));
+  return figure_0(View_SIDE_getInstance(), body.x2a(body.v2a(145.0)), body.x2a(body.v2a(0.0)), listOf([Floor_instance, armMachine(body)]), 'Forearms to upper arms', 'Arms straight', Which_START_getInstance(), listOf(['Set the seat so the backs of your upper arms rest on the pad.', "Sit and grip the handles. Line up your elbows with the machine's pivot.", 'Push the handles down until your arms are straight.', 'Return under control until your forearms touch your upper arms.']), get_PAD_CONTACTS(), listOf([new ElbowBend(140.0, 148.0, Which_START_getInstance()), new ElbowBend(0.0, 1.0, Which_END_getInstance())]));
 }
 function _get_machineTricepsExtension_$ref_rybkcq() {
   return constructCallableReference(function () {
@@ -14911,7 +14935,7 @@ function skullCrusher$delegate$lambda() {
 }
 function skullCrusher$delegate$lambda$lambda(s) {
   _init_properties_Arms_kt__e6cjp3_0();
-  return s.q1q_1.e1q_1.s1o(s.p1q_1).u1o() - 10.0 - 1.45 <= 3.0;
+  return s.r1q_1.f1q_1.s1o(s.q1q_1).u1o() - 10.0 - 1.45 <= 3.0;
 }
 function _get_skullCrusher_$ref_ptg4xd() {
   return constructCallableReference(function () {
@@ -14922,7 +14946,7 @@ function dbLyingTricepsExtension$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
   var start = flatPose(new Arm(90.0, 0.0));
   var bare = skeleton(flatPose(get_HANG()));
-  var end = flatPose(Reach_instance.x1q(bare.n1q_1, bare.p1q_1.r1o(new Point(0.0, -2.0)), get_FLAT_TORSO()));
+  var end = flatPose(Reach_instance.z1q(bare.o1q_1, bare.q1q_1.r1o(new Point(0.0, -2.0)), get_FLAT_TORSO()));
   var dbs = listOf([new Dumbbell(Side_FAR_getInstance()), new Dumbbell(Side_NEAR_getInstance())]);
   var tmp0_view = View_SIDE_getInstance();
   var tmp1_props = plus(listOf([Floor_instance, spotter(start), new FlatBench()]), dbs);
@@ -14952,18 +14976,18 @@ function _get_jmPress_$ref_a075mo() {
 function tricepsKickback$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
   var pelvis = new Point(0.0, -85.0);
-  var back = Reach_instance.y1q(pelvis, new Point(-32.0, -6.825), 25.0, 0.0);
-  var front = Reach_instance.y1q(pelvis, new Point(22.0, -6.825), 25.0, 0.0);
+  var back = Reach_instance.a1r(pelvis, new Point(-32.0, -6.825), 25.0, 0.0);
+  var front = Reach_instance.a1r(pelvis, new Point(22.0, -6.825), 25.0, 0.0);
   var upper = -25.0 / 2;
   var hanging = new Arm(upper, 270.0 - (25.0 + 180.0 + upper));
   var bare = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, 25.0, VOID, hanging, back, VOID, front));
-  var k = bare.r1q_1.g1q_1;
-  var h = bare.r1q_1.f1q_1;
+  var k = bare.s1q_1.h1q_1;
+  var h = bare.s1q_1.g1q_1;
   // Inline function 'kotlin.let' call
   var it = k.s1o(h);
   var d = it.t1o(1.0 / it.u1o());
   var handOnThigh = k.s1o(d.t1o(8.0)).r1o((new Point(d.q1o_1, -d.p1o_1)).t1o(14.0 / 2 + 6.0 / 2));
-  var free = armTo(bare.n1q_1, handOnThigh, 25.0);
+  var free = armTo(bare.o1q_1, handOnThigh, 25.0);
   return figure_0(View_SIDE_getInstance(), invoke$pose_1(pelvis, back, free, front, hanging), invoke$pose_1(pelvis, back, free, front, new Arm(upper, 0.0)), listOf([Floor_instance, new Dumbbell(Side_NEAR_getInstance())]), 'Forearm hangs straight', 'Straighten your elbow', Which_END_getInstance(), listOf(['Stand with one foot in front of the other, holding a dumbbell in one hand.', 'Brace your abs and lean forward. Rest your free hand on your thigh or knee.', 'Hold your upper arm close to your side. Bend your elbow so your forearm hangs straight down.', 'Straighten your elbow to move the dumbbell back. Keep your upper arm still.']), get_FEET_DOWN(), listOf_0(new ElbowBend(0.0, 1.0, Which_END_getInstance(), Side_NEAR_getInstance())));
 }
 function invoke$pose_1(pelvis, back, free, front, arm) {
@@ -14977,7 +15001,7 @@ function _get_tricepsKickback_$ref_28r16l() {
 function tricepsDip$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
   var bars = new DipBars(0.0);
-  var grip = new Point(0.0, -bars.u25_1);
+  var grip = new Point(0.0, -bars.x25_1);
   var leg = new Leg(10.0, 45.0, -25.0);
   var topTorso = 87.0;
   var topShoulder = grip.r1o(new Point(0.0, -get_ARM_REACH()));
@@ -15190,7 +15214,7 @@ function closePushUp$topArm($armAngle, hand, out, torso) {
   return new Arm(fold180($armAngle - torso - 180.0), 0.0, fold180(hand - $armAngle), VOID, out, out);
 }
 function closePushUp$topWrist($armAngle, armDrawn, hand, out, torso) {
-  return skeleton(pronePose(torso, Support_TOES_getInstance(), 0.0, closePushUp$topArm($armAngle, hand, out, torso))).n1q_1.r1o(unit($armAngle).t1o(armDrawn));
+  return skeleton(pronePose(torso, Support_TOES_getInstance(), 0.0, closePushUp$topArm($armAngle, hand, out, torso))).o1q_1.r1o(unit($armAngle).t1o(armDrawn));
 }
 function closePushUp$lambda($hand, $scale, $armAngle, $armDrawn, $out) {
   return function (t) {
@@ -15836,11 +15860,11 @@ function rowReach(z) {
   // Inline function 'kotlin.math.cos' call
   var x_0 = 15.0 / 57.29577951308232;
   var tmp$ret$1 = Math.cos(x_0);
-  var tmp = sh.v2a_1 + flat * tmp$ret$1;
+  var tmp = sh.y2a_1 + flat * tmp$ret$1;
   // Inline function 'kotlin.math.sin' call
   var x_1 = 15.0 / 57.29577951308232;
   var tmp$ret$2 = Math.sin(x_1);
-  var grip = new V3(tmp, sh.w2a_1 + flat * tmp$ret$2, z);
+  var grip = new V3(tmp, sh.z2a_1 + flat * tmp$ret$2, z);
   return dz === 0.0 ? new Arm(fold180(-15.0 - 90.0 - 180.0), 0.0) : arm3(sh, grip, new V3(0.0, 1.0, 0.0), 90.0);
 }
 function ankleOnToes_0(ankleX, foot) {
@@ -15851,21 +15875,21 @@ function ankleOnToes_0(ankleX, foot) {
   return new Point(ankleX, -r - toe.q1o_1);
 }
 function PulldownBase() {
-  this.y2a_1 = 100.0;
-  this.z2a_1 = 48.0;
-  this.a2b_1 = new Point(0.0, -(this.z2a_1 + 10.0));
-  this.b2b_1 = Reach_instance.y1q(this.a2b_1, new Point(42.0, -6.825), this.y2a_1, 0.0);
-  this.c2b_1 = shoulderOf(this.a2b_1, this.y2a_1);
-  this.d2b_1 = straightArm(this.c2b_1, this.c2b_1.r1o(new Point(0.0, -10.0)), this.y2a_1);
-  this.e2b_1 = skeleton(new Pose(this.a2b_1.p1o_1, this.a2b_1.q1o_1, this.y2a_1, VOID, this.d2b_1, this.b2b_1));
+  this.b2b_1 = 100.0;
+  this.c2b_1 = 48.0;
+  this.d2b_1 = new Point(0.0, -(this.c2b_1 + 10.0));
+  this.e2b_1 = Reach_instance.a1r(this.d2b_1, new Point(42.0, -6.825), this.b2b_1, 0.0);
+  this.f2b_1 = shoulderOf(this.d2b_1, this.b2b_1);
+  this.g2b_1 = straightArm(this.f2b_1, this.f2b_1.r1o(new Point(0.0, -10.0)), this.b2b_1);
+  this.h2b_1 = skeleton(new Pose(this.d2b_1.p1o_1, this.d2b_1.q1o_1, this.b2b_1, VOID, this.g2b_1, this.e2b_1));
   var tmp = this;
   // Inline function 'kotlin.run' call
-  var thigh = this.e2b_1.q1q_1.g1q_1.s1o(this.e2b_1.q1q_1.f1q_1);
-  var pad = this.e2b_1.q1q_1.f1q_1.r1o(thigh.t1o(0.8)).r1o(unit(angleTo(thigh) + 90.0).t1o(14.0 / 2 + 6.0));
-  tmp.f2b_1 = new LatPulldownSeat(-6.0, pad.p1o_1, this.z2a_1, -pad.q1o_1);
+  var thigh = this.h2b_1.r1q_1.h1q_1.s1o(this.h2b_1.r1q_1.g1q_1);
+  var pad = this.h2b_1.r1q_1.g1q_1.r1o(thigh.t1o(0.8)).r1o(unit(angleTo(thigh) + 90.0).t1o(14.0 / 2 + 6.0));
+  tmp.i2b_1 = new LatPulldownSeat(-6.0, pad.p1o_1, this.c2b_1, -pad.q1o_1);
 }
-protoOf(PulldownBase).g2b = function (arm) {
-  return new Pose(this.a2b_1.p1o_1, this.a2b_1.q1o_1, this.y2a_1, VOID, arm, this.b2b_1);
+protoOf(PulldownBase).j2b = function (arm) {
+  return new Pose(this.d2b_1.p1o_1, this.d2b_1.q1o_1, this.b2b_1, VOID, arm, this.e2b_1);
 };
 function frontSeated(near, far) {
   far = far === VOID ? near : far;
@@ -15879,7 +15903,7 @@ function frontShoulder(y) {
 function overhead(shoulderY, half, forward) {
   _init_properties_Back_kt__1pps7b_0();
   var sh = frontShoulder(shoulderY);
-  var dx = half - sh.v2a_1;
+  var dx = half - sh.y2a_1;
   // Inline function 'kotlin.math.sqrt' call
   var x = get_ARM_REACH() * get_ARM_REACH() - dx * dx - forward * forward;
   var up = Math.sqrt(x);
@@ -15920,9 +15944,9 @@ function chinUpPoses(leg) {
 function dbCentre(s) {
   _init_properties_Back_kt__1pps7b_0();
   // Inline function 'kotlin.let' call
-  var it = s.q1q_1.c1q_1.s1o(s.q1q_1.b1q_1);
+  var it = s.r1q_1.d1q_1.s1o(s.r1q_1.c1q_1);
   var f = it.t1o(1.0 / it.u1o());
-  return s.q1q_1.e1q_1.s1o(f.t1o(14.0 / 2 + 2.5));
+  return s.r1q_1.f1q_1.s1o(f.t1o(14.0 / 2 + 2.5));
 }
 function frontStand(abduct, shrug) {
   _init_properties_Back_kt__1pps7b_0();
@@ -15957,7 +15981,7 @@ function pullUp$delegate$lambda() {
   var hangPelvis = hangShoulder.r1o(new Point(0.0, Segment_TORSO_getInstance().a()));
   var start = new Pose(hangPelvis.p1o_1, hangPelvis.q1o_1, 90.0, VOID, hangArm, near, VOID, far);
   var topShoulder = bar.r1o(new Point(-19.0, 2.0));
-  var pull = Reach_instance.x1q(topShoulder, bar, 90.0);
+  var pull = Reach_instance.z1q(topShoulder, bar, 90.0);
   var topPelvis = topShoulder.r1o(new Point(0.0, Segment_TORSO_getInstance().a()));
   var end = new Pose(topPelvis.p1o_1, topPelvis.q1o_1, 90.0, VOID, pull, near, VOID, far);
   var props = listOf_0(new PullUpBar(bar.p1o_1, -bar.q1o_1));
@@ -15973,16 +15997,16 @@ function latPulldown$delegate$lambda() {
   var torso = 100.0;
   var seatHeight = 48.0;
   var pelvis = new Point(0.0, -(seatHeight + 10.0));
-  var legs = Reach_instance.y1q(pelvis, new Point(42.0, -6.825), torso, 0.0);
+  var legs = Reach_instance.a1r(pelvis, new Point(42.0, -6.825), torso, 0.0);
   var shoulder = shoulderOf(pelvis, torso);
   var up = straightArm(shoulder, shoulder.r1o(new Point(0.0, -10.0)), torso);
   var bare = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, up, legs));
   var chest = point(bare, BodyPoint_UPPER_CHEST_getInstance()).r1o(unit(torso - 90.0).t1o(1.3));
   var down = armTo(shoulder, chest, torso);
-  var thigh = bare.q1q_1.g1q_1.s1o(bare.q1q_1.f1q_1);
-  var pad = bare.q1q_1.f1q_1.r1o(thigh.t1o(0.8)).r1o(unit(angleTo(thigh) + 90.0).t1o(14.0 / 2 + 6.0));
+  var thigh = bare.r1q_1.h1q_1.s1o(bare.r1q_1.g1q_1);
+  var pad = bare.r1q_1.g1q_1.r1o(thigh.t1o(0.8)).r1o(unit(angleTo(thigh) + 90.0).t1o(14.0 / 2 + 6.0));
   var seat = new LatPulldownSeat(-6.0, pad.p1o_1, seatHeight, -pad.q1o_1);
-  var grip = bare.q1q_1.e1q_1;
+  var grip = bare.r1q_1.f1q_1;
   var stack = new CableStack(-60.0, VOID, grip.p1o_1 + 60.0);
   var props = listOf([Floor_instance, stack, seat, LatBar_instance]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, up, legs), props), new Scene(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, down, legs), props), 'Arms fully stretched', 'Bar to your upper chest', Which_END_getInstance(), listOf(['Sit with your thighs under the pads.', 'Lean back only slightly, using your legs to support your body.', 'Pull the bar down to your upper chest.', 'Return under control until your arms and shoulders are fully stretched.']), listOf([new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_THIGHS_getInstance(), Surface_THIGH_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), listOf_0(new BarTouches(BodyPoint_UPPER_CHEST_getInstance(), Which_END_getInstance())));
@@ -16000,7 +16024,7 @@ function oneArmRow$delegate$lambda() {
   var pelvis = knee.r1o(new Point(0.0, -Segment_THIGH_getInstance().a()));
   var shoulder = shoulderOf(pelvis, torso);
   var kneel = new Leg(fold180(270.0 - torso - 180.0), 90.0, -40.0);
-  var standing = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 - 4.0, -6.825), torso, 0.0);
+  var standing = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 - 4.0, -6.825), torso, 0.0);
   var wrist = -65.0;
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(0, 200);
@@ -16022,7 +16046,7 @@ function oneArmRow$delegate$lambda() {
   var _iterator__ex2g4s = destination.j();
   while (_iterator__ex2g4s.k()) {
     var item_0 = _iterator__ex2g4s.l();
-    var tmp$ret$5 = Reach_instance.x1q(shoulder, new Point(shoulder.p1o_1 + 8.0, item_0), torso, wrist);
+    var tmp$ret$5 = Reach_instance.z1q(shoulder, new Point(shoulder.p1o_1 + 8.0, item_0), torso, wrist);
     destination_0.i(tmp$ret$5);
   }
   var tmp$ret$6;
@@ -16038,9 +16062,9 @@ function oneArmRow$delegate$lambda() {
     }
     var arm = minElem;
     var s = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, arm, standing, arm, kneel));
-    var tmp0 = s.r1q_1.c1q_1.q1o_1;
+    var tmp0 = s.s1q_1.d1q_1.q1o_1;
     // Inline function 'kotlin.comparisons.maxOf' call
-    var b = s.r1q_1.d1q_1.q1o_1;
+    var b = s.s1q_1.e1q_1.q1o_1;
     var lowest = Math.max(tmp0, b) + 6.0 / 2;
     // Inline function 'kotlin.math.abs' call
     var x = lowest + 43.0;
@@ -16048,9 +16072,9 @@ function oneArmRow$delegate$lambda() {
     do {
       var e = iterator.l();
       var s_0 = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, e, standing, e, kneel));
-      var tmp0_0 = s_0.r1q_1.c1q_1.q1o_1;
+      var tmp0_0 = s_0.s1q_1.d1q_1.q1o_1;
       // Inline function 'kotlin.comparisons.maxOf' call
-      var b_0 = s_0.r1q_1.d1q_1.q1o_1;
+      var b_0 = s_0.s1q_1.e1q_1.q1o_1;
       var lowest_0 = Math.max(tmp0_0, b_0) + 6.0 / 2;
       // Inline function 'kotlin.math.abs' call
       var x_0 = lowest_0 + 43.0;
@@ -16089,7 +16113,7 @@ function _get_rowLeg_$ref_8bla92() {
 }
 function rowShoulder$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
-  return shoulderOf(get_rowLeg().g2a_1, 20.0);
+  return shoulderOf(get_rowLeg().j2a_1, 20.0);
 }
 function _get_rowShoulder_$ref_qqurom() {
   return constructCallableReference(function () {
@@ -16099,10 +16123,10 @@ function _get_rowShoulder_$ref_qqurom() {
 function row$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var clear = 11.0 / 2 + 1.45 + 1.5;
-  var start = standOn(get_rowLeg(), 20.0, hangingArmAt(get_rowShoulder(), get_rowLeg().f2a_1.p1o_1 + clear, 20.0));
+  var start = standOn(get_rowLeg(), 20.0, hangingArmAt(get_rowShoulder(), get_rowLeg().i2a_1.p1o_1 + clear, 20.0));
   var bare = skeleton(standOn(get_rowLeg(), 20.0, get_HANG_0()));
   var waist = point(bare, BodyPoint_UPPER_ABDOMEN_getInstance()).r1o(unit(20.0 - 90.0).t1o(1.45));
-  var end = standOn(get_rowLeg(), 20.0, Reach_instance.x1q(get_rowShoulder(), waist, 20.0));
+  var end = standOn(get_rowLeg(), 20.0, Reach_instance.z1q(get_rowShoulder(), waist, 20.0));
   return figure_1(View_SIDE_getInstance(), start, end, listOf([Floor_instance, new Barbell()]), 'Arms straight', 'Pull to your upper waist', Which_END_getInstance(), listOf(['Bend your knees slightly and bend over the bar with your back straight.', 'Pull the bar up to your upper waist.', 'Lower it until your arms are straight and your shoulders are stretched down.', 'Keep your torso still. For strict reps, keep it level with the floor.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new BarTouches(BodyPoint_UPPER_ABDOMEN_getInstance(), Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance(), Side_NEAR_getInstance())]));
 }
 function _get_row_$ref_zc96cm() {
@@ -16114,7 +16138,7 @@ function tBarRow$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var torso = 25.0;
   var leg = standingLeg(0.0, 0.0, 25.0, torso);
-  var shoulder = shoulderOf(leg.g2a_1, torso);
+  var shoulder = shoulderOf(leg.j2a_1, torso);
   var handle = shoulder.r1o(new Point(0.0, get_ARM_REACH()));
   var pivot = new Point(handle.p1o_1 - 150.0, -4.0);
   var r = handle.s1o(pivot).u1o();
@@ -16122,13 +16146,13 @@ function tBarRow$delegate$lambda() {
   var tmp = angleTo(handle.s1o(pivot));
   var top = alongArc(pivot, r, tmp, 0.1, tBarRow$delegate$lambda$lambda(bare));
   var start = standOn(leg, torso, straightArm(shoulder, handle, torso));
-  var end = standOn(leg, torso, Reach_instance.x1q(shoulder, top, torso));
+  var end = standOn(leg, torso, Reach_instance.z1q(shoulder, top, torso));
   var lever = new TBarLever(pivot, r + 20.0);
   return figure_1(View_SIDE_getInstance(), start, end, listOf([Floor_instance, lever]), 'Arms straight', 'Handles to your torso', Which_END_getInstance(), listOf(['Bend your knees slightly and bend over the lever handles with your back straight.', 'Pull the handles up to your torso.', 'Keep your torso still and your back flat for every rep.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf_0(new ElbowBend(0.0, 1.0, Which_START_getInstance(), Side_NEAR_getInstance())));
 }
 function tBarRow$delegate$lambda$lambda($bare) {
   return function (p) {
-    return distanceToSegment(p, $bare.m1q_1, $bare.n1q_1) <= 12.5 - 1.5 + 2.4;
+    return distanceToSegment(p, $bare.n1q_1, $bare.o1q_1) <= 12.5 - 1.5 + 2.4;
   };
 }
 function _get_tBarRow_$ref_9r0yd7() {
@@ -16138,7 +16162,7 @@ function _get_tBarRow_$ref_9r0yd7() {
 }
 function rowLegs$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
-  return Reach_instance.y1q(get_rowPelvis(), get_rowPelvis().r1o(new Point(80.0, 16.0)), 90.0, get_rowFootAngle());
+  return Reach_instance.a1r(get_rowPelvis(), get_rowPelvis().r1o(new Point(80.0, 16.0)), 90.0, get_rowFootAngle());
 }
 function _get_rowLegs_$ref_otb27() {
   return constructCallableReference(function () {
@@ -16147,9 +16171,9 @@ function _get_rowLegs_$ref_otb27() {
 }
 function rowStation$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
-  var n = skeleton(rowPose(get_HANG_0())).q1q_1;
+  var n = skeleton(rowPose(get_HANG_0())).r1q_1;
   var sole = unit(get_rowFootAngle() - 90.0).t1o(6.825);
-  var face = n.h1q_1.r1o(sole).r1o(unit(get_rowFootAngle()).t1o(7.0));
+  var face = n.i1q_1.r1o(sole).r1o(unit(get_rowFootAngle()).t1o(7.0));
   return new RowStation(get_rowPelvis().p1o_1 + 14.0, 42.0, face, new Point(face.p1o_1 + 22.0, face.q1o_1 - 4.0));
 }
 function _get_rowStation_$ref_rs7c1s() {
@@ -16161,7 +16185,7 @@ function seatedCableRow$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var bare = skeleton(rowPose(get_HANG_0()));
   var waist = point(bare, BodyPoint_WAIST_getInstance());
-  var end = Reach_instance.x1q(get_rowSeatShoulder(), waist.r1o(new Point(1.0, 0.0)), 90.0);
+  var end = Reach_instance.z1q(get_rowSeatShoulder(), waist.r1o(new Point(1.0, 0.0)), 90.0);
   return figure_1(View_SIDE_getInstance(), rowPose(rowReach()), rowPose(end), listOf([Floor_instance, get_rowStation(), new CableAttachment(Attachment_V_HANDLE_getInstance())]), 'Arms straight', 'Handle to your waist', Which_END_getInstance(), listOf(['Sit slightly forward on the bench with your feet on the footplates. Grip the close-grip handle.', 'Sit up straight, then slide your hips back until your knees are slightly bent.', 'Pull the handle to your waist, keeping your elbows close to your ribs.', 'Hold briefly, then return until your arms are straight. Keep your torso upright.']), get_SEATED_ROW_CONTACTS(), listOf([new HeldBeside(BodyPoint_WAIST_getInstance(), 2.0, Which_END_getInstance()), new UpperArmDown(50.0, Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
 }
 function _get_seatedCableRow_$ref_jwvvt3() {
@@ -16200,7 +16224,7 @@ function machineRow$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var seat = 45.0;
   var pelvis = new Point(0.0, -(seat + 10.0));
-  var legs = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 + 40.0, -6.825), 90.0, 0.0);
+  var legs = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 + 40.0, -6.825), 90.0, 0.0);
   var shoulder = shoulderOf(pelvis, 90.0);
   var bare = skeleton(invoke$pose_3(pelvis, legs, get_HANG_0()));
   var chest = point(bare, BodyPoint_CHEST_getInstance());
@@ -16209,11 +16233,11 @@ function machineRow$delegate$lambda() {
   // Inline function 'kotlin.math.sqrt' call
   var x = get_ARM_REACH() * get_ARM_REACH() - dz * dz - 9.0;
   var ahead = Math.sqrt(x);
-  var gripStart = new V3(sh.v2a_1 + ahead, sh.w2a_1 + 3.0, 34.0);
+  var gripStart = new V3(sh.y2a_1 + ahead, sh.z2a_1 + 3.0, 34.0);
   var start = arm3(sh, gripStart, new V3(0.0, 1.0, 0.0), 90.0);
-  var gripEnd = new V3(shoulder.p1o_1 + 8.0, sh.w2a_1 + 6.0, 34.0);
+  var gripEnd = new V3(shoulder.p1o_1 + 8.0, sh.z2a_1 + 6.0, 34.0);
   var end = arm3(sh, gripEnd, new V3(-1.0, 0.15, 0.2), 90.0);
-  var pivot = pivotOn(gripStart.h2b(), gripEnd.h2b(), -40.0);
+  var pivot = pivotOn(gripStart.k2b(), gripEnd.k2b(), -40.0);
   var machine = new RowMachine(pelvis.p1o_1 + 14.0, seat, chest.p1o_1, -chest.q1o_1, pivot);
   return figure_1(View_SIDE_getInstance(), invoke$pose_3(pelvis, legs, start), invoke$pose_3(pelvis, legs, end), listOf([Floor_instance, machine]), 'Arms straight', 'Elbows pass your torso', Which_END_getInstance(), listOf(['Set the seat so the handles are about level with your shoulders.', 'Sit with your feet planted and your chest lightly touching the pad. Grip the handles.', 'Pull the handles back until your elbows pass your torso.', 'Return slowly until your arms are straight. Keep your torso upright.']), listOf([new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_CHEST_getInstance(), Surface_CHEST_PAD_getInstance(), get_BOTH())]), listOf([new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 4.0, Which_START_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
 }
@@ -16241,7 +16265,7 @@ function chestSupportedRow$delegate$lambda() {
   var x = get_TRAIL() * get_TRAIL() - dy * dy;
   var tmp$ret$2 = Math.sqrt(x);
   var ankle = new Point(pelvis.p1o_1 - tmp$ret$2, a.q1o_1);
-  var legs = Reach_instance.y1q(pelvis, ankle, angle, -55.0);
+  var legs = Reach_instance.a1r(pelvis, ankle, angle, -55.0);
   var down = straightArm(shoulder, shoulder.r1o(new Point(0.0, 10.0)), angle);
   var rowShoulder = -30.0;
   var up = new Arm(rowShoulder, fold180(270.0 - (angle + 180.0 + rowShoulder)));
@@ -16265,7 +16289,7 @@ function sealRow$delegate$lambda() {
   var bare = skeleton(invoke$pose_5(pelvis, legs, get_HANG_0()));
   var waist = point(bare, BodyPoint_UPPER_ABDOMEN_getInstance());
   var down = straightArm(shoulder, shoulder.r1o(new Point(0.0, 10.0)), 0.0);
-  var up = Reach_instance.x1q(shoulder, new Point(waist.p1o_1, -height + 2.0), 0.0);
+  var up = Reach_instance.z1q(shoulder, new Point(waist.p1o_1, -height + 2.0), 0.0);
   return figure_1(View_SIDE_getInstance(), invoke$pose_5(pelvis, legs, down), invoke$pose_5(pelvis, legs, up), listOf([Floor_instance, bench, new CamberedBar()]), 'Full stretch', 'Pull to your upper waist', Which_END_getInstance(), listOf(['Lie chest down on a high, flat bench.', 'Grip a cambered bar below the bench with an overhand grip, or hold a dumbbell in each hand.', 'Pull the bar to your upper waist or lower chest. With dumbbells, pull them up to your sides.', 'Lower until your arms are straight and your shoulders are stretched down.']), listOf_0(new Contact(BodyPoint_CHEST_getInstance(), Surface_BENCH_getInstance(), get_BOTH())), listOf([new HeldOver(BodyPoint_UPPER_ABDOMEN_getInstance(), 3.0, Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
 }
 function invoke$pose_5(pelvis, legs, arm) {
@@ -16285,8 +16309,8 @@ function chestSupportedTBarRow$delegate$lambda() {
   var pelvis = touch.s1o(unit(angle).t1o(chestAlong)).r1o(unit(angle + 90.0).t1o(12.5));
   var shoulder = shoulderOf(pelvis, angle);
   var ankle = pelvis.r1o(unit(225.0).t1o(get_TRAIL()));
-  var legs = Reach_instance.y1q(pelvis, ankle, angle, -40.0);
-  var toe = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, angle, VOID, get_HANG_0(), legs)).q1q_1.j1q_1;
+  var legs = Reach_instance.a1r(pelvis, ankle, angle, -40.0);
+  var toe = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, angle, VOID, get_HANG_0(), legs)).r1q_1.k1q_1;
   var platform = new Point(toe.p1o_1 - 8.0, toe.q1o_1 + 7.0 / 2);
   var bench = new ProneBench(low, angle, 65.0, platform);
   var handle = shoulder.r1o(new Point(0.0, get_ARM_REACH()));
@@ -16295,7 +16319,7 @@ function chestSupportedTBarRow$delegate$lambda() {
   var tmp = angleTo(handle.s1o(pivot));
   var top = alongArc(pivot, r, tmp, 0.1, chestSupportedTBarRow$delegate$lambda$lambda(shoulder));
   var down = straightArm(shoulder, handle, angle);
-  var up = Reach_instance.x1q(shoulder, top, angle);
+  var up = Reach_instance.z1q(shoulder, top, angle);
   return figure_1(View_SIDE_getInstance(), invoke$pose_6(pelvis, angle, legs, down), invoke$pose_6(pelvis, angle, legs, up), listOf([Floor_instance, bench, new TBarLever(pivot, r + 18.0)]), 'Arms straight', 'Handles up high', Which_END_getInstance(), listOf(['Lie with your chest on the incline pad and grip the handles overhand.', 'Pull the handles up as high as you can.', 'Lower until your arms are straight and your shoulders are stretched down.']), listOf([new Contact(BodyPoint_CHEST_getInstance(), Surface_CHEST_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FOOT_PLATE_getInstance(), get_BOTH())]), listOf_0(new ElbowBend(0.0, 1.0, Which_START_getInstance())));
 }
 function invoke$pose_6(pelvis, angle, legs, arm) {
@@ -16366,7 +16390,7 @@ function invertedRow$delegate$lambda() {
     var destruct = minElem;
     var top = destruct.ya();
     var up = destruct.za();
-    var sh = skeleton(invoke$body(legs, heelX, up)).n1q_1;
+    var sh = skeleton(invoke$body(legs, heelX, up)).o1q_1;
     // Inline function 'kotlin.math.abs' call
     var x = invoke$barAt(legs, heelX, top).p1o_1 - sh.p1o_1;
     var minValue = Math.abs(x);
@@ -16374,7 +16398,7 @@ function invertedRow$delegate$lambda() {
       var e = iterator.l();
       var top_0 = e.ya();
       var up_0 = e.za();
-      var sh_0 = skeleton(invoke$body(legs, heelX, up_0)).n1q_1;
+      var sh_0 = skeleton(invoke$body(legs, heelX, up_0)).o1q_1;
       // Inline function 'kotlin.math.abs' call
       var x_0 = invoke$barAt(legs, heelX, top_0).p1o_1 - sh_0.p1o_1;
       var v = Math.abs(x_0);
@@ -16392,25 +16416,25 @@ function invertedRow$delegate$lambda() {
   var bar_0 = invoke$barAt(legs, heelX, topUp);
   var topBare = skeleton(invoke$body(legs, heelX, topUp));
   var sb = skeleton(invoke$body(legs, heelX, startUp));
-  var start = invoke$body(legs, heelX, startUp, straightArm(sb.n1q_1, bar_0, sb.l1q_1));
-  var end = invoke$body(legs, heelX, topUp, armTo(topBare.n1q_1, bar_0, topBare.l1q_1));
+  var start = invoke$body(legs, heelX, startUp, straightArm(sb.o1q_1, bar_0, sb.m1q_1));
+  var end = invoke$body(legs, heelX, topUp, armTo(topBare.o1q_1, bar_0, topBare.m1q_1));
   return figure_1(View_SIDE_getInstance(), start, end, listOf([Floor_instance, new RackBar(bar_0.p1o_1, -bar_0.q1o_1)]), 'Arms straight', 'Chest to the bar', Which_END_getInstance(), listOf(['Set a fixed bar just high enough that your arms can fully straighten when you hang under it.', 'Brace your trunk so your body stays rigid and straight, with your heels on the floor.', 'Pull your chest up to the bar.', 'Lower until your arms are straight and your shoulders are stretched forward.']), listOf([new Contact(BodyPoint_HANDS_getInstance(), Surface_PULL_UP_BAR_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), listOf_0(new ElbowBend(0.0, 1.0, Which_START_getInstance())));
 }
 function invoke$body(legs, heelX, up, arm) {
   arm = arm === VOID ? get_HANG_0() : arm;
   var torso = 180.0 - up;
-  var probe = skeleton(new Pose(0.0, 0.0, torso, VOID, arm, legs)).q1q_1;
+  var probe = skeleton(new Pose(0.0, 0.0, torso, VOID, arm, legs)).r1q_1;
   var r = 7.0 / 2;
-  var lowest = probe.i1q_1.q1o_1 > probe.j1q_1.q1o_1 ? probe.i1q_1 : probe.j1q_1;
+  var lowest = probe.j1q_1.q1o_1 > probe.k1q_1.q1o_1 ? probe.j1q_1 : probe.k1q_1;
   return new Pose(heelX - lowest.p1o_1, -r - lowest.q1o_1, torso, VOID, arm, legs);
 }
 function invoke$barAt(legs, heelX, up) {
   // Inline function 'kotlin.let' call
   var it = skeleton(invoke$body(legs, heelX, up));
-  return point(it, BodyPoint_UPPER_CHEST_getInstance()).r1o(unit(it.l1q_1 - 90.0).t1o(1.6));
+  return point(it, BodyPoint_UPPER_CHEST_getInstance()).r1o(unit(it.m1q_1 - 90.0).t1o(1.6));
 }
 function invoke$reachGap(legs, heelX, up, bar) {
-  return skeleton(invoke$body(legs, heelX, up)).n1q_1.s1o(bar).u1o() - get_ARM_REACH();
+  return skeleton(invoke$body(legs, heelX, up)).o1q_1.s1o(bar).u1o() - get_ARM_REACH();
 }
 function invertedRow$delegate$lambda$lambda($bar, $legs, $heelX) {
   return function (up) {
@@ -16434,10 +16458,10 @@ function _get_pulldownBase_$ref_1xub4y() {
 function closeGripPulldown$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var b = get_pulldownBase();
-  var chest = point(b.e2b_1, BodyPoint_UPPER_CHEST_getInstance()).r1o(unit(b.y2a_1 - 90.0).t1o(12.0 / 2 + 1.0));
-  var down = armTo(b.c2b_1, chest, b.y2a_1);
-  var grip = b.e2b_1.q1q_1.e1q_1;
-  return figure_1(View_SIDE_getInstance(), b.g2b(b.d2b_1), b.g2b(down), listOf([Floor_instance, new CableStack(-60.0, VOID, grip.p1o_1 + 60.0), b.f2b_1, new CableAttachment(Attachment_V_HANDLE_getInstance())]), 'Arms fully stretched', 'Handle to upper chest', Which_END_getInstance(), listOf(['Grip the parallel handle, palms facing each other.', 'Sit with your thighs under the pads.', 'Pull the handle down to your upper chest.', 'Return under control until your arms and shoulders are fully stretched.']), get_PULLDOWN_CONTACTS(), listOf([new HeldBeside(BodyPoint_UPPER_CHEST_getInstance(), 8.0, Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
+  var chest = point(b.h2b_1, BodyPoint_UPPER_CHEST_getInstance()).r1o(unit(b.b2b_1 - 90.0).t1o(12.0 / 2 + 1.0));
+  var down = armTo(b.f2b_1, chest, b.b2b_1);
+  var grip = b.h2b_1.r1q_1.f1q_1;
+  return figure_1(View_SIDE_getInstance(), b.j2b(b.g2b_1), b.j2b(down), listOf([Floor_instance, new CableStack(-60.0, VOID, grip.p1o_1 + 60.0), b.i2b_1, new CableAttachment(Attachment_V_HANDLE_getInstance())]), 'Arms fully stretched', 'Handle to upper chest', Which_END_getInstance(), listOf(['Grip the parallel handle, palms facing each other.', 'Sit with your thighs under the pads.', 'Pull the handle down to your upper chest.', 'Return under control until your arms and shoulders are fully stretched.']), get_PULLDOWN_CONTACTS(), listOf([new HeldBeside(BodyPoint_UPPER_CHEST_getInstance(), 8.0, Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
 }
 function _get_closeGripPulldown_$ref_wx0gh() {
   return constructCallableReference(function () {
@@ -16447,13 +16471,13 @@ function _get_closeGripPulldown_$ref_wx0gh() {
 function machinePulldown$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var b = get_pulldownBase();
-  var chest = point(b.e2b_1, BodyPoint_UPPER_CHEST_getInstance()).r1o(unit(b.y2a_1 - 90.0).t1o(4.0));
-  var down = armTo(b.c2b_1, chest, b.y2a_1);
-  var top = b.e2b_1.q1q_1.e1q_1;
-  var low = skeleton(b.g2b(down)).q1q_1.e1q_1;
-  var pivot = pivotAtX(top, low, b.a2b_1.p1o_1 - 40.0);
-  var props = listOf([Floor_instance, b.f2b_1, new PulldownLever(pivot)]);
-  return figure_1(View_SIDE_getInstance(), b.g2b(b.d2b_1), b.g2b(down), props, 'Arms fully stretched', 'Lever to upper chest', Which_END_getInstance(), listOf(['Grip the lever handles.', 'Sit with your thighs under the pads.', 'Pull the lever down to your upper chest.', 'Return under control until your arms and shoulders are fully stretched.']), get_PULLDOWN_CONTACTS(), listOf([new HandsLevelWith(BodyPoint_UPPER_CHEST_getInstance(), 3.0, Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
+  var chest = point(b.h2b_1, BodyPoint_UPPER_CHEST_getInstance()).r1o(unit(b.b2b_1 - 90.0).t1o(4.0));
+  var down = armTo(b.f2b_1, chest, b.b2b_1);
+  var top = b.h2b_1.r1q_1.f1q_1;
+  var low = skeleton(b.j2b(down)).r1q_1.f1q_1;
+  var pivot = pivotAtX(top, low, b.d2b_1.p1o_1 - 40.0);
+  var props = listOf([Floor_instance, b.i2b_1, new PulldownLever(pivot)]);
+  return figure_1(View_SIDE_getInstance(), b.j2b(b.g2b_1), b.j2b(down), props, 'Arms fully stretched', 'Lever to upper chest', Which_END_getInstance(), listOf(['Grip the lever handles.', 'Sit with your thighs under the pads.', 'Pull the lever down to your upper chest.', 'Return under control until your arms and shoulders are fully stretched.']), get_PULLDOWN_CONTACTS(), listOf([new HandsLevelWith(BodyPoint_UPPER_CHEST_getInstance(), 3.0, Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
 }
 function _get_machinePulldown_$ref_ra3moe() {
   return constructCallableReference(function () {
@@ -16464,12 +16488,12 @@ function straightArmPulldown$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var seat = 43.0;
   var pelvis = new Point(0.0, -(seat + 10.0));
-  var legs = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 + 44.0, -6.825), 90.0, 0.0);
+  var legs = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 + 44.0, -6.825), 90.0, 0.0);
   var bend = 15.0;
   var overhead = new Arm(160.0, bend);
   // Inline function 'kotlin.let' call
-  var it = skeleton(invoke$pose_7(pelvis, legs, get_HANG_0())).q1q_1;
-  var thighTop = it.f1q_1.r1o(it.g1q_1).t1o(0.5).q1o_1 - 14.0 / 2;
+  var it = skeleton(invoke$pose_7(pelvis, legs, get_HANG_0())).r1q_1;
+  var thighTop = it.g1q_1.r1o(it.h1q_1).t1o(0.5).q1o_1 - 14.0 / 2;
   var downAngle = solve(20.0, 90.0, straightArmPulldown$delegate$lambda$lambda(bend, thighTop, pelvis, legs));
   var down = new Arm(downAngle, bend);
   var stack = new CableStack(pelvis.p1o_1 - 85.0, 205.0, 35.0);
@@ -16480,7 +16504,7 @@ function invoke$pose_7(pelvis, legs, arm) {
 }
 function straightArmPulldown$delegate$lambda$lambda($bend, $thighTop, $pelvis, $legs) {
   return function (a) {
-    return -(skeleton(invoke$pose_7($pelvis, $legs, new Arm(a, $bend))).q1q_1.e1q_1.q1o_1 - ($thighTop - 6.0));
+    return -(skeleton(invoke$pose_7($pelvis, $legs, new Arm(a, $bend))).r1q_1.f1q_1.q1o_1 - ($thighTop - 6.0));
   };
 }
 function _get_straightArmPulldown_$ref_sb18tl() {
@@ -16543,9 +16567,9 @@ function oneArmPulldown$delegate$lambda() {
   var grip = _destruct__k2r9zo.za();
   var chestY = get_frontShoulderY() + 17.0;
   var down = arm3(frontShoulder(get_frontShoulderY()), new V3(24.0, chestY, 12.0), new V3(0.3, 1.0, 0.1), 90.0);
-  var padTop = -get_frontPulldownSeat().u1y_1 - 6.0 - 6.0 / 2;
+  var padTop = -get_frontPulldownSeat().w1y_1 - 6.0 - 6.0 / 2;
   var rest = arm3(frontShoulder(get_frontShoulderY()), new V3(16.0, padTop, 22.0), new V3(0.5, 0.0, -1.0), 90.0);
-  var props = listOf([Floor_instance, new CableStack(0.0, 215.0, grip.v2a_1), get_frontPulldownSeat(), new CableHandle(Side_NEAR_getInstance())]);
+  var props = listOf([Floor_instance, new CableStack(0.0, 215.0, grip.y2a_1), get_frontPulldownSeat(), new CableHandle(Side_NEAR_getInstance())]);
   return figure_1(View_FRONT_getInstance(), frontSeated(up, rest), frontSeated(down, rest), props, 'Arm fully straight', 'Side of your chest', Which_START_getInstance(), listOf(['Grip a single handle in one hand.', 'Sit with your thighs under the pads.', 'Pull the handle down to the side of your chest.', 'Return until your arm is fully straight, letting your shoulder rise.']), get_FRONT_PULLDOWN_CONTACTS(), listOf([new HandsLevelWith(BodyPoint_CHEST_getInstance(), 2.0, Which_END_getInstance()), new UpperArmDown(25.0, Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance(), Side_NEAR_getInstance())]));
 }
 function _get_oneArmPulldown_$ref_voyrk3() {
@@ -16566,7 +16590,7 @@ function pullTop$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   // Inline function 'kotlin.let' call
   var it = get_PULL_BAR().r1o(new Point(-19.0, 2.0));
-  return hangAt(it, Reach_instance.x1q(it, get_PULL_BAR(), 90.0));
+  return hangAt(it, Reach_instance.z1q(it, get_PULL_BAR(), 90.0));
 }
 function _get_pullTop_$ref_dljbg0() {
   return constructCallableReference(function () {
@@ -16603,14 +16627,14 @@ function bandAssistedPullUp$delegate$lambda() {
   var hang = get_PULL_BAR().r1o(new Point(0.0, get_ARM_REACH()));
   var top = get_PULL_BAR().r1o(new Point(-19.0, 2.0));
   var props = listOf([new PullUpBar(get_PULL_BAR().p1o_1, -get_PULL_BAR().q1o_1), new PullUpBand(get_PULL_BAR())]);
-  return figure_1(View_SIDE_getInstance(), invoke$pose_8(banded, hang, new Arm(180.0, 0.0)), invoke$pose_8(banded, top, Reach_instance.x1q(top, get_PULL_BAR(), 90.0)), props, 'Banded leg straight', 'Chin above the bar', Which_END_getInstance(), listOf(['Straighten that leg to stretch the band further.', "Put your free foot on top of the banded foot, so the band can't slip off.", 'Pull yourself up until your chin is above the bar.']), listOf_0(new Contact(BodyPoint_HANDS_getInstance(), Surface_PULL_UP_BAR_getInstance(), get_BOTH())), listOf([new ChinOverBar(VOID, Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
+  return figure_1(View_SIDE_getInstance(), invoke$pose_8(banded, hang, new Arm(180.0, 0.0)), invoke$pose_8(banded, top, Reach_instance.z1q(top, get_PULL_BAR(), 90.0)), props, 'Banded leg straight', 'Chin above the bar', Which_END_getInstance(), listOf(['Straighten that leg to stretch the band further.', "Put your free foot on top of the banded foot, so the band can't slip off.", 'Pull yourself up until your chin is above the bar.']), listOf_0(new Contact(BodyPoint_HANDS_getInstance(), Surface_PULL_UP_BAR_getInstance(), get_BOTH())), listOf([new ChinOverBar(VOID, Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
 }
 function invoke$pose_8(banded, shoulder, arm) {
   var base = hangAt(shoulder, arm, banded, banded);
-  var n = skeleton(base).q1q_1;
-  var ankle = n.h1q_1.r1o(new Point(-3.0, -(7.0 + 1.0)));
-  var free = Reach_instance.y1q(new Point(base.n1p_1, base.o1p_1), ankle, 90.0, angleTo(n.j1q_1.s1o(n.i1q_1)));
-  return base.z1p(VOID, VOID, VOID, VOID, VOID, VOID, VOID, free);
+  var n = skeleton(base).r1q_1;
+  var ankle = n.i1q_1.r1o(new Point(-3.0, -(7.0 + 1.0)));
+  var free = Reach_instance.a1r(new Point(base.n1p_1, base.o1p_1), ankle, 90.0, angleTo(n.k1q_1.s1o(n.j1q_1)));
+  return base.a1q(VOID, VOID, VOID, VOID, VOID, VOID, VOID, free);
 }
 function _get_bandAssistedPullUp_$ref_nto6xv() {
   return constructCallableReference(function () {
@@ -16645,7 +16669,7 @@ function assistedChinUp$delegate$lambda() {
   var arm = new Arm(8.0, 145.0);
   // Inline function 'kotlin.let' call
   var it = skeleton(new Pose(0.0, Segment_TORSO_getInstance().a(), 90.0, VOID, arm, get_KNEEL()));
-  var offset = it.q1q_1.e1q_1.s1o(it.n1q_1);
+  var offset = it.r1q_1.f1q_1.s1o(it.o1q_1);
   var topShoulder = bar.s1o(offset);
   var _destruct__k2r9zo = assisted(topShoulder, arm);
   var start = _destruct__k2r9zo.ya();
@@ -16682,7 +16706,7 @@ function weightedChinUp$delegate$lambda() {
   var arm = new Arm(8.0, 145.0);
   // Inline function 'kotlin.let' call
   var it = skeleton(hangAt(new Point(0.0, 0.0), arm));
-  var offset = it.q1q_1.e1q_1.s1o(it.n1q_1);
+  var offset = it.r1q_1.f1q_1.s1o(it.o1q_1);
   var props = listOf([new PullUpBar(get_PULL_BAR().p1o_1, -get_PULL_BAR().q1o_1), new DipBelt(VOID, 60.0)]);
   return figure_1(View_SIDE_getInstance(), get_pullHang(), hangAt(get_PULL_BAR().s1o(offset), arm), props, 'Hang with straight arms', 'Elbows to your sides', Which_END_getInstance(), listOf(['Put on a dip belt with the weight hanging from it.', 'Grip the bar underhand, about shoulder-width apart.', 'Hang with straight arms.', 'Pull yourself up until your elbows are at your sides.']), listOf_0(new Contact(BodyPoint_HANDS_getInstance(), Surface_PULL_UP_BAR_getInstance(), get_BOTH())), listOf([new UpperArmDown(12.0, Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
 }
@@ -16698,7 +16722,7 @@ function dbPullover$delegate$lambda() {
   var back = new Point(0.0, -43.0);
   var shoulder = back.r1o(unit(torso).t1o(8.0)).r1o(unit(torso - 90.0).t1o(10.0));
   var pelvis = shoulder.s1o(unit(torso).t1o(Segment_TORSO_getInstance().a()));
-  var legs = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 + 40.0, -6.825), torso, 0.0);
+  var legs = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 + 40.0, -6.825), torso, 0.0);
   var bend = 15.0;
   var chest = point(skeleton(invoke$pose_9(pelvis, torso, legs, get_HANG_0())), BodyPoint_CHEST_getInstance());
   var overA = solve(60.0, 120.0, dbPullover$delegate$lambda$lambda(bend, chest, pelvis, torso, legs));
@@ -16725,17 +16749,17 @@ function dbPullover$delegate$lambda$lambda($bend, $chest, $pelvis, $torso, $legs
 }
 function invoke$spotter(p) {
   var s = skeleton(p);
-  var wrist = s.q1q_1.c1q_1;
+  var wrist = s.r1q_1.d1q_1;
   var kneel = new Leg(10.0, 90.0, -45.0);
   var front = new Leg(100.0, 90.0, 0.0);
   var tmp = Segment_THIGH_getInstance().a();
   // Inline function 'kotlin.math.cos' call
   var pelvisY = -(tmp * Math.cos(0.0) + 11.0 / 2);
-  var sp = new Pose(s.p1q_1.p1o_1 - 45.0, pelvisY, 80.0, VOID, get_HANG_0(), front, VOID, kneel);
-  var tsh = skeleton(sp).n1q_1;
+  var sp = new Pose(s.q1q_1.p1o_1 - 45.0, pelvisY, 80.0, VOID, get_HANG_0(), front, VOID, kneel);
+  var tsh = skeleton(sp).o1q_1;
   var target = wrist.r1o(new Point(-8.0, 6.0));
   var reach = target.s1o(tsh).u1o() < get_ARM_REACH() - 1.0 ? armTo(tsh, target, 80.0) : straightArm(tsh, target, 80.0);
-  return new Spotter(sp.z1p(VOID, VOID, VOID, VOID, reach, VOID, reach));
+  return new Spotter(sp.a1q(VOID, VOID, VOID, VOID, reach, VOID, reach));
 }
 function _get_dbPullover_$ref_6phter() {
   return constructCallableReference(function () {
@@ -16754,7 +16778,7 @@ function machinePullover$delegate$lambda() {
   // Inline function 'kotlin.math.sin' call
   var t = tmp / Math.sin(r);
   var pelvis = hinge.r1o(unit(180.0 - back).t1o(t)).r1o(unit(90.0 - back).t1o(10.0));
-  var legs = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 + 42.0, -6.825), torso, 0.0);
+  var legs = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 + 42.0, -6.825), torso, 0.0);
   var shoulder = shoulderOf(pelvis, torso);
   var machine = new PulloverMachine(hinge.p1o_1 + 40.0, seat, back, shoulder);
   return figure_1(View_SIDE_getInstance(), invoke$pose_10(pelvis, torso, legs, new Arm(170.0, 100.0)), invoke$pose_10(pelvis, torso, legs, new Arm(5.0, 100.0)), listOf([Floor_instance, machine]), 'Upper arms in line', 'Elbows to your sides', Which_END_getInstance(), listOf(["Set the seat so the machine's pivot is close to your shoulder.", 'Sit down and push the foot lever. Put your elbows on the pads and grip the bar behind you.', 'Pull the lever forward and down until your elbows are at your sides.', 'Return until your upper arms are in line with your torso, or as far as your shoulders allow.']), listOf([new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), listOf_0(new UpperArmDown(10.0, Which_END_getInstance())));
@@ -16830,18 +16854,18 @@ function _get_weightedBackExtension_$ref_fu5ra9() {
 function facePull$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var leg = standingLeg(0.0, 5.0, 10.0, 90.0);
-  var shoulder = shoulderOf(leg.g2a_1, 90.0);
+  var shoulder = shoulderOf(leg.j2a_1, 90.0);
   var bare = skeleton(invoke$pose_12(leg, get_HANG_0()));
-  var face = bare.p1q_1;
+  var face = bare.q1q_1;
   var sh = new V3(shoulder.p1o_1, shoulder.q1o_1, 18.0);
   var dy = face.q1o_1 - shoulder.q1o_1;
   var dz = 12.0 - 18.0;
   // Inline function 'kotlin.math.sqrt' call
   var x = get_ARM_REACH() * get_ARM_REACH() - dy * dy - dz * dz;
   var ahead = Math.sqrt(x);
-  var start = arm3(sh, new V3(sh.v2a_1 + ahead, face.q1o_1, 12.0), new V3(0.0, 0.0, 1.0), 90.0);
+  var start = arm3(sh, new V3(sh.y2a_1 + ahead, face.q1o_1, 12.0), new V3(0.0, 0.0, 1.0), 90.0);
   var end = arm3(sh, new V3(face.p1o_1 + 10.0 + 2.0, face.q1o_1 + 2.0, 20.0), new V3(0.15, 0.25, 1.0), 90.0);
-  var startGrip = skeleton(invoke$pose_12(leg, start)).q1q_1.e1q_1;
+  var startGrip = skeleton(invoke$pose_12(leg, start)).r1q_1.f1q_1;
   var stack = new CableStack(startGrip.p1o_1 + 60.0, -startGrip.q1o_1 + 10.0, -30.0);
   return figure_1(View_SIDE_getInstance(), invoke$pose_12(leg, start), invoke$pose_12(leg, end), listOf([Floor_instance, stack, new CableAttachment(Attachment_ROPE_getInstance())]), 'Arms straight in front', 'Rope toward your face', Which_END_getInstance(), listOf(['Set a rope on a high pulley.', 'Step back until the cable is tight with your arms straight in front of your face and your elbows pointing out.', 'Stand with your feet parallel and your knees slightly bent. Keep your head in line with your spine and your torso upright.', 'Pull the rope toward your face, moving your elbows out to the sides as they bend.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf_0(new ElbowBend(0.0, 1.0, Which_START_getInstance())));
 }
@@ -17036,8 +17060,8 @@ function _get_backFigures_$ref_7ollnc() {
 }
 function assisted$pad(p) {
   // Inline function 'kotlin.let' call
-  var it = skeleton(p).q1q_1;
-  return new Point(it.g1q_1.p1o_1 - 12.0, it.g1q_1.q1o_1 + 14.0 / 2 - 0.4);
+  var it = skeleton(p).r1q_1;
+  return new Point(it.h1q_1.p1o_1 - 12.0, it.h1q_1.q1o_1 + 14.0 / 2 - 0.4);
 }
 function assisted$machine(column, bar, pivot, p) {
   return new AssistPullUpMachine(column, bar.p1o_1, -bar.q1o_1, p.p1o_1, -p.q1o_1, pivot);
@@ -17049,7 +17073,7 @@ function extensionPoses$pose(pelvis, $handsFront, torso) {
   var leg = new Leg(45.0 - torso, 0.0, 0.0);
   var bare = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, get_HANG_0(), leg));
   var hands = point(bare, BodyPoint_CHEST_getInstance()).r1o(unit(torso - 90.0).t1o($handsFront));
-  return new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, armTo(bare.n1q_1, hands, torso), leg);
+  return new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, armTo(bare.o1q_1, hands, torso), leg);
 }
 var properties_initialized_Back_kt_2qykuh_0;
 function _init_properties_Back_kt__1pps7b_0() {
@@ -17247,9 +17271,9 @@ function figure_2(view, start, end, props, startCaption, endCaption, thumbnail, 
   return new ExerciseFigure(view, new Scene(start, props), new Scene(end, endProps), startCaption, endCaption, thumbnail, guideLines, contacts, checks);
 }
 function FootOnEdge(ankle, angle, toeAlong) {
-  this.i2b_1 = ankle;
-  this.j2b_1 = angle;
-  this.k2b_1 = toeAlong;
+  this.l2b_1 = ankle;
+  this.m2b_1 = angle;
+  this.n2b_1 = toeAlong;
 }
 function footOnEdge(corner, forward, rel, toeAlong) {
   toeAlong = toeAlong === VOID ? null : toeAlong;
@@ -17275,39 +17299,39 @@ function feetOn(corner, drop, rise, forward) {
   forward = forward === VOID ? 0.0 : forward;
   _init_properties_Calves_kt__vbnkhi_0();
   var low = footOnEdge(corner, forward, drop);
-  return to(low, footOnEdge(corner, forward, rise, low.k2b_1));
+  return to(low, footOnEdge(corner, forward, rise, low.n2b_1));
 }
 function straightLeg(pelvisX, foot, torso) {
   _init_properties_Calves_kt__vbnkhi_0();
-  var dx = foot.i2b_1.p1o_1 - pelvisX;
+  var dx = foot.l2b_1.p1o_1 - pelvisX;
   // Inline function 'kotlin.math.sqrt' call
   var x = (get_LEG() - 0.001) * (get_LEG() - 0.001) - dx * dx;
   var tmp$ret$0 = Math.sqrt(x);
-  var pelvis = new Point(pelvisX, foot.i2b_1.q1o_1 - tmp$ret$0);
-  return to(pelvis, Reach_instance.y1q(pelvis, foot.i2b_1, torso, foot.j2b_1));
+  var pelvis = new Point(pelvisX, foot.l2b_1.q1o_1 - tmp$ret$0);
+  return to(pelvis, Reach_instance.a1r(pelvis, foot.l2b_1, torso, foot.m2b_1));
 }
 function Standing(torso) {
   torso = torso === VOID ? 90.0 : torso;
-  this.l2b_1 = torso;
-  this.m2b_1 = feetOn(get_blockCorner(), 16.0, -25.0);
-  this.n2b_1 = (this.m2b_1.ta_1.i2b_1.p1o_1 + this.m2b_1.ua_1.i2b_1.p1o_1) / 2;
-  this.o2b_1 = straightLeg(this.n2b_1, this.m2b_1.ta_1, this.l2b_1);
-  this.p2b_1 = straightLeg(this.n2b_1, this.m2b_1.ua_1, this.l2b_1);
+  this.o2b_1 = torso;
+  this.p2b_1 = feetOn(get_blockCorner(), 16.0, -25.0);
+  this.q2b_1 = (this.p2b_1.ta_1.l2b_1.p1o_1 + this.p2b_1.ua_1.l2b_1.p1o_1) / 2;
+  this.r2b_1 = straightLeg(this.q2b_1, this.p2b_1.ta_1, this.o2b_1);
+  this.s2b_1 = straightLeg(this.q2b_1, this.p2b_1.ua_1, this.o2b_1);
 }
-protoOf(Standing).q2b = function (which, near, far, farLeg) {
-  var _destruct__k2r9zo = which.equals(Which_START_getInstance()) ? this.o2b_1 : this.p2b_1;
+protoOf(Standing).t2b = function (which, near, far, farLeg) {
+  var _destruct__k2r9zo = which.equals(Which_START_getInstance()) ? this.r2b_1 : this.s2b_1;
   var pelvis = _destruct__k2r9zo.ya();
   var leg = _destruct__k2r9zo.za();
-  var sh = shoulderOf(pelvis, this.l2b_1);
+  var sh = shoulderOf(pelvis, this.o2b_1);
   var n = near(sh);
   var tmp1_elvis_lhs = far == null ? null : far(sh);
   var tmp = tmp1_elvis_lhs == null ? n : tmp1_elvis_lhs;
-  return new Pose(pelvis.p1o_1, pelvis.q1o_1, this.l2b_1, VOID, n, leg, tmp, farLeg == null ? leg : farLeg);
+  return new Pose(pelvis.p1o_1, pelvis.q1o_1, this.o2b_1, VOID, n, leg, tmp, farLeg == null ? leg : farLeg);
 };
-protoOf(Standing).r2b = function (which, near, far, farLeg, $super) {
+protoOf(Standing).u2b = function (which, near, far, farLeg, $super) {
   far = far === VOID ? null : far;
   farLeg = farLeg === VOID ? null : farLeg;
-  return $super === VOID ? this.q2b(which, near, far, farLeg) : $super.q2b.call(this, which, near, far, farLeg);
+  return $super === VOID ? this.t2b(which, near, far, farLeg) : $super.t2b.call(this, which, near, far, farLeg);
 };
 function leverPivot(a, b, x) {
   _init_properties_Calves_kt__vbnkhi_0();
@@ -17330,7 +17354,7 @@ function sideDumbbell(side) {
 function supportFor(st, height) {
   height = height === VOID ? 110.0 : height;
   _init_properties_Calves_kt__vbnkhi_0();
-  return new SupportPost(st.m2b_1.ta_1.i2b_1.p1o_1 + Segment_FOOT_getInstance().a() + 15.0, height);
+  return new SupportPost(st.p2b_1.ta_1.l2b_1.p1o_1 + Segment_FOOT_getInstance().a() + 15.0, height);
 }
 function onSupport(post) {
   _init_properties_Calves_kt__vbnkhi_0();
@@ -17339,59 +17363,59 @@ function onSupport(post) {
 function SeatedLegs$high$delegate$lambda$lambda(this$0) {
   return function (r) {
     // Inline function 'kotlin.let' call
-    var it = footOnEdge(get_blockCorner(), 0.0, r, this$0.s2b_1.k2b_1);
-    return Reach_instance.y1q(this$0.u2b_1, it.i2b_1, 90.0, it.j2b_1).i1p_1 - -23.0;
+    var it = footOnEdge(get_blockCorner(), 0.0, r, this$0.v2b_1.n2b_1);
+    return Reach_instance.a1r(this$0.x2b_1, it.l2b_1, 90.0, it.m2b_1).i1p_1 - -23.0;
   };
 }
 function SeatedLegs$high$delegate$lambda(this$0) {
   return function () {
     var tmp = -60.0;
     var rel = solveAngle(tmp, 0.0, SeatedLegs$high$delegate$lambda$lambda(this$0));
-    return footOnEdge(get_blockCorner(), 0.0, rel, this$0.s2b_1.k2b_1);
+    return footOnEdge(get_blockCorner(), 0.0, rel, this$0.v2b_1.n2b_1);
   };
 }
 function SeatedLegs$_get_high_$ref_lkk9f() {
   return constructCallableReference(function (p0) {
-    return p0.w2b();
+    return p0.z2b();
   }, 1, 0, 113);
 }
 function SeatedLegs(pelvisY) {
   pelvisY = pelvisY === VOID ? null : pelvisY;
-  this.s2b_1 = footOnEdge(get_blockCorner(), 0.0, 15.0);
-  this.t2b_1 = this.s2b_1.i2b_1.r1o(new Point(0.0, -Segment_SHIN_getInstance().a()));
+  this.v2b_1 = footOnEdge(get_blockCorner(), 0.0, 15.0);
+  this.w2b_1 = this.v2b_1.l2b_1.r1o(new Point(0.0, -Segment_SHIN_getInstance().a()));
   var tmp = this;
   // Inline function 'kotlin.let' call
-  var y = pelvisY == null ? this.t2b_1.q1o_1 : pelvisY;
+  var y = pelvisY == null ? this.w2b_1.q1o_1 : pelvisY;
   // Inline function 'kotlin.math.sqrt' call
-  var x = Segment_THIGH_getInstance().a() * Segment_THIGH_getInstance().a() - (y - this.t2b_1.q1o_1) * (y - this.t2b_1.q1o_1);
+  var x = Segment_THIGH_getInstance().a() * Segment_THIGH_getInstance().a() - (y - this.w2b_1.q1o_1) * (y - this.w2b_1.q1o_1);
   var tmp$ret$2 = Math.sqrt(x);
-  tmp.u2b_1 = new Point(this.t2b_1.p1o_1 - tmp$ret$2, y);
+  tmp.x2b_1 = new Point(this.w2b_1.p1o_1 - tmp$ret$2, y);
   var tmp_0 = this;
-  tmp_0.v2b_1 = lazy(SeatedLegs$high$delegate$lambda(this));
+  tmp_0.y2b_1 = lazy(SeatedLegs$high$delegate$lambda(this));
 }
-protoOf(SeatedLegs).w2b = function () {
-  var tmp0 = this.v2b_1;
+protoOf(SeatedLegs).z2b = function () {
+  var tmp0 = this.y2b_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('high', 1, tmp, SeatedLegs$_get_high_$ref_lkk9f(), null);
   return tmp0.t();
 };
-protoOf(SeatedLegs).x2b = function (which) {
-  return which.equals(Which_START_getInstance()) ? this.s2b_1 : this.w2b();
+protoOf(SeatedLegs).a2c = function (which) {
+  return which.equals(Which_START_getInstance()) ? this.v2b_1 : this.z2b();
 };
-protoOf(SeatedLegs).y2b = function (which, torso) {
+protoOf(SeatedLegs).b2c = function (which, torso) {
   // Inline function 'kotlin.let' call
-  var it = this.x2b(which);
-  return Reach_instance.y1q(this.u2b_1, it.i2b_1, torso, it.j2b_1);
+  var it = this.a2c(which);
+  return Reach_instance.a1r(this.x2b_1, it.l2b_1, torso, it.m2b_1);
 };
-protoOf(SeatedLegs).z2b = function (which, torso, $super) {
+protoOf(SeatedLegs).c2c = function (which, torso, $super) {
   torso = torso === VOID ? 90.0 : torso;
-  return $super === VOID ? this.y2b(which, torso) : $super.y2b.call(this, which, torso);
+  return $super === VOID ? this.b2c(which, torso) : $super.b2c.call(this, which, torso);
 };
 function onThigh_0(s, along, up) {
   _init_properties_Calves_kt__vbnkhi_0();
-  var h = s.q1q_1.f1q_1;
-  var k = s.q1q_1.g1q_1;
+  var h = s.r1q_1.g1q_1;
+  var k = s.r1q_1.h1q_1;
   var d = k.s1o(h).t1o(1.0 / k.s1o(h).u1o());
   // Inline function 'kotlin.let' call
   var it = new Point(-d.q1o_1, d.p1o_1);
@@ -17402,10 +17426,10 @@ function standingCalfRaise$delegate$lambda() {
   _init_properties_Calves_kt__vbnkhi_0();
   var st = new Standing();
   var tmp = Which_START_getInstance();
-  var start = st.r2b(tmp, standingCalfRaise$delegate$lambda$lambda);
+  var start = st.u2b(tmp, standingCalfRaise$delegate$lambda$lambda);
   var tmp_0 = Which_END_getInstance();
-  var end = st.r2b(tmp_0, standingCalfRaise$delegate$lambda$lambda_0);
-  var columnX = st.n2b_1 - 45.0;
+  var end = st.u2b(tmp_0, standingCalfRaise$delegate$lambda$lambda_0);
+  var columnX = st.q2b_1 - 45.0;
   var pivot = leverPivot(invoke$pad(start), invoke$pad(end), columnX);
   return figure_2(View_SIDE_getInstance(), start, end, listOf([Floor_instance, get_calfBlock(), invoke$machine(columnX, pivot, start)]), 'Heels below the block', 'Raise your heels', Which_END_getInstance(), listOf(['Step under the pads and put them on your shoulders.', 'Put the balls of your feet on the calf block, with your heels hanging off the edge.', 'Raise your heels by pointing your ankles.', 'Slowly lower your heels below the edge of the block.']), plus_0(get_ON_BLOCK(), new Contact(BodyPoint_HANDS_getInstance(), Surface_HANDLE_getInstance(), get_BOTH())), emptyList(), listOf([Floor_instance, get_calfBlock(), invoke$machine(columnX, pivot, end)]));
 }
@@ -17414,7 +17438,7 @@ function invoke$handle(sh) {
 }
 function invoke$pad(p) {
   // Inline function 'kotlin.let' call
-  return skeleton(p).v1q(Segment_TORSO_getInstance().a() + 5.0 + 6.0, -3.0);
+  return skeleton(p).x1q(Segment_TORSO_getInstance().a() + 5.0 + 6.0, -3.0);
 }
 function standingCalfRaise$delegate$lambda$lambda(it) {
   _init_properties_Calves_kt__vbnkhi_0();
@@ -17436,9 +17460,9 @@ function barbellCalfRaise$delegate$lambda() {
   _init_properties_Calves_kt__vbnkhi_0();
   var st = new Standing();
   var tmp = Which_START_getInstance();
-  var start = st.r2b(tmp, barbellCalfRaise$delegate$lambda$lambda(st));
+  var start = st.u2b(tmp, barbellCalfRaise$delegate$lambda$lambda(st));
   var tmp_0 = Which_END_getInstance();
-  var end = st.r2b(tmp_0, barbellCalfRaise$delegate$lambda$lambda_0(st));
+  var end = st.u2b(tmp_0, barbellCalfRaise$delegate$lambda$lambda_0(st));
   var bar = new Barbell(BarHold_UPPER_BACK_getInstance());
   var low = center(bar, skeleton(start));
   var rack = rackInFront(low.p1o_1, -low.q1o_1 - 8.0, -low.q1o_1 - 16.0, 75.0);
@@ -17449,12 +17473,12 @@ function invoke$barArm(pelvis) {
 }
 function barbellCalfRaise$delegate$lambda$lambda($st) {
   return function (it) {
-    return invoke$barArm($st.o2b_1.ta_1);
+    return invoke$barArm($st.r2b_1.ta_1);
   };
 }
 function barbellCalfRaise$delegate$lambda$lambda_0($st) {
   return function (it) {
-    return invoke$barArm($st.p2b_1.ta_1);
+    return invoke$barArm($st.s2b_1.ta_1);
   };
 }
 function _get_barbellCalfRaise_$ref_c2le2k() {
@@ -17466,12 +17490,12 @@ function smithCalfRaise$delegate$lambda() {
   _init_properties_Calves_kt__vbnkhi_0();
   var st = new Standing();
   var tmp = Which_START_getInstance();
-  var start = st.r2b(tmp, smithCalfRaise$delegate$lambda$lambda(st));
+  var start = st.u2b(tmp, smithCalfRaise$delegate$lambda$lambda(st));
   var tmp_0 = Which_END_getInstance();
-  var end = st.r2b(tmp_0, smithCalfRaise$delegate$lambda$lambda_0(st));
+  var end = st.u2b(tmp_0, smithCalfRaise$delegate$lambda$lambda_0(st));
   var bar = new Barbell(BarHold_UPPER_BACK_getInstance());
   var low = center(bar, skeleton(start));
-  var smith = new SmithMachine(low.p1o_1, -low.q1o_1 - 1.45 - 4.0);
+  var smith = new SmithMachine(low.p1o_1, -low.q1o_1 - 1.45 - 4.0, VOID, 20.0);
   return figure_2(View_SIDE_getInstance(), start, end, listOf([Floor_instance, get_calfBlock(), smith, bar]), 'Heels below the block', 'Raise your heels', Which_END_getInstance(), listOf(['Set the safety stops just below your lowest position.', 'Step under the bar and rest it across your upper back. Hold the bar at the sides.', 'Put the balls of your feet on the calf block, with your heels hanging off the edge.', 'Raise your heels by pointing your ankles.', 'Slowly lower your heels below the edge of the block.']), get_ON_BLOCK(), listOf([new BarOnRails(Which_START_getInstance()), new BarOnRails(Which_END_getInstance())]));
 }
 function invoke$barArm_0(pelvis) {
@@ -17479,12 +17503,12 @@ function invoke$barArm_0(pelvis) {
 }
 function smithCalfRaise$delegate$lambda$lambda($st) {
   return function (it) {
-    return invoke$barArm_0($st.o2b_1.ta_1);
+    return invoke$barArm_0($st.r2b_1.ta_1);
   };
 }
 function smithCalfRaise$delegate$lambda$lambda_0($st) {
   return function (it) {
-    return invoke$barArm_0($st.p2b_1.ta_1);
+    return invoke$barArm_0($st.s2b_1.ta_1);
   };
 }
 function _get_smithCalfRaise_$ref_bbaopj() {
@@ -17497,9 +17521,9 @@ function dumbbellCalfRaise$delegate$lambda() {
   var st = new Standing();
   var post = supportFor(st);
   var tmp = Which_START_getInstance();
-  var start = st.r2b(tmp, dumbbellCalfRaise$delegate$lambda$lambda, onSupport(post));
+  var start = st.u2b(tmp, dumbbellCalfRaise$delegate$lambda$lambda, onSupport(post));
   var tmp_0 = Which_END_getInstance();
-  var end = st.r2b(tmp_0, dumbbellCalfRaise$delegate$lambda$lambda_0, onSupport(post));
+  var end = st.u2b(tmp_0, dumbbellCalfRaise$delegate$lambda$lambda_0, onSupport(post));
   return figure_2(View_SIDE_getInstance(), start, end, listOf([Floor_instance, get_calfBlock(), post, sideDumbbell(Side_NEAR_getInstance())]), 'Heels below the block', 'Raise your heels', Which_END_getInstance(), listOf(['Hold a dumbbell at your side in one hand. Hold a support with the other hand for balance.', 'Put the balls of your feet on a calf block or step, with your heels hanging off the edge.', 'Raise your heels by pointing your ankles.', 'Slowly lower your heels below the edge of the block.']), plus_0(get_ON_BLOCK(), new Contact(BodyPoint_FAR_HAND_getInstance(), Surface_HANDLE_getInstance(), get_BOTH())), emptyList());
 }
 function dumbbellCalfRaise$delegate$lambda$lambda(it) {
@@ -17520,9 +17544,9 @@ function singleLegCalfRaise$delegate$lambda() {
   var st = new Standing();
   var post = supportFor(st);
   var tmp = Which_START_getInstance();
-  var start = st.q2b(tmp, singleLegCalfRaise$delegate$lambda$lambda, onSupport(post), get_FREE_LEG());
+  var start = st.t2b(tmp, singleLegCalfRaise$delegate$lambda$lambda, onSupport(post), get_FREE_LEG());
   var tmp_0 = Which_END_getInstance();
-  var end = st.q2b(tmp_0, singleLegCalfRaise$delegate$lambda$lambda_0, onSupport(post), get_FREE_LEG());
+  var end = st.t2b(tmp_0, singleLegCalfRaise$delegate$lambda$lambda_0, onSupport(post), get_FREE_LEG());
   return figure_2(View_SIDE_getInstance(), start, end, listOf([Floor_instance, get_calfBlock(), post]), 'Heel below the step', 'Knee straight', Which_END_getInstance(), listOf(['Stand on a step on one foot, with your heel hanging off the edge. Make sure the ball of your foot is firmly on the step.', 'Slowly lower your heel below the edge of the step.', 'Raise your heel by pointing your ankle, keeping your knee straight.']), listOf([new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_PLATFORM_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_HAND_getInstance(), Surface_HANDLE_getInstance(), get_BOTH())]), emptyList());
 }
 function singleLegCalfRaise$delegate$lambda$lambda(it) {
@@ -17543,23 +17567,23 @@ function seatedCalfRaise$delegate$lambda() {
   var legs = new SeatedLegs();
   var start = invoke$pose_13(legs, Which_START_getInstance());
   var end = invoke$pose_13(legs, Which_END_getInstance());
-  var pivotX = legs.s2b_1.i2b_1.p1o_1 + 45.0;
+  var pivotX = legs.v2b_1.l2b_1.p1o_1 + 45.0;
   var pivot = leverPivot(invoke$pad_0(start), invoke$pad_0(end), pivotX);
   return figure_2(View_SIDE_getInstance(), start, end, listOf([Floor_instance, get_calfBlock(), invoke$machine_0(legs, pivot, start)]), 'Heels below the platform', 'Raise your heels', Which_END_getInstance(), listOf(['Put the balls of your feet on the platform, with your heels hanging off the edge.', 'Set the pads on your lower thighs.', 'Raise your heels by pointing your ankles.', 'Slowly lower your heels below the edge of the platform.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_PLATFORM_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_THIGH_PAD_getInstance(), get_BOTH())]), emptyList(), listOf([Floor_instance, get_calfBlock(), invoke$machine_0(legs, pivot, end)]));
 }
 function invoke$pose_13(legs, which) {
-  var bare = new Pose(legs.u2b_1.p1o_1, legs.u2b_1.q1o_1, 90.0, VOID, get_HANG_1(), legs.z2b(which));
+  var bare = new Pose(legs.x2b_1.p1o_1, legs.x2b_1.q1o_1, 90.0, VOID, get_HANG_1(), legs.c2c(which));
   var pad = onThigh_0(skeleton(bare), 0.8, 6.0);
   var hand = pad.r1o(new Point(-2.0, -(6.0 + 6.0 / 2)));
   // Inline function 'kotlin.let' call
-  var it = bare.z1p(VOID, VOID, VOID, VOID, armTo(shoulderOf(legs.u2b_1, 90.0), hand, 90.0, 0.0));
-  return it.z1p(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
+  var it = bare.a1q(VOID, VOID, VOID, VOID, armTo(shoulderOf(legs.x2b_1, 90.0), hand, 90.0, 0.0));
+  return it.a1q(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
 }
 function invoke$pad_0(p) {
   return onThigh_0(skeleton(p), 0.8, 6.0);
 }
 function invoke$machine_0(legs, pivot, p) {
-  return new SeatedCalfMachine(legs.u2b_1.p1o_1 - 4.0, -legs.u2b_1.q1o_1 - 10.0, pivot, invoke$pad_0(p));
+  return new SeatedCalfMachine(legs.x2b_1.p1o_1 - 4.0, -legs.x2b_1.q1o_1 - 10.0, pivot, invoke$pad_0(p));
 }
 function _get_seatedCalfRaise_$ref_mojv1s() {
   return constructCallableReference(function () {
@@ -17569,17 +17593,17 @@ function _get_seatedCalfRaise_$ref_mojv1s() {
 function seatedDumbbellCalfRaise$delegate$lambda() {
   _init_properties_Calves_kt__vbnkhi_0();
   var legs = new SeatedLegs(-43.0 - 10.0);
-  var pelvis = legs.u2b_1;
+  var pelvis = legs.x2b_1;
   var bench = new FlatBench(pelvis.p1o_1 - 70.0, 82.0);
   var props = listOf([Floor_instance, bench, get_calfBlock(), new Dumbbell(Side_NEAR_getInstance())]);
   return figure_2(View_SIDE_getInstance(), invoke$pose_14(pelvis, legs, Which_START_getInstance()), invoke$pose_14(pelvis, legs, Which_END_getInstance()), props, 'Heels below the step', 'Raise your heels', Which_END_getInstance(), listOf(['Sit on a bench with both feet on a step and your heels hanging off the edge.', 'Put a dumbbell or a plate across the tops of your thighs.', 'Slowly lower your heels below the edge of the step.', 'Raise your heels by pointing your ankles.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_PLATFORM_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_BENCH_getInstance(), get_BOTH())]), emptyList());
 }
 function invoke$pose_14(pelvis, legs, which) {
-  var bare = new Pose(pelvis.p1o_1, pelvis.q1o_1, 90.0, VOID, get_HANG_1(), legs.z2b(which));
+  var bare = new Pose(pelvis.p1o_1, pelvis.q1o_1, 90.0, VOID, get_HANG_1(), legs.c2c(which));
   var disc = onThigh_0(skeleton(bare), 0.75, 10.0);
   // Inline function 'kotlin.let' call
-  var it = bare.z1p(VOID, VOID, VOID, VOID, armTo(shoulderOf(pelvis, 90.0), disc, 90.0));
-  return it.z1p(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
+  var it = bare.a1q(VOID, VOID, VOID, VOID, armTo(shoulderOf(pelvis, 90.0), disc, 90.0));
+  return it.a1q(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
 }
 function _get_seatedDumbbellCalfRaise_$ref_uybw49() {
   return constructCallableReference(function () {
@@ -17589,9 +17613,9 @@ function _get_seatedDumbbellCalfRaise_$ref_uybw49() {
 function donkeyCalfRaise$delegate$lambda() {
   _init_properties_Calves_kt__vbnkhi_0();
   var feet = feetOn(get_blockCorner(), 16.0, -25.0);
-  var p0 = straightLeg(feet.ta_1.i2b_1.p1o_1 + 1.5, feet.ta_1, 15.0).ya();
+  var p0 = straightLeg(feet.ta_1.l2b_1.p1o_1 + 1.5, feet.ta_1, 15.0).ya();
   var shoulder = shoulderOf(p0, 15.0);
-  var a1 = feet.ua_1.i2b_1;
+  var a1 = feet.ua_1.l2b_1;
   var tmp = 15.0 - 30.0;
   var t = solveAngle(tmp, 15.0, donkeyCalfRaise$delegate$lambda$lambda(shoulder, a1));
   var p1 = shoulder.s1o(unit(t).t1o(Segment_TORSO_getInstance().a()));
@@ -17613,10 +17637,10 @@ function invoke$arm(elbow, shoulder, torso) {
   return new Arm(fold180(u - torso - 180.0), fold180(360.0 - u));
 }
 function invoke$pose_15(elbow, shoulder, pelvis, torso, foot) {
-  return new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, -15.0, invoke$arm(elbow, shoulder, torso), Reach_instance.y1q(pelvis, foot.i2b_1, torso, foot.j2b_1));
+  return new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, -15.0, invoke$arm(elbow, shoulder, torso), Reach_instance.a1r(pelvis, foot.l2b_1, torso, foot.m2b_1));
 }
 function invoke$pad_1(p) {
-  return skeleton(p).v1q(6.0, -(10.0 + 7.0));
+  return skeleton(p).x1q(6.0, -(10.0 + 7.0));
 }
 function invoke$machine_1(columnX, supportTop, elbow, pivot, p) {
   return new DonkeyCalfMachine(columnX, supportTop, columnX - elbow.p1o_1 + 4.0, pivot, invoke$pad_1(p));
@@ -17649,34 +17673,34 @@ function legPressCalfRaise$delegate$lambda() {
   var low = _destruct__k2r9zo.za();
   var tmp_2 = -80.0;
   var rel1 = solveAngle(tmp_2, 0.0, legPressCalfRaise$delegate$lambda$lambda_0(low, forward, pelvis, back, reach));
-  var end = invoke$scene(forward, pelvis, back, reach, rel1, low.k2b_1).ya();
+  var end = invoke$scene(forward, pelvis, back, reach, rel1, low.n2b_1).ya();
   return new ExerciseFigure(View_SIDE_getInstance(), start, end, 'Heels below the edge', 'Point your ankles', Which_END_getInstance(), listOf(['Sit with your back against the back pad and hold the side handles.', 'Put your toes and the balls of your feet on the lower edge of the platform, with your heels and arches hanging off.', 'Push the platform away by pointing your ankles.', 'Slowly let your heels come back below the edge of the platform.']), listOf([new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FOOT_PLATE_getInstance(), get_BOTH())]), emptyList());
 }
 function legPressCalfRaise$delegate$lambda$scene$lambda($forward, $rel, $toeAlong, $pelvis, $reach) {
   return function (s) {
-    return footOnEdge(invoke$edgeOf(new LegPress45(0.0, s)), $forward, $rel, $toeAlong).i2b_1.s1o($pelvis).u1o() - $reach;
+    return footOnEdge(invoke$edgeOf(new LegPress45(0.0, s)), $forward, $rel, $toeAlong).l2b_1.s1o($pelvis).u1o() - $reach;
   };
 }
 function invoke$edgeOf(press) {
   var plate = single(getValue(surfaces(press, View_SIDE_getInstance()), Surface_FOOT_PLATE_getInstance()));
-  var face = (new Point(plate.m1z_1, plate.n1z_1)).s1o(unit(125.0 - 90.0).t1o(plate.p1z_1 / 2));
-  return face.s1o(unit(125.0).t1o(plate.o1z_1 / 2));
+  var face = (new Point(plate.o1z_1, plate.p1z_1)).s1o(unit(125.0 - 90.0).t1o(plate.r1z_1 / 2));
+  return face.s1o(unit(125.0).t1o(plate.q1z_1 / 2));
 }
 function invoke$scene(forward, pelvis, back, reach, rel, toeAlong) {
   var sled = solveAngle(0.0, 120.0, legPressCalfRaise$delegate$lambda$scene$lambda(forward, rel, toeAlong, pelvis, reach));
   var press = new LegPress45(0.0, sled);
   var foot = footOnEdge(invoke$edgeOf(press), forward, rel, toeAlong);
-  var leg = Reach_instance.y1q(pelvis, foot.i2b_1, back, foot.j2b_1);
+  var leg = Reach_instance.a1r(pelvis, foot.l2b_1, back, foot.m2b_1);
   return to(new Scene(new Pose(pelvis.p1o_1, pelvis.q1o_1, back, VOID, new Arm(15.0, 25.0), leg), listOf([Floor_instance, press])), foot);
 }
 function legPressCalfRaise$delegate$lambda$lambda($forward, $pelvis, $back, $reach) {
   return function (r) {
-    return invoke$scene($forward, $pelvis, $back, $reach, r, null).ta_1.z1q_1.s1p_1.i1p_1 - 16.0;
+    return invoke$scene($forward, $pelvis, $back, $reach, r, null).ta_1.b1r_1.s1p_1.i1p_1 - 16.0;
   };
 }
 function legPressCalfRaise$delegate$lambda$lambda_0($low, $forward, $pelvis, $back, $reach) {
   return function (r) {
-    return invoke$scene($forward, $pelvis, $back, $reach, r, $low.k2b_1).ta_1.z1q_1.s1p_1.i1p_1 - -25.0;
+    return invoke$scene($forward, $pelvis, $back, $reach, r, $low.n2b_1).ta_1.b1r_1.s1p_1.i1p_1 - -25.0;
   };
 }
 function _get_legPressCalfRaise_$ref_oof6kh() {
@@ -17722,7 +17746,7 @@ function calfFigures$lambda_7() {
 }
 function onSupport$lambda($post) {
   return function (sh) {
-    return armTo(sh, new Point($post.k24_1 - 6.0, -$post.l24_1), 90.0);
+    return armTo(sh, new Point($post.m24_1 - 6.0, -$post.n24_1), 90.0);
   };
 }
 var properties_initialized_Calves_kt_noaai0_0;
@@ -18274,7 +18298,7 @@ function get_chestFigures() {
 var chestFigures$delegate;
 function sideShoulder(s) {
   _init_properties_Chest_kt__oxfldd_0();
-  return v3(s.n1q_1, 18.0);
+  return v3(s.o1q_1, 18.0);
 }
 function flatPose(arm) {
   _init_properties_Chest_kt__oxfldd_0();
@@ -18307,11 +18331,11 @@ function pressBottom(s, at, torso, z) {
   var sh = sideShoulder(s);
   var a = Segment_UPPER_ARM_getInstance().a();
   var b = get_FORE_LINK();
-  var dx = at.p1o_1 - sh.v2a_1;
+  var dx = at.p1o_1 - sh.y2a_1;
   // Inline function 'kotlin.math.sqrt' call
   var x = a * a - dx * dx;
   var rs = Math.sqrt(x);
-  var c1 = new Point(sh.w2a_1, sh.x2a_1);
+  var c1 = new Point(sh.z2a_1, sh.a2b_1);
   var c2 = new Point(at.q1o_1, z);
   var d = c2.s1o(c1).u1o();
   var along = (rs * rs - b * b + d * d) / (2 * d);
@@ -18324,12 +18348,12 @@ function pressBottom(s, at, torso, z) {
   var e2 = base.r1o((new Point(u.q1o_1, -u.p1o_1)).t1o(h));
   var e = e1.p1o_1 > e2.p1o_1 ? e1 : e2;
   var elbow = new V3(at.p1o_1, e.p1o_1, e.q1o_1);
-  return armFrom(elbow.a2c(sh).b2c(), v3(at, z).a2c(elbow).b2c(), torso);
+  return armFrom(elbow.d2c(sh).e2c(), v3(at, z).d2c(elbow).e2c(), torso);
 }
 function flyTop(s, over, torso) {
   _init_properties_Chest_kt__oxfldd_0();
   var sh = sideShoulder(s);
-  var dx = over.p1o_1 - sh.v2a_1;
+  var dx = over.p1o_1 - sh.y2a_1;
   var z = 6.0;
   var tmp = Segment_UPPER_ARM_getInstance().a() * Segment_UPPER_ARM_getInstance().a() + get_FORE_LINK() * get_FORE_LINK();
   var tmp_0 = 2 * Segment_UPPER_ARM_getInstance().a() * get_FORE_LINK();
@@ -18338,11 +18362,11 @@ function flyTop(s, over, torso) {
   // Inline function 'kotlin.math.sqrt' call
   var x_0 = tmp + tmp_0 * Math.cos(x);
   var reach = Math.sqrt(x_0);
-  var dz = z - sh.x2a_1;
+  var dz = z - sh.a2b_1;
   // Inline function 'kotlin.math.sqrt' call
   var x_1 = reach * reach - dx * dx - dz * dz;
   var up = Math.sqrt(x_1);
-  return arm3(sh, new V3(over.p1o_1, sh.w2a_1 - up, z), new V3(0.0, 0.0, 1.0), torso);
+  return arm3(sh, new V3(over.p1o_1, sh.z2a_1 - up, z), new V3(0.0, 0.0, 1.0), torso);
 }
 function flyBottom(s, level, ahead, torso) {
   _init_properties_Chest_kt__oxfldd_0();
@@ -18355,11 +18379,11 @@ function flyBottom(s, level, ahead, torso) {
   var x_0 = tmp + tmp_0 * Math.cos(x);
   var reach = Math.sqrt(x_0);
   var dx = ahead.p1o_1;
-  var dy = level - sh.w2a_1;
+  var dy = level - sh.z2a_1;
   // Inline function 'kotlin.math.sqrt' call
   var x_1 = reach * reach - dx * dx - dy * dy;
   var dz = Math.sqrt(x_1);
-  return arm3(sh, new V3(sh.v2a_1 + dx, level, sh.x2a_1 + dz), new V3(0.0, 1.0, 0.0), torso);
+  return arm3(sh, new V3(sh.y2a_1 + dx, level, sh.a2b_1 + dz), new V3(0.0, 1.0, 0.0), torso);
 }
 function seatedPelvis(hinge, back) {
   _init_properties_Chest_kt__oxfldd_0();
@@ -18380,7 +18404,7 @@ function armUp(torso) {
 }
 function barOn(s, point_0) {
   _init_properties_Chest_kt__oxfldd_0();
-  return point(s, point_0).r1o(unit(s.l1q_1 - 90.0).t1o(1.45));
+  return point(s, point_0).r1o(unit(s.m1q_1 - 90.0).t1o(1.45));
 }
 function rackBehind(postX, top, low) {
   _init_properties_Chest_kt__oxfldd_0();
@@ -18412,7 +18436,7 @@ function machinePress(start, press, z, elbowHint) {
   var dir = unit(press);
   var reach = reachAt(10.0);
   var t = 0.0;
-  while (v3(start.r1o(dir.t1o(t + 0.1)), z).a2c(sh).u1o() < reach)
+  while (v3(start.r1o(dir.t1o(t + 0.1)), z).d2c(sh).u1o() < reach)
     t = t + 0.1;
   var end = start.r1o(dir.t1o(t));
   var endArm = arm3(sh, v3(end, z), new V3(0.0, 1.0, 0.6), get_MACHINE_TORSO());
@@ -18452,18 +18476,18 @@ function flyOut(sh, dy, dz) {
   // Inline function 'kotlin.math.sqrt' call
   var x = r * r - dy * dy - dz * dz;
   var tmp$ret$0 = Math.sqrt(x);
-  return new V3(sh.v2a_1 + tmp$ret$0, sh.w2a_1 + dy, sh.x2a_1 + dz);
+  return new V3(sh.y2a_1 + tmp$ret$0, sh.z2a_1 + dy, sh.a2b_1 + dz);
 }
 function flyIn(sh, cx, half, dy) {
   _init_properties_Chest_kt__oxfldd_0();
   var r = reachAt(18.0);
-  var dx = cx + half - sh.v2a_1;
+  var dx = cx + half - sh.y2a_1;
   var tmp = cx + half;
-  var tmp_0 = sh.w2a_1 + dy;
+  var tmp_0 = sh.z2a_1 + dy;
   // Inline function 'kotlin.math.sqrt' call
   var x = r * r - dx * dx - dy * dy;
   var tmp$ret$0 = Math.sqrt(x);
-  return new V3(tmp, tmp_0, sh.x2a_1 + tmp$ret$0);
+  return new V3(tmp, tmp_0, sh.a2b_1 + tmp$ret$0);
 }
 function dipPoses(grip, topLean, leg) {
   _init_properties_Chest_kt__oxfldd_0();
@@ -18512,19 +18536,19 @@ function pronePose(torso, support, supportHeight, arm, neck) {
   }
   var leg = tmp;
   var raw = skeleton(new Pose(0.0, 0.0, torso, neck, arm, leg));
-  var n = raw.q1q_1;
+  var n = raw.r1q_1;
   var tmp_0;
   switch (support.w1_1) {
     case 0:
-      var tmp0 = n.j1q_1.q1o_1;
+      var tmp0 = n.k1q_1.q1o_1;
       // Inline function 'kotlin.comparisons.maxOf' call
 
-      var b = n.i1q_1.q1o_1;
+      var b = n.j1q_1.q1o_1;
       var tmp$ret$0 = Math.max(tmp0, b);
-      tmp_0 = to(n.j1q_1.p1o_1, tmp$ret$0 + 7.0 / 2);
+      tmp_0 = to(n.k1q_1.p1o_1, tmp$ret$0 + 7.0 / 2);
       break;
     case 1:
-      tmp_0 = to(n.g1q_1.p1o_1, n.g1q_1.q1o_1 + 11.0 / 2 + 1.1);
+      tmp_0 = to(n.h1q_1.p1o_1, n.h1q_1.q1o_1 + 11.0 / 2 + 1.1);
       break;
     default:
       noWhenBranchMatchedException();
@@ -18579,23 +18603,23 @@ function pushArm(p, wrist, hint, surface, flat) {
   var sh = sideShoulder(skeleton(p));
   var a = Segment_UPPER_ARM_getInstance().a();
   var b = Segment_FOREARM_getInstance().a();
-  var g = wrist.a2c(sh);
+  var g = wrist.d2c(sh);
   var d = g.u1o();
-  var gu = g.b2c();
+  var gu = g.e2c();
   // Inline function 'kotlin.math.acos' call
   var x = coerceIn((a * a + d * d - b * b) / (2 * a * d), -1.0, 1.0);
   var alpha = Math.acos(x);
-  var h = hint.a2c(gu.t1o(hint.c2c(gu)));
+  var h = hint.d2c(gu.t1o(hint.f2c(gu)));
   // Inline function 'kotlin.math.cos' call
   var tmp$ret$1 = Math.cos(alpha);
   var tmp = gu.t1o(tmp$ret$1);
-  var tmp_0 = h.b2c();
+  var tmp_0 = h.e2c();
   // Inline function 'kotlin.math.sin' call
   var tmp$ret$2 = Math.sin(alpha);
-  var elbow = sh.d2c(tmp.d2c(tmp_0.t1o(tmp$ret$2)).t1o(a));
-  var arm = armFrom(elbow.a2c(sh).b2c(), wrist.a2c(elbow).b2c(), p.p1p_1);
-  var fore = angleTo(wrist.a2c(elbow).h2b());
-  var tmp_1 = wrist.h2b();
+  var elbow = sh.g2c(tmp.g2c(tmp_0.t1o(tmp$ret$2)).t1o(a));
+  var arm = armFrom(elbow.d2c(sh).e2c(), wrist.d2c(elbow).e2c(), p.p1p_1);
+  var fore = angleTo(wrist.d2c(elbow).k2b());
+  var tmp_1 = wrist.k2b();
   // Inline function 'kotlin.math.cos' call
   var x_0 = arm.d1p_1 / 57.29577951308232;
   var tmp$ret$3 = Math.cos(x_0);
@@ -18631,9 +18655,9 @@ function solveAngle(lo, hi, f) {
   return (a + b) / 2;
 }
 function PushUp(start, end, wrist) {
-  this.e2c_1 = start;
-  this.f2c_1 = end;
-  this.g2c_1 = wrist;
+  this.h2c_1 = start;
+  this.i2c_1 = end;
+  this.j2c_1 = wrist;
 }
 function pushUp(support, supportHeight, handsHeight, armAngle, hand, bottom, neckEnd) {
   neckEnd = neckEnd === VOID ? 0.0 : neckEnd;
@@ -18657,7 +18681,7 @@ function pushUp(support, supportHeight, handsHeight, armAngle, hand, bottom, nec
   var t = solveAngle(tmp_0, top, pushUp$lambda_0(bottom, support, supportHeight, neckEnd));
   var lowPose = pushUp$low(support, supportHeight, neckEnd, t);
   var bent = pushArm(lowPose, w3, new V3(-0.6, -1.0, 0.9), -handsHeight, hand === 0.0);
-  var end = lowPose.z1p(VOID, VOID, VOID, VOID, bent, VOID, bent);
+  var end = lowPose.a1q(VOID, VOID, VOID, VOID, bent, VOID, bent);
   return new PushUp(start, end, w);
 }
 function archerPose(near, tilt, nearArm, farArm) {
@@ -18675,38 +18699,38 @@ function archerPose(near, tilt, nearArm, farArm) {
 function reflect(_this__u8e3s4, axis) {
   _init_properties_Chest_kt__oxfldd_0();
   var a = unit(axis);
-  var d = _this__u8e3s4.v2a_1 * a.p1o_1 + _this__u8e3s4.w2a_1 * a.q1o_1;
-  return new V3(2 * d * a.p1o_1 - _this__u8e3s4.v2a_1, 2 * d * a.q1o_1 - _this__u8e3s4.w2a_1, _this__u8e3s4.x2a_1);
+  var d = _this__u8e3s4.y2a_1 * a.p1o_1 + _this__u8e3s4.z2a_1 * a.q1o_1;
+  return new V3(2 * d * a.p1o_1 - _this__u8e3s4.y2a_1, 2 * d * a.q1o_1 - _this__u8e3s4.z2a_1, _this__u8e3s4.a2b_1);
 }
 function archerArm(side, shoulder, wrist, hint, torso) {
   _init_properties_Chest_kt__oxfldd_0();
   var a = Segment_UPPER_ARM_getInstance().a();
   var b = Segment_FOREARM_getInstance().a();
-  var g = wrist.a2c(shoulder);
+  var g = wrist.d2c(shoulder);
   var d = g.u1o();
   // Inline function 'kotlin.require' call
   if (!(d <= a + b + 1.0E-6)) {
     var message = 'wrist out of reach: ' + d;
     throw IllegalArgumentException_init_$Create$(toString(message));
   }
-  var gu = g.b2c();
+  var gu = g.e2c();
   // Inline function 'kotlin.math.acos' call
   var x = coerceIn((a * a + d * d - b * b) / (2 * a * d), -1.0, 1.0);
   var alpha = Math.acos(x);
-  var h = hint.a2c(gu.t1o(hint.c2c(gu)));
+  var h = hint.d2c(gu.t1o(hint.f2c(gu)));
   // Inline function 'kotlin.math.cos' call
   var tmp$ret$3 = Math.cos(alpha);
   var tmp = gu.t1o(tmp$ret$3);
-  var tmp_0 = h.u1o() < 1.0E-9 ? new V3(0.0, 1.0, 0.0) : h.b2c();
+  var tmp_0 = h.u1o() < 1.0E-9 ? new V3(0.0, 1.0, 0.0) : h.e2c();
   // Inline function 'kotlin.math.sin' call
   var tmp$ret$4 = Math.sin(alpha);
-  var elbow = shoulder.d2c(tmp.d2c(tmp_0.t1o(tmp$ret$4)).t1o(a));
-  var u = elbow.a2c(shoulder).b2c();
-  var f = wrist.a2c(elbow).b2c();
-  var realFore = angleTo(f.h2b());
-  var tmp_1 = wrist.h2b();
+  var elbow = shoulder.g2c(tmp.g2c(tmp_0.t1o(tmp$ret$4)).t1o(a));
+  var u = elbow.d2c(shoulder).e2c();
+  var f = wrist.d2c(elbow).e2c();
+  var realFore = angleTo(f.k2b());
+  var tmp_1 = wrist.k2b();
   // Inline function 'kotlin.math.sqrt' call
-  var x_0 = 1 - f.x2a_1 * f.x2a_1;
+  var x_0 = 1 - f.a2b_1 * f.a2b_1;
   var tmp$ret$5 = Math.sqrt(x_0);
   var hand = handOn(tmp_1, realFore, tmp$ret$5, 0.0, false);
   if (side.equals(Side_FAR_getInstance())) {
@@ -18715,12 +18739,12 @@ function archerArm(side, shoulder, wrist, hint, torso) {
     hand = 2 * torso - hand;
   }
   var arm = armFrom(u, f, torso);
-  var fore = angleTo(f.h2b());
+  var fore = angleTo(f.k2b());
   return arm.f1p(VOID, VOID, coerceIn(fold180(hand - fore), -70.0, 60.0));
 }
 function flatLegs$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
-  return Reach_instance.y1q(get_FLAT_PELVIS(), new Point(127.0, -6.825), get_FLAT_TORSO(), 0.0);
+  return Reach_instance.a1r(get_FLAT_PELVIS(), new Point(127.0, -6.825), get_FLAT_TORSO(), 0.0);
 }
 function _get_flatLegs_$ref_rrqtoc() {
   return constructCallableReference(function () {
@@ -18762,9 +18786,9 @@ function _get_dbFly_$ref_turjuz() {
 function lyingCableFly$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var chest = point(get_flatBare(), BodyPoint_CHEST_getInstance());
-  var out = flyBottom(get_flatBare(), get_flatBare().n1q_1.q1o_1, new Point(4.0, 0.0), get_FLAT_TORSO());
+  var out = flyBottom(get_flatBare(), get_flatBare().o1q_1.q1o_1, new Point(4.0, 0.0), get_FLAT_TORSO());
   var together = flyTop(get_flatBare(), chest, get_FLAT_TORSO());
-  var props = listOf([Floor_instance, new CableStack(get_flatBare().n1q_1.p1o_1, 12.0, 0.0, 75.0, VOID, true), new FlatBench(), CableHandles_instance]);
+  var props = listOf([Floor_instance, new CableStack(get_flatBare().o1q_1.p1o_1, 12.0, 0.0, 75.0, VOID, true), new FlatBench(), CableHandles_instance]);
   return figure_3(View_SIDE_getInstance(), flatPose(out), flatPose(together), props, 'Level with shoulders', 'Together over your chest', Which_START_getInstance(), listOf(['Set both pulleys low, with a handle on each.', 'Place a flat bench in the middle, square to the pulleys. Lie on it with a handle in each hand.', 'Bring the handles together over your chest in a hugging arc. Keep the bend in your elbows fixed.', 'Let them go back out until your hands are level with your shoulders.']), get_LYING_CONTACTS(), listOf([new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 3.0, Which_START_getInstance()), new HeldOver(BodyPoint_CHEST_getInstance(), 3.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
 }
 function _get_lyingCableFly_$ref_642cid() {
@@ -18777,7 +18801,7 @@ function smithBench$delegate$lambda() {
   var chest = point(get_flatBare(), BodyPoint_CHEST_getInstance());
   var bar = new Point(chest.p1o_1, chest.q1o_1 - 1.45);
   var smith = new SmithMachine(bar.p1o_1, -(chest.q1o_1 + 2.0));
-  return figure_3(View_SIDE_getInstance(), flatPose(Reach_instance.x1q(get_flatBare().n1q_1, bar, get_FLAT_TORSO())), flatPose(lockoutAbove(get_flatBare().n1q_1, bar.p1o_1, get_FLAT_TORSO())), listOf([Floor_instance, smith, new FlatBench(), new Barbell()]), 'Lower the bar to chest', 'Press to straight arms', Which_START_getInstance(), listOf(["Set the safety stops so the bar can't come down below your chest.", 'Lie on the bench with your chest under the bar.', 'Lower the bar to your chest.', 'Press the bar up until your arms are straight.']), get_LYING_CONTACTS(), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new BarOnRails(Which_START_getInstance()), new BarOnRails(Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_END_getInstance())]));
+  return figure_3(View_SIDE_getInstance(), flatPose(Reach_instance.z1q(get_flatBare().o1q_1, bar, get_FLAT_TORSO())), flatPose(lockoutAbove(get_flatBare().o1q_1, bar.p1o_1, get_FLAT_TORSO())), listOf([Floor_instance, smith, new FlatBench(), new Barbell()]), 'Lower the bar to chest', 'Press to straight arms', Which_START_getInstance(), listOf(["Set the safety stops so the bar can't come down below your chest.", 'Lie on the bench with your chest under the bar.', 'Lower the bar to your chest.', 'Press the bar up until your arms are straight.']), get_LYING_CONTACTS(), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new BarOnRails(Which_START_getInstance()), new BarOnRails(Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_END_getInstance())]));
 }
 function _get_smithBench_$ref_spiwbx() {
   return constructCallableReference(function () {
@@ -18786,7 +18810,7 @@ function _get_smithBench_$ref_spiwbx() {
 }
 function inclinePelvis$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
-  return seatedPelvis(new Point(get_inclineBench().j1z_1 - 40.0, -43.0), 45.0);
+  return seatedPelvis(new Point(get_inclineBench().l1z_1 - 40.0, -43.0), 45.0);
 }
 function _get_inclinePelvis_$ref_59ipn() {
   return constructCallableReference(function () {
@@ -18795,7 +18819,7 @@ function _get_inclinePelvis_$ref_59ipn() {
 }
 function inclineLegs$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
-  return Reach_instance.y1q(get_inclinePelvis(), new Point(get_inclinePelvis().p1o_1 + 46.0, -6.825), get_INCLINE_TORSO(), 0.0);
+  return Reach_instance.a1r(get_inclinePelvis(), new Point(get_inclinePelvis().p1o_1 + 46.0, -6.825), get_INCLINE_TORSO(), 0.0);
 }
 function _get_inclineLegs_$ref_f8k9jd() {
   return constructCallableReference(function () {
@@ -18814,15 +18838,15 @@ function _get_inclineBare_$ref_1gn9r8() {
 function inclineBenchPress$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var bar = barOn(get_inclineBare(), BodyPoint_CHEST_getInstance());
-  var top = lockoutAbove(get_inclineBare().n1q_1, point(get_inclineBare(), BodyPoint_UPPER_CHEST_getInstance()).p1o_1, get_INCLINE_TORSO());
+  var top = lockoutAbove(get_inclineBare().o1q_1, point(get_inclineBare(), BodyPoint_UPPER_CHEST_getInstance()).p1o_1, get_INCLINE_TORSO());
   var endPose = inclinePose(top);
-  var barTop = skeleton(endPose).q1q_1.e1q_1;
-  var tmp = get_inclineBench().j1z_1 - 40.0;
+  var barTop = skeleton(endPose).r1q_1.f1q_1;
+  var tmp = get_inclineBench().l1z_1 - 40.0;
   // Inline function 'kotlin.math.cos' call
   var x = 45.0 / 57.29577951308232;
   var padTopX = tmp - 85.0 * Math.cos(x);
   var rack = rackBehind(padTopX - 6.0, barTop, bar);
-  return figure_3(View_SIDE_getInstance(), inclinePose(Reach_instance.x1q(get_inclineBare().n1q_1, bar, get_INCLINE_TORSO())), endPose, listOf([Floor_instance, rack, get_inclineBench(), new Barbell()]), 'Lower the bar to chest', 'Over your upper chest', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Lie back on the incline bench.', 'Lift the bar out and hold it over your upper chest with straight arms.', 'Lower the bar to your chest.']), get_INCLINE_CONTACTS(), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new HeldOver(BodyPoint_UPPER_CHEST_getInstance(), 2.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_END_getInstance())]));
+  return figure_3(View_SIDE_getInstance(), inclinePose(Reach_instance.z1q(get_inclineBare().o1q_1, bar, get_INCLINE_TORSO())), endPose, listOf([Floor_instance, rack, get_inclineBench(), new Barbell()]), 'Lower the bar to chest', 'Over your upper chest', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Lie back on the incline bench.', 'Lift the bar out and hold it over your upper chest with straight arms.', 'Lower the bar to your chest.']), get_INCLINE_CONTACTS(), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new HeldOver(BodyPoint_UPPER_CHEST_getInstance(), 2.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_END_getInstance())]));
 }
 function _get_inclineBenchPress_$ref_7ugolh() {
   return constructCallableReference(function () {
@@ -18843,7 +18867,7 @@ function _get_inclineDbPress_$ref_xcyimx() {
 function inclineDbFly$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var upper = point(get_inclineBare(), BodyPoint_UPPER_CHEST_getInstance());
-  return figure_3(View_SIDE_getInstance(), inclinePose(flyTop(get_inclineBare(), upper, get_INCLINE_TORSO())), inclinePose(flyBottom(get_inclineBare(), get_inclineBare().n1q_1.q1o_1, new Point(2.0, 0.0), get_INCLINE_TORSO())), plus(listOf([Floor_instance, get_inclineBench()]), get_FLY_DUMBBELLS()), 'Over your upper chest', 'Level with shoulders', Which_END_getInstance(), listOf(['Lie back on an incline bench with a dumbbell in each hand.', 'Hold the dumbbells over your upper chest, elbows slightly bent and pointing out to the sides.', 'Lower the dumbbells out to the sides of your shoulders. Keep the bend in your elbows fixed.', 'When the dumbbells are level with your shoulders, bring them back up in a hugging motion.']), get_INCLINE_CONTACTS(), listOf([new HeldOver(BodyPoint_UPPER_CHEST_getInstance(), 3.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 3.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
+  return figure_3(View_SIDE_getInstance(), inclinePose(flyTop(get_inclineBare(), upper, get_INCLINE_TORSO())), inclinePose(flyBottom(get_inclineBare(), get_inclineBare().o1q_1.q1o_1, new Point(2.0, 0.0), get_INCLINE_TORSO())), plus(listOf([Floor_instance, get_inclineBench()]), get_FLY_DUMBBELLS()), 'Over your upper chest', 'Level with shoulders', Which_END_getInstance(), listOf(['Lie back on an incline bench with a dumbbell in each hand.', 'Hold the dumbbells over your upper chest, elbows slightly bent and pointing out to the sides.', 'Lower the dumbbells out to the sides of your shoulders. Keep the bend in your elbows fixed.', 'When the dumbbells are level with your shoulders, bring them back up in a hugging motion.']), get_INCLINE_CONTACTS(), listOf([new HeldOver(BodyPoint_UPPER_CHEST_getInstance(), 3.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 3.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
 }
 function _get_inclineDbFly_$ref_bdcgy1() {
   return constructCallableReference(function () {
@@ -18852,8 +18876,8 @@ function _get_inclineDbFly_$ref_bdcgy1() {
 }
 function inclineCableFly$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
-  var props = listOf([Floor_instance, new CableStack(get_inclineBare().n1q_1.p1o_1, 12.0, 0.0, 75.0, VOID, true), get_inclineBench(), CableHandles_instance]);
-  return figure_3(View_SIDE_getInstance(), inclinePose(flyTop(get_inclineBare(), get_inclineBare().n1q_1, get_INCLINE_TORSO())), inclinePose(flyBottom(get_inclineBare(), get_inclineBare().n1q_1.q1o_1, new Point(2.0, 0.0), get_INCLINE_TORSO())), props, 'Arms point straight up', 'Level with shoulders', Which_END_getInstance(), listOf(['Set an incline bench between two low pulleys.', 'Press the handles up over your shoulders until your arms point straight up.', 'Bend your elbows slightly, pointing them out to the sides.', 'Lower the handles out to the sides of your shoulders. Keep the bend in your elbows fixed.']), get_INCLINE_CONTACTS(), listOf([new HeldOver(BodyPoint_SHOULDERS_getInstance(), 3.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 3.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
+  var props = listOf([Floor_instance, new CableStack(get_inclineBare().o1q_1.p1o_1, 12.0, 0.0, 75.0, VOID, true), get_inclineBench(), CableHandles_instance]);
+  return figure_3(View_SIDE_getInstance(), inclinePose(flyTop(get_inclineBare(), get_inclineBare().o1q_1, get_INCLINE_TORSO())), inclinePose(flyBottom(get_inclineBare(), get_inclineBare().o1q_1.q1o_1, new Point(2.0, 0.0), get_INCLINE_TORSO())), props, 'Arms point straight up', 'Level with shoulders', Which_END_getInstance(), listOf(['Set an incline bench between two low pulleys.', 'Press the handles up over your shoulders until your arms point straight up.', 'Bend your elbows slightly, pointing them out to the sides.', 'Lower the handles out to the sides of your shoulders. Keep the bend in your elbows fixed.']), get_INCLINE_CONTACTS(), listOf([new HeldOver(BodyPoint_SHOULDERS_getInstance(), 3.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 3.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
 }
 function _get_inclineCableFly_$ref_630tbc() {
   return constructCallableReference(function () {
@@ -18864,7 +18888,7 @@ function smithIncline$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var bar = barOn(get_inclineBare(), BodyPoint_CHEST_getInstance());
   var smith = new SmithMachine(bar.p1o_1, -(bar.q1o_1 + 1.45 + 2.0));
-  return figure_3(View_SIDE_getInstance(), inclinePose(Reach_instance.x1q(get_inclineBare().n1q_1, bar, get_INCLINE_TORSO())), inclinePose(lockoutAbove(get_inclineBare().n1q_1, bar.p1o_1, get_INCLINE_TORSO())), listOf([Floor_instance, smith, get_inclineBench(), new Barbell()]), 'Lower the bar to chest', 'Press to straight arms', Which_START_getInstance(), listOf(["Set the safety stops so the bar can't come down below your chest.", 'Lie back on an incline bench in the Smith machine, with the bar over your chest.', 'Lower the bar to your chest.', 'Press the bar up until your arms are straight.']), get_INCLINE_CONTACTS(), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new BarOnRails(Which_START_getInstance()), new BarOnRails(Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_END_getInstance())]));
+  return figure_3(View_SIDE_getInstance(), inclinePose(Reach_instance.z1q(get_inclineBare().o1q_1, bar, get_INCLINE_TORSO())), inclinePose(lockoutAbove(get_inclineBare().o1q_1, bar.p1o_1, get_INCLINE_TORSO())), listOf([Floor_instance, smith, get_inclineBench(), new Barbell()]), 'Lower the bar to chest', 'Press to straight arms', Which_START_getInstance(), listOf(["Set the safety stops so the bar can't come down below your chest.", 'Lie back on an incline bench in the Smith machine, with the bar over your chest.', 'Lower the bar to your chest.', 'Press the bar up until your arms are straight.']), get_INCLINE_CONTACTS(), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new BarOnRails(Which_START_getInstance()), new BarOnRails(Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_END_getInstance())]));
 }
 function _get_smithIncline_$ref_mreqbv() {
   return constructCallableReference(function () {
@@ -18882,9 +18906,9 @@ function _get_declineBare_$ref_tggvug() {
 }
 function declineBench$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
-  var n = get_declineBare().q1q_1;
-  var shin = angleTo(n.h1q_1.s1o(n.g1q_1));
-  var roller = n.h1q_1.r1o(unit(shin + 180.0).t1o(7.0)).r1o(unit(shin + 90.0).t1o(11.0 / 2 + 6.0));
+  var n = get_declineBare().r1q_1;
+  var shin = angleTo(n.i1q_1.s1o(n.h1q_1));
+  var roller = n.i1q_1.r1o(unit(shin + 180.0).t1o(7.0)).r1o(unit(shin + 90.0).t1o(11.0 / 2 + 6.0));
   return new DeclineBench(get_DECLINE_TOP().p1o_1, roller, 25.0, -get_DECLINE_TOP().q1o_1);
 }
 function _get_declineBench_$ref_txlmao() {
@@ -18895,9 +18919,9 @@ function _get_declineBench_$ref_txlmao() {
 function declineBenchPress$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var bar = barOn(get_declineBare(), BodyPoint_CHEST_getInstance());
-  var endPose = declinePose(lockoutAbove(get_declineBare().n1q_1, point(get_declineBare(), BodyPoint_CHEST_getInstance()).p1o_1, get_DECLINE_TORSO()));
-  var rack = rackBehind(get_declineBare().p1q_1.p1o_1 - 10.0 - 8.0, skeleton(endPose).q1q_1.e1q_1, bar);
-  return figure_3(View_SIDE_getInstance(), declinePose(Reach_instance.x1q(get_declineBare().n1q_1, bar, get_DECLINE_TORSO())), endPose, listOf([Floor_instance, rack, get_declineBench(), new Barbell()]), 'Lower the bar to chest', 'Over your chest', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Lie back on the decline bench with your feet hooked under the leg brace.', 'Lift the bar out and hold it over your chest with straight arms.', 'Lower the bar to your chest.']), get_DECLINE_CONTACTS(), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new HeldOver(BodyPoint_CHEST_getInstance(), 2.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_END_getInstance())]));
+  var endPose = declinePose(lockoutAbove(get_declineBare().o1q_1, point(get_declineBare(), BodyPoint_CHEST_getInstance()).p1o_1, get_DECLINE_TORSO()));
+  var rack = rackBehind(get_declineBare().q1q_1.p1o_1 - 10.0 - 8.0, skeleton(endPose).r1q_1.f1q_1, bar);
+  return figure_3(View_SIDE_getInstance(), declinePose(Reach_instance.z1q(get_declineBare().o1q_1, bar, get_DECLINE_TORSO())), endPose, listOf([Floor_instance, rack, get_declineBench(), new Barbell()]), 'Lower the bar to chest', 'Over your chest', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Lie back on the decline bench with your feet hooked under the leg brace.', 'Lift the bar out and hold it over your chest with straight arms.', 'Lower the bar to your chest.']), get_DECLINE_CONTACTS(), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new HeldOver(BodyPoint_CHEST_getInstance(), 2.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_END_getInstance())]));
 }
 function _get_declineBenchPress_$ref_cu5jqh() {
   return constructCallableReference(function () {
@@ -18917,7 +18941,7 @@ function _get_declineDbPress_$ref_s7qdo5() {
 function declineDbFly$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var abdomen = point(get_declineBare(), BodyPoint_UPPER_ABDOMEN_getInstance());
-  return figure_3(View_SIDE_getInstance(), declinePose(flyTop(get_declineBare(), abdomen, get_DECLINE_TORSO())), declinePose(flyBottom(get_declineBare(), get_declineBare().n1q_1.q1o_1, new Point(2.0, 0.0), get_DECLINE_TORSO())), plus(listOf([Floor_instance, get_declineBench()]), get_FLY_DUMBBELLS()), 'Over your upper abdomen', 'Level with shoulders', Which_END_getInstance(), listOf(['Sit on the decline bench with your feet under the leg brace.', 'Lie back and hold the dumbbells over your upper abdomen, elbows slightly bent.', 'Lower the dumbbells out to the sides until they are level with your shoulders. Keep the bend in your elbows fixed.']), get_DECLINE_CONTACTS(), listOf([new HeldOver(BodyPoint_UPPER_ABDOMEN_getInstance(), 3.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 3.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
+  return figure_3(View_SIDE_getInstance(), declinePose(flyTop(get_declineBare(), abdomen, get_DECLINE_TORSO())), declinePose(flyBottom(get_declineBare(), get_declineBare().o1q_1.q1o_1, new Point(2.0, 0.0), get_DECLINE_TORSO())), plus(listOf([Floor_instance, get_declineBench()]), get_FLY_DUMBBELLS()), 'Over your upper abdomen', 'Level with shoulders', Which_END_getInstance(), listOf(['Sit on the decline bench with your feet under the leg brace.', 'Lie back and hold the dumbbells over your upper abdomen, elbows slightly bent.', 'Lower the dumbbells out to the sides until they are level with your shoulders. Keep the bend in your elbows fixed.']), get_DECLINE_CONTACTS(), listOf([new HeldOver(BodyPoint_UPPER_ABDOMEN_getInstance(), 3.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 3.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
 }
 function _get_declineDbFly_$ref_nqrn17() {
   return constructCallableReference(function () {
@@ -18928,7 +18952,7 @@ function smithDecline$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var bar = barOn(get_declineBare(), BodyPoint_CHEST_getInstance());
   var smith = new SmithMachine(bar.p1o_1, -(bar.q1o_1 + 1.45 + 2.0));
-  return figure_3(View_SIDE_getInstance(), declinePose(Reach_instance.x1q(get_declineBare().n1q_1, bar, get_DECLINE_TORSO())), declinePose(lockoutAbove(get_declineBare().n1q_1, bar.p1o_1, get_DECLINE_TORSO())), listOf([Floor_instance, smith, get_declineBench(), new Barbell()]), 'Bar to your lower chest', 'Press to straight arms', Which_START_getInstance(), listOf(["Set the safety stops so the bar can't come down below your chest.", 'Lie back on a decline bench in the Smith machine, feet under the leg brace and your lower chest under the bar.', 'Lower the bar to your lower chest.', 'Press the bar up until your arms are straight.']), get_DECLINE_CONTACTS(), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new BarOnRails(Which_START_getInstance()), new BarOnRails(Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_END_getInstance())]));
+  return figure_3(View_SIDE_getInstance(), declinePose(Reach_instance.z1q(get_declineBare().o1q_1, bar, get_DECLINE_TORSO())), declinePose(lockoutAbove(get_declineBare().o1q_1, bar.p1o_1, get_DECLINE_TORSO())), listOf([Floor_instance, smith, get_declineBench(), new Barbell()]), 'Bar to your lower chest', 'Press to straight arms', Which_START_getInstance(), listOf(["Set the safety stops so the bar can't come down below your chest.", 'Lie back on a decline bench in the Smith machine, feet under the leg brace and your lower chest under the bar.', 'Lower the bar to your lower chest.', 'Press the bar up until your arms are straight.']), get_DECLINE_CONTACTS(), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new BarOnRails(Which_START_getInstance()), new BarOnRails(Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_END_getInstance())]));
 }
 function _get_smithDecline_$ref_4kkt09() {
   return constructCallableReference(function () {
@@ -18946,7 +18970,7 @@ function _get_machinePelvis_$ref_ulry4w() {
 }
 function machineLegs$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
-  return Reach_instance.y1q(get_machinePelvis(), new Point(get_machinePelvis().p1o_1 + 40.0, -6.825), get_MACHINE_TORSO(), 0.0);
+  return Reach_instance.a1r(get_machinePelvis(), new Point(get_machinePelvis().p1o_1 + 40.0, -6.825), get_MACHINE_TORSO(), 0.0);
 }
 function _get_machineLegs_$ref_vws60k() {
   return constructCallableReference(function () {
@@ -19008,8 +19032,8 @@ function cableChestPress$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var torso = 88.0;
   var pelvis = new Point(0.0, -84.0);
-  var front = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 + 30.0, -6.825), torso, 0.0);
-  var back = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 - 34.0, -6.825), torso, 0.0);
+  var front = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 + 30.0, -6.825), torso, 0.0);
+  var back = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 - 34.0, -6.825), torso, 0.0);
   var bare = skeleton(invoke$pose_16(pelvis, torso, front, back, get_SIDE_ARMS_DOWN()));
   var chest = point(bare, BodyPoint_CHEST_getInstance());
   var sh = sideShoulder(bare);
@@ -19018,8 +19042,8 @@ function cableChestPress$delegate$lambda() {
   // Inline function 'kotlin.math.sqrt' call
   var x = get_ARM_REACH() * get_ARM_REACH() - dz * dz;
   var ahead = Math.sqrt(x);
-  var end = arm3(sh, new V3(sh.v2a_1 + ahead, sh.w2a_1, sh.x2a_1 - dz), new V3(0.0, 1.0, 0.0), torso);
-  var stack = new CableStack(pelvis.p1o_1 - 70.0, -bare.n1q_1.q1o_1, 20.0);
+  var end = arm3(sh, new V3(sh.y2a_1 + ahead, sh.z2a_1, sh.a2b_1 - dz), new V3(0.0, 1.0, 0.0), torso);
+  var stack = new CableStack(pelvis.p1o_1 - 70.0, -bare.o1q_1.q1o_1, 20.0);
   return figure_3(View_SIDE_getInstance(), invoke$pose_16(pelvis, torso, front, back, start), invoke$pose_16(pelvis, torso, front, back, end), listOf([Floor_instance, stack, CableHandles_instance]), 'Beside your chest', 'Arms straight and level', Which_END_getInstance(), listOf(['Set both pulleys at shoulder height, with a handle on each.', 'Take a split stance, one foot forward and one back.', 'Hold the handles beside your chest, elbows out to the sides.', 'Press the handles forward until your arms are straight and level.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new HeldBeside(BodyPoint_CHEST_getInstance(), 8.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 2.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_END_getInstance())]));
 }
 function invoke$pose_16(pelvis, torso, front, back, arm) {
@@ -19050,7 +19074,7 @@ function cableCrossover$delegate$lambda() {
   var lean = 8.0;
   var bare = frontStanding(0.0, lean, 12.0, get_SIDE_ARMS_DOWN());
   var s = skeleton(bare, View_FRONT_getInstance());
-  var shY = s.q1q_1.a1q_1.q1o_1;
+  var shY = s.r1q_1.b1q_1.q1o_1;
   var tmp = Segment_TORSO_getInstance().a();
   // Inline function 'kotlin.math.sin' call
   var x = lean / 57.29577951308232;
@@ -19060,7 +19084,7 @@ function cableCrossover$delegate$lambda() {
   var start = frontArms(0.0, shY, shZ, flyOut(sh, -6.0, 6.0), get_FLY_OUT_ELBOW());
   var end = frontArms(0.0, shY, shZ, flyIn(sh, 0.0, 4.0, chestY + 8.0 - shY), get_FLY_IN_ELBOW());
   var props = listOf([Floor_instance, new CableStack(0.0, 200.0, 10.0, VOID, 105.0), CableHandles_instance]);
-  return figure_3(View_FRONT_getInstance(), bare.z1p(VOID, VOID, VOID, VOID, start, VOID, start), bare.z1p(VOID, VOID, VOID, VOID, end, VOID, end), props, 'Arms out to the sides', 'Hands together in front', Which_START_getInstance(), listOf(['Set both pulleys high, with a handle on each.', 'Hold one handle in each hand and step forward, so your arms are out to the sides.', 'Bend your hips and knees slightly, and bend your elbows slightly.', 'Bring your hands together in front of you in a hugging arc. Keep the bend in your elbows fixed.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new HandsTogether(12.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
+  return figure_3(View_FRONT_getInstance(), bare.a1q(VOID, VOID, VOID, VOID, start, VOID, start), bare.a1q(VOID, VOID, VOID, VOID, end, VOID, end), props, 'Arms out to the sides', 'Hands together in front', Which_START_getInstance(), listOf(['Set both pulleys high, with a handle on each.', 'Hold one handle in each hand and step forward, so your arms are out to the sides.', 'Bend your hips and knees slightly, and bend your elbows slightly.', 'Bring your hands together in front of you in a hugging arc. Keep the bend in your elbows fixed.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new HandsTogether(12.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
 }
 function _get_cableCrossover_$ref_1jwbyb() {
   return constructCallableReference(function () {
@@ -19071,12 +19095,12 @@ function lowToHighFly$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var bare = frontStanding(0.0, 0.0, 6.0, get_SIDE_ARMS_DOWN());
   var s = skeleton(bare, View_FRONT_getInstance());
-  var shY = s.q1q_1.a1q_1.q1o_1;
+  var shY = s.r1q_1.b1q_1.q1o_1;
   var sh = frontShoulder_0(0.0, shY);
   var start = frontArms(0.0, shY, 0.0, flyOut(sh, 38.0, 10.0), new V3(0.0, -0.2, -1.0));
-  var end = frontArms(0.0, shY, 0.0, flyIn(sh, 0.0, 4.0, s.p1q_1.q1o_1 - shY), new V3(1.0, 0.5, 0.0));
+  var end = frontArms(0.0, shY, 0.0, flyIn(sh, 0.0, 4.0, s.q1q_1.q1o_1 - shY), new V3(1.0, 0.5, 0.0));
   var props = listOf([Floor_instance, new CableStack(0.0, 65.0, 10.0, VOID, 105.0), CableHandles_instance]);
-  return figure_3(View_FRONT_getInstance(), bare.z1p(VOID, VOID, VOID, VOID, start, VOID, start), bare.z1p(VOID, VOID, VOID, VOID, end, VOID, end), props, 'Arms down and out', 'Meet at face height', Which_END_getInstance(), listOf(['Set both pulleys low, between knee and hip height, with a handle on each.', 'Start with your arms down and out to your sides, elbows slightly bent.', 'Bring your hands forward and up in an arc, until they meet at about face height.', 'Keep a slight bend in your elbows.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new HandsTogether(12.0, Which_END_getInstance()), new HandsLevelWith(BodyPoint_HEAD_getInstance(), 6.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
+  return figure_3(View_FRONT_getInstance(), bare.a1q(VOID, VOID, VOID, VOID, start, VOID, start), bare.a1q(VOID, VOID, VOID, VOID, end, VOID, end), props, 'Arms down and out', 'Meet at face height', Which_END_getInstance(), listOf(['Set both pulleys low, between knee and hip height, with a handle on each.', 'Start with your arms down and out to your sides, elbows slightly bent.', 'Bring your hands forward and up in an arc, until they meet at about face height.', 'Keep a slight bend in your elbows.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new HandsTogether(12.0, Which_END_getInstance()), new HandsLevelWith(BodyPoint_HEAD_getInstance(), 6.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
 }
 function _get_lowToHighFly_$ref_bc0wag() {
   return constructCallableReference(function () {
@@ -19087,13 +19111,13 @@ function seatedCableFly$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var bare = frontSeated_0(get_SIDE_ARMS_DOWN());
   var s = skeleton(bare, View_FRONT_getInstance());
-  var shY = s.q1q_1.a1q_1.q1o_1;
+  var shY = s.r1q_1.b1q_1.q1o_1;
   var sh = frontShoulder_0(0.0, shY);
   var start = frontArms(0.0, shY, 0.0, flyOut(sh, 2.0, 4.0), new V3(0.0, 0.0, -1.0));
   var end = frontArms(0.0, shY, 0.0, flyIn(sh, 0.0, 4.0, 4.0), new V3(1.0, 0.0, 0.0));
   var seatTop = -(get_SEATED_FRONT_PELVIS_Y() + 10.0);
   var props = listOf([Floor_instance, new CableStack(0.0, -shY, 10.0, VOID, 105.0), new Seat(0.0, seatTop), CableHandles_instance]);
-  return figure_3(View_FRONT_getInstance(), bare.z1p(VOID, VOID, VOID, VOID, start, VOID, start), bare.z1p(VOID, VOID, VOID, VOID, end, VOID, end), props, 'Hold a handle each side', 'Together, elbows high', Which_START_getInstance(), listOf(['Sit on the seat and hold a handle on each side.', 'Bend your elbows slightly.', 'Keep your elbows high and bring the handles together in a hugging arc. Keep the bend in your elbows fixed.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH())]), listOf([new HandsTogether(12.0, Which_END_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 6.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 6.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
+  return figure_3(View_FRONT_getInstance(), bare.a1q(VOID, VOID, VOID, VOID, start, VOID, start), bare.a1q(VOID, VOID, VOID, VOID, end, VOID, end), props, 'Hold a handle each side', 'Together, elbows high', Which_START_getInstance(), listOf(['Sit on the seat and hold a handle on each side.', 'Bend your elbows slightly.', 'Keep your elbows high and bring the handles together in a hugging arc. Keep the bend in your elbows fixed.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH())]), listOf([new HandsTogether(12.0, Which_END_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 6.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 6.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
 }
 function _get_seatedCableFly_$ref_hb75fk() {
   return constructCallableReference(function () {
@@ -19104,13 +19128,13 @@ function pecDeck$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var bare = frontSeated_0(get_SIDE_ARMS_DOWN());
   var s = skeleton(bare, View_FRONT_getInstance());
-  var shY = s.q1q_1.a1q_1.q1o_1;
+  var shY = s.r1q_1.b1q_1.q1o_1;
   var sh = frontShoulder_0(0.0, shY);
   var start = frontArms(0.0, shY, 0.0, flyOut(sh, 0.0, 2.0), new V3(0.0, 0.3, -1.0));
   var end = frontArms(0.0, shY, 0.0, flyIn(sh, 0.0, 5.0, 0.0), new V3(1.0, 0.3, 0.0));
   var seatTop = -(get_SEATED_FRONT_PELVIS_Y() + 10.0);
-  var machine = new PecDeck(0.0, seatTop, -shY + 12.0, -s.p1q_1.q1o_1 + 22.0);
-  return figure_3(View_FRONT_getInstance(), bare.z1p(VOID, VOID, VOID, VOID, start, VOID, start), bare.z1p(VOID, VOID, VOID, VOID, end, VOID, end), listOf([Floor_instance, machine]), 'At shoulder height', 'Forward and together', Which_START_getInstance(), listOf(['Sit with your back on the pad.', 'Grip the handles at shoulder height. On a machine with arm pads, rest your forearms on the pads.', 'Bend your elbows slightly.', 'Bring the handles forward and together.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH())]), listOf([new HandsTogether(14.0, Which_END_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 4.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 4.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
+  var machine = new PecDeck(0.0, seatTop, -shY + 12.0, -s.q1q_1.q1o_1 + 22.0);
+  return figure_3(View_FRONT_getInstance(), bare.a1q(VOID, VOID, VOID, VOID, start, VOID, start), bare.a1q(VOID, VOID, VOID, VOID, end, VOID, end), listOf([Floor_instance, machine]), 'At shoulder height', 'Forward and together', Which_START_getInstance(), listOf(['Sit with your back on the pad.', 'Grip the handles at shoulder height. On a machine with arm pads, rest your forearms on the pads.', 'Bend your elbows slightly.', 'Bring the handles forward and together.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH())]), listOf([new HandsTogether(14.0, Which_END_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 4.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 4.0, Which_END_getInstance()), new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
 }
 function _get_pecDeck_$ref_ydwp2v() {
   return constructCallableReference(function () {
@@ -19120,7 +19144,7 @@ function _get_pecDeck_$ref_ydwp2v() {
 function chestDip$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var bars = new DipBars(0.0);
-  var _destruct__k2r9zo = dipPoses(new Point(0.0, -bars.u25_1), 8.0, new Leg(20.0, 45.0, -25.0));
+  var _destruct__k2r9zo = dipPoses(new Point(0.0, -bars.x25_1), 8.0, new Leg(20.0, 45.0, -25.0));
   var start = _destruct__k2r9zo.ya();
   var end = _destruct__k2r9zo.za();
   return figure_3(View_SIDE_getInstance(), start, end, listOf([Floor_instance, bars]), 'Push up to straight arms', 'Upper arms level', Which_END_getInstance(), plus(listOf(['Grip the bars and push up until your arms are straight.', 'Bend your knees and hips slightly.']), get_DIP_LINES()), listOf_0(new Contact(BodyPoint_HANDS_getInstance(), Surface_DIP_BAR_getInstance(), get_BOTH())), get_DIP_CHECKS());
@@ -19154,11 +19178,11 @@ function assistedDip$delegate$lambda() {
 }
 function invoke$step(p) {
   // Inline function 'kotlin.let' call
-  var it = skeleton(p).q1q_1;
-  var tmp = (it.i1q_1.p1o_1 + it.j1q_1.p1o_1) / 2;
-  var tmp0 = it.i1q_1.q1o_1;
+  var it = skeleton(p).r1q_1;
+  var tmp = (it.j1q_1.p1o_1 + it.k1q_1.p1o_1) / 2;
+  var tmp0 = it.j1q_1.q1o_1;
   // Inline function 'kotlin.comparisons.maxOf' call
-  var b = it.j1q_1.q1o_1;
+  var b = it.k1q_1.q1o_1;
   var tmp$ret$2 = Math.max(tmp0, b);
   return new Point(tmp, tmp$ret$2 + 7.0 / 2);
 }
@@ -19192,7 +19216,7 @@ function _get_floorPushUp_$ref_sx074v() {
 }
 function pushUpFigure$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
-  return figure_3(View_SIDE_getInstance(), get_floorPushUp().e2c_1, get_floorPushUp().f2c_1, listOf_0(Floor_instance), 'Body in a straight line', 'Chest toward the floor', Which_START_getInstance(), listOf(['Push up onto your toes with straight arms, so your body is in a straight line.', 'Brace your trunk and squeeze your glutes and thighs. Keep your head in line with your spine.', 'Bend your elbows to lower your chest toward the floor. Keep your body straight.', 'Push the floor away until your elbows are straight.']), get_PUSH_UP_CONTACTS_TOES(), listOf([new ChestOffFloor(4.0, 9.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_START_getInstance())]));
+  return figure_3(View_SIDE_getInstance(), get_floorPushUp().h2c_1, get_floorPushUp().i2c_1, listOf_0(Floor_instance), 'Body in a straight line', 'Chest toward the floor', Which_START_getInstance(), listOf(['Push up onto your toes with straight arms, so your body is in a straight line.', 'Brace your trunk and squeeze your glutes and thighs. Keep your head in line with your spine.', 'Bend your elbows to lower your chest toward the floor. Keep your body straight.', 'Push the floor away until your elbows are straight.']), get_PUSH_UP_CONTACTS_TOES(), listOf([new ChestOffFloor(4.0, 9.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_START_getInstance())]));
 }
 function _get_pushUpFigure_$ref_5iy7y9() {
   return constructCallableReference(function () {
@@ -19201,7 +19225,7 @@ function _get_pushUpFigure_$ref_5iy7y9() {
 }
 function weightedPushUp$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
-  return figure_3(View_SIDE_getInstance(), get_floorPushUp().e2c_1, get_floorPushUp().f2c_1, listOf([Floor_instance, new BackPlates()]), 'Plates on your back', 'Lower your chest', Which_START_getInstance(), listOf(['Get into a push-up position, hands slightly wider than your shoulders, body straight.', 'A partner places weight plates on your back.', 'Bend your elbows to lower your chest. Keep your body rigid.', 'Push up until your arms are straight.']), get_PUSH_UP_CONTACTS_TOES(), listOf([new ChestOffFloor(4.0, 9.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_START_getInstance())]));
+  return figure_3(View_SIDE_getInstance(), get_floorPushUp().h2c_1, get_floorPushUp().i2c_1, listOf([Floor_instance, new BackPlates()]), 'Plates on your back', 'Lower your chest', Which_START_getInstance(), listOf(['Get into a push-up position, hands slightly wider than your shoulders, body straight.', 'A partner places weight plates on your back.', 'Bend your elbows to lower your chest. Keep your body rigid.', 'Push up until your arms are straight.']), get_PUSH_UP_CONTACTS_TOES(), listOf([new ChestOffFloor(4.0, 9.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_START_getInstance())]));
 }
 function _get_weightedPushUp_$ref_nb9z6a() {
   return constructCallableReference(function () {
@@ -19217,17 +19241,17 @@ function clapPushUp$delegate$lambda() {
   var out = -Math.asin(x) * 57.29577951308232;
   var air = new Arm(0.0, 0.0, 30.0, VOID, out, out);
   var t = solveAngle(0.0, 60.0, clapPushUp$delegate$lambda$lambda(air));
-  return figure_3(View_SIDE_getInstance(), get_floorPushUp().f2c_1, invoke$pose_17(air, t), listOf_0(Floor_instance), 'Chest toward the floor', 'Hands leave the floor', Which_END_getInstance(), listOf(['Lower your chest toward the floor.', 'Push up as fast as you can, so your hands leave the floor.', 'Clap quickly, then put your hands back in place and catch yourself.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))]), listOf([new ChestOffFloor(4.0, 9.0, Which_START_getInstance()), new HandsOffFloor(6.0, Which_END_getInstance())]));
+  return figure_3(View_SIDE_getInstance(), get_floorPushUp().i2c_1, invoke$pose_17(air, t), listOf_0(Floor_instance), 'Chest toward the floor', 'Hands leave the floor', Which_END_getInstance(), listOf(['Lower your chest toward the floor.', 'Push up as fast as you can, so your hands leave the floor.', 'Clap quickly, then put your hands back in place and catch yourself.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))]), listOf([new ChestOffFloor(4.0, 9.0, Which_START_getInstance()), new HandsOffFloor(6.0, Which_END_getInstance())]));
 }
 function invoke$pose_17(air, t) {
   return pronePose(t, Support_TOES_getInstance(), 0.0, air.f1p(fold180(-90.0 - t - 180.0)));
 }
 function invoke$handsUp(air, t) {
   // Inline function 'kotlin.let' call
-  var it = skeleton(invoke$pose_17(air, t)).q1q_1;
-  var tmp0 = it.c1q_1.q1o_1;
+  var it = skeleton(invoke$pose_17(air, t)).r1q_1;
+  var tmp0 = it.d1q_1.q1o_1;
   // Inline function 'kotlin.comparisons.maxOf' call
-  var b = it.d1q_1.q1o_1;
+  var b = it.e1q_1.q1o_1;
   return -Math.max(tmp0, b) - 6.0 / 2;
 }
 function clapPushUp$delegate$lambda$lambda($air) {
@@ -19246,7 +19270,7 @@ function kneePushUp$delegate$lambda() {
   var tmp_0 = kneePushUp$delegate$lambda$lambda;
   var tmp_1 = -90.0 + 60.0;
   var p = pushUp(tmp, 0.0, 0.0, tmp_0, tmp_1, kneePushUp$delegate$lambda$lambda_0);
-  return figure_3(View_SIDE_getInstance(), p.e2c_1, p.f2c_1, listOf_0(Floor_instance), 'Straight knees to head', 'Chest toward the floor', Which_START_getInstance(), listOf(['Kneel on a mat. Place your hands on the floor slightly wider than your shoulders.', 'Push up on straight arms, so your body is straight from your knees to your head.', 'Bend your arms to lower your chest toward the floor. Keep your body straight.']), listOf([new Contact(BodyPoint_KNEES_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), listOf([new ChestOffFloor(4.0, 9.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_START_getInstance())]));
+  return figure_3(View_SIDE_getInstance(), p.h2c_1, p.i2c_1, listOf_0(Floor_instance), 'Straight knees to head', 'Chest toward the floor', Which_START_getInstance(), listOf(['Kneel on a mat. Place your hands on the floor slightly wider than your shoulders.', 'Push up on straight arms, so your body is straight from your knees to your head.', 'Bend your arms to lower your chest toward the floor. Keep your body straight.']), listOf([new Contact(BodyPoint_KNEES_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), listOf([new ChestOffFloor(4.0, 9.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_START_getInstance())]));
 }
 function kneePushUp$delegate$lambda$lambda(it) {
   _init_properties_Chest_kt__oxfldd_0();
@@ -19267,12 +19291,12 @@ function inclinePushUp$delegate$lambda() {
   var tmp = Support_TOES_getInstance();
   var tmp_0 = inclinePushUp$delegate$lambda$lambda;
   var p = pushUp(tmp, 0.0, benchTop, tmp_0, 0.0, inclinePushUp$delegate$lambda$lambda_0(benchTop));
-  var edgeX = chest_0(skeleton(p.f2c_1)).p1o_1;
+  var edgeX = chest_0(skeleton(p.i2c_1)).p1o_1;
   // Inline function 'kotlin.comparisons.maxOf' call
-  var b = p.g2c_1.p1o_1 - edgeX + 14.0;
+  var b = p.j2c_1.p1o_1 - edgeX + 14.0;
   var tmp$ret$0 = Math.max(30.0, b);
   var bench = new FlatBench(edgeX, tmp$ret$0);
-  return figure_3(View_SIDE_getInstance(), p.e2c_1, p.f2c_1, listOf([Floor_instance, bench]), 'Arms and body straight', 'Chest to the edge', Which_START_getInstance(), listOf(['Place your hands on the edge of a bench or platform, slightly wider than your shoulders.', 'Walk your feet back until your arms and body are straight.', 'Bend your arms to lower your chest to the edge.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_CHEST_getInstance(), Surface_BENCH_getInstance(), setOf_0(Which_END_getInstance()))]), listOf_0(new ElbowBend(0.0, 2.0, Which_START_getInstance())));
+  return figure_3(View_SIDE_getInstance(), p.h2c_1, p.i2c_1, listOf([Floor_instance, bench]), 'Arms and body straight', 'Chest to the edge', Which_START_getInstance(), listOf(['Place your hands on the edge of a bench or platform, slightly wider than your shoulders.', 'Walk your feet back until your arms and body are straight.', 'Bend your arms to lower your chest to the edge.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_CHEST_getInstance(), Surface_BENCH_getInstance(), setOf_0(Which_END_getInstance()))]), listOf_0(new ElbowBend(0.0, 2.0, Which_START_getInstance())));
 }
 function inclinePushUp$delegate$lambda$lambda(t) {
   _init_properties_Chest_kt__oxfldd_0();
@@ -19297,7 +19321,7 @@ function declinePushUp$delegate$lambda() {
   var tmp = declinePushUp$delegate$lambda$lambda;
   var p = pushUp(tmp0_support, benchTop, 0.0, tmp, tmp1_hand, declinePushUp$delegate$lambda$lambda_0, tmp2_neckEnd);
   var bench = new FlatBench(-22.0, 30.0);
-  return figure_3(View_SIDE_getInstance(), p.e2c_1, p.f2c_1, listOf([Floor_instance, bench]), 'Feet up on the bench', 'Go all the way down', Which_START_getInstance(), listOf(['Put your feet up on the bench and straighten your arms, with your body straight.', 'Bend your arms to lower your upper body. Keep your body straight.', 'Tip your head back slightly, so you can go all the way down without arching your back.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), listOf([new ChestOffFloor(4.0, 9.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_START_getInstance())]));
+  return figure_3(View_SIDE_getInstance(), p.h2c_1, p.i2c_1, listOf([Floor_instance, bench]), 'Feet up on the bench', 'Go all the way down', Which_START_getInstance(), listOf(['Put your feet up on the bench and straighten your arms, with your body straight.', 'Bend your arms to lower your upper body. Keep your body straight.', 'Tip your head back slightly, so you can go all the way down without arching your back.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), listOf([new ChestOffFloor(4.0, 9.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_START_getInstance())]));
 }
 function declinePushUp$delegate$lambda$lambda(it) {
   _init_properties_Chest_kt__oxfldd_0();
@@ -19307,7 +19331,7 @@ function declinePushUp$delegate$lambda$lambda_0(s) {
   _init_properties_Chest_kt__oxfldd_0();
   var tmp0 = -chest_0(s).q1o_1 - 6.0;
   // Inline function 'kotlin.comparisons.minOf' call
-  var b = -(s.p1q_1.q1o_1 + 10.0) - 1.0;
+  var b = -(s.q1q_1.q1o_1 + 10.0) - 1.0;
   return Math.min(tmp0, b);
 }
 function _get_declinePushUp_$ref_dej00b() {
@@ -19325,12 +19349,12 @@ function archerPushUp$delegate$lambda() {
   // Inline function 'kotlin.math.sin' call
   var x = offVertical / 57.29577951308232;
   var tmp$ret$0 = Math.sin(x);
-  var endNearX = nearW.v2a_1 - reach * tmp$ret$0;
+  var endNearX = nearW.y2a_1 - reach * tmp$ret$0;
   var tmp = reach * reach;
   // Inline function 'kotlin.let' call
-  var it = endNearX - nearW.v2a_1;
+  var it = endNearX - nearW.y2a_1;
   // Inline function 'kotlin.math.sqrt' call
-  var x_0 = tmp - it * it - nearW.x2a_1 * nearW.x2a_1;
+  var x_0 = tmp - it * it - nearW.a2b_1 * nearW.a2b_1;
   var endNearY = wristY - Math.sqrt(x_0);
   var endNear = new Point(endNearX, endNearY);
   var endFar = endNear.s1o(unit(tilt).t1o(2 * 18.0));
@@ -19536,7 +19560,7 @@ function pushUp$topArm($armAngle, $hand, zOut, armLen, torso) {
 }
 function pushUp$topWrist($support, $supportHeight, $armAngle, armDrawn, $hand, zOut, armLen, torso) {
   var s = skeleton(pronePose(torso, $support, $supportHeight, pushUp$topArm($armAngle, $hand, zOut, armLen, torso)));
-  return s.n1q_1.r1o(unit($armAngle(torso)).t1o(armDrawn));
+  return s.o1q_1.r1o(unit($armAngle(torso)).t1o(armDrawn));
 }
 function pushUp$lambda($hand, $scale, $handsHeight, $support, $supportHeight, $armAngle, $armDrawn, $zOut, $armLen) {
   return function (t) {
@@ -19789,6 +19813,35 @@ function get_STRIDE_CONTACTS() {
   return STRIDE_CONTACTS;
 }
 var STRIDE_CONTACTS;
+function get_CARRY_PELVIS() {
+  _init_properties_Core_kt__txxmtb_0();
+  return CARRY_PELVIS;
+}
+var CARRY_PELVIS;
+function get_CARRY_STANCE() {
+  _init_properties_Core_kt__txxmtb_0();
+  return CARRY_STANCE;
+}
+var CARRY_STANCE;
+function get_CARRY_SWING() {
+  _init_properties_Core_kt__txxmtb_0();
+  return CARRY_SWING;
+}
+var CARRY_SWING;
+function get_CARRY_ARM() {
+  _init_properties_Core_kt__txxmtb_0();
+  var tmp0 = CARRY_ARM$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('CARRY_ARM', 0, tmp, _get_CARRY_ARM_$ref_hw6rso(), null);
+  return tmp0.t();
+}
+var CARRY_ARM$delegate;
+function get_FRONT_CARRY_CONTACTS() {
+  _init_properties_Core_kt__txxmtb_0();
+  return FRONT_CARRY_CONTACTS;
+}
+var FRONT_CARRY_CONTACTS;
 function get_farmersWalk() {
   _init_properties_Core_kt__txxmtb_0();
   var tmp0 = farmersWalk$delegate;
@@ -19842,7 +19895,7 @@ function armAt(world, torso, elbow) {
 }
 function bentLegs(pelvis, torso) {
   _init_properties_Core_kt__txxmtb_0();
-  return Reach_instance.y1q(pelvis, new Point(get_SUPINE_PELVIS().p1o_1 + 58.0, -6.825), torso, 0.0);
+  return Reach_instance.a1r(pelvis, new Point(get_SUPINE_PELVIS().p1o_1 + 58.0, -6.825), torso, 0.0);
 }
 function handBehindHead(pose, elbowForward) {
   elbowForward = elbowForward === VOID ? 0.0 : elbowForward;
@@ -19850,8 +19903,8 @@ function handBehindHead(pose, elbowForward) {
   var s = skeleton(pose);
   var back = unit(pose.p1p_1 - pose.q1p_1 + 90.0);
   var headDir = unit(pose.p1p_1 - pose.q1p_1);
-  var grip = s.p1q_1.r1o(back.t1o(4.0)).s1o(headDir.t1o(2.0));
-  var sh = v3(s.n1q_1, 18.0);
+  var grip = s.q1q_1.r1o(back.t1o(4.0)).s1o(headDir.t1o(2.0));
+  var sh = v3(s.o1q_1, 18.0);
   var g = v3(grip, 10.0 * 0.6);
   var toKnee = unit(pose.p1p_1 + 180.0);
   var hint = new V3(toKnee.p1o_1 * elbowForward + headDir.p1o_1 * 0.3, toKnee.q1o_1 * elbowForward + headDir.q1o_1 * 0.3, 1.0);
@@ -19871,21 +19924,7 @@ function kneel(thighWorld, torso) {
 }
 function ropeGrip(s, torso, neck) {
   _init_properties_Core_kt__txxmtb_0();
-  return s.p1q_1.r1o(unit(torso - neck - 90.0).t1o(6.0)).s1o(unit(torso - neck).t1o(4.0));
-}
-function leverPivot_0(a, b, x) {
-  _init_properties_Core_kt__txxmtb_0();
-  var m = a.r1o(b).t1o(0.5);
-  var d = b.s1o(a);
-  var tmp;
-  // Inline function 'kotlin.math.abs' call
-  var x_0 = d.q1o_1;
-  if (Math.abs(x_0) < 1.0E-9) {
-    tmp = new Point(x, m.q1o_1 - 40.0);
-  } else {
-    tmp = new Point(x, m.q1o_1 - (x - m.p1o_1) * d.p1o_1 / d.q1o_1);
-  }
-  return tmp;
+  return s.q1q_1.r1o(unit(torso - neck - 90.0).t1o(6.0)).s1o(unit(torso - neck).t1o(4.0));
 }
 function stand_0(knee) {
   knee = knee === VOID ? 0.0 : knee;
@@ -19893,14 +19932,18 @@ function stand_0(knee) {
   return standingLeg(0.0, knee * 0.5, knee, 90.0);
 }
 function Stride(pelvis, front, back) {
-  this.h2c_1 = pelvis;
-  this.i2c_1 = front;
-  this.j2c_1 = back;
+  this.k2c_1 = pelvis;
+  this.l2c_1 = front;
+  this.m2c_1 = back;
 }
 function striding(near, far) {
   far = far === VOID ? near : far;
   _init_properties_Core_kt__txxmtb_0();
-  return new Pose(get_stride().h2c_1.p1o_1, get_stride().h2c_1.q1o_1, 90.0, VOID, near, get_stride().i2c_1, far, get_stride().j2c_1);
+  return new Pose(get_stride().k2c_1.p1o_1, get_stride().k2c_1.q1o_1, 90.0, VOID, near, get_stride().l2c_1, far, get_stride().m2c_1);
+}
+function frontCarry(far, farArm) {
+  _init_properties_Core_kt__txxmtb_0();
+  return new Pose(get_CARRY_PELVIS().p1o_1, get_CARRY_PELVIS().q1o_1, 90.0, VOID, get_CARRY_ARM(), get_CARRY_STANCE(), farArm, far);
 }
 function floorCrunch$delegate$lambda() {
   _init_properties_Core_kt__txxmtb_0();
@@ -19909,8 +19952,8 @@ function floorCrunch$delegate$lambda() {
 function invoke$pose_19(torso, neck) {
   var bare = new Pose(get_SUPINE_PELVIS().p1o_1, get_SUPINE_PELVIS().q1o_1, torso, neck, get_HANG_2(), bentLegs(get_SUPINE_PELVIS(), torso));
   // Inline function 'kotlin.let' call
-  var it = bare.z1p(VOID, VOID, VOID, VOID, handBehindHead(bare));
-  return it.z1p(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
+  var it = bare.a1q(VOID, VOID, VOID, VOID, handBehindHead(bare));
+  return it.a1q(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
 }
 function _get_floorCrunch_$ref_tjr3k7() {
   return constructCallableReference(function () {
@@ -19922,11 +19965,11 @@ function bicycleCrunch$delegate$lambda() {
   var torso = 180.0 - 30.0;
   var inLeg = new Leg(fold180(100.0 - torso - 180.0), 90.0, -15.0);
   var outLeg = new Leg(fold180(30.0 - torso - 180.0), 0.0, -25.0);
-  return figure_4(View_SIDE_getInstance(), invoke$pose_20(torso, inLeg, outLeg, false), invoke$pose_20(torso, inLeg, outLeg, true), listOf_0(Floor_instance), 'Elbow to opposite knee', 'Switch sides', Which_START_getInstance(), listOf(['Lift both feet until your thighs are upright, with your knees bent to about 90 degrees.', 'Curl your upper body up and turn it so one elbow moves toward the opposite knee, while you straighten your other leg.', 'Switch sides, bringing the other elbow toward the other knee.']), listOf_0(new Contact(BodyPoint_HIPS_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), emptyList());
+  return figure_4(View_SIDE_getInstance(), invoke$pose_20(torso, inLeg, outLeg, false), invoke$pose_20(torso, inLeg, outLeg, true), listOf_0(Floor_instance), 'Straighten other leg', 'Switch sides', Which_START_getInstance(), listOf(['Lift both feet until your thighs are upright, with your knees bent to about 90 degrees.', 'Curl your upper body up and turn it so one elbow moves toward the opposite knee, while you straighten your other leg.', 'Switch sides, bringing the other elbow toward the other knee.']), listOf_0(new Contact(BodyPoint_HIPS_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), emptyList());
 }
 function invoke$pose_20(torso, inLeg, outLeg, nearIn) {
   var bare = new Pose(get_SUPINE_PELVIS().p1o_1, get_SUPINE_PELVIS().q1o_1, torso, 15.0, get_HANG_2(), nearIn ? inLeg : outLeg, VOID, nearIn ? outLeg : inLeg);
-  return bare.z1p(VOID, VOID, VOID, VOID, handBehindHead(bare, nearIn ? 0.0 : 1.2), VOID, handBehindHead(bare, nearIn ? 1.2 : 0.0));
+  return bare.a1q(VOID, VOID, VOID, VOID, handBehindHead(bare, nearIn ? 0.0 : 1.2), VOID, handBehindHead(bare, nearIn ? 1.2 : 0.0));
 }
 function _get_bicycleCrunch_$ref_3ht4ng() {
   return constructCallableReference(function () {
@@ -19936,7 +19979,7 @@ function _get_bicycleCrunch_$ref_3ht4ng() {
 function reverseCrunch$delegate$lambda() {
   _init_properties_Core_kt__txxmtb_0();
   var shoulder = shoulderOf(get_SUPINE_PELVIS(), 180.0);
-  return figure_4(View_SIDE_getInstance(), invoke$pose_21(shoulder, 0.0, 90.0), invoke$pose_21(shoulder, 9.0, 125.0), listOf_0(Floor_instance), 'Knees over your hips', 'Roll your hips up', Which_END_getInstance(), listOf(['Lie on your back with your feet off the floor and your knees over your hips, bent to about 90 degrees.', 'Breathe out and roll your hips up off the floor toward your ribs. Keep the same bend in your knees.']), listOf([new Contact(BodyPoint_HEAD_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))]), emptyList());
+  return figure_4(View_SIDE_getInstance(), invoke$pose_21(shoulder, 0.0, 90.0), invoke$pose_21(shoulder, 14.0, 125.0), listOf_0(Floor_instance), 'Knees over your hips', 'Roll your hips up', Which_END_getInstance(), listOf(['Lie on your back with your feet off the floor and your knees over your hips, bent to about 90 degrees.', 'Breathe out and roll your hips up off the floor toward your ribs. Keep the same bend in your knees.']), listOf([new Contact(BodyPoint_HEAD_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))]), emptyList());
 }
 function invoke$pose_21(shoulder, rise, thighWorld) {
   // Inline function 'kotlin.math.asin' call
@@ -19969,21 +20012,21 @@ function invoke$base(up, table, torso, near, far) {
 function deadBug$delegate$lambda$lambda($up, $table, $torso) {
   return function (w) {
     // Inline function 'kotlin.let' call
-    var it = skeleton(invoke$base($up, $table, $torso, new Arm(180.0, 0.0, w))).q1q_1;
-    var tmp0 = it.c1q_1.q1o_1;
+    var it = skeleton(invoke$base($up, $table, $torso, new Arm(180.0, 0.0, w))).r1q_1;
+    var tmp0 = it.d1q_1.q1o_1;
     // Inline function 'kotlin.comparisons.maxOf' call
-    var b = it.d1q_1.q1o_1;
+    var b = it.e1q_1.q1o_1;
     return -Math.max(tmp0, b) - 6.0 / 2 - 2.0;
   };
 }
 function deadBug$delegate$lambda$lambda_0($torso, $up, $table) {
   return function (w) {
     // Inline function 'kotlin.let' call
-    var it = skeleton(invoke$base($up, $table, $torso, VOID, new Leg(fold180(w - $torso - 180.0), 0.0, 0.0))).r1q_1;
-    var tmp0 = it.i1q_1.q1o_1;
-    var tmp2 = it.j1q_1.q1o_1;
+    var it = skeleton(invoke$base($up, $table, $torso, VOID, new Leg(fold180(w - $torso - 180.0), 0.0, 0.0))).s1q_1;
+    var tmp0 = it.j1q_1.q1o_1;
+    var tmp2 = it.k1q_1.q1o_1;
     // Inline function 'kotlin.comparisons.maxOf' call
-    var c = it.h1q_1.q1o_1;
+    var c = it.i1q_1.q1o_1;
     return -Math.max(tmp0, tmp2, c) - 7.0 / 2 - 2.0;
   };
 }
@@ -20019,7 +20062,7 @@ function invoke$plank(arm, theta, shoulder) {
 }
 function frontPlank$delegate$lambda$lambda_0($sh, $arm) {
   return function (t) {
-    return skeleton(invoke$plank($arm, t, $sh)).q1q_1.j1q_1.q1o_1 + 7.0 / 2;
+    return skeleton(invoke$plank($arm, t, $sh)).r1q_1.k1q_1.q1o_1 + 7.0 / 2;
   };
 }
 function invoke$lying(lowPelvis, lowArm, legUp) {
@@ -20027,7 +20070,7 @@ function invoke$lying(lowPelvis, lowArm, legUp) {
 }
 function frontPlank$delegate$lambda$lambda_1($lowPelvis, $lowArm) {
   return function (u) {
-    return skeleton(invoke$lying($lowPelvis, $lowArm, u)).q1q_1.j1q_1.q1o_1 + 7.0 / 2;
+    return skeleton(invoke$lying($lowPelvis, $lowArm, u)).r1q_1.k1q_1.q1o_1 + 7.0 / 2;
   };
 }
 function _get_frontPlank_$ref_57av35() {
@@ -20067,7 +20110,7 @@ function sidePlank$delegate$lambda$stacked$lambda($pelvis, $torso, $bottomHip, $
   return function (h) {
     // Inline function 'kotlin.let' call
     var it = skeleton(invoke$pose_22($topArm, $pelvis, $torso, $bottomHip, h, $out), $view);
-    return it.r1q_1.h1q_1.q1o_1 - it.q1q_1.h1q_1.q1o_1 - 11.0;
+    return it.s1q_1.i1q_1.q1o_1 - it.r1q_1.i1q_1.q1o_1 - 11.0;
   };
 }
 function invoke$bottomArm(torso, out) {
@@ -20077,10 +20120,10 @@ function invoke$pose_22(topArm, pelvis, torso, bottomHip, topHip, out) {
   return new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, topArm, new Leg(topHip, 0.0), invoke$bottomArm(torso, out), new Leg(bottomHip, 0.0));
 }
 function invoke$lowest(l) {
-  var tmp0 = l.h1q_1.q1o_1 + 11.0 / 2;
-  var tmp2 = l.i1q_1.q1o_1 + 7.0 / 2;
+  var tmp0 = l.i1q_1.q1o_1 + 11.0 / 2;
+  var tmp2 = l.j1q_1.q1o_1 + 7.0 / 2;
   // Inline function 'kotlin.comparisons.maxOf' call
-  var c = l.j1q_1.q1o_1 + 7.0 / 2;
+  var c = l.k1q_1.q1o_1 + 7.0 / 2;
   return Math.max(tmp0, tmp2, c);
 }
 function invoke$bottomShoulder(pelvis, torso) {
@@ -20097,7 +20140,7 @@ function invoke$stacked(elbowY, view, topArm, pelvis, torso, bottomHip) {
   var top = solveAngle(tmp, 40.0, sidePlank$delegate$lambda$stacked$lambda(pelvis, torso, bottomHip, out, view, topArm));
   var p = invoke$pose_22(topArm, pelvis, torso, bottomHip, top, out);
   var dx = -invoke$bottomShoulder(pelvis, torso).p1o_1;
-  return p.z1p(p.n1p_1 + dx);
+  return p.a1q(p.n1p_1 + dx);
 }
 function invoke$lineAt(elbowY, t) {
   var sh = (new Point(0.0, elbowY - Segment_UPPER_ARM_getInstance().a())).r1o(unit(t - 90.0).t1o(18.0));
@@ -20105,7 +20148,7 @@ function invoke$lineAt(elbowY, t) {
 }
 function sidePlank$delegate$lambda$lambda($view, $elbowY, $topArm) {
   return function (t) {
-    return invoke$lowest(skeleton(invoke$pose_22($topArm, invoke$lineAt($elbowY, t), t, 0.0, 0.0, 0.0), $view).r1q_1);
+    return invoke$lowest(skeleton(invoke$pose_22($topArm, invoke$lineAt($elbowY, t), t, 0.0, 0.0, 0.0), $view).s1q_1);
   };
 }
 function invoke$hipsOnFloor(t) {
@@ -20114,12 +20157,12 @@ function invoke$hipsOnFloor(t) {
 }
 function sidePlank$delegate$lambda$lambda_0($sg, $hipsDown, $view, $topArm) {
   return function (t) {
-    return invoke$lowest(skeleton(invoke$pose_22($topArm, invoke$hipsOnFloor(t), t, $sg * $hipsDown, 0.0, 0.0), $view).r1q_1);
+    return invoke$lowest(skeleton(invoke$pose_22($topArm, invoke$hipsOnFloor(t), t, $sg * $hipsDown, 0.0, 0.0), $view).s1q_1);
   };
 }
 function sidePlank$delegate$lambda$lambda_1($bottomSign, $hipsDown, $view, $topArm) {
   return function (t) {
-    return invoke$lowest(skeleton(invoke$pose_22($topArm, invoke$hipsOnFloor(t), t, $bottomSign * $hipsDown, 0.0, 0.0), $view).r1q_1);
+    return invoke$lowest(skeleton(invoke$pose_22($topArm, invoke$hipsOnFloor(t), t, $bottomSign * $hipsDown, 0.0, 0.0), $view).s1q_1);
   };
 }
 function _get_sidePlank_$ref_9b61m3() {
@@ -20161,7 +20204,7 @@ function birdDog$delegate$lambda() {
   var elbow = tmp$ret$3;
   var start = invoke$handsDown(hipP, invoke$tilt(hipP, elbow), elbow, invoke$upperFor(elbow));
   var t = start.p1p_1;
-  var end = start.z1p(VOID, VOID, VOID, VOID, armAt(0.0, t), VOID, start.r1p_1, new Leg(fold180(180.0 - t - 180.0), 0.0, -30.0));
+  var end = start.a1q(VOID, VOID, VOID, VOID, armAt(0.0, t), VOID, start.r1p_1, new Leg(fold180(180.0 - t - 180.0), 0.0, -30.0));
   return figure_4(View_SIDE_getInstance(), start, end, listOf_0(Floor_instance), 'Hands and knees', 'Opposite arm and leg', Which_END_getInstance(), listOf(['Get on your hands and knees, knees and feet hip-width apart.', 'Raise one leg and the opposite arm toward level with the floor. Raise them only as high as you can keep your lower back still.']), listOf([new Contact(BodyPoint_NEAR_KNEE_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_KNEE_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance())), new Contact(BodyPoint_HANDS_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance())), new Contact(BodyPoint_FAR_HAND_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_END_getInstance()))]), emptyList());
 }
 function birdDog$delegate$lambda$upperFor$lambda($elbow) {
@@ -20178,10 +20221,10 @@ function birdDog$delegate$lambda$upperFor$lambda($elbow) {
 }
 function birdDog$delegate$lambda$tilt$lambda($elbow, $upper, $hipP) {
   return function (t) {
-    var n = skeleton(invoke$handsDown($hipP, t, $elbow, $upper)).q1q_1;
-    var tmp0 = n.c1q_1.q1o_1;
+    var n = skeleton(invoke$handsDown($hipP, t, $elbow, $upper)).r1q_1;
+    var tmp0 = n.d1q_1.q1o_1;
     // Inline function 'kotlin.comparisons.maxOf' call
-    var b = n.d1q_1.q1o_1;
+    var b = n.e1q_1.q1o_1;
     return -(Math.max(tmp0, b) + 6.0 / 2);
   };
 }
@@ -20214,7 +20257,7 @@ function abWheelRollout$delegate$lambda() {
   var alpha = Math.acos(x) * 57.29577951308232;
   var hip0 = kneeP.r1o(unit(angleTo(d) + alpha).t1o(Segment_THIGH_getInstance().a()));
   var t0 = angleTo(sh0.s1o(hip0));
-  var start = new Pose(hip0.p1o_1, hip0.q1o_1, t0, VOID, Reach_instance.x1q(sh0, wheel0, t0, 60.0), kneel(angleTo(kneeP.s1o(hip0)), t0));
+  var start = new Pose(hip0.p1o_1, hip0.q1o_1, t0, VOID, Reach_instance.z1q(sh0, wheel0, t0, 60.0), kneel(angleTo(kneeP.s1o(hip0)), t0));
   var hip1 = kneeP.r1o(unit(20.0).t1o(Segment_THIGH_getInstance().a()));
   var sh1 = shoulderOf(hip1, 20.0);
   var bend = 5.0;
@@ -20223,7 +20266,7 @@ function abWheelRollout$delegate$lambda() {
   var x_0 = reach * reach - (wheel0.q1o_1 - sh1.q1o_1) * (wheel0.q1o_1 - sh1.q1o_1);
   var tmp$ret$1 = Math.sqrt(x_0);
   var wheel1 = new Point(sh1.p1o_1 + tmp$ret$1, wheel0.q1o_1);
-  var end = new Pose(hip1.p1o_1, hip1.q1o_1, 20.0, VOID, Reach_instance.x1q(sh1, wheel1, 20.0, 40.0), kneel(20.0 + 180.0, 20.0));
+  var end = new Pose(hip1.p1o_1, hip1.q1o_1, 20.0, VOID, Reach_instance.z1q(sh1, wheel1, 20.0, 40.0), kneel(20.0 + 180.0, 20.0));
   return figure_4(View_SIDE_getInstance(), start, end, listOf([Floor_instance, AbWheel_instance]), 'Wheel near your knees', 'Stop before hips sag', Which_END_getInstance(), listOf(["Kneel on the floor and hold the wheel's handles.", 'Put the wheel on the floor near the front of your knees, arms straight.', 'Roll the wheel forward, lowering your body toward the floor.', 'Stop before your hips start to sag or your lower back starts to arch.']), listOf_0(new Contact(BodyPoint_KNEES_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), emptyList());
 }
 function invoke$armReach(g, w) {
@@ -20307,15 +20350,15 @@ function cableCrunch$delegate$lambda() {
   var hipP = kneeP.r1o(new Point(0.0, -Segment_THIGH_getInstance().a()));
   var start = invoke$pose_23(hipP, 75.0, 5.0);
   var end = invoke$pose_23(hipP, 25.0, 20.0);
-  var stack = new CableStack(kneeP.p1o_1 + 75.0, 190.0, -45.0);
+  var stack = new CableStack(kneeP.p1o_1 + 95.0, 190.0, -65.0);
   return figure_4(View_SIDE_getInstance(), start, end, listOf([Floor_instance, stack, new CableAttachment(Attachment_ROPE_getInstance())]), 'Rope by your head', 'Elbows toward thighs', Which_END_getInstance(), listOf(['Set a rope on a high pulley.', 'Kneel below the pulley and hold the rope with both hands.', 'Keep your hips still and curl your trunk down, bringing your elbows toward your thighs.']), listOf_0(new Contact(BodyPoint_KNEES_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), emptyList());
 }
 function invoke$pose_23(hipP, torso, neck) {
   var bare = new Pose(hipP.p1o_1, hipP.q1o_1, torso, neck, get_HANG_2(), kneel(270.0, torso));
   var s = skeleton(bare);
   // Inline function 'kotlin.let' call
-  var it = bare.z1p(VOID, VOID, VOID, VOID, armTo(s.n1q_1, ropeGrip(s, torso, neck), torso));
-  return it.z1p(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
+  var it = bare.a1q(VOID, VOID, VOID, VOID, armTo(s.o1q_1, ropeGrip(s, torso, neck), torso));
+  return it.a1q(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
 }
 function _get_cableCrunch_$ref_i6nd9y() {
   return constructCallableReference(function () {
@@ -20330,24 +20373,24 @@ function machineCrunch$delegate$lambda() {
   var start = invoke$pose_24(pelvis, leg, 90.0, 0.0);
   var end = invoke$pose_24(pelvis, leg, 45.0, 15.0);
   var hipPadX = pelvis.p1o_1 - 10.0;
-  var pivot = leverPivot_0(invoke$pad_2(skeleton(start)), invoke$pad_2(skeleton(end)), pelvis.p1o_1 - 30.0);
+  var pivot = pelvis;
   return figure_4(View_SIDE_getInstance(), start, end, listOf([Floor_instance, invoke$machine_3(pelvis, seatH, hipPadX, pivot, start)]), 'Chest level with pad', 'Curl into a C shape', Which_END_getInstance(), listOf(['Set the seat so your chest is level with the pad.', 'Put your hands on the outside of the pad.', 'Keep your hips still and curl your trunk forward and down into a C shape.']), listOf([new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_HIP_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), emptyList(), listOf([Floor_instance, invoke$machine_3(pelvis, seatH, hipPadX, pivot, end)]));
 }
 function machineCrunch$delegate$lambda$lambda($pelvis) {
   return function (torso) {
-    return Reach_instance.y1q($pelvis, new Point($pelvis.p1o_1 + Segment_THIGH_getInstance().a(), -6.825), torso, 0.0);
+    return Reach_instance.a1r($pelvis, new Point($pelvis.p1o_1 + Segment_THIGH_getInstance().a(), -6.825), torso, 0.0);
   };
 }
 function invoke$pad_2(s) {
-  return upperChest(s).r1o(unit(s.l1q_1 - 90.0).t1o(7.0));
+  return upperChest(s).r1o(unit(s.m1q_1 - 90.0).t1o(7.0));
 }
 function invoke$pose_24(pelvis, leg, torso, neck) {
   var bare = new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, neck, get_HANG_2(), leg(torso));
   var s = skeleton(bare);
-  var grip = invoke$pad_2(s).r1o(unit(s.l1q_1 - 90.0).t1o(7.0 - 2.0)).r1o(unit(s.l1q_1).t1o(3.0));
+  var grip = invoke$pad_2(s).r1o(unit(s.m1q_1 - 90.0).t1o(7.0 - 2.0)).r1o(unit(s.m1q_1).t1o(3.0));
   // Inline function 'kotlin.let' call
-  var it = bare.z1p(VOID, VOID, VOID, VOID, armTo(s.n1q_1, grip, torso));
-  return it.z1p(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
+  var it = bare.a1q(VOID, VOID, VOID, VOID, armTo(s.o1q_1, grip, torso));
+  return it.a1q(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
 }
 function invoke$machine_3(pelvis, seatH, hipPadX, pivot, p) {
   return new CrunchMachine(pelvis.p1o_1 + 25.0, seatH, hipPadX, new Point(pelvis.p1o_1 + Segment_THIGH_getInstance().a() - 12.0, -5.0 - 1.0), pivot, invoke$pad_2(skeleton(p)));
@@ -20363,7 +20406,7 @@ function pallofPress$delegate$lambda() {
   var bare = skeleton(standOn(leg, 90.0, get_HANG_2()));
   var chest = chest_0(bare);
   var atChest = chest.r1o(new Point(6.0, 0.0));
-  var sh = bare.n1q_1;
+  var sh = bare.o1q_1;
   // Inline function 'kotlin.math.sqrt' call
   var x = get_ARM_REACH() * get_ARM_REACH() - (chest.q1o_1 - sh.q1o_1) * (chest.q1o_1 - sh.q1o_1);
   var tmp$ret$0 = Math.sqrt(x);
@@ -20388,39 +20431,46 @@ function cableWoodchop$delegate$lambda() {
   var tmp$ret$0 = Math.cos(x);
   var pelvis = new Point(0.0, -(6.825 + legLen * tmp$ret$0));
   var legs = new Leg(apart, 0.0);
-  var bare = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, 90.0, VOID, get_HANG_2(), legs), view);
-  var nearSh = bare.q1q_1.a1q_1;
-  var farSh = bare.r1q_1.a1q_1;
-  var high = new Point(pelvis.p1o_1 + 6.0, nearSh.q1o_1 - 42.0);
-  var low = new Point(pelvis.p1o_1 - 6.0, bare.r1q_1.f1q_1.q1o_1);
-  var start = invoke$pose_25(pelvis, legs, farSh, nearSh, high);
-  var end = invoke$pose_25(pelvis, legs, farSh, nearSh, low);
-  var stack = new CableStack(nearSh.p1o_1 + 75.0, -nearSh.q1o_1, -12.0, VOID, VOID, true);
-  return figure_4(view, start, end, listOf([Floor_instance, stack, new CableHandle(Side_NEAR_getInstance())]), 'High on the near side', 'Down toward far hip', Which_END_getInstance(), listOf(['Set a single handle on a cable at shoulder height.', 'Stand side-on to the machine, feet wider than shoulder-width.', 'Hold the handle with both hands, fingers laced and arms straight.', 'At the same time, sweep the handle from above your near shoulder down toward your far hip.']), get_FEET_DOWN_0(), emptyList());
-}
-function invoke$armsTo(farSh, nearSh, pelvis, p) {
-  var tmp0 = p.s1o(farSh).u1o();
-  // Inline function 'kotlin.comparisons.maxOf' call
-  var b = p.s1o(nearSh).u1o();
-  var far = Math.max(tmp0, b);
-  // Inline function 'kotlin.comparisons.maxOf' call
-  var a = get_ARM_REACH() * get_ARM_REACH() * 0.997 - far * far;
+  var tmp = Segment_UPPER_ARM_getInstance().a() * Segment_UPPER_ARM_getInstance().a() + get_FORE_LINK() * get_FORE_LINK();
+  var tmp_0 = 2 * Segment_UPPER_ARM_getInstance().a() * get_FORE_LINK();
+  // Inline function 'kotlin.math.cos' call
+  var x_0 = 8.0 / 57.29577951308232;
   // Inline function 'kotlin.math.sqrt' call
-  var x = Math.max(a, 0.0);
-  var z = Math.sqrt(x);
-  var g = v3(p, z);
+  var x_1 = tmp + tmp_0 * Math.cos(x_0);
+  var reach = Math.sqrt(x_1) - 1.0E-6;
   var hint = new V3(0.0, 0.0, -1.0);
-  var near = arm3(v3(nearSh, 0.0), g, hint, 90.0);
-  var axis = pelvis.p1o_1;
-  var farArm = arm3(mirror(v3(farSh, 0.0), axis), mirror(g, axis), hint, 90.0);
-  return to(near, farArm);
+  var shoulderY = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, 90.0, VOID, get_HANG_2(), legs), view).r1q_1.b1q_1.q1o_1;
+  var start = invoke$pose_25(pelvis, legs, view, hint, reach, 30.0, shoulderY - 35.0);
+  var end = invoke$pose_25(pelvis, legs, view, hint, reach, -30.0, pelvis.q1o_1);
+  var stack = new CableStack(pelvis.p1o_1 + 18.0 + 75.0, -shoulderY, -12.0, VOID, VOID, true);
+  return figure_4(view, start, end, listOf([Floor_instance, stack, new CableHandle(Side_NEAR_getInstance())]), 'Above your near shoulder', 'Down to your far hip', Which_END_getInstance(), listOf(['Set a single handle on a cable at shoulder height.', 'Stand side-on to the machine, feet wider than shoulder-width.', 'Hold the handle with both hands, fingers laced and arms straight.', 'At the same time, sweep the handle from above your near shoulder down toward your far hip.']), get_FEET_DOWN_0(), emptyList());
 }
-function invoke$pose_25(pelvis, legs, farSh, nearSh, p) {
-  // Inline function 'kotlin.let' call
-  var destruct = invoke$armsTo(farSh, nearSh, pelvis, p);
-  var n = destruct.ya();
-  var f = destruct.za();
-  return new Pose(pelvis.p1o_1, pelvis.q1o_1, 90.0, VOID, n, legs, f);
+function invoke$pose$grip(pelvis, r, $y, z) {
+  // Inline function 'kotlin.math.tan' call
+  var tmp$ret$0 = Math.tan(r);
+  return new V3(pelvis.p1o_1 + z * tmp$ret$0, $y, z);
+}
+function cableWoodchop$delegate$lambda$pose$lambda($nearSh, $reach, $pelvis, $r, $y) {
+  return function (zz) {
+    return invoke$pose$grip($pelvis, $r, $y, zz).d2c($nearSh).u1o() - $reach;
+  };
+}
+function invoke$pose_25(pelvis, legs, view, hint, reach, turn, y) {
+  var bare = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, 90.0, VOID, get_HANG_2(), legs, VOID, VOID, VOID, VOID, VOID, turn), view);
+  var r = turn / 57.29577951308232;
+  var tmp = -18.0;
+  // Inline function 'kotlin.math.sin' call
+  var tmp$ret$0 = Math.sin(r);
+  var nearSh = v3(bare.r1q_1.b1q_1, tmp * tmp$ret$0);
+  // Inline function 'kotlin.math.sin' call
+  var tmp$ret$1 = Math.sin(r);
+  var farSh = v3(bare.s1q_1.b1q_1, 18.0 * tmp$ret$1);
+  var z = solveAngle(0.0, 70.0, cableWoodchop$delegate$lambda$pose$lambda(nearSh, reach, pelvis, r, y));
+  var g = invoke$pose$grip(pelvis, r, y, z);
+  var axis = pelvis.p1o_1;
+  var near = arm3(nearSh, g, hint, 90.0);
+  var far = arm3(mirror(farSh, axis), mirror(g, axis), hint, 90.0);
+  return new Pose(pelvis.p1o_1, pelvis.q1o_1, 90.0, VOID, near, legs, far, VOID, VOID, VOID, VOID, turn);
 }
 function _get_cableWoodchop_$ref_b8s2i8() {
   return constructCallableReference(function () {
@@ -20442,7 +20492,7 @@ function stride$delegate$lambda() {
   var tmp_0 = -1.0;
   var backX = solveAngle(tmp, tmp_0, stride$delegate$lambda$lambda(backFoot, pelvis, r));
   var back = invoke$ankleAt(r, backX, backFoot);
-  return new Stride(pelvis, Reach_instance.y1q(pelvis, front, 90.0, frontFoot), Reach_instance.y1q(pelvis, back, 90.0, backFoot));
+  return new Stride(pelvis, Reach_instance.a1r(pelvis, front, 90.0, frontFoot), Reach_instance.a1r(pelvis, back, 90.0, backFoot));
 }
 function stride$delegate$lambda$ankleAt$lambda($x, $foot, $r) {
   return function (y) {
@@ -20491,40 +20541,41 @@ function _get_tall_$ref_4a7zkj_0() {
     return get_tall_0();
   }, 0, 0, 180);
 }
+function CARRY_ARM$delegate$lambda() {
+  _init_properties_Core_kt__txxmtb_0();
+  var abduct = solveAngle(0.0, 30.0, CARRY_ARM$delegate$lambda$lambda);
+  return new Arm(abduct, 0.0);
+}
+function CARRY_ARM$delegate$lambda$lambda(a) {
+  _init_properties_Core_kt__txxmtb_0();
+  var s = skeleton(new Pose(get_CARRY_PELVIS().p1o_1, get_CARRY_PELVIS().q1o_1, 90.0, VOID, new Arm(a, 0.0), get_CARRY_STANCE()), View_FRONT_getInstance());
+  return s.r1q_1.f1q_1.p1o_1 - 10.0 - (s.r1q_1.g1q_1.p1o_1 + 14.0 / 2) - 1.5;
+}
+function _get_CARRY_ARM_$ref_hw6rso() {
+  return constructCallableReference(function () {
+    return get_CARRY_ARM();
+  }, 0, 0, 181);
+}
 function farmersWalk$delegate$lambda() {
   _init_properties_Core_kt__txxmtb_0();
-  var props = listOf([Floor_instance, new Dumbbell(Side_FAR_getInstance(), true, VOID, true), new Dumbbell(Side_NEAR_getInstance(), true, VOID, true)]);
-  return figure_4(View_SIDE_getInstance(), standOn(get_tall_0(), 90.0, get_HANG_2()), striding(get_HANG_2()), props, 'Arms straight at sides', 'Back upright, head up', Which_END_getInstance(), listOf(['Stand tall with your arms straight at your sides.', 'Walk a set distance, keeping your back upright and your head up.', 'Walk slowly and under control.']), get_STRIDE_CONTACTS(), emptyList());
+  var props = listOf([Floor_instance, new Dumbbell(Side_FAR_getInstance(), VOID, true), new Dumbbell(Side_NEAR_getInstance(), VOID, true)]);
+  return figure_4(View_FRONT_getInstance(), frontCarry(get_CARRY_STANCE(), get_CARRY_ARM()), frontCarry(get_CARRY_SWING(), get_CARRY_ARM()), props, 'Arms straight at sides', 'Back upright, head up', Which_END_getInstance(), listOf(['Stand tall with your arms straight at your sides.', 'Walk a set distance, keeping your back upright and your head up.', 'Walk slowly and under control.']), get_FRONT_CARRY_CONTACTS(), emptyList());
 }
 function _get_farmersWalk_$ref_x77byf() {
   return constructCallableReference(function () {
     return get_farmersWalk();
-  }, 0, 0, 181);
+  }, 0, 0, 182);
 }
 function suitcaseCarry$delegate$lambda() {
   _init_properties_Core_kt__txxmtb_0();
-  var view = View_FRONT_getInstance();
-  var pelvis = new Point(0.0, -(6.825 + Segment_THIGH_getInstance().a() + Segment_SHIN_getInstance().a()));
-  var stance = new Leg(0.0, 0.0);
-  var abduct = solveAngle(0.0, 30.0, suitcaseCarry$delegate$lambda$lambda(stance, view, pelvis));
-  var arm = new Arm(abduct, 0.0);
-  var swing = new Leg(0.0, 40.0, VOID, 25.0, -15.0);
   var props = listOf([Floor_instance, new Dumbbell(Side_NEAR_getInstance(), VOID, true)]);
-  return figure_4(view, invoke$posed(pelvis, stance, stance, arm), invoke$posed(pelvis, stance, swing, arm), props, 'Arm hangs straight', 'Stay upright', Which_END_getInstance(), listOf(['Lift it in one hand with an overhand grip, keeping your back straight.', 'Let the arm hang straight, without the weight touching your body.', 'Walk a set distance, keeping your torso upright.', 'Walk slowly and under control.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance())), new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), emptyList());
-}
-function invoke$posed(pelvis, stance, far, arm) {
-  return new Pose(pelvis.p1o_1, pelvis.q1o_1, 90.0, VOID, arm, stance, new Arm(4.0, 0.0), far);
-}
-function suitcaseCarry$delegate$lambda$lambda($stance, $view, $pelvis) {
-  return function (a) {
-    var s = skeleton(invoke$posed($pelvis, $stance, $stance, new Arm(a, 0.0)), $view);
-    return s.q1q_1.e1q_1.p1o_1 - 10.0 - (s.q1q_1.f1q_1.p1o_1 + 14.0 / 2) - 1.5;
-  };
+  var free = new Arm(4.0, 0.0);
+  return figure_4(View_FRONT_getInstance(), frontCarry(get_CARRY_STANCE(), free), frontCarry(get_CARRY_SWING(), free), props, 'Arm hangs straight', 'Stay upright', Which_END_getInstance(), listOf(['Lift it in one hand with an overhand grip, keeping your back straight.', 'Let the arm hang straight, without the weight touching your body.', 'Walk a set distance, keeping your torso upright.', 'Walk slowly and under control.']), get_FRONT_CARRY_CONTACTS(), emptyList());
 }
 function _get_suitcaseCarry_$ref_nmoqji() {
   return constructCallableReference(function () {
     return get_suitcaseCarry();
-  }, 0, 0, 182);
+  }, 0, 0, 183);
 }
 function waitersCarry$delegate$lambda() {
   _init_properties_Core_kt__txxmtb_0();
@@ -20534,7 +20585,7 @@ function waitersCarry$delegate$lambda() {
 function _get_waitersCarry_$ref_43dhdc() {
   return constructCallableReference(function () {
     return get_waitersCarry();
-  }, 0, 0, 183);
+  }, 0, 0, 184);
 }
 function platePinchCarry$delegate$lambda() {
   _init_properties_Core_kt__txxmtb_0();
@@ -20544,7 +20595,7 @@ function platePinchCarry$delegate$lambda() {
 function _get_platePinchCarry_$ref_q19ga1() {
   return constructCallableReference(function () {
     return get_platePinchCarry();
-  }, 0, 0, 184);
+  }, 0, 0, 185);
 }
 function coreFigures$lambda() {
   _init_properties_Core_kt__txxmtb_0();
@@ -20637,6 +20688,11 @@ function _init_properties_Core_kt__txxmtb_0() {
     stride$delegate = lazy(stride$delegate$lambda);
     tall$delegate_0 = lazy(tall$delegate$lambda_0);
     STRIDE_CONTACTS = listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()));
+    CARRY_PELVIS = new Point(0.0, -(6.825 + Segment_THIGH_getInstance().a() + Segment_SHIN_getInstance().a()));
+    CARRY_STANCE = new Leg(0.0, 0.0);
+    CARRY_SWING = new Leg(0.0, 40.0, VOID, 25.0, -15.0);
+    CARRY_ARM$delegate = lazy(CARRY_ARM$delegate$lambda);
+    FRONT_CARRY_CONTACTS = listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance())), new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]);
     farmersWalk$delegate = lazy(farmersWalk$delegate$lambda);
     suitcaseCarry$delegate = lazy(suitcaseCarry$delegate$lambda);
     waitersCarry$delegate = lazy(waitersCarry$delegate$lambda);
@@ -21062,16 +21118,16 @@ function norm(v) {
   return v.t1o(1.0 / v.u1o());
 }
 function Hinge(start, end) {
-  this.k2c_1 = start;
-  this.l2c_1 = end;
+  this.n2c_1 = start;
+  this.o2c_1 = end;
 }
 function hinge(knee, startShin, clear) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var upLeg = standingLeg(0.0, startShin, knee, 88.0);
-  var thighFrontX = upLeg.g2a_1.p1o_1 + (upLeg.f2a_1.p1o_1 - upLeg.g2a_1.p1o_1) * 0.4 + clear;
-  var start = standOn(upLeg, 88.0, hangingArmAt(shoulderOf(upLeg.g2a_1, 88.0), thighFrontX, 88.0));
+  var thighFrontX = upLeg.j2a_1.p1o_1 + (upLeg.i2a_1.p1o_1 - upLeg.j2a_1.p1o_1) * 0.4 + clear;
+  var start = standOn(upLeg, 88.0, hangingArmAt(shoulderOf(upLeg.j2a_1, 88.0), thighFrontX, 88.0));
   var downLeg = standingLeg(0.0, 0.0, knee, 30.0);
-  var loadX = downLeg.f2a_1.p1o_1 + clear;
+  var loadX = downLeg.i2a_1.p1o_1 + clear;
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(10, 120);
   // Inline function 'kotlin.collections.mapTo' call
@@ -21099,12 +21155,12 @@ function hinge(knee, startShin, clear) {
     }
     var t = minElem;
     // Inline function 'kotlin.math.abs' call
-    var x = skeleton(hinge$at(knee, loadX, t)).q1q_1.e1q_1.q1o_1 - (downLeg.f2a_1.q1o_1 - 2.0);
+    var x = skeleton(hinge$at(knee, loadX, t)).r1q_1.f1q_1.q1o_1 - (downLeg.i2a_1.q1o_1 - 2.0);
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
       // Inline function 'kotlin.math.abs' call
-      var x_0 = skeleton(hinge$at(knee, loadX, e)).q1q_1.e1q_1.q1o_1 - (downLeg.f2a_1.q1o_1 - 2.0);
+      var x_0 = skeleton(hinge$at(knee, loadX, e)).r1q_1.f1q_1.q1o_1 - (downLeg.i2a_1.q1o_1 - 2.0);
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -21118,28 +21174,28 @@ function hinge(knee, startShin, clear) {
   return new Hinge(start, hinge$at(knee, loadX, torso));
 }
 function SwingBottom(leg, torso, arm, along) {
-  this.m2c_1 = leg;
-  this.n2c_1 = torso;
-  this.o2c_1 = arm;
-  this.p2c_1 = along;
+  this.p2c_1 = leg;
+  this.q2c_1 = torso;
+  this.r2c_1 = arm;
+  this.s2c_1 = along;
 }
 function calfRoller(l, radius, along) {
   along = along === VOID ? 0.8 : along;
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
-  var d = norm(l.h1q_1.s1o(l.g1q_1));
-  return l.g1q_1.r1o(d.t1o(Segment_SHIN_getInstance().a() * along)).r1o(unit(angleTo(d) - 90.0).t1o(11.0 / 2 + radius));
+  var d = norm(l.i1q_1.s1o(l.h1q_1));
+  return l.h1q_1.r1o(d.t1o(Segment_SHIN_getInstance().a() * along)).r1o(unit(angleTo(d) - 90.0).t1o(11.0 / 2 + radius));
 }
 function crossedArms(pose) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var bare = skeleton(pose);
   var hands = point(bare, BodyPoint_CHEST_getInstance()).r1o(unit(pose.p1p_1 - 90.0).t1o(6.0 / 2 + 1.0));
-  return armTo(bare.n1q_1, hands, pose.p1p_1);
+  return armTo(bare.o1q_1, hands, pose.p1p_1);
 }
 function Bridge(ankle, shoulder, topPelvis, topTorso) {
-  this.q2c_1 = ankle;
-  this.r2c_1 = shoulder;
-  this.s2c_1 = topPelvis;
-  this.t2c_1 = topTorso;
+  this.t2c_1 = ankle;
+  this.u2c_1 = shoulder;
+  this.v2c_1 = topPelvis;
+  this.w2c_1 = topTorso;
 }
 function floorArm_0(torso) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21149,26 +21205,26 @@ function bridgePose(pelvis, near) {
   near = near === VOID ? null : near;
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var b = get_bridgeBase();
-  var torso = angleTo(b.r2c_1.s1o(pelvis));
-  var leg = Reach_instance.y1q(pelvis, b.q2c_1, torso, 0.0);
+  var torso = angleTo(b.u2c_1.s1o(pelvis));
+  var leg = Reach_instance.a1r(pelvis, b.t2c_1, torso, 0.0);
   var a = floorArm_0(torso);
   var tmp = fold180(torso - 180.0);
   return new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, tmp, a, near == null ? leg : near, VOID, leg);
 }
 function hipBar(s) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
-  return s.v1q(2.0, 9.0 + 1.45 + 1.0);
+  return s.x1q(2.0, 9.0 + 1.45 + 1.0);
 }
 function handsOn(pose, grip) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var s = skeleton(pose);
-  var arm = arm3(v3(s.n1q_1, 18.0), v3(grip, 25.0), new V3(0.0, -0.3, 1.0), pose.p1p_1);
-  return pose.z1p(VOID, VOID, VOID, VOID, arm, VOID, arm);
+  var arm = arm3(v3(s.o1q_1, 18.0), v3(grip, 25.0), new V3(0.0, -0.3, 1.0), pose.p1p_1);
+  return pose.a1q(VOID, VOID, VOID, VOID, arm, VOID, arm);
 }
 function Thrust(start, end, ankle) {
-  this.u2c_1 = start;
-  this.v2c_1 = end;
-  this.w2c_1 = ankle;
+  this.x2c_1 = start;
+  this.y2c_1 = end;
+  this.z2c_1 = ankle;
 }
 function thrustPelvis(tilt) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21195,7 +21251,7 @@ function thrust(startTilt, footRise, arm) {
 }
 function hipDumbbell(s) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
-  return s.v1q(2.0, 9.0 + 10.0 + 0.3);
+  return s.x1q(2.0, 9.0 + 10.0 + 0.3);
 }
 function seatedLeg(apart) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21226,12 +21282,12 @@ function bentStance(apart) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var leg = new Leg(apart, 0.0, VOID, 15.0, -15.0);
   var raw = new Pose(0.0, 0.0, 90.0, VOID, new Arm(10.0, 0.0), leg, VOID, VOID, 15.0);
-  var n = skeleton(raw, View_FRONT_getInstance()).q1q_1;
-  var tmp0 = n.i1q_1.q1o_1;
+  var n = skeleton(raw, View_FRONT_getInstance()).r1q_1;
+  var tmp0 = n.j1q_1.q1o_1;
   // Inline function 'kotlin.comparisons.maxOf' call
-  var b = n.j1q_1.q1o_1;
+  var b = n.k1q_1.q1o_1;
   var bottom = Math.max(tmp0, b) + 7.0 / 2;
-  return raw.z1p(VOID, -bottom);
+  return raw.a1q(VOID, -bottom);
 }
 function sideLying(top, bottom) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21265,21 +21321,21 @@ function bottomLeg(shape) {
       break $l$block;
     }
     var h = minElem;
-    var f = skeleton(sideLying(new Leg(0.0, 0.0), shape(h)), View_FRONT_getInstance()).r1q_1;
-    var tmp0 = f.h1q_1.q1o_1 + 11.0 / 2;
-    var tmp2 = f.i1q_1.q1o_1 + 7.0 / 2;
+    var f = skeleton(sideLying(new Leg(0.0, 0.0), shape(h)), View_FRONT_getInstance()).s1q_1;
+    var tmp0 = f.i1q_1.q1o_1 + 11.0 / 2;
+    var tmp2 = f.j1q_1.q1o_1 + 7.0 / 2;
     // Inline function 'kotlin.comparisons.maxOf' call
-    var c = f.j1q_1.q1o_1 + 7.0 / 2;
+    var c = f.k1q_1.q1o_1 + 7.0 / 2;
     // Inline function 'kotlin.math.abs' call
     var x = Math.max(tmp0, tmp2, c);
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
-      var f_0 = skeleton(sideLying(new Leg(0.0, 0.0), shape(e)), View_FRONT_getInstance()).r1q_1;
-      var tmp0_0 = f_0.h1q_1.q1o_1 + 11.0 / 2;
-      var tmp2_0 = f_0.i1q_1.q1o_1 + 7.0 / 2;
+      var f_0 = skeleton(sideLying(new Leg(0.0, 0.0), shape(e)), View_FRONT_getInstance()).s1q_1;
+      var tmp0_0 = f_0.i1q_1.q1o_1 + 11.0 / 2;
+      var tmp2_0 = f_0.j1q_1.q1o_1 + 7.0 / 2;
       // Inline function 'kotlin.comparisons.maxOf' call
-      var c_0 = f_0.j1q_1.q1o_1 + 7.0 / 2;
+      var c_0 = f_0.k1q_1.q1o_1 + 7.0 / 2;
       // Inline function 'kotlin.math.abs' call
       var x_0 = Math.max(tmp0_0, tmp2_0, c_0);
       var v = Math.abs(x_0);
@@ -21324,13 +21380,13 @@ function restingTop(bottom, shape) {
     var h = minElem;
     var s = skeleton(sideLying(shape(h), bottom), View_FRONT_getInstance());
     // Inline function 'kotlin.math.abs' call
-    var x = s.r1q_1.h1q_1.q1o_1 - s.q1q_1.h1q_1.q1o_1 - 11.0;
+    var x = s.s1q_1.i1q_1.q1o_1 - s.r1q_1.i1q_1.q1o_1 - 11.0;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
       var s_0 = skeleton(sideLying(shape(e), bottom), View_FRONT_getInstance());
       // Inline function 'kotlin.math.abs' call
-      var x_0 = s_0.r1q_1.h1q_1.q1o_1 - s_0.q1q_1.h1q_1.q1o_1 - 11.0;
+      var x_0 = s_0.s1q_1.i1q_1.q1o_1 - s_0.r1q_1.i1q_1.q1o_1 - 11.0;
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -21349,11 +21405,11 @@ function rdl$delegate$lambda() {
   var ankleX = 0.0;
   var clear = 14.0 / 2 + 1.45 + 1.0;
   var upLeg = standingLeg(ankleX, 8.0, knee, 88.0);
-  var upShoulder = shoulderOf(upLeg.g2a_1, 88.0);
-  var thighFrontX = upLeg.g2a_1.p1o_1 + (upLeg.f2a_1.p1o_1 - upLeg.g2a_1.p1o_1) * 0.4 + clear;
+  var upShoulder = shoulderOf(upLeg.j2a_1, 88.0);
+  var thighFrontX = upLeg.j2a_1.p1o_1 + (upLeg.i2a_1.p1o_1 - upLeg.j2a_1.p1o_1) * 0.4 + clear;
   var start = standOn(upLeg, 88.0, hangingArmAt(upShoulder, thighFrontX, 88.0));
   var downLeg = standingLeg(ankleX, 0.0, knee, 30.0);
-  var barX = downLeg.f2a_1.p1o_1 + clear;
+  var barX = downLeg.i2a_1.p1o_1 + clear;
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(15, 60);
   // Inline function 'kotlin.collections.mapTo' call
@@ -21380,17 +21436,17 @@ function rdl$delegate$lambda() {
       break $l$block;
     }
     var t = minElem;
-    var sh = shoulderOf(downLeg.g2a_1, t);
+    var sh = shoulderOf(downLeg.j2a_1, t);
     var pose = standOn(standingLeg(ankleX, 0.0, knee, t), t, hangingArmAt(sh, barX, t));
     // Inline function 'kotlin.math.abs' call
-    var x = skeleton(pose).q1q_1.e1q_1.q1o_1 - (downLeg.f2a_1.q1o_1 - 2.0);
+    var x = skeleton(pose).r1q_1.f1q_1.q1o_1 - (downLeg.i2a_1.q1o_1 - 2.0);
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
-      var sh_0 = shoulderOf(downLeg.g2a_1, e);
+      var sh_0 = shoulderOf(downLeg.j2a_1, e);
       var pose_0 = standOn(standingLeg(ankleX, 0.0, knee, e), e, hangingArmAt(sh_0, barX, e));
       // Inline function 'kotlin.math.abs' call
-      var x_0 = skeleton(pose_0).q1q_1.e1q_1.q1o_1 - (downLeg.f2a_1.q1o_1 - 2.0);
+      var x_0 = skeleton(pose_0).r1q_1.f1q_1.q1o_1 - (downLeg.i2a_1.q1o_1 - 2.0);
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -21402,9 +21458,9 @@ function rdl$delegate$lambda() {
   }
   var torso = tmp$ret$3;
   var endLeg = standingLeg(ankleX, 0.0, knee, torso);
-  var end = standOn(endLeg, torso, hangingArmAt(shoulderOf(endLeg.g2a_1, torso), barX, torso));
-  var barStart = skeleton(start).q1q_1.e1q_1;
-  var barLow = skeleton(end).q1q_1.e1q_1;
+  var end = standOn(endLeg, torso, hangingArmAt(shoulderOf(endLeg.j2a_1, torso), barX, torso));
+  var barStart = skeleton(start).r1q_1.f1q_1;
+  var barLow = skeleton(end).r1q_1.f1q_1;
   var rack = rackInFront(barStart.p1o_1, -barStart.q1o_1 - 4.0, -barLow.q1o_1 - 1.45 - 8.0, 60.0);
   var props = listOf([Floor_instance, rack, new Barbell()]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), 'Knees slightly bent', 'Weight about at knees', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Stand tall with your knees slightly bent.', 'Push your hips back. Keep the same slight bend in your knees.', 'Slide the bar down close to your legs.', 'Lower until the weight is about at your knees. Stop sooner if your back starts to round.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance()), new BarNearLegs(4.0, Which_START_getInstance()), new BarNearLegs(4.0, Which_END_getInstance())]));
@@ -21412,34 +21468,34 @@ function rdl$delegate$lambda() {
 function _get_rdl_$ref_aqmbie() {
   return constructCallableReference(function () {
     return get_rdl();
-  }, 0, 0, 185);
+  }, 0, 0, 186);
 }
 function stiffLegDeadlift$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var h = hinge(8.0, 4.0, 14.0 / 2 + 1.45 + 1.0);
-  return figure_5(View_SIDE_getInstance(), h.k2c_1, h.l2c_1, listOf([Floor_instance, new Barbell()]), 'Bend knees slightly', 'Bar close to your legs', Which_END_getInstance(), listOf(['Bend your knees slightly and keep your back straight.', 'Bend at your hips to lower the bar close to your legs.', 'Lower until the weight is about at your knees. Stop sooner if your back starts to round.']), get_FEET_DOWN_1(), listOf([new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance()), new BarNearLegs(4.0, Which_START_getInstance()), new BarNearLegs(4.0, Which_END_getInstance())]));
+  return figure_5(View_SIDE_getInstance(), h.n2c_1, h.o2c_1, listOf([Floor_instance, new Barbell()]), 'Bend knees slightly', 'Bar close to your legs', Which_END_getInstance(), listOf(['Bend your knees slightly and keep your back straight.', 'Bend at your hips to lower the bar close to your legs.', 'Lower until the weight is about at your knees. Stop sooner if your back starts to round.']), get_FEET_DOWN_1(), listOf([new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance()), new BarNearLegs(4.0, Which_START_getInstance()), new BarNearLegs(4.0, Which_END_getInstance())]));
 }
 function _get_stiffLegDeadlift_$ref_kdghc5() {
   return constructCallableReference(function () {
     return get_stiffLegDeadlift();
-  }, 0, 0, 186);
+  }, 0, 0, 187);
 }
 function dbRdl$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var h = hinge(18.0, 8.0, 14.0 / 2 + 10.0 + 0.5);
-  return figure_5(View_SIDE_getInstance(), h.k2c_1, h.l2c_1, listOf([Floor_instance, new Dumbbell(Side_FAR_getInstance()), new Dumbbell(Side_NEAR_getInstance())]), 'Knees slightly bent', 'Weights about at knees', Which_END_getInstance(), listOf(['Stand tall holding a dumbbell in each hand.', 'Keep your knees slightly bent and your back straight.', 'Push your hips back. Keep the same slight bend in your knees.', 'Lower the dumbbells close to your legs.', 'Lower until the weight is about at your knees. Stop sooner if your back starts to round.']), get_FEET_DOWN_1(), emptyList());
+  return figure_5(View_SIDE_getInstance(), h.n2c_1, h.o2c_1, listOf([Floor_instance, new Dumbbell(Side_FAR_getInstance()), new Dumbbell(Side_NEAR_getInstance())]), 'Knees slightly bent', 'Weights about at knees', Which_END_getInstance(), listOf(['Stand tall holding a dumbbell in each hand.', 'Keep your knees slightly bent and your back straight.', 'Push your hips back. Keep the same slight bend in your knees.', 'Lower the dumbbells close to your legs.', 'Lower until the weight is about at your knees. Stop sooner if your back starts to round.']), get_FEET_DOWN_1(), emptyList());
 }
 function _get_dbRdl_$ref_vyyc7w() {
   return constructCallableReference(function () {
     return get_dbRdl();
-  }, 0, 0, 187);
+  }, 0, 0, 188);
 }
 function singleLegRdl$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var clear = 14.0 / 2 + 10.0 + 0.5;
   var stand = standingLeg(0.0, 5.0, 10.0, 88.0);
-  var frontX = stand.g2a_1.p1o_1 + (stand.f2a_1.p1o_1 - stand.g2a_1.p1o_1) * 0.4 + clear;
-  var start = standOn(stand, 88.0, hangingArmAt(shoulderOf(stand.g2a_1, 88.0), frontX, 88.0), armAt_0(270.0, 88.0));
+  var frontX = stand.j2a_1.p1o_1 + (stand.i2a_1.p1o_1 - stand.j2a_1.p1o_1) * 0.4 + clear;
+  var start = standOn(stand, 88.0, hangingArmAt(shoulderOf(stand.j2a_1, 88.0), frontX, 88.0), armAt_0(270.0, 88.0));
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(0, 200);
   // Inline function 'kotlin.collections.mapTo' call
@@ -21467,12 +21523,12 @@ function singleLegRdl$delegate$lambda() {
     }
     var t = minElem;
     // Inline function 'kotlin.math.abs' call
-    var x = -skeleton(invoke$lowered(t)).q1q_1.e1q_1.q1o_1 - 10.0 - 0.5;
+    var x = -skeleton(invoke$lowered(t)).r1q_1.f1q_1.q1o_1 - 10.0 - 0.5;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
       // Inline function 'kotlin.math.abs' call
-      var x_0 = -skeleton(invoke$lowered(e)).q1q_1.e1q_1.q1o_1 - 10.0 - 0.5;
+      var x_0 = -skeleton(invoke$lowered(e)).r1q_1.f1q_1.q1o_1 - 10.0 - 0.5;
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -21489,12 +21545,12 @@ function invoke$lowered(torso) {
   var one = standingLeg(0.0, 12.0, 35.0, torso);
   var down = armAt_0(270.0, torso).f1p(VOID, VOID, 48.0);
   var free = armAt_0(270.0, torso, 40.0);
-  return new Pose(one.g2a_1.p1o_1, one.g2a_1.q1o_1, torso, VOID, down, new Leg(0.0, 0.0, -10.0), free, one.h2a_1);
+  return new Pose(one.j2a_1.p1o_1, one.j2a_1.q1o_1, torso, VOID, down, new Leg(0.0, 0.0, -10.0), free, one.k2a_1);
 }
 function _get_singleLegRdl_$ref_x29qd6() {
   return constructCallableReference(function () {
     return get_singleLegRdl();
-  }, 0, 0, 188);
+  }, 0, 0, 189);
 }
 function goodMorning$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21531,12 +21587,12 @@ function goodMorning$delegate$lambda() {
     }
     var sl = minElem;
     // Inline function 'kotlin.math.abs' call
-    var x = barOnBack(standingLeg(0.0, sl, 22.0, torso).g2a_1, torso).p1o_1 - mid;
+    var x = barOnBack(standingLeg(0.0, sl, 22.0, torso).j2a_1, torso).p1o_1 - mid;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
       // Inline function 'kotlin.math.abs' call
-      var x_0 = barOnBack(standingLeg(0.0, e, 22.0, torso).g2a_1, torso).p1o_1 - mid;
+      var x_0 = barOnBack(standingLeg(0.0, e, 22.0, torso).j2a_1, torso).p1o_1 - mid;
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -21550,8 +21606,8 @@ function goodMorning$delegate$lambda() {
   var end = backSquatPose(standingLeg(0.0, shin, 22.0, torso), torso);
   var barTop = barOnBack(new Point(start.n1p_1, start.o1p_1), upTorso);
   var barLow = barOnBack(new Point(end.n1p_1, end.o1p_1), torso);
-  var headFront = skeleton(end).p1q_1.p1o_1 + 10.0;
-  var startFace = skeleton(start).p1q_1.p1o_1 + 10.0;
+  var headFront = skeleton(end).q1q_1.p1o_1 + 10.0;
+  var startFace = skeleton(start).q1q_1.p1o_1 + 10.0;
   // Inline function 'kotlin.comparisons.maxOf' call
   var posts = Math.max(headFront, startFace) + 30.0;
   var rack = new PowerRack(posts, -barTop.q1o_1 - 8.0, -barLow.q1o_1 - 1.45 - 6.0, posts - headFront - 6.0, VOID, true);
@@ -21564,7 +21620,7 @@ function goodMorning$delegate$lambda$lambda(hip, t) {
 function _get_goodMorning_$ref_grreg7() {
   return constructCallableReference(function () {
     return get_goodMorning();
-  }, 0, 0, 189);
+  }, 0, 0, 190);
 }
 function swingBottom$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21610,12 +21666,12 @@ function swingBottom$delegate$lambda() {
       break $l$block;
     }
     // Inline function 'kotlin.math.abs' call
-    var x = minElem.p2c_1 - 0.55;
+    var x = minElem.s2c_1 - 0.55;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
       // Inline function 'kotlin.math.abs' call
-      var x_0 = e.p2c_1 - 0.55;
+      var x_0 = e.s2c_1 - 0.55;
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -21629,12 +21685,12 @@ function swingBottom$delegate$lambda() {
 }
 function invoke$at(reach, t) {
   var leg = standingLeg(0.0, 4.0, 22.0, t);
-  var sh = shoulderOf(leg.g2a_1, t);
-  var d = leg.f2a_1.s1o(leg.g2a_1);
+  var sh = shoulderOf(leg.j2a_1, t);
+  var d = leg.i2a_1.s1o(leg.j2a_1);
   var best = null;
   var u = 0.0;
   while (u <= 1.6) {
-    var p = leg.g2a_1.r1o(d.t1o(u));
+    var p = leg.j2a_1.r1o(d.t1o(u));
     if (best == null && p.s1o(sh).u1o() >= reach)
       best = u;
     u = u + 0.002;
@@ -21647,13 +21703,13 @@ function invoke$at(reach, t) {
     tmp = tmp0_elvis_lhs;
   }
   var along = tmp;
-  var p_0 = leg.g2a_1.r1o(d.t1o(along));
+  var p_0 = leg.j2a_1.r1o(d.t1o(along));
   return new SwingBottom(leg, t, straightArm(sh, p_0, t), along);
 }
 function _get_swingBottom_$ref_73e313() {
   return constructCallableReference(function () {
     return get_swingBottom();
-  }, 0, 0, 190);
+  }, 0, 0, 191);
 }
 function swingTopArm$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21665,7 +21721,7 @@ function swingTopArm$delegate$lambda() {
 function _get_swingTopArm_$ref_clo0cb() {
   return constructCallableReference(function () {
     return get_swingTopArm();
-  }, 0, 0, 191);
+  }, 0, 0, 192);
 }
 function tallLeg$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21674,27 +21730,27 @@ function tallLeg$delegate$lambda() {
 function _get_tallLeg_$ref_lserjz() {
   return constructCallableReference(function () {
     return get_tallLeg();
-  }, 0, 0, 192);
+  }, 0, 0, 193);
 }
 function kettlebellSwing$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var b = get_swingBottom();
-  return figure_5(View_SIDE_getInstance(), standOn(b.m2c_1, b.n2c_1, b.o2c_1), standOn(get_tallLeg(), 90.0, get_swingTopArm()), listOf([Floor_instance, new Kettlebell(Side_NEAR_getInstance(), KettlebellHold_SWING_getInstance())]), 'Bell back between legs', 'Chest or shoulder height', Which_END_getInstance(), listOf(['Hinge at your hips to swing the bell back between your legs. Keep your back straight and your shins upright.', 'Drive your hips forward and straighten your knees to swing the bell forward and up.', 'Let it rise to chest or shoulder height, with your arms straight.']), get_FEET_DOWN_1(), emptyList());
+  return figure_5(View_SIDE_getInstance(), standOn(b.p2c_1, b.q2c_1, b.r2c_1), standOn(get_tallLeg(), 90.0, get_swingTopArm()), listOf([Floor_instance, new Kettlebell(Side_NEAR_getInstance(), KettlebellHold_SWING_getInstance())]), 'Bell back between legs', 'Chest or shoulder height', Which_END_getInstance(), listOf(['Hinge at your hips to swing the bell back between your legs. Keep your back straight and your shins upright.', 'Drive your hips forward and straighten your knees to swing the bell forward and up.', 'Let it rise to chest or shoulder height, with your arms straight.']), get_FEET_DOWN_1(), emptyList());
 }
 function _get_kettlebellSwing_$ref_en8kso() {
   return constructCallableReference(function () {
     return get_kettlebellSwing();
-  }, 0, 0, 193);
+  }, 0, 0, 194);
 }
 function singleArmKettlebellSwing$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var b = get_swingBottom();
-  return figure_5(View_SIDE_getInstance(), standOn(b.m2c_1, b.n2c_1, b.o2c_1, new Arm(-30.0, 15.0)), standOn(get_tallLeg(), 90.0, get_swingTopArm(), armAt_0(-35.0, 90.0, 10.0)), listOf([Floor_instance, new Kettlebell(Side_NEAR_getInstance(), KettlebellHold_SWING_getInstance())]), 'Free arm swings back', 'About chest height', Which_START_getInstance(), listOf(['Sink into your hips and draw the bell back between your legs.', 'Let it rise to about chest height, then guide it back down between your legs.', 'Let your free arm swing back as you hinge, and forward as your hips drive.']), get_FEET_DOWN_1(), emptyList());
+  return figure_5(View_SIDE_getInstance(), standOn(b.p2c_1, b.q2c_1, b.r2c_1, new Arm(-30.0, 15.0)), standOn(get_tallLeg(), 90.0, get_swingTopArm(), armAt_0(-35.0, 90.0, 10.0)), listOf([Floor_instance, new Kettlebell(Side_NEAR_getInstance(), KettlebellHold_SWING_getInstance())]), 'Free arm swings back', 'About chest height', Which_START_getInstance(), listOf(['Sink into your hips and draw the bell back between your legs.', 'Let it rise to about chest height, then guide it back down between your legs.', 'Let your free arm swing back as you hinge, and forward as your hips drive.']), get_FEET_DOWN_1(), emptyList());
 }
 function _get_singleArmKettlebellSwing_$ref_lppkli() {
   return constructCallableReference(function () {
     return get_singleArmKettlebellSwing();
-  }, 0, 0, 194);
+  }, 0, 0, 195);
 }
 function lyingLegCurl$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21704,9 +21760,9 @@ function lyingLegCurl$delegate$lambda() {
   var x = 3.0 / Segment_THIGH_getInstance().a();
   var hip = Math.asin(x) * 57.29577951308232;
   var bare = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, 0.0, VOID, get_HANG_3(), new Leg(hip, 0.0)));
-  var handle = new Point(bare.n1q_1.p1o_1 + 30.0, -h + 18.0);
-  var arm = armTo(bare.n1q_1, handle, 0.0);
-  var knee = bare.q1q_1.g1q_1;
+  var handle = new Point(bare.o1q_1.p1o_1 + 30.0, -h + 18.0);
+  var arm = armTo(bare.o1q_1, handle, 0.0);
+  var knee = bare.r1q_1.h1q_1;
   var start = invoke$pose_26(pelvis, arm, hip, 0.0);
   var end = invoke$pose_26(pelvis, arm, hip, 115.0);
   return figure_5(View_SIDE_getInstance(), start, end, listOf([Floor_instance, invoke$machine_4(knee, h, handle, start)]), 'Knees just past the edge', 'Pad toward your thighs', Which_END_getInstance(), listOf(['Lie face down on the bench with your knees just past its edge.', "Line up your knees with the machine's pivot.", 'Set the pad on the back of your lower legs, above your heels.', 'Grip the handles.', 'Bend your knees to raise the pad toward the backs of your thighs.', 'Lower the pad until your knees are straight.']), listOf([new Contact(BodyPoint_HIPS_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_THIGHS_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_SHINS_getInstance(), Surface_SHIN_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_HANDLE_getInstance(), get_BOTH())]), emptyList(), listOf([Floor_instance, invoke$machine_4(knee, h, handle, end)]));
@@ -21715,12 +21771,12 @@ function invoke$pose_26(pelvis, arm, hip, knee) {
   return new Pose(pelvis.p1o_1, pelvis.q1o_1, 0.0, VOID, arm, new Leg(hip, knee, 0.0));
 }
 function invoke$machine_4(knee, h, handle, p) {
-  return new LyingLegCurlMachine(knee.p1o_1 + 4.0, h, knee, calfRoller(skeleton(p).q1q_1, 6.0), handle);
+  return new LyingLegCurlMachine(knee.p1o_1 + 4.0, h, knee, calfRoller(skeleton(p).r1q_1, 6.0), handle);
 }
 function _get_lyingLegCurl_$ref_9e1myd() {
   return constructCallableReference(function () {
     return get_lyingLegCurl();
-  }, 0, 0, 195);
+  }, 0, 0, 196);
 }
 function seatedLegCurl$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21742,10 +21798,10 @@ function seatedLegCurl$delegate$lambda() {
   var tmp$ret$2 = Math.cos(x_1);
   var hingeX = back.p1o_1 + tmp_0 * tmp$ret$2;
   var seatFront = hingeX + 40.0;
-  var knee = bare.q1q_1.g1q_1;
-  var lap = bare.q1q_1.f1q_1.r1o(norm(knee.s1o(bare.q1q_1.f1q_1)).t1o(Segment_THIGH_getInstance().a() * 0.8)).r1o(unit(angleTo(knee.s1o(bare.q1q_1.f1q_1)) + 90.0).t1o(14.0 / 2 + 6.0));
+  var knee = bare.r1q_1.h1q_1;
+  var lap = bare.r1q_1.g1q_1.r1o(norm(knee.s1o(bare.r1q_1.g1q_1)).t1o(Segment_THIGH_getInstance().a() * 0.8)).r1o(unit(angleTo(knee.s1o(bare.r1q_1.g1q_1)) + 90.0).t1o(14.0 / 2 + 6.0));
   var handle = new Point(pelvis.p1o_1 + 14.0, -seat - 10.0);
-  var arm = armTo(bare.n1q_1, handle, torso);
+  var arm = armTo(bare.o1q_1, handle, torso);
   var start = invoke$pose_27(pelvis, torso, arm, hip, 2.0);
   var end = invoke$pose_27(pelvis, torso, arm, hip, 100.0);
   return figure_5(View_SIDE_getInstance(), start, end, listOf([Floor_instance, invoke$machine_5(seatFront, seat, torso, knee, lap, handle, start)]), 'Legs straight', 'Pull the pad back under', Which_END_getInstance(), listOf(['Sit with your back against the back pad.', "Line up your knees with the machine's pivot.", 'Rest the backs of your lower legs on the pad, just above your ankles.', 'Lower the lap pad onto your thighs, just above your knees.', 'Bend your knees to pull the pad back under you.', 'Let it come back until your legs are straight.']), listOf([new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_THIGHS_getInstance(), Surface_THIGH_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_SHINS_getInstance(), Surface_SHIN_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_NEAR_HAND_getInstance(), Surface_HANDLE_getInstance(), get_BOTH())]), emptyList(), listOf([Floor_instance, invoke$machine_5(seatFront, seat, torso, knee, lap, handle, end)]));
@@ -21754,62 +21810,62 @@ function invoke$pose_27(pelvis, torso, arm, hip, k) {
   return new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, arm, new Leg(hip, k, 0.0));
 }
 function invoke$machine_5(seatFront, seat, torso, knee, lap, handle, p) {
-  return new SeatedLegCurlMachine(seatFront, seat, 180.0 - torso, knee, calfRoller(skeleton(p).q1q_1, 6.0, 0.85), lap, handle);
+  return new SeatedLegCurlMachine(seatFront, seat, 180.0 - torso, knee, calfRoller(skeleton(p).r1q_1, 6.0, 0.85), lap, handle);
 }
 function _get_seatedLegCurl_$ref_562ox6() {
   return constructCallableReference(function () {
     return get_seatedLegCurl();
-  }, 0, 0, 196);
+  }, 0, 0, 197);
 }
 function standingLegCurl$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var torso = 60.0;
   var stand = standingLeg(0.0, 2.0, 3.0, torso);
   var hip = 285.0 - torso - 180.0;
-  var bare = skeleton(new Pose(stand.g2a_1.p1o_1, stand.g2a_1.q1o_1, torso, VOID, get_HANG_3(), new Leg(hip, 0.0), VOID, stand.h2a_1));
-  var n = bare.q1q_1;
-  var thighDir = norm(n.g1q_1.s1o(n.f1q_1));
-  var pad = n.f1q_1.r1o(thighDir.t1o(Segment_THIGH_getInstance().a() * 0.8)).r1o(unit(angleTo(thighDir) + 90.0).t1o(14.0 / 2 + 6.0));
-  var handle = bare.n1q_1.r1o(new Point(22.0, 30.0));
-  var arm = armTo(bare.n1q_1, handle, torso);
+  var bare = skeleton(new Pose(stand.j2a_1.p1o_1, stand.j2a_1.q1o_1, torso, VOID, get_HANG_3(), new Leg(hip, 0.0), VOID, stand.k2a_1));
+  var n = bare.r1q_1;
+  var thighDir = norm(n.h1q_1.s1o(n.g1q_1));
+  var pad = n.g1q_1.r1o(thighDir.t1o(Segment_THIGH_getInstance().a() * 0.8)).r1o(unit(angleTo(thighDir) + 90.0).t1o(14.0 / 2 + 6.0));
+  var handle = bare.o1q_1.r1o(new Point(22.0, 30.0));
+  var arm = armTo(bare.o1q_1, handle, torso);
   var start = invoke$pose_28(stand, torso, arm, hip, 0.0);
   var end = invoke$pose_28(stand, torso, arm, hip, 115.0);
   return figure_5(View_SIDE_getInstance(), start, end, listOf([Floor_instance, invoke$machine_6(pad, handle, n, start)]), 'Bend forward at hips', 'Pad toward your thigh', Which_END_getInstance(), listOf(['Stand in the machine with the pad behind one lower leg.', "Line up that knee with the machine's pivot.", 'Bend forward at your hips and grip the handles.', 'Bend your knee to raise the pad toward the back of your thigh.', 'Lower until your knee is straight.']), listOf([new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_NEAR_THIGH_getInstance(), Surface_THIGH_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_NEAR_SHIN_getInstance(), Surface_SHIN_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_HANDLE_getInstance(), get_BOTH())]), emptyList(), listOf([Floor_instance, invoke$machine_6(pad, handle, n, end)]));
 }
 function invoke$pose_28(stand, torso, arm, hip, k) {
-  return new Pose(stand.g2a_1.p1o_1, stand.g2a_1.q1o_1, torso, VOID, arm, new Leg(hip, k, 0.0), VOID, stand.h2a_1);
+  return new Pose(stand.j2a_1.p1o_1, stand.j2a_1.q1o_1, torso, VOID, arm, new Leg(hip, k, 0.0), VOID, stand.k2a_1);
 }
 function invoke$machine_6(pad, handle, n, p) {
   var tmp0 = pad.p1o_1;
   // Inline function 'kotlin.comparisons.maxOf' call
   var b = handle.p1o_1;
   var tmp$ret$0 = Math.max(tmp0, b);
-  return new StandingLegCurlMachine(tmp$ret$0 + 10.0, pad, n.g1q_1, calfRoller(skeleton(p).q1q_1, 6.0), handle);
+  return new StandingLegCurlMachine(tmp$ret$0 + 10.0, pad, n.h1q_1, calfRoller(skeleton(p).r1q_1, 6.0), handle);
 }
 function _get_standingLegCurl_$ref_57stea() {
   return constructCallableReference(function () {
     return get_standingLegCurl();
-  }, 0, 0, 197);
+  }, 0, 0, 198);
 }
 function cableLegCurl$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var torso = 80.0;
   var stand = standingLeg(0.0, 10.0, 0.0, torso);
   var hip = 290.0 - torso - 180.0;
-  var bare = skeleton(new Pose(stand.g2a_1.p1o_1, stand.g2a_1.q1o_1, torso, VOID, get_HANG_3(), new Leg(hip, 0.0), VOID, stand.h2a_1));
+  var bare = skeleton(new Pose(stand.j2a_1.p1o_1, stand.j2a_1.q1o_1, torso, VOID, get_HANG_3(), new Leg(hip, 0.0), VOID, stand.k2a_1));
   var arm = armAt_0(-12.0, torso);
-  var grip = skeleton(new Pose(stand.g2a_1.p1o_1, stand.g2a_1.q1o_1, torso, VOID, arm, new Leg(hip, 0.0))).q1q_1.e1q_1;
+  var grip = skeleton(new Pose(stand.j2a_1.p1o_1, stand.j2a_1.q1o_1, torso, VOID, arm, new Leg(hip, 0.0))).r1q_1.f1q_1;
   var column = grip.p1o_1 + 9.0 + 6.0 / 2;
   var stack = new CableStack(column, 12.0, -14.0, VOID, VOID, true);
   return figure_5(View_SIDE_getInstance(), invoke$pose_29(stand, torso, arm, hip, 0.0), invoke$pose_29(stand, torso, arm, hip, 120.0), listOf([Floor_instance, stack, new AnkleStrap(Side_NEAR_getInstance())]), 'Foot just off the floor', 'Knee fully bent', Which_END_getInstance(), listOf(['Attach a foot harness to a low pulley and put it on one ankle.', 'Grip the support bar with both hands and step back with your other foot.', 'Keep your arms straight to hold you up, with your working foot just off the floor.', 'Bend your knee to pull the cable back until your knee is fully bent.']), listOf_0(new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), emptyList());
 }
 function invoke$pose_29(stand, torso, arm, hip, k) {
-  return new Pose(stand.g2a_1.p1o_1, stand.g2a_1.q1o_1, torso, VOID, arm, new Leg(hip, k, 0.0), VOID, stand.h2a_1);
+  return new Pose(stand.j2a_1.p1o_1, stand.j2a_1.q1o_1, torso, VOID, arm, new Leg(hip, k, 0.0), VOID, stand.k2a_1);
 }
 function _get_cableLegCurl_$ref_4k7o1p() {
   return constructCallableReference(function () {
     return get_cableLegCurl();
-  }, 0, 0, 198);
+  }, 0, 0, 199);
 }
 function stabilityBallLegCurl$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21847,8 +21903,8 @@ function stabilityBallLegCurl$delegate$lambda() {
     var bx = _destruct__k2r9zo.za();
     var s = skeleton(p);
     var c = new Point(bx, -r);
-    var d = norm(s.q1q_1.h1q_1.s1o(s.q1q_1.g1q_1));
-    var along = (c.s1o(s.q1q_1.g1q_1).p1o_1 * d.p1o_1 + c.s1o(s.q1q_1.g1q_1).q1o_1 * d.q1o_1) / Segment_SHIN_getInstance().a();
+    var d = norm(s.r1q_1.i1q_1.s1o(s.r1q_1.h1q_1));
+    var along = (c.s1o(s.r1q_1.h1q_1).p1o_1 * d.p1o_1 + c.s1o(s.r1q_1.h1q_1).q1o_1 * d.q1o_1) / Segment_SHIN_getInstance().a();
     // Inline function 'kotlin.math.abs' call
     var x = along - 0.8;
     var minValue = Math.abs(x);
@@ -21859,8 +21915,8 @@ function stabilityBallLegCurl$delegate$lambda() {
       var bx_0 = _destruct__k2r9zo_0.za();
       var s_0 = skeleton(p_0);
       var c_0 = new Point(bx_0, -r);
-      var d_0 = norm(s_0.q1q_1.h1q_1.s1o(s_0.q1q_1.g1q_1));
-      var along_0 = (c_0.s1o(s_0.q1q_1.g1q_1).p1o_1 * d_0.p1o_1 + c_0.s1o(s_0.q1q_1.g1q_1).q1o_1 * d_0.q1o_1) / Segment_SHIN_getInstance().a();
+      var d_0 = norm(s_0.r1q_1.i1q_1.s1o(s_0.r1q_1.h1q_1));
+      var along_0 = (c_0.s1o(s_0.r1q_1.h1q_1).p1o_1 * d_0.p1o_1 + c_0.s1o(s_0.r1q_1.h1q_1).q1o_1 * d_0.q1o_1) / Segment_SHIN_getInstance().a();
       // Inline function 'kotlin.math.abs' call
       var x_0 = along_0 - 0.8;
       var v = Math.abs(x_0);
@@ -21904,18 +21960,18 @@ function stabilityBallLegCurl$delegate$lambda() {
     }
     var p_1 = minElem_0;
     var pose = invoke$curled(sh, k, r, p_1).ya();
-    var n = skeleton(pose).q1q_1;
-    var foot = angleTo(n.j1q_1.s1o(n.i1q_1));
-    var c_1 = n.i1q_1.r1o(n.j1q_1).t1o(0.5).r1o(unit(foot - 90.0).t1o(7.0 / 2 + r));
+    var n = skeleton(pose).r1q_1;
+    var foot = angleTo(n.k1q_1.s1o(n.j1q_1));
+    var c_1 = n.j1q_1.r1o(n.k1q_1).t1o(0.5).r1o(unit(foot - 90.0).t1o(7.0 / 2 + r));
     // Inline function 'kotlin.math.abs' call
     var x_1 = c_1.q1o_1 + r;
     var minValue_0 = Math.abs(x_1);
     do {
       var e_0 = iterator_0.l();
       var pose_0 = invoke$curled(sh, k, r, e_0).ya();
-      var n_0 = skeleton(pose_0).q1q_1;
-      var foot_0 = angleTo(n_0.j1q_1.s1o(n_0.i1q_1));
-      var c_2 = n_0.i1q_1.r1o(n_0.j1q_1).t1o(0.5).r1o(unit(foot_0 - 90.0).t1o(7.0 / 2 + r));
+      var n_0 = skeleton(pose_0).r1q_1;
+      var foot_0 = angleTo(n_0.k1q_1.s1o(n_0.j1q_1));
+      var c_2 = n_0.j1q_1.r1o(n_0.k1q_1).t1o(0.5).r1o(unit(foot_0 - 90.0).t1o(7.0 / 2 + r));
       // Inline function 'kotlin.math.abs' call
       var x_2 = c_2.q1o_1 + r;
       var v_0 = Math.abs(x_2);
@@ -21948,16 +22004,16 @@ function invoke$curled(sh, k, r, phi) {
   var torso = phi + 180.0;
   var pelvis = sh.r1o(unit(phi).t1o(Segment_TORSO_getInstance().a()));
   var pose = new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, phi, invoke$arms(torso), new Leg(0.0, k, 0.0));
-  var n = skeleton(pose).q1q_1;
-  var foot = angleTo(n.j1q_1.s1o(n.i1q_1));
-  var mid = n.i1q_1.r1o(n.j1q_1).t1o(0.5);
+  var n = skeleton(pose).r1q_1;
+  var foot = angleTo(n.k1q_1.s1o(n.j1q_1));
+  var mid = n.j1q_1.r1o(n.k1q_1).t1o(0.5);
   var c = mid.r1o(unit(foot - 90.0).t1o(7.0 / 2 + r));
   return to(pose, c.p1o_1);
 }
 function _get_stabilityBallLegCurl_$ref_l3wwe0() {
   return constructCallableReference(function () {
     return get_stabilityBallLegCurl();
-  }, 0, 0, 199);
+  }, 0, 0, 200);
 }
 function nordicCurl$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -21966,7 +22022,7 @@ function nordicCurl$delegate$lambda() {
   var shinLeg = 180.0;
   // Inline function 'kotlin.let' call
   var it = invoke$pose_30(knee, shinLeg, 90.0, new Arm(25.0, 20.0, VOID, VOID, 55.0, 55.0));
-  var up = it.z1p(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
+  var up = it.a1q(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
   var lowBare = invoke$pose_30(knee, shinLeg, 30.0, null);
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(-900, -200);
@@ -21994,19 +22050,19 @@ function nordicCurl$delegate$lambda() {
       break $l$block;
     }
     var a = minElem;
-    var n = skeleton(invoke$reaching(lowBare, a)).q1q_1;
-    var tmp0 = n.c1q_1.q1o_1;
+    var n = skeleton(invoke$reaching(lowBare, a)).r1q_1;
+    var tmp0 = n.d1q_1.q1o_1;
     // Inline function 'kotlin.comparisons.maxOf' call
-    var b = n.d1q_1.q1o_1;
+    var b = n.e1q_1.q1o_1;
     // Inline function 'kotlin.math.abs' call
     var x = Math.max(tmp0, b) + 6.0 / 2;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
-      var n_0 = skeleton(invoke$reaching(lowBare, e)).q1q_1;
-      var tmp0_0 = n_0.c1q_1.q1o_1;
+      var n_0 = skeleton(invoke$reaching(lowBare, e)).r1q_1;
+      var tmp0_0 = n_0.d1q_1.q1o_1;
       // Inline function 'kotlin.comparisons.maxOf' call
-      var b_0 = n_0.d1q_1.q1o_1;
+      var b_0 = n_0.e1q_1.q1o_1;
       // Inline function 'kotlin.math.abs' call
       var x_0 = Math.max(tmp0_0, b_0) + 6.0 / 2;
       var v = Math.abs(x_0);
@@ -22020,7 +22076,7 @@ function nordicCurl$delegate$lambda() {
   }
   var down = invoke$reaching(lowBare, tmp$ret$5);
   var s0 = skeleton(up);
-  var ankle = s0.q1q_1.h1q_1;
+  var ankle = s0.r1q_1.i1q_1;
   var roller = ankle.r1o(new Point(8.0, -(11.0 / 2 + 6.0)));
   var station = new NordicStation(ankle.p1o_1 + 6.0, knee.p1o_1 + 14.0, padH, roller);
   return figure_5(View_SIDE_getInstance(), up, down, listOf([Floor_instance, station]), 'One line, knees to head', 'Fingertips touch down', Which_END_getInstance(), listOf(['Kneel on a thick pad with your ankles under a fixed bar or pad.', 'Keep your hips straight, so your body is in one line from your knees to your head.', 'Lower your body forward by straightening your knees. Keep your hips straight.', 'Only when your body starts to fall, touch down with your fingertips out to each side. Let your arms take the rest of the way down.']), listOf([new Contact(BodyPoint_KNEES_getInstance(), Surface_KNEE_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_SHINS_getInstance(), Surface_LEG_BRACE_getInstance(), get_BOTH())]), emptyList());
@@ -22034,13 +22090,13 @@ function invoke$pose_30(knee, shinLeg, lean, arm) {
 }
 function invoke$reaching(lowBare, a) {
   // Inline function 'kotlin.let' call
-  var it = lowBare.z1p(VOID, VOID, VOID, VOID, armAt_0(a, lowBare.p1p_1, 10.0));
-  return it.z1p(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
+  var it = lowBare.a1q(VOID, VOID, VOID, VOID, armAt_0(a, lowBare.p1p_1, 10.0));
+  return it.a1q(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
 }
 function _get_nordicCurl_$ref_ntdwlb() {
   return constructCallableReference(function () {
     return get_nordicCurl();
-  }, 0, 0, 200);
+  }, 0, 0, 201);
 }
 function gluteHamRaise$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22058,12 +22114,12 @@ function invoke$pose_31(knee, lean) {
   var bare = new Pose(hip.p1o_1, hip.q1o_1, lean, VOID, get_HANG_3(), new Leg(fold180(thigh - lean - 180.0), fold180(thigh - 180.0), 0.0));
   // Inline function 'kotlin.let' call
   var it = crossedArms(bare);
-  return bare.z1p(VOID, VOID, VOID, VOID, it, VOID, it);
+  return bare.a1q(VOID, VOID, VOID, VOID, it, VOID, it);
 }
 function _get_gluteHamRaise_$ref_ysg7fd() {
   return constructCallableReference(function () {
     return get_gluteHamRaise();
-  }, 0, 0, 201);
+  }, 0, 0, 202);
 }
 function bridgeBase$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22081,35 +22137,35 @@ function bridgeBase$delegate$lambda() {
 function _get_bridgeBase_$ref_5c8l34() {
   return constructCallableReference(function () {
     return get_bridgeBase();
-  }, 0, 0, 202);
+  }, 0, 0, 203);
 }
 function bridgeBottomPelvis$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
-  return get_bridgeBase().r2c_1.r1o(new Point(Segment_TORSO_getInstance().a(), 0.0));
+  return get_bridgeBase().u2c_1.r1o(new Point(Segment_TORSO_getInstance().a(), 0.0));
 }
 function _get_bridgeBottomPelvis_$ref_a1smgz() {
   return constructCallableReference(function () {
     return get_bridgeBottomPelvis();
-  }, 0, 0, 203);
+  }, 0, 0, 204);
 }
 function gluteBridge$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
-  return figure_5(View_SIDE_getInstance(), bridgePose(get_bridgeBottomPelvis()), bridgePose(get_bridgeBase().s2c_1), listOf_0(Floor_instance), 'Knees bent, feet flat', 'Squeeze your glutes', Which_END_getInstance(), listOf(['Lie on your back with your knees bent and your feet flat, hip-width apart.', 'Breathe out and lift your hips by squeezing your glutes. Press your heels into the floor.']), get_BRIDGE_CONTACTS(), emptyList());
+  return figure_5(View_SIDE_getInstance(), bridgePose(get_bridgeBottomPelvis()), bridgePose(get_bridgeBase().v2c_1), listOf_0(Floor_instance), 'Knees bent, feet flat', 'Squeeze your glutes', Which_END_getInstance(), listOf(['Lie on your back with your knees bent and your feet flat, hip-width apart.', 'Breathe out and lift your hips by squeezing your glutes. Press your heels into the floor.']), get_BRIDGE_CONTACTS(), emptyList());
 }
 function _get_gluteBridge_$ref_5dlrjq() {
   return constructCallableReference(function () {
     return get_gluteBridge();
-  }, 0, 0, 204);
+  }, 0, 0, 205);
 }
 function singleLegGluteBridge$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var straight = new Leg(0.0, 0.0, -20.0);
-  return figure_5(View_SIDE_getInstance(), bridgePose(get_bridgeBottomPelvis(), straight), bridgePose(get_bridgeBase().s2c_1, straight), listOf_0(Floor_instance), 'Other leg straight', 'Leg in line with hips', Which_END_getInstance(), listOf(['Lie on your back with your arms along your sides.', 'Bend one knee with that foot flat on the floor. Keep the other leg straight.', 'Breathe out, press your planted foot into the floor and lift your hips by squeezing that glute.', 'Keep your straight leg in line with your hips.']), listOf([new Contact(BodyPoint_HEAD_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))]), emptyList());
+  return figure_5(View_SIDE_getInstance(), bridgePose(get_bridgeBottomPelvis(), straight), bridgePose(get_bridgeBase().v2c_1, straight), listOf_0(Floor_instance), 'Other leg straight', 'Leg in line with hips', Which_END_getInstance(), listOf(['Lie on your back with your arms along your sides.', 'Bend one knee with that foot flat on the floor. Keep the other leg straight.', 'Breathe out, press your planted foot into the floor and lift your hips by squeezing that glute.', 'Keep your straight leg in line with your hips.']), listOf([new Contact(BodyPoint_HEAD_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))]), emptyList());
 }
 function _get_singleLegGluteBridge_$ref_4chjnu() {
   return constructCallableReference(function () {
     return get_singleLegGluteBridge();
-  }, 0, 0, 205);
+  }, 0, 0, 206);
 }
 function barbellGluteBridge$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22165,7 +22221,7 @@ function barbellGluteBridge$delegate$lambda() {
     tmp$ret$6 = minElem;
   }
   var low = tmp$ret$6;
-  return figure_5(View_SIDE_getInstance(), invoke$at_0(low), invoke$at_0(get_bridgeBase().s2c_1), listOf([Floor_instance, new Barbell()]), 'Bar across your hips', 'Hips toward the ceiling', Which_END_getInstance(), listOf(['Lie on your back under the bar, so it sits across the top of your hips. Pad it if needed.', 'Grip the bar with your palms down.', 'Bend your knees and set your feet flat on the floor.', 'Press your feet into the floor and lift your hips toward the ceiling.']), get_BRIDGE_CONTACTS(), listOf([new HeldBeside(BodyPoint_HIPS_getInstance(), 12.0, Which_START_getInstance()), new HeldBeside(BodyPoint_HIPS_getInstance(), 12.0, Which_END_getInstance())]));
+  return figure_5(View_SIDE_getInstance(), invoke$at_0(low), invoke$at_0(get_bridgeBase().v2c_1), listOf([Floor_instance, new Barbell()]), 'Bar across your hips', 'Hips toward the ceiling', Which_END_getInstance(), listOf(['Lie on your back under the bar, so it sits across the top of your hips. Pad it if needed.', 'Grip the bar with your palms down.', 'Bend your knees and set your feet flat on the floor.', 'Press your feet into the floor and lift your hips toward the ceiling.']), get_BRIDGE_CONTACTS(), listOf([new HeldBeside(BodyPoint_HIPS_getInstance(), 12.0, Which_START_getInstance()), new HeldBeside(BodyPoint_HIPS_getInstance(), 12.0, Which_END_getInstance())]));
 }
 function invoke$at_0(pelvis) {
   var bare = bridgePose(pelvis);
@@ -22174,7 +22230,7 @@ function invoke$at_0(pelvis) {
 function _get_barbellGluteBridge_$ref_xxzbtm() {
   return constructCallableReference(function () {
     return get_barbellGluteBridge();
-  }, 0, 0, 206);
+  }, 0, 0, 207);
 }
 function thrustLowTilt$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22231,7 +22287,7 @@ function thrustLowTilt$delegate$lambda() {
 function _get_thrustLowTilt_$ref_hpgx7r() {
   return constructCallableReference(function () {
     return get_thrustLowTilt();
-  }, 0, 0, 207);
+  }, 0, 0, 208);
 }
 function thrustBench$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22240,13 +22296,13 @@ function thrustBench$delegate$lambda() {
 function _get_thrustBench_$ref_3380ug() {
   return constructCallableReference(function () {
     return get_thrustBench();
-  }, 0, 0, 208);
+  }, 0, 0, 209);
 }
 function hipThrust$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var tmp = get_thrustLowTilt();
   var t = thrust(tmp, VOID, hipThrust$delegate$lambda$lambda);
-  return figure_5(View_SIDE_getInstance(), t.u2c_1, t.v2c_1, listOf([Floor_instance, get_thrustBench(), new Barbell()]), 'Upper back on the bench', 'Body straight', Which_END_getInstance(), listOf(['Sit on the floor with your upper back against a bench about 40 to 45 cm high.', 'Roll the bar over your hips so it sits across the top of your hips and lower belly. Pad it if needed.', 'Plant your feet flat, about shoulder-width apart, with your knees bent.', 'Drive through your feet and lift your hips until your body is straight.']), get_THRUST_CONTACTS(), listOf([new HeldBeside(BodyPoint_HIPS_getInstance(), 12.0, Which_START_getInstance()), new HeldBeside(BodyPoint_HIPS_getInstance(), 12.0, Which_END_getInstance())]));
+  return figure_5(View_SIDE_getInstance(), t.x2c_1, t.y2c_1, listOf([Floor_instance, get_thrustBench(), new Barbell()]), 'Upper back on the bench', 'Body straight', Which_END_getInstance(), listOf(['Sit on the floor with your upper back against a bench about 40 to 45 cm high.', 'Roll the bar over your hips so it sits across the top of your hips and lower belly. Pad it if needed.', 'Plant your feet flat, about shoulder-width apart, with your knees bent.', 'Drive through your feet and lift your hips until your body is straight.']), get_THRUST_CONTACTS(), listOf([new HeldBeside(BodyPoint_HIPS_getInstance(), 12.0, Which_START_getInstance()), new HeldBeside(BodyPoint_HIPS_getInstance(), 12.0, Which_END_getInstance())]));
 }
 function hipThrust$delegate$lambda$lambda(it) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22255,13 +22311,13 @@ function hipThrust$delegate$lambda$lambda(it) {
 function _get_hipThrust_$ref_ft9nbt() {
   return constructCallableReference(function () {
     return get_hipThrust();
-  }, 0, 0, 209);
+  }, 0, 0, 210);
 }
 function dbHipThrust$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var tmp = get_thrustLowTilt();
   var t = thrust(tmp, VOID, dbHipThrust$delegate$lambda$lambda);
-  return figure_5(View_SIDE_getInstance(), t.u2c_1, t.v2c_1, listOf([Floor_instance, get_thrustBench(), new Dumbbell(Side_FAR_getInstance()), new Dumbbell(Side_NEAR_getInstance())]), 'Tailbone toward floor', 'Body straight', Which_END_getInstance(), listOf(['Lie across a flat bench with your upper back and shoulders on it.', 'Hold a dumbbell in each hand and rest them on your hips.', 'Lower your tailbone toward the floor, keeping the weights on your hips.', 'Press your feet into the floor and squeeze your glutes to lift your hips until your body is straight.']), get_THRUST_CONTACTS(), listOf([new HeldBeside(BodyPoint_HIPS_getInstance(), 21.0, Which_START_getInstance()), new HeldBeside(BodyPoint_HIPS_getInstance(), 21.0, Which_END_getInstance())]));
+  return figure_5(View_SIDE_getInstance(), t.x2c_1, t.y2c_1, listOf([Floor_instance, get_thrustBench(), new Dumbbell(Side_FAR_getInstance()), new Dumbbell(Side_NEAR_getInstance())]), 'Tailbone toward floor', 'Body straight', Which_END_getInstance(), listOf(['Lie across a flat bench with your upper back and shoulders on it.', 'Hold a dumbbell in each hand and rest them on your hips.', 'Lower your tailbone toward the floor, keeping the weights on your hips.', 'Press your feet into the floor and squeeze your glutes to lift your hips until your body is straight.']), get_THRUST_CONTACTS(), listOf([new HeldBeside(BodyPoint_HIPS_getInstance(), 21.0, Which_START_getInstance()), new HeldBeside(BodyPoint_HIPS_getInstance(), 21.0, Which_END_getInstance())]));
 }
 function dbHipThrust$delegate$lambda$lambda(it) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22270,26 +22326,26 @@ function dbHipThrust$delegate$lambda$lambda(it) {
 function _get_dbHipThrust_$ref_5szd55() {
   return constructCallableReference(function () {
     return get_dbHipThrust();
-  }, 0, 0, 210);
+  }, 0, 0, 211);
 }
 function machineHipThrust$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var tmp = get_thrustLowTilt();
   var t = thrust(tmp, 5.0, machineHipThrust$delegate$lambda$lambda);
-  var a = invoke$pad_3(skeleton(t.u2c_1));
-  var b = invoke$pad_3(skeleton(t.v2c_1));
+  var a = invoke$pad_3(skeleton(t.x2c_1));
+  var b = invoke$pad_3(skeleton(t.y2c_1));
   var m = a.r1o(b).t1o(0.5);
   var nrm = norm(new Point(-b.s1o(a).q1o_1, b.s1o(a).p1o_1));
-  var pivot = m.r1o(nrm.t1o((t.w2c_1.p1o_1 + 18.0 - m.p1o_1) / nrm.p1o_1));
-  var platform = new Point(t.w2c_1.p1o_1 + 8.0, -5.0);
-  return figure_5(View_SIDE_getInstance(), t.u2c_1, t.v2c_1, listOf([Floor_instance, invoke$machine_7(platform, pivot, a)]), 'Pad snug over your hips', 'Body straight', Which_END_getInstance(), listOf(['Lie on the machine with your knees bent and your feet on the platform, shoulder-width apart or a little narrower.', 'Set your hips just below the padded bar or belt. Lock or tighten it snugly over your hips.', 'Lift the weight by straightening your hips until your body is straight.']), listOf([new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FOOT_PLATE_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_HIP_PAD_getInstance(), get_BOTH())]), emptyList(), listOf([Floor_instance, invoke$machine_7(platform, pivot, b)]));
+  var pivot = m.r1o(nrm.t1o((t.z2c_1.p1o_1 + 18.0 - m.p1o_1) / nrm.p1o_1));
+  var platform = new Point(t.z2c_1.p1o_1 + 8.0, -5.0);
+  return figure_5(View_SIDE_getInstance(), t.x2c_1, t.y2c_1, listOf([Floor_instance, invoke$machine_7(platform, pivot, a)]), 'Pad snug over your hips', 'Body straight', Which_END_getInstance(), listOf(['Lie on the machine with your knees bent and your feet on the platform, shoulder-width apart or a little narrower.', 'Set your hips just below the padded bar or belt. Lock or tighten it snugly over your hips.', 'Lift the weight by straightening your hips until your body is straight.']), listOf([new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FOOT_PLATE_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_HIP_PAD_getInstance(), get_BOTH())]), emptyList(), listOf([Floor_instance, invoke$machine_7(platform, pivot, b)]));
 }
 function invoke$pad_3(s) {
-  return s.v1q(1.0, 9.0 + 7.0 + 0.5);
+  return s.x1q(1.0, 9.0 + 7.0 + 0.5);
 }
 function machineHipThrust$delegate$lambda$lambda(s) {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
-  return invoke$pad_3(s).r1o(unit(s.l1q_1 - 90.0).t1o(7.0 + 6.0 / 2));
+  return invoke$pad_3(s).r1o(unit(s.m1q_1 - 90.0).t1o(7.0 + 6.0 / 2));
 }
 function invoke$machine_7(platform, pivot, pad) {
   return new HipThrustMachine(get_THRUST_EDGE().p1o_1, 43.0, platform, pivot, pad);
@@ -22297,15 +22353,15 @@ function invoke$machine_7(platform, pivot, pad) {
 function _get_machineHipThrust_$ref_b7xz3u() {
   return constructCallableReference(function () {
     return get_machineHipThrust();
-  }, 0, 0, 211);
+  }, 0, 0, 212);
 }
 function reverseHyper$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var height = 95.0;
   var pelvis = new Point(0.0, -(height + 10.0));
   var bare = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, 0.0, 10.0, get_HANG_3(), new Leg(90.0, 0.0)));
-  var handle = new Point(bare.n1q_1.p1o_1 + 18.0, -height + 47.0);
-  var arm = armTo(bare.n1q_1, handle, 0.0);
+  var handle = new Point(bare.o1q_1.p1o_1 + 18.0, -height + 47.0);
+  var arm = armTo(bare.o1q_1, handle, 0.0);
   return figure_5(View_SIDE_getInstance(), invoke$pose_32(pelvis, arm, 90.0), invoke$pose_32(pelvis, arm, 6.0), listOf([Floor_instance, new ReverseHyperBench(pelvis.p1o_1 + 8.0, height, handle)]), 'Legs hang straight', 'Nearly in line', Which_END_getInstance(), listOf(['Lie face down with your torso and waist on the bench, and grip the handles.', 'Let your legs hang straight, with your feet off the floor.', 'Raise your legs by straightening your hips until your legs are nearly in line with your body.']), listOf([new Contact(BodyPoint_WAIST_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_HANDS_getInstance(), Surface_HANDLE_getInstance(), get_BOTH())]), emptyList());
 }
 function invoke$pose_32(pelvis, arm, hip) {
@@ -22314,7 +22370,7 @@ function invoke$pose_32(pelvis, arm, hip) {
 function _get_reverseHyper_$ref_ws8or4() {
   return constructCallableReference(function () {
     return get_reverseHyper();
-  }, 0, 0, 212);
+  }, 0, 0, 213);
 }
 function quadrupedHipExtension$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22350,7 +22406,7 @@ function quadrupedHipExtension$delegate$lambda() {
   var elbow = tmp$ret$3;
   var start = invoke$handsDown_0(hipP, invoke$tilt_0(hipP, elbow), elbow, invoke$upperFor_0(elbow));
   var lifted = new Leg(0.0, 90.0, 0.0);
-  return figure_5(View_SIDE_getInstance(), start, start.z1p(VOID, VOID, VOID, VOID, VOID, lifted), listOf_0(Floor_instance), 'Knees under your hips', 'Lift, knee bent', Which_END_getInstance(), listOf(['Kneel on all fours with your hands under your shoulders and your knees under your hips.', 'Squeeze the glute on one side to lift that leg. Keep the knee bent and move only at the hip.']), listOf([new Contact(BodyPoint_HANDS_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_KNEE_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_NEAR_KNEE_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))]), emptyList());
+  return figure_5(View_SIDE_getInstance(), start, start.a1q(VOID, VOID, VOID, VOID, VOID, lifted), listOf_0(Floor_instance), 'Knees under your hips', 'Lift, knee bent', Which_END_getInstance(), listOf(['Kneel on all fours with your hands under your shoulders and your knees under your hips.', 'Squeeze the glute on one side to lift that leg. Keep the knee bent and move only at the hip.']), listOf([new Contact(BodyPoint_HANDS_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_KNEE_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_NEAR_KNEE_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))]), emptyList());
 }
 function quadrupedHipExtension$delegate$lambda$upperFor$lambda($elbow) {
   return function (u) {
@@ -22366,10 +22422,10 @@ function quadrupedHipExtension$delegate$lambda$upperFor$lambda($elbow) {
 }
 function quadrupedHipExtension$delegate$lambda$tilt$lambda($elbow, $upper, $hipP) {
   return function (t) {
-    var n = skeleton(invoke$handsDown_0($hipP, t, $elbow, $upper)).q1q_1;
-    var tmp0 = n.c1q_1.q1o_1;
+    var n = skeleton(invoke$handsDown_0($hipP, t, $elbow, $upper)).r1q_1;
+    var tmp0 = n.d1q_1.q1o_1;
     // Inline function 'kotlin.comparisons.maxOf' call
-    var b = n.d1q_1.q1o_1;
+    var b = n.e1q_1.q1o_1;
     return -(Math.max(tmp0, b) + 6.0 / 2);
   };
 }
@@ -22390,16 +22446,16 @@ function invoke$tilt_0(hipP, elbow) {
 function _get_quadrupedHipExtension_$ref_tnbvsl() {
   return constructCallableReference(function () {
     return get_quadrupedHipExtension();
-  }, 0, 0, 213);
+  }, 0, 0, 214);
 }
 function hipMachineHandle$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
-  return skeleton(hipMachinePose(0.0), View_FRONT_getInstance()).q1q_1.e1q_1;
+  return skeleton(hipMachinePose(0.0), View_FRONT_getInstance()).r1q_1.f1q_1;
 }
 function _get_hipMachineHandle_$ref_jirhdy() {
   return constructCallableReference(function () {
     return get_hipMachineHandle();
-  }, 0, 0, 214);
+  }, 0, 0, 215);
 }
 function machineHipAbduction$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22409,7 +22465,7 @@ function machineHipAbduction$delegate$lambda() {
 function _get_machineHipAbduction_$ref_63qta5() {
   return constructCallableReference(function () {
     return get_machineHipAbduction();
-  }, 0, 0, 215);
+  }, 0, 0, 216);
 }
 function machineHipAdduction$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22434,7 +22490,7 @@ function machineHipAdduction$delegate$lambda() {
     var _iterator__ex2g4s = destination.j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
-      if (skeleton(hipMachinePose(element), View_FRONT_getInstance()).q1q_1.g1q_1.p1o_1 >= 11.0 / 2 + 2 * 4.0) {
+      if (skeleton(hipMachinePose(element), View_FRONT_getInstance()).r1q_1.h1q_1.p1o_1 >= 11.0 / 2 + 2 * 4.0) {
         tmp$ret$3 = element;
         break $l$block;
       }
@@ -22447,7 +22503,7 @@ function machineHipAdduction$delegate$lambda() {
 function _get_machineHipAdduction_$ref_ft43p7() {
   return constructCallableReference(function () {
     return get_machineHipAdduction();
-  }, 0, 0, 216);
+  }, 0, 0, 217);
 }
 function lateralBandWalk$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22456,7 +22512,7 @@ function lateralBandWalk$delegate$lambda() {
 function _get_lateralBandWalk_$ref_i6uuhh() {
   return constructCallableReference(function () {
     return get_lateralBandWalk();
-  }, 0, 0, 217);
+  }, 0, 0, 218);
 }
 function cableHipAbduction$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22465,7 +22521,7 @@ function cableHipAbduction$delegate$lambda() {
   var far = new Arm(62.0, 10.0);
   var start = invoke$pose_33(pelvisY, far, stand, new Leg(-12.0, 0.0, VOID, 10.0, 10.0));
   var end = invoke$pose_33(pelvisY, far, stand, new Leg(30.0, 0.0));
-  var grip = skeleton(start, View_FRONT_getInstance()).r1q_1.e1q_1;
+  var grip = skeleton(start, View_FRONT_getInstance()).s1q_1.f1q_1;
   var column = grip.p1o_1 - 9.0 - 6.0 / 2;
   var stack = new CableStack(column, 12.0, 12.0, VOID, VOID, true);
   return figure_5(View_FRONT_getInstance(), start, end, listOf([Floor_instance, stack, new AnkleStrap(Side_NEAR_getInstance())]), 'Leg crossed in front', 'Lift it out to the side', Which_END_getInstance(), listOf(['Stand side-on to a low pulley and attach the cuff to your far ankle.', 'Balance on the leg nearest the pulley, with your cuffed leg crossed in front of it.', 'Lift your cuffed leg out to the side, away from the pulley.', 'Stop when your hips start to tilt.']), listOf_0(new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), emptyList());
@@ -22476,7 +22532,7 @@ function invoke$pose_33(pelvisY, far, stand, near) {
 function _get_cableHipAbduction_$ref_y73whf() {
   return constructCallableReference(function () {
     return get_cableHipAbduction();
-  }, 0, 0, 218);
+  }, 0, 0, 219);
 }
 function sideLyingHipAbduction$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22495,18 +22551,18 @@ function sideLyingHipAbduction$delegate$lambda$lambda_0(it) {
 function _get_sideLyingHipAbduction_$ref_3a1aic() {
   return constructCallableReference(function () {
     return get_sideLyingHipAbduction();
-  }, 0, 0, 219);
+  }, 0, 0, 220);
 }
 function clamshell$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var bottom = bottomLeg(clamshell$delegate$lambda$bent$ref());
   var rest = restingTop(bottom, clamshell$delegate$lambda$bent$ref());
   var s0 = skeleton(sideLying(rest, bottom), View_FRONT_getInstance());
-  var h = s0.q1q_1.f1q_1;
-  var f = s0.q1q_1.h1q_1;
+  var h = s0.r1q_1.g1q_1;
+  var f = s0.r1q_1.i1q_1;
   var u = norm(f.s1o(h));
   var n = unit(angleTo(u) + 90.0);
-  var k0 = s0.q1q_1.g1q_1.s1o(h);
+  var k0 = s0.r1q_1.h1q_1.s1o(h);
   var along = k0.p1o_1 * u.p1o_1 + k0.q1o_1 * u.q1o_1;
   var p = k0.p1o_1 * n.p1o_1 + k0.q1o_1 * n.q1o_1;
   var tmp = Segment_THIGH_getInstance().a();
@@ -22542,12 +22598,12 @@ function invoke$bent(h) {
 function clamshell$delegate$lambda$bent$ref() {
   return constructCallableReference(function (p0) {
     return invoke$bent(p0);
-  }, 1, 0, 220, 'bent');
+  }, 1, 0, 221, 'bent');
 }
 function _get_clamshell_$ref_t0mzz9() {
   return constructCallableReference(function () {
     return get_clamshell();
-  }, 0, 0, 221);
+  }, 0, 0, 222);
 }
 function hamstringGluteBatchFigures$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22690,7 +22746,7 @@ function hamstringGluteBatchFigures$delegate$lambda$lambda_25() {
 function _get_hamstringGluteBatchFigures_$ref_2ws8vr() {
   return constructCallableReference(function () {
     return get_hamstringGluteBatchFigures();
-  }, 0, 0, 222);
+  }, 0, 0, 223);
 }
 function hamstringGluteFigures$delegate$lambda() {
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
@@ -22703,14 +22759,14 @@ function hamstringGluteFigures$delegate$lambda$lambda() {
 function _get_hamstringGluteFigures_$ref_ogziy5() {
   return constructCallableReference(function () {
     return get_hamstringGluteFigures();
-  }, 0, 0, 223);
+  }, 0, 0, 224);
 }
 function hinge$at($knee, loadX, t) {
   var leg = standingLeg(0.0, 0.0, $knee, t);
-  return standOn(leg, t, hangingArmAt(shoulderOf(leg.g2a_1, t), loadX, t));
+  return standOn(leg, t, hangingArmAt(shoulderOf(leg.j2a_1, t), loadX, t));
 }
 function thrust$pose(ankle, $arm, pelvis, torso, neck) {
-  var leg = Reach_instance.y1q(pelvis, ankle, torso, 0.0);
+  var leg = Reach_instance.a1r(pelvis, ankle, torso, 0.0);
   var bare = new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, neck, get_HANG_3(), leg);
   var s = skeleton(bare);
   var hands = $arm(s);
@@ -23060,19 +23116,19 @@ function circleMeet(a, ra, b, rb) {
 function midfootX(ankleX) {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var s = skeleton(standOn(standingLeg(ankleX, 0.0, 0.0, 90.0), 90.0, new Arm(0.0, 0.0)));
-  return (s.q1q_1.i1q_1.p1o_1 + s.q1q_1.j1q_1.p1o_1) / 2;
+  return (s.r1q_1.j1q_1.p1o_1 + s.r1q_1.k1q_1.p1o_1) / 2;
 }
 function balancedTorso(leg, range, load) {
   _init_properties_MainLifts_kt__yvcjdp_0();
-  var mid = midfootX(leg.e2a_1.p1o_1);
+  var mid = midfootX(leg.h2a_1.p1o_1);
   var best = range.xb();
   var t = range.xb();
   while (t <= range.yb() + 1.0E-9) {
     // Inline function 'kotlin.math.abs' call
-    var x = load(leg.g2a_1, t).p1o_1 - mid;
+    var x = load(leg.j2a_1, t).p1o_1 - mid;
     var tmp = Math.abs(x);
     // Inline function 'kotlin.math.abs' call
-    var x_0 = load(leg.g2a_1, best).p1o_1 - mid;
+    var x_0 = load(leg.j2a_1, best).p1o_1 - mid;
     if (tmp < Math.abs(x_0))
       best = t;
     t = t + 0.1;
@@ -23088,25 +23144,25 @@ function kneeForDepth(shinLean, below) {
 }
 function backSquatPose(leg, torso) {
   _init_properties_MainLifts_kt__yvcjdp_0();
-  return standOn(leg, torso, armTo(shoulderOf(leg.g2a_1, torso), barOnBack(leg.g2a_1, torso), torso, VOID, true));
+  return standOn(leg, torso, armTo(shoulderOf(leg.j2a_1, torso), barOnBack(leg.j2a_1, torso), torso, VOID, true));
 }
 function squatRack(barTop, barLow) {
   _init_properties_MainLifts_kt__yvcjdp_0();
   return rackInFront(barTop.p1o_1, -barTop.q1o_1 - 8.0, -barLow.q1o_1 - 1.45 - 6.0);
 }
 function benchPose(arm, legs) {
-  legs = legs === VOID ? get_bench().g1t_1.z1q_1.s1p_1 : legs;
+  legs = legs === VOID ? get_bench().i1t_1.b1r_1.s1p_1 : legs;
   _init_properties_MainLifts_kt__yvcjdp_0();
   return new Pose(get_benchPelvis().p1o_1, get_benchPelvis().q1o_1, get_benchTorso(), VOID, arm, legs);
 }
 function benchArmAbove(above) {
   _init_properties_MainLifts_kt__yvcjdp_0();
-  return Reach_instance.x1q(get_benchBare().n1q_1, new Point(get_benchChest().p1o_1, get_benchChest().q1o_1 - 1.45 - above), get_benchTorso());
+  return Reach_instance.z1q(get_benchBare().o1q_1, new Point(get_benchChest().p1o_1, get_benchChest().q1o_1 - 1.45 - above), get_benchTorso());
 }
 function benchVariation(start, startCaption, guideLines, checks, end, props, contacts, endCaption) {
   end = end === VOID ? benchPose(get_benchLockout()) : end;
-  props = props === VOID ? get_bench().g1t_1.a1r_1 : props;
-  contacts = contacts === VOID ? get_bench().m1t_1 : contacts;
+  props = props === VOID ? get_bench().i1t_1.c1r_1 : props;
+  contacts = contacts === VOID ? get_bench().o1t_1 : contacts;
   endCaption = endCaption === VOID ? 'Press until elbows lock' : endCaption;
   _init_properties_MainLifts_kt__yvcjdp_0();
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), startCaption, endCaption, Which_END_getInstance(), guideLines, contacts, checks);
@@ -23147,13 +23203,13 @@ function pullLockout(floorY) {
   floorY = floorY === VOID ? 0.0 : floorY;
   _init_properties_MainLifts_kt__yvcjdp_0();
   // Inline function 'kotlin.let' call
-  var it = get_deadlift().h1t_1.z1q_1;
-  return it.z1p(VOID, it.o1p_1 + floorY);
+  var it = get_deadlift().j1t_1.b1r_1;
+  return it.a1q(VOID, it.o1p_1 + floorY);
 }
 function pullFromHeight(barY, lead, gap) {
   gap = gap === VOID ? 0.5 : gap;
   _init_properties_MainLifts_kt__yvcjdp_0();
-  var x0 = center(new Barbell(), skeleton(get_deadlift().g1t_1.z1q_1)).p1o_1;
+  var x0 = center(new Barbell(), skeleton(get_deadlift().i1t_1.b1r_1)).p1o_1;
   var lo = 0.0;
   var hi = 20.0;
   // Inline function 'kotlin.repeat' call
@@ -23189,10 +23245,10 @@ function squat$delegate$lambda() {
   var bottomLean = 33.0;
   var bottomLeg = standingLeg(ankleX, bottomLean, 90.0 + bottomLean + slope, 44.0);
   var bottomTorso = 44.0;
-  var start = standOn(standLeg, standTorso, invoke$arms_0(standLeg.g2a_1, standTorso));
-  var end = standOn(bottomLeg, bottomTorso, invoke$arms_0(bottomLeg.g2a_1, bottomTorso));
-  var barTop = barOnBack(standLeg.g2a_1, standTorso);
-  var barLow = barOnBack(bottomLeg.g2a_1, bottomTorso);
+  var start = standOn(standLeg, standTorso, invoke$arms_0(standLeg.j2a_1, standTorso));
+  var end = standOn(bottomLeg, bottomTorso, invoke$arms_0(bottomLeg.j2a_1, bottomTorso));
+  var barTop = barOnBack(standLeg.j2a_1, standTorso);
+  var barLow = barOnBack(bottomLeg.j2a_1, bottomTorso);
   var rack = rackInFront(barTop.p1o_1, -barTop.q1o_1 - 8.0, -barLow.q1o_1 - 1.45 - 6.0);
   var props = listOf([Floor_instance, rack, new Barbell(BarHold_UPPER_BACK_getInstance())]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), 'Stand tall, knees locked', 'Hip crease below knee', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Go down until the crease of your hip is below the top of your knee. This is competition depth.', 'Stand tall with your knees locked. Breathe, then brace again for the next rep.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new HipDepth(2.0, Which_END_getInstance()), new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance())]));
@@ -23203,7 +23259,7 @@ function invoke$arms_0(pelvis, torso) {
 function _get_squat_$ref_d9q7ue() {
   return constructCallableReference(function () {
     return get_squat();
-  }, 0, 0, 224);
+  }, 0, 0, 225);
 }
 function bench$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23211,9 +23267,9 @@ function bench$delegate$lambda() {
   var pelvis = new Point(95.0, -(43.0 + 10.0));
   var bare = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, new Arm(0.0, 0.0), new Leg(0.0, 0.0)));
   var chest = point(bare, BodyPoint_CHEST_getInstance());
-  var legs = Reach_instance.y1q(pelvis, new Point(127.0, -6.825), torso, 0.0);
+  var legs = Reach_instance.a1r(pelvis, new Point(127.0, -6.825), torso, 0.0);
   var bar = new Point(chest.p1o_1, chest.q1o_1 - 1.45);
-  var onChest = Reach_instance.x1q(bare.n1q_1, bar, torso);
+  var onChest = Reach_instance.z1q(bare.o1q_1, bar, torso);
   var lockout = new Arm(90.0, 0.0);
   var props = listOf([Floor_instance, new FlatBench(), new PowerRack(2.0, 110.0, 60.0), new Barbell()]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, onChest, legs), props), new Scene(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, lockout, legs), props), 'Pause on your chest', 'Press until elbows lock', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Pause with the bar still on your chest.', 'Press the bar up until your elbows lock.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HEAD_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_BENCH_getInstance(), get_BOTH())]), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]));
@@ -23221,7 +23277,7 @@ function bench$delegate$lambda() {
 function _get_bench_$ref_yziiuo() {
   return constructCallableReference(function () {
     return get_bench();
-  }, 0, 0, 225);
+  }, 0, 0, 226);
 }
 function deadlift$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23250,7 +23306,7 @@ function deadlift$delegate$lambda() {
   var setupLeg = standingLeg(ankleX, shinLean, kneeBend, torso);
   var start = standOn(setupLeg, torso, straightArm(shoulder, bar, torso));
   var standLeg = standingLeg(ankleX, 0.0, 0.0, 90.0);
-  var standShoulder = shoulderOf(standLeg.g2a_1, 90.0);
+  var standShoulder = shoulderOf(standLeg.j2a_1, 90.0);
   var frontOfThigh = 14.0 / 2 + 1.45 + 0.5;
   var end = standOn(standLeg, 90.0, hangingArmAt(standShoulder, ankleX + frontOfThigh, 90.0));
   var props = listOf([Floor_instance, new Barbell()]);
@@ -23259,13 +23315,13 @@ function deadlift$delegate$lambda() {
 function _get_deadlift_$ref_exvl7() {
   return constructCallableReference(function () {
     return get_deadlift();
-  }, 0, 0, 226);
+  }, 0, 0, 227);
 }
 function strictPress$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var ankleX = 0.0;
   var leg = standingLeg(ankleX, 3.0, 0.0, 90.0);
-  var shoulder = shoulderOf(leg.g2a_1, 90.0);
+  var shoulder = shoulderOf(leg.j2a_1, 90.0);
   var rackAt = shoulder.r1o(new Point(8.0, -3.0));
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(0, 900);
@@ -23309,36 +23365,36 @@ function strictPress$delegate$lambda() {
   var front = tmp$ret$3;
   var start = standOn(leg, 90.0, front);
   var end = standOn(leg, 90.0, new Arm(180.0, 0.0));
-  var barStart = skeleton(start).q1q_1.e1q_1;
+  var barStart = skeleton(start).r1q_1.f1q_1;
   var rack = rackInFront(barStart.p1o_1, -barStart.q1o_1 - 6.0, -barStart.q1o_1 - 10.0, 35.0);
   var props = listOf([Floor_instance, rack, new Barbell()]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), 'Front of your neck', 'Press to straight arms', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Take the bar across the front of your shoulders and step back.', 'Press the bar overhead until your arms are straight.', 'Keep your back straight and tall.', 'Lower the bar under control to the front of your neck.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new LockoutOverShoulders(Which_END_getInstance()), new BarOverMidfoot(Which_END_getInstance())]));
 }
 function invoke$gripOf(leg, arm) {
-  return skeleton(new Pose(leg.g2a_1.p1o_1, leg.g2a_1.q1o_1, 90.0, VOID, arm, leg.h2a_1)).q1q_1.e1q_1;
+  return skeleton(new Pose(leg.j2a_1.p1o_1, leg.j2a_1.q1o_1, 90.0, VOID, arm, leg.k2a_1)).r1q_1.f1q_1;
 }
 function _get_strictPress_$ref_negg92() {
   return constructCallableReference(function () {
     return get_strictPress();
-  }, 0, 0, 227);
+  }, 0, 0, 228);
 }
 function pauseSquat$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
-  return get_squat().q1t(VOID, VOID, VOID, 'Stand tall and brace', 'Hold still at the bottom', VOID, listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Squat down under control to your normal depth.', 'Hold still at the bottom for a short pause. Stay braced.', 'Stand tall, breathe, and brace again for the next rep.']));
+  return get_squat().s1t(VOID, VOID, VOID, 'Stand tall and brace', 'Hold still at the bottom', VOID, listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Squat down under control to your normal depth.', 'Hold still at the bottom for a short pause. Stay braced.', 'Stand tall, breathe, and brace again for the next rep.']));
 }
 function _get_pauseSquat_$ref_arnvju() {
   return constructCallableReference(function () {
     return get_pauseSquat();
-  }, 0, 0, 228);
+  }, 0, 0, 229);
 }
 function highBarSquat$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
-  return get_squat().q1t(VOID, VOID, VOID, 'Bar high on upper back', 'Thighs just past level', VOID, listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it high on your upper back, on the top of the muscle just below your neck.', 'Push your hips back and let your knees bend forward. Keep your back straight and your torso upright.', 'Go down until your thighs are just past level with the floor. Stop sooner if your heels lift or your back starts to round.']));
+  return get_squat().s1t(VOID, VOID, VOID, 'Bar high on upper back', 'Thighs just past level', VOID, listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it high on your upper back, on the top of the muscle just below your neck.', 'Push your hips back and let your knees bend forward. Keep your back straight and your torso upright.', 'Go down until your thighs are just past level with the floor. Stop sooner if your heels lift or your back starts to round.']));
 }
 function _get_highBarSquat_$ref_srj3a7() {
   return constructCallableReference(function () {
     return get_highBarSquat();
-  }, 0, 0, 229);
+  }, 0, 0, 230);
 }
 function tempoSquat$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23347,21 +23403,21 @@ function tempoSquat$delegate$lambda() {
   var torso = balancedTorso(leg, tmp, barOnBack$ref());
   var leg2 = standingLeg(0.0, 18.0, 60.0, torso);
   var start = backSquatPose(leg2, torso);
-  var barTop = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().g1t_1.z1q_1));
-  var barLow = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().h1t_1.z1q_1));
+  var barTop = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().i1t_1.b1r_1));
+  var barLow = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().j1t_1.b1r_1));
   var rack = rackInFront(barTop.p1o_1, -barTop.q1o_1 - 8.0, -barLow.q1o_1 - 1.45 - 6.0, 55.0);
   var props = listOf([Floor_instance, rack, new Barbell(BarHold_UPPER_BACK_getInstance())]);
-  return get_squat().q1t(VOID, new Scene(start, props), new Scene(get_squat().h1t_1.z1q_1, props), 'Lower yourself slowly', 'Normal squat depth', VOID, listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Lower yourself slowly and under control. Take longer to go down than to come up.', 'Go down to your normal squat depth.']));
+  return get_squat().s1t(VOID, new Scene(start, props), new Scene(get_squat().j1t_1.b1r_1, props), 'Lower yourself slowly', 'Normal squat depth', VOID, listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Lower yourself slowly and under control. Take longer to go down than to come up.', 'Go down to your normal squat depth.']));
 }
 function barOnBack$ref() {
   return constructCallableReference(function (p0, p1) {
     return barOnBack(p0, p1);
-  }, 2, 0, 230, 'barOnBack');
+  }, 2, 0, 231, 'barOnBack');
 }
 function _get_tempoSquat_$ref_3u93l7() {
   return constructCallableReference(function () {
     return get_tempoSquat();
-  }, 0, 0, 231);
+  }, 0, 0, 232);
 }
 function frontSquat$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23384,7 +23440,7 @@ function invoke$pose$arm($torso, e, w) {
   return new Arm(fold180(0.0 - $torso - 180.0), e, w, VOID, VOID, 45.0);
 }
 function invoke$pose$miss(leg, $torso, bar, a) {
-  return skeleton(new Pose(leg.g2a_1.p1o_1, leg.g2a_1.q1o_1, $torso, VOID, a, leg.h2a_1)).q1q_1.e1q_1.s1o(bar).u1o();
+  return skeleton(new Pose(leg.j2a_1.p1o_1, leg.j2a_1.q1o_1, $torso, VOID, a, leg.k2a_1)).r1q_1.f1q_1.s1o(bar).u1o();
 }
 function invoke$rackBar(pelvis, torso) {
   return pelvis.r1o(unit(torso).t1o(Segment_TORSO_getInstance().a() + 6.5)).r1o(unit(torso - 90.0).t1o(9.0));
@@ -23392,12 +23448,12 @@ function invoke$rackBar(pelvis, torso) {
 function frontSquat$delegate$lambda$rackBar$ref() {
   return constructCallableReference(function (p0, p1) {
     return invoke$rackBar(p0, p1);
-  }, 2, 0, 232, 'rackBar');
+  }, 2, 0, 233, 'rackBar');
 }
 function invoke$pose_34(leg0, torso) {
-  var leg = standingLeg(leg0.e2a_1.p1o_1, leg0.h2a_1.i1p_1, leg0.h2a_1.h1p_1, torso);
-  var shoulder = shoulderOf(leg.g2a_1, torso);
-  var bar = invoke$rackBar(leg.g2a_1, torso);
+  var leg = standingLeg(leg0.h2a_1.p1o_1, leg0.k2a_1.i1p_1, leg0.k2a_1.h1p_1, torso);
+  var shoulder = shoulderOf(leg.j2a_1, torso);
+  var bar = invoke$rackBar(leg.j2a_1, torso);
   // Inline function 'kotlin.collections.flatMap' call
   var tmp0 = step(numberRangeToNumber(120, 178), 4);
   // Inline function 'kotlin.collections.flatMapTo' call
@@ -23515,7 +23571,7 @@ function invoke$pose_34(leg0, torso) {
 function _get_frontSquat_$ref_mt52pl() {
   return constructCallableReference(function () {
     return get_frontSquat();
-  }, 0, 0, 233);
+  }, 0, 0, 234);
 }
 function pinSquat$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23524,17 +23580,17 @@ function pinSquat$delegate$lambda() {
   var torso = balancedTorso(leg0, tmp, barOnBack$ref());
   var leg = standingLeg(0.0, 25.0, 85.0, torso);
   var start = backSquatPose(leg, torso);
-  var bar = barOnBack(leg.g2a_1, torso);
-  var barTop = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().g1t_1.z1q_1));
+  var bar = barOnBack(leg.j2a_1, torso);
+  var barTop = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().i1t_1.b1r_1));
   var gap = 55.0;
   var pins = new PowerRack(barTop.p1o_1 + gap, -barTop.q1o_1 - 8.0, -bar.q1o_1 - 1.45, gap + (barTop.p1o_1 - bar.p1o_1) + 12.0, VOID, true);
   var props = listOf([Floor_instance, pins, new Barbell(BarHold_UPPER_BACK_getInstance())]);
-  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(get_squat().g1t_1.z1q_1, props), 'Bar rests on the pins', 'Stand tall, knees locked', Which_START_getInstance(), listOf(['Set the safety pins in the rack at the height you want to start from, often just below where your squat slows down.', "Rest the bar on the pins. The pins also catch the bar if you can't stand up.", 'Get under the bar and rest it across your upper back.', 'Drive the bar up off the pins by straightening your hips and knees together.', 'Stand tall with your knees locked.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new BarRestsOn(Surface_SAFETY_ARM_getInstance(), Which_START_getInstance()), new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance())]));
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(get_squat().i1t_1.b1r_1, props), 'Bar rests on the pins', 'Stand tall, knees locked', Which_START_getInstance(), listOf(['Set the safety pins in the rack at the height you want to start from, often just below where your squat slows down.', "Rest the bar on the pins. The pins also catch the bar if you can't stand up.", 'Get under the bar and rest it across your upper back.', 'Drive the bar up off the pins by straightening your hips and knees together.', 'Stand tall with your knees locked.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new BarRestsOn(Surface_SAFETY_ARM_getInstance(), Which_START_getInstance()), new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance())]));
 }
 function _get_pinSquat_$ref_qscyhx() {
   return constructCallableReference(function () {
     return get_pinSquat();
-  }, 0, 0, 234);
+  }, 0, 0, 235);
 }
 function safetyBarSquat$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23550,22 +23606,22 @@ function safetyBarSquat$delegate$lambda() {
 function safetyBarSquat$delegate$lambda$load$ref() {
   return constructCallableReference(function (p0, p1) {
     return invoke$load(p0, p1);
-  }, 2, 0, 235, 'load');
+  }, 2, 0, 236, 'load');
 }
 function invoke$load(pelvis, torso) {
   return pelvis.r1o(unit(torso).t1o(Segment_TORSO_getInstance().a() - 2.0)).r1o(unit(torso + 90.0).t1o(10.0 + 5.0)).r1o(new Point(8.0, 15.0));
 }
 function invoke$pose_35(leg0, range) {
   var torso = balancedTorso(leg0, range, safetyBarSquat$delegate$lambda$load$ref());
-  var leg = standingLeg(leg0.e2a_1.p1o_1, leg0.h2a_1.i1p_1, leg0.h2a_1.h1p_1, torso);
+  var leg = standingLeg(leg0.h2a_1.p1o_1, leg0.k2a_1.i1p_1, leg0.k2a_1.h1p_1, torso);
   var bare = skeleton(standOn(leg, torso, new Arm(0.0, 0.0)));
-  var arm = Reach_instance.x1q(bare.n1q_1, safetyBarHandle(bare), torso);
+  var arm = Reach_instance.z1q(bare.o1q_1, safetyBarHandle(bare), torso);
   return standOn(leg, torso, arm);
 }
 function _get_safetyBarSquat_$ref_vg2le7() {
   return constructCallableReference(function () {
     return get_safetyBarSquat();
-  }, 0, 0, 236);
+  }, 0, 0, 237);
 }
 function boxSquat$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23573,17 +23629,17 @@ function boxSquat$delegate$lambda() {
   var torso = 40.0;
   var leg = standingLeg(0.0, lean, kneeForDepth(lean, 0.0), torso);
   var end = backSquatPose(leg, torso);
-  var boxTop = -leg.g2a_1.q1o_1 - 10.0;
-  var box = new SquatBox(leg.g2a_1.p1o_1 - 6.0, boxTop);
-  var barTop = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().g1t_1.z1q_1));
-  var barLow = barOnBack(leg.g2a_1, torso);
+  var boxTop = -leg.j2a_1.q1o_1 - 10.0;
+  var box = new SquatBox(leg.j2a_1.p1o_1 - 6.0, boxTop);
+  var barTop = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().i1t_1.b1r_1));
+  var barLow = barOnBack(leg.j2a_1, torso);
   var props = listOf([Floor_instance, box, squatRack(barTop, barLow), new Barbell(BarHold_UPPER_BACK_getInstance())]);
-  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(get_squat().g1t_1.z1q_1, props), new Scene(end, props), 'Box just behind you', 'Pause briefly on the box', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Place a sturdy box behind you at the height of your target depth.', 'Lift the bar out and step back until the box is just behind you.', 'Sit back by bending your hips and knees. Keep your shins close to upright.', 'Pause briefly on the box while staying braced.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_BOX_getInstance(), setOf_0(Which_END_getInstance()))]), listOf_0(new BarOverMidfoot(Which_START_getInstance())));
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(get_squat().i1t_1.b1r_1, props), new Scene(end, props), 'Box just behind you', 'Pause briefly on the box', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Place a sturdy box behind you at the height of your target depth.', 'Lift the bar out and step back until the box is just behind you.', 'Sit back by bending your hips and knees. Keep your shins close to upright.', 'Pause briefly on the box while staying braced.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_BOX_getInstance(), setOf_0(Which_END_getInstance()))]), listOf_0(new BarOverMidfoot(Which_START_getInstance())));
 }
 function _get_boxSquat_$ref_nft93v() {
   return constructCallableReference(function () {
     return get_boxSquat();
-  }, 0, 0, 237);
+  }, 0, 0, 238);
 }
 function benchBare$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23592,7 +23648,7 @@ function benchBare$delegate$lambda() {
 function _get_benchBare_$ref_pakvsy() {
   return constructCallableReference(function () {
     return get_benchBare();
-  }, 0, 0, 238);
+  }, 0, 0, 239);
 }
 function benchChest$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23601,7 +23657,7 @@ function benchChest$delegate$lambda() {
 function _get_benchChest_$ref_3e63vb() {
   return constructCallableReference(function () {
     return get_benchChest();
-  }, 0, 0, 239);
+  }, 0, 0, 240);
 }
 function spotoPress$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23610,21 +23666,21 @@ function spotoPress$delegate$lambda() {
 function _get_spotoPress_$ref_ncbxgk() {
   return constructCallableReference(function () {
     return get_spotoPress();
-  }, 0, 0, 240);
+  }, 0, 0, 241);
 }
 function longPauseBench$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
-  return benchVariation(get_bench().g1t_1.z1q_1, 'Hold still on your chest', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Hold it still on your chest for a few seconds, longer than a competition pause.', 'Press the bar up until your elbows lock.']), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]));
+  return benchVariation(get_bench().i1t_1.b1r_1, 'Hold still on your chest', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Hold it still on your chest for a few seconds, longer than a competition pause.', 'Press the bar up until your elbows lock.']), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]));
 }
 function _get_longPauseBench_$ref_1zhe7w() {
   return constructCallableReference(function () {
     return get_longPauseBench();
-  }, 0, 0, 241);
+  }, 0, 0, 242);
 }
 function pinPress$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var arm = benchArmAbove(10.0);
-  var bar = skeleton(benchPose(arm)).q1q_1.e1q_1;
+  var bar = skeleton(benchPose(arm)).r1q_1.f1q_1;
   var rack = new PowerRack(2.0, 110.0, -bar.q1o_1 - 1.45);
   var tmp0_start = benchPose(arm);
   var tmp1_props = listOf([Floor_instance, new FlatBench(), rack, new Barbell()]);
@@ -23635,21 +23691,21 @@ function pinPress$delegate$lambda() {
 function _get_pinPress_$ref_maowng() {
   return constructCallableReference(function () {
     return get_pinPress();
-  }, 0, 0, 242);
+  }, 0, 0, 243);
 }
 function larsenPress$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var legs = new Leg(5.0, 0.0, -20.0);
-  var tmp0_start = benchPose(get_bench().g1t_1.z1q_1.r1p_1, legs);
+  var tmp0_start = benchPose(get_bench().i1t_1.b1r_1.r1p_1, legs);
   var tmp1_end = benchPose(get_benchLockout(), legs);
   // Inline function 'kotlin.collections.filter' call
-  var tmp0 = get_bench().m1t_1;
+  var tmp0 = get_bench().o1t_1;
   // Inline function 'kotlin.collections.filterTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    if (!element.g1r_1.equals(BodyPoint_FEET_getInstance())) {
+    if (!element.i1r_1.equals(BodyPoint_FEET_getInstance())) {
       destination.i(element);
     }
   }
@@ -23660,26 +23716,26 @@ function larsenPress$delegate$lambda() {
 function _get_larsenPress_$ref_qz1dwc() {
   return constructCallableReference(function () {
     return get_larsenPress();
-  }, 0, 0, 243);
+  }, 0, 0, 244);
 }
 function closeGripBench$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
-  return benchVariation(get_bench().g1t_1.z1q_1, 'Elbows close to ribs', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Lower the bar to your chest, keeping your elbows close to your ribs.', 'Push your feet into the floor and press the bar back up until your elbows lock.']), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]));
+  return benchVariation(get_bench().i1t_1.b1r_1, 'Elbows close to ribs', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Lower the bar to your chest, keeping your elbows close to your ribs.', 'Push your feet into the floor and press the bar back up until your elbows lock.']), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]));
 }
 function _get_closeGripBench_$ref_4aj7mc() {
   return constructCallableReference(function () {
     return get_closeGripBench();
-  }, 0, 0, 244);
+  }, 0, 0, 245);
 }
 function boardPress$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var boards = new BenchBoards(get_benchChest().p1o_1, get_benchChest().q1o_1);
-  var arm = benchArmAbove(boards.g1y());
+  var arm = benchArmAbove(boards.i1y());
   var tmp0_start = benchPose(arm);
   var tmp = Floor_instance;
   var tmp_0 = new FlatBench();
   // Inline function 'kotlin.collections.filterIsInstance' call
-  var tmp0 = get_bench().g1t_1.a1r_1;
+  var tmp0 = get_bench().i1t_1.c1r_1;
   // Inline function 'kotlin.collections.filterIsInstanceTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -23697,14 +23753,14 @@ function boardPress$delegate$lambda() {
 function _get_boardPress_$ref_1ktqzn() {
   return constructCallableReference(function () {
     return get_boardPress();
-  }, 0, 0, 245);
+  }, 0, 0, 246);
 }
 function wideGripBench$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var bar = new Point(get_benchChest().p1o_1, get_benchChest().q1o_1 - 1.45);
   var grip = Segment_FOREARM_getInstance().a() + Segment_HAND_getInstance().a() * 0.45;
   var elbow = new Point(bar.p1o_1, bar.q1o_1 + grip);
-  var upper = elbow.s1o(get_benchBare().n1q_1);
+  var upper = elbow.s1o(get_benchBare().o1q_1);
   // Inline function 'kotlin.math.acos' call
   var x = upper.u1o() / Segment_UPPER_ARM_getInstance().a();
   var out = Math.acos(x) * 180 / 3.141592653589793;
@@ -23720,20 +23776,20 @@ function wideGripBench$delegate$lambda() {
 function _get_wideGripBench_$ref_37ae2d() {
   return constructCallableReference(function () {
     return get_wideGripBench();
-  }, 0, 0, 246);
+  }, 0, 0, 247);
 }
 function floorPress$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var torso = 180.0;
   var pelvis = new Point(95.0, -10.0);
   var bare = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, new Arm(0.0, 0.0), new Leg(0.0, 0.0)));
-  var legs = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 + 55.0, -6.825), torso, 0.0);
+  var legs = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 + 55.0, -6.825), torso, 0.0);
   var out = 50.0;
   var tmp = Segment_UPPER_ARM_getInstance().a();
   // Inline function 'kotlin.math.cos' call
   var x = out * 3.141592653589793 / 180;
   var drawn = tmp * Math.cos(x);
-  var drop = -10.0 / 2 - bare.n1q_1.q1o_1;
+  var drop = -10.0 / 2 - bare.o1q_1.q1o_1;
   // Inline function 'kotlin.math.sqrt' call
   var x_0 = drawn * drawn - drop * drop;
   var tmp$ret$1 = Math.sqrt(x_0);
@@ -23741,7 +23797,7 @@ function floorPress$delegate$lambda() {
   var upperAngle = angleTo(upper);
   var bottom = new Arm(fold180(upperAngle - torso - 180.0), fold180(90.0 - upperAngle), VOID, VOID, out);
   var lock = new Arm(90.0, 0.0);
-  var lockBar = skeleton(invoke$pose_36(pelvis, torso, legs, lock)).q1q_1.e1q_1;
+  var lockBar = skeleton(invoke$pose_36(pelvis, torso, legs, lock)).r1q_1.f1q_1;
   var rack = new PowerRack(2.0, -lockBar.q1o_1 - 5.0, 30.0);
   var props = listOf([Floor_instance, rack, new Barbell()]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(invoke$pose_36(pelvis, torso, legs, bottom), props), new Scene(invoke$pose_36(pelvis, torso, legs, lock), props), 'Upper arms touch floor', 'Press to straight arms', Which_START_getInstance(), listOf(['Lie on the floor inside a power rack, under the bar, with your knees bent.', 'Set the safety pins, or use a spotter.', 'Lower the bar until your upper arms touch the floor.', 'Press the bar up until your arms are straight.']), listOf([new Contact(BodyPoint_HEAD_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_ELBOWS_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))]), listOf_0(new LockoutOverShoulders(Which_END_getInstance())));
@@ -23752,18 +23808,18 @@ function invoke$pose_36(pelvis, torso, legs, arm) {
 function _get_floorPress_$ref_c07by5() {
   return constructCallableReference(function () {
     return get_floorPress();
-  }, 0, 0, 247);
+  }, 0, 0, 248);
 }
 function pausedDeadlift$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var barY = -45.0 / 2 - 5.0;
-  var props = get_deadlift().g1t_1.a1r_1;
-  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(get_deadlift().g1t_1.z1q_1, props), new Scene(pullFromHeight(barY, 1.0), props), 'Shins close to the bar', 'Hold just off the floor', Which_END_getInstance(), listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Stop just after it leaves the floor and hold still for a moment.', 'Keep your back flat and the bar close during the pause.']), get_deadlift().m1t_1, get_pullChecks());
+  var props = get_deadlift().i1t_1.c1r_1;
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(get_deadlift().i1t_1.b1r_1, props), new Scene(pullFromHeight(barY, 1.0), props), 'Shins close to the bar', 'Hold just off the floor', Which_END_getInstance(), listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Stop just after it leaves the floor and hold still for a moment.', 'Keep your back flat and the bar close during the pause.']), get_deadlift().o1t_1, get_pullChecks());
 }
 function _get_pausedDeadlift_$ref_6f8pp() {
   return constructCallableReference(function () {
     return get_pausedDeadlift();
-  }, 0, 0, 248);
+  }, 0, 0, 249);
 }
 function pausedDeadliftAtKnee$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23772,18 +23828,18 @@ function pausedDeadliftAtKnee$delegate$lambda() {
   var x = 4.0 * 3.141592653589793 / 180;
   var kneeHeight = 6.825 + tmp * Math.cos(x);
   var barY = -(kneeHeight - 4.0 - 1.45);
-  var props = get_deadlift().g1t_1.a1r_1;
-  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(get_deadlift().g1t_1.z1q_1, props), new Scene(pullFromHeight(barY, 3.0, 1.0), props), 'Shins close to the bar', 'Bar just below knees', Which_END_getInstance(), listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Stop with the bar just below your knees and hold still for a moment.', 'Keep your back flat and the bar close during the pause.']), get_deadlift().m1t_1, get_pullChecks());
+  var props = get_deadlift().i1t_1.c1r_1;
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(get_deadlift().i1t_1.b1r_1, props), new Scene(pullFromHeight(barY, 3.0, 1.0), props), 'Shins close to the bar', 'Bar just below knees', Which_END_getInstance(), listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Stop with the bar just below your knees and hold still for a moment.', 'Keep your back flat and the bar close during the pause.']), get_deadlift().o1t_1, get_pullChecks());
 }
 function _get_pausedDeadliftAtKnee_$ref_htstif() {
   return constructCallableReference(function () {
     return get_pausedDeadliftAtKnee();
-  }, 0, 0, 249);
+  }, 0, 0, 250);
 }
 function deficitDeadlift$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var platform = new DeficitPlatform(6.0);
-  var floorY = -platform.w1x_1;
+  var floorY = -platform.y1x_1;
   var start = pullPose(-45.0 / 2, 14.0, 1.0, floorY);
   var props = listOf([Floor_instance, platform, new Barbell()]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(pullLockout(floorY), props), 'Stand on a low platform', 'Stand tall, knees locked', Which_START_getInstance(), listOf(['Stand on a weight plate or a low, sturdy platform, with the bar over your feet.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Stand tall with your knees locked.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_PLATFORM_getInstance(), get_BOTH())), get_pullChecks());
@@ -23791,7 +23847,7 @@ function deficitDeadlift$delegate$lambda() {
 function _get_deficitDeadlift_$ref_xd1juh() {
   return constructCallableReference(function () {
     return get_deficitDeadlift();
-  }, 0, 0, 250);
+  }, 0, 0, 251);
 }
 function blockPull$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23799,12 +23855,12 @@ function blockPull$delegate$lambda() {
   var start = pullPose(-45.0 / 2 - blockHeight, 8.0, 1.0);
   var bar = center(new Barbell(), skeleton(start));
   var props = listOf([Floor_instance, new PullingBlocks(bar.p1o_1, blockHeight, 42.0), new Barbell()]);
-  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(get_deadlift().h1t_1.z1q_1, props), 'Plates on sturdy blocks', 'Stand tall, knees locked', Which_START_getInstance(), listOf(['Set the plates on sturdy blocks, about 5, 10 or 15 cm high.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Stand tall with your knees locked.']), get_deadlift().m1t_1, plus_0(get_pullChecks(), new BarRestsOn(Surface_BLOCK_getInstance(), Which_START_getInstance())));
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(get_deadlift().j1t_1.b1r_1, props), 'Plates on sturdy blocks', 'Stand tall, knees locked', Which_START_getInstance(), listOf(['Set the plates on sturdy blocks, about 5, 10 or 15 cm high.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Stand tall with your knees locked.']), get_deadlift().o1t_1, plus_0(get_pullChecks(), new BarRestsOn(Surface_BLOCK_getInstance(), Which_START_getInstance())));
 }
 function _get_blockPull_$ref_6cc7ta() {
   return constructCallableReference(function () {
     return get_blockPull();
-  }, 0, 0, 251);
+  }, 0, 0, 252);
 }
 function sumoDeadlift$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23842,12 +23898,12 @@ function sumoDeadlift$delegate$lambda() {
   var tmp$ret$4 = Math.cos(x_3);
   var end = new Pose(0.0, -(6.825 + legLength * tmp$ret$4), 90.0, VOID, arms, standLeg);
   var props = listOf([Floor_instance, new Barbell()]);
-  return new ExerciseFigure(View_FRONT_getInstance(), new Scene(start, props), new Scene(end, props), 'Grip between your legs', 'Stand tall at the top', Which_START_getInstance(), listOf(['Stand with your feet very wide and under the bar.', 'Squat down and grip the bar between your legs, shoulder-width apart, with a mixed grip: one palm up, one down.', 'Keep your arms straight, your chest high, your hips low and your back straight.', 'At the top, stand tall with your shoulders back.']), get_deadlift().m1t_1, listOf_0(new HandsInsideKnees(Which_START_getInstance())));
+  return new ExerciseFigure(View_FRONT_getInstance(), new Scene(start, props), new Scene(end, props), 'Grip between your legs', 'Stand tall at the top', Which_START_getInstance(), listOf(['Stand with your feet very wide and under the bar.', 'Squat down and grip the bar between your legs, shoulder-width apart, with a mixed grip: one palm up, one down.', 'Keep your arms straight, your chest high, your hips low and your back straight.', 'At the top, stand tall with your shoulders back.']), get_deadlift().o1t_1, listOf_0(new HandsInsideKnees(Which_START_getInstance())));
 }
 function _get_sumoDeadlift_$ref_zavvjt() {
   return constructCallableReference(function () {
     return get_sumoDeadlift();
-  }, 0, 0, 252);
+  }, 0, 0, 253);
 }
 function trapBarDeadlift$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23857,12 +23913,12 @@ function trapBarDeadlift$delegate$lambda() {
   var leg = standingLeg(0.0, 5.0, 0.0, 90.0);
   var end = standOn(leg, 90.0, new Arm(0.0, 0.0));
   var props = listOf([Floor_instance, TrapBar_instance]);
-  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), 'Hips low, shoulders high', 'Hips and knees straight', Which_START_getInstance(), listOf(['Stand inside the bar with your feet shoulder-width apart or narrower.', 'Squat down with your feet flat and grip the handles.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Stand up by straightening your hips and knees fully.']), get_deadlift().m1t_1, listOf([new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance()), new HandlesBesideLegs(5.5, Which_START_getInstance()), new HandlesBesideLegs(5.5, Which_END_getInstance())]));
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), 'Hips low, shoulders high', 'Hips and knees straight', Which_START_getInstance(), listOf(['Stand inside the bar with your feet shoulder-width apart or narrower.', 'Squat down with your feet flat and grip the handles.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Stand up by straightening your hips and knees fully.']), get_deadlift().o1t_1, listOf([new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance()), new HandlesBesideLegs(5.5, Which_START_getInstance()), new HandlesBesideLegs(5.5, Which_END_getInstance())]));
 }
 function _get_trapBarDeadlift_$ref_bwte97() {
   return constructCallableReference(function () {
     return get_trapBarDeadlift();
-  }, 0, 0, 253);
+  }, 0, 0, 254);
 }
 function mainLiftFigures$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
@@ -23995,7 +24051,7 @@ function mainLiftFigures$delegate$lambda$lambda_23() {
 function _get_mainLiftFigures_$ref_mxgwbv() {
   return constructCallableReference(function () {
     return get_mainLiftFigures();
-  }, 0, 0, 254);
+  }, 0, 0, 255);
 }
 var properties_initialized_MainLifts_kt_m5ic81_0;
 function _init_properties_MainLifts_kt__yvcjdp_0() {
@@ -24077,19 +24133,19 @@ function fold180(degrees) {
   return a;
 }
 function StandingLeg(ankle, knee, hip, leg) {
-  this.e2a_1 = ankle;
-  this.f2a_1 = knee;
-  this.g2a_1 = hip;
-  this.h2a_1 = leg;
+  this.h2a_1 = ankle;
+  this.i2a_1 = knee;
+  this.j2a_1 = hip;
+  this.k2a_1 = leg;
 }
 protoOf(StandingLeg).toString = function () {
-  return 'StandingLeg(ankle=' + this.e2a_1.toString() + ', knee=' + this.f2a_1.toString() + ', hip=' + this.g2a_1.toString() + ', leg=' + this.h2a_1.toString() + ')';
+  return 'StandingLeg(ankle=' + this.h2a_1.toString() + ', knee=' + this.i2a_1.toString() + ', hip=' + this.j2a_1.toString() + ', leg=' + this.k2a_1.toString() + ')';
 };
 protoOf(StandingLeg).hashCode = function () {
-  var result = this.e2a_1.hashCode();
-  result = imul(result, 31) + this.f2a_1.hashCode() | 0;
-  result = imul(result, 31) + this.g2a_1.hashCode() | 0;
-  result = imul(result, 31) + this.h2a_1.hashCode() | 0;
+  var result = this.h2a_1.hashCode();
+  result = imul(result, 31) + this.i2a_1.hashCode() | 0;
+  result = imul(result, 31) + this.j2a_1.hashCode() | 0;
+  result = imul(result, 31) + this.k2a_1.hashCode() | 0;
   return result;
 };
 protoOf(StandingLeg).equals = function (other) {
@@ -24097,13 +24153,13 @@ protoOf(StandingLeg).equals = function (other) {
     return true;
   if (!(other instanceof StandingLeg))
     return false;
-  if (!this.e2a_1.equals(other.e2a_1))
-    return false;
-  if (!this.f2a_1.equals(other.f2a_1))
-    return false;
-  if (!this.g2a_1.equals(other.g2a_1))
-    return false;
   if (!this.h2a_1.equals(other.h2a_1))
+    return false;
+  if (!this.i2a_1.equals(other.i2a_1))
+    return false;
+  if (!this.j2a_1.equals(other.j2a_1))
+    return false;
+  if (!this.k2a_1.equals(other.k2a_1))
     return false;
   return true;
 };
@@ -24120,7 +24176,7 @@ function standOn(leg, torso, nearArm, farArm, neck) {
   farArm = farArm === VOID ? nearArm : farArm;
   neck = neck === VOID ? 0.0 : neck;
   _init_properties_Poses_kt__cx5374();
-  return new Pose(leg.g2a_1.p1o_1, leg.g2a_1.q1o_1, torso, neck, nearArm, leg.h2a_1, farArm, leg.h2a_1);
+  return new Pose(leg.j2a_1.p1o_1, leg.j2a_1.q1o_1, torso, neck, nearArm, leg.k2a_1, farArm, leg.k2a_1);
 }
 function shoulderOf(pelvis, torso) {
   _init_properties_Poses_kt__cx5374();
@@ -24169,7 +24225,7 @@ function armTo(shoulder, target, torso, wrist, turnedOut) {
     tmp_2 = target;
   }
   var reachable = tmp_2;
-  return Reach_instance.w1q(shoulder, reachable, torso, wrist, turnedOut);
+  return Reach_instance.y1q(shoulder, reachable, torso, wrist, turnedOut);
 }
 function rackInFront(barX, jHookHeight, safetyHeight, gap) {
   gap = gap === VOID ? 40.0 : gap;
@@ -24177,40 +24233,40 @@ function rackInFront(barX, jHookHeight, safetyHeight, gap) {
   return new PowerRack(barX + gap, jHookHeight, safetyHeight, gap - 8.0, VOID, true);
 }
 function V3(x, y, z) {
-  this.v2a_1 = x;
-  this.w2a_1 = y;
-  this.x2a_1 = z;
+  this.y2a_1 = x;
+  this.z2a_1 = y;
+  this.a2b_1 = z;
 }
-protoOf(V3).d2c = function (o) {
-  return new V3(this.v2a_1 + o.v2a_1, this.w2a_1 + o.w2a_1, this.x2a_1 + o.x2a_1);
+protoOf(V3).g2c = function (o) {
+  return new V3(this.y2a_1 + o.y2a_1, this.z2a_1 + o.z2a_1, this.a2b_1 + o.a2b_1);
 };
-protoOf(V3).a2c = function (o) {
-  return new V3(this.v2a_1 - o.v2a_1, this.w2a_1 - o.w2a_1, this.x2a_1 - o.x2a_1);
+protoOf(V3).d2c = function (o) {
+  return new V3(this.y2a_1 - o.y2a_1, this.z2a_1 - o.z2a_1, this.a2b_1 - o.a2b_1);
 };
 protoOf(V3).t1o = function (k) {
-  return new V3(this.v2a_1 * k, this.w2a_1 * k, this.x2a_1 * k);
+  return new V3(this.y2a_1 * k, this.z2a_1 * k, this.a2b_1 * k);
 };
-protoOf(V3).c2c = function (o) {
-  return this.v2a_1 * o.v2a_1 + this.w2a_1 * o.w2a_1 + this.x2a_1 * o.x2a_1;
+protoOf(V3).f2c = function (o) {
+  return this.y2a_1 * o.y2a_1 + this.z2a_1 * o.z2a_1 + this.a2b_1 * o.a2b_1;
 };
 protoOf(V3).u1o = function () {
   // Inline function 'kotlin.math.sqrt' call
-  var x = this.c2c(this);
+  var x = this.f2c(this);
   return Math.sqrt(x);
 };
-protoOf(V3).b2c = function () {
+protoOf(V3).e2c = function () {
   return this.t1o(1.0 / this.u1o());
 };
-protoOf(V3).h2b = function () {
-  return new Point(this.v2a_1, this.w2a_1);
+protoOf(V3).k2b = function () {
+  return new Point(this.y2a_1, this.z2a_1);
 };
 protoOf(V3).toString = function () {
-  return 'V3(x=' + this.v2a_1 + ', y=' + this.w2a_1 + ', z=' + this.x2a_1 + ')';
+  return 'V3(x=' + this.y2a_1 + ', y=' + this.z2a_1 + ', z=' + this.a2b_1 + ')';
 };
 protoOf(V3).hashCode = function () {
-  var result = getNumberHashCode(this.v2a_1);
-  result = imul(result, 31) + getNumberHashCode(this.w2a_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.x2a_1) | 0;
+  var result = getNumberHashCode(this.y2a_1);
+  result = imul(result, 31) + getNumberHashCode(this.z2a_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a2b_1) | 0;
   return result;
 };
 protoOf(V3).equals = function (other) {
@@ -24218,11 +24274,11 @@ protoOf(V3).equals = function (other) {
     return true;
   if (!(other instanceof V3))
     return false;
-  if (!equals(this.v2a_1, other.v2a_1))
+  if (!equals(this.y2a_1, other.y2a_1))
     return false;
-  if (!equals(this.w2a_1, other.w2a_1))
+  if (!equals(this.z2a_1, other.z2a_1))
     return false;
-  if (!equals(this.x2a_1, other.x2a_1))
+  if (!equals(this.a2b_1, other.a2b_1))
     return false;
   return true;
 };
@@ -24234,7 +24290,7 @@ function arm3(shoulder, grip, hint, torso) {
   _init_properties_Poses_kt__cx5374();
   var a = Segment_UPPER_ARM_getInstance().a();
   var b = get_FORE_LINK();
-  var g = grip.a2c(shoulder);
+  var g = grip.d2c(shoulder);
   var d = g.u1o();
   var tmp;
   if (d <= a + b + 1.0E-6) {
@@ -24251,39 +24307,39 @@ function arm3(shoulder, grip, hint, torso) {
     var message = 'grip out of reach: ' + toNumber(this_0) / 10.0 + ' cm';
     throw IllegalArgumentException_init_$Create$(toString(message));
   }
-  var gu = g.b2c();
+  var gu = g.e2c();
   // Inline function 'kotlin.math.acos' call
   var x_0 = coerceIn((a * a + d * d - b * b) / (2 * a * d), -1.0, 1.0);
   var alpha = Math.acos(x_0);
-  var h = hint.a2c(gu.t1o(hint.c2c(gu)));
-  var n = h.u1o() < 1.0E-9 ? new V3(0.0, 1.0, 0.0) : h.b2c();
+  var h = hint.d2c(gu.t1o(hint.f2c(gu)));
+  var n = h.u1o() < 1.0E-9 ? new V3(0.0, 1.0, 0.0) : h.e2c();
   // Inline function 'kotlin.math.cos' call
   var tmp$ret$5 = Math.cos(alpha);
   var tmp_0 = gu.t1o(tmp$ret$5);
   // Inline function 'kotlin.math.sin' call
   var tmp$ret$6 = Math.sin(alpha);
-  var elbow = shoulder.d2c(tmp_0.d2c(n.t1o(tmp$ret$6)).t1o(a));
-  var u = elbow.a2c(shoulder).b2c();
-  var f = grip.a2c(elbow).b2c();
+  var elbow = shoulder.g2c(tmp_0.g2c(n.t1o(tmp$ret$6)).t1o(a));
+  var u = elbow.d2c(shoulder).e2c();
+  var f = grip.d2c(elbow).e2c();
   return armFrom(u, f, torso);
 }
 function armFrom(u, f, torso) {
   _init_properties_Poses_kt__cx5374();
-  var upper = angleTo(u.h2b());
-  var fore = f.h2b().u1o() < 1.0E-9 ? upper : angleTo(f.h2b());
+  var upper = angleTo(u.k2b());
+  var fore = f.k2b().u1o() < 1.0E-9 ? upper : angleTo(f.k2b());
   var tmp = fold180(upper - torso - 180.0);
   var tmp_0 = fold180(fore - upper);
   // Inline function 'kotlin.math.asin' call
-  var x = coerceIn(u.x2a_1, -1.0, 1.0);
+  var x = coerceIn(u.a2b_1, -1.0, 1.0);
   var tmp_1 = Math.asin(x) * 57.29577951308232;
   // Inline function 'kotlin.math.asin' call
-  var x_0 = coerceIn(f.x2a_1, -1.0, 1.0);
+  var x_0 = coerceIn(f.a2b_1, -1.0, 1.0);
   var tmp$ret$1 = Math.asin(x_0);
   return new Arm(tmp, tmp_0, VOID, VOID, tmp_1, tmp$ret$1 * 57.29577951308232);
 }
 function mirror(_this__u8e3s4, axis) {
   _init_properties_Poses_kt__cx5374();
-  return new V3(2 * axis - _this__u8e3s4.v2a_1, _this__u8e3s4.w2a_1, _this__u8e3s4.x2a_1);
+  return new V3(2 * axis - _this__u8e3s4.y2a_1, _this__u8e3s4.z2a_1, _this__u8e3s4.a2b_1);
 }
 var properties_initialized_Poses_kt_y3c9e6;
 function _init_properties_Poses_kt__cx5374() {
@@ -24297,7 +24353,7 @@ function _init_properties_Poses_kt__cx5374() {
 function shoulderOf$ref() {
   return constructCallableReference(function (p0, p1) {
     return shoulderOf(p0, p1);
-  }, 2, 0, 255, 'shoulderOf');
+  }, 2, 0, 256, 'shoulderOf');
 }
 function get_HANG_4() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -24615,7 +24671,7 @@ function squatLeg(lean, below, torso) {
 }
 function at(_this__u8e3s4, torso) {
   _init_properties_Quads_kt__7ij3x6_0();
-  return standingLeg(_this__u8e3s4.e2a_1.p1o_1, _this__u8e3s4.h2a_1.i1p_1, _this__u8e3s4.h2a_1.h1p_1, torso);
+  return standingLeg(_this__u8e3s4.h2a_1.p1o_1, _this__u8e3s4.k2a_1.i1p_1, _this__u8e3s4.k2a_1.h1p_1, torso);
 }
 function shouldersOverFeet(leg, range) {
   range = range === VOID ? rangeTo(30.0, 90.0) : range;
@@ -24650,11 +24706,11 @@ function build($this) {
   var hinge = new Point(0.0, -seatHeight);
   var pelvis = seatedPelvis_0(hinge, back);
   var thigh = -3.0;
-  var bare = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, get_HANG_4(), build$leg(thigh, torso, $this.x2c_1), VOID, build$leg(thigh, torso, $this.y2c_1)));
+  var bare = skeleton(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, get_HANG_4(), build$leg(thigh, torso, $this.a2d_1), VOID, build$leg(thigh, torso, $this.b2d_1)));
   var handle = new Point(pelvis.p1o_1 + 12.0, -seatHeight - 4.0);
-  var arm = Reach_instance.x1q(bare.n1q_1, handle, torso);
-  var machine = new LegExtensionMachine(hinge.p1o_1 + 40.0, seatHeight, back, bare.q1q_1.g1q_1, build$roller(bare.q1q_1), handle, $this.z2c_1 ? build$roller(bare.r1q_1) : null);
-  return new Scene(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, arm, build$leg(thigh, torso, $this.x2c_1), VOID, build$leg(thigh, torso, $this.y2c_1)), listOf_0(machine));
+  var arm = Reach_instance.z1q(bare.o1q_1, handle, torso);
+  var machine = new LegExtensionMachine(hinge.p1o_1 + 40.0, seatHeight, back, bare.r1q_1.h1q_1, build$roller(bare.r1q_1), handle, $this.c2d_1 ? build$roller(bare.s1q_1) : null);
+  return new Scene(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, arm, build$leg(thigh, torso, $this.a2d_1), VOID, build$leg(thigh, torso, $this.b2d_1)), listOf_0(machine));
 }
 function LegExtension$scene$delegate$lambda(this$0) {
   return function () {
@@ -24663,28 +24719,28 @@ function LegExtension$scene$delegate$lambda(this$0) {
 }
 function LegExtension$_get_scene_$ref_6res1r() {
   return constructCallableReference(function (p0) {
-    return p0.b2d();
-  }, 1, 0, 256);
+    return p0.e2d();
+  }, 1, 0, 257);
 }
 function build$leg(thigh, torso, knee) {
   return new Leg(fold180(thigh - torso - 180.0), knee, 0.0);
 }
 function build$roller(l) {
   // Inline function 'kotlin.let' call
-  var it = l.h1q_1.s1o(l.g1q_1);
+  var it = l.i1q_1.s1o(l.h1q_1);
   var along = it.t1o(1.0 / it.u1o());
   var front = unit(angleTo(along) + 90.0);
-  return l.g1q_1.r1o(along.t1o(Segment_SHIN_getInstance().a() * 0.8)).r1o(front.t1o(11.0 / 2 + 6.0));
+  return l.h1q_1.r1o(along.t1o(Segment_SHIN_getInstance().a() * 0.8)).r1o(front.t1o(11.0 / 2 + 6.0));
 }
 function LegExtension(near, far, alternating) {
-  this.x2c_1 = near;
-  this.y2c_1 = far;
-  this.z2c_1 = alternating;
+  this.a2d_1 = near;
+  this.b2d_1 = far;
+  this.c2d_1 = alternating;
   var tmp = this;
-  tmp.a2d_1 = lazy(LegExtension$scene$delegate$lambda(this));
+  tmp.d2d_1 = lazy(LegExtension$scene$delegate$lambda(this));
 }
-protoOf(LegExtension).b2d = function () {
-  var tmp0 = this.a2d_1;
+protoOf(LegExtension).e2d = function () {
+  var tmp0 = this.d2d_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('scene', 1, tmp, LegExtension$_get_scene_$ref_6res1r(), null);
@@ -24692,46 +24748,46 @@ protoOf(LegExtension).b2d = function () {
 };
 function LegPressRig$top$delegate$lambda(this$0) {
   return function () {
-    return this$0.l2d(15.0);
+    return this$0.o2d(15.0);
   };
 }
 function LegPressRig$_get_top_$ref_fn329q() {
   return constructCallableReference(function (p0) {
-    return p0.m2d();
-  }, 1, 0, 257);
+    return p0.p2d();
+  }, 1, 0, 258);
 }
 function LegPressRig$bottom$delegate$lambda(this$0) {
   return function () {
-    return this$0.l2d(85.0);
+    return this$0.o2d(85.0);
   };
 }
 function LegPressRig$_get_bottom_$ref_9hzb2w() {
   return constructCallableReference(function (p0) {
-    return p0.n2d();
-  }, 1, 0, 258);
+    return p0.q2d();
+  }, 1, 0, 259);
 }
 function LegPressRig() {
-  this.c2d_1 = 155.0;
-  this.d2d_1 = new Point(-30.0, -45.0);
-  this.e2d_1 = this.d2d_1.r1o(unit(this.c2d_1 - 90.0).t1o(6.0 + 10.0));
-  this.f2d_1 = -(45.0 + 10.0);
-  this.g2d_1 = this.e2d_1.r1o(unit(this.c2d_1).t1o((this.f2d_1 - this.e2d_1.q1o_1) / unit(this.c2d_1).q1o_1));
-  this.h2d_1 = 125.0;
+  this.f2d_1 = 155.0;
+  this.g2d_1 = new Point(-30.0, -45.0);
+  this.h2d_1 = this.g2d_1.r1o(unit(this.f2d_1 - 90.0).t1o(6.0 + 10.0));
+  this.i2d_1 = -(45.0 + 10.0);
+  this.j2d_1 = this.h2d_1.r1o(unit(this.f2d_1).t1o((this.i2d_1 - this.h2d_1.q1o_1) / unit(this.f2d_1).q1o_1));
+  this.k2d_1 = 125.0;
   var tmp = this;
-  tmp.i2d_1 = lazy(LegPressRig$top$delegate$lambda(this));
+  tmp.l2d_1 = lazy(LegPressRig$top$delegate$lambda(this));
   var tmp_0 = this;
-  tmp_0.j2d_1 = lazy(LegPressRig$bottom$delegate$lambda(this));
-  this.k2d_1 = new Arm(15.0, 25.0);
+  tmp_0.m2d_1 = lazy(LegPressRig$bottom$delegate$lambda(this));
+  this.n2d_1 = new Arm(15.0, 25.0);
 }
-protoOf(LegPressRig).o2d = function (press) {
+protoOf(LegPressRig).r2d = function (press) {
   var plate = single(getValue(surfaces(press, View_SIDE_getInstance()), Surface_FOOT_PLATE_getInstance()));
-  var face = (new Point(plate.m1z_1, plate.n1z_1)).s1o(unit(125.0 - 90.0).t1o(plate.p1z_1 / 2));
-  return face.s1o(unit(125.0 - 90.0).t1o(7.0 / 2 + 6.825 - 7.0 / 2)).s1o(unit(this.h2d_1).t1o(Segment_FOOT_getInstance().a() * 0.3));
+  var face = (new Point(plate.o1z_1, plate.p1z_1)).s1o(unit(125.0 - 90.0).t1o(plate.r1z_1 / 2));
+  return face.s1o(unit(125.0 - 90.0).t1o(7.0 / 2 + 6.825 - 7.0 / 2)).s1o(unit(this.k2d_1).t1o(Segment_FOOT_getInstance().a() * 0.3));
 };
-protoOf(LegPressRig).p2d = function (press) {
-  return Reach_instance.y1q(this.g2d_1, this.o2d(press), this.c2d_1, this.h2d_1);
+protoOf(LegPressRig).s2d = function (press) {
+  return Reach_instance.a1r(this.j2d_1, this.r2d(press), this.f2d_1, this.k2d_1);
 };
-protoOf(LegPressRig).l2d = function (knee) {
+protoOf(LegPressRig).o2d = function (knee) {
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(0, 1200);
   // Inline function 'kotlin.collections.mapTo' call
@@ -24753,7 +24809,7 @@ protoOf(LegPressRig).l2d = function (knee) {
   var _iterator__ex2g4s = destination.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    if (this.o2d(element).s1o(this.g2d_1).u1o() <= Segment_THIGH_getInstance().a() + Segment_SHIN_getInstance().a() - 1.0E-6) {
+    if (this.r2d(element).s1o(this.j2d_1).u1o() <= Segment_THIGH_getInstance().a() + Segment_SHIN_getInstance().a() - 1.0E-6) {
       destination_0.i(element);
     }
   }
@@ -24770,12 +24826,12 @@ protoOf(LegPressRig).l2d = function (knee) {
     }
     var it_0 = minElem;
     // Inline function 'kotlin.math.abs' call
-    var x = this.p2d(it_0).h1p_1 - knee;
+    var x = this.s2d(it_0).h1p_1 - knee;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
       // Inline function 'kotlin.math.abs' call
-      var x_0 = this.p2d(e).h1p_1 - knee;
+      var x_0 = this.s2d(e).h1p_1 - knee;
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -24787,15 +24843,15 @@ protoOf(LegPressRig).l2d = function (knee) {
   }
   return tmp$ret$6;
 };
-protoOf(LegPressRig).m2d = function () {
-  var tmp0 = this.i2d_1;
+protoOf(LegPressRig).p2d = function () {
+  var tmp0 = this.l2d_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('top', 1, tmp, LegPressRig$_get_top_$ref_fn329q(), null);
   return tmp0.t();
 };
-protoOf(LegPressRig).n2d = function () {
-  var tmp0 = this.j2d_1;
+protoOf(LegPressRig).q2d = function () {
+  var tmp0 = this.m2d_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('bottom', 1, tmp, LegPressRig$_get_bottom_$ref_9hzb2w(), null);
@@ -24866,7 +24922,7 @@ function backLegOnBall(hip, knee, torso) {
   var x_1 = Segment_SHIN_getInstance().a() * Segment_SHIN_getInstance().a() - dy * dy;
   var tmp$ret$8 = Math.sqrt(x_1);
   var ankle = new Point(knee.p1o_1 - tmp$ret$8, ankleY);
-  return Reach_instance.y1q(hip, ankle, torso, -74.0);
+  return Reach_instance.a1r(hip, ankle, torso, -74.0);
 }
 function legOnBall(hip, ankleX, torso, plantar, surface) {
   surface = surface === VOID ? 0.0 : surface;
@@ -24908,13 +24964,13 @@ function legOnBall(hip, ankleX, torso, plantar, surface) {
       break $l$block;
     }
     var yy = minElem;
-    var l = Reach_instance.y1q(hip, new Point(ankleX, yy), torso, 0.0);
+    var l = Reach_instance.a1r(hip, new Point(ankleX, yy), torso, 0.0);
     // Inline function 'kotlin.math.abs' call
     var x = footLow(new Point(ankleX, yy), legOnBall$shinOf(torso, l) + 90.0 + plantar) - surface;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
-      var l_0 = Reach_instance.y1q(hip, new Point(ankleX, e), torso, 0.0);
+      var l_0 = Reach_instance.a1r(hip, new Point(ankleX, e), torso, 0.0);
       // Inline function 'kotlin.math.abs' call
       var x_0 = footLow(new Point(ankleX, e), legOnBall$shinOf(torso, l_0) + 90.0 + plantar) - surface;
       var v = Math.abs(x_0);
@@ -24927,25 +24983,25 @@ function legOnBall(hip, ankleX, torso, plantar, surface) {
     tmp$ret$6 = minElem;
   }
   var y = tmp$ret$6;
-  var l_1 = Reach_instance.y1q(hip, new Point(ankleX, y), torso, 0.0);
-  return Reach_instance.y1q(hip, new Point(ankleX, y), torso, legOnBall$shinOf(torso, l_1) + 90.0 + plantar);
+  var l_1 = Reach_instance.a1r(hip, new Point(ankleX, y), torso, 0.0);
+  return Reach_instance.a1r(hip, new Point(ankleX, y), torso, legOnBall$shinOf(torso, l_1) + 90.0 + plantar);
 }
 function Split(pelvis, front, back, torso) {
   torso = torso === VOID ? 90.0 : torso;
-  this.q2d_1 = pelvis;
-  this.r2d_1 = front;
-  this.s2d_1 = back;
-  this.t2d_1 = torso;
+  this.t2d_1 = pelvis;
+  this.u2d_1 = front;
+  this.v2d_1 = back;
+  this.w2d_1 = torso;
 }
-protoOf(Split).u2d = function (arm, frontNear) {
-  return new Pose(this.q2d_1.p1o_1, this.q2d_1.q1o_1, this.t2d_1, VOID, arm, frontNear ? this.r2d_1 : this.s2d_1, VOID, frontNear ? this.s2d_1 : this.r2d_1);
+protoOf(Split).x2d = function (arm, frontNear) {
+  return new Pose(this.t2d_1.p1o_1, this.t2d_1.q1o_1, this.w2d_1, VOID, arm, frontNear ? this.u2d_1 : this.v2d_1, VOID, frontNear ? this.v2d_1 : this.u2d_1);
 };
-protoOf(Split).v2d = function (arm, frontNear, $super) {
+protoOf(Split).y2d = function (arm, frontNear, $super) {
   frontNear = frontNear === VOID ? true : frontNear;
-  return $super === VOID ? this.u2d(arm, frontNear) : $super.u2d.call(this, arm, frontNear);
+  return $super === VOID ? this.x2d(arm, frontNear) : $super.x2d.call(this, arm, frontNear);
 };
-protoOf(Split).w2d = function (dx) {
-  return new Split(new Point(this.q2d_1.p1o_1 + dx, this.q2d_1.q1o_1), this.r2d_1, this.s2d_1, this.t2d_1);
+protoOf(Split).z2d = function (dx) {
+  return new Split(new Point(this.t2d_1.p1o_1 + dx, this.t2d_1.q1o_1), this.u2d_1, this.v2d_1, this.w2d_1);
 };
 function splitBottom(frontAnkle, shin, rise, backThigh) {
   shin = shin === VOID ? 8.0 : shin;
@@ -24958,7 +25014,7 @@ function splitBottom(frontAnkle, shin, rise, backThigh) {
   var x = Segment_THIGH_getInstance().a() * Segment_THIGH_getInstance().a() - rise * rise;
   var tmp$ret$0 = Math.sqrt(x);
   var hip = knee.s1o(new Point(tmp$ret$0, rise));
-  var front = Reach_instance.y1q(hip, ankle, 90.0, 0.0);
+  var front = Reach_instance.a1r(hip, ankle, 90.0, 0.0);
   var backKnee = hip.r1o(unit(270.0 - backThigh).t1o(Segment_THIGH_getInstance().a()));
   return new Split(hip, front, backLegOnBall(hip, backKnee, 90.0));
 }
@@ -24968,7 +25024,7 @@ function splitSquatBottom(frontAnkle) {
 }
 function toe(_this__u8e3s4, side) {
   _init_properties_Quads_kt__7ij3x6_0();
-  return skeleton(_this__u8e3s4).u1q(side).j1q_1;
+  return skeleton(_this__u8e3s4).w1q(side).k1q_1;
 }
 function splitTop(bottom, frontAnkle, backAnkleX, slack) {
   slack = slack === VOID ? 2.0 : slack;
@@ -24982,7 +25038,7 @@ function splitTop(bottom, frontAnkle, backAnkleX, slack) {
   var x_0 = tmp - tmp_0 * (1 - Math.cos(x));
   var legLen = Math.sqrt(x_0);
   var best = bottom;
-  var y = bottom.q2d_1.q1o_1;
+  var y = bottom.t2d_1.q1o_1;
   while (y > -110.0) {
     var tmp0_safe_receiver = splitTop$at(bottom, frontAnkle, legLen, backAnkleX, y);
     if (tmp0_safe_receiver == null)
@@ -24997,14 +25053,14 @@ function splitTop(bottom, frontAnkle, backAnkleX, slack) {
 }
 function backAnkle(_this__u8e3s4) {
   _init_properties_Quads_kt__7ij3x6_0();
-  var s = skeleton(_this__u8e3s4.v2d(get_HANG_4()));
-  return to(s.r1q_1.h1q_1, angleTo(s.r1q_1.j1q_1.s1o(s.r1q_1.i1q_1)));
+  var s = skeleton(_this__u8e3s4.y2d(get_HANG_4()));
+  return to(s.s1q_1.i1q_1, angleTo(s.s1q_1.k1q_1.s1o(s.s1q_1.j1q_1)));
 }
 function withBar(_this__u8e3s4) {
   _init_properties_Quads_kt__7ij3x6_0();
   // Inline function 'kotlin.let' call
-  var it = _this__u8e3s4.z1p(VOID, VOID, VOID, VOID, armTo(shoulderOf(new Point(_this__u8e3s4.n1p_1, _this__u8e3s4.o1p_1), _this__u8e3s4.p1p_1), barOnBack(new Point(_this__u8e3s4.n1p_1, _this__u8e3s4.o1p_1), _this__u8e3s4.p1p_1), _this__u8e3s4.p1p_1, VOID, true));
-  return it.z1p(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
+  var it = _this__u8e3s4.a1q(VOID, VOID, VOID, VOID, armTo(shoulderOf(new Point(_this__u8e3s4.n1p_1, _this__u8e3s4.o1p_1), _this__u8e3s4.p1p_1), barOnBack(new Point(_this__u8e3s4.n1p_1, _this__u8e3s4.o1p_1), _this__u8e3s4.p1p_1), _this__u8e3s4.p1p_1, VOID, true));
+  return it.a1q(VOID, VOID, VOID, VOID, VOID, VOID, it.r1p_1);
 }
 function lungeRack(start, end) {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25053,7 +25109,7 @@ function lungeRack(start, end) {
     var element = _iterator__ex2g4s_0.l();
     // Inline function 'kotlin.let' call
     var it = skeleton(element);
-    var list = listOf([it.q1q_1.j1q_1.p1o_1, it.r1q_1.j1q_1.p1o_1]);
+    var list = listOf([it.r1q_1.k1q_1.p1o_1, it.s1q_1.k1q_1.p1o_1]);
     addAll(destination_0, list);
   }
   var front = max(destination_0);
@@ -25077,20 +25133,20 @@ function lungeRack(start, end) {
 function frontLeg(side, hip, knee, ankle, foot) {
   foot = foot === VOID ? 0.0 : foot;
   _init_properties_Quads_kt__7ij3x6_0();
-  var t = knee.a2c(hip);
-  var sh = ankle.a2c(knee);
-  var ta = angleTo(t.h2b());
-  var sa = angleTo(sh.h2b());
+  var t = knee.d2c(hip);
+  var sh = ankle.d2c(knee);
+  var ta = angleTo(t.k2b());
+  var sa = angleTo(sh.k2b());
   var near = side.equals(Side_NEAR_getInstance());
   var hipA = fold180(near ? ta - 270.0 : -90.0 - ta);
   var kneeA = fold180(near ? ta - sa : sa - ta);
   var shinLocal = 270.0 + hipA - kneeA;
   var tmp = fold180(foot - shinLocal - 90.0);
   // Inline function 'kotlin.math.asin' call
-  var x = coerceIn(t.x2a_1 / t.u1o(), -1.0, 1.0);
+  var x = coerceIn(t.a2b_1 / t.u1o(), -1.0, 1.0);
   var tmp_0 = Math.asin(x) * 57.29577951308232;
   // Inline function 'kotlin.math.asin' call
-  var x_0 = coerceIn(sh.x2a_1 / sh.u1o(), -1.0, 1.0);
+  var x_0 = coerceIn(sh.a2b_1 / sh.u1o(), -1.0, 1.0);
   var tmp$ret$1 = Math.asin(x_0);
   return new Leg(hipA, kneeA, tmp, tmp_0, tmp$ret$1 * 57.29577951308232);
 }
@@ -25098,7 +25154,7 @@ function knee3(hip, ankle, hint) {
   _init_properties_Quads_kt__7ij3x6_0();
   var a = Segment_THIGH_getInstance().a();
   var b = Segment_SHIN_getInstance().a();
-  var g = ankle.a2c(hip);
+  var g = ankle.d2c(hip);
   var d = g.u1o();
   // Inline function 'kotlin.require' call
   if (!(d <= a + b + 1.0E-6)) {
@@ -25107,18 +25163,18 @@ function knee3(hip, ankle, hint) {
     var message = 'ankle out of reach: ' + toNumber(this_0) / 10.0 + ' cm';
     throw IllegalArgumentException_init_$Create$(toString(message));
   }
-  var gu = g.b2c();
+  var gu = g.e2c();
   // Inline function 'kotlin.math.acos' call
   var x = coerceIn((a * a + d * d - b * b) / (2 * a * d), -1.0, 1.0);
   var alpha = Math.acos(x);
-  var h = hint.a2c(gu.t1o(hint.c2c(gu)));
-  var n = h.u1o() < 1.0E-9 ? new V3(0.0, 0.0, 1.0) : h.b2c();
+  var h = hint.d2c(gu.t1o(hint.f2c(gu)));
+  var n = h.u1o() < 1.0E-9 ? new V3(0.0, 0.0, 1.0) : h.e2c();
   // Inline function 'kotlin.math.cos' call
   var tmp$ret$4 = Math.cos(alpha);
   var tmp = gu.t1o(tmp$ret$4);
   // Inline function 'kotlin.math.sin' call
   var tmp$ret$5 = Math.sin(alpha);
-  return hip.d2c(tmp.d2c(n.t1o(tmp$ret$5)).t1o(a));
+  return hip.g2c(tmp.g2c(n.t1o(tmp$ret$5)).t1o(a));
 }
 function frontHips(x, y, z) {
   z = z === VOID ? 0.0 : z;
@@ -25127,7 +25183,7 @@ function frontHips(x, y, z) {
 }
 function straightFrontLeg(side, hip, ankle) {
   _init_properties_Quads_kt__7ij3x6_0();
-  var k = hip.d2c(ankle.a2c(hip).t1o(Segment_THIGH_getInstance().a() / ankle.a2c(hip).u1o()));
+  var k = hip.g2c(ankle.d2c(hip).t1o(Segment_THIGH_getInstance().a() / ankle.d2c(hip).u1o()));
   return frontLeg(side, hip, k, ankle);
 }
 function standHipY(spread) {
@@ -25144,8 +25200,8 @@ function frontStand_0(x, spread, arm) {
   var _destruct__k2r9zo = frontHips(x, y);
   var nh = _destruct__k2r9zo.ya();
   var fh = _destruct__k2r9zo.za();
-  var near = straightFrontLeg(Side_NEAR_getInstance(), nh, new V3(nh.v2a_1 + spread, -6.825, 0.0));
-  var far = straightFrontLeg(Side_FAR_getInstance(), fh, new V3(fh.v2a_1 - spread, -6.825, 0.0));
+  var near = straightFrontLeg(Side_NEAR_getInstance(), nh, new V3(nh.y2a_1 + spread, -6.825, 0.0));
+  var far = straightFrontLeg(Side_FAR_getInstance(), fh, new V3(fh.y2a_1 - spread, -6.825, 0.0));
   return new Pose(x, y, 90.0, VOID, arm, near, VOID, far);
 }
 function tall$delegate$lambda_1() {
@@ -25155,7 +25211,7 @@ function tall$delegate$lambda_1() {
 function _get_tall_$ref_4a7zkj_1() {
   return constructCallableReference(function () {
     return get_tall_1();
-  }, 0, 0, 259);
+  }, 0, 0, 260);
 }
 function bodyweightSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25167,7 +25223,7 @@ function bodyweightSquat$delegate$lambda() {
 function _get_bodyweightSquat_$ref_2dfkc0() {
   return constructCallableReference(function () {
     return get_bodyweightSquat();
-  }, 0, 0, 260);
+  }, 0, 0, 261);
 }
 function gobletSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25176,14 +25232,14 @@ function gobletSquat$delegate$lambda() {
   return figure_6(View_SIDE_getInstance(), invoke$pose_37(get_tall_1(), 90.0), invoke$pose_37(at(leg0, torso), torso), listOf([Floor_instance, new Dumbbell(Side_NEAR_getInstance(), true)]), 'Dumbbell against chest', 'Thighs just past level', Which_END_getInstance(), listOf(['Hold one dumbbell upright against your chest with both hands, or a kettlebell by the sides of its handle.', 'Keep your elbows close to your ribs.', 'Push your hips back and let your knees bend forward. Keep your back straight.', 'Go down until your thighs are just past level with the floor. Stop sooner if your heels lift or your back starts to round.']), get_FEET_DOWN_2(), listOf_0(new HipDepth(2.0, Which_END_getInstance())));
 }
 function invoke$pose_37(leg, torso) {
-  var sh = shoulderOf(leg.g2a_1, torso);
-  var dumbbell = leg.g2a_1.r1o(unit(torso).t1o(Segment_TORSO_getInstance().a() - 16.0)).r1o(unit(torso - 90.0).t1o(23.0));
+  var sh = shoulderOf(leg.j2a_1, torso);
+  var dumbbell = leg.j2a_1.r1o(unit(torso).t1o(Segment_TORSO_getInstance().a() - 16.0)).r1o(unit(torso - 90.0).t1o(23.0));
   return standOn(leg, torso, armTo(sh, dumbbell, torso));
 }
 function _get_gobletSquat_$ref_e0s91l() {
   return constructCallableReference(function () {
     return get_gobletSquat();
-  }, 0, 0, 261);
+  }, 0, 0, 262);
 }
 function dbSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25195,7 +25251,7 @@ function dbSquat$delegate$lambda() {
 function _get_dbSquat_$ref_ogch3o() {
   return constructCallableReference(function () {
     return get_dbSquat();
-  }, 0, 0, 262);
+  }, 0, 0, 263);
 }
 function kettlebellFrontSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25207,7 +25263,7 @@ function kettlebellFrontSquat$delegate$lambda() {
 function _get_kettlebellFrontSquat_$ref_dhnmyl() {
   return constructCallableReference(function () {
     return get_kettlebellFrontSquat();
-  }, 0, 0, 263);
+  }, 0, 0, 264);
 }
 function zercherSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25239,12 +25295,12 @@ function zercherSquat$delegate$lambda() {
     }
     var b = minElem;
     // Inline function 'kotlin.math.abs' call
-    var x = zercherBar(invoke$standing(b).g2a_1, 90.0 + b).p1o_1 - mid;
+    var x = zercherBar(invoke$standing(b).j2a_1, 90.0 + b).p1o_1 - mid;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
       // Inline function 'kotlin.math.abs' call
-      var x_0 = zercherBar(invoke$standing(e).g2a_1, 90.0 + e).p1o_1 - mid;
+      var x_0 = zercherBar(invoke$standing(e).j2a_1, 90.0 + e).p1o_1 - mid;
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -25274,23 +25330,23 @@ function invoke$standing(back) {
 function zercherBar$ref() {
   return constructCallableReference(function (p0, p1) {
     return zercherBar(p0, p1);
-  }, 2, 0, 264, 'zercherBar');
+  }, 2, 0, 265, 'zercherBar');
 }
 function _get_zercherSquat_$ref_k60uif() {
   return constructCallableReference(function () {
     return get_zercherSquat();
-  }, 0, 0, 265);
+  }, 0, 0, 266);
 }
 function singleLegBoxSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var arms = singleLegBoxSquat$delegate$lambda$lambda;
   var freeStart = new Leg(30.0, 10.0, 5.0);
-  var start = standOn(get_tall_1(), 90.0, arms(90.0)).z1p(VOID, VOID, VOID, VOID, VOID, VOID, VOID, freeStart);
+  var start = standOn(get_tall_1(), 90.0, arms(90.0)).a1q(VOID, VOID, VOID, VOID, VOID, VOID, VOID, freeStart);
   var torso = 55.0;
   var leg = standingLeg(0.0, 20.0, kneeForDepth(20.0, 0.0), torso);
   var free = new Leg(fold180(-22.0 - torso - 180.0), 0.0, 0.0);
-  var end = standOn(leg, torso, arms(torso)).z1p(VOID, VOID, VOID, VOID, VOID, VOID, VOID, free);
-  var box = new SquatBox(leg.g2a_1.p1o_1 - 18.0, -leg.g2a_1.q1o_1 - 10.0);
+  var end = standOn(leg, torso, arms(torso)).a1q(VOID, VOID, VOID, VOID, VOID, VOID, VOID, free);
+  var box = new SquatBox(leg.j2a_1.p1o_1 - 18.0, -leg.j2a_1.q1o_1 - 10.0);
   return figure_6(View_SIDE_getInstance(), start, end, listOf([Floor_instance, box]), 'Other foot off the floor', 'Buttocks touch the box', Which_END_getInstance(), listOf(['Stand in front of a sturdy bench or box, facing away from it. Its height sets your depth.', 'Hold your arms out in front of you.', 'Balance on one leg, with the other foot just off the floor.', "Lower until your buttocks touch the box. Don't drop onto it."]), listOf([new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_BOX_getInstance(), setOf_0(Which_END_getInstance()))]), emptyList());
 }
 function singleLegBoxSquat$delegate$lambda$lambda(torso) {
@@ -25300,7 +25356,7 @@ function singleLegBoxSquat$delegate$lambda$lambda(torso) {
 function _get_singleLegBoxSquat_$ref_46rnx7() {
   return constructCallableReference(function () {
     return get_singleLegBoxSquat();
-  }, 0, 0, 266);
+  }, 0, 0, 267);
 }
 function jumpSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25308,19 +25364,19 @@ function jumpSquat$delegate$lambda() {
   var torso = shouldersOverFeet(leg0);
   var start = standOn(at(leg0, torso), torso, armAt_1(270.0, torso));
   var air = new Leg(0.0, 0.0, -30.0);
-  var end = new Pose(get_tall_1().g2a_1.p1o_1, get_tall_1().g2a_1.q1o_1 - 40.0, 90.0, VOID, new Arm(100.0, 0.0), air);
+  var end = new Pose(get_tall_1().j2a_1.p1o_1, get_tall_1().j2a_1.q1o_1 - 40.0, 90.0, VOID, new Arm(100.0, 0.0), air);
   return figure_6(View_SIDE_getInstance(), start, end, listOf_0(Floor_instance), 'Hips back, knees bent', 'Jump up explosively', Which_END_getInstance(), listOf(['Stand with your feet hip-width apart and your arms at your sides.', 'Push your hips back and bend your knees, stopping before your heels lift.', 'Jump up explosively.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))), listOf_0(new FeetOffFloor(25.0, Which_END_getInstance())));
 }
 function _get_jumpSquat_$ref_1r3szo() {
   return constructCallableReference(function () {
     return get_jumpSquat();
-  }, 0, 0, 267);
+  }, 0, 0, 268);
 }
 function smithSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var low0 = squatLeg(33.0, 2.2, 44.0);
   var lowTorso = 44.0;
-  var lowBar = barOnBack(low0.g2a_1, lowTorso);
+  var lowBar = barOnBack(low0.j2a_1, lowTorso);
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(0, 20);
   // Inline function 'kotlin.collections.mapTo' call
@@ -25384,12 +25440,12 @@ function invoke$torsoFor(lowBar, leg) {
     }
     var it = minElem;
     // Inline function 'kotlin.math.abs' call
-    var x = barOnBack(leg.g2a_1, it).p1o_1 - lowBar.p1o_1;
+    var x = barOnBack(leg.j2a_1, it).p1o_1 - lowBar.p1o_1;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
       // Inline function 'kotlin.math.abs' call
-      var x_0 = barOnBack(leg.g2a_1, e).p1o_1 - lowBar.p1o_1;
+      var x_0 = barOnBack(leg.j2a_1, e).p1o_1 - lowBar.p1o_1;
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -25404,19 +25460,19 @@ function invoke$torsoFor(lowBar, leg) {
 function _get_smithSquat_$ref_5xnl1v() {
   return constructCallableReference(function () {
     return get_smithSquat();
-  }, 0, 0, 268);
+  }, 0, 0, 269);
 }
 function smithFrontSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var bar = new Barbell(BarHold_FRONT_RACK_getInstance());
-  var start = get_frontSquat().g1t_1.z1q_1;
-  var end = get_frontSquat().h1t_1.z1q_1;
+  var start = get_frontSquat().i1t_1.b1r_1;
+  var end = get_frontSquat().j1t_1.b1r_1;
   return figure_6(View_SIDE_getInstance(), start, end, listOf([Floor_instance, smithFor(center(bar, skeleton(start)), center(bar, skeleton(end))), bar]), 'Elbows point forward', 'Thighs level with floor', Which_END_getInstance(), listOf(['Set the safety stops just below your lowest position.', 'Rest the bar on the front of your shoulders with your elbows pointing forward.', 'Place your feet under the bar.', 'Go down until your thighs are just past level with the floor. Stop sooner if your heels lift or your back starts to round.']), get_FEET_DOWN_2(), listOf([new HipDepth(0.0, Which_END_getInstance()), new BarOnRails(Which_START_getInstance()), new BarOnRails(Which_END_getInstance()), new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance())]));
 }
 function _get_smithFrontSquat_$ref_w2b11g() {
   return constructCallableReference(function () {
     return get_smithFrontSquat();
-  }, 0, 0, 269);
+  }, 0, 0, 270);
 }
 function hackSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25450,12 +25506,12 @@ function hackSquat$delegate$lambda() {
     }
     var it = minElem;
     // Inline function 'kotlin.math.abs' call
-    var x = standingLeg(0.0, it, 3.0, 90.0).g2a_1.p1o_1 - bottom.g2a_1.p1o_1;
+    var x = standingLeg(0.0, it, 3.0, 90.0).j2a_1.p1o_1 - bottom.j2a_1.p1o_1;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
       // Inline function 'kotlin.math.abs' call
-      var x_0 = standingLeg(0.0, e, 3.0, 90.0).g2a_1.p1o_1 - bottom.g2a_1.p1o_1;
+      var x_0 = standingLeg(0.0, e, 3.0, 90.0).j2a_1.p1o_1 - bottom.j2a_1.p1o_1;
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -25474,16 +25530,16 @@ function invoke$world(origin, angle, p) {
   return origin.r1o(unit(angle).t1o(p.p1o_1)).r1o(unit(angle + 90.0).t1o(-p.q1o_1));
 }
 function invoke$scene_0(angle, torso, origin, leg) {
-  var pelvis = invoke$world(origin, angle, leg.g2a_1);
+  var pelvis = invoke$world(origin, angle, leg.j2a_1);
   var machine = new HackSquatMachine(invoke$world(origin, angle, new Point(0.0, 0.0)), pelvis, angle);
   var sh = shoulderOf(pelvis, torso);
-  var arm = Reach_instance.x1q(sh, pelvis.r1o(unit(torso).t1o(12.0)).r1o(unit(torso - 90.0).t1o(12.0)), torso);
-  return new Scene(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, arm, leg.h2a_1), listOf([Floor_instance, machine]));
+  var arm = Reach_instance.z1q(sh, pelvis.r1o(unit(torso).t1o(12.0)).r1o(unit(torso - 90.0).t1o(12.0)), torso);
+  return new Scene(new Pose(pelvis.p1o_1, pelvis.q1o_1, torso, VOID, arm, leg.k2a_1), listOf([Floor_instance, machine]));
 }
 function _get_hackSquat_$ref_to7wdz() {
   return constructCallableReference(function () {
     return get_hackSquat();
-  }, 0, 0, 270);
+  }, 0, 0, 271);
 }
 function leverSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25495,8 +25551,8 @@ function leverSquat$delegate$lambda() {
   var lowTorso = balancedTorso(low0, tmp_0, yokeOn$ref());
   var start = backSquatPose(at(stand0, standTorso), standTorso);
   var end = backSquatPose(at(low0, lowTorso), lowTorso);
-  var a = yokeOn(skeleton(start).m1q_1, standTorso);
-  var b = yokeOn(skeleton(end).m1q_1, lowTorso);
+  var a = yokeOn(skeleton(start).n1q_1, standTorso);
+  var b = yokeOn(skeleton(end).n1q_1, lowTorso);
   var m = a.r1o(b).t1o(0.5);
   var d = b.s1o(a);
   var pivotX = m.p1o_1 - 120.0;
@@ -25506,148 +25562,148 @@ function leverSquat$delegate$lambda() {
 function yokeOn$ref() {
   return constructCallableReference(function (p0, p1) {
     return yokeOn(p0, p1);
-  }, 2, 0, 271, 'yokeOn');
+  }, 2, 0, 272, 'yokeOn');
 }
 function _get_leverSquat_$ref_388q3e() {
   return constructCallableReference(function () {
     return get_leverSquat();
-  }, 0, 0, 272);
+  }, 0, 0, 273);
 }
 function legExtension$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
-  var start = (new LegExtension(90.0, 90.0, false)).b2d();
-  var end = (new LegExtension(3.0, 3.0, false)).b2d();
-  return new ExerciseFigure(View_SIDE_getInstance(), start.c1r(VOID, plus(listOf_0(Floor_instance), start.a1r_1)), end.c1r(VOID, plus(listOf_0(Floor_instance), end.a1r_1)), 'Lower legs under the pad', 'Legs straight', Which_END_getInstance(), listOf(['Sit with your back against the back pad.', 'Put the front of your lower legs under the lower pad.', "Line up your knees with the machine's pivot.", 'Straighten your knees to lift the pad until your legs are straight.']), get_LEG_EXT_CONTACTS(), emptyList());
+  var start = (new LegExtension(90.0, 90.0, false)).e2d();
+  var end = (new LegExtension(3.0, 3.0, false)).e2d();
+  return new ExerciseFigure(View_SIDE_getInstance(), start.e1r(VOID, plus(listOf_0(Floor_instance), start.c1r_1)), end.e1r(VOID, plus(listOf_0(Floor_instance), end.c1r_1)), 'Lower legs under the pad', 'Legs straight', Which_END_getInstance(), listOf(['Sit with your back against the back pad.', 'Put the front of your lower legs under the lower pad.', "Line up your knees with the machine's pivot.", 'Straighten your knees to lift the pad until your legs are straight.']), get_LEG_EXT_CONTACTS(), emptyList());
 }
 function _get_legExtension_$ref_mudlrr() {
   return constructCallableReference(function () {
     return get_legExtension();
-  }, 0, 0, 273);
+  }, 0, 0, 274);
 }
 function singleLegLegExtension$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
-  var start = (new LegExtension(90.0, 90.0, true)).b2d();
-  var end = (new LegExtension(3.0, 90.0, true)).b2d();
-  return new ExerciseFigure(View_SIDE_getInstance(), start.c1r(VOID, plus(listOf_0(Floor_instance), start.a1r_1)), end.c1r(VOID, plus(listOf_0(Floor_instance), end.a1r_1)), 'Lower legs under the pad', 'Straighten one knee', Which_END_getInstance(), listOf(['Sit with your back against the back pad.', 'Put the front of your lower legs under the pad or pads.', "Line up your knees with the machine's pivot.", 'Straighten one knee to lift the pad until that leg is straight.']), get_LEG_EXT_CONTACTS(), emptyList());
+  var start = (new LegExtension(90.0, 90.0, true)).e2d();
+  var end = (new LegExtension(3.0, 90.0, true)).e2d();
+  return new ExerciseFigure(View_SIDE_getInstance(), start.e1r(VOID, plus(listOf_0(Floor_instance), start.c1r_1)), end.e1r(VOID, plus(listOf_0(Floor_instance), end.c1r_1)), 'Lower legs under the pad', 'Straighten one knee', Which_END_getInstance(), listOf(['Sit with your back against the back pad.', 'Put the front of your lower legs under the pad or pads.', "Line up your knees with the machine's pivot.", 'Straighten one knee to lift the pad until that leg is straight.']), get_LEG_EXT_CONTACTS(), emptyList());
 }
 function _get_singleLegLegExtension_$ref_uuc0ll() {
   return constructCallableReference(function () {
     return get_singleLegLegExtension();
-  }, 0, 0, 274);
+  }, 0, 0, 275);
 }
 function legPress$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var rig = new LegPressRig();
-  return new ExerciseFigure(View_SIDE_getInstance(), invoke$scene_1(rig, rig.m2d()), invoke$scene_1(rig, rig.n2d()), 'Legs nearly straight', 'Knees about 90 degrees', Which_END_getInstance(), listOf(['Sit with your back and tailbone flat against the back pad.', 'Push the platform up until your legs are nearly straight. Release the lock handles, then hold the side handles.', "Lower until your knees bend to about 90 degrees. Stop sooner if your hips start to lift off the pad. Don't let your thighs press into your ribs."]), listOf([new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FOOT_PLATE_getInstance(), get_BOTH())]), emptyList());
+  return new ExerciseFigure(View_SIDE_getInstance(), invoke$scene_1(rig, rig.p2d()), invoke$scene_1(rig, rig.q2d()), 'Legs nearly straight', 'Knees about 90 degrees', Which_END_getInstance(), listOf(['Sit with your back and tailbone flat against the back pad.', 'Push the platform up until your legs are nearly straight. Release the lock handles, then hold the side handles.', "Lower until your knees bend to about 90 degrees. Stop sooner if your hips start to lift off the pad. Don't let your thighs press into your ribs."]), listOf([new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FOOT_PLATE_getInstance(), get_BOTH())]), emptyList());
 }
 function invoke$scene_1(rig, press) {
-  return new Scene(new Pose(rig.g2d_1.p1o_1, rig.g2d_1.q1o_1, rig.c2d_1, VOID, rig.k2d_1, rig.p2d(press)), listOf([Floor_instance, press]));
+  return new Scene(new Pose(rig.j2d_1.p1o_1, rig.j2d_1.q1o_1, rig.f2d_1, VOID, rig.n2d_1, rig.s2d(press)), listOf([Floor_instance, press]));
 }
 function _get_legPress_$ref_s3ovwl() {
   return constructCallableReference(function () {
     return get_legPress();
-  }, 0, 0, 275);
+  }, 0, 0, 276);
 }
 function singleLegLegPress$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var rig = new LegPressRig();
-  var floorFoot = new Point(rig.g2d_1.p1o_1 + 48.0, -6.825);
-  var down = Reach_instance.y1q(rig.g2d_1, floorFoot, rig.c2d_1, 0.0);
-  return new ExerciseFigure(View_SIDE_getInstance(), invoke$scene_2(rig, down, rig.m2d()), invoke$scene_2(rig, down, rig.n2d()), 'One foot on the platform', 'Knee about 90 degrees', Which_END_getInstance(), listOf(['Sit with your back flat against the back pad.', 'Place one foot on the platform and the other on the floor below it.', 'Push the platform up with your working leg. Release the lock handles, then hold the side handles.', "Lower the platform until your knee bends to about 90 degrees. Stop sooner if your hips start to lift off the pad. Don't let your thigh press into your ribs."]), listOf([new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_FOOT_PLATE_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), emptyList());
+  var floorFoot = new Point(rig.j2d_1.p1o_1 + 48.0, -6.825);
+  var down = Reach_instance.a1r(rig.j2d_1, floorFoot, rig.f2d_1, 0.0);
+  return new ExerciseFigure(View_SIDE_getInstance(), invoke$scene_2(rig, down, rig.p2d()), invoke$scene_2(rig, down, rig.q2d()), 'One foot on the platform', 'Knee about 90 degrees', Which_END_getInstance(), listOf(['Sit with your back flat against the back pad.', 'Place one foot on the platform and the other on the floor below it.', 'Push the platform up with your working leg. Release the lock handles, then hold the side handles.', "Lower the platform until your knee bends to about 90 degrees. Stop sooner if your hips start to lift off the pad. Don't let your thigh press into your ribs."]), listOf([new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_FOOT_PLATE_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), emptyList());
 }
 function invoke$scene_2(rig, down, press) {
-  return new Scene(new Pose(rig.g2d_1.p1o_1, rig.g2d_1.q1o_1, rig.c2d_1, VOID, rig.k2d_1, rig.p2d(press), VOID, down), listOf([Floor_instance, press]));
+  return new Scene(new Pose(rig.j2d_1.p1o_1, rig.j2d_1.q1o_1, rig.f2d_1, VOID, rig.n2d_1, rig.s2d(press), VOID, down), listOf([Floor_instance, press]));
 }
 function _get_singleLegLegPress_$ref_8unapx() {
   return constructCallableReference(function () {
     return get_singleLegLegPress();
-  }, 0, 0, 276);
+  }, 0, 0, 277);
 }
 function lunge$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var bottom = splitBottom(40.0);
-  var end = bottom.v2d(get_HANG_4());
+  var end = bottom.y2d(get_HANG_4());
   var back = toe(end, Side_FAR_getInstance());
   var standToe = toe(standOn(get_tall_1(), 90.0, get_HANG_4()), Side_NEAR_getInstance());
   // Inline function 'kotlin.let' call
   var it = standOn(get_tall_1(), 90.0, get_HANG_4());
-  var start = it.z1p(it.n1p_1 + back.p1o_1 - standToe.p1o_1);
+  var start = it.a1q(it.n1p_1 + back.p1o_1 - standToe.p1o_1);
   return figure_6(View_SIDE_getInstance(), start, end, get_SIDE_DBS(), 'Feet together', 'Front thigh about level', Which_END_getInstance(), listOf(['Stand with your feet together. Hold a dumbbell in each hand at your sides, or use no weight.', 'Step forward with one leg. Land on your heel, then your forefoot.', "Lower until your front thigh is about level with the floor and your back knee is just above it. Don't let your knee touch the floor."]), get_FEET_DOWN_2(), emptyList());
 }
 function _get_lunge_$ref_8qy459() {
   return constructCallableReference(function () {
     return get_lunge();
-  }, 0, 0, 277);
+  }, 0, 0, 278);
 }
 function walkingLunge$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var one = splitBottom(40.0);
-  var first = one.v2d(get_HANG_4());
+  var first = one.y2d(get_HANG_4());
   var step = toe(first, Side_NEAR_getInstance()).p1o_1 - toe(first, Side_FAR_getInstance()).p1o_1;
-  var next = one.w2d(step).u2d(get_HANG_4(), false);
+  var next = one.z2d(step).x2d(get_HANG_4(), false);
   return figure_6(View_SIDE_getInstance(), first, next, get_SIDE_DBS(), 'Front thigh about level', 'Into the next lunge', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides. Or use no weight.', 'Step forward with one leg. Land on your heel, then your forefoot.', "Lower until your front thigh is about level with the floor and your back knee is just above it. Don't let your knee touch the floor.", 'Bring your back leg forward into the next lunge. Keep alternating legs.']), get_FEET_DOWN_2(), emptyList());
 }
 function _get_walkingLunge_$ref_4b5700() {
   return constructCallableReference(function () {
     return get_walkingLunge();
-  }, 0, 0, 278);
+  }, 0, 0, 279);
 }
 function reverseLunge$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
-  var end = splitBottom(0.0).v2d(get_HANG_4());
+  var end = splitBottom(0.0).y2d(get_HANG_4());
   return figure_6(View_SIDE_getInstance(), standOn(get_tall_1(), 90.0, get_HANG_4()), end, get_SIDE_DBS(), 'Feet hip-width apart', 'Step back with one leg', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides. Or use no weight.', 'Stand with your feet about hip-width apart.', 'Step back with one leg, landing on the ball of that foot well behind you.', "Lower until your front thigh is about level with the floor and your back knee is just above it. Don't let your knee touch the floor."]), get_FEET_DOWN_2(), emptyList());
 }
 function _get_reverseLunge_$ref_xvjdyx() {
   return constructCallableReference(function () {
     return get_reverseLunge();
-  }, 0, 0, 279);
+  }, 0, 0, 280);
 }
 function barbellLunge$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
-  var start = withBar(get_lunge().g1t_1.z1q_1);
-  var end = withBar(get_lunge().h1t_1.z1q_1);
+  var start = withBar(get_lunge().i1t_1.b1r_1);
+  var end = withBar(get_lunge().j1t_1.b1r_1);
   return figure_6(View_SIDE_getInstance(), start, end, listOf([Floor_instance, lungeRack(start, end), new Barbell(BarHold_UPPER_BACK_getInstance())]), 'Bar on your upper back', 'Front thigh about level', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Step forward with one leg. Land on your heel, then your forefoot.', "Lower until your front thigh is about level with the floor and your back knee is just above it. Don't let your knee touch the floor."]), get_FEET_DOWN_2(), emptyList());
 }
 function _get_barbellLunge_$ref_rrrjrn() {
   return constructCallableReference(function () {
     return get_barbellLunge();
-  }, 0, 0, 280);
+  }, 0, 0, 281);
 }
 function barbellReverseLunge$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
-  var start = withBar(get_reverseLunge().g1t_1.z1q_1);
-  var end = withBar(get_reverseLunge().h1t_1.z1q_1);
+  var start = withBar(get_reverseLunge().i1t_1.b1r_1);
+  var end = withBar(get_reverseLunge().j1t_1.b1r_1);
   return figure_6(View_SIDE_getInstance(), start, end, listOf([Floor_instance, lungeRack(start, end), new Barbell(BarHold_UPPER_BACK_getInstance())]), 'Bar on your upper back', 'Step back with one leg', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Step back with one leg, landing on the ball of that foot.', "Lower until your front thigh is about level with the floor and your back knee is just above it. Don't let your knee touch the floor."]), get_FEET_DOWN_2(), emptyList());
 }
 function _get_barbellReverseLunge_$ref_mfaf2h() {
   return constructCallableReference(function () {
     return get_barbellReverseLunge();
-  }, 0, 0, 281);
+  }, 0, 0, 282);
 }
 function splitSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var bottom = splitSquatBottom(40.0);
   var top = splitTop(bottom, new Point(40.0, -6.825), backAnkle(bottom).ta_1.p1o_1);
-  return figure_6(View_SIDE_getInstance(), top.v2d(get_HANG_4()), bottom.v2d(get_HANG_4()), get_SIDE_DBS(), 'Feet far apart', 'Back knee near the floor', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides. Or use no weight.', 'Stand with your feet far apart, one in front and one behind.', 'Go down until your back knee is almost touching the floor.']), get_FEET_DOWN_2(), emptyList());
+  return figure_6(View_SIDE_getInstance(), top.y2d(get_HANG_4()), bottom.y2d(get_HANG_4()), get_SIDE_DBS(), 'Feet far apart', 'Back knee near the floor', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides. Or use no weight.', 'Stand with your feet far apart, one in front and one behind.', 'Go down until your back knee is almost touching the floor.']), get_FEET_DOWN_2(), emptyList());
 }
 function _get_splitSquat_$ref_cdlwoa() {
   return constructCallableReference(function () {
     return get_splitSquat();
-  }, 0, 0, 282);
+  }, 0, 0, 283);
 }
 function smithSplitSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var bottom = splitSquatBottom(40.0);
   var top = splitTop(bottom, new Point(40.0, -6.825), backAnkle(bottom).ta_1.p1o_1);
-  var start = withBar(top.v2d(get_HANG_4()));
-  var end = withBar(bottom.v2d(get_HANG_4()));
+  var start = withBar(top.y2d(get_HANG_4()));
+  var end = withBar(bottom.y2d(get_HANG_4()));
   var bar = new Barbell(BarHold_UPPER_BACK_getInstance());
   return figure_6(View_SIDE_getInstance(), start, end, listOf([Floor_instance, smithFor(center(bar, skeleton(start)), center(bar, skeleton(end))), bar]), 'Back foot well back', 'Back knee near the floor', Which_END_getInstance(), listOf(['Set the safety stops just below your lowest position.', 'Rest the bar across the back of your shoulders and grip it out to the sides.', 'Place one foot slightly forward, and the other well back on the ball of the foot.', 'Bend both knees and hips to lower until your back knee is almost touching the floor.']), get_FEET_DOWN_2(), listOf([new BarOnRails(Which_START_getInstance()), new BarOnRails(Which_END_getInstance())]));
 }
 function _get_smithSplitSquat_$ref_sj9uwd() {
   return constructCallableReference(function () {
     return get_smithSplitSquat();
-  }, 0, 0, 283);
+  }, 0, 0, 284);
 }
 function bulgarianSplitSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25702,7 +25758,7 @@ function bulgarianSplitSquat$delegate$lambda() {
   var shin = tmp$ret$3;
   var ankle_1 = knee.r1o(unit(shin).t1o(Segment_SHIN_getInstance().a()));
   var hip = knee.r1o(unit(90.0 - 12.0).t1o(Segment_THIGH_getInstance().a()));
-  var back = Reach_instance.y1q(hip, ankle_1, torso, shin + 90.0 + plantar);
+  var back = Reach_instance.a1r(hip, ankle_1, torso, shin + 90.0 + plantar);
   var tmp0 = hip.q1o_1 + 1.0;
   var tmp = Segment_SHIN_getInstance().a();
   // Inline function 'kotlin.math.cos' call
@@ -25719,7 +25775,7 @@ function bulgarianSplitSquat$delegate$lambda() {
   var x_3 = 10.0 / 57.29577951308232;
   var tmp$ret$11 = Math.sin(x_3);
   var frontAnkle = new Point(frontKnee.p1o_1 - tmp_0 * tmp$ret$11, -6.825);
-  var front = Reach_instance.y1q(hip, frontAnkle, torso, 0.0);
+  var front = Reach_instance.a1r(hip, frontAnkle, torso, 0.0);
   var bottom = new Split(hip, front, back);
   var tmp_1 = Segment_THIGH_getInstance().a() * Segment_THIGH_getInstance().a() + Segment_SHIN_getInstance().a() * Segment_SHIN_getInstance().a();
   var tmp_2 = 2 * Segment_THIGH_getInstance().a() * Segment_SHIN_getInstance().a();
@@ -25729,14 +25785,14 @@ function bulgarianSplitSquat$delegate$lambda() {
   var x_5 = tmp_1 + tmp_2 * Math.cos(x_4) - (frontAnkle.p1o_1 - hip.p1o_1) * (frontAnkle.p1o_1 - hip.p1o_1);
   var tmp$ret$13 = Math.sqrt(x_5);
   var topHip = new Point(hip.p1o_1, -(6.825 + tmp$ret$13));
-  var top = new Split(topHip, Reach_instance.y1q(topHip, frontAnkle, torso, 0.0), legOnBall(topHip, ankle_1.p1o_1, torso, plantar, benchTop));
+  var top = new Split(topHip, Reach_instance.a1r(topHip, frontAnkle, torso, 0.0), legOnBall(topHip, ankle_1.p1o_1, torso, plantar, benchTop));
   var bench = new FlatBench(ankle_1.p1o_1 - 7.0 - 122.0, VOID, benchTop);
-  return figure_6(View_SIDE_getInstance(), top.v2d(get_HANG_4()), bottom.v2d(get_HANG_4()), listOf([Floor_instance, bench, atSide(Side_FAR_getInstance()), atSide(Side_NEAR_getInstance())]), 'Rear foot on the bench', 'Back knee near the floor', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides, or rest a barbell across your upper back.', 'Reach one leg back and rest the top of that foot on the bench.', 'Go down until your back knee is nearly touching the floor.']), listOf([new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_BENCH_getInstance(), get_BOTH())]), emptyList());
+  return figure_6(View_SIDE_getInstance(), top.y2d(get_HANG_4()), bottom.y2d(get_HANG_4()), listOf([Floor_instance, bench, atSide(Side_FAR_getInstance()), atSide(Side_NEAR_getInstance())]), 'Rear foot on the bench', 'Back knee near the floor', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides, or rest a barbell across your upper back.', 'Reach one leg back and rest the top of that foot on the bench.', 'Go down until your back knee is nearly touching the floor.']), listOf([new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_BENCH_getInstance(), get_BOTH())]), emptyList());
 }
 function _get_bulgarianSplitSquat_$ref_5ft27t() {
   return constructCallableReference(function () {
     return get_bulgarianSplitSquat();
-  }, 0, 0, 284);
+  }, 0, 0, 285);
 }
 function sledPush$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25754,7 +25810,7 @@ function invoke$pose_38(sledX, torso, hipY, frontDx, frontPlantar, backDx) {
   var frontAnkleX = pelvis.p1o_1 + frontDx;
   var tmp;
   if (frontPlantar === 0.0) {
-    tmp = Reach_instance.y1q(pelvis, new Point(frontAnkleX, -6.825), torso, 0.0);
+    tmp = Reach_instance.a1r(pelvis, new Point(frontAnkleX, -6.825), torso, 0.0);
   } else {
     tmp = legOnBall(pelvis, frontAnkleX, torso, frontPlantar);
   }
@@ -25765,12 +25821,12 @@ function invoke$pose_38(sledX, torso, hipY, frontDx, frontPlantar, backDx) {
 function _get_sledPush_$ref_fugz94() {
   return constructCallableReference(function () {
     return get_sledPush();
-  }, 0, 0, 285);
+  }, 0, 0, 286);
 }
 function stepUp$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var box = new SquatBox(40.0, 45.0, 50.0);
-  var boxFront = box.s1x_1 - box.u1x_1 / 2;
+  var boxFront = box.u1x_1 - box.w1x_1 / 2;
   var nearAnkle = new Point(boxFront + 6.0 + Segment_FOOT_getInstance().a() * 0.2, -(45.0 + 6.825));
   var farAnkle = new Point(boxFront - 22.0, -6.825);
   var tmp = Segment_THIGH_getInstance().a() * Segment_THIGH_getInstance().a() + Segment_SHIN_getInstance().a() * Segment_SHIN_getInstance().a();
@@ -25785,14 +25841,14 @@ function stepUp$delegate$lambda() {
   var x_1 = legLen * legLen - 16.0;
   var tmp$ret$2 = Math.sqrt(x_1);
   var pelvis = new Point(tmp_1, -(6.825 + tmp$ret$2));
-  var start = new Pose(pelvis.p1o_1, pelvis.q1o_1, 90.0, VOID, get_HANG_4(), Reach_instance.y1q(pelvis, nearAnkle, 90.0, 0.0), VOID, Reach_instance.y1q(pelvis, farAnkle, 90.0, 0.0));
-  var end = new Pose(nearAnkle.p1o_1, get_tall_1().g2a_1.q1o_1 - 45.0, 90.0, VOID, get_HANG_4(), get_tall_1().h2a_1);
+  var start = new Pose(pelvis.p1o_1, pelvis.q1o_1, 90.0, VOID, get_HANG_4(), Reach_instance.a1r(pelvis, nearAnkle, 90.0, 0.0), VOID, Reach_instance.a1r(pelvis, farAnkle, 90.0, 0.0));
+  var end = new Pose(nearAnkle.p1o_1, get_tall_1().j2a_1.q1o_1 - 45.0, 90.0, VOID, get_HANG_4(), get_tall_1().k2a_1);
   return figure_6(View_SIDE_getInstance(), start, end, listOf([Floor_instance, box, atSide(Side_FAR_getInstance()), atSide(Side_NEAR_getInstance())]), 'One foot on the box', 'Stand up on the box', Which_START_getInstance(), listOf(['Use a sturdy box or bench no higher than your knee.', 'Stand facing it with your feet about hip-width apart. Hold a dumbbell in each hand, palms facing in, or use no weight.', 'Place one foot on the box.', 'Stand up on the box by straightening that leg, then bring your other foot up.']), listOf([new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_BOX_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance())), new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_BOX_getInstance(), setOf_0(Which_END_getInstance()))]), emptyList());
 }
 function _get_stepUp_$ref_sw92kz() {
   return constructCallableReference(function () {
     return get_stepUp();
-  }, 0, 0, 286);
+  }, 0, 0, 287);
 }
 function lateralLunge$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25812,8 +25868,8 @@ function lateralLunge$delegate$lambda() {
   var _destruct__k2r9zo = frontHips(px, hipY, -back);
   var nh = _destruct__k2r9zo.ya();
   var fh = _destruct__k2r9zo.za();
-  var nearKnee = new V3(nh.v2a_1 + out, kneeY, 0.0);
-  var near = frontLeg(Side_NEAR_getInstance(), nh, nearKnee, new V3(nearKnee.v2a_1, -6.825, 0.0));
+  var nearKnee = new V3(nh.y2a_1 + out, kneeY, 0.0);
+  var near = frontLeg(Side_NEAR_getInstance(), nh, nearKnee, new V3(nearKnee.y2a_1, -6.825, 0.0));
   var far = straightFrontLeg(Side_FAR_getInstance(), fh, new V3(farAnkleX, -6.825, 0.0));
   var end = new Pose(px, hipY, 90.0, VOID, get_HANG_4(), near, VOID, far, 35.0);
   return figure_6(View_FRONT_getInstance(), start, end, listOf([Floor_instance, atSide(Side_FAR_getInstance(), View_FRONT_getInstance()), atSide(Side_NEAR_getInstance(), View_FRONT_getInstance())]), 'Feet hip-width apart', 'Step out to one side', Which_END_getInstance(), listOf(['Stand with your feet hip-width apart. Hold a dumbbell in each hand, palms facing each other, or use no weight.', 'Step straight out to one side. Land on your heel, then your forefoot.', 'Push your hips back and bend the knee of the leg you stepped onto. Keep that shin close to upright and reach the weights toward that foot.']), get_FEET_DOWN_2(), emptyList());
@@ -25821,7 +25877,7 @@ function lateralLunge$delegate$lambda() {
 function _get_lateralLunge_$ref_7svw8i() {
   return constructCallableReference(function () {
     return get_lateralLunge();
-  }, 0, 0, 287);
+  }, 0, 0, 288);
 }
 function curtsyLunge$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25834,14 +25890,14 @@ function curtsyLunge$delegate$lambda() {
   var nh = _destruct__k2r9zo.ya();
   var fh = _destruct__k2r9zo.za();
   var kneeY = -(6.825 + Segment_SHIN_getInstance().a());
-  var dx = nearAnkleX - nh.v2a_1;
+  var dx = nearAnkleX - nh.y2a_1;
   // Inline function 'kotlin.math.sqrt' call
   var x = Segment_THIGH_getInstance().a() * Segment_THIGH_getInstance().a() - (kneeY - hipY) * (kneeY - hipY) - dx * dx;
   var dz = Math.sqrt(x);
   var nearKnee = new V3(nearAnkleX, kneeY, dz);
   var near = frontLeg(Side_NEAR_getInstance(), nh, nearKnee, new V3(nearAnkleX, -6.825, dz));
   var farKneeY = -20.0;
-  var kx = fh.v2a_1 + 12.0;
+  var kx = fh.y2a_1 + 12.0;
   var shinAcross = 34.0;
   // Inline function 'kotlin.math.sqrt' call
   var x_0 = Segment_THIGH_getInstance().a() * Segment_THIGH_getInstance().a() - (farKneeY - hipY) * (farKneeY - hipY) - 144.0;
@@ -25849,10 +25905,10 @@ function curtsyLunge$delegate$lambda() {
   var farKnee = new V3(kx, farKneeY, kz);
   var footAngle = -120.0;
   // Inline function 'kotlin.let' call
-  var it = skeleton(invoke$pose_39(px, hipY, near, invoke$farLegTo(kx, shinAcross, kz, farKneeY, fh, farKnee, footAngle, -10.0)), View_FRONT_getInstance()).r1q_1;
-  var tmp0 = it.i1q_1.q1o_1;
+  var it = skeleton(invoke$pose_39(px, hipY, near, invoke$farLegTo(kx, shinAcross, kz, farKneeY, fh, farKnee, footAngle, -10.0)), View_FRONT_getInstance()).s1q_1;
+  var tmp0 = it.j1q_1.q1o_1;
   // Inline function 'kotlin.comparisons.maxOf' call
-  var b = it.j1q_1.q1o_1;
+  var b = it.k1q_1.q1o_1;
   var lowBy = -Math.max(tmp0, b) - 7.0 / 2;
   var end = invoke$pose_39(px, hipY, near, invoke$farLegTo(kx, shinAcross, kz, farKneeY, fh, farKnee, footAngle, -10.0 + lowBy));
   return figure_6(View_FRONT_getInstance(), start, end, listOf_0(Floor_instance), 'Feet wide apart', 'Step back and behind', Which_END_getInstance(), listOf(['Stand with your feet wide apart.', 'Step one leg back and behind the other, like a curtsy.', 'Bend both knees to lower yourself, keeping your front knee over your heel.']), get_FEET_DOWN_2(), emptyList());
@@ -25870,7 +25926,7 @@ function invoke$pose_39(px, hipY, near, far) {
 function _get_curtsyLunge_$ref_fl27p3() {
   return constructCallableReference(function () {
     return get_curtsyLunge();
-  }, 0, 0, 288);
+  }, 0, 0, 289);
 }
 function lateralStepUp$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -25883,9 +25939,9 @@ function lateralStepUp$delegate$lambda() {
   var fh = _destruct__k2r9zo.za();
   var nearAnkle = new V3(footX, -(height + 6.825), 15.0);
   var near = frontLeg(Side_NEAR_getInstance(), nh, knee3(nh, nearAnkle, new V3(0.4, 0.0, 1.0)), nearAnkle);
-  var far = straightFrontLeg(Side_FAR_getInstance(), fh, new V3(fh.v2a_1 - 2.0, -6.825, 0.0));
+  var far = straightFrontLeg(Side_FAR_getInstance(), fh, new V3(fh.y2a_1 - 2.0, -6.825, 0.0));
   var start = new Pose(0.0, standY, 90.0, VOID, get_HANG_4(), near, VOID, far);
-  var upY = nearAnkle.w2a_1 - (Segment_THIGH_getInstance().a() + Segment_SHIN_getInstance().a());
+  var upY = nearAnkle.z2a_1 - (Segment_THIGH_getInstance().a() + Segment_SHIN_getInstance().a());
   var upX = footX - 9.0;
   var _destruct__k2r9zo_0 = frontHips(upX, upY, 15.0);
   var nh2 = _destruct__k2r9zo_0.ya();
@@ -25899,7 +25955,7 @@ function lateralStepUp$delegate$lambda() {
   // Inline function 'kotlin.math.cos' call
   var x_0 = 8.0 / 57.29577951308232;
   var tmp$ret$1 = Math.cos(x_0);
-  var farKnee = fh2.d2c(new V3(tmp_0, tmp_1 * tmp$ret$1, 0.0));
+  var farKnee = fh2.g2c(new V3(tmp_0, tmp_1 * tmp$ret$1, 0.0));
   var tmp_2 = -Segment_SHIN_getInstance().a();
   // Inline function 'kotlin.math.sin' call
   var x_1 = 4.0 / 57.29577951308232;
@@ -25915,7 +25971,7 @@ function lateralStepUp$delegate$lambda() {
   // Inline function 'kotlin.math.sin' call
   var x_4 = 30.0 / 57.29577951308232;
   var tmp$ret$5 = Math.sin(x_4);
-  var farAnkle = farKnee.d2c(new V3(tmp_3, tmp_6, tmp_7 * tmp$ret$5));
+  var farAnkle = farKnee.g2c(new V3(tmp_3, tmp_6, tmp_7 * tmp$ret$5));
   var hanging = frontLeg(Side_FAR_getInstance(), fh2, farKnee, farAnkle);
   var end = new Pose(upX, upY, 90.0, VOID, get_HANG_4(), upNear, VOID, hanging);
   return figure_6(View_FRONT_getInstance(), start, end, listOf([Floor_instance, box, atSide(Side_FAR_getInstance(), View_FRONT_getInstance()), atSide(Side_NEAR_getInstance(), View_FRONT_getInstance())]), 'Near foot on the box', 'Stand up on the box', Which_END_getInstance(), listOf(['Use a sturdy box or bench no higher than your knee.', 'Stand side-on to it. Hold a dumbbell in each hand at your sides, or use no weight.', 'Lift the leg nearest the box and place that foot on it, a little forward of your standing knee.', 'Stand up on the box by straightening that leg.']), listOf([new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_BOX_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))]), emptyList());
@@ -25923,7 +25979,7 @@ function lateralStepUp$delegate$lambda() {
 function _get_lateralStepUp_$ref_d174ki() {
   return constructCallableReference(function () {
     return get_lateralStepUp();
-  }, 0, 0, 289);
+  }, 0, 0, 290);
 }
 function quadFigures$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -26071,13 +26127,13 @@ function quadFigures$delegate$lambda$lambda_26() {
 function _get_quadFigures_$ref_46h3co() {
   return constructCallableReference(function () {
     return get_quadFigures();
-  }, 0, 0, 290);
+  }, 0, 0, 291);
 }
 function legOnBall$shinOf($torso, l) {
   return fold180($torso + 180.0 + l.g1p_1 - l.h1p_1);
 }
 function splitTop$at($bottom, $frontAnkle, legLen, $backAnkleX, y) {
-  var hip = new Point($bottom.q2d_1.p1o_1, y);
+  var hip = new Point($bottom.t2d_1.p1o_1, y);
   if ($frontAnkle.s1o(hip).u1o() > legLen)
     return null;
   // Inline function 'kotlin.collections.map' call
@@ -26139,7 +26195,7 @@ function splitTop$at($bottom, $frontAnkle, legLen, $backAnkleX, y) {
     tmp = tmp0_elvis_lhs;
   }
   var back = tmp;
-  return new Split(hip, Reach_instance.y1q(hip, $frontAnkle, 90.0, 0.0), back);
+  return new Split(hip, Reach_instance.a1r(hip, $frontAnkle, 90.0, 0.0), back);
 }
 var properties_initialized_Quads_kt_drc5g_0;
 function _init_properties_Quads_kt__7ij3x6_0() {
@@ -26534,11 +26590,11 @@ function sideShoulder_0(p) {
 }
 function u3(x, y, z) {
   _init_properties_Shoulders_kt__i33an3_0();
-  return (new V3(x, y, z)).b2c();
+  return (new V3(x, y, z)).e2c();
 }
 function bent(u, toward, bend) {
   _init_properties_Shoulders_kt__i33an3_0();
-  var t = toward.a2c(u.t1o(toward.c2c(u))).b2c();
+  var t = toward.d2c(u.t1o(toward.f2c(u))).e2c();
   // Inline function 'kotlin.math.cos' call
   var x = bend / 57.29577951308232;
   var tmp$ret$0 = Math.cos(x);
@@ -26546,7 +26602,7 @@ function bent(u, toward, bend) {
   // Inline function 'kotlin.math.sin' call
   var x_0 = bend / 57.29577951308232;
   var tmp$ret$1 = Math.sin(x_0);
-  return tmp.d2c(t.t1o(tmp$ret$1)).b2c();
+  return tmp.g2c(t.t1o(tmp$ret$1)).e2c();
 }
 function arm_0(u, f, torso) {
   torso = torso === VOID ? 90.0 : torso;
@@ -26624,11 +26680,11 @@ function rowReachAt(z) {
   // Inline function 'kotlin.math.cos' call
   var x_0 = 15.0 / 57.29577951308232;
   var tmp$ret$1 = Math.cos(x_0);
-  var tmp = sh.v2a_1 + flat * tmp$ret$1;
+  var tmp = sh.y2a_1 + flat * tmp$ret$1;
   // Inline function 'kotlin.math.sin' call
   var x_1 = 15.0 / 57.29577951308232;
   var tmp$ret$2 = Math.sin(x_1);
-  return arm3(sh, new V3(tmp, sh.w2a_1 + flat * tmp$ret$2, z), new V3(0.0, 1.0, 0.0), 90.0);
+  return arm3(sh, new V3(tmp, sh.z2a_1 + flat * tmp$ret$2, z), new V3(0.0, 1.0, 0.0), 90.0);
 }
 function frontShoulder_1(y, z) {
   z = z === VOID ? 0.0 : z;
@@ -26665,7 +26721,7 @@ function frontSeated_1(arm, hip, lean, neckOut, far) {
 }
 function shoulderY(p) {
   _init_properties_Shoulders_kt__i33an3_0();
-  return skeleton(p, View_FRONT_getInstance()).q1q_1.a1q_1.q1o_1;
+  return skeleton(p, View_FRONT_getInstance()).r1q_1.b1q_1.q1o_1;
 }
 function sideDown(abduct) {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26693,9 +26749,9 @@ function rotation(forearm) {
 function dbShoulderPress$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var bench = new AdjustableBench(30.0);
-  var hinge = new Point(bench.j1z_1 - 40.0, -43.0);
+  var hinge = new Point(bench.l1z_1 - 40.0, -43.0);
   var pelvis = new Point(hinge.p1o_1 + 10.0, hinge.q1o_1 - 10.0);
-  var legs = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 + 44.0, -6.825), 90.0, 0.0);
+  var legs = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 + 44.0, -6.825), 90.0, 0.0);
   var shoulder = shoulderOf(pelvis, 90.0);
   var out = 50.0;
   var ahead = 13.0;
@@ -26718,30 +26774,30 @@ function invoke$pose_40(pelvis, legs, arm) {
 function _get_dbShoulderPress_$ref_6hcz5n() {
   return constructCallableReference(function () {
     return get_dbShoulderPress();
-  }, 0, 0, 291);
+  }, 0, 0, 292);
 }
 function uprightLegs$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
-  return Reach_instance.y1q(get_uprightPelvis(), new Point(get_uprightPelvis().p1o_1 + 44.0, -6.825), 90.0, 0.0);
+  return Reach_instance.a1r(get_uprightPelvis(), new Point(get_uprightPelvis().p1o_1 + 44.0, -6.825), 90.0, 0.0);
 }
 function _get_uprightLegs_$ref_ls9hly() {
   return constructCallableReference(function () {
     return get_uprightLegs();
-  }, 0, 0, 292);
+  }, 0, 0, 293);
 }
 function seatedBarbellPress$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var sh = get_uprightShoulder();
   var start = barArm(sh, sh.r1o(new Point(12.5, -8.0)), 30.0, new V3(0.4, 1.0, 0.5));
   var end = barOverhead(sh, 30.0, 0.0);
-  var barStart = skeleton(uprightPose(start)).q1q_1.e1q_1;
+  var barStart = skeleton(uprightPose(start)).r1q_1.f1q_1;
   var rack = rackInFront(barStart.p1o_1, -barStart.q1o_1 - 6.0, -barStart.q1o_1 - 10.0, 60.0);
   return figure_7(View_SIDE_getInstance(), uprightPose(start), uprightPose(end), listOf([Floor_instance, get_uprightBench(), rack, new Barbell()]), 'About chin height', 'Arms straight overhead', Which_END_getInstance(), listOf(['Sit on a shoulder-press bench in the rack, with your back straight against the pad.', 'Set the safety pins, or use a spotter.', 'Lower it to the front of your shoulders, to about chin height.', 'Press it overhead until your arms are straight, keeping your elbows forward.']), plus_0(get_UPRIGHT_CONTACTS(), new Contact(BodyPoint_HEAD_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH())), listOf_0(new LockoutOverShoulders(Which_END_getInstance())));
 }
 function _get_seatedBarbellPress_$ref_kbp0ax() {
   return constructCallableReference(function () {
     return get_seatedBarbellPress();
-  }, 0, 0, 293);
+  }, 0, 0, 294);
 }
 function smithShoulderPress$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26749,7 +26805,7 @@ function smithShoulderPress$delegate$lambda() {
   var torso = 180.0 - backAngle;
   var bench = new AdjustableBench(30.0, backAngle);
   var pelvis = seatedPelvis_1(adjustableHinge(bench), backAngle);
-  var legs = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 + 44.0, -6.825), torso, 0.0);
+  var legs = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 + 44.0, -6.825), torso, 0.0);
   var sh = shoulderOf(pelvis, torso);
   var half = 36.0;
   var railX = sh.p1o_1 + 8.5;
@@ -26760,7 +26816,7 @@ function smithShoulderPress$delegate$lambda() {
   var x = get_ARM_REACH() * get_ARM_REACH() - dz * dz - 8.5 * 8.5;
   var tmp$ret$0 = Math.sqrt(x);
   var end = arm3(tmp, new V3(railX, sh.q1o_1 - tmp$ret$0, half), new V3(0.0, 0.0, 1.0), torso);
-  var barStart = skeleton(invoke$pose_41(pelvis, torso, legs, start)).q1q_1.e1q_1;
+  var barStart = skeleton(invoke$pose_41(pelvis, torso, legs, start)).r1q_1.f1q_1;
   var smith = new SmithMachine(railX, -barStart.q1o_1 - 1.45 - 5.0);
   return figure_7(View_SIDE_getInstance(), invoke$pose_41(pelvis, torso, legs, start), invoke$pose_41(pelvis, torso, legs, end), listOf([Floor_instance, bench, smith, new Barbell()]), 'Front of your shoulders', 'Arms straight overhead', Which_END_getInstance(), listOf(["Set the safety stops so the bar can't come down below your shoulders.", 'Sit on the bench with the bar in front of your shoulders.', 'Press overhead until your arms are straight.', "Lower it to the front of your shoulders. Pull your head back slightly so the bar doesn't touch it."]), plus_0(get_UPRIGHT_CONTACTS(), new Contact(BodyPoint_HEAD_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH())), listOf([new BarOnRails(Which_START_getInstance()), new BarOnRails(Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_END_getInstance())]));
 }
@@ -26770,7 +26826,7 @@ function invoke$pose_41(pelvis, torso, legs, arm) {
 function _get_smithShoulderPress_$ref_g3ywcm() {
   return constructCallableReference(function () {
     return get_smithShoulderPress();
-  }, 0, 0, 294);
+  }, 0, 0, 295);
 }
 function machineShoulderPress$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26779,7 +26835,7 @@ function machineShoulderPress$delegate$lambda() {
   var seat = 41.0;
   var hinge = new Point(40.0 - 40.0, -seat);
   var pelvis = seatedPelvis_1(hinge, back);
-  var legs = Reach_instance.y1q(pelvis, new Point(pelvis.p1o_1 + 40.0, -6.825), torso, 0.0);
+  var legs = Reach_instance.a1r(pelvis, new Point(pelvis.p1o_1 + 40.0, -6.825), torso, 0.0);
   var sh = shoulderOf(pelvis, torso);
   var half = 30.0;
   var startGrip = sh.r1o(new Point(12.0, -8.0));
@@ -26801,7 +26857,7 @@ function invoke$pose_42(pelvis, torso, legs, arm) {
 function _get_machineShoulderPress_$ref_6ypqke() {
   return constructCallableReference(function () {
     return get_machineShoulderPress();
-  }, 0, 0, 295);
+  }, 0, 0, 296);
 }
 function tall$delegate$lambda_2() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26810,11 +26866,11 @@ function tall$delegate$lambda_2() {
 function _get_tall_$ref_4a7zkj_2() {
   return constructCallableReference(function () {
     return get_tall_2();
-  }, 0, 0, 296);
+  }, 0, 0, 297);
 }
 function tallShoulder$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
-  return shoulderOf(get_tall_2().g2a_1, 90.0);
+  return shoulderOf(get_tall_2().j2a_1, 90.0);
 }
 function oneArmDbPress$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26823,7 +26879,7 @@ function oneArmDbPress$delegate$lambda() {
 function _get_oneArmDbPress_$ref_pvkoj5() {
   return constructCallableReference(function () {
     return get_oneArmDbPress();
-  }, 0, 0, 297);
+  }, 0, 0, 298);
 }
 function arnoldPress$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26831,26 +26887,26 @@ function arnoldPress$delegate$lambda() {
   var sh = frontShoulder_1(shY);
   var gripX = 12.0;
   var elbowDrop = get_FORE_LINK() - 7.0;
-  var dx = gripX - sh.v2a_1;
+  var dx = gripX - sh.y2a_1;
   var tmp = shY + elbowDrop;
   // Inline function 'kotlin.math.sqrt' call
   var x = Segment_UPPER_ARM_getInstance().a() * Segment_UPPER_ARM_getInstance().a() - dx * dx - elbowDrop * elbowDrop;
   var tmp$ret$0 = Math.sqrt(x);
   var elbow = new V3(gripX, tmp, tmp$ret$0);
-  var front = arm_0(elbow.a2c(sh).b2c(), new V3(0.0, -1.0, 0.0));
+  var front = arm_0(elbow.d2c(sh).e2c(), new V3(0.0, -1.0, 0.0));
   var up = new Arm(170.0, 0.0);
   return figure_7(View_FRONT_getInstance(), frontStanding_0(front), frontStanding_0(up), listOf([Floor_instance, new Dumbbell(Side_FAR_getInstance()), new Dumbbell(Side_NEAR_getInstance())]), 'Elbows under your wrists', 'Arms straight overhead', Which_START_getInstance(), listOf(['Stand. Start with the dumbbells in front of your shoulders, palms facing you, with your elbows under your wrists.', 'Then press the dumbbells overhead until your arms are straight.']), get_FEET_DOWN_3(), listOf_0(new ElbowBend(0.0, 1.0, Which_END_getInstance())));
 }
 function _get_arnoldPress_$ref_eq4il5() {
   return constructCallableReference(function () {
     return get_arnoldPress();
-  }, 0, 0, 298);
+  }, 0, 0, 299);
 }
 function kettlebellPress$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var pelvis = new Point(0.0, -(6.825 + 85.0));
-  var near = Reach_instance.y1q(pelvis, new Point(6.0, -6.825), 90.0, 0.0);
-  var far = Reach_instance.y1q(pelvis, new Point(-6.0, -6.825), 90.0, 0.0);
+  var near = Reach_instance.a1r(pelvis, new Point(6.0, -6.825), 90.0, 0.0);
+  var far = Reach_instance.a1r(pelvis, new Point(-6.0, -6.825), 90.0, 0.0);
   var rack = new Arm(15.0, 145.0);
   return figure_7(View_SIDE_getInstance(), invoke$pose_43(pelvis, near, far, rack), invoke$pose_43(pelvis, near, far, new Arm(180.0, 0.0)), listOf([Floor_instance, new Kettlebell(Side_NEAR_getInstance(), KettlebellHold_RACK_getInstance())]), 'In front of your chest', 'Press straight overhead', Which_START_getInstance(), listOf(['Stand with your feet hip-width apart, one foot slightly in front of the other.', 'Start with the kettlebell on the same side as your front foot, held in front of your chest near your shoulder and resting on your forearm.', 'Push your front foot into the floor to shift your weight forward, and press the kettlebell straight overhead.', 'Pull your elbow back down to your ribs to lower it.']), get_FEET_DOWN_3(), listOf_0(new LockoutOverShoulders(Which_END_getInstance())), listOf([Floor_instance, new Kettlebell(Side_NEAR_getInstance(), KettlebellHold_OVERHEAD_getInstance())]));
 }
@@ -26860,17 +26916,17 @@ function invoke$pose_43(pelvis, near, far, arm) {
 function _get_kettlebellPress_$ref_xpvotp() {
   return constructCallableReference(function () {
     return get_kettlebellPress();
-  }, 0, 0, 299);
+  }, 0, 0, 300);
 }
 function landminePress$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var torso = 85.0;
   var pelvis = new Point(0.0, -(6.825 + 76.0));
-  var back = Reach_instance.y1q(pelvis, ankleOnToes_1(-46.0, -25.0), torso, -25.0);
-  var front = Reach_instance.y1q(pelvis, new Point(36.0, -6.825), torso, 0.0);
+  var back = Reach_instance.a1r(pelvis, ankleOnToes_1(-46.0, -25.0), torso, -25.0);
+  var front = Reach_instance.a1r(pelvis, new Point(36.0, -6.825), torso, 0.0);
   var sh = shoulderOf(pelvis, torso);
   var gripStart = sh.r1o(new Point(20.0, 2.0));
-  var start = Reach_instance.x1q(sh, gripStart, torso);
+  var start = Reach_instance.z1q(sh, gripStart, torso);
   var r = 215.0;
   // Inline function 'kotlin.math.sqrt' call
   var x = r * r - (gripStart.q1o_1 + 4.0) * (gripStart.q1o_1 + 4.0);
@@ -26891,7 +26947,7 @@ function invoke$pose_44(pelvis, torso, back, front, arm) {
 function _get_landminePress_$ref_3guofv() {
   return constructCallableReference(function () {
     return get_landminePress();
-  }, 0, 0, 300);
+  }, 0, 0, 301);
 }
 function frontRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26901,7 +26957,7 @@ function frontRaise$delegate$lambda() {
 function _get_frontRaise_$ref_amrucp() {
   return constructCallableReference(function () {
     return get_frontRaise();
-  }, 0, 0, 301);
+  }, 0, 0, 302);
 }
 function barbellFrontRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26919,7 +26975,7 @@ function barbellFrontRaise$delegate$lambda() {
 function _get_barbellFrontRaise_$ref_k6dyav() {
   return constructCallableReference(function () {
     return get_barbellFrontRaise();
-  }, 0, 0, 302);
+  }, 0, 0, 303);
 }
 function cableFrontRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26929,7 +26985,7 @@ function cableFrontRaise$delegate$lambda() {
 function _get_cableFrontRaise_$ref_twtgrk() {
   return constructCallableReference(function () {
     return get_cableFrontRaise();
-  }, 0, 0, 303);
+  }, 0, 0, 304);
 }
 function cableRearDeltRow$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26941,20 +26997,20 @@ function cableRearDeltRow$delegate$lambda() {
   // Inline function 'kotlin.math.sqrt' call
   var x = Segment_UPPER_ARM_getInstance().a() * Segment_UPPER_ARM_getInstance().a() - behind * behind;
   var tmp$ret$0 = Math.sqrt(x);
-  var elbow = sh.d2c(new V3(tmp, 0.0, tmp$ret$0));
+  var elbow = sh.g2c(new V3(tmp, 0.0, tmp$ret$0));
   var g = chest.r1o(new Point(1.3, 0.0));
-  var gap = (new Point(g.p1o_1 - elbow.v2a_1, g.q1o_1 - elbow.w2a_1)).u1o();
+  var gap = (new Point(g.p1o_1 - elbow.y2a_1, g.q1o_1 - elbow.z2a_1)).u1o();
   // Inline function 'kotlin.math.sqrt' call
   var x_0 = get_FORE_LINK() * get_FORE_LINK() - gap * gap;
   var tmp$ret$1 = Math.sqrt(x_0);
-  var grip = new V3(g.p1o_1, g.q1o_1, elbow.x2a_1 - tmp$ret$1);
-  var end = arm_0(elbow.a2c(sh).b2c(), grip.a2c(elbow).b2c());
-  return figure_7(View_SIDE_getInstance(), rowPose(rowReachAt(grip.x2a_1)), rowPose(end), listOf([Floor_instance, get_rowStation(), new CableAttachment(Attachment_STRAIGHT_BAR_getInstance())]), 'Arms straight', 'Elbows up and out', Which_END_getInstance(), listOf(['Attach a bar to a seated cable row.', 'Sit up straight and slide your hips back until your knees are only slightly bent.', 'Pull the bar toward your upper chest, just below your neck, with your elbows up and out to the sides.', 'Keep your upper arms level.', 'Stop when your elbows are slightly behind your back.']), get_SEATED_ROW_CONTACTS(), listOf([new BarTouches(BodyPoint_UPPER_CHEST_getInstance(), Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
+  var grip = new V3(g.p1o_1, g.q1o_1, elbow.a2b_1 - tmp$ret$1);
+  var end = arm_0(elbow.d2c(sh).e2c(), grip.d2c(elbow).e2c());
+  return figure_7(View_SIDE_getInstance(), rowPose(rowReachAt(grip.a2b_1)), rowPose(end), listOf([Floor_instance, get_rowStation(), new CableAttachment(Attachment_STRAIGHT_BAR_getInstance())]), 'Arms straight', 'Elbows up and out', Which_END_getInstance(), listOf(['Attach a bar to a seated cable row.', 'Sit up straight and slide your hips back until your knees are only slightly bent.', 'Pull the bar toward your upper chest, just below your neck, with your elbows up and out to the sides.', 'Keep your upper arms level.', 'Stop when your elbows are slightly behind your back.']), get_SEATED_ROW_CONTACTS(), listOf([new BarTouches(BodyPoint_UPPER_CHEST_getInstance(), Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
 }
 function _get_cableRearDeltRow_$ref_1puh5i() {
   return constructCallableReference(function () {
     return get_cableRearDeltRow();
-  }, 0, 0, 304);
+  }, 0, 0, 305);
 }
 function FRONT_SEATED_Y$delegate$lambda_0() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26966,7 +27022,7 @@ function FRONT_SEATED_Y$delegate$lambda_0() {
 function _get_FRONT_SEATED_Y_$ref_lo570a_0() {
   return constructCallableReference(function () {
     return get_FRONT_SEATED_Y_0();
-  }, 0, 0, 305);
+  }, 0, 0, 306);
 }
 function frontSeatTop$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26975,7 +27031,7 @@ function frontSeatTop$delegate$lambda() {
 function _get_frontSeatTop_$ref_c7jz3n() {
   return constructCallableReference(function () {
     return get_frontSeatTop();
-  }, 0, 0, 306);
+  }, 0, 0, 307);
 }
 function lateralRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -26987,7 +27043,7 @@ function lateralRaise$delegate$lambda() {
 function _get_lateralRaise_$ref_yb3cdh() {
   return constructCallableReference(function () {
     return get_lateralRaise();
-  }, 0, 0, 307);
+  }, 0, 0, 308);
 }
 function seatedLateralRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -27000,7 +27056,7 @@ function seatedLateralRaise$delegate$lambda() {
 function _get_seatedLateralRaise_$ref_bcbsm9() {
   return constructCallableReference(function () {
     return get_seatedLateralRaise();
-  }, 0, 0, 308);
+  }, 0, 0, 309);
 }
 function cableLateralRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -27013,7 +27069,7 @@ function cableLateralRaise$delegate$lambda() {
 function _get_cableLateralRaise_$ref_1c30dq() {
   return constructCallableReference(function () {
     return get_cableLateralRaise();
-  }, 0, 0, 309);
+  }, 0, 0, 310);
 }
 function machineLateralRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -27028,7 +27084,7 @@ function machineLateralRaise$delegate$lambda() {
 function _get_machineLateralRaise_$ref_tfg3l0() {
   return constructCallableReference(function () {
     return get_machineLateralRaise();
-  }, 0, 0, 310);
+  }, 0, 0, 311);
 }
 function rearDeltRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -27043,7 +27099,7 @@ function invoke$pose_45(arm) {
 function _get_rearDeltRaise_$ref_j2k1xb() {
   return constructCallableReference(function () {
     return get_rearDeltRaise();
-  }, 0, 0, 311);
+  }, 0, 0, 312);
 }
 function seatedRearDeltRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -27073,7 +27129,7 @@ function invoke$pose_46(pelvisY, leg, arm) {
 function _get_seatedRearDeltRaise_$ref_kp5im3() {
   return constructCallableReference(function () {
     return get_seatedRearDeltRaise();
-  }, 0, 0, 312);
+  }, 0, 0, 313);
 }
 function chestSupportedRearDeltRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -27097,7 +27153,7 @@ function invoke$pose_47(pelvisY, legs, lean, arm) {
 function _get_chestSupportedRearDeltRaise_$ref_wxvdla() {
   return constructCallableReference(function () {
     return get_chestSupportedRearDeltRaise();
-  }, 0, 0, 313);
+  }, 0, 0, 314);
 }
 function machineReverseFly$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -27110,14 +27166,14 @@ function machineReverseFly$delegate$lambda() {
   var back = u3(1.0, 0.0, -tmp$ret$0);
   var end = arm_0(back, bent(back, get_FORWARD(), bend));
   var bare = skeleton(frontSeated_1(get_HANG_5()), View_FRONT_getInstance());
-  var shY = bare.q1q_1.a1q_1.q1o_1;
-  var machine = new PecDeck(0.0, get_frontSeatTop(), -shY - 4.0, -bare.p1q_1.q1o_1 + 22.0, VOID, true);
+  var shY = bare.r1q_1.b1q_1.q1o_1;
+  var machine = new PecDeck(0.0, get_frontSeatTop(), -shY - 4.0, -bare.q1q_1.q1o_1 + 22.0, VOID, true);
   return figure_7(View_FRONT_getInstance(), frontSeated_1(start), frontSeated_1(end), listOf([Floor_instance, machine]), 'Chest against the pad', 'Just behind your torso', Which_END_getInstance(), listOf(['Set the seat so the handles are at shoulder height.', 'Sit facing the machine with your chest against the pad.', 'Grip the handles palms down, with your elbows raised to shoulder height.', 'Pull the handles apart and back until your elbows are just behind your torso.', 'Keep your elbows at shoulder height.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH())]), listOf([new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 4.0, Which_START_getInstance()), new HandsLevelWith(BodyPoint_SHOULDERS_getInstance(), 4.0, Which_END_getInstance()), new ElbowBend(5.0, 15.0, Which_START_getInstance()), new ElbowBend(5.0, 15.0, Which_END_getInstance())]));
 }
 function _get_machineReverseFly_$ref_2adpug() {
   return constructCallableReference(function () {
     return get_machineReverseFly();
-  }, 0, 0, 314);
+  }, 0, 0, 315);
 }
 function cableReverseFly$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -27134,31 +27190,31 @@ function cableReverseFly$delegate$lambda() {
 function _get_cableReverseFly_$ref_wh2pse() {
   return constructCallableReference(function () {
     return get_cableReverseFly();
-  }, 0, 0, 315);
+  }, 0, 0, 316);
 }
 function cableExternalRotation$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var start = rotation(get_ACROSS());
-  var grip = skeleton(frontStanding_0(start, VOID, VOID, VOID, get_HANG_5()), View_FRONT_getInstance()).q1q_1.e1q_1;
+  var grip = skeleton(frontStanding_0(start, VOID, VOID, VOID, get_HANG_5()), View_FRONT_getInstance()).r1q_1.f1q_1;
   var stack = new CableStack(-62.0, -grip.q1o_1, 12.0, VOID, VOID, true);
   return figure_7(View_FRONT_getInstance(), frontStanding_0(start, VOID, VOID, VOID, get_HANG_5()), frontStanding_0(rotation(get_TURNED_OUT()), VOID, VOID, VOID, get_HANG_5()), listOf([Floor_instance, stack, new CableHandle(Side_NEAR_getInstance())]), 'Forearm across belly', 'Hand away from your body', Which_END_getInstance(), listOf(['Set a cable handle at about waist height. With a band, fix it at the same height.', 'Stand side-on to it and hold the handle in the hand farther from it.', 'Bend your elbow and keep it against your side, with your forearm across your belly.', 'Turn your arm outward, moving your hand away from your body.']), get_FEET_DOWN_3(), listOf([new ElbowBend(89.0, 91.0, Which_START_getInstance(), Side_NEAR_getInstance()), new ElbowBend(89.0, 91.0, Which_END_getInstance(), Side_NEAR_getInstance())]));
 }
 function _get_cableExternalRotation_$ref_vv8chm() {
   return constructCallableReference(function () {
     return get_cableExternalRotation();
-  }, 0, 0, 316);
+  }, 0, 0, 317);
 }
 function cableInternalRotation$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var start = rotation(get_TURNED_OUT());
-  var elbowY = skeleton(frontStanding_0(start, VOID, VOID, VOID, get_HANG_5()), View_FRONT_getInstance()).q1q_1.b1q_1.q1o_1;
+  var elbowY = skeleton(frontStanding_0(start, VOID, VOID, VOID, get_HANG_5()), View_FRONT_getInstance()).r1q_1.c1q_1.q1o_1;
   var stack = new CableStack(70.0, -elbowY, -12.0, VOID, VOID, true);
   return figure_7(View_FRONT_getInstance(), frontStanding_0(start, VOID, VOID, VOID, get_HANG_5()), frontStanding_0(rotation(get_ACROSS()), VOID, VOID, VOID, get_HANG_5()), listOf([Floor_instance, stack, new CableHandle(Side_NEAR_getInstance())]), 'Elbow against your side', 'Forearm across belly', Which_END_getInstance(), listOf(['Set a handle on a cable at about elbow height.', 'Stand side-on to the pulley and hold the handle in the hand nearer to it.', 'Bend your elbow and keep it against your side.', 'Turn your arm inward, bringing your forearm across your belly.']), get_FEET_DOWN_3(), listOf([new ElbowBend(89.0, 91.0, Which_START_getInstance(), Side_NEAR_getInstance()), new ElbowBend(89.0, 91.0, Which_END_getInstance(), Side_NEAR_getInstance())]));
 }
 function _get_cableInternalRotation_$ref_slmlx4() {
   return constructCallableReference(function () {
     return get_cableInternalRotation();
-  }, 0, 0, 317);
+  }, 0, 0, 318);
 }
 function sideLyingExternalRotation$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -27177,7 +27233,7 @@ function invoke$pose_48(pelvis, torso, top, under, bottom, arm) {
 function _get_sideLyingExternalRotation_$ref_do1qpl() {
   return constructCallableReference(function () {
     return get_sideLyingExternalRotation();
-  }, 0, 0, 318);
+  }, 0, 0, 319);
 }
 function shoulderBatchFigures$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -27300,7 +27356,7 @@ function shoulderBatchFigures$delegate$lambda$lambda_21() {
 function _get_shoulderBatchFigures_$ref_n59bc5() {
   return constructCallableReference(function () {
     return get_shoulderBatchFigures();
-  }, 0, 0, 319);
+  }, 0, 0, 320);
 }
 function shoulderFigures$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -27313,7 +27369,7 @@ function shoulderFigures$delegate$lambda$lambda() {
 function _get_shoulderFigures_$ref_gwnd75() {
   return constructCallableReference(function () {
     return get_shoulderFigures();
-  }, 0, 0, 320);
+  }, 0, 0, 321);
 }
 var properties_initialized_Shoulders_kt_kg0eql_0;
 function _init_properties_Shoulders_kt__i33an3_0() {
@@ -27323,7 +27379,7 @@ function _init_properties_Shoulders_kt__i33an3_0() {
     HANG_5 = new Arm(0.0, 0.0);
     FEET_DOWN_3 = listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()));
     uprightBench = new AdjustableBench(30.0);
-    uprightPelvis = new Point(get_uprightBench().j1z_1 - 40.0 + 10.0, -43.0 - 10.0);
+    uprightPelvis = new Point(get_uprightBench().l1z_1 - 40.0 + 10.0, -43.0 - 10.0);
     uprightLegs$delegate = lazy(uprightLegs$delegate$lambda);
     uprightShoulder = shoulderOf(get_uprightPelvis(), 90.0);
     UPRIGHT_CONTACTS = listOf([new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]);
@@ -27431,22 +27487,22 @@ function $serializer() {
   tmp0_serialDesc.zj('sets', false);
   tmp0_serialDesc.zj('repsLow', false);
   tmp0_serialDesc.zj('repsHigh', false);
-  this.x2d_1 = tmp0_serialDesc;
+  this.a2e_1 = tmp0_serialDesc;
 }
-protoOf($serializer).y2d = function (encoder, value) {
-  var tmp0_desc = this.x2d_1;
+protoOf($serializer).b2e = function (encoder, value) {
+  var tmp0_desc = this.a2e_1;
   var tmp1_output = encoder.eg(tmp0_desc);
-  tmp1_output.ch(tmp0_desc, 0, value.z2d_1);
-  tmp1_output.zg(tmp0_desc, 1, value.a2e_1);
-  tmp1_output.zg(tmp0_desc, 2, value.b2e_1);
-  tmp1_output.zg(tmp0_desc, 3, value.c2e_1);
+  tmp1_output.ch(tmp0_desc, 0, value.c2e_1);
+  tmp1_output.zg(tmp0_desc, 1, value.d2e_1);
+  tmp1_output.zg(tmp0_desc, 2, value.e2e_1);
+  tmp1_output.zg(tmp0_desc, 3, value.f2e_1);
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer).md = function (encoder, value) {
-  return this.y2d(encoder, value instanceof AccessoryPrescription ? value : THROW_CCE());
+  return this.b2e(encoder, value instanceof AccessoryPrescription ? value : THROW_CCE());
 };
 protoOf($serializer).ld = function (decoder) {
-  var tmp0_desc = this.x2d_1;
+  var tmp0_desc = this.a2e_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -27495,7 +27551,7 @@ protoOf($serializer).ld = function (decoder) {
   return AccessoryPrescription_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, tmp6_local2, tmp7_local3, null);
 };
 protoOf($serializer).kd = function () {
-  return this.x2d_1;
+  return this.a2e_1;
 };
 protoOf($serializer).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -27511,31 +27567,31 @@ function $serializer_getInstance() {
 }
 function AccessoryPrescription_init_$Init$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker, $this) {
   if (!(15 === (15 & seen0))) {
-    throwMissingFieldException(seen0, 15, $serializer_getInstance().x2d_1);
+    throwMissingFieldException(seen0, 15, $serializer_getInstance().a2e_1);
   }
-  $this.z2d_1 = exerciseName;
-  $this.a2e_1 = sets;
-  $this.b2e_1 = repsLow;
-  $this.c2e_1 = repsHigh;
+  $this.c2e_1 = exerciseName;
+  $this.d2e_1 = sets;
+  $this.e2e_1 = repsLow;
+  $this.f2e_1 = repsHigh;
   return $this;
 }
 function AccessoryPrescription_init_$Create$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker) {
   return AccessoryPrescription_init_$Init$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker, objectCreate(protoOf(AccessoryPrescription)));
 }
 function AccessoryPrescription(exerciseName, sets, repsLow, repsHigh) {
-  this.z2d_1 = exerciseName;
-  this.a2e_1 = sets;
-  this.b2e_1 = repsLow;
-  this.c2e_1 = repsHigh;
+  this.c2e_1 = exerciseName;
+  this.d2e_1 = sets;
+  this.e2e_1 = repsLow;
+  this.f2e_1 = repsHigh;
 }
 protoOf(AccessoryPrescription).toString = function () {
-  return 'AccessoryPrescription(exerciseName=' + this.z2d_1 + ', sets=' + this.a2e_1 + ', repsLow=' + this.b2e_1 + ', repsHigh=' + this.c2e_1 + ')';
+  return 'AccessoryPrescription(exerciseName=' + this.c2e_1 + ', sets=' + this.d2e_1 + ', repsLow=' + this.e2e_1 + ', repsHigh=' + this.f2e_1 + ')';
 };
 protoOf(AccessoryPrescription).hashCode = function () {
-  var result = getStringHashCode(this.z2d_1);
-  result = imul(result, 31) + this.a2e_1 | 0;
-  result = imul(result, 31) + this.b2e_1 | 0;
-  result = imul(result, 31) + this.c2e_1 | 0;
+  var result = getStringHashCode(this.c2e_1);
+  result = imul(result, 31) + this.d2e_1 | 0;
+  result = imul(result, 31) + this.e2e_1 | 0;
+  result = imul(result, 31) + this.f2e_1 | 0;
   return result;
 };
 protoOf(AccessoryPrescription).equals = function (other) {
@@ -27543,13 +27599,13 @@ protoOf(AccessoryPrescription).equals = function (other) {
     return true;
   if (!(other instanceof AccessoryPrescription))
     return false;
-  if (!(this.z2d_1 === other.z2d_1))
-    return false;
-  if (!(this.a2e_1 === other.a2e_1))
-    return false;
-  if (!(this.b2e_1 === other.b2e_1))
-    return false;
   if (!(this.c2e_1 === other.c2e_1))
+    return false;
+  if (!(this.d2e_1 === other.d2e_1))
+    return false;
+  if (!(this.e2e_1 === other.e2e_1))
+    return false;
+  if (!(this.f2e_1 === other.f2e_1))
     return false;
   return true;
 };
@@ -27567,10 +27623,10 @@ function $serializer_0() {
   tmp0_serialDesc.zj('reps', false);
   tmp0_serialDesc.zj('rpe', false);
   tmp0_serialDesc.zj('sets', true);
-  this.d2e_1 = tmp0_serialDesc;
+  this.g2e_1 = tmp0_serialDesc;
 }
-protoOf($serializer_0).e2e = function (encoder, value) {
-  var tmp0_desc = this.d2e_1;
+protoOf($serializer_0).h2e = function (encoder, value) {
+  var tmp0_desc = this.g2e_1;
   var tmp1_output = encoder.eg(tmp0_desc);
   tmp1_output.ah(tmp0_desc, 0, value.o15_1);
   tmp1_output.bh(tmp0_desc, 1, value.p15_1);
@@ -27582,10 +27638,10 @@ protoOf($serializer_0).e2e = function (encoder, value) {
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_0).md = function (encoder, value) {
-  return this.e2e(encoder, value instanceof Target ? value : THROW_CCE());
+  return this.h2e(encoder, value instanceof Target ? value : THROW_CCE());
 };
 protoOf($serializer_0).ld = function (decoder) {
-  var tmp0_desc = this.d2e_1;
+  var tmp0_desc = this.g2e_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -27641,7 +27697,7 @@ protoOf($serializer_0).ld = function (decoder) {
   return Target_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, tmp6_local2, tmp7_local3, tmp8_local4, null);
 };
 protoOf($serializer_0).kd = function () {
-  return this.d2e_1;
+  return this.g2e_1;
 };
 protoOf($serializer_0).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -27657,7 +27713,7 @@ function $serializer_getInstance_0() {
 }
 function Target_init_$Init$(seen0, exerciseId, weightKg, reps, rpe, sets, serializationConstructorMarker, $this) {
   if (!(15 === (15 & seen0))) {
-    throwMissingFieldException(seen0, 15, $serializer_getInstance_0().d2e_1);
+    throwMissingFieldException(seen0, 15, $serializer_getInstance_0().g2e_1);
   }
   $this.o15_1 = exerciseId;
   $this.p15_1 = weightKg;
@@ -27682,7 +27738,7 @@ function Companion_50() {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  tmp.f2e_1 = [lazy_0(tmp_0, AdvicePayload$Accessories$Companion$$childSerializers$_anonymous__5pmo3s)];
+  tmp.i2e_1 = [lazy_0(tmp_0, AdvicePayload$Accessories$Companion$$childSerializers$_anonymous__5pmo3s)];
 }
 var Companion_instance_50;
 function Companion_getInstance_52() {
@@ -27694,26 +27750,26 @@ function $serializer_1() {
   $serializer_instance_1 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.Accessories', this, 1);
   tmp0_serialDesc.zj('items', false);
-  this.g2e_1 = tmp0_serialDesc;
+  this.j2e_1 = tmp0_serialDesc;
 }
-protoOf($serializer_1).h2e = function (encoder, value) {
-  var tmp0_desc = this.g2e_1;
+protoOf($serializer_1).k2e = function (encoder, value) {
+  var tmp0_desc = this.j2e_1;
   var tmp1_output = encoder.eg(tmp0_desc);
-  var tmp2_cached = Companion_getInstance_52().f2e_1;
-  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.i2e_1);
+  var tmp2_cached = Companion_getInstance_52().i2e_1;
+  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.l2e_1);
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_1).md = function (encoder, value) {
-  return this.h2e(encoder, value instanceof Accessories ? value : THROW_CCE());
+  return this.k2e(encoder, value instanceof Accessories ? value : THROW_CCE());
 };
 protoOf($serializer_1).ld = function (decoder) {
-  var tmp0_desc = this.g2e_1;
+  var tmp0_desc = this.j2e_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
   var tmp4_local0 = null;
   var tmp5_input = decoder.eg(tmp0_desc);
-  var tmp6_cached = Companion_getInstance_52().f2e_1;
+  var tmp6_cached = Companion_getInstance_52().i2e_1;
   if (tmp5_input.og()) {
     tmp4_local0 = tmp5_input.kg(tmp0_desc, 0, tmp6_cached[0].t(), tmp4_local0);
     tmp3_bitMask0 = tmp3_bitMask0 | 1;
@@ -27736,13 +27792,13 @@ protoOf($serializer_1).ld = function (decoder) {
   return Accessories_init_$Create$(tmp3_bitMask0, tmp4_local0, null);
 };
 protoOf($serializer_1).kd = function () {
-  return this.g2e_1;
+  return this.j2e_1;
 };
 protoOf($serializer_1).ok = function () {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  return [Companion_getInstance_52().f2e_1[0].t()];
+  return [Companion_getInstance_52().i2e_1[0].t()];
 };
 var $serializer_instance_1;
 function $serializer_getInstance_1() {
@@ -27752,9 +27808,9 @@ function $serializer_getInstance_1() {
 }
 function Accessories_init_$Init$(seen0, items, serializationConstructorMarker, $this) {
   if (!(1 === (1 & seen0))) {
-    throwMissingFieldException(seen0, 1, $serializer_getInstance_1().g2e_1);
+    throwMissingFieldException(seen0, 1, $serializer_getInstance_1().j2e_1);
   }
-  $this.i2e_1 = items;
+  $this.l2e_1 = items;
   return $this;
 }
 function Accessories_init_$Create$(seen0, items, serializationConstructorMarker) {
@@ -27771,10 +27827,10 @@ function $serializer_2() {
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.Deload', this, 2);
   tmp0_serialDesc.zj('volumeFactor', true);
   tmp0_serialDesc.zj('loadFactor', true);
-  this.j2e_1 = tmp0_serialDesc;
+  this.m2e_1 = tmp0_serialDesc;
 }
-protoOf($serializer_2).k2e = function (encoder, value) {
-  var tmp0_desc = this.j2e_1;
+protoOf($serializer_2).n2e = function (encoder, value) {
+  var tmp0_desc = this.m2e_1;
   var tmp1_output = encoder.eg(tmp0_desc);
   if (tmp1_output.jh(tmp0_desc, 0) ? true : !equals(value.t15_1, 0.6)) {
     tmp1_output.bh(tmp0_desc, 0, value.t15_1);
@@ -27785,10 +27841,10 @@ protoOf($serializer_2).k2e = function (encoder, value) {
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_2).md = function (encoder, value) {
-  return this.k2e(encoder, value instanceof Deload ? value : THROW_CCE());
+  return this.n2e(encoder, value instanceof Deload ? value : THROW_CCE());
 };
 protoOf($serializer_2).ld = function (decoder) {
-  var tmp0_desc = this.j2e_1;
+  var tmp0_desc = this.m2e_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -27823,7 +27879,7 @@ protoOf($serializer_2).ld = function (decoder) {
   return Deload_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, null);
 };
 protoOf($serializer_2).kd = function () {
-  return this.j2e_1;
+  return this.m2e_1;
 };
 protoOf($serializer_2).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -27839,7 +27895,7 @@ function $serializer_getInstance_2() {
 }
 function Deload_init_$Init$(seen0, volumeFactor, loadFactor, serializationConstructorMarker, $this) {
   if (!(0 === (0 & seen0))) {
-    throwMissingFieldException(seen0, 0, $serializer_getInstance_2().j2e_1);
+    throwMissingFieldException(seen0, 0, $serializer_getInstance_2().m2e_1);
   }
   if (0 === (seen0 & 1))
     $this.t15_1 = 0.6;
@@ -27869,7 +27925,7 @@ function Companion_52() {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  tmp.l2e_1 = [tmp_1, lazy_0(tmp_2, AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8_0)];
+  tmp.o2e_1 = [tmp_1, lazy_0(tmp_2, AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8_0)];
 }
 var Companion_instance_52;
 function Companion_getInstance_54() {
@@ -27882,28 +27938,28 @@ function $serializer_3() {
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.WeakPoint', this, 2);
   tmp0_serialDesc.zj('lift', false);
   tmp0_serialDesc.zj('missPoint', false);
-  this.m2e_1 = tmp0_serialDesc;
+  this.p2e_1 = tmp0_serialDesc;
 }
-protoOf($serializer_3).n2e = function (encoder, value) {
-  var tmp0_desc = this.m2e_1;
+protoOf($serializer_3).q2e = function (encoder, value) {
+  var tmp0_desc = this.p2e_1;
   var tmp1_output = encoder.eg(tmp0_desc);
-  var tmp2_cached = Companion_getInstance_54().l2e_1;
-  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.o2e_1);
-  tmp1_output.fh(tmp0_desc, 1, tmp2_cached[1].t(), value.p2e_1);
+  var tmp2_cached = Companion_getInstance_54().o2e_1;
+  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.r2e_1);
+  tmp1_output.fh(tmp0_desc, 1, tmp2_cached[1].t(), value.s2e_1);
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_3).md = function (encoder, value) {
-  return this.n2e(encoder, value instanceof WeakPoint ? value : THROW_CCE());
+  return this.q2e(encoder, value instanceof WeakPoint ? value : THROW_CCE());
 };
 protoOf($serializer_3).ld = function (decoder) {
-  var tmp0_desc = this.m2e_1;
+  var tmp0_desc = this.p2e_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
   var tmp4_local0 = null;
   var tmp5_local1 = null;
   var tmp6_input = decoder.eg(tmp0_desc);
-  var tmp7_cached = Companion_getInstance_54().l2e_1;
+  var tmp7_cached = Companion_getInstance_54().o2e_1;
   if (tmp6_input.og()) {
     tmp4_local0 = tmp6_input.kg(tmp0_desc, 0, tmp7_cached[0].t(), tmp4_local0);
     tmp3_bitMask0 = tmp3_bitMask0 | 1;
@@ -27932,10 +27988,10 @@ protoOf($serializer_3).ld = function (decoder) {
   return WeakPoint_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, null);
 };
 protoOf($serializer_3).kd = function () {
-  return this.m2e_1;
+  return this.p2e_1;
 };
 protoOf($serializer_3).ok = function () {
-  var tmp0_cached = Companion_getInstance_54().l2e_1;
+  var tmp0_cached = Companion_getInstance_54().o2e_1;
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
@@ -27949,10 +28005,10 @@ function $serializer_getInstance_3() {
 }
 function WeakPoint_init_$Init$(seen0, lift, missPoint, serializationConstructorMarker, $this) {
   if (!(3 === (3 & seen0))) {
-    throwMissingFieldException(seen0, 3, $serializer_getInstance_3().m2e_1);
+    throwMissingFieldException(seen0, 3, $serializer_getInstance_3().p2e_1);
   }
-  $this.o2e_1 = lift;
-  $this.p2e_1 = missPoint;
+  $this.r2e_1 = lift;
+  $this.s2e_1 = missPoint;
   return $this;
 }
 function WeakPoint_init_$Create$(seen0, lift, missPoint, serializationConstructorMarker) {
@@ -27968,10 +28024,10 @@ function $serializer_4() {
   $serializer_instance_4 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.ReEntry', this, 1);
   tmp0_serialDesc.zj('loadFactor', true);
-  this.q2e_1 = tmp0_serialDesc;
+  this.t2e_1 = tmp0_serialDesc;
 }
-protoOf($serializer_4).r2e = function (encoder, value) {
-  var tmp0_desc = this.q2e_1;
+protoOf($serializer_4).u2e = function (encoder, value) {
+  var tmp0_desc = this.t2e_1;
   var tmp1_output = encoder.eg(tmp0_desc);
   if (tmp1_output.jh(tmp0_desc, 0) ? true : !equals(value.c14_1, 0.85)) {
     tmp1_output.bh(tmp0_desc, 0, value.c14_1);
@@ -27979,10 +28035,10 @@ protoOf($serializer_4).r2e = function (encoder, value) {
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_4).md = function (encoder, value) {
-  return this.r2e(encoder, value instanceof ReEntry ? value : THROW_CCE());
+  return this.u2e(encoder, value instanceof ReEntry ? value : THROW_CCE());
 };
 protoOf($serializer_4).ld = function (decoder) {
-  var tmp0_desc = this.q2e_1;
+  var tmp0_desc = this.t2e_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -28010,7 +28066,7 @@ protoOf($serializer_4).ld = function (decoder) {
   return ReEntry_init_$Create$(tmp3_bitMask0, tmp4_local0, null);
 };
 protoOf($serializer_4).kd = function () {
-  return this.q2e_1;
+  return this.t2e_1;
 };
 protoOf($serializer_4).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -28026,7 +28082,7 @@ function $serializer_getInstance_4() {
 }
 function ReEntry_init_$Init$(seen0, loadFactor, serializationConstructorMarker, $this) {
   if (!(0 === (0 & seen0))) {
-    throwMissingFieldException(seen0, 0, $serializer_getInstance_4().q2e_1);
+    throwMissingFieldException(seen0, 0, $serializer_getInstance_4().t2e_1);
   }
   if (0 === (seen0 & 1))
     $this.c14_1 = 0.85;
@@ -28045,7 +28101,7 @@ function Target(exerciseId, weightKg, reps, rpe, sets) {
   this.r15_1 = rpe;
   this.s15_1 = sets;
 }
-protoOf(Target).s2e = function (exerciseId, weightKg, reps, rpe, sets) {
+protoOf(Target).v2e = function (exerciseId, weightKg, reps, rpe, sets) {
   return new Target(exerciseId, weightKg, reps, rpe, sets);
 };
 protoOf(Target).z15 = function (exerciseId, weightKg, reps, rpe, sets, $super) {
@@ -28054,7 +28110,7 @@ protoOf(Target).z15 = function (exerciseId, weightKg, reps, rpe, sets, $super) {
   reps = reps === VOID ? this.q15_1 : reps;
   rpe = rpe === VOID ? this.r15_1 : rpe;
   sets = sets === VOID ? this.s15_1 : sets;
-  return $super === VOID ? this.s2e(exerciseId, weightKg, reps, rpe, sets) : $super.s2e.call(this, exerciseId, weightKg, reps, rpe, sets);
+  return $super === VOID ? this.v2e(exerciseId, weightKg, reps, rpe, sets) : $super.v2e.call(this, exerciseId, weightKg, reps, rpe, sets);
 };
 protoOf(Target).toString = function () {
   return 'Target(exerciseId=' + this.o15_1.toString() + ', weightKg=' + this.p15_1 + ', reps=' + this.q15_1 + ', rpe=' + this.r15_1 + ', sets=' + this.s15_1 + ')';
@@ -28086,20 +28142,20 @@ protoOf(Target).equals = function (other) {
 };
 function Accessories(items) {
   Companion_getInstance_52();
-  this.i2e_1 = items;
+  this.l2e_1 = items;
 }
 protoOf(Accessories).toString = function () {
-  return 'Accessories(items=' + toString(this.i2e_1) + ')';
+  return 'Accessories(items=' + toString(this.l2e_1) + ')';
 };
 protoOf(Accessories).hashCode = function () {
-  return hashCode(this.i2e_1);
+  return hashCode(this.l2e_1);
 };
 protoOf(Accessories).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof Accessories))
     return false;
-  if (!equals(this.i2e_1, other.i2e_1))
+  if (!equals(this.l2e_1, other.l2e_1))
     return false;
   return true;
 };
@@ -28130,15 +28186,15 @@ protoOf(Deload).equals = function (other) {
 };
 function WeakPoint(lift, missPoint) {
   Companion_getInstance_54();
-  this.o2e_1 = lift;
-  this.p2e_1 = missPoint;
+  this.r2e_1 = lift;
+  this.s2e_1 = missPoint;
 }
 protoOf(WeakPoint).toString = function () {
-  return 'WeakPoint(lift=' + this.o2e_1.toString() + ', missPoint=' + toString_0(this.p2e_1) + ')';
+  return 'WeakPoint(lift=' + this.r2e_1.toString() + ', missPoint=' + toString_0(this.s2e_1) + ')';
 };
 protoOf(WeakPoint).hashCode = function () {
-  var result = this.o2e_1.hashCode();
-  result = imul(result, 31) + (this.p2e_1 == null ? 0 : this.p2e_1.hashCode()) | 0;
+  var result = this.r2e_1.hashCode();
+  result = imul(result, 31) + (this.s2e_1 == null ? 0 : this.s2e_1.hashCode()) | 0;
   return result;
 };
 protoOf(WeakPoint).equals = function (other) {
@@ -28146,9 +28202,9 @@ protoOf(WeakPoint).equals = function (other) {
     return true;
   if (!(other instanceof WeakPoint))
     return false;
-  if (!this.o2e_1.equals(other.o2e_1))
+  if (!this.r2e_1.equals(other.r2e_1))
     return false;
-  if (!equals(this.p2e_1, other.p2e_1))
+  if (!equals(this.s2e_1, other.s2e_1))
     return false;
   return true;
 };
@@ -28173,7 +28229,7 @@ protoOf(ReEntry).equals = function (other) {
 };
 function Companion_54() {
 }
-protoOf(Companion_54).t2e = function () {
+protoOf(Companion_54).w2e = function () {
   var tmp = getKClass(AdvicePayload);
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
@@ -28207,7 +28263,7 @@ function Advice(type, lift, createdAt, reason, severity, payload, status, id) {
   this.x13_1 = status;
   this.y13_1 = id;
 }
-protoOf(Advice).u2e = function (type, lift, createdAt, reason, severity, payload, status, id) {
+protoOf(Advice).x2e = function (type, lift, createdAt, reason, severity, payload, status, id) {
   return new Advice(type, lift, createdAt, reason, severity, payload, status, id);
 };
 protoOf(Advice).a16 = function (type, lift, createdAt, reason, severity, payload, status, id, $super) {
@@ -28219,7 +28275,7 @@ protoOf(Advice).a16 = function (type, lift, createdAt, reason, severity, payload
   payload = payload === VOID ? this.w13_1 : payload;
   status = status === VOID ? this.x13_1 : status;
   id = id === VOID ? this.y13_1 : id;
-  return $super === VOID ? this.u2e(type, lift, createdAt, reason, severity, payload, status, id) : $super.u2e.call(this, type, lift, createdAt, reason, severity, payload, status, id);
+  return $super === VOID ? this.x2e(type, lift, createdAt, reason, severity, payload, status, id) : $super.x2e.call(this, type, lift, createdAt, reason, severity, payload, status, id);
 };
 protoOf(Advice).toString = function () {
   return 'Advice(type=' + this.r13_1.toString() + ', lift=' + toString_0(this.s13_1) + ', createdAt=' + this.t13_1.toString() + ', reason=' + this.u13_1 + ', severity=' + this.v13_1 + ', payload=' + toString(this.w13_1) + ', status=' + this.x13_1.toString() + ', id=' + this.y13_1.toString() + ')';
@@ -28464,10 +28520,10 @@ protoOf(Exercise).q14 = function () {
   }
   return tmp;
 };
-protoOf(Exercise).v2e = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(Exercise).y2e = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
-protoOf(Exercise).w2e = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
+protoOf(Exercise).z2e = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
   id = id === VOID ? this.j14_1 : id;
   name = name === VOID ? this.k14_1 : name;
   category = category === VOID ? this.l14_1 : category;
@@ -28475,7 +28531,7 @@ protoOf(Exercise).w2e = function (id, name, category, parentLift, muscles, isBui
   muscles = muscles === VOID ? this.n14_1 : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.o14_1 : isBuiltIn;
   archived = archived === VOID ? this.p14_1 : archived;
-  return $super === VOID ? this.v2e(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.v2e.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.y2e(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.y2e.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(Exercise).toString = function () {
   return 'Exercise(id=' + this.j14_1.toString() + ', name=' + this.k14_1 + ', category=' + this.l14_1.toString() + ', parentLift=' + toString_0(this.m14_1) + ', muscles=' + toString(this.n14_1) + ', isBuiltIn=' + this.o14_1 + ', archived=' + this.p14_1 + ')';
@@ -28753,11 +28809,11 @@ function PlateLoader() {
   this.e18_1 = 100.0;
   this.f18_1 = toHundredths(this, 20.0);
 }
-protoOf(PlateLoader).x2e = function (changePlates) {
+protoOf(PlateLoader).a2f = function (changePlates) {
   return changePlates ? sortedDescending(plus(this.b18_1, this.c18_1)) : this.b18_1;
 };
 protoOf(PlateLoader).j18 = function (changePlates) {
-  return 2 * min(this.x2e(changePlates));
+  return 2 * min(this.a2f(changePlates));
 };
 protoOf(PlateLoader).g18 = function (kg, changePlates) {
   var step = toHundredths(this, this.j18(changePlates));
@@ -28814,7 +28870,7 @@ protoOf(PlateLoader).h18 = function (anchor, kg, changePlates) {
   var tmp$ret$3 = compare(tmp0, b) >= 0 ? tmp0 : b;
   return fromHundredths(this, tmp$ret$3);
 };
-protoOf(PlateLoader).y2e = function (totalKg, changePlates) {
+protoOf(PlateLoader).b2f = function (totalKg, changePlates) {
   var beyondBar = subtract(toHundredths(this, totalKg), this.f18_1);
   if (compare(beyondBar, new Long(0, 0)) < 0 || !equalsLong(modulo(beyondBar, new Long(2, 0)), new Long(0, 0)))
     return null;
@@ -28822,7 +28878,7 @@ protoOf(PlateLoader).y2e = function (totalKg, changePlates) {
   var remaining = divide(beyondBar, fromInt(2));
   // Inline function 'kotlin.collections.mutableListOf' call
   var result = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = this.x2e(changePlates).j();
+  var _iterator__ex2g4s = this.a2f(changePlates).j();
   while (_iterator__ex2g4s.k()) {
     var plate = _iterator__ex2g4s.l();
     var p = toHundredths(this, plate);
@@ -28841,21 +28897,21 @@ function PlateLoader_getInstance() {
   return PlateLoader_instance;
 }
 function Pr(date, e1rmKg, weightKg, reps, rpe) {
-  this.z2e_1 = date;
-  this.a2f_1 = e1rmKg;
-  this.b2f_1 = weightKg;
-  this.c2f_1 = reps;
-  this.d2f_1 = rpe;
+  this.c2f_1 = date;
+  this.d2f_1 = e1rmKg;
+  this.e2f_1 = weightKg;
+  this.f2f_1 = reps;
+  this.g2f_1 = rpe;
 }
 protoOf(Pr).toString = function () {
-  return 'Pr(date=' + this.z2e_1.toString() + ', e1rmKg=' + this.a2f_1 + ', weightKg=' + this.b2f_1 + ', reps=' + this.c2f_1 + ', rpe=' + this.d2f_1 + ')';
+  return 'Pr(date=' + this.c2f_1.toString() + ', e1rmKg=' + this.d2f_1 + ', weightKg=' + this.e2f_1 + ', reps=' + this.f2f_1 + ', rpe=' + this.g2f_1 + ')';
 };
 protoOf(Pr).hashCode = function () {
-  var result = this.z2e_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.a2f_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.b2f_1) | 0;
-  result = imul(result, 31) + this.c2f_1 | 0;
-  result = imul(result, 31) + (this.d2f_1 == null ? 0 : getNumberHashCode(this.d2f_1)) | 0;
+  var result = this.c2f_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.d2f_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.e2f_1) | 0;
+  result = imul(result, 31) + this.f2f_1 | 0;
+  result = imul(result, 31) + (this.g2f_1 == null ? 0 : getNumberHashCode(this.g2f_1)) | 0;
   return result;
 };
 protoOf(Pr).equals = function (other) {
@@ -28863,15 +28919,15 @@ protoOf(Pr).equals = function (other) {
     return true;
   if (!(other instanceof Pr))
     return false;
-  if (!this.z2e_1.equals(other.z2e_1))
-    return false;
-  if (!equals(this.a2f_1, other.a2f_1))
-    return false;
-  if (!equals(this.b2f_1, other.b2f_1))
-    return false;
-  if (!(this.c2f_1 === other.c2f_1))
+  if (!this.c2f_1.equals(other.c2f_1))
     return false;
   if (!equals(this.d2f_1, other.d2f_1))
+    return false;
+  if (!equals(this.e2f_1, other.e2f_1))
+    return false;
+  if (!(this.f2f_1 === other.f2f_1))
+    return false;
+  if (!equals(this.g2f_1, other.g2f_1))
     return false;
   return true;
 };
@@ -28879,16 +28935,16 @@ function weekStart(date) {
   return mondayOfWeek(date);
 }
 function sam$kotlin_Comparator$0_5(function_0) {
-  this.e2f_1 = function_0;
+  this.h2f_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_5).y9 = function (a, b) {
-  return this.e2f_1(a, b);
+  return this.h2f_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_5).compare = function (a, b) {
   return this.y9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_5).f2 = function () {
-  return this.e2f_1;
+  return this.h2f_1;
 };
 protoOf(sam$kotlin_Comparator$0_5).equals = function (other) {
   var tmp;
@@ -28909,16 +28965,16 @@ protoOf(sam$kotlin_Comparator$0_5).hashCode = function () {
   return hashCode(this.f2());
 };
 function sam$kotlin_Comparator$0_6(function_0) {
-  this.f2f_1 = function_0;
+  this.i2f_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_6).y9 = function (a, b) {
-  return this.f2f_1(a, b);
+  return this.i2f_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_6).compare = function (a, b) {
   return this.y9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_6).f2 = function () {
-  return this.f2f_1;
+  return this.i2f_1;
 };
 protoOf(sam$kotlin_Comparator$0_6).equals = function (other) {
   var tmp;
@@ -28952,9 +29008,9 @@ function ProgressMath$weeklyVolume$lambda(a, b) {
 }
 function ProgressMath() {
   ProgressMath_instance = this;
-  this.g2f_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.j2f_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(ProgressMath).h2f = function (_this__u8e3s4, set, lift) {
+protoOf(ProgressMath).k2f = function (_this__u8e3s4, set, lift) {
   var tmp;
   if (!set.h16_1) {
     var tmp0_safe_receiver = _this__u8e3s4.e14_1.s1(set.d16_1);
@@ -28971,7 +29027,7 @@ protoOf(ProgressMath).h2f = function (_this__u8e3s4, set, lift) {
   }
   return tmp;
 };
-protoOf(ProgressMath).i2f = function (history, lift) {
+protoOf(ProgressMath).l2f = function (history, lift) {
   // Inline function 'kotlin.collections.mutableListOf' call
   var prs = ArrayList_init_$Create$();
   var best = 0.0;
@@ -28986,7 +29042,7 @@ protoOf(ProgressMath).i2f = function (history, lift) {
     var _iterator__ex2g4s_0 = session.t17_1.j();
     $l$loop: while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (!this.h2f(history, set, lift))
+      if (!this.k2f(history, set, lift))
         continue $l$loop;
       var e1rm = E1rm_getInstance().u18(set.e16_1, set.f16_1, set.g16_1);
       if (e1rm > best) {
@@ -28999,7 +29055,7 @@ protoOf(ProgressMath).i2f = function (history, lift) {
   }
   return prs;
 };
-protoOf(ProgressMath).j2f = function (history, lift) {
+protoOf(ProgressMath).m2f = function (history, lift) {
   // Inline function 'kotlin.collections.mutableMapOf' call
   var volume = LinkedHashMap_init_$Create$();
   var _iterator__ex2g4s = history.d14_1.j();
@@ -29008,7 +29064,7 @@ protoOf(ProgressMath).j2f = function (history, lift) {
     var _iterator__ex2g4s_0 = session.t17_1.j();
     while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (this.h2f(history, set, lift)) {
+      if (this.k2f(history, set, lift)) {
         var week = weekStart(session.q17_1);
         var tmp0_elvis_lhs = volume.s1(week);
         // Inline function 'kotlin.collections.set' call
@@ -29024,8 +29080,8 @@ protoOf(ProgressMath).j2f = function (history, lift) {
   var tmp$ret$3 = new sam$kotlin_Comparator$0_6(tmp);
   return sortedWith(this_0, tmp$ret$3);
 };
-protoOf(ProgressMath).k2f = function (stats, until, includeStrictPress) {
-  var included = includeStrictPress ? plus_0(this.g2f_1, MainLift_STRICT_PRESS_getInstance()) : this.g2f_1;
+protoOf(ProgressMath).n2f = function (stats, until, includeStrictPress) {
+  var included = includeStrictPress ? plus_0(this.j2f_1, MainLift_STRICT_PRESS_getInstance()) : this.j2f_1;
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(included, 10));
@@ -29063,17 +29119,17 @@ function SeedLibrary$exercises$Acc(heavy, lift, muscles) {
     tmp = muscles;
   }
   muscles = tmp;
-  this.l2f_1 = heavy;
-  this.m2f_1 = lift;
-  this.n2f_1 = muscles;
+  this.o2f_1 = heavy;
+  this.p2f_1 = lift;
+  this.q2f_1 = muscles;
 }
 function SeedLibrary() {
   SeedLibrary_instance = this;
-  this.o2f_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.r2f_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(SeedLibrary).p2f = function () {
+protoOf(SeedLibrary).s2f = function () {
   var found = LinkedHashMap_init_$Create$();
-  var _iterator__ex2g4s = this.o2f_1.j();
+  var _iterator__ex2g4s = this.r2f_1.j();
   while (_iterator__ex2g4s.k()) {
     var lift = _iterator__ex2g4s.l();
     var _iterator__ex2g4s_0 = get_entries_3().j();
@@ -29095,14 +29151,14 @@ protoOf(SeedLibrary).p2f = function () {
           tmp = value;
         }
         // Inline function 'kotlin.collections.plusAssign' call
-        var this_0 = tmp.n2f_1;
+        var this_0 = tmp.q2f_1;
         addAll(this_0, muscles);
       }
     }
   }
   var tmp_0 = found.t1();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = this.o2f_1;
+  var tmp0 = this.r2f_1;
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s_2 = tmp0.j();
@@ -29136,7 +29192,7 @@ protoOf(SeedLibrary).p2f = function () {
     var name = item_0.s();
     // Inline function 'kotlin.collections.component2' call
     var acc = item_0.t();
-    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.l2f_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.l2f_1 ? acc.m2f_1 : null, toList_0(acc.n2f_1), true);
+    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.o2f_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.o2f_1 ? acc.p2f_1 : null, toList_0(acc.q2f_1), true);
     destination_1.i(tmp$ret$13);
   }
   var mapped = destination_1;
@@ -29151,7 +29207,7 @@ protoOf(SeedLibrary).p2f = function () {
     var _unary__edvuaz = index;
     index = _unary__edvuaz + 1 | 0;
     var i = checkIndexOverflow(_unary__edvuaz);
-    var tmp$ret$18 = item_1.w2e(add(numberToLong(i), new Long(1, 0)));
+    var tmp$ret$18 = item_1.z2e(add(numberToLong(i), new Long(1, 0)));
     destination_2.i(tmp$ret$18);
   }
   return destination_2;
@@ -29185,32 +29241,32 @@ function HighReps_getInstance() {
   return HighReps_instance;
 }
 function BigJump(fromKg) {
-  this.q2f_1 = fromKg;
+  this.t2f_1 = fromKg;
 }
 protoOf(BigJump).toString = function () {
-  return 'BigJump(fromKg=' + this.q2f_1 + ')';
+  return 'BigJump(fromKg=' + this.t2f_1 + ')';
 };
 protoOf(BigJump).hashCode = function () {
-  return getNumberHashCode(this.q2f_1);
+  return getNumberHashCode(this.t2f_1);
 };
 protoOf(BigJump).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BigJump))
     return false;
-  if (!equals(this.q2f_1, other.q2f_1))
+  if (!equals(this.t2f_1, other.t2f_1))
     return false;
   return true;
 };
 function InputValidator() {
-  this.r2f_1 = 12;
-  this.s2f_1 = 1.3;
-  this.t2f_1 = 500.0;
+  this.u2f_1 = 12;
+  this.v2f_1 = 1.3;
+  this.w2f_1 = 500.0;
 }
-protoOf(InputValidator).u2f = function (kg) {
+protoOf(InputValidator).x2f = function (kg) {
   return isFinite(kg) && kg > 0.0 && kg <= 500.0;
 };
-protoOf(InputValidator).v2f = function (text) {
+protoOf(InputValidator).y2f = function (text) {
   // Inline function 'kotlin.text.trim' call
   var tmp$ret$0 = toString(trim(isCharSequence(text) ? text : THROW_CCE()));
   var tmp0_safe_receiver = toDoubleOrNull(replace(tmp$ret$0, _Char___init__impl__6a9atx(44), _Char___init__impl__6a9atx(46)));
@@ -29220,7 +29276,7 @@ protoOf(InputValidator).v2f = function (text) {
   } else {
     // Inline function 'kotlin.takeIf' call
     var tmp_0;
-    if (this.u2f(tmp0_safe_receiver)) {
+    if (this.x2f(tmp0_safe_receiver)) {
       tmp_0 = tmp0_safe_receiver;
     } else {
       tmp_0 = null;
@@ -29229,7 +29285,7 @@ protoOf(InputValidator).v2f = function (text) {
   }
   return tmp;
 };
-protoOf(InputValidator).w2f = function (weightKg, reps, lastWeightKg) {
+protoOf(InputValidator).z2f = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
@@ -29288,7 +29344,7 @@ protoOf(GritDomain).estimateE1rm = function (weightKg, reps, rpe) {
   return E1rm_getInstance().u18(weightKg, reps, rpe);
 };
 protoOf(GritDomain).platesPerSide = function (totalKg, changePlates) {
-  var tmp0_safe_receiver = PlateLoader_getInstance().y2e(totalKg, changePlates);
+  var tmp0_safe_receiver = PlateLoader_getInstance().b2f(totalKg, changePlates);
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
@@ -29306,7 +29362,7 @@ protoOf(GritDomain).loadStep = function (changePlates) {
 };
 protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = InputValidator_instance.w2f(weightKg, reps, lastWeightKg);
+  var this_0 = InputValidator_instance.z2f(weightKg, reps, lastWeightKg);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -29329,7 +29385,7 @@ protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   return copyToArray(destination);
 };
 protoOf(GritDomain).parseBaselineKg = function (text) {
-  return InputValidator_instance.v2f(text);
+  return InputValidator_instance.y2f(text);
 };
 protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, today, prior) {
   var tmp = Coach_getInstance();
@@ -29433,7 +29489,7 @@ protoOf(GritDomain).currentE1rm = function (history, lift, until, days) {
 };
 protoOf(GritDomain).prs = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().i2f(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().l2f(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -29447,7 +29503,7 @@ protoOf(GritDomain).prs = function (history, lift) {
 };
 protoOf(GritDomain).weeklyVolume = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().j2f(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().m2f(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -29554,7 +29610,7 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = SeedLibrary_getInstance().p2f();
+  var this_0 = SeedLibrary_getInstance().s2f();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -29567,7 +29623,7 @@ protoOf(GritDomain).seedExercises = function () {
   return copyToArray(destination);
 };
 protoOf(GritDomain).total = function (history, until, includeStrictPress) {
-  return ProgressMath_getInstance().k2f(new HistoryStats(toDomain_4(history)), parseDate('until', until), includeStrictPress);
+  return ProgressMath_getInstance().n2f(new HistoryStats(toDomain_4(history)), parseDate('until', until), includeStrictPress);
 };
 protoOf(GritDomain).mainLifts = function () {
   // Inline function 'kotlin.collections.map' call
@@ -30016,12 +30072,12 @@ protoOf(GritDomain).figureInfo = function (name) {
     // Inline function 'kotlin.let' call
     // Inline function 'kotlin.text.lowercase' call
     // Inline function 'kotlin.js.asDynamic' call
-    var tmp_0 = tmp0_safe_receiver.k1t_1.v1_1.toLowerCase();
+    var tmp_0 = tmp0_safe_receiver.m1t_1.v1_1.toLowerCase();
     // Inline function 'kotlin.arrayOf' call
     // Inline function 'kotlin.js.unsafeCast' call
     // Inline function 'kotlin.js.asDynamic' call
-    var tmp$ret$4 = [FigureRenderer_getInstance().e1u_1.c1u_1, FigureRenderer_getInstance().e1u_1.d1u_1];
-    tmp = new JsFigureInfo(tmp0_safe_receiver.i1t_1, tmp0_safe_receiver.j1t_1, tmp_0, tmp$ret$4);
+    var tmp$ret$4 = [FigureRenderer_getInstance().g1u_1.e1u_1, FigureRenderer_getInstance().g1u_1.f1u_1];
+    tmp = new JsFigureInfo(tmp0_safe_receiver.k1t_1, tmp0_safe_receiver.l1t_1, tmp_0, tmp$ret$4);
   }
   return tmp;
 };
@@ -30048,7 +30104,7 @@ protoOf(GritDomain).figureShapes = function (name, which) {
   } else {
     // Inline function 'kotlin.let' call
     // Inline function 'kotlin.collections.map' call
-    var this_0 = FigureRenderer_getInstance().q1v(tmp1_safe_receiver, panel);
+    var this_0 = FigureRenderer_getInstance().s1v(tmp1_safe_receiver, panel);
     // Inline function 'kotlin.collections.mapTo' call
     var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
     var _iterator__ex2g4s = this_0.j();
@@ -30096,25 +30152,25 @@ function JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived
   this.isBuiltIn = isBuiltIn;
   this.archived = archived;
 }
-protoOf(JsExercise).x2f = function () {
+protoOf(JsExercise).a2g = function () {
   return this.id;
 };
 protoOf(JsExercise).ar = function () {
   return this.name;
 };
-protoOf(JsExercise).y2f = function () {
+protoOf(JsExercise).b2g = function () {
   return this.category;
 };
-protoOf(JsExercise).z2f = function () {
+protoOf(JsExercise).c2g = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).a2g = function () {
+protoOf(JsExercise).d2g = function () {
   return this.muscles;
 };
-protoOf(JsExercise).b2g = function () {
+protoOf(JsExercise).e2g = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).c2g = function () {
+protoOf(JsExercise).f2g = function () {
   return this.archived;
 };
 protoOf(JsExercise).ya = function () {
@@ -30126,19 +30182,19 @@ protoOf(JsExercise).za = function () {
 protoOf(JsExercise).jd = function () {
   return this.category;
 };
-protoOf(JsExercise).d2g = function () {
+protoOf(JsExercise).g2g = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).e2g = function () {
+protoOf(JsExercise).h2g = function () {
   return this.muscles;
 };
-protoOf(JsExercise).f2g = function () {
+protoOf(JsExercise).i2g = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).g2g = function () {
+protoOf(JsExercise).j2g = function () {
   return this.archived;
 };
-protoOf(JsExercise).h2g = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(JsExercise).k2g = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
@@ -30149,7 +30205,7 @@ protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, is
   muscles = muscles === VOID ? this.muscles : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.isBuiltIn : isBuiltIn;
   archived = archived === VOID ? this.archived : archived;
-  return $super === VOID ? this.h2g(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.h2g.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.k2g(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.k2g.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).toString = function () {
   return 'JsExercise(id=' + this.id + ', name=' + this.name + ', category=' + this.category + ', parentLift=' + this.parentLift + ', muscles=' + toString(this.muscles) + ', isBuiltIn=' + this.isBuiltIn + ', archived=' + this.archived + ')';
@@ -30194,25 +30250,25 @@ function JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   this.missPoint = missPoint;
   this.isTopSet = isTopSet;
 }
-protoOf(JsSet).i2g = function () {
+protoOf(JsSet).l2g = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).j2g = function () {
+protoOf(JsSet).m2g = function () {
   return this.weightKg;
 };
-protoOf(JsSet).k2g = function () {
+protoOf(JsSet).n2g = function () {
   return this.reps;
 };
-protoOf(JsSet).l2g = function () {
+protoOf(JsSet).o2g = function () {
   return this.rpe;
 };
-protoOf(JsSet).m2g = function () {
+protoOf(JsSet).p2g = function () {
   return this.failed;
 };
-protoOf(JsSet).n2g = function () {
+protoOf(JsSet).q2g = function () {
   return this.missPoint;
 };
-protoOf(JsSet).o2g = function () {
+protoOf(JsSet).r2g = function () {
   return this.isTopSet;
 };
 protoOf(JsSet).ya = function () {
@@ -30224,19 +30280,19 @@ protoOf(JsSet).za = function () {
 protoOf(JsSet).jd = function () {
   return this.reps;
 };
-protoOf(JsSet).d2g = function () {
+protoOf(JsSet).g2g = function () {
   return this.rpe;
 };
-protoOf(JsSet).e2g = function () {
+protoOf(JsSet).h2g = function () {
   return this.failed;
 };
-protoOf(JsSet).f2g = function () {
+protoOf(JsSet).i2g = function () {
   return this.missPoint;
 };
-protoOf(JsSet).g2g = function () {
+protoOf(JsSet).j2g = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).p2g = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
+protoOf(JsSet).s2g = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   return new JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, $super) {
@@ -30247,7 +30303,7 @@ protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoi
   failed = failed === VOID ? this.failed : failed;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   isTopSet = isTopSet === VOID ? this.isTopSet : isTopSet;
-  return $super === VOID ? this.p2g(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.p2g.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
+  return $super === VOID ? this.s2g(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.s2g.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).toString = function () {
   return 'JsSet(exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', failed=' + this.failed + ', missPoint=' + this.missPoint + ', isTopSet=' + this.isTopSet + ')';
@@ -30290,19 +30346,19 @@ function JsSession(id, date, bodyweightKg, readiness, sets) {
   this.readiness = readiness;
   this.sets = sets;
 }
-protoOf(JsSession).x2f = function () {
+protoOf(JsSession).a2g = function () {
   return this.id;
 };
-protoOf(JsSession).q2g = function () {
+protoOf(JsSession).t2g = function () {
   return this.date;
 };
-protoOf(JsSession).r2g = function () {
+protoOf(JsSession).u2g = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).s2g = function () {
+protoOf(JsSession).v2g = function () {
   return this.readiness;
 };
-protoOf(JsSession).t2g = function () {
+protoOf(JsSession).w2g = function () {
   return this.sets;
 };
 protoOf(JsSession).ya = function () {
@@ -30314,13 +30370,13 @@ protoOf(JsSession).za = function () {
 protoOf(JsSession).jd = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).d2g = function () {
+protoOf(JsSession).g2g = function () {
   return this.readiness;
 };
-protoOf(JsSession).e2g = function () {
+protoOf(JsSession).h2g = function () {
   return this.sets;
 };
-protoOf(JsSession).u2g = function (id, date, bodyweightKg, readiness, sets) {
+protoOf(JsSession).x2g = function (id, date, bodyweightKg, readiness, sets) {
   return new JsSession(id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $super) {
@@ -30329,7 +30385,7 @@ protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $su
   bodyweightKg = bodyweightKg === VOID ? this.bodyweightKg : bodyweightKg;
   readiness = readiness === VOID ? this.readiness : readiness;
   sets = sets === VOID ? this.sets : sets;
-  return $super === VOID ? this.u2g(id, date, bodyweightKg, readiness, sets) : $super.u2g.call(this, id, date, bodyweightKg, readiness, sets);
+  return $super === VOID ? this.x2g(id, date, bodyweightKg, readiness, sets) : $super.x2g.call(this, id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).toString = function () {
   return 'JsSession(id=' + this.id + ', date=' + this.date + ', bodyweightKg=' + this.bodyweightKg + ', readiness=' + this.readiness + ', sets=' + toString(this.sets) + ')';
@@ -30368,25 +30424,25 @@ function JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order) {
   this.targetRpe = targetRpe;
   this.order = order;
 }
-protoOf(JsPlanItem).x2f = function () {
+protoOf(JsPlanItem).a2g = function () {
   return this.id;
 };
-protoOf(JsPlanItem).v2g = function () {
+protoOf(JsPlanItem).y2g = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).i2g = function () {
+protoOf(JsPlanItem).l2g = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).t2g = function () {
+protoOf(JsPlanItem).w2g = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).k2g = function () {
+protoOf(JsPlanItem).n2g = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).w2g = function () {
+protoOf(JsPlanItem).z2g = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).x2g = function () {
+protoOf(JsPlanItem).a2h = function () {
   return this.order;
 };
 protoOf(JsPlanItem).ya = function () {
@@ -30398,19 +30454,19 @@ protoOf(JsPlanItem).za = function () {
 protoOf(JsPlanItem).jd = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).d2g = function () {
+protoOf(JsPlanItem).g2g = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).e2g = function () {
+protoOf(JsPlanItem).h2g = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).f2g = function () {
+protoOf(JsPlanItem).i2g = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).g2g = function () {
+protoOf(JsPlanItem).j2g = function () {
   return this.order;
 };
-protoOf(JsPlanItem).y2g = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
+protoOf(JsPlanItem).b2h = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
   return new JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, targetRpe, order, $super) {
@@ -30421,7 +30477,7 @@ protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, target
   reps = reps === VOID ? this.reps : reps;
   targetRpe = targetRpe === VOID ? this.targetRpe : targetRpe;
   order = order === VOID ? this.order : order;
-  return $super === VOID ? this.y2g(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.y2g.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
+  return $super === VOID ? this.b2h(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.b2h.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).toString = function () {
   return 'JsPlanItem(id=' + this.id + ', weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', sets=' + this.sets + ', reps=' + this.reps + ', targetRpe=' + this.targetRpe + ', order=' + this.order + ')';
@@ -30462,13 +30518,13 @@ function JsBaseline(exerciseId, e1rmKg, date) {
   this.e1rmKg = e1rmKg;
   this.date = date;
 }
-protoOf(JsBaseline).i2g = function () {
+protoOf(JsBaseline).l2g = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).z2g = function () {
+protoOf(JsBaseline).c2h = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).q2g = function () {
+protoOf(JsBaseline).t2g = function () {
   return this.date;
 };
 protoOf(JsBaseline).ya = function () {
@@ -30480,14 +30536,14 @@ protoOf(JsBaseline).za = function () {
 protoOf(JsBaseline).jd = function () {
   return this.date;
 };
-protoOf(JsBaseline).a2h = function (exerciseId, e1rmKg, date) {
+protoOf(JsBaseline).d2h = function (exerciseId, e1rmKg, date) {
   return new JsBaseline(exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).copy = function (exerciseId, e1rmKg, date, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   e1rmKg = e1rmKg === VOID ? this.e1rmKg : e1rmKg;
   date = date === VOID ? this.date : date;
-  return $super === VOID ? this.a2h(exerciseId, e1rmKg, date) : $super.a2h.call(this, exerciseId, e1rmKg, date);
+  return $super === VOID ? this.d2h(exerciseId, e1rmKg, date) : $super.d2h.call(this, exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).toString = function () {
   return 'JsBaseline(exerciseId=' + this.exerciseId + ', e1rmKg=' + this.e1rmKg + ', date=' + this.date + ')';
@@ -30521,28 +30577,28 @@ function JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJs
   this.status = status;
   this.payloadJson = payloadJson;
 }
-protoOf(JsAdvice).x2f = function () {
+protoOf(JsAdvice).a2g = function () {
   return this.id;
 };
-protoOf(JsAdvice).b2h = function () {
+protoOf(JsAdvice).e2h = function () {
   return this.type;
 };
-protoOf(JsAdvice).c2h = function () {
+protoOf(JsAdvice).f2h = function () {
   return this.lift;
 };
-protoOf(JsAdvice).d2h = function () {
+protoOf(JsAdvice).g2h = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).e2h = function () {
+protoOf(JsAdvice).h2h = function () {
   return this.reason;
 };
-protoOf(JsAdvice).f2h = function () {
+protoOf(JsAdvice).i2h = function () {
   return this.severity;
 };
-protoOf(JsAdvice).g2h = function () {
+protoOf(JsAdvice).j2h = function () {
   return this.status;
 };
-protoOf(JsAdvice).h2h = function () {
+protoOf(JsAdvice).k2h = function () {
   return this.payloadJson;
 };
 protoOf(JsAdvice).ya = function () {
@@ -30554,22 +30610,22 @@ protoOf(JsAdvice).za = function () {
 protoOf(JsAdvice).jd = function () {
   return this.lift;
 };
-protoOf(JsAdvice).d2g = function () {
+protoOf(JsAdvice).g2g = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).e2g = function () {
+protoOf(JsAdvice).h2g = function () {
   return this.reason;
 };
-protoOf(JsAdvice).f2g = function () {
+protoOf(JsAdvice).i2g = function () {
   return this.severity;
 };
-protoOf(JsAdvice).g2g = function () {
+protoOf(JsAdvice).j2g = function () {
   return this.status;
 };
-protoOf(JsAdvice).i2h = function () {
+protoOf(JsAdvice).l2h = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).j2h = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
+protoOf(JsAdvice).m2h = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
   return new JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, status, payloadJson, $super) {
@@ -30581,7 +30637,7 @@ protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, 
   severity = severity === VOID ? this.severity : severity;
   status = status === VOID ? this.status : status;
   payloadJson = payloadJson === VOID ? this.payloadJson : payloadJson;
-  return $super === VOID ? this.j2h(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.j2h.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
+  return $super === VOID ? this.m2h(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.m2h.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).toString = function () {
   return 'JsAdvice(id=' + this.id + ', type=' + this.type + ', lift=' + this.lift + ', createdAt=' + this.createdAt + ', reason=' + this.reason + ', severity=' + this.severity + ', status=' + this.status + ', payloadJson=' + this.payloadJson + ')';
@@ -30625,13 +30681,13 @@ function JsHistory(sessions, exercises, baselines) {
   this.exercises = exercises;
   this.baselines = baselines;
 }
-protoOf(JsHistory).k2h = function () {
+protoOf(JsHistory).n2h = function () {
   return this.sessions;
 };
-protoOf(JsHistory).l2h = function () {
+protoOf(JsHistory).o2h = function () {
   return this.exercises;
 };
-protoOf(JsHistory).m2h = function () {
+protoOf(JsHistory).p2h = function () {
   return this.baselines;
 };
 protoOf(JsHistory).ya = function () {
@@ -30643,14 +30699,14 @@ protoOf(JsHistory).za = function () {
 protoOf(JsHistory).jd = function () {
   return this.baselines;
 };
-protoOf(JsHistory).n2h = function (sessions, exercises, baselines) {
+protoOf(JsHistory).q2h = function (sessions, exercises, baselines) {
   return new JsHistory(sessions, exercises, baselines);
 };
 protoOf(JsHistory).copy = function (sessions, exercises, baselines, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   exercises = exercises === VOID ? this.exercises : exercises;
   baselines = baselines === VOID ? this.baselines : baselines;
-  return $super === VOID ? this.n2h(sessions, exercises, baselines) : $super.n2h.call(this, sessions, exercises, baselines);
+  return $super === VOID ? this.q2h(sessions, exercises, baselines) : $super.q2h.call(this, sessions, exercises, baselines);
 };
 protoOf(JsHistory).toString = function () {
   return 'JsHistory(sessions=' + toString(this.sessions) + ', exercises=' + toString(this.exercises) + ', baselines=' + toString(this.baselines) + ')';
@@ -30678,10 +30734,10 @@ function JsCoachSettings(defaultRpe, changePlates) {
   this.defaultRpe = defaultRpe;
   this.changePlates = changePlates;
 }
-protoOf(JsCoachSettings).o2h = function () {
+protoOf(JsCoachSettings).r2h = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).p2h = function () {
+protoOf(JsCoachSettings).s2h = function () {
   return this.changePlates;
 };
 protoOf(JsCoachSettings).ya = function () {
@@ -30690,13 +30746,13 @@ protoOf(JsCoachSettings).ya = function () {
 protoOf(JsCoachSettings).za = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).q2h = function (defaultRpe, changePlates) {
+protoOf(JsCoachSettings).t2h = function (defaultRpe, changePlates) {
   return new JsCoachSettings(defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).copy = function (defaultRpe, changePlates, $super) {
   defaultRpe = defaultRpe === VOID ? this.defaultRpe : defaultRpe;
   changePlates = changePlates === VOID ? this.changePlates : changePlates;
-  return $super === VOID ? this.q2h(defaultRpe, changePlates) : $super.q2h.call(this, defaultRpe, changePlates);
+  return $super === VOID ? this.t2h(defaultRpe, changePlates) : $super.t2h.call(this, defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).toString = function () {
   return 'JsCoachSettings(defaultRpe=' + this.defaultRpe + ', changePlates=' + this.changePlates + ')';
@@ -30721,7 +30777,7 @@ function JsWeeklyPoint(weekStart, value) {
   this.weekStart = weekStart;
   this.value = value;
 }
-protoOf(JsWeeklyPoint).r2h = function () {
+protoOf(JsWeeklyPoint).u2h = function () {
   return this.weekStart;
 };
 protoOf(JsWeeklyPoint).t = function () {
@@ -30733,13 +30789,13 @@ protoOf(JsWeeklyPoint).ya = function () {
 protoOf(JsWeeklyPoint).za = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).s2h = function (weekStart, value) {
+protoOf(JsWeeklyPoint).v2h = function (weekStart, value) {
   return new JsWeeklyPoint(weekStart, value);
 };
 protoOf(JsWeeklyPoint).copy = function (weekStart, value, $super) {
   weekStart = weekStart === VOID ? this.weekStart : weekStart;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.s2h(weekStart, value) : $super.s2h.call(this, weekStart, value);
+  return $super === VOID ? this.v2h(weekStart, value) : $super.v2h.call(this, weekStart, value);
 };
 protoOf(JsWeeklyPoint).toString = function () {
   return 'JsWeeklyPoint(weekStart=' + this.weekStart + ', value=' + this.value + ')';
@@ -30767,19 +30823,19 @@ function JsPr(date, e1rmKg, weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsPr).q2g = function () {
+protoOf(JsPr).t2g = function () {
   return this.date;
 };
-protoOf(JsPr).z2g = function () {
+protoOf(JsPr).c2h = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).j2g = function () {
+protoOf(JsPr).m2g = function () {
   return this.weightKg;
 };
-protoOf(JsPr).k2g = function () {
+protoOf(JsPr).n2g = function () {
   return this.reps;
 };
-protoOf(JsPr).l2g = function () {
+protoOf(JsPr).o2g = function () {
   return this.rpe;
 };
 protoOf(JsPr).ya = function () {
@@ -30791,13 +30847,13 @@ protoOf(JsPr).za = function () {
 protoOf(JsPr).jd = function () {
   return this.weightKg;
 };
-protoOf(JsPr).d2g = function () {
+protoOf(JsPr).g2g = function () {
   return this.reps;
 };
-protoOf(JsPr).e2g = function () {
+protoOf(JsPr).h2g = function () {
   return this.rpe;
 };
-protoOf(JsPr).t2h = function (date, e1rmKg, weightKg, reps, rpe) {
+protoOf(JsPr).w2h = function (date, e1rmKg, weightKg, reps, rpe) {
   return new JsPr(date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
@@ -30806,7 +30862,7 @@ protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.t2h(date, e1rmKg, weightKg, reps, rpe) : $super.t2h.call(this, date, e1rmKg, weightKg, reps, rpe);
+  return $super === VOID ? this.w2h(date, e1rmKg, weightKg, reps, rpe) : $super.w2h.call(this, date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).toString = function () {
   return 'JsPr(date=' + this.date + ', e1rmKg=' + this.e1rmKg + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -30843,7 +30899,7 @@ function JsAccessoryOption(name, heavy) {
 protoOf(JsAccessoryOption).ar = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).u2h = function () {
+protoOf(JsAccessoryOption).x2h = function () {
   return this.heavy;
 };
 protoOf(JsAccessoryOption).ya = function () {
@@ -30852,13 +30908,13 @@ protoOf(JsAccessoryOption).ya = function () {
 protoOf(JsAccessoryOption).za = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).v2h = function (name, heavy) {
+protoOf(JsAccessoryOption).y2h = function (name, heavy) {
   return new JsAccessoryOption(name, heavy);
 };
 protoOf(JsAccessoryOption).copy = function (name, heavy, $super) {
   name = name === VOID ? this.name : name;
   heavy = heavy === VOID ? this.heavy : heavy;
-  return $super === VOID ? this.v2h(name, heavy) : $super.v2h.call(this, name, heavy);
+  return $super === VOID ? this.y2h(name, heavy) : $super.y2h.call(this, name, heavy);
 };
 protoOf(JsAccessoryOption).toString = function () {
   return 'JsAccessoryOption(name=' + this.name + ', heavy=' + this.heavy + ')';
@@ -30885,16 +30941,16 @@ function JsRatioRange(numerator, denominator, low, high) {
   this.low = low;
   this.high = high;
 }
-protoOf(JsRatioRange).w2h = function () {
+protoOf(JsRatioRange).z2h = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).x2h = function () {
+protoOf(JsRatioRange).a2i = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).y2h = function () {
+protoOf(JsRatioRange).b2i = function () {
   return this.low;
 };
-protoOf(JsRatioRange).w2b = function () {
+protoOf(JsRatioRange).z2b = function () {
   return this.high;
 };
 protoOf(JsRatioRange).ya = function () {
@@ -30906,10 +30962,10 @@ protoOf(JsRatioRange).za = function () {
 protoOf(JsRatioRange).jd = function () {
   return this.low;
 };
-protoOf(JsRatioRange).d2g = function () {
+protoOf(JsRatioRange).g2g = function () {
   return this.high;
 };
-protoOf(JsRatioRange).z2h = function (numerator, denominator, low, high) {
+protoOf(JsRatioRange).c2i = function (numerator, denominator, low, high) {
   return new JsRatioRange(numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super) {
@@ -30917,7 +30973,7 @@ protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super
   denominator = denominator === VOID ? this.denominator : denominator;
   low = low === VOID ? this.low : low;
   high = high === VOID ? this.high : high;
-  return $super === VOID ? this.z2h(numerator, denominator, low, high) : $super.z2h.call(this, numerator, denominator, low, high);
+  return $super === VOID ? this.c2i(numerator, denominator, low, high) : $super.c2i.call(this, numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).toString = function () {
   return 'JsRatioRange(numerator=' + this.numerator + ', denominator=' + this.denominator + ', low=' + this.low + ', high=' + this.high + ')';
@@ -30950,16 +31006,16 @@ function JsPrescription(exerciseName, sets, repsLow, repsHigh) {
   this.repsLow = repsLow;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPrescription).a2i = function () {
+protoOf(JsPrescription).d2i = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).t2g = function () {
+protoOf(JsPrescription).w2g = function () {
   return this.sets;
 };
-protoOf(JsPrescription).b2i = function () {
+protoOf(JsPrescription).e2i = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).c2i = function () {
+protoOf(JsPrescription).f2i = function () {
   return this.repsHigh;
 };
 protoOf(JsPrescription).ya = function () {
@@ -30971,10 +31027,10 @@ protoOf(JsPrescription).za = function () {
 protoOf(JsPrescription).jd = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).d2g = function () {
+protoOf(JsPrescription).g2g = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).d2i = function (exerciseName, sets, repsLow, repsHigh) {
+protoOf(JsPrescription).g2i = function (exerciseName, sets, repsLow, repsHigh) {
   return new JsPrescription(exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, $super) {
@@ -30982,7 +31038,7 @@ protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, 
   sets = sets === VOID ? this.sets : sets;
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.d2i(exerciseName, sets, repsLow, repsHigh) : $super.d2i.call(this, exerciseName, sets, repsLow, repsHigh);
+  return $super === VOID ? this.g2i(exerciseName, sets, repsLow, repsHigh) : $super.g2i.call(this, exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).toString = function () {
   return 'JsPrescription(exerciseName=' + this.exerciseName + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ')';
@@ -31042,34 +31098,34 @@ function JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, vol
 protoOf(JsAdvicePayload).re = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).i2g = function () {
+protoOf(JsAdvicePayload).l2g = function () {
   return this.exerciseId;
 };
-protoOf(JsAdvicePayload).j2g = function () {
+protoOf(JsAdvicePayload).m2g = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).k2g = function () {
+protoOf(JsAdvicePayload).n2g = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).l2g = function () {
+protoOf(JsAdvicePayload).o2g = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).t2g = function () {
+protoOf(JsAdvicePayload).w2g = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).e2i = function () {
+protoOf(JsAdvicePayload).h2i = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).f2i = function () {
+protoOf(JsAdvicePayload).i2i = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).g2i = function () {
+protoOf(JsAdvicePayload).j2i = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).c2h = function () {
+protoOf(JsAdvicePayload).f2h = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).n2g = function () {
+protoOf(JsAdvicePayload).q2g = function () {
   return this.missPoint;
 };
 protoOf(JsAdvicePayload).ya = function () {
@@ -31081,31 +31137,31 @@ protoOf(JsAdvicePayload).za = function () {
 protoOf(JsAdvicePayload).jd = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).d2g = function () {
+protoOf(JsAdvicePayload).g2g = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).e2g = function () {
+protoOf(JsAdvicePayload).h2g = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).f2g = function () {
+protoOf(JsAdvicePayload).i2g = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).g2g = function () {
+protoOf(JsAdvicePayload).j2g = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).i2h = function () {
+protoOf(JsAdvicePayload).l2h = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).h2i = function () {
+protoOf(JsAdvicePayload).k2i = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).i2i = function () {
+protoOf(JsAdvicePayload).l2i = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).j2i = function () {
+protoOf(JsAdvicePayload).m2i = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).k2i = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) {
+protoOf(JsAdvicePayload).n2i = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) {
   return new JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
 };
 protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, $super) {
@@ -31120,7 +31176,7 @@ protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe,
   loadFactor = loadFactor === VOID ? this.loadFactor : loadFactor;
   lift = lift === VOID ? this.lift : lift;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
-  return $super === VOID ? this.k2i(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) : $super.k2i.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
+  return $super === VOID ? this.n2i(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) : $super.n2i.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
 };
 protoOf(JsAdvicePayload).toString = function () {
   return 'JsAdvicePayload(kind=' + this.kind + ', exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', sets=' + this.sets + ', items=' + toString(this.items) + ', volumeFactor=' + this.volumeFactor + ', loadFactor=' + this.loadFactor + ', lift=' + this.lift + ', missPoint=' + this.missPoint + ')';
@@ -31175,19 +31231,19 @@ function JsFormGuide(purpose, setup, steps, cues, mistakes) {
   this.cues = cues;
   this.mistakes = mistakes;
 }
-protoOf(JsFormGuide).l2i = function () {
+protoOf(JsFormGuide).o2i = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).m2i = function () {
+protoOf(JsFormGuide).p2i = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).n2i = function () {
+protoOf(JsFormGuide).q2i = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).o2i = function () {
+protoOf(JsFormGuide).r2i = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).p2i = function () {
+protoOf(JsFormGuide).s2i = function () {
   return this.mistakes;
 };
 protoOf(JsFormGuide).ya = function () {
@@ -31199,13 +31255,13 @@ protoOf(JsFormGuide).za = function () {
 protoOf(JsFormGuide).jd = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).d2g = function () {
+protoOf(JsFormGuide).g2g = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).e2g = function () {
+protoOf(JsFormGuide).h2g = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).q2i = function (purpose, setup, steps, cues, mistakes) {
+protoOf(JsFormGuide).t2i = function (purpose, setup, steps, cues, mistakes) {
   return new JsFormGuide(purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $super) {
@@ -31214,7 +31270,7 @@ protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $su
   steps = steps === VOID ? this.steps : steps;
   cues = cues === VOID ? this.cues : cues;
   mistakes = mistakes === VOID ? this.mistakes : mistakes;
-  return $super === VOID ? this.q2i(purpose, setup, steps, cues, mistakes) : $super.q2i.call(this, purpose, setup, steps, cues, mistakes);
+  return $super === VOID ? this.t2i(purpose, setup, steps, cues, mistakes) : $super.t2i.call(this, purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).toString = function () {
   return 'JsFormGuide(purpose=' + this.purpose + ', setup=' + toString(this.setup) + ', steps=' + toString(this.steps) + ', cues=' + toString(this.cues) + ', mistakes=' + toString(this.mistakes) + ')';
@@ -31248,10 +31304,10 @@ function JsRpeGuide(title, lines) {
   this.title = title;
   this.lines = lines;
 }
-protoOf(JsRpeGuide).r2i = function () {
+protoOf(JsRpeGuide).u2i = function () {
   return this.title;
 };
-protoOf(JsRpeGuide).s2i = function () {
+protoOf(JsRpeGuide).v2i = function () {
   return this.lines;
 };
 protoOf(JsRpeGuide).ya = function () {
@@ -31260,13 +31316,13 @@ protoOf(JsRpeGuide).ya = function () {
 protoOf(JsRpeGuide).za = function () {
   return this.lines;
 };
-protoOf(JsRpeGuide).t2i = function (title, lines) {
+protoOf(JsRpeGuide).w2i = function (title, lines) {
   return new JsRpeGuide(title, lines);
 };
 protoOf(JsRpeGuide).copy = function (title, lines, $super) {
   title = title === VOID ? this.title : title;
   lines = lines === VOID ? this.lines : lines;
-  return $super === VOID ? this.t2i(title, lines) : $super.t2i.call(this, title, lines);
+  return $super === VOID ? this.w2i(title, lines) : $super.w2i.call(this, title, lines);
 };
 protoOf(JsRpeGuide).toString = function () {
   return 'JsRpeGuide(title=' + this.title + ', lines=' + toString(this.lines) + ')';
@@ -31301,28 +31357,28 @@ function JsLibraryExercise(name, aliases, area, equipment, muscles, kind, catego
 protoOf(JsLibraryExercise).ar = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).u2i = function () {
+protoOf(JsLibraryExercise).x2i = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).v2i = function () {
+protoOf(JsLibraryExercise).y2i = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).w2i = function () {
+protoOf(JsLibraryExercise).z2i = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).a2g = function () {
+protoOf(JsLibraryExercise).d2g = function () {
   return this.muscles;
 };
 protoOf(JsLibraryExercise).re = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).y2f = function () {
+protoOf(JsLibraryExercise).b2g = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).z2f = function () {
+protoOf(JsLibraryExercise).c2g = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).x2i = function () {
+protoOf(JsLibraryExercise).a2j = function () {
   return this.guide;
 };
 protoOf(JsLibraryExercise).ya = function () {
@@ -31334,25 +31390,25 @@ protoOf(JsLibraryExercise).za = function () {
 protoOf(JsLibraryExercise).jd = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).d2g = function () {
+protoOf(JsLibraryExercise).g2g = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).e2g = function () {
+protoOf(JsLibraryExercise).h2g = function () {
   return this.muscles;
 };
-protoOf(JsLibraryExercise).f2g = function () {
+protoOf(JsLibraryExercise).i2g = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).g2g = function () {
+protoOf(JsLibraryExercise).j2g = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).i2h = function () {
+protoOf(JsLibraryExercise).l2h = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).h2i = function () {
+protoOf(JsLibraryExercise).k2i = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).y2i = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
+protoOf(JsLibraryExercise).b2j = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
   return new JsLibraryExercise(name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide, $super) {
@@ -31365,7 +31421,7 @@ protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, musc
   category = category === VOID ? this.category : category;
   parentLift = parentLift === VOID ? this.parentLift : parentLift;
   guide = guide === VOID ? this.guide : guide;
-  return $super === VOID ? this.y2i(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.y2i.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
+  return $super === VOID ? this.b2j(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.b2j.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).toString = function () {
   return 'JsLibraryExercise(name=' + this.name + ', aliases=' + toString(this.aliases) + ', area=' + this.area + ', equipment=' + toString(this.equipment) + ', muscles=' + toString(this.muscles) + ', kind=' + this.kind + ', category=' + this.category + ', parentLift=' + this.parentLift + ', guide=' + this.guide.toString() + ')';
@@ -31413,16 +31469,16 @@ function JsFigureInfo(startCaption, endCaption, thumbnail, viewBox) {
   this.thumbnail = thumbnail;
   this.viewBox = viewBox;
 }
-protoOf(JsFigureInfo).z2i = function () {
+protoOf(JsFigureInfo).c2j = function () {
   return this.startCaption;
 };
-protoOf(JsFigureInfo).a2j = function () {
+protoOf(JsFigureInfo).d2j = function () {
   return this.endCaption;
 };
-protoOf(JsFigureInfo).b2j = function () {
+protoOf(JsFigureInfo).e2j = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).c2j = function () {
+protoOf(JsFigureInfo).f2j = function () {
   return this.viewBox;
 };
 protoOf(JsFigureInfo).ya = function () {
@@ -31434,10 +31490,10 @@ protoOf(JsFigureInfo).za = function () {
 protoOf(JsFigureInfo).jd = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).d2g = function () {
+protoOf(JsFigureInfo).g2g = function () {
   return this.viewBox;
 };
-protoOf(JsFigureInfo).d2j = function (startCaption, endCaption, thumbnail, viewBox) {
+protoOf(JsFigureInfo).g2j = function (startCaption, endCaption, thumbnail, viewBox) {
   return new JsFigureInfo(startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, viewBox, $super) {
@@ -31445,7 +31501,7 @@ protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, view
   endCaption = endCaption === VOID ? this.endCaption : endCaption;
   thumbnail = thumbnail === VOID ? this.thumbnail : thumbnail;
   viewBox = viewBox === VOID ? this.viewBox : viewBox;
-  return $super === VOID ? this.d2j(startCaption, endCaption, thumbnail, viewBox) : $super.d2j.call(this, startCaption, endCaption, thumbnail, viewBox);
+  return $super === VOID ? this.g2j(startCaption, endCaption, thumbnail, viewBox) : $super.g2j.call(this, startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).toString = function () {
   return 'JsFigureInfo(startCaption=' + this.startCaption + ', endCaption=' + this.endCaption + ', thumbnail=' + this.thumbnail + ', viewBox=' + toString(this.viewBox) + ')';
@@ -31479,7 +31535,7 @@ function JsFigureShape(kind, role) {
 protoOf(JsFigureShape).re = function () {
   return this.kind;
 };
-protoOf(JsFigureShape).e2j = function () {
+protoOf(JsFigureShape).h2j = function () {
   return this.role;
 };
 function JsFigureCircle(role, cx, cy, r) {
@@ -31488,13 +31544,13 @@ function JsFigureCircle(role, cx, cy, r) {
   this.cy = cy;
   this.r = r;
 }
-protoOf(JsFigureCircle).f2j = function () {
+protoOf(JsFigureCircle).i2j = function () {
   return this.cx;
 };
-protoOf(JsFigureCircle).g2j = function () {
+protoOf(JsFigureCircle).j2j = function () {
   return this.cy;
 };
-protoOf(JsFigureCircle).h2j = function () {
+protoOf(JsFigureCircle).k2j = function () {
   return this.r;
 };
 function JsFigureCapsule(role, x1, y1, x2, y2, width) {
@@ -31505,19 +31561,19 @@ function JsFigureCapsule(role, x1, y1, x2, y2, width) {
   this.y2 = y2;
   this.width = width;
 }
-protoOf(JsFigureCapsule).i2j = function () {
+protoOf(JsFigureCapsule).l2j = function () {
   return this.x1;
 };
-protoOf(JsFigureCapsule).j2j = function () {
+protoOf(JsFigureCapsule).m2j = function () {
   return this.y1;
 };
-protoOf(JsFigureCapsule).k2j = function () {
+protoOf(JsFigureCapsule).n2j = function () {
   return this.x2;
 };
-protoOf(JsFigureCapsule).l2j = function () {
+protoOf(JsFigureCapsule).o2j = function () {
   return this.y2;
 };
-protoOf(JsFigureCapsule).y1v = function () {
+protoOf(JsFigureCapsule).a1w = function () {
   return this.width;
 };
 function JsFigureRect(role, x, y, w, h, radius) {
@@ -31528,26 +31584,26 @@ function JsFigureRect(role, x, y, w, h, radius) {
   this.h = h;
   this.radius = radius;
 }
-protoOf(JsFigureRect).m2j = function () {
+protoOf(JsFigureRect).p2j = function () {
   return this.x;
 };
-protoOf(JsFigureRect).n2j = function () {
+protoOf(JsFigureRect).q2j = function () {
   return this.y;
 };
-protoOf(JsFigureRect).o2j = function () {
+protoOf(JsFigureRect).r2j = function () {
   return this.w;
 };
-protoOf(JsFigureRect).p2j = function () {
+protoOf(JsFigureRect).s2j = function () {
   return this.h;
 };
-protoOf(JsFigureRect).n26 = function () {
+protoOf(JsFigureRect).q26 = function () {
   return this.radius;
 };
 function JsFigurePolygon(role, points) {
   JsFigureShape.call(this, 'polygon', role);
   this.points = points;
 }
-protoOf(JsFigurePolygon).q2j = function () {
+protoOf(JsFigurePolygon).t2j = function () {
   return this.points;
 };
 function toFacadeId(_this__u8e3s4, field) {
@@ -31797,7 +31853,7 @@ function toDomain_6(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   try {
-    tmp = get_androidJson().xt(Companion_instance_54.t2e(), _this__u8e3s4.payloadJson);
+    tmp = get_androidJson().xt(Companion_instance_54.w2e(), _this__u8e3s4.payloadJson);
   } catch ($p) {
     var tmp_0;
     if ($p instanceof SerializationException) {
@@ -31884,11 +31940,11 @@ function toJs_0(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp = toFacadeId(_this__u8e3s4.y13_1, 'advice.id');
   var tmp0_safe_receiver = _this__u8e3s4.s13_1;
-  return new JsAdvice(tmp, _this__u8e3s4.r13_1.v1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.v1_1, _this__u8e3s4.t13_1.toString(), _this__u8e3s4.u13_1, _this__u8e3s4.v13_1, _this__u8e3s4.x13_1.v1_1, get_androidJson().wt(Companion_instance_54.t2e(), _this__u8e3s4.w13_1));
+  return new JsAdvice(tmp, _this__u8e3s4.r13_1.v1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.v1_1, _this__u8e3s4.t13_1.toString(), _this__u8e3s4.u13_1, _this__u8e3s4.v13_1, _this__u8e3s4.x13_1.v1_1, get_androidJson().wt(Companion_instance_54.w2e(), _this__u8e3s4.w13_1));
 }
 function toJs_1(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return new JsPr(_this__u8e3s4.z2e_1.toString(), _this__u8e3s4.a2f_1, _this__u8e3s4.b2f_1, _this__u8e3s4.c2f_1, _this__u8e3s4.d2f_1);
+  return new JsPr(_this__u8e3s4.c2f_1.toString(), _this__u8e3s4.d2f_1, _this__u8e3s4.e2f_1, _this__u8e3s4.f2f_1, _this__u8e3s4.g2f_1);
 }
 function toJs_2(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -31904,7 +31960,7 @@ function decodePayload(payloadJson) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   try {
-    tmp = get_androidJson().xt(Companion_instance_54.t2e(), payloadJson);
+    tmp = get_androidJson().xt(Companion_instance_54.w2e(), payloadJson);
   } catch ($p) {
     var tmp_0;
     if ($p instanceof IllegalArgumentException) {
@@ -31921,13 +31977,13 @@ function decodePayload(payloadJson) {
   } else {
     if (payload instanceof Accessories) {
       // Inline function 'kotlin.collections.map' call
-      var this_0 = payload.i2e_1;
+      var this_0 = payload.l2e_1;
       // Inline function 'kotlin.collections.mapTo' call
       var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
       var _iterator__ex2g4s = this_0.j();
       while (_iterator__ex2g4s.k()) {
         var item = _iterator__ex2g4s.l();
-        var tmp$ret$2 = new JsPrescription(item.z2d_1, item.a2e_1, item.b2e_1, item.c2e_1);
+        var tmp$ret$2 = new JsPrescription(item.c2e_1, item.d2e_1, item.e2e_1, item.f2e_1);
         destination.i(tmp$ret$2);
       }
       // Inline function 'kotlin.collections.toTypedArray' call
@@ -31938,8 +31994,8 @@ function decodePayload(payloadJson) {
         tmp_1 = new JsAdvicePayload('Deload', VOID, VOID, VOID, VOID, VOID, VOID, payload.t15_1, payload.u15_1);
       } else {
         if (payload instanceof WeakPoint) {
-          var tmp1_safe_receiver = payload.p2e_1;
-          tmp_1 = new JsAdvicePayload('WeakPoint', VOID, VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.o2e_1.v1_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.v1_1);
+          var tmp1_safe_receiver = payload.s2e_1;
+          tmp_1 = new JsAdvicePayload('WeakPoint', VOID, VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.r2e_1.v1_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.v1_1);
         } else {
           if (payload instanceof ReEntry) {
             tmp_1 = new JsAdvicePayload('ReEntry', VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.c14_1);
@@ -31995,19 +32051,19 @@ function toJs_6(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   if (_this__u8e3s4 instanceof Circle) {
-    tmp = new JsFigureCircle(_this__u8e3s4.k1v_1.v1_1, _this__u8e3s4.l1v_1, _this__u8e3s4.m1v_1, _this__u8e3s4.n1v_1);
+    tmp = new JsFigureCircle(_this__u8e3s4.m1v_1.v1_1, _this__u8e3s4.n1v_1, _this__u8e3s4.o1v_1, _this__u8e3s4.p1v_1);
   } else {
     if (_this__u8e3s4 instanceof Capsule) {
-      tmp = new JsFigureCapsule(_this__u8e3s4.l1u_1.v1_1, _this__u8e3s4.m1u_1, _this__u8e3s4.n1u_1, _this__u8e3s4.o1u_1, _this__u8e3s4.p1u_1, _this__u8e3s4.q1u_1);
+      tmp = new JsFigureCapsule(_this__u8e3s4.n1u_1.v1_1, _this__u8e3s4.o1u_1, _this__u8e3s4.p1u_1, _this__u8e3s4.q1u_1, _this__u8e3s4.r1u_1, _this__u8e3s4.s1u_1);
     } else {
       if (_this__u8e3s4 instanceof RoundRect) {
-        tmp = new JsFigureRect(_this__u8e3s4.w1t_1.v1_1, _this__u8e3s4.x1t_1, _this__u8e3s4.y1t_1, _this__u8e3s4.z1t_1, _this__u8e3s4.a1u_1, _this__u8e3s4.b1u_1);
+        tmp = new JsFigureRect(_this__u8e3s4.y1t_1.v1_1, _this__u8e3s4.z1t_1, _this__u8e3s4.a1u_1, _this__u8e3s4.b1u_1, _this__u8e3s4.c1u_1, _this__u8e3s4.d1u_1);
       } else {
         if (_this__u8e3s4 instanceof Polygon) {
           // Inline function 'kotlin.collections.toTypedArray' call
-          var this_0 = _this__u8e3s4.j1v_1;
+          var this_0 = _this__u8e3s4.l1v_1;
           var tmp$ret$0 = copyToArray(this_0);
-          tmp = new JsFigurePolygon(_this__u8e3s4.i1v_1.v1_1, tmp$ret$0);
+          tmp = new JsFigurePolygon(_this__u8e3s4.k1v_1.v1_1, tmp$ret$0);
         } else {
           noWhenBranchMatchedException();
         }
