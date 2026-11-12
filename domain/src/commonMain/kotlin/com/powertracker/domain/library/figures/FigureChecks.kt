@@ -217,7 +217,7 @@ object FigureChecks {
             }
             is HipDepth, is ChinOverBar, is HandsInsideKnees, is ElbowBend, is HandsLevelWith, is HeldOver, is HeldBeside,
             is HandsTogether, is ChestOffFloor, is UpperArmLevel, is ShouldersOverHands, is BarOnRails, is HandsOffFloor,
-            is UpperArmDown,
+            is UpperArmDown, is FeetOffFloor,
             -> null // handled above
         }
     }
@@ -279,6 +279,10 @@ object FigureChecks {
                 val v = s.near.elbow - s.near.shoulder
                 val off = abs(fold(angleOf(v) - (s.torso + 180.0)))
                 if (off > check.within) "upper arm ${round1(off)}° off the torso's line, more than ${check.within}" else pass
+            }
+            is FeetOffFloor -> {
+                val low = Side.entries.minOf { side -> s.side(side).let { -max(it.heel.y, it.toe.y) } } - Body.FOOT_WIDTH / 2
+                if (low < check.min) "feet ${round1(low)} cm off the floor, needs ${check.min}" else pass
             }
             is HandsOffFloor -> {
                 val low = Side.entries.minOf { side -> s.side(side).let { -max(it.wrist.y, it.hand.y) } } - Body.HAND_WIDTH / 2

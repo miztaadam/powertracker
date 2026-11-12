@@ -68,6 +68,12 @@ enum class Surface(val grip: Boolean = false) {
 
     /** The top face of a preacher bench's or an arm machine's sloped arm pad, under the backs of the upper arms (Task 9). */
     ARM_PAD,
+
+    /** A leg extension's roller pad on the front of the lower shins (Task 10). */
+    SHIN_PAD,
+
+    /** A push sled's upright handle post, held (Task 10). */
+    SLED_HANDLE(grip = true),
 }
 
 /** [point] rests on [surface] (within the contact tolerance) in the panels in [at]. */
@@ -167,6 +173,12 @@ data class HandsOffFloor(val min: Double, override val at: Which) : KeyCheck
  * plane (chin-ups: "until your elbows are at your sides"; a seated row's elbows close to the ribs).
  */
 data class UpperArmDown(val within: Double, override val at: Which) : KeyCheck
+
+/**
+ * Both feet are at least [min] cm off the floor (jump squat: in the air at the top of the jump): the lowest point of
+ * either foot, its capsule included. The one key check for a panel with no floor contact (Task 10).
+ */
+data class FeetOffFloor(val min: Double, override val at: Which) : KeyCheck
 
 /** One exercise's two-pose picture. Keyed by catalogue name in [Figures]. */
 data class ExerciseFigure(

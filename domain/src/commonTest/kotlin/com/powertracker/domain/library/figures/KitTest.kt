@@ -850,4 +850,107 @@ class KitTest {
             assertRenders(figureOf(View.SIDE, Scene(pose, listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT))
         }
     }
+
+    // ---- Task 10: quad kit ----
+
+    @Test
+    fun hackSquatMachine_padFollowsTheHips_plateFixed_shoulderPadInFront() {
+        val origin = Point(0.0, -25.0)
+        val a = HackSquatMachine(origin = origin, pelvis = Point(-70.0, -70.0))
+        val b = HackSquatMachine(origin = origin, pelvis = Point(-45.0, -45.0))
+        for (m in listOf(a, b)) {
+            assertEquals(setOf(Surface.BACK_PAD, Surface.FOOT_PLATE), m.surfaces(View.SIDE).keys)
+            // The pad along the rail, its front face a torso's radius behind the hips; the plate's face through the origin.
+            val pad = m.surfaces(View.SIDE).getValue(Surface.BACK_PAD).single()
+            assertEquals(135.0, pad.angle, 1e-9)
+            assertEquals(Body.TORSO_RADIUS, pad.signedDistance(m.pelvis), 1e-6)
+            val plate = m.surfaces(View.SIDE).getValue(Surface.FOOT_PLATE).single()
+            assertEquals(0.0, plate.signedDistance(origin), 1e-6)
+            assertEquals(listOf("machine", "foot plate"), m.solids(View.SIDE).map { it.label })
+            val front = m.drawFront(View.SIDE).map { it.shape }
+            assertTrue(front.any { it is Circle && it.role == Role.EQUIPMENT && abs(it.cx - m.shoulderPad().x) < 1e-9 })
+            assertTrue(front.any { it.role == Role.GAP })
+        }
+        // Only the pad moves.
+        assertEquals(a.surfaces(View.SIDE)[Surface.FOOT_PLATE], b.surfaces(View.SIDE)[Surface.FOOT_PLATE])
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, a)), Scene(standing(), listOf(Floor, b))), setOf(Role.BODY, Role.EQUIPMENT))
+    }
+
+    @Test
+    fun leverSquatMachine_leverFromThePivot_yokeDrawnInFront_noSurfaces() {
+        val m = LeverSquatMachine(pivot = Point(-120.0, -100.0), pad = Point(0.0, -150.0))
+        assertEquals(emptyMap(), m.surfaces(View.SIDE))
+        assertEquals(emptyList(), m.solids(View.SIDE))
+        val lever = m.draw(View.SIDE, null).map { it.shape }.filterIsInstance<Capsule>().single { it.x1 == -120.0 && it.y1 == -100.0 && it.x2 == 0.0 }
+        assertEquals(-150.0, lever.y2)
+        val yoke = m.drawFront(View.SIDE).map { it.shape }.filterIsInstance<Circle>()
+        assertEquals(setOf(Role.GAP, Role.EQUIPMENT), yoke.map { it.role }.toSet())
+        assertTrue(yoke.all { it.cx == 0.0 && it.cy == -150.0 })
+        assertEquals(emptyList(), m.drawFront(View.FRONT))
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT))
+    }
+
+    @Test
+    fun legExtensionMachine_seatBackPadAndRollers_leverDrawnInFront() {
+        val pose = Pose(5.0, -62.0, 105.0, nearArm = Arm(0.0, 0.0), nearLeg = Leg(72.0, 90.0))
+        val s = pose.skeleton()
+        val roller = s.near.ankle + Point(10.0, -5.0)
+        val one = LegExtensionMachine(seatFront = 40.0, seatHeight = 52.0, backAngle = 75.0, pivot = s.near.knee, roller = roller, handle = Point(17.0, -56.0))
+        val two = one.copy(farRoller = roller + Point(0.0, 20.0))
+        assertEquals(setOf(Surface.SEAT, Surface.BACK_PAD, Surface.SHIN_PAD), one.surfaces(View.SIDE).keys)
+        assertEquals(1, one.surfaces(View.SIDE).getValue(Surface.SHIN_PAD).size)
+        assertEquals(2, two.surfaces(View.SIDE).getValue(Surface.SHIN_PAD).size)
+        assertEquals(-52.0, one.surfaces(View.SIDE).getValue(Surface.SEAT).single().let { it.cy - it.thickness / 2 }, 1e-9)
+        val lever = one.drawFront(View.SIDE).map { it.shape }.filterIsInstance<Capsule>().single { it.role == Role.EQUIPMENT }
+        assertEquals(s.near.knee, Point(lever.x1, lever.y1))
+        assertEquals(roller, Point(lever.x2, lever.y2))
+        // The far roller is drawn behind the body, with the machine.
+        assertTrue(two.draw(View.SIDE, null).map { it.shape }.any { it is Circle && it.cy == roller.y + 20.0 })
+        assertRenders(figureOf(View.SIDE, Scene(pose, listOf(Floor, two))), setOf(Role.BODY, Role.EQUIPMENT))
+    }
+
+    @Test
+    fun pushSled_handlePostHeld_platesInTheAccent() {
+        val sled = PushSled(x = 40.0)
+        val post = sled.surfaces(View.SIDE).getValue(Surface.SLED_HANDLE).single()
+        assertTrue(Surface.SLED_HANDLE.grip)
+        assertEquals(-sled.handleTop, post.cy - post.thickness / 2, 1e-9)
+        assertEquals(emptyList(), sled.solids(View.SIDE))
+        val roles = sled.draw(View.SIDE, null).map { it.shape.role }.toSet()
+        assertTrue(roles.containsAll(setOf(Role.EQUIPMENT, Role.ACCENT, Role.ACCENT_FILL)))
+        // A grip on the post holds; one 10 cm off it does not.
+        val reach = Point(40.0, -110.0)
+        val hands = listOf(Contact(BodyPoint.HANDS, Surface.SLED_HANDLE, ALL))
+        fun at(x: Double): Pose {
+            val base = standing()
+            val sh = base.skeleton().shoulder
+            val arm = Reach.arm(sh, Point(x, reach.y), 90.0)
+            return base.copy(nearArm = arm, farArm = arm)
+        }
+        assertEquals(emptyList(), contactProblems(figureOf(View.SIDE, Scene(at(40.0), listOf(Floor, sled)), contacts = hands)))
+        assertTrue(contactProblems(figureOf(View.SIDE, Scene(at(30.0), listOf(Floor, sled)), contacts = hands)).isNotEmpty())
+    }
+
+    @Test
+    fun barbellInTheCrook_centredInsideTheElbowBend_otherHoldsUnchanged() {
+        val pose = standing(arm = Arm(shoulder = 25.0, elbow = 140.0))
+        val s = pose.skeleton()
+        val c = Barbell(BarHold.CROOK).center(s)
+        // Between the upper arm and the forearm, a forearm's half width and the shaft (plus 1 cm) from the elbow.
+        assertEquals(Body.FOREARM_WIDTH / 2 + Barbell.SHAFT_RADIUS + 1.0, (c - s.near.elbow).length(), 1e-9)
+        assertTrue(c.y < s.near.elbow.y, "above the elbow, inside the bend")
+        assertEquals(s.near.grip, Barbell(BarHold.HANDS).center(s))
+        // Not a two-handed grip: the hands may be crossed in front, apart.
+        assertEquals(emptyList(), problems(figureOf(View.SIDE, Scene(pose, listOf(Floor, Barbell(BarHold.CROOK))))).filter { it.message.startsWith("held") })
+    }
+
+    @Test
+    fun feetOffFloor_passesInTheAir_failsOnTheFloor() {
+        val ground = figureOf(View.SIDE, Scene(standing(), listOf(Floor)), checks = listOf(FeetOffFloor(10.0, Which.START)))
+        assertTrue(problems(ground).any { it.message.startsWith("feet ") && it.message.contains("cm off the floor, needs 10") }, problems(ground).toString())
+        val air = figureOf(View.SIDE, Scene(standing(lift = 15.0), listOf(Floor)), checks = listOf(FeetOffFloor(10.0, Which.START)))
+        assertEquals(emptyList(), problems(air).filter { it.message.startsWith("feet") })
+        val low = figureOf(View.SIDE, Scene(standing(lift = 5.0), listOf(Floor)), checks = listOf(FeetOffFloor(10.0, Which.START)))
+        assertTrue(problems(low).any { it.message.startsWith("feet 5") })
+    }
 }

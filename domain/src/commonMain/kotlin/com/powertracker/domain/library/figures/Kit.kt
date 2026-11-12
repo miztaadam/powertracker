@@ -66,9 +66,10 @@ data class PowerRack(
 
 /**
  * How a barbell is held: in the hands, across the upper back, or in the front rack (resting on the front of the
- * shoulders, on top of the forward-pointing upper arms, as in a front squat).
+ * shoulders, on top of the forward-pointing upper arms, as in a front squat), or in the crook of the elbows (a Zercher
+ * squat, Task 10: KitQuads.kt [crookOf]).
  */
-enum class BarHold { HANDS, UPPER_BACK, FRONT_RACK }
+enum class BarHold { HANDS, UPPER_BACK, FRONT_RACK, CROOK }
 
 /** An Olympic barbell loaded with 45 cm plates. */
 data class Barbell(val on: BarHold = BarHold.HANDS) : HeldProp {
@@ -112,7 +113,8 @@ data object TrapBar : HeldProp {
 
 /**
  * A plyo or squat box behind the lifter, centred at [x], its top [height] above the floor, [depth] front to back. A
- * typical sturdy box (about 50 cm deep), kept neutral; the height is set per figure to the target depth.
+ * typical sturdy box (about 50 cm deep), kept neutral; the height is set per figure to the target depth. Task 10 also
+ * uses it as the step-up box in front of or beside the lifter (in a front view [depth] is its width across).
  */
 data class SquatBox(val x: Double, val height: Double, val depth: Double = 50.0) : FixedProp
 
@@ -399,6 +401,10 @@ internal fun FixedProp.surfaces(view: View): Map<Surface, List<Slab>> = when (th
     is ParallelHandles -> mapOf(Surface.PULL_UP_BAR to listOf(handleSlab()))
     is PulloverMachine -> parts().let { (seat, back) -> mapOf(Surface.SEAT to listOf(seat), Surface.BACK_PAD to listOf(back)) }
     is HyperBench -> mapOf(Surface.THIGH_PAD to listOf(padSlab()), Surface.FOOT_PLATE to listOf(plateSlab()), Surface.LEG_BRACE to listOf(rollerSlab()))
+    is HackSquatMachine -> mapOf(Surface.BACK_PAD to listOf(padSlab()), Surface.FOOT_PLATE to listOf(plateSlab()))
+    is LeverSquatMachine -> emptyMap()
+    is LegExtensionMachine -> mapOf(Surface.SEAT to listOf(seatSlab()), Surface.BACK_PAD to listOf(backSlab()), Surface.SHIN_PAD to rollerSlabs())
+    is PushSled -> mapOf(Surface.SLED_HANDLE to listOf(postSlab()))
     is PullUpBar -> mapOf(
         Surface.PULL_UP_BAR to listOf(if (view == View.SIDE) Slab(x, -height, 2 * PullUpBar.RADIUS, 2 * PullUpBar.RADIUS) else Slab(x, -height, 120.0, 2 * PullUpBar.RADIUS)),
     )
@@ -446,6 +452,9 @@ internal fun FixedProp.solids(view: View): List<Solid> = when (this) {
     is PulloverMachine -> parts().toList().map { Solid("machine", it, false) }
     is HyperBench -> listOf(padSlab(), plateSlab(), rollerSlab()).map { Solid("bench", it, stopsArms = false) }
     is DeclineBench -> solidsOf()
+    is HackSquatMachine -> listOf(Solid("machine", padSlab(), stopsArms = false), Solid("foot plate", plateSlab(), stopsArms = false))
+    is LegExtensionMachine -> listOf(Solid("machine", seatSlab(), stopsArms = false), Solid("machine", backSlab(), stopsArms = false))
+    is LeverSquatMachine, is PushSled -> emptyList()
     is PressMachine -> parts().toList().map { Solid("machine", it, false) }
     // Front-view seats: the seated legs are in front of them.
     is PecDeck, is Seat, is LateralRaiseMachine -> emptyList()
@@ -574,6 +583,10 @@ internal fun FixedProp.draw(view: View, held: Point?, s: Skeleton? = null): List
         is ChestPlate -> drawOf(s)
         is Spotter -> drawOf()
         is SmithMachine -> drawOf()
+        is HackSquatMachine -> drawOf()
+        is LeverSquatMachine -> drawOf()
+        is LegExtensionMachine -> drawOf()
+        is PushSled -> drawOf()
         is PressMachine -> drawOf(s?.near?.grip)
         is PecDeck -> drawOf(s?.near?.grip, s?.far?.grip)
         is LateralRaiseMachine -> drawOf()
@@ -619,6 +632,9 @@ internal fun FixedProp.drawFront(view: View, held: Point? = null, s: Skeleton? =
     this is DipBelt -> drawFrontOf(s)
     view == View.SIDE && this is PulloverMachine -> drawFrontOf(s)
     view == View.SIDE && this is ArmPadMachine -> drawFrontOf(s)
+    view == View.SIDE && this is HackSquatMachine -> drawFrontOf()
+    view == View.SIDE && this is LeverSquatMachine -> drawFrontOf()
+    view == View.SIDE && this is LegExtensionMachine -> drawFrontOf()
     view == View.FRONT && this is LateralRaiseMachine -> drawFrontOf(s)
     view == View.FRONT && this is PecDeck -> drawFrontOf()
     // Front view: the thigh pad's roller lies on top of the thighs, in front of the torso.
@@ -652,6 +668,7 @@ internal fun HeldProp.center(s: Skeleton): Point = when (this) {
         BarHold.FRONT_RACK ->
             if (s.view == View.SIDE) s.onTorso(Segment.TORSO.length + FRONT_RACK_UP, FRONT_RACK_FRONT)
             else s.onTorso(Segment.TORSO.length + FRONT_RACK_UP, 0.0)
+        BarHold.CROOK -> crookOf(s)
     }
     SafetySquatBar ->
         if (s.view == View.SIDE) s.onTorso(Segment.TORSO.length - 2.0, -(Body.TORSO_RADIUS + SafetySquatBar.PAD_RADIUS))

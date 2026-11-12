@@ -46,7 +46,7 @@ import com.powertracker.domain.library.figures.skeleton
 // the bar moves in the sagittal plane. Every position a guide does not fix is sourced in its comment, or kept neutral.
 
 /** The bar's shaft centre when it rests across the upper back (Kit.kt), for a torso at [torso] rising from [pelvis]. */
-private fun barOnBack(pelvis: Point, torso: Double): Point =
+internal fun barOnBack(pelvis: Point, torso: Double): Point =
     pelvis + unit(torso) * (Segment.TORSO.length - 4.0) + unit(torso + 90.0) * (Body.TORSO_RADIUS + Barbell.SHAFT_RADIUS)
 
 /**
@@ -67,7 +67,7 @@ private fun barOnBack(pelvis: Point, torso: Double): Point =
  *   its elbow is fully bent (Poses.kt MAX_ELBOW), a few cm behind the bar, inside the plate.
  * - Rack (guide's safety line): J-hooks just below shoulder height; safety arms 6 cm under the bar's lowest point.
  */
-private val squat: ExerciseFigure by lazy {
+internal val squat: ExerciseFigure by lazy {
     val ankleX = 0.0
     val standLeg = standingLeg(ankleX, shinLean = 4.0, knee = 0.0, torso = 78.0)
     val standTorso = 78.0
@@ -273,7 +273,7 @@ private fun circleMeet(a: Point, ra: Double, b: Point, rb: Double): Point {
 // own guide changes. Shared solvers below keep the body balanced the same way the parent does.
 
 /** The middle of the near foot, for a foot flat with its ankle joint at [ankleX] (the point BarOverMidfoot uses). */
-private fun midfootX(ankleX: Double): Double {
+internal fun midfootX(ankleX: Double): Double {
     val s = standOn(standingLeg(ankleX, 0.0, 0.0, 90.0), 90.0, Arm(0.0, 0.0)).skeleton()
     return (s.near.heel.x + s.near.toe.x) / 2
 }
@@ -282,7 +282,7 @@ private fun midfootX(ankleX: Double): Double {
  * The torso angle (in [range], 0.1° steps) that puts [load] over the middle of the foot for a lifter standing on [leg]:
  * the squat's own balance rule (BarOverMidfoot), solved instead of hand-tuned.
  */
-private fun balancedTorso(leg: StandingLeg, range: ClosedFloatingPointRange<Double>, load: (Point, Double) -> Point): Double {
+internal fun balancedTorso(leg: StandingLeg, range: ClosedFloatingPointRange<Double>, load: (Point, Double) -> Point): Double {
     val mid = midfootX(leg.ankle.x)
     var best = range.start
     var t = range.start
@@ -294,17 +294,17 @@ private fun balancedTorso(leg: StandingLeg, range: ClosedFloatingPointRange<Doub
 }
 
 /** The knee bend that puts the hip [below] cm under the knee for a shin leaning [shinLean]° (squat depth). */
-private fun kneeForDepth(shinLean: Double, below: Double): Double =
+internal fun kneeForDepth(shinLean: Double, below: Double): Double =
     90.0 + shinLean + kotlin.math.asin(below / Segment.THIGH.length) * 180 / kotlin.math.PI
 
 private const val BAR_ON_BACK_LINE = "Step under the bar and rest it across your upper back."
 
 /** The back-squat pose with the bar across the upper back: the squat's turned-out arms. */
-private fun backSquatPose(leg: StandingLeg, torso: Double): Pose =
+internal fun backSquatPose(leg: StandingLeg, torso: Double): Pose =
     standOn(leg, torso, armTo(shoulderOf(leg.hip, torso), barOnBack(leg.hip, torso), torso, turnedOut = true))
 
 /** The squat's rack: J-hooks 8 cm under the bar's top position, safety arms 6 cm under its lowest. */
-private fun squatRack(barTop: Point, barLow: Point) =
+internal fun squatRack(barTop: Point, barLow: Point) =
     rackInFront(barTop.x, jHookHeight = -barTop.y - 8.0, safetyHeight = -barLow.y - Barbell.SHAFT_RADIUS - 6.0)
 
 /**
@@ -390,7 +390,7 @@ private val tempoSquat: ExerciseFigure by lazy {
  */
 private const val FRONT_RACK_FOREARM_OUT = 45.0
 
-private val frontSquat: ExerciseFigure by lazy {
+internal val frontSquat: ExerciseFigure by lazy {
     val front = Barbell(BarHold.FRONT_RACK)
     fun rackBar(pelvis: Point, torso: Double) = pelvis + unit(torso) * (Segment.TORSO.length + 6.5) + unit(torso - 90.0) * 9.0
     val standLeg = standingLeg(0.0, 0.0, 0.0, 90.0)
