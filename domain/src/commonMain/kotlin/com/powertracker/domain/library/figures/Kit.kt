@@ -64,8 +64,11 @@ data class PowerRack(
     val lifterLeft: Boolean = false,
 ) : FixedProp
 
-/** How a barbell is held. */
-enum class BarHold { HANDS, UPPER_BACK }
+/**
+ * How a barbell is held: in the hands, across the upper back, or in the front rack (resting on the front of the
+ * shoulders, on top of the forward-pointing upper arms, as in a front squat).
+ */
+enum class BarHold { HANDS, UPPER_BACK, FRONT_RACK }
 
 /** An Olympic barbell loaded with 45 cm plates. */
 data class Barbell(val on: BarHold = BarHold.HANDS) : HeldProp {
@@ -75,6 +78,68 @@ data class Barbell(val on: BarHold = BarHold.HANDS) : HeldProp {
         const val SLEEVE_RADIUS = 2.5
         const val LENGTH = 220.0
         const val INNER_COLLARS = 131.0
+    }
+}
+
+/**
+ * A safety squat bar across the upper back: a padded yoke over the shoulders, two handles that come forward over the
+ * shoulders to the hands in front of the chest, and sleeves cambered down and a little forward, so the plates hang
+ * [CAMBER] below and [CAMBER_FORWARD] in front of the yoke. Sizes are a typical, manufacturer-neutral bar: handles
+ * reaching about 37 cm from the yoke, a 15 cm camber drop, and 45 cm plates. The plates are the load the lifter
+ * balances over the mid-foot ([safetyBarLoad]).
+ */
+data object SafetySquatBar : HeldProp {
+    const val CAMBER = 15.0
+
+    /** How far forward of the yoke the cambered sleeves carry the plates (some bars angle them forward; neutral). */
+    const val CAMBER_FORWARD = 8.0
+    const val PAD_RADIUS = 5.0
+
+    /** The handle end in the torso's frame: [HANDLE_BELOW] under the shoulder joint along the torso, [HANDLE_FRONT] in front of it. */
+    const val HANDLE_BELOW = 12.0
+    const val HANDLE_FRONT = 24.0
+}
+
+/**
+ * A trap (hex) bar in both hands. The lifter stands inside the hexagonal frame, holding its two side handles, so the
+ * handles and the sleeves' line are beside the legs. Seen from the side, the frame is a level bar [FRAME] long front
+ * to back at the handles' height, with the plates on the sleeves level with the handles. A typical,
+ * manufacturer-neutral bar: a frame about 65 cm deep inside, low handles at the frame's height, 45 cm plates.
+ */
+data object TrapBar : HeldProp {
+    const val FRAME = 65.0
+}
+
+/**
+ * A plyo or squat box behind the lifter, centred at [x], its top [height] above the floor, [depth] front to back. A
+ * typical sturdy box (about 50 cm deep), kept neutral; the height is set per figure to the target depth.
+ */
+data class SquatBox(val x: Double, val height: Double, val depth: Double = 50.0) : FixedProp
+
+/**
+ * A low platform the lifter stands on for a deficit pull, centred at [x], [height] tall, [length] front to back. The
+ * plates stay on the floor beside it. A typical sturdy platform, kept neutral; 5 cm (2 in) is the common deficit.
+ */
+data class DeficitPlatform(val x: Double, val height: Double = 5.0, val length: Double = 60.0) : FixedProp
+
+/**
+ * Pulling blocks under the bar's plates, centred at [x], [height] tall, [length] front to back (about the plates'
+ * 45 cm or a little less, so they sit under the plates only). Typical stacked blocks, kept neutral; ExRx's block
+ * pull gives 5, 10 or 15 cm.
+ */
+data class PullingBlocks(val x: Double, val height: Double, val length: Double = 42.0) : FixedProp
+
+/**
+ * Bench-press boards held on the chest: [boards] lengths of 2×6 timber (3.8 cm thick each, the common board) stacked
+ * on the chest, centred at [x], their underside at [bottom] (world y, the chest's surface), [LENGTH] long along the
+ * body. One "2-board" stack is the typical size; the sizes are neutral.
+ */
+data class BenchBoards(val x: Double, val bottom: Double, val boards: Int = 2) : FixedProp {
+    val thickness: Double get() = boards * BOARD
+
+    companion object {
+        const val BOARD = 3.8
+        const val LENGTH = 30.0
     }
 }
 
@@ -259,7 +324,12 @@ private fun legPressCarriage(p: LegPress45) = legPressRailStart(p) + dir(LegPres
 internal fun FixedProp.surfaces(view: View): Map<Surface, List<Slab>> = when (this) {
     Floor -> mapOf(Surface.FLOOR to listOf(FLOOR_SLAB))
     is FlatBench -> mapOf(Surface.BENCH to listOf(benchPad(view)))
-    is PowerRack, is CableStack -> emptyMap()
+    is PowerRack -> mapOf(Surface.SAFETY_ARM to safetyArms(view))
+    is CableStack -> emptyMap()
+    is SquatBox -> mapOf(Surface.BOX to listOf(boxSlab()))
+    is DeficitPlatform -> mapOf(Surface.PLATFORM to listOf(Slab.box(x - length / 2, -height, x + length / 2, 0.0)))
+    is PullingBlocks -> mapOf(Surface.BLOCK to listOf(Slab.box(x - length / 2, -height, x + length / 2, 0.0)))
+    is BenchBoards -> mapOf(Surface.BOARD to listOf(boardSlab()))
     is LatPulldownSeat -> mapOf(
         Surface.SEAT to listOf(Slab(x, -seatHeight + 3.5, 44.0, 7.0)),
         Surface.THIGH_PAD to listOf(Slab(padX, -padHeight, 0.0, 0.0, radius = LatPulldownSeat.PAD_RADIUS)),
@@ -272,6 +342,21 @@ internal fun FixedProp.surfaces(view: View): Map<Surface, List<Slab>> = when (th
         Surface.PULL_UP_BAR to listOf(if (view == View.SIDE) Slab(x, -height, 2 * PullUpBar.RADIUS, 2 * PullUpBar.RADIUS) else Slab(x, -height, 120.0, 2 * PullUpBar.RADIUS)),
     )
 }
+
+private fun SquatBox.boxSlab() = Slab.box(x - depth / 2, -height, x + depth / 2, 0.0)
+
+private fun BenchBoards.boardSlab() = Slab.box(x - BenchBoards.LENGTH / 2, bottom - thickness, x + BenchBoards.LENGTH / 2, bottom)
+
+/** The safety arms' tops as slabs: in the side view one arm from behind the posts to its tip, in the front view one per post. */
+private fun PowerRack.safetyArms(view: View): List<Slab> =
+    if (view == View.SIDE) {
+        val m = if (lifterLeft) -1.0 else 1.0
+        val a = x + m * -14.0
+        val b = x + m * armLength
+        listOf(Slab.box(min(a, b), -safetyHeight, max(a, b), -safetyHeight + 4.0))
+    } else {
+        listOf(-1.0, 1.0).map { s -> (x + s * 60.0).let { px -> Slab.box(min(px, px - s * 10.0), -safetyHeight, max(px, px - s * 10.0), -safetyHeight + 4.0) } }
+    }
 
 private fun FlatBench.benchPad(view: View): Slab =
     if (view == View.SIDE) Slab.box(x, -height, x + length, -height + FlatBench.PAD)
@@ -288,7 +373,10 @@ internal fun FixedProp.solids(view: View): List<Solid> = when (this) {
             listOf(Slab.box(lx - 2.5, -height + FlatBench.PAD, lx + 2.5, 0.0), Slab.box(lx - 12.0, -3.0, lx + 12.0, 0.0))
         }
         ).map { Solid("bench", it, stopsArms = false, stopsNearLimbs = !nearLimbsBeside) }
-    is PowerRack, is CableStack, is PullUpBar -> emptyList()
+    is PowerRack, is CableStack, is PullUpBar, is PullingBlocks, is BenchBoards -> emptyList()
+    // The box stops the body (it is behind the legs, under the hips); the platform stops the feet like the floor.
+    is SquatBox -> listOf(Solid("box", boxSlab(), stopsArms = false))
+    is DeficitPlatform -> surfaces(view).values.flatten().map { Solid("platform", it, stopsArms = true) }
     is LatPulldownSeat -> surfaces(view).values.flatten().map { Solid("lat pulldown", it, false) }
     is LegPress45 -> surfaces(view).values.flatten().map { Solid("leg press", it, false) }
     is AdjustableBench -> surfaces(view).values.flatten().map { Solid("bench", it, false) } +
@@ -337,6 +425,19 @@ internal fun FixedProp.draw(view: View, held: Point?): List<Placed> {
             add(eq(RoundRect(e, x - 7.0, -62.0, 14.0, 50.0, 2.0)))
             val end = held ?: (pulley + Point(0.0, 40.0))
             add(eq(capsule(e, pulley, end, 0.8)))
+        }
+        is SquatBox -> listOf(eq(RoundRect(e, x - depth / 2, -height, depth, height - 0.75, 2.0)))
+        is DeficitPlatform -> listOf(eq(RoundRect(e, x - length / 2, -height, length, height - 0.75, 1.0)))
+        is PullingBlocks -> listOf(eq(RoundRect(e, x - length / 2, -height, length, height - 0.75, 1.0)))
+        is BenchBoards -> boardSlab().let { b ->
+            // One board above the other, set off by a gap line, so the stack reads as boards and not a block.
+            buildList {
+                for (i in 0 until boards) {
+                    val top = bottom - (i + 1) * BenchBoards.BOARD
+                    add(eq(RoundRect(Role.GAP, b.cx - b.length / 2 - 0.5, top - 0.5, b.length + 1.0, BenchBoards.BOARD + 1.0, 1.0)))
+                    add(eq(RoundRect(e, b.cx - b.length / 2, top, b.length, BenchBoards.BOARD - 0.4, 0.8)))
+                }
+            }
         }
         is LatPulldownSeat -> buildList {
             add(eq(RoundRect(e, x - 22.0, -seatHeight, 44.0, 7.0, 2.5)))
@@ -415,10 +516,33 @@ internal fun HeldProp.center(s: Skeleton): Point = when (this) {
         BarHold.UPPER_BACK ->
             if (s.view == View.SIDE) s.onTorso(Segment.TORSO.length - 4.0, -(Body.TORSO_RADIUS + Barbell.SHAFT_RADIUS))
             else s.onTorso(Segment.TORSO.length - 4.0, 0.0)
+        BarHold.FRONT_RACK ->
+            if (s.view == View.SIDE) s.onTorso(Segment.TORSO.length + FRONT_RACK_UP, FRONT_RACK_FRONT)
+            else s.onTorso(Segment.TORSO.length + FRONT_RACK_UP, 0.0)
     }
+    SafetySquatBar ->
+        if (s.view == View.SIDE) s.onTorso(Segment.TORSO.length - 2.0, -(Body.TORSO_RADIUS + SafetySquatBar.PAD_RADIUS))
+        else s.onTorso(Segment.TORSO.length - 2.0, 0.0)
+    TrapBar -> grips(s)
     is Dumbbell -> s.side(hand).grip
     LatBar -> grips(s)
 }
+
+/**
+ * The front rack: the bar on the front of the shoulders, [FRONT_RACK_UP] above the shoulder joint along the torso and
+ * [FRONT_RACK_FRONT] in front of it, where it sits on the forward-pointing upper arms (drawn 10 cm thick) in front of
+ * the throat. A neutral drawing estimate.
+ */
+internal const val FRONT_RACK_UP = 6.5
+internal const val FRONT_RACK_FRONT = 9.0
+
+/** Where a safety squat bar's plates hang: below and in front of the yoke (see [SafetySquatBar]). */
+internal fun safetyBarLoad(s: Skeleton): Point =
+    SafetySquatBar.center(s) + Point(SafetySquatBar.CAMBER_FORWARD, SafetySquatBar.CAMBER)
+
+/** Where a safety squat bar's handles end, in the hands: in front of the chest (see [SafetySquatBar]). */
+internal fun safetyBarHandle(s: Skeleton): Point =
+    s.onTorso(Segment.TORSO.length - SafetySquatBar.HANDLE_BELOW, SafetySquatBar.HANDLE_FRONT)
 
 private fun grips(s: Skeleton): Point = if (s.view == View.SIDE) s.near.grip else (s.near.grip + s.far.grip) * 0.5
 
@@ -448,6 +572,29 @@ internal fun HeldProp.draw(s: Skeleton): List<Placed> {
                     add(RoundRect(a, px - 1.0, c.y - Barbell.PLATE_DIAMETER / 2, 2.0, Barbell.PLATE_DIAMETER, 1.0))
                 }
             }
+        }
+        SafetySquatBar -> {
+            val r = Barbell.PLATE_DIAMETER / 2
+            val plates = safetyBarLoad(s)
+            val handle = safetyBarHandle(s)
+            listOf(
+                Circle(f, plates.x, plates.y, r),
+                ring(a, plates.x, plates.y, r, r - 1.3),
+                ring(a, plates.x, plates.y, 5.5, 4.6),
+                Circle(a, plates.x, plates.y, Barbell.SLEEVE_RADIUS),
+                capsule(a, c, plates, 2 * Barbell.SHAFT_RADIUS),
+                Circle(Role.EQUIPMENT, c.x, c.y, SafetySquatBar.PAD_RADIUS),
+                capsule(a, c, handle, 3.0),
+            )
+        }
+        TrapBar -> {
+            val r = Barbell.PLATE_DIAMETER / 2
+            listOf(
+                Circle(f, c.x, c.y, r),
+                ring(a, c.x, c.y, r, r - 1.3),
+                capsule(a, Point(c.x - TrapBar.FRAME / 2, c.y), Point(c.x + TrapBar.FRAME / 2, c.y), 2 * Barbell.SHAFT_RADIUS),
+                Circle(a, c.x, c.y, Barbell.SLEEVE_RADIUS),
+            )
         }
         is Dumbbell -> if (side) {
             listOf(

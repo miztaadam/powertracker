@@ -288,4 +288,80 @@ class KitTest {
         assertEquals(2 * 37 * 2, r.points.size)
         assertEquals(Bounds(-5.0, -5.0, 5.0, 5.0), r.bounds().let { b -> Bounds(round1(b.minX), round1(b.minY), round1(b.maxX), round1(b.maxY)) })
     }
+    @Test
+    fun squatBox_holdsTheHips_andStopsTheBody() {
+        val pelvis = Point(-30.0, -50.0)
+        val legs = Reach.leg(pelvis, Point(0.0, -Body.ANKLE_HEIGHT), torso = 45.0, foot = 0.0)
+        val pose = Pose(pelvis.x, pelvis.y, 45.0, nearArm = Arm(0.0, 0.0), nearLeg = legs)
+        fun figure(boxHeight: Double) = figureOf(
+            View.SIDE, Scene(pose, listOf(Floor, SquatBox(x = pelvis.x - 5.0, height = boxHeight))),
+            contacts = listOf(Contact(BodyPoint.HIPS, Surface.BOX, ALL), Contact(BodyPoint.FEET, Surface.FLOOR, ALL)),
+        )
+        val sitting = figure(-pelvis.y - Body.TORSO_RADIUS)
+        assertRenders(sitting, setOf(Role.BODY, Role.EQUIPMENT))
+        assertEquals(emptyList(), problems(sitting))
+        assertEquals(setOf("contact HIPS on BOX"), contactProblems(figure(30.0)).map { it.message.substringBefore(":") }.toSet())
+        assertTrue(problems(figure(48.0)).any { "through the box" in it.message })
+    }
+
+    @Test
+    fun deficitPlatform_holdsTheFeet_platesOnTheFloorBeside() {
+        val pose = standing(lift = 5.0)
+        val feet = listOf(Contact(BodyPoint.FEET, Surface.PLATFORM, ALL))
+        val on = figureOf(View.SIDE, Scene(pose, listOf(Floor, DeficitPlatform(x = 5.0))), contacts = feet)
+        assertRenders(on, setOf(Role.BODY, Role.EQUIPMENT))
+        assertEquals(emptyList(), problems(on))
+        assertEquals(4, contactProblems(figureOf(View.SIDE, Scene(standing(lift = 9.0), listOf(Floor, DeficitPlatform(x = 5.0))), contacts = feet)).size)
+        // Standing on the floor through it is caught.
+        assertTrue(problems(figureOf(View.SIDE, Scene(standing(), listOf(Floor, DeficitPlatform(x = 5.0))))).any { "through the platform" in it.message })
+    }
+
+    @Test
+    fun pullingBlocksAndBenchBoards_drawAtTheirSizes() {
+        val blocks = PullingBlocks(x = 10.0, height = 10.0)
+        val box = blocks.draw(View.SIDE, null).single().shape as RoundRect
+        assertEquals(42.0, box.w, 1e-9) // a little narrower than the 45 cm plates
+        assertEquals(-10.0, box.y, 1e-9)
+        assertEquals(-10.0, blocks.surfaces(View.SIDE).getValue(Surface.BLOCK).single().let { it.cy - it.thickness / 2 }, 1e-9)
+
+        val boards = BenchBoards(x = 60.0, bottom = -65.0)
+        assertEquals(7.6, boards.thickness, 1e-9)
+        val drawn = boards.draw(View.SIDE, null).map { it.shape as RoundRect }
+        assertEquals(2, drawn.count { it.role == Role.EQUIPMENT }) // two boards, each set off by a gap outline
+        assertEquals(2, drawn.count { it.role == Role.GAP })
+        val top = boards.surfaces(View.SIDE).getValue(Surface.BOARD).single()
+        assertEquals(-65.0 - 7.6, top.cy - top.thickness / 2, 1e-9)
+        assertEquals(BenchBoards.LENGTH, top.length, 1e-9)
+    }
+
+    @Test
+    fun safetyBarTrapBarAndFrontRack_renderAndSitWhereTheyShould() {
+        val s = standing().skeleton()
+        // The safety bar: yoke behind the neck, plates hanging lower, handles in front of the chest, all in the accent.
+        val ssb = SafetySquatBar.draw(s).map { it.shape }
+        assertTrue(SafetySquatBar.center(s).x < s.shoulder.x && SafetySquatBar.center(s).y > s.shoulder.y - 5.0)
+        assertTrue(safetyBarLoad(s).y > SafetySquatBar.center(s).y + 10.0)
+        assertTrue(safetyBarHandle(s).x > s.shoulder.x + 15.0)
+        assertTrue(ssb.count { it.role == Role.ACCENT } >= 4 && ssb.any { it.role == Role.EQUIPMENT })
+        // The trap bar's frame runs level through the hands, front to back.
+        val frame = TrapBar.draw(s).map { it.shape }.filterIsInstance<Capsule>().single()
+        assertEquals(TrapBar.FRAME, frame.x2 - frame.x1, 1e-9)
+        assertEquals(s.near.grip.y, frame.y1, 1e-9)
+        // The front rack: in front of the shoulder joint, above it, below the chin.
+        val rack = Barbell(BarHold.FRONT_RACK).center(s)
+        assertTrue(rack.x - s.shoulder.x in 5.0..12.0 && rack.y < s.shoulder.y && rack.y > s.chin().y)
+        for (prop in listOf(SafetySquatBar, TrapBar, Barbell(BarHold.FRONT_RACK))) {
+            assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, prop))), setOf(Role.BODY, Role.ACCENT, Role.ACCENT_FILL))
+        }
+    }
+
+    @Test
+    fun powerRack_safetyArmSurface_isTheArmsTop() {
+        val rack = PowerRack(x = 100.0, jHookHeight = 140.0, safetyHeight = 80.0, armLength = 50.0, lifterLeft = true)
+        val arm = rack.surfaces(View.SIDE).getValue(Surface.SAFETY_ARM).single()
+        assertEquals(-80.0, arm.cy - arm.thickness / 2, 1e-9)
+        assertEquals(50.0, arm.cx - arm.length / 2, 1e-9) // reaching to x - armLength
+        assertEquals(114.0, arm.cx + arm.length / 2, 1e-9) // and 14 cm behind the posts
+        assertEquals(2, rack.surfaces(View.FRONT).getValue(Surface.SAFETY_ARM).size)
+    }
 }

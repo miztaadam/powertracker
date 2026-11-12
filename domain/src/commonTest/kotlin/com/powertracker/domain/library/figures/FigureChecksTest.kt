@@ -153,4 +153,93 @@ class FigureChecksTest {
         val into = pose.copy(nearArm = Arm(0.0, 0.0), farArm = Arm(0.0, 0.0))
         assertTrue(problems(near.copy(start = Scene(into, props), checks = listOf(BarNearLegs(10.0, Which.START)))).any { "into the legs" in it.message })
     }
+    @Test
+    fun barAbove_passesInItsRange_failsOnTheChest() {
+        val check = listOf(BarAbove(BodyPoint.CHEST, min = 2.0, max = 3.0, at = Which.START))
+        val above = FigureFixtures.benchDraft(barLift = 2.5).copy(checks = check)
+        assertEquals(emptyList(), problems(above))
+        val touching = problems(FigureFixtures.benchDraft().copy(checks = check))
+        assertEquals(1, touching.size, touching.toString())
+        assertTrue("above CHEST" in touching.single().message, touching.single().message)
+        assertTrue(problems(FigureFixtures.benchDraft(barLift = 5.0).copy(checks = check)).single().message.contains("needs"))
+    }
+
+    @Test
+    fun barRestsOn_pinsAndBoards_passResting_failOffThem() {
+        val draft = FigureFixtures.benchDraft(barLift = 10.0)
+        val bar = draft.start.pose.skeleton().near.grip
+        fun pins(lift: Double) = draft.copy(
+            start = draft.start.copy(props = listOf(Floor, FlatBench(), PowerRack(x = 2.0, jHookHeight = 110.0, safetyHeight = -bar.y - Barbell.SHAFT_RADIUS - lift), Barbell())),
+            checks = listOf(BarRestsOn(Surface.SAFETY_ARM, Which.START)),
+        )
+        assertEquals(emptyList(), problems(pins(0.0)))
+        assertTrue(problems(pins(4.0)).single().message.contains("off the SAFETY_ARM"))
+        // Pins too short to reach under the bar are no rest either.
+        val short = pins(0.0).let { f -> f.copy(start = f.start.copy(props = f.start.props.map { if (it is PowerRack) it.copy(armLength = 20.0) else it })) }
+        assertEquals(1, problems(short).size)
+
+        val chest = draft.start.pose.skeleton().chest()
+        fun boards(barLift: Double) = FigureFixtures.benchDraft(barLift = barLift).let { f ->
+            f.copy(start = f.start.copy(props = f.start.props + BenchBoards(chest.x, chest.y)), checks = listOf(BarRestsOn(Surface.BOARD, Which.START)))
+        }
+        assertEquals(emptyList(), problems(boards(2 * BenchBoards.BOARD)))
+        assertTrue(problems(boards(4.0)).single().message.contains("into the BOARD"))
+        // No such surface in the scene is reported, not passed.
+        assertTrue(problems(FigureFixtures.benchDraft().copy(checks = listOf(BarRestsOn(Surface.BLOCK)))).single().message.contains("no BLOCK"))
+    }
+
+    @Test
+    fun barRestsOn_blocks_platesOnTheBlocks() {
+        val pose = FigureFixtures.standing(torso = 80.0, arm = Arm(10.0, 0.0))
+        val bar = Barbell().center(pose.skeleton())
+        val rim = -bar.y - Barbell.PLATE_DIAMETER / 2
+        fun blocks(height: Double) = FigureFixtures.figureOf(
+            View.SIDE, Scene(pose, listOf(Floor, PullingBlocks(bar.x, height), Barbell())), checks = listOf(BarRestsOn(Surface.BLOCK, Which.START)),
+        )
+        assertEquals(emptyList(), problems(blocks(rim)))
+        assertTrue(problems(blocks(rim - 4.0)).single().message.contains("off the BLOCK"))
+    }
+
+    @Test
+    fun handlesBesideLegs_passesAtTheSides_failsInFront() {
+        val props = listOf(Floor, TrapBar)
+        val sides = FigureFixtures.figureOf(View.SIDE, Scene(FigureFixtures.standing(), props), checks = listOf(HandlesBesideLegs(5.5, Which.START)))
+        assertEquals(emptyList(), problems(sides))
+        val s = FigureFixtures.standing().skeleton()
+        assertEquals(0.0, FigureChecks.legLineOffset(TrapBar.center(s), s)!!, 0.01)
+        val inFront = problems(sides.copy(start = Scene(FigureFixtures.standing(arm = Arm(25.0, 0.0)), props)))
+        assertEquals(1, inFront.size, inFront.toString())
+        assertTrue("handles" in inFront.single().message, inFront.single().message)
+        // Hands above the hips are beside no leg at all.
+        val up = problems(sides.copy(start = Scene(FigureFixtures.standing(arm = Arm(90.0, 0.0)), props)))
+        assertTrue(up.single().message.contains("not beside the legs"), up.toString())
+    }
+
+    @Test
+    fun safetySquatBar_handsOnTheHandles() {
+        val base = FigureFixtures.standing()
+        val bare = base.skeleton()
+        val arm = Reach.arm(bare.shoulder, safetyBarHandle(bare), 90.0)
+        val on = FigureFixtures.figureOf(View.SIDE, Scene(base.copy(nearArm = arm, farArm = arm), listOf(Floor, SafetySquatBar)))
+        assertEquals(emptyList(), problems(on))
+        val off = problems(on.copy(start = Scene(base, listOf(Floor, SafetySquatBar))))
+        assertEquals(2, off.size, off.toString()) // both hands
+        assertTrue(off.all { "safety bar's handle" in it.message })
+        // Its plates are the load over the mid-foot, not the yoke.
+        val s = on.start.pose.skeleton()
+        assertEquals(SafetySquatBar.center(s) + Point(SafetySquatBar.CAMBER_FORWARD, SafetySquatBar.CAMBER), safetyBarLoad(s))
+    }
+    @Test
+    fun handsInsideKnees_passesBetweenWideKnees_failsOutsideThem() {
+        // Front view: knees bent out sideways, the arms hanging straight down from the shoulders.
+        val wide = Pose(0.0, -70.0, 90.0, nearArm = Arm(0.0, 0.0), nearLeg = Leg(60.0, 60.0))
+        val props = listOf(Floor, Barbell())
+        val f = FigureFixtures.figureOf(View.FRONT, Scene(wide, props), checks = listOf(HandsInsideKnees(Which.START)))
+        assertEquals(emptyList(), problems(f).filter { "inside knees" in it.message })
+        // Knees together (legs straight down): the hands are outside them.
+        val narrow = problems(f.copy(start = Scene(wide.copy(nearLeg = Leg(0.0, 0.0)), props))).filter { "inside knees" in it.message }
+        assertEquals(1, narrow.size, narrow.toString())
+        // It is a front-view check.
+        assertTrue(problems(f.copy(view = View.SIDE)).any { "front-view check" in it.message })
+    }
 }

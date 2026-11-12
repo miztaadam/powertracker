@@ -2,6 +2,8 @@ package com.powertracker.domain.library.figures
 
 import com.powertracker.domain.library.Library
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 /** One thing wrong with a figure; [which] is the panel, or null for the entry as a whole. */
 data class FigureProblem(val name: String, val which: Which?, val message: String)
@@ -110,7 +112,15 @@ object FigureChecks {
 
     private fun grips(scene: Scene, view: View, s: Skeleton): List<String> = buildList {
         for (held in scene.props.filterIsInstance<HeldProp>()) {
-            val twoHanded = (held is Barbell && held.on == BarHold.HANDS) || held is LatBar
+            if (held == SafetySquatBar) {
+                // Both hands on the handle ends (the far side's handle is the near one's mirror image).
+                for (side in Side.entries) {
+                    val off = (s.side(side).grip - safetyBarHandle(s)).length()
+                    if (off > CONTACT_TOLERANCE) add("held: the ${side.label} hand is ${round1(off)} cm off the safety bar's handle")
+                }
+                continue
+            }
+            val twoHanded = (held is Barbell && held.on == BarHold.HANDS) || held is LatBar || held == TrapBar
             if (!twoHanded) continue
             val off = if (view == View.SIDE) (s.near.grip - s.far.grip).length() else abs(s.near.grip.y - s.far.grip.y)
             if (off > CONTACT_TOLERANCE) add("held: the hands are ${round1(off)} cm apart on the bar")
@@ -122,6 +132,17 @@ object FigureChecks {
             val below = s.near.hip.y - s.near.knee.y
             return if (below < check.belowKnee) "hip depth: hip ${round1(below)} cm below the knee, needs ${check.belowKnee}" else null
         }
+        if (check is HandsInsideKnees) {
+            if (view != View.FRONT) return "hands inside knees: a front-view check"
+            val mid = (s.near.hip.x + s.far.hip.x) / 2
+            val clear = Body.HAND_WIDTH / 2 + Body.SHIN_WIDTH / 2
+            for (side in Side.entries) {
+                val l = s.side(side)
+                val room = abs(l.knee.x - mid) - abs(l.grip.x - mid)
+                if (room < clear) return "hands inside knees: the ${side.label} hand is ${round1(room)} cm inside the knee, needs $clear"
+            }
+            return null
+        }
         if (check is ChinOverBar) {
             val bar = scene.props.filterIsInstance<PullUpBar>().firstOrNull() ?: return "chin over bar: no pull-up bar in the scene"
             val barTop = -bar.height - PullUpBar.RADIUS
@@ -132,7 +153,7 @@ object FigureChecks {
             ?: return "key check $check: no bar in the scene"
         val c = bar.center(s)
         val barRadius = when (bar) {
-            is Barbell -> Barbell.SHAFT_RADIUS
+            is Barbell, SafetySquatBar, TrapBar -> Barbell.SHAFT_RADIUS
             is Dumbbell -> Dumbbell.HEAD_RADIUS
             LatBar -> 1.3
         }
@@ -153,7 +174,9 @@ object FigureChecks {
             }
             is BarOverMidfoot -> {
                 val mid = (s.near.heel + s.near.toe) * 0.5
-                if (abs(c.x - mid.x) > LINE_TOLERANCE) "bar ${round1(c.x - mid.x)} cm off the mid-foot" else null
+                // A safety squat bar's load is its cambered plates, not the yoke on the back.
+                val load = if (bar == SafetySquatBar) safetyBarLoad(s) else c
+                if (abs(load.x - mid.x) > LINE_TOLERANCE) "bar ${round1(load.x - mid.x)} cm off the mid-foot" else null
             }
             is BarNearLegs -> {
                 val gap = barToLegs(c, s)
@@ -163,7 +186,27 @@ object FigureChecks {
                     else -> null
                 }
             }
-            is HipDepth, is ChinOverBar -> null // handled above: they need no held bar
+            is BarAbove -> {
+                val gap = s.probes(check.point).minOf { distance(c, it.a, it.b) - it.radius } - barRadius
+                if (gap < check.min || gap > check.max) "bar is ${round1(gap)} cm above ${check.point}, needs ${check.min}..${check.max}" else null
+            }
+            is BarRestsOn -> {
+                val slabs = scene.props.filterIsInstance<FixedProp>().flatMap { it.surfaces(view)[check.surface].orEmpty() }
+                if (slabs.isEmpty()) return "bar rests on ${check.surface}: no ${check.surface} in the scene"
+                // The plates rest on blocks; the shaft rests on pins or boards.
+                val r = if (check.surface == Surface.BLOCK) Barbell.PLATE_DIAMETER / 2 else barRadius
+                val gap = slabs.minOf { it.signedDistance(Point(c.x, c.y + r)) }
+                if (abs(gap) > CONTACT_TOLERANCE) "bar is ${round1(gap)} cm ${if (gap > 0) "off" else "into"} the ${check.surface}" else null
+            }
+            is HandlesBesideLegs -> {
+                val off = legLineOffset(c, s)
+                when {
+                    off == null -> "handles: the grip is not beside the legs"
+                    abs(off) > check.within -> "handles ${round1(off)} cm off the legs' line, more than ${check.within}"
+                    else -> null
+                }
+            }
+            is HipDepth, is ChinOverBar, is HandsInsideKnees -> null // handled above: they need no held bar
         }
     }
 
@@ -174,6 +217,22 @@ object FigureChecks {
             distance(bar, n.hip, n.knee) - Body.THIGH_WIDTH / 2,
             distance(bar, n.knee, n.ankle) - Body.SHIN_WIDTH / 2,
         ) - Barbell.SHAFT_RADIUS
+    }
+
+    /**
+     * How far [grip] is in front of (+) or behind (-) the near leg's centre line at the grip's height, along the thigh
+     * or shin that spans that height; null when neither does.
+     */
+    internal fun legLineOffset(grip: Point, s: Skeleton): Double? {
+        val n = s.near
+        for ((a, b) in listOf(n.hip to n.knee, n.knee to n.ankle)) {
+            val lo = min(a.y, b.y)
+            val hi = max(a.y, b.y)
+            if (grip.y < lo || grip.y > hi || hi - lo < 1e-9) continue
+            val t = (grip.y - a.y) / (b.y - a.y)
+            return grip.x - (a.x + (b.x - a.x) * t)
+        }
+        return null
     }
 
     private data class Part(val label: String, val probe: Probe, val isArm: Boolean, val near: Boolean)

@@ -109,6 +109,9 @@ import {
   KProperty02ce7r476m8633 as KProperty0,
   numberRangeToNumber25vse2rgp6rs8 as numberRangeToNumber,
   coerceAtLeastklytehohcpeq as coerceAtLeast_0,
+  step18s9qzr5xwxat as step,
+  coerceAtMostfyc3emgaderp as coerceAtMost,
+  setOf1u3mizs95ngxo as setOf_0,
   singleo93pzdgfc557 as single,
   objectCreate1ve4bgxiu4x98 as objectCreate,
   LazyThreadSafetyMode_PUBLICATION_getInstance23f213579at67 as LazyThreadSafetyMode_PUBLICATION_getInstance,
@@ -230,6 +233,10 @@ initMetadataForClass(BarOverMidfoot, 'BarOverMidfoot', BarOverMidfoot);
 initMetadataForClass(HipDepth, 'HipDepth');
 initMetadataForClass(BarNearLegs, 'BarNearLegs');
 initMetadataForClass(ChinOverBar, 'ChinOverBar', ChinOverBar);
+initMetadataForClass(BarAbove, 'BarAbove');
+initMetadataForClass(BarRestsOn, 'BarRestsOn');
+initMetadataForClass(HandlesBesideLegs, 'HandlesBesideLegs');
+initMetadataForClass(HandsInsideKnees, 'HandsInsideKnees', HandsInsideKnees);
 initMetadataForClass(ExerciseFigure, 'ExerciseFigure');
 initMetadataForClass(Probe, 'Probe');
 initMetadataForClass(LimbSegment, 'LimbSegment');
@@ -245,19 +252,26 @@ initMetadataForClass(PowerRack, 'PowerRack', VOID, VOID, [FixedProp]);
 initMetadataForClass(BarHold, 'BarHold', VOID, Enum);
 initMetadataForCompanion(Companion_0);
 initMetadataForClass(Barbell, 'Barbell', Barbell, VOID, [HeldProp]);
+initMetadataForObject(SafetySquatBar, 'SafetySquatBar', VOID, VOID, [HeldProp]);
+initMetadataForObject(TrapBar, 'TrapBar', VOID, VOID, [HeldProp]);
+initMetadataForClass(SquatBox, 'SquatBox', VOID, VOID, [FixedProp]);
+initMetadataForClass(DeficitPlatform, 'DeficitPlatform', VOID, VOID, [FixedProp]);
+initMetadataForClass(PullingBlocks, 'PullingBlocks', VOID, VOID, [FixedProp]);
 initMetadataForCompanion(Companion_1);
+initMetadataForClass(BenchBoards, 'BenchBoards', VOID, VOID, [FixedProp]);
+initMetadataForCompanion(Companion_2);
 initMetadataForClass(Dumbbell, 'Dumbbell', VOID, VOID, [HeldProp]);
 initMetadataForClass(CableStack, 'CableStack', VOID, VOID, [FixedProp]);
 initMetadataForObject(LatBar, 'LatBar', VOID, VOID, [HeldProp]);
-initMetadataForCompanion(Companion_2);
-initMetadataForClass(LatPulldownSeat, 'LatPulldownSeat', VOID, VOID, [FixedProp]);
 initMetadataForCompanion(Companion_3);
-initMetadataForClass(LegPress45, 'LegPress45', VOID, VOID, [FixedProp]);
+initMetadataForClass(LatPulldownSeat, 'LatPulldownSeat', VOID, VOID, [FixedProp]);
 initMetadataForCompanion(Companion_4);
-initMetadataForClass(PullUpBar, 'PullUpBar', VOID, VOID, [FixedProp]);
+initMetadataForClass(LegPress45, 'LegPress45', VOID, VOID, [FixedProp]);
 initMetadataForCompanion(Companion_5);
-initMetadataForClass(AdjustableBench, 'AdjustableBench', VOID, VOID, [FixedProp]);
+initMetadataForClass(PullUpBar, 'PullUpBar', VOID, VOID, [FixedProp]);
 initMetadataForCompanion(Companion_6);
+initMetadataForClass(AdjustableBench, 'AdjustableBench', VOID, VOID, [FixedProp]);
+initMetadataForCompanion(Companion_7);
 initMetadataForClass(Slab, 'Slab');
 initMetadataForClass(Placed, 'Placed');
 initMetadataForClass(Role, 'Role', VOID, Enum);
@@ -270,26 +284,26 @@ initMetadataForClass(Bounds, 'Bounds');
 initMetadataForClass(StandingLeg, 'StandingLeg');
 initMetadataForClass(AdviceType, 'AdviceType', VOID, Enum);
 initMetadataForClass(AdviceStatus, 'AdviceStatus', VOID, Enum);
-initMetadataForCompanion(Companion_7);
+initMetadataForCompanion(Companion_8);
 initMetadataForObject($serializer, '$serializer', VOID, VOID, [GeneratedSerializer]);
 initMetadataForClass(AccessoryPrescription, 'AccessoryPrescription', VOID, VOID, VOID, VOID, VOID, {0: $serializer_getInstance});
-initMetadataForCompanion(Companion_8);
-initMetadataForObject($serializer_0, '$serializer', VOID, VOID, [GeneratedSerializer]);
 initMetadataForCompanion(Companion_9);
-initMetadataForObject($serializer_1, '$serializer', VOID, VOID, [GeneratedSerializer]);
+initMetadataForObject($serializer_0, '$serializer', VOID, VOID, [GeneratedSerializer]);
 initMetadataForCompanion(Companion_10);
-initMetadataForObject($serializer_2, '$serializer', VOID, VOID, [GeneratedSerializer]);
+initMetadataForObject($serializer_1, '$serializer', VOID, VOID, [GeneratedSerializer]);
 initMetadataForCompanion(Companion_11);
-initMetadataForObject($serializer_3, '$serializer', VOID, VOID, [GeneratedSerializer]);
+initMetadataForObject($serializer_2, '$serializer', VOID, VOID, [GeneratedSerializer]);
 initMetadataForCompanion(Companion_12);
+initMetadataForObject($serializer_3, '$serializer', VOID, VOID, [GeneratedSerializer]);
+initMetadataForCompanion(Companion_13);
 initMetadataForObject($serializer_4, '$serializer', VOID, VOID, [GeneratedSerializer]);
-initMetadataForInterface(AdvicePayload, 'AdvicePayload', VOID, VOID, VOID, VOID, VOID, {0: Companion_getInstance_15});
+initMetadataForInterface(AdvicePayload, 'AdvicePayload', VOID, VOID, VOID, VOID, VOID, {0: Companion_getInstance_16});
 initMetadataForClass(Target, 'Target', VOID, VOID, [AdvicePayload], VOID, VOID, {0: $serializer_getInstance_0});
 initMetadataForClass(Accessories, 'Accessories', VOID, VOID, [AdvicePayload], VOID, VOID, {0: $serializer_getInstance_1});
 initMetadataForClass(Deload, 'Deload', Deload, VOID, [AdvicePayload], VOID, VOID, {0: $serializer_getInstance_2});
 initMetadataForClass(WeakPoint, 'WeakPoint', VOID, VOID, [AdvicePayload], VOID, VOID, {0: $serializer_getInstance_3});
 initMetadataForClass(ReEntry, 'ReEntry', ReEntry, VOID, [AdvicePayload], VOID, VOID, {0: $serializer_getInstance_4});
-initMetadataForCompanion(Companion_13);
+initMetadataForCompanion(Companion_14);
 initMetadataForClass(Advice, 'Advice');
 initMetadataForClass(MainLift, 'MainLift', VOID, Enum);
 initMetadataForClass(Category, 'Category', VOID, Enum);
@@ -373,7 +387,7 @@ function AccessoryMap() {
   this.m13_1 = mapOf([to(to(MainLift_SQUAT_getInstance(), MissPoint_FLOOR_getInstance()), new Row(listOf(['Quads', 'Glutes']), listOf([heavy(this, 'Pause squat'), heavy(this, 'Front squat'), light(this, 'Bulgarian split squat')]))), to(to(MainLift_SQUAT_getInstance(), MissPoint_MID_getInstance()), new Row(listOf(['Upper back', 'Trunk']), listOf([heavy(this, 'Pin squat'), heavy(this, 'Safety-bar squat'), heavy(this, 'Front squat')]))), to(to(MainLift_SQUAT_getInstance(), MissPoint_LOCKOUT_getInstance()), new Row(listOf(['Glutes', 'Hips']), listOf([light(this, 'Hip thrust'), heavy(this, 'Box squat')]))), to(to(MainLift_BENCH_getInstance(), MissPoint_FLOOR_getInstance()), new Row(listOf(['Pecs', 'Front delts']), listOf([heavy(this, 'Spoto press'), heavy(this, 'Long-pause bench'), light(this, 'DB press')]))), to(to(MainLift_BENCH_getInstance(), MissPoint_MID_getInstance()), new Row(listOf(['Pecs', 'Triceps']), listOf([heavy(this, 'Pin press'), heavy(this, 'Larsen press')]))), to(to(MainLift_BENCH_getInstance(), MissPoint_LOCKOUT_getInstance()), new Row(listOf_0('Triceps'), listOf([heavy(this, 'Close-grip bench'), light(this, 'JM press'), heavy(this, 'Board press')]))), to(to(MainLift_DEADLIFT_getInstance(), MissPoint_FLOOR_getInstance()), new Row(listOf(['Quads', 'Lats', 'Position']), listOf([heavy(this, 'Deficit deadlift'), heavy(this, 'Paused deadlift')]))), to(to(MainLift_DEADLIFT_getInstance(), MissPoint_MID_getInstance()), new Row(listOf(['Hamstrings', 'Lats']), listOf([light(this, 'RDL'), heavy(this, 'Paused deadlift at the knee')]))), to(to(MainLift_DEADLIFT_getInstance(), MissPoint_LOCKOUT_getInstance()), new Row(listOf(['Glutes', 'Upper back']), listOf([heavy(this, 'Block pull'), light(this, 'Hip thrust'), light(this, 'RDL')]))), to(to(MainLift_STRICT_PRESS_getInstance(), MissPoint_FLOOR_getInstance()), new Row(listOf(['Front delts', 'Upper chest']), listOf([light(this, 'Seated barbell press'), light(this, 'Incline bench press'), light(this, 'Landmine press')]))), to(to(MainLift_STRICT_PRESS_getInstance(), MissPoint_MID_getInstance()), new Row(listOf(['Delts', 'Triceps']), listOf([light(this, 'DB shoulder press'), light(this, 'Arnold press'), light(this, 'One-arm DB press')]))), to(to(MainLift_STRICT_PRESS_getInstance(), MissPoint_LOCKOUT_getInstance()), new Row(listOf(['Triceps', 'Upper back']), listOf([heavy(this, 'Close-grip bench'), light(this, 'JM press'), light(this, 'DB overhead triceps extension')])))]);
   var tmp = this;
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = this.m13_1.r1();
+  var tmp0 = this.m13_1.u1();
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -540,7 +554,7 @@ function hasMinimumHistory($this, lift, stats, history) {
       var _iterator__ex2g4s = tmp0.j();
       while (_iterator__ex2g4s.k()) {
         var element = _iterator__ex2g4s.l();
-        var tmp0_safe_receiver = history.e14_1.p1(element.g14_1);
+        var tmp0_safe_receiver = history.e14_1.s1(element.g14_1);
         var tmp_1;
         if (tmp0_safe_receiver == null) {
           tmp_1 = null;
@@ -724,11 +738,11 @@ function onePerLift($this, advice) {
     var element_0 = _iterator__ex2g4s_0.l();
     var key = element_0.s13_1;
     // Inline function 'kotlin.collections.getOrPut' call
-    var value = destination_0.p1(key);
+    var value = destination_0.s1(key);
     var tmp;
     if (value == null) {
       var answer = ArrayList_init_$Create$();
-      destination_0.i2(key, answer);
+      destination_0.l2(key, answer);
       tmp = answer;
     } else {
       tmp = value;
@@ -737,7 +751,7 @@ function onePerLift($this, advice) {
     list.i(element_0);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = destination_0.r1();
+  var this_0 = destination_0.u1();
   // Inline function 'kotlin.collections.mapTo' call
   var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s_1 = this_0.j();
@@ -756,12 +770,12 @@ function onePerLift($this, advice) {
       }
       var it = minElem;
       // Inline function 'kotlin.let' call
-      var i = Coach_getInstance().d15_1.l1(it.r13_1);
+      var i = Coach_getInstance().d15_1.o1(it.r13_1);
       var minValue = i < 0 ? 2147483647 : i;
       do {
         var e = iterator.l();
         // Inline function 'kotlin.let' call
-        var i_0 = Coach_getInstance().d15_1.l1(e.r13_1);
+        var i_0 = Coach_getInstance().d15_1.o1(e.r13_1);
         var v = i_0 < 0 ? 2147483647 : i_0;
         if (compareTo(minValue, v) > 0) {
           minElem = e;
@@ -878,7 +892,7 @@ function clamp($this, target, item, exercise, stats, settings, today, deload, re
   } else {
     tmp = tmp0_elvis_lhs;
   }
-  var last = tmp.wa();
+  var last = tmp.za();
   var tmp_0 = target.w13_1;
   var payload = tmp_0 instanceof Target ? tmp_0 : THROW_CCE();
   var weight = payload.p15_1;
@@ -913,13 +927,13 @@ function clamp($this, target, item, exercise, stats, settings, today, deload, re
 function sam$kotlin_Comparator$0(function_0) {
   this.b16_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0).v9 = function (a, b) {
+protoOf(sam$kotlin_Comparator$0).y9 = function (a, b) {
   return this.b16_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0).compare = function (a, b) {
-  return this.v9(a, b);
+  return this.y9(a, b);
 };
-protoOf(sam$kotlin_Comparator$0).c2 = function () {
+protoOf(sam$kotlin_Comparator$0).f2 = function () {
   return this.b16_1;
 };
 protoOf(sam$kotlin_Comparator$0).equals = function (other) {
@@ -927,7 +941,7 @@ protoOf(sam$kotlin_Comparator$0).equals = function (other) {
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
     if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
-      tmp_0 = equals(this.c2(), other.c2());
+      tmp_0 = equals(this.f2(), other.f2());
     } else {
       tmp_0 = false;
     }
@@ -938,7 +952,7 @@ protoOf(sam$kotlin_Comparator$0).equals = function (other) {
   return tmp;
 };
 protoOf(sam$kotlin_Comparator$0).hashCode = function () {
-  return hashCode(this.c2());
+  return hashCode(this.f2());
 };
 function Coach$targetsFor$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
@@ -976,7 +990,7 @@ function clamp$capFor($stats, $item, last, $exercise, $settings, advice, factor)
   }
   var referenceDate = tmp;
   var tmp2_safe_receiver = $stats.n15($item.i15_1, referenceDate);
-  var tmp3_elvis_lhs = tmp2_safe_receiver == null ? null : tmp2_safe_receiver.ra_1;
+  var tmp3_elvis_lhs = tmp2_safe_receiver == null ? null : tmp2_safe_receiver.ua_1;
   var reference = (tmp3_elvis_lhs == null ? last : tmp3_elvis_lhs).e16_1;
   var free = ProgressionRule_getInstance().k16($exercise, reference);
   return ProgressionRule_getInstance().p16(reference * factor, reference, free, $settings.m16_1);
@@ -1029,7 +1043,7 @@ protoOf(Coach).q16 = function (history, plan, settings, today, priorAdvice) {
     var _iterator__ex2g4s = plan.j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
-      var tmp0_safe_receiver_0 = history.e14_1.p1(element.i15_1);
+      var tmp0_safe_receiver_0 = history.e14_1.s1(element.i15_1);
       if (tmp0_safe_receiver_0 == null)
         null;
       else {
@@ -1119,7 +1133,7 @@ protoOf(Coach).l17 = function (day, history, plan, settings, today, priorAdvice)
     var element_0 = _iterator__ex2g4s_0.l();
     var tmp$ret$9;
     $l$block_1: {
-      var tmp0_safe_receiver = history.e14_1.p1(element_0.i15_1);
+      var tmp0_safe_receiver = history.e14_1.s1(element_0.i15_1);
       var tmp_0;
       if (tmp0_safe_receiver == null) {
         tmp_0 = null;
@@ -1253,7 +1267,7 @@ function mainSets($this, session, history) {
   var _iterator__ex2g4s = tmp0.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    var tmp0_safe_receiver = history.e14_1.p1(element.d16_1);
+    var tmp0_safe_receiver = history.e14_1.s1(element.d16_1);
     if ((tmp0_safe_receiver == null ? null : tmp0_safe_receiver.q14()) === true) {
       destination.i(element);
     }
@@ -1265,8 +1279,8 @@ function topSet($this, sets) {
   $l$block: {
     // Inline function 'kotlin.collections.lastOrNull' call
     var iterator = sets.q(sets.o());
-    while (iterator.y2()) {
-      var element = iterator.z2();
+    while (iterator.b3()) {
+      var element = iterator.c3();
       if (element.j16_1) {
         tmp$ret$0 = element;
         break $l$block;
@@ -1341,7 +1355,7 @@ function rpeRising($this, sessions, history) {
       var _iterator__ex2g4s_1 = tmp0_0.j();
       while (_iterator__ex2g4s_1.k()) {
         var element_1 = _iterator__ex2g4s_1.l();
-        var tmp0_safe_receiver = history.e14_1.p1(element_1.d16_1);
+        var tmp0_safe_receiver = history.e14_1.s1(element_1.d16_1);
         if (equals(tmp0_safe_receiver == null ? null : tmp0_safe_receiver.r14(), element)) {
           destination_1.i(element_1);
         }
@@ -1465,7 +1479,7 @@ function lowReadiness($this, sessions, windowStart) {
   var _iterator__ex2g4s_0 = rated.j();
   while (_iterator__ex2g4s_0.k()) {
     var item = _iterator__ex2g4s_0.l();
-    var tmp$ret$11 = item.ra_1;
+    var tmp$ret$11 = item.ua_1;
     destination_0.i(tmp$ret$11);
   }
   var low = average(destination_0) <= 2.0;
@@ -1479,7 +1493,7 @@ function lowReadiness($this, sessions, windowStart) {
   var _iterator__ex2g4s_1 = rated.j();
   while (_iterator__ex2g4s_1.k()) {
     var element_0 = _iterator__ex2g4s_1.l();
-    if (element_0.qa_1.pt(midpoint) < 0) {
+    if (element_0.ta_1.pt(midpoint) < 0) {
       destination_1.i(element_0);
     }
   }
@@ -1489,7 +1503,7 @@ function lowReadiness($this, sessions, windowStart) {
   var _iterator__ex2g4s_2 = destination_1.j();
   while (_iterator__ex2g4s_2.k()) {
     var item_0 = _iterator__ex2g4s_2.l();
-    var tmp$ret$18 = item_0.ra_1;
+    var tmp$ret$18 = item_0.ua_1;
     destination_2.i(tmp$ret$18);
   }
   var earlier = destination_2;
@@ -1499,7 +1513,7 @@ function lowReadiness($this, sessions, windowStart) {
   var _iterator__ex2g4s_3 = rated.j();
   while (_iterator__ex2g4s_3.k()) {
     var element_1 = _iterator__ex2g4s_3.l();
-    if (element_1.qa_1.pt(midpoint) >= 0) {
+    if (element_1.ta_1.pt(midpoint) >= 0) {
       destination_3.i(element_1);
     }
   }
@@ -1509,7 +1523,7 @@ function lowReadiness($this, sessions, windowStart) {
   var _iterator__ex2g4s_4 = destination_3.j();
   while (_iterator__ex2g4s_4.k()) {
     var item_1 = _iterator__ex2g4s_4.l();
-    var tmp$ret$24 = item_1.ra_1;
+    var tmp$ret$24 = item_1.ua_1;
     destination_4.i(tmp$ret$24);
   }
   var later = destination_4;
@@ -1552,13 +1566,13 @@ function e1rmDown($this, stats, today) {
 function sam$kotlin_Comparator$0_0(function_0) {
   this.x17_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_0).v9 = function (a, b) {
+protoOf(sam$kotlin_Comparator$0_0).y9 = function (a, b) {
   return this.x17_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_0).compare = function (a, b) {
-  return this.v9(a, b);
+  return this.y9(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_0).c2 = function () {
+protoOf(sam$kotlin_Comparator$0_0).f2 = function () {
   return this.x17_1;
 };
 protoOf(sam$kotlin_Comparator$0_0).equals = function (other) {
@@ -1566,7 +1580,7 @@ protoOf(sam$kotlin_Comparator$0_0).equals = function (other) {
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
     if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
-      tmp_0 = equals(this.c2(), other.c2());
+      tmp_0 = equals(this.f2(), other.f2());
     } else {
       tmp_0 = false;
     }
@@ -1577,7 +1591,7 @@ protoOf(sam$kotlin_Comparator$0_0).equals = function (other) {
   return tmp;
 };
 protoOf(sam$kotlin_Comparator$0_0).hashCode = function () {
-  return hashCode(this.c2());
+  return hashCode(this.f2());
 };
 function FatigueRule$evaluate$lambda(it) {
   return it.o17_1;
@@ -1642,7 +1656,7 @@ function FatigueRule_getInstance() {
 }
 function missPhrase(lift, miss) {
   var tmp;
-  switch (miss.t1_1) {
+  switch (miss.w1_1) {
     case 2:
       tmp = 'at lockout';
       break;
@@ -1651,7 +1665,7 @@ function missPhrase(lift, miss) {
       break;
     case 0:
       var tmp_0;
-      switch (lift.t1_1) {
+      switch (lift.w1_1) {
         case 0:
           tmp_0 = 'out of the hole';
           break;
@@ -1750,8 +1764,8 @@ function recentJumpWithRisingRpe($this, last, previous, lastDate) {
     tmp = previous;
   }
   var _destruct__k2r9zo = tmp;
-  var prevDate = _destruct__k2r9zo.va();
-  var prev = _destruct__k2r9zo.wa();
+  var prevDate = _destruct__k2r9zo.ya();
+  var prev = _destruct__k2r9zo.za();
   var tmp1_elvis_lhs = last.g16_1;
   var tmp_0;
   if (tmp1_elvis_lhs == null) {
@@ -1817,8 +1831,8 @@ protoOf(ProgressionRule).m17 = function (item, exercise, stats, settings, today)
     tmp = tmp0_elvis_lhs;
   }
   var _destruct__k2r9zo = tmp;
-  var lastDate = _destruct__k2r9zo.va();
-  var last = _destruct__k2r9zo.wa();
+  var lastDate = _destruct__k2r9zo.ya();
+  var last = _destruct__k2r9zo.za();
   var previous = stats.i18(item.i15_1, today);
   var plates = settings.m16_1;
   var free = this.k16(exercise, last.e16_1);
@@ -1884,7 +1898,7 @@ function StallRule$evaluate$lambda(it) {
   return it.t().o();
 }
 function StallRule$evaluate$lambda_0(it) {
-  return last(it.t()).ka_1;
+  return last(it.t()).na_1;
 }
 function evaluate$notPlanned(owned, options) {
   // Inline function 'kotlin.collections.filter' call
@@ -1896,7 +1910,7 @@ function evaluate$notPlanned(owned, options) {
     // Inline function 'kotlin.text.lowercase' call
     // Inline function 'kotlin.js.asDynamic' call
     var tmp$ret$3 = element.i13_1.toLowerCase();
-    if (!owned.j1(tmp$ret$3)) {
+    if (!owned.m1(tmp$ret$3)) {
       destination.i(element);
     }
   }
@@ -1970,13 +1984,13 @@ protoOf(StallRule).b17 = function (lift, stats, settings, today, currentAccessor
   var _iterator__ex2g4s_1 = tmp0_0.j();
   while (_iterator__ex2g4s_1.k()) {
     var element_0 = _iterator__ex2g4s_1.l();
-    var key = element_0.la_1;
+    var key = element_0.oa_1;
     // Inline function 'kotlin.collections.getOrPut' call
-    var value = destination.p1(key);
+    var value = destination.s1(key);
     var tmp_0;
     if (value == null) {
       var answer = ArrayList_init_$Create$();
-      destination.i2(key, answer);
+      destination.l2(key, answer);
       tmp_0 = answer;
     } else {
       tmp_0 = value;
@@ -2077,7 +2091,7 @@ function ratioFlag($this, pair, stats, today) {
     var element = _iterator__ex2g4s.l();
     // Inline function 'kotlin.collections.plusAssign' call
     var pair_0 = to(element.v17_1, element.w17_1);
-    destination.i2(pair_0.qa_1, pair_0.ra_1);
+    destination.l2(pair_0.ta_1, pair_0.ua_1);
   }
   var num = destination;
   // Inline function 'kotlin.collections.associate' call
@@ -2090,11 +2104,11 @@ function ratioFlag($this, pair, stats, today) {
     var element_0 = _iterator__ex2g4s_0.l();
     // Inline function 'kotlin.collections.plusAssign' call
     var pair_1 = to(element_0.v17_1, element_0.w17_1);
-    destination_0.i2(pair_1.qa_1, pair_1.ra_1);
+    destination_0.l2(pair_1.ta_1, pair_1.ua_1);
   }
   var den = destination_0;
   // Inline function 'kotlin.collections.filter' call
-  var tmp0 = num.q1();
+  var tmp0 = num.t1();
   // Inline function 'kotlin.collections.filterTo' call
   var destination_1 = ArrayList_init_$Create$();
   var _iterator__ex2g4s_1 = tmp0.j();
@@ -2102,7 +2116,7 @@ function ratioFlag($this, pair, stats, today) {
     var element_1 = _iterator__ex2g4s_1.l();
     // Inline function 'kotlin.collections.contains' call
     // Inline function 'kotlin.collections.containsKey' call
-    if ((isInterface(den, KtMap) ? den : THROW_CCE()).n1(element_1)) {
+    if ((isInterface(den, KtMap) ? den : THROW_CCE()).q1(element_1)) {
       destination_1.i(element_1);
     }
   }
@@ -2122,7 +2136,7 @@ function ratioFlag($this, pair, stats, today) {
     destination_2.i(tmp$ret$15);
   }
   var values = destination_2;
-  var lo = roundToInt(pair.n18_1.ub() * 100);
+  var lo = roundToInt(pair.n18_1.xb() * 100);
   var hi = roundToInt(pair.n18_1.yb() * 100);
   var pct = roundToInt(last(values) * 100);
   var n = lower($this, pair.l18_1);
@@ -2144,7 +2158,7 @@ function ratioFlag($this, pair, stats, today) {
     var _iterator__ex2g4s_3 = values.j();
     while (_iterator__ex2g4s_3.k()) {
       var element_2 = _iterator__ex2g4s_3.l();
-      if (!(element_2 < pair.n18_1.ub())) {
+      if (!(element_2 < pair.n18_1.xb())) {
         tmp$ret$16 = false;
         break $l$block_0;
       }
@@ -2234,13 +2248,13 @@ function lower($this, $receiver) {
 function sam$kotlin_Comparator$0_1(function_0) {
   this.r18_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_1).v9 = function (a, b) {
+protoOf(sam$kotlin_Comparator$0_1).y9 = function (a, b) {
   return this.r18_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_1).compare = function (a, b) {
-  return this.v9(a, b);
+  return this.y9(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_1).c2 = function () {
+protoOf(sam$kotlin_Comparator$0_1).f2 = function () {
   return this.r18_1;
 };
 protoOf(sam$kotlin_Comparator$0_1).equals = function (other) {
@@ -2248,7 +2262,7 @@ protoOf(sam$kotlin_Comparator$0_1).equals = function (other) {
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
     if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
-      tmp_0 = equals(this.c2(), other.c2());
+      tmp_0 = equals(this.f2(), other.f2());
     } else {
       tmp_0 = false;
     }
@@ -2259,15 +2273,15 @@ protoOf(sam$kotlin_Comparator$0_1).equals = function (other) {
   return tmp;
 };
 protoOf(sam$kotlin_Comparator$0_1).hashCode = function () {
-  return hashCode(this.c2());
+  return hashCode(this.f2());
 };
 function evaluate$flag(flags, lift) {
   // Inline function 'kotlin.collections.getOrPut' call
-  var value = flags.p1(lift);
+  var value = flags.s1(lift);
   var tmp;
   if (value == null) {
     var answer = new Flag();
-    flags.i2(lift, answer);
+    flags.l2(lift, answer);
     tmp = answer;
   } else {
     tmp = value;
@@ -2283,13 +2297,13 @@ function WeakPointRule$evaluate$lambda(a, b) {
 function WeakPointRule$missFlag$$inlined$groupingBy$1($this) {
   this.s18_1 = $this;
 }
-protoOf(WeakPointRule$missFlag$$inlined$groupingBy$1).g2 = function () {
+protoOf(WeakPointRule$missFlag$$inlined$groupingBy$1).j2 = function () {
   return this.s18_1.j();
 };
 protoOf(WeakPointRule$missFlag$$inlined$groupingBy$1).fe = function (element) {
   return element;
 };
-protoOf(WeakPointRule$missFlag$$inlined$groupingBy$1).h2 = function (element) {
+protoOf(WeakPointRule$missFlag$$inlined$groupingBy$1).k2 = function (element) {
   return this.fe(element);
 };
 function WeakPointRule() {
@@ -2314,8 +2328,8 @@ protoOf(WeakPointRule).k17 = function (stats, today) {
       null;
     else {
       // Inline function 'kotlin.let' call
-      var lift = tmp0_safe_receiver.va();
-      var reason = tmp0_safe_receiver.wa();
+      var lift = tmp0_safe_receiver.ya();
+      var reason = tmp0_safe_receiver.za();
       // Inline function 'kotlin.apply' call
       var this_0 = evaluate$flag(flags, lift);
       var tmp = this_0;
@@ -2334,8 +2348,8 @@ protoOf(WeakPointRule).k17 = function (stats, today) {
       null;
     else {
       // Inline function 'kotlin.let' call
-      var point = tmp1_safe_receiver.va();
-      var count = tmp1_safe_receiver.wa();
+      var point = tmp1_safe_receiver.ya();
+      var count = tmp1_safe_receiver.za();
       // Inline function 'kotlin.apply' call
       var this_1 = evaluate$flag(flags, lift_0);
       var tmp_0 = this_1;
@@ -2428,11 +2442,11 @@ protoOf(WeeklyPoint).equals = function (other) {
   return true;
 };
 function categoryOf($this, set) {
-  var tmp0_safe_receiver = $this.z13_1.e14_1.p1(set.d16_1);
+  var tmp0_safe_receiver = $this.z13_1.e14_1.s1(set.d16_1);
   return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.l14_1;
 }
 function liftOf($this, set) {
-  var tmp0_safe_receiver = $this.z13_1.e14_1.p1(set.d16_1);
+  var tmp0_safe_receiver = $this.z13_1.e14_1.s1(set.d16_1);
   return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.r14();
 }
 function topSets($this, exerciseId, before) {
@@ -2470,8 +2484,8 @@ function topSets($this, exerciseId, before) {
     $l$block: {
       // Inline function 'kotlin.collections.lastOrNull' call
       var iterator = sets.q(sets.o());
-      while (iterator.y2()) {
-        var element_2 = iterator.z2();
+      while (iterator.b3()) {
+        var element_2 = iterator.c3();
         if (element_2.j16_1) {
           tmp$ret$11 = element_2;
           break $l$block;
@@ -2495,7 +2509,7 @@ function topSets($this, exerciseId, before) {
       var tmp_0 = withIndex(destination_2);
       var tmp_1 = HistoryStats$topSets$lambda;
       var tmp1_safe_receiver = maxWithOrNull(tmp_0, compareBy([tmp_1, HistoryStats$topSets$lambda_0]));
-      tmp = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.la_1;
+      tmp = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.oa_1;
     } else {
       tmp = tmp0_elvis_lhs;
     }
@@ -2505,7 +2519,7 @@ function topSets($this, exerciseId, before) {
       var tmp_3 = withIndex(sets);
       var tmp_4 = HistoryStats$topSets$lambda_1;
       var tmp3_safe_receiver = maxWithOrNull(tmp_3, compareBy([tmp_4, HistoryStats$topSets$lambda_2]));
-      tmp_2 = tmp3_safe_receiver == null ? null : tmp3_safe_receiver.la_1;
+      tmp_2 = tmp3_safe_receiver == null ? null : tmp3_safe_receiver.oa_1;
     } else {
       tmp_2 = tmp2_elvis_lhs;
     }
@@ -2530,13 +2544,13 @@ function topSets($this, exerciseId, before) {
 function sam$kotlin_Comparator$0_2(function_0) {
   this.v18_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_2).v9 = function (a, b) {
+protoOf(sam$kotlin_Comparator$0_2).y9 = function (a, b) {
   return this.v18_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_2).compare = function (a, b) {
-  return this.v9(a, b);
+  return this.y9(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_2).c2 = function () {
+protoOf(sam$kotlin_Comparator$0_2).f2 = function () {
   return this.v18_1;
 };
 protoOf(sam$kotlin_Comparator$0_2).equals = function (other) {
@@ -2544,7 +2558,7 @@ protoOf(sam$kotlin_Comparator$0_2).equals = function (other) {
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
     if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
-      tmp_0 = equals(this.c2(), other.c2());
+      tmp_0 = equals(this.f2(), other.f2());
     } else {
       tmp_0 = false;
     }
@@ -2555,18 +2569,18 @@ protoOf(sam$kotlin_Comparator$0_2).equals = function (other) {
   return tmp;
 };
 protoOf(sam$kotlin_Comparator$0_2).hashCode = function () {
-  return hashCode(this.c2());
+  return hashCode(this.f2());
 };
 function sam$kotlin_Comparator$0_3(function_0) {
   this.w18_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_3).v9 = function (a, b) {
+protoOf(sam$kotlin_Comparator$0_3).y9 = function (a, b) {
   return this.w18_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_3).compare = function (a, b) {
-  return this.v9(a, b);
+  return this.y9(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_3).c2 = function () {
+protoOf(sam$kotlin_Comparator$0_3).f2 = function () {
   return this.w18_1;
 };
 protoOf(sam$kotlin_Comparator$0_3).equals = function (other) {
@@ -2574,7 +2588,7 @@ protoOf(sam$kotlin_Comparator$0_3).equals = function (other) {
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
     if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
-      tmp_0 = equals(this.c2(), other.c2());
+      tmp_0 = equals(this.f2(), other.f2());
     } else {
       tmp_0 = false;
     }
@@ -2585,7 +2599,7 @@ protoOf(sam$kotlin_Comparator$0_3).equals = function (other) {
   return tmp;
 };
 protoOf(sam$kotlin_Comparator$0_3).hashCode = function () {
-  return hashCode(this.c2());
+  return hashCode(this.f2());
 };
 function HistoryStats$sessions$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
@@ -2600,16 +2614,16 @@ function HistoryStats$weeklyTrend$lambda(a, b) {
   return compareValues(tmp, tmp$ret$2);
 }
 function HistoryStats$topSets$lambda(it) {
-  return it.la_1.e16_1;
+  return it.oa_1.e16_1;
 }
 function HistoryStats$topSets$lambda_0(it) {
-  return it.ka_1;
+  return it.na_1;
 }
 function HistoryStats$topSets$lambda_1(it) {
-  return it.la_1.e16_1;
+  return it.oa_1.e16_1;
 }
 function HistoryStats$topSets$lambda_2(it) {
-  return it.ka_1;
+  return it.na_1;
 }
 function HistoryStats(history) {
   this.z13_1 = history;
@@ -2637,7 +2651,7 @@ protoOf(HistoryStats).u17 = function (lift, until) {
         continue $l$loop_1;
       var tmp0_subject = categoryOf(this, set);
       var tmp;
-      switch (tmp0_subject == null ? -1 : tmp0_subject.t1_1) {
+      switch (tmp0_subject == null ? -1 : tmp0_subject.w1_1) {
         case 4:
           tmp = 0.9;
           break;
@@ -2652,7 +2666,7 @@ protoOf(HistoryStats).u17 = function (lift, until) {
       }
       var factor = tmp;
       var e = factor * E1rm_getInstance().u18(set.e16_1, set.f16_1, set.g16_1);
-      var tmp1_safe_receiver = best.p1(week);
+      var tmp1_safe_receiver = best.s1(week);
       var tmp_0;
       if (tmp1_safe_receiver == null) {
         tmp_0 = null;
@@ -2664,7 +2678,7 @@ protoOf(HistoryStats).u17 = function (lift, until) {
       var tmp2_elvis_lhs = tmp_0;
       // Inline function 'kotlin.collections.set' call
       var value = tmp2_elvis_lhs == null ? e : tmp2_elvis_lhs;
-      best.i2(week, value);
+      best.l2(week, value);
     }
   }
   // Inline function 'kotlin.collections.sortedBy' call
@@ -2718,7 +2732,7 @@ protoOf(HistoryStats).x18 = function (lift, until, days) {
     var element_1 = _iterator__ex2g4s_1.l();
     var tmp;
     if (!element_1.h16_1) {
-      var tmp0_safe_receiver = this.z13_1.e14_1.p1(element_1.d16_1);
+      var tmp0_safe_receiver = this.z13_1.e14_1.s1(element_1.d16_1);
       var tmp_0;
       if (tmp0_safe_receiver == null) {
         tmp_0 = null;
@@ -2757,7 +2771,7 @@ protoOf(HistoryStats).x18 = function (lift, until, days) {
   if (!(best == null))
     return best;
   // Inline function 'kotlin.collections.filter' call
-  var tmp0_0 = this.z13_1.e14_1.r1();
+  var tmp0_0 = this.z13_1.e14_1.u1();
   // Inline function 'kotlin.collections.filterTo' call
   var destination_2 = ArrayList_init_$Create$();
   var _iterator__ex2g4s_2 = tmp0_0.j();
@@ -2784,7 +2798,7 @@ protoOf(HistoryStats).x18 = function (lift, until, days) {
   var _iterator__ex2g4s_4 = tmp0_1.j();
   while (_iterator__ex2g4s_4.k()) {
     var element_3 = _iterator__ex2g4s_4.l();
-    if (mainIds.j1(element_3.g14_1) && element_3.i14_1.pt(until) <= 0) {
+    if (mainIds.m1(element_3.g14_1) && element_3.i14_1.pt(until) <= 0) {
       destination_4.i(element_3);
     }
   }
@@ -2856,7 +2870,7 @@ protoOf(HistoryStats).s14 = function (lift) {
         var _iterator__ex2g4s_0 = tmp0_0.j();
         while (_iterator__ex2g4s_0.k()) {
           var element_0 = _iterator__ex2g4s_0.l();
-          var tmp0_safe_receiver = this.z13_1.e14_1.p1(element_0.d16_1);
+          var tmp0_safe_receiver = this.z13_1.e14_1.s1(element_0.d16_1);
           var tmp_1;
           if (tmp0_safe_receiver == null) {
             tmp_1 = null;
@@ -2942,8 +2956,8 @@ protoOf(HistoryStats).b14 = function (before) {
   $l$block: {
     // Inline function 'kotlin.collections.lastOrNull' call
     var iterator = tmp0.q(tmp0.o());
-    while (iterator.y2()) {
-      var element = iterator.z2();
+    while (iterator.b3()) {
+      var element = iterator.c3();
       if (element.q17_1.pt(before) < 0) {
         tmp$ret$0 = element;
         break $l$block;
@@ -2981,10 +2995,10 @@ protoOf(HistoryStats).c16 = function (until) {
   $l$block: {
     // Inline function 'kotlin.collections.lastOrNull' call
     var iterator = tmp0.q(tmp0.o());
-    while (iterator.y2()) {
-      var element_0 = iterator.z2();
-      var a = element_0.va();
-      var b = element_0.wa();
+    while (iterator.b3()) {
+      var element_0 = iterator.c3();
+      var a = element_0.ya();
+      var b = element_0.za();
       if (daysUntil(a, b) >= 14) {
         tmp$ret$6 = element_0;
         break $l$block;
@@ -2993,7 +3007,7 @@ protoOf(HistoryStats).c16 = function (until) {
     tmp$ret$6 = null;
   }
   var tmp0_safe_receiver = tmp$ret$6;
-  return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.ra_1;
+  return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.ua_1;
 };
 function _get_catalogue__ehuyh4($this) {
   var tmp0 = $this.a19_1;
@@ -3123,13 +3137,13 @@ function rank($this, e, q) {
 function sam$kotlin_Comparator$0_4(function_0) {
   this.r19_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_4).v9 = function (a, b) {
+protoOf(sam$kotlin_Comparator$0_4).y9 = function (a, b) {
   return this.r19_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_4).compare = function (a, b) {
-  return this.v9(a, b);
+  return this.y9(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_4).c2 = function () {
+protoOf(sam$kotlin_Comparator$0_4).f2 = function () {
   return this.r19_1;
 };
 protoOf(sam$kotlin_Comparator$0_4).equals = function (other) {
@@ -3137,7 +3151,7 @@ protoOf(sam$kotlin_Comparator$0_4).equals = function (other) {
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
     if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
-      tmp_0 = equals(this.c2(), other.c2());
+      tmp_0 = equals(this.f2(), other.f2());
     } else {
       tmp_0 = false;
     }
@@ -3148,7 +3162,7 @@ protoOf(sam$kotlin_Comparator$0_4).equals = function (other) {
   return tmp;
 };
 protoOf(sam$kotlin_Comparator$0_4).hashCode = function () {
-  return hashCode(this.c2());
+  return hashCode(this.f2());
 };
 function Library$catalogue$delegate$lambda() {
   return plus(plus(plus(plus(plus(plus(plus(plus(get_mainLifts(), get_chest()), get_back()), get_shoulders()), get_arms()), get_quads()), get_hamstringsGlutes()), get_calves()), get_core());
@@ -3166,14 +3180,14 @@ function Library$byKey$delegate$lambda() {
   var _iterator__ex2g4s = _get_catalogue__ehuyh4(Library_getInstance()).j();
   while (_iterator__ex2g4s.k()) {
     var e = _iterator__ex2g4s.l();
-    this_0.i2(Library_getInstance().q19(e.g19_1), e);
+    this_0.l2(Library_getInstance().q19(e.g19_1), e);
     var _iterator__ex2g4s_0 = e.h19_1.j();
     while (_iterator__ex2g4s_0.k()) {
       var alias = _iterator__ex2g4s_0.l();
-      this_0.i2(Library_getInstance().q19(alias), e);
+      this_0.l2(Library_getInstance().q19(alias), e);
     }
   }
-  return this_0.w3();
+  return this_0.z3();
 }
 function Library$_get_byKey_$ref_79qtsh() {
   return constructCallableReference(function (p0) {
@@ -3188,8 +3202,8 @@ function Library$alphabetical$lambda_0(it) {
 }
 function Library$search$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
-  var tmp = a.qa_1;
-  var tmp$ret$2 = b.qa_1;
+  var tmp = a.ta_1;
+  var tmp$ret$2 = b.ta_1;
   return compareValues(tmp, tmp$ret$2);
 }
 function Library$search$lambda_0($this, $comparator) {
@@ -3201,8 +3215,8 @@ function Library$search$lambda_0($this, $comparator) {
     } else {
       // Inline function 'kotlin.comparisons.compareValuesBy' call
       var comparator = $comparator;
-      var tmp_0 = a.ra_1;
-      var tmp$ret$2 = b.ra_1;
+      var tmp_0 = a.ua_1;
+      var tmp$ret$2 = b.ua_1;
       tmp = comparator.compare(tmp_0, tmp$ret$2);
     }
     return tmp;
@@ -3222,7 +3236,7 @@ function folds$fold($this_buildMap, chars, base) {
   while (inductionVariable < charSequenceLength(chars)) {
     var element = charSequenceGet(chars, inductionVariable);
     inductionVariable = inductionVariable + 1 | 0;
-    $this_buildMap.i2(new Char(element), new Char(base));
+    $this_buildMap.l2(new Char(element), new Char(base));
   }
   return Unit_instance;
 }
@@ -3263,16 +3277,16 @@ function Library() {
   folds$fold(this_0, '\u0175', _Char___init__impl__6a9atx(119));
   folds$fold(this_0, '\xFD\xFF\u0177', _Char___init__impl__6a9atx(121));
   folds$fold(this_0, '\u017A\u017C\u017E', _Char___init__impl__6a9atx(122));
-  tmp_4.f19_1 = this_0.w3();
+  tmp_4.f19_1 = this_0.z3();
 }
 protoOf(Library).v19 = function () {
   return _get_catalogue__ehuyh4(this);
 };
 protoOf(Library).w19 = function (name) {
-  return this.d19_1.j1(this.q19(name));
+  return this.d19_1.m1(this.q19(name));
 };
 protoOf(Library).x19 = function (name) {
-  return _get_byKey__j8eapj(this).p1(this.q19(name));
+  return _get_byKey__j8eapj(this).s1(this.q19(name));
 };
 protoOf(Library).y19 = function (query, areas, equipment) {
   var q = this.q19(query);
@@ -3284,7 +3298,7 @@ protoOf(Library).y19 = function (query, areas, equipment) {
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
     var tmp;
-    if (areas.m() || areas.j1(element.i19_1)) {
+    if (areas.m() || areas.m1(element.i19_1)) {
       var tmp_0;
       if (equipment.m()) {
         tmp_0 = true;
@@ -3306,7 +3320,7 @@ protoOf(Library).y19 = function (query, areas, equipment) {
           var _iterator__ex2g4s_0 = tmp0_0.j();
           while (_iterator__ex2g4s_0.k()) {
             var element_0 = _iterator__ex2g4s_0.l();
-            if (equipment.j1(element_0)) {
+            if (equipment.m1(element_0)) {
               tmp$ret$3 = true;
               break $l$block_0;
             }
@@ -3365,7 +3379,7 @@ protoOf(Library).y19 = function (query, areas, equipment) {
   var _iterator__ex2g4s_2 = this_0.j();
   while (_iterator__ex2g4s_2.k()) {
     var item = _iterator__ex2g4s_2.l();
-    var tmp$ret$19 = item.ra_1;
+    var tmp$ret$19 = item.ua_1;
     destination_1.i(tmp$ret$19);
   }
   return destination_1;
@@ -3404,7 +3418,7 @@ protoOf(Library).a1a = function (group, equipment) {
           var _iterator__ex2g4s_0 = tmp0_0.j();
           while (_iterator__ex2g4s_0.k()) {
             var element_0 = _iterator__ex2g4s_0.l();
-            if (equipment.j1(element_0)) {
+            if (equipment.m1(element_0)) {
               tmp$ret$3 = true;
               break $l$block_0;
             }
@@ -3477,7 +3491,7 @@ protoOf(Library).c1a = function (groups, equipment) {
           var _iterator__ex2g4s_1 = tmp0_0.j();
           while (_iterator__ex2g4s_1.k()) {
             var element_1 = _iterator__ex2g4s_1.l();
-            if (equipment.j1(element_1)) {
+            if (equipment.m1(element_1)) {
               tmp$ret$5 = true;
               break $l$block_2;
             }
@@ -3516,11 +3530,11 @@ protoOf(Library).q19 = function (text) {
           tmp = false;
         }
         if (tmp) {
-          out.r6(_Char___init__impl__6a9atx(32));
+          out.u6(_Char___init__impl__6a9atx(32));
         }
       } else {
-        var tmp_0 = this.f19_1.p1(new Char(c));
-        var tmp0_elvis_lhs = tmp_0 == null ? null : tmp_0.x_1;
+        var tmp_0 = this.f19_1.s1(new Char(c));
+        var tmp0_elvis_lhs = tmp_0 == null ? null : tmp_0.a1_1;
         var tmp_1;
         var tmp_2 = tmp0_elvis_lhs;
         if ((tmp_2 == null ? null : new Char(tmp_2)) == null) {
@@ -3528,7 +3542,7 @@ protoOf(Library).q19 = function (text) {
         } else {
           tmp_1 = tmp0_elvis_lhs;
         }
-        out.r6(tmp_1);
+        out.u6(tmp_1);
       }
   }
   // Inline function 'kotlin.text.trimEnd' call
@@ -3892,8 +3906,8 @@ function MuscleGroups() {
   var _iterator__ex2g4s = tmp0.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    var group = element.va();
-    var muscles = element.wa();
+    var group = element.ya();
+    var muscles = element.za();
     // Inline function 'kotlin.collections.map' call
     // Inline function 'kotlin.collections.mapTo' call
     var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(muscles, 10));
@@ -3910,7 +3924,7 @@ function MuscleGroups() {
   this.t19_1 = toMap(this.s19_1);
 }
 protoOf(MuscleGroups).p1a = function (muscle) {
-  return this.t19_1.p1(Library_getInstance().q19(muscle));
+  return this.t19_1.s1(Library_getInstance().q19(muscle));
 };
 protoOf(MuscleGroups).b1a = function (muscles, group) {
   var tmp$ret$0;
@@ -3972,7 +3986,7 @@ protoOf(MuscleGroups).u19 = function (exercises) {
   var _iterator__ex2g4s_1 = tmp0_0.j();
   while (_iterator__ex2g4s_1.k()) {
     var element_1 = _iterator__ex2g4s_1.l();
-    if (found.j1(element_1)) {
+    if (found.m1(element_1)) {
       destination_1.i(element_1);
     }
   }
@@ -4858,18 +4872,20 @@ var $ENTRIES_0;
 function Side(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
-function Arm(shoulder, elbow, wrist, turnedOut, out) {
+function Arm(shoulder, elbow, wrist, turnedOut, out, forearmOut) {
   wrist = wrist === VOID ? 0.0 : wrist;
   turnedOut = turnedOut === VOID ? false : turnedOut;
   out = out === VOID ? 0.0 : out;
+  forearmOut = forearmOut === VOID ? 0.0 : forearmOut;
   this.x1o_1 = shoulder;
   this.y1o_1 = elbow;
   this.z1o_1 = wrist;
   this.a1p_1 = turnedOut;
   this.b1p_1 = out;
+  this.c1p_1 = forearmOut;
 }
 protoOf(Arm).toString = function () {
-  return 'Arm(shoulder=' + this.x1o_1 + ', elbow=' + this.y1o_1 + ', wrist=' + this.z1o_1 + ', turnedOut=' + this.a1p_1 + ', out=' + this.b1p_1 + ')';
+  return 'Arm(shoulder=' + this.x1o_1 + ', elbow=' + this.y1o_1 + ', wrist=' + this.z1o_1 + ', turnedOut=' + this.a1p_1 + ', out=' + this.b1p_1 + ', forearmOut=' + this.c1p_1 + ')';
 };
 protoOf(Arm).hashCode = function () {
   var result = getNumberHashCode(this.x1o_1);
@@ -4877,6 +4893,7 @@ protoOf(Arm).hashCode = function () {
   result = imul(result, 31) + getNumberHashCode(this.z1o_1) | 0;
   result = imul(result, 31) + getBooleanHashCode(this.a1p_1) | 0;
   result = imul(result, 31) + getNumberHashCode(this.b1p_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.c1p_1) | 0;
   return result;
 };
 protoOf(Arm).equals = function (other) {
@@ -4894,21 +4911,26 @@ protoOf(Arm).equals = function (other) {
     return false;
   if (!equals(this.b1p_1, other.b1p_1))
     return false;
+  if (!equals(this.c1p_1, other.c1p_1))
+    return false;
   return true;
 };
-function Leg(hip, knee, ankle) {
+function Leg(hip, knee, ankle, out) {
   ankle = ankle === VOID ? 0.0 : ankle;
-  this.c1p_1 = hip;
-  this.d1p_1 = knee;
-  this.e1p_1 = ankle;
+  out = out === VOID ? 0.0 : out;
+  this.d1p_1 = hip;
+  this.e1p_1 = knee;
+  this.f1p_1 = ankle;
+  this.g1p_1 = out;
 }
 protoOf(Leg).toString = function () {
-  return 'Leg(hip=' + this.c1p_1 + ', knee=' + this.d1p_1 + ', ankle=' + this.e1p_1 + ')';
+  return 'Leg(hip=' + this.d1p_1 + ', knee=' + this.e1p_1 + ', ankle=' + this.f1p_1 + ', out=' + this.g1p_1 + ')';
 };
 protoOf(Leg).hashCode = function () {
-  var result = getNumberHashCode(this.c1p_1);
-  result = imul(result, 31) + getNumberHashCode(this.d1p_1) | 0;
+  var result = getNumberHashCode(this.d1p_1);
   result = imul(result, 31) + getNumberHashCode(this.e1p_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.f1p_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.g1p_1) | 0;
   return result;
 };
 protoOf(Leg).equals = function (other) {
@@ -4916,40 +4938,60 @@ protoOf(Leg).equals = function (other) {
     return true;
   if (!(other instanceof Leg))
     return false;
-  if (!equals(this.c1p_1, other.c1p_1))
-    return false;
   if (!equals(this.d1p_1, other.d1p_1))
     return false;
   if (!equals(this.e1p_1, other.e1p_1))
     return false;
+  if (!equals(this.f1p_1, other.f1p_1))
+    return false;
+  if (!equals(this.g1p_1, other.g1p_1))
+    return false;
   return true;
 };
-function Pose(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg) {
+function Pose(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean) {
   torso = torso === VOID ? 90.0 : torso;
   neck = neck === VOID ? 0.0 : neck;
   farArm = farArm === VOID ? nearArm : farArm;
   farLeg = farLeg === VOID ? nearLeg : farLeg;
-  this.f1p_1 = pelvisX;
-  this.g1p_1 = pelvisY;
-  this.h1p_1 = torso;
-  this.i1p_1 = neck;
-  this.j1p_1 = nearArm;
-  this.k1p_1 = nearLeg;
-  this.l1p_1 = farArm;
-  this.m1p_1 = farLeg;
+  lean = lean === VOID ? 0.0 : lean;
+  this.h1p_1 = pelvisX;
+  this.i1p_1 = pelvisY;
+  this.j1p_1 = torso;
+  this.k1p_1 = neck;
+  this.l1p_1 = nearArm;
+  this.m1p_1 = nearLeg;
+  this.n1p_1 = farArm;
+  this.o1p_1 = farLeg;
+  this.p1p_1 = lean;
 }
+protoOf(Pose).q1p = function (pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean) {
+  return new Pose(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean);
+};
+protoOf(Pose).r1p = function (pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean, $super) {
+  pelvisX = pelvisX === VOID ? this.h1p_1 : pelvisX;
+  pelvisY = pelvisY === VOID ? this.i1p_1 : pelvisY;
+  torso = torso === VOID ? this.j1p_1 : torso;
+  neck = neck === VOID ? this.k1p_1 : neck;
+  nearArm = nearArm === VOID ? this.l1p_1 : nearArm;
+  nearLeg = nearLeg === VOID ? this.m1p_1 : nearLeg;
+  farArm = farArm === VOID ? this.n1p_1 : farArm;
+  farLeg = farLeg === VOID ? this.o1p_1 : farLeg;
+  lean = lean === VOID ? this.p1p_1 : lean;
+  return $super === VOID ? this.q1p(pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean) : $super.q1p.call(this, pelvisX, pelvisY, torso, neck, nearArm, nearLeg, farArm, farLeg, lean);
+};
 protoOf(Pose).toString = function () {
-  return 'Pose(pelvisX=' + this.f1p_1 + ', pelvisY=' + this.g1p_1 + ', torso=' + this.h1p_1 + ', neck=' + this.i1p_1 + ', nearArm=' + this.j1p_1.toString() + ', nearLeg=' + this.k1p_1.toString() + ', farArm=' + this.l1p_1.toString() + ', farLeg=' + this.m1p_1.toString() + ')';
+  return 'Pose(pelvisX=' + this.h1p_1 + ', pelvisY=' + this.i1p_1 + ', torso=' + this.j1p_1 + ', neck=' + this.k1p_1 + ', nearArm=' + this.l1p_1.toString() + ', nearLeg=' + this.m1p_1.toString() + ', farArm=' + this.n1p_1.toString() + ', farLeg=' + this.o1p_1.toString() + ', lean=' + this.p1p_1 + ')';
 };
 protoOf(Pose).hashCode = function () {
-  var result = getNumberHashCode(this.f1p_1);
-  result = imul(result, 31) + getNumberHashCode(this.g1p_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.h1p_1) | 0;
+  var result = getNumberHashCode(this.h1p_1);
   result = imul(result, 31) + getNumberHashCode(this.i1p_1) | 0;
-  result = imul(result, 31) + this.j1p_1.hashCode() | 0;
-  result = imul(result, 31) + this.k1p_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.j1p_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k1p_1) | 0;
   result = imul(result, 31) + this.l1p_1.hashCode() | 0;
   result = imul(result, 31) + this.m1p_1.hashCode() | 0;
+  result = imul(result, 31) + this.n1p_1.hashCode() | 0;
+  result = imul(result, 31) + this.o1p_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.p1p_1) | 0;
   return result;
 };
 protoOf(Pose).equals = function (other) {
@@ -4957,66 +4999,58 @@ protoOf(Pose).equals = function (other) {
     return true;
   if (!(other instanceof Pose))
     return false;
-  if (!equals(this.f1p_1, other.f1p_1))
-    return false;
-  if (!equals(this.g1p_1, other.g1p_1))
-    return false;
   if (!equals(this.h1p_1, other.h1p_1))
     return false;
   if (!equals(this.i1p_1, other.i1p_1))
     return false;
-  if (!this.j1p_1.equals(other.j1p_1))
+  if (!equals(this.j1p_1, other.j1p_1))
     return false;
-  if (!this.k1p_1.equals(other.k1p_1))
+  if (!equals(this.k1p_1, other.k1p_1))
     return false;
   if (!this.l1p_1.equals(other.l1p_1))
     return false;
   if (!this.m1p_1.equals(other.m1p_1))
     return false;
+  if (!this.n1p_1.equals(other.n1p_1))
+    return false;
+  if (!this.o1p_1.equals(other.o1p_1))
+    return false;
+  if (!equals(this.p1p_1, other.p1p_1))
+    return false;
   return true;
 };
 function LimbPoints(shoulder, elbow, wrist, hand, grip, hip, knee, ankle, heel, toe) {
-  this.n1p_1 = shoulder;
-  this.o1p_1 = elbow;
-  this.p1p_1 = wrist;
-  this.q1p_1 = hand;
-  this.r1p_1 = grip;
-  this.s1p_1 = hip;
-  this.t1p_1 = knee;
-  this.u1p_1 = ankle;
-  this.v1p_1 = heel;
-  this.w1p_1 = toe;
+  this.s1p_1 = shoulder;
+  this.t1p_1 = elbow;
+  this.u1p_1 = wrist;
+  this.v1p_1 = hand;
+  this.w1p_1 = grip;
+  this.x1p_1 = hip;
+  this.y1p_1 = knee;
+  this.z1p_1 = ankle;
+  this.a1q_1 = heel;
+  this.b1q_1 = toe;
 }
 protoOf(LimbPoints).toString = function () {
-  return 'LimbPoints(shoulder=' + this.n1p_1.toString() + ', elbow=' + this.o1p_1.toString() + ', wrist=' + this.p1p_1.toString() + ', hand=' + this.q1p_1.toString() + ', grip=' + this.r1p_1.toString() + ', hip=' + this.s1p_1.toString() + ', knee=' + this.t1p_1.toString() + ', ankle=' + this.u1p_1.toString() + ', heel=' + this.v1p_1.toString() + ', toe=' + this.w1p_1.toString() + ')';
+  return 'LimbPoints(shoulder=' + this.s1p_1.toString() + ', elbow=' + this.t1p_1.toString() + ', wrist=' + this.u1p_1.toString() + ', hand=' + this.v1p_1.toString() + ', grip=' + this.w1p_1.toString() + ', hip=' + this.x1p_1.toString() + ', knee=' + this.y1p_1.toString() + ', ankle=' + this.z1p_1.toString() + ', heel=' + this.a1q_1.toString() + ', toe=' + this.b1q_1.toString() + ')';
 };
 protoOf(LimbPoints).hashCode = function () {
-  var result = this.n1p_1.hashCode();
-  result = imul(result, 31) + this.o1p_1.hashCode() | 0;
-  result = imul(result, 31) + this.p1p_1.hashCode() | 0;
-  result = imul(result, 31) + this.q1p_1.hashCode() | 0;
-  result = imul(result, 31) + this.r1p_1.hashCode() | 0;
-  result = imul(result, 31) + this.s1p_1.hashCode() | 0;
+  var result = this.s1p_1.hashCode();
   result = imul(result, 31) + this.t1p_1.hashCode() | 0;
   result = imul(result, 31) + this.u1p_1.hashCode() | 0;
   result = imul(result, 31) + this.v1p_1.hashCode() | 0;
   result = imul(result, 31) + this.w1p_1.hashCode() | 0;
+  result = imul(result, 31) + this.x1p_1.hashCode() | 0;
+  result = imul(result, 31) + this.y1p_1.hashCode() | 0;
+  result = imul(result, 31) + this.z1p_1.hashCode() | 0;
+  result = imul(result, 31) + this.a1q_1.hashCode() | 0;
+  result = imul(result, 31) + this.b1q_1.hashCode() | 0;
   return result;
 };
 protoOf(LimbPoints).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof LimbPoints))
-    return false;
-  if (!this.n1p_1.equals(other.n1p_1))
-    return false;
-  if (!this.o1p_1.equals(other.o1p_1))
-    return false;
-  if (!this.p1p_1.equals(other.p1p_1))
-    return false;
-  if (!this.q1p_1.equals(other.q1p_1))
-    return false;
-  if (!this.r1p_1.equals(other.r1p_1))
     return false;
   if (!this.s1p_1.equals(other.s1p_1))
     return false;
@@ -5028,46 +5062,9 @@ protoOf(LimbPoints).equals = function (other) {
     return false;
   if (!this.w1p_1.equals(other.w1p_1))
     return false;
-  return true;
-};
-function Skeleton(view, torso, pelvis, shoulder, neckBase, head, near, far) {
-  this.x1p_1 = view;
-  this.y1p_1 = torso;
-  this.z1p_1 = pelvis;
-  this.a1q_1 = shoulder;
-  this.b1q_1 = neckBase;
-  this.c1q_1 = head;
-  this.d1q_1 = near;
-  this.e1q_1 = far;
-}
-protoOf(Skeleton).f1q = function (side) {
-  return side.equals(Side_NEAR_getInstance()) ? this.d1q_1 : this.e1q_1;
-};
-protoOf(Skeleton).g1q = function (along, front) {
-  return this.z1p_1.q1o(dir(this.y1p_1).s1o(along)).q1o(dir(this.y1p_1 - 90.0).s1o(front));
-};
-protoOf(Skeleton).toString = function () {
-  return 'Skeleton(view=' + this.x1p_1.toString() + ', torso=' + this.y1p_1 + ', pelvis=' + this.z1p_1.toString() + ', shoulder=' + this.a1q_1.toString() + ', neckBase=' + this.b1q_1.toString() + ', head=' + this.c1q_1.toString() + ', near=' + this.d1q_1.toString() + ', far=' + this.e1q_1.toString() + ')';
-};
-protoOf(Skeleton).hashCode = function () {
-  var result = this.x1p_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.y1p_1) | 0;
-  result = imul(result, 31) + this.z1p_1.hashCode() | 0;
-  result = imul(result, 31) + this.a1q_1.hashCode() | 0;
-  result = imul(result, 31) + this.b1q_1.hashCode() | 0;
-  result = imul(result, 31) + this.c1q_1.hashCode() | 0;
-  result = imul(result, 31) + this.d1q_1.hashCode() | 0;
-  result = imul(result, 31) + this.e1q_1.hashCode() | 0;
-  return result;
-};
-protoOf(Skeleton).equals = function (other) {
-  if (this === other)
-    return true;
-  if (!(other instanceof Skeleton))
-    return false;
   if (!this.x1p_1.equals(other.x1p_1))
     return false;
-  if (!equals(this.y1p_1, other.y1p_1))
+  if (!this.y1p_1.equals(other.y1p_1))
     return false;
   if (!this.z1p_1.equals(other.z1p_1))
     return false;
@@ -5075,21 +5072,82 @@ protoOf(Skeleton).equals = function (other) {
     return false;
   if (!this.b1q_1.equals(other.b1q_1))
     return false;
+  return true;
+};
+function Skeleton(view, torso, pelvis, shoulder, neckBase, head, near, far, alongScale) {
+  alongScale = alongScale === VOID ? 1.0 : alongScale;
+  this.c1q_1 = view;
+  this.d1q_1 = torso;
+  this.e1q_1 = pelvis;
+  this.f1q_1 = shoulder;
+  this.g1q_1 = neckBase;
+  this.h1q_1 = head;
+  this.i1q_1 = near;
+  this.j1q_1 = far;
+  this.k1q_1 = alongScale;
+}
+protoOf(Skeleton).l1q = function (side) {
+  return side.equals(Side_NEAR_getInstance()) ? this.i1q_1 : this.j1q_1;
+};
+protoOf(Skeleton).m1q = function (along, front) {
+  return this.e1q_1.q1o(dir(this.d1q_1).s1o(along * this.k1q_1)).q1o(dir(this.d1q_1 - 90.0).s1o(front));
+};
+protoOf(Skeleton).toString = function () {
+  return 'Skeleton(view=' + this.c1q_1.toString() + ', torso=' + this.d1q_1 + ', pelvis=' + this.e1q_1.toString() + ', shoulder=' + this.f1q_1.toString() + ', neckBase=' + this.g1q_1.toString() + ', head=' + this.h1q_1.toString() + ', near=' + this.i1q_1.toString() + ', far=' + this.j1q_1.toString() + ', alongScale=' + this.k1q_1 + ')';
+};
+protoOf(Skeleton).hashCode = function () {
+  var result = this.c1q_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.d1q_1) | 0;
+  result = imul(result, 31) + this.e1q_1.hashCode() | 0;
+  result = imul(result, 31) + this.f1q_1.hashCode() | 0;
+  result = imul(result, 31) + this.g1q_1.hashCode() | 0;
+  result = imul(result, 31) + this.h1q_1.hashCode() | 0;
+  result = imul(result, 31) + this.i1q_1.hashCode() | 0;
+  result = imul(result, 31) + this.j1q_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k1q_1) | 0;
+  return result;
+};
+protoOf(Skeleton).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof Skeleton))
+    return false;
   if (!this.c1q_1.equals(other.c1q_1))
     return false;
-  if (!this.d1q_1.equals(other.d1q_1))
+  if (!equals(this.d1q_1, other.d1q_1))
     return false;
   if (!this.e1q_1.equals(other.e1q_1))
+    return false;
+  if (!this.f1q_1.equals(other.f1q_1))
+    return false;
+  if (!this.g1q_1.equals(other.g1q_1))
+    return false;
+  if (!this.h1q_1.equals(other.h1q_1))
+    return false;
+  if (!this.i1q_1.equals(other.i1q_1))
+    return false;
+  if (!this.j1q_1.equals(other.j1q_1))
+    return false;
+  if (!equals(this.k1q_1, other.k1q_1))
     return false;
   return true;
 };
 function skeleton(_this__u8e3s4, view) {
   view = view === VOID ? View_SIDE_getInstance() : view;
-  var pelvis = new Point(_this__u8e3s4.f1p_1, _this__u8e3s4.g1p_1);
-  var shoulder = pelvis.q1o(dir(_this__u8e3s4.h1p_1).s1o(Segment_TORSO_getInstance().a()));
-  var headDir = _this__u8e3s4.h1p_1 - _this__u8e3s4.i1p_1;
+  var pelvis = new Point(_this__u8e3s4.h1p_1, _this__u8e3s4.i1p_1);
+  var tmp;
+  if (view.equals(View_FRONT_getInstance())) {
+    // Inline function 'kotlin.math.cos' call
+    var x = _this__u8e3s4.p1p_1 * 3.141592653589793 / 180;
+    tmp = Math.cos(x);
+  } else {
+    tmp = 1.0;
+  }
+  var alongScale = tmp;
+  var shoulder = pelvis.q1o(dir(_this__u8e3s4.j1p_1).s1o(Segment_TORSO_getInstance().a() * alongScale));
+  var headDir = _this__u8e3s4.j1p_1 - _this__u8e3s4.k1p_1;
   var head = shoulder.q1o(dir(headDir).s1o(Segment_NECK_getInstance().a() + Segment_HEAD_getInstance().a() - 10.0));
-  return new Skeleton(view, _this__u8e3s4.h1p_1, pelvis, shoulder, shoulder, head, skeleton$limb(_this__u8e3s4, view, shoulder, pelvis, Side_NEAR_getInstance()), skeleton$limb(_this__u8e3s4, view, shoulder, pelvis, Side_FAR_getInstance()));
+  return new Skeleton(view, _this__u8e3s4.j1p_1, pelvis, shoulder, shoulder, head, skeleton$limb(_this__u8e3s4, view, shoulder, pelvis, Side_NEAR_getInstance()), skeleton$limb(_this__u8e3s4, view, shoulder, pelvis, Side_FAR_getInstance()), alongScale);
 }
 function round1(v) {
   return round(v * 10) / 10;
@@ -5120,7 +5178,7 @@ function twoLink($this, base, target, a, b, bendPositive) {
 }
 function Reach() {
 }
-protoOf(Reach).h1q = function (shoulder, target, torso, wrist, turnedOut) {
+protoOf(Reach).n1q = function (shoulder, target, torso, wrist, turnedOut) {
   var g = Segment_HAND_getInstance().a() * 0.45;
   var w = wrist * 3.141592653589793 / 180;
   var bend = turnedOut ? -1.0 : 1.0;
@@ -5139,20 +5197,20 @@ protoOf(Reach).h1q = function (shoulder, target, torso, wrist, turnedOut) {
   var x = tmp_0 + g * Math.cos(w);
   var offset = Math.atan2(tmp0_0, x) * 180 / 3.141592653589793;
   var _destruct__k2r9zo = twoLink(this, shoulder, target, Segment_UPPER_ARM_getInstance().a(), link, !turnedOut);
-  var upper = _destruct__k2r9zo.va();
-  var lower = _destruct__k2r9zo.wa();
+  var upper = _destruct__k2r9zo.ya();
+  var lower = _destruct__k2r9zo.za();
   var forearm = lower - bend * offset;
   return new Arm(fold(upper - torso - 180.0), bend * fold(forearm - upper), wrist, turnedOut);
 };
-protoOf(Reach).i1q = function (shoulder, target, torso, wrist, turnedOut, $super) {
+protoOf(Reach).o1q = function (shoulder, target, torso, wrist, turnedOut, $super) {
   wrist = wrist === VOID ? 0.0 : wrist;
   turnedOut = turnedOut === VOID ? false : turnedOut;
-  return $super === VOID ? this.h1q(shoulder, target, torso, wrist, turnedOut) : $super.h1q.call(this, shoulder, target, torso, wrist, turnedOut);
+  return $super === VOID ? this.n1q(shoulder, target, torso, wrist, turnedOut) : $super.n1q.call(this, shoulder, target, torso, wrist, turnedOut);
 };
-protoOf(Reach).j1q = function (hip, ankle, torso, foot) {
+protoOf(Reach).p1q = function (hip, ankle, torso, foot) {
   var _destruct__k2r9zo = twoLink(this, hip, ankle, Segment_THIGH_getInstance().a(), Segment_SHIN_getInstance().a(), false);
-  var thigh = _destruct__k2r9zo.va();
-  var shin = _destruct__k2r9zo.wa();
+  var thigh = _destruct__k2r9zo.ya();
+  var shin = _destruct__k2r9zo.za();
   return new Leg(fold(thigh - torso - 180.0), fold(thigh - shin), fold(foot - shin - 90.0));
 };
 var Reach_instance;
@@ -5160,17 +5218,17 @@ function Reach_getInstance() {
   return Reach_instance;
 }
 function skeleton$limb$mirrored(front, $side, $this_skeleton, a) {
-  return front && $side.equals(Side_FAR_getInstance()) ? 2 * $this_skeleton.h1p_1 - a : a;
+  return front && $side.equals(Side_FAR_getInstance()) ? 2 * $this_skeleton.j1p_1 - a : a;
 }
 function skeleton$limb($this_skeleton, $view, shoulder, pelvis, side) {
-  var arm = side.equals(Side_NEAR_getInstance()) ? $this_skeleton.j1p_1 : $this_skeleton.l1p_1;
-  var leg = side.equals(Side_NEAR_getInstance()) ? $this_skeleton.k1p_1 : $this_skeleton.m1p_1;
+  var arm = side.equals(Side_NEAR_getInstance()) ? $this_skeleton.l1p_1 : $this_skeleton.n1p_1;
+  var leg = side.equals(Side_NEAR_getInstance()) ? $this_skeleton.m1p_1 : $this_skeleton.o1p_1;
   var sign = side.equals(Side_NEAR_getInstance()) ? 1.0 : -1.0;
   var front = $view.equals(View_FRONT_getInstance());
-  var across = dir($this_skeleton.h1p_1 - 90.0);
+  var across = dir($this_skeleton.j1p_1 - 90.0);
   var s = front ? shoulder.q1o(across.s1o(sign * 18.0)) : shoulder;
   var h = front ? pelvis.q1o(across.s1o(sign * 9.0)) : pelvis;
-  var upperArm = $this_skeleton.h1p_1 + 180.0 + arm.x1o_1;
+  var upperArm = $this_skeleton.j1p_1 + 180.0 + arm.x1o_1;
   var bend = arm.a1p_1 && !front ? -1.0 : 1.0;
   var forearm = upperArm + bend * arm.y1o_1;
   var handAngle = forearm + bend * arm.z1o_1;
@@ -5184,24 +5242,37 @@ function skeleton$limb($this_skeleton, $view, shoulder, pelvis, side) {
     tmp_0 = Math.cos(x);
   }
   var upperDrawn = tmp * tmp_0;
+  var tmp_1;
+  if (front) {
+    tmp_1 = 1.0;
+  } else {
+    // Inline function 'kotlin.math.cos' call
+    var x_0 = arm.c1p_1 * 3.141592653589793 / 180;
+    tmp_1 = Math.cos(x_0);
+  }
+  var lowerScale = tmp_1;
   var elbow = s.q1o(dir(skeleton$limb$mirrored(front, side, $this_skeleton, upperArm)).s1o(upperDrawn));
-  var wrist = elbow.q1o(dir(skeleton$limb$mirrored(front, side, $this_skeleton, forearm)).s1o(Segment_FOREARM_getInstance().a()));
-  var hand = wrist.q1o(dir(skeleton$limb$mirrored(front, side, $this_skeleton, handAngle)).s1o(Segment_HAND_getInstance().a()));
-  var grip = wrist.q1o(dir(skeleton$limb$mirrored(front, side, $this_skeleton, handAngle)).s1o(Segment_HAND_getInstance().a() * 0.45));
-  var thigh = $this_skeleton.h1p_1 + 180.0 + leg.c1p_1;
-  var shin = thigh - leg.d1p_1;
-  var footAngle = shin + 90.0 + leg.e1p_1;
-  var knee = h.q1o(dir(skeleton$limb$mirrored(front, side, $this_skeleton, thigh)).s1o(Segment_THIGH_getInstance().a()));
+  var wrist = elbow.q1o(dir(skeleton$limb$mirrored(front, side, $this_skeleton, forearm)).s1o(Segment_FOREARM_getInstance().a() * lowerScale));
+  var hand = wrist.q1o(dir(skeleton$limb$mirrored(front, side, $this_skeleton, handAngle)).s1o(Segment_HAND_getInstance().a() * lowerScale));
+  var grip = wrist.q1o(dir(skeleton$limb$mirrored(front, side, $this_skeleton, handAngle)).s1o(Segment_HAND_getInstance().a() * 0.45 * lowerScale));
+  var thigh = $this_skeleton.j1p_1 + 180.0 + leg.d1p_1;
+  var shin = thigh - leg.e1p_1;
+  var footAngle = shin + 90.0 + leg.f1p_1;
+  var tmp_2 = Segment_THIGH_getInstance().a();
+  // Inline function 'kotlin.math.cos' call
+  var x_1 = leg.g1p_1 * 3.141592653589793 / 180;
+  var thighDrawn = tmp_2 * Math.cos(x_1);
+  var knee = h.q1o(dir(skeleton$limb$mirrored(front, side, $this_skeleton, thigh)).s1o(thighDrawn));
   var ankle = knee.q1o(dir(skeleton$limb$mirrored(front, side, $this_skeleton, shin)).s1o(Segment_SHIN_getInstance().a()));
   var footDir = dir(skeleton$limb$mirrored(front, side, $this_skeleton, footAngle));
   var sole = dir(skeleton$limb$mirrored(front, side, $this_skeleton, footAngle - 90.0)).s1o(6.825 - 7.0 / 2);
   var footLength = Segment_FOOT_getInstance().a() * (front ? 0.4 : 1.0);
   var r = 7.0 / 2;
-  var tmp_1 = ankle.q1o(sole);
+  var tmp_3 = ankle.q1o(sole);
   // Inline function 'kotlin.comparisons.maxOf' call
   var a = footLength * 0.2 - r;
-  var tmp$ret$1 = Math.max(a, 0.0);
-  var heel = tmp_1.r1o(footDir.s1o(tmp$ret$1));
+  var tmp$ret$3 = Math.max(a, 0.0);
+  var heel = tmp_3.r1o(footDir.s1o(tmp$ret$3));
   var toe = ankle.q1o(sole).q1o(footDir.s1o(footLength * 0.8 - r));
   return new LimbPoints(s, elbow, wrist, hand, grip, h, knee, ankle, heel, toe);
 }
@@ -5287,15 +5358,15 @@ function Which(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
 function Scene(pose, props) {
-  this.k1q_1 = pose;
-  this.l1q_1 = props;
+  this.q1q_1 = pose;
+  this.r1q_1 = props;
 }
 protoOf(Scene).toString = function () {
-  return 'Scene(pose=' + this.k1q_1.toString() + ', props=' + toString(this.l1q_1) + ')';
+  return 'Scene(pose=' + this.q1q_1.toString() + ', props=' + toString(this.r1q_1) + ')';
 };
 protoOf(Scene).hashCode = function () {
-  var result = this.k1q_1.hashCode();
-  result = imul(result, 31) + hashCode(this.l1q_1) | 0;
+  var result = this.q1q_1.hashCode();
+  result = imul(result, 31) + hashCode(this.r1q_1) | 0;
   return result;
 };
 protoOf(Scene).equals = function (other) {
@@ -5303,9 +5374,9 @@ protoOf(Scene).equals = function (other) {
     return true;
   if (!(other instanceof Scene))
     return false;
-  if (!this.k1q_1.equals(other.k1q_1))
+  if (!this.q1q_1.equals(other.q1q_1))
     return false;
-  if (!equals(this.l1q_1, other.l1q_1))
+  if (!equals(this.r1q_1, other.r1q_1))
     return false;
   return true;
 };
@@ -5329,6 +5400,7 @@ function static_init_7() {
   BodyPoint_HANDS_instance = new BodyPoint('HANDS', 12);
   BodyPoint_NEAR_HAND_instance = new BodyPoint('NEAR_HAND', 13);
   BodyPoint_FAR_HAND_instance = new BodyPoint('FAR_HAND', 14);
+  BodyPoint_ELBOWS_instance = new BodyPoint('ELBOWS', 15);
 }
 var BodyPoint_HEAD_instance;
 var BodyPoint_CHEST_instance;
@@ -5345,6 +5417,7 @@ var BodyPoint_FAR_FOOT_instance;
 var BodyPoint_HANDS_instance;
 var BodyPoint_NEAR_HAND_instance;
 var BodyPoint_FAR_HAND_instance;
+var BodyPoint_ELBOWS_instance;
 function BodyPoint(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
@@ -5360,6 +5433,11 @@ function static_init_8() {
   Surface_BACK_PAD_instance = new Surface('BACK_PAD', 4);
   Surface_FOOT_PLATE_instance = new Surface('FOOT_PLATE', 5);
   Surface_PULL_UP_BAR_instance = new Surface('PULL_UP_BAR', 6, true);
+  Surface_BOX_instance = new Surface('BOX', 7);
+  Surface_PLATFORM_instance = new Surface('PLATFORM', 8);
+  Surface_BLOCK_instance = new Surface('BLOCK', 9);
+  Surface_BOARD_instance = new Surface('BOARD', 10);
+  Surface_SAFETY_ARM_instance = new Surface('SAFETY_ARM', 11);
 }
 var Surface_FLOOR_instance;
 var Surface_BENCH_instance;
@@ -5368,23 +5446,28 @@ var Surface_THIGH_PAD_instance;
 var Surface_BACK_PAD_instance;
 var Surface_FOOT_PLATE_instance;
 var Surface_PULL_UP_BAR_instance;
+var Surface_BOX_instance;
+var Surface_PLATFORM_instance;
+var Surface_BLOCK_instance;
+var Surface_BOARD_instance;
+var Surface_SAFETY_ARM_instance;
 function Surface(name, ordinal, grip) {
   grip = grip === VOID ? false : grip;
   Enum.call(this, name, ordinal);
-  this.o1q_1 = grip;
+  this.u1q_1 = grip;
 }
 function Contact(point, surface, at) {
-  this.p1q_1 = point;
-  this.q1q_1 = surface;
-  this.r1q_1 = at;
+  this.v1q_1 = point;
+  this.w1q_1 = surface;
+  this.x1q_1 = at;
 }
 protoOf(Contact).toString = function () {
-  return 'Contact(point=' + this.p1q_1.toString() + ', surface=' + this.q1q_1.toString() + ', at=' + toString(this.r1q_1) + ')';
+  return 'Contact(point=' + this.v1q_1.toString() + ', surface=' + this.w1q_1.toString() + ', at=' + toString(this.x1q_1) + ')';
 };
 protoOf(Contact).hashCode = function () {
-  var result = this.p1q_1.hashCode();
-  result = imul(result, 31) + this.q1q_1.hashCode() | 0;
-  result = imul(result, 31) + hashCode(this.r1q_1) | 0;
+  var result = this.v1q_1.hashCode();
+  result = imul(result, 31) + this.w1q_1.hashCode() | 0;
+  result = imul(result, 31) + hashCode(this.x1q_1) | 0;
   return result;
 };
 protoOf(Contact).equals = function (other) {
@@ -5392,25 +5475,25 @@ protoOf(Contact).equals = function (other) {
     return true;
   if (!(other instanceof Contact))
     return false;
-  if (!this.p1q_1.equals(other.p1q_1))
+  if (!this.v1q_1.equals(other.v1q_1))
     return false;
-  if (!this.q1q_1.equals(other.q1q_1))
+  if (!this.w1q_1.equals(other.w1q_1))
     return false;
-  if (!equals(this.r1q_1, other.r1q_1))
+  if (!equals(this.x1q_1, other.x1q_1))
     return false;
   return true;
 };
 function BarTouches(point, at) {
   at = at === VOID ? Which_START_getInstance() : at;
-  this.s1q_1 = point;
-  this.t1q_1 = at;
+  this.y1q_1 = point;
+  this.z1q_1 = at;
 }
 protoOf(BarTouches).toString = function () {
-  return 'BarTouches(point=' + this.s1q_1.toString() + ', at=' + this.t1q_1.toString() + ')';
+  return 'BarTouches(point=' + this.y1q_1.toString() + ', at=' + this.z1q_1.toString() + ')';
 };
 protoOf(BarTouches).hashCode = function () {
-  var result = this.s1q_1.hashCode();
-  result = imul(result, 31) + this.t1q_1.hashCode() | 0;
+  var result = this.y1q_1.hashCode();
+  result = imul(result, 31) + this.z1q_1.hashCode() | 0;
   return result;
 };
 protoOf(BarTouches).equals = function (other) {
@@ -5418,61 +5501,61 @@ protoOf(BarTouches).equals = function (other) {
     return true;
   if (!(other instanceof BarTouches))
     return false;
-  if (!this.s1q_1.equals(other.s1q_1))
+  if (!this.y1q_1.equals(other.y1q_1))
     return false;
-  if (!this.t1q_1.equals(other.t1q_1))
+  if (!this.z1q_1.equals(other.z1q_1))
     return false;
   return true;
 };
 function LockoutOverShoulders(at) {
   at = at === VOID ? Which_END_getInstance() : at;
-  this.u1q_1 = at;
+  this.a1r_1 = at;
 }
 protoOf(LockoutOverShoulders).toString = function () {
-  return 'LockoutOverShoulders(at=' + this.u1q_1.toString() + ')';
+  return 'LockoutOverShoulders(at=' + this.a1r_1.toString() + ')';
 };
 protoOf(LockoutOverShoulders).hashCode = function () {
-  return this.u1q_1.hashCode();
+  return this.a1r_1.hashCode();
 };
 protoOf(LockoutOverShoulders).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof LockoutOverShoulders))
     return false;
-  if (!this.u1q_1.equals(other.u1q_1))
+  if (!this.a1r_1.equals(other.a1r_1))
     return false;
   return true;
 };
 function BarOverMidfoot(at) {
   at = at === VOID ? Which_START_getInstance() : at;
-  this.v1q_1 = at;
+  this.b1r_1 = at;
 }
 protoOf(BarOverMidfoot).toString = function () {
-  return 'BarOverMidfoot(at=' + this.v1q_1.toString() + ')';
+  return 'BarOverMidfoot(at=' + this.b1r_1.toString() + ')';
 };
 protoOf(BarOverMidfoot).hashCode = function () {
-  return this.v1q_1.hashCode();
+  return this.b1r_1.hashCode();
 };
 protoOf(BarOverMidfoot).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BarOverMidfoot))
     return false;
-  if (!this.v1q_1.equals(other.v1q_1))
+  if (!this.b1r_1.equals(other.b1r_1))
     return false;
   return true;
 };
 function HipDepth(belowKnee, at) {
   at = at === VOID ? Which_END_getInstance() : at;
-  this.w1q_1 = belowKnee;
-  this.x1q_1 = at;
+  this.c1r_1 = belowKnee;
+  this.d1r_1 = at;
 }
 protoOf(HipDepth).toString = function () {
-  return 'HipDepth(belowKnee=' + this.w1q_1 + ', at=' + this.x1q_1.toString() + ')';
+  return 'HipDepth(belowKnee=' + this.c1r_1 + ', at=' + this.d1r_1.toString() + ')';
 };
 protoOf(HipDepth).hashCode = function () {
-  var result = getNumberHashCode(this.w1q_1);
-  result = imul(result, 31) + this.x1q_1.hashCode() | 0;
+  var result = getNumberHashCode(this.c1r_1);
+  result = imul(result, 31) + this.d1r_1.hashCode() | 0;
   return result;
 };
 protoOf(HipDepth).equals = function (other) {
@@ -5480,23 +5563,23 @@ protoOf(HipDepth).equals = function (other) {
     return true;
   if (!(other instanceof HipDepth))
     return false;
-  if (!equals(this.w1q_1, other.w1q_1))
+  if (!equals(this.c1r_1, other.c1r_1))
     return false;
-  if (!this.x1q_1.equals(other.x1q_1))
+  if (!this.d1r_1.equals(other.d1r_1))
     return false;
   return true;
 };
 function BarNearLegs(within, at) {
   at = at === VOID ? Which_START_getInstance() : at;
-  this.y1q_1 = within;
-  this.z1q_1 = at;
+  this.e1r_1 = within;
+  this.f1r_1 = at;
 }
 protoOf(BarNearLegs).toString = function () {
-  return 'BarNearLegs(within=' + this.y1q_1 + ', at=' + this.z1q_1.toString() + ')';
+  return 'BarNearLegs(within=' + this.e1r_1 + ', at=' + this.f1r_1.toString() + ')';
 };
 protoOf(BarNearLegs).hashCode = function () {
-  var result = getNumberHashCode(this.y1q_1);
-  result = imul(result, 31) + this.z1q_1.hashCode() | 0;
+  var result = getNumberHashCode(this.e1r_1);
+  result = imul(result, 31) + this.f1r_1.hashCode() | 0;
   return result;
 };
 protoOf(BarNearLegs).equals = function (other) {
@@ -5504,24 +5587,24 @@ protoOf(BarNearLegs).equals = function (other) {
     return true;
   if (!(other instanceof BarNearLegs))
     return false;
-  if (!equals(this.y1q_1, other.y1q_1))
+  if (!equals(this.e1r_1, other.e1r_1))
     return false;
-  if (!this.z1q_1.equals(other.z1q_1))
+  if (!this.f1r_1.equals(other.f1r_1))
     return false;
   return true;
 };
 function ChinOverBar(margin, at) {
   margin = margin === VOID ? 4.0 : margin;
   at = at === VOID ? Which_END_getInstance() : at;
-  this.a1r_1 = margin;
-  this.b1r_1 = at;
+  this.g1r_1 = margin;
+  this.h1r_1 = at;
 }
 protoOf(ChinOverBar).toString = function () {
-  return 'ChinOverBar(margin=' + this.a1r_1 + ', at=' + this.b1r_1.toString() + ')';
+  return 'ChinOverBar(margin=' + this.g1r_1 + ', at=' + this.h1r_1.toString() + ')';
 };
 protoOf(ChinOverBar).hashCode = function () {
-  var result = getNumberHashCode(this.a1r_1);
-  result = imul(result, 31) + this.b1r_1.hashCode() | 0;
+  var result = getNumberHashCode(this.g1r_1);
+  result = imul(result, 31) + this.h1r_1.hashCode() | 0;
   return result;
 };
 protoOf(ChinOverBar).equals = function (other) {
@@ -5529,39 +5612,153 @@ protoOf(ChinOverBar).equals = function (other) {
     return true;
   if (!(other instanceof ChinOverBar))
     return false;
-  if (!equals(this.a1r_1, other.a1r_1))
+  if (!equals(this.g1r_1, other.g1r_1))
     return false;
-  if (!this.b1r_1.equals(other.b1r_1))
+  if (!this.h1r_1.equals(other.h1r_1))
+    return false;
+  return true;
+};
+function BarAbove(point, min, max, at) {
+  at = at === VOID ? Which_START_getInstance() : at;
+  this.i1r_1 = point;
+  this.j1r_1 = min;
+  this.k1r_1 = max;
+  this.l1r_1 = at;
+}
+protoOf(BarAbove).toString = function () {
+  return 'BarAbove(point=' + this.i1r_1.toString() + ', min=' + this.j1r_1 + ', max=' + this.k1r_1 + ', at=' + this.l1r_1.toString() + ')';
+};
+protoOf(BarAbove).hashCode = function () {
+  var result = this.i1r_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.j1r_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k1r_1) | 0;
+  result = imul(result, 31) + this.l1r_1.hashCode() | 0;
+  return result;
+};
+protoOf(BarAbove).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof BarAbove))
+    return false;
+  if (!this.i1r_1.equals(other.i1r_1))
+    return false;
+  if (!equals(this.j1r_1, other.j1r_1))
+    return false;
+  if (!equals(this.k1r_1, other.k1r_1))
+    return false;
+  if (!this.l1r_1.equals(other.l1r_1))
+    return false;
+  return true;
+};
+function BarRestsOn(surface, at) {
+  at = at === VOID ? Which_START_getInstance() : at;
+  this.m1r_1 = surface;
+  this.n1r_1 = at;
+}
+protoOf(BarRestsOn).toString = function () {
+  return 'BarRestsOn(surface=' + this.m1r_1.toString() + ', at=' + this.n1r_1.toString() + ')';
+};
+protoOf(BarRestsOn).hashCode = function () {
+  var result = this.m1r_1.hashCode();
+  result = imul(result, 31) + this.n1r_1.hashCode() | 0;
+  return result;
+};
+protoOf(BarRestsOn).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof BarRestsOn))
+    return false;
+  if (!this.m1r_1.equals(other.m1r_1))
+    return false;
+  if (!this.n1r_1.equals(other.n1r_1))
+    return false;
+  return true;
+};
+function HandlesBesideLegs(within, at) {
+  at = at === VOID ? Which_START_getInstance() : at;
+  this.o1r_1 = within;
+  this.p1r_1 = at;
+}
+protoOf(HandlesBesideLegs).toString = function () {
+  return 'HandlesBesideLegs(within=' + this.o1r_1 + ', at=' + this.p1r_1.toString() + ')';
+};
+protoOf(HandlesBesideLegs).hashCode = function () {
+  var result = getNumberHashCode(this.o1r_1);
+  result = imul(result, 31) + this.p1r_1.hashCode() | 0;
+  return result;
+};
+protoOf(HandlesBesideLegs).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof HandlesBesideLegs))
+    return false;
+  if (!equals(this.o1r_1, other.o1r_1))
+    return false;
+  if (!this.p1r_1.equals(other.p1r_1))
+    return false;
+  return true;
+};
+function HandsInsideKnees(at) {
+  at = at === VOID ? Which_START_getInstance() : at;
+  this.q1r_1 = at;
+}
+protoOf(HandsInsideKnees).toString = function () {
+  return 'HandsInsideKnees(at=' + this.q1r_1.toString() + ')';
+};
+protoOf(HandsInsideKnees).hashCode = function () {
+  return this.q1r_1.hashCode();
+};
+protoOf(HandsInsideKnees).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof HandsInsideKnees))
+    return false;
+  if (!this.q1r_1.equals(other.q1r_1))
     return false;
   return true;
 };
 function ExerciseFigure(view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks) {
-  this.c1r_1 = view;
-  this.d1r_1 = start;
-  this.e1r_1 = end;
-  this.f1r_1 = startCaption;
-  this.g1r_1 = endCaption;
-  this.h1r_1 = thumbnail;
-  this.i1r_1 = guideLines;
-  this.j1r_1 = contacts;
-  this.k1r_1 = checks;
+  this.r1r_1 = view;
+  this.s1r_1 = start;
+  this.t1r_1 = end;
+  this.u1r_1 = startCaption;
+  this.v1r_1 = endCaption;
+  this.w1r_1 = thumbnail;
+  this.x1r_1 = guideLines;
+  this.y1r_1 = contacts;
+  this.z1r_1 = checks;
 }
-protoOf(ExerciseFigure).l1r = function (which) {
-  return which.equals(Which_START_getInstance()) ? this.d1r_1 : this.e1r_1;
+protoOf(ExerciseFigure).a1s = function (which) {
+  return which.equals(Which_START_getInstance()) ? this.s1r_1 : this.t1r_1;
+};
+protoOf(ExerciseFigure).b1s = function (view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks) {
+  return new ExerciseFigure(view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks);
+};
+protoOf(ExerciseFigure).c1s = function (view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks, $super) {
+  view = view === VOID ? this.r1r_1 : view;
+  start = start === VOID ? this.s1r_1 : start;
+  end = end === VOID ? this.t1r_1 : end;
+  startCaption = startCaption === VOID ? this.u1r_1 : startCaption;
+  endCaption = endCaption === VOID ? this.v1r_1 : endCaption;
+  thumbnail = thumbnail === VOID ? this.w1r_1 : thumbnail;
+  guideLines = guideLines === VOID ? this.x1r_1 : guideLines;
+  contacts = contacts === VOID ? this.y1r_1 : contacts;
+  checks = checks === VOID ? this.z1r_1 : checks;
+  return $super === VOID ? this.b1s(view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks) : $super.b1s.call(this, view, start, end, startCaption, endCaption, thumbnail, guideLines, contacts, checks);
 };
 protoOf(ExerciseFigure).toString = function () {
-  return 'ExerciseFigure(view=' + this.c1r_1.toString() + ', start=' + this.d1r_1.toString() + ', end=' + this.e1r_1.toString() + ', startCaption=' + this.f1r_1 + ', endCaption=' + this.g1r_1 + ', thumbnail=' + this.h1r_1.toString() + ', guideLines=' + toString(this.i1r_1) + ', contacts=' + toString(this.j1r_1) + ', checks=' + toString(this.k1r_1) + ')';
+  return 'ExerciseFigure(view=' + this.r1r_1.toString() + ', start=' + this.s1r_1.toString() + ', end=' + this.t1r_1.toString() + ', startCaption=' + this.u1r_1 + ', endCaption=' + this.v1r_1 + ', thumbnail=' + this.w1r_1.toString() + ', guideLines=' + toString(this.x1r_1) + ', contacts=' + toString(this.y1r_1) + ', checks=' + toString(this.z1r_1) + ')';
 };
 protoOf(ExerciseFigure).hashCode = function () {
-  var result = this.c1r_1.hashCode();
-  result = imul(result, 31) + this.d1r_1.hashCode() | 0;
-  result = imul(result, 31) + this.e1r_1.hashCode() | 0;
-  result = imul(result, 31) + getStringHashCode(this.f1r_1) | 0;
-  result = imul(result, 31) + getStringHashCode(this.g1r_1) | 0;
-  result = imul(result, 31) + this.h1r_1.hashCode() | 0;
-  result = imul(result, 31) + hashCode(this.i1r_1) | 0;
-  result = imul(result, 31) + hashCode(this.j1r_1) | 0;
-  result = imul(result, 31) + hashCode(this.k1r_1) | 0;
+  var result = this.r1r_1.hashCode();
+  result = imul(result, 31) + this.s1r_1.hashCode() | 0;
+  result = imul(result, 31) + this.t1r_1.hashCode() | 0;
+  result = imul(result, 31) + getStringHashCode(this.u1r_1) | 0;
+  result = imul(result, 31) + getStringHashCode(this.v1r_1) | 0;
+  result = imul(result, 31) + this.w1r_1.hashCode() | 0;
+  result = imul(result, 31) + hashCode(this.x1r_1) | 0;
+  result = imul(result, 31) + hashCode(this.y1r_1) | 0;
+  result = imul(result, 31) + hashCode(this.z1r_1) | 0;
   return result;
 };
 protoOf(ExerciseFigure).equals = function (other) {
@@ -5569,43 +5766,43 @@ protoOf(ExerciseFigure).equals = function (other) {
     return true;
   if (!(other instanceof ExerciseFigure))
     return false;
-  if (!this.c1r_1.equals(other.c1r_1))
+  if (!this.r1r_1.equals(other.r1r_1))
     return false;
-  if (!this.d1r_1.equals(other.d1r_1))
+  if (!this.s1r_1.equals(other.s1r_1))
     return false;
-  if (!this.e1r_1.equals(other.e1r_1))
+  if (!this.t1r_1.equals(other.t1r_1))
     return false;
-  if (!(this.f1r_1 === other.f1r_1))
+  if (!(this.u1r_1 === other.u1r_1))
     return false;
-  if (!(this.g1r_1 === other.g1r_1))
+  if (!(this.v1r_1 === other.v1r_1))
     return false;
-  if (!this.h1r_1.equals(other.h1r_1))
+  if (!this.w1r_1.equals(other.w1r_1))
     return false;
-  if (!equals(this.i1r_1, other.i1r_1))
+  if (!equals(this.x1r_1, other.x1r_1))
     return false;
-  if (!equals(this.j1r_1, other.j1r_1))
+  if (!equals(this.y1r_1, other.y1r_1))
     return false;
-  if (!equals(this.k1r_1, other.k1r_1))
+  if (!equals(this.z1r_1, other.z1r_1))
     return false;
   return true;
 };
 function Probe(label, a, b, radius, handGrip) {
   handGrip = handGrip === VOID ? null : handGrip;
-  this.m1r_1 = label;
-  this.n1r_1 = a;
-  this.o1r_1 = b;
-  this.p1r_1 = radius;
-  this.q1r_1 = handGrip;
+  this.d1s_1 = label;
+  this.e1s_1 = a;
+  this.f1s_1 = b;
+  this.g1s_1 = radius;
+  this.h1s_1 = handGrip;
 }
 protoOf(Probe).toString = function () {
-  return 'Probe(label=' + this.m1r_1 + ', a=' + this.n1r_1.toString() + ', b=' + this.o1r_1.toString() + ', radius=' + this.p1r_1 + ', handGrip=' + toString_0(this.q1r_1) + ')';
+  return 'Probe(label=' + this.d1s_1 + ', a=' + this.e1s_1.toString() + ', b=' + this.f1s_1.toString() + ', radius=' + this.g1s_1 + ', handGrip=' + toString_0(this.h1s_1) + ')';
 };
 protoOf(Probe).hashCode = function () {
-  var result = getStringHashCode(this.m1r_1);
-  result = imul(result, 31) + this.n1r_1.hashCode() | 0;
-  result = imul(result, 31) + this.o1r_1.hashCode() | 0;
-  result = imul(result, 31) + getNumberHashCode(this.p1r_1) | 0;
-  result = imul(result, 31) + (this.q1r_1 == null ? 0 : this.q1r_1.hashCode()) | 0;
+  var result = getStringHashCode(this.d1s_1);
+  result = imul(result, 31) + this.e1s_1.hashCode() | 0;
+  result = imul(result, 31) + this.f1s_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.g1s_1) | 0;
+  result = imul(result, 31) + (this.h1s_1 == null ? 0 : this.h1s_1.hashCode()) | 0;
   return result;
 };
 protoOf(Probe).equals = function (other) {
@@ -5613,23 +5810,23 @@ protoOf(Probe).equals = function (other) {
     return true;
   if (!(other instanceof Probe))
     return false;
-  if (!(this.m1r_1 === other.m1r_1))
+  if (!(this.d1s_1 === other.d1s_1))
     return false;
-  if (!this.n1r_1.equals(other.n1r_1))
+  if (!this.e1s_1.equals(other.e1s_1))
     return false;
-  if (!this.o1r_1.equals(other.o1r_1))
+  if (!this.f1s_1.equals(other.f1s_1))
     return false;
-  if (!equals(this.p1r_1, other.p1r_1))
+  if (!equals(this.g1s_1, other.g1s_1))
     return false;
-  if (!equals(this.q1r_1, other.q1r_1))
+  if (!equals(this.h1s_1, other.h1s_1))
     return false;
   return true;
 };
 function probes(_this__u8e3s4, point) {
   var tmp;
-  switch (point.t1_1) {
+  switch (point.w1_1) {
     case 0:
-      tmp = listOf_0(new Probe('head', _this__u8e3s4.c1q_1, _this__u8e3s4.c1q_1, 10.0));
+      tmp = listOf_0(new Probe('head', _this__u8e3s4.h1q_1, _this__u8e3s4.h1q_1, 10.0));
       break;
     case 1:
       // Inline function 'kotlin.let' call
@@ -5646,11 +5843,11 @@ function probes(_this__u8e3s4, point) {
     case 3:
       // Inline function 'kotlin.let' call
 
-      var it_1 = _this__u8e3s4.g1q(Segment_TORSO_getInstance().a() - 8.0, 0.0);
+      var it_1 = _this__u8e3s4.m1q(Segment_TORSO_getInstance().a() - 8.0, 0.0);
       tmp = listOf_0(new Probe('upper back', it_1, it_1, 10.0));
       break;
     case 4:
-      tmp = listOf_0(new Probe('hips', _this__u8e3s4.z1p_1, _this__u8e3s4.z1p_1, 10.0));
+      tmp = listOf_0(new Probe('hips', _this__u8e3s4.e1q_1, _this__u8e3s4.e1q_1, 10.0));
       break;
     case 5:
       // Inline function 'kotlin.collections.map' call
@@ -5663,8 +5860,8 @@ function probes(_this__u8e3s4, point) {
       while (_iterator__ex2g4s.k()) {
         var item = _iterator__ex2g4s.l();
         // Inline function 'kotlin.let' call
-        var it_2 = _this__u8e3s4.f1q(item);
-        var tmp$ret$8 = new Probe(get_label(item) + ' thigh', it_2.s1p_1, it_2.t1p_1, 14.0 / 2);
+        var it_2 = _this__u8e3s4.l1q(item);
+        var tmp$ret$8 = new Probe(get_label(item) + ' thigh', it_2.x1p_1, it_2.y1p_1, 14.0 / 2);
         destination.i(tmp$ret$8);
       }
 
@@ -5736,6 +5933,24 @@ function probes(_this__u8e3s4, point) {
     case 14:
       tmp = listOf_0(probes$hand(_this__u8e3s4, Side_FAR_getInstance()));
       break;
+    case 15:
+      // Inline function 'kotlin.collections.map' call
+
+      var this_4 = get_entries_0();
+      // Inline function 'kotlin.collections.mapTo' call
+
+      var destination_3 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_4, 10));
+      var _iterator__ex2g4s_3 = this_4.j();
+      while (_iterator__ex2g4s_3.k()) {
+        var item_3 = _iterator__ex2g4s_3.l();
+        // Inline function 'kotlin.let' call
+        var it_3 = _this__u8e3s4.l1q(item_3).t1p_1;
+        var tmp$ret$22 = new Probe(get_label(item_3) + ' elbow', it_3, it_3, 10.0 / 2);
+        destination_3.i(tmp$ret$22);
+      }
+
+      tmp = destination_3;
+      break;
     default:
       noWhenBranchMatchedException();
       break;
@@ -5745,33 +5960,33 @@ function probes(_this__u8e3s4, point) {
 function get_label(_this__u8e3s4) {
   // Inline function 'kotlin.text.lowercase' call
   // Inline function 'kotlin.js.asDynamic' call
-  return _this__u8e3s4.s1_1.toLowerCase();
+  return _this__u8e3s4.v1_1.toLowerCase();
 }
 function chest_0(_this__u8e3s4) {
-  return _this__u8e3s4.g1q(Segment_TORSO_getInstance().a() - 17.0, 12.5);
+  return _this__u8e3s4.m1q(Segment_TORSO_getInstance().a() - 17.0, 12.5);
 }
 function upperChest(_this__u8e3s4) {
-  return _this__u8e3s4.g1q(Segment_TORSO_getInstance().a() - 12.0, 12.5);
+  return _this__u8e3s4.m1q(Segment_TORSO_getInstance().a() - 12.0, 12.5);
 }
 function point(_this__u8e3s4, point) {
   // Inline function 'kotlin.let' call
   var it = first(probes(_this__u8e3s4, point));
-  return it.n1r_1.q1o(it.o1r_1).s1o(0.5);
+  return it.e1s_1.q1o(it.f1s_1).s1o(0.5);
 }
 function probes$foot($this_probes, side) {
   // Inline function 'kotlin.let' call
-  var it = $this_probes.f1q(side);
-  return new Probe(get_label(side) + ' foot', it.v1p_1, it.w1p_1, 7.0 / 2);
+  var it = $this_probes.l1q(side);
+  return new Probe(get_label(side) + ' foot', it.a1q_1, it.b1q_1, 7.0 / 2);
 }
 function probes$knee($this_probes, side) {
   // Inline function 'kotlin.let' call
-  var it = $this_probes.f1q(side).t1p_1;
+  var it = $this_probes.l1q(side).y1p_1;
   return new Probe(get_label(side) + ' knee', it, it, 11.0 / 2);
 }
 function probes$hand($this_probes, side) {
   // Inline function 'kotlin.let' call
-  var it = $this_probes.f1q(side);
-  return new Probe(get_label(side) + ' hand', it.p1p_1, it.q1p_1, 6.0 / 2, it.r1p_1);
+  var it = $this_probes.l1q(side);
+  return new Probe(get_label(side) + ' hand', it.u1p_1, it.v1p_1, 6.0 / 2, it.w1p_1);
 }
 function View_SIDE_getInstance() {
   static_init_5();
@@ -5833,6 +6048,10 @@ function BodyPoint_FAR_HAND_getInstance() {
   static_init_7();
   return BodyPoint_FAR_HAND_instance;
 }
+function BodyPoint_ELBOWS_getInstance() {
+  static_init_7();
+  return BodyPoint_ELBOWS_instance;
+}
 function Surface_FLOOR_getInstance() {
   static_init_8();
   return Surface_FLOOR_instance;
@@ -5861,6 +6080,26 @@ function Surface_PULL_UP_BAR_getInstance() {
   static_init_8();
   return Surface_PULL_UP_BAR_instance;
 }
+function Surface_BOX_getInstance() {
+  static_init_8();
+  return Surface_BOX_instance;
+}
+function Surface_PLATFORM_getInstance() {
+  static_init_8();
+  return Surface_PLATFORM_instance;
+}
+function Surface_BLOCK_getInstance() {
+  static_init_8();
+  return Surface_BLOCK_instance;
+}
+function Surface_BOARD_getInstance() {
+  static_init_8();
+  return Surface_BOARD_instance;
+}
+function Surface_SAFETY_ARM_getInstance() {
+  static_init_8();
+  return Surface_SAFETY_ARM_instance;
+}
 function clip($this, s) {
   var tmp;
   if (s instanceof Capsule) {
@@ -5868,18 +6107,18 @@ function clip($this, s) {
   } else {
     if (s instanceof RoundRect) {
       // Inline function 'kotlin.math.max' call
-      var a = s.s1r_1;
+      var a = s.j1s_1;
       var x1 = Math.max(a, 0.0);
       // Inline function 'kotlin.math.max' call
-      var a_0 = s.t1r_1;
+      var a_0 = s.k1s_1;
       var y1 = Math.max(a_0, 0.0);
-      var tmp0 = s.s1r_1 + s.u1r_1;
+      var tmp0 = s.j1s_1 + s.l1s_1;
       // Inline function 'kotlin.math.min' call
-      var b = FigureRenderer_getInstance().z1r_1.x1r_1;
+      var b = FigureRenderer_getInstance().q1s_1.o1s_1;
       var x2 = Math.min(tmp0, b);
-      var tmp0_0 = s.t1r_1 + s.v1r_1;
+      var tmp0_0 = s.k1s_1 + s.m1s_1;
       // Inline function 'kotlin.math.min' call
-      var b_0 = FigureRenderer_getInstance().z1r_1.y1r_1;
+      var b_0 = FigureRenderer_getInstance().q1s_1.p1s_1;
       var y2 = Math.min(tmp0_0, b_0);
       var tmp_0;
       if (x2 <= x1 || y2 <= y1) {
@@ -5887,14 +6126,14 @@ function clip($this, s) {
       } else {
         var tmp_1 = x2 - x1;
         var tmp_2 = y2 - y1;
-        var tmp0_1 = s.w1r_1;
+        var tmp0_1 = s.n1s_1;
         var tmp0_2 = x2 - x1;
         // Inline function 'kotlin.math.min' call
         var b_1 = y2 - y1;
         // Inline function 'kotlin.math.min' call
         var b_2 = Math.min(tmp0_2, b_1) / 2;
         var tmp$ret$5 = Math.min(tmp0_1, b_2);
-        tmp_0 = s.f1s(VOID, x1, y1, tmp_1, tmp_2, tmp$ret$5);
+        tmp_0 = s.w1s(VOID, x1, y1, tmp_1, tmp_2, tmp$ret$5);
       }
       tmp = tmp_0;
     } else {
@@ -5904,20 +6143,20 @@ function clip($this, s) {
   return tmp;
 }
 function clipCapsule($this, c) {
-  var h = c.l1s_1 / 2;
+  var h = c.c1t_1 / 2;
   var minX = h;
   var minY = h;
-  var maxX = FigureRenderer_getInstance().z1r_1.x1r_1 - h;
-  var maxY = FigureRenderer_getInstance().z1r_1.y1r_1 - h;
-  var dx = c.j1s_1 - c.h1s_1;
-  var dy = c.k1s_1 - c.i1s_1;
+  var maxX = FigureRenderer_getInstance().q1s_1.o1s_1 - h;
+  var maxY = FigureRenderer_getInstance().q1s_1.p1s_1 - h;
+  var dx = c.a1t_1 - c.y1s_1;
+  var dy = c.b1t_1 - c.z1s_1;
   var t0 = 0.0;
   var t1 = 1.0;
-  var _iterator__ex2g4s = listOf([to(-dx, c.h1s_1 - minX), to(dx, maxX - c.h1s_1), to(-dy, c.i1s_1 - minY), to(dy, maxY - c.i1s_1)]).j();
+  var _iterator__ex2g4s = listOf([to(-dx, c.y1s_1 - minX), to(dx, maxX - c.y1s_1), to(-dy, c.z1s_1 - minY), to(dy, maxY - c.z1s_1)]).j();
   while (_iterator__ex2g4s.k()) {
     var _destruct__k2r9zo = _iterator__ex2g4s.l();
-    var p = _destruct__k2r9zo.va();
-    var q = _destruct__k2r9zo.wa();
+    var p = _destruct__k2r9zo.ya();
+    var q = _destruct__k2r9zo.za();
     if (p === 0.0) {
       if (q < 0)
         return null;
@@ -5936,29 +6175,29 @@ function clipCapsule($this, c) {
   }
   if (t0 > t1)
     return null;
-  return c.m1s(VOID, c.h1s_1 + t0 * dx, c.i1s_1 + t0 * dy, c.h1s_1 + t1 * dx, c.i1s_1 + t1 * dy);
+  return c.d1t(VOID, c.y1s_1 + t0 * dx, c.z1s_1 + t0 * dy, c.y1s_1 + t1 * dx, c.z1s_1 + t1 * dy);
 }
 function LimbSegment(label, a, b, width) {
-  this.n1s_1 = label;
-  this.o1s_1 = a;
-  this.p1s_1 = b;
-  this.q1s_1 = width;
+  this.e1t_1 = label;
+  this.f1t_1 = a;
+  this.g1t_1 = b;
+  this.h1t_1 = width;
 }
-protoOf(LimbSegment).r1s = function (role, extra) {
-  return new Capsule(role, this.o1s_1.o1o_1, this.o1s_1.p1o_1, this.p1s_1.o1o_1, this.p1s_1.p1o_1, this.q1s_1 + extra);
+protoOf(LimbSegment).i1t = function (role, extra) {
+  return new Capsule(role, this.f1t_1.o1o_1, this.f1t_1.p1o_1, this.g1t_1.o1o_1, this.g1t_1.p1o_1, this.h1t_1 + extra);
 };
-protoOf(LimbSegment).s1s = function (role, extra, $super) {
+protoOf(LimbSegment).j1t = function (role, extra, $super) {
   extra = extra === VOID ? 0.0 : extra;
-  return $super === VOID ? this.r1s(role, extra) : $super.r1s.call(this, role, extra);
+  return $super === VOID ? this.i1t(role, extra) : $super.i1t.call(this, role, extra);
 };
 protoOf(LimbSegment).toString = function () {
-  return 'LimbSegment(label=' + this.n1s_1 + ', a=' + this.o1s_1.toString() + ', b=' + this.p1s_1.toString() + ', width=' + this.q1s_1 + ')';
+  return 'LimbSegment(label=' + this.e1t_1 + ', a=' + this.f1t_1.toString() + ', b=' + this.g1t_1.toString() + ', width=' + this.h1t_1 + ')';
 };
 protoOf(LimbSegment).hashCode = function () {
-  var result = getStringHashCode(this.n1s_1);
-  result = imul(result, 31) + this.o1s_1.hashCode() | 0;
-  result = imul(result, 31) + this.p1s_1.hashCode() | 0;
-  result = imul(result, 31) + getNumberHashCode(this.q1s_1) | 0;
+  var result = getStringHashCode(this.e1t_1);
+  result = imul(result, 31) + this.f1t_1.hashCode() | 0;
+  result = imul(result, 31) + this.g1t_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.h1t_1) | 0;
   return result;
 };
 protoOf(LimbSegment).equals = function (other) {
@@ -5966,32 +6205,32 @@ protoOf(LimbSegment).equals = function (other) {
     return true;
   if (!(other instanceof LimbSegment))
     return false;
-  if (!(this.n1s_1 === other.n1s_1))
+  if (!(this.e1t_1 === other.e1t_1))
     return false;
-  if (!this.o1s_1.equals(other.o1s_1))
+  if (!this.f1t_1.equals(other.f1t_1))
     return false;
-  if (!this.p1s_1.equals(other.p1s_1))
+  if (!this.g1t_1.equals(other.g1t_1))
     return false;
-  if (!equals(this.q1s_1, other.q1s_1))
+  if (!equals(this.h1t_1, other.h1t_1))
     return false;
   return true;
 };
 function _get_sideOutline__9srzei($this) {
-  var tmp0 = $this.d1s_1;
+  var tmp0 = $this.u1s_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('sideOutline', 1, tmp, FigureRenderer$_get_sideOutline_$ref_55h0jc(), null);
   return tmp0.t();
 }
 function _get_frontOutline__9swgb6($this) {
-  var tmp0 = $this.e1s_1;
+  var tmp0 = $this.v1s_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('frontOutline', 1, tmp, FigureRenderer$_get_frontOutline_$ref_ipn4ri(), null);
   return tmp0.t();
 }
 function torso($this, s) {
-  var outline = s.x1p_1.equals(View_SIDE_getInstance()) ? _get_sideOutline__9srzei($this) : _get_frontOutline__9swgb6($this);
+  var outline = s.c1q_1.equals(View_SIDE_getInstance()) ? _get_sideOutline__9srzei($this) : _get_frontOutline__9swgb6($this);
   var tmp = Role_BODY_getInstance();
   // Inline function 'kotlin.collections.flatMap' call
   // Inline function 'kotlin.collections.flatMapTo' call
@@ -5999,52 +6238,52 @@ function torso($this, s) {
   var _iterator__ex2g4s = outline.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    var along = element.va();
-    var front = element.wa();
+    var along = element.ya();
+    var front = element.za();
     // Inline function 'kotlin.let' call
-    var it = s.g1q(along, front);
+    var it = s.m1q(along, front);
     var list = listOf([it.o1o_1, it.p1o_1]);
     addAll(destination, list);
   }
   return new Polygon(tmp, destination);
 }
 function Fit(scale, ox, oy, marginX) {
-  this.t1s_1 = scale;
-  this.u1s_1 = ox;
-  this.v1s_1 = oy;
-  this.w1s_1 = marginX;
+  this.k1t_1 = scale;
+  this.l1t_1 = ox;
+  this.m1t_1 = oy;
+  this.n1t_1 = marginX;
 }
-protoOf(Fit).x1s = function (v) {
-  return v * this.t1s_1 + this.u1s_1;
+protoOf(Fit).o1t = function (v) {
+  return v * this.k1t_1 + this.l1t_1;
 };
-protoOf(Fit).y1s = function (v) {
-  return v * this.t1s_1 + this.v1s_1;
+protoOf(Fit).p1t = function (v) {
+  return v * this.k1t_1 + this.m1t_1;
 };
-protoOf(Fit).z1s = function (p) {
-  var s = p.a1t_1;
+protoOf(Fit).q1t = function (p) {
+  var s = p.r1t_1;
   var tmp;
-  if (p.c1t_1) {
+  if (p.t1t_1) {
     tmp = s instanceof Capsule;
   } else {
     tmp = false;
   }
   if (tmp) {
-    var w = s.l1s_1 * this.t1s_1;
-    return new Capsule(s.g1s_1, r(FigureRenderer_getInstance(), this.w1s_1 + w / 2), r(FigureRenderer_getInstance(), this.y1s(s.i1s_1)), r(FigureRenderer_getInstance(), FigureRenderer_getInstance().z1r_1.x1r_1 - this.w1s_1 - w / 2), r(FigureRenderer_getInstance(), this.y1s(s.k1s_1)), r(FigureRenderer_getInstance(), w));
+    var w = s.c1t_1 * this.k1t_1;
+    return new Capsule(s.x1s_1, r(FigureRenderer_getInstance(), this.n1t_1 + w / 2), r(FigureRenderer_getInstance(), this.p1t(s.z1s_1)), r(FigureRenderer_getInstance(), FigureRenderer_getInstance().q1s_1.o1s_1 - this.n1t_1 - w / 2), r(FigureRenderer_getInstance(), this.p1t(s.b1t_1)), r(FigureRenderer_getInstance(), w));
   }
   var tmp_0;
   if (s instanceof Circle) {
-    tmp_0 = new Circle(s.f1t_1, this.x1s(s.g1t_1), this.y1s(s.h1t_1), s.i1t_1 * this.t1s_1);
+    tmp_0 = new Circle(s.w1t_1, this.o1t(s.x1t_1), this.p1t(s.y1t_1), s.z1t_1 * this.k1t_1);
   } else {
     if (s instanceof Capsule) {
-      tmp_0 = new Capsule(s.g1s_1, this.x1s(s.h1s_1), this.y1s(s.i1s_1), this.x1s(s.j1s_1), this.y1s(s.k1s_1), s.l1s_1 * this.t1s_1);
+      tmp_0 = new Capsule(s.x1s_1, this.o1t(s.y1s_1), this.p1t(s.z1s_1), this.o1t(s.a1t_1), this.p1t(s.b1t_1), s.c1t_1 * this.k1t_1);
     } else {
       if (s instanceof RoundRect) {
-        tmp_0 = new RoundRect(s.r1r_1, this.x1s(s.s1r_1), this.y1s(s.t1r_1), s.u1r_1 * this.t1s_1, s.v1r_1 * this.t1s_1, s.w1r_1 * this.t1s_1);
+        tmp_0 = new RoundRect(s.i1s_1, this.o1t(s.j1s_1), this.p1t(s.k1s_1), s.l1s_1 * this.k1t_1, s.m1s_1 * this.k1t_1, s.n1s_1 * this.k1t_1);
       } else {
         if (s instanceof Polygon) {
           // Inline function 'kotlin.collections.mapIndexed' call
-          var this_0 = s.e1t_1;
+          var this_0 = s.v1t_1;
           // Inline function 'kotlin.collections.mapIndexedTo' call
           var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
           var index = 0;
@@ -6053,10 +6292,10 @@ protoOf(Fit).z1s = function (p) {
             var item = _iterator__ex2g4s.l();
             var _unary__edvuaz = index;
             index = _unary__edvuaz + 1 | 0;
-            var tmp$ret$2 = (checkIndexOverflow(_unary__edvuaz) % 2 | 0) === 0 ? this.x1s(item) : this.y1s(item);
+            var tmp$ret$2 = (checkIndexOverflow(_unary__edvuaz) % 2 | 0) === 0 ? this.o1t(item) : this.p1t(item);
             destination.i(tmp$ret$2);
           }
-          tmp_0 = new Polygon(s.d1t_1, destination);
+          tmp_0 = new Polygon(s.u1t_1, destination);
         } else {
           noWhenBranchMatchedException();
         }
@@ -6064,7 +6303,7 @@ protoOf(Fit).z1s = function (p) {
     }
   }
   var t = tmp_0;
-  var tmp1_safe_receiver = p.b1t_1 ? t : clip(this, t);
+  var tmp1_safe_receiver = p.s1t_1 ? t : clip(this, t);
   var tmp_1;
   if (tmp1_safe_receiver == null) {
     tmp_1 = null;
@@ -6081,17 +6320,17 @@ function r($this, v) {
 function rounded($this, s) {
   var tmp;
   if (s instanceof Circle) {
-    tmp = s.k1t(VOID, r($this, s.g1t_1), r($this, s.h1t_1), r($this, s.i1t_1));
+    tmp = s.b1u(VOID, r($this, s.x1t_1), r($this, s.y1t_1), r($this, s.z1t_1));
   } else {
     if (s instanceof Capsule) {
-      tmp = s.m1s(VOID, r($this, s.h1s_1), r($this, s.i1s_1), r($this, s.j1s_1), r($this, s.k1s_1), r($this, s.l1s_1));
+      tmp = s.d1t(VOID, r($this, s.y1s_1), r($this, s.z1s_1), r($this, s.a1t_1), r($this, s.b1t_1), r($this, s.c1t_1));
     } else {
       if (s instanceof RoundRect) {
-        tmp = s.f1s(VOID, r($this, s.s1r_1), r($this, s.t1r_1), r($this, s.u1r_1), r($this, s.v1r_1), r($this, s.w1r_1));
+        tmp = s.w1s(VOID, r($this, s.j1s_1), r($this, s.k1s_1), r($this, s.l1s_1), r($this, s.m1s_1), r($this, s.n1s_1));
       } else {
         if (s instanceof Polygon) {
           // Inline function 'kotlin.collections.map' call
-          var this_0 = s.e1t_1;
+          var this_0 = s.v1t_1;
           // Inline function 'kotlin.collections.mapTo' call
           var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
           var _iterator__ex2g4s = this_0.j();
@@ -6100,7 +6339,7 @@ function rounded($this, s) {
             var tmp$ret$2 = r($this, item);
             destination.i(tmp$ret$2);
           }
-          tmp = s.j1t(VOID, destination);
+          tmp = s.a1u(VOID, destination);
         } else {
           noWhenBranchMatchedException();
         }
@@ -6131,34 +6370,34 @@ function FigureRenderer$_get_frontOutline_$ref_ipn4ri() {
 }
 function FigureRenderer() {
   FigureRenderer_instance = this;
-  this.z1r_1 = new ViewBox(400.0, 300.0);
-  this.a1s_1 = 0.06;
-  this.b1s_1 = emptyMap();
-  this.c1s_1 = emptyMap();
+  this.q1s_1 = new ViewBox(400.0, 300.0);
+  this.r1s_1 = 0.06;
+  this.s1s_1 = emptyMap();
+  this.t1s_1 = emptyMap();
   var tmp = this;
-  tmp.d1s_1 = lazy(FigureRenderer$sideOutline$delegate$lambda);
+  tmp.u1s_1 = lazy(FigureRenderer$sideOutline$delegate$lambda);
   var tmp_0 = this;
-  tmp_0.e1s_1 = lazy(FigureRenderer$frontOutline$delegate$lambda);
+  tmp_0.v1s_1 = lazy(FigureRenderer$frontOutline$delegate$lambda);
 }
-protoOf(FigureRenderer).l1t = function (figure, which) {
+protoOf(FigureRenderer).c1u = function (figure, which) {
   var key = to(figure, which);
-  var tmp0_safe_receiver = this.b1s_1.p1(key);
+  var tmp0_safe_receiver = this.s1s_1.s1(key);
   if (tmp0_safe_receiver == null)
     null;
   else {
     // Inline function 'kotlin.let' call
     return tmp0_safe_receiver;
   }
-  var fit = this.m1t(figure);
+  var fit = this.d1u(figure);
   // Inline function 'kotlin.collections.mapNotNull' call
-  var tmp0 = this.n1t(figure.l1r(which), figure.c1r_1);
+  var tmp0 = this.e1u(figure.a1s(which), figure.r1r_1);
   // Inline function 'kotlin.collections.mapNotNullTo' call
   var destination = ArrayList_init_$Create$();
   // Inline function 'kotlin.collections.forEach' call
   var _iterator__ex2g4s = tmp0.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    var tmp0_safe_receiver_0 = fit.z1s(element);
+    var tmp0_safe_receiver_0 = fit.q1t(element);
     if (tmp0_safe_receiver_0 == null)
       null;
     else {
@@ -6167,14 +6406,14 @@ protoOf(FigureRenderer).l1t = function (figure, which) {
     }
   }
   var out = destination;
-  var stored = this.b1s_1.p1(key);
+  var stored = this.s1s_1.s1(key);
   if (!(stored == null))
     return stored;
-  this.b1s_1 = plus_1(this.b1s_1, to(key, out));
+  this.s1s_1 = plus_1(this.s1s_1, to(key, out));
   return out;
 };
-protoOf(FigureRenderer).m1t = function (figure) {
-  var tmp0_safe_receiver = this.c1s_1.p1(figure);
+protoOf(FigureRenderer).d1u = function (figure) {
+  var tmp0_safe_receiver = this.t1s_1.s1(figure);
   if (tmp0_safe_receiver == null)
     null;
   else {
@@ -6188,7 +6427,7 @@ protoOf(FigureRenderer).m1t = function (figure) {
   var _iterator__ex2g4s = tmp0.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    var list = FigureRenderer_getInstance().n1t(figure.l1r(element), figure.c1r_1);
+    var list = FigureRenderer_getInstance().e1u(figure.a1s(element), figure.r1r_1);
     addAll(destination, list);
   }
   var placed = destination;
@@ -6197,16 +6436,16 @@ protoOf(FigureRenderer).m1t = function (figure) {
   var _iterator__ex2g4s_0 = placed.j();
   $l$loop: while (_iterator__ex2g4s_0.k()) {
     var p = _iterator__ex2g4s_0.l();
-    if (!p.b1t_1)
+    if (!p.s1t_1)
       continue $l$loop;
-    var b = bounds(p.a1t_1);
-    if (p.c1t_1) {
+    var b = bounds(p.r1t_1);
+    if (p.t1t_1) {
       var tmp1_safe_receiver = floor;
-      var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.s1t(b);
+      var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.j1u(b);
       floor = tmp2_elvis_lhs == null ? b : tmp2_elvis_lhs;
     } else {
       var tmp3_safe_receiver = content;
-      var tmp4_elvis_lhs = tmp3_safe_receiver == null ? null : tmp3_safe_receiver.s1t(b);
+      var tmp4_elvis_lhs = tmp3_safe_receiver == null ? null : tmp3_safe_receiver.j1u(b);
       content = tmp4_elvis_lhs == null ? b : tmp4_elvis_lhs;
     }
   }
@@ -6218,41 +6457,41 @@ protoOf(FigureRenderer).m1t = function (figure) {
     tmp = null;
   } else {
     // Inline function 'kotlin.let' call
-    var tmp0_0 = c.p1t_1;
+    var tmp0_0 = c.g1u_1;
     // Inline function 'kotlin.math.min' call
-    var b_0 = tmp6_safe_receiver.p1t_1;
+    var b_0 = tmp6_safe_receiver.g1u_1;
     var tmp_0 = Math.min(tmp0_0, b_0);
-    var tmp0_1 = c.r1t_1;
+    var tmp0_1 = c.i1u_1;
     // Inline function 'kotlin.math.max' call
-    var b_1 = tmp6_safe_receiver.r1t_1;
+    var b_1 = tmp6_safe_receiver.i1u_1;
     var tmp$ret$8 = Math.max(tmp0_1, b_1);
-    tmp = new Bounds(c.o1t_1, tmp_0, c.q1t_1, tmp$ret$8);
+    tmp = new Bounds(c.f1u_1, tmp_0, c.h1u_1, tmp$ret$8);
   }
   var tmp7_elvis_lhs = tmp;
   var all = tmp7_elvis_lhs == null ? c : tmp7_elvis_lhs;
-  var mx = this.z1r_1.x1r_1 * 0.06;
-  var my = this.z1r_1.y1r_1 * 0.06;
-  var tmp_1 = this.z1r_1.x1r_1 - 2 * mx;
+  var mx = this.q1s_1.o1s_1 * 0.06;
+  var my = this.q1s_1.p1s_1 * 0.06;
+  var tmp_1 = this.q1s_1.o1s_1 - 2 * mx;
   // Inline function 'kotlin.math.max' call
-  var a = all.t1t();
+  var a = all.k1u();
   var tmp0_2 = tmp_1 / Math.max(a, 1.0E-6);
-  var tmp_2 = this.z1r_1.y1r_1 - 2 * my;
+  var tmp_2 = this.q1s_1.p1s_1 - 2 * my;
   // Inline function 'kotlin.math.max' call
-  var a_0 = all.u1t();
+  var a_0 = all.l1u();
   // Inline function 'kotlin.math.min' call
   var b_2 = tmp_2 / Math.max(a_0, 1.0E-6);
   var scale = Math.min(tmp0_2, b_2);
-  var ox = (this.z1r_1.x1r_1 - all.t1t() * scale) / 2 - all.o1t_1 * scale;
-  var oy = !(floor == null) ? this.z1r_1.y1r_1 - my - all.r1t_1 * scale : (this.z1r_1.y1r_1 - all.u1t() * scale) / 2 - all.p1t_1 * scale;
+  var ox = (this.q1s_1.o1s_1 - all.k1u() * scale) / 2 - all.f1u_1 * scale;
+  var oy = !(floor == null) ? this.q1s_1.p1s_1 - my - all.i1u_1 * scale : (this.q1s_1.p1s_1 - all.l1u() * scale) / 2 - all.g1u_1 * scale;
   // Inline function 'kotlin.also' call
   var this_0 = new Fit(scale, ox, oy, mx);
-  FigureRenderer_getInstance().c1s_1 = plus_1(FigureRenderer_getInstance().c1s_1, to(figure, this_0));
+  FigureRenderer_getInstance().t1s_1 = plus_1(FigureRenderer_getInstance().t1s_1, to(figure, this_0));
   return this_0;
 };
-protoOf(FigureRenderer).n1t = function (scene, view) {
-  var s = skeleton(scene.k1q_1, view);
+protoOf(FigureRenderer).e1u = function (scene, view) {
+  var s = skeleton(scene.q1q_1, view);
   // Inline function 'kotlin.collections.filterIsInstance' call
-  var tmp0 = scene.l1q_1;
+  var tmp0 = scene.r1q_1;
   // Inline function 'kotlin.collections.filterIsInstanceTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -6264,7 +6503,7 @@ protoOf(FigureRenderer).n1t = function (scene, view) {
   }
   var fixed = destination;
   // Inline function 'kotlin.collections.filterIsInstance' call
-  var tmp0_0 = scene.l1q_1;
+  var tmp0_0 = scene.r1q_1;
   // Inline function 'kotlin.collections.filterIsInstanceTo' call
   var destination_0 = ArrayList_init_$Create$();
   var _iterator__ex2g4s_0 = tmp0_0.j();
@@ -6295,10 +6534,10 @@ protoOf(FigureRenderer).n1t = function (scene, view) {
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
-  var _iterator__ex2g4s_2 = FigureRenderer_getInstance().v1t(s.e1q_1).j();
+  var _iterator__ex2g4s_2 = FigureRenderer_getInstance().m1u(s.j1q_1).j();
   while (_iterator__ex2g4s_2.k()) {
     var seg = _iterator__ex2g4s_2.l();
-    this_0.i(new Placed(seg.s1s(farRole)));
+    this_0.i(new Placed(seg.j1t(farRole)));
   }
   var _iterator__ex2g4s_3 = fixed.j();
   while (_iterator__ex2g4s_3.k()) {
@@ -6306,21 +6545,21 @@ protoOf(FigureRenderer).n1t = function (scene, view) {
     this_0.p(draw(p, view, cableEnd));
   }
   this_0.i(new Placed(torso(FigureRenderer_getInstance(), s)));
-  this_0.i(new Placed(new Capsule(Role_BODY_getInstance(), s.b1q_1.o1o_1, s.b1q_1.p1o_1, s.c1q_1.o1o_1, s.c1q_1.p1o_1, 9.0)));
-  this_0.i(new Placed(new Circle(Role_BODY_getInstance(), s.c1q_1.o1o_1, s.c1q_1.p1o_1, 10.0)));
-  var near = FigureRenderer_getInstance().v1t(s.d1q_1);
-  var _iterator__ex2g4s_4 = listOf([near.m1(0, 3), near.m1(3, 6)]).j();
+  this_0.i(new Placed(new Capsule(Role_BODY_getInstance(), s.g1q_1.o1o_1, s.g1q_1.p1o_1, s.h1q_1.o1o_1, s.h1q_1.p1o_1, 9.0)));
+  this_0.i(new Placed(new Circle(Role_BODY_getInstance(), s.h1q_1.o1o_1, s.h1q_1.p1o_1, 10.0)));
+  var near = FigureRenderer_getInstance().m1u(s.i1q_1);
+  var _iterator__ex2g4s_4 = listOf([near.p1(0, 3), near.p1(3, 6)]).j();
   while (_iterator__ex2g4s_4.k()) {
     var limb = _iterator__ex2g4s_4.l();
     var _iterator__ex2g4s_5 = limb.j();
     while (_iterator__ex2g4s_5.k()) {
       var seg_0 = _iterator__ex2g4s_5.l();
-      this_0.i(new Placed(seg_0.r1s(Role_GAP_getInstance(), 3.0)));
+      this_0.i(new Placed(seg_0.i1t(Role_GAP_getInstance(), 3.0)));
     }
     var _iterator__ex2g4s_6 = limb.j();
     while (_iterator__ex2g4s_6.k()) {
       var seg_1 = _iterator__ex2g4s_6.l();
-      this_0.i(new Placed(seg_1.s1s(Role_BODY_getInstance())));
+      this_0.i(new Placed(seg_1.j1t(Role_BODY_getInstance())));
     }
   }
   var _iterator__ex2g4s_7 = held.j();
@@ -6333,10 +6572,10 @@ protoOf(FigureRenderer).n1t = function (scene, view) {
     var p_1 = _iterator__ex2g4s_8.l();
     this_0.p(drawFront(p_1, view));
   }
-  return this_0.w3();
+  return this_0.z3();
 };
-protoOf(FigureRenderer).v1t = function (l) {
-  return listOf([new LimbSegment('thigh', l.s1p_1, l.t1p_1, 14.0), new LimbSegment('shin', l.t1p_1, l.u1p_1, 11.0), new LimbSegment('foot', l.v1p_1, l.w1p_1, 7.0), new LimbSegment('upper arm', l.n1p_1, l.o1p_1, 10.0), new LimbSegment('forearm', l.o1p_1, l.p1p_1, 8.5), new LimbSegment('hand', l.p1p_1, l.q1p_1, 6.0)]);
+protoOf(FigureRenderer).m1u = function (l) {
+  return listOf([new LimbSegment('thigh', l.x1p_1, l.y1p_1, 14.0), new LimbSegment('shin', l.y1p_1, l.z1p_1, 11.0), new LimbSegment('foot', l.a1q_1, l.b1q_1, 7.0), new LimbSegment('upper arm', l.s1p_1, l.t1p_1, 10.0), new LimbSegment('forearm', l.t1p_1, l.u1p_1, 8.5), new LimbSegment('hand', l.u1p_1, l.v1p_1, 6.0)]);
 };
 var FigureRenderer_instance;
 function FigureRenderer_getInstance() {
@@ -6362,17 +6601,17 @@ function Figures$all$delegate$lambda() {
       // Inline function 'kotlin.collections.component2' call
       var figure = _destruct__k2r9zo.t();
       // Inline function 'kotlin.require' call
-      if (!(this_0.i2(name, figure) == null)) {
+      if (!(this_0.l2(name, figure) == null)) {
         var message = 'two figures for ' + name;
         throw IllegalArgumentException_init_$Create$(toString(message));
       }
     }
   }
-  return this_0.w3();
+  return this_0.z3();
 }
 function Figures$_get_all_$ref_10q60m() {
   return constructCallableReference(function (p0) {
-    return p0.w1t();
+    return p0.n1u();
   }, 1, 0, 29);
 }
 function Figures() {
@@ -6381,7 +6620,7 @@ function Figures() {
   tmp.d1a_1 = lazy(Figures$all$delegate$lambda);
   this.e1a_1 = emptyMap();
 }
-protoOf(Figures).w1t = function () {
+protoOf(Figures).n1u = function () {
   var tmp0 = this.d1a_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
@@ -6389,8 +6628,8 @@ protoOf(Figures).w1t = function () {
   return tmp0.t();
 };
 protoOf(Figures).f1a = function (name) {
-  var tmp0_elvis_lhs = this.e1a_1.p1(name);
-  return tmp0_elvis_lhs == null ? this.w1t().p1(name) : tmp0_elvis_lhs;
+  var tmp0_elvis_lhs = this.e1a_1.s1(name);
+  return tmp0_elvis_lhs == null ? this.n1u().s1(name) : tmp0_elvis_lhs;
 };
 var Figures_instance;
 function Figures_getInstance() {
@@ -6427,11 +6666,11 @@ function Floor_getInstance() {
   return Floor_instance;
 }
 function Companion() {
-  this.x1t_1 = 43.0;
-  this.y1t_1 = 122.0;
-  this.z1t_1 = 6.0;
-  this.a1u_1 = 30.0;
-  this.b1u_1 = 15.0;
+  this.o1u_1 = 43.0;
+  this.p1u_1 = 122.0;
+  this.q1u_1 = 6.0;
+  this.r1u_1 = 30.0;
+  this.s1u_1 = 15.0;
 }
 var Companion_instance;
 function Companion_getInstance_1() {
@@ -6442,19 +6681,19 @@ function FlatBench(x, length, height, nearLimbsBeside) {
   length = length === VOID ? 122.0 : length;
   height = height === VOID ? 43.0 : height;
   nearLimbsBeside = nearLimbsBeside === VOID ? false : nearLimbsBeside;
-  this.c1u_1 = x;
-  this.d1u_1 = length;
-  this.e1u_1 = height;
-  this.f1u_1 = nearLimbsBeside;
+  this.t1u_1 = x;
+  this.u1u_1 = length;
+  this.v1u_1 = height;
+  this.w1u_1 = nearLimbsBeside;
 }
 protoOf(FlatBench).toString = function () {
-  return 'FlatBench(x=' + this.c1u_1 + ', length=' + this.d1u_1 + ', height=' + this.e1u_1 + ', nearLimbsBeside=' + this.f1u_1 + ')';
+  return 'FlatBench(x=' + this.t1u_1 + ', length=' + this.u1u_1 + ', height=' + this.v1u_1 + ', nearLimbsBeside=' + this.w1u_1 + ')';
 };
 protoOf(FlatBench).hashCode = function () {
-  var result = getNumberHashCode(this.c1u_1);
-  result = imul(result, 31) + getNumberHashCode(this.d1u_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.e1u_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.f1u_1) | 0;
+  var result = getNumberHashCode(this.t1u_1);
+  result = imul(result, 31) + getNumberHashCode(this.u1u_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.v1u_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.w1u_1) | 0;
   return result;
 };
 protoOf(FlatBench).equals = function (other) {
@@ -6462,13 +6701,13 @@ protoOf(FlatBench).equals = function (other) {
     return true;
   if (!(other instanceof FlatBench))
     return false;
-  if (!equals(this.c1u_1, other.c1u_1))
+  if (!equals(this.t1u_1, other.t1u_1))
     return false;
-  if (!equals(this.d1u_1, other.d1u_1))
+  if (!equals(this.u1u_1, other.u1u_1))
     return false;
-  if (!equals(this.e1u_1, other.e1u_1))
+  if (!equals(this.v1u_1, other.v1u_1))
     return false;
-  if (!(this.f1u_1 === other.f1u_1))
+  if (!(this.w1u_1 === other.w1u_1))
     return false;
   return true;
 };
@@ -6476,23 +6715,23 @@ function PowerRack(x, jHookHeight, safetyHeight, armLength, height, lifterLeft) 
   armLength = armLength === VOID ? 80.0 : armLength;
   height = height === VOID ? 230.0 : height;
   lifterLeft = lifterLeft === VOID ? false : lifterLeft;
-  this.g1u_1 = x;
-  this.h1u_1 = jHookHeight;
-  this.i1u_1 = safetyHeight;
-  this.j1u_1 = armLength;
-  this.k1u_1 = height;
-  this.l1u_1 = lifterLeft;
+  this.x1u_1 = x;
+  this.y1u_1 = jHookHeight;
+  this.z1u_1 = safetyHeight;
+  this.a1v_1 = armLength;
+  this.b1v_1 = height;
+  this.c1v_1 = lifterLeft;
 }
 protoOf(PowerRack).toString = function () {
-  return 'PowerRack(x=' + this.g1u_1 + ', jHookHeight=' + this.h1u_1 + ', safetyHeight=' + this.i1u_1 + ', armLength=' + this.j1u_1 + ', height=' + this.k1u_1 + ', lifterLeft=' + this.l1u_1 + ')';
+  return 'PowerRack(x=' + this.x1u_1 + ', jHookHeight=' + this.y1u_1 + ', safetyHeight=' + this.z1u_1 + ', armLength=' + this.a1v_1 + ', height=' + this.b1v_1 + ', lifterLeft=' + this.c1v_1 + ')';
 };
 protoOf(PowerRack).hashCode = function () {
-  var result = getNumberHashCode(this.g1u_1);
-  result = imul(result, 31) + getNumberHashCode(this.h1u_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.i1u_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.j1u_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.k1u_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.l1u_1) | 0;
+  var result = getNumberHashCode(this.x1u_1);
+  result = imul(result, 31) + getNumberHashCode(this.y1u_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.z1u_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a1v_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.b1v_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.c1v_1) | 0;
   return result;
 };
 protoOf(PowerRack).equals = function (other) {
@@ -6500,17 +6739,17 @@ protoOf(PowerRack).equals = function (other) {
     return true;
   if (!(other instanceof PowerRack))
     return false;
-  if (!equals(this.g1u_1, other.g1u_1))
+  if (!equals(this.x1u_1, other.x1u_1))
     return false;
-  if (!equals(this.h1u_1, other.h1u_1))
+  if (!equals(this.y1u_1, other.y1u_1))
     return false;
-  if (!equals(this.i1u_1, other.i1u_1))
+  if (!equals(this.z1u_1, other.z1u_1))
     return false;
-  if (!equals(this.j1u_1, other.j1u_1))
+  if (!equals(this.a1v_1, other.a1v_1))
     return false;
-  if (!equals(this.k1u_1, other.k1u_1))
+  if (!equals(this.b1v_1, other.b1v_1))
     return false;
-  if (!(this.l1u_1 === other.l1u_1))
+  if (!(this.c1v_1 === other.c1v_1))
     return false;
   return true;
 };
@@ -6521,18 +6760,20 @@ function static_init_9() {
   static_init_called_9 = true;
   BarHold_HANDS_instance = new BarHold('HANDS', 0);
   BarHold_UPPER_BACK_instance = new BarHold('UPPER_BACK', 1);
+  BarHold_FRONT_RACK_instance = new BarHold('FRONT_RACK', 2);
 }
 var BarHold_HANDS_instance;
 var BarHold_UPPER_BACK_instance;
+var BarHold_FRONT_RACK_instance;
 function BarHold(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
 function Companion_0() {
-  this.m1u_1 = 45.0;
-  this.n1u_1 = 1.45;
-  this.o1u_1 = 2.5;
-  this.p1u_1 = 220.0;
-  this.q1u_1 = 131.0;
+  this.d1v_1 = 45.0;
+  this.e1v_1 = 1.45;
+  this.f1v_1 = 2.5;
+  this.g1v_1 = 220.0;
+  this.h1v_1 = 131.0;
 }
 var Companion_instance_0;
 function Companion_getInstance_2() {
@@ -6540,46 +6781,214 @@ function Companion_getInstance_2() {
 }
 function Barbell(on) {
   on = on === VOID ? BarHold_HANDS_getInstance() : on;
-  this.r1u_1 = on;
+  this.i1v_1 = on;
 }
 protoOf(Barbell).toString = function () {
-  return 'Barbell(on=' + this.r1u_1.toString() + ')';
+  return 'Barbell(on=' + this.i1v_1.toString() + ')';
 };
 protoOf(Barbell).hashCode = function () {
-  return this.r1u_1.hashCode();
+  return this.i1v_1.hashCode();
 };
 protoOf(Barbell).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof Barbell))
     return false;
-  if (!this.r1u_1.equals(other.r1u_1))
+  if (!this.i1v_1.equals(other.i1v_1))
+    return false;
+  return true;
+};
+function SafetySquatBar() {
+  this.j1v_1 = 15.0;
+  this.k1v_1 = 8.0;
+  this.l1v_1 = 5.0;
+  this.m1v_1 = 12.0;
+  this.n1v_1 = 24.0;
+}
+protoOf(SafetySquatBar).toString = function () {
+  return 'SafetySquatBar';
+};
+protoOf(SafetySquatBar).hashCode = function () {
+  return -1116874327;
+};
+protoOf(SafetySquatBar).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof SafetySquatBar))
+    return false;
+  return true;
+};
+var SafetySquatBar_instance;
+function SafetySquatBar_getInstance() {
+  return SafetySquatBar_instance;
+}
+function TrapBar() {
+  this.o1v_1 = 65.0;
+}
+protoOf(TrapBar).toString = function () {
+  return 'TrapBar';
+};
+protoOf(TrapBar).hashCode = function () {
+  return -1758359528;
+};
+protoOf(TrapBar).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof TrapBar))
+    return false;
+  return true;
+};
+var TrapBar_instance;
+function TrapBar_getInstance() {
+  return TrapBar_instance;
+}
+function SquatBox(x, height, depth) {
+  depth = depth === VOID ? 50.0 : depth;
+  this.p1v_1 = x;
+  this.q1v_1 = height;
+  this.r1v_1 = depth;
+}
+protoOf(SquatBox).toString = function () {
+  return 'SquatBox(x=' + this.p1v_1 + ', height=' + this.q1v_1 + ', depth=' + this.r1v_1 + ')';
+};
+protoOf(SquatBox).hashCode = function () {
+  var result = getNumberHashCode(this.p1v_1);
+  result = imul(result, 31) + getNumberHashCode(this.q1v_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.r1v_1) | 0;
+  return result;
+};
+protoOf(SquatBox).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof SquatBox))
+    return false;
+  if (!equals(this.p1v_1, other.p1v_1))
+    return false;
+  if (!equals(this.q1v_1, other.q1v_1))
+    return false;
+  if (!equals(this.r1v_1, other.r1v_1))
+    return false;
+  return true;
+};
+function DeficitPlatform(x, height, length) {
+  height = height === VOID ? 5.0 : height;
+  length = length === VOID ? 60.0 : length;
+  this.s1v_1 = x;
+  this.t1v_1 = height;
+  this.u1v_1 = length;
+}
+protoOf(DeficitPlatform).toString = function () {
+  return 'DeficitPlatform(x=' + this.s1v_1 + ', height=' + this.t1v_1 + ', length=' + this.u1v_1 + ')';
+};
+protoOf(DeficitPlatform).hashCode = function () {
+  var result = getNumberHashCode(this.s1v_1);
+  result = imul(result, 31) + getNumberHashCode(this.t1v_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.u1v_1) | 0;
+  return result;
+};
+protoOf(DeficitPlatform).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof DeficitPlatform))
+    return false;
+  if (!equals(this.s1v_1, other.s1v_1))
+    return false;
+  if (!equals(this.t1v_1, other.t1v_1))
+    return false;
+  if (!equals(this.u1v_1, other.u1v_1))
+    return false;
+  return true;
+};
+function PullingBlocks(x, height, length) {
+  length = length === VOID ? 42.0 : length;
+  this.v1v_1 = x;
+  this.w1v_1 = height;
+  this.x1v_1 = length;
+}
+protoOf(PullingBlocks).toString = function () {
+  return 'PullingBlocks(x=' + this.v1v_1 + ', height=' + this.w1v_1 + ', length=' + this.x1v_1 + ')';
+};
+protoOf(PullingBlocks).hashCode = function () {
+  var result = getNumberHashCode(this.v1v_1);
+  result = imul(result, 31) + getNumberHashCode(this.w1v_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x1v_1) | 0;
+  return result;
+};
+protoOf(PullingBlocks).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof PullingBlocks))
+    return false;
+  if (!equals(this.v1v_1, other.v1v_1))
+    return false;
+  if (!equals(this.w1v_1, other.w1v_1))
+    return false;
+  if (!equals(this.x1v_1, other.x1v_1))
     return false;
   return true;
 };
 function Companion_1() {
-  this.s1u_1 = 10.0;
-  this.t1u_1 = 14.0;
+  this.y1v_1 = 3.8;
+  this.z1v_1 = 30.0;
 }
 var Companion_instance_1;
 function Companion_getInstance_3() {
   return Companion_instance_1;
 }
+function BenchBoards(x, bottom, boards) {
+  boards = boards === VOID ? 2 : boards;
+  this.a1w_1 = x;
+  this.b1w_1 = bottom;
+  this.c1w_1 = boards;
+}
+protoOf(BenchBoards).d1w = function () {
+  return this.c1w_1 * 3.8;
+};
+protoOf(BenchBoards).toString = function () {
+  return 'BenchBoards(x=' + this.a1w_1 + ', bottom=' + this.b1w_1 + ', boards=' + this.c1w_1 + ')';
+};
+protoOf(BenchBoards).hashCode = function () {
+  var result = getNumberHashCode(this.a1w_1);
+  result = imul(result, 31) + getNumberHashCode(this.b1w_1) | 0;
+  result = imul(result, 31) + this.c1w_1 | 0;
+  return result;
+};
+protoOf(BenchBoards).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof BenchBoards))
+    return false;
+  if (!equals(this.a1w_1, other.a1w_1))
+    return false;
+  if (!equals(this.b1w_1, other.b1w_1))
+    return false;
+  if (!(this.c1w_1 === other.c1w_1))
+    return false;
+  return true;
+};
+function Companion_2() {
+  this.e1w_1 = 10.0;
+  this.f1w_1 = 14.0;
+}
+var Companion_instance_2;
+function Companion_getInstance_4() {
+  return Companion_instance_2;
+}
 function Dumbbell(hand) {
-  this.u1u_1 = hand;
+  this.g1w_1 = hand;
 }
 protoOf(Dumbbell).toString = function () {
-  return 'Dumbbell(hand=' + this.u1u_1.toString() + ')';
+  return 'Dumbbell(hand=' + this.g1w_1.toString() + ')';
 };
 protoOf(Dumbbell).hashCode = function () {
-  return this.u1u_1.hashCode();
+  return this.g1w_1.hashCode();
 };
 protoOf(Dumbbell).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof Dumbbell))
     return false;
-  if (!this.u1u_1.equals(other.u1u_1))
+  if (!this.g1w_1.equals(other.g1w_1))
     return false;
   return true;
 };
@@ -6587,19 +6996,19 @@ function CableStack(x, pulleyHeight, reach, height) {
   pulleyHeight = pulleyHeight === VOID ? 215.0 : pulleyHeight;
   reach = reach === VOID ? 45.0 : reach;
   height = height === VOID ? 230.0 : height;
-  this.v1u_1 = x;
-  this.w1u_1 = pulleyHeight;
-  this.x1u_1 = reach;
-  this.y1u_1 = height;
+  this.h1w_1 = x;
+  this.i1w_1 = pulleyHeight;
+  this.j1w_1 = reach;
+  this.k1w_1 = height;
 }
 protoOf(CableStack).toString = function () {
-  return 'CableStack(x=' + this.v1u_1 + ', pulleyHeight=' + this.w1u_1 + ', reach=' + this.x1u_1 + ', height=' + this.y1u_1 + ')';
+  return 'CableStack(x=' + this.h1w_1 + ', pulleyHeight=' + this.i1w_1 + ', reach=' + this.j1w_1 + ', height=' + this.k1w_1 + ')';
 };
 protoOf(CableStack).hashCode = function () {
-  var result = getNumberHashCode(this.v1u_1);
-  result = imul(result, 31) + getNumberHashCode(this.w1u_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.x1u_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.y1u_1) | 0;
+  var result = getNumberHashCode(this.h1w_1);
+  result = imul(result, 31) + getNumberHashCode(this.i1w_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.j1w_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k1w_1) | 0;
   return result;
 };
 protoOf(CableStack).equals = function (other) {
@@ -6607,18 +7016,18 @@ protoOf(CableStack).equals = function (other) {
     return true;
   if (!(other instanceof CableStack))
     return false;
-  if (!equals(this.v1u_1, other.v1u_1))
+  if (!equals(this.h1w_1, other.h1w_1))
     return false;
-  if (!equals(this.w1u_1, other.w1u_1))
+  if (!equals(this.i1w_1, other.i1w_1))
     return false;
-  if (!equals(this.x1u_1, other.x1u_1))
+  if (!equals(this.j1w_1, other.j1w_1))
     return false;
-  if (!equals(this.y1u_1, other.y1u_1))
+  if (!equals(this.k1w_1, other.k1w_1))
     return false;
   return true;
 };
 function LatBar() {
-  this.z1u_1 = 60.0;
+  this.l1w_1 = 60.0;
 }
 protoOf(LatBar).toString = function () {
   return 'LatBar';
@@ -6637,29 +7046,29 @@ var LatBar_instance;
 function LatBar_getInstance() {
   return LatBar_instance;
 }
-function Companion_2() {
-  this.a1v_1 = 6.0;
+function Companion_3() {
+  this.m1w_1 = 6.0;
 }
-var Companion_instance_2;
-function Companion_getInstance_4() {
-  return Companion_instance_2;
+var Companion_instance_3;
+function Companion_getInstance_5() {
+  return Companion_instance_3;
 }
 function LatPulldownSeat(x, padX, seatHeight, padHeight) {
   seatHeight = seatHeight === VOID ? 48.0 : seatHeight;
   padHeight = padHeight === VOID ? 66.0 : padHeight;
-  this.b1v_1 = x;
-  this.c1v_1 = padX;
-  this.d1v_1 = seatHeight;
-  this.e1v_1 = padHeight;
+  this.n1w_1 = x;
+  this.o1w_1 = padX;
+  this.p1w_1 = seatHeight;
+  this.q1w_1 = padHeight;
 }
 protoOf(LatPulldownSeat).toString = function () {
-  return 'LatPulldownSeat(x=' + this.b1v_1 + ', padX=' + this.c1v_1 + ', seatHeight=' + this.d1v_1 + ', padHeight=' + this.e1v_1 + ')';
+  return 'LatPulldownSeat(x=' + this.n1w_1 + ', padX=' + this.o1w_1 + ', seatHeight=' + this.p1w_1 + ', padHeight=' + this.q1w_1 + ')';
 };
 protoOf(LatPulldownSeat).hashCode = function () {
-  var result = getNumberHashCode(this.b1v_1);
-  result = imul(result, 31) + getNumberHashCode(this.c1v_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.d1v_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.e1v_1) | 0;
+  var result = getNumberHashCode(this.n1w_1);
+  result = imul(result, 31) + getNumberHashCode(this.o1w_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.p1w_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.q1w_1) | 0;
   return result;
 };
 protoOf(LatPulldownSeat).equals = function (other) {
@@ -6667,38 +7076,38 @@ protoOf(LatPulldownSeat).equals = function (other) {
     return true;
   if (!(other instanceof LatPulldownSeat))
     return false;
-  if (!equals(this.b1v_1, other.b1v_1))
+  if (!equals(this.n1w_1, other.n1w_1))
     return false;
-  if (!equals(this.c1v_1, other.c1v_1))
+  if (!equals(this.o1w_1, other.o1w_1))
     return false;
-  if (!equals(this.d1v_1, other.d1v_1))
+  if (!equals(this.p1w_1, other.p1w_1))
     return false;
-  if (!equals(this.e1v_1, other.e1v_1))
+  if (!equals(this.q1w_1, other.q1w_1))
     return false;
   return true;
 };
-function Companion_3() {
-  this.f1v_1 = 45.0;
-  this.g1v_1 = 155.0;
-  this.h1v_1 = 45.0;
-  this.i1v_1 = 52.0;
-  this.j1v_1 = 10.0;
-  this.k1v_1 = 125.0;
+function Companion_4() {
+  this.r1w_1 = 45.0;
+  this.s1w_1 = 155.0;
+  this.t1w_1 = 45.0;
+  this.u1w_1 = 52.0;
+  this.v1w_1 = 10.0;
+  this.w1w_1 = 125.0;
 }
-var Companion_instance_3;
-function Companion_getInstance_5() {
-  return Companion_instance_3;
+var Companion_instance_4;
+function Companion_getInstance_6() {
+  return Companion_instance_4;
 }
 function LegPress45(x, sled) {
-  this.l1v_1 = x;
-  this.m1v_1 = sled;
+  this.x1w_1 = x;
+  this.y1w_1 = sled;
 }
 protoOf(LegPress45).toString = function () {
-  return 'LegPress45(x=' + this.l1v_1 + ', sled=' + this.m1v_1 + ')';
+  return 'LegPress45(x=' + this.x1w_1 + ', sled=' + this.y1w_1 + ')';
 };
 protoOf(LegPress45).hashCode = function () {
-  var result = getNumberHashCode(this.l1v_1);
-  result = imul(result, 31) + getNumberHashCode(this.m1v_1) | 0;
+  var result = getNumberHashCode(this.x1w_1);
+  result = imul(result, 31) + getNumberHashCode(this.y1w_1) | 0;
   return result;
 };
 protoOf(LegPress45).equals = function (other) {
@@ -6706,31 +7115,31 @@ protoOf(LegPress45).equals = function (other) {
     return true;
   if (!(other instanceof LegPress45))
     return false;
-  if (!equals(this.l1v_1, other.l1v_1))
+  if (!equals(this.x1w_1, other.x1w_1))
     return false;
-  if (!equals(this.m1v_1, other.m1v_1))
+  if (!equals(this.y1w_1, other.y1w_1))
     return false;
   return true;
 };
-function Companion_4() {
-  this.n1v_1 = 1.6;
-  this.o1v_1 = 3.0;
+function Companion_5() {
+  this.z1w_1 = 1.6;
+  this.a1x_1 = 3.0;
 }
-var Companion_instance_4;
-function Companion_getInstance_6() {
-  return Companion_instance_4;
+var Companion_instance_5;
+function Companion_getInstance_7() {
+  return Companion_instance_5;
 }
 function PullUpBar(x, height) {
   height = height === VOID ? 230.0 : height;
-  this.p1v_1 = x;
-  this.q1v_1 = height;
+  this.b1x_1 = x;
+  this.c1x_1 = height;
 }
 protoOf(PullUpBar).toString = function () {
-  return 'PullUpBar(x=' + this.p1v_1 + ', height=' + this.q1v_1 + ')';
+  return 'PullUpBar(x=' + this.b1x_1 + ', height=' + this.c1x_1 + ')';
 };
 protoOf(PullUpBar).hashCode = function () {
-  var result = getNumberHashCode(this.p1v_1);
-  result = imul(result, 31) + getNumberHashCode(this.q1v_1) | 0;
+  var result = getNumberHashCode(this.b1x_1);
+  result = imul(result, 31) + getNumberHashCode(this.c1x_1) | 0;
   return result;
 };
 protoOf(PullUpBar).equals = function (other) {
@@ -6738,31 +7147,31 @@ protoOf(PullUpBar).equals = function (other) {
     return true;
   if (!(other instanceof PullUpBar))
     return false;
-  if (!equals(this.p1v_1, other.p1v_1))
+  if (!equals(this.b1x_1, other.b1x_1))
     return false;
-  if (!equals(this.q1v_1, other.q1v_1))
+  if (!equals(this.c1x_1, other.c1x_1))
     return false;
   return true;
 };
-function Companion_5() {
-  this.r1v_1 = 40.0;
-  this.s1v_1 = 85.0;
+function Companion_6() {
+  this.d1x_1 = 40.0;
+  this.e1x_1 = 85.0;
 }
-var Companion_instance_5;
-function Companion_getInstance_7() {
-  return Companion_instance_5;
+var Companion_instance_6;
+function Companion_getInstance_8() {
+  return Companion_instance_6;
 }
 function AdjustableBench(x, backAngle) {
   backAngle = backAngle === VOID ? 90.0 : backAngle;
-  this.t1v_1 = x;
-  this.u1v_1 = backAngle;
+  this.f1x_1 = x;
+  this.g1x_1 = backAngle;
 }
 protoOf(AdjustableBench).toString = function () {
-  return 'AdjustableBench(x=' + this.t1v_1 + ', backAngle=' + this.u1v_1 + ')';
+  return 'AdjustableBench(x=' + this.f1x_1 + ', backAngle=' + this.g1x_1 + ')';
 };
 protoOf(AdjustableBench).hashCode = function () {
-  var result = getNumberHashCode(this.t1v_1);
-  result = imul(result, 31) + getNumberHashCode(this.u1v_1) | 0;
+  var result = getNumberHashCode(this.f1x_1);
+  result = imul(result, 31) + getNumberHashCode(this.g1x_1) | 0;
   return result;
 };
 protoOf(AdjustableBench).equals = function (other) {
@@ -6770,15 +7179,15 @@ protoOf(AdjustableBench).equals = function (other) {
     return true;
   if (!(other instanceof AdjustableBench))
     return false;
-  if (!equals(this.t1v_1, other.t1v_1))
+  if (!equals(this.f1x_1, other.f1x_1))
     return false;
-  if (!equals(this.u1v_1, other.u1v_1))
+  if (!equals(this.g1x_1, other.g1x_1))
     return false;
   return true;
 };
-function Companion_6() {
+function Companion_7() {
 }
-protoOf(Companion_6).v1v = function (x1, y1, x2, y2) {
+protoOf(Companion_7).h1x = function (x1, y1, x2, y2) {
   var tmp = (x1 + x2) / 2;
   var tmp_0 = (y1 + y2) / 2;
   // Inline function 'kotlin.math.abs' call
@@ -6789,48 +7198,48 @@ protoOf(Companion_6).v1v = function (x1, y1, x2, y2) {
   var tmp$ret$1 = Math.abs(x_0);
   return new Slab(tmp, tmp_0, tmp_1, tmp$ret$1);
 };
-var Companion_instance_6;
-function Companion_getInstance_8() {
-  return Companion_instance_6;
+var Companion_instance_7;
+function Companion_getInstance_9() {
+  return Companion_instance_7;
 }
 function Slab(cx, cy, length, thickness, angle, radius) {
   angle = angle === VOID ? 0.0 : angle;
   radius = radius === VOID ? 0.0 : radius;
-  this.w1v_1 = cx;
-  this.x1v_1 = cy;
-  this.y1v_1 = length;
-  this.z1v_1 = thickness;
-  this.a1w_1 = angle;
-  this.b1w_1 = radius;
+  this.i1x_1 = cx;
+  this.j1x_1 = cy;
+  this.k1x_1 = length;
+  this.l1x_1 = thickness;
+  this.m1x_1 = angle;
+  this.n1x_1 = radius;
 }
-protoOf(Slab).c1w = function () {
-  var c = new Point(this.w1v_1, this.x1v_1);
-  var a = dir(this.a1w_1).s1o(this.y1v_1 / 2);
-  var b = dir(this.a1w_1 + 90.0).s1o(this.z1v_1 / 2);
+protoOf(Slab).o1x = function () {
+  var c = new Point(this.i1x_1, this.j1x_1);
+  var a = dir(this.m1x_1).s1o(this.k1x_1 / 2);
+  var b = dir(this.m1x_1 + 90.0).s1o(this.l1x_1 / 2);
   return listOf([c.r1o(a).r1o(b), c.q1o(a).r1o(b), c.q1o(a).q1o(b), c.r1o(a).q1o(b)]);
 };
-protoOf(Slab).d1w = function (cx, cy, length, thickness, angle, radius) {
+protoOf(Slab).p1x = function (cx, cy, length, thickness, angle, radius) {
   return new Slab(cx, cy, length, thickness, angle, radius);
 };
-protoOf(Slab).e1w = function (cx, cy, length, thickness, angle, radius, $super) {
-  cx = cx === VOID ? this.w1v_1 : cx;
-  cy = cy === VOID ? this.x1v_1 : cy;
-  length = length === VOID ? this.y1v_1 : length;
-  thickness = thickness === VOID ? this.z1v_1 : thickness;
-  angle = angle === VOID ? this.a1w_1 : angle;
-  radius = radius === VOID ? this.b1w_1 : radius;
-  return $super === VOID ? this.d1w(cx, cy, length, thickness, angle, radius) : $super.d1w.call(this, cx, cy, length, thickness, angle, radius);
+protoOf(Slab).q1x = function (cx, cy, length, thickness, angle, radius, $super) {
+  cx = cx === VOID ? this.i1x_1 : cx;
+  cy = cy === VOID ? this.j1x_1 : cy;
+  length = length === VOID ? this.k1x_1 : length;
+  thickness = thickness === VOID ? this.l1x_1 : thickness;
+  angle = angle === VOID ? this.m1x_1 : angle;
+  radius = radius === VOID ? this.n1x_1 : radius;
+  return $super === VOID ? this.p1x(cx, cy, length, thickness, angle, radius) : $super.p1x.call(this, cx, cy, length, thickness, angle, radius);
 };
 protoOf(Slab).toString = function () {
-  return 'Slab(cx=' + this.w1v_1 + ', cy=' + this.x1v_1 + ', length=' + this.y1v_1 + ', thickness=' + this.z1v_1 + ', angle=' + this.a1w_1 + ', radius=' + this.b1w_1 + ')';
+  return 'Slab(cx=' + this.i1x_1 + ', cy=' + this.j1x_1 + ', length=' + this.k1x_1 + ', thickness=' + this.l1x_1 + ', angle=' + this.m1x_1 + ', radius=' + this.n1x_1 + ')';
 };
 protoOf(Slab).hashCode = function () {
-  var result = getNumberHashCode(this.w1v_1);
-  result = imul(result, 31) + getNumberHashCode(this.x1v_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.y1v_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.z1v_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.a1w_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.b1w_1) | 0;
+  var result = getNumberHashCode(this.i1x_1);
+  result = imul(result, 31) + getNumberHashCode(this.j1x_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k1x_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.l1x_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.m1x_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.n1x_1) | 0;
   return result;
 };
 protoOf(Slab).equals = function (other) {
@@ -6838,34 +7247,34 @@ protoOf(Slab).equals = function (other) {
     return true;
   if (!(other instanceof Slab))
     return false;
-  if (!equals(this.w1v_1, other.w1v_1))
+  if (!equals(this.i1x_1, other.i1x_1))
     return false;
-  if (!equals(this.x1v_1, other.x1v_1))
+  if (!equals(this.j1x_1, other.j1x_1))
     return false;
-  if (!equals(this.y1v_1, other.y1v_1))
+  if (!equals(this.k1x_1, other.k1x_1))
     return false;
-  if (!equals(this.z1v_1, other.z1v_1))
+  if (!equals(this.l1x_1, other.l1x_1))
     return false;
-  if (!equals(this.a1w_1, other.a1w_1))
+  if (!equals(this.m1x_1, other.m1x_1))
     return false;
-  if (!equals(this.b1w_1, other.b1w_1))
+  if (!equals(this.n1x_1, other.n1x_1))
     return false;
   return true;
 };
 function Placed(shape, fit, floor) {
   fit = fit === VOID ? true : fit;
   floor = floor === VOID ? false : floor;
-  this.a1t_1 = shape;
-  this.b1t_1 = fit;
-  this.c1t_1 = floor;
+  this.r1t_1 = shape;
+  this.s1t_1 = fit;
+  this.t1t_1 = floor;
 }
 protoOf(Placed).toString = function () {
-  return 'Placed(shape=' + toString(this.a1t_1) + ', fit=' + this.b1t_1 + ', floor=' + this.c1t_1 + ')';
+  return 'Placed(shape=' + toString(this.r1t_1) + ', fit=' + this.s1t_1 + ', floor=' + this.t1t_1 + ')';
 };
 protoOf(Placed).hashCode = function () {
-  var result = hashCode(this.a1t_1);
-  result = imul(result, 31) + getBooleanHashCode(this.b1t_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.c1t_1) | 0;
+  var result = hashCode(this.r1t_1);
+  result = imul(result, 31) + getBooleanHashCode(this.s1t_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.t1t_1) | 0;
   return result;
 };
 protoOf(Placed).equals = function (other) {
@@ -6873,11 +7282,11 @@ protoOf(Placed).equals = function (other) {
     return true;
   if (!(other instanceof Placed))
     return false;
-  if (!equals(this.a1t_1, other.a1t_1))
+  if (!equals(this.r1t_1, other.r1t_1))
     return false;
-  if (!(this.b1t_1 === other.b1t_1))
+  if (!(this.s1t_1 === other.s1t_1))
     return false;
-  if (!(this.c1t_1 === other.c1t_1))
+  if (!(this.t1t_1 === other.t1t_1))
     return false;
   return true;
 };
@@ -6893,11 +7302,11 @@ function capsule(role, a, b, width) {
 function slabShape(role, s, radius) {
   _init_properties_Kit_kt__h0vep0();
   var tmp;
-  if (s.a1w_1 % 180.0 === 0.0) {
-    tmp = new RoundRect(role, s.w1v_1 - s.y1v_1 / 2, s.x1v_1 - s.z1v_1 / 2, s.y1v_1, s.z1v_1, radius);
+  if (s.m1x_1 % 180.0 === 0.0) {
+    tmp = new RoundRect(role, s.i1x_1 - s.k1x_1 / 2, s.j1x_1 - s.l1x_1 / 2, s.k1x_1, s.l1x_1, radius);
   } else {
     // Inline function 'kotlin.collections.flatMap' call
-    var tmp0 = s.c1w();
+    var tmp0 = s.o1x();
     // Inline function 'kotlin.collections.flatMapTo' call
     var destination = ArrayList_init_$Create$();
     var _iterator__ex2g4s = tmp0.j();
@@ -6952,8 +7361,8 @@ function ring(role, cx, cy, outer, inner, steps) {
 }
 function legPressParts(p) {
   _init_properties_Kit_kt__h0vep0();
-  var seat = new Slab(p.l1v_1 - 15.0, -45.0 + 3.0, 30.0, 6.0);
-  var corner = new Point(p.l1v_1 - 30.0, -45.0);
+  var seat = new Slab(p.x1w_1 - 15.0, -45.0 + 3.0, 30.0, 6.0);
+  var corner = new Point(p.x1w_1 - 30.0, -45.0);
   var backCentre = corner.q1o(dir(155.0).s1o(35.0)).q1o(dir(155.0 - 90.0).s1o(3.0));
   var back = new Slab(backCentre.o1o_1, backCentre.p1o_1, 70.0, 6.0, 155.0);
   var plateCentre = legPressCarriage(p).q1o(dir(45.0 + 90.0).s1o(52.0));
@@ -6963,23 +7372,23 @@ function legPressParts(p) {
 function adjustableParts(b) {
   _init_properties_Kit_kt__h0vep0();
   var pad = 6.0;
-  var seat = Companion_instance_6.v1v(b.t1v_1 - 40.0, -43.0, b.t1v_1, -43.0 + pad);
+  var seat = Companion_instance_7.h1x(b.f1x_1 - 40.0, -43.0, b.f1x_1, -43.0 + pad);
   var hinge = adjustableHinge(b);
-  var along = 180.0 - b.u1v_1;
+  var along = 180.0 - b.g1x_1;
   var c = hinge.q1o(dir(along).s1o(85.0 / 2)).q1o(dir(along + 90.0).s1o(pad / 2));
   return to(seat, new Slab(c.o1o_1, c.p1o_1, 85.0, pad, along));
 }
 function adjustableHinge(b) {
   _init_properties_Kit_kt__h0vep0();
-  return new Point(b.t1v_1 - 40.0, -43.0);
+  return new Point(b.f1x_1 - 40.0, -43.0);
 }
 function legPressRailStart(p) {
   _init_properties_Kit_kt__h0vep0();
-  return new Point(p.l1v_1 + 25.0, -30.0);
+  return new Point(p.x1w_1 + 25.0, -30.0);
 }
 function legPressCarriage(p) {
   _init_properties_Kit_kt__h0vep0();
-  return legPressRailStart(p).q1o(dir(45.0).s1o(40.0 + p.m1v_1));
+  return legPressRailStart(p).q1o(dir(45.0).s1o(40.0 + p.y1w_1));
 }
 function surfaces(_this__u8e3s4, view) {
   _init_properties_Kit_kt__h0vep0();
@@ -6990,37 +7399,51 @@ function surfaces(_this__u8e3s4, view) {
     if (_this__u8e3s4 instanceof FlatBench) {
       tmp = mapOf_0(to(Surface_BENCH_getInstance(), listOf_0(benchPad(_this__u8e3s4, view))));
     } else {
-      var tmp_0;
       if (_this__u8e3s4 instanceof PowerRack) {
-        tmp_0 = true;
+        tmp = mapOf_0(to(Surface_SAFETY_ARM_getInstance(), safetyArms(_this__u8e3s4, view)));
       } else {
-        tmp_0 = _this__u8e3s4 instanceof CableStack;
-      }
-      if (tmp_0) {
-        tmp = emptyMap();
-      } else {
-        if (_this__u8e3s4 instanceof LatPulldownSeat) {
-          tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(new Slab(_this__u8e3s4.b1v_1, -_this__u8e3s4.d1v_1 + 3.5, 44.0, 7.0))), to(Surface_THIGH_PAD_getInstance(), listOf_0(new Slab(_this__u8e3s4.c1v_1, -_this__u8e3s4.e1v_1, 0.0, 0.0, VOID, 6.0)))]);
+        if (_this__u8e3s4 instanceof CableStack) {
+          tmp = emptyMap();
         } else {
-          if (_this__u8e3s4 instanceof LegPress45) {
-            // Inline function 'kotlin.let' call
-            var destruct = legPressParts(_this__u8e3s4);
-            var seat = destruct.va();
-            var back = destruct.wa();
-            var plate = destruct.jd();
-            tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(seat)), to(Surface_BACK_PAD_getInstance(), listOf_0(back)), to(Surface_FOOT_PLATE_getInstance(), listOf_0(plate))]);
+          if (_this__u8e3s4 instanceof SquatBox) {
+            tmp = mapOf_0(to(Surface_BOX_getInstance(), listOf_0(boxSlab(_this__u8e3s4))));
           } else {
-            if (_this__u8e3s4 instanceof AdjustableBench) {
-              // Inline function 'kotlin.let' call
-              var destruct_0 = adjustableParts(_this__u8e3s4);
-              var seat_0 = destruct_0.va();
-              var back_0 = destruct_0.wa();
-              tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(seat_0)), to(Surface_BACK_PAD_getInstance(), listOf_0(back_0))]);
+            if (_this__u8e3s4 instanceof DeficitPlatform) {
+              tmp = mapOf_0(to(Surface_PLATFORM_getInstance(), listOf_0(Companion_instance_7.h1x(_this__u8e3s4.s1v_1 - _this__u8e3s4.u1v_1 / 2, -_this__u8e3s4.t1v_1, _this__u8e3s4.s1v_1 + _this__u8e3s4.u1v_1 / 2, 0.0))));
             } else {
-              if (_this__u8e3s4 instanceof PullUpBar) {
-                tmp = mapOf_0(to(Surface_PULL_UP_BAR_getInstance(), listOf_0(view.equals(View_SIDE_getInstance()) ? new Slab(_this__u8e3s4.p1v_1, -_this__u8e3s4.q1v_1, 2 * 1.6, 2 * 1.6) : new Slab(_this__u8e3s4.p1v_1, -_this__u8e3s4.q1v_1, 120.0, 2 * 1.6))));
+              if (_this__u8e3s4 instanceof PullingBlocks) {
+                tmp = mapOf_0(to(Surface_BLOCK_getInstance(), listOf_0(Companion_instance_7.h1x(_this__u8e3s4.v1v_1 - _this__u8e3s4.x1v_1 / 2, -_this__u8e3s4.w1v_1, _this__u8e3s4.v1v_1 + _this__u8e3s4.x1v_1 / 2, 0.0))));
               } else {
-                noWhenBranchMatchedException();
+                if (_this__u8e3s4 instanceof BenchBoards) {
+                  tmp = mapOf_0(to(Surface_BOARD_getInstance(), listOf_0(boardSlab(_this__u8e3s4))));
+                } else {
+                  if (_this__u8e3s4 instanceof LatPulldownSeat) {
+                    tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(new Slab(_this__u8e3s4.n1w_1, -_this__u8e3s4.p1w_1 + 3.5, 44.0, 7.0))), to(Surface_THIGH_PAD_getInstance(), listOf_0(new Slab(_this__u8e3s4.o1w_1, -_this__u8e3s4.q1w_1, 0.0, 0.0, VOID, 6.0)))]);
+                  } else {
+                    if (_this__u8e3s4 instanceof LegPress45) {
+                      // Inline function 'kotlin.let' call
+                      var destruct = legPressParts(_this__u8e3s4);
+                      var seat = destruct.ya();
+                      var back = destruct.za();
+                      var plate = destruct.jd();
+                      tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(seat)), to(Surface_BACK_PAD_getInstance(), listOf_0(back)), to(Surface_FOOT_PLATE_getInstance(), listOf_0(plate))]);
+                    } else {
+                      if (_this__u8e3s4 instanceof AdjustableBench) {
+                        // Inline function 'kotlin.let' call
+                        var destruct_0 = adjustableParts(_this__u8e3s4);
+                        var seat_0 = destruct_0.ya();
+                        var back_0 = destruct_0.za();
+                        tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(seat_0)), to(Surface_BACK_PAD_getInstance(), listOf_0(back_0))]);
+                      } else {
+                        if (_this__u8e3s4 instanceof PullUpBar) {
+                          tmp = mapOf_0(to(Surface_PULL_UP_BAR_getInstance(), listOf_0(view.equals(View_SIDE_getInstance()) ? new Slab(_this__u8e3s4.b1x_1, -_this__u8e3s4.c1x_1, 2 * 1.6, 2 * 1.6) : new Slab(_this__u8e3s4.b1x_1, -_this__u8e3s4.c1x_1, 120.0, 2 * 1.6))));
+                        } else {
+                          noWhenBranchMatchedException();
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           }
@@ -7030,13 +7453,60 @@ function surfaces(_this__u8e3s4, view) {
   }
   return tmp;
 }
+function boxSlab(_this__u8e3s4) {
+  _init_properties_Kit_kt__h0vep0();
+  return Companion_instance_7.h1x(_this__u8e3s4.p1v_1 - _this__u8e3s4.r1v_1 / 2, -_this__u8e3s4.q1v_1, _this__u8e3s4.p1v_1 + _this__u8e3s4.r1v_1 / 2, 0.0);
+}
+function boardSlab(_this__u8e3s4) {
+  _init_properties_Kit_kt__h0vep0();
+  return Companion_instance_7.h1x(_this__u8e3s4.a1w_1 - 30.0 / 2, _this__u8e3s4.b1w_1 - _this__u8e3s4.d1w(), _this__u8e3s4.a1w_1 + 30.0 / 2, _this__u8e3s4.b1w_1);
+}
+function safetyArms(_this__u8e3s4, view) {
+  _init_properties_Kit_kt__h0vep0();
+  var tmp;
+  if (view.equals(View_SIDE_getInstance())) {
+    var m = _this__u8e3s4.c1v_1 ? -1.0 : 1.0;
+    var a = _this__u8e3s4.x1u_1 + m * -14.0;
+    var b = _this__u8e3s4.x1u_1 + m * _this__u8e3s4.a1v_1;
+    var tmp_0 = Companion_instance_7;
+    // Inline function 'kotlin.math.min' call
+    var tmp_1 = Math.min(a, b);
+    var tmp_2 = -_this__u8e3s4.z1u_1;
+    // Inline function 'kotlin.math.max' call
+    var tmp$ret$1 = Math.max(a, b);
+    tmp = listOf_0(tmp_0.h1x(tmp_1, tmp_2, tmp$ret$1, -_this__u8e3s4.z1u_1 + 4.0));
+  } else {
+    // Inline function 'kotlin.collections.map' call
+    var this_0 = listOf([-1.0, 1.0]);
+    // Inline function 'kotlin.collections.mapTo' call
+    var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+    var _iterator__ex2g4s = this_0.j();
+    while (_iterator__ex2g4s.k()) {
+      var item = _iterator__ex2g4s.l();
+      // Inline function 'kotlin.let' call
+      var px = _this__u8e3s4.x1u_1 + item * 60.0;
+      var tmp_3 = Companion_instance_7;
+      // Inline function 'kotlin.math.min' call
+      var b_0 = px - item * 10.0;
+      var tmp_4 = Math.min(px, b_0);
+      var tmp_5 = -_this__u8e3s4.z1u_1;
+      // Inline function 'kotlin.math.max' call
+      var b_1 = px - item * 10.0;
+      var tmp$ret$8 = Math.max(px, b_1);
+      var tmp$ret$4 = tmp_3.h1x(tmp_4, tmp_5, tmp$ret$8, -_this__u8e3s4.z1u_1 + 4.0);
+      destination.i(tmp$ret$4);
+    }
+    tmp = destination;
+  }
+  return tmp;
+}
 function benchPad(_this__u8e3s4, view) {
   _init_properties_Kit_kt__h0vep0();
-  return view.equals(View_SIDE_getInstance()) ? Companion_instance_6.v1v(_this__u8e3s4.c1u_1, -_this__u8e3s4.e1u_1, _this__u8e3s4.c1u_1 + _this__u8e3s4.d1u_1, -_this__u8e3s4.e1u_1 + 6.0) : Companion_instance_6.v1v(_this__u8e3s4.c1u_1 - 30.0 / 2, -_this__u8e3s4.e1u_1, _this__u8e3s4.c1u_1 + 30.0 / 2, -_this__u8e3s4.e1u_1 + 6.0);
+  return view.equals(View_SIDE_getInstance()) ? Companion_instance_7.h1x(_this__u8e3s4.t1u_1, -_this__u8e3s4.v1u_1, _this__u8e3s4.t1u_1 + _this__u8e3s4.u1u_1, -_this__u8e3s4.v1u_1 + 6.0) : Companion_instance_7.h1x(_this__u8e3s4.t1u_1 - 30.0 / 2, -_this__u8e3s4.v1u_1, _this__u8e3s4.t1u_1 + 30.0 / 2, -_this__u8e3s4.v1u_1 + 6.0);
 }
 function legXs(_this__u8e3s4, view) {
   _init_properties_Kit_kt__h0vep0();
-  return view.equals(View_SIDE_getInstance()) ? listOf([_this__u8e3s4.c1u_1 + 15.0, _this__u8e3s4.c1u_1 + _this__u8e3s4.d1u_1 - 15.0]) : listOf_0(_this__u8e3s4.c1u_1);
+  return view.equals(View_SIDE_getInstance()) ? listOf([_this__u8e3s4.t1u_1 + 15.0, _this__u8e3s4.t1u_1 + _this__u8e3s4.u1u_1 - 15.0]) : listOf_0(_this__u8e3s4.t1u_1);
 }
 function draw(_this__u8e3s4, view, held) {
   _init_properties_Kit_kt__h0vep0();
@@ -7054,15 +7524,15 @@ function draw(_this__u8e3s4, view, held) {
       var _iterator__ex2g4s = legXs(_this__u8e3s4, view).j();
       while (_iterator__ex2g4s.k()) {
         var lx = _iterator__ex2g4s.l();
-        this_0.i(eq(new Capsule(e, lx, -_this__u8e3s4.e1u_1 + 6.0, lx, -1.5, 5.0)));
+        this_0.i(eq(new Capsule(e, lx, -_this__u8e3s4.v1u_1 + 6.0, lx, -1.5, 5.0)));
         this_0.i(eq(new Capsule(e, lx - 12.0, -1.5, lx + 12.0, -1.5, 3.0)));
       }
-      tmp = this_0.w3();
+      tmp = this_0.z3();
     } else {
       if (_this__u8e3s4 instanceof PowerRack) {
         var tmp_0;
         if (view.equals(View_SIDE_getInstance())) {
-          var m = _this__u8e3s4.l1u_1 ? -1.0 : 1.0;
+          var m = _this__u8e3s4.c1v_1 ? -1.0 : 1.0;
           // Inline function 'kotlin.collections.buildList' call
           // Inline function 'kotlin.collections.buildListInternal' call
           // Inline function 'kotlin.apply' call
@@ -7070,13 +7540,13 @@ function draw(_this__u8e3s4, view, held) {
           var _iterator__ex2g4s_0 = listOf([-3.0, -11.0]).j();
           while (_iterator__ex2g4s_0.k()) {
             var dx = _iterator__ex2g4s_0.l();
-            this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, dx), -1.5, draw$at(_this__u8e3s4, m, dx), -_this__u8e3s4.k1u_1, 6.0), false));
+            this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, dx), -1.5, draw$at(_this__u8e3s4, m, dx), -_this__u8e3s4.b1v_1, 6.0), false));
           }
           this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, -28.0), -1.5, draw$at(_this__u8e3s4, m, 10.0), -1.5, 3.0)));
-          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, 0.0), -_this__u8e3s4.h1u_1 + 1.75, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.h1u_1 + 1.75, 3.5)));
-          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.h1u_1 + 1.75, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.h1u_1 - 3.0, 3.0)));
-          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, -14.0), -_this__u8e3s4.i1u_1 + 2.0, draw$at(_this__u8e3s4, m, _this__u8e3s4.j1u_1), -_this__u8e3s4.i1u_1 + 2.0, 4.0)));
-          tmp_0 = this_1.w3();
+          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, 0.0), -_this__u8e3s4.y1u_1 + 1.75, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.y1u_1 + 1.75, 3.5)));
+          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.y1u_1 + 1.75, draw$at(_this__u8e3s4, m, 7.0), -_this__u8e3s4.y1u_1 - 3.0, 3.0)));
+          this_1.i(eq(new Capsule(e, draw$at(_this__u8e3s4, m, -14.0), -_this__u8e3s4.z1u_1 + 2.0, draw$at(_this__u8e3s4, m, _this__u8e3s4.a1v_1), -_this__u8e3s4.z1u_1 + 2.0, 4.0)));
+          tmp_0 = this_1.z3();
         } else {
           // Inline function 'kotlin.collections.buildList' call
           // Inline function 'kotlin.collections.buildListInternal' call
@@ -7085,16 +7555,16 @@ function draw(_this__u8e3s4, view, held) {
           var _iterator__ex2g4s_1 = listOf([-1.0, 1.0]).j();
           while (_iterator__ex2g4s_1.k()) {
             var s = _iterator__ex2g4s_1.l();
-            var px = _this__u8e3s4.g1u_1 + s * 60.0;
-            this_2.i(eq(new Capsule(e, px, -1.5, px, -_this__u8e3s4.k1u_1, 6.0), false));
-            this_2.i(eq(new Capsule(e, px, -_this__u8e3s4.h1u_1 + 1.75, px - s * 7.0, -_this__u8e3s4.h1u_1 + 1.75, 3.5)));
+            var px = _this__u8e3s4.x1u_1 + s * 60.0;
+            this_2.i(eq(new Capsule(e, px, -1.5, px, -_this__u8e3s4.b1v_1, 6.0), false));
+            this_2.i(eq(new Capsule(e, px, -_this__u8e3s4.y1u_1 + 1.75, px - s * 7.0, -_this__u8e3s4.y1u_1 + 1.75, 3.5)));
             // Inline function 'kotlin.math.min' call
             var b = px - s * 10.0;
             var tmp$ret$12 = Math.min(px, b);
-            this_2.i(eq(new RoundRect(e, tmp$ret$12, -_this__u8e3s4.i1u_1, 10.0, 4.0, 1.0)));
+            this_2.i(eq(new RoundRect(e, tmp$ret$12, -_this__u8e3s4.z1u_1, 10.0, 4.0, 1.0)));
           }
-          this_2.i(eq(new Capsule(e, _this__u8e3s4.g1u_1 - 75.0, -1.5, _this__u8e3s4.g1u_1 + 75.0, -1.5, 3.0)));
-          tmp_0 = this_2.w3();
+          this_2.i(eq(new Capsule(e, _this__u8e3s4.x1u_1 - 75.0, -1.5, _this__u8e3s4.x1u_1 + 75.0, -1.5, 3.0)));
+          tmp_0 = this_2.z3();
         }
         tmp = tmp_0;
       } else {
@@ -7103,89 +7573,122 @@ function draw(_this__u8e3s4, view, held) {
           // Inline function 'kotlin.collections.buildListInternal' call
           // Inline function 'kotlin.apply' call
           var this_3 = ArrayList_init_$Create$();
-          var pulley = new Point(_this__u8e3s4.v1u_1 + _this__u8e3s4.x1u_1, -_this__u8e3s4.w1u_1);
-          this_3.i(eq(new RoundRect(e, _this__u8e3s4.v1u_1 - 9.0, -_this__u8e3s4.y1u_1, 18.0, _this__u8e3s4.y1u_1 - 1.5, 3.0), false));
-          this_3.i(eq(new Capsule(e, _this__u8e3s4.v1u_1, -_this__u8e3s4.w1u_1, pulley.o1o_1, pulley.p1o_1, 5.0)));
+          var pulley = new Point(_this__u8e3s4.h1w_1 + _this__u8e3s4.j1w_1, -_this__u8e3s4.i1w_1);
+          this_3.i(eq(new RoundRect(e, _this__u8e3s4.h1w_1 - 9.0, -_this__u8e3s4.k1w_1, 18.0, _this__u8e3s4.k1w_1 - 1.5, 3.0), false));
+          this_3.i(eq(new Capsule(e, _this__u8e3s4.h1w_1, -_this__u8e3s4.i1w_1, pulley.o1o_1, pulley.p1o_1, 5.0)));
           this_3.i(eq(new Circle(e, pulley.o1o_1, pulley.p1o_1, 4.0)));
-          this_3.i(eq(new RoundRect(e, _this__u8e3s4.v1u_1 - 7.0, -62.0, 14.0, 50.0, 2.0)));
+          this_3.i(eq(new RoundRect(e, _this__u8e3s4.h1w_1 - 7.0, -62.0, 14.0, 50.0, 2.0)));
           var end = held == null ? pulley.q1o(new Point(0.0, 40.0)) : held;
           this_3.i(eq(capsule(e, pulley, end, 0.8)));
-          tmp = this_3.w3();
+          tmp = this_3.z3();
         } else {
-          if (_this__u8e3s4 instanceof LatPulldownSeat) {
-            // Inline function 'kotlin.collections.buildList' call
-            // Inline function 'kotlin.collections.buildListInternal' call
-            // Inline function 'kotlin.apply' call
-            var this_4 = ArrayList_init_$Create$();
-            this_4.i(eq(new RoundRect(e, _this__u8e3s4.b1v_1 - 22.0, -_this__u8e3s4.d1v_1, 44.0, 7.0, 2.5)));
-            this_4.i(eq(new Capsule(e, _this__u8e3s4.b1v_1, -_this__u8e3s4.d1v_1 + 7.0, _this__u8e3s4.b1v_1, -1.5, 6.0)));
-            this_4.i(eq(new Capsule(e, _this__u8e3s4.b1v_1 - 30.0, -1.5, _this__u8e3s4.b1v_1 + 30.0, -1.5, 3.0)));
-            this_4.i(eq(new Capsule(e, _this__u8e3s4.c1v_1, -_this__u8e3s4.e1v_1, _this__u8e3s4.c1v_1 + 14.0, -_this__u8e3s4.d1v_1 + 4.0, 3.0)));
-            this_4.i(eq(new Circle(e, _this__u8e3s4.c1v_1, -_this__u8e3s4.e1v_1, 6.0)));
-            tmp = this_4.w3();
+          if (_this__u8e3s4 instanceof SquatBox) {
+            tmp = listOf_0(eq(new RoundRect(e, _this__u8e3s4.p1v_1 - _this__u8e3s4.r1v_1 / 2, -_this__u8e3s4.q1v_1, _this__u8e3s4.r1v_1, _this__u8e3s4.q1v_1 - 0.75, 2.0)));
           } else {
-            if (_this__u8e3s4 instanceof LegPress45) {
-              // Inline function 'kotlin.collections.buildList' call
-              // Inline function 'kotlin.collections.buildListInternal' call
-              // Inline function 'kotlin.apply' call
-              var this_5 = ArrayList_init_$Create$();
-              var _destruct__k2r9zo = legPressParts(_this__u8e3s4);
-              var seat = _destruct__k2r9zo.va();
-              var back = _destruct__k2r9zo.wa();
-              var plate = _destruct__k2r9zo.jd();
-              var railStart = legPressRailStart(_this__u8e3s4);
-              var railEnd = railStart.q1o(dir(45.0).s1o(160.0));
-              this_5.i(eq(new Capsule(e, _this__u8e3s4.l1v_1 - 70.0, -1.5, railEnd.o1o_1, -1.5, 3.0)));
-              this_5.i(eq(new Capsule(e, seat.w1v_1, seat.x1v_1, seat.w1v_1, -1.5, 5.0)));
-              this_5.i(eq(new Capsule(e, _this__u8e3s4.l1v_1 - 30.0, -45.0, _this__u8e3s4.l1v_1 - 40.0, -1.5, 5.0)));
-              this_5.i(eq(new Capsule(e, railEnd.o1o_1, railEnd.p1o_1, railEnd.o1o_1, -1.5, 5.0)));
-              this_5.i(eq(capsule(e, railStart, railEnd, 5.0)));
-              this_5.i(eq(slabShape(e, seat, 2.0)));
-              this_5.i(eq(slabShape(e, back, 2.0)));
-              var carriage = legPressCarriage(_this__u8e3s4);
-              var rail = dir(45.0);
-              var along = dir(125.0).s1o(plate.y1v_1 / 2);
-              var plateBack = (new Point(plate.w1v_1, plate.x1v_1)).q1o(dir(125.0 - 90.0).s1o(plate.z1v_1 / 2));
-              var sled = listOf([plateBack.q1o(along), plateBack.r1o(along), carriage.r1o(rail.s1o(12.0)), carriage.q1o(rail.s1o(12.0))]);
-              // Inline function 'kotlin.collections.flatMap' call
-              // Inline function 'kotlin.collections.flatMapTo' call
-              var destination = ArrayList_init_$Create$();
-              var _iterator__ex2g4s_2 = sled.j();
-              while (_iterator__ex2g4s_2.k()) {
-                var element = _iterator__ex2g4s_2.l();
-                var list = listOf([element.o1o_1, element.p1o_1]);
-                addAll(destination, list);
-              }
-              this_5.i(eq(new Polygon(e, destination)));
-              this_5.i(eq(slabShape(Role_GAP_getInstance(), plate.e1w(VOID, VOID, plate.y1v_1 + 3.0, plate.z1v_1 + 3.0), 2.5)));
-              this_5.i(eq(slabShape(e, plate, 1.5)));
-              tmp = this_5.w3();
+            if (_this__u8e3s4 instanceof DeficitPlatform) {
+              tmp = listOf_0(eq(new RoundRect(e, _this__u8e3s4.s1v_1 - _this__u8e3s4.u1v_1 / 2, -_this__u8e3s4.t1v_1, _this__u8e3s4.u1v_1, _this__u8e3s4.t1v_1 - 0.75, 1.0)));
             } else {
-              if (_this__u8e3s4 instanceof AdjustableBench) {
-                // Inline function 'kotlin.collections.buildList' call
-                // Inline function 'kotlin.collections.buildListInternal' call
-                // Inline function 'kotlin.apply' call
-                var this_6 = ArrayList_init_$Create$();
-                var _destruct__k2r9zo_0 = adjustableParts(_this__u8e3s4);
-                var seat_0 = _destruct__k2r9zo_0.va();
-                var back_0 = _destruct__k2r9zo_0.wa();
-                var mid = _this__u8e3s4.t1v_1 - 40.0 / 2;
-                this_6.i(eq(new Capsule(e, mid, -43.0 + 6.0, mid, -1.5, 5.0)));
-                this_6.i(eq(new Capsule(e, mid - 22.0, -1.5, mid + 22.0, -1.5, 3.0)));
-                this_6.i(eq(slabShape(e, seat_0, 2.0)));
-                this_6.i(eq(slabShape(e, back_0, 2.0)));
-                tmp = this_6.w3();
+              if (_this__u8e3s4 instanceof PullingBlocks) {
+                tmp = listOf_0(eq(new RoundRect(e, _this__u8e3s4.v1v_1 - _this__u8e3s4.x1v_1 / 2, -_this__u8e3s4.w1v_1, _this__u8e3s4.x1v_1, _this__u8e3s4.w1v_1 - 0.75, 1.0)));
               } else {
-                if (_this__u8e3s4 instanceof PullUpBar) {
-                  var tmp_1;
-                  if (view.equals(View_SIDE_getInstance())) {
-                    tmp_1 = listOf([eq(new Capsule(e, _this__u8e3s4.p1v_1 - 45.0, -_this__u8e3s4.q1v_1, _this__u8e3s4.p1v_1, -_this__u8e3s4.q1v_1, 2.5)), eq(new Capsule(e, _this__u8e3s4.p1v_1 - 45.0, -_this__u8e3s4.q1v_1 - 15.0, _this__u8e3s4.p1v_1 - 45.0, -_this__u8e3s4.q1v_1 + 15.0, 5.0))]);
-                  } else {
-                    tmp_1 = listOf([eq(new Capsule(e, _this__u8e3s4.p1v_1 - 60.0, -_this__u8e3s4.q1v_1, _this__u8e3s4.p1v_1 - 60.0, -_this__u8e3s4.q1v_1 - 40.0, 4.0), false), eq(new Capsule(e, _this__u8e3s4.p1v_1 + 60.0, -_this__u8e3s4.q1v_1, _this__u8e3s4.p1v_1 + 60.0, -_this__u8e3s4.q1v_1 - 40.0, 4.0), false), eq(new Capsule(e, _this__u8e3s4.p1v_1 - 60.0, -_this__u8e3s4.q1v_1, _this__u8e3s4.p1v_1 + 60.0, -_this__u8e3s4.q1v_1, 2 * 1.6))]);
-                  }
-                  tmp = tmp_1;
+                if (_this__u8e3s4 instanceof BenchBoards) {
+                  // Inline function 'kotlin.let' call
+                  var b_0 = boardSlab(_this__u8e3s4);
+                  // Inline function 'kotlin.collections.buildList' call
+                  // Inline function 'kotlin.collections.buildListInternal' call
+                  // Inline function 'kotlin.apply' call
+                  var this_4 = ArrayList_init_$Create$();
+                  var inductionVariable = 0;
+                  var last = _this__u8e3s4.c1w_1;
+                  if (inductionVariable < last)
+                    do {
+                      var i = inductionVariable;
+                      inductionVariable = inductionVariable + 1 | 0;
+                      var top = _this__u8e3s4.b1w_1 - (i + 1 | 0) * 3.8;
+                      this_4.i(eq(new RoundRect(Role_GAP_getInstance(), b_0.i1x_1 - b_0.k1x_1 / 2 - 0.5, top - 0.5, b_0.k1x_1 + 1.0, 3.8 + 1.0, 1.0)));
+                      this_4.i(eq(new RoundRect(e, b_0.i1x_1 - b_0.k1x_1 / 2, top, b_0.k1x_1, 3.8 - 0.4, 0.8)));
+                    }
+                     while (inductionVariable < last);
+                  tmp = this_4.z3();
                 } else {
-                  noWhenBranchMatchedException();
+                  if (_this__u8e3s4 instanceof LatPulldownSeat) {
+                    // Inline function 'kotlin.collections.buildList' call
+                    // Inline function 'kotlin.collections.buildListInternal' call
+                    // Inline function 'kotlin.apply' call
+                    var this_5 = ArrayList_init_$Create$();
+                    this_5.i(eq(new RoundRect(e, _this__u8e3s4.n1w_1 - 22.0, -_this__u8e3s4.p1w_1, 44.0, 7.0, 2.5)));
+                    this_5.i(eq(new Capsule(e, _this__u8e3s4.n1w_1, -_this__u8e3s4.p1w_1 + 7.0, _this__u8e3s4.n1w_1, -1.5, 6.0)));
+                    this_5.i(eq(new Capsule(e, _this__u8e3s4.n1w_1 - 30.0, -1.5, _this__u8e3s4.n1w_1 + 30.0, -1.5, 3.0)));
+                    this_5.i(eq(new Capsule(e, _this__u8e3s4.o1w_1, -_this__u8e3s4.q1w_1, _this__u8e3s4.o1w_1 + 14.0, -_this__u8e3s4.p1w_1 + 4.0, 3.0)));
+                    this_5.i(eq(new Circle(e, _this__u8e3s4.o1w_1, -_this__u8e3s4.q1w_1, 6.0)));
+                    tmp = this_5.z3();
+                  } else {
+                    if (_this__u8e3s4 instanceof LegPress45) {
+                      // Inline function 'kotlin.collections.buildList' call
+                      // Inline function 'kotlin.collections.buildListInternal' call
+                      // Inline function 'kotlin.apply' call
+                      var this_6 = ArrayList_init_$Create$();
+                      var _destruct__k2r9zo = legPressParts(_this__u8e3s4);
+                      var seat = _destruct__k2r9zo.ya();
+                      var back = _destruct__k2r9zo.za();
+                      var plate = _destruct__k2r9zo.jd();
+                      var railStart = legPressRailStart(_this__u8e3s4);
+                      var railEnd = railStart.q1o(dir(45.0).s1o(160.0));
+                      this_6.i(eq(new Capsule(e, _this__u8e3s4.x1w_1 - 70.0, -1.5, railEnd.o1o_1, -1.5, 3.0)));
+                      this_6.i(eq(new Capsule(e, seat.i1x_1, seat.j1x_1, seat.i1x_1, -1.5, 5.0)));
+                      this_6.i(eq(new Capsule(e, _this__u8e3s4.x1w_1 - 30.0, -45.0, _this__u8e3s4.x1w_1 - 40.0, -1.5, 5.0)));
+                      this_6.i(eq(new Capsule(e, railEnd.o1o_1, railEnd.p1o_1, railEnd.o1o_1, -1.5, 5.0)));
+                      this_6.i(eq(capsule(e, railStart, railEnd, 5.0)));
+                      this_6.i(eq(slabShape(e, seat, 2.0)));
+                      this_6.i(eq(slabShape(e, back, 2.0)));
+                      var carriage = legPressCarriage(_this__u8e3s4);
+                      var rail = dir(45.0);
+                      var along = dir(125.0).s1o(plate.k1x_1 / 2);
+                      var plateBack = (new Point(plate.i1x_1, plate.j1x_1)).q1o(dir(125.0 - 90.0).s1o(plate.l1x_1 / 2));
+                      var sled = listOf([plateBack.q1o(along), plateBack.r1o(along), carriage.r1o(rail.s1o(12.0)), carriage.q1o(rail.s1o(12.0))]);
+                      // Inline function 'kotlin.collections.flatMap' call
+                      // Inline function 'kotlin.collections.flatMapTo' call
+                      var destination = ArrayList_init_$Create$();
+                      var _iterator__ex2g4s_2 = sled.j();
+                      while (_iterator__ex2g4s_2.k()) {
+                        var element = _iterator__ex2g4s_2.l();
+                        var list = listOf([element.o1o_1, element.p1o_1]);
+                        addAll(destination, list);
+                      }
+                      this_6.i(eq(new Polygon(e, destination)));
+                      this_6.i(eq(slabShape(Role_GAP_getInstance(), plate.q1x(VOID, VOID, plate.k1x_1 + 3.0, plate.l1x_1 + 3.0), 2.5)));
+                      this_6.i(eq(slabShape(e, plate, 1.5)));
+                      tmp = this_6.z3();
+                    } else {
+                      if (_this__u8e3s4 instanceof AdjustableBench) {
+                        // Inline function 'kotlin.collections.buildList' call
+                        // Inline function 'kotlin.collections.buildListInternal' call
+                        // Inline function 'kotlin.apply' call
+                        var this_7 = ArrayList_init_$Create$();
+                        var _destruct__k2r9zo_0 = adjustableParts(_this__u8e3s4);
+                        var seat_0 = _destruct__k2r9zo_0.ya();
+                        var back_0 = _destruct__k2r9zo_0.za();
+                        var mid = _this__u8e3s4.f1x_1 - 40.0 / 2;
+                        this_7.i(eq(new Capsule(e, mid, -43.0 + 6.0, mid, -1.5, 5.0)));
+                        this_7.i(eq(new Capsule(e, mid - 22.0, -1.5, mid + 22.0, -1.5, 3.0)));
+                        this_7.i(eq(slabShape(e, seat_0, 2.0)));
+                        this_7.i(eq(slabShape(e, back_0, 2.0)));
+                        tmp = this_7.z3();
+                      } else {
+                        if (_this__u8e3s4 instanceof PullUpBar) {
+                          var tmp_1;
+                          if (view.equals(View_SIDE_getInstance())) {
+                            tmp_1 = listOf([eq(new Capsule(e, _this__u8e3s4.b1x_1 - 45.0, -_this__u8e3s4.c1x_1, _this__u8e3s4.b1x_1, -_this__u8e3s4.c1x_1, 2.5)), eq(new Capsule(e, _this__u8e3s4.b1x_1 - 45.0, -_this__u8e3s4.c1x_1 - 15.0, _this__u8e3s4.b1x_1 - 45.0, -_this__u8e3s4.c1x_1 + 15.0, 5.0))]);
+                          } else {
+                            tmp_1 = listOf([eq(new Capsule(e, _this__u8e3s4.b1x_1 - 60.0, -_this__u8e3s4.c1x_1, _this__u8e3s4.b1x_1 - 60.0, -_this__u8e3s4.c1x_1 - 40.0, 4.0), false), eq(new Capsule(e, _this__u8e3s4.b1x_1 + 60.0, -_this__u8e3s4.c1x_1, _this__u8e3s4.b1x_1 + 60.0, -_this__u8e3s4.c1x_1 - 40.0, 4.0), false), eq(new Capsule(e, _this__u8e3s4.b1x_1 - 60.0, -_this__u8e3s4.c1x_1, _this__u8e3s4.b1x_1 + 60.0, -_this__u8e3s4.c1x_1, 2 * 1.6))]);
+                          }
+                          tmp = tmp_1;
+                        } else {
+                          noWhenBranchMatchedException();
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -7206,7 +7709,7 @@ function drawFront(_this__u8e3s4, view) {
     tmp_0 = false;
   }
   if (tmp_0) {
-    tmp = listOf([eq(new Circle(Role_GAP_getInstance(), _this__u8e3s4.p1v_1, -_this__u8e3s4.q1v_1, 3.0 + 3.0 / 2)), eq(new Circle(Role_EQUIPMENT_getInstance(), _this__u8e3s4.p1v_1, -_this__u8e3s4.q1v_1, 3.0))]);
+    tmp = listOf([eq(new Circle(Role_GAP_getInstance(), _this__u8e3s4.b1x_1, -_this__u8e3s4.c1x_1, 3.0 + 3.0 / 2)), eq(new Circle(Role_EQUIPMENT_getInstance(), _this__u8e3s4.b1x_1, -_this__u8e3s4.c1x_1, 3.0))]);
   } else {
     tmp = emptyList();
   }
@@ -7217,12 +7720,15 @@ function center(_this__u8e3s4, s) {
   var tmp;
   if (_this__u8e3s4 instanceof Barbell) {
     var tmp_0;
-    switch (_this__u8e3s4.r1u_1.t1_1) {
+    switch (_this__u8e3s4.i1v_1.w1_1) {
       case 0:
         tmp_0 = grips(s);
         break;
       case 1:
-        tmp_0 = s.x1p_1.equals(View_SIDE_getInstance()) ? s.g1q(Segment_TORSO_getInstance().a() - 4.0, -(10.0 + 1.45)) : s.g1q(Segment_TORSO_getInstance().a() - 4.0, 0.0);
+        tmp_0 = s.c1q_1.equals(View_SIDE_getInstance()) ? s.m1q(Segment_TORSO_getInstance().a() - 4.0, -(10.0 + 1.45)) : s.m1q(Segment_TORSO_getInstance().a() - 4.0, 0.0);
+        break;
+      case 2:
+        tmp_0 = s.c1q_1.equals(View_SIDE_getInstance()) ? s.m1q(Segment_TORSO_getInstance().a() + 6.5, 9.0) : s.m1q(Segment_TORSO_getInstance().a() + 6.5, 0.0);
         break;
       default:
         noWhenBranchMatchedException();
@@ -7230,28 +7736,44 @@ function center(_this__u8e3s4, s) {
     }
     tmp = tmp_0;
   } else {
-    if (_this__u8e3s4 instanceof Dumbbell) {
-      tmp = s.f1q(_this__u8e3s4.u1u_1).r1p_1;
+    if (equals(_this__u8e3s4, SafetySquatBar_instance)) {
+      tmp = s.c1q_1.equals(View_SIDE_getInstance()) ? s.m1q(Segment_TORSO_getInstance().a() - 2.0, -(10.0 + 5.0)) : s.m1q(Segment_TORSO_getInstance().a() - 2.0, 0.0);
     } else {
-      if (equals(_this__u8e3s4, LatBar_instance)) {
+      if (equals(_this__u8e3s4, TrapBar_instance)) {
         tmp = grips(s);
       } else {
-        noWhenBranchMatchedException();
+        if (_this__u8e3s4 instanceof Dumbbell) {
+          tmp = s.l1q(_this__u8e3s4.g1w_1).w1p_1;
+        } else {
+          if (equals(_this__u8e3s4, LatBar_instance)) {
+            tmp = grips(s);
+          } else {
+            noWhenBranchMatchedException();
+          }
+        }
       }
     }
   }
   return tmp;
 }
+function safetyBarLoad(s) {
+  _init_properties_Kit_kt__h0vep0();
+  return center(SafetySquatBar_instance, s).q1o(new Point(8.0, 15.0));
+}
+function safetyBarHandle(s) {
+  _init_properties_Kit_kt__h0vep0();
+  return s.m1q(Segment_TORSO_getInstance().a() - 12.0, 24.0);
+}
 function grips(s) {
   _init_properties_Kit_kt__h0vep0();
-  return s.x1p_1.equals(View_SIDE_getInstance()) ? s.d1q_1.r1p_1 : s.d1q_1.r1p_1.q1o(s.e1q_1.r1p_1).s1o(0.5);
+  return s.c1q_1.equals(View_SIDE_getInstance()) ? s.i1q_1.w1p_1 : s.i1q_1.w1p_1.q1o(s.j1q_1.w1p_1).s1o(0.5);
 }
 function draw_0(_this__u8e3s4, s) {
   _init_properties_Kit_kt__h0vep0();
   var c = center(_this__u8e3s4, s);
   var a = Role_ACCENT_getInstance();
   var f = Role_ACCENT_FILL_getInstance();
-  var side = s.x1p_1.equals(View_SIDE_getInstance());
+  var side = s.c1q_1.equals(View_SIDE_getInstance());
   var tmp;
   if (_this__u8e3s4 instanceof Barbell) {
     var tmp_0;
@@ -7273,33 +7795,45 @@ function draw_0(_this__u8e3s4, s) {
         this_0.i(new RoundRect(f, px - 3.0, c.p1o_1 - 45.0 / 2, 6.0, 45.0, 1.5));
         this_0.i(new RoundRect(a, px - 1.0, c.p1o_1 - 45.0 / 2, 2.0, 45.0, 1.0));
       }
-      tmp_0 = this_0.w3();
+      tmp_0 = this_0.z3();
     }
     tmp = tmp_0;
   } else {
-    if (_this__u8e3s4 instanceof Dumbbell) {
-      var tmp_1;
-      if (side) {
-        tmp_1 = listOf([new Circle(f, c.o1o_1, c.p1o_1, 10.0), ring(a, c.o1o_1, c.p1o_1, 10.0, 10.0 - 1.2), new Circle(a, c.o1o_1, c.p1o_1, 1.6)]);
-      } else {
-        var h = 14.0 / 2;
-        tmp_1 = listOf([new Capsule(a, c.o1o_1 - h, c.p1o_1, c.o1o_1 + h, c.p1o_1, 3.2), new RoundRect(a, c.o1o_1 - h - 5.0, c.p1o_1 - 10.0, 5.0, 2 * 10.0, 1.5), new RoundRect(a, c.o1o_1 + h, c.p1o_1 - 10.0, 5.0, 2 * 10.0, 1.5)]);
-      }
-      tmp = tmp_1;
+    if (equals(_this__u8e3s4, SafetySquatBar_instance)) {
+      var r_0 = 45.0 / 2;
+      var plates = safetyBarLoad(s);
+      var handle = safetyBarHandle(s);
+      tmp = listOf([new Circle(f, plates.o1o_1, plates.p1o_1, r_0), ring(a, plates.o1o_1, plates.p1o_1, r_0, r_0 - 1.3), ring(a, plates.o1o_1, plates.p1o_1, 5.5, 4.6), new Circle(a, plates.o1o_1, plates.p1o_1, 2.5), capsule(a, c, plates, 2 * 1.45), new Circle(Role_EQUIPMENT_getInstance(), c.o1o_1, c.p1o_1, 5.0), capsule(a, c, handle, 3.0)]);
     } else {
-      if (equals(_this__u8e3s4, LatBar_instance)) {
-        var tmp_2;
-        if (side) {
-          tmp_2 = listOf_0(new Circle(a, c.o1o_1, c.p1o_1, 2.0));
-        } else {
-          var straight = 60.0 - 18.0;
-          var l = new Point(c.o1o_1 - straight, c.p1o_1);
-          var r_0 = new Point(c.o1o_1 + straight, c.p1o_1);
-          tmp_2 = listOf([capsule(a, l, r_0, 2.6), capsule(a, l, l.q1o(dir(200.0).s1o(18.0)), 2.6), capsule(a, r_0, r_0.q1o(dir(-20.0).s1o(18.0)), 2.6)]);
-        }
-        tmp = tmp_2;
+      if (equals(_this__u8e3s4, TrapBar_instance)) {
+        var r_1 = 45.0 / 2;
+        tmp = listOf([new Circle(f, c.o1o_1, c.p1o_1, r_1), ring(a, c.o1o_1, c.p1o_1, r_1, r_1 - 1.3), capsule(a, new Point(c.o1o_1 - 65.0 / 2, c.p1o_1), new Point(c.o1o_1 + 65.0 / 2, c.p1o_1), 2 * 1.45), new Circle(a, c.o1o_1, c.p1o_1, 2.5)]);
       } else {
-        noWhenBranchMatchedException();
+        if (_this__u8e3s4 instanceof Dumbbell) {
+          var tmp_1;
+          if (side) {
+            tmp_1 = listOf([new Circle(f, c.o1o_1, c.p1o_1, 10.0), ring(a, c.o1o_1, c.p1o_1, 10.0, 10.0 - 1.2), new Circle(a, c.o1o_1, c.p1o_1, 1.6)]);
+          } else {
+            var h = 14.0 / 2;
+            tmp_1 = listOf([new Capsule(a, c.o1o_1 - h, c.p1o_1, c.o1o_1 + h, c.p1o_1, 3.2), new RoundRect(a, c.o1o_1 - h - 5.0, c.p1o_1 - 10.0, 5.0, 2 * 10.0, 1.5), new RoundRect(a, c.o1o_1 + h, c.p1o_1 - 10.0, 5.0, 2 * 10.0, 1.5)]);
+          }
+          tmp = tmp_1;
+        } else {
+          if (equals(_this__u8e3s4, LatBar_instance)) {
+            var tmp_2;
+            if (side) {
+              tmp_2 = listOf_0(new Circle(a, c.o1o_1, c.p1o_1, 2.0));
+            } else {
+              var straight = 60.0 - 18.0;
+              var l = new Point(c.o1o_1 - straight, c.p1o_1);
+              var r_2 = new Point(c.o1o_1 + straight, c.p1o_1);
+              tmp_2 = listOf([capsule(a, l, r_2, 2.6), capsule(a, l, l.q1o(dir(200.0).s1o(18.0)), 2.6), capsule(a, r_2, r_2.q1o(dir(-20.0).s1o(18.0)), 2.6)]);
+            }
+            tmp = tmp_2;
+          } else {
+            noWhenBranchMatchedException();
+          }
+        }
       }
     }
   }
@@ -7316,7 +7850,7 @@ function draw_0(_this__u8e3s4, s) {
   return destination;
 }
 function draw$at($this_draw, m, dx) {
-  return $this_draw.g1u_1 + m * dx;
+  return $this_draw.x1u_1 + m * dx;
 }
 function BarHold_HANDS_getInstance() {
   static_init_9();
@@ -7325,6 +7859,10 @@ function BarHold_HANDS_getInstance() {
 function BarHold_UPPER_BACK_getInstance() {
   static_init_9();
   return BarHold_UPPER_BACK_instance;
+}
+function BarHold_FRONT_RACK_getInstance() {
+  static_init_9();
+  return BarHold_FRONT_RACK_instance;
 }
 var properties_initialized_Kit_kt_ox9md6;
 function _init_properties_Kit_kt__h0vep0() {
@@ -7355,29 +7893,29 @@ function Role(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
 function Circle(role, cx, cy, r) {
-  this.f1t_1 = role;
-  this.g1t_1 = cx;
-  this.h1t_1 = cy;
-  this.i1t_1 = r;
+  this.w1t_1 = role;
+  this.x1t_1 = cx;
+  this.y1t_1 = cy;
+  this.z1t_1 = r;
 }
-protoOf(Circle).f1w = function (role, cx, cy, r) {
+protoOf(Circle).r1x = function (role, cx, cy, r) {
   return new Circle(role, cx, cy, r);
 };
-protoOf(Circle).k1t = function (role, cx, cy, r, $super) {
-  role = role === VOID ? this.f1t_1 : role;
-  cx = cx === VOID ? this.g1t_1 : cx;
-  cy = cy === VOID ? this.h1t_1 : cy;
-  r = r === VOID ? this.i1t_1 : r;
-  return $super === VOID ? this.f1w(role, cx, cy, r) : $super.f1w.call(this, role, cx, cy, r);
+protoOf(Circle).b1u = function (role, cx, cy, r, $super) {
+  role = role === VOID ? this.w1t_1 : role;
+  cx = cx === VOID ? this.x1t_1 : cx;
+  cy = cy === VOID ? this.y1t_1 : cy;
+  r = r === VOID ? this.z1t_1 : r;
+  return $super === VOID ? this.r1x(role, cx, cy, r) : $super.r1x.call(this, role, cx, cy, r);
 };
 protoOf(Circle).toString = function () {
-  return 'Circle(role=' + this.f1t_1.toString() + ', cx=' + this.g1t_1 + ', cy=' + this.h1t_1 + ', r=' + this.i1t_1 + ')';
+  return 'Circle(role=' + this.w1t_1.toString() + ', cx=' + this.x1t_1 + ', cy=' + this.y1t_1 + ', r=' + this.z1t_1 + ')';
 };
 protoOf(Circle).hashCode = function () {
-  var result = this.f1t_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.g1t_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.h1t_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.i1t_1) | 0;
+  var result = this.w1t_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.x1t_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y1t_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.z1t_1) | 0;
   return result;
 };
 protoOf(Circle).equals = function (other) {
@@ -7385,46 +7923,46 @@ protoOf(Circle).equals = function (other) {
     return true;
   if (!(other instanceof Circle))
     return false;
-  if (!this.f1t_1.equals(other.f1t_1))
+  if (!this.w1t_1.equals(other.w1t_1))
     return false;
-  if (!equals(this.g1t_1, other.g1t_1))
+  if (!equals(this.x1t_1, other.x1t_1))
     return false;
-  if (!equals(this.h1t_1, other.h1t_1))
+  if (!equals(this.y1t_1, other.y1t_1))
     return false;
-  if (!equals(this.i1t_1, other.i1t_1))
+  if (!equals(this.z1t_1, other.z1t_1))
     return false;
   return true;
 };
 function Capsule(role, x1, y1, x2, y2, width) {
-  this.g1s_1 = role;
-  this.h1s_1 = x1;
-  this.i1s_1 = y1;
-  this.j1s_1 = x2;
-  this.k1s_1 = y2;
-  this.l1s_1 = width;
+  this.x1s_1 = role;
+  this.y1s_1 = x1;
+  this.z1s_1 = y1;
+  this.a1t_1 = x2;
+  this.b1t_1 = y2;
+  this.c1t_1 = width;
 }
-protoOf(Capsule).g1w = function (role, x1, y1, x2, y2, width) {
+protoOf(Capsule).s1x = function (role, x1, y1, x2, y2, width) {
   return new Capsule(role, x1, y1, x2, y2, width);
 };
-protoOf(Capsule).m1s = function (role, x1, y1, x2, y2, width, $super) {
-  role = role === VOID ? this.g1s_1 : role;
-  x1 = x1 === VOID ? this.h1s_1 : x1;
-  y1 = y1 === VOID ? this.i1s_1 : y1;
-  x2 = x2 === VOID ? this.j1s_1 : x2;
-  y2 = y2 === VOID ? this.k1s_1 : y2;
-  width = width === VOID ? this.l1s_1 : width;
-  return $super === VOID ? this.g1w(role, x1, y1, x2, y2, width) : $super.g1w.call(this, role, x1, y1, x2, y2, width);
+protoOf(Capsule).d1t = function (role, x1, y1, x2, y2, width, $super) {
+  role = role === VOID ? this.x1s_1 : role;
+  x1 = x1 === VOID ? this.y1s_1 : x1;
+  y1 = y1 === VOID ? this.z1s_1 : y1;
+  x2 = x2 === VOID ? this.a1t_1 : x2;
+  y2 = y2 === VOID ? this.b1t_1 : y2;
+  width = width === VOID ? this.c1t_1 : width;
+  return $super === VOID ? this.s1x(role, x1, y1, x2, y2, width) : $super.s1x.call(this, role, x1, y1, x2, y2, width);
 };
 protoOf(Capsule).toString = function () {
-  return 'Capsule(role=' + this.g1s_1.toString() + ', x1=' + this.h1s_1 + ', y1=' + this.i1s_1 + ', x2=' + this.j1s_1 + ', y2=' + this.k1s_1 + ', width=' + this.l1s_1 + ')';
+  return 'Capsule(role=' + this.x1s_1.toString() + ', x1=' + this.y1s_1 + ', y1=' + this.z1s_1 + ', x2=' + this.a1t_1 + ', y2=' + this.b1t_1 + ', width=' + this.c1t_1 + ')';
 };
 protoOf(Capsule).hashCode = function () {
-  var result = this.g1s_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.h1s_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.i1s_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.j1s_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.k1s_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.l1s_1) | 0;
+  var result = this.x1s_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.y1s_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.z1s_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a1t_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.b1t_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.c1t_1) | 0;
   return result;
 };
 protoOf(Capsule).equals = function (other) {
@@ -7432,50 +7970,50 @@ protoOf(Capsule).equals = function (other) {
     return true;
   if (!(other instanceof Capsule))
     return false;
-  if (!this.g1s_1.equals(other.g1s_1))
+  if (!this.x1s_1.equals(other.x1s_1))
     return false;
-  if (!equals(this.h1s_1, other.h1s_1))
+  if (!equals(this.y1s_1, other.y1s_1))
     return false;
-  if (!equals(this.i1s_1, other.i1s_1))
+  if (!equals(this.z1s_1, other.z1s_1))
     return false;
-  if (!equals(this.j1s_1, other.j1s_1))
+  if (!equals(this.a1t_1, other.a1t_1))
     return false;
-  if (!equals(this.k1s_1, other.k1s_1))
+  if (!equals(this.b1t_1, other.b1t_1))
     return false;
-  if (!equals(this.l1s_1, other.l1s_1))
+  if (!equals(this.c1t_1, other.c1t_1))
     return false;
   return true;
 };
 function RoundRect(role, x, y, w, h, radius) {
-  this.r1r_1 = role;
-  this.s1r_1 = x;
-  this.t1r_1 = y;
-  this.u1r_1 = w;
-  this.v1r_1 = h;
-  this.w1r_1 = radius;
+  this.i1s_1 = role;
+  this.j1s_1 = x;
+  this.k1s_1 = y;
+  this.l1s_1 = w;
+  this.m1s_1 = h;
+  this.n1s_1 = radius;
 }
-protoOf(RoundRect).g1w = function (role, x, y, w, h, radius) {
+protoOf(RoundRect).s1x = function (role, x, y, w, h, radius) {
   return new RoundRect(role, x, y, w, h, radius);
 };
-protoOf(RoundRect).f1s = function (role, x, y, w, h, radius, $super) {
-  role = role === VOID ? this.r1r_1 : role;
-  x = x === VOID ? this.s1r_1 : x;
-  y = y === VOID ? this.t1r_1 : y;
-  w = w === VOID ? this.u1r_1 : w;
-  h = h === VOID ? this.v1r_1 : h;
-  radius = radius === VOID ? this.w1r_1 : radius;
-  return $super === VOID ? this.g1w(role, x, y, w, h, radius) : $super.g1w.call(this, role, x, y, w, h, radius);
+protoOf(RoundRect).w1s = function (role, x, y, w, h, radius, $super) {
+  role = role === VOID ? this.i1s_1 : role;
+  x = x === VOID ? this.j1s_1 : x;
+  y = y === VOID ? this.k1s_1 : y;
+  w = w === VOID ? this.l1s_1 : w;
+  h = h === VOID ? this.m1s_1 : h;
+  radius = radius === VOID ? this.n1s_1 : radius;
+  return $super === VOID ? this.s1x(role, x, y, w, h, radius) : $super.s1x.call(this, role, x, y, w, h, radius);
 };
 protoOf(RoundRect).toString = function () {
-  return 'RoundRect(role=' + this.r1r_1.toString() + ', x=' + this.s1r_1 + ', y=' + this.t1r_1 + ', w=' + this.u1r_1 + ', h=' + this.v1r_1 + ', radius=' + this.w1r_1 + ')';
+  return 'RoundRect(role=' + this.i1s_1.toString() + ', x=' + this.j1s_1 + ', y=' + this.k1s_1 + ', w=' + this.l1s_1 + ', h=' + this.m1s_1 + ', radius=' + this.n1s_1 + ')';
 };
 protoOf(RoundRect).hashCode = function () {
-  var result = this.r1r_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.s1r_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.t1r_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.u1r_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.v1r_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.w1r_1) | 0;
+  var result = this.i1s_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.j1s_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k1s_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.l1s_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.m1s_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.n1s_1) | 0;
   return result;
 };
 protoOf(RoundRect).equals = function (other) {
@@ -7483,38 +8021,38 @@ protoOf(RoundRect).equals = function (other) {
     return true;
   if (!(other instanceof RoundRect))
     return false;
-  if (!this.r1r_1.equals(other.r1r_1))
+  if (!this.i1s_1.equals(other.i1s_1))
     return false;
-  if (!equals(this.s1r_1, other.s1r_1))
+  if (!equals(this.j1s_1, other.j1s_1))
     return false;
-  if (!equals(this.t1r_1, other.t1r_1))
+  if (!equals(this.k1s_1, other.k1s_1))
     return false;
-  if (!equals(this.u1r_1, other.u1r_1))
+  if (!equals(this.l1s_1, other.l1s_1))
     return false;
-  if (!equals(this.v1r_1, other.v1r_1))
+  if (!equals(this.m1s_1, other.m1s_1))
     return false;
-  if (!equals(this.w1r_1, other.w1r_1))
+  if (!equals(this.n1s_1, other.n1s_1))
     return false;
   return true;
 };
 function Polygon(role, points) {
-  this.d1t_1 = role;
-  this.e1t_1 = points;
+  this.u1t_1 = role;
+  this.v1t_1 = points;
 }
-protoOf(Polygon).h1w = function (role, points) {
+protoOf(Polygon).t1x = function (role, points) {
   return new Polygon(role, points);
 };
-protoOf(Polygon).j1t = function (role, points, $super) {
-  role = role === VOID ? this.d1t_1 : role;
-  points = points === VOID ? this.e1t_1 : points;
-  return $super === VOID ? this.h1w(role, points) : $super.h1w.call(this, role, points);
+protoOf(Polygon).a1u = function (role, points, $super) {
+  role = role === VOID ? this.u1t_1 : role;
+  points = points === VOID ? this.v1t_1 : points;
+  return $super === VOID ? this.t1x(role, points) : $super.t1x.call(this, role, points);
 };
 protoOf(Polygon).toString = function () {
-  return 'Polygon(role=' + this.d1t_1.toString() + ', points=' + toString(this.e1t_1) + ')';
+  return 'Polygon(role=' + this.u1t_1.toString() + ', points=' + toString(this.v1t_1) + ')';
 };
 protoOf(Polygon).hashCode = function () {
-  var result = this.d1t_1.hashCode();
-  result = imul(result, 31) + hashCode(this.e1t_1) | 0;
+  var result = this.u1t_1.hashCode();
+  result = imul(result, 31) + hashCode(this.v1t_1) | 0;
   return result;
 };
 protoOf(Polygon).equals = function (other) {
@@ -7522,22 +8060,22 @@ protoOf(Polygon).equals = function (other) {
     return true;
   if (!(other instanceof Polygon))
     return false;
-  if (!this.d1t_1.equals(other.d1t_1))
+  if (!this.u1t_1.equals(other.u1t_1))
     return false;
-  if (!equals(this.e1t_1, other.e1t_1))
+  if (!equals(this.v1t_1, other.v1t_1))
     return false;
   return true;
 };
 function ViewBox(width, height) {
-  this.x1r_1 = width;
-  this.y1r_1 = height;
+  this.o1s_1 = width;
+  this.p1s_1 = height;
 }
 protoOf(ViewBox).toString = function () {
-  return 'ViewBox(width=' + this.x1r_1 + ', height=' + this.y1r_1 + ')';
+  return 'ViewBox(width=' + this.o1s_1 + ', height=' + this.p1s_1 + ')';
 };
 protoOf(ViewBox).hashCode = function () {
-  var result = getNumberHashCode(this.x1r_1);
-  result = imul(result, 31) + getNumberHashCode(this.y1r_1) | 0;
+  var result = getNumberHashCode(this.o1s_1);
+  result = imul(result, 31) + getNumberHashCode(this.p1s_1) | 0;
   return result;
 };
 protoOf(ViewBox).equals = function (other) {
@@ -7545,51 +8083,51 @@ protoOf(ViewBox).equals = function (other) {
     return true;
   if (!(other instanceof ViewBox))
     return false;
-  if (!equals(this.x1r_1, other.x1r_1))
+  if (!equals(this.o1s_1, other.o1s_1))
     return false;
-  if (!equals(this.y1r_1, other.y1r_1))
+  if (!equals(this.p1s_1, other.p1s_1))
     return false;
   return true;
 };
 function Bounds(minX, minY, maxX, maxY) {
-  this.o1t_1 = minX;
-  this.p1t_1 = minY;
-  this.q1t_1 = maxX;
-  this.r1t_1 = maxY;
+  this.f1u_1 = minX;
+  this.g1u_1 = minY;
+  this.h1u_1 = maxX;
+  this.i1u_1 = maxY;
 }
-protoOf(Bounds).t1t = function () {
-  return this.q1t_1 - this.o1t_1;
+protoOf(Bounds).k1u = function () {
+  return this.h1u_1 - this.f1u_1;
 };
-protoOf(Bounds).u1t = function () {
-  return this.r1t_1 - this.p1t_1;
+protoOf(Bounds).l1u = function () {
+  return this.i1u_1 - this.g1u_1;
 };
-protoOf(Bounds).s1t = function (o) {
-  var tmp0 = this.o1t_1;
+protoOf(Bounds).j1u = function (o) {
+  var tmp0 = this.f1u_1;
   // Inline function 'kotlin.math.min' call
-  var b = o.o1t_1;
+  var b = o.f1u_1;
   var tmp = Math.min(tmp0, b);
-  var tmp0_0 = this.p1t_1;
+  var tmp0_0 = this.g1u_1;
   // Inline function 'kotlin.math.min' call
-  var b_0 = o.p1t_1;
+  var b_0 = o.g1u_1;
   var tmp_0 = Math.min(tmp0_0, b_0);
-  var tmp0_1 = this.q1t_1;
+  var tmp0_1 = this.h1u_1;
   // Inline function 'kotlin.math.max' call
-  var b_1 = o.q1t_1;
+  var b_1 = o.h1u_1;
   var tmp_1 = Math.max(tmp0_1, b_1);
-  var tmp0_2 = this.r1t_1;
+  var tmp0_2 = this.i1u_1;
   // Inline function 'kotlin.math.max' call
-  var b_2 = o.r1t_1;
+  var b_2 = o.i1u_1;
   var tmp$ret$3 = Math.max(tmp0_2, b_2);
   return new Bounds(tmp, tmp_0, tmp_1, tmp$ret$3);
 };
 protoOf(Bounds).toString = function () {
-  return 'Bounds(minX=' + this.o1t_1 + ', minY=' + this.p1t_1 + ', maxX=' + this.q1t_1 + ', maxY=' + this.r1t_1 + ')';
+  return 'Bounds(minX=' + this.f1u_1 + ', minY=' + this.g1u_1 + ', maxX=' + this.h1u_1 + ', maxY=' + this.i1u_1 + ')';
 };
 protoOf(Bounds).hashCode = function () {
-  var result = getNumberHashCode(this.o1t_1);
-  result = imul(result, 31) + getNumberHashCode(this.p1t_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.q1t_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.r1t_1) | 0;
+  var result = getNumberHashCode(this.f1u_1);
+  result = imul(result, 31) + getNumberHashCode(this.g1u_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.h1u_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.i1u_1) | 0;
   return result;
 };
 protoOf(Bounds).equals = function (other) {
@@ -7597,48 +8135,48 @@ protoOf(Bounds).equals = function (other) {
     return true;
   if (!(other instanceof Bounds))
     return false;
-  if (!equals(this.o1t_1, other.o1t_1))
+  if (!equals(this.f1u_1, other.f1u_1))
     return false;
-  if (!equals(this.p1t_1, other.p1t_1))
+  if (!equals(this.g1u_1, other.g1u_1))
     return false;
-  if (!equals(this.q1t_1, other.q1t_1))
+  if (!equals(this.h1u_1, other.h1u_1))
     return false;
-  if (!equals(this.r1t_1, other.r1t_1))
+  if (!equals(this.i1u_1, other.i1u_1))
     return false;
   return true;
 };
 function bounds(_this__u8e3s4) {
   var tmp;
   if (_this__u8e3s4 instanceof Circle) {
-    tmp = new Bounds(_this__u8e3s4.g1t_1 - _this__u8e3s4.i1t_1, _this__u8e3s4.h1t_1 - _this__u8e3s4.i1t_1, _this__u8e3s4.g1t_1 + _this__u8e3s4.i1t_1, _this__u8e3s4.h1t_1 + _this__u8e3s4.i1t_1);
+    tmp = new Bounds(_this__u8e3s4.x1t_1 - _this__u8e3s4.z1t_1, _this__u8e3s4.y1t_1 - _this__u8e3s4.z1t_1, _this__u8e3s4.x1t_1 + _this__u8e3s4.z1t_1, _this__u8e3s4.y1t_1 + _this__u8e3s4.z1t_1);
   } else {
     if (_this__u8e3s4 instanceof Capsule) {
       // Inline function 'kotlin.let' call
-      var h = _this__u8e3s4.l1s_1 / 2;
-      var tmp0 = _this__u8e3s4.h1s_1;
+      var h = _this__u8e3s4.c1t_1 / 2;
+      var tmp0 = _this__u8e3s4.y1s_1;
       // Inline function 'kotlin.math.min' call
-      var b = _this__u8e3s4.j1s_1;
+      var b = _this__u8e3s4.a1t_1;
       var tmp_0 = Math.min(tmp0, b) - h;
-      var tmp0_0 = _this__u8e3s4.i1s_1;
+      var tmp0_0 = _this__u8e3s4.z1s_1;
       // Inline function 'kotlin.math.min' call
-      var b_0 = _this__u8e3s4.k1s_1;
+      var b_0 = _this__u8e3s4.b1t_1;
       var tmp_1 = Math.min(tmp0_0, b_0) - h;
-      var tmp0_1 = _this__u8e3s4.h1s_1;
+      var tmp0_1 = _this__u8e3s4.y1s_1;
       // Inline function 'kotlin.math.max' call
-      var b_1 = _this__u8e3s4.j1s_1;
+      var b_1 = _this__u8e3s4.a1t_1;
       var tmp_2 = Math.max(tmp0_1, b_1) + h;
-      var tmp0_2 = _this__u8e3s4.i1s_1;
+      var tmp0_2 = _this__u8e3s4.z1s_1;
       // Inline function 'kotlin.math.max' call
-      var b_2 = _this__u8e3s4.k1s_1;
+      var b_2 = _this__u8e3s4.b1t_1;
       var tmp$ret$5 = Math.max(tmp0_2, b_2);
       tmp = new Bounds(tmp_0, tmp_1, tmp_2, tmp$ret$5 + h);
     } else {
       if (_this__u8e3s4 instanceof RoundRect) {
-        tmp = new Bounds(_this__u8e3s4.s1r_1, _this__u8e3s4.t1r_1, _this__u8e3s4.s1r_1 + _this__u8e3s4.u1r_1, _this__u8e3s4.t1r_1 + _this__u8e3s4.v1r_1);
+        tmp = new Bounds(_this__u8e3s4.j1s_1, _this__u8e3s4.k1s_1, _this__u8e3s4.j1s_1 + _this__u8e3s4.l1s_1, _this__u8e3s4.k1s_1 + _this__u8e3s4.m1s_1);
       } else {
         if (_this__u8e3s4 instanceof Polygon) {
           // Inline function 'kotlin.collections.filterIndexed' call
-          var tmp0_3 = _this__u8e3s4.e1t_1;
+          var tmp0_3 = _this__u8e3s4.v1t_1;
           // Inline function 'kotlin.collections.filterIndexedTo' call
           var destination = ArrayList_init_$Create$();
           // Inline function 'kotlin.collections.forEachIndexed' call
@@ -7654,7 +8192,7 @@ function bounds(_this__u8e3s4) {
           }
           var xs = destination;
           // Inline function 'kotlin.collections.filterIndexed' call
-          var tmp0_4 = _this__u8e3s4.e1t_1;
+          var tmp0_4 = _this__u8e3s4.v1t_1;
           // Inline function 'kotlin.collections.filterIndexedTo' call
           var destination_0 = ArrayList_init_$Create$();
           // Inline function 'kotlin.collections.forEachIndexed' call
@@ -7760,7 +8298,7 @@ function pullUp$delegate$lambda() {
   var hangPelvis = hangShoulder.q1o(new Point(0.0, Segment_TORSO_getInstance().a()));
   var start = new Pose(hangPelvis.o1o_1, hangPelvis.p1o_1, 90.0, VOID, hangArm, near, VOID, far);
   var topShoulder = bar.q1o(new Point(-19.0, 2.0));
-  var pull = Reach_instance.i1q(topShoulder, bar, 90.0);
+  var pull = Reach_instance.o1q(topShoulder, bar, 90.0);
   var topPelvis = topShoulder.q1o(new Point(0.0, Segment_TORSO_getInstance().a()));
   var end = new Pose(topPelvis.o1o_1, topPelvis.p1o_1, 90.0, VOID, pull, near, VOID, far);
   var props = listOf_0(new PullUpBar(bar.o1o_1, -bar.p1o_1));
@@ -7776,16 +8314,16 @@ function latPulldown$delegate$lambda() {
   var torso = 100.0;
   var seatHeight = 48.0;
   var pelvis = new Point(0.0, -(seatHeight + 10.0));
-  var legs = Reach_instance.j1q(pelvis, new Point(42.0, -6.825), torso, 0.0);
+  var legs = Reach_instance.p1q(pelvis, new Point(42.0, -6.825), torso, 0.0);
   var shoulder = shoulderOf(pelvis, torso);
   var up = straightArm(shoulder, shoulder.q1o(new Point(0.0, -10.0)), torso);
   var bare = skeleton(new Pose(pelvis.o1o_1, pelvis.p1o_1, torso, VOID, up, legs));
   var chest = point(bare, BodyPoint_UPPER_CHEST_getInstance()).q1o(unit(torso - 90.0).s1o(1.3));
   var down = armTo(shoulder, chest, torso);
-  var thigh = bare.d1q_1.t1p_1.r1o(bare.d1q_1.s1p_1);
-  var pad = bare.d1q_1.s1p_1.q1o(thigh.s1o(0.8)).q1o(unit(angleTo(thigh) + 90.0).s1o(14.0 / 2 + 6.0));
+  var thigh = bare.i1q_1.y1p_1.r1o(bare.i1q_1.x1p_1);
+  var pad = bare.i1q_1.x1p_1.q1o(thigh.s1o(0.8)).q1o(unit(angleTo(thigh) + 90.0).s1o(14.0 / 2 + 6.0));
   var seat = new LatPulldownSeat(-6.0, pad.o1o_1, seatHeight, -pad.p1o_1);
-  var grip = bare.d1q_1.r1p_1;
+  var grip = bare.i1q_1.w1p_1;
   var stack = new CableStack(-60.0, VOID, grip.o1o_1 + 60.0);
   var props = listOf([Floor_instance, stack, seat, LatBar_instance]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(new Pose(pelvis.o1o_1, pelvis.p1o_1, torso, VOID, up, legs), props), new Scene(new Pose(pelvis.o1o_1, pelvis.p1o_1, torso, VOID, down, legs), props), 'Arms fully stretched', 'Bar to your upper chest', Which_END_getInstance(), listOf(['Sit with your thighs under the pads.', 'Lean back only slightly, using your legs to support your body.', 'Pull the bar down to your upper chest.', 'Return under control until your arms and shoulders are fully stretched.']), listOf([new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_THIGHS_getInstance(), Surface_THIGH_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), listOf_0(new BarTouches(BodyPoint_UPPER_CHEST_getInstance(), Which_END_getInstance())));
@@ -7803,14 +8341,14 @@ function oneArmRow$delegate$lambda() {
   var pelvis = knee.q1o(new Point(0.0, -Segment_THIGH_getInstance().a()));
   var shoulder = shoulderOf(pelvis, torso);
   var kneel = new Leg(fold180(270.0 - torso - 180.0), 90.0, -40.0);
-  var standing = Reach_instance.j1q(pelvis, new Point(pelvis.o1o_1 - 4.0, -6.825), torso, 0.0);
+  var standing = Reach_instance.p1q(pelvis, new Point(pelvis.o1o_1 - 4.0, -6.825), torso, 0.0);
   var wrist = -65.0;
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(0, 200);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
-  var inductionVariable = this_0.vb_1;
-  var last = this_0.wb_1;
+  var inductionVariable = this_0.w_1;
+  var last = this_0.x_1;
   if (inductionVariable <= last)
     do {
       var item = inductionVariable;
@@ -7825,7 +8363,7 @@ function oneArmRow$delegate$lambda() {
   var _iterator__ex2g4s = destination.j();
   while (_iterator__ex2g4s.k()) {
     var item_0 = _iterator__ex2g4s.l();
-    var tmp$ret$5 = Reach_instance.i1q(shoulder, new Point(shoulder.o1o_1 + 8.0, item_0), torso, wrist);
+    var tmp$ret$5 = Reach_instance.o1q(shoulder, new Point(shoulder.o1o_1 + 8.0, item_0), torso, wrist);
     destination_0.i(tmp$ret$5);
   }
   var tmp$ret$6;
@@ -7841,9 +8379,9 @@ function oneArmRow$delegate$lambda() {
     }
     var arm = minElem;
     var s = skeleton(new Pose(pelvis.o1o_1, pelvis.p1o_1, torso, VOID, arm, standing, arm, kneel));
-    var tmp0 = s.e1q_1.p1p_1.p1o_1;
+    var tmp0 = s.j1q_1.u1p_1.p1o_1;
     // Inline function 'kotlin.comparisons.maxOf' call
-    var b = s.e1q_1.q1p_1.p1o_1;
+    var b = s.j1q_1.v1p_1.p1o_1;
     var lowest = Math.max(tmp0, b) + 6.0 / 2;
     // Inline function 'kotlin.math.abs' call
     var x = lowest + 43.0;
@@ -7851,9 +8389,9 @@ function oneArmRow$delegate$lambda() {
     do {
       var e = iterator.l();
       var s_0 = skeleton(new Pose(pelvis.o1o_1, pelvis.p1o_1, torso, VOID, e, standing, e, kneel));
-      var tmp0_0 = s_0.e1q_1.p1p_1.p1o_1;
+      var tmp0_0 = s_0.j1q_1.u1p_1.p1o_1;
       // Inline function 'kotlin.comparisons.maxOf' call
-      var b_0 = s_0.e1q_1.q1p_1.p1o_1;
+      var b_0 = s_0.j1q_1.v1p_1.p1o_1;
       var lowest_0 = Math.max(tmp0_0, b_0) + 6.0 / 2;
       // Inline function 'kotlin.math.abs' call
       var x_0 = lowest_0 + 43.0;
@@ -7960,17 +8498,17 @@ function rdl$delegate$lambda() {
   var ankleX = 0.0;
   var clear = 14.0 / 2 + 1.45 + 1.0;
   var upLeg = standingLeg(ankleX, 8.0, knee, 88.0);
-  var upShoulder = shoulderOf(upLeg.k1w_1, 88.0);
-  var thighFrontX = upLeg.k1w_1.o1o_1 + (upLeg.j1w_1.o1o_1 - upLeg.k1w_1.o1o_1) * 0.4 + clear;
+  var upShoulder = shoulderOf(upLeg.w1x_1, 88.0);
+  var thighFrontX = upLeg.w1x_1.o1o_1 + (upLeg.v1x_1.o1o_1 - upLeg.w1x_1.o1o_1) * 0.4 + clear;
   var start = standOn(upLeg, 88.0, hangingArmAt(upShoulder, thighFrontX, 88.0));
   var downLeg = standingLeg(ankleX, 0.0, knee, 30.0);
-  var barX = downLeg.j1w_1.o1o_1 + clear;
+  var barX = downLeg.v1x_1.o1o_1 + clear;
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(15, 60);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
-  var inductionVariable = this_0.vb_1;
-  var last = this_0.wb_1;
+  var inductionVariable = this_0.w_1;
+  var last = this_0.x_1;
   if (inductionVariable <= last)
     do {
       var item = inductionVariable;
@@ -7991,17 +8529,17 @@ function rdl$delegate$lambda() {
       break $l$block;
     }
     var t = minElem;
-    var sh = shoulderOf(downLeg.k1w_1, t);
+    var sh = shoulderOf(downLeg.w1x_1, t);
     var pose = standOn(standingLeg(ankleX, 0.0, knee, t), t, hangingArmAt(sh, barX, t));
     // Inline function 'kotlin.math.abs' call
-    var x = skeleton(pose).d1q_1.r1p_1.p1o_1 - (downLeg.j1w_1.p1o_1 - 2.0);
+    var x = skeleton(pose).i1q_1.w1p_1.p1o_1 - (downLeg.v1x_1.p1o_1 - 2.0);
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
-      var sh_0 = shoulderOf(downLeg.k1w_1, e);
+      var sh_0 = shoulderOf(downLeg.w1x_1, e);
       var pose_0 = standOn(standingLeg(ankleX, 0.0, knee, e), e, hangingArmAt(sh_0, barX, e));
       // Inline function 'kotlin.math.abs' call
-      var x_0 = skeleton(pose_0).d1q_1.r1p_1.p1o_1 - (downLeg.j1w_1.p1o_1 - 2.0);
+      var x_0 = skeleton(pose_0).i1q_1.w1p_1.p1o_1 - (downLeg.v1x_1.p1o_1 - 2.0);
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -8013,9 +8551,9 @@ function rdl$delegate$lambda() {
   }
   var torso = tmp$ret$3;
   var endLeg = standingLeg(ankleX, 0.0, knee, torso);
-  var end = standOn(endLeg, torso, hangingArmAt(shoulderOf(endLeg.k1w_1, torso), barX, torso));
-  var barStart = skeleton(start).d1q_1.r1p_1;
-  var barLow = skeleton(end).d1q_1.r1p_1;
+  var end = standOn(endLeg, torso, hangingArmAt(shoulderOf(endLeg.w1x_1, torso), barX, torso));
+  var barStart = skeleton(start).i1q_1.w1p_1;
+  var barLow = skeleton(end).i1q_1.w1p_1;
   var rack = rackInFront(barStart.o1o_1, -barStart.p1o_1 - 4.0, -barLow.p1o_1 - 1.45 - 8.0, 60.0);
   var props = listOf([Floor_instance, rack, new Barbell()]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), 'Knees slightly bent', 'Weight about at knees', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Stand tall with your knees slightly bent.', 'Push your hips back. Keep the same slight bend in your knees.', 'Slide the bar down close to your legs.', 'Lower until the weight is about at your knees. Stop sooner if your back starts to round.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance()), new BarNearLegs(4.0, Which_START_getInstance()), new BarNearLegs(4.0, Which_END_getInstance())]));
@@ -8078,6 +8616,233 @@ function get_strictPress() {
   return tmp0.t();
 }
 var strictPress$delegate;
+function get_pauseSquat() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = pauseSquat$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('pauseSquat', 0, tmp, _get_pauseSquat_$ref_arnvju(), null);
+  return tmp0.t();
+}
+var pauseSquat$delegate;
+function get_highBarSquat() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = highBarSquat$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('highBarSquat', 0, tmp, _get_highBarSquat_$ref_srj3a7(), null);
+  return tmp0.t();
+}
+var highBarSquat$delegate;
+function get_tempoSquat() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = tempoSquat$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('tempoSquat', 0, tmp, _get_tempoSquat_$ref_3u93l7(), null);
+  return tmp0.t();
+}
+var tempoSquat$delegate;
+function get_frontSquat() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = frontSquat$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('frontSquat', 0, tmp, _get_frontSquat_$ref_mt52pl(), null);
+  return tmp0.t();
+}
+var frontSquat$delegate;
+function get_pinSquat() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = pinSquat$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('pinSquat', 0, tmp, _get_pinSquat_$ref_qscyhx(), null);
+  return tmp0.t();
+}
+var pinSquat$delegate;
+function get_safetyBarSquat() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = safetyBarSquat$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('safetyBarSquat', 0, tmp, _get_safetyBarSquat_$ref_vg2le7(), null);
+  return tmp0.t();
+}
+var safetyBarSquat$delegate;
+function get_boxSquat() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = boxSquat$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('boxSquat', 0, tmp, _get_boxSquat_$ref_nft93v(), null);
+  return tmp0.t();
+}
+var boxSquat$delegate;
+function get_benchTorso() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return benchTorso;
+}
+var benchTorso;
+function get_benchPelvis() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return benchPelvis;
+}
+var benchPelvis;
+function get_benchBare() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = benchBare$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('benchBare', 0, tmp, _get_benchBare_$ref_pakvsy(), null);
+  return tmp0.t();
+}
+var benchBare$delegate;
+function get_benchChest() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = benchChest$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('benchChest', 0, tmp, _get_benchChest_$ref_3e63vb(), null);
+  return tmp0.t();
+}
+var benchChest$delegate;
+function get_benchLockout() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return benchLockout;
+}
+var benchLockout;
+function get_spotoPress() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = spotoPress$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('spotoPress', 0, tmp, _get_spotoPress_$ref_ncbxgk(), null);
+  return tmp0.t();
+}
+var spotoPress$delegate;
+function get_longPauseBench() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = longPauseBench$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('longPauseBench', 0, tmp, _get_longPauseBench_$ref_1zhe7w(), null);
+  return tmp0.t();
+}
+var longPauseBench$delegate;
+function get_pinPress() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = pinPress$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('pinPress', 0, tmp, _get_pinPress_$ref_maowng(), null);
+  return tmp0.t();
+}
+var pinPress$delegate;
+function get_larsenPress() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = larsenPress$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('larsenPress', 0, tmp, _get_larsenPress_$ref_qz1dwc(), null);
+  return tmp0.t();
+}
+var larsenPress$delegate;
+function get_closeGripBench() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = closeGripBench$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('closeGripBench', 0, tmp, _get_closeGripBench_$ref_4aj7mc(), null);
+  return tmp0.t();
+}
+var closeGripBench$delegate;
+function get_boardPress() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = boardPress$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('boardPress', 0, tmp, _get_boardPress_$ref_1ktqzn(), null);
+  return tmp0.t();
+}
+var boardPress$delegate;
+function get_wideGripBench() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = wideGripBench$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('wideGripBench', 0, tmp, _get_wideGripBench_$ref_37ae2d(), null);
+  return tmp0.t();
+}
+var wideGripBench$delegate;
+function get_floorPress() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = floorPress$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('floorPress', 0, tmp, _get_floorPress_$ref_c07by5(), null);
+  return tmp0.t();
+}
+var floorPress$delegate;
+function get_pullChecks() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return pullChecks;
+}
+var pullChecks;
+function get_pausedDeadlift() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = pausedDeadlift$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('pausedDeadlift', 0, tmp, _get_pausedDeadlift_$ref_6f8pp(), null);
+  return tmp0.t();
+}
+var pausedDeadlift$delegate;
+function get_pausedDeadliftAtKnee() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = pausedDeadliftAtKnee$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('pausedDeadliftAtKnee', 0, tmp, _get_pausedDeadliftAtKnee_$ref_htstif(), null);
+  return tmp0.t();
+}
+var pausedDeadliftAtKnee$delegate;
+function get_deficitDeadlift() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = deficitDeadlift$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('deficitDeadlift', 0, tmp, _get_deficitDeadlift_$ref_xd1juh(), null);
+  return tmp0.t();
+}
+var deficitDeadlift$delegate;
+function get_blockPull() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = blockPull$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('blockPull', 0, tmp, _get_blockPull_$ref_6cc7ta(), null);
+  return tmp0.t();
+}
+var blockPull$delegate;
+function get_sumoDeadlift() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = sumoDeadlift$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('sumoDeadlift', 0, tmp, _get_sumoDeadlift_$ref_zavvjt(), null);
+  return tmp0.t();
+}
+var sumoDeadlift$delegate;
+function get_trapBarDeadlift() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp0 = trapBarDeadlift$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('trapBarDeadlift', 0, tmp, _get_trapBarDeadlift_$ref_bwte97(), null);
+  return tmp0.t();
+}
+var trapBarDeadlift$delegate;
 function get_mainLiftFigures() {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var tmp0 = mainLiftFigures$delegate;
@@ -8103,6 +8868,127 @@ function circleMeet(a, ra, b, rb) {
   var left = new Point(u.p1o_1, -u.o1o_1);
   return base.q1o(left.s1o(h));
 }
+function midfootX(ankleX) {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var s = skeleton(standOn(standingLeg(ankleX, 0.0, 0.0, 90.0), 90.0, new Arm(0.0, 0.0)));
+  return (s.i1q_1.a1q_1.o1o_1 + s.i1q_1.b1q_1.o1o_1) / 2;
+}
+function balancedTorso(leg, range, load) {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var mid = midfootX(leg.u1x_1.o1o_1);
+  var best = range.xb();
+  var t = range.xb();
+  while (t <= range.yb() + 1.0E-9) {
+    // Inline function 'kotlin.math.abs' call
+    var x = load(leg.w1x_1, t).o1o_1 - mid;
+    var tmp = Math.abs(x);
+    // Inline function 'kotlin.math.abs' call
+    var x_0 = load(leg.w1x_1, best).o1o_1 - mid;
+    if (tmp < Math.abs(x_0))
+      best = t;
+    t = t + 0.1;
+  }
+  return best;
+}
+function kneeForDepth(shinLean, below) {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp = 90.0 + shinLean;
+  // Inline function 'kotlin.math.asin' call
+  var x = below / Segment_THIGH_getInstance().a();
+  return tmp + Math.asin(x) * 180 / 3.141592653589793;
+}
+function backSquatPose(leg, torso) {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return standOn(leg, torso, armTo(shoulderOf(leg.w1x_1, torso), barOnBack(leg.w1x_1, torso), torso, VOID, true));
+}
+function squatRack(barTop, barLow) {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return rackInFront(barTop.o1o_1, -barTop.p1o_1 - 8.0, -barLow.p1o_1 - 1.45 - 6.0);
+}
+function benchPose(arm, legs) {
+  legs = legs === VOID ? get_bench().s1r_1.q1q_1.m1p_1 : legs;
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return new Pose(get_benchPelvis().o1o_1, get_benchPelvis().p1o_1, get_benchTorso(), VOID, arm, legs);
+}
+function benchArmAbove(above) {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return Reach_instance.o1q(get_benchBare().f1q_1, new Point(get_benchChest().o1o_1, get_benchChest().p1o_1 - 1.45 - above), get_benchTorso());
+}
+function benchVariation(start, startCaption, guideLines, checks, end, props, contacts, endCaption) {
+  end = end === VOID ? benchPose(get_benchLockout()) : end;
+  props = props === VOID ? get_bench().s1r_1.r1q_1 : props;
+  contacts = contacts === VOID ? get_bench().y1r_1 : contacts;
+  endCaption = endCaption === VOID ? 'Press until elbows lock' : endCaption;
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), startCaption, endCaption, Which_END_getInstance(), guideLines, contacts, checks);
+}
+function pullPose(barY, shinLean, lead, floorY, barGap) {
+  floorY = floorY === VOID ? 0.0 : floorY;
+  barGap = barGap === VOID ? 0.5 : barGap;
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var ankle = new Point(0.0, floorY - 6.825);
+  var rad = 3.141592653589793 / 180;
+  var tmp = ankle.p1o_1 - barY;
+  // Inline function 'kotlin.math.tan' call
+  var x = shinLean * rad;
+  var shinAtBar = tmp * Math.tan(x);
+  var tmp_0 = 11.0 / 2 + barGap + 1.45;
+  // Inline function 'kotlin.math.cos' call
+  var x_0 = shinLean * rad;
+  var barX = shinAtBar + tmp_0 / Math.cos(x_0);
+  var bar = new Point(barX, barY);
+  var tmp_1 = barX + lead;
+  // Inline function 'kotlin.math.sqrt' call
+  var x_1 = get_ARM_REACH() * get_ARM_REACH() - lead * lead;
+  var tmp$ret$2 = Math.sqrt(x_1);
+  var shoulder = new Point(tmp_1, barY - tmp$ret$2);
+  return pullPoseThrough(ankle, shinLean, shoulder, bar);
+}
+function pullPoseThrough(ankle, shinLean, shoulder, bar) {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var thigh = Segment_THIGH_getInstance().a();
+  var knee = ankle.q1o(unit(90.0 - shinLean).s1o(Segment_SHIN_getInstance().a()));
+  var hip = circleMeet(knee, thigh, shoulder, Segment_TORSO_getInstance().a());
+  var torso = angleTo(shoulder.r1o(hip));
+  var thighAngle = angleTo(knee.r1o(hip));
+  var leg = new Leg(fold180(thighAngle - torso - 180.0), fold180(angleTo(hip.r1o(knee)) - (90.0 - shinLean)), shinLean);
+  return new Pose(hip.o1o_1, hip.p1o_1, torso, VOID, straightArm(shoulder, bar, torso), leg);
+}
+function pullLockout(floorY) {
+  floorY = floorY === VOID ? 0.0 : floorY;
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  // Inline function 'kotlin.let' call
+  var it = get_deadlift().t1r_1.q1q_1;
+  return it.r1p(VOID, it.i1p_1 + floorY);
+}
+function pullFromHeight(barY, lead, gap) {
+  gap = gap === VOID ? 0.5 : gap;
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var x0 = center(new Barbell(), skeleton(get_deadlift().s1r_1.q1q_1)).o1o_1;
+  var lo = 0.0;
+  var hi = 20.0;
+  // Inline function 'kotlin.repeat' call
+  var inductionVariable = 0;
+  if (inductionVariable < 60)
+    do {
+      var index = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      var mid = (lo + hi) / 2;
+      var rad = mid * 3.141592653589793 / 180;
+      var tmp = -6.825 - barY;
+      // Inline function 'kotlin.math.tan' call
+      var tmp_0 = tmp * Math.tan(rad);
+      var tmp_1 = 11.0 / 2 + gap + 1.45;
+      // Inline function 'kotlin.math.cos' call
+      var x = tmp_0 + tmp_1 / Math.cos(rad);
+      if (x > x0)
+        hi = mid;
+      else
+        lo = mid;
+    }
+     while (inductionVariable < 60);
+  return pullPose(barY, lo, lead, VOID, gap);
+}
 function squat$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var ankleX = 0.0;
@@ -8114,10 +9000,10 @@ function squat$delegate$lambda() {
   var bottomLean = 33.0;
   var bottomLeg = standingLeg(ankleX, bottomLean, 90.0 + bottomLean + slope, 44.0);
   var bottomTorso = 44.0;
-  var start = standOn(standLeg, standTorso, invoke$arms(standLeg.k1w_1, standTorso));
-  var end = standOn(bottomLeg, bottomTorso, invoke$arms(bottomLeg.k1w_1, bottomTorso));
-  var barTop = barOnBack(standLeg.k1w_1, standTorso);
-  var barLow = barOnBack(bottomLeg.k1w_1, bottomTorso);
+  var start = standOn(standLeg, standTorso, invoke$arms(standLeg.w1x_1, standTorso));
+  var end = standOn(bottomLeg, bottomTorso, invoke$arms(bottomLeg.w1x_1, bottomTorso));
+  var barTop = barOnBack(standLeg.w1x_1, standTorso);
+  var barLow = barOnBack(bottomLeg.w1x_1, bottomTorso);
   var rack = rackInFront(barTop.o1o_1, -barTop.p1o_1 - 8.0, -barLow.p1o_1 - 1.45 - 6.0);
   var props = listOf([Floor_instance, rack, new Barbell(BarHold_UPPER_BACK_getInstance())]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), 'Stand tall, knees locked', 'Hip crease below knee', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Go down until the crease of your hip is below the top of your knee. This is competition depth.', 'Stand tall with your knees locked. Breathe, then brace again for the next rep.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new HipDepth(2.0, Which_END_getInstance()), new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance())]));
@@ -8136,9 +9022,9 @@ function bench$delegate$lambda() {
   var pelvis = new Point(95.0, -(43.0 + 10.0));
   var bare = skeleton(new Pose(pelvis.o1o_1, pelvis.p1o_1, torso, VOID, new Arm(0.0, 0.0), new Leg(0.0, 0.0)));
   var chest = point(bare, BodyPoint_CHEST_getInstance());
-  var legs = Reach_instance.j1q(pelvis, new Point(127.0, -6.825), torso, 0.0);
+  var legs = Reach_instance.p1q(pelvis, new Point(127.0, -6.825), torso, 0.0);
   var bar = new Point(chest.o1o_1, chest.p1o_1 - 1.45);
-  var onChest = Reach_instance.i1q(bare.a1q_1, bar, torso);
+  var onChest = Reach_instance.o1q(bare.f1q_1, bar, torso);
   var lockout = new Arm(90.0, 0.0);
   var props = listOf([Floor_instance, new FlatBench(), new PowerRack(2.0, 110.0, 60.0), new Barbell()]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(new Pose(pelvis.o1o_1, pelvis.p1o_1, torso, VOID, onChest, legs), props), new Scene(new Pose(pelvis.o1o_1, pelvis.p1o_1, torso, VOID, lockout, legs), props), 'Pause on your chest', 'Press until elbows lock', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Pause with the bar still on your chest.', 'Press the bar up until your elbows lock.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HEAD_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BENCH_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_BENCH_getInstance(), get_BOTH())]), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]));
@@ -8175,7 +9061,7 @@ function deadlift$delegate$lambda() {
   var setupLeg = standingLeg(ankleX, shinLean, kneeBend, torso);
   var start = standOn(setupLeg, torso, straightArm(shoulder, bar, torso));
   var standLeg = standingLeg(ankleX, 0.0, 0.0, 90.0);
-  var standShoulder = shoulderOf(standLeg.k1w_1, 90.0);
+  var standShoulder = shoulderOf(standLeg.w1x_1, 90.0);
   var frontOfThigh = 14.0 / 2 + 1.45 + 0.5;
   var end = standOn(standLeg, 90.0, hangingArmAt(standShoulder, ankleX + frontOfThigh, 90.0));
   var props = listOf([Floor_instance, new Barbell()]);
@@ -8190,14 +9076,14 @@ function strictPress$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
   var ankleX = 0.0;
   var leg = standingLeg(ankleX, 3.0, 0.0, 90.0);
-  var shoulder = shoulderOf(leg.k1w_1, 90.0);
+  var shoulder = shoulderOf(leg.w1x_1, 90.0);
   var rackAt = shoulder.q1o(new Point(8.0, -3.0));
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(0, 900);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
-  var inductionVariable = this_0.vb_1;
-  var last = this_0.wb_1;
+  var inductionVariable = this_0.w_1;
+  var last = this_0.x_1;
   if (inductionVariable <= last)
     do {
       var item = inductionVariable;
@@ -8234,27 +9120,569 @@ function strictPress$delegate$lambda() {
   var front = tmp$ret$3;
   var start = standOn(leg, 90.0, front);
   var end = standOn(leg, 90.0, new Arm(180.0, 0.0));
-  var barStart = skeleton(start).d1q_1.r1p_1;
+  var barStart = skeleton(start).i1q_1.w1p_1;
   var rack = rackInFront(barStart.o1o_1, -barStart.p1o_1 - 6.0, -barStart.p1o_1 - 10.0, 35.0);
   var props = listOf([Floor_instance, rack, new Barbell()]);
   return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), 'Front of your neck', 'Press to straight arms', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Take the bar across the front of your shoulders and step back.', 'Press the bar overhead until your arms are straight.', 'Keep your back straight and tall.', 'Lower the bar under control to the front of your neck.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new LockoutOverShoulders(Which_END_getInstance()), new BarOverMidfoot(Which_END_getInstance())]));
 }
 function invoke$gripOf(leg, arm) {
-  return skeleton(new Pose(leg.k1w_1.o1o_1, leg.k1w_1.p1o_1, 90.0, VOID, arm, leg.l1w_1)).d1q_1.r1p_1;
+  return skeleton(new Pose(leg.w1x_1.o1o_1, leg.w1x_1.p1o_1, 90.0, VOID, arm, leg.x1x_1)).i1q_1.w1p_1;
 }
 function _get_strictPress_$ref_negg92() {
   return constructCallableReference(function () {
     return get_strictPress();
   }, 0, 0, 39);
 }
+function pauseSquat$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return get_squat().c1s(VOID, VOID, VOID, 'Stand tall and brace', 'Hold still at the bottom', VOID, listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Squat down under control to your normal depth.', 'Hold still at the bottom for a short pause. Stay braced.', 'Stand tall, breathe, and brace again for the next rep.']));
+}
+function _get_pauseSquat_$ref_arnvju() {
+  return constructCallableReference(function () {
+    return get_pauseSquat();
+  }, 0, 0, 40);
+}
+function highBarSquat$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return get_squat().c1s(VOID, VOID, VOID, 'Bar high on upper back', 'Thighs just past level', VOID, listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it high on your upper back, on the top of the muscle just below your neck.', 'Push your hips back and let your knees bend forward. Keep your back straight and your torso upright.', 'Go down until your thighs are just past level with the floor. Stop sooner if your heels lift or your back starts to round.']));
+}
+function _get_highBarSquat_$ref_srj3a7() {
+  return constructCallableReference(function () {
+    return get_highBarSquat();
+  }, 0, 0, 41);
+}
+function tempoSquat$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var leg = standingLeg(0.0, 18.0, 60.0, 70.0);
+  var tmp = rangeTo(40.0, 90.0);
+  var torso = balancedTorso(leg, tmp, barOnBack$ref());
+  var leg2 = standingLeg(0.0, 18.0, 60.0, torso);
+  var start = backSquatPose(leg2, torso);
+  var barTop = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().s1r_1.q1q_1));
+  var barLow = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().t1r_1.q1q_1));
+  var rack = rackInFront(barTop.o1o_1, -barTop.p1o_1 - 8.0, -barLow.p1o_1 - 1.45 - 6.0, 55.0);
+  var props = listOf([Floor_instance, rack, new Barbell(BarHold_UPPER_BACK_getInstance())]);
+  return get_squat().c1s(VOID, new Scene(start, props), new Scene(get_squat().t1r_1.q1q_1, props), 'Lower yourself slowly', 'Normal squat depth', VOID, listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest it across your upper back.', 'Lower yourself slowly and under control. Take longer to go down than to come up.', 'Go down to your normal squat depth.']));
+}
+function barOnBack$ref() {
+  return constructCallableReference(function (p0, p1) {
+    return barOnBack(p0, p1);
+  }, 2, 0, 42, 'barOnBack');
+}
+function _get_tempoSquat_$ref_3u93l7() {
+  return constructCallableReference(function () {
+    return get_tempoSquat();
+  }, 0, 0, 43);
+}
+function frontSquat$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var front = new Barbell(BarHold_FRONT_RACK_getInstance());
+  var standLeg = standingLeg(0.0, 0.0, 0.0, 90.0);
+  var tmp = rangeTo(80.0, 90.0);
+  var standTorso = balancedTorso(standLeg, tmp, frontSquat$delegate$lambda$rackBar$ref());
+  var lean = 34.0;
+  var bottomLeg0 = standingLeg(0.0, lean, kneeForDepth(lean, 0.5), 70.0);
+  var tmp_0 = rangeTo(50.0, 90.0);
+  var bottomTorso = balancedTorso(bottomLeg0, tmp_0, frontSquat$delegate$lambda$rackBar$ref());
+  var start = invoke$pose_0(standLeg, standTorso);
+  var end = invoke$pose_0(bottomLeg0, bottomTorso);
+  var barTop = center(front, skeleton(start));
+  var barLow = center(front, skeleton(end));
+  var props = listOf([Floor_instance, squatRack(barTop, barLow), front]);
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), 'Elbows straight ahead', 'Thighs level with floor', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Rest the bar across the front of your shoulders, palms facing up and elbows pointing straight ahead.', 'Squat down, keeping your torso upright and your back straight.', 'Go down until your thighs are level with the floor. Stop sooner if your heels lift or your back starts to round.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new HipDepth(0.0, Which_END_getInstance()), new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance())]));
+}
+function invoke$pose$arm($torso, e, w) {
+  return new Arm(fold180(0.0 - $torso - 180.0), e, w, VOID, VOID, 45.0);
+}
+function invoke$pose$miss(leg, $torso, bar, a) {
+  return skeleton(new Pose(leg.w1x_1.o1o_1, leg.w1x_1.p1o_1, $torso, VOID, a, leg.x1x_1)).i1q_1.w1p_1.r1o(bar).t1o();
+}
+function invoke$rackBar(pelvis, torso) {
+  return pelvis.q1o(unit(torso).s1o(Segment_TORSO_getInstance().a() + 6.5)).q1o(unit(torso - 90.0).s1o(9.0));
+}
+function frontSquat$delegate$lambda$rackBar$ref() {
+  return constructCallableReference(function (p0, p1) {
+    return invoke$rackBar(p0, p1);
+  }, 2, 0, 44, 'rackBar');
+}
+function invoke$pose_0(leg0, torso) {
+  var leg = standingLeg(leg0.u1x_1.o1o_1, leg0.x1x_1.f1p_1, leg0.x1x_1.e1p_1, torso);
+  var shoulder = shoulderOf(leg.w1x_1, torso);
+  var bar = invoke$rackBar(leg.w1x_1, torso);
+  // Inline function 'kotlin.collections.flatMap' call
+  var tmp0 = step(numberRangeToNumber(120, 178), 4);
+  // Inline function 'kotlin.collections.flatMapTo' call
+  var destination = ArrayList_init_$Create$();
+  var inductionVariable = tmp0.w_1;
+  var last = tmp0.x_1;
+  var step_0 = tmp0.y_1;
+  if (step_0 > 0 && inductionVariable <= last || (step_0 < 0 && last <= inductionVariable))
+    do {
+      var element = inductionVariable;
+      inductionVariable = inductionVariable + step_0 | 0;
+      var e = element;
+      // Inline function 'kotlin.collections.map' call
+      var this_0 = step(numberRangeToNumber(-70, 60), 10);
+      // Inline function 'kotlin.collections.mapTo' call
+      var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+      var inductionVariable_0 = this_0.w_1;
+      var last_0 = this_0.x_1;
+      var step_1 = this_0.y_1;
+      if (step_1 > 0 && inductionVariable_0 <= last_0 || (step_1 < 0 && last_0 <= inductionVariable_0))
+        do {
+          var item = inductionVariable_0;
+          inductionVariable_0 = inductionVariable_0 + step_1 | 0;
+          var w = item;
+          var tmp$ret$5 = invoke$pose$arm(torso, e, w);
+          destination_0.i(tmp$ret$5);
+        }
+         while (!(item === last_0));
+      var list = destination_0;
+      addAll(destination, list);
+    }
+     while (!(element === last));
+  var tmp$ret$6;
+  $l$block: {
+    // Inline function 'kotlin.collections.minBy' call
+    var iterator = destination.j();
+    if (!iterator.k())
+      throw NoSuchElementException_init_$Create$();
+    var minElem = iterator.l();
+    if (!iterator.k()) {
+      tmp$ret$6 = minElem;
+      break $l$block;
+    }
+    var p0 = minElem;
+    var minValue = invoke$pose$miss(leg, torso, bar, p0);
+    do {
+      var e_0 = iterator.l();
+      var v = invoke$pose$miss(leg, torso, bar, e_0);
+      if (compareTo(minValue, v) > 0) {
+        minElem = e_0;
+        minValue = v;
+      }
+    }
+     while (iterator.k());
+    tmp$ret$6 = minElem;
+  }
+  var coarse = tmp$ret$6;
+  // Inline function 'kotlin.collections.flatMap' call
+  var tmp0_0 = numberRangeToNumber(-4, 4);
+  // Inline function 'kotlin.collections.flatMapTo' call
+  var destination_1 = ArrayList_init_$Create$();
+  var inductionVariable_1 = tmp0_0.w_1;
+  var last_1 = tmp0_0.x_1;
+  if (inductionVariable_1 <= last_1)
+    do {
+      var element_0 = inductionVariable_1;
+      inductionVariable_1 = inductionVariable_1 + 1 | 0;
+      var de = element_0;
+      // Inline function 'kotlin.collections.map' call
+      var this_1 = numberRangeToNumber(-5, 5);
+      // Inline function 'kotlin.collections.mapTo' call
+      var destination_2 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
+      var inductionVariable_2 = this_1.w_1;
+      var last_2 = this_1.x_1;
+      if (inductionVariable_2 <= last_2)
+        do {
+          var item_0 = inductionVariable_2;
+          inductionVariable_2 = inductionVariable_2 + 1 | 0;
+          var dw = item_0;
+          var tmp$ret$14 = invoke$pose$arm(torso, coerceAtMost(coarse.y1o_1 + de, 178.0), coerceIn(coarse.z1o_1 + imul(2, dw), -70.0, 60.0));
+          destination_2.i(tmp$ret$14);
+        }
+         while (!(item_0 === last_2));
+      var list_0 = destination_2;
+      addAll(destination_1, list_0);
+    }
+     while (!(element_0 === last_1));
+  var tmp$ret$15;
+  $l$block_0: {
+    // Inline function 'kotlin.collections.minBy' call
+    var iterator_0 = destination_1.j();
+    if (!iterator_0.k())
+      throw NoSuchElementException_init_$Create$();
+    var minElem_0 = iterator_0.l();
+    if (!iterator_0.k()) {
+      tmp$ret$15 = minElem_0;
+      break $l$block_0;
+    }
+    var p0_0 = minElem_0;
+    var minValue_0 = invoke$pose$miss(leg, torso, bar, p0_0);
+    do {
+      var e_1 = iterator_0.l();
+      var v_0 = invoke$pose$miss(leg, torso, bar, e_1);
+      if (compareTo(minValue_0, v_0) > 0) {
+        minElem_0 = e_1;
+        minValue_0 = v_0;
+      }
+    }
+     while (iterator_0.k());
+    tmp$ret$15 = minElem_0;
+  }
+  var arm = tmp$ret$15;
+  return standOn(leg, torso, arm);
+}
+function _get_frontSquat_$ref_mt52pl() {
+  return constructCallableReference(function () {
+    return get_frontSquat();
+  }, 0, 0, 45);
+}
+function pinSquat$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var leg0 = standingLeg(0.0, 25.0, 85.0, 60.0);
+  var tmp = rangeTo(30.0, 90.0);
+  var torso = balancedTorso(leg0, tmp, barOnBack$ref());
+  var leg = standingLeg(0.0, 25.0, 85.0, torso);
+  var start = backSquatPose(leg, torso);
+  var bar = barOnBack(leg.w1x_1, torso);
+  var barTop = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().s1r_1.q1q_1));
+  var gap = 55.0;
+  var pins = new PowerRack(barTop.o1o_1 + gap, -barTop.p1o_1 - 8.0, -bar.p1o_1 - 1.45, gap + (barTop.o1o_1 - bar.o1o_1) + 12.0, VOID, true);
+  var props = listOf([Floor_instance, pins, new Barbell(BarHold_UPPER_BACK_getInstance())]);
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(get_squat().s1r_1.q1q_1, props), 'Bar rests on the pins', 'Stand tall, knees locked', Which_START_getInstance(), listOf(['Set the safety pins in the rack at the height you want to start from, often just below where your squat slows down.', "Rest the bar on the pins. The pins also catch the bar if you can't stand up.", 'Get under the bar and rest it across your upper back.', 'Drive the bar up off the pins by straightening your hips and knees together.', 'Stand tall with your knees locked.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new BarRestsOn(Surface_SAFETY_ARM_getInstance(), Which_START_getInstance()), new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance())]));
+}
+function _get_pinSquat_$ref_qscyhx() {
+  return constructCallableReference(function () {
+    return get_pinSquat();
+  }, 0, 0, 46);
+}
+function safetyBarSquat$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var start = invoke$pose_1(standingLeg(0.0, 3.0, 0.0, 85.0), rangeTo(80.0, 90.0));
+  var lean = 33.0;
+  var end = invoke$pose_1(standingLeg(0.0, lean, kneeForDepth(lean, 2.2), 50.0), rangeTo(40.0, 80.0));
+  var top = center(SafetySquatBar_instance, skeleton(start));
+  var low = center(SafetySquatBar_instance, skeleton(end));
+  var rack = rackInFront(top.o1o_1, -top.p1o_1 - 8.0, -low.p1o_1 - 15.0 - 1.45 - 6.0, 55.0);
+  var props = listOf([Floor_instance, rack, SafetySquatBar_instance]);
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), 'Handles in front of you', 'Thighs just below level', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Step under the bar and rest the pads on your upper back and shoulders.', 'Hold the handles in front of you.', 'Squat down until your thighs are just below level with the floor.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())), listOf([new HipDepth(2.0, Which_END_getInstance()), new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance())]));
+}
+function safetyBarSquat$delegate$lambda$load$ref() {
+  return constructCallableReference(function (p0, p1) {
+    return invoke$load(p0, p1);
+  }, 2, 0, 47, 'load');
+}
+function invoke$load(pelvis, torso) {
+  return pelvis.q1o(unit(torso).s1o(Segment_TORSO_getInstance().a() - 2.0)).q1o(unit(torso + 90.0).s1o(10.0 + 5.0)).q1o(new Point(8.0, 15.0));
+}
+function invoke$pose_1(leg0, range) {
+  var torso = balancedTorso(leg0, range, safetyBarSquat$delegate$lambda$load$ref());
+  var leg = standingLeg(leg0.u1x_1.o1o_1, leg0.x1x_1.f1p_1, leg0.x1x_1.e1p_1, torso);
+  var bare = skeleton(standOn(leg, torso, new Arm(0.0, 0.0)));
+  var arm = Reach_instance.o1q(bare.f1q_1, safetyBarHandle(bare), torso);
+  return standOn(leg, torso, arm);
+}
+function _get_safetyBarSquat_$ref_vg2le7() {
+  return constructCallableReference(function () {
+    return get_safetyBarSquat();
+  }, 0, 0, 48);
+}
+function boxSquat$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var lean = 5.0;
+  var torso = 40.0;
+  var leg = standingLeg(0.0, lean, kneeForDepth(lean, 0.0), torso);
+  var end = backSquatPose(leg, torso);
+  var boxTop = -leg.w1x_1.p1o_1 - 10.0;
+  var box = new SquatBox(leg.w1x_1.o1o_1 - 6.0, boxTop);
+  var barTop = center(new Barbell(BarHold_UPPER_BACK_getInstance()), skeleton(get_squat().s1r_1.q1q_1));
+  var barLow = barOnBack(leg.w1x_1, torso);
+  var props = listOf([Floor_instance, box, squatRack(barTop, barLow), new Barbell(BarHold_UPPER_BACK_getInstance())]);
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(get_squat().s1r_1.q1q_1, props), new Scene(end, props), 'Box just behind you', 'Pause briefly on the box', Which_END_getInstance(), listOf(['Set the safety pins, or use a spotter.', 'Place a sturdy box behind you at the height of your target depth.', 'Lift the bar out and step back until the box is just behind you.', 'Sit back by bending your hips and knees. Keep your shins close to upright.', 'Pause briefly on the box while staying braced.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_BOX_getInstance(), setOf_0(Which_END_getInstance()))]), listOf_0(new BarOverMidfoot(Which_START_getInstance())));
+}
+function _get_boxSquat_$ref_nft93v() {
+  return constructCallableReference(function () {
+    return get_boxSquat();
+  }, 0, 0, 49);
+}
+function benchBare$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return skeleton(new Pose(get_benchPelvis().o1o_1, get_benchPelvis().p1o_1, get_benchTorso(), VOID, new Arm(0.0, 0.0), new Leg(0.0, 0.0)));
+}
+function _get_benchBare_$ref_pakvsy() {
+  return constructCallableReference(function () {
+    return get_benchBare();
+  }, 0, 0, 50);
+}
+function benchChest$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return point(get_benchBare(), BodyPoint_CHEST_getInstance());
+}
+function _get_benchChest_$ref_3e63vb() {
+  return constructCallableReference(function () {
+    return get_benchChest();
+  }, 0, 0, 51);
+}
+function spotoPress$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return benchVariation(benchPose(benchArmAbove(4.5)), 'Stop just above chest', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Stop it just above your chest, without touching. Hold it still for a moment.', 'Press the bar up until your elbows lock.']), listOf([new BarAbove(BodyPoint_CHEST_getInstance(), 3.5, 5.5, Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]));
+}
+function _get_spotoPress_$ref_ncbxgk() {
+  return constructCallableReference(function () {
+    return get_spotoPress();
+  }, 0, 0, 52);
+}
+function longPauseBench$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return benchVariation(get_bench().s1r_1.q1q_1, 'Hold still on your chest', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Hold it still on your chest for a few seconds, longer than a competition pause.', 'Press the bar up until your elbows lock.']), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]));
+}
+function _get_longPauseBench_$ref_1zhe7w() {
+  return constructCallableReference(function () {
+    return get_longPauseBench();
+  }, 0, 0, 53);
+}
+function pinPress$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var arm = benchArmAbove(10.0);
+  var bar = skeleton(benchPose(arm)).i1q_1.w1p_1;
+  var rack = new PowerRack(2.0, 110.0, -bar.p1o_1 - 1.45);
+  var tmp0_start = benchPose(arm);
+  var tmp1_props = listOf([Floor_instance, new FlatBench(), rack, new Barbell()]);
+  var tmp2_guideLines = listOf(['Set a bench inside a power rack. The bar starts on the hooks.', 'Set the safety pins at the height you want to press from, often where your bench slows down. The pins are the bottom stop, and they catch the bar if you miss.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Lower the bar under control until it rests on the pins.', 'Press the bar up until your elbows lock.']);
+  var tmp3_checks = listOf([new BarRestsOn(Surface_SAFETY_ARM_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]);
+  return benchVariation(tmp0_start, 'Bar rests on the pins', tmp2_guideLines, tmp3_checks, VOID, tmp1_props);
+}
+function _get_pinPress_$ref_maowng() {
+  return constructCallableReference(function () {
+    return get_pinPress();
+  }, 0, 0, 54);
+}
+function larsenPress$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var legs = new Leg(5.0, 0.0, -20.0);
+  var tmp0_start = benchPose(get_bench().s1r_1.q1q_1.l1p_1, legs);
+  var tmp1_end = benchPose(get_benchLockout(), legs);
+  // Inline function 'kotlin.collections.filter' call
+  var tmp0 = get_bench().y1r_1;
+  // Inline function 'kotlin.collections.filterTo' call
+  var destination = ArrayList_init_$Create$();
+  var _iterator__ex2g4s = tmp0.j();
+  while (_iterator__ex2g4s.k()) {
+    var element = _iterator__ex2g4s.l();
+    if (!element.v1q_1.equals(BodyPoint_FEET_getInstance())) {
+      destination.i(element);
+    }
+  }
+  var tmp3_guideLines = listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench.', 'Lift your feet off the floor and hold your legs still.', 'Lower the bar under control to your chest.', 'Press the bar up until your elbows lock.']);
+  var tmp4_checks = listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]);
+  return benchVariation(tmp0_start, 'Feet off the floor', tmp3_guideLines, tmp4_checks, tmp1_end, VOID, destination);
+}
+function _get_larsenPress_$ref_qz1dwc() {
+  return constructCallableReference(function () {
+    return get_larsenPress();
+  }, 0, 0, 55);
+}
+function closeGripBench$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  return benchVariation(get_bench().s1r_1.q1q_1, 'Elbows close to ribs', listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Lower the bar to your chest, keeping your elbows close to your ribs.', 'Push your feet into the floor and press the bar back up until your elbows lock.']), listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]));
+}
+function _get_closeGripBench_$ref_4aj7mc() {
+  return constructCallableReference(function () {
+    return get_closeGripBench();
+  }, 0, 0, 56);
+}
+function boardPress$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var boards = new BenchBoards(get_benchChest().o1o_1, get_benchChest().p1o_1);
+  var arm = benchArmAbove(boards.d1w());
+  var tmp0_start = benchPose(arm);
+  var tmp = Floor_instance;
+  var tmp_0 = new FlatBench();
+  // Inline function 'kotlin.collections.filterIsInstance' call
+  var tmp0 = get_bench().s1r_1.r1q_1;
+  // Inline function 'kotlin.collections.filterIsInstanceTo' call
+  var destination = ArrayList_init_$Create$();
+  var _iterator__ex2g4s = tmp0.j();
+  while (_iterator__ex2g4s.k()) {
+    var element = _iterator__ex2g4s.l();
+    if (element instanceof PowerRack) {
+      destination.i(element);
+    }
+  }
+  var tmp1_props = listOf([tmp, tmp_0, single(destination), boards, new Barbell()]);
+  var tmp2_guideLines = listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'A partner holds the board on your lower chest, or you strap it to your body. A thicker board shortens the range more.', 'Lower the bar under control until it touches the board.', 'Press the bar up until your elbows lock.']);
+  var tmp3_checks = listOf([new BarRestsOn(Surface_BOARD_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]);
+  return benchVariation(tmp0_start, 'Bar touches the board', tmp2_guideLines, tmp3_checks, VOID, tmp1_props);
+}
+function _get_boardPress_$ref_1ktqzn() {
+  return constructCallableReference(function () {
+    return get_boardPress();
+  }, 0, 0, 57);
+}
+function wideGripBench$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var bar = new Point(get_benchChest().o1o_1, get_benchChest().p1o_1 - 1.45);
+  var grip = Segment_FOREARM_getInstance().a() + Segment_HAND_getInstance().a() * 0.45;
+  var elbow = new Point(bar.o1o_1, bar.p1o_1 + grip);
+  var upper = elbow.r1o(get_benchBare().f1q_1);
+  // Inline function 'kotlin.math.acos' call
+  var x = upper.t1o() / Segment_UPPER_ARM_getInstance().a();
+  var out = Math.acos(x) * 180 / 3.141592653589793;
+  var upperAngle = angleTo(upper);
+  var bottom = new Arm(fold180(upperAngle - get_benchTorso() - 180.0), fold180(90.0 - upperAngle), VOID, VOID, out);
+  var lockout = new Arm(90.0, 0.0, VOID, VOID, 20.0, 20.0);
+  var tmp0_start = benchPose(bottom);
+  var tmp1_end = benchPose(lockout);
+  var tmp2_guideLines = listOf(['Set the safety pins, or use a spotter.', 'Lie on the bench with your head, shoulders and buttocks on the bench. Plant your feet flat on the floor.', 'Grip the bar wider than your normal bench grip, but no wider than you can control.', 'Lower the bar to your chest.', 'Press the bar up until your elbows lock.']);
+  var tmp3_checks = listOf([new BarTouches(BodyPoint_CHEST_getInstance(), Which_START_getInstance()), new LockoutOverShoulders(Which_END_getInstance())]);
+  return benchVariation(tmp0_start, 'Wider than normal grip', tmp2_guideLines, tmp3_checks, tmp1_end);
+}
+function _get_wideGripBench_$ref_37ae2d() {
+  return constructCallableReference(function () {
+    return get_wideGripBench();
+  }, 0, 0, 58);
+}
+function floorPress$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var torso = 180.0;
+  var pelvis = new Point(95.0, -10.0);
+  var bare = skeleton(new Pose(pelvis.o1o_1, pelvis.p1o_1, torso, VOID, new Arm(0.0, 0.0), new Leg(0.0, 0.0)));
+  var legs = Reach_instance.p1q(pelvis, new Point(pelvis.o1o_1 + 55.0, -6.825), torso, 0.0);
+  var out = 50.0;
+  var tmp = Segment_UPPER_ARM_getInstance().a();
+  // Inline function 'kotlin.math.cos' call
+  var x = out * 3.141592653589793 / 180;
+  var drawn = tmp * Math.cos(x);
+  var drop = -10.0 / 2 - bare.f1q_1.p1o_1;
+  // Inline function 'kotlin.math.sqrt' call
+  var x_0 = drawn * drawn - drop * drop;
+  var tmp$ret$1 = Math.sqrt(x_0);
+  var upper = new Point(tmp$ret$1, drop);
+  var upperAngle = angleTo(upper);
+  var bottom = new Arm(fold180(upperAngle - torso - 180.0), fold180(90.0 - upperAngle), VOID, VOID, out);
+  var lock = new Arm(90.0, 0.0);
+  var lockBar = skeleton(invoke$pose_2(pelvis, torso, legs, lock)).i1q_1.w1p_1;
+  var rack = new PowerRack(2.0, -lockBar.p1o_1 - 5.0, 30.0);
+  var props = listOf([Floor_instance, rack, new Barbell()]);
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(invoke$pose_2(pelvis, torso, legs, bottom), props), new Scene(invoke$pose_2(pelvis, torso, legs, lock), props), 'Upper arms touch floor', 'Press to straight arms', Which_START_getInstance(), listOf(['Lie on the floor inside a power rack, under the bar, with your knees bent.', 'Set the safety pins, or use a spotter.', 'Lower the bar until your upper arms touch the floor.', 'Press the bar up until your arms are straight.']), listOf([new Contact(BodyPoint_HEAD_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_ELBOWS_getInstance(), Surface_FLOOR_getInstance(), setOf_0(Which_START_getInstance()))]), listOf_0(new LockoutOverShoulders(Which_END_getInstance())));
+}
+function invoke$pose_2(pelvis, torso, legs, arm) {
+  return new Pose(pelvis.o1o_1, pelvis.p1o_1, torso, VOID, arm, legs);
+}
+function _get_floorPress_$ref_c07by5() {
+  return constructCallableReference(function () {
+    return get_floorPress();
+  }, 0, 0, 59);
+}
+function pausedDeadlift$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var barY = -45.0 / 2 - 5.0;
+  var props = get_deadlift().s1r_1.r1q_1;
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(get_deadlift().s1r_1.q1q_1, props), new Scene(pullFromHeight(barY, 1.0), props), 'Shins close to the bar', 'Hold just off the floor', Which_END_getInstance(), listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Stop just after it leaves the floor and hold still for a moment.', 'Keep your back flat and the bar close during the pause.']), get_deadlift().y1r_1, get_pullChecks());
+}
+function _get_pausedDeadlift_$ref_6f8pp() {
+  return constructCallableReference(function () {
+    return get_pausedDeadlift();
+  }, 0, 0, 60);
+}
+function pausedDeadliftAtKnee$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var tmp = Segment_SHIN_getInstance().a();
+  // Inline function 'kotlin.math.cos' call
+  var x = 4.0 * 3.141592653589793 / 180;
+  var kneeHeight = 6.825 + tmp * Math.cos(x);
+  var barY = -(kneeHeight - 4.0 - 1.45);
+  var props = get_deadlift().s1r_1.r1q_1;
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(get_deadlift().s1r_1.q1q_1, props), new Scene(pullFromHeight(barY, 3.0, 1.0), props), 'Shins close to the bar', 'Bar just below knees', Which_END_getInstance(), listOf(['Stand with your feet flat under the bar, about shoulder-width apart, with your shins close to it.', 'Stop with the bar just below your knees and hold still for a moment.', 'Keep your back flat and the bar close during the pause.']), get_deadlift().y1r_1, get_pullChecks());
+}
+function _get_pausedDeadliftAtKnee_$ref_htstif() {
+  return constructCallableReference(function () {
+    return get_pausedDeadliftAtKnee();
+  }, 0, 0, 61);
+}
+function deficitDeadlift$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var platform = new DeficitPlatform(6.0);
+  var floorY = -platform.t1v_1;
+  var start = pullPose(-45.0 / 2, 14.0, 1.0, floorY);
+  var props = listOf([Floor_instance, platform, new Barbell()]);
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(pullLockout(floorY), props), 'Stand on a low platform', 'Stand tall, knees locked', Which_START_getInstance(), listOf(['Stand on a weight plate or a low, sturdy platform, with the bar over your feet.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Stand tall with your knees locked.']), listOf_0(new Contact(BodyPoint_FEET_getInstance(), Surface_PLATFORM_getInstance(), get_BOTH())), get_pullChecks());
+}
+function _get_deficitDeadlift_$ref_xd1juh() {
+  return constructCallableReference(function () {
+    return get_deficitDeadlift();
+  }, 0, 0, 62);
+}
+function blockPull$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var blockHeight = 10.0;
+  var start = pullPose(-45.0 / 2 - blockHeight, 8.0, 1.0);
+  var bar = center(new Barbell(), skeleton(start));
+  var props = listOf([Floor_instance, new PullingBlocks(bar.o1o_1, blockHeight, 42.0), new Barbell()]);
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(get_deadlift().t1r_1.q1q_1, props), 'Plates on sturdy blocks', 'Stand tall, knees locked', Which_START_getInstance(), listOf(['Set the plates on sturdy blocks, about 5, 10 or 15 cm high.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Stand tall with your knees locked.']), get_deadlift().y1r_1, plus_0(get_pullChecks(), new BarRestsOn(Surface_BLOCK_getInstance(), Which_START_getInstance())));
+}
+function _get_blockPull_$ref_6cc7ta() {
+  return constructCallableReference(function () {
+    return get_blockPull();
+  }, 0, 0, 63);
+}
+function sumoDeadlift$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var rad = 3.141592653589793 / 180;
+  var lean = 40.0;
+  var ankleOut = 36.0;
+  var hipHalf = 9.0;
+  var knee = new Point(ankleOut, -(6.825 + Segment_SHIN_getInstance().a()));
+  var armOut = 6.0;
+  var tmp = -45.0 / 2;
+  var tmp_0 = get_ARM_REACH();
+  // Inline function 'kotlin.math.cos' call
+  var x = armOut * rad;
+  var shoulderY = tmp - tmp_0 * Math.cos(x);
+  var tmp_1 = Segment_TORSO_getInstance().a();
+  // Inline function 'kotlin.math.cos' call
+  var x_0 = lean * rad;
+  var pelvisY = shoulderY + tmp_1 * Math.cos(x_0);
+  var thighDrawn = knee.r1o(new Point(hipHalf, pelvisY));
+  var thighAngle = angleTo(thighDrawn);
+  // Inline function 'kotlin.math.acos' call
+  var x_1 = thighDrawn.t1o() / Segment_THIGH_getInstance().a();
+  var out = Math.acos(x_1) / rad;
+  var setupLeg = new Leg(fold180(thighAngle - 270.0), fold180(thighAngle + 90.0), 0.0, out);
+  var arms = new Arm(armOut, 0.0);
+  var start = new Pose(0.0, pelvisY, 90.0, VOID, arms, setupLeg, VOID, VOID, lean);
+  var spread = ankleOut - hipHalf;
+  var legLength = Segment_THIGH_getInstance().a() + Segment_SHIN_getInstance().a();
+  // Inline function 'kotlin.math.asin' call
+  var x_2 = spread / legLength;
+  var abduction = Math.asin(x_2) / rad;
+  var standLeg = new Leg(abduction, 0.0, -abduction);
+  // Inline function 'kotlin.math.cos' call
+  var x_3 = abduction * rad;
+  var tmp$ret$4 = Math.cos(x_3);
+  var end = new Pose(0.0, -(6.825 + legLength * tmp$ret$4), 90.0, VOID, arms, standLeg);
+  var props = listOf([Floor_instance, new Barbell()]);
+  return new ExerciseFigure(View_FRONT_getInstance(), new Scene(start, props), new Scene(end, props), 'Grip between your legs', 'Stand tall at the top', Which_START_getInstance(), listOf(['Stand with your feet very wide and under the bar.', 'Squat down and grip the bar between your legs, shoulder-width apart, with a mixed grip: one palm up, one down.', 'Keep your arms straight, your chest high, your hips low and your back straight.', 'At the top, stand tall with your shoulders back.']), get_deadlift().y1r_1, listOf_0(new HandsInsideKnees(Which_START_getInstance())));
+}
+function _get_sumoDeadlift_$ref_zavvjt() {
+  return constructCallableReference(function () {
+    return get_sumoDeadlift();
+  }, 0, 0, 64);
+}
+function trapBarDeadlift$delegate$lambda() {
+  _init_properties_MainLifts_kt__yvcjdp_0();
+  var ankle = new Point(0.0, -6.825);
+  var handle = new Point(midfootX(0.0), -45.0 / 2);
+  var start = pullPoseThrough(ankle, 14.0, new Point(handle.o1o_1, handle.p1o_1 - get_ARM_REACH()), handle);
+  var leg = standingLeg(0.0, 5.0, 0.0, 90.0);
+  var end = standOn(leg, 90.0, new Arm(0.0, 0.0));
+  var props = listOf([Floor_instance, TrapBar_instance]);
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(start, props), new Scene(end, props), 'Hips low, shoulders high', 'Hips and knees straight', Which_START_getInstance(), listOf(['Stand inside the bar with your feet shoulder-width apart or narrower.', 'Squat down with your feet flat and grip the handles.', 'Keep your hips low, your shoulders high, and your arms and back straight.', 'Stand up by straightening your hips and knees fully.']), get_deadlift().y1r_1, listOf([new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance()), new HandlesBesideLegs(5.5, Which_START_getInstance()), new HandlesBesideLegs(5.5, Which_END_getInstance())]));
+}
+function _get_trapBarDeadlift_$ref_bwte97() {
+  return constructCallableReference(function () {
+    return get_trapBarDeadlift();
+  }, 0, 0, 65);
+}
 function mainLiftFigures$delegate$lambda() {
   _init_properties_MainLifts_kt__yvcjdp_0();
-  return mapOf([to('Squat', get_squat()), to('Bench', get_bench()), to('Deadlift', get_deadlift()), to('Strict press', get_strictPress())]);
+  return mapOf([to('Squat', get_squat()), to('Bench', get_bench()), to('Deadlift', get_deadlift()), to('Strict press', get_strictPress()), to('Pause squat', get_pauseSquat()), to('Front squat', get_frontSquat()), to('Pin squat', get_pinSquat()), to('Safety-bar squat', get_safetyBarSquat()), to('Box squat', get_boxSquat()), to('High-bar squat', get_highBarSquat()), to('Tempo squat', get_tempoSquat()), to('Spoto press', get_spotoPress()), to('Long-pause bench', get_longPauseBench()), to('Pin press', get_pinPress()), to('Larsen press', get_larsenPress()), to('Close-grip bench', get_closeGripBench()), to('Board press', get_boardPress()), to('Barbell floor press', get_floorPress()), to('Wide-grip bench', get_wideGripBench()), to('Deficit deadlift', get_deficitDeadlift()), to('Paused deadlift', get_pausedDeadlift()), to('Paused deadlift at the knee', get_pausedDeadliftAtKnee()), to('Block pull', get_blockPull()), to('Sumo deadlift', get_sumoDeadlift()), to('Trap-bar deadlift', get_trapBarDeadlift())]);
 }
 function _get_mainLiftFigures_$ref_mxgwbv() {
   return constructCallableReference(function () {
     return get_mainLiftFigures();
-  }, 0, 0, 40);
+  }, 0, 0, 66);
 }
 var properties_initialized_MainLifts_kt_m5ic81_0;
 function _init_properties_MainLifts_kt__yvcjdp_0() {
@@ -8264,6 +9692,33 @@ function _init_properties_MainLifts_kt__yvcjdp_0() {
     bench$delegate = lazy(bench$delegate$lambda);
     deadlift$delegate = lazy(deadlift$delegate$lambda);
     strictPress$delegate = lazy(strictPress$delegate$lambda);
+    pauseSquat$delegate = lazy(pauseSquat$delegate$lambda);
+    highBarSquat$delegate = lazy(highBarSquat$delegate$lambda);
+    tempoSquat$delegate = lazy(tempoSquat$delegate$lambda);
+    frontSquat$delegate = lazy(frontSquat$delegate$lambda);
+    pinSquat$delegate = lazy(pinSquat$delegate$lambda);
+    safetyBarSquat$delegate = lazy(safetyBarSquat$delegate$lambda);
+    boxSquat$delegate = lazy(boxSquat$delegate$lambda);
+    benchTorso = 180.0;
+    benchPelvis = new Point(95.0, -(43.0 + 10.0));
+    benchBare$delegate = lazy(benchBare$delegate$lambda);
+    benchChest$delegate = lazy(benchChest$delegate$lambda);
+    benchLockout = new Arm(90.0, 0.0);
+    spotoPress$delegate = lazy(spotoPress$delegate$lambda);
+    longPauseBench$delegate = lazy(longPauseBench$delegate$lambda);
+    pinPress$delegate = lazy(pinPress$delegate$lambda);
+    larsenPress$delegate = lazy(larsenPress$delegate$lambda);
+    closeGripBench$delegate = lazy(closeGripBench$delegate$lambda);
+    boardPress$delegate = lazy(boardPress$delegate$lambda);
+    wideGripBench$delegate = lazy(wideGripBench$delegate$lambda);
+    floorPress$delegate = lazy(floorPress$delegate$lambda);
+    pullChecks = listOf([new BarOverMidfoot(Which_START_getInstance()), new BarOverMidfoot(Which_END_getInstance()), new BarNearLegs(4.0, Which_START_getInstance()), new BarNearLegs(4.0, Which_END_getInstance())]);
+    pausedDeadlift$delegate = lazy(pausedDeadlift$delegate$lambda);
+    pausedDeadliftAtKnee$delegate = lazy(pausedDeadliftAtKnee$delegate$lambda);
+    deficitDeadlift$delegate = lazy(deficitDeadlift$delegate$lambda);
+    blockPull$delegate = lazy(blockPull$delegate$lambda);
+    sumoDeadlift$delegate = lazy(sumoDeadlift$delegate$lambda);
+    trapBarDeadlift$delegate = lazy(trapBarDeadlift$delegate$lambda);
     mainLiftFigures$delegate = lazy(mainLiftFigures$delegate$lambda);
   }
 }
@@ -8304,19 +9759,19 @@ function fold180(degrees) {
   return a;
 }
 function StandingLeg(ankle, knee, hip, leg) {
-  this.i1w_1 = ankle;
-  this.j1w_1 = knee;
-  this.k1w_1 = hip;
-  this.l1w_1 = leg;
+  this.u1x_1 = ankle;
+  this.v1x_1 = knee;
+  this.w1x_1 = hip;
+  this.x1x_1 = leg;
 }
 protoOf(StandingLeg).toString = function () {
-  return 'StandingLeg(ankle=' + this.i1w_1.toString() + ', knee=' + this.j1w_1.toString() + ', hip=' + this.k1w_1.toString() + ', leg=' + this.l1w_1.toString() + ')';
+  return 'StandingLeg(ankle=' + this.u1x_1.toString() + ', knee=' + this.v1x_1.toString() + ', hip=' + this.w1x_1.toString() + ', leg=' + this.x1x_1.toString() + ')';
 };
 protoOf(StandingLeg).hashCode = function () {
-  var result = this.i1w_1.hashCode();
-  result = imul(result, 31) + this.j1w_1.hashCode() | 0;
-  result = imul(result, 31) + this.k1w_1.hashCode() | 0;
-  result = imul(result, 31) + this.l1w_1.hashCode() | 0;
+  var result = this.u1x_1.hashCode();
+  result = imul(result, 31) + this.v1x_1.hashCode() | 0;
+  result = imul(result, 31) + this.w1x_1.hashCode() | 0;
+  result = imul(result, 31) + this.x1x_1.hashCode() | 0;
   return result;
 };
 protoOf(StandingLeg).equals = function (other) {
@@ -8324,13 +9779,13 @@ protoOf(StandingLeg).equals = function (other) {
     return true;
   if (!(other instanceof StandingLeg))
     return false;
-  if (!this.i1w_1.equals(other.i1w_1))
+  if (!this.u1x_1.equals(other.u1x_1))
     return false;
-  if (!this.j1w_1.equals(other.j1w_1))
+  if (!this.v1x_1.equals(other.v1x_1))
     return false;
-  if (!this.k1w_1.equals(other.k1w_1))
+  if (!this.w1x_1.equals(other.w1x_1))
     return false;
-  if (!this.l1w_1.equals(other.l1w_1))
+  if (!this.x1x_1.equals(other.x1x_1))
     return false;
   return true;
 };
@@ -8347,7 +9802,7 @@ function standOn(leg, torso, nearArm, farArm, neck) {
   farArm = farArm === VOID ? nearArm : farArm;
   neck = neck === VOID ? 0.0 : neck;
   _init_properties_Poses_kt__cx5374();
-  return new Pose(leg.k1w_1.o1o_1, leg.k1w_1.p1o_1, torso, neck, nearArm, leg.l1w_1, farArm, leg.l1w_1);
+  return new Pose(leg.w1x_1.o1o_1, leg.w1x_1.p1o_1, torso, neck, nearArm, leg.x1x_1, farArm, leg.x1x_1);
 }
 function shoulderOf(pelvis, torso) {
   _init_properties_Poses_kt__cx5374();
@@ -8396,7 +9851,7 @@ function armTo(shoulder, target, torso, wrist, turnedOut) {
     tmp_2 = target;
   }
   var reachable = tmp_2;
-  return Reach_instance.h1q(shoulder, reachable, torso, wrist, turnedOut);
+  return Reach_instance.n1q(shoulder, reachable, torso, wrist, turnedOut);
 }
 function rackInFront(barX, jHookHeight, safetyHeight, gap) {
   gap = gap === VOID ? 40.0 : gap;
@@ -8444,19 +9899,19 @@ function legPress$delegate$lambda() {
 }
 function invoke$ankleOn(foot, press) {
   var plate = single(getValue(surfaces(press, View_SIDE_getInstance()), Surface_FOOT_PLATE_getInstance()));
-  var face = (new Point(plate.w1v_1, plate.x1v_1)).r1o(unit(125.0 - 90.0).s1o(plate.z1v_1 / 2));
+  var face = (new Point(plate.i1x_1, plate.j1x_1)).r1o(unit(125.0 - 90.0).s1o(plate.l1x_1 / 2));
   return face.r1o(unit(125.0 - 90.0).s1o(7.0 / 2 + 6.825 - 7.0 / 2)).r1o(unit(foot).s1o(Segment_FOOT_getInstance().a() * 0.3));
 }
 function invoke$legs(pelvis, back, foot, press) {
-  return Reach_instance.j1q(pelvis, invoke$ankleOn(foot, press), back, foot);
+  return Reach_instance.p1q(pelvis, invoke$ankleOn(foot, press), back, foot);
 }
 function invoke$sledFor(pelvis, foot, back, knee) {
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(0, 1200);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
-  var inductionVariable = this_0.vb_1;
-  var last = this_0.wb_1;
+  var inductionVariable = this_0.w_1;
+  var last = this_0.x_1;
   if (inductionVariable <= last)
     do {
       var item = inductionVariable;
@@ -8489,12 +9944,12 @@ function invoke$sledFor(pelvis, foot, back, knee) {
     }
     var it_0 = minElem;
     // Inline function 'kotlin.math.abs' call
-    var x = invoke$legs(pelvis, back, foot, it_0).d1p_1 - knee;
+    var x = invoke$legs(pelvis, back, foot, it_0).e1p_1 - knee;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
       // Inline function 'kotlin.math.abs' call
-      var x_0 = invoke$legs(pelvis, back, foot, e).d1p_1 - knee;
+      var x_0 = invoke$legs(pelvis, back, foot, e).e1p_1 - knee;
       var v = Math.abs(x_0);
       if (compareTo(minValue, v) > 0) {
         minElem = e;
@@ -8512,7 +9967,7 @@ function invoke$scene(pelvis, back, arms, foot, press) {
 function _get_legPress_$ref_s3ovwl() {
   return constructCallableReference(function () {
     return get_legPress();
-  }, 0, 0, 41);
+  }, 0, 0, 67);
 }
 function quadFigures$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
@@ -8521,7 +9976,7 @@ function quadFigures$delegate$lambda() {
 function _get_quadFigures_$ref_46h3co() {
   return constructCallableReference(function () {
     return get_quadFigures();
-  }, 0, 0, 42);
+  }, 0, 0, 68);
 }
 var properties_initialized_Quads_kt_drc5g_0;
 function _init_properties_Quads_kt__7ij3x6_0() {
@@ -8552,9 +10007,9 @@ var shoulderFigures$delegate;
 function dbShoulderPress$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var bench = new AdjustableBench(30.0);
-  var hinge = new Point(bench.t1v_1 - 40.0, -43.0);
+  var hinge = new Point(bench.f1x_1 - 40.0, -43.0);
   var pelvis = new Point(hinge.o1o_1 + 10.0, hinge.p1o_1 - 10.0);
-  var legs = Reach_instance.j1q(pelvis, new Point(pelvis.o1o_1 + 44.0, -6.825), 90.0, 0.0);
+  var legs = Reach_instance.p1q(pelvis, new Point(pelvis.o1o_1 + 44.0, -6.825), 90.0, 0.0);
   var shoulder = shoulderOf(pelvis, 90.0);
   var out = 50.0;
   var ahead = 13.0;
@@ -8569,15 +10024,15 @@ function dbShoulderPress$delegate$lambda() {
   var upper = angleTo(elbowAt.r1o(shoulder));
   var atShoulder = new Arm(fold180(upper - 90.0 - 180.0), fold180(90.0 - upper), VOID, VOID, out);
   var props = listOf([Floor_instance, bench, new Dumbbell(Side_FAR_getInstance()), new Dumbbell(Side_NEAR_getInstance())]);
-  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(invoke$pose_0(pelvis, legs, atShoulder), props), new Scene(invoke$pose_0(pelvis, legs, new Arm(180.0, 0.0)), props), 'At shoulder height', 'Elbows straight overhead', Which_END_getInstance(), listOf(['Sit on a bench with back support. Keep your head, back and buttocks against it, and your feet flat on the floor.', 'Hold them beside your shoulders, with your elbows under your wrists.', 'Breathe out and press the dumbbells overhead until your elbows are straight.', 'Breathe in and lower them under control to shoulder height.']), listOf([new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_HEAD_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), listOf_0(new LockoutOverShoulders(Which_END_getInstance())));
+  return new ExerciseFigure(View_SIDE_getInstance(), new Scene(invoke$pose_3(pelvis, legs, atShoulder), props), new Scene(invoke$pose_3(pelvis, legs, new Arm(180.0, 0.0)), props), 'At shoulder height', 'Elbows straight overhead', Which_END_getInstance(), listOf(['Sit on a bench with back support. Keep your head, back and buttocks against it, and your feet flat on the floor.', 'Hold them beside your shoulders, with your elbows under your wrists.', 'Breathe out and press the dumbbells overhead until your elbows are straight.', 'Breathe in and lower them under control to shoulder height.']), listOf([new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_HEAD_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH())]), listOf_0(new LockoutOverShoulders(Which_END_getInstance())));
 }
-function invoke$pose_0(pelvis, legs, arm) {
+function invoke$pose_3(pelvis, legs, arm) {
   return new Pose(pelvis.o1o_1, pelvis.p1o_1, 90.0, VOID, arm, legs);
 }
 function _get_dbShoulderPress_$ref_6hcz5n() {
   return constructCallableReference(function () {
     return get_dbShoulderPress();
-  }, 0, 0, 43);
+  }, 0, 0, 69);
 }
 function shoulderFigures$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
@@ -8586,7 +10041,7 @@ function shoulderFigures$delegate$lambda() {
 function _get_shoulderFigures_$ref_gwnd75() {
   return constructCallableReference(function () {
     return get_shoulderFigures();
-  }, 0, 0, 44);
+  }, 0, 0, 70);
 }
 var properties_initialized_Shoulders_kt_kg0eql_0;
 function _init_properties_Shoulders_kt__i33an3_0() {
@@ -8638,11 +10093,11 @@ function values_5() {
 function AdviceStatus(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
-function Companion_7() {
+function Companion_8() {
 }
-var Companion_instance_7;
-function Companion_getInstance_9() {
-  return Companion_instance_7;
+var Companion_instance_8;
+function Companion_getInstance_10() {
+  return Companion_instance_8;
 }
 function $serializer() {
   $serializer_instance = this;
@@ -8651,22 +10106,22 @@ function $serializer() {
   tmp0_serialDesc.zj('sets', false);
   tmp0_serialDesc.zj('repsLow', false);
   tmp0_serialDesc.zj('repsHigh', false);
-  this.m1w_1 = tmp0_serialDesc;
+  this.y1x_1 = tmp0_serialDesc;
 }
-protoOf($serializer).n1w = function (encoder, value) {
-  var tmp0_desc = this.m1w_1;
+protoOf($serializer).z1x = function (encoder, value) {
+  var tmp0_desc = this.y1x_1;
   var tmp1_output = encoder.eg(tmp0_desc);
-  tmp1_output.ch(tmp0_desc, 0, value.o1w_1);
-  tmp1_output.zg(tmp0_desc, 1, value.p1w_1);
-  tmp1_output.zg(tmp0_desc, 2, value.q1w_1);
-  tmp1_output.zg(tmp0_desc, 3, value.r1w_1);
+  tmp1_output.ch(tmp0_desc, 0, value.a1y_1);
+  tmp1_output.zg(tmp0_desc, 1, value.b1y_1);
+  tmp1_output.zg(tmp0_desc, 2, value.c1y_1);
+  tmp1_output.zg(tmp0_desc, 3, value.d1y_1);
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer).md = function (encoder, value) {
-  return this.n1w(encoder, value instanceof AccessoryPrescription ? value : THROW_CCE());
+  return this.z1x(encoder, value instanceof AccessoryPrescription ? value : THROW_CCE());
 };
 protoOf($serializer).ld = function (decoder) {
-  var tmp0_desc = this.m1w_1;
+  var tmp0_desc = this.y1x_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -8715,7 +10170,7 @@ protoOf($serializer).ld = function (decoder) {
   return AccessoryPrescription_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, tmp6_local2, tmp7_local3, null);
 };
 protoOf($serializer).kd = function () {
-  return this.m1w_1;
+  return this.y1x_1;
 };
 protoOf($serializer).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -8731,31 +10186,31 @@ function $serializer_getInstance() {
 }
 function AccessoryPrescription_init_$Init$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker, $this) {
   if (!(15 === (15 & seen0))) {
-    throwMissingFieldException(seen0, 15, $serializer_getInstance().m1w_1);
+    throwMissingFieldException(seen0, 15, $serializer_getInstance().y1x_1);
   }
-  $this.o1w_1 = exerciseName;
-  $this.p1w_1 = sets;
-  $this.q1w_1 = repsLow;
-  $this.r1w_1 = repsHigh;
+  $this.a1y_1 = exerciseName;
+  $this.b1y_1 = sets;
+  $this.c1y_1 = repsLow;
+  $this.d1y_1 = repsHigh;
   return $this;
 }
 function AccessoryPrescription_init_$Create$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker) {
   return AccessoryPrescription_init_$Init$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker, objectCreate(protoOf(AccessoryPrescription)));
 }
 function AccessoryPrescription(exerciseName, sets, repsLow, repsHigh) {
-  this.o1w_1 = exerciseName;
-  this.p1w_1 = sets;
-  this.q1w_1 = repsLow;
-  this.r1w_1 = repsHigh;
+  this.a1y_1 = exerciseName;
+  this.b1y_1 = sets;
+  this.c1y_1 = repsLow;
+  this.d1y_1 = repsHigh;
 }
 protoOf(AccessoryPrescription).toString = function () {
-  return 'AccessoryPrescription(exerciseName=' + this.o1w_1 + ', sets=' + this.p1w_1 + ', repsLow=' + this.q1w_1 + ', repsHigh=' + this.r1w_1 + ')';
+  return 'AccessoryPrescription(exerciseName=' + this.a1y_1 + ', sets=' + this.b1y_1 + ', repsLow=' + this.c1y_1 + ', repsHigh=' + this.d1y_1 + ')';
 };
 protoOf(AccessoryPrescription).hashCode = function () {
-  var result = getStringHashCode(this.o1w_1);
-  result = imul(result, 31) + this.p1w_1 | 0;
-  result = imul(result, 31) + this.q1w_1 | 0;
-  result = imul(result, 31) + this.r1w_1 | 0;
+  var result = getStringHashCode(this.a1y_1);
+  result = imul(result, 31) + this.b1y_1 | 0;
+  result = imul(result, 31) + this.c1y_1 | 0;
+  result = imul(result, 31) + this.d1y_1 | 0;
   return result;
 };
 protoOf(AccessoryPrescription).equals = function (other) {
@@ -8763,21 +10218,21 @@ protoOf(AccessoryPrescription).equals = function (other) {
     return true;
   if (!(other instanceof AccessoryPrescription))
     return false;
-  if (!(this.o1w_1 === other.o1w_1))
+  if (!(this.a1y_1 === other.a1y_1))
     return false;
-  if (!(this.p1w_1 === other.p1w_1))
+  if (!(this.b1y_1 === other.b1y_1))
     return false;
-  if (!(this.q1w_1 === other.q1w_1))
+  if (!(this.c1y_1 === other.c1y_1))
     return false;
-  if (!(this.r1w_1 === other.r1w_1))
+  if (!(this.d1y_1 === other.d1y_1))
     return false;
   return true;
 };
-function Companion_8() {
+function Companion_9() {
 }
-var Companion_instance_8;
-function Companion_getInstance_10() {
-  return Companion_instance_8;
+var Companion_instance_9;
+function Companion_getInstance_11() {
+  return Companion_instance_9;
 }
 function $serializer_0() {
   $serializer_instance_0 = this;
@@ -8787,10 +10242,10 @@ function $serializer_0() {
   tmp0_serialDesc.zj('reps', false);
   tmp0_serialDesc.zj('rpe', false);
   tmp0_serialDesc.zj('sets', true);
-  this.s1w_1 = tmp0_serialDesc;
+  this.e1y_1 = tmp0_serialDesc;
 }
-protoOf($serializer_0).t1w = function (encoder, value) {
-  var tmp0_desc = this.s1w_1;
+protoOf($serializer_0).f1y = function (encoder, value) {
+  var tmp0_desc = this.e1y_1;
   var tmp1_output = encoder.eg(tmp0_desc);
   tmp1_output.ah(tmp0_desc, 0, value.o15_1);
   tmp1_output.bh(tmp0_desc, 1, value.p15_1);
@@ -8802,10 +10257,10 @@ protoOf($serializer_0).t1w = function (encoder, value) {
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_0).md = function (encoder, value) {
-  return this.t1w(encoder, value instanceof Target ? value : THROW_CCE());
+  return this.f1y(encoder, value instanceof Target ? value : THROW_CCE());
 };
 protoOf($serializer_0).ld = function (decoder) {
-  var tmp0_desc = this.s1w_1;
+  var tmp0_desc = this.e1y_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -8861,7 +10316,7 @@ protoOf($serializer_0).ld = function (decoder) {
   return Target_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, tmp6_local2, tmp7_local3, tmp8_local4, null);
 };
 protoOf($serializer_0).kd = function () {
-  return this.s1w_1;
+  return this.e1y_1;
 };
 protoOf($serializer_0).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -8877,7 +10332,7 @@ function $serializer_getInstance_0() {
 }
 function Target_init_$Init$(seen0, exerciseId, weightKg, reps, rpe, sets, serializationConstructorMarker, $this) {
   if (!(15 === (15 & seen0))) {
-    throwMissingFieldException(seen0, 15, $serializer_getInstance_0().s1w_1);
+    throwMissingFieldException(seen0, 15, $serializer_getInstance_0().e1y_1);
   }
   $this.o15_1 = exerciseId;
   $this.p15_1 = weightKg;
@@ -8895,45 +10350,45 @@ function Target_init_$Create$(seen0, exerciseId, weightKg, reps, rpe, sets, seri
 function AdvicePayload$Accessories$Companion$$childSerializers$_anonymous__5pmo3s() {
   return new ArrayListSerializer($serializer_getInstance());
 }
-function Companion_9() {
-  Companion_instance_9 = this;
+function Companion_10() {
+  Companion_instance_10 = this;
   var tmp = this;
   var tmp_0 = LazyThreadSafetyMode_PUBLICATION_getInstance();
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  tmp.u1w_1 = [lazy_0(tmp_0, AdvicePayload$Accessories$Companion$$childSerializers$_anonymous__5pmo3s)];
+  tmp.g1y_1 = [lazy_0(tmp_0, AdvicePayload$Accessories$Companion$$childSerializers$_anonymous__5pmo3s)];
 }
-var Companion_instance_9;
-function Companion_getInstance_11() {
-  if (Companion_instance_9 == null)
-    new Companion_9();
-  return Companion_instance_9;
+var Companion_instance_10;
+function Companion_getInstance_12() {
+  if (Companion_instance_10 == null)
+    new Companion_10();
+  return Companion_instance_10;
 }
 function $serializer_1() {
   $serializer_instance_1 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.Accessories', this, 1);
   tmp0_serialDesc.zj('items', false);
-  this.v1w_1 = tmp0_serialDesc;
+  this.h1y_1 = tmp0_serialDesc;
 }
-protoOf($serializer_1).w1w = function (encoder, value) {
-  var tmp0_desc = this.v1w_1;
+protoOf($serializer_1).i1y = function (encoder, value) {
+  var tmp0_desc = this.h1y_1;
   var tmp1_output = encoder.eg(tmp0_desc);
-  var tmp2_cached = Companion_getInstance_11().u1w_1;
-  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.x1w_1);
+  var tmp2_cached = Companion_getInstance_12().g1y_1;
+  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.j1y_1);
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_1).md = function (encoder, value) {
-  return this.w1w(encoder, value instanceof Accessories ? value : THROW_CCE());
+  return this.i1y(encoder, value instanceof Accessories ? value : THROW_CCE());
 };
 protoOf($serializer_1).ld = function (decoder) {
-  var tmp0_desc = this.v1w_1;
+  var tmp0_desc = this.h1y_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
   var tmp4_local0 = null;
   var tmp5_input = decoder.eg(tmp0_desc);
-  var tmp6_cached = Companion_getInstance_11().u1w_1;
+  var tmp6_cached = Companion_getInstance_12().g1y_1;
   if (tmp5_input.og()) {
     tmp4_local0 = tmp5_input.kg(tmp0_desc, 0, tmp6_cached[0].t(), tmp4_local0);
     tmp3_bitMask0 = tmp3_bitMask0 | 1;
@@ -8956,13 +10411,13 @@ protoOf($serializer_1).ld = function (decoder) {
   return Accessories_init_$Create$(tmp3_bitMask0, tmp4_local0, null);
 };
 protoOf($serializer_1).kd = function () {
-  return this.v1w_1;
+  return this.h1y_1;
 };
 protoOf($serializer_1).ok = function () {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  return [Companion_getInstance_11().u1w_1[0].t()];
+  return [Companion_getInstance_12().g1y_1[0].t()];
 };
 var $serializer_instance_1;
 function $serializer_getInstance_1() {
@@ -8972,29 +10427,29 @@ function $serializer_getInstance_1() {
 }
 function Accessories_init_$Init$(seen0, items, serializationConstructorMarker, $this) {
   if (!(1 === (1 & seen0))) {
-    throwMissingFieldException(seen0, 1, $serializer_getInstance_1().v1w_1);
+    throwMissingFieldException(seen0, 1, $serializer_getInstance_1().h1y_1);
   }
-  $this.x1w_1 = items;
+  $this.j1y_1 = items;
   return $this;
 }
 function Accessories_init_$Create$(seen0, items, serializationConstructorMarker) {
   return Accessories_init_$Init$(seen0, items, serializationConstructorMarker, objectCreate(protoOf(Accessories)));
 }
-function Companion_10() {
+function Companion_11() {
 }
-var Companion_instance_10;
-function Companion_getInstance_12() {
-  return Companion_instance_10;
+var Companion_instance_11;
+function Companion_getInstance_13() {
+  return Companion_instance_11;
 }
 function $serializer_2() {
   $serializer_instance_2 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.Deload', this, 2);
   tmp0_serialDesc.zj('volumeFactor', true);
   tmp0_serialDesc.zj('loadFactor', true);
-  this.y1w_1 = tmp0_serialDesc;
+  this.k1y_1 = tmp0_serialDesc;
 }
-protoOf($serializer_2).z1w = function (encoder, value) {
-  var tmp0_desc = this.y1w_1;
+protoOf($serializer_2).l1y = function (encoder, value) {
+  var tmp0_desc = this.k1y_1;
   var tmp1_output = encoder.eg(tmp0_desc);
   if (tmp1_output.jh(tmp0_desc, 0) ? true : !equals(value.t15_1, 0.6)) {
     tmp1_output.bh(tmp0_desc, 0, value.t15_1);
@@ -9005,10 +10460,10 @@ protoOf($serializer_2).z1w = function (encoder, value) {
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_2).md = function (encoder, value) {
-  return this.z1w(encoder, value instanceof Deload ? value : THROW_CCE());
+  return this.l1y(encoder, value instanceof Deload ? value : THROW_CCE());
 };
 protoOf($serializer_2).ld = function (decoder) {
-  var tmp0_desc = this.y1w_1;
+  var tmp0_desc = this.k1y_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -9043,7 +10498,7 @@ protoOf($serializer_2).ld = function (decoder) {
   return Deload_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, null);
 };
 protoOf($serializer_2).kd = function () {
-  return this.y1w_1;
+  return this.k1y_1;
 };
 protoOf($serializer_2).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -9059,7 +10514,7 @@ function $serializer_getInstance_2() {
 }
 function Deload_init_$Init$(seen0, volumeFactor, loadFactor, serializationConstructorMarker, $this) {
   if (!(0 === (0 & seen0))) {
-    throwMissingFieldException(seen0, 0, $serializer_getInstance_2().y1w_1);
+    throwMissingFieldException(seen0, 0, $serializer_getInstance_2().k1y_1);
   }
   if (0 === (seen0 & 1))
     $this.t15_1 = 0.6;
@@ -9080,8 +10535,8 @@ function AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8(
 function AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8_0() {
   return createSimpleEnumSerializer('com.powertracker.domain.model.MissPoint', values_8());
 }
-function Companion_11() {
-  Companion_instance_11 = this;
+function Companion_12() {
+  Companion_instance_12 = this;
   var tmp = this;
   var tmp_0 = LazyThreadSafetyMode_PUBLICATION_getInstance();
   var tmp_1 = lazy_0(tmp_0, AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8);
@@ -9089,41 +10544,41 @@ function Companion_11() {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  tmp.a1x_1 = [tmp_1, lazy_0(tmp_2, AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8_0)];
+  tmp.m1y_1 = [tmp_1, lazy_0(tmp_2, AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8_0)];
 }
-var Companion_instance_11;
-function Companion_getInstance_13() {
-  if (Companion_instance_11 == null)
-    new Companion_11();
-  return Companion_instance_11;
+var Companion_instance_12;
+function Companion_getInstance_14() {
+  if (Companion_instance_12 == null)
+    new Companion_12();
+  return Companion_instance_12;
 }
 function $serializer_3() {
   $serializer_instance_3 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.WeakPoint', this, 2);
   tmp0_serialDesc.zj('lift', false);
   tmp0_serialDesc.zj('missPoint', false);
-  this.b1x_1 = tmp0_serialDesc;
+  this.n1y_1 = tmp0_serialDesc;
 }
-protoOf($serializer_3).c1x = function (encoder, value) {
-  var tmp0_desc = this.b1x_1;
+protoOf($serializer_3).o1y = function (encoder, value) {
+  var tmp0_desc = this.n1y_1;
   var tmp1_output = encoder.eg(tmp0_desc);
-  var tmp2_cached = Companion_getInstance_13().a1x_1;
-  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.d1x_1);
-  tmp1_output.fh(tmp0_desc, 1, tmp2_cached[1].t(), value.e1x_1);
+  var tmp2_cached = Companion_getInstance_14().m1y_1;
+  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.p1y_1);
+  tmp1_output.fh(tmp0_desc, 1, tmp2_cached[1].t(), value.q1y_1);
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_3).md = function (encoder, value) {
-  return this.c1x(encoder, value instanceof WeakPoint ? value : THROW_CCE());
+  return this.o1y(encoder, value instanceof WeakPoint ? value : THROW_CCE());
 };
 protoOf($serializer_3).ld = function (decoder) {
-  var tmp0_desc = this.b1x_1;
+  var tmp0_desc = this.n1y_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
   var tmp4_local0 = null;
   var tmp5_local1 = null;
   var tmp6_input = decoder.eg(tmp0_desc);
-  var tmp7_cached = Companion_getInstance_13().a1x_1;
+  var tmp7_cached = Companion_getInstance_14().m1y_1;
   if (tmp6_input.og()) {
     tmp4_local0 = tmp6_input.kg(tmp0_desc, 0, tmp7_cached[0].t(), tmp4_local0);
     tmp3_bitMask0 = tmp3_bitMask0 | 1;
@@ -9152,10 +10607,10 @@ protoOf($serializer_3).ld = function (decoder) {
   return WeakPoint_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, null);
 };
 protoOf($serializer_3).kd = function () {
-  return this.b1x_1;
+  return this.n1y_1;
 };
 protoOf($serializer_3).ok = function () {
-  var tmp0_cached = Companion_getInstance_13().a1x_1;
+  var tmp0_cached = Companion_getInstance_14().m1y_1;
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
@@ -9169,29 +10624,29 @@ function $serializer_getInstance_3() {
 }
 function WeakPoint_init_$Init$(seen0, lift, missPoint, serializationConstructorMarker, $this) {
   if (!(3 === (3 & seen0))) {
-    throwMissingFieldException(seen0, 3, $serializer_getInstance_3().b1x_1);
+    throwMissingFieldException(seen0, 3, $serializer_getInstance_3().n1y_1);
   }
-  $this.d1x_1 = lift;
-  $this.e1x_1 = missPoint;
+  $this.p1y_1 = lift;
+  $this.q1y_1 = missPoint;
   return $this;
 }
 function WeakPoint_init_$Create$(seen0, lift, missPoint, serializationConstructorMarker) {
   return WeakPoint_init_$Init$(seen0, lift, missPoint, serializationConstructorMarker, objectCreate(protoOf(WeakPoint)));
 }
-function Companion_12() {
+function Companion_13() {
 }
-var Companion_instance_12;
-function Companion_getInstance_14() {
-  return Companion_instance_12;
+var Companion_instance_13;
+function Companion_getInstance_15() {
+  return Companion_instance_13;
 }
 function $serializer_4() {
   $serializer_instance_4 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.ReEntry', this, 1);
   tmp0_serialDesc.zj('loadFactor', true);
-  this.f1x_1 = tmp0_serialDesc;
+  this.r1y_1 = tmp0_serialDesc;
 }
-protoOf($serializer_4).g1x = function (encoder, value) {
-  var tmp0_desc = this.f1x_1;
+protoOf($serializer_4).s1y = function (encoder, value) {
+  var tmp0_desc = this.r1y_1;
   var tmp1_output = encoder.eg(tmp0_desc);
   if (tmp1_output.jh(tmp0_desc, 0) ? true : !equals(value.c14_1, 0.85)) {
     tmp1_output.bh(tmp0_desc, 0, value.c14_1);
@@ -9199,10 +10654,10 @@ protoOf($serializer_4).g1x = function (encoder, value) {
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_4).md = function (encoder, value) {
-  return this.g1x(encoder, value instanceof ReEntry ? value : THROW_CCE());
+  return this.s1y(encoder, value instanceof ReEntry ? value : THROW_CCE());
 };
 protoOf($serializer_4).ld = function (decoder) {
-  var tmp0_desc = this.f1x_1;
+  var tmp0_desc = this.r1y_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -9230,7 +10685,7 @@ protoOf($serializer_4).ld = function (decoder) {
   return ReEntry_init_$Create$(tmp3_bitMask0, tmp4_local0, null);
 };
 protoOf($serializer_4).kd = function () {
-  return this.f1x_1;
+  return this.r1y_1;
 };
 protoOf($serializer_4).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -9246,7 +10701,7 @@ function $serializer_getInstance_4() {
 }
 function ReEntry_init_$Init$(seen0, loadFactor, serializationConstructorMarker, $this) {
   if (!(0 === (0 & seen0))) {
-    throwMissingFieldException(seen0, 0, $serializer_getInstance_4().f1x_1);
+    throwMissingFieldException(seen0, 0, $serializer_getInstance_4().r1y_1);
   }
   if (0 === (seen0 & 1))
     $this.c14_1 = 0.85;
@@ -9265,7 +10720,7 @@ function Target(exerciseId, weightKg, reps, rpe, sets) {
   this.r15_1 = rpe;
   this.s15_1 = sets;
 }
-protoOf(Target).h1x = function (exerciseId, weightKg, reps, rpe, sets) {
+protoOf(Target).t1y = function (exerciseId, weightKg, reps, rpe, sets) {
   return new Target(exerciseId, weightKg, reps, rpe, sets);
 };
 protoOf(Target).z15 = function (exerciseId, weightKg, reps, rpe, sets, $super) {
@@ -9274,7 +10729,7 @@ protoOf(Target).z15 = function (exerciseId, weightKg, reps, rpe, sets, $super) {
   reps = reps === VOID ? this.q15_1 : reps;
   rpe = rpe === VOID ? this.r15_1 : rpe;
   sets = sets === VOID ? this.s15_1 : sets;
-  return $super === VOID ? this.h1x(exerciseId, weightKg, reps, rpe, sets) : $super.h1x.call(this, exerciseId, weightKg, reps, rpe, sets);
+  return $super === VOID ? this.t1y(exerciseId, weightKg, reps, rpe, sets) : $super.t1y.call(this, exerciseId, weightKg, reps, rpe, sets);
 };
 protoOf(Target).toString = function () {
   return 'Target(exerciseId=' + this.o15_1.toString() + ', weightKg=' + this.p15_1 + ', reps=' + this.q15_1 + ', rpe=' + this.r15_1 + ', sets=' + this.s15_1 + ')';
@@ -9305,21 +10760,21 @@ protoOf(Target).equals = function (other) {
   return true;
 };
 function Accessories(items) {
-  Companion_getInstance_11();
-  this.x1w_1 = items;
+  Companion_getInstance_12();
+  this.j1y_1 = items;
 }
 protoOf(Accessories).toString = function () {
-  return 'Accessories(items=' + toString(this.x1w_1) + ')';
+  return 'Accessories(items=' + toString(this.j1y_1) + ')';
 };
 protoOf(Accessories).hashCode = function () {
-  return hashCode(this.x1w_1);
+  return hashCode(this.j1y_1);
 };
 protoOf(Accessories).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof Accessories))
     return false;
-  if (!equals(this.x1w_1, other.x1w_1))
+  if (!equals(this.j1y_1, other.j1y_1))
     return false;
   return true;
 };
@@ -9349,16 +10804,16 @@ protoOf(Deload).equals = function (other) {
   return true;
 };
 function WeakPoint(lift, missPoint) {
-  Companion_getInstance_13();
-  this.d1x_1 = lift;
-  this.e1x_1 = missPoint;
+  Companion_getInstance_14();
+  this.p1y_1 = lift;
+  this.q1y_1 = missPoint;
 }
 protoOf(WeakPoint).toString = function () {
-  return 'WeakPoint(lift=' + this.d1x_1.toString() + ', missPoint=' + toString_0(this.e1x_1) + ')';
+  return 'WeakPoint(lift=' + this.p1y_1.toString() + ', missPoint=' + toString_0(this.q1y_1) + ')';
 };
 protoOf(WeakPoint).hashCode = function () {
-  var result = this.d1x_1.hashCode();
-  result = imul(result, 31) + (this.e1x_1 == null ? 0 : this.e1x_1.hashCode()) | 0;
+  var result = this.p1y_1.hashCode();
+  result = imul(result, 31) + (this.q1y_1 == null ? 0 : this.q1y_1.hashCode()) | 0;
   return result;
 };
 protoOf(WeakPoint).equals = function (other) {
@@ -9366,9 +10821,9 @@ protoOf(WeakPoint).equals = function (other) {
     return true;
   if (!(other instanceof WeakPoint))
     return false;
-  if (!this.d1x_1.equals(other.d1x_1))
+  if (!this.p1y_1.equals(other.p1y_1))
     return false;
-  if (!equals(this.e1x_1, other.e1x_1))
+  if (!equals(this.q1y_1, other.q1y_1))
     return false;
   return true;
 };
@@ -9391,9 +10846,9 @@ protoOf(ReEntry).equals = function (other) {
     return false;
   return true;
 };
-function Companion_13() {
+function Companion_14() {
 }
-protoOf(Companion_13).i1x = function () {
+protoOf(Companion_14).u1y = function () {
   var tmp = getKClass(AdvicePayload);
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
@@ -9409,9 +10864,9 @@ protoOf(Companion_13).i1x = function () {
   var tmp$ret$6 = [];
   return SealedClassSerializer_init_$Create$('com.powertracker.domain.model.AdvicePayload', tmp, tmp_0, tmp_1, tmp$ret$6);
 };
-var Companion_instance_13;
-function Companion_getInstance_15() {
-  return Companion_instance_13;
+var Companion_instance_14;
+function Companion_getInstance_16() {
+  return Companion_instance_14;
 }
 function AdvicePayload() {
 }
@@ -9427,7 +10882,7 @@ function Advice(type, lift, createdAt, reason, severity, payload, status, id) {
   this.x13_1 = status;
   this.y13_1 = id;
 }
-protoOf(Advice).j1x = function (type, lift, createdAt, reason, severity, payload, status, id) {
+protoOf(Advice).v1y = function (type, lift, createdAt, reason, severity, payload, status, id) {
   return new Advice(type, lift, createdAt, reason, severity, payload, status, id);
 };
 protoOf(Advice).a16 = function (type, lift, createdAt, reason, severity, payload, status, id, $super) {
@@ -9439,7 +10894,7 @@ protoOf(Advice).a16 = function (type, lift, createdAt, reason, severity, payload
   payload = payload === VOID ? this.w13_1 : payload;
   status = status === VOID ? this.x13_1 : status;
   id = id === VOID ? this.y13_1 : id;
-  return $super === VOID ? this.j1x(type, lift, createdAt, reason, severity, payload, status, id) : $super.j1x.call(this, type, lift, createdAt, reason, severity, payload, status, id);
+  return $super === VOID ? this.v1y(type, lift, createdAt, reason, severity, payload, status, id) : $super.v1y.call(this, type, lift, createdAt, reason, severity, payload, status, id);
 };
 protoOf(Advice).toString = function () {
   return 'Advice(type=' + this.r13_1.toString() + ', lift=' + toString_0(this.s13_1) + ', createdAt=' + this.t13_1.toString() + ', reason=' + this.u13_1 + ', severity=' + this.v13_1 + ', payload=' + toString(this.w13_1) + ', status=' + this.x13_1.toString() + ', id=' + this.y13_1.toString() + ')';
@@ -9591,7 +11046,7 @@ function MissPoint(name, ordinal) {
 }
 function liftLabel(lift) {
   var tmp;
-  switch (lift.t1_1) {
+  switch (lift.w1_1) {
     case 0:
       tmp = 'Squat';
       break;
@@ -9612,7 +11067,7 @@ function liftLabel(lift) {
 }
 function missPointLabel(lift, point) {
   var tmp;
-  switch (point.t1_1) {
+  switch (point.w1_1) {
     case 0:
       tmp = lift.equals(MainLift_STRICT_PRESS_getInstance()) ? 'Off the shoulders' : 'Floor';
       break;
@@ -9640,7 +11095,7 @@ function Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived) 
 }
 protoOf(Exercise).r14 = function () {
   var tmp;
-  switch (this.l14_1.t1_1) {
+  switch (this.l14_1.w1_1) {
     case 0:
       tmp = MainLift_SQUAT_getInstance();
       break;
@@ -9667,7 +11122,7 @@ protoOf(Exercise).r14 = function () {
 };
 protoOf(Exercise).q14 = function () {
   var tmp;
-  switch (this.l14_1.t1_1) {
+  switch (this.l14_1.w1_1) {
     case 0:
     case 1:
     case 2:
@@ -9684,10 +11139,10 @@ protoOf(Exercise).q14 = function () {
   }
   return tmp;
 };
-protoOf(Exercise).k1x = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(Exercise).w1y = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
-protoOf(Exercise).l1x = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
+protoOf(Exercise).x1y = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
   id = id === VOID ? this.j14_1 : id;
   name = name === VOID ? this.k14_1 : name;
   category = category === VOID ? this.l14_1 : category;
@@ -9695,7 +11150,7 @@ protoOf(Exercise).l1x = function (id, name, category, parentLift, muscles, isBui
   muscles = muscles === VOID ? this.n14_1 : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.o14_1 : isBuiltIn;
   archived = archived === VOID ? this.p14_1 : archived;
-  return $super === VOID ? this.k1x(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.k1x.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.w1y(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.w1y.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(Exercise).toString = function () {
   return 'Exercise(id=' + this.j14_1.toString() + ', name=' + this.k14_1 + ', category=' + this.l14_1.toString() + ', parentLift=' + toString_0(this.m14_1) + ', muscles=' + toString(this.n14_1) + ', isBuiltIn=' + this.o14_1 + ', archived=' + this.p14_1 + ')';
@@ -9973,11 +11428,11 @@ function PlateLoader() {
   this.e18_1 = 100.0;
   this.f18_1 = toHundredths(this, 20.0);
 }
-protoOf(PlateLoader).m1x = function (changePlates) {
+protoOf(PlateLoader).y1y = function (changePlates) {
   return changePlates ? sortedDescending(plus(this.b18_1, this.c18_1)) : this.b18_1;
 };
 protoOf(PlateLoader).j18 = function (changePlates) {
-  return 2 * min(this.m1x(changePlates));
+  return 2 * min(this.y1y(changePlates));
 };
 protoOf(PlateLoader).g18 = function (kg, changePlates) {
   var step = toHundredths(this, this.j18(changePlates));
@@ -10034,7 +11489,7 @@ protoOf(PlateLoader).h18 = function (anchor, kg, changePlates) {
   var tmp$ret$3 = compare(tmp0, b) >= 0 ? tmp0 : b;
   return fromHundredths(this, tmp$ret$3);
 };
-protoOf(PlateLoader).n1x = function (totalKg, changePlates) {
+protoOf(PlateLoader).z1y = function (totalKg, changePlates) {
   var beyondBar = subtract(toHundredths(this, totalKg), this.f18_1);
   if (compare(beyondBar, new Long(0, 0)) < 0 || !equalsLong(modulo(beyondBar, new Long(2, 0)), new Long(0, 0)))
     return null;
@@ -10042,7 +11497,7 @@ protoOf(PlateLoader).n1x = function (totalKg, changePlates) {
   var remaining = divide(beyondBar, fromInt(2));
   // Inline function 'kotlin.collections.mutableListOf' call
   var result = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = this.m1x(changePlates).j();
+  var _iterator__ex2g4s = this.y1y(changePlates).j();
   while (_iterator__ex2g4s.k()) {
     var plate = _iterator__ex2g4s.l();
     var p = toHundredths(this, plate);
@@ -10061,21 +11516,21 @@ function PlateLoader_getInstance() {
   return PlateLoader_instance;
 }
 function Pr(date, e1rmKg, weightKg, reps, rpe) {
-  this.o1x_1 = date;
-  this.p1x_1 = e1rmKg;
-  this.q1x_1 = weightKg;
-  this.r1x_1 = reps;
-  this.s1x_1 = rpe;
+  this.a1z_1 = date;
+  this.b1z_1 = e1rmKg;
+  this.c1z_1 = weightKg;
+  this.d1z_1 = reps;
+  this.e1z_1 = rpe;
 }
 protoOf(Pr).toString = function () {
-  return 'Pr(date=' + this.o1x_1.toString() + ', e1rmKg=' + this.p1x_1 + ', weightKg=' + this.q1x_1 + ', reps=' + this.r1x_1 + ', rpe=' + this.s1x_1 + ')';
+  return 'Pr(date=' + this.a1z_1.toString() + ', e1rmKg=' + this.b1z_1 + ', weightKg=' + this.c1z_1 + ', reps=' + this.d1z_1 + ', rpe=' + this.e1z_1 + ')';
 };
 protoOf(Pr).hashCode = function () {
-  var result = this.o1x_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.p1x_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.q1x_1) | 0;
-  result = imul(result, 31) + this.r1x_1 | 0;
-  result = imul(result, 31) + (this.s1x_1 == null ? 0 : getNumberHashCode(this.s1x_1)) | 0;
+  var result = this.a1z_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.b1z_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.c1z_1) | 0;
+  result = imul(result, 31) + this.d1z_1 | 0;
+  result = imul(result, 31) + (this.e1z_1 == null ? 0 : getNumberHashCode(this.e1z_1)) | 0;
   return result;
 };
 protoOf(Pr).equals = function (other) {
@@ -10083,15 +11538,15 @@ protoOf(Pr).equals = function (other) {
     return true;
   if (!(other instanceof Pr))
     return false;
-  if (!this.o1x_1.equals(other.o1x_1))
+  if (!this.a1z_1.equals(other.a1z_1))
     return false;
-  if (!equals(this.p1x_1, other.p1x_1))
+  if (!equals(this.b1z_1, other.b1z_1))
     return false;
-  if (!equals(this.q1x_1, other.q1x_1))
+  if (!equals(this.c1z_1, other.c1z_1))
     return false;
-  if (!(this.r1x_1 === other.r1x_1))
+  if (!(this.d1z_1 === other.d1z_1))
     return false;
-  if (!equals(this.s1x_1, other.s1x_1))
+  if (!equals(this.e1z_1, other.e1z_1))
     return false;
   return true;
 };
@@ -10099,23 +11554,23 @@ function weekStart(date) {
   return mondayOfWeek(date);
 }
 function sam$kotlin_Comparator$0_5(function_0) {
-  this.t1x_1 = function_0;
+  this.f1z_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_5).v9 = function (a, b) {
-  return this.t1x_1(a, b);
+protoOf(sam$kotlin_Comparator$0_5).y9 = function (a, b) {
+  return this.f1z_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_5).compare = function (a, b) {
-  return this.v9(a, b);
+  return this.y9(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_5).c2 = function () {
-  return this.t1x_1;
+protoOf(sam$kotlin_Comparator$0_5).f2 = function () {
+  return this.f1z_1;
 };
 protoOf(sam$kotlin_Comparator$0_5).equals = function (other) {
   var tmp;
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
     if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
-      tmp_0 = equals(this.c2(), other.c2());
+      tmp_0 = equals(this.f2(), other.f2());
     } else {
       tmp_0 = false;
     }
@@ -10126,26 +11581,26 @@ protoOf(sam$kotlin_Comparator$0_5).equals = function (other) {
   return tmp;
 };
 protoOf(sam$kotlin_Comparator$0_5).hashCode = function () {
-  return hashCode(this.c2());
+  return hashCode(this.f2());
 };
 function sam$kotlin_Comparator$0_6(function_0) {
-  this.u1x_1 = function_0;
+  this.g1z_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_6).v9 = function (a, b) {
-  return this.u1x_1(a, b);
+protoOf(sam$kotlin_Comparator$0_6).y9 = function (a, b) {
+  return this.g1z_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_6).compare = function (a, b) {
-  return this.v9(a, b);
+  return this.y9(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_6).c2 = function () {
-  return this.u1x_1;
+protoOf(sam$kotlin_Comparator$0_6).f2 = function () {
+  return this.g1z_1;
 };
 protoOf(sam$kotlin_Comparator$0_6).equals = function (other) {
   var tmp;
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
     if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
-      tmp_0 = equals(this.c2(), other.c2());
+      tmp_0 = equals(this.f2(), other.f2());
     } else {
       tmp_0 = false;
     }
@@ -10156,7 +11611,7 @@ protoOf(sam$kotlin_Comparator$0_6).equals = function (other) {
   return tmp;
 };
 protoOf(sam$kotlin_Comparator$0_6).hashCode = function () {
-  return hashCode(this.c2());
+  return hashCode(this.f2());
 };
 function ProgressMath$prs$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
@@ -10166,18 +11621,18 @@ function ProgressMath$prs$lambda(a, b) {
 }
 function ProgressMath$weeklyVolume$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
-  var tmp = a.qa_1;
-  var tmp$ret$2 = b.qa_1;
+  var tmp = a.ta_1;
+  var tmp$ret$2 = b.ta_1;
   return compareValues(tmp, tmp$ret$2);
 }
 function ProgressMath() {
   ProgressMath_instance = this;
-  this.v1x_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.h1z_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(ProgressMath).w1x = function (_this__u8e3s4, set, lift) {
+protoOf(ProgressMath).i1z = function (_this__u8e3s4, set, lift) {
   var tmp;
   if (!set.h16_1) {
-    var tmp0_safe_receiver = _this__u8e3s4.e14_1.p1(set.d16_1);
+    var tmp0_safe_receiver = _this__u8e3s4.e14_1.s1(set.d16_1);
     var tmp_0;
     if (tmp0_safe_receiver == null) {
       tmp_0 = null;
@@ -10191,7 +11646,7 @@ protoOf(ProgressMath).w1x = function (_this__u8e3s4, set, lift) {
   }
   return tmp;
 };
-protoOf(ProgressMath).x1x = function (history, lift) {
+protoOf(ProgressMath).j1z = function (history, lift) {
   // Inline function 'kotlin.collections.mutableListOf' call
   var prs = ArrayList_init_$Create$();
   var best = 0.0;
@@ -10206,7 +11661,7 @@ protoOf(ProgressMath).x1x = function (history, lift) {
     var _iterator__ex2g4s_0 = session.t17_1.j();
     $l$loop: while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (!this.w1x(history, set, lift))
+      if (!this.i1z(history, set, lift))
         continue $l$loop;
       var e1rm = E1rm_getInstance().u18(set.e16_1, set.f16_1, set.g16_1);
       if (e1rm > best) {
@@ -10219,7 +11674,7 @@ protoOf(ProgressMath).x1x = function (history, lift) {
   }
   return prs;
 };
-protoOf(ProgressMath).y1x = function (history, lift) {
+protoOf(ProgressMath).k1z = function (history, lift) {
   // Inline function 'kotlin.collections.mutableMapOf' call
   var volume = LinkedHashMap_init_$Create$();
   var _iterator__ex2g4s = history.d14_1.j();
@@ -10228,12 +11683,12 @@ protoOf(ProgressMath).y1x = function (history, lift) {
     var _iterator__ex2g4s_0 = session.t17_1.j();
     while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (this.w1x(history, set, lift)) {
+      if (this.i1z(history, set, lift)) {
         var week = weekStart(session.q17_1);
-        var tmp0_elvis_lhs = volume.p1(week);
+        var tmp0_elvis_lhs = volume.s1(week);
         // Inline function 'kotlin.collections.set' call
         var value = (tmp0_elvis_lhs == null ? 0.0 : tmp0_elvis_lhs) + set.e16_1 * set.f16_1;
-        volume.i2(week, value);
+        volume.l2(week, value);
       }
     }
   }
@@ -10244,8 +11699,8 @@ protoOf(ProgressMath).y1x = function (history, lift) {
   var tmp$ret$3 = new sam$kotlin_Comparator$0_6(tmp);
   return sortedWith(this_0, tmp$ret$3);
 };
-protoOf(ProgressMath).z1x = function (stats, until, includeStrictPress) {
-  var included = includeStrictPress ? plus_0(this.v1x_1, MainLift_STRICT_PRESS_getInstance()) : this.v1x_1;
+protoOf(ProgressMath).l1z = function (stats, until, includeStrictPress) {
+  var included = includeStrictPress ? plus_0(this.h1z_1, MainLift_STRICT_PRESS_getInstance()) : this.h1z_1;
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(included, 10));
@@ -10283,17 +11738,17 @@ function SeedLibrary$exercises$Acc(heavy, lift, muscles) {
     tmp = muscles;
   }
   muscles = tmp;
-  this.a1y_1 = heavy;
-  this.b1y_1 = lift;
-  this.c1y_1 = muscles;
+  this.m1z_1 = heavy;
+  this.n1z_1 = lift;
+  this.o1z_1 = muscles;
 }
 function SeedLibrary() {
   SeedLibrary_instance = this;
-  this.d1y_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.p1z_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(SeedLibrary).e1y = function () {
+protoOf(SeedLibrary).q1z = function () {
   var found = LinkedHashMap_init_$Create$();
-  var _iterator__ex2g4s = this.d1y_1.j();
+  var _iterator__ex2g4s = this.p1z_1.j();
   while (_iterator__ex2g4s.k()) {
     var lift = _iterator__ex2g4s.l();
     var _iterator__ex2g4s_0 = get_entries_3().j();
@@ -10305,24 +11760,24 @@ protoOf(SeedLibrary).e1y = function () {
         var option = _iterator__ex2g4s_1.l();
         // Inline function 'kotlin.collections.getOrPut' call
         var key = option.i13_1;
-        var value = found.p1(key);
+        var value = found.s1(key);
         var tmp;
         if (value == null) {
           var answer = new SeedLibrary$exercises$Acc(option.j13_1, lift);
-          found.i2(key, answer);
+          found.l2(key, answer);
           tmp = answer;
         } else {
           tmp = value;
         }
         // Inline function 'kotlin.collections.plusAssign' call
-        var this_0 = tmp.c1y_1;
+        var this_0 = tmp.o1z_1;
         addAll(this_0, muscles);
       }
     }
   }
-  var tmp_0 = found.q1();
+  var tmp_0 = found.t1();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = this.d1y_1;
+  var tmp0 = this.p1z_1;
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s_2 = tmp0.j();
@@ -10356,7 +11811,7 @@ protoOf(SeedLibrary).e1y = function () {
     var name = item_0.s();
     // Inline function 'kotlin.collections.component2' call
     var acc = item_0.t();
-    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.a1y_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.a1y_1 ? acc.b1y_1 : null, toList_0(acc.c1y_1), true);
+    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.m1z_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.m1z_1 ? acc.n1z_1 : null, toList_0(acc.o1z_1), true);
     destination_1.i(tmp$ret$13);
   }
   var mapped = destination_1;
@@ -10371,7 +11826,7 @@ protoOf(SeedLibrary).e1y = function () {
     var _unary__edvuaz = index;
     index = _unary__edvuaz + 1 | 0;
     var i = checkIndexOverflow(_unary__edvuaz);
-    var tmp$ret$18 = item_1.l1x(add(numberToLong(i), new Long(1, 0)));
+    var tmp$ret$18 = item_1.x1y(add(numberToLong(i), new Long(1, 0)));
     destination_2.i(tmp$ret$18);
   }
   return destination_2;
@@ -10405,32 +11860,32 @@ function HighReps_getInstance() {
   return HighReps_instance;
 }
 function BigJump(fromKg) {
-  this.f1y_1 = fromKg;
+  this.r1z_1 = fromKg;
 }
 protoOf(BigJump).toString = function () {
-  return 'BigJump(fromKg=' + this.f1y_1 + ')';
+  return 'BigJump(fromKg=' + this.r1z_1 + ')';
 };
 protoOf(BigJump).hashCode = function () {
-  return getNumberHashCode(this.f1y_1);
+  return getNumberHashCode(this.r1z_1);
 };
 protoOf(BigJump).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BigJump))
     return false;
-  if (!equals(this.f1y_1, other.f1y_1))
+  if (!equals(this.r1z_1, other.r1z_1))
     return false;
   return true;
 };
 function InputValidator() {
-  this.g1y_1 = 12;
-  this.h1y_1 = 1.3;
-  this.i1y_1 = 500.0;
+  this.s1z_1 = 12;
+  this.t1z_1 = 1.3;
+  this.u1z_1 = 500.0;
 }
-protoOf(InputValidator).j1y = function (kg) {
+protoOf(InputValidator).v1z = function (kg) {
   return isFinite(kg) && kg > 0.0 && kg <= 500.0;
 };
-protoOf(InputValidator).k1y = function (text) {
+protoOf(InputValidator).w1z = function (text) {
   // Inline function 'kotlin.text.trim' call
   var tmp$ret$0 = toString(trim(isCharSequence(text) ? text : THROW_CCE()));
   var tmp0_safe_receiver = toDoubleOrNull(replace(tmp$ret$0, _Char___init__impl__6a9atx(44), _Char___init__impl__6a9atx(46)));
@@ -10440,7 +11895,7 @@ protoOf(InputValidator).k1y = function (text) {
   } else {
     // Inline function 'kotlin.takeIf' call
     var tmp_0;
-    if (this.j1y(tmp0_safe_receiver)) {
+    if (this.v1z(tmp0_safe_receiver)) {
       tmp_0 = tmp0_safe_receiver;
     } else {
       tmp_0 = null;
@@ -10449,7 +11904,7 @@ protoOf(InputValidator).k1y = function (text) {
   }
   return tmp;
 };
-protoOf(InputValidator).l1y = function (weightKg, reps, lastWeightKg) {
+protoOf(InputValidator).x1z = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
@@ -10460,47 +11915,47 @@ protoOf(InputValidator).l1y = function (weightKg, reps, lastWeightKg) {
   if (!(lastWeightKg == null) && lastWeightKg > 0.0 && weightKg > lastWeightKg * 1.3) {
     this_0.i(new BigJump(lastWeightKg));
   }
-  return this_0.w3();
+  return this_0.z3();
 };
 var InputValidator_instance;
 function InputValidator_getInstance() {
   return InputValidator_instance;
 }
 function ratioRange($this, numerator, denominator, typical) {
-  return new JsRatioRange(numerator.s1_1, denominator.s1_1, typical.ub(), typical.yb());
+  return new JsRatioRange(numerator.v1_1, denominator.v1_1, typical.xb(), typical.yb());
 }
 function GritDomain$accessoryOptions$lambda(it) {
-  return it.s1_1;
+  return it.v1_1;
 }
 function GritDomain$accessoryMuscles$lambda(it) {
-  return it.s1_1;
+  return it.v1_1;
 }
 function GritDomain$missPointLabel$lambda(it) {
-  return it.s1_1;
+  return it.v1_1;
 }
 function GritDomain$openAdviceExpired$lambda(it) {
-  return it.s1_1;
+  return it.v1_1;
 }
 function GritDomain$searchLibrary$lambda(it) {
-  return it.s1_1;
+  return it.v1_1;
 }
 function GritDomain$searchLibrary$lambda_0(it) {
-  return it.s1_1;
+  return it.v1_1;
 }
 function GritDomain$muscleGroupLabel$lambda(it) {
-  return it.s1_1;
+  return it.v1_1;
 }
 function GritDomain$exercisesByMuscle$lambda(it) {
-  return it.s1_1;
+  return it.v1_1;
 }
 function GritDomain$exercisesByMuscle$lambda_0(it) {
-  return it.s1_1;
+  return it.v1_1;
 }
 function GritDomain$exercisesByMuscles$lambda(it) {
-  return it.s1_1;
+  return it.v1_1;
 }
 function GritDomain$exercisesByMuscles$lambda_0(it) {
-  return it.s1_1;
+  return it.v1_1;
 }
 function GritDomain() {
 }
@@ -10508,7 +11963,7 @@ protoOf(GritDomain).estimateE1rm = function (weightKg, reps, rpe) {
   return E1rm_getInstance().u18(weightKg, reps, rpe);
 };
 protoOf(GritDomain).platesPerSide = function (totalKg, changePlates) {
-  var tmp0_safe_receiver = PlateLoader_getInstance().n1x(totalKg, changePlates);
+  var tmp0_safe_receiver = PlateLoader_getInstance().z1y(totalKg, changePlates);
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
@@ -10526,7 +11981,7 @@ protoOf(GritDomain).loadStep = function (changePlates) {
 };
 protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = InputValidator_instance.l1y(weightKg, reps, lastWeightKg);
+  var this_0 = InputValidator_instance.x1z(weightKg, reps, lastWeightKg);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -10549,7 +12004,7 @@ protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   return copyToArray(destination);
 };
 protoOf(GritDomain).parseBaselineKg = function (text) {
-  return InputValidator_instance.k1y(text);
+  return InputValidator_instance.w1z(text);
 };
 protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, today, prior) {
   var tmp = Coach_getInstance();
@@ -10653,7 +12108,7 @@ protoOf(GritDomain).currentE1rm = function (history, lift, until, days) {
 };
 protoOf(GritDomain).prs = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().x1x(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().j1z(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -10667,14 +12122,14 @@ protoOf(GritDomain).prs = function (history, lift) {
 };
 protoOf(GritDomain).weeklyVolume = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().y1x(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().k1z(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var week = item.va();
-    var volume = item.wa();
+    var week = item.ya();
+    var volume = item.za();
     var tmp$ret$2 = new JsWeeklyPoint(week.toString(), volume);
     destination.i(tmp$ret$2);
   }
@@ -10700,7 +12155,7 @@ protoOf(GritDomain).accessoryOptions = function (lift, miss) {
       while (inductionVariable < last) {
         var element = tmp0[inductionVariable];
         inductionVariable = inductionVariable + 1 | 0;
-        if (element.s1_1 === miss) {
+        if (element.v1_1 === miss) {
           tmp$ret$4 = element;
           break $l$block;
         }
@@ -10750,7 +12205,7 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
       while (inductionVariable < last) {
         var element = tmp0[inductionVariable];
         inductionVariable = inductionVariable + 1 | 0;
-        if (element.s1_1 === miss) {
+        if (element.v1_1 === miss) {
           tmp$ret$4 = element;
           break $l$block;
         }
@@ -10774,7 +12229,7 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = SeedLibrary_getInstance().e1y();
+  var this_0 = SeedLibrary_getInstance().q1z();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -10787,7 +12242,7 @@ protoOf(GritDomain).seedExercises = function () {
   return copyToArray(destination);
 };
 protoOf(GritDomain).total = function (history, until, includeStrictPress) {
-  return ProgressMath_getInstance().z1x(new HistoryStats(toDomain_4(history)), parseDate('until', until), includeStrictPress);
+  return ProgressMath_getInstance().l1z(new HistoryStats(toDomain_4(history)), parseDate('until', until), includeStrictPress);
 };
 protoOf(GritDomain).mainLifts = function () {
   // Inline function 'kotlin.collections.map' call
@@ -10797,7 +12252,7 @@ protoOf(GritDomain).mainLifts = function () {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = item.s1_1;
+    var tmp$ret$2 = item.v1_1;
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -10819,7 +12274,7 @@ protoOf(GritDomain).missPointLabel = function (lift, point) {
     while (inductionVariable < last) {
       var element = tmp0[inductionVariable];
       inductionVariable = inductionVariable + 1 | 0;
-      if (element.s1_1 === point) {
+      if (element.v1_1 === point) {
         tmp$ret$2 = element;
         break $l$block;
       }
@@ -10840,14 +12295,14 @@ protoOf(GritDomain).missPointLabel = function (lift, point) {
 };
 protoOf(GritDomain).mainLiftOf = function (exercise) {
   var tmp0_safe_receiver = toDomain(exercise).r14();
-  return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.s1_1;
+  return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.v1_1;
 };
 protoOf(GritDomain).isMainLift = function (exercise) {
   return toDomain(exercise).q14();
 };
 protoOf(GritDomain).lastTopSet = function (history, exerciseId, before) {
   var tmp0_safe_receiver = (new HistoryStats(toDomain_4(history))).n15(fromInt(exerciseId), parseDate('before', before));
-  var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.ra_1;
+  var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.ua_1;
   return tmp1_safe_receiver == null ? null : toJs_3(tmp1_safe_receiver);
 };
 protoOf(GritDomain).openAdviceExpired = function (type, createdAt, today) {
@@ -10863,7 +12318,7 @@ protoOf(GritDomain).openAdviceExpired = function (type, createdAt, today) {
     while (inductionVariable < last) {
       var element = tmp0[inductionVariable];
       inductionVariable = inductionVariable + 1 | 0;
-      if (element.s1_1 === type) {
+      if (element.v1_1 === type) {
         tmp$ret$2 = element;
         break $l$block;
       }
@@ -10927,7 +12382,7 @@ protoOf(GritDomain).searchLibrary = function (query, areas, equipment) {
       while (inductionVariable_0 < last_0) {
         var element = tmp0[inductionVariable_0];
         inductionVariable_0 = inductionVariable_0 + 1 | 0;
-        if (element.s1_1 === item) {
+        if (element.v1_1 === item) {
           tmp$ret$5 = element;
           break $l$block;
         }
@@ -10967,7 +12422,7 @@ protoOf(GritDomain).searchLibrary = function (query, areas, equipment) {
       while (inductionVariable_2 < last_2) {
         var element_0 = tmp0_0[inductionVariable_2];
         inductionVariable_2 = inductionVariable_2 + 1 | 0;
-        if (element_0.s1_1 === item_0) {
+        if (element_0.v1_1 === item_0) {
           tmp$ret$13 = element_0;
           break $l$block_0;
         }
@@ -11007,7 +12462,7 @@ protoOf(GritDomain).muscleGroups = function () {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = item.s1_1;
+    var tmp$ret$2 = item.v1_1;
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -11025,7 +12480,7 @@ protoOf(GritDomain).muscleGroupLabel = function (group) {
     while (inductionVariable < last) {
       var element = tmp0[inductionVariable];
       inductionVariable = inductionVariable + 1 | 0;
-      if (element.s1_1 === group) {
+      if (element.v1_1 === group) {
         tmp$ret$2 = element;
         break $l$block;
       }
@@ -11045,7 +12500,7 @@ protoOf(GritDomain).muscleGroupLabel = function (group) {
 };
 protoOf(GritDomain).muscleGroupOf = function (muscle) {
   var tmp0_safe_receiver = MuscleGroups_getInstance().p1a(muscle);
-  return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.s1_1;
+  return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.v1_1;
 };
 protoOf(GritDomain).exercisesByMuscle = function (group, equipment) {
   var tmp = Library_getInstance();
@@ -11060,7 +12515,7 @@ protoOf(GritDomain).exercisesByMuscle = function (group, equipment) {
     while (inductionVariable < last) {
       var element = tmp0[inductionVariable];
       inductionVariable = inductionVariable + 1 | 0;
-      if (element.s1_1 === group) {
+      if (element.v1_1 === group) {
         tmp$ret$2 = element;
         break $l$block;
       }
@@ -11097,7 +12552,7 @@ protoOf(GritDomain).exercisesByMuscle = function (group, equipment) {
       while (inductionVariable_1 < last_1) {
         var element_0 = tmp0_0[inductionVariable_1];
         inductionVariable_1 = inductionVariable_1 + 1 | 0;
-        if (element_0.s1_1 === item) {
+        if (element_0.v1_1 === item) {
           tmp$ret$10 = element_0;
           break $l$block_0;
         }
@@ -11150,7 +12605,7 @@ protoOf(GritDomain).exercisesByMuscles = function (groups, equipment) {
       while (inductionVariable_0 < last_0) {
         var element = tmp0[inductionVariable_0];
         inductionVariable_0 = inductionVariable_0 + 1 | 0;
-        if (element.s1_1 === item) {
+        if (element.v1_1 === item) {
           tmp$ret$5 = element;
           break $l$block;
         }
@@ -11190,7 +12645,7 @@ protoOf(GritDomain).exercisesByMuscles = function (groups, equipment) {
       while (inductionVariable_2 < last_2) {
         var element_0 = tmp0_0[inductionVariable_2];
         inductionVariable_2 = inductionVariable_2 + 1 | 0;
-        if (element_0.s1_1 === item_0) {
+        if (element_0.v1_1 === item_0) {
           tmp$ret$13 = element_0;
           break $l$block_0;
         }
@@ -11236,12 +12691,12 @@ protoOf(GritDomain).figureInfo = function (name) {
     // Inline function 'kotlin.let' call
     // Inline function 'kotlin.text.lowercase' call
     // Inline function 'kotlin.js.asDynamic' call
-    var tmp_0 = tmp0_safe_receiver.h1r_1.s1_1.toLowerCase();
+    var tmp_0 = tmp0_safe_receiver.w1r_1.v1_1.toLowerCase();
     // Inline function 'kotlin.arrayOf' call
     // Inline function 'kotlin.js.unsafeCast' call
     // Inline function 'kotlin.js.asDynamic' call
-    var tmp$ret$4 = [FigureRenderer_getInstance().z1r_1.x1r_1, FigureRenderer_getInstance().z1r_1.y1r_1];
-    tmp = new JsFigureInfo(tmp0_safe_receiver.f1r_1, tmp0_safe_receiver.g1r_1, tmp_0, tmp$ret$4);
+    var tmp$ret$4 = [FigureRenderer_getInstance().q1s_1.o1s_1, FigureRenderer_getInstance().q1s_1.p1s_1];
+    tmp = new JsFigureInfo(tmp0_safe_receiver.u1r_1, tmp0_safe_receiver.v1r_1, tmp_0, tmp$ret$4);
   }
   return tmp;
 };
@@ -11265,7 +12720,7 @@ protoOf(GritDomain).figureShapes = function (name, which) {
   } else {
     // Inline function 'kotlin.let' call
     // Inline function 'kotlin.collections.map' call
-    var this_0 = FigureRenderer_getInstance().l1t(tmp1_safe_receiver, panel);
+    var this_0 = FigureRenderer_getInstance().c1u(tmp1_safe_receiver, panel);
     // Inline function 'kotlin.collections.mapTo' call
     var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
     var _iterator__ex2g4s = this_0.j();
@@ -11313,49 +12768,49 @@ function JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived
   this.isBuiltIn = isBuiltIn;
   this.archived = archived;
 }
-protoOf(JsExercise).m1y = function () {
+protoOf(JsExercise).y1z = function () {
   return this.id;
 };
 protoOf(JsExercise).ar = function () {
   return this.name;
 };
-protoOf(JsExercise).n1y = function () {
+protoOf(JsExercise).z1z = function () {
   return this.category;
 };
-protoOf(JsExercise).o1y = function () {
+protoOf(JsExercise).a20 = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).p1y = function () {
+protoOf(JsExercise).b20 = function () {
   return this.muscles;
 };
-protoOf(JsExercise).q1y = function () {
+protoOf(JsExercise).c20 = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).r1y = function () {
+protoOf(JsExercise).d20 = function () {
   return this.archived;
 };
-protoOf(JsExercise).va = function () {
+protoOf(JsExercise).ya = function () {
   return this.id;
 };
-protoOf(JsExercise).wa = function () {
+protoOf(JsExercise).za = function () {
   return this.name;
 };
 protoOf(JsExercise).jd = function () {
   return this.category;
 };
-protoOf(JsExercise).s1y = function () {
+protoOf(JsExercise).e20 = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).t1y = function () {
+protoOf(JsExercise).f20 = function () {
   return this.muscles;
 };
-protoOf(JsExercise).u1y = function () {
+protoOf(JsExercise).g20 = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).v1y = function () {
+protoOf(JsExercise).h20 = function () {
   return this.archived;
 };
-protoOf(JsExercise).w1y = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(JsExercise).i20 = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
@@ -11366,7 +12821,7 @@ protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, is
   muscles = muscles === VOID ? this.muscles : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.isBuiltIn : isBuiltIn;
   archived = archived === VOID ? this.archived : archived;
-  return $super === VOID ? this.w1y(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.w1y.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.i20(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.i20.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).toString = function () {
   return 'JsExercise(id=' + this.id + ', name=' + this.name + ', category=' + this.category + ', parentLift=' + this.parentLift + ', muscles=' + toString(this.muscles) + ', isBuiltIn=' + this.isBuiltIn + ', archived=' + this.archived + ')';
@@ -11411,49 +12866,49 @@ function JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   this.missPoint = missPoint;
   this.isTopSet = isTopSet;
 }
-protoOf(JsSet).x1y = function () {
+protoOf(JsSet).j20 = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).y1y = function () {
+protoOf(JsSet).k20 = function () {
   return this.weightKg;
 };
-protoOf(JsSet).z1y = function () {
+protoOf(JsSet).l20 = function () {
   return this.reps;
 };
-protoOf(JsSet).a1z = function () {
+protoOf(JsSet).m20 = function () {
   return this.rpe;
 };
-protoOf(JsSet).b1z = function () {
+protoOf(JsSet).n20 = function () {
   return this.failed;
 };
-protoOf(JsSet).c1z = function () {
+protoOf(JsSet).o20 = function () {
   return this.missPoint;
 };
-protoOf(JsSet).d1z = function () {
+protoOf(JsSet).p20 = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).va = function () {
+protoOf(JsSet).ya = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).wa = function () {
+protoOf(JsSet).za = function () {
   return this.weightKg;
 };
 protoOf(JsSet).jd = function () {
   return this.reps;
 };
-protoOf(JsSet).s1y = function () {
+protoOf(JsSet).e20 = function () {
   return this.rpe;
 };
-protoOf(JsSet).t1y = function () {
+protoOf(JsSet).f20 = function () {
   return this.failed;
 };
-protoOf(JsSet).u1y = function () {
+protoOf(JsSet).g20 = function () {
   return this.missPoint;
 };
-protoOf(JsSet).v1y = function () {
+protoOf(JsSet).h20 = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).e1z = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
+protoOf(JsSet).q20 = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   return new JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, $super) {
@@ -11464,7 +12919,7 @@ protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoi
   failed = failed === VOID ? this.failed : failed;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   isTopSet = isTopSet === VOID ? this.isTopSet : isTopSet;
-  return $super === VOID ? this.e1z(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.e1z.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
+  return $super === VOID ? this.q20(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.q20.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).toString = function () {
   return 'JsSet(exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', failed=' + this.failed + ', missPoint=' + this.missPoint + ', isTopSet=' + this.isTopSet + ')';
@@ -11507,37 +12962,37 @@ function JsSession(id, date, bodyweightKg, readiness, sets) {
   this.readiness = readiness;
   this.sets = sets;
 }
-protoOf(JsSession).m1y = function () {
+protoOf(JsSession).y1z = function () {
   return this.id;
 };
-protoOf(JsSession).f1z = function () {
+protoOf(JsSession).r20 = function () {
   return this.date;
 };
-protoOf(JsSession).g1z = function () {
+protoOf(JsSession).s20 = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).h1z = function () {
+protoOf(JsSession).t20 = function () {
   return this.readiness;
 };
-protoOf(JsSession).i1z = function () {
+protoOf(JsSession).u20 = function () {
   return this.sets;
 };
-protoOf(JsSession).va = function () {
+protoOf(JsSession).ya = function () {
   return this.id;
 };
-protoOf(JsSession).wa = function () {
+protoOf(JsSession).za = function () {
   return this.date;
 };
 protoOf(JsSession).jd = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).s1y = function () {
+protoOf(JsSession).e20 = function () {
   return this.readiness;
 };
-protoOf(JsSession).t1y = function () {
+protoOf(JsSession).f20 = function () {
   return this.sets;
 };
-protoOf(JsSession).j1z = function (id, date, bodyweightKg, readiness, sets) {
+protoOf(JsSession).v20 = function (id, date, bodyweightKg, readiness, sets) {
   return new JsSession(id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $super) {
@@ -11546,7 +13001,7 @@ protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $su
   bodyweightKg = bodyweightKg === VOID ? this.bodyweightKg : bodyweightKg;
   readiness = readiness === VOID ? this.readiness : readiness;
   sets = sets === VOID ? this.sets : sets;
-  return $super === VOID ? this.j1z(id, date, bodyweightKg, readiness, sets) : $super.j1z.call(this, id, date, bodyweightKg, readiness, sets);
+  return $super === VOID ? this.v20(id, date, bodyweightKg, readiness, sets) : $super.v20.call(this, id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).toString = function () {
   return 'JsSession(id=' + this.id + ', date=' + this.date + ', bodyweightKg=' + this.bodyweightKg + ', readiness=' + this.readiness + ', sets=' + toString(this.sets) + ')';
@@ -11585,49 +13040,49 @@ function JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order) {
   this.targetRpe = targetRpe;
   this.order = order;
 }
-protoOf(JsPlanItem).m1y = function () {
+protoOf(JsPlanItem).y1z = function () {
   return this.id;
 };
-protoOf(JsPlanItem).k1z = function () {
+protoOf(JsPlanItem).w20 = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).x1y = function () {
+protoOf(JsPlanItem).j20 = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).i1z = function () {
+protoOf(JsPlanItem).u20 = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).z1y = function () {
+protoOf(JsPlanItem).l20 = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).l1z = function () {
+protoOf(JsPlanItem).x20 = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).m1z = function () {
+protoOf(JsPlanItem).y20 = function () {
   return this.order;
 };
-protoOf(JsPlanItem).va = function () {
+protoOf(JsPlanItem).ya = function () {
   return this.id;
 };
-protoOf(JsPlanItem).wa = function () {
+protoOf(JsPlanItem).za = function () {
   return this.weekday;
 };
 protoOf(JsPlanItem).jd = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).s1y = function () {
+protoOf(JsPlanItem).e20 = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).t1y = function () {
+protoOf(JsPlanItem).f20 = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).u1y = function () {
+protoOf(JsPlanItem).g20 = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).v1y = function () {
+protoOf(JsPlanItem).h20 = function () {
   return this.order;
 };
-protoOf(JsPlanItem).n1z = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
+protoOf(JsPlanItem).z20 = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
   return new JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, targetRpe, order, $super) {
@@ -11638,7 +13093,7 @@ protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, target
   reps = reps === VOID ? this.reps : reps;
   targetRpe = targetRpe === VOID ? this.targetRpe : targetRpe;
   order = order === VOID ? this.order : order;
-  return $super === VOID ? this.n1z(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.n1z.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
+  return $super === VOID ? this.z20(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.z20.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).toString = function () {
   return 'JsPlanItem(id=' + this.id + ', weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', sets=' + this.sets + ', reps=' + this.reps + ', targetRpe=' + this.targetRpe + ', order=' + this.order + ')';
@@ -11679,32 +13134,32 @@ function JsBaseline(exerciseId, e1rmKg, date) {
   this.e1rmKg = e1rmKg;
   this.date = date;
 }
-protoOf(JsBaseline).x1y = function () {
+protoOf(JsBaseline).j20 = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).o1z = function () {
+protoOf(JsBaseline).a21 = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).f1z = function () {
+protoOf(JsBaseline).r20 = function () {
   return this.date;
 };
-protoOf(JsBaseline).va = function () {
+protoOf(JsBaseline).ya = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).wa = function () {
+protoOf(JsBaseline).za = function () {
   return this.e1rmKg;
 };
 protoOf(JsBaseline).jd = function () {
   return this.date;
 };
-protoOf(JsBaseline).p1z = function (exerciseId, e1rmKg, date) {
+protoOf(JsBaseline).b21 = function (exerciseId, e1rmKg, date) {
   return new JsBaseline(exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).copy = function (exerciseId, e1rmKg, date, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   e1rmKg = e1rmKg === VOID ? this.e1rmKg : e1rmKg;
   date = date === VOID ? this.date : date;
-  return $super === VOID ? this.p1z(exerciseId, e1rmKg, date) : $super.p1z.call(this, exerciseId, e1rmKg, date);
+  return $super === VOID ? this.b21(exerciseId, e1rmKg, date) : $super.b21.call(this, exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).toString = function () {
   return 'JsBaseline(exerciseId=' + this.exerciseId + ', e1rmKg=' + this.e1rmKg + ', date=' + this.date + ')';
@@ -11738,55 +13193,55 @@ function JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJs
   this.status = status;
   this.payloadJson = payloadJson;
 }
-protoOf(JsAdvice).m1y = function () {
+protoOf(JsAdvice).y1z = function () {
   return this.id;
 };
-protoOf(JsAdvice).q1z = function () {
+protoOf(JsAdvice).c21 = function () {
   return this.type;
 };
-protoOf(JsAdvice).r1z = function () {
+protoOf(JsAdvice).d21 = function () {
   return this.lift;
 };
-protoOf(JsAdvice).s1z = function () {
+protoOf(JsAdvice).e21 = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).t1z = function () {
+protoOf(JsAdvice).f21 = function () {
   return this.reason;
 };
-protoOf(JsAdvice).u1z = function () {
+protoOf(JsAdvice).g21 = function () {
   return this.severity;
 };
-protoOf(JsAdvice).v1z = function () {
+protoOf(JsAdvice).h21 = function () {
   return this.status;
 };
-protoOf(JsAdvice).w1z = function () {
+protoOf(JsAdvice).i21 = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).va = function () {
+protoOf(JsAdvice).ya = function () {
   return this.id;
 };
-protoOf(JsAdvice).wa = function () {
+protoOf(JsAdvice).za = function () {
   return this.type;
 };
 protoOf(JsAdvice).jd = function () {
   return this.lift;
 };
-protoOf(JsAdvice).s1y = function () {
+protoOf(JsAdvice).e20 = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).t1y = function () {
+protoOf(JsAdvice).f20 = function () {
   return this.reason;
 };
-protoOf(JsAdvice).u1y = function () {
+protoOf(JsAdvice).g20 = function () {
   return this.severity;
 };
-protoOf(JsAdvice).v1y = function () {
+protoOf(JsAdvice).h20 = function () {
   return this.status;
 };
-protoOf(JsAdvice).x1z = function () {
+protoOf(JsAdvice).j21 = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).y1z = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
+protoOf(JsAdvice).k21 = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
   return new JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, status, payloadJson, $super) {
@@ -11798,7 +13253,7 @@ protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, 
   severity = severity === VOID ? this.severity : severity;
   status = status === VOID ? this.status : status;
   payloadJson = payloadJson === VOID ? this.payloadJson : payloadJson;
-  return $super === VOID ? this.y1z(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.y1z.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
+  return $super === VOID ? this.k21(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.k21.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).toString = function () {
   return 'JsAdvice(id=' + this.id + ', type=' + this.type + ', lift=' + this.lift + ', createdAt=' + this.createdAt + ', reason=' + this.reason + ', severity=' + this.severity + ', status=' + this.status + ', payloadJson=' + this.payloadJson + ')';
@@ -11842,32 +13297,32 @@ function JsHistory(sessions, exercises, baselines) {
   this.exercises = exercises;
   this.baselines = baselines;
 }
-protoOf(JsHistory).z1z = function () {
+protoOf(JsHistory).l21 = function () {
   return this.sessions;
 };
-protoOf(JsHistory).a20 = function () {
+protoOf(JsHistory).m21 = function () {
   return this.exercises;
 };
-protoOf(JsHistory).b20 = function () {
+protoOf(JsHistory).n21 = function () {
   return this.baselines;
 };
-protoOf(JsHistory).va = function () {
+protoOf(JsHistory).ya = function () {
   return this.sessions;
 };
-protoOf(JsHistory).wa = function () {
+protoOf(JsHistory).za = function () {
   return this.exercises;
 };
 protoOf(JsHistory).jd = function () {
   return this.baselines;
 };
-protoOf(JsHistory).c20 = function (sessions, exercises, baselines) {
+protoOf(JsHistory).o21 = function (sessions, exercises, baselines) {
   return new JsHistory(sessions, exercises, baselines);
 };
 protoOf(JsHistory).copy = function (sessions, exercises, baselines, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   exercises = exercises === VOID ? this.exercises : exercises;
   baselines = baselines === VOID ? this.baselines : baselines;
-  return $super === VOID ? this.c20(sessions, exercises, baselines) : $super.c20.call(this, sessions, exercises, baselines);
+  return $super === VOID ? this.o21(sessions, exercises, baselines) : $super.o21.call(this, sessions, exercises, baselines);
 };
 protoOf(JsHistory).toString = function () {
   return 'JsHistory(sessions=' + toString(this.sessions) + ', exercises=' + toString(this.exercises) + ', baselines=' + toString(this.baselines) + ')';
@@ -11895,25 +13350,25 @@ function JsCoachSettings(defaultRpe, changePlates) {
   this.defaultRpe = defaultRpe;
   this.changePlates = changePlates;
 }
-protoOf(JsCoachSettings).d20 = function () {
+protoOf(JsCoachSettings).p21 = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).e20 = function () {
+protoOf(JsCoachSettings).q21 = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).va = function () {
+protoOf(JsCoachSettings).ya = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).wa = function () {
+protoOf(JsCoachSettings).za = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).f20 = function (defaultRpe, changePlates) {
+protoOf(JsCoachSettings).r21 = function (defaultRpe, changePlates) {
   return new JsCoachSettings(defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).copy = function (defaultRpe, changePlates, $super) {
   defaultRpe = defaultRpe === VOID ? this.defaultRpe : defaultRpe;
   changePlates = changePlates === VOID ? this.changePlates : changePlates;
-  return $super === VOID ? this.f20(defaultRpe, changePlates) : $super.f20.call(this, defaultRpe, changePlates);
+  return $super === VOID ? this.r21(defaultRpe, changePlates) : $super.r21.call(this, defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).toString = function () {
   return 'JsCoachSettings(defaultRpe=' + this.defaultRpe + ', changePlates=' + this.changePlates + ')';
@@ -11938,25 +13393,25 @@ function JsWeeklyPoint(weekStart, value) {
   this.weekStart = weekStart;
   this.value = value;
 }
-protoOf(JsWeeklyPoint).g20 = function () {
+protoOf(JsWeeklyPoint).s21 = function () {
   return this.weekStart;
 };
 protoOf(JsWeeklyPoint).t = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).va = function () {
+protoOf(JsWeeklyPoint).ya = function () {
   return this.weekStart;
 };
-protoOf(JsWeeklyPoint).wa = function () {
+protoOf(JsWeeklyPoint).za = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).h20 = function (weekStart, value) {
+protoOf(JsWeeklyPoint).t21 = function (weekStart, value) {
   return new JsWeeklyPoint(weekStart, value);
 };
 protoOf(JsWeeklyPoint).copy = function (weekStart, value, $super) {
   weekStart = weekStart === VOID ? this.weekStart : weekStart;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.h20(weekStart, value) : $super.h20.call(this, weekStart, value);
+  return $super === VOID ? this.t21(weekStart, value) : $super.t21.call(this, weekStart, value);
 };
 protoOf(JsWeeklyPoint).toString = function () {
   return 'JsWeeklyPoint(weekStart=' + this.weekStart + ', value=' + this.value + ')';
@@ -11984,37 +13439,37 @@ function JsPr(date, e1rmKg, weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsPr).f1z = function () {
+protoOf(JsPr).r20 = function () {
   return this.date;
 };
-protoOf(JsPr).o1z = function () {
+protoOf(JsPr).a21 = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).y1y = function () {
+protoOf(JsPr).k20 = function () {
   return this.weightKg;
 };
-protoOf(JsPr).z1y = function () {
+protoOf(JsPr).l20 = function () {
   return this.reps;
 };
-protoOf(JsPr).a1z = function () {
+protoOf(JsPr).m20 = function () {
   return this.rpe;
 };
-protoOf(JsPr).va = function () {
+protoOf(JsPr).ya = function () {
   return this.date;
 };
-protoOf(JsPr).wa = function () {
+protoOf(JsPr).za = function () {
   return this.e1rmKg;
 };
 protoOf(JsPr).jd = function () {
   return this.weightKg;
 };
-protoOf(JsPr).s1y = function () {
+protoOf(JsPr).e20 = function () {
   return this.reps;
 };
-protoOf(JsPr).t1y = function () {
+protoOf(JsPr).f20 = function () {
   return this.rpe;
 };
-protoOf(JsPr).i20 = function (date, e1rmKg, weightKg, reps, rpe) {
+protoOf(JsPr).u21 = function (date, e1rmKg, weightKg, reps, rpe) {
   return new JsPr(date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
@@ -12023,7 +13478,7 @@ protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.i20(date, e1rmKg, weightKg, reps, rpe) : $super.i20.call(this, date, e1rmKg, weightKg, reps, rpe);
+  return $super === VOID ? this.u21(date, e1rmKg, weightKg, reps, rpe) : $super.u21.call(this, date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).toString = function () {
   return 'JsPr(date=' + this.date + ', e1rmKg=' + this.e1rmKg + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -12060,22 +13515,22 @@ function JsAccessoryOption(name, heavy) {
 protoOf(JsAccessoryOption).ar = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).j20 = function () {
+protoOf(JsAccessoryOption).v21 = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).va = function () {
+protoOf(JsAccessoryOption).ya = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).wa = function () {
+protoOf(JsAccessoryOption).za = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).k20 = function (name, heavy) {
+protoOf(JsAccessoryOption).w21 = function (name, heavy) {
   return new JsAccessoryOption(name, heavy);
 };
 protoOf(JsAccessoryOption).copy = function (name, heavy, $super) {
   name = name === VOID ? this.name : name;
   heavy = heavy === VOID ? this.heavy : heavy;
-  return $super === VOID ? this.k20(name, heavy) : $super.k20.call(this, name, heavy);
+  return $super === VOID ? this.w21(name, heavy) : $super.w21.call(this, name, heavy);
 };
 protoOf(JsAccessoryOption).toString = function () {
   return 'JsAccessoryOption(name=' + this.name + ', heavy=' + this.heavy + ')';
@@ -12102,31 +13557,31 @@ function JsRatioRange(numerator, denominator, low, high) {
   this.low = low;
   this.high = high;
 }
-protoOf(JsRatioRange).l20 = function () {
+protoOf(JsRatioRange).x21 = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).m20 = function () {
+protoOf(JsRatioRange).y21 = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).n20 = function () {
+protoOf(JsRatioRange).z21 = function () {
   return this.low;
 };
-protoOf(JsRatioRange).o20 = function () {
+protoOf(JsRatioRange).a22 = function () {
   return this.high;
 };
-protoOf(JsRatioRange).va = function () {
+protoOf(JsRatioRange).ya = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).wa = function () {
+protoOf(JsRatioRange).za = function () {
   return this.denominator;
 };
 protoOf(JsRatioRange).jd = function () {
   return this.low;
 };
-protoOf(JsRatioRange).s1y = function () {
+protoOf(JsRatioRange).e20 = function () {
   return this.high;
 };
-protoOf(JsRatioRange).p20 = function (numerator, denominator, low, high) {
+protoOf(JsRatioRange).b22 = function (numerator, denominator, low, high) {
   return new JsRatioRange(numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super) {
@@ -12134,7 +13589,7 @@ protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super
   denominator = denominator === VOID ? this.denominator : denominator;
   low = low === VOID ? this.low : low;
   high = high === VOID ? this.high : high;
-  return $super === VOID ? this.p20(numerator, denominator, low, high) : $super.p20.call(this, numerator, denominator, low, high);
+  return $super === VOID ? this.b22(numerator, denominator, low, high) : $super.b22.call(this, numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).toString = function () {
   return 'JsRatioRange(numerator=' + this.numerator + ', denominator=' + this.denominator + ', low=' + this.low + ', high=' + this.high + ')';
@@ -12167,31 +13622,31 @@ function JsPrescription(exerciseName, sets, repsLow, repsHigh) {
   this.repsLow = repsLow;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPrescription).q20 = function () {
+protoOf(JsPrescription).c22 = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).i1z = function () {
+protoOf(JsPrescription).u20 = function () {
   return this.sets;
 };
-protoOf(JsPrescription).r20 = function () {
+protoOf(JsPrescription).d22 = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).s20 = function () {
+protoOf(JsPrescription).e22 = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).va = function () {
+protoOf(JsPrescription).ya = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).wa = function () {
+protoOf(JsPrescription).za = function () {
   return this.sets;
 };
 protoOf(JsPrescription).jd = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).s1y = function () {
+protoOf(JsPrescription).e20 = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).t20 = function (exerciseName, sets, repsLow, repsHigh) {
+protoOf(JsPrescription).f22 = function (exerciseName, sets, repsLow, repsHigh) {
   return new JsPrescription(exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, $super) {
@@ -12199,7 +13654,7 @@ protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, 
   sets = sets === VOID ? this.sets : sets;
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.t20(exerciseName, sets, repsLow, repsHigh) : $super.t20.call(this, exerciseName, sets, repsLow, repsHigh);
+  return $super === VOID ? this.f22(exerciseName, sets, repsLow, repsHigh) : $super.f22.call(this, exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).toString = function () {
   return 'JsPrescription(exerciseName=' + this.exerciseName + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ')';
@@ -12259,70 +13714,70 @@ function JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, vol
 protoOf(JsAdvicePayload).re = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).x1y = function () {
+protoOf(JsAdvicePayload).j20 = function () {
   return this.exerciseId;
 };
-protoOf(JsAdvicePayload).y1y = function () {
+protoOf(JsAdvicePayload).k20 = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).z1y = function () {
+protoOf(JsAdvicePayload).l20 = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).a1z = function () {
+protoOf(JsAdvicePayload).m20 = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).i1z = function () {
+protoOf(JsAdvicePayload).u20 = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).u20 = function () {
+protoOf(JsAdvicePayload).g22 = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).v20 = function () {
+protoOf(JsAdvicePayload).h22 = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).w20 = function () {
+protoOf(JsAdvicePayload).i22 = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).r1z = function () {
+protoOf(JsAdvicePayload).d21 = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).c1z = function () {
+protoOf(JsAdvicePayload).o20 = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).va = function () {
+protoOf(JsAdvicePayload).ya = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).wa = function () {
+protoOf(JsAdvicePayload).za = function () {
   return this.exerciseId;
 };
 protoOf(JsAdvicePayload).jd = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).s1y = function () {
+protoOf(JsAdvicePayload).e20 = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).t1y = function () {
+protoOf(JsAdvicePayload).f20 = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).u1y = function () {
+protoOf(JsAdvicePayload).g20 = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).v1y = function () {
+protoOf(JsAdvicePayload).h20 = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).x1z = function () {
+protoOf(JsAdvicePayload).j21 = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).x20 = function () {
+protoOf(JsAdvicePayload).j22 = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).y20 = function () {
+protoOf(JsAdvicePayload).k22 = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).z20 = function () {
+protoOf(JsAdvicePayload).l22 = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).a21 = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) {
+protoOf(JsAdvicePayload).m22 = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) {
   return new JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
 };
 protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, $super) {
@@ -12337,7 +13792,7 @@ protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe,
   loadFactor = loadFactor === VOID ? this.loadFactor : loadFactor;
   lift = lift === VOID ? this.lift : lift;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
-  return $super === VOID ? this.a21(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) : $super.a21.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
+  return $super === VOID ? this.m22(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) : $super.m22.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
 };
 protoOf(JsAdvicePayload).toString = function () {
   return 'JsAdvicePayload(kind=' + this.kind + ', exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', sets=' + this.sets + ', items=' + toString(this.items) + ', volumeFactor=' + this.volumeFactor + ', loadFactor=' + this.loadFactor + ', lift=' + this.lift + ', missPoint=' + this.missPoint + ')';
@@ -12392,37 +13847,37 @@ function JsFormGuide(purpose, setup, steps, cues, mistakes) {
   this.cues = cues;
   this.mistakes = mistakes;
 }
-protoOf(JsFormGuide).b21 = function () {
+protoOf(JsFormGuide).n22 = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).c21 = function () {
+protoOf(JsFormGuide).o22 = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).d21 = function () {
+protoOf(JsFormGuide).p22 = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).e21 = function () {
+protoOf(JsFormGuide).q22 = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).f21 = function () {
+protoOf(JsFormGuide).r22 = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).va = function () {
+protoOf(JsFormGuide).ya = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).wa = function () {
+protoOf(JsFormGuide).za = function () {
   return this.setup;
 };
 protoOf(JsFormGuide).jd = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).s1y = function () {
+protoOf(JsFormGuide).e20 = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).t1y = function () {
+protoOf(JsFormGuide).f20 = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).g21 = function (purpose, setup, steps, cues, mistakes) {
+protoOf(JsFormGuide).s22 = function (purpose, setup, steps, cues, mistakes) {
   return new JsFormGuide(purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $super) {
@@ -12431,7 +13886,7 @@ protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $su
   steps = steps === VOID ? this.steps : steps;
   cues = cues === VOID ? this.cues : cues;
   mistakes = mistakes === VOID ? this.mistakes : mistakes;
-  return $super === VOID ? this.g21(purpose, setup, steps, cues, mistakes) : $super.g21.call(this, purpose, setup, steps, cues, mistakes);
+  return $super === VOID ? this.s22(purpose, setup, steps, cues, mistakes) : $super.s22.call(this, purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).toString = function () {
   return 'JsFormGuide(purpose=' + this.purpose + ', setup=' + toString(this.setup) + ', steps=' + toString(this.steps) + ', cues=' + toString(this.cues) + ', mistakes=' + toString(this.mistakes) + ')';
@@ -12465,25 +13920,25 @@ function JsRpeGuide(title, lines) {
   this.title = title;
   this.lines = lines;
 }
-protoOf(JsRpeGuide).h21 = function () {
+protoOf(JsRpeGuide).t22 = function () {
   return this.title;
 };
-protoOf(JsRpeGuide).i21 = function () {
+protoOf(JsRpeGuide).u22 = function () {
   return this.lines;
 };
-protoOf(JsRpeGuide).va = function () {
+protoOf(JsRpeGuide).ya = function () {
   return this.title;
 };
-protoOf(JsRpeGuide).wa = function () {
+protoOf(JsRpeGuide).za = function () {
   return this.lines;
 };
-protoOf(JsRpeGuide).j21 = function (title, lines) {
+protoOf(JsRpeGuide).v22 = function (title, lines) {
   return new JsRpeGuide(title, lines);
 };
 protoOf(JsRpeGuide).copy = function (title, lines, $super) {
   title = title === VOID ? this.title : title;
   lines = lines === VOID ? this.lines : lines;
-  return $super === VOID ? this.j21(title, lines) : $super.j21.call(this, title, lines);
+  return $super === VOID ? this.v22(title, lines) : $super.v22.call(this, title, lines);
 };
 protoOf(JsRpeGuide).toString = function () {
   return 'JsRpeGuide(title=' + this.title + ', lines=' + toString(this.lines) + ')';
@@ -12518,58 +13973,58 @@ function JsLibraryExercise(name, aliases, area, equipment, muscles, kind, catego
 protoOf(JsLibraryExercise).ar = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).k21 = function () {
+protoOf(JsLibraryExercise).w22 = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).l21 = function () {
+protoOf(JsLibraryExercise).x22 = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).m21 = function () {
+protoOf(JsLibraryExercise).y22 = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).p1y = function () {
+protoOf(JsLibraryExercise).b20 = function () {
   return this.muscles;
 };
 protoOf(JsLibraryExercise).re = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).n1y = function () {
+protoOf(JsLibraryExercise).z1z = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).o1y = function () {
+protoOf(JsLibraryExercise).a20 = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).n21 = function () {
+protoOf(JsLibraryExercise).z22 = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).va = function () {
+protoOf(JsLibraryExercise).ya = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).wa = function () {
+protoOf(JsLibraryExercise).za = function () {
   return this.aliases;
 };
 protoOf(JsLibraryExercise).jd = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).s1y = function () {
+protoOf(JsLibraryExercise).e20 = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).t1y = function () {
+protoOf(JsLibraryExercise).f20 = function () {
   return this.muscles;
 };
-protoOf(JsLibraryExercise).u1y = function () {
+protoOf(JsLibraryExercise).g20 = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).v1y = function () {
+protoOf(JsLibraryExercise).h20 = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).x1z = function () {
+protoOf(JsLibraryExercise).j21 = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).x20 = function () {
+protoOf(JsLibraryExercise).j22 = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).o21 = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
+protoOf(JsLibraryExercise).a23 = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
   return new JsLibraryExercise(name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide, $super) {
@@ -12582,7 +14037,7 @@ protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, musc
   category = category === VOID ? this.category : category;
   parentLift = parentLift === VOID ? this.parentLift : parentLift;
   guide = guide === VOID ? this.guide : guide;
-  return $super === VOID ? this.o21(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.o21.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
+  return $super === VOID ? this.a23(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.a23.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).toString = function () {
   return 'JsLibraryExercise(name=' + this.name + ', aliases=' + toString(this.aliases) + ', area=' + this.area + ', equipment=' + toString(this.equipment) + ', muscles=' + toString(this.muscles) + ', kind=' + this.kind + ', category=' + this.category + ', parentLift=' + this.parentLift + ', guide=' + this.guide.toString() + ')';
@@ -12630,31 +14085,31 @@ function JsFigureInfo(startCaption, endCaption, thumbnail, viewBox) {
   this.thumbnail = thumbnail;
   this.viewBox = viewBox;
 }
-protoOf(JsFigureInfo).p21 = function () {
+protoOf(JsFigureInfo).b23 = function () {
   return this.startCaption;
 };
-protoOf(JsFigureInfo).q21 = function () {
+protoOf(JsFigureInfo).c23 = function () {
   return this.endCaption;
 };
-protoOf(JsFigureInfo).r21 = function () {
+protoOf(JsFigureInfo).d23 = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).s21 = function () {
+protoOf(JsFigureInfo).e23 = function () {
   return this.viewBox;
 };
-protoOf(JsFigureInfo).va = function () {
+protoOf(JsFigureInfo).ya = function () {
   return this.startCaption;
 };
-protoOf(JsFigureInfo).wa = function () {
+protoOf(JsFigureInfo).za = function () {
   return this.endCaption;
 };
 protoOf(JsFigureInfo).jd = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).s1y = function () {
+protoOf(JsFigureInfo).e20 = function () {
   return this.viewBox;
 };
-protoOf(JsFigureInfo).t21 = function (startCaption, endCaption, thumbnail, viewBox) {
+protoOf(JsFigureInfo).f23 = function (startCaption, endCaption, thumbnail, viewBox) {
   return new JsFigureInfo(startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, viewBox, $super) {
@@ -12662,7 +14117,7 @@ protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, view
   endCaption = endCaption === VOID ? this.endCaption : endCaption;
   thumbnail = thumbnail === VOID ? this.thumbnail : thumbnail;
   viewBox = viewBox === VOID ? this.viewBox : viewBox;
-  return $super === VOID ? this.t21(startCaption, endCaption, thumbnail, viewBox) : $super.t21.call(this, startCaption, endCaption, thumbnail, viewBox);
+  return $super === VOID ? this.f23(startCaption, endCaption, thumbnail, viewBox) : $super.f23.call(this, startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).toString = function () {
   return 'JsFigureInfo(startCaption=' + this.startCaption + ', endCaption=' + this.endCaption + ', thumbnail=' + this.thumbnail + ', viewBox=' + toString(this.viewBox) + ')';
@@ -12696,7 +14151,7 @@ function JsFigureShape(kind, role) {
 protoOf(JsFigureShape).re = function () {
   return this.kind;
 };
-protoOf(JsFigureShape).u21 = function () {
+protoOf(JsFigureShape).g23 = function () {
   return this.role;
 };
 function JsFigureCircle(role, cx, cy, r) {
@@ -12705,13 +14160,13 @@ function JsFigureCircle(role, cx, cy, r) {
   this.cy = cy;
   this.r = r;
 }
-protoOf(JsFigureCircle).v21 = function () {
+protoOf(JsFigureCircle).h23 = function () {
   return this.cx;
 };
-protoOf(JsFigureCircle).w21 = function () {
+protoOf(JsFigureCircle).i23 = function () {
   return this.cy;
 };
-protoOf(JsFigureCircle).x21 = function () {
+protoOf(JsFigureCircle).j23 = function () {
   return this.r;
 };
 function JsFigureCapsule(role, x1, y1, x2, y2, width) {
@@ -12722,19 +14177,19 @@ function JsFigureCapsule(role, x1, y1, x2, y2, width) {
   this.y2 = y2;
   this.width = width;
 }
-protoOf(JsFigureCapsule).y21 = function () {
+protoOf(JsFigureCapsule).k23 = function () {
   return this.x1;
 };
-protoOf(JsFigureCapsule).z21 = function () {
+protoOf(JsFigureCapsule).l23 = function () {
   return this.y1;
 };
-protoOf(JsFigureCapsule).a22 = function () {
+protoOf(JsFigureCapsule).m23 = function () {
   return this.x2;
 };
-protoOf(JsFigureCapsule).b22 = function () {
+protoOf(JsFigureCapsule).n23 = function () {
   return this.y2;
 };
-protoOf(JsFigureCapsule).t1t = function () {
+protoOf(JsFigureCapsule).k1u = function () {
   return this.width;
 };
 function JsFigureRect(role, x, y, w, h, radius) {
@@ -12745,26 +14200,26 @@ function JsFigureRect(role, x, y, w, h, radius) {
   this.h = h;
   this.radius = radius;
 }
-protoOf(JsFigureRect).c22 = function () {
+protoOf(JsFigureRect).o23 = function () {
   return this.x;
 };
-protoOf(JsFigureRect).d22 = function () {
+protoOf(JsFigureRect).p23 = function () {
   return this.y;
 };
-protoOf(JsFigureRect).e22 = function () {
+protoOf(JsFigureRect).q23 = function () {
   return this.w;
 };
-protoOf(JsFigureRect).f22 = function () {
+protoOf(JsFigureRect).r23 = function () {
   return this.h;
 };
-protoOf(JsFigureRect).g22 = function () {
+protoOf(JsFigureRect).s23 = function () {
   return this.radius;
 };
 function JsFigurePolygon(role, points) {
   JsFigureShape.call(this, 'polygon', role);
   this.points = points;
 }
-protoOf(JsFigurePolygon).h22 = function () {
+protoOf(JsFigurePolygon).t23 = function () {
   return this.points;
 };
 function toFacadeId(_this__u8e3s4, field) {
@@ -12816,7 +14271,7 @@ function parseLift(field, text) {
     while (inductionVariable < last) {
       var element = tmp0[inductionVariable];
       inductionVariable = inductionVariable + 1 | 0;
-      if (element.s1_1 === text) {
+      if (element.v1_1 === text) {
         tmp$ret$2 = element;
         break $l$block;
       }
@@ -12850,7 +14305,7 @@ function toDomain(_this__u8e3s4) {
     while (inductionVariable < last) {
       var element = tmp0_0[inductionVariable];
       inductionVariable = inductionVariable + 1 | 0;
-      if (element.s1_1 === text) {
+      if (element.v1_1 === text) {
         tmp$ret$2 = element;
         break $l$block;
       }
@@ -12881,11 +14336,11 @@ function toJs(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp = toFacadeId(_this__u8e3s4.j14_1, 'exercise.id');
   var tmp0_safe_receiver = _this__u8e3s4.m14_1;
-  var tmp_0 = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.s1_1;
+  var tmp_0 = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.v1_1;
   // Inline function 'kotlin.collections.toTypedArray' call
   var this_0 = _this__u8e3s4.n14_1;
   var tmp$ret$0 = copyToArray(this_0);
-  return new JsExercise(tmp, _this__u8e3s4.k14_1, _this__u8e3s4.l14_1.s1_1, tmp_0, tmp$ret$0, _this__u8e3s4.o14_1, _this__u8e3s4.p14_1);
+  return new JsExercise(tmp, _this__u8e3s4.k14_1, _this__u8e3s4.l14_1.v1_1, tmp_0, tmp$ret$0, _this__u8e3s4.o14_1, _this__u8e3s4.p14_1);
 }
 function toDomain_0(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -12908,7 +14363,7 @@ function toDomain_0(_this__u8e3s4) {
       while (inductionVariable < last) {
         var element = tmp0[inductionVariable];
         inductionVariable = inductionVariable + 1 | 0;
-        if (element.s1_1 === tmp0_safe_receiver) {
+        if (element.v1_1 === tmp0_safe_receiver) {
           tmp$ret$4 = element;
           break $l$block;
         }
@@ -12989,7 +14444,7 @@ function toDomain_4(_this__u8e3s4) {
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
     var tmp$ret$8 = element.j14_1;
-    destination_1.i2(tmp$ret$8, element);
+    destination_1.l2(tmp$ret$8, element);
   }
   var tmp_0 = destination_1;
   // Inline function 'kotlin.collections.map' call
@@ -13014,7 +14469,7 @@ function toDomain_6(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   try {
-    tmp = get_androidJson().xt(Companion_instance_13.i1x(), _this__u8e3s4.payloadJson);
+    tmp = get_androidJson().xt(Companion_instance_14.u1y(), _this__u8e3s4.payloadJson);
   } catch ($p) {
     var tmp_0;
     if ($p instanceof SerializationException) {
@@ -13038,7 +14493,7 @@ function toDomain_6(_this__u8e3s4) {
     while (inductionVariable < last) {
       var element = tmp0_0[inductionVariable];
       inductionVariable = inductionVariable + 1 | 0;
-      if (element.s1_1 === text) {
+      if (element.v1_1 === text) {
         tmp$ret$2 = element;
         break $l$block;
       }
@@ -13078,7 +14533,7 @@ function toDomain_6(_this__u8e3s4) {
     while (inductionVariable_0 < last_0) {
       var element_0 = tmp0_2[inductionVariable_0];
       inductionVariable_0 = inductionVariable_0 + 1 | 0;
-      if (element_0.s1_1 === text_0) {
+      if (element_0.v1_1 === text_0) {
         tmp$ret$9 = element_0;
         break $l$block_0;
       }
@@ -13101,11 +14556,11 @@ function toJs_0(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp = toFacadeId(_this__u8e3s4.y13_1, 'advice.id');
   var tmp0_safe_receiver = _this__u8e3s4.s13_1;
-  return new JsAdvice(tmp, _this__u8e3s4.r13_1.s1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.s1_1, _this__u8e3s4.t13_1.toString(), _this__u8e3s4.u13_1, _this__u8e3s4.v13_1, _this__u8e3s4.x13_1.s1_1, get_androidJson().wt(Companion_instance_13.i1x(), _this__u8e3s4.w13_1));
+  return new JsAdvice(tmp, _this__u8e3s4.r13_1.v1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.v1_1, _this__u8e3s4.t13_1.toString(), _this__u8e3s4.u13_1, _this__u8e3s4.v13_1, _this__u8e3s4.x13_1.v1_1, get_androidJson().wt(Companion_instance_14.u1y(), _this__u8e3s4.w13_1));
 }
 function toJs_1(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return new JsPr(_this__u8e3s4.o1x_1.toString(), _this__u8e3s4.p1x_1, _this__u8e3s4.q1x_1, _this__u8e3s4.r1x_1, _this__u8e3s4.s1x_1);
+  return new JsPr(_this__u8e3s4.a1z_1.toString(), _this__u8e3s4.b1z_1, _this__u8e3s4.c1z_1, _this__u8e3s4.d1z_1, _this__u8e3s4.e1z_1);
 }
 function toJs_2(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -13115,13 +14570,13 @@ function toJs_3(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp = toFacadeId(_this__u8e3s4.d16_1, 'set.exerciseId');
   var tmp0_safe_receiver = _this__u8e3s4.i16_1;
-  return new JsSet(tmp, _this__u8e3s4.e16_1, _this__u8e3s4.f16_1, _this__u8e3s4.g16_1, _this__u8e3s4.h16_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.s1_1, _this__u8e3s4.j16_1);
+  return new JsSet(tmp, _this__u8e3s4.e16_1, _this__u8e3s4.f16_1, _this__u8e3s4.g16_1, _this__u8e3s4.h16_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.v1_1, _this__u8e3s4.j16_1);
 }
 function decodePayload(payloadJson) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   try {
-    tmp = get_androidJson().xt(Companion_instance_13.i1x(), payloadJson);
+    tmp = get_androidJson().xt(Companion_instance_14.u1y(), payloadJson);
   } catch ($p) {
     var tmp_0;
     if ($p instanceof IllegalArgumentException) {
@@ -13138,13 +14593,13 @@ function decodePayload(payloadJson) {
   } else {
     if (payload instanceof Accessories) {
       // Inline function 'kotlin.collections.map' call
-      var this_0 = payload.x1w_1;
+      var this_0 = payload.j1y_1;
       // Inline function 'kotlin.collections.mapTo' call
       var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
       var _iterator__ex2g4s = this_0.j();
       while (_iterator__ex2g4s.k()) {
         var item = _iterator__ex2g4s.l();
-        var tmp$ret$2 = new JsPrescription(item.o1w_1, item.p1w_1, item.q1w_1, item.r1w_1);
+        var tmp$ret$2 = new JsPrescription(item.a1y_1, item.b1y_1, item.c1y_1, item.d1y_1);
         destination.i(tmp$ret$2);
       }
       // Inline function 'kotlin.collections.toTypedArray' call
@@ -13155,8 +14610,8 @@ function decodePayload(payloadJson) {
         tmp_1 = new JsAdvicePayload('Deload', VOID, VOID, VOID, VOID, VOID, VOID, payload.t15_1, payload.u15_1);
       } else {
         if (payload instanceof WeakPoint) {
-          var tmp1_safe_receiver = payload.e1x_1;
-          tmp_1 = new JsAdvicePayload('WeakPoint', VOID, VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.d1x_1.s1_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.s1_1);
+          var tmp1_safe_receiver = payload.q1y_1;
+          tmp_1 = new JsAdvicePayload('WeakPoint', VOID, VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.p1y_1.v1_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.v1_1);
         } else {
           if (payload instanceof ReEntry) {
             tmp_1 = new JsAdvicePayload('ReEntry', VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.c14_1);
@@ -13197,7 +14652,7 @@ function toJs_5(_this__u8e3s4) {
   var _iterator__ex2g4s = this_1.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$3 = item.s1_1;
+    var tmp$ret$3 = item.v1_1;
     destination.i(tmp$ret$3);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -13206,25 +14661,25 @@ function toJs_5(_this__u8e3s4) {
   var this_2 = _this__u8e3s4.k19_1;
   var tmp_1 = copyToArray(this_2);
   var tmp0_safe_receiver = _this__u8e3s4.n19_1;
-  return new JsLibraryExercise(_this__u8e3s4.g19_1, tmp, _this__u8e3s4.i19_1.s1_1, tmp_0, tmp_1, _this__u8e3s4.l19_1.s1_1, _this__u8e3s4.m19_1.s1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.s1_1, toJs_4(_this__u8e3s4.o19_1));
+  return new JsLibraryExercise(_this__u8e3s4.g19_1, tmp, _this__u8e3s4.i19_1.v1_1, tmp_0, tmp_1, _this__u8e3s4.l19_1.v1_1, _this__u8e3s4.m19_1.v1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.v1_1, toJs_4(_this__u8e3s4.o19_1));
 }
 function toJs_6(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   if (_this__u8e3s4 instanceof Circle) {
-    tmp = new JsFigureCircle(_this__u8e3s4.f1t_1.s1_1, _this__u8e3s4.g1t_1, _this__u8e3s4.h1t_1, _this__u8e3s4.i1t_1);
+    tmp = new JsFigureCircle(_this__u8e3s4.w1t_1.v1_1, _this__u8e3s4.x1t_1, _this__u8e3s4.y1t_1, _this__u8e3s4.z1t_1);
   } else {
     if (_this__u8e3s4 instanceof Capsule) {
-      tmp = new JsFigureCapsule(_this__u8e3s4.g1s_1.s1_1, _this__u8e3s4.h1s_1, _this__u8e3s4.i1s_1, _this__u8e3s4.j1s_1, _this__u8e3s4.k1s_1, _this__u8e3s4.l1s_1);
+      tmp = new JsFigureCapsule(_this__u8e3s4.x1s_1.v1_1, _this__u8e3s4.y1s_1, _this__u8e3s4.z1s_1, _this__u8e3s4.a1t_1, _this__u8e3s4.b1t_1, _this__u8e3s4.c1t_1);
     } else {
       if (_this__u8e3s4 instanceof RoundRect) {
-        tmp = new JsFigureRect(_this__u8e3s4.r1r_1.s1_1, _this__u8e3s4.s1r_1, _this__u8e3s4.t1r_1, _this__u8e3s4.u1r_1, _this__u8e3s4.v1r_1, _this__u8e3s4.w1r_1);
+        tmp = new JsFigureRect(_this__u8e3s4.i1s_1.v1_1, _this__u8e3s4.j1s_1, _this__u8e3s4.k1s_1, _this__u8e3s4.l1s_1, _this__u8e3s4.m1s_1, _this__u8e3s4.n1s_1);
       } else {
         if (_this__u8e3s4 instanceof Polygon) {
           // Inline function 'kotlin.collections.toTypedArray' call
-          var this_0 = _this__u8e3s4.e1t_1;
+          var this_0 = _this__u8e3s4.v1t_1;
           var tmp$ret$0 = copyToArray(this_0);
-          tmp = new JsFigurePolygon(_this__u8e3s4.d1t_1.s1_1, tmp$ret$0);
+          tmp = new JsFigurePolygon(_this__u8e3s4.u1t_1.v1_1, tmp$ret$0);
         } else {
           noWhenBranchMatchedException();
         }
@@ -13235,23 +14690,23 @@ function toJs_6(_this__u8e3s4) {
 }
 function parseLift$lambda(it) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return it.s1_1;
+  return it.v1_1;
 }
 function toDomain$lambda(it) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return it.s1_1;
+  return it.v1_1;
 }
 function toDomain$lambda_0(it) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return it.s1_1;
+  return it.v1_1;
 }
 function toDomain$lambda_1(it) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return it.s1_1;
+  return it.v1_1;
 }
 function toDomain$lambda_2(it) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return it.s1_1;
+  return it.v1_1;
 }
 var properties_initialized_JsTypes_kt_rmu9k0;
 function _init_properties_JsTypes_kt__uiuq2m() {
@@ -13275,18 +14730,21 @@ Reach_instance = new Reach();
 Floor_instance = new Floor();
 Companion_instance = new Companion();
 Companion_instance_0 = new Companion_0();
+SafetySquatBar_instance = new SafetySquatBar();
+TrapBar_instance = new TrapBar();
 Companion_instance_1 = new Companion_1();
-LatBar_instance = new LatBar();
 Companion_instance_2 = new Companion_2();
+LatBar_instance = new LatBar();
 Companion_instance_3 = new Companion_3();
 Companion_instance_4 = new Companion_4();
 Companion_instance_5 = new Companion_5();
 Companion_instance_6 = new Companion_6();
 Companion_instance_7 = new Companion_7();
 Companion_instance_8 = new Companion_8();
-Companion_instance_10 = new Companion_10();
-Companion_instance_12 = new Companion_12();
+Companion_instance_9 = new Companion_9();
+Companion_instance_11 = new Companion_11();
 Companion_instance_13 = new Companion_13();
+Companion_instance_14 = new Companion_14();
 HighReps_instance = new HighReps();
 InputValidator_instance = new InputValidator();
 GritDomain_instance = new GritDomain();

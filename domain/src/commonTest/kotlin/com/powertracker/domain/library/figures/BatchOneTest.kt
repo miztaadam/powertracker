@@ -80,7 +80,7 @@ class BatchOneTest {
         val f = figure("Strict press")
         val s = f.start.pose.skeleton()
         val bar = Barbell().center(s)
-        assertTrue(bar.x - s.near.shoulder.x in 6.0..11.0, "bar ${bar.x - s.near.shoulder.x} cm in front of the shoulder")
+        assertTrue(bar.x - s.near.shoulder.x in 7.0..10.5, "bar ${bar.x - s.near.shoulder.x} cm in front of the shoulder")
         assertTrue(bar.y > s.chin().y, "bar below the chin")
     }
 
@@ -95,6 +95,8 @@ class BatchOneTest {
         val s = figure("DB shoulder press").start.pose.skeleton()
         assertEquals(s.near.elbow.x, s.near.grip.x, 0.5, "dumbbell over the elbow")
         assertTrue(s.near.grip.y < s.near.shoulder.y && s.near.elbow.y > s.near.shoulder.y, "elbow below, dumbbell above the shoulder")
+        // Drawn in front of the shoulder joint (13 cm, so the forearm clears the face), not far out in front.
+        assertTrue(s.near.grip.x - s.near.shoulder.x in 8.0..16.0, "dumbbell ${s.near.grip.x - s.near.shoulder.x} cm in front of the shoulder")
     }
 
     @Test
@@ -141,7 +143,10 @@ class BatchOneTest {
         val s = end.skeleton()
         val t = s.near.shoulder - s.near.hip
         val lineY = s.near.hip.y + t.y * ((s.near.grip.x - s.near.hip.x) / t.x)
-        assertTrue(s.near.grip.y - lineY in 0.0..22.0, "dumbbell ${s.near.grip.y - lineY} cm under the torso line")
+        assertTrue(s.near.grip.y - lineY in 0.0..21.0, "dumbbell ${s.near.grip.y - lineY} cm under the torso line")
+        // The elbow is pulled up past the back: more than 8 cm above the torso line.
+        val elbowLineY = s.near.hip.y + t.y * ((s.near.elbow.x - s.near.hip.x) / t.x)
+        assertTrue(elbowLineY - s.near.elbow.y > 8.0, "elbow ${elbowLineY - s.near.elbow.y} cm above the torso line")
     }
 
     @Test

@@ -111,4 +111,51 @@ class BodyTest {
         assertEquals(2, JointLimits.problems(Pose(0.0, -100.0, nearArm = Arm(10.0, 170.0), nearLeg = Leg(0.0, 0.0)), View.SIDE).size) // near and far
         assertEquals(2, JointLimits.problems(Pose(0.0, -100.0, nearArm = Arm(0.0, 0.0, out = 95.0), nearLeg = Leg(0.0, 0.0)), View.SIDE).size)
     }
+    @Test
+    fun forearmAndThighOutOfThePlane_drawnShorter_limitsOnTheTrueAngles() {
+        val straight = Pose(0.0, -90.0, nearArm = Arm(90.0, 0.0, out = 20.0, forearmOut = 20.0), nearLeg = Leg(0.0, 0.0))
+        val s = straight.skeleton()
+        val reach = Segment.UPPER_ARM.length + Segment.FOREARM.length + Segment.HAND.length
+        assertEquals(reach * kotlin.math.cos(20.0 * kotlin.math.PI / 180), (s.near.hand - s.near.shoulder).length(), 1e-6)
+        // A straight arm out of the plane is still straight: its true elbow is 0.
+        assertEquals(0.0, JointLimits.trueElbow(straight.nearArm), 1e-6)
+        assertEquals(emptyList(), JointLimits.problems(straight, View.SIDE))
+        assertTrue(JointLimits.problems(straight.copy(nearArm = Arm(90.0, 0.0, forearmOut = 95.0)), View.SIDE).any { "forearm" in it })
+        // The front view ignores it.
+        val front = straight.skeleton(View.FRONT)
+        assertEquals(reach, (front.near.hand - front.near.shoulder).length(), 1e-6)
+
+        val wide = Pose(0.0, -90.0, nearArm = Arm(0.0, 0.0), nearLeg = Leg(90.0, 90.0, out = 40.0))
+        val w = wide.skeleton()
+        assertEquals(Segment.THIGH.length * kotlin.math.cos(40.0 * kotlin.math.PI / 180), (w.near.knee - w.near.hip).length(), 1e-6)
+        assertEquals(Segment.SHIN.length, (w.near.ankle - w.near.knee).length(), 1e-6) // the shin stays in the plane
+        assertEquals(emptyList(), JointLimits.problems(wide, View.SIDE))
+        // Beyond the 40° hip abduction range is reported.
+        val tooWide = JointLimits.problems(wide.copy(nearLeg = Leg(90.0, 90.0, out = 45.0)), View.SIDE)
+        assertEquals(1, tooWide.size, tooWide.toString())
+        assertTrue(tooWide.single().startsWith("near hip abduction"), tooWide.toString())
+    }
+
+    @Test
+    fun frontView_leanAndThighTowardsTheCamera_drawnShorter_limitsOnTheTrueAngles() {
+        // A sumo-like set-up seen from the front: the torso leaning 40° towards the camera, the thighs drawn near level.
+        val leg = Leg(hip = 85.0, knee = 85.0, out = 50.0)
+        val pose = Pose(0.0, -50.0, 90.0, nearArm = Arm(0.0, 0.0), nearLeg = leg, lean = 40.0)
+        val s = pose.skeleton(View.FRONT)
+        assertEquals(Segment.TORSO.length * kotlin.math.cos(40.0 * kotlin.math.PI / 180), s.pelvis.y - s.shoulder.y, 1e-6)
+        assertEquals(Segment.THIGH.length * kotlin.math.cos(50.0 * kotlin.math.PI / 180), (s.near.knee - s.near.hip).length(), 1e-6)
+        // The side view ignores the lean.
+        assertEquals(Segment.TORSO.length, (pose.skeleton().shoulder - pose.skeleton().pelvis).length(), 1e-6)
+        // Drawn 85° out, the true abduction is about 40°; the hip flexion is the 3D trunk–thigh angle.
+        assertEquals(39.8, JointLimits.trueAbduction(leg, View.FRONT), 0.1)
+        assertEquals(0.0, JointLimits.trueFrontHipFlexion(Leg(0.0, 0.0), 0.0), 1e-6)
+        assertEquals(90.0, JointLimits.trueFrontHipFlexion(Leg(0.0, 0.0, out = 90.0), 0.0), 1e-6)
+        assertEquals(emptyList(), JointLimits.problems(pose, View.FRONT))
+        // Too far out of the middle plane is reported, though the drawn hip angle is not checked on its own.
+        val wide = JointLimits.problems(pose.copy(nearLeg = leg.copy(out = 30.0), farLeg = leg), View.FRONT)
+        assertTrue(wide.single().startsWith("near hip abduction"), wide.toString())
+        // Leaning far over a thigh pointed at the camera folds the hip past its range.
+        val folded = JointLimits.problems(pose.copy(nearLeg = Leg(0.0, 0.0, out = 89.0), farLeg = Leg(0.0, 0.0), lean = 60.0), View.FRONT)
+        assertTrue(folded.single().startsWith("near hip flexion"), folded.toString())
+    }
 }

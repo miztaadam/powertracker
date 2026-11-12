@@ -12,13 +12,33 @@ data class Scene(val pose: Pose, val props: List<Prop>)
 /** Named places on the body that contacts and key checks refer to. Plural points mean both sides. */
 enum class BodyPoint {
     HEAD, CHEST, UPPER_CHEST, UPPER_BACK, HIPS, THIGHS, KNEES, NEAR_KNEE, FAR_KNEE, FEET, NEAR_FOOT, FAR_FOOT, HANDS, NEAR_HAND, FAR_HAND,
+
+    /** The back of the elbows (both sides): a floor press's upper arms on the floor. */
+    ELBOWS,
 }
 
 /**
  * A surface of the kit that the body rests on, pushes or holds. A [grip] surface is held: the hands wrap around it,
  * so a hand contact there is measured from the grip point and may sit inside it.
  */
-enum class Surface(val grip: Boolean = false) { FLOOR, BENCH, SEAT, THIGH_PAD, BACK_PAD, FOOT_PLATE, PULL_UP_BAR(grip = true) }
+enum class Surface(val grip: Boolean = false) {
+    FLOOR, BENCH, SEAT, THIGH_PAD, BACK_PAD, FOOT_PLATE, PULL_UP_BAR(grip = true),
+
+    /** The top of a squat box. */
+    BOX,
+
+    /** The top of a deficit platform. */
+    PLATFORM,
+
+    /** The top of the pulling blocks under a bar's plates. */
+    BLOCK,
+
+    /** The top of the bench-press boards on the chest. */
+    BOARD,
+
+    /** The top of a power rack's safety arms (the pins). */
+    SAFETY_ARM,
+}
 
 /** [point] rests on [surface] (within the contact tolerance) in the panels in [at]. */
 data class Contact(val point: BodyPoint, val surface: Surface, val at: Set<Which>)
@@ -48,6 +68,30 @@ data class BarNearLegs(val within: Double, override val at: Which = Which.START)
 
 /** The chin is above the top of the pull-up bar (pull-up: "until your chin clears the bar"). */
 data class ChinOverBar(val margin: Double = 4.0, override val at: Which = Which.END) : KeyCheck
+
+/**
+ * The bar is held still [min]..[max] cm above [point], not touching it (Spoto press: "stop it just above your chest").
+ * Measured from the bar shaft's surface to the point, like [BarTouches].
+ */
+data class BarAbove(val point: BodyPoint, val min: Double, val max: Double, override val at: Which = Which.START) : KeyCheck
+
+/**
+ * The bar rests on [surface]: the shaft on the safety arms (pin press, pin squat) or the boards (board press), the
+ * plates' rims on the blocks (block pull), within the contact tolerance.
+ */
+data class BarRestsOn(val surface: Surface, override val at: Which = Which.START) : KeyCheck
+
+/**
+ * A trap bar's handles are beside the legs: the grip within [within] cm, front to back, of the near leg's centre line
+ * at the grip's height (trap-bar deadlift: the hands at your sides, not in front of the shins).
+ */
+data class HandlesBesideLegs(val within: Double, override val at: Which = Which.START) : KeyCheck
+
+/**
+ * Front view: both hands are between the knees, clear of them (sumo deadlift: "grip the bar between your legs"):
+ * each grip at least the hand's and shin's half-widths inside its own side's knee.
+ */
+data class HandsInsideKnees(override val at: Which = Which.START) : KeyCheck
 
 /** One exercise's two-pose picture. Keyed by catalogue name in [Figures]. */
 data class ExerciseFigure(
@@ -91,6 +135,7 @@ internal fun Skeleton.probes(point: BodyPoint): List<Probe> {
         BodyPoint.HANDS -> Side.entries.map(::hand)
         BodyPoint.NEAR_HAND -> listOf(hand(Side.NEAR))
         BodyPoint.FAR_HAND -> listOf(hand(Side.FAR))
+        BodyPoint.ELBOWS -> Side.entries.map { s -> side(s).elbow.let { Probe("${s.label} elbow", it, it, Body.UPPER_ARM_WIDTH / 2) } }
     }
 }
 
