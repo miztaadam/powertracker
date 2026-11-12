@@ -13,6 +13,7 @@ import com.powertracker.domain.coach.AccessoryMap
 import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.library.Library
 import com.powertracker.domain.model.AccessoryPrescription
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
@@ -134,13 +135,20 @@ class CoachViewModel(
         return flagged ?: known.firstOrNull().takeUnless { flaggedOnly }
     }
 
-    /** The first two options for the weak point that are in the library and not in the plan yet, dosed like a stall card's. */
+    /**
+     * The first two options for the weak point that are not in the plan yet, dosed like a stall card's. An option is the
+     * lifter's row of that name, else the catalogue entry, whose row Apply adds (strict press accessories are not seeded).
+     */
     private fun weakPointAdditions(payload: AdvicePayload.WeakPoint, plan: List<PlanItem>, exercises: List<Exercise>): List<AccessoryPrescription> {
         val planned = plan.map { it.exerciseId }.toSet()
         return AccessoryMap.options(payload.lift, payload.missPoint)
-            .mapNotNull { option -> exercises.find(option.exerciseName)?.takeIf { it.id !in planned }?.let { it to option.heavy } }
+            .mapNotNull { option ->
+                val row = exercises.find(option.exerciseName)
+                val name = row?.name ?: Library.find(option.exerciseName)?.name ?: return@mapNotNull null
+                if (row != null && row.id in planned) null else name to option.heavy
+            }
             .take(WEAK_POINT_ADDITIONS)
-            .map { (exercise, heavy) -> if (heavy) AccessoryPrescription(exercise.name, 3, 3, 5) else AccessoryPrescription(exercise.name, 3, 8, 10) }
+            .map { (name, heavy) -> if (heavy) AccessoryPrescription(name, 3, 3, 5) else AccessoryPrescription(name, 3, 8, 10) }
     }
 
     /** Carries out the advice: accessories go into the plan; a deload or re-entry only needs to be accepted. */
@@ -177,7 +185,11 @@ class CoachViewModel(
         }
     }
 
-    /** Adds the prescriptions to the day that trains [lift], skipping any already there. Returns what to tell the lifter. */
+    /**
+     * Adds the prescriptions to the day that trains [lift], skipping any already there and any name that is neither a
+     * row nor in the catalogue. A catalogue exercise without a row gets one, in the same transaction as the plan items.
+     * Returns what to tell the lifter.
+     */
     private suspend fun addToPlan(lift: MainLift?, prescriptions: List<AccessoryPrescription>): String {
         val exercises = training.exercises().first()
         val plan = training.plan().first()
@@ -186,12 +198,17 @@ class CoachViewModel(
         val onDay = plan.filter { it.weekday == day }
         val taken = onDay.map { it.exerciseId }.toMutableSet()
         var order = (onDay.maxOfOrNull { it.order } ?: -1) + 1
-        var added = 0
-        for (p in prescriptions) {
-            val exercise = exercises.find(p.exerciseName) ?: continue
-            if (!taken.add(exercise.id)) continue
-            training.savePlanItem(PlanItem(0, day, exercise.id, sets = p.sets, reps = p.repsHigh, targetRpe = current.defaultRpe, order = order++))
-            added++
+        val added = training.inTransaction {
+            var count = 0
+            for (p in prescriptions) {
+                val exerciseId = exercises.find(p.exerciseName)?.id
+                    ?: Library.find(p.exerciseName)?.let { training.resolveCatalogue(it.name) }
+                    ?: continue
+                if (!taken.add(exerciseId)) continue
+                training.savePlanItem(PlanItem(0, day, exerciseId, sets = p.sets, reps = p.repsHigh, targetRpe = current.defaultRpe, order = order++))
+                count++
+            }
+            count
         }
         val dayName = day.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
         return when (added) {

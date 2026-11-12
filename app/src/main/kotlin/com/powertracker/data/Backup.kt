@@ -8,6 +8,7 @@ import com.powertracker.data.db.ExerciseEntity
 import com.powertracker.data.db.PlanItemEntity
 import com.powertracker.data.db.SessionEntity
 import com.powertracker.data.db.SetEntity
+import com.powertracker.data.db.StrictPressUpgrade
 import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
@@ -36,16 +37,18 @@ data class BackupSettings(
     val restAlert: String = RestAlert.VIBRATE.name,
     /** Written by the web app; an opaque string Android stores and returns untouched. Absent means unset. */
     val webRestAlert: String? = null,
+    /** Version 2. A version-1 file has none, which means off. */
+    val showStrictPress: Boolean = false,
 ) {
     fun toAppSettings() = AppSettings(
         changePlates, defaultRpe, trainingDays.map { DayOfWeek(it) }.toSet(), appLock, restMainSec, restAccessorySec,
-        RestAlert.valueOf(restAlert), webRestAlert,
+        RestAlert.valueOf(restAlert), webRestAlert, showStrictPress,
     )
 
     companion object {
         fun of(s: AppSettings) = BackupSettings(
             s.changePlates, s.defaultRpe, s.trainingDays.sorted().map { it.isoDayNumber }, s.appLock, s.restMainSec, s.restAccessorySec,
-            s.restAlert.name, s.webRestAlert,
+            s.restAlert.name, s.webRestAlert, s.showStrictPress,
         )
     }
 }
@@ -115,20 +118,22 @@ sealed interface BackupResult {
 }
 
 object Backup {
-    const val VERSION = 1
+    /** 2: the strict press release (category STRICT_PRESS, `settings.showStrictPress`). Version 1 files still restore. */
+    const val VERSION = 2
 
     private val strict = Json { ignoreUnknownKeys = false }
     private val writer = Json { encodeDefaults = true }
 
     fun encode(file: BackupFile): String = writer.encodeToString(BackupFile.serializer(), file)
 
-    fun decode(text: String): BackupResult {
+    /** [supportedVersion] is the newest version this app reads; tests lower it to stand in for an older app. */
+    fun decode(text: String, supportedVersion: Int = VERSION): BackupResult {
         try {
             val root = strict.parseToJsonElement(text) as? JsonObject
                 ?: return BackupResult.Corrupt("Not a backup file")
             val v = (root["version"] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull
             if (v == null || v <= 0) return BackupResult.Corrupt("Missing or invalid version")
-            if (v > VERSION) return BackupResult.TooNew(v)
+            if (v > supportedVersion) return BackupResult.TooNew(v)
             val file = strict.decodeFromJsonElement(BackupFile.serializer(), root)
             // Reject bad enum names / out-of-range weekdays here rather than at restore time.
             file.exercises.forEach { it.toEntity() }
@@ -171,10 +176,14 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
         }
     }
 
-    /** Replaces all data in one transaction; any failure rolls back and leaves existing data untouched. */
+    /**
+     * Replaces all data in one transaction; any failure rolls back and leaves existing data untouched. A version-1 file
+     * gets the strict press upgrade on the way in, as the database got [com.powertracker.data.db.MIGRATION_1_2].
+     */
     suspend fun restore(file: BackupFile) {
         // Map everything first so any bad file content fails before a single row is deleted.
-        val exercises = file.exercises.map { it.toEntity() }
+        val rows = file.exercises.map { it.toEntity() }
+        val exercises = if (file.version < 2) StrictPressUpgrade.apply(rows) else rows
         val sessions = file.sessions.map { it.toEntity() }
         val sets = file.sets.map { it.toEntity() }
         val planItems = file.planItems.map { it.toEntity() }

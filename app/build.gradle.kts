@@ -43,7 +43,7 @@ android {
             all {
                 // Mockup PNGs in docs/design/screens are only rewritten with -Pscreenshots.update=true.
                 it.systemProperty("screenshots.update", (project.findProperty("screenshots.update") ?: "false").toString())
-                // web/src/backup/__fixtures__/android-v1.json is only rewritten with -Pfixtures.update=true.
+                // web/src/backup/__fixtures__/android-v2.json is only rewritten with -Pfixtures.update=true (the v1 fixtures are frozen).
                 it.systemProperty("fixtures.update", (project.findProperty("fixtures.update") ?: "false").toString())
                 it.jvmArgs(
                     "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",

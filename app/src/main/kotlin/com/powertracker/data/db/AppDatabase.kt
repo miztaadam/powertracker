@@ -6,6 +6,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
@@ -13,7 +14,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ExerciseEntity::class, SessionEntity::class, SetEntity::class,
         PlanItemEntity::class, AdviceEntity::class, BaselineEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -28,6 +29,7 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         fun build(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "powertracker.db")
+                .addMigrations(MIGRATION_1_2)
                 .addCallback(SeedCallback)
                 .build()
 
@@ -54,6 +56,15 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
     }
+}
+
+/**
+ * Version 2, the strict press release: no table changes, only data ([StrictPressUpgrade]). Room runs it in a
+ * transaction, so a failure leaves version 1 as it was. Never pair this database with a destructive fallback: it is the
+ * lifter's training log.
+ */
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) = StrictPressUpgrade.run(db)
 }
 
 private const val CONFLICT_ABORT = android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT

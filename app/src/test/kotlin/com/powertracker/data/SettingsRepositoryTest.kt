@@ -5,6 +5,8 @@ import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -32,9 +34,24 @@ class SettingsRepositoryTest {
     fun everySetting_roundTrips() = runTest {
         val all = AppSettings(
             changePlates = true, defaultRpe = 7.5, trainingDays = setOf(kotlinx.datetime.DayOfWeek.SUNDAY), appLock = true,
-            restMainSec = 240, restAccessorySec = 75, restAlert = RestAlert.OFF,
+            restMainSec = 240, restAccessorySec = 75, restAlert = RestAlert.OFF, showStrictPress = true,
         )
         settings.update { all }
         assertEquals(all, settings.settings.first())
+    }
+
+    /** Strict press spec §4.2: off by default; the switch is stored and read back through its own flow. */
+    @Test
+    fun showStrictPress_defaultsOff_andPersists() = runTest {
+        settings.update { AppSettings() }
+        assertFalse(AppSettings().showStrictPress)
+        assertFalse(settings.showStrictPress.first())
+
+        settings.setShowStrictPress(true)
+        assertTrue(settings.showStrictPress.first())
+        assertTrue(settings.settings.first().showStrictPress)
+
+        settings.setShowStrictPress(false)
+        assertFalse(settings.showStrictPress.first())
     }
 }

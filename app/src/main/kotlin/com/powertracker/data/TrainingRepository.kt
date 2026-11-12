@@ -85,6 +85,12 @@ class TrainingRepository(private val db: AppDatabase) {
 
     suspend fun deletePlanItem(id: Long) = db.plan().delete(id)
 
+    /** Runs [block] in one transaction: the plan items it saves and the catalogue rows it resolves land together or not at all. */
+    suspend fun <T> inTransaction(block: suspend () -> T): T = db.withTransaction(block)
+
+    /** The row for the catalogue exercise [name], found, restored or inserted (see [CatalogueResolver.resolve]). Call it inside [inTransaction]. */
+    suspend fun resolveCatalogue(name: String): Long = catalogue.resolve(name)
+
     suspend fun addExercise(e: Exercise): Long = db.exercises().insert(
         ExerciseEntity(0, e.name, e.category, e.parentLift, e.muscles, e.isBuiltIn, e.archived),
     )

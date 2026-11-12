@@ -17,6 +17,7 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import java.io.File
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.DayOfWeek
@@ -36,8 +37,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /**
- * The web app restores this committed Android backup in its own tests, so the file must track what Android
- * really exports. Regenerate it with `./gradlew :app:testDebugUnitTest -Pfixtures.update=true`.
+ * The web app restores the committed Android backup (android-v2.json) in its own tests, so the file must track what
+ * Android really exports. Regenerate it with `./gradlew :app:testDebugUnitTest -Pfixtures.update=true`. The version-1
+ * fixtures are frozen: they are what the previous apps wrote, and must keep restoring.
  *
  * Comparison is semantic (parsed JSON, `exportedAt` ignored): Kotlin/JS prints whole doubles without ".0",
  * so byte equality would be wrong.
@@ -50,8 +52,10 @@ class BackupFixtureTest {
 
     // Gradle runs app tests with the module directory as the working directory.
     private val fixtureDir = File("../web/src/backup/__fixtures__")
-    private val androidFixture = File(fixtureDir, "android-v1.json")
+    private val androidFixture = File(fixtureDir, "android-v2.json")
+    private val androidV1Fixture = File(fixtureDir, "android-v1.json")
     private val webFixture = File(fixtureDir, "web-v1.json")
+    private val webV2Fixture = File(fixtureDir, "web-v2.json")
 
     @Before
     fun setUp() {
@@ -76,6 +80,7 @@ class BackupFixtureTest {
                 restMainSec = 210,
                 restAccessorySec = 75,
                 restAlert = RestAlert.SOUND_AND_VIBRATE,
+                showStrictPress = true,
             )
         }
         val exercises = db.exercises().all().associateBy { it.name }
@@ -93,6 +98,10 @@ class BackupFixtureTest {
         val s2 = db.sessions().insert(SessionEntity(date = LocalDate(2026, 10, 29), bodyweightKg = null, readiness = null))
         db.sets().insert(SetEntity(sessionId = s2, exerciseId = bench, weightKg = 102.5, reps = 4, rpe = 9.0, failed = false, missPoint = null, isTopSet = true))
         db.sets().insert(SetEntity(sessionId = s2, exerciseId = bench, weightKg = 105.0, reps = 1, rpe = 10.0, failed = true, missPoint = MissPoint.LOCKOUT, isTopSet = false))
+        // Version 2: a strict press row from the catalogue, logged with an "off the shoulders" miss.
+        val press = CatalogueResolver(db).resolve("Strict press")
+        db.sets().insert(SetEntity(sessionId = s2, exerciseId = press, weightKg = 60.0, reps = 5, rpe = 8.5, failed = false, missPoint = null, isTopSet = true))
+        db.sets().insert(SetEntity(sessionId = s2, exerciseId = press, weightKg = 65.0, reps = 2, rpe = 10.0, failed = true, missPoint = MissPoint.FLOOR, isTopSet = false))
 
         db.plan().upsert(PlanItemEntity(weekday = DayOfWeek.TUESDAY, exerciseId = squat, sets = 4, reps = 5, targetRpe = 8.0, sortOrder = 0))
         db.plan().upsert(PlanItemEntity(weekday = DayOfWeek.TUESDAY, exerciseId = pause, sets = 3, reps = 4, targetRpe = 7.5, sortOrder = 1))
@@ -146,20 +155,52 @@ class BackupFixtureTest {
         assertTrue(Backup.decode(androidFixture.readText()) is BackupResult.Ok)
     }
 
+    /** The previous Android app's backup restores, and exports again as version 2 with the strict press switch off. */
+    @Test
+    fun androidV1Fixture_restoresOnAndroid() = runTest {
+        val actual = restoreAndExport(androidV1Fixture)
+        assertEquals(asUpgradedV1(tree(androidV1Fixture.readText())), actual)
+    }
+
     @Test
     fun webFixture_restoresOnAndroid() = runTest {
         assertTrue("Missing ${webFixture.path}; generate it with UPDATE_FIXTURES=1 npm test in web/", webFixture.exists())
-        val result = Backup.decode(webFixture.readText())
-        assertTrue(result.toString(), result is BackupResult.Ok)
-        service.restore((result as BackupResult.Ok).file)
-
-        // Restored data matches the fixture semantically (exportedAt ignored), webRestAlert included.
-        val expected = withoutExportedAt(tree(webFixture.readText()))
-        val actual = withoutExportedAt(tree(pretty.encodeToString(BackupFile.serializer(), service.export(EXPORTED_AT))))
-        assertEquals(expected, actual)
+        // Restored data matches the fixture semantically (exportedAt ignored), webRestAlert included; only the
+        // version and the setting version 1 lacked differ. Neither v1 fixture has a strict press row to convert.
+        val actual = restoreAndExport(webFixture)
+        assertEquals(asUpgradedV1(tree(webFixture.readText())), actual)
         val settingsJson = (actual as JsonObject).getValue("settings") as JsonObject
         assertEquals("SILENT", (settingsJson.getValue("webRestAlert") as JsonPrimitive).content)
         assertEquals("VIBRATE", (settingsJson.getValue("restAlert") as JsonPrimitive).content)
+    }
+
+    /** The web app's version-2 backup restores exactly: its strict press row, sets and switch included. */
+    @Test
+    fun webV2Fixture_restoresOnAndroid() = runTest {
+        assertTrue("Missing ${webV2Fixture.path}", webV2Fixture.exists())
+        val actual = restoreAndExport(webV2Fixture)
+        assertEquals(withoutExportedAt(tree(webV2Fixture.readText())), actual)
+        val settingsJson = (actual as JsonObject).getValue("settings") as JsonObject
+        assertEquals(JsonPrimitive(true), settingsJson.getValue("showStrictPress"))
+        assertTrue(settings.settings.first().showStrictPress)
+        val press = db.exercises().all().single { it.category == Category.STRICT_PRESS }
+        assertEquals("Strict press", press.name)
+        assertTrue(db.sets().all().any { it.exerciseId == press.id && it.missPoint == MissPoint.FLOOR })
+    }
+
+    private suspend fun restoreAndExport(fixture: File): JsonElement {
+        val result = Backup.decode(fixture.readText())
+        assertTrue(result.toString(), result is BackupResult.Ok)
+        service.restore((result as BackupResult.Ok).file)
+        return withoutExportedAt(tree(pretty.encodeToString(BackupFile.serializer(), service.export(EXPORTED_AT))))
+    }
+
+    /** What a version-1 file with no strict press row exports as once restored: version 2, switch off. */
+    private fun asUpgradedV1(v1: JsonElement): JsonElement {
+        val root = v1 as JsonObject
+        assertEquals(JsonPrimitive(1), root.getValue("version"))
+        val settings = JsonObject(root.getValue("settings") as JsonObject + ("showStrictPress" to JsonPrimitive(false)))
+        return withoutExportedAt(JsonObject(root + mapOf("version" to JsonPrimitive(Backup.VERSION), "settings" to settings)))
     }
 
     private companion object {

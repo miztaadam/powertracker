@@ -8,6 +8,7 @@ import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.data.db.AppDatabase
+import com.powertracker.domain.library.Library
 import com.powertracker.domain.model.AccessoryPrescription
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
@@ -35,6 +36,7 @@ import kotlinx.datetime.minus
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -269,5 +271,61 @@ class CoachViewModelTest {
         )
         val state = viewModel().await { it.cards.isNotEmpty() }
         assertEquals(listOf("fresh deload", "old stall"), state.cards.map { it.advice.reason })
+    }
+
+    /**
+     * Strict press accessories have no seeded rows. Apply finds or adds their catalogue rows in the same transaction
+     * as the plan items, instead of silently skipping them.
+     */
+    @Test
+    fun applyStall_pressAccessories_resolvesCatalogueRows() {
+        val names = listOf("Seated barbell press", "Incline bench press", "Landmine press")
+        runBlocking { for (row in db.exercises().all().filter { r -> names.any { it.equals(r.name, ignoreCase = true) } }) db.exercises().delete(row.id) }
+        val payload = AdvicePayload.Accessories(
+            listOf(
+                AccessoryPrescription("Seated barbell press", 3, 8, 10),
+                // An alias or another case still lands on the catalogue name.
+                AccessoryPrescription("incline BENCH press", 3, 8, 10),
+                AccessoryPrescription("Landmine press", 3, 8, 10),
+                AccessoryPrescription("No such lift", 3, 8, 10),
+            ),
+        )
+        insert(Advice(AdviceType.STALL, MainLift.STRICT_PRESS, today, "Strict press e1RM hasn't improved for 3 weeks.", 3, payload))
+        val vm = viewModel()
+
+        vm.apply(vm.await { it.cards.size == 1 }.cards.single().advice.id)
+        vm.await { it.cards.isEmpty() }
+        awaitStatuses(AdviceStatus.APPLIED)
+
+        assertEquals(listOf("Added 3 exercises to Monday"), messages)
+        val rows = runBlocking { db.exercises().all() }.associateBy { it.id }
+        val added = plan().sortedBy { it.order }
+        assertEquals(names, added.map { rows.getValue(it.exerciseId).name })
+        for (item in added) {
+            val row = rows.getValue(item.exerciseId)
+            assertTrue(row.isBuiltIn)
+            assertEquals(Library.find(row.name)!!.muscles, row.muscles)
+            assertEquals(PlanItem(item.id, DayOfWeek.MONDAY, row.id, 3, 10, 8.0, added.indexOf(item)), item)
+        }
+    }
+
+    /** A strict press miss off the shoulders offers catalogue accessories that have no row yet, and Apply adds them. */
+    @Test
+    fun weakPointApply_pressMissOffTheShoulders_resolvesCatalogueRows() {
+        insert(weakPoint(MainLift.STRICT_PRESS, MissPoint.FLOOR))
+        val vm = viewModel()
+        val card = vm.await { it.cards.size == 1 }.cards.single()
+        assertEquals(
+            listOf(AccessoryPrescription("Seated barbell press", 3, 8, 10), AccessoryPrescription("Incline bench press", 3, 8, 10)),
+            (card.detail as CardDetail.WeakPoint).additions,
+        )
+
+        vm.apply(card.advice.id)
+        vm.await { it.cards.isEmpty() }
+        awaitStatuses(AdviceStatus.APPLIED)
+
+        assertEquals(listOf("Added 2 exercises to Monday"), messages)
+        val rows = runBlocking { db.exercises().all() }.associateBy { it.id }
+        assertEquals(listOf("Seated barbell press", "Incline bench press"), plan().sortedBy { it.order }.map { rows.getValue(it.exerciseId).name })
     }
 }

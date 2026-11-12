@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.powertracker.domain.coach.CoachSettings
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.DayOfWeek
 
@@ -27,6 +28,8 @@ data class AppSettings(
     val restAlert: RestAlert = RestAlert.VIBRATE,
     /** Written by the web app's rest alert setting; kept as an opaque string so a backup round-trips it untouched. */
     val webRestAlert: String? = null,
+    /** Strict press on Progress and in the total (strict press spec §4.2). Coaching ignores it. */
+    val showStrictPress: Boolean = false,
 ) {
     fun coach(): CoachSettings = CoachSettings(defaultRpe = defaultRpe, changePlates = changePlates)
 }
@@ -38,6 +41,10 @@ class SettingsRepository(context: Context) {
     private val store = context.applicationContext.settingsStore
 
     val settings: Flow<AppSettings> = store.data.map { it.toAppSettings() }
+
+    val showStrictPress: Flow<Boolean> = settings.map { it.showStrictPress }.distinctUntilChanged()
+
+    suspend fun setShowStrictPress(on: Boolean) = update { it.copy(showStrictPress = on) }
 
     suspend fun update(f: (AppSettings) -> AppSettings) {
         store.edit { prefs -> prefs.write(f(prefs.toAppSettings())) }
@@ -52,6 +59,7 @@ class SettingsRepository(context: Context) {
         val REST_ACCESSORY = intPreferencesKey("restAccessorySec")
         val REST_ALERT = stringPreferencesKey("restAlert")
         val WEB_REST_ALERT = stringPreferencesKey("webRestAlert")
+        val SHOW_STRICT_PRESS = booleanPreferencesKey("showStrictPress")
 
         fun Preferences.toAppSettings(): AppSettings {
             val d = AppSettings()
@@ -64,6 +72,7 @@ class SettingsRepository(context: Context) {
                 restAccessorySec = this[REST_ACCESSORY] ?: d.restAccessorySec,
                 restAlert = this[REST_ALERT]?.let { name -> RestAlert.entries.firstOrNull { it.name == name } } ?: d.restAlert,
                 webRestAlert = this[WEB_REST_ALERT],
+                showStrictPress = this[SHOW_STRICT_PRESS] ?: d.showStrictPress,
             )
         }
 
@@ -77,6 +86,7 @@ class SettingsRepository(context: Context) {
             this[REST_ALERT] = s.restAlert.name
             val web = s.webRestAlert
             if (web != null) this[WEB_REST_ALERT] = web else remove(WEB_REST_ALERT)
+            this[SHOW_STRICT_PRESS] = s.showStrictPress
         }
 
         fun parseDays(text: String): Set<DayOfWeek> =
