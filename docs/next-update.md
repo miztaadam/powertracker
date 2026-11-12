@@ -52,3 +52,17 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
   dumbbells, kettlebells, cables, machines, bands, chains, bodyweight), while staying **easy to find**
   (search, category and muscle filters, plus an equipment filter) and with **a description and ⓘ info
   button for every exercise** (item 3).
+
+## Next project idea (owner, 2026-11-12): Bodybuilding mode
+- A single toggle (Settings) that switches the app, **including the coach**, to bodybuilding-style training.
+- First thoughts (to brainstorm with the owner, not decided):
+  - **Coach goal:** muscle growth, not a heavier top set. Weekly sets per muscle, rep ranges (e.g. 6–12, 10–15), rep progression before load, proximity to failure.
+  - **Stall advice:** a muscle that isn't progressing gets more weekly sets, a different exercise for it, or a deload. Miss-point accessories don't apply.
+  - **Progress:** weekly sets per muscle group and per-exercise rep/load trends.
+  - **Plan:** organised by body part or a push/pull/legs split. It builds on the 225-exercise library and the muscle groups.
+- **The UI must visibly change when the mode is on** (owner request). Options to mock up:
+  - a second accent colour;
+  - a mode label;
+  - screens built for the mode.
+  Fable mocks these up and the owner picks.
+- Logged data stays the same in either mode.
