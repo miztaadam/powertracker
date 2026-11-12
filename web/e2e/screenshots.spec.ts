@@ -101,6 +101,16 @@ for (const scheme of ['dark', 'light'] as const) {
     await shoot(page, `exercise-day-chooser-${scheme}`)
   })
 
+  test(`screenshots: a form guide with its picture (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openOnWednesday(page, '#/exercises')
+    await page.getByRole('button', { name: 'Open Bench', exact: true }).click()
+    const guide = page.getByRole('dialog', { name: 'Form guide for Bench' })
+    await expect(guide.getByRole('img', { name: /^Picture: / })).toBeVisible()
+    await guide.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+    await shoot(page, `form-guide-picture-${scheme}`)
+  })
+
   test(`screenshots: session saved (${scheme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme })
     await openOnWednesday(page)

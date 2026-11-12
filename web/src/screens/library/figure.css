@@ -1,0 +1,41 @@
+/*
+ * The colour of each figure role, as tokens the theme resolves when it draws: a theme change recolours a picture
+ * without redrawing it. A shape takes its role's `color` and paints with it (fill, or stroke for a capsule).
+ * `--fig-surface` is the surface the picture sits on: the sheet's unless a parent (the thumbnail tile) says otherwise.
+ * Also read by scripts/figure-sheet.mjs and scripts/pictures-page.mjs, so their pictures are coloured the same way.
+ */
+.fig-body {
+  color: var(--text);
+}
+
+/* The far-side limbs: the body's colour, mixed toward the surface. */
+.fig-body-far {
+  color: color-mix(in srgb, var(--text) 55%, var(--fig-surface, var(--surface)));
+}
+
+.fig-equipment {
+  color: var(--text-muted);
+}
+
+.fig-accent {
+  color: var(--accent);
+}
+
+/* The plate's face: the accent, faint. */
+.fig-accent-fill {
+  color: var(--accent);
+  fill-opacity: .10;
+  stroke-opacity: .10;
+}
+
+/* The outline that parts a near limb from what it crosses: the surface itself. */
+.fig-gap {
+  color: var(--fig-surface, var(--surface));
+}
+
+/* Forced colours would paint every role in the one text colour, gaps included. The picture keeps its own. */
+@media (forced-colors: active) {
+  .fig {
+    forced-color-adjust: none;
+  }
+}

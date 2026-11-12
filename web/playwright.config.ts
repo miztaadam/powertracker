@@ -6,9 +6,10 @@ import { defineConfig, devices } from '@playwright/test'
 const CHROMIUM = '/opt/pw-browsers/chromium'
 const iphone = { ...devices['iPhone 13'], browserName: 'chromium' as const }
 
-// The timing checks (tagged @speed in e2e/library.spec.ts) hold the picker to 100 ms on the page's own
-// clock. Beside other workers they measure the machine, not the picker, so they are their own project
-// and run once everything else has finished, one after another.
+// The timing checks (tagged @speed in e2e/library.spec.ts and e2e/pictures.spec.ts) hold the picker and the
+// Exercises tab to 100 ms on the page's own clock. Beside other workers they measure the machine, not the
+// app, so they are their own project and run once everything else has finished, one after another: one
+// worker, so the two files do not run side by side either.
 const SPEED = /@speed/
 
 export default defineConfig({
@@ -16,7 +17,7 @@ export default defineConfig({
   reporter: 'list',
   projects: [
     { name: 'e2e', grepInvert: SPEED },
-    { name: 'speed', grep: SPEED, dependencies: ['e2e'] },
+    { name: 'speed', grep: SPEED, dependencies: ['e2e'], workers: 1 },
   ],
   use: {
     baseURL: 'http://localhost:4173',

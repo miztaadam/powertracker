@@ -3,6 +3,7 @@ import { grit } from '../../domain'
 import { IconButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
 import { CloseIcon, HealthAndSafetyIcon } from '../../ui/components/icons'
+import { ExercisePicture } from './ExercisePicture'
 import { whereAndWith } from './labels'
 import './library.css'
 
@@ -19,7 +20,8 @@ export type FormGuideSheetProps = {
 /**
  * The form guide for the exercise `name`, as a sheet to read between sets. The guide follows the
  * name: a catalogue name or alias shows the catalogue guide, whoever made the row; any other name
- * shows `NO_GUIDE`. Every guide ends with the safety line; `actions` sit below it.
+ * shows `NO_GUIDE`. A guide whose exercise has a figure opens with its picture, above the purpose.
+ * Every guide ends with the safety line; `actions` sit below it.
  */
 export function FormGuideSheet({ name, onClose, actions }: FormGuideSheetProps) {
   const entry = grit.findInLibrary(name)
@@ -44,6 +46,7 @@ export function FormGuideSheet({ name, onClose, actions }: FormGuideSheetProps) 
       <div className="lib-guide">
         {guide ? (
           <>
+            <ExercisePicture name={name} />
             <p className="lib-guide-purpose body-large">{guide.purpose}</p>
             <GuideSection title="Setup" lines={guide.setup} />
             <GuideSection title="How to do it" lines={guide.steps} numbered />

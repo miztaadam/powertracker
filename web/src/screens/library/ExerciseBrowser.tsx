@@ -7,6 +7,7 @@ import { ArrowBackIcon, ArrowDropDownIcon, CloseIcon, InfoIcon, SearchOffIcon } 
 import { SectionHeader } from '../../ui/components/ScreenHeader'
 import { ChoiceChip } from '../../ui/components/SegmentedChoice'
 import { TextField } from '../../ui/components/TextField'
+import { ExerciseThumbnail } from './ExercisePicture'
 import { InfoButton } from './InfoButton'
 import { AREAS, EQUIPMENT, equipmentLabel } from './labels'
 import './library.css'
@@ -33,6 +34,8 @@ export type ExerciseBrowserProps = {
   rowLabel?: (name: string) => string
   /** "Create your own", below the list and in the empty state; none where exercises are only browsed. */
   create?: ReactNode
+  /** Whether each row leads with its exercise's small picture (the Exercises tab). The picker's rows have none. */
+  thumbnails?: boolean
 }
 
 /**
@@ -46,7 +49,7 @@ export type ExerciseBrowserProps = {
  * any ticked group, on top of the search and the other filters, and with none ticked it is the whole
  * catalogue under its body areas.
  */
-export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onRow, onInfo, rowLabel, create }: ExerciseBrowserProps) {
+export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onRow, onInfo, rowLabel, create, thumbnails = false }: ExerciseBrowserProps) {
   const { query, area, equipment, muscle, muscles } = state
   const dropdown = muscleFilter === 'dropdown'
   const [choosingMuscles, setChoosingMuscles] = useState(false)
@@ -64,7 +67,7 @@ export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onR
     if (scroller.current) scroller.current.scrollTop = 0
   }, [query, area, equipment, muscle, muscles])
 
-  const rows = (entries: readonly PickerEntry[]) => <BrowserRows entries={entries} onRow={onRow} onInfo={onInfo} rowLabel={rowLabel} />
+  const rows = (entries: readonly PickerEntry[]) => <BrowserRows entries={entries} onRow={onRow} onInfo={onInfo} rowLabel={rowLabel} thumbnails={thumbnails} />
 
   return (
     <>
@@ -213,24 +216,26 @@ function MusclesSheet({ ticked, onToggle, onClose }: { ticked: readonly string[]
   )
 }
 
-type BrowserRowsProps = Pick<ExerciseBrowserProps, 'onRow' | 'onInfo' | 'rowLabel'> & { entries: readonly PickerEntry[] }
+type BrowserRowsProps = Pick<ExerciseBrowserProps, 'onRow' | 'onInfo' | 'rowLabel' | 'thumbnails'> & { entries: readonly PickerEntry[] }
 
-function BrowserRows({ entries, onRow, onInfo, rowLabel }: BrowserRowsProps) {
+function BrowserRows({ entries, onRow, onInfo, rowLabel, thumbnails }: BrowserRowsProps) {
   return (
     <ul className="lib-rows">
       {entries.map((entry) => (
-        <BrowserRow key={entry.library?.name ?? `own-${entry.exerciseId}`} entry={entry} onRow={onRow} onInfo={onInfo} rowLabel={rowLabel} />
+        <BrowserRow key={entry.library?.name ?? `own-${entry.exerciseId}`} entry={entry} onRow={onRow} onInfo={onInfo} rowLabel={rowLabel} thumbnails={thumbnails} />
       ))}
     </ul>
   )
 }
 
-function BrowserRow({ entry, onRow, onInfo, rowLabel }: Omit<BrowserRowsProps, 'entries'> & { entry: PickerEntry }) {
+function BrowserRow({ entry, onRow, onInfo, rowLabel, thumbnails }: Omit<BrowserRowsProps, 'entries'> & { entry: PickerEntry }) {
   // With a label of its own, the row's button is named by it and the rest of the row describes it.
   const details = useId()
   return (
     <li className="lib-row" aria-label={entry.name}>
       <button type="button" className="lib-row-main" aria-label={rowLabel?.(entry.name)} aria-describedby={rowLabel ? details : undefined} onClick={() => onRow(entry)}>
+        {/* By the catalogue's name: the lifter's own exercise has none, and gets the empty tile. */}
+        {thumbnails && <ExerciseThumbnail name={entry.library?.name} />}
         <span className="lib-grow">
           <span className="lib-row-name title-medium">{entry.name}</span>
           {entry.muscles.length > 0 && <span className="lib-row-muscles body-medium">{entry.muscles.join(', ')}</span>}

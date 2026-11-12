@@ -96,7 +96,7 @@ export function ExercisesScreen({ db, session, onOpenPlan, onOpenToday, browser,
   return (
     <section className="screen lib-screen">
       <ScreenHeader title="Exercises" eyebrow={plan.loading ? undefined : `${exerciseCount(plan.exercises)} exercises`} />
-      <ExerciseBrowser state={browser} muscleFilter="dropdown" exercises={plan.exercises} recentIds={plan.recentIds} onRow={show} onInfo={show} rowLabel={(name) => `Open ${name}`} />
+      <ExerciseBrowser state={browser} muscleFilter="dropdown" exercises={plan.exercises} recentIds={plan.recentIds} onRow={show} onInfo={show} rowLabel={(name) => `Open ${name}`} thumbnails />
 
       {open != null && !choosingDay && (
         <FormGuideSheet

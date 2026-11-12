@@ -10,7 +10,9 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "e2e": "playwright test",
-    "icons": "node scripts/icons.mjs"
+    "icons": "node scripts/icons.mjs",
+    "figures:sheet": "node scripts/figure-sheet.mjs",
+    "figures:page": "node scripts/pictures-page.mjs"
   },
   "dependencies": {
     "dexie": "4.4.7",

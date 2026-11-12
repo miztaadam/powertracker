@@ -263,6 +263,28 @@
   color: var(--text-secondary);
 }
 
+/*
+ * A row's small picture on the Exercises tab: a muted 56 × 40 tile, the figure drawn on it 4:3 and centred. The tile
+ * is the figure's surface, so its gaps are the tile's colour. An exercise without a figure keeps the empty tile.
+ */
+.lib-thumb {
+  flex: none;
+  display: flex;
+  justify-content: center;
+  width: 56px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: var(--container-high);
+  --fig-surface: var(--container-high);
+}
+
+.lib-thumb .fig {
+  display: block;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+}
+
 .lib-row-equipment {
   flex: none;
   color: var(--text-muted);
@@ -327,6 +349,37 @@
 
 .lib-guide p {
   margin: 0;
+}
+
+/*
+ * The exercise's picture, above the purpose: its two poses side by side, sharing the width equally, drawn straight
+ * on the sheet with no frame. Each column may shrink below its caption, which then wraps.
+ */
+.lib-picture {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-2) 0 var(--space-5);
+}
+
+.lib-picture-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.lib-picture .fig {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+/* Under its panel, centred, on as many lines as it needs: a caption is never cut short. */
+.lib-picture-caption {
+  color: var(--text-secondary);
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .lib-guide-purpose {
