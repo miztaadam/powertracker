@@ -74,3 +74,7 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
   - sources: a licensed illustration set (accurate, costs money, won't cover all 225) or generated drawings (cheap, fits the list, but every pose must be checked against the guide's sources). Free images (e.g. Wikimedia) are patchy and inconsistent. ExRx/ACE images are copyrighted and can't be used.
   - suggested first step: generate a trial batch of 10–15 and check accuracy before committing to all 225.
 - Code side is small: an image per catalogue entry, shown at the top of the guide sheet in both apps.
+
+## How future projects are built (owner, 2026-11-12)
+- While building a task, run only the tests for the part being changed.
+- Run the full Android, domain, web and e2e suites once per task, before its commit, and once on main before pushing.
