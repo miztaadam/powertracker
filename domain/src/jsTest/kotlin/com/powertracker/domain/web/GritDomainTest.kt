@@ -334,6 +334,13 @@ class GritDomainTest {
         assertFailsWith<IllegalArgumentException> { GritDomain.exercisesByMuscle("Chest", emptyArray()) }
         assertFailsWith<IllegalArgumentException> { GritDomain.exercisesByMuscle("CHEST", arrayOf("ROPE")) }
         assertFailsWith<IllegalArgumentException> { GritDomain.muscleGroupLabel("NECK") }
+        assertEquals(
+            Library.byMuscles(setOf(MuscleGroup.CHEST, MuscleGroup.BICEPS), setOf(Equipment.DUMBBELL)).map { it.name },
+            GritDomain.exercisesByMuscles(arrayOf("CHEST", "BICEPS"), arrayOf("DUMBBELL")).map { it.name },
+        )
+        assertEquals(0, GritDomain.exercisesByMuscles(emptyArray(), emptyArray()).size)
+        assertFailsWith<IllegalArgumentException> { GritDomain.exercisesByMuscles(arrayOf("Chest"), emptyArray()) }
+        assertFailsWith<IllegalArgumentException> { GritDomain.exercisesByMuscles(arrayOf("CHEST"), arrayOf("ROPE")) }
     }
 
     @Test

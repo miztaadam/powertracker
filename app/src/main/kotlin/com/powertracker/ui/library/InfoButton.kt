@@ -21,9 +21,15 @@ import com.powertracker.ui.theme.Space
 @Composable
 fun InfoButton(exerciseName: String, modifier: Modifier = Modifier) {
     var open by rememberSaveable { mutableStateOf(false) }
+    InfoIconButton(exerciseName, onClick = { open = true }, modifier)
+    if (open) FormGuideSheet(exerciseName, onDismiss = { open = false })
+}
+
+/** The button alone, where the screen opens the guide itself (rows of the exercise browser). */
+@Composable
+fun InfoIconButton(exerciseName: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     // A full 48 dp square, not the 40 dp an icon button draws itself at: it sits in rows that are tapped too.
-    IconButton(onClick = { open = true }, modifier = modifier.size(Space.touch)) {
+    IconButton(onClick = onClick, modifier = modifier.size(Space.touch)) {
         Icon(Icons.Outlined.Info, contentDescription = "Form guide for $exerciseName", tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
-    if (open) FormGuideSheet(exerciseName, onDismiss = { open = false })
 }

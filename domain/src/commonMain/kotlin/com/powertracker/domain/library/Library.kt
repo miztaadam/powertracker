@@ -68,6 +68,15 @@ object Library {
             .filter { e -> MuscleGroups.works(e.muscles, group) && (equipment.isEmpty() || e.equipment.any { it in equipment }) }
             .sortedWith(alphabetical)
 
+    /**
+     * Every entry that works any of [groups] with any of its muscles and needs any of [equipment] (empty = any),
+     * each once, alphabetically. No group matches nothing.
+     */
+    fun byMuscles(groups: Set<MuscleGroup>, equipment: Set<Equipment> = emptySet()): List<LibraryExercise> =
+        catalogue
+            .filter { e -> groups.any { MuscleGroups.works(e.muscles, it) } && (equipment.isEmpty() || e.equipment.any { it in equipment }) }
+            .sortedWith(alphabetical)
+
     private fun rank(e: LibraryExercise, q: String): Int? {
         val name = normalise(e.name)
         return when {

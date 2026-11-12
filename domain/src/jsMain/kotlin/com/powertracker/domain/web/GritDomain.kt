@@ -178,6 +178,16 @@ object GritDomain {
             equipment.map { parseEnum<Equipment>("equipment", it) }.toSet(),
         ).map { it.toJs() }.toTypedArray()
 
+    /**
+     * Every catalogue exercise that works any of [groups] (`MuscleGroup` names) with any of [equipment] (`Equipment`
+     * names; an empty array means no filter), each once, alphabetically. An empty [groups] matches nothing.
+     */
+    fun exercisesByMuscles(groups: Array<String>, equipment: Array<String>): Array<JsLibraryExercise> =
+        Library.byMuscles(
+            groups.map { parseEnum<MuscleGroup>("groups", it) }.toSet(),
+            equipment.map { parseEnum<Equipment>("equipment", it) }.toSet(),
+        ).map { it.toJs() }.toTypedArray()
+
     /** The form guide of the catalogue entry [name] resolves to; null for anything not in the catalogue. */
     fun formGuide(name: String): JsFormGuide? = Library.find(name)?.guide?.toJs()
 

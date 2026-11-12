@@ -20,11 +20,15 @@ import com.powertracker.domain.validation.InputValidator
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.library.PickerEntry
 import com.powertracker.ui.library.recentExerciseIds
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 
@@ -41,13 +45,29 @@ data class PlanUiState(
     /** The main lifts' own exercises (squat, bench, deadlift and, once it has a row, strict press), for "Set a known best". */
     val mainExercises: List<Exercise> = emptyList(),
     val defaultRpe: Double = 8.0,
+    /** The days the lifter trains, from Settings; a day can have plan items without being one. */
+    val trainingDays: Set<DayOfWeek> = emptySet(),
 )
+
+/** How adding an exercise from the Exercises tab went. */
+enum class PlanAdd {
+    ADDED,
+
+    /** The exercise is already on that day; nothing was added. */
+    ALREADY_THERE,
+
+    /** The write failed; nothing was changed. */
+    FAILED,
+}
 
 class PlanViewModel(
     private val training: TrainingRepository,
-    settings: SettingsRepository,
+    private val settings: SettingsRepository,
     private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
+
+    /** True while [addOnce] is saving; further calls are ignored until it has answered. */
+    private val adding = MutableStateFlow(false)
 
     val state: StateFlow<PlanUiState> = combine(training.plan(), training.history(), settings.settings) { plan, history, s ->
         build(plan, history, s)
@@ -66,6 +86,7 @@ class PlanViewModel(
             recentIds = recentExerciseIds(history),
             mainExercises = exercises.filter { it.isMainLift },
             defaultRpe = s.defaultRpe,
+            trainingDays = s.trainingDays,
         )
     }
 
@@ -74,9 +95,47 @@ class PlanViewModel(
      * at the default RPE. A catalogue exercise gets its row, if it has none yet, in the same transaction.
      */
     fun add(day: DayOfWeek, entry: PickerEntry) {
-        val item = PlanItem(0, day, entry.exerciseId ?: 0, entry.defaultSets, entry.defaultReps, state.value.defaultRpe.coerceIn(MIN_RPE, MAX_RPE), nextOrder(day))
+        val item = newItem(day, entry, state.value.defaultRpe, nextOrder(day))
         viewModelScope.launch { training.savePlanItem(item, entry.catalogueName) }
     }
+
+    /**
+     * [add] for the Exercises tab, where the day is chosen after the exercise: the same defaults and the
+     * same single transaction, but an exercise already on [day] is left alone, and [onResult] hears how
+     * it went, once. A second call before that (a double tap) does nothing. Read from what is stored at
+     * the moment of the call, so it does not depend on this view model's screen being shown.
+     */
+    fun addOnce(day: DayOfWeek, entry: PickerEntry, onResult: (PlanAdd) -> Unit) {
+        if (!adding.compareAndSet(expect = false, update = true)) return
+        viewModelScope.launch {
+            val result = try {
+                // After whatever else this tap set off: a second tap in the same frame meets the guard, however fast the store answers.
+                yield()
+                val onDay = training.plan().first().filter { it.weekday == day }
+                // The row a catalogue name would be saved to (the oldest live one, as CatalogueResolver picks it), if it has one yet.
+                val name = entry.catalogueName
+                val rowId = if (name == null) entry.exerciseId else training.exercises().first().filter { !it.archived && it.name.equals(name, ignoreCase = true) }.minOfOrNull { it.id }
+                if (rowId != null && onDay.any { it.exerciseId == rowId }) {
+                    PlanAdd.ALREADY_THERE
+                } else {
+                    val order = (onDay.maxOfOrNull { it.order } ?: -1) + 1
+                    training.savePlanItem(newItem(day, entry.copy(exerciseId = rowId), settings.settings.first().defaultRpe, order), name)
+                    PlanAdd.ADDED
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A failed write must not crash the app: nothing was saved, and the lifter is told.
+                PlanAdd.FAILED
+            } finally {
+                adding.value = false
+            }
+            onResult(result)
+        }
+    }
+
+    private fun newItem(day: DayOfWeek, entry: PickerEntry, defaultRpe: Double, order: Int) =
+        PlanItem(0, day, entry.exerciseId ?: 0, entry.defaultSets, entry.defaultReps, defaultRpe.coerceIn(MIN_RPE, MAX_RPE), order)
 
     /** Updates [existing] in place. [exercise] is set when the exercise itself was changed. */
     fun save(existing: PlanItem, exercise: PickerEntry?, sets: Int, reps: Int, rpe: Double) {

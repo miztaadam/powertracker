@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.datetime.LocalDate
 
@@ -96,6 +97,20 @@ data class TodayState(
     val changePlates: Boolean = false,
 ) {
     val pendingWarning: InputWarning? get() = pending?.warnings?.firstOrNull()
+
+    /** A session was started today and has not been finished: sets can be logged and exercises added. */
+    val inSession: Boolean get() = sessionId != null && summary == null
+}
+
+/** How adding an exercise to today's session from outside the Today screen went. */
+enum class TodayAdd {
+    ADDED,
+
+    /** The exercise is already in today's session; nothing changed. */
+    ALREADY_THERE,
+
+    /** There is no open, unfinished session to add to (or no such exercise); nothing changed. */
+    REFUSED,
 }
 
 sealed interface TodayEvent {
@@ -135,6 +150,9 @@ class TodayViewModel(
 
     /** True while a set is being saved; further log taps are ignored until the screen shows it. */
     private val saving = MutableStateFlow(false)
+
+    /** True while [addToOpenSession] is working; further calls are ignored until it has answered. */
+    private val addingToSession = MutableStateFlow(false)
 
     private val _coachPasses = MutableStateFlow(0)
 
@@ -332,12 +350,45 @@ class TodayViewModel(
      * row's id when it has one, otherwise a stand-in; null for a name the catalogue doesn't know.
      * Nothing is stored until a set is logged for it.
      */
-    fun addFromCatalogue(name: String): Long? {
+    fun addFromCatalogue(name: String): Long? = catalogueId(name, state.value)?.also(::addExercise)
+
+    /** The id a catalogue exercise's card is shown under: its row's when it has one, otherwise a stand-in. */
+    private fun catalogueId(name: String, now: TodayState): Long? {
         val entry = Library.find(name) ?: return null
-        val row = state.value.exercises.firstOrNull { it.name.equals(entry.name, ignoreCase = true) }
-        val id = row?.id ?: standInId(entry)
-        addExercise(id)
-        return id
+        return now.exercises.firstOrNull { it.name.equals(entry.name, ignoreCase = true) }?.id ?: standInId(entry)
+    }
+
+    /**
+     * Adds an exercise from another screen (the Exercises tab) the way "Add exercise" here does: a
+     * catalogue exercise by [catalogueName], with no row until its first set; the lifter's own by
+     * [exerciseId]. The session is checked when this is called, not when the button was drawn: with no
+     * session, or one finished meanwhile, nothing is added. [onResult] hears how it went, once; a
+     * second call before that (a double tap) does nothing.
+     */
+    fun addToOpenSession(catalogueName: String?, exerciseId: Long?, onResult: (TodayAdd) -> Unit) {
+        if (!addingToSession.compareAndSet(expect = false, update = true)) return
+        viewModelScope.launch {
+            val result = try {
+                // After whatever else this tap set off: a second tap in the same frame meets the guard.
+                yield()
+                val now = loaded()
+                val id = if (catalogueName != null) catalogueId(catalogueName, now) else exerciseId
+                when {
+                    // The summary is read where Finish writes it, so a Finish a moment ago counts.
+                    now.sessionId == null || local.value.summary != null || today() != date || id == null -> TodayAdd.REFUSED
+                    now.items.any { it.exercise.id == id } -> TodayAdd.ALREADY_THERE
+                    else -> {
+                        addExercise(id)
+                        // Hold the guard until its card is there, so a second tap cannot be told "already there".
+                        withTimeoutOrNull(SHOWN_TIMEOUT_MS) { state.first { s -> s.items.any { it.exercise.id == id } } }
+                        TodayAdd.ADDED
+                    }
+                }
+            } finally {
+                addingToSession.value = false
+            }
+            onResult(result)
+        }
     }
 
     /**

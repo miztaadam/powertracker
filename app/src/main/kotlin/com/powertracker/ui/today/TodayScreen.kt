@@ -22,8 +22,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.SettingsRepository
@@ -91,15 +93,7 @@ fun TodayScreen(
     onSetLogged: (isMainOrVariation: Boolean) -> Unit = {},
     restTimer: RestTimerUi? = null,
 ) {
-    // One view model per calendar day: coming back to the app the next morning starts a fresh day.
-    var date by remember { mutableStateOf(today()) }
-    LifecycleResumeEffect(Unit) {
-        date = today()
-        onPauseOrDispose {}
-    }
-    // The view model is keyed by the day it was opened for, but gets the real clock: a view model
-    // left over from an earlier day must see that the day has changed and stop writing.
-    val viewModel: TodayViewModel = viewModel(key = "today-$date", factory = TodayViewModel.factory(training, advice, settings, today))
+    val viewModel = rememberTodayViewModel(training, advice, settings, today)
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val setLogged by rememberUpdatedState(onSetLogged)
@@ -141,13 +135,36 @@ fun TodayScreen(
     TodayContent(state, actions, restTimer)
 }
 
+/**
+ * Today's view model, kept by [owner]. The Today tab owns it; the Exercises tab passes the Today
+ * tab's owner, so both see the one session: what was added to it and whether it was finished.
+ */
+@Composable
+fun rememberTodayViewModel(
+    training: TrainingRepository,
+    advice: AdviceRepository,
+    settings: SettingsRepository,
+    today: () -> LocalDate = ::systemToday,
+    owner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) { "No ViewModelStoreOwner for the Today view model" },
+): TodayViewModel {
+    // One view model per calendar day: coming back to the app the next morning starts a fresh day.
+    var date by remember { mutableStateOf(today()) }
+    LifecycleResumeEffect(Unit) {
+        date = today()
+        onPauseOrDispose {}
+    }
+    // The view model is keyed by the day it was opened for, but gets the real clock: a view model
+    // left over from an earlier day must see that the day has changed and stop writing.
+    return viewModel(viewModelStoreOwner = owner, key = "today-$date", factory = TodayViewModel.factory(training, advice, settings, today))
+}
+
 private val HEADER_DATE = DateTimeFormatter.ofPattern("EEEE d MMMM")
 
 /** The Today screen without its view model: start card, the session's exercises, or the finish summary. */
 @Composable
 fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerUi? = null) {
     val items = state.items
-    val inSession = state.sessionId != null && state.summary == null
+    val inSession = state.inSession
     var activeId by rememberSaveable { mutableStateOf<Long?>(null) }
     var picking by rememberSaveable { mutableStateOf(false) }
 

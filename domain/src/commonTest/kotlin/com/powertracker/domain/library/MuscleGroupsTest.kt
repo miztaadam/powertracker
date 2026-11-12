@@ -76,6 +76,35 @@ class MuscleGroupsTest {
     }
 
     @Test
+    fun byMuscles_anyOf_alphabetical_filtersEquipment() {
+        val alphabetical = compareBy<LibraryExercise>({ Library.normalise(it.name) }, { it.name })
+        // Any of the ticked groups, each exercise once, alphabetically.
+        val groups = setOf(MuscleGroup.CHEST, MuscleGroup.BICEPS)
+        val expected = all.filter { e -> e.muscles.any { MuscleGroups.of(it) in groups } }.sortedWith(alphabetical)
+        val found = Library.byMuscles(groups)
+        assertEquals(expected.map { it.name }, found.map { it.name })
+        assertEquals(found.map { it.name }.distinct(), found.map { it.name })
+        assertTrue(found.any { it.name == "Bench" } && found.any { it.name == "Hammer curl" })
+        assertTrue(found.none { it.name == "Squat" })
+        assertTrue(found.size > Library.byMuscle(MuscleGroup.CHEST).size && found.size > Library.byMuscle(MuscleGroup.BICEPS).size)
+
+        // One group is the single-muscle list.
+        for (g in MuscleGroup.entries) assertEquals(Library.byMuscle(g).map { it.name }, Library.byMuscles(setOf(g)).map { it.name }, g.label)
+
+        // Any of the chosen equipment, on top.
+        val dumbbell = Library.byMuscles(groups, setOf(Equipment.DUMBBELL))
+        assertTrue(dumbbell.isNotEmpty() && dumbbell.size < found.size)
+        assertEquals(expected.filter { Equipment.DUMBBELL in it.equipment }.map { it.name }, dumbbell.map { it.name })
+        assertEquals(
+            expected.filter { e -> e.equipment.any { it == Equipment.DUMBBELL || it == Equipment.CABLE } }.map { it.name },
+            Library.byMuscles(groups, setOf(Equipment.DUMBBELL, Equipment.CABLE)).map { it.name },
+        )
+
+        // No group ticked matches nothing: "any of none".
+        assertEquals(emptyList(), Library.byMuscles(emptySet()))
+    }
+
+    @Test
     fun muscleGroups_skipsEmptyGroups() {
         // The catalogue as it ships: only groups that list something, in the enum's order.
         val shipped = Library.muscleGroups()

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.HealthAndSafety
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -72,31 +73,40 @@ internal fun GuideSheet(onDismiss: () -> Unit, content: @Composable () -> Unit) 
     }
 }
 
-/** The sheet's content without the sheet: name, where and with what, purpose, the four sections, the safety line. */
+/**
+ * The sheet's content without the sheet: name, where and with what, purpose, the four sections, the
+ * safety line. [actions] (the Exercises tab's "Add to plan" and "Add to today") stay in view under
+ * the guide as it scrolls, below the safety line that ends it.
+ */
 @Composable
-fun FormGuideContent(exerciseName: String, onClose: () -> Unit, modifier: Modifier = Modifier) {
+fun FormGuideContent(exerciseName: String, onClose: () -> Unit, modifier: Modifier = Modifier, actions: (@Composable () -> Unit)? = null) {
     val scheme = MaterialTheme.colorScheme
     val entry = Library.find(exerciseName)
-    Column(
-        modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(start = Space.xl, end = Space.s, bottom = Space.xl)
-            .testTag("form-guide"),
-    ) {
-        GuideHeader(exerciseName, entry?.whereAndWith(), closeLabel = "Close guide", onClose = onClose)
-        Column(Modifier.padding(end = Space.l)) {
-            if (entry == null) {
-                Text(NO_GUIDE, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.m))
-            } else {
-                val guide = entry.guide
-                Text(guide.purpose, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.m))
-                GuideSection("Setup", guide.setup, numbered = false)
-                GuideSection("How to do it", guide.steps, numbered = true)
-                GuideSection("Cues", guide.cues, numbered = false)
-                GuideSection("Common mistakes", guide.mistakes, numbered = false)
+    Column(modifier.fillMaxWidth().testTag("form-guide")) {
+        Column(
+            Modifier
+                .weight(1f, fill = false)
+                .verticalScroll(rememberScrollState())
+                .padding(start = Space.xl, end = Space.s, bottom = Space.xl),
+        ) {
+            GuideHeader(exerciseName, entry?.whereAndWith(), closeLabel = "Close guide", onClose = onClose)
+            Column(Modifier.padding(end = Space.l)) {
+                if (entry == null) {
+                    Text(NO_GUIDE, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.m))
+                } else {
+                    val guide = entry.guide
+                    Text(guide.purpose, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.m))
+                    GuideSection("Setup", guide.setup, numbered = false)
+                    GuideSection("How to do it", guide.steps, numbered = true)
+                    GuideSection("Cues", guide.cues, numbered = false)
+                    GuideSection("Common mistakes", guide.mistakes, numbered = false)
+                }
+                SafetyLine(Modifier.padding(top = Space.xl))
             }
-            SafetyLine(Modifier.padding(top = Space.xl))
+        }
+        if (actions != null) {
+            HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+            Box(Modifier.fillMaxWidth().padding(horizontal = Space.xl, vertical = Space.m).testTag("guide-actions")) { actions() }
         }
     }
 }

@@ -24,7 +24,7 @@ data class StoredSet(val id: Long, val sessionId: Long, val set: LoggedSet)
 class ExerciseInUseException(val exerciseId: Long) :
     IllegalStateException("Exercise $exerciseId has logged sets; archive it instead")
 
-class TrainingRepository(private val db: AppDatabase) {
+open class TrainingRepository(private val db: AppDatabase) {
     private val catalogue = CatalogueResolver(db)
 
     fun history(): Flow<TrainingHistory> = combine(
@@ -77,7 +77,7 @@ class TrainingRepository(private val db: AppDatabase) {
      * is for that catalogue exercise, whatever its `exerciseId` says: the exercise row is found,
      * restored or inserted in the same transaction.
      */
-    suspend fun savePlanItem(item: PlanItem, catalogueName: String? = null): Long {
+    open suspend fun savePlanItem(item: PlanItem, catalogueName: String? = null): Long {
         fun entity(exerciseId: Long) = PlanItemEntity(item.id, item.weekday, exerciseId, item.sets, item.reps, item.targetRpe, item.order)
         if (catalogueName == null) return db.plan().upsert(entity(item.exerciseId))
         return db.withTransaction { db.plan().upsert(entity(catalogue.resolve(catalogueName))) }

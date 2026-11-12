@@ -42,6 +42,7 @@ export declare namespace GritDomain {
             muscleGroupLabel(group: string): string;
             muscleGroupOf(muscle: string): Nullable<string>;
             exercisesByMuscle(group: string, equipment: Array<string>): Array<JsLibraryExercise>;
+            exercisesByMuscles(groups: Array<string>, equipment: Array<string>): Array<JsLibraryExercise>;
             formGuide(name: string): Nullable<JsFormGuide>;
             safetyLine(): string;
             rpeGuide(): JsRpeGuide;
