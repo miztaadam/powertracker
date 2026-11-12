@@ -32,8 +32,8 @@ async function openGuide(page: Page, name = 'Bench') {
 }
 
 /** Adds one of the lifter's own exercises straight in IndexedDB, then reloads. */
-async function addOwnExercise(page: Page, name: string) {
-  await page.evaluate(async (name) => {
+async function addOwnExercise(page: Page, ...names: string[]) {
+  await page.evaluate(async (names) => {
     const db = await new Promise<IDBDatabase>((done, fail) => {
       const request = indexedDB.open('grit')
       request.onsuccess = () => done(request.result)
@@ -44,10 +44,10 @@ async function addOwnExercise(page: Page, name: string) {
       tx.oncomplete = () => done()
       tx.onerror = () => fail(tx.error)
     })
-    tx.objectStore('exercises').add({ name, category: 'ACCESSORY', parentLift: null, muscles: ['Quads', 'Glutes'], isBuiltIn: false, archived: false })
+    for (const name of names) tx.objectStore('exercises').add({ name, category: 'ACCESSORY', parentLift: null, muscles: ['Quads', 'Glutes'], isBuiltIn: false, archived: false })
     await settled
     db.close()
-  }, name)
+  }, names)
   await page.reload()
 }
 
@@ -249,6 +249,59 @@ test('exercisesTab_rowsShowThumbnail', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Search exercises' }).fill('bench')
   await expect(row(page, 'Bench').locator('.lib-thumb svg.fig')).toHaveCount(1)
   expect(await overflowing(page)).toEqual([])
+})
+
+test('exercisesTab_thumbnailFarOffScreen_isDrawnWhenItsRowComesNear', async ({ page }) => {
+  // Forty of the lifter's own exercises lead the list, so Bench starts far below it: more than the 600 px a
+  // thumbnail is drawn ahead by.
+  await openOnWednesday(page, '#/exercises')
+  await addOwnExercise(page, ...Array.from({ length: 40 }, (_, i) => `Own exercise ${String(i + 1).padStart(2, '0')}`))
+  const bench = row(page, 'Bench')
+  // The catalogue is listed before the lifter's own exercises have been read, with Bench near the top and drawn.
+  // A search that leaves it out and is cleared again lists it afresh, where it now belongs.
+  await expect(row(page, 'Own exercise 40')).toBeAttached()
+  await page.getByRole('textbox', { name: 'Search exercises' }).fill('own exercise')
+  await expect(bench).toHaveCount(0)
+  await page.getByRole('textbox', { name: 'Search exercises' }).fill('')
+  await expect(bench).toBeAttached()
+  const list = page.locator('.shell-main .lib-scroll')
+  /** How far below the list's bottom edge Bench's row starts, and whether its thumbnail is drawn. */
+  const state = () =>
+    list.evaluate(async (scroller) => {
+      await new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done())))
+      const row = scroller.querySelector('.lib-row[aria-label="Bench"]')!
+      return { below: Math.round(row.getBoundingClientRect().top - scroller.getBoundingClientRect().bottom), drawn: row.querySelector('.lib-thumb svg.fig') != null }
+    })
+  const far = await state()
+  expect(far.below).toBeGreaterThan(1200)
+  expect(far.drawn).toBe(false)
+
+  /** Scrolls until Bench's row starts `px` below the list. Rows take their real height as they come near, so it settles in steps. */
+  const bringTo = async (px: number) => {
+    for (let step = 0; step < 6; step++) {
+      const { below } = await state()
+      if (Math.abs(below - px) <= 2) break
+      await list.evaluate((scroller, by) => scroller.scrollBy(0, by), below - px)
+    }
+    return state()
+  }
+
+  // Still 900 px below the list: too far, nothing drawn yet.
+  const coming = await bringTo(900)
+  expect(coming.below).toBeCloseTo(900, -1)
+  expect(coming.drawn).toBe(false)
+
+  // 400 px below the list, still out of sight: the thumbnail is already drawn, before the row scrolls in.
+  const near = await bringTo(400)
+  expect(near.below).toBeCloseTo(400, -1)
+  expect(near.drawn).toBe(true)
+  await expect(bench).not.toBeInViewport()
+
+  // In sight it is the drawing made ahead, and it stays when the row is scrolled far away again.
+  await bench.scrollIntoViewIfNeeded()
+  await expect(bench.locator('.lib-thumb svg.fig')).toBeVisible()
+  await list.evaluate((scroller) => scroller.scrollTo(0, 0))
+  expect((await state()).drawn).toBe(true)
 })
 
 test('exercisesTab_customExercise_showsEmptyTile', async ({ page }) => {

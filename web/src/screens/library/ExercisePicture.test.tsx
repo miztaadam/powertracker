@@ -174,21 +174,27 @@ describe('exercise pictures', () => {
   it('exercisesTab_thumbnailFarOffScreen_isDrawnWhenItsRowComesNear', () => {
     // A browser that lays rows out: this one's row is far below the screen.
     let seen: ((entries: Partial<IntersectionObserverEntry>[]) => void) | undefined
+    const made: (IntersectionObserverInit | undefined)[] = []
     const observed: Element[] = []
     const unobserved: Element[] = []
     vi.stubGlobal(
       'IntersectionObserver',
       class {
-        constructor(callback: (entries: Partial<IntersectionObserverEntry>[]) => void) {
+        constructor(callback: (entries: Partial<IntersectionObserverEntry>[]) => void, options?: IntersectionObserverInit) {
           seen = callback
+          made.push(options)
         }
         observe = (el: Element) => observed.push(el)
         unobserve = (el: Element) => unobserved.push(el)
       },
     )
-    const farBelow = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({ top: 9000, bottom: 9064, left: 0, right: 375, width: 375, height: 64, x: 0, y: 9000, toJSON: () => ({}) })
+    const boxAt = (top: number, height: number) => ({ top, bottom: top + height, left: 0, right: 375, width: 375, height, x: 0, y: top, toJSON: () => ({}) })
+    // The list is 500 px tall, 200 px down the screen; the rows are far below it.
+    const farBelow = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      return this.classList.contains('lib-scroll') ? boxAt(200, 500) : boxAt(9000, 64)
+    })
     render(
-      <ul>
+      <ul className="lib-scroll">
         <li className="lib-row">
           <ExerciseThumbnail name="Bench" />
         </li>
@@ -202,6 +208,10 @@ describe('exercise pictures', () => {
     const [tile, empty] = thumbnails() as [HTMLElement, HTMLElement]
     expect(tile.childElementCount).toBe(0)
     expect(observed).toEqual([tile.closest('.lib-row')])
+    // Watched against the list it scrolls in, 600 px ahead of that list's edges: a margin only reaches past the
+    // box being watched against, and the list hides its rows long before the screen does.
+    expect(made).toEqual([{ root: tile.closest('.lib-scroll'), rootMargin: '600px 0px' }])
+    expect(made[0]!.root).toBeInstanceOf(HTMLUListElement)
 
     // Still far away: nothing. Near: drawn, and no longer watched.
     act(() => seen!([{ target: observed[0]!, isIntersecting: false }]))
@@ -210,6 +220,26 @@ describe('exercise pictures', () => {
     expect(drawn(tile.querySelector('svg')!)).toEqual(expected('Bench', bench.thumbnail as 'start' | 'end'))
     expect(unobserved).toContain(observed[0])
     expect(empty.childElementCount).toBe(0)
+    cleanup()
+
+    // Near is measured from the list's edges, not the screen's: a row 550 px under the list's bottom edge (at 1250,
+    // with the list ending at 700) is drawn at once, and one 650 px under it waits.
+    for (const [top, drawnAtOnce] of [[1250, true], [1350, false]] as const) {
+      farBelow.mockImplementation(function (this: Element) {
+        return this.classList.contains('lib-scroll') ? boxAt(200, 500) : boxAt(top, 64)
+      })
+      render(
+        <ul className="lib-scroll">
+          <li className="lib-row">
+            <ExerciseThumbnail name="Bench" />
+          </li>
+        </ul>,
+      )
+      expect(thumbnails()[0]!.childElementCount, `row at ${top}`).toBe(drawnAtOnce ? 1 : 0)
+      cleanup()
+    }
+    // The second list that had a tile waiting got a watcher of its own.
+    expect(made).toHaveLength(2)
     farBelow.mockRestore()
     vi.unstubAllGlobals()
   })

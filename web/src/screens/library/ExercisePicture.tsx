@@ -38,26 +38,40 @@ export function ExercisePicture({ name }: { name: string }) {
 /** How far outside the screen a row's thumbnail is already drawn, so it is there before the row scrolls in. */
 const NEAR_PX = 600
 
-/** One watcher for every tile still waiting off screen, each by the row it is placed in. */
-let watcher: IntersectionObserver | null = null
+/** The margin that makes a watcher see a row `NEAR_PX` before it scrolls in. */
+const NEAR_MARGIN = `${NEAR_PX}px 0px`
+
+/**
+ * One watcher for each scrolling list, for its tiles still waiting off screen, each by the row it is placed in. It
+ * watches against the list itself (or the screen, for a tile in no list): a browser only looks ahead by the margin
+ * past the box being watched against, and a list that scrolls inside the page hides its rows before the screen does.
+ */
+const watchers = new WeakMap<Element | Document, IntersectionObserver>()
 const waiting = new WeakMap<Element, () => void>()
 
-function watch(placed: Element, onNear: () => void): () => void {
-  watcher ??= new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue
-        watcher!.unobserve(entry.target)
-        waiting.get(entry.target)?.()
-        waiting.delete(entry.target)
-      }
-    },
-    { rootMargin: `${NEAR_PX}px 0px` },
-  )
+function watch(placed: Element, scroller: Element | null, onNear: () => void): () => void {
+  const key = scroller ?? document
+  let watcher = watchers.get(key)
+  if (watcher == null) {
+    const made = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          made.unobserve(entry.target)
+          waiting.get(entry.target)?.()
+          waiting.delete(entry.target)
+        }
+      },
+      { root: scroller, rootMargin: NEAR_MARGIN },
+    )
+    watchers.set(key, made)
+    watcher = made
+  }
+  const watching = watcher
   waiting.set(placed, onNear)
-  watcher.observe(placed)
+  watching.observe(placed)
   return () => {
-    watcher!.unobserve(placed)
+    watching.unobserve(placed)
     waiting.delete(placed)
   }
 }
@@ -81,12 +95,15 @@ export const ExerciseThumbnail = memo(function ExerciseThumbnail({ name }: { nam
     // The row is what is placed: its box is known even while the browser skips laying out what is inside it
     // (`content-visibility` in library.css), and asking for the tile's own box would make it lay every row out.
     const placed = tile.current.closest('.lib-row') ?? tile.current
+    // The list the row scrolls in. Near is measured from its edges, or from the screen's for a tile in no list.
+    const scroller = placed.closest('.lib-scroll')
     const box = placed.getBoundingClientRect()
-    if (typeof IntersectionObserver === 'undefined' || (box.bottom > -NEAR_PX && box.top < window.innerHeight + NEAR_PX)) {
+    const edges = scroller?.getBoundingClientRect() ?? { top: 0, bottom: window.innerHeight }
+    if (typeof IntersectionObserver === 'undefined' || (box.bottom > edges.top - NEAR_PX && box.top < edges.bottom + NEAR_PX)) {
       setNear(true)
       return
     }
-    return watch(placed, () => setNear(true))
+    return watch(placed, scroller, () => setNear(true))
   }, [waits])
   return (
     <span ref={tile} className="lib-thumb" aria-hidden="true">
