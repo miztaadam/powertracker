@@ -30,6 +30,12 @@ enum class BodyPoint {
 
     /** The waist: on the front of the torso, [Body.WAIST_ABOVE_HIP] above the hip joint (a seated row's handle "to your waist"). */
     WAIST,
+
+    /** The near thigh along its length (Task 11: a one-leg machine's pad on the working thigh). */
+    NEAR_THIGH,
+
+    /** The near shin along its length (Task 11: a one-leg machine's roller on the working leg). */
+    NEAR_SHIN,
 }
 
 /**
@@ -74,6 +80,18 @@ enum class Surface(val grip: Boolean = false) {
 
     /** A push sled's upright handle post, held (Task 10). */
     SLED_HANDLE(grip = true),
+
+    /** The top of a stability ball (Task 11). */
+    BALL,
+
+    /** A machine's or bench's hand grips, held (Task 11). */
+    HANDLE(grip = true),
+
+    /** A kneeling pad on the floor, under the knees (Task 11). */
+    KNEE_PAD,
+
+    /** A hip thrust machine's padded roller over the front of the hips (Task 11). */
+    HIP_PAD,
 }
 
 /** [point] rests on [surface] (within the contact tolerance) in the panels in [at]. */
@@ -225,6 +243,8 @@ internal fun Skeleton.probes(point: BodyPoint): List<Probe> {
         BodyPoint.ELBOWS -> Side.entries.map { s -> side(s).elbow.let { Probe("${s.label} elbow", it, it, Body.UPPER_ARM_WIDTH / 2) } }
         BodyPoint.SHOULDERS -> Side.entries.map { s -> side(s).shoulder.let { Probe("${s.label} shoulder", it, it, 0.0) } }
         BodyPoint.SHINS -> Side.entries.map { s -> side(s).let { Probe("${s.label} shin", it.knee, it.ankle, Body.SHIN_WIDTH / 2) } }
+        BodyPoint.NEAR_THIGH -> near.let { listOf(Probe("near thigh", it.hip, it.knee, Body.THIGH_WIDTH / 2)) }
+        BodyPoint.NEAR_SHIN -> near.let { listOf(Probe("near shin", it.knee, it.ankle, Body.SHIN_WIDTH / 2)) }
         BodyPoint.UPPER_ABDOMEN -> onTorso(Segment.TORSO.length - Body.CHEST_BELOW_SHOULDER - 10.0, Body.CHEST_DEPTH - 1.5).let {
             listOf(Probe("upper abdomen", it, it, 0.0))
         }

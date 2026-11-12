@@ -5,8 +5,12 @@ package com.powertracker.domain.library.figures
 // below. The shoulder batch also reuses, with new options that default to the old drawing: PressMachine
 // (handleEndOn), PecDeck (facingPad), CableStack (crossed, and cableInFront in a front view's single column).
 
-/** How a kettlebell is held: racked at the shoulder, or locked out overhead. Either way the bell rests on the forearm. */
-enum class KettlebellHold { RACK, OVERHEAD }
+/**
+ * How a kettlebell is held: racked at the shoulder, or locked out overhead (either way the bell rests on the forearm),
+ * or swinging (Task 11): the straight arm holds the handle and the bell hangs on past the hand, in line with the
+ * forearm, as it does all through a swing.
+ */
+enum class KettlebellHold { RACK, OVERHEAD, SWING }
 
 /**
  * A kettlebell in one hand ([hand]), its handle in the palm and the bell resting on the back of the forearm, by the
@@ -54,7 +58,10 @@ private fun cap(role: Role, a: Point, b: Point, width: Double) = Capsule(role, a
 
 private fun unitOf(v: Point): Point = v * (1.0 / v.length())
 
-/** The bell's centre: by the wrist, on the back of the forearm (see [Kettlebell]). */
+/** A swinging bell's centre past the grip, cm: the handle (about 7 cm to the bell's shoulders) and the bell's radius, less the fingers' wrap. */
+internal const val SWING_DROP = 15.5
+
+/** The bell's centre: by the wrist, on the back of the forearm (see [Kettlebell]); past the hand in a swing. */
 internal fun Kettlebell.bellCentre(s: Skeleton): Point {
     val l = s.side(hand)
     val f = unitOf(l.wrist - l.elbow)
@@ -63,6 +70,8 @@ internal fun Kettlebell.bellCentre(s: Skeleton): Point {
     return when (hold) {
         KettlebellHold.RACK -> l.wrist - f * 4.0 - back * (Body.FOREARM_WIDTH / 2 + Kettlebell.BELL_RADIUS - 3.0)
         KettlebellHold.OVERHEAD -> l.wrist - f * 4.0 + back * (Body.FOREARM_WIDTH / 2 + Kettlebell.BELL_RADIUS - 1.5)
+        // The handle's top in the grip, the bell's centre [SWING_DROP] on along the forearm's line.
+        KettlebellHold.SWING -> l.grip + f * SWING_DROP
     }
 }
 

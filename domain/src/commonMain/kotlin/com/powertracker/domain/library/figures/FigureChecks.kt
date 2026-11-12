@@ -163,6 +163,7 @@ object FigureChecks {
             is CamberedBar -> Barbell.SHAFT_RADIUS
             PulloverDumbbell -> Dumbbell.HEAD_RADIUS
             is Kettlebell -> 0.0
+            is AnkleStrap -> 0.0
             EZBar -> Barbell.SHAFT_RADIUS
             OverheadDumbbell -> Dumbbell.HEAD_RADIUS
         }

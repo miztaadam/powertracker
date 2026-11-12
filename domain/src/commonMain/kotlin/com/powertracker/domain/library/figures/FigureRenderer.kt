@@ -67,7 +67,7 @@ object FigureRenderer {
         val s = scene.pose.skeleton(view)
         val fixed = scene.props.filterIsInstance<FixedProp>()
         val held = scene.props.filterIsInstance<HeldProp>()
-        val cableEnd = held.firstOrNull { it is LatBar || it == CableHandles || it is CableAttachment || it is CableHandle }?.center(s)
+        val cableEnd = held.firstOrNull { it is LatBar || it == CableHandles || it is CableAttachment || it is CableHandle || it is AnkleStrap }?.center(s)
         val farRole = if (view == View.SIDE) Role.BODY_FAR else Role.BODY
         return buildList {
             // Front view, legs pointing straight away from the camera (a push-up seen head-on): they lie behind the

@@ -953,4 +953,158 @@ class KitTest {
         val low = figureOf(View.SIDE, Scene(standing(lift = 5.0), listOf(Floor)), checks = listOf(FeetOffFloor(10.0, Which.START)))
         assertTrue(problems(low).any { it.message.startsWith("feet 5") })
     }
+
+    // ---- Task 11: the hamstring and glute batch's pieces ----
+
+    @Test
+    fun miniBand_stripBetweenTheLegsAboveTheKneesOrAnkles_drawnInFront() {
+        val pose = Pose(0.0, FigureFixtures.STANDING_PELVIS_Y, 90.0, nearArm = Arm(10.0, 0.0), nearLeg = Leg(10.0, 0.0))
+        val s = pose.skeleton(View.FRONT)
+        for (at in BandAt.entries) {
+            val band = MiniBand(at)
+            assertEquals(emptyMap(), band.surfaces(View.FRONT))
+            assertEquals(emptyList(), band.solids(View.FRONT))
+            assertEquals(emptyList(), band.draw(View.FRONT, null, s))
+            val strip = band.drawFront(View.FRONT, null, s).map { it.shape }.filterIsInstance<Capsule>()
+            assertEquals(listOf(Role.GAP, Role.EQUIPMENT), strip.map { it.role })
+            val (a, b) = band.ends(s)
+            assertEquals(Point(strip[1].x1, strip[1].y1), a)
+            assertEquals(Point(strip[1].x2, strip[1].y2), b)
+            val above = if (at == BandAt.KNEES) (s.near.knee - a).length() else (s.near.ankle - a).length()
+            assertEquals(if (at == BandAt.KNEES) MiniBand.ABOVE_KNEE else MiniBand.ABOVE_ANKLE, above, 1e-9)
+        }
+        assertRenders(figureOf(View.FRONT, Scene(pose, listOf(Floor, MiniBand()))), setOf(Role.BODY, Role.EQUIPMENT, Role.GAP))
+    }
+
+    @Test
+    fun stabilityBall_65cmOnTheFloor_itsTopASurface_andSolid() {
+        val ball = StabilityBall(x = 40.0)
+        assertEquals(65.0, ball.diameter)
+        val top = ball.surfaces(View.SIDE).getValue(Surface.BALL).single()
+        assertEquals(0.0, top.signedDistance(Point(40.0, -65.0)), 1e-9)
+        assertEquals(0.0, top.signedDistance(Point(40.0, 0.0)), 1e-9)
+        assertEquals(listOf("ball"), ball.solids(View.SIDE).map { it.label })
+        assertTrue(ball.draw(View.SIDE, null).any { it.shape is Circle && it.shape.role == Role.EQUIPMENT })
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, ball))), setOf(Role.BODY, Role.EQUIPMENT))
+    }
+
+    @Test
+    fun ankleStrap_onTheLowerShin_theCableRunsToIt() {
+        val pose = standing(farLeg = Leg(0.0, 90.0))
+        val s = pose.skeleton()
+        val strap = AnkleStrap(Side.NEAR)
+        val c = strap.center(s)
+        assertEquals(AnkleStrap.ABOVE_ANKLE, (c - s.near.ankle).length(), 1e-9)
+        assertTrue(strap.draw(s).all { it.shape.role == Role.ACCENT })
+        // A cable stack with its cable in front runs it from the pulley to the cuff.
+        val stack = CableStack(x = 60.0, pulleyHeight = 12.0, reach = -14.0, cableInFront = true)
+        val world = FigureRenderer.world(Scene(pose, listOf(Floor, stack, strap)), View.SIDE).map { it.shape }
+        assertTrue(world.any { it is Capsule && it.role == Role.EQUIPMENT && it.x1 == 46.0 && it.y1 == -12.0 && Point(it.x2, it.y2) == c })
+        assertRenders(figureOf(View.SIDE, Scene(pose, listOf(Floor, stack, strap))), setOf(Role.BODY, Role.EQUIPMENT, Role.ACCENT))
+    }
+
+    @Test
+    fun nordicStation_kneePadAndAnkleRoller() {
+        val st = NordicStation(padFrom = -37.0, padTo = 14.0, padHeight = 6.0, roller = Point(-35.0, -24.0))
+        val pad = st.surfaces(View.SIDE).getValue(Surface.KNEE_PAD).single()
+        assertEquals(-6.0, pad.cy - pad.thickness / 2, 1e-9)
+        assertEquals(51.0, pad.length, 1e-9)
+        assertEquals(0.0, st.surfaces(View.SIDE).getValue(Surface.LEG_BRACE).single().signedDistance(Point(-35.0, -24.0 + NordicStation.ROLLER_RADIUS)), 1e-9)
+        assertEquals(listOf("pad"), st.solids(View.SIDE).map { it.label })
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, st))), setOf(Role.BODY, Role.EQUIPMENT))
+    }
+
+    @Test
+    fun reverseHyperBench_highPad_handlesUnderTheHeadEnd_postsClearOfTheEdge() {
+        val b = ReverseHyperBench(edge = 8.0, height = 95.0, handle = Point(68.0, -48.0))
+        val pad = b.surfaces(View.SIDE).getValue(Surface.BENCH).single()
+        assertEquals(-95.0, pad.cy - pad.thickness / 2, 1e-9)
+        assertEquals(8.0, pad.cx - pad.length / 2, 1e-9)
+        assertEquals(0.0, b.surfaces(View.SIDE).getValue(Surface.HANDLE).single().signedDistance(Point(68.0, -48.0)).coerceAtLeast(0.0))
+        assertTrue(Surface.HANDLE.grip)
+        // The pad and two posts; the first post well inside the edge, clear of the hanging feet.
+        val solids = b.solids(View.SIDE)
+        assertEquals(3, solids.size)
+        assertTrue(solids.drop(1).all { it.slab.cx - 8.0 >= 20.0 })
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, b))), setOf(Role.BODY, Role.EQUIPMENT))
+    }
+
+    @Test
+    fun legCurlMachines_padsSurfaces_leverFromThePivotToTheRoller_drawnInFront() {
+        val pivot = Point(-40.0, -67.0)
+        val roller = Point(-75.0, -78.0)
+        val lying = LyingLegCurlMachine(kneeEnd = -36.0, height = 60.0, pivot = pivot, roller = roller, handle = Point(80.0, -42.0))
+        assertEquals(setOf(Surface.BENCH, Surface.SHIN_PAD, Surface.HANDLE), lying.surfaces(View.SIDE).keys)
+        assertEquals(-60.0, lying.surfaces(View.SIDE).getValue(Surface.BENCH).single().let { it.cy - it.thickness / 2 }, 1e-9)
+        val seated = SeatedLegCurlMachine(seatFront = 30.0, seatHeight = 50.0, backAngle = 80.0, pivot = pivot, roller = roller, lap = Point(-30.0, -80.0), handle = Point(14.0, -60.0))
+        assertEquals(setOf(Surface.SEAT, Surface.BACK_PAD, Surface.SHIN_PAD, Surface.THIGH_PAD, Surface.HANDLE), seated.surfaces(View.SIDE).keys)
+        val standingM = StandingLegCurlMachine(postX = 40.0, thighPad = Point(20.0, -60.0), pivot = pivot, roller = roller, handle = Point(30.0, -110.0))
+        assertEquals(setOf(Surface.THIGH_PAD, Surface.SHIN_PAD, Surface.HANDLE), standingM.surfaces(View.SIDE).keys)
+        assertEquals(emptyList(), standingM.solids(View.SIDE))
+        for (m in listOf<FixedProp>(lying, seated, standingM)) {
+            val front = m.drawFront(View.SIDE).map { it.shape }
+            val lever = front.filterIsInstance<Capsule>().first { it.role == Role.EQUIPMENT }
+            assertEquals(pivot, Point(lever.x1, lever.y1))
+            assertEquals(roller, Point(lever.x2, lever.y2))
+            assertTrue(front.any { it is Circle && it.role == Role.EQUIPMENT && it.cx == roller.x && it.cy == roller.y })
+            assertTrue(front.any { it.role == Role.GAP })
+            assertEquals(emptyList(), m.drawFront(View.FRONT))
+            assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT))
+        }
+        // The seated machine's lap pad is drawn in front too.
+        assertTrue(seated.drawFront(View.SIDE).map { it.shape }.any { it is Circle && it.cx == -30.0 && it.cy == -80.0 })
+    }
+
+    @Test
+    fun hipThrustMachine_backPadPlatformAndHipPad_padDrawnInFront() {
+        val m = HipThrustMachine(benchEdge = 0.0, benchHeight = 43.0, platform = Point(95.0, -5.0), pivot = Point(105.0, -40.0), pad = Point(45.0, -70.0))
+        assertEquals(setOf(Surface.BENCH, Surface.FOOT_PLATE, Surface.HIP_PAD), m.surfaces(View.SIDE).keys)
+        assertEquals(-43.0, m.surfaces(View.SIDE).getValue(Surface.BENCH).single().let { it.cy - it.thickness / 2 }, 1e-9)
+        assertEquals(-5.0, m.surfaces(View.SIDE).getValue(Surface.FOOT_PLATE).single().let { it.cy - it.thickness / 2 }, 1e-9)
+        assertEquals(listOf("bench", "platform"), m.solids(View.SIDE).map { it.label })
+        // The lever from the pivot to the pad behind the body; the pad itself in front of the hips.
+        assertTrue(m.draw(View.SIDE, null).map { it.shape }.any { it is Capsule && it.x1 == 105.0 && it.y1 == -40.0 && it.x2 == 45.0 && it.y2 == -70.0 })
+        val front = m.drawFront(View.SIDE).map { it.shape }.filterIsInstance<Circle>()
+        assertEquals(setOf(Role.GAP, Role.EQUIPMENT), front.map { it.role }.toSet())
+        assertRenders(figureOf(View.SIDE, Scene(standing(), listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT))
+    }
+
+    @Test
+    fun hipMachine_frontView_kneePadsOutsideOrInside_drawnInFront() {
+        val leg = Leg(hip = 40.0, knee = 40.0, out = 60.0)
+        val pose = Pose(0.0, -60.0, 90.0, nearArm = Arm(12.0, 0.0), nearLeg = leg)
+        val s = pose.skeleton(View.FRONT)
+        for (outside in listOf(true, false)) {
+            val m = HipMachine(x = 0.0, seatHeight = 50.0, padTop = 128.0, padsOutside = outside)
+            assertEquals(setOf(Surface.SEAT), m.surfaces(View.FRONT).keys)
+            assertEquals(emptyList(), m.solids(View.FRONT))
+            for (side in Side.entries) {
+                val k = s.side(side).knee
+                val (a, b) = m.kneePad(side, s)
+                assertEquals(a.x, b.x)
+                // Outside: further from the middle than the knee; inside: nearer.
+                val further = abs(a.x) > abs(k.x)
+                assertEquals(outside, further, "pads outside $outside, $side")
+                assertEquals(Body.SHIN_WIDTH / 2 + HipMachine.KNEE_PAD_RADIUS, abs(a.x - k.x), 1e-9)
+            }
+            val front = m.drawFront(View.FRONT, null, s).map { it.shape }
+            assertEquals(4, front.size)
+            assertEquals(emptyList(), m.drawFront(View.SIDE, null, s))
+            assertRenders(figureOf(View.FRONT, Scene(pose, listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT, Role.GAP))
+        }
+    }
+
+    @Test
+    fun kettlebellSwing_bellPastTheHandInLineWithTheForearm_otherHoldsUnchanged() {
+        val pose = standing(arm = Arm(shoulder = 70.0, elbow = 0.0))
+        val s = pose.skeleton()
+        val c = Kettlebell(Side.NEAR, KettlebellHold.SWING).bellCentre(s)
+        val f = (s.near.wrist - s.near.elbow).let { it * (1.0 / it.length()) }
+        assertEquals(s.near.grip + f * SWING_DROP, c)
+        assertEquals(s.near.grip, Kettlebell(Side.NEAR, KettlebellHold.SWING).center(s))
+        // The rack hold's bell is not on the forearm's line (the old holds are as they were).
+        val rack = Kettlebell(Side.NEAR, KettlebellHold.RACK).bellCentre(s)
+        assertTrue((rack - (s.near.grip + f * SWING_DROP)).length() > 5.0)
+        assertRenders(figureOf(View.SIDE, Scene(pose, listOf(Floor, Kettlebell(Side.NEAR, KettlebellHold.SWING)))), setOf(Role.BODY, Role.ACCENT, Role.ACCENT_FILL))
+    }
 }
