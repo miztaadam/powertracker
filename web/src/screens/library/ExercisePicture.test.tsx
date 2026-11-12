@@ -244,6 +244,73 @@ describe('exercise pictures', () => {
     vi.unstubAllGlobals()
   })
 
+  it('exercisesTab_thumbnailsArePreparedInIdleTime_soTheTabOpensWithoutWorkingThemOut', async () => {
+    // A fresh domain and fresh drawings, as at start-up: nothing has been worked out yet.
+    vi.resetModules()
+    const fresh = (await import('../../domain')).grit
+    const shapes = vi.spyOn(fresh, 'figureShapes')
+    const { ExerciseThumbnail: Thumbnail, prepareThumbnails } = await import('./ExercisePicture')
+    // The browser's idle time, handed out by the test: each slice has as long as the test says.
+    const slices: IdleRequestCallback[] = []
+    let remaining = 0
+    vi.stubGlobal('requestIdleCallback', (callback: IdleRequestCallback) => slices.push(callback))
+    vi.stubGlobal('cancelIdleCallback', () => {})
+    const idle = (ms: number) => {
+      remaining = ms
+      slices.shift()!({ didTimeout: false, timeRemaining: () => remaining })
+    }
+
+    prepareThumbnails()
+    // Asked for idle time, and nothing done yet.
+    expect(slices).toHaveLength(1)
+    expect(shapes).not.toHaveBeenCalled()
+
+    // A slice with no time left still does one piece (the browser under test reports none), then waits for the next.
+    idle(0)
+    expect(shapes).not.toHaveBeenCalled()
+    expect(slices).toHaveLength(1)
+    // The rest in one long slice: every catalogue entry with a figure, in the list's order, its thumbnail's pose once.
+    while (slices.length > 0) idle(1000)
+    const figured = fresh.searchLibrary('', [], []).flatMap((e) => {
+      const info = fresh.figureInfo(e.name)
+      return info == null ? [] : [[e.name, info.thumbnail]]
+    })
+    expect(figured.length).toBeGreaterThan(10)
+    expect(shapes.mock.calls).toEqual(figured)
+
+    // Opening the tab now works nothing out: the drawing is the one already made.
+    shapes.mockClear()
+    render(<Thumbnail name="Bench" />)
+    expect(drawn(thumbnails()[0]!.querySelector('svg')!)).toEqual(expected('Bench', bench.thumbnail as 'start' | 'end'))
+    expect(shapes).not.toHaveBeenCalled()
+    cleanup()
+    vi.unstubAllGlobals()
+  })
+
+  it('exercisesTab_thumbnailPreparation_withoutIdleCallbacks_usesTimers_andCanBeStopped', async () => {
+    vi.resetModules()
+    const fresh = (await import('../../domain')).grit
+    const { prepareThumbnails } = await import('./ExercisePicture')
+    vi.stubGlobal('requestIdleCallback', undefined)
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      // Stopped before it starts: nothing is ever worked out.
+      const shapes = vi.spyOn(fresh, 'figureShapes')
+      prepareThumbnails()()
+      await vi.runAllTimersAsync()
+      expect(shapes).not.toHaveBeenCalled()
+      // Left to run, timers stand in for idle time until every thumbnail is worked out.
+      prepareThumbnails()
+      expect(shapes).not.toHaveBeenCalled()
+      await vi.runAllTimersAsync()
+      const figured = fresh.searchLibrary('', [], []).filter((e) => fresh.figureInfo(e.name) != null)
+      expect(shapes).toHaveBeenCalledTimes(figured.length)
+    } finally {
+      vi.useRealTimers()
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('exercisesTab_customExercise_showsEmptyTile', async () => {
     await ownExercise()
     await showExercisesTab()

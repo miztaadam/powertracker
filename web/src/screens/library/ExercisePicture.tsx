@@ -1,6 +1,7 @@
 import { memo, useLayoutEffect, useRef, useState } from 'react'
 import { grit } from '../../domain'
-import { FigureSvg, type Pose } from './FigureSvg'
+import { library } from '../../state/exercisePicker'
+import { FigureSvg, prepareDrawing, type Pose } from './FigureSvg'
 import './library.css'
 
 type FigureInfo = NonNullable<ReturnType<typeof grit.figureInfo>>
@@ -111,3 +112,51 @@ export const ExerciseThumbnail = memo(function ExerciseThumbnail({ name }: { nam
     </span>
   )
 })
+
+/** How long a slice of idle time is where the browser has no idle callbacks (Safari). */
+const FALLBACK_SLICE_MS = 8
+
+/** Runs `run` when the browser is next idle, with how long it may take; returns how to call it off. */
+function whenIdle(run: (timeLeft: () => number) => void): () => void {
+  if (typeof requestIdleCallback === 'function') {
+    const id = requestIdleCallback((deadline) => run(() => deadline.timeRemaining()))
+    return () => cancelIdleCallback(id)
+  }
+  const id = setTimeout(() => {
+    const started = performance.now()
+    run(() => FALLBACK_SLICE_MS - (performance.now() - started))
+  }, 1)
+  return () => clearTimeout(id)
+}
+
+/**
+ * Works out every catalogue thumbnail in the browser's idle time after start-up, in the list's order, a little at a
+ * time, so the Exercises tab opens with its drawings already made: working a figure out cold is what made the tab
+ * slow to open, and the cost grew with every figure on its first screen. Each slice does one piece, then as many more
+ * as its idle time allows. Whatever a screen needs before this reaches it is worked out there and then, as before,
+ * and kept for both. Returns how to stop it.
+ */
+export function prepareThumbnails(): () => void {
+  // The catalogue and its order first (the picker reads them too), then the figures (the domain builds them all on
+  // the first look-up), then one thumbnail at a time.
+  let names: readonly string[] = []
+  const pieces: (() => void)[] = [
+    () => void library(),
+    () => (names = grit.searchLibrary('', [], []).map((e) => e.name)),
+    () => {
+      for (const name of names) {
+        const figure = grit.figureInfo(name)
+        if (figure != null) pieces.push(() => prepareDrawing(name, figure.thumbnail === 'start' ? 'start' : 'end'))
+      }
+    },
+  ]
+  let next = 0
+  let cancel: (() => void) | null = null
+  const slice = (timeLeft: () => number) => {
+    do pieces[next++]!()
+    while (next < pieces.length && timeLeft() > 0)
+    cancel = next < pieces.length ? whenIdle(slice) : null
+  }
+  cancel = whenIdle(slice)
+  return () => cancel?.()
+}

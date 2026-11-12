@@ -48,6 +48,14 @@ function drawing(name: string, pose: Pose): readonly ReactElement[] | null {
   return found
 }
 
+/**
+ * Works out `name`'s `pose` ahead of time, so the first screen that shows it only has to put it on the page. Working a
+ * figure out cold (the domain solves its pose) is the slow part of drawing it.
+ */
+export function prepareDrawing(name: string, pose: Pose): void {
+  drawing(name, pose)
+}
+
 export type FigureSvgProps = {
   /** The exercise, by any name the catalogue knows it under. */
   name: string
