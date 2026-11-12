@@ -45,6 +45,8 @@ export declare namespace GritDomain {
             exercisesByMuscle(group: string, equipment: Array<string>): Array<JsLibraryExercise>;
             exercisesByMuscles(groups: Array<string>, equipment: Array<string>): Array<JsLibraryExercise>;
             formGuide(name: string): Nullable<JsFormGuide>;
+            figureInfo(name: string): Nullable<JsFigureInfo>;
+            figureShapes(name: string, which: string): Nullable<Array<JsFigureShape>>;
             safetyLine(): string;
             rpeGuide(): JsRpeGuide;
             ratioRanges(): Array<JsRatioRange>;
@@ -357,5 +359,83 @@ export declare namespace JsLibraryExercise {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsLibraryExercise;
+    }
+}
+export declare class JsFigureInfo {
+    constructor(startCaption: string, endCaption: string, thumbnail: string, viewBox: Array<number>);
+    get startCaption(): string;
+    get endCaption(): string;
+    get thumbnail(): string;
+    get viewBox(): Array<number>;
+    copy(startCaption?: string, endCaption?: string, thumbnail?: string, viewBox?: Array<number>): JsFigureInfo;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsFigureInfo {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsFigureInfo;
+    }
+}
+export declare abstract class JsFigureShape {
+    private constructor();
+    get kind(): string;
+    get role(): string;
+}
+export declare namespace JsFigureShape {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsFigureShape;
+    }
+}
+export declare class JsFigureCircle extends JsFigureShape.$metadata$.constructor {
+    constructor(role: string, cx: number, cy: number, r: number);
+    get cx(): number;
+    get cy(): number;
+    get r(): number;
+}
+export declare namespace JsFigureCircle {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsFigureCircle;
+    }
+}
+export declare class JsFigureCapsule extends JsFigureShape.$metadata$.constructor {
+    constructor(role: string, x1: number, y1: number, x2: number, y2: number, width: number);
+    get x1(): number;
+    get y1(): number;
+    get x2(): number;
+    get y2(): number;
+    get width(): number;
+}
+export declare namespace JsFigureCapsule {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsFigureCapsule;
+    }
+}
+export declare class JsFigureRect extends JsFigureShape.$metadata$.constructor {
+    constructor(role: string, x: number, y: number, w: number, h: number, radius: number);
+    get x(): number;
+    get y(): number;
+    get w(): number;
+    get h(): number;
+    get radius(): number;
+}
+export declare namespace JsFigureRect {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsFigureRect;
+    }
+}
+export declare class JsFigurePolygon extends JsFigureShape.$metadata$.constructor {
+    constructor(role: string, points: Array<number>);
+    get points(): Array<number>;
+}
+export declare namespace JsFigurePolygon {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsFigurePolygon;
     }
 }

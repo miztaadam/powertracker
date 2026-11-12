@@ -9,6 +9,8 @@ import com.powertracker.domain.library.areas.hamstringsGlutes
 import com.powertracker.domain.library.areas.mainLifts
 import com.powertracker.domain.library.areas.quads
 import com.powertracker.domain.library.areas.shoulders
+import com.powertracker.domain.library.figures.ExerciseFigure
+import com.powertracker.domain.library.figures.Figures
 
 /** The exercise catalogue: static data compiled into both apps, and the search both pickers use. */
 object Library {
@@ -139,3 +141,9 @@ object Library {
         fold("źżž", 'z')
     }
 }
+
+/**
+ * The picture of the catalogue entry [name] resolves to, the same way [Library.find] resolves names, aliases and
+ * former names (an "Overhead press" row shows the Strict press picture); null for anything without one.
+ */
+fun Library.figure(name: String): ExerciseFigure? = find(name)?.let { Figures.byName(it.name) }

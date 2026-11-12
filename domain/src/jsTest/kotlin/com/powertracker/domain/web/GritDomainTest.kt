@@ -8,6 +8,13 @@ import com.powertracker.domain.library.Equipment
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.library.RpeGuide
+import com.powertracker.domain.library.figure
+import com.powertracker.domain.library.figures.Capsule
+import com.powertracker.domain.library.figures.Circle
+import com.powertracker.domain.library.figures.FigureRenderer
+import com.powertracker.domain.library.figures.Polygon
+import com.powertracker.domain.library.figures.RoundRect
+import com.powertracker.domain.library.figures.Which
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
@@ -20,6 +27,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -363,5 +371,43 @@ class GritDomainTest {
         val guide = GritDomain.rpeGuide()
         assertEquals(RpeGuide.title, guide.title)
         assertContentEquals(RpeGuide.lines.toTypedArray(), guide.lines)
+    }
+
+    @Test
+    fun figureInfo_andShapes_plainData_nullForUnknown() {
+        val info = assertNotNull(GritDomain.figureInfo("bench press"))
+        val bench = Library.figure("Bench")!!
+        assertEquals(bench.startCaption, info.startCaption)
+        assertEquals(bench.endCaption, info.endCaption)
+        assertEquals("end", info.thumbnail)
+        assertContentEquals(arrayOf(400.0, 300.0), info.viewBox)
+
+        for ((which, domainWhich) in listOf("start" to Which.START, "end" to Which.END)) {
+            val shapes = assertNotNull(GritDomain.figureShapes("Bench", which))
+            val expected = FigureRenderer.shapes(bench, domainWhich)
+            assertEquals(expected.size, shapes.size)
+            for ((js, shape) in shapes.zip(expected)) {
+                assertEquals(shape.role.name, js.role)
+                when (shape) {
+                    is Circle -> { js as JsFigureCircle; assertEquals("circle", js.kind); assertEquals(listOf(shape.cx, shape.cy, shape.r), listOf(js.cx, js.cy, js.r)) }
+                    is Capsule -> {
+                        js as JsFigureCapsule
+                        assertEquals("capsule", js.kind)
+                        assertEquals(listOf(shape.x1, shape.y1, shape.x2, shape.y2, shape.width), listOf(js.x1, js.y1, js.x2, js.y2, js.width))
+                    }
+                    is RoundRect -> {
+                        js as JsFigureRect
+                        assertEquals("rect", js.kind)
+                        assertEquals(listOf(shape.x, shape.y, shape.w, shape.h, shape.radius), listOf(js.x, js.y, js.w, js.h, js.radius))
+                    }
+                    is Polygon -> { js as JsFigurePolygon; assertEquals("polygon", js.kind); assertContentEquals(shape.points.toTypedArray(), js.points) }
+                }
+            }
+        }
+        assertTrue(GritDomain.figureShapes("Bench", "start")!!.map { it.kind }.toSet().containsAll(listOf("circle", "capsule", "rect", "polygon")))
+
+        assertNull(GritDomain.figureInfo("My own exercise"))
+        assertNull(GritDomain.figureShapes("My own exercise", "start"))
+        assertFailsWith<IllegalArgumentException> { GritDomain.figureShapes("Bench", "START") }
     }
 }

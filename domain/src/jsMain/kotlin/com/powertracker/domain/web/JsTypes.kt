@@ -19,6 +19,11 @@ import com.powertracker.domain.coach.AccessoryOption
 import com.powertracker.domain.coach.CoachSettings
 import com.powertracker.domain.library.FormGuide
 import com.powertracker.domain.library.LibraryExercise
+import com.powertracker.domain.library.figures.Capsule
+import com.powertracker.domain.library.figures.Circle
+import com.powertracker.domain.library.figures.Polygon
+import com.powertracker.domain.library.figures.RoundRect
+import com.powertracker.domain.library.figures.Shape
 import com.powertracker.domain.progress.Pr
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -282,3 +287,36 @@ internal fun LibraryExercise.toJs() = JsLibraryExercise(
     name, aliases.toTypedArray(), area.name, equipment.map { it.name }.toTypedArray(), muscles.toTypedArray(),
     kind.name, category.name, parentLift?.name, guide.toJs(),
 )
+
+/** A figure's captions, which pose the thumbnail shows ("start" or "end"), and its view box [width, height]. */
+@JsExport
+data class JsFigureInfo(val startCaption: String, val endCaption: String, val thumbnail: String, val viewBox: Array<Double>)
+
+/**
+ * One drawing primitive in view-box units (y down). [kind] is "circle", "capsule", "rect" or "polygon"; [role] a
+ * `Role` name. The number fields use the domain's property names.
+ */
+@JsExport
+sealed class JsFigureShape(val kind: String, val role: String)
+
+@JsExport
+class JsFigureCircle(role: String, val cx: Double, val cy: Double, val r: Double) : JsFigureShape("circle", role)
+
+@JsExport
+class JsFigureCapsule(role: String, val x1: Double, val y1: Double, val x2: Double, val y2: Double, val width: Double) :
+    JsFigureShape("capsule", role)
+
+@JsExport
+class JsFigureRect(role: String, val x: Double, val y: Double, val w: Double, val h: Double, val radius: Double) :
+    JsFigureShape("rect", role)
+
+/** [points] are x,y pairs, filled with the non-zero rule. */
+@JsExport
+class JsFigurePolygon(role: String, val points: Array<Double>) : JsFigureShape("polygon", role)
+
+internal fun Shape.toJs(): JsFigureShape = when (this) {
+    is Circle -> JsFigureCircle(role.name, cx, cy, r)
+    is Capsule -> JsFigureCapsule(role.name, x1, y1, x2, y2, width)
+    is RoundRect -> JsFigureRect(role.name, x, y, w, h, radius)
+    is Polygon -> JsFigurePolygon(role.name, points.toTypedArray())
+}

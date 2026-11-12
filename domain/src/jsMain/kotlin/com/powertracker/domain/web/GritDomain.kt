@@ -10,6 +10,9 @@ import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.library.BodyArea
 import com.powertracker.domain.library.Equipment
 import com.powertracker.domain.library.Library
+import com.powertracker.domain.library.figure
+import com.powertracker.domain.library.figures.FigureRenderer
+import com.powertracker.domain.library.figures.Which
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.library.MuscleGroups
 import com.powertracker.domain.library.RpeGuide
@@ -193,6 +196,27 @@ object GritDomain {
 
     /** The form guide of the catalogue entry [name] resolves to; null for anything not in the catalogue. */
     fun formGuide(name: String): JsFormGuide? = Library.find(name)?.guide?.toJs()
+
+    /**
+     * The picture of the catalogue entry [name] resolves to (names, aliases and former names, as [findInLibrary]):
+     * its captions, the thumbnail's pose ("start" or "end") and the view box [400, 300]; null when it has none.
+     */
+    fun figureInfo(name: String): JsFigureInfo? = Library.figure(name)?.let {
+        JsFigureInfo(
+            it.startCaption, it.endCaption, it.thumbnail.name.lowercase(),
+            arrayOf(FigureRenderer.viewBox.width, FigureRenderer.viewBox.height),
+        )
+    }
+
+    /** The shapes of one panel ([which] "start" or "end"), in draw order; null when [name] has no picture. */
+    fun figureShapes(name: String, which: String): Array<JsFigureShape>? {
+        val panel = when (which) {
+            "start" -> Which.START
+            "end" -> Which.END
+            else -> throw IllegalArgumentException("which: '$which' is not one of start, end")
+        }
+        return Library.figure(name)?.let { f -> FigureRenderer.shapes(f, panel).map { it.toJs() }.toTypedArray() }
+    }
 
     /** The fixed last line of every guide sheet, which the UI appends after the guide. */
     fun safetyLine(): String = Library.SAFETY_LINE
