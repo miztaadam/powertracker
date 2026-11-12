@@ -66,3 +66,11 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
   - screens built for the mode.
   Fable mocks these up and the owner picks.
 - Logged data stays the same in either mode.
+
+## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
+- Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
+  - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
+  - vector images to keep the app small (roughly 3–8 MB for 225 drawings);
+  - sources: a licensed illustration set (accurate, costs money, won't cover all 225) or generated drawings (cheap, fits the list, but every pose must be checked against the guide's sources). Free images (e.g. Wikimedia) are patchy and inconsistent. ExRx/ACE images are copyrighted and can't be used.
+  - suggested first step: generate a trial batch of 10–15 and check accuracy before committing to all 225.
+- Code side is small: an image per catalogue entry, shown at the top of the guide sheet in both apps.
