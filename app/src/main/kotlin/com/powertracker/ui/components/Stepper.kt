@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
@@ -55,6 +56,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 
@@ -122,7 +124,9 @@ data class StepperEntry(
 /**
  * The in-session stepper: label, a big number, and two wide buttons underneath. Place three in a row.
  * The figure reads as one phrase ("Weight 155 kg"); with [entry] the number is typed into instead,
- * and a tap anywhere on the caption or the figure puts the cursor in it.
+ * and a tap anywhere on the caption or the figure puts the cursor in it. [labelAction] sits right of
+ * the caption of a typed-into field (the RPE info button); it must add no height, so the figures
+ * of the fields in a row stay on one line.
  */
 @Composable
 fun StepperField(
@@ -135,10 +139,11 @@ fun StepperField(
     modifier: Modifier = Modifier,
     unit: String? = null,
     entry: StepperEntry? = null,
+    labelAction: (@Composable () -> Unit)? = null,
 ) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         if (entry != null) {
-            EntryFigure(label, valueText, unit, entry)
+            EntryFigure(label, valueText, unit, entry, labelAction)
         } else {
             val spoken = listOfNotNull(label, valueText, unit).joinToString(" ")
             NumberDisplay(
@@ -154,12 +159,19 @@ fun StepperField(
 }
 
 /**
+ * The caption row of a typed-into figure. Taller than its text, so the target of an action beside
+ * the caption (48 dp, centred on the caption) stays clear of the card above and reaches only the
+ * strip above the digits below. Every field has it, so the figures line up.
+ */
+private val CAPTION_HEIGHT = 28.dp
+
+/**
  * The big figure as a field: it looks like a [NumberDisplay] value over a thin rule, not a boxed form
  * field. Focus selects the value, so typing replaces it. An entry wider than the column scrolls
  * inside the field.
  */
 @Composable
-private fun EntryFigure(label: String, valueText: String, unit: String?, entry: StepperEntry) {
+private fun EntryFigure(label: String, valueText: String, unit: String?, entry: StepperEntry, labelAction: (@Composable () -> Unit)?) {
     val scheme = MaterialTheme.colorScheme
     val colors = PowertrackerTheme.colors
     val type = MaterialTheme.typography
@@ -191,7 +203,11 @@ private fun EntryFigure(label: String, valueText: String, unit: String?, entry: 
             .pointerInput(requester) { detectTapGestures { requester.requestFocus() } },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Eyebrow(label, Modifier.clearAndSetSemantics {})
+        // Above the figure, so an action's 48 dp target is whole where it reaches over the figure's top edge.
+        Row(Modifier.heightIn(min = CAPTION_HEIGHT).zIndex(1f), verticalAlignment = Alignment.CenterVertically) {
+            Eyebrow(label, Modifier.clearAndSetSemantics {})
+            labelAction?.invoke()
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             BasicTextField(
                 value = field,

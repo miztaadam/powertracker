@@ -58,6 +58,7 @@ import com.powertracker.ui.components.SectionHeader
 import com.powertracker.ui.components.SegmentedChoice
 import com.powertracker.ui.components.Stepper
 import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.library.RpeInfoButton
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import kotlinx.coroutines.Dispatchers
@@ -201,7 +202,15 @@ fun SettingsContent(
                     "Default RPE", "Planned effort for main lifts", formatRpe(settings.defaultRpe), settings.defaultRpe > 6.0, settings.defaultRpe < 10.0,
                     { onUpdate { it.copy(defaultRpe = (it.defaultRpe - 0.5).coerceAtLeast(6.0)) } },
                     { onUpdate { it.copy(defaultRpe = (it.defaultRpe + 0.5).coerceAtMost(10.0)) } },
+                    labelAction = { RpeInfoButton(inline = true) },
                 )
+            }
+
+            SectionHeader("Progress", Modifier.padding(top = Space.m))
+            Group {
+                SwitchRow("Strict press", "Show it on Progress and add it to your total.", settings.showStrictPress) { v ->
+                    onUpdate { it.copy(showStrictPress = v) }
+                }
             }
 
             SectionHeader("Training days", Modifier.padding(top = Space.m))
@@ -269,9 +278,12 @@ private fun Group(content: @Composable ColumnScope.() -> Unit) {
 private fun RowDivider() = HorizontalDivider(color = PowertrackerTheme.colors.hairline)
 
 @Composable
-private fun RowLabel(label: String, supporting: String, modifier: Modifier = Modifier) {
+private fun RowLabel(label: String, supporting: String, modifier: Modifier = Modifier, labelAction: (@Composable () -> Unit)? = null) {
     Column(modifier.padding(vertical = Space.m)) {
-        Text(label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f, fill = false))
+            labelAction?.invoke()
+        }
         Text(supporting, style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted)
     }
 }
@@ -301,9 +313,18 @@ private fun SwitchRow(label: String, supporting: String, checked: Boolean, onCha
 }
 
 @Composable
-private fun StepperRow(label: String, supporting: String, value: String, canDec: Boolean, canInc: Boolean, onDec: () -> Unit, onInc: () -> Unit) {
+private fun StepperRow(
+    label: String,
+    supporting: String,
+    value: String,
+    canDec: Boolean,
+    canInc: Boolean,
+    onDec: () -> Unit,
+    onInc: () -> Unit,
+    labelAction: (@Composable () -> Unit)? = null,
+) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-        RowLabel(label, supporting, Modifier.weight(1f))
+        RowLabel(label, supporting, Modifier.weight(1f), labelAction)
         Stepper(label, value, canDec, canInc, onDec, onInc)
     }
 }

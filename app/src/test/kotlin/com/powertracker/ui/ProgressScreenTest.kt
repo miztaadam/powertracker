@@ -3,6 +3,7 @@ package com.powertracker.ui
 import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -12,8 +13,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.test.core.app.ApplicationProvider
+import com.powertracker.data.AppSettings
+import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.data.db.AppDatabase
+import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.ui.library.checkInfoButtonOpensGuide
@@ -44,12 +48,20 @@ class ProgressScreenTest {
 
     private lateinit var db: AppDatabase
     private lateinit var training: TrainingRepository
+    private lateinit var settings: SettingsRepository
     private lateinit var exercises: List<Exercise>
 
     @Before
     fun setUp() {
-        db = AppDatabase.inMemory(ApplicationProvider.getApplicationContext<Context>())
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
+        settings = SettingsRepository(context)
+        runBlocking {
+            settings.update { AppSettings() }
+            // A new install has no strict press row until the lift is first used.
+            training.addExercise(Exercise(0, "Strict press", Category.STRICT_PRESS, null, listOf("Front delts", "Triceps"), isBuiltIn = true))
+        }
         exercises = runBlocking { training.exercises().first() }
     }
 
@@ -76,6 +88,17 @@ class ProgressScreenTest {
         )
     }
 
+    /** [seed], with a strict press top set in both sessions. */
+    private fun seedWithPress() {
+        log(today.minus(9, DateTimeUnit.DAY), 92.0, set("Squat", 140.0, 5, 8.0), set("Bench", 100.0, 5, 8.0), set("Deadlift", 180.0, 5, 8.0), set("Strict press", 60.0, 5, 8.0))
+        log(today.minus(2, DateTimeUnit.DAY), 92.5, set("Squat", 145.0, 5, 8.0), set("Bench", 100.0, 5, 8.0), set("Deadlift", 185.0, 5, 8.0), set("Strict press", 62.5, 5, 8.0))
+    }
+
+    private fun showStrictPress(on: Boolean) = runBlocking { settings.setShowStrictPress(on) }
+
+    private fun count(text: String) = compose.onAllNodesWithText(text, substring = true, ignoreCase = true).fetchSemanticsNodes().size +
+        compose.onAllNodesWithContentDescription(text, substring = true, ignoreCase = true).fetchSemanticsNodes().size
+
     private fun waitFor(condition: () -> Boolean) = compose.waitUntil(5_000) {
         compose.waitForIdle()
         condition()
@@ -90,7 +113,7 @@ class ProgressScreenTest {
                 val nav = rememberNavController()
                 NavHost(nav, startDestination = Tab.PROGRESS.route) {
                     composable(Tab.PROGRESS.route) {
-                        ProgressScreen(training, onOpenLift = { nav.navigate(Routes.liftHistory(it.name)) }, today = { today })
+                        ProgressScreen(training, settings, onOpenLift = { nav.navigate(Routes.liftHistory(it.name)) }, today = { today })
                     }
                     composable(Routes.LIFT_HISTORY) { entry ->
                         LiftHistoryScreen(training, entry.arguments?.getString("lift").orEmpty(), onBack = { nav.popBackStack() }, today = { today })
@@ -182,5 +205,93 @@ class ProgressScreenTest {
         compose.onNodeWithText("Log a squat, bench or deadlift session on Today and your charts will appear here.").assertIsDisplayed()
         assertEquals(0, compose.onAllNodesWithText("Weekly best e1RM", ignoreCase = true).fetchSemanticsNodes().size)
         assertEquals(0, compose.onAllNodesWithText("Lift ratios", ignoreCase = true).fetchSemanticsNodes().size)
+    }
+
+    // ---- Strict press behind its setting (strict press spec §5.2) ----
+
+    @Test
+    fun switchOff_progressUnchanged() {
+        seedWithPress()
+        show()
+
+        // Logged strict press sets show nowhere: not as a tile, a line, a record or a volume row.
+        assertEquals(0, count("Strict press"))
+        compose.onNodeWithText("Total (S+B+D)", ignoreCase = true).assertIsDisplayed()
+        assertEquals(0, count("S+B+D+P"))
+        for (lift in listOf("Squat", "Bench", "Deadlift")) compose.onNodeWithContentDescription("$lift history", substring = true).assertExists()
+    }
+
+    @Test
+    fun switchOn_showsStrictPressEverywhere() {
+        seedWithPress()
+        showStrictPress(true)
+        show()
+
+        // The tile, the chart legend, the record and the volume row.
+        compose.onNodeWithContentDescription("Strict press history. Estimated 1RM", substring = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Strict press").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Strict press record:", substring = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Strict press volume this week: 313 kg").performScrollTo().assertIsDisplayed()
+        // It is in no ratio.
+        assertEquals(0, compose.onAllNodesWithText("Strict press ÷", substring = true).fetchSemanticsNodes().size)
+        assertEquals(0, compose.onAllNodesWithText("÷ Strict press", substring = true).fetchSemanticsNodes().size)
+
+        // Its tile opens its own history page.
+        compose.onNodeWithContentDescription("Strict press history. Estimated 1RM", substring = true).performScrollTo().performClick()
+        waitFor { shows("Mon 9 Nov 2026") }
+        compose.onNodeWithText("Strict press history").assertIsDisplayed()
+        compose.onNodeWithText("Set 1: 62.5 kg × 5 @ 8, personal record, done").assertIsDisplayed()
+        compose.onNodeWithText("Set 1: 60 kg × 5 @ 8, personal record, done").assertIsDisplayed()
+        assertEquals(0, compose.onAllNodesWithText("185 kg", substring = true).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun totalLabel_bothWays() {
+        seedWithPress()
+        show()
+        compose.onNodeWithText("Total (S+B+D)", ignoreCase = true).assertIsDisplayed()
+
+        // The label follows the switch while the screen is open.
+        showStrictPress(true)
+        waitFor { shows("Total (S+B+D+P)") }
+        compose.onNodeWithText("Total (S+B+D+P)", ignoreCase = true).assertIsDisplayed()
+        assertEquals(0, compose.onAllNodesWithText("Total (S+B+D)", ignoreCase = true).fetchSemanticsNodes().size)
+
+        showStrictPress(false)
+        waitFor { shows("Total (S+B+D)") && !shows("S+B+D+P") }
+    }
+
+    @Test
+    fun switchOn_noPressData_totalExplains() {
+        seed()
+        showStrictPress(true)
+        show()
+
+        // No total without every included lift: the note says which lift it is waiting for.
+        compose.onNodeWithText("Total (S+B+D+P)", ignoreCase = true).assertIsDisplayed()
+        compose.onNodeWithText("Log all four lifts, strict press included, to see your total.").assertIsDisplayed()
+        // The empty lift has its tile and volume row, and nothing crashes on its empty series.
+        compose.onNodeWithContentDescription("Strict press history. No estimate yet").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Strict press volume this week: 0 kg").performScrollTo().assertIsDisplayed()
+        assertEquals(0, compose.onAllNodesWithText("Strict press record:", substring = true).fetchSemanticsNodes().size)
+        compose.onNodeWithText("Squat ÷ Deadlift").performScrollTo().assertIsDisplayed()
+
+        // Its history page opens empty.
+        compose.onNodeWithContentDescription("Strict press history. No estimate yet").performScrollTo().performClick()
+        waitFor { shows("No strict press sessions yet") }
+
+        // Switched off again, the three-lift total is back.
+        compose.onNodeWithContentDescription("Back").performClick()
+        showStrictPress(false)
+        waitFor { !shows("Log all four lifts") }
+        compose.onNodeWithText("Total (S+B+D)", ignoreCase = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun emptyState_namesStrictPress_whenTheSwitchIsOn() {
+        showStrictPress(true)
+        show(expect = "No lifts logged yet")
+
+        compose.onNodeWithText("Log a squat, bench, deadlift or strict press session on Today and your charts will appear here.").assertIsDisplayed()
     }
 }

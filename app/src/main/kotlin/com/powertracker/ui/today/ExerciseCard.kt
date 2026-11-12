@@ -43,7 +43,9 @@ import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.missPointLabel
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.ui.components.CoachSuggestion
@@ -63,6 +65,7 @@ import com.powertracker.ui.components.StepperField
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.components.formatRpe
 import com.powertracker.ui.library.InfoButton
+import com.powertracker.ui.library.RpeInfoButton
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -75,7 +78,8 @@ class NextStep(val label: String, val onClick: () -> Unit)
 /** RPE from which a set counts as a grind worth asking "where?" about. */
 private const val GRIND_RPE = 9.5
 
-private val MISS_LABELS = listOf("Floor", "Mid", "Lockout")
+/** "Floor / Mid / Lockout", or "Off the shoulders / …" for a strict press. An accessory has no lift: it gets the plain names. */
+private fun missLabels(lift: MainLift?): List<String> = MissPoint.entries.map { missPointLabel(lift ?: MainLift.SQUAT, it) }
 
 /** "155 × 5 @ 8". */
 fun doseText(weightKg: Double, reps: Int, rpe: Double?): String =
@@ -162,7 +166,7 @@ fun ExerciseCard(
                         onClick = { selected = i + 1 to stored },
                     )
                     if (set.failed || (set.rpe ?: 0.0) >= GRIND_RPE) {
-                        MissRow(i + 1, set) { actions.onMissPoint(stored.id, it) }
+                        MissRow(i + 1, set, item.exercise.mainLift) { actions.onMissPoint(stored.id, it) }
                     }
                 }
             }
@@ -197,19 +201,30 @@ fun ExerciseCard(
 }
 
 @Composable
-private fun MissRow(number: Int, set: LoggedSet, onSelect: (MissPoint?) -> Unit) {
-    Row(
-        Modifier.padding(start = 32.dp, top = Space.xs, bottom = Space.xs).testTag("miss-row-$number"),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Space.m),
-    ) {
+private fun MissRow(number: Int, set: LoggedSet, lift: MainLift?, onSelect: (MissPoint?) -> Unit) {
+    val modifier = Modifier.padding(start = 32.dp, top = Space.xs, bottom = Space.xs).testTag("miss-row-$number")
+    val question = @Composable {
         Text(
             if (set.failed) "Where did it stall?" else "Where was it slow?",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        // Tapping the chosen point again clears it.
-        SegmentedChoice(MISS_LABELS, set.missPoint?.ordinal, { onSelect(MissPoint.entries[it].takeUnless { point -> point == set.missPoint }) })
+    }
+    // Tapping the chosen point again clears it.
+    val choice = @Composable {
+        SegmentedChoice(missLabels(lift), set.missPoint?.ordinal, { onSelect(MissPoint.entries[it].takeUnless { point -> point == set.missPoint }) })
+    }
+    if (lift == MainLift.STRICT_PRESS) {
+        // "Off the shoulders" needs the whole width: the question goes above the points, not beside them.
+        Column(modifier, verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+            question()
+            choice()
+        }
+    } else {
+        Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+            question()
+            choice()
+        }
     }
 }
 
@@ -296,6 +311,7 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
             onIncrement = { step(EntryKind.RPE) { it.copy(rpe = (it.rpe + 0.5).coerceAtMost(MAX_RPE)) } },
             modifier = Modifier.weight(1f),
             entry = entry(EntryKind.RPE, "RPE", KeyboardType.Decimal),
+            labelAction = { RpeInfoButton(inline = true) },
         )
     }
 

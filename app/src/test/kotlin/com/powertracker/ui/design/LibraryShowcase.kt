@@ -21,6 +21,7 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.seed.SeedLibrary
 import com.powertracker.ui.library.ExercisePickerContent
 import com.powertracker.ui.library.FormGuideContent
+import com.powertracker.ui.library.RpeContent
 
 /** The real picker as Plan opens it: the muscle grid, the lifter's recent and own exercises, then the catalogue. */
 @Composable
@@ -32,9 +33,16 @@ fun ExercisePickerShowcase(muscle: MuscleGroup? = null) {
 }
 
 /** The real guide content for the squat, in a stand-in for the bottom sheet it opens in. */
+@Composable
+fun FormGuideShowcase() = SheetShowcase { FormGuideContent("Squat", onClose = {}) }
+
+/** The real "What RPE means" content, in the same stand-in. */
+@Composable
+fun RpeSheetShowcase() = SheetShowcase { RpeContent(onClose = {}) }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormGuideShowcase() {
+private fun SheetShowcase(content: @Composable () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     Box(Modifier.fillMaxSize().background(scheme.scrim.copy(alpha = 0.32f))) {
         Surface(
@@ -44,7 +52,7 @@ fun FormGuideShowcase() {
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 BottomSheetDefaults.DragHandle(color = scheme.outline)
-                FormGuideContent("Squat", onClose = {})
+                content()
             }
         }
     }

@@ -43,6 +43,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.MainLift
 import com.powertracker.platform.systemToday
@@ -78,10 +79,11 @@ import com.powertracker.ui.components.LineChart as SeriesChart
 @Composable
 fun ProgressScreen(
     training: TrainingRepository,
+    settings: SettingsRepository,
     onOpenLift: (MainLift) -> Unit,
     today: () -> LocalDate = ::systemToday,
 ) {
-    val viewModel: ProgressViewModel = viewModel(factory = ProgressViewModel.factory(training, today))
+    val viewModel: ProgressViewModel = viewModel(factory = ProgressViewModel.factory(training, settings, today))
     val state by viewModel.state.collectAsStateWithLifecycle()
     ProgressContent(state, onRange = viewModel::setRange, onOpenLift = onOpenLift)
 }
@@ -103,7 +105,11 @@ fun ProgressContent(state: ProgressState, onRange: (ChartRange) -> Unit, onOpenL
                 !state.hasData -> EmptyState(
                     Icons.Filled.Insights,
                     "No lifts logged yet",
-                    "Log a squat, bench or deadlift session on Today and your charts will appear here.",
+                    if (state.showStrictPress) {
+                        "Log a squat, bench, deadlift or strict press session on Today and your charts will appear here."
+                    } else {
+                        "Log a squat, bench or deadlift session on Today and your charts will appear here."
+                    },
                 )
                 else -> {
                     SummaryCard(state, onOpenLift)
@@ -133,8 +139,7 @@ private fun MainLift.chartColor(): Color {
         MainLift.SQUAT -> pt.squat
         MainLift.BENCH -> pt.bench
         MainLift.DEADLIFT -> pt.deadlift
-        // Not shown on Progress yet: ProgressViewModel lists squat, bench and deadlift only.
-        MainLift.STRICT_PRESS -> pt.muted
+        MainLift.STRICT_PRESS -> pt.press
     }
 }
 
@@ -162,16 +167,21 @@ private class Change(kg: Double) {
     }
 }
 
+/** Four tiles do not fit side by side on a small phone: from the fourth lift on they go two to a row. */
+private const val TILES_IN_ONE_ROW = 3
+
 /** The total as the hero figure with its trend, then each lift as a tile that opens its history. */
 @Composable
 private fun SummaryCard(state: ProgressState, onOpenLift: (MainLift) -> Unit) {
     val pt = PowertrackerTheme.colors
     val scheme = MaterialTheme.colorScheme
+    // The total always says what it adds up.
+    val totalLabel = if (state.showStrictPress) "Total (S+B+D+P)" else "Total (S+B+D)"
     PtCard(spacing = Space.l) {
         if (state.totalKg != null) {
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
                 Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
-                    NumberDisplay(formatKg(state.totalKg), unit = "kg", label = "Total", size = NumberSize.HERO)
+                    NumberDisplay(formatKg(state.totalKg), unit = "kg", label = totalLabel, size = NumberSize.HERO)
                     val change = state.totalChangeKg?.let(::Change)
                     if (change != null) Pill("${change.text} in 4 weeks", tone = change.tone, icon = change.icon)
                 }
@@ -181,34 +191,36 @@ private fun SummaryCard(state: ProgressState, onOpenLift: (MainLift) -> Unit) {
             }
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
-                Eyebrow("Total")
+                Eyebrow(totalLabel)
                 Text(
-                    "Log all three lifts to see your total.",
+                    if (state.showStrictPress) "Log all four lifts, strict press included, to see your total." else "Log all three lifts to see your total.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = scheme.onSurfaceVariant,
                 )
             }
         }
         Column(verticalArrangement = Arrangement.spacedBy(Space.s)) {
-            Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-                for (summary in state.lifts) {
-                    val change = summary.changeKg?.let(::Change)
-                    val name = summary.lift.label
-                    val spoken = buildString {
-                        append("$name history. ")
-                        append(if (summary.e1rmKg != null) "Estimated 1RM ${formatKg(summary.e1rmKg)} kg" else "No estimate yet")
-                        if (change != null) append(", ${change.spoken} in 4 weeks")
+            for (row in state.lifts.chunked(if (state.lifts.size > TILES_IN_ONE_ROW) 2 else TILES_IN_ONE_ROW)) {
+                Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+                    for (summary in row) {
+                        val change = summary.changeKg?.let(::Change)
+                        val name = summary.lift.label
+                        val spoken = buildString {
+                            append("$name history. ")
+                            append(if (summary.e1rmKg != null) "Estimated 1RM ${formatKg(summary.e1rmKg)} kg" else "No estimate yet")
+                            if (change != null) append(", ${change.spoken} in 4 weeks")
+                        }
+                        StatTile(
+                            label = name,
+                            value = summary.e1rmKg?.let(::formatKg) ?: "–",
+                            unit = if (summary.e1rmKg != null) "kg" else null,
+                            note = change?.text,
+                            noteTone = change?.tone ?: Tone.NEUTRAL,
+                            onClick = { onOpenLift(summary.lift) },
+                            onClickLabel = "Open history",
+                            modifier = Modifier.weight(1f).fillMaxHeight().semantics { contentDescription = spoken },
+                        )
                     }
-                    StatTile(
-                        label = name,
-                        value = summary.e1rmKg?.let(::formatKg) ?: "–",
-                        unit = if (summary.e1rmKg != null) "kg" else null,
-                        note = change?.text,
-                        noteTone = change?.tone ?: Tone.NEUTRAL,
-                        onClick = { onOpenLift(summary.lift) },
-                        onClickLabel = "Open history",
-                        modifier = Modifier.weight(1f).fillMaxHeight().semantics { contentDescription = spoken },
-                    )
                 }
             }
             Text(
@@ -220,7 +232,7 @@ private fun SummaryCard(state: ProgressState, onOpenLift: (MainLift) -> Unit) {
     }
 }
 
-/** The three lifts on one axis over the chosen range. */
+/** The shown lifts on one axis over the chosen range. */
 @Composable
 private fun TrendCard(state: ProgressState, onRange: (ChartRange) -> Unit) {
     PtCard {
@@ -279,6 +291,9 @@ private fun PrSection(prs: List<PrUi>) {
 
 private val VOLUME_LABEL_WIDTH = 128.dp
 
+/** Wide enough for "Strict press · this week" on one line, and no wider: the bars keep room for the two captions under them. */
+private val VOLUME_LABEL_WIDTH_WITH_PRESS = 136.dp
+
 /** "12,450": tonnage has no use for decimals. */
 private fun formatVolume(kg: Double): String = String.format(Locale.US, "%,d", kg.roundToLong())
 
@@ -287,6 +302,7 @@ private fun formatVolume(kg: Double): String = String.format(Locale.US, "%,d", k
 private fun VolumeSection(state: ProgressState) {
     val pt = PowertrackerTheme.colors
     val scheme = MaterialTheme.colorScheme
+    val labelWidth = if (state.showStrictPress) VOLUME_LABEL_WIDTH_WITH_PRESS else VOLUME_LABEL_WIDTH
     Column {
         SectionHeader("Weekly volume")
         PtCard(spacing = Space.l) {
@@ -297,7 +313,7 @@ private fun VolumeSection(state: ProgressState) {
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.spacedBy(Space.m),
                 ) {
-                    Column(Modifier.width(VOLUME_LABEL_WIDTH)) {
+                    Column(Modifier.width(labelWidth)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             Box(Modifier.size(8.dp).background(volume.lift.chartColor(), CircleShape))
                             Text("$name · this week", style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant, maxLines = 1)
@@ -309,7 +325,7 @@ private fun VolumeSection(state: ProgressState) {
             }
             Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-                    Spacer(Modifier.width(VOLUME_LABEL_WIDTH))
+                    Spacer(Modifier.width(labelWidth))
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(state.volumeFrom?.let { "Week of ${PR_DATE.format(it.toJavaLocalDate())}" }.orEmpty(), style = MaterialTheme.typography.bodySmall, color = pt.muted)
                         Text("This week", style = MaterialTheme.typography.bodySmall, color = pt.muted)

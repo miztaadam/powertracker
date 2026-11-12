@@ -79,7 +79,7 @@ fun AppShell(container: AppContainer) {
             }
             composable(Tab.COACH.route) { CoachScreen(container.training, container.advice, container.settings) }
             composable(Tab.PROGRESS.route) {
-                ProgressScreen(container.training, onOpenLift = { nav.navigate(Routes.liftHistory(it.name)) })
+                ProgressScreen(container.training, container.settings, onOpenLift = { nav.navigate(Routes.liftHistory(it.name)) })
             }
             composable(Tab.PLAN.route) {
                 PlanScreen(container.training, container.settings, onOpenSettings = { nav.navigate(Routes.SETTINGS) })

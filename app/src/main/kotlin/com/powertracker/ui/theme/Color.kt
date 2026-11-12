@@ -35,6 +35,7 @@ data class PtColors(
     val squat: Color,
     val bench: Color,
     val deadlift: Color,
+    val press: Color,
     /** Hairlines between rows and around cards. */
     val hairline: Color,
 )
@@ -57,6 +58,7 @@ val DarkPtColors = PtColors(
     squat = Color(0xFF3987E5),
     bench = Color(0xFFD95926),
     deadlift = Color(0xFF199E70),
+    press = Color(0xFFA98BF0),
     hairline = Color(0xFF262A30),
 )
 
@@ -78,6 +80,7 @@ val LightPtColors = PtColors(
     squat = Color(0xFF2A78D6),
     bench = Color(0xFFEB6834),
     deadlift = Color(0xFF1BAF7A),
+    press = Color(0xFF7C52CC),
     hairline = Color(0xFFE0E0D9),
 )
 

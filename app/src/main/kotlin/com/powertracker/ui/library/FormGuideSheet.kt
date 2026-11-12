@@ -48,9 +48,15 @@ const val NO_GUIDE = "No form guide for your own exercises."
  * name: a catalogue name or alias shows the catalogue guide, whoever made the row; any other name
  * shows [NO_GUIDE].
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormGuideSheet(exerciseName: String, onDismiss: () -> Unit) {
+    GuideSheet(onDismiss) { FormGuideContent(exerciseName, onClose = onDismiss, modifier = Modifier.navigationBarsPadding()) }
+}
+
+/** The bottom sheet every guide opens in. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun GuideSheet(onDismiss: () -> Unit, content: @Composable () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -62,7 +68,7 @@ fun FormGuideSheet(exerciseName: String, onDismiss: () -> Unit) {
         tonalElevation = 0.dp,
         dragHandle = { BottomSheetDefaults.DragHandle(color = scheme.outline) },
     ) {
-        FormGuideContent(exerciseName, onClose = onDismiss, modifier = Modifier.navigationBarsPadding())
+        content()
     }
 }
 
@@ -78,13 +84,7 @@ fun FormGuideContent(exerciseName: String, onClose: () -> Unit, modifier: Modifi
             .padding(start = Space.xl, end = Space.s, bottom = Space.xl)
             .testTag("form-guide"),
     ) {
-        Row(verticalAlignment = Alignment.Top) {
-            Column(Modifier.weight(1f).padding(top = Space.xs)) {
-                Text(exerciseName, style = MaterialTheme.typography.headlineMedium, color = scheme.onSurface, modifier = Modifier.semantics { heading() })
-                if (entry != null) Eyebrow(entry.whereAndWith(), Modifier.padding(top = Space.xxs))
-            }
-            IconButton(onClick = onClose, modifier = Modifier.size(Space.touch)) { Icon(Icons.Filled.Close, contentDescription = "Close guide", tint = scheme.onSurfaceVariant) }
-        }
+        GuideHeader(exerciseName, entry?.whereAndWith(), closeLabel = "Close guide", onClose = onClose)
         Column(Modifier.padding(end = Space.l)) {
             if (entry == null) {
                 Text(NO_GUIDE, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.m))
@@ -101,6 +101,19 @@ fun FormGuideContent(exerciseName: String, onClose: () -> Unit, modifier: Modifi
     }
 }
 
+/** The top of a guide sheet: its title, an optional eyebrow under it, and the close button. */
+@Composable
+internal fun GuideHeader(title: String, eyebrow: String?, closeLabel: String, onClose: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    Row(verticalAlignment = Alignment.Top) {
+        Column(Modifier.weight(1f).padding(top = Space.xs)) {
+            Text(title, style = MaterialTheme.typography.headlineMedium, color = scheme.onSurface, modifier = Modifier.semantics { heading() })
+            if (eyebrow != null) Eyebrow(eyebrow, Modifier.padding(top = Space.xxs))
+        }
+        IconButton(onClick = onClose, modifier = Modifier.size(Space.touch)) { Icon(Icons.Filled.Close, contentDescription = closeLabel, tint = scheme.onSurfaceVariant) }
+    }
+}
+
 /** "Main lifts · Barbell", "Quads · Dumbbell or barbell". */
 private fun LibraryExercise.whereAndWith(): String {
     val with = equipment.mapIndexed { i, e -> if (i == 0) e.label() else e.label().lowercase() }.joinToString(" or ")
@@ -111,15 +124,21 @@ private val MARKER_WIDTH = 28.dp
 
 @Composable
 private fun GuideSection(title: String, lines: List<String>, numbered: Boolean) {
-    val scheme = MaterialTheme.colorScheme
-    val body = MaterialTheme.typography.bodyLarge
     Text(
         title,
         style = MaterialTheme.typography.titleLarge,
-        color = scheme.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(top = Space.xl, bottom = Space.s).semantics { heading() },
     )
-    Column(verticalArrangement = Arrangement.spacedBy(Space.s)) {
+    GuideLines(lines, numbered)
+}
+
+/** A guide's lines, each behind a dot or its number. */
+@Composable
+internal fun GuideLines(lines: List<String>, numbered: Boolean, modifier: Modifier = Modifier) {
+    val scheme = MaterialTheme.colorScheme
+    val body = MaterialTheme.typography.bodyLarge
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(Space.s)) {
         lines.forEachIndexed { i, line ->
             // One spoken line each: "1, Take a big breath…".
             Row(Modifier.semantics(mergeDescendants = true) {}) {

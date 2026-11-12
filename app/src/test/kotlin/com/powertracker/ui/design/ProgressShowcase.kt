@@ -16,6 +16,7 @@ import com.powertracker.ui.progress.ProgressContent
 import com.powertracker.ui.progress.ProgressViewModel
 import com.powertracker.domain.progress.weekStart
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlin.math.abs
@@ -29,6 +30,7 @@ private const val SQUAT_ID = 1L
 private const val BENCH_ID = 2L
 private const val DEADLIFT_ID = 3L
 private const val PAUSE_SQUAT_ID = 4L
+private const val PRESS_ID = 5L
 
 private val EXERCISES = listOf(
     Exercise(SQUAT_ID, "Squat", Category.SQUAT, null, emptyList(), isBuiltIn = true),
@@ -36,6 +38,11 @@ private val EXERCISES = listOf(
     Exercise(DEADLIFT_ID, "Deadlift", Category.DEADLIFT, null, emptyList(), isBuiltIn = true),
     Exercise(PAUSE_SQUAT_ID, "Pause squat", Category.VARIATION, MainLift.SQUAT, emptyList(), isBuiltIn = true),
 ).associateBy { it.id }
+
+private val PRESS_EXERCISE = Exercise(PRESS_ID, "Strict press", Category.STRICT_PRESS, null, emptyList(), isBuiltIn = true)
+
+/** Strict press e1RM by week, for the mockups with the Progress switch on. */
+private val PRESS = listOf(70f, 70f, 71f, 72.5f, 72.5f, 74f, 75f, 75f, 76f, 77.5f, 77.5f, 80f)
 
 private val BODYWEIGHT = listOf(91.8, 92.1, 92.0, 92.4, 92.3, 92.6, 92.5, 92.9, 92.8, 93.0, 93.3, 93.2)
 
@@ -75,9 +82,21 @@ private val SAMPLE_HISTORY: TrainingHistory = run {
     TrainingHistory(sessions.filter { it.date <= SHOWCASE_DATE }, EXERCISES, emptyList())
 }
 
+/** The same lifter, who also presses on Wednesday after the bench. */
+internal val SAMPLE_HISTORY_WITH_PRESS: TrainingHistory = run {
+    val firstMonday = weekStart(SHOWCASE_DATE).minus(SQUAT.size - 1, DateTimeUnit.WEEK)
+    val sessions = SAMPLE_HISTORY.sessions.map { session ->
+        val week = (session.date.toEpochDays() - firstMonday.toEpochDays()).toInt() / 7
+        if (session.date.dayOfWeek == DayOfWeek.WEDNESDAY) session.copy(sets = session.sets + work(PRESS_ID, PRESS[week], backOffs = 2)) else session
+    }
+    TrainingHistory(sessions, EXERCISES + (PRESS_ID to PRESS_EXERCISE), emptyList())
+}
+
+/** [strictPress] is the Progress switch in Settings: on, strict press is a fourth lift and counts in the total. */
 @Composable
-fun ProgressShowcase() {
-    ProgressContent(ProgressViewModel.build(SAMPLE_HISTORY, ChartRange.MONTHS_6, SHOWCASE_DATE), onRange = {}, onOpenLift = {})
+fun ProgressShowcase(strictPress: Boolean = false) {
+    val history = if (strictPress) SAMPLE_HISTORY_WITH_PRESS else SAMPLE_HISTORY
+    ProgressContent(ProgressViewModel.build(history, ChartRange.MONTHS_6, SHOWCASE_DATE, showStrictPress = strictPress), onRange = {}, onOpenLift = {})
 }
 
 @Composable

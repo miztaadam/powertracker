@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -75,6 +76,7 @@ import com.powertracker.ui.components.formatRpe
 import com.powertracker.ui.library.ExercisePickerScreen
 import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.library.PickerEntry
+import com.powertracker.ui.library.RpeInfoButton
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import kotlinx.datetime.DayOfWeek
@@ -342,7 +344,7 @@ private fun PlanItemDialog(
                 }
                 LabeledStepper("Sets", sets.toString(), sets > 1, sets < 10, { sets-- }, { sets++ })
                 LabeledStepper("Reps", reps.toString(), reps > 1, reps < 20, { reps-- }, { reps++ })
-                LabeledStepper("RPE", formatRpe(rpe), rpe > PlanViewModel.MIN_RPE, rpe < PlanViewModel.MAX_RPE, { rpe -= 0.5 }, { rpe += 0.5 })
+                LabeledStepper("RPE", formatRpe(rpe), rpe > PlanViewModel.MIN_RPE, rpe < PlanViewModel.MAX_RPE, { rpe -= 0.5 }, { rpe += 0.5 }) { RpeInfoButton() }
             }
         },
         confirmButton = { PrimaryButton("Save", { onSave(changed, sets, reps, rpe) }, compact = true) },
@@ -368,9 +370,19 @@ private fun PlanItemDialog(
 }
 
 @Composable
-private fun LabeledStepper(label: String, value: String, canDec: Boolean, canInc: Boolean, onDec: () -> Unit, onInc: () -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(vertical = Space.xs), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+private fun LabeledStepper(
+    label: String,
+    value: String,
+    canDec: Boolean,
+    canInc: Boolean,
+    onDec: () -> Unit,
+    onInc: () -> Unit,
+    labelAction: (@Composable () -> Unit)? = null,
+) {
+    Row(Modifier.fillMaxWidth().padding(vertical = Space.xs), verticalAlignment = Alignment.CenterVertically) {
         Text(label, style = MaterialTheme.typography.titleMedium)
+        labelAction?.invoke()
+        Spacer(Modifier.weight(1f))
         Stepper(label, value, canDec, canInc, onDec, onInc)
     }
 }

@@ -265,6 +265,6 @@ fun PlanShowcase() {
 }
 
 @Composable
-fun SettingsShowcase() {
-    SettingsContent(AppSettings(changePlates = true), onUpdate = {}, onExport = {}, onRestore = {}, onBack = {})
+fun SettingsShowcase(strictPress: Boolean = false) {
+    SettingsContent(AppSettings(changePlates = true, showStrictPress = strictPress), onUpdate = {}, onExport = {}, onRestore = {}, onBack = {})
 }

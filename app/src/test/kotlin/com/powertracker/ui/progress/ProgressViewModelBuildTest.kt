@@ -19,7 +19,8 @@ class ProgressViewModelBuildTest {
     private val squat = Exercise(1, "Squat", Category.SQUAT, null, emptyList(), isBuiltIn = true)
     private val bench = Exercise(2, "Bench", Category.BENCH, null, emptyList(), isBuiltIn = true)
     private val deadlift = Exercise(3, "Deadlift", Category.DEADLIFT, null, emptyList(), isBuiltIn = true)
-    private val exercises = listOf(squat, bench, deadlift).associateBy { it.id }
+    private val press = Exercise(4, "Strict press", Category.STRICT_PRESS, null, emptyList(), isBuiltIn = true)
+    private val exercises = listOf(squat, bench, deadlift, press).associateBy { it.id }
 
     private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
     private val thisWeek: LocalDate = LocalDate(2026, 11, 9)
@@ -34,7 +35,17 @@ class ProgressViewModelBuildTest {
         emptyList(),
     )
 
-    private fun build(history: TrainingHistory, range: ChartRange = ChartRange.MONTHS_6) = ProgressViewModel.build(history, range, today)
+    private fun build(history: TrainingHistory, range: ChartRange = ChartRange.MONTHS_6, showStrictPress: Boolean = false) =
+        ProgressViewModel.build(history, range, today, showStrictPress)
+
+    /** Two weeks of all four lifts. */
+    private val allFour = history(
+        thisWeek.minus(1, DateTimeUnit.WEEK) to listOf(single(squat, 180.0), single(bench, 120.0), single(deadlift, 210.0), single(press, 70.0)),
+        thisWeek to listOf(single(squat, 182.5), single(bench, 120.0), single(deadlift, 215.0), single(press, 72.5)),
+    )
+
+    private fun TrainingHistory.without(exercise: Exercise) =
+        copy(sessions = sessions.map { s -> s.copy(sets = s.sets.filter { it.exerciseId != exercise.id }) })
 
     /** Squat nine weeks ago and this week. */
     private val nineWeeks = history(
@@ -125,5 +136,60 @@ class ProgressViewModelBuildTest {
         assertFalse(build(history()).hasData)
         assertFalse(build(history(today to listOf(single(squat, 100.0, failed = true)))).hasData)
         assertTrue(build(history(today to listOf(single(squat, 100.0, failed = true), single(squat, 90.0)))).hasData)
+    }
+
+    // ---- Strict press behind its setting (strict press spec §5.2) ----
+
+    @Test
+    fun switchOff_progressUnchanged() {
+        val off = build(allFour)
+
+        // Strict press sets change nothing: the state is the one a lifter who never pressed gets.
+        assertEquals(build(allFour.without(press)), off)
+        assertFalse(off.showStrictPress)
+        assertEquals(listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT), off.lifts.map { it.lift })
+        assertEquals(setOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT), off.e1rm.keys)
+        assertEquals(listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT), off.volume.map { it.lift })
+        assertTrue(off.prs.none { it.lift == MainLift.STRICT_PRESS })
+        assertEquals(517.5, off.totalKg!!, 1e-9)
+        // Strict press alone is not something Progress has to show.
+        assertFalse(build(history(thisWeek to listOf(single(press, 70.0)))).hasData)
+    }
+
+    @Test
+    fun switchOn_showsStrictPressEverywhere() {
+        val on = build(allFour, showStrictPress = true)
+
+        assertTrue(on.showStrictPress)
+        assertEquals(listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT, MainLift.STRICT_PRESS), on.lifts.map { it.lift })
+        assertEquals(72.5, on.lifts.last().e1rmKg!!, 1e-9)
+        assertEquals(listOf(70f, 72.5f), on.e1rm.getValue(MainLift.STRICT_PRESS))
+        assertEquals(72.5, on.prs.first { it.lift == MainLift.STRICT_PRESS }.pr.e1rmKg, 1e-9)
+        assertEquals(72.5, on.volume.first { it.lift == MainLift.STRICT_PRESS }.thisWeekKg, 1e-9)
+        // The total and its trend count all four.
+        assertEquals(590.0, on.totalKg!!, 1e-9)
+        assertEquals(listOf(thisWeek.minus(1, DateTimeUnit.WEEK) to 580.0, thisWeek to 590.0), on.totalTrend)
+        // Strict press is in no ratio.
+        assertEquals(2, on.ratios.size)
+        assertTrue(on.ratios.none { it.numerator == MainLift.STRICT_PRESS || it.denominator == MainLift.STRICT_PRESS })
+        // With the switch on, strict press alone is something to show.
+        assertTrue(build(history(thisWeek to listOf(single(press, 70.0))), showStrictPress = true).hasData)
+    }
+
+    @Test
+    fun switchOn_noPressData_totalExplains() {
+        val noPress = allFour.without(press)
+        val on = build(noPress, showStrictPress = true)
+
+        // Every included lift needs data: no total, no change, no trend. The other lifts are untouched.
+        assertNull(on.totalKg)
+        assertNull(on.totalChangeKg)
+        assertTrue(on.totalTrend.isEmpty())
+        assertEquals(LiftSummary(MainLift.STRICT_PRESS, null, null), on.lifts.last())
+        assertEquals(listOf(null, null), on.e1rm.getValue(MainLift.STRICT_PRESS))
+        assertEquals(0.0, on.volume.first { it.lift == MainLift.STRICT_PRESS }.thisWeekKg, 1e-9)
+        assertTrue(on.prs.none { it.lift == MainLift.STRICT_PRESS })
+        assertEquals(build(noPress).lifts, on.lifts.dropLast(1))
+        assertEquals(517.5, build(noPress).totalKg!!, 1e-9)
     }
 }

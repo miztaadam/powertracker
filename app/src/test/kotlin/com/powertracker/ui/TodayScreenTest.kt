@@ -46,6 +46,7 @@ import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Baseline
+import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MissPoint
@@ -1068,5 +1069,58 @@ class TodayScreenTest {
 
         val datedYesterday = runBlocking { advice.all() }.filter { it.type == AdviceType.TARGET && it.createdAt == today }
         assertEquals(before.map { it.id }, datedYesterday.map { it.id })
+    }
+
+    // ---- Strict press is a main lift on Today (strict press spec §5.1) ----
+
+    /** Strict press replaces the squat as today's plan: 3 × 5 @ 8, with no history, so no weight yet. */
+    private fun strictPressDay() = runBlocking {
+        training.deletePlanItem(squatPlanId)
+        val press = training.addExercise(Exercise(0, "Strict press", Category.STRICT_PRESS, null, listOf("Front delts", "Triceps"), isBuiltIn = true))
+        training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, press, sets = 3, reps = 5, targetRpe = 8.0, order = 0))
+    }
+
+    @Test
+    fun today_strictPressMissLabel() {
+        strictPressDay()
+        startSession()
+        show()
+        waitForText("Log set 1")
+
+        weight.type("60")
+        compose.onNodeWithText("Missed").performClick()
+        waitForText("Log set 2")
+
+        // A press stalls off the shoulders, not off the floor.
+        val inRow = hasAnyAncestor(hasTestTag("miss-row-1"))
+        for (point in listOf("Off the shoulders", "Mid", "Lockout")) compose.onNode(hasText(point) and inRow).assertExists()
+        compose.onNode(hasText("Floor") and inRow).assertDoesNotExist()
+
+        // It is the same stored point as the other lifts' "Floor".
+        compose.onNode(hasText("Off the shoulders") and inRow).performClick()
+        waitFor { loggedToday().single().missPoint == MissPoint.FLOOR }
+        waitFor { compose.onAllNodes(isSelected() and hasText("Off the shoulders")).fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    @Test
+    fun today_strictPress_getsThePlateStripAndTheMainLiftRest() {
+        strictPressDay()
+        startSession()
+        val rests = mutableListOf<Boolean>()
+        compose.setContent {
+            PowertrackerTheme { TodayScreen(training, advice, settings, onOpenCoach = {}, today = { today }, onSetLogged = { rests += it }) }
+        }
+        waitForText("Log set 1")
+
+        // The plate strip treats it as a barbell lift: only those are told a weight is under the bar.
+        weight.type("15")
+        waitForText("Lighter than the bar")
+        weight.type("62.5")
+        waitForText("20 + 1.25")
+
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForSets(1)
+        waitFor { rests.isNotEmpty() }
+        assertEquals("a strict press set starts the main-lift rest", listOf(true), rests)
     }
 }

@@ -32,12 +32,13 @@ import java.io.File
  * The Today and Coach mockups render the real `TodayContent` / `CoachContent` with sample state
  * (Today: mid-session, before the session, an exercise finished, after Finish; Coach: the feed, the
  * empty feed, and the rarer re-entry and miss-point cards). Progress and lift history render the
- * real `ProgressContent` / `LiftHistoryContent` from a sample training history. The exercise picker
+ * real `ProgressContent` / `LiftHistoryContent` from a sample training history, Progress once more
+ * with the strict press switch on. Settings is captured with that switch off and on. The exercise picker
  * is the real `ExercisePickerContent`, on its muscle grid and inside one muscle; the form guide is the real `FormGuideContent` in a stand-in
  * for the bottom sheet (the sheet itself is its own window, which this capture cannot see). Today, Plan,
  * the exercise picker,
  * lift history, the empty Coach feed and the two lock screens are phone size (412 × 915 dp); the
- * other Coach captures, Progress, Settings and the form guide are full-page captures of a scrolling screen, so
+ * other Coach captures, Progress, Settings, the form guide and the RPE sheet are full-page captures of a scrolling screen, so
  * their height differs. The launcher icon is rendered by [LauncherIconTest].
  */
 @RunWith(RobolectricTestRunner::class)
@@ -100,14 +101,22 @@ class ScreenshotTest {
     fun progress() = render("progress", Tab.PROGRESS) { ProgressShowcase() }
 
     @Test
+    @Config(qualifiers = "w412dp-h2040dp-xhdpi")
+    fun progressStrictPress() = render("progress-strict-press", Tab.PROGRESS) { ProgressShowcase(strictPress = true) }
+
+    @Test
     fun liftHistory() = render("lift-history", null) { LiftHistoryShowcase() }
 
     @Test
     fun plan() = render("plan", Tab.PLAN) { PlanShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1030dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1150dp-xhdpi")
     fun settings() = render("settings", null) { SettingsShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1150dp-xhdpi")
+    fun settingsStrictPress() = render("settings-strict-press", null) { SettingsShowcase(strictPress = true) }
 
     @Test
     fun exercisePicker() = render("exercise-picker", null) { ExercisePickerShowcase() }
@@ -118,6 +127,10 @@ class ScreenshotTest {
     @Test
     @Config(qualifiers = "w412dp-h1370dp-xhdpi")
     fun formGuide() = render("form-guide", null) { FormGuideShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h560dp-xhdpi")
+    fun rpeSheet() = render("rpe-sheet", null) { RpeSheetShowcase() }
 
     @Test
     fun lock() = render("lock", null) { LockScreen(noDeviceLock = false, onUnlock = {}, onContinue = {}) }

@@ -36,7 +36,7 @@ Dark is the primary theme; light mirrors it. Dynamic colour (Android 12+) is off
 | Warning | `#FFB627` on `#33250A` | `#7A5200` on `#FFEFC7` | Stall, out of range |
 | Danger | `#FF6B6B` on `#3A1416` | `#B3232B` on `#FDE1E0` | Deload, failed rep, delete |
 | Info | `#6AA8FA` on `#10233F` | `#1A55AD` on `#DFEAFB` | Weak point, re-entry |
-| Chart: squat / bench / deadlift | `#3987E5` / `#D95926` / `#199E70` | `#2A78D6` / `#EB6834` / `#1BAF7A` | Lift identity in charts only |
+| Chart: squat / bench / deadlift / strict press | `#3987E5` / `#D95926` / `#199E70` / `#A98BF0` | `#2A78D6` / `#EB6834` / `#1BAF7A` / `#7C52CC` | Lift identity in charts only |
 | Plates (both themes) | 25 `#D8262C` · 20 `#1F5FBF` · 15 `#F2C417` · 10 `#1E9E4A` · 5 `#F2F2EE` · 2.5 `#08080A` · ≤1.25 `#B4BAC2` | | `PlateStrip` only |
 
 Every text colour (text, secondary, muted, accent-as-text, the four state colours) meets WCAG AA
@@ -83,21 +83,22 @@ Depth comes from tone steps and a 1 dp hairline. No shadows.
 - `PtCard` — the standard container (surface + hairline).
 - `PrimaryButton` / `SecondaryButton` / `QuietButton` — accent fill, tonal, text; `compact` inside cards.
 - `NumberDisplay`, `Eyebrow` — label, big tabular value, small unit on the baseline.
-- `Stepper` — one-line − value + (settings, dialogs). `StepperField` — big value over two wide buttons (logging); with `entry` the value is a number field typed straight into (select-all on focus, Done or leaving it commits, the message of a refused entry underneath).
+- `Stepper` — one-line − value + (settings, dialogs). `StepperField` — big value over two wide buttons (logging); with `entry` the value is a number field typed straight into (select-all on focus, Done or leaving it commits, the message of a refused entry underneath), and `labelAction` puts a small action right of its caption (the RPE info button) without adding height.
 - `SetRow` — set number, weight × reps @ RPE, planned / done / failed, optional "Top set" and "PR".
-- `SegmentedChoice` — pick one of a few (miss point Floor / Mid / Lockout, chart range). `ChoiceChip` — toggle (training days). Selected is tonal in both: container-highest fill, text colour, a 1 dp outline.
+- `SegmentedChoice` — pick one of a few (miss point Floor / Mid / Lockout, chart range). Segments share the width equally; when a label does not fit an equal share ("Off the shoulders" for a strict press), each gets its label's width plus an equal share of the rest, and the miss-point question goes above the segments instead of beside them. `ChoiceChip` — toggle (training days). Selected is tonal in both: container-highest fill, text colour, a 1 dp outline.
 - `Pill` — small status label in a tone.
 - `CoachSuggestion` — inline "Coach suggests 155 × 5 @ 8" with reason, Apply, Dismiss.
 - `AdviceCard` — coach card shell: toned icon + tag, title (what), body (why), detail slot, actions.
-- `StatTile` — labelled figure with a note; with `onClick` it is a button with a chevron (lift tiles open the lift's history).
+- `StatTile` — labelled figure with a note; with `onClick` it is a button with a chevron (lift tiles open the lift's history). Three lift tiles share a row; with strict press shown they go two to a row.
 - `PlateStrip` — one side of the bar drawn in IPF colours plus "25 + 25 + 15 + 2.5". `PlateStripNote` — the same block in words when there is nothing to draw ("Can't load 181 kg exactly").
 - `RestTimerBar` — countdown, progress line, −30 s, +30 s, Skip; docks above the bottom bar. The same rest shows as an ongoing notification (`platform/RestTimerService`): barbell status icon, accent tint, "Rest" with a countdown, +30 s and Skip.
-- `LineChart`, `Sparkline`, `BarStrip`, `ChartSeries` — e1RM over time with legend and latest values (a null value is a week with no reading; the line runs across it); tiny trend line; a row of bars for one quantity per week (volume), with the figure in text beside it. Give `Sparkline` a `minSpan` when a flat trend must look flat (the stall card uses 5% of the lift).
+- `LineChart`, `Sparkline`, `BarStrip`, `ChartSeries` — e1RM over time with legend and latest values (the legend wraps when four lifts do not fit one line) (a null value is a week with no reading; the line runs across it); tiny trend line; a row of bars for one quantity per week (volume), with the figure in text beside it. Give `Sparkline` a `minSpan` when a flat trend must look flat (the stall card uses 5% of the lift).
 - `RatioBar` — lift ratio against its typical range.
 - `EmptyState` — icon, title, body, optional action.
 - `PtBottomBar` (in `ui/AppShell.kt`) — four tabs, accent indicator on the current one.
 - `InfoButton` (in `ui/library/`) — the outlined info icon beside an exercise's name, wherever one is shown (Today card and row, Plan rows, the coach's accessory lists, the lift-history header, picker rows). A 48 dp target labelled "Form guide for <name>"; it opens the sheet and does nothing else. Custom exercises keep it, so rows line up.
 - `FormGuideSheet` (in `ui/library/`) — the form guide as a bottom sheet, read between sets: name, area and equipment, purpose, then Setup (dots), How to do it (numbered), Cues and Common mistakes (dots) in 16 sp body text, and the safety line last in its own neutral block. Mockups `form-guide-*`.
+- `RpeInfoButton` and `RpeSheet` (in `ui/library/`) — the same outlined info icon beside an RPE label: the RPE caption on the Today card, "RPE" in the Plan item dialog, "Default RPE" in Settings. A 48 dp target labelled "What RPE means". `inline` draws it at 18 dp and takes only the icon's room and no height, for captions and row titles. The sheet is the form guide's sheet with the domain's `RpeGuide`: title, one line of what the scale counts, the values as a dotted list, the app's input range. No safety line: it is not an exercise. Mockups `rpe-sheet-*`.
 - `ExercisePickerScreen` (in `ui/library/`) — the full-screen exercise picker of Plan and Today: search, one row of body-area chips (one at a time) and one of equipment chips (any of the chosen) as `ChoiceChip`s that scroll sideways, then "Your exercises" and the catalogue. A row is name, muscles, equipment and the info button; tapping the row picks it. While nothing is searched and no body area is chosen, "Browse by muscle" leads the list: a grid of muscle tiles, three to a row, each a tonal card (surface, hairline, medium radius, 56 dp tall, the name in `titleMedium`). A tile lists that muscle's exercises under "<Muscle> exercises" with a tonal "All muscles" button back to the grid; equipment chips still narrow it, and a search or a body area leaves it. Mockups `exercise-picker-*` (the grid) and `exercise-picker-muscle-*`.
 - `LockScreen` (in `ui/lock/`) — what stands in for the app while app lock holds it shut: the Grit icon, one line on why, one primary button (Unlock; Continue when the phone has no screen lock). Mockups `lock-*` and `lock-no-screen-lock-*`.
 
@@ -119,7 +120,7 @@ Do
   element on every screen.
 - Map advice to tones: TARGET → accent chip, STALL → warning, DELOAD → danger, WEAK_POINT / RE_ENTRY → info.
 - Pair every state colour with words or an icon ("Failed", "Below range", tick, cross).
-- Use the squat / bench / deadlift colours only for chart marks, always with a legend; text stays in text colours.
+- Use the squat / bench / deadlift / strict press colours only for chart marks, always with a legend; text stays in text colours.
 - Give `SetRow`-style composed rows one spoken sentence (`clearAndSetSemantics { text = … }`).
 - Check both themes; add the screen to `Showcase.kt` / `ScreenshotTest` and look at the PNGs.
 

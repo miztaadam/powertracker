@@ -38,7 +38,7 @@ data class PlanUiState(
     val exercises: List<Exercise> = emptyList(),
     /** Exercise ids, most recently logged first, for the picker's "Your exercises". */
     val recentIds: List<Long> = emptyList(),
-    /** The built-in SQUAT / BENCH / DEADLIFT exercises, for "Set a known best". */
+    /** The main lifts' own exercises (squat, bench, deadlift and, once it has a row, strict press), for "Set a known best". */
     val mainExercises: List<Exercise> = emptyList(),
     val defaultRpe: Double = 8.0,
 )
@@ -64,7 +64,7 @@ class PlanViewModel(
             },
             exercises = exercises.filter { !it.archived },
             recentIds = recentExerciseIds(history),
-            mainExercises = exercises.filter { it.category in MAIN_CATEGORIES },
+            mainExercises = exercises.filter { it.isMainLift },
             defaultRpe = s.defaultRpe,
         )
     }
@@ -132,7 +132,6 @@ class PlanViewModel(
     companion object {
         const val MIN_RPE = 6.0
         const val MAX_RPE = 10.0
-        private val MAIN_CATEGORIES = setOf(Category.SQUAT, Category.BENCH, Category.DEADLIFT)
 
         fun factory(training: TrainingRepository, settings: SettingsRepository, today: () -> LocalDate = ::systemToday): ViewModelProvider.Factory =
             viewModelFactory { initializer { PlanViewModel(training, settings, today) } }

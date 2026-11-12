@@ -253,4 +253,31 @@ class PlanScreenTest {
         val text = runBlocking { Backup.encode(BackupService(db, settings).export(0L)) }
         assertTrue(text.contains("182.5"))
     }
+
+    // ---- Strict press: the Progress switch and the known bests ----
+
+    @Test
+    fun settings_strictPressSwitch_saysWhatItDoes_andPersists() {
+        compose.setContent { SettingsScreen(settings, BackupService(db, settings), onBack = {}) }
+
+        compose.onNodeWithText("Show it on Progress and add it to your total.").assertExists()
+        compose.onNodeWithText("Strict press").performClick()
+        compose.waitUntil(5_000) { runBlocking { settings.showStrictPress.first() } }
+
+        compose.onNodeWithText("Strict press").performClick()
+        compose.waitUntil(5_000) { !runBlocking { settings.showStrictPress.first() } }
+    }
+
+    @Test
+    fun knownBests_includeStrictPress_onceItHasARow() {
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("baseline-Squat")).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("baseline-Strict press").assertDoesNotExist()
+
+        runBlocking { training.addExercise(Exercise(0, "Strict press", Category.STRICT_PRESS, null, emptyList(), isBuiltIn = true)) }
+
+        // It is a main lift like the other three: it can be given a known best.
+        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("baseline-Strict press")).fetchSemanticsNodes().isNotEmpty() }
+        for (lift in listOf("Squat", "Bench", "Deadlift")) compose.onNodeWithTag("baseline-$lift").assertExists()
+    }
 }
