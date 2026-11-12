@@ -74,9 +74,10 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
   - sources: a licensed illustration set (accurate, costs money, won't cover all 225) or generated drawings (cheap, fits the list, but every pose must be checked against the guide's sources). Free images (e.g. Wikimedia) are patchy and inconsistent. ExRx/ACE images are copyrighted and can't be used.
   - suggested first step: generate a trial batch of 10–15 and check accuracy before committing to all 225.
 - Code side is small: an image per catalogue entry, shown at the top of the guide sheet in both apps.
-- **Owner decided: detailed, lifelike style** (semi-realistic illustration, not line art). A trial bench press image is in `docs/library/pictures/` with the prompts that worked and the lessons learned.
-- **Generation plan:** use the Gemini API (Google AI Studio key, pay-per-use, separate from the owner's Gemini Pro app plan; roughly $50–150 for all 225 with retries; set a spending limit). Claude writes each prompt from the exercise's guide, picks the camera angle, checks every result against the guide, retries failures, and builds the images in. The key goes in through the secure credential form, never the chat. Start with a trial batch of 10–15.
-- Images are about 40–60 KB each as WebP, so all 225 add roughly 10–15 MB to each app. Show the two poses side by side, or let the lifter tap between them.
+- **Owner decided (final): no paid image service.** The figures are drawn in code (SVG) by Claude: solid figure shapes, plates and equipment to scale, the bar and plates in the theme accent, dark and light from theme colours. A draft is in `docs/library/pictures/bench-press-figure-draft.svg`. The earlier Gemini trial (`bench-press-example.jpg` and its brief) is kept only as a record of what was tried.
+- Why it suits Grit: free, accurate by construction (each pose is drawn from the guide's positions), about 2–4 KB per exercise (under 1 MB for all 225), sharp at any size, and theme-aware.
+- Build approach: a shared figure kit (body, limbs, bench, rack, barbell, dumbbell, cable, machine parts), so each exercise is two pose definitions rather than a drawing from scratch. Review each batch against its guide, as with the text.
+- Show the two poses side by side, or let the lifter tap between them.
 
 ## How future projects are built (owner, 2026-11-12)
 - While building a task, run only the tests for the part being changed.

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -64 640 282" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <g id="scene2">
+      <line x1="16" y1="212" x2="304" y2="212" stroke="var(--muted)" stroke-width="3"/>
+      <path d="M38 212V-58M56 212V-58" stroke="var(--muted)" stroke-width="5" fill="none"/>
+      <path d="M44 6h20" stroke="var(--muted)" stroke-width="5"/>
+      <!-- safety arm, below chest level -->
+      <path d="M30 141H182" stroke="var(--muted)" stroke-width="6" opacity=".9"/>
+      <rect x="58" y="145" width="174" height="11" rx="4" fill="var(--muted)"/>
+      <path d="M80 156v56M210 156v56M66 212h28M196 212h28" stroke="var(--muted)" stroke-width="5" fill="none"/>
+    </g>
+    <g id="body2" fill="var(--ink)" stroke="var(--ink)">
+      <circle cx="73" cy="132" r="12" stroke="none"/>
+      <path d="M84 145 L86 131 Q98 117 126 116 Q158 115 176 126 Q190 129 200 133 L200 145 Z" stroke-width="2"/>
+      <path d="M196 138 L250 133" stroke-width="17" fill="none"/>
+      <path d="M250 133 L244 203" stroke-width="12" fill="none"/>
+      <path d="M241 205 L264 208" stroke-width="8" fill="none"/>
+    </g>
+  </defs>
+  <g>
+    <use href="#scene2"/>
+    <circle cx="126" cy="111" r="50" fill="var(--plate)" stroke="var(--accent)" stroke-width="3"/>
+    <circle cx="126" cy="111" r="12" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".7"/>
+    <use href="#body2"/>
+    <path d="M101 130 L110 161 L124 115" stroke="var(--surf)" stroke-width="15" fill="none"/>
+    <path d="M101 130 L110 161" stroke="var(--ink)" stroke-width="11" fill="none"/>
+    <path d="M110 161 L124 115" stroke="var(--ink)" stroke-width="9" fill="none"/>
+    <circle cx="126" cy="111" r="5" fill="var(--accent)"/>
+  </g>
+  <g transform="translate(320 0)">
+    <use href="#scene2"/>
+    <circle cx="102" cy="-2" r="50" fill="var(--plate)" stroke="var(--accent)" stroke-width="3"/>
+    <circle cx="102" cy="-2" r="12" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".7"/>
+    <use href="#body2"/>
+    <path d="M101 126 L101 66 L102 4" stroke="var(--surf)" stroke-width="15" fill="none"/>
+    <path d="M101 130 L101 66" stroke="var(--ink)" stroke-width="11" fill="none"/>
+    <path d="M101 66 L102 4" stroke="var(--ink)" stroke-width="9" fill="none"/>
+    <circle cx="102" cy="-2" r="5" fill="var(--accent)"/>
+  </g>
+</svg>
