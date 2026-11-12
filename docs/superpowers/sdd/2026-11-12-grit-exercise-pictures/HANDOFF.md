@@ -2,16 +2,17 @@
 
 This folder is a tracked copy of the plan's working notes, which normally live in the git-ignored `.superpowers/sdd/2026-11-12-grit-exercise-pictures/`. It is synced so a new session can take over if this one ends.
 
-## Where things stand (synced after Task 10)
+## Where things stand (synced after Task 12)
 
 - **Spec:** `docs/superpowers/specs/2026-11-12-grit-exercise-pictures-design.md` (binding authority).
 - **Plan:** `docs/superpowers/plans/2026-11-12-grit-exercise-pictures.md` (13 tasks).
 - **Ledger:** `progress.md` in this folder. Read it all: rulings R1–R18, parked findings, per-task status.
-- **Done, reviewed and pushed:** Tasks 1–10. 172 of 225 pictures: main lifts 25, chest 30, back 33, shoulders 24, arms 31, quads 28, plus RDL. Branch head after Task 10: `8ed18d4` (golden `172:84a1fde1ff223652`).
-- **Task 11 (hamstrings and glutes, 27 new):** brief `task-11-brief.md`, builder dispatched on BASE `8ed18d4`. If no `feat(domain): hamstring and glute pictures` commit exists on the branch, start it again from the brief. Its review brief is `review-11-brief.md` (fill in `__HEAD__` and `__BASE__`).
-- **Briefs ready (set `__BASE__` in each):** `task-12-brief.md` (calves 9 + core 17), `task-13a-brief.md` (build-time thumbnails, Ruling R15), `task-13b-brief.md` (completeness check on, screenshots, pictures page).
+- **Done, reviewed and pushed:** Tasks 1–12. All 225 pictures are drawn. Branch head after Task 12: `8b5f537` (golden `225:4cef8580b4d880a3`). Task 12 is two commits (`1563e21` plus the review fixes `8b5f537`) because a restart interrupted its fix round.
+- **Task 13a (build-time thumbnails):** brief `task-13a-brief.md`, builder dispatched on BASE `8b5f537`. If no `perf(web): thumbnails are worked out when the app is built` commit exists on the branch, start it again from the brief (check `git status` first for partial work). Review brief: `review-13a-brief.md` (fill in `__HEAD__` and `__BASE__`).
+- **Then:** `task-13b-brief.md` (completeness check on, leftovers, screenshots, pictures page; set `__BASE__`), then `review-final-brief.md` (set `__HEAD__`).
+- **Usage limit:** subagents can hit a 5-hour usage limit; a stopped builder is resumed with SendMessage to its agent id once the limit resets, and its uncommitted work stays in the working tree.
 
-## The cycle for each batch (Tasks 11–12)
+## The cycle each batch followed (Tasks 5–12, for reference)
 
 1. opus-builder builds from the brief: one local commit, full suites, report `task-N-report.md`.
 2. sonnet-checker reviews from `review-N-brief.md` (copy the last one and adapt): every picture against its guide, older figures pixel-identical, tests real. It has no WebSearch, so the controller spot-checks five citations with WebSearch `allowed_domains`.

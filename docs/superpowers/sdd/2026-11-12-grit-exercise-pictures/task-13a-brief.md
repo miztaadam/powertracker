@@ -2,7 +2,7 @@
 
 Read first, fully: implementer-rules.md and constraints.md in this folder (use the attribution lines your own harness gives you); the spec docs/superpowers/specs/2026-11-12-grit-exercise-pictures-design.md sections 3.2 (Exercises tab thumbnail) and 3.4 (Speed); perf-brief.md, perf-report.md and review-perf-report.md in this folder (how the idle warm-up came about); and in progress.md the entries "Speed finding" and "T13 speed design input" (the measurements and Ruling R15 behind this task).
 
-Repo /home/user/powertracker, branch ccr-2f9842b5-owq43n, BASE = HEAD = __BASE__ (all 225 figures drawn). Never push, never switch branches. ONE new commit on top of BASE.
+Repo /home/user/powertracker, branch ccr-2f9842b5-owq43n, BASE = HEAD = 8b5f537 (all 225 figures drawn). Never push, never switch branches. ONE new commit on top of BASE.
 
 ## The problem
 The Exercises tab shows a thumbnail on every row. Working a figure's pose out (the Kotlin/JS domain's solver, `grit.figureShapes`) costs about 3 ms each on this machine and several times that on a phone. Today `prepareThumbnails()` (web/src/screens/library/ExercisePicture.tsx, started from main.tsx) works every catalogue thumbnail out in idle time after every start-up. With 225 figures that is about 0.7 s of work here at each launch, more on a phone, and it competes with the first taps: the @speed picker check "a few hundred exercises" opens at 41–81 ms straight after load against 39–63 ms after the warm-up has finished, and fails the 100 ms gate about 1 run in 10 (102–113 ms). A tab opened before the warm-up reaches its rows builds them there and then (78–131 ms measured cold).
@@ -24,6 +24,7 @@ Work the thumbnails out once, when the app is built, and ship them as data:
 - Report the build's size change (main bundle and total precache, raw and gzip) and the start-up parse cost.
 - The web test `exercisesTab_coldList_buildsOnlyTheNearTilesFigures` (ExercisePicture.test.tsx; its fixture was reordered in Task 7 and it was flagged for a rethink) is rewritten or replaced to pin what is now true.
 - Unit tests for the new behaviour in the existing style; no test left that pins the removed warm-up.
+- The vitest test `exercisesTab_browseByMuscleAndSearchWork` now runs close to its 5 s timeout in full runs (5.1–5.4 s seen by the last builder with 225 figures; 4.3 s alone; it passed in the controller's full run): with no pose solving for thumbnails it should run well inside the limit. Report its time in a full run before and after; do not raise its timeout — if it is still slow, find out what in it is slow and say so.
 
 ## Testing before the commit
 `cd web && npm test && npm run typecheck && npm run build && npm run e2e -- --trace off` (known flake: reload.spec toHaveValue timeout — re-run once). Kotlin is untouched, so no Gradle run is needed; say you skipped it. Never `playwright install`.
