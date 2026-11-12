@@ -688,4 +688,91 @@ class KitTest {
         // The side view is unchanged: nothing in front.
         assertEquals(emptyList(), seat.drawFront(View.SIDE))
     }
+
+    // ---- Task 8: the shoulder batch's pieces ----
+
+    @Test
+    fun kettlebell_handleInTheHand_bellOnTheForearm_rackInFront_overheadBehind() {
+        val rack = standing(arm = Arm(15.0, 145.0)).skeleton()
+        val rackBell = Kettlebell(Side.NEAR, KettlebellHold.RACK)
+        assertEquals(rack.near.grip, rackBell.center(rack))
+        val c = rackBell.bellCentre(rack)
+        // Racked: by the wrist, just in front of the upright forearm.
+        assertTrue(c.x > rack.near.wrist.x && (c - rack.near.wrist).length() < Kettlebell.BELL_RADIUS + 8.0, "rack bell by the wrist, in front")
+        val overhead = standing(arm = Arm(180.0, 0.0)).skeleton()
+        val up = Kettlebell(Side.NEAR, KettlebellHold.OVERHEAD)
+        val o = up.bellCentre(overhead)
+        assertTrue(o.x < overhead.near.wrist.x - Body.FOREARM_WIDTH / 2, "overhead bell behind the forearm")
+        val shapes = up.draw(overhead).map { it.shape }
+        assertTrue(shapes.all { it.role == Role.ACCENT || it.role == Role.ACCENT_FILL })
+        val body = shapes.filterIsInstance<Circle>().single { it.role == Role.ACCENT_FILL }
+        assertEquals(Kettlebell.BELL_RADIUS, body.r, 1e-9)
+        // The handle's two horns meet at the grip.
+        val horns = shapes.filterIsInstance<Capsule>()
+        assertEquals(2, horns.size)
+        assertTrue(horns.all { Point(it.x2, it.y2) == overhead.near.grip })
+        assertRenders(figureOf(View.SIDE, Scene(standing(arm = Arm(180.0, 0.0)), listOf(Floor, up))), setOf(Role.BODY, Role.ACCENT, Role.ACCENT_FILL))
+    }
+
+    @Test
+    fun lateralRaiseMachine_pivotsAtTheShoulders_padsOutsideTheArms_drawnInFront() {
+        val pose = standing(arm = Arm(8.0, 0.0))
+        val s = pose.skeleton(View.FRONT)
+        val m = LateralRaiseMachine(x = 0.0, seatHeight = 47.0, padTop = 130.0, pivotHeight = -s.near.shoulder.y)
+        assertEquals(s.near.shoulder.x, m.pivot(Side.NEAR).x, 1e-9)
+        assertEquals(s.far.shoulder.x, m.pivot(Side.FAR).x, 1e-9)
+        assertEquals(-47.0, m.surfaces(View.FRONT).getValue(Surface.SEAT).single().let { it.cy - it.thickness / 2 }, 1e-9)
+        assertEquals(emptyList(), m.solids(View.FRONT))
+        // The hanging arm's pad is outside it, by the elbow; on the far side too.
+        val (a, b) = m.armPad(Side.NEAR, s)
+        assertTrue((a + b).x / 2 > s.near.elbow.x + Body.UPPER_ARM_WIDTH / 2)
+        val (fa, fb) = m.armPad(Side.FAR, s)
+        assertTrue((fa + fb).x / 2 < s.far.elbow.x - Body.UPPER_ARM_WIDTH / 2)
+        val front = m.drawFront(View.FRONT, null, s).map { it.shape }
+        assertTrue(front.any { it.role == Role.GAP } && front.any { it.role == Role.EQUIPMENT })
+        assertEquals(emptyList(), m.drawFront(View.SIDE, null, pose.skeleton()))
+        assertRenders(figureOf(View.FRONT, Scene(pose, listOf(Floor, m))), setOf(Role.BODY, Role.EQUIPMENT))
+    }
+
+    @Test
+    fun pecDeckFacingThePad_chestPadDrawnInFront_noBackPad_defaultUnchanged() {
+        val deck = PecDeck(x = 0.0, seatHeight = 47.0, padTop = 104.0, pivotHeight = 195.0)
+        val facing = deck.copy(facingPad = true)
+        val s = standing(arm = Arm(90.0, 0.0)).skeleton(View.FRONT)
+        assertEquals(emptyList(), deck.drawFront(View.FRONT, null, s))
+        val pad = facing.drawFront(View.FRONT, null, s).map { it.shape }.filterIsInstance<RoundRect>().single { it.role == Role.EQUIPMENT }
+        assertEquals(-104.0, pad.y, 1e-9)
+        assertEquals(36.0, pad.h, 1e-9)
+        // No pad behind; the rest of the machine is as before.
+        assertEquals(deck.draw(View.FRONT, null, s).size - 1, facing.draw(View.FRONT, null, s).size)
+    }
+
+    @Test
+    fun cableStack_crossedCables_andAFrontViewSingleColumnCableInFront() {
+        val pose = standing(arm = Arm(80.0, 0.0))
+        val s = pose.skeleton(View.FRONT)
+        val crossed = CableStack(x = 0.0, pulleyHeight = 140.0, reach = 6.0, halfSpan = 30.0, crossed = true)
+        val cables = crossed.draw(View.FRONT, null, s).map { it.shape }.filterIsInstance<Capsule>().filter { it.width < 1.0 }
+        // The right-hand pulley's cable runs to the far (left) hand, and the other way round.
+        assertEquals(s.far.grip, cables.single { it.x1 > 0 }.let { Point(it.x2, it.y2) })
+        assertEquals(s.near.grip, cables.single { it.x1 < 0 }.let { Point(it.x2, it.y2) })
+        val single = CableStack(x = -60.0, pulleyHeight = 15.0, reach = 12.0, cableInFront = true)
+        val grip = s.near.grip
+        assertTrue(single.draw(View.FRONT, grip, s).none { (it.shape as? Capsule)?.width == 0.8 }, "no cable behind")
+        val front = single.drawFront(View.FRONT, grip, s).map { it.shape as Capsule }
+        assertEquals(listOf(Role.GAP, Role.EQUIPMENT), front.map { it.role })
+        assertEquals(Point(-48.0, -15.0), Point(front[1].x1, front[1].y1))
+        assertEquals(grip, Point(front[1].x2, front[1].y2))
+        // The default front single column still draws its cable behind.
+        assertEquals(emptyList(), single.copy(cableInFront = false).drawFront(View.FRONT, grip, s))
+    }
+
+    @Test
+    fun pressMachine_handleEndOn_drawsADisc() {
+        val m = PressMachine(x = 40.0, seatHeight = 41.0, backAngle = 80.0, pivot = Point(-60.0, -170.0), handleEndOn = true)
+        val s = standing(x = 20.0, arm = Arm(150.0, 20.0)).skeleton()
+        val shapes = m.draw(View.SIDE, null, s).map { it.shape }
+        assertTrue(shapes.any { it is Circle && Point(it.cx, it.cy) == s.near.grip })
+        assertTrue(m.copy(handleEndOn = false).draw(View.SIDE, null, s).map { it.shape }.none { it is Circle && Point(it.cx, it.cy) == s.near.grip })
+    }
 }

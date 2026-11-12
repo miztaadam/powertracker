@@ -377,12 +377,12 @@ private const val ROW_SEAT = 42.0
 private val rowPelvis = Point(0.0, -(ROW_SEAT + Body.TORSO_RADIUS))
 private val rowFootAngle = 75.0
 private val rowLegs by lazy { Reach.leg(rowPelvis, rowPelvis + Point(80.0, 16.0), 90.0, foot = rowFootAngle) }
-private val rowSeatShoulder = shoulderOf(rowPelvis, 90.0)
+internal val rowSeatShoulder = shoulderOf(rowPelvis, 90.0)
 
-private fun rowPose(arm: Arm, far: Arm = arm, torso: Double = 90.0) =
+internal fun rowPose(arm: Arm, far: Arm = arm, torso: Double = 90.0) =
     Pose(rowPelvis.x, rowPelvis.y, torso, nearArm = arm, nearLeg = rowLegs, farArm = far)
 
-private val rowStation by lazy {
+internal val rowStation by lazy {
     val n = rowPose(HANG).skeleton().near
     // The plate's face under the sole: from the ankle, the sole's offset, and halfway along the foot.
     val sole = unit(rowFootAngle - 90.0) * Body.ANKLE_HEIGHT
@@ -399,7 +399,7 @@ private fun rowReach(z: Double = 0.0): Arm {
     return if (dz == 0.0) Arm(shoulder = fold180(-15.0 - 90.0 - 180.0), elbow = 0.0) else arm3(sh, grip, V3(0.0, 1.0, 0.0), 90.0)
 }
 
-private val SEATED_ROW_CONTACTS = listOf(Contact(BodyPoint.HIPS, Surface.SEAT, BOTH), Contact(BodyPoint.FEET, Surface.FOOT_PLATE, BOTH))
+internal val SEATED_ROW_CONTACTS = listOf(Contact(BodyPoint.HIPS, Surface.SEAT, BOTH), Contact(BodyPoint.FEET, Surface.FOOT_PLATE, BOTH))
 
 /**
  * Seated cable row. START arms straight towards the pulley, torso upright; END the V-handle pulled to the waist, the

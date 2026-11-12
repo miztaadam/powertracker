@@ -48,9 +48,10 @@ data object CableHandles : HeldProp
  * [seatHeight] up, with a back pad [BACK_LENGTH] long hinged at the seat's rear, [backAngle]° from level. The handle
  * is on a lever that swings about [pivot] (on the machine's frame above the lifter) and follows the hands. A typical
  * selectorised chest press: a 40 cm seat, a 70 cm back pad, a lever about 70–90 cm long; neutral sizes. The figure sets
- * the pivot so the lever is the same length in both panels.
+ * the pivot so the lever is the same length in both panels. With [handleEndOn] (Task 8: a shoulder press gripped palms
+ * forward) the handle runs across the body, so the side view sees its end, a disc; the default handle is upright.
  */
-data class PressMachine(val x: Double, val seatHeight: Double, val backAngle: Double, val pivot: Point) : FixedProp {
+data class PressMachine(val x: Double, val seatHeight: Double, val backAngle: Double, val pivot: Point, val handleEndOn: Boolean = false) : FixedProp {
     companion object {
         const val SEAT_LENGTH = 40.0
         const val BACK_LENGTH = 70.0
@@ -61,9 +62,18 @@ data class PressMachine(val x: Double, val seatHeight: Double, val backAngle: Do
  * A pec deck seen from the front, centred at [x]: a seat [seatHeight] up, a back pad behind the lifter up to
  * [padTop], and a frame beam at [pivotHeight] with each arm's pivot [pivotHalf] cm either side of the middle, above the
  * shoulders. Each arm hangs from its pivot to a vertical handle in the hand. A typical machine, sizes neutral: the seat
- * 40 cm wide, the pad 34 cm wide.
+ * 40 cm wide, the pad 34 cm wide. With [facingPad] (Task 8) the lifter sits the other way round, chest to the pad (a
+ * reverse fly): the pad, 28 cm wide and 36 cm tall from [padTop] down, is in front of the torso and drawn over it
+ * (KitShoulders.kt), and the handles, gripped palms down, run across (drawn level). The default drawing is unchanged.
  */
-data class PecDeck(val x: Double, val seatHeight: Double, val padTop: Double, val pivotHeight: Double, val pivotHalf: Double = 18.0) : FixedProp
+data class PecDeck(
+    val x: Double,
+    val seatHeight: Double,
+    val padTop: Double,
+    val pivotHeight: Double,
+    val pivotHalf: Double = 18.0,
+    val facingPad: Boolean = false,
+) : FixedProp
 
 /**
  * A seat seen from the front, centred at [x], its top [height] up and [width] across, on one post (a cable station's
@@ -191,7 +201,8 @@ internal fun PressMachine.drawOf(grip: Point?): List<Placed> = buildList {
     add(Placed(slabPolygon(E, back)))
     if (grip != null) {
         add(Placed(cap(E, pivot, grip, 4.0)))
-        add(Placed(Capsule(E, grip.x, grip.y - 6.0, grip.x, grip.y + 6.0, 3.5)))
+        if (handleEndOn) add(Placed(Circle(E, grip.x, grip.y, 2.6)))
+        else add(Placed(Capsule(E, grip.x, grip.y - 6.0, grip.x, grip.y + 6.0, 3.5)))
     }
     add(Placed(Circle(E, pivot.x, pivot.y, 4.0)))
 }
@@ -205,14 +216,15 @@ internal fun PecDeck.drawOf(near: Point?, far: Point?): List<Placed> = buildList
     add(Placed(Capsule(E, x - 25.0, -1.5, x + 25.0, -1.5, 3.0)))
     add(Placed(slabShape(E, seatSlab())))
     // The back pad behind the torso, and the post that carries the beam above it.
-    add(Placed(RoundRect(E, x - 17.0, -padTop, 34.0, padTop - seatHeight - 2.0, 3.0)))
+    if (!facingPad) add(Placed(RoundRect(E, x - 17.0, -padTop, 34.0, padTop - seatHeight - 2.0, 3.0)))
     add(Placed(Capsule(E, x, -padTop, x, -pivotHeight, 5.0)))
     add(Placed(Capsule(E, x - pivotHalf - 6.0, -pivotHeight, x + pivotHalf + 6.0, -pivotHeight, 5.0)))
     for ((sgn, grip) in listOf(1.0 to near, -1.0 to far)) {
         val pivot = Point(x + sgn * pivotHalf, -pivotHeight)
         if (grip != null) {
             add(Placed(cap(E, pivot, grip, 4.0)))
-            add(Placed(Capsule(E, grip.x, grip.y - 7.0, grip.x, grip.y + 7.0, 3.5)))
+            if (facingPad) add(Placed(Capsule(E, grip.x - 6.0, grip.y, grip.x + 6.0, grip.y, 3.5)))
+            else add(Placed(Capsule(E, grip.x, grip.y - 7.0, grip.x, grip.y + 7.0, 3.5)))
         }
         add(Placed(Circle(E, pivot.x, pivot.y, 3.5)))
     }
@@ -254,7 +266,9 @@ internal fun AssistedDipMachine.drawOf(): List<Placed> = buildList {
 
 /** The cable columns: side view one column (Kit.kt), front view two at [CableStack.x] ± [CableStack.halfSpan]. */
 internal fun CableStack.drawFrontOf(near: Point?, far: Point?): List<Placed> = buildList {
-    for ((sgn, end) in listOf(1.0 to near, -1.0 to far)) {
+    // Crossed: each column's cable runs to the hand on the other side.
+    val ends = if (crossed) listOf(1.0 to far, -1.0 to near) else listOf(1.0 to near, -1.0 to far)
+    for ((sgn, end) in ends) {
         val cx = x + sgn * halfSpan
         val pulley = Point(cx - sgn * reach, -pulleyHeight)
         add(Placed(RoundRect(E, cx - 9.0, -height, 18.0, height - 1.5, 3.0), fit = false))

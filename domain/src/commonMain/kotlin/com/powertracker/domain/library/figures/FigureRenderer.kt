@@ -13,7 +13,8 @@ import kotlin.math.round
  *
  * Draw order, back to front: far limbs (BODY_FAR), fixed equipment, the body, then for each near limb a GAP outline
  * and the limb, then held equipment (ACCENT / ACCENT_FILL), then any fixed part drawn in front of the hands (the side
- * view's pull-up bar, a cable in front). Front view: legs pointing straight away from the camera are hidden behind
+ * view's pull-up bar, a cable in front). A cable station marked [CableStack.beyond] is drawn first, behind the far
+ * limbs. Front view: legs pointing straight away from the camera are hidden behind
  * the body and not drawn.
  */
 object FigureRenderer {
@@ -72,9 +73,12 @@ object FigureRenderer {
             // Front view, legs pointing straight away from the camera (a push-up seen head-on): they lie behind the
             // shoulders and are hidden by them, so they are not drawn.
             val legsHidden = view == View.FRONT && legHidden(scene.pose.nearLeg) && legHidden(scene.pose.farLeg)
+            // A backdrop (a cable station beyond a lifter seen from behind) goes behind every limb.
+            val (backdrop, rest) = fixed.partition { it is CableStack && it.beyond }
+            for (p in backdrop) addAll(p.draw(view, cableEnd, s))
             val far = limbSegments(s.far)
             for (seg in if (legsHidden) far.subList(3, 6) else far) add(Placed(seg.capsule(farRole)))
-            for (p in fixed) addAll(p.draw(view, cableEnd, s))
+            for (p in rest) addAll(p.draw(view, cableEnd, s))
             val near = limbSegments(s.near)
             add(Placed(torso(s)))
             add(Placed(Capsule(Role.BODY, s.neckBase.x, s.neckBase.y, s.head.x, s.head.y, Body.NECK_WIDTH)))

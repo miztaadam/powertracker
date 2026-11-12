@@ -165,7 +165,11 @@ data class Dumbbell(val hand: Side, val neutral: Boolean = false, val endOnFront
  * crossover station's columns are 3–4 m apart, so a front view draws them closer than that to keep the lifter large
  * (the cables' angle at the hands is what the picture shows). With [cableInFront] the side view draws the cable in
  * front of the body: a pulley beside the lifter (a bench between low pulleys) whose near cable runs to the near hand
- * in front of the body, where the cable from a column behind would be hidden by it.
+ * in front of the body, where the cable from a column behind would be hidden by it; in a front view the same holds for
+ * a single column ([halfSpan] 0: a pulley beside the lifter whose cable crosses in front of the body to the hand,
+ * Task 8). With [crossed] a two-column front view cables each pulley to the hand on the other side (a reverse fly's
+ * crossed cables, Task 8). With [beyond] the columns stand beyond the lifter in a front view seen from behind (a
+ * reverse fly facing the pulleys), so the renderer draws them before every limb, the far arm included (Task 8).
  */
 data class CableStack(
     val x: Double,
@@ -174,6 +178,8 @@ data class CableStack(
     val height: Double = 230.0,
     val halfSpan: Double = 0.0,
     val cableInFront: Boolean = false,
+    val crossed: Boolean = false,
+    val beyond: Boolean = false,
 ) : FixedProp {
     companion object {
         /** The cable drawn in front of the body ([cableInFront]): thicker than the 0.8 cm one behind, so it shows. */
@@ -382,6 +388,7 @@ internal fun FixedProp.surfaces(view: View): Map<Surface, List<Slab>> = when (th
     is RowMachine -> mapOf(Surface.SEAT to listOf(seatSlab()), Surface.CHEST_PAD to listOf(padSlab()))
     is ProneBench -> mapOf(Surface.CHEST_PAD to listOf(padSlab())) + (platformSlab()?.let { mapOf(Surface.FOOT_PLATE to listOf(it)) } ?: emptyMap())
     is TBarLever, is PullUpBand, is DipBelt, is PulldownLever, is ChestPlate, is Spotter -> emptyMap()
+    is LateralRaiseMachine -> mapOf(Surface.SEAT to listOf(seatSlab()))
     is RackBar -> mapOf(Surface.PULL_UP_BAR to listOf(barSlab()))
     is AssistPullUpMachine -> mapOf(Surface.PULL_UP_BAR to listOf(barSlab()), Surface.ASSIST_STEP to listOf(padSlab()))
     is ParallelHandles -> mapOf(Surface.PULL_UP_BAR to listOf(handleSlab()))
@@ -433,7 +440,7 @@ internal fun FixedProp.solids(view: View): List<Solid> = when (this) {
     is DeclineBench -> solidsOf()
     is PressMachine -> parts().toList().map { Solid("machine", it, false) }
     // Front-view seats: the seated legs are in front of them.
-    is PecDeck, is Seat -> emptyList()
+    is PecDeck, is Seat, is LateralRaiseMachine -> emptyList()
     // The step stops the feet; the handles are held.
     is AssistedDipMachine -> listOf(Solid("step", stepSlab(), stopsArms = false))
     // The box stops the body (it is behind the legs, under the hips); the platform stops the feet like the floor.
@@ -559,6 +566,7 @@ internal fun FixedProp.draw(view: View, held: Point?, s: Skeleton? = null): List
         is SmithMachine -> drawOf()
         is PressMachine -> drawOf(s?.near?.grip)
         is PecDeck -> drawOf(s?.near?.grip, s?.far?.grip)
+        is LateralRaiseMachine -> drawOf()
         is Seat -> drawOf()
         is DipBars -> drawOf()
         is AssistedDipMachine -> drawOf()
@@ -600,13 +608,15 @@ internal fun FixedProp.drawFront(view: View, held: Point? = null, s: Skeleton? =
     this is PullUpBand -> drawFrontOf(s)
     this is DipBelt -> drawFrontOf(s)
     view == View.SIDE && this is PulloverMachine -> drawFrontOf(s)
+    view == View.FRONT && this is LateralRaiseMachine -> drawFrontOf(s)
+    view == View.FRONT && this is PecDeck -> drawFrontOf()
     // Front view: the thigh pad's roller lies on top of the thighs, in front of the torso.
     view == View.FRONT && this is LatPulldownSeat -> listOf(
         eq(Capsule(Role.GAP, x - LatPulldownSeat.FRONT_HALF, -padHeight, x + LatPulldownSeat.FRONT_HALF, -padHeight, 2 * LatPulldownSeat.PAD_RADIUS + Body.GAP_EXTRA)),
         eq(Capsule(Role.EQUIPMENT, x - LatPulldownSeat.FRONT_HALF, -padHeight, x + LatPulldownSeat.FRONT_HALF, -padHeight, 2 * LatPulldownSeat.PAD_RADIUS)),
     )
     // Set off by a gap outline, so it shows over the pulley housing and the bench, which share its colour.
-    this is CableStack && view == View.SIDE && cableInFront && held != null -> Point(x + reach, -pulleyHeight).let { p ->
+    this is CableStack && (view == View.SIDE || halfSpan == 0.0) && cableInFront && held != null -> Point(x + reach, -pulleyHeight).let { p ->
         listOf(
             eq(capsule(Role.GAP, p, held, CableStack.FRONT_CABLE + Body.GAP_EXTRA / 2)),
             eq(capsule(Role.EQUIPMENT, p, held, CableStack.FRONT_CABLE)),
@@ -644,6 +654,7 @@ internal fun HeldProp.center(s: Skeleton): Point = when (this) {
     is CableHandle -> s.side(hand).grip
     is CamberedBar -> s.near.grip
     PulloverDumbbell -> PulloverDumbbell.centerOn(s)
+    is Kettlebell -> s.side(hand).grip
 }
 
 /**
@@ -744,6 +755,7 @@ internal fun HeldProp.draw(s: Skeleton): List<Placed> {
         is CableHandle -> drawOn(s)
         is CamberedBar -> drawOn(s)
         PulloverDumbbell -> PulloverDumbbell.drawOn(s)
+        is Kettlebell -> drawOn(s)
         LatBar -> if (side) {
             listOf(Circle(a, c.x, c.y, 2.0))
         } else {

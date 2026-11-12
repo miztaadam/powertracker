@@ -162,6 +162,7 @@ object FigureChecks {
             is CableAttachment -> if (bar.kind == Attachment.STRAIGHT_BAR) 1.3 else 0.0
             is CamberedBar -> Barbell.SHAFT_RADIUS
             PulloverDumbbell -> Dumbbell.HEAD_RADIUS
+            is Kettlebell -> 0.0
         }
         return when (check) {
             is BarTouches -> {
