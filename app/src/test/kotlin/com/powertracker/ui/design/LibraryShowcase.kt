@@ -46,7 +46,7 @@ private fun showcaseExercises(): Pair<List<Exercise>, List<Long>> {
     return (seeded + own) to listOf("Squat", "Bench", "RDL").map { name -> seeded.first { it.name == name }.id }
 }
 
-/** The real Exercises tab: the count, the filters with the Muscles drop-down, the lifter's exercises, then the catalogue by body area. */
+/** The real Exercises tab: the count, the filters with the Muscles drop-down, the lifter's exercises, then the catalogue by body area, each row with its thumbnail. */
 @Composable
 fun ExercisesShowcase(muscles: Set<MuscleGroup> = emptySet()) {
     val (exercises, recent) = showcaseExercises()
@@ -75,6 +75,10 @@ fun DayChooserShowcase() = SheetShowcase(behind = { ExercisesShowcase() }) {
 /** The real guide content for the squat, in a stand-in for the bottom sheet it opens in. */
 @Composable
 fun FormGuideShowcase() = SheetShowcase { FormGuideContent("Squat", onClose = {}) }
+
+/** The real guide content for the bench press, with its two-pose picture under the header. */
+@Composable
+fun FormGuidePictureShowcase() = SheetShowcase { FormGuideContent("Bench", onClose = {}) }
 
 /** The real "What RPE means" content, in the same stand-in. */
 @Composable

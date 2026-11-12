@@ -37,6 +37,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.LibraryExercise
+import com.powertracker.domain.library.figure
+import com.powertracker.domain.library.figures.ExerciseFigure
 import com.powertracker.ui.components.Eyebrow
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
@@ -74,12 +76,19 @@ internal fun GuideSheet(onDismiss: () -> Unit, content: @Composable () -> Unit) 
 }
 
 /**
- * The sheet's content without the sheet: name, where and with what, purpose, the four sections, the
- * safety line. [actions] (the Exercises tab's "Add to plan" and "Add to today") stay in view under
+ * The sheet's content without the sheet: name, where and with what, the two-pose picture, purpose, the
+ * four sections, the safety line. [actions] (the Exercises tab's "Add to plan" and "Add to today") stay in view under
  * the guide as it scrolls, below the safety line that ends it.
  */
 @Composable
-fun FormGuideContent(exerciseName: String, onClose: () -> Unit, modifier: Modifier = Modifier, actions: (@Composable () -> Unit)? = null) {
+fun FormGuideContent(
+    exerciseName: String,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
+    /** Finds the exercise's picture; the guide has no picture area when it finds none. */
+    figureFor: (String) -> ExerciseFigure? = Library::figure,
+    actions: (@Composable () -> Unit)? = null,
+) {
     val scheme = MaterialTheme.colorScheme
     val entry = Library.find(exerciseName)
     Column(modifier.fillMaxWidth().testTag("form-guide")) {
@@ -95,6 +104,7 @@ fun FormGuideContent(exerciseName: String, onClose: () -> Unit, modifier: Modifi
                     Text(NO_GUIDE, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.m))
                 } else {
                     val guide = entry.guide
+                    ExercisePicture(exerciseName, Modifier.padding(top = Space.m), figureFor)
                     Text(guide.purpose, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.m))
                     GuideSection("Setup", guide.setup, numbered = false)
                     GuideSection("How to do it", guide.steps, numbered = true)

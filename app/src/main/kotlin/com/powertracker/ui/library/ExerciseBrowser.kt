@@ -177,7 +177,7 @@ fun rememberExerciseBrowserState(muscleFilter: MuscleFilter, initialMuscle: Musc
 /**
  * Browsing the catalogue and the lifter's own exercises, shared by the picker and the Exercises tab:
  * search, body-area chips (one at a time), equipment chips (any of the chosen), then the rows, each
- * with its info button. What a row tap and an info tap do is up to the screen.
+ * with its info button and, on the Exercises tab, its thumbnail. What a row tap and an info tap do is up to the screen.
  *
  * By muscle it works one of two ways ([ExerciseBrowserState.muscleFilter]). As a grid, tiles lead
  * the list while nothing is searched and no body area is chosen; a tile lists that muscle's
@@ -201,6 +201,8 @@ fun ExerciseBrowser(
     modifier: Modifier = Modifier,
     /** Opens "Create your own"; null where exercises are only browsed. */
     onCreate: (() -> Unit)? = null,
+    /** A small picture at the left of each row: the Exercises tab has them, the picker does not. */
+    showThumbnails: Boolean = false,
 ) {
     val query = state.query
     val area = state.area
@@ -268,7 +270,7 @@ fun ExerciseBrowser(
                     ListHeading("${group.label} exercises")
                 }
             }
-            val row: @Composable (PickerEntry) -> Unit = { entry -> BrowserRow(entry, rowLabel(entry.name), onRow, onInfo) }
+            val row: @Composable (PickerEntry) -> Unit = { entry -> BrowserRow(entry, rowLabel(entry.name), onRow, onInfo, showThumbnails) }
             if (list.isEmpty) {
                 item(key = "empty") {
                     if (onCreate != null) {
@@ -469,7 +471,7 @@ private fun ListHeading(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun BrowserRow(entry: PickerEntry, clickLabel: String, onRow: (PickerEntry) -> Unit, onInfo: (PickerEntry) -> Unit) {
+private fun BrowserRow(entry: PickerEntry, clickLabel: String, onRow: (PickerEntry) -> Unit, onInfo: (PickerEntry) -> Unit, showThumbnail: Boolean) {
     val scheme = MaterialTheme.colorScheme
     Column {
         Row(
@@ -481,6 +483,8 @@ private fun BrowserRow(entry: PickerEntry, clickLabel: String, onRow: (PickerEnt
                 .testTag("exercise-${entry.name}"),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // The lifter's own exercise has no catalogue name, so its tile is empty.
+            if (showThumbnail) ExerciseThumbnail(entry.catalogueName, Modifier.padding(end = Space.m))
             Column(Modifier.weight(1f).padding(vertical = Space.s)) {
                 Text(entry.name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
                 if (entry.muscles.isNotEmpty()) {

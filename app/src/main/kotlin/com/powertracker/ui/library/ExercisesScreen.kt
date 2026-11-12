@@ -184,6 +184,7 @@ fun ExercisesContent(
             onInfo = onOpen,
             rowLabel = { "Open $it" },
             modifier = Modifier.padding(padding),
+            showThumbnails = true,
         )
     }
 }

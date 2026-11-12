@@ -35,12 +35,12 @@ import java.io.File
  * real `ProgressContent` / `LiftHistoryContent` from a sample training history, Progress once more
  * with the strict press switch on. Settings is captured with that switch off and on. The exercise picker
  * is the real `ExercisePickerContent`, on its muscle grid and inside one muscle; the form guide is the real `FormGuideContent` in a stand-in
- * for the bottom sheet (the sheet itself is its own window, which this capture cannot see). The Exercises tab is
+ * for the bottom sheet, once for the squat and once for the bench press with its two-pose picture (the sheet itself is its own window, which this capture cannot see). The Exercises tab is
  * the real `ExercisesContent`; its Muscles drop-down, the guide with its actions and the day chooser are their
  * real content in the same stand-in, the first and last over the tab. Today, Plan, the Exercises captures,
  * the exercise picker,
  * lift history, the empty Coach feed and the two lock screens are phone size (412 × 915 dp); the
- * other Coach captures, Progress, Settings, the form guide and the RPE sheet are full-page captures of a scrolling screen, so
+ * other Coach captures, Progress, Settings, the two form guides and the RPE sheet are full-page captures of a scrolling screen, so
  * their height differs. The launcher icon is rendered by [LauncherIconTest].
  */
 @RunWith(RobolectricTestRunner::class)
@@ -141,6 +141,10 @@ class ScreenshotTest {
     @Test
     @Config(qualifiers = "w412dp-h1370dp-xhdpi")
     fun formGuide() = render("form-guide", null) { FormGuideShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1370dp-xhdpi")
+    fun formGuidePicture() = render("form-guide-picture", null) { FormGuidePictureShowcase() }
 
     @Test
     @Config(qualifiers = "w412dp-h560dp-xhdpi")
