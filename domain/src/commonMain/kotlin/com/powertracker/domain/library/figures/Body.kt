@@ -36,17 +36,22 @@ internal fun fold(degrees: Double): Double {
 /**
  * Body segments as fractions of stature.
  *
- * Source for the limbs: Winter's segment-length table, as quoted on PMC (allowed source):
- * - https://pmc.ncbi.nlm.nih.gov/articles/PMC12637938/ (Joint angle trajectories are robust to segment length
- *   estimation methods in human reaching): humeral 0.186, radioulnar 0.146 and hand 0.108 of height (Winter).
- * - https://pmc.ncbi.nlm.nih.gov/articles/PMC3582351/ (Dynamic sagittal-plane trunk control during ACL injury):
- *   segment lengths "normalized by height as provided by Winter", foot 0.152H and thigh 0.245H; the shank 0.246H is
- *   from the same Winter table (the search excerpt shows the value but not its row label, see the task report).
- *   Cross-check: https://pmc.ncbi.nlm.nih.gov/articles/PMC11233572/ measures adult thigh 0.231 and leg 0.221 of
- *   height (shank close to thigh, as in Winter).
- * Head and torso are derived, not tabled: they split the height left above the hip (1 - ankle 0.039 - shank - thigh
- * = 0.470H) into torso 0.288 (hip joint to shoulder joint), neck 0.052 and head 0.130 (chin to crown), so the
- * standing figure is exactly the stature.
+ * Limbs (allowed sources, each value labelled with its segment there):
+ * - Upper arm 0.186, forearm 0.146 and hand 0.108 of height: Winter's table, as quoted in
+ *   https://pmc.ncbi.nlm.nih.gov/articles/PMC12637938/ (joint angle trajectories in human reaching).
+ * - Thigh 0.245 and shank 0.246 of height: https://pmc.ncbi.nlm.nih.gov/articles/PMC13417611/ (Noraxon IMU vs Vicon
+ *   gait validation) labels them "thigh length 0.245*height" and "shank length, lateral femoral epicondyle to lateral
+ *   malleolus, 0.246*height" (Dempster-derived ratios, the same values as Winter's table). Thigh 0.245H is also in
+ *   https://pmc.ncbi.nlm.nih.gov/articles/PMC3582351/ (segment lengths "as provided by Winter"), foot 0.152H too.
+ *   Shank choice: https://pmc.ncbi.nlm.nih.gov/articles/PMC11233572/ measures a shorter leg (0.221H, a depth-camera
+ *   estimate of one sample) and an athletics review (PMC13672677) 0.22; the labelled anthropometric table value 0.246
+ *   is kept, because it is the one the thigh and foot values come from, so the leg stays one consistent table.
+ * Head and torso: Winter's joint-height landmarks (ankle 0.039H, hip 0.530H, shoulder 0.818H, chin 0.870H) are not in
+ * an allowed source we could find, so they are a derived drawing value: the torso (hip joint to shoulder joint 0.288),
+ * neck (shoulder to chin 0.052) and head (chin to crown 0.130) close the stature exactly over ankle + shank + thigh.
+ * Cross-check: the acromion-height regression quoted in https://pmc.ncbi.nlm.nih.gov/articles/PMC4754207/
+ * (0.957 × stature − 0.208 × sitting height + 0.065 × waist − 9.64) gives about 144 cm for this body with a typical
+ * sitting height and waist, within 1.5 cm of the 143 cm the split puts the shoulder at.
  */
 enum class Segment(val fraction: Double) {
     UPPER_ARM(0.186), FOREARM(0.146), HAND(0.108),
@@ -60,17 +65,22 @@ enum class Segment(val fraction: Double) {
 object Body {
     const val HEIGHT = 175.0
 
-    /** Ankle joint above the sole (derived drawing value, the 0.039H the derived head and torso leave below the shank). */
+    /** Ankle joint above the sole: the 0.039H left below the shank by the split above (a derived drawing value). */
     const val ANKLE_HEIGHT = 0.039 * HEIGHT
 
     /** Where the grip sits along the hand, as a fraction from the wrist (the bar lies across the palm). */
     const val GRIP = 0.45
 
-    // Drawing widths (cm): a solid figure in the draft's proportions. Checks use half of each as the capsule radius.
+    // Drawing widths (cm): a solid figure in the approved draft's proportions, a neutral drawing estimate (no allowed
+    // source gives limb widths for a profile drawing). Checks use half of each as the capsule radius. Cross-check for
+    // the torso: a man's external chest depth averages 24.5 cm (https://pmc.ncbi.nlm.nih.gov/articles/PMC4840890/),
+    // which the drawn torso (10 cm behind the axis, up to [CHEST_DEPTH] in front) matches.
     const val TORSO_RADIUS = 10.0
     /**
-     * The drawn head is a circle 20 cm across (the head's depth in profile), centred halfway up [Segment.HEAD]; the
-     * segment itself is the 22.75 cm chin-to-crown height, which sets where the head sits, not how big it is drawn.
+     * The drawn head is a circle 20 cm across: an adult man's head length (glabella to the back of the head) is about
+     * 19–20 cm (https://pmc.ncbi.nlm.nih.gov/articles/PMC6820124/, 191–202 mm means). [Segment.HEAD] is the 22.75 cm
+     * chin-to-crown height; a circle cannot be both, so the circle keeps the head's depth and its top sits at the
+     * crown (the stature stays exact). The neck capsule fills the 2.75 cm under it, where the jaw is.
      */
     const val HEAD_RADIUS = 10.0
     const val NECK_WIDTH = 9.0
@@ -84,16 +94,31 @@ object Body {
     /** How much wider the surface-coloured outline under a near limb is. */
     const val GAP_EXTRA = 3.0
 
-    /** Front view: half the distance between the shoulder joints and between the hip joints (drawing values). */
+    /** Front view: half the distance between the shoulder joints and between the hip joints (neutral drawing values). */
     const val SHOULDER_HALF_WIDTH = 18.0
     const val HIP_HALF_WIDTH = 9.0
 
     /** Front view: a foot is seen end-on, so it is drawn this fraction of its length. */
     const val FOOT_FRONT_FRACTION = 0.4
 
-    /** Where the chest touch point is: this far below the shoulder joint along the torso, on its front surface. */
+    /**
+     * The chest touch point: [CHEST_BELOW_SHOULDER] below the shoulder joint along the torso, [CHEST_DEPTH] in front of
+     * its axis. Depth: half the 24.5 cm mean male chest depth (https://pmc.ncbi.nlm.nih.gov/articles/PMC4840890/),
+     * rounded up to the pectoral surface. Height: ExRx's bench press analyses
+     * (https://exrx.net/Kinesiology/BenchPress) put the touch on the lower to mid chest, and ExRx's bench press
+     * power-lift page (https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift) requires it above the
+     * bottom of the sternum; 17 cm below the
+     * shoulder joint is mid-chest on this torso (a neutral estimate inside that range, not a measured value).
+     */
     const val CHEST_BELOW_SHOULDER = 17.0
     const val CHEST_DEPTH = 12.5
+
+    /**
+     * The upper chest (the lat pulldown's bar target): 12 cm below the shoulder joint, at the top of the drawn chest's
+     * flat front, above the bench press touch point. A neutral drawing estimate.
+     */
+    const val UPPER_CHEST_BELOW_SHOULDER = 12.0
+    const val UPPER_CHEST_DEPTH = 12.5
 }
 
 enum class Joint { NECK, SHOULDER, ELBOW, WRIST, HIP, KNEE, ANKLE }
@@ -105,8 +130,22 @@ enum class Side { NEAR, FAR }
  * Joint angles of one arm, in degrees.
  * - [shoulder]: flexion (+) / extension (-) from hanging along the torso; in the front view, abduction from the side.
  * - [elbow]: flexion from straight. [wrist]: flexion (+) / extension (-) from in line with the forearm.
+ * - [turnedOut]: the upper arm is turned out to the side (abducted and rotated outwards, as with the hands wide on a bar
+ *   across the upper back), so seen from the side the elbow folds the other way: the forearm swings back, not forward.
+ *   The joint ranges are the same; only the side-view drawing of the bend is mirrored.
+ * - [out]: side view only, how far the upper arm points out of the picture plane, towards the camera (0 = in the
+ *   plane). Seen from the side, an upper arm out to the side looks shorter: its drawn length is the true length times
+ *   cos([out]), a projection, not a change of proportions. [shoulder] and [elbow] are then the drawn (projected)
+ *   angles, and the elbow's limit is checked on its true 3D bend (see [JointLimits.trueElbow]). The forearm is taken
+ *   to lie in the picture plane, as it does when it is vertical (a dumbbell press) or along the body.
  */
-data class Arm(val shoulder: Double, val elbow: Double, val wrist: Double = 0.0)
+data class Arm(
+    val shoulder: Double,
+    val elbow: Double,
+    val wrist: Double = 0.0,
+    val turnedOut: Boolean = false,
+    val out: Double = 0.0,
+)
 
 /**
  * Joint angles of one leg, in degrees.
@@ -167,7 +206,8 @@ fun Pose.skeleton(view: View = View.SIDE): Skeleton {
     val pelvis = Point(pelvisX, pelvisY)
     val shoulder = pelvis + dir(torso) * Segment.TORSO.length
     val headDir = torso - neck
-    val head = shoulder + dir(headDir) * (Segment.NECK.length + Segment.HEAD.length / 2)
+    // The head circle's top is at the crown (see Body.HEAD_RADIUS).
+    val head = shoulder + dir(headDir) * (Segment.NECK.length + Segment.HEAD.length - Body.HEAD_RADIUS)
     fun limb(side: Side): LimbPoints {
         val arm = if (side == Side.NEAR) nearArm else farArm
         val leg = if (side == Side.NEAR) nearLeg else farLeg
@@ -179,9 +219,11 @@ fun Pose.skeleton(view: View = View.SIDE): Skeleton {
         val h = if (front) pelvis + across * (sign * Body.HIP_HALF_WIDTH) else pelvis
         fun mirrored(a: Double) = if (front && side == Side.FAR) 2 * torso - a else a
         val upperArm = torso + 180.0 + arm.shoulder
-        val forearm = upperArm + arm.elbow
-        val handAngle = forearm + arm.wrist
-        val elbow = s + dir(mirrored(upperArm)) * Segment.UPPER_ARM.length
+        val bend = if (arm.turnedOut && !front) -1.0 else 1.0
+        val forearm = upperArm + bend * arm.elbow
+        val handAngle = forearm + bend * arm.wrist
+        val upperDrawn = Segment.UPPER_ARM.length * (if (front) 1.0 else kotlin.math.cos(arm.out * kotlin.math.PI / 180))
+        val elbow = s + dir(mirrored(upperArm)) * upperDrawn
         val wrist = elbow + dir(mirrored(forearm)) * Segment.FOREARM.length
         val hand = wrist + dir(mirrored(handAngle)) * Segment.HAND.length
         val grip = wrist + dir(mirrored(handAngle)) * (Segment.HAND.length * Body.GRIP)
@@ -214,16 +256,28 @@ data class JointRange(val min: Double, val max: Double) {
 
 /**
  * Normal adult ranges of motion. Where sources differ, the most conservative (smallest) range is used.
- * - Shoulder flexion 180°, ankle dorsiflexion 20° and plantar flexion 50°, wrist flexion 80° and extension 70°:
- *   the standards table in https://pmc.ncbi.nlm.nih.gov/articles/PMC3512326/ (EDS hypermobility review).
- * - Shoulder extension 60°, hip flexion 120°, hip extension 20°, knee flexion 135°, hip abduction 40° and
- *   adduction 20°: the expected values in https://pmc.ncbi.nlm.nih.gov/articles/PMC13392859/ (standardized manual
- *   goniometry protocol).
+ * - Shoulder flexion 180°, wrist flexion 80° and extension 70°, ankle plantar flexion 50°: the standards table in
+ *   https://pmc.ncbi.nlm.nih.gov/articles/PMC3512326/ (EDS hypermobility review).
+ * - Ankle dorsiflexion 35°. The figure's ankle carries body weight with the knee bent in every pose that bends it far
+ *   (squat, deadlift, leg press), so it uses weight-bearing values, not the 20° measured lying down: young adults
+ *   reach 38–42.5° (95% CI) in the weight-bearing lunge test (https://pmc.ncbi.nlm.nih.gov/articles/PMC6249959/),
+ *   and under 35° counts as a mobility limitation (https://pmc.ncbi.nlm.nih.gov/articles/PMC7932177/). The
+ *   conservative 35° is used.
+ * - Shoulder extension 60°, hip extension 20°, knee flexion 135°, hip abduction 40° and adduction 20°: the expected
+ *   values in https://pmc.ncbi.nlm.nih.gov/articles/PMC13392859/ (standardized manual goniometry protocol).
+ * - Hip flexion, side view, 140°. The figure's hip angle is the trunk-to-thigh angle (hip flexion measured as
+ *   180° minus the trunk–thigh angle, as in https://pmc.ncbi.nlm.nih.gov/articles/PMC9403702/), and its torso is
+ *   one rigid piece, so it also carries the pelvis's tilt, which goniometry's pelvis-fixed 120° (PMC13392859) leaves
+ *   out. A high-bar back squat holds the trunk about 46° from vertical at depth
+ *   (https://pmc.ncbi.nlm.nih.gov/articles/PMC10143703/), which with the thighs just below level is a trunk–thigh
+ *   flexion of about 135–139°; 140° allows that and no more.
  * - Elbow 0–150° and knee 0–135°: https://pmc.ncbi.nlm.nih.gov/articles/PMC4613894/ (wearable ROM sensor validation).
  * - Wrist flexion 60–80° at https://exrx.net/Testing/JointROM: the conservative 60° is used.
  * - Cervical flexion about 80° (https://pmc.ncbi.nlm.nih.gov/articles/PMC1250253/) and extension 50°
  *   (https://pmc.ncbi.nlm.nih.gov/articles/PMC8075604/, the lower of the two reviews' values).
  * - Shoulder abduction 170–180° (https://pmc.ncbi.nlm.nih.gov/articles/PMC9730981/): the conservative 170° is used.
+ *   A side-view arm's [Arm.out] (the upper arm out of the picture plane, towards the side) is kept to 0–90°, well
+ *   inside that abduction range.
  * The ankle is not checked in the front view, where the foot is seen end-on.
  */
 object JointLimits {
@@ -232,9 +286,21 @@ object JointLimits {
         Joint.SHOULDER -> if (view == View.SIDE) JointRange(-60.0, 180.0) else JointRange(0.0, 170.0)
         Joint.ELBOW -> JointRange(0.0, 150.0)
         Joint.WRIST -> JointRange(-70.0, 60.0)
-        Joint.HIP -> if (view == View.SIDE) JointRange(-20.0, 120.0) else JointRange(-20.0, 40.0)
+        Joint.HIP -> if (view == View.SIDE) JointRange(-20.0, 140.0) else JointRange(-20.0, 40.0)
         Joint.KNEE -> JointRange(0.0, 135.0)
-        Joint.ANKLE -> if (view == View.SIDE) JointRange(-50.0, 20.0) else null
+        Joint.ANKLE -> if (view == View.SIDE) JointRange(-50.0, 35.0) else null
+    }
+
+    /**
+     * The elbow's true bend for a side-view arm whose upper arm points [Arm.out]° out of the picture plane: the angle
+     * between the 3D upper arm (its drawn direction scaled by cos(out), plus the out-of-plane part) and the forearm in
+     * the plane. With [Arm.out] 0 it is the drawn [Arm.elbow].
+     */
+    fun trueElbow(arm: Arm): Double {
+        if (arm.out == 0.0) return arm.elbow
+        val r = kotlin.math.PI / 180
+        val c = (kotlin.math.cos(arm.out * r) * kotlin.math.cos(arm.elbow * r)).coerceIn(-1.0, 1.0)
+        return kotlin.math.acos(c) / r * kotlin.math.sign(arm.elbow).let { if (it == 0.0) 1.0 else it }
     }
 
     /** One line per joint outside its range, e.g. "near elbow -20.0° outside 0.0..150.0". */
@@ -246,7 +312,8 @@ object JointLimits {
         check("neck", Joint.NECK, pose.neck)
         for ((side, arm, leg) in listOf(Triple("near", pose.nearArm, pose.nearLeg), Triple("far", pose.farArm, pose.farLeg))) {
             check("$side shoulder", Joint.SHOULDER, arm.shoulder)
-            check("$side elbow", Joint.ELBOW, arm.elbow)
+            check("$side elbow", Joint.ELBOW, if (view == View.SIDE) trueElbow(arm) else arm.elbow)
+            if (view == View.SIDE && arm.out !in 0.0..90.0) add("$side upper arm ${round1(arm.out)}° out of the plane, outside 0..90")
             check("$side wrist", Joint.WRIST, arm.wrist)
             check("$side hip", Joint.HIP, leg.hip)
             check("$side knee", Joint.KNEE, leg.knee)
@@ -262,16 +329,20 @@ internal fun round1(v: Double): Double = kotlin.math.round(v * 10) / 10
  * hands or feet go and still be pure angles. Side view (or the near side of a front view).
  */
 object Reach {
-    /** The arm whose grip lands on [target], with the elbow bent the natural way (flexion ≥ 0) and [wrist] fixed. */
-    fun arm(shoulder: Point, target: Point, torso: Double, wrist: Double = 0.0): Arm {
+    /**
+     * The arm whose grip lands on [target], with the elbow bent the natural way (flexion ≥ 0) and [wrist] fixed; with
+     * [turnedOut], the side-view bend mirrored (see [Arm.turnedOut]).
+     */
+    fun arm(shoulder: Point, target: Point, torso: Double, wrist: Double = 0.0, turnedOut: Boolean = false): Arm {
         val g = Segment.HAND.length * Body.GRIP
         val w = wrist * PI / 180
+        val bend = if (turnedOut) -1.0 else 1.0
         // The elbow-to-grip link, and its angle off the forearm.
         val link = hypot(Segment.FOREARM.length + g * cos(w), g * sin(w))
         val offset = atan2(g * sin(w), Segment.FOREARM.length + g * cos(w)) * 180 / PI
-        val (upper, lower) = twoLink(shoulder, target, Segment.UPPER_ARM.length, link, bendPositive = true)
-        val forearm = lower - offset
-        return Arm(shoulder = fold(upper - torso - 180.0), elbow = fold(forearm - upper), wrist = wrist)
+        val (upper, lower) = twoLink(shoulder, target, Segment.UPPER_ARM.length, link, bendPositive = !turnedOut)
+        val forearm = lower - bend * offset
+        return Arm(shoulder = fold(upper - torso - 180.0), elbow = bend * fold(forearm - upper), wrist = wrist, turnedOut = turnedOut)
     }
 
     /** The leg whose ankle lands on [ankle], knee forward (flexion ≥ 0), with the foot at the screen angle [foot]. */

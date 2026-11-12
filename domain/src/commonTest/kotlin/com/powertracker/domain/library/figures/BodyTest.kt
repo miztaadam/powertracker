@@ -78,4 +78,37 @@ class BodyTest {
         // Shoulder extension past the most conservative cited range (60°).
         assertTrue(JointLimits.problems(fine.copy(nearArm = Arm(-70.0, 0.0), farArm = Arm(-70.0, 0.0)), View.SIDE).size == 2)
     }
+
+    @Test
+    fun headCircle_topAtTheCrown_standingStatureExact() {
+        val legStraight = Leg(0.0, 0.0)
+        val pelvisY = -(Body.ANKLE_HEIGHT + Segment.SHIN.length + Segment.THIGH.length)
+        val s = Pose(0.0, pelvisY, nearArm = Arm(0.0, 0.0), nearLeg = legStraight).skeleton()
+        assertEquals(-Body.HEIGHT, s.head.y - Body.HEAD_RADIUS, 1e-6)
+        // The chin is where the head segment starts.
+        assertEquals(-Body.HEIGHT + Segment.HEAD.length, s.chin().y, 1e-6)
+    }
+
+    @Test
+    fun jointLimits_weightBearingAnkle_trunkThighHip() {
+        val pose = Pose(0.0, -90.0, nearArm = Arm(0.0, 0.0), nearLeg = Leg(135.0, 120.0, ankle = 33.0))
+        assertEquals(emptyList(), JointLimits.problems(pose, View.SIDE))
+        assertTrue(JointLimits.problems(pose.copy(nearLeg = Leg(135.0, 120.0, ankle = 40.0)), View.SIDE).single().startsWith("near ankle"))
+        assertTrue(JointLimits.problems(pose.copy(nearLeg = Leg(145.0, 120.0)), View.SIDE).single().startsWith("near hip"))
+        // The front view keeps abduction's range.
+        assertTrue(JointLimits.problems(pose.copy(nearLeg = Leg(45.0, 0.0)), View.FRONT).isNotEmpty())
+    }
+
+    @Test
+    fun armOutOfThePlane_drawsTheUpperArmShorter_andChecksTheTrueElbow() {
+        val flat = Pose(0.0, -100.0, nearArm = Arm(0.0, 0.0), nearLeg = Leg(0.0, 0.0)).skeleton()
+        val out = Pose(0.0, -100.0, nearArm = Arm(0.0, 0.0, out = 60.0), nearLeg = Leg(0.0, 0.0)).skeleton()
+        assertEquals(Segment.UPPER_ARM.length, (flat.near.elbow - flat.near.shoulder).length(), 1e-9)
+        assertEquals(Segment.UPPER_ARM.length * 0.5, (out.near.elbow - out.near.shoulder).length(), 1e-9)
+        // A drawn fold of 170° with the upper arm 60° out is a true bend of about 119°: inside the elbow's range.
+        assertEquals(119.5, JointLimits.trueElbow(Arm(0.0, 170.0, out = 60.0)), 0.1)
+        assertEquals(emptyList(), JointLimits.problems(Pose(0.0, -100.0, nearArm = Arm(10.0, 170.0, out = 60.0), nearLeg = Leg(0.0, 0.0)), View.SIDE))
+        assertEquals(2, JointLimits.problems(Pose(0.0, -100.0, nearArm = Arm(10.0, 170.0), nearLeg = Leg(0.0, 0.0)), View.SIDE).size) // near and far
+        assertEquals(2, JointLimits.problems(Pose(0.0, -100.0, nearArm = Arm(0.0, 0.0, out = 95.0), nearLeg = Leg(0.0, 0.0)), View.SIDE).size)
+    }
 }

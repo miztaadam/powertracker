@@ -86,18 +86,19 @@ object FigureChecks {
     private fun intersections(scene: Scene, view: View, s: Skeleton): List<String> = buildList {
         val solids = scene.props.filterIsInstance<FixedProp>().flatMap { it.solids(view) }
         val parts = buildList {
-            add(Triple("torso", Probe("torso", s.pelvis, s.shoulder, Body.TORSO_RADIUS), false))
-            add(Triple("head", Probe("head", s.head, s.head, Body.HEAD_RADIUS), false))
+            add(Part("torso", Probe("torso", s.pelvis, s.shoulder, Body.TORSO_RADIUS), isArm = false, near = false))
+            add(Part("head", Probe("head", s.head, s.head, Body.HEAD_RADIUS), isArm = false, near = false))
             for (side in Side.entries) {
                 for (seg in FigureRenderer.limbSegments(s.side(side))) {
                     val isArm = seg.label in ARM_SEGMENTS
-                    add(Triple("${side.label} ${seg.label}", Probe(seg.label, seg.a, seg.b, seg.width / 2), isArm))
+                    add(Part("${side.label} ${seg.label}", Probe(seg.label, seg.a, seg.b, seg.width / 2), isArm, side == Side.NEAR))
                 }
             }
         }
-        for ((label, probe, isArm) in parts) {
+        for ((label, probe, isArm, near) in parts) {
             for (solid in solids) {
                 if (isArm && !solid.stopsArms) continue
+                if (near && !solid.stopsNearLimbs) continue
                 val depth = probe.radius - segmentDistance(probe.a, probe.b, solid.slab)
                 if (depth > INTERSECTION_SLACK) {
                     add("$label goes through the ${solid.label} (${round1(depth)} cm)")
@@ -120,6 +121,12 @@ object FigureChecks {
         if (check is HipDepth) {
             val below = s.near.hip.y - s.near.knee.y
             return if (below < check.belowKnee) "hip depth: hip ${round1(below)} cm below the knee, needs ${check.belowKnee}" else null
+        }
+        if (check is ChinOverBar) {
+            val bar = scene.props.filterIsInstance<PullUpBar>().firstOrNull() ?: return "chin over bar: no pull-up bar in the scene"
+            val barTop = -bar.height - PullUpBar.RADIUS
+            val above = barTop - s.chin().y
+            return if (above < check.margin) "chin over bar: chin ${round1(above)} cm above the top of the bar, needs ${check.margin}" else null
         }
         val bar = scene.props.filterIsInstance<HeldProp>().firstOrNull()
             ?: return "key check $check: no bar in the scene"
@@ -148,9 +155,28 @@ object FigureChecks {
                 val mid = (s.near.heel + s.near.toe) * 0.5
                 if (abs(c.x - mid.x) > LINE_TOLERANCE) "bar ${round1(c.x - mid.x)} cm off the mid-foot" else null
             }
-            is HipDepth -> null // handled above: it needs no bar
+            is BarNearLegs -> {
+                val gap = barToLegs(c, s)
+                when {
+                    gap < -INTERSECTION_SLACK -> "bar ${round1(-gap)} cm into the legs"
+                    gap > check.within -> "bar ${round1(gap)} cm from the legs, more than ${check.within}"
+                    else -> null
+                }
+            }
+            is HipDepth, is ChinOverBar -> null // handled above: they need no held bar
         }
     }
+
+    /** The gap from a bar shaft centred at [bar] to the surface of the near thigh or shin, whichever is closer, in cm. */
+    internal fun barToLegs(bar: Point, s: Skeleton): Double {
+        val n = s.near
+        return minOf(
+            distance(bar, n.hip, n.knee) - Body.THIGH_WIDTH / 2,
+            distance(bar, n.knee, n.ankle) - Body.SHIN_WIDTH / 2,
+        ) - Barbell.SHAFT_RADIUS
+    }
+
+    private data class Part(val label: String, val probe: Probe, val isArm: Boolean, val near: Boolean)
 
     private val ARM_SEGMENTS = setOf("upper arm", "forearm", "hand")
 

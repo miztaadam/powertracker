@@ -10,7 +10,9 @@ enum class Which { START, END }
 data class Scene(val pose: Pose, val props: List<Prop>)
 
 /** Named places on the body that contacts and key checks refer to. Plural points mean both sides. */
-enum class BodyPoint { HEAD, CHEST, UPPER_BACK, HIPS, THIGHS, KNEES, FEET, NEAR_FOOT, FAR_FOOT, HANDS, NEAR_HAND, FAR_HAND }
+enum class BodyPoint {
+    HEAD, CHEST, UPPER_CHEST, UPPER_BACK, HIPS, THIGHS, KNEES, NEAR_KNEE, FAR_KNEE, FEET, NEAR_FOOT, FAR_FOOT, HANDS, NEAR_HAND, FAR_HAND,
+}
 
 /**
  * A surface of the kit that the body rests on, pushes or holds. A [grip] surface is held: the hands wrap around it,
@@ -38,6 +40,15 @@ data class BarOverMidfoot(override val at: Which = Which.START) : KeyCheck
 /** The hip joint is at least [belowKnee] cm lower than the knee joint (squat depth as the guide gives it). */
 data class HipDepth(val belowKnee: Double, override val at: Which = Which.END) : KeyCheck
 
+/**
+ * The bar is close to the legs: its shaft at most [within] cm from the front of the near thigh or shin, and not into
+ * them (deadlift and RDL: "keep the bar close to your legs").
+ */
+data class BarNearLegs(val within: Double, override val at: Which = Which.START) : KeyCheck
+
+/** The chin is above the top of the pull-up bar (pull-up: "until your chin clears the bar"). */
+data class ChinOverBar(val margin: Double = 4.0, override val at: Which = Which.END) : KeyCheck
+
 /** One exercise's two-pose picture. Keyed by catalogue name in [Figures]. */
 data class ExerciseFigure(
     val view: View,
@@ -62,14 +73,18 @@ internal data class Probe(val label: String, val a: Point, val b: Point, val rad
 /** The probes for [point]: one, or one per side for the plural points. */
 internal fun Skeleton.probes(point: BodyPoint): List<Probe> {
     fun foot(side: Side) = side(side).let { Probe("${side.label} foot", it.heel, it.toe, Body.FOOT_WIDTH / 2) }
+    fun knee(side: Side) = side(side).knee.let { Probe("${side.label} knee", it, it, Body.SHIN_WIDTH / 2) }
     fun hand(side: Side) = side(side).let { Probe("${side.label} hand", it.wrist, it.hand, Body.HAND_WIDTH / 2, it.grip) }
     return when (point) {
         BodyPoint.HEAD -> listOf(Probe("head", head, head, Body.HEAD_RADIUS))
         BodyPoint.CHEST -> chest().let { listOf(Probe("chest", it, it, 0.0)) }
+        BodyPoint.UPPER_CHEST -> upperChest().let { listOf(Probe("upper chest", it, it, 0.0)) }
         BodyPoint.UPPER_BACK -> onTorso(Segment.TORSO.length - 8.0, 0.0).let { listOf(Probe("upper back", it, it, Body.TORSO_RADIUS)) }
         BodyPoint.HIPS -> listOf(Probe("hips", pelvis, pelvis, Body.TORSO_RADIUS))
         BodyPoint.THIGHS -> Side.entries.map { s -> side(s).let { Probe("${s.label} thigh", it.hip, it.knee, Body.THIGH_WIDTH / 2) } }
-        BodyPoint.KNEES -> Side.entries.map { s -> side(s).knee.let { Probe("${s.label} knee", it, it, Body.SHIN_WIDTH / 2) } }
+        BodyPoint.KNEES -> Side.entries.map(::knee)
+        BodyPoint.NEAR_KNEE -> listOf(knee(Side.NEAR))
+        BodyPoint.FAR_KNEE -> listOf(knee(Side.FAR))
         BodyPoint.FEET -> Side.entries.map(::foot)
         BodyPoint.NEAR_FOOT -> listOf(foot(Side.NEAR))
         BodyPoint.FAR_FOOT -> listOf(foot(Side.FAR))
@@ -83,6 +98,13 @@ internal val Side.label: String get() = name.lowercase()
 
 /** The chest touch point: on the front of the torso, [Body.CHEST_BELOW_SHOULDER] below the shoulder joint. */
 internal fun Skeleton.chest(): Point = onTorso(Segment.TORSO.length - Body.CHEST_BELOW_SHOULDER, Body.CHEST_DEPTH)
+
+/** The upper chest: on the front of the torso, [Body.UPPER_CHEST_BELOW_SHOULDER] below the shoulder joint. */
+internal fun Skeleton.upperChest(): Point = onTorso(Segment.TORSO.length - Body.UPPER_CHEST_BELOW_SHOULDER, Body.UPPER_CHEST_DEPTH)
+
+/** The chin: where the head segment starts, [Segment.NECK] above the shoulder joint along the neck. */
+internal fun Skeleton.chin(): Point =
+    shoulder + (head - shoulder) * (Segment.NECK.length / (Segment.NECK.length + Segment.HEAD.length - Body.HEAD_RADIUS))
 
 /** A representative point for [point] (the near side's for the plural points). */
 fun Skeleton.point(point: BodyPoint): Point = probes(point).first().let { (it.a + it.b) * 0.5 }

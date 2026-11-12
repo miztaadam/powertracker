@@ -29,8 +29,17 @@ sealed interface HeldProp : Prop
 /** The floor; its top is y = 0. Drawn across the panel on the bottom margin. */
 data object Floor : FixedProp
 
-/** A flat bench running from [x] (head end) for [length], its pad's top [height] above the floor. */
-data class FlatBench(val x: Double = 0.0, val length: Double = LENGTH, val height: Double = HEIGHT) : FixedProp {
+/**
+ * A flat bench running from [x] (head end) for [length], its pad's top [height] above the floor. With [nearLimbsBeside]
+ * the near limbs pass beside it, not through it (a one-arm row: the far knee and hand on the bench, the near foot on the
+ * floor next to it), so only the torso, head and far limbs are checked against it.
+ */
+data class FlatBench(
+    val x: Double = 0.0,
+    val length: Double = LENGTH,
+    val height: Double = HEIGHT,
+    val nearLimbsBeside: Boolean = false,
+) : FixedProp {
     companion object {
         const val HEIGHT = 43.0
         const val LENGTH = 122.0
@@ -42,7 +51,9 @@ data class FlatBench(val x: Double = 0.0, val length: Double = LENGTH, val heigh
 
 /**
  * A power rack's uprights at [x] (the lifter's side of the posts), with J-hooks whose bar rest is [jHookHeight] above
- * the floor and safety arms whose top is [safetyHeight] above it, reaching [armLength] towards the lifter.
+ * the floor and safety arms whose top is [safetyHeight] above it, reaching [armLength] towards the lifter. The lifter
+ * is to the right of the posts, or to the left when [lifterLeft] (a lifter who faced the hooks and stepped back).
+ * Upright height, post spacing and arm length are typical gym rack sizes, kept neutral.
  */
 data class PowerRack(
     val x: Double,
@@ -50,6 +61,7 @@ data class PowerRack(
     val safetyHeight: Double,
     val armLength: Double = 80.0,
     val height: Double = 230.0,
+    val lifterLeft: Boolean = false,
 ) : FixedProp
 
 /** How a barbell is held. */
@@ -91,18 +103,57 @@ data class LatPulldownSeat(val x: Double, val padX: Double, val seatHeight: Doub
 
 /**
  * A 45° leg press. [x] is the front edge of the seat; the back pad reclines behind it. The foot plate rides the 45°
- * rail, [sled] cm up from its lowest stop.
+ * rail, [sled] cm up from its lowest stop. Sizes are typical, kept neutral. The back pad reclines to 25° above level
+ * ([BACK_ANGLE] 155°): with the knees about 90° at the bottom and the feet flat, a more upright pad would fold the hips
+ * further than the guide allows (see Quads.kt).
  */
 data class LegPress45(val x: Double, val sled: Double) : FixedProp {
     companion object {
         const val SEAT_HEIGHT = 45.0
-        const val BACK_ANGLE = 140.0
+        const val BACK_ANGLE = 155.0
         const val RAIL_ANGLE = 45.0
+
+        /**
+         * How far the foot plate's centre stands off the rail on its carriage (a neutral estimate). The plate
+         * travels along a line a little above the seated lifter's hips, so the legs push close to along the rail and,
+         * with the knees bent about 90° at the bottom, the flat feet need no more ankle bend than the figure allows.
+         */
+        const val PLATE_RISE = 52.0
+
+        /**
+         * The foot plate's tilt back from square to the rail, towards upright (a neutral estimate: plates on these
+         * machines are square to the rail or tilted a little). Its face's long axis points along [PLATE_ANGLE].
+         */
+        const val PLATE_TILT = 10.0
+        const val PLATE_ANGLE = RAIL_ANGLE + 90.0 - PLATE_TILT
     }
 }
 
-/** A pull-up bar at [x], [height] above the floor. */
-data class PullUpBar(val x: Double, val height: Double = 230.0) : FixedProp
+/**
+ * A pull-up bar at [x], [height] (its centre) above the floor, 3.2 cm thick. A typical gym bar size, kept neutral; the
+ * height is set per figure so the lifter hangs clear of the floor.
+ */
+data class PullUpBar(val x: Double, val height: Double = 230.0) : FixedProp {
+    companion object {
+        const val RADIUS = 1.6
+
+        /** The side view draws the bar's end larger than it is (3 cm, not 1.6), so it shows in front of the hand at phone size. */
+        const val DRAWN_RADIUS = 3.0
+    }
+}
+
+/**
+ * A bench with a back support: a seat whose front edge is at [x], its top [FlatBench.HEIGHT] up (the IPF bench height,
+ * as a typical bench), and a back pad hinged at the seat's rear, [backAngle] from level (90 = upright). Seat
+ * [SEAT_LENGTH] and back pad [BACK_LENGTH] are typical adjustable-bench sizes, kept neutral; the back pad is long
+ * enough to reach a seated lifter's head. The lifter faces +x.
+ */
+data class AdjustableBench(val x: Double, val backAngle: Double = 90.0) : FixedProp {
+    companion object {
+        const val SEAT_LENGTH = 40.0
+        const val BACK_LENGTH = 85.0
+    }
+}
 
 // ---- geometry the renderer and the checks share (internal) ----
 
@@ -150,7 +201,7 @@ internal fun segmentDistance(a: Point, b: Point, slab: Slab): Double {
 private const val SAMPLES = 64
 
 /** A solid piece of kit the body must not pass through. Arms can pass beside narrow pads, so only the floor stops them. */
-internal data class Solid(val label: String, val slab: Slab, val stopsArms: Boolean)
+internal data class Solid(val label: String, val slab: Slab, val stopsArms: Boolean, val stopsNearLimbs: Boolean = true)
 
 /** A shape in world units, before fitting. [fit] = false pieces (tall uprights) are clipped to the panel instead. */
 internal data class Placed(val shape: Shape, val fit: Boolean = true, val floor: Boolean = false)
@@ -181,13 +232,28 @@ private fun legPressParts(p: LegPress45): Triple<Slab, Slab, Slab> {
     val corner = Point(p.x - 30.0, -LegPress45.SEAT_HEIGHT)
     val backCentre = corner + dir(LegPress45.BACK_ANGLE) * 35.0 + dir(LegPress45.BACK_ANGLE - 90.0) * 3.0
     val back = Slab(backCentre.x, backCentre.y, 70.0, 6.0, LegPress45.BACK_ANGLE)
-    val plateCentre = legPressRailStart(p) + dir(LegPress45.RAIL_ANGLE) * (40.0 + p.sled) +
-        dir(LegPress45.RAIL_ANGLE + 90.0) * 12.0
-    val plate = Slab(plateCentre.x, plateCentre.y, 55.0, 4.0, LegPress45.RAIL_ANGLE + 90.0)
+    val plateCentre = legPressCarriage(p) + dir(LegPress45.RAIL_ANGLE + 90.0) * LegPress45.PLATE_RISE
+    val plate = Slab(plateCentre.x, plateCentre.y, 55.0, 5.0, LegPress45.PLATE_ANGLE)
     return Triple(seat, back, plate)
 }
 
+/** The adjustable bench's seat and back pad. The back pad's front face starts at the hinge, the seat's rear top corner. */
+private fun adjustableParts(b: AdjustableBench): Pair<Slab, Slab> {
+    val pad = FlatBench.PAD
+    val seat = Slab.box(b.x - AdjustableBench.SEAT_LENGTH, -FlatBench.HEIGHT, b.x, -FlatBench.HEIGHT + pad)
+    val hinge = adjustableHinge(b)
+    val along = 180.0 - b.backAngle
+    val c = hinge + dir(along) * (AdjustableBench.BACK_LENGTH / 2) + dir(along + 90.0) * (pad / 2)
+    return seat to Slab(c.x, c.y, AdjustableBench.BACK_LENGTH, pad, along)
+}
+
+/** Where the back pad's front face meets the seat's top. */
+internal fun adjustableHinge(b: AdjustableBench) = Point(b.x - AdjustableBench.SEAT_LENGTH, -FlatBench.HEIGHT)
+
 private fun legPressRailStart(p: LegPress45) = Point(p.x + 25.0, -30.0)
+
+/** Where the sled's carriage sits on the rail. */
+private fun legPressCarriage(p: LegPress45) = legPressRailStart(p) + dir(LegPress45.RAIL_ANGLE) * (40.0 + p.sled)
 
 /** Where a fixed piece's named surfaces are. */
 internal fun FixedProp.surfaces(view: View): Map<Surface, List<Slab>> = when (this) {
@@ -201,8 +267,9 @@ internal fun FixedProp.surfaces(view: View): Map<Surface, List<Slab>> = when (th
     is LegPress45 -> legPressParts(this).let { (seat, back, plate) ->
         mapOf(Surface.SEAT to listOf(seat), Surface.BACK_PAD to listOf(back), Surface.FOOT_PLATE to listOf(plate))
     }
+    is AdjustableBench -> adjustableParts(this).let { (seat, back) -> mapOf(Surface.SEAT to listOf(seat), Surface.BACK_PAD to listOf(back)) }
     is PullUpBar -> mapOf(
-        Surface.PULL_UP_BAR to listOf(if (view == View.SIDE) Slab(x, -height, 3.2, 3.2) else Slab(x, -height, 120.0, 3.2)),
+        Surface.PULL_UP_BAR to listOf(if (view == View.SIDE) Slab(x, -height, 2 * PullUpBar.RADIUS, 2 * PullUpBar.RADIUS) else Slab(x, -height, 120.0, 2 * PullUpBar.RADIUS)),
     )
 }
 
@@ -216,15 +283,16 @@ private fun FlatBench.legXs(view: View): List<Double> =
 /** The solid parts of a fixed piece, for the no-intersection check. */
 internal fun FixedProp.solids(view: View): List<Solid> = when (this) {
     Floor -> listOf(Solid("floor", FLOOR_SLAB, stopsArms = true))
-    is FlatBench -> listOf(Solid("bench", benchPad(view), false)) + legXs(view).flatMap { lx ->
-        listOf(
-            Solid("bench", Slab.box(lx - 2.5, -height + FlatBench.PAD, lx + 2.5, 0.0), false),
-            Solid("bench", Slab.box(lx - 12.0, -3.0, lx + 12.0, 0.0), false),
-        )
-    }
+    is FlatBench -> (
+        listOf(benchPad(view)) + legXs(view).flatMap { lx ->
+            listOf(Slab.box(lx - 2.5, -height + FlatBench.PAD, lx + 2.5, 0.0), Slab.box(lx - 12.0, -3.0, lx + 12.0, 0.0))
+        }
+        ).map { Solid("bench", it, stopsArms = false, stopsNearLimbs = !nearLimbsBeside) }
     is PowerRack, is CableStack, is PullUpBar -> emptyList()
     is LatPulldownSeat -> surfaces(view).values.flatten().map { Solid("lat pulldown", it, false) }
     is LegPress45 -> surfaces(view).values.flatten().map { Solid("leg press", it, false) }
+    is AdjustableBench -> surfaces(view).values.flatten().map { Solid("bench", it, false) } +
+        Solid("bench", Slab.box(x - AdjustableBench.SEAT_LENGTH / 2 - 2.5, -FlatBench.HEIGHT + FlatBench.PAD, x - AdjustableBench.SEAT_LENGTH / 2 + 2.5, 0.0), false)
 }
 
 /** The fixed piece's shapes in world units. [held] is the centre of a cable attachment in the scene, if any. */
@@ -240,12 +308,15 @@ internal fun FixedProp.draw(view: View, held: Point?): List<Placed> {
             }
         }
         is PowerRack -> if (view == View.SIDE) {
+            // Drawn for a lifter to the right of the posts, then mirrored about x when the lifter is to the left.
+            val m = if (lifterLeft) -1.0 else 1.0
+            fun at(dx: Double) = x + m * dx
             buildList {
-                for (px in listOf(x - 3.0, x - 11.0)) add(eq(Capsule(e, px, -1.5, px, -height, 6.0), fit = false))
-                add(eq(Capsule(e, x - 28.0, -1.5, x + 10.0, -1.5, 3.0)))
-                add(eq(Capsule(e, x, -jHookHeight + 1.75, x + 7.0, -jHookHeight + 1.75, 3.5)))
-                add(eq(Capsule(e, x + 7.0, -jHookHeight + 1.75, x + 7.0, -jHookHeight - 3.0, 3.0)))
-                add(eq(Capsule(e, x - 14.0, -safetyHeight + 2.0, x + armLength, -safetyHeight + 2.0, 4.0)))
+                for (dx in listOf(-3.0, -11.0)) add(eq(Capsule(e, at(dx), -1.5, at(dx), -height, 6.0), fit = false))
+                add(eq(Capsule(e, at(-28.0), -1.5, at(10.0), -1.5, 3.0)))
+                add(eq(Capsule(e, at(0.0), -jHookHeight + 1.75, at(7.0), -jHookHeight + 1.75, 3.5)))
+                add(eq(Capsule(e, at(7.0), -jHookHeight + 1.75, at(7.0), -jHookHeight - 3.0, 3.0)))
+                add(eq(Capsule(e, at(-14.0), -safetyHeight + 2.0, at(armLength), -safetyHeight + 2.0, 4.0)))
             }
         } else {
             buildList {
@@ -280,22 +351,59 @@ internal fun FixedProp.draw(view: View, held: Point?): List<Placed> {
             val railEnd = railStart + dir(LegPress45.RAIL_ANGLE) * 160.0
             add(eq(Capsule(e, x - 70.0, -1.5, railEnd.x, -1.5, 3.0)))
             add(eq(Capsule(e, seat.cx, seat.cy, seat.cx, -1.5, 5.0)))
+            // A second leg under the back pad's low end, so the seat reads as part of the frame, not a stool.
+            add(eq(Capsule(e, x - 30.0, -LegPress45.SEAT_HEIGHT, x - 40.0, -1.5, 5.0)))
             add(eq(Capsule(e, railEnd.x, railEnd.y, railEnd.x, -1.5, 5.0)))
             add(eq(capsule(e, railStart, railEnd, 5.0)))
             add(eq(slabShape(e, seat, 2.0)))
             add(eq(slabShape(e, back, 2.0)))
+            // The sled: a solid wedge from its carriage on the rail out to the back of the foot plate.
+            val carriage = legPressCarriage(this@draw)
+            val rail = dir(LegPress45.RAIL_ANGLE)
+            val along = dir(LegPress45.PLATE_ANGLE) * (plate.length / 2)
+            val plateBack = Point(plate.cx, plate.cy) + dir(LegPress45.PLATE_ANGLE - 90.0) * (plate.thickness / 2)
+            val sled = listOf(plateBack + along, plateBack - along, carriage - rail * 12.0, carriage + rail * 12.0)
+            add(eq(Polygon(e, sled.flatMap { listOf(it.x, it.y) })))
+            // The plate itself thicker than the sled behind it, set off by a gap line so the feet show on its face.
+            add(eq(slabShape(Role.GAP, plate.copy(length = plate.length + 3.0, thickness = plate.thickness + 3.0), 2.5)))
             add(eq(slabShape(e, plate, 1.5)))
         }
+        is AdjustableBench -> buildList {
+            val (seat, back) = adjustableParts(this@draw)
+            val mid = x - AdjustableBench.SEAT_LENGTH / 2
+            add(eq(Capsule(e, mid, -FlatBench.HEIGHT + FlatBench.PAD, mid, -1.5, 5.0)))
+            add(eq(Capsule(e, mid - 22.0, -1.5, mid + 22.0, -1.5, 3.0)))
+            add(eq(slabShape(e, seat, 2.0)))
+            add(eq(slabShape(e, back, 2.0)))
+        }
+        // Side view: the bar is held out on a level bracket from a wall post behind the lifter (a typical wall-mounted
+        // bar, 45 cm out; neutral), so the bracket marks the bar's height right across the picture. The bar itself is
+        // drawn in front of the hands (drawFront).
         is PullUpBar -> if (view == View.SIDE) {
-            listOf(eq(Capsule(e, x, -height, x, -height - 40.0, 4.0), fit = false), eq(Circle(e, x, -height, 1.6)))
+            listOf(
+                eq(Capsule(e, x - 45.0, -height, x, -height, 2.5)),
+                eq(Capsule(e, x - 45.0, -height - 15.0, x - 45.0, -height + 15.0, 5.0)),
+            )
         } else {
             listOf(
                 eq(Capsule(e, x - 60.0, -height, x - 60.0, -height - 40.0, 4.0), fit = false),
                 eq(Capsule(e, x + 60.0, -height, x + 60.0, -height - 40.0, 4.0), fit = false),
-                eq(Capsule(e, x - 60.0, -height, x + 60.0, -height, 3.2)),
+                eq(Capsule(e, x - 60.0, -height, x + 60.0, -height, 2 * PullUpBar.RADIUS)),
             )
         }
     }
+}
+
+/**
+ * The parts of a fixed piece drawn in front of the body: the side view's pull-up bar, which the hands wrap round, would
+ * otherwise be hidden under them. Drawn at [PullUpBar.DRAWN_RADIUS] with a gap ring so it shows at phone size.
+ */
+internal fun FixedProp.drawFront(view: View): List<Placed> = when {
+    this is PullUpBar && view == View.SIDE -> listOf(
+        eq(Circle(Role.GAP, x, -height, PullUpBar.DRAWN_RADIUS + Body.GAP_EXTRA / 2)),
+        eq(Circle(Role.EQUIPMENT, x, -height, PullUpBar.DRAWN_RADIUS)),
+    )
+    else -> emptyList()
 }
 
 private const val FLOOR_LINE = 1.5

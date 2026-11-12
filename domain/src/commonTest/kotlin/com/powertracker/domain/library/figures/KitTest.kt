@@ -198,8 +198,8 @@ class KitTest {
         }
         val seated = figure(0.0)
         assertRenders(seated, setOf(Role.BODY, Role.EQUIPMENT))
-        // The reclined back pad and the foot plate are angled slabs, drawn as polygons.
-        assertEquals(2, FigureRenderer.shapes(seated, Which.START).count { it is Polygon && it.role == Role.EQUIPMENT })
+        // The reclined back pad, the foot plate and the sled behind it are drawn as polygons.
+        assertEquals(3, FigureRenderer.shapes(seated, Which.START).count { it is Polygon && it.role == Role.EQUIPMENT })
         assertEquals(emptyList(), contactProblems(seated))
         val lifted = contactProblems(figure(4.0)).map { it.message.substringBefore(":") }.toSet()
         assertEquals(setOf("contact HIPS on SEAT", "contact UPPER_BACK on BACK_PAD"), lifted)
@@ -213,6 +213,66 @@ class KitTest {
             low.getValue(Surface.FOOT_PLATE).single().let { Point(it.cx, it.cy) }
         assertEquals(20.0, moved.length(), 1e-6)
         assertEquals(LegPress45.RAIL_ANGLE, angleOf(moved), 1e-6)
+    }
+
+    @Test
+    fun adjustableBench_upright_seatAndBackPadHoldTheHipsBackAndHead() {
+        val bench = AdjustableBench(x = 0.0)
+        val hinge = adjustableHinge(bench)
+        fun figure(lean: Double): ExerciseFigure {
+            // Sitting upright against the back pad: the pelvis on the seat, the torso axis one torso radius in front of it.
+            val pelvis = Point(hinge.x + Body.TORSO_RADIUS + lean, hinge.y - Body.TORSO_RADIUS)
+            val legs = Reach.leg(pelvis, Point(pelvis.x + 40.0, -Body.ANKLE_HEIGHT), torso = 90.0, foot = 0.0)
+            val pose = Pose(pelvis.x, pelvis.y, 90.0, nearArm = Arm(0.0, 0.0), nearLeg = legs)
+            return figureOf(
+                View.SIDE, Scene(pose, listOf(Floor, bench)),
+                contacts = listOf(
+                    Contact(BodyPoint.HIPS, Surface.SEAT, ALL), Contact(BodyPoint.UPPER_BACK, Surface.BACK_PAD, ALL),
+                    Contact(BodyPoint.HEAD, Surface.BACK_PAD, ALL), Contact(BodyPoint.FEET, Surface.FLOOR, ALL),
+                ),
+            )
+        }
+        assertRenders(figure(0.0), setOf(Role.BODY, Role.EQUIPMENT))
+        assertEquals(emptyList(), problems(figure(0.0)))
+        // The upright back pad is an angled slab (a polygon); it reaches above the seated head.
+        assertTrue(FigureRenderer.shapes(figure(0.0), Which.START).any { it is Polygon && it.role == Role.EQUIPMENT })
+        val back = bench.surfaces(View.SIDE).getValue(Surface.BACK_PAD).single()
+        assertTrue(back.cy - AdjustableBench.BACK_LENGTH / 2 < figure(0.0).start.pose.skeleton().head.y)
+        val away = contactProblems(figure(4.0)).map { it.message.substringBefore(":") }.toSet()
+        assertEquals(setOf("contact UPPER_BACK on BACK_PAD", "contact HEAD on BACK_PAD"), away)
+    }
+
+    @Test
+    fun powerRack_lifterLeft_mirrorsAboutItsX() {
+        fun xs(rack: PowerRack) = rack.draw(View.SIDE, null).map { (it.shape as Capsule).let { c -> listOf(c.x1, c.x2) } }
+        val right = PowerRack(x = 100.0, jHookHeight = 140.0, safetyHeight = 80.0)
+        val left = right.copy(lifterLeft = true)
+        for ((r, l) in xs(right).zip(xs(left))) for ((a, b) in r.zip(l)) assertEquals(100.0 - a, b - 100.0, 1e-9)
+        // The safety arm reaches towards the lifter: to the left of the posts.
+        assertTrue(xs(left).last().min() < 100.0 - 50.0)
+    }
+
+    @Test
+    fun flatBench_nearLimbsBeside_checksOnlyTheTorsoHeadAndFarLimbs() {
+        // Standing beside the bench: the near leg crosses the pad's outline in the side view.
+        val pose = standing(x = 20.0)
+        val beside = figureOf(View.SIDE, Scene(pose, listOf(Floor, FlatBench(x = 0.0, nearLimbsBeside = true))))
+        val through = figureOf(View.SIDE, Scene(pose.copy(farLeg = Leg(0.0, 0.0)), listOf(Floor, FlatBench(x = 0.0))))
+        assertTrue(problems(through).any { "near thigh goes through the bench" in it.message || "near shin goes through the bench" in it.message })
+        // Beside: the near leg passes, the far leg (the same line) is still stopped.
+        val found = problems(beside).filter { "through" in it.message }
+        assertTrue(found.isNotEmpty() && found.all { it.message.startsWith("far ") }, found.toString())
+    }
+
+    @Test
+    fun nearAndFarKnee_upperChest_points() {
+        val pose = standing(farLeg = Leg(90.0, 90.0))
+        val s = pose.skeleton()
+        assertEquals(s.near.knee, s.point(BodyPoint.NEAR_KNEE))
+        assertEquals(s.far.knee, s.point(BodyPoint.FAR_KNEE))
+        // The upper chest is above the bench-press touch point, on the front of the torso.
+        assertTrue(s.point(BodyPoint.UPPER_CHEST).y < s.point(BodyPoint.CHEST).y)
+        assertTrue(s.point(BodyPoint.UPPER_CHEST).x > s.shoulder.x)
     }
 
     @Test

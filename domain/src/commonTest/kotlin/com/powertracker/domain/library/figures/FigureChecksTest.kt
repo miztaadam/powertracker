@@ -114,4 +114,43 @@ class FigureChecksTest {
         assertEquals(2, outside.size, outside.toString())
         assertTrue(outside.all { it.startsWith("shape outside the view box") })
     }
+
+    @Test
+    fun chinOverBar_passesAboveTheBar_failsBelowIt() {
+        // Hanging straight under a bar, then the same body 70 cm higher: the chin goes from far below to above it.
+        val hang = Pose(0.0, -120.0, nearArm = Arm(180.0, 0.0), nearLeg = Leg(0.0, 0.0))
+        val grip = hang.skeleton().near.grip
+        val bar = PullUpBar(x = grip.x, height = -grip.y)
+        val high = hang.copy(pelvisY = hang.pelvisY - 70.0, nearArm = Arm(180.0, 0.0))
+        val chin = high.skeleton().chin()
+        assertTrue(chin.y < -bar.height - PullUpBar.RADIUS, "fixture: the raised chin is over the bar")
+        val figure = FigureFixtures.figureOf(View.SIDE, Scene(hang, listOf(bar)), end = Scene(high, listOf(bar)), checks = listOf(ChinOverBar(at = Which.END)))
+        assertEquals(emptyList(), problems(figure).filter { "chin" in it.message })
+        val low = problems(figure.copy(end = Scene(hang, listOf(bar)))).filter { "chin" in it.message }
+        assertEquals(1, low.size, low.toString())
+        assertEquals(Which.END, low.single().which)
+        // Clearing the bar by less than the margin (4 cm) fails: the picture must show the chin plainly over it.
+        val barTop = -bar.height - PullUpBar.RADIUS
+        val justOver = hang.copy(pelvisY = hang.pelvisY - (hang.skeleton().chin().y - barTop) - 2.0)
+        val thin = problems(figure.copy(end = Scene(justOver, listOf(bar)))).filter { "chin" in it.message }
+        assertEquals(1, thin.size, thin.toString())
+        // No bar in the scene is reported, not passed.
+        assertTrue(problems(figure.copy(end = Scene(high, listOf(Floor)))).any { "no pull-up bar" in it.message })
+    }
+
+    @Test
+    fun barNearLegs_passesBesideTheShins_failsAwayFromThem() {
+        val props = listOf(Floor, Barbell())
+        // Arms hanging, leaning 10° forward: the bar hangs in front of the thighs.
+        val pose = FigureFixtures.standing(torso = 80.0, arm = Arm(10.0, 0.0))
+        val s = pose.skeleton()
+        val gap = FigureChecks.barToLegs(Barbell().center(s), s)
+        val near = FigureFixtures.figureOf(View.SIDE, Scene(pose, props), checks = listOf(BarNearLegs(gap + 1.0, Which.START)))
+        assertEquals(emptyList(), problems(near).filter { "legs" in it.message })
+        val far = problems(near.copy(checks = listOf(BarNearLegs(gap - 1.0, Which.START)))).filter { "legs" in it.message }
+        assertEquals(1, far.size, far.toString())
+        // A bar pushed into the legs fails too (arms along the torso: the grip is inside the thigh).
+        val into = pose.copy(nearArm = Arm(0.0, 0.0), farArm = Arm(0.0, 0.0))
+        assertTrue(problems(near.copy(start = Scene(into, props), checks = listOf(BarNearLegs(10.0, Which.START)))).any { "into the legs" in it.message })
+    }
 }

@@ -11,7 +11,8 @@ import kotlin.math.round
  * margin), so the kit stands still between them. Results are cached per figure and panel.
  *
  * Draw order, back to front: far limbs (BODY_FAR), fixed equipment, the body, then for each near limb a GAP outline
- * and the limb, then held equipment (ACCENT / ACCENT_FILL).
+ * and the limb, then held equipment (ACCENT / ACCENT_FILL), then any fixed part drawn in front of the hands (the side
+ * view's pull-up bar).
  */
 object FigureRenderer {
     val viewBox = ViewBox(400.0, 300.0)
@@ -77,6 +78,7 @@ object FigureRenderer {
                 for (seg in limb) add(Placed(seg.capsule(Role.BODY)))
             }
             for (p in held) addAll(p.draw(s))
+            for (p in fixed) addAll(p.drawFront(view))
         }
     }
 
