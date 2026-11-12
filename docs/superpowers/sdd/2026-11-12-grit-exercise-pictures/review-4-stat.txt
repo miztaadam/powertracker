@@ -1,0 +1,38 @@
+a56b982 feat(domain): first ten exercise pictures
+ docs/design/screens/exercise-day-chooser-dark.png  |  Bin 119829 -> 124609 bytes
+ docs/design/screens/exercise-day-chooser-light.png |  Bin 118468 -> 122913 bytes
+ .../design/screens/exercise-guide-actions-dark.png |  Bin 166364 -> 156004 bytes
+ .../screens/exercise-guide-actions-light.png       |  Bin 161354 -> 151418 bytes
+ docs/design/screens/exercises-dark.png             |  Bin 154398 -> 159084 bytes
+ docs/design/screens/exercises-light.png            |  Bin 152505 -> 157086 bytes
+ docs/design/screens/form-guide-dark.png            |  Bin 229463 -> 242462 bytes
+ docs/design/screens/form-guide-light.png           |  Bin 222509 -> 235026 bytes
+ docs/design/screens/form-guide-picture-dark.png    |  Bin 212906 -> 212888 bytes
+ docs/design/screens/form-guide-picture-light.png   |  Bin 206392 -> 206429 bytes
+ docs/design/web/screens/exercises-dark.png         |  Bin 163912 -> 163907 bytes
+ docs/design/web/screens/exercises-light.png        |  Bin 160607 -> 160607 bytes
+ docs/design/web/screens/form-guide-dark.png        |  Bin 203775 -> 183135 bytes
+ docs/design/web/screens/form-guide-end-dark.png    |  Bin 167904 -> 167901 bytes
+ docs/design/web/screens/form-guide-end-light.png   |  Bin 165101 -> 165098 bytes
+ docs/design/web/screens/form-guide-light.png       |  Bin 199245 -> 177907 bytes
+ .../design/web/screens/form-guide-picture-dark.png |  Bin 186806 -> 186749 bytes
+ .../web/screens/form-guide-picture-light.png       |  Bin 181886 -> 181822 bytes
+ .../powertracker/domain/library/figures/Body.kt    |  110 +-
+ .../powertracker/domain/library/figures/Figure.kt  |   26 +-
+ .../domain/library/figures/FigureChecks.kt         |   36 +-
+ .../com/powertracker/domain/library/figures/Kit.kt |  113 +-
+ .../domain/library/figures/areas/Back.kt           |  177 +-
+ .../library/figures/areas/HamstringsGlutes.kt      |   79 +-
+ .../domain/library/figures/areas/MainLifts.kt      |  198 +-
+ .../domain/library/figures/areas/Poses.kt          |  102 +
+ .../domain/library/figures/areas/Quads.kt          |   78 +-
+ .../domain/library/figures/areas/Shoulders.kt      |   66 +-
+ .../domain/library/figures/BatchOneTest.kt         |  126 +
+ .../domain/library/figures/BodyTest.kt             |   20 +
+ .../domain/library/figures/FigureChecksTest.kt     |   34 +
+ .../domain/library/figures/FiguresTest.kt          |    2 +-
+ .../powertracker/domain/library/figures/KitTest.kt |   60 +
+ web/src/domain/generated/kotlin-kotlin-stdlib.mjs  |    8 +-
+ ...nx-serialization-kotlinx-serialization-json.mjs |    4 +-
+ web/src/domain/generated/powertracker-domain.mjs   | 3220 +++++++++++++-------
+ 36 files changed, 3342 insertions(+), 1117 deletions(-)
