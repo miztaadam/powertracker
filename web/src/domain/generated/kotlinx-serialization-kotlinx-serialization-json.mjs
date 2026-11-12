@@ -22,13 +22,13 @@ import {
   DeserializationStrategy1z3z5pj9f7zc8 as DeserializationStrategy,
   missingFieldExceptionWithNewMessage2gqddjx5jxge9 as missingFieldExceptionWithNewMessage,
   MissingFieldException24tqif29emcmi as MissingFieldException,
-  Decoder23nde051s631g as Decoder,
   CompositeDecoder2tzm7wpwkr0og as CompositeDecoder,
+  Decoder23nde051s631g as Decoder,
   AbstractEncoder2gxtu3xmy3f8j as AbstractEncoder,
   OBJECT_getInstancerq52wx6ymebx as OBJECT_getInstance,
   SerializationStrategyh6ouydnm6hci as SerializationStrategy,
-  CompositeEncoderknecpkexzn3v as CompositeEncoder,
   Encoderqvmrpqtq8hnu as Encoder,
+  CompositeEncoderknecpkexzn3v as CompositeEncoder,
   NamedValueDecoderzk26ztf92xbq as NamedValueDecoder,
 } from './kotlinx-serialization-kotlinx-serialization-core.mjs';
 import {
@@ -165,9 +165,9 @@ initMetadataForClass(LexerMode, 'LexerMode', VOID, Enum);
 initMetadataForClass(Key, 'Key', Key);
 initMetadataForClass(DescriptorSchemaCache, 'DescriptorSchemaCache', DescriptorSchemaCache);
 initMetadataForClass(DiscriminatorHolder, 'DiscriminatorHolder');
-initMetadataForClass(StreamingJsonDecoder, 'StreamingJsonDecoder', VOID, AbstractDecoder, [Decoder, CompositeDecoder]);
-initMetadataForClass(StreamingJsonEncoder, 'StreamingJsonEncoder', VOID, AbstractEncoder, [CompositeEncoder, Encoder]);
-initMetadataForClass(AbstractJsonTreeDecoder, 'AbstractJsonTreeDecoder', VOID, NamedValueDecoder, [Decoder, CompositeDecoder]);
+initMetadataForClass(StreamingJsonDecoder, 'StreamingJsonDecoder', VOID, AbstractDecoder, [CompositeDecoder, Decoder]);
+initMetadataForClass(StreamingJsonEncoder, 'StreamingJsonEncoder', VOID, AbstractEncoder, [Encoder, CompositeEncoder]);
+initMetadataForClass(AbstractJsonTreeDecoder, 'AbstractJsonTreeDecoder', VOID, NamedValueDecoder, [CompositeDecoder, Decoder]);
 initMetadataForClass(JsonTreeDecoder, 'JsonTreeDecoder', VOID, AbstractJsonTreeDecoder);
 initMetadataForClass(JsonTreeListDecoder, 'JsonTreeListDecoder', VOID, AbstractJsonTreeDecoder);
 initMetadataForClass(JsonTreeMapDecoder, 'JsonTreeMapDecoder', VOID, JsonTreeDecoder);

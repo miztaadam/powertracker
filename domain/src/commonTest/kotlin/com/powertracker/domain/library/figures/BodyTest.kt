@@ -121,9 +121,10 @@ class BodyTest {
         assertEquals(0.0, JointLimits.trueElbow(straight.nearArm), 1e-6)
         assertEquals(emptyList(), JointLimits.problems(straight, View.SIDE))
         assertTrue(JointLimits.problems(straight.copy(nearArm = Arm(90.0, 0.0, forearmOut = 95.0)), View.SIDE).any { "forearm" in it })
-        // The front view ignores it.
+        // The front view draws it the same way: out of the plane, towards (or away from) the camera (Task 6).
         val front = straight.skeleton(View.FRONT)
-        assertEquals(reach, (front.near.hand - front.near.shoulder).length(), 1e-6)
+        assertEquals(reach * kotlin.math.cos(20.0 * kotlin.math.PI / 180), (front.near.hand - front.near.shoulder).length(), 1e-6)
+        assertEquals(reach, (straight.copy(nearArm = Arm(90.0, 0.0)).skeleton(View.FRONT).let { it.near.hand - it.near.shoulder }).length(), 1e-6)
 
         val wide = Pose(0.0, -90.0, nearArm = Arm(0.0, 0.0), nearLeg = Leg(90.0, 90.0, out = 40.0))
         val w = wide.skeleton()
@@ -157,5 +158,48 @@ class BodyTest {
         // Leaning far over a thigh pointed at the camera folds the hip past its range.
         val folded = JointLimits.problems(pose.copy(nearLeg = Leg(0.0, 0.0, out = 89.0), farLeg = Leg(0.0, 0.0), lean = 60.0), View.FRONT)
         assertTrue(folded.single().startsWith("near hip flexion"), folded.toString())
+    }
+
+    @Test
+    fun frontView_armShinAndNeckOutOfThePlane_drawnShorter_limitsOnTheTrueAngles() {
+        // Task 6: the front view projects arms, shins and the head out of the picture plane; with them at 0 nothing changes.
+        val arm = Arm(90.0, 30.0, out = 60.0, forearmOut = 20.0)
+        val p = Pose(0.0, -100.0, 90.0, nearArm = arm, nearLeg = Leg(0.0, 0.0, out = -60.0, shinOut = -60.0), neckOut = 60.0, lean = 60.0)
+        val s = p.skeleton(View.FRONT)
+        assertEquals(Segment.UPPER_ARM.length * 0.5, (s.near.elbow - s.near.shoulder).length(), 1e-9)
+        assertEquals(Segment.FOREARM.length * kotlin.math.cos(20.0 * kotlin.math.PI / 180), (s.near.wrist - s.near.elbow).length(), 1e-9)
+        assertEquals(Segment.SHIN.length * 0.5, (s.near.ankle - s.near.knee).length(), 1e-9)
+        assertEquals((Segment.NECK.length + Segment.HEAD.length - Body.HEAD_RADIUS) * 0.5, (s.head - s.shoulder).length(), 1e-9)
+        // The side view ignores shinOut and neckOut.
+        val side = p.skeleton(View.SIDE)
+        assertEquals(Segment.SHIN.length, (side.near.ankle - side.near.knee).length(), 1e-9)
+        assertEquals(Segment.NECK.length + Segment.HEAD.length - Body.HEAD_RADIUS, (side.head - side.shoulder).length(), 1e-9)
+        // A thigh pointing away from the camera, in line with a torso leaning towards it: a straight hip.
+        assertEquals(0.0, JointLimits.trueFrontHipFlexion(Leg(0.0, 0.0, out = -60.0), 60.0), 1e-6)
+        assertEquals(emptyList(), JointLimits.problems(p, View.FRONT))
+        assertTrue(JointLimits.problems(p.copy(nearLeg = Leg(0.0, 0.0, shinOut = 95.0)), View.FRONT).any { "shin" in it })
+    }
+
+    @Test
+    fun armOutOfThePlane_elbowBendIsItsSize_shoulderCheckedOnItsTrueDirection() {
+        // Out of the plane, the drawn bend's sign is a projection: its size is checked.
+        val fly = Arm(0.0, -18.0, out = 40.0, forearmOut = 20.0)
+        assertTrue(JointLimits.elbowBend(fly) > 0.0)
+        assertEquals(JointLimits.elbowBend(fly), kotlin.math.abs(JointLimits.trueElbow(fly)), 1e-9)
+        assertEquals(30.0, JointLimits.elbowBend(Arm(0.0, 30.0)), 1e-9)
+        // Behind the body: an in-plane extension of 60° is exactly the limit; out of the plane it points less far back.
+        assertEquals(60.0, JointLimits.trueShoulderBack(Arm(-60.0, 0.0, out = 1e-9), View.SIDE), 1e-3)
+        assertEquals(0.0, JointLimits.trueShoulderBack(Arm(90.0, 0.0, out = 50.0), View.SIDE), 1e-9)
+        assertTrue(JointLimits.trueShoulderBack(Arm(-80.0, 0.0, out = 60.0), View.SIDE) < 60.0)
+        assertEquals(emptyList(), JointLimits.problems(Pose(0.0, -100.0, nearArm = Arm(-80.0, 0.0, out = 60.0), nearLeg = Leg(0.0, 0.0)), View.SIDE))
+        assertTrue(JointLimits.problems(Pose(0.0, -100.0, nearArm = Arm(-80.0, 0.0, out = 10.0), nearLeg = Leg(0.0, 0.0)), View.SIDE).any { "behind the body" in it })
+        // Front view: pointing away from the camera is behind the body.
+        assertEquals(70.0, JointLimits.trueShoulderBack(Arm(30.0, 0.0, out = -70.0), View.FRONT), 1e-6)
+        // A torso leaning towards the camera (a push-up seen head-on): an arm along the body, pointing away from the
+        // camera, is by the side, not behind the body; one pointing up off the floor is.
+        assertEquals(0.0, JointLimits.trueShoulderBack(Arm(0.0, 0.0, out = -75.0), View.FRONT, lean = 75.0), 1e-6)
+        assertTrue(JointLimits.trueShoulderBack(Arm(180.0, 0.0, out = -10.0), View.FRONT, lean = 75.0) > 60.0)
+        // Negative out (back towards the body's middle) is allowed in both views, past ±90 is not.
+        assertEquals(emptyList(), JointLimits.problems(Pose(0.0, -100.0, nearArm = Arm(90.0, 0.0, out = -20.0, forearmOut = -20.0), nearLeg = Leg(0.0, 0.0)), View.SIDE))
     }
 }

@@ -73,4 +73,19 @@ class RendererTest {
         assertSame(FigureRenderer.shapes(figure, Which.START), FigureRenderer.shapes(figure, Which.START))
         assertSame(FigureRenderer.shapes(figure, Which.END), FigureRenderer.shapes(figure, Which.END))
     }
+
+    @Test
+    fun frontView_legsPointingStraightAway_areHidden() {
+        // A push-up seen head-on (Task 6): legs pointing straight away from the camera lie behind the body; not drawn.
+        val away = Leg(0.0, 0.0, out = -90.0, shinOut = -90.0)
+        val pose = Pose(0.0, -30.0, 90.0, nearArm = Arm(10.0, 0.0), nearLeg = away, lean = 75.0)
+        val shapes = FigureRenderer.shapes(FigureFixtures.figureOf(View.FRONT, Scene(pose, listOf(Floor))), Which.START)
+        assertEquals(3, shapes.count { it.role == Role.GAP }, "only the near arm's three segments have a gap outline")
+        assertEquals(1 + 6, shapes.count { it is Capsule && it.role == Role.BODY }, "the neck and the two arms")
+        // Legs only partly away, or towards the camera (a sumo stance), are drawn as before.
+        for (leg in listOf(Leg(0.0, 0.0, out = -60.0, shinOut = -60.0), Leg(10.0, 10.0, out = 30.0))) {
+            val drawn = FigureRenderer.shapes(FigureFixtures.figureOf(View.FRONT, Scene(pose.copy(nearLeg = leg, farLeg = leg), listOf(Floor))), Which.START)
+            assertEquals(6, drawn.count { it.role == Role.GAP })
+        }
+    }
 }

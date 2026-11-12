@@ -17,7 +17,8 @@ import kotlin.math.roundToLong
  *
  * The rule for area files: an area's map must not build its figures. Each entry is a `Lazy` (`"Name" to lazy { x }`
  * over a private `by lazy` figure), so listing the map solves no pose, and a figure is built, and its poses solved,
- * only when it is first looked up. Looking up one exercise must never build another.
+ * only when it is first looked up. Looking up one exercise must never build another. Pinned by AreaMapsLazyTest
+ * (jvmTest), which builds the real area maps in a fresh class space and finds no figure built.
  */
 object Figures {
     /**

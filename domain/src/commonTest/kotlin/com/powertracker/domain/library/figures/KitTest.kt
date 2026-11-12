@@ -364,4 +364,160 @@ class KitTest {
         assertEquals(114.0, arm.cx + arm.length / 2, 1e-9) // and 14 cm behind the posts
         assertEquals(2, rack.surfaces(View.FRONT).getValue(Surface.SAFETY_ARM).size)
     }
+
+    // ---- chest batch (Task 6) ----
+
+    @Test
+    fun declineBench_padDownTowardsTheHead_legBraceRoller() {
+        val bench = DeclineBench(x = 100.0, brace = Point(140.0, -60.0))
+        val pad = bench.surfaces(View.SIDE).getValue(Surface.BENCH).single()
+        // The pad's top runs from the high end (68 cm) down 25° towards the head, 100 cm long.
+        assertEquals(100.0, pad.length, 1e-9)
+        assertEquals(205.0, pad.angle, 1e-9)
+        val lowEnd = bench.top + bench.down * bench.length
+        assertEquals(68.0 - 100.0 * kotlin.math.sin(25.0 * kotlin.math.PI / 180), -lowEnd.y, 1e-9)
+        assertEquals(0.0, pad.signedDistance(bench.top + bench.down * 50.0), 1e-6) // the top line is the pad's surface
+        val roller = bench.surfaces(View.SIDE).getValue(Surface.LEG_BRACE).single()
+        assertEquals(DeclineBench.ROLLER_RADIUS, roller.radius)
+        assertEquals(Point(140.0, -60.0), Point(roller.cx, roller.cy))
+        assertTrue(bench.solids(View.SIDE).any { it.label == "leg brace" })
+        assertRenders(figureOf(View.SIDE, Scene(standing(x = 200.0), listOf(Floor, bench))), setOf(Role.EQUIPMENT, Role.BODY))
+    }
+
+    @Test
+    fun smithMachine_railAtTheBar_stopsAtTheirHeight() {
+        val smith = SmithMachine(x = 60.0, stopHeight = 63.5)
+        val rail = smith.draw(View.SIDE, null).map { it.shape }.filterIsInstance<Capsule>().first()
+        assertEquals(60.0, rail.x1, 1e-9)
+        assertEquals(-215.0, rail.y2, 1e-9) // a typical 215 cm frame
+        val stop = smith.surfaces(View.SIDE).getValue(Surface.SAFETY_ARM).single()
+        assertEquals(-63.5, stop.cy - stop.thickness / 2, 1e-9)
+        assertEquals(emptyList(), smith.solids(View.SIDE))
+        // The bar on the rails passes the check; off them it fails.
+        val pose = standing(arm = Arm(90.0, 0.0))
+        val grip = pose.skeleton().near.grip
+        fun fig(x: Double) = figureOf(View.SIDE, Scene(pose, listOf(Floor, SmithMachine(x, 50.0), Barbell())), checks = listOf(BarOnRails(Which.START)))
+        assertEquals(emptyList(), problems(fig(grip.x)).filter { "rails" in it.message })
+        assertTrue(problems(fig(grip.x + 5.0)).any { "off the rails" in it.message })
+    }
+
+    @Test
+    fun cableStack_frontView_twoColumns_cabledToEachHand_handlesInTheAccent() {
+        val stack = CableStack(x = 0.0, pulleyHeight = 200.0, reach = 10.0, halfSpan = 105.0)
+        val pose = standing(arm = Arm(80.0, 0.0))
+        val s = pose.skeleton(View.FRONT)
+        val shapes = stack.draw(View.FRONT, null, s).map { it.shape }
+        val columns = shapes.filterIsInstance<RoundRect>().filter { it.h > 200.0 }
+        assertEquals(listOf(-105.0, 105.0), columns.map { it.x + it.w / 2 }.sorted())
+        // Each cable runs from its side's pulley to that side's hand.
+        val cables = shapes.filterIsInstance<Capsule>().filter { it.width < 1.0 }
+        assertEquals(setOf(s.near.grip, s.far.grip), cables.map { Point(it.x2, it.y2) }.toSet())
+        assertEquals(setOf(95.0, -95.0), cables.map { it.x1 }.toSet())
+        // The side view is the single column it was (the lat pulldown's), whatever halfSpan says.
+        assertEquals(CableStack(x = 0.0).draw(View.SIDE, null), stack.copy(pulleyHeight = 215.0, reach = 45.0).draw(View.SIDE, null))
+        val handles = CableHandles.draw(s).map { it.shape }
+        assertEquals(2, handles.size)
+        assertTrue(handles.all { it.role == Role.ACCENT })
+        assertEquals((s.near.grip + s.far.grip) * 0.5, CableHandles.center(s))
+        assertEquals(pose.skeleton().near.grip, CableHandles.center(pose.skeleton()))
+        assertRenders(figureOf(View.FRONT, Scene(pose, listOf(Floor, stack, CableHandles))), setOf(Role.BODY, Role.EQUIPMENT, Role.ACCENT))
+    }
+
+    @Test
+    fun pressMachine_seatAndBackPad_leverFromThePivotToTheHand() {
+        val m = PressMachine(x = 40.0, seatHeight = 41.0, backAngle = 80.0, pivot = Point(60.0, -170.0))
+        val surfaces = m.surfaces(View.SIDE)
+        val seat = surfaces.getValue(Surface.SEAT).single()
+        assertEquals(-41.0, seat.cy - seat.thickness / 2, 1e-9)
+        assertEquals(PressMachine.SEAT_LENGTH, seat.length, 1e-9)
+        val back = surfaces.getValue(Surface.BACK_PAD).single()
+        assertEquals(PressMachine.BACK_LENGTH, back.length, 1e-9)
+        assertEquals(100.0, back.angle, 1e-9)
+        val s = standing(x = 20.0, arm = Arm(90.0, 0.0)).skeleton()
+        val lever = m.draw(View.SIDE, null, s).map { it.shape }.filterIsInstance<Capsule>().single { it.x1 == 60.0 && it.y1 == -170.0 }
+        assertEquals(s.near.grip, Point(lever.x2, lever.y2))
+        assertEquals(2, m.solids(View.SIDE).size)
+    }
+
+    @Test
+    fun pecDeckAndSeat_frontView_hipsOnTheSeat_legsInFrontOfIt() {
+        val deck = PecDeck(x = 0.0, seatHeight = 47.0, padTop = 140.0, pivotHeight = 195.0)
+        assertEquals(-47.0, deck.surfaces(View.FRONT).getValue(Surface.SEAT).single().let { it.cy - it.thickness / 2 }, 1e-9)
+        assertEquals(emptyList(), deck.solids(View.FRONT))
+        val s = standing(arm = Arm(90.0, 0.0)).skeleton(View.FRONT)
+        val levers = deck.draw(View.FRONT, null, s).map { it.shape }.filterIsInstance<Capsule>().filter { it.y1 == -195.0 && it.width == 4.0 }
+        assertEquals(setOf(s.near.grip, s.far.grip), levers.map { Point(it.x2, it.y2) }.toSet())
+        assertEquals(setOf(18.0, -18.0), levers.map { it.x1 }.toSet()) // pivots above the shoulders
+        val seat = Seat(x = 0.0, height = 47.0)
+        assertEquals(40.0, seat.surfaces(View.FRONT).getValue(Surface.SEAT).single().length, 1e-9)
+        assertEquals(emptyList(), seat.solids(View.FRONT))
+    }
+
+    @Test
+    fun dipBarsAndAssistedDip_heldBars_assistStep() {
+        val bars = DipBars(x = 0.0)
+        val bar = bars.surfaces(View.SIDE).getValue(Surface.DIP_BAR).single()
+        assertEquals(-120.0, bar.cy, 1e-9)
+        assertEquals(50.0, bar.length, 1e-9)
+        assertTrue(Surface.DIP_BAR.grip)
+        val machine = AssistedDipMachine(x = -55.0, handleHeight = 120.0, handleEnd = 15.0, stepX = 0.0, stepHeight = 80.0, pivot = Point(-46.0, -60.0))
+        val step = machine.surfaces(View.SIDE).getValue(Surface.ASSIST_STEP).single()
+        assertEquals(-80.0, step.cy - step.thickness / 2, 1e-9)
+        assertEquals(AssistedDipMachine.STEP, step.length, 1e-9)
+        assertEquals(70.0, machine.surfaces(View.SIDE).getValue(Surface.DIP_BAR).single().length, 1e-9)
+        assertEquals(listOf("step"), machine.solids(View.SIDE).map { it.label })
+        for (piece in listOf(bars, machine)) assertRenders(figureOf(View.SIDE, Scene(standing(x = 80.0), listOf(Floor, piece))), setOf(Role.EQUIPMENT))
+    }
+
+    @Test
+    fun backPlates_lieFlatOnTheUpperBack() {
+        val s = Pose(0.0, -40.0, torso = 10.0, nearArm = Arm(90.0, 0.0), nearLeg = Leg(0.0, 0.0)).skeleton()
+        val plates = BackPlates(count = 2)
+        val drawn = plates.draw(s).map { it.shape }
+        assertEquals(2, drawn.count { it.role == Role.ACCENT })
+        // Each plate is 45 cm across, lying along the torso, stacked on its back.
+        val c = plates.center(s)
+        assertEquals(Body.TORSO_RADIUS + BackPlates.THICKNESS, (c - s.onTorso(Segment.TORSO.length * BackPlates.ALONG, 0.0)).length(), 1e-9)
+        assertTrue(c.y < s.onTorso(Segment.TORSO.length * BackPlates.ALONG, 0.0).y, "on the back, above the prone torso")
+    }
+
+    @Test
+    fun dumbbell_neutralGrip_sideView_inProfileAlongTheTorso() {
+        // The usual grip is end-on, a disc (unchanged); a neutral grip shows the handle and two heads, along the torso.
+        val s = Pose(0.0, -53.0, torso = 160.0, nearArm = Arm(90.0, 0.0), nearLeg = Leg(0.0, 0.0)).skeleton()
+        val disc = Dumbbell(Side.NEAR).draw(s).map { it.shape }
+        assertTrue(disc.any { it is Circle } && disc.none { it is Polygon && it.role == Role.ACCENT && it.points.size == 8 })
+        val profile = Dumbbell(Side.NEAR, neutral = true).draw(s).map { it.shape }
+        assertEquals(1, profile.count { it is Capsule })
+        val heads = profile.filterIsInstance<Polygon>()
+        assertEquals(2, heads.size)
+        assertTrue(profile.all { it.role == Role.ACCENT })
+        // The handle lies along the torso's line, centred in the hand.
+        val handle = profile.filterIsInstance<Capsule>().single()
+        val along = Point(handle.x2 - handle.x1, handle.y2 - handle.y1)
+        assertEquals(160.0, fold(angleOf(along)), 1e-6)
+        assertEquals(s.near.grip, Point((handle.x1 + handle.x2) / 2, (handle.y1 + handle.y2) / 2))
+        // The front view draws the profile either way.
+        val f = standing(arm = Arm(90.0, 0.0)).skeleton(View.FRONT)
+        assertEquals(Dumbbell(Side.NEAR).draw(f), Dumbbell(Side.NEAR, neutral = true).draw(f))
+    }
+
+    @Test
+    fun cableStack_cableInFront_runsFromThePulleyToTheHand() {
+        val pose = standing(arm = Arm(90.0, 0.0))
+        val s = pose.skeleton()
+        val grip = CableHandles.center(s)
+        val stack = CableStack(x = 0.0, pulleyHeight = 12.0, reach = 0.0, height = 75.0, cableInFront = true)
+        // Not behind the body, but in front of it, set off by a gap outline, ending at the hand.
+        assertTrue(stack.draw(View.SIDE, grip, s).map { it.shape }.none { it is Capsule && it.width < 1.0 })
+        val front = stack.drawFront(View.SIDE, grip).map { it.shape as Capsule }
+        assertEquals(listOf(Role.GAP, Role.EQUIPMENT), front.map { it.role })
+        for (c in front) {
+            assertEquals(Point(0.0, -12.0), Point(c.x1, c.y1))
+            assertEquals(grip, Point(c.x2, c.y2))
+        }
+        // The usual stack (the lat pulldown's) is unchanged: its cable behind, nothing in front.
+        assertEquals(emptyList(), stack.copy(cableInFront = false).drawFront(View.SIDE, grip))
+        assertTrue(stack.copy(cableInFront = false).draw(View.SIDE, grip, s).map { it.shape }.any { it is Capsule && it.width < 1.0 })
+    }
 }

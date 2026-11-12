@@ -15,6 +15,15 @@ enum class BodyPoint {
 
     /** The back of the elbows (both sides): a floor press's upper arms on the floor. */
     ELBOWS,
+
+    /** The shoulder joints (the near one in the side view): "level with your shoulders". */
+    SHOULDERS,
+
+    /** Both shins along their length: a decline bench's leg brace holds the front of the lower shins. */
+    SHINS,
+
+    /** The upper abdomen: on the front of the torso, a hand's width below the chest touch point. */
+    UPPER_ABDOMEN,
 }
 
 /**
@@ -38,6 +47,15 @@ enum class Surface(val grip: Boolean = false) {
 
     /** The top of a power rack's safety arms (the pins). */
     SAFETY_ARM,
+
+    /** A decline bench's leg brace: the roller the lower shins hook under. */
+    LEG_BRACE,
+
+    /** Parallel dip bars (or an assisted dip machine's handles), held. */
+    DIP_BAR(grip = true),
+
+    /** The top of an assisted dip machine's step lever, the feet on it. */
+    ASSIST_STEP,
 }
 
 /** [point] rests on [surface] (within the contact tolerance) in the panels in [at]. */
@@ -93,6 +111,45 @@ data class HandlesBesideLegs(val within: Double, override val at: Which = Which.
  */
 data class HandsInsideKnees(override val at: Which = Which.START) : KeyCheck
 
+/**
+ * Both elbows' bend (or [side]'s only) is [min]..[max]°, measured as the joint limits measure it
+ * ([JointLimits.elbowBend]): a fly's fixed slight bend, a machine press "straight, without locking".
+ */
+data class ElbowBend(val min: Double, val max: Double, override val at: Which, val side: Side? = null) : KeyCheck
+
+/**
+ * The near hand's grip is level with [point]: its height within [within] cm of the point's (handles "level with the
+ * middle of your chest", dumbbells "level with your shoulders").
+ */
+data class HandsLevelWith(val point: BodyPoint, val within: Double, override val at: Which) : KeyCheck
+
+/**
+ * The held piece (bar, dumbbells, handles) is straight over or under [point]: its centre within [within] cm of the
+ * point's x (side view: a Smith bar over the chest, flys over the chest, a press over the upper chest).
+ */
+data class HeldOver(val point: BodyPoint, val within: Double, override val at: Which) : KeyCheck
+
+/** The held piece's centre is within [within] cm of [point] (dumbbells "at the sides of your chest"). */
+data class HeldBeside(val point: BodyPoint, val within: Double, override val at: Which) : KeyCheck
+
+/** Front view: the two grips are within [within] cm of each other across the picture (hands together in front). */
+data class HandsTogether(val within: Double, override val at: Which) : KeyCheck
+
+/** The chest touch point is [min]..[max] cm above the floor's top (push-up depth: the chest lowered towards the floor). */
+data class ChestOffFloor(val min: Double, val max: Double, override val at: Which) : KeyCheck
+
+/** Side view: the near upper arm is level with the floor, within [within]° (dips: "upper arms level with the floor"). */
+data class UpperArmLevel(val within: Double, override val at: Which) : KeyCheck
+
+/** Each shoulder joint is within [within] cm, across the floor, of its hand's grip (dips: "shoulders over your hands"). */
+data class ShouldersOverHands(val within: Double, override val at: Which) : KeyCheck
+
+/** The bar runs on the Smith machine's rails: its centre on the rails' line, within the contact tolerance. */
+data class BarOnRails(override val at: Which) : KeyCheck
+
+/** Both hands are at least [min] cm off the floor (clap push-up: "your hands leave the floor"). */
+data class HandsOffFloor(val min: Double, override val at: Which) : KeyCheck
+
 /** One exercise's two-pose picture. Keyed by catalogue name in [Figures]. */
 data class ExerciseFigure(
     val view: View,
@@ -136,6 +193,11 @@ internal fun Skeleton.probes(point: BodyPoint): List<Probe> {
         BodyPoint.NEAR_HAND -> listOf(hand(Side.NEAR))
         BodyPoint.FAR_HAND -> listOf(hand(Side.FAR))
         BodyPoint.ELBOWS -> Side.entries.map { s -> side(s).elbow.let { Probe("${s.label} elbow", it, it, Body.UPPER_ARM_WIDTH / 2) } }
+        BodyPoint.SHOULDERS -> Side.entries.map { s -> side(s).shoulder.let { Probe("${s.label} shoulder", it, it, 0.0) } }
+        BodyPoint.SHINS -> Side.entries.map { s -> side(s).let { Probe("${s.label} shin", it.knee, it.ankle, Body.SHIN_WIDTH / 2) } }
+        BodyPoint.UPPER_ABDOMEN -> onTorso(Segment.TORSO.length - Body.CHEST_BELOW_SHOULDER - 10.0, Body.CHEST_DEPTH - 1.5).let {
+            listOf(Probe("upper abdomen", it, it, 0.0))
+        }
     }
 }
 

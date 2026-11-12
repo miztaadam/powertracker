@@ -133,14 +133,17 @@ enum class Side { NEAR, FAR }
  * - [turnedOut]: the upper arm is turned out to the side (abducted and rotated outwards, as with the hands wide on a bar
  *   across the upper back), so seen from the side the elbow folds the other way: the forearm swings back, not forward.
  *   The joint ranges are the same; only the side-view drawing of the bend is mirrored.
- * - [out]: side view only, how far the upper arm points out of the picture plane, towards the camera (0 = in the
- *   plane). Seen from the side, an upper arm out to the side looks shorter: its drawn length is the true length times
+ * - [out]: side view, how far the upper arm points out of the picture plane, towards the camera (0 = in the
+ *   plane; negative: away from it, back towards the body's middle). Seen from the side, an upper arm out to the side looks shorter: its drawn length is the true length times
  *   cos([out]), a projection, not a change of proportions. [shoulder] and [elbow] are then the drawn (projected)
  *   angles, and the elbow's limit is checked on its true 3D bend (see [JointLimits.trueElbow]). The forearm is taken
  *   to lie in the picture plane, as it does when it is vertical (a dumbbell press) or along the body.
  * - [forearmOut]: side view only, the same for the forearm and hand: drawn at their true length times
  *   cos([forearmOut]). A straight arm angled out to the side (a wide-grip bench lockout) has [out] and [forearmOut]
  *   equal. The elbow's true bend counts both (see [JointLimits.trueElbow]).
+ * - Front view: [out] and [forearmOut] are the upper arm's and forearm's angles out of the picture plane, towards the
+ *   camera (+) or away from it (-), drawn the same way, at their true length times the cosine (a cable fly's hands
+ *   meeting in front of the chest, a push-up's upper arm along the body). With both 0 the front view is unchanged.
  */
 data class Arm(
     val shoulder: Double,
@@ -159,16 +162,22 @@ data class Arm(
  *   forward, towards the camera (a sumo set-up, the knees pushed out over wide feet). The thigh then looks shorter:
  *   it is drawn at its true length times cos([out]), a projection, not a change of proportions. The shin is taken to
  *   stay in the plane (near vertical in a wide stance). The joint limits are checked on the true 3D thigh (see
- *   [JointLimits.trueAbduction]).
+ *   [JointLimits.trueAbduction]). In the front view a negative [out] points the thigh away from the camera (a push-up's
+ *   legs, seen from the head end).
+ * - [shinOut]: front view only, the shin's angle out of the picture plane, drawn at its true length times
+ *   cos([shinOut]); 0 keeps it in the plane. A straight leg pointing away from the camera has [shinOut] = [out].
  */
-data class Leg(val hip: Double, val knee: Double, val ankle: Double = 0.0, val out: Double = 0.0)
+data class Leg(val hip: Double, val knee: Double, val ankle: Double = 0.0, val out: Double = 0.0, val shinOut: Double = 0.0)
 
 /**
  * A body position: the pelvis (hip joint centre) in world cm, the torso's angle (pelvis to shoulders: 90 = upright,
  * 180 = lying face up with the head to the left), the neck's flexion, and each limb's joint angles. The far limbs
  * copy the near ones unless given. [lean] is for the front view only: how far the torso leans forward, towards the
  * camera, from upright; seen from the front it then looks shorter, drawn at its true length times cos([lean]) (a
- * projection, like [Arm.out]). The head stays at its full height above the shoulders (the lifter looks forward).
+ * projection, like [Arm.out]). The head stays at its full height above the shoulders (the lifter looks forward),
+ * unless [neckOut] is given: front view only, the neck and head pointing out of the plane, towards the camera, so the
+ * head is drawn that much closer to the shoulders (times cos([neckOut])), as when the head stays in line with a
+ * torso that leans towards the camera (a push-up seen from the front).
  */
 data class Pose(
     val pelvisX: Double,
@@ -180,6 +189,7 @@ data class Pose(
     val farArm: Arm = nearArm,
     val farLeg: Leg = nearLeg,
     val lean: Double = 0.0,
+    val neckOut: Double = 0.0,
 )
 
 /** One side's joint positions. [hand] is the end of the hand; [grip] is where a held handle sits. */
@@ -222,7 +232,8 @@ fun Pose.skeleton(view: View = View.SIDE): Skeleton {
     val shoulder = pelvis + dir(torso) * (Segment.TORSO.length * alongScale)
     val headDir = torso - neck
     // The head circle's top is at the crown (see Body.HEAD_RADIUS).
-    val head = shoulder + dir(headDir) * (Segment.NECK.length + Segment.HEAD.length - Body.HEAD_RADIUS)
+    val headScale = if (view == View.FRONT) kotlin.math.cos(neckOut * kotlin.math.PI / 180) else 1.0
+    val head = shoulder + dir(headDir) * ((Segment.NECK.length + Segment.HEAD.length - Body.HEAD_RADIUS) * headScale)
     fun limb(side: Side): LimbPoints {
         val arm = if (side == Side.NEAR) nearArm else farArm
         val leg = if (side == Side.NEAR) nearLeg else farLeg
@@ -237,8 +248,8 @@ fun Pose.skeleton(view: View = View.SIDE): Skeleton {
         val bend = if (arm.turnedOut && !front) -1.0 else 1.0
         val forearm = upperArm + bend * arm.elbow
         val handAngle = forearm + bend * arm.wrist
-        val upperDrawn = Segment.UPPER_ARM.length * (if (front) 1.0 else kotlin.math.cos(arm.out * kotlin.math.PI / 180))
-        val lowerScale = if (front) 1.0 else kotlin.math.cos(arm.forearmOut * kotlin.math.PI / 180)
+        val upperDrawn = Segment.UPPER_ARM.length * kotlin.math.cos(arm.out * kotlin.math.PI / 180)
+        val lowerScale = kotlin.math.cos(arm.forearmOut * kotlin.math.PI / 180)
         val elbow = s + dir(mirrored(upperArm)) * upperDrawn
         val wrist = elbow + dir(mirrored(forearm)) * (Segment.FOREARM.length * lowerScale)
         val hand = wrist + dir(mirrored(handAngle)) * (Segment.HAND.length * lowerScale)
@@ -248,7 +259,8 @@ fun Pose.skeleton(view: View = View.SIDE): Skeleton {
         val footAngle = shin + 90.0 + leg.ankle
         val thighDrawn = Segment.THIGH.length * kotlin.math.cos(leg.out * kotlin.math.PI / 180)
         val knee = h + dir(mirrored(thigh)) * thighDrawn
-        val ankle = knee + dir(mirrored(shin)) * Segment.SHIN.length
+        val shinDrawn = Segment.SHIN.length * (if (front) kotlin.math.cos(leg.shinOut * kotlin.math.PI / 180) else 1.0)
+        val ankle = knee + dir(mirrored(shin)) * shinDrawn
         val footDir = dir(mirrored(footAngle))
         val sole = dir(mirrored(footAngle - 90.0)) * (Body.ANKLE_HEIGHT - Body.FOOT_WIDTH / 2)
         val footLength = Segment.FOOT.length * (if (front) Body.FOOT_FRONT_FRACTION else 1.0)
@@ -293,11 +305,15 @@ data class JointRange(val min: Double, val max: Double) {
  * - Cervical flexion about 80° (https://pmc.ncbi.nlm.nih.gov/articles/PMC1250253/) and extension 50°
  *   (https://pmc.ncbi.nlm.nih.gov/articles/PMC8075604/, the lower of the two reviews' values).
  * - Shoulder abduction 170–180° (https://pmc.ncbi.nlm.nih.gov/articles/PMC9730981/): the conservative 170° is used.
- *   A side-view arm's [Arm.out] (the upper arm out of the picture plane, towards the side) is kept to 0–90°, well
- *   inside that abduction range. [Arm.forearmOut] likewise.
+ *   An arm's [Arm.out] (the upper arm out of the picture plane) is kept to ±90°, a direction, inside that range.
+ *   [Arm.forearmOut] likewise.
  * - A thigh out of the picture plane ([Leg.out]) is checked on its true 3D angles: its abduction (the angle out of
  *   the body's middle plane) inside the 40° hip abduction range above (PMC13392859), and, in the front view, its
  *   flexion (180° minus the 3D trunk–thigh angle, with the torso's [Pose.lean]) inside the 140° hip flexion range.
+ * - An arm out of the picture plane ([Arm.out] or [Arm.forearmOut] not 0) is checked on its true 3D angles instead of
+ *   the drawn ones: the elbow's bend by its size only, and the shoulder only for pointing more than 60° behind the
+ *   body. So for such arms an elbow bent the wrong way, and a shoulder raised past its flexion or abduction limit,
+ *   are no longer caught; a figure using them must bound them in its own test (Task 6's do).
  * The ankle is not checked in the front view, where the foot is seen end-on.
  */
 object JointLimits {
@@ -325,6 +341,33 @@ object JointLimits {
             ).coerceIn(-1.0, 1.0)
         return kotlin.math.acos(c) / r * kotlin.math.sign(arm.elbow).let { if (it == 0.0) 1.0 else it }
     }
+
+    /**
+     * How far an upper arm out of the picture plane points behind the body, in degrees: the angle between its true 3D
+     * direction and the body's frontal plane, on the back side (0 when it points forward or to the side). Side view:
+     * "forward" is square to the torso towards the chest, in the picture; front view, it is towards the camera
+     * ([Arm.out]), tipped down with a torso leaning [lean]° towards the camera (a push-up seen head-on: the chest faces
+     * the floor). Checked against the 60° shoulder extension limit (PMC13392859, above).
+     */
+    fun trueShoulderBack(arm: Arm, view: View, lean: Double = 0.0): Double {
+        val r = kotlin.math.PI / 180
+        val forward = if (view == View.SIDE) {
+            // The drawn upper arm is (torso + 180 + shoulder); the chest faces (torso - 90). Their dot product, scaled.
+            kotlin.math.cos(arm.out * r) * kotlin.math.cos((180.0 + arm.shoulder + 90.0) * r)
+        } else {
+            // In the torso's frame: the chest faces (down the torso) × sin(lean) + (towards the camera) × cos(lean).
+            kotlin.math.cos(arm.out * r) * kotlin.math.cos(arm.shoulder * r) * kotlin.math.sin(lean * r) +
+                kotlin.math.sin(arm.out * r) * kotlin.math.cos(lean * r)
+        }
+        return if (forward >= 0.0) 0.0 else kotlin.math.asin((-forward).coerceAtMost(1.0)) / r
+    }
+
+    /**
+     * The elbow's bend as checked: the drawn [Arm.elbow] for an arm in the picture plane; for an arm out of it, the
+     * size of its true 3D bend ([trueElbow]), because which way the drawn bend turns is then a projection, not flexion
+     * or extension (a fly's slight bend, the elbows pointing out to the sides).
+     */
+    fun elbowBend(arm: Arm): Double = if (arm.out == 0.0 && arm.forearmOut == 0.0) arm.elbow else abs(trueElbow(arm))
 
     /**
      * The true hip abduction of a thigh [Leg.out]° out of the picture plane: the angle between the 3D thigh and the
@@ -355,14 +398,24 @@ object JointLimits {
         }
         check("neck", Joint.NECK, pose.neck)
         for ((side, arm, leg) in listOf(Triple("near", pose.nearArm, pose.nearLeg), Triple("far", pose.farArm, pose.farLeg))) {
-            check("$side shoulder", Joint.SHOULDER, arm.shoulder)
-            check("$side elbow", Joint.ELBOW, if (view == View.SIDE) trueElbow(arm) else arm.elbow)
-            if (view == View.SIDE && arm.out !in 0.0..90.0) add("$side upper arm ${round1(arm.out)}° out of the plane, outside 0..90")
-            if (view == View.SIDE && arm.forearmOut !in 0.0..90.0) add("$side forearm ${round1(arm.forearmOut)}° out of the plane, outside 0..90")
+            if (arm.out == 0.0) {
+                check("$side shoulder", Joint.SHOULDER, arm.shoulder)
+            } else {
+                // An upper arm out of the plane: its drawn angle is a projection (a fly's arm out to the side, a press's
+                // elbow back and out), so its true 3D direction is checked: how far it points behind the body.
+                val back = trueShoulderBack(arm, view, pose.lean)
+                if (back > 60.0 + 1e-6) add("$side upper arm ${round1(back)}° behind the body, more than 60.0")
+            }
+            check("$side elbow", Joint.ELBOW, elbowBend(arm))
+            val outRange = -90.0..90.0
+            if (arm.out !in outRange) add("$side upper arm ${round1(arm.out)}° out of the plane, outside $outRange")
+            if (arm.forearmOut !in outRange) add("$side forearm ${round1(arm.forearmOut)}° out of the plane, outside $outRange")
             check("$side wrist", Joint.WRIST, arm.wrist)
+            if (view == View.FRONT && leg.shinOut !in -90.0..90.0) add("$side shin ${round1(leg.shinOut)}° out of the plane, outside -90..90")
             if (leg.out != 0.0) {
                 // A thigh out of the plane: its true abduction and flexion, not the drawn angles.
-                if (leg.out !in 0.0..90.0) add("$side thigh ${round1(leg.out)}° out of the plane, outside 0..90")
+                val thighRange = if (view == View.SIDE) 0.0..90.0 else -90.0..90.0
+                if (leg.out !in thighRange) add("$side thigh ${round1(leg.out)}° out of the plane, outside $thighRange")
                 val abduction = trueAbduction(leg, view)
                 if (abduction !in JointRange(-20.0, 40.0)) add("$side hip abduction ${round1(abduction)}° outside -20.0..40.0")
                 if (view == View.FRONT) {

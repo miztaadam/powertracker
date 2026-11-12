@@ -12,7 +12,8 @@ import kotlin.math.round
  *
  * Draw order, back to front: far limbs (BODY_FAR), fixed equipment, the body, then for each near limb a GAP outline
  * and the limb, then held equipment (ACCENT / ACCENT_FILL), then any fixed part drawn in front of the hands (the side
- * view's pull-up bar).
+ * view's pull-up bar, a cable in front). Front view: legs pointing straight away from the camera are hidden behind
+ * the body and not drawn.
  */
 object FigureRenderer {
     val viewBox = ViewBox(400.0, 300.0)
@@ -64,23 +65,30 @@ object FigureRenderer {
         val s = scene.pose.skeleton(view)
         val fixed = scene.props.filterIsInstance<FixedProp>()
         val held = scene.props.filterIsInstance<HeldProp>()
-        val cableEnd = held.firstOrNull { it is LatBar }?.center(s)
+        val cableEnd = held.firstOrNull { it is LatBar || it == CableHandles }?.center(s)
         val farRole = if (view == View.SIDE) Role.BODY_FAR else Role.BODY
         return buildList {
-            for (seg in limbSegments(s.far)) add(Placed(seg.capsule(farRole)))
-            for (p in fixed) addAll(p.draw(view, cableEnd))
+            // Front view, legs pointing straight away from the camera (a push-up seen head-on): they lie behind the
+            // shoulders and are hidden by them, so they are not drawn.
+            val legsHidden = view == View.FRONT && legHidden(scene.pose.nearLeg) && legHidden(scene.pose.farLeg)
+            val far = limbSegments(s.far)
+            for (seg in if (legsHidden) far.subList(3, 6) else far) add(Placed(seg.capsule(farRole)))
+            for (p in fixed) addAll(p.draw(view, cableEnd, s))
+            val near = limbSegments(s.near)
             add(Placed(torso(s)))
             add(Placed(Capsule(Role.BODY, s.neckBase.x, s.neckBase.y, s.head.x, s.head.y, Body.NECK_WIDTH)))
             add(Placed(Circle(Role.BODY, s.head.x, s.head.y, Body.HEAD_RADIUS)))
-            val near = limbSegments(s.near)
-            for (limb in listOf(near.subList(0, 3), near.subList(3, 6))) {
+            for (limb in listOfNotNull(near.subList(0, 3).takeUnless { legsHidden }, near.subList(3, 6))) {
                 for (seg in limb) add(Placed(seg.capsule(Role.GAP, extra = Body.GAP_EXTRA)))
                 for (seg in limb) add(Placed(seg.capsule(Role.BODY)))
             }
             for (p in held) addAll(p.draw(s))
-            for (p in fixed) addAll(p.drawFront(view))
+            for (p in fixed) addAll(p.drawFront(view, cableEnd))
         }
     }
+
+    /** A front-view leg pointing straight away from the camera, thigh and shin ([Leg.out], [Leg.shinOut] at −90°). */
+    internal fun legHidden(leg: Leg): Boolean = leg.out <= -89.9 && leg.shinOut <= -89.9
 
     /** One limb segment's centre line and drawn width. */
     internal data class LimbSegment(val label: String, val a: Point, val b: Point, val width: Double) {

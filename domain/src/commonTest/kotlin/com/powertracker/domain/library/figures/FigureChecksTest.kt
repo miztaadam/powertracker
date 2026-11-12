@@ -242,4 +242,66 @@ class FigureChecksTest {
         // It is a front-view check.
         assertTrue(problems(f.copy(view = View.SIDE)).any { "front-view check" in it.message })
     }
+
+    // ---- chest batch checks (Task 6) ----
+
+    private fun one(pose: Pose, props: List<Prop>, check: KeyCheck, view: View = View.SIDE) =
+        FigureChecks.check("Bench", FigureFixtures.figureOf(view, Scene(pose, props), checks = listOf(check))).filter {
+            !it.message.startsWith("contact") && !it.message.startsWith("joint") && "goes through" !in it.message
+        }
+
+    @Test
+    fun elbowBend_andHandsLevelWith_passAndFail() {
+        val bent = FigureFixtures.standing(arm = Arm(60.0, 20.0))
+        assertEquals(emptyList(), one(bent, listOf(Floor), ElbowBend(10.0, 30.0, Which.START)))
+        assertTrue(one(bent, listOf(Floor), ElbowBend(0.0, 5.0, Which.START)).any { it.message.startsWith("elbow bend 20") })
+        // Only the side asked for.
+        val mixed = bent.copy(farArm = Arm(60.0, 0.0))
+        assertEquals(emptyList(), one(mixed, listOf(Floor), ElbowBend(10.0, 30.0, Which.START, Side.NEAR)))
+        assertTrue(one(mixed, listOf(Floor), ElbowBend(10.0, 30.0, Which.START)).isNotEmpty())
+        val level = FigureFixtures.standing(arm = Arm(90.0, 0.0))
+        assertEquals(emptyList(), one(level, listOf(Floor), HandsLevelWith(BodyPoint.SHOULDERS, 1.0, Which.START)))
+        assertTrue(one(level.copy(nearArm = Arm(70.0, 0.0)), listOf(Floor), HandsLevelWith(BodyPoint.SHOULDERS, 3.0, Which.START)).any { "off level" in it.message })
+    }
+
+    @Test
+    fun heldOverAndBeside_passAndFail() {
+        val up = FigureFixtures.standing(arm = Arm(180.0, 0.0))
+        val props = listOf(Floor, Dumbbell(Side.NEAR))
+        assertEquals(emptyList(), one(up, props, HeldOver(BodyPoint.SHOULDERS, 1.0, Which.START)))
+        assertTrue(one(up.copy(nearArm = Arm(160.0, 0.0)), props, HeldOver(BodyPoint.SHOULDERS, 3.0, Which.START)).any { "off the line" in it.message })
+        val s = up.skeleton()
+        val d = (s.near.grip - s.head).length()
+        assertEquals(emptyList(), one(up, props, HeldBeside(BodyPoint.HEAD, d + 0.1, Which.START)))
+        assertTrue(one(up, props, HeldBeside(BodyPoint.HEAD, d - 1.0, Which.START)).any { "from HEAD" in it.message })
+        assertTrue(one(up, listOf(Floor), HeldOver(BodyPoint.SHOULDERS, 1.0, Which.START)).any { "nothing held" in it.message })
+    }
+
+    @Test
+    fun handsTogether_chestOffFloor_handsOffFloor_passAndFail() {
+        val apart = FigureFixtures.standing(arm = Arm(90.0, 0.0))
+        assertTrue(one(apart, listOf(Floor), HandsTogether(10.0, Which.START), View.FRONT).any { "apart" in it.message })
+        val inward = Arm(90.0, 0.0, out = 70.0, forearmOut = 70.0)
+        val together = apart.copy(nearArm = inward.copy(shoulder = 30.0))
+        val gap = together.skeleton(View.FRONT).let { kotlin.math.abs(it.near.grip.x - it.far.grip.x) }
+        assertEquals(emptyList(), one(together, listOf(Floor), HandsTogether(gap + 0.1, Which.START), View.FRONT))
+        // A prone body: chest and hands measured off the floor.
+        val prone = Pose(0.0, -20.0, torso = 0.0, nearArm = Arm(90.0, 0.0), nearLeg = Leg(0.0, 0.0))
+        val chest = -prone.skeleton().chest().y
+        assertEquals(emptyList(), one(prone, listOf(Floor), ChestOffFloor(chest - 1.0, chest + 1.0, Which.START)))
+        assertTrue(one(prone, listOf(Floor), ChestOffFloor(0.0, chest - 2.0, Which.START)).any { "chest" in it.message })
+        val air = prone.copy(pelvisY = -90.0)
+        assertEquals(emptyList(), one(air, listOf(Floor), HandsOffFloor(5.0, Which.START)))
+        assertTrue(one(prone.copy(pelvisY = -70.0), listOf(Floor), HandsOffFloor(5.0, Which.START)).any { "hands" in it.message })
+    }
+
+    @Test
+    fun upperArmLevel_andShouldersOverHands_passAndFail() {
+        val level = FigureFixtures.standing(arm = Arm(-90.0, 90.0, out = 30.0)) // elbow straight back, level
+        assertEquals(emptyList(), one(level, listOf(Floor), UpperArmLevel(2.0, Which.START)).filter { "upper arm" in it.message && "level" in it.message })
+        assertTrue(one(level.copy(nearArm = Arm(-50.0, 90.0, out = 30.0)), listOf(Floor), UpperArmLevel(5.0, Which.START)).any { "off level" in it.message })
+        val down = FigureFixtures.standing(arm = Arm(0.0, 0.0))
+        assertEquals(emptyList(), one(down, listOf(Floor), ShouldersOverHands(1.0, Which.START)))
+        assertTrue(one(down.copy(nearArm = Arm(20.0, 0.0)), listOf(Floor), ShouldersOverHands(5.0, Which.START)).any { "shoulders" in it.message })
+    }
 }

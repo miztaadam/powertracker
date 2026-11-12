@@ -143,6 +143,7 @@ object FigureChecks {
             }
             return null
         }
+        bodyCheck(check, scene, view, s)?.let { return it.ifEmpty { null } }
         if (check is ChinOverBar) {
             val bar = scene.props.filterIsInstance<PullUpBar>().firstOrNull() ?: return "chin over bar: no pull-up bar in the scene"
             val barTop = -bar.height - PullUpBar.RADIUS
@@ -156,6 +157,7 @@ object FigureChecks {
             is Barbell, SafetySquatBar, TrapBar -> Barbell.SHAFT_RADIUS
             is Dumbbell -> Dumbbell.HEAD_RADIUS
             LatBar -> 1.3
+            CableHandles, is BackPlates -> 0.0
         }
         return when (check) {
             is BarTouches -> {
@@ -206,7 +208,70 @@ object FigureChecks {
                     else -> null
                 }
             }
-            is HipDepth, is ChinOverBar, is HandsInsideKnees -> null // handled above: they need no held bar
+            is HipDepth, is ChinOverBar, is HandsInsideKnees, is ElbowBend, is HandsLevelWith, is HeldOver, is HeldBeside,
+            is HandsTogether, is ChestOffFloor, is UpperArmLevel, is ShouldersOverHands, is BarOnRails, is HandsOffFloor,
+            -> null // handled above
+        }
+    }
+
+    /**
+     * The chest batch's checks (Task 6): null when [check] is not one of them, "" when it passes, else the problem.
+     */
+    private fun bodyCheck(check: KeyCheck, scene: Scene, view: View, s: Skeleton): String? {
+        fun held(): Point? = scene.props.filterIsInstance<HeldProp>().firstOrNull()?.center(s)
+        val pass = ""
+        return when (check) {
+            is ElbowBend -> {
+                val arms = when (check.side) {
+                    null -> listOf(scene.pose.nearArm, scene.pose.farArm)
+                    Side.NEAR -> listOf(scene.pose.nearArm)
+                    Side.FAR -> listOf(scene.pose.farArm)
+                }
+                val bends = arms.map { JointLimits.elbowBend(it) }
+                val off = bends.firstOrNull { it < check.min - 0.05 || it > check.max + 0.05 }
+                if (off != null) "elbow bend ${round1(off)}°, needs ${check.min}..${check.max}" else pass
+            }
+            is HandsLevelWith -> {
+                val dy = s.near.grip.y - s.point(check.point).y
+                if (abs(dy) > check.within) "hands ${round1(-dy)} cm off level with ${check.point}, more than ${check.within}" else pass
+            }
+            is HeldOver -> {
+                val c = held() ?: return "held over ${check.point}: nothing held"
+                val dx = c.x - s.point(check.point).x
+                if (abs(dx) > check.within) "held piece ${round1(dx)} cm off the line over ${check.point}, more than ${check.within}" else pass
+            }
+            is HeldBeside -> {
+                val c = held() ?: return "held beside ${check.point}: nothing held"
+                val d = (c - s.point(check.point)).length()
+                if (d > check.within) "held piece ${round1(d)} cm from ${check.point}, more than ${check.within}" else pass
+            }
+            is HandsTogether -> {
+                val d = abs(s.near.grip.x - s.far.grip.x)
+                if (d > check.within) "hands ${round1(d)} cm apart, more than ${check.within}" else pass
+            }
+            is ChestOffFloor -> {
+                val up = -s.chest().y
+                if (up < check.min || up > check.max) "chest ${round1(up)} cm off the floor, needs ${check.min}..${check.max}" else pass
+            }
+            is UpperArmLevel -> {
+                val v = s.near.elbow - s.near.shoulder
+                val tilt = kotlin.math.atan2(abs(v.y), abs(v.x)) * 180 / kotlin.math.PI
+                if (tilt > check.within) "upper arm ${round1(tilt)}° off level, more than ${check.within}" else pass
+            }
+            is ShouldersOverHands -> {
+                val off = Side.entries.maxOf { abs(s.side(it).shoulder.x - s.side(it).grip.x) }
+                if (off > check.within) "shoulders ${round1(off)} cm off the hands, more than ${check.within}" else pass
+            }
+            is BarOnRails -> {
+                val rails = scene.props.filterIsInstance<SmithMachine>().firstOrNull() ?: return "bar on rails: no Smith machine in the scene"
+                val c = held() ?: return "bar on rails: no bar in the scene"
+                if (abs(c.x - rails.x) > CONTACT_TOLERANCE) "bar ${round1(c.x - rails.x)} cm off the rails" else pass
+            }
+            is HandsOffFloor -> {
+                val low = Side.entries.minOf { side -> s.side(side).let { -max(it.wrist.y, it.hand.y) } } - Body.HAND_WIDTH / 2
+                if (low < check.min) "hands ${round1(low)} cm off the floor, needs ${check.min}" else pass
+            }
+            else -> null
         }
     }
 

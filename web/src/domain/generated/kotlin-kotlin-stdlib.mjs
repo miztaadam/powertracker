@@ -955,11 +955,11 @@ function coerceIn(_this__u8e3s4, minimumValue, maximumValue) {
     return maximumValue;
   return _this__u8e3s4;
 }
-function coerceAtLeast_0(_this__u8e3s4, minimumValue) {
-  return _this__u8e3s4 < minimumValue ? minimumValue : _this__u8e3s4;
-}
 function coerceAtMost_0(_this__u8e3s4, maximumValue) {
   return _this__u8e3s4 > maximumValue ? maximumValue : _this__u8e3s4;
+}
+function coerceAtLeast_0(_this__u8e3s4, minimumValue) {
+  return _this__u8e3s4 < minimumValue ? minimumValue : _this__u8e3s4;
 }
 function contains_0(_this__u8e3s4, value) {
   // Inline function 'kotlin.let' call
