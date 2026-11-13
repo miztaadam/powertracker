@@ -15,7 +15,7 @@
 - Everything in stage 1's Global Constraints still holds: the powerlifting side does not change; one training log; the coach and the builder never change a plan without a tap; plain words; no model names in code or commit bodies other than the harness's attribution trailer; new commits only, never amend, never push, never touch `main`; stage files by path; never commit `.claude/`, `CLAUDE.md` or `.superpowers/`; never `playwright install`; e2e with `--trace off`; after a domain change run `./gradlew :domain:syncWebDomain :domain:checkWebDomain` and commit the bundle.
 - The builder asks exactly the owner's questions: days (3 or 4) and which weekdays; which exercises the lifter does now, or, if none, which they would like to do; which body parts they most want to improve. It does not ask about equipment.
 - The owner's numbers: 8–12 reps at RPE 8, 3 sets. Sourced numbers (in `CoachSources.kt`, checked on 2026-11-13 with a web search restricted to the allowed sources): about 10 sets per muscle group a week for muscle growth, and every major muscle group trained at least twice a week (ACSM 2026 position stand, as announced at https://acsm.org/resistance-training-guidelines-update-2026/ and in its infographic https://acsm.org/effective-resistance-training-program-infographic/); compound lifts before accessory work, and the exercises that matter most to the goal first (ExRx's summary of the same stand, https://exrx.net/WeightTraining/Guidelines). The builder for Task 1 re-checks these with WebSearch (`allowed_domains` only; never fetch the sites) and records what each page says.
-- The designer's own numbers, flagged for the owner, not sourced: the session templates and their sizes (8 exercises on a full-body day; 8 on an upper day and 6 on a lower day), plus at most one held-over pick a session; 4 sets for a session's first exercise and for a priority body part's exercises, 3 for the rest; at most 3 priority body parts, chosen from the 12 target groups; the hand-picked default exercises.
+- The designer's own numbers, flagged for the owner, not sourced: the session templates and their sizes (8, 9 and 8 exercises on the three full-body days; 8 on an upper day and 6 on a lower day), plus at most one held-over pick a session; 4 sets for a session's first exercise and for a priority body part's exercises, 3 for the rest; at most 3 priority body parts, chosen from the 12 target groups; the hand-picked default exercises.
 - The saved plan is ordinary bodybuilding plan items (stage 1's storage). No new stored settings, so the backup format does not change.
 - App version 1.3 on both apps (last task).
 
@@ -75,7 +75,7 @@ A test proves every default name is in the catalogue and has a main group its ki
 **Session templates** (slots in training order):
 - **3 days**, three full-body sessions on the lifter's weekdays in week order, titled "Full body":
   - 1st: QUAD_COMPOUND, CHEST_PRESS, PULL_DOWN, LEG_CURL, SIDE_DELT, REAR_DELT, BICEPS, TRICEPS
-  - 2nd: HINGE, CHEST_INCLINE, ROW, QUAD_ISOLATION, SHOULDER_PRESS, CALVES, ABS, TRICEPS
+  - 2nd: HINGE, CHEST_INCLINE, ROW, QUAD_ISOLATION, SHOULDER_PRESS, CALVES, ABS, BICEPS, TRICEPS (nine: with eight, either biceps or triceps stayed at 9 weekly sets)
   - 3rd: CHEST_PRESS, QUAD_COMPOUND, PULL_DOWN, HINGE, SIDE_DELT, REAR_DELT, CALVES, ABS
 - **4 days**, in week order "Upper", "Lower", "Upper", "Lower":
   - 1st upper: CHEST_PRESS, ROW, SHOULDER_PRESS, PULL_DOWN, SIDE_DELT, REAR_DELT, BICEPS, TRICEPS
