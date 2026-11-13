@@ -208,6 +208,11 @@ fun ExerciseBrowser(
      * ticks or unticks it. Null (the picker, the Exercises tab) keeps rows as plain taps.
      */
     ticked: ((PickerEntry) -> Boolean)? = null,
+    /**
+     * Multi-select: every ticked exercise, listed under "Chosen" above the list whatever the search and filters, so none
+     * is out of sight. Each is a tick box like the list's own row. Empty: no such section.
+     */
+    chosen: List<PickerEntry> = emptyList(),
 ) {
     val query = state.query
     val area = state.area
@@ -282,6 +287,12 @@ fun ExerciseBrowser(
                 }
             }
             val row: @Composable (PickerEntry) -> Unit = { entry -> BrowserRow(entry, rowLabel(entry.name), onRow, onInfo, showThumbnails, ticked?.invoke(entry)) }
+            if (chosen.isNotEmpty()) {
+                item(key = "chosen") { ListHeading("Chosen") }
+                items(chosen, key = { "chosen-${it.rowKey}" }) { entry ->
+                    BrowserRow(entry, rowLabel(entry.name), onRow, onInfo, showThumbnails, ticked?.invoke(entry) ?: true, tag = "chosen-${entry.name}")
+                }
+            }
             if (list.isEmpty) {
                 item(key = "empty") {
                     if (onCreate != null) {
@@ -298,6 +309,8 @@ fun ExerciseBrowser(
                     items(list.yours, key = { "yours-${it.exerciseId}" }) { row(it) }
                     if (!byArea) item(key = "all") { ListHeading("All exercises") }
                 }
+                // After "Chosen", the list needs a heading of its own; by area, the areas give it one.
+                if (list.yours.isEmpty() && chosen.isNotEmpty() && !byArea) item(key = "all") { ListHeading("All exercises") }
                 if (byArea) areaSections(list.all, row) else items(list.all, key = { it.rowKey }) { row(it) }
                 if (onCreate != null) {
                     item(key = "create") {
@@ -506,6 +519,7 @@ private fun BrowserRow(
     showThumbnail: Boolean,
     /** Multi-select: whether the row is ticked; null for a plain row. */
     ticked: Boolean? = null,
+    tag: String = "exercise-${entry.name}",
 ) {
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
@@ -519,7 +533,7 @@ private fun BrowserRow(
                     else Modifier.toggleable(value = ticked, role = Role.Checkbox, onValueChange = { onRow(entry) }),
                 )
                 .padding(start = if (ticked == null) Space.gutter else Space.xs, end = Space.xs)
-                .testTag("exercise-${entry.name}"),
+                .testTag(tag),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // The row is the control; the box only shows its state.

@@ -365,6 +365,57 @@ class PlanBuilderViewModelTest {
         assertEquals(days, bbDays())
     }
 
+    /** Ruling P7: the plan is replaced first, then the days set; if setting the days fails, the builder stays open and can try again. */
+    @Test
+    fun whenSettingTheDaysFails_theBuilderStaysOpenWithTheError_andTryingAgainSaves() {
+        var failNext = true
+        val vm = PlanBuilderViewModel(training, settings, today = { today }, setDays = { days ->
+            if (failNext) {
+                failNext = false
+                throw java.io.IOException("settings store unavailable")
+            }
+            settings.update { it.copy(bodybuildingTrainingDays = days) }
+        })
+        viewModels += vm
+        await("loaded") { !vm.state.value.loading }
+        vm.chooseDayCount(4)
+        vm.toggleDay(THURSDAY)
+        vm.next(); vm.untickAll(); vm.next(); vm.next()
+        val draft = vm.state.value.draft!!
+        vm.use()
+        await("failed") { vm.state.value.failed }
+        assertFalse(vm.state.value.saved)
+        assertFalse(vm.state.value.saving)
+        assertEquals(BuilderStep.DRAFT, vm.state.value.step)
+        assertEquals("the plan was replaced first", draft.sessions.sumOf { it.exercises.size }, bbPlan().size)
+        assertEquals(setOf(MONDAY, WEDNESDAY, FRIDAY), bbDays())
+
+        // Trying again: the plan now exists, so it asks first; the plan save repeats and the days are set.
+        vm.use()
+        if (vm.state.value.confirming) vm.confirmReplace()
+        await("saved") { vm.state.value.saved }
+        assertFalse(vm.state.value.failed)
+        assertEquals(draft.sessions.sumOf { it.exercises.size }, bbPlan().size)
+        assertEquals(setOf(MONDAY, WEDNESDAY, THURSDAY, FRIDAY), bbDays())
+    }
+
+    /** Ruling P6: every ticked exercise, in the order ticked (pre-ticks first), for the "Chosen" section; no cap. */
+    @Test
+    fun chosen_isEveryTickedExerciseInTickOrder_andTheListIsTheUsualOne() {
+        // Planned but never logged: pre-ticked, so under "Chosen", and no longer pushed into "Your exercises".
+        runBlocking { training.savePlanItem(PlanItem(0, MONDAY, row("Squat").id, 3, 5, 8.0, 0)) }
+        val vm = vm()
+        await("lists") { vm.state.value.exercises.isNotEmpty() }
+        assertEquals(listOf("Squat"), vm.state.value.chosen.map { it.name })
+        vm.untickAll()
+        val names = listOf("Leg press", "Cable curl", "T-bar row", "Lat pulldown", "Pec deck", "Lateral raise", "Seated leg curl", "Face pull")
+        for (n in names) vm.toggle(entry(n))
+        assertEquals(names, vm.state.value.chosen.map { it.name })
+        vm.toggle(entry("Cable curl"))
+        assertEquals(names - "Cable curl", vm.state.value.chosen.map { it.name })
+        assertEquals(emptyList<Long>(), vm.state.value.recentIds)
+    }
+
     @Test
     fun onThePowerliftingSide_theBuilderIsNotOffered() {
         runBlocking { settings.update { it.copy(trainingMode = POWERLIFTING) } }

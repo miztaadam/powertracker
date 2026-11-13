@@ -14,10 +14,11 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -88,6 +89,8 @@ import java.util.Locale
 // The builder's words (stage 2 plan, Task 2). The web app's builder uses the same.
 const val BUILDER_TITLE = "Build my plan"
 const val DAYS_HEADING = "How many days a week?"
+const val WHICH_DAYS_HEADING = "Which days?"
+const val CLOSE = "Close"
 const val DO_NOW_HEADING = "Which exercises do you do now?"
 const val WOULD_LIKE_HEADING = "Which exercises would you like to do?"
 const val CHOOSE_FOR_ME = "Choose for me"
@@ -106,6 +109,7 @@ const val ANOTHER_DRAFT = "Another draft"
 const val USE_THIS_PLAN = "Use this plan"
 const val REPLACE_WARNING = "This replaces your bodybuilding plan. Your log is kept."
 const val REPLACE = "Replace"
+const val REPLACE_TITLE = "Use this plan?"
 const val SAVE_FAILED = "The plan could not be saved. Nothing was changed."
 
 // The ways in, on the Plan screen.
@@ -116,6 +120,10 @@ const val PLAN_OPTIONS = "Plan options"
 fun chosenText(count: Int): String = "$count chosen"
 fun daysText(count: Int): String = "$count days"
 fun chooseDaysText(count: Int): String = "Choose $count days."
+/** "Mon", as on the weekday chips. */
+fun shortDayName(day: DayOfWeek): String = day.toJavaDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(3)
+/** The chosen days in week order: "Mon, Wed, Fri". */
+fun chosenDaysText(days: Set<DayOfWeek>): String = days.sorted().joinToString(", ", transform = ::shortDayName)
 fun stepText(step: BuilderStep): String = "Step ${step.ordinal + 1} of ${BuilderStep.entries.size}"
 
 /** "3 × 8–12 @ 8", as a Plan row prints it. */
@@ -131,6 +139,8 @@ data class PlanBuilderActions(
     val onNext: () -> Unit = {},
     /** A step back; on the first step, leaving. */
     val onBack: () -> Unit = {},
+    /** Leaves the builder from any step, with nothing saved. */
+    val onClose: () -> Unit = {},
     val onAnotherDraft: () -> Unit = {},
     val alternatives: (DayOfWeek, String) -> List<LibraryExercise> = { _, _ -> emptyList() },
     val onSwap: (day: DayOfWeek, from: String, to: String) -> Unit = { _, _, _ -> },
@@ -166,6 +176,7 @@ fun PlanBuilderScreen(
             onPriority = viewModel::togglePriority,
             onNext = viewModel::next,
             onBack = { if (!viewModel.back()) close() },
+            onClose = { close() },
             onAnotherDraft = viewModel::anotherDraft,
             alternatives = viewModel::alternatives,
             onSwap = viewModel::swap,
@@ -193,7 +204,7 @@ fun PlanBuilderContent(state: PlanBuilderState, actions: PlanBuilderActions) {
                 BUILDER_TITLE,
                 eyebrow = stepText(state.step),
                 modeLabel = true,
-                navigation = { IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                navigation = { IconButton(onClick = actions.onClose) { Icon(Icons.Filled.Close, CLOSE) } },
             )
         },
         bottomBar = { BuilderBar(state, actions) },
@@ -210,6 +221,7 @@ fun PlanBuilderContent(state: PlanBuilderState, actions: PlanBuilderActions) {
     if (state.confirming) {
         AlertDialog(
             onDismissRequest = actions.onCancelReplace,
+            title = { Text(REPLACE_TITLE) },
             text = { Text(REPLACE_WARNING, style = MaterialTheme.typography.bodyLarge) },
             confirmButton = { PrimaryButton(REPLACE, actions.onConfirmReplace, compact = true) },
             dismissButton = { QuietButton("Cancel", actions.onCancelReplace) },
@@ -226,11 +238,13 @@ private fun BuilderBar(state: PlanBuilderState, actions: PlanBuilderActions) {
                 Modifier.fillMaxWidth().padding(horizontal = Space.gutter, vertical = Space.m),
                 horizontalArrangement = Arrangement.spacedBy(Space.m),
             ) {
+                // The first step has no step before it: Close leaves.
+                if (state.step != BuilderStep.DAYS) {
+                    SecondaryButton("Back", actions.onBack, Modifier.weight(1f).testTag("builder-back"), enabled = !state.saving)
+                }
                 if (state.step == BuilderStep.DRAFT) {
-                    SecondaryButton(ANOTHER_DRAFT, actions.onAnotherDraft, Modifier.weight(1f).testTag("builder-another"), enabled = !state.saving)
                     PrimaryButton(USE_THIS_PLAN, actions.onUse, Modifier.weight(1f).testTag("builder-use"), enabled = !state.saving)
                 } else {
-                    SecondaryButton("Back", actions.onBack, Modifier.weight(1f).testTag("builder-back"))
                     val label = when {
                         state.step == BuilderStep.EXERCISES && state.nothingTicked -> CHOOSE_FOR_ME
                         state.step == BuilderStep.BODY_PARTS && state.priorities.isEmpty() -> "Skip"
@@ -262,12 +276,12 @@ private fun DaysStep(state: PlanBuilderState, actions: PlanBuilderActions) {
         StepHeading(DAYS_HEADING)
         SegmentedChoice(listOf(daysText(3), daysText(4)), selectedIndex = state.dayCount - 3, onSelect = { actions.onDayCount(it + 3) })
         Column {
-            SectionHeader("Which days", Modifier.padding(top = Space.s))
+            SectionHeader(WHICH_DAYS_HEADING, Modifier.padding(top = Space.s))
             PtCard(contentPadding = PaddingValues(horizontal = Space.s, vertical = Space.s)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.xxs)) {
                     for (day in DayOfWeek.entries) {
                         ChoiceChip(
-                            text = day.toJavaDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(3),
+                            text = shortDayName(day),
                             selected = day in state.days,
                             onClick = { actions.onDay(day) },
                             modifier = Modifier.weight(1f).testTag("builder-day-${day.name}"),
@@ -275,7 +289,7 @@ private fun DaysStep(state: PlanBuilderState, actions: PlanBuilderActions) {
                     }
                 }
             }
-            val line = if (state.days.size == state.dayCount) state.days.sorted().joinToString(", ") { dayName(it) } else chooseDaysText(state.dayCount)
+            val line = if (state.days.size == state.dayCount) chosenDaysText(state.days) else chooseDaysText(state.dayCount)
             Text(line, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.s, start = Space.xs))
         }
     }
@@ -300,6 +314,7 @@ private fun ExercisesStep(state: PlanBuilderState, actions: PlanBuilderActions) 
             rowLabel = { it },
             modifier = Modifier.weight(1f),
             ticked = { entry -> state.ticked.containsKey(pickKey(entry)) },
+            chosen = state.chosen,
         )
     }
     guideFor?.let { name -> FormGuideSheet(name, onDismiss = { guideFor = null }) }
@@ -326,14 +341,24 @@ private fun BodyPartsStep(state: PlanBuilderState, actions: PlanBuilderActions) 
 @Composable
 private fun DraftStep(draft: PlanDraft, state: PlanBuilderState, actions: PlanBuilderActions) {
     var swapping by remember { mutableStateOf<Pair<DayOfWeek, String>?>(null) }
+    val listState = rememberLazyListState()
+    // "Use this plan" is in the bar, wherever the list is scrolled: bring the line into view when a save fails.
+    LaunchedEffect(state.failed) { if (state.failed) listState.animateScrollToItem(0) }
     LazyColumn(
         Modifier.fillMaxSize().testTag("draft-list"),
+        state = listState,
         contentPadding = PaddingValues(start = Space.gutter, end = Space.gutter, top = Space.s, bottom = Space.xl),
         verticalArrangement = Arrangement.spacedBy(Space.m),
     ) {
-        item(key = "heading") { StepHeading(DRAFT_HEADING, DRAFT_LINE, Modifier.testTag("heading")) }
+        // A failed save: plain words at the top of the draft, until the next try.
         if (state.failed) {
-            item(key = "failed") { Text(SAVE_FAILED, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error) }
+            item(key = "failed") {
+                Text(SAVE_FAILED, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("save-failed"))
+            }
+        }
+        item(key = "heading") { StepHeading(DRAFT_HEADING, DRAFT_LINE, Modifier.testTag("heading")) }
+        item(key = "another") {
+            SecondaryButton(ANOTHER_DRAFT, actions.onAnotherDraft, Modifier.testTag("builder-another"), enabled = !state.saving)
         }
         items(draft.sessions, key = { it.day }) { session ->
             SessionCard(session, Modifier.testTag("session-${session.day.name}"), onSwap = { name -> swapping = session.day to name })
@@ -368,7 +393,7 @@ private fun SessionCard(session: DraftSession, modifier: Modifier = Modifier, on
     val sets = session.exercises.sumOf { it.sets }
     PtCard(modifier, contentPadding = PaddingValues(start = Space.l, end = Space.s, top = Space.m, bottom = Space.s), spacing = 0.dp) {
         Column(Modifier.padding(end = Space.s, bottom = Space.xs)) {
-            Text("${dayName(session.day)} · ${session.title}", style = MaterialTheme.typography.headlineMedium)
+            Text("${dayName(session.day)} · ${session.title}", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             Text("${session.exercises.size} exercises · $sets sets", style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted)
         }
         for (exercise in session.exercises) {
@@ -392,7 +417,7 @@ private fun DraftRow(exercise: DraftExercise, onSwap: () -> Unit) {
             Text(exercise.name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
             Text(prescription, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurface)
         }
-        QuietButton(SWAP, onSwap, Modifier.testTag("swap"))
+        SecondaryButton(SWAP, onSwap, Modifier.testTag("swap"), compact = true, label = "$SWAP ${exercise.name}")
     }
 }
 

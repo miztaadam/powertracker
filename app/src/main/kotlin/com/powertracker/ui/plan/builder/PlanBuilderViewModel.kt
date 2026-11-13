@@ -36,8 +36,11 @@ import kotlinx.datetime.LocalDate
 /** The builder's four steps, in order. */
 enum class BuilderStep { DAYS, EXERCISES, BODY_PARTS, DRAFT }
 
-/** One ticked exercise: what the builder is told about it, and, for the lifter's own exercise, the row it is saved with. */
-data class ChosenPick(val pick: BuilderPick, val exerciseId: Long?)
+/**
+ * One ticked exercise: what the builder is told about it, for the lifter's own exercise the row it is saved with, and
+ * the browser's [entry] it was ticked from (listed under "Chosen").
+ */
+data class ChosenPick(val pick: BuilderPick, val exerciseId: Long?, val entry: PickerEntry)
 
 data class PlanBuilderState(
     val loading: Boolean = true,
@@ -73,6 +76,8 @@ data class PlanBuilderState(
     val targetGroups: List<MuscleGroup> get() = PlanBuilder.TARGET_GROUPS
     val chosenCount: Int get() = ticked.size
     val nothingTicked: Boolean get() = ticked.isEmpty()
+    /** Every ticked exercise, in the order ticked (pre-ticks first): the exercises step's "Chosen" section. */
+    val chosen: List<PickerEntry> get() = ticked.values.map { it.entry }
     val canNext: Boolean get() = available && (step != BuilderStep.DAYS || days.size == dayCount)
 }
 
@@ -82,11 +87,13 @@ fun pickKey(entry: PickerEntry): String = entry.catalogueName ?: "own-${entry.ex
 /**
  * The bodybuilding plan builder (stage 2 plan, Task 2): days, exercises, body parts, then the draft the shared
  * [PlanBuilder] makes of those answers. Nothing is stored until the lifter uses the draft; then the side's whole plan is
- * replaced in one transaction and its training days set to the chosen weekdays.
+ * replaced in one transaction and its training days set to the chosen weekdays. [setDays] stores those days (a test can
+ * make it fail).
  */
 class PlanBuilderViewModel(
     private val training: TrainingRepository,
     private val settings: SettingsRepository,
+    private val setDays: suspend (Set<DayOfWeek>) -> Unit = { days -> settings.update { it.copy(bodybuildingTrainingDays = days) } },
     private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
     private val _state = MutableStateFlow(PlanBuilderState())
@@ -120,8 +127,8 @@ class PlanBuilderViewModel(
                     _state.update {
                         it.copy(
                             exercises = h.exercises.values.filter { e -> !e.archived }.sortedBy { e -> e.id },
-                            // "Your exercises" leads with what is pre-ticked, so the lifter sees it ticked and can untick it.
-                            recentIds = (suggested + recentExerciseIds(h)).distinct(),
+                            // The usual list: what is ticked is listed above it, under "Chosen".
+                            recentIds = recentExerciseIds(h),
                             hasPlan = plan.isNotEmpty(),
                             mode = st.trainingMode,
                         )
@@ -240,12 +247,13 @@ class PlanBuilderViewModel(
         viewModelScope.launch {
             try {
                 training.replacePlan(TrainingMode.BODYBUILDING, items)
-                settings.update { it.copy(bodybuildingTrainingDays = s.days) }
+                setDays(s.days)
                 _state.update { it.copy(saving = false, saved = true) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                // A failed save leaves the old plan (one transaction); the lifter can try again.
+                // The plan is replaced in one transaction, then the days are set. If either fails the builder stays open
+                // with the error and the lifter can try again: replacing the plan again gives the same plan.
                 _state.update { it.copy(saving = false, failed = true) }
             }
         }
@@ -267,10 +275,10 @@ class PlanBuilderViewModel(
         fun chosen(entry: PickerEntry): ChosenPick {
             val lib = entry.library
             val pick = BuilderPick(entry.name, entry.muscles, entry.kind == Kind.COMPOUND, lib?.equipment.orEmpty(), inCatalogue = lib != null)
-            return ChosenPick(pick, if (lib == null) entry.exerciseId else null)
+            return ChosenPick(pick, if (lib == null) entry.exerciseId else null, entry)
         }
 
         fun factory(training: TrainingRepository, settings: SettingsRepository, today: () -> LocalDate = ::systemToday): ViewModelProvider.Factory =
-            viewModelFactory { initializer { PlanBuilderViewModel(training, settings, today) } }
+            viewModelFactory { initializer { PlanBuilderViewModel(training, settings, today = today) } }
     }
 }
