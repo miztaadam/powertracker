@@ -216,23 +216,12 @@ class PlanBuilderTest {
             for (g in PlanBuilder.TARGET_GROUPS) if (with.getValue(g) < without.getValue(g)) failures += "lowers $g ${without[g]}->${with[g]}: $a"
             for (g in a.priorities) {
                 if (with.getValue(g) <= without.getValue(g)) failures += "does not raise $g ${without[g]}->${with[g]}: $a"
-                if (a.picks.isEmpty() && with.getValue(g) < PlanBuilder.WEEKLY_SETS && !knownShortOfTen(a, g)) {
+                if (a.picks.isEmpty() && with.getValue(g) < PlanBuilder.WEEKLY_SETS) {
                     failures += "$g only ${with[g]} with no picks: $a"
                 }
             }
         }
         assertEquals(emptyList(), failures.take(5), "${failures.size} failures")
-    }
-
-    /**
-     * OPEN, not yet ruled: on 3 days with no picks, variant 2 rotates the hinge defaults to Hip thrust (glutes, hips,
-     * upper back; no hamstrings) in both hinge slots, so a Hamstrings priority reaches only 8. It still raises
-     * hamstrings; only the "at least 10" promise is missed. Pinned here so the case is seen; nothing else may join it.
-     */
-    private fun knownShortOfTen(a: BuilderAnswers, g: MuscleGroup): Boolean {
-        val short = a.days == three && a.variant == 2 && g == MuscleGroup.HAMSTRINGS
-        if (short) assertEquals(8, sets(PlanBuilder.build(a)).getValue(g), "$a")
-        return short
     }
 
     private fun sets(d: PlanDraft) = d.volume.associate { it.group to it.weeklySets }
@@ -293,13 +282,44 @@ class PlanBuilderTest {
     fun everyDefaultIsInTheCatalogueUnderAMainGroupItsKindAccepts() {
         assertEquals(16, SlotKind.entries.size)
         for (kind in SlotKind.entries) {
-            assertTrue(kind.defaults.size >= 4, "$kind")
+            assertTrue(kind.defaults.size >= if (kind == SlotKind.HINGE) 3 else 4, "$kind")
             for (name in kind.defaults) {
                 val e = Library.all().singleOrNull { it.name == name }
                 assertTrue(e != null, "$kind: '$name' is not a catalogue name")
                 assertTrue(PlanBuilder.mainGroup(e.muscles) in kind.accepts, "$kind: $name works ${PlanBuilder.mainGroup(e.muscles)} first")
             }
         }
+    }
+
+    /** The hinge defaults all work the hamstrings and the glutes; a glutes priority's slot has its own list. */
+    @Test
+    fun hingeDefaultsWorkHamstringsAndGlutes_andTheGlutesPriorityHasItsOwnDefaults() {
+        assertEquals(listOf("RDL", "DB RDL", "Stiff-leg deadlift"), SlotKind.HINGE.defaults)
+        for (n in SlotKind.HINGE.defaults) {
+            val e = Library.find(n)!!
+            assertTrue(MuscleGroups.works(e.muscles, MuscleGroup.HAMSTRINGS) && MuscleGroups.works(e.muscles, MuscleGroup.GLUTES), n)
+        }
+        assertEquals(listOf("Hip thrust", "Machine hip thrust", "DB hip thrust"), PlanBuilder.GLUTE_PRIORITY_DEFAULTS)
+        for (n in PlanBuilder.GLUTE_PRIORITY_DEFAULTS) {
+            val e = Library.all().single { it.name == n }
+            assertEquals(SlotKind.HINGE, PlanBuilder.kindOf(e.name, e.muscles, e.kind == Kind.COMPOUND, true), n)
+            assertTrue(MuscleGroups.works(e.muscles, MuscleGroup.GLUTES), n)
+        }
+        // With no picks, the added slot takes the list's first default after the rotation.
+        for (variant in 0..3) for (days in listOf(three, four)) {
+            val draft = build(days, priorities = listOf(MuscleGroup.GLUTES), variant = variant)
+            val glute = PlanBuilder.GLUTE_PRIORITY_DEFAULTS[variant % 3]
+            assertTrue(draft.sessions.any { s -> s.exercises.any { it.name == glute } }, "$variant $days")
+        }
+        // Without the priority no hip thrust is in a no-picks week, whatever the variant.
+        for (variant in 0..3) for (days in listOf(three, four)) {
+            assertTrue(build(days, variant = variant).sessions.flatMap { it.exercises }.none { it.name in PlanBuilder.GLUTE_PRIORITY_DEFAULTS })
+        }
+        // The hinges of a no-picks 3-day week, by variant: the rotation of the three defaults.
+        assertEquals(
+            listOf(listOf("RDL", "RDL"), listOf("DB RDL", "DB RDL"), listOf("Stiff-leg deadlift", "Stiff-leg deadlift"), listOf("RDL", "RDL")),
+            (0..3).map { v -> build(three, variant = v).sessions.flatMap { s -> s.exercises.filter { it.slot == SlotKind.HINGE }.map { it.name } } },
+        )
     }
 
     /** Every default is of the kind it fills, by the kind rules (the list of exceptions is empty). */

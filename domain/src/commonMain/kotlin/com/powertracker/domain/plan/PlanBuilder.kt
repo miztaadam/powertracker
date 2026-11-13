@@ -76,7 +76,7 @@ object PlanBuilder {
         QUAD_ISOLATION(setOf(MuscleGroup.QUADS, MuscleGroup.ADDUCTORS), false, listOf("Leg extension", "Bulgarian split squat", "Split squat", "Lunge")),
         HINGE(
             setOf(MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES, MuscleGroup.LOWER_BACK), false,
-            listOf("RDL", "DB RDL", "Hip thrust", "Stiff-leg deadlift", "Machine hip thrust"),
+            listOf("RDL", "DB RDL", "Stiff-leg deadlift"),
         ),
         LEG_CURL(setOf(MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES), false, listOf("Seated leg curl", "Lying leg curl", "Standing leg curl", "Cable leg curl")),
         SHOULDER_PRESS(setOf(MuscleGroup.FRONT_DELTS), true, listOf("DB shoulder press", "Machine shoulder press", "Seated barbell press", "Arnold press")),
@@ -87,6 +87,9 @@ object PlanBuilder {
         CALVES(setOf(MuscleGroup.CALVES), false, listOf("Standing calf raise", "Seated calf raise", "Leg press calf raise", "Dumbbell calf raise")),
         ABS(setOf(MuscleGroup.ABS, MuscleGroup.OBLIQUES), false, listOf("Cable crunch", "Machine crunch", "Reverse crunch", "Ab wheel rollout")),
     }
+
+    /** A GLUTES priority's added slot draws from these, in this order, rotated by the variant (not its kind's defaults). */
+    internal val GLUTE_PRIORITY_DEFAULTS: List<String> = listOf("Hip thrust", "Machine hip thrust", "DB hip thrust")
 
     /** The slot each priority adds. */
     private val PRIORITY_SLOT: Map<MuscleGroup, SlotKind> = mapOf(
@@ -256,14 +259,16 @@ object PlanBuilder {
         }
 
         // 5. Fill the empty slots with each kind's first default the session does not hold: every template slot first,
-        // then the added slots, which take only a default that works their group. A pick never goes in a third time
+        // then the added slots, which take only a default that works their group (a GLUTES slot draws from its own list). A pick never goes in a third time
         // through a default.
         val equipmentUse = equipmentUse(answers.picks)
         val pickKeys = picks.map { it.key }.toSet()
         fun weekCount(key: String) = sessions.sumOf { s -> s.slots.count { it.item?.key == key } + (if (s.heldOver?.key == key) 1 else 0) }
         for (added in listOf(false, true)) for (s in sessions) {
             for (slot in s.slots.filter { it.item == null && (it.forGroup != null) == added }) {
-                val default = defaultsFor(slot.kind, equipmentUse, answers.variant).firstOrNull { d ->
+                val candidates = if (slot.forGroup == MuscleGroup.GLUTES) rotate(GLUTE_PRIORITY_DEFAULTS.map(::entry), answers.variant)
+                else defaultsFor(slot.kind, equipmentUse, answers.variant)
+                val default = candidates.firstOrNull { d ->
                     val k = Library.normalise(d.name)
                     !s.holds(k) && (k !in pickKeys || weekCount(k) < 2) && (slot.forGroup == null || MuscleGroups.works(d.muscles, slot.forGroup))
                 }
@@ -328,8 +333,11 @@ object PlanBuilder {
         kind.defaults.map(::entry).sortedByDescending { d -> d.equipment.firstOrNull()?.let { equipmentUse.getValue(it) } ?: 0 }
 
     /** [orderedDefaults], rotated left by [variant] places. */
-    private fun defaultsFor(kind: SlotKind, equipmentUse: Map<Equipment, Int>, variant: Int): List<LibraryExercise> {
-        val list = orderedDefaults(kind, equipmentUse)
+    private fun defaultsFor(kind: SlotKind, equipmentUse: Map<Equipment, Int>, variant: Int): List<LibraryExercise> =
+        rotate(orderedDefaults(kind, equipmentUse), variant)
+
+    /** [list] rotated left by [variant] places. */
+    private fun rotate(list: List<LibraryExercise>, variant: Int): List<LibraryExercise> {
         val shift = ((variant % list.size) + list.size) % list.size
         return list.drop(shift) + list.take(shift)
     }
