@@ -2,7 +2,7 @@
 
 Read first, fully: implementer-rules.md and constraints.md in this folder (use the attribution lines your own harness gives you); the spec docs/superpowers/specs/2026-11-12-grit-exercise-pictures-design.md (sections 5 Tests and screenshots, 6 Delivery); the plan's "Task 13: Finish" in docs/superpowers/plans/2026-11-12-grit-exercise-pictures.md; task-3-report.md (how the tools `figures:sheet` and `figures:page` were built and how screenshots are recorded in each app).
 
-Repo /home/user/powertracker, branch ccr-2f9842b5-owq43n, BASE = HEAD = __BASE__. Never push, never switch branches. ONE new commit on top of BASE.
+Repo /home/user/powertracker, branch ccr-2f9842b5-owq43n, BASE = HEAD = edec171 (or the commit on top of it if the 13a review adds a fix commit — use the HEAD the controller names when it dispatches you). Never push, never switch branches. ONE new commit on top of BASE.
 
 ## What to do
 1. Switch on `everyCatalogueExercise_hasFigure` (domain FiguresTest: remove the `@Ignore`) and run it: 225 of 225. If any name is missing, STOP and report which — do not draw new figures in this task.

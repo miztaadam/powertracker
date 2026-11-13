@@ -2,15 +2,16 @@
 
 This folder is a tracked copy of the plan's working notes, which normally live in the git-ignored `.superpowers/sdd/2026-11-12-grit-exercise-pictures/`. It is synced so a new session can take over if this one ends.
 
-## Where things stand (synced after Task 12)
+## Where things stand (synced after Task 13b)
 
 - **Spec:** `docs/superpowers/specs/2026-11-12-grit-exercise-pictures-design.md` (binding authority).
 - **Plan:** `docs/superpowers/plans/2026-11-12-grit-exercise-pictures.md` (13 tasks).
-- **Ledger:** `progress.md` in this folder. Read it all: rulings R1–R18, parked findings, per-task status.
-- **Done, reviewed and pushed:** Tasks 1–12. All 225 pictures are drawn. Branch head after Task 12: `8b5f537` (golden `225:4cef8580b4d880a3`). Task 12 is two commits (`1563e21` plus the review fixes `8b5f537`) because a restart interrupted its fix round.
-- **Task 13a (build-time thumbnails):** brief `task-13a-brief.md`, builder dispatched on BASE `8b5f537`. If no `perf(web): thumbnails are worked out when the app is built` commit exists on the branch, start it again from the brief (check `git status` first for partial work). Review brief: `review-13a-brief.md` (fill in `__HEAD__` and `__BASE__`).
-- **Then:** `task-13b-brief.md` (completeness check on, leftovers, screenshots, pictures page; set `__BASE__`), then `review-final-brief.md` (set `__HEAD__`).
-- **Usage limit:** subagents can hit a 5-hour usage limit; a stopped builder is resumed with SendMessage to its agent id once the limit resets, and its uncommitted work stays in the working tree.
+- **Ledger:** `progress.md` in this folder. Read it all: rulings R1–R19, parked findings, per-task status.
+- **Done, reviewed and pushed:** Tasks 1–12 (all 225 pictures), Task 13a `edec171` (thumbnails worked out at build time, catalogue warmed once after first paint; review Ready) and Task 13b `32ea347` (completeness check on, screenshots, `docs/library/pictures.html`). The pictures page was sent to the owner.
+- **Next:** the final whole-branch review from `review-final-brief.md` (set its HEAD to the branch head; a first run was lost to a container restart), then one fix wave as NEW commits (never amend pushed commits), then delete this tracked folder, then STOP and ask the owner about the merge (phone notification).
+- **For the owner to decide:** the @speed picker check "a few hundred exercises" lists 475 rows (the 225 catalogue exercises plus 250 stand-ins written before the catalogue grew; its comment at `web/e2e/library.spec.ts:166` is out of date). It passes, at parity with before the pictures, but with little room. The controller does not change that test.
+- **Parked for the fix wave:** the dev server does not refresh thumbnail data when the domain bundle changes while it runs (review-13a Minor); `docs/library/pictures/` holds three older draft files.
+- **Usage limit and restarts:** subagents can hit a 5-hour usage limit, and the container can restart; background agents are then lost or stopped. Push finished commits at once; resume a stopped builder with SendMessage or re-dispatch from its brief.
 
 ## The cycle each batch followed (Tasks 5–12, for reference)
 
