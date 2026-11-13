@@ -25,10 +25,19 @@ import com.powertracker.domain.library.figures.Circle
 import com.powertracker.domain.library.figures.Polygon
 import com.powertracker.domain.library.figures.RoundRect
 import com.powertracker.domain.library.figures.Shape
+import com.powertracker.domain.library.Equipment
+import com.powertracker.domain.library.MuscleGroup
+import com.powertracker.domain.plan.BuilderPick
+import com.powertracker.domain.plan.DraftExercise
+import com.powertracker.domain.plan.DraftSession
+import com.powertracker.domain.plan.GroupVolume
+import com.powertracker.domain.plan.LeftOut
+import com.powertracker.domain.plan.PlanDraft
 import com.powertracker.domain.progress.ExerciseTrend
 import com.powertracker.domain.progress.Pr
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.isoDayNumber
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
@@ -186,6 +195,49 @@ data class JsLibraryExercise(
     val guide: JsFormGuide,
 )
 
+/**
+ * One exercise the lifter ticked in the plan builder: [muscles] as on the exercise, [compound] from the catalogue's
+ * kind (or an own exercise's category), [equipment] `Equipment` names (empty for an own exercise).
+ */
+@JsExport
+data class JsBuilderPick(
+    val name: String,
+    val muscles: Array<String>,
+    val compound: Boolean,
+    val equipment: Array<String>,
+    val inCatalogue: Boolean,
+)
+
+/** One exercise of a draft session: [mainGroup] a `MuscleGroup` name or null; [muscles] and [compound] for recounting. */
+@JsExport
+data class JsDraftExercise(
+    val name: String,
+    val inCatalogue: Boolean,
+    val sets: Int,
+    val repsLow: Int,
+    val repsHigh: Int,
+    val rpe: Double,
+    val mainGroup: String?,
+    val muscles: Array<String>,
+    val compound: Boolean,
+)
+
+/** One day of a draft: [day] a weekday 1-7 (Monday = 1), [title] "Full body", "Upper" or "Lower". */
+@JsExport
+data class JsDraftSession(val day: Int, val title: String, val exercises: Array<JsDraftExercise>)
+
+/** A group's week in a draft: [group] a `MuscleGroup` name; [short] when [weeklySets] is under 10. */
+@JsExport
+data class JsGroupVolume(val group: String, val weeklySets: Int, val days: Int, val short: Boolean)
+
+/** A pick the draft left out, and why. */
+@JsExport
+data class JsLeftOut(val name: String, val reason: String)
+
+/** A plan builder draft. Hand it back unchanged to `planBuilderAlternatives` and `planBuilderSwap`. */
+@JsExport
+data class JsPlanDraft(val sessions: Array<JsDraftSession>, val volume: Array<JsGroupVolume>, val leftOut: Array<JsLeftOut>)
+
 // ---- converters (internal: not part of the JS API) ----
 
 private val androidJson = Json
@@ -276,6 +328,38 @@ internal fun ExerciseTrend.toJs() = JsExerciseTrend(
     name,
     bestSets.map { (date, set) -> JsBestSet(date.toString(), set.toJs()) }.toTypedArray(),
     goingUp,
+)
+
+internal fun JsBuilderPick.toDomain() = BuilderPick(
+    name, muscles.toList(), compound, equipment.map { parseEnum<Equipment>("pick.equipment", it) }, inCatalogue,
+)
+
+internal fun PlanDraft.toJs() = JsPlanDraft(
+    sessions.map { it.toJs() }.toTypedArray(),
+    volume.map { JsGroupVolume(it.group.name, it.weeklySets, it.days, it.short) }.toTypedArray(),
+    leftOut.map { JsLeftOut(it.name, it.reason) }.toTypedArray(),
+)
+
+internal fun DraftSession.toJs() = JsDraftSession(day.isoDayNumber, title, exercises.map { it.toJs() }.toTypedArray())
+
+internal fun DraftExercise.toJs() = JsDraftExercise(
+    name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup?.name, muscles.toTypedArray(), compound,
+)
+
+internal fun JsPlanDraft.toDomain() = PlanDraft(
+    sessions.map { s ->
+        DraftSession(
+            parseWeekday("draft.day", s.day), s.title,
+            s.exercises.map { e ->
+                DraftExercise(
+                    e.name, e.inCatalogue, e.sets, e.repsLow, e.repsHigh, e.rpe,
+                    e.mainGroup?.let { parseEnum<MuscleGroup>("draft.mainGroup", it) }, e.muscles.toList(), e.compound,
+                )
+            },
+        )
+    },
+    volume.map { GroupVolume(parseEnum<MuscleGroup>("draft.volume.group", it.group), it.weeklySets, it.days, it.short) },
+    leftOut.map { LeftOut(it.name, it.reason) },
 )
 
 internal fun Pr.toJs() = JsPr(date.toString(), e1rmKg, weightKg, reps, rpe)

@@ -32,4 +32,65 @@ object CoachSources {
         url = "https://exrx.net/WeightTraining/Guidelines",
         accessed = "2026-11-13",
     )
+
+    /**
+     * The plan builder's weekly aim, [com.powertracker.domain.plan.PlanBuilder.WEEKLY_SETS] = 10 counted sets per
+     * muscle group a week, and its frequency aim, every target group trained on at least two days a week.
+     *
+     * What the page says: ACSM's announcement of its 2026 position stand on resistance training ("Resistance Training
+     * Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults", an overview of 137
+     * systematic reviews, the first update since 2009) prescribes at least 10 sets per muscle group per week for
+     * muscle growth, with more volume able to bring more growth, and training all major muscle groups at least twice
+     * a week. The builder takes 10 as its aim, not as a ceiling.
+     *
+     * Checked on 2026-11-13 by a web search restricted to the allowed sources; the page itself was not opened.
+     */
+    val BUILDER_WEEKLY_SETS = Source(
+        title = "ACSM Unveils Landmark 2026 Resistance Training Guidelines",
+        publisher = "American College of Sports Medicine (ACSM)",
+        url = "https://acsm.org/resistance-training-guidelines-update-2026/",
+        accessed = "2026-11-13",
+    )
+
+    /**
+     * The plan builder's frequency aim: every target group trained on at least two days a week.
+     *
+     * What the page says: ACSM's infographic for the 2026 position stand, "5 Things to Know About Creating an
+     * Effective Resistance Training Plan" (published March 2026), says to train all major muscle groups at least two
+     * days per week and to build up gradually, and that the best plan is the one the lifter keeps doing.
+     *
+     * Checked on 2026-11-13 by a web search restricted to the allowed sources; the page itself was not opened.
+     */
+    val BUILDER_FREQUENCY = Source(
+        title = "5 Things to Know About Creating an Effective Resistance Training Plan",
+        publisher = "American College of Sports Medicine (ACSM)",
+        url = "https://acsm.org/effective-resistance-training-program-infographic/",
+        accessed = "2026-11-13",
+    )
+
+    /**
+     * The plan builder's order inside a session: compound before accessory, and the lifter's priority body parts first.
+     *
+     * What the page says: ExRx.net's weight training guidelines summarise the 2026 ACSM position stand as "compound /
+     * primary lifts before accessory work" and "compound movements before isolated exercises" (the 2009 and 2002
+     * stands, on the same page, put multi-joint before single-joint and larger muscle groups before smaller ones).
+     * The same summary adds that exercise order within a session does not consistently affect muscle growth: the
+     * order matters mostly for strength, so the builder's order is a sound default rather than a growth rule.
+     * Putting the priority body parts' exercises first follows "primary lifts first": the lifter's priorities are the
+     * primary work of their plan.
+     *
+     * Checked on 2026-11-13 by a web search restricted to the allowed sources; the page itself was not opened.
+     *
+     * Not sourced, the designer's own numbers, flagged for the owner: at most 6 exercises a session
+     * ([com.powertracker.domain.plan.PlanBuilder.MAX_EXERCISES]); 4 sets for an exercise whose main group is a
+     * priority where the rest get 3 ([com.powertracker.domain.plan.PlanBuilder.PRIORITY_SETS]); at most 3 priority
+     * body parts ([com.powertracker.domain.plan.PlanBuilder.MAX_PRIORITIES]). The 3 sets of 8-12 at RPE 8 are the
+     * owner's and need no source.
+     */
+    val BUILDER_ORDER = Source(
+        title = "Weight Training Guidelines (summarising the ACSM 2026 position stand on resistance training)",
+        publisher = "ExRx.net",
+        url = "https://exrx.net/WeightTraining/Guidelines",
+        accessed = "2026-11-13",
+    )
 }

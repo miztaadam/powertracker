@@ -24,6 +24,11 @@ export declare namespace GritDomain {
             welcomeBack(leftOn: Nullable<string>, today: string, hasPlan: boolean): boolean;
             repsToBeat(item: JsPlanItem, history: JsHistory, setNumber: number, today: string): number;
             bodybuildingProgress(history: JsHistory, plan: Array<JsPlanItem>, today: string): Array<JsExerciseTrend>;
+            planBuilderBuild(days: Array<number>, picks: Array<JsBuilderPick>, priorities: Array<string>, variant: number): JsPlanDraft;
+            planBuilderAlternatives(name: string, draft: JsPlanDraft, picks: Array<JsBuilderPick>): Array<JsLibraryExercise>;
+            planBuilderSwap(draft: JsPlanDraft, day: number, from: string, to: string): JsPlanDraft;
+            planBuilderSuggestedPicks(history: JsHistory, plans: Array<JsPlanItem>, today: string): Array<number>;
+            planBuilderMaxPriorities(): number;
             weeklyTrend(history: JsHistory, lift: string, until: string): Array<JsWeeklyPoint>;
             currentE1rm(history: JsHistory, lift: string, until: string, days: number): Nullable<number>;
             prs(history: JsHistory, lift: string): Array<JsPr>;
@@ -403,6 +408,110 @@ export declare namespace JsLibraryExercise {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsLibraryExercise;
+    }
+}
+export declare class JsBuilderPick {
+    constructor(name: string, muscles: Array<string>, compound: boolean, equipment: Array<string>, inCatalogue: boolean);
+    get name(): string;
+    get muscles(): Array<string>;
+    get compound(): boolean;
+    get equipment(): Array<string>;
+    get inCatalogue(): boolean;
+    copy(name?: string, muscles?: Array<string>, compound?: boolean, equipment?: Array<string>, inCatalogue?: boolean): JsBuilderPick;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsBuilderPick {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsBuilderPick;
+    }
+}
+export declare class JsDraftExercise {
+    constructor(name: string, inCatalogue: boolean, sets: number, repsLow: number, repsHigh: number, rpe: number, mainGroup: Nullable<string>, muscles: Array<string>, compound: boolean);
+    get name(): string;
+    get inCatalogue(): boolean;
+    get sets(): number;
+    get repsLow(): number;
+    get repsHigh(): number;
+    get rpe(): number;
+    get mainGroup(): Nullable<string>;
+    get muscles(): Array<string>;
+    get compound(): boolean;
+    copy(name?: string, inCatalogue?: boolean, sets?: number, repsLow?: number, repsHigh?: number, rpe?: number, mainGroup?: Nullable<string>, muscles?: Array<string>, compound?: boolean): JsDraftExercise;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsDraftExercise {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsDraftExercise;
+    }
+}
+export declare class JsDraftSession {
+    constructor(day: number, title: string, exercises: Array<JsDraftExercise>);
+    get day(): number;
+    get title(): string;
+    get exercises(): Array<JsDraftExercise>;
+    copy(day?: number, title?: string, exercises?: Array<JsDraftExercise>): JsDraftSession;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsDraftSession {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsDraftSession;
+    }
+}
+export declare class JsGroupVolume {
+    constructor(group: string, weeklySets: number, days: number, short: boolean);
+    get group(): string;
+    get weeklySets(): number;
+    get days(): number;
+    get short(): boolean;
+    copy(group?: string, weeklySets?: number, days?: number, short?: boolean): JsGroupVolume;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGroupVolume {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGroupVolume;
+    }
+}
+export declare class JsLeftOut {
+    constructor(name: string, reason: string);
+    get name(): string;
+    get reason(): string;
+    copy(name?: string, reason?: string): JsLeftOut;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsLeftOut {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsLeftOut;
+    }
+}
+export declare class JsPlanDraft {
+    constructor(sessions: Array<JsDraftSession>, volume: Array<JsGroupVolume>, leftOut: Array<JsLeftOut>);
+    get sessions(): Array<JsDraftSession>;
+    get volume(): Array<JsGroupVolume>;
+    get leftOut(): Array<JsLeftOut>;
+    copy(sessions?: Array<JsDraftSession>, volume?: Array<JsGroupVolume>, leftOut?: Array<JsLeftOut>): JsPlanDraft;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsPlanDraft {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsPlanDraft;
     }
 }
 export declare class JsFigureInfo {

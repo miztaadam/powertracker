@@ -26,6 +26,8 @@ import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.liftLabel as domainLiftLabel
 import com.powertracker.domain.model.missPointLabel as domainMissPointLabel
 import com.powertracker.domain.model.repsText as domainRepsText
+import com.powertracker.domain.plan.BuilderAnswers
+import com.powertracker.domain.plan.PlanBuilder
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.domain.progress.BodybuildingProgress
 import com.powertracker.domain.progress.ProgressMath
@@ -144,6 +146,40 @@ object GritDomain {
     fun bodybuildingProgress(history: JsHistory, plan: Array<JsPlanItem>, today: String): Array<JsExerciseTrend> =
         BodybuildingProgress.rows(history.toDomain(), plan.map { it.toDomain() }, parseDate("today", today))
             .map { it.toJs() }.toTypedArray()
+
+    /**
+     * The bodybuilding plan builder's draft week. [days] are 3 or 4 distinct weekdays 1-7; [picks] the ticked
+     * exercises (empty: choose for me); [priorities] up to 3 distinct `MuscleGroup` names in the lifter's order;
+     * [variant] 0 for the first draft, then 1, 2, ... for "Another draft". Throws IllegalArgumentException otherwise.
+     */
+    fun planBuilderBuild(days: Array<Int>, picks: Array<JsBuilderPick>, priorities: Array<String>, variant: Int): JsPlanDraft =
+        PlanBuilder.build(
+            BuilderAnswers(
+                days.map { parseWeekday("days", it) },
+                picks.map { it.toDomain() },
+                priorities.map { parseEnum<MuscleGroup>("priorities", it) },
+                variant,
+            ),
+        ).toJs()
+
+    /** Catalogue exercises to swap [name] for: the same main group, not in [draft], ordered by the equipment [picks] use. */
+    fun planBuilderAlternatives(name: String, draft: JsPlanDraft, picks: Array<JsBuilderPick>): Array<JsLibraryExercise> =
+        PlanBuilder.alternatives(name, draft.toDomain(), picks.map { it.toDomain() }).map { it.toJs() }.toTypedArray()
+
+    /** [draft] with [from] on [day] (1-7) replaced by the catalogue exercise [to], same place, sets and range; volume recounted. */
+    fun planBuilderSwap(draft: JsPlanDraft, day: Int, from: String, to: String): JsPlanDraft =
+        PlanBuilder.swap(draft.toDomain(), parseWeekday("day", day), from, to).toJs()
+
+    /**
+     * Exercise ids to pre-tick in the builder: in either side's [plans], then logged in the 28 days up to [today]; each
+     * once, no archived ones.
+     */
+    fun planBuilderSuggestedPicks(history: JsHistory, plans: Array<JsPlanItem>, today: String): Array<Int> =
+        PlanBuilder.suggestedPicks(history.toDomain(), plans.map { it.toDomain() }, parseDate("today", today))
+            .map { it.toFacadeId("suggestedPicks") }.toTypedArray()
+
+    /** The most body parts the lifter may choose to improve (3). */
+    fun planBuilderMaxPriorities(): Int = PlanBuilder.MAX_PRIORITIES
 
     fun weeklyTrend(history: JsHistory, lift: String, until: String): Array<JsWeeklyPoint> =
         HistoryStats(history.toDomain()).weeklyTrend(parseLift("lift", lift), parseDate("until", until))
