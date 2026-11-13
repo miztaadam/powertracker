@@ -18,6 +18,7 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
@@ -26,11 +27,13 @@ import kotlin.math.roundToLong
  * The bodybuilding side's coach: reps first, then weight (spec 5.3). For each of today's bodybuilding plan items it
  * looks at the exercise's sets in its latest bodybuilding session before today:
  * - every planned set done, none missed, each at the top of the range at or under the target RPE (a set with no RPE
- *   counts as on target): add weight, [INCREASE] of the last weight rounded to a loadable weight and at least one
+ *   counts as on target), at a load above 0 kg: add weight, [INCREASE] of the last weight rounded to a loadable weight and at least one
  *   step more, and aim for the range again from its low end;
  * - otherwise: the same weight, and beat last time's reps;
- * - no bodybuilding session yet: from powerlifting sets of the exercise in the last 28 days, a starting weight for
- *   the middle of the range at the target RPE from the e1RM estimate, rounded down; with none, no advice.
+ * - no bodybuilding session yet: from the exercise's powerlifting sets (the 28 days ending at its latest
+ *   powerlifting session) or else its baseline, a starting weight for the middle of the range at the target RPE
+ *   from the e1RM estimate, eased by the re-entry factor when that history is more than 28 days old, rounded
+ *   down; with neither, no advice.
  * Then the return rule, and the deload and easing-back-in clamps the powerlifting targets get (the range is kept).
  * No lift is special here: there is no minimum history and no main-lift rule.
  */
@@ -95,9 +98,13 @@ object BodybuildingCoach {
             .lastOrNull { s -> s.sets.any { it.exerciseId == exerciseId } }
             ?.sets?.filter { it.exerciseId == exerciseId }
 
+    /** Every planned set at the top of the range at or under the target RPE; never for a 0 kg (bodyweight) load. */
     private fun earnedIncrease(sets: List<LoggedSet>, item: PlanItem): Boolean =
-        sets.size >= item.sets && sets.none { it.failed } &&
+        sets.size >= item.sets && sets.none { it.failed } && heaviest(sets) > 0.0 &&
             sets.all { it.reps >= high(item) && (it.rpe == null || it.rpe <= item.targetRpe) }
+
+    /** The weight of the heaviest non-missed set (of any set when all were missed). */
+    private fun heaviest(sets: List<LoggedSet>): Double = (sets.filter { !it.failed }.ifEmpty { sets }).maxOf { it.weightKg }
 
     private fun target(
         item: PlanItem,
@@ -110,7 +117,7 @@ object BodybuildingCoach {
         val (weight, opening) = if (last == null) {
             firstTimeWeight(item, exercise, history, settings, today)?.let { it to FIRST_TIME_TEXT } ?: return null
         } else {
-            val heaviest = (last.filter { !it.failed }.ifEmpty { last }).maxOf { it.weightKg }
+            val heaviest = heaviest(last)
             if (earnedIncrease(last, item)) {
                 increased(heaviest, exercise, settings.changePlates) to "${lastTime(last)} $INCREASE_TEXT"
             } else {
@@ -128,7 +135,12 @@ object BodybuildingCoach {
         )
     }
 
-    /** From the best non-missed powerlifting set of the exercise in the last 28 days; null when there is none. */
+    /**
+     * From the best non-missed powerlifting set of the exercise in the 28 days ending at its latest powerlifting
+     * session (the last 28 days when that session is recent), or with no such set at all from its latest baseline.
+     * When that session (or the baseline) is more than 28 days old, the weight is eased by the re-entry factor
+     * before rounding down. Null when there is neither.
+     */
     private fun firstTimeWeight(
         item: PlanItem,
         exercise: Exercise,
@@ -136,16 +148,41 @@ object BodybuildingCoach {
         settings: CoachSettings,
         today: LocalDate,
     ): Double? {
-        val from = today.minus(FIRST_TIME_DAYS, DateTimeUnit.DAY)
-        val sets = history.sessions
-            .filter { it.mode == TrainingMode.POWERLIFTING && it.date >= from && it.date < today }
-            .flatMap { it.sets }
-            .filter { it.exerciseId == item.exerciseId && !it.failed && it.weightKg > 0.0 }
-        val best = sets.maxByOrNull { E1rm.estimate(it.weightKg, it.reps, it.rpe) } ?: return null
+        val recentFrom = today.minus(FIRST_TIME_DAYS, DateTimeUnit.DAY)
+        val dated = history.sessions
+            .filter { it.mode == TrainingMode.POWERLIFTING && it.date < today }
+            .flatMap { s -> s.sets.map { s.date to it } }
+            .filter { (_, set) -> set.exerciseId == item.exerciseId && !set.failed && set.weightKg > 0.0 }
         val middle = (item.reps + high(item)) / 2
-        val kg = E1rm.loadFor(E1rm.estimate(best.weightKg, best.reps, best.rpe), middle, item.targetRpe)
-        val free = ProgressionRule.isFreeLoad(exercise, best.weightKg)
-        return ProgressionRule.roundDown(kg, best.weightKg, free, settings.changePlates)
+        val (kg, anchor, asOf) = if (dated.isNotEmpty()) {
+            val latest = dated.maxOf { it.first }
+            // 28 days ending yesterday when the latest session is recent (as before), else ending on that session.
+            val end = if (latest >= recentFrom) today else latest.plus(1, DateTimeUnit.DAY)
+            val from = end.minus(FIRST_TIME_DAYS, DateTimeUnit.DAY)
+            val best = dated.filter { it.first >= from && it.first < end }.map { it.second }
+                .maxBy { E1rm.estimate(it.weightKg, it.reps, it.rpe) }
+            Triple(E1rm.loadFor(E1rm.estimate(best.weightKg, best.reps, best.rpe), middle, item.targetRpe), best.weightKg, latest)
+        } else {
+            val baseline = history.baselines.filter { it.exerciseId == item.exerciseId && it.date <= today }
+                .maxByOrNull { it.date } ?: return null
+            val kg = E1rm.loadFor(baseline.e1rmKg, middle, item.targetRpe)
+            Triple(kg, 0.0, baseline.date)
+        }
+        val wanted = if (asOf < recentFrom) kg * AdvicePayload.ReEntry().loadFactor else kg
+        val free = ProgressionRule.isFreeLoad(exercise, if (anchor > 0.0) anchor else wanted)
+        return roundDown(wanted, anchor, free, settings.changePlates)
+    }
+
+    /**
+     * The nearest loadable weight not above [kg] on this side: a free load on the [FREE_STEP_KG] grid anchored on
+     * [anchorKg] (never below 0), a barbell load on the plate grid as the powerlifting side rounds it.
+     */
+    internal fun roundDown(kg: Double, anchorKg: Double, free: Boolean, changePlates: Boolean): Double {
+        if (!free) return ProgressionRule.roundDown(kg, anchorKg, free = false, changePlates = changePlates)
+        val step = (FREE_STEP_KG * 100).roundToLong()
+        val base = (anchorKg * 100).roundToLong()
+        val over = (kg * 100).roundToLong() - base
+        return max(base + over.floorDiv(step) * step, 0L) / 100.0
     }
 
     /**
@@ -209,7 +246,7 @@ object BodybuildingCoach {
             val reference = (side.lastTopSet(item.exerciseId, referenceDate) ?: side.lastTopSet(item.exerciseId, target.createdAt))
                 ?.second?.weightKg ?: payload.weightKg
             val free = ProgressionRule.isFreeLoad(exercise, reference)
-            return ProgressionRule.roundDown(reference * factor, reference, free, settings.changePlates)
+            return roundDown(reference * factor, reference, free, settings.changePlates)
         }
 
         var weight = payload.weightKg

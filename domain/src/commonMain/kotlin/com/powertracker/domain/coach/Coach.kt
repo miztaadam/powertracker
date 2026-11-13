@@ -56,6 +56,19 @@ object Coach {
         settings: CoachSettings,
         today: LocalDate,
         priorAdvice: List<Advice>,
+    ): List<Advice> = evaluate(history, plan, settings, today, priorAdvice, readinessAloneDeloads = false)
+
+    /**
+     * As [evaluate]; with [readinessAloneDeloads] (the bodybuilding side) low readiness by itself raises the
+     * fatigue deload, under the same rails.
+     */
+    internal fun evaluate(
+        history: TrainingHistory,
+        plan: List<PlanItem>,
+        settings: CoachSettings,
+        today: LocalDate,
+        priorAdvice: List<Advice>,
+        readinessAloneDeloads: Boolean,
     ): List<Advice> {
         val all = HistoryStats(history)
         val stats = powerliftingStats(history, all)
@@ -64,7 +77,7 @@ object Coach {
         val returnDate = all.returnDateAfterGap(today)
         if (returnDate != null) reEntry(all, returnDate, today, priorAdvice)?.let(candidates::add)
 
-        if (!deloadBlocked(priorAdvice, today)) FatigueRule.evaluate(all, history, today)?.let(candidates::add)
+        if (!deloadBlocked(priorAdvice, today)) FatigueRule.evaluate(all, history, today, readinessAloneDeloads)?.let(candidates::add)
 
         val stallsPaused = returnDate != null && today < returnDate.plus(STALL_PAUSE_DAYS, DateTimeUnit.DAY)
         if (!stallsPaused) {

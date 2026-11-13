@@ -6,6 +6,7 @@ import com.powertracker.domain.Ids
 import com.powertracker.domain.history
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
+import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
@@ -135,6 +136,65 @@ class CoachingTest {
                 assertTrue(advice.none { it.type == AdviceType.DELOAD }, "made on $madeOn, asked on $side: $advice")
             }
         }
+    }
+
+    /** Four bodybuilding sessions in the last fortnight, each rated [readiness]; today is the day after the last. */
+    private fun bodybuildingOnly(readiness: Int): Pair<TrainingHistory, LocalDate> {
+        val start = LocalDate(2026, 1, 5)
+        val h = history(start) {
+            for (d in listOf(0, 3, 7, 10)) {
+                session(d, readiness = readiness, mode = TrainingMode.BODYBUILDING) { repeat(3) { set(Ids.DB_PRESS, 26.0, 10) } }
+            }
+        }
+        return h to start.plus(11, DateTimeUnit.DAY)
+    }
+
+    private val bbPlan = listOf(PlanItem(1, DayOfWeek.MONDAY, Ids.DB_PRESS, 3, 8, 8.0, 0, TrainingMode.BODYBUILDING, 12))
+
+    @Test
+    fun lowReadinessAloneGivesADeloadOnTheBodybuildingSide() {
+        val (h, today) = bodybuildingOnly(readiness = 1)
+        val advice = Coaching.evaluate(TrainingMode.BODYBUILDING, h, bbPlan, CoachSettings(), today, emptyList())
+        val deload = advice.single()
+        assertEquals(AdviceType.DELOAD, deload.type)
+        assertEquals(TrainingMode.BODYBUILDING, deload.mode)
+        assertEquals(AdvicePayload.Deload(), deload.payload)
+        assertEquals(
+            "Signs of fatigue: low readiness. Take a deload week: about 60% of the volume at about 90% of the load.",
+            deload.reason,
+        )
+    }
+
+    @Test
+    fun lowReadinessAloneStillGivesNoDeloadOnThePowerliftingSide() {
+        val (h, today) = bodybuildingOnly(readiness = 1)
+        val advice = Coaching.evaluate(TrainingMode.POWERLIFTING, h, bbPlan, CoachSettings(), today, emptyList())
+        assertTrue(advice.none { it.type == AdviceType.DELOAD }, "$advice")
+        assertTrue(Coach.evaluate(h, bbPlan, CoachSettings(), today, emptyList()).none { it.type == AdviceType.DELOAD })
+    }
+
+    @Test
+    fun normalReadinessGivesNoDeloadOnTheBodybuildingSide() {
+        val (h, today) = bodybuildingOnly(readiness = 4)
+        assertEquals(emptyList(), Coaching.evaluate(TrainingMode.BODYBUILDING, h, bbPlan, CoachSettings(), today, emptyList()))
+    }
+
+    @Test
+    fun anActiveDeloadBlocksASecondReadinessDeload() {
+        val (h, today) = bodybuildingOnly(readiness = 1)
+        for (madeOn in TrainingMode.entries) {
+            val open = Advice(AdviceType.DELOAD, null, today.minus(3, DateTimeUnit.DAY), "stored", 1, AdvicePayload.Deload(), mode = madeOn)
+            val advice = Coaching.evaluate(TrainingMode.BODYBUILDING, h, bbPlan, CoachSettings(), today, listOf(open))
+            assertTrue(advice.none { it.type == AdviceType.DELOAD }, "made on $madeOn: $advice")
+        }
+        // An applied one keeps its cooldown too.
+        val applied = Advice(
+            AdviceType.DELOAD, null, today.minus(10, DateTimeUnit.DAY), "stored", 1, AdvicePayload.Deload(),
+            AdviceStatus.APPLIED,
+        )
+        assertTrue(
+            Coaching.evaluate(TrainingMode.BODYBUILDING, h, bbPlan, CoachSettings(), today, listOf(applied)).none { it.type == AdviceType.DELOAD },
+        )
     }
 
     @Test

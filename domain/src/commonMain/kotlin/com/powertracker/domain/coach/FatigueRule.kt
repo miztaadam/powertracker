@@ -31,12 +31,21 @@ object FatigueRule {
     private const val MIN_FAILED_SETS = 2
     private const val LOW_READINESS = 2.0
     private const val READINESS_DROP = 1.5
+    private const val LOW_READINESS_TEXT = "low readiness"
 
     internal data class Signal(val text: String)
 
-    fun evaluate(stats: HistoryStats, history: TrainingHistory, today: LocalDate): Advice? {
+    fun evaluate(stats: HistoryStats, history: TrainingHistory, today: LocalDate): Advice? =
+        evaluate(stats, history, today, readinessAlone = false)
+
+    /**
+     * As [evaluate]; with [readinessAlone] (the bodybuilding side, whose other signals read no session of its own)
+     * the low-readiness signal by itself is enough.
+     */
+    internal fun evaluate(stats: HistoryStats, history: TrainingHistory, today: LocalDate, readinessAlone: Boolean): Advice? {
         val fired = signals(stats, history, today)
-        if (fired.size < MIN_SIGNALS) return null
+        val enough = fired.size >= MIN_SIGNALS || (readinessAlone && fired.any { it.text == LOW_READINESS_TEXT })
+        if (!enough) return null
         val deload = AdvicePayload.Deload()
         val reason = "Signs of fatigue: ${fired.joinToString("; ") { it.text }}. " +
             "Take a deload week: about ${percent(deload.volumeFactor)}% of the volume " +
@@ -100,7 +109,7 @@ object FatigueRule {
         val later = rated.filter { it.first >= midpoint }.map { it.second }
         val dropped = earlier.isNotEmpty() && later.isNotEmpty() &&
             earlier.average() - later.average() >= READINESS_DROP
-        return if (low || dropped) Signal("low readiness") else null
+        return if (low || dropped) Signal(LOW_READINESS_TEXT) else null
     }
 
     private fun e1rmDown(stats: HistoryStats, today: LocalDate): Signal? {

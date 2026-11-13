@@ -41,7 +41,8 @@ object Coaching {
     /**
      * New advice to store for [mode]'s side. On the bodybuilding side in this stage only the advice that belongs to
      * the lifter: easing back in after a break and the fatigue deload (the same rule and the same one-at-a-time
-     * rails as on the powerlifting side).
+     * rails as on the powerlifting side). The deload's other signals read only powerlifting sessions, so on the
+     * bodybuilding side low readiness (over every session, as the rule reads it) is enough by itself.
      */
     fun evaluate(
         mode: TrainingMode,
@@ -51,7 +52,10 @@ object Coaching {
         today: LocalDate,
         priorAdvice: List<Advice>,
     ): List<Advice> {
-        val advice = Coach.evaluate(history, plan.on(mode), settings, today, priorAdvice.forSide(mode))
+        val advice = Coach.evaluate(
+            history, plan.on(mode), settings, today, priorAdvice.forSide(mode),
+            readinessAloneDeloads = mode == TrainingMode.BODYBUILDING,
+        )
         val kept = when (mode) {
             TrainingMode.POWERLIFTING -> advice
             TrainingMode.BODYBUILDING -> advice.filter { it.type == AdviceType.RE_ENTRY || it.type == AdviceType.DELOAD }

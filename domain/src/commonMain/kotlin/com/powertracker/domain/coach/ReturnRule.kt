@@ -58,7 +58,7 @@ internal object ReturnRule {
             val best = elsewhere.maxOf { E1rm.estimate(it.weightKg, it.reps, it.rpe) }
             val supported = E1rm.loadFor(best, payload.reps, payload.rpe)
             val free = ProgressionRule.isFreeLoad(exercise, payload.weightKg)
-            val cap = ProgressionRule.roundDown(supported, payload.weightKg, free, plates)
+            val cap = roundDown(mode, supported, payload.weightKg, free, plates)
             if (cap >= payload.weightKg) return target
             return target.copy(
                 reason = withSuggestion(target.reason, cap, payload.reps, payload.repsHigh, payload.rpe) + Coach.RE_ENTRY_NOTE,
@@ -69,13 +69,20 @@ internal object ReturnRule {
         val (_, last) = HistoryStats(history.on(mode)).lastTopSet(item.exerciseId, today) ?: return target
         val factor = AdvicePayload.ReEntry().loadFactor
         val free = ProgressionRule.isFreeLoad(exercise, last.weightKg)
-        val weight = minOf(payload.weightKg, ProgressionRule.roundDown(last.weightKg * factor, last.weightKg, free, plates))
+        val weight = minOf(payload.weightKg, roundDown(mode, last.weightKg * factor, last.weightKg, free, plates))
         val reps = item.reps
         return target.copy(
             reason = withSuggestion(target.reason, weight, reps, payload.repsHigh, payload.rpe) + Coach.RE_ENTRY_NOTE,
             payload = payload.copy(weightKg = weight, reps = reps),
         )
     }
+
+    /** Rounded down as [mode]'s coach rounds: free loads on the bodybuilding side on its 0.5 kg grid. */
+    private fun roundDown(mode: TrainingMode, kg: Double, anchorKg: Double, free: Boolean, changePlates: Boolean): Double =
+        when (mode) {
+            TrainingMode.POWERLIFTING -> ProgressionRule.roundDown(kg, anchorKg, free, changePlates)
+            TrainingMode.BODYBUILDING -> BodybuildingCoach.roundDown(kg, anchorKg, free, changePlates)
+        }
 
     /** The exercise ids that count as training [exercise] on [mode]. */
     private fun family(exercise: Exercise, mode: TrainingMode, history: TrainingHistory): Set<Long> {

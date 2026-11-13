@@ -20,6 +20,11 @@ object CoachSources {
      * every planned set reaching the top of the range at or under the target RPE. The owner's trigger is kept.
      *
      * Found with a web search restricted to the allowed sources; the page itself was not opened.
+     *
+     * The 2-10% figure was confirmed again on 2026-11-13 by a web search restricted to exrx.net, acsm.org and
+     * pmc.ncbi.nlm.nih.gov (the ExRx page attributes it to ACSM's 2002 and 2009 position stands). ACSM published a
+     * new resistance training position stand in 2026 (https://acsm.org/resistance-training-guidelines-update-2026/),
+     * which should be read before stage 3's weekly-volume numbers are chosen.
      */
     val BODYBUILDING_INCREASE = Source(
         title = "Weight Training Guidelines (summarising the ACSM position stands on progression models in resistance training)",

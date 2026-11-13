@@ -135,13 +135,76 @@ class BodybuildingCoachTest {
     @Test
     fun noHistoryAtAllGivesNoAdvice() {
         val h = history(start) { }
+        assertEquals(emptyList(), targets(h, listOf(item(Ids.BENCH))))
         assertEquals(emptyList(), targets(h, listOf(item(Ids.DB_PRESS))))
-        // A powerlifting set older than 28 days is no history for a first-time weight either.
-        val old = history(start) { session(0) { bench(100.0, 5) } }
-        assertEquals(
-            emptyList(),
-            BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, old, listOf(item(Ids.BENCH)), settings, start.plus(35, DateTimeUnit.DAY), emptyList()),
+        // Only missed sets: nothing to go on either.
+        val missed = history(start) { session(0) { bench(100.0, 5, failed = true) } }
+        assertEquals(emptyList(), targets(missed, listOf(item(Ids.BENCH))))
+    }
+
+    @Test
+    fun powerliftingHistoryOlderThanFourWeeksGivesALighterFirstTimeWeight() {
+        // Bench 100 × 5 @ 8, 52 days before day 56 (a Monday); and the same sets four days before it. Dumbbell
+        // press on the bodybuilding side last week, so neither log is a break from training.
+        val day = start.plus(56, DateTimeUnit.DAY)
+        val old = history(start) {
+            session(4) { bench(100.0, 5, rpe = 8.0) }
+            session(49, mode = TrainingMode.BODYBUILDING) { sets(Ids.DB_PRESS, 26.0, 10, 10, 10) }
+        }
+        val recent = history(start) {
+            session(49, mode = TrainingMode.BODYBUILDING) { sets(Ids.DB_PRESS, 26.0, 10, 10, 10) }
+            session(52) { bench(100.0, 5, rpe = 8.0) }
+        }
+        fun first(h: TrainingHistory) =
+            BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item(Ids.BENCH)), settings, day, emptyList()).single()
+        val fresh = first(recent)
+        assertEquals(82.5, fresh.target().weightKg)
+        val eased = first(old)
+        val factor = AdvicePayload.ReEntry().loadFactor
+        val expected = ProgressionRule.roundDown(
+            E1rm.loadFor(E1rm.estimate(100.0, 5, 8.0), 10, 8.0) * factor, 100.0, free = false, changePlates = false,
         )
+        assertEquals(70.0, expected)
+        assertEquals(expected, eased.target().weightKg)
+        assertTrue(eased.target().weightKg < fresh.target().weightKg)
+        assertEquals("First time on this side. Coach suggests 70 × 8–12 @ 8.", eased.reason)
+    }
+
+    @Test
+    fun oldHistoryIsReadFromTheFourWeeksEndingAtItsLatestSession() {
+        // Bench 140 × 5 on day -10, 120 × 5 on day 0, 100 × 5 on day 20; today is day 70. The 28 days ending on
+        // day 20 hold the 120 and the 100, so the estimate is the 120's; the 140, 30 days before day 20, is out.
+        val day = start.plus(70, DateTimeUnit.DAY)
+        val h = history(start.plus(-10, DateTimeUnit.DAY)) {
+            session(0) { bench(140.0, 5, rpe = 8.0) }
+            session(10) { bench(120.0, 5, rpe = 8.0) }
+            session(30) { bench(100.0, 5, rpe = 8.0) }
+            session(75, mode = TrainingMode.BODYBUILDING) { sets(Ids.DB_PRESS, 26.0, 10, 10, 10) }
+        }
+        val t = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item(Ids.BENCH)), settings, day, emptyList()).single().target()
+        val expected = ProgressionRule.roundDown(
+            E1rm.loadFor(E1rm.estimate(120.0, 5, 8.0), 10, 8.0) * AdvicePayload.ReEntry().loadFactor, 120.0,
+            free = false, changePlates = false,
+        )
+        assertEquals(expected, t.weightKg)
+    }
+
+    @Test
+    fun aBaselineAloneGivesAFirstTimeWeight() {
+        // The builder dates a baseline at day 0, seven days before today: recent, so no easing.
+        val h = history(start) { baseline(Ids.BENCH, 120.0) }
+        val advice = targets(h, listOf(item(Ids.BENCH))).single()
+        val expected = ProgressionRule.roundDown(E1rm.loadFor(120.0, 10, 8.0), 0.0, free = false, changePlates = false)
+        assertEquals(expected, advice.target().weightKg)
+        assertEquals("First time on this side. Coach suggests ${ProgressionRule.fmt(expected)} × 8–12 @ 8.", advice.reason)
+        // The same baseline 52 days later is eased by the re-entry factor.
+        val later = start.plus(52, DateTimeUnit.DAY)
+        val eased = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item(Ids.BENCH)), settings, later, emptyList()).single()
+        assertEquals(
+            ProgressionRule.roundDown(E1rm.loadFor(120.0, 10, 8.0) * AdvicePayload.ReEntry().loadFactor, 0.0, free = false, changePlates = false),
+            eased.target().weightKg,
+        )
+        assertTrue(eased.target().weightKg < expected)
     }
 
     @Test
@@ -265,19 +328,95 @@ class BodybuildingCoachTest {
         val back = start.plus(49, DateTimeUnit.DAY)
         val item = item(Ids.DB_PRESS)
         val advice = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item), settings, back, emptyList()).single()
-        assertEquals(AdvicePayload.Target(Ids.DB_PRESS, 21.0, 8, 8.0, null, 12), advice.payload)
+        assertEquals(AdvicePayload.Target(Ids.DB_PRESS, 22.0, 8, 8.0, null, 12), advice.payload)
         assertEquals(
-            "Last time: 26 × 12, 12, 12. Time to add weight. Coach suggests 21 × 8–12 @ 8. Easing back in: lighter load.",
+            "Last time: 26 × 12, 12, 12. Time to add weight. Coach suggests 22 × 8–12 @ 8. Easing back in: lighter load.",
             advice.reason,
         )
         // With a deload open as well: both notes, each once, and fewer sets.
         val deload = Advice(AdviceType.DELOAD, null, back, "Signs of fatigue", 2, AdvicePayload.Deload())
         val both = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item), settings, back, listOf(deload)).single()
         assertEquals(2, both.target().sets)
-        assertTrue(both.target().weightKg <= 21.0)
+        assertTrue(both.target().weightKg <= 22.0)
         assertTrue(
             both.reason.endsWith("@ 8. Deload week: lighter load and fewer sets. Easing back in: lighter load."),
             both.reason,
         )
+    }
+
+    @Test
+    fun aDumbbellDeloadIsRoundedDownOnTheHalfKiloGrid() {
+        // 26 × 0.9 = 23.4: 23, not 21 on the 2.5 kg grid.
+        val h = lastWeek { sets(Ids.DB_PRESS, 26.0, 11, 10, 9) }
+        val deload = Advice(AdviceType.DELOAD, null, today, "Signs of fatigue", 2, AdvicePayload.Deload())
+        for (changePlates in listOf(false, true)) {
+            val t = targets(h, listOf(item(Ids.DB_PRESS)), listOf(deload), CoachSettings(changePlates = changePlates)).single()
+            assertEquals(23.0, t.target().weightKg, "change plates $changePlates")
+            assertTrue(t.reason.contains("Coach suggests 23 × 8–12 @ 8."), t.reason)
+        }
+    }
+
+    @Test
+    fun aDumbbellEasedInAfterABreakIsRoundedDownOnTheHalfKiloGrid() {
+        // 26 × 0.85 = 22.1: 22.
+        val h = history(start) { session(0, mode = TrainingMode.BODYBUILDING) { sets(Ids.DB_PRESS, 26.0, 11, 10, 9) } }
+        val back = start.plus(21, DateTimeUnit.DAY)
+        val advice = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item(Ids.DB_PRESS)), settings, back, emptyList()).single()
+        assertEquals(22.0, advice.target().weightKg)
+    }
+
+    @Test
+    fun aDumbbellCappedByTheOtherSideIsRoundedDownOnTheHalfKiloGrid() {
+        // Dumbbell press 26 × 11, 10, 9 on the bodybuilding side on day 0; then 20 × 5 @ 8 on the powerlifting side
+        // only. Day 35: capped at what 20 × 5 supports for 8 reps @ 8, rounded down on the 0.5 kg grid from 26.
+        val h = history(start) {
+            session(0, mode = TrainingMode.BODYBUILDING) { sets(Ids.DB_PRESS, 26.0, 11, 10, 9) }
+            for (d in listOf(14, 21, 28)) session(d) { set(Ids.DB_PRESS, 20.0, 5, 8.0) }
+        }
+        val day = start.plus(35, DateTimeUnit.DAY)
+        val t = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item(Ids.DB_PRESS)), settings, day, emptyList()).single().target()
+        val supported = E1rm.loadFor(E1rm.estimate(20.0, 5, 8.0), 8, 8.0)
+        assertTrue(supported < 26.0, "$supported")
+        assertTrue(t.weightKg <= supported && t.weightKg > supported - 0.5, "${t.weightKg} from $supported")
+        assertTrue(onGrid(t.weightKg, 26.0, 0.5), "${t.weightKg}")
+    }
+
+    @Test
+    fun aDumbbellFirstTimeWeightIsRoundedDownOnTheHalfKiloGrid() {
+        // 32 × 5 @ 8 supports about 26.8 for 10 @ 8: 26.5, not 24.5 on the 2.5 kg grid.
+        val h = history(start) { session(0) { set(Ids.DB_PRESS, 32.0, 5, 8.0) } }
+        val t = targets(h, listOf(item(Ids.DB_PRESS))).single().target()
+        val wanted = E1rm.loadFor(E1rm.estimate(32.0, 5, 8.0), 10, 8.0)
+        assertTrue(wanted > 26.5 && wanted < 27.0, "$wanted")
+        assertEquals(26.5, t.weightKg)
+    }
+
+    @Test
+    fun aBarbellDeloadStaysOnThePlateGrid() {
+        // 60 × 0.9 = 54: 52.5 without change plates, 54 with them.
+        val h = lastWeek { sets(Ids.BENCH, 60.0, 11, 10, 9) }
+        val deload = Advice(AdviceType.DELOAD, null, today, "Signs of fatigue", 2, AdvicePayload.Deload())
+        assertEquals(52.5, targets(h, listOf(item(Ids.BENCH)), listOf(deload)).single().target().weightKg)
+        assertEquals(54.0, targets(h, listOf(item(Ids.BENCH)), listOf(deload), CoachSettings(changePlates = true)).single().target().weightKg)
+    }
+
+    @Test
+    fun theSameDumbbellDeloadOnThePowerliftingSideKeepsTodaysNumber() {
+        val h = history(start) { session(0) { set(Ids.DB_PRESS, 26.0, 10, 8.0, isTopSet = true) } }
+        val deload = Advice(AdviceType.DELOAD, null, today, "Signs of fatigue", 2, AdvicePayload.Deload())
+        val plan = listOf(PlanItem(1, DayOfWeek.MONDAY, Ids.DB_PRESS, 3, 10, 8.0, 0))
+        val t = Coach.targetsFor(DayOfWeek.MONDAY, h, plan, settings, today, listOf(deload)).single().payload as AdvicePayload.Target
+        assertEquals(21.0, t.weightKg)
+    }
+
+    @Test
+    fun aBodyweightExerciseAtZeroIsNeverToldToAddWeight() {
+        val h = lastWeek { sets(Ids.PULL_UP, 0.0, 12, 12, 12) }
+        val item = item(Ids.PULL_UP)
+        val advice = targets(h, listOf(item)).single()
+        assertEquals(AdvicePayload.Target(Ids.PULL_UP, 0.0, 8, 8.0, null, 12), advice.payload)
+        assertEquals("Last time: 0 × 12, 12, 12. Beat it. Coach suggests 0 × 8–12 @ 8.", advice.reason)
+        // With no weight to add, the reps to beat stay at the top of the range.
+        assertEquals(listOf(12, 12, 12), (1..3).map { BodybuildingCoach.repsToBeat(item, h, it, today) })
     }
 }
