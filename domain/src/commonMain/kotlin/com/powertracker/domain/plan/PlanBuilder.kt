@@ -6,6 +6,8 @@ import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.LibraryExercise
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.library.MuscleGroups
+import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
@@ -96,7 +98,7 @@ object PlanBuilder {
 
     private val FULL_BODY_TEMPLATES: List<List<SlotKind>> = listOf(
         listOf(SlotKind.QUAD_COMPOUND, SlotKind.CHEST_PRESS, SlotKind.PULL_DOWN, SlotKind.LEG_CURL, SlotKind.SIDE_DELT, SlotKind.REAR_DELT, SlotKind.BICEPS, SlotKind.TRICEPS),
-        listOf(SlotKind.HINGE, SlotKind.CHEST_INCLINE, SlotKind.ROW, SlotKind.QUAD_ISOLATION, SlotKind.SHOULDER_PRESS, SlotKind.CALVES, SlotKind.ABS, SlotKind.BICEPS),
+        listOf(SlotKind.HINGE, SlotKind.CHEST_INCLINE, SlotKind.ROW, SlotKind.QUAD_ISOLATION, SlotKind.SHOULDER_PRESS, SlotKind.CALVES, SlotKind.ABS, SlotKind.TRICEPS),
         listOf(SlotKind.CHEST_PRESS, SlotKind.QUAD_COMPOUND, SlotKind.PULL_DOWN, SlotKind.HINGE, SlotKind.SIDE_DELT, SlotKind.REAR_DELT, SlotKind.CALVES, SlotKind.ABS),
     )
 
@@ -115,28 +117,54 @@ object PlanBuilder {
     fun mainGroup(muscles: List<String>): MuscleGroup? = muscles.firstOrNull()?.let(MuscleGroups::of)
 
     /**
-     * An exercise's one kind, from its main group and, where a group has two kinds, its name (any letter case) or
-     * whether it is a compound. Null for TRAPS and for no main group: such a pick can only be held over.
+     * An exercise's one kind. A catalogue main lift or variation ([inCatalogue], looked up by name) takes its lift's
+     * kind whatever its first muscle. Otherwise its main group decides and, where a group has two kinds, its name (any
+     * letter case) or whether it is a compound. Null for no kind: such a pick can only be held over.
      */
-    fun kindOf(name: String, muscles: List<String>, compound: Boolean): SlotKind? {
-        fun has(text: String) = name.contains(text, ignoreCase = true)
+    fun kindOf(name: String, muscles: List<String>, compound: Boolean, inCatalogue: Boolean): SlotKind? {
+        if (inCatalogue) {
+            val entry = Library.find(name)
+            val lift = when (entry?.category) {
+                Category.SQUAT -> MainLift.SQUAT
+                Category.BENCH -> MainLift.BENCH
+                Category.DEADLIFT -> MainLift.DEADLIFT
+                Category.STRICT_PRESS -> MainLift.STRICT_PRESS
+                Category.VARIATION -> entry.parentLift
+                Category.ACCESSORY, null -> null
+            }
+            when (lift) {
+                MainLift.SQUAT -> return SlotKind.QUAD_COMPOUND
+                MainLift.BENCH -> return SlotKind.CHEST_PRESS
+                MainLift.DEADLIFT -> return SlotKind.HINGE
+                MainLift.STRICT_PRESS -> return SlotKind.SHOULDER_PRESS
+                null -> Unit
+            }
+        }
+        fun has(vararg words: String) = words.any { name.contains(it, ignoreCase = true) }
         return when (mainGroup(muscles)) {
             MuscleGroup.CHEST -> when {
                 !compound -> SlotKind.CHEST_FLY
-                has("ncline") -> SlotKind.CHEST_INCLINE
+                has("incline") -> SlotKind.CHEST_INCLINE
                 else -> SlotKind.CHEST_PRESS
             }
             MuscleGroup.LATS -> if (has("row")) SlotKind.ROW else SlotKind.PULL_DOWN
             MuscleGroup.UPPER_BACK -> SlotKind.ROW
-            MuscleGroup.QUADS, MuscleGroup.ADDUCTORS -> if (has("extension") || has("adduction")) SlotKind.QUAD_ISOLATION else SlotKind.QUAD_COMPOUND
-            MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES, MuscleGroup.LOWER_BACK -> if (has("curl") || has("glute-ham")) SlotKind.LEG_CURL else SlotKind.HINGE
-            MuscleGroup.FRONT_DELTS -> SlotKind.SHOULDER_PRESS
+            MuscleGroup.QUADS, MuscleGroup.ADDUCTORS ->
+                if (has("extension", "adduction", "lunge", "split squat", "step-up")) SlotKind.QUAD_ISOLATION else SlotKind.QUAD_COMPOUND
+            MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES, MuscleGroup.LOWER_BACK -> when {
+                has("curl", "glute-ham") -> SlotKind.LEG_CURL
+                has("abduction", "clamshell", "band walk", "quadruped") -> null
+                has("curtsy lunge") -> SlotKind.QUAD_ISOLATION
+                else -> SlotKind.HINGE
+            }
+            MuscleGroup.FRONT_DELTS -> if (has("raise")) null else SlotKind.SHOULDER_PRESS
             MuscleGroup.SIDE_DELTS -> SlotKind.SIDE_DELT
-            MuscleGroup.REAR_DELTS -> SlotKind.REAR_DELT
-            MuscleGroup.BICEPS, MuscleGroup.FOREARMS -> SlotKind.BICEPS
+            MuscleGroup.REAR_DELTS -> if (has("rotation")) null else SlotKind.REAR_DELT
+            MuscleGroup.BICEPS -> SlotKind.BICEPS
+            MuscleGroup.FOREARMS -> if (has("curl") && !has("wrist")) SlotKind.BICEPS else null
             MuscleGroup.TRICEPS -> SlotKind.TRICEPS
             MuscleGroup.CALVES -> SlotKind.CALVES
-            MuscleGroup.ABS, MuscleGroup.OBLIQUES -> SlotKind.ABS
+            MuscleGroup.ABS, MuscleGroup.OBLIQUES -> if (has("plank", "carry", "walk")) null else SlotKind.ABS
             MuscleGroup.TRAPS, null -> null
         }
     }
@@ -147,11 +175,13 @@ object PlanBuilder {
     private class Item(val name: String, val inCatalogue: Boolean, val muscles: List<String>, val compound: Boolean) {
         val key: String = Library.normalise(name)
         val mainGroup: MuscleGroup? = mainGroup(muscles)
-        val kind: SlotKind? = kindOf(name, muscles, compound)
+        val kind: SlotKind? = kindOf(name, muscles, compound, inCatalogue)
     }
 
-    private class Slot(val kind: SlotKind, val lead: Boolean) {
+    /** A template slot, or one a priority added ([forGroup]): an added slot takes only an exercise that works its group. */
+    private class Slot(val kind: SlotKind, val lead: Boolean, val forGroup: MuscleGroup? = null) {
         var item: Item? = null
+        fun takes(item: Item) = item.kind == kind && (forGroup == null || MuscleGroups.works(item.muscles, forGroup))
     }
 
     /** A session being built; [upper] is null on a full-body day. */
@@ -159,7 +189,8 @@ object PlanBuilder {
         val slots: MutableList<Slot> = kinds.mapIndexed { i, kind -> Slot(kind, lead = i == 0) }.toMutableList()
         var heldOver: Item? = null
         fun holds(key: String) = slots.any { it.item?.key == key } || heldOver?.key == key
-        fun firstEmptyOf(kind: SlotKind): Slot? = slots.firstOrNull { it.item == null && it.kind == kind }
+        fun firstEmpty(pick: Item, added: Boolean): Slot? =
+            slots.firstOrNull { it.item == null && (it.forGroup != null) == added && it.takes(pick) }
 
         /** On 4 days, whether a slot or a pick of [kind] belongs here; a pick with no kind belongs anywhere. */
         fun mayTake(kind: SlotKind?) = upper == null || kind == null || upper == kind.upper
@@ -185,7 +216,7 @@ object PlanBuilder {
             val kind = PRIORITY_SLOT.getValue(group)
             sessions.filter { it.mayTake(kind) }
                 .minWith(compareBy<Session>({ s -> s.slots.count { it.kind == kind } }, { it.slots.size }))
-                .slots += Slot(kind, lead = false)
+                .slots += Slot(kind, lead = false, forGroup = group)
         }
 
         // The same pick twice (by name) is one pick. Kinds-table order (no kind last), then name; priorities do not
@@ -194,12 +225,15 @@ object PlanBuilder {
             .map { Item(it.name, it.inCatalogue, it.muscles, it.compound) }
         val ordered = picks.sortedWith(compareBy<Item>({ it.kind?.ordinal ?: Int.MAX_VALUE }, { it.name }))
 
+        // A pick looks at every template slot (week order) before any added slot, so a priority only adds.
+        fun slotFor(pick: Item, among: List<Session>): Slot? =
+            among.firstNotNullOfOrNull { it.firstEmpty(pick, added = false) } ?: among.firstNotNullOfOrNull { it.firstEmpty(pick, added = true) }
+
         // 2. Place the picks once: the first empty slot of its kind, sessions in week order, slots in session order.
         val placed = mutableListOf<Item>()
         val heldOver = mutableListOf<Item>()
         for (pick in ordered) {
-            val kind = pick.kind
-            val slot = kind?.let { k -> sessions.firstNotNullOfOrNull { it.firstEmptyOf(k) } }
+            val slot = if (pick.kind == null) null else slotFor(pick, sessions)
             if (slot == null) {
                 heldOver += pick
             } else {
@@ -209,10 +243,7 @@ object PlanBuilder {
         }
 
         // 3. Place them a second time, in a session that does not already hold them.
-        for (pick in placed) {
-            val kind = pick.kind ?: continue
-            sessions.filter { !it.holds(pick.key) }.firstNotNullOfOrNull { it.firstEmptyOf(kind) }?.item = pick
-        }
+        for (pick in placed) slotFor(pick, sessions.filter { !it.holds(pick.key) })?.item = pick
 
         // 4. Held-over picks: one a session, the session with the fewest exercises (its slots) that may take it.
         val leftOut = mutableListOf<LeftOut>()
@@ -221,21 +252,22 @@ object PlanBuilder {
             if (target == null) leftOut += LeftOut(pick.name, NO_ROOM) else target.heldOver = pick
         }
 
-        // 5. Fill the empty slots with each kind's first default the session does not hold. A pick never goes in a
-        // third time through a default.
+        // 5. Fill the empty slots with each kind's first default the session does not hold: every template slot first,
+        // then the added slots, which take only a default that works their group. A pick never goes in a third time
+        // through a default.
         val equipmentUse = equipmentUse(answers.picks)
         val pickKeys = picks.map { it.key }.toSet()
         fun weekCount(key: String) = sessions.sumOf { s -> s.slots.count { it.item?.key == key } + (if (s.heldOver?.key == key) 1 else 0) }
-        for (s in sessions) {
-            for (slot in s.slots.filter { it.item == null }) {
-                val name = defaultsFor(slot.kind, equipmentUse, answers.variant).firstOrNull { d ->
+        for (added in listOf(false, true)) for (s in sessions) {
+            for (slot in s.slots.filter { it.item == null && (it.forGroup != null) == added }) {
+                val default = defaultsFor(slot.kind, equipmentUse, answers.variant).firstOrNull { d ->
                     val k = Library.normalise(d.name)
-                    !s.holds(k) && (k !in pickKeys || weekCount(k) < 2)
+                    !s.holds(k) && (k !in pickKeys || weekCount(k) < 2) && (slot.forGroup == null || MuscleGroups.works(d.muscles, slot.forGroup))
                 }
-                slot.item = name?.let { Item(it.name, true, it.muscles, it.kind == Kind.COMPOUND) }
+                slot.item = default?.let { Item(it.name, true, it.muscles, it.kind == Kind.COMPOUND) }
             }
-            s.slots.removeAll { it.item == null } // only when every default of the kind is already in the session
         }
+        for (s in sessions) s.slots.removeAll { it.item == null } // only when no default fits
 
         // 6 and 7. Order each session and prescribe.
         val draftSessions = sessions.map { s ->
@@ -320,7 +352,7 @@ object PlanBuilder {
         val defaults = orderedDefaults(kind, equipmentUse(picks))
         val defaultNames = defaults.map { it.name }.toSet()
         return defaults.filter(::free) +
-            Library.all().filter { it.name !in defaultNames && kindOf(it.name, it.muscles, it.kind == Kind.COMPOUND) == kind && free(it) }
+            Library.all().filter { it.name !in defaultNames && kindOf(it.name, it.muscles, it.kind == Kind.COMPOUND, true) == kind && free(it) }
     }
 
     /**
