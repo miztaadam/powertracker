@@ -9,11 +9,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.ui.Tab
+import com.powertracker.ui.library.CatalogueThumbnails
 import com.powertracker.ui.lock.LockScreen
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,6 +56,16 @@ class ScreenshotTest {
 
     // Unit tests run with the module directory (app/) as the working directory.
     private val outDir = File(if (System.getProperty("screenshots.update") == "true") "../docs/design/screens" else "build/screenshots").apply { mkdirs() }
+
+    /**
+     * The Exercises tab works its thumbnails out in the background, so a capture could race the worker. Every one is
+     * made ready first: each capture then shows them drawn, from the first frame, as a lifter sees them once the
+     * warm-up is done.
+     */
+    @Before
+    fun thumbnailsReady() = runBlocking {
+        for (exercise in Library.all()) CatalogueThumbnails.load(exercise.name)
+    }
 
     private fun render(name: String, tab: Tab?, content: @Composable () -> Unit) {
         var dark by mutableStateOf(true)
