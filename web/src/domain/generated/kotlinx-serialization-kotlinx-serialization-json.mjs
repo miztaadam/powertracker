@@ -22,13 +22,13 @@ import {
   DeserializationStrategy1z3z5pj9f7zc8 as DeserializationStrategy,
   missingFieldExceptionWithNewMessage2gqddjx5jxge9 as missingFieldExceptionWithNewMessage,
   MissingFieldException24tqif29emcmi as MissingFieldException,
-  CompositeDecoder2tzm7wpwkr0og as CompositeDecoder,
   Decoder23nde051s631g as Decoder,
+  CompositeDecoder2tzm7wpwkr0og as CompositeDecoder,
   AbstractEncoder2gxtu3xmy3f8j as AbstractEncoder,
   OBJECT_getInstancerq52wx6ymebx as OBJECT_getInstance,
   SerializationStrategyh6ouydnm6hci as SerializationStrategy,
-  Encoderqvmrpqtq8hnu as Encoder,
   CompositeEncoderknecpkexzn3v as CompositeEncoder,
+  Encoderqvmrpqtq8hnu as Encoder,
   NamedValueDecoderzk26ztf92xbq as NamedValueDecoder,
 } from './kotlinx-serialization-kotlinx-serialization-core.mjs';
 import {
@@ -165,9 +165,9 @@ initMetadataForClass(LexerMode, 'LexerMode', VOID, Enum);
 initMetadataForClass(Key, 'Key', Key);
 initMetadataForClass(DescriptorSchemaCache, 'DescriptorSchemaCache', DescriptorSchemaCache);
 initMetadataForClass(DiscriminatorHolder, 'DiscriminatorHolder');
-initMetadataForClass(StreamingJsonDecoder, 'StreamingJsonDecoder', VOID, AbstractDecoder, [CompositeDecoder, Decoder]);
-initMetadataForClass(StreamingJsonEncoder, 'StreamingJsonEncoder', VOID, AbstractEncoder, [Encoder, CompositeEncoder]);
-initMetadataForClass(AbstractJsonTreeDecoder, 'AbstractJsonTreeDecoder', VOID, NamedValueDecoder, [CompositeDecoder, Decoder]);
+initMetadataForClass(StreamingJsonDecoder, 'StreamingJsonDecoder', VOID, AbstractDecoder, [Decoder, CompositeDecoder]);
+initMetadataForClass(StreamingJsonEncoder, 'StreamingJsonEncoder', VOID, AbstractEncoder, [CompositeEncoder, Encoder]);
+initMetadataForClass(AbstractJsonTreeDecoder, 'AbstractJsonTreeDecoder', VOID, NamedValueDecoder, [Decoder, CompositeDecoder]);
 initMetadataForClass(JsonTreeDecoder, 'JsonTreeDecoder', VOID, AbstractJsonTreeDecoder);
 initMetadataForClass(JsonTreeListDecoder, 'JsonTreeListDecoder', VOID, AbstractJsonTreeDecoder);
 initMetadataForClass(JsonTreeMapDecoder, 'JsonTreeMapDecoder', VOID, JsonTreeDecoder);
@@ -1896,8 +1896,8 @@ protoOf(StreamingJsonDecoder).fg = function (deserializer) {
         var actualSerializer = (!(tmp_4 == null) ? isInterface(tmp_4, DeserializationStrategy) : false) ? tmp_4 : null;
         if (actualSerializer == null) {
           var _destruct__k2r9zo = subtypeNotRegisteredMessageJson(type, tmp2.qd());
-          var message = _destruct__k2r9zo.ra();
-          var hint = _destruct__k2r9zo.sa();
+          var message = _destruct__k2r9zo.ab();
+          var hint = _destruct__k2r9zo.bb();
           // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
           var path_0 = this.av_1.iv_1.ry();
           var tmp_5;
@@ -1921,8 +1921,8 @@ protoOf(StreamingJsonDecoder).fg = function (deserializer) {
     var actualSerializer_0 = (!(tmp_6 == null) ? isInterface(tmp_6, DeserializationStrategy) : false) ? tmp_6 : null;
     if (actualSerializer_0 == null) {
       var _destruct__k2r9zo_0 = subtypeNotRegisteredMessageJson(type_0, deserializer.qd());
-      var message_0 = _destruct__k2r9zo_0.ra();
-      var hint_0 = _destruct__k2r9zo_0.sa();
+      var message_0 = _destruct__k2r9zo_0.ab();
+      var hint_0 = _destruct__k2r9zo_0.bb();
       this.av_1.cy(message_0, VOID, hint_0);
     }
     this.dv_1 = new DiscriminatorHolder(discriminator);
@@ -2183,8 +2183,8 @@ protoOf(StreamingJsonEncoder).gh = function (serializer, value) {
           var tmp0_elvis_lhs = getKClassFromExpression(value).g8();
           var subClassName = tmp0_elvis_lhs == null ? toString_0(getKClassFromExpression(value)) : tmp0_elvis_lhs;
           var _destruct__k2r9zo = subtypeNotRegisteredMessageJson(subClassName, casted.qd());
-          var message_0 = _destruct__k2r9zo.ra();
-          var hint = _destruct__k2r9zo.sa();
+          var message_0 = _destruct__k2r9zo.ab();
+          var hint = _destruct__k2r9zo.bb();
           throw new JsonEncodingException(message_0, subClassName, hint);
         } else {
           tmp_3 = tmp1_elvis_lhs;
@@ -2587,8 +2587,8 @@ protoOf(AbstractJsonTreeDecoder).fg = function (deserializer) {
       var actualSerializer = (!(tmp_2 == null) ? isInterface(tmp_2, DeserializationStrategy) : false) ? tmp_2 : null;
       if (actualSerializer == null) {
         var _destruct__k2r9zo = subtypeNotRegisteredMessageJson(type, deserializer.qd());
-        var message = _destruct__k2r9zo.ra();
-        var hint = _destruct__k2r9zo.sa();
+        var message = _destruct__k2r9zo.ab();
+        var hint = _destruct__k2r9zo.bb();
         // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
         var path_0 = this.ol();
         var tmp_3;

@@ -149,7 +149,7 @@ object GritDomain {
 
     /**
      * The bodybuilding plan builder's draft week. [days] are 3 or 4 distinct weekdays 1-7; [picks] the ticked
-     * exercises (empty: choose for me); [priorities] up to 3 distinct `MuscleGroup` names in the lifter's order;
+     * exercises (empty: choose for me); [priorities] up to 3 distinct target-group `MuscleGroup` names in the lifter's order;
      * [variant] 0 for the first draft, then 1, 2, ... for "Another draft". Throws IllegalArgumentException otherwise.
      */
     fun planBuilderBuild(days: Array<Int>, picks: Array<JsBuilderPick>, priorities: Array<String>, variant: Int): JsPlanDraft =
@@ -162,9 +162,14 @@ object GritDomain {
             ),
         ).toJs()
 
-    /** Catalogue exercises to swap [name] for: the same main group, not in [draft], ordered by the equipment [picks] use. */
-    fun planBuilderAlternatives(name: String, draft: JsPlanDraft, picks: Array<JsBuilderPick>): Array<JsLibraryExercise> =
-        PlanBuilder.alternatives(name, draft.toDomain(), picks.map { it.toDomain() }).map { it.toJs() }.toTypedArray()
+    /**
+     * Catalogue exercises to swap [name] on [day] (1-7; null: the first day that holds it) for, none already on that
+     * day: for a slot exercise its kind's defaults first (by the equipment [picks] use), then the rest its kind
+     * accepts; for a held-over pick the exercises with the same main group.
+     */
+    fun planBuilderAlternatives(name: String, draft: JsPlanDraft, picks: Array<JsBuilderPick>, day: Int?): Array<JsLibraryExercise> =
+        PlanBuilder.alternatives(name, draft.toDomain(), picks.map { it.toDomain() }, day?.let { parseWeekday("day", it) })
+            .map { it.toJs() }.toTypedArray()
 
     /** [draft] with [from] on [day] (1-7) replaced by the catalogue exercise [to], same place, sets and range; volume recounted. */
     fun planBuilderSwap(draft: JsPlanDraft, day: Int, from: String, to: String): JsPlanDraft =
@@ -180,6 +185,9 @@ object GritDomain {
 
     /** The most body parts the lifter may choose to improve (3). */
     fun planBuilderMaxPriorities(): Int = PlanBuilder.MAX_PRIORITIES
+
+    /** The `MuscleGroup` names a priority may be, in the builder's order: the 12 target groups. */
+    fun planBuilderTargetGroups(): Array<String> = PlanBuilder.TARGET_GROUPS.map { it.name }.toTypedArray()
 
     fun weeklyTrend(history: JsHistory, lift: String, until: String): Array<JsWeeklyPoint> =
         HistoryStats(history.toDomain()).weeklyTrend(parseLift("lift", lift), parseDate("until", until))

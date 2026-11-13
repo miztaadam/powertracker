@@ -137,10 +137,12 @@ import {
   LazyThreadSafetyMode_PUBLICATION_getInstance23f213579at67 as LazyThreadSafetyMode_PUBLICATION_getInstance,
   lazy1261dae0bgscp as lazy_0,
   getKClass3t8tygqu4lcxf as getKClass,
+  toMutableList20rdgwi7d3cwi as toMutableList,
   contains2gm06f5aa19ov as contains_1,
   firstOrNull1982767dljvdy as firstOrNull,
-  toMutableList20rdgwi7d3cwi as toMutableList,
-  HashMap_init_$Create$g6b5bm370ovq as HashMap_init_$Create$,
+  removeAll3o43e67jmwdpc as removeAll,
+  ensureNotNull1e947j3ixpazm as ensureNotNull,
+  listOfNotNull1v4ggfackvuny as listOfNotNull_0,
   sortedDescending1829b1te0xwte as sortedDescending,
   modulo3mmbfwxzpcw3a as modulo,
   toList2zksu85ukrmi as toList,
@@ -469,11 +471,14 @@ initMetadataForClass(LoggedSession, 'LoggedSession');
 initMetadataForClass(PlanItem, 'PlanItem');
 initMetadataForClass(Baseline, 'Baseline');
 initMetadataForClass(TrainingHistory, 'TrainingHistory');
+initMetadataForClass(SlotKind, 'SlotKind', VOID, Enum);
 initMetadataForClass(Item, 'Item');
 initMetadataForClass(Slot, 'Slot');
+initMetadataForClass(Session, 'Session');
 initMetadataForClass(sam$kotlin_Comparator$0_7, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
 initMetadataForClass(sam$kotlin_Comparator$0_8, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
 initMetadataForClass(sam$kotlin_Comparator$0_9, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
+initMetadataForClass(sam$kotlin_Comparator$0_10, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
 initMetadataForObject(PlanBuilder, 'PlanBuilder');
 initMetadataForClass(BuilderPick, 'BuilderPick');
 initMetadataForClass(BuilderAnswers, 'BuilderAnswers');
@@ -484,11 +489,11 @@ initMetadataForClass(LeftOut, 'LeftOut');
 initMetadataForClass(PlanDraft, 'PlanDraft');
 initMetadataForObject(PlateLoader, 'PlateLoader');
 initMetadataForClass(ExerciseTrend, 'ExerciseTrend');
-initMetadataForClass(sam$kotlin_Comparator$0_10, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
+initMetadataForClass(sam$kotlin_Comparator$0_11, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
 initMetadataForObject(BodybuildingProgress, 'BodybuildingProgress');
 initMetadataForClass(Pr, 'Pr');
-initMetadataForClass(sam$kotlin_Comparator$0_11, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
 initMetadataForClass(sam$kotlin_Comparator$0_12, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
+initMetadataForClass(sam$kotlin_Comparator$0_13, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
 initMetadataForObject(ProgressMath, 'ProgressMath');
 initMetadataForClass(SeedLibrary$exercises$Acc, 'Acc');
 initMetadataForObject(SeedLibrary, 'SeedLibrary');
@@ -605,7 +610,7 @@ protoOf(AccessoryMap).o14 = function (lift, miss) {
     tmp = getValue(this.l14_1, to(lift, miss)).k14_1;
   } else {
     // Inline function 'kotlin.collections.flatMap' call
-    var tmp0 = get_entries_3();
+    var tmp0 = get_entries_4();
     // Inline function 'kotlin.collections.flatMapTo' call
     var destination = ArrayList_init_$Create$();
     var _iterator__ex2g4s = tmp0.j();
@@ -642,7 +647,7 @@ protoOf(AccessoryMap).o14 = function (lift, miss) {
 };
 protoOf(AccessoryMap).p14 = function (lift) {
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = get_entries_3();
+  var tmp0 = get_entries_4();
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -892,8 +897,8 @@ function target($this, item, exercise, history, settings, today, easeOldHistory)
     tmp = tmp_2;
   }
   var _destruct__k2r9zo = tmp;
-  var weight = _destruct__k2r9zo.ra();
-  var opening = _destruct__k2r9zo.sa();
+  var weight = _destruct__k2r9zo.ab();
+  var opening = _destruct__k2r9zo.bb();
   return new Advice(AdviceType_TARGET_getInstance(), exercise.q16(), today, opening + ' ' + suggestion($this, weight, item), 0, new Target(item.s14_1, weight, item.u14_1, item.v14_1, VOID, item.y14_1), VOID, VOID, TrainingMode_BODYBUILDING_getInstance());
 }
 function firstTimeWeight($this, item, exercise, history, settings, today, easeOld) {
@@ -934,7 +939,7 @@ function firstTimeWeight($this, item, exercise, history, settings, today, easeOl
   var _iterator__ex2g4s_2 = destination_0.j();
   while (_iterator__ex2g4s_2.k()) {
     var element_1 = _iterator__ex2g4s_2.l();
-    var set = element_1.sa();
+    var set = element_1.bb();
     if (equalsLong(set.y15_1, item.s14_1) && !set.c16_1 && set.z15_1 > 0.0) {
       destination_2.i(element_1);
     }
@@ -948,9 +953,9 @@ function firstTimeWeight($this, item, exercise, history, settings, today, easeOl
     var iterator = dated.j();
     if (!iterator.k())
       throw NoSuchElementException_init_$Create$();
-    var maxValue = iterator.l().xa_1;
+    var maxValue = iterator.l().va_1;
     while (iterator.k()) {
-      var v = iterator.l().xa_1;
+      var v = iterator.l().va_1;
       if (compareTo(maxValue, v) < 0) {
         maxValue = v;
       }
@@ -964,7 +969,7 @@ function firstTimeWeight($this, item, exercise, history, settings, today, easeOl
     var _iterator__ex2g4s_3 = dated.j();
     while (_iterator__ex2g4s_3.k()) {
       var element_2 = _iterator__ex2g4s_3.l();
-      if (element_2.xa_1.co(from) >= 0 && element_2.xa_1.co(end) < 0) {
+      if (element_2.va_1.co(from) >= 0 && element_2.va_1.co(end) < 0) {
         destination_3.i(element_2);
       }
     }
@@ -974,7 +979,7 @@ function firstTimeWeight($this, item, exercise, history, settings, today, easeOl
     var _iterator__ex2g4s_4 = destination_3.j();
     while (_iterator__ex2g4s_4.k()) {
       var item_1 = _iterator__ex2g4s_4.l();
-      var tmp$ret$21 = item_1.ya_1;
+      var tmp$ret$21 = item_1.wa_1;
       destination_4.i(tmp$ret$21);
     }
     var tmp$ret$22;
@@ -1052,8 +1057,8 @@ function firstTimeWeight($this, item, exercise, history, settings, today, easeOl
     tmp = new Triple(kg, 0.0, baseline.t16_1);
   }
   var _destruct__k2r9zo = tmp;
-  var kg_0 = _destruct__k2r9zo.ra();
-  var anchor = _destruct__k2r9zo.sa();
+  var kg_0 = _destruct__k2r9zo.ab();
+  var anchor = _destruct__k2r9zo.bb();
   var asOf = _destruct__k2r9zo.ld();
   var wanted = easeOld && asOf.co(recentFrom) < 0 ? kg_0 * (new ReEntry()).x16_1 : kg_0;
   var free = ProgressionRule_getInstance().b17(exercise, anchor > 0.0 ? anchor : wanted);
@@ -1259,7 +1264,7 @@ function clamp$capFor($all, $side, $item, $target, payload, $exercise, $settings
   var referenceDate = tmp;
   var tmp2_elvis_lhs = $side.c18($item.s14_1, referenceDate);
   var tmp3_safe_receiver = tmp2_elvis_lhs == null ? $side.c18($item.s14_1, $target.b15_1) : tmp2_elvis_lhs;
-  var tmp4_safe_receiver = tmp3_safe_receiver == null ? null : tmp3_safe_receiver.ya_1;
+  var tmp4_safe_receiver = tmp3_safe_receiver == null ? null : tmp3_safe_receiver.wa_1;
   var tmp5_elvis_lhs = tmp4_safe_receiver == null ? null : tmp4_safe_receiver.z15_1;
   var reference = tmp5_elvis_lhs == null ? payload.j15_1 : tmp5_elvis_lhs;
   var free = ProgressionRule_getInstance().b17($exercise, reference);
@@ -1797,7 +1802,7 @@ function clamp_0($this, target, item, exercise, stats, all, settings, today, del
   } else {
     tmp = tmp0_elvis_lhs;
   }
-  var last = tmp.sa();
+  var last = tmp.bb();
   var tmp_0 = target.e15_1;
   var payload = tmp_0 instanceof Target ? tmp_0 : THROW_CCE();
   var weight = payload.j15_1;
@@ -1896,7 +1901,7 @@ function clamp$capFor_0($all, $stats, $item, last, $exercise, $settings, advice,
   }
   var referenceDate = tmp;
   var tmp2_safe_receiver = $stats.c18($item.s14_1, referenceDate);
-  var tmp3_elvis_lhs = tmp2_safe_receiver == null ? null : tmp2_safe_receiver.ya_1;
+  var tmp3_elvis_lhs = tmp2_safe_receiver == null ? null : tmp2_safe_receiver.wa_1;
   var reference = (tmp3_elvis_lhs == null ? last : tmp3_elvis_lhs).z15_1;
   var free = ProgressionRule_getInstance().b17($exercise, reference);
   return ProgressionRule_getInstance().i17(reference * factor, reference, free, $settings.g16_1);
@@ -1983,7 +1988,7 @@ protoOf(Coach).a19 = function (history, plan, settings, today, priorAdvice, read
     var accessoryNames = toSet(destination_1);
     // Inline function 'kotlin.collections.mapNotNullTo' call
     // Inline function 'kotlin.collections.forEach' call
-    var _iterator__ex2g4s_2 = get_entries_2().j();
+    var _iterator__ex2g4s_2 = get_entries_3().j();
     while (_iterator__ex2g4s_2.k()) {
       var element_1 = _iterator__ex2g4s_2.l();
       var tmp0_safe_receiver_1 = StallRule_instance.m19(element_1, stats, settings, today, accessoryNames);
@@ -2360,7 +2365,7 @@ function topSet($this, sets) {
 }
 function rpeRising($this, sessions, history) {
   // Inline function 'kotlin.collections.filter' call
-  var tmp0 = get_entries_2();
+  var tmp0 = get_entries_3();
   // Inline function 'kotlin.collections.filterTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -2505,7 +2510,7 @@ function lowReadiness($this, sessions, windowStart) {
   var _iterator__ex2g4s_0 = rated.j();
   while (_iterator__ex2g4s_0.k()) {
     var item = _iterator__ex2g4s_0.l();
-    var tmp$ret$11 = item.ya_1;
+    var tmp$ret$11 = item.wa_1;
     destination_0.i(tmp$ret$11);
   }
   var low = average(destination_0) <= 2.0;
@@ -2519,7 +2524,7 @@ function lowReadiness($this, sessions, windowStart) {
   var _iterator__ex2g4s_1 = rated.j();
   while (_iterator__ex2g4s_1.k()) {
     var element_0 = _iterator__ex2g4s_1.l();
-    if (element_0.xa_1.co(midpoint) < 0) {
+    if (element_0.va_1.co(midpoint) < 0) {
       destination_1.i(element_0);
     }
   }
@@ -2529,7 +2534,7 @@ function lowReadiness($this, sessions, windowStart) {
   var _iterator__ex2g4s_2 = destination_1.j();
   while (_iterator__ex2g4s_2.k()) {
     var item_0 = _iterator__ex2g4s_2.l();
-    var tmp$ret$18 = item_0.ya_1;
+    var tmp$ret$18 = item_0.wa_1;
     destination_2.i(tmp$ret$18);
   }
   var earlier = destination_2;
@@ -2539,7 +2544,7 @@ function lowReadiness($this, sessions, windowStart) {
   var _iterator__ex2g4s_3 = rated.j();
   while (_iterator__ex2g4s_3.k()) {
     var element_1 = _iterator__ex2g4s_3.l();
-    if (element_1.xa_1.co(midpoint) >= 0) {
+    if (element_1.va_1.co(midpoint) >= 0) {
       destination_3.i(element_1);
     }
   }
@@ -2549,7 +2554,7 @@ function lowReadiness($this, sessions, windowStart) {
   var _iterator__ex2g4s_4 = destination_3.j();
   while (_iterator__ex2g4s_4.k()) {
     var item_1 = _iterator__ex2g4s_4.l();
-    var tmp$ret$24 = item_1.ya_1;
+    var tmp$ret$24 = item_1.wa_1;
     destination_4.i(tmp$ret$24);
   }
   var later = destination_4;
@@ -2573,7 +2578,7 @@ function lowReadiness($this, sessions, windowStart) {
 function e1rmDown($this, stats, today) {
   var recentWeek = minus_0(mondayOfWeek(today), 1, Companion_getInstance().gn_1);
   // Inline function 'kotlin.collections.filter' call
-  var tmp0 = get_entries_2();
+  var tmp0 = get_entries_3();
   // Inline function 'kotlin.collections.filterTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -2869,8 +2874,8 @@ function recentJumpWithRisingRpe($this, last, previous, lastDate) {
     tmp = previous;
   }
   var _destruct__k2r9zo = tmp;
-  var prevDate = _destruct__k2r9zo.ra();
-  var prev = _destruct__k2r9zo.sa();
+  var prevDate = _destruct__k2r9zo.ab();
+  var prev = _destruct__k2r9zo.bb();
   var tmp1_elvis_lhs = last.b16_1;
   var tmp_0;
   if (tmp1_elvis_lhs == null) {
@@ -2926,8 +2931,8 @@ protoOf(ProgressionRule).w19 = function (item, exercise, stats, settings, today)
     tmp = tmp0_elvis_lhs;
   }
   var _destruct__k2r9zo = tmp;
-  var lastDate = _destruct__k2r9zo.ra();
-  var last = _destruct__k2r9zo.sa();
+  var lastDate = _destruct__k2r9zo.ab();
+  var last = _destruct__k2r9zo.bb();
   var previous = stats.l1a(item.s14_1, today);
   var plates = settings.g16_1;
   var free = this.b17(exercise, last.z15_1);
@@ -3103,8 +3108,8 @@ protoOf(ReturnRule).t18 = function (target, item, exercise, history, mode, setti
     }
   }
   var _destruct__k2r9zo = new Pair(first, second);
-  var here = _destruct__k2r9zo.ra();
-  var other = _destruct__k2r9zo.sa();
+  var here = _destruct__k2r9zo.ab();
+  var other = _destruct__k2r9zo.bb();
   if (other.m())
     return target;
   var family_0 = family(this, exercise, mode, history);
@@ -3154,7 +3159,7 @@ protoOf(ReturnRule).t18 = function (target, item, exercise, history, mode, setti
   } else {
     tmp_1 = tmp1_elvis_lhs;
   }
-  var last = tmp_1.sa();
+  var last = tmp_1.bb();
   var factor = (new ReEntry()).x16_1;
   var free_0 = ProgressionRule_getInstance().b17(exercise, last.z15_1);
   var tmp0_1 = payload.j15_1;
@@ -3385,7 +3390,7 @@ function ratioFlag($this, pair, stats, today) {
     var element = _iterator__ex2g4s.l();
     // Inline function 'kotlin.collections.plusAssign' call
     var pair_0 = to(element.e1a_1, element.f1a_1);
-    destination.m2(pair_0.xa_1, pair_0.ya_1);
+    destination.m2(pair_0.va_1, pair_0.wa_1);
   }
   var num = destination;
   // Inline function 'kotlin.collections.associate' call
@@ -3398,7 +3403,7 @@ function ratioFlag($this, pair, stats, today) {
     var element_0 = _iterator__ex2g4s_0.l();
     // Inline function 'kotlin.collections.plusAssign' call
     var pair_1 = to(element_0.e1a_1, element_0.f1a_1);
-    destination_0.m2(pair_1.xa_1, pair_1.ya_1);
+    destination_0.m2(pair_1.va_1, pair_1.wa_1);
   }
   var den = destination_0;
   // Inline function 'kotlin.collections.filter' call
@@ -3622,8 +3627,8 @@ protoOf(WeakPointRule).v19 = function (stats, today) {
       null;
     else {
       // Inline function 'kotlin.let' call
-      var lift = tmp0_safe_receiver.ra();
-      var reason = tmp0_safe_receiver.sa();
+      var lift = tmp0_safe_receiver.ab();
+      var reason = tmp0_safe_receiver.bb();
       // Inline function 'kotlin.apply' call
       var this_0 = evaluate$flag(flags, lift);
       var tmp = this_0;
@@ -3634,7 +3639,7 @@ protoOf(WeakPointRule).v19 = function (stats, today) {
       this_0.s1a_1.i(reason);
     }
   }
-  var _iterator__ex2g4s_0 = get_entries_2().j();
+  var _iterator__ex2g4s_0 = get_entries_3().j();
   while (_iterator__ex2g4s_0.k()) {
     var lift_0 = _iterator__ex2g4s_0.l();
     var tmp1_safe_receiver = missFlag(this, lift_0, stats, today);
@@ -3642,8 +3647,8 @@ protoOf(WeakPointRule).v19 = function (stats, today) {
       null;
     else {
       // Inline function 'kotlin.let' call
-      var point = tmp1_safe_receiver.ra();
-      var count = tmp1_safe_receiver.sa();
+      var point = tmp1_safe_receiver.ab();
+      var count = tmp1_safe_receiver.bb();
       // Inline function 'kotlin.apply' call
       var this_1 = evaluate$flag(flags, lift_0);
       var tmp_0 = this_1;
@@ -4304,8 +4309,8 @@ protoOf(HistoryStats).b18 = function (until) {
     var iterator = tmp0.q(tmp0.o());
     while (iterator.c3()) {
       var element_0 = iterator.d3();
-      var a = element_0.ra();
-      var b = element_0.sa();
+      var a = element_0.ab();
+      var b = element_0.bb();
       if (daysUntil(a, b) >= 14) {
         tmp$ret$6 = element_0;
         break $l$block;
@@ -4314,7 +4319,7 @@ protoOf(HistoryStats).b18 = function (until) {
     tmp$ret$6 = null;
   }
   var tmp0_safe_receiver = tmp$ret$6;
-  return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.ya_1;
+  return tmp0_safe_receiver == null ? null : tmp0_safe_receiver.wa_1;
 };
 function _get_catalogue__ehuyh4($this) {
   var tmp0 = $this.a1b_1;
@@ -4509,8 +4514,8 @@ function Library$alphabetical$lambda_0(it) {
 }
 function Library$search$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
-  var tmp = a.xa_1;
-  var tmp$ret$2 = b.xa_1;
+  var tmp = a.va_1;
+  var tmp$ret$2 = b.va_1;
   return compareValues(tmp, tmp$ret$2);
 }
 function Library$search$lambda_0($this, $comparator) {
@@ -4522,8 +4527,8 @@ function Library$search$lambda_0($this, $comparator) {
     } else {
       // Inline function 'kotlin.comparisons.compareValuesBy' call
       var comparator = $comparator;
-      var tmp_0 = a.ya_1;
-      var tmp$ret$2 = b.ya_1;
+      var tmp_0 = a.wa_1;
+      var tmp$ret$2 = b.wa_1;
       tmp = comparator.compare(tmp_0, tmp$ret$2);
     }
     return tmp;
@@ -4686,7 +4691,7 @@ protoOf(Library).y1b = function (query, areas, equipment) {
   var _iterator__ex2g4s_2 = this_0.j();
   while (_iterator__ex2g4s_2.k()) {
     var item = _iterator__ex2g4s_2.l();
-    var tmp$ret$19 = item.ya_1;
+    var tmp$ret$19 = item.wa_1;
     destination_1.i(tmp$ret$19);
   }
   return destination_1;
@@ -5034,6 +5039,13 @@ function values_0() {
   static_init_0();
   return [Equipment_BARBELL_getInstance(), Equipment_DUMBBELL_getInstance(), Equipment_KETTLEBELL_getInstance(), Equipment_CABLE_getInstance(), Equipment_MACHINE_getInstance(), Equipment_BODYWEIGHT_getInstance(), Equipment_BAND_getInstance(), Equipment_SPECIALTY_BAR_getInstance(), Equipment_SMITH_getInstance()];
 }
+function get_entries() {
+  static_init_0();
+  if ($ENTRIES == null)
+    $ENTRIES = enumEntries(values_0());
+  return $ENTRIES;
+}
+var $ENTRIES;
 function Equipment(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
@@ -5204,13 +5216,13 @@ function values_1() {
   static_init_2();
   return [MuscleGroup_CHEST_getInstance(), MuscleGroup_LATS_getInstance(), MuscleGroup_UPPER_BACK_getInstance(), MuscleGroup_TRAPS_getInstance(), MuscleGroup_LOWER_BACK_getInstance(), MuscleGroup_FRONT_DELTS_getInstance(), MuscleGroup_SIDE_DELTS_getInstance(), MuscleGroup_REAR_DELTS_getInstance(), MuscleGroup_BICEPS_getInstance(), MuscleGroup_TRICEPS_getInstance(), MuscleGroup_FOREARMS_getInstance(), MuscleGroup_QUADS_getInstance(), MuscleGroup_HAMSTRINGS_getInstance(), MuscleGroup_GLUTES_getInstance(), MuscleGroup_ADDUCTORS_getInstance(), MuscleGroup_CALVES_getInstance(), MuscleGroup_ABS_getInstance(), MuscleGroup_OBLIQUES_getInstance()];
 }
-function get_entries() {
+function get_entries_0() {
   static_init_2();
-  if ($ENTRIES == null)
-    $ENTRIES = enumEntries(values_1());
-  return $ENTRIES;
+  if ($ENTRIES_0 == null)
+    $ENTRIES_0 = enumEntries(values_1());
+  return $ENTRIES_0;
 }
-var $ENTRIES;
+var $ENTRIES_0;
 function MuscleGroup(name, ordinal, label) {
   Enum.call(this, name, ordinal);
   this.p1c_1 = label;
@@ -5225,8 +5237,8 @@ function MuscleGroups() {
   var _iterator__ex2g4s = tmp0.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    var group = element.ra();
-    var muscles = element.sa();
+    var group = element.ab();
+    var muscles = element.bb();
     // Inline function 'kotlin.collections.map' call
     // Inline function 'kotlin.collections.mapTo' call
     var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(muscles, 10));
@@ -5299,7 +5311,7 @@ protoOf(MuscleGroups).u1b = function (exercises) {
   }
   var found = destination;
   // Inline function 'kotlin.collections.filter' call
-  var tmp0_0 = get_entries();
+  var tmp0_0 = get_entries_0();
   // Inline function 'kotlin.collections.filterTo' call
   var destination_1 = ArrayList_init_$Create$();
   var _iterator__ex2g4s_1 = tmp0_0.j();
@@ -6181,13 +6193,13 @@ function values_2() {
   static_init_4();
   return [Side_NEAR_getInstance(), Side_FAR_getInstance()];
 }
-function get_entries_0() {
+function get_entries_1() {
   static_init_4();
-  if ($ENTRIES_0 == null)
-    $ENTRIES_0 = enumEntries(values_2());
-  return $ENTRIES_0;
+  if ($ENTRIES_1 == null)
+    $ENTRIES_1 = enumEntries(values_2());
+  return $ENTRIES_1;
 }
-var $ENTRIES_0;
+var $ENTRIES_1;
 function Side(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
@@ -6590,8 +6602,8 @@ protoOf(Reach).y1s = function (shoulder, target, torso, wrist, turnedOut) {
   var x = tmp_0 + g * Math.cos(w);
   var offset = Math.atan2(tmp0_0, x) * 180 / 3.141592653589793;
   var _destruct__k2r9zo = twoLink(this, shoulder, target, Segment_UPPER_ARM_getInstance().a(), link, !turnedOut);
-  var upper = _destruct__k2r9zo.ra();
-  var lower = _destruct__k2r9zo.sa();
+  var upper = _destruct__k2r9zo.ab();
+  var lower = _destruct__k2r9zo.bb();
   var forearm = lower - bend * offset;
   return new Arm(fold(upper - torso - 180.0), bend * fold(forearm - upper), wrist, turnedOut);
 };
@@ -6602,8 +6614,8 @@ protoOf(Reach).z1s = function (shoulder, target, torso, wrist, turnedOut, $super
 };
 protoOf(Reach).a1t = function (hip, ankle, torso, foot) {
   var _destruct__k2r9zo = twoLink(this, hip, ankle, Segment_THIGH_getInstance().a(), Segment_SHIN_getInstance().a(), false);
-  var thigh = _destruct__k2r9zo.ra();
-  var shin = _destruct__k2r9zo.sa();
+  var thigh = _destruct__k2r9zo.ab();
+  var shin = _destruct__k2r9zo.bb();
   return new Leg(fold(thigh - torso - 180.0), fold(thigh - shin), fold(foot - shin - 90.0));
 };
 var Reach_instance;
@@ -6739,13 +6751,13 @@ function values_3() {
   static_init_6();
   return [Which_START_getInstance(), Which_END_getInstance()];
 }
-function get_entries_1() {
+function get_entries_2() {
   static_init_6();
-  if ($ENTRIES_1 == null)
-    $ENTRIES_1 = enumEntries(values_3());
-  return $ENTRIES_1;
+  if ($ENTRIES_2 == null)
+    $ENTRIES_2 = enumEntries(values_3());
+  return $ENTRIES_2;
 }
-var $ENTRIES_1;
+var $ENTRIES_2;
 function Which(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
@@ -7584,7 +7596,7 @@ function probes(_this__u8e3s4, point) {
     case 5:
       // Inline function 'kotlin.collections.map' call
 
-      var this_0 = get_entries_0();
+      var this_0 = get_entries_1();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
@@ -7602,7 +7614,7 @@ function probes(_this__u8e3s4, point) {
     case 6:
       // Inline function 'kotlin.collections.map' call
 
-      var this_1 = get_entries_0();
+      var this_1 = get_entries_1();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
@@ -7624,7 +7636,7 @@ function probes(_this__u8e3s4, point) {
     case 9:
       // Inline function 'kotlin.collections.map' call
 
-      var this_2 = get_entries_0();
+      var this_2 = get_entries_1();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_2, 10));
@@ -7646,7 +7658,7 @@ function probes(_this__u8e3s4, point) {
     case 12:
       // Inline function 'kotlin.collections.map' call
 
-      var this_3 = get_entries_0();
+      var this_3 = get_entries_1();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_2 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_3, 10));
@@ -7668,7 +7680,7 @@ function probes(_this__u8e3s4, point) {
     case 15:
       // Inline function 'kotlin.collections.map' call
 
-      var this_4 = get_entries_0();
+      var this_4 = get_entries_1();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_3 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_4, 10));
@@ -7686,7 +7698,7 @@ function probes(_this__u8e3s4, point) {
     case 16:
       // Inline function 'kotlin.collections.map' call
 
-      var this_5 = get_entries_0();
+      var this_5 = get_entries_1();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_4 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_5, 10));
@@ -7704,7 +7716,7 @@ function probes(_this__u8e3s4, point) {
     case 17:
       // Inline function 'kotlin.collections.map' call
 
-      var this_6 = get_entries_0();
+      var this_6 = get_entries_1();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_5 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_6, 10));
@@ -8044,8 +8056,8 @@ function clipCapsule($this, c) {
   var _iterator__ex2g4s = listOf([to(-dx, c.o1w_1 - minX), to(dx, maxX - c.o1w_1), to(-dy, c.p1w_1 - minY), to(dy, maxY - c.p1w_1)]).j();
   while (_iterator__ex2g4s.k()) {
     var _destruct__k2r9zo = _iterator__ex2g4s.l();
-    var p = _destruct__k2r9zo.ra();
-    var q = _destruct__k2r9zo.sa();
+    var p = _destruct__k2r9zo.ab();
+    var q = _destruct__k2r9zo.bb();
     if (p === 0.0) {
       if (q < 0)
         return null;
@@ -8128,8 +8140,8 @@ function torso($this, s) {
   var _iterator__ex2g4s = outline.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    var along = element.ra();
-    var front = element.sa();
+    var along = element.ab();
+    var front = element.bb();
     var tmp_0;
     if (s.u1s_1 === 0.0 || along < l - 4.5) {
       tmp_0 = 0.0;
@@ -8338,7 +8350,7 @@ protoOf(FigureRenderer).t1x = function (figure) {
     return tmp0_safe_receiver;
   }
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = get_entries_1();
+  var tmp0 = get_entries_2();
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -8495,8 +8507,8 @@ protoOf(FigureRenderer).u1x = function (scene, view) {
     }
   }
   var _destruct__k2r9zo = new Pair(first, second);
-  var backdrop = _destruct__k2r9zo.ra();
-  var rest = _destruct__k2r9zo.sa();
+  var backdrop = _destruct__k2r9zo.ab();
+  var rest = _destruct__k2r9zo.bb();
   var _iterator__ex2g4s_3 = backdrop.j();
   while (_iterator__ex2g4s_3.k()) {
     var p = _iterator__ex2g4s_3.l();
@@ -9532,8 +9544,8 @@ function surfaces(_this__u8e3s4, view) {
               if (_this__u8e3s4 instanceof PressMachine) {
                 // Inline function 'kotlin.let' call
                 var destruct = parts_0(_this__u8e3s4);
-                var seat_1 = destruct.ra();
-                var back = destruct.sa();
+                var seat_1 = destruct.ab();
+                var back = destruct.bb();
                 tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(seat_1)), to(Surface_BACK_PAD_getInstance(), listOf_0(back))]);
               } else {
                 if (_this__u8e3s4 instanceof PecDeck) {
@@ -9566,16 +9578,16 @@ function surfaces(_this__u8e3s4, view) {
                                   if (_this__u8e3s4 instanceof LegPress45) {
                                     // Inline function 'kotlin.let' call
                                     var destruct_0 = legPressParts(_this__u8e3s4);
-                                    var seat_2 = destruct_0.ra();
-                                    var back_0 = destruct_0.sa();
+                                    var seat_2 = destruct_0.ab();
+                                    var back_0 = destruct_0.bb();
                                     var plate = destruct_0.ld();
                                     tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(seat_2)), to(Surface_BACK_PAD_getInstance(), listOf_0(back_0)), to(Surface_FOOT_PLATE_getInstance(), listOf_0(plate))]);
                                   } else {
                                     if (_this__u8e3s4 instanceof AdjustableBench) {
                                       // Inline function 'kotlin.let' call
                                       var destruct_1 = adjustableParts(_this__u8e3s4);
-                                      var seat_3 = destruct_1.ra();
-                                      var back_1 = destruct_1.sa();
+                                      var seat_3 = destruct_1.ab();
+                                      var back_1 = destruct_1.bb();
                                       tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(seat_3)), to(Surface_BACK_PAD_getInstance(), listOf_0(back_1))]);
                                     } else {
                                       if (_this__u8e3s4 instanceof RowStation) {
@@ -9651,8 +9663,8 @@ function surfaces(_this__u8e3s4, view) {
                                                           if (_this__u8e3s4 instanceof PulloverMachine) {
                                                             // Inline function 'kotlin.let' call
                                                             var destruct_2 = parts(_this__u8e3s4);
-                                                            var seat_4 = destruct_2.ra();
-                                                            var back_2 = destruct_2.sa();
+                                                            var seat_4 = destruct_2.ab();
+                                                            var back_2 = destruct_2.bb();
                                                             tmp = mapOf([to(Surface_SEAT_getInstance(), listOf_0(seat_4)), to(Surface_BACK_PAD_getInstance(), listOf_0(back_2))]);
                                                           } else {
                                                             if (_this__u8e3s4 instanceof HyperBench) {
@@ -9980,8 +9992,8 @@ function draw(_this__u8e3s4, view, held, s) {
                       // Inline function 'kotlin.apply' call
                       var this_6 = ArrayList_init_$Create$();
                       var _destruct__k2r9zo = legPressParts(_this__u8e3s4);
-                      var seat = _destruct__k2r9zo.ra();
-                      var back = _destruct__k2r9zo.sa();
+                      var seat = _destruct__k2r9zo.ab();
+                      var back = _destruct__k2r9zo.bb();
                       var plate = _destruct__k2r9zo.ld();
                       var railStart = legPressRailStart(_this__u8e3s4);
                       var railEnd = railStart.r1q(dir(45.0).t1q(160.0));
@@ -10150,8 +10162,8 @@ function draw(_this__u8e3s4, view, held, s) {
                                                                                                             // Inline function 'kotlin.apply' call
                                                                                                             var this_7 = ArrayList_init_$Create$();
                                                                                                             var _destruct__k2r9zo_0 = adjustableParts(_this__u8e3s4);
-                                                                                                            var seat_0 = _destruct__k2r9zo_0.ra();
-                                                                                                            var back_0 = _destruct__k2r9zo_0.sa();
+                                                                                                            var seat_0 = _destruct__k2r9zo_0.ab();
+                                                                                                            var back_0 = _destruct__k2r9zo_0.bb();
                                                                                                             var mid = _this__u8e3s4.l21_1 - 40.0 / 2;
                                                                                                             this_7.i(eq(new Capsule(e, mid, -43.0 + 6.0, mid, -1.5, 5.0)));
                                                                                                             this_7.i(eq(new Capsule(e, mid - 22.0, -1.5, mid + 22.0, -1.5, 3.0)));
@@ -11046,8 +11058,8 @@ function drawOn(_this__u8e3s4, s) {
     var _iterator__ex2g4s = this_0.j();
     while (_iterator__ex2g4s.k()) {
       var item = _iterator__ex2g4s.l();
-      var dx = item.ra();
-      var dy = item.sa();
+      var dx = item.ab();
+      var dy = item.bb();
       var tmp$ret$2 = new Point(c_0.p1q_1 + dx, c_0.q1q_1 + dy);
       destination.i(tmp$ret$2);
     }
@@ -12023,8 +12035,8 @@ function drawOf_10(_this__u8e3s4, s) {
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
   var _destruct__k2r9zo = parts(_this__u8e3s4);
-  var seat = _destruct__k2r9zo.ra();
-  var back = _destruct__k2r9zo.sa();
+  var seat = _destruct__k2r9zo.ab();
+  var back = _destruct__k2r9zo.bb();
   var mid = _this__u8e3s4.o24_1 - 40.0 / 2;
   var postX = _this__u8e3s4.o24_1 - 40.0 - 16.0;
   this_0.i(new Placed(new Capsule(get_E_0(), postX - 15.0, -1.5, _this__u8e3s4.o24_1 + 15.0, -1.5, 3.0)));
@@ -12156,7 +12168,7 @@ function drawOn_1(_this__u8e3s4, s) {
         tmp_1 = listOf([cap_0(get_A_0(), g.s1q(across.t1q(h)), g.r1q(across.t1q(h)), 3.0), cap_0(get_A_0(), g.s1q(across.t1q(h)), tip, 2.2), cap_0(get_A_0(), g.r1q(across.t1q(h)), tip, 2.2)]);
       } else {
         // Inline function 'kotlin.collections.map' call
-        var this_0 = get_entries_0();
+        var this_0 = get_entries_1();
         // Inline function 'kotlin.collections.mapTo' call
         var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
         var _iterator__ex2g4s = this_0.j();
@@ -12183,7 +12195,7 @@ function drawOn_1(_this__u8e3s4, s) {
       } else {
         var c_0 = s.r1s_1.f1s_1.r1q(s.s1s_1.f1s_1).t1q(0.5).r1q(new Point(0.0, -6.0));
         // Inline function 'kotlin.collections.map' call
-        var this_1 = get_entries_0();
+        var this_1 = get_entries_1();
         // Inline function 'kotlin.collections.mapTo' call
         var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
         var _iterator__ex2g4s_0 = this_1.j();
@@ -13077,8 +13089,8 @@ function drawOf_19(_this__u8e3s4) {
   var _iterator__ex2g4s = legs(_this__u8e3s4).j();
   while (_iterator__ex2g4s.k()) {
     var _destruct__k2r9zo = _iterator__ex2g4s.l();
-    var a = _destruct__k2r9zo.ra();
-    var b = _destruct__k2r9zo.sa();
+    var a = _destruct__k2r9zo.ab();
+    var b = _destruct__k2r9zo.bb();
     this_0.i(new Placed(cap_2(get_E_2(), a, new Point(b.p1q_1, -1.5), 5.0)));
     this_0.i(new Placed(new Capsule(get_E_2(), b.p1q_1 - 12.0, -1.5, b.p1q_1 + 12.0, -1.5, 3.0)));
   }
@@ -13115,8 +13127,8 @@ function drawOf_21(_this__u8e3s4, grip) {
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
   var _destruct__k2r9zo = parts_0(_this__u8e3s4);
-  var seat = _destruct__k2r9zo.ra();
-  var back = _destruct__k2r9zo.sa();
+  var seat = _destruct__k2r9zo.ab();
+  var back = _destruct__k2r9zo.bb();
   var mid = _this__u8e3s4.h27_1 - 40.0 / 2;
   var postX = pressHinge(_this__u8e3s4).p1q_1 - 22.0;
   this_0.i(new Placed(new Capsule(get_E_2(), mid, -_this__u8e3s4.i27_1 + 6.0, mid, -1.5, 5.0)));
@@ -13160,8 +13172,8 @@ function drawOf_22(_this__u8e3s4, near, far) {
   var _iterator__ex2g4s = listOf([to(1.0, near), to(-1.0, far)]).j();
   while (_iterator__ex2g4s.k()) {
     var _destruct__k2r9zo = _iterator__ex2g4s.l();
-    var sgn = _destruct__k2r9zo.ra();
-    var grip = _destruct__k2r9zo.sa();
+    var sgn = _destruct__k2r9zo.ab();
+    var grip = _destruct__k2r9zo.bb();
     var pivot = new Point(_this__u8e3s4.m27_1 + sgn * _this__u8e3s4.q27_1, -_this__u8e3s4.p27_1);
     if (!(grip == null)) {
       this_0.i(new Placed(cap_2(get_E_2(), pivot, grip, 4.0)));
@@ -13245,8 +13257,8 @@ function drawFrontOf_9(_this__u8e3s4, near, far) {
   var _iterator__ex2g4s = ends.j();
   while (_iterator__ex2g4s.k()) {
     var _destruct__k2r9zo = _iterator__ex2g4s.l();
-    var sgn = _destruct__k2r9zo.ra();
-    var end = _destruct__k2r9zo.sa();
+    var sgn = _destruct__k2r9zo.ab();
+    var end = _destruct__k2r9zo.bb();
     var cx = _this__u8e3s4.d1y_1 + sgn * _this__u8e3s4.h1y_1;
     var pulley = new Point(cx - sgn * _this__u8e3s4.f1y_1, -_this__u8e3s4.e1y_1);
     this_0.i(new Placed(new RoundRect(get_E_2(), cx - 9.0, -_this__u8e3s4.g1y_1, 18.0, _this__u8e3s4.g1y_1 - 1.5, 3.0), false));
@@ -13289,7 +13301,7 @@ function drawOn_8(_this__u8e3s4, s) {
     tmp = listOf_0(ring(Role_ACCENT_getInstance(), s.r1s_1.f1s_1.p1q_1, s.r1s_1.f1s_1.q1q_1, 3.4, 2.2));
   } else {
     // Inline function 'kotlin.collections.map' call
-    var this_0 = get_entries_0();
+    var this_0 = get_entries_1();
     // Inline function 'kotlin.collections.mapTo' call
     var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
     var _iterator__ex2g4s = this_0.j();
@@ -13774,8 +13786,8 @@ function drawFrontOf_10(_this__u8e3s4, s) {
   if (s == null)
     return emptyList();
   var _destruct__k2r9zo = ends(_this__u8e3s4, s);
-  var a = _destruct__k2r9zo.ra();
-  var b = _destruct__k2r9zo.sa();
+  var a = _destruct__k2r9zo.ab();
+  var b = _destruct__k2r9zo.bb();
   return listOf([new Placed(cap_3(Role_GAP_getInstance(), a, b, 2.5 + 3.0)), new Placed(cap_3(get_E_3(), a, b, 2.5))]);
 }
 function slab_0(_this__u8e3s4) {
@@ -14071,10 +14083,10 @@ function drawOf_33(_this__u8e3s4, s) {
   this_0.i(new Placed(new RoundRect(get_E_3(), _this__u8e3s4.n2a_1 - 19.0, -_this__u8e3s4.p2a_1, 38.0, _this__u8e3s4.p2a_1 - _this__u8e3s4.o2a_1 - 26.0, 3.0)));
   this_0.i(new Placed(box_1(get_E_3(), seatSlab_6(_this__u8e3s4))));
   if (!(s == null) && s.l1s_1.equals(View_FRONT_getInstance())) {
-    var _iterator__ex2g4s = get_entries_0().j();
+    var _iterator__ex2g4s = get_entries_1().j();
     while (_iterator__ex2g4s.k()) {
       var side = _iterator__ex2g4s.l();
-      var b = kneePad(_this__u8e3s4, side, s).sa();
+      var b = kneePad(_this__u8e3s4, side, s).bb();
       this_0.i(new Placed(cap_3(get_E_3(), b, new Point(_this__u8e3s4.n2a_1, -_this__u8e3s4.o2a_1 + 12.0), 3.5)));
     }
   }
@@ -14085,7 +14097,7 @@ function drawOf_33(_this__u8e3s4, s) {
     this_0.i(new Placed(new Capsule(get_E_3(), h.p1q_1, h.q1q_1, h.p1q_1, -_this__u8e3s4.o2a_1 + 6.0, 3.0)));
   }
   if (!(s == null)) {
-    var _iterator__ex2g4s_1 = get_entries_0().j();
+    var _iterator__ex2g4s_1 = get_entries_1().j();
     while (_iterator__ex2g4s_1.k()) {
       var side_0 = _iterator__ex2g4s_1.l();
       var l = s.w1s(side_0);
@@ -14113,12 +14125,12 @@ function drawFrontOf_16(_this__u8e3s4, s) {
       var h = _iterator__ex2g4s.l();
       this_0.p(frontLever(new Point(h.p1q_1 - 6.0, h.q1q_1), new Point(h.p1q_1 + 6.0, h.q1q_1), 3.0));
     }
-    var _iterator__ex2g4s_0 = get_entries_0().j();
+    var _iterator__ex2g4s_0 = get_entries_1().j();
     while (_iterator__ex2g4s_0.k()) {
       var side = _iterator__ex2g4s_0.l();
       var _destruct__k2r9zo = kneePad(_this__u8e3s4, side, s);
-      var a = _destruct__k2r9zo.ra();
-      var b = _destruct__k2r9zo.sa();
+      var a = _destruct__k2r9zo.ab();
+      var b = _destruct__k2r9zo.bb();
       this_0.i(new Placed(cap_3(Role_GAP_getInstance(), a, b, 2 * 4.0 + 3.0)));
       this_0.i(new Placed(cap_3(get_E_3(), a, b, 2 * 4.0)));
     }
@@ -14379,8 +14391,8 @@ function drawOf_34(_this__u8e3s4) {
   // Inline function 'kotlin.apply' call
   var this_0 = ArrayList_init_$Create$();
   var _destruct__k2r9zo = rail(_this__u8e3s4);
-  var low = _destruct__k2r9zo.ra();
-  var high = _destruct__k2r9zo.sa();
+  var low = _destruct__k2r9zo.ab();
+  var high = _destruct__k2r9zo.bb();
   var plate = plateSlab_1(_this__u8e3s4);
   var plateLow = (new Point(plate.o21_1, plate.p21_1)).s1q(forward(_this__u8e3s4).t1q(plate.q21_1 / 2 - 6.0)).s1q(up(_this__u8e3s4).t1q(plate.r21_1 / 2));
   var tmp = get_E_4();
@@ -14724,13 +14736,13 @@ function drawFrontOf_20(_this__u8e3s4, s) {
     if (s == null || !s.l1s_1.equals(View_FRONT_getInstance())) {
       break $l$block;
     }
-    var _iterator__ex2g4s = get_entries_0().j();
+    var _iterator__ex2g4s = get_entries_1().j();
     while (_iterator__ex2g4s.k()) {
       var side = _iterator__ex2g4s.l();
       var p = pivot(_this__u8e3s4, side);
       var _destruct__k2r9zo = armPad(_this__u8e3s4, side, s);
-      var a = _destruct__k2r9zo.ra();
-      var b = _destruct__k2r9zo.sa();
+      var a = _destruct__k2r9zo.ab();
+      var b = _destruct__k2r9zo.bb();
       this_0.i(new Placed(cap_5(Role_GAP_getInstance(), p, b, 4.0 + 3.0)));
       this_0.i(new Placed(cap_5(get_E_5(), p, b, 4.0)));
       this_0.i(new Placed(cap_5(Role_GAP_getInstance(), a, b, 2 * 4.5 + 3.0)));
@@ -15660,8 +15672,8 @@ function arm(_this__u8e3s4, fore, wrist) {
 function onThigh(along, above) {
   _init_properties_Arms_kt__e6cjp3_0();
   var _destruct__k2r9zo = get_seatedThigh();
-  var hip = _destruct__k2r9zo.ra();
-  var knee = _destruct__k2r9zo.sa();
+  var hip = _destruct__k2r9zo.ab();
+  var knee = _destruct__k2r9zo.bb();
   // Inline function 'kotlin.let' call
   var it = knee.s1q(hip);
   var d = it.t1q(1.0 / it.u1q());
@@ -15670,8 +15682,8 @@ function onThigh(along, above) {
 function wristCurlPose(wrist) {
   _init_properties_Arms_kt__e6cjp3_0();
   var _destruct__k2r9zo = get_seatedThigh();
-  var hip = _destruct__k2r9zo.ra();
-  var knee = _destruct__k2r9zo.sa();
+  var hip = _destruct__k2r9zo.ab();
+  var knee = _destruct__k2r9zo.bb();
   // Inline function 'kotlin.let' call
   var it = knee.s1q(hip);
   var d = it.t1q(1.0 / it.u1q());
@@ -16208,8 +16220,8 @@ function _get_tricepsDip_$ref_bprtz3() {
 function closeGripPushUp$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
   var _destruct__k2r9zo = closePushUp(18.0, -90.0, new V3(-1.0, -0.8, 0.15), 6.0);
-  var start = _destruct__k2r9zo.ra();
-  var end = _destruct__k2r9zo.sa();
+  var start = _destruct__k2r9zo.ab();
+  var end = _destruct__k2r9zo.bb();
   return figure_0(View_SIDE_getInstance(), start, end, listOf_0(Floor_instance), 'Hands under shoulders', 'Lower toward the floor', Which_START_getInstance(), listOf(['Place your hands on the floor under your shoulders, or a little narrower.', 'Push up onto your toes with straight arms.', 'Bend your arms to lower your body toward the floor. Keep your body straight.']), get_PUSH_UP_CONTACTS(), listOf([new ChestOffFloor(4.0, 9.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_START_getInstance())]));
 }
 function _get_closeGripPushUp_$ref_qxd18f() {
@@ -16220,8 +16232,8 @@ function _get_closeGripPushUp_$ref_qxd18f() {
 function trianglePushUp$delegate$lambda() {
   _init_properties_Arms_kt__e6cjp3_0();
   var _destruct__k2r9zo = closePushUp(0.0, -97.0, new V3(-0.5, -1.0, 0.8), 10.0);
-  var start = _destruct__k2r9zo.ra();
-  var end = _destruct__k2r9zo.sa();
+  var start = _destruct__k2r9zo.ab();
+  var end = _destruct__k2r9zo.bb();
   return figure_0(View_SIDE_getInstance(), start, end, listOf_0(Floor_instance), 'Hands under your chest', 'Chest toward the floor', Which_START_getInstance(), listOf(['Place your hands together on the floor under your chest, so your thumbs and index fingers make a triangle.', 'Push up onto your toes with straight arms.', 'Bend your elbows to lower your chest toward the floor. Keep your body rigid.']), get_PUSH_UP_CONTACTS(), listOf([new ChestOffFloor(8.0, 13.0, Which_END_getInstance()), new ElbowBend(0.0, 2.0, Which_START_getInstance())]));
 }
 function _get_trianglePushUp_$ref_aaukgt() {
@@ -17570,16 +17582,16 @@ function invertedRow$delegate$lambda() {
       break $l$block;
     }
     var destruct = minElem;
-    var top = destruct.ra();
-    var up = destruct.sa();
+    var top = destruct.ab();
+    var up = destruct.bb();
     var sh = skeleton(invoke$body(legs, heelX, up)).o1s_1;
     // Inline function 'kotlin.math.abs' call
     var x = invoke$barAt(legs, heelX, top).p1q_1 - sh.p1q_1;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
-      var top_0 = e.ra();
-      var up_0 = e.sa();
+      var top_0 = e.ab();
+      var up_0 = e.bb();
       var sh_0 = skeleton(invoke$body(legs, heelX, up_0)).o1s_1;
       // Inline function 'kotlin.math.abs' call
       var x_0 = invoke$barAt(legs, heelX, top_0).p1q_1 - sh_0.p1q_1;
@@ -17593,8 +17605,8 @@ function invertedRow$delegate$lambda() {
     tmp$ret$10 = minElem;
   }
   var _destruct__k2r9zo = tmp$ret$10;
-  var topUp = _destruct__k2r9zo.ra();
-  var startUp = _destruct__k2r9zo.sa();
+  var topUp = _destruct__k2r9zo.ab();
+  var startUp = _destruct__k2r9zo.bb();
   var bar_0 = invoke$barAt(legs, heelX, topUp);
   var topBare = skeleton(invoke$body(legs, heelX, topUp));
   var sb = skeleton(invoke$body(legs, heelX, startUp));
@@ -17731,7 +17743,7 @@ function _get_frontPulldownSeat_$ref_keo4c5() {
 }
 function underhandPulldown$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
-  var up = overhead(get_frontShoulderY(), 25.0, 8.0).ra();
+  var up = overhead(get_frontShoulderY(), 25.0, 8.0).ab();
   var upperChest = get_frontShoulderY() + 12.0;
   var down = arm3(frontShoulder(get_frontShoulderY()), new V3(25.0, upperChest, 12.5 + 3.0), new V3(0.3, 1.0, 0.2), 90.0);
   var props = listOf([Floor_instance, new CableStack(0.0, 215.0, 0.0), get_frontPulldownSeat(), LatBar_instance]);
@@ -17745,8 +17757,8 @@ function _get_underhandPulldown_$ref_68d172() {
 function oneArmPulldown$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var _destruct__k2r9zo = overhead(get_frontShoulderY(), 24.0, 8.0);
-  var up = _destruct__k2r9zo.ra();
-  var grip = _destruct__k2r9zo.sa();
+  var up = _destruct__k2r9zo.ab();
+  var grip = _destruct__k2r9zo.bb();
   var chestY = get_frontShoulderY() + 17.0;
   var down = arm3(frontShoulder(get_frontShoulderY()), new V3(24.0, chestY, 12.0), new V3(0.3, 1.0, 0.1), 90.0);
   var padTop = -get_frontPulldownSeat().w20_1 - 6.0 - 6.0 / 2;
@@ -17828,12 +17840,12 @@ function assistedPullUp$delegate$lambda() {
   var bar = new Point(0.0, -215.0);
   var topShoulder = bar.r1q(new Point(-17.0, Segment_NECK_getInstance().a() / 2));
   var _destruct__k2r9zo = assisted(topShoulder, armTo(topShoulder, bar, 90.0));
-  var start = _destruct__k2r9zo.ra();
-  var end = _destruct__k2r9zo.sa();
+  var start = _destruct__k2r9zo.ab();
+  var end = _destruct__k2r9zo.bb();
   var machines = _destruct__k2r9zo.ld();
   var tmp0_view = View_SIDE_getInstance();
-  var tmp1_props = listOf([Floor_instance, machines.xa_1]);
-  var tmp2_endProps = listOf([Floor_instance, machines.ya_1]);
+  var tmp1_props = listOf([Floor_instance, machines.va_1]);
+  var tmp2_endProps = listOf([Floor_instance, machines.wa_1]);
   var tmp3_thumbnail = Which_END_getInstance();
   var tmp4_guideLines = listOf(['Kneel on the pad and lower yourself until your arms are straight. Some machines have you stand on the platform instead.', 'Pull yourself up until your neck reaches the height of your hands.', 'Keep your body upright.']);
   var tmp5_contacts = get_ASSISTED_CONTACTS();
@@ -17854,12 +17866,12 @@ function assistedChinUp$delegate$lambda() {
   var offset = it.r1s_1.f1s_1.s1q(it.o1s_1);
   var topShoulder = bar.s1q(offset);
   var _destruct__k2r9zo = assisted(topShoulder, arm);
-  var start = _destruct__k2r9zo.ra();
-  var end = _destruct__k2r9zo.sa();
+  var start = _destruct__k2r9zo.ab();
+  var end = _destruct__k2r9zo.bb();
   var machines = _destruct__k2r9zo.ld();
   var tmp0_view = View_SIDE_getInstance();
-  var tmp1_props = listOf([Floor_instance, machines.xa_1]);
-  var tmp2_endProps = listOf([Floor_instance, machines.ya_1]);
+  var tmp1_props = listOf([Floor_instance, machines.va_1]);
+  var tmp2_endProps = listOf([Floor_instance, machines.wa_1]);
   var tmp3_thumbnail = Which_END_getInstance();
   var tmp4_guideLines = listOf(['Step up and grip the bar underhand, shoulder-width apart.', 'Kneel on the pad, or stand on it if your machine is built that way.', 'Pull yourself up until your elbows are at your sides.', 'Keep your body upright.']);
   var tmp5_contacts = get_ASSISTED_CONTACTS();
@@ -17874,8 +17886,8 @@ function _get_assistedChinUp_$ref_e37bxp() {
 function chinUp$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var _destruct__k2r9zo = chinUpPoses(get_FRONT_HANG_LEG());
-  var start = _destruct__k2r9zo.ra();
-  var end = _destruct__k2r9zo.sa();
+  var start = _destruct__k2r9zo.ab();
+  var end = _destruct__k2r9zo.bb();
   return figure_1(View_FRONT_getInstance(), start, end, listOf_0(new PullUpBar(get_CHIN_BAR().p1q_1, -get_CHIN_BAR().q1q_1)), 'Hang with straight arms', 'Elbows to your sides', Which_END_getInstance(), listOf(['Grip the bar underhand, about shoulder-width apart, thumbs wrapped around the bar.', 'Hang with straight arms.', 'Cross one leg over the other, and brace your abs.', 'Pull yourself up until your elbows are at your sides.']), listOf_0(new Contact(BodyPoint_HANDS_getInstance(), Surface_PULL_UP_BAR_getInstance(), get_BOTH())), listOf([new UpperArmDown(25.0, Which_END_getInstance()), new ElbowBend(0.0, 1.0, Which_START_getInstance())]));
 }
 function _get_chinUp_$ref_b0ptlh() {
@@ -18010,8 +18022,8 @@ function _get_trapBarShrug_$ref_8vynjj() {
 function backExtension$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var _destruct__k2r9zo = extensionPoses(6.0 / 2 + 1.0);
-  var top = _destruct__k2r9zo.ra();
-  var bottom = _destruct__k2r9zo.sa();
+  var top = _destruct__k2r9zo.ab();
+  var bottom = _destruct__k2r9zo.bb();
   var bench = _destruct__k2r9zo.ld();
   return figure_1(View_SIDE_getInstance(), top, bottom, listOf([Floor_instance, bench]), 'In line with your legs', 'Right angle to your legs', Which_START_getInstance(), listOf(['Hook your heels under the foot pad.', 'Cross your hands on your chest, or keep them low on your body.', 'Stop when your torso is about at a right angle to your legs.', 'Use your lower back, glutes and hamstrings to raise your body until your back is neutral and in line with your legs.']), get_EXTENSION_CONTACTS(), emptyList());
 }
@@ -18023,8 +18035,8 @@ function _get_backExtension_$ref_283a3c() {
 function weightedBackExtension$delegate$lambda() {
   _init_properties_Back_kt__1pps7b_0();
   var _destruct__k2r9zo = extensionPoses(4.0 + 6.0 / 2 + 1.0);
-  var top = _destruct__k2r9zo.ra();
-  var bottom = _destruct__k2r9zo.sa();
+  var top = _destruct__k2r9zo.ab();
+  var bottom = _destruct__k2r9zo.bb();
   var bench = _destruct__k2r9zo.ld();
   return figure_1(View_SIDE_getInstance(), top, bottom, listOf([Floor_instance, bench, new ChestPlate()]), 'In line with your legs', 'Right angle to your legs', Which_START_getInstance(), listOf(['Hook your heels under the foot pad.', 'Hold a weight to your chest.', 'Stop when your torso is about at a right angle to your legs.', 'Use your lower back, glutes and hamstrings to raise your body until your back is neutral and in line with your legs.']), get_EXTENSION_CONTACTS(), emptyList());
 }
@@ -18498,14 +18510,14 @@ function Standing(torso, neck) {
   this.o2d_1 = torso;
   this.p2d_1 = neck;
   this.q2d_1 = feetOn(get_blockCorner(), 16.0, -25.0);
-  this.r2d_1 = (this.q2d_1.xa_1.l2d_1.p1q_1 + this.q2d_1.ya_1.l2d_1.p1q_1) / 2;
-  this.s2d_1 = straightLeg(this.r2d_1, this.q2d_1.xa_1, this.o2d_1);
-  this.t2d_1 = straightLeg(this.r2d_1, this.q2d_1.ya_1, this.o2d_1);
+  this.r2d_1 = (this.q2d_1.va_1.l2d_1.p1q_1 + this.q2d_1.wa_1.l2d_1.p1q_1) / 2;
+  this.s2d_1 = straightLeg(this.r2d_1, this.q2d_1.va_1, this.o2d_1);
+  this.t2d_1 = straightLeg(this.r2d_1, this.q2d_1.wa_1, this.o2d_1);
 }
 protoOf(Standing).u2d = function (which, near, far, farLeg) {
   var _destruct__k2r9zo = which.equals(Which_START_getInstance()) ? this.s2d_1 : this.t2d_1;
-  var pelvis = _destruct__k2r9zo.ra();
-  var leg = _destruct__k2r9zo.sa();
+  var pelvis = _destruct__k2r9zo.ab();
+  var leg = _destruct__k2r9zo.bb();
   var sh = shoulderOf(pelvis, this.o2d_1);
   var n = near(sh);
   var tmp1_elvis_lhs = far == null ? null : far(sh);
@@ -18546,7 +18558,7 @@ function sideDumbbell(side) {
 function supportFor(st, height) {
   height = height === VOID ? 110.0 : height;
   _init_properties_Calves_kt__vbnkhi_0();
-  return new SupportPost(st.q2d_1.xa_1.l2d_1.p1q_1 + Segment_FOOT_getInstance().a() + 15.0, height);
+  return new SupportPost(st.q2d_1.va_1.l2d_1.p1q_1 + Segment_FOOT_getInstance().a() + 15.0, height);
 }
 function onSupport(post) {
   _init_properties_Calves_kt__vbnkhi_0();
@@ -18662,12 +18674,12 @@ function barbellCalfRaise$delegate$lambda() {
 }
 function barbellCalfRaise$delegate$lambda$lambda($st) {
   return function (it) {
-    return armToBackBar($st.s2d_1.xa_1, $st.o2d_1);
+    return armToBackBar($st.s2d_1.va_1, $st.o2d_1);
   };
 }
 function barbellCalfRaise$delegate$lambda$lambda_0($st) {
   return function (it) {
-    return armToBackBar($st.t2d_1.xa_1, $st.o2d_1);
+    return armToBackBar($st.t2d_1.va_1, $st.o2d_1);
   };
 }
 function _get_barbellCalfRaise_$ref_c2le2k() {
@@ -18689,12 +18701,12 @@ function smithCalfRaise$delegate$lambda() {
 }
 function smithCalfRaise$delegate$lambda$lambda($st) {
   return function (it) {
-    return armToBackBar($st.s2d_1.xa_1, $st.o2d_1);
+    return armToBackBar($st.s2d_1.va_1, $st.o2d_1);
   };
 }
 function smithCalfRaise$delegate$lambda$lambda_0($st) {
   return function (it) {
-    return armToBackBar($st.t2d_1.xa_1, $st.o2d_1);
+    return armToBackBar($st.t2d_1.va_1, $st.o2d_1);
   };
 }
 function _get_smithCalfRaise_$ref_bbaopj() {
@@ -18799,15 +18811,15 @@ function _get_seatedDumbbellCalfRaise_$ref_uybw49() {
 function donkeyCalfRaise$delegate$lambda() {
   _init_properties_Calves_kt__vbnkhi_0();
   var feet = feetOn(get_blockCorner(), 16.0, -25.0);
-  var p0 = straightLeg(feet.xa_1.l2d_1.p1q_1 + 1.5, feet.xa_1, 15.0).ra();
+  var p0 = straightLeg(feet.va_1.l2d_1.p1q_1 + 1.5, feet.va_1, 15.0).ab();
   var shoulder = shoulderOf(p0, 15.0);
-  var a1 = feet.ya_1.l2d_1;
+  var a1 = feet.wa_1.l2d_1;
   var tmp = 15.0 - 30.0;
   var t = solveAngle(tmp, 15.0, donkeyCalfRaise$delegate$lambda$lambda(shoulder, a1));
   var p1 = shoulder.s1q(unit(t).t1q(Segment_TORSO_getInstance().a()));
   var elbow = shoulder.r1q(unit(-65.0).t1q(Segment_UPPER_ARM_getInstance().a()));
-  var start = invoke$pose_15(elbow, shoulder, p0, 15.0, feet.xa_1);
-  var end = invoke$pose_15(elbow, shoulder, p1, t, feet.ya_1);
+  var start = invoke$pose_15(elbow, shoulder, p0, 15.0, feet.va_1);
+  var end = invoke$pose_15(elbow, shoulder, p1, t, feet.wa_1);
   var supportTop = -(elbow.q1q_1 + 8.5 / 2);
   var columnX = elbow.p1q_1 + Segment_FOREARM_getInstance().a() + Segment_HAND_getInstance().a() + 6.0;
   var pivot = leverPivot(invoke$pad_1(start), invoke$pad_1(end), columnX);
@@ -18855,11 +18867,11 @@ function legPressCalfRaise$delegate$lambda() {
   var tmp_1 = -20.0;
   var rel0 = solveAngle(tmp_1, 40.0, legPressCalfRaise$delegate$lambda$lambda(forward, pelvis, back, reach));
   var _destruct__k2r9zo = invoke$scene(forward, pelvis, back, reach, rel0, null);
-  var start = _destruct__k2r9zo.ra();
-  var low = _destruct__k2r9zo.sa();
+  var start = _destruct__k2r9zo.ab();
+  var low = _destruct__k2r9zo.bb();
   var tmp_2 = -80.0;
   var rel1 = solveAngle(tmp_2, 0.0, legPressCalfRaise$delegate$lambda$lambda_0(low, forward, pelvis, back, reach));
-  var end = invoke$scene(forward, pelvis, back, reach, rel1, low.n2d_1).ra();
+  var end = invoke$scene(forward, pelvis, back, reach, rel1, low.n2d_1).ab();
   return new ExerciseFigure(View_SIDE_getInstance(), start, end, 'Heels below the edge', 'Point your ankles', Which_END_getInstance(), listOf(['Sit with your back against the back pad and hold the side handles.', 'Put your toes and the balls of your feet on the lower edge of the platform, with your heels and arches hanging off.', 'Push the platform away by pointing your ankles.', 'Slowly let your heels come back below the edge of the platform.']), listOf([new Contact(BodyPoint_UPPER_BACK_getInstance(), Surface_BACK_PAD_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH()), new Contact(BodyPoint_FEET_getInstance(), Surface_FOOT_PLATE_getInstance(), get_BOTH())]), emptyList());
 }
 function legPressCalfRaise$delegate$lambda$scene$lambda($forward, $rel, $toeAlong, $pelvis, $reach) {
@@ -18881,12 +18893,12 @@ function invoke$scene(forward, pelvis, back, reach, rel, toeAlong) {
 }
 function legPressCalfRaise$delegate$lambda$lambda($forward, $pelvis, $back, $reach) {
   return function (r) {
-    return invoke$scene($forward, $pelvis, $back, $reach, r, null).xa_1.b1t_1.s1r_1.i1r_1 - 16.0;
+    return invoke$scene($forward, $pelvis, $back, $reach, r, null).va_1.b1t_1.s1r_1.i1r_1 - 16.0;
   };
 }
 function legPressCalfRaise$delegate$lambda$lambda_0($low, $forward, $pelvis, $back, $reach) {
   return function (r) {
-    return invoke$scene($forward, $pelvis, $back, $reach, r, $low.n2d_1).xa_1.b1t_1.s1r_1.i1r_1 - -25.0;
+    return invoke$scene($forward, $pelvis, $back, $reach, r, $low.n2d_1).va_1.b1t_1.s1r_1.i1r_1 - -25.0;
   };
 }
 function _get_legPressCalfRaise_$ref_oof6kh() {
@@ -19504,7 +19516,7 @@ function lockoutAbove(shoulder, x, torso) {
   var x_0 = get_ARM_REACH() * get_ARM_REACH() - dx * dx;
   var tmp$ret$0 = Math.sqrt(x_0);
   var target = new Point(x, shoulder.q1q_1 - tmp$ret$0);
-  return straightTo(shoulder, target, torso).xa_1;
+  return straightTo(shoulder, target, torso).va_1;
 }
 function figure_3(view, start, end, props, startCaption, endCaption, thumbnail, guideLines, contacts, checks, endProps) {
   endProps = endProps === VOID ? props : endProps;
@@ -19741,8 +19753,8 @@ function pronePose(torso, support, supportHeight, arm, neck) {
       break;
   }
   var _destruct__k2r9zo = tmp_0;
-  var x = _destruct__k2r9zo.ra();
-  var bottom = _destruct__k2r9zo.sa();
+  var x = _destruct__k2r9zo.ab();
+  var bottom = _destruct__k2r9zo.bb();
   return new Pose(-x, -supportHeight - bottom, torso, neck, arm, leg);
 }
 function handOn(w, fore, scale, surface, flat) {
@@ -20176,8 +20188,8 @@ function machineChestPress$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var chest = point(get_machineBare(), BodyPoint_CHEST_getInstance());
   var _destruct__k2r9zo = machinePress(new Point(chest.p1q_1 + 2.0, chest.q1q_1), 0.0, 26.0, new V3(-1.0, 0.3, 0.9));
-  var a = _destruct__k2r9zo.ra();
-  var b = _destruct__k2r9zo.sa();
+  var a = _destruct__k2r9zo.ab();
+  var b = _destruct__k2r9zo.bb();
   var machine = _destruct__k2r9zo.ld();
   return figure_3(View_SIDE_getInstance(), machinePose(a), machinePose(b), listOf([Floor_instance, machine]), 'Level with mid chest', 'Without locking elbows', Which_END_getInstance(), listOf(['Set the seat so the handles are level with the middle of your chest.', 'Sit with your back and shoulder blades against the backrest.', 'Breathe out and press the handles forward until your arms are straight, without locking your elbows.', 'Let the handles come back slowly to the start, level with the middle of your chest.']), get_MACHINE_CONTACTS(), listOf([new HandsLevelWith(BodyPoint_CHEST_getInstance(), 2.0, Which_START_getInstance()), new ElbowBend(5.0, 15.0, Which_END_getInstance())]));
 }
@@ -20190,8 +20202,8 @@ function inclineMachinePress$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var upper = point(get_machineBare(), BodyPoint_UPPER_CHEST_getInstance());
   var _destruct__k2r9zo = machinePress(new Point(upper.p1q_1 + 2.0, upper.q1q_1 + 4.0), 35.0, 30.0, new V3(-0.8, 0.3, 1.0));
-  var a = _destruct__k2r9zo.ra();
-  var b = _destruct__k2r9zo.sa();
+  var a = _destruct__k2r9zo.ab();
+  var b = _destruct__k2r9zo.bb();
   var machine = _destruct__k2r9zo.ld();
   return figure_3(View_SIDE_getInstance(), machinePose(a), machinePose(b), listOf([Floor_instance, machine]), 'Just below upper chest', 'Press until straight', Which_END_getInstance(), listOf(['Set the seat so your upper chest is just above the handles.', 'Sit with your back against the backrest.', 'Grip the handles wide, elbows out to the sides, then let go of the foot lever.', 'Press until your arms are straight, without locking your elbows.']), get_MACHINE_CONTACTS(), listOf([new HandsLevelWith(BodyPoint_UPPER_CHEST_getInstance(), 6.0, Which_START_getInstance()), new ElbowBend(5.0, 15.0, Which_END_getInstance())]));
 }
@@ -20204,8 +20216,8 @@ function declineMachinePress$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var chest = point(get_machineBare(), BodyPoint_CHEST_getInstance());
   var _destruct__k2r9zo = machinePress(new Point(chest.p1q_1 + 2.0, chest.q1q_1 + 3.0), -20.0, 30.0, new V3(-0.5, 0.15, 1.0));
-  var a = _destruct__k2r9zo.ra();
-  var b = _destruct__k2r9zo.sa();
+  var a = _destruct__k2r9zo.ab();
+  var b = _destruct__k2r9zo.bb();
   var machine = _destruct__k2r9zo.ld();
   return figure_3(View_SIDE_getInstance(), machinePose(a), machinePose(b), listOf([Floor_instance, machine]), 'Level with lower chest', 'Press until straight', Which_END_getInstance(), listOf(['Set the seat so the handles are about level with your lower chest.', 'Grip the handles wide and overhand, elbows out to the sides just below your shoulders.', 'Press until your arms are straight.']), get_MACHINE_CONTACTS(), listOf([new HandsLevelWith(BodyPoint_CHEST_getInstance(), 5.0, Which_START_getInstance()), new ElbowBend(5.0, 15.0, Which_END_getInstance())]));
 }
@@ -20331,8 +20343,8 @@ function chestDip$delegate$lambda() {
   _init_properties_Chest_kt__oxfldd_0();
   var bars = new DipBars(0.0);
   var _destruct__k2r9zo = dipPoses(new Point(0.0, -bars.x27_1), 8.0, new Leg(20.0, 45.0, -25.0));
-  var start = _destruct__k2r9zo.ra();
-  var end = _destruct__k2r9zo.sa();
+  var start = _destruct__k2r9zo.ab();
+  var end = _destruct__k2r9zo.bb();
   return figure_3(View_SIDE_getInstance(), start, end, listOf([Floor_instance, bars]), 'Push up to straight arms', 'Upper arms level', Which_END_getInstance(), plus(listOf(['Grip the bars and push up until your arms are straight.', 'Bend your knees and hips slightly.']), get_DIP_LINES()), listOf_0(new Contact(BodyPoint_HANDS_getInstance(), Surface_DIP_BAR_getInstance(), get_BOTH())), get_DIP_CHECKS());
 }
 function _get_chestDip_$ref_1818ds() {
@@ -20345,8 +20357,8 @@ function assistedDip$delegate$lambda() {
   var grip = new Point(0.0, -120.0);
   var leg = new Leg(70.0, 85.0, 25.0);
   var _destruct__k2r9zo = dipPoses(grip, 8.0, leg);
-  var start = _destruct__k2r9zo.ra();
-  var end = _destruct__k2r9zo.sa();
+  var start = _destruct__k2r9zo.ab();
+  var end = _destruct__k2r9zo.bb();
   var s0 = invoke$step(start);
   var s1 = invoke$step(end);
   var column = grip.p1q_1 - 55.0;
@@ -21488,15 +21500,15 @@ function stabilityBallRollout$delegate$lambda() {
   var r = 65.0 / 2;
   var onBall = r + 8.5 / 2;
   var _destruct__k2r9zo = invoke$body_0(kneeP, 50.0);
-  var hip0 = _destruct__k2r9zo.ra();
-  var sh0 = _destruct__k2r9zo.sa();
+  var hip0 = _destruct__k2r9zo.ab();
+  var sh0 = _destruct__k2r9zo.bb();
   var elbow0 = sh0.r1q(new Point(0.0, Segment_UPPER_ARM_getInstance().a()));
   var fore0 = solveAngle(0.0, 80.0, stabilityBallRollout$delegate$lambda$lambda(elbow0, r, onBall));
   var ball0 = invoke$ballUnder(onBall, elbow0, fore0, 15.0);
   var start = new Pose(hip0.p1q_1, hip0.q1q_1, 50.0, VOID, new Arm(fold180(270.0 - 50.0 - 180.0), fold180(fore0 - 270.0)), kneel(50.0 + 180.0, 50.0));
   var _destruct__k2r9zo_0 = invoke$body_0(kneeP, 30.0);
-  var hip1 = _destruct__k2r9zo_0.ra();
-  var sh1 = _destruct__k2r9zo_0.sa();
+  var hip1 = _destruct__k2r9zo_0.ab();
+  var sh1 = _destruct__k2r9zo_0.bb();
   var tmp = -60.0;
   var a1 = solveAngle(tmp, 20.0, stabilityBallRollout$delegate$lambda$lambda_0(r, sh1, onBall));
   var ball1 = invoke$ballFor(sh1, onBall, a1);
@@ -22422,8 +22434,8 @@ function thrust(startTilt, footRise, arm) {
   footRise = footRise === VOID ? 0.0 : footRise;
   _init_properties_HamstringsGlutes_kt__50vpcw_0();
   var _destruct__k2r9zo = thrustPelvis(0.0);
-  var top = _destruct__k2r9zo.ra();
-  var topTorso = _destruct__k2r9zo.sa();
+  var top = _destruct__k2r9zo.ab();
+  var topTorso = _destruct__k2r9zo.bb();
   var ankleY = -(6.825 + footRise);
   var kneeY = ankleY - Segment_SHIN_getInstance().a();
   // Inline function 'kotlin.math.sqrt' call
@@ -22431,8 +22443,8 @@ function thrust(startTilt, footRise, arm) {
   var tmp$ret$0 = Math.sqrt(x);
   var ankle = new Point(top.p1q_1 + tmp$ret$0, ankleY);
   var _destruct__k2r9zo_0 = thrustPelvis(startTilt);
-  var low = _destruct__k2r9zo_0.ra();
-  var lowTorso = _destruct__k2r9zo_0.sa();
+  var low = _destruct__k2r9zo_0.ab();
+  var lowTorso = _destruct__k2r9zo_0.bb();
   return new Thrust(thrust$pose(ankle, arm, low, lowTorso, 0.0), thrust$pose(ankle, arm, top, topTorso, 20.0), ankle);
 }
 function hipDumbbell(s) {
@@ -23085,8 +23097,8 @@ function stabilityBallLegCurl$delegate$lambda() {
     }
     var t = minElem;
     var _destruct__k2r9zo = invoke$straight(sh, r, t);
-    var p = _destruct__k2r9zo.ra();
-    var bx = _destruct__k2r9zo.sa();
+    var p = _destruct__k2r9zo.ab();
+    var bx = _destruct__k2r9zo.bb();
     var s = skeleton(p);
     var c = new Point(bx, -r);
     var d = norm(s.r1s_1.i1s_1.s1q(s.r1s_1.h1s_1));
@@ -23097,8 +23109,8 @@ function stabilityBallLegCurl$delegate$lambda() {
     do {
       var e = iterator.l();
       var _destruct__k2r9zo_0 = invoke$straight(sh, r, e);
-      var p_0 = _destruct__k2r9zo_0.ra();
-      var bx_0 = _destruct__k2r9zo_0.sa();
+      var p_0 = _destruct__k2r9zo_0.ab();
+      var bx_0 = _destruct__k2r9zo_0.bb();
       var s_0 = skeleton(p_0);
       var c_0 = new Point(bx_0, -r);
       var d_0 = norm(s_0.r1s_1.i1s_1.s1q(s_0.r1s_1.h1s_1));
@@ -23116,8 +23128,8 @@ function stabilityBallLegCurl$delegate$lambda() {
   }
   var theta = tmp$ret$3;
   var _destruct__k2r9zo_1 = invoke$straight(sh, r, theta);
-  var start = _destruct__k2r9zo_1.ra();
-  var startBall = _destruct__k2r9zo_1.sa();
+  var start = _destruct__k2r9zo_1.ab();
+  var startBall = _destruct__k2r9zo_1.bb();
   var k = 100.0;
   // Inline function 'kotlin.collections.map' call
   var this_1 = numberRangeToNumber(200, 600);
@@ -23145,7 +23157,7 @@ function stabilityBallLegCurl$delegate$lambda() {
       break $l$block_0;
     }
     var p_1 = minElem_0;
-    var pose = invoke$curled(sh, k, r, p_1).ra();
+    var pose = invoke$curled(sh, k, r, p_1).ab();
     var n = skeleton(pose).r1s_1;
     var foot = angleTo(n.k1s_1.s1q(n.j1s_1));
     var c_1 = n.j1s_1.r1q(n.k1s_1).t1q(0.5).r1q(unit(foot - 90.0).t1q(7.0 / 2 + r));
@@ -23154,7 +23166,7 @@ function stabilityBallLegCurl$delegate$lambda() {
     var minValue_0 = Math.abs(x_1);
     do {
       var e_0 = iterator_0.l();
-      var pose_0 = invoke$curled(sh, k, r, e_0).ra();
+      var pose_0 = invoke$curled(sh, k, r, e_0).ab();
       var n_0 = skeleton(pose_0).r1s_1;
       var foot_0 = angleTo(n_0.k1s_1.s1q(n_0.j1s_1));
       var c_2 = n_0.j1s_1.r1q(n_0.k1s_1).t1q(0.5).r1q(unit(foot_0 - 90.0).t1q(7.0 / 2 + r));
@@ -23171,8 +23183,8 @@ function stabilityBallLegCurl$delegate$lambda() {
   }
   var phi = tmp$ret$11;
   var _destruct__k2r9zo_2 = invoke$curled(sh, k, r, phi);
-  var end = _destruct__k2r9zo_2.ra();
-  var endBall = _destruct__k2r9zo_2.sa();
+  var end = _destruct__k2r9zo_2.ab();
+  var endBall = _destruct__k2r9zo_2.bb();
   return figure_5(View_SIDE_getInstance(), start, end, listOf([Floor_instance, new StabilityBall(startBall)]), 'Body in a straight line', 'Heels toward your hips', Which_END_getInstance(), listOf(['Lie on your back with your lower legs and heels on the ball, feet about hip-width apart.', 'Point your toes up toward the ceiling.', 'Squeeze your glutes to lift your hips until your body is in a straight line.', 'Pull your heels toward your hips, letting the ball roll in.']), listOf([new Contact(BodyPoint_HEAD_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_SHINS_getInstance(), Surface_BALL_getInstance(), setOf(Which_START_getInstance())), new Contact(BodyPoint_FEET_getInstance(), Surface_BALL_getInstance(), setOf(Which_END_getInstance()))]), emptyList(), listOf([Floor_instance, new StabilityBall(endBall)]));
 }
 function invoke$arms(torso) {
@@ -23447,16 +23459,16 @@ function thrustLowTilt$delegate$lambda() {
     }
     var t = minElem;
     var _destruct__k2r9zo = thrustPelvis(t);
-    var p = _destruct__k2r9zo.ra();
-    var torso = _destruct__k2r9zo.sa();
+    var p = _destruct__k2r9zo.ab();
+    var torso = _destruct__k2r9zo.bb();
     // Inline function 'kotlin.math.abs' call
     var x = hipBar(skeleton(new Pose(p.p1q_1, p.q1q_1, torso, VOID, get_HANG_3(), new Leg(90.0, 90.0)))).q1q_1 + 45.0 / 2;
     var minValue = Math.abs(x);
     do {
       var e = iterator.l();
       var _destruct__k2r9zo_0 = thrustPelvis(e);
-      var p_0 = _destruct__k2r9zo_0.ra();
-      var torso_0 = _destruct__k2r9zo_0.sa();
+      var p_0 = _destruct__k2r9zo_0.ab();
+      var torso_0 = _destruct__k2r9zo_0.bb();
       // Inline function 'kotlin.math.abs' call
       var x_0 = hipBar(skeleton(new Pose(p_0.p1q_1, p_0.q1q_1, torso_0, VOID, get_HANG_3(), new Leg(90.0, 90.0)))).q1q_1 + 45.0 / 2;
       var v = Math.abs(x_0);
@@ -25531,7 +25543,7 @@ var properties_initialized_Poses_kt_y3c9e6;
 function _init_properties_Poses_kt__cx5374() {
   if (!properties_initialized_Poses_kt_y3c9e6) {
     properties_initialized_Poses_kt_y3c9e6 = true;
-    BOTH = toSet(get_entries_1());
+    BOTH = toSet(get_entries_2());
     ARM_REACH = Segment_UPPER_ARM_getInstance().a() + Segment_FOREARM_getInstance().a() + Segment_HAND_getInstance().a() * 0.45;
     FORE_LINK = Segment_FOREARM_getInstance().a() + Segment_HAND_getInstance().a() * 0.45;
   }
@@ -26404,8 +26416,8 @@ function frontStand_0(x, spread, arm) {
   _init_properties_Quads_kt__7ij3x6_0();
   var y = standHipY(spread);
   var _destruct__k2r9zo = frontHips(x, y);
-  var nh = _destruct__k2r9zo.ra();
-  var fh = _destruct__k2r9zo.sa();
+  var nh = _destruct__k2r9zo.ab();
+  var fh = _destruct__k2r9zo.bb();
   var near = straightFrontLeg(Side_NEAR_getInstance(), nh, new V3(nh.y2c_1 + spread, -6.825, 0.0));
   var far = straightFrontLeg(Side_FAR_getInstance(), fh, new V3(fh.y2c_1 - spread, -6.825, 0.0));
   return new Pose(x, y, 90.0, VOID, arm, near, VOID, far);
@@ -26889,7 +26901,7 @@ function _get_barbellReverseLunge_$ref_mfaf2h() {
 function splitSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var bottom = splitSquatBottom(40.0);
-  var top = splitTop(bottom, new Point(40.0, -6.825), backAnkle(bottom).xa_1.p1q_1);
+  var top = splitTop(bottom, new Point(40.0, -6.825), backAnkle(bottom).va_1.p1q_1);
   return figure_6(View_SIDE_getInstance(), top.g2g(get_HANG_4()), bottom.g2g(get_HANG_4()), get_SIDE_DBS(), 'Feet far apart', 'Back knee near the floor', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides. Or use no weight.', 'Stand with your feet far apart, one in front and one behind.', 'Go down until your back knee is almost touching the floor.']), get_FEET_DOWN_2(), emptyList());
 }
 function _get_splitSquat_$ref_cdlwoa() {
@@ -26900,7 +26912,7 @@ function _get_splitSquat_$ref_cdlwoa() {
 function smithSplitSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var bottom = splitSquatBottom(40.0);
-  var top = splitTop(bottom, new Point(40.0, -6.825), backAnkle(bottom).xa_1.p1q_1);
+  var top = splitTop(bottom, new Point(40.0, -6.825), backAnkle(bottom).va_1.p1q_1);
   var start = withBar(top.g2g(get_HANG_4()));
   var end = withBar(bottom.g2g(get_HANG_4()));
   var bar = new Barbell(BarHold_UPPER_BACK_getInstance());
@@ -27072,8 +27084,8 @@ function lateralLunge$delegate$lambda() {
   var farDx = Math.sqrt(x_0);
   var px = farAnkleX + farDx + 9.0;
   var _destruct__k2r9zo = frontHips(px, hipY, -back);
-  var nh = _destruct__k2r9zo.ra();
-  var fh = _destruct__k2r9zo.sa();
+  var nh = _destruct__k2r9zo.ab();
+  var fh = _destruct__k2r9zo.bb();
   var nearKnee = new V3(nh.y2c_1 + out, kneeY, 0.0);
   var near = frontLeg(Side_NEAR_getInstance(), nh, nearKnee, new V3(nearKnee.y2c_1, -6.825, 0.0));
   var far = straightFrontLeg(Side_FAR_getInstance(), fh, new V3(farAnkleX, -6.825, 0.0));
@@ -27093,8 +27105,8 @@ function curtsyLunge$delegate$lambda() {
   var hipY = -60.0;
   var px = nearAnkleX - 25.0;
   var _destruct__k2r9zo = frontHips(px, hipY);
-  var nh = _destruct__k2r9zo.ra();
-  var fh = _destruct__k2r9zo.sa();
+  var nh = _destruct__k2r9zo.ab();
+  var fh = _destruct__k2r9zo.bb();
   var kneeY = -(6.825 + Segment_SHIN_getInstance().a());
   var dx = nearAnkleX - nh.y2c_1;
   // Inline function 'kotlin.math.sqrt' call
@@ -27141,8 +27153,8 @@ function lateralStepUp$delegate$lambda() {
   var box = new SquatBox(footX + 4.0, height, 30.0);
   var standY = standHipY(2.0);
   var _destruct__k2r9zo = frontHips(0.0, standY);
-  var nh = _destruct__k2r9zo.ra();
-  var fh = _destruct__k2r9zo.sa();
+  var nh = _destruct__k2r9zo.ab();
+  var fh = _destruct__k2r9zo.bb();
   var nearAnkle = new V3(footX, -(height + 6.825), 15.0);
   var near = frontLeg(Side_NEAR_getInstance(), nh, knee3(nh, nearAnkle, new V3(0.4, 0.0, 1.0)), nearAnkle);
   var far = straightFrontLeg(Side_FAR_getInstance(), fh, new V3(fh.y2c_1 - 2.0, -6.825, 0.0));
@@ -27150,8 +27162,8 @@ function lateralStepUp$delegate$lambda() {
   var upY = nearAnkle.z2c_1 - (Segment_THIGH_getInstance().a() + Segment_SHIN_getInstance().a());
   var upX = footX - 9.0;
   var _destruct__k2r9zo_0 = frontHips(upX, upY, 15.0);
-  var nh2 = _destruct__k2r9zo_0.ra();
-  var fh2 = _destruct__k2r9zo_0.sa();
+  var nh2 = _destruct__k2r9zo_0.ab();
+  var fh2 = _destruct__k2r9zo_0.bb();
   var upNear = straightFrontLeg(Side_NEAR_getInstance(), nh2, nearAnkle);
   var tmp = -Segment_THIGH_getInstance().a();
   // Inline function 'kotlin.math.sin' call
@@ -28240,8 +28252,8 @@ function _get_frontSeatTop_$ref_c7jz3n() {
 function lateralRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var _destruct__k2r9zo = lateralArms(10.0);
-  var down = _destruct__k2r9zo.ra();
-  var up = _destruct__k2r9zo.sa();
+  var down = _destruct__k2r9zo.ab();
+  var up = _destruct__k2r9zo.bb();
   return figure_7(View_FRONT_getInstance(), frontStanding_0(down), frontStanding_0(up), listOf([Floor_instance, new Dumbbell(Side_FAR_getInstance(), VOID, true), new Dumbbell(Side_NEAR_getInstance(), VOID, true)]), 'Palms facing your body', 'Out to shoulder height', Which_END_getInstance(), listOf(['Stand holding a dumbbell in each hand, palms facing your body.', 'Bend your elbows slightly and point them back.', 'Raise your upper arms out to the sides until your elbows are at shoulder height.']), get_FEET_DOWN_3(), listOf([new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
 }
 function _get_lateralRaise_$ref_yb3cdh() {
@@ -28252,8 +28264,8 @@ function _get_lateralRaise_$ref_yb3cdh() {
 function seatedLateralRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var _destruct__k2r9zo = lateralArms(12.0);
-  var down = _destruct__k2r9zo.ra();
-  var up = _destruct__k2r9zo.sa();
+  var down = _destruct__k2r9zo.ab();
+  var up = _destruct__k2r9zo.bb();
   var bench = new Seat(0.0, get_frontSeatTop(), 30.0);
   return figure_7(View_FRONT_getInstance(), frontSeated_1(down, 2.0), frontSeated_1(up, 2.0), listOf([Floor_instance, bench, new Dumbbell(Side_FAR_getInstance(), VOID, true), new Dumbbell(Side_NEAR_getInstance(), VOID, true)]), 'Arms hang, palms in', 'Out to shoulder height', Which_END_getInstance(), listOf(['Sit on the end of a bench with your legs together, holding a dumbbell in each hand.', 'Let your arms hang down, slightly bent, with your palms facing in.', 'Raise your upper arms out to the sides until your elbows are at shoulder height.', 'Keep the bend in your elbows the same.']), listOf([new Contact(BodyPoint_FEET_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_HIPS_getInstance(), Surface_SEAT_getInstance(), get_BOTH())]), listOf([new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
 }
@@ -28265,8 +28277,8 @@ function _get_seatedLateralRaise_$ref_bcbsm9() {
 function cableLateralRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var _destruct__k2r9zo = lateralArms(6.0);
-  var down = _destruct__k2r9zo.ra();
-  var up = _destruct__k2r9zo.sa();
+  var down = _destruct__k2r9zo.ab();
+  var up = _destruct__k2r9zo.bb();
   var stack = new CableStack(-62.0, 15.0, 12.0, VOID, VOID, true);
   return figure_7(View_FRONT_getInstance(), frontStanding_0(down, VOID, VOID, VOID, get_HANG_5()), frontStanding_0(up, VOID, VOID, VOID, get_HANG_5()), listOf([Floor_instance, stack, new CableHandle(Side_NEAR_getInstance())]), 'Side-on to the pulley', 'Elbow to shoulder height', Which_END_getInstance(), listOf(['Set a handle on a low pulley.', 'Stand side-on to the pulley, with your free arm nearest to it. Grip the handle with your other hand.', 'Raise your arm out to the side, away from the pulley, until your elbow is at shoulder height.']), get_FEET_DOWN_3(), listOf([new ElbowBend(10.0, 30.0, Which_START_getInstance(), Side_NEAR_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance(), Side_NEAR_getInstance())]));
 }
@@ -28293,8 +28305,8 @@ function _get_machineLateralRaise_$ref_tfg3l0() {
 function rearDeltRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var _destruct__k2r9zo = rearArms(0.0);
-  var down = _destruct__k2r9zo.ra();
-  var up = _destruct__k2r9zo.sa();
+  var down = _destruct__k2r9zo.ab();
+  var up = _destruct__k2r9zo.bb();
   return figure_7(View_FRONT_getInstance(), invoke$pose_45(down), invoke$pose_45(up), plus(listOf_0(Floor_instance), get_REAR_DUMBBELLS()), 'Torso close to level', 'Out to the sides', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand, palms facing each other.', 'Bend your knees and bend over at your hips, until your torso is close to level with the floor.', 'Raise your upper arms out to the sides until your elbows are at shoulder height.', 'Keep your upper arms straight out from your shoulders, and keep the bend in your elbows the same.']), get_FEET_DOWN_3(), listOf([new ElbowBend(10.0, 30.0, Which_START_getInstance()), new ElbowBend(10.0, 30.0, Which_END_getInstance())]));
 }
 function invoke$pose_45(arm) {
@@ -28308,8 +28320,8 @@ function _get_rearDeltRaise_$ref_j2k1xb() {
 function seatedRearDeltRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var _destruct__k2r9zo = rearArms(13.0);
-  var down = _destruct__k2r9zo.ra();
-  var up = _destruct__k2r9zo.sa();
+  var down = _destruct__k2r9zo.ab();
+  var up = _destruct__k2r9zo.bb();
   var thighOut = 72.0;
   var shinBack = -15.0;
   var leg = new Leg(6.0, 6.0, VOID, thighOut, shinBack);
@@ -28338,8 +28350,8 @@ function _get_seatedRearDeltRaise_$ref_kp5im3() {
 function chestSupportedRearDeltRaise$delegate$lambda() {
   _init_properties_Shoulders_kt__i33an3_0();
   var _destruct__k2r9zo = rearArms(14.0);
-  var down = _destruct__k2r9zo.ra();
-  var up = _destruct__k2r9zo.sa();
+  var down = _destruct__k2r9zo.ab();
+  var up = _destruct__k2r9zo.bb();
   var lean = 80.0;
   var legs = new Leg(0.0, 0.0, VOID, -90.0, -90.0);
   var shoulderHigh = 80.0;
@@ -29595,13 +29607,13 @@ function values_6() {
   static_init_17();
   return [MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance(), MainLift_STRICT_PRESS_getInstance()];
 }
-function get_entries_2() {
+function get_entries_3() {
   static_init_17();
-  if ($ENTRIES_2 == null)
-    $ENTRIES_2 = enumEntries(values_6());
-  return $ENTRIES_2;
+  if ($ENTRIES_3 == null)
+    $ENTRIES_3 = enumEntries(values_6());
+  return $ENTRIES_3;
 }
-var $ENTRIES_2;
+var $ENTRIES_3;
 function MainLift(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
@@ -29646,13 +29658,13 @@ function values_8() {
   static_init_19();
   return [MissPoint_FLOOR_getInstance(), MissPoint_MID_getInstance(), MissPoint_LOCKOUT_getInstance()];
 }
-function get_entries_3() {
+function get_entries_4() {
   static_init_19();
-  if ($ENTRIES_3 == null)
-    $ENTRIES_3 = enumEntries(values_8());
-  return $ENTRIES_3;
+  if ($ENTRIES_4 == null)
+    $ENTRIES_4 = enumEntries(values_8());
+  return $ENTRIES_4;
 }
-var $ENTRIES_3;
+var $ENTRIES_4;
 function MissPoint(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
@@ -30117,97 +30129,173 @@ function forSide(_this__u8e3s4, mode) {
 function repsText(reps, repsHigh) {
   return repsHigh == null ? '' + reps : '' + reps + '\u2013' + repsHigh;
 }
+var static_init_called_21;
+function static_init_21() {
+  if (static_init_called_21)
+    return Unit_instance;
+  static_init_called_21 = true;
+  SlotKind_CHEST_PRESS_instance = new SlotKind('CHEST_PRESS', 0, setOf(MuscleGroup_CHEST_getInstance()), true, listOf(['DB press', 'Machine chest press', 'Bench', 'Smith bench press']));
+  SlotKind_CHEST_INCLINE_instance = new SlotKind('CHEST_INCLINE', 1, setOf(MuscleGroup_CHEST_getInstance()), true, listOf(['Incline DB press', 'Incline bench press', 'Incline machine press', 'Smith incline press']));
+  SlotKind_CHEST_FLY_instance = new SlotKind('CHEST_FLY', 2, setOf(MuscleGroup_CHEST_getInstance()), true, listOf(['Cable crossover', 'Pec deck', 'DB fly', 'Seated cable fly']));
+  SlotKind_PULL_DOWN_instance = new SlotKind('PULL_DOWN', 3, setOf(MuscleGroup_LATS_getInstance()), true, listOf(['Lat pulldown', 'Pull-up', 'Machine pulldown', 'Chin-up', 'Close-grip pulldown']));
+  SlotKind_ROW_instance = new SlotKind('ROW', 4, setOf_0([MuscleGroup_UPPER_BACK_getInstance(), MuscleGroup_LATS_getInstance()]), true, listOf(['Seated cable row', 'One-arm DB row', 'Machine row', 'Chest-supported row', 'Row', 'T-bar row']));
+  SlotKind_QUAD_COMPOUND_instance = new SlotKind('QUAD_COMPOUND', 5, setOf_0([MuscleGroup_QUADS_getInstance(), MuscleGroup_ADDUCTORS_getInstance()]), false, listOf(['Leg press', 'Hack squat', 'Squat', 'Goblet squat', 'Smith squat']));
+  SlotKind_QUAD_ISOLATION_instance = new SlotKind('QUAD_ISOLATION', 6, setOf_0([MuscleGroup_QUADS_getInstance(), MuscleGroup_ADDUCTORS_getInstance()]), false, listOf(['Leg extension', 'Bulgarian split squat', 'Split squat', 'Lunge']));
+  SlotKind_HINGE_instance = new SlotKind('HINGE', 7, setOf_0([MuscleGroup_HAMSTRINGS_getInstance(), MuscleGroup_GLUTES_getInstance(), MuscleGroup_LOWER_BACK_getInstance()]), false, listOf(['RDL', 'DB RDL', 'Hip thrust', 'Stiff-leg deadlift', 'Machine hip thrust']));
+  SlotKind_LEG_CURL_instance = new SlotKind('LEG_CURL', 8, setOf_0([MuscleGroup_HAMSTRINGS_getInstance(), MuscleGroup_GLUTES_getInstance()]), false, listOf(['Seated leg curl', 'Lying leg curl', 'Standing leg curl', 'Cable leg curl']));
+  SlotKind_SHOULDER_PRESS_instance = new SlotKind('SHOULDER_PRESS', 9, setOf(MuscleGroup_FRONT_DELTS_getInstance()), true, listOf(['DB shoulder press', 'Machine shoulder press', 'Seated barbell press', 'Arnold press']));
+  SlotKind_SIDE_DELT_instance = new SlotKind('SIDE_DELT', 10, setOf(MuscleGroup_SIDE_DELTS_getInstance()), true, listOf(['Lateral raise', 'Cable lateral raise', 'Machine lateral raise', 'Seated lateral raise']));
+  SlotKind_REAR_DELT_instance = new SlotKind('REAR_DELT', 11, setOf_0([MuscleGroup_REAR_DELTS_getInstance(), MuscleGroup_TRAPS_getInstance()]), true, listOf(['Face pull', 'Rear delt raise', 'Machine reverse fly', 'Cable reverse fly']));
+  SlotKind_BICEPS_instance = new SlotKind('BICEPS', 12, setOf_0([MuscleGroup_BICEPS_getInstance(), MuscleGroup_FOREARMS_getInstance()]), true, listOf(['DB curl', 'Cable curl', 'EZ-bar curl', 'Incline DB curl', 'Machine curl']));
+  SlotKind_TRICEPS_instance = new SlotKind('TRICEPS', 13, setOf(MuscleGroup_TRICEPS_getInstance()), true, listOf(['Rope pushdown', 'Triceps pushdown', 'DB overhead triceps extension', 'Skull crusher']));
+  SlotKind_CALVES_instance = new SlotKind('CALVES', 14, setOf(MuscleGroup_CALVES_getInstance()), false, listOf(['Standing calf raise', 'Seated calf raise', 'Leg press calf raise', 'Dumbbell calf raise']));
+  SlotKind_ABS_instance = new SlotKind('ABS', 15, setOf_0([MuscleGroup_ABS_getInstance(), MuscleGroup_OBLIQUES_getInstance()]), false, listOf(['Cable crunch', 'Machine crunch', 'Reverse crunch', 'Ab wheel rollout']));
+}
+var SlotKind_CHEST_PRESS_instance;
+var SlotKind_CHEST_INCLINE_instance;
+var SlotKind_CHEST_FLY_instance;
+var SlotKind_PULL_DOWN_instance;
+var SlotKind_ROW_instance;
+var SlotKind_QUAD_COMPOUND_instance;
+var SlotKind_QUAD_ISOLATION_instance;
+var SlotKind_HINGE_instance;
+var SlotKind_LEG_CURL_instance;
+var SlotKind_SHOULDER_PRESS_instance;
+var SlotKind_SIDE_DELT_instance;
+var SlotKind_REAR_DELT_instance;
+var SlotKind_BICEPS_instance;
+var SlotKind_TRICEPS_instance;
+var SlotKind_CALVES_instance;
+var SlotKind_ABS_instance;
+function values_10() {
+  static_init_21();
+  return [SlotKind_CHEST_PRESS_getInstance(), SlotKind_CHEST_INCLINE_getInstance(), SlotKind_CHEST_FLY_getInstance(), SlotKind_PULL_DOWN_getInstance(), SlotKind_ROW_getInstance(), SlotKind_QUAD_COMPOUND_getInstance(), SlotKind_QUAD_ISOLATION_getInstance(), SlotKind_HINGE_getInstance(), SlotKind_LEG_CURL_getInstance(), SlotKind_SHOULDER_PRESS_getInstance(), SlotKind_SIDE_DELT_getInstance(), SlotKind_REAR_DELT_getInstance(), SlotKind_BICEPS_getInstance(), SlotKind_TRICEPS_getInstance(), SlotKind_CALVES_getInstance(), SlotKind_ABS_getInstance()];
+}
+function get_entries_5() {
+  static_init_21();
+  if ($ENTRIES_5 == null)
+    $ENTRIES_5 = enumEntries(values_10());
+  return $ENTRIES_5;
+}
+var $ENTRIES_5;
+function SlotKind(name, ordinal, accepts, upper, defaults) {
+  Enum.call(this, name, ordinal);
+  this.m2h_1 = accepts;
+  this.n2h_1 = upper;
+  this.o2h_1 = defaults;
+}
 function Item(name, inCatalogue, muscles, compound) {
-  this.k2h_1 = name;
-  this.l2h_1 = inCatalogue;
-  this.m2h_1 = muscles;
-  this.n2h_1 = compound;
-  this.o2h_1 = Library_getInstance().q1b(this.k2h_1);
-  this.p2h_1 = PlanBuilder_getInstance().i2i(this.m2h_1);
+  this.p2h_1 = name;
+  this.q2h_1 = inCatalogue;
+  this.r2h_1 = muscles;
+  this.s2h_1 = compound;
+  this.t2h_1 = Library_getInstance().q1b(this.p2h_1);
+  this.u2h_1 = PlanBuilder_getInstance().o2i(this.r2h_1);
 }
-function Slot(day, title, allows) {
-  this.j2i_1 = day;
-  this.k2i_1 = title;
-  this.l2i_1 = allows;
+function Slot(kind, lead) {
+  this.p2i_1 = kind;
+  this.q2i_1 = lead;
+  this.r2i_1 = null;
+}
+function Session(day, title, upper, kinds) {
+  this.s2i_1 = day;
+  this.t2i_1 = title;
+  this.u2i_1 = upper;
   var tmp = this;
-  // Inline function 'kotlin.collections.mutableListOf' call
-  tmp.m2i_1 = ArrayList_init_$Create$();
+  // Inline function 'kotlin.collections.mapIndexed' call
+  // Inline function 'kotlin.collections.mapIndexedTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(kinds, 10));
+  var index = 0;
+  var _iterator__ex2g4s = kinds.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var _unary__edvuaz = index;
+    index = _unary__edvuaz + 1 | 0;
+    var i = checkIndexOverflow(_unary__edvuaz);
+    var tmp$ret$2 = new Slot(item, i === 0);
+    destination.i(tmp$ret$2);
+  }
+  tmp.v2i_1 = toMutableList(destination);
+  this.w2i_1 = null;
+  this.x2i_1 = 0;
 }
-protoOf(Slot).n2i = function () {
-  return this.m2i_1.o() < 6;
-};
-protoOf(Slot).o2i = function (item) {
-  var tmp0 = this.m2i_1;
+protoOf(Session).y2i = function (key) {
+  var tmp;
+  var tmp0 = this.v2i_1;
   var tmp$ret$0;
   $l$block_0: {
     // Inline function 'kotlin.collections.any' call
-    var tmp;
+    var tmp_0;
     if (isInterface(tmp0, Collection)) {
-      tmp = tmp0.m();
+      tmp_0 = tmp0.m();
     } else {
-      tmp = false;
+      tmp_0 = false;
     }
-    if (tmp) {
+    if (tmp_0) {
       tmp$ret$0 = false;
       break $l$block_0;
     }
     var _iterator__ex2g4s = tmp0.j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
-      if (element.o2h_1 === item.o2h_1) {
+      var tmp0_safe_receiver = element.r2i_1;
+      if ((tmp0_safe_receiver == null ? null : tmp0_safe_receiver.t2h_1) === key) {
         tmp$ret$0 = true;
         break $l$block_0;
       }
     }
     tmp$ret$0 = false;
   }
+  if (tmp$ret$0) {
+    tmp = true;
+  } else {
+    var tmp0_safe_receiver_0 = this.w2i_1;
+    tmp = (tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.t2h_1) === key;
+  }
+  return tmp;
+};
+protoOf(Session).z2i = function (group) {
+  var tmp0 = this.v2i_1;
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlin.collections.firstOrNull' call
+    var _iterator__ex2g4s = tmp0.j();
+    while (_iterator__ex2g4s.k()) {
+      var element = _iterator__ex2g4s.l();
+      if (element.r2i_1 == null && element.p2i_1.m2h_1.r(group)) {
+        tmp$ret$0 = element;
+        break $l$block;
+      }
+    }
+    tmp$ret$0 = null;
+  }
   return tmp$ret$0;
 };
-protoOf(Slot).p2i = function (item) {
-  return this.l2i_1 == null || item.p2h_1 == null || this.l2i_1.r(item.p2h_1);
+protoOf(Session).a2j = function (kind) {
+  return this.u2i_1 == null || this.u2i_1 === kind.n2h_1;
 };
-function aimOrder($this, priorities) {
-  // Inline function 'kotlin.collections.filter' call
-  var tmp0 = $this.d2i_1;
-  // Inline function 'kotlin.collections.filterTo' call
-  var destination = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = tmp0.j();
-  while (_iterator__ex2g4s.k()) {
-    var element = _iterator__ex2g4s.l();
-    if (!priorities.r(element)) {
-      destination.i(element);
-    }
-  }
-  return plus(priorities, destination);
-}
-function volumeGroups($this, priorities) {
-  // Inline function 'kotlin.collections.filter' call
-  // Inline function 'kotlin.collections.filterTo' call
-  var destination = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = priorities.j();
-  while (_iterator__ex2g4s.k()) {
-    var element = _iterator__ex2g4s.l();
-    if (!PlanBuilder_getInstance().d2i_1.r(element)) {
-      destination.i(element);
-    }
-  }
-  return plus($this.d2i_1, destination);
-}
+protoOf(Session).b2j = function (group) {
+  return this.u2i_1 == null || group == null || this.u2i_1 === PlanBuilder_getInstance().m2i_1.r(group);
+};
 function sessions($this, days) {
   // Inline function 'kotlin.collections.sortedBy' call
   // Inline function 'kotlin.comparisons.compareBy' call
   var tmp = PlanBuilder$sessions$lambda;
-  var tmp$ret$1 = new sam$kotlin_Comparator$0_7(tmp);
+  var tmp$ret$1 = new sam$kotlin_Comparator$0_8(tmp);
   var week = sortedWith(days, tmp$ret$1);
   var tmp_0;
   if (week.o() === 3) {
-    // Inline function 'kotlin.collections.map' call
-    // Inline function 'kotlin.collections.mapTo' call
+    // Inline function 'kotlin.collections.mapIndexed' call
+    // Inline function 'kotlin.collections.mapIndexedTo' call
     var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(week, 10));
+    var index = 0;
     var _iterator__ex2g4s = week.j();
     while (_iterator__ex2g4s.k()) {
       var item = _iterator__ex2g4s.l();
-      var tmp$ret$4 = new Slot(item, 'Full body', null);
+      var _unary__edvuaz = index;
+      index = _unary__edvuaz + 1 | 0;
+      var i = checkIndexOverflow(_unary__edvuaz);
+      var tmp$ret$4 = new Session(item, 'Full body', null, PlanBuilder_getInstance().k2i_1.n(i));
       destination.i(tmp$ret$4);
     }
     tmp_0 = destination;
@@ -30215,145 +30303,29 @@ function sessions($this, days) {
     // Inline function 'kotlin.collections.mapIndexed' call
     // Inline function 'kotlin.collections.mapIndexedTo' call
     var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(week, 10));
-    var index = 0;
+    var index_0 = 0;
     var _iterator__ex2g4s_0 = week.j();
     while (_iterator__ex2g4s_0.k()) {
       var item_0 = _iterator__ex2g4s_0.l();
-      var _unary__edvuaz = index;
-      index = _unary__edvuaz + 1 | 0;
-      var tmp$ret$7 = (checkIndexOverflow(_unary__edvuaz) % 2 | 0) === 0 ? new Slot(item_0, 'Upper', PlanBuilder_getInstance().e2i_1) : new Slot(item_0, 'Lower', PlanBuilder_getInstance().f2i_1);
+      var _unary__edvuaz_0 = index_0;
+      index_0 = _unary__edvuaz_0 + 1 | 0;
+      var i_0 = checkIndexOverflow(_unary__edvuaz_0);
+      var tmp$ret$7 = (i_0 % 2 | 0) === 0 ? new Session(item_0, 'Upper', true, PlanBuilder_getInstance().l2i_1.n(i_0)) : new Session(item_0, 'Lower', false, PlanBuilder_getInstance().l2i_1.n(i_0));
       destination_0.i(tmp$ret$7);
     }
     tmp_0 = destination_0;
   }
   return tmp_0;
 }
-function fewest($this, slots) {
-  var tmp$ret$0;
-  $l$block_0: {
-    // Inline function 'kotlin.collections.minByOrNull' call
-    var iterator = slots.j();
-    if (!iterator.k()) {
-      tmp$ret$0 = null;
-      break $l$block_0;
-    }
-    var minElem = iterator.l();
-    if (!iterator.k()) {
-      tmp$ret$0 = minElem;
-      break $l$block_0;
-    }
-    var minValue = minElem.m2i_1.o();
-    do {
-      var e = iterator.l();
-      var v = e.m2i_1.o();
-      if (compareTo(minValue, v) > 0) {
-        minElem = e;
-        minValue = v;
-      }
-    }
-     while (iterator.k());
-    tmp$ret$0 = minElem;
-  }
-  return tmp$ret$0;
-}
 function targetRank($this, group) {
-  return group == null ? 2147483647 : $this.d2i_1.r(group) ? $this.d2i_1.s(group) : $this.d2i_1.o() + group.x1_1 | 0;
+  return group == null ? 2147483647 : $this.i2i_1.r(group) ? $this.i2i_1.s(group) : $this.i2i_1.o() + group.x1_1 | 0;
 }
-function daysTrained($this, slots, group) {
-  var tmp$ret$0;
-  $l$block: {
-    // Inline function 'kotlin.collections.count' call
-    var tmp;
-    if (isInterface(slots, Collection)) {
-      tmp = slots.m();
-    } else {
-      tmp = false;
-    }
-    if (tmp) {
-      tmp$ret$0 = 0;
-      break $l$block;
-    }
-    var count = 0;
-    var _iterator__ex2g4s = slots.j();
-    while (_iterator__ex2g4s.k()) {
-      var element = _iterator__ex2g4s.l();
-      var tmp0 = element.m2i_1;
-      var tmp$ret$2;
-      $l$block_1: {
-        // Inline function 'kotlin.collections.any' call
-        var tmp_0;
-        if (isInterface(tmp0, Collection)) {
-          tmp_0 = tmp0.m();
-        } else {
-          tmp_0 = false;
-        }
-        if (tmp_0) {
-          tmp$ret$2 = false;
-          break $l$block_1;
-        }
-        var _iterator__ex2g4s_0 = tmp0.j();
-        while (_iterator__ex2g4s_0.k()) {
-          var element_0 = _iterator__ex2g4s_0.l();
-          if (MuscleGroups_getInstance().b1c(element_0.m2h_1, group)) {
-            tmp$ret$2 = true;
-            break $l$block_1;
-          }
-        }
-        tmp$ret$2 = false;
-      }
-      if (tmp$ret$2) {
-        count = count + 1 | 0;
-        checkCountOverflow(count);
-      }
-    }
-    tmp$ret$0 = count;
-  }
-  return tmp$ret$0;
-}
-function countedSets($this, slots, group, setsFor) {
-  // Inline function 'kotlin.collections.sumOf' call
-  var sum = 0;
-  var _iterator__ex2g4s = slots.j();
-  while (_iterator__ex2g4s.k()) {
-    var element = _iterator__ex2g4s.l();
-    var tmp = sum;
-    // Inline function 'kotlin.collections.filter' call
-    var tmp0 = element.m2i_1;
-    // Inline function 'kotlin.collections.filterTo' call
-    var destination = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_0 = tmp0.j();
-    while (_iterator__ex2g4s_0.k()) {
-      var element_0 = _iterator__ex2g4s_0.l();
-      if (MuscleGroups_getInstance().b1c(element_0.m2h_1, group)) {
-        destination.i(element_0);
-      }
-    }
-    // Inline function 'kotlin.collections.sumOf' call
-    var sum_0 = 0;
-    var _iterator__ex2g4s_1 = destination.j();
-    while (_iterator__ex2g4s_1.k()) {
-      var element_1 = _iterator__ex2g4s_1.l();
-      sum_0 = sum_0 + setsFor(element_1) | 0;
-    }
-    sum = tmp + sum_0 | 0;
-  }
-  return sum;
-}
-function toDraft($this, $receiver, sets) {
-  return new DraftExercise($receiver.k2h_1, $receiver.l2h_1, sets, 8, 12, 8.0, $receiver.p2h_1, $receiver.m2h_1, $receiver.n2h_1);
-}
-function order($this, exercises, priorities) {
-  var aim = aimOrder($this, priorities);
-  var tmp = PlanBuilder$order$lambda(priorities);
-  var tmp_0 = PlanBuilder$order$lambda_0;
-  var tmp_1 = PlanBuilder$order$lambda_1(aim);
-  return sortedWith(exercises, compareBy([tmp, tmp_0, tmp_1, PlanBuilder$order$lambda_2]));
-}
-function volume($this, sessions, groups) {
+function volume($this, sessions) {
   // Inline function 'kotlin.collections.map' call
+  var this_0 = $this.i2i_1;
   // Inline function 'kotlin.collections.mapTo' call
-  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(groups, 10));
-  var _iterator__ex2g4s = groups.j();
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
     var sets = 0;
@@ -30362,13 +30334,13 @@ function volume($this, sessions, groups) {
     while (_iterator__ex2g4s_0.k()) {
       var s = _iterator__ex2g4s_0.l();
       // Inline function 'kotlin.collections.filter' call
-      var tmp0 = s.s2i_1;
+      var tmp0 = s.e2j_1;
       // Inline function 'kotlin.collections.filterTo' call
       var destination_0 = ArrayList_init_$Create$();
       var _iterator__ex2g4s_1 = tmp0.j();
       while (_iterator__ex2g4s_1.k()) {
         var element = _iterator__ex2g4s_1.l();
-        if (MuscleGroups_getInstance().b1c(element.a2j_1, item)) {
+        if (MuscleGroups_getInstance().b1c(element.m2j_1, item)) {
           destination_0.i(element);
         }
       }
@@ -30380,7 +30352,7 @@ function volume($this, sessions, groups) {
       while (_iterator__ex2g4s_2.k()) {
         var element_0 = _iterator__ex2g4s_2.l();
         var tmp_0 = sum;
-        sum = tmp_0 + element_0.v2i_1 | 0;
+        sum = tmp_0 + element_0.h2j_1 | 0;
       }
       sets = tmp + sum | 0;
       // Inline function 'kotlin.collections.isNotEmpty' call
@@ -30393,9 +30365,9 @@ function volume($this, sessions, groups) {
   }
   return destination;
 }
-function equipmentRank($this, picks) {
+function equipmentUse($this, picks) {
   // Inline function 'kotlin.collections.associateWith' call
-  var this_0 = $this.g2i_1;
+  var this_0 = get_entries();
   var result = LinkedHashMap_init_$Create$_0(coerceAtLeast(mapCapacity(collectionSizeOrDefault(this_0, 10)), 16));
   // Inline function 'kotlin.collections.associateWithTo' call
   var _iterator__ex2g4s = this_0.j();
@@ -30418,7 +30390,7 @@ function equipmentRank($this, picks) {
       var _iterator__ex2g4s_0 = picks.j();
       while (_iterator__ex2g4s_0.k()) {
         var element_0 = _iterator__ex2g4s_0.l();
-        if (element_0.f2j_1.r(element)) {
+        if (element_0.t2j_1.r(element)) {
           count = count + 1 | 0;
           checkCountOverflow(count);
         }
@@ -30428,97 +30400,67 @@ function equipmentRank($this, picks) {
     var tmp$ret$2 = tmp$ret$3;
     result.m2(element, tmp$ret$2);
   }
-  var uses = result;
-  // Inline function 'kotlin.collections.filter' call
-  var tmp0 = $this.g2i_1;
-  // Inline function 'kotlin.collections.filterTo' call
-  var destination = ArrayList_init_$Create$();
-  var _iterator__ex2g4s_1 = tmp0.j();
-  while (_iterator__ex2g4s_1.k()) {
-    var element_1 = _iterator__ex2g4s_1.l();
-    if (getValue(uses, element_1) > 0) {
-      destination.i(element_1);
+  return result;
+}
+function entry($this, name) {
+  var tmp0 = Library_getInstance().v1b();
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlin.collections.firstOrNull' call
+    var _iterator__ex2g4s = tmp0.j();
+    while (_iterator__ex2g4s.k()) {
+      var element = _iterator__ex2g4s.l();
+      if (element.g1b_1 === name) {
+        tmp$ret$0 = element;
+        break $l$block;
+      }
     }
+    tmp$ret$0 = null;
+  }
+  var tmp0_elvis_lhs = tmp$ret$0;
+  var tmp;
+  if (tmp0_elvis_lhs == null) {
+    // Inline function 'kotlin.error' call
+    var message = "default '" + name + "' is not a catalogue name";
+    throw IllegalStateException_init_$Create$(toString(message));
+  } else {
+    tmp = tmp0_elvis_lhs;
+  }
+  return tmp;
+}
+function orderedDefaults($this, kind, equipmentUse) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = kind.o2h_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = entry($this, item);
+    destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.sortedByDescending' call
   // Inline function 'kotlin.comparisons.compareByDescending' call
-  var tmp_0 = PlanBuilder$equipmentRank$lambda(uses);
-  var tmp$ret$9 = new sam$kotlin_Comparator$0_8(tmp_0);
-  var tmp_1 = sortedWith(destination, tmp$ret$9);
-  // Inline function 'kotlin.collections.filter' call
-  var tmp0_0 = $this.g2i_1;
-  // Inline function 'kotlin.collections.filterTo' call
-  var destination_0 = ArrayList_init_$Create$();
-  var _iterator__ex2g4s_2 = tmp0_0.j();
-  while (_iterator__ex2g4s_2.k()) {
-    var element_2 = _iterator__ex2g4s_2.l();
-    if (getValue(uses, element_2) === 0) {
-      destination_0.i(element_2);
-    }
-  }
-  var ranked = plus(tmp_1, destination_0);
-  // Inline function 'kotlin.collections.associate' call
-  var this_1 = withIndex(ranked);
-  var capacity = coerceAtLeast(mapCapacity(collectionSizeOrDefault(this_1, 10)), 16);
-  // Inline function 'kotlin.collections.associateTo' call
-  var destination_1 = LinkedHashMap_init_$Create$_0(capacity);
-  var _iterator__ex2g4s_3 = this_1.j();
-  while (_iterator__ex2g4s_3.k()) {
-    var element_3 = _iterator__ex2g4s_3.l();
-    var i = element_3.ra();
-    var eq = element_3.sa();
-    // Inline function 'kotlin.collections.plusAssign' call
-    var pair = to(eq, i);
-    destination_1.m2(pair.xa_1, pair.ya_1);
-  }
-  return destination_1;
+  var tmp = PlanBuilder$orderedDefaults$lambda(equipmentUse);
+  var tmp$ret$4 = new sam$kotlin_Comparator$0_9(tmp);
+  return sortedWith(destination, tmp$ret$4);
 }
-function ordered($this, group, equipmentRank) {
-  // Inline function 'kotlin.collections.filter' call
-  var tmp0 = withIndex(Library_getInstance().v1b());
-  // Inline function 'kotlin.collections.filterTo' call
-  var destination = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = tmp0.j();
-  while (_iterator__ex2g4s.k()) {
-    var element = _iterator__ex2g4s.l();
-    var e = element.sa();
-    if (equals(PlanBuilder_getInstance().i2i(e.k1b_1), group)) {
-      destination.i(element);
-    }
-  }
-  var tmp = destination;
-  var tmp_0 = PlanBuilder$ordered$lambda(equipmentRank);
-  var tmp_1 = PlanBuilder$ordered$lambda_0;
-  // Inline function 'kotlin.collections.map' call
-  var this_0 = sortedWith(tmp, compareBy([tmp_0, tmp_1, PlanBuilder$ordered$lambda_1]));
-  // Inline function 'kotlin.collections.mapTo' call
-  var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
-  var _iterator__ex2g4s_0 = this_0.j();
-  while (_iterator__ex2g4s_0.k()) {
-    var item = _iterator__ex2g4s_0.l();
-    var tmp$ret$5 = item.qa_1;
-    destination_0.i(tmp$ret$5);
-  }
-  return destination_0;
-}
-function defaultsFor($this, group, equipmentRank, variant) {
-  var list = ordered($this, group, equipmentRank);
-  if (list.m())
-    return list;
+function defaultsFor($this, kind, equipmentUse, variant) {
+  var list = orderedDefaults($this, kind, equipmentUse);
   var shift = ((variant % list.o() | 0) + list.o() | 0) % list.o() | 0;
   return plus(drop(list, shift), take(list, shift));
 }
 function sam$kotlin_Comparator$0_7(function_0) {
-  this.h2j_1 = function_0;
+  this.v2j_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_7).z9 = function (a, b) {
-  return this.h2j_1(a, b);
+  return this.v2j_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_7).compare = function (a, b) {
   return this.z9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_7).g2 = function () {
-  return this.h2j_1;
+  return this.v2j_1;
 };
 protoOf(sam$kotlin_Comparator$0_7).equals = function (other) {
   var tmp;
@@ -30539,16 +30481,16 @@ protoOf(sam$kotlin_Comparator$0_7).hashCode = function () {
   return hashCode(this.g2());
 };
 function sam$kotlin_Comparator$0_8(function_0) {
-  this.i2j_1 = function_0;
+  this.w2j_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_8).z9 = function (a, b) {
-  return this.i2j_1(a, b);
+  return this.w2j_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_8).compare = function (a, b) {
   return this.z9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_8).g2 = function () {
-  return this.i2j_1;
+  return this.w2j_1;
 };
 protoOf(sam$kotlin_Comparator$0_8).equals = function (other) {
   var tmp;
@@ -30569,16 +30511,16 @@ protoOf(sam$kotlin_Comparator$0_8).hashCode = function () {
   return hashCode(this.g2());
 };
 function sam$kotlin_Comparator$0_9(function_0) {
-  this.j2j_1 = function_0;
+  this.x2j_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_9).z9 = function (a, b) {
-  return this.j2j_1(a, b);
+  return this.x2j_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_9).compare = function (a, b) {
   return this.z9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_9).g2 = function () {
-  return this.j2j_1;
+  return this.x2j_1;
 };
 protoOf(sam$kotlin_Comparator$0_9).equals = function (other) {
   var tmp;
@@ -30598,24 +30540,125 @@ protoOf(sam$kotlin_Comparator$0_9).equals = function (other) {
 protoOf(sam$kotlin_Comparator$0_9).hashCode = function () {
   return hashCode(this.g2());
 };
-function build$setsFor(priorities, item) {
-  return contains_1(priorities, item.p2h_1) ? 4 : 3;
+function sam$kotlin_Comparator$0_10(function_0) {
+  this.y2j_1 = function_0;
+}
+protoOf(sam$kotlin_Comparator$0_10).z9 = function (a, b) {
+  return this.y2j_1(a, b);
+};
+protoOf(sam$kotlin_Comparator$0_10).compare = function (a, b) {
+  return this.z9(a, b);
+};
+protoOf(sam$kotlin_Comparator$0_10).g2 = function () {
+  return this.y2j_1;
+};
+protoOf(sam$kotlin_Comparator$0_10).equals = function (other) {
+  var tmp;
+  if (!(other == null) ? isInterface(other, Comparator) : false) {
+    var tmp_0;
+    if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
+      tmp_0 = equals(this.g2(), other.g2());
+    } else {
+      tmp_0 = false;
+    }
+    tmp = tmp_0;
+  } else {
+    tmp = false;
+  }
+  return tmp;
+};
+protoOf(sam$kotlin_Comparator$0_10).hashCode = function () {
+  return hashCode(this.g2());
+};
+function PlanBuilder$build$byFewestPicks$lambda(a, b) {
+  // Inline function 'kotlin.comparisons.compareValuesBy' call
+  var tmp = a.x2i_1;
+  var tmp$ret$2 = b.x2i_1;
+  return compareValues(tmp, tmp$ret$2);
 }
 function PlanBuilder$build$lambda($priorities) {
   return function (it) {
-    return contains_1($priorities, it.p2h_1) ? 0 : 1;
+    return contains_1($priorities, it.u2h_1) ? 0 : 1;
   };
 }
 function PlanBuilder$build$lambda_0(it) {
-  return targetRank(PlanBuilder_getInstance(), it.p2h_1);
+  return targetRank(PlanBuilder_getInstance(), it.u2h_1);
 }
 function PlanBuilder$build$lambda_1(it) {
-  return it.k2h_1;
+  return it.p2h_1;
 }
-function PlanBuilder$build$setsFor$ref($priorities) {
-  return constructCallableReference(function (p0) {
-    return build$setsFor($priorities, p0);
-  }, 1, 0, 322, 'setsFor', [$priorities]);
+function build$byFewestPicks(sessions) {
+  // Inline function 'kotlin.collections.sortedBy' call
+  // Inline function 'kotlin.comparisons.compareBy' call
+  var tmp = PlanBuilder$build$byFewestPicks$lambda;
+  var tmp$ret$1 = new sam$kotlin_Comparator$0_7(tmp);
+  return sortedWith(sessions, tmp$ret$1);
+}
+function build$weekCount(sessions, key) {
+  // Inline function 'kotlin.collections.sumOf' call
+  var sum = 0;
+  var _iterator__ex2g4s = sessions.j();
+  while (_iterator__ex2g4s.k()) {
+    var element = _iterator__ex2g4s.l();
+    var tmp = sum;
+    var tmp0 = element.v2i_1;
+    var tmp$ret$2;
+    $l$block: {
+      // Inline function 'kotlin.collections.count' call
+      var tmp_0;
+      if (isInterface(tmp0, Collection)) {
+        tmp_0 = tmp0.m();
+      } else {
+        tmp_0 = false;
+      }
+      if (tmp_0) {
+        tmp$ret$2 = 0;
+        break $l$block;
+      }
+      var count = 0;
+      var _iterator__ex2g4s_0 = tmp0.j();
+      while (_iterator__ex2g4s_0.k()) {
+        var element_0 = _iterator__ex2g4s_0.l();
+        var tmp0_safe_receiver = element_0.r2i_1;
+        if ((tmp0_safe_receiver == null ? null : tmp0_safe_receiver.t2h_1) === key) {
+          count = count + 1 | 0;
+          checkCountOverflow(count);
+        }
+      }
+      tmp$ret$2 = count;
+    }
+    var tmp_1 = tmp$ret$2;
+    var tmp_2;
+    var tmp0_safe_receiver_0 = element.w2i_1;
+    if ((tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.t2h_1) === key) {
+      tmp_2 = 1;
+    } else {
+      tmp_2 = 0;
+    }
+    sum = tmp + (tmp_1 + tmp_2 | 0) | 0;
+  }
+  return sum;
+}
+function PlanBuilder$build$lambda_2(it) {
+  return it.r2i_1 == null;
+}
+function build$draft(priorities, item, slot) {
+  var tmp;
+  if (contains_1(priorities, item.u2h_1)) {
+    tmp = 4;
+  } else {
+    if ((slot == null ? null : slot.q2i_1) === true) {
+      tmp = 4;
+    } else {
+      tmp = 3;
+    }
+  }
+  var sets = tmp;
+  var tmp_0 = slot == null ? null : slot.p2i_1;
+  return new DraftExercise(item.p2h_1, item.q2h_1, sets, 8, 12, 8.0, item.u2h_1, item.r2h_1, item.s2h_1, tmp_0, (slot == null ? null : slot.q2i_1) === true);
+}
+function build$priority(priorities, e) {
+  return contains_1(priorities, e.l2j_1);
 }
 function PlanBuilder$sessions$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
@@ -30623,55 +30666,34 @@ function PlanBuilder$sessions$lambda(a, b) {
   var tmp$ret$2 = b.x1_1;
   return compareValues(tmp, tmp$ret$2);
 }
-function order$aimRank(aim, g) {
-  return g == null ? 2147483647 : aim.r(g) ? aim.s(g) : aim.o() + g.x1_1 | 0;
-}
-function PlanBuilder$order$lambda($priorities) {
-  return function (it) {
-    return contains_1($priorities, it.z2i_1) ? 0 : 1;
-  };
-}
-function PlanBuilder$order$lambda_0(it) {
-  return it.b2j_1 ? 0 : 1;
-}
-function PlanBuilder$order$lambda_1($aim) {
-  return function (it) {
-    return order$aimRank($aim, it.z2i_1);
-  };
-}
-function PlanBuilder$order$lambda_2(it) {
-  return it.t2i_1;
-}
-function PlanBuilder$equipmentRank$lambda($uses) {
+function PlanBuilder$orderedDefaults$lambda($equipmentUse) {
   return function (a, b) {
     // Inline function 'kotlin.comparisons.compareValuesBy' call
-    var tmp = getValue($uses, b);
-    var tmp$ret$2 = getValue($uses, a);
-    return compareValues(tmp, tmp$ret$2);
-  };
-}
-function PlanBuilder$ordered$lambda($equipmentRank) {
-  return function (_destruct__k2r9zo) {
-    var e = _destruct__k2r9zo.sa();
-    var tmp0_safe_receiver = firstOrNull(e.j1b_1);
+    var tmp0_safe_receiver = firstOrNull(b.j1b_1);
     var tmp;
     if (tmp0_safe_receiver == null) {
       tmp = null;
     } else {
       // Inline function 'kotlin.let' call
-      tmp = getValue($equipmentRank, tmp0_safe_receiver);
+      tmp = getValue($equipmentUse, tmp0_safe_receiver);
     }
     var tmp1_elvis_lhs = tmp;
-    return tmp1_elvis_lhs == null ? 2147483647 : tmp1_elvis_lhs;
+    var tmp_0 = tmp1_elvis_lhs == null ? 0 : tmp1_elvis_lhs;
+    var tmp0_safe_receiver_0 = firstOrNull(a.j1b_1);
+    var tmp_1;
+    if (tmp0_safe_receiver_0 == null) {
+      tmp_1 = null;
+    } else {
+      // Inline function 'kotlin.let' call
+      tmp_1 = getValue($equipmentUse, tmp0_safe_receiver_0);
+    }
+    var tmp1_elvis_lhs_0 = tmp_1;
+    var tmp$ret$4 = tmp1_elvis_lhs_0 == null ? 0 : tmp1_elvis_lhs_0;
+    return compareValues(tmp_0, tmp$ret$4);
   };
 }
-function PlanBuilder$ordered$lambda_0(_destruct__k2r9zo) {
-  var e = _destruct__k2r9zo.sa();
-  return e.l1b_1.equals(Kind_COMPOUND_getInstance()) ? 0 : 1;
-}
-function PlanBuilder$ordered$lambda_1(_destruct__k2r9zo) {
-  var i = _destruct__k2r9zo.ra();
-  return i;
+function alternatives$free(inSession, e) {
+  return !inSession.r(Library_getInstance().q1b(e.g1b_1));
 }
 function PlanBuilder$suggestedPicks$lambda(it) {
   return it.x14_1.equals(TrainingMode_BODYBUILDING_getInstance()) ? 0 : 1;
@@ -30688,28 +30710,114 @@ function PlanBuilder$suggestedPicks$lambda_2(a, b) {
   var tmp$ret$2 = a.t15_1;
   return compareValues(tmp, tmp$ret$2);
 }
+function SlotKind_CHEST_PRESS_getInstance() {
+  static_init_21();
+  return SlotKind_CHEST_PRESS_instance;
+}
+function SlotKind_CHEST_INCLINE_getInstance() {
+  static_init_21();
+  return SlotKind_CHEST_INCLINE_instance;
+}
+function SlotKind_CHEST_FLY_getInstance() {
+  static_init_21();
+  return SlotKind_CHEST_FLY_instance;
+}
+function SlotKind_PULL_DOWN_getInstance() {
+  static_init_21();
+  return SlotKind_PULL_DOWN_instance;
+}
+function SlotKind_ROW_getInstance() {
+  static_init_21();
+  return SlotKind_ROW_instance;
+}
+function SlotKind_QUAD_COMPOUND_getInstance() {
+  static_init_21();
+  return SlotKind_QUAD_COMPOUND_instance;
+}
+function SlotKind_QUAD_ISOLATION_getInstance() {
+  static_init_21();
+  return SlotKind_QUAD_ISOLATION_instance;
+}
+function SlotKind_HINGE_getInstance() {
+  static_init_21();
+  return SlotKind_HINGE_instance;
+}
+function SlotKind_LEG_CURL_getInstance() {
+  static_init_21();
+  return SlotKind_LEG_CURL_instance;
+}
+function SlotKind_SHOULDER_PRESS_getInstance() {
+  static_init_21();
+  return SlotKind_SHOULDER_PRESS_instance;
+}
+function SlotKind_SIDE_DELT_getInstance() {
+  static_init_21();
+  return SlotKind_SIDE_DELT_instance;
+}
+function SlotKind_REAR_DELT_getInstance() {
+  static_init_21();
+  return SlotKind_REAR_DELT_instance;
+}
+function SlotKind_BICEPS_getInstance() {
+  static_init_21();
+  return SlotKind_BICEPS_instance;
+}
+function SlotKind_TRICEPS_getInstance() {
+  static_init_21();
+  return SlotKind_TRICEPS_instance;
+}
+function SlotKind_CALVES_getInstance() {
+  static_init_21();
+  return SlotKind_CALVES_instance;
+}
+function SlotKind_ABS_getInstance() {
+  static_init_21();
+  return SlotKind_ABS_instance;
+}
 function PlanBuilder() {
   PlanBuilder_instance = this;
-  this.q2h_1 = 6;
-  this.r2h_1 = 10;
-  this.s2h_1 = 2;
-  this.t2h_1 = 3;
-  this.u2h_1 = 3;
-  this.v2h_1 = 4;
-  this.w2h_1 = 8;
-  this.x2h_1 = 12;
-  this.y2h_1 = 8.0;
-  this.z2h_1 = 'No room: every session it fits is full.';
-  this.a2i_1 = 'Full body';
-  this.b2i_1 = 'Upper';
-  this.c2i_1 = 'Lower';
-  this.d2i_1 = listOf([MuscleGroup_CHEST_getInstance(), MuscleGroup_LATS_getInstance(), MuscleGroup_QUADS_getInstance(), MuscleGroup_HAMSTRINGS_getInstance(), MuscleGroup_GLUTES_getInstance(), MuscleGroup_SIDE_DELTS_getInstance(), MuscleGroup_UPPER_BACK_getInstance(), MuscleGroup_BICEPS_getInstance(), MuscleGroup_TRICEPS_getInstance(), MuscleGroup_CALVES_getInstance(), MuscleGroup_ABS_getInstance(), MuscleGroup_REAR_DELTS_getInstance()]);
-  this.e2i_1 = setOf_0([MuscleGroup_CHEST_getInstance(), MuscleGroup_LATS_getInstance(), MuscleGroup_UPPER_BACK_getInstance(), MuscleGroup_TRAPS_getInstance(), MuscleGroup_FRONT_DELTS_getInstance(), MuscleGroup_SIDE_DELTS_getInstance(), MuscleGroup_REAR_DELTS_getInstance(), MuscleGroup_BICEPS_getInstance(), MuscleGroup_TRICEPS_getInstance(), MuscleGroup_FOREARMS_getInstance()]);
-  this.f2i_1 = setOf_0([MuscleGroup_QUADS_getInstance(), MuscleGroup_HAMSTRINGS_getInstance(), MuscleGroup_GLUTES_getInstance(), MuscleGroup_ADDUCTORS_getInstance(), MuscleGroup_CALVES_getInstance(), MuscleGroup_LOWER_BACK_getInstance(), MuscleGroup_ABS_getInstance(), MuscleGroup_OBLIQUES_getInstance()]);
-  this.g2i_1 = listOf([Equipment_BARBELL_getInstance(), Equipment_DUMBBELL_getInstance(), Equipment_MACHINE_getInstance(), Equipment_CABLE_getInstance(), Equipment_BODYWEIGHT_getInstance(), Equipment_SMITH_getInstance(), Equipment_KETTLEBELL_getInstance(), Equipment_BAND_getInstance(), Equipment_SPECIALTY_BAR_getInstance()]);
-  this.h2i_1 = 28;
+  this.v2h_1 = 10;
+  this.w2h_1 = 3;
+  this.x2h_1 = 1;
+  this.y2h_1 = 3;
+  this.z2h_1 = 4;
+  this.a2i_1 = 4;
+  this.b2i_1 = 8;
+  this.c2i_1 = 12;
+  this.d2i_1 = 8.0;
+  this.e2i_1 = 'No room: every session it fits is full.';
+  this.f2i_1 = 'Full body';
+  this.g2i_1 = 'Upper';
+  this.h2i_1 = 'Lower';
+  this.i2i_1 = listOf([MuscleGroup_CHEST_getInstance(), MuscleGroup_LATS_getInstance(), MuscleGroup_QUADS_getInstance(), MuscleGroup_HAMSTRINGS_getInstance(), MuscleGroup_GLUTES_getInstance(), MuscleGroup_SIDE_DELTS_getInstance(), MuscleGroup_UPPER_BACK_getInstance(), MuscleGroup_BICEPS_getInstance(), MuscleGroup_TRICEPS_getInstance(), MuscleGroup_CALVES_getInstance(), MuscleGroup_ABS_getInstance(), MuscleGroup_REAR_DELTS_getInstance()]);
+  this.j2i_1 = mapOf([to(MuscleGroup_CHEST_getInstance(), SlotKind_CHEST_FLY_getInstance()), to(MuscleGroup_LATS_getInstance(), SlotKind_PULL_DOWN_getInstance()), to(MuscleGroup_UPPER_BACK_getInstance(), SlotKind_ROW_getInstance()), to(MuscleGroup_QUADS_getInstance(), SlotKind_QUAD_ISOLATION_getInstance()), to(MuscleGroup_HAMSTRINGS_getInstance(), SlotKind_LEG_CURL_getInstance()), to(MuscleGroup_GLUTES_getInstance(), SlotKind_HINGE_getInstance()), to(MuscleGroup_SIDE_DELTS_getInstance(), SlotKind_SIDE_DELT_getInstance()), to(MuscleGroup_REAR_DELTS_getInstance(), SlotKind_REAR_DELT_getInstance()), to(MuscleGroup_BICEPS_getInstance(), SlotKind_BICEPS_getInstance()), to(MuscleGroup_TRICEPS_getInstance(), SlotKind_TRICEPS_getInstance()), to(MuscleGroup_CALVES_getInstance(), SlotKind_CALVES_getInstance()), to(MuscleGroup_ABS_getInstance(), SlotKind_ABS_getInstance())]);
+  this.k2i_1 = listOf([listOf([SlotKind_QUAD_COMPOUND_getInstance(), SlotKind_CHEST_PRESS_getInstance(), SlotKind_PULL_DOWN_getInstance(), SlotKind_LEG_CURL_getInstance(), SlotKind_SIDE_DELT_getInstance(), SlotKind_BICEPS_getInstance(), SlotKind_TRICEPS_getInstance(), SlotKind_ABS_getInstance()]), listOf([SlotKind_HINGE_getInstance(), SlotKind_CHEST_INCLINE_getInstance(), SlotKind_ROW_getInstance(), SlotKind_QUAD_ISOLATION_getInstance(), SlotKind_SHOULDER_PRESS_getInstance(), SlotKind_REAR_DELT_getInstance(), SlotKind_CALVES_getInstance(), SlotKind_BICEPS_getInstance()]), listOf([SlotKind_QUAD_COMPOUND_getInstance(), SlotKind_CHEST_FLY_getInstance(), SlotKind_PULL_DOWN_getInstance(), SlotKind_HINGE_getInstance(), SlotKind_SIDE_DELT_getInstance(), SlotKind_TRICEPS_getInstance(), SlotKind_CALVES_getInstance(), SlotKind_ABS_getInstance()])]);
+  this.l2i_1 = listOf([listOf([SlotKind_CHEST_PRESS_getInstance(), SlotKind_ROW_getInstance(), SlotKind_SHOULDER_PRESS_getInstance(), SlotKind_PULL_DOWN_getInstance(), SlotKind_SIDE_DELT_getInstance(), SlotKind_REAR_DELT_getInstance(), SlotKind_BICEPS_getInstance(), SlotKind_TRICEPS_getInstance()]), listOf([SlotKind_QUAD_COMPOUND_getInstance(), SlotKind_HINGE_getInstance(), SlotKind_QUAD_ISOLATION_getInstance(), SlotKind_LEG_CURL_getInstance(), SlotKind_CALVES_getInstance(), SlotKind_ABS_getInstance()]), listOf([SlotKind_CHEST_INCLINE_getInstance(), SlotKind_PULL_DOWN_getInstance(), SlotKind_CHEST_FLY_getInstance(), SlotKind_ROW_getInstance(), SlotKind_SIDE_DELT_getInstance(), SlotKind_REAR_DELT_getInstance(), SlotKind_TRICEPS_getInstance(), SlotKind_BICEPS_getInstance()]), listOf([SlotKind_HINGE_getInstance(), SlotKind_QUAD_COMPOUND_getInstance(), SlotKind_LEG_CURL_getInstance(), SlotKind_QUAD_ISOLATION_getInstance(), SlotKind_CALVES_getInstance(), SlotKind_ABS_getInstance()])]);
+  var tmp = this;
+  // Inline function 'kotlin.collections.filter' call
+  var tmp0 = get_entries_5();
+  // Inline function 'kotlin.collections.filterTo' call
+  var destination = ArrayList_init_$Create$();
+  var _iterator__ex2g4s = tmp0.j();
+  while (_iterator__ex2g4s.k()) {
+    var element = _iterator__ex2g4s.l();
+    if (element.n2h_1) {
+      destination.i(element);
+    }
+  }
+  // Inline function 'kotlin.collections.flatMap' call
+  // Inline function 'kotlin.collections.flatMapTo' call
+  var destination_0 = ArrayList_init_$Create$();
+  var _iterator__ex2g4s_0 = destination.j();
+  while (_iterator__ex2g4s_0.k()) {
+    var element_0 = _iterator__ex2g4s_0.l();
+    var list = element_0.m2h_1;
+    addAll(destination_0, list);
+  }
+  tmp.m2i_1 = toSet(destination_0);
+  this.n2i_1 = 28;
 }
-protoOf(PlanBuilder).i2i = function (muscles) {
+protoOf(PlanBuilder).o2i = function (muscles) {
   var tmp0_safe_receiver = firstOrNull(muscles);
   var tmp;
   if (tmp0_safe_receiver == null) {
@@ -30720,8 +30828,8 @@ protoOf(PlanBuilder).i2i = function (muscles) {
   }
   return tmp;
 };
-protoOf(PlanBuilder).k2j = function (answers) {
-  var days = answers.l2j_1;
+protoOf(PlanBuilder).z2j = function (answers) {
+  var days = answers.a2k_1;
   // Inline function 'kotlin.require' call
   if (!(days.o() === 3 || days.o() === 4)) {
     var message = 'days: ' + days.o() + ' days; the builder takes 3 or 4';
@@ -30732,7 +30840,7 @@ protoOf(PlanBuilder).k2j = function (answers) {
     var message_0 = 'days: a weekday is repeated';
     throw IllegalArgumentException_init_$Create$(toString(message_0));
   }
-  var priorities = answers.n2j_1;
+  var priorities = answers.c2k_1;
   // Inline function 'kotlin.require' call
   if (!(priorities.o() <= 3)) {
     var message_1 = 'priorities: ' + priorities.o() + '; at most 3';
@@ -30743,525 +30851,595 @@ protoOf(PlanBuilder).k2j = function (answers) {
     var message_2 = 'priorities: a group is repeated';
     throw IllegalArgumentException_init_$Create$(toString(message_2));
   }
-  var aim = aimOrder(this, priorities);
-  var slots = sessions(this, days);
-  // Inline function 'kotlin.collections.distinctBy' call
-  var this_0 = answers.m2j_1;
-  var set = HashSet_init_$Create$();
-  var list = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = this_0.j();
-  while (_iterator__ex2g4s.k()) {
-    var e = _iterator__ex2g4s.l();
-    var key = Library_getInstance().q1b(e.c2j_1);
-    if (set.i(key)) {
-      list.i(e);
+  var tmp$ret$8;
+  $l$block_0: {
+    // Inline function 'kotlin.collections.all' call
+    var tmp;
+    if (isInterface(priorities, Collection)) {
+      tmp = priorities.m();
+    } else {
+      tmp = false;
     }
+    if (tmp) {
+      tmp$ret$8 = true;
+      break $l$block_0;
+    }
+    var _iterator__ex2g4s = priorities.j();
+    while (_iterator__ex2g4s.k()) {
+      var element = _iterator__ex2g4s.l();
+      if (!PlanBuilder_getInstance().i2i_1.r(element)) {
+        tmp$ret$8 = false;
+        break $l$block_0;
+      }
+    }
+    tmp$ret$8 = true;
   }
-  // Inline function 'kotlin.collections.map' call
-  // Inline function 'kotlin.collections.mapTo' call
-  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(list, 10));
-  var _iterator__ex2g4s_0 = list.j();
-  while (_iterator__ex2g4s_0.k()) {
-    var item = _iterator__ex2g4s_0.l();
-    var tmp$ret$12 = new Item(item.c2j_1, item.g2j_1, item.d2j_1, item.e2j_1);
-    destination.i(tmp$ret$12);
+  // Inline function 'kotlin.require' call
+  if (!tmp$ret$8) {
+    // Inline function 'kotlin.collections.filter' call
+    // Inline function 'kotlin.collections.filterTo' call
+    var destination = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_0 = priorities.j();
+    while (_iterator__ex2g4s_0.k()) {
+      var element_0 = _iterator__ex2g4s_0.l();
+      if (!PlanBuilder_getInstance().i2i_1.r(element_0)) {
+        destination.i(element_0);
+      }
+    }
+    var message_3 = 'priorities: ' + toString(destination) + ' not target groups';
+    throw IllegalArgumentException_init_$Create$(toString(message_3));
   }
-  var picks = destination;
-  // Inline function 'kotlin.collections.mutableListOf' call
-  var leftOut = ArrayList_init_$Create$();
-  var tmp = PlanBuilder$build$lambda(priorities);
-  var tmp_0 = PlanBuilder$build$lambda_0;
-  var ordered = sortedWith(picks, compareBy([tmp, tmp_0, PlanBuilder$build$lambda_1]));
-  var _iterator__ex2g4s_1 = ordered.j();
+  var sessions_0 = sessions(this, days);
+  var _iterator__ex2g4s_1 = priorities.j();
   while (_iterator__ex2g4s_1.k()) {
-    var pick = _iterator__ex2g4s_1.l();
+    var group = _iterator__ex2g4s_1.l();
+    var kind = getValue(this.j2i_1, group);
     // Inline function 'kotlin.collections.filter' call
     // Inline function 'kotlin.collections.filterTo' call
     var destination_0 = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_2 = slots.j();
+    var _iterator__ex2g4s_2 = sessions_0.j();
     while (_iterator__ex2g4s_2.k()) {
-      var element = _iterator__ex2g4s_2.l();
-      if (element.p2i(pick) && element.n2i()) {
-        destination_0.i(element);
+      var element_1 = _iterator__ex2g4s_2.l();
+      if (element_1.a2j(kind)) {
+        destination_0.i(element_1);
       }
     }
-    var open = destination_0;
-    // Inline function 'kotlin.collections.filter' call
-    // Inline function 'kotlin.collections.filterTo' call
-    var destination_1 = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_3 = open.j();
-    while (_iterator__ex2g4s_3.k()) {
-      var element_0 = _iterator__ex2g4s_3.l();
-      var tmp_1;
-      if (pick.p2h_1 == null) {
-        tmp_1 = true;
-      } else {
-        var tmp0 = element_0.m2i_1;
-        var tmp$ret$20;
-        $l$block_0: {
-          // Inline function 'kotlin.collections.none' call
-          var tmp_2;
-          if (isInterface(tmp0, Collection)) {
-            tmp_2 = tmp0.m();
-          } else {
-            tmp_2 = false;
-          }
-          if (tmp_2) {
-            tmp$ret$20 = true;
-            break $l$block_0;
-          }
-          var _iterator__ex2g4s_4 = tmp0.j();
-          while (_iterator__ex2g4s_4.k()) {
-            var element_1 = _iterator__ex2g4s_4.l();
-            if (equals(element_1.p2h_1, pick.p2h_1)) {
-              tmp$ret$20 = false;
-              break $l$block_0;
-            }
-          }
-          tmp$ret$20 = true;
+    var tmp$ret$18;
+    $l$block_1: {
+      // Inline function 'kotlin.collections.minBy' call
+      var iterator = destination_0.j();
+      if (!iterator.k())
+        throw NoSuchElementException_init_$Create$();
+      var minElem = iterator.l();
+      if (!iterator.k()) {
+        tmp$ret$18 = minElem;
+        break $l$block_1;
+      }
+      var tmp0 = minElem.v2i_1;
+      var tmp$ret$20;
+      $l$block_2: {
+        // Inline function 'kotlin.collections.count' call
+        var tmp_0;
+        if (isInterface(tmp0, Collection)) {
+          tmp_0 = tmp0.m();
+        } else {
+          tmp_0 = false;
         }
-        tmp_1 = tmp$ret$20;
-      }
-      if (tmp_1) {
-        destination_1.i(element_0);
-      }
-    }
-    var tmp0_elvis_lhs = fewest(this, destination_1);
-    var target = tmp0_elvis_lhs == null ? fewest(this, open) : tmp0_elvis_lhs;
-    if (target == null) {
-      // Inline function 'kotlin.collections.plusAssign' call
-      var element_2 = new LeftOut(pick.k2h_1, 'No room: every session it fits is full.');
-      leftOut.i(element_2);
-    } else {
-      // Inline function 'kotlin.collections.plusAssign' call
-      target.m2i_1.i(pick);
-    }
-  }
-  // Inline function 'kotlin.collections.filter' call
-  // Inline function 'kotlin.collections.filterTo' call
-  var destination_2 = ArrayList_init_$Create$();
-  var _iterator__ex2g4s_5 = ordered.j();
-  while (_iterator__ex2g4s_5.k()) {
-    var element_3 = _iterator__ex2g4s_5.l();
-    var tmp$ret$27;
-    $l$block_2: {
-      // Inline function 'kotlin.collections.any' call
-      var tmp_3;
-      if (isInterface(slots, Collection)) {
-        tmp_3 = slots.m();
-      } else {
-        tmp_3 = false;
-      }
-      if (tmp_3) {
-        tmp$ret$27 = false;
-        break $l$block_2;
-      }
-      var _iterator__ex2g4s_6 = slots.j();
-      while (_iterator__ex2g4s_6.k()) {
-        var element_4 = _iterator__ex2g4s_6.l();
-        if (element_4.o2i(element_3)) {
-          tmp$ret$27 = true;
+        if (tmp_0) {
+          tmp$ret$20 = 0;
           break $l$block_2;
         }
-      }
-      tmp$ret$27 = false;
-    }
-    if (tmp$ret$27) {
-      destination_2.i(element_3);
-    }
-  }
-  var placedOrder = toMutableList(destination_2);
-  var _iterator__ex2g4s_7 = aim.j();
-  $l$loop_1: while (_iterator__ex2g4s_7.k()) {
-    var group = _iterator__ex2g4s_7.l();
-    if (daysTrained(this, slots, group) >= 2)
-      continue $l$loop_1;
-    var tmp$ret$29;
-    $l$block_3: {
-      // Inline function 'kotlin.collections.firstOrNull' call
-      var _iterator__ex2g4s_8 = placedOrder.j();
-      while (_iterator__ex2g4s_8.k()) {
-        var element_5 = _iterator__ex2g4s_8.l();
-        if (equals(element_5.p2h_1, group)) {
-          tmp$ret$29 = element_5;
-          break $l$block_3;
+        var count = 0;
+        var _iterator__ex2g4s_3 = tmp0.j();
+        while (_iterator__ex2g4s_3.k()) {
+          var element_2 = _iterator__ex2g4s_3.l();
+          if (element_2.p2i_1.equals(kind)) {
+            count = count + 1 | 0;
+            checkCountOverflow(count);
+          }
         }
+        tmp$ret$20 = count;
       }
-      tmp$ret$29 = null;
-    }
-    var tmp1_elvis_lhs = tmp$ret$29;
-    var tmp_4;
-    if (tmp1_elvis_lhs == null) {
-      continue $l$loop_1;
-    } else {
-      tmp_4 = tmp1_elvis_lhs;
-    }
-    var exercise = tmp_4;
-    // Inline function 'kotlin.collections.filter' call
-    // Inline function 'kotlin.collections.filterTo' call
-    var destination_3 = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_9 = slots.j();
-    while (_iterator__ex2g4s_9.k()) {
-      var element_6 = _iterator__ex2g4s_9.l();
-      if (element_6.p2i(exercise) && element_6.n2i() && !element_6.o2i(exercise)) {
-        destination_3.i(element_6);
-      }
-    }
-    var tmp2_elvis_lhs = fewest(this, destination_3);
-    var tmp_5;
-    if (tmp2_elvis_lhs == null) {
-      continue $l$loop_1;
-    } else {
-      tmp_5 = tmp2_elvis_lhs;
-    }
-    var target_0 = tmp_5;
-    // Inline function 'kotlin.collections.plusAssign' call
-    target_0.m2i_1.i(exercise);
-  }
-  var defaults = HashMap_init_$Create$();
-  var equipmentRank_0 = equipmentRank(this, answers.m2j_1);
-  // Inline function 'kotlin.collections.mutableSetOf' call
-  var markedShort = LinkedHashSet_init_$Create$();
-  $l$loop_4: while (true) {
-    var tmp$ret$36;
-    $l$block_5: {
-      // Inline function 'kotlin.collections.any' call
-      var tmp_6;
-      if (isInterface(slots, Collection)) {
-        tmp_6 = slots.m();
-      } else {
-        tmp_6 = false;
-      }
-      if (tmp_6) {
-        tmp$ret$36 = false;
-        break $l$block_5;
-      }
-      var _iterator__ex2g4s_10 = slots.j();
-      while (_iterator__ex2g4s_10.k()) {
-        var element_7 = _iterator__ex2g4s_10.l();
-        if (element_7.n2i()) {
-          tmp$ret$36 = true;
-          break $l$block_5;
-        }
-      }
-      tmp$ret$36 = false;
-    }
-    if (!tmp$ret$36) {
-      break $l$loop_4;
-    }
-    // Inline function 'kotlin.collections.filter' call
-    // Inline function 'kotlin.collections.filterTo' call
-    var destination_4 = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_11 = aim.j();
-    while (_iterator__ex2g4s_11.k()) {
-      var element_8 = _iterator__ex2g4s_11.l();
-      if (!markedShort.r(element_8)) {
-        destination_4.i(element_8);
-      }
-    }
-    // Inline function 'kotlin.collections.map' call
-    // Inline function 'kotlin.collections.mapTo' call
-    var destination_5 = ArrayList_init_$Create$_0(collectionSizeOrDefault(destination_4, 10));
-    var _iterator__ex2g4s_12 = destination_4.j();
-    while (_iterator__ex2g4s_12.k()) {
-      var item_0 = _iterator__ex2g4s_12.l();
-      var tmp_7 = PlanBuilder_getInstance();
-      var tmp$ret$43 = to(item_0, 10 - countedSets(tmp_7, slots, item_0, PlanBuilder$build$setsFor$ref(priorities)) | 0);
-      destination_5.i(tmp$ret$43);
-    }
-    // Inline function 'kotlin.collections.filter' call
-    // Inline function 'kotlin.collections.filterTo' call
-    var destination_6 = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_13 = destination_5.j();
-    while (_iterator__ex2g4s_13.k()) {
-      var element_9 = _iterator__ex2g4s_13.l();
-      if (element_9.ya_1 > 0) {
-        destination_6.i(element_9);
-      }
-    }
-    var tmp$ret$47;
-    $l$block_7: {
-      // Inline function 'kotlin.collections.maxByOrNull' call
-      var iterator = destination_6.j();
-      if (!iterator.k()) {
-        tmp$ret$47 = null;
-        break $l$block_7;
-      }
-      var maxElem = iterator.l();
-      if (!iterator.k()) {
-        tmp$ret$47 = maxElem;
-        break $l$block_7;
-      }
-      var maxValue = maxElem.ya_1;
+      var minValue = tmp$ret$20;
       do {
-        var e_0 = iterator.l();
-        var v = e_0.ya_1;
-        if (compareTo(maxValue, v) < 0) {
-          maxElem = e_0;
-          maxValue = v;
+        var e = iterator.l();
+        var tmp0_0 = e.v2i_1;
+        var tmp$ret$23;
+        $l$block_3: {
+          // Inline function 'kotlin.collections.count' call
+          var tmp_1;
+          if (isInterface(tmp0_0, Collection)) {
+            tmp_1 = tmp0_0.m();
+          } else {
+            tmp_1 = false;
+          }
+          if (tmp_1) {
+            tmp$ret$23 = 0;
+            break $l$block_3;
+          }
+          var count_0 = 0;
+          var _iterator__ex2g4s_4 = tmp0_0.j();
+          while (_iterator__ex2g4s_4.k()) {
+            var element_3 = _iterator__ex2g4s_4.l();
+            if (element_3.p2i_1.equals(kind)) {
+              count_0 = count_0 + 1 | 0;
+              checkCountOverflow(count_0);
+            }
+          }
+          tmp$ret$23 = count_0;
+        }
+        var v = tmp$ret$23;
+        if (compareTo(minValue, v) > 0) {
+          minElem = e;
+          minValue = v;
         }
       }
        while (iterator.k());
-      tmp$ret$47 = maxElem;
+      tmp$ret$18 = minElem;
     }
-    var tmp3_safe_receiver = tmp$ret$47;
-    var tmp4_elvis_lhs = tmp3_safe_receiver == null ? null : tmp3_safe_receiver.xa_1;
-    var tmp_8;
-    if (tmp4_elvis_lhs == null) {
-      break $l$loop_4;
-    } else {
-      tmp_8 = tmp4_elvis_lhs;
+    var tmp0_1 = tmp$ret$18.v2i_1;
+    // Inline function 'kotlin.collections.plusAssign' call
+    var element_4 = new Slot(kind, false);
+    tmp0_1.i(element_4);
+  }
+  // Inline function 'kotlin.collections.distinctBy' call
+  var this_0 = answers.b2k_1;
+  var set = HashSet_init_$Create$();
+  var list = ArrayList_init_$Create$();
+  var _iterator__ex2g4s_5 = this_0.j();
+  while (_iterator__ex2g4s_5.k()) {
+    var e_0 = _iterator__ex2g4s_5.l();
+    var key = Library_getInstance().q1b(e_0.q2j_1);
+    if (set.i(key)) {
+      list.i(e_0);
     }
-    var group_0 = tmp_8;
-    var tmp$ret$50;
-    $l$block_10: {
-      // Inline function 'kotlin.collections.firstOrNull' call
-      var _iterator__ex2g4s_14 = placedOrder.j();
-      while (_iterator__ex2g4s_14.k()) {
-        var element_10 = _iterator__ex2g4s_14.l();
-        var tmp_9;
-        if (equals(element_10.p2h_1, group_0)) {
-          var tmp$ret$52;
-          $l$block_9: {
-            // Inline function 'kotlin.collections.any' call
-            var tmp_10;
-            if (isInterface(slots, Collection)) {
-              tmp_10 = slots.m();
-            } else {
-              tmp_10 = false;
-            }
-            if (tmp_10) {
-              tmp$ret$52 = false;
-              break $l$block_9;
-            }
-            var _iterator__ex2g4s_15 = slots.j();
-            while (_iterator__ex2g4s_15.k()) {
-              var element_11 = _iterator__ex2g4s_15.l();
-              if (element_11.p2i(element_10) && element_11.n2i() && !element_11.o2i(element_10)) {
-                tmp$ret$52 = true;
-                break $l$block_9;
-              }
-            }
-            tmp$ret$52 = false;
-          }
-          tmp_9 = tmp$ret$52;
-        } else {
-          tmp_9 = false;
-        }
-        if (tmp_9) {
-          tmp$ret$50 = element_10;
-          break $l$block_10;
-        }
-      }
-      tmp$ret$50 = null;
-    }
-    var again = tmp$ret$50;
-    var tmp_11;
-    if (again == null) {
-      // Inline function 'kotlin.collections.getOrPut' call
-      var value = defaults.t1(group_0);
-      var tmp_12;
-      if (value == null) {
-        var answer = defaultsFor(PlanBuilder_getInstance(), group_0, equipmentRank_0, answers.o2j_1);
-        defaults.m2(group_0, answer);
-        tmp_12 = answer;
-      } else {
-        tmp_12 = value;
-      }
-      var tmp0_0 = tmp_12;
-      var tmp$ret$56;
-      $l$block_13: {
-        // Inline function 'kotlin.collections.firstOrNull' call
-        var _iterator__ex2g4s_16 = tmp0_0.j();
-        while (_iterator__ex2g4s_16.k()) {
-          var element_12 = _iterator__ex2g4s_16.l();
-          var tmp$ret$58;
-          $l$block_12: {
-            // Inline function 'kotlin.collections.none' call
-            var tmp_13;
-            if (isInterface(placedOrder, Collection)) {
-              tmp_13 = placedOrder.m();
-            } else {
-              tmp_13 = false;
-            }
-            if (tmp_13) {
-              tmp$ret$58 = true;
-              break $l$block_12;
-            }
-            var _iterator__ex2g4s_17 = placedOrder.j();
-            while (_iterator__ex2g4s_17.k()) {
-              var element_13 = _iterator__ex2g4s_17.l();
-              if (element_13.o2h_1 === Library_getInstance().q1b(element_12.g1b_1)) {
-                tmp$ret$58 = false;
-                break $l$block_12;
-              }
-            }
-            tmp$ret$58 = true;
-          }
-          if (tmp$ret$58) {
-            tmp$ret$56 = element_12;
-            break $l$block_13;
-          }
-        }
-        tmp$ret$56 = null;
-      }
-      var tmp6_safe_receiver = tmp$ret$56;
-      var tmp_14;
-      if (tmp6_safe_receiver == null) {
-        tmp_14 = null;
-      } else {
-        // Inline function 'kotlin.let' call
-        tmp_14 = new Item(tmp6_safe_receiver.g1b_1, true, tmp6_safe_receiver.k1b_1, tmp6_safe_receiver.l1b_1.equals(Kind_COMPOUND_getInstance()));
-      }
-      tmp_11 = tmp_14;
-    } else {
-      tmp_11 = again;
-    }
-    var exercise_0 = tmp_11;
-    var tmp_15;
-    if (exercise_0 == null) {
-      tmp_15 = null;
+  }
+  // Inline function 'kotlin.collections.map' call
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(list, 10));
+  var _iterator__ex2g4s_6 = list.j();
+  while (_iterator__ex2g4s_6.k()) {
+    var item = _iterator__ex2g4s_6.l();
+    var tmp$ret$30 = new Item(item.q2j_1, item.u2j_1, item.r2j_1, item.s2j_1);
+    destination_1.i(tmp$ret$30);
+  }
+  var picks = destination_1;
+  var tmp_2 = PlanBuilder$build$lambda(priorities);
+  var tmp_3 = PlanBuilder$build$lambda_0;
+  var ordered = sortedWith(picks, compareBy([tmp_2, tmp_3, PlanBuilder$build$lambda_1]));
+  // Inline function 'kotlin.collections.mutableListOf' call
+  var placed = ArrayList_init_$Create$();
+  // Inline function 'kotlin.collections.mutableListOf' call
+  var heldOver = ArrayList_init_$Create$();
+  var _iterator__ex2g4s_7 = ordered.j();
+  while (_iterator__ex2g4s_7.k()) {
+    var pick = _iterator__ex2g4s_7.l();
+    var group_0 = pick.u2h_1;
+    var tmp_4;
+    if (group_0 == null) {
+      tmp_4 = null;
     } else {
       // Inline function 'kotlin.let' call
-      var tmp_16 = PlanBuilder_getInstance();
-      // Inline function 'kotlin.collections.filter' call
-      // Inline function 'kotlin.collections.filterTo' call
-      var destination_7 = ArrayList_init_$Create$();
-      var _iterator__ex2g4s_18 = slots.j();
-      while (_iterator__ex2g4s_18.k()) {
-        var element_14 = _iterator__ex2g4s_18.l();
-        if (element_14.p2i(exercise_0) && element_14.n2i() && !element_14.o2i(exercise_0)) {
-          destination_7.i(element_14);
+      var tmp0_2 = build$byFewestPicks(sessions_0);
+      var tmp$ret$35;
+      $l$block_4: {
+        // Inline function 'kotlin.collections.firstNotNullOfOrNull' call
+        var _iterator__ex2g4s_8 = tmp0_2.j();
+        while (_iterator__ex2g4s_8.k()) {
+          var element_5 = _iterator__ex2g4s_8.l();
+          var tmp0_safe_receiver = element_5.z2i(group_0);
+          var tmp_5;
+          if (tmp0_safe_receiver == null) {
+            tmp_5 = null;
+          } else {
+            // Inline function 'kotlin.let' call
+            tmp_5 = to(element_5, tmp0_safe_receiver);
+          }
+          var result = tmp_5;
+          if (!(result == null)) {
+            tmp$ret$35 = result;
+            break $l$block_4;
+          }
+        }
+        tmp$ret$35 = null;
+      }
+      tmp_4 = tmp$ret$35;
+    }
+    var found = tmp_4;
+    if (found == null) {
+      // Inline function 'kotlin.collections.plusAssign' call
+      heldOver.i(pick);
+    } else {
+      found.wa_1.r2i_1 = pick;
+      var _receiver__tnumb7 = found.va_1;
+      _receiver__tnumb7.x2i_1 = _receiver__tnumb7.x2i_1 + 1 | 0;
+      // Inline function 'kotlin.collections.plusAssign' call
+      placed.i(pick);
+    }
+  }
+  var _iterator__ex2g4s_9 = placed.j();
+  $l$loop_0: while (_iterator__ex2g4s_9.k()) {
+    var pick_0 = _iterator__ex2g4s_9.l();
+    var tmp1_elvis_lhs = pick_0.u2h_1;
+    var tmp_6;
+    if (tmp1_elvis_lhs == null) {
+      continue $l$loop_0;
+    } else {
+      tmp_6 = tmp1_elvis_lhs;
+    }
+    var group_1 = tmp_6;
+    // Inline function 'kotlin.collections.filter' call
+    var tmp0_3 = build$byFewestPicks(sessions_0);
+    // Inline function 'kotlin.collections.filterTo' call
+    var destination_2 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_10 = tmp0_3.j();
+    while (_iterator__ex2g4s_10.k()) {
+      var element_6 = _iterator__ex2g4s_10.l();
+      if (!element_6.y2i(pick_0.t2h_1)) {
+        destination_2.i(element_6);
+      }
+    }
+    var tmp$ret$44;
+    $l$block_5: {
+      // Inline function 'kotlin.collections.firstNotNullOfOrNull' call
+      var _iterator__ex2g4s_11 = destination_2.j();
+      while (_iterator__ex2g4s_11.k()) {
+        var element_7 = _iterator__ex2g4s_11.l();
+        var tmp0_safe_receiver_0 = element_7.z2i(group_1);
+        var tmp_7;
+        if (tmp0_safe_receiver_0 == null) {
+          tmp_7 = null;
+        } else {
+          // Inline function 'kotlin.let' call
+          tmp_7 = to(element_7, tmp0_safe_receiver_0);
+        }
+        var result_0 = tmp_7;
+        if (!(result_0 == null)) {
+          tmp$ret$44 = result_0;
+          break $l$block_5;
         }
       }
-      tmp_15 = fewest(tmp_16, destination_7);
+      tmp$ret$44 = null;
     }
-    var target_1 = tmp_15;
-    if (exercise_0 == null || target_1 == null) {
+    var tmp2_elvis_lhs = tmp$ret$44;
+    var tmp_8;
+    if (tmp2_elvis_lhs == null) {
+      continue $l$loop_0;
+    } else {
+      tmp_8 = tmp2_elvis_lhs;
+    }
+    var found_0 = tmp_8;
+    found_0.wa_1.r2i_1 = pick_0;
+    var _receiver__tnumb7_0 = found_0.va_1;
+    _receiver__tnumb7_0.x2i_1 = _receiver__tnumb7_0.x2i_1 + 1 | 0;
+  }
+  // Inline function 'kotlin.collections.mutableListOf' call
+  var leftOut = ArrayList_init_$Create$();
+  var _iterator__ex2g4s_12 = heldOver.j();
+  while (_iterator__ex2g4s_12.k()) {
+    var pick_1 = _iterator__ex2g4s_12.l();
+    // Inline function 'kotlin.collections.filter' call
+    // Inline function 'kotlin.collections.filterTo' call
+    var destination_3 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_13 = sessions_0.j();
+    while (_iterator__ex2g4s_13.k()) {
+      var element_8 = _iterator__ex2g4s_13.l();
+      if (element_8.w2i_1 == null && element_8.b2j(pick_1.u2h_1)) {
+        destination_3.i(element_8);
+      }
+    }
+    var tmp$ret$52;
+    $l$block_7: {
+      // Inline function 'kotlin.collections.minByOrNull' call
+      var iterator_0 = destination_3.j();
+      if (!iterator_0.k()) {
+        tmp$ret$52 = null;
+        break $l$block_7;
+      }
+      var minElem_0 = iterator_0.l();
+      if (!iterator_0.k()) {
+        tmp$ret$52 = minElem_0;
+        break $l$block_7;
+      }
+      var minValue_0 = minElem_0.v2i_1.o();
+      do {
+        var e_1 = iterator_0.l();
+        var v_0 = e_1.v2i_1.o();
+        if (compareTo(minValue_0, v_0) > 0) {
+          minElem_0 = e_1;
+          minValue_0 = v_0;
+        }
+      }
+       while (iterator_0.k());
+      tmp$ret$52 = minElem_0;
+    }
+    var target = tmp$ret$52;
+    if (target == null) {
       // Inline function 'kotlin.collections.plusAssign' call
-      markedShort.i(group_0);
-      continue $l$loop_4;
+      var element_9 = new LeftOut(pick_1.p2h_1, 'No room: every session it fits is full.');
+      leftOut.i(element_9);
+    } else
+      target.w2i_1 = pick_1;
+  }
+  var equipmentUse_0 = equipmentUse(this, answers.b2k_1);
+  // Inline function 'kotlin.collections.map' call
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_4 = ArrayList_init_$Create$_0(collectionSizeOrDefault(picks, 10));
+  var _iterator__ex2g4s_14 = picks.j();
+  while (_iterator__ex2g4s_14.k()) {
+    var item_0 = _iterator__ex2g4s_14.l();
+    var tmp$ret$58 = item_0.t2h_1;
+    destination_4.i(tmp$ret$58);
+  }
+  var pickKeys = toSet(destination_4);
+  var _iterator__ex2g4s_15 = sessions_0.j();
+  while (_iterator__ex2g4s_15.k()) {
+    var s = _iterator__ex2g4s_15.l();
+    // Inline function 'kotlin.collections.filter' call
+    var tmp0_4 = s.v2i_1;
+    // Inline function 'kotlin.collections.filterTo' call
+    var destination_5 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_16 = tmp0_4.j();
+    while (_iterator__ex2g4s_16.k()) {
+      var element_10 = _iterator__ex2g4s_16.l();
+      if (element_10.r2i_1 == null) {
+        destination_5.i(element_10);
+      }
     }
-    // Inline function 'kotlin.collections.plusAssign' call
-    target_1.m2i_1.i(exercise_0);
-    var tmp$ret$69;
-    $l$block_15: {
-      // Inline function 'kotlin.collections.none' call
-      var tmp_17;
-      if (isInterface(placedOrder, Collection)) {
-        tmp_17 = placedOrder.m();
+    var _iterator__ex2g4s_17 = destination_5.j();
+    while (_iterator__ex2g4s_17.k()) {
+      var slot = _iterator__ex2g4s_17.l();
+      var tmp0_5 = defaultsFor(this, slot.p2i_1, equipmentUse_0, answers.d2k_1);
+      var tmp$ret$62;
+      $l$block_8: {
+        // Inline function 'kotlin.collections.firstOrNull' call
+        var _iterator__ex2g4s_18 = tmp0_5.j();
+        while (_iterator__ex2g4s_18.k()) {
+          var element_11 = _iterator__ex2g4s_18.l();
+          var k = Library_getInstance().q1b(element_11.g1b_1);
+          if (!s.y2i(k) && (!pickKeys.r(k) || build$weekCount(sessions_0, k) < 2)) {
+            tmp$ret$62 = element_11;
+            break $l$block_8;
+          }
+        }
+        tmp$ret$62 = null;
+      }
+      var name = tmp$ret$62;
+      var tmp_9 = slot;
+      var tmp_10;
+      if (name == null) {
+        tmp_10 = null;
       } else {
-        tmp_17 = false;
+        // Inline function 'kotlin.let' call
+        tmp_10 = new Item(name.g1b_1, true, name.k1b_1, name.l1b_1.equals(Kind_COMPOUND_getInstance()));
       }
-      if (tmp_17) {
-        tmp$ret$69 = true;
-        break $l$block_15;
-      }
-      var _iterator__ex2g4s_19 = placedOrder.j();
-      while (_iterator__ex2g4s_19.k()) {
-        var element_15 = _iterator__ex2g4s_19.l();
-        if (element_15.o2h_1 === exercise_0.o2h_1) {
-          tmp$ret$69 = false;
-          break $l$block_15;
-        }
-      }
-      tmp$ret$69 = true;
+      tmp_9.r2i_1 = tmp_10;
     }
-    if (tmp$ret$69) {
-      // Inline function 'kotlin.collections.plusAssign' call
-      placedOrder.i(exercise_0);
-    }
+    removeAll(s.v2i_1, PlanBuilder$build$lambda_2);
   }
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
-  var destination_8 = ArrayList_init_$Create$_0(collectionSizeOrDefault(slots, 10));
-  var _iterator__ex2g4s_20 = slots.j();
-  while (_iterator__ex2g4s_20.k()) {
-    var item_1 = _iterator__ex2g4s_20.l();
-    var tmp_18 = PlanBuilder_getInstance();
+  var destination_6 = ArrayList_init_$Create$_0(collectionSizeOrDefault(sessions_0, 10));
+  var _iterator__ex2g4s_19 = sessions_0.j();
+  while (_iterator__ex2g4s_19.k()) {
+    var item_1 = _iterator__ex2g4s_19.l();
     // Inline function 'kotlin.collections.map' call
-    var this_1 = item_1.m2i_1;
+    var this_1 = item_1.v2i_1;
     // Inline function 'kotlin.collections.mapTo' call
-    var destination_9 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
-    var _iterator__ex2g4s_21 = this_1.j();
-    while (_iterator__ex2g4s_21.k()) {
-      var item_2 = _iterator__ex2g4s_21.l();
-      var tmp$ret$77 = toDraft(PlanBuilder_getInstance(), item_2, build$setsFor(priorities, item_2));
-      destination_9.i(tmp$ret$77);
+    var destination_7 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
+    var _iterator__ex2g4s_20 = this_1.j();
+    while (_iterator__ex2g4s_20.k()) {
+      var item_2 = _iterator__ex2g4s_20.l();
+      var tmp$ret$71 = build$draft(priorities, ensureNotNull(item_2.r2i_1), item_2);
+      destination_7.i(tmp$ret$71);
     }
-    var tmp$ret$74 = new DraftSession(item_1.j2i_1, item_1.k2i_1, order(tmp_18, destination_9, priorities));
-    destination_8.i(tmp$ret$74);
-  }
-  var sessions_0 = destination_8;
-  return new PlanDraft(sessions_0, volume(this, sessions_0, volumeGroups(this, priorities)), leftOut);
-};
-protoOf(PlanBuilder).p2j = function (name, draft, picks) {
-  var key = Library_getInstance().q1b(name);
-  // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = draft.q2j_1;
-  // Inline function 'kotlin.collections.flatMapTo' call
-  var destination = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = tmp0.j();
-  while (_iterator__ex2g4s.k()) {
-    var element = _iterator__ex2g4s.l();
-    var list = element.s2i_1;
-    addAll(destination, list);
-  }
-  var exercises = destination;
-  var tmp$ret$3;
-  $l$block: {
-    // Inline function 'kotlin.collections.firstOrNull' call
-    var _iterator__ex2g4s_0 = exercises.j();
-    while (_iterator__ex2g4s_0.k()) {
-      var element_0 = _iterator__ex2g4s_0.l();
-      if (Library_getInstance().q1b(element_0.t2i_1) === key) {
-        tmp$ret$3 = element_0;
-        break $l$block;
+    var inSlots = destination_7;
+    var tmp0_safe_receiver_1 = item_1.w2i_1;
+    var tmp_11;
+    if (tmp0_safe_receiver_1 == null) {
+      tmp_11 = null;
+    } else {
+      // Inline function 'kotlin.let' call
+      tmp_11 = build$draft(priorities, tmp0_safe_receiver_1, null);
+    }
+    var held = listOfNotNull_0(tmp_11);
+    // Inline function 'kotlin.collections.filter' call
+    // Inline function 'kotlin.collections.filterTo' call
+    var destination_8 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_21 = inSlots.j();
+    while (_iterator__ex2g4s_21.k()) {
+      var element_12 = _iterator__ex2g4s_21.l();
+      if (build$priority(priorities, element_12)) {
+        destination_8.i(element_12);
       }
     }
-    tmp$ret$3 = null;
+    var tmp_12 = destination_8;
+    // Inline function 'kotlin.collections.filter' call
+    // Inline function 'kotlin.collections.filterTo' call
+    var destination_9 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_22 = held.j();
+    while (_iterator__ex2g4s_22.k()) {
+      var element_13 = _iterator__ex2g4s_22.l();
+      if (build$priority(priorities, element_13)) {
+        destination_9.i(element_13);
+      }
+    }
+    var tmp_13 = plus(tmp_12, destination_9);
+    // Inline function 'kotlin.collections.filterNot' call
+    // Inline function 'kotlin.collections.filterNotTo' call
+    var destination_10 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_23 = inSlots.j();
+    while (_iterator__ex2g4s_23.k()) {
+      var element_14 = _iterator__ex2g4s_23.l();
+      if (!build$priority(priorities, element_14)) {
+        destination_10.i(element_14);
+      }
+    }
+    var tmp_14 = plus(tmp_13, destination_10);
+    // Inline function 'kotlin.collections.filterNot' call
+    // Inline function 'kotlin.collections.filterNotTo' call
+    var destination_11 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_24 = held.j();
+    while (_iterator__ex2g4s_24.k()) {
+      var element_15 = _iterator__ex2g4s_24.l();
+      if (!build$priority(priorities, element_15)) {
+        destination_11.i(element_15);
+      }
+    }
+    var exercises = plus(tmp_14, destination_11);
+    var tmp$ret$68 = new DraftSession(item_1.s2i_1, item_1.t2i_1, exercises);
+    destination_6.i(tmp$ret$68);
   }
-  var tmp0_safe_receiver = tmp$ret$3;
-  var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.z2i_1;
-  var tmp;
-  if (tmp1_elvis_lhs == null) {
+  var draftSessions = destination_6;
+  return new PlanDraft(draftSessions, volume(this, draftSessions), leftOut);
+};
+protoOf(PlanBuilder).e2k = function (name, draft, picks, day) {
+  var key = Library_getInstance().q1b(name);
+  var tmp0 = draft.f2k_1;
+  var tmp$ret$0;
+  $l$block_1: {
+    // Inline function 'kotlin.collections.firstOrNull' call
+    var _iterator__ex2g4s = tmp0.j();
+    while (_iterator__ex2g4s.k()) {
+      var element = _iterator__ex2g4s.l();
+      var tmp;
+      if (day == null || element.c2j_1.equals(day)) {
+        var tmp0_0 = element.e2j_1;
+        var tmp$ret$2;
+        $l$block_0: {
+          // Inline function 'kotlin.collections.any' call
+          var tmp_0;
+          if (isInterface(tmp0_0, Collection)) {
+            tmp_0 = tmp0_0.m();
+          } else {
+            tmp_0 = false;
+          }
+          if (tmp_0) {
+            tmp$ret$2 = false;
+            break $l$block_0;
+          }
+          var _iterator__ex2g4s_0 = tmp0_0.j();
+          while (_iterator__ex2g4s_0.k()) {
+            var element_0 = _iterator__ex2g4s_0.l();
+            if (Library_getInstance().q1b(element_0.f2j_1) === key) {
+              tmp$ret$2 = true;
+              break $l$block_0;
+            }
+          }
+          tmp$ret$2 = false;
+        }
+        tmp = tmp$ret$2;
+      } else {
+        tmp = false;
+      }
+      if (tmp) {
+        tmp$ret$0 = element;
+        break $l$block_1;
+      }
+    }
+    tmp$ret$0 = null;
+  }
+  var tmp0_elvis_lhs = tmp$ret$0;
+  var tmp_1;
+  if (tmp0_elvis_lhs == null) {
     return emptyList();
   } else {
-    tmp = tmp1_elvis_lhs;
+    tmp_1 = tmp0_elvis_lhs;
   }
-  var group = tmp;
+  var session = tmp_1;
+  var tmp0_1 = session.e2j_1;
+  var tmp$ret$4;
+  $l$block_2: {
+    // Inline function 'kotlin.collections.first' call
+    var _iterator__ex2g4s_1 = tmp0_1.j();
+    while (_iterator__ex2g4s_1.k()) {
+      var element_1 = _iterator__ex2g4s_1.l();
+      if (Library_getInstance().q1b(element_1.f2j_1) === key) {
+        tmp$ret$4 = element_1;
+        break $l$block_2;
+      }
+    }
+    throw NoSuchElementException_init_$Create$_0('Collection contains no element matching the predicate.');
+  }
+  var exercise = tmp$ret$4;
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = session.e2j_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s_2 = this_0.j();
+  while (_iterator__ex2g4s_2.k()) {
+    var item = _iterator__ex2g4s_2.l();
+    var tmp$ret$8 = Library_getInstance().q1b(item.f2j_1);
+    destination.i(tmp$ret$8);
+  }
+  var inSession = toSet(destination);
+  var kind = exercise.o2j_1;
+  if (kind == null) {
+    var tmp1_elvis_lhs = exercise.l2j_1;
+    var tmp_2;
+    if (tmp1_elvis_lhs == null) {
+      return emptyList();
+    } else {
+      tmp_2 = tmp1_elvis_lhs;
+    }
+    var group = tmp_2;
+    // Inline function 'kotlin.collections.filter' call
+    var tmp0_2 = Library_getInstance().v1b();
+    // Inline function 'kotlin.collections.filterTo' call
+    var destination_0 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_3 = tmp0_2.j();
+    while (_iterator__ex2g4s_3.k()) {
+      var element_2 = _iterator__ex2g4s_3.l();
+      if (equals(PlanBuilder_getInstance().o2i(element_2.k1b_1), group) && alternatives$free(inSession, element_2)) {
+        destination_0.i(element_2);
+      }
+    }
+    return destination_0;
+  }
+  var defaults = orderedDefaults(this, kind, equipmentUse(this, picks));
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
-  var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(exercises, 10));
-  var _iterator__ex2g4s_1 = exercises.j();
-  while (_iterator__ex2g4s_1.k()) {
-    var item = _iterator__ex2g4s_1.l();
-    var tmp$ret$7 = Library_getInstance().q1b(item.t2i_1);
-    destination_0.i(tmp$ret$7);
+  var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(defaults, 10));
+  var _iterator__ex2g4s_4 = defaults.j();
+  while (_iterator__ex2g4s_4.k()) {
+    var item_0 = _iterator__ex2g4s_4.l();
+    var tmp$ret$14 = item_0.g1b_1;
+    destination_1.i(tmp$ret$14);
   }
-  var inDraft = toSet(destination_0);
+  var defaultNames = toSet(destination_1);
   // Inline function 'kotlin.collections.filter' call
-  var tmp0_0 = ordered(this, group, equipmentRank(this, picks));
   // Inline function 'kotlin.collections.filterTo' call
-  var destination_1 = ArrayList_init_$Create$();
-  var _iterator__ex2g4s_2 = tmp0_0.j();
-  while (_iterator__ex2g4s_2.k()) {
-    var element_1 = _iterator__ex2g4s_2.l();
-    if (!inDraft.r(Library_getInstance().q1b(element_1.g1b_1))) {
-      destination_1.i(element_1);
+  var destination_2 = ArrayList_init_$Create$();
+  var _iterator__ex2g4s_5 = defaults.j();
+  while (_iterator__ex2g4s_5.k()) {
+    var element_3 = _iterator__ex2g4s_5.l();
+    if (alternatives$free(inSession, element_3)) {
+      destination_2.i(element_3);
     }
   }
-  return destination_1;
+  var tmp_3 = destination_2;
+  // Inline function 'kotlin.collections.filter' call
+  var tmp0_3 = Library_getInstance().v1b();
+  // Inline function 'kotlin.collections.filterTo' call
+  var destination_3 = ArrayList_init_$Create$();
+  var _iterator__ex2g4s_6 = tmp0_3.j();
+  while (_iterator__ex2g4s_6.k()) {
+    var element_4 = _iterator__ex2g4s_6.l();
+    if (!defaultNames.r(element_4.g1b_1) && contains_1(kind.m2h_1, PlanBuilder_getInstance().o2i(element_4.k1b_1)) && alternatives$free(inSession, element_4)) {
+      destination_3.i(element_4);
+    }
+  }
+  return plus(tmp_3, destination_3);
 };
-protoOf(PlanBuilder).t2j = function (draft, day, from, to) {
-  var tmp0 = draft.q2j_1;
+protoOf(PlanBuilder).i2k = function (draft, day, from, to) {
+  var tmp0 = draft.f2k_1;
   var tmp$ret$0;
   $l$block: {
     // Inline function 'kotlin.collections.firstOrNull' call
     var _iterator__ex2g4s = tmp0.j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
-      if (element.q2i_1.equals(day)) {
+      if (element.c2j_1.equals(day)) {
         tmp$ret$0 = element;
         break $l$block;
       }
@@ -31276,7 +31454,7 @@ protoOf(PlanBuilder).t2j = function (draft, day, from, to) {
     tmp = tmp0_elvis_lhs;
   }
   var session = tmp;
-  var tmp0_0 = session.s2i_1;
+  var tmp0_0 = session.e2j_1;
   var tmp$ret$2;
   $l$block_0: {
     // Inline function 'kotlin.collections.indexOfFirst' call
@@ -31284,7 +31462,7 @@ protoOf(PlanBuilder).t2j = function (draft, day, from, to) {
     var _iterator__ex2g4s_0 = tmp0_0.j();
     while (_iterator__ex2g4s_0.k()) {
       var item = _iterator__ex2g4s_0.l();
-      if (Library_getInstance().q1b(item.t2i_1) === Library_getInstance().q1b(from)) {
+      if (Library_getInstance().q1b(item.f2j_1) === Library_getInstance().q1b(from)) {
         tmp$ret$2 = index;
         break $l$block_0;
       }
@@ -31306,7 +31484,7 @@ protoOf(PlanBuilder).t2j = function (draft, day, from, to) {
     tmp_0 = tmp1_elvis_lhs;
   }
   var entry = tmp_0;
-  var tmp0_1 = session.s2i_1;
+  var tmp0_1 = session.e2j_1;
   var tmp$ret$6;
   $l$block_2: {
     // Inline function 'kotlin.collections.none' call
@@ -31323,7 +31501,7 @@ protoOf(PlanBuilder).t2j = function (draft, day, from, to) {
     var _iterator__ex2g4s_1 = tmp0_1.j();
     while (_iterator__ex2g4s_1.k()) {
       var element_0 = _iterator__ex2g4s_1.l();
-      if (Library_getInstance().q1b(element_0.t2i_1) === Library_getInstance().q1b(entry.g1b_1)) {
+      if (Library_getInstance().q1b(element_0.f2j_1) === Library_getInstance().q1b(entry.g1b_1)) {
         tmp$ret$6 = false;
         break $l$block_2;
       }
@@ -31335,41 +31513,30 @@ protoOf(PlanBuilder).t2j = function (draft, day, from, to) {
     var message_0 = "to: '" + entry.g1b_1 + "' is already on " + day.toString();
     throw IllegalArgumentException_init_$Create$(toString(message_0));
   }
-  var old = session.s2i_1.n(index_0);
-  var new_0 = old.u2j(entry.g1b_1, true, VOID, VOID, VOID, VOID, this.i2i(entry.k1b_1), entry.k1b_1, entry.l1b_1.equals(Kind_COMPOUND_getInstance()));
+  var new_0 = session.e2j_1.n(index_0).j2k(entry.g1b_1, true, VOID, VOID, VOID, VOID, this.o2i(entry.k1b_1), entry.k1b_1, entry.l1b_1.equals(Kind_COMPOUND_getInstance()));
   // Inline function 'kotlin.collections.map' call
-  var this_0 = draft.q2j_1;
+  var this_0 = draft.f2k_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s_2 = this_0.j();
   while (_iterator__ex2g4s_2.k()) {
     var item_0 = _iterator__ex2g4s_2.l();
     var tmp_2;
-    if (!item_0.q2i_1.equals(day)) {
+    if (!item_0.c2j_1.equals(day)) {
       tmp_2 = item_0;
     } else {
       // Inline function 'kotlin.also' call
-      var this_1 = toMutableList(item_0.s2i_1);
+      var this_1 = toMutableList(item_0.e2j_1);
       this_1.p2(index_0, new_0);
-      tmp_2 = item_0.v2j(VOID, VOID, this_1);
+      tmp_2 = item_0.k2k(VOID, VOID, this_1);
     }
     var tmp$ret$12 = tmp_2;
     destination.i(tmp$ret$12);
   }
   var sessions = destination;
-  // Inline function 'kotlin.collections.map' call
-  var this_2 = draft.r2j_1;
-  // Inline function 'kotlin.collections.mapTo' call
-  var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_2, 10));
-  var _iterator__ex2g4s_3 = this_2.j();
-  while (_iterator__ex2g4s_3.k()) {
-    var item_1 = _iterator__ex2g4s_3.l();
-    var tmp$ret$17 = item_1.w2j_1;
-    destination_0.i(tmp$ret$17);
-  }
-  return draft.a2k(sessions, volume(this, sessions, destination_0));
+  return draft.l2k(sessions, volume(this, sessions));
 };
-protoOf(PlanBuilder).b2k = function (history, plans, today) {
+protoOf(PlanBuilder).m2k = function (history, plans, today) {
   var from = minus_1(today, DatePeriod_init_$Create$(VOID, VOID, 28));
   var tmp = PlanBuilder$suggestedPicks$lambda;
   var tmp_0 = PlanBuilder$suggestedPicks$lambda_0;
@@ -31398,7 +31565,7 @@ protoOf(PlanBuilder).b2k = function (history, plans, today) {
   // Inline function 'kotlin.collections.sortedByDescending' call
   // Inline function 'kotlin.comparisons.compareByDescending' call
   var tmp_1 = PlanBuilder$suggestedPicks$lambda_2;
-  var tmp$ret$7 = new sam$kotlin_Comparator$0_9(tmp_1);
+  var tmp$ret$7 = new sam$kotlin_Comparator$0_10(tmp_1);
   // Inline function 'kotlin.collections.flatMap' call
   var tmp0_0 = sortedWith(destination_0, tmp$ret$7);
   // Inline function 'kotlin.collections.flatMapTo' call
@@ -31441,21 +31608,21 @@ function PlanBuilder_getInstance() {
   return PlanBuilder_instance;
 }
 function BuilderPick(name, muscles, compound, equipment, inCatalogue) {
-  this.c2j_1 = name;
-  this.d2j_1 = muscles;
-  this.e2j_1 = compound;
-  this.f2j_1 = equipment;
-  this.g2j_1 = inCatalogue;
+  this.q2j_1 = name;
+  this.r2j_1 = muscles;
+  this.s2j_1 = compound;
+  this.t2j_1 = equipment;
+  this.u2j_1 = inCatalogue;
 }
 protoOf(BuilderPick).toString = function () {
-  return 'BuilderPick(name=' + this.c2j_1 + ', muscles=' + toString(this.d2j_1) + ', compound=' + this.e2j_1 + ', equipment=' + toString(this.f2j_1) + ', inCatalogue=' + this.g2j_1 + ')';
+  return 'BuilderPick(name=' + this.q2j_1 + ', muscles=' + toString(this.r2j_1) + ', compound=' + this.s2j_1 + ', equipment=' + toString(this.t2j_1) + ', inCatalogue=' + this.u2j_1 + ')';
 };
 protoOf(BuilderPick).hashCode = function () {
-  var result = getStringHashCode(this.c2j_1);
-  result = imul(result, 31) + hashCode(this.d2j_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.e2j_1) | 0;
-  result = imul(result, 31) + hashCode(this.f2j_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.g2j_1) | 0;
+  var result = getStringHashCode(this.q2j_1);
+  result = imul(result, 31) + hashCode(this.r2j_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.s2j_1) | 0;
+  result = imul(result, 31) + hashCode(this.t2j_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.u2j_1) | 0;
   return result;
 };
 protoOf(BuilderPick).equals = function (other) {
@@ -31463,33 +31630,33 @@ protoOf(BuilderPick).equals = function (other) {
     return true;
   if (!(other instanceof BuilderPick))
     return false;
-  if (!(this.c2j_1 === other.c2j_1))
+  if (!(this.q2j_1 === other.q2j_1))
     return false;
-  if (!equals(this.d2j_1, other.d2j_1))
+  if (!equals(this.r2j_1, other.r2j_1))
     return false;
-  if (!(this.e2j_1 === other.e2j_1))
+  if (!(this.s2j_1 === other.s2j_1))
     return false;
-  if (!equals(this.f2j_1, other.f2j_1))
+  if (!equals(this.t2j_1, other.t2j_1))
     return false;
-  if (!(this.g2j_1 === other.g2j_1))
+  if (!(this.u2j_1 === other.u2j_1))
     return false;
   return true;
 };
 function BuilderAnswers(days, picks, priorities, variant) {
   variant = variant === VOID ? 0 : variant;
-  this.l2j_1 = days;
-  this.m2j_1 = picks;
-  this.n2j_1 = priorities;
-  this.o2j_1 = variant;
+  this.a2k_1 = days;
+  this.b2k_1 = picks;
+  this.c2k_1 = priorities;
+  this.d2k_1 = variant;
 }
 protoOf(BuilderAnswers).toString = function () {
-  return 'BuilderAnswers(days=' + toString(this.l2j_1) + ', picks=' + toString(this.m2j_1) + ', priorities=' + toString(this.n2j_1) + ', variant=' + this.o2j_1 + ')';
+  return 'BuilderAnswers(days=' + toString(this.a2k_1) + ', picks=' + toString(this.b2k_1) + ', priorities=' + toString(this.c2k_1) + ', variant=' + this.d2k_1 + ')';
 };
 protoOf(BuilderAnswers).hashCode = function () {
-  var result = hashCode(this.l2j_1);
-  result = imul(result, 31) + hashCode(this.m2j_1) | 0;
-  result = imul(result, 31) + hashCode(this.n2j_1) | 0;
-  result = imul(result, 31) + this.o2j_1 | 0;
+  var result = hashCode(this.a2k_1);
+  result = imul(result, 31) + hashCode(this.b2k_1) | 0;
+  result = imul(result, 31) + hashCode(this.c2k_1) | 0;
+  result = imul(result, 31) + this.d2k_1 | 0;
   return result;
 };
 protoOf(BuilderAnswers).equals = function (other) {
@@ -31497,55 +31664,61 @@ protoOf(BuilderAnswers).equals = function (other) {
     return true;
   if (!(other instanceof BuilderAnswers))
     return false;
-  if (!equals(this.l2j_1, other.l2j_1))
+  if (!equals(this.a2k_1, other.a2k_1))
     return false;
-  if (!equals(this.m2j_1, other.m2j_1))
+  if (!equals(this.b2k_1, other.b2k_1))
     return false;
-  if (!equals(this.n2j_1, other.n2j_1))
+  if (!equals(this.c2k_1, other.c2k_1))
     return false;
-  if (!(this.o2j_1 === other.o2j_1))
+  if (!(this.d2k_1 === other.d2k_1))
     return false;
   return true;
 };
-function DraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound) {
-  this.t2i_1 = name;
-  this.u2i_1 = inCatalogue;
-  this.v2i_1 = sets;
-  this.w2i_1 = repsLow;
-  this.x2i_1 = repsHigh;
-  this.y2i_1 = rpe;
-  this.z2i_1 = mainGroup;
-  this.a2j_1 = muscles;
-  this.b2j_1 = compound;
+function DraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
+  this.f2j_1 = name;
+  this.g2j_1 = inCatalogue;
+  this.h2j_1 = sets;
+  this.i2j_1 = repsLow;
+  this.j2j_1 = repsHigh;
+  this.k2j_1 = rpe;
+  this.l2j_1 = mainGroup;
+  this.m2j_1 = muscles;
+  this.n2j_1 = compound;
+  this.o2j_1 = slot;
+  this.p2j_1 = lead;
 }
-protoOf(DraftExercise).c2k = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound) {
-  return new DraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound);
+protoOf(DraftExercise).n2k = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
+  return new DraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
-protoOf(DraftExercise).u2j = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, $super) {
-  name = name === VOID ? this.t2i_1 : name;
-  inCatalogue = inCatalogue === VOID ? this.u2i_1 : inCatalogue;
-  sets = sets === VOID ? this.v2i_1 : sets;
-  repsLow = repsLow === VOID ? this.w2i_1 : repsLow;
-  repsHigh = repsHigh === VOID ? this.x2i_1 : repsHigh;
-  rpe = rpe === VOID ? this.y2i_1 : rpe;
-  mainGroup = mainGroup === VOID ? this.z2i_1 : mainGroup;
-  muscles = muscles === VOID ? this.a2j_1 : muscles;
-  compound = compound === VOID ? this.b2j_1 : compound;
-  return $super === VOID ? this.c2k(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound) : $super.c2k.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound);
+protoOf(DraftExercise).j2k = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead, $super) {
+  name = name === VOID ? this.f2j_1 : name;
+  inCatalogue = inCatalogue === VOID ? this.g2j_1 : inCatalogue;
+  sets = sets === VOID ? this.h2j_1 : sets;
+  repsLow = repsLow === VOID ? this.i2j_1 : repsLow;
+  repsHigh = repsHigh === VOID ? this.j2j_1 : repsHigh;
+  rpe = rpe === VOID ? this.k2j_1 : rpe;
+  mainGroup = mainGroup === VOID ? this.l2j_1 : mainGroup;
+  muscles = muscles === VOID ? this.m2j_1 : muscles;
+  compound = compound === VOID ? this.n2j_1 : compound;
+  slot = slot === VOID ? this.o2j_1 : slot;
+  lead = lead === VOID ? this.p2j_1 : lead;
+  return $super === VOID ? this.n2k(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.n2k.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
 protoOf(DraftExercise).toString = function () {
-  return 'DraftExercise(name=' + this.t2i_1 + ', inCatalogue=' + this.u2i_1 + ', sets=' + this.v2i_1 + ', repsLow=' + this.w2i_1 + ', repsHigh=' + this.x2i_1 + ', rpe=' + this.y2i_1 + ', mainGroup=' + toString_0(this.z2i_1) + ', muscles=' + toString(this.a2j_1) + ', compound=' + this.b2j_1 + ')';
+  return 'DraftExercise(name=' + this.f2j_1 + ', inCatalogue=' + this.g2j_1 + ', sets=' + this.h2j_1 + ', repsLow=' + this.i2j_1 + ', repsHigh=' + this.j2j_1 + ', rpe=' + this.k2j_1 + ', mainGroup=' + toString_0(this.l2j_1) + ', muscles=' + toString(this.m2j_1) + ', compound=' + this.n2j_1 + ', slot=' + toString_0(this.o2j_1) + ', lead=' + this.p2j_1 + ')';
 };
 protoOf(DraftExercise).hashCode = function () {
-  var result = getStringHashCode(this.t2i_1);
-  result = imul(result, 31) + getBooleanHashCode(this.u2i_1) | 0;
-  result = imul(result, 31) + this.v2i_1 | 0;
-  result = imul(result, 31) + this.w2i_1 | 0;
-  result = imul(result, 31) + this.x2i_1 | 0;
-  result = imul(result, 31) + getNumberHashCode(this.y2i_1) | 0;
-  result = imul(result, 31) + (this.z2i_1 == null ? 0 : this.z2i_1.hashCode()) | 0;
-  result = imul(result, 31) + hashCode(this.a2j_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.b2j_1) | 0;
+  var result = getStringHashCode(this.f2j_1);
+  result = imul(result, 31) + getBooleanHashCode(this.g2j_1) | 0;
+  result = imul(result, 31) + this.h2j_1 | 0;
+  result = imul(result, 31) + this.i2j_1 | 0;
+  result = imul(result, 31) + this.j2j_1 | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k2j_1) | 0;
+  result = imul(result, 31) + (this.l2j_1 == null ? 0 : this.l2j_1.hashCode()) | 0;
+  result = imul(result, 31) + hashCode(this.m2j_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.n2j_1) | 0;
+  result = imul(result, 31) + (this.o2j_1 == null ? 0 : this.o2j_1.hashCode()) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.p2j_1) | 0;
   return result;
 };
 protoOf(DraftExercise).equals = function (other) {
@@ -31553,47 +31726,51 @@ protoOf(DraftExercise).equals = function (other) {
     return true;
   if (!(other instanceof DraftExercise))
     return false;
-  if (!(this.t2i_1 === other.t2i_1))
+  if (!(this.f2j_1 === other.f2j_1))
     return false;
-  if (!(this.u2i_1 === other.u2i_1))
+  if (!(this.g2j_1 === other.g2j_1))
     return false;
-  if (!(this.v2i_1 === other.v2i_1))
+  if (!(this.h2j_1 === other.h2j_1))
     return false;
-  if (!(this.w2i_1 === other.w2i_1))
+  if (!(this.i2j_1 === other.i2j_1))
     return false;
-  if (!(this.x2i_1 === other.x2i_1))
+  if (!(this.j2j_1 === other.j2j_1))
     return false;
-  if (!equals(this.y2i_1, other.y2i_1))
+  if (!equals(this.k2j_1, other.k2j_1))
     return false;
-  if (!equals(this.z2i_1, other.z2i_1))
+  if (!equals(this.l2j_1, other.l2j_1))
     return false;
-  if (!equals(this.a2j_1, other.a2j_1))
+  if (!equals(this.m2j_1, other.m2j_1))
     return false;
-  if (!(this.b2j_1 === other.b2j_1))
+  if (!(this.n2j_1 === other.n2j_1))
+    return false;
+  if (!equals(this.o2j_1, other.o2j_1))
+    return false;
+  if (!(this.p2j_1 === other.p2j_1))
     return false;
   return true;
 };
 function DraftSession(day, title, exercises) {
-  this.q2i_1 = day;
-  this.r2i_1 = title;
-  this.s2i_1 = exercises;
+  this.c2j_1 = day;
+  this.d2j_1 = title;
+  this.e2j_1 = exercises;
 }
-protoOf(DraftSession).d2k = function (day, title, exercises) {
+protoOf(DraftSession).o2k = function (day, title, exercises) {
   return new DraftSession(day, title, exercises);
 };
-protoOf(DraftSession).v2j = function (day, title, exercises, $super) {
-  day = day === VOID ? this.q2i_1 : day;
-  title = title === VOID ? this.r2i_1 : title;
-  exercises = exercises === VOID ? this.s2i_1 : exercises;
-  return $super === VOID ? this.d2k(day, title, exercises) : $super.d2k.call(this, day, title, exercises);
+protoOf(DraftSession).k2k = function (day, title, exercises, $super) {
+  day = day === VOID ? this.c2j_1 : day;
+  title = title === VOID ? this.d2j_1 : title;
+  exercises = exercises === VOID ? this.e2j_1 : exercises;
+  return $super === VOID ? this.o2k(day, title, exercises) : $super.o2k.call(this, day, title, exercises);
 };
 protoOf(DraftSession).toString = function () {
-  return 'DraftSession(day=' + this.q2i_1.toString() + ', title=' + this.r2i_1 + ', exercises=' + toString(this.s2i_1) + ')';
+  return 'DraftSession(day=' + this.c2j_1.toString() + ', title=' + this.d2j_1 + ', exercises=' + toString(this.e2j_1) + ')';
 };
 protoOf(DraftSession).hashCode = function () {
-  var result = this.q2i_1.hashCode();
-  result = imul(result, 31) + getStringHashCode(this.r2i_1) | 0;
-  result = imul(result, 31) + hashCode(this.s2i_1) | 0;
+  var result = this.c2j_1.hashCode();
+  result = imul(result, 31) + getStringHashCode(this.d2j_1) | 0;
+  result = imul(result, 31) + hashCode(this.e2j_1) | 0;
   return result;
 };
 protoOf(DraftSession).equals = function (other) {
@@ -31601,28 +31778,28 @@ protoOf(DraftSession).equals = function (other) {
     return true;
   if (!(other instanceof DraftSession))
     return false;
-  if (!this.q2i_1.equals(other.q2i_1))
+  if (!this.c2j_1.equals(other.c2j_1))
     return false;
-  if (!(this.r2i_1 === other.r2i_1))
+  if (!(this.d2j_1 === other.d2j_1))
     return false;
-  if (!equals(this.s2i_1, other.s2i_1))
+  if (!equals(this.e2j_1, other.e2j_1))
     return false;
   return true;
 };
 function GroupVolume(group, weeklySets, days, short) {
-  this.w2j_1 = group;
-  this.x2j_1 = weeklySets;
-  this.y2j_1 = days;
-  this.z2j_1 = short;
+  this.p2k_1 = group;
+  this.q2k_1 = weeklySets;
+  this.r2k_1 = days;
+  this.s2k_1 = short;
 }
 protoOf(GroupVolume).toString = function () {
-  return 'GroupVolume(group=' + this.w2j_1.toString() + ', weeklySets=' + this.x2j_1 + ', days=' + this.y2j_1 + ', short=' + this.z2j_1 + ')';
+  return 'GroupVolume(group=' + this.p2k_1.toString() + ', weeklySets=' + this.q2k_1 + ', days=' + this.r2k_1 + ', short=' + this.s2k_1 + ')';
 };
 protoOf(GroupVolume).hashCode = function () {
-  var result = this.w2j_1.hashCode();
-  result = imul(result, 31) + this.x2j_1 | 0;
-  result = imul(result, 31) + this.y2j_1 | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.z2j_1) | 0;
+  var result = this.p2k_1.hashCode();
+  result = imul(result, 31) + this.q2k_1 | 0;
+  result = imul(result, 31) + this.r2k_1 | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.s2k_1) | 0;
   return result;
 };
 protoOf(GroupVolume).equals = function (other) {
@@ -31630,26 +31807,26 @@ protoOf(GroupVolume).equals = function (other) {
     return true;
   if (!(other instanceof GroupVolume))
     return false;
-  if (!this.w2j_1.equals(other.w2j_1))
+  if (!this.p2k_1.equals(other.p2k_1))
     return false;
-  if (!(this.x2j_1 === other.x2j_1))
+  if (!(this.q2k_1 === other.q2k_1))
     return false;
-  if (!(this.y2j_1 === other.y2j_1))
+  if (!(this.r2k_1 === other.r2k_1))
     return false;
-  if (!(this.z2j_1 === other.z2j_1))
+  if (!(this.s2k_1 === other.s2k_1))
     return false;
   return true;
 };
 function LeftOut(name, reason) {
-  this.e2k_1 = name;
-  this.f2k_1 = reason;
+  this.t2k_1 = name;
+  this.u2k_1 = reason;
 }
 protoOf(LeftOut).toString = function () {
-  return 'LeftOut(name=' + this.e2k_1 + ', reason=' + this.f2k_1 + ')';
+  return 'LeftOut(name=' + this.t2k_1 + ', reason=' + this.u2k_1 + ')';
 };
 protoOf(LeftOut).hashCode = function () {
-  var result = getStringHashCode(this.e2k_1);
-  result = imul(result, 31) + getStringHashCode(this.f2k_1) | 0;
+  var result = getStringHashCode(this.t2k_1);
+  result = imul(result, 31) + getStringHashCode(this.u2k_1) | 0;
   return result;
 };
 protoOf(LeftOut).equals = function (other) {
@@ -31657,33 +31834,33 @@ protoOf(LeftOut).equals = function (other) {
     return true;
   if (!(other instanceof LeftOut))
     return false;
-  if (!(this.e2k_1 === other.e2k_1))
+  if (!(this.t2k_1 === other.t2k_1))
     return false;
-  if (!(this.f2k_1 === other.f2k_1))
+  if (!(this.u2k_1 === other.u2k_1))
     return false;
   return true;
 };
 function PlanDraft(sessions, volume, leftOut) {
-  this.q2j_1 = sessions;
-  this.r2j_1 = volume;
-  this.s2j_1 = leftOut;
+  this.f2k_1 = sessions;
+  this.g2k_1 = volume;
+  this.h2k_1 = leftOut;
 }
-protoOf(PlanDraft).g2k = function (sessions, volume, leftOut) {
+protoOf(PlanDraft).v2k = function (sessions, volume, leftOut) {
   return new PlanDraft(sessions, volume, leftOut);
 };
-protoOf(PlanDraft).a2k = function (sessions, volume, leftOut, $super) {
-  sessions = sessions === VOID ? this.q2j_1 : sessions;
-  volume = volume === VOID ? this.r2j_1 : volume;
-  leftOut = leftOut === VOID ? this.s2j_1 : leftOut;
-  return $super === VOID ? this.g2k(sessions, volume, leftOut) : $super.g2k.call(this, sessions, volume, leftOut);
+protoOf(PlanDraft).l2k = function (sessions, volume, leftOut, $super) {
+  sessions = sessions === VOID ? this.f2k_1 : sessions;
+  volume = volume === VOID ? this.g2k_1 : volume;
+  leftOut = leftOut === VOID ? this.h2k_1 : leftOut;
+  return $super === VOID ? this.v2k(sessions, volume, leftOut) : $super.v2k.call(this, sessions, volume, leftOut);
 };
 protoOf(PlanDraft).toString = function () {
-  return 'PlanDraft(sessions=' + toString(this.q2j_1) + ', volume=' + toString(this.r2j_1) + ', leftOut=' + toString(this.s2j_1) + ')';
+  return 'PlanDraft(sessions=' + toString(this.f2k_1) + ', volume=' + toString(this.g2k_1) + ', leftOut=' + toString(this.h2k_1) + ')';
 };
 protoOf(PlanDraft).hashCode = function () {
-  var result = hashCode(this.q2j_1);
-  result = imul(result, 31) + hashCode(this.r2j_1) | 0;
-  result = imul(result, 31) + hashCode(this.s2j_1) | 0;
+  var result = hashCode(this.f2k_1);
+  result = imul(result, 31) + hashCode(this.g2k_1) | 0;
+  result = imul(result, 31) + hashCode(this.h2k_1) | 0;
   return result;
 };
 protoOf(PlanDraft).equals = function (other) {
@@ -31691,11 +31868,11 @@ protoOf(PlanDraft).equals = function (other) {
     return true;
   if (!(other instanceof PlanDraft))
     return false;
-  if (!equals(this.q2j_1, other.q2j_1))
+  if (!equals(this.f2k_1, other.f2k_1))
     return false;
-  if (!equals(this.r2j_1, other.r2j_1))
+  if (!equals(this.g2k_1, other.g2k_1))
     return false;
-  if (!equals(this.s2j_1, other.s2j_1))
+  if (!equals(this.h2k_1, other.h2k_1))
     return false;
   return true;
 };
@@ -31714,11 +31891,11 @@ function PlateLoader() {
   this.m17_1 = 100.0;
   this.n17_1 = toHundredths(this, 20.0);
 }
-protoOf(PlateLoader).h2k = function (changePlates) {
+protoOf(PlateLoader).w2k = function (changePlates) {
   return changePlates ? sortedDescending(plus(this.j17_1, this.k17_1)) : this.j17_1;
 };
 protoOf(PlateLoader).p17 = function (changePlates) {
-  return 2 * min(this.h2k(changePlates));
+  return 2 * min(this.w2k(changePlates));
 };
 protoOf(PlateLoader).o17 = function (kg, changePlates) {
   var step = toHundredths(this, this.p17(changePlates));
@@ -31775,7 +31952,7 @@ protoOf(PlateLoader).k1a = function (anchor, kg, changePlates) {
   var tmp$ret$3 = compare(tmp0, b) >= 0 ? tmp0 : b;
   return fromHundredths(this, tmp$ret$3);
 };
-protoOf(PlateLoader).i2k = function (totalKg, changePlates) {
+protoOf(PlateLoader).x2k = function (totalKg, changePlates) {
   var beyondBar = subtract(toHundredths(this, totalKg), this.n17_1);
   if (compare(beyondBar, new Long(0, 0)) < 0 || !equalsLong(modulo(beyondBar, new Long(2, 0)), new Long(0, 0)))
     return null;
@@ -31783,7 +31960,7 @@ protoOf(PlateLoader).i2k = function (totalKg, changePlates) {
   var remaining = divide(beyondBar, fromInt(2));
   // Inline function 'kotlin.collections.mutableListOf' call
   var result = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = this.h2k(changePlates).j();
+  var _iterator__ex2g4s = this.w2k(changePlates).j();
   while (_iterator__ex2g4s.k()) {
     var plate = _iterator__ex2g4s.l();
     var p = toHundredths(this, plate);
@@ -31802,19 +31979,19 @@ function PlateLoader_getInstance() {
   return PlateLoader_instance;
 }
 function ExerciseTrend(exerciseId, name, bestSets, goingUp) {
-  this.j2k_1 = exerciseId;
-  this.k2k_1 = name;
-  this.l2k_1 = bestSets;
-  this.m2k_1 = goingUp;
+  this.y2k_1 = exerciseId;
+  this.z2k_1 = name;
+  this.a2l_1 = bestSets;
+  this.b2l_1 = goingUp;
 }
 protoOf(ExerciseTrend).toString = function () {
-  return 'ExerciseTrend(exerciseId=' + this.j2k_1.toString() + ', name=' + this.k2k_1 + ', bestSets=' + toString(this.l2k_1) + ', goingUp=' + this.m2k_1 + ')';
+  return 'ExerciseTrend(exerciseId=' + this.y2k_1.toString() + ', name=' + this.z2k_1 + ', bestSets=' + toString(this.a2l_1) + ', goingUp=' + this.b2l_1 + ')';
 };
 protoOf(ExerciseTrend).hashCode = function () {
-  var result = this.j2k_1.hashCode();
-  result = imul(result, 31) + getStringHashCode(this.k2k_1) | 0;
-  result = imul(result, 31) + hashCode(this.l2k_1) | 0;
-  result = imul(result, 31) + (this.m2k_1 == null ? 0 : getBooleanHashCode(this.m2k_1)) | 0;
+  var result = this.y2k_1.hashCode();
+  result = imul(result, 31) + getStringHashCode(this.z2k_1) | 0;
+  result = imul(result, 31) + hashCode(this.a2l_1) | 0;
+  result = imul(result, 31) + (this.b2l_1 == null ? 0 : getBooleanHashCode(this.b2l_1)) | 0;
   return result;
 };
 protoOf(ExerciseTrend).equals = function (other) {
@@ -31822,13 +31999,13 @@ protoOf(ExerciseTrend).equals = function (other) {
     return true;
   if (!(other instanceof ExerciseTrend))
     return false;
-  if (!equalsLong(this.j2k_1, other.j2k_1))
+  if (!equalsLong(this.y2k_1, other.y2k_1))
     return false;
-  if (!(this.k2k_1 === other.k2k_1))
+  if (!(this.z2k_1 === other.z2k_1))
     return false;
-  if (!equals(this.l2k_1, other.l2k_1))
+  if (!equals(this.a2l_1, other.a2l_1))
     return false;
-  if (!(this.m2k_1 == other.m2k_1))
+  if (!(this.b2l_1 == other.b2l_1))
     return false;
   return true;
 };
@@ -31943,19 +32120,19 @@ function goingUp($this, sessions) {
   }
   return tmp;
 }
-function sam$kotlin_Comparator$0_10(function_0) {
-  this.n2k_1 = function_0;
+function sam$kotlin_Comparator$0_11(function_0) {
+  this.c2l_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_10).z9 = function (a, b) {
-  return this.n2k_1(a, b);
+protoOf(sam$kotlin_Comparator$0_11).z9 = function (a, b) {
+  return this.c2l_1(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_10).compare = function (a, b) {
+protoOf(sam$kotlin_Comparator$0_11).compare = function (a, b) {
   return this.z9(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_10).g2 = function () {
-  return this.n2k_1;
+protoOf(sam$kotlin_Comparator$0_11).g2 = function () {
+  return this.c2l_1;
 };
-protoOf(sam$kotlin_Comparator$0_10).equals = function (other) {
+protoOf(sam$kotlin_Comparator$0_11).equals = function (other) {
   var tmp;
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
@@ -31970,7 +32147,7 @@ protoOf(sam$kotlin_Comparator$0_10).equals = function (other) {
   }
   return tmp;
 };
-protoOf(sam$kotlin_Comparator$0_10).hashCode = function () {
+protoOf(sam$kotlin_Comparator$0_11).hashCode = function () {
   return hashCode(this.g2());
 };
 function BodybuildingProgress$rows$lambda(a, b) {
@@ -31986,9 +32163,9 @@ function BodybuildingProgress$rows$lambda_1(it) {
   return it.w14_1;
 }
 function BodybuildingProgress() {
-  this.o2k_1 = 4;
+  this.d2l_1 = 4;
 }
-protoOf(BodybuildingProgress).p2k = function (history, plan, today) {
+protoOf(BodybuildingProgress).e2l = function (history, plan, today) {
   // Inline function 'kotlin.collections.filter' call
   var tmp0 = history.p15_1;
   // Inline function 'kotlin.collections.filterTo' call
@@ -32003,7 +32180,7 @@ protoOf(BodybuildingProgress).p2k = function (history, plan, today) {
   // Inline function 'kotlin.collections.sortedBy' call
   // Inline function 'kotlin.comparisons.compareBy' call
   var tmp = BodybuildingProgress$rows$lambda;
-  var tmp$ret$4 = new sam$kotlin_Comparator$0_10(tmp);
+  var tmp$ret$4 = new sam$kotlin_Comparator$0_11(tmp);
   var sessions = sortedWith(destination, tmp$ret$4);
   // Inline function 'kotlin.collections.filter' call
   // Inline function 'kotlin.collections.filterTo' call
@@ -32095,8 +32272,8 @@ protoOf(BodybuildingProgress).p2k = function (history, plan, today) {
       var _iterator__ex2g4s_5 = recent.j();
       while (_iterator__ex2g4s_5.k()) {
         var item_0 = _iterator__ex2g4s_5.l();
-        var date = item_0.ra();
-        var sets = item_0.sa();
+        var date = item_0.ab();
+        var sets = item_0.bb();
         var tmp$ret$33 = to(date, best(BodybuildingProgress_instance, sets));
         destination_5.i(tmp$ret$33);
       }
@@ -32108,7 +32285,7 @@ protoOf(BodybuildingProgress).p2k = function (history, plan, today) {
       var _iterator__ex2g4s_6 = recent.j();
       while (_iterator__ex2g4s_6.k()) {
         var item_1 = _iterator__ex2g4s_6.l();
-        var tmp$ret$36 = item_1.ya_1;
+        var tmp$ret$36 = item_1.wa_1;
         destination_6.i(tmp$ret$36);
       }
       tmp$ret$15 = new ExerciseTrend(element_1, exercise.k16_1, tmp_5, goingUp(tmp_6, destination_6));
@@ -32128,21 +32305,21 @@ function BodybuildingProgress_getInstance() {
   return BodybuildingProgress_instance;
 }
 function Pr(date, e1rmKg, weightKg, reps, rpe) {
-  this.q2k_1 = date;
-  this.r2k_1 = e1rmKg;
-  this.s2k_1 = weightKg;
-  this.t2k_1 = reps;
-  this.u2k_1 = rpe;
+  this.f2l_1 = date;
+  this.g2l_1 = e1rmKg;
+  this.h2l_1 = weightKg;
+  this.i2l_1 = reps;
+  this.j2l_1 = rpe;
 }
 protoOf(Pr).toString = function () {
-  return 'Pr(date=' + this.q2k_1.toString() + ', e1rmKg=' + this.r2k_1 + ', weightKg=' + this.s2k_1 + ', reps=' + this.t2k_1 + ', rpe=' + this.u2k_1 + ')';
+  return 'Pr(date=' + this.f2l_1.toString() + ', e1rmKg=' + this.g2l_1 + ', weightKg=' + this.h2l_1 + ', reps=' + this.i2l_1 + ', rpe=' + this.j2l_1 + ')';
 };
 protoOf(Pr).hashCode = function () {
-  var result = this.q2k_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.r2k_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.s2k_1) | 0;
-  result = imul(result, 31) + this.t2k_1 | 0;
-  result = imul(result, 31) + (this.u2k_1 == null ? 0 : getNumberHashCode(this.u2k_1)) | 0;
+  var result = this.f2l_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.g2l_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.h2l_1) | 0;
+  result = imul(result, 31) + this.i2l_1 | 0;
+  result = imul(result, 31) + (this.j2l_1 == null ? 0 : getNumberHashCode(this.j2l_1)) | 0;
   return result;
 };
 protoOf(Pr).equals = function (other) {
@@ -32150,62 +32327,32 @@ protoOf(Pr).equals = function (other) {
     return true;
   if (!(other instanceof Pr))
     return false;
-  if (!this.q2k_1.equals(other.q2k_1))
+  if (!this.f2l_1.equals(other.f2l_1))
     return false;
-  if (!equals(this.r2k_1, other.r2k_1))
+  if (!equals(this.g2l_1, other.g2l_1))
     return false;
-  if (!equals(this.s2k_1, other.s2k_1))
+  if (!equals(this.h2l_1, other.h2l_1))
     return false;
-  if (!(this.t2k_1 === other.t2k_1))
+  if (!(this.i2l_1 === other.i2l_1))
     return false;
-  if (!equals(this.u2k_1, other.u2k_1))
+  if (!equals(this.j2l_1, other.j2l_1))
     return false;
   return true;
 };
 function weekStart(date) {
   return mondayOfWeek(date);
 }
-function sam$kotlin_Comparator$0_11(function_0) {
-  this.v2k_1 = function_0;
-}
-protoOf(sam$kotlin_Comparator$0_11).z9 = function (a, b) {
-  return this.v2k_1(a, b);
-};
-protoOf(sam$kotlin_Comparator$0_11).compare = function (a, b) {
-  return this.z9(a, b);
-};
-protoOf(sam$kotlin_Comparator$0_11).g2 = function () {
-  return this.v2k_1;
-};
-protoOf(sam$kotlin_Comparator$0_11).equals = function (other) {
-  var tmp;
-  if (!(other == null) ? isInterface(other, Comparator) : false) {
-    var tmp_0;
-    if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
-      tmp_0 = equals(this.g2(), other.g2());
-    } else {
-      tmp_0 = false;
-    }
-    tmp = tmp_0;
-  } else {
-    tmp = false;
-  }
-  return tmp;
-};
-protoOf(sam$kotlin_Comparator$0_11).hashCode = function () {
-  return hashCode(this.g2());
-};
 function sam$kotlin_Comparator$0_12(function_0) {
-  this.w2k_1 = function_0;
+  this.k2l_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_12).z9 = function (a, b) {
-  return this.w2k_1(a, b);
+  return this.k2l_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_12).compare = function (a, b) {
   return this.z9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_12).g2 = function () {
-  return this.w2k_1;
+  return this.k2l_1;
 };
 protoOf(sam$kotlin_Comparator$0_12).equals = function (other) {
   var tmp;
@@ -32225,6 +32372,36 @@ protoOf(sam$kotlin_Comparator$0_12).equals = function (other) {
 protoOf(sam$kotlin_Comparator$0_12).hashCode = function () {
   return hashCode(this.g2());
 };
+function sam$kotlin_Comparator$0_13(function_0) {
+  this.l2l_1 = function_0;
+}
+protoOf(sam$kotlin_Comparator$0_13).z9 = function (a, b) {
+  return this.l2l_1(a, b);
+};
+protoOf(sam$kotlin_Comparator$0_13).compare = function (a, b) {
+  return this.z9(a, b);
+};
+protoOf(sam$kotlin_Comparator$0_13).g2 = function () {
+  return this.l2l_1;
+};
+protoOf(sam$kotlin_Comparator$0_13).equals = function (other) {
+  var tmp;
+  if (!(other == null) ? isInterface(other, Comparator) : false) {
+    var tmp_0;
+    if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
+      tmp_0 = equals(this.g2(), other.g2());
+    } else {
+      tmp_0 = false;
+    }
+    tmp = tmp_0;
+  } else {
+    tmp = false;
+  }
+  return tmp;
+};
+protoOf(sam$kotlin_Comparator$0_13).hashCode = function () {
+  return hashCode(this.g2());
+};
 function ProgressMath$prs$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
   var tmp = a.t15_1;
@@ -32233,15 +32410,15 @@ function ProgressMath$prs$lambda(a, b) {
 }
 function ProgressMath$weeklyVolume$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
-  var tmp = a.xa_1;
-  var tmp$ret$2 = b.xa_1;
+  var tmp = a.va_1;
+  var tmp$ret$2 = b.va_1;
   return compareValues(tmp, tmp$ret$2);
 }
 function ProgressMath() {
   ProgressMath_instance = this;
-  this.x2k_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.m2l_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(ProgressMath).y2k = function (_this__u8e3s4, set, lift) {
+protoOf(ProgressMath).n2l = function (_this__u8e3s4, set, lift) {
   var tmp;
   if (!set.c16_1) {
     var tmp0_safe_receiver = _this__u8e3s4.q15_1.t1(set.y15_1);
@@ -32258,7 +32435,7 @@ protoOf(ProgressMath).y2k = function (_this__u8e3s4, set, lift) {
   }
   return tmp;
 };
-protoOf(ProgressMath).z2k = function (history, lift) {
+protoOf(ProgressMath).o2l = function (history, lift) {
   // Inline function 'kotlin.collections.mutableListOf' call
   var prs = ArrayList_init_$Create$();
   var best = 0.0;
@@ -32266,14 +32443,14 @@ protoOf(ProgressMath).z2k = function (history, lift) {
   var this_0 = history.p15_1;
   // Inline function 'kotlin.comparisons.compareBy' call
   var tmp = ProgressMath$prs$lambda;
-  var tmp$ret$2 = new sam$kotlin_Comparator$0_11(tmp);
+  var tmp$ret$2 = new sam$kotlin_Comparator$0_12(tmp);
   var _iterator__ex2g4s = sortedWith(this_0, tmp$ret$2).j();
   while (_iterator__ex2g4s.k()) {
     var session = _iterator__ex2g4s.l();
     var _iterator__ex2g4s_0 = session.w15_1.j();
     $l$loop: while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (!this.y2k(history, set, lift))
+      if (!this.n2l(history, set, lift))
         continue $l$loop;
       var e1rm = E1rm_getInstance().w16(set.z15_1, set.a16_1, set.b16_1);
       if (e1rm > best) {
@@ -32286,7 +32463,7 @@ protoOf(ProgressMath).z2k = function (history, lift) {
   }
   return prs;
 };
-protoOf(ProgressMath).a2l = function (history, lift) {
+protoOf(ProgressMath).p2l = function (history, lift) {
   // Inline function 'kotlin.collections.mutableMapOf' call
   var volume = LinkedHashMap_init_$Create$();
   var _iterator__ex2g4s = history.p15_1.j();
@@ -32295,7 +32472,7 @@ protoOf(ProgressMath).a2l = function (history, lift) {
     var _iterator__ex2g4s_0 = session.w15_1.j();
     while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (this.y2k(history, set, lift)) {
+      if (this.n2l(history, set, lift)) {
         var week = weekStart(session.t15_1);
         var tmp0_elvis_lhs = volume.t1(week);
         // Inline function 'kotlin.collections.set' call
@@ -32308,11 +32485,11 @@ protoOf(ProgressMath).a2l = function (history, lift) {
   var this_0 = toList(volume);
   // Inline function 'kotlin.comparisons.compareBy' call
   var tmp = ProgressMath$weeklyVolume$lambda;
-  var tmp$ret$3 = new sam$kotlin_Comparator$0_12(tmp);
+  var tmp$ret$3 = new sam$kotlin_Comparator$0_13(tmp);
   return sortedWith(this_0, tmp$ret$3);
 };
-protoOf(ProgressMath).b2l = function (stats, until, includeStrictPress) {
-  var included = includeStrictPress ? plus_1(this.x2k_1, MainLift_STRICT_PRESS_getInstance()) : this.x2k_1;
+protoOf(ProgressMath).q2l = function (stats, until, includeStrictPress) {
+  var included = includeStrictPress ? plus_1(this.m2l_1, MainLift_STRICT_PRESS_getInstance()) : this.m2l_1;
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(included, 10));
@@ -32350,20 +32527,20 @@ function SeedLibrary$exercises$Acc(heavy, lift, muscles) {
     tmp = muscles;
   }
   muscles = tmp;
-  this.c2l_1 = heavy;
-  this.d2l_1 = lift;
-  this.e2l_1 = muscles;
+  this.r2l_1 = heavy;
+  this.s2l_1 = lift;
+  this.t2l_1 = muscles;
 }
 function SeedLibrary() {
   SeedLibrary_instance = this;
-  this.f2l_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.u2l_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(SeedLibrary).g2l = function () {
+protoOf(SeedLibrary).v2l = function () {
   var found = LinkedHashMap_init_$Create$();
-  var _iterator__ex2g4s = this.f2l_1.j();
+  var _iterator__ex2g4s = this.u2l_1.j();
   while (_iterator__ex2g4s.k()) {
     var lift = _iterator__ex2g4s.l();
-    var _iterator__ex2g4s_0 = get_entries_3().j();
+    var _iterator__ex2g4s_0 = get_entries_4().j();
     while (_iterator__ex2g4s_0.k()) {
       var miss = _iterator__ex2g4s_0.l();
       var muscles = AccessoryMap_getInstance().n14(lift, miss);
@@ -32382,14 +32559,14 @@ protoOf(SeedLibrary).g2l = function () {
           tmp = value;
         }
         // Inline function 'kotlin.collections.plusAssign' call
-        var this_0 = tmp.e2l_1;
+        var this_0 = tmp.t2l_1;
         addAll(this_0, muscles);
       }
     }
   }
   var tmp_0 = found.u1();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = this.f2l_1;
+  var tmp0 = this.u2l_1;
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s_2 = tmp0.j();
@@ -32423,7 +32600,7 @@ protoOf(SeedLibrary).g2l = function () {
     var name = item_0.u();
     // Inline function 'kotlin.collections.component2' call
     var acc = item_0.v();
-    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.c2l_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.c2l_1 ? acc.d2l_1 : null, toList_0(acc.e2l_1), true);
+    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.r2l_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.r2l_1 ? acc.s2l_1 : null, toList_0(acc.t2l_1), true);
     destination_1.i(tmp$ret$13);
   }
   var mapped = destination_1;
@@ -32472,32 +32649,32 @@ function HighReps_getInstance() {
   return HighReps_instance;
 }
 function BigJump(fromKg) {
-  this.h2l_1 = fromKg;
+  this.w2l_1 = fromKg;
 }
 protoOf(BigJump).toString = function () {
-  return 'BigJump(fromKg=' + this.h2l_1 + ')';
+  return 'BigJump(fromKg=' + this.w2l_1 + ')';
 };
 protoOf(BigJump).hashCode = function () {
-  return getNumberHashCode(this.h2l_1);
+  return getNumberHashCode(this.w2l_1);
 };
 protoOf(BigJump).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BigJump))
     return false;
-  if (!equals(this.h2l_1, other.h2l_1))
+  if (!equals(this.w2l_1, other.w2l_1))
     return false;
   return true;
 };
 function InputValidator() {
-  this.i2l_1 = 12;
-  this.j2l_1 = 1.3;
-  this.k2l_1 = 500.0;
+  this.x2l_1 = 12;
+  this.y2l_1 = 1.3;
+  this.z2l_1 = 500.0;
 }
-protoOf(InputValidator).l2l = function (kg) {
+protoOf(InputValidator).a2m = function (kg) {
   return isFinite(kg) && kg > 0.0 && kg <= 500.0;
 };
-protoOf(InputValidator).m2l = function (text) {
+protoOf(InputValidator).b2m = function (text) {
   // Inline function 'kotlin.text.trim' call
   var tmp$ret$0 = toString(trim(isCharSequence(text) ? text : THROW_CCE()));
   var tmp0_safe_receiver = toDoubleOrNull(replace_0(tmp$ret$0, _Char___init__impl__6a9atx(44), _Char___init__impl__6a9atx(46)));
@@ -32507,7 +32684,7 @@ protoOf(InputValidator).m2l = function (text) {
   } else {
     // Inline function 'kotlin.takeIf' call
     var tmp_0;
-    if (this.l2l(tmp0_safe_receiver)) {
+    if (this.a2m(tmp0_safe_receiver)) {
       tmp_0 = tmp0_safe_receiver;
     } else {
       tmp_0 = null;
@@ -32516,7 +32693,7 @@ protoOf(InputValidator).m2l = function (text) {
   }
   return tmp;
 };
-protoOf(InputValidator).n2l = function (weightKg, reps, lastWeightKg) {
+protoOf(InputValidator).c2m = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
@@ -32584,7 +32761,7 @@ protoOf(GritDomain).estimateE1rm = function (weightKg, reps, rpe) {
   return E1rm_getInstance().w16(weightKg, reps, rpe);
 };
 protoOf(GritDomain).platesPerSide = function (totalKg, changePlates) {
-  var tmp0_safe_receiver = PlateLoader_getInstance().i2k(totalKg, changePlates);
+  var tmp0_safe_receiver = PlateLoader_getInstance().x2k(totalKg, changePlates);
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
@@ -32602,7 +32779,7 @@ protoOf(GritDomain).loadStep = function (changePlates) {
 };
 protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = InputValidator_instance.n2l(weightKg, reps, lastWeightKg);
+  var this_0 = InputValidator_instance.c2m(weightKg, reps, lastWeightKg);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -32625,7 +32802,7 @@ protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   return copyToArray(destination);
 };
 protoOf(GritDomain).parseBaselineKg = function (text) {
-  return InputValidator_instance.m2l(text);
+  return InputValidator_instance.b2m(text);
 };
 protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, today, prior) {
   var tmp = Coach_getInstance();
@@ -32878,7 +33055,7 @@ protoOf(GritDomain).bodybuildingProgress = function (history, plan, today) {
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.p2k(tmp_0, destination, parseDate('today', today));
+  var this_0 = tmp.e2l(tmp_0, destination, parseDate('today', today));
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -32955,9 +33132,9 @@ protoOf(GritDomain).planBuilderBuild = function (days, picks, priorities, varian
     var tmp$ret$8 = tmp_2;
     destination_1.i(tmp$ret$8);
   }
-  return toJs_2(tmp.k2j(new BuilderAnswers(tmp_0, tmp_1, destination_1, variant)));
+  return toJs_2(tmp.z2j(new BuilderAnswers(tmp_0, tmp_1, destination_1, variant)));
 };
-protoOf(GritDomain).planBuilderAlternatives = function (name, draft, picks) {
+protoOf(GritDomain).planBuilderAlternatives = function (name, draft, picks, day) {
   var tmp = PlanBuilder_getInstance();
   var tmp_0 = toDomain_8(draft);
   // Inline function 'kotlin.collections.map' call
@@ -32971,21 +33148,29 @@ protoOf(GritDomain).planBuilderAlternatives = function (name, draft, picks) {
     var tmp$ret$2 = toDomain_7(item);
     destination.i(tmp$ret$2);
   }
+  var tmp_1 = destination;
+  var tmp_2;
+  if (day == null) {
+    tmp_2 = null;
+  } else {
+    // Inline function 'kotlin.let' call
+    tmp_2 = parseWeekday('day', day);
+  }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.p2j(name, tmp_0, destination);
+  var this_0 = tmp.e2k(name, tmp_0, tmp_1, tmp_2);
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_0 = _iterator__ex2g4s.l();
-    var tmp$ret$5 = toJs_9(item_0);
-    destination_0.i(tmp$ret$5);
+    var tmp$ret$7 = toJs_9(item_0);
+    destination_0.i(tmp$ret$7);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination_0);
 };
 protoOf(GritDomain).planBuilderSwap = function (draft, day, from, to) {
-  return toJs_2(PlanBuilder_getInstance().t2j(toDomain_8(draft), parseWeekday('day', day), from, to));
+  return toJs_2(PlanBuilder_getInstance().i2k(toDomain_8(draft), parseWeekday('day', day), from, to));
 };
 protoOf(GritDomain).planBuilderSuggestedPicks = function (history, plans, today) {
   var tmp = PlanBuilder_getInstance();
@@ -33002,7 +33187,7 @@ protoOf(GritDomain).planBuilderSuggestedPicks = function (history, plans, today)
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.b2k(tmp_0, destination, parseDate('today', today));
+  var this_0 = tmp.m2k(tmp_0, destination, parseDate('today', today));
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -33016,6 +33201,20 @@ protoOf(GritDomain).planBuilderSuggestedPicks = function (history, plans, today)
 };
 protoOf(GritDomain).planBuilderMaxPriorities = function () {
   return 3;
+};
+protoOf(GritDomain).planBuilderTargetGroups = function () {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = PlanBuilder_getInstance().i2i_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = item.w1_1;
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
 };
 protoOf(GritDomain).weeklyTrend = function (history, lift, until) {
   // Inline function 'kotlin.collections.map' call
@@ -33036,7 +33235,7 @@ protoOf(GritDomain).currentE1rm = function (history, lift, until, days) {
 };
 protoOf(GritDomain).prs = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().z2k(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().o2l(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -33050,14 +33249,14 @@ protoOf(GritDomain).prs = function (history, lift) {
 };
 protoOf(GritDomain).weeklyVolume = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().a2l(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().p2l(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var week = item.ra();
-    var volume = item.sa();
+    var week = item.ab();
+    var volume = item.bb();
     var tmp$ret$2 = new JsWeeklyPoint(week.toString(), volume);
     destination.i(tmp$ret$2);
   }
@@ -33157,7 +33356,7 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = SeedLibrary_getInstance().g2l();
+  var this_0 = SeedLibrary_getInstance().v2l();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -33170,11 +33369,11 @@ protoOf(GritDomain).seedExercises = function () {
   return copyToArray(destination);
 };
 protoOf(GritDomain).total = function (history, until, includeStrictPress) {
-  return ProgressMath_getInstance().b2l(new HistoryStats(toDomain_4(history)), parseDate('until', until), includeStrictPress);
+  return ProgressMath_getInstance().q2l(new HistoryStats(toDomain_4(history)), parseDate('until', until), includeStrictPress);
 };
 protoOf(GritDomain).mainLifts = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = get_entries_2();
+  var this_0 = get_entries_3();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -33233,7 +33432,7 @@ protoOf(GritDomain).isMainLift = function (exercise) {
 };
 protoOf(GritDomain).lastTopSet = function (history, exerciseId, before) {
   var tmp0_safe_receiver = (new HistoryStats(toDomain_4(history))).c18(fromInt(exerciseId), parseDate('before', before));
-  var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.ya_1;
+  var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.wa_1;
   return tmp1_safe_receiver == null ? null : toJs_7(tmp1_safe_receiver);
 };
 protoOf(GritDomain).openAdviceExpired = function (type, createdAt, today) {
@@ -33702,49 +33901,49 @@ function JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived
   this.isBuiltIn = isBuiltIn;
   this.archived = archived;
 }
-protoOf(JsExercise).o2l = function () {
+protoOf(JsExercise).d2m = function () {
   return this.id;
 };
 protoOf(JsExercise).es = function () {
   return this.name;
 };
-protoOf(JsExercise).p2l = function () {
+protoOf(JsExercise).e2m = function () {
   return this.category;
 };
-protoOf(JsExercise).q2l = function () {
+protoOf(JsExercise).f2m = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).r2l = function () {
+protoOf(JsExercise).g2m = function () {
   return this.muscles;
 };
-protoOf(JsExercise).s2l = function () {
+protoOf(JsExercise).h2m = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).t2l = function () {
+protoOf(JsExercise).i2m = function () {
   return this.archived;
 };
-protoOf(JsExercise).ra = function () {
+protoOf(JsExercise).ab = function () {
   return this.id;
 };
-protoOf(JsExercise).sa = function () {
+protoOf(JsExercise).bb = function () {
   return this.name;
 };
 protoOf(JsExercise).ld = function () {
   return this.category;
 };
-protoOf(JsExercise).u2l = function () {
+protoOf(JsExercise).j2m = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).v2l = function () {
+protoOf(JsExercise).k2m = function () {
   return this.muscles;
 };
-protoOf(JsExercise).w2l = function () {
+protoOf(JsExercise).l2m = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).x2l = function () {
+protoOf(JsExercise).m2m = function () {
   return this.archived;
 };
-protoOf(JsExercise).y2l = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(JsExercise).n2m = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
@@ -33755,7 +33954,7 @@ protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, is
   muscles = muscles === VOID ? this.muscles : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.isBuiltIn : isBuiltIn;
   archived = archived === VOID ? this.archived : archived;
-  return $super === VOID ? this.y2l(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.y2l.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.n2m(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.n2m.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).toString = function () {
   return 'JsExercise(id=' + this.id + ', name=' + this.name + ', category=' + this.category + ', parentLift=' + this.parentLift + ', muscles=' + toString(this.muscles) + ', isBuiltIn=' + this.isBuiltIn + ', archived=' + this.archived + ')';
@@ -33800,49 +33999,49 @@ function JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   this.missPoint = missPoint;
   this.isTopSet = isTopSet;
 }
-protoOf(JsSet).z2l = function () {
+protoOf(JsSet).o2m = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).a2m = function () {
+protoOf(JsSet).p2m = function () {
   return this.weightKg;
 };
-protoOf(JsSet).b2m = function () {
+protoOf(JsSet).q2m = function () {
   return this.reps;
 };
-protoOf(JsSet).c2m = function () {
+protoOf(JsSet).r2m = function () {
   return this.rpe;
 };
-protoOf(JsSet).d2m = function () {
+protoOf(JsSet).s2m = function () {
   return this.failed;
 };
-protoOf(JsSet).e2m = function () {
+protoOf(JsSet).t2m = function () {
   return this.missPoint;
 };
-protoOf(JsSet).f2m = function () {
+protoOf(JsSet).u2m = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).ra = function () {
+protoOf(JsSet).ab = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).sa = function () {
+protoOf(JsSet).bb = function () {
   return this.weightKg;
 };
 protoOf(JsSet).ld = function () {
   return this.reps;
 };
-protoOf(JsSet).u2l = function () {
+protoOf(JsSet).j2m = function () {
   return this.rpe;
 };
-protoOf(JsSet).v2l = function () {
+protoOf(JsSet).k2m = function () {
   return this.failed;
 };
-protoOf(JsSet).w2l = function () {
+protoOf(JsSet).l2m = function () {
   return this.missPoint;
 };
-protoOf(JsSet).x2l = function () {
+protoOf(JsSet).m2m = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).g2m = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
+protoOf(JsSet).v2m = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   return new JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, $super) {
@@ -33853,7 +34052,7 @@ protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoi
   failed = failed === VOID ? this.failed : failed;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   isTopSet = isTopSet === VOID ? this.isTopSet : isTopSet;
-  return $super === VOID ? this.g2m(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.g2m.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
+  return $super === VOID ? this.v2m(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.v2m.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).toString = function () {
   return 'JsSet(exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', failed=' + this.failed + ', missPoint=' + this.missPoint + ', isTopSet=' + this.isTopSet + ')';
@@ -33898,13 +34097,31 @@ function JsSession(id, date, bodyweightKg, readiness, sets, mode) {
   this.sets = sets;
   this.mode = mode;
 }
-protoOf(JsSession).o2l = function () {
+protoOf(JsSession).d2m = function () {
   return this.id;
 };
-protoOf(JsSession).h2m = function () {
+protoOf(JsSession).w2m = function () {
   return this.date;
 };
-protoOf(JsSession).i2m = function () {
+protoOf(JsSession).x2m = function () {
+  return this.bodyweightKg;
+};
+protoOf(JsSession).y2m = function () {
+  return this.readiness;
+};
+protoOf(JsSession).z2m = function () {
+  return this.sets;
+};
+protoOf(JsSession).a2n = function () {
+  return this.mode;
+};
+protoOf(JsSession).ab = function () {
+  return this.id;
+};
+protoOf(JsSession).bb = function () {
+  return this.date;
+};
+protoOf(JsSession).ld = function () {
   return this.bodyweightKg;
 };
 protoOf(JsSession).j2m = function () {
@@ -33916,25 +34133,7 @@ protoOf(JsSession).k2m = function () {
 protoOf(JsSession).l2m = function () {
   return this.mode;
 };
-protoOf(JsSession).ra = function () {
-  return this.id;
-};
-protoOf(JsSession).sa = function () {
-  return this.date;
-};
-protoOf(JsSession).ld = function () {
-  return this.bodyweightKg;
-};
-protoOf(JsSession).u2l = function () {
-  return this.readiness;
-};
-protoOf(JsSession).v2l = function () {
-  return this.sets;
-};
-protoOf(JsSession).w2l = function () {
-  return this.mode;
-};
-protoOf(JsSession).m2m = function (id, date, bodyweightKg, readiness, sets, mode) {
+protoOf(JsSession).b2n = function (id, date, bodyweightKg, readiness, sets, mode) {
   return new JsSession(id, date, bodyweightKg, readiness, sets, mode);
 };
 protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, mode, $super) {
@@ -33944,7 +34143,7 @@ protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, mod
   readiness = readiness === VOID ? this.readiness : readiness;
   sets = sets === VOID ? this.sets : sets;
   mode = mode === VOID ? this.mode : mode;
-  return $super === VOID ? this.m2m(id, date, bodyweightKg, readiness, sets, mode) : $super.m2m.call(this, id, date, bodyweightKg, readiness, sets, mode);
+  return $super === VOID ? this.b2n(id, date, bodyweightKg, readiness, sets, mode) : $super.b2n.call(this, id, date, bodyweightKg, readiness, sets, mode);
 };
 protoOf(JsSession).toString = function () {
   return 'JsSession(id=' + this.id + ', date=' + this.date + ', bodyweightKg=' + this.bodyweightKg + ', readiness=' + this.readiness + ', sets=' + toString(this.sets) + ', mode=' + this.mode + ')';
@@ -33990,61 +34189,61 @@ function JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order, mode,
   this.mode = mode;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPlanItem).o2l = function () {
+protoOf(JsPlanItem).d2m = function () {
   return this.id;
 };
-protoOf(JsPlanItem).n2m = function () {
+protoOf(JsPlanItem).c2n = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).z2l = function () {
+protoOf(JsPlanItem).o2m = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).k2m = function () {
+protoOf(JsPlanItem).z2m = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).b2m = function () {
+protoOf(JsPlanItem).q2m = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).o2m = function () {
+protoOf(JsPlanItem).d2n = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).p2m = function () {
+protoOf(JsPlanItem).e2n = function () {
   return this.order;
 };
-protoOf(JsPlanItem).l2m = function () {
+protoOf(JsPlanItem).a2n = function () {
   return this.mode;
 };
-protoOf(JsPlanItem).q2m = function () {
+protoOf(JsPlanItem).f2n = function () {
   return this.repsHigh;
 };
-protoOf(JsPlanItem).ra = function () {
+protoOf(JsPlanItem).ab = function () {
   return this.id;
 };
-protoOf(JsPlanItem).sa = function () {
+protoOf(JsPlanItem).bb = function () {
   return this.weekday;
 };
 protoOf(JsPlanItem).ld = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).u2l = function () {
+protoOf(JsPlanItem).j2m = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).v2l = function () {
+protoOf(JsPlanItem).k2m = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).w2l = function () {
+protoOf(JsPlanItem).l2m = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).x2l = function () {
+protoOf(JsPlanItem).m2m = function () {
   return this.order;
 };
-protoOf(JsPlanItem).r2m = function () {
+protoOf(JsPlanItem).g2n = function () {
   return this.mode;
 };
-protoOf(JsPlanItem).s2m = function () {
+protoOf(JsPlanItem).h2n = function () {
   return this.repsHigh;
 };
-protoOf(JsPlanItem).t2m = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) {
+protoOf(JsPlanItem).i2n = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) {
   return new JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
 };
 protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh, $super) {
@@ -34057,7 +34256,7 @@ protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, target
   order = order === VOID ? this.order : order;
   mode = mode === VOID ? this.mode : mode;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.t2m(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) : $super.t2m.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
+  return $super === VOID ? this.i2n(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) : $super.i2n.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
 };
 protoOf(JsPlanItem).toString = function () {
   return 'JsPlanItem(id=' + this.id + ', weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', sets=' + this.sets + ', reps=' + this.reps + ', targetRpe=' + this.targetRpe + ', order=' + this.order + ', mode=' + this.mode + ', repsHigh=' + this.repsHigh + ')';
@@ -34104,32 +34303,32 @@ function JsBaseline(exerciseId, e1rmKg, date) {
   this.e1rmKg = e1rmKg;
   this.date = date;
 }
-protoOf(JsBaseline).z2l = function () {
+protoOf(JsBaseline).o2m = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).u2m = function () {
+protoOf(JsBaseline).j2n = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).h2m = function () {
+protoOf(JsBaseline).w2m = function () {
   return this.date;
 };
-protoOf(JsBaseline).ra = function () {
+protoOf(JsBaseline).ab = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).sa = function () {
+protoOf(JsBaseline).bb = function () {
   return this.e1rmKg;
 };
 protoOf(JsBaseline).ld = function () {
   return this.date;
 };
-protoOf(JsBaseline).v2m = function (exerciseId, e1rmKg, date) {
+protoOf(JsBaseline).k2n = function (exerciseId, e1rmKg, date) {
   return new JsBaseline(exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).copy = function (exerciseId, e1rmKg, date, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   e1rmKg = e1rmKg === VOID ? this.e1rmKg : e1rmKg;
   date = date === VOID ? this.date : date;
-  return $super === VOID ? this.v2m(exerciseId, e1rmKg, date) : $super.v2m.call(this, exerciseId, e1rmKg, date);
+  return $super === VOID ? this.k2n(exerciseId, e1rmKg, date) : $super.k2n.call(this, exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).toString = function () {
   return 'JsBaseline(exerciseId=' + this.exerciseId + ', e1rmKg=' + this.e1rmKg + ', date=' + this.date + ')';
@@ -34165,61 +34364,61 @@ function JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJs
   this.payloadJson = payloadJson;
   this.mode = mode;
 }
-protoOf(JsAdvice).o2l = function () {
+protoOf(JsAdvice).d2m = function () {
   return this.id;
 };
-protoOf(JsAdvice).w2m = function () {
+protoOf(JsAdvice).l2n = function () {
   return this.type;
 };
-protoOf(JsAdvice).x2m = function () {
+protoOf(JsAdvice).m2n = function () {
   return this.lift;
 };
-protoOf(JsAdvice).y2m = function () {
+protoOf(JsAdvice).n2n = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).z2m = function () {
+protoOf(JsAdvice).o2n = function () {
   return this.reason;
 };
-protoOf(JsAdvice).a2n = function () {
+protoOf(JsAdvice).p2n = function () {
   return this.severity;
 };
-protoOf(JsAdvice).b2n = function () {
+protoOf(JsAdvice).q2n = function () {
   return this.status;
 };
-protoOf(JsAdvice).c2n = function () {
+protoOf(JsAdvice).r2n = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).l2m = function () {
+protoOf(JsAdvice).a2n = function () {
   return this.mode;
 };
-protoOf(JsAdvice).ra = function () {
+protoOf(JsAdvice).ab = function () {
   return this.id;
 };
-protoOf(JsAdvice).sa = function () {
+protoOf(JsAdvice).bb = function () {
   return this.type;
 };
 protoOf(JsAdvice).ld = function () {
   return this.lift;
 };
-protoOf(JsAdvice).u2l = function () {
+protoOf(JsAdvice).j2m = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).v2l = function () {
+protoOf(JsAdvice).k2m = function () {
   return this.reason;
 };
-protoOf(JsAdvice).w2l = function () {
+protoOf(JsAdvice).l2m = function () {
   return this.severity;
 };
-protoOf(JsAdvice).x2l = function () {
+protoOf(JsAdvice).m2m = function () {
   return this.status;
 };
-protoOf(JsAdvice).r2m = function () {
+protoOf(JsAdvice).g2n = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).s2m = function () {
+protoOf(JsAdvice).h2n = function () {
   return this.mode;
 };
-protoOf(JsAdvice).d2n = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode) {
+protoOf(JsAdvice).s2n = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode) {
   return new JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
 };
 protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode, $super) {
@@ -34232,7 +34431,7 @@ protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, 
   status = status === VOID ? this.status : status;
   payloadJson = payloadJson === VOID ? this.payloadJson : payloadJson;
   mode = mode === VOID ? this.mode : mode;
-  return $super === VOID ? this.d2n(id, type, lift, createdAt, reason, severity, status, payloadJson, mode) : $super.d2n.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
+  return $super === VOID ? this.s2n(id, type, lift, createdAt, reason, severity, status, payloadJson, mode) : $super.s2n.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
 };
 protoOf(JsAdvice).toString = function () {
   return 'JsAdvice(id=' + this.id + ', type=' + this.type + ', lift=' + this.lift + ', createdAt=' + this.createdAt + ', reason=' + this.reason + ', severity=' + this.severity + ', status=' + this.status + ', payloadJson=' + this.payloadJson + ', mode=' + this.mode + ')';
@@ -34279,32 +34478,32 @@ function JsHistory(sessions, exercises, baselines) {
   this.exercises = exercises;
   this.baselines = baselines;
 }
-protoOf(JsHistory).e2n = function () {
+protoOf(JsHistory).t2n = function () {
   return this.sessions;
 };
-protoOf(JsHistory).f2n = function () {
+protoOf(JsHistory).u2n = function () {
   return this.exercises;
 };
-protoOf(JsHistory).g2n = function () {
+protoOf(JsHistory).v2n = function () {
   return this.baselines;
 };
-protoOf(JsHistory).ra = function () {
+protoOf(JsHistory).ab = function () {
   return this.sessions;
 };
-protoOf(JsHistory).sa = function () {
+protoOf(JsHistory).bb = function () {
   return this.exercises;
 };
 protoOf(JsHistory).ld = function () {
   return this.baselines;
 };
-protoOf(JsHistory).h2n = function (sessions, exercises, baselines) {
+protoOf(JsHistory).w2n = function (sessions, exercises, baselines) {
   return new JsHistory(sessions, exercises, baselines);
 };
 protoOf(JsHistory).copy = function (sessions, exercises, baselines, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   exercises = exercises === VOID ? this.exercises : exercises;
   baselines = baselines === VOID ? this.baselines : baselines;
-  return $super === VOID ? this.h2n(sessions, exercises, baselines) : $super.h2n.call(this, sessions, exercises, baselines);
+  return $super === VOID ? this.w2n(sessions, exercises, baselines) : $super.w2n.call(this, sessions, exercises, baselines);
 };
 protoOf(JsHistory).toString = function () {
   return 'JsHistory(sessions=' + toString(this.sessions) + ', exercises=' + toString(this.exercises) + ', baselines=' + toString(this.baselines) + ')';
@@ -34332,25 +34531,25 @@ function JsBestSet(date, set) {
   this.date = date;
   this.set = set;
 }
-protoOf(JsBestSet).h2m = function () {
+protoOf(JsBestSet).w2m = function () {
   return this.date;
 };
-protoOf(JsBestSet).i2n = function () {
+protoOf(JsBestSet).x2n = function () {
   return this.set;
 };
-protoOf(JsBestSet).ra = function () {
+protoOf(JsBestSet).ab = function () {
   return this.date;
 };
-protoOf(JsBestSet).sa = function () {
+protoOf(JsBestSet).bb = function () {
   return this.set;
 };
-protoOf(JsBestSet).j2n = function (date, set) {
+protoOf(JsBestSet).y2n = function (date, set) {
   return new JsBestSet(date, set);
 };
 protoOf(JsBestSet).copy = function (date, set, $super) {
   date = date === VOID ? this.date : date;
   set = set === VOID ? this.set : set;
-  return $super === VOID ? this.j2n(date, set) : $super.j2n.call(this, date, set);
+  return $super === VOID ? this.y2n(date, set) : $super.y2n.call(this, date, set);
 };
 protoOf(JsBestSet).toString = function () {
   return 'JsBestSet(date=' + this.date + ', set=' + this.set.toString() + ')';
@@ -34377,31 +34576,31 @@ function JsExerciseTrend(exerciseId, name, bestSets, goingUp) {
   this.bestSets = bestSets;
   this.goingUp = goingUp;
 }
-protoOf(JsExerciseTrend).z2l = function () {
+protoOf(JsExerciseTrend).o2m = function () {
   return this.exerciseId;
 };
 protoOf(JsExerciseTrend).es = function () {
   return this.name;
 };
-protoOf(JsExerciseTrend).k2n = function () {
+protoOf(JsExerciseTrend).z2n = function () {
   return this.bestSets;
 };
-protoOf(JsExerciseTrend).l2n = function () {
+protoOf(JsExerciseTrend).a2o = function () {
   return this.goingUp;
 };
-protoOf(JsExerciseTrend).ra = function () {
+protoOf(JsExerciseTrend).ab = function () {
   return this.exerciseId;
 };
-protoOf(JsExerciseTrend).sa = function () {
+protoOf(JsExerciseTrend).bb = function () {
   return this.name;
 };
 protoOf(JsExerciseTrend).ld = function () {
   return this.bestSets;
 };
-protoOf(JsExerciseTrend).u2l = function () {
+protoOf(JsExerciseTrend).j2m = function () {
   return this.goingUp;
 };
-protoOf(JsExerciseTrend).m2n = function (exerciseId, name, bestSets, goingUp) {
+protoOf(JsExerciseTrend).b2o = function (exerciseId, name, bestSets, goingUp) {
   return new JsExerciseTrend(exerciseId, name, bestSets, goingUp);
 };
 protoOf(JsExerciseTrend).copy = function (exerciseId, name, bestSets, goingUp, $super) {
@@ -34409,7 +34608,7 @@ protoOf(JsExerciseTrend).copy = function (exerciseId, name, bestSets, goingUp, $
   name = name === VOID ? this.name : name;
   bestSets = bestSets === VOID ? this.bestSets : bestSets;
   goingUp = goingUp === VOID ? this.goingUp : goingUp;
-  return $super === VOID ? this.m2n(exerciseId, name, bestSets, goingUp) : $super.m2n.call(this, exerciseId, name, bestSets, goingUp);
+  return $super === VOID ? this.b2o(exerciseId, name, bestSets, goingUp) : $super.b2o.call(this, exerciseId, name, bestSets, goingUp);
 };
 protoOf(JsExerciseTrend).toString = function () {
   return 'JsExerciseTrend(exerciseId=' + this.exerciseId + ', name=' + this.name + ', bestSets=' + toString(this.bestSets) + ', goingUp=' + this.goingUp + ')';
@@ -34440,25 +34639,25 @@ function JsCoachSettings(defaultRpe, changePlates) {
   this.defaultRpe = defaultRpe;
   this.changePlates = changePlates;
 }
-protoOf(JsCoachSettings).n2n = function () {
+protoOf(JsCoachSettings).c2o = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).o2n = function () {
+protoOf(JsCoachSettings).d2o = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).ra = function () {
+protoOf(JsCoachSettings).ab = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).sa = function () {
+protoOf(JsCoachSettings).bb = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).p2n = function (defaultRpe, changePlates) {
+protoOf(JsCoachSettings).e2o = function (defaultRpe, changePlates) {
   return new JsCoachSettings(defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).copy = function (defaultRpe, changePlates, $super) {
   defaultRpe = defaultRpe === VOID ? this.defaultRpe : defaultRpe;
   changePlates = changePlates === VOID ? this.changePlates : changePlates;
-  return $super === VOID ? this.p2n(defaultRpe, changePlates) : $super.p2n.call(this, defaultRpe, changePlates);
+  return $super === VOID ? this.e2o(defaultRpe, changePlates) : $super.e2o.call(this, defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).toString = function () {
   return 'JsCoachSettings(defaultRpe=' + this.defaultRpe + ', changePlates=' + this.changePlates + ')';
@@ -34483,25 +34682,25 @@ function JsWeeklyPoint(weekStart, value) {
   this.weekStart = weekStart;
   this.value = value;
 }
-protoOf(JsWeeklyPoint).q2n = function () {
+protoOf(JsWeeklyPoint).f2o = function () {
   return this.weekStart;
 };
 protoOf(JsWeeklyPoint).v = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).ra = function () {
+protoOf(JsWeeklyPoint).ab = function () {
   return this.weekStart;
 };
-protoOf(JsWeeklyPoint).sa = function () {
+protoOf(JsWeeklyPoint).bb = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).r2n = function (weekStart, value) {
+protoOf(JsWeeklyPoint).g2o = function (weekStart, value) {
   return new JsWeeklyPoint(weekStart, value);
 };
 protoOf(JsWeeklyPoint).copy = function (weekStart, value, $super) {
   weekStart = weekStart === VOID ? this.weekStart : weekStart;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.r2n(weekStart, value) : $super.r2n.call(this, weekStart, value);
+  return $super === VOID ? this.g2o(weekStart, value) : $super.g2o.call(this, weekStart, value);
 };
 protoOf(JsWeeklyPoint).toString = function () {
   return 'JsWeeklyPoint(weekStart=' + this.weekStart + ', value=' + this.value + ')';
@@ -34529,37 +34728,37 @@ function JsPr(date, e1rmKg, weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsPr).h2m = function () {
+protoOf(JsPr).w2m = function () {
   return this.date;
 };
-protoOf(JsPr).u2m = function () {
+protoOf(JsPr).j2n = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).a2m = function () {
+protoOf(JsPr).p2m = function () {
   return this.weightKg;
 };
-protoOf(JsPr).b2m = function () {
+protoOf(JsPr).q2m = function () {
   return this.reps;
 };
-protoOf(JsPr).c2m = function () {
+protoOf(JsPr).r2m = function () {
   return this.rpe;
 };
-protoOf(JsPr).ra = function () {
+protoOf(JsPr).ab = function () {
   return this.date;
 };
-protoOf(JsPr).sa = function () {
+protoOf(JsPr).bb = function () {
   return this.e1rmKg;
 };
 protoOf(JsPr).ld = function () {
   return this.weightKg;
 };
-protoOf(JsPr).u2l = function () {
+protoOf(JsPr).j2m = function () {
   return this.reps;
 };
-protoOf(JsPr).v2l = function () {
+protoOf(JsPr).k2m = function () {
   return this.rpe;
 };
-protoOf(JsPr).s2n = function (date, e1rmKg, weightKg, reps, rpe) {
+protoOf(JsPr).h2o = function (date, e1rmKg, weightKg, reps, rpe) {
   return new JsPr(date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
@@ -34568,7 +34767,7 @@ protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.s2n(date, e1rmKg, weightKg, reps, rpe) : $super.s2n.call(this, date, e1rmKg, weightKg, reps, rpe);
+  return $super === VOID ? this.h2o(date, e1rmKg, weightKg, reps, rpe) : $super.h2o.call(this, date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).toString = function () {
   return 'JsPr(date=' + this.date + ', e1rmKg=' + this.e1rmKg + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -34605,22 +34804,22 @@ function JsAccessoryOption(name, heavy) {
 protoOf(JsAccessoryOption).es = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).t2n = function () {
+protoOf(JsAccessoryOption).i2o = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).ra = function () {
+protoOf(JsAccessoryOption).ab = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).sa = function () {
+protoOf(JsAccessoryOption).bb = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).u2n = function (name, heavy) {
+protoOf(JsAccessoryOption).j2o = function (name, heavy) {
   return new JsAccessoryOption(name, heavy);
 };
 protoOf(JsAccessoryOption).copy = function (name, heavy, $super) {
   name = name === VOID ? this.name : name;
   heavy = heavy === VOID ? this.heavy : heavy;
-  return $super === VOID ? this.u2n(name, heavy) : $super.u2n.call(this, name, heavy);
+  return $super === VOID ? this.j2o(name, heavy) : $super.j2o.call(this, name, heavy);
 };
 protoOf(JsAccessoryOption).toString = function () {
   return 'JsAccessoryOption(name=' + this.name + ', heavy=' + this.heavy + ')';
@@ -34647,31 +34846,31 @@ function JsRatioRange(numerator, denominator, low, high) {
   this.low = low;
   this.high = high;
 }
-protoOf(JsRatioRange).v2n = function () {
+protoOf(JsRatioRange).k2o = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).w2n = function () {
+protoOf(JsRatioRange).l2o = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).x2n = function () {
+protoOf(JsRatioRange).m2o = function () {
   return this.low;
 };
 protoOf(JsRatioRange).a2e = function () {
   return this.high;
 };
-protoOf(JsRatioRange).ra = function () {
+protoOf(JsRatioRange).ab = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).sa = function () {
+protoOf(JsRatioRange).bb = function () {
   return this.denominator;
 };
 protoOf(JsRatioRange).ld = function () {
   return this.low;
 };
-protoOf(JsRatioRange).u2l = function () {
+protoOf(JsRatioRange).j2m = function () {
   return this.high;
 };
-protoOf(JsRatioRange).y2n = function (numerator, denominator, low, high) {
+protoOf(JsRatioRange).n2o = function (numerator, denominator, low, high) {
   return new JsRatioRange(numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super) {
@@ -34679,7 +34878,7 @@ protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super
   denominator = denominator === VOID ? this.denominator : denominator;
   low = low === VOID ? this.low : low;
   high = high === VOID ? this.high : high;
-  return $super === VOID ? this.y2n(numerator, denominator, low, high) : $super.y2n.call(this, numerator, denominator, low, high);
+  return $super === VOID ? this.n2o(numerator, denominator, low, high) : $super.n2o.call(this, numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).toString = function () {
   return 'JsRatioRange(numerator=' + this.numerator + ', denominator=' + this.denominator + ', low=' + this.low + ', high=' + this.high + ')';
@@ -34712,31 +34911,31 @@ function JsPrescription(exerciseName, sets, repsLow, repsHigh) {
   this.repsLow = repsLow;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPrescription).z2n = function () {
+protoOf(JsPrescription).o2o = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).k2m = function () {
+protoOf(JsPrescription).z2m = function () {
   return this.sets;
 };
-protoOf(JsPrescription).a2o = function () {
+protoOf(JsPrescription).p2o = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).q2m = function () {
+protoOf(JsPrescription).f2n = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).ra = function () {
+protoOf(JsPrescription).ab = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).sa = function () {
+protoOf(JsPrescription).bb = function () {
   return this.sets;
 };
 protoOf(JsPrescription).ld = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).u2l = function () {
+protoOf(JsPrescription).j2m = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).b2o = function (exerciseName, sets, repsLow, repsHigh) {
+protoOf(JsPrescription).q2o = function (exerciseName, sets, repsLow, repsHigh) {
   return new JsPrescription(exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, $super) {
@@ -34744,7 +34943,7 @@ protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, 
   sets = sets === VOID ? this.sets : sets;
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.b2o(exerciseName, sets, repsLow, repsHigh) : $super.b2o.call(this, exerciseName, sets, repsLow, repsHigh);
+  return $super === VOID ? this.q2o(exerciseName, sets, repsLow, repsHigh) : $super.q2o.call(this, exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).toString = function () {
   return 'JsPrescription(exerciseName=' + this.exerciseName + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ')';
@@ -34806,76 +35005,76 @@ function JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, vol
 protoOf(JsAdvicePayload).te = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).z2l = function () {
+protoOf(JsAdvicePayload).o2m = function () {
   return this.exerciseId;
 };
-protoOf(JsAdvicePayload).a2m = function () {
+protoOf(JsAdvicePayload).p2m = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).b2m = function () {
+protoOf(JsAdvicePayload).q2m = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).c2m = function () {
+protoOf(JsAdvicePayload).r2m = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).k2m = function () {
+protoOf(JsAdvicePayload).z2m = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).c2o = function () {
+protoOf(JsAdvicePayload).r2o = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).d2o = function () {
+protoOf(JsAdvicePayload).s2o = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).e2o = function () {
+protoOf(JsAdvicePayload).t2o = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).x2m = function () {
+protoOf(JsAdvicePayload).m2n = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).e2m = function () {
+protoOf(JsAdvicePayload).t2m = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).q2m = function () {
+protoOf(JsAdvicePayload).f2n = function () {
   return this.repsHigh;
 };
-protoOf(JsAdvicePayload).ra = function () {
+protoOf(JsAdvicePayload).ab = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).sa = function () {
+protoOf(JsAdvicePayload).bb = function () {
   return this.exerciseId;
 };
 protoOf(JsAdvicePayload).ld = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).u2l = function () {
+protoOf(JsAdvicePayload).j2m = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).v2l = function () {
+protoOf(JsAdvicePayload).k2m = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).w2l = function () {
+protoOf(JsAdvicePayload).l2m = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).x2l = function () {
+protoOf(JsAdvicePayload).m2m = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).r2m = function () {
+protoOf(JsAdvicePayload).g2n = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).s2m = function () {
+protoOf(JsAdvicePayload).h2n = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).f2o = function () {
+protoOf(JsAdvicePayload).u2o = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).g2o = function () {
+protoOf(JsAdvicePayload).v2o = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).h2o = function () {
+protoOf(JsAdvicePayload).w2o = function () {
   return this.repsHigh;
 };
-protoOf(JsAdvicePayload).i2o = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh) {
+protoOf(JsAdvicePayload).x2o = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh) {
   return new JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh);
 };
 protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, $super) {
@@ -34891,7 +35090,7 @@ protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe,
   lift = lift === VOID ? this.lift : lift;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.i2o(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh) : $super.i2o.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh);
+  return $super === VOID ? this.x2o(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh) : $super.x2o.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh);
 };
 protoOf(JsAdvicePayload).toString = function () {
   return 'JsAdvicePayload(kind=' + this.kind + ', exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', sets=' + this.sets + ', items=' + toString(this.items) + ', volumeFactor=' + this.volumeFactor + ', loadFactor=' + this.loadFactor + ', lift=' + this.lift + ', missPoint=' + this.missPoint + ', repsHigh=' + this.repsHigh + ')';
@@ -34949,37 +35148,37 @@ function JsFormGuide(purpose, setup, steps, cues, mistakes) {
   this.cues = cues;
   this.mistakes = mistakes;
 }
-protoOf(JsFormGuide).j2o = function () {
+protoOf(JsFormGuide).y2o = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).k2o = function () {
+protoOf(JsFormGuide).z2o = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).l2o = function () {
+protoOf(JsFormGuide).a2p = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).m2o = function () {
+protoOf(JsFormGuide).b2p = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).n2o = function () {
+protoOf(JsFormGuide).c2p = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).ra = function () {
+protoOf(JsFormGuide).ab = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).sa = function () {
+protoOf(JsFormGuide).bb = function () {
   return this.setup;
 };
 protoOf(JsFormGuide).ld = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).u2l = function () {
+protoOf(JsFormGuide).j2m = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).v2l = function () {
+protoOf(JsFormGuide).k2m = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).o2o = function (purpose, setup, steps, cues, mistakes) {
+protoOf(JsFormGuide).d2p = function (purpose, setup, steps, cues, mistakes) {
   return new JsFormGuide(purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $super) {
@@ -34988,7 +35187,7 @@ protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $su
   steps = steps === VOID ? this.steps : steps;
   cues = cues === VOID ? this.cues : cues;
   mistakes = mistakes === VOID ? this.mistakes : mistakes;
-  return $super === VOID ? this.o2o(purpose, setup, steps, cues, mistakes) : $super.o2o.call(this, purpose, setup, steps, cues, mistakes);
+  return $super === VOID ? this.d2p(purpose, setup, steps, cues, mistakes) : $super.d2p.call(this, purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).toString = function () {
   return 'JsFormGuide(purpose=' + this.purpose + ', setup=' + toString(this.setup) + ', steps=' + toString(this.steps) + ', cues=' + toString(this.cues) + ', mistakes=' + toString(this.mistakes) + ')';
@@ -35022,25 +35221,25 @@ function JsRpeGuide(title, lines) {
   this.title = title;
   this.lines = lines;
 }
-protoOf(JsRpeGuide).p2o = function () {
+protoOf(JsRpeGuide).e2p = function () {
   return this.title;
 };
-protoOf(JsRpeGuide).q2o = function () {
+protoOf(JsRpeGuide).f2p = function () {
   return this.lines;
 };
-protoOf(JsRpeGuide).ra = function () {
+protoOf(JsRpeGuide).ab = function () {
   return this.title;
 };
-protoOf(JsRpeGuide).sa = function () {
+protoOf(JsRpeGuide).bb = function () {
   return this.lines;
 };
-protoOf(JsRpeGuide).r2o = function (title, lines) {
+protoOf(JsRpeGuide).g2p = function (title, lines) {
   return new JsRpeGuide(title, lines);
 };
 protoOf(JsRpeGuide).copy = function (title, lines, $super) {
   title = title === VOID ? this.title : title;
   lines = lines === VOID ? this.lines : lines;
-  return $super === VOID ? this.r2o(title, lines) : $super.r2o.call(this, title, lines);
+  return $super === VOID ? this.g2p(title, lines) : $super.g2p.call(this, title, lines);
 };
 protoOf(JsRpeGuide).toString = function () {
   return 'JsRpeGuide(title=' + this.title + ', lines=' + toString(this.lines) + ')';
@@ -35075,58 +35274,58 @@ function JsLibraryExercise(name, aliases, area, equipment, muscles, kind, catego
 protoOf(JsLibraryExercise).es = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).s2o = function () {
+protoOf(JsLibraryExercise).h2p = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).t2o = function () {
+protoOf(JsLibraryExercise).i2p = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).u2o = function () {
+protoOf(JsLibraryExercise).j2p = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).r2l = function () {
+protoOf(JsLibraryExercise).g2m = function () {
   return this.muscles;
 };
 protoOf(JsLibraryExercise).te = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).p2l = function () {
+protoOf(JsLibraryExercise).e2m = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).q2l = function () {
+protoOf(JsLibraryExercise).f2m = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).v2o = function () {
+protoOf(JsLibraryExercise).k2p = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).ra = function () {
+protoOf(JsLibraryExercise).ab = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).sa = function () {
+protoOf(JsLibraryExercise).bb = function () {
   return this.aliases;
 };
 protoOf(JsLibraryExercise).ld = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).u2l = function () {
+protoOf(JsLibraryExercise).j2m = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).v2l = function () {
+protoOf(JsLibraryExercise).k2m = function () {
   return this.muscles;
 };
-protoOf(JsLibraryExercise).w2l = function () {
+protoOf(JsLibraryExercise).l2m = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).x2l = function () {
+protoOf(JsLibraryExercise).m2m = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).r2m = function () {
+protoOf(JsLibraryExercise).g2n = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).s2m = function () {
+protoOf(JsLibraryExercise).h2n = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).w2o = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
+protoOf(JsLibraryExercise).l2p = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
   return new JsLibraryExercise(name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide, $super) {
@@ -35139,7 +35338,7 @@ protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, musc
   category = category === VOID ? this.category : category;
   parentLift = parentLift === VOID ? this.parentLift : parentLift;
   guide = guide === VOID ? this.guide : guide;
-  return $super === VOID ? this.w2o(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.w2o.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
+  return $super === VOID ? this.l2p(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.l2p.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).toString = function () {
   return 'JsLibraryExercise(name=' + this.name + ', aliases=' + toString(this.aliases) + ', area=' + this.area + ', equipment=' + toString(this.equipment) + ', muscles=' + toString(this.muscles) + ', kind=' + this.kind + ', category=' + this.category + ', parentLift=' + this.parentLift + ', guide=' + this.guide.toString() + ')';
@@ -35191,34 +35390,34 @@ function JsBuilderPick(name, muscles, compound, equipment, inCatalogue) {
 protoOf(JsBuilderPick).es = function () {
   return this.name;
 };
-protoOf(JsBuilderPick).r2l = function () {
+protoOf(JsBuilderPick).g2m = function () {
   return this.muscles;
 };
-protoOf(JsBuilderPick).x2o = function () {
+protoOf(JsBuilderPick).m2p = function () {
   return this.compound;
 };
-protoOf(JsBuilderPick).u2o = function () {
+protoOf(JsBuilderPick).j2p = function () {
   return this.equipment;
 };
-protoOf(JsBuilderPick).y2o = function () {
+protoOf(JsBuilderPick).n2p = function () {
   return this.inCatalogue;
 };
-protoOf(JsBuilderPick).ra = function () {
+protoOf(JsBuilderPick).ab = function () {
   return this.name;
 };
-protoOf(JsBuilderPick).sa = function () {
+protoOf(JsBuilderPick).bb = function () {
   return this.muscles;
 };
 protoOf(JsBuilderPick).ld = function () {
   return this.compound;
 };
-protoOf(JsBuilderPick).u2l = function () {
+protoOf(JsBuilderPick).j2m = function () {
   return this.equipment;
 };
-protoOf(JsBuilderPick).v2l = function () {
+protoOf(JsBuilderPick).k2m = function () {
   return this.inCatalogue;
 };
-protoOf(JsBuilderPick).z2o = function (name, muscles, compound, equipment, inCatalogue) {
+protoOf(JsBuilderPick).o2p = function (name, muscles, compound, equipment, inCatalogue) {
   return new JsBuilderPick(name, muscles, compound, equipment, inCatalogue);
 };
 protoOf(JsBuilderPick).copy = function (name, muscles, compound, equipment, inCatalogue, $super) {
@@ -35227,7 +35426,7 @@ protoOf(JsBuilderPick).copy = function (name, muscles, compound, equipment, inCa
   compound = compound === VOID ? this.compound : compound;
   equipment = equipment === VOID ? this.equipment : equipment;
   inCatalogue = inCatalogue === VOID ? this.inCatalogue : inCatalogue;
-  return $super === VOID ? this.z2o(name, muscles, compound, equipment, inCatalogue) : $super.z2o.call(this, name, muscles, compound, equipment, inCatalogue);
+  return $super === VOID ? this.o2p(name, muscles, compound, equipment, inCatalogue) : $super.o2p.call(this, name, muscles, compound, equipment, inCatalogue);
 };
 protoOf(JsBuilderPick).toString = function () {
   return 'JsBuilderPick(name=' + this.name + ', muscles=' + toString(this.muscles) + ', compound=' + this.compound + ', equipment=' + toString(this.equipment) + ', inCatalogue=' + this.inCatalogue + ')';
@@ -35257,7 +35456,7 @@ protoOf(JsBuilderPick).equals = function (other) {
     return false;
   return true;
 };
-function JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound) {
+function JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
   this.name = name;
   this.inCatalogue = inCatalogue;
   this.sets = sets;
@@ -35267,65 +35466,79 @@ function JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGr
   this.mainGroup = mainGroup;
   this.muscles = muscles;
   this.compound = compound;
+  this.slot = slot;
+  this.lead = lead;
 }
 protoOf(JsDraftExercise).es = function () {
   return this.name;
 };
-protoOf(JsDraftExercise).y2o = function () {
+protoOf(JsDraftExercise).n2p = function () {
   return this.inCatalogue;
 };
-protoOf(JsDraftExercise).k2m = function () {
+protoOf(JsDraftExercise).z2m = function () {
   return this.sets;
 };
-protoOf(JsDraftExercise).a2o = function () {
+protoOf(JsDraftExercise).p2o = function () {
   return this.repsLow;
 };
-protoOf(JsDraftExercise).q2m = function () {
+protoOf(JsDraftExercise).f2n = function () {
   return this.repsHigh;
 };
-protoOf(JsDraftExercise).c2m = function () {
+protoOf(JsDraftExercise).r2m = function () {
   return this.rpe;
 };
-protoOf(JsDraftExercise).a2p = function () {
+protoOf(JsDraftExercise).p2p = function () {
   return this.mainGroup;
 };
-protoOf(JsDraftExercise).r2l = function () {
+protoOf(JsDraftExercise).g2m = function () {
   return this.muscles;
 };
-protoOf(JsDraftExercise).x2o = function () {
+protoOf(JsDraftExercise).m2p = function () {
   return this.compound;
 };
-protoOf(JsDraftExercise).ra = function () {
+protoOf(JsDraftExercise).q2p = function () {
+  return this.slot;
+};
+protoOf(JsDraftExercise).r2p = function () {
+  return this.lead;
+};
+protoOf(JsDraftExercise).ab = function () {
   return this.name;
 };
-protoOf(JsDraftExercise).sa = function () {
+protoOf(JsDraftExercise).bb = function () {
   return this.inCatalogue;
 };
 protoOf(JsDraftExercise).ld = function () {
   return this.sets;
 };
-protoOf(JsDraftExercise).u2l = function () {
+protoOf(JsDraftExercise).j2m = function () {
   return this.repsLow;
 };
-protoOf(JsDraftExercise).v2l = function () {
+protoOf(JsDraftExercise).k2m = function () {
   return this.repsHigh;
 };
-protoOf(JsDraftExercise).w2l = function () {
+protoOf(JsDraftExercise).l2m = function () {
   return this.rpe;
 };
-protoOf(JsDraftExercise).x2l = function () {
+protoOf(JsDraftExercise).m2m = function () {
   return this.mainGroup;
 };
-protoOf(JsDraftExercise).r2m = function () {
+protoOf(JsDraftExercise).g2n = function () {
   return this.muscles;
 };
-protoOf(JsDraftExercise).s2m = function () {
+protoOf(JsDraftExercise).h2n = function () {
   return this.compound;
 };
-protoOf(JsDraftExercise).b2p = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound) {
-  return new JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound);
+protoOf(JsDraftExercise).u2o = function () {
+  return this.slot;
 };
-protoOf(JsDraftExercise).copy = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, $super) {
+protoOf(JsDraftExercise).v2o = function () {
+  return this.lead;
+};
+protoOf(JsDraftExercise).s2p = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
+  return new JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
+};
+protoOf(JsDraftExercise).copy = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead, $super) {
   name = name === VOID ? this.name : name;
   inCatalogue = inCatalogue === VOID ? this.inCatalogue : inCatalogue;
   sets = sets === VOID ? this.sets : sets;
@@ -35335,10 +35548,12 @@ protoOf(JsDraftExercise).copy = function (name, inCatalogue, sets, repsLow, reps
   mainGroup = mainGroup === VOID ? this.mainGroup : mainGroup;
   muscles = muscles === VOID ? this.muscles : muscles;
   compound = compound === VOID ? this.compound : compound;
-  return $super === VOID ? this.b2p(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound) : $super.b2p.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound);
+  slot = slot === VOID ? this.slot : slot;
+  lead = lead === VOID ? this.lead : lead;
+  return $super === VOID ? this.s2p(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.s2p.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
 protoOf(JsDraftExercise).toString = function () {
-  return 'JsDraftExercise(name=' + this.name + ', inCatalogue=' + this.inCatalogue + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ', mainGroup=' + this.mainGroup + ', muscles=' + toString(this.muscles) + ', compound=' + this.compound + ')';
+  return 'JsDraftExercise(name=' + this.name + ', inCatalogue=' + this.inCatalogue + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ', mainGroup=' + this.mainGroup + ', muscles=' + toString(this.muscles) + ', compound=' + this.compound + ', slot=' + this.slot + ', lead=' + this.lead + ')';
 };
 protoOf(JsDraftExercise).hashCode = function () {
   var result = getStringHashCode(this.name);
@@ -35350,6 +35565,8 @@ protoOf(JsDraftExercise).hashCode = function () {
   result = imul(result, 31) + (this.mainGroup == null ? 0 : getStringHashCode(this.mainGroup)) | 0;
   result = imul(result, 31) + hashCode(this.muscles) | 0;
   result = imul(result, 31) + getBooleanHashCode(this.compound) | 0;
+  result = imul(result, 31) + (this.slot == null ? 0 : getStringHashCode(this.slot)) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.lead) | 0;
   return result;
 };
 protoOf(JsDraftExercise).equals = function (other) {
@@ -35375,6 +35592,10 @@ protoOf(JsDraftExercise).equals = function (other) {
     return false;
   if (!(this.compound === other.compound))
     return false;
+  if (!(this.slot == other.slot))
+    return false;
+  if (!(this.lead === other.lead))
+    return false;
   return true;
 };
 function JsDraftSession(day, title, exercises) {
@@ -35385,29 +35606,29 @@ function JsDraftSession(day, title, exercises) {
 protoOf(JsDraftSession).mp = function () {
   return this.day;
 };
-protoOf(JsDraftSession).p2o = function () {
+protoOf(JsDraftSession).e2p = function () {
   return this.title;
 };
-protoOf(JsDraftSession).f2n = function () {
+protoOf(JsDraftSession).u2n = function () {
   return this.exercises;
 };
-protoOf(JsDraftSession).ra = function () {
+protoOf(JsDraftSession).ab = function () {
   return this.day;
 };
-protoOf(JsDraftSession).sa = function () {
+protoOf(JsDraftSession).bb = function () {
   return this.title;
 };
 protoOf(JsDraftSession).ld = function () {
   return this.exercises;
 };
-protoOf(JsDraftSession).c2p = function (day, title, exercises) {
+protoOf(JsDraftSession).t2p = function (day, title, exercises) {
   return new JsDraftSession(day, title, exercises);
 };
 protoOf(JsDraftSession).copy = function (day, title, exercises, $super) {
   day = day === VOID ? this.day : day;
   title = title === VOID ? this.title : title;
   exercises = exercises === VOID ? this.exercises : exercises;
-  return $super === VOID ? this.c2p(day, title, exercises) : $super.c2p.call(this, day, title, exercises);
+  return $super === VOID ? this.t2p(day, title, exercises) : $super.t2p.call(this, day, title, exercises);
 };
 protoOf(JsDraftSession).toString = function () {
   return 'JsDraftSession(day=' + this.day + ', title=' + this.title + ', exercises=' + toString(this.exercises) + ')';
@@ -35437,31 +35658,31 @@ function JsGroupVolume(group, weeklySets, days, short) {
   this.days = days;
   this.short = short;
 }
-protoOf(JsGroupVolume).d2p = function () {
+protoOf(JsGroupVolume).u2p = function () {
   return this.group;
 };
-protoOf(JsGroupVolume).e2p = function () {
+protoOf(JsGroupVolume).v2p = function () {
   return this.weeklySets;
 };
 protoOf(JsGroupVolume).jm = function () {
   return this.days;
 };
-protoOf(JsGroupVolume).f2p = function () {
+protoOf(JsGroupVolume).w2p = function () {
   return this.short;
 };
-protoOf(JsGroupVolume).ra = function () {
+protoOf(JsGroupVolume).ab = function () {
   return this.group;
 };
-protoOf(JsGroupVolume).sa = function () {
+protoOf(JsGroupVolume).bb = function () {
   return this.weeklySets;
 };
 protoOf(JsGroupVolume).ld = function () {
   return this.days;
 };
-protoOf(JsGroupVolume).u2l = function () {
+protoOf(JsGroupVolume).j2m = function () {
   return this.short;
 };
-protoOf(JsGroupVolume).g2p = function (group, weeklySets, days, short) {
+protoOf(JsGroupVolume).x2p = function (group, weeklySets, days, short) {
   return new JsGroupVolume(group, weeklySets, days, short);
 };
 protoOf(JsGroupVolume).copy = function (group, weeklySets, days, short, $super) {
@@ -35469,7 +35690,7 @@ protoOf(JsGroupVolume).copy = function (group, weeklySets, days, short, $super) 
   weeklySets = weeklySets === VOID ? this.weeklySets : weeklySets;
   days = days === VOID ? this.days : days;
   short = short === VOID ? this.short : short;
-  return $super === VOID ? this.g2p(group, weeklySets, days, short) : $super.g2p.call(this, group, weeklySets, days, short);
+  return $super === VOID ? this.x2p(group, weeklySets, days, short) : $super.x2p.call(this, group, weeklySets, days, short);
 };
 protoOf(JsGroupVolume).toString = function () {
   return 'JsGroupVolume(group=' + this.group + ', weeklySets=' + this.weeklySets + ', days=' + this.days + ', short=' + this.short + ')';
@@ -35503,22 +35724,22 @@ function JsLeftOut(name, reason) {
 protoOf(JsLeftOut).es = function () {
   return this.name;
 };
-protoOf(JsLeftOut).z2m = function () {
+protoOf(JsLeftOut).o2n = function () {
   return this.reason;
 };
-protoOf(JsLeftOut).ra = function () {
+protoOf(JsLeftOut).ab = function () {
   return this.name;
 };
-protoOf(JsLeftOut).sa = function () {
+protoOf(JsLeftOut).bb = function () {
   return this.reason;
 };
-protoOf(JsLeftOut).h2p = function (name, reason) {
+protoOf(JsLeftOut).y2p = function (name, reason) {
   return new JsLeftOut(name, reason);
 };
 protoOf(JsLeftOut).copy = function (name, reason, $super) {
   name = name === VOID ? this.name : name;
   reason = reason === VOID ? this.reason : reason;
-  return $super === VOID ? this.h2p(name, reason) : $super.h2p.call(this, name, reason);
+  return $super === VOID ? this.y2p(name, reason) : $super.y2p.call(this, name, reason);
 };
 protoOf(JsLeftOut).toString = function () {
   return 'JsLeftOut(name=' + this.name + ', reason=' + this.reason + ')';
@@ -35544,32 +35765,32 @@ function JsPlanDraft(sessions, volume, leftOut) {
   this.volume = volume;
   this.leftOut = leftOut;
 }
-protoOf(JsPlanDraft).e2n = function () {
+protoOf(JsPlanDraft).t2n = function () {
   return this.sessions;
 };
-protoOf(JsPlanDraft).i2p = function () {
+protoOf(JsPlanDraft).z2p = function () {
   return this.volume;
 };
-protoOf(JsPlanDraft).j2p = function () {
+protoOf(JsPlanDraft).a2q = function () {
   return this.leftOut;
 };
-protoOf(JsPlanDraft).ra = function () {
+protoOf(JsPlanDraft).ab = function () {
   return this.sessions;
 };
-protoOf(JsPlanDraft).sa = function () {
+protoOf(JsPlanDraft).bb = function () {
   return this.volume;
 };
 protoOf(JsPlanDraft).ld = function () {
   return this.leftOut;
 };
-protoOf(JsPlanDraft).k2p = function (sessions, volume, leftOut) {
+protoOf(JsPlanDraft).b2q = function (sessions, volume, leftOut) {
   return new JsPlanDraft(sessions, volume, leftOut);
 };
 protoOf(JsPlanDraft).copy = function (sessions, volume, leftOut, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   volume = volume === VOID ? this.volume : volume;
   leftOut = leftOut === VOID ? this.leftOut : leftOut;
-  return $super === VOID ? this.k2p(sessions, volume, leftOut) : $super.k2p.call(this, sessions, volume, leftOut);
+  return $super === VOID ? this.b2q(sessions, volume, leftOut) : $super.b2q.call(this, sessions, volume, leftOut);
 };
 protoOf(JsPlanDraft).toString = function () {
   return 'JsPlanDraft(sessions=' + toString(this.sessions) + ', volume=' + toString(this.volume) + ', leftOut=' + toString(this.leftOut) + ')';
@@ -35599,31 +35820,31 @@ function JsFigureInfo(startCaption, endCaption, thumbnail, viewBox) {
   this.thumbnail = thumbnail;
   this.viewBox = viewBox;
 }
-protoOf(JsFigureInfo).l2p = function () {
+protoOf(JsFigureInfo).c2q = function () {
   return this.startCaption;
 };
-protoOf(JsFigureInfo).m2p = function () {
+protoOf(JsFigureInfo).d2q = function () {
   return this.endCaption;
 };
-protoOf(JsFigureInfo).n2p = function () {
+protoOf(JsFigureInfo).e2q = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).o2p = function () {
+protoOf(JsFigureInfo).f2q = function () {
   return this.viewBox;
 };
-protoOf(JsFigureInfo).ra = function () {
+protoOf(JsFigureInfo).ab = function () {
   return this.startCaption;
 };
-protoOf(JsFigureInfo).sa = function () {
+protoOf(JsFigureInfo).bb = function () {
   return this.endCaption;
 };
 protoOf(JsFigureInfo).ld = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).u2l = function () {
+protoOf(JsFigureInfo).j2m = function () {
   return this.viewBox;
 };
-protoOf(JsFigureInfo).p2p = function (startCaption, endCaption, thumbnail, viewBox) {
+protoOf(JsFigureInfo).g2q = function (startCaption, endCaption, thumbnail, viewBox) {
   return new JsFigureInfo(startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, viewBox, $super) {
@@ -35631,7 +35852,7 @@ protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, view
   endCaption = endCaption === VOID ? this.endCaption : endCaption;
   thumbnail = thumbnail === VOID ? this.thumbnail : thumbnail;
   viewBox = viewBox === VOID ? this.viewBox : viewBox;
-  return $super === VOID ? this.p2p(startCaption, endCaption, thumbnail, viewBox) : $super.p2p.call(this, startCaption, endCaption, thumbnail, viewBox);
+  return $super === VOID ? this.g2q(startCaption, endCaption, thumbnail, viewBox) : $super.g2q.call(this, startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).toString = function () {
   return 'JsFigureInfo(startCaption=' + this.startCaption + ', endCaption=' + this.endCaption + ', thumbnail=' + this.thumbnail + ', viewBox=' + toString(this.viewBox) + ')';
@@ -35665,7 +35886,7 @@ function JsFigureShape(kind, role) {
 protoOf(JsFigureShape).te = function () {
   return this.kind;
 };
-protoOf(JsFigureShape).q2p = function () {
+protoOf(JsFigureShape).h2q = function () {
   return this.role;
 };
 function JsFigureCircle(role, cx, cy, r) {
@@ -35674,13 +35895,13 @@ function JsFigureCircle(role, cx, cy, r) {
   this.cy = cy;
   this.r = r;
 }
-protoOf(JsFigureCircle).r2p = function () {
+protoOf(JsFigureCircle).i2q = function () {
   return this.cx;
 };
-protoOf(JsFigureCircle).s2p = function () {
+protoOf(JsFigureCircle).j2q = function () {
   return this.cy;
 };
-protoOf(JsFigureCircle).t2p = function () {
+protoOf(JsFigureCircle).k2q = function () {
   return this.r;
 };
 function JsFigureCapsule(role, x1, y1, x2, y2, width) {
@@ -35691,16 +35912,16 @@ function JsFigureCapsule(role, x1, y1, x2, y2, width) {
   this.y2 = y2;
   this.width = width;
 }
-protoOf(JsFigureCapsule).u2p = function () {
+protoOf(JsFigureCapsule).l2q = function () {
   return this.x1;
 };
-protoOf(JsFigureCapsule).v2p = function () {
+protoOf(JsFigureCapsule).m2q = function () {
   return this.y1;
 };
-protoOf(JsFigureCapsule).w2p = function () {
+protoOf(JsFigureCapsule).n2q = function () {
   return this.x2;
 };
-protoOf(JsFigureCapsule).x2p = function () {
+protoOf(JsFigureCapsule).o2q = function () {
   return this.y2;
 };
 protoOf(JsFigureCapsule).a1y = function () {
@@ -35714,16 +35935,16 @@ function JsFigureRect(role, x, y, w, h, radius) {
   this.h = h;
   this.radius = radius;
 }
-protoOf(JsFigureRect).y2p = function () {
+protoOf(JsFigureRect).p2q = function () {
   return this.x;
 };
-protoOf(JsFigureRect).z2p = function () {
+protoOf(JsFigureRect).q2q = function () {
   return this.y;
 };
-protoOf(JsFigureRect).a2q = function () {
+protoOf(JsFigureRect).r2q = function () {
   return this.w;
 };
-protoOf(JsFigureRect).b2q = function () {
+protoOf(JsFigureRect).s2q = function () {
   return this.h;
 };
 protoOf(JsFigureRect).q28 = function () {
@@ -35733,7 +35954,7 @@ function JsFigurePolygon(role, points) {
   JsFigureShape.call(this, 'polygon', role);
   this.points = points;
 }
-protoOf(JsFigurePolygon).c2q = function () {
+protoOf(JsFigurePolygon).t2q = function () {
   return this.points;
 };
 function toFacadeId(_this__u8e3s4, field) {
@@ -36169,22 +36390,22 @@ function toJs_0(_this__u8e3s4) {
 }
 function toJs_1(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  var tmp = toFacadeId(_this__u8e3s4.j2k_1, 'trend.exerciseId');
+  var tmp = toFacadeId(_this__u8e3s4.y2k_1, 'trend.exerciseId');
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.l2k_1;
+  var this_0 = _this__u8e3s4.a2l_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var date = item.ra();
-    var set = item.sa();
+    var date = item.ab();
+    var set = item.bb();
     var tmp$ret$2 = new JsBestSet(date.toString(), toJs_7(set));
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$3 = copyToArray(destination);
-  return new JsExerciseTrend(tmp, _this__u8e3s4.k2k_1, tmp$ret$3, _this__u8e3s4.m2k_1);
+  return new JsExerciseTrend(tmp, _this__u8e3s4.z2k_1, tmp$ret$3, _this__u8e3s4.b2l_1);
 }
 function toDomain_7(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -36234,7 +36455,7 @@ function toDomain_7(_this__u8e3s4) {
 function toJs_2(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.q2j_1;
+  var this_0 = _this__u8e3s4.f2k_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -36246,25 +36467,25 @@ function toJs_2(_this__u8e3s4) {
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp = copyToArray(destination);
   // Inline function 'kotlin.collections.map' call
-  var this_1 = _this__u8e3s4.r2j_1;
+  var this_1 = _this__u8e3s4.g2k_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
   var _iterator__ex2g4s_0 = this_1.j();
   while (_iterator__ex2g4s_0.k()) {
     var item_0 = _iterator__ex2g4s_0.l();
-    var tmp$ret$6 = new JsGroupVolume(item_0.w2j_1.w1_1, item_0.x2j_1, item_0.y2j_1, item_0.z2j_1);
+    var tmp$ret$6 = new JsGroupVolume(item_0.p2k_1.w1_1, item_0.q2k_1, item_0.r2k_1, item_0.s2k_1);
     destination_0.i(tmp$ret$6);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp_0 = copyToArray(destination_0);
   // Inline function 'kotlin.collections.map' call
-  var this_2 = _this__u8e3s4.s2j_1;
+  var this_2 = _this__u8e3s4.h2k_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_2, 10));
   var _iterator__ex2g4s_1 = this_2.j();
   while (_iterator__ex2g4s_1.k()) {
     var item_1 = _iterator__ex2g4s_1.l();
-    var tmp$ret$10 = new JsLeftOut(item_1.e2k_1, item_1.f2k_1);
+    var tmp$ret$10 = new JsLeftOut(item_1.t2k_1, item_1.u2k_1);
     destination_1.i(tmp$ret$10);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -36273,9 +36494,9 @@ function toJs_2(_this__u8e3s4) {
 }
 function toJs_3(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  var tmp = get_isoDayNumber(_this__u8e3s4.q2i_1);
+  var tmp = get_isoDayNumber(_this__u8e3s4.c2j_1);
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.s2i_1;
+  var this_0 = _this__u8e3s4.e2j_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -36286,16 +36507,17 @@ function toJs_3(_this__u8e3s4) {
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$3 = copyToArray(destination);
-  return new JsDraftSession(tmp, _this__u8e3s4.r2i_1, tmp$ret$3);
+  return new JsDraftSession(tmp, _this__u8e3s4.d2j_1, tmp$ret$3);
 }
 function toJs_4(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  var tmp0_safe_receiver = _this__u8e3s4.z2i_1;
+  var tmp0_safe_receiver = _this__u8e3s4.l2j_1;
   var tmp = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.w1_1;
   // Inline function 'kotlin.collections.toTypedArray' call
-  var this_0 = _this__u8e3s4.a2j_1;
-  var tmp$ret$0 = copyToArray(this_0);
-  return new JsDraftExercise(_this__u8e3s4.t2i_1, _this__u8e3s4.u2i_1, _this__u8e3s4.v2i_1, _this__u8e3s4.w2i_1, _this__u8e3s4.x2i_1, _this__u8e3s4.y2i_1, tmp, tmp$ret$0, _this__u8e3s4.b2j_1);
+  var this_0 = _this__u8e3s4.m2j_1;
+  var tmp_0 = copyToArray(this_0);
+  var tmp1_safe_receiver = _this__u8e3s4.o2j_1;
+  return new JsDraftExercise(_this__u8e3s4.f2j_1, _this__u8e3s4.g2j_1, _this__u8e3s4.h2j_1, _this__u8e3s4.i2j_1, _this__u8e3s4.j2j_1, _this__u8e3s4.k2j_1, tmp, tmp_0, _this__u8e3s4.n2j_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.w1_1, _this__u8e3s4.p2j_1);
 }
 function toDomain_8(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -36354,73 +36576,111 @@ function toDomain_8(_this__u8e3s4) {
         }
         tmp_0 = tmp_1;
       }
-      var tmp$ret$5 = new DraftExercise(item_0.name, item_0.inCatalogue, item_0.sets, item_0.repsLow, item_0.repsHigh, item_0.rpe, tmp_0, toList_1(item_0.muscles), item_0.compound);
+      var tmp_3 = tmp_0;
+      var tmp_4 = toList_1(item_0.muscles);
+      var tmp1_safe_receiver = item_0.slot;
+      var tmp_5;
+      if (tmp1_safe_receiver == null) {
+        tmp_5 = null;
+      } else {
+        // Inline function 'kotlin.let' call
+        // Inline function 'com.powertracker.domain.web.parseEnum' call
+        var field_0 = 'draft.slot';
+        // Inline function 'kotlin.enumValues' call
+        var tmp0_0 = values_10();
+        var tmp$ret$17;
+        $l$block_0: {
+          // Inline function 'kotlin.collections.firstOrNull' call
+          var inductionVariable_2 = 0;
+          var last_2 = tmp0_0.length;
+          while (inductionVariable_2 < last_2) {
+            var element_0 = tmp0_0[inductionVariable_2];
+            inductionVariable_2 = inductionVariable_2 + 1 | 0;
+            if (element_0.w1_1 === tmp1_safe_receiver) {
+              tmp$ret$17 = element_0;
+              break $l$block_0;
+            }
+          }
+          tmp$ret$17 = null;
+        }
+        var tmp0_elvis_lhs_0 = tmp$ret$17;
+        var tmp_6;
+        if (tmp0_elvis_lhs_0 == null) {
+          // Inline function 'kotlin.enumValues' call
+          var tmp_7 = values_10();
+          throw IllegalArgumentException_init_$Create$(field_0 + ": '" + tmp1_safe_receiver + "' is not one of " + joinToString_0(tmp_7, VOID, VOID, VOID, VOID, VOID, toDomain$lambda_8));
+        } else {
+          tmp_6 = tmp0_elvis_lhs_0;
+        }
+        tmp_5 = tmp_6;
+      }
+      var tmp$ret$5 = new DraftExercise(item_0.name, item_0.inCatalogue, item_0.sets, item_0.repsLow, item_0.repsHigh, item_0.rpe, tmp_3, tmp_4, item_0.compound, tmp_5, item_0.lead);
       destination_0.i(tmp$ret$5);
     }
     var tmp$ret$2 = new DraftSession(tmp, item.title, destination_0);
     destination.i(tmp$ret$2);
   }
-  var tmp_3 = destination;
+  var tmp_8 = destination;
   // Inline function 'kotlin.collections.map' call
   var this_2 = _this__u8e3s4.volume;
   // Inline function 'kotlin.collections.mapTo' call
   var destination_1 = ArrayList_init_$Create$_0(this_2.length);
-  var inductionVariable_2 = 0;
-  var last_2 = this_2.length;
-  while (inductionVariable_2 < last_2) {
-    var item_1 = this_2[inductionVariable_2];
-    inductionVariable_2 = inductionVariable_2 + 1 | 0;
-    var tmp0_0 = 'draft.volume.group';
+  var inductionVariable_3 = 0;
+  var last_3 = this_2.length;
+  while (inductionVariable_3 < last_3) {
+    var item_1 = this_2[inductionVariable_3];
+    inductionVariable_3 = inductionVariable_3 + 1 | 0;
+    var tmp0_1 = 'draft.volume.group';
     // Inline function 'com.powertracker.domain.web.parseEnum' call
     var text = item_1.group;
     // Inline function 'kotlin.enumValues' call
-    var tmp0_1 = values_1();
-    var tmp$ret$18;
-    $l$block_0: {
+    var tmp0_2 = values_1();
+    var tmp$ret$25;
+    $l$block_1: {
       // Inline function 'kotlin.collections.firstOrNull' call
-      var inductionVariable_3 = 0;
-      var last_3 = tmp0_1.length;
-      while (inductionVariable_3 < last_3) {
-        var element_0 = tmp0_1[inductionVariable_3];
-        inductionVariable_3 = inductionVariable_3 + 1 | 0;
-        if (element_0.w1_1 === text) {
-          tmp$ret$18 = element_0;
-          break $l$block_0;
+      var inductionVariable_4 = 0;
+      var last_4 = tmp0_2.length;
+      while (inductionVariable_4 < last_4) {
+        var element_1 = tmp0_2[inductionVariable_4];
+        inductionVariable_4 = inductionVariable_4 + 1 | 0;
+        if (element_1.w1_1 === text) {
+          tmp$ret$25 = element_1;
+          break $l$block_1;
         }
       }
-      tmp$ret$18 = null;
+      tmp$ret$25 = null;
     }
-    var tmp0_elvis_lhs_0 = tmp$ret$18;
-    var tmp_4;
-    if (tmp0_elvis_lhs_0 == null) {
+    var tmp0_elvis_lhs_1 = tmp$ret$25;
+    var tmp_9;
+    if (tmp0_elvis_lhs_1 == null) {
       // Inline function 'kotlin.enumValues' call
-      var tmp_5 = values_1();
-      throw IllegalArgumentException_init_$Create$(tmp0_0 + ": '" + text + "' is not one of " + joinToString_0(tmp_5, VOID, VOID, VOID, VOID, VOID, toDomain$lambda_8));
+      var tmp_10 = values_1();
+      throw IllegalArgumentException_init_$Create$(tmp0_1 + ": '" + text + "' is not one of " + joinToString_0(tmp_10, VOID, VOID, VOID, VOID, VOID, toDomain$lambda_9));
     } else {
-      tmp_4 = tmp0_elvis_lhs_0;
+      tmp_9 = tmp0_elvis_lhs_1;
     }
-    var tmp$ret$16 = tmp_4;
-    var tmp$ret$15 = new GroupVolume(tmp$ret$16, item_1.weeklySets, item_1.days, item_1.short);
-    destination_1.i(tmp$ret$15);
+    var tmp$ret$23 = tmp_9;
+    var tmp$ret$22 = new GroupVolume(tmp$ret$23, item_1.weeklySets, item_1.days, item_1.short);
+    destination_1.i(tmp$ret$22);
   }
-  var tmp_6 = destination_1;
+  var tmp_11 = destination_1;
   // Inline function 'kotlin.collections.map' call
   var this_3 = _this__u8e3s4.leftOut;
   // Inline function 'kotlin.collections.mapTo' call
   var destination_2 = ArrayList_init_$Create$_0(this_3.length);
-  var inductionVariable_4 = 0;
-  var last_4 = this_3.length;
-  while (inductionVariable_4 < last_4) {
-    var item_2 = this_3[inductionVariable_4];
-    inductionVariable_4 = inductionVariable_4 + 1 | 0;
-    var tmp$ret$23 = new LeftOut(item_2.name, item_2.reason);
-    destination_2.i(tmp$ret$23);
+  var inductionVariable_5 = 0;
+  var last_5 = this_3.length;
+  while (inductionVariable_5 < last_5) {
+    var item_2 = this_3[inductionVariable_5];
+    inductionVariable_5 = inductionVariable_5 + 1 | 0;
+    var tmp$ret$30 = new LeftOut(item_2.name, item_2.reason);
+    destination_2.i(tmp$ret$30);
   }
-  return new PlanDraft(tmp_3, tmp_6, destination_2);
+  return new PlanDraft(tmp_8, tmp_11, destination_2);
 }
 function toJs_5(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return new JsPr(_this__u8e3s4.q2k_1.toString(), _this__u8e3s4.r2k_1, _this__u8e3s4.s2k_1, _this__u8e3s4.t2k_1, _this__u8e3s4.u2k_1);
+  return new JsPr(_this__u8e3s4.f2l_1.toString(), _this__u8e3s4.g2l_1, _this__u8e3s4.h2l_1, _this__u8e3s4.i2l_1, _this__u8e3s4.j2l_1);
 }
 function toJs_6(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -36589,6 +36849,10 @@ function toDomain$lambda_7(it) {
   return it.w1_1;
 }
 function toDomain$lambda_8(it) {
+  _init_properties_JsTypes_kt__uiuq2m();
+  return it.w1_1;
+}
+function toDomain$lambda_9(it) {
   _init_properties_JsTypes_kt__uiuq2m();
   return it.w1_1;
 }

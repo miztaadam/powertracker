@@ -32,6 +32,7 @@ import com.powertracker.domain.plan.DraftExercise
 import com.powertracker.domain.plan.DraftSession
 import com.powertracker.domain.plan.GroupVolume
 import com.powertracker.domain.plan.LeftOut
+import com.powertracker.domain.plan.PlanBuilder
 import com.powertracker.domain.plan.PlanDraft
 import com.powertracker.domain.progress.ExerciseTrend
 import com.powertracker.domain.progress.Pr
@@ -208,7 +209,11 @@ data class JsBuilderPick(
     val inCatalogue: Boolean,
 )
 
-/** One exercise of a draft session: [mainGroup] a `MuscleGroup` name or null; [muscles] and [compound] for recounting. */
+/**
+ * One exercise of a draft session: [mainGroup] a `MuscleGroup` name or null; [muscles] and [compound] for recounting;
+ * [slot] the `PlanBuilder.SlotKind` name of the template slot it fills, null for a held-over pick; [lead] true for the
+ * session's first template slot.
+ */
 @JsExport
 data class JsDraftExercise(
     val name: String,
@@ -220,13 +225,15 @@ data class JsDraftExercise(
     val mainGroup: String?,
     val muscles: Array<String>,
     val compound: Boolean,
+    val slot: String?,
+    val lead: Boolean,
 )
 
 /** One day of a draft: [day] a weekday 1-7 (Monday = 1), [title] "Full body", "Upper" or "Lower". */
 @JsExport
 data class JsDraftSession(val day: Int, val title: String, val exercises: Array<JsDraftExercise>)
 
-/** A group's week in a draft: [group] a `MuscleGroup` name; [short] when [weeklySets] is under 10. */
+/** A group's week in a draft (the 12 target groups): [group] a `MuscleGroup` name; [short] when [weeklySets] is under 10. */
 @JsExport
 data class JsGroupVolume(val group: String, val weeklySets: Int, val days: Int, val short: Boolean)
 
@@ -343,7 +350,7 @@ internal fun PlanDraft.toJs() = JsPlanDraft(
 internal fun DraftSession.toJs() = JsDraftSession(day.isoDayNumber, title, exercises.map { it.toJs() }.toTypedArray())
 
 internal fun DraftExercise.toJs() = JsDraftExercise(
-    name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup?.name, muscles.toTypedArray(), compound,
+    name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup?.name, muscles.toTypedArray(), compound, slot?.name, lead,
 )
 
 internal fun JsPlanDraft.toDomain() = PlanDraft(
@@ -354,6 +361,7 @@ internal fun JsPlanDraft.toDomain() = PlanDraft(
                 DraftExercise(
                     e.name, e.inCatalogue, e.sets, e.repsLow, e.repsHigh, e.rpe,
                     e.mainGroup?.let { parseEnum<MuscleGroup>("draft.mainGroup", it) }, e.muscles.toList(), e.compound,
+                    e.slot?.let { parseEnum<PlanBuilder.SlotKind>("draft.slot", it) }, e.lead,
                 )
             },
         )

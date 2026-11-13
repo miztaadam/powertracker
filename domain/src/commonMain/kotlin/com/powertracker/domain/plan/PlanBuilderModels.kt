@@ -19,8 +19,8 @@ data class BuilderPick(
 
 /**
  * The lifter's answers: 3 or 4 distinct [days]; the [picks] (empty means "choose for me"); up to
- * [PlanBuilder.MAX_PRIORITIES] distinct [priorities] in the order chosen. [variant] is "another draft": it rotates the
- * catalogue defaults and never changes the picks.
+ * [PlanBuilder.MAX_PRIORITIES] distinct [priorities], each one of [PlanBuilder.TARGET_GROUPS], in the order chosen.
+ * [variant] is "another draft": it rotates the catalogue defaults and never changes the picks.
  */
 data class BuilderAnswers(
     val days: List<DayOfWeek>,
@@ -31,8 +31,9 @@ data class BuilderAnswers(
 
 /**
  * One exercise of a draft session and its prescription. [mainGroup] is the group of its first-listed muscle, null when
- * that muscle belongs to none. [muscles] and [compound] are carried so the draft can be recounted and re-ordered after
- * a swap; the screens need not show them.
+ * that muscle belongs to none. [muscles] and [compound] are carried so the draft can be recounted after a swap.
+ * [slot] is the template slot it fills, null for a held-over pick (what Swap offers depends on it); [lead] is true for
+ * the exercise in the session's first template slot (it gets [PlanBuilder.LEAD_SETS]).
  */
 data class DraftExercise(
     val name: String,
@@ -44,6 +45,8 @@ data class DraftExercise(
     val mainGroup: MuscleGroup?,
     val muscles: List<String>,
     val compound: Boolean,
+    val slot: PlanBuilder.SlotKind?,
+    val lead: Boolean,
 )
 
 /** One training day of the draft: [title] is "Full body", "Upper" or "Lower"; [exercises] in the order to do them. */
@@ -59,7 +62,7 @@ data class GroupVolume(val group: MuscleGroup, val weeklySets: Int, val days: In
 data class LeftOut(val name: String, val reason: String)
 
 /**
- * What the builder made: the [sessions] in week order; [volume] for each target group (in
- * [PlanBuilder.TARGET_GROUPS] order, then any priority that is not a target group); the picks [leftOut].
+ * What the builder made: the [sessions] in week order; [volume] for each target group in [PlanBuilder.TARGET_GROUPS]
+ * order; the picks [leftOut].
  */
 data class PlanDraft(val sessions: List<DraftSession>, val volume: List<GroupVolume>, val leftOut: List<LeftOut>)

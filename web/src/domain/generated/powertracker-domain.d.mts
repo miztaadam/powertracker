@@ -25,10 +25,11 @@ export declare namespace GritDomain {
             repsToBeat(item: JsPlanItem, history: JsHistory, setNumber: number, today: string): number;
             bodybuildingProgress(history: JsHistory, plan: Array<JsPlanItem>, today: string): Array<JsExerciseTrend>;
             planBuilderBuild(days: Array<number>, picks: Array<JsBuilderPick>, priorities: Array<string>, variant: number): JsPlanDraft;
-            planBuilderAlternatives(name: string, draft: JsPlanDraft, picks: Array<JsBuilderPick>): Array<JsLibraryExercise>;
+            planBuilderAlternatives(name: string, draft: JsPlanDraft, picks: Array<JsBuilderPick>, day: Nullable<number>): Array<JsLibraryExercise>;
             planBuilderSwap(draft: JsPlanDraft, day: number, from: string, to: string): JsPlanDraft;
             planBuilderSuggestedPicks(history: JsHistory, plans: Array<JsPlanItem>, today: string): Array<number>;
             planBuilderMaxPriorities(): number;
+            planBuilderTargetGroups(): Array<string>;
             weeklyTrend(history: JsHistory, lift: string, until: string): Array<JsWeeklyPoint>;
             currentE1rm(history: JsHistory, lift: string, until: string, days: number): Nullable<number>;
             prs(history: JsHistory, lift: string): Array<JsPr>;
@@ -429,7 +430,7 @@ export declare namespace JsBuilderPick {
     }
 }
 export declare class JsDraftExercise {
-    constructor(name: string, inCatalogue: boolean, sets: number, repsLow: number, repsHigh: number, rpe: number, mainGroup: Nullable<string>, muscles: Array<string>, compound: boolean);
+    constructor(name: string, inCatalogue: boolean, sets: number, repsLow: number, repsHigh: number, rpe: number, mainGroup: Nullable<string>, muscles: Array<string>, compound: boolean, slot: Nullable<string>, lead: boolean);
     get name(): string;
     get inCatalogue(): boolean;
     get sets(): number;
@@ -439,7 +440,9 @@ export declare class JsDraftExercise {
     get mainGroup(): Nullable<string>;
     get muscles(): Array<string>;
     get compound(): boolean;
-    copy(name?: string, inCatalogue?: boolean, sets?: number, repsLow?: number, repsHigh?: number, rpe?: number, mainGroup?: Nullable<string>, muscles?: Array<string>, compound?: boolean): JsDraftExercise;
+    get slot(): Nullable<string>;
+    get lead(): boolean;
+    copy(name?: string, inCatalogue?: boolean, sets?: number, repsLow?: number, repsHigh?: number, rpe?: number, mainGroup?: Nullable<string>, muscles?: Array<string>, compound?: boolean, slot?: Nullable<string>, lead?: boolean): JsDraftExercise;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;

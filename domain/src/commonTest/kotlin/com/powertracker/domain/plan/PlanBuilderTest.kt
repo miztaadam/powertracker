@@ -12,6 +12,8 @@ import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.plan.PlanBuilder.SlotKind
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.DayOfWeek.FRIDAY
 import kotlinx.datetime.DayOfWeek.MONDAY
@@ -21,12 +23,12 @@ import kotlinx.datetime.DayOfWeek.TUESDAY
 import kotlinx.datetime.DayOfWeek.WEDNESDAY
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
-import kotlinx.datetime.DatePeriod
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class PlanBuilderTest {
@@ -34,14 +36,20 @@ class PlanBuilderTest {
     private val four = listOf(MONDAY, TUESDAY, THURSDAY, FRIDAY)
 
     private fun pick(e: LibraryExercise) = BuilderPick(e.name, e.muscles, e.kind == Kind.COMPOUND, e.equipment, true)
+    private fun pick(name: String) = pick(Library.all().single { it.name == name })
 
     private fun picks(count: Int, seed: Int): List<BuilderPick> =
         Library.all().shuffled(Random(seed)).take(count).map(::pick)
+
+    private val ownNoMuscles = BuilderPick("Sled push my way", emptyList(), compound = false, equipment = emptyList(), inCatalogue = false)
+    private val ownWithMuscles = BuilderPick("My cable thing", listOf("Pecs", "Triceps"), compound = false, equipment = emptyList(), inCatalogue = false)
 
     private fun build(days: List<DayOfWeek>, picks: List<BuilderPick> = emptyList(), priorities: List<MuscleGroup> = emptyList(), variant: Int = 0) =
         PlanBuilder.build(BuilderAnswers(days, picks, priorities, variant))
 
     private fun key(name: String) = Library.normalise(name)
+
+    private val defaultNames: Set<String> = SlotKind.entries.flatMap { it.defaults }.map(::key).toSet()
 
     /** Every answer the property checks run over. */
     private val answers: List<BuilderAnswers> by lazy {
@@ -49,12 +57,14 @@ class PlanBuilderTest {
             emptyList(),
             listOf(MuscleGroup.SIDE_DELTS),
             listOf(MuscleGroup.CALVES, MuscleGroup.CHEST),
-            listOf(MuscleGroup.HAMSTRINGS, MuscleGroup.REAR_DELTS, MuscleGroup.TRAPS),
+            listOf(MuscleGroup.HAMSTRINGS, MuscleGroup.REAR_DELTS, MuscleGroup.BICEPS),
         )
         buildList {
             for (days in listOf(three, four)) for ((i, count) in listOf(0, 5, 12, 40).withIndex()) {
                 for ((p, priorities) in prioritySets.withIndex()) for (variant in 0..3) {
-                    add(BuilderAnswers(days, picks(count, seed = 7 + i * 31 + p), priorities, variant))
+                    val drawn = picks(count, seed = 7 + i * 31 + p)
+                    val own = when ((i + p + variant) % 3) { 0 -> emptyList(); 1 -> listOf(ownNoMuscles); else -> listOf(ownWithMuscles, ownNoMuscles) }
+                    add(BuilderAnswers(days, drawn + own, priorities, variant))
                 }
             }
         }
@@ -71,6 +81,8 @@ class PlanBuilderTest {
         return sets to days
     }
 
+    private fun templateSizes(days: Int): List<Int> = if (days == 3) listOf(8, 8, 8) else listOf(8, 6, 8, 6)
+
     // ---- properties over many answers ----
 
     @Test
@@ -79,80 +91,76 @@ class PlanBuilderTest {
     }
 
     @Test
-    fun everySessionHoldsOneToSixExercisesWithNoRepeat() {
+    fun noSessionHoldsAnExerciseTwiceOrRunsLongerThanItsSlotsPlusOneHeldOver() {
         for (a in answers) {
             val draft = PlanBuilder.build(a)
-            assertEquals(a.days.size, draft.sessions.size)
             assertEquals(a.days.sortedBy { it.ordinal }, draft.sessions.map { it.day })
-            for (s in draft.sessions) {
-                assertTrue(s.exercises.size in 1..PlanBuilder.MAX_EXERCISES, "${s.day} has ${s.exercises.size}: $a")
+            val longest = templateSizes(a.days.size).map { it + a.priorities.size + PlanBuilder.HELD_OVER_PER_SESSION }
+            for ((i, s) in draft.sessions.withIndex()) {
                 assertEquals(s.exercises.size, s.exercises.map { key(it.name) }.toSet().size, "repeat on ${s.day}: $a")
+                assertTrue(s.exercises.size <= longest[i], "${s.day} has ${s.exercises.size}: $a")
+                assertTrue(s.exercises.count { it.slot == null } <= PlanBuilder.HELD_OVER_PER_SESSION)
             }
         }
     }
 
     @Test
-    fun everyExerciseIsAPickOrInTheCatalogue() {
+    fun everyExerciseIsAPickOrACatalogueDefault() {
         for (a in answers) {
             val pickNames = a.picks.map { key(it.name) }.toSet()
             for (e in PlanBuilder.build(a).sessions.flatMap { it.exercises }) {
-                assertTrue(key(e.name) in pickNames || (e.inCatalogue && Library.find(e.name) != null), "${e.name}: $a")
+                assertTrue(key(e.name) in pickNames || key(e.name) in defaultNames, "${e.name}: $a")
                 if (e.inCatalogue) assertEquals(Library.find(e.name)!!.muscles, e.muscles)
+                if (e.slot != null && e.mainGroup != null) assertTrue(e.mainGroup in e.slot!!.accepts, "${e.name} in ${e.slot}")
             }
         }
     }
 
     @Test
-    fun everyPickIsPlacedOrLeftOutNeverBothNeverNeither() {
+    fun everyPickIsPlacedOrLeftOutNeverBothNeverNeitherAtMostTwice() {
         for (a in answers) {
             val draft = PlanBuilder.build(a)
-            val placed = draft.sessions.flatMap { s -> s.exercises.map { key(it.name) } }.toSet()
+            val placed = draft.sessions.flatMap { s -> s.exercises.map { key(it.name) } }
             val left = draft.leftOut.map { key(it.name) }
             assertEquals(left.size, left.toSet().size)
             for (p in a.picks) {
-                val inDraft = key(p.name) in placed
+                val times = placed.count { it == key(p.name) }
                 val out = key(p.name) in left
-                assertTrue(inDraft != out, "${p.name} placed=$inDraft leftOut=$out: $a")
+                assertTrue((times > 0) != out, "${p.name} placed $times leftOut=$out: $a")
+                assertTrue(times <= 2, "${p.name} placed $times times: $a")
             }
-            assertTrue(draft.leftOut.all { it.reason == PlanBuilder.NO_ROOM })
+            assertTrue(draft.leftOut.all { it.reason == "No room: every session it fits is full." })
         }
     }
 
     @Test
-    fun onFourDaysEveryExerciseSitsInASessionThatAllowsItsMainGroup() {
+    fun onFourDaysUpperAndLowerGroupsStayOnTheirOwnDays() {
+        val lowerOnly = SlotKind.entries.filter { !it.upper }.flatMap { it.accepts }.toSet()
+        val upperOnly = SlotKind.entries.filter { it.upper }.flatMap { it.accepts }.toSet()
         for (a in answers.filter { it.days.size == 4 }) {
             val draft = PlanBuilder.build(a)
             assertEquals(listOf("Upper", "Lower", "Upper", "Lower"), draft.sessions.map { it.title })
             for (s in draft.sessions) for (e in s.exercises) {
                 val g = e.mainGroup ?: continue
-                val allowed = if (s.title == "Upper") PlanBuilder.UPPER else PlanBuilder.LOWER
-                assertTrue(g in allowed, "${e.name} ($g) on ${s.title}: $a")
+                if (s.title == "Upper") assertTrue(g !in lowerOnly, "${e.name} ($g) on Upper: $a")
+                else assertTrue(g !in upperOnly, "${e.name} ($g) on Lower: $a")
             }
         }
-        for (a in answers.filter { it.days.size == 3 }) {
-            assertTrue(PlanBuilder.build(a).sessions.all { it.title == "Full body" })
-        }
+        for (a in answers.filter { it.days.size == 3 }) assertTrue(PlanBuilder.build(a).sessions.all { it.title == "Full body" })
     }
 
     @Test
-    fun priorityPartFirstThenCompoundsBeforeAccessoriesInEachPart() {
+    fun prescriptionsAndPriorityOrder() {
         for (a in answers) for (s in PlanBuilder.build(a).sessions) {
-            val isPriority = s.exercises.map { it.mainGroup in a.priorities }
-            assertEquals(isPriority.sortedDescending(), isPriority, "priority part not first on ${s.day}: $a")
-            for (part in s.exercises.partition { it.mainGroup in a.priorities }.toList()) {
-                val compound = part.map { it.compound }
-                assertEquals(compound.sortedDescending(), compound, "accessory before compound on ${s.day}: $a")
+            for (e in s.exercises) {
+                assertEquals(8 to 12, e.repsLow to e.repsHigh)
+                assertEquals(8.0, e.rpe)
+                val four = e.mainGroup in a.priorities || e.lead
+                assertEquals(if (four) 4 else 3, e.sets, "${e.name} on ${s.day}: $a")
             }
-        }
-    }
-
-    @Test
-    fun everyPrescriptionIsEightToTwelveAtEightWithFourSetsExactlyForAPriority() {
-        for (a in answers) for (e in PlanBuilder.build(a).sessions.flatMap { it.exercises }) {
-            assertEquals(8, e.repsLow)
-            assertEquals(12, e.repsHigh)
-            assertEquals(8.0, e.rpe)
-            assertEquals(if (e.mainGroup in a.priorities) 4 else 3, e.sets, "${e.name}: $a")
+            assertEquals(1, s.exercises.count { it.lead }, "one lead exercise on ${s.day}: $a")
+            val isPriority = s.exercises.map { it.mainGroup in a.priorities }
+            assertEquals(isPriority.sortedDescending(), isPriority, "priority exercises not first on ${s.day}: $a")
         }
     }
 
@@ -160,8 +168,7 @@ class PlanBuilderTest {
     fun volumeMatchesARecountAndShortMeansUnderTen() {
         for (a in answers) {
             val draft = PlanBuilder.build(a)
-            val expectedGroups = PlanBuilder.TARGET_GROUPS + a.priorities.filter { it !in PlanBuilder.TARGET_GROUPS }
-            assertEquals(expectedGroups, draft.volume.map { it.group })
+            assertEquals(PlanBuilder.TARGET_GROUPS, draft.volume.map { it.group })
             for (v in draft.volume) {
                 assertEquals(recount(draft.sessions, v.group), v.weeklySets to v.days, "${v.group}: $a")
                 assertEquals(v.weeklySets < PlanBuilder.WEEKLY_SETS, v.short)
@@ -169,122 +176,186 @@ class PlanBuilderTest {
         }
     }
 
-    // ---- fixed cases ----
-
-    /** Weekly sets and days per target group with no picks, as the rules give them (see the stage 2 task 1 report). */
-    private fun table(draft: PlanDraft) = draft.volume.associate { it.group to (it.weeklySets to it.days) }
-
+    /** With no picks, each single priority raises its own group and lowers none. */
     @Test
-    fun noPicksOnThreeDaysFillsThreeSessionsOfSix() {
-        val draft = build(three)
-        assertEquals(listOf(6, 6, 6), draft.sessions.map { it.exercises.size })
-        assertTrue(draft.leftOut.isEmpty())
-        assertEquals(NO_PICKS_THREE, table(draft))
-        // The frequency aim is reached; the sets aim is not: 18 places of 3 sets cannot give 12 groups 10 each.
-        assertTrue(draft.volume.all { it.days >= 2 })
-    }
-
-    @Test
-    fun noPicksOnFourDaysFillsFourSessionsOfSix() {
-        val draft = build(four)
-        assertEquals(listOf(6, 6, 6, 6), draft.sessions.map { it.exercises.size })
-        assertEquals(NO_PICKS_FOUR, table(draft))
-        assertTrue(draft.volume.all { it.days >= 2 })
-    }
-
-    @Test
-    fun aSideDeltPriorityComesFirstWithFourSets() {
+    fun withNoPicksAPriorityRaisesItsGroupAndLowersNone() {
         for (days in listOf(three, four)) {
-            val without = build(days)
-            val with = build(days, priorities = listOf(MuscleGroup.SIDE_DELTS))
-            val sessionsWithSideDelts = with.sessions.filter { s -> s.exercises.any { it.mainGroup == MuscleGroup.SIDE_DELTS } }
-            assertTrue(sessionsWithSideDelts.isNotEmpty())
-            for (s in sessionsWithSideDelts) {
-                assertEquals(MuscleGroup.SIDE_DELTS, s.exercises.first().mainGroup, "${s.day}")
-                assertEquals(4, s.exercises.first().sets)
+            val without = build(days).volume.associate { it.group to it.weeklySets }
+            for (g in PlanBuilder.TARGET_GROUPS) {
+                val with = build(days, priorities = listOf(g)).volume.associate { it.group to it.weeklySets }
+                for (other in PlanBuilder.TARGET_GROUPS) assertTrue(with.getValue(other) >= without.getValue(other), "$g lowers $other on $days")
+                assertTrue(with.getValue(g) > without.getValue(g), "$g on $days")
+                // Every priority reaches 10, except rear delts on 3 days: one REAR_DELT slot plus the added one is 4 + 4.
+                if (days == three && g == MuscleGroup.REAR_DELTS) assertEquals(3 to 8, without.getValue(g) to with.getValue(g))
+                else assertTrue(with.getValue(g) >= PlanBuilder.WEEKLY_SETS, "$g reaches ${with[g]} on $days")
             }
         }
     }
 
     /**
-     * What the rules give a side-delt priority with no picks. On 3 days it gains sets (8 against 6). On 4 days it does
-     * not (8 against 9): its 4-set exercise placed twice leaves a shortfall of 2, smaller than the others', so step 3
-     * never adds a third; without the priority, 3 sets twice leaves 4 and a third is added. Reported for the owner.
+     * With picks the rules do not keep either promise; these record what they give (stage 2 task 1 report). A
+     * priority re-orders the picks, so a pick's second placement can land in another slot: here Pull-up takes the ROW
+     * slot that held Seated cable row, and upper back falls from 6 to 3.
      */
     @Test
-    fun aSideDeltPriorityWeeklySetsAsTheRulesGiveThem() {
-        fun sideDelts(d: PlanDraft) = d.volume.single { it.group == MuscleGroup.SIDE_DELTS }.weeklySets
-        val side = listOf(MuscleGroup.SIDE_DELTS)
-        assertEquals(6 to 8, sideDelts(build(three)) to sideDelts(build(three, priorities = side)))
-        assertEquals(9 to 8, sideDelts(build(four)) to sideDelts(build(four, priorities = side)))
+    fun withPicksAPriorityCanLowerAnotherGroup() {
+        val chosen = listOf("Pull-up", "Incline machine press", "Machine hip adduction", "Ab wheel rollout", "Clap push-up").map(::pick)
+        fun upperBack(d: PlanDraft) = d.volume.single { it.group == MuscleGroup.UPPER_BACK }.weeklySets
+        val priorities = listOf(MuscleGroup.CALVES, MuscleGroup.CHEST)
+        assertEquals(6 to 3, upperBack(build(three, chosen)) to upperBack(build(three, chosen, priorities)))
+    }
+
+    /** REAR_DELT slots also take trap picks, so shrugs fill the added slot and rear delts stay at 0. */
+    @Test
+    fun withPicksAPriorityCanLeaveItsOwnGroupUnraised() {
+        val shrugs = listOf("Barbell shrug", "DB shrug").map(::pick)
+        fun rearDelts(d: PlanDraft) = d.volume.single { it.group == MuscleGroup.REAR_DELTS }.weeklySets
+        assertEquals(0 to 0, rearDelts(build(three, shrugs)) to rearDelts(build(three, shrugs, listOf(MuscleGroup.REAR_DELTS))))
+    }
+
+    // ---- fixed cases ----
+
+    @Test
+    fun everyDefaultIsInTheCatalogueUnderAMainGroupItsKindAccepts() {
+        assertEquals(16, SlotKind.entries.size)
+        for (kind in SlotKind.entries) {
+            assertTrue(kind.defaults.size >= 4, "$kind")
+            for (name in kind.defaults) {
+                val e = Library.all().singleOrNull { it.name == name }
+                assertTrue(e != null, "$kind: '$name' is not a catalogue name")
+                assertTrue(PlanBuilder.mainGroup(e.muscles) in kind.accepts, "$kind: $name works ${PlanBuilder.mainGroup(e.muscles)} first")
+            }
+        }
+    }
+
+    private fun names(d: PlanDraft) = d.sessions.map { s -> s.exercises.map { it.name } }
+
+    private fun table(d: PlanDraft) = d.volume.associate { it.group to (it.weeklySets to it.days) }
+
+    @Test
+    fun noPicksOnThreeDaysIsTheTemplateWithItsFirstDefaults() {
+        val draft = build(three)
+        assertEquals(
+            listOf(
+                listOf("Leg press", "DB press", "Lat pulldown", "Seated leg curl", "Lateral raise", "DB curl", "Rope pushdown", "Cable crunch"),
+                listOf("RDL", "Incline DB press", "Seated cable row", "Leg extension", "DB shoulder press", "Face pull", "Standing calf raise", "DB curl"),
+                listOf("Leg press", "Cable crossover", "Lat pulldown", "RDL", "Lateral raise", "Rope pushdown", "Standing calf raise", "Cable crunch"),
+            ),
+            names(draft),
+        )
+        assertTrue(draft.leftOut.isEmpty())
+        assertEquals(NO_PICKS_THREE, table(draft))
     }
 
     @Test
-    fun fortyPicksOnThreeDaysFillEighteenPlacesAndNameTwentyTwoLeftOut() {
+    fun noPicksOnFourDaysIsTheTemplateWithItsFirstDefaults() {
+        val draft = build(four)
+        assertEquals(
+            listOf(
+                listOf("DB press", "Seated cable row", "DB shoulder press", "Lat pulldown", "Lateral raise", "Face pull", "DB curl", "Rope pushdown"),
+                listOf("Leg press", "RDL", "Leg extension", "Seated leg curl", "Standing calf raise", "Cable crunch"),
+                listOf("Incline DB press", "Lat pulldown", "Cable crossover", "Seated cable row", "Lateral raise", "Face pull", "Rope pushdown", "DB curl"),
+                listOf("RDL", "Leg press", "Seated leg curl", "Leg extension", "Standing calf raise", "Cable crunch"),
+            ),
+            names(draft),
+        )
+        assertEquals(NO_PICKS_FOUR, table(draft))
+    }
+
+    @Test
+    fun aSideDeltPriorityAddsASlotComesFirstWithFourSetsAndReachesTen() {
+        for (days in listOf(three, four)) {
+            val without = build(days)
+            val with = build(days, priorities = listOf(MuscleGroup.SIDE_DELTS))
+            fun count(d: PlanDraft) = d.sessions.sumOf { s -> s.exercises.count { it.mainGroup == MuscleGroup.SIDE_DELTS } }
+            assertEquals(count(without) + 1, count(with))
+            for (s in with.sessions.filter { s -> s.exercises.any { it.mainGroup == MuscleGroup.SIDE_DELTS } }) {
+                assertEquals(MuscleGroup.SIDE_DELTS, s.exercises.first().mainGroup, "${s.day}")
+                assertTrue(s.exercises.filter { it.mainGroup == MuscleGroup.SIDE_DELTS }.all { it.sets == 4 })
+            }
+            fun sideDelts(d: PlanDraft) = d.volume.single { it.group == MuscleGroup.SIDE_DELTS }.weeklySets
+            assertTrue(sideDelts(with) > sideDelts(without), "${sideDelts(with)} vs ${sideDelts(without)}")
+            assertTrue(sideDelts(with) >= 10, "${sideDelts(with)}")
+        }
+    }
+
+    @Test
+    fun fivePicksLandInSlotsThatAcceptThemAndAppearTwiceWhereASecondSlotExists() {
+        val five = listOf("Bench", "Row", "Hack squat", "Hip thrust", "Cable curl").map(::pick)
+        for (days in listOf(three, four)) {
+            val draft = build(days, five)
+            assertTrue(draft.leftOut.isEmpty())
+            for (p in five) {
+                val placed = draft.sessions.flatMap { it.exercises }.filter { it.name == p.name }
+                val group = PlanBuilder.mainGroup(p.muscles)!!
+                assertTrue(placed.all { it.slot != null && group in it.slot!!.accepts }, "${p.name}: $placed")
+                // Each of these has an accepting slot on at least two days of both templates.
+                assertEquals(2, placed.size, "${p.name} on $days")
+            }
+        }
+    }
+
+    @Test
+    fun fortyPicksOnThreeDaysLeaveOutOnlyWhatHasNoSlotAndNoHeldOverPlace() {
         val forty = picks(40, seed = 11)
         val draft = build(three, forty)
-        assertEquals(18, draft.sessions.sumOf { it.exercises.size })
-        assertEquals(22, draft.leftOut.size)
-        assertTrue(draft.leftOut.all { it.reason == "No room: every session it fits is full." })
-        val placed = draft.sessions.flatMap { s -> s.exercises.map { it.name } }
-        assertTrue(placed.all { n -> forty.any { it.name == n } }, "only picks fill a full week")
+        val placed = draft.sessions.flatMap { s -> s.exercises.map { it.name } }.toSet()
+        assertEquals(forty.map { it.name }.filter { it !in placed }.toSet(), draft.leftOut.map { it.name }.toSet())
+        assertTrue(draft.leftOut.isNotEmpty())
+        // With picks left out, every session has taken its one held-over pick.
+        assertTrue(draft.sessions.all { s -> s.exercises.count { it.slot == null } == 1 })
+        assertTrue(draft.leftOut.all { it.reason == PlanBuilder.NO_ROOM })
     }
 
     @Test
-    fun threePrioritiesOnThreeFullDaysStillComeFirstWithExtraSets() {
-        val priorities = listOf(MuscleGroup.BICEPS, MuscleGroup.CALVES, MuscleGroup.REAR_DELTS)
-        val draft = build(three, picks(40, seed = 3), priorities)
-        val placed = draft.sessions.flatMap { it.exercises }
-        val forty = picks(40, seed = 3)
-        // Every priority pick is placed before any other pick could take its room.
-        val priorityPicks = forty.filter { PlanBuilder.mainGroup(it.muscles) in priorities }
-        assertTrue(priorityPicks.isNotEmpty())
-        assertTrue(priorityPicks.size <= 18)
-        assertTrue(priorityPicks.all { p -> placed.any { it.name == p.name } }, "every priority pick is placed first")
-        for (e in placed) assertEquals(if (e.mainGroup in priorities) 4 else 3, e.sets)
-        assertTrue(draft.volume.any { it.short }, "the draft says what fell short")
-    }
-
-    @Test
-    fun anOwnExerciseWithNoMusclesIsPlacedLastAndCountsForNothing() {
-        val own = BuilderPick("Sled push my way", emptyList(), compound = false, equipment = emptyList(), inCatalogue = false)
+    fun anOwnExerciseWithNoMusclesIsHeldOverLastAndCountsForNothing() {
         for (days in listOf(three, four)) {
-            val draft = build(days, picks(5, seed = 1) + own)
-            val session = draft.sessions.single { s -> s.exercises.any { it.name == own.name } }
+            val draft = build(days, picks(5, seed = 1) + ownNoMuscles)
+            val session = draft.sessions.single { s -> s.exercises.any { it.name == ownNoMuscles.name } }
             val e = session.exercises.last()
-            assertEquals(own.name, e.name)
-            assertEquals(null, e.mainGroup)
+            assertEquals(ownNoMuscles.name, e.name)
+            assertNull(e.mainGroup)
+            assertNull(e.slot)
             assertEquals(false, e.inCatalogue)
             assertEquals(3, e.sets)
-            val without = draft.sessions.map { s -> s.copy(exercises = s.exercises.filter { it.name != own.name }) }
+            val without = draft.sessions.map { s -> s.copy(exercises = s.exercises.filter { it.name != ownNoMuscles.name }) }
             for (v in draft.volume) assertEquals(recount(without, v.group).first, v.weeklySets)
         }
     }
 
     @Test
-    fun anotherDraftChangesOnlyTheCatalogueDefaults() {
+    fun anotherDraftChangesOnlyTheDefaults() {
         for (days in listOf(three, four)) for (chosen in listOf(emptyList(), picks(5, seed = 9))) {
             val v0 = build(days, chosen, variant = 0)
             val v1 = build(days, chosen, variant = 1)
             assertNotEquals(v0, v1)
             assertEquals(v0.leftOut, v1.leftOut)
             val pickNames = chosen.map { key(it.name) }.toSet()
-            fun placedPicks(d: PlanDraft) = d.sessions.flatMap { s -> s.exercises.map { key(it.name) } }.filter { it in pickNames }.toSet()
-            assertEquals(placedPicks(v0), placedPicks(v1))
+            fun pickPlaces(d: PlanDraft) = d.sessions.map { s -> s.exercises.filter { key(it.name) in pickNames }.map { it.name to it.slot }.toSet() }
+            assertEquals(pickPlaces(v0), pickPlaces(v1))
+            fun slots(d: PlanDraft) = d.sessions.map { s -> s.exercises.map { it.slot }.toSet() }
+            assertEquals(slots(v0), slots(v1))
         }
     }
 
     @Test
-    fun alternativesShareTheMainGroupAndAreNeverInTheDraft() {
-        val chosen = picks(5, seed = 4)
-        val draft = build(four, chosen)
-        val inDraft = draft.sessions.flatMap { s -> s.exercises.map { key(it.name) } }.toSet()
-        for (e in draft.sessions.flatMap { it.exercises }.filter { it.mainGroup != null }) {
-            val alts = PlanBuilder.alternatives(e.name, draft, chosen)
-            assertTrue(alts.isNotEmpty(), e.name)
-            for (alt in alts) {
-                assertEquals(e.mainGroup, PlanBuilder.mainGroup(alt.muscles))
-                assertTrue(key(alt.name) !in inDraft)
+    fun alternativesStartWithTheKindsDefaultsAndAreNeverInThatSession() {
+        val chosen = picks(5, seed = 4) + ownWithMuscles
+        for (days in listOf(three, four)) {
+            val draft = build(days, chosen)
+            for (s in draft.sessions) for (e in s.exercises) {
+                val alts = PlanBuilder.alternatives(e.name, draft, chosen, s.day)
+                val inSession = s.exercises.map { key(it.name) }.toSet()
+                assertTrue(alts.none { key(it.name) in inSession }, "${e.name} on ${s.day}")
+                val kind = e.slot
+                if (kind != null) {
+                    assertTrue(alts.all { PlanBuilder.mainGroup(it.muscles) in kind.accepts })
+                    val defaultsLeft = kind.defaults.filter { key(it) !in inSession }.map(::key).toSet()
+                    assertEquals(defaultsLeft, alts.take(defaultsLeft.size).map { key(it.name) }.toSet(), "${e.name} ($kind)")
+                } else if (e.mainGroup != null) {
+                    assertTrue(alts.isNotEmpty())
+                    assertTrue(alts.all { PlanBuilder.mainGroup(it.muscles) == e.mainGroup })
+                }
             }
         }
     }
@@ -293,29 +364,32 @@ class PlanBuilderTest {
     fun swapKeepsThePlaceAndSetsAndRecountsTheVolume() {
         val draft = build(three, priorities = listOf(MuscleGroup.CHEST))
         val session = draft.sessions[1]
-        val index = 2
-        val from = session.exercises[index]
-        val to = PlanBuilder.alternatives(from.name, draft, emptyList()).first()
-        val swapped = PlanBuilder.swap(draft, session.day, from.name, to.name)
-        val after = swapped.sessions[1].exercises[index]
-        assertEquals(to.name, after.name)
-        assertEquals(from.sets, after.sets)
-        assertEquals(from.repsLow to from.repsHigh, after.repsLow to after.repsHigh)
-        assertEquals(from.rpe, after.rpe)
-        assertEquals(draft.sessions[0], swapped.sessions[0])
-        assertEquals(draft.sessions[2], swapped.sessions[2])
-        for (v in swapped.volume) assertEquals(recount(swapped.sessions, v.group), v.weeklySets to v.days)
-        assertFailsWith<IllegalArgumentException> { PlanBuilder.swap(draft, SATURDAY, from.name, to.name) }
+        for (index in listOf(0, 3)) {
+            val from = session.exercises[index]
+            val to = PlanBuilder.alternatives(from.name, draft, emptyList(), session.day).first()
+            val swapped = PlanBuilder.swap(draft, session.day, from.name, to.name)
+            val after = swapped.sessions[1].exercises[index]
+            assertEquals(to.name, after.name)
+            assertEquals(from.sets, after.sets)
+            assertEquals(from.slot, after.slot)
+            assertEquals(from.lead, after.lead)
+            assertEquals(from.repsLow to from.repsHigh, after.repsLow to after.repsHigh)
+            assertEquals(draft.sessions[0], swapped.sessions[0])
+            assertEquals(draft.sessions[2], swapped.sessions[2])
+            for (v in swapped.volume) assertEquals(recount(swapped.sessions, v.group), v.weeklySets to v.days)
+            assertFailsWith<IllegalArgumentException> { PlanBuilder.swap(draft, SATURDAY, from.name, to.name) }
+        }
     }
 
     @Test
-    fun buildRejectsTwoAndFiveDaysAndRepeatedDays() {
+    fun buildRejectsBadAnswers() {
         assertFailsWith<IllegalArgumentException> { build(listOf(MONDAY, THURSDAY)) }
         assertFailsWith<IllegalArgumentException> { build(listOf(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)) }
         assertFailsWith<IllegalArgumentException> { build(listOf(MONDAY, MONDAY, FRIDAY)) }
         assertFailsWith<IllegalArgumentException> {
             build(three, priorities = listOf(MuscleGroup.CHEST, MuscleGroup.LATS, MuscleGroup.QUADS, MuscleGroup.ABS))
         }
+        assertFailsWith<IllegalArgumentException> { build(three, priorities = listOf(MuscleGroup.TRAPS)) }
     }
 
     @Test
@@ -353,8 +427,7 @@ class PlanBuilderTest {
             PlanItem(4, TUESDAY, 2, 3, 8, 8.0, 0, TrainingMode.BODYBUILDING, 12),
             PlanItem(5, TUESDAY, 9, 3, 8, 8.0, 1, TrainingMode.BODYBUILDING, 12),
         )
-        val ids = PlanBuilder.suggestedPicks(history, plans, today)
-        assertEquals(listOf(3L, 2L, 1L, 4L, 5L, 6L), ids)
+        assertEquals(listOf(3L, 2L, 1L, 4L, 5L, 6L), PlanBuilder.suggestedPicks(history, plans, today))
     }
 
     companion object {
@@ -362,18 +435,18 @@ class PlanBuilderTest {
 
         /** No picks, 3 days, no priorities: weekly sets to days, as the rules give them (stage 2 task 1 report). */
         val NO_PICKS_THREE = t(
-            MuscleGroup.CHEST to (9 to 3), MuscleGroup.LATS to (9 to 3), MuscleGroup.QUADS to (6 to 2),
-            MuscleGroup.HAMSTRINGS to (6 to 2), MuscleGroup.GLUTES to (12 to 2), MuscleGroup.SIDE_DELTS to (6 to 2),
-            MuscleGroup.UPPER_BACK to (9 to 2), MuscleGroup.BICEPS to (6 to 2), MuscleGroup.TRICEPS to (9 to 3),
-            MuscleGroup.CALVES to (6 to 2), MuscleGroup.ABS to (6 to 2), MuscleGroup.REAR_DELTS to (6 to 2),
+            MuscleGroup.CHEST to (9 to 3), MuscleGroup.LATS to (16 to 3), MuscleGroup.QUADS to (11 to 3),
+            MuscleGroup.HAMSTRINGS to (10 to 3), MuscleGroup.GLUTES to (15 to 3), MuscleGroup.SIDE_DELTS to (9 to 3),
+            MuscleGroup.UPPER_BACK to (13 to 2), MuscleGroup.BICEPS to (12 to 3), MuscleGroup.TRICEPS to (12 to 3),
+            MuscleGroup.CALVES to (6 to 2), MuscleGroup.ABS to (6 to 2), MuscleGroup.REAR_DELTS to (3 to 1),
         )
 
         /** No picks, 4 days, no priorities. */
         val NO_PICKS_FOUR = t(
-            MuscleGroup.CHEST to (9 to 2), MuscleGroup.LATS to (12 to 3), MuscleGroup.QUADS to (9 to 2),
-            MuscleGroup.HAMSTRINGS to (9 to 2), MuscleGroup.GLUTES to (15 to 2), MuscleGroup.SIDE_DELTS to (9 to 2),
-            MuscleGroup.UPPER_BACK to (9 to 2), MuscleGroup.BICEPS to (9 to 2), MuscleGroup.TRICEPS to (6 to 2),
-            MuscleGroup.CALVES to (9 to 2), MuscleGroup.ABS to (9 to 2), MuscleGroup.REAR_DELTS to (6 to 2),
+            MuscleGroup.CHEST to (11 to 2), MuscleGroup.LATS to (19 to 4), MuscleGroup.QUADS to (13 to 2),
+            MuscleGroup.HAMSTRINGS to (13 to 2), MuscleGroup.GLUTES to (14 to 2), MuscleGroup.SIDE_DELTS to (9 to 2),
+            MuscleGroup.UPPER_BACK to (19 to 4), MuscleGroup.BICEPS to (12 to 2), MuscleGroup.TRICEPS to (13 to 2),
+            MuscleGroup.CALVES to (6 to 2), MuscleGroup.ABS to (6 to 2), MuscleGroup.REAR_DELTS to (6 to 2),
         )
     }
 }

@@ -81,11 +81,14 @@ object CoachSources {
      *
      * Checked on 2026-11-13 by a web search restricted to the allowed sources; the page itself was not opened.
      *
-     * Not sourced, the designer's own numbers, flagged for the owner: at most 6 exercises a session
-     * ([com.powertracker.domain.plan.PlanBuilder.MAX_EXERCISES]); 4 sets for an exercise whose main group is a
-     * priority where the rest get 3 ([com.powertracker.domain.plan.PlanBuilder.PRIORITY_SETS]); at most 3 priority
-     * body parts ([com.powertracker.domain.plan.PlanBuilder.MAX_PRIORITIES]). The 3 sets of 8-12 at RPE 8 are the
-     * owner's and need no source.
+     * Not sourced, the designer's own numbers, flagged for the owner: the session templates and their sizes (8
+     * exercises on a full-body day, 8 on an upper day, 6 on a lower day) and at most one held-over pick a session
+     * ([com.powertracker.domain.plan.PlanBuilder.HELD_OVER_PER_SESSION]); 4 sets for a session's first exercise and
+     * for a priority body part's exercises where the rest get 3 ([com.powertracker.domain.plan.PlanBuilder.LEAD_SETS],
+     * [com.powertracker.domain.plan.PlanBuilder.PRIORITY_SETS]); at most 3 priority body parts, chosen from the 12
+     * target groups ([com.powertracker.domain.plan.PlanBuilder.MAX_PRIORITIES]); the hand-picked default exercises
+     * ([com.powertracker.domain.plan.PlanBuilder.SlotKind]). The 3 sets of 8-12 at RPE 8 are the owner's and need no
+     * source.
      */
     val BUILDER_ORDER = Source(
         title = "Weight Training Guidelines (summarising the ACSM 2026 position stand on resistance training)",

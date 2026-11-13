@@ -40,14 +40,17 @@ class PlanBuilderBridgeTest {
         assertEquals(4, draft.sessions[0].exercises[0].sets)
         assertEquals(12, draft.volume.size)
         assertEquals("CHEST", draft.volume[0].group)
-        assertTrue(draft.sessions.flatMap { it.exercises.toList() }.any { it.name == "My sled push" && it.mainGroup == null })
+        val held = draft.sessions.flatMap { it.exercises.toList() }.single { it.name == "My sled push" }
+        assertEquals(null, held.mainGroup)
+        assertEquals(null, held.slot)
+        assertEquals("CHEST_PRESS", draft.sessions[0].exercises.single { it.lead }.slot)
     }
 
     @Test
     fun alternativesAndSwapCrossTheBoundary() {
         val draft = GritDomain.planBuilderBuild(arrayOf(1, 3, 5), jsPicks, emptyArray(), 0)
         val from = draft.sessions[0].exercises[0]
-        val alts = GritDomain.planBuilderAlternatives(from.name, draft, jsPicks)
+        val alts = GritDomain.planBuilderAlternatives(from.name, draft, jsPicks, 1)
         assertTrue(alts.isNotEmpty())
         val swapped = GritDomain.planBuilderSwap(draft, 1, from.name, alts[0].name)
         assertEquals(alts[0].name, swapped.sessions[0].exercises[0].name)
@@ -60,7 +63,10 @@ class PlanBuilderBridgeTest {
         assertFailsWith<IllegalArgumentException> { GritDomain.planBuilderBuild(arrayOf(1, 3), jsPicks, emptyArray(), 0) }
         assertFailsWith<IllegalArgumentException> { GritDomain.planBuilderBuild(arrayOf(1, 3, 8), jsPicks, emptyArray(), 0) }
         assertFailsWith<IllegalArgumentException> { GritDomain.planBuilderBuild(arrayOf(1, 3, 5), jsPicks, arrayOf("Chest"), 0) }
+        assertFailsWith<IllegalArgumentException> { GritDomain.planBuilderBuild(arrayOf(1, 3, 5), jsPicks, arrayOf("TRAPS"), 0) }
         assertEquals(3, GritDomain.planBuilderMaxPriorities())
+        assertEquals(12, GritDomain.planBuilderTargetGroups().size)
+        assertEquals("CHEST", GritDomain.planBuilderTargetGroups()[0])
     }
 
     @Test

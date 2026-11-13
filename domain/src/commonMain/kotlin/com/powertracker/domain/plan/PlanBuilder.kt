@@ -15,25 +15,26 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 
 /**
- * The bodybuilding plan builder (stage 2 plan, "The rules"): a pure function from the lifter's answers to a draft
- * week. The same answers always give the same draft. Sources for its numbers are in `coach/CoachSources.kt`
- * (BUILDER_WEEKLY_SETS, BUILDER_FREQUENCY, BUILDER_ORDER).
+ * The bodybuilding plan builder (stage 2 plan, "The rules", as revised to session templates): a pure function from the
+ * lifter's answers to a draft week. The same answers always give the same draft. Sources for its numbers are in
+ * `coach/CoachSources.kt` (BUILDER_WEEKLY_SETS, BUILDER_FREQUENCY, BUILDER_ORDER); the templates, their sizes, the
+ * held-over place, the 4 sets and the default exercises are the designer's, not sourced.
  */
 object PlanBuilder {
-    /** At most this many exercises a session. The designer's number, not sourced (CoachSources.BUILDER_ORDER). */
-    const val MAX_EXERCISES = 6
-
     /** Counted sets a week each target group aims at: ACSM 2026, >= 10 sets per muscle group (CoachSources.BUILDER_WEEKLY_SETS). */
     const val WEEKLY_SETS = 10
 
-    /** Days a week each target group aims to be trained on: ACSM 2026, at least twice (CoachSources.BUILDER_FREQUENCY). */
-    const val WEEKLY_DAYS = 2
-
-    /** At most this many priority groups. The designer's number, not sourced. */
+    /** At most this many priority groups, each a target group. The designer's number, not sourced. */
     const val MAX_PRIORITIES = 3
+
+    /** Picks a session takes beyond its slots. The designer's number, not sourced. */
+    const val HELD_OVER_PER_SESSION = 1
 
     /** The owner's 3 sets of 8-12 at RPE 8. */
     const val SETS = 3
+
+    /** Sets for the exercise in a session's first template slot. The designer's number, not sourced. */
+    const val LEAD_SETS = 4
 
     /** Sets for an exercise whose main group is a priority. The designer's number, not sourced. */
     const val PRIORITY_SETS = 4
@@ -55,23 +56,58 @@ object PlanBuilder {
         MuscleGroup.ABS, MuscleGroup.REAR_DELTS,
     )
 
-    /** The groups an upper session allows on 4 days. */
-    val UPPER: Set<MuscleGroup> = setOf(
-        MuscleGroup.CHEST, MuscleGroup.LATS, MuscleGroup.UPPER_BACK, MuscleGroup.TRAPS, MuscleGroup.FRONT_DELTS,
-        MuscleGroup.SIDE_DELTS, MuscleGroup.REAR_DELTS, MuscleGroup.BICEPS, MuscleGroup.TRICEPS, MuscleGroup.FOREARMS,
+    /**
+     * A kind of template slot: the main groups whose picks it takes, whether it belongs to an upper session on 4 days,
+     * and its catalogue defaults by exact name, in order (hand-picked by the designer, not sourced).
+     */
+    enum class SlotKind(val accepts: Set<MuscleGroup>, val upper: Boolean, val defaults: List<String>) {
+        CHEST_PRESS(setOf(MuscleGroup.CHEST), true, listOf("DB press", "Machine chest press", "Bench", "Smith bench press")),
+        CHEST_INCLINE(setOf(MuscleGroup.CHEST), true, listOf("Incline DB press", "Incline bench press", "Incline machine press", "Smith incline press")),
+        CHEST_FLY(setOf(MuscleGroup.CHEST), true, listOf("Cable crossover", "Pec deck", "DB fly", "Seated cable fly")),
+        PULL_DOWN(setOf(MuscleGroup.LATS), true, listOf("Lat pulldown", "Pull-up", "Machine pulldown", "Chin-up", "Close-grip pulldown")),
+        ROW(
+            setOf(MuscleGroup.UPPER_BACK, MuscleGroup.LATS), true,
+            listOf("Seated cable row", "One-arm DB row", "Machine row", "Chest-supported row", "Row", "T-bar row"),
+        ),
+        QUAD_COMPOUND(setOf(MuscleGroup.QUADS, MuscleGroup.ADDUCTORS), false, listOf("Leg press", "Hack squat", "Squat", "Goblet squat", "Smith squat")),
+        QUAD_ISOLATION(setOf(MuscleGroup.QUADS, MuscleGroup.ADDUCTORS), false, listOf("Leg extension", "Bulgarian split squat", "Split squat", "Lunge")),
+        HINGE(
+            setOf(MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES, MuscleGroup.LOWER_BACK), false,
+            listOf("RDL", "DB RDL", "Hip thrust", "Stiff-leg deadlift", "Machine hip thrust"),
+        ),
+        LEG_CURL(setOf(MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES), false, listOf("Seated leg curl", "Lying leg curl", "Standing leg curl", "Cable leg curl")),
+        SHOULDER_PRESS(setOf(MuscleGroup.FRONT_DELTS), true, listOf("DB shoulder press", "Machine shoulder press", "Seated barbell press", "Arnold press")),
+        SIDE_DELT(setOf(MuscleGroup.SIDE_DELTS), true, listOf("Lateral raise", "Cable lateral raise", "Machine lateral raise", "Seated lateral raise")),
+        REAR_DELT(setOf(MuscleGroup.REAR_DELTS, MuscleGroup.TRAPS), true, listOf("Face pull", "Rear delt raise", "Machine reverse fly", "Cable reverse fly")),
+        BICEPS(setOf(MuscleGroup.BICEPS, MuscleGroup.FOREARMS), true, listOf("DB curl", "Cable curl", "EZ-bar curl", "Incline DB curl", "Machine curl")),
+        TRICEPS(setOf(MuscleGroup.TRICEPS), true, listOf("Rope pushdown", "Triceps pushdown", "DB overhead triceps extension", "Skull crusher")),
+        CALVES(setOf(MuscleGroup.CALVES), false, listOf("Standing calf raise", "Seated calf raise", "Leg press calf raise", "Dumbbell calf raise")),
+        ABS(setOf(MuscleGroup.ABS, MuscleGroup.OBLIQUES), false, listOf("Cable crunch", "Machine crunch", "Reverse crunch", "Ab wheel rollout")),
+    }
+
+    /** The slot each priority adds. */
+    private val PRIORITY_SLOT: Map<MuscleGroup, SlotKind> = mapOf(
+        MuscleGroup.CHEST to SlotKind.CHEST_FLY, MuscleGroup.LATS to SlotKind.PULL_DOWN, MuscleGroup.UPPER_BACK to SlotKind.ROW,
+        MuscleGroup.QUADS to SlotKind.QUAD_ISOLATION, MuscleGroup.HAMSTRINGS to SlotKind.LEG_CURL, MuscleGroup.GLUTES to SlotKind.HINGE,
+        MuscleGroup.SIDE_DELTS to SlotKind.SIDE_DELT, MuscleGroup.REAR_DELTS to SlotKind.REAR_DELT, MuscleGroup.BICEPS to SlotKind.BICEPS,
+        MuscleGroup.TRICEPS to SlotKind.TRICEPS, MuscleGroup.CALVES to SlotKind.CALVES, MuscleGroup.ABS to SlotKind.ABS,
     )
 
-    /** The groups a lower session allows on 4 days. */
-    val LOWER: Set<MuscleGroup> = setOf(
-        MuscleGroup.QUADS, MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES, MuscleGroup.ADDUCTORS, MuscleGroup.CALVES,
-        MuscleGroup.LOWER_BACK, MuscleGroup.ABS, MuscleGroup.OBLIQUES,
+    private val FULL_BODY_TEMPLATES: List<List<SlotKind>> = listOf(
+        listOf(SlotKind.QUAD_COMPOUND, SlotKind.CHEST_PRESS, SlotKind.PULL_DOWN, SlotKind.LEG_CURL, SlotKind.SIDE_DELT, SlotKind.BICEPS, SlotKind.TRICEPS, SlotKind.ABS),
+        listOf(SlotKind.HINGE, SlotKind.CHEST_INCLINE, SlotKind.ROW, SlotKind.QUAD_ISOLATION, SlotKind.SHOULDER_PRESS, SlotKind.REAR_DELT, SlotKind.CALVES, SlotKind.BICEPS),
+        listOf(SlotKind.QUAD_COMPOUND, SlotKind.CHEST_FLY, SlotKind.PULL_DOWN, SlotKind.HINGE, SlotKind.SIDE_DELT, SlotKind.TRICEPS, SlotKind.CALVES, SlotKind.ABS),
     )
 
-    /** The fixed equipment order for catalogue defaults, after the equipment the picks use. */
-    private val EQUIPMENT_ORDER = listOf(
-        Equipment.BARBELL, Equipment.DUMBBELL, Equipment.MACHINE, Equipment.CABLE, Equipment.BODYWEIGHT,
-        Equipment.SMITH, Equipment.KETTLEBELL, Equipment.BAND, Equipment.SPECIALTY_BAR,
+    /** Upper, lower, upper, lower. */
+    private val UPPER_LOWER_TEMPLATES: List<List<SlotKind>> = listOf(
+        listOf(SlotKind.CHEST_PRESS, SlotKind.ROW, SlotKind.SHOULDER_PRESS, SlotKind.PULL_DOWN, SlotKind.SIDE_DELT, SlotKind.REAR_DELT, SlotKind.BICEPS, SlotKind.TRICEPS),
+        listOf(SlotKind.QUAD_COMPOUND, SlotKind.HINGE, SlotKind.QUAD_ISOLATION, SlotKind.LEG_CURL, SlotKind.CALVES, SlotKind.ABS),
+        listOf(SlotKind.CHEST_INCLINE, SlotKind.PULL_DOWN, SlotKind.CHEST_FLY, SlotKind.ROW, SlotKind.SIDE_DELT, SlotKind.REAR_DELT, SlotKind.TRICEPS, SlotKind.BICEPS),
+        listOf(SlotKind.HINGE, SlotKind.QUAD_COMPOUND, SlotKind.LEG_CURL, SlotKind.QUAD_ISOLATION, SlotKind.CALVES, SlotKind.ABS),
     )
+
+    private val UPPER_GROUPS: Set<MuscleGroup> = SlotKind.entries.filter { it.upper }.flatMap { it.accepts }.toSet()
 
     /** How many days before today a logged exercise is still pre-ticked. */
     private const val SUGGEST_DAYS = 28
@@ -82,28 +118,31 @@ object PlanBuilder {
     // ---- building ----
 
     /** An exercise while the draft is built. */
-    private class Item(
-        val name: String,
-        val inCatalogue: Boolean,
-        val muscles: List<String>,
-        val compound: Boolean,
-    ) {
+    private class Item(val name: String, val inCatalogue: Boolean, val muscles: List<String>, val compound: Boolean) {
         val key: String = Library.normalise(name)
         val mainGroup: MuscleGroup? = mainGroup(muscles)
     }
 
-    private class Slot(val day: DayOfWeek, val title: String, val allows: Set<MuscleGroup>?) {
-        val items = mutableListOf<Item>()
-        val hasRoom get() = items.size < MAX_EXERCISES
-        fun holds(item: Item) = items.any { it.key == item.key }
+    private class Slot(val kind: SlotKind, val lead: Boolean) {
+        var item: Item? = null
+    }
 
-        /** Whether [item] belongs here. An exercise with no main group belongs to every kind of session. */
-        fun allows(item: Item) = allows == null || item.mainGroup == null || item.mainGroup in allows
+    /** A session being built; [upper] is null on a full-body day. */
+    private class Session(val day: DayOfWeek, val title: String, val upper: Boolean?, kinds: List<SlotKind>) {
+        val slots: MutableList<Slot> = kinds.mapIndexed { i, kind -> Slot(kind, lead = i == 0) }.toMutableList()
+        var heldOver: Item? = null
+        var picksPlaced = 0
+        fun holds(key: String) = slots.any { it.item?.key == key } || heldOver?.key == key
+        fun firstEmptyFor(group: MuscleGroup): Slot? = slots.firstOrNull { it.item == null && group in it.kind.accepts }
+        fun mayTake(kind: SlotKind) = upper == null || upper == kind.upper
+
+        /** On 4 days, whether a pick of [group] belongs here: upper for a group an upper kind takes, lower otherwise. */
+        fun mayHold(group: MuscleGroup?) = upper == null || group == null || upper == (group in UPPER_GROUPS)
     }
 
     /**
      * The draft week for [answers]. Throws IllegalArgumentException unless there are 3 or 4 distinct days and at
-     * most [MAX_PRIORITIES] distinct priorities.
+     * most [MAX_PRIORITIES] distinct priorities, each one of [TARGET_GROUPS].
      */
     fun build(answers: BuilderAnswers): PlanDraft {
         val days = answers.days
@@ -112,88 +151,99 @@ object PlanBuilder {
         val priorities = answers.priorities
         require(priorities.size <= MAX_PRIORITIES) { "priorities: ${priorities.size}; at most $MAX_PRIORITIES" }
         require(priorities.toSet().size == priorities.size) { "priorities: a group is repeated" }
+        require(priorities.all { it in TARGET_GROUPS }) { "priorities: ${priorities.filter { it !in TARGET_GROUPS }} not target groups" }
 
-        val aim = aimOrder(priorities)
-        val slots = sessions(days)
-        fun setsFor(item: Item) = if (item.mainGroup in priorities) PRIORITY_SETS else SETS
+        val sessions = sessions(days)
+
+        // 1. Each priority adds a slot of its kind to the session with the fewest of that kind (earliest on a tie).
+        for (group in priorities) {
+            val kind = PRIORITY_SLOT.getValue(group)
+            sessions.filter { it.mayTake(kind) }.minBy { s -> s.slots.count { it.kind == kind } }.slots += Slot(kind, lead = false)
+        }
 
         // The same pick twice (by name) is one pick.
         val picks = answers.picks.distinctBy { Library.normalise(it.name) }
             .map { Item(it.name, it.inCatalogue, it.muscles, it.compound) }
-        val leftOut = mutableListOf<LeftOut>()
-
-        // 1. Place the picks: priority main groups first, then the rest; each part in TARGET_GROUPS order, then name.
         val ordered = picks.sortedWith(
             compareBy<Item>({ if (it.mainGroup in priorities) 0 else 1 }, { targetRank(it.mainGroup) }, { it.name }),
         )
+        fun byFewestPicks() = sessions.sortedBy { it.picksPlaced } // stable: earliest on a tie
+
+        // 2. Place the picks once: the first empty accepting slot, sessions by fewest picks placed, slots in order.
+        val placed = mutableListOf<Item>()
+        val heldOver = mutableListOf<Item>()
         for (pick in ordered) {
-            val open = slots.filter { it.allows(pick) && it.hasRoom }
-            val target = fewest(open.filter { s -> pick.mainGroup == null || s.items.none { it.mainGroup == pick.mainGroup } })
-                ?: fewest(open)
-            if (target == null) leftOut += LeftOut(pick.name, NO_ROOM) else target.items += pick
-        }
-
-        // 2. Repeat for frequency: a group on fewer than two days gets its first-placed exercise again.
-        // Every exercise in the plan, in the order it was first placed ("the first placed").
-        val placedOrder = ordered.filter { p -> slots.any { it.holds(p) } }.toMutableList()
-        for (group in aim) {
-            if (daysTrained(slots, group) >= WEEKLY_DAYS) continue
-            val exercise = placedOrder.firstOrNull { it.mainGroup == group } ?: continue
-            val target = fewest(slots.filter { it.allows(exercise) && it.hasRoom && !it.holds(exercise) }) ?: continue
-            target.items += exercise
-        }
-
-        // 3. Fill what is short, largest shortfall first (aim order on a tie).
-        val defaults = HashMap<MuscleGroup, List<LibraryExercise>>()
-        val equipmentRank = equipmentRank(answers.picks)
-        val markedShort = mutableSetOf<MuscleGroup>()
-        while (slots.any { it.hasRoom }) {
-            val group = aim
-                .filter { it !in markedShort }
-                .map { it to WEEKLY_SETS - countedSets(slots, it, ::setsFor) }
-                .filter { it.second > 0 }
-                .maxByOrNull { it.second } // the first of the largest, so aim order breaks a tie
-                ?.first ?: break
-            val again = placedOrder.firstOrNull { e ->
-                e.mainGroup == group && slots.any { it.allows(e) && it.hasRoom && !it.holds(e) }
+            val group = pick.mainGroup
+            val found = group?.let { g -> byFewestPicks().firstNotNullOfOrNull { s -> s.firstEmptyFor(g)?.let { s to it } } }
+            if (found == null) {
+                heldOver += pick
+            } else {
+                found.second.item = pick
+                found.first.picksPlaced++
+                placed += pick
             }
-            val exercise = again ?: defaults.getOrPut(group) { defaultsFor(group, equipmentRank, answers.variant) }
-                .firstOrNull { d -> placedOrder.none { it.key == Library.normalise(d.name) } }
-                ?.let { Item(it.name, true, it.muscles, it.kind == Kind.COMPOUND) }
-            val target = exercise?.let { e -> fewest(slots.filter { it.allows(e) && it.hasRoom && !it.holds(e) }) }
-            if (exercise == null || target == null) {
-                markedShort += group
-                continue
-            }
-            target.items += exercise
-            if (placedOrder.none { it.key == exercise.key }) placedOrder += exercise
         }
 
-        // 4 and 5. Order each session and prescribe.
-        val sessions = slots.map { slot ->
-            DraftSession(slot.day, slot.title, order(slot.items.map { it.toDraft(setsFor(it)) }, priorities))
+        // 3. Place them a second time, in a session that does not already hold them.
+        for (pick in placed) {
+            val group = pick.mainGroup ?: continue
+            val found = byFewestPicks().filter { !it.holds(pick.key) }
+                .firstNotNullOfOrNull { s -> s.firstEmptyFor(group)?.let { s to it } } ?: continue
+            found.second.item = pick
+            found.first.picksPlaced++
         }
-        return PlanDraft(sessions, volume(sessions, volumeGroups(priorities)), leftOut)
+
+        // 4. Held-over picks: one a session, the session with the fewest exercises (its slots) that may take it.
+        val leftOut = mutableListOf<LeftOut>()
+        for (pick in heldOver) {
+            val target = sessions.filter { it.heldOver == null && it.mayHold(pick.mainGroup) }.minByOrNull { it.slots.size }
+            if (target == null) leftOut += LeftOut(pick.name, NO_ROOM) else target.heldOver = pick
+        }
+
+        // 5. Fill the empty slots with each kind's first default the session does not hold. A pick never goes in a
+        // third time through a default.
+        val equipmentUse = equipmentUse(answers.picks)
+        val pickKeys = picks.map { it.key }.toSet()
+        fun weekCount(key: String) = sessions.sumOf { s -> s.slots.count { it.item?.key == key } + (if (s.heldOver?.key == key) 1 else 0) }
+        for (s in sessions) {
+            for (slot in s.slots.filter { it.item == null }) {
+                val name = defaultsFor(slot.kind, equipmentUse, answers.variant).firstOrNull { d ->
+                    val k = Library.normalise(d.name)
+                    !s.holds(k) && (k !in pickKeys || weekCount(k) < 2)
+                }
+                slot.item = name?.let { Item(it.name, true, it.muscles, it.kind == Kind.COMPOUND) }
+            }
+            s.slots.removeAll { it.item == null } // only when every default of the kind is already in the session
+        }
+
+        // 6 and 7. Order each session and prescribe.
+        val draftSessions = sessions.map { s ->
+            fun draft(item: Item, slot: Slot?): DraftExercise {
+                val sets = if (item.mainGroup in priorities) PRIORITY_SETS else if (slot?.lead == true) LEAD_SETS else SETS
+                return DraftExercise(
+                    item.name, item.inCatalogue, sets, REPS_LOW, REPS_HIGH, RPE, item.mainGroup, item.muscles, item.compound,
+                    slot?.kind, slot?.lead == true,
+                )
+            }
+            val inSlots = s.slots.map { draft(it.item!!, it) }
+            val held = listOfNotNull(s.heldOver?.let { draft(it, null) })
+            fun priority(e: DraftExercise) = e.mainGroup in priorities
+            val exercises = inSlots.filter(::priority) + held.filter(::priority) + inSlots.filterNot(::priority) + held.filterNot(::priority)
+            DraftSession(s.day, s.title, exercises)
+        }
+        return PlanDraft(draftSessions, volume(draftSessions), leftOut)
     }
 
-    /** The priorities in the lifter's order, then the rest of [TARGET_GROUPS]. A priority outside them is aimed at too. */
-    private fun aimOrder(priorities: List<MuscleGroup>): List<MuscleGroup> = priorities + TARGET_GROUPS.filter { it !in priorities }
-
-    /** The groups [PlanDraft.volume] reports: the target groups, then any priority that is not one. */
-    private fun volumeGroups(priorities: List<MuscleGroup>): List<MuscleGroup> =
-        TARGET_GROUPS + priorities.filter { it !in TARGET_GROUPS }
-
-    private fun sessions(days: List<DayOfWeek>): List<Slot> {
+    private fun sessions(days: List<DayOfWeek>): List<Session> {
         val week = days.sortedBy { it.ordinal }
         return if (week.size == 3) {
-            week.map { Slot(it, FULL_BODY, null) }
+            week.mapIndexed { i, day -> Session(day, FULL_BODY, null, FULL_BODY_TEMPLATES[i]) }
         } else {
-            week.mapIndexed { i, day -> if (i % 2 == 0) Slot(day, UPPER_TITLE, UPPER) else Slot(day, LOWER_TITLE, LOWER) }
+            week.mapIndexed { i, day ->
+                if (i % 2 == 0) Session(day, UPPER_TITLE, true, UPPER_LOWER_TEMPLATES[i]) else Session(day, LOWER_TITLE, false, UPPER_LOWER_TEMPLATES[i])
+            }
         }
     }
-
-    /** The session with the fewest exercises, the earliest on a tie; null for none. */
-    private fun fewest(slots: List<Slot>): Slot? = slots.minByOrNull { it.items.size }
 
     /** A main group's place in [TARGET_GROUPS]; the other groups after them in the enum's order; no group last. */
     private fun targetRank(group: MuscleGroup?): Int = when {
@@ -202,28 +252,7 @@ object PlanBuilder {
         else -> TARGET_GROUPS.size + group.ordinal
     }
 
-    private fun daysTrained(slots: List<Slot>, group: MuscleGroup): Int =
-        slots.count { s -> s.items.any { MuscleGroups.works(it.muscles, group) } }
-
-    private fun countedSets(slots: List<Slot>, group: MuscleGroup, setsFor: (Item) -> Int): Int =
-        slots.sumOf { s -> s.items.filter { MuscleGroups.works(it.muscles, group) }.sumOf(setsFor) }
-
-    private fun Item.toDraft(sets: Int) = DraftExercise(name, inCatalogue, sets, REPS_LOW, REPS_HIGH, RPE, mainGroup, muscles, compound)
-
-    /** Priority main groups first, then the rest; in each part compound first, then aim order of main group, then name. */
-    private fun order(exercises: List<DraftExercise>, priorities: List<MuscleGroup>): List<DraftExercise> {
-        val aim = aimOrder(priorities)
-        fun aimRank(g: MuscleGroup?) = when {
-            g == null -> Int.MAX_VALUE
-            g in aim -> aim.indexOf(g)
-            else -> aim.size + g.ordinal
-        }
-        return exercises.sortedWith(
-            compareBy({ if (it.mainGroup in priorities) 0 else 1 }, { if (it.compound) 0 else 1 }, { aimRank(it.mainGroup) }, { it.name }),
-        )
-    }
-
-    private fun volume(sessions: List<DraftSession>, groups: List<MuscleGroup>): List<GroupVolume> = groups.map { group ->
+    private fun volume(sessions: List<DraftSession>): List<GroupVolume> = TARGET_GROUPS.map { group ->
         var sets = 0
         var days = 0
         for (s in sessions) {
@@ -234,39 +263,22 @@ object PlanBuilder {
         GroupVolume(group, sets, days, sets < WEEKLY_SETS)
     }
 
-    // ---- catalogue defaults ----
+    // ---- defaults ----
 
-    /**
-     * Each equipment's place: those the picks use first, by how many picks use them (most first, the fixed order on a
-     * tie), then the rest in the fixed order.
-     */
-    private fun equipmentRank(picks: List<BuilderPick>): Map<Equipment, Int> {
-        val uses = EQUIPMENT_ORDER.associateWith { eq -> picks.count { eq in it.equipment } }
-        val ranked = EQUIPMENT_ORDER.filter { uses.getValue(it) > 0 }.sortedByDescending { uses.getValue(it) } +
-            EQUIPMENT_ORDER.filter { uses.getValue(it) == 0 }
-        return ranked.withIndex().associate { (i, eq) -> eq to i }
-    }
+    /** How many picks list each piece of equipment. */
+    private fun equipmentUse(picks: List<BuilderPick>): Map<Equipment, Int> =
+        Equipment.entries.associateWith { eq -> picks.count { eq in it.equipment } }
 
-    /**
-     * The catalogue exercises whose main group is [group], ordered: by their primary equipment's rank, compound
-     * before accessory, then catalogue order.
-     */
-    private fun ordered(group: MuscleGroup, equipmentRank: Map<Equipment, Int>): List<LibraryExercise> =
-        Library.all().withIndex()
-            .filter { (_, e) -> mainGroup(e.muscles) == group }
-            .sortedWith(
-                compareBy(
-                    { (_, e) -> e.equipment.firstOrNull()?.let { equipmentRank.getValue(it) } ?: Int.MAX_VALUE },
-                    { (_, e) -> if (e.kind == Kind.COMPOUND) 0 else 1 },
-                    { (i, _) -> i },
-                ),
-            )
-            .map { it.value }
+    private fun entry(name: String): LibraryExercise =
+        Library.all().firstOrNull { it.name == name } ?: error("default '$name' is not a catalogue name")
 
-    /** [ordered], rotated left by [variant] places. */
-    private fun defaultsFor(group: MuscleGroup, equipmentRank: Map<Equipment, Int>, variant: Int): List<LibraryExercise> {
-        val list = ordered(group, equipmentRank)
-        if (list.isEmpty()) return list
+    /** [kind]'s defaults, the most-used primary equipment first (the table's order otherwise). */
+    private fun orderedDefaults(kind: SlotKind, equipmentUse: Map<Equipment, Int>): List<LibraryExercise> =
+        kind.defaults.map(::entry).sortedByDescending { d -> d.equipment.firstOrNull()?.let { equipmentUse.getValue(it) } ?: 0 }
+
+    /** [orderedDefaults], rotated left by [variant] places. */
+    private fun defaultsFor(kind: SlotKind, equipmentUse: Map<Equipment, Int>, variant: Int): List<LibraryExercise> {
+        val list = orderedDefaults(kind, equipmentUse)
         val shift = ((variant % list.size) + list.size) % list.size
         return list.drop(shift) + list.take(shift)
     }
@@ -274,21 +286,33 @@ object PlanBuilder {
     // ---- adjusting a draft ----
 
     /**
-     * Catalogue exercises with the same main group as [name] in [draft] that are not in the draft, ordered as the
-     * defaults are (by the equipment [picks] use). Empty when [name] is not in the draft or has no main group.
+     * What [name] on [day] (null: the first session that holds it) can be swapped for, none of them already in that
+     * session. For a slot exercise: the catalogue exercises its kind accepts by main group, the kind's defaults first
+     * (ordered by the equipment [picks] use), then the rest in catalogue order. For a held-over pick: the catalogue
+     * exercises with the same main group. Empty when [name] is not in the draft or a held-over pick has no main group.
      */
-    fun alternatives(name: String, draft: PlanDraft, picks: List<BuilderPick>): List<LibraryExercise> {
+    fun alternatives(name: String, draft: PlanDraft, picks: List<BuilderPick>, day: DayOfWeek? = null): List<LibraryExercise> {
         val key = Library.normalise(name)
-        val exercises = draft.sessions.flatMap { it.exercises }
-        val group = exercises.firstOrNull { Library.normalise(it.name) == key }?.mainGroup ?: return emptyList()
-        val inDraft = exercises.map { Library.normalise(it.name) }.toSet()
-        return ordered(group, equipmentRank(picks)).filter { Library.normalise(it.name) !in inDraft }
+        val session = draft.sessions.firstOrNull { s -> (day == null || s.day == day) && s.exercises.any { Library.normalise(it.name) == key } }
+            ?: return emptyList()
+        val exercise = session.exercises.first { Library.normalise(it.name) == key }
+        val inSession = session.exercises.map { Library.normalise(it.name) }.toSet()
+        fun free(e: LibraryExercise) = Library.normalise(e.name) !in inSession
+        val kind = exercise.slot
+        if (kind == null) {
+            val group = exercise.mainGroup ?: return emptyList()
+            return Library.all().filter { mainGroup(it.muscles) == group && free(it) }
+        }
+        val defaults = orderedDefaults(kind, equipmentUse(picks))
+        val defaultNames = defaults.map { it.name }.toSet()
+        return defaults.filter(::free) +
+            Library.all().filter { it.name !in defaultNames && mainGroup(it.muscles) in kind.accepts && free(it) }
     }
 
     /**
-     * [draft] with [from] on [day] replaced by the catalogue exercise [to], in the same place with the same sets and
-     * range; the volume is recounted. Throws IllegalArgumentException when [day] is not in the draft, [from] is not on
-     * it, [to] is not in the catalogue, or [to] is already on that day.
+     * [draft] with [from] on [day] replaced by the catalogue exercise [to], in the same place with the same sets,
+     * range and slot; the volume is recounted. Throws IllegalArgumentException when [day] is not in the draft, [from]
+     * is not on it, [to] is not in the catalogue, or [to] is already on that day.
      */
     fun swap(draft: PlanDraft, day: DayOfWeek, from: String, to: String): PlanDraft {
         val session = draft.sessions.firstOrNull { it.day == day } ?: throw IllegalArgumentException("day: $day is not in the draft")
@@ -296,15 +320,14 @@ object PlanBuilder {
         require(index >= 0) { "from: '$from' is not on $day" }
         val entry = Library.find(to) ?: throw IllegalArgumentException("to: '$to' is not in the catalogue")
         require(session.exercises.none { Library.normalise(it.name) == Library.normalise(entry.name) }) { "to: '${entry.name}' is already on $day" }
-        val old = session.exercises[index]
-        val new = old.copy(
+        val new = session.exercises[index].copy(
             name = entry.name, inCatalogue = true, mainGroup = mainGroup(entry.muscles), muscles = entry.muscles,
             compound = entry.kind == Kind.COMPOUND,
         )
         val sessions = draft.sessions.map { s ->
             if (s.day != day) s else s.copy(exercises = s.exercises.toMutableList().also { it[index] = new })
         }
-        return draft.copy(sessions = sessions, volume = volume(sessions, draft.volume.map { it.group }))
+        return draft.copy(sessions = sessions, volume = volume(sessions))
     }
 
     // ---- pre-ticks ----
