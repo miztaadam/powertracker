@@ -20,7 +20,8 @@ import kotlinx.datetime.minus
  * [AWAY_DAYS] days, so a log kept on one side alone is coached exactly as before. Then, for an exercise whose
  * family has no set on this side in those days:
  * - trained on the other side in them: the target is capped by what those sets support at the target's reps and
- *   RPE (the e1RM estimate, rounded down to a loadable weight);
+ *   RPE (the e1RM estimate, rounded down to a loadable weight); when that cap lowers the weight, the reason gains
+ *   the easing-back-in note so the lifter sees why it is lighter;
  * - not trained on either side: the existing re-entry reduction of the last top set on this side, at the planned
  *   reps, never the old top set plus an increase.
  * The family is a main lift and its variations on the powerlifting side, the exercise itself on the bodybuilding
@@ -60,7 +61,7 @@ internal object ReturnRule {
             val cap = ProgressionRule.roundDown(supported, payload.weightKg, free, plates)
             if (cap >= payload.weightKg) return target
             return target.copy(
-                reason = withSuggestion(target.reason, cap, payload.reps, payload.repsHigh, payload.rpe),
+                reason = withSuggestion(target.reason, cap, payload.reps, payload.repsHigh, payload.rpe) + Coach.RE_ENTRY_NOTE,
                 payload = payload.copy(weightKg = cap),
             )
         }

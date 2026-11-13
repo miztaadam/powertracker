@@ -74,8 +74,41 @@ class ReturnRuleTest {
         assertEquals(ProgressionRule.roundDown(supported, incoming.weightKg, free = false, changePlates = false), target.weightKg)
         assertEquals(165.0, target.weightKg)
         assertEquals(5, target.reps)
-        assertEquals("Last time: 180 × 5 @ 8. Coach suggests 165 × 5 @ 8.", deadliftTarget(h).reason)
+        assertEquals(
+            "Last time: 180 × 5 @ 8. Coach suggests 165 × 5 @ 8. Easing back in: lighter load.",
+            deadliftTarget(h).reason,
+        )
     }
+
+    @Test
+    fun aCapThatLowersTheWeightSaysWhyItIsLighter() {
+        val h = returning(TrainingMode.BODYBUILDING) { d ->
+            set(Ids.DB_PRESS, 26.0, 10)
+            if (d == 49) repeat(3) { set(RDL, 140.0, 10, rpe = 8.0) }
+        }
+        val advice = deadliftTarget(h)
+        assertTrue((advice.payload as AdvicePayload.Target).weightKg < progression(h).weightKg)
+        assertTrue(advice.reason.endsWith(Coach.RE_ENTRY_NOTE), advice.reason)
+        // The note stays outside the "Coach suggests ..." sentence the Today card strips.
+        assertEquals("Last time: 180 × 5 @ 8. Easing back in: lighter load.", stripSuggestion(advice.reason))
+    }
+
+    @Test
+    fun aCapThatDoesNotLowerTheWeightLeavesTheReasonAsItCame() {
+        val h = returning(TrainingMode.BODYBUILDING) { d ->
+            if (d == 49) set(RDL, 200.0, 8, rpe = 8.0) else set(Ids.DB_PRESS, 26.0, 10)
+        }
+        val advice = deadliftTarget(h)
+        assertEquals(progression(h).weightKg, (advice.payload as AdvicePayload.Target).weightKg)
+        assertTrue(!advice.reason.contains("Easing back in"), advice.reason)
+        assertEquals(ProgressionRule.target(
+            deadliftItem, h.exercises.getValue(Ids.DEADLIFT), HistoryStats(h.on(TrainingMode.POWERLIFTING)), settings, today,
+        )!!.reason, advice.reason)
+    }
+
+    /** The apps' SUGGESTION_SENTENCE (ExerciseCard.kt / ExerciseCard.tsx), applied as the Today card applies it. */
+    private fun stripSuggestion(reason: String) =
+        reason.replace(Regex("""\s*Coach suggests .*? @ \d+(\.\d+)?\."""), "").trim()
 
     @Test
     fun recentSetsThatSupportMoreLeaveTheTargetAsItCame() {

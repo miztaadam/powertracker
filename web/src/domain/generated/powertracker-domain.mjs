@@ -2265,7 +2265,7 @@ protoOf(ReturnRule).z17 = function (target, item, exercise, history, mode, setti
     var cap = ProgressionRule_getInstance().z16(supported, payload.y15_1, free, plates);
     if (cap >= payload.y15_1)
       return target;
-    return target.k16(VOID, VOID, VOID, withSuggestion(this, target.d14_1, cap, payload.z15_1, payload.c16_1, payload.a16_1), VOID, payload.j16(VOID, cap));
+    return target.k16(VOID, VOID, VOID, withSuggestion(this, target.d14_1, cap, payload.z15_1, payload.c16_1, payload.a16_1) + ' Easing back in: lighter load.', VOID, payload.j16(VOID, cap));
   }
   var tmp1_elvis_lhs = (new HistoryStats(on(history, mode))).w15(item.p15_1, today);
   var tmp_1;
