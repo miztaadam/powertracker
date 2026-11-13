@@ -1,7 +1,7 @@
 # Grit: bodybuilding mode
 
 **Date:** 2026-11-13
-**Status:** Agreed in brainstorming. Awaiting the owner's review of this spec.
+**Status:** Approved by the owner on 2026-11-13.
 **Applies to:** the shared Kotlin domain (`domain/`), Android (`app/`) and web (`web/`). Every stage ships to all three together.
 **Delivery:** four stages, each planned, built, checked and merged on its own (§9). This document is the design for the whole mode; §4 to §7 are detailed enough to plan stage 1 from, and §8 fixes the scope of stages 2 to 4.
 
