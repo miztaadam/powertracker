@@ -8,7 +8,9 @@ import type {
   PlanItemRow,
   SessionRow,
   SetRow,
+  TrainingMode,
 } from '../db/schema'
+import { sideOf } from '../db/schema'
 import { DEFAULT_SETTINGS, settingsFromRows, type AppSettings } from '../db/settings'
 import { applyStrictPressUpgrade } from '../db/strictPressUpgrade'
 import {
@@ -19,6 +21,7 @@ import {
   CATEGORIES,
   MAIN_LIFTS,
   MISS_POINTS,
+  TRAINING_MODES,
   WEB_REST_ALERTS,
   type AndroidRestAlert,
   type BackupFile,
@@ -114,6 +117,10 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
         restAlert: androidRestAlertOf(settings.restAlert),
         webRestAlert: settings.restAlert,
         showStrictPress: settings.showStrictPress,
+        trainingMode: settings.trainingMode,
+        bodybuildingTrainingDays: [...settings.bodybuildingTrainingDays].sort((a, b) => a - b),
+        powerliftingLeftOn: settings.powerliftingLeftOn == null ? null : isoToEpochDay(settings.powerliftingLeftOn),
+        bodybuildingLeftOn: settings.bodybuildingLeftOn == null ? null : isoToEpochDay(settings.bodybuildingLeftOn),
       },
       exercises: exercises.map((e) => ({
         id: e.id,
@@ -129,6 +136,7 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
         date: isoToEpochDay(s.date),
         bodyweightKg: s.bodyweightKg,
         readiness: s.readiness,
+        mode: sideOf(s),
       })),
       sets: sets.map((s) => ({
         id: s.id,
@@ -149,6 +157,8 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
         reps: p.reps,
         targetRpe: p.targetRpe,
         sortOrder: p.order,
+        mode: sideOf(p),
+        repsHigh: p.repsHigh ?? null,
       })),
       advice: advice.map((a) => ({
         id: a.id,
@@ -159,6 +169,7 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
         severity: a.severity,
         payload: a.payloadJson,
         status: a.status,
+        mode: sideOf(a),
       })),
       baselines: baselines.map((b) => ({ exerciseId: b.exerciseId, e1rmKg: b.e1rmKg, date: isoToEpochDay(b.date) })),
     }
@@ -194,6 +205,9 @@ const nullable = <T>(o: Obj, k: string, f: (o: Obj, k: string) => T): T | null =
 const list = <T>(v: unknown, path: string, f: (item: unknown, path: string) => T): T[] =>
   Array.isArray(v) ? v.map((x, i) => f(x, `${path}[${i}]`)) : bad(`${path}: expected array`)
 
+/** A row's or the settings' training side (version 3); absent in older files, which means POWERLIFTING. */
+const modeOf = (o: Obj, key = 'mode'): string => (key in o ? str(o, key) : 'POWERLIFTING')
+
 function parseBackup(root: Obj): BackupFile {
   const top = ['version', 'exportedAt', 'settings', 'exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines']
   const o = obj(root, 'backup', top)
@@ -201,7 +215,7 @@ function parseBackup(root: Obj): BackupFile {
     o.settings,
     'settings',
     ['changePlates', 'defaultRpe', 'trainingDays', 'appLock', 'restMainSec', 'restAccessorySec'],
-    ['restAlert', 'webRestAlert', 'showStrictPress'],
+    ['restAlert', 'webRestAlert', 'showStrictPress', 'trainingMode', 'bodybuildingTrainingDays', 'powerliftingLeftOn', 'bodybuildingLeftOn'],
   )
   return {
     version: int(o, 'version'),
@@ -216,6 +230,13 @@ function parseBackup(root: Obj): BackupFile {
       restAlert: 'restAlert' in s ? str(s, 'restAlert') : 'VIBRATE',
       webRestAlert: 'webRestAlert' in s ? nullable(s, 'webRestAlert', str) : null,
       showStrictPress: 'showStrictPress' in s ? bool(s, 'showStrictPress') : false,
+      trainingMode: modeOf(s, 'trainingMode'),
+      bodybuildingTrainingDays:
+        'bodybuildingTrainingDays' in s
+          ? list(s.bodybuildingTrainingDays, 'bodybuildingTrainingDays', (x) => (Number.isSafeInteger(x) ? (x as number) : bad('bodybuildingTrainingDays: expected integer')))
+          : [...DEFAULT_SETTINGS.bodybuildingTrainingDays],
+      powerliftingLeftOn: 'powerliftingLeftOn' in s ? nullable(s, 'powerliftingLeftOn', int) : null,
+      bodybuildingLeftOn: 'bodybuildingLeftOn' in s ? nullable(s, 'bodybuildingLeftOn', int) : null,
     },
     exercises: list(o.exercises, 'exercises', (v, p) => {
       const e = obj(v, p, ['id', 'name', 'category', 'parentLift', 'muscles', 'isBuiltIn', 'archived'])
@@ -230,8 +251,8 @@ function parseBackup(root: Obj): BackupFile {
       }
     }),
     sessions: list(o.sessions, 'sessions', (v, p) => {
-      const x = obj(v, p, ['id', 'date', 'bodyweightKg', 'readiness'])
-      return { id: int(x, 'id'), date: int(x, 'date'), bodyweightKg: nullable(x, 'bodyweightKg', num), readiness: nullable(x, 'readiness', int) }
+      const x = obj(v, p, ['id', 'date', 'bodyweightKg', 'readiness'], ['mode'])
+      return { id: int(x, 'id'), date: int(x, 'date'), bodyweightKg: nullable(x, 'bodyweightKg', num), readiness: nullable(x, 'readiness', int), mode: modeOf(x) }
     }),
     sets: list(o.sets, 'sets', (v, p) => {
       const x = obj(v, p, ['id', 'sessionId', 'exerciseId', 'weightKg', 'reps', 'rpe', 'failed', 'missPoint', 'isTopSet'])
@@ -248,7 +269,7 @@ function parseBackup(root: Obj): BackupFile {
       }
     }),
     planItems: list(o.planItems, 'planItems', (v, p) => {
-      const x = obj(v, p, ['id', 'weekday', 'exerciseId', 'sets', 'reps', 'targetRpe', 'sortOrder'])
+      const x = obj(v, p, ['id', 'weekday', 'exerciseId', 'sets', 'reps', 'targetRpe', 'sortOrder'], ['mode', 'repsHigh'])
       return {
         id: int(x, 'id'),
         weekday: int(x, 'weekday'),
@@ -257,10 +278,12 @@ function parseBackup(root: Obj): BackupFile {
         reps: int(x, 'reps'),
         targetRpe: num(x, 'targetRpe'),
         sortOrder: int(x, 'sortOrder'),
+        mode: modeOf(x),
+        repsHigh: 'repsHigh' in x ? nullable(x, 'repsHigh', int) : null,
       }
     }),
     advice: list(o.advice, 'advice', (v, p) => {
-      const x = obj(v, p, ['id', 'type', 'lift', 'createdAt', 'reason', 'severity', 'payload', 'status'])
+      const x = obj(v, p, ['id', 'type', 'lift', 'createdAt', 'reason', 'severity', 'payload', 'status'], ['mode'])
       return {
         id: int(x, 'id'),
         type: str(x, 'type'),
@@ -270,6 +293,7 @@ function parseBackup(root: Obj): BackupFile {
         severity: int(x, 'severity'),
         payload: str(x, 'payload'),
         status: str(x, 'status'),
+        mode: modeOf(x),
       }
     }),
     baselines: list(o.baselines, 'baselines', (v, p) => {
@@ -285,6 +309,7 @@ type Mapped = { rows: Rows; settings: Omit<AppSettings, 'keepAwake' | 'lastBacku
 
 const oneOf = (v: string, allowed: readonly string[], what: string): string =>
   allowed.includes(v) ? v : bad(`Unknown ${what} ${v}`)
+const side = (v: string | undefined): TrainingMode => oneOf(v ?? 'POWERLIFTING', TRAINING_MODES, 'training mode') as TrainingMode
 const weekday = (d: number) => (Number.isInteger(d) && d >= 1 && d <= 7 ? d : bad(`Invalid weekday ${d}`))
 
 function unique(ids: (number | string)[], what: string) {
@@ -310,7 +335,7 @@ function mapBackup(file: BackupFile): Mapped {
   // Android's date index is not unique, so a real export can hold several sessions on one date.
   // Web keeps one per date: merge into the lowest id; the other sessions' sets move to it, and the
   // first non-null bodyweight / readiness (by id) wins.
-  const sessions: { id: number; date: string; bodyweightKg: number | null; readiness: number | null }[] = []
+  const sessions: { id: number; date: string; bodyweightKg: number | null; readiness: number | null; mode: TrainingMode }[] = []
   const mergedInto = new Map<number, number>()
   const byDate = new Map<string, (typeof sessions)[number]>()
   for (const s of [...file.sessions].sort((a, b) => a.id - b.id)) {
@@ -321,7 +346,7 @@ function mapBackup(file: BackupFile): Mapped {
       keep.bodyweightKg ??= s.bodyweightKg
       keep.readiness ??= s.readiness
     } else {
-      const row = { id: s.id, date, bodyweightKg: s.bodyweightKg, readiness: s.readiness }
+      const row = { id: s.id, date, bodyweightKg: s.bodyweightKg, readiness: s.readiness, mode: side(s.mode) }
       byDate.set(date, row)
       sessions.push(row)
     }
@@ -345,6 +370,9 @@ function mapBackup(file: BackupFile): Mapped {
     reps: p.reps,
     targetRpe: p.targetRpe,
     order: p.sortOrder,
+    mode: side(p.mode),
+    // Fixed reps store no repsHigh, as on every row the app writes.
+    ...(p.repsHigh != null ? { repsHigh: p.repsHigh } : {}),
   }))
   const advice = file.advice.map((a) => ({
     id: a.id,
@@ -355,6 +383,7 @@ function mapBackup(file: BackupFile): Mapped {
     severity: a.severity,
     status: oneOf(a.status, ADVICE_STATUSES, 'advice status'),
     payloadJson: a.payload,
+    mode: side(a.mode),
   }))
   const baselines = file.baselines.map((b) => ({ exerciseId: b.exerciseId, e1rmKg: b.e1rmKg, date: epochDayToIso(b.date) }))
 
@@ -374,6 +403,8 @@ function mapBackup(file: BackupFile): Mapped {
   const st = file.settings
   oneOf(st.restAlert, ANDROID_REST_ALERTS, 'rest alert')
   const trainingDays = st.trainingDays.map(weekday)
+  const bodybuildingTrainingDays = (st.bodybuildingTrainingDays ?? DEFAULT_SETTINGS.bodybuildingTrainingDays).map(weekday)
+  const leftOn = (day: number | null | undefined) => (day == null ? null : epochDayToIso(day))
   return {
     rows: { exercises, sessions, sets, planItems, advice, baselines },
     settings: {
@@ -385,6 +416,10 @@ function mapBackup(file: BackupFile): Mapped {
       restAccessorySec: st.restAccessorySec,
       restAlert: webRestAlertOf(st.restAlert, st.webRestAlert),
       showStrictPress: st.showStrictPress,
+      trainingMode: side(st.trainingMode),
+      bodybuildingTrainingDays: [...new Set(bodybuildingTrainingDays)].sort((a, b) => a - b),
+      powerliftingLeftOn: leftOn(st.powerliftingLeftOn),
+      bodybuildingLeftOn: leftOn(st.bodybuildingLeftOn),
     },
   }
 }

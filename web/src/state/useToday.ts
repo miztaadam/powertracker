@@ -1,9 +1,9 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { addSet } from '../db/catalogue'
+import { addSet, planFor } from '../db/catalogue'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
-import type { AdviceRow, PlanItemRow, SetRow } from '../db/schema'
+import type { AdviceRow, PlanItemRow, SetRow, TrainingMode } from '../db/schema'
 import { grit, JsCoachSettings, JsExercise, type JsHistory, type JsLibraryExercise, type JsSet } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 
@@ -188,11 +188,14 @@ function isEditor(value: unknown): value is SetEditor {
   return (v.weightKg === null || typeof v.weightKg === 'number') && typeof v.reps === 'number' && typeof v.rpe === 'number'
 }
 
+/** The side whose plan Today reads, and the side a new session is started on. Only the powerlifting side's screens exist so far. */
+const SIDE: TrainingMode = 'POWERLIFTING'
+
 async function readStored(db: GritDb, date: string): Promise<Stored> {
   const [session, history, plan, settings, advice] = await Promise.all([
     db.sessions.where('date').equals(date).first(),
     loadHistory(db),
-    db.planItems.toArray(),
+    planFor(db, SIDE),
     getSettings(db),
     db.advice.toArray(),
   ])
@@ -246,7 +249,7 @@ async function coachPass(db: GritDb, date: string, today: () => string): Promise
   try {
     // One transaction, so two passes (two tabs, a remount) cannot both find the target missing.
     await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.meta], async () => {
-      const [history, plan, settings, advice] = await Promise.all([loadHistory(db), db.planItems.toArray(), getSettings(db), db.advice.toArray()])
+      const [history, plan, settings, advice] = await Promise.all([loadHistory(db), planFor(db, SIDE), getSettings(db), db.advice.toArray()])
       const known = new Set(todaysTargets(advice, date).map((t) => t.target.exerciseId))
       const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
       const fresh: AdviceRow[] = []
@@ -624,7 +627,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         const day = syncDay()
         await db.transaction('rw', db.sessions, async () => {
           const existing = await db.sessions.where('date').equals(day).first()
-          if (!existing) await db.sessions.add({ date: day, bodyweightKg, readiness })
+          if (!existing) await db.sessions.add({ date: day, bodyweightKg, readiness, mode: SIDE })
         })
         touch(day)
       } finally {
@@ -774,7 +777,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
       // Advice is dated by the real clock: a session finished after midnight stores nothing under the day before.
       const clockDay = clock.current()
       const newNotes = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice], async () => {
-        const [history, plan, settings, advice] = await Promise.all([loadHistory(db), db.planItems.toArray(), getSettings(db), db.advice.toArray()])
+        const [history, plan, settings, advice] = await Promise.all([loadHistory(db), planFor(db, SIDE), getSettings(db), db.advice.toArray()])
         const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
         const fresh = grit.evaluate(history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), clockDay, prior)
         if (fresh.length > 0) await db.advice.bulkAdd(fresh.map((a) => withoutId(adviceFromJs(a))))

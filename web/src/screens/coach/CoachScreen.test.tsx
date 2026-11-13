@@ -59,8 +59,8 @@ describe('CoachScreen', () => {
     await waitFor(async () => expect(await statuses(db)).toEqual(['APPLIED']))
     const added = (await planOf(db)).filter((p) => p.order >= 2)
     expect(added).toEqual([
-      { weekday: 3, exerciseId: await id('Close-grip bench'), sets: 3, reps: 5, targetRpe: 8, order: 2 },
-      { weekday: 3, exerciseId: await id('JM press'), sets: 3, reps: 10, targetRpe: 8, order: 3 },
+      { weekday: 3, exerciseId: await id('Close-grip bench'), sets: 3, reps: 5, targetRpe: 8, order: 2, mode: 'POWERLIFTING' },
+      { weekday: 3, exerciseId: await id('JM press'), sets: 3, reps: 10, targetRpe: 8, order: 3, mode: 'POWERLIFTING' },
     ])
     expect(await planOf(db)).toHaveLength(5)
     expect(await screen.findByText('Added 2 exercises to Wednesday')).toBeInTheDocument()
@@ -127,8 +127,8 @@ describe('CoachScreen', () => {
     await waitFor(async () => expect(await statuses(db)).toEqual(['APPLIED']))
     expect((await planOf(db)).filter((p) => p.weekday === 1)).toEqual([
       { weekday: 1, exerciseId: await id('Squat'), sets: 5, reps: 5, targetRpe: 8, order: 0 },
-      { weekday: 1, exerciseId: await id('Front squat'), sets: 3, reps: 5, targetRpe: 7.5, order: 1 },
-      { weekday: 1, exerciseId: await id('Bulgarian split squat'), sets: 3, reps: 10, targetRpe: 7.5, order: 2 },
+      { weekday: 1, exerciseId: await id('Front squat'), sets: 3, reps: 5, targetRpe: 7.5, order: 1, mode: 'POWERLIFTING' },
+      { weekday: 1, exerciseId: await id('Bulgarian split squat'), sets: 3, reps: 10, targetRpe: 7.5, order: 2, mode: 'POWERLIFTING' },
     ])
     expect(await planOf(db)).toHaveLength(4)
     expect(await screen.findByText('Added 2 exercises to Monday')).toBeInTheDocument()

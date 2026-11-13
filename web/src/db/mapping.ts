@@ -13,7 +13,15 @@ import type {
   PlanItemRow,
   SessionRow,
   SetRow,
+  TrainingMode,
 } from './schema'
+import { sideOf, TRAINING_MODES } from './schema'
+
+/** The domain's mode name as a row's. */
+function mode(name: string): TrainingMode {
+  if (!(TRAINING_MODES as readonly string[]).includes(name)) throw new Error(`Unknown training mode ${name}`)
+  return name as TrainingMode
+}
 
 export function exerciseToJs(r: ExerciseRow & { id: number }): JsExercise {
   return new JsExercise(r.id, r.name, r.category, r.parentLift, [...r.muscles], r.isBuiltIn, r.archived)
@@ -49,17 +57,18 @@ export function setFromJs(s: JsSet, sessionId: number): SetRow {
 }
 
 export function sessionToJs(r: SessionRow & { id: number }, sets: SetRow[]): JsSession {
-  return new JsSession(r.id, r.date, r.bodyweightKg, r.readiness, sets.map(setToJs))
+  return new JsSession(r.id, r.date, r.bodyweightKg, r.readiness, sets.map(setToJs), sideOf(r))
 }
 
 export function sessionFromJs(s: JsSession): SessionRow & { id: number } {
-  return { id: s.id, date: s.date, bodyweightKg: s.bodyweightKg ?? null, readiness: s.readiness ?? null }
+  return { id: s.id, date: s.date, bodyweightKg: s.bodyweightKg ?? null, readiness: s.readiness ?? null, mode: mode(s.mode) }
 }
 
 export function planItemToJs(r: PlanItemRow & { id: number }): JsPlanItem {
-  return new JsPlanItem(r.id, r.weekday, r.exerciseId, r.sets, r.reps, r.targetRpe, r.order)
+  return new JsPlanItem(r.id, r.weekday, r.exerciseId, r.sets, r.reps, r.targetRpe, r.order, sideOf(r), r.repsHigh ?? null)
 }
 
+/** Fixed reps store no `repsHigh` key, as every row before schema version 3. */
 export function planItemFromJs(p: JsPlanItem): PlanItemRow & { id: number } {
   return {
     id: p.id,
@@ -69,6 +78,8 @@ export function planItemFromJs(p: JsPlanItem): PlanItemRow & { id: number } {
     reps: p.reps,
     targetRpe: p.targetRpe,
     order: p.order,
+    mode: mode(p.mode),
+    ...(p.repsHigh != null ? { repsHigh: p.repsHigh } : {}),
   }
 }
 
@@ -81,7 +92,7 @@ export function baselineFromJs(b: JsBaseline): BaselineRow {
 }
 
 export function adviceToJs(r: AdviceRow & { id: number }): JsAdvice {
-  return new JsAdvice(r.id, r.type, r.lift, r.createdAt, r.reason, r.severity, r.status, r.payloadJson)
+  return new JsAdvice(r.id, r.type, r.lift, r.createdAt, r.reason, r.severity, r.status, r.payloadJson, sideOf(r))
 }
 
 export function adviceFromJs(a: JsAdvice): AdviceRow & { id: number } {
@@ -94,5 +105,6 @@ export function adviceFromJs(a: JsAdvice): AdviceRow & { id: number } {
     severity: a.severity,
     status: a.status,
     payloadJson: a.payloadJson,
+    mode: mode(a.mode),
   }
 }

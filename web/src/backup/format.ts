@@ -1,10 +1,17 @@
 /**
- * Android backup format, version 2: mirrors `BackupFile` and its DTOs in
+ * Android backup format, version 3: mirrors `BackupFile` and its DTOs in
  * app/src/main/kotlin/com/powertracker/data/Backup.kt field for field.
  * Dates are epochDay, weekdays 1–7 (Monday = 1), enums are their Kotlin names.
  */
-/** 2: the strict press release (category STRICT_PRESS, `settings.showStrictPress`). Version 1 files still restore. */
-export const BACKUP_VERSION = 2
+/**
+ * 2: the strict press release (category STRICT_PRESS, `settings.showStrictPress`).
+ * 3: bodybuilding mode (the training side: `mode` on sessions, plan items and advice, `repsHigh` on plan items, and
+ * four settings). Version 1 and 2 files still restore, everything in them on the powerlifting side.
+ */
+export const BACKUP_VERSION = 3
+
+/** The domain's `TrainingMode` names. */
+export { TRAINING_MODES } from '../db/schema'
 
 export const CATEGORIES = ['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS', 'VARIATION', 'ACCESSORY'] as const
 export const MAIN_LIFTS = ['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS'] as const
@@ -30,6 +37,13 @@ export type BackupSettings = {
   webRestAlert: string | null
   /** Version 2. A version-1 file has none, which means off. */
   showStrictPress: boolean
+  // Version 3. An older file has none of these: the powerlifting side, bodybuilding days Monday, Wednesday and
+  // Friday (the default), neither side ever left. The parser fills them in.
+  trainingMode?: string
+  bodybuildingTrainingDays?: number[]
+  /** epochDay, or null until the side is first left. */
+  powerliftingLeftOn?: number | null
+  bodybuildingLeftOn?: number | null
 }
 
 export type ExerciseDto = {
@@ -42,7 +56,8 @@ export type ExerciseDto = {
   archived: boolean
 }
 
-export type SessionDto = { id: number; date: number; bodyweightKg: number | null; readiness: number | null }
+/** `mode` (version 3) is absent from older files, which means POWERLIFTING; the parser fills it in, as on plan items and advice. */
+export type SessionDto = { id: number; date: number; bodyweightKg: number | null; readiness: number | null; mode?: string }
 
 export type SetDto = {
   id: number
@@ -64,6 +79,9 @@ export type PlanItemDto = {
   reps: number
   targetRpe: number
   sortOrder: number
+  mode?: string
+  /** Version 3: the top of a rep range; null for fixed reps. */
+  repsHigh?: number | null
 }
 
 export type AdviceDto = {
@@ -75,6 +93,7 @@ export type AdviceDto = {
   severity: number
   payload: string
   status: string
+  mode?: string
 }
 
 export type BaselineDto = { exerciseId: number; e1rmKg: number; date: number }

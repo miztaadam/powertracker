@@ -104,7 +104,7 @@ describe('useCoach', () => {
     expect(result.current.message?.text).toBe('Added 1 exercise to Tuesday')
     expect(await planOf(db)).toEqual([
       { weekday: 2, exerciseId: await id('JM press'), sets: 3, reps: 10, targetRpe: 8, order: 0 },
-      { weekday: 2, exerciseId: await id('Close-grip bench'), sets: 3, reps: 5, targetRpe: 8, order: 1 },
+      { weekday: 2, exerciseId: await id('Close-grip bench'), sets: 3, reps: 5, targetRpe: 8, order: 1, mode: 'POWERLIFTING' },
     ])
   })
 
@@ -164,7 +164,7 @@ describe('useCoach', () => {
     for (const [i, item] of added.entries()) {
       const row = rows.get(item.exerciseId)!
       expect(row).toMatchObject({ isBuiltIn: true, archived: false, muscles: [...grit.findInLibrary(row.name)!.muscles] })
-      expect(item).toEqual({ weekday: 1, exerciseId: row.id, sets: 3, reps: 10, targetRpe: 8, order: i })
+      expect(item).toEqual({ weekday: 1, exerciseId: row.id, sets: 3, reps: 10, targetRpe: 8, order: i, mode: 'POWERLIFTING' })
     }
     expect((await db.exercises.toArray()).filter((e) => e.name === 'No such lift')).toEqual([])
   })

@@ -1,9 +1,9 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
-import { resolveCatalogue } from '../db/catalogue'
+import { planFor, resolveCatalogue } from '../db/catalogue'
 import { exerciseToJs } from '../db/mapping'
-import type { AdviceRow, ExerciseRow, PlanItemRow } from '../db/schema'
+import { sideOf, type AdviceRow, type ExerciseRow, type PlanItemRow, type TrainingMode } from '../db/schema'
 import { grit, type JsExercise, type JsHistory } from '../domain'
 import { LIFTS, type Lift } from '../router'
 import type { MissPoint } from './useToday'
@@ -82,8 +82,11 @@ type StoredPlanItem = PlanItemRow & { id: number }
 
 type Stored = { today: string; open: StoredAdvice[]; history: JsHistory; plan: StoredPlanItem[] }
 
+/** The side whose plan the Coach screen reads. Only the powerlifting side's screens exist so far. */
+const SIDE: TrainingMode = 'POWERLIFTING'
+
 async function readStored(db: GritDb, today: string): Promise<Stored> {
-  const [open, history, plan] = await Promise.all([db.advice.where('status').equals('OPEN').toArray(), loadHistory(db), db.planItems.toArray()])
+  const [open, history, plan] = await Promise.all([db.advice.where('status').equals('OPEN').toArray(), loadHistory(db), planFor(db, SIDE)])
   return { today, open: open as StoredAdvice[], history, plan: plan as StoredPlanItem[] }
 }
 
@@ -179,7 +182,7 @@ function dayFor(lift: Lift | null, plan: PlanItemRow[], exercises: LibraryExerci
  * nor in the catalogue. A catalogue exercise without a row gets one (`resolveCatalogue`), in the caller's transaction,
  * so it lands with the plan items or not at all. Returns what to tell the lifter.
  */
-async function addToPlan(db: GritDb, lift: Lift | null, prescriptions: Prescription[], plan: PlanItemRow[], exercises: LibraryExercise[]): Promise<string> {
+async function addToPlan(db: GritDb, lift: Lift | null, prescriptions: Prescription[], plan: PlanItemRow[], exercises: LibraryExercise[], mode: TrainingMode): Promise<string> {
   const settings = await getSettings(db)
   const day = dayFor(lift, plan, exercises, settings)
   const onDay = plan.filter((p) => p.weekday === day)
@@ -190,7 +193,7 @@ async function addToPlan(db: GritDb, lift: Lift | null, prescriptions: Prescript
     const exerciseId = findExercise(exercises, p.exerciseName)?.id ?? (grit.findInLibrary(p.exerciseName) ? await resolveCatalogue(db, p.exerciseName) : null)
     if (exerciseId == null || taken.has(exerciseId)) continue
     taken.add(exerciseId)
-    await db.planItems.add({ weekday: day, exerciseId, sets: p.sets, reps: p.repsHigh, targetRpe: settings.defaultRpe, order: order++ })
+    await db.planItems.add({ weekday: day, exerciseId, sets: p.sets, reps: p.repsHigh, targetRpe: settings.defaultRpe, order: order++, mode })
     added++
   }
   const name = dayName(day)
@@ -211,12 +214,14 @@ function applyAdvice(db: GritDb, adviceId: number): Promise<string | null> {
     if (payload.kind === 'deload') message = 'Deload week on — targets lightened for 7 days'
     else if (payload.kind === 'reEntry') message = 'Easing back in for 7 days'
     else {
-      const [plan, rows] = await Promise.all([db.planItems.toArray(), db.exercises.toArray()])
+      // Added to the plan of the side the advice is for.
+      const side = sideOf(target)
+      const [plan, rows] = await Promise.all([planFor(db, side), db.exercises.toArray()])
       const exercises = rows.map((row) => exerciseToJs(row as ExerciseRow & { id: number }))
       message =
         payload.kind === 'accessories'
-          ? await addToPlan(db, asLift(target.lift), payload.items, plan, exercises)
-          : await addToPlan(db, payload.lift, weakPointAdditions(payload.lift, payload.missPoint, plan, exercises), plan, exercises)
+          ? await addToPlan(db, asLift(target.lift), payload.items, plan, exercises, side)
+          : await addToPlan(db, payload.lift, weakPointAdditions(payload.lift, payload.missPoint, plan, exercises), plan, exercises, side)
     }
     await db.advice.update(adviceId, { status: 'APPLIED' })
     return message

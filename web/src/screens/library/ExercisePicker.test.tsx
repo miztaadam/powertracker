@@ -480,8 +480,8 @@ describe('ExercisePicker', () => {
     const squat = (await rows('Squat'))[0]!
     const curl = (await rows('Curl'))[0]!
     expect(await storedPlan()).toEqual([
-      { weekday: 1, exerciseId: squat.id, sets: 3, reps: 5, targetRpe: 7.5, order: 0 },
-      { weekday: 1, exerciseId: curl.id, sets: 3, reps: 10, targetRpe: 7.5, order: 1 },
+      { weekday: 1, exerciseId: squat.id, sets: 3, reps: 5, targetRpe: 7.5, order: 0, mode: 'POWERLIFTING' },
+      { weekday: 1, exerciseId: curl.id, sets: 3, reps: 10, targetRpe: 7.5, order: 1, mode: 'POWERLIFTING' },
     ])
     const monday = screen.getByRole('region', { name: 'Monday' })
     await waitFor(() => expect(within(monday).getAllByRole('listitem').map((r) => r.getAttribute('aria-label'))).toEqual(['Squat  3 × 5 @ 7.5', 'Curl  3 × 10 @ 7.5']))
@@ -501,7 +501,7 @@ describe('ExercisePicker', () => {
     expect(await db.exercises.toArray()).toEqual(before)
     const curl = (await rows('Curl'))[0]!
     // Added as the catalogue's accessory: 3 × 10.
-    expect(await storedPlan()).toEqual([{ weekday: 1, exerciseId: curl.id, sets: 3, reps: 10, targetRpe: 8, order: 0 }])
+    expect(await storedPlan()).toEqual([{ weekday: 1, exerciseId: curl.id, sets: 3, reps: 10, targetRpe: 8, order: 0, mode: 'POWERLIFTING' }])
 
     // An alias counts too, and an entry with no row yet gets the catalogue's built-in row, not a custom one.
     for (const row of await rows('RDL')) await db.exercises.delete(row.id!)

@@ -89,7 +89,7 @@ describe('mapping', () => {
     })
     expect(setFromJs(new JsSet(1, 100, 5, 8, false, null, true), 7).missPoint).toBeNull()
     expect(sessionFromJs(new JsSession(3, '2026-11-02', null, null, []))).toEqual({
-      id: 3, date: '2026-11-02', bodyweightKg: null, readiness: null,
+      id: 3, date: '2026-11-02', bodyweightKg: null, readiness: null, mode: 'POWERLIFTING',
     })
     expect(baselineFromJs(new JsBaseline(1, 140, '2026-10-01'))).toEqual({ exerciseId: 1, e1rmKg: 140, date: '2026-10-01' })
   })
@@ -131,6 +131,10 @@ describe('settings', () => {
       keepAwake: true,
       lastBackupAt: null,
       showStrictPress: false,
+      trainingMode: 'POWERLIFTING',
+      bodybuildingTrainingDays: [1, 3, 5],
+      powerliftingLeftOn: null,
+      bodybuildingLeftOn: null,
     })
     await updateSettings(db, (s) => ({ ...s, changePlates: true, trainingDays: [2, 4], lastBackupAt: '2026-11-11' }))
     const s = await getSettings(db)
@@ -188,7 +192,7 @@ describe('upgrades', () => {
       }),
     )
     const copy = JSON.parse((await readSafetyCopy(db))!.json)
-    expect(copy.sessions).toEqual([{ id: 1, date: 20759, bodyweightKg: 80, readiness: null }])
+    expect(copy.sessions).toEqual([{ id: 1, date: 20759, bodyweightKg: 80, readiness: null, mode: 'POWERLIFTING' }])
     const row = (await db.sessions.toArray())[0] as unknown as Record<string, unknown>
     expect(row.bodyweight).toBe(80)
     expect(row.bodyweightKg).toBeUndefined()
@@ -228,7 +232,7 @@ describe('upgrades', () => {
       { id: 1, date: '2026-11-02', bodyweightKg: 80, readiness: null },
     ])
     const copy = JSON.parse((await readSafetyCopy(again))!.json)
-    expect(copy.sessions).toEqual([{ id: 1, date: 20759, bodyweightKg: 80, readiness: null }])
+    expect(copy.sessions).toEqual([{ id: 1, date: 20759, bodyweightKg: 80, readiness: null, mode: 'POWERLIFTING' }])
   })
 
   it('upgrade_malformedStoredDate_fallsBackToRawCopyAndProceeds', async () => {
@@ -320,7 +324,7 @@ describe('strict press upgrade', () => {
 
     const db = await openDb()
 
-    expect(await installedVersion(name)).toBe(2)
+    expect(await installedVersion(name)).toBe(Math.max(...SCHEMA_VERSIONS.map((v) => v.version)))
     expect(await rows(db)).toEqual([...MAIN, { id: 4, name: 'Strict press', category: 'STRICT_PRESS', isBuiltIn: true, archived: false }])
     expect(await pairs(db, 'sets')).toEqual([[1, 4], [2, 4], [3, 1]])
     expect(await pairs(db, 'planItems')).toEqual([[1, 4]])
@@ -389,7 +393,7 @@ describe('strict press upgrade', () => {
 
     const db = await openDb()
 
-    expect(await installedVersion(name)).toBe(2)
+    expect(await installedVersion(name)).toBe(Math.max(...SCHEMA_VERSIONS.map((v) => v.version)))
     expect(await db.exercises.orderBy('id').toArray()).toEqual(before)
     expect(await pairs(db, 'sets')).toEqual([[1, 4]])
   })
@@ -412,9 +416,9 @@ describe('strict press upgrade', () => {
 
     // The same upgrade again, as a version on top.
     const upgrade = SCHEMA_VERSIONS.find((v) => v.version === 2)!.upgrade
-    const again = await openDb([...SCHEMA_VERSIONS, { version: 3, stores: {}, upgrade }])
+    const again = await openDb([...SCHEMA_VERSIONS, { version: 4, stores: {}, upgrade }])
 
-    expect(await installedVersion(name)).toBe(3)
+    expect(await installedVersion(name)).toBe(4)
     expect(await again.exercises.orderBy('id').toArray()).toEqual(once)
     expect((await rows(again)).slice(3)).toEqual([
       { id: 4, name: 'Strict press', category: 'STRICT_PRESS', isBuiltIn: true, archived: false },
@@ -431,6 +435,6 @@ describe('strict press upgrade', () => {
     const v1 = await openDb(V1)
     const before = tables(v1)
     v1.close()
-    expect(tables(await openDb())).toEqual(before)
+    expect(tables(await openDb(SCHEMA_VERSIONS.filter((v) => v.version <= 2)))).toEqual(before)
   })
 })

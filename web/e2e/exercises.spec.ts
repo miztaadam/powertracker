@@ -177,7 +177,7 @@ test('an exercise is added to the plan from its guide, once per day', async ({ p
   await expect.poll(() => planItems(page)).toHaveLength(1)
   const hack = (await exercises(page)).find((e) => e.name === 'Hack squat')!
   expect(hack.isBuiltIn).toBe(true)
-  expect(await planItems(page)).toEqual([{ weekday: 3, exerciseId: hack.id, sets: 3, reps: 5, targetRpe: 8, order: 0 }])
+  expect(await planItems(page)).toEqual([{ weekday: 3, exerciseId: hack.id, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: 'POWERLIFTING' }])
 
   // "Open Plan" leads to it.
   await snackbar(page).getByRole('button', { name: 'Open Plan' }).click()
@@ -197,7 +197,7 @@ test('an exercise is added to the plan from its guide, once per day', async ({ p
   // It is stored: a reload keeps the plan, and starts the tab's search afresh.
   await page.reload()
   await expect(page.getByRole('textbox', { name: 'Search exercises' })).toHaveValue('')
-  await expect.poll(() => planItems(page)).toEqual([{ weekday: 3, exerciseId: hack.id, sets: 3, reps: 5, targetRpe: 8, order: 0 }])
+  await expect.poll(() => planItems(page)).toEqual([{ weekday: 3, exerciseId: hack.id, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: 'POWERLIFTING' }])
 })
 
 test('an exercise is added to the open session from its guide, with no row until its first set', async ({ page }) => {

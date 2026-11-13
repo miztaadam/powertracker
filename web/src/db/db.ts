@@ -17,7 +17,16 @@ import { writeSafetyCopy } from './safety'
 
 export { ensureSeeded } from './seed'
 export { readSafetyCopy, writeSafetyCopy } from './safety'
-export { DEFAULT_SETTINGS, getSettings, updateSettings, type AppSettings } from './settings'
+export {
+  activeTrainingDays,
+  clearLeftOn,
+  DEFAULT_SETTINGS,
+  getSettings,
+  setTrainingMode,
+  updateSettings,
+  withTrainingMode,
+  type AppSettings,
+} from './settings'
 
 const versionChangeListeners = new Set<() => void>()
 

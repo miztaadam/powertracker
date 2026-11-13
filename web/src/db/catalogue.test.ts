@@ -85,7 +85,7 @@ describe('resolveCatalogue', () => {
     const mine: ExerciseRow = { name: 'hip thrust', category: 'ACCESSORY', parentLift: null, muscles: ['Glutes'], isBuiltIn: false, archived: false }
     const own = (await db.exercises.add(mine)) as number
 
-    const itemId = await addPlanItem(db, planItem(), 'Hip thrust')
+    const itemId = await addPlanItem(db, planItem(), 'Hip thrust', 'POWERLIFTING')
 
     // No duplicate: the plan item points at the lifter's own row, which stays theirs.
     expect(await rows('Hip thrust')).toEqual([{ ...mine, id: own }])
@@ -98,7 +98,7 @@ describe('resolveCatalogue', () => {
   it('insertAndPlanItem_areOneTransaction', async () => {
     await unseed('Curl')
     failInsertsInto('planItems')
-    await expect(addPlanItem(db, planItem(), 'Curl')).rejects.toThrow()
+    await expect(addPlanItem(db, planItem(), 'Curl', 'POWERLIFTING')).rejects.toThrow()
     // No exercise row is left behind.
     expect(await rows('Curl')).toEqual([])
     expect(await db.planItems.count()).toBe(0)
@@ -115,7 +115,7 @@ describe('resolveCatalogue', () => {
     const [curl] = await rows('Curl')
     await db.exercises.update(curl!.id!, { archived: true })
     failInsertsInto('planItems')
-    await expect(addPlanItem(db, planItem(), 'Curl')).rejects.toThrow()
+    await expect(addPlanItem(db, planItem(), 'Curl', 'POWERLIFTING')).rejects.toThrow()
     // The restore is rolled back with the plan item.
     expect(await rows('Curl')).toEqual([{ ...curl, archived: true }])
   })
@@ -123,16 +123,16 @@ describe('resolveCatalogue', () => {
   it('unknownName_isRefused_andNothingIsWritten', async () => {
     const before = await db.exercises.toArray()
     await expect(resolveCatalogue(db, 'Tyre flip')).rejects.toThrow('Tyre flip is not in the exercise catalogue')
-    await expect(addPlanItem(db, planItem(), 'Tyre flip')).rejects.toThrow()
+    await expect(addPlanItem(db, planItem(), 'Tyre flip', 'POWERLIFTING')).rejects.toThrow()
     expect(await db.exercises.toArray()).toEqual(before)
     expect(await db.planItems.count()).toBe(0)
   })
 
   it('addPlanItem_goesAfterTheDaysLast_andASetKeepsItsExercise', async () => {
     const squat = (await rows('Squat'))[0]!.id!
-    const first = await addPlanItem(db, planItem(squat), null)
+    const first = await addPlanItem(db, planItem(squat), null, 'POWERLIFTING')
     await unseed('Curl')
-    const second = await addPlanItem(db, planItem(), 'Curl')
+    const second = await addPlanItem(db, planItem(), 'Curl', 'POWERLIFTING')
     const curl = (await rows('Curl'))[0]!.id!
     expect((await db.planItems.bulkGet([first, second])).map((p) => [p!.exerciseId, p!.order])).toEqual([
       [squat, 0],
@@ -144,7 +144,7 @@ describe('resolveCatalogue', () => {
     await updatePlanItem(db, first, { exerciseId: null, sets: 4, reps: 8, targetRpe: 7 }, 'Row')
     const row = (await rows('Row'))[0]!
     expect(row.isBuiltIn).toBe(true)
-    expect(await db.planItems.get(first)).toEqual({ id: first, weekday: 1, exerciseId: row.id, sets: 4, reps: 8, targetRpe: 7, order: 0 })
+    expect(await db.planItems.get(first)).toEqual({ id: first, weekday: 1, exerciseId: row.id, sets: 4, reps: 8, targetRpe: 7, order: 0, mode: 'POWERLIFTING' })
 
     const sessionId = await startSession(db, TODAY)
     const setId = await addSet(db, { ...set(squat), sessionId }, null)
@@ -157,7 +157,7 @@ describe('backup', () => {
   it('backupAfterCatalogueAdd_roundTrips', async () => {
     const name = 'Goblet squat'
     await unseed(name)
-    await addPlanItem(db, planItem(), name)
+    await addPlanItem(db, planItem(), name, 'POWERLIFTING')
     const sessionId = await startSession(db, TODAY)
     await addSet(db, { ...set(), sessionId }, name)
 

@@ -48,7 +48,7 @@ describe('PlanScreen', () => {
     expect(rowsOf(await day('Friday'))).toEqual([])
     expect(screen.queryByRole('dialog')).toBeNull()
     const squat = await exerciseNamed(db, 'Squat')
-    expect(await storedPlan()).toEqual([{ weekday: 1, exerciseId: squat.id, sets: 3, reps: 5, targetRpe: 8, order: 0 }])
+    expect(await storedPlan()).toEqual([{ weekday: 1, exerciseId: squat.id, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: 'POWERLIFTING' }])
   })
 
   it('moreMenu_editAndDelete', async () => {
@@ -139,7 +139,7 @@ describe('PlanScreen', () => {
     const made = await db.exercises.where('name').equals('Cluster squat').toArray()
     expect(made).toHaveLength(1)
     expect(made[0]).toMatchObject({ category: 'VARIATION', parentLift: 'SQUAT', muscles: ['quads', 'glutes'], isBuiltIn: false, archived: false })
-    expect(await storedPlan()).toEqual([{ weekday: 3, exerciseId: made[0]!.id, sets: 3, reps: 5, targetRpe: 8, order: 0 }])
+    expect(await storedPlan()).toEqual([{ weekday: 3, exerciseId: made[0]!.id, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: 'POWERLIFTING' }])
   })
 
   it('edit_changeExercise_swapsItThroughThePicker_onSave', async () => {

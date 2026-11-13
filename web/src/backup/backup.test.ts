@@ -3,7 +3,7 @@ import Dexie from 'dexie'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { resolveCatalogue } from '../db/catalogue'
-import { ensureSeeded, getSettings, openGritDb, updateSettings, type GritDb } from '../db/db'
+import { ensureSeeded, getSettings, openGritDb, setTrainingMode, updateSettings, type GritDb } from '../db/db'
 import { readSafetyCopy } from '../db/safety'
 import {
   androidRestAlertOf,
@@ -24,9 +24,11 @@ const FIXTURES = resolve(__dirname, '__fixtures__')
 /** What the previous apps wrote (version 1): frozen, and must keep restoring. */
 const ANDROID_FIXTURE = resolve(FIXTURES, 'android-v1.json')
 const WEB_V1_FIXTURE = resolve(FIXTURES, 'web-v1.json')
-/** What the apps write now (version 2). Android regenerates its own; this app regenerates web-v2 (UPDATE_FIXTURES=1). */
+/** What the strict press apps wrote (version 2): frozen since version 3, and must keep restoring. */
 const ANDROID_V2_FIXTURE = resolve(FIXTURES, 'android-v2.json')
-const WEB_FIXTURE = resolve(FIXTURES, 'web-v2.json')
+const WEB_V2_FIXTURE = resolve(FIXTURES, 'web-v2.json')
+/** What this app writes now (version 3, bodybuilding mode). Regenerate with UPDATE_FIXTURES=1. */
+const WEB_FIXTURE = resolve(FIXTURES, 'web-v3.json')
 const EXPORTED_AT = 1_793_000_000_000
 
 let n = 0
@@ -60,7 +62,7 @@ const decodeOk = (text: string): BackupFile => {
  * Mirrors the Android fixture's breadth, deterministically. `strictPress` adds what version 2 brought, as
  * Android's fixture has it: the switch on and a catalogue "Strict press" row with an "off the shoulders" miss.
  */
-async function buildSampleDb(db: GritDb, { strictPress = false } = {}) {
+async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = false } = {}) {
   await ensureSeeded(db)
   const byName = new Map((await db.exercises.toArray()).map((e) => [e.name, e.id as number]))
   const squat = byName.get('Squat')!
@@ -119,12 +121,54 @@ async function buildSampleDb(db: GritDb, { strictPress = false } = {}) {
     await set(s2, press, 60, 5, 8.5, false, null, true)
     await set(s2, press, 65, 2, 10, true, 'FLOOR', false)
   }
+  if (bodybuilding) {
+    // Version 3: on, off and on again, so both sides have been left once; the bodybuilding side has its own days,
+    // its own plan, one session and one piece of advice.
+    await setTrainingMode(db, 'BODYBUILDING', '2026-10-20')
+    await setTrainingMode(db, 'POWERLIFTING', '2026-10-24')
+    await setTrainingMode(db, 'BODYBUILDING', '2026-10-31')
+    await updateSettings(db, (s) => ({ ...s, bodybuildingTrainingDays: [1, 3, 5, 6] }))
+    const curl = await resolveCatalogue(db, 'Curl')
+    await db.planItems.bulkAdd([
+      { weekday: 1, exerciseId: curl, sets: 3, reps: 8, repsHigh: 12, targetRpe: 8, order: 0, mode: 'BODYBUILDING' },
+      { weekday: 1, exerciseId: squat, sets: 3, reps: 10, repsHigh: 15, targetRpe: 8, order: 1, mode: 'BODYBUILDING' },
+    ])
+    const s3 = (await db.sessions.add({ date: '2026-10-31', bodyweightKg: 84, readiness: 3, mode: 'BODYBUILDING' })) as number
+    await set(s3, curl, 14, 11, 8, false, null, false)
+    await set(s3, curl, 14, 10, 8, false, null, false)
+    await set(s3, curl, 14, 9, 8.5, false, null, false)
+    await db.advice.add({
+      ...adv('TARGET', null, 'Beat it.', 1,
+        `{"type":"${P}Target","exerciseId":${curl},"weightKg":14.0,"reps":8,"rpe":8.0,"sets":3,"repsHigh":12}`, 'OPEN'),
+      mode: 'BODYBUILDING',
+    })
+  }
 }
 
-/** What a version-1 file with no strict press row exports as once restored here: version 2, switch off. */
+/** Version 3's fields as an older file means them: everything on the powerlifting side, neither side ever left. */
+function withV3Defaults(file: Record<string, unknown>): Record<string, unknown> {
+  const rows = (key: string, extra: Record<string, unknown>) =>
+    (file[key] as Record<string, unknown>[]).map((r) => ({ ...r, ...extra }))
+  return {
+    ...file,
+    version: BACKUP_VERSION,
+    settings: {
+      ...(file.settings as object),
+      trainingMode: 'POWERLIFTING',
+      bodybuildingTrainingDays: [1, 3, 5],
+      powerliftingLeftOn: null,
+      bodybuildingLeftOn: null,
+    },
+    sessions: rows('sessions', { mode: 'POWERLIFTING' }),
+    planItems: rows('planItems', { mode: 'POWERLIFTING', repsHigh: null }),
+    advice: rows('advice', { mode: 'POWERLIFTING' }),
+  }
+}
+
+/** What a version-1 file with no strict press row exports as once restored here: the current version, switch off, all powerlifting. */
 function asUpgradedV1(v1: Record<string, unknown>): Record<string, unknown> {
   expect(v1.version).toBe(1)
-  return withoutExportedAt({ ...v1, version: BACKUP_VERSION, settings: { ...(v1.settings as object), showStrictPress: false } })
+  return withoutExportedAt(withV3Defaults({ ...v1, settings: { ...(v1.settings as object), showStrictPress: false } }))
 }
 
 /** `text` as the previous app wrote it: version 1, and no setting it did not have. */
@@ -384,7 +428,7 @@ describe('backup', () => {
 
   it('webFixture_isUpToDate', async () => {
     const db = await openDb()
-    await buildSampleDb(db, { strictPress: true })
+    await buildSampleDb(db, { strictPress: true, bodybuilding: true })
     const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
     if (process.env.UPDATE_FIXTURES === '1') {
       writeFileSync(WEB_FIXTURE, JSON.stringify(JSON.parse(text), null, 4) + '\n')
@@ -394,7 +438,7 @@ describe('backup', () => {
     const file = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
     expect(file.settings.restAlert).toBe('VIBRATE')
     expect(file.settings.webRestAlert).toBe('SILENT')
-    expect(file.version).toBe(2)
+    expect(file.version).toBe(3)
     expect(file.settings.showStrictPress).toBe(true)
     expect(file.exercises.filter((e) => e.category === 'STRICT_PRESS').map((e) => e.name)).toEqual(['Strict press'])
   })
@@ -417,9 +461,10 @@ describe('backup', () => {
     await restoreBackup(db, decodeOk(readFileSync(ANDROID_V2_FIXTURE, 'utf8')))
     const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
 
-    const expected = withoutExportedAt(readJson(ANDROID_V2_FIXTURE))
+    expect(readJson(ANDROID_V2_FIXTURE).version).toBe(2)
+    // It exports again as the current version, everything on the powerlifting side.
+    const expected = withoutExportedAt(withV3Defaults(readJson(ANDROID_V2_FIXTURE)))
     const settings = expected.settings as Record<string, unknown>
-    expect(expected.version).toBe(2)
     expect(settings.showStrictPress).toBe(true)
     // The same documented differences as for version 1: webRestAlert is filled, App lock stays this device's.
     expect(settings.webRestAlert).toBeNull()
@@ -478,7 +523,7 @@ describe('backup', () => {
     const exported = await exportBackup(db, EXPORTED_AT)
     const text = encodeBackup(exported)
     const json = JSON.parse(text) as { version: number; settings: Record<string, unknown> }
-    expect(json.version).toBe(2)
+    expect(json.version).toBe(BACKUP_VERSION)
     expect(json.settings.showStrictPress).toBe(true)
     await updateSettings(db, (s) => ({ ...s, showStrictPress: false }))
 
@@ -494,7 +539,7 @@ describe('backup', () => {
     await buildSampleDb(db, { strictPress: true })
     const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
 
-    expect(decodeBackup(text, 1)).toEqual({ ok: false, kind: 'TOO_NEW', version: 2 })
+    expect(decodeBackup(text, 1)).toEqual({ ok: false, kind: 'TOO_NEW', version: BACKUP_VERSION })
     expect(decodeBackup(text).ok).toBe(true)
   })
 
@@ -505,5 +550,110 @@ describe('backup', () => {
     o.settings.showStrictPress = 'yes'
     const r = decodeBackup(JSON.stringify(o))
     expect(r.ok === false && r.kind).toBe('CORRUPT')
+  })
+})
+
+/** Bodybuilding mode spec §6: backup version 3 carries the training side. */
+describe('backup version 3', () => {
+  it('v3RoundTrip_keepsBothSides', async () => {
+    const db = await openDb()
+    await buildSampleDb(db, { strictPress: true, bodybuilding: true })
+    const exported = await exportBackup(db, EXPORTED_AT)
+    const text = encodeBackup(exported)
+    const json = JSON.parse(text) as BackupFile
+
+    expect(json.version).toBe(3)
+    expect(json.settings).toMatchObject({
+      trainingMode: 'BODYBUILDING',
+      trainingDays: [2, 4, 6],
+      bodybuildingTrainingDays: [1, 3, 5, 6],
+      powerliftingLeftOn: isoToEpochDay('2026-10-31'),
+      bodybuildingLeftOn: isoToEpochDay('2026-10-24'),
+    })
+    expect(json.planItems.map((p) => [p.mode, p.reps, p.repsHigh])).toEqual([
+      ['POWERLIFTING', 5, null],
+      ['POWERLIFTING', 4, null],
+      ['POWERLIFTING', 3, null],
+      ['BODYBUILDING', 8, 12],
+      ['BODYBUILDING', 10, 15],
+    ])
+    expect(json.sessions.map((s) => s.mode)).toEqual(['POWERLIFTING', 'POWERLIFTING', 'BODYBUILDING'])
+    expect(json.advice.map((a) => a.mode)).toEqual(['POWERLIFTING', 'POWERLIFTING', 'POWERLIFTING', 'POWERLIFTING', 'POWERLIFTING', 'BODYBUILDING'])
+
+    // Everything changed here comes back from the file.
+    await setTrainingMode(db, 'POWERLIFTING', '2026-11-13')
+    await updateSettings(db, (s) => ({ ...s, bodybuildingTrainingDays: [7], bodybuildingLeftOn: null }))
+    await db.planItems.where('mode').equals('BODYBUILDING').delete()
+    await restoreBackup(db, decodeOk(text))
+
+    expect(await exportBackup(db, EXPORTED_AT)).toEqual(exported)
+    const s = await getSettings(db)
+    expect(s).toMatchObject({ trainingMode: 'BODYBUILDING', bodybuildingTrainingDays: [1, 3, 5, 6], powerliftingLeftOn: '2026-10-31', bodybuildingLeftOn: '2026-10-24' })
+    expect((await db.planItems.where('mode').equals('BODYBUILDING').toArray()).map((p) => p.repsHigh)).toEqual([12, 15])
+    expect((await db.sessions.toArray()).find((x) => x.date === '2026-10-31')?.mode).toBe('BODYBUILDING')
+  })
+
+  it('webV2Fixture_restoresAsAllPowerlifting', async () => {
+    const db = await openDb()
+    const v2 = readJson(WEB_V2_FIXTURE)
+    expect(v2.version).toBe(2)
+    await restoreBackup(db, decodeOk(readFileSync(WEB_V2_FIXTURE, 'utf8')))
+
+    const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
+    const expected = withoutExportedAt(withV3Defaults(v2))
+    ;(expected.settings as Record<string, unknown>).appLock = false // this device's own
+    expect(withoutExportedAt(out)).toEqual(expected)
+    expect((await db.planItems.toArray()).every((p) => p.mode === 'POWERLIFTING' && p.repsHigh === undefined)).toBe(true)
+    expect((await db.sessions.toArray()).every((p) => p.mode === 'POWERLIFTING')).toBe(true)
+    expect((await db.advice.toArray()).every((p) => p.mode === 'POWERLIFTING')).toBe(true)
+    expect((await getSettings(db)).trainingMode).toBe('POWERLIFTING')
+  })
+
+  it('v3File_onVersion2Decoder_isTooNew_andVersion4IsTooNewHere', async () => {
+    const text = readFileSync(WEB_FIXTURE, 'utf8')
+    expect(decodeBackup(text, 2)).toEqual({ ok: false, kind: 'TOO_NEW', version: 3 })
+    const v4 = JSON.stringify({ ...readJson(WEB_FIXTURE), version: 4 })
+    expect(decodeBackup(v4)).toEqual({ ok: false, kind: 'TOO_NEW', version: 4 })
+    expect(BACKUP_VERSION).toBe(3)
+  })
+
+  it('decode_newKeys_areOptionalButTyped', () => {
+    type Loose = Record<string, unknown> & { settings: Record<string, unknown>; sessions: Record<string, unknown>[]; planItems: Record<string, unknown>[]; advice: Record<string, unknown>[] }
+    const valid = readJson(WEB_FIXTURE) as Loose
+    const mut = (f: (o: Loose) => void) => {
+      const o = structuredClone(valid)
+      f(o)
+      return JSON.stringify(o)
+    }
+    const corrupt = (text: string) => {
+      const r = decodeBackup(text)
+      expect(r.ok === false && r.kind, text.slice(0, 80)).toBe('CORRUPT')
+    }
+    corrupt(mut((o) => (o.settings.trainingMode = 'CROSSFIT')))
+    corrupt(mut((o) => (o.settings.trainingMode = null)))
+    corrupt(mut((o) => (o.settings.bodybuildingTrainingDays = [8])))
+    corrupt(mut((o) => (o.settings.bodybuildingTrainingDays = null)))
+    corrupt(mut((o) => (o.settings.powerliftingLeftOn = 'yesterday')))
+    corrupt(mut((o) => (o.settings.bodybuildingLeftOn = 99_999_999)))
+    corrupt(mut((o) => (o.sessions[0]!.mode = 'X')))
+    corrupt(mut((o) => (o.planItems[0]!.mode = 'bodybuilding')))
+    corrupt(mut((o) => (o.planItems[0]!.repsHigh = 'twelve')))
+    corrupt(mut((o) => (o.planItems[0]!.repsHigh = 12.5)))
+    corrupt(mut((o) => (o.advice[0]!.mode = 7)))
+
+    // Absent keys mean what an older file means: the powerlifting side.
+    const old = decodeOk(
+      mut((o) => {
+        for (const k of ['trainingMode', 'bodybuildingTrainingDays', 'powerliftingLeftOn', 'bodybuildingLeftOn']) delete o.settings[k]
+        for (const r of [...o.sessions, ...o.planItems, ...o.advice]) {
+          delete r.mode
+          delete r.repsHigh
+        }
+      }),
+    )
+    expect(old.settings).toMatchObject({ trainingMode: 'POWERLIFTING', bodybuildingTrainingDays: [1, 3, 5], powerliftingLeftOn: null, bodybuildingLeftOn: null })
+    expect(old.sessions.every((s) => s.mode === 'POWERLIFTING')).toBe(true)
+    expect(old.planItems.every((p) => p.mode === 'POWERLIFTING' && p.repsHigh === null)).toBe(true)
+    expect(old.advice.every((a) => a.mode === 'POWERLIFTING')).toBe(true)
   })
 })

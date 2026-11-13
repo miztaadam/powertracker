@@ -50,10 +50,11 @@ export async function seedFlatBench(page: Page) {
       all.onsuccess = () => done(all.result)
     })
     const bench = exercises.find((e) => e.name === 'Bench')!.id
-    tx.objectStore('planItems').add({ weekday: 3, exerciseId: bench, sets: 3, reps: 5, targetRpe: 8, order: 0 })
+    // Stamped with their side, as the app writes them (schema version 3).
+    tx.objectStore('planItems').add({ weekday: 3, exerciseId: bench, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: 'POWERLIFTING' })
     for (let week = 0; week < 6; week++) {
       const date = new Date(Date.UTC(2026, 9, 5 + week * 7)).toISOString().slice(0, 10)
-      const session = tx.objectStore('sessions').add({ date, bodyweightKg: null, readiness: null })
+      const session = tx.objectStore('sessions').add({ date, bodyweightKg: null, readiness: null, mode: 'POWERLIFTING' })
       session.onsuccess = () => tx.objectStore('sets').add({ sessionId: session.result, exerciseId: bench, weightKg: 100, reps: 5, rpe: 8.5, failed: false, missPoint: null, isTopSet: false })
     }
     await settled

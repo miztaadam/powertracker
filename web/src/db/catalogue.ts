@@ -1,6 +1,6 @@
 import { grit } from '../domain'
 import type { GritDb } from './db'
-import type { PlanItemRow, SetRow } from './schema'
+import { sideOf, type PlanItemRow, type SetRow, type TrainingMode } from './schema'
 
 /**
  * The id of the exercise row for the catalogue exercise `name` (a name or an alias). Nothing is
@@ -43,28 +43,35 @@ async function exerciseFor(db: GritDb, exerciseId: number | null, catalogueName:
   return exerciseId
 }
 
-/** The day's plan items as stored now, in order. */
-export async function planItemsOn(db: GritDb, weekday: number): Promise<(PlanItemRow & { id: number })[]> {
+/** Every plan item of `mode`'s side, in id order. Each side keeps its own plan (bodybuilding mode spec §2). */
+export async function planFor(db: GritDb, mode: TrainingMode): Promise<(PlanItemRow & { id: number })[]> {
+  // Filtered here rather than by the mode index: a row with no mode is on the powerlifting side (see `sideOf`).
+  const items = (await db.planItems.toArray()) as (PlanItemRow & { id: number })[]
+  return items.filter((p) => sideOf(p) === mode)
+}
+
+/** The day's plan items on `mode`'s side as stored now, in order. */
+export async function planItemsOn(db: GritDb, weekday: number, mode: TrainingMode): Promise<(PlanItemRow & { id: number })[]> {
   const items = (await db.planItems.where('weekday').equals(weekday).toArray()) as (PlanItemRow & { id: number })[]
-  return items.sort((a, b) => a.order - b.order || a.id - b.id)
+  return items.filter((p) => sideOf(p) === mode).sort((a, b) => a.order - b.order || a.id - b.id)
 }
 
 type Unresolved<T extends { exerciseId: number }> = Omit<T, 'exerciseId'> & { exerciseId: number | null }
 
 /**
- * Adds a plan item at the end of its day; resolves to its id. With a `catalogueName` the exercise
+ * Adds a plan item at the end of its day on `mode`'s side; resolves to its id. With a `catalogueName` the exercise
  * row is found, restored or inserted in the same transaction, and `exerciseId` is not used.
  */
-export function addPlanItem(db: GritDb, item: Unresolved<Omit<PlanItemRow, 'id' | 'order'>>, catalogueName: string | null): Promise<number> {
+export function addPlanItem(db: GritDb, item: Unresolved<Omit<PlanItemRow, 'id' | 'order' | 'mode'>>, catalogueName: string | null, mode: TrainingMode): Promise<number> {
   return db.transaction('rw', db.exercises, db.planItems, async () => {
     const exerciseId = await exerciseFor(db, item.exerciseId, catalogueName)
-    const last = (await planItemsOn(db, item.weekday)).at(-1)
-    return (await db.planItems.add({ ...item, exerciseId, order: (last?.order ?? -1) + 1 })) as number
+    const last = (await planItemsOn(db, item.weekday, mode)).at(-1)
+    return (await db.planItems.add({ ...item, exerciseId, order: (last?.order ?? -1) + 1, mode })) as number
   })
 }
 
-/** Changes a plan item in place. With a `catalogueName` its exercise becomes that catalogue exercise, resolved in the same transaction. */
-export function updatePlanItem(db: GritDb, id: number, change: Unresolved<Pick<PlanItemRow, 'exerciseId' | 'sets' | 'reps' | 'targetRpe'>>, catalogueName: string | null): Promise<void> {
+/** Changes a plan item in place; it stays on its side. With a `catalogueName` its exercise becomes that catalogue exercise, resolved in the same transaction. */
+export function updatePlanItem(db: GritDb, id: number, change: Unresolved<Pick<PlanItemRow, 'exerciseId' | 'sets' | 'reps' | 'targetRpe' | 'repsHigh'>>, catalogueName: string | null): Promise<void> {
   return db.transaction('rw', db.exercises, db.planItems, async () => {
     const exerciseId = await exerciseFor(db, change.exerciseId, catalogueName)
     await db.planItems.update(id, { ...change, exerciseId })

@@ -351,7 +351,7 @@ describe('Exercises tab', () => {
     const hack = await rows('Hack squat')
     expect(hack).toMatchObject([{ name: 'Hack squat', isBuiltIn: true, archived: false }])
     expect(await db.exercises.count()).toBe(count + 1)
-    expect(await storedPlan()).toEqual([{ weekday: 3, exerciseId: hack[0]!.id, sets: 3, reps: 5, targetRpe: 7.5, order: 0 }])
+    expect(await storedPlan()).toEqual([{ weekday: 3, exerciseId: hack[0]!.id, sets: 3, reps: 5, targetRpe: 7.5, order: 0, mode: 'POWERLIFTING' }])
     await userEvent.click(within(snackbar()).getByRole('button', { name: 'Open Plan' }))
     expect(shown.onOpenPlan).toHaveBeenCalledOnce()
 
@@ -359,7 +359,7 @@ describe('Exercises tab', () => {
     await addToPlan('Face pull', 'Wednesday')
     await waitFor(() => expect(db.planItems.count()).resolves.toBe(2))
     const facePull = await rows('Face pull')
-    expect((await storedPlan())[1]).toEqual({ weekday: 3, exerciseId: facePull[0]!.id, sets: 3, reps: 10, targetRpe: 7.5, order: 1 })
+    expect((await storedPlan())[1]).toEqual({ weekday: 3, exerciseId: facePull[0]!.id, sets: 3, reps: 10, targetRpe: 7.5, order: 1, mode: 'POWERLIFTING' })
 
     // No training days set: the whole week is offered.
     await updateSettings(db, (s) => ({ ...s, trainingDays: [] }))
@@ -388,7 +388,7 @@ describe('Exercises tab', () => {
     // Another day is another matter.
     await addToPlan('Squat', 'Wednesday')
     await waitFor(() => expect(snackbar()).toHaveTextContent('Added to Wednesday'))
-    expect(await storedPlan()).toEqual([...stored, { weekday: 3, exerciseId: squat.id, sets: 3, reps: 5, targetRpe: 8, order: 0 }])
+    expect(await storedPlan()).toEqual([...stored, { weekday: 3, exerciseId: squat.id, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: 'POWERLIFTING' }])
     expect(await rows('Squat')).toHaveLength(1)
     expect(shown.onOpenPlan).not.toHaveBeenCalled()
   })
@@ -576,7 +576,7 @@ describe('Exercises tab', () => {
     await userEvent.click(dayChooser().getByRole('button', { name: 'Friday' }))
     await waitFor(() => expect(snackbar()).toHaveTextContent('Added to Friday'))
     // Its own row, with an accessory's defaults; no row is made for it.
-    expect(await storedPlan()).toEqual([{ weekday: 5, exerciseId: id, sets: 3, reps: 10, targetRpe: 8, order: 0 }])
+    expect(await storedPlan()).toEqual([{ weekday: 5, exerciseId: id, sets: 3, reps: 10, targetRpe: 8, order: 0, mode: 'POWERLIFTING' }])
     expect(await db.exercises.count()).toBe(count)
 
     await addToToday('Tyre flip')

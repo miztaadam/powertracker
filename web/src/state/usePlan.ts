@@ -1,9 +1,9 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { addPlanItem, planItemsOn, updatePlanItem } from '../db/catalogue'
+import { addPlanItem, planFor, planItemsOn, updatePlanItem } from '../db/catalogue'
 import { getSettings, type AppSettings, type GritDb } from '../db/db'
 import { exerciseToJs } from '../db/mapping'
-import type { ExerciseRow, PlanItemRow } from '../db/schema'
+import { sideOf, type ExerciseRow, type PlanItemRow, type TrainingMode } from '../db/schema'
 import { grit } from '../domain'
 import { DEFAULT_SETS, createCustomExercise, defaultReps, recentExerciseIds, type CustomExercise, type PickerEntry } from './exercisePicker'
 
@@ -65,10 +65,13 @@ export type PlanActions = {
   setBaseline: (exerciseId: number, text: string) => Promise<void>
 }
 
+/** The side whose plan this screen reads and edits. Only the powerlifting side's screens exist so far. */
+const SIDE: TrainingMode = 'POWERLIFTING'
+
 type Stored = { plan: PlanItem[]; exercises: PlanExercise[]; settings: AppSettings; recentIds: number[] }
 
 async function readStored(db: GritDb): Promise<Stored> {
-  const [plan, exercises, settings, sessions, sets] = await Promise.all([db.planItems.toArray(), db.exercises.toArray(), getSettings(db), db.sessions.toArray(), db.sets.orderBy('id').toArray()])
+  const [plan, exercises, settings, sessions, sets] = await Promise.all([planFor(db, SIDE), db.exercises.toArray(), getSettings(db), db.sessions.toArray(), db.sets.orderBy('id').toArray()])
   const recentIds = recentExerciseIds(sessions.map((s) => ({ id: s.id as number, date: s.date, sets: sets.filter((set) => set.sessionId === s.id) })))
   return { plan: plan as PlanItem[], exercises: exercises as PlanExercise[], settings, recentIds }
 }
@@ -113,7 +116,7 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
 
   const add = useCallback<PlanActions['add']>(
     async (weekday, entry) => {
-      await addPlanItem(db, await newItem(db, weekday, entry), entry.library?.name ?? null)
+      await addPlanItem(db, await newItem(db, weekday, entry), entry.library?.name ?? null, SIDE)
     },
     [db],
   )
@@ -125,8 +128,8 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
         const name = entry.library?.name ?? null
         // The row a catalogue name would be saved to (the oldest live one, as resolveCatalogue picks it), if it has one yet.
         const rowId = name == null ? entry.exerciseId : ((await db.exercises.toArray()).find((e) => !e.archived && e.name.toLowerCase() === name.toLowerCase())?.id ?? null)
-        if (rowId != null && (await planItemsOn(db, weekday)).some((p) => p.exerciseId === rowId)) return 'ALREADY_THERE'
-        await addPlanItem(db, await newItem(db, weekday, entry), name)
+        if (rowId != null && (await planItemsOn(db, weekday, SIDE)).some((p) => p.exerciseId === rowId)) return 'ALREADY_THERE'
+        await addPlanItem(db, await newItem(db, weekday, entry), name, SIDE)
         return 'ADDED'
       }),
     [db],
@@ -149,7 +152,7 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
   const move = useCallback<PlanActions['move']>(
     async (item, direction) => {
       await db.transaction('rw', db.planItems, async () => {
-        const items = await planItemsOn(db, item.weekday)
+        const items = await planItemsOn(db, item.weekday, sideOf(item))
         const from = items.findIndex((p) => p.id === item.id)
         const moved = items[from]
         const neighbour = items[from + direction]
