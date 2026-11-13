@@ -5,8 +5,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.platform.app.InstrumentationRegistry
 import com.powertracker.data.db.AppDatabase
 import com.powertracker.data.db.MIGRATION_1_2
+import com.powertracker.data.db.MIGRATION_2_3
 import com.powertracker.data.db.StrictPressUpgrade
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -148,6 +150,67 @@ class MigrationTest {
         db.close()
     }
 
+    @Test
+    fun schemaV2_opens() {
+        helper.createDatabase(name, 2).close()
+    }
+
+    /**
+     * Bodybuilding mode spec §6: a version 2 database keeps every row, and every plan item, session and advice lands on
+     * the powerlifting side with fixed reps.
+     */
+    @Test
+    fun upgrade2To3_keepsEveryRow_stampsPowerlifting() {
+        helper.createDatabase(name, 2).use { db ->
+            seedMainLifts(db)
+            session(db, 1, 20_400)
+            session(db, 2, 20_407)
+            set(db, 1, 1, 1, 140.0)
+            set(db, 2, 1, 2, 100.0)
+            set(db, 3, 2, 3, 180.0)
+            planItem(db, 1, 1)
+            planItem(db, 2, 2)
+            planItem(db, 3, 3)
+            advice(db, 1, "TARGET", "OPEN")
+            advice(db, 2, "DELOAD", "DISMISSED")
+        }
+
+        val db = helper.runMigrationsAndValidate(name, 3, true, MIGRATION_2_3)
+
+        assertEquals(listOf(1L to 1L, 2L to 2L, 3L to 3L), planItems(db))
+        assertEquals(listOf(1L to 1L, 2L to 1L, 3L to 2L), pairs(db, "SELECT id, sessionId FROM logged_set ORDER BY id"))
+        assertEquals(listOf(1L to 20_400L, 2L to 20_407L), pairs(db, "SELECT id, date FROM session ORDER BY id"))
+        assertEquals(listOf(1L, 2L), ids(db, "SELECT id FROM advice ORDER BY id"))
+        for (table in listOf("plan_item", "session", "advice")) {
+            assertEquals(table, listOf("POWERLIFTING"), strings(db, "SELECT DISTINCT mode FROM $table"))
+        }
+        db.query("SELECT repsHigh FROM plan_item").use { c -> while (c.moveToNext()) assertNull(if (c.isNull(0)) null else c.getInt(0)) }
+        // A row written after the upgrade without a mode still gets the powerlifting side from the column default.
+        db.execSQL("INSERT INTO session (id, date, bodyweightKg, readiness) VALUES (3, 20414, NULL, NULL)")
+        assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM session WHERE id = 3"))
+        db.close()
+    }
+
+    /** A version 1 database still reaches version 3 through both upgrades in turn. */
+    @Test
+    fun upgrade1To3_runsBothSteps() {
+        helper.createDatabase(name, 1).use { db ->
+            seedMainLifts(db)
+            exercise(db, 4, "Overhead press", "ACCESSORY", builtIn = false)
+            session(db, 1, 20_400)
+            set(db, 1, 1, 4, 60.0)
+            planItem(db, 1, 4)
+        }
+
+        val db = helper.runMigrationsAndValidate(name, 3, true, MIGRATION_1_2, MIGRATION_2_3)
+
+        assertEquals(Row(4, "Strict press", "STRICT_PRESS", true, false), exercises(db).last())
+        assertEquals(listOf(1L to 4L), sets(db))
+        assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM plan_item"))
+        assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM session"))
+        db.close()
+    }
+
     private data class Row(val id: Long, val name: String, val category: String, val builtIn: Boolean, val archived: Boolean)
 
     private fun seedMainLifts(db: SupportSQLiteDatabase) {
@@ -176,6 +239,18 @@ class MigrationTest {
             "INSERT INTO plan_item (id, weekday, exerciseId, sets, reps, targetRpe, sortOrder) VALUES (?, 1, ?, 3, 5, 8.0, 0)",
             arrayOf<Any>(id, exerciseId),
         )
+
+    private fun advice(db: SupportSQLiteDatabase, id: Long, type: String, status: String) =
+        db.execSQL(
+            "INSERT INTO advice (id, type, lift, createdAt, reason, severity, payload, status) VALUES (?, ?, NULL, 20407, 'Because', 1, '{}', ?)",
+            arrayOf<Any>(id, type, status),
+        )
+
+    private fun strings(db: SupportSQLiteDatabase, sql: String): List<String> =
+        db.query(sql).use { c -> buildList { while (c.moveToNext()) add(c.getString(0)) } }
+
+    private fun ids(db: SupportSQLiteDatabase, sql: String): List<Long> =
+        db.query(sql).use { c -> buildList { while (c.moveToNext()) add(c.getLong(0)) } }
 
     private fun exercises(db: SupportSQLiteDatabase): List<Row> =
         db.query("SELECT id, name, category, isBuiltIn, archived FROM exercise ORDER BY id").use { c ->

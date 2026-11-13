@@ -14,6 +14,7 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.TrainingMode
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -39,16 +40,36 @@ data class BackupSettings(
     val webRestAlert: String? = null,
     /** Version 2. A version-1 file has none, which means off. */
     val showStrictPress: Boolean = false,
+    // Version 3. An older file has none of these: the powerlifting side, bodybuilding days Monday, Wednesday and
+    // Friday (the default), neither side ever left.
+    val trainingMode: String = TrainingMode.POWERLIFTING.name,
+    val bodybuildingTrainingDays: List<Int> = AppSettings().bodybuildingTrainingDays.sorted().map { it.isoDayNumber },
+    /** epochDay, or null until the side is first left. */
+    val powerliftingLeftOn: Long? = null,
+    val bodybuildingLeftOn: Long? = null,
 ) {
     fun toAppSettings() = AppSettings(
-        changePlates, defaultRpe, trainingDays.map { DayOfWeek(it) }.toSet(), appLock, restMainSec, restAccessorySec,
-        RestAlert.valueOf(restAlert), webRestAlert, showStrictPress,
+        changePlates = changePlates,
+        defaultRpe = defaultRpe,
+        trainingDays = trainingDays.map { DayOfWeek(it) }.toSet(),
+        appLock = appLock,
+        restMainSec = restMainSec,
+        restAccessorySec = restAccessorySec,
+        restAlert = RestAlert.valueOf(restAlert),
+        webRestAlert = webRestAlert,
+        showStrictPress = showStrictPress,
+        trainingMode = TrainingMode.valueOf(trainingMode),
+        bodybuildingTrainingDays = bodybuildingTrainingDays.map { DayOfWeek(it) }.toSet(),
+        powerliftingLeftOn = powerliftingLeftOn?.let(LocalDate::fromEpochDays),
+        bodybuildingLeftOn = bodybuildingLeftOn?.let(LocalDate::fromEpochDays),
     )
 
     companion object {
         fun of(s: AppSettings) = BackupSettings(
             s.changePlates, s.defaultRpe, s.trainingDays.sorted().map { it.isoDayNumber }, s.appLock, s.restMainSec, s.restAccessorySec,
             s.restAlert.name, s.webRestAlert, s.showStrictPress,
+            s.trainingMode.name, s.bodybuildingTrainingDays.sorted().map { it.isoDayNumber },
+            s.powerliftingLeftOn?.toEpochDays(), s.bodybuildingLeftOn?.toEpochDays(),
         )
     }
 }
@@ -61,9 +82,13 @@ data class ExerciseDto(
     fun toEntity() = ExerciseEntity(id, name, Category.valueOf(category), parentLift?.let(MainLift::valueOf), muscles, isBuiltIn, archived)
 }
 
+/** `mode` (version 3) is absent from older files, which means POWERLIFTING, as on plan items and advice. */
 @Serializable
-data class SessionDto(val id: Long, val date: Long, val bodyweightKg: Double?, val readiness: Int?) {
-    fun toEntity() = SessionEntity(id, LocalDate.fromEpochDays(date), bodyweightKg, readiness)
+data class SessionDto(
+    val id: Long, val date: Long, val bodyweightKg: Double?, val readiness: Int?,
+    val mode: String = TrainingMode.POWERLIFTING.name,
+) {
+    fun toEntity() = SessionEntity(id, LocalDate.fromEpochDays(date), bodyweightKg, readiness, TrainingMode.valueOf(mode))
 }
 
 @Serializable
@@ -78,18 +103,22 @@ data class SetDto(
 data class PlanItemDto(
     val id: Long, val weekday: Int, val exerciseId: Long, val sets: Int, val reps: Int,
     val targetRpe: Double, val sortOrder: Int,
+    val mode: String = TrainingMode.POWERLIFTING.name,
+    /** Version 3: the top of a rep range; null for fixed reps. */
+    val repsHigh: Int? = null,
 ) {
-    fun toEntity() = PlanItemEntity(id, DayOfWeek(weekday), exerciseId, sets, reps, targetRpe, sortOrder)
+    fun toEntity() = PlanItemEntity(id, DayOfWeek(weekday), exerciseId, sets, reps, targetRpe, sortOrder, TrainingMode.valueOf(mode), repsHigh)
 }
 
 @Serializable
 data class AdviceDto(
     val id: Long, val type: String, val lift: String?, val createdAt: Long, val reason: String,
     val severity: Int, val payload: String, val status: String,
+    val mode: String = TrainingMode.POWERLIFTING.name,
 ) {
     fun toEntity() = AdviceEntity(
         id, AdviceType.valueOf(type), lift?.let(MainLift::valueOf), LocalDate.fromEpochDays(createdAt),
-        reason, severity, payload, AdviceStatus.valueOf(status),
+        reason, severity, payload, AdviceStatus.valueOf(status), TrainingMode.valueOf(mode),
     )
 }
 
@@ -118,8 +147,13 @@ sealed interface BackupResult {
 }
 
 object Backup {
-    /** 2: the strict press release (category STRICT_PRESS, `settings.showStrictPress`). Version 1 files still restore. */
-    const val VERSION = 2
+    /**
+     * 2: the strict press release (category STRICT_PRESS, `settings.showStrictPress`).
+     * 3: bodybuilding mode (the training side: `mode` on sessions, plan items and advice, `repsHigh` on plan items, and
+     * four settings). Version 1 and 2 files still restore, everything in them on the powerlifting side. An app that reads
+     * only version 2 turns a version 3 file away as too new, so both apps must be updated together.
+     */
+    const val VERSION = 3
 
     private val strict = Json { ignoreUnknownKeys = false }
     private val writer = Json { encodeDefaults = true }
@@ -137,6 +171,7 @@ object Backup {
             val file = strict.decodeFromJsonElement(BackupFile.serializer(), root)
             // Reject bad enum names / out-of-range weekdays here rather than at restore time.
             file.exercises.forEach { it.toEntity() }
+            file.sessions.forEach { it.toEntity() }
             file.sets.forEach { it.toEntity() }
             file.planItems.forEach { it.toEntity() }
             file.advice.forEach { it.toEntity() }
@@ -161,15 +196,18 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
                 exercises = db.exercises().all().map {
                     ExerciseDto(it.id, it.name, it.category.name, it.parentLift?.name, it.muscles, it.isBuiltIn, it.archived)
                 },
-                sessions = db.sessions().all().map { SessionDto(it.id, it.date.toEpochDays(), it.bodyweightKg, it.readiness) },
+                sessions = db.sessions().all().map { SessionDto(it.id, it.date.toEpochDays(), it.bodyweightKg, it.readiness, it.mode.name) },
                 sets = db.sets().all().map {
                     SetDto(it.id, it.sessionId, it.exerciseId, it.weightKg, it.reps, it.rpe, it.failed, it.missPoint?.name, it.isTopSet)
                 },
                 planItems = db.plan().all().map {
-                    PlanItemDto(it.id, it.weekday.isoDayNumber, it.exerciseId, it.sets, it.reps, it.targetRpe, it.sortOrder)
+                    PlanItemDto(it.id, it.weekday.isoDayNumber, it.exerciseId, it.sets, it.reps, it.targetRpe, it.sortOrder, it.mode.name, it.repsHigh)
                 },
                 advice = db.advice().all().map {
-                    AdviceDto(it.id, it.type.name, it.lift?.name, it.createdAt.toEpochDays(), it.reason, it.severity, it.payload, it.status.name)
+                    AdviceDto(
+                        it.id, it.type.name, it.lift?.name, it.createdAt.toEpochDays(), it.reason, it.severity, it.payload, it.status.name,
+                        it.mode.name,
+                    )
                 },
                 baselines = db.baselines().all().map { BaselineDto(it.exerciseId, it.e1rmKg, it.date.toEpochDays()) },
             )
@@ -178,7 +216,9 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
 
     /**
      * Replaces all data in one transaction; any failure rolls back and leaves existing data untouched. A version-1 file
-     * gets the strict press upgrade on the way in, as the database got [com.powertracker.data.db.MIGRATION_1_2].
+     * gets the strict press upgrade on the way in, as the database got [com.powertracker.data.db.MIGRATION_1_2]. A
+     * version 1 or 2 file has no sides: every row in it takes the powerlifting default, as the database got
+     * [com.powertracker.data.db.MIGRATION_2_3].
      */
     suspend fun restore(file: BackupFile) {
         // Map everything first so any bad file content fails before a single row is deleted.

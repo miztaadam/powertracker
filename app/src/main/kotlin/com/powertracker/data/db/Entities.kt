@@ -1,5 +1,6 @@
 package com.powertracker.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -9,6 +10,7 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.TrainingMode
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 
@@ -29,6 +31,8 @@ data class SessionEntity(
     val date: LocalDate,
     val bodyweightKg: Double?,
     val readiness: Int?,
+    /** Version 3: the side that was active when the session was started. */
+    @ColumnInfo(defaultValue = POWERLIFTING) val mode: TrainingMode = TrainingMode.POWERLIFTING,
 )
 
 @Entity(
@@ -64,6 +68,10 @@ data class PlanItemEntity(
     val reps: Int,
     val targetRpe: Double,
     val sortOrder: Int,
+    /** Version 3: each side keeps its own plan. */
+    @ColumnInfo(defaultValue = POWERLIFTING) val mode: TrainingMode = TrainingMode.POWERLIFTING,
+    /** Version 3: the top of a rep range, with [reps] its low end; null for fixed reps. */
+    val repsHigh: Int? = null,
 )
 
 @Entity(tableName = "advice")
@@ -77,6 +85,8 @@ data class AdviceEntity(
     /** Json.encodeToString<AdvicePayload>. */
     val payload: String,
     val status: AdviceStatus,
+    /** Version 3: the side the advice is for (deload and easing-back-in count on both). */
+    @ColumnInfo(defaultValue = POWERLIFTING) val mode: TrainingMode = TrainingMode.POWERLIFTING,
 )
 
 @Entity(
@@ -88,3 +98,6 @@ data class BaselineEntity(
     val e1rmKg: Double,
     val date: LocalDate,
 )
+
+/** The column default for `mode`: rows from before version 3 are on the powerlifting side ([MIGRATION_2_3]). */
+private const val POWERLIFTING = "POWERLIFTING"

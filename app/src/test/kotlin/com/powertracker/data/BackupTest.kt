@@ -10,6 +10,12 @@ import com.powertracker.domain.library.Library
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.data.db.AdviceEntity
+import com.powertracker.data.db.PlanItemEntity
+import com.powertracker.domain.model.AdviceStatus
+import com.powertracker.domain.model.AdviceType
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -249,7 +255,7 @@ class BackupTest {
         val exported = service.export(1L)
         val text = Backup.encode(exported)
         val settingsJson = Json.parseToJsonElement(text).jsonObject.getValue("settings").jsonObject
-        assertEquals(2, Json.parseToJsonElement(text).jsonObject.getValue("version").jsonPrimitive.int)
+        assertEquals(Backup.VERSION, Json.parseToJsonElement(text).jsonObject.getValue("version").jsonPrimitive.int)
         assertEquals(true, settingsJson.getValue("showStrictPress").jsonPrimitive.boolean)
         settings.update { AppSettings() }
 
@@ -265,8 +271,136 @@ class BackupTest {
         seedData()
         val text = Backup.encode(service.export(1L))
 
-        assertEquals(BackupResult.TooNew(2), Backup.decode(text, supportedVersion = 1))
+        assertEquals(BackupResult.TooNew(Backup.VERSION), Backup.decode(text, supportedVersion = 1))
         assertTrue(Backup.decode(text) is BackupResult.Ok)
+    }
+
+    /** Both sides' plans, a session and advice on each side, and both left-on dates. */
+    private suspend fun seedBothSides() {
+        settings.update {
+            AppSettings(
+                trainingDays = setOf(DayOfWeek.TUESDAY, DayOfWeek.SATURDAY), trainingMode = TrainingMode.BODYBUILDING,
+                bodybuildingTrainingDays = setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY),
+                powerliftingLeftOn = LocalDate(2026, 11, 2), bodybuildingLeftOn = LocalDate(2026, 9, 28),
+            )
+        }
+        val training = TrainingRepository(db)
+        val squat = db.exercises().all().first { it.name == "Squat" }.id
+        val curl = db.exercises().all().first { it.name == "Curl" }.id
+        training.savePlanItem(PlanItem(0, DayOfWeek.TUESDAY, squat, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
+        training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, curl, sets = 3, reps = 8, targetRpe = 8.0, order = 0, mode = TrainingMode.BODYBUILDING, repsHigh = 12))
+        val pl = training.startSession(LocalDate(2026, 10, 27), 84.5, 4)
+        training.logSet(pl, LoggedSet(squat, 140.0, 5, 8.0, failed = false, missPoint = null, isTopSet = true))
+        val bb = training.startSession(LocalDate(2026, 11, 3), null, null, TrainingMode.BODYBUILDING)
+        training.logSet(bb, LoggedSet(curl, 16.0, 11, 8.0, failed = false, missPoint = null, isTopSet = false))
+        db.advice().insert(
+            listOf(
+                AdviceEntity(type = AdviceType.TARGET, lift = null, createdAt = LocalDate(2026, 11, 3), reason = "Coach suggests 16 × 8–12 @ 8.",
+                    severity = 0, payload = """{"type":"target","exerciseId":$curl,"weightKg":16.0,"reps":8,"rpe":8.0,"repsHigh":12}""",
+                    status = AdviceStatus.OPEN, mode = TrainingMode.BODYBUILDING),
+                AdviceEntity(type = AdviceType.DELOAD, lift = null, createdAt = LocalDate(2026, 10, 27), reason = "Take a lighter week",
+                    severity = 2, payload = """{"type":"deload"}""", status = AdviceStatus.DISMISSED),
+            ),
+        )
+    }
+
+    /** Bodybuilding mode spec §6: version 3 carries the sides, and restores exactly. */
+    @Test
+    fun v3RoundTrip_keepsBothSides() = runTest {
+        seedBothSides()
+        val exported = service.export(1L)
+        val text = Backup.encode(exported)
+        val root = Json.parseToJsonElement(text).jsonObject
+        assertEquals(3, root.getValue("version").jsonPrimitive.int)
+        val s = root.getValue("settings").jsonObject
+        assertEquals("BODYBUILDING", s.getValue("trainingMode").jsonPrimitive.content)
+        assertEquals(listOf(1, 3, 4, 5), s.getValue("bodybuildingTrainingDays").jsonArray.map { it.jsonPrimitive.int })
+        assertEquals(LocalDate(2026, 11, 2).toEpochDays().toInt(), s.getValue("powerliftingLeftOn").jsonPrimitive.int)
+        assertEquals(LocalDate(2026, 9, 28).toEpochDays().toInt(), s.getValue("bodybuildingLeftOn").jsonPrimitive.int)
+        assertEquals(listOf("POWERLIFTING", "BODYBUILDING"), modes(root, "planItems"))
+        assertEquals(listOf("POWERLIFTING", "BODYBUILDING"), modes(root, "sessions"))
+        assertEquals(listOf("BODYBUILDING", "POWERLIFTING"), modes(root, "advice"))
+        assertEquals(listOf("null", "12"), root.getValue("planItems").jsonArray.map { it.jsonObject.getValue("repsHigh").toString() })
+
+        db.plan().clear()
+        settings.update { AppSettings() }
+        service.restore((Backup.decode(text) as BackupResult.Ok).file)
+
+        assertEquals(exported, service.export(1L))
+        val restored = settings.settings.first()
+        assertEquals(TrainingMode.BODYBUILDING, restored.trainingMode)
+        assertEquals(LocalDate(2026, 11, 2), restored.powerliftingLeftOn)
+        assertEquals(LocalDate(2026, 9, 28), restored.bodybuildingLeftOn)
+        assertEquals(setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY), restored.activeTrainingDays)
+        assertEquals(1, TrainingRepository(db).plan(TrainingMode.BODYBUILDING).first().size)
+    }
+
+    /** A version 2 file (no side anywhere) restores with everything on the powerlifting side. */
+    @Test
+    fun v2File_restoresAsAllPowerlifting() = runTest {
+        seedBothSides()
+        val v2 = asVersion2(Backup.encode(service.export(1L)))
+        settings.update { AppSettings() }
+
+        val decoded = Backup.decode(v2)
+        assertTrue(decoded.toString(), decoded is BackupResult.Ok)
+        service.restore((decoded as BackupResult.Ok).file)
+
+        assertTrue(db.plan().all().all { it.mode == TrainingMode.POWERLIFTING && it.repsHigh == null })
+        assertTrue(db.sessions().all().all { it.mode == TrainingMode.POWERLIFTING })
+        assertTrue(db.advice().all().all { it.mode == TrainingMode.POWERLIFTING })
+        assertEquals(2, db.sessions().all().size)
+        assertEquals(2, db.sets().all().size)
+        val s = settings.settings.first()
+        assertEquals(TrainingMode.POWERLIFTING, s.trainingMode)
+        assertEquals(AppSettings().bodybuildingTrainingDays, s.bodybuildingTrainingDays)
+        assertNull(s.powerliftingLeftOn)
+        assertNull(s.bodybuildingLeftOn)
+    }
+
+    @Test
+    fun v4File_isTooNew() = runTest {
+        val text = Backup.encode(service.export(1L).copy(version = 4))
+        assertEquals(BackupResult.TooNew(4), Backup.decode(text))
+    }
+
+    /** An app that reads only version 2 turns a version 3 file away. */
+    @Test
+    fun v3File_onVersion2Decoder_isTooNew() = runTest {
+        seedBothSides()
+        assertEquals(BackupResult.TooNew(3), Backup.decode(Backup.encode(service.export(1L)), supportedVersion = 2))
+    }
+
+    @Test
+    fun unknownMode_isCorrupt() = runTest {
+        seedBothSides()
+        val file = service.export(1L)
+        for (bad in listOf(
+            file.copy(settings = file.settings.copy(trainingMode = "CROSSFIT")),
+            file.copy(planItems = file.planItems.map { it.copy(mode = "CROSSFIT") }),
+            file.copy(sessions = file.sessions.map { it.copy(mode = "CROSSFIT") }),
+            file.copy(advice = file.advice.map { it.copy(mode = "CROSSFIT") }),
+            file.copy(settings = file.settings.copy(bodybuildingTrainingDays = listOf(8))),
+        )) {
+            assertTrue(bad.toString(), Backup.decode(Backup.encode(bad)) is BackupResult.Corrupt)
+        }
+    }
+
+    private fun modes(root: JsonObject, list: String): List<String> =
+        root.getValue(list).jsonArray.map { it.jsonObject.getValue("mode").jsonPrimitive.content }
+
+    /** [text] as the strict press release wrote it: version 2, and none of the version 3 fields. */
+    private fun asVersion2(text: String): String {
+        val root = Json.parseToJsonElement(text).jsonObject
+        fun strip(list: String, vararg keys: String) =
+            JsonArray(root.getValue(list).jsonArray.map { e -> JsonObject(e.jsonObject - keys.toSet()) })
+        val settings = JsonObject(root.getValue("settings").jsonObject - setOf("trainingMode", "bodybuildingTrainingDays", "powerliftingLeftOn", "bodybuildingLeftOn"))
+        return JsonObject(
+            root + mapOf(
+                "version" to JsonPrimitive(2), "settings" to settings, "sessions" to strip("sessions", "mode"),
+                "planItems" to strip("planItems", "mode", "repsHigh"), "advice" to strip("advice", "mode"),
+            ),
+        ).toString()
     }
 
     /** [text] as the previous app wrote it: version 1, and no setting it did not have. */

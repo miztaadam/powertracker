@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.powertracker.domain.model.AdviceStatus
+import com.powertracker.domain.model.TrainingMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 
@@ -49,7 +50,9 @@ interface SetDao {
 
 @Dao
 interface PlanDao {
-    @Query("SELECT * FROM plan_item ORDER BY weekday, sortOrder, id") fun observeAll(): Flow<List<PlanItemEntity>>
+    /** One side's plan: the other side's rows are never read here. */
+    @Query("SELECT * FROM plan_item WHERE mode = :mode ORDER BY weekday, sortOrder, id")
+    fun observeSide(mode: TrainingMode): Flow<List<PlanItemEntity>>
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun upsert(p: PlanItemEntity): Long
     @Query("DELETE FROM plan_item WHERE id = :id") suspend fun delete(id: Long)
     @Query("SELECT * FROM plan_item ORDER BY id") suspend fun all(): List<PlanItemEntity>

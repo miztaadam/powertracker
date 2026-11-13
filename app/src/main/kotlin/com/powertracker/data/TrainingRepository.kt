@@ -13,6 +13,7 @@ import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.TrainingMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -43,7 +44,9 @@ open class TrainingRepository(private val db: AppDatabase) {
 
     fun exercises(): Flow<List<Exercise>> = db.exercises().observeAll().map { list -> list.map { it.toDomain() } }
 
-    fun plan(): Flow<List<PlanItem>> = db.plan().observeAll().map { list -> list.map { it.toDomain() } }
+    /** [mode]'s plan only: each side keeps its own (bodybuilding mode spec §6). */
+    fun plan(mode: TrainingMode = TrainingMode.POWERLIFTING): Flow<List<PlanItem>> =
+        db.plan().observeSide(mode).map { list -> list.map { it.toDomain() } }
 
     fun setsForSession(sessionId: Long): Flow<List<StoredSet>> =
         db.sets().observeForSession(sessionId).map { list -> list.map { StoredSet(it.id, it.sessionId, it.toDomain()) } }
@@ -51,8 +54,9 @@ open class TrainingRepository(private val db: AppDatabase) {
     fun sessionOn(date: LocalDate): Flow<LoggedSession?> =
         db.sessions().observeOn(date).map { it?.toDomain(emptyList()) }
 
-    suspend fun startSession(date: LocalDate, bodyweightKg: Double?, readiness: Int?): Long =
-        db.sessions().insert(SessionEntity(date = date, bodyweightKg = bodyweightKg, readiness = readiness))
+    /** [mode] is the side active when the session is started. */
+    suspend fun startSession(date: LocalDate, bodyweightKg: Double?, readiness: Int?, mode: TrainingMode = TrainingMode.POWERLIFTING): Long =
+        db.sessions().insert(SessionEntity(date = date, bodyweightKg = bodyweightKg, readiness = readiness, mode = mode))
 
     /**
      * Saves [set]. With a [catalogueName] the set is for that catalogue exercise, whatever its
@@ -75,10 +79,11 @@ open class TrainingRepository(private val db: AppDatabase) {
     /**
      * Inserts a new item (id 0) or replaces the item with the same id. With a [catalogueName] the item
      * is for that catalogue exercise, whatever its `exerciseId` says: the exercise row is found,
-     * restored or inserted in the same transaction.
+     * restored or inserted in the same transaction. The item is stored on its own side ([PlanItem.mode]).
      */
     open suspend fun savePlanItem(item: PlanItem, catalogueName: String? = null): Long {
-        fun entity(exerciseId: Long) = PlanItemEntity(item.id, item.weekday, exerciseId, item.sets, item.reps, item.targetRpe, item.order)
+        fun entity(exerciseId: Long) =
+            PlanItemEntity(item.id, item.weekday, exerciseId, item.sets, item.reps, item.targetRpe, item.order, item.mode, item.repsHigh)
         if (catalogueName == null) return db.plan().upsert(entity(item.exerciseId))
         return db.withTransaction { db.plan().upsert(entity(catalogue.resolve(catalogueName))) }
     }
@@ -108,11 +113,11 @@ open class TrainingRepository(private val db: AppDatabase) {
 
 private fun ExerciseEntity.toDomain() = Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived)
 
-private fun SessionEntity.toDomain(sets: List<LoggedSet>) = LoggedSession(id, date, bodyweightKg, readiness, sets)
+private fun SessionEntity.toDomain(sets: List<LoggedSet>) = LoggedSession(id, date, bodyweightKg, readiness, sets, mode)
 
 private fun SetEntity.toDomain() = LoggedSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet)
 
 private fun LoggedSet.toEntity(id: Long, sessionId: Long) =
     SetEntity(id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet)
 
-private fun PlanItemEntity.toDomain() = PlanItem(id, weekday, exerciseId, sets, reps, targetRpe, sortOrder)
+private fun PlanItemEntity.toDomain() = PlanItem(id, weekday, exerciseId, sets, reps, targetRpe, sortOrder, mode, repsHigh)

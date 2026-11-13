@@ -22,9 +22,9 @@ open class AdviceRepository(private val db: AppDatabase) {
 }
 
 private fun Advice.toEntity() = AdviceEntity(
-    id, type, lift, createdAt, reason, severity, Json.encodeToString<AdvicePayload>(payload), status,
+    id, type, lift, createdAt, reason, severity, Json.encodeToString<AdvicePayload>(payload), status, mode,
 )
 
 private fun AdviceEntity.toDomain() = Advice(
-    type, lift, createdAt, reason, severity, Json.decodeFromString<AdvicePayload>(payload), status, id,
+    type, lift, createdAt, reason, severity, Json.decodeFromString<AdvicePayload>(payload), status, id, mode,
 )

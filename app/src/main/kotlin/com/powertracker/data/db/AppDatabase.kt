@@ -14,7 +14,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ExerciseEntity::class, SessionEntity::class, SetEntity::class,
         PlanItemEntity::class, AdviceEntity::class, BaselineEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -29,7 +29,7 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         fun build(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "powertracker.db")
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .addCallback(SeedCallback)
                 .build()
 
@@ -65,6 +65,19 @@ abstract class AppDatabase : RoomDatabase() {
  */
 val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) = StrictPressUpgrade.run(db)
+}
+
+/**
+ * Version 3, bodybuilding mode: plan items, sessions and advice know their side. Every row already stored is on the
+ * powerlifting side and has fixed reps (`repsHigh` null). Columns are only added, so nothing is lost.
+ */
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE plan_item ADD COLUMN mode TEXT NOT NULL DEFAULT 'POWERLIFTING'")
+        db.execSQL("ALTER TABLE plan_item ADD COLUMN repsHigh INTEGER")
+        db.execSQL("ALTER TABLE session ADD COLUMN mode TEXT NOT NULL DEFAULT 'POWERLIFTING'")
+        db.execSQL("ALTER TABLE advice ADD COLUMN mode TEXT NOT NULL DEFAULT 'POWERLIFTING'")
+    }
 }
 
 private const val CONFLICT_ABORT = android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT

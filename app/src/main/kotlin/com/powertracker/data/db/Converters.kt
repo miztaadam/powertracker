@@ -6,6 +6,7 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.TrainingMode
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.isoDayNumber
@@ -35,6 +36,9 @@ class Converters {
 
     @TypeConverter fun adviceStatusToDb(s: AdviceStatus): String = s.name
     @TypeConverter fun adviceStatusFromDb(v: String): AdviceStatus = AdviceStatus.valueOf(v)
+
+    @TypeConverter fun modeToDb(m: TrainingMode): String = m.name
+    @TypeConverter fun modeFromDb(v: String): TrainingMode = TrainingMode.valueOf(v)
 
     @TypeConverter fun stringsToDb(l: List<String>): String = Json.encodeToString(strings, l)
     @TypeConverter fun stringsFromDb(v: String): List<String> = Json.decodeFromString(strings, v)
