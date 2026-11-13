@@ -71,7 +71,32 @@ Notes:
 - On the bodybuilding side a deload can come from low readiness alone; the other fatigue signals read powerlifting sessions only until stage 3 brings a sourced bodybuilding one.
 - Not yet tried on real phones, so the bodybuilding line in README's manual checklist matters: tick it off before relying on the mode.
 
-Still to come, each with its own plan (spec §8): stage 2, the plan builder; stage 3, check-ins, the lagging-muscle coach and a body-part Progress; stage 4, stretch and squeeze cues.
+## Bodybuilding mode: stage 2 done, the plan builder (version 1.3, both apps)
+Plan: `docs/superpowers/plans/2026-11-13-grit-bodybuilding-mode-stage-2.md`.
+
+What the lifter gets:
+- On the bodybuilding side, the app builds the weekly plan from three questions: how many days (3 or 4) and which weekdays; which exercises they do now (ticked for them from their plans and the last month's log), or, with none, which they would like to do (with none at all, "Choose for me" uses the app's own list); and which body parts they most want to improve (up to 3, or skip).
+- A draft week before anything is saved: each day with its exercises and sets (8–12 reps at RPE 8), the weekly sets for each of the 12 body parts with a quiet mark on any under 10, and any of their exercises left out, with the reason.
+- **Swap** on any exercise, for another of the same type (a press for a press, a curl for a curl); **Another draft** for a different choice of the exercises the app picked (their own picks stay); **Use this plan** saves it as the bodybuilding plan and sets the bodybuilding training days. If a bodybuilding plan exists, it asks first: the log is kept. Leaving before then changes nothing. The powerlifting plan is never touched.
+- Where to find it: **Build my plan** on an empty bodybuilding Plan, **Rebuild my plan** in the bodybuilding Plan menu, and "My goals have changed" on the bodybuilding side.
+- The same answers always give the same draft, offline. No new settings are stored, so the backup format is unchanged.
+
+The sourced numbers (recorded in `CoachSources.kt`):
+- About 10 sets a week for each muscle group for growth, and every major muscle group trained at least twice a week: the ACSM 2026 position stand on resistance training, as announced by ACSM and in its infographic.
+- Compound lifts before accessory work: ExRx's summary of the same ACSM guidance.
+
+The designer's own numbers, not from the sources (for the owner to judge):
+- The session templates and their sizes: 3 days are three full-body sessions of 8, 9 and 8 exercises; 4 days are upper and lower twice, 8 exercises on an upper day and 6 on a lower day.
+- 4 sets for a session's first exercise and for the exercises of a priority body part; 3 for the rest.
+- At most 3 priority body parts, chosen from 12.
+- At most one held-over pick a session (an exercise of the lifter's that has no place of its kind left).
+- The hand-picked default exercises for each kind of place in a session.
+
+What the default weeks give (no picks, no priorities): the big muscle groups (chest, lats, quads, hamstrings, glutes, upper back, biceps, triceps) 10 or more counted weekly sets; side delts 9; calves, abs and rear delts 6; each trained on at least two days. A priority always adds sets to its own body part and never takes any from another.
+
+Not yet tried on real phones: the plan builder line in README's manual checklist matters.
+
+Still to come, each with its own plan (spec §8): stage 3, check-ins, the lagging-muscle coach and a body-part Progress; stage 4, stretch and squeeze cues.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
