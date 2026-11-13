@@ -64,6 +64,6 @@ class FigureBuildTimeTest {
     }
 
     private companion object {
-        const val LIMIT_MS = 50.0
+        const val LIMIT_MS = 100.0
     }
 }

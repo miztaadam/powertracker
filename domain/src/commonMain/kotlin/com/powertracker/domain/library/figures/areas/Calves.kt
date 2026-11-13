@@ -199,9 +199,10 @@ private fun armToBackBar(pelvis: Point, torso: Double): Arm {
 
 /**
  * Barbell calf raise. The bar across the upper back, seated on top of the shoulders ([BarHold.ON_TRAPS]), gripped just
- * outside the shoulders with the elbows down ([armToBackBar]), the balls of the feet on the block, the knees straight. START the heels below the edge, END raised. In a power
- * rack, the guide's safety line: the J-hooks 8 cm under the bar's lowest point (it was lifted out of them by standing
- * up) and the safety arms 16 cm under it. ExRx barbell standing calf raise
+ * outside the shoulders with the elbows down ([armToBackBar]), the balls of the feet on the block, the knees straight.
+ * START the heels below the edge, END raised. In a power rack, the guide's safety line: the J-hooks 8 cm under the
+ * bar's lowest point (it was lifted out of them by standing up) and the safety arms 16 cm under it. ExRx barbell
+ * standing calf raise
  * (https://exrx.net/WeightExercises/Gastrocnemius/BBStandingCalfRaise, Sources.kt).
  */
 private val barbellCalfRaise: ExerciseFigure by lazy {
