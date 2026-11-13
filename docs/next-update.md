@@ -99,3 +99,8 @@ Still to come, each with its own plan (spec §8): stage 2, the plan builder; sta
 - The warm-up: when the tab first shows its list, the worker works out every catalogue thumbnail in the list's order, once per process. The picker starts no thumbnail work.
 - The Android speed check is a test that no thumbnail is worked out on the main thread (`ThumbnailsTest`).
 - Not measured: no real phone was available, so frame times before and after are unknown. Check by scrolling the Exercises tab fast right after opening the app.
+
+## Follow-up (2026-11-13): the picker speed check has no headroom
+- The web app's exercise picker is held to 100 ms by two end-to-end checks (`web/e2e/library.spec.ts`, tagged @speed). On the build machine they land between about 85 and 118 ms, so a run misses now and then.
+- Measured on a quiet machine, the same checks alternating between the build before bodybuilding mode and the build with it: 11 of 12 runs passed before, 10 of 12 after (misses at 110 ms before; 105 and 100 ms after). The two builds are not measurably different; the check was already at its limit.
+- Worth doing as its own task: find where the picker's time goes when it opens with the whole catalogue (225 rows, or 475 with a lifter's own), and either make it faster or agree a limit with the owner that reflects a real phone. Do not loosen the check without the owner's say.
