@@ -49,6 +49,10 @@ data class AppSettings(
     val activeTrainingDays: Set<DayOfWeek>
         get() = if (trainingMode == TrainingMode.BODYBUILDING) bodybuildingTrainingDays else trainingDays
 
+    /** [days] as the training days of the side the app is on; the other side's days are kept. */
+    fun withActiveTrainingDays(days: Set<DayOfWeek>): AppSettings =
+        if (trainingMode == TrainingMode.BODYBUILDING) copy(bodybuildingTrainingDays = days) else copy(trainingDays = days)
+
     fun leftOn(mode: TrainingMode): LocalDate? = when (mode) {
         TrainingMode.POWERLIFTING -> powerliftingLeftOn
         TrainingMode.BODYBUILDING -> bodybuildingLeftOn

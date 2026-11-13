@@ -1,6 +1,7 @@
 package com.powertracker.ui.progress
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
@@ -46,6 +48,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.progress.ExerciseTrend
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.coach.RatioUi
 import com.powertracker.ui.components.BarStrip
@@ -82,18 +86,22 @@ fun ProgressScreen(
     settings: SettingsRepository,
     onOpenLift: (MainLift) -> Unit,
     today: () -> LocalDate = ::systemToday,
+    onOpenExercise: (exerciseId: Long) -> Unit = {},
 ) {
     val viewModel: ProgressViewModel = viewModel(factory = ProgressViewModel.factory(training, settings, today))
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ProgressContent(state, onRange = viewModel::setRange, onOpenLift = onOpenLift)
+    ProgressContent(state, onRange = viewModel::setRange, onOpenLift = onOpenLift, onOpenExercise = onOpenExercise)
 }
 
 /** The Progress screen without its view model. */
 @Composable
-fun ProgressContent(state: ProgressState, onRange: (ChartRange) -> Unit, onOpenLift: (MainLift) -> Unit) {
+fun ProgressContent(state: ProgressState, onRange: (ChartRange) -> Unit, onOpenLift: (MainLift) -> Unit, onOpenExercise: (exerciseId: Long) -> Unit = {}) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { ScreenHeader("Progress", eyebrow = "Estimated 1RM", modeLabel = true) },
+        topBar = {
+            val eyebrow = if (state.mode == TrainingMode.BODYBUILDING) "Best set per session" else "Estimated 1RM"
+            ScreenHeader("Progress", eyebrow = eyebrow, modeLabel = true)
+        },
     ) { padding ->
         Column(
             Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState())
@@ -102,6 +110,16 @@ fun ProgressContent(state: ProgressState, onRange: (ChartRange) -> Unit, onOpenL
         ) {
             when {
                 state.loading -> Unit
+                // The powerlifting charts, records and total belong to that side (bodybuilding mode spec §7.6).
+                state.mode == TrainingMode.BODYBUILDING -> if (state.trends.isEmpty()) {
+                    EmptyState(
+                        Icons.Filled.Insights,
+                        "No exercises in your plan yet",
+                        "Add exercises on the Plan tab and log them on Today. Each one's best sets will show here.",
+                    )
+                } else {
+                    BodybuildingSection(state, onOpenLift, onOpenExercise)
+                }
                 !state.hasData -> EmptyState(
                     Icons.Filled.Insights,
                     "No lifts logged yet",
@@ -334,6 +352,42 @@ private fun VolumeSection(state: ProgressState) {
                 Text("Weight × reps of completed sets, last 8 weeks.", style = MaterialTheme.typography.bodySmall, color = pt.muted)
             }
         }
+    }
+}
+
+/** "26 × 11": a best set as the list shows it. */
+private fun bestSetText(trend: ExerciseTrend): String = trend.bestSets.joinToString(" · ") { (_, set) -> "${formatKg(set.weightKg)} × ${set.reps}" }
+
+/**
+ * The bodybuilding side's Progress: each exercise in its plan with the best set of each of its last four sessions
+ * (oldest first) and whether it is going up. A row opens the history: a main lift's own, else the exercise's.
+ */
+@Composable
+private fun BodybuildingSection(state: ProgressState, onOpenLift: (MainLift) -> Unit, onOpenExercise: (Long) -> Unit) {
+    val pt = PowertrackerTheme.colors
+    PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
+            state.trends.forEachIndexed { i, trend ->
+                if (i > 0) HorizontalDivider(color = pt.hairline)
+                val lift = state.trendLifts[trend.exerciseId]
+                val sets = if (trend.bestSets.isEmpty()) "Not logged yet" else bestSetText(trend)
+                val open = { if (lift != null) onOpenLift(lift) else onOpenExercise(trend.exerciseId) }
+                Row(
+                    Modifier.fillMaxWidth().clickable(onClickLabel = "Open history", onClick = open).heightIn(min = 56.dp).padding(vertical = Space.s),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Space.m),
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(trend.name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                        Text(sets, style = MaterialTheme.typography.bodyMedium, color = pt.muted)
+                    }
+                    when (trend.goingUp) {
+                        true -> Icon(Icons.AutoMirrored.Filled.TrendingUp, contentDescription = "Going up", tint = pt.success, modifier = Modifier.size(24.dp))
+                        false -> Icon(Icons.AutoMirrored.Filled.TrendingFlat, contentDescription = "Not going up", tint = pt.muted, modifier = Modifier.size(24.dp))
+                        null -> Unit
+                    }
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = pt.muted, modifier = Modifier.size(20.dp))
+                }
+            }
     }
 }
 

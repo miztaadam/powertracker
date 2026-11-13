@@ -62,6 +62,8 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.model.repsText
 import com.powertracker.domain.validation.InputValidator
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.Eyebrow
@@ -85,8 +87,14 @@ import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
 
-/** The text shown for one plan item, e.g. "Squat  3 × 5 @ 8". */
-fun planItemText(name: String, item: PlanItem): String = "$name  ${item.sets} × ${item.reps} @ ${formatRpe(item.targetRpe)}"
+/** The text shown for one plan item, e.g. "Squat  3 × 5 @ 8", or "Curl  3 × 8–12 @ 8" for a rep range. */
+fun planItemText(name: String, item: PlanItem): String = "$name  ${item.sets} × ${repsText(item.reps, item.repsHigh)} @ ${formatRpe(item.targetRpe)}"
+
+/** The line an empty bodybuilding plan shows until the plan builder arrives (bodybuilding mode spec §7.3). */
+const val EMPTY_BODYBUILDING_PLAN = "Your bodybuilding plan is empty. Add exercises to each training day."
+
+/** The most reps the top of a range can be set to. */
+private const val MAX_RANGE_REPS = 30
 
 fun dayName(day: DayOfWeek): String = day.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
 
@@ -143,8 +151,8 @@ fun PlanScreen(
             state = state,
             item = d.item,
             onCreateCustom = viewModel::addCustomExercise,
-            onSave = { exercise, sets, reps, rpe ->
-                viewModel.save(d.item, exercise, sets, reps, rpe)
+            onSave = { exercise, sets, reps, rpe, repsHigh ->
+                viewModel.save(d.item, exercise, sets, reps, rpe, repsHigh)
                 dialog = null
             },
             onDismiss = { dialog = null },
@@ -188,6 +196,16 @@ fun PlanContent(
             contentPadding = PaddingValues(start = Space.gutter, end = Space.gutter, top = Space.s, bottom = Space.xl),
             verticalArrangement = Arrangement.spacedBy(Space.m),
         ) {
+            if (state.emptySide) {
+                item(key = "empty-side") {
+                    Text(
+                        EMPTY_BODYBUILDING_PLAN,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = scheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = Space.xs),
+                    )
+                }
+            }
             items(state.sections, key = { it.day }) { section ->
                 DayCard(section, onAdd = { onAdd(section.day) }, onEdit = onEdit, onMove = onMove, onDelete = onDelete)
             }
@@ -272,7 +290,7 @@ private fun PlanItemRow(
     val muted = PowertrackerTheme.colors.muted
     var menuOpen by remember { mutableStateOf(false) }
     val prescription = buildAnnotatedString {
-        append("${item.sets} × ${item.reps}")
+        append("${item.sets} × ${repsText(item.reps, item.repsHigh)}")
         withStyle(SpanStyle(color = muted)) { append("  @ ") }
         append(formatRpe(item.targetRpe))
     }
@@ -317,13 +335,15 @@ private fun PlanItemDialog(
     state: PlanUiState,
     item: PlanItem,
     onCreateCustom: (String, Category, MainLift?, List<String>, (PickerEntry) -> Unit) -> Unit,
-    onSave: (exercise: PickerEntry?, sets: Int, reps: Int, rpe: Double) -> Unit,
+    onSave: (exercise: PickerEntry?, sets: Int, reps: Int, rpe: Double, repsHigh: Int?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     // Null until the exercise is changed; saved with the item, not before.
     var changed by rememberSaveable(stateSaver = PickerEntry.Saver) { mutableStateOf(null) }
     var sets by rememberSaveable { mutableStateOf(item.sets) }
     var reps by rememberSaveable { mutableStateOf(item.reps) }
+    // A range on the bodybuilding side; null for fixed reps.
+    var repsHigh by rememberSaveable { mutableStateOf(item.repsHigh ?: if (item.mode == TrainingMode.BODYBUILDING) item.reps else null) }
     var rpe by rememberSaveable { mutableStateOf(item.targetRpe) }
     var picking by rememberSaveable { mutableStateOf(false) }
     val name = changed?.name ?: state.exercises.firstOrNull { it.id == item.exerciseId }?.name ?: "Unknown exercise"
@@ -343,11 +363,18 @@ private fun PlanItemDialog(
                     SecondaryButton("Change", { picking = true }, compact = true, modifier = Modifier.semantics { contentDescription = "Change exercise" })
                 }
                 LabeledStepper("Sets", sets.toString(), sets > 1, sets < 10, { sets-- }, { sets++ })
-                LabeledStepper("Reps", reps.toString(), reps > 1, reps < 20, { reps-- }, { reps++ })
+                val high = repsHigh
+                if (high == null) {
+                    LabeledStepper("Reps", reps.toString(), reps > 1, reps < 20, { reps-- }, { reps++ })
+                } else {
+                    // Two ends of the range; the top never goes below the bottom.
+                    LabeledStepper("Reps from", reps.toString(), reps > 1, reps < high, { reps-- }, { reps++ })
+                    LabeledStepper("Reps to", high.toString(), high > reps, high < MAX_RANGE_REPS, { repsHigh = high - 1 }, { repsHigh = high + 1 })
+                }
                 LabeledStepper("RPE", formatRpe(rpe), rpe > PlanViewModel.MIN_RPE, rpe < PlanViewModel.MAX_RPE, { rpe -= 0.5 }, { rpe += 0.5 }) { RpeInfoButton() }
             }
         },
-        confirmButton = { PrimaryButton("Save", { onSave(changed, sets, reps, rpe) }, compact = true) },
+        confirmButton = { PrimaryButton("Save", { onSave(changed, sets, reps, rpe, repsHigh) }, compact = true) },
         dismissButton = { QuietButton("Cancel", onDismiss) },
     )
 

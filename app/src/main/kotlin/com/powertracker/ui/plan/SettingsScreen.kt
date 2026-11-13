@@ -247,8 +247,14 @@ fun SettingsContent(
                     for (day in DayOfWeek.entries) {
                         ChoiceChip(
                             text = day.toJavaDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(3),
-                            selected = day in settings.trainingDays,
-                            onClick = { onUpdate { s -> s.copy(trainingDays = if (day in s.trainingDays) s.trainingDays - day else s.trainingDays + day) } },
+                            // The side the app is on keeps its own days (bodybuilding mode spec §6).
+                            selected = day in settings.activeTrainingDays,
+                            onClick = {
+                                onUpdate { s ->
+                                    val days = s.activeTrainingDays
+                                    s.withActiveTrainingDays(if (day in days) days - day else days + day)
+                                }
+                            },
                             modifier = Modifier.weight(1f),
                         )
                     }

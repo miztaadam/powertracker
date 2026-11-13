@@ -11,6 +11,7 @@ import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.coach.AccessoryMap
 import com.powertracker.domain.coach.Coach
+import com.powertracker.domain.coach.Coaching
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.library.Library
@@ -23,6 +24,7 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.forSide
 import com.powertracker.platform.systemToday
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
@@ -66,7 +68,12 @@ sealed interface CardDetail {
 
 data class CoachCard(val advice: Advice, val detail: CardDetail)
 
-data class CoachState(val loading: Boolean = true, val cards: List<CoachCard> = emptyList())
+data class CoachState(
+    val loading: Boolean = true,
+    val cards: List<CoachCard> = emptyList(),
+    /** The welcome-back card for the side the app is on, shown above the advice (bodybuilding mode spec §7.7). */
+    val welcomeBack: Boolean = false,
+)
 
 class CoachViewModel(
     private val training: TrainingRepository,
@@ -86,16 +93,24 @@ class CoachViewModel(
      */
     private val busy = MutableStateFlow(emptySet<Long>())
 
+    /** The feed is the advice of the side the app is on, with every deload and easing back in. */
     val state: StateFlow<CoachState> =
-        combine(advice.open(), training.history(), training.plan(), training.exercises(), busy) { open, history, plan, exercises, busy ->
+        combine(combine(advice.open(), busy, ::Pair), training.history(), training.plans(), training.exercises(), settings.settings) { (open, busy), history, plans, exercises, s ->
+            val mode = s.trainingMode
+            val plan = plans.of(mode)
             val stats = HistoryStats(history)
             val date = today()
-            val cards = open
+            val cards = open.forSide(mode)
                 .filter { it.type in FEED_ORDER && it.id !in busy && !expired(it, date) }
                 .sortedWith(compareBy<Advice> { FEED_ORDER.indexOf(it.type) }.thenByDescending { it.createdAt }.thenByDescending { it.id })
                 .mapNotNull { a -> detail(a, stats, date, plan, exercises)?.let { CoachCard(a, it) } }
-            CoachState(loading = false, cards = cards)
+            CoachState(loading = false, cards = cards, welcomeBack = Coaching.welcomeBack(s.leftOn(mode), date, plan.isNotEmpty()))
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CoachState())
+
+    /** The welcome-back card was answered, either way: the side the app is on is marked as not left. */
+    fun answerWelcomeBack() {
+        viewModelScope.launch { settings.clearLeftOn(settings.settings.first().trainingMode) }
+    }
 
     /** An OPEN deload or re-entry stops counting after 14 days (see [Coach.openExpired]), so it leaves the feed too. */
     private fun expired(advice: Advice, date: LocalDate): Boolean = Coach.openExpired(advice.type, advice.createdAt, date)
@@ -156,7 +171,7 @@ class CoachViewModel(
         val target = advice.open().first().firstOrNull { it.id == adviceId } ?: return@once
         val message = when (val payload = target.payload) {
             is AdvicePayload.Accessories -> addToPlan(target.lift, payload.items)
-            is AdvicePayload.WeakPoint -> addToPlan(payload.lift, weakPointAdditions(payload, training.plan().first(), training.exercises().first()))
+            is AdvicePayload.WeakPoint -> addToPlan(payload.lift, weakPointAdditions(payload, training.plan(settings.settings.first().trainingMode).first(), training.exercises().first()))
             is AdvicePayload.Deload -> "Deload week on — targets lightened for 7 days"
             is AdvicePayload.ReEntry -> "Easing back in for 7 days"
             is AdvicePayload.Target -> return@once
@@ -192,8 +207,9 @@ class CoachViewModel(
      */
     private suspend fun addToPlan(lift: MainLift?, prescriptions: List<AccessoryPrescription>): String {
         val exercises = training.exercises().first()
-        val plan = training.plan().first()
         val current = settings.settings.first()
+        // The side the app is on: its own plan and days.
+        val plan = training.plan(current.trainingMode).first()
         val day = dayFor(lift, plan, exercises, current)
         val onDay = plan.filter { it.weekday == day }
         val taken = onDay.map { it.exerciseId }.toMutableSet()
@@ -205,7 +221,7 @@ class CoachViewModel(
                     ?: Library.find(p.exerciseName)?.let { training.resolveCatalogue(it.name) }
                     ?: continue
                 if (!taken.add(exerciseId)) continue
-                training.savePlanItem(PlanItem(0, day, exerciseId, sets = p.sets, reps = p.repsHigh, targetRpe = current.defaultRpe, order = order++))
+                training.savePlanItem(PlanItem(0, day, exerciseId, sets = p.sets, reps = p.repsHigh, targetRpe = current.defaultRpe, order = order++, mode = current.trainingMode))
                 count++
             }
             count
@@ -222,7 +238,7 @@ class CoachViewModel(
     private fun dayFor(lift: MainLift?, plan: List<PlanItem>, exercises: List<Exercise>, settings: AppSettings): DayOfWeek {
         val mainIds = exercises.filter { it.isMainLift && it.mainLift == lift }.map { it.id }.toSet()
         return plan.filter { it.exerciseId in mainIds }.minOfOrNull { it.weekday }
-            ?: settings.trainingDays.minOrNull()
+            ?: settings.activeTrainingDays.minOrNull()
             ?: DayOfWeek.MONDAY
     }
 

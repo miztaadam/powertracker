@@ -36,6 +36,7 @@ fun CoachScreen(
     advice: AdviceRepository,
     settings: SettingsRepository,
     today: () -> LocalDate = ::systemToday,
+    onOpenPlan: () -> Unit = {},
 ) {
     val viewModel: CoachViewModel = viewModel(factory = CoachViewModel.factory(training, advice, settings, today))
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -47,7 +48,14 @@ fun CoachScreen(
             launch { snackbar.showSnackbar(message) }
         }
     }
-    CoachContent(state, onApply = viewModel::apply, onDismiss = viewModel::dismiss, snackbar = snackbar)
+    CoachContent(
+        state, onApply = viewModel::apply, onDismiss = viewModel::dismiss, snackbar = snackbar,
+        onResumePlan = viewModel::answerWelcomeBack,
+        onGoalsChanged = {
+            viewModel.answerWelcomeBack()
+            onOpenPlan()
+        },
+    )
 }
 
 /** The Coach screen without its view model. */
@@ -57,6 +65,8 @@ fun CoachContent(
     onApply: (adviceId: Long) -> Unit,
     onDismiss: (adviceId: Long) -> Unit,
     snackbar: SnackbarHostState = remember { SnackbarHostState() },
+    onResumePlan: () -> Unit = {},
+    onGoalsChanged: () -> Unit = {},
 ) {
     val count = state.cards.size
     val eyebrow = when {
@@ -75,6 +85,9 @@ fun CoachContent(
             contentPadding = PaddingValues(start = Space.gutter, end = Space.gutter, bottom = Space.xl),
             verticalArrangement = Arrangement.spacedBy(Space.m),
         ) {
+            if (!state.loading && state.welcomeBack) {
+                item(key = "welcome-back") { WelcomeBackCard(onResumePlan, onGoalsChanged, Modifier.animateItem()) }
+            }
             if (!state.loading && state.cards.isEmpty()) {
                 item(key = "empty") {
                     EmptyState(

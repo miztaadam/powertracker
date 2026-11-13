@@ -16,6 +16,7 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.validation.InputValidator
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.library.PickerEntry
@@ -45,9 +46,14 @@ data class PlanUiState(
     /** The main lifts' own exercises (squat, bench, deadlift and, once it has a row, strict press), for "Set a known best". */
     val mainExercises: List<Exercise> = emptyList(),
     val defaultRpe: Double = 8.0,
-    /** The days the lifter trains, from Settings; a day can have plan items without being one. */
+    /** The days the lifter trains on this side, from Settings; a day can have plan items without being one. */
     val trainingDays: Set<DayOfWeek> = emptySet(),
-)
+    /** The side whose plan this is: the one the app is on. */
+    val mode: TrainingMode = TrainingMode.POWERLIFTING,
+) {
+    /** The bodybuilding side has no plan yet: the screen invites the lifter to fill it, day by day. */
+    val emptySide: Boolean get() = mode == TrainingMode.BODYBUILDING && sections.all { it.rows.isEmpty() }
+}
 
 /** How adding an exercise from the Exercises tab went. */
 enum class PlanAdd {
@@ -69,15 +75,16 @@ class PlanViewModel(
     /** True while [addOnce] is saving; further calls are ignored until it has answered. */
     private val adding = MutableStateFlow(false)
 
-    val state: StateFlow<PlanUiState> = combine(training.plan(), training.history(), settings.settings) { plan, history, s ->
-        build(plan, history, s)
+    /** The side the app is on: each keeps its own plan and days (bodybuilding mode spec §6, §7.3). */
+    val state: StateFlow<PlanUiState> = combine(training.plans(), training.history(), settings.settings) { plans, history, s ->
+        build(s.trainingMode, plans.of(s.trainingMode), history, s)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanUiState())
 
-    private fun build(plan: List<PlanItem>, history: TrainingHistory, s: AppSettings): PlanUiState {
+    private fun build(mode: TrainingMode, plan: List<PlanItem>, history: TrainingHistory, s: AppSettings): PlanUiState {
         val exercises = history.exercises.values.sortedBy { it.id }
         val names = exercises.associate { it.id to it.name }
         val byDay = plan.groupBy { it.weekday }
-        val days = (s.trainingDays + byDay.keys).sorted()
+        val days = (s.activeTrainingDays + byDay.keys).sorted()
         return PlanUiState(
             sections = days.map { day ->
                 DaySection(day, byDay[day].orEmpty().sortedBy { it.order }.map { PlanRow(it, names[it.exerciseId] ?: "Unknown exercise") })
@@ -86,16 +93,18 @@ class PlanViewModel(
             recentIds = recentExerciseIds(history),
             mainExercises = exercises.filter { it.isMainLift },
             defaultRpe = s.defaultRpe,
-            trainingDays = s.trainingDays,
+            trainingDays = s.activeTrainingDays,
+            mode = mode,
         )
     }
 
     /**
      * Adds what was picked at the end of [day]: 3 × 5 for a compound lift, 3 × 10 for an accessory,
-     * at the default RPE. A catalogue exercise gets its row, if it has none yet, in the same transaction.
+     * at the default RPE; on the bodybuilding side 3 × 8–12 @ 8 for anything. A catalogue exercise gets
+     * its row, if it has none yet, in the same transaction.
      */
     fun add(day: DayOfWeek, entry: PickerEntry) {
-        val item = newItem(day, entry, state.value.defaultRpe, nextOrder(day))
+        val item = newItem(state.value.mode, day, entry, state.value.defaultRpe, nextOrder(day))
         viewModelScope.launch { training.savePlanItem(item, entry.catalogueName) }
     }
 
@@ -111,7 +120,8 @@ class PlanViewModel(
             val result = try {
                 // After whatever else this tap set off: a second tap in the same frame meets the guard, however fast the store answers.
                 yield()
-                val onDay = training.plan().first().filter { it.weekday == day }
+                val mode = settings.settings.first().trainingMode
+                val onDay = training.plan(mode).first().filter { it.weekday == day }
                 // The row a catalogue name would be saved to (the oldest live one, as CatalogueResolver picks it), if it has one yet.
                 val name = entry.catalogueName
                 val rowId = if (name == null) entry.exerciseId else training.exercises().first().filter { !it.archived && it.name.equals(name, ignoreCase = true) }.minOfOrNull { it.id }
@@ -119,7 +129,7 @@ class PlanViewModel(
                     PlanAdd.ALREADY_THERE
                 } else {
                     val order = (onDay.maxOfOrNull { it.order } ?: -1) + 1
-                    training.savePlanItem(newItem(day, entry.copy(exerciseId = rowId), settings.settings.first().defaultRpe, order), name)
+                    training.savePlanItem(newItem(mode, day, entry.copy(exerciseId = rowId), settings.settings.first().defaultRpe, order), name)
                     PlanAdd.ADDED
                 }
             } catch (e: CancellationException) {
@@ -134,12 +144,23 @@ class PlanViewModel(
         }
     }
 
-    private fun newItem(day: DayOfWeek, entry: PickerEntry, defaultRpe: Double, order: Int) =
-        PlanItem(0, day, entry.exerciseId ?: 0, entry.defaultSets, entry.defaultReps, defaultRpe.coerceIn(MIN_RPE, MAX_RPE), order)
+    private fun newItem(mode: TrainingMode, day: DayOfWeek, entry: PickerEntry, defaultRpe: Double, order: Int) = when (mode) {
+        TrainingMode.POWERLIFTING ->
+            PlanItem(0, day, entry.exerciseId ?: 0, entry.defaultSets, entry.defaultReps, defaultRpe.coerceIn(MIN_RPE, MAX_RPE), order)
+        // The owner's numbers for this side: 3 sets of 8–12 at RPE 8 (bodybuilding mode spec §2, §7.3).
+        TrainingMode.BODYBUILDING ->
+            PlanItem(0, day, entry.exerciseId ?: 0, BODYBUILDING_SETS, BODYBUILDING_REPS_LOW, BODYBUILDING_RPE, order, mode, BODYBUILDING_REPS_HIGH)
+    }
 
-    /** Updates [existing] in place. [exercise] is set when the exercise itself was changed. */
-    fun save(existing: PlanItem, exercise: PickerEntry?, sets: Int, reps: Int, rpe: Double) {
-        val item = existing.copy(exerciseId = exercise?.exerciseId ?: existing.exerciseId, sets = sets, reps = reps, targetRpe = rpe)
+    /**
+     * Updates [existing] in place. [exercise] is set when the exercise itself was changed. [repsHigh] is the top of a
+     * range (bodybuilding side); fixed reps keep it null.
+     */
+    fun save(existing: PlanItem, exercise: PickerEntry?, sets: Int, reps: Int, rpe: Double, repsHigh: Int? = existing.repsHigh) {
+        val item = existing.copy(
+            exerciseId = exercise?.exerciseId ?: existing.exerciseId, sets = sets, reps = reps, targetRpe = rpe,
+            repsHigh = repsHigh?.coerceAtLeast(reps),
+        )
         viewModelScope.launch { training.savePlanItem(item, exercise?.catalogueName) }
     }
 
@@ -191,6 +212,10 @@ class PlanViewModel(
     companion object {
         const val MIN_RPE = 6.0
         const val MAX_RPE = 10.0
+        const val BODYBUILDING_SETS = 3
+        const val BODYBUILDING_REPS_LOW = 8
+        const val BODYBUILDING_REPS_HIGH = 12
+        const val BODYBUILDING_RPE = 8.0
 
         fun factory(training: TrainingRepository, settings: SettingsRepository, today: () -> LocalDate = ::systemToday): ViewModelProvider.Factory =
             viewModelFactory { initializer { PlanViewModel(training, settings, today) } }

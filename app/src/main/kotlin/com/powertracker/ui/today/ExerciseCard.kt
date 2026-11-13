@@ -47,6 +47,7 @@ import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.missPointLabel
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.repsText
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.ui.components.CoachSuggestion
 import com.powertracker.ui.components.Eyebrow
@@ -85,14 +86,24 @@ private fun missLabels(lift: MainLift?): List<String> = MissPoint.entries.map { 
 fun doseText(weightKg: Double, reps: Int, rpe: Double?): String =
     "${formatKg(weightKg)} × $reps" + if (rpe != null) " @ ${formatRpe(rpe)}" else ""
 
-/** "5 × 5 @ 8": sets × reps @ RPE as planned. */
-fun planText(item: PlanItem): String = "${item.sets} × ${item.reps} @ ${formatRpe(item.targetRpe)}"
+/** "5 × 5 @ 8": sets × reps @ RPE as planned; "3 × 8–12 @ 8" for a rep range. */
+fun planText(item: PlanItem): String = "${item.sets} × ${repsText(item.reps, item.repsHigh)} @ ${formatRpe(item.targetRpe)}"
 
-/** The chip headline for a coach target: "155 × 5 @ 8", plus the set count when the coach changes it. */
-fun targetHeadline(target: AdvicePayload.Target): String =
-    doseText(target.weightKg, target.reps, target.rpe) + (target.sets?.let { " · $it ${if (it == 1) "set" else "sets"}" } ?: "")
+/**
+ * The chip headline for a coach target: "155 × 5 @ 8", or "26 kg × 8–12 @ 8" for a range (bodybuilding mode spec
+ * §7.4), plus the set count when the coach changes it.
+ */
+fun targetHeadline(target: AdvicePayload.Target): String {
+    val dose = if (target.repsHigh == null) {
+        doseText(target.weightKg, target.reps, target.rpe)
+    } else {
+        "${formatKg(target.weightKg)} kg × ${repsText(target.reps, target.repsHigh)} @ ${formatRpe(target.rpe)}"
+    }
+    return dose + (target.sets?.let { " · $it ${if (it == 1) "set" else "sets"}" } ?: "")
+}
 
-// The stored reason repeats the suggestion ("… Coach suggests 155 × 5 @ 8."); the chip already shows it as its headline.
+// The stored reason repeats the suggestion ("… Coach suggests 155 × 5 @ 8.", or "… 26 × 8–12 @ 8." for a range); the
+// chip already shows it as its headline. The lazy match takes the range in its stride.
 private val SUGGESTION_SENTENCE = Regex("""\s*Coach suggests .*? @ \d+(\.\d+)?\.""")
 
 fun targetReason(advice: Advice): String = advice.reason.replace(SUGGESTION_SENTENCE, "").trim()
@@ -109,7 +120,10 @@ private fun stepWeight(current: Double?, deltaKg: Double): Double {
     return (next * 100).roundToLong() / 100.0
 }
 
-/** The exercise being logged: coach chip, sets so far, steppers, plates and the one big button. */
+/**
+ * The exercise being logged: coach chip, sets so far, steppers, plates and the one big button. In a [bodybuilding]
+ * session there is no top set and no "where did it stall?" (bodybuilding mode spec §7.4); Missed still works.
+ */
 @Composable
 fun ExerciseCard(
     item: TodayItem,
@@ -120,6 +134,7 @@ fun ExerciseCard(
     next: NextStep,
     actions: TodayActions,
     modifier: Modifier = Modifier,
+    bodybuilding: Boolean = false,
 ) {
     val id = item.exercise.id
     var extraSet by rememberSaveable(id) { mutableStateOf(false) }
@@ -152,7 +167,7 @@ fun ExerciseCard(
         }
 
         if (item.sets.isNotEmpty()) {
-            val top = topSetIndex(item.logged)
+            val top = if (bodybuilding) null else topSetIndex(item.logged)
             Column {
                 item.sets.forEachIndexed { i, stored ->
                     val set = stored.set
@@ -165,7 +180,7 @@ fun ExerciseCard(
                         isTopSet = i == top,
                         onClick = { selected = i + 1 to stored },
                     )
-                    if (set.failed || (set.rpe ?: 0.0) >= GRIND_RPE) {
+                    if (!bodybuilding && (set.failed || (set.rpe ?: 0.0) >= GRIND_RPE)) {
                         MissRow(i + 1, set, item.exercise.mainLift) { actions.onMissPoint(stored.id, it) }
                     }
                 }

@@ -85,3 +85,35 @@ class LiftHistoryViewModel(
             viewModelFactory { initializer { LiftHistoryViewModel(training, lift, today) } }
     }
 }
+
+data class ExerciseHistoryState(
+    val loading: Boolean = true,
+    /** Null until loaded, or for an exercise that is not there. */
+    val name: String? = null,
+    /** Newest first. */
+    val sessions: List<HistorySession> = emptyList(),
+)
+
+/** One exercise's history, from both sides: what a bodybuilding Progress row opens when the exercise is not a main lift's. */
+class ExerciseHistoryViewModel(training: TrainingRepository, exerciseId: Long) : ViewModel() {
+    val state: StateFlow<ExerciseHistoryState> = training.history()
+        .map { build(it, exerciseId) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ExerciseHistoryState())
+
+    companion object {
+        /** Every session with a set of [exerciseId], whichever side it was logged on, newest first. */
+        internal fun build(history: TrainingHistory, exerciseId: Long): ExerciseHistoryState {
+            val name = history.exercises[exerciseId]?.name
+            val sessions = history.sessions.sortedWith(compareByDescending<com.powertracker.domain.model.LoggedSession> { it.date }.thenByDescending { it.id })
+                .mapNotNull { session ->
+                    val sets = session.sets.filter { it.exerciseId == exerciseId }
+                    if (sets.isEmpty()) return@mapNotNull null
+                    HistorySession(session.id, session.date, listOf(HistoryGroup(name.orEmpty(), false, sets.mapIndexed { i, set -> HistorySet(i + 1, set, isPr = false) })))
+                }
+            return ExerciseHistoryState(loading = false, name = name, sessions = sessions)
+        }
+
+        fun factory(training: TrainingRepository, exerciseId: Long): ViewModelProvider.Factory =
+            viewModelFactory { initializer { ExerciseHistoryViewModel(training, exerciseId) } }
+    }
+}

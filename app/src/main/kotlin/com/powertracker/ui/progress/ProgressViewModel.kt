@@ -14,6 +14,9 @@ import com.powertracker.domain.progress.Pr
 import com.powertracker.domain.progress.ProgressMath
 import com.powertracker.domain.progress.weekStart
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.progress.BodybuildingProgress
+import com.powertracker.domain.progress.ExerciseTrend
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.coach.RatioUi
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +24,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -70,6 +75,12 @@ data class ProgressState(
     val volumeFrom: LocalDate? = null,
     val volume: List<VolumeUi> = emptyList(),
     val ratios: List<RatioUi> = emptyList(),
+    /** The side the app is on. The charts, records and total above belong to the powerlifting side. */
+    val mode: TrainingMode = TrainingMode.POWERLIFTING,
+    /** The bodybuilding side: the plan's exercises with their last four sessions' best sets (spec §7.6). */
+    val trends: List<ExerciseTrend> = emptyList(),
+    /** The main lift each of [trends]' exercises belongs to, for the rows that open that lift's history. */
+    val trendLifts: Map<Long, MainLift> = emptyMap(),
 )
 
 /** An estimate is not worth more than half a kilo of precision. */
@@ -78,14 +89,19 @@ internal fun Double.toHalfKg(): Double = (this * 2).roundToLong() / 2.0
 class ProgressViewModel(
     training: TrainingRepository,
     showStrictPress: Flow<Boolean>,
+    mode: Flow<TrainingMode> = flowOf(TrainingMode.POWERLIFTING),
     private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
 
     private val range = MutableStateFlow(ChartRange.MONTHS_6)
 
     val state: StateFlow<ProgressState> =
-        combine(training.history(), range, showStrictPress) { history, range, press -> build(history, range, today(), press) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProgressState())
+        combine(training.history(), range, showStrictPress, mode, training.plan(TrainingMode.BODYBUILDING)) { history, range, press, side, plan ->
+            when (side) {
+                TrainingMode.POWERLIFTING -> build(history, range, today(), press)
+                TrainingMode.BODYBUILDING -> buildBodybuilding(history, plan, today())
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProgressState())
 
     fun setRange(value: ChartRange) {
         range.value = value
@@ -103,6 +119,18 @@ class ProgressViewModel(
         )
 
         private fun percent(factor: Double) = (factor * 100).roundToInt()
+
+        /** The bodybuilding side's list: one row per exercise in its plan, in plan order. */
+        internal fun buildBodybuilding(history: TrainingHistory, plan: List<com.powertracker.domain.model.PlanItem>, today: LocalDate): ProgressState {
+            val trends = BodybuildingProgress.rows(history, plan, today)
+            return ProgressState(
+                loading = false,
+                hasData = trends.isNotEmpty(),
+                mode = TrainingMode.BODYBUILDING,
+                trends = trends,
+                trendLifts = trends.mapNotNull { t -> history.exercises[t.exerciseId]?.mainLift?.let { t.exerciseId to it } }.toMap(),
+            )
+        }
 
         /**
          * Everything the screen shows, from one snapshot of history. Strict press is a fourth lift
@@ -177,6 +205,6 @@ class ProgressViewModel(
         }
 
         fun factory(training: TrainingRepository, settings: SettingsRepository, today: () -> LocalDate = ::systemToday): ViewModelProvider.Factory =
-            viewModelFactory { initializer { ProgressViewModel(training, settings.showStrictPress, today) } }
+            viewModelFactory { initializer { ProgressViewModel(training, settings.showStrictPress, settings.settings.map { it.trainingMode }, today) } }
     }
 }

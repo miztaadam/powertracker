@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,6 +35,8 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.ui.coach.WelcomeBackCard
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.EmptyState
 import com.powertracker.ui.components.RestTimerBar
@@ -77,6 +80,9 @@ class TodayActions(
     val onFinish: () -> Unit = {},
     val onKeepLogging: () -> Unit = {},
     val onOpenCoach: () -> Unit = {},
+    /** The welcome-back card's two answers; the second also opens the Plan. */
+    val onResumePlan: () -> Unit = {},
+    val onGoalsChanged: () -> Unit = {},
 )
 
 /**
@@ -92,6 +98,7 @@ fun TodayScreen(
     today: () -> LocalDate = ::systemToday,
     onSetLogged: (isMainOrVariation: Boolean) -> Unit = {},
     restTimer: RestTimerUi? = null,
+    onOpenPlan: () -> Unit = {},
 ) {
     val viewModel = rememberTodayViewModel(training, advice, settings, today)
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -106,6 +113,7 @@ fun TodayScreen(
     }
 
     val openCoach by rememberUpdatedState(onOpenCoach)
+    val openPlan by rememberUpdatedState(onOpenPlan)
     val actions = remember(viewModel) {
         TodayActions(
             onStartSession = viewModel::startSession,
@@ -130,6 +138,11 @@ fun TodayScreen(
             onFinish = viewModel::finishSession,
             onKeepLogging = viewModel::dismissSummary,
             onOpenCoach = { openCoach() },
+            onResumePlan = viewModel::answerWelcomeBack,
+            onGoalsChanged = {
+                viewModel.answerWelcomeBack()
+                openPlan()
+            },
         )
     }
     TodayContent(state, actions, restTimer)
@@ -178,8 +191,12 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
     LaunchedEffect(active?.exercise?.id) { if (activeId == null) activeId = active?.exercise?.id }
 
     val list = rememberLazyListState()
+    // The note and the welcome-back card, when shown, come before the exercises: the first exercise keeps them in view.
+    val leading = (if (state.sideNote != null) 1 else 0) + (if (state.welcomeBack) 1 else 0)
     val activeIndex = items.indexOf(active)
-    LaunchedEffect(activeIndex, inSession) { if (inSession && activeIndex >= 0) list.animateScrollToItem(activeIndex) }
+    LaunchedEffect(activeIndex, inSession) {
+        if (inSession && activeIndex >= 0) list.animateScrollToItem(if (activeIndex == 0) 0 else activeIndex + leading)
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -203,6 +220,16 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
             contentPadding = PaddingValues(start = Space.gutter, end = Space.gutter, bottom = Space.xl),
             verticalArrangement = Arrangement.spacedBy(Space.m),
         ) {
+            if (!state.loading) {
+                state.sideNote?.let { note ->
+                    item(key = "side-note") {
+                        Text(note, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = Space.xs))
+                    }
+                }
+                if (state.welcomeBack) {
+                    item(key = "welcome-back") { WelcomeBackCard(onResume = actions.onResumePlan, onGoalsChanged = actions.onGoalsChanged) }
+                }
+            }
             when {
                 state.loading -> Unit
                 state.summary != null -> item(key = "summary") {
@@ -220,7 +247,10 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
                             } else {
                                 NextStep("Finish session", actions.onFinish)
                             }
-                            ExerciseCard(item, i + 1, items.size, state.weightStepKg, state.changePlates, next, actions)
+                            ExerciseCard(
+                                item, i + 1, items.size, state.weightStepKg, state.changePlates, next, actions,
+                                bodybuilding = state.mode == TrainingMode.BODYBUILDING,
+                            )
                         } else {
                             ExerciseRow(item, onClick = { activeId = item.exercise.id })
                         }

@@ -61,6 +61,48 @@ fun LiftHistoryScreen(
     LiftHistoryContent(mainLift, state, onBack)
 }
 
+/** Every session of one exercise, newest first, from both sides. [exerciseId] is the route argument. */
+@Composable
+fun ExerciseHistoryScreen(training: TrainingRepository, exerciseId: Long, onBack: () -> Unit) {
+    val viewModel: ExerciseHistoryViewModel = viewModel(key = "exercise-$exerciseId", factory = ExerciseHistoryViewModel.factory(training, exerciseId))
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    ExerciseHistoryContent(state, onBack)
+}
+
+/** The exercise history screen without its view model: the lift history's layout for any exercise. */
+@Composable
+fun ExerciseHistoryContent(state: ExerciseHistoryState, onBack: () -> Unit) {
+    val count = state.sessions.size
+    val name = state.name ?: "Exercise"
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            ScreenHeader(
+                "$name history",
+                eyebrow = when {
+                    state.loading -> null
+                    count == 1 -> "1 session"
+                    else -> "$count sessions"
+                },
+                navigation = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+            ) { state.name?.let { InfoButton(it) } }
+        },
+    ) { padding ->
+        LazyColumn(
+            Modifier.padding(padding).fillMaxSize(),
+            contentPadding = PaddingValues(start = Space.gutter, end = Space.gutter, bottom = Space.xl),
+            verticalArrangement = Arrangement.spacedBy(Space.m),
+        ) {
+            if (!state.loading && state.sessions.isEmpty()) {
+                item(key = "empty") {
+                    EmptyState(Icons.Filled.FitnessCenter, "No ${name.lowercase()} sessions yet", "Every set you log for this exercise will be listed here.")
+                }
+            }
+            items(state.sessions, key = { it.sessionId }) { session -> SessionCard(session) }
+        }
+    }
+}
+
 private val SESSION_DATE = DateTimeFormatter.ofPattern("EEE d MMM yyyy")
 private val BEST_DATE = DateTimeFormatter.ofPattern("d MMM yyyy")
 

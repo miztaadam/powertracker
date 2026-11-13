@@ -38,6 +38,7 @@ import com.powertracker.ui.coach.CoachScreen
 import com.powertracker.ui.library.ExercisesScreen
 import com.powertracker.ui.plan.PlanScreen
 import com.powertracker.ui.plan.SettingsScreen
+import com.powertracker.ui.progress.ExerciseHistoryScreen
 import com.powertracker.ui.progress.LiftHistoryScreen
 import com.powertracker.ui.progress.ProgressScreen
 import com.powertracker.ui.theme.PowertrackerTheme
@@ -57,6 +58,8 @@ object Routes {
     const val SETTINGS = "settings"
     const val LIFT_HISTORY = "liftHistory/{lift}"
     fun liftHistory(lift: String) = "liftHistory/$lift"
+    const val EXERCISE_HISTORY = "exerciseHistory/{id}"
+    fun exerciseHistory(id: Long) = "exerciseHistory/$id"
 }
 
 @Composable
@@ -89,11 +92,16 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
                     onOpenCoach = { openTab(Tab.COACH) },
                     onSetLogged = rest.onSetLogged,
                     restTimer = rest.restTimer,
+                    onOpenPlan = { openTab(Tab.PLAN) },
                 )
             }
-            composable(Tab.COACH.route) { CoachScreen(training, advice, settings) }
+            composable(Tab.COACH.route) { CoachScreen(training, advice, settings, onOpenPlan = { openTab(Tab.PLAN) }) }
             composable(Tab.PROGRESS.route) {
-                ProgressScreen(training, settings, onOpenLift = { nav.navigate(Routes.liftHistory(it.name)) })
+                ProgressScreen(
+                    training, settings,
+                    onOpenLift = { nav.navigate(Routes.liftHistory(it.name)) },
+                    onOpenExercise = { nav.navigate(Routes.exerciseHistory(it)) },
+                )
             }
             composable(Tab.EXERCISES.route) { entry ->
                 // The Today tab's view model, from its place at the bottom of the back stack: "Add to today"
@@ -111,6 +119,9 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
             }
             composable(Routes.LIFT_HISTORY) { entry ->
                 LiftHistoryScreen(training, entry.arguments?.getString("lift").orEmpty(), onBack = { nav.popBackStack() })
+            }
+            composable(Routes.EXERCISE_HISTORY) { entry ->
+                ExerciseHistoryScreen(training, entry.arguments?.getString("id")?.toLongOrNull() ?: 0L, onBack = { nav.popBackStack() })
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(settings, backup, onBack = { nav.popBackStack() })

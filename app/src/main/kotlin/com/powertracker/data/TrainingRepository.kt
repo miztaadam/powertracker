@@ -19,6 +19,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 
+/** Each side's plan. */
+data class Plans(val powerlifting: List<PlanItem>, val bodybuilding: List<PlanItem>) {
+    fun of(mode: TrainingMode): List<PlanItem> = if (mode == TrainingMode.BODYBUILDING) bodybuilding else powerlifting
+}
+
 /** A logged set together with its row ids, for editing and deleting. */
 data class StoredSet(val id: Long, val sessionId: Long, val set: LoggedSet)
 
@@ -47,6 +52,12 @@ open class TrainingRepository(private val db: AppDatabase) {
     /** [mode]'s plan only: each side keeps its own (bodybuilding mode spec §6). */
     fun plan(mode: TrainingMode = TrainingMode.POWERLIFTING): Flow<List<PlanItem>> =
         db.plan().observeSide(mode).map { list -> list.map { it.toDomain() } }
+
+    /**
+     * Both sides' plans, watched together: a screen that follows the side picks one from each emission, so a switch
+     * never opens a new query and the side and its plan always arrive together.
+     */
+    fun plans(): Flow<Plans> = combine(plan(TrainingMode.POWERLIFTING), plan(TrainingMode.BODYBUILDING), ::Plans)
 
     fun setsForSession(sessionId: Long): Flow<List<StoredSet>> =
         db.sets().observeForSession(sessionId).map { list -> list.map { StoredSet(it.id, it.sessionId, it.toDomain()) } }
