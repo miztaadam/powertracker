@@ -212,9 +212,9 @@ class BodybuildingFixRoundTest {
         val row = compose.onNode(hasClickAction() and hasText("Incline DB press"))
         row.assert(SemanticsMatcher("click label Open history") { it.config.getOrNull(SemanticsActions.OnClick)?.label == "Open history" })
         row.assert(
-            SemanticsMatcher("spoken as Incline DB press, 24 × 12, 26 × 9, without the dot") { node ->
+            SemanticsMatcher("spoken as Incline DB press. 24 × 12, 26 × 9, without the dot") { node ->
                 val spoken = node.config.getOrNull(SemanticsProperties.ContentDescription).orEmpty().joinToString(", ")
-                spoken.startsWith("Incline DB press, 24 × 12, 26 × 9") && "·" !in spoken
+                spoken.startsWith("Incline DB press. 24 × 12, 26 × 9") && "·" !in spoken
             },
         )
     }

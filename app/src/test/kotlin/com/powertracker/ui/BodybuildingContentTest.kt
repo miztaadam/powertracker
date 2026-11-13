@@ -205,8 +205,8 @@ class BodybuildingContentTest {
         }
         compose.onNodeWithText("60 × 10 · 60 × 12").assertExists()
         compose.onNodeWithText("26 × 11 · 26 × 10").assertExists()
-        compose.onNodeWithContentDescription("Going up").assertExists()
-        compose.onNodeWithContentDescription("Not going up").assertExists()
+        compose.onNodeWithContentDescription("Going up", substring = true).assertExists()
+        compose.onNodeWithContentDescription("Not going up", substring = true).assertExists()
         assertEquals(1, compose.onAllNodesWithText("Not logged yet").fetchSemanticsNodes().size)
         compose.onNodeWithText("Total (S+B+D)").assertDoesNotExist()
         compose.onNodeWithText("Weekly best e1RM").assertDoesNotExist()

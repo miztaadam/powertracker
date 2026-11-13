@@ -371,8 +371,10 @@ private fun BodybuildingSection(state: ProgressState, onOpenExercise: (Long) -> 
             state.trends.forEachIndexed { i, trend ->
                 if (i > 0) HorizontalDivider(color = pt.hairline)
                 val sets = if (trend.bestSets.isEmpty()) "Not logged yet" else bestSetText(trend)
-                // Read as "Incline DB press, 24 × 12, 26 × 9", then the trend icon's label: a list, not "dot".
-                val spoken = "${trend.name}, " + if (trend.bestSets.isEmpty()) sets else bestSetText(trend, ", ")
+                // Read as the web reads it, "DB press. 26 × 10, 26 × 11. Going up" (a list, not "dot"), then the click
+                // label "Open history". The trend icons are left silent, since their words are already in it.
+                val trendWords = when (trend.goingUp) { true -> "Going up"; false -> "Not going up"; null -> null }
+                val spoken = listOfNotNull(trend.name, if (trend.bestSets.isEmpty()) sets else bestSetText(trend, ", "), trendWords).joinToString(". ")
                 Row(
                     Modifier.fillMaxWidth()
                         .clickable(onClickLabel = "Open history") { onOpenExercise(trend.exerciseId) }
@@ -386,8 +388,8 @@ private fun BodybuildingSection(state: ProgressState, onOpenExercise: (Long) -> 
                         Text(sets, style = MaterialTheme.typography.bodyMedium, color = pt.muted)
                     }
                     when (trend.goingUp) {
-                        true -> Icon(Icons.AutoMirrored.Filled.TrendingUp, contentDescription = "Going up", tint = pt.success, modifier = Modifier.size(24.dp))
-                        false -> Icon(Icons.AutoMirrored.Filled.TrendingFlat, contentDescription = "Not going up", tint = pt.muted, modifier = Modifier.size(24.dp))
+                        true -> Icon(Icons.AutoMirrored.Filled.TrendingUp, contentDescription = null, tint = pt.success, modifier = Modifier.size(24.dp))
+                        false -> Icon(Icons.AutoMirrored.Filled.TrendingFlat, contentDescription = null, tint = pt.muted, modifier = Modifier.size(24.dp))
                         null -> Unit
                     }
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = pt.muted, modifier = Modifier.size(20.dp))

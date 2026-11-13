@@ -50,9 +50,9 @@ fun CoachAdviceCard(card: CoachCard, onApply: () -> Unit, onDismiss: () -> Unit,
     val advice = card.advice
     val detail = card.detail
     val lift = advice.lift?.label()
-    // A deload on the bodybuilding side speaks of exercises and weights, not lifts and top sets.
+    // A deload or easing back in on the bodybuilding side speaks of exercises and weights, not lifts and top sets.
     val bodybuilding = LocalTrainingMode.current == TrainingMode.BODYBUILDING
-    val deloadOnBodybuilding = bodybuilding && advice.type == AdviceType.DELOAD
+    val allExercises = bodybuilding && (advice.type == AdviceType.DELOAD || advice.type == AdviceType.RE_ENTRY)
     val look = when (advice.type) {
         AdviceType.STALL -> Look(Tone.WARNING, Icons.AutoMirrored.Filled.TrendingFlat, "Stall", "${lift ?: "Progress"} has stalled", "Add to plan")
         AdviceType.DELOAD -> Look(Tone.DANGER, Icons.Filled.BatteryAlert, "Deload", "Take a deload week", "Apply deload")
@@ -64,7 +64,7 @@ fun CoachAdviceCard(card: CoachCard, onApply: () -> Unit, onDismiss: () -> Unit,
         }
     }
     AdviceCard(
-        tone = look.tone, icon = look.icon, tag = "${look.kind} · ${lift ?: if (deloadOnBodybuilding) "All exercises" else "All lifts"}",
+        tone = look.tone, icon = look.icon, tag = "${look.kind} · ${lift ?: if (allExercises) "All exercises" else "All lifts"}",
         title = look.title, body = advice.reason,
         modifier = modifier,
         primaryAction = look.action, onPrimary = onApply,
@@ -88,7 +88,7 @@ fun CoachAdviceCard(card: CoachCard, onApply: () -> Unit, onDismiss: () -> Unit,
                 StatTile("Load", detail.loadPct.toString(), Modifier.weight(1f), unit = "%", note = if (bodybuilding) "of your last weights" else "of your last top sets")
             }
             is CardDetail.ReEntry ->
-                StatTile("Load", detail.loadPct.toString(), Modifier.fillMaxWidth(), unit = "%", note = "of your last top sets, for 7 days")
+                StatTile("Load", detail.loadPct.toString(), Modifier.fillMaxWidth(), unit = "%", note = if (bodybuilding) "of your last weights, for 7 days" else "of your last top sets, for 7 days")
             is CardDetail.WeakPoint -> {
                 val ratio = detail.ratio
                 val miss = detail.missPoint
