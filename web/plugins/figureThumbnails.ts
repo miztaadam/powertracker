@@ -1,6 +1,6 @@
 import { statSync } from 'node:fs'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import type { Plugin } from 'vite'
+import { normalizePath, type Plugin } from 'vite'
 import type { Shape } from '../src/screens/library/FigureSvg'
 import { encodeShapes } from '../src/screens/library/thumbnailFormat'
 
@@ -12,6 +12,7 @@ import { encodeShapes } from '../src/screens/library/thumbnailFormat'
  * written as src/screens/library/thumbnailFormat.ts describes. They come from the generated domain bundle in the tree
  * (`:domain:syncWebDomain`), loaded straight into Node, so they always match it; nothing generated is committed.
  * The module is one `JSON.parse` of a string literal: the quickest way for a browser to read this much data.
+ * While `vite dev` runs, a re-synced bundle invalidates the module, so the next load works the data out afresh.
  */
 const ID = 'virtual:figure-thumbnails'
 const RESOLVED = `\0${ID}`
@@ -48,6 +49,14 @@ export function figureThumbnailsPlugin(): Plugin {
       if (id !== RESOLVED) return null
       this.addWatchFile(DOMAIN)
       return `export default JSON.parse(${JSON.stringify(JSON.stringify(await figureThumbnails()))})\n`
+    },
+    // The dev server: a changed domain bundle (`:domain:syncWebDomain`) makes the thumbnail data stale too.
+    handleHotUpdate({ file, server, modules }) {
+      if (normalizePath(file) !== normalizePath(DOMAIN)) return
+      const data = server.moduleGraph.getModuleById(RESOLVED)
+      if (data == null) return
+      server.moduleGraph.invalidateModule(data)
+      return [...modules, data]
     },
   }
 }
