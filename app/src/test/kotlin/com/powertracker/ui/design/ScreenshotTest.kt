@@ -127,11 +127,11 @@ class ScreenshotTest {
     fun plan() = render("plan", Tab.PLAN) { PlanShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1150dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1200dp-xhdpi")
     fun settings() = render("settings", null) { SettingsShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1150dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1200dp-xhdpi")
     fun settingsStrictPress() = render("settings-strict-press", null) { SettingsShowcase(strictPress = true) }
 
     @Test

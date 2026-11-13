@@ -38,8 +38,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.powertracker.BuildConfig
 import com.powertracker.data.AppSettings
 import com.powertracker.data.Backup
 import com.powertracker.data.BackupFile
@@ -81,6 +86,12 @@ fun checkBackupText(text: String): RestoreCheck = when (val r = Backup.decode(te
     is BackupResult.TooNew -> RestoreCheck.Rejected("This backup is from a newer version of Grit.")
     is BackupResult.Corrupt -> RestoreCheck.Rejected("This file isn't a valid Grit backup.")
 }
+
+/** The quiet line at the very bottom of Settings, for example "Grit 1.1 · AppsbyAdam". */
+fun appVersionLine(versionName: String): String = "Grit $versionName · AppsbyAdam"
+
+/** The same line as a screen reader says it, without the middle dots. */
+fun appVersionSpoken(versionName: String): String = "Grit version $versionName, by AppsbyAdam"
 
 /** The name offered when exporting a backup on [date]. */
 fun backupFileName(date: LocalDate): String = "grit-backup-$date.json"
@@ -177,6 +188,8 @@ fun SettingsContent(
     onRestore: () -> Unit,
     onBack: () -> Unit,
     snackbar: SnackbarHostState = remember { SnackbarHostState() },
+    /** The installed build's version name; only tests pass another. */
+    versionName: String = BuildConfig.VERSION_NAME,
 ) {
     val scheme = MaterialTheme.colorScheme
     Scaffold(
@@ -265,6 +278,19 @@ fun SettingsContent(
                 SecondaryButton("Export backup", onExport, Modifier.fillMaxWidth(), icon = Icons.Filled.Upload)
                 SecondaryButton("Restore backup", onRestore, Modifier.fillMaxWidth(), icon = Icons.Filled.Download)
             }
+
+            // Last of all: which version this is, and who made it. Plain text, read once without the dots.
+            Text(
+                appVersionLine(versionName),
+                style = MaterialTheme.typography.bodySmall,
+                color = PowertrackerTheme.colors.muted,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = Space.xl)
+                    .testTag("app-version")
+                    .semantics { contentDescription = appVersionSpoken(versionName) },
+            )
         }
     }
 }

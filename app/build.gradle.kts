@@ -15,8 +15,9 @@ android {
         applicationId = "com.powertracker"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        // Bump together with "version" in web/package.json for each update; a web test catches a mismatch.
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -34,6 +35,8 @@ android {
     }
     buildFeatures {
         compose = true
+        // BuildConfig.VERSION_NAME: the version line at the bottom of Settings.
+        buildConfig = true
     }
     testOptions {
         unitTests {
