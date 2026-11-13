@@ -36,12 +36,18 @@
 **Words.** A *group* is one of the 18 `MuscleGroup`s. An exercise *works* a group when any of its listed muscles maps to it (`MuscleGroups.works`). Its *main group* is the group of its first-listed muscle. A *set counts* for every group the exercise works. The 12 *target groups*, in this order: CHEST, LATS, QUADS, HAMSTRINGS, GLUTES, SIDE_DELTS, UPPER_BACK, BICEPS, TRICEPS, CALVES, ABS, REAR_DELTS.
 
 **Slot kinds.** Every exercise has at most one kind, worked out from its main group and, where one group has two kinds, from its name or whether it is a compound (second revision: a slot now takes only exercises of its own kind, because letting a lat pick fill the row slot, or a hip thrust fill the leg-curl slot, gave weeks with two pulldowns and no row):
-- CHEST: an accessory (not compound) is CHEST_FLY; otherwise a name containing "ncline" is CHEST_INCLINE; otherwise CHEST_PRESS.
-- LATS: a name containing "row" in any letter case is ROW; otherwise PULL_DOWN. UPPER_BACK: ROW.
-- QUADS and ADDUCTORS: a name containing "extension" or "adduction" is QUAD_ISOLATION; otherwise QUAD_COMPOUND.
-- HAMSTRINGS, GLUTES and LOWER_BACK: a name containing "curl" or "Glute-ham" is LEG_CURL; otherwise HINGE.
-- FRONT_DELTS: SHOULDER_PRESS. SIDE_DELTS: SIDE_DELT. REAR_DELTS: REAR_DELT. BICEPS and FOREARMS: BICEPS. TRICEPS: TRICEPS. CALVES: CALVES. ABS and OBLIQUES: ABS.
-- TRAPS, and an exercise with no main group: no kind. Such a pick can only be a held-over pick.
+- First, for a catalogue exercise that is a main lift or one of its variations (category SQUAT, BENCH, DEADLIFT, STRICT_PRESS, or VARIATION with a parent lift), the lift decides, whatever its first muscle: squat family QUAD_COMPOUND, bench family CHEST_PRESS, deadlift family HINGE, strict press SHOULDER_PRESS.
+- Otherwise, by main group, with names matched in any letter case:
+  - CHEST: an accessory (not compound) is CHEST_FLY; otherwise a name containing "incline" is CHEST_INCLINE; otherwise CHEST_PRESS.
+  - LATS: a name containing "row" is ROW; otherwise PULL_DOWN. UPPER_BACK: ROW.
+  - QUADS and ADDUCTORS: a name containing "extension", "adduction", "lunge", "split squat" or "step-up" is QUAD_ISOLATION (the session's second quad exercise); otherwise QUAD_COMPOUND.
+  - HAMSTRINGS, GLUTES and LOWER_BACK: a name containing "curl" or "glute-ham" is LEG_CURL; a name containing "abduction", "clamshell", "band walk" or "quadruped" has no kind; "Curtsy lunge" is QUAD_ISOLATION; otherwise HINGE.
+  - FRONT_DELTS: a name containing "raise" has no kind; otherwise SHOULDER_PRESS. SIDE_DELTS: SIDE_DELT.
+  - REAR_DELTS: a name containing "rotation" has no kind; otherwise REAR_DELT.
+  - BICEPS: BICEPS. FOREARMS: a name containing "curl" but not "wrist" is BICEPS; otherwise no kind.
+  - TRICEPS: TRICEPS. CALVES: CALVES.
+  - ABS and OBLIQUES: a name containing "plank", "carry" or "walk" has no kind (they are held or carried for time, not done for 8–12 reps); otherwise ABS.
+- TRAPS, and an exercise with no main group: no kind. A pick with no kind can only be a held-over pick.
 
 The table's middle column is the main groups a kind draws from; the kind rules above decide. Each kind's catalogue defaults, by exact name, in order:
 
@@ -69,7 +75,7 @@ A test proves every default name is in the catalogue and has a main group its ki
 **Session templates** (slots in training order):
 - **3 days**, three full-body sessions on the lifter's weekdays in week order, titled "Full body":
   - 1st: QUAD_COMPOUND, CHEST_PRESS, PULL_DOWN, LEG_CURL, SIDE_DELT, REAR_DELT, BICEPS, TRICEPS
-  - 2nd: HINGE, CHEST_INCLINE, ROW, QUAD_ISOLATION, SHOULDER_PRESS, CALVES, ABS, BICEPS
+  - 2nd: HINGE, CHEST_INCLINE, ROW, QUAD_ISOLATION, SHOULDER_PRESS, CALVES, ABS, TRICEPS
   - 3rd: CHEST_PRESS, QUAD_COMPOUND, PULL_DOWN, HINGE, SIDE_DELT, REAR_DELT, CALVES, ABS
 - **4 days**, in week order "Upper", "Lower", "Upper", "Lower":
   - 1st upper: CHEST_PRESS, ROW, SHOULDER_PRESS, PULL_DOWN, SIDE_DELT, REAR_DELT, BICEPS, TRICEPS
@@ -78,7 +84,7 @@ A test proves every default name is in the catalogue and has a main group its ki
   - 2nd lower: HINGE, QUAD_COMPOUND, LEG_CURL, QUAD_ISOLATION, CALVES, ABS
 
 **Building, in this order:**
-1. **Priorities add a slot.** Priorities are at most 3, each one of the 12 target groups. Each adds one slot of its kind (CHEST: CHEST_FLY; LATS: PULL_DOWN; UPPER_BACK: ROW; QUADS: QUAD_ISOLATION; HAMSTRINGS: LEG_CURL; GLUTES: HINGE; SIDE_DELTS: SIDE_DELT; REAR_DELTS: REAR_DELT; BICEPS: BICEPS; TRICEPS: TRICEPS; CALVES: CALVES; ABS: ABS) to the end of one session: among the sessions that may hold that kind (on 4 days, upper sessions for the kinds in the upper templates and lower sessions for the kinds in the lower ones), the one with the fewest slots of that kind, then the fewest slots in all, then the earliest. So two priorities spread over two sessions where they can.
+1. **Priorities add a slot.** Priorities are at most 3, each one of the 12 target groups. Each adds one slot of its kind (CHEST: CHEST_FLY; LATS: PULL_DOWN; UPPER_BACK: ROW; QUADS: QUAD_ISOLATION; HAMSTRINGS: LEG_CURL; GLUTES: HINGE; SIDE_DELTS: SIDE_DELT; REAR_DELTS: REAR_DELT; BICEPS: BICEPS; TRICEPS: TRICEPS; CALVES: CALVES; ABS: ABS) to the end of one session: among the sessions that may hold that kind (on 4 days, upper sessions for the kinds in the upper templates and lower sessions for the kinds in the lower ones), the one with the fewest slots of that kind, then the fewest slots in all, then the earliest. So two priorities spread over two sessions where they can. An added slot takes only an exercise that works the priority group, and it is filled after every template slot: in steps 2 and 3 a pick looks at all template slots (week order) before any added slot. So a priority can only add to the week.
 2. **Place the picks once.** Take the lifter's picks in the order of the kinds table (picks with no kind last), then by name. Give each pick the first empty slot of its own kind, looking at sessions in week order and at slots in session order. A pick with no empty slot of its kind is held over. Priorities do not change this order, so choosing a priority cannot move anyone else's pick.
 3. **Place the picks a second time.** In the same order, each placed pick takes one more empty slot of its own kind in a session that does not already hold it, if there is one. A pick appears at most twice in the week. The same exercise twice a week is intended: it is how reps-then-weight moves fastest.
 4. **Held-over picks.** Each goes, in order, to the end of the session with the fewest exercises that may take it (on 4 days: an upper session for an upper kind, a lower session for a lower kind; any session for a pick with no kind, as on 3 days) and that has not yet taken a held-over pick; earliest on a tie. When every such session has taken one, the pick is left out with the reason "No room: every session it fits is full."
@@ -90,7 +96,7 @@ A test proves every default name is in the catalogue and has a main group its ki
 
 **Swapping:** `alternatives(name, draft, picks)` is, for a slot exercise, the catalogue exercises of that slot's kind that are not in that session: the kind's defaults first, then the rest in catalogue order. For a held-over pick it is the catalogue exercises with the same main group. Replacing one exercise keeps its place and sets.
 
-**What the default weeks should look like** (no picks, no priorities, variant 0; Task 1 reports the real tables): each big group (chest, lats, quads, hamstrings, glutes, upper back, biceps, triceps) at or above 10 counted sets, and the small ones (side delts, rear delts, calves, abs) trained on two days at 6 or more. For every answer, with or without picks: a priority raises its own group's counted sets, to at least 10, and never lowers any group's. If the real tables or these two properties do not hold, report where; do not bend the rules.
+**What the default weeks should look like** (no picks, no priorities, variant 0; Task 1 reports the real tables): each big group (chest, lats, quads, hamstrings, glutes, upper back, biceps, triceps) at or above 10 counted sets, and the small ones (side delts, rear delts, calves, abs) trained on two days at 6 or more. For every answer, with or without picks: a priority strictly raises its own group's counted sets and never lowers any group's. With no picks it also brings its group to at least 10; with picks the lifter's own choices can keep a group under 10, and the draft shows the number. If the real tables or these properties do not hold, report where; do not bend the rules.
 
 ### Task 1: the builder in the shared domain
 
