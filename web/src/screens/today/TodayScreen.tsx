@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { GritDb } from '../../db/db'
 import { todayIso } from '../../domain'
+import { otherSideLine } from '../../state/sides'
 import { useToday, type TodayActions, type TodayItem, type TodayState } from '../../state/useToday'
+import { useWelcomeBack } from '../../state/useWelcomeBack'
 import { SecondaryButton } from '../../ui/components/Button'
 import { EmptyState } from '../../ui/components/EmptyState'
 import { AddIcon, FitnessCenterIcon } from '../../ui/components/icons'
@@ -11,6 +13,7 @@ import { Snackbar } from '../../ui/components/Snackbar'
 import { BackupReminderCard } from './BackupReminderCard'
 import { ExerciseCard, ExerciseRow, type NextStep } from './ExerciseCard'
 import { StartSessionCard, SummaryCard } from './SessionCards'
+import { WelcomeBackCard } from '../coach/WelcomeBackCard'
 import { ExercisePicker } from '../library/ExercisePicker'
 import { TypoDialog } from './TodayDialogs'
 import './today.css'
@@ -26,6 +29,8 @@ export type TodayScreenProps = {
   onOpenSettings?: () => void
   /** A card shown above the start card, before the backup reminder: the install card. */
   banner?: ReactNode
+  /** Opens Plan, after "My goals have changed" on the welcome-back card. */
+  onOpenPlan?: () => void
 }
 
 /** The logging screen with a session of its own: start card, the session's exercises, or the finish summary. */
@@ -40,14 +45,15 @@ export type TodayViewProps = Omit<TodayScreenProps, 'onSetLogged'> & {
 }
 
 /** The logging screen over a session kept elsewhere, so that it outlives the screen. */
-export function TodayView({ session, db, onOpenCoach, today = todayIso, onOpenSettings, banner }: TodayViewProps) {
+export function TodayView({ session, db, onOpenCoach, today = todayIso, onOpenSettings, banner, onOpenPlan }: TodayViewProps) {
+  const welcome = useWelcomeBack(db, today)
   const notice = (
     <>
       {banner}
       {onOpenSettings && <BackupReminderCard db={db} today={today()} onBackUp={onOpenSettings} />}
     </>
   )
-  return <TodayContent state={session} actions={session} onOpenCoach={onOpenCoach} notice={notice} />
+  return <TodayContent state={session} actions={session} onOpenCoach={onOpenCoach} notice={notice} welcome={<WelcomeBackCard welcome={welcome} onOpenPlan={onOpenPlan} />} />
 }
 
 function dateParts(isoDate: string): { weekday: string; day: string; month: string } {
@@ -65,12 +71,14 @@ export type TodayContentProps = {
   onOpenCoach: () => void
   /** Shown above the start card or the summary, never while a session is being logged. */
   notice?: ReactNode
+  /** The welcome-back card: first on the screen, above the start card or the first exercise. */
+  welcome?: ReactNode
 }
 
 const SAVE_FAILED = "Couldn't save — try again."
 
 /** The Today screen without its data source. A write that fails says so; it never fails silently. */
-export function TodayContent({ state, actions: raw, onOpenCoach, notice }: TodayContentProps) {
+export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome }: TodayContentProps) {
   const { items } = state
   // Counts failed writes: 0 shows nothing, and each new failure shows the message afresh.
   const [failures, setFailures] = useState(0)
@@ -130,6 +138,8 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice }: Today
         actions={inSession && <SecondaryButton className="today-finish" text="Finish" onClick={() => void actions.finishSession()} compact />}
       />
       <div className="screen-body">
+        {!state.loading && state.sessionId != null && state.side !== state.activeSide && <p className="today-other-side body-medium">{otherSideLine(state.side)}</p>}
+        {!state.loading && state.summary == null && welcome}
         {!state.loading && !inSession && notice}
         {state.loading ? null : state.summary != null ? (
           <SummaryCard summary={state.summary} onOpenCoach={onOpenCoach} onKeepLogging={actions.dismissSummary} />
@@ -148,6 +158,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice }: Today
                     changePlates={state.changePlates}
                     next={nextStep(i)}
                     actions={actions}
+                    side={state.side}
                   />
                 </div>
               ) : (

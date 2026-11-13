@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { loadHistory, type GritDb } from '../db/db'
 import { grit, type JsHistory, type JsPr, type JsSet } from '../domain'
 import type { Lift } from '../router'
+import { historyOn } from './sides'
 
 /** `index` counts from 1 within the exercise in that session. */
 export type HistorySet = { index: number; set: JsSet; isPr: boolean }
@@ -23,7 +24,10 @@ export type LiftHistoryState = {
 const E1RM_DAYS = 28
 const LOADING: LiftHistoryState = { loading: true, currentE1rmKg: null, best: null, sessions: [] }
 
-/** Every session with a set of `lift` or one of its variations, newest first, with the lift's records marked. */
+/**
+ * Every session with a set of `lift` or one of its variations, newest first, from both sides, with the lift's
+ * records marked. Records and the e1RMs belong to the powerlifting side and read only its sessions.
+ */
 export function buildLiftHistory(history: JsHistory, lift: Lift, today: string): LiftHistoryState {
   // Everything that trains the lift: the lift itself (main) and its variations.
   const trains = history.exercises.filter((e) => grit.mainLiftOf(e) === lift)
@@ -31,7 +35,8 @@ export function buildLiftHistory(history: JsHistory, lift: Lift, today: string):
   const variations = new Map(trains.filter((e) => !grit.isMainLift(e)).map((e) => [e.id, e.name]))
 
   // Walks the sets in the order the domain's `prs` does, so each record lands on the set that made it.
-  const prs = grit.prs(history, lift)
+  const powerlifting = historyOn(history, 'POWERLIFTING')
+  const prs = grit.prs(powerlifting, lift)
   let nextPr = 0
   const sessions = [...history.sessions]
     .sort((a, b) => a.date.localeCompare(b.date))
@@ -61,7 +66,7 @@ export function buildLiftHistory(history: JsHistory, lift: Lift, today: string):
 
   return {
     loading: false,
-    currentE1rmKg: grit.currentE1rm(history, lift, today, E1RM_DAYS) ?? null,
+    currentE1rmKg: grit.currentE1rm(powerlifting, lift, today, E1RM_DAYS) ?? null,
     best: prs.at(-1) ?? null,
     sessions: sessions.reverse(),
   }
@@ -81,4 +86,31 @@ export function useLiftHistory(db: GritDb, lift: Lift, today: () => string): Lif
   if (readError != null) throw readError
 
   return useMemo(() => (stored ? buildLiftHistory(stored.history, lift, stored.today) : LOADING), [stored, lift])
+}
+
+/** Every session with a set of one exercise, newest first, from both sides (the bodybuilding Progress rows open it). */
+export function buildExerciseHistory(history: JsHistory, exerciseId: number): ExerciseHistoryState {
+  const name = history.exercises.find((e) => e.id === exerciseId)?.name ?? null
+  const sessions = [...history.sessions]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .flatMap((session): HistorySession[] => {
+      const sets = session.sets.filter((s) => s.exerciseId === exerciseId).map((set, i): HistorySet => ({ index: i + 1, set, isPr: false }))
+      return sets.length > 0 ? [{ sessionId: session.id, date: session.date, groups: [{ exerciseName: name ?? '', isVariation: false, sets }] }] : []
+    })
+  return { loading: false, name, sessions }
+}
+
+export type ExerciseHistoryState = { loading: boolean; name: string | null; sessions: HistorySession[] }
+
+/** One exercise's sessions, read live from the database. */
+export function useExerciseHistory(db: GritDb, exerciseId: number): ExerciseHistoryState {
+  const [history, setHistory] = useState<JsHistory>()
+  const [readError, setReadError] = useState<unknown>(null)
+  useEffect(() => {
+    const subscription = liveQuery(() => loadHistory(db)).subscribe({ next: setHistory, error: setReadError })
+    return () => subscription.unsubscribe()
+  }, [db])
+  // A failed read is for the app's error boundary, not for a history that looks empty.
+  if (readError != null) throw readError
+  return useMemo(() => (history ? buildExerciseHistory(history, exerciseId) : { loading: true, name: null, sessions: [] }), [history, exerciseId])
 }

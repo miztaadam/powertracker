@@ -144,49 +144,7 @@ for (const scheme of ['dark', 'light'] as const) {
   })
 }
 
-/** Puts the app on the bodybuilding side, as the Settings switch leaves it, and reloads. */
-async function turnOnBodybuilding(page: Page) {
-  await page.evaluate(async () => {
-    const db = await new Promise<IDBDatabase>((done, fail) => {
-      const request = indexedDB.open('grit')
-      request.onsuccess = () => done(request.result)
-      request.onerror = () => fail(request.error)
-    })
-    await new Promise<void>((done, fail) => {
-      const tx = db.transaction('settings', 'readwrite')
-      tx.objectStore('settings').put({ key: 'trainingMode', value: 'BODYBUILDING' })
-      tx.objectStore('settings').put({ key: 'powerliftingLeftOn', value: '2026-11-11' })
-      tx.oncomplete = () => done()
-      tx.onerror = () => fail(tx.error)
-    })
-    db.close()
-  })
-  await page.reload()
-  await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
-}
-
-// The blue look and the label (bodybuilding mode spec §7.2). Until Today learns the bodybuilding side, the
-// session is the same story as above, only in blue.
-for (const scheme of ['dark', 'light'] as const) {
-  test(`today on the bodybuilding side (${scheme})`, async ({ page }) => {
-    await page.emulateMedia({ colorScheme: scheme })
-    await openWithSampleData(page)
-    await turnOnBodybuilding(page)
-    await expect(page.getByText('Wednesday · 4 exercises')).toBeVisible()
-    await logMockupSets(page)
-    const header = page.locator('header', { has: page.getByRole('heading', { level: 1, name: 'Today' }) })
-    await expect(header.getByTestId('mode-label')).toHaveText('BODYBUILDINGBodybuilding mode')
-    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', scheme === 'dark' ? '#070B14' : '#EDF2FA')
-    expect(await smallTargets(page)).toEqual([])
-    expect(await fitsThePhone(page)).toBe(true)
-
-    await page.setViewportSize({ width: 390, height: 1070 })
-    await page.locator('.shell-main').evaluate((el) => el.scrollTo(0, 0))
-    await page.evaluate(() => document.fonts.ready)
-    mkdirSync(outDir, { recursive: true })
-    await page.screenshot({ path: resolve(outDir, `today-bodybuilding-${scheme}.png`), fullPage: true, animations: 'disabled' })
-  })
-}
+// The bodybuilding side's Today, in its own story (the mockup's column C), is in bodybuilding.spec.ts.
 
 test.describe('on a 375 px iPhone', () => {
   test.use({ viewport: { width: 375, height: 812 } })

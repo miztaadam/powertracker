@@ -90,6 +90,13 @@ export function activeTrainingDays(settings: AppSettings): number[] {
   return settings.trainingMode === 'BODYBUILDING' ? settings.bodybuildingTrainingDays : settings.trainingDays
 }
 
+/** `day` (1 = Monday) added to or taken from the active side's training days; the other side's are left as they are. */
+export function withTrainingDayToggled(settings: AppSettings, day: number): AppSettings {
+  const key = settings.trainingMode === 'BODYBUILDING' ? 'bodybuildingTrainingDays' : 'trainingDays'
+  const days = settings[key]
+  return { ...settings, [key]: days.includes(day) ? days.filter((d) => d !== day) : [...days, day].sort((a, b) => a - b) }
+}
+
 const LEFT_ON = { POWERLIFTING: 'powerliftingLeftOn', BODYBUILDING: 'bodybuildingLeftOn' } as const
 
 /**

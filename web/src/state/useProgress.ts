@@ -1,7 +1,11 @@
 import { liveQuery } from 'dexie'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { planFor } from '../db/catalogue'
 import { getSettings, loadHistory, type GritDb } from '../db/db'
+import { planItemToJs } from '../db/mapping'
+import type { PlanItemRow, TrainingMode } from '../db/schema'
 import { grit, type JsHistory, type JsPr } from '../domain'
+import { historyOn } from './sides'
 import { LIFTS, type Lift } from '../router'
 import { addDays, weekStart } from './isoDate'
 import type { RatioUi } from './useCoach'
@@ -172,27 +176,69 @@ export function buildProgress(history: JsHistory, range: ChartRange = DEFAULT_RA
   }
 }
 
+/** One exercise of the bodybuilding plan on Progress: its best set in each of its last four sessions on that side. */
+export type BodybuildingRow = {
+  exerciseId: number
+  name: string
+  /** The exercise's main lift when it is one (its row opens that lift's history); null otherwise. */
+  lift: Lift | null
+  /** Oldest first. */
+  bestSets: { date: string; weightKg: number; reps: number }[]
+  /** Null with fewer than two sessions. */
+  goingUp: boolean | null
+}
+
+/** Progress on the bodybuilding side (spec §7.6): the plan's exercises, in plan order. */
+export type BodybuildingProgressState = { loading: boolean; rows: BodybuildingRow[] }
+
+/** The bodybuilding side's rows: the domain's `bodybuildingProgress` over the whole log and that side's plan. */
+export function buildBodybuildingProgress(history: JsHistory, plan: (PlanItemRow & { id: number })[], today: string): BodybuildingProgressState {
+  const exercises = new Map(history.exercises.map((e) => [e.id, e]))
+  return {
+    loading: false,
+    rows: grit.bodybuildingProgress(history, plan.map(planItemToJs), today).map((trend): BodybuildingRow => {
+      const exercise = exercises.get(trend.exerciseId)
+      return {
+        exerciseId: trend.exerciseId,
+        name: trend.name,
+        lift: exercise && grit.isMainLift(exercise) ? asLift(grit.mainLiftOf(exercise) ?? '') : null,
+        bestSets: trend.bestSets.map((b) => ({ date: b.date, weightKg: b.set.weightKg, reps: b.set.reps })),
+        goingUp: trend.goingUp ?? null,
+      }
+    }),
+  }
+}
+
+type Stored = { today: string; history: JsHistory; showStrictPress: boolean; side: TrainingMode; plan: (PlanItemRow & { id: number })[] }
+
 /**
  * Where the lifter stands, read live from the database: it follows every logged set. `today` is the
- * real clock; the chart range is kept for as long as the screen is open.
+ * real clock; the chart range is kept for as long as the screen is open. The charts, records and total belong to
+ * the powerlifting side and read only its sessions; on the bodybuilding side `bodybuilding` holds that side's rows.
  */
-export function useProgress(db: GritDb, today: () => string): { state: ProgressState; setRange: (range: ChartRange) => void } {
+export function useProgress(
+  db: GritDb,
+  today: () => string,
+): { state: ProgressState; setRange: (range: ChartRange) => void; side: TrainingMode; bodybuilding: BodybuildingProgressState } {
   const clock = useRef(today)
   clock.current = today
-  const [stored, setStored] = useState<{ today: string; history: JsHistory; showStrictPress: boolean }>()
+  const [stored, setStored] = useState<Stored>()
   const [readError, setReadError] = useState<unknown>(null)
   const [range, setRange] = useState<ChartRange>(DEFAULT_RANGE)
   useEffect(() => {
     // The setting is read with the history, so the screen follows the switch while it is open.
     const subscription = liveQuery(async () => {
-      const [history, settings] = await Promise.all([loadHistory(db), getSettings(db)])
-      return { today: clock.current(), history, showStrictPress: settings.showStrictPress }
+      const [history, settings, plan] = await Promise.all([loadHistory(db), getSettings(db), planFor(db, 'BODYBUILDING')])
+      return { today: clock.current(), history, showStrictPress: settings.showStrictPress, side: settings.trainingMode, plan }
     }).subscribe({ next: setStored, error: setReadError })
     return () => subscription.unsubscribe()
   }, [db])
   // A failed read is for the app's error boundary, not for a screen that looks like nothing was logged.
   if (readError != null) throw readError
 
-  const state = useMemo(() => (stored ? buildProgress(stored.history, range, stored.today, stored.showStrictPress) : empty(true, range, false)), [stored, range])
-  return { state, setRange }
+  const side = stored?.side ?? 'POWERLIFTING'
+  const powerlifting = useMemo(() => (stored ? historyOn(stored.history, 'POWERLIFTING') : null), [stored])
+  const state = useMemo(() => (stored && powerlifting ? buildProgress(powerlifting, range, stored.today, stored.showStrictPress) : empty(true, range, false)), [stored, powerlifting, range])
+  const bodybuilding = useMemo(() => (stored?.side === 'BODYBUILDING' ? buildBodybuildingProgress(stored.history, stored.plan, stored.today) : { loading: stored == null, rows: [] }), [stored])
+  return { state, setRange, side, bodybuilding }
 }

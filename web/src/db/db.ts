@@ -24,6 +24,7 @@ export {
   getSettings,
   setTrainingMode,
   updateSettings,
+  withTrainingDayToggled,
   withTrainingMode,
   type AppSettings,
 } from './settings'

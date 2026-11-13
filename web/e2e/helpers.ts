@@ -22,11 +22,34 @@ export async function typeInto(page: Page, field: Locator, text: string) {
   await expect(field).toHaveValue(text)
 }
 
-/** Opens Grit on the sample Wednesday, with the database created and the first screen showing. */
+/**
+ * Opens Grit on the sample Wednesday, with the database created and the first screen showing. With
+ * E2E_TRAINING_MODE=BODYBUILDING in the environment the app is put on the bodybuilding side first, so a run can
+ * check that the flows (the @speed checks above all) hold there too; unset, nothing changes.
+ */
 export async function openOnWednesday(page: Page, hash = '#/today') {
   await page.clock.setFixedTime(WEDNESDAY)
   await page.goto(`/${hash}`)
   await expect(tabBar(page)).toBeVisible()
+  if (process.env.E2E_TRAINING_MODE === 'BODYBUILDING') {
+    await page.evaluate(async () => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      await new Promise<void>((done, fail) => {
+        const tx = db.transaction('settings', 'readwrite')
+        tx.objectStore('settings').put({ key: 'trainingMode', value: 'BODYBUILDING' })
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      db.close()
+    })
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+    await expect(tabBar(page)).toBeVisible()
+  }
 }
 
 /**

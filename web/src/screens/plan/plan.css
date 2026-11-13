@@ -107,3 +107,9 @@
   align-items: center;
   min-width: 0;
 }
+
+/* An empty bodybuilding plan says so, above the day cards (until the plan builder). */
+.plan-empty-side {
+  margin: 0;
+  color: var(--text-secondary);
+}

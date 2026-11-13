@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { addSet, planFor } from '../db/catalogue'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
-import type { AdviceRow, PlanItemRow, SetRow, TrainingMode } from '../db/schema'
+import { sideOf, type AdviceRow, type PlanItemRow, type SetRow, type TrainingMode } from '../db/schema'
 import { grit, JsCoachSettings, JsExercise, type JsHistory, type JsLibraryExercise, type JsSet } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 
@@ -15,11 +15,17 @@ export type PlannedItem = PlanItemRow & { id: number }
 
 export type MissPoint = 'FLOOR' | 'MID' | 'LOCKOUT'
 
-/** The coach's numbers for one exercise today; `sets` is set only when the coach changes the set count. */
-export type Target = { exerciseId: number; weightKg: number; reps: number; rpe: number; sets: number | null }
+/**
+ * The coach's numbers for one exercise today; `sets` is set only when the coach changes the set count. `repsHigh`
+ * is the top of a rep range (a bodybuilding target, `reps` its bottom); null for fixed reps.
+ */
+export type Target = { exerciseId: number; weightKg: number; reps: number; rpe: number; sets: number | null; repsHigh?: number | null }
 
-/** An OPEN target for today. Changes nothing until applied. */
-export type Suggestion = { id: number; reason: string; target: Target }
+/**
+ * An OPEN target for today. Changes nothing until applied. `applyReps` is what Apply puts in the reps field: the
+ * target's reps, or on the bodybuilding side the reps to beat for the set about to be logged (spec §5.3).
+ */
+export type Suggestion = { id: number; reason: string; target: Target; applyReps?: number }
 
 export type TodayItem = {
   exercise: JsExercise
@@ -77,6 +83,13 @@ export type TodayState = {
   changePlates: boolean
   /** How many times today's targets have been worked out and stored (on open, again when the plan changes). */
   coachPasses: number
+  /**
+   * The side this screen shows: the side of the day's session when there is one (it keeps its own plan and
+   * targets after a switch), otherwise the side the app is on (spec §5.1).
+   */
+  side: TrainingMode
+  /** The side the app is on now, from Settings. */
+  activeSide: TrainingMode
 }
 
 export type TodayActions = {
@@ -144,7 +157,8 @@ type Stored = {
   history: JsHistory
   plan: PlannedItem[]
   settings: AppSettings
-  targets: (Suggestion & { status: string })[]
+  targets: (Omit<Suggestion, 'applyReps'> & { status: string })[]
+  side: TrainingMode
 }
 
 /** What only this screen knows: edited numbers, exercises added but not yet logged, open prompts. */
@@ -170,13 +184,13 @@ export function weekdayOf(isoDate: string): number {
 function parseTarget(payloadJson: string): Target | null {
   const p = grit.advicePayload(payloadJson)
   if (p?.kind !== 'Target' || p.exerciseId == null || p.weightKg == null || p.reps == null || p.rpe == null) return null
-  return { exerciseId: p.exerciseId, weightKg: p.weightKg, reps: p.reps, rpe: p.rpe, sets: p.sets ?? null }
+  return { exerciseId: p.exerciseId, weightKg: p.weightKg, reps: p.reps, rpe: p.rpe, sets: p.sets ?? null, repsHigh: p.repsHigh ?? null }
 }
 
-/** The TARGET advice stored for `date`, in every status, oldest first. */
-function todaysTargets(advice: AdviceRow[], date: string): Stored['targets'] {
+/** The TARGET advice stored for `date` on `side`, in every status, oldest first. Each side has its own targets. */
+function todaysTargets(advice: AdviceRow[], date: string, side: TrainingMode): Stored['targets'] {
   return advice.flatMap((a) => {
-    if (a.type !== 'TARGET' || a.createdAt !== date || a.id == null) return []
+    if (a.type !== 'TARGET' || a.createdAt !== date || a.id == null || sideOf(a) !== side) return []
     const target = parseTarget(a.payloadJson)
     return target ? [{ id: a.id, reason: a.reason, status: a.status, target }] : []
   })
@@ -188,17 +202,16 @@ function isEditor(value: unknown): value is SetEditor {
   return (v.weightKg === null || typeof v.weightKg === 'number') && typeof v.reps === 'number' && typeof v.rpe === 'number'
 }
 
-/** The side whose plan Today reads, and the side a new session is started on. Only the powerlifting side's screens exist so far. */
-const SIDE: TrainingMode = 'POWERLIFTING'
+/** The side Today follows for `date`: that day's session's side when it has one, else the side the app is on. */
+async function sideFor(db: GritDb, date: string, settings: AppSettings): Promise<TrainingMode> {
+  const session = await db.sessions.where('date').equals(date).first()
+  return session ? sideOf(session) : settings.trainingMode
+}
 
 async function readStored(db: GritDb, date: string): Promise<Stored> {
-  const [session, history, plan, settings, advice] = await Promise.all([
-    db.sessions.where('date').equals(date).first(),
-    loadHistory(db),
-    planFor(db, SIDE),
-    getSettings(db),
-    db.advice.toArray(),
-  ])
+  const [session, history, settings, advice] = await Promise.all([db.sessions.where('date').equals(date).first(), loadHistory(db), getSettings(db), db.advice.toArray()])
+  const side = session ? sideOf(session) : settings.trainingMode
+  const plan = await planFor(db, side)
   const sets = session?.id != null ? await db.sets.where('sessionId').equals(session.id).sortBy('id') : []
   return {
     date,
@@ -207,7 +220,8 @@ async function readStored(db: GritDb, date: string): Promise<Stored> {
     history,
     plan: plan as PlannedItem[],
     settings,
-    targets: todaysTargets(advice, date),
+    targets: todaysTargets(advice, date, side),
+    side,
   }
 }
 
@@ -249,11 +263,14 @@ async function coachPass(db: GritDb, date: string, today: () => string): Promise
   try {
     // One transaction, so two passes (two tabs, a remount) cannot both find the target missing.
     await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.meta], async () => {
-      const [history, plan, settings, advice] = await Promise.all([loadHistory(db), planFor(db, SIDE), getSettings(db), db.advice.toArray()])
-      const known = new Set(todaysTargets(advice, date).map((t) => t.target.exerciseId))
+      const [history, settings, advice] = await Promise.all([loadHistory(db), getSettings(db), db.advice.toArray()])
+      const side = await sideFor(db, date, settings)
+      const plan = await planFor(db, side)
+      const known = new Set(todaysTargets(advice, date, side).map((t) => t.target.exerciseId))
+      // The whole advice list: the domain counts each side's own, and every deload and easing back in.
       const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
       const fresh: AdviceRow[] = []
-      for (const a of grit.targetsFor(weekdayOf(date), history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), date, prior)) {
+      for (const a of grit.coachingTargetsFor(side, weekdayOf(date), history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), date, prior)) {
         const exerciseId = parseTarget(a.payloadJson)?.exerciseId
         if (exerciseId == null || known.has(exerciseId)) continue
         known.add(exerciseId)
@@ -303,7 +320,7 @@ function catalogueId(name: string, exercises: readonly JsExercise[]): number | n
   return exercises.find((e) => sameName(e.name, entry.name))?.id ?? standInId(entry)
 }
 
-function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'exercises' | 'recentIds' | 'resolved' | 'weightStepKg' | 'changePlates'> {
+function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'exercises' | 'recentIds' | 'resolved' | 'weightStepKg' | 'changePlates' | 'side' | 'activeSide'> {
   const exercises = new Map(d.history.exercises.map((e) => [e.id, e]))
   // Oldest first, like resolveCatalogue: with two rows of one name, the one shown is the one saved to.
   const live = d.history.exercises.filter((e) => !e.archived).sort((a, b) => a.id - b.id)
@@ -345,10 +362,12 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
           : { weightKg: top?.weightKg ?? null, reps: plan?.reps ?? top?.reps ?? DEFAULT_REPS, rpe })
     const targetSets = plan ? (applied?.sets ?? plan.sets) : null
     const open = mine.find((t) => t.status === 'OPEN')
+    // On the bodybuilding side Apply fills in the reps to beat for the set about to be logged.
+    const applyReps = open && plan && d.side === 'BODYBUILDING' ? grit.repsToBeat(planItemToJs(plan), d.history, sets.length + 1, d.date) : (open?.target.reps ?? 0)
     return {
       exercise,
       planned: plan,
-      suggestion: open ? { id: open.id, reason: open.reason, target: open.target } : null,
+      suggestion: open ? { id: open.id, reason: open.reason, target: open.target, applyReps } : null,
       sets,
       editor,
       targetSets,
@@ -376,6 +395,8 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
     resolved,
     weightStepKg: grit.loadStep(d.settings.changePlates),
     changePlates: d.settings.changePlates,
+    side: d.side,
+    activeSide: d.settings.trainingMode,
   }
 }
 
@@ -518,6 +539,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     weightStepKg: built?.weightStepKg ?? grit.loadStep(false),
     changePlates: built?.changePlates ?? false,
     coachPasses,
+    side: built?.side ?? 'POWERLIFTING',
+    activeSide: built?.activeSide ?? 'POWERLIFTING',
   }
 
   // Actions read the newest state and callbacks through refs, so a tap never acts on a stale screen.
@@ -544,7 +567,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   )
 
   // Ask the coach for today's targets when the screen opens and again if the plan changes.
-  const planKey = current ? JSON.stringify([current.plan, current.settings.defaultRpe, current.settings.changePlates]) : null
+  const planKey = current ? JSON.stringify([current.side, current.plan, current.settings.defaultRpe, current.settings.changePlates]) : null
   useEffect(() => {
     if (planKey == null) return
     let stale = false
@@ -625,9 +648,10 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // A session belongs to the day it is started. Started after midnight on a card opened the day
         // before, it is dated today and the screen moves to today with it.
         const day = syncDay()
-        await db.transaction('rw', db.sessions, async () => {
+        await db.transaction('rw', db.sessions, db.settings, async () => {
           const existing = await db.sessions.where('date').equals(day).first()
-          if (!existing) await db.sessions.add({ date: day, bodyweightKg, readiness, mode: SIDE })
+          // Started on the side the app is on at the moment of the tap.
+          if (!existing) await db.sessions.add({ date: day, bodyweightKg, readiness, mode: (await getSettings(db)).trainingMode })
         })
         touch(day)
       } finally {
@@ -664,7 +688,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         const setId = await addSet(db, row, entry?.name ?? null)
         update((l) => ({ ...l, pending: null }))
         touch(now.date)
-        setLogged.current?.(item?.exercise.category !== 'ACCESSORY')
+        // Every exercise on the bodybuilding side takes the accessory rest (spec §5.3).
+        setLogged.current?.(now.side === 'POWERLIFTING' && item?.exercise.category !== 'ACCESSORY')
         // Hold the guard until the new set is on screen, so the button the lifter sees is never stale.
         await shown(setId)
       } finally {
@@ -697,7 +722,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
       // Status first: if storing it fails, the editor keeps its numbers and the chip stays.
       await db.advice.update(adviceId, { status: 'APPLIED' })
       const { exerciseId, weightKg, reps, rpe } = suggestion.target
-      edit(exerciseId, { weightKg, reps, rpe })
+      edit(exerciseId, { weightKg, reps: suggestion.applyReps ?? reps, rpe })
     },
     [db, edit],
   )
@@ -777,9 +802,11 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
       // Advice is dated by the real clock: a session finished after midnight stores nothing under the day before.
       const clockDay = clock.current()
       const newNotes = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice], async () => {
-        const [history, plan, settings, advice] = await Promise.all([loadHistory(db), planFor(db, SIDE), getSettings(db), db.advice.toArray()])
+        // The coach of the session's own side looks at it, also after a switch since it was started.
+        const side = now.side
+        const [history, plan, settings, advice] = await Promise.all([loadHistory(db), planFor(db, side), getSettings(db), db.advice.toArray()])
         const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
-        const fresh = grit.evaluate(history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), clockDay, prior)
+        const fresh = grit.coachingEvaluate(side, history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), clockDay, prior)
         if (fresh.length > 0) await db.advice.bulkAdd(fresh.map((a) => withoutId(adviceFromJs(a))))
         return fresh.length
       })

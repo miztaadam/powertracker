@@ -6,19 +6,23 @@ import { EmptyState } from '../../ui/components/EmptyState'
 import { InsightsIcon } from '../../ui/components/icons'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
 import { ModeLabel } from '../../ui/components/ModeLabel'
+import { BodybuildingProgressContent } from './BodybuildingProgress'
 import { BodyweightSection, RatioSection, RecordsSection, SummaryCard, TrendCard, VolumeSection } from './ProgressSections'
 import './progress.css'
 
 export type ProgressScreenProps = {
   db: GritDb
   onOpenLift: (lift: Lift) => void
+  /** Opens one exercise's history, from a row on the bodybuilding side that is not a main lift. */
+  onOpenExercise?: (exerciseId: number) => void
   /** The real clock, as `YYYY-MM-DD`. Default is the device's local date. */
   today?: () => string
 }
 
 /** Where the lifter stands: total and lift e1RMs, their trend, records, weekly volume, ratios and bodyweight. */
-export function ProgressScreen({ db, onOpenLift, today = todayIso }: ProgressScreenProps) {
-  const { state, setRange } = useProgress(db, today)
+export function ProgressScreen({ db, onOpenLift, onOpenExercise = () => {}, today = todayIso }: ProgressScreenProps) {
+  const { state, setRange, side, bodybuilding } = useProgress(db, today)
+  if (side === 'BODYBUILDING') return <BodybuildingProgressContent state={bodybuilding} onOpenLift={onOpenLift} onOpenExercise={onOpenExercise} />
   return <ProgressContent state={state} onRange={setRange} onOpenLift={onOpenLift} />
 }
 

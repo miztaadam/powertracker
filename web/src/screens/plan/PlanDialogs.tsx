@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { grit } from '../../domain'
 import type { CustomExercise, PickerEntry, StoredExercise } from '../../state/exercisePicker'
-import { MAX_RPE, MIN_RPE, type PlanItem } from '../../state/usePlan'
+import { MAX_PLAN_REPS, MAX_RPE, MIN_RPE, type PlanItem } from '../../state/usePlan'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
 import { formatRpe } from '../../ui/components/format'
@@ -24,17 +24,21 @@ export type PlanItemDialogProps = {
   onCreateCustom: (exercise: CustomExercise) => Promise<PickerEntry>
   /** Called when creating the custom exercise failed. */
   onFailure: () => void
-  /** `exercise` is null unless the exercise itself was changed. */
-  onSave: (exercise: PickerEntry | null, sets: number, reps: number, rpe: number) => void
+  /** `exercise` is null unless the exercise itself was changed. `repsHigh` is given for a range (a bodybuilding item). */
+  onSave: (exercise: PickerEntry | null, sets: number, reps: number, rpe: number, repsHigh?: number) => void
   onDismiss: () => void
 }
 
-/** Sets × reps @ RPE of a plan item, and its exercise, which "Change" swaps through the picker. */
+/**
+ * Sets × reps @ RPE of a plan item, and its exercise, which "Change" swaps through the picker. An item with a rep
+ * range (the bodybuilding side) has two reps steppers, the bottom and the top; the top never goes below the bottom.
+ */
 export function PlanItemDialog({ title, item, exerciseName, exercises, recentIds, onCreateCustom, onFailure, onSave, onDismiss }: PlanItemDialogProps) {
   // Null until the exercise is changed; saved with the item, not before.
   const [changed, setChanged] = useState<PickerEntry | null>(null)
   const [sets, setSets] = useState(item.sets)
   const [reps, setReps] = useState(item.reps)
+  const [repsHigh, setRepsHigh] = useState(item.repsHigh ?? null)
   const [rpe, setRpe] = useState(item.targetRpe)
   const [picking, setPicking] = useState(false)
 
@@ -47,7 +51,7 @@ export function PlanItemDialog({ title, item, exerciseName, exercises, recentIds
         actions={
           <>
             <QuietButton text="Cancel" onClick={onDismiss} />
-            <PrimaryButton text="Save" onClick={() => onSave(changed, sets, reps, rpe)} compact />
+            <PrimaryButton text="Save" onClick={() => onSave(changed, sets, reps, rpe, repsHigh ?? undefined)} compact />
           </>
         }
       >
@@ -60,7 +64,14 @@ export function PlanItemDialog({ title, item, exerciseName, exercises, recentIds
             <SecondaryButton text="Change" onClick={() => setPicking(true)} compact />
           </div>
           <LabeledStepper label="Sets" value={String(sets)} canDecrement={sets > 1} canIncrement={sets < 10} onStep={(by) => setSets(sets + by)} />
-          <LabeledStepper label="Reps" value={String(reps)} canDecrement={reps > 1} canIncrement={reps < 20} onStep={(by) => setReps(reps + by)} />
+          {repsHigh == null ? (
+            <LabeledStepper label="Reps" value={String(reps)} canDecrement={reps > 1} canIncrement={reps < MAX_PLAN_REPS} onStep={(by) => setReps(reps + by)} />
+          ) : (
+            <>
+              <LabeledStepper label="Reps from" value={String(reps)} canDecrement={reps > 1} canIncrement={reps < repsHigh} onStep={(by) => setReps(reps + by)} />
+              <LabeledStepper label="Reps to" value={String(repsHigh)} canDecrement={repsHigh > reps} canIncrement={repsHigh < MAX_PLAN_REPS} onStep={(by) => setRepsHigh(repsHigh + by)} />
+            </>
+          )}
           <LabeledStepper label="RPE" value={formatRpe(rpe)} canDecrement={rpe > MIN_RPE} canIncrement={rpe < MAX_RPE} onStep={(by) => setRpe(rpe + by * 0.5)} labelAction={<RpeInfoButton />} />
         </div>
       </Dialog>

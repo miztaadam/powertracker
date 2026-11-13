@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { grit } from '../../domain'
+import type { TrainingMode } from '../../db/schema'
 import type { MissPoint, PlannedItem, SetEditor, StoredSet, Suggestion, Target, TodayActions, TodayItem } from '../../state/useToday'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
@@ -37,17 +38,22 @@ export function doseText(weightKg: number, reps: number, rpe: number | null): st
   return `${formatKg(weightKg)} × ${reps}` + (rpe != null ? ` @ ${formatRpe(rpe)}` : '')
 }
 
-/** "5 × 5 @ 8": sets × reps @ RPE as planned. */
+/** "5 × 5 @ 8", or "3 × 8–12 @ 8" for a rep range: sets × reps @ RPE as planned. */
 export function planText(item: PlannedItem): string {
-  return `${item.sets} × ${item.reps} @ ${formatRpe(item.targetRpe)}`
+  return `${item.sets} × ${grit.repsText(item.reps, item.repsHigh ?? null)} @ ${formatRpe(item.targetRpe)}`
 }
 
-/** The chip headline for a coach target: "155 × 5 @ 8", plus the set count when the coach changes it. */
+/**
+ * The chip headline for a coach target: "155 × 5 @ 8", or for a rep range "26 kg × 8–12 @ 8" (the mockup's
+ * bodybuilding card), plus the set count when the coach changes it.
+ */
 export function targetHeadline(target: Target): string {
-  return doseText(target.weightKg, target.reps, target.rpe) + (target.sets != null ? ` · ${target.sets} ${target.sets === 1 ? 'set' : 'sets'}` : '')
+  const dose = target.repsHigh != null ? `${formatKg(target.weightKg)} kg × ${grit.repsText(target.reps, target.repsHigh)} @ ${formatRpe(target.rpe)}` : doseText(target.weightKg, target.reps, target.rpe)
+  return dose + (target.sets != null ? ` · ${target.sets} ${target.sets === 1 ? 'set' : 'sets'}` : '')
 }
 
-// The stored reason repeats the suggestion ("… Coach suggests 155 × 5 @ 8."); the chip already shows it as its headline.
+// The stored reason repeats the suggestion ("… Coach suggests 155 × 5 @ 8.", or "… Coach suggests 26 × 8–12 @ 8." on
+// the bodybuilding side); the chip already shows it as its headline.
 const SUGGESTION_SENTENCE = /\s*Coach suggests .*? @ \d+(\.\d+)?\./
 
 export function targetReason(suggestion: Suggestion): string {
@@ -78,14 +84,20 @@ export type ExerciseCardProps = {
   changePlates: boolean
   next: NextStep
   actions: TodayActions
+  /**
+   * The side of the session. On the bodybuilding side there is no "Top set" chip and no "where did it stall?"
+   * question (spec §7.4); a set can still be marked Missed.
+   */
+  side?: TrainingMode
 }
 
 /** The exercise being logged: coach chip, sets so far, steppers, plates and the one big button. */
-export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions }: ExerciseCardProps) {
+export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING' }: ExerciseCardProps) {
   const id = item.exercise.id
   const [extraSet, setExtraSet] = useState(false)
   const [selected, setSelected] = useState<{ number: number; set: StoredSet } | null>(null)
-  const top = topSetIndex(item.sets)
+  const powerlifting = side === 'POWERLIFTING'
+  const top = powerlifting ? topSetIndex(item.sets) : null
   const nextNumber = item.sets.length + 1
 
   return (
@@ -127,7 +139,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
                 isTopSet={i === top}
                 onClick={() => setSelected({ number: i + 1, set })}
               />
-              {(set.failed || (set.rpe ?? 0) >= GRIND_RPE) && <MissRow number={i + 1} set={set} lift={grit.mainLiftOf(item.exercise) ?? null} onSelect={(point) => void actions.setMissPoint(set.id, point)} />}
+              {powerlifting && (set.failed || (set.rpe ?? 0) >= GRIND_RPE) && <MissRow number={i + 1} set={set} lift={grit.mainLiftOf(item.exercise) ?? null} onSelect={(point) => void actions.setMissPoint(set.id, point)} />}
             </div>
           ))}
         </div>

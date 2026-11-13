@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { GritDb } from '../../db/db'
-import { todayIso } from '../../domain'
+import { grit, todayIso } from '../../domain'
 import { usePlan, type DaySection, type PlanActions, type PlanExercise, type PlanItem, type PlanRow, type PlanState } from '../../state/usePlan'
 import { dayName } from '../../state/weekdayNames'
 import { IconButton, SecondaryButton } from '../../ui/components/Button'
@@ -29,10 +29,16 @@ export function PlanScreen({ db, onOpenSettings, today = todayIso }: PlanScreenP
   return <PlanContent state={plan} actions={plan} onOpenSettings={onOpenSettings} />
 }
 
-/** The line a plan item is read and found by, e.g. "Squat  3 × 5 @ 8" (the same as on Android). */
-export function planItemText(name: string, item: Pick<PlanItem, 'sets' | 'reps' | 'targetRpe'>): string {
-  return `${name}  ${item.sets} × ${item.reps} @ ${formatRpe(item.targetRpe)}`
+/** An item's reps: "5", or a range "8–12" on the bodybuilding side. */
+export const repsOf = (item: Pick<PlanItem, 'reps' | 'repsHigh'>): string => grit.repsText(item.reps, item.repsHigh ?? null)
+
+/** The line a plan item is read and found by, e.g. "Squat  3 × 5 @ 8" or "Curl  3 × 8–12 @ 8" (the same as on Android). */
+export function planItemText(name: string, item: Pick<PlanItem, 'sets' | 'reps' | 'repsHigh' | 'targetRpe'>): string {
+  return `${name}  ${item.sets} × ${repsOf(item)} @ ${formatRpe(item.targetRpe)}`
 }
+
+/** Until the plan builder (stage 2), an empty bodybuilding plan says so. */
+export const EMPTY_BODYBUILDING_PLAN = 'Your bodybuilding plan is empty. Add exercises to each training day.'
 
 type OpenDialog = { kind: 'add'; weekday: number } | { kind: 'edit'; item: PlanItem; exerciseName: string } | { kind: 'baseline'; lift: PlanExercise } | null
 
@@ -51,6 +57,7 @@ export function PlanContent({ state, actions, onOpenSettings }: PlanContentProps
     <section className="screen">
       <ScreenHeader title="Plan" eyebrow="Weekly template" label={<ModeLabel />} actions={<IconButton label="Settings" icon={<SettingsIcon />} onClick={onOpenSettings} />} />
       <div className="screen-body">
+        {!state.loading && state.side === 'BODYBUILDING' && state.sections.every((section) => section.rows.length === 0) && <p className="plan-empty-side body-medium">{EMPTY_BODYBUILDING_PLAN}</p>}
         {state.sections.map((section) => (
           <DayCard
             key={section.weekday}
@@ -103,8 +110,8 @@ export function PlanContent({ state, actions, onOpenSettings }: PlanContentProps
           recentIds={state.recentIds}
           onCreateCustom={actions.addCustomExercise}
           onFailure={() => setFailures((n) => n + 1)}
-          onSave={(exercise, sets, reps, rpe) => {
-            reported(actions.save(dialog.item, exercise, sets, reps, rpe))
+          onSave={(exercise, sets, reps, rpe, repsHigh) => {
+            reported(actions.save(dialog.item, exercise, sets, reps, rpe, repsHigh))
             setDialog(null)
           }}
           onDismiss={() => setDialog(null)}
@@ -190,7 +197,7 @@ function PlanItemRow({ position, row, canMoveUp, canMoveDown, onMove, onEdit, on
       <div className="plan-grow plan-row-text" aria-hidden="true">
         <p className="plan-row-name title-medium">{exerciseName}</p>
         <p className="plan-row-dose headline-small">
-          {item.sets} × {item.reps}
+          {item.sets} × {repsOf(item)}
           <span className="plan-muted"> @ </span>
           {formatRpe(item.targetRpe)}
         </p>

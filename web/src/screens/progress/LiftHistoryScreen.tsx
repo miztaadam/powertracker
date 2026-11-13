@@ -62,7 +62,8 @@ export function LiftHistoryContent({ lift, state, onBack }: LiftHistoryContentPr
   )
 }
 
-function SessionCard({ session }: { session: HistorySession }) {
+/** One session's sets of the lift (or exercise), grouped by exercise. */
+export function SessionCard({ session }: { session: HistorySession }) {
   return (
     <Card spacing={4} className="history-session">
       <h2 className="history-date title-medium">{formatSessionDate(session.date)}</h2>

@@ -1,6 +1,7 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
+import { adviceForSide, historyOn } from './sides'
 import { planFor, resolveCatalogue } from '../db/catalogue'
 import { exerciseToJs } from '../db/mapping'
 import { sideOf, type AdviceRow, type ExerciseRow, type PlanItemRow, type TrainingMode } from '../db/schema'
@@ -82,12 +83,15 @@ type StoredPlanItem = PlanItemRow & { id: number }
 
 type Stored = { today: string; open: StoredAdvice[]; history: JsHistory; plan: StoredPlanItem[] }
 
-/** The side whose plan the Coach screen reads. Only the powerlifting side's screens exist so far. */
-const SIDE: TrainingMode = 'POWERLIFTING'
-
+/**
+ * The feed of the side the app is on: its own advice, and every deload and easing back in whatever side it was
+ * stored for (`adviceForSide`). The cards' figures (trends, ratios) read that side's sessions.
+ */
 async function readStored(db: GritDb, today: string): Promise<Stored> {
-  const [open, history, plan] = await Promise.all([db.advice.where('status').equals('OPEN').toArray(), loadHistory(db), planFor(db, SIDE)])
-  return { today, open: open as StoredAdvice[], history, plan: plan as StoredPlanItem[] }
+  const settings = await getSettings(db)
+  const side = settings.trainingMode
+  const [open, history, plan] = await Promise.all([db.advice.where('status').equals('OPEN').toArray(), loadHistory(db), planFor(db, side)])
+  return { today, open: adviceForSide(open as StoredAdvice[], side), history: historyOn(history, side), plan: plan as StoredPlanItem[] }
 }
 
 /** An OPEN deload or re-entry stops counting after two weeks; the domain decides when. */
@@ -169,12 +173,13 @@ function build(d: Stored, busy: ReadonlySet<number>): CoachCard[] {
     })
 }
 
-/** The earliest weekday that already trains the lift; else the first training day; else Monday. */
-function dayFor(lift: Lift | null, plan: PlanItemRow[], exercises: LibraryExercise[], settings: AppSettings): number {
+/** The earliest weekday that already trains the lift; else the first training day of `mode`'s side; else Monday. */
+function dayFor(lift: Lift | null, plan: PlanItemRow[], exercises: LibraryExercise[], settings: AppSettings, mode: TrainingMode): number {
   const mainIds = new Set(exercises.filter((e) => grit.isMainLift(e) && grit.mainLiftOf(e) === lift).map((e) => e.id))
   const days = plan.filter((p) => mainIds.has(p.exerciseId)).map((p) => p.weekday)
   if (days.length > 0) return Math.min(...days)
-  return settings.trainingDays.length > 0 ? Math.min(...settings.trainingDays) : 1
+  const trainingDays = mode === 'BODYBUILDING' ? settings.bodybuildingTrainingDays : settings.trainingDays
+  return trainingDays.length > 0 ? Math.min(...trainingDays) : 1
 }
 
 /**
@@ -184,7 +189,7 @@ function dayFor(lift: Lift | null, plan: PlanItemRow[], exercises: LibraryExerci
  */
 async function addToPlan(db: GritDb, lift: Lift | null, prescriptions: Prescription[], plan: PlanItemRow[], exercises: LibraryExercise[], mode: TrainingMode): Promise<string> {
   const settings = await getSettings(db)
-  const day = dayFor(lift, plan, exercises, settings)
+  const day = dayFor(lift, plan, exercises, settings, mode)
   const onDay = plan.filter((p) => p.weekday === day)
   const taken = new Set(onDay.map((p) => p.exerciseId))
   let order = Math.max(-1, ...onDay.map((p) => p.order)) + 1

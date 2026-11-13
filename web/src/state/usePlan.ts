@@ -1,7 +1,7 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { addPlanItem, planFor, planItemsOn, updatePlanItem } from '../db/catalogue'
-import { getSettings, type AppSettings, type GritDb } from '../db/db'
+import { activeTrainingDays, getSettings, type AppSettings, type GritDb } from '../db/db'
 import { exerciseToJs } from '../db/mapping'
 import { sideOf, type ExerciseRow, type PlanItemRow, type TrainingMode } from '../db/schema'
 import { grit } from '../domain'
@@ -26,8 +26,10 @@ export type PlanState = {
   /** The squat, bench and deadlift themselves, for "Set best". */
   mainExercises: PlanExercise[]
   defaultRpe: number
-  /** The days the lifter trains (1 = Monday), from Settings; a day can have plan items without being one. */
+  /** The days the lifter trains on this side (1 = Monday), from Settings; a day can have plan items without being one. */
   trainingDays: number[]
+  /** The side whose plan this is: the side the app is on. */
+  side: TrainingMode
 }
 
 /** How adding an exercise from the Exercises tab went: added, or already on that day and left alone. */
@@ -54,8 +56,11 @@ export type PlanActions = {
    * stored at the moment of the call. Rejects when the write fails; nothing is changed then.
    */
   addOnce: (weekday: number, entry: PickerEntry) => Promise<PlanAdd>
-  /** Updates the item in place. `exercise` is set when the exercise itself was changed. */
-  save: (existing: PlanItem, exercise: PickerEntry | null, sets: number, reps: number, targetRpe: number) => Promise<void>
+  /**
+   * Updates the item in place. `exercise` is set when the exercise itself was changed. `repsHigh` is the top of
+   * a range (`reps` its bottom), for an item on the bodybuilding side; left out, the item keeps what it has.
+   */
+  save: (existing: PlanItem, exercise: PickerEntry | null, sets: number, reps: number, targetRpe: number, repsHigh?: number) => Promise<void>
   remove: (item: PlanItem) => Promise<void>
   /** Swaps the item with its neighbour: -1 up, +1 down. */
   move: (item: PlanItem, direction: -1 | 1) => Promise<void>
@@ -65,20 +70,30 @@ export type PlanActions = {
   setBaseline: (exerciseId: number, text: string) => Promise<void>
 }
 
-/** The side whose plan this screen reads and edits. Only the powerlifting side's screens exist so far. */
-const SIDE: TrainingMode = 'POWERLIFTING'
+/** The bodybuilding side's new entries: 3 sets of 8-12 at RPE 8 (the owner's numbers, spec §7.3). */
+export const BODYBUILDING_DEFAULTS = { sets: 3, reps: 8, repsHigh: 12, targetRpe: 8 } as const
+
+/** The most reps a plan entry can ask for, the top of a range included. */
+export const MAX_PLAN_REPS = 20
 
 type Stored = { plan: PlanItem[]; exercises: PlanExercise[]; settings: AppSettings; recentIds: number[] }
 
+/** The side the app is on, whose plan the Plan screen (and "Add to plan" on the Exercises tab) reads and edits. */
+async function activeSide(db: GritDb): Promise<TrainingMode> {
+  return (await getSettings(db)).trainingMode
+}
+
 async function readStored(db: GritDb): Promise<Stored> {
-  const [plan, exercises, settings, sessions, sets] = await Promise.all([planFor(db, SIDE), db.exercises.toArray(), getSettings(db), db.sessions.toArray(), db.sets.orderBy('id').toArray()])
+  const [settings, exercises, sessions, sets] = await Promise.all([getSettings(db), db.exercises.toArray(), db.sessions.toArray(), db.sets.orderBy('id').toArray()])
+  const plan = await planFor(db, settings.trainingMode)
   const recentIds = recentExerciseIds(sessions.map((s) => ({ id: s.id as number, date: s.date, sets: sets.filter((set) => set.sessionId === s.id) })))
   return { plan: plan as PlanItem[], exercises: exercises as PlanExercise[], settings, recentIds }
 }
 
 function build({ plan, exercises, settings, recentIds }: Stored): Omit<PlanState, 'loading'> {
   const names = new Map(exercises.map((e) => [e.id, e.name]))
-  const weekdays = [...new Set([...settings.trainingDays, ...plan.map((p) => p.weekday)])].sort((a, b) => a - b)
+  const trainingDays = activeTrainingDays(settings)
+  const weekdays = [...new Set([...trainingDays, ...plan.map((p) => p.weekday)])].sort((a, b) => a - b)
   return {
     sections: weekdays.map((weekday) => ({
       weekday,
@@ -91,17 +106,22 @@ function build({ plan, exercises, settings, recentIds }: Stored): Omit<PlanState
     recentIds,
     mainExercises: exercises.filter((e) => grit.isMainLift(exerciseToJs(e))),
     defaultRpe: settings.defaultRpe,
-    trainingDays: settings.trainingDays,
+    trainingDays,
+    side: settings.trainingMode,
   }
 }
 
-/** What was picked as a new plan item for the day: 3 × 5 or 3 × 10, at the default RPE as stored now. */
-async function newItem(db: GritDb, weekday: number, entry: PickerEntry) {
+/**
+ * What was picked as a new plan item for the day on `side`: on the powerlifting side 3 × 5 or 3 × 10 at the default
+ * RPE as stored now; on the bodybuilding side 3 × 8-12 at RPE 8.
+ */
+async function newItem(db: GritDb, weekday: number, entry: PickerEntry, side: TrainingMode) {
+  if (side === 'BODYBUILDING') return { weekday, exerciseId: entry.exerciseId, ...BODYBUILDING_DEFAULTS }
   const { defaultRpe } = await getSettings(db)
   return { weekday, exerciseId: entry.exerciseId, sets: DEFAULT_SETS, reps: defaultReps(entry), targetRpe: Math.min(MAX_RPE, Math.max(MIN_RPE, defaultRpe)) }
 }
 
-const EMPTY: Omit<PlanState, 'loading'> = { sections: [], exercises: [], recentIds: [], mainExercises: [], defaultRpe: 8, trainingDays: [] }
+const EMPTY: Omit<PlanState, 'loading'> = { sections: [], exercises: [], recentIds: [], mainExercises: [], defaultRpe: 8, trainingDays: [], side: 'POWERLIFTING' }
 
 /** The weekly plan, read live from the database, and the edits the Plan screen makes to it. */
 export function usePlan(db: GritDb, today: () => string): PlanState & PlanActions {
@@ -116,7 +136,9 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
 
   const add = useCallback<PlanActions['add']>(
     async (weekday, entry) => {
-      await addPlanItem(db, await newItem(db, weekday, entry), entry.library?.name ?? null, SIDE)
+      // The side as stored at the moment of the tap, which the screen shows.
+      const side = await activeSide(db)
+      await addPlanItem(db, await newItem(db, weekday, entry, side), entry.library?.name ?? null, side)
     },
     [db],
   )
@@ -126,18 +148,19 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
       // One transaction: the check, the exercise's row and the plan item stand or fall together.
       db.transaction('rw', db.exercises, db.planItems, db.settings, async () => {
         const name = entry.library?.name ?? null
+        const side = await activeSide(db)
         // The row a catalogue name would be saved to (the oldest live one, as resolveCatalogue picks it), if it has one yet.
         const rowId = name == null ? entry.exerciseId : ((await db.exercises.toArray()).find((e) => !e.archived && e.name.toLowerCase() === name.toLowerCase())?.id ?? null)
-        if (rowId != null && (await planItemsOn(db, weekday, SIDE)).some((p) => p.exerciseId === rowId)) return 'ALREADY_THERE'
-        await addPlanItem(db, await newItem(db, weekday, entry), name, SIDE)
+        if (rowId != null && (await planItemsOn(db, weekday, side)).some((p) => p.exerciseId === rowId)) return 'ALREADY_THERE'
+        await addPlanItem(db, await newItem(db, weekday, entry, side), name, side)
         return 'ADDED'
       }),
     [db],
   )
 
   const save = useCallback<PlanActions['save']>(
-    async (existing, exercise, sets, reps, targetRpe) => {
-      await updatePlanItem(db, existing.id, { exerciseId: exercise ? exercise.exerciseId : existing.exerciseId, sets, reps, targetRpe }, exercise?.library?.name ?? null)
+    async (existing, exercise, sets, reps, targetRpe, repsHigh) => {
+      await updatePlanItem(db, existing.id, { exerciseId: exercise ? exercise.exerciseId : existing.exerciseId, sets, reps, targetRpe, ...(repsHigh != null ? { repsHigh } : {}) }, exercise?.library?.name ?? null)
     },
     [db],
   )

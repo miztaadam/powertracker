@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { setTrainingMode, type AppSettings, type GritDb } from '../../db/db'
+import { activeTrainingDays, setTrainingMode, withTrainingDayToggled, type AppSettings, type GritDb } from '../../db/db'
 import { todayIso } from '../../domain'
 import { clearLock, createLock, lockSupported } from '../../platform/passkeyLock'
 import { useSettings, type SettingsActions, type SettingsState } from '../../state/useSettings'
@@ -139,8 +139,8 @@ export function SettingsContent({ settings, onUpdate, onAppLock, onBodybuilding 
             <ChoiceChip
               key={day}
               text={dayName(day, 'short').slice(0, 3)}
-              selected={settings.trainingDays.includes(day)}
-              onClick={() => onUpdate((s) => ({ ...s, trainingDays: s.trainingDays.includes(day) ? s.trainingDays.filter((d) => d !== day) : [...s.trainingDays, day].sort((a, b) => a - b) }))}
+              selected={activeTrainingDays(settings).includes(day)}
+              onClick={() => onUpdate((s) => withTrainingDayToggled(s, day))}
             />
           ))}
         </div>

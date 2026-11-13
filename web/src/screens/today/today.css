@@ -243,3 +243,9 @@
   flex-direction: column;
   gap: var(--space-2);
 }
+
+/* After a switch on a day already trained: the one line saying which side today's session is on. */
+.today-other-side {
+  margin: 0;
+  color: var(--text-secondary);
+}

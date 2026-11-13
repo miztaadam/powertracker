@@ -3,7 +3,7 @@ import { useSyncExternalStore } from 'react'
 /** The main lifts, in the domain's order. */
 export type Lift = 'SQUAT' | 'BENCH' | 'DEADLIFT' | 'STRICT_PRESS'
 export type Tab = 'today' | 'coach' | 'progress' | 'exercises' | 'plan'
-export type Route = { tab: Tab } | { page: 'settings' } | { page: 'lift'; lift: Lift }
+export type Route = { tab: Tab } | { page: 'settings' } | { page: 'lift'; lift: Lift } | { page: 'exercise'; exerciseId: number }
 
 /** The tabs, in the order the bar shows them. */
 export const TABS: readonly Tab[] = ['today', 'coach', 'progress', 'exercises', 'plan']
@@ -17,12 +17,14 @@ export function parseHash(hash: string): Route {
   if (parts.length === 1 && TABS.includes(head as Tab)) return { tab: head as Tab }
   if (parts.length === 1 && head === 'settings') return { page: 'settings' }
   if (parts.length === 2 && head === 'lift' && LIFTS.includes(arg as Lift)) return { page: 'lift', lift: arg as Lift }
+  if (parts.length === 2 && head === 'exercise' && /^[1-9]\d*$/.test(arg ?? '')) return { page: 'exercise', exerciseId: Number(arg) }
   return TODAY
 }
 
 export function routeToHash(route: Route): string {
   if ('tab' in route) return `#/${route.tab}`
   if (route.page === 'settings') return '#/settings'
+  if (route.page === 'exercise') return `#/exercise/${route.exerciseId}`
   return `#/lift/${route.lift}`
 }
 

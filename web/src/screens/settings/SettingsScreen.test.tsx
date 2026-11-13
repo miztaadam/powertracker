@@ -440,6 +440,20 @@ describe('SettingsScreen', () => {
     await waitFor(() => expect(toggle).toHaveAttribute('aria-checked', 'false'))
   })
 
+  it('trainingDays_onTheBodybuildingSide_showAndEditThatSidesDays', async () => {
+    await updateSettings(db, (s) => ({ ...s, trainingDays: [2, 4, 6], bodybuildingTrainingDays: [1, 3, 5], trainingMode: 'BODYBUILDING', bodybuildingLeftOn: '2026-10-01' }))
+    show()
+    const days = within(await screen.findByRole('group', { name: 'Training days' }))
+    const chosen = () => days.getAllByRole('checkbox').filter((b) => (b as HTMLInputElement).checked).map((b) => b.closest('label')?.textContent)
+    await waitFor(() => expect(chosen()).toEqual(['Mon', 'Wed', 'Fri']))
+
+    await userEvent.click(days.getByRole('checkbox', { name: 'Sat' }))
+    await waitFor(async () => expect((await getSettings(db)).bodybuildingTrainingDays).toEqual([1, 3, 5, 6]))
+    // The powerlifting side's days are kept for when the lifter goes back.
+    expect((await getSettings(db)).trainingDays).toEqual([2, 4, 6])
+    await waitFor(() => expect(chosen()).toEqual(['Mon', 'Wed', 'Fri', 'Sat']))
+  })
+
   it('settings_endsWithTheVersionLine', async () => {
     show()
     // vitest builds with a fixed id (vitest.config.ts) and package.json's version.

@@ -156,3 +156,72 @@
   padding-top: var(--space-2);
   color: var(--text-secondary);
 }
+
+/* The bodybuilding side's list: one row per exercise of the plan, its best sets oldest first, and its trend. */
+.bb-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bb-rows > li + li {
+  border-top: 1px solid var(--hairline);
+}
+
+.bb-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.bb-row-text {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.bb-row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-row-sets {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-3);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.bb-row-muted {
+  color: var(--text-muted);
+}
+
+.bb-row-trend {
+  display: inline-flex;
+}
+
+.bb-row-up {
+  color: var(--success);
+}
+
+.bb-row-level {
+  color: var(--text-muted);
+}
+
+.bb-row-chevron {
+  flex: none;
+  color: var(--text-muted);
+}

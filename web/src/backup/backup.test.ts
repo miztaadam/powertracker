@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import Dexie from 'dexie'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { resolveCatalogue } from '../db/catalogue'
-import { ensureSeeded, getSettings, openGritDb, setTrainingMode, updateSettings, type GritDb } from '../db/db'
+import { planFor, resolveCatalogue } from '../db/catalogue'
+import { activeTrainingDays, ensureSeeded, getSettings, openGritDb, setTrainingMode, updateSettings, type GritDb } from '../db/db'
 import { readSafetyCopy } from '../db/safety'
 import {
   androidRestAlertOf,
@@ -655,5 +655,57 @@ describe('backup version 3', () => {
     expect(old.sessions.every((s) => s.mode === 'POWERLIFTING')).toBe(true)
     expect(old.planItems.every((p) => p.mode === 'POWERLIFTING' && p.repsHigh === null)).toBe(true)
     expect(old.advice.every((a) => a.mode === 'POWERLIFTING')).toBe(true)
+  })
+})
+
+describe('cross-platform restore, version 3', () => {
+  /** Android's version-3 backup (Task 4's fixture): both sides' plans, each session's side and the side settings come back. */
+  it('androidV3Fixture_restoresOnWeb', async () => {
+    const ANDROID_V3_FIXTURE = resolve(FIXTURES, 'android-v3.json')
+    expect(readJson(ANDROID_V3_FIXTURE).version).toBe(3)
+    const db = await openDb()
+    await ensureSeeded(db)
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_V3_FIXTURE, 'utf8')))
+
+    const names = new Map((await db.exercises.toArray()).map((e) => [e.id, e.name]))
+    const side = async (mode: 'POWERLIFTING' | 'BODYBUILDING') =>
+      (await planFor(db, mode)).map((p) => [p.weekday, names.get(p.exerciseId), p.sets, p.reps, p.repsHigh ?? null, p.targetRpe])
+    expect(await side('POWERLIFTING')).toEqual([
+      [2, 'Squat', 4, 5, null, 8],
+      [2, 'Pause squat', 3, 4, null, 7.5],
+      [6, 'Bench', 5, 3, null, 8.5],
+    ])
+    expect(await side('BODYBUILDING')).toEqual([
+      [1, 'Curl', 3, 8, 12, 8],
+      [1, 'Squat', 4, 10, 15, 8],
+    ])
+
+    const sessions = (await db.sessions.orderBy('date').toArray()).map((s) => [s.date, s.mode])
+    expect(sessions).toEqual([
+      [epochDayToIso(20753), 'POWERLIFTING'],
+      [epochDayToIso(20755), 'POWERLIFTING'],
+      [epochDayToIso(20759), 'BODYBUILDING'],
+    ])
+    expect((await db.advice.orderBy('id').toArray()).map((a) => [a.type, a.mode])).toEqual([
+      ['TARGET', 'POWERLIFTING'],
+      ['STALL', 'POWERLIFTING'],
+      ['DELOAD', 'POWERLIFTING'],
+      ['WEAK_POINT', 'POWERLIFTING'],
+      ['RE_ENTRY', 'POWERLIFTING'],
+      ['TARGET', 'BODYBUILDING'],
+    ])
+
+    const s = await getSettings(db)
+    expect(s).toMatchObject({
+      trainingMode: 'BODYBUILDING',
+      trainingDays: [2, 4, 6],
+      bodybuildingTrainingDays: [1, 3, 5, 6],
+      powerliftingLeftOn: epochDayToIso(20757),
+      bodybuildingLeftOn: epochDayToIso(20750),
+      changePlates: true,
+      defaultRpe: 7.5,
+      showStrictPress: true,
+    })
+    expect(activeTrainingDays(s)).toEqual([1, 3, 5, 6])
   })
 })

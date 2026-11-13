@@ -1,0 +1,274 @@
+import { mkdirSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { expect, test, type Page } from '@playwright/test'
+import { openOnWednesday, readAllTables, repsField, rpeField, tabBar, weightField } from './helpers'
+
+// The bodybuilding side's screens (bodybuilding mode spec §7.3 to §7.7) with a sample story like the owner's mockup
+// (column C of .superpowers/brainstorm/bodybuilding/bodybuilding-look-*.png): Wednesday 11 November, incline dumbbell
+// press 3 × 8–12 @ 8, last week 26 × 11, 10, 9.
+// A normal run writes the screenshots to test-results/; UPDATE_SCREENSHOTS=1 rewrites the committed PNGs in
+// docs/design/web/screens/. Look at them after a visual change.
+const outDir = resolve(process.cwd(), process.env.UPDATE_SCREENSHOTS === '1' ? '../docs/design/web/screens' : 'test-results/screens')
+
+async function shoot(page: Page, name: string, height: number) {
+  await page.setViewportSize({ width: 390, height })
+  await page.locator('.shell-main').evaluate((el) => el.scrollTo(0, 0))
+  await page.evaluate(() => document.fonts.ready)
+  mkdirSync(outDir, { recursive: true })
+  await page.screenshot({ path: resolve(outDir, `${name}.png`), fullPage: true, animations: 'disabled' })
+}
+
+/** Buttons, links, choices and typed figures smaller than 48 px in either direction (to within sub-pixel rounding). */
+const smallTargets = (page: Page) =>
+  page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLElement>('.shell-main button, .shell-main a[href], .shell-main label.gr-segment, .shell-main label.gr-chip, .shell-main label.gr-stepper-figure'))
+      .map((el) => ({ el, box: el.getBoundingClientRect() }))
+      .filter(({ box }) => box.width > 0 && (box.width < 47.5 || box.height < 47.5))
+      .map(({ el, box }) => `${el.className} ${Math.round(box.width)}×${Math.round(box.height)}`),
+  )
+const fitsThePhone = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+
+type Story = {
+  /** Today's session on the bodybuilding side, with the mockup's two sets of incline dumbbell press done. */
+  todaySession?: boolean
+  /** The day the bodybuilding side was last left (ISO), for the welcome-back card. */
+  bodybuildingLeftOn?: string | null
+}
+
+/**
+ * Writes the bodybuilding story straight into IndexedDB and reloads, with the app on the bodybuilding side:
+ * the bodybuilding plan (Monday, Wednesday, Friday), a powerlifting plan beside it, and two weeks of sessions.
+ */
+async function seedStory(page: Page, story: Story = {}) {
+  await page.evaluate(async ({ todaySession = false, bodybuildingLeftOn = null }) => {
+    const db = await new Promise<IDBDatabase>((done, fail) => {
+      const request = indexedDB.open('grit')
+      request.onsuccess = () => done(request.result)
+      request.onerror = () => fail(request.error)
+    })
+    const tx = db.transaction(['exercises', 'planItems', 'sessions', 'sets', 'settings'], 'readwrite')
+    const settled = new Promise<void>((done, fail) => {
+      tx.oncomplete = () => done()
+      tx.onerror = () => fail(tx.error)
+    })
+    const added = (request: IDBRequest<IDBValidKey>) => new Promise<number>((done) => (request.onsuccess = () => done(request.result as number)))
+    const exercises = await new Promise<{ id: number; name: string }[]>((done) => {
+      const all = tx.objectStore('exercises').getAll()
+      all.onsuccess = () => done(all.result)
+    })
+    const idOf = (name: string) => exercises.find((e) => e.name === name)!.id
+    // Catalogue exercises get their row with the first plan item or set, as resolveCatalogue writes it.
+    const catalogue = async (name: string, muscles: string[]) =>
+      added(tx.objectStore('exercises').add({ name, category: 'ACCESSORY', parentLift: null, muscles, isBuiltIn: true, archived: false }))
+    const incline = await catalogue('Incline DB press', ['Pecs', 'Front delts', 'Triceps'])
+    const pulldown = await catalogue('Lat pulldown', ['Lats', 'Biceps'])
+    const crossover = await catalogue('Cable crossover', ['Pecs', 'Front delts'])
+    const plan = (weekday: number, exerciseId: number, order: number, reps = 8, repsHigh = 12) =>
+      tx.objectStore('planItems').add({ weekday, exerciseId, sets: 3, reps, repsHigh, targetRpe: 8, order, mode: 'BODYBUILDING' })
+    ;[incline, pulldown, crossover].forEach((id, order) => plan(3, id, order))
+    ;[idOf('Squat'), idOf('RDL'), idOf('Curl')].forEach((id, order) => plan(1, id, order, order === 0 ? 10 : 8, order === 0 ? 15 : 12))
+    ;[idOf('DB press'), idOf('Row')].forEach((id, order) => plan(5, id, order))
+    tx.objectStore('planItems').add({ weekday: 3, exerciseId: idOf('Squat'), sets: 5, reps: 5, targetRpe: 8, order: 0, mode: 'POWERLIFTING' })
+
+    const session = async (date: string, sets: [number, number, number][]) => {
+      const id = await added(tx.objectStore('sessions').add({ date, bodyweightKg: null, readiness: null, mode: 'BODYBUILDING' }))
+      for (const [exerciseId, weightKg, reps] of sets) tx.objectStore('sets').add({ sessionId: id, exerciseId, weightKg, reps, rpe: 8, failed: false, missPoint: null, isTopSet: false })
+    }
+    await session('2026-10-28', [
+      [incline, 24, 12],
+      [incline, 24, 11],
+      [incline, 24, 10],
+      [pulldown, 55, 12],
+      [pulldown, 55, 11],
+      [pulldown, 55, 11],
+      [crossover, 15, 12],
+      [crossover, 15, 12],
+      [crossover, 15, 11],
+    ])
+    await session('2026-11-04', [
+      [incline, 26, 11],
+      [incline, 26, 10],
+      [incline, 26, 9],
+      [pulldown, 55, 12],
+      [pulldown, 55, 12],
+      [pulldown, 55, 11],
+      [crossover, 15, 12],
+      [crossover, 15, 11],
+      [crossover, 15, 10],
+    ])
+    if (todaySession)
+      await session('2026-11-11', [
+        [incline, 26, 11],
+        [incline, 26, 10],
+      ])
+
+    const settings = tx.objectStore('settings')
+    settings.put({ key: 'trainingMode', value: 'BODYBUILDING' })
+    settings.put({ key: 'bodybuildingTrainingDays', value: [1, 3, 5] })
+    settings.put({ key: 'powerliftingLeftOn', value: '2026-11-11' })
+    settings.put({ key: 'bodybuildingLeftOn', value: bodybuildingLeftOn })
+    await settled
+    db.close()
+  }, story)
+  await page.reload()
+  await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+}
+
+const header = (page: Page, title: string) => page.locator('header', { has: page.getByRole('heading', { level: 1, name: title }) })
+
+for (const scheme of ['dark', 'light'] as const) {
+  test.describe(`the bodybuilding side (${scheme})`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.emulateMedia({ colorScheme: scheme })
+    })
+
+    test('today: the range, the coach card and Apply', async ({ page }) => {
+      await openOnWednesday(page)
+      await seedStory(page, { todaySession: true })
+      const card = page.locator('.gr-card', { has: page.getByRole('heading', { name: 'Incline DB press' }) })
+      await expect(card.getByText('Set 3 of 3')).toBeVisible()
+      await expect(card.getByText('26 kg × 8–12 @ 8')).toBeVisible()
+      await expect(card.getByText('Last time: 26 × 11, 10, 9. Beat it.')).toBeVisible()
+      await expect(page.getByText('Top set')).toHaveCount(0)
+      await expect(page.getByRole('button', { name: /^Lat pulldown/ })).toContainText('3 × 8–12 @ 8')
+      await expect(header(page, 'Today').getByTestId('mode-label')).toHaveText('BODYBUILDINGBodybuilding mode')
+      await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', scheme === 'dark' ? '#070B14' : '#EDF2FA')
+      expect(await smallTargets(page)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+
+      // The mockup's editor: 26 × 10 @ 8 for the third set.
+      await expect(weightField(page)).toHaveValue('26')
+      await expect(repsField(page)).toHaveValue('10')
+      await expect(rpeField(page)).toHaveValue('8')
+      await shoot(page, `today-bodybuilding-${scheme}`, 1070)
+
+      // Apply: the weight, and the reps to beat for set 3 (9 last time, so 10).
+      await card.getByRole('button', { name: 'Apply' }).click()
+      await expect(card.getByText('Last time: 26 × 11, 10, 9. Beat it.')).toHaveCount(0)
+      await expect(weightField(page)).toHaveValue('26')
+      await expect(repsField(page)).toHaveValue('10')
+    })
+
+    test('plan: the side’s own plan and days, rows as ranges', async ({ page }) => {
+      await openOnWednesday(page, '#/plan')
+      await seedStory(page)
+      const wednesday = page.getByRole('region', { name: 'Wednesday' })
+      await expect(wednesday.getByRole('listitem')).toHaveText([/Incline DB press\s*3 × 8–12 @ 8/, /Lat pulldown\s*3 × 8–12 @ 8/, /Cable crossover\s*3 × 8–12 @ 8/])
+      await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem').first()).toHaveAttribute('aria-label', 'Squat  3 × 10–15 @ 8')
+      // The powerlifting squat 5 × 5 on Wednesday is kept for that side, not shown here.
+      await expect(page.getByRole('listitem', { name: 'Squat  5 × 5 @ 8' })).toHaveCount(0)
+      await expect(header(page, 'Plan').getByTestId('mode-label')).toBeVisible()
+      expect(await smallTargets(page)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+      await shoot(page, `plan-bodybuilding-${scheme}`, 1560)
+    })
+
+    test('coach: the welcome back after more than a month away', async ({ page }) => {
+      await openOnWednesday(page, '#/coach')
+      await seedStory(page, { bodybuildingLeftOn: '2026-10-01' })
+      await expect(page.getByRole('heading', { name: 'Welcome back to the better side.' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Resume my plan' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'My goals have changed' })).toBeVisible()
+      await expect(header(page, 'Coach').getByTestId('mode-label')).toBeVisible()
+      expect(await smallTargets(page)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+      await shoot(page, `coach-bodybuilding-${scheme}`, 844)
+
+      // My goals have changed: the card goes and Plan opens; it does not come back.
+      await page.getByRole('button', { name: 'My goals have changed' }).click()
+      await expect(page.getByRole('heading', { level: 1, name: 'Plan' })).toBeVisible()
+      await tabBar(page).getByRole('link', { name: 'Coach' }).click()
+      await expect(page.getByText('No advice right now. Keep logging.')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Welcome back to the better side.' })).toHaveCount(0)
+    })
+
+    test('progress: each exercise’s best sets and whether it is going up', async ({ page }) => {
+      await openOnWednesday(page, '#/progress')
+      await seedStory(page)
+      const incline = page.getByRole('button', { name: /^Incline DB press/ })
+      await expect(incline).toContainText('24 × 12')
+      await expect(incline).toContainText('26 × 11')
+      await expect(incline.getByRole('img', { name: 'Going up' })).toBeVisible()
+      await expect(page.getByRole('button', { name: /^Cable crossover/ }).getByRole('img', { name: 'Not going up' })).toBeVisible()
+      await expect(page.getByRole('button', { name: /^Row/ })).toContainText('Not logged yet')
+      await expect(header(page, 'Progress').getByTestId('mode-label')).toBeVisible()
+      expect(await smallTargets(page)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+      await shoot(page, `progress-bodybuilding-${scheme}`, 844)
+
+      // A row opens the exercise's history, which has its sets from both sides.
+      await incline.click()
+      await expect(page.getByRole('heading', { level: 1, name: 'Incline DB press history' })).toBeVisible()
+      await expect(page.getByText('2 sessions')).toBeVisible()
+    })
+  })
+}
+
+test('switching sides swaps the plan, keeps one log, and a day already trained stays on its session', async ({ page }) => {
+  await openOnWednesday(page, '#/settings')
+  await page.getByRole('switch', { name: 'Bodybuilding mode' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+
+  // An empty bodybuilding plan says so; adding gives 3 × 8–12 @ 8.
+  await tabBar(page).getByRole('link', { name: 'Plan' }).click()
+  await expect(page.getByText('Your bodybuilding plan is empty. Add exercises to each training day.')).toBeVisible()
+  await page.getByRole('region', { name: 'Wednesday' }).getByRole('button', { name: 'Add' }).click()
+  const picker = page.getByRole('dialog', { name: 'Add to Wednesday' })
+  await picker.getByRole('textbox', { name: 'Search exercises' }).fill('Curl')
+  await picker.getByRole('listitem', { name: 'Curl' }).getByRole('button').first().click()
+  await expect(page.getByRole('listitem', { name: 'Curl  3 × 8–12 @ 8' })).toBeVisible()
+
+  // Today: the range; log a set on this side.
+  await tabBar(page).getByRole('link', { name: 'Today' }).click()
+  await expect(page.getByText('3 × 8–12 @ 8')).toBeVisible()
+  await page.getByRole('button', { name: 'Start session' }).click()
+  await weightField(page).fill('12')
+  await weightField(page).press('Enter')
+  await page.getByRole('button', { name: 'Log set 1' }).click()
+  await expect(page.getByRole('button', { name: 'Log set 2' })).toBeVisible()
+
+  // Back to the powerlifting side on the same day: Today stays on this session, with the line.
+  await page.goto('/#/settings')
+  await page.getByRole('switch', { name: 'Bodybuilding mode' }).click()
+  await expect(page.locator('html')).not.toHaveAttribute('data-mode', 'bodybuilding')
+  await tabBar(page).getByRole('link', { name: 'Today' }).click()
+  await expect(page.getByText("Today's session is on the bodybuilding side. Powerlifting starts with your next session.")).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Curl' })).toBeVisible()
+  await expect(page.getByTestId('mode-label')).toHaveCount(0)
+
+  // Plan is the powerlifting side's again; the log has one session for the day, with its set.
+  await tabBar(page).getByRole('link', { name: 'Plan' }).click()
+  await expect(page.getByRole('listitem', { name: /^Curl/ })).toHaveCount(0)
+  const tables = (await readAllTables(page)) as { sessions: { date: string; mode: string }[]; sets: unknown[] }
+  expect(tables.sessions.filter((s) => s.date === '2026-11-11').map((s) => s.mode)).toEqual(['BODYBUILDING'])
+  expect(tables.sets).toHaveLength(1)
+})
+
+test.describe('the head start', () => {
+  // The app's script is held back below; a service worker would serve it from its cache instead.
+  test.use({ serviceWorkers: 'block' })
+
+  test('a reload on the bodybuilding side is blue from the first paint', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' })
+    await openOnWednesday(page, '#/settings')
+    await page.getByRole('switch', { name: 'Bodybuilding mode' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+
+    // With the app's own code held back, the page as first drawn is already on the bodybuilding side.
+    await page.route(/\/(assets\/index-[^/]*\.js|src\/main\.tsx)(\?.*)?$/, (route) => route.abort())
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+    expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(7, 11, 20)')
+    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#070B14')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(0)
+
+    // The stored settings stay the truth: back on the powerlifting side, the next load is not blue.
+    await page.unroute(/\/(assets\/index-[^/]*\.js|src\/main\.tsx)(\?.*)?$/)
+    await page.reload()
+    await page.getByRole('switch', { name: 'Bodybuilding mode' }).click()
+    await expect(page.locator('html')).not.toHaveAttribute('data-mode', 'bodybuilding')
+    await page.route(/\/assets\/index-[^/]*\.js(\?.*)?$/, (route) => route.abort())
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await expect(page.locator('html')).not.toHaveAttribute('data-mode', 'bodybuilding')
+  })
+})
