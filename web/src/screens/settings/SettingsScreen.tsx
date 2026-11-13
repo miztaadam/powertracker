@@ -15,7 +15,9 @@ import { Stepper } from '../../ui/components/StepperField'
 import { Switch } from '../../ui/components/Switch'
 import { RpeInfoButton } from '../library/RpeSheet'
 import { LOCK_UNSUPPORTED } from '../lock/LockScreen'
+import { appVersionLine, appVersionSpoken } from './appVersion'
 import { BackupCard } from './BackupCard'
+import { APP_VERSION, BUILD_ID } from './build'
 import './settings.css'
 
 export type SettingsScreenProps = {
@@ -34,7 +36,7 @@ const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7]
 const SAVE_FAILED = "Couldn't save — try again."
 const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value))
 
-/** Every setting, then backup and restore. */
+/** Every setting, then backup and restore, then the version line. */
 export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }: SettingsScreenProps) {
   const settings = useSettings(db)
   // The newest message for the snackbar; `id` changes with each one, also when the text repeats.
@@ -78,6 +80,7 @@ export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }:
             <SettingsContent settings={settings.settings} onUpdate={(change) => void settings.update(change).catch(() => say(SAVE_FAILED))} onAppLock={setAppLock} />
             <SectionHeader title="Backup" />
             <BackupCard db={db} lastBackupAt={settings.settings.lastBackupAt} storageProtected={settings.storageProtected} safetyCopy={settings.safetyCopy} safetyCopyDate={settings.safetyCopyDate} today={today} now={now} onMessage={say} />
+            <VersionLine />
           </>
         )}
       </div>
@@ -165,6 +168,19 @@ export function SettingsContent({ settings, onUpdate, onAppLock }: SettingsConte
         <SwitchRow label="App lock" supporting="Ask for Face ID, Touch ID or your passcode when Grit opens, and after a minute away" checked={settings.appLock} onChange={onAppLock} />
       </Group>
     </>
+  )
+}
+
+/**
+ * Last of all: which version this is, which build, and who made it. Plain text; a screen reader hears
+ * "Grit version 1.1, build a1b2c3d, by AppsbyAdam" once instead of the middle dots.
+ */
+function VersionLine() {
+  return (
+    <p className="settings-version body-small">
+      <span aria-hidden="true">{appVersionLine(APP_VERSION, BUILD_ID)}</span>
+      <span className="sr-only">{appVersionSpoken(APP_VERSION, BUILD_ID)}</span>
+    </p>
   )
 }
 

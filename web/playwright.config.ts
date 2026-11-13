@@ -12,6 +12,11 @@ const iphone = { ...devices['iPhone 13'], browserName: 'chromium' as const }
 // worker, so the two files do not run side by side either.
 const SPEED = /@speed/
 
+// The build under test gets a fixed commit id, so the version line at the bottom of Settings, and its
+// screenshots, never change with the commit (plugins/buildInfo.ts). e2e/plan.spec.ts checks the line.
+export const E2E_BUILD_ID = 'a1b2c3d'
+const env = { GRIT_BUILD_ID: E2E_BUILD_ID }
+
 export default defineConfig({
   testDir: './e2e',
   reporter: 'list',
@@ -27,6 +32,7 @@ export default defineConfig({
   webServer: [
     {
       command: 'npm run build && npm run preview -- --port 4173 --strictPort',
+      env,
       url: 'http://localhost:4173',
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
@@ -36,6 +42,7 @@ export default defineConfig({
       // deploy; other spec files keep running against the untouched dist on 4173. Starts after the
       // first server, so dist is already built.
       command: "node -e \"require('node:fs').cpSync('dist','dist-update',{recursive:true})\" && npm run preview -- --outDir dist-update --port 4175 --strictPort",
+      env,
       url: 'http://localhost:4175',
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
@@ -43,6 +50,7 @@ export default defineConfig({
     {
       // The dev server, for the dev-only design-system showcase (e2e/showcase.spec.ts).
       command: 'npm run dev -- --port 4174 --strictPort',
+      env,
       url: 'http://localhost:4174',
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,

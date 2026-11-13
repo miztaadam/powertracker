@@ -1,10 +1,13 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
+import { E2E_BUILD_ID } from '../playwright.config'
+import { shownVersion } from '../src/screens/settings/appVersion'
 
 // Plan and Settings with the same sample story as the Android mockups (docs/design/screens/plan-dark.png,
 // settings-dark.png). A normal run writes the screenshots to test-results/; UPDATE_SCREENSHOTS=1 rewrites
 // the committed PNGs in docs/design/web/screens/. Look at them after a visual change.
+const PACKAGE_VERSION = (JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as { version: string }).version
 const outDir = resolve(process.cwd(), process.env.UPDATE_SCREENSHOTS === '1' ? '../docs/design/web/screens' : 'test-results/screens')
 
 type SamplePlanItem = [weekday: number, exercise: string, sets: number, reps: number, targetRpe: number]
@@ -143,7 +146,12 @@ for (const scheme of ['dark', 'light'] as const) {
     expect(await overflowing(page)).toEqual([])
     expect(await smallTargets(page)).toEqual([])
     expect(await spilledText(page)).toEqual([])
-    await shoot(page, `settings-${scheme}`, 1530)
+    // Last of all, the version line, with the fixed id the e2e build gets (playwright.config.ts).
+    const version = page.getByText(`Grit ${shownVersion(PACKAGE_VERSION)} · ${E2E_BUILD_ID} · AppsbyAdam`, { exact: true })
+    await version.scrollIntoViewIfNeeded()
+    await expect(version).toBeInViewport({ ratio: 1 })
+    await expect(page.getByText(`Grit version ${shownVersion(PACKAGE_VERSION)}, build ${E2E_BUILD_ID}, by AppsbyAdam`)).toHaveCount(1)
+    await shoot(page, `settings-${scheme}`, 1570)
 
     // The strict press switch: its own group, the whole row a target, and the screen still fits with it on.
     await page.setViewportSize(narrowPhone)
@@ -162,7 +170,7 @@ for (const scheme of ['dark', 'light'] as const) {
     expect(info.x).toBeGreaterThanOrEqual(0)
     expect(info.x + info.width).toBeLessThanOrEqual(minus.x + 0.5)
     expect((await page.getByText('Default RPE', { exact: true }).boundingBox())!.height).toBeLessThan(30)
-    await shoot(page, `settings-strict-press-${scheme}`, 1530)
+    await shoot(page, `settings-strict-press-${scheme}`, 1570)
 
     await page.setViewportSize(narrowPhone)
     await page.getByRole('button', { name: 'What RPE means' }).click()

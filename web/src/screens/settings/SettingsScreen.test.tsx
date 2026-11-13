@@ -9,6 +9,8 @@ import { getSettings, readSafetyCopy, updateSettings, writeSafetyCopy, type Grit
 import { CREDENTIAL_KEY } from '../../platform/passkeyLock'
 import { TODAY, exerciseNamed, plan, todayFixture } from '../../test/todayFixture'
 import { CREDENTIAL_ID, cancelled, clearWebAuthn, mockWebAuthn } from '../../test/webauthn'
+import { shownVersion } from './appVersion'
+import { APP_VERSION } from './build'
 import { SettingsScreen } from './SettingsScreen'
 
 const WEB_BACKUP = readFileSync(resolve(__dirname, '../../backup/__fixtures__/web-v1.json'), 'utf8')
@@ -404,5 +406,22 @@ describe('SettingsScreen', () => {
 
     await userEvent.click(toggle)
     await waitFor(async () => expect((await getSettings(db)).showStrictPress).toBe(false))
+  })
+
+  it('settings_endsWithTheVersionLine', async () => {
+    show()
+    // vitest builds with a fixed id (vitest.config.ts) and package.json's version.
+    const line = await screen.findByText(`Grit ${shownVersion(APP_VERSION)} · a1b2c3d · AppsbyAdam`)
+    expect(line).toHaveTextContent('AppsbyAdam')
+    // Plain text, the last thing on the screen: nothing in the screen body comes after it.
+    const body = document.querySelector('.settings-body')!
+    const all = Array.from(body.querySelectorAll('*'))
+    const block = line.closest('.settings-version')!
+    expect(all.filter((el) => !block.contains(el) && el !== block && (block.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0)).toEqual([])
+    expect(within(block as HTMLElement).queryByRole('button')).toBeNull()
+    expect(within(block as HTMLElement).queryByRole('link')).toBeNull()
+    // Read once, without the dots: the visible text is hidden from screen readers and a spoken copy stands in.
+    expect(line.closest('[aria-hidden="true"]')).not.toBeNull()
+    expect(screen.getByText(`Grit version ${shownVersion(APP_VERSION)}, build a1b2c3d, by AppsbyAdam`)).toHaveClass('sr-only')
   })
 })
