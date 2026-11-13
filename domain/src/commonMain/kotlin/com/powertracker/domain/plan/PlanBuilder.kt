@@ -197,8 +197,9 @@ object PlanBuilder {
     }
 
     /**
-     * The draft week for [answers]. Throws IllegalArgumentException unless there are 3 or 4 distinct days and at
-     * most [MAX_PRIORITIES] distinct priorities, each one of [TARGET_GROUPS].
+     * The draft week for [answers]. Throws IllegalArgumentException unless there are 3 or 4 distinct days, at most
+     * [MAX_PRIORITIES] distinct priorities, each one of [TARGET_GROUPS], and every pick marked [BuilderPick.inCatalogue]
+     * is a catalogue name.
      */
     fun build(answers: BuilderAnswers): PlanDraft {
         val days = answers.days
@@ -208,6 +209,8 @@ object PlanBuilder {
         require(priorities.size <= MAX_PRIORITIES) { "priorities: ${priorities.size}; at most $MAX_PRIORITIES" }
         require(priorities.toSet().size == priorities.size) { "priorities: a group is repeated" }
         require(priorities.all { it in TARGET_GROUPS }) { "priorities: ${priorities.filter { it !in TARGET_GROUPS }} not target groups" }
+        val unknown = answers.picks.filter { it.inCatalogue && Library.find(it.name) == null }.map { it.name }
+        require(unknown.isEmpty()) { "picks: $unknown marked as catalogue exercises but not in the catalogue" }
 
         val sessions = sessions(days)
 
@@ -311,9 +314,11 @@ object PlanBuilder {
 
     // ---- defaults ----
 
-    /** How many picks list each piece of equipment. */
-    private fun equipmentUse(picks: List<BuilderPick>): Map<Equipment, Int> =
-        Equipment.entries.associateWith { eq -> picks.count { eq in it.equipment } }
+    /** How many picks list each piece of equipment; the same pick given twice (by name) counts once. */
+    private fun equipmentUse(picks: List<BuilderPick>): Map<Equipment, Int> {
+        val once = picks.distinctBy { Library.normalise(it.name) }
+        return Equipment.entries.associateWith { eq -> once.count { eq in it.equipment } }
+    }
 
     private fun entry(name: String): LibraryExercise =
         Library.all().firstOrNull { it.name == name } ?: error("default '$name' is not a catalogue name")

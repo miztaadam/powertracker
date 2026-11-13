@@ -30358,39 +30358,51 @@ function volume($this, sessions) {
   return destination;
 }
 function equipmentUse($this, picks) {
+  // Inline function 'kotlin.collections.distinctBy' call
+  var set = HashSet_init_$Create$();
+  var list = ArrayList_init_$Create$();
+  var _iterator__ex2g4s = picks.j();
+  while (_iterator__ex2g4s.k()) {
+    var e = _iterator__ex2g4s.l();
+    var key = Library_getInstance().q1b(e.r2j_1);
+    if (set.i(key)) {
+      list.i(e);
+    }
+  }
+  var once = list;
   // Inline function 'kotlin.collections.associateWith' call
   var this_0 = get_entries();
   var result = LinkedHashMap_init_$Create$_0(coerceAtLeast(mapCapacity(collectionSizeOrDefault(this_0, 10)), 16));
   // Inline function 'kotlin.collections.associateWithTo' call
-  var _iterator__ex2g4s = this_0.j();
-  while (_iterator__ex2g4s.k()) {
-    var element = _iterator__ex2g4s.l();
-    var tmp$ret$3;
+  var _iterator__ex2g4s_0 = this_0.j();
+  while (_iterator__ex2g4s_0.k()) {
+    var element = _iterator__ex2g4s_0.l();
+    var tmp$ret$5;
     $l$block: {
       // Inline function 'kotlin.collections.count' call
       var tmp;
-      if (isInterface(picks, Collection)) {
-        tmp = picks.m();
+      if (isInterface(once, Collection)) {
+        tmp = once.m();
       } else {
         tmp = false;
       }
       if (tmp) {
-        tmp$ret$3 = 0;
+        tmp$ret$5 = 0;
         break $l$block;
       }
       var count = 0;
-      var _iterator__ex2g4s_0 = picks.j();
-      while (_iterator__ex2g4s_0.k()) {
-        var element_0 = _iterator__ex2g4s_0.l();
+      var _iterator__ex2g4s_1 = once.j();
+      while (_iterator__ex2g4s_1.k()) {
+        var element_0 = _iterator__ex2g4s_1.l();
         if (element_0.u2j_1.r(element)) {
           count = count + 1 | 0;
           checkCountOverflow(count);
         }
       }
-      tmp$ret$3 = count;
+      tmp$ret$5 = count;
     }
-    var tmp$ret$2 = tmp$ret$3;
-    result.m2(element, tmp$ret$2);
+    var tmp$ret$4 = tmp$ret$5;
+    result.m2(element, tmp$ret$4);
   }
   return result;
 }
@@ -31004,35 +31016,61 @@ protoOf(PlanBuilder).z2j = function (answers) {
     var message_3 = 'priorities: ' + toString(destination) + ' not target groups';
     throw IllegalArgumentException_init_$Create$(toString(message_3));
   }
-  var sessions_0 = sessions(this, days);
-  var _iterator__ex2g4s_1 = priorities.j();
+  // Inline function 'kotlin.collections.filter' call
+  var tmp0 = answers.b2k_1;
+  // Inline function 'kotlin.collections.filterTo' call
+  var destination_0 = ArrayList_init_$Create$();
+  var _iterator__ex2g4s_1 = tmp0.j();
   while (_iterator__ex2g4s_1.k()) {
-    var group = _iterator__ex2g4s_1.l();
+    var element_1 = _iterator__ex2g4s_1.l();
+    if (element_1.v2j_1 && Library_getInstance().x1b(element_1.r2j_1) == null) {
+      destination_0.i(element_1);
+    }
+  }
+  // Inline function 'kotlin.collections.map' call
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(destination_0, 10));
+  var _iterator__ex2g4s_2 = destination_0.j();
+  while (_iterator__ex2g4s_2.k()) {
+    var item = _iterator__ex2g4s_2.l();
+    var tmp$ret$20 = item.r2j_1;
+    destination_1.i(tmp$ret$20);
+  }
+  var unknown = destination_1;
+  // Inline function 'kotlin.require' call
+  if (!unknown.m()) {
+    var message_4 = 'picks: ' + toString(unknown) + ' marked as catalogue exercises but not in the catalogue';
+    throw IllegalArgumentException_init_$Create$(toString(message_4));
+  }
+  var sessions_0 = sessions(this, days);
+  var _iterator__ex2g4s_3 = priorities.j();
+  while (_iterator__ex2g4s_3.k()) {
+    var group = _iterator__ex2g4s_3.l();
     var kind = getValue(this.k2i_1, group);
     // Inline function 'kotlin.collections.filter' call
     // Inline function 'kotlin.collections.filterTo' call
-    var destination_0 = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_2 = sessions_0.j();
-    while (_iterator__ex2g4s_2.k()) {
-      var element_1 = _iterator__ex2g4s_2.l();
-      if (element_1.c2j(kind)) {
-        destination_0.i(element_1);
+    var destination_2 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_4 = sessions_0.j();
+    while (_iterator__ex2g4s_4.k()) {
+      var element_2 = _iterator__ex2g4s_4.l();
+      if (element_2.c2j(kind)) {
+        destination_2.i(element_2);
       }
     }
-    var tmp_0 = destination_0;
+    var tmp_0 = destination_2;
     var tmp_1 = PlanBuilder$build$lambda(kind);
-    var tmp0 = minWith(tmp_0, compareBy([tmp_1, PlanBuilder$build$lambda_0])).y2i_1;
+    var tmp0_0 = minWith(tmp_0, compareBy([tmp_1, PlanBuilder$build$lambda_0])).y2i_1;
     // Inline function 'kotlin.collections.plusAssign' call
-    var element_2 = new Slot(kind, false, group);
-    tmp0.i(element_2);
+    var element_3 = new Slot(kind, false, group);
+    tmp0_0.i(element_3);
   }
   // Inline function 'kotlin.collections.distinctBy' call
   var this_0 = answers.b2k_1;
   var set = HashSet_init_$Create$();
   var list = ArrayList_init_$Create$();
-  var _iterator__ex2g4s_3 = this_0.j();
-  while (_iterator__ex2g4s_3.k()) {
-    var e = _iterator__ex2g4s_3.l();
+  var _iterator__ex2g4s_5 = this_0.j();
+  while (_iterator__ex2g4s_5.k()) {
+    var e = _iterator__ex2g4s_5.l();
     var key = Library_getInstance().q1b(e.r2j_1);
     if (set.i(key)) {
       list.i(e);
@@ -31040,23 +31078,23 @@ protoOf(PlanBuilder).z2j = function (answers) {
   }
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
-  var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(list, 10));
-  var _iterator__ex2g4s_4 = list.j();
-  while (_iterator__ex2g4s_4.k()) {
-    var item = _iterator__ex2g4s_4.l();
-    var tmp$ret$23 = new Item(item.r2j_1, item.v2j_1, item.s2j_1, item.t2j_1);
-    destination_1.i(tmp$ret$23);
+  var destination_3 = ArrayList_init_$Create$_0(collectionSizeOrDefault(list, 10));
+  var _iterator__ex2g4s_6 = list.j();
+  while (_iterator__ex2g4s_6.k()) {
+    var item_0 = _iterator__ex2g4s_6.l();
+    var tmp$ret$31 = new Item(item_0.r2j_1, item_0.v2j_1, item_0.s2j_1, item_0.t2j_1);
+    destination_3.i(tmp$ret$31);
   }
-  var picks = destination_1;
+  var picks = destination_3;
   var tmp_2 = PlanBuilder$build$lambda_1;
   var ordered = sortedWith(picks, compareBy([tmp_2, PlanBuilder$build$lambda_2]));
   // Inline function 'kotlin.collections.mutableListOf' call
   var placed = ArrayList_init_$Create$();
   // Inline function 'kotlin.collections.mutableListOf' call
   var heldOver = ArrayList_init_$Create$();
-  var _iterator__ex2g4s_5 = ordered.j();
-  while (_iterator__ex2g4s_5.k()) {
-    var pick = _iterator__ex2g4s_5.l();
+  var _iterator__ex2g4s_7 = ordered.j();
+  while (_iterator__ex2g4s_7.k()) {
+    var pick = _iterator__ex2g4s_7.l();
     var slot = pick.v2h_1 == null ? null : build$slotFor(pick, sessions_0);
     if (slot == null) {
       // Inline function 'kotlin.collections.plusAssign' call
@@ -31067,20 +31105,20 @@ protoOf(PlanBuilder).z2j = function (answers) {
       placed.i(pick);
     }
   }
-  var _iterator__ex2g4s_6 = placed.j();
-  while (_iterator__ex2g4s_6.k()) {
-    var pick_0 = _iterator__ex2g4s_6.l();
+  var _iterator__ex2g4s_8 = placed.j();
+  while (_iterator__ex2g4s_8.k()) {
+    var pick_0 = _iterator__ex2g4s_8.l();
     // Inline function 'kotlin.collections.filter' call
     // Inline function 'kotlin.collections.filterTo' call
-    var destination_2 = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_7 = sessions_0.j();
-    while (_iterator__ex2g4s_7.k()) {
-      var element_3 = _iterator__ex2g4s_7.l();
-      if (!element_3.a2j(pick_0.t2h_1)) {
-        destination_2.i(element_3);
+    var destination_4 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_9 = sessions_0.j();
+    while (_iterator__ex2g4s_9.k()) {
+      var element_4 = _iterator__ex2g4s_9.l();
+      if (!element_4.a2j(pick_0.t2h_1)) {
+        destination_4.i(element_4);
       }
     }
-    var tmp0_safe_receiver = build$slotFor(pick_0, destination_2);
+    var tmp0_safe_receiver = build$slotFor(pick_0, destination_4);
     if (tmp0_safe_receiver == null)
       null;
     else {
@@ -31089,30 +31127,30 @@ protoOf(PlanBuilder).z2j = function (answers) {
   }
   // Inline function 'kotlin.collections.mutableListOf' call
   var leftOut = ArrayList_init_$Create$();
-  var _iterator__ex2g4s_8 = heldOver.j();
-  while (_iterator__ex2g4s_8.k()) {
-    var pick_1 = _iterator__ex2g4s_8.l();
+  var _iterator__ex2g4s_10 = heldOver.j();
+  while (_iterator__ex2g4s_10.k()) {
+    var pick_1 = _iterator__ex2g4s_10.l();
     // Inline function 'kotlin.collections.filter' call
     // Inline function 'kotlin.collections.filterTo' call
-    var destination_3 = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_9 = sessions_0.j();
-    while (_iterator__ex2g4s_9.k()) {
-      var element_4 = _iterator__ex2g4s_9.l();
-      if (element_4.z2i_1 == null && element_4.c2j(pick_1.v2h_1)) {
-        destination_3.i(element_4);
+    var destination_5 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_11 = sessions_0.j();
+    while (_iterator__ex2g4s_11.k()) {
+      var element_5 = _iterator__ex2g4s_11.l();
+      if (element_5.z2i_1 == null && element_5.c2j(pick_1.v2h_1)) {
+        destination_5.i(element_5);
       }
     }
-    var tmp$ret$35;
+    var tmp$ret$43;
     $l$block_2: {
       // Inline function 'kotlin.collections.minByOrNull' call
-      var iterator = destination_3.j();
+      var iterator = destination_5.j();
       if (!iterator.k()) {
-        tmp$ret$35 = null;
+        tmp$ret$43 = null;
         break $l$block_2;
       }
       var minElem = iterator.l();
       if (!iterator.k()) {
-        tmp$ret$35 = minElem;
+        tmp$ret$43 = minElem;
         break $l$block_2;
       }
       var minValue = minElem.y2i_1.o();
@@ -31125,63 +31163,63 @@ protoOf(PlanBuilder).z2j = function (answers) {
         }
       }
        while (iterator.k());
-      tmp$ret$35 = minElem;
+      tmp$ret$43 = minElem;
     }
-    var target = tmp$ret$35;
+    var target = tmp$ret$43;
     if (target == null) {
       // Inline function 'kotlin.collections.plusAssign' call
-      var element_5 = new LeftOut(pick_1.p2h_1, 'No room: every session it fits is full.');
-      leftOut.i(element_5);
+      var element_6 = new LeftOut(pick_1.p2h_1, 'No room: every session it fits is full.');
+      leftOut.i(element_6);
     } else
       target.z2i_1 = pick_1;
   }
   var equipmentUse_0 = equipmentUse(this, answers.b2k_1);
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
-  var destination_4 = ArrayList_init_$Create$_0(collectionSizeOrDefault(picks, 10));
-  var _iterator__ex2g4s_10 = picks.j();
-  while (_iterator__ex2g4s_10.k()) {
-    var item_0 = _iterator__ex2g4s_10.l();
-    var tmp$ret$41 = item_0.t2h_1;
-    destination_4.i(tmp$ret$41);
+  var destination_6 = ArrayList_init_$Create$_0(collectionSizeOrDefault(picks, 10));
+  var _iterator__ex2g4s_12 = picks.j();
+  while (_iterator__ex2g4s_12.k()) {
+    var item_1 = _iterator__ex2g4s_12.l();
+    var tmp$ret$49 = item_1.t2h_1;
+    destination_6.i(tmp$ret$49);
   }
-  var pickKeys = toSet(destination_4);
-  var _iterator__ex2g4s_11 = listOf([false, true]).j();
-  while (_iterator__ex2g4s_11.k()) {
-    var added = _iterator__ex2g4s_11.l();
-    var _iterator__ex2g4s_12 = sessions_0.j();
-    while (_iterator__ex2g4s_12.k()) {
-      var s = _iterator__ex2g4s_12.l();
+  var pickKeys = toSet(destination_6);
+  var _iterator__ex2g4s_13 = listOf([false, true]).j();
+  while (_iterator__ex2g4s_13.k()) {
+    var added = _iterator__ex2g4s_13.l();
+    var _iterator__ex2g4s_14 = sessions_0.j();
+    while (_iterator__ex2g4s_14.k()) {
+      var s = _iterator__ex2g4s_14.l();
       // Inline function 'kotlin.collections.filter' call
-      var tmp0_0 = s.y2i_1;
+      var tmp0_1 = s.y2i_1;
       // Inline function 'kotlin.collections.filterTo' call
-      var destination_5 = ArrayList_init_$Create$();
-      var _iterator__ex2g4s_13 = tmp0_0.j();
-      while (_iterator__ex2g4s_13.k()) {
-        var element_6 = _iterator__ex2g4s_13.l();
-        if (element_6.t2i_1 == null && !(element_6.s2i_1 == null) === added) {
-          destination_5.i(element_6);
+      var destination_7 = ArrayList_init_$Create$();
+      var _iterator__ex2g4s_15 = tmp0_1.j();
+      while (_iterator__ex2g4s_15.k()) {
+        var element_7 = _iterator__ex2g4s_15.l();
+        if (element_7.t2i_1 == null && !(element_7.s2i_1 == null) === added) {
+          destination_7.i(element_7);
         }
       }
-      var _iterator__ex2g4s_14 = destination_5.j();
-      while (_iterator__ex2g4s_14.k()) {
-        var slot_0 = _iterator__ex2g4s_14.l();
-        var tmp0_1 = defaultsFor(this, slot_0.q2i_1, equipmentUse_0, answers.d2k_1);
-        var tmp$ret$45;
+      var _iterator__ex2g4s_16 = destination_7.j();
+      while (_iterator__ex2g4s_16.k()) {
+        var slot_0 = _iterator__ex2g4s_16.l();
+        var tmp0_2 = defaultsFor(this, slot_0.q2i_1, equipmentUse_0, answers.d2k_1);
+        var tmp$ret$53;
         $l$block_3: {
           // Inline function 'kotlin.collections.firstOrNull' call
-          var _iterator__ex2g4s_15 = tmp0_1.j();
-          while (_iterator__ex2g4s_15.k()) {
-            var element_7 = _iterator__ex2g4s_15.l();
-            var k = Library_getInstance().q1b(element_7.g1b_1);
-            if (!s.a2j(k) && (!pickKeys.r(k) || build$weekCount(sessions_0, k) < 2) && (slot_0.s2i_1 == null || MuscleGroups_getInstance().b1c(element_7.k1b_1, slot_0.s2i_1))) {
-              tmp$ret$45 = element_7;
+          var _iterator__ex2g4s_17 = tmp0_2.j();
+          while (_iterator__ex2g4s_17.k()) {
+            var element_8 = _iterator__ex2g4s_17.l();
+            var k = Library_getInstance().q1b(element_8.g1b_1);
+            if (!s.a2j(k) && (!pickKeys.r(k) || build$weekCount(sessions_0, k) < 2) && (slot_0.s2i_1 == null || MuscleGroups_getInstance().b1c(element_8.k1b_1, slot_0.s2i_1))) {
+              tmp$ret$53 = element_8;
               break $l$block_3;
             }
           }
-          tmp$ret$45 = null;
+          tmp$ret$53 = null;
         }
-        var default_0 = tmp$ret$45;
+        var default_0 = tmp$ret$53;
         var tmp_3 = slot_0;
         var tmp_4;
         if (default_0 == null) {
@@ -31194,29 +31232,29 @@ protoOf(PlanBuilder).z2j = function (answers) {
       }
     }
   }
-  var _iterator__ex2g4s_16 = sessions_0.j();
-  while (_iterator__ex2g4s_16.k()) {
-    var s_0 = _iterator__ex2g4s_16.l();
+  var _iterator__ex2g4s_18 = sessions_0.j();
+  while (_iterator__ex2g4s_18.k()) {
+    var s_0 = _iterator__ex2g4s_18.l();
     removeAll(s_0.y2i_1, PlanBuilder$build$lambda_3);
   }
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
-  var destination_6 = ArrayList_init_$Create$_0(collectionSizeOrDefault(sessions_0, 10));
-  var _iterator__ex2g4s_17 = sessions_0.j();
-  while (_iterator__ex2g4s_17.k()) {
-    var item_1 = _iterator__ex2g4s_17.l();
+  var destination_8 = ArrayList_init_$Create$_0(collectionSizeOrDefault(sessions_0, 10));
+  var _iterator__ex2g4s_19 = sessions_0.j();
+  while (_iterator__ex2g4s_19.k()) {
+    var item_2 = _iterator__ex2g4s_19.l();
     // Inline function 'kotlin.collections.map' call
-    var this_1 = item_1.y2i_1;
+    var this_1 = item_2.y2i_1;
     // Inline function 'kotlin.collections.mapTo' call
-    var destination_7 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
-    var _iterator__ex2g4s_18 = this_1.j();
-    while (_iterator__ex2g4s_18.k()) {
-      var item_2 = _iterator__ex2g4s_18.l();
-      var tmp$ret$54 = build$draft(priorities, ensureNotNull(item_2.t2i_1), item_2);
-      destination_7.i(tmp$ret$54);
+    var destination_9 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
+    var _iterator__ex2g4s_20 = this_1.j();
+    while (_iterator__ex2g4s_20.k()) {
+      var item_3 = _iterator__ex2g4s_20.l();
+      var tmp$ret$62 = build$draft(priorities, ensureNotNull(item_3.t2i_1), item_3);
+      destination_9.i(tmp$ret$62);
     }
-    var inSlots = destination_7;
-    var tmp0_safe_receiver_0 = item_1.z2i_1;
+    var inSlots = destination_9;
+    var tmp0_safe_receiver_0 = item_2.z2i_1;
     var tmp_5;
     if (tmp0_safe_receiver_0 == null) {
       tmp_5 = null;
@@ -31227,52 +31265,52 @@ protoOf(PlanBuilder).z2j = function (answers) {
     var held = listOfNotNull_0(tmp_5);
     // Inline function 'kotlin.collections.filter' call
     // Inline function 'kotlin.collections.filterTo' call
-    var destination_8 = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_19 = inSlots.j();
-    while (_iterator__ex2g4s_19.k()) {
-      var element_8 = _iterator__ex2g4s_19.l();
-      if (build$priority(priorities, element_8)) {
-        destination_8.i(element_8);
-      }
-    }
-    var tmp_6 = destination_8;
-    // Inline function 'kotlin.collections.filter' call
-    // Inline function 'kotlin.collections.filterTo' call
-    var destination_9 = ArrayList_init_$Create$();
-    var _iterator__ex2g4s_20 = held.j();
-    while (_iterator__ex2g4s_20.k()) {
-      var element_9 = _iterator__ex2g4s_20.l();
-      if (build$priority(priorities, element_9)) {
-        destination_9.i(element_9);
-      }
-    }
-    var tmp_7 = plus(tmp_6, destination_9);
-    // Inline function 'kotlin.collections.filterNot' call
-    // Inline function 'kotlin.collections.filterNotTo' call
     var destination_10 = ArrayList_init_$Create$();
     var _iterator__ex2g4s_21 = inSlots.j();
     while (_iterator__ex2g4s_21.k()) {
-      var element_10 = _iterator__ex2g4s_21.l();
-      if (!build$priority(priorities, element_10)) {
-        destination_10.i(element_10);
+      var element_9 = _iterator__ex2g4s_21.l();
+      if (build$priority(priorities, element_9)) {
+        destination_10.i(element_9);
       }
     }
-    var tmp_8 = plus(tmp_7, destination_10);
-    // Inline function 'kotlin.collections.filterNot' call
-    // Inline function 'kotlin.collections.filterNotTo' call
+    var tmp_6 = destination_10;
+    // Inline function 'kotlin.collections.filter' call
+    // Inline function 'kotlin.collections.filterTo' call
     var destination_11 = ArrayList_init_$Create$();
     var _iterator__ex2g4s_22 = held.j();
     while (_iterator__ex2g4s_22.k()) {
-      var element_11 = _iterator__ex2g4s_22.l();
-      if (!build$priority(priorities, element_11)) {
-        destination_11.i(element_11);
+      var element_10 = _iterator__ex2g4s_22.l();
+      if (build$priority(priorities, element_10)) {
+        destination_11.i(element_10);
       }
     }
-    var exercises = plus(tmp_8, destination_11);
-    var tmp$ret$51 = new DraftSession(item_1.v2i_1, item_1.w2i_1, exercises);
-    destination_6.i(tmp$ret$51);
+    var tmp_7 = plus(tmp_6, destination_11);
+    // Inline function 'kotlin.collections.filterNot' call
+    // Inline function 'kotlin.collections.filterNotTo' call
+    var destination_12 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_23 = inSlots.j();
+    while (_iterator__ex2g4s_23.k()) {
+      var element_11 = _iterator__ex2g4s_23.l();
+      if (!build$priority(priorities, element_11)) {
+        destination_12.i(element_11);
+      }
+    }
+    var tmp_8 = plus(tmp_7, destination_12);
+    // Inline function 'kotlin.collections.filterNot' call
+    // Inline function 'kotlin.collections.filterNotTo' call
+    var destination_13 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_24 = held.j();
+    while (_iterator__ex2g4s_24.k()) {
+      var element_12 = _iterator__ex2g4s_24.l();
+      if (!build$priority(priorities, element_12)) {
+        destination_13.i(element_12);
+      }
+    }
+    var exercises = plus(tmp_8, destination_13);
+    var tmp$ret$59 = new DraftSession(item_2.v2i_1, item_2.w2i_1, exercises);
+    destination_8.i(tmp$ret$59);
   }
-  var draftSessions = destination_6;
+  var draftSessions = destination_8;
   return new PlanDraft(draftSessions, volume(this, draftSessions), leftOut);
 };
 protoOf(PlanBuilder).e2k = function (name, draft, picks, day) {
