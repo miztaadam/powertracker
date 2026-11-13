@@ -13,7 +13,7 @@ import com.powertracker.platform.AppLock
 import com.powertracker.platform.LockGate
 import com.powertracker.ui.AppShell
 import com.powertracker.ui.lock.LockGateHost
-import com.powertracker.ui.theme.PowertrackerTheme
+import com.powertracker.ui.ModeTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -36,7 +36,7 @@ class MainActivity : FragmentActivity() {
             }
         }
         setContent {
-            PowertrackerTheme {
+            ModeTheme(container.settings.settings) {
                 LockGateHost(gate, onUnlock = ::askToUnlock, onContinue = ::open) { AppShell(container) }
             }
         }

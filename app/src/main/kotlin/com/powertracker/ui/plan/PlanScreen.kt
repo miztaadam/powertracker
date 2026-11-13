@@ -176,7 +176,7 @@ fun PlanContent(
     Scaffold(
         containerColor = scheme.background,
         topBar = {
-            ScreenHeader("Plan", eyebrow = "Weekly template") {
+            ScreenHeader("Plan", eyebrow = "Weekly template", modeLabel = true) {
                 IconButton(onClick = onOpenSettings) {
                     Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = scheme.onSurfaceVariant)
                 }

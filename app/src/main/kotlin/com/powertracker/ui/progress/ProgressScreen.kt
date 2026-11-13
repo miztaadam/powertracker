@@ -93,7 +93,7 @@ fun ProgressScreen(
 fun ProgressContent(state: ProgressState, onRange: (ChartRange) -> Unit, onOpenLift: (MainLift) -> Unit) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { ScreenHeader("Progress", eyebrow = "Estimated 1RM") },
+        topBar = { ScreenHeader("Progress", eyebrow = "Estimated 1RM", modeLabel = true) },
     ) { padding ->
         Column(
             Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState())

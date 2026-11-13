@@ -173,7 +173,7 @@ fun ExercisesContent(
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { ScreenHeader("Exercises", eyebrow = "${exerciseCount(exercises)} exercises") },
+        topBar = { ScreenHeader("Exercises", eyebrow = "${exerciseCount(exercises)} exercises", modeLabel = true) },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         ExerciseBrowser(

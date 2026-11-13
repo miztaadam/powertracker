@@ -4,6 +4,10 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
+import com.powertracker.ui.theme.BodybuildingDarkColorScheme
+import com.powertracker.ui.theme.BodybuildingDarkPtColors
+import com.powertracker.ui.theme.BodybuildingLightColorScheme
+import com.powertracker.ui.theme.BodybuildingLightPtColors
 import com.powertracker.ui.theme.DarkColorScheme
 import com.powertracker.ui.theme.DarkPtColors
 import com.powertracker.ui.theme.LightColorScheme
@@ -147,4 +151,68 @@ class TokenContrastTest {
 
     @Test
     fun lightOutline_showsOnSelectedFills() = checkOutline("light", LightColorScheme)
+
+    // The bodybuilding side's palettes (bodybuilding mode spec §7.2): the same checks, and the exact values.
+
+    @Test
+    fun bodybuildingDarkScheme_meetsAa() = check("bodybuilding dark", BodybuildingDarkColorScheme, BodybuildingDarkPtColors)
+
+    @Test
+    fun bodybuildingLightScheme_meetsAa() = check("bodybuilding light", BodybuildingLightColorScheme, BodybuildingLightPtColors)
+
+    @Test
+    fun bodybuildingDarkAccent_meetsTheMinimums() = checkAccent("bodybuilding dark", BodybuildingDarkColorScheme, BodybuildingDarkPtColors)
+
+    @Test
+    fun bodybuildingLightAccent_meetsTheMinimums() = checkAccent("bodybuilding light", BodybuildingLightColorScheme, BodybuildingLightPtColors)
+
+    @Test
+    fun bodybuildingDarkOutline_showsOnSelectedFills() = checkOutline("bodybuilding dark", BodybuildingDarkColorScheme)
+
+    @Test
+    fun bodybuildingLightOutline_showsOnSelectedFills() = checkOutline("bodybuilding light", BodybuildingLightColorScheme)
+
+    private fun checkBlue(scheme: ColorScheme, pt: PtColors, base: PtColors, v: List<Long>) {
+        val c = v.map { Color(it) }
+        assertEquals("background", c[0], scheme.background)
+        assertEquals("surface", c[1], scheme.surface)
+        assertEquals("container", c[2], scheme.surfaceContainer)
+        assertEquals("container high", c[3], scheme.surfaceContainerHigh)
+        assertEquals("container highest", c[4], scheme.surfaceContainerHighest)
+        assertEquals("hairline", c[5], pt.hairline)
+        assertEquals("accent", c[6], pt.accent)
+        assertEquals("on accent", c[7], pt.onAccent)
+        assertEquals("accent text", c[8], pt.accentText)
+        assertEquals("accent container", c[9], pt.accentContainer)
+        assertEquals("on accent container", c[10], pt.onAccentContainer)
+        assertEquals(pt.accentText, scheme.primary)
+        assertEquals(pt.onAccent, scheme.onPrimary)
+        // Text, state, chart and plate colours are the powerlifting side's.
+        assertEquals(
+            base.copy(accent = pt.accent, onAccent = pt.onAccent, accentText = pt.accentText, accentContainer = pt.accentContainer, onAccentContainer = pt.onAccentContainer, hairline = pt.hairline),
+            pt,
+        )
+    }
+
+    // Container highest is one step lighter than the spec's #22314F / #C9D7EC: at the spec's value the outline
+    // (dark and light) and muted text (light) miss their minimums on it.
+    @Test
+    fun bodybuildingDark_isPinned() {
+        checkBlue(
+            BodybuildingDarkColorScheme, BodybuildingDarkPtColors, DarkPtColors,
+            listOf(0xFF070B14, 0xFF0D1422, 0xFF131C2E, 0xFF1A2640, 0xFF21304E, 0xFF1E2A44, 0xFF8DB8FF, 0xFF07162E, 0xFF8DB8FF, 0xFF14274A, 0xFFD6E6FF),
+        )
+        assertEquals(DarkColorScheme.onSurface, BodybuildingDarkColorScheme.onSurface)
+        assertEquals(DarkColorScheme.onSurfaceVariant, BodybuildingDarkColorScheme.onSurfaceVariant)
+    }
+
+    @Test
+    fun bodybuildingLight_isPinned() {
+        checkBlue(
+            BodybuildingLightColorScheme, BodybuildingLightPtColors, LightPtColors,
+            listOf(0xFFEDF2FA, 0xFFFFFFFF, 0xFFE2EAF6, 0xFFD6E1F1, 0xFFCEDCF1, 0xFFD0DCEE, 0xFF1F4FA8, 0xFFF5F8FF, 0xFF1F4FA8, 0xFFDCE8FB, 0xFF173B7D),
+        )
+        assertEquals(LightColorScheme.onSurface, BodybuildingLightColorScheme.onSurface)
+        assertEquals(LightColorScheme.onSurfaceVariant, BodybuildingLightColorScheme.onSurfaceVariant)
+    }
 }

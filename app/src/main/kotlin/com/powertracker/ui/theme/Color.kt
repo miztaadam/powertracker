@@ -167,6 +167,71 @@ val LightColorScheme: ColorScheme = lightColorScheme(
     scrim = Color(0xFF000000),
 )
 
+/*
+ * The bodybuilding side (bodybuilding mode spec §7.2): blue surfaces and a blue accent. Text, state, chart and plate
+ * colours are the powerlifting side's, so only the accent, the surfaces and the hairline change. Container highest is
+ * one step lighter than the spec's #22314F (dark) and #C9D7EC (light), the least that keeps the selected-chip
+ * outline at 3:1 and muted text at 4.5:1 on it; the web app uses the same two values.
+ */
+val BodybuildingDarkPtColors = DarkPtColors.copy(
+    accent = Color(0xFF8DB8FF),
+    onAccent = Color(0xFF07162E),
+    accentText = Color(0xFF8DB8FF),
+    accentContainer = Color(0xFF14274A),
+    onAccentContainer = Color(0xFFD6E6FF),
+    hairline = Color(0xFF1E2A44),
+)
+
+val BodybuildingLightPtColors = LightPtColors.copy(
+    accent = Color(0xFF1F4FA8),
+    onAccent = Color(0xFFF5F8FF),
+    accentText = Color(0xFF1F4FA8),
+    accentContainer = Color(0xFFDCE8FB),
+    onAccentContainer = Color(0xFF173B7D),
+    hairline = Color(0xFFD0DCEE),
+)
+
+/** Dark, tinted blue: each surface slot takes the blue step that matches its graphite one. */
+val BodybuildingDarkColorScheme: ColorScheme = DarkColorScheme.copy(
+    primary = BodybuildingDarkPtColors.accent,
+    onPrimary = BodybuildingDarkPtColors.onAccent,
+    primaryContainer = BodybuildingDarkPtColors.accentContainer,
+    onPrimaryContainer = BodybuildingDarkPtColors.onAccentContainer,
+    secondaryContainer = Color(0xFF21304E),
+    background = Color(0xFF070B14),
+    surface = Color(0xFF0D1422),
+    surfaceVariant = Color(0xFF1A2640),
+    surfaceDim = Color(0xFF070B14),
+    surfaceBright = Color(0xFF21304E),
+    surfaceContainerLowest = Color(0xFF070B14),
+    surfaceContainerLow = Color(0xFF0D1422),
+    surfaceContainer = Color(0xFF131C2E),
+    surfaceContainerHigh = Color(0xFF1A2640),
+    surfaceContainerHighest = Color(0xFF21304E),
+    inverseOnSurface = Color(0xFF0D1422),
+    inversePrimary = BodybuildingLightPtColors.accentText,
+)
+
+/** Light, tinted blue: a pale blue page, white cards, blue-grey containers, a deep blue accent. */
+val BodybuildingLightColorScheme: ColorScheme = LightColorScheme.copy(
+    primary = BodybuildingLightPtColors.accentText,
+    onPrimary = BodybuildingLightPtColors.onAccent,
+    primaryContainer = BodybuildingLightPtColors.accentContainer,
+    onPrimaryContainer = BodybuildingLightPtColors.onAccentContainer,
+    secondaryContainer = Color(0xFFD6E1F1),
+    background = Color(0xFFEDF2FA),
+    surface = Color(0xFFFFFFFF),
+    surfaceVariant = Color(0xFFD6E1F1),
+    surfaceDim = Color(0xFFD6E1F1),
+    surfaceBright = Color(0xFFFFFFFF),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFFFFFFF),
+    surfaceContainer = Color(0xFFE2EAF6),
+    surfaceContainerHigh = Color(0xFFD6E1F1),
+    surfaceContainerHighest = Color(0xFFCEDCF1),
+    inversePrimary = BodybuildingDarkPtColors.accent,
+)
+
 /** IPF-style plate colours by weight in kg. Fixed in both themes: they picture real objects. */
 object PlateColors {
     val Red = Color(0xFFD8262C)

@@ -36,6 +36,7 @@ import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.ui.PtBottomBar
 import com.powertracker.ui.Tab
@@ -83,8 +84,8 @@ internal val DEADLIFT = listOf(232.5f, 235f, 237.5f, 237.5f, 240f, 242.5f, 242.5
 
 /** Theme, background, a stand-in status bar, and the real bottom bar when [tab] is given. */
 @Composable
-fun ShowcaseFrame(dark: Boolean, tab: Tab?, content: @Composable () -> Unit) {
-    PowertrackerTheme(darkTheme = dark) {
+fun ShowcaseFrame(dark: Boolean, tab: Tab?, mode: TrainingMode = TrainingMode.POWERLIFTING, content: @Composable () -> Unit) {
+    PowertrackerTheme(mode = mode, darkTheme = dark) {
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             Row(Modifier.fillMaxWidth().height(28.dp).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("9:41", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground)
@@ -265,6 +266,13 @@ fun PlanShowcase() {
 }
 
 @Composable
-fun SettingsShowcase(strictPress: Boolean = false) {
-    SettingsContent(AppSettings(changePlates = true, showStrictPress = strictPress), onUpdate = {}, onExport = {}, onRestore = {}, onBack = {})
+fun SettingsShowcase(strictPress: Boolean = false, bodybuilding: Boolean = false) {
+    SettingsContent(
+        AppSettings(
+            changePlates = true,
+            showStrictPress = strictPress,
+            trainingMode = if (bodybuilding) TrainingMode.BODYBUILDING else TrainingMode.POWERLIFTING,
+        ),
+        onUpdate = {}, onExport = {}, onRestore = {}, onBack = {},
+    )
 }

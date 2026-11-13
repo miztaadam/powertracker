@@ -184,7 +184,7 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            ScreenHeader("Today", eyebrow = state.date.toJavaLocalDate().format(HEADER_DATE.withLocale(Locale.getDefault()))) {
+            ScreenHeader("Today", eyebrow = state.date.toJavaLocalDate().format(HEADER_DATE.withLocale(Locale.getDefault())), modeLabel = true) {
                 if (inSession) SecondaryButton("Finish", actions.onFinish, compact = true, modifier = Modifier.padding(end = Space.s))
             }
         },

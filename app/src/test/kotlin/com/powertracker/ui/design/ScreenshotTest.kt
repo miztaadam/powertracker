@@ -11,6 +11,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.MuscleGroup
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.Tab
 import com.powertracker.ui.library.CatalogueThumbnails
 import com.powertracker.ui.lock.LockScreen
@@ -37,7 +38,7 @@ import java.io.File
  * (Today: mid-session, before the session, an exercise finished, after Finish; Coach: the feed, the
  * empty feed, and the rarer re-entry and miss-point cards). Progress and lift history render the
  * real `ProgressContent` / `LiftHistoryContent` from a sample training history, Progress once more
- * with the strict press switch on. Settings is captured with that switch off and on. The exercise picker
+ * with the strict press switch on. Settings is captured with that switch off and on, and with bodybuilding mode on, as is Today, in the blue look. The exercise picker
  * is the real `ExercisePickerContent`, on its muscle grid and inside one muscle; the form guide is the real `FormGuideContent` in a stand-in
  * for the bottom sheet, for the squat, the bench press and the lat pulldown, each with its two-pose picture (the sheet itself is its own window, which this capture cannot see). The Exercises tab is
  * the real `ExercisesContent`; its Muscles drop-down, the guide with its actions and the day chooser are their
@@ -67,9 +68,9 @@ class ScreenshotTest {
         for (exercise in Library.all()) CatalogueThumbnails.load(exercise.name)
     }
 
-    private fun render(name: String, tab: Tab?, content: @Composable () -> Unit) {
+    private fun render(name: String, tab: Tab?, mode: TrainingMode = TrainingMode.POWERLIFTING, content: @Composable () -> Unit) {
         var dark by mutableStateOf(true)
-        compose.setContent { ShowcaseFrame(dark, tab, content) }
+        compose.setContent { ShowcaseFrame(dark, tab, mode, content) }
         for (mode in listOf(true, false)) {
             dark = mode
             compose.waitForIdle()
@@ -127,12 +128,23 @@ class ScreenshotTest {
     fun plan() = render("plan", Tab.PLAN) { PlanShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1200dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1330dp-xhdpi")
     fun settings() = render("settings", null) { SettingsShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1200dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1330dp-xhdpi")
     fun settingsStrictPress() = render("settings-strict-press", null) { SettingsShowcase(strictPress = true) }
+
+    // The bodybuilding side's blue look and label (bodybuilding mode spec §7.2). Until its screens arrive these show
+    // the same content as the powerlifting captures, so only the colours and the label differ.
+    @Test
+    fun todayBodybuilding() = render("today-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodayShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1330dp-xhdpi")
+    fun settingsBodybuilding() = render("settings-bodybuilding", null, TrainingMode.BODYBUILDING) {
+        SettingsShowcase(bodybuilding = true)
+    }
 
     @Test
     fun exercisePicker() = render("exercise-picker", null) { ExercisePickerShowcase() }

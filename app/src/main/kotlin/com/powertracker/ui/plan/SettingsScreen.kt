@@ -52,6 +52,7 @@ import com.powertracker.data.BackupResult
 import com.powertracker.data.BackupService
 import com.powertracker.data.RestAlert
 import com.powertracker.data.SettingsRepository
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.ChoiceChip
 import com.powertracker.ui.components.PrimaryButton
@@ -154,6 +155,8 @@ fun SettingsScreen(
         onRestore = { importLauncher.launch(arrayOf("*/*")) },
         onBack = onBack,
         snackbar = snackbar,
+        // Not a plain copy: switching sides dates the side left and, the first time, copies the training days.
+        onTrainingMode = { mode -> scope.launch { settingsRepo.setTrainingMode(mode, today()) } },
     )
 
     pendingRestore?.let { file ->
@@ -190,6 +193,7 @@ fun SettingsContent(
     snackbar: SnackbarHostState = remember { SnackbarHostState() },
     /** The installed build's version name; only tests pass another. */
     versionName: String = BuildConfig.VERSION_NAME,
+    onTrainingMode: (TrainingMode) -> Unit = {},
 ) {
     val scheme = MaterialTheme.colorScheme
     Scaffold(
@@ -197,6 +201,7 @@ fun SettingsContent(
         topBar = {
             ScreenHeader(
                 "Settings",
+                modeLabel = true,
                 navigation = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
             )
         },
@@ -205,7 +210,17 @@ fun SettingsContent(
         Column(
             Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(start = Space.gutter, end = Space.gutter, bottom = Space.xl),
         ) {
-            SectionHeader("Loading and targets")
+            SectionHeader("Training style")
+            Group {
+                SwitchRow(
+                    "Bodybuilding mode",
+                    "Rep ranges, a physique coach and a blue look. Your powerlifting plan is kept.",
+                    settings.trainingMode == TrainingMode.BODYBUILDING,
+                    Modifier.testTag("bodybuilding-mode"),
+                ) { on -> onTrainingMode(if (on) TrainingMode.BODYBUILDING else TrainingMode.POWERLIFTING) }
+            }
+
+            SectionHeader("Loading and targets", Modifier.padding(top = Space.m))
             Group {
                 SwitchRow("Change plates", "Adds 0.5 and 0.25 kg plates, so loads round to 0.5 kg", settings.changePlates) { v ->
                     onUpdate { it.copy(changePlates = v) }
@@ -315,11 +330,11 @@ private fun RowLabel(label: String, supporting: String, modifier: Modifier = Mod
 }
 
 @Composable
-private fun SwitchRow(label: String, supporting: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun SwitchRow(label: String, supporting: String, checked: Boolean, modifier: Modifier = Modifier, onChange: (Boolean) -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
     Row(
-        Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
+        modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Space.m),
     ) {

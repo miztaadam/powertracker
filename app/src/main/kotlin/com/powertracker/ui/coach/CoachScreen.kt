@@ -67,7 +67,7 @@ fun CoachContent(
     }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { ScreenHeader("Coach", eyebrow = eyebrow) },
+        topBar = { ScreenHeader("Coach", eyebrow = eyebrow, modeLabel = true) },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         LazyColumn(
