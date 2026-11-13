@@ -330,7 +330,7 @@ class BodybuildingCoachTest {
         val advice = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item), settings, back, emptyList()).single()
         assertEquals(AdvicePayload.Target(Ids.DB_PRESS, 22.0, 8, 8.0, null, 12), advice.payload)
         assertEquals(
-            "Last time: 26 × 12, 12, 12. Time to add weight. Coach suggests 22 × 8–12 @ 8. Easing back in: lighter load.",
+            "Last time: 26 × 12, 12, 12. Coach suggests 22 × 8–12 @ 8. Easing back in: lighter load.",
             advice.reason,
         )
         // With a deload open as well: both notes, each once, and fewer sets.
@@ -418,5 +418,49 @@ class BodybuildingCoachTest {
         assertEquals("Last time: 0 × 12, 12, 12. Beat it. Coach suggests 0 × 8–12 @ 8.", advice.reason)
         // With no weight to add, the reps to beat stay at the top of the range.
         assertEquals(listOf(12, 12, 12), (1..3).map { BodybuildingCoach.repsToBeat(item, h, it, today) })
+    }
+
+    @Test
+    fun aBreakWithOldPowerliftingHistoryIsEasedOnce() {
+        // Bench 100 × 5 @ 8 on day 4, nothing since; day 56. The break's re-entry eases the first-time weight once:
+        // 82.5 × 0.85 rounded down, not 82.5 × 0.85 × 0.85 (about 72%).
+        val h = history(start) { session(4) { bench(100.0, 5, rpe = 8.0) } }
+        val day = start.plus(56, DateTimeUnit.DAY)
+        val advice = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item(Ids.BENCH)), settings, day, emptyList()).single()
+        val once = ProgressionRule.roundDown(82.5 * AdvicePayload.ReEntry().loadFactor, 82.5, free = false, changePlates = false)
+        assertEquals(70.0, once)
+        assertEquals(once, advice.target().weightKg)
+        assertEquals("First time on this side. Coach suggests 70 × 8–12 @ 8. Easing back in: lighter load.", advice.reason)
+        // A deload on top still applies: fewer sets, and never heavier.
+        val deload = Advice(AdviceType.DELOAD, null, day, "Signs of fatigue", 2, AdvicePayload.Deload())
+        val both = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item(Ids.BENCH)), settings, day, listOf(deload)).single()
+        assertEquals(2, both.target().sets)
+        assertTrue(both.target().weightKg <= once)
+    }
+
+    @Test
+    fun aDeloadAfterEarningAnIncreaseDoesNotSayAddWeight() {
+        val h = lastWeek { sets(Ids.DB_PRESS, 26.0, 12, 12, 12) }
+        val deload = Advice(AdviceType.DELOAD, null, today, "Signs of fatigue", 2, AdvicePayload.Deload())
+        val advice = targets(h, listOf(item(Ids.DB_PRESS)), listOf(deload)).single()
+        assertEquals(23.0, advice.target().weightKg)
+        assertEquals(
+            "Last time: 26 × 12, 12, 12. Coach suggests 23 × 8–12 @ 8. Deload week: lighter load and fewer sets.",
+            advice.reason,
+        )
+    }
+
+    @Test
+    fun theReturnRuleAndABreakTogetherEaseOnce() {
+        // Dumbbell press on day 0, powerlifting bench until day 35, nothing since; day 56 is both a return to this
+        // side (return rule branch b) and a 21-day break: 26 × 0.85 = 22.1, 22, once.
+        val h = history(start) {
+            session(0, mode = TrainingMode.BODYBUILDING) { sets(Ids.DB_PRESS, 26.0, 11, 10, 9) }
+            for (d in 7..35 step 7) session(d) { bench(100.0, 5) }
+        }
+        val day = start.plus(56, DateTimeUnit.DAY)
+        val advice = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item(Ids.DB_PRESS)), settings, day, emptyList()).single()
+        assertEquals(22.0, advice.target().weightKg)
+        assertEquals("Last time: 26 × 11, 10, 9. Beat it. Coach suggests 22 × 8–12 @ 8. Easing back in: lighter load.", advice.reason)
     }
 }

@@ -35,6 +35,8 @@ import kotlin.math.roundToLong
  *   from the e1RM estimate, eased by the re-entry factor when that history is more than 28 days old, rounded
  *   down; with neither, no advice.
  * Then the return rule, and the deload and easing-back-in clamps the powerlifting targets get (the range is kept).
+ * A target is eased by the re-entry factor at most once, whatever the route, and its reason drops "Time to add
+ * weight." when the final weight is not above last time's.
  * No lift is special here: there is no minimum history and no main-lift rule.
  */
 object BodybuildingCoach {
@@ -71,9 +73,11 @@ object BodybuildingCoach {
             .sortedBy { it.order }
             .mapNotNull { item ->
                 val exercise = history.exercises[item.exerciseId]?.takeUnless { it.archived } ?: return@mapNotNull null
-                val target = target(item, exercise, history, settings, today) ?: return@mapNotNull null
+                // The break's re-entry clamp eases a first-time weight itself: never a second 0.85.
+                val target = target(item, exercise, history, settings, today, easeOldHistory = reEntry == null)
+                    ?: return@mapNotNull null
                 val eased = ReturnRule.ease(target, item, exercise, history, TrainingMode.BODYBUILDING, settings, today)
-                clamp(eased, item, exercise, side, all, settings, deload, reEntry)
+                withoutAddWeight(clamp(eased, item, exercise, side, all, settings, deload, reEntry), item, history, today)
             }
     }
 
@@ -89,6 +93,14 @@ object BodybuildingCoach {
     }
 
     private fun high(item: PlanItem) = item.repsHigh ?: item.reps
+
+    /** "Time to add weight." comes out when easing or a deload left the weight at or below last time's. */
+    private fun withoutAddWeight(advice: Advice, item: PlanItem, history: TrainingHistory, today: LocalDate): Advice {
+        val last = lastSets(item.exerciseId, history, today) ?: return advice
+        val weight = (advice.payload as AdvicePayload.Target).weightKg
+        if (!earnedIncrease(last, item) || weight > heaviest(last)) return advice
+        return advice.copy(reason = advice.reason.replace("${lastTime(last)} $INCREASE_TEXT ", "${lastTime(last)} "))
+    }
 
     /** The exercise's sets, in logged order, in its latest bodybuilding session before [today]; null if none. */
     private fun lastSets(exerciseId: Long, history: TrainingHistory, today: LocalDate): List<LoggedSet>? =
@@ -112,10 +124,11 @@ object BodybuildingCoach {
         history: TrainingHistory,
         settings: CoachSettings,
         today: LocalDate,
+        easeOldHistory: Boolean,
     ): Advice? {
         val last = lastSets(item.exerciseId, history, today)
         val (weight, opening) = if (last == null) {
-            firstTimeWeight(item, exercise, history, settings, today)?.let { it to FIRST_TIME_TEXT } ?: return null
+            firstTimeWeight(item, exercise, history, settings, today, easeOldHistory)?.let { it to FIRST_TIME_TEXT } ?: return null
         } else {
             val heaviest = heaviest(last)
             if (earnedIncrease(last, item)) {
@@ -139,7 +152,8 @@ object BodybuildingCoach {
      * From the best non-missed powerlifting set of the exercise in the 28 days ending at its latest powerlifting
      * session (the last 28 days when that session is recent), or with no such set at all from its latest baseline.
      * When that session (or the baseline) is more than 28 days old, the weight is eased by the re-entry factor
-     * before rounding down. Null when there is neither.
+     * before rounding down, unless [easeOld] is false (the break's re-entry clamp eases it instead). Null when there
+     * is neither.
      */
     private fun firstTimeWeight(
         item: PlanItem,
@@ -147,6 +161,7 @@ object BodybuildingCoach {
         history: TrainingHistory,
         settings: CoachSettings,
         today: LocalDate,
+        easeOld: Boolean,
     ): Double? {
         val recentFrom = today.minus(FIRST_TIME_DAYS, DateTimeUnit.DAY)
         val dated = history.sessions
@@ -168,7 +183,7 @@ object BodybuildingCoach {
             val kg = E1rm.loadFor(baseline.e1rmKg, middle, item.targetRpe)
             Triple(kg, 0.0, baseline.date)
         }
-        val wanted = if (asOf < recentFrom) kg * AdvicePayload.ReEntry().loadFactor else kg
+        val wanted = if (easeOld && asOf < recentFrom) kg * AdvicePayload.ReEntry().loadFactor else kg
         val free = ProgressionRule.isFreeLoad(exercise, if (anchor > 0.0) anchor else wanted)
         return roundDown(wanted, anchor, free, settings.changePlates)
     }
