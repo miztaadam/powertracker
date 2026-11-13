@@ -26,6 +26,8 @@ import { useExerciseBrowser, type ExerciseBrowser } from './state/exercisePicker
 import { useGritDb } from './state/useGritDb'
 import { useRest, type Rest } from './state/useRest'
 import { useToday, type TodayActions, type TodayState } from './state/useToday'
+import { useTrainingMode } from './state/useTrainingMode'
+import { TrainingModeContext } from './ui/components/ModeLabel'
 import { RestFlash } from './ui/components/RestFlash'
 import { TabBar } from './ui/components/TabBar'
 import { useElementHeight } from './ui/useElementHeight'
@@ -106,6 +108,8 @@ function Opened({ dbName, schemaVersions, registerSW }: AppProps) {
   // The rest lives here, above the lock and the screens, so it runs on while the lifter looks at
   // another tab or unlocks. Only its start and end redraw: the countdown redraws inside RestBar.
   const rest = useRest(db)
+  // The side the app is on: its look on the page root, its label on the top-level screens.
+  const mode = useTrainingMode(db)
   // Null until the browser has been asked.
   const [privateMode, setPrivateMode] = useState<boolean | null>(null)
   const [outdated, setOutdated] = useState(false)
@@ -134,7 +138,11 @@ function Opened({ dbName, schemaVersions, registerSW }: AppProps) {
     acceptPrivateMode()
     setPrivateMode(false)
   }
-  return <LockGateHost db={db}>{privateMode ? <PrivateModeScreen db={db} onContinue={continueAnyway} /> : <Shell db={db} rest={rest} registerSW={registerSW} />}</LockGateHost>
+  return (
+    <TrainingModeContext.Provider value={mode}>
+      <LockGateHost db={db}>{privateMode ? <PrivateModeScreen db={db} onContinue={continueAnyway} /> : <Shell db={db} rest={rest} registerSW={registerSW} />}</LockGateHost>
+    </TrainingModeContext.Provider>
+  )
 }
 
 /** Lets one tab at a time run Grit; a second one says so and offers to take over. Nothing shows until that is settled. */

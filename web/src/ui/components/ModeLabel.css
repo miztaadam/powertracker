@@ -1,0 +1,16 @@
+/* The bodybuilding side's label: a small pill in the accent container, as in the owner's mockup (option C). */
+.gr-mode-label {
+  display: flex;
+  margin: var(--space-1) 0 var(--space-2);
+}
+
+.gr-mode-label-pill {
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  background: var(--accent-container);
+  color: var(--accent-on-container);
+  font: 600 10px/14px var(--font-text);
+  font-feature-settings: 'tnum';
+  letter-spacing: 1px;
+  white-space: nowrap;
+}

@@ -110,6 +110,8 @@ async function shoot(page: Page, name: string, height: number) {
 }
 
 const narrowPhone = { width: 375, height: 812 }
+// Tall enough for the whole Settings screen, version line included.
+const SETTINGS_HEIGHT = 1790
 
 for (const scheme of ['dark', 'light'] as const) {
   test(`plan and settings match the mockup story (${scheme})`, async ({ page }) => {
@@ -151,7 +153,7 @@ for (const scheme of ['dark', 'light'] as const) {
     await version.scrollIntoViewIfNeeded()
     await expect(version).toBeInViewport({ ratio: 1 })
     await expect(page.getByText(`Grit version ${shownVersion(PACKAGE_VERSION)}, build ${E2E_BUILD_ID}, by AppsbyAdam`)).toHaveCount(1)
-    await shoot(page, `settings-${scheme}`, 1570)
+    await shoot(page, `settings-${scheme}`, SETTINGS_HEIGHT)
 
     // The strict press switch: its own group, the whole row a target, and the screen still fits with it on.
     await page.setViewportSize(narrowPhone)
@@ -170,7 +172,7 @@ for (const scheme of ['dark', 'light'] as const) {
     expect(info.x).toBeGreaterThanOrEqual(0)
     expect(info.x + info.width).toBeLessThanOrEqual(minus.x + 0.5)
     expect((await page.getByText('Default RPE', { exact: true }).boundingBox())!.height).toBeLessThan(30)
-    await shoot(page, `settings-strict-press-${scheme}`, 1570)
+    await shoot(page, `settings-strict-press-${scheme}`, SETTINGS_HEIGHT)
 
     await page.setViewportSize(narrowPhone)
     await page.getByRole('button', { name: 'What RPE means' }).click()
@@ -185,6 +187,46 @@ for (const scheme of ['dark', 'light'] as const) {
     await expect(page.getByRole('heading', { level: 1, name: 'Plan' })).toBeVisible()
     await page.goForward()
     await expect(page).toHaveURL(/#\/settings$/)
+  })
+}
+
+// The Training style group's switch puts the app on the bodybuilding side at once: the blue look, the label
+// (bodybuilding mode spec §7.1, §7.2).
+for (const scheme of ['dark', 'light'] as const) {
+  test(`settings on the bodybuilding side (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openPlan(page, MOCKUP_PLAN)
+    await page.setViewportSize(narrowPhone)
+    await expect(page.getByTestId('mode-label')).toHaveCount(0)
+    await expect(page.locator('html')).not.toHaveAttribute('data-mode')
+    await page.getByRole('button', { name: 'Settings' }).click()
+    await expect(page.getByRole('heading', { level: 2 }).first()).toHaveText('Training style')
+    const toggle = page.getByRole('switch', { name: 'Bodybuilding mode' })
+    await expect(toggle).not.toBeChecked()
+    await page.getByText('Rep ranges, a physique coach and a blue look. Your powerlifting plan is kept.').click()
+    await expect(toggle).toBeChecked()
+    await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', scheme === 'dark' ? '#070B14' : '#EDF2FA')
+    await expect(page.getByTestId('mode-label')).toBeVisible()
+    expect((await page.locator('label.settings-row', { hasText: 'Bodybuilding mode' }).boundingBox())!.height).toBeGreaterThanOrEqual(48)
+    expect(await overflowing(page)).toEqual([])
+    expect(await smallTargets(page)).toEqual([])
+    expect(await spilledText(page)).toEqual([])
+    await shoot(page, `settings-bodybuilding-${scheme}`, SETTINGS_HEIGHT)
+
+    // It lasts: a reload opens on the same side, and the label is on Plan too.
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+    await page.getByRole('button', { name: 'Back', exact: true }).click()
+    await expect(page.getByRole('heading', { level: 1, name: 'Plan' })).toBeVisible()
+    await expect(page.getByTestId('mode-label')).toBeVisible()
+
+    // And off again, back to the powerlifting look.
+    await page.getByRole('button', { name: 'Settings' }).click()
+    await toggle.click()
+    await expect(toggle).not.toBeChecked()
+    await expect(page.locator('html')).not.toHaveAttribute('data-mode')
+    await expect(page.getByTestId('mode-label')).toHaveCount(0)
   })
 }
 

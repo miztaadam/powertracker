@@ -5,6 +5,7 @@ import { useProgress, type ChartRange, type ProgressState } from '../../state/us
 import { EmptyState } from '../../ui/components/EmptyState'
 import { InsightsIcon } from '../../ui/components/icons'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
+import { ModeLabel } from '../../ui/components/ModeLabel'
 import { BodyweightSection, RatioSection, RecordsSection, SummaryCard, TrendCard, VolumeSection } from './ProgressSections'
 import './progress.css'
 
@@ -27,7 +28,7 @@ export type ProgressContentProps = { state: ProgressState; onRange: (range: Char
 export function ProgressContent({ state, onRange, onOpenLift }: ProgressContentProps) {
   return (
     <section className="screen">
-      <ScreenHeader title="Progress" eyebrow="Estimated 1RM" />
+      <ScreenHeader title="Progress" eyebrow="Estimated 1RM" label={<ModeLabel />} />
       <div className="screen-body">
         {!state.loading && !state.hasData && (
           <EmptyState

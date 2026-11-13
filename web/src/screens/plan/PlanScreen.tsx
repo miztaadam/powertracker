@@ -9,6 +9,7 @@ import { formatRpe } from '../../ui/components/format'
 import { AddIcon, DeleteIcon, EditIcon, KeyboardArrowDownIcon, KeyboardArrowUpIcon, SettingsIcon } from '../../ui/components/icons'
 import { Menu } from '../../ui/components/Menu'
 import { ScreenHeader, SectionHeader } from '../../ui/components/ScreenHeader'
+import { ModeLabel } from '../../ui/components/ModeLabel'
 import { Snackbar } from '../../ui/components/Snackbar'
 import { ExercisePicker } from '../library/ExercisePicker'
 import { InfoButton } from '../library/InfoButton'
@@ -48,7 +49,7 @@ export function PlanContent({ state, actions, onOpenSettings }: PlanContentProps
 
   return (
     <section className="screen">
-      <ScreenHeader title="Plan" eyebrow="Weekly template" actions={<IconButton label="Settings" icon={<SettingsIcon />} onClick={onOpenSettings} />} />
+      <ScreenHeader title="Plan" eyebrow="Weekly template" label={<ModeLabel />} actions={<IconButton label="Settings" icon={<SettingsIcon />} onClick={onOpenSettings} />} />
       <div className="screen-body">
         {state.sections.map((section) => (
           <DayCard

@@ -5,6 +5,8 @@ import './ScreenHeader.css'
 export type ScreenHeaderProps = {
   title: string
   eyebrow?: string
+  /** Shown between the eyebrow and the title: the top-level screens pass `<ModeLabel />`. */
+  label?: ReactNode
   /** A leading control, usually a back `IconButton`. */
   navigation?: ReactNode
   /** Controls on the right. */
@@ -19,12 +21,13 @@ export type SectionHeaderProps = {
 }
 
 /** The top of every screen: small upper-case eyebrow, a big condensed title, actions on the right. */
-export function ScreenHeader({ title, eyebrow, navigation, actions, className }: ScreenHeaderProps) {
+export function ScreenHeader({ title, eyebrow, label, navigation, actions, className }: ScreenHeaderProps) {
   return (
     <header className={cx('gr-screen-header', navigation != null && 'gr-screen-header-nav', className)}>
       {navigation}
       <div className="gr-screen-header-text">
         {eyebrow != null && <p className="eyebrow">{eyebrow}</p>}
+        {label}
         <h1 className="gr-screen-title headline-large">{title}</h1>
       </div>
       {actions}

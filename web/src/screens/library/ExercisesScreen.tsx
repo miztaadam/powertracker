@@ -9,6 +9,7 @@ import { IconButton, PrimaryButton, SecondaryButton } from '../../ui/components/
 import { Dialog } from '../../ui/components/Dialog'
 import { CloseIcon } from '../../ui/components/icons'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
+import { ModeLabel } from '../../ui/components/ModeLabel'
 import { Snackbar } from '../../ui/components/Snackbar'
 import { ExerciseBrowser } from './ExerciseBrowser'
 import { FormGuideSheet } from './FormGuideSheet'
@@ -95,7 +96,7 @@ export function ExercisesScreen({ db, session, onOpenPlan, onOpenToday, browser,
 
   return (
     <section className="screen lib-screen">
-      <ScreenHeader title="Exercises" eyebrow={plan.loading ? undefined : `${exerciseCount(plan.exercises)} exercises`} />
+      <ScreenHeader title="Exercises" eyebrow={plan.loading ? undefined : `${exerciseCount(plan.exercises)} exercises`} label={<ModeLabel />} />
       <ExerciseBrowser state={browser} muscleFilter="dropdown" exercises={plan.exercises} recentIds={plan.recentIds} onRow={show} onInfo={show} rowLabel={(name) => `Open ${name}`} thumbnails />
 
       {open != null && !choosingDay && (

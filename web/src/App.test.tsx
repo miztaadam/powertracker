@@ -442,3 +442,67 @@ describe('App safeguards', () => {
     expect(nav()).toBeNull()
   })
 })
+
+describe('App on the bodybuilding side (bodybuilding mode spec §7.2)', () => {
+  const go = (hash: string) =>
+    act(() => {
+      window.location.hash = hash
+      window.dispatchEvent(new HashChangeEvent('hashchange'))
+    })
+  const TOP_LEVEL = [
+    ['#/today', 'Today'],
+    ['#/coach', 'Coach'],
+    ['#/progress', 'Progress'],
+    ['#/exercises', 'Exercises'],
+    ['#/plan', 'Plan'],
+    ['#/settings', 'Settings'],
+  ] as const
+
+  it('modeOn_blueLookOnTheRoot_andTheLabelOnEveryTopLevelScreen', async () => {
+    await updateSettings(db, (s) => ({ ...s, trainingMode: 'BODYBUILDING' }))
+    show()
+    await waitFor(() => expect(document.documentElement.dataset.mode).toBe('bodybuilding'))
+    for (const [hash, title] of TOP_LEVEL) {
+      go(hash)
+      const header = (await screen.findByRole('heading', { level: 1, name: title })).closest('header')!
+      expect(within(header).getByTestId('mode-label'), title).toHaveTextContent('BODYBUILDING')
+    }
+    // Not on the pages below them.
+    go('#/lift/SQUAT')
+    await screen.findByRole('heading', { level: 1, name: 'Squat history' })
+    expect(screen.queryByTestId('mode-label')).toBeNull()
+  })
+
+  it('modeOff_noAttribute_andNoLabelAnywhere', async () => {
+    show()
+    for (const [hash, title] of TOP_LEVEL) {
+      go(hash)
+      await screen.findByRole('heading', { level: 1, name: title })
+      expect(screen.queryByTestId('mode-label'), title).toBeNull()
+    }
+    expect(document.documentElement.hasAttribute('data-mode')).toBe(false)
+  })
+
+  it('theSwitch_swapsTheStoredMode_theLook_andTheLabel_atOnce', async () => {
+    window.location.hash = '#/settings'
+    show()
+    const toggle = await screen.findByRole('switch', { name: 'Bodybuilding mode' })
+    await userEvent.click(toggle)
+    await waitFor(() => expect(document.documentElement.dataset.mode).toBe('bodybuilding'))
+    expect((await getSettings(db)).trainingMode).toBe('BODYBUILDING')
+    expect(await screen.findByTestId('mode-label')).toBeInTheDocument()
+
+    await userEvent.click(toggle)
+    await waitFor(() => expect(document.documentElement.hasAttribute('data-mode')).toBe(false))
+    expect((await getSettings(db)).trainingMode).toBe('POWERLIFTING')
+    expect(screen.queryByTestId('mode-label')).toBeNull()
+  })
+
+  it('leavingTheApp_putsTheRootBack', async () => {
+    await updateSettings(db, (s) => ({ ...s, trainingMode: 'BODYBUILDING' }))
+    const { unmount } = show()
+    await waitFor(() => expect(document.documentElement.dataset.mode).toBe('bodybuilding'))
+    unmount()
+    expect(document.documentElement.hasAttribute('data-mode')).toBe(false)
+  })
+})

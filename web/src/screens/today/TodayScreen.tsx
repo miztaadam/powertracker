@@ -6,6 +6,7 @@ import { SecondaryButton } from '../../ui/components/Button'
 import { EmptyState } from '../../ui/components/EmptyState'
 import { AddIcon, FitnessCenterIcon } from '../../ui/components/icons'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
+import { ModeLabel } from '../../ui/components/ModeLabel'
 import { Snackbar } from '../../ui/components/Snackbar'
 import { BackupReminderCard } from './BackupReminderCard'
 import { ExerciseCard, ExerciseRow, type NextStep } from './ExerciseCard'
@@ -125,6 +126,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice }: Today
       <ScreenHeader
         title="Today"
         eyebrow={`${weekday} ${day} ${month}`}
+        label={<ModeLabel />}
         actions={inSession && <SecondaryButton className="today-finish" text="Finish" onClick={() => void actions.finishSession()} compact />}
       />
       <div className="screen-body">

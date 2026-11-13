@@ -397,7 +397,7 @@ describe('SettingsScreen', () => {
     expect(toggle).toHaveAttribute('aria-checked', 'false')
     expect(screen.getByText('Show it on Progress and add it to your total.')).toBeInTheDocument()
     // Its own group, after "Loading and targets".
-    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent).slice(0, 3)).toEqual(['Loading and targets', 'Progress', 'Training days'])
+    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent).slice(1, 4)).toEqual(['Loading and targets', 'Progress', 'Training days'])
 
     // The whole row toggles it.
     await userEvent.click(screen.getByText('Show it on Progress and add it to your total.'))
@@ -406,6 +406,38 @@ describe('SettingsScreen', () => {
 
     await userEvent.click(toggle)
     await waitFor(async () => expect((await getSettings(db)).showStrictPress).toBe(false))
+  })
+
+  // ---- Bodybuilding mode: the Training style group (bodybuilding mode spec §7.1) ----
+
+  it('trainingStyle_isTheFirstGroup_withTheBodybuildingSwitch', async () => {
+    show()
+    const toggle = await screen.findByRole('switch', { name: 'Bodybuilding mode' })
+    expect(toggle).toHaveAttribute('aria-checked', 'false')
+    expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Training style')
+    expect(screen.getByText('Rep ranges, a physique coach and a blue look. Your powerlifting plan is kept.')).toBeInTheDocument()
+    // The first switch on the screen.
+    expect(screen.getAllByRole('switch')[0]).toBe(toggle)
+  })
+
+  it('bodybuildingSwitch_on_movesToThatSide_copiesTheDays_andOffComesBack', async () => {
+    await updateSettings(db, (s) => ({ ...s, trainingDays: [2, 4, 6] }))
+    show()
+    const toggle = await screen.findByRole('switch', { name: 'Bodybuilding mode' })
+
+    // The whole row toggles it.
+    await userEvent.click(screen.getByText('Rep ranges, a physique coach and a blue look. Your powerlifting plan is kept.'))
+    await waitFor(async () => expect((await getSettings(db)).trainingMode).toBe('BODYBUILDING'))
+    const on = await getSettings(db)
+    // The first time on, the bodybuilding side starts with the powerlifting side's days; leaving is dated.
+    expect(on.bodybuildingTrainingDays).toEqual([2, 4, 6])
+    expect(on.powerliftingLeftOn).toBe(TODAY)
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-checked', 'true'))
+
+    await userEvent.click(toggle)
+    await waitFor(async () => expect((await getSettings(db)).trainingMode).toBe('POWERLIFTING'))
+    expect((await getSettings(db)).bodybuildingLeftOn).toBe(TODAY)
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-checked', 'false'))
   })
 
   it('settings_endsWithTheVersionLine', async () => {

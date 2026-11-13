@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import type { AppSettings, GritDb } from '../../db/db'
+import { setTrainingMode, type AppSettings, type GritDb } from '../../db/db'
 import { todayIso } from '../../domain'
 import { clearLock, createLock, lockSupported } from '../../platform/passkeyLock'
 import { useSettings, type SettingsActions, type SettingsState } from '../../state/useSettings'
@@ -9,6 +9,7 @@ import { Card } from '../../ui/components/Card'
 import { formatRpe } from '../../ui/components/format'
 import { ArrowBackIcon } from '../../ui/components/icons'
 import { ScreenHeader, SectionHeader } from '../../ui/components/ScreenHeader'
+import { ModeLabel } from '../../ui/components/ModeLabel'
 import { ChoiceChip, SegmentedChoice } from '../../ui/components/SegmentedChoice'
 import { Snackbar } from '../../ui/components/Snackbar'
 import { Stepper } from '../../ui/components/StepperField'
@@ -73,11 +74,16 @@ export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }:
   }
   return (
     <section className="screen">
-      <ScreenHeader title="Settings" navigation={<IconButton label="Back" icon={<ArrowBackIcon />} onClick={onBack} />} />
+      <ScreenHeader title="Settings" label={<ModeLabel />} navigation={<IconButton label="Back" icon={<ArrowBackIcon />} onClick={onBack} />} />
       <div className="screen-body settings-body">
         {!settings.loading && (
           <>
-            <SettingsContent settings={settings.settings} onUpdate={(change) => void settings.update(change).catch(() => say(SAVE_FAILED))} onAppLock={setAppLock} />
+            <SettingsContent
+              settings={settings.settings}
+              onUpdate={(change) => void settings.update(change).catch(() => say(SAVE_FAILED))}
+              onAppLock={setAppLock}
+              onBodybuilding={(on) => void setTrainingMode(db, on ? 'BODYBUILDING' : 'POWERLIFTING', today()).catch(() => say(SAVE_FAILED))}
+            />
             <SectionHeader title="Backup" />
             <BackupCard db={db} lastBackupAt={settings.settings.lastBackupAt} storageProtected={settings.storageProtected} safetyCopy={settings.safetyCopy} safetyCopyDate={settings.safetyCopyDate} today={today} now={now} onMessage={say} />
             <VersionLine />
@@ -94,12 +100,19 @@ export type SettingsContentProps = {
   onUpdate: (change: Parameters<SettingsActions['update']>[0]) => void
   /** App lock is not just stored: turning it on makes a passkey. */
   onAppLock: (on: boolean) => void
+  /** Bodybuilding mode is not just stored: switching sides dates the side left (`setTrainingMode`). */
+  onBodybuilding: (on: boolean) => void
 }
 
 /** The settings themselves, as grouped cards of rows. */
-export function SettingsContent({ settings, onUpdate, onAppLock }: SettingsContentProps) {
+export function SettingsContent({ settings, onUpdate, onAppLock, onBodybuilding }: SettingsContentProps) {
   return (
     <>
+      <SectionHeader title="Training style" />
+      <Group>
+        <SwitchRow label="Bodybuilding mode" supporting="Rep ranges, a physique coach and a blue look. Your powerlifting plan is kept." checked={settings.trainingMode === 'BODYBUILDING'} onChange={onBodybuilding} />
+      </Group>
+
       <SectionHeader title="Loading and targets" />
       <Group>
         <SwitchRow label="Change plates" supporting="Adds 0.5 and 0.25 kg plates, so loads round to 0.5 kg" checked={settings.changePlates} onChange={(v) => onUpdate((s) => ({ ...s, changePlates: v }))} />

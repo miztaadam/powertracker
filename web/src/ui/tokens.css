@@ -143,6 +143,44 @@
   }
 }
 
+/*
+ * The bodybuilding side (bodybuilding mode spec §7.2): blue surfaces and a blue accent, switched on by
+ * data-mode="bodybuilding" on <html> (ui/theme.ts). Text, status, chart and plate colours stay as above.
+ * Container highest is a step off the spec's #22314F / #C9D7EC so the outline and muted text keep their contrast.
+ * The light block sets every token the dark one does, so nothing of the dark palette shows in light.
+ */
+:root[data-mode='bodybuilding'] {
+  --bg: #070B14;
+  --surface: #0D1422;
+  --container: #131C2E;
+  --container-high: #1A2640;
+  --container-highest: #21304E;
+  --hairline: #1E2A44;
+
+  --accent: #8DB8FF;
+  --accent-ink: #07162E;
+  --accent-text: #8DB8FF;
+  --accent-container: #14274A;
+  --accent-on-container: #D6E6FF;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-mode='bodybuilding'] {
+    --bg: #EDF2FA;
+    --surface: #FFFFFF;
+    --container: #E2EAF6;
+    --container-high: #D6E1F1;
+    --container-highest: #CEDCF1;
+    --hairline: #D0DCEE;
+
+    --accent: #1F4FA8;
+    --accent-ink: #F5F8FF;
+    --accent-text: #1F4FA8;
+    --accent-container: #DCE8FB;
+    --accent-on-container: #173B7D;
+  }
+}
+
 *,
 *::before,
 *::after {

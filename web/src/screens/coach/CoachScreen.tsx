@@ -4,6 +4,7 @@ import { useCoach, type CoachActions, type CoachState } from '../../state/useCoa
 import { EmptyState } from '../../ui/components/EmptyState'
 import { BoltIcon } from '../../ui/components/icons'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
+import { ModeLabel } from '../../ui/components/ModeLabel'
 import { Snackbar } from '../../ui/components/Snackbar'
 import { CoachAdviceCard } from './CoachAdviceCard'
 import './coach.css'
@@ -28,7 +29,7 @@ export function CoachContent({ state, actions }: CoachContentProps) {
   const eyebrow = state.loading ? undefined : count === 0 ? 'Nothing open' : count === 1 ? '1 open suggestion' : `${count} open suggestions`
   return (
     <section className="screen">
-      <ScreenHeader title="Coach" eyebrow={eyebrow} />
+      <ScreenHeader title="Coach" eyebrow={eyebrow} label={<ModeLabel />} />
       <div className="screen-body">
         {!state.loading && count === 0 && (
           <EmptyState icon={<BoltIcon />} title="No advice right now. Keep logging." body="The coach looks at your training each time you finish a session." />
