@@ -121,6 +121,8 @@ import {
   coerceAtMostfyc3emgaderp as coerceAtMost,
   step18s9qzr5xwxat as step,
   toNumberlmbpvqo27r53 as toNumber,
+  toDoubleArray1tu5g57mgriew as toDoubleArray,
+  asReversed308kw52j6ls1u as asReversed,
   objectCreate1ve4bgxiu4x98 as objectCreate,
   LazyThreadSafetyMode_PUBLICATION_getInstance23f213579at67 as LazyThreadSafetyMode_PUBLICATION_getInstance,
   lazy1261dae0bgscp as lazy_0,
@@ -415,6 +417,7 @@ initMetadataForClass(StandingLeg, 'StandingLeg');
 initMetadataForClass(V3, 'V3');
 initMetadataForClass(LegExtension, 'LegExtension');
 initMetadataForClass(LegPressRig, 'LegPressRig', LegPressRig);
+initMetadataForClass(BallHeights, 'BallHeights');
 initMetadataForClass(Split, 'Split');
 initMetadataForClass(AdviceType, 'AdviceType', VOID, Enum);
 initMetadataForClass(AdviceStatus, 'AdviceStatus', VOID, Enum);
@@ -24940,6 +24943,13 @@ function backLegOnBall(hip, knee, torso) {
 function legOnBall(hip, ankleX, torso, plantar, surface) {
   surface = surface === VOID ? 0.0 : surface;
   _init_properties_Quads_kt__7ij3x6_0();
+  return (new BallHeights(hip, ankleX, torso, surface)).a2e(plantar);
+}
+function BallHeights(hip, ankleX, torso, surface) {
+  this.u2d_1 = hip;
+  this.v2d_1 = ankleX;
+  this.w2d_1 = torso;
+  this.x2d_1 = surface;
   var reach = Segment_THIGH_getInstance().a() + Segment_SHIN_getInstance().a() - 1.0E-6;
   // Inline function 'kotlin.collections.map' call
   var this_0 = numberRangeToNumber(0, 800);
@@ -24951,7 +24961,8 @@ function legOnBall(hip, ankleX, torso, plantar, surface) {
     do {
       var item = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
-      var tmp$ret$2 = -(surface + item / 20.0);
+      var it = item;
+      var tmp$ret$2 = -(this.x2d_1 + it / 20.0);
       destination.i(tmp$ret$2);
     }
      while (!(item === last));
@@ -24961,60 +24972,63 @@ function legOnBall(hip, ankleX, torso, plantar, surface) {
   var _iterator__ex2g4s = destination.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    if ((new Point(ankleX, element)).s1o(hip).u1o() <= reach) {
+    if ((new Point(this.v2d_1, element)).s1o(this.u2d_1).u1o() <= reach) {
       destination_0.i(element);
     }
   }
-  var tmp$ret$6;
-  $l$block: {
-    // Inline function 'kotlin.collections.minBy' call
-    var iterator = destination_0.j();
-    if (!iterator.k())
-      throw NoSuchElementException_init_$Create$();
-    var minElem = iterator.l();
-    if (!iterator.k()) {
-      tmp$ret$6 = minElem;
-      break $l$block;
-    }
-    var yy = minElem;
-    var l = Reach_instance.a1r(hip, new Point(ankleX, yy), torso, 0.0);
-    // Inline function 'kotlin.math.abs' call
-    var x = footLow(new Point(ankleX, yy), legOnBall$shinOf(torso, l) + 90.0 + plantar) - surface;
-    var minValue = Math.abs(x);
+  var ys = destination_0;
+  this.y2d_1 = toDoubleArray(ys);
+  var tmp = this;
+  var tmp_0 = 0;
+  var tmp_1 = ys.o();
+  var tmp_2 = new Float64Array(tmp_1);
+  while (tmp_0 < tmp_1) {
+    var tmp_3 = tmp_0;
+    var l = Reach_instance.a1r(this.u2d_1, new Point(this.v2d_1, ys.n(tmp_3)), this.w2d_1, 0.0);
+    tmp_2[tmp_3] = fold180(this.w2d_1 + 180.0 + l.g1p_1 - l.h1p_1);
+    tmp_0 = tmp_0 + 1 | 0;
+  }
+  tmp.z2d_1 = tmp_2;
+}
+protoOf(BallHeights).a2e = function (plantar) {
+  // Inline function 'kotlin.collections.isEmpty' call
+  if (this.y2d_1.length === 0)
+    throw NoSuchElementException_init_$Create$_0("the ankle is out of the leg's reach");
+  var best = 0;
+  var bestOff = Infinity;
+  var inductionVariable = 0;
+  var last = this.y2d_1.length - 1 | 0;
+  if (inductionVariable <= last)
     do {
-      var e = iterator.l();
-      var l_0 = Reach_instance.a1r(hip, new Point(ankleX, e), torso, 0.0);
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
       // Inline function 'kotlin.math.abs' call
-      var x_0 = footLow(new Point(ankleX, e), legOnBall$shinOf(torso, l_0) + 90.0 + plantar) - surface;
-      var v = Math.abs(x_0);
-      if (compareTo(minValue, v) > 0) {
-        minElem = e;
-        minValue = v;
+      var x = footLow(new Point(this.v2d_1, this.y2d_1[i]), this.z2d_1[i] + 90.0 + plantar) - this.x2d_1;
+      var off = Math.abs(x);
+      if (off < bestOff) {
+        best = i;
+        bestOff = off;
       }
     }
-     while (iterator.k());
-    tmp$ret$6 = minElem;
-  }
-  var y = tmp$ret$6;
-  var l_1 = Reach_instance.a1r(hip, new Point(ankleX, y), torso, 0.0);
-  return Reach_instance.a1r(hip, new Point(ankleX, y), torso, legOnBall$shinOf(torso, l_1) + 90.0 + plantar);
-}
+     while (inductionVariable <= last);
+  return Reach_instance.a1r(this.u2d_1, new Point(this.v2d_1, this.y2d_1[best]), this.w2d_1, this.z2d_1[best] + 90.0 + plantar);
+};
 function Split(pelvis, front, back, torso) {
   torso = torso === VOID ? 90.0 : torso;
-  this.u2d_1 = pelvis;
-  this.v2d_1 = front;
-  this.w2d_1 = back;
-  this.x2d_1 = torso;
+  this.b2e_1 = pelvis;
+  this.c2e_1 = front;
+  this.d2e_1 = back;
+  this.e2e_1 = torso;
 }
-protoOf(Split).y2d = function (arm, frontNear) {
-  return new Pose(this.u2d_1.p1o_1, this.u2d_1.q1o_1, this.x2d_1, VOID, arm, frontNear ? this.v2d_1 : this.w2d_1, VOID, frontNear ? this.w2d_1 : this.v2d_1);
+protoOf(Split).f2e = function (arm, frontNear) {
+  return new Pose(this.b2e_1.p1o_1, this.b2e_1.q1o_1, this.e2e_1, VOID, arm, frontNear ? this.c2e_1 : this.d2e_1, VOID, frontNear ? this.d2e_1 : this.c2e_1);
 };
-protoOf(Split).z2d = function (arm, frontNear, $super) {
+protoOf(Split).g2e = function (arm, frontNear, $super) {
   frontNear = frontNear === VOID ? true : frontNear;
-  return $super === VOID ? this.y2d(arm, frontNear) : $super.y2d.call(this, arm, frontNear);
+  return $super === VOID ? this.f2e(arm, frontNear) : $super.f2e.call(this, arm, frontNear);
 };
-protoOf(Split).a2e = function (dx) {
-  return new Split(new Point(this.u2d_1.p1o_1 + dx, this.u2d_1.q1o_1), this.v2d_1, this.w2d_1, this.x2d_1);
+protoOf(Split).h2e = function (dx) {
+  return new Split(new Point(this.b2e_1.p1o_1 + dx, this.b2e_1.q1o_1), this.c2e_1, this.d2e_1, this.e2e_1);
 };
 function splitBottom(frontAnkle, shin, rise, backThigh) {
   shin = shin === VOID ? 8.0 : shin;
@@ -25050,23 +25064,32 @@ function splitTop(bottom, frontAnkle, backAnkleX, slack) {
   // Inline function 'kotlin.math.sqrt' call
   var x_0 = tmp - tmp_0 * (1 - Math.cos(x));
   var legLen = Math.sqrt(x_0);
-  var best = bottom;
-  var y = bottom.u2d_1.q1o_1;
+  // Inline function 'kotlin.collections.buildList' call
+  // Inline function 'kotlin.collections.buildListInternal' call
+  // Inline function 'kotlin.apply' call
+  var this_0 = ArrayList_init_$Create$();
+  var y = bottom.b2e_1.q1o_1;
   while (y > -110.0) {
-    var tmp0_safe_receiver = splitTop$at(bottom, frontAnkle, legLen, backAnkleX, y);
+    this_0.i(y);
+    y = y - 0.5;
+  }
+  var heights = this_0.z3();
+  var _iterator__ex2g4s = asReversed(heights).j();
+  while (_iterator__ex2g4s.k()) {
+    var y_0 = _iterator__ex2g4s.l();
+    var tmp0_safe_receiver = splitTop$at(bottom, frontAnkle, legLen, backAnkleX, y_0);
     if (tmp0_safe_receiver == null)
       null;
     else {
       // Inline function 'kotlin.let' call
-      best = tmp0_safe_receiver;
+      return tmp0_safe_receiver;
     }
-    y = y - 0.5;
   }
-  return best;
+  return bottom;
 }
 function backAnkle(_this__u8e3s4) {
   _init_properties_Quads_kt__7ij3x6_0();
-  var s = skeleton(_this__u8e3s4.z2d(get_HANG_4()));
+  var s = skeleton(_this__u8e3s4.g2e(get_HANG_4()));
   return to(s.s1q_1.i1q_1, angleTo(s.s1q_1.k1q_1.s1o(s.s1q_1.j1q_1)));
 }
 function withBar(_this__u8e3s4) {
@@ -25635,7 +25658,7 @@ function _get_singleLegLegPress_$ref_8unapx() {
 function lunge$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var bottom = splitBottom(40.0);
-  var end = bottom.z2d(get_HANG_4());
+  var end = bottom.g2e(get_HANG_4());
   var back = toe(end, Side_FAR_getInstance());
   var standToe = toe(standOn(get_tall_1(), 90.0, get_HANG_4()), Side_NEAR_getInstance());
   // Inline function 'kotlin.let' call
@@ -25651,9 +25674,9 @@ function _get_lunge_$ref_8qy459() {
 function walkingLunge$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var one = splitBottom(40.0);
-  var first = one.z2d(get_HANG_4());
+  var first = one.g2e(get_HANG_4());
   var step = toe(first, Side_NEAR_getInstance()).p1o_1 - toe(first, Side_FAR_getInstance()).p1o_1;
-  var next = one.a2e(step).y2d(get_HANG_4(), false);
+  var next = one.h2e(step).f2e(get_HANG_4(), false);
   return figure_6(View_SIDE_getInstance(), first, next, get_SIDE_DBS(), 'Front thigh about level', 'Into the next lunge', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides. Or use no weight.', 'Step forward with one leg. Land on your heel, then your forefoot.', "Lower until your front thigh is about level with the floor and your back knee is just above it. Don't let your knee touch the floor.", 'Bring your back leg forward into the next lunge. Keep alternating legs.']), get_FEET_DOWN_2(), emptyList());
 }
 function _get_walkingLunge_$ref_4b5700() {
@@ -25663,7 +25686,7 @@ function _get_walkingLunge_$ref_4b5700() {
 }
 function reverseLunge$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
-  var end = splitBottom(0.0).z2d(get_HANG_4());
+  var end = splitBottom(0.0).g2e(get_HANG_4());
   return figure_6(View_SIDE_getInstance(), standOn(get_tall_1(), 90.0, get_HANG_4()), end, get_SIDE_DBS(), 'Feet hip-width apart', 'Step back with one leg', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides. Or use no weight.', 'Stand with your feet about hip-width apart.', 'Step back with one leg, landing on the ball of that foot well behind you.', "Lower until your front thigh is about level with the floor and your back knee is just above it. Don't let your knee touch the floor."]), get_FEET_DOWN_2(), emptyList());
 }
 function _get_reverseLunge_$ref_xvjdyx() {
@@ -25697,7 +25720,7 @@ function splitSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var bottom = splitSquatBottom(40.0);
   var top = splitTop(bottom, new Point(40.0, -6.825), backAnkle(bottom).ta_1.p1o_1);
-  return figure_6(View_SIDE_getInstance(), top.z2d(get_HANG_4()), bottom.z2d(get_HANG_4()), get_SIDE_DBS(), 'Feet far apart', 'Back knee near the floor', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides. Or use no weight.', 'Stand with your feet far apart, one in front and one behind.', 'Go down until your back knee is almost touching the floor.']), get_FEET_DOWN_2(), emptyList());
+  return figure_6(View_SIDE_getInstance(), top.g2e(get_HANG_4()), bottom.g2e(get_HANG_4()), get_SIDE_DBS(), 'Feet far apart', 'Back knee near the floor', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides. Or use no weight.', 'Stand with your feet far apart, one in front and one behind.', 'Go down until your back knee is almost touching the floor.']), get_FEET_DOWN_2(), emptyList());
 }
 function _get_splitSquat_$ref_cdlwoa() {
   return constructCallableReference(function () {
@@ -25708,8 +25731,8 @@ function smithSplitSquat$delegate$lambda() {
   _init_properties_Quads_kt__7ij3x6_0();
   var bottom = splitSquatBottom(40.0);
   var top = splitTop(bottom, new Point(40.0, -6.825), backAnkle(bottom).ta_1.p1o_1);
-  var start = withBar(top.z2d(get_HANG_4()));
-  var end = withBar(bottom.z2d(get_HANG_4()));
+  var start = withBar(top.g2e(get_HANG_4()));
+  var end = withBar(bottom.g2e(get_HANG_4()));
   var bar = new Barbell(BarHold_UPPER_BACK_getInstance());
   return figure_6(View_SIDE_getInstance(), start, end, listOf([Floor_instance, smithFor(center(bar, skeleton(start)), center(bar, skeleton(end))), bar]), 'Back foot well back', 'Back knee near the floor', Which_END_getInstance(), listOf(['Set the safety stops just below your lowest position.', 'Rest the bar across the back of your shoulders and grip it out to the sides.', 'Place one foot slightly forward, and the other well back on the ball of the foot.', 'Bend both knees and hips to lower until your back knee is almost touching the floor.']), get_FEET_DOWN_2(), listOf([new BarOnRails(Which_START_getInstance()), new BarOnRails(Which_END_getInstance())]));
 }
@@ -25800,7 +25823,7 @@ function bulgarianSplitSquat$delegate$lambda() {
   var topHip = new Point(hip.p1o_1, -(6.825 + tmp$ret$13));
   var top = new Split(topHip, Reach_instance.a1r(topHip, frontAnkle, torso, 0.0), legOnBall(topHip, ankle_1.p1o_1, torso, plantar, benchTop));
   var bench = new FlatBench(ankle_1.p1o_1 - 7.0 - 122.0, VOID, benchTop);
-  return figure_6(View_SIDE_getInstance(), top.z2d(get_HANG_4()), bottom.z2d(get_HANG_4()), listOf([Floor_instance, bench, atSide(Side_FAR_getInstance()), atSide(Side_NEAR_getInstance())]), 'Rear foot on the bench', 'Back knee near the floor', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides, or rest a barbell across your upper back.', 'Reach one leg back and rest the top of that foot on the bench.', 'Go down until your back knee is nearly touching the floor.']), listOf([new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_BENCH_getInstance(), get_BOTH())]), emptyList());
+  return figure_6(View_SIDE_getInstance(), top.g2e(get_HANG_4()), bottom.g2e(get_HANG_4()), listOf([Floor_instance, bench, atSide(Side_FAR_getInstance()), atSide(Side_NEAR_getInstance())]), 'Rear foot on the bench', 'Back knee near the floor', Which_END_getInstance(), listOf(['Hold a dumbbell in each hand at your sides, or rest a barbell across your upper back.', 'Reach one leg back and rest the top of that foot on the bench.', 'Go down until your back knee is nearly touching the floor.']), listOf([new Contact(BodyPoint_NEAR_FOOT_getInstance(), Surface_FLOOR_getInstance(), get_BOTH()), new Contact(BodyPoint_FAR_FOOT_getInstance(), Surface_BENCH_getInstance(), get_BOTH())]), emptyList());
 }
 function _get_bulgarianSplitSquat_$ref_5ft27t() {
   return constructCallableReference(function () {
@@ -26142,13 +26165,11 @@ function _get_quadFigures_$ref_46h3co() {
     return get_quadFigures();
   }, 0, 0, 291);
 }
-function legOnBall$shinOf($torso, l) {
-  return fold180($torso + 180.0 + l.g1p_1 - l.h1p_1);
-}
 function splitTop$at($bottom, $frontAnkle, legLen, $backAnkleX, y) {
-  var hip = new Point($bottom.u2d_1.p1o_1, y);
+  var hip = new Point($bottom.b2e_1.p1o_1, y);
   if ($frontAnkle.s1o(hip).u1o() > legLen)
     return null;
+  var heights = new BallHeights(hip, $backAnkleX, 90.0, 0.0);
   // Inline function 'kotlin.collections.map' call
   var this_0 = step(numberRangeToNumber(10, 50), 5);
   // Inline function 'kotlin.collections.mapTo' call
@@ -26161,7 +26182,7 @@ function splitTop$at($bottom, $frontAnkle, legLen, $backAnkleX, y) {
       var item = inductionVariable;
       inductionVariable = inductionVariable + step_0 | 0;
       var it = item;
-      var tmp$ret$2 = legOnBall(hip, $backAnkleX, 90.0, -it);
+      var tmp$ret$2 = heights.a2e(-it);
       destination.i(tmp$ret$2);
     }
      while (!(item === last));
@@ -27500,22 +27521,22 @@ function $serializer() {
   tmp0_serialDesc.zj('sets', false);
   tmp0_serialDesc.zj('repsLow', false);
   tmp0_serialDesc.zj('repsHigh', false);
-  this.b2e_1 = tmp0_serialDesc;
+  this.i2e_1 = tmp0_serialDesc;
 }
-protoOf($serializer).c2e = function (encoder, value) {
-  var tmp0_desc = this.b2e_1;
+protoOf($serializer).j2e = function (encoder, value) {
+  var tmp0_desc = this.i2e_1;
   var tmp1_output = encoder.eg(tmp0_desc);
-  tmp1_output.ch(tmp0_desc, 0, value.d2e_1);
-  tmp1_output.zg(tmp0_desc, 1, value.e2e_1);
-  tmp1_output.zg(tmp0_desc, 2, value.f2e_1);
-  tmp1_output.zg(tmp0_desc, 3, value.g2e_1);
+  tmp1_output.ch(tmp0_desc, 0, value.k2e_1);
+  tmp1_output.zg(tmp0_desc, 1, value.l2e_1);
+  tmp1_output.zg(tmp0_desc, 2, value.m2e_1);
+  tmp1_output.zg(tmp0_desc, 3, value.n2e_1);
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer).md = function (encoder, value) {
-  return this.c2e(encoder, value instanceof AccessoryPrescription ? value : THROW_CCE());
+  return this.j2e(encoder, value instanceof AccessoryPrescription ? value : THROW_CCE());
 };
 protoOf($serializer).ld = function (decoder) {
-  var tmp0_desc = this.b2e_1;
+  var tmp0_desc = this.i2e_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -27564,7 +27585,7 @@ protoOf($serializer).ld = function (decoder) {
   return AccessoryPrescription_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, tmp6_local2, tmp7_local3, null);
 };
 protoOf($serializer).kd = function () {
-  return this.b2e_1;
+  return this.i2e_1;
 };
 protoOf($serializer).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -27580,31 +27601,31 @@ function $serializer_getInstance() {
 }
 function AccessoryPrescription_init_$Init$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker, $this) {
   if (!(15 === (15 & seen0))) {
-    throwMissingFieldException(seen0, 15, $serializer_getInstance().b2e_1);
+    throwMissingFieldException(seen0, 15, $serializer_getInstance().i2e_1);
   }
-  $this.d2e_1 = exerciseName;
-  $this.e2e_1 = sets;
-  $this.f2e_1 = repsLow;
-  $this.g2e_1 = repsHigh;
+  $this.k2e_1 = exerciseName;
+  $this.l2e_1 = sets;
+  $this.m2e_1 = repsLow;
+  $this.n2e_1 = repsHigh;
   return $this;
 }
 function AccessoryPrescription_init_$Create$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker) {
   return AccessoryPrescription_init_$Init$(seen0, exerciseName, sets, repsLow, repsHigh, serializationConstructorMarker, objectCreate(protoOf(AccessoryPrescription)));
 }
 function AccessoryPrescription(exerciseName, sets, repsLow, repsHigh) {
-  this.d2e_1 = exerciseName;
-  this.e2e_1 = sets;
-  this.f2e_1 = repsLow;
-  this.g2e_1 = repsHigh;
+  this.k2e_1 = exerciseName;
+  this.l2e_1 = sets;
+  this.m2e_1 = repsLow;
+  this.n2e_1 = repsHigh;
 }
 protoOf(AccessoryPrescription).toString = function () {
-  return 'AccessoryPrescription(exerciseName=' + this.d2e_1 + ', sets=' + this.e2e_1 + ', repsLow=' + this.f2e_1 + ', repsHigh=' + this.g2e_1 + ')';
+  return 'AccessoryPrescription(exerciseName=' + this.k2e_1 + ', sets=' + this.l2e_1 + ', repsLow=' + this.m2e_1 + ', repsHigh=' + this.n2e_1 + ')';
 };
 protoOf(AccessoryPrescription).hashCode = function () {
-  var result = getStringHashCode(this.d2e_1);
-  result = imul(result, 31) + this.e2e_1 | 0;
-  result = imul(result, 31) + this.f2e_1 | 0;
-  result = imul(result, 31) + this.g2e_1 | 0;
+  var result = getStringHashCode(this.k2e_1);
+  result = imul(result, 31) + this.l2e_1 | 0;
+  result = imul(result, 31) + this.m2e_1 | 0;
+  result = imul(result, 31) + this.n2e_1 | 0;
   return result;
 };
 protoOf(AccessoryPrescription).equals = function (other) {
@@ -27612,13 +27633,13 @@ protoOf(AccessoryPrescription).equals = function (other) {
     return true;
   if (!(other instanceof AccessoryPrescription))
     return false;
-  if (!(this.d2e_1 === other.d2e_1))
+  if (!(this.k2e_1 === other.k2e_1))
     return false;
-  if (!(this.e2e_1 === other.e2e_1))
+  if (!(this.l2e_1 === other.l2e_1))
     return false;
-  if (!(this.f2e_1 === other.f2e_1))
+  if (!(this.m2e_1 === other.m2e_1))
     return false;
-  if (!(this.g2e_1 === other.g2e_1))
+  if (!(this.n2e_1 === other.n2e_1))
     return false;
   return true;
 };
@@ -27636,10 +27657,10 @@ function $serializer_0() {
   tmp0_serialDesc.zj('reps', false);
   tmp0_serialDesc.zj('rpe', false);
   tmp0_serialDesc.zj('sets', true);
-  this.h2e_1 = tmp0_serialDesc;
+  this.o2e_1 = tmp0_serialDesc;
 }
-protoOf($serializer_0).i2e = function (encoder, value) {
-  var tmp0_desc = this.h2e_1;
+protoOf($serializer_0).p2e = function (encoder, value) {
+  var tmp0_desc = this.o2e_1;
   var tmp1_output = encoder.eg(tmp0_desc);
   tmp1_output.ah(tmp0_desc, 0, value.o15_1);
   tmp1_output.bh(tmp0_desc, 1, value.p15_1);
@@ -27651,10 +27672,10 @@ protoOf($serializer_0).i2e = function (encoder, value) {
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_0).md = function (encoder, value) {
-  return this.i2e(encoder, value instanceof Target ? value : THROW_CCE());
+  return this.p2e(encoder, value instanceof Target ? value : THROW_CCE());
 };
 protoOf($serializer_0).ld = function (decoder) {
-  var tmp0_desc = this.h2e_1;
+  var tmp0_desc = this.o2e_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -27710,7 +27731,7 @@ protoOf($serializer_0).ld = function (decoder) {
   return Target_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, tmp6_local2, tmp7_local3, tmp8_local4, null);
 };
 protoOf($serializer_0).kd = function () {
-  return this.h2e_1;
+  return this.o2e_1;
 };
 protoOf($serializer_0).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -27726,7 +27747,7 @@ function $serializer_getInstance_0() {
 }
 function Target_init_$Init$(seen0, exerciseId, weightKg, reps, rpe, sets, serializationConstructorMarker, $this) {
   if (!(15 === (15 & seen0))) {
-    throwMissingFieldException(seen0, 15, $serializer_getInstance_0().h2e_1);
+    throwMissingFieldException(seen0, 15, $serializer_getInstance_0().o2e_1);
   }
   $this.o15_1 = exerciseId;
   $this.p15_1 = weightKg;
@@ -27751,7 +27772,7 @@ function Companion_50() {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  tmp.j2e_1 = [lazy_0(tmp_0, AdvicePayload$Accessories$Companion$$childSerializers$_anonymous__5pmo3s)];
+  tmp.q2e_1 = [lazy_0(tmp_0, AdvicePayload$Accessories$Companion$$childSerializers$_anonymous__5pmo3s)];
 }
 var Companion_instance_50;
 function Companion_getInstance_52() {
@@ -27763,26 +27784,26 @@ function $serializer_1() {
   $serializer_instance_1 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.Accessories', this, 1);
   tmp0_serialDesc.zj('items', false);
-  this.k2e_1 = tmp0_serialDesc;
+  this.r2e_1 = tmp0_serialDesc;
 }
-protoOf($serializer_1).l2e = function (encoder, value) {
-  var tmp0_desc = this.k2e_1;
+protoOf($serializer_1).s2e = function (encoder, value) {
+  var tmp0_desc = this.r2e_1;
   var tmp1_output = encoder.eg(tmp0_desc);
-  var tmp2_cached = Companion_getInstance_52().j2e_1;
-  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.m2e_1);
+  var tmp2_cached = Companion_getInstance_52().q2e_1;
+  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.t2e_1);
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_1).md = function (encoder, value) {
-  return this.l2e(encoder, value instanceof Accessories ? value : THROW_CCE());
+  return this.s2e(encoder, value instanceof Accessories ? value : THROW_CCE());
 };
 protoOf($serializer_1).ld = function (decoder) {
-  var tmp0_desc = this.k2e_1;
+  var tmp0_desc = this.r2e_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
   var tmp4_local0 = null;
   var tmp5_input = decoder.eg(tmp0_desc);
-  var tmp6_cached = Companion_getInstance_52().j2e_1;
+  var tmp6_cached = Companion_getInstance_52().q2e_1;
   if (tmp5_input.og()) {
     tmp4_local0 = tmp5_input.kg(tmp0_desc, 0, tmp6_cached[0].t(), tmp4_local0);
     tmp3_bitMask0 = tmp3_bitMask0 | 1;
@@ -27805,13 +27826,13 @@ protoOf($serializer_1).ld = function (decoder) {
   return Accessories_init_$Create$(tmp3_bitMask0, tmp4_local0, null);
 };
 protoOf($serializer_1).kd = function () {
-  return this.k2e_1;
+  return this.r2e_1;
 };
 protoOf($serializer_1).ok = function () {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  return [Companion_getInstance_52().j2e_1[0].t()];
+  return [Companion_getInstance_52().q2e_1[0].t()];
 };
 var $serializer_instance_1;
 function $serializer_getInstance_1() {
@@ -27821,9 +27842,9 @@ function $serializer_getInstance_1() {
 }
 function Accessories_init_$Init$(seen0, items, serializationConstructorMarker, $this) {
   if (!(1 === (1 & seen0))) {
-    throwMissingFieldException(seen0, 1, $serializer_getInstance_1().k2e_1);
+    throwMissingFieldException(seen0, 1, $serializer_getInstance_1().r2e_1);
   }
-  $this.m2e_1 = items;
+  $this.t2e_1 = items;
   return $this;
 }
 function Accessories_init_$Create$(seen0, items, serializationConstructorMarker) {
@@ -27840,10 +27861,10 @@ function $serializer_2() {
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.Deload', this, 2);
   tmp0_serialDesc.zj('volumeFactor', true);
   tmp0_serialDesc.zj('loadFactor', true);
-  this.n2e_1 = tmp0_serialDesc;
+  this.u2e_1 = tmp0_serialDesc;
 }
-protoOf($serializer_2).o2e = function (encoder, value) {
-  var tmp0_desc = this.n2e_1;
+protoOf($serializer_2).v2e = function (encoder, value) {
+  var tmp0_desc = this.u2e_1;
   var tmp1_output = encoder.eg(tmp0_desc);
   if (tmp1_output.jh(tmp0_desc, 0) ? true : !equals(value.t15_1, 0.6)) {
     tmp1_output.bh(tmp0_desc, 0, value.t15_1);
@@ -27854,10 +27875,10 @@ protoOf($serializer_2).o2e = function (encoder, value) {
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_2).md = function (encoder, value) {
-  return this.o2e(encoder, value instanceof Deload ? value : THROW_CCE());
+  return this.v2e(encoder, value instanceof Deload ? value : THROW_CCE());
 };
 protoOf($serializer_2).ld = function (decoder) {
-  var tmp0_desc = this.n2e_1;
+  var tmp0_desc = this.u2e_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -27892,7 +27913,7 @@ protoOf($serializer_2).ld = function (decoder) {
   return Deload_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, null);
 };
 protoOf($serializer_2).kd = function () {
-  return this.n2e_1;
+  return this.u2e_1;
 };
 protoOf($serializer_2).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -27908,7 +27929,7 @@ function $serializer_getInstance_2() {
 }
 function Deload_init_$Init$(seen0, volumeFactor, loadFactor, serializationConstructorMarker, $this) {
   if (!(0 === (0 & seen0))) {
-    throwMissingFieldException(seen0, 0, $serializer_getInstance_2().n2e_1);
+    throwMissingFieldException(seen0, 0, $serializer_getInstance_2().u2e_1);
   }
   if (0 === (seen0 & 1))
     $this.t15_1 = 0.6;
@@ -27938,7 +27959,7 @@ function Companion_52() {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  tmp.p2e_1 = [tmp_1, lazy_0(tmp_2, AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8_0)];
+  tmp.w2e_1 = [tmp_1, lazy_0(tmp_2, AdvicePayload$WeakPoint$Companion$$childSerializers$_anonymous__3vi4e8_0)];
 }
 var Companion_instance_52;
 function Companion_getInstance_54() {
@@ -27951,28 +27972,28 @@ function $serializer_3() {
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.WeakPoint', this, 2);
   tmp0_serialDesc.zj('lift', false);
   tmp0_serialDesc.zj('missPoint', false);
-  this.q2e_1 = tmp0_serialDesc;
+  this.x2e_1 = tmp0_serialDesc;
 }
-protoOf($serializer_3).r2e = function (encoder, value) {
-  var tmp0_desc = this.q2e_1;
+protoOf($serializer_3).y2e = function (encoder, value) {
+  var tmp0_desc = this.x2e_1;
   var tmp1_output = encoder.eg(tmp0_desc);
-  var tmp2_cached = Companion_getInstance_54().p2e_1;
-  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.s2e_1);
-  tmp1_output.fh(tmp0_desc, 1, tmp2_cached[1].t(), value.t2e_1);
+  var tmp2_cached = Companion_getInstance_54().w2e_1;
+  tmp1_output.dh(tmp0_desc, 0, tmp2_cached[0].t(), value.z2e_1);
+  tmp1_output.fh(tmp0_desc, 1, tmp2_cached[1].t(), value.a2f_1);
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_3).md = function (encoder, value) {
-  return this.r2e(encoder, value instanceof WeakPoint ? value : THROW_CCE());
+  return this.y2e(encoder, value instanceof WeakPoint ? value : THROW_CCE());
 };
 protoOf($serializer_3).ld = function (decoder) {
-  var tmp0_desc = this.q2e_1;
+  var tmp0_desc = this.x2e_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
   var tmp4_local0 = null;
   var tmp5_local1 = null;
   var tmp6_input = decoder.eg(tmp0_desc);
-  var tmp7_cached = Companion_getInstance_54().p2e_1;
+  var tmp7_cached = Companion_getInstance_54().w2e_1;
   if (tmp6_input.og()) {
     tmp4_local0 = tmp6_input.kg(tmp0_desc, 0, tmp7_cached[0].t(), tmp4_local0);
     tmp3_bitMask0 = tmp3_bitMask0 | 1;
@@ -28001,10 +28022,10 @@ protoOf($serializer_3).ld = function (decoder) {
   return WeakPoint_init_$Create$(tmp3_bitMask0, tmp4_local0, tmp5_local1, null);
 };
 protoOf($serializer_3).kd = function () {
-  return this.q2e_1;
+  return this.x2e_1;
 };
 protoOf($serializer_3).ok = function () {
-  var tmp0_cached = Companion_getInstance_54().p2e_1;
+  var tmp0_cached = Companion_getInstance_54().w2e_1;
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
@@ -28018,10 +28039,10 @@ function $serializer_getInstance_3() {
 }
 function WeakPoint_init_$Init$(seen0, lift, missPoint, serializationConstructorMarker, $this) {
   if (!(3 === (3 & seen0))) {
-    throwMissingFieldException(seen0, 3, $serializer_getInstance_3().q2e_1);
+    throwMissingFieldException(seen0, 3, $serializer_getInstance_3().x2e_1);
   }
-  $this.s2e_1 = lift;
-  $this.t2e_1 = missPoint;
+  $this.z2e_1 = lift;
+  $this.a2f_1 = missPoint;
   return $this;
 }
 function WeakPoint_init_$Create$(seen0, lift, missPoint, serializationConstructorMarker) {
@@ -28037,10 +28058,10 @@ function $serializer_4() {
   $serializer_instance_4 = this;
   var tmp0_serialDesc = new PluginGeneratedSerialDescriptor('com.powertracker.domain.model.AdvicePayload.ReEntry', this, 1);
   tmp0_serialDesc.zj('loadFactor', true);
-  this.u2e_1 = tmp0_serialDesc;
+  this.b2f_1 = tmp0_serialDesc;
 }
-protoOf($serializer_4).v2e = function (encoder, value) {
-  var tmp0_desc = this.u2e_1;
+protoOf($serializer_4).c2f = function (encoder, value) {
+  var tmp0_desc = this.b2f_1;
   var tmp1_output = encoder.eg(tmp0_desc);
   if (tmp1_output.jh(tmp0_desc, 0) ? true : !equals(value.c14_1, 0.85)) {
     tmp1_output.bh(tmp0_desc, 0, value.c14_1);
@@ -28048,10 +28069,10 @@ protoOf($serializer_4).v2e = function (encoder, value) {
   tmp1_output.fg(tmp0_desc);
 };
 protoOf($serializer_4).md = function (encoder, value) {
-  return this.v2e(encoder, value instanceof ReEntry ? value : THROW_CCE());
+  return this.c2f(encoder, value instanceof ReEntry ? value : THROW_CCE());
 };
 protoOf($serializer_4).ld = function (decoder) {
-  var tmp0_desc = this.u2e_1;
+  var tmp0_desc = this.b2f_1;
   var tmp1_flag = true;
   var tmp2_index = 0;
   var tmp3_bitMask0 = 0;
@@ -28079,7 +28100,7 @@ protoOf($serializer_4).ld = function (decoder) {
   return ReEntry_init_$Create$(tmp3_bitMask0, tmp4_local0, null);
 };
 protoOf($serializer_4).kd = function () {
-  return this.u2e_1;
+  return this.b2f_1;
 };
 protoOf($serializer_4).ok = function () {
   // Inline function 'kotlin.arrayOf' call
@@ -28095,7 +28116,7 @@ function $serializer_getInstance_4() {
 }
 function ReEntry_init_$Init$(seen0, loadFactor, serializationConstructorMarker, $this) {
   if (!(0 === (0 & seen0))) {
-    throwMissingFieldException(seen0, 0, $serializer_getInstance_4().u2e_1);
+    throwMissingFieldException(seen0, 0, $serializer_getInstance_4().b2f_1);
   }
   if (0 === (seen0 & 1))
     $this.c14_1 = 0.85;
@@ -28114,7 +28135,7 @@ function Target(exerciseId, weightKg, reps, rpe, sets) {
   this.r15_1 = rpe;
   this.s15_1 = sets;
 }
-protoOf(Target).w2e = function (exerciseId, weightKg, reps, rpe, sets) {
+protoOf(Target).d2f = function (exerciseId, weightKg, reps, rpe, sets) {
   return new Target(exerciseId, weightKg, reps, rpe, sets);
 };
 protoOf(Target).z15 = function (exerciseId, weightKg, reps, rpe, sets, $super) {
@@ -28123,7 +28144,7 @@ protoOf(Target).z15 = function (exerciseId, weightKg, reps, rpe, sets, $super) {
   reps = reps === VOID ? this.q15_1 : reps;
   rpe = rpe === VOID ? this.r15_1 : rpe;
   sets = sets === VOID ? this.s15_1 : sets;
-  return $super === VOID ? this.w2e(exerciseId, weightKg, reps, rpe, sets) : $super.w2e.call(this, exerciseId, weightKg, reps, rpe, sets);
+  return $super === VOID ? this.d2f(exerciseId, weightKg, reps, rpe, sets) : $super.d2f.call(this, exerciseId, weightKg, reps, rpe, sets);
 };
 protoOf(Target).toString = function () {
   return 'Target(exerciseId=' + this.o15_1.toString() + ', weightKg=' + this.p15_1 + ', reps=' + this.q15_1 + ', rpe=' + this.r15_1 + ', sets=' + this.s15_1 + ')';
@@ -28155,20 +28176,20 @@ protoOf(Target).equals = function (other) {
 };
 function Accessories(items) {
   Companion_getInstance_52();
-  this.m2e_1 = items;
+  this.t2e_1 = items;
 }
 protoOf(Accessories).toString = function () {
-  return 'Accessories(items=' + toString(this.m2e_1) + ')';
+  return 'Accessories(items=' + toString(this.t2e_1) + ')';
 };
 protoOf(Accessories).hashCode = function () {
-  return hashCode(this.m2e_1);
+  return hashCode(this.t2e_1);
 };
 protoOf(Accessories).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof Accessories))
     return false;
-  if (!equals(this.m2e_1, other.m2e_1))
+  if (!equals(this.t2e_1, other.t2e_1))
     return false;
   return true;
 };
@@ -28199,15 +28220,15 @@ protoOf(Deload).equals = function (other) {
 };
 function WeakPoint(lift, missPoint) {
   Companion_getInstance_54();
-  this.s2e_1 = lift;
-  this.t2e_1 = missPoint;
+  this.z2e_1 = lift;
+  this.a2f_1 = missPoint;
 }
 protoOf(WeakPoint).toString = function () {
-  return 'WeakPoint(lift=' + this.s2e_1.toString() + ', missPoint=' + toString_0(this.t2e_1) + ')';
+  return 'WeakPoint(lift=' + this.z2e_1.toString() + ', missPoint=' + toString_0(this.a2f_1) + ')';
 };
 protoOf(WeakPoint).hashCode = function () {
-  var result = this.s2e_1.hashCode();
-  result = imul(result, 31) + (this.t2e_1 == null ? 0 : this.t2e_1.hashCode()) | 0;
+  var result = this.z2e_1.hashCode();
+  result = imul(result, 31) + (this.a2f_1 == null ? 0 : this.a2f_1.hashCode()) | 0;
   return result;
 };
 protoOf(WeakPoint).equals = function (other) {
@@ -28215,9 +28236,9 @@ protoOf(WeakPoint).equals = function (other) {
     return true;
   if (!(other instanceof WeakPoint))
     return false;
-  if (!this.s2e_1.equals(other.s2e_1))
+  if (!this.z2e_1.equals(other.z2e_1))
     return false;
-  if (!equals(this.t2e_1, other.t2e_1))
+  if (!equals(this.a2f_1, other.a2f_1))
     return false;
   return true;
 };
@@ -28242,7 +28263,7 @@ protoOf(ReEntry).equals = function (other) {
 };
 function Companion_54() {
 }
-protoOf(Companion_54).x2e = function () {
+protoOf(Companion_54).e2f = function () {
   var tmp = getKClass(AdvicePayload);
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
@@ -28276,7 +28297,7 @@ function Advice(type, lift, createdAt, reason, severity, payload, status, id) {
   this.x13_1 = status;
   this.y13_1 = id;
 }
-protoOf(Advice).y2e = function (type, lift, createdAt, reason, severity, payload, status, id) {
+protoOf(Advice).f2f = function (type, lift, createdAt, reason, severity, payload, status, id) {
   return new Advice(type, lift, createdAt, reason, severity, payload, status, id);
 };
 protoOf(Advice).a16 = function (type, lift, createdAt, reason, severity, payload, status, id, $super) {
@@ -28288,7 +28309,7 @@ protoOf(Advice).a16 = function (type, lift, createdAt, reason, severity, payload
   payload = payload === VOID ? this.w13_1 : payload;
   status = status === VOID ? this.x13_1 : status;
   id = id === VOID ? this.y13_1 : id;
-  return $super === VOID ? this.y2e(type, lift, createdAt, reason, severity, payload, status, id) : $super.y2e.call(this, type, lift, createdAt, reason, severity, payload, status, id);
+  return $super === VOID ? this.f2f(type, lift, createdAt, reason, severity, payload, status, id) : $super.f2f.call(this, type, lift, createdAt, reason, severity, payload, status, id);
 };
 protoOf(Advice).toString = function () {
   return 'Advice(type=' + this.r13_1.toString() + ', lift=' + toString_0(this.s13_1) + ', createdAt=' + this.t13_1.toString() + ', reason=' + this.u13_1 + ', severity=' + this.v13_1 + ', payload=' + toString(this.w13_1) + ', status=' + this.x13_1.toString() + ', id=' + this.y13_1.toString() + ')';
@@ -28533,10 +28554,10 @@ protoOf(Exercise).q14 = function () {
   }
   return tmp;
 };
-protoOf(Exercise).z2e = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(Exercise).g2f = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
-protoOf(Exercise).a2f = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
+protoOf(Exercise).h2f = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
   id = id === VOID ? this.j14_1 : id;
   name = name === VOID ? this.k14_1 : name;
   category = category === VOID ? this.l14_1 : category;
@@ -28544,7 +28565,7 @@ protoOf(Exercise).a2f = function (id, name, category, parentLift, muscles, isBui
   muscles = muscles === VOID ? this.n14_1 : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.o14_1 : isBuiltIn;
   archived = archived === VOID ? this.p14_1 : archived;
-  return $super === VOID ? this.z2e(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.z2e.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.g2f(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.g2f.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(Exercise).toString = function () {
   return 'Exercise(id=' + this.j14_1.toString() + ', name=' + this.k14_1 + ', category=' + this.l14_1.toString() + ', parentLift=' + toString_0(this.m14_1) + ', muscles=' + toString(this.n14_1) + ', isBuiltIn=' + this.o14_1 + ', archived=' + this.p14_1 + ')';
@@ -28822,11 +28843,11 @@ function PlateLoader() {
   this.e18_1 = 100.0;
   this.f18_1 = toHundredths(this, 20.0);
 }
-protoOf(PlateLoader).b2f = function (changePlates) {
+protoOf(PlateLoader).i2f = function (changePlates) {
   return changePlates ? sortedDescending(plus(this.b18_1, this.c18_1)) : this.b18_1;
 };
 protoOf(PlateLoader).j18 = function (changePlates) {
-  return 2 * min(this.b2f(changePlates));
+  return 2 * min(this.i2f(changePlates));
 };
 protoOf(PlateLoader).g18 = function (kg, changePlates) {
   var step = toHundredths(this, this.j18(changePlates));
@@ -28883,7 +28904,7 @@ protoOf(PlateLoader).h18 = function (anchor, kg, changePlates) {
   var tmp$ret$3 = compare(tmp0, b) >= 0 ? tmp0 : b;
   return fromHundredths(this, tmp$ret$3);
 };
-protoOf(PlateLoader).c2f = function (totalKg, changePlates) {
+protoOf(PlateLoader).j2f = function (totalKg, changePlates) {
   var beyondBar = subtract(toHundredths(this, totalKg), this.f18_1);
   if (compare(beyondBar, new Long(0, 0)) < 0 || !equalsLong(modulo(beyondBar, new Long(2, 0)), new Long(0, 0)))
     return null;
@@ -28891,7 +28912,7 @@ protoOf(PlateLoader).c2f = function (totalKg, changePlates) {
   var remaining = divide(beyondBar, fromInt(2));
   // Inline function 'kotlin.collections.mutableListOf' call
   var result = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = this.b2f(changePlates).j();
+  var _iterator__ex2g4s = this.i2f(changePlates).j();
   while (_iterator__ex2g4s.k()) {
     var plate = _iterator__ex2g4s.l();
     var p = toHundredths(this, plate);
@@ -28910,21 +28931,21 @@ function PlateLoader_getInstance() {
   return PlateLoader_instance;
 }
 function Pr(date, e1rmKg, weightKg, reps, rpe) {
-  this.d2f_1 = date;
-  this.e2f_1 = e1rmKg;
-  this.f2f_1 = weightKg;
-  this.g2f_1 = reps;
-  this.h2f_1 = rpe;
+  this.k2f_1 = date;
+  this.l2f_1 = e1rmKg;
+  this.m2f_1 = weightKg;
+  this.n2f_1 = reps;
+  this.o2f_1 = rpe;
 }
 protoOf(Pr).toString = function () {
-  return 'Pr(date=' + this.d2f_1.toString() + ', e1rmKg=' + this.e2f_1 + ', weightKg=' + this.f2f_1 + ', reps=' + this.g2f_1 + ', rpe=' + this.h2f_1 + ')';
+  return 'Pr(date=' + this.k2f_1.toString() + ', e1rmKg=' + this.l2f_1 + ', weightKg=' + this.m2f_1 + ', reps=' + this.n2f_1 + ', rpe=' + this.o2f_1 + ')';
 };
 protoOf(Pr).hashCode = function () {
-  var result = this.d2f_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.e2f_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.f2f_1) | 0;
-  result = imul(result, 31) + this.g2f_1 | 0;
-  result = imul(result, 31) + (this.h2f_1 == null ? 0 : getNumberHashCode(this.h2f_1)) | 0;
+  var result = this.k2f_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.l2f_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.m2f_1) | 0;
+  result = imul(result, 31) + this.n2f_1 | 0;
+  result = imul(result, 31) + (this.o2f_1 == null ? 0 : getNumberHashCode(this.o2f_1)) | 0;
   return result;
 };
 protoOf(Pr).equals = function (other) {
@@ -28932,15 +28953,15 @@ protoOf(Pr).equals = function (other) {
     return true;
   if (!(other instanceof Pr))
     return false;
-  if (!this.d2f_1.equals(other.d2f_1))
+  if (!this.k2f_1.equals(other.k2f_1))
     return false;
-  if (!equals(this.e2f_1, other.e2f_1))
+  if (!equals(this.l2f_1, other.l2f_1))
     return false;
-  if (!equals(this.f2f_1, other.f2f_1))
+  if (!equals(this.m2f_1, other.m2f_1))
     return false;
-  if (!(this.g2f_1 === other.g2f_1))
+  if (!(this.n2f_1 === other.n2f_1))
     return false;
-  if (!equals(this.h2f_1, other.h2f_1))
+  if (!equals(this.o2f_1, other.o2f_1))
     return false;
   return true;
 };
@@ -28948,16 +28969,16 @@ function weekStart(date) {
   return mondayOfWeek(date);
 }
 function sam$kotlin_Comparator$0_5(function_0) {
-  this.i2f_1 = function_0;
+  this.p2f_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_5).y9 = function (a, b) {
-  return this.i2f_1(a, b);
+  return this.p2f_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_5).compare = function (a, b) {
   return this.y9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_5).f2 = function () {
-  return this.i2f_1;
+  return this.p2f_1;
 };
 protoOf(sam$kotlin_Comparator$0_5).equals = function (other) {
   var tmp;
@@ -28978,16 +28999,16 @@ protoOf(sam$kotlin_Comparator$0_5).hashCode = function () {
   return hashCode(this.f2());
 };
 function sam$kotlin_Comparator$0_6(function_0) {
-  this.j2f_1 = function_0;
+  this.q2f_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_6).y9 = function (a, b) {
-  return this.j2f_1(a, b);
+  return this.q2f_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_6).compare = function (a, b) {
   return this.y9(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_6).f2 = function () {
-  return this.j2f_1;
+  return this.q2f_1;
 };
 protoOf(sam$kotlin_Comparator$0_6).equals = function (other) {
   var tmp;
@@ -29021,9 +29042,9 @@ function ProgressMath$weeklyVolume$lambda(a, b) {
 }
 function ProgressMath() {
   ProgressMath_instance = this;
-  this.k2f_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.r2f_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(ProgressMath).l2f = function (_this__u8e3s4, set, lift) {
+protoOf(ProgressMath).s2f = function (_this__u8e3s4, set, lift) {
   var tmp;
   if (!set.h16_1) {
     var tmp0_safe_receiver = _this__u8e3s4.e14_1.s1(set.d16_1);
@@ -29040,7 +29061,7 @@ protoOf(ProgressMath).l2f = function (_this__u8e3s4, set, lift) {
   }
   return tmp;
 };
-protoOf(ProgressMath).m2f = function (history, lift) {
+protoOf(ProgressMath).t2f = function (history, lift) {
   // Inline function 'kotlin.collections.mutableListOf' call
   var prs = ArrayList_init_$Create$();
   var best = 0.0;
@@ -29055,7 +29076,7 @@ protoOf(ProgressMath).m2f = function (history, lift) {
     var _iterator__ex2g4s_0 = session.t17_1.j();
     $l$loop: while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (!this.l2f(history, set, lift))
+      if (!this.s2f(history, set, lift))
         continue $l$loop;
       var e1rm = E1rm_getInstance().u18(set.e16_1, set.f16_1, set.g16_1);
       if (e1rm > best) {
@@ -29068,7 +29089,7 @@ protoOf(ProgressMath).m2f = function (history, lift) {
   }
   return prs;
 };
-protoOf(ProgressMath).n2f = function (history, lift) {
+protoOf(ProgressMath).u2f = function (history, lift) {
   // Inline function 'kotlin.collections.mutableMapOf' call
   var volume = LinkedHashMap_init_$Create$();
   var _iterator__ex2g4s = history.d14_1.j();
@@ -29077,7 +29098,7 @@ protoOf(ProgressMath).n2f = function (history, lift) {
     var _iterator__ex2g4s_0 = session.t17_1.j();
     while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (this.l2f(history, set, lift)) {
+      if (this.s2f(history, set, lift)) {
         var week = weekStart(session.q17_1);
         var tmp0_elvis_lhs = volume.s1(week);
         // Inline function 'kotlin.collections.set' call
@@ -29093,8 +29114,8 @@ protoOf(ProgressMath).n2f = function (history, lift) {
   var tmp$ret$3 = new sam$kotlin_Comparator$0_6(tmp);
   return sortedWith(this_0, tmp$ret$3);
 };
-protoOf(ProgressMath).o2f = function (stats, until, includeStrictPress) {
-  var included = includeStrictPress ? plus_0(this.k2f_1, MainLift_STRICT_PRESS_getInstance()) : this.k2f_1;
+protoOf(ProgressMath).v2f = function (stats, until, includeStrictPress) {
+  var included = includeStrictPress ? plus_0(this.r2f_1, MainLift_STRICT_PRESS_getInstance()) : this.r2f_1;
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(included, 10));
@@ -29132,17 +29153,17 @@ function SeedLibrary$exercises$Acc(heavy, lift, muscles) {
     tmp = muscles;
   }
   muscles = tmp;
-  this.p2f_1 = heavy;
-  this.q2f_1 = lift;
-  this.r2f_1 = muscles;
+  this.w2f_1 = heavy;
+  this.x2f_1 = lift;
+  this.y2f_1 = muscles;
 }
 function SeedLibrary() {
   SeedLibrary_instance = this;
-  this.s2f_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.z2f_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(SeedLibrary).t2f = function () {
+protoOf(SeedLibrary).a2g = function () {
   var found = LinkedHashMap_init_$Create$();
-  var _iterator__ex2g4s = this.s2f_1.j();
+  var _iterator__ex2g4s = this.z2f_1.j();
   while (_iterator__ex2g4s.k()) {
     var lift = _iterator__ex2g4s.l();
     var _iterator__ex2g4s_0 = get_entries_3().j();
@@ -29164,14 +29185,14 @@ protoOf(SeedLibrary).t2f = function () {
           tmp = value;
         }
         // Inline function 'kotlin.collections.plusAssign' call
-        var this_0 = tmp.r2f_1;
+        var this_0 = tmp.y2f_1;
         addAll(this_0, muscles);
       }
     }
   }
   var tmp_0 = found.t1();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = this.s2f_1;
+  var tmp0 = this.z2f_1;
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s_2 = tmp0.j();
@@ -29205,7 +29226,7 @@ protoOf(SeedLibrary).t2f = function () {
     var name = item_0.s();
     // Inline function 'kotlin.collections.component2' call
     var acc = item_0.t();
-    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.p2f_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.p2f_1 ? acc.q2f_1 : null, toList_0(acc.r2f_1), true);
+    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.w2f_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.w2f_1 ? acc.x2f_1 : null, toList_0(acc.y2f_1), true);
     destination_1.i(tmp$ret$13);
   }
   var mapped = destination_1;
@@ -29220,7 +29241,7 @@ protoOf(SeedLibrary).t2f = function () {
     var _unary__edvuaz = index;
     index = _unary__edvuaz + 1 | 0;
     var i = checkIndexOverflow(_unary__edvuaz);
-    var tmp$ret$18 = item_1.a2f(add(numberToLong(i), new Long(1, 0)));
+    var tmp$ret$18 = item_1.h2f(add(numberToLong(i), new Long(1, 0)));
     destination_2.i(tmp$ret$18);
   }
   return destination_2;
@@ -29254,32 +29275,32 @@ function HighReps_getInstance() {
   return HighReps_instance;
 }
 function BigJump(fromKg) {
-  this.u2f_1 = fromKg;
+  this.b2g_1 = fromKg;
 }
 protoOf(BigJump).toString = function () {
-  return 'BigJump(fromKg=' + this.u2f_1 + ')';
+  return 'BigJump(fromKg=' + this.b2g_1 + ')';
 };
 protoOf(BigJump).hashCode = function () {
-  return getNumberHashCode(this.u2f_1);
+  return getNumberHashCode(this.b2g_1);
 };
 protoOf(BigJump).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BigJump))
     return false;
-  if (!equals(this.u2f_1, other.u2f_1))
+  if (!equals(this.b2g_1, other.b2g_1))
     return false;
   return true;
 };
 function InputValidator() {
-  this.v2f_1 = 12;
-  this.w2f_1 = 1.3;
-  this.x2f_1 = 500.0;
+  this.c2g_1 = 12;
+  this.d2g_1 = 1.3;
+  this.e2g_1 = 500.0;
 }
-protoOf(InputValidator).y2f = function (kg) {
+protoOf(InputValidator).f2g = function (kg) {
   return isFinite(kg) && kg > 0.0 && kg <= 500.0;
 };
-protoOf(InputValidator).z2f = function (text) {
+protoOf(InputValidator).g2g = function (text) {
   // Inline function 'kotlin.text.trim' call
   var tmp$ret$0 = toString(trim(isCharSequence(text) ? text : THROW_CCE()));
   var tmp0_safe_receiver = toDoubleOrNull(replace(tmp$ret$0, _Char___init__impl__6a9atx(44), _Char___init__impl__6a9atx(46)));
@@ -29289,7 +29310,7 @@ protoOf(InputValidator).z2f = function (text) {
   } else {
     // Inline function 'kotlin.takeIf' call
     var tmp_0;
-    if (this.y2f(tmp0_safe_receiver)) {
+    if (this.f2g(tmp0_safe_receiver)) {
       tmp_0 = tmp0_safe_receiver;
     } else {
       tmp_0 = null;
@@ -29298,7 +29319,7 @@ protoOf(InputValidator).z2f = function (text) {
   }
   return tmp;
 };
-protoOf(InputValidator).a2g = function (weightKg, reps, lastWeightKg) {
+protoOf(InputValidator).h2g = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
@@ -29357,7 +29378,7 @@ protoOf(GritDomain).estimateE1rm = function (weightKg, reps, rpe) {
   return E1rm_getInstance().u18(weightKg, reps, rpe);
 };
 protoOf(GritDomain).platesPerSide = function (totalKg, changePlates) {
-  var tmp0_safe_receiver = PlateLoader_getInstance().c2f(totalKg, changePlates);
+  var tmp0_safe_receiver = PlateLoader_getInstance().j2f(totalKg, changePlates);
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
@@ -29375,7 +29396,7 @@ protoOf(GritDomain).loadStep = function (changePlates) {
 };
 protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = InputValidator_instance.a2g(weightKg, reps, lastWeightKg);
+  var this_0 = InputValidator_instance.h2g(weightKg, reps, lastWeightKg);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -29398,7 +29419,7 @@ protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   return copyToArray(destination);
 };
 protoOf(GritDomain).parseBaselineKg = function (text) {
-  return InputValidator_instance.z2f(text);
+  return InputValidator_instance.g2g(text);
 };
 protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, today, prior) {
   var tmp = Coach_getInstance();
@@ -29502,7 +29523,7 @@ protoOf(GritDomain).currentE1rm = function (history, lift, until, days) {
 };
 protoOf(GritDomain).prs = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().m2f(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().t2f(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -29516,7 +29537,7 @@ protoOf(GritDomain).prs = function (history, lift) {
 };
 protoOf(GritDomain).weeklyVolume = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().n2f(toDomain_4(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().u2f(toDomain_4(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -29623,7 +29644,7 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = SeedLibrary_getInstance().t2f();
+  var this_0 = SeedLibrary_getInstance().a2g();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -29636,7 +29657,7 @@ protoOf(GritDomain).seedExercises = function () {
   return copyToArray(destination);
 };
 protoOf(GritDomain).total = function (history, until, includeStrictPress) {
-  return ProgressMath_getInstance().o2f(new HistoryStats(toDomain_4(history)), parseDate('until', until), includeStrictPress);
+  return ProgressMath_getInstance().v2f(new HistoryStats(toDomain_4(history)), parseDate('until', until), includeStrictPress);
 };
 protoOf(GritDomain).mainLifts = function () {
   // Inline function 'kotlin.collections.map' call
@@ -30165,25 +30186,25 @@ function JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived
   this.isBuiltIn = isBuiltIn;
   this.archived = archived;
 }
-protoOf(JsExercise).b2g = function () {
+protoOf(JsExercise).i2g = function () {
   return this.id;
 };
 protoOf(JsExercise).ar = function () {
   return this.name;
 };
-protoOf(JsExercise).c2g = function () {
+protoOf(JsExercise).j2g = function () {
   return this.category;
 };
-protoOf(JsExercise).d2g = function () {
+protoOf(JsExercise).k2g = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).e2g = function () {
+protoOf(JsExercise).l2g = function () {
   return this.muscles;
 };
-protoOf(JsExercise).f2g = function () {
+protoOf(JsExercise).m2g = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).g2g = function () {
+protoOf(JsExercise).n2g = function () {
   return this.archived;
 };
 protoOf(JsExercise).ya = function () {
@@ -30195,19 +30216,19 @@ protoOf(JsExercise).za = function () {
 protoOf(JsExercise).jd = function () {
   return this.category;
 };
-protoOf(JsExercise).h2g = function () {
+protoOf(JsExercise).o2g = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).i2g = function () {
+protoOf(JsExercise).p2g = function () {
   return this.muscles;
 };
-protoOf(JsExercise).j2g = function () {
+protoOf(JsExercise).q2g = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).k2g = function () {
+protoOf(JsExercise).r2g = function () {
   return this.archived;
 };
-protoOf(JsExercise).l2g = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(JsExercise).s2g = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
@@ -30218,7 +30239,7 @@ protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, is
   muscles = muscles === VOID ? this.muscles : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.isBuiltIn : isBuiltIn;
   archived = archived === VOID ? this.archived : archived;
-  return $super === VOID ? this.l2g(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.l2g.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.s2g(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.s2g.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).toString = function () {
   return 'JsExercise(id=' + this.id + ', name=' + this.name + ', category=' + this.category + ', parentLift=' + this.parentLift + ', muscles=' + toString(this.muscles) + ', isBuiltIn=' + this.isBuiltIn + ', archived=' + this.archived + ')';
@@ -30263,25 +30284,25 @@ function JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   this.missPoint = missPoint;
   this.isTopSet = isTopSet;
 }
-protoOf(JsSet).m2g = function () {
+protoOf(JsSet).t2g = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).n2g = function () {
+protoOf(JsSet).u2g = function () {
   return this.weightKg;
 };
-protoOf(JsSet).o2g = function () {
+protoOf(JsSet).v2g = function () {
   return this.reps;
 };
-protoOf(JsSet).p2g = function () {
+protoOf(JsSet).w2g = function () {
   return this.rpe;
 };
-protoOf(JsSet).q2g = function () {
+protoOf(JsSet).x2g = function () {
   return this.failed;
 };
-protoOf(JsSet).r2g = function () {
+protoOf(JsSet).y2g = function () {
   return this.missPoint;
 };
-protoOf(JsSet).s2g = function () {
+protoOf(JsSet).z2g = function () {
   return this.isTopSet;
 };
 protoOf(JsSet).ya = function () {
@@ -30293,19 +30314,19 @@ protoOf(JsSet).za = function () {
 protoOf(JsSet).jd = function () {
   return this.reps;
 };
-protoOf(JsSet).h2g = function () {
+protoOf(JsSet).o2g = function () {
   return this.rpe;
 };
-protoOf(JsSet).i2g = function () {
+protoOf(JsSet).p2g = function () {
   return this.failed;
 };
-protoOf(JsSet).j2g = function () {
+protoOf(JsSet).q2g = function () {
   return this.missPoint;
 };
-protoOf(JsSet).k2g = function () {
+protoOf(JsSet).r2g = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).t2g = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
+protoOf(JsSet).a2h = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   return new JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, $super) {
@@ -30316,7 +30337,7 @@ protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoi
   failed = failed === VOID ? this.failed : failed;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   isTopSet = isTopSet === VOID ? this.isTopSet : isTopSet;
-  return $super === VOID ? this.t2g(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.t2g.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
+  return $super === VOID ? this.a2h(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.a2h.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).toString = function () {
   return 'JsSet(exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', failed=' + this.failed + ', missPoint=' + this.missPoint + ', isTopSet=' + this.isTopSet + ')';
@@ -30359,19 +30380,19 @@ function JsSession(id, date, bodyweightKg, readiness, sets) {
   this.readiness = readiness;
   this.sets = sets;
 }
-protoOf(JsSession).b2g = function () {
+protoOf(JsSession).i2g = function () {
   return this.id;
 };
-protoOf(JsSession).u2g = function () {
+protoOf(JsSession).b2h = function () {
   return this.date;
 };
-protoOf(JsSession).v2g = function () {
+protoOf(JsSession).c2h = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).w2g = function () {
+protoOf(JsSession).d2h = function () {
   return this.readiness;
 };
-protoOf(JsSession).x2g = function () {
+protoOf(JsSession).e2h = function () {
   return this.sets;
 };
 protoOf(JsSession).ya = function () {
@@ -30383,13 +30404,13 @@ protoOf(JsSession).za = function () {
 protoOf(JsSession).jd = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).h2g = function () {
+protoOf(JsSession).o2g = function () {
   return this.readiness;
 };
-protoOf(JsSession).i2g = function () {
+protoOf(JsSession).p2g = function () {
   return this.sets;
 };
-protoOf(JsSession).y2g = function (id, date, bodyweightKg, readiness, sets) {
+protoOf(JsSession).f2h = function (id, date, bodyweightKg, readiness, sets) {
   return new JsSession(id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $super) {
@@ -30398,7 +30419,7 @@ protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, $su
   bodyweightKg = bodyweightKg === VOID ? this.bodyweightKg : bodyweightKg;
   readiness = readiness === VOID ? this.readiness : readiness;
   sets = sets === VOID ? this.sets : sets;
-  return $super === VOID ? this.y2g(id, date, bodyweightKg, readiness, sets) : $super.y2g.call(this, id, date, bodyweightKg, readiness, sets);
+  return $super === VOID ? this.f2h(id, date, bodyweightKg, readiness, sets) : $super.f2h.call(this, id, date, bodyweightKg, readiness, sets);
 };
 protoOf(JsSession).toString = function () {
   return 'JsSession(id=' + this.id + ', date=' + this.date + ', bodyweightKg=' + this.bodyweightKg + ', readiness=' + this.readiness + ', sets=' + toString(this.sets) + ')';
@@ -30437,25 +30458,25 @@ function JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order) {
   this.targetRpe = targetRpe;
   this.order = order;
 }
-protoOf(JsPlanItem).b2g = function () {
+protoOf(JsPlanItem).i2g = function () {
   return this.id;
 };
-protoOf(JsPlanItem).z2g = function () {
+protoOf(JsPlanItem).g2h = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).m2g = function () {
+protoOf(JsPlanItem).t2g = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).x2g = function () {
+protoOf(JsPlanItem).e2h = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).o2g = function () {
+protoOf(JsPlanItem).v2g = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).a2h = function () {
+protoOf(JsPlanItem).h2h = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).b2h = function () {
+protoOf(JsPlanItem).i2h = function () {
   return this.order;
 };
 protoOf(JsPlanItem).ya = function () {
@@ -30467,19 +30488,19 @@ protoOf(JsPlanItem).za = function () {
 protoOf(JsPlanItem).jd = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).h2g = function () {
+protoOf(JsPlanItem).o2g = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).i2g = function () {
+protoOf(JsPlanItem).p2g = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).j2g = function () {
+protoOf(JsPlanItem).q2g = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).k2g = function () {
+protoOf(JsPlanItem).r2g = function () {
   return this.order;
 };
-protoOf(JsPlanItem).c2h = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
+protoOf(JsPlanItem).j2h = function (id, weekday, exerciseId, sets, reps, targetRpe, order) {
   return new JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, targetRpe, order, $super) {
@@ -30490,7 +30511,7 @@ protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, target
   reps = reps === VOID ? this.reps : reps;
   targetRpe = targetRpe === VOID ? this.targetRpe : targetRpe;
   order = order === VOID ? this.order : order;
-  return $super === VOID ? this.c2h(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.c2h.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
+  return $super === VOID ? this.j2h(id, weekday, exerciseId, sets, reps, targetRpe, order) : $super.j2h.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order);
 };
 protoOf(JsPlanItem).toString = function () {
   return 'JsPlanItem(id=' + this.id + ', weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', sets=' + this.sets + ', reps=' + this.reps + ', targetRpe=' + this.targetRpe + ', order=' + this.order + ')';
@@ -30531,13 +30552,13 @@ function JsBaseline(exerciseId, e1rmKg, date) {
   this.e1rmKg = e1rmKg;
   this.date = date;
 }
-protoOf(JsBaseline).m2g = function () {
+protoOf(JsBaseline).t2g = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).d2h = function () {
+protoOf(JsBaseline).k2h = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).u2g = function () {
+protoOf(JsBaseline).b2h = function () {
   return this.date;
 };
 protoOf(JsBaseline).ya = function () {
@@ -30549,14 +30570,14 @@ protoOf(JsBaseline).za = function () {
 protoOf(JsBaseline).jd = function () {
   return this.date;
 };
-protoOf(JsBaseline).e2h = function (exerciseId, e1rmKg, date) {
+protoOf(JsBaseline).l2h = function (exerciseId, e1rmKg, date) {
   return new JsBaseline(exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).copy = function (exerciseId, e1rmKg, date, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   e1rmKg = e1rmKg === VOID ? this.e1rmKg : e1rmKg;
   date = date === VOID ? this.date : date;
-  return $super === VOID ? this.e2h(exerciseId, e1rmKg, date) : $super.e2h.call(this, exerciseId, e1rmKg, date);
+  return $super === VOID ? this.l2h(exerciseId, e1rmKg, date) : $super.l2h.call(this, exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).toString = function () {
   return 'JsBaseline(exerciseId=' + this.exerciseId + ', e1rmKg=' + this.e1rmKg + ', date=' + this.date + ')';
@@ -30590,28 +30611,28 @@ function JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJs
   this.status = status;
   this.payloadJson = payloadJson;
 }
-protoOf(JsAdvice).b2g = function () {
+protoOf(JsAdvice).i2g = function () {
   return this.id;
 };
-protoOf(JsAdvice).f2h = function () {
+protoOf(JsAdvice).m2h = function () {
   return this.type;
 };
-protoOf(JsAdvice).g2h = function () {
+protoOf(JsAdvice).n2h = function () {
   return this.lift;
 };
-protoOf(JsAdvice).h2h = function () {
+protoOf(JsAdvice).o2h = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).i2h = function () {
+protoOf(JsAdvice).p2h = function () {
   return this.reason;
 };
-protoOf(JsAdvice).j2h = function () {
+protoOf(JsAdvice).q2h = function () {
   return this.severity;
 };
-protoOf(JsAdvice).k2h = function () {
+protoOf(JsAdvice).r2h = function () {
   return this.status;
 };
-protoOf(JsAdvice).l2h = function () {
+protoOf(JsAdvice).s2h = function () {
   return this.payloadJson;
 };
 protoOf(JsAdvice).ya = function () {
@@ -30623,22 +30644,22 @@ protoOf(JsAdvice).za = function () {
 protoOf(JsAdvice).jd = function () {
   return this.lift;
 };
-protoOf(JsAdvice).h2g = function () {
+protoOf(JsAdvice).o2g = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).i2g = function () {
+protoOf(JsAdvice).p2g = function () {
   return this.reason;
 };
-protoOf(JsAdvice).j2g = function () {
+protoOf(JsAdvice).q2g = function () {
   return this.severity;
 };
-protoOf(JsAdvice).k2g = function () {
+protoOf(JsAdvice).r2g = function () {
   return this.status;
 };
-protoOf(JsAdvice).m2h = function () {
+protoOf(JsAdvice).t2h = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).n2h = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
+protoOf(JsAdvice).u2h = function (id, type, lift, createdAt, reason, severity, status, payloadJson) {
   return new JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, status, payloadJson, $super) {
@@ -30650,7 +30671,7 @@ protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, 
   severity = severity === VOID ? this.severity : severity;
   status = status === VOID ? this.status : status;
   payloadJson = payloadJson === VOID ? this.payloadJson : payloadJson;
-  return $super === VOID ? this.n2h(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.n2h.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
+  return $super === VOID ? this.u2h(id, type, lift, createdAt, reason, severity, status, payloadJson) : $super.u2h.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson);
 };
 protoOf(JsAdvice).toString = function () {
   return 'JsAdvice(id=' + this.id + ', type=' + this.type + ', lift=' + this.lift + ', createdAt=' + this.createdAt + ', reason=' + this.reason + ', severity=' + this.severity + ', status=' + this.status + ', payloadJson=' + this.payloadJson + ')';
@@ -30694,13 +30715,13 @@ function JsHistory(sessions, exercises, baselines) {
   this.exercises = exercises;
   this.baselines = baselines;
 }
-protoOf(JsHistory).o2h = function () {
+protoOf(JsHistory).v2h = function () {
   return this.sessions;
 };
-protoOf(JsHistory).p2h = function () {
+protoOf(JsHistory).w2h = function () {
   return this.exercises;
 };
-protoOf(JsHistory).q2h = function () {
+protoOf(JsHistory).x2h = function () {
   return this.baselines;
 };
 protoOf(JsHistory).ya = function () {
@@ -30712,14 +30733,14 @@ protoOf(JsHistory).za = function () {
 protoOf(JsHistory).jd = function () {
   return this.baselines;
 };
-protoOf(JsHistory).r2h = function (sessions, exercises, baselines) {
+protoOf(JsHistory).y2h = function (sessions, exercises, baselines) {
   return new JsHistory(sessions, exercises, baselines);
 };
 protoOf(JsHistory).copy = function (sessions, exercises, baselines, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   exercises = exercises === VOID ? this.exercises : exercises;
   baselines = baselines === VOID ? this.baselines : baselines;
-  return $super === VOID ? this.r2h(sessions, exercises, baselines) : $super.r2h.call(this, sessions, exercises, baselines);
+  return $super === VOID ? this.y2h(sessions, exercises, baselines) : $super.y2h.call(this, sessions, exercises, baselines);
 };
 protoOf(JsHistory).toString = function () {
   return 'JsHistory(sessions=' + toString(this.sessions) + ', exercises=' + toString(this.exercises) + ', baselines=' + toString(this.baselines) + ')';
@@ -30747,10 +30768,10 @@ function JsCoachSettings(defaultRpe, changePlates) {
   this.defaultRpe = defaultRpe;
   this.changePlates = changePlates;
 }
-protoOf(JsCoachSettings).s2h = function () {
+protoOf(JsCoachSettings).z2h = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).t2h = function () {
+protoOf(JsCoachSettings).a2i = function () {
   return this.changePlates;
 };
 protoOf(JsCoachSettings).ya = function () {
@@ -30759,13 +30780,13 @@ protoOf(JsCoachSettings).ya = function () {
 protoOf(JsCoachSettings).za = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).u2h = function (defaultRpe, changePlates) {
+protoOf(JsCoachSettings).b2i = function (defaultRpe, changePlates) {
   return new JsCoachSettings(defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).copy = function (defaultRpe, changePlates, $super) {
   defaultRpe = defaultRpe === VOID ? this.defaultRpe : defaultRpe;
   changePlates = changePlates === VOID ? this.changePlates : changePlates;
-  return $super === VOID ? this.u2h(defaultRpe, changePlates) : $super.u2h.call(this, defaultRpe, changePlates);
+  return $super === VOID ? this.b2i(defaultRpe, changePlates) : $super.b2i.call(this, defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).toString = function () {
   return 'JsCoachSettings(defaultRpe=' + this.defaultRpe + ', changePlates=' + this.changePlates + ')';
@@ -30790,7 +30811,7 @@ function JsWeeklyPoint(weekStart, value) {
   this.weekStart = weekStart;
   this.value = value;
 }
-protoOf(JsWeeklyPoint).v2h = function () {
+protoOf(JsWeeklyPoint).c2i = function () {
   return this.weekStart;
 };
 protoOf(JsWeeklyPoint).t = function () {
@@ -30802,13 +30823,13 @@ protoOf(JsWeeklyPoint).ya = function () {
 protoOf(JsWeeklyPoint).za = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).w2h = function (weekStart, value) {
+protoOf(JsWeeklyPoint).d2i = function (weekStart, value) {
   return new JsWeeklyPoint(weekStart, value);
 };
 protoOf(JsWeeklyPoint).copy = function (weekStart, value, $super) {
   weekStart = weekStart === VOID ? this.weekStart : weekStart;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.w2h(weekStart, value) : $super.w2h.call(this, weekStart, value);
+  return $super === VOID ? this.d2i(weekStart, value) : $super.d2i.call(this, weekStart, value);
 };
 protoOf(JsWeeklyPoint).toString = function () {
   return 'JsWeeklyPoint(weekStart=' + this.weekStart + ', value=' + this.value + ')';
@@ -30836,19 +30857,19 @@ function JsPr(date, e1rmKg, weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsPr).u2g = function () {
+protoOf(JsPr).b2h = function () {
   return this.date;
 };
-protoOf(JsPr).d2h = function () {
+protoOf(JsPr).k2h = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).n2g = function () {
+protoOf(JsPr).u2g = function () {
   return this.weightKg;
 };
-protoOf(JsPr).o2g = function () {
+protoOf(JsPr).v2g = function () {
   return this.reps;
 };
-protoOf(JsPr).p2g = function () {
+protoOf(JsPr).w2g = function () {
   return this.rpe;
 };
 protoOf(JsPr).ya = function () {
@@ -30860,13 +30881,13 @@ protoOf(JsPr).za = function () {
 protoOf(JsPr).jd = function () {
   return this.weightKg;
 };
-protoOf(JsPr).h2g = function () {
+protoOf(JsPr).o2g = function () {
   return this.reps;
 };
-protoOf(JsPr).i2g = function () {
+protoOf(JsPr).p2g = function () {
   return this.rpe;
 };
-protoOf(JsPr).x2h = function (date, e1rmKg, weightKg, reps, rpe) {
+protoOf(JsPr).e2i = function (date, e1rmKg, weightKg, reps, rpe) {
   return new JsPr(date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
@@ -30875,7 +30896,7 @@ protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.x2h(date, e1rmKg, weightKg, reps, rpe) : $super.x2h.call(this, date, e1rmKg, weightKg, reps, rpe);
+  return $super === VOID ? this.e2i(date, e1rmKg, weightKg, reps, rpe) : $super.e2i.call(this, date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).toString = function () {
   return 'JsPr(date=' + this.date + ', e1rmKg=' + this.e1rmKg + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -30912,7 +30933,7 @@ function JsAccessoryOption(name, heavy) {
 protoOf(JsAccessoryOption).ar = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).y2h = function () {
+protoOf(JsAccessoryOption).f2i = function () {
   return this.heavy;
 };
 protoOf(JsAccessoryOption).ya = function () {
@@ -30921,13 +30942,13 @@ protoOf(JsAccessoryOption).ya = function () {
 protoOf(JsAccessoryOption).za = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).z2h = function (name, heavy) {
+protoOf(JsAccessoryOption).g2i = function (name, heavy) {
   return new JsAccessoryOption(name, heavy);
 };
 protoOf(JsAccessoryOption).copy = function (name, heavy, $super) {
   name = name === VOID ? this.name : name;
   heavy = heavy === VOID ? this.heavy : heavy;
-  return $super === VOID ? this.z2h(name, heavy) : $super.z2h.call(this, name, heavy);
+  return $super === VOID ? this.g2i(name, heavy) : $super.g2i.call(this, name, heavy);
 };
 protoOf(JsAccessoryOption).toString = function () {
   return 'JsAccessoryOption(name=' + this.name + ', heavy=' + this.heavy + ')';
@@ -30954,13 +30975,13 @@ function JsRatioRange(numerator, denominator, low, high) {
   this.low = low;
   this.high = high;
 }
-protoOf(JsRatioRange).a2i = function () {
+protoOf(JsRatioRange).h2i = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).b2i = function () {
+protoOf(JsRatioRange).i2i = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).c2i = function () {
+protoOf(JsRatioRange).j2i = function () {
   return this.low;
 };
 protoOf(JsRatioRange).a2c = function () {
@@ -30975,10 +30996,10 @@ protoOf(JsRatioRange).za = function () {
 protoOf(JsRatioRange).jd = function () {
   return this.low;
 };
-protoOf(JsRatioRange).h2g = function () {
+protoOf(JsRatioRange).o2g = function () {
   return this.high;
 };
-protoOf(JsRatioRange).d2i = function (numerator, denominator, low, high) {
+protoOf(JsRatioRange).k2i = function (numerator, denominator, low, high) {
   return new JsRatioRange(numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super) {
@@ -30986,7 +31007,7 @@ protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super
   denominator = denominator === VOID ? this.denominator : denominator;
   low = low === VOID ? this.low : low;
   high = high === VOID ? this.high : high;
-  return $super === VOID ? this.d2i(numerator, denominator, low, high) : $super.d2i.call(this, numerator, denominator, low, high);
+  return $super === VOID ? this.k2i(numerator, denominator, low, high) : $super.k2i.call(this, numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).toString = function () {
   return 'JsRatioRange(numerator=' + this.numerator + ', denominator=' + this.denominator + ', low=' + this.low + ', high=' + this.high + ')';
@@ -31019,16 +31040,16 @@ function JsPrescription(exerciseName, sets, repsLow, repsHigh) {
   this.repsLow = repsLow;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPrescription).e2i = function () {
+protoOf(JsPrescription).l2i = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).x2g = function () {
+protoOf(JsPrescription).e2h = function () {
   return this.sets;
 };
-protoOf(JsPrescription).f2i = function () {
+protoOf(JsPrescription).m2i = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).g2i = function () {
+protoOf(JsPrescription).n2i = function () {
   return this.repsHigh;
 };
 protoOf(JsPrescription).ya = function () {
@@ -31040,10 +31061,10 @@ protoOf(JsPrescription).za = function () {
 protoOf(JsPrescription).jd = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).h2g = function () {
+protoOf(JsPrescription).o2g = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).h2i = function (exerciseName, sets, repsLow, repsHigh) {
+protoOf(JsPrescription).o2i = function (exerciseName, sets, repsLow, repsHigh) {
   return new JsPrescription(exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, $super) {
@@ -31051,7 +31072,7 @@ protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, 
   sets = sets === VOID ? this.sets : sets;
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.h2i(exerciseName, sets, repsLow, repsHigh) : $super.h2i.call(this, exerciseName, sets, repsLow, repsHigh);
+  return $super === VOID ? this.o2i(exerciseName, sets, repsLow, repsHigh) : $super.o2i.call(this, exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).toString = function () {
   return 'JsPrescription(exerciseName=' + this.exerciseName + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ')';
@@ -31111,34 +31132,34 @@ function JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, vol
 protoOf(JsAdvicePayload).re = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).m2g = function () {
+protoOf(JsAdvicePayload).t2g = function () {
   return this.exerciseId;
 };
-protoOf(JsAdvicePayload).n2g = function () {
+protoOf(JsAdvicePayload).u2g = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).o2g = function () {
+protoOf(JsAdvicePayload).v2g = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).p2g = function () {
+protoOf(JsAdvicePayload).w2g = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).x2g = function () {
+protoOf(JsAdvicePayload).e2h = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).i2i = function () {
+protoOf(JsAdvicePayload).p2i = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).j2i = function () {
+protoOf(JsAdvicePayload).q2i = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).k2i = function () {
+protoOf(JsAdvicePayload).r2i = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).g2h = function () {
+protoOf(JsAdvicePayload).n2h = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).r2g = function () {
+protoOf(JsAdvicePayload).y2g = function () {
   return this.missPoint;
 };
 protoOf(JsAdvicePayload).ya = function () {
@@ -31150,31 +31171,31 @@ protoOf(JsAdvicePayload).za = function () {
 protoOf(JsAdvicePayload).jd = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).h2g = function () {
+protoOf(JsAdvicePayload).o2g = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).i2g = function () {
+protoOf(JsAdvicePayload).p2g = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).j2g = function () {
+protoOf(JsAdvicePayload).q2g = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).k2g = function () {
+protoOf(JsAdvicePayload).r2g = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).m2h = function () {
+protoOf(JsAdvicePayload).t2h = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).l2i = function () {
+protoOf(JsAdvicePayload).s2i = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).m2i = function () {
+protoOf(JsAdvicePayload).t2i = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).n2i = function () {
+protoOf(JsAdvicePayload).u2i = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).o2i = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) {
+protoOf(JsAdvicePayload).v2i = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) {
   return new JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
 };
 protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, $super) {
@@ -31189,7 +31210,7 @@ protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe,
   loadFactor = loadFactor === VOID ? this.loadFactor : loadFactor;
   lift = lift === VOID ? this.lift : lift;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
-  return $super === VOID ? this.o2i(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) : $super.o2i.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
+  return $super === VOID ? this.v2i(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint) : $super.v2i.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint);
 };
 protoOf(JsAdvicePayload).toString = function () {
   return 'JsAdvicePayload(kind=' + this.kind + ', exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', sets=' + this.sets + ', items=' + toString(this.items) + ', volumeFactor=' + this.volumeFactor + ', loadFactor=' + this.loadFactor + ', lift=' + this.lift + ', missPoint=' + this.missPoint + ')';
@@ -31244,19 +31265,19 @@ function JsFormGuide(purpose, setup, steps, cues, mistakes) {
   this.cues = cues;
   this.mistakes = mistakes;
 }
-protoOf(JsFormGuide).p2i = function () {
+protoOf(JsFormGuide).w2i = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).q2i = function () {
+protoOf(JsFormGuide).x2i = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).r2i = function () {
+protoOf(JsFormGuide).y2i = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).s2i = function () {
+protoOf(JsFormGuide).z2i = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).t2i = function () {
+protoOf(JsFormGuide).a2j = function () {
   return this.mistakes;
 };
 protoOf(JsFormGuide).ya = function () {
@@ -31268,13 +31289,13 @@ protoOf(JsFormGuide).za = function () {
 protoOf(JsFormGuide).jd = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).h2g = function () {
+protoOf(JsFormGuide).o2g = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).i2g = function () {
+protoOf(JsFormGuide).p2g = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).u2i = function (purpose, setup, steps, cues, mistakes) {
+protoOf(JsFormGuide).b2j = function (purpose, setup, steps, cues, mistakes) {
   return new JsFormGuide(purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $super) {
@@ -31283,7 +31304,7 @@ protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $su
   steps = steps === VOID ? this.steps : steps;
   cues = cues === VOID ? this.cues : cues;
   mistakes = mistakes === VOID ? this.mistakes : mistakes;
-  return $super === VOID ? this.u2i(purpose, setup, steps, cues, mistakes) : $super.u2i.call(this, purpose, setup, steps, cues, mistakes);
+  return $super === VOID ? this.b2j(purpose, setup, steps, cues, mistakes) : $super.b2j.call(this, purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).toString = function () {
   return 'JsFormGuide(purpose=' + this.purpose + ', setup=' + toString(this.setup) + ', steps=' + toString(this.steps) + ', cues=' + toString(this.cues) + ', mistakes=' + toString(this.mistakes) + ')';
@@ -31317,10 +31338,10 @@ function JsRpeGuide(title, lines) {
   this.title = title;
   this.lines = lines;
 }
-protoOf(JsRpeGuide).v2i = function () {
+protoOf(JsRpeGuide).c2j = function () {
   return this.title;
 };
-protoOf(JsRpeGuide).w2i = function () {
+protoOf(JsRpeGuide).d2j = function () {
   return this.lines;
 };
 protoOf(JsRpeGuide).ya = function () {
@@ -31329,13 +31350,13 @@ protoOf(JsRpeGuide).ya = function () {
 protoOf(JsRpeGuide).za = function () {
   return this.lines;
 };
-protoOf(JsRpeGuide).x2i = function (title, lines) {
+protoOf(JsRpeGuide).e2j = function (title, lines) {
   return new JsRpeGuide(title, lines);
 };
 protoOf(JsRpeGuide).copy = function (title, lines, $super) {
   title = title === VOID ? this.title : title;
   lines = lines === VOID ? this.lines : lines;
-  return $super === VOID ? this.x2i(title, lines) : $super.x2i.call(this, title, lines);
+  return $super === VOID ? this.e2j(title, lines) : $super.e2j.call(this, title, lines);
 };
 protoOf(JsRpeGuide).toString = function () {
   return 'JsRpeGuide(title=' + this.title + ', lines=' + toString(this.lines) + ')';
@@ -31370,28 +31391,28 @@ function JsLibraryExercise(name, aliases, area, equipment, muscles, kind, catego
 protoOf(JsLibraryExercise).ar = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).y2i = function () {
+protoOf(JsLibraryExercise).f2j = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).z2i = function () {
+protoOf(JsLibraryExercise).g2j = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).a2j = function () {
+protoOf(JsLibraryExercise).h2j = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).e2g = function () {
+protoOf(JsLibraryExercise).l2g = function () {
   return this.muscles;
 };
 protoOf(JsLibraryExercise).re = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).c2g = function () {
+protoOf(JsLibraryExercise).j2g = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).d2g = function () {
+protoOf(JsLibraryExercise).k2g = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).b2j = function () {
+protoOf(JsLibraryExercise).i2j = function () {
   return this.guide;
 };
 protoOf(JsLibraryExercise).ya = function () {
@@ -31403,25 +31424,25 @@ protoOf(JsLibraryExercise).za = function () {
 protoOf(JsLibraryExercise).jd = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).h2g = function () {
+protoOf(JsLibraryExercise).o2g = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).i2g = function () {
+protoOf(JsLibraryExercise).p2g = function () {
   return this.muscles;
 };
-protoOf(JsLibraryExercise).j2g = function () {
+protoOf(JsLibraryExercise).q2g = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).k2g = function () {
+protoOf(JsLibraryExercise).r2g = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).m2h = function () {
+protoOf(JsLibraryExercise).t2h = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).l2i = function () {
+protoOf(JsLibraryExercise).s2i = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).c2j = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
+protoOf(JsLibraryExercise).j2j = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
   return new JsLibraryExercise(name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide, $super) {
@@ -31434,7 +31455,7 @@ protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, musc
   category = category === VOID ? this.category : category;
   parentLift = parentLift === VOID ? this.parentLift : parentLift;
   guide = guide === VOID ? this.guide : guide;
-  return $super === VOID ? this.c2j(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.c2j.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
+  return $super === VOID ? this.j2j(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.j2j.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).toString = function () {
   return 'JsLibraryExercise(name=' + this.name + ', aliases=' + toString(this.aliases) + ', area=' + this.area + ', equipment=' + toString(this.equipment) + ', muscles=' + toString(this.muscles) + ', kind=' + this.kind + ', category=' + this.category + ', parentLift=' + this.parentLift + ', guide=' + this.guide.toString() + ')';
@@ -31482,16 +31503,16 @@ function JsFigureInfo(startCaption, endCaption, thumbnail, viewBox) {
   this.thumbnail = thumbnail;
   this.viewBox = viewBox;
 }
-protoOf(JsFigureInfo).d2j = function () {
+protoOf(JsFigureInfo).k2j = function () {
   return this.startCaption;
 };
-protoOf(JsFigureInfo).e2j = function () {
+protoOf(JsFigureInfo).l2j = function () {
   return this.endCaption;
 };
-protoOf(JsFigureInfo).f2j = function () {
+protoOf(JsFigureInfo).m2j = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).g2j = function () {
+protoOf(JsFigureInfo).n2j = function () {
   return this.viewBox;
 };
 protoOf(JsFigureInfo).ya = function () {
@@ -31503,10 +31524,10 @@ protoOf(JsFigureInfo).za = function () {
 protoOf(JsFigureInfo).jd = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).h2g = function () {
+protoOf(JsFigureInfo).o2g = function () {
   return this.viewBox;
 };
-protoOf(JsFigureInfo).h2j = function (startCaption, endCaption, thumbnail, viewBox) {
+protoOf(JsFigureInfo).o2j = function (startCaption, endCaption, thumbnail, viewBox) {
   return new JsFigureInfo(startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, viewBox, $super) {
@@ -31514,7 +31535,7 @@ protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, view
   endCaption = endCaption === VOID ? this.endCaption : endCaption;
   thumbnail = thumbnail === VOID ? this.thumbnail : thumbnail;
   viewBox = viewBox === VOID ? this.viewBox : viewBox;
-  return $super === VOID ? this.h2j(startCaption, endCaption, thumbnail, viewBox) : $super.h2j.call(this, startCaption, endCaption, thumbnail, viewBox);
+  return $super === VOID ? this.o2j(startCaption, endCaption, thumbnail, viewBox) : $super.o2j.call(this, startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).toString = function () {
   return 'JsFigureInfo(startCaption=' + this.startCaption + ', endCaption=' + this.endCaption + ', thumbnail=' + this.thumbnail + ', viewBox=' + toString(this.viewBox) + ')';
@@ -31548,7 +31569,7 @@ function JsFigureShape(kind, role) {
 protoOf(JsFigureShape).re = function () {
   return this.kind;
 };
-protoOf(JsFigureShape).i2j = function () {
+protoOf(JsFigureShape).p2j = function () {
   return this.role;
 };
 function JsFigureCircle(role, cx, cy, r) {
@@ -31557,13 +31578,13 @@ function JsFigureCircle(role, cx, cy, r) {
   this.cy = cy;
   this.r = r;
 }
-protoOf(JsFigureCircle).j2j = function () {
+protoOf(JsFigureCircle).q2j = function () {
   return this.cx;
 };
-protoOf(JsFigureCircle).k2j = function () {
+protoOf(JsFigureCircle).r2j = function () {
   return this.cy;
 };
-protoOf(JsFigureCircle).l2j = function () {
+protoOf(JsFigureCircle).s2j = function () {
   return this.r;
 };
 function JsFigureCapsule(role, x1, y1, x2, y2, width) {
@@ -31574,16 +31595,16 @@ function JsFigureCapsule(role, x1, y1, x2, y2, width) {
   this.y2 = y2;
   this.width = width;
 }
-protoOf(JsFigureCapsule).m2j = function () {
+protoOf(JsFigureCapsule).t2j = function () {
   return this.x1;
 };
-protoOf(JsFigureCapsule).n2j = function () {
+protoOf(JsFigureCapsule).u2j = function () {
   return this.y1;
 };
-protoOf(JsFigureCapsule).o2j = function () {
+protoOf(JsFigureCapsule).v2j = function () {
   return this.x2;
 };
-protoOf(JsFigureCapsule).p2j = function () {
+protoOf(JsFigureCapsule).w2j = function () {
   return this.y2;
 };
 protoOf(JsFigureCapsule).a1w = function () {
@@ -31597,16 +31618,16 @@ function JsFigureRect(role, x, y, w, h, radius) {
   this.h = h;
   this.radius = radius;
 }
-protoOf(JsFigureRect).q2j = function () {
+protoOf(JsFigureRect).x2j = function () {
   return this.x;
 };
-protoOf(JsFigureRect).r2j = function () {
+protoOf(JsFigureRect).y2j = function () {
   return this.y;
 };
-protoOf(JsFigureRect).s2j = function () {
+protoOf(JsFigureRect).z2j = function () {
   return this.w;
 };
-protoOf(JsFigureRect).t2j = function () {
+protoOf(JsFigureRect).a2k = function () {
   return this.h;
 };
 protoOf(JsFigureRect).q26 = function () {
@@ -31616,7 +31637,7 @@ function JsFigurePolygon(role, points) {
   JsFigureShape.call(this, 'polygon', role);
   this.points = points;
 }
-protoOf(JsFigurePolygon).u2j = function () {
+protoOf(JsFigurePolygon).b2k = function () {
   return this.points;
 };
 function toFacadeId(_this__u8e3s4, field) {
@@ -31866,7 +31887,7 @@ function toDomain_6(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   try {
-    tmp = get_androidJson().xt(Companion_instance_54.x2e(), _this__u8e3s4.payloadJson);
+    tmp = get_androidJson().xt(Companion_instance_54.e2f(), _this__u8e3s4.payloadJson);
   } catch ($p) {
     var tmp_0;
     if ($p instanceof SerializationException) {
@@ -31953,11 +31974,11 @@ function toJs_0(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp = toFacadeId(_this__u8e3s4.y13_1, 'advice.id');
   var tmp0_safe_receiver = _this__u8e3s4.s13_1;
-  return new JsAdvice(tmp, _this__u8e3s4.r13_1.v1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.v1_1, _this__u8e3s4.t13_1.toString(), _this__u8e3s4.u13_1, _this__u8e3s4.v13_1, _this__u8e3s4.x13_1.v1_1, get_androidJson().wt(Companion_instance_54.x2e(), _this__u8e3s4.w13_1));
+  return new JsAdvice(tmp, _this__u8e3s4.r13_1.v1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.v1_1, _this__u8e3s4.t13_1.toString(), _this__u8e3s4.u13_1, _this__u8e3s4.v13_1, _this__u8e3s4.x13_1.v1_1, get_androidJson().wt(Companion_instance_54.e2f(), _this__u8e3s4.w13_1));
 }
 function toJs_1(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return new JsPr(_this__u8e3s4.d2f_1.toString(), _this__u8e3s4.e2f_1, _this__u8e3s4.f2f_1, _this__u8e3s4.g2f_1, _this__u8e3s4.h2f_1);
+  return new JsPr(_this__u8e3s4.k2f_1.toString(), _this__u8e3s4.l2f_1, _this__u8e3s4.m2f_1, _this__u8e3s4.n2f_1, _this__u8e3s4.o2f_1);
 }
 function toJs_2(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -31973,7 +31994,7 @@ function decodePayload(payloadJson) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   try {
-    tmp = get_androidJson().xt(Companion_instance_54.x2e(), payloadJson);
+    tmp = get_androidJson().xt(Companion_instance_54.e2f(), payloadJson);
   } catch ($p) {
     var tmp_0;
     if ($p instanceof IllegalArgumentException) {
@@ -31990,13 +32011,13 @@ function decodePayload(payloadJson) {
   } else {
     if (payload instanceof Accessories) {
       // Inline function 'kotlin.collections.map' call
-      var this_0 = payload.m2e_1;
+      var this_0 = payload.t2e_1;
       // Inline function 'kotlin.collections.mapTo' call
       var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
       var _iterator__ex2g4s = this_0.j();
       while (_iterator__ex2g4s.k()) {
         var item = _iterator__ex2g4s.l();
-        var tmp$ret$2 = new JsPrescription(item.d2e_1, item.e2e_1, item.f2e_1, item.g2e_1);
+        var tmp$ret$2 = new JsPrescription(item.k2e_1, item.l2e_1, item.m2e_1, item.n2e_1);
         destination.i(tmp$ret$2);
       }
       // Inline function 'kotlin.collections.toTypedArray' call
@@ -32007,8 +32028,8 @@ function decodePayload(payloadJson) {
         tmp_1 = new JsAdvicePayload('Deload', VOID, VOID, VOID, VOID, VOID, VOID, payload.t15_1, payload.u15_1);
       } else {
         if (payload instanceof WeakPoint) {
-          var tmp1_safe_receiver = payload.t2e_1;
-          tmp_1 = new JsAdvicePayload('WeakPoint', VOID, VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.s2e_1.v1_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.v1_1);
+          var tmp1_safe_receiver = payload.a2f_1;
+          tmp_1 = new JsAdvicePayload('WeakPoint', VOID, VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.z2e_1.v1_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.v1_1);
         } else {
           if (payload instanceof ReEntry) {
             tmp_1 = new JsAdvicePayload('ReEntry', VOID, VOID, VOID, VOID, VOID, VOID, VOID, payload.c14_1);

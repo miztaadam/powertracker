@@ -733,15 +733,42 @@ private fun backLegOnBall(hip: Point, knee: Point, torso: Double): Leg {
  * A leg from [hip] to a foot on its ball, the ankle at [ankleX] and plantar flexed [plantar]°: the ankle raised until
  * the toes touch the floor.
  */
-private fun legOnBall(hip: Point, ankleX: Double, torso: Double, plantar: Double, surface: Double = 0.0): Leg {
-    fun shinOf(l: Leg) = fold180(torso + 180.0 + l.hip - l.knee)
-    val reach = Segment.THIGH.length + Segment.SHIN.length - 1e-6
-    val y = (0..800).map { -(surface + it / 20.0) }.filter { (Point(ankleX, it) - hip).length() <= reach }.minBy { yy ->
-        val l = Reach.leg(hip, Point(ankleX, yy), torso, foot = 0.0)
-        abs(footLow(Point(ankleX, yy), shinOf(l) + 90.0 + plantar) - surface)
+private fun legOnBall(hip: Point, ankleX: Double, torso: Double, plantar: Double, surface: Double = 0.0): Leg =
+    BallHeights(hip, ankleX, torso, surface).leg(plantar)
+
+/**
+ * [legOnBall]'s search, kept for several plantar flexions from one hip and ankle x: the ankle heights tried (every 0.05
+ * cm from [surface] up to 40 cm above it, those the leg reaches) and the shin's angle at each, which does not depend on
+ * the plantar flexion, so it is worked out once (Task 14: [splitTop] tries nine plantar flexions at each height).
+ */
+private class BallHeights(val hip: Point, val ankleX: Double, val torso: Double, val surface: Double) {
+    private val heights: DoubleArray
+    private val shins: DoubleArray
+
+    init {
+        val reach = Segment.THIGH.length + Segment.SHIN.length - 1e-6
+        val ys = (0..800).map { -(surface + it / 20.0) }.filter { (Point(ankleX, it) - hip).length() <= reach }
+        heights = ys.toDoubleArray()
+        shins = DoubleArray(ys.size) { i ->
+            val l = Reach.leg(hip, Point(ankleX, ys[i]), torso, foot = 0.0)
+            fold180(torso + 180.0 + l.hip - l.knee)
+        }
     }
-    val l = Reach.leg(hip, Point(ankleX, y), torso, foot = 0.0)
-    return Reach.leg(hip, Point(ankleX, y), torso, shinOf(l) + 90.0 + plantar)
+
+    /** The leg with the foot plantar flexed [plantar]°: at the first height whose toes come nearest the surface. */
+    fun leg(plantar: Double): Leg {
+        if (heights.isEmpty()) throw NoSuchElementException("the ankle is out of the leg's reach")
+        var best = 0
+        var bestOff = Double.POSITIVE_INFINITY
+        for (i in heights.indices) {
+            val off = abs(footLow(Point(ankleX, heights[i]), shins[i] + 90.0 + plantar) - surface)
+            if (off < bestOff) {
+                best = i
+                bestOff = off
+            }
+        }
+        return Reach.leg(hip, Point(ankleX, heights[best]), torso, shins[best] + 90.0 + plantar)
+    }
 }
 
 /** A split stance's joints: the pelvis, the front leg and the back leg, upright torso. */
@@ -800,17 +827,24 @@ private fun splitTop(bottom: Split, frontAnkle: Point, backAnkleX: Double, slack
     fun at(y: Double): Split? {
         val hip = Point(bottom.pelvis.x, y)
         if ((frontAnkle - hip).length() > legLen) return null
-        val back = (10..50 step 5).map { legOnBall(hip, backAnkleX, 90.0, -it.toDouble()) }
+        val heights = BallHeights(hip, backAnkleX, 90.0, 0.0)
+        val back = (10..50 step 5).map { heights.leg(-it.toDouble()) }
             .filter { it.hip >= -19.0 && it.knee >= 5.0 }.maxByOrNull { it.ankle } ?: return null
         return Split(hip, Reach.leg(hip, frontAnkle, 90.0, foot = 0.0), back)
     }
-    var best = bottom
-    var y = bottom.pelvis.y
-    while (y > -110.0) {
-        at(y)?.let { best = it }
-        y -= 0.5
+    // The heights 0.5 cm apart from the bottom's up to 110 cm (accumulated step by step, as they always were); the
+    // highest that works is the top. Tried from the top down, stopping at the first that works: the same answer as
+    // trying them all from the bottom up, without solving the back leg at every height below it (Task 14: that made
+    // the split squats take about 150 ms to build, where every other figure takes about 1 ms).
+    val heights = buildList {
+        var y = bottom.pelvis.y
+        while (y > -110.0) {
+            add(y)
+            y -= 0.5
+        }
     }
-    return best
+    for (y in heights.asReversed()) at(y)?.let { return it }
+    return bottom
 }
 
 /** The skeleton's ankle and foot angle of a [Split]'s back leg. */
