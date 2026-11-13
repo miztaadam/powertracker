@@ -70,7 +70,7 @@ The table's middle column is the main groups a kind draws from; the kind rules a
 | CALVES | CALVES | Standing calf raise, Seated calf raise, Leg press calf raise, Dumbbell calf raise |
 | ABS | ABS, OBLIQUES | Cable crunch, Machine crunch, Reverse crunch, Ab wheel rollout |
 
-A test proves every default name is in the catalogue and has a main group its kind accepts. A kind's defaults are re-ordered by the equipment the lifter's picks use (the primary equipment of each default; most-used first; otherwise the order above), then rotated by `variant` places: that is what "another draft" changes. Picks are never changed by `variant`.
+A test proves every default name is in the catalogue and has a main group its kind accepts. A kind's defaults are re-ordered by the equipment the lifter's picks use (the primary equipment of each default; most-used first; otherwise the order above), then rotated by `variant` places: that is what "another draft" changes. Picks are never changed by `variant`. Last, when the lifter has priorities, the defaults that work a priority group move ahead of those that do not, keeping their order otherwise (so a hamstrings priority is never answered with hip thrusts in every hinge slot).
 
 **Session templates** (slots in training order):
 - **3 days**, three full-body sessions on the lifter's weekdays in week order, titled "Full body":
