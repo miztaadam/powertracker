@@ -12,7 +12,10 @@ data class AccessoryPrescription(val exerciseName: String, val sets: Int, val re
 
 @Serializable
 sealed interface AdvicePayload {
-    /** [sets] overrides the planned set count (e.g. during a deload); null means use the plan's sets. */
+    /**
+     * [sets] overrides the planned set count (e.g. during a deload); null means use the plan's sets. [repsHigh] is the
+     * top of a rep range with [reps] its low end; null means fixed reps, and is left out of the stored JSON.
+     */
     @Serializable
     data class Target(
         val exerciseId: Long,
@@ -20,6 +23,7 @@ sealed interface AdvicePayload {
         val reps: Int,
         val rpe: Double,
         val sets: Int? = null,
+        val repsHigh: Int? = null,
     ) : AdvicePayload
 
     @Serializable
@@ -44,4 +48,6 @@ data class Advice(
     val payload: AdvicePayload,
     val status: AdviceStatus = AdviceStatus.OPEN,
     val id: Long = 0,
+    /** The side the advice is for. A deload or an easing-back-in belongs to the lifter and counts on both sides. */
+    val mode: TrainingMode = TrainingMode.POWERLIFTING,
 )

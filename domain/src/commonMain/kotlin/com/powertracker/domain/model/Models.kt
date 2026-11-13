@@ -11,6 +11,12 @@ enum class Category { SQUAT, BENCH, DEADLIFT, STRICT_PRESS, VARIATION, ACCESSORY
 
 enum class MissPoint { FLOOR, MID, LOCKOUT }
 
+/**
+ * The side of the app a plan item, session or piece of advice belongs to. Off is POWERLIFTING, the app as it always
+ * was. The names are stored in databases and backups.
+ */
+enum class TrainingMode { POWERLIFTING, BODYBUILDING }
+
 /** What the apps call [lift]: "Squat", "Bench", "Deadlift" or "Strict press". */
 fun liftLabel(lift: MainLift): String = when (lift) {
     MainLift.SQUAT -> "Squat"
@@ -70,6 +76,8 @@ data class LoggedSession(
     val bodyweightKg: Double?,
     val readiness: Int?,
     val sets: List<LoggedSet>,
+    /** The side that was active when the session was started. */
+    val mode: TrainingMode = TrainingMode.POWERLIFTING,
 )
 
 data class PlanItem(
@@ -80,6 +88,9 @@ data class PlanItem(
     val reps: Int,
     val targetRpe: Double,
     val order: Int,
+    val mode: TrainingMode = TrainingMode.POWERLIFTING,
+    /** The top of a rep range, with [reps] its low end; null means fixed reps (every powerlifting item). */
+    val repsHigh: Int? = null,
 )
 
 data class Baseline(val exerciseId: Long, val e1rmKg: Double, val date: LocalDate)

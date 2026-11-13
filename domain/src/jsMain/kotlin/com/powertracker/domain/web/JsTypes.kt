@@ -15,6 +15,7 @@ import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.coach.AccessoryOption
 import com.powertracker.domain.coach.CoachSettings
 import com.powertracker.domain.library.FormGuide
@@ -31,7 +32,8 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 // Plain data only crosses the JS boundary: Int ids, Double kilograms, ISO date strings, weekdays 1-7
-// (Monday = 1), enums as their Kotlin names, and advice payloads as the Android AdvicePayload JSON.
+// (Monday = 1), enums as their Kotlin names, and advice payloads as the Android AdvicePayload JSON. A `mode` is a
+// `TrainingMode` name ("POWERLIFTING" or "BODYBUILDING"); it may be left out, and then means POWERLIFTING.
 
 @JsExport
 data class JsExercise(
@@ -62,6 +64,7 @@ data class JsSession(
     val bodyweightKg: Double?,
     val readiness: Int?,
     val sets: Array<JsSet>,
+    val mode: String = "POWERLIFTING",
 )
 
 @JsExport
@@ -73,6 +76,9 @@ data class JsPlanItem(
     val reps: Int,
     val targetRpe: Double,
     val order: Int,
+    val mode: String = "POWERLIFTING",
+    /** The top of a rep range, with [reps] its low end; null means fixed reps. */
+    val repsHigh: Int? = null,
 )
 
 @JsExport
@@ -88,6 +94,7 @@ data class JsAdvice(
     val severity: Int,
     val status: String,
     val payloadJson: String,
+    val mode: String = "POWERLIFTING",
 )
 
 @JsExport
@@ -135,6 +142,8 @@ data class JsAdvicePayload(
     val loadFactor: Double? = null,
     val lift: String? = null,
     val missPoint: String? = null,
+    /** Target: the top of the rep range, or null for fixed reps. */
+    val repsHigh: Int? = null,
 )
 
 /** A form guide: [purpose] is one or two sentences; the UI appends `GritDomain.safetyLine()` after [mistakes]. */
@@ -211,10 +220,12 @@ internal fun JsSet.toDomain() = LoggedSet(
 
 internal fun JsSession.toDomain() = LoggedSession(
     id.toLong(), parseDate("session.date", date), bodyweightKg, readiness, sets.map { it.toDomain() },
+    parseEnum<TrainingMode>("session.mode", mode),
 )
 
 internal fun JsPlanItem.toDomain() = PlanItem(
     id.toLong(), parseWeekday("plan.weekday", weekday), exerciseId.toLong(), sets, reps, targetRpe, order,
+    parseEnum<TrainingMode>("plan.mode", mode), repsHigh,
 )
 
 internal fun JsBaseline.toDomain() = Baseline(exerciseId.toLong(), e1rmKg, parseDate("baseline.date", date))
@@ -242,12 +253,13 @@ internal fun JsAdvice.toDomain(): Advice {
         payload,
         parseEnum<AdviceStatus>("advice.status", status),
         id.toLong(),
+        parseEnum<TrainingMode>("advice.mode", mode),
     )
 }
 
 internal fun Advice.toJs() = JsAdvice(
     id.toFacadeId("advice.id"), type.name, lift?.name, createdAt.toString(), reason, severity, status.name,
-    androidJson.encodeToString(AdvicePayload.serializer(), payload),
+    androidJson.encodeToString(AdvicePayload.serializer(), payload), mode.name,
 )
 
 internal fun Pr.toJs() = JsPr(date.toString(), e1rmKg, weightKg, reps, rpe)
@@ -267,7 +279,7 @@ internal fun decodePayload(payloadJson: String): JsAdvicePayload? {
     return when (payload) {
         is AdvicePayload.Target -> JsAdvicePayload(
             "Target", exerciseId = payload.exerciseId.toFacadeId("payload.exerciseId"), weightKg = payload.weightKg,
-            reps = payload.reps, rpe = payload.rpe, sets = payload.sets,
+            reps = payload.reps, rpe = payload.rpe, sets = payload.sets, repsHigh = payload.repsHigh,
         )
         is AdvicePayload.Accessories -> JsAdvicePayload(
             "Accessories",

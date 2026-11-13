@@ -22,6 +22,7 @@ import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.liftLabel as domainLiftLabel
 import com.powertracker.domain.model.missPointLabel as domainMissPointLabel
+import com.powertracker.domain.model.repsText as domainRepsText
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.domain.progress.ProgressMath
 import com.powertracker.domain.seed.SeedLibrary
@@ -125,6 +126,9 @@ object GritDomain {
     /** The label of the miss-point choice [point] (a `MissPoint` name) when logging [lift]: "Off the shoulders" for a strict press floor miss. */
     fun missPointLabel(lift: String, point: String): String =
         domainMissPointLabel(parseLift("lift", lift), parseEnum<MissPoint>("point", point))
+
+    /** Reps as the apps print them: "5" for fixed reps ([repsHigh] null), "8–12" (en dash) for a range. */
+    fun repsText(reps: Int, repsHigh: Int?): String = domainRepsText(reps, repsHigh)
 
     /** The main lift an exercise trains: itself for a main lift, its parent for a variation, null for an accessory. */
     fun mainLiftOf(exercise: JsExercise): String? = exercise.toDomain().mainLift?.name

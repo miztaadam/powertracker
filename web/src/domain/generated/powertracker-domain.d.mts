@@ -30,6 +30,7 @@ export declare namespace GritDomain {
             mainLifts(): Array<string>;
             liftLabel(lift: string): string;
             missPointLabel(lift: string, point: string): string;
+            repsText(reps: number, repsHigh: Nullable<number>): string;
             mainLiftOf(exercise: JsExercise): Nullable<string>;
             isMainLift(exercise: JsExercise): boolean;
             lastTopSet(history: JsHistory, exerciseId: number, before: string): Nullable<JsSet>;
@@ -96,13 +97,14 @@ export declare namespace JsSet {
     }
 }
 export declare class JsSession {
-    constructor(id: number, date: string, bodyweightKg: Nullable<number>, readiness: Nullable<number>, sets: Array<JsSet>);
+    constructor(id: number, date: string, bodyweightKg: Nullable<number>, readiness: Nullable<number>, sets: Array<JsSet>, mode?: string);
     get id(): number;
     get date(): string;
     get bodyweightKg(): Nullable<number>;
     get readiness(): Nullable<number>;
     get sets(): Array<JsSet>;
-    copy(id?: number, date?: string, bodyweightKg?: Nullable<number>, readiness?: Nullable<number>, sets?: Array<JsSet>): JsSession;
+    get mode(): string;
+    copy(id?: number, date?: string, bodyweightKg?: Nullable<number>, readiness?: Nullable<number>, sets?: Array<JsSet>, mode?: string): JsSession;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;
@@ -114,7 +116,7 @@ export declare namespace JsSession {
     }
 }
 export declare class JsPlanItem {
-    constructor(id: number, weekday: number, exerciseId: number, sets: number, reps: number, targetRpe: number, order: number);
+    constructor(id: number, weekday: number, exerciseId: number, sets: number, reps: number, targetRpe: number, order: number, mode?: string, repsHigh?: Nullable<number>);
     get id(): number;
     get weekday(): number;
     get exerciseId(): number;
@@ -122,7 +124,9 @@ export declare class JsPlanItem {
     get reps(): number;
     get targetRpe(): number;
     get order(): number;
-    copy(id?: number, weekday?: number, exerciseId?: number, sets?: number, reps?: number, targetRpe?: number, order?: number): JsPlanItem;
+    get mode(): string;
+    get repsHigh(): Nullable<number>;
+    copy(id?: number, weekday?: number, exerciseId?: number, sets?: number, reps?: number, targetRpe?: number, order?: number, mode?: string, repsHigh?: Nullable<number>): JsPlanItem;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;
@@ -150,7 +154,7 @@ export declare namespace JsBaseline {
     }
 }
 export declare class JsAdvice {
-    constructor(id: number, type: string, lift: Nullable<string>, createdAt: string, reason: string, severity: number, status: string, payloadJson: string);
+    constructor(id: number, type: string, lift: Nullable<string>, createdAt: string, reason: string, severity: number, status: string, payloadJson: string, mode?: string);
     get id(): number;
     get type(): string;
     get lift(): Nullable<string>;
@@ -159,7 +163,8 @@ export declare class JsAdvice {
     get severity(): number;
     get status(): string;
     get payloadJson(): string;
-    copy(id?: number, type?: string, lift?: Nullable<string>, createdAt?: string, reason?: string, severity?: number, status?: string, payloadJson?: string): JsAdvice;
+    get mode(): string;
+    copy(id?: number, type?: string, lift?: Nullable<string>, createdAt?: string, reason?: string, severity?: number, status?: string, payloadJson?: string, mode?: string): JsAdvice;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;
@@ -284,7 +289,7 @@ export declare namespace JsPrescription {
     }
 }
 export declare class JsAdvicePayload {
-    constructor(kind: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>);
+    constructor(kind: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>);
     get kind(): string;
     get exerciseId(): Nullable<number>;
     get weightKg(): Nullable<number>;
@@ -296,7 +301,8 @@ export declare class JsAdvicePayload {
     get loadFactor(): Nullable<number>;
     get lift(): Nullable<string>;
     get missPoint(): Nullable<string>;
-    copy(kind?: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>): JsAdvicePayload;
+    get repsHigh(): Nullable<number>;
+    copy(kind?: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>): JsAdvicePayload;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;

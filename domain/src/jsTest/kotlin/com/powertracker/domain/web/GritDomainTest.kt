@@ -19,6 +19,7 @@ import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.model.TrainingMode
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
@@ -413,5 +414,31 @@ class GritDomainTest {
         assertNull(GritDomain.figureInfo("My own exercise"))
         assertNull(GritDomain.figureShapes("My own exercise", "start"))
         assertFailsWith<IllegalArgumentException> { GritDomain.figureShapes("Bench", "START") }
+    }
+    @Test
+    fun sidesCrossTheBoundary() {
+        val oldItem = JsPlanItem(1, 1, 2, 3, 5, 8.0, 0)
+        assertEquals("POWERLIFTING", oldItem.mode)
+        assertNull(oldItem.repsHigh)
+        val item = JsPlanItem(1, 1, 2, 3, 8, 8.0, 0, "BODYBUILDING", 12).toDomain()
+        assertEquals(TrainingMode.BODYBUILDING, item.mode)
+        assertEquals(12, item.repsHigh)
+        assertEquals(TrainingMode.POWERLIFTING, oldItem.toDomain().mode)
+        assertFailsWith<IllegalArgumentException> { JsPlanItem(1, 1, 2, 3, 8, 8.0, 0, "bodybuilding").toDomain() }
+
+        assertEquals("POWERLIFTING", JsSession(1, "2026-11-02", null, null, emptyArray()).mode)
+        assertEquals(TrainingMode.BODYBUILDING, JsSession(1, "2026-11-02", null, null, emptyArray(), "BODYBUILDING").toDomain().mode)
+
+        val target = AdvicePayload.Target(2, 60.0, 8, 8.0, repsHigh = 12)
+        val advice = Advice(AdviceType.TARGET, null, LocalDate(2026, 11, 2), "why", 1, target, mode = TrainingMode.BODYBUILDING)
+        val js = advice.toJs()
+        assertEquals("BODYBUILDING", js.mode)
+        assertEquals(advice, js.toDomain())
+        assertEquals("POWERLIFTING", jsAdvice(Advice(AdviceType.DELOAD, null, LocalDate(2026, 11, 2), "why", 1, AdvicePayload.Deload())).mode)
+        assertEquals(12, GritDomain.advicePayload(js.payloadJson)!!.repsHigh)
+        assertNull(GritDomain.advicePayload(Json.encodeToString(AdvicePayload.serializer(), AdvicePayload.Target(2, 100.0, 5, 8.0)))!!.repsHigh)
+
+        assertEquals("5", GritDomain.repsText(5, null))
+        assertEquals("8\u201312", GritDomain.repsText(8, 12))
     }
 }
