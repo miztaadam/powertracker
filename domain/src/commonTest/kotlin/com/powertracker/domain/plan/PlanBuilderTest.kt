@@ -112,6 +112,11 @@ class PlanBuilderTest {
                 assertTrue(key(e.name) in pickNames || key(e.name) in defaultNames, "${e.name}: $a")
                 if (e.inCatalogue) assertEquals(Library.find(e.name)!!.muscles, e.muscles)
                 if (e.slot != null && e.mainGroup != null) assertTrue(e.mainGroup in e.slot!!.accepts, "${e.name} in ${e.slot}")
+                // A slot takes only its own kind: a pick in a slot is of that kind (unless it is that slot's default too).
+                val kind = e.slot
+                if (kind != null && key(e.name) in pickNames && e.name !in kind.defaults) {
+                    assertEquals(kind, PlanBuilder.kindOf(e.name, e.muscles, e.compound), "${e.name} in $kind: $a")
+                }
             }
         }
     }
@@ -141,6 +146,8 @@ class PlanBuilderTest {
             val draft = PlanBuilder.build(a)
             assertEquals(listOf("Upper", "Lower", "Upper", "Lower"), draft.sessions.map { it.title })
             for (s in draft.sessions) for (e in s.exercises) {
+                // A held-over pick with no kind (a shrug, an own exercise) may go to any session (rule 4).
+                if (e.slot == null && PlanBuilder.kindOf(e.name, e.muscles, e.compound) == null) continue
                 val g = e.mainGroup ?: continue
                 if (s.title == "Upper") assertTrue(g !in lowerOnly, "${e.name} ($g) on Upper: $a")
                 else assertTrue(g !in upperOnly, "${e.name} ($g) on Lower: $a")
@@ -176,41 +183,89 @@ class PlanBuilderTest {
         }
     }
 
-    /** With no picks, each single priority raises its own group and lowers none. */
-    @Test
-    fun withNoPicksAPriorityRaisesItsGroupAndLowersNone() {
-        for (days in listOf(three, four)) {
-            val without = build(days).volume.associate { it.group to it.weeklySets }
-            for (g in PlanBuilder.TARGET_GROUPS) {
-                val with = build(days, priorities = listOf(g)).volume.associate { it.group to it.weeklySets }
-                for (other in PlanBuilder.TARGET_GROUPS) assertTrue(with.getValue(other) >= without.getValue(other), "$g lowers $other on $days")
-                assertTrue(with.getValue(g) > without.getValue(g), "$g on $days")
-                // Every priority reaches 10, except rear delts on 3 days: one REAR_DELT slot plus the added one is 4 + 4.
-                if (days == three && g == MuscleGroup.REAR_DELTS) assertEquals(3 to 8, without.getValue(g) to with.getValue(g))
-                else assertTrue(with.getValue(g) >= PlanBuilder.WEEKLY_SETS, "$g reaches ${with[g]} on $days")
+    /** 1,120 answers: 3 and 4 days; 0, 5, 12 and 40 picks with 10 seeds; 14 priority sets (each target group alone, and two mixes). */
+    private val priorityAnswers: List<BuilderAnswers> by lazy {
+        val prioritySets = PlanBuilder.TARGET_GROUPS.map { listOf(it) } +
+            listOf(listOf(MuscleGroup.CALVES, MuscleGroup.CHEST), listOf(MuscleGroup.HAMSTRINGS, MuscleGroup.REAR_DELTS, MuscleGroup.BICEPS))
+        buildList {
+            for (days in listOf(three, four)) for (count in listOf(0, 5, 12, 40)) for (seed in 0 until 10) for (priorities in prioritySets) {
+                val drawn = Library.all().shuffled(Random(seed * 13 + count)).take(count).map(::pick)
+                add(BuilderAnswers(days, if (seed % 3 == 1) drawn + ownNoMuscles else drawn, priorities))
             }
         }
     }
 
     /**
-     * With picks the rules do not keep either promise; these record what they give (stage 2 task 1 report). A
-     * priority re-orders the picks, so a pick's second placement can land in another slot: here Pull-up takes the ROW
-     * slot that held Seated cable row, and upper back falls from 6 to 3.
+     * For every answer: a priority strictly raises its own group's counted weekly sets, to at least 10, and never
+     * lowers any group's (the same answers without priorities compared). The rules do not keep this everywhere: 23
+     * of the 1,120 answers break it (24 failures), recorded here rather than hidden; the smallest of each sort are the
+     * three fixed cases below (stage 2 task 1 report).
      */
     @Test
-    fun withPicksAPriorityCanLowerAnotherGroup() {
-        val chosen = listOf("Pull-up", "Incline machine press", "Machine hip adduction", "Ab wheel rollout", "Clap push-up").map(::pick)
-        fun upperBack(d: PlanDraft) = d.volume.single { it.group == MuscleGroup.UPPER_BACK }.weeklySets
-        val priorities = listOf(MuscleGroup.CALVES, MuscleGroup.CHEST)
-        assertEquals(6 to 3, upperBack(build(three, chosen)) to upperBack(build(three, chosen, priorities)))
+    fun aPriorityRaisesItsGroupToTenAndNeverLowersAnyGroup() {
+        assertEquals(1120, priorityAnswers.size)
+        val failures = mutableListOf<String>()
+        for (a in priorityAnswers) {
+            val with = PlanBuilder.build(a).volume.associate { it.group to it.weeklySets }
+            val without = PlanBuilder.build(a.copy(priorities = emptyList())).volume.associate { it.group to it.weeklySets }
+            for (g in PlanBuilder.TARGET_GROUPS) if (with.getValue(g) < without.getValue(g)) failures += "lowers $g ${without[g]}->${with[g]}: $a"
+            for (g in a.priorities) {
+                if (with.getValue(g) <= without.getValue(g)) failures += "does not raise $g ${without[g]}->${with[g]}: $a"
+                if (with.getValue(g) < PlanBuilder.WEEKLY_SETS) failures += "$g only ${with[g]}: $a"
+            }
+        }
+        assertEquals(24, failures.size, failures.take(5).joinToString("\n"))
+        // With no picks the promise holds for every priority set.
+        assertTrue(failures.none { "picks=[]" in it }, failures.filter { "picks=[]" in it }.joinToString("\n"))
     }
 
-    /** REAR_DELT slots also take trap picks, so shrugs fill the added slot and rear delts stay at 0. */
+    private fun sets(d: PlanDraft) = d.volume.associate { it.group to it.weeklySets }
+
+    /**
+     * Lowers another group: a glute priority adds a HINGE slot to the first lower day, so RDL (kinds order, then
+     * name, after Cable hip abduction) takes that slot at 3 sets instead of the second lower day's lead slot at 4;
+     * lats and upper back, which RDL also works, each lose one set.
+     */
     @Test
-    fun withPicksAPriorityCanLeaveItsOwnGroupUnraised() {
-        val shrugs = listOf("Barbell shrug", "DB shrug").map(::pick)
-        fun rearDelts(d: PlanDraft) = d.volume.single { it.group == MuscleGroup.REAR_DELTS }.weeklySets
-        assertEquals(0 to 0, rearDelts(build(three, shrugs)) to rearDelts(build(three, shrugs, listOf(MuscleGroup.REAR_DELTS))))
+    fun smallestAnswerWhereAPriorityLowersAnotherGroup() {
+        val chosen = listOf("Cable hip abduction", "RDL").map(::pick)
+        val without = sets(build(four, chosen))
+        val with = sets(build(four, chosen, listOf(MuscleGroup.GLUTES)))
+        assertEquals(16 to 15, without.getValue(MuscleGroup.LATS) to with.getValue(MuscleGroup.LATS))
+        assertEquals(16 to 15, without.getValue(MuscleGroup.UPPER_BACK) to with.getValue(MuscleGroup.UPPER_BACK))
+    }
+
+    /** Raised but under 10: Hip thrust is a HINGE pick and fills both hinge slots, so no RDL; two leg curls give 8. */
+    @Test
+    fun smallestAnswerWhereAPriorityStaysUnderTen() {
+        val chosen = listOf(pick("Hip thrust"))
+        assertEquals(3 to 8, sets(build(three, chosen)).getValue(MuscleGroup.HAMSTRINGS) to sets(build(three, chosen, listOf(MuscleGroup.HAMSTRINGS))).getValue(MuscleGroup.HAMSTRINGS))
+    }
+
+    /** Not raised: forearm picks are BICEPS kind, fill every biceps slot including the added one, and count nothing for biceps. */
+    @Test
+    fun smallestAnswerWhereAPriorityDoesNotRaiseItsGroup() {
+        val chosen = listOf("Wrist curl", "Reverse wrist curl").map(::pick)
+        assertEquals(6 to 6, sets(build(three, chosen)).getValue(MuscleGroup.BICEPS) to sets(build(three, chosen, listOf(MuscleGroup.BICEPS))).getValue(MuscleGroup.BICEPS))
+    }
+
+    @Test
+    fun kindRules() {
+        fun kind(name: String) = Library.all().single { it.name == name }.let { PlanBuilder.kindOf(it.name, it.muscles, it.kind == Kind.COMPOUND) }
+        assertEquals(SlotKind.CHEST_PRESS, kind("Bench"))
+        assertEquals(SlotKind.CHEST_INCLINE, kind("Incline DB press"))
+        assertEquals(SlotKind.CHEST_FLY, kind("Cable crossover"))
+        assertEquals(SlotKind.ROW, kind("Row"))
+        assertEquals(SlotKind.ROW, kind("Seated cable row"))
+        assertEquals(SlotKind.PULL_DOWN, kind("Lat pulldown"))
+        assertEquals(SlotKind.QUAD_ISOLATION, kind("Leg extension"))
+        assertEquals(SlotKind.QUAD_ISOLATION, kind("Machine hip adduction"))
+        assertEquals(SlotKind.QUAD_COMPOUND, kind("Leg press"))
+        assertEquals(SlotKind.LEG_CURL, kind("Seated leg curl"))
+        assertEquals(SlotKind.HINGE, kind("Hip thrust"))
+        assertEquals(SlotKind.SHOULDER_PRESS, kind("DB shoulder press"))
+        assertEquals(null, kind("Barbell shrug"))
+        assertEquals(null, PlanBuilder.kindOf("Sled push my way", emptyList(), false))
     }
 
     // ---- fixed cases ----
@@ -228,6 +283,20 @@ class PlanBuilderTest {
         }
     }
 
+    /**
+     * The defaults whose own kind, by the kind rules, is not the kind they fill (stage 2 task 1 report): the table puts
+     * three single-leg compounds under QUAD_ISOLATION, where the name rule makes them QUAD_COMPOUND.
+     */
+    @Test
+    fun defaultsWhoseKindRuleDiffersFromTheirTable() {
+        val differs = SlotKind.entries.flatMap { kind ->
+            kind.defaults.map { n -> Library.all().single { it.name == n } }
+                .filter { PlanBuilder.kindOf(it.name, it.muscles, it.kind == Kind.COMPOUND) != kind }
+                .map { "${it.name} in $kind" }
+        }
+        assertEquals(DEFAULTS_OF_ANOTHER_KIND, differs)
+    }
+
     private fun names(d: PlanDraft) = d.sessions.map { s -> s.exercises.map { it.name } }
 
     private fun table(d: PlanDraft) = d.volume.associate { it.group to (it.weeklySets to it.days) }
@@ -237,9 +306,9 @@ class PlanBuilderTest {
         val draft = build(three)
         assertEquals(
             listOf(
-                listOf("Leg press", "DB press", "Lat pulldown", "Seated leg curl", "Lateral raise", "DB curl", "Rope pushdown", "Cable crunch"),
-                listOf("RDL", "Incline DB press", "Seated cable row", "Leg extension", "DB shoulder press", "Face pull", "Standing calf raise", "DB curl"),
-                listOf("Leg press", "Cable crossover", "Lat pulldown", "RDL", "Lateral raise", "Rope pushdown", "Standing calf raise", "Cable crunch"),
+                listOf("Leg press", "DB press", "Lat pulldown", "Seated leg curl", "Lateral raise", "Face pull", "DB curl", "Rope pushdown"),
+                listOf("RDL", "Incline DB press", "Seated cable row", "Leg extension", "DB shoulder press", "Standing calf raise", "Cable crunch", "DB curl"),
+                listOf("DB press", "Leg press", "Lat pulldown", "RDL", "Lateral raise", "Face pull", "Standing calf raise", "Cable crunch"),
             ),
             names(draft),
         )
@@ -287,10 +356,11 @@ class PlanBuilderTest {
             assertTrue(draft.leftOut.isEmpty())
             for (p in five) {
                 val placed = draft.sessions.flatMap { it.exercises }.filter { it.name == p.name }
-                val group = PlanBuilder.mainGroup(p.muscles)!!
-                assertTrue(placed.all { it.slot != null && group in it.slot!!.accepts }, "${p.name}: $placed")
-                // Each of these has an accepting slot on at least two days of both templates.
-                assertEquals(2, placed.size, "${p.name} on $days")
+                val kind = PlanBuilder.kindOf(p.name, p.muscles, p.compound)!!
+                assertTrue(placed.all { it.slot == kind }, "${p.name}: $placed")
+                // Twice where a second session has a slot of its kind, once otherwise (CHEST_PRESS on 4 days, ROW on 3).
+                val sessionsWithKind = draft.sessions.count { s -> s.exercises.any { it.slot == kind } }
+                assertEquals(minOf(2, sessionsWithKind), placed.size, "${p.name} on $days")
             }
         }
     }
@@ -349,9 +419,9 @@ class PlanBuilderTest {
                 assertTrue(alts.none { key(it.name) in inSession }, "${e.name} on ${s.day}")
                 val kind = e.slot
                 if (kind != null) {
-                    assertTrue(alts.all { PlanBuilder.mainGroup(it.muscles) in kind.accepts })
                     val defaultsLeft = kind.defaults.filter { key(it) !in inSession }.map(::key).toSet()
                     assertEquals(defaultsLeft, alts.take(defaultsLeft.size).map { key(it.name) }.toSet(), "${e.name} ($kind)")
+                    assertTrue(alts.drop(defaultsLeft.size).all { PlanBuilder.kindOf(it.name, it.muscles, it.kind == Kind.COMPOUND) == kind })
                 } else if (e.mainGroup != null) {
                     assertTrue(alts.isNotEmpty())
                     assertTrue(alts.all { PlanBuilder.mainGroup(it.muscles) == e.mainGroup })
@@ -435,10 +505,14 @@ class PlanBuilderTest {
 
         /** No picks, 3 days, no priorities: weekly sets to days, as the rules give them (stage 2 task 1 report). */
         val NO_PICKS_THREE = t(
-            MuscleGroup.CHEST to (9 to 3), MuscleGroup.LATS to (16 to 3), MuscleGroup.QUADS to (11 to 3),
-            MuscleGroup.HAMSTRINGS to (10 to 3), MuscleGroup.GLUTES to (15 to 3), MuscleGroup.SIDE_DELTS to (9 to 3),
-            MuscleGroup.UPPER_BACK to (13 to 2), MuscleGroup.BICEPS to (12 to 3), MuscleGroup.TRICEPS to (12 to 3),
-            MuscleGroup.CALVES to (6 to 2), MuscleGroup.ABS to (6 to 2), MuscleGroup.REAR_DELTS to (3 to 1),
+            MuscleGroup.CHEST to (10 to 3), MuscleGroup.LATS to (16 to 3), MuscleGroup.QUADS to (10 to 3),
+            MuscleGroup.HAMSTRINGS to (10 to 3), MuscleGroup.GLUTES to (14 to 3), MuscleGroup.SIDE_DELTS to (9 to 3),
+            MuscleGroup.UPPER_BACK to (16 to 3), MuscleGroup.BICEPS to (12 to 3), MuscleGroup.TRICEPS to (9 to 2),
+            MuscleGroup.CALVES to (6 to 2), MuscleGroup.ABS to (6 to 2), MuscleGroup.REAR_DELTS to (6 to 2),
+        )
+
+        val DEFAULTS_OF_ANOTHER_KIND: List<String> = listOf(
+            "Bulgarian split squat in QUAD_ISOLATION", "Split squat in QUAD_ISOLATION", "Lunge in QUAD_ISOLATION",
         )
 
         /** No picks, 4 days, no priorities. */

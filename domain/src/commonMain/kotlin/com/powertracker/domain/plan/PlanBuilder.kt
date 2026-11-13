@@ -57,8 +57,9 @@ object PlanBuilder {
     )
 
     /**
-     * A kind of template slot: the main groups whose picks it takes, whether it belongs to an upper session on 4 days,
-     * and its catalogue defaults by exact name, in order (hand-picked by the designer, not sourced).
+     * A kind of template slot: the main groups it draws from ([kindOf] decides which kind an exercise is), whether it
+     * belongs to an upper session on 4 days, and its catalogue defaults by exact name, in order (hand-picked by the
+     * designer, not sourced). A slot takes only exercises of its own kind.
      */
     enum class SlotKind(val accepts: Set<MuscleGroup>, val upper: Boolean, val defaults: List<String>) {
         CHEST_PRESS(setOf(MuscleGroup.CHEST), true, listOf("DB press", "Machine chest press", "Bench", "Smith bench press")),
@@ -94,9 +95,9 @@ object PlanBuilder {
     )
 
     private val FULL_BODY_TEMPLATES: List<List<SlotKind>> = listOf(
-        listOf(SlotKind.QUAD_COMPOUND, SlotKind.CHEST_PRESS, SlotKind.PULL_DOWN, SlotKind.LEG_CURL, SlotKind.SIDE_DELT, SlotKind.BICEPS, SlotKind.TRICEPS, SlotKind.ABS),
-        listOf(SlotKind.HINGE, SlotKind.CHEST_INCLINE, SlotKind.ROW, SlotKind.QUAD_ISOLATION, SlotKind.SHOULDER_PRESS, SlotKind.REAR_DELT, SlotKind.CALVES, SlotKind.BICEPS),
-        listOf(SlotKind.QUAD_COMPOUND, SlotKind.CHEST_FLY, SlotKind.PULL_DOWN, SlotKind.HINGE, SlotKind.SIDE_DELT, SlotKind.TRICEPS, SlotKind.CALVES, SlotKind.ABS),
+        listOf(SlotKind.QUAD_COMPOUND, SlotKind.CHEST_PRESS, SlotKind.PULL_DOWN, SlotKind.LEG_CURL, SlotKind.SIDE_DELT, SlotKind.REAR_DELT, SlotKind.BICEPS, SlotKind.TRICEPS),
+        listOf(SlotKind.HINGE, SlotKind.CHEST_INCLINE, SlotKind.ROW, SlotKind.QUAD_ISOLATION, SlotKind.SHOULDER_PRESS, SlotKind.CALVES, SlotKind.ABS, SlotKind.BICEPS),
+        listOf(SlotKind.CHEST_PRESS, SlotKind.QUAD_COMPOUND, SlotKind.PULL_DOWN, SlotKind.HINGE, SlotKind.SIDE_DELT, SlotKind.REAR_DELT, SlotKind.CALVES, SlotKind.ABS),
     )
 
     /** Upper, lower, upper, lower. */
@@ -107,13 +108,38 @@ object PlanBuilder {
         listOf(SlotKind.HINGE, SlotKind.QUAD_COMPOUND, SlotKind.LEG_CURL, SlotKind.QUAD_ISOLATION, SlotKind.CALVES, SlotKind.ABS),
     )
 
-    private val UPPER_GROUPS: Set<MuscleGroup> = SlotKind.entries.filter { it.upper }.flatMap { it.accepts }.toSet()
-
     /** How many days before today a logged exercise is still pre-ticked. */
     private const val SUGGEST_DAYS = 28
 
     /** The group of the first-listed muscle; null when there is none or it belongs to no group. */
     fun mainGroup(muscles: List<String>): MuscleGroup? = muscles.firstOrNull()?.let(MuscleGroups::of)
+
+    /**
+     * An exercise's one kind, from its main group and, where a group has two kinds, its name (any letter case) or
+     * whether it is a compound. Null for TRAPS and for no main group: such a pick can only be held over.
+     */
+    fun kindOf(name: String, muscles: List<String>, compound: Boolean): SlotKind? {
+        fun has(text: String) = name.contains(text, ignoreCase = true)
+        return when (mainGroup(muscles)) {
+            MuscleGroup.CHEST -> when {
+                !compound -> SlotKind.CHEST_FLY
+                has("ncline") -> SlotKind.CHEST_INCLINE
+                else -> SlotKind.CHEST_PRESS
+            }
+            MuscleGroup.LATS -> if (has("row")) SlotKind.ROW else SlotKind.PULL_DOWN
+            MuscleGroup.UPPER_BACK -> SlotKind.ROW
+            MuscleGroup.QUADS, MuscleGroup.ADDUCTORS -> if (has("extension") || has("adduction")) SlotKind.QUAD_ISOLATION else SlotKind.QUAD_COMPOUND
+            MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES, MuscleGroup.LOWER_BACK -> if (has("curl") || has("glute-ham")) SlotKind.LEG_CURL else SlotKind.HINGE
+            MuscleGroup.FRONT_DELTS -> SlotKind.SHOULDER_PRESS
+            MuscleGroup.SIDE_DELTS -> SlotKind.SIDE_DELT
+            MuscleGroup.REAR_DELTS -> SlotKind.REAR_DELT
+            MuscleGroup.BICEPS, MuscleGroup.FOREARMS -> SlotKind.BICEPS
+            MuscleGroup.TRICEPS -> SlotKind.TRICEPS
+            MuscleGroup.CALVES -> SlotKind.CALVES
+            MuscleGroup.ABS, MuscleGroup.OBLIQUES -> SlotKind.ABS
+            MuscleGroup.TRAPS, null -> null
+        }
+    }
 
     // ---- building ----
 
@@ -121,6 +147,7 @@ object PlanBuilder {
     private class Item(val name: String, val inCatalogue: Boolean, val muscles: List<String>, val compound: Boolean) {
         val key: String = Library.normalise(name)
         val mainGroup: MuscleGroup? = mainGroup(muscles)
+        val kind: SlotKind? = kindOf(name, muscles, compound)
     }
 
     private class Slot(val kind: SlotKind, val lead: Boolean) {
@@ -131,13 +158,11 @@ object PlanBuilder {
     private class Session(val day: DayOfWeek, val title: String, val upper: Boolean?, kinds: List<SlotKind>) {
         val slots: MutableList<Slot> = kinds.mapIndexed { i, kind -> Slot(kind, lead = i == 0) }.toMutableList()
         var heldOver: Item? = null
-        var picksPlaced = 0
         fun holds(key: String) = slots.any { it.item?.key == key } || heldOver?.key == key
-        fun firstEmptyFor(group: MuscleGroup): Slot? = slots.firstOrNull { it.item == null && group in it.kind.accepts }
-        fun mayTake(kind: SlotKind) = upper == null || upper == kind.upper
+        fun firstEmptyOf(kind: SlotKind): Slot? = slots.firstOrNull { it.item == null && it.kind == kind }
 
-        /** On 4 days, whether a pick of [group] belongs here: upper for a group an upper kind takes, lower otherwise. */
-        fun mayHold(group: MuscleGroup?) = upper == null || group == null || upper == (group in UPPER_GROUPS)
+        /** On 4 days, whether a slot or a pick of [kind] belongs here; a pick with no kind belongs anywhere. */
+        fun mayTake(kind: SlotKind?) = upper == null || kind == null || upper == kind.upper
     }
 
     /**
@@ -155,48 +180,44 @@ object PlanBuilder {
 
         val sessions = sessions(days)
 
-        // 1. Each priority adds a slot of its kind to the session with the fewest of that kind (earliest on a tie).
+        // 1. Each priority adds a slot of its kind: fewest slots of that kind, then fewest slots, then earliest.
         for (group in priorities) {
             val kind = PRIORITY_SLOT.getValue(group)
-            sessions.filter { it.mayTake(kind) }.minBy { s -> s.slots.count { it.kind == kind } }.slots += Slot(kind, lead = false)
+            sessions.filter { it.mayTake(kind) }
+                .minWith(compareBy<Session>({ s -> s.slots.count { it.kind == kind } }, { it.slots.size }))
+                .slots += Slot(kind, lead = false)
         }
 
-        // The same pick twice (by name) is one pick.
+        // The same pick twice (by name) is one pick. Kinds-table order (no kind last), then name; priorities do not
+        // change it, so a priority cannot move anyone else's pick.
         val picks = answers.picks.distinctBy { Library.normalise(it.name) }
             .map { Item(it.name, it.inCatalogue, it.muscles, it.compound) }
-        val ordered = picks.sortedWith(
-            compareBy<Item>({ if (it.mainGroup in priorities) 0 else 1 }, { targetRank(it.mainGroup) }, { it.name }),
-        )
-        fun byFewestPicks() = sessions.sortedBy { it.picksPlaced } // stable: earliest on a tie
+        val ordered = picks.sortedWith(compareBy<Item>({ it.kind?.ordinal ?: Int.MAX_VALUE }, { it.name }))
 
-        // 2. Place the picks once: the first empty accepting slot, sessions by fewest picks placed, slots in order.
+        // 2. Place the picks once: the first empty slot of its kind, sessions in week order, slots in session order.
         val placed = mutableListOf<Item>()
         val heldOver = mutableListOf<Item>()
         for (pick in ordered) {
-            val group = pick.mainGroup
-            val found = group?.let { g -> byFewestPicks().firstNotNullOfOrNull { s -> s.firstEmptyFor(g)?.let { s to it } } }
-            if (found == null) {
+            val kind = pick.kind
+            val slot = kind?.let { k -> sessions.firstNotNullOfOrNull { it.firstEmptyOf(k) } }
+            if (slot == null) {
                 heldOver += pick
             } else {
-                found.second.item = pick
-                found.first.picksPlaced++
+                slot.item = pick
                 placed += pick
             }
         }
 
         // 3. Place them a second time, in a session that does not already hold them.
         for (pick in placed) {
-            val group = pick.mainGroup ?: continue
-            val found = byFewestPicks().filter { !it.holds(pick.key) }
-                .firstNotNullOfOrNull { s -> s.firstEmptyFor(group)?.let { s to it } } ?: continue
-            found.second.item = pick
-            found.first.picksPlaced++
+            val kind = pick.kind ?: continue
+            sessions.filter { !it.holds(pick.key) }.firstNotNullOfOrNull { it.firstEmptyOf(kind) }?.item = pick
         }
 
         // 4. Held-over picks: one a session, the session with the fewest exercises (its slots) that may take it.
         val leftOut = mutableListOf<LeftOut>()
         for (pick in heldOver) {
-            val target = sessions.filter { it.heldOver == null && it.mayHold(pick.mainGroup) }.minByOrNull { it.slots.size }
+            val target = sessions.filter { it.heldOver == null && it.mayTake(pick.kind) }.minByOrNull { it.slots.size }
             if (target == null) leftOut += LeftOut(pick.name, NO_ROOM) else target.heldOver = pick
         }
 
@@ -245,13 +266,6 @@ object PlanBuilder {
         }
     }
 
-    /** A main group's place in [TARGET_GROUPS]; the other groups after them in the enum's order; no group last. */
-    private fun targetRank(group: MuscleGroup?): Int = when {
-        group == null -> Int.MAX_VALUE
-        group in TARGET_GROUPS -> TARGET_GROUPS.indexOf(group)
-        else -> TARGET_GROUPS.size + group.ordinal
-    }
-
     private fun volume(sessions: List<DraftSession>): List<GroupVolume> = TARGET_GROUPS.map { group ->
         var sets = 0
         var days = 0
@@ -287,8 +301,8 @@ object PlanBuilder {
 
     /**
      * What [name] on [day] (null: the first session that holds it) can be swapped for, none of them already in that
-     * session. For a slot exercise: the catalogue exercises its kind accepts by main group, the kind's defaults first
-     * (ordered by the equipment [picks] use), then the rest in catalogue order. For a held-over pick: the catalogue
+     * session. For a slot exercise: the catalogue exercises of that slot's kind, the kind's defaults first (ordered by
+     * the equipment [picks] use), then the rest in catalogue order. For a held-over pick: the catalogue
      * exercises with the same main group. Empty when [name] is not in the draft or a held-over pick has no main group.
      */
     fun alternatives(name: String, draft: PlanDraft, picks: List<BuilderPick>, day: DayOfWeek? = null): List<LibraryExercise> {
@@ -306,7 +320,7 @@ object PlanBuilder {
         val defaults = orderedDefaults(kind, equipmentUse(picks))
         val defaultNames = defaults.map { it.name }.toSet()
         return defaults.filter(::free) +
-            Library.all().filter { it.name !in defaultNames && mainGroup(it.muscles) in kind.accepts && free(it) }
+            Library.all().filter { it.name !in defaultNames && kindOf(it.name, it.muscles, it.kind == Kind.COMPOUND) == kind && free(it) }
     }
 
     /**
