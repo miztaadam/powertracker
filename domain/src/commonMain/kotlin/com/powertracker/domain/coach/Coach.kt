@@ -10,6 +10,8 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.model.on
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -22,6 +24,10 @@ import kotlin.math.roundToLong
 /**
  * Single entry point for the app: runs every coach rule and applies the safety rails of spec 5.5
  * (minimum history, one card per lift per week, OPEN/DISMISSED memory, re-entry and deload clamps).
+ *
+ * The powerlifting side's coach. Callers pass the whole log; progression, minimum history, stalls, weak points and
+ * fatigue's top-set signals read only its powerlifting sessions, while the 14-day gap, re-entry and readiness read
+ * every session. A deload or re-entry in the prior advice counts whichever side it was made on.
  */
 object Coach {
     private const val MIN_SESSIONS = 3
@@ -41,7 +47,7 @@ object Coach {
     private val LIFT_PRIORITY = listOf(AdviceType.STALL, AdviceType.WEAK_POINT)
 
     private const val DELOAD_NOTE = " Deload week: lighter load and fewer sets."
-    private const val RE_ENTRY_NOTE = " Easing back in: lighter load."
+    internal const val RE_ENTRY_NOTE = " Easing back in: lighter load."
 
     /** New advice to store. Never returns duplicates of OPEN prior advice. */
     fun evaluate(
@@ -51,13 +57,14 @@ object Coach {
         today: LocalDate,
         priorAdvice: List<Advice>,
     ): List<Advice> {
-        val stats = HistoryStats(history)
+        val all = HistoryStats(history)
+        val stats = powerliftingStats(history, all)
         val candidates = mutableListOf<Advice>()
 
-        val returnDate = stats.returnDateAfterGap(today)
-        if (returnDate != null) reEntry(stats, returnDate, today, priorAdvice)?.let(candidates::add)
+        val returnDate = all.returnDateAfterGap(today)
+        if (returnDate != null) reEntry(all, returnDate, today, priorAdvice)?.let(candidates::add)
 
-        if (!deloadBlocked(priorAdvice, today)) FatigueRule.evaluate(stats, history, today)?.let(candidates::add)
+        if (!deloadBlocked(priorAdvice, today)) FatigueRule.evaluate(all, history, today)?.let(candidates::add)
 
         val stallsPaused = returnDate != null && today < returnDate.plus(STALL_PAUSE_DAYS, DateTimeUnit.DAY)
         if (!stallsPaused) {
@@ -86,6 +93,7 @@ object Coach {
      * minimum history. While a DELOAD or RE_ENTRY is OPEN (for 14 days) or APPLIED within the last 7 days,
      * loads are capped against the top set from before that advice (and, for a deload, sets reduced). On the
      * first day back after a gap of 14 days or more, re-entry applies even before any RE_ENTRY advice exists.
+     * After time on the bodybuilding side, [ReturnRule] eases each exercise's first target back first.
      * Does not dedupe against prior TARGET advice: the app does that.
      */
     fun targetsFor(
@@ -96,9 +104,10 @@ object Coach {
         today: LocalDate,
         priorAdvice: List<Advice>,
     ): List<Advice> {
-        val stats = HistoryStats(history)
+        val all = HistoryStats(history)
+        val stats = powerliftingStats(history, all)
         val deload = activeAdvice(AdviceType.DELOAD, priorAdvice, today)
-        val lastSession = stats.lastSessionDate(today)
+        val lastSession = all.lastSessionDate(today)
         val firstDayBack = lastSession != null && lastSession.daysUntil(today) >= GAP_DAYS
         val reEntry = activeAdvice(AdviceType.RE_ENTRY, priorAdvice, today)
             ?: if (firstDayBack) Advice(AdviceType.RE_ENTRY, null, today, "", 0, AdvicePayload.ReEntry()) else null
@@ -107,9 +116,15 @@ object Coach {
             val lift = exercise.mainLift
             if (lift != null && !hasMinimumHistory(lift, stats, history)) return@mapNotNull null
             val target = ProgressionRule.target(item, exercise, stats, settings, today) ?: return@mapNotNull null
-            clamp(target, item, exercise, stats, settings, today, deload, reEntry)
+            val eased = ReturnRule.ease(target, item, exercise, history, TrainingMode.POWERLIFTING, settings, today)
+            clamp(eased, item, exercise, stats, all, settings, today, deload, reEntry)
         }
     }
+
+    /** Stats over the powerlifting sessions of [history]; [all] itself when every session is on that side. */
+    private fun powerliftingStats(history: TrainingHistory, all: HistoryStats): HistoryStats =
+        if (history.sessions.all { it.mode == TrainingMode.POWERLIFTING }) all
+        else HistoryStats(history.on(TrainingMode.POWERLIFTING))
 
     private fun reEntry(stats: HistoryStats, returnDate: LocalDate, today: LocalDate, prior: List<Advice>): Advice? {
         if (today > returnDate.plus(RE_ENTRY_SHOW_DAYS, DateTimeUnit.DAY)) return null
@@ -196,6 +211,7 @@ object Coach {
         item: PlanItem,
         exercise: Exercise,
         stats: HistoryStats,
+        all: HistoryStats,
         settings: CoachSettings,
         today: LocalDate,
         deload: Advice?,
@@ -213,7 +229,7 @@ object Coach {
             // A re-entry is measured from the last session before the break, even when the advice was
             // only created a session or two after the return (e.g. Finish was skipped on the return day).
             val referenceDate = if (advice.type == AdviceType.RE_ENTRY) {
-                stats.returnDateAfterGap(advice.createdAt)?.takeIf { it < advice.createdAt } ?: advice.createdAt
+                all.returnDateAfterGap(advice.createdAt)?.takeIf { it < advice.createdAt } ?: advice.createdAt
             } else {
                 advice.createdAt
             }
@@ -234,8 +250,9 @@ object Coach {
         if (reEntry != null) {
             val factors = reEntry.payload as? AdvicePayload.ReEntry ?: AdvicePayload.ReEntry()
             weight = minOf(weight, capFor(reEntry, factors.loadFactor))
-            notes += RE_ENTRY_NOTE
         }
+        // Easing back in, from a break or from the return rule.
+        if (reEntry != null || target.reason.endsWith(RE_ENTRY_NOTE)) notes += RE_ENTRY_NOTE
         // A lighter week does the planned reps, not progression's extra rep.
         val reps = item.reps
         return target.copy(

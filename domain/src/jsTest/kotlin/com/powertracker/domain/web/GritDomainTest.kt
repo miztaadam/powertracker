@@ -415,6 +415,7 @@ class GritDomainTest {
         assertNull(GritDomain.figureShapes("My own exercise", "start"))
         assertFailsWith<IllegalArgumentException> { GritDomain.figureShapes("Bench", "START") }
     }
+
     @Test
     fun sidesCrossTheBoundary() {
         val oldItem = JsPlanItem(1, 1, 2, 3, 5, 8.0, 0)

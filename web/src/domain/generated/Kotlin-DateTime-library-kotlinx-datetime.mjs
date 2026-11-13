@@ -461,7 +461,7 @@ protoOf(DateTimeUnit).im = function (value, unit) {
   return equalsLong(value, new Long(1, 0)) ? unit : value.toString() + '-' + unit;
 };
 function get_isoDayNumber(_this__u8e3s4) {
-  return _this__u8e3s4.w1_1 + 1 | 0;
+  return _this__u8e3s4.x1_1 + 1 | 0;
 }
 var static_init_called;
 function static_init() {
@@ -627,7 +627,7 @@ function minus_0(_this__u8e3s4, value, unit) {
   return plus_1(_this__u8e3s4, negate(value), unit);
 }
 function get_number(_this__u8e3s4) {
-  return _this__u8e3s4.w1_1 + 1 | 0;
+  return _this__u8e3s4.x1_1 + 1 | 0;
 }
 var static_init_called_0;
 function static_init_0() {
@@ -1740,7 +1740,7 @@ protoOf(ConstantFormatStructure).nn = function () {
         this_1.i(new PlainStringParserOperation(suffix));
       }
     }
-    tmp = this_1.z3();
+    tmp = this_1.a4();
   }
   return new ParserStructure(tmp, emptyList());
 };
@@ -2147,7 +2147,7 @@ protoOf(sam$kotlin_Comparator$0).y9 = function (a, b) {
 protoOf(sam$kotlin_Comparator$0).compare = function (a, b) {
   return this.y9(a, b);
 };
-protoOf(sam$kotlin_Comparator$0).f2 = function () {
+protoOf(sam$kotlin_Comparator$0).g2 = function () {
   return this.bt_1;
 };
 protoOf(sam$kotlin_Comparator$0).equals = function (other) {
@@ -2155,7 +2155,7 @@ protoOf(sam$kotlin_Comparator$0).equals = function (other) {
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
     if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
-      tmp_0 = equals(this.f2(), other.f2());
+      tmp_0 = equals(this.g2(), other.g2());
     } else {
       tmp_0 = false;
     }
@@ -2166,7 +2166,7 @@ protoOf(sam$kotlin_Comparator$0).equals = function (other) {
   return tmp;
 };
 protoOf(sam$kotlin_Comparator$0).hashCode = function () {
-  return hashCode(this.f2());
+  return hashCode(this.g2());
 };
 function Parser$match$lambda() {
   return 'There is more input to consume';
@@ -2264,7 +2264,7 @@ function concat$mergeOperations(baseOperations, numberSpan, unconditionalModific
     }
   }
   this_0.p(unconditionalModifications);
-  var mergedOperations = this_0.z3();
+  var mergedOperations = this_0.a4();
   return new ParserStructure(mergedOperations, simplifiedParserStructure.ys_1);
 }
 function concat$simplifyAndAppend(_this__u8e3s4, other) {
@@ -2290,7 +2290,7 @@ function concat$simplifyAndAppend(_this__u8e3s4, other) {
           newOperations.i(new NumberSpanParserOperation(currentNumberSpan));
           currentNumberSpan = null;
           newOperations.p(unconditionalModifications);
-          unconditionalModifications.k3();
+          unconditionalModifications.l3();
         }
         newOperations.i(op);
       }
@@ -2404,9 +2404,9 @@ function concat$flushAccumulatedOperations(accumulatedOperations, result) {
       var parserOperations = _iterator__ex2g4s.l();
       this_0.p(parserOperations);
     }
-    var operations = this_0.z3();
+    var operations = this_0.a4();
     result._v = concat$simplifyAndAppend(new ParserStructure(operations, emptyList()), result._v);
-    accumulatedOperations.k3();
+    accumulatedOperations.l3();
   }
 }
 function formatError$lambda(it) {
@@ -2731,7 +2731,7 @@ function spaceAndZeroPaddedUnsignedInt$numberOfRequiredLengths($withMinus, $sett
     this_0.i(new PlainStringParserOperation('-'));
   }
   this_0.i(new NumberSpanParserOperation(listOf(new UnsignedIntConsumer(minNumberLength - ($withMinus ? 1 : 0) | 0, maxNumberLength - ($withMinus ? 1 : 0) | 0, $setter, $name, $withMinus))));
-  var tmp$ret$1 = this_0.z3();
+  var tmp$ret$1 = this_0.a4();
   return new ParserStructure(tmp$ret$1, emptyList());
 }
 function get_POWERS_OF_TEN() {
@@ -3133,7 +3133,7 @@ function get_prolepticMonth(_this__u8e3s4) {
 function firstDayOfYear(_this__u8e3s4, leapYear) {
   var leap = leapYear ? 1 : 0;
   var tmp;
-  switch (_this__u8e3s4.w1_1) {
+  switch (_this__u8e3s4.x1_1) {
     case 0:
       tmp = 1;
       break;

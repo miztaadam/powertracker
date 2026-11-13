@@ -6,6 +6,7 @@ import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.TrainingMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -87,6 +88,37 @@ class FatigueRuleTest {
             session(3, readiness = 5) { squat(100.0, 5) }
             session(8, readiness = 3) { squat(100.0, 5) }
             session(10, readiness = 3) { squat(100.0, 5) }
+        }
+        assertEquals(listOf("low readiness"), signals(h))
+    }
+
+    @Test
+    fun bodybuildingTensAfterFives_raiseNoTopSetSignals() {
+        // Fives on the powerlifting side in week 0, then lighter tens at a higher RPE on the bodybuilding side,
+        // with two missed sets: read as powerlifting, that is RPE rising, e1RM down and failed reps.
+        val h = history {
+            session(1) { squat(100.0, 5, rpe = 8.0); bench(80.0, 5, rpe = 8.0) }
+            session(3) { squat(100.0, 5, rpe = 8.0); bench(80.0, 5, rpe = 8.0) }
+            session(8, mode = TrainingMode.BODYBUILDING) {
+                repeat(3) { set(Ids.SQUAT, 70.0, 10, rpe = 9.5) }
+                repeat(3) { set(Ids.BENCH, 55.0, 10, rpe = 9.5) }
+            }
+            session(10, mode = TrainingMode.BODYBUILDING) {
+                repeat(3) { set(Ids.SQUAT, 70.0, 10, rpe = 9.5) }
+                set(Ids.BENCH, 55.0, 10, rpe = 9.5, failed = true)
+                set(Ids.BENCH, 55.0, 10, rpe = 9.5, failed = true)
+            }
+        }
+        assertEquals(emptyList(), signals(h))
+        assertNull(evaluate(h))
+    }
+
+    @Test
+    fun lowReadinessOnTheBodybuildingSide_isStillASignal() {
+        val h = history {
+            session(8, readiness = 1, mode = TrainingMode.BODYBUILDING) { set(Ids.DB_PRESS, 26.0, 10) }
+            session(10, readiness = 1, mode = TrainingMode.BODYBUILDING) { set(Ids.DB_PRESS, 26.0, 10) }
+            session(12, readiness = 1, mode = TrainingMode.BODYBUILDING) { set(Ids.DB_PRESS, 26.0, 10) }
         }
         assertEquals(listOf("low readiness"), signals(h))
     }

@@ -8,6 +8,8 @@ import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.model.on
 import com.powertracker.domain.model.liftLabel
 import com.powertracker.domain.time.mondayOfWeek
 import kotlinx.datetime.DateTimeUnit
@@ -16,7 +18,11 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlin.math.roundToLong
 
-/** Recommends a deload week when at least two of four fatigue signals fire over the last 14 days. */
+/**
+ * Recommends a deload week when at least two of four fatigue signals fire over the last 14 days. The RPE, failed-rep
+ * and e1RM signals read only powerlifting sessions, since sets of ten after weeks of fives would look like a falling
+ * max and a rising RPE; readiness reads every session, whichever side it was on.
+ */
 object FatigueRule {
     private const val WINDOW_DAYS = 14L
     private const val MIN_SIGNALS = 2
@@ -38,16 +44,20 @@ object FatigueRule {
         return Advice(AdviceType.DELOAD, null, today, reason, fired.size, deload)
     }
 
+    /** [stats] is over [history]; its powerlifting sessions are picked out here. */
     internal fun signals(stats: HistoryStats, history: TrainingHistory, today: LocalDate): List<Signal> {
         val windowStart = today.minus(WINDOW_DAYS - 1, DateTimeUnit.DAY)
         val sessions = history.sessions
             .filter { it.date >= windowStart && it.date <= today }
             .sortedBy { it.date }
+        val power = sessions.filter { it.mode == TrainingMode.POWERLIFTING }
+        val powerStats = if (history.sessions.all { it.mode == TrainingMode.POWERLIFTING }) stats
+        else HistoryStats(history.on(TrainingMode.POWERLIFTING))
         return listOfNotNull(
-            rpeRising(sessions, history),
-            failedReps(sessions, history),
+            rpeRising(power, history),
+            failedReps(power, history),
             lowReadiness(sessions, windowStart),
-            e1rmDown(stats, today),
+            e1rmDown(powerStats, today),
         )
     }
 

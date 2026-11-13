@@ -29,4 +29,16 @@ class E1rmTest {
 
     @Test fun rpeAboveTenIsClampedToTen() =
         assertEquals(E1rm.estimate(100.0, 3, 10.0), E1rm.estimate(100.0, 3, 11.0), 1e-9)
+
+    @Test fun loadForUndoesEstimate() {
+        for (w in 40..200) for (r in 1..12) for (rpe in listOf(null, 7.0, 8.0, 9.0)) {
+            val e = E1rm.estimate(w.toDouble(), r, rpe)
+            assertEquals(w.toDouble(), E1rm.loadFor(e, r, rpe), 0.01, "$w kg x $r @ $rpe")
+        }
+    }
+
+    @Test fun loadForNothingIsZero() {
+        assertEquals(0.0, E1rm.loadFor(0.0, 5, 8.0), 0.0)
+        assertEquals(0.0, E1rm.loadFor(150.0, 0, 8.0), 0.0)
+    }
 }

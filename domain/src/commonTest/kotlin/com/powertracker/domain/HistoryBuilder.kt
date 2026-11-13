@@ -8,6 +8,7 @@ import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.TrainingMode
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
@@ -31,10 +32,15 @@ class HistoryBuilder(private val start: LocalDate) {
     private val sessions = mutableListOf<LoggedSession>()
     private val baselines = mutableListOf<Baseline>()
 
-    /** Adds a session [dayOffset] days after the start. Session ids auto-increment from 1. */
-    fun session(dayOffset: Int, readiness: Int? = null, block: SessionBuilder.() -> Unit) {
+    /** Adds a session [dayOffset] days after the start, on the [mode] side. Session ids auto-increment from 1. */
+    fun session(
+        dayOffset: Int,
+        readiness: Int? = null,
+        mode: TrainingMode = TrainingMode.POWERLIFTING,
+        block: SessionBuilder.() -> Unit,
+    ) {
         val sets = SessionBuilder().apply(block).sets
-        sessions += LoggedSession(sessions.size + 1L, start.plus(dayOffset, DateTimeUnit.DAY), null, readiness, sets)
+        sessions += LoggedSession(sessions.size + 1L, start.plus(dayOffset, DateTimeUnit.DAY), null, readiness, sets, mode)
     }
 
     /** Adds a baseline e1RM for [exerciseId], dated at the start. */

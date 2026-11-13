@@ -126,5 +126,5 @@ object ProgressionRule {
         }
     }
 
-    private fun fmt(v: Double): String = if (v == floor(v)) v.toLong().toString() else v.toString()
+    internal fun fmt(v: Double): String = if (v == floor(v)) v.toLong().toString() else v.toString()
 }

@@ -27,8 +27,8 @@ import {
   AbstractEncoder2gxtu3xmy3f8j as AbstractEncoder,
   OBJECT_getInstancerq52wx6ymebx as OBJECT_getInstance,
   SerializationStrategyh6ouydnm6hci as SerializationStrategy,
-  Encoderqvmrpqtq8hnu as Encoder,
   CompositeEncoderknecpkexzn3v as CompositeEncoder,
+  Encoderqvmrpqtq8hnu as Encoder,
   NamedValueDecoderzk26ztf92xbq as NamedValueDecoder,
 } from './kotlinx-serialization-kotlinx-serialization-core.mjs';
 import {
@@ -166,7 +166,7 @@ initMetadataForClass(Key, 'Key', Key);
 initMetadataForClass(DescriptorSchemaCache, 'DescriptorSchemaCache', DescriptorSchemaCache);
 initMetadataForClass(DiscriminatorHolder, 'DiscriminatorHolder');
 initMetadataForClass(StreamingJsonDecoder, 'StreamingJsonDecoder', VOID, AbstractDecoder, [Decoder, CompositeDecoder]);
-initMetadataForClass(StreamingJsonEncoder, 'StreamingJsonEncoder', VOID, AbstractEncoder, [Encoder, CompositeEncoder]);
+initMetadataForClass(StreamingJsonEncoder, 'StreamingJsonEncoder', VOID, AbstractEncoder, [CompositeEncoder, Encoder]);
 initMetadataForClass(AbstractJsonTreeDecoder, 'AbstractJsonTreeDecoder', VOID, NamedValueDecoder, [Decoder, CompositeDecoder]);
 initMetadataForClass(JsonTreeDecoder, 'JsonTreeDecoder', VOID, AbstractJsonTreeDecoder);
 initMetadataForClass(JsonTreeListDecoder, 'JsonTreeListDecoder', VOID, AbstractJsonTreeDecoder);
@@ -334,17 +334,17 @@ protoOf(JsonObject).m = function () {
   return this.hv_1.m();
 };
 protoOf(JsonObject).iv = function (key) {
-  return this.hv_1.q1(key);
+  return this.hv_1.r1(key);
 };
-protoOf(JsonObject).q1 = function (key) {
+protoOf(JsonObject).r1 = function (key) {
   if (!(!(key == null) ? typeof key === 'string' : false))
     return false;
   return this.iv((!(key == null) ? typeof key === 'string' : false) ? key : THROW_CCE());
 };
 protoOf(JsonObject).jv = function (key) {
-  return this.hv_1.s1(key);
+  return this.hv_1.t1(key);
 };
-protoOf(JsonObject).s1 = function (key) {
+protoOf(JsonObject).t1 = function (key) {
   if (!(!(key == null) ? typeof key === 'string' : false))
     return null;
   return this.jv((!(key == null) ? typeof key === 'string' : false) ? key : THROW_CCE());
@@ -352,11 +352,11 @@ protoOf(JsonObject).s1 = function (key) {
 protoOf(JsonObject).o = function () {
   return this.hv_1.o();
 };
-protoOf(JsonObject).t1 = function () {
-  return this.hv_1.t1();
-};
 protoOf(JsonObject).u1 = function () {
   return this.hv_1.u1();
+};
+protoOf(JsonObject).v1 = function () {
+  return this.hv_1.v1();
 };
 protoOf(JsonObject).r = function () {
   return this.hv_1.r();
@@ -496,9 +496,9 @@ protoOf(JsonArray).n = function (index) {
   return this.pv_1.n(index);
 };
 protoOf(JsonArray).qv = function (element) {
-  return this.pv_1.o1(element);
+  return this.pv_1.p1(element);
 };
-protoOf(JsonArray).o1 = function (element) {
+protoOf(JsonArray).p1 = function (element) {
   if (!(element instanceof JsonElement))
     return -1;
   return this.qv(element instanceof JsonElement ? element : THROW_CCE());
@@ -506,8 +506,8 @@ protoOf(JsonArray).o1 = function (element) {
 protoOf(JsonArray).q = function (index) {
   return this.pv_1.q(index);
 };
-protoOf(JsonArray).p1 = function (fromIndex, toIndex) {
-  return this.pv_1.p1(fromIndex, toIndex);
+protoOf(JsonArray).q1 = function (fromIndex, toIndex) {
+  return this.pv_1.q1(fromIndex, toIndex);
 };
 protoOf(JsonArray).o = function () {
   return this.pv_1.o();
@@ -832,7 +832,7 @@ function decodeCaseInsensitive(_this__u8e3s4, descriptor) {
 }
 function getJsonNameIndexSlowPath(_this__u8e3s4, json, name) {
   _init_properties_JsonNamesMap_kt__cbbp0k();
-  var tmp0_elvis_lhs = deserializationNamesMap(json, _this__u8e3s4).s1(name);
+  var tmp0_elvis_lhs = deserializationNamesMap(json, _this__u8e3s4).t1(name);
   return tmp0_elvis_lhs == null ? -3 : tmp0_elvis_lhs;
 }
 function namingStrategy(_this__u8e3s4, json) {
@@ -953,11 +953,11 @@ function buildDeserializationNamesMap$putOrThrow(_this__u8e3s4, $this_buildDeser
   var entity = equals($this_buildDeserializationNamesMap.re(), ENUM_getInstance()) ? 'enum value' : 'property';
   // Inline function 'kotlin.collections.contains' call
   // Inline function 'kotlin.collections.containsKey' call
-  if ((isInterface(_this__u8e3s4, KtMap) ? _this__u8e3s4 : THROW_CCE()).q1(name)) {
+  if ((isInterface(_this__u8e3s4, KtMap) ? _this__u8e3s4 : THROW_CCE()).r1(name)) {
     throw decodingExceptionOf("The suggested name '" + name + "' for " + entity + ' ' + $this_buildDeserializationNamesMap.ve(index) + ' is already one of the names for ' + entity + ' ' + ($this_buildDeserializationNamesMap.ve(getValue(_this__u8e3s4, name)) + ' in ' + toString_0($this_buildDeserializationNamesMap)));
   }
   // Inline function 'kotlin.collections.set' call
-  _this__u8e3s4.l2(name, index);
+  _this__u8e3s4.m2(name, index);
 }
 var properties_initialized_JsonNamesMap_kt_ljpf42;
 function _init_properties_JsonNamesMap_kt__cbbp0k() {
@@ -1146,7 +1146,7 @@ function checkKind(kind) {
   }
 }
 function checkEncodingConflicts(_this__u8e3s4, serializer, actualSerializer, classDiscriminator) {
-  if (getJsonEncodedNames(actualSerializer.kd(), _this__u8e3s4).m1(classDiscriminator)) {
+  if (getJsonEncodedNames(actualSerializer.kd(), _this__u8e3s4).n1(classDiscriminator)) {
     var baseName = serializer.kd().ge();
     var actualName = actualSerializer.kd().ge();
     var text = _this__u8e3s4.tt_1.ev_1.equals(ClassDiscriminatorMode_ALL_JSON_OBJECTS_getInstance()) && baseName === actualName ? 'in ALL_JSON_OBJECTS class discriminator mode' : "as base class '" + baseName + "'";
@@ -1176,7 +1176,7 @@ function readObject($this) {
     $this.dy_1.iy(5);
     var element = $this.ny();
     // Inline function 'kotlin.collections.set' call
-    result.l2(key, element);
+    result.m2(key, element);
     lastToken = $this.dy_1.oy();
     var tmp0_subject = lastToken;
     if (tmp0_subject !== 4)
@@ -1392,7 +1392,7 @@ protoOf($readObjectCOROUTINE$).p7 = function () {
           var element = suspendResult;
           var tmp0 = this.zy_1;
           var key = this.cz_1;
-          tmp0.l2(key, element);
+          tmp0.m2(key, element);
           this.bz_1 = this.az_1.dy_1.oy();
           var tmp0_subject = this.bz_1;
           if (tmp0_subject === 4) {
@@ -1585,11 +1585,11 @@ function DescriptorSchemaCache() {
 protoOf(DescriptorSchemaCache).wz = function (descriptor, key, value) {
   // Inline function 'kotlin.collections.getOrPut' call
   var this_0 = this.ex_1;
-  var value_0 = this_0.s1(descriptor);
+  var value_0 = this_0.t1(descriptor);
   var tmp;
   if (value_0 == null) {
     var answer = createMapForCache(2);
-    this_0.l2(descriptor, answer);
+    this_0.m2(descriptor, answer);
     tmp = answer;
   } else {
     tmp = value_0;
@@ -1598,7 +1598,7 @@ protoOf(DescriptorSchemaCache).wz = function (descriptor, key, value) {
   var tmp2 = key instanceof Key ? key : THROW_CCE();
   // Inline function 'kotlin.collections.set' call
   var value_1 = !(value == null) ? value : THROW_CCE();
-  tmp0.l2(tmp2, value_1);
+  tmp0.m2(tmp2, value_1);
 };
 protoOf(DescriptorSchemaCache).fx = function (descriptor, key, defaultValue) {
   var tmp0_safe_receiver = this.xz(descriptor, key);
@@ -1613,12 +1613,12 @@ protoOf(DescriptorSchemaCache).fx = function (descriptor, key, defaultValue) {
   return value;
 };
 protoOf(DescriptorSchemaCache).xz = function (descriptor, key) {
-  var tmp0_safe_receiver = this.ex_1.s1(descriptor);
+  var tmp0_safe_receiver = this.ex_1.t1(descriptor);
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
   } else {
-    tmp = tmp0_safe_receiver.s1(key instanceof Key ? key : THROW_CCE());
+    tmp = tmp0_safe_receiver.t1(key instanceof Key ? key : THROW_CCE());
   }
   var tmp_0 = tmp;
   return !(tmp_0 == null) ? tmp_0 : null;
@@ -1962,7 +1962,7 @@ protoOf(StreamingJsonDecoder).eg = function (descriptor) {
   this.cu_1.zz(newMode.uz_1);
   checkLeadingComma(this);
   var tmp;
-  switch (newMode.w1_1) {
+  switch (newMode.x1_1) {
     case 1:
     case 2:
     case 3:
@@ -2018,7 +2018,7 @@ protoOf(StreamingJsonDecoder).kg = function (descriptor, index, deserializer, pr
 };
 protoOf(StreamingJsonDecoder).pg = function (descriptor) {
   var index;
-  switch (this.bu_1.w1_1) {
+  switch (this.bu_1.x1_1) {
     case 0:
       index = decodeObjectIndex(this, descriptor);
       break;
@@ -2105,7 +2105,7 @@ function StreamingJsonEncoder(composer, json, mode, modeReuseCache) {
   this.ay_1 = false;
   this.by_1 = null;
   this.cy_1 = null;
-  var i = this.wx_1.w1_1;
+  var i = this.wx_1.x1_1;
   if (!(this.xx_1 == null)) {
     if (!(this.xx_1[i] === null) || !(this.xx_1[i] === this)) {
       this.xx_1[i] = this;
@@ -2137,7 +2137,7 @@ protoOf(StreamingJsonEncoder).eh = function (serializer, value) {
         tmp_0 = !this.h10().tt_1.ev_1.equals(ClassDiscriminatorMode_NONE_getInstance());
       } else {
         var tmp_1;
-        switch (this.h10().tt_1.ev_1.w1_1) {
+        switch (this.h10().tt_1.ev_1.x1_1) {
           case 0:
           case 2:
             tmp_1 = false;
@@ -2233,7 +2233,7 @@ protoOf(StreamingJsonEncoder).eg = function (descriptor) {
     return this;
   }
   var tmp1_safe_receiver = this.xx_1;
-  var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver[newMode.w1_1];
+  var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver[newMode.x1_1];
   return tmp2_elvis_lhs == null ? new StreamingJsonEncoder(this.ux_1, this.vx_1, newMode, this.xx_1) : tmp2_elvis_lhs;
 };
 protoOf(StreamingJsonEncoder).fg = function (descriptor) {
@@ -2244,7 +2244,7 @@ protoOf(StreamingJsonEncoder).fg = function (descriptor) {
   }
 };
 protoOf(StreamingJsonEncoder).rg = function (descriptor, index) {
-  switch (this.wx_1.w1_1) {
+  switch (this.wx_1.x1_1) {
     case 1:
       if (!this.ux_1.ew_1) {
         this.ux_1.kw(_Char___init__impl__6a9atx(44));
@@ -3183,7 +3183,7 @@ protoOf(JsonTreeListDecoder).pg = function (descriptor) {
 };
 function JsonTreeMapDecoder(json, value, descriptor) {
   JsonTreeDecoder.call(this, json, value, descriptor);
-  this.j12_1 = toList(value.t1());
+  this.j12_1 = toList(value.u1());
   this.k12_1 = imul(this.j12_1.o(), 2);
   this.l12_1 = -1;
 }

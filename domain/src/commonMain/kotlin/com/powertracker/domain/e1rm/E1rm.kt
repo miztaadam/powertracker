@@ -24,5 +24,21 @@ object E1rm {
         return weightKg / p
     }
 
+    /**
+     * The weight that [reps] at [rpe] would take for a lifter whose one-rep max is [e1rmKg]: the inverse of
+     * [estimate], with the same table, interpolation, Epley fallback and RPE clamp. Returns 0.0 when [reps] <= 0 or
+     * [e1rmKg] <= 0.
+     */
+    fun loadFor(e1rmKg: Double, reps: Int, rpe: Double?): Double {
+        if (reps <= 0 || e1rmKg <= 0.0) return 0.0
+        if (rpe == null) return e1rmKg / (1 + reps / 30.0)
+        val effective = reps + (10.0 - rpe.coerceIn(6.0, 10.0))
+        if (effective > pct.size) return e1rmKg / (1 + effective / 30.0)
+        val lo = effective.toInt().coerceAtLeast(1)
+        val frac = effective - lo
+        val p = if (lo >= pct.size) pct.last() else pct[lo - 1] + (pct[lo] - pct[lo - 1]) * frac
+        return e1rmKg * p
+    }
+
     private fun epley(weightKg: Double, effectiveReps: Double) = weightKg * (1 + effectiveReps / 30.0)
 }
