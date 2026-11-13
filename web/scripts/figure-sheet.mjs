@@ -2,7 +2,7 @@
 // <label>-light.png (not committed). Each figure has its name above it, its thumbnail at the size the Exercises tab
 // shows it, and its two panels with their captions underneath; six figures to a row.
 //
-//   npm run figures:sheet -- all                              every figure drawn so far
+//   npm run figures:sheet -- all                              every exercise's figure
 //   npm run figures:sheet -- chest                            one body area (its id or its label, any case)
 //   npm run figures:sheet -- Bench "Lat pulldown"             exercises by name or alias
 //   npm run figures:sheet -- --label batch1 Bench Squat       the sheets are named batch1-dark.png and batch1-light.png
@@ -117,7 +117,7 @@ function parse(figures, argv) {
   const add = (name) => {
     if (!names.includes(name)) names.push(name)
   }
-  /** A whole group: those drawn so far, with a note of the rest. */
+  /** A whole group: those with a figure, with a note of any without (an exercise added before its figure). */
   const addGroup = (entries) => {
     for (const entry of entries) (figures.info(entry.name) != null ? add : (n) => skipped.push(n))(entry.name)
   }
@@ -181,7 +181,7 @@ async function main() {
     }
     console.log(`${request.names.length} ${request.names.length === 1 ? 'figure' : 'figures'}: ${request.names.join(', ')}`)
     // Named in full only while the list is short enough to read.
-    if (request.skipped.length > 0) console.log(`Not drawn yet, so left out: ${request.skipped.length}${request.skipped.length <= 30 ? ` (${request.skipped.join(', ')})` : ''}`)
+    if (request.skipped.length > 0) console.log(`No figure yet, so left out: ${request.skipped.length}${request.skipped.length <= 30 ? ` (${request.skipped.join(', ')})` : ''}`)
   } finally {
     await browser?.close()
     await figures.close()

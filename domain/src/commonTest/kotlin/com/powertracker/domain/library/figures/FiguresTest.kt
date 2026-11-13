@@ -3,7 +3,6 @@ package com.powertracker.domain.library.figures
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.figure
 import com.powertracker.domain.library.hasFigure
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -94,7 +93,6 @@ class FiguresTest {
     }
 
     @Test
-    @Ignore // switched on in the final task
     fun everyCatalogueExercise_hasFigure() {
         val missing = Library.all().map { it.name }.filter { Library.figure(it) == null }
         assertEquals(emptyList(), missing)

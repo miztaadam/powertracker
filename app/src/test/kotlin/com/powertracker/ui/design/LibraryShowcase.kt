@@ -80,6 +80,10 @@ fun FormGuideShowcase() = SheetShowcase { FormGuideContent("Squat", onClose = {}
 @Composable
 fun FormGuidePictureShowcase() = SheetShowcase { FormGuideContent("Bench", onClose = {}) }
 
+/** The real guide content for the lat pulldown, with its two-pose picture under the header. */
+@Composable
+fun FormGuideLatPulldownShowcase() = SheetShowcase { FormGuideContent("Lat pulldown", onClose = {}) }
+
 /** The real "What RPE means" content, in the same stand-in. */
 @Composable
 fun RpeSheetShowcase() = SheetShowcase { RpeContent(onClose = {}) }

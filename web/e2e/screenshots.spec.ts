@@ -111,6 +111,17 @@ for (const scheme of ['dark', 'light'] as const) {
     await shoot(page, `form-guide-picture-${scheme}`)
   })
 
+  test(`screenshots: the lat pulldown's form guide with its picture (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openOnWednesday(page, '#/exercises')
+    await page.getByRole('textbox', { name: 'Search exercises' }).fill('lat pulldown')
+    await page.getByRole('button', { name: 'Open Lat pulldown', exact: true }).click()
+    const guide = page.getByRole('dialog', { name: 'Form guide for Lat pulldown' })
+    await expect(guide.getByRole('img', { name: /^Picture: / })).toBeVisible()
+    await guide.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+    await shoot(page, `form-guide-lat-pulldown-${scheme}`)
+  })
+
   test(`screenshots: session saved (${scheme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme })
     await openOnWednesday(page)

@@ -49,13 +49,13 @@ class AreaMapsLazyTest {
         val all = figuresClass.getMethod("getAll").invoke(figures) as Map<*, *>
         // Names, size and `in`: the Exercises tab's questions.
         val names = all.keys.map { it as String }
-        assertTrue(names.size >= 61 && "Bench" in all && "Push-up" in all && all.size == names.size)
+        assertTrue(names.size == 225 && "Bench" in all && "Push-up" in all && all.size == names.size)
 
         val delegates = lazies(loader)
         val figureDelegates = delegates.filterKeys { it.endsWith("\$delegate") }
         assertTrue(figureDelegates.size >= names.size, "every figure is a lazy delegate: ${figureDelegates.size} for ${names.size}")
-        // The area maps themselves are built (Figures.all asked for them), but nothing in them. (The areas not drawn yet
-        // hold a plain empty map.)
+        // The area maps themselves are built (Figures.all asked for them), but nothing in them. (Calves and Core hold a
+        // plain map of lazy entries, with no delegate of its own; their figures are among the delegates checked below.)
         val maps = delegates.filterKeys { it.endsWith("Figures\$delegate") }
         assertTrue(maps.size >= 6 && "ChestKt.chestFigures\$delegate" in maps, maps.keys.toString())
         assertTrue(maps.values.all { it.isInitialized() })

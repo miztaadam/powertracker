@@ -49,7 +49,7 @@ fun pictureLabel(figure: ExerciseFigure): String = "Picture: ${figure.startCapti
 /**
  * The picture of the exercise [name]: its start and end pose side by side, sharing the width equally, each with its
  * caption underneath. One element to a screen reader. Nothing at all, taking no room, when [figureFor] finds no
- * figure: a custom exercise, or a catalogue exercise not drawn yet.
+ * figure: the lifter's own exercise (every catalogue exercise has one).
  */
 @Composable
 fun ExercisePicture(name: String, modifier: Modifier = Modifier, figureFor: (String) -> ExerciseFigure? = Library::figure) {

@@ -1,4 +1,4 @@
-// Writes docs/library/pictures.html: every exercise picture drawn so far on one self-contained page (inline SVG, no
+// Writes docs/library/pictures.html: every exercise picture on one self-contained page (inline SVG, no
 // scripts or files to fetch), grouped by body area, with a dark and light switch. It is the page the owner reads
 // through to flag anything that looks odd. Run: npm run figures:page
 //
@@ -14,20 +14,20 @@ const out = resolve(here, '../../docs/library/pictures.html')
 const figures = await openFigures()
 try {
   const catalogue = figures.grit.library()
-  const drawn = catalogue.filter((e) => figures.info(e.name) != null)
+  // Every catalogue exercise has a figure (domain FiguresTest.everyCatalogueExercise_hasFigure); the page shows them all.
+  const without = catalogue.filter((e) => figures.info(e.name) == null)
+  if (without.length > 0) throw new Error(`No figure for: ${without.map((e) => e.name).join(', ')}`)
   const sections = figures.areas
     .map((area) => {
       const inArea = catalogue.filter((e) => e.area === area.id)
-      const withFigure = inArea.filter((e) => figures.info(e.name) != null)
-      const without = inArea.filter((e) => figures.info(e.name) == null)
       const id = area.id.toLowerCase().replace(/_/g, '-')
       return {
         id,
         label: area.label,
-        count: withFigure.length,
-        html: `<section aria-labelledby="${id}"><h2 id="${id}">${escapeHtml(area.label)} <span class="count">${withFigure.length} of ${inArea.length}</span></h2>${
-          withFigure.length > 0 ? `<div class="cards">${withFigure.map((e) => card(figures, e.name)).join('\n')}</div>` : ''
-        }${without.length > 0 ? `<p class="todo">Not drawn yet: ${without.map((e) => escapeHtml(e.name)).join(', ')}.</p>` : ''}</section>`,
+        count: inArea.length,
+        html: `<section aria-labelledby="${id}"><h2 id="${id}">${escapeHtml(area.label)} <span class="count">${inArea.length}</span></h2>${
+          inArea.length > 0 ? `<div class="cards">${inArea.map((e) => card(figures, e.name)).join('\n')}</div>` : ''
+        }</section>`,
       }
     })
 
@@ -60,7 +60,6 @@ nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap
 .count { color: var(--text-muted); font-size: .9rem; font-weight: 400; }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 16px; }
 .card { padding: 12px 14px 14px; border: 1px solid var(--hairline); border-radius: 14px; background: var(--surface); }
-.todo { color: var(--text-muted); font-size: .9rem; }
 ${CARD_CSS.trim()}
 ${figures.roleCss}
 </style>
@@ -74,7 +73,7 @@ ${figures.roleCss}
 <button type="button" data-theme-choice="light">Light</button>
 </div>
 </header>
-<p>Generated from the catalogue by <code>npm run figures:page</code> (in <code>web/</code>). Do not edit by hand. ${drawn.length} of ${catalogue.length} exercises drawn. Each picture shows the start and the end of the movement, with the small picture the Exercises tab uses beside the name. Look through and flag anything that looks odd; you are not asked to judge technique. The words are in <a href="guides.html">guides.html</a>.</p>
+<p>Generated from the catalogue by <code>npm run figures:page</code> (in <code>web/</code>). Do not edit by hand. All ${catalogue.length} exercises, by body area. Each picture shows the start and the end of the movement, with the small picture the Exercises tab uses beside the name. Look through and flag anything that looks odd; you are not asked to judge technique. The words are in <a href="guides.html">guides.html</a>.</p>
 <nav aria-label="Contents"><ul>
 ${sections.map((s) => `<li><a href="#${s.id}">${escapeHtml(s.label)}</a> <span class="count">${s.count}</span></li>`).join('\n')}
 </ul></nav>
@@ -98,7 +97,7 @@ ${sections.map((s) => s.html).join('\n')}
 </html>
 `
   writeFileSync(out, html)
-  console.log(`${out}: ${drawn.length} of ${catalogue.length} exercises drawn`)
+  console.log(`${out}: ${catalogue.length} exercises`)
 } finally {
   await figures.close()
 }

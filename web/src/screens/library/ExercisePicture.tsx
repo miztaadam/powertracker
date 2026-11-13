@@ -12,7 +12,7 @@ export const pictureLabel = (figure: Pick<FigureInfo, 'startCaption' | 'endCapti
 /**
  * The picture of the exercise `name`: its start and end pose side by side, sharing the width equally, each with its
  * caption underneath. One image to a screen reader, named by both captions. Nothing at all, taking no room, when the
- * catalogue has no figure for the name: the lifter's own exercise, or a catalogue exercise not drawn yet.
+ * catalogue has no figure for the name: the lifter's own exercise (every catalogue exercise has one).
  */
 export function ExercisePicture({ name }: { name: string }) {
   const figure = grit.figureInfo(name)
