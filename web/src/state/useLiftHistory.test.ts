@@ -58,4 +58,19 @@ describe('buildLiftHistory', () => {
 
     expect(state).toMatchObject({ loading: false, sessions: [], best: null, currentE1rmKg: null })
   })
+
+  it('bodybuildingSessions_areLeftOut_andDoNotMoveTheRecords', () => {
+    // Fix round ruling A: the lift history belongs to the powerlifting side and lists its sessions only.
+    const sessions = [
+      new JsSession(1, '2026-11-02', null, null, [set(squat, 140, 5, 8)], 'POWERLIFTING'),
+      new JsSession(2, '2026-11-05', null, null, [set(squat, 120, 10, 8), set(squat, 160, 3, 8)], 'BODYBUILDING'),
+      new JsSession(3, '2026-11-09', null, null, [set(squat, 142.5, 5, 8)], 'POWERLIFTING'),
+    ]
+    const state = buildLiftHistory(new JsHistory(sessions, [squat, bench, pause, curl], []), 'SQUAT', today)
+
+    expect(state.sessions.map((s) => s.date)).toEqual(['2026-11-09', '2026-11-02'])
+    expect(state.best).toMatchObject({ date: '2026-11-09', weightKg: 142.5, reps: 5 })
+    const onlyPowerlifting = buildLiftHistory(new JsHistory([sessions[0]!, sessions[2]!], [squat, bench, pause, curl], []), 'SQUAT', today)
+    expect(state).toEqual(onlyPowerlifting)
+  })
 })

@@ -73,8 +73,11 @@ export type PlanActions = {
 /** The bodybuilding side's new entries: 3 sets of 8-12 at RPE 8 (the owner's numbers, spec §7.3). */
 export const BODYBUILDING_DEFAULTS = { sets: 3, reps: 8, repsHigh: 12, targetRpe: 8 } as const
 
-/** The most reps a plan entry can ask for, the top of a range included. */
+/** The most reps a plan entry with fixed reps (the powerlifting side) can ask for. */
 export const MAX_PLAN_REPS = 20
+
+/** The most reps the top of a range (the bodybuilding side) can ask for. */
+export const MAX_RANGE_REPS = 30
 
 type Stored = { plan: PlanItem[]; exercises: PlanExercise[]; settings: AppSettings; recentIds: number[] }
 

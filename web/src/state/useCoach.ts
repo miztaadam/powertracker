@@ -32,7 +32,13 @@ export type CoachCard = { advice: CoachAdvice; detail: CardDetail }
 /** A one-line confirmation for a snackbar; `id` changes with every message, also when the text repeats. */
 export type CoachMessage = { id: number; text: string }
 
-export type CoachState = { loading: boolean; cards: CoachCard[]; message: CoachMessage | null }
+export type CoachState = {
+  loading: boolean
+  cards: CoachCard[]
+  message: CoachMessage | null
+  /** The side whose feed this is: the side the app is on. Left out, the powerlifting side. */
+  side?: TrainingMode
+}
 
 export type CoachActions = {
   /** Carries out the advice: accessories go into the plan; a deload or re-entry only needs to be accepted. */
@@ -81,7 +87,7 @@ type StoredAdvice = AdviceRow & { id: number }
 type LibraryExercise = JsExercise
 type StoredPlanItem = PlanItemRow & { id: number }
 
-type Stored = { today: string; open: StoredAdvice[]; history: JsHistory; plan: StoredPlanItem[] }
+type Stored = { today: string; side: TrainingMode; open: StoredAdvice[]; history: JsHistory; plan: StoredPlanItem[] }
 
 /**
  * The feed of the side the app is on: its own advice, and every deload and easing back in whatever side it was
@@ -91,7 +97,7 @@ async function readStored(db: GritDb, today: string): Promise<Stored> {
   const settings = await getSettings(db)
   const side = settings.trainingMode
   const [open, history, plan] = await Promise.all([db.advice.where('status').equals('OPEN').toArray(), loadHistory(db), planFor(db, side)])
-  return { today, open: adviceForSide(open as StoredAdvice[], side), history: historyOn(history, side), plan: plan as StoredPlanItem[] }
+  return { today, side, open: adviceForSide(open as StoredAdvice[], side), history: historyOn(history, side), plan: plan as StoredPlanItem[] }
 }
 
 /** An OPEN deload or re-entry stops counting after two weeks; the domain decides when. */
@@ -288,5 +294,5 @@ export function useCoach(db: GritDb, today: () => string): CoachState & CoachAct
   const clearMessage = useCallback(() => setMessage(null), [])
 
   const cards = useMemo(() => (stored ? build(stored, hidden) : []), [stored, hidden])
-  return { loading: stored == null, cards, message, apply, dismiss, clearMessage }
+  return { loading: stored == null, cards, message, side: stored?.side ?? 'POWERLIFTING', apply, dismiss, clearMessage }
 }

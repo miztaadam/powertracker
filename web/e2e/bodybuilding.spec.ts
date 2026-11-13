@@ -33,6 +33,8 @@ type Story = {
   todaySession?: boolean
   /** The day the bodybuilding side was last left (ISO), for the welcome-back card. */
   bodybuildingLeftOn?: string | null
+  /** An open deload from low readiness, the one way a deload comes on this side in stage 1. */
+  deload?: boolean
 }
 
 /**
@@ -40,13 +42,13 @@ type Story = {
  * the bodybuilding plan (Monday, Wednesday, Friday), a powerlifting plan beside it, and two weeks of sessions.
  */
 async function seedStory(page: Page, story: Story = {}) {
-  await page.evaluate(async ({ todaySession = false, bodybuildingLeftOn = null }) => {
+  await page.evaluate(async ({ todaySession = false, bodybuildingLeftOn = null, deload = false }) => {
     const db = await new Promise<IDBDatabase>((done, fail) => {
       const request = indexedDB.open('grit')
       request.onsuccess = () => done(request.result)
       request.onerror = () => fail(request.error)
     })
-    const tx = db.transaction(['exercises', 'planItems', 'sessions', 'sets', 'settings'], 'readwrite')
+    const tx = db.transaction(['exercises', 'planItems', 'sessions', 'sets', 'settings', 'advice'], 'readwrite')
     const settled = new Promise<void>((done, fail) => {
       tx.oncomplete = () => done()
       tx.onerror = () => fail(tx.error)
@@ -101,6 +103,18 @@ async function seedStory(page: Page, story: Story = {}) {
         [incline, 26, 11],
         [incline, 26, 10],
       ])
+
+    if (deload)
+      tx.objectStore('advice').add({
+        type: 'DELOAD',
+        lift: null,
+        createdAt: '2026-11-11',
+        reason: 'Signs of fatigue: low readiness. Take a deload week: about 60% of the volume at about 90% of the load.',
+        severity: 1,
+        status: 'OPEN',
+        payloadJson: '{"type":"com.powertracker.domain.model.AdvicePayload.Deload"}',
+        mode: 'BODYBUILDING',
+      })
 
     const settings = tx.objectStore('settings')
     settings.put({ key: 'trainingMode', value: 'BODYBUILDING' })
@@ -157,6 +171,8 @@ for (const scheme of ['dark', 'light'] as const) {
       await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem').first()).toHaveAttribute('aria-label', 'Squat  3 × 10–15 @ 8')
       // The powerlifting squat 5 × 5 on Wednesday is kept for that side, not shown here.
       await expect(page.getByRole('listitem', { name: 'Squat  5 × 5 @ 8' })).toHaveCount(0)
+      // The squat, bench and deadlift baselines belong to the powerlifting side.
+      await expect(page.getByRole('heading', { name: 'Known bests' })).toHaveCount(0)
       await expect(header(page, 'Plan').getByTestId('mode-label')).toBeVisible()
       expect(await smallTargets(page)).toEqual([])
       expect(await fitsThePhone(page)).toBe(true)
@@ -165,8 +181,11 @@ for (const scheme of ['dark', 'light'] as const) {
 
     test('coach: the welcome back after more than a month away', async ({ page }) => {
       await openOnWednesday(page, '#/coach')
-      await seedStory(page, { bodybuildingLeftOn: '2026-10-01' })
+      await seedStory(page, { bodybuildingLeftOn: '2026-10-01', deload: true })
       await expect(page.getByRole('heading', { name: 'Welcome back to the better side.' })).toBeVisible()
+      // The deload card speaks of exercises and weights on this side, not lifts and top sets.
+      await expect(page.getByText('Deload · All exercises')).toBeVisible()
+      await expect(page.getByText('of your last weights')).toBeVisible()
       await expect(page.getByRole('button', { name: 'Resume my plan' })).toBeVisible()
       await expect(page.getByRole('button', { name: 'My goals have changed' })).toBeVisible()
       await expect(header(page, 'Coach').getByTestId('mode-label')).toBeVisible()
@@ -178,7 +197,7 @@ for (const scheme of ['dark', 'light'] as const) {
       await page.getByRole('button', { name: 'My goals have changed' }).click()
       await expect(page.getByRole('heading', { level: 1, name: 'Plan' })).toBeVisible()
       await tabBar(page).getByRole('link', { name: 'Coach' }).click()
-      await expect(page.getByText('No advice right now. Keep logging.')).toBeVisible()
+      await expect(page.getByText('Deload · All exercises')).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Welcome back to the better side.' })).toHaveCount(0)
     })
 
@@ -188,6 +207,9 @@ for (const scheme of ['dark', 'light'] as const) {
       const incline = page.getByRole('button', { name: /^Incline DB press/ })
       await expect(incline).toContainText('24 × 12')
       await expect(incline).toContainText('26 × 11')
+      // The best sets are separated by a middle dot, and the row says what it opens.
+      await expect(incline).toContainText('24 × 12 · ')
+      await expect(incline).toHaveAccessibleName(/^Incline DB press\. 24 × 12, .*\. Going up\. Open history$/)
       await expect(incline.getByRole('img', { name: 'Going up' })).toBeVisible()
       await expect(page.getByRole('button', { name: /^Cable crossover/ }).getByRole('img', { name: 'Not going up' })).toBeVisible()
       await expect(page.getByRole('button', { name: /^Row/ })).toContainText('Not logged yet')

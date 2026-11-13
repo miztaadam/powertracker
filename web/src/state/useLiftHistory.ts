@@ -25,8 +25,9 @@ const E1RM_DAYS = 28
 const LOADING: LiftHistoryState = { loading: true, currentE1rmKg: null, best: null, sessions: [] }
 
 /**
- * Every session with a set of `lift` or one of its variations, newest first, from both sides, with the lift's
- * records marked. Records and the e1RMs belong to the powerlifting side and read only its sessions.
+ * Every powerlifting session with a set of `lift` or one of its variations, newest first, with the lift's records
+ * marked. The lift history belongs to the powerlifting side (bodybuilding mode spec §5.3): sessions logged on the
+ * bodybuilding side are not listed and never move a record or the e1RM; the exercise history shows them.
  */
 export function buildLiftHistory(history: JsHistory, lift: Lift, today: string): LiftHistoryState {
   // Everything that trains the lift: the lift itself (main) and its variations.
@@ -38,7 +39,7 @@ export function buildLiftHistory(history: JsHistory, lift: Lift, today: string):
   const powerlifting = historyOn(history, 'POWERLIFTING')
   const prs = grit.prs(powerlifting, lift)
   let nextPr = 0
-  const sessions = [...history.sessions]
+  const sessions = [...powerlifting.sessions]
     .sort((a, b) => a.date.localeCompare(b.date))
     .flatMap((session): HistorySession[] => {
       const groups = new Map<number, HistorySet[]>()
@@ -88,7 +89,7 @@ export function useLiftHistory(db: GritDb, lift: Lift, today: () => string): Lif
   return useMemo(() => (stored ? buildLiftHistory(stored.history, lift, stored.today) : LOADING), [stored, lift])
 }
 
-/** Every session with a set of one exercise, newest first, from both sides (the bodybuilding Progress rows open it). */
+/** Every session with a set of one exercise, newest first, from both sides (every bodybuilding Progress row opens it). */
 export function buildExerciseHistory(history: JsHistory, exerciseId: number): ExerciseHistoryState {
   const name = history.exercises.find((e) => e.id === exerciseId)?.name ?? null
   const sessions = [...history.sessions]

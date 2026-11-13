@@ -1,4 +1,4 @@
-import type { Lift } from '../../router'
+import { Fragment } from 'react'
 import type { BodybuildingProgressState, BodybuildingRow } from '../../state/useProgress'
 import { Card } from '../../ui/components/Card'
 import { EmptyState } from '../../ui/components/EmptyState'
@@ -10,9 +10,10 @@ import './progress.css'
 
 export type BodybuildingProgressContentProps = {
   state: BodybuildingProgressState
-  /** A main lift's row opens its existing history. */
-  onOpenLift: (lift: Lift) => void
-  /** Any other exercise's row opens that exercise's history. */
+  /**
+   * Every row opens that exercise's history, which has its sets from both sides: a squat, bench, deadlift or strict
+   * press too, as no lift is special on this side. The powerlifting lift history is never opened from here.
+   */
   onOpenExercise: (exerciseId: number) => void
 }
 
@@ -20,7 +21,7 @@ export type BodybuildingProgressContentProps = {
  * Progress on the bodybuilding side (spec §7.6): each exercise of the plan with its best set from each of its last
  * four sessions on this side, and whether it is going up. The powerlifting charts, records and total are not shown.
  */
-export function BodybuildingProgressContent({ state, onOpenLift, onOpenExercise }: BodybuildingProgressContentProps) {
+export function BodybuildingProgressContent({ state, onOpenExercise }: BodybuildingProgressContentProps) {
   return (
     <section className="screen">
       <ScreenHeader title="Progress" eyebrow="Best set per session" label={<ModeLabel />} />
@@ -33,7 +34,7 @@ export function BodybuildingProgressContent({ state, onOpenLift, onOpenExercise 
             <ul className="bb-rows">
               {state.rows.map((row) => (
                 <li key={row.exerciseId}>
-                  <TrendRow row={row} onClick={() => (row.lift != null ? onOpenLift(row.lift) : onOpenExercise(row.exerciseId))} />
+                  <TrendRow row={row} onClick={() => onOpenExercise(row.exerciseId)} />
                 </li>
               ))}
             </ul>
@@ -47,19 +48,35 @@ export function BodybuildingProgressContent({ state, onOpenLift, onOpenExercise 
 /** "26 × 11". */
 const bestText = (set: { weightKg: number; reps: number }) => `${formatKg(set.weightKg)} × ${set.reps}`
 
+/** Shown between best sets: "26 × 10 · 26 × 11". */
+const SEPARATOR = ' · '
+
+const trendName = (goingUp: boolean | null) => (goingUp === true ? 'Going up' : goingUp === false ? 'Not going up' : null)
+
+/**
+ * What a screen reader hears for a row, and what it does: "DB press. 26 × 10, 26 × 11. Going up. Open history"
+ * (Android's row says the same, with "Open history" as its click label).
+ */
+export function trendRowName(row: BodybuildingRow): string {
+  const sets = row.bestSets.length === 0 ? 'Not logged yet' : row.bestSets.map(bestText).join(', ')
+  const trend = trendName(row.goingUp)
+  return [row.name, sets, ...(trend ? [trend] : []), 'Open history'].join('. ')
+}
+
 function TrendRow({ row, onClick }: { row: BodybuildingRow; onClick: () => void }) {
   return (
-    <button type="button" className="bb-row" onClick={onClick}>
+    <button type="button" className="bb-row" onClick={onClick} aria-label={trendRowName(row)}>
       <span className="bb-row-text">
         <span className="bb-row-name title-medium">{row.name}</span>
         {row.bestSets.length === 0 ? (
           <span className="bb-row-sets bb-row-muted body-medium">Not logged yet</span>
         ) : (
           <span className="bb-row-sets body-medium">
-            {row.bestSets.map((b) => (
-              <span key={b.date} className="bb-row-set">
-                {bestText(b)}
-              </span>
+            {row.bestSets.map((b, i) => (
+              <Fragment key={b.date}>
+                {i > 0 && SEPARATOR}
+                <span className="bb-row-set">{bestText(b)}</span>
+              </Fragment>
             ))}
           </span>
         )}

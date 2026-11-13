@@ -10,6 +10,7 @@ import { CoachScreen } from './coach/CoachScreen'
 import { PlanScreen } from './plan/PlanScreen'
 import { ExerciseHistoryScreen } from './progress/ExerciseHistoryScreen'
 import { ProgressScreen } from './progress/ProgressScreen'
+import { SettingsScreen } from './settings/SettingsScreen'
 import { TodayScreen } from './today/TodayScreen'
 
 let fx: ReturnType<typeof todayFixture>
@@ -364,13 +365,32 @@ describe('Progress on the bodybuilding side', () => {
     expect(within(press).getByRole('img', { name: 'Not going up' })).toBeInTheDocument()
   })
 
-  it('aMainLiftsRow_opensTheExistingLiftHistory', async () => {
+  it('aMainLiftsRow_opensTheExerciseHistory_notTheLiftHistory', async () => {
+    // Fix round ruling B: every row on this side opens the exercise history, squat included.
     await planOn('BODYBUILDING', squatId)
     await onSide('BODYBUILDING')
     const onOpenLift = vi.fn()
-    render(<ProgressScreen db={db} today={() => TODAY} onOpenLift={onOpenLift} onOpenExercise={() => {}} />)
+    const onOpenExercise = vi.fn()
+    render(<ProgressScreen db={db} today={() => TODAY} onOpenLift={onOpenLift} onOpenExercise={onOpenExercise} />)
     await userEvent.click(await screen.findByRole('button', { name: /^Squat/ }))
-    expect(onOpenLift).toHaveBeenCalledWith('SQUAT')
+    expect(onOpenExercise).toHaveBeenCalledWith(squatId)
+    expect(onOpenLift).not.toHaveBeenCalled()
+  })
+
+  it('theBestSets_areSeparatedByAMiddleDot_andTheRowSaysWhatItOpens', async () => {
+    // Fix round ruling C.
+    await planOn('BODYBUILDING', dbPressId)
+    await planOn('BODYBUILDING', curlId, { order: 1 })
+    for (const [days, reps] of [[-14, [10, 9, 8]], [-7, [11, 10, 9]]] as const) {
+      const id = await session(addDays(TODAY, days), 'BODYBUILDING')
+      for (const r of reps) await logSet(db, id, set(dbPressId, 26, { reps: r }))
+    }
+    await onSide('BODYBUILDING')
+    render(<ProgressScreen db={db} today={() => TODAY} onOpenLift={() => {}} onOpenExercise={() => {}} />)
+
+    const press = await screen.findByRole('button', { name: 'DB press. 26 × 10, 26 × 11. Going up. Open history' })
+    expect(press.querySelector('.bb-row-sets')?.textContent).toBe('26 × 10 · 26 × 11')
+    expect(screen.getByRole('button', { name: 'Curl. Not logged yet. Open history' })).toBeInTheDocument()
   })
 
   it('thePowerliftingSidesRecords_ignoreBodybuildingSessions', async () => {
@@ -383,6 +403,18 @@ describe('Progress on the bodybuilding side', () => {
 })
 
 describe('exercise history', () => {
+  it('ofAMainLift_showsItsSetsFromBothSides', async () => {
+    // Fix round ruling B: what a squat row on the bodybuilding Progress opens.
+    await logSet(db, await session(addDays(TODAY, -14), 'POWERLIFTING'), set(squatId, 140, { reps: 5 }))
+    await logSet(db, await session(addDays(TODAY, -7), 'BODYBUILDING'), set(squatId, 100, { reps: 10 }))
+    await onSide('BODYBUILDING')
+    render(<ExerciseHistoryScreen db={db} exerciseId={squatId} onBack={() => {}} />)
+    expect(await screen.findByRole('heading', { name: 'Squat history' })).toBeInTheDocument()
+    expect(screen.getByText('2 sessions')).toBeInTheDocument()
+    expect(screen.getByText(/140 kg × 5/)).toBeInTheDocument()
+    expect(screen.getByText(/100 kg × 10/)).toBeInTheDocument()
+  })
+
   it('showsSetsFromBothSides', async () => {
     await logSet(db, await session(addDays(TODAY, -14), 'POWERLIFTING'), set(curlId, 15, { reps: 8 }))
     await logSet(db, await session(addDays(TODAY, -7), 'BODYBUILDING'), set(curlId, 14, { reps: 11 }))
@@ -392,5 +424,132 @@ describe('exercise history', () => {
     expect(screen.getByText('2 sessions')).toBeInTheDocument()
     expect(screen.getByText(/14 kg × 11/)).toBeInTheDocument()
     expect(screen.getByText(/15 kg × 8/)).toBeInTheDocument()
+  })
+})
+
+describe('the plan editor on the bodybuilding side (fix round ruling D)', () => {
+  const openEditor = async (row: string, day = 'Wednesday') => {
+    await userEvent.click(within(await screen.findByRole('listitem', { name: row })).getByRole('button', { name: 'More' }))
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Edit' }))
+    return within(await screen.findByRole('dialog', { name: `Edit ${day}` }))
+  }
+
+  it('anItemWithNoTop_opensAsARangeFromItsRepsToItsReps_andTheTopGoesUpTo30', async () => {
+    await planOn('BODYBUILDING', curlId, { reps: 10, repsHigh: undefined })
+    await onSide('BODYBUILDING')
+    showPlan()
+    const dialog = await openEditor('Curl 3 × 10 @ 8')
+    expect(dialog.queryByRole('group', { name: 'Reps' })).toBeNull()
+    const from = dialog.getByRole('group', { name: 'Reps from' })
+    const to = dialog.getByRole('group', { name: 'Reps to' })
+    expect(within(from).getByText('10')).toBeInTheDocument()
+    expect(within(to).getByText('10')).toBeInTheDocument()
+    for (let i = 0; i < 20; i++) await userEvent.click(within(to).getByRole('button', { name: /increase/i }))
+    expect(within(to).getByText('30')).toBeInTheDocument()
+    expect(within(to).getByRole('button', { name: /increase/i })).toBeDisabled()
+    await userEvent.click(dialog.getByRole('button', { name: 'Save' }))
+    await waitFor(async () => expect((await planFor(db, 'BODYBUILDING')).map((p) => [p.reps, p.repsHigh])).toEqual([[10, 30]]))
+  })
+
+  it('thePowerliftingEditor_keepsOneRepsStepper_upTo20', async () => {
+    await planOn('POWERLIFTING', squatId, { reps: 20 })
+    await onSide('POWERLIFTING')
+    showPlan()
+    const dialog = await openEditor('Squat 3 × 20 @ 8')
+    expect(dialog.queryByRole('group', { name: 'Reps from' })).toBeNull()
+    expect(within(dialog.getByRole('group', { name: 'Reps' })).getByRole('button', { name: /increase/i })).toBeDisabled()
+  })
+})
+
+describe('no powerlifting wording on the bodybuilding side (fix round ruling E)', () => {
+  const deload = (mode: TrainingMode): AdviceRow => ({ ...advice('DELOAD', mode, DELOAD, 'Take a deload week.') })
+
+  it('theDeloadCard_saysAllExercisesAndLastWeights_andThePowerliftingCardIsUnchanged', async () => {
+    await db.advice.add(deload('POWERLIFTING'))
+    await onSide('BODYBUILDING')
+    showCoach()
+    expect(await screen.findByText('Deload · All exercises')).toBeInTheDocument()
+    expect(screen.getByText('of your last weights')).toBeInTheDocument()
+    expect(screen.queryByText(/All lifts/)).toBeNull()
+    expect(screen.queryByText(/top sets/)).toBeNull()
+    cleanup()
+    await onSide('POWERLIFTING')
+    showCoach()
+    expect(await screen.findByText('Deload · All lifts')).toBeInTheDocument()
+    expect(screen.getByText('of your last top sets')).toBeInTheDocument()
+  })
+
+  it('settings_hidesDefaultRpeStrictPressAndMainLiftRest_andNamesTheOneRest', async () => {
+    await onSide('BODYBUILDING')
+    render(<SettingsScreen db={db} onBack={() => {}} today={() => TODAY} />)
+    await screen.findByRole('switch', { name: 'Bodybuilding mode' })
+    expect(screen.queryByText('Default RPE')).toBeNull()
+    expect(screen.queryByText('Planned effort for main lifts')).toBeNull()
+    expect(screen.queryByRole('heading', { name: 'Progress' })).toBeNull()
+    expect(screen.queryByRole('switch', { name: 'Strict press' })).toBeNull()
+    expect(screen.queryByText('Main lift rest')).toBeNull()
+    expect(screen.queryByText('Accessory rest')).toBeNull()
+    expect(screen.getByText('Every exercise')).toBeInTheDocument()
+    const rest = within(screen.getByRole('group', { name: 'Rest' }))
+    const before = (await getSettings(db)).restAccessorySec
+    await userEvent.click(rest.getByRole('button', { name: /increase/i }))
+    await waitFor(async () => expect((await getSettings(db)).restAccessorySec).toBe(before + 15))
+    const stored = await getSettings(db)
+    cleanup()
+
+    // Back on the powerlifting side every row is there again, the stored values untouched.
+    await onSide('POWERLIFTING')
+    render(<SettingsScreen db={db} onBack={() => {}} today={() => TODAY} />)
+    await screen.findByRole('switch', { name: 'Strict press' })
+    expect(screen.getByText('Default RPE')).toBeInTheDocument()
+    expect(screen.getByText('Planned effort for main lifts')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Progress' })).toBeInTheDocument()
+    expect(screen.getByText('Main lift rest')).toBeInTheDocument()
+    expect(screen.getByText('Accessory rest')).toBeInTheDocument()
+    expect(screen.getByText('Everything else')).toBeInTheDocument()
+    expect(screen.queryByText('Every exercise')).toBeNull()
+    const after = await getSettings(db)
+    expect([after.defaultRpe, after.showStrictPress, after.restMainSec, after.restAccessorySec]).toEqual([stored.defaultRpe, stored.showStrictPress, stored.restMainSec, stored.restAccessorySec])
+  })
+
+  it('plan_hidesKnownBests_onTheBodybuildingSideOnly', async () => {
+    await planOn('BODYBUILDING', curlId)
+    await onSide('BODYBUILDING')
+    showPlan()
+    await screen.findByRole('listitem', { name: 'Curl 3 × 8–12 @ 8' })
+    expect(screen.queryByRole('heading', { name: 'Known bests' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Set best' })).toBeNull()
+    cleanup()
+    await onSide('POWERLIFTING')
+    showPlan()
+    expect(await screen.findByRole('heading', { name: 'Known bests' })).toBeInTheDocument()
+  })
+})
+
+describe('the welcome-back card clears everywhere at once (fix round ruling F)', () => {
+  const both = () => {
+    const today = showToday()
+    const coach = showCoach()
+    return { today: within(today.container), coach: within(coach.container) }
+  }
+
+  it('answeringItOnToday_removesItFromCoach', async () => {
+    await planOn('BODYBUILDING', curlId)
+    await onSide('BODYBUILDING', { bodybuildingLeftOn: addDays(TODAY, -31) })
+    const { today, coach } = both()
+    await coach.findByText('Welcome back to the better side.')
+    await userEvent.click(await today.findByRole('button', { name: 'Resume my plan' }))
+    await waitFor(() => expect(coach.queryByText('Welcome back to the better side.')).toBeNull())
+    expect(today.queryByText('Welcome back to the better side.')).toBeNull()
+  })
+
+  it('answeringItOnCoach_removesItFromToday', async () => {
+    await planOn('BODYBUILDING', curlId)
+    await onSide('BODYBUILDING', { bodybuildingLeftOn: addDays(TODAY, -31) })
+    const { today, coach } = both()
+    await today.findByText('Welcome back to the better side.')
+    await userEvent.click(await coach.findByRole('button', { name: 'My goals have changed' }))
+    await waitFor(() => expect(today.queryByText('Welcome back to the better side.')).toBeNull())
+    expect(coach.queryByText('Welcome back to the better side.')).toBeNull()
   })
 })

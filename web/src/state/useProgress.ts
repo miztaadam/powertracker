@@ -180,8 +180,6 @@ export function buildProgress(history: JsHistory, range: ChartRange = DEFAULT_RA
 export type BodybuildingRow = {
   exerciseId: number
   name: string
-  /** The exercise's main lift when it is one (its row opens that lift's history); null otherwise. */
-  lift: Lift | null
   /** Oldest first. */
   bestSets: { date: string; weightKg: number; reps: number }[]
   /** Null with fewer than two sessions. */
@@ -193,19 +191,16 @@ export type BodybuildingProgressState = { loading: boolean; rows: BodybuildingRo
 
 /** The bodybuilding side's rows: the domain's `bodybuildingProgress` over the whole log and that side's plan. */
 export function buildBodybuildingProgress(history: JsHistory, plan: (PlanItemRow & { id: number })[], today: string): BodybuildingProgressState {
-  const exercises = new Map(history.exercises.map((e) => [e.id, e]))
   return {
     loading: false,
-    rows: grit.bodybuildingProgress(history, plan.map(planItemToJs), today).map((trend): BodybuildingRow => {
-      const exercise = exercises.get(trend.exerciseId)
-      return {
+    rows: grit.bodybuildingProgress(history, plan.map(planItemToJs), today).map(
+      (trend): BodybuildingRow => ({
         exerciseId: trend.exerciseId,
         name: trend.name,
-        lift: exercise && grit.isMainLift(exercise) ? asLift(grit.mainLiftOf(exercise) ?? '') : null,
         bestSets: trend.bestSets.map((b) => ({ date: b.date, weightKg: b.set.weightKg, reps: b.set.reps })),
         goingUp: trend.goingUp ?? null,
-      }
-    }),
+      }),
+    ),
   }
 }
 

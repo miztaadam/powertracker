@@ -106,6 +106,9 @@ export type SettingsContentProps = {
 
 /** The settings themselves, as grouped cards of rows. */
 export function SettingsContent({ settings, onUpdate, onAppLock, onBodybuilding }: SettingsContentProps) {
+  // The bodybuilding side has no main lifts: it hides the powerlifting rows (planned effort for main lifts, strict
+  // press on Progress, main lift rest) and its one rest is every exercise's. Their stored values are kept as they are.
+  const powerlifting = settings.trainingMode !== 'BODYBUILDING'
   return (
     <>
       <SectionHeader title="Training style" />
@@ -116,21 +119,27 @@ export function SettingsContent({ settings, onUpdate, onAppLock, onBodybuilding 
       <SectionHeader title="Loading and targets" />
       <Group>
         <SwitchRow label="Change plates" supporting="Adds 0.5 and 0.25 kg plates, so loads round to 0.5 kg" checked={settings.changePlates} onChange={(v) => onUpdate((s) => ({ ...s, changePlates: v }))} />
-        <StepperRow
-          label="Default RPE"
-          supporting="Planned effort for main lifts"
-          value={formatRpe(settings.defaultRpe)}
-          canDecrement={settings.defaultRpe > 6}
-          canIncrement={settings.defaultRpe < 10}
-          onStep={(by) => onUpdate((s) => ({ ...s, defaultRpe: clamp(s.defaultRpe + by * 0.5, 6, 10) }))}
-          labelAction={<RpeInfoButton inline />}
-        />
+        {powerlifting && (
+          <StepperRow
+            label="Default RPE"
+            supporting="Planned effort for main lifts"
+            value={formatRpe(settings.defaultRpe)}
+            canDecrement={settings.defaultRpe > 6}
+            canIncrement={settings.defaultRpe < 10}
+            onStep={(by) => onUpdate((s) => ({ ...s, defaultRpe: clamp(s.defaultRpe + by * 0.5, 6, 10) }))}
+            labelAction={<RpeInfoButton inline />}
+          />
+        )}
       </Group>
 
-      <SectionHeader title="Progress" />
-      <Group>
-        <SwitchRow label="Strict press" supporting="Show it on Progress and add it to your total." checked={settings.showStrictPress} onChange={(v) => onUpdate((s) => ({ ...s, showStrictPress: v }))} />
-      </Group>
+      {powerlifting && (
+        <>
+          <SectionHeader title="Progress" />
+          <Group>
+            <SwitchRow label="Strict press" supporting="Show it on Progress and add it to your total." checked={settings.showStrictPress} onChange={(v) => onUpdate((s) => ({ ...s, showStrictPress: v }))} />
+          </Group>
+        </>
+      )}
 
       <SectionHeader title="Training days" />
       <Card contentPadding={0} className="settings-days">
@@ -148,17 +157,20 @@ export function SettingsContent({ settings, onUpdate, onAppLock, onBodybuilding 
 
       <SectionHeader title="Rest timer" />
       <Group>
+        {powerlifting && (
+          <StepperRow
+            label="Main lift rest"
+            supporting="Squat, bench, deadlift"
+            value={`${settings.restMainSec} s`}
+            canDecrement={settings.restMainSec > 60}
+            canIncrement={settings.restMainSec < 600}
+            onStep={(by) => onUpdate((s) => ({ ...s, restMainSec: clamp(s.restMainSec + by * 30, 60, 600) }))}
+          />
+        )}
+        {/* Every exercise on the bodybuilding side rests as an accessory does (spec §5.3). */}
         <StepperRow
-          label="Main lift rest"
-          supporting="Squat, bench, deadlift"
-          value={`${settings.restMainSec} s`}
-          canDecrement={settings.restMainSec > 60}
-          canIncrement={settings.restMainSec < 600}
-          onStep={(by) => onUpdate((s) => ({ ...s, restMainSec: clamp(s.restMainSec + by * 30, 60, 600) }))}
-        />
-        <StepperRow
-          label="Accessory rest"
-          supporting="Everything else"
+          label={powerlifting ? 'Accessory rest' : 'Rest'}
+          supporting={powerlifting ? 'Everything else' : 'Every exercise'}
           value={`${settings.restAccessorySec} s`}
           canDecrement={settings.restAccessorySec > 30}
           canIncrement={settings.restAccessorySec < 300}

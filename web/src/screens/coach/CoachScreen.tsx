@@ -47,7 +47,7 @@ export function CoachContent({ state, actions, welcome }: CoachContentProps) {
           <EmptyState icon={<BoltIcon />} title="No advice right now. Keep logging." body="The coach looks at your training each time you finish a session." />
         )}
         {state.cards.map((card) => (
-          <CoachAdviceCard key={card.advice.id} card={card} onApply={() => void actions.apply(card.advice.id)} onDismiss={() => void actions.dismiss(card.advice.id)} />
+          <CoachAdviceCard key={card.advice.id} card={card} side={state.side} onApply={() => void actions.apply(card.advice.id)} onDismiss={() => void actions.dismiss(card.advice.id)} />
         ))}
       </div>
       {/* The newest confirmation replaces the one on screen. */}

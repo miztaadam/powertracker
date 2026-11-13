@@ -208,6 +208,11 @@ for (const scheme of ['dark', 'light'] as const) {
     await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
     await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', scheme === 'dark' ? '#070B14' : '#EDF2FA')
     await expect(page.getByTestId('mode-label')).toBeVisible()
+    // No powerlifting rows on this side; its one rest is every exercise's.
+    await expect(page.getByText('Default RPE')).toHaveCount(0)
+    await expect(page.getByRole('switch', { name: 'Strict press' })).toHaveCount(0)
+    await expect(page.getByText('Main lift rest')).toHaveCount(0)
+    await expect(page.getByText('Every exercise')).toBeVisible()
     expect((await page.locator('label.settings-row', { hasText: 'Bodybuilding mode' }).boundingBox())!.height).toBeGreaterThanOrEqual(48)
     expect(await overflowing(page)).toEqual([])
     expect(await smallTargets(page)).toEqual([])

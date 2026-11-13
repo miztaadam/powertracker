@@ -68,7 +68,8 @@ export function PlanContent({ state, actions, onOpenSettings }: PlanContentProps
             onDelete={(item) => reported(actions.remove(item))}
           />
         ))}
-        {!state.loading && (
+        {/* The squat, bench and deadlift baselines belong to the powerlifting side. */}
+        {!state.loading && state.side !== 'BODYBUILDING' && (
           <div className="plan-bests">
             <SectionHeader title="Known bests" />
             <Card contentPadding={16} spacing={0} className="plan-bests-card">

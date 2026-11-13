@@ -13,7 +13,7 @@ import './progress.css'
 export type ProgressScreenProps = {
   db: GritDb
   onOpenLift: (lift: Lift) => void
-  /** Opens one exercise's history, from a row on the bodybuilding side that is not a main lift. */
+  /** Opens one exercise's history, from any row on the bodybuilding side (main lifts too). */
   onOpenExercise?: (exerciseId: number) => void
   /** The real clock, as `YYYY-MM-DD`. Default is the device's local date. */
   today?: () => string
@@ -22,7 +22,7 @@ export type ProgressScreenProps = {
 /** Where the lifter stands: total and lift e1RMs, their trend, records, weekly volume, ratios and bodyweight. */
 export function ProgressScreen({ db, onOpenLift, onOpenExercise = () => {}, today = todayIso }: ProgressScreenProps) {
   const { state, setRange, side, bodybuilding } = useProgress(db, today)
-  if (side === 'BODYBUILDING') return <BodybuildingProgressContent state={bodybuilding} onOpenLift={onOpenLift} onOpenExercise={onOpenExercise} />
+  if (side === 'BODYBUILDING') return <BodybuildingProgressContent state={bodybuilding} onOpenExercise={onOpenExercise} />
   return <ProgressContent state={state} onRange={setRange} onOpenLift={onOpenLift} />
 }
 

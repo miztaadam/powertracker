@@ -314,4 +314,16 @@ describe('useCoach', () => {
       ['WEAK_POINT', 'STRICT_PRESS'],
     ])
   })
+
+  it('stallTrend_readsOnlyPowerliftingSessions', async () => {
+    // Fix round ruling A: a heavier bench on the bodybuilding side moves neither the card's e1RM nor its trend.
+    const bench = await id('Bench')
+    const pl = (await db.sessions.add({ date: addDays(TODAY, -9), bodyweightKg: null, readiness: null, mode: 'POWERLIFTING' })) as number
+    await db.sets.add({ sessionId: pl, exerciseId: bench, weightKg: 60, reps: 1, rpe: 10, failed: false, missPoint: null, isTopSet: false })
+    const bb = (await db.sessions.add({ date: addDays(TODAY, -2), bodyweightKg: null, readiness: null, mode: 'BODYBUILDING' })) as number
+    await db.sets.add({ sessionId: bb, exerciseId: bench, weightKg: 80, reps: 1, rpe: 10, failed: false, missPoint: null, isTopSet: false })
+    await insertAdvice(db, advice('STALL', 'BENCH', "Bench e1RM hasn't improved for 3 weeks.", payload.accessories([rx('Close-grip bench press', 3, 6, 8)])))
+    const result = await coach(1)
+    expect(result.current.cards[0]!.detail).toMatchObject({ kind: 'stall', e1rmKg: 60, trend: [60] })
+  })
 })

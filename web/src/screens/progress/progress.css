@@ -198,11 +198,13 @@
 }
 
 .bb-row-sets {
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: var(--space-3);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
+}
+
+/* A line breaks between best sets, never inside one. */
+.bb-row-set {
+  white-space: nowrap;
 }
 
 .bb-row-muted {

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { TrainingMode } from '../../db/schema'
 import type { Lift } from '../../router'
 import type { CardDetail, CoachCard, Prescription } from '../../state/useCoach'
 import type { MissPoint } from '../../state/useToday'
@@ -61,7 +62,7 @@ function PrescriptionList({ items }: { items: Prescription[] }) {
   )
 }
 
-function Detail({ lift, detail }: { lift: Lift | null; detail: CardDetail }) {
+function Detail({ lift, detail, side }: { lift: Lift | null; detail: CardDetail; side: TrainingMode }) {
   switch (detail.kind) {
     case 'stall':
       return (
@@ -81,7 +82,7 @@ function Detail({ lift, detail }: { lift: Lift | null; detail: CardDetail }) {
       return (
         <div className="coach-row">
           <StatTile label="Volume" value={String(detail.volumePct)} unit="%" note="of your usual sets" />
-          <StatTile label="Load" value={String(detail.loadPct)} unit="%" note="of your last top sets" />
+          <StatTile label="Load" value={String(detail.loadPct)} unit="%" note={side === 'BODYBUILDING' ? 'of your last weights' : 'of your last top sets'} />
         </div>
       )
     case 'reEntry':
@@ -110,17 +111,29 @@ function Detail({ lift, detail }: { lift: Lift | null; detail: CardDetail }) {
   }
 }
 
-export type CoachAdviceCardProps = { card: CoachCard; onApply: () => void; onDismiss: () => void }
+export type CoachAdviceCardProps = {
+  card: CoachCard
+  onApply: () => void
+  onDismiss: () => void
+  /** The side the app is on. On the bodybuilding side a deload speaks of exercises and weights, not lifts and top sets. */
+  side?: TrainingMode
+}
+
+/** What a card's tag names after its kind: the lift, else everything it covers. */
+function scopeOf(advice: CoachCard['advice'], side: TrainingMode): string {
+  if (advice.lift) return LIFT_LABEL[advice.lift]
+  return advice.type === 'DELOAD' && side === 'BODYBUILDING' ? 'All exercises' : 'All lifts'
+}
 
 /** One card of the Coach feed: what kind of advice, what to do, the coach's reason, the figures behind it, Apply and Dismiss. */
-export function CoachAdviceCard({ card, onApply, onDismiss }: CoachAdviceCardProps) {
+export function CoachAdviceCard({ card, onApply, onDismiss, side = 'POWERLIFTING' }: CoachAdviceCardProps) {
   const { advice, detail } = card
   const look = lookFor(advice.type, advice.lift, detail)
   return (
     <AdviceCard
       tone={look.tone}
       icon={look.icon}
-      tag={`${look.kind} · ${advice.lift ? LIFT_LABEL[advice.lift] : 'All lifts'}`}
+      tag={`${look.kind} · ${scopeOf(advice, side)}`}
       title={look.title}
       body={advice.reason}
       primaryAction={look.action}
@@ -128,7 +141,7 @@ export function CoachAdviceCard({ card, onApply, onDismiss }: CoachAdviceCardPro
       secondaryAction="Dismiss"
       onSecondary={onDismiss}
     >
-      <Detail lift={advice.lift} detail={detail} />
+      <Detail lift={advice.lift} detail={detail} side={side} />
     </AdviceCard>
   )
 }
