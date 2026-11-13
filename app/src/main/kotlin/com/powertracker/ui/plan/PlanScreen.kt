@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
@@ -79,6 +80,9 @@ import com.powertracker.ui.library.ExercisePickerScreen
 import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.library.PickerEntry
 import com.powertracker.ui.library.RpeInfoButton
+import com.powertracker.ui.plan.builder.BUILD_MY_PLAN
+import com.powertracker.ui.plan.builder.PLAN_OPTIONS
+import com.powertracker.ui.plan.builder.REBUILD_MY_PLAN
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import kotlinx.datetime.DayOfWeek
@@ -90,7 +94,7 @@ import java.util.Locale
 /** The text shown for one plan item, e.g. "Squat  3 × 5 @ 8", or "Curl  3 × 8–12 @ 8" for a rep range. */
 fun planItemText(name: String, item: PlanItem): String = "$name  ${item.sets} × ${repsText(item.reps, item.repsHigh)} @ ${formatRpe(item.targetRpe)}"
 
-/** The line an empty bodybuilding plan shows until the plan builder arrives (bodybuilding mode spec §7.3). */
+/** The line an empty bodybuilding plan shows, over its "Build my plan" button (bodybuilding mode spec §7.3, stage 2). */
 const val EMPTY_BODYBUILDING_PLAN = "Your bodybuilding plan is empty. Add exercises to each training day."
 
 /** The most reps the top of a range can be set to. */
@@ -116,6 +120,8 @@ fun PlanScreen(
     onOpenSettings: () -> Unit,
     today: () -> LocalDate = ::systemToday,
     viewModel: PlanViewModel = viewModel(factory = PlanViewModel.factory(training, settings, today)),
+    /** Opens the plan builder: offered on the bodybuilding side only. */
+    onOpenBuilder: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var dialog by remember { mutableStateOf<PlanDialog?>(null) }
@@ -128,6 +134,7 @@ fun PlanScreen(
         onMove = viewModel::move,
         onDelete = viewModel::delete,
         onSetBaseline = { lift -> dialog = PlanDialog.Baseline(lift) },
+        onBuild = onOpenBuilder,
     )
 
     when (val d = dialog) {
@@ -179,14 +186,35 @@ fun PlanContent(
     onMove: (PlanItem, Int) -> Unit,
     onDelete: (PlanItem) -> Unit,
     onSetBaseline: (Exercise) -> Unit,
+    /** The bodybuilding side's plan builder: the empty plan's button and the menu's "Rebuild my plan". */
+    onBuild: () -> Unit = {},
 ) {
     val scheme = MaterialTheme.colorScheme
+    var menuOpen by remember { mutableStateOf(false) }
     Scaffold(
         containerColor = scheme.background,
         topBar = {
             ScreenHeader("Plan", eyebrow = "Weekly template", modeLabel = true) {
                 IconButton(onClick = onOpenSettings) {
                     Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = scheme.onSurfaceVariant)
+                }
+                // The bodybuilding side's menu; an empty plan has its own button instead.
+                if (state.mode == TrainingMode.BODYBUILDING && !state.emptySide) {
+                    Box {
+                        IconButton(onClick = { menuOpen = true }) {
+                            Icon(Icons.Filled.MoreVert, contentDescription = PLAN_OPTIONS, tint = scheme.onSurfaceVariant)
+                        }
+                        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                            DropdownMenuItem(
+                                text = { Text(REBUILD_MY_PLAN) },
+                                leadingIcon = { Icon(Icons.Filled.Refresh, null) },
+                                onClick = {
+                                    menuOpen = false
+                                    onBuild()
+                                },
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -198,12 +226,10 @@ fun PlanContent(
         ) {
             if (state.emptySide) {
                 item(key = "empty-side") {
-                    Text(
-                        EMPTY_BODYBUILDING_PLAN,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = scheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = Space.xs),
-                    )
+                    Column(Modifier.padding(horizontal = Space.xs), verticalArrangement = Arrangement.spacedBy(Space.m)) {
+                        Text(EMPTY_BODYBUILDING_PLAN, style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
+                        PrimaryButton(BUILD_MY_PLAN, onBuild, Modifier.testTag("build-my-plan"))
+                    }
                 }
             }
             items(state.sections, key = { it.day }) { section ->

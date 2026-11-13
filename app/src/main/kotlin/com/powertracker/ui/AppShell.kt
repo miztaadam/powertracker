@@ -18,6 +18,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,10 +35,13 @@ import com.powertracker.data.AdviceRepository
 import com.powertracker.data.BackupService
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
+import com.powertracker.domain.model.TrainingMode
+import kotlinx.coroutines.flow.map
 import com.powertracker.ui.coach.CoachScreen
 import com.powertracker.ui.library.ExercisesScreen
 import com.powertracker.ui.plan.PlanScreen
 import com.powertracker.ui.plan.SettingsScreen
+import com.powertracker.ui.plan.builder.PlanBuilderScreen
 import com.powertracker.ui.progress.ExerciseHistoryScreen
 import com.powertracker.ui.progress.LiftHistoryScreen
 import com.powertracker.ui.progress.ProgressScreen
@@ -60,6 +64,8 @@ object Routes {
     fun liftHistory(lift: String) = "liftHistory/$lift"
     const val EXERCISE_HISTORY = "exerciseHistory/{id}"
     fun exerciseHistory(id: Long) = "exerciseHistory/$id"
+    /** The bodybuilding side's plan builder (stage 2). */
+    const val PLAN_BUILDER = "planBuilder"
 }
 
 @Composable
@@ -78,6 +84,10 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
         restoreState = true
     }
 
+    // "My goals have changed": on the bodybuilding side it runs the plan builder again; on the powerlifting side it opens Plan.
+    val mode by remember(settings) { settings.settings.map { it.trainingMode } }.collectAsState(initial = null)
+    fun goalsChanged() = if (mode == TrainingMode.BODYBUILDING) nav.navigate(Routes.PLAN_BUILDER) { launchSingleTop = true } else openTab(Tab.PLAN)
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
@@ -92,10 +102,10 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
                     onOpenCoach = { openTab(Tab.COACH) },
                     onSetLogged = rest.onSetLogged,
                     restTimer = rest.restTimer,
-                    onOpenPlan = { openTab(Tab.PLAN) },
+                    onOpenPlan = ::goalsChanged,
                 )
             }
-            composable(Tab.COACH.route) { CoachScreen(training, advice, settings, onOpenPlan = { openTab(Tab.PLAN) }) }
+            composable(Tab.COACH.route) { CoachScreen(training, advice, settings, onOpenPlan = ::goalsChanged) }
             composable(Tab.PROGRESS.route) {
                 ProgressScreen(
                     training, settings,
@@ -115,7 +125,21 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
                 )
             }
             composable(Tab.PLAN.route) {
-                PlanScreen(training, settings, onOpenSettings = { nav.navigate(Routes.SETTINGS) })
+                PlanScreen(
+                    training, settings, onOpenSettings = { nav.navigate(Routes.SETTINGS) },
+                    onOpenBuilder = { nav.navigate(Routes.PLAN_BUILDER) { launchSingleTop = true } },
+                )
+            }
+            composable(Routes.PLAN_BUILDER) {
+                PlanBuilderScreen(
+                    training, settings,
+                    onClose = { nav.popBackStack() },
+                    // Back to the Plan tab, wherever the builder was opened from, to see the new plan.
+                    onSaved = {
+                        nav.popBackStack()
+                        openTab(Tab.PLAN)
+                    },
+                )
             }
             composable(Routes.LIFT_HISTORY) { entry ->
                 LiftHistoryScreen(training, entry.arguments?.getString("lift").orEmpty(), onBack = { nav.popBackStack() })

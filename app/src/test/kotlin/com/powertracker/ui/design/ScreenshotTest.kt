@@ -15,6 +15,7 @@ import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.Tab
 import com.powertracker.ui.library.CatalogueThumbnails
 import com.powertracker.ui.lock.LockScreen
+import com.powertracker.ui.plan.builder.BuilderStep
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -153,6 +154,20 @@ class ScreenshotTest {
     fun settingsBodybuilding() = render("settings-bodybuilding", null, TrainingMode.BODYBUILDING) {
         SettingsShowcase(bodybuilding = true)
     }
+
+    // The bodybuilding side's plan builder (stage 2): its four steps.
+    @Test
+    fun planBuilderDays() = render("plan-builder-days-bodybuilding", null, TrainingMode.BODYBUILDING) { PlanBuilderShowcase(BuilderStep.DAYS) }
+
+    @Test
+    fun planBuilderExercises() = render("plan-builder-exercises-bodybuilding", null, TrainingMode.BODYBUILDING) { PlanBuilderShowcase(BuilderStep.EXERCISES) }
+
+    @Test
+    fun planBuilderBodyParts() = render("plan-builder-body-parts-bodybuilding", null, TrainingMode.BODYBUILDING) { PlanBuilderShowcase(BuilderStep.BODY_PARTS) }
+
+    @Test
+    @Config(qualifiers = "w412dp-h3330dp-xhdpi")
+    fun planBuilderDraft() = render("plan-builder-draft-bodybuilding", null, TrainingMode.BODYBUILDING) { PlanBuilderShowcase(BuilderStep.DRAFT) }
 
     @Test
     fun exercisePicker() = render("exercise-picker", null) { ExercisePickerShowcase() }

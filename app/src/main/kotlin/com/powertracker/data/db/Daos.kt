@@ -58,6 +58,8 @@ interface PlanDao {
     @Query("SELECT * FROM plan_item ORDER BY id") suspend fun all(): List<PlanItemEntity>
     @Insert suspend fun insertAll(p: List<PlanItemEntity>)
     @Query("DELETE FROM plan_item") suspend fun clear()
+    /** Deletes [mode]'s plan; the other side's rows are kept. */
+    @Query("DELETE FROM plan_item WHERE mode = :mode") suspend fun clearSide(mode: TrainingMode)
 }
 
 @Dao

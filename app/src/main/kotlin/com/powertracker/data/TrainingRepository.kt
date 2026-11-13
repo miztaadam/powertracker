@@ -101,6 +101,20 @@ open class TrainingRepository(private val db: AppDatabase) {
 
     suspend fun deletePlanItem(id: Long) = db.plan().delete(id)
 
+    /**
+     * Replaces [mode]'s whole plan with [items], in one transaction: that side's items are deleted, each item's catalogue
+     * name (the second of the pair; null for the lifter's own exercise, which keeps its `exerciseId`) is resolved as
+     * [savePlanItem] does, and the items are inserted in the order given, each on [mode]. If anything fails, the old plan
+     * and every exercise row are left as they were. The other side's plan is never touched.
+     */
+    suspend fun replacePlan(mode: TrainingMode, items: List<Pair<PlanItem, String?>>) = db.withTransaction {
+        db.plan().clearSide(mode)
+        for ((item, catalogueName) in items) {
+            val exerciseId = if (catalogueName == null) item.exerciseId else catalogue.resolve(catalogueName)
+            db.plan().upsert(PlanItemEntity(0, item.weekday, exerciseId, item.sets, item.reps, item.targetRpe, item.order, mode, item.repsHigh))
+        }
+    }
+
     /** Runs [block] in one transaction: the plan items it saves and the catalogue rows it resolves land together or not at all. */
     suspend fun <T> inTransaction(block: suspend () -> T): T = db.withTransaction(block)
 

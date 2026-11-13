@@ -203,6 +203,11 @@ fun ExerciseBrowser(
     onCreate: (() -> Unit)? = null,
     /** A small picture at the left of each row: the Exercises tab has them, the picker does not. */
     showThumbnails: Boolean = false,
+    /**
+     * Multi-select: when set, every row is a tick box showing whether its exercise is chosen, and a row tap ([onRow])
+     * ticks or unticks it. Null (the picker, the Exercises tab) keeps rows as plain taps.
+     */
+    ticked: ((PickerEntry) -> Boolean)? = null,
 ) {
     val query = state.query
     val area = state.area
@@ -276,7 +281,7 @@ fun ExerciseBrowser(
                     ListHeading("${group.label} exercises")
                 }
             }
-            val row: @Composable (PickerEntry) -> Unit = { entry -> BrowserRow(entry, rowLabel(entry.name), onRow, onInfo, showThumbnails) }
+            val row: @Composable (PickerEntry) -> Unit = { entry -> BrowserRow(entry, rowLabel(entry.name), onRow, onInfo, showThumbnails, ticked?.invoke(entry)) }
             if (list.isEmpty) {
                 item(key = "empty") {
                     if (onCreate != null) {
@@ -415,12 +420,18 @@ fun MusclesContent(ticked: Set<MuscleGroup>, onToggle: (MuscleGroup) -> Unit, on
             .testTag("muscles-sheet"),
     ) {
         GuideHeader("Muscles", "Exercises that work any of them", closeLabel = "Close", onClose = onClose)
-        Column(Modifier.padding(top = Space.m, end = Space.l)) {
-            for (row in MuscleGroup.entries.chunked(OPTION_COLUMNS)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-                    for (group in row) MuscleOption(group, group in ticked, onToggle, Modifier.weight(1f))
-                    repeat(OPTION_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
-                }
+        MuscleOptions(MuscleGroup.entries, ticked, onToggle, Modifier.padding(top = Space.m, end = Space.l))
+    }
+}
+
+/** [groups] as tick boxes, two to a row, in the order given: the Muscles drop-down's list, also the plan builder's body parts. */
+@Composable
+fun MuscleOptions(groups: List<MuscleGroup>, ticked: Set<MuscleGroup>, onToggle: (MuscleGroup) -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier) {
+        for (row in groups.chunked(OPTION_COLUMNS)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+                for (group in row) MuscleOption(group, group in ticked, onToggle, Modifier.weight(1f))
+                repeat(OPTION_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
             }
         }
     }
@@ -487,18 +498,39 @@ private fun ListHeading(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun BrowserRow(entry: PickerEntry, clickLabel: String, onRow: (PickerEntry) -> Unit, onInfo: (PickerEntry) -> Unit, showThumbnail: Boolean) {
+private fun BrowserRow(
+    entry: PickerEntry,
+    clickLabel: String,
+    onRow: (PickerEntry) -> Unit,
+    onInfo: (PickerEntry) -> Unit,
+    showThumbnail: Boolean,
+    /** Multi-select: whether the row is ticked; null for a plain row. */
+    ticked: Boolean? = null,
+) {
     val scheme = MaterialTheme.colorScheme
+    val pt = PowertrackerTheme.colors
     Column {
         Row(
             Modifier
                 .fillMaxWidth()
                 .heightIn(min = 64.dp)
-                .clickable(onClickLabel = clickLabel) { onRow(entry) }
-                .padding(start = Space.gutter, end = Space.xs)
+                .then(
+                    if (ticked == null) Modifier.clickable(onClickLabel = clickLabel) { onRow(entry) }
+                    else Modifier.toggleable(value = ticked, role = Role.Checkbox, onValueChange = { onRow(entry) }),
+                )
+                .padding(start = if (ticked == null) Space.gutter else Space.xs, end = Space.xs)
                 .testTag("exercise-${entry.name}"),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // The row is the control; the box only shows its state.
+            if (ticked != null) {
+                Checkbox(
+                    checked = ticked,
+                    onCheckedChange = null,
+                    colors = CheckboxDefaults.colors(checkedColor = pt.accent, checkmarkColor = pt.onAccent, uncheckedColor = scheme.outline),
+                    modifier = Modifier.padding(horizontal = Space.s),
+                )
+            }
             // The lifter's own exercise has no catalogue name, so its tile is empty.
             if (showThumbnail) ExerciseThumbnail(entry.catalogueName, Modifier.padding(end = Space.m))
             Column(Modifier.weight(1f).padding(vertical = Space.s)) {
