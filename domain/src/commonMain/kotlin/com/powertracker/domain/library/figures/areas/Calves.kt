@@ -109,8 +109,11 @@ private fun straightLeg(pelvisX: Double, foot: FootOnEdge, torso: Double): Pair<
     return pelvis to Reach.leg(pelvis, foot.ankle, torso, foot.angle)
 }
 
-/** A standing calf raise's two bodies: the pelvis halfway between the two ankles' x, so the body stays over the feet. */
-private class Standing(val torso: Double = 90.0) {
+/**
+ * A standing calf raise's two bodies: the pelvis halfway between the two ankles' x, so the body stays over the feet.
+ * [torso] and [neck] as in [Pose]: a lean forward with the neck at minus the lean keeps the head level.
+ */
+private class Standing(val torso: Double = 90.0, val neck: Double = 0.0) {
     val feet = feetOn(blockCorner, CALF_DROP, CALF_RISE)
     val pelvisX = (feet.first.ankle.x + feet.second.ankle.x) / 2
     val low = straightLeg(pelvisX, feet.first, torso)
@@ -120,7 +123,7 @@ private class Standing(val torso: Double = 90.0) {
         val (pelvis, leg) = if (which == Which.START) low else high
         val sh = shoulderOf(pelvis, torso)
         val n = near(sh)
-        return Pose(pelvis.x, pelvis.y, torso, nearArm = n, nearLeg = leg, farArm = far?.invoke(sh) ?: n, farLeg = farLeg ?: leg)
+        return Pose(pelvis.x, pelvis.y, torso, neck, nearArm = n, nearLeg = leg, farArm = far?.invoke(sh) ?: n, farLeg = farLeg ?: leg)
     }
 }
 
@@ -163,18 +166,49 @@ private val standingCalfRaise: ExerciseFigure by lazy {
 }
 
 /**
- * Barbell calf raise. The bar across the upper back (the Squat's bar and arms, gripped just outside the shoulders),
- * the balls of the feet on the block, the knees straight. START the heels below the edge, END raised. In a power
+ * The torso with a bar on the back, degrees: 5° forward of upright, the small natural lean of a loaded bar on the back
+ * (neutral), the back straight and the head level (the neck at minus the lean), so the chest shows in front and the
+ * lifter still stands tall (Task 14).
+ */
+private const val BACK_BAR_TORSO = 85.0
+
+/**
+ * Where the grip is out to the side of its shoulder joint with the bar across the upper back, cm: the hands just outside
+ * the shoulders (Body.SHOULDER_HALF_WIDTH 18, so about 38 cm either side of the middle). Neutral, and the least that
+ * lets the figure's arm fold to the bar within its elbow (Poses.kt MAX_ELBOW): about 144° here.
+ */
+private const val BACK_GRIP_OUT = 20.0
+
+/**
+ * The arm holding a bar across the upper back ([BarHold.ON_TRAPS]) for an upright lifter standing on [pelvis] with the
+ * torso at [torso]° (Task 14, the owner's finding). The grip lands on the bar, seen end-on, [BACK_GRIP_OUT] out to the
+ * side of the shoulder; the upper arm runs down and a little back from the shoulder (out of the picture towards the
+ * camera, so it is drawn foreshortened, Arm.out) and the forearm comes back up to the bar from below the elbow. So the
+ * elbows point down and slightly back, under and just behind the bar, and nothing crosses the chest: the lifter reads
+ * as facing his toes. The drawn arm before (Squat's turned-out arm, Poses.kt armTo) put the elbow in front of the
+ * chest with the forearm slanting back across it, which read as a bar held in front of an upright lifter facing left.
+ */
+private fun armToBackBar(pelvis: Point, torso: Double): Arm {
+    val bar = Barbell(BarHold.ON_TRAPS).center(Pose(pelvis.x, pelvis.y, torso, nearArm = HANG, nearLeg = Leg(0.0, 0.0)).skeleton())
+    // The elbow's side: down the torso, a little towards its back, and out towards the camera with the grip.
+    val down = unit(torso) * -1.0
+    val back = unit(torso - 90.0) * -1.0
+    val hint = v3(down + back * 0.5, 0.5)
+    return arm3(v3(shoulderOf(pelvis, torso), 0.0), v3(bar, BACK_GRIP_OUT), hint, torso)
+}
+
+/**
+ * Barbell calf raise. The bar across the upper back, seated on top of the shoulders ([BarHold.ON_TRAPS]), gripped just
+ * outside the shoulders with the elbows down ([armToBackBar]), the balls of the feet on the block, the knees straight. START the heels below the edge, END raised. In a power
  * rack, the guide's safety line: the J-hooks 8 cm under the bar's lowest point (it was lifted out of them by standing
  * up) and the safety arms 16 cm under it. ExRx barbell standing calf raise
  * (https://exrx.net/WeightExercises/Gastrocnemius/BBStandingCalfRaise, Sources.kt).
  */
 private val barbellCalfRaise: ExerciseFigure by lazy {
-    val st = Standing()
-    fun barArm(pelvis: Point) = armTo(shoulderOf(pelvis, 90.0), barOnBack(pelvis, 90.0), 90.0, turnedOut = true)
-    val start = st.pose(Which.START, { barArm(st.low.first) })
-    val end = st.pose(Which.END, { barArm(st.high.first) })
-    val bar = Barbell(BarHold.UPPER_BACK)
+    val st = Standing(torso = BACK_BAR_TORSO, neck = BACK_BAR_TORSO - 90.0)
+    val start = st.pose(Which.START, { armToBackBar(st.low.first, st.torso) })
+    val end = st.pose(Which.END, { armToBackBar(st.high.first, st.torso) })
+    val bar = Barbell(BarHold.ON_TRAPS)
     val low = bar.center(start.skeleton())
     val rack = rackInFront(low.x, jHookHeight = -low.y - 8.0, safetyHeight = -low.y - 16.0, gap = 75.0)
     figure(
@@ -195,17 +229,16 @@ private val barbellCalfRaise: ExerciseFigure by lazy {
 }
 
 /**
- * Smith calf raise. The barbell calf raise's body with the Smith bar across the upper back, held at the sides; the
+ * Smith calf raise. The barbell calf raise's body, bar and arms ([armToBackBar]), the Smith bar held at the sides; the
  * pelvis is at the same x in both panels, so the bar runs straight up the rails (BarOnRails). The safety stops 4 cm
  * under the bar's lowest point (guide: just below your lowest position). ExRx Smith standing calf raise
  * (https://exrx.net/WeightExercises/Gastrocnemius/SMStandingCalfRaise, Sources.kt).
  */
 private val smithCalfRaise: ExerciseFigure by lazy {
-    val st = Standing()
-    fun barArm(pelvis: Point) = armTo(shoulderOf(pelvis, 90.0), barOnBack(pelvis, 90.0), 90.0, turnedOut = true)
-    val start = st.pose(Which.START, { barArm(st.low.first) })
-    val end = st.pose(Which.END, { barArm(st.high.first) })
-    val bar = Barbell(BarHold.UPPER_BACK)
+    val st = Standing(torso = BACK_BAR_TORSO, neck = BACK_BAR_TORSO - 90.0)
+    val start = st.pose(Which.START, { armToBackBar(st.low.first, st.torso) })
+    val end = st.pose(Which.END, { armToBackBar(st.high.first, st.torso) })
+    val bar = Barbell(BarHold.ON_TRAPS)
     val low = bar.center(start.skeleton())
     // The stop reaches 20 cm back from the rails, so it shows past the back under the bar (fix round 1).
     val smith = SmithMachine(x = low.x, stopHeight = -low.y - Barbell.SHAFT_RADIUS - 4.0, stopBehind = 20.0)

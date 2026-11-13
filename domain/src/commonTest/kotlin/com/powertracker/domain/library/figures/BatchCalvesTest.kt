@@ -73,9 +73,9 @@ class BatchCalvesTest {
         }
     }
 
-    private fun standingTall(name: String) {
+    private fun standingTall(name: String, torso: ClosedFloatingPointRange<Double> = 89.0..91.0) {
         for (w in Which.entries) {
-            inRange(name, "torso upright ($w)", pose(name, w).torso, 89.0..91.0)
+            inRange(name, "torso upright ($w)", pose(name, w).torso, torso)
             // The straight legs lean no more than a couple of degrees as the ankles come forward.
             val sk = s(name, w)
             inRange(name, "legs near vertical ($w)", abs(atan2(sk.near.ankle.x - sk.pelvis.x, sk.near.ankle.y - sk.pelvis.y) * 180 / PI), 0.0..3.0)
@@ -106,15 +106,47 @@ class BatchCalvesTest {
         assertTrue(figure(n).contacts.any { it.point == BodyPoint.HANDS && it.surface == Surface.HANDLE })
     }
 
+    /**
+     * Task 14 (the owner's finding): an upright lifter with the bar across the upper back reads as facing the way his
+     * feet point (+x, the toes in front of the heels). The bar rests on the upper back (its centre within a few cm of
+     * BodyPoint.UPPER_BACK's point, not outside the back's edge); each hand on the bar, above its elbow; the elbows at
+     * or behind the shoulder, pointing down, so the forearms run up to the bar from below, never across the chest; the
+     * head's centre in front of the bar's.
+     */
+    private fun facesTheToes(name: String) {
+        val out = mutableListOf<String>()
+        fun bound(label: String, value: Double, range: ClosedFloatingPointRange<Double>) {
+            if (value !in range) out += "$label ${round1(value)} not in $range"
+        }
+        for (w in Which.entries) {
+            val sk = s(name, w)
+            val bar = props(name, w).filterIsInstance<Barbell>().single().center(sk)
+            bound("toes in front of the heels ($w)", sk.near.toe.x - sk.near.heel.x, 10.0..30.0)
+            val upperBack = sk.probes(BodyPoint.UPPER_BACK).single().a
+            bound("bar centre from the upper back ($w)", (bar - upperBack).length(), 0.0..7.5)
+            bound("head in front of the bar ($w)", sk.head.x - bar.x, 4.0..15.0)
+            for (side in Side.entries) {
+                val l = sk.side(side)
+                bound("${side.label} elbow behind the shoulder ($w)", sk.shoulder.x - l.elbow.x, 0.0..15.0)
+                bound("${side.label} grip above the elbow ($w)", l.elbow.y - l.grip.y, 15.0..40.0)
+                bound("${side.label} hand on the bar ($w)", (l.grip - bar).length(), 0.0..1.0)
+            }
+        }
+        assertEquals(emptyList(), out, "$name faces the way the feet point")
+    }
+
     @Test
     fun barbellCalfRaise_barOnTheBack_inARack_hooksAndPinsBelowTheBar() {
         val n = "Barbell calf raise"
         ankleRange(n)
         kneesStraight(n)
-        standingTall(n)
-        assertTrue(props(n).any { it is Barbell && it.on == BarHold.UPPER_BACK })
+        // Tall, with the small forward lean of a bar on the back (Task 14), the head kept level.
+        standingTall(n, torso = 84.0..86.0)
+        for (w in Which.entries) inRange(n, "head level ($w)", pose(n, w).torso - pose(n, w).neck, 89.0..91.0)
+        facesTheToes(n)
+        assertTrue(props(n).any { it is Barbell && it.on == BarHold.ON_TRAPS })
         val rack = props(n).filterIsInstance<PowerRack>().single()
-        val bar = Barbell(BarHold.UPPER_BACK).center(s(n, Which.START))
+        val bar = Barbell(BarHold.ON_TRAPS).center(s(n, Which.START))
         inRange(n, "J-hooks under the bar", -bar.y - rack.jHookHeight, 6.0..12.0)
         inRange(n, "safety arms under the bar", -bar.y - rack.safetyHeight, 12.0..25.0)
         // The posts clear of the body in front.
@@ -127,10 +159,14 @@ class BatchCalvesTest {
         val n = "Smith calf raise"
         ankleRange(n)
         kneesStraight(n)
-        standingTall(n)
+        // Tall, with the small forward lean of a bar on the back (Task 14), the head kept level.
+        standingTall(n, torso = 84.0..86.0)
+        for (w in Which.entries) inRange(n, "head level ($w)", pose(n, w).torso - pose(n, w).neck, 89.0..91.0)
         assertTrue(BarOnRails(Which.START) in figure(n).checks && BarOnRails(Which.END) in figure(n).checks)
+        facesTheToes(n)
+        assertTrue(props(n).any { it is Barbell && it.on == BarHold.ON_TRAPS })
         val smith = props(n).filterIsInstance<SmithMachine>().single()
-        val bar = Barbell(BarHold.UPPER_BACK).center(s(n, Which.START))
+        val bar = Barbell(BarHold.ON_TRAPS).center(s(n, Which.START))
         inRange(n, "stops just below the lowest bar", -bar.y - Barbell.SHAFT_RADIUS - smith.stopHeight, 2.0..6.0)
         // The stop shows past the back in both panels (the torso's back is 10 cm behind its axis).
         for (w in Which.entries) inRange(n, "stop shows behind the back ($w)", (s(n, w).pelvis.x - Body.TORSO_RADIUS) - (smith.x - smith.stopBehind), 5.0..30.0)

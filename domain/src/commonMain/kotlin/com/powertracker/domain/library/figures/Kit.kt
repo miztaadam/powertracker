@@ -67,9 +67,16 @@ data class PowerRack(
 /**
  * How a barbell is held: in the hands, across the upper back, or in the front rack (resting on the front of the
  * shoulders, on top of the forward-pointing upper arms, as in a front squat), or in the crook of the elbows (a Zercher
- * squat, Task 10: KitQuads.kt [crookOf]).
+ * squat, Task 10: KitQuads.kt [crookOf]), or [ON_TRAPS]: across the upper back like [UPPER_BACK], but seated on top
+ * of the shoulders at the base of the neck (Task 14), so in the side view its centre lies inside the back's outline,
+ * [ON_TRAPS_BELOW] under the shoulder joint and [ON_TRAPS_BEHIND] behind the torso's axis, not outside the back's
+ * edge. An upright lifter's bar on the back read as held in front of the chest otherwise (the calf raises, Calves.kt).
  */
-enum class BarHold { HANDS, UPPER_BACK, FRONT_RACK, CROOK }
+enum class BarHold { HANDS, UPPER_BACK, FRONT_RACK, CROOK, ON_TRAPS }
+
+/** [BarHold.ON_TRAPS]: the bar's centre below the shoulder joint along the torso, and behind its axis, cm (neutral). */
+internal const val ON_TRAPS_BELOW = 3.0
+internal const val ON_TRAPS_BEHIND = 5.0
 
 /** An Olympic barbell loaded with 45 cm plates. */
 data class Barbell(val on: BarHold = BarHold.HANDS) : HeldProp {
@@ -721,6 +728,9 @@ internal fun HeldProp.center(s: Skeleton): Point = when (this) {
         BarHold.UPPER_BACK ->
             if (s.view == View.SIDE) s.onTorso(Segment.TORSO.length - 4.0, -(Body.TORSO_RADIUS + Barbell.SHAFT_RADIUS))
             else s.onTorso(Segment.TORSO.length - 4.0, 0.0)
+        BarHold.ON_TRAPS ->
+            if (s.view == View.SIDE) s.onTorso(Segment.TORSO.length - ON_TRAPS_BELOW, -ON_TRAPS_BEHIND)
+            else s.onTorso(Segment.TORSO.length - ON_TRAPS_BELOW, 0.0)
         BarHold.FRONT_RACK ->
             if (s.view == View.SIDE) s.onTorso(Segment.TORSO.length + FRONT_RACK_UP, FRONT_RACK_FRONT)
             else s.onTorso(Segment.TORSO.length + FRONT_RACK_UP, 0.0)
