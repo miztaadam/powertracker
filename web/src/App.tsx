@@ -4,12 +4,13 @@ import type { SchemaVersion } from './db/schema'
 import { singleTabGuard, type SingleTabGuard, type TabRole } from './platform/singleTab'
 import { acceptPrivateMode, detectPrivateMode, privateModeAccepted, requestPersistence } from './platform/storage'
 import { UPDATE_READY, useUpdatePrompt, type RegisterSW } from './platform/update'
-import { goBack, navigate, useRoute, type Route } from './router'
+import { goBack, leave, navigate, useRoute, type Route } from './router'
 import { CoachScreen } from './screens/coach/CoachScreen'
 import { InstallCard } from './screens/install/InstallCard'
 import { ExercisesScreen } from './screens/library/ExercisesScreen'
 import { BlankScreen } from './screens/lock/GateScreen'
 import { LockGateHost } from './screens/lock/LockGateHost'
+import { PlanBuilderScreen } from './screens/plan/builder/PlanBuilderScreen'
 import { PlanScreen } from './screens/plan/PlanScreen'
 import { ExerciseHistoryScreen } from './screens/progress/ExerciseHistoryScreen'
 import { LiftHistoryScreen } from './screens/progress/LiftHistoryScreen'
@@ -48,18 +49,23 @@ type Kept = { session: TodayState & TodayActions; browser: ExerciseBrowser }
 
 function screenFor(route: Route, db: GritDb, { session, browser }: Kept): ReactNode {
   const openSettings = () => navigate({ page: 'settings' })
+  const openBuilder = () => navigate({ page: 'planBuilder' })
   if ('tab' in route) {
     const openPlan = () => navigate({ tab: 'plan' })
-    if (route.tab === 'today') return <TodayView db={db} session={session} onOpenCoach={() => navigate({ tab: 'coach' })} onOpenSettings={openSettings} onOpenPlan={openPlan} banner={<InstallCard db={db} />} />
-    if (route.tab === 'coach') return <CoachScreen db={db} onOpenPlan={openPlan} />
+    if (route.tab === 'today') return <TodayView db={db} session={session} onOpenCoach={() => navigate({ tab: 'coach' })} onOpenSettings={openSettings} onOpenPlan={openPlan} onOpenBuilder={openBuilder} banner={<InstallCard db={db} />} />
+    if (route.tab === 'coach') return <CoachScreen db={db} onOpenPlan={openPlan} onOpenBuilder={openBuilder} />
     if (route.tab === 'progress') return <ProgressScreen db={db} onOpenLift={(lift) => navigate({ page: 'lift', lift })} onOpenExercise={(exerciseId) => navigate({ page: 'exercise', exerciseId })} />
     if (route.tab === 'exercises') return <ExercisesScreen db={db} session={session} browser={browser} onOpenPlan={() => navigate({ tab: 'plan' })} onOpenToday={() => navigate({ tab: 'today' })} />
-    return <PlanScreen db={db} onOpenSettings={openSettings} />
+    return <PlanScreen db={db} onOpenSettings={openSettings} onBuildPlan={openBuilder} />
   }
+  if (route.page === 'planBuilder') return <PlanBuilderScreen db={db} onLeave={leaveBuilder} onDone={() => goBack({ tab: 'plan' })} />
   if (route.page === 'settings') return <SettingsScreen db={db} onBack={() => goBack({ tab: 'plan' })} />
   if (route.page === 'exercise') return <ExerciseHistoryScreen db={db} exerciseId={route.exerciseId} onBack={() => goBack({ tab: 'progress' })} />
   return <LiftHistoryScreen db={db} lift={route.lift} onBack={() => goBack({ tab: 'progress' })} />
 }
+
+/** Leaving the builder unsaved goes back where it was opened from (Plan, Today or Coach), or to Plan. */
+const leaveBuilder = () => leave({ tab: 'plan' })
 
 /** The app itself: the screens, the tab bar and what docks above it. Rendered only while Grit is unlocked. */
 function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: RegisterSW }) {

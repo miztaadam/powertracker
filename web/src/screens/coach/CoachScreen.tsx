@@ -18,13 +18,15 @@ export type CoachScreenProps = {
   today?: () => string
   /** Opens Plan, after "My goals have changed" on the welcome-back card. */
   onOpenPlan?: () => void
+  /** Opens the plan builder, after "My goals have changed" on the bodybuilding side's welcome-back card. */
+  onOpenBuilder?: () => void
 }
 
 /** The coach's open advice for the side the app is on, most urgent first. Nothing changes until the lifter taps Apply. */
-export function CoachScreen({ db, today = todayIso, onOpenPlan }: CoachScreenProps) {
+export function CoachScreen({ db, today = todayIso, onOpenPlan, onOpenBuilder }: CoachScreenProps) {
   const coach = useCoach(db, today)
   const welcome = useWelcomeBack(db, today)
-  return <CoachContent state={coach} actions={coach} welcome={<WelcomeBackCard welcome={welcome} onOpenPlan={onOpenPlan} />} />
+  return <CoachContent state={coach} actions={coach} welcome={<WelcomeBackCard welcome={welcome} onOpenPlan={onOpenPlan} onOpenBuilder={onOpenBuilder} />} />
 }
 
 export type CoachContentProps = {

@@ -201,6 +201,53 @@ for (const scheme of ['dark', 'light'] as const) {
       await expect(page.getByRole('heading', { name: 'Welcome back to the better side.' })).toHaveCount(0)
     })
 
+    test('plan builder: the four steps', async ({ page }) => {
+      await openOnWednesday(page, '#/plan')
+      await seedStory(page)
+      await page.getByRole('button', { name: 'Plan options' }).click()
+      await page.getByRole('menuitem', { name: 'Rebuild my plan' }).click()
+      await expect(page).toHaveURL(/#\/plan\/build$/)
+      const builder = header(page, 'Build my plan')
+
+      // Days: the side's own three days to start from.
+      await expect(page.getByText('Step 1 of 4')).toBeVisible()
+      await expect(page.getByRole('radio', { name: '3 days' })).toBeChecked()
+      await expect(builder.getByTestId('mode-label')).toBeVisible()
+      expect(await smallTargets(page)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+      await shoot(page, `plan-builder-days-bodybuilding-${scheme}`, 844)
+      await page.getByRole('button', { name: 'Next' }).click()
+
+      // Exercises: the plans' exercises and the last month's ticked.
+      await expect(page.getByRole('heading', { name: 'Which exercises do you do now?' })).toBeVisible()
+      await expect(page.getByText('8 chosen')).toBeVisible()
+      await expect(page.getByRole('listitem', { name: 'Incline DB press' }).getByRole('checkbox')).toHaveAttribute('aria-checked', 'true')
+      expect(await smallTargets(page)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+      await page.setViewportSize({ width: 390, height: 844 })
+      await page.evaluate(() => document.fonts.ready)
+      mkdirSync(outDir, { recursive: true })
+      await page.screenshot({ path: resolve(outDir, `plan-builder-exercises-bodybuilding-${scheme}.png`), animations: 'disabled' })
+      await page.getByRole('button', { name: 'Next' }).click()
+
+      // Body parts: two chosen.
+      await expect(page.getByRole('heading', { name: 'Which body parts do you most want to improve?' })).toBeVisible()
+      await page.getByRole('checkbox', { name: 'Side delts' }).check()
+      await page.getByRole('checkbox', { name: 'Chest' }).check()
+      expect(await smallTargets(page)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+      await shoot(page, `plan-builder-body-parts-bodybuilding-${scheme}`, 844)
+      await page.getByRole('button', { name: 'Next' }).click()
+
+      // The draft.
+      await expect(page.getByRole('heading', { name: 'Your draft week' })).toBeVisible()
+      await expect(page.getByRole('region', { name: 'Weekly sets' })).toBeVisible()
+      expect(await smallTargets(page)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+      const tall = await page.locator('.pb-screen').evaluate((el) => Math.ceil(el.scrollHeight))
+      await shoot(page, `plan-builder-draft-bodybuilding-${scheme}`, tall + 90)
+    })
+
     test('progress: each exercise’s best sets and whether it is going up', async ({ page }) => {
       await openOnWednesday(page, '#/progress')
       await seedStory(page)
@@ -293,4 +340,69 @@ test.describe('the head start', () => {
     await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.locator('html')).not.toHaveAttribute('data-mode', 'bodybuilding')
   })
+})
+
+test('the plan builder: four days from three exercises and a priority, a swap, then Plan and Today', async ({ page }) => {
+  await openOnWednesday(page, '#/settings')
+  await page.getByRole('switch', { name: 'Bodybuilding mode' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+  await tabBar(page).getByRole('link', { name: 'Plan' }).click()
+  await page.getByRole('button', { name: 'Build my plan' }).click()
+
+  // Four days: Wednesday, Thursday, Saturday and Sunday.
+  await page.getByText('4 days', { exact: true }).click()
+  await expect(page.getByRole('radio', { name: '4 days' })).toBeChecked()
+  const days = page.getByRole('group', { name: 'Which days?' })
+  for (const day of ['Mon', 'Fri']) await days.getByText(day, { exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled()
+  for (const day of ['Thu', 'Sat', 'Sun']) await days.getByText(day, { exact: true }).click()
+  await expect(days.getByRole('checkbox', { checked: true })).toHaveCount(4)
+  await page.getByRole('button', { name: 'Next' }).click()
+
+  // Nothing logged yet: nothing ticked. Three exercises.
+  await expect(page.getByRole('heading', { name: 'Which exercises would you like to do?' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Choose for me' })).toBeVisible()
+  const search = page.getByRole('textbox', { name: 'Search exercises' })
+  for (const name of ['Hack squat', 'Cable curl', 'T-bar row']) {
+    await search.fill(name)
+    await page.getByRole('listitem', { name, exact: true }).getByRole('checkbox').click()
+  }
+  await expect(page.getByText('3 chosen')).toBeVisible()
+  await page.getByRole('button', { name: 'Next' }).click()
+
+  await page.getByRole('checkbox', { name: 'Side delts' }).check()
+  await page.getByRole('button', { name: 'Next' }).click()
+
+  // The draft: upper on Wednesday, the picks in it, then one swap.
+  const wednesday = page.getByRole('region', { name: 'Wednesday' })
+  await expect(wednesday.getByRole('heading', { name: 'Wednesday · Upper' })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Thursday' }).getByRole('listitem', { name: /^Hack squat/ })).toBeVisible()
+  await expect(wednesday.getByRole('listitem', { name: /^T-bar row/ })).toBeVisible()
+  const lead = wednesday.getByRole('listitem').first()
+  const leadName = (await lead.getAttribute('aria-label'))!.split('  ')[0]!
+  await lead.getByRole('button', { name: 'Swap' }).click()
+  const sheet = page.getByRole('dialog', { name: `Swap ${leadName}` })
+  const swapTo = (await sheet.getByRole('listitem').first().getAttribute('aria-label'))!
+  await sheet.getByRole('listitem').first().getByRole('button').click()
+  await expect(wednesday.getByRole('listitem').first()).toHaveAttribute('aria-label', new RegExp(`^${swapTo}  4 × 8–12 @ 8$`))
+  const planned = await wednesday.getByRole('listitem').evaluateAll((rows) => rows.map((r) => r.getAttribute('aria-label')))
+  await page.getByRole('button', { name: 'Use this plan' }).click()
+
+  // Plan: the draft as it was accepted, on the four days.
+  await expect(page.getByRole('heading', { level: 1, name: 'Plan' })).toBeVisible()
+  await expect(page).toHaveURL(/#\/plan$/)
+  await expect(page.getByRole('region', { name: 'Wednesday' }).getByRole('listitem')).toHaveCount(planned.length)
+  expect(await page.getByRole('region', { name: 'Wednesday' }).getByRole('listitem').evaluateAll((rows) => rows.map((r) => r.getAttribute('aria-label')))).toEqual(planned)
+  for (const day of ['Thursday', 'Saturday', 'Sunday']) await expect(page.getByRole('region', { name: day }).getByRole('listitem').first()).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Monday' })).toHaveCount(0)
+
+  // Today is Wednesday, the first training day: its session is the upper day with the swap.
+  await tabBar(page).getByRole('link', { name: 'Today' }).click()
+  await expect(page.getByText('Wednesday · 9 exercises')).toBeVisible()
+  const todayRow = (name: string) => page.getByRole('listitem').filter({ has: page.getByText(name, { exact: true }) })
+  await expect(todayRow(swapTo)).toContainText('4 × 8–12 @ 8')
+  await expect(todayRow('T-bar row')).toContainText('3 × 8–12 @ 8')
+  const tables = (await readAllTables(page)) as { planItems: { mode: string }[]; settings: { key: string; value: unknown }[] }
+  expect(tables.planItems.every((p) => p.mode === 'BODYBUILDING')).toBe(true)
+  expect(tables.settings.find((s) => s.key === 'bodybuildingTrainingDays')?.value).toEqual([3, 4, 6, 7])
 })

@@ -78,6 +78,27 @@ export function updatePlanItem(db: GritDb, id: number, change: Unresolved<Pick<P
   })
 }
 
+/** One item of a whole new plan for `replacePlan`: its day and prescription, and its exercise as for `addPlanItem`. */
+export type NewPlanItem = { item: Unresolved<Omit<PlanItemRow, 'id' | 'order' | 'mode'>>; catalogueName: string | null }
+
+/**
+ * Replaces `mode`'s side's plan with `items`, in one transaction: that side's items are deleted, each catalogue name is
+ * found, restored or inserted, and the items are added in the order given (each at the end of its day). A failure
+ * part-way leaves the old plan as it was. The other side's plan is never touched.
+ */
+export function replacePlan(db: GritDb, mode: TrainingMode, items: readonly NewPlanItem[]): Promise<void> {
+  return db.transaction('rw', db.exercises, db.planItems, async () => {
+    await db.planItems.bulkDelete((await planFor(db, mode)).map((p) => p.id))
+    const orders = new Map<number, number>()
+    for (const { item, catalogueName } of items) {
+      const exerciseId = await exerciseFor(db, item.exerciseId, catalogueName)
+      const order = orders.get(item.weekday) ?? 0
+      orders.set(item.weekday, order + 1)
+      await db.planItems.add({ ...item, exerciseId, order, mode })
+    }
+  })
+}
+
 /**
  * Saves a logged set; resolves to its id. With a `catalogueName` the exercise row is found,
  * restored or inserted in the same transaction, and `exerciseId` is not used.

@@ -505,3 +505,21 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+/* Multi-select (the plan builder): a row leads with its tick box, accent-filled once ticked. */
+.lib-tick {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--text-muted);
+  border-radius: var(--radius-xs);
+  color: var(--accent-ink);
+}
+
+.lib-tick-on {
+  border-color: var(--accent);
+  background: var(--accent);
+}

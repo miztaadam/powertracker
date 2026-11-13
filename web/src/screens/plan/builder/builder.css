@@ -1,0 +1,152 @@
+/* Layout for the plan builder. Colours, type and controls come from the components and tokens; the draft's day cards use plan.css. */
+
+.pb-screen {
+  position: relative;
+}
+
+/* The exercises step: the browser fills the page between the question and the buttons, and scrolls on its own. */
+.pb-screen-fill {
+  height: 100%;
+  min-height: 0;
+}
+
+.pb-body {
+  flex: 1;
+}
+
+.pb-question,
+.pb-hint,
+.pb-note,
+.pb-full,
+.pb-none,
+.pb-left-out p {
+  margin: 0;
+}
+
+.pb-hint,
+.pb-note,
+.pb-none {
+  color: var(--text-secondary);
+}
+
+.pb-full:empty {
+  display: none;
+}
+
+.pb-full {
+  color: var(--warning);
+}
+
+/* The question over the exercise browser, in the screen's gutter. */
+.pb-lead {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5) 0;
+}
+
+/* The weekday chips, one line of seven, as in Settings. */
+.pb-days {
+  padding: var(--space-3) var(--space-2);
+}
+
+.pb-days-row {
+  display: flex;
+}
+
+.pb-days-row .gr-chip {
+  flex: 1;
+  min-width: 0;
+}
+
+.pb-days-row .gr-chip-face {
+  margin: 0 var(--space-1);
+  padding: 0;
+}
+
+.pb-groups .lib-options {
+  padding: var(--space-3) var(--space-4);
+}
+
+/* The draft. */
+
+.pb-dose {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.pb-volume,
+.pb-left-out {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pb-volume-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 40px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.pb-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.pb-sets {
+  min-width: 2ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A quiet mark: the group is short of the guideline, which is information rather than an error. */
+.pb-short {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-xs);
+  background: var(--warning-container);
+  color: var(--warning);
+}
+
+.pb-volume + .pb-note {
+  padding-top: var(--space-4);
+}
+
+.pb-left-out-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.pb-left-out-row:last-child {
+  border-bottom: 0;
+}
+
+.pb-another {
+  align-self: flex-start;
+}
+
+.pb-none {
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+/* Back and Next, kept in view at the foot of the page. */
+.pb-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  flex: none;
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--hairline);
+  background: var(--bg);
+}
+
+.pb-actions > .gr-btn {
+  flex: 1;
+}

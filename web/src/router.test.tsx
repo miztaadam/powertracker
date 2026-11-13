@@ -2,7 +2,8 @@ import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { App } from './App'
-import { navigate } from './router'
+import { navigate, parseHash, routeToHash } from './router'
+import { openGritDb, updateSettings } from './db/db'
 import { todayFixture } from './test/todayFixture'
 
 function setHash(hash: string) {
@@ -84,5 +85,25 @@ describe('app shell routing', () => {
     act(() => navigate({ page: 'lift', lift: 'DEADLIFT' }))
     expect(window.location.hash).toBe('#/lift/DEADLIFT')
     expect(await screen.findByRole('heading', { level: 1, name: 'Deadlift history' })).toBeInTheDocument()
+  })
+
+  it('#/plan/build is the plan builder on the bodybuilding side, and Plan on the powerlifting side', async () => {
+    expect(parseHash('#/plan/build')).toEqual({ page: 'planBuilder' })
+    expect(routeToHash({ page: 'planBuilder' })).toBe('#/plan/build')
+    window.location.hash = '#/plan/build'
+    show()
+    await opened()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Plan' })).toBeInTheDocument()
+    expect(window.location.hash).toBe('#/plan')
+    cleanup()
+
+    const db = await openGritDb(fx.name)
+    await updateSettings(db, (s) => ({ ...s, trainingMode: 'BODYBUILDING' }))
+    db.close()
+    window.location.hash = '#/plan/build'
+    show()
+    await opened()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Build my plan' })).toBeInTheDocument()
+    expect(screen.getByText('Step 1 of 4')).toBeInTheDocument()
   })
 })

@@ -31,6 +31,8 @@ export type TodayScreenProps = {
   banner?: ReactNode
   /** Opens Plan, after "My goals have changed" on the welcome-back card. */
   onOpenPlan?: () => void
+  /** Opens the plan builder, after "My goals have changed" on the bodybuilding side's welcome-back card. */
+  onOpenBuilder?: () => void
 }
 
 /** The logging screen with a session of its own: start card, the session's exercises, or the finish summary. */
@@ -45,7 +47,7 @@ export type TodayViewProps = Omit<TodayScreenProps, 'onSetLogged'> & {
 }
 
 /** The logging screen over a session kept elsewhere, so that it outlives the screen. */
-export function TodayView({ session, db, onOpenCoach, today = todayIso, onOpenSettings, banner, onOpenPlan }: TodayViewProps) {
+export function TodayView({ session, db, onOpenCoach, today = todayIso, onOpenSettings, banner, onOpenPlan, onOpenBuilder }: TodayViewProps) {
   const welcome = useWelcomeBack(db, today)
   const notice = (
     <>
@@ -53,7 +55,7 @@ export function TodayView({ session, db, onOpenCoach, today = todayIso, onOpenSe
       {onOpenSettings && <BackupReminderCard db={db} today={today()} onBackUp={onOpenSettings} />}
     </>
   )
-  return <TodayContent state={session} actions={session} onOpenCoach={onOpenCoach} notice={notice} welcome={<WelcomeBackCard welcome={welcome} onOpenPlan={onOpenPlan} />} />
+  return <TodayContent state={session} actions={session} onOpenCoach={onOpenCoach} notice={notice} welcome={<WelcomeBackCard welcome={welcome} onOpenPlan={onOpenPlan} onOpenBuilder={onOpenBuilder} />} />
 }
 
 function dateParts(isoDate: string): { weekday: string; day: string; month: string } {

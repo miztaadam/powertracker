@@ -3,7 +3,7 @@ import { muscleGroups, normalise, pickerList, type ExerciseBrowser as BrowserSta
 import { IconButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
 import { EmptyState } from '../../ui/components/EmptyState'
-import { ArrowBackIcon, ArrowDropDownIcon, CloseIcon, InfoIcon, SearchOffIcon } from '../../ui/components/icons'
+import { ArrowBackIcon, ArrowDropDownIcon, CheckIcon, CloseIcon, InfoIcon, SearchOffIcon } from '../../ui/components/icons'
 import { SectionHeader } from '../../ui/components/ScreenHeader'
 import { ChoiceChip } from '../../ui/components/SegmentedChoice'
 import { TextField } from '../../ui/components/TextField'
@@ -36,6 +36,11 @@ export type ExerciseBrowserProps = {
   create?: ReactNode
   /** Whether each row leads with its exercise's small picture (the Exercises tab). The picker's rows have none. */
   thumbnails?: boolean
+  /**
+   * Multi-select: whether the row's exercise is ticked. With it every row is a tick box that `onRow` toggles
+   * (the plan builder's "Which exercises do you do now?"); without it a row tap is one choice.
+   */
+  ticked?: (entry: PickerEntry) => boolean
 }
 
 /**
@@ -49,7 +54,7 @@ export type ExerciseBrowserProps = {
  * any ticked group, on top of the search and the other filters, and with none ticked it is the whole
  * catalogue under its body areas.
  */
-export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onRow, onInfo, rowLabel, create, thumbnails = false }: ExerciseBrowserProps) {
+export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onRow, onInfo, rowLabel, create, thumbnails = false, ticked }: ExerciseBrowserProps) {
   const { query, area, equipment, muscle, muscles } = state
   const dropdown = muscleFilter === 'dropdown'
   const [choosingMuscles, setChoosingMuscles] = useState(false)
@@ -67,7 +72,7 @@ export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onR
     if (scroller.current) scroller.current.scrollTop = 0
   }, [query, area, equipment, muscle, muscles])
 
-  const rows = (entries: readonly PickerEntry[]) => <BrowserRows entries={entries} onRow={onRow} onInfo={onInfo} rowLabel={rowLabel} thumbnails={thumbnails} />
+  const rows = (entries: readonly PickerEntry[]) => <BrowserRows entries={entries} onRow={onRow} onInfo={onInfo} rowLabel={rowLabel} thumbnails={thumbnails} ticked={ticked} />
 
   return (
     <>
@@ -185,8 +190,22 @@ function AreaSections({ entries, rows }: { entries: readonly PickerEntry[]; rows
   )
 }
 
+/** Muscle groups to tick, two to a row: the Muscles drop-down's list, and the plan builder's body parts. */
+export function MuscleChecklist({ groups, ticked, onToggle }: { groups: readonly { id: string; label: string }[]; ticked: readonly string[]; onToggle: (group: string) => void }) {
+  return (
+    <div className="lib-options">
+      {groups.map((g) => (
+        <label key={g.id} className="lib-option title-medium">
+          <input type="checkbox" checked={ticked.includes(g.id)} onChange={() => onToggle(g.id)} />
+          {g.label}
+        </label>
+      ))}
+    </div>
+  )
+}
+
 /** The Muscles drop-down: every muscle group, in the domain's order, to tick. It stays open while the lifter ticks. */
-function MusclesSheet({ ticked, onToggle, onClose }: { ticked: readonly string[]; onToggle: (group: string) => void; onClose: () => void }) {
+export function MusclesSheet({ ticked, onToggle, onClose }: { ticked: readonly string[]; onToggle: (group: string) => void; onClose: () => void }) {
   return (
     <Dialog
       open
@@ -204,36 +223,43 @@ function MusclesSheet({ ticked, onToggle, onClose }: { ticked: readonly string[]
         </div>
       }
     >
-      <div className="lib-options">
-        {muscleGroups().map((g) => (
-          <label key={g.id} className="lib-option title-medium">
-            <input type="checkbox" checked={ticked.includes(g.id)} onChange={() => onToggle(g.id)} />
-            {g.label}
-          </label>
-        ))}
-      </div>
+      <MuscleChecklist groups={muscleGroups()} ticked={ticked} onToggle={onToggle} />
     </Dialog>
   )
 }
 
-type BrowserRowsProps = Pick<ExerciseBrowserProps, 'onRow' | 'onInfo' | 'rowLabel' | 'thumbnails'> & { entries: readonly PickerEntry[] }
+type BrowserRowsProps = Pick<ExerciseBrowserProps, 'onRow' | 'onInfo' | 'rowLabel' | 'thumbnails' | 'ticked'> & { entries: readonly PickerEntry[] }
 
-function BrowserRows({ entries, onRow, onInfo, rowLabel, thumbnails }: BrowserRowsProps) {
+function BrowserRows({ entries, onRow, onInfo, rowLabel, thumbnails, ticked }: BrowserRowsProps) {
   return (
     <ul className="lib-rows">
       {entries.map((entry) => (
-        <BrowserRow key={entry.library?.name ?? `own-${entry.exerciseId}`} entry={entry} onRow={onRow} onInfo={onInfo} rowLabel={rowLabel} thumbnails={thumbnails} />
+        <BrowserRow key={entry.library?.name ?? `own-${entry.exerciseId}`} entry={entry} onRow={onRow} onInfo={onInfo} rowLabel={rowLabel} thumbnails={thumbnails} ticked={ticked} />
       ))}
     </ul>
   )
 }
 
-function BrowserRow({ entry, onRow, onInfo, rowLabel, thumbnails }: Omit<BrowserRowsProps, 'entries'> & { entry: PickerEntry }) {
+function BrowserRow({ entry, onRow, onInfo, rowLabel, thumbnails, ticked }: Omit<BrowserRowsProps, 'entries'> & { entry: PickerEntry }) {
   // With a label of its own, the row's button is named by it and the rest of the row describes it.
   const details = useId()
+  const on = ticked?.(entry)
   return (
     <li className="lib-row" aria-label={entry.name}>
-      <button type="button" className="lib-row-main" aria-label={rowLabel?.(entry.name)} aria-describedby={rowLabel ? details : undefined} onClick={() => onRow(entry)}>
+      <button
+        type="button"
+        className="lib-row-main"
+        role={ticked ? 'checkbox' : undefined}
+        aria-checked={ticked ? on : undefined}
+        aria-label={rowLabel?.(entry.name)}
+        aria-describedby={rowLabel ? details : undefined}
+        onClick={() => onRow(entry)}
+      >
+        {ticked && (
+          <span className={on ? 'lib-tick lib-tick-on' : 'lib-tick'} aria-hidden="true">
+            {on && <CheckIcon size={18} />}
+          </span>
+        )}
         {/* By the catalogue's name: the lifter's own exercise has none, and gets the empty tile. */}
         {thumbnails && <ExerciseThumbnail name={entry.library?.name} />}
         <span className="lib-grow">

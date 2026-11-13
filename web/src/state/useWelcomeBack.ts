@@ -10,8 +10,10 @@ export type WelcomeBack = {
   show: boolean
   /** "Resume my plan": the card goes; the first week back is eased in by the coach. */
   resume: () => Promise<void>
-  /** "My goals have changed": the card goes, and the caller opens this side's Plan. */
+  /** "My goals have changed": the card goes, and the caller opens this side's Plan (on the bodybuilding side, its builder). */
   goalsChanged: () => Promise<void>
+  /** The side the card is for: the side the app is on. */
+  side: TrainingMode
 }
 
 type Stored = { show: boolean; side: TrainingMode }
@@ -51,5 +53,5 @@ export function useWelcomeBack(db: GritDb, today: () => string): WelcomeBack {
     }
   }, [db])
 
-  return { show: stored.show && !answered, resume: answer, goalsChanged: answer }
+  return { show: stored.show && !answered, resume: answer, goalsChanged: answer, side: stored.side }
 }

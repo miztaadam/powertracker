@@ -3,10 +3,10 @@ import type { GritDb } from '../../db/db'
 import { grit, todayIso } from '../../domain'
 import { usePlan, type DaySection, type PlanActions, type PlanExercise, type PlanItem, type PlanRow, type PlanState } from '../../state/usePlan'
 import { dayName } from '../../state/weekdayNames'
-import { IconButton, SecondaryButton } from '../../ui/components/Button'
+import { IconButton, PrimaryButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
 import { formatRpe } from '../../ui/components/format'
-import { AddIcon, DeleteIcon, EditIcon, KeyboardArrowDownIcon, KeyboardArrowUpIcon, SettingsIcon } from '../../ui/components/icons'
+import { AddIcon, DeleteIcon, EditIcon, KeyboardArrowDownIcon, KeyboardArrowUpIcon, ReplayIcon, SettingsIcon } from '../../ui/components/icons'
 import { Menu } from '../../ui/components/Menu'
 import { ScreenHeader, SectionHeader } from '../../ui/components/ScreenHeader'
 import { ModeLabel } from '../../ui/components/ModeLabel'
@@ -19,14 +19,16 @@ import './plan.css'
 export type PlanScreenProps = {
   db: GritDb
   onOpenSettings: () => void
+  /** Opens the plan builder, which only the bodybuilding side has. Without it the side offers no builder. */
+  onBuildPlan?: () => void
   /** The real clock, as `YYYY-MM-DD`. Default is the device's local date. */
   today?: () => string
 }
 
 /** The weekly template: one card per training day, then the known bests. */
-export function PlanScreen({ db, onOpenSettings, today = todayIso }: PlanScreenProps) {
+export function PlanScreen({ db, onOpenSettings, onBuildPlan, today = todayIso }: PlanScreenProps) {
   const plan = usePlan(db, today)
-  return <PlanContent state={plan} actions={plan} onOpenSettings={onOpenSettings} />
+  return <PlanContent state={plan} actions={plan} onOpenSettings={onOpenSettings} onBuildPlan={onBuildPlan} />
 }
 
 /** An item's reps: "5", or a range "8–12" on the bodybuilding side. */
@@ -37,27 +39,46 @@ export function planItemText(name: string, item: Pick<PlanItem, 'sets' | 'reps' 
   return `${name}  ${item.sets} × ${repsOf(item)} @ ${formatRpe(item.targetRpe)}`
 }
 
-/** Until the plan builder (stage 2), an empty bodybuilding plan says so. */
+/** An empty bodybuilding plan says so, and offers the plan builder. */
 export const EMPTY_BODYBUILDING_PLAN = 'Your bodybuilding plan is empty. Add exercises to each training day.'
 
 type OpenDialog = { kind: 'add'; weekday: number } | { kind: 'edit'; item: PlanItem; exerciseName: string } | { kind: 'baseline'; lift: PlanExercise } | null
 
-export type PlanContentProps = { state: PlanState; actions: PlanActions; onOpenSettings: () => void }
+export type PlanContentProps = { state: PlanState; actions: PlanActions; onOpenSettings: () => void; onBuildPlan?: () => void }
 
 const SAVE_FAILED = "Couldn't save — try again."
 
 /** The Plan screen without its data source. A write that fails says so; it never fails silently. */
-export function PlanContent({ state, actions, onOpenSettings }: PlanContentProps) {
+export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: PlanContentProps) {
   const [dialog, setDialog] = useState<OpenDialog>(null)
   // Counts failed writes: 0 shows nothing, and each new failure shows the message afresh.
   const [failures, setFailures] = useState(0)
   const reported = (work: Promise<unknown>) => void work.catch(() => setFailures((n) => n + 1))
 
+  const bodybuilding = !state.loading && state.side === 'BODYBUILDING'
+  const empty = bodybuilding && state.sections.every((section) => section.rows.length === 0)
+  const settings = <IconButton label="Settings" icon={<SettingsIcon />} onClick={onOpenSettings} />
+  // The builder belongs to the bodybuilding side; the powerlifting side's header is as it was.
+  const headerActions =
+    bodybuilding && !empty && onBuildPlan ? (
+      <span className="plan-header-actions">
+        <Menu label="Plan options" items={[{ text: 'Rebuild my plan', icon: <ReplayIcon />, onSelect: onBuildPlan }]} />
+        {settings}
+      </span>
+    ) : (
+      settings
+    )
+
   return (
     <section className="screen">
-      <ScreenHeader title="Plan" eyebrow="Weekly template" label={<ModeLabel />} actions={<IconButton label="Settings" icon={<SettingsIcon />} onClick={onOpenSettings} />} />
+      <ScreenHeader title="Plan" eyebrow="Weekly template" label={<ModeLabel />} actions={headerActions} />
       <div className="screen-body">
-        {!state.loading && state.side === 'BODYBUILDING' && state.sections.every((section) => section.rows.length === 0) && <p className="plan-empty-side body-medium">{EMPTY_BODYBUILDING_PLAN}</p>}
+        {empty && (
+          <div className="plan-empty">
+            <p className="plan-empty-side body-medium">{EMPTY_BODYBUILDING_PLAN}</p>
+            {onBuildPlan && <PrimaryButton text="Build my plan" onClick={onBuildPlan} className="plan-build" />}
+          </div>
+        )}
         {state.sections.map((section) => (
           <DayCard
             key={section.weekday}

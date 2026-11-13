@@ -7,15 +7,17 @@ export const WELCOME_BACK_TITLE = 'Welcome back to the better side.'
 
 export type WelcomeBackCardProps = {
   welcome: WelcomeBack
-  /** Opens the side's Plan for editing, after "My goals have changed". */
+  /** Opens the side's Plan for editing, after "My goals have changed" on the powerlifting side. */
   onOpenPlan?: () => void
+  /** Opens the plan builder, after "My goals have changed" on the bodybuilding side. Without it, Plan opens there too. */
+  onOpenBuilder?: () => void
 }
 
 /**
  * Back on a side after more than a month on the other (spec §7.7): resume the plan as it was left, or change it.
  * Shown on Today and at the top of Coach; nothing changes until a button is tapped.
  */
-export function WelcomeBackCard({ welcome, onOpenPlan }: WelcomeBackCardProps) {
+export function WelcomeBackCard({ welcome, onOpenPlan, onOpenBuilder }: WelcomeBackCardProps) {
   if (!welcome.show) return null
   return (
     <Card className="welcome-back">
@@ -29,7 +31,8 @@ export function WelcomeBackCard({ welcome, onOpenPlan }: WelcomeBackCardProps) {
           text="My goals have changed"
           onClick={() => {
             void welcome.goalsChanged().catch(() => {})
-            onOpenPlan?.()
+            if (welcome.side === 'BODYBUILDING' && onOpenBuilder) onOpenBuilder()
+            else onOpenPlan?.()
           }}
         />
       </div>

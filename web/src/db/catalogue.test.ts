@@ -3,7 +3,7 @@ import Dexie from 'dexie'
 import { grit } from '../domain'
 import { TODAY, startSession, todayFixture } from '../test/todayFixture'
 import { decodeBackup, encodeBackup, exportBackup, restoreBackup } from '../backup/backup'
-import { addPlanItem, addSet, resolveCatalogue, updatePlanItem } from './catalogue'
+import { addPlanItem, addSet, planFor, replacePlan, resolveCatalogue, updatePlanItem } from './catalogue'
 import { openGritDb, type GritDb } from './db'
 import type { ExerciseRow } from './schema'
 
@@ -187,5 +187,63 @@ describe('backup', () => {
       fresh.close()
       await Dexie.delete(freshName)
     }
+  })
+})
+
+describe('replacePlan', () => {
+  const range = (weekday: number, exerciseId: number | null = null, sets = 3) => ({ weekday, exerciseId, sets, reps: 8, repsHigh: 12, targetRpe: 8 })
+  const side = async (mode: 'POWERLIFTING' | 'BODYBUILDING') =>
+    (await planFor(db, mode)).sort((a, b) => a.id - b.id)
+  const names = async (mode: 'POWERLIFTING' | 'BODYBUILDING') => {
+    const byId = new Map((await db.exercises.toArray()).map((e) => [e.id, e.name]))
+    return (await planFor(db, mode)).sort((a, b) => a.id - b.id).map((p) => `${p.weekday} ${p.order} ${byId.get(p.exerciseId)} ${p.sets}`)
+  }
+
+  it('replacesOnlyThatSidesRows_inOrder_resolvingCatalogueNames', async () => {
+    await unseed('Leg press')
+    const curl = (await rows('Curl'))[0]!.id!
+    const own = (await db.exercises.add({ name: 'My cable thing', category: 'ACCESSORY', parentLift: null, muscles: [], isBuiltIn: false, archived: false })) as number
+    await addPlanItem(db, planItem(curl), null, 'POWERLIFTING')
+    await addPlanItem(db, { ...range(3, curl) }, null, 'BODYBUILDING')
+    await addPlanItem(db, { ...range(5, curl) }, null, 'BODYBUILDING')
+    const powerlifting = await side('POWERLIFTING')
+
+    await replacePlan(db, 'BODYBUILDING', [
+      { item: range(1, null, 4), catalogueName: 'Leg press' },
+      { item: range(1), catalogueName: 'Curl' },
+      { item: range(4, own), catalogueName: null },
+      { item: range(1), catalogueName: 'DB press' },
+    ])
+
+    expect(await names('BODYBUILDING')).toEqual(['1 0 Leg press 4', '1 1 Curl 3', '4 0 My cable thing 3', '1 2 DB press 3'])
+    expect((await planFor(db, 'BODYBUILDING')).every((p) => p.mode === 'BODYBUILDING' && p.reps === 8 && p.repsHigh === 12 && p.targetRpe === 8)).toBe(true)
+    // The catalogue exercise with no row yet got one, as any plan item would.
+    expect(await rows('Leg press')).toEqual([expect.objectContaining({ isBuiltIn: true, archived: false })])
+    expect(await side('POWERLIFTING')).toEqual(powerlifting)
+  })
+
+  it('aFailurePartWay_leavesTheOldPlan', async () => {
+    const curl = (await rows('Curl'))[0]!.id!
+    await addPlanItem(db, { ...range(3, curl) }, null, 'BODYBUILDING')
+    await addPlanItem(db, planItem(curl), null, 'POWERLIFTING')
+    const before = await db.planItems.toArray()
+    await unseed('Leg press')
+    const exercisesUnseeded = await db.exercises.count()
+
+    // The second name is not in the catalogue: nothing of the new plan is kept, the old one is.
+    await expect(replacePlan(db, 'BODYBUILDING', [{ item: range(1), catalogueName: 'Leg press' }, { item: range(1), catalogueName: 'Not an exercise at all' }])).rejects.toThrow()
+
+    expect(await db.planItems.toArray()).toEqual(before)
+    // Leg press got no row: the insert was undone with the rest.
+    expect(await db.exercises.count()).toBe(exercisesUnseeded)
+  })
+
+  it('anEmptyList_clearsOnlyThatSide', async () => {
+    const curl = (await rows('Curl'))[0]!.id!
+    await addPlanItem(db, { ...range(3, curl) }, null, 'BODYBUILDING')
+    await addPlanItem(db, planItem(curl), null, 'POWERLIFTING')
+    await replacePlan(db, 'BODYBUILDING', [])
+    expect(await planFor(db, 'BODYBUILDING')).toEqual([])
+    expect(await planFor(db, 'POWERLIFTING')).toHaveLength(1)
   })
 })
