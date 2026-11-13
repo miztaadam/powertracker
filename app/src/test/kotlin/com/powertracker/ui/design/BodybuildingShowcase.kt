@@ -8,7 +8,6 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
-import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.progress.ExerciseTrend
@@ -119,7 +118,7 @@ fun ProgressBodybuildingShowcase() {
         ExerciseTrend(7, "Seated cable row", emptyList(), goingUp = null),
     )
     ProgressContent(
-        ProgressState(loading = false, hasData = true, mode = TrainingMode.BODYBUILDING, trends = trends, trendLifts = mapOf(6L to MainLift.BENCH)),
+        ProgressState(loading = false, hasData = true, mode = TrainingMode.BODYBUILDING, trends = trends),
         onRange = {}, onOpenLift = {},
     )
 }

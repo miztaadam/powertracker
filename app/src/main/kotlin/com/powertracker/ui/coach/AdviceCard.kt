@@ -28,6 +28,7 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.liftLabel
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.components.AdviceCard
 import com.powertracker.ui.components.Eyebrow
 import com.powertracker.ui.components.NumberDisplay
@@ -37,6 +38,7 @@ import com.powertracker.ui.components.Sparkline
 import com.powertracker.ui.components.StatTile
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.library.InfoButton
+import com.powertracker.ui.theme.LocalTrainingMode
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -48,6 +50,9 @@ fun CoachAdviceCard(card: CoachCard, onApply: () -> Unit, onDismiss: () -> Unit,
     val advice = card.advice
     val detail = card.detail
     val lift = advice.lift?.label()
+    // A deload on the bodybuilding side speaks of exercises and weights, not lifts and top sets.
+    val bodybuilding = LocalTrainingMode.current == TrainingMode.BODYBUILDING
+    val deloadOnBodybuilding = bodybuilding && advice.type == AdviceType.DELOAD
     val look = when (advice.type) {
         AdviceType.STALL -> Look(Tone.WARNING, Icons.AutoMirrored.Filled.TrendingFlat, "Stall", "${lift ?: "Progress"} has stalled", "Add to plan")
         AdviceType.DELOAD -> Look(Tone.DANGER, Icons.Filled.BatteryAlert, "Deload", "Take a deload week", "Apply deload")
@@ -59,7 +64,7 @@ fun CoachAdviceCard(card: CoachCard, onApply: () -> Unit, onDismiss: () -> Unit,
         }
     }
     AdviceCard(
-        tone = look.tone, icon = look.icon, tag = "${look.kind} · ${lift ?: "All lifts"}",
+        tone = look.tone, icon = look.icon, tag = "${look.kind} · ${lift ?: if (deloadOnBodybuilding) "All exercises" else "All lifts"}",
         title = look.title, body = advice.reason,
         modifier = modifier,
         primaryAction = look.action, onPrimary = onApply,
@@ -80,7 +85,7 @@ fun CoachAdviceCard(card: CoachCard, onApply: () -> Unit, onDismiss: () -> Unit,
             }
             is CardDetail.Deload -> Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
                 StatTile("Volume", detail.volumePct.toString(), Modifier.weight(1f), unit = "%", note = "of your usual sets")
-                StatTile("Load", detail.loadPct.toString(), Modifier.weight(1f), unit = "%", note = "of your last top sets")
+                StatTile("Load", detail.loadPct.toString(), Modifier.weight(1f), unit = "%", note = if (bodybuilding) "of your last weights" else "of your last top sets")
             }
             is CardDetail.ReEntry ->
                 StatTile("Load", detail.loadPct.toString(), Modifier.fillMaxWidth(), unit = "%", note = "of your last top sets, for 7 days")

@@ -209,7 +209,8 @@ fun PlanContent(
             items(state.sections, key = { it.day }) { section ->
                 DayCard(section, onAdd = { onAdd(section.day) }, onEdit = onEdit, onMove = onMove, onDelete = onDelete)
             }
-            item(key = "bests") {
+            // Known bests are the powerlifting side's baselines for squat, bench and deadlift.
+            if (state.mode == TrainingMode.POWERLIFTING) item(key = "bests") {
                 Column(Modifier.padding(top = Space.s)) {
                     SectionHeader("Known bests")
                     PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.s), spacing = 0.dp) {

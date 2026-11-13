@@ -118,7 +118,7 @@ fun ProgressContent(state: ProgressState, onRange: (ChartRange) -> Unit, onOpenL
                         "Add exercises on the Plan tab and log them on Today. Each one's best sets will show here.",
                     )
                 } else {
-                    BodybuildingSection(state, onOpenLift, onOpenExercise)
+                    BodybuildingSection(state, onOpenExercise)
                 }
                 !state.hasData -> EmptyState(
                     Icons.Filled.Insights,
@@ -355,24 +355,29 @@ private fun VolumeSection(state: ProgressState) {
     }
 }
 
-/** "26 × 11": a best set as the list shows it. */
-private fun bestSetText(trend: ExerciseTrend): String = trend.bestSets.joinToString(" · ") { (_, set) -> "${formatKg(set.weightKg)} × ${set.reps}" }
+/** "26 × 11 · 26 × 10": the best sets as the list shows them, or, with [separator] ", ", as a screen reader says them. */
+private fun bestSetText(trend: ExerciseTrend, separator: String = " · "): String =
+    trend.bestSets.joinToString(separator) { (_, set) -> "${formatKg(set.weightKg)} × ${set.reps}" }
 
 /**
  * The bodybuilding side's Progress: each exercise in its plan with the best set of each of its last four sessions
- * (oldest first) and whether it is going up. A row opens the history: a main lift's own, else the exercise's.
+ * (oldest first) and whether it is going up. Every row opens that exercise's history, which has its sets from both
+ * sides; a main lift's own history holds only powerlifting sessions, so it is never opened from here.
  */
 @Composable
-private fun BodybuildingSection(state: ProgressState, onOpenLift: (MainLift) -> Unit, onOpenExercise: (Long) -> Unit) {
+private fun BodybuildingSection(state: ProgressState, onOpenExercise: (Long) -> Unit) {
     val pt = PowertrackerTheme.colors
     PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
             state.trends.forEachIndexed { i, trend ->
                 if (i > 0) HorizontalDivider(color = pt.hairline)
-                val lift = state.trendLifts[trend.exerciseId]
                 val sets = if (trend.bestSets.isEmpty()) "Not logged yet" else bestSetText(trend)
-                val open = { if (lift != null) onOpenLift(lift) else onOpenExercise(trend.exerciseId) }
+                // Read as "Incline DB press, 24 × 12, 26 × 9", then the trend icon's label: a list, not "dot".
+                val spoken = "${trend.name}, " + if (trend.bestSets.isEmpty()) sets else bestSetText(trend, ", ")
                 Row(
-                    Modifier.fillMaxWidth().clickable(onClickLabel = "Open history", onClick = open).heightIn(min = 56.dp).padding(vertical = Space.s),
+                    Modifier.fillMaxWidth()
+                        .clickable(onClickLabel = "Open history") { onOpenExercise(trend.exerciseId) }
+                        .semantics { contentDescription = spoken }
+                        .heightIn(min = 56.dp).padding(vertical = Space.s),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(Space.m),
                 ) {

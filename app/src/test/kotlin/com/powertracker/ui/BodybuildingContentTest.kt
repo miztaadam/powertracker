@@ -198,7 +198,6 @@ class BodybuildingContentTest {
                             ExerciseTrend(7, "Incline dumbbell press", listOf(best(26.0, 11, 4), best(26.0, 10, 9)), goingUp = false),
                             ExerciseTrend(8, "Cable fly", emptyList(), goingUp = null),
                         ),
-                        trendLifts = mapOf(2L to MainLift.BENCH),
                     ),
                     onRange = {}, onOpenLift = { opened += it }, onOpenExercise = { openedExercises += it },
                 )
@@ -211,11 +210,11 @@ class BodybuildingContentTest {
         assertEquals(1, compose.onAllNodesWithText("Not logged yet").fetchSemanticsNodes().size)
         compose.onNodeWithText("Total (S+B+D)").assertDoesNotExist()
         compose.onNodeWithText("Weekly best e1RM").assertDoesNotExist()
+        // Every row opens the exercise's own history, a main lift's too (fix-round ruling B).
         compose.onNodeWithText("Bench").performClick()
-        assertEquals(listOf(MainLift.BENCH), opened)
-        // Any other exercise opens its own history.
         compose.onNodeWithText("Cable fly").performClick()
-        assertEquals(listOf(8L), openedExercises)
+        assertEquals(listOf(2L, 8L), openedExercises)
+        assertEquals(emptyList<MainLift>(), opened)
         compose.onNode(hasTestTag("mode-label")).assertExists()
     }
 }

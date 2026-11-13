@@ -220,24 +220,31 @@ fun SettingsContent(
                 ) { on -> onTrainingMode(if (on) TrainingMode.BODYBUILDING else TrainingMode.POWERLIFTING) }
             }
 
+            // The bodybuilding side hides the powerlifting-only rows (main-lift RPE, strict press, main-lift rest);
+            // their stored values stay as they are and the rows come back on the powerlifting side.
+            val powerlifting = settings.trainingMode == TrainingMode.POWERLIFTING
             SectionHeader("Loading and targets", Modifier.padding(top = Space.m))
             Group {
                 SwitchRow("Change plates", "Adds 0.5 and 0.25 kg plates, so loads round to 0.5 kg", settings.changePlates) { v ->
                     onUpdate { it.copy(changePlates = v) }
                 }
-                RowDivider()
-                StepperRow(
-                    "Default RPE", "Planned effort for main lifts", formatRpe(settings.defaultRpe), settings.defaultRpe > 6.0, settings.defaultRpe < 10.0,
-                    { onUpdate { it.copy(defaultRpe = (it.defaultRpe - 0.5).coerceAtLeast(6.0)) } },
-                    { onUpdate { it.copy(defaultRpe = (it.defaultRpe + 0.5).coerceAtMost(10.0)) } },
-                    labelAction = { RpeInfoButton(inline = true) },
-                )
+                if (powerlifting) {
+                    RowDivider()
+                    StepperRow(
+                        "Default RPE", "Planned effort for main lifts", formatRpe(settings.defaultRpe), settings.defaultRpe > 6.0, settings.defaultRpe < 10.0,
+                        { onUpdate { it.copy(defaultRpe = (it.defaultRpe - 0.5).coerceAtLeast(6.0)) } },
+                        { onUpdate { it.copy(defaultRpe = (it.defaultRpe + 0.5).coerceAtMost(10.0)) } },
+                        labelAction = { RpeInfoButton(inline = true) },
+                    )
+                }
             }
 
-            SectionHeader("Progress", Modifier.padding(top = Space.m))
-            Group {
-                SwitchRow("Strict press", "Show it on Progress and add it to your total.", settings.showStrictPress) { v ->
-                    onUpdate { it.copy(showStrictPress = v) }
+            if (powerlifting) {
+                SectionHeader("Progress", Modifier.padding(top = Space.m))
+                Group {
+                    SwitchRow("Strict press", "Show it on Progress and add it to your total.", settings.showStrictPress) { v ->
+                        onUpdate { it.copy(showStrictPress = v) }
+                    }
                 }
             }
 
@@ -263,14 +270,19 @@ fun SettingsContent(
 
             SectionHeader("Rest timer", Modifier.padding(top = Space.m))
             Group {
+                if (powerlifting) {
+                    StepperRow(
+                        "Main lift rest", "Squat, bench, deadlift", "${settings.restMainSec} s", settings.restMainSec > 60, settings.restMainSec < 600,
+                        { onUpdate { it.copy(restMainSec = (it.restMainSec - 30).coerceAtLeast(60)) } },
+                        { onUpdate { it.copy(restMainSec = (it.restMainSec + 30).coerceAtMost(600)) } },
+                    )
+                    RowDivider()
+                }
+                // Every bodybuilding exercise gets the accessory rest, so on that side it is the one rest row.
                 StepperRow(
-                    "Main lift rest", "Squat, bench, deadlift", "${settings.restMainSec} s", settings.restMainSec > 60, settings.restMainSec < 600,
-                    { onUpdate { it.copy(restMainSec = (it.restMainSec - 30).coerceAtLeast(60)) } },
-                    { onUpdate { it.copy(restMainSec = (it.restMainSec + 30).coerceAtMost(600)) } },
-                )
-                RowDivider()
-                StepperRow(
-                    "Accessory rest", "Everything else", "${settings.restAccessorySec} s", settings.restAccessorySec > 30, settings.restAccessorySec < 300,
+                    if (powerlifting) "Accessory rest" else "Rest",
+                    if (powerlifting) "Everything else" else "Every exercise",
+                    "${settings.restAccessorySec} s", settings.restAccessorySec > 30, settings.restAccessorySec < 300,
                     { onUpdate { it.copy(restAccessorySec = (it.restAccessorySec - 15).coerceAtLeast(30)) } },
                     { onUpdate { it.copy(restAccessorySec = (it.restAccessorySec + 15).coerceAtMost(300)) } },
                 )

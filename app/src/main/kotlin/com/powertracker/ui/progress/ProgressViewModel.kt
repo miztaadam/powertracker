@@ -15,6 +15,7 @@ import com.powertracker.domain.progress.ProgressMath
 import com.powertracker.domain.progress.weekStart
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.model.on
 import com.powertracker.domain.progress.BodybuildingProgress
 import com.powertracker.domain.progress.ExerciseTrend
 import com.powertracker.platform.systemToday
@@ -79,8 +80,6 @@ data class ProgressState(
     val mode: TrainingMode = TrainingMode.POWERLIFTING,
     /** The bodybuilding side: the plan's exercises with their last four sessions' best sets (spec §7.6). */
     val trends: List<ExerciseTrend> = emptyList(),
-    /** The main lift each of [trends]' exercises belongs to, for the rows that open that lift's history. */
-    val trendLifts: Map<Long, MainLift> = emptyMap(),
 )
 
 /** An estimate is not worth more than half a kilo of precision. */
@@ -128,15 +127,17 @@ class ProgressViewModel(
                 hasData = trends.isNotEmpty(),
                 mode = TrainingMode.BODYBUILDING,
                 trends = trends,
-                trendLifts = trends.mapNotNull { t -> history.exercises[t.exerciseId]?.mainLift?.let { t.exerciseId to it } }.toMap(),
             )
         }
 
         /**
          * Everything the screen shows, from one snapshot of history. Strict press is a fourth lift
          * throughout when [showStrictPress] is on; when it is off its sets change nothing here.
+         * The charts, records and total belong to the powerlifting side: bodybuilding sessions do not touch them
+         * (bodybuilding mode spec §5.3), so they read only powerlifting sessions.
          */
-        internal fun build(history: TrainingHistory, range: ChartRange, today: LocalDate, showStrictPress: Boolean): ProgressState {
+        internal fun build(all: TrainingHistory, range: ChartRange, today: LocalDate, showStrictPress: Boolean): ProgressState {
+            val history = all.on(TrainingMode.POWERLIFTING)
             val shown = if (showStrictPress) SBD + MainLift.STRICT_PRESS else SBD
             val hasData = history.sessions.any { s ->
                 s.sets.any { set -> !set.failed && history.exercises[set.exerciseId]?.let { it.isMainLift && it.mainLift in shown } == true }

@@ -10,6 +10,8 @@ import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.model.on
 import com.powertracker.platform.systemToday
 import com.powertracker.domain.progress.Pr
 import com.powertracker.domain.progress.ProgressMath
@@ -47,8 +49,13 @@ class LiftHistoryViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LiftHistoryState())
 
     companion object {
-        /** Every session with a set of [lift] or one of its variations, newest first, with the lift's records marked. */
-        internal fun build(history: TrainingHistory, lift: MainLift, today: LocalDate): LiftHistoryState {
+        /**
+         * Every powerlifting session with a set of [lift] or one of its variations, newest first, with the lift's records
+         * marked. A lift's history, records and e1RM belong to the powerlifting side (bodybuilding mode spec §5.3); its sets
+         * from both sides are in the exercise history.
+         */
+        internal fun build(all: TrainingHistory, lift: MainLift, today: LocalDate): LiftHistoryState {
+            val history = all.on(TrainingMode.POWERLIFTING)
             // Walks the sets in the order ProgressMath.prs does, so each record lands on the set that made it.
             val prs = ProgressMath.prs(history, lift)
             var nextPr = 0

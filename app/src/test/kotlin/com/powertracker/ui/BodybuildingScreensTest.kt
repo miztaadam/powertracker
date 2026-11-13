@@ -398,12 +398,14 @@ class BodybuildingScreensTest {
     }
 
     @Test
-    fun aSessionLoggedOnTheBodybuildingSide_isInThatLiftsHistory_seenFromThePowerliftingSide() {
+    fun aSessionLoggedOnTheBodybuildingSide_isInThatExercisesHistory_seenFromThePowerliftingSide_notInTheLiftHistory() {
         session(today.minus(2, DateTimeUnit.DAY), BODYBUILDING, set(bench, 60.0, 12))
         onSide(POWERLIFTING)
         val history = runBlocking { training.history().first() }
-        val state = LiftHistoryViewModel.build(history, MainLift.BENCH, today)
-        assertEquals(listOf(60.0), state.sessions.flatMap { s -> s.groups.flatMap { g -> g.sets.map { it.set.weightKg } } })
+        val exercise = com.powertracker.ui.progress.ExerciseHistoryViewModel.build(history, bench.id)
+        assertEquals(listOf(60.0), exercise.sessions.flatMap { s -> s.groups.flatMap { g -> g.sets.map { it.set.weightKg } } })
+        // The lift history holds powerlifting sessions only (fix-round ruling A).
+        assertEquals(emptyList<Any>(), LiftHistoryViewModel.build(history, MainLift.BENCH, today).sessions)
     }
 
     // Backup from the web app

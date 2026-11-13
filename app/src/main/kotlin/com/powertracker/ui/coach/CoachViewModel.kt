@@ -24,7 +24,9 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.forSide
+import com.powertracker.domain.model.on
 import com.powertracker.platform.systemToday
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
@@ -98,7 +100,8 @@ class CoachViewModel(
         combine(combine(advice.open(), busy, ::Pair), training.history(), training.plans(), training.exercises(), settings.settings) { (open, busy), history, plans, exercises, s ->
             val mode = s.trainingMode
             val plan = plans.of(mode)
-            val stats = HistoryStats(history)
+            // The cards' trends and ratios are powerlifting figures: bodybuilding sessions do not touch them (spec §5.3).
+            val stats = HistoryStats(history.on(TrainingMode.POWERLIFTING))
             val date = today()
             val cards = open.forSide(mode)
                 .filter { it.type in FEED_ORDER && it.id !in busy && !expired(it, date) }
