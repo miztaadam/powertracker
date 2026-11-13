@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -396,15 +397,15 @@ private fun SessionCard(session: DraftSession, modifier: Modifier = Modifier, on
             Text("${dayName(session.day)} · ${session.title}", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             Text("${session.exercises.size} exercises · $sets sets", style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted)
         }
-        for (exercise in session.exercises) {
+        session.exercises.forEachIndexed { i, exercise ->
             HorizontalDivider(Modifier.padding(end = Space.s), color = PowertrackerTheme.colors.hairline)
-            DraftRow(exercise, onSwap = { onSwap(exercise.name) })
+            DraftRow(i + 1, exercise, onSwap = { onSwap(exercise.name) })
         }
     }
 }
 
 @Composable
-private fun DraftRow(exercise: DraftExercise, onSwap: () -> Unit) {
+private fun DraftRow(position: Int, exercise: DraftExercise, onSwap: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val muted = PowertrackerTheme.colors.muted
     val prescription = buildAnnotatedString {
@@ -413,6 +414,8 @@ private fun DraftRow(exercise: DraftExercise, onSwap: () -> Unit) {
         append(formatRpe(exercise.rpe))
     }
     Row(Modifier.fillMaxWidth().heightIn(min = 64.dp), verticalAlignment = Alignment.CenterVertically) {
+        // Its place in the session, as on the Plan screen's rows.
+        Text(position.toString(), style = MaterialTheme.typography.titleSmall, color = muted, modifier = Modifier.width(24.dp))
         Column(Modifier.weight(1f).padding(vertical = Space.s)) {
             Text(exercise.name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
             Text(prescription, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurface)

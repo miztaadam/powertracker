@@ -195,6 +195,69 @@ class PlanBuilderScreenTest {
         assertTrue(runBlocking { training.plan(BODYBUILDING).first() }.isNotEmpty())
     }
 
+    /** From the days step to the draft, with the days as they start (Mon, Wed, Fri) and nothing changed on the way. */
+    private fun toDraft() {
+        waitFor { says(DAYS_HEADING) }
+        next()
+        waitFor { says(CHOOSE_FOR_ME) }
+        next()
+        waitFor { says(BODY_PARTS_HEADING) }
+        next()
+        waitFor { says(DRAFT_HEADING) }
+    }
+
+    private val defaultDraft get() = com.powertracker.domain.plan.PlanBuilder.build(
+        com.powertracker.domain.plan.BuilderAnswers(listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY), emptyList(), emptyList()),
+    )
+
+    // Parity with the web draft (final review, minor 1): each row starts with its place in the session, 1, 2, 3, ...,
+    // as the Plan screen's rows do.
+    @Test
+    fun draft_eachRowShowsItsPositionBeforeItsName() {
+        compose.setContent { PowertrackerTheme { PlanBuilderScreen(training, settings, onClose = {}, onSaved = {}, today = { today }) } }
+        toDraft()
+        val monday = defaultDraft.sessions.first { it.day == DayOfWeek.MONDAY }
+        val card = androidx.compose.ui.test.hasAnyAncestor(hasTestTag("session-MONDAY"))
+        monday.exercises.forEachIndexed { i, exercise ->
+            val position = compose.onAllNodes(hasText("${i + 1}") and card).fetchSemanticsNodes()
+            assertEquals("one position ${i + 1} on Monday", 1, position.size)
+            val name = compose.onAllNodes(hasText(exercise.name) and card).fetchSemanticsNodes().single()
+            val p = position.single().boundsInRoot
+            val n = name.boundsInRoot
+            assertTrue("${i + 1} sits left of ${exercise.name}", p.right <= n.left)
+            assertTrue("${i + 1} is on ${exercise.name}'s row", p.top < n.bottom + 40f && p.bottom > n.top - 40f)
+        }
+        assertTrue(compose.onAllNodes(hasText("${monday.exercises.size + 1}") and card).fetchSemanticsNodes().isEmpty())
+    }
+
+    // Final review, minor 3: a built plan is what Today shows on that plan's first training day.
+    @Test
+    fun aBuiltPlan_isWhatTodayShowsOnItsFirstTrainingDay() {
+        val monday = LocalDate(2026, 11, 9)
+        var built by androidx.compose.runtime.mutableStateOf(false)
+        compose.setContent {
+            PowertrackerTheme(mode = BODYBUILDING) {
+                if (!built) PlanBuilderScreen(training, settings, onClose = {}, onSaved = { built = true }, today = { monday })
+                else com.powertracker.ui.today.TodayScreen(training, advice, settings, onOpenCoach = {}, today = { monday })
+            }
+        }
+        toDraft()
+        compose.onNodeWithText(USE_THIS_PLAN).performClick()
+        waitFor { built }
+        val first = defaultDraft.sessions.first().also { assertEquals(DayOfWeek.MONDAY, it.day) }
+        val lead = first.exercises.first()
+        val dose = "${lead.sets} × ${lead.repsLow}–${lead.repsHigh} @ ${lead.rpe.toInt()}"
+        assertEquals("4 × 8–12 @ 8", dose)
+        waitFor { says(lead.name) && says(dose) }
+        assertTrue(says("Ready to train?"))
+        val name = compose.onNodeWithText(lead.name).fetchSemanticsNode().boundsInRoot
+        val line = compose.onNodeWithText(dose).fetchSemanticsNode().boundsInRoot
+        assertTrue("${lead.name}'s row shows $dose", line.top < name.bottom && line.bottom > name.top)
+        // The rest of Monday follows, each with its 8–12 range.
+        for (e in first.exercises.drop(1)) assertTrue(e.name, says(e.name))
+        assertEquals(first.exercises.size, compose.onAllNodes(androidx.compose.ui.test.hasText("8–12 @ 8", substring = true)).fetchSemanticsNodes().size)
+    }
+
     @Test
     fun overAnExistingPlan_useThisPlanAsksFirst() {
         val curl = runBlocking { training.exercises().first() }.first { it.name == "Curl" }
