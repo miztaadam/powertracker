@@ -53,19 +53,25 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
   (search, category and muscle filters, plus an equipment filter) and with **a description and ⓘ info
   button for every exercise** (item 3).
 
-## Next project idea (owner, 2026-11-12): Bodybuilding mode
-- A single toggle (Settings) that switches the app, **including the coach**, to bodybuilding-style training.
-- First thoughts (to brainstorm with the owner, not decided):
-  - **Coach goal:** muscle growth, not a heavier top set. Weekly sets per muscle, rep ranges (e.g. 6–12, 10–15), rep progression before load, proximity to failure.
-  - **Stall advice:** a muscle that isn't progressing gets more weekly sets, a different exercise for it, or a deload. Miss-point accessories don't apply.
-  - **Progress:** weekly sets per muscle group and per-exercise rep/load trends.
-  - **Plan:** organised by body part or a push/pull/legs split. It builds on the 225-exercise library and the muscle groups.
-- **The UI must visibly change when the mode is on** (owner request). Options to mock up:
-  - a second accent colour;
-  - a mode label;
-  - screens built for the mode.
-  Fable mocks these up and the owner picks.
-- Logged data stays the same in either mode.
+## Bodybuilding mode: stage 1 done (version 1.2, both apps)
+Spec: `docs/superpowers/specs/2026-11-13-grit-bodybuilding-mode-design.md`; plan: `docs/superpowers/plans/2026-11-13-grit-bodybuilding-mode-stage-1.md`.
+
+What the lifter gets:
+- A **Bodybuilding mode** switch, first in Settings (group "Training style"). It takes effect at once and the powerlifting plan is kept.
+- A blue look and a small **BODYBUILDING** label on every top-level screen while it is on. The powerlifting side looks as before.
+- Its own plan and training days, with rep ranges (new entries 3 × 8–12 @ 8).
+- A coach that goes reps first, then weight: once every set reaches the top of the range at or under the target RPE, it adds weight and aims for the low end again; otherwise "Beat it." with last time's reps.
+- One training log for both sides. Each coach reads its own side, and a lift coming back after a long time on the other side is eased in, never the old top set plus an increase.
+- Progress on this side: each planned exercise with its best set of its last four sessions and whether it is going up; a row opens the exercise history.
+- A welcome-back card on Today and Coach when returning to a side left more than 30 days ago: resume the plan, or open it to change it.
+- Backup version 3 on both apps: an older app refuses a new backup, so update both together.
+
+Notes:
+- The weight increase is 2% of the last weight, from the ACSM guidance as summarised on ExRx (exrx.net, Weight Training Guidelines; recorded in `CoachSources.kt`).
+- On the bodybuilding side a deload can come from low readiness alone; the other fatigue signals read powerlifting sessions only until stage 3 brings a sourced bodybuilding one.
+- Not yet tried on real phones, so the bodybuilding line in README's manual checklist matters: tick it off before relying on the mode.
+
+Still to come, each with its own plan (spec §8): stage 2, the plan builder; stage 3, check-ins, the lagging-muscle coach and a body-part Progress; stage 4, stretch and squeeze cues.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):

@@ -120,6 +120,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Recovery export with App lock on: on the recovery screen, an export asks for Face ID first, so the file may be downloaded (Files, Downloads) instead of opening the share sheet. Note which happens, and check the file is there.
 - [ ] Restore: pick that file with the file picker. Confirm. The data matches. App lock is as it was on this phone, and "Restore safety copy" in Settings brings back what the restore replaced.
 - [ ] Two tabs: open Grit in a second tab while a first is suspended. The second asks before taking over.
+- [ ] Bodybuilding mode: turn it on in Settings and back off (the look and label change at once), log a set on each side, then export a backup and restore it on the other platform (Android to iPhone or the reverse); both sides' plans and sessions come through.
 - [ ] Update: deploy a second version. The prompt "Update ready — tap to refresh" shows only after you finish a session, and the app reloads only when tapped.
 
 ## Where things are
