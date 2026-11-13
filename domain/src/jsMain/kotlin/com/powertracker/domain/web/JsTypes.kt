@@ -25,6 +25,7 @@ import com.powertracker.domain.library.figures.Circle
 import com.powertracker.domain.library.figures.Polygon
 import com.powertracker.domain.library.figures.RoundRect
 import com.powertracker.domain.library.figures.Shape
+import com.powertracker.domain.progress.ExerciseTrend
 import com.powertracker.domain.progress.Pr
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -103,6 +104,14 @@ data class JsHistory(
     val exercises: Array<JsExercise>,
     val baselines: Array<JsBaseline>,
 )
+
+/** One session's best set on the bodybuilding Progress screen. */
+@JsExport
+data class JsBestSet(val date: String, val set: JsSet)
+
+/** A bodybuilding Progress row; [goingUp] is null with fewer than two sessions. */
+@JsExport
+data class JsExerciseTrend(val exerciseId: Int, val name: String, val bestSets: Array<JsBestSet>, val goingUp: Boolean?)
 
 @JsExport
 data class JsCoachSettings(val defaultRpe: Double, val changePlates: Boolean)
@@ -260,6 +269,13 @@ internal fun JsAdvice.toDomain(): Advice {
 internal fun Advice.toJs() = JsAdvice(
     id.toFacadeId("advice.id"), type.name, lift?.name, createdAt.toString(), reason, severity, status.name,
     androidJson.encodeToString(AdvicePayload.serializer(), payload), mode.name,
+)
+
+internal fun ExerciseTrend.toJs() = JsExerciseTrend(
+    exerciseId.toFacadeId("trend.exerciseId"),
+    name,
+    bestSets.map { (date, set) -> JsBestSet(date.toString(), set.toJs()) }.toTypedArray(),
+    goingUp,
 )
 
 internal fun Pr.toJs() = JsPr(date.toString(), e1rmKg, weightKg, reps, rpe)

@@ -7082,6 +7082,12 @@ function numberFormatError(input) {
 function get_lastIndex_4(_this__u8e3s4) {
   return charSequenceLength(_this__u8e3s4) - 1 | 0;
 }
+function removeSuffix(_this__u8e3s4, suffix) {
+  if (endsWith_0(_this__u8e3s4, suffix)) {
+    return substring(_this__u8e3s4, 0, _this__u8e3s4.length - charSequenceLength(suffix) | 0);
+  }
+  return _this__u8e3s4;
+}
 function lastIndexOf(_this__u8e3s4, string, startIndex, ignoreCase) {
   startIndex = startIndex === VOID ? get_lastIndex_4(_this__u8e3s4) : startIndex;
   ignoreCase = ignoreCase === VOID ? false : ignoreCase;
@@ -7142,6 +7148,26 @@ function regionMatchesImpl(_this__u8e3s4, thisOffset, other, otherOffset, length
     }
      while (inductionVariable < length);
   return true;
+}
+function endsWith_0(_this__u8e3s4, suffix, ignoreCase) {
+  ignoreCase = ignoreCase === VOID ? false : ignoreCase;
+  var tmp;
+  var tmp_0;
+  if (!ignoreCase) {
+    tmp_0 = typeof _this__u8e3s4 === 'string';
+  } else {
+    tmp_0 = false;
+  }
+  if (tmp_0) {
+    tmp = typeof suffix === 'string';
+  } else {
+    tmp = false;
+  }
+  if (tmp)
+    return endsWith(_this__u8e3s4, suffix);
+  else {
+    return regionMatchesImpl(_this__u8e3s4, charSequenceLength(_this__u8e3s4) - charSequenceLength(suffix) | 0, suffix, 0, charSequenceLength(suffix), ignoreCase);
+  }
 }
 function indexOf_0(_this__u8e3s4, other, startIndex, endIndex, ignoreCase, last) {
   last = last === VOID ? false : last;
@@ -7836,6 +7862,7 @@ export {
   get_lastIndex_4 as get_lastIndexld83bqhfgcdd,
   lastIndexOf as lastIndexOf2d52xhix5ymjr,
   last_2 as last2n4gf5az1lkn4,
+  removeSuffix as removeSuffix3d61x5lsuvuho,
   repeat as repeat2w4c6j8zoq09o,
   replace as replaceqbix900hl8kl,
   startsWith as startsWith26w8qjqapeeq6,

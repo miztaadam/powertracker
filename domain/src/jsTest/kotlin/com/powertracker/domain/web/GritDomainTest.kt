@@ -442,4 +442,53 @@ class GritDomainTest {
         assertEquals("5", GritDomain.repsText(5, null))
         assertEquals("8\u201312", GritDomain.repsText(8, 12))
     }
+
+    @Test
+    fun coachingCrossesTheBoundary() {
+        for (cp in GoldenScenario.checkpoints) {
+            val history = jsHistory(cp.today)
+            val today = cp.today.toString()
+            val weekday = cp.weekday.ordinal + 1
+            val prior = priorOf(cp.storedAdvice)
+            assertContentEquals(
+                GritDomain.evaluate(history, jsPlan, jsSettings, today, prior),
+                GritDomain.coachingEvaluate("POWERLIFTING", history, jsPlan, jsSettings, today, prior),
+                cp.label,
+            )
+            assertContentEquals(
+                GritDomain.targetsFor(weekday, history, jsPlan, jsSettings, today, prior),
+                GritDomain.coachingTargetsFor("POWERLIFTING", weekday, history, jsPlan, jsSettings, today, prior),
+                cp.label,
+            )
+            assertTrue(GritDomain.coachingEvaluate("BODYBUILDING", history, jsPlan, jsSettings, today, prior).all { it.mode == "BODYBUILDING" })
+        }
+        assertFailsWith<IllegalArgumentException> {
+            GritDomain.coachingEvaluate("bodybuilding", jsHistory(GoldenScenario.day(35)), jsPlan, jsSettings, "2026-02-09", emptyArray())
+        }
+
+        // A bodybuilding press done 11, 10, 9 at 26 kg the Monday before.
+        val press = JsExercise(52, "DB press", "ACCESSORY", null, emptyArray(), true, false)
+        val sets = arrayOf(11, 10, 9).map { JsSet(52, 26.0, it, 8.0, false, null, false) }.toTypedArray()
+        val history = JsHistory(arrayOf(JsSession(1, "2026-11-02", null, null, sets, "BODYBUILDING")), arrayOf(press), emptyArray())
+        val item = JsPlanItem(1, 1, 52, 3, 8, 8.0, 0, "BODYBUILDING", 12)
+        val target = GritDomain.coachingTargetsFor("BODYBUILDING", 1, history, arrayOf(item), jsSettings, "2026-11-09", emptyArray()).single()
+        assertEquals("BODYBUILDING", target.mode)
+        assertEquals("Last time: 26 \u00d7 11, 10, 9. Beat it. Coach suggests 26 \u00d7 8\u201312 @ 8.", target.reason)
+        assertEquals(12, GritDomain.advicePayload(target.payloadJson)!!.repsHigh)
+        assertEquals(listOf(12, 11, 10), (1..3).map { GritDomain.repsToBeat(item, history, it, "2026-11-09") })
+
+        val rows = GritDomain.bodybuildingProgress(history, arrayOf(item), "2026-11-09")
+        assertEquals(1, rows.size)
+        assertEquals(52, rows[0].exerciseId)
+        assertEquals("DB press", rows[0].name)
+        assertEquals("2026-11-02", rows[0].bestSets.single().date)
+        assertEquals(JsSet(52, 26.0, 11, 8.0, false, null, false), rows[0].bestSets.single().set)
+        assertNull(rows[0].goingUp)
+
+        assertFalse(GritDomain.welcomeBack(null, "2026-11-13", true))
+        assertFalse(GritDomain.welcomeBack("2026-10-14", "2026-11-13", true))
+        assertTrue(GritDomain.welcomeBack("2026-10-13", "2026-11-13", true))
+        assertFalse(GritDomain.welcomeBack("2026-10-13", "2026-11-13", false))
+        assertFailsWith<IllegalArgumentException> { GritDomain.welcomeBack("13/10/2026", "2026-11-13", true) }
+    }
 }

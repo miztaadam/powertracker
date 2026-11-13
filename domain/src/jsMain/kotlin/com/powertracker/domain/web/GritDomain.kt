@@ -3,7 +3,9 @@
 package com.powertracker.domain.web
 
 import com.powertracker.domain.coach.AccessoryMap
+import com.powertracker.domain.coach.BodybuildingCoach
 import com.powertracker.domain.coach.Coach
+import com.powertracker.domain.coach.Coaching
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.e1rm.E1rm
 import com.powertracker.domain.history.HistoryStats
@@ -20,10 +22,12 @@ import com.powertracker.domain.library.RpeGuide
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.liftLabel as domainLiftLabel
 import com.powertracker.domain.model.missPointLabel as domainMissPointLabel
 import com.powertracker.domain.model.repsText as domainRepsText
 import com.powertracker.domain.plates.PlateLoader
+import com.powertracker.domain.progress.BodybuildingProgress
 import com.powertracker.domain.progress.ProgressMath
 import com.powertracker.domain.seed.SeedLibrary
 import com.powertracker.domain.validation.InputValidator
@@ -85,6 +89,61 @@ object GritDomain {
         parseDate("today", today),
         prior.map { it.toDomain() },
     ).map { it.toJs() }.toTypedArray()
+
+    /**
+     * Today's targets for [mode]'s side (a `TrainingMode` name), from the whole log, the whole plan and every stored
+     * advice: the app's one way in to both coaches. On the powerlifting side it is exactly [targetsFor].
+     */
+    fun coachingTargetsFor(
+        mode: String,
+        weekday: Int,
+        history: JsHistory,
+        plan: Array<JsPlanItem>,
+        settings: JsCoachSettings,
+        today: String,
+        prior: Array<JsAdvice>,
+    ): Array<JsAdvice> = Coaching.targetsFor(
+        parseEnum<TrainingMode>("mode", mode),
+        parseWeekday("weekday", weekday),
+        history.toDomain(),
+        plan.map { it.toDomain() },
+        settings.toDomain(),
+        parseDate("today", today),
+        prior.map { it.toDomain() },
+    ).map { it.toJs() }.toTypedArray()
+
+    /** New advice to store for [mode]'s side (a `TrainingMode` name). On the powerlifting side it is exactly [evaluate]. */
+    fun coachingEvaluate(
+        mode: String,
+        history: JsHistory,
+        plan: Array<JsPlanItem>,
+        settings: JsCoachSettings,
+        today: String,
+        prior: Array<JsAdvice>,
+    ): Array<JsAdvice> = Coaching.evaluate(
+        parseEnum<TrainingMode>("mode", mode),
+        history.toDomain(),
+        plan.map { it.toDomain() },
+        settings.toDomain(),
+        parseDate("today", today),
+        prior.map { it.toDomain() },
+    ).map { it.toJs() }.toTypedArray()
+
+    /** Whether to show the welcome-back card: the side has a plan and was left ([leftOn], ISO date or null) more than 30 days before [today]. */
+    fun welcomeBack(leftOn: String?, today: String, hasPlan: Boolean): Boolean =
+        Coaching.welcomeBack(leftOn?.let { parseDate("leftOn", it) }, parseDate("today", today), hasPlan)
+
+    /**
+     * Reps to put in the reps field for set [setNumber] (1-based) of a bodybuilding [item]: last time's reps for that
+     * set + 1, capped at the top of the range; the low end the first time and after an increase.
+     */
+    fun repsToBeat(item: JsPlanItem, history: JsHistory, setNumber: Int, today: String): Int =
+        BodybuildingCoach.repsToBeat(item.toDomain(), history.toDomain(), setNumber, parseDate("today", today))
+
+    /** The bodybuilding side's Progress rows: one per exercise in the bodybuilding plan, in plan order. */
+    fun bodybuildingProgress(history: JsHistory, plan: Array<JsPlanItem>, today: String): Array<JsExerciseTrend> =
+        BodybuildingProgress.rows(history.toDomain(), plan.map { it.toDomain() }, parseDate("today", today))
+            .map { it.toJs() }.toTypedArray()
 
     fun weeklyTrend(history: JsHistory, lift: String, until: String): Array<JsWeeklyPoint> =
         HistoryStats(history.toDomain()).weeklyTrend(parseLift("lift", lift), parseDate("until", until))

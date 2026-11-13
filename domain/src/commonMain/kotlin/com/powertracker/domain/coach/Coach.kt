@@ -34,7 +34,7 @@ object Coach {
     private const val RECENT_DAYS = 7L
     private const val RE_ENTRY_SHOW_DAYS = 7L
     private const val STALL_PAUSE_DAYS = 14L
-    private const val GAP_DAYS = 14L
+    internal const val GAP_DAYS = 14L
 
     /** An OPEN deload or re-entry clamps (and blocks a new one) only this long; then the feed hides it. */
     const val OPEN_ACTIVE_DAYS = 14L
@@ -46,7 +46,7 @@ object Coach {
     /** Within one evaluate call, the advice kept for a lift: earlier in this list wins. */
     private val LIFT_PRIORITY = listOf(AdviceType.STALL, AdviceType.WEAK_POINT)
 
-    private const val DELOAD_NOTE = " Deload week: lighter load and fewer sets."
+    internal const val DELOAD_NOTE = " Deload week: lighter load and fewer sets."
     internal const val RE_ENTRY_NOTE = " Easing back in: lighter load."
 
     /** New advice to store. Never returns duplicates of OPEN prior advice. */
@@ -197,7 +197,7 @@ object Coach {
         date >= today.minus(days - 1, DateTimeUnit.DAY) && date <= today
 
     /** The latest advice of [type] that is OPEN (created within 14 days), or APPLIED within the last 7 days. */
-    private fun activeAdvice(type: AdviceType, prior: List<Advice>, today: LocalDate): Advice? =
+    internal fun activeAdvice(type: AdviceType, prior: List<Advice>, today: LocalDate): Advice? =
         prior.filter {
             it.type == type &&
                 (

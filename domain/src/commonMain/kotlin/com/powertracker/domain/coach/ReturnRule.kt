@@ -85,7 +85,7 @@ internal object ReturnRule {
     }
 
     /** [reason] with its closing "Coach suggests ..." sentence rewritten for the new weight and reps. */
-    private fun withSuggestion(reason: String, weightKg: Double, reps: Int, repsHigh: Int?, rpe: Double): String {
+    internal fun withSuggestion(reason: String, weightKg: Double, reps: Int, repsHigh: Int?, rpe: Double): String {
         val at = reason.lastIndexOf(SUGGESTION)
         val prefix = if (at < 0) (if (reason.isEmpty()) "" else "$reason ") else reason.substring(0, at)
         return "$prefix$SUGGESTION${ProgressionRule.fmt(weightKg)} × ${repsText(reps, repsHigh)} @ ${ProgressionRule.fmt(rpe)}."

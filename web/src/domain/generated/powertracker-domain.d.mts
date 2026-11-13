@@ -19,6 +19,11 @@ export declare namespace GritDomain {
             parseBaselineKg(text: string): Nullable<number>;
             targetsFor(weekday: number, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
             evaluate(history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
+            coachingTargetsFor(mode: string, weekday: number, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
+            coachingEvaluate(mode: string, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
+            welcomeBack(leftOn: Nullable<string>, today: string, hasPlan: boolean): boolean;
+            repsToBeat(item: JsPlanItem, history: JsHistory, setNumber: number, today: string): number;
+            bodybuildingProgress(history: JsHistory, plan: Array<JsPlanItem>, today: string): Array<JsExerciseTrend>;
             weeklyTrend(history: JsHistory, lift: string, until: string): Array<JsWeeklyPoint>;
             currentE1rm(history: JsHistory, lift: string, until: string, days: number): Nullable<number>;
             prs(history: JsHistory, lift: string): Array<JsPr>;
@@ -189,6 +194,38 @@ export declare namespace JsHistory {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsHistory;
+    }
+}
+export declare class JsBestSet {
+    constructor(date: string, set: JsSet);
+    get date(): string;
+    get set(): JsSet;
+    copy(date?: string, set?: JsSet): JsBestSet;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsBestSet {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsBestSet;
+    }
+}
+export declare class JsExerciseTrend {
+    constructor(exerciseId: number, name: string, bestSets: Array<JsBestSet>, goingUp: Nullable<boolean>);
+    get exerciseId(): number;
+    get name(): string;
+    get bestSets(): Array<JsBestSet>;
+    get goingUp(): Nullable<boolean>;
+    copy(exerciseId?: number, name?: string, bestSets?: Array<JsBestSet>, goingUp?: Nullable<boolean>): JsExerciseTrend;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsExerciseTrend {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsExerciseTrend;
     }
 }
 export declare class JsCoachSettings {
