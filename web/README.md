@@ -46,6 +46,9 @@ The project is configured but not yet created or deployed.
 - Build command: `npm run build`
 - Output directory: `dist`
 
+For each update, bump `version` in `package.json` and `versionName`/`versionCode` in `../app/build.gradle.kts`
+together. The Settings line shows the version and the deploy's short commit id (`VERCEL_GIT_COMMIT_SHA`).
+
 `vercel.json` sets the Content-Security-Policy (`default-src 'self'`), long caching for hashed assets,
 and `no-cache` for `index.html` and `sw.js`, so a new version is found at the next visit. Routing is by
 URL hash, so no rewrites are needed. Passkeys belong to the hostname: set App lock up again after

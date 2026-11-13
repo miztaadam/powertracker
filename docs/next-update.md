@@ -83,11 +83,9 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
 - While building a task, run only the tests for the part being changed.
 - Run the full Android, domain, web and e2e suites once per task, before its commit, and once on main before pushing.
 
-## Next update item (owner, 2026-11-12): app version and "AppsbyAdam"
-- Show the app version and the name "AppsbyAdam" somewhere in the app (owner request).
-- Proposal, to confirm when the update starts: a small line at the bottom of Settings, e.g. "Grit 1.1 · AppsbyAdam", in both apps.
-- The two apps currently disagree: Android `versionName` is "1.0", web `package.json` is "0.1.0". Use one version number for both and bump it with every update.
-- The web line could also show the build's short commit id, so it's easy to confirm a phone has the latest version.
+## Done (2026-11-13): app version and "AppsbyAdam"
+- Both apps are version 1.1 and end Settings with "Grit 1.1 · AppsbyAdam"; the web line also shows the build's short commit id ("Grit 1.1 · a1b2c3d · AppsbyAdam").
+- Bump Android `versionName`/`versionCode` and web `package.json` together for each update; a web test fails when they disagree.
 
 ## Done (2026-11-13): Android thumbnails off the main thread
 - The Exercises tab no longer works a thumbnail out on the main thread. One background worker (`ThumbnailLoader` in `app/.../ui/library/Thumbnails.kt`) looks the figure up and places its shapes, one thumbnail at a time, and keeps every ready one for the life of the process.

@@ -50,6 +50,9 @@ adb install grit.apk
 
 After building a release, open it once on a phone: R8 problems only show at run time.
 
+For each update, bump `versionName` and `versionCode` in `app/build.gradle.kts` and `version` in
+`web/package.json` together (a web test fails when they disagree); Settings shows the version.
+
 ## Grit on iPhone
 
 Grit also runs on iPhone as a web app. It works offline and keeps your log on the phone.
