@@ -98,7 +98,7 @@ object PlanBuilder {
 
     private val FULL_BODY_TEMPLATES: List<List<SlotKind>> = listOf(
         listOf(SlotKind.QUAD_COMPOUND, SlotKind.CHEST_PRESS, SlotKind.PULL_DOWN, SlotKind.LEG_CURL, SlotKind.SIDE_DELT, SlotKind.REAR_DELT, SlotKind.BICEPS, SlotKind.TRICEPS),
-        listOf(SlotKind.HINGE, SlotKind.CHEST_INCLINE, SlotKind.ROW, SlotKind.QUAD_ISOLATION, SlotKind.SHOULDER_PRESS, SlotKind.CALVES, SlotKind.ABS, SlotKind.TRICEPS),
+        listOf(SlotKind.HINGE, SlotKind.CHEST_INCLINE, SlotKind.ROW, SlotKind.QUAD_ISOLATION, SlotKind.SHOULDER_PRESS, SlotKind.CALVES, SlotKind.ABS, SlotKind.BICEPS, SlotKind.TRICEPS),
         listOf(SlotKind.CHEST_PRESS, SlotKind.QUAD_COMPOUND, SlotKind.PULL_DOWN, SlotKind.HINGE, SlotKind.SIDE_DELT, SlotKind.REAR_DELT, SlotKind.CALVES, SlotKind.ABS),
     )
 

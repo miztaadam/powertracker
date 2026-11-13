@@ -81,7 +81,7 @@ class PlanBuilderTest {
         return sets to days
     }
 
-    private fun templateSizes(days: Int): List<Int> = if (days == 3) listOf(8, 8, 8) else listOf(8, 6, 8, 6)
+    private fun templateSizes(days: Int): List<Int> = if (days == 3) listOf(8, 9, 8) else listOf(8, 6, 8, 6)
 
     // ---- properties over many answers ----
 
@@ -302,7 +302,7 @@ class PlanBuilderTest {
         assertEquals(
             listOf(
                 listOf("Leg press", "DB press", "Lat pulldown", "Seated leg curl", "Lateral raise", "Face pull", "DB curl", "Rope pushdown"),
-                listOf("RDL", "Incline DB press", "Seated cable row", "Leg extension", "DB shoulder press", "Standing calf raise", "Cable crunch", "Rope pushdown"),
+                listOf("RDL", "Incline DB press", "Seated cable row", "Leg extension", "DB shoulder press", "Standing calf raise", "Cable crunch", "DB curl", "Rope pushdown"),
                 listOf("DB press", "Leg press", "Lat pulldown", "RDL", "Lateral raise", "Face pull", "Standing calf raise", "Cable crunch"),
             ),
             names(draft),
@@ -502,7 +502,7 @@ class PlanBuilderTest {
         val NO_PICKS_THREE = t(
             MuscleGroup.CHEST to (10 to 3), MuscleGroup.LATS to (16 to 3), MuscleGroup.QUADS to (10 to 3),
             MuscleGroup.HAMSTRINGS to (10 to 3), MuscleGroup.GLUTES to (14 to 3), MuscleGroup.SIDE_DELTS to (9 to 3),
-            MuscleGroup.UPPER_BACK to (16 to 3), MuscleGroup.BICEPS to (9 to 2), MuscleGroup.TRICEPS to (12 to 2),
+            MuscleGroup.UPPER_BACK to (16 to 3), MuscleGroup.BICEPS to (12 to 3), MuscleGroup.TRICEPS to (12 to 2),
             MuscleGroup.CALVES to (6 to 2), MuscleGroup.ABS to (6 to 2), MuscleGroup.REAR_DELTS to (6 to 2),
         )
 

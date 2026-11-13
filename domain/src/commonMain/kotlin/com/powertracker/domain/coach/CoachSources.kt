@@ -82,7 +82,7 @@ object CoachSources {
      * Checked on 2026-11-13 by a web search restricted to the allowed sources; the page itself was not opened.
      *
      * Not sourced, the designer's own numbers, flagged for the owner: the session templates and their sizes (8
-     * exercises on a full-body day, 8 on an upper day, 6 on a lower day) and at most one held-over pick a session
+     * exercises on the first and third full-body days and 9 on the second, 8 on an upper day, 6 on a lower day) and at most one held-over pick a session
      * ([com.powertracker.domain.plan.PlanBuilder.HELD_OVER_PER_SESSION]); 4 sets for a session's first exercise and
      * for a priority body part's exercises where the rest get 3 ([com.powertracker.domain.plan.PlanBuilder.LEAD_SETS],
      * [com.powertracker.domain.plan.PlanBuilder.PRIORITY_SETS]); at most 3 priority body parts, chosen from the 12
