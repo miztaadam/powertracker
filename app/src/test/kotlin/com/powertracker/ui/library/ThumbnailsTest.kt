@@ -229,6 +229,31 @@ class ThumbnailsTest {
     }
 
     @Test
+    fun thumbnailOrder_isYourExercisesThenTheListThenTheRestOfTheCatalogue() {
+        fun entry(name: String) = Library.find(name)!!.let { PickerEntry(it.name, it.muscles, it.kind, it, null) }
+        val ownEntry = PickerEntry(own.name, own.muscles, Library.find("Bench")!!.kind, null, own.id)
+        // "Your exercises" holds the catalogue's last exercise, which the catalogue's own order would leave to the end.
+        val last = catalogue.last()
+        val list = PickerList(yours = listOf(ownEntry, entry(last)), all = catalogue.dropLast(1).map(::entry))
+
+        // As one flat list: your exercises first, then the list as given. The lifter's own exercise has no thumbnail.
+        assertEquals(listOf(last) + catalogue.dropLast(1), thumbnailOrder(list, byArea = false))
+
+        // Under body areas: your exercises still first, then area by area, every catalogue exercise once.
+        val grouped = thumbnailOrder(list, byArea = true)
+        assertEquals(last, grouped.first())
+        val areas = grouped.drop(1).map { Library.find(it)!!.area.ordinal }
+        assertEquals("area by area", areas.sorted(), areas)
+        assertEquals(catalogue.sorted(), grouped.sorted())
+
+        // A filtered list: what it shows first, then the rest of the catalogue, so the head start still covers it all.
+        val shown = listOf(catalogue[40], catalogue[7], catalogue[120])
+        val filtered = thumbnailOrder(PickerList(yours = emptyList(), all = shown.map(::entry)), byArea = false)
+        assertEquals(shown, filtered.take(3))
+        assertEquals(catalogue.filter { it !in shown }, filtered.drop(3))
+    }
+
+    @Test
     fun picker_startsNoThumbnailWork() {
         val held = StandardTestDispatcher()
         val recording = Recording()
