@@ -163,7 +163,7 @@ test.describe('picker speed', { tag: '@speed' }, () => {
   })
 
   test('the picker still settles within 100 ms with a few hundred exercises to list', async ({ page }) => {
-    // The catalogue grows to about 250 entries; until it has, the lifter's own exercises stand in for them.
+    // The catalogue has 225 exercises; 250 of the lifter's own on top make a list of 475 rows.
     const many = Array.from({ length: 250 }, (_, i) => ({ name: `Exercise ${String(i + 1).padStart(3, '0')}`, isBuiltIn: false, archived: false }))
     await openOnWednesday(page, '#/plan')
     await editExercises(page, { add: many })
