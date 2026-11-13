@@ -338,6 +338,41 @@ class PlanBuilderViewModelTest {
         assertTrue(bbPlan().none { it.weekday == TUESDAY })
     }
 
+    // Final review, minor 2: "Rebuild my plan" replaces the plan only; every logged session and set is kept.
+    @Test
+    fun rebuildingOverABodybuildingPlanWithLoggedSessions_keepsEverySessionAndSet_andThePowerliftingPlan() {
+        val curl = row("Curl")
+        val squat = row("Squat")
+        runBlocking {
+            training.savePlanItem(PlanItem(0, MONDAY, curl.id, 3, 8, 8.0, 0, BODYBUILDING, 12))
+            training.savePlanItem(PlanItem(0, MONDAY, squat.id, 3, 5, 8.0, 0))
+            val first = training.startSession(today.minus(9, DateTimeUnit.DAY), 80.0, 4, BODYBUILDING)
+            training.logSet(first, LoggedSet(curl.id, 20.0, 12, 8.0, false, null, false))
+            training.logSet(first, LoggedSet(curl.id, 20.0, 10, 9.0, false, null, false))
+            val second = training.startSession(today.minus(2, DateTimeUnit.DAY), null, null, BODYBUILDING)
+            training.logSet(second, LoggedSet(curl.id, 22.5, 9, 9.5, true, null, false))
+            val heavy = training.startSession(today.minus(5, DateTimeUnit.DAY), null, null, POWERLIFTING)
+            training.logSet(heavy, LoggedSet(squat.id, 140.0, 5, 8.0, false, null, true))
+        }
+        val log = runBlocking { training.history().first() }.sessions
+        assertEquals(listOf(2, 1, 1), log.sortedBy { it.date }.map { it.sets.size })
+        val sets = runBlocking { log.flatMap { training.setsForSession(it.id).first() } }
+        val pl = plPlan()
+        val oldBb = bbPlan()
+
+        val vm = vm()
+        vm.next(); vm.next(); vm.next()
+        vm.use()
+        assertTrue(vm.state.value.confirming)
+        vm.confirmReplace()
+        await("saved") { vm.state.value.saved }
+
+        assertNotEquals("the plan was rebuilt", oldBb, bbPlan())
+        assertEquals(log, runBlocking { training.history().first() }.sessions)
+        assertEquals(sets, runBlocking { log.flatMap { training.setsForSession(it.id).first() } })
+        assertEquals(pl, plPlan())
+    }
+
     @Test
     fun backingOutAtEachStep_changesNothing() {
         val curl = row("Curl")
