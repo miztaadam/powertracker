@@ -50,7 +50,19 @@ function show() {
 const button = (name: string | RegExp) => screen.getByRole('button', { name })
 const tap = (name: string | RegExp) => userEvent.click(button(name))
 const step = (n: number) => screen.findByText(`Step ${n} of 4`)
-const exerciseRow = (name: string) => within(screen.getByRole('listitem', { name })).getByRole('checkbox')
+const chosen = () => screen.queryByRole('region', { name: 'Chosen' })
+/** The exercise's tick box in the browser's list, under "Chosen" (which repeats the ticked ones). */
+const exerciseRow = (name: string) => {
+  const rows = screen.getAllByRole('listitem', { name }).filter((li) => !chosen()?.contains(li))
+  expect(rows).toHaveLength(1)
+  return within(rows[0]!).getByRole('checkbox')
+}
+const chosenRow = (name: string) => within(within(chosen()!).getByRole('listitem', { name })).getByRole('checkbox')
+const chosenNames = () => {
+  const region = chosen()
+  return region ? within(region).getAllByRole('listitem').map((li) => li.getAttribute('aria-label')) : []
+}
+const follows = (first: Node, second: Node) => (first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
 const sessionNames = (day: string) =>
   within(screen.getByRole('region', { name: day }))
     .getAllByRole('listitem')
@@ -79,24 +91,51 @@ describe('the plan builder', () => {
     const days = within(screen.getByRole('group', { name: 'Which days?' }))
     expect(days.getAllByRole('checkbox').filter((c) => (c as HTMLInputElement).checked).map((c) => c.closest('label')!.textContent)).toEqual(['Mon', 'Wed', 'Fri'])
     expect(button('Next')).toBeEnabled()
+    // Once the count is met the line names the chosen days, in week order.
+    expect(screen.getByText('Mon, Wed, Fri')).toBeInTheDocument()
 
     await userEvent.click(days.getByRole('checkbox', { name: 'Sat' }))
     expect(button('Next')).toBeDisabled()
     expect(screen.getByText('Choose 3 days.')).toBeInTheDocument()
+    expect(screen.queryByText(/^Mon, /)).toBeNull()
     await userEvent.click(within(count).getByRole('radio', { name: '4 days' }))
     expect(button('Next')).toBeEnabled()
+    expect(screen.getByText('Mon, Wed, Fri, Sat')).toBeInTheDocument()
+    expect(screen.queryByText('Choose 4 days.')).toBeNull()
     await userEvent.click(days.getByRole('checkbox', { name: 'Mon' }))
     expect(button('Next')).toBeDisabled()
   })
 
-  it('days_withNeither3Nor4Stored_startWithNothingChosen', async () => {
-    await onSide('BODYBUILDING', { bodybuildingTrainingDays: [2, 4] })
+  it('days_withNeither3Nor4Stored_startOn3DaysWithNoneTicked', async () => {
+    for (const stored of [[2, 4], [1, 2, 3, 4, 5]]) {
+      await onSide('BODYBUILDING', { bodybuildingTrainingDays: stored })
+      show()
+      await step(1)
+      expect(screen.getByRole('radio', { name: '3 days' })).toBeChecked()
+      expect(screen.getByRole('radio', { name: '4 days' })).not.toBeChecked()
+      const days = within(screen.getByRole('group', { name: 'Which days?' }))
+      expect(days.getAllByRole('checkbox').filter((c) => (c as HTMLInputElement).checked)).toEqual([])
+      expect(screen.getByText('Choose 3 days.')).toBeInTheDocument()
+      expect(button('Next')).toBeDisabled()
+      for (const day of ['Sat', 'Tue', 'Thu']) await userEvent.click(days.getByRole('checkbox', { name: day }))
+      expect(button('Next')).toBeEnabled()
+      expect(screen.getByText('Tue, Thu, Sat')).toBeInTheDocument()
+      cleanup()
+    }
+  })
+
+  it('everyStep_hasClose_andBackFromTheSecondStepOn', async () => {
+    await onSide('BODYBUILDING')
     show()
     await step(1)
-    expect(screen.getByRole('radio', { name: '3 days' })).not.toBeChecked()
-    expect(screen.getByRole('radio', { name: '4 days' })).not.toBeChecked()
-    expect(within(screen.getByRole('group', { name: 'Which days?' })).getAllByRole('checkbox').filter((c) => (c as HTMLInputElement).checked)).toEqual([])
-    expect(button('Next')).toBeDisabled()
+    expect(button('Close')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Back' })).toBeNull()
+    for (const [n, go] of [[2, 'Next'], [3, 'Choose for me'], [4, 'Skip']] as const) {
+      await tap(go)
+      await step(n)
+      expect(button('Close')).toBeInTheDocument()
+      expect(button('Back')).toBeInTheDocument()
+    }
   })
 
   it('exercises_arePreTickedFromBothPlansAndTheLastMonth_andNoneGivesChooseForMe', async () => {
@@ -208,7 +247,7 @@ describe('the plan builder', () => {
     await toDraft()
     const before = sessionNames('Monday')
     const lead = within(screen.getByRole('region', { name: 'Monday' })).getAllByRole('listitem')[0]!
-    await userEvent.click(within(lead).getByRole('button', { name: 'Swap' }))
+    await userEvent.click(within(lead).getByRole('button', { name: 'Swap Leg press' }))
     const sheet = within(await screen.findByRole('dialog', { name: 'Swap Leg press' }))
     const options = sheet.getAllByRole('listitem').map((li) => li.getAttribute('aria-label'))
     expect(options).not.toContain('Leg press')
@@ -320,7 +359,7 @@ describe('the plan builder', () => {
       expect(onLeave).toHaveBeenCalledOnce()
       cleanup()
     }
-    // Back on the first step leaves too; Back elsewhere is one step back.
+    // Back is one step back, and the first step has none: Close leaves.
     const { onLeave } = show()
     await step(1)
     await tap('Next')
@@ -328,9 +367,149 @@ describe('the plan builder', () => {
     await tap('Back')
     await step(1)
     expect(onLeave).not.toHaveBeenCalled()
-    await tap('Back')
-    expect(onLeave).toHaveBeenCalledOnce()
+    expect(screen.queryByRole('button', { name: 'Back' })).toBeNull()
     expect(await stored()).toEqual(before)
+  })
+
+  it('exercises_listEveryTickUnderChosenAtTheTop_andUntickingEitherUnticksBoth', async () => {
+    // More pre-ticks than the browser's "Your exercises" shows.
+    const names = grit.library().filter((e) => e.kind === 'ACCESSORY' && e.muscles.length > 0).slice(0, 9).map((e) => e.name)
+    for (const [i, name] of names.entries()) await planOn('BODYBUILDING', name, { order: i })
+    await onSide('BODYBUILDING')
+    show()
+    await step(1)
+    await tap('Next')
+    await step(2)
+    expect([...chosenNames()].sort()).toEqual([...names].sort())
+    for (const name of names) {
+      expect(chosenRow(name)).toHaveAttribute('aria-checked', 'true')
+      expect(exerciseRow(name)).toHaveAttribute('aria-checked', 'true')
+      expect(follows(chosen()!, exerciseRow(name))).toBe(true)
+    }
+    expect(within(chosen()!).getByRole('heading', { name: 'Chosen' })).toBeInTheDocument()
+
+    // Unticked under Chosen: gone from it, and unticked in the list.
+    const [first, second] = names as [string, string]
+    await userEvent.click(chosenRow(first))
+    expect(chosenNames()).not.toContain(first)
+    expect(exerciseRow(first)).toHaveAttribute('aria-checked', 'false')
+    expect(screen.getByText('8 chosen')).toBeInTheDocument()
+    // Unticked in the list: gone from Chosen too.
+    await userEvent.click(exerciseRow(second))
+    expect(chosenNames()).not.toContain(second)
+    // Ticked in the list: last under Chosen, even while a search shows only it.
+    await userEvent.type(screen.getByRole('textbox', { name: 'Search exercises' }), 'Hack squat')
+    await userEvent.click(exerciseRow('Hack squat'))
+    expect(chosenNames().at(-1)).toBe('Hack squat')
+    expect(chosenNames()).toHaveLength(8)
+    await userEvent.clear(screen.getByRole('textbox', { name: 'Search exercises' }))
+
+    for (const name of chosenNames()) await userEvent.click(chosenRow(name!))
+    expect(chosen()).toBeNull()
+    expect(button('Choose for me')).toBeEnabled()
+  })
+
+  it('exercises_ticksLastThroughASearch_aFilter_andLeavingTheStep', async () => {
+    await planOn('BODYBUILDING', 'Curl')
+    await onSide('BODYBUILDING')
+    show()
+    await step(1)
+    await tap('Next')
+    await step(2)
+    const search = () => screen.getByRole('textbox', { name: 'Search exercises' })
+    await userEvent.type(search(), 'Leg press')
+    await userEvent.click(exerciseRow('Leg press'))
+    await userEvent.clear(search())
+    expect(exerciseRow('Leg press')).toHaveAttribute('aria-checked', 'true')
+    expect(exerciseRow('Curl')).toHaveAttribute('aria-checked', 'true')
+
+    // A body area, then equipment: the ticks are kept, shown or not.
+    const area = within(screen.getByRole('group', { name: 'Body area' }))
+    await userEvent.click(area.getByRole('checkbox', { name: 'Quads' }))
+    expect(exerciseRow('Leg press')).toHaveAttribute('aria-checked', 'true')
+    await userEvent.click(within(screen.getByRole('group', { name: 'Equipment' })).getByRole('checkbox', { name: 'Machine' }))
+    expect(exerciseRow('Leg press')).toHaveAttribute('aria-checked', 'true')
+    expect(exerciseRow('Leg extension')).toHaveAttribute('aria-checked', 'false')
+    await userEvent.click(within(screen.getByRole('group', { name: 'Equipment' })).getByRole('checkbox', { name: 'Machine' }))
+    await userEvent.click(area.getByRole('checkbox', { name: 'All' }))
+    expect(exerciseRow('Curl')).toHaveAttribute('aria-checked', 'true')
+    expect(screen.getByText('2 chosen')).toBeInTheDocument()
+
+    // Back to the days and on again; on to the body parts and back.
+    await tap('Back')
+    await step(1)
+    await tap('Next')
+    await step(2)
+    expect(screen.getByText('2 chosen')).toBeInTheDocument()
+    for (const name of ['Leg press', 'Curl']) expect(exerciseRow(name)).toHaveAttribute('aria-checked', 'true')
+    await tap('Next')
+    await step(3)
+    await tap('Back')
+    await step(2)
+    expect([...chosenNames()].sort()).toEqual(['Curl', 'Leg press'])
+    for (const name of ['Leg press', 'Curl']) expect(exerciseRow(name)).toHaveAttribute('aria-checked', 'true')
+  })
+
+  it('draft_barHoldsBackAndUseThisPlan_andAnotherDraftSitsUnderTheIntro', async () => {
+    await onSide('BODYBUILDING')
+    show()
+    await toDraft()
+    const bar = document.querySelector('.pb-actions') as HTMLElement
+    expect(within(bar).getAllByRole('button').map((b) => b.textContent)).toEqual(['Back', 'Use this plan'])
+    const intro = screen.getByText('Swap any exercise, or ask for another draft. Nothing is saved until you use this plan.')
+    expect(intro.nextElementSibling).toBe(button('Another draft'))
+    expect(follows(button('Another draft'), screen.getByRole('region', { name: 'Monday' }))).toBe(true)
+  })
+
+  it('draft_namesEverySwapByItsExercise_asACompactTonalButton', async () => {
+    await onSide('BODYBUILDING')
+    show()
+    await toDraft()
+    const expected = grit.planBuilderBuild([1, 3, 5], [], [], 0)
+    for (const session of expected.sessions) {
+      const day = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][session.day]!
+      const region = within(screen.getByRole('region', { name: day }))
+      // The session's title is a heading.
+      expect(region.getByRole('heading', { name: `${day} · ${session.title}` })).toBeInTheDocument()
+      const swaps = region.getAllByRole('button').filter((b) => b.textContent === 'Swap')
+      expect(swaps.map((b) => b.getAttribute('aria-label'))).toEqual(session.exercises.map((e) => `Swap ${e.name}`))
+      for (const swap of swaps) expect(swap).toHaveClass('gr-btn-secondary', 'gr-btn-compact')
+    }
+  })
+
+  it('aFailedSave_showsAPlainLineAtTheTop_keepsTheBuilderOpen_andCanBeTriedAgain', async () => {
+    await planOn('POWERLIFTING', 'Squat')
+    await onSide('BODYBUILDING', { bodybuildingTrainingDays: [2, 4, 6] })
+    const before = await stored()
+    const { onDone } = show()
+    await step(1)
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Sat' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Mon' }))
+    await tap('Next')
+    await step(2)
+    await userEvent.click(exerciseRow('Squat'))
+    await tap('Choose for me')
+    await tap('Skip')
+    await step(4)
+    // Setting the days fails: the plan goes back with it.
+    const put = vi.spyOn(db.settings, 'bulkPut').mockRejectedValueOnce(new Error('No room left'))
+    await tap('Use this plan')
+    const line = await screen.findByRole('alert')
+    expect(line).toHaveTextContent('The plan could not be saved. Nothing was changed.')
+    expect(follows(line, screen.getByRole('heading', { name: 'Your draft week' }))).toBe(true)
+    expect(onDone).not.toHaveBeenCalled()
+    expect(await stored()).toEqual(before)
+    await step(4)
+    // It stays until the next try.
+    await tap('Another draft')
+    expect(screen.getByRole('alert')).toHaveTextContent('The plan could not be saved. Nothing was changed.')
+
+    await tap('Use this plan')
+    await waitFor(() => expect(onDone).toHaveBeenCalledOnce())
+    expect(screen.queryByRole('alert')).toBeNull()
+    expect(put).toHaveBeenCalledTimes(2)
+    expect((await getSettings(db)).bodybuildingTrainingDays).toEqual([1, 2, 4])
+    expect((await planFor(db, 'BODYBUILDING')).length).toBe(grit.planBuilderBuild([1, 2, 4], [], [], 1).sessions.flatMap((s) => s.exercises).length)
   })
 
   it('isNotThereOnThePowerliftingSide', async () => {

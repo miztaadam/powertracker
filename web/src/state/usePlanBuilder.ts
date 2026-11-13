@@ -71,7 +71,8 @@ export type PlanBuilderState = {
   /** The side the app is on. The builder is only for the bodybuilding side. */
   side: TrainingMode
   step: BuilderStep
-  dayCount: DayCount | null
+  /** 3 unless the side's stored days are 4. */
+  dayCount: DayCount
   /** The chosen weekdays, 1 = Monday, in week order. */
   days: number[]
   /** The stored exercises not archived, for the browser. */
@@ -96,7 +97,7 @@ export type PlanBuilderActions = {
   togglePriority: (group: string) => void
   /** The next step; from the body parts, the first draft. */
   next: () => void
-  /** The step before. False on the first step, where Back leaves the builder. */
+  /** The step before. False on the first step, which has none (and no Back). */
   back: () => boolean
   /** The next draft for the same answers: only the catalogue's defaults change. */
   anotherDraft: () => void
@@ -132,7 +133,7 @@ export function usePlanBuilder(db: GritDb, today: () => string): PlanBuilderStat
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   const [readError, setReadError] = useState<unknown>(null)
   const [step, setStep] = useState<BuilderStep>('days')
-  const [dayCount, setDayCount] = useState<DayCount | null>(null)
+  const [dayCount, setDayCount] = useState<DayCount>(3)
   const [days, setDays] = useState<number[]>([])
   const [ticked, setTicked] = useState<ReadonlyMap<string, PickerEntry>>(new Map())
   const [priorities, setPriorities] = useState<string[]>([])
@@ -148,7 +149,8 @@ export function usePlanBuilder(db: GritDb, today: () => string): PlanBuilderStat
       .then((data) => {
         if (stale) return
         setLoaded(data)
-        // The answers start from what is stored: the side's days when there are 3 or 4, the suggested exercises ticked.
+        // The answers start from what is stored: the side's days when there are 3 or 4 (otherwise 3 days, none
+        // ticked), the suggested exercises ticked.
         const stored = [...new Set(data.trainingDays)].sort((a, b) => a - b)
         if (stored.length === 3 || stored.length === 4) {
           setDayCount(stored.length)
@@ -195,7 +197,7 @@ export function usePlanBuilder(db: GritDb, today: () => string): PlanBuilderStat
     [priorities],
   )
 
-  const canGoOn = step === 'days' ? dayCount != null && days.length === dayCount : true
+  const canGoOn = step === 'days' ? days.length === dayCount : true
 
   const next = useCallback(() => {
     if (!canGoOn) return

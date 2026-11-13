@@ -41,6 +41,11 @@ export type ExerciseBrowserProps = {
    * (the plan builder's "Which exercises do you do now?"); without it a row tap is one choice.
    */
   ticked?: (entry: PickerEntry) => boolean
+  /**
+   * Multi-select: every ticked exercise, listed under "Chosen" above the list whatever the search and filters, so none
+   * is out of sight. Each is a tick box like the list's own row.
+   */
+  chosen?: readonly PickerEntry[]
 }
 
 /**
@@ -54,7 +59,7 @@ export type ExerciseBrowserProps = {
  * any ticked group, on top of the search and the other filters, and with none ticked it is the whole
  * catalogue under its body areas.
  */
-export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onRow, onInfo, rowLabel, create, thumbnails = false, ticked }: ExerciseBrowserProps) {
+export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onRow, onInfo, rowLabel, create, thumbnails = false, ticked, chosen = [] }: ExerciseBrowserProps) {
   const { query, area, equipment, muscle, muscles } = state
   const dropdown = muscleFilter === 'dropdown'
   const [choosingMuscles, setChoosingMuscles] = useState(false)
@@ -144,6 +149,12 @@ export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onR
             <SectionHeader className="lib-heading" title={`${browsed.label} exercises`} />
           </>
         )}
+        {chosen.length > 0 && (
+          <section aria-label="Chosen">
+            <SectionHeader className="lib-heading" title="Chosen" />
+            {rows(chosen)}
+          </section>
+        )}
         {isEmpty ? (
           create != null ? (
             <EmptyState icon={<SearchOffIcon />} title={NO_MATCH} body="Your own exercises work everywhere, without a form guide." action={create} />
@@ -159,6 +170,8 @@ export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onR
                 {!byArea && <SectionHeader className="lib-heading" title="All exercises" />}
               </>
             )}
+            {/* After "Chosen", the list needs a heading of its own; by area, the areas give it one. */}
+            {list.yours.length === 0 && chosen.length > 0 && !byArea && <SectionHeader className="lib-heading" title="All exercises" />}
             {byArea ? <AreaSections entries={list.all} rows={rows} /> : rows(list.all)}
             {create != null && <div className="lib-create">{create}</div>}
           </>

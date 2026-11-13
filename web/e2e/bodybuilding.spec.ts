@@ -221,7 +221,11 @@ for (const scheme of ['dark', 'light'] as const) {
       // Exercises: the plans' exercises and the last month's ticked.
       await expect(page.getByRole('heading', { name: 'Which exercises do you do now?' })).toBeVisible()
       await expect(page.getByText('8 chosen')).toBeVisible()
-      await expect(page.getByRole('listitem', { name: 'Incline DB press' }).getByRole('checkbox')).toHaveAttribute('aria-checked', 'true')
+      // Every tick under "Chosen" at the top, then the list with the same rows ticked.
+      const chosen = page.getByRole('region', { name: 'Chosen' })
+      await expect(chosen.getByRole('listitem')).toHaveCount(8)
+      await expect(chosen.getByRole('listitem', { name: 'Incline DB press' }).getByRole('checkbox')).toHaveAttribute('aria-checked', 'true')
+      await expect(page.getByRole('listitem', { name: 'Incline DB press' }).last().getByRole('checkbox')).toHaveAttribute('aria-checked', 'true')
       expect(await smallTargets(page)).toEqual([])
       expect(await fitsThePhone(page)).toBe(true)
       await page.setViewportSize({ width: 390, height: 844 })
@@ -380,7 +384,7 @@ test('the plan builder: four days from three exercises and a priority, a swap, t
   await expect(wednesday.getByRole('listitem', { name: /^T-bar row/ })).toBeVisible()
   const lead = wednesday.getByRole('listitem').first()
   const leadName = (await lead.getAttribute('aria-label'))!.split('  ')[0]!
-  await lead.getByRole('button', { name: 'Swap' }).click()
+  await lead.getByRole('button', { name: `Swap ${leadName}`, exact: true }).click()
   const sheet = page.getByRole('dialog', { name: `Swap ${leadName}` })
   const swapTo = (await sheet.getByRole('listitem').first().getAttribute('aria-label'))!
   await sheet.getByRole('listitem').first().getByRole('button').click()

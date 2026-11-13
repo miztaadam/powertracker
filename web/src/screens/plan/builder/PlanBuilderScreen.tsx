@@ -11,7 +11,6 @@ import { CloseIcon } from '../../../ui/components/icons'
 import { ModeLabel } from '../../../ui/components/ModeLabel'
 import { ScreenHeader, SectionHeader } from '../../../ui/components/ScreenHeader'
 import { ChoiceChip, SegmentedChoice } from '../../../ui/components/SegmentedChoice'
-import { Snackbar } from '../../../ui/components/Snackbar'
 import { ExerciseBrowser, MuscleChecklist } from '../../library/ExerciseBrowser'
 import { planItemText, repsOf } from '../PlanScreen'
 import { formatRpe } from '../../../ui/components/format'
@@ -59,7 +58,8 @@ function PlanBuilderContent({ state, actions, onLeave, onDone }: ContentProps) {
   const { step } = state
   const number = BUILDER_STEPS.indexOf(step) + 1
   const [confirming, setConfirming] = useState(false)
-  const [failures, setFailures] = useState(0)
+  // A failed save is a plain line at the top of the draft, kept until the next try.
+  const [failed, setFailed] = useState(false)
   const saving = useRef(false)
 
   const save = async () => {
@@ -69,17 +69,18 @@ function PlanBuilderContent({ state, actions, onLeave, onDone }: ContentProps) {
       await actions.save()
       onDone()
     } catch {
-      setFailures((n) => n + 1)
+      setFailed(true)
     } finally {
       saving.current = false
     }
   }
   const use = async () => {
+    setFailed(false)
     try {
       if (await actions.hasPlan()) setConfirming(true)
       else await save()
     } catch {
-      setFailures((n) => n + 1)
+      setFailed(true)
     }
   }
 
@@ -91,9 +92,10 @@ function PlanBuilderContent({ state, actions, onLeave, onDone }: ContentProps) {
       {step === 'days' && <DaysStep state={state} actions={actions} />}
       {step === 'exercises' && <ExercisesStep state={state} actions={actions} />}
       {step === 'bodyParts' && <BodyPartsStep state={state} actions={actions} />}
-      {step === 'draft' && state.draft && <DraftStep draft={state.draft} actions={actions} />}
+      {step === 'draft' && state.draft && <DraftStep draft={state.draft} actions={actions} failed={failed} />}
       <div className="pb-actions">
-        <SecondaryButton text="Back" onClick={() => actions.back() || onLeave()} />
+        {/* The first step has no step before it: Close leaves. */}
+        {number > 1 && <SecondaryButton text="Back" onClick={actions.back} />}
         {step === 'draft' ? <PrimaryButton text="Use this plan" onClick={() => void use()} /> : <PrimaryButton text={nextText} onClick={actions.next} enabled={state.canGoOn} />}
       </div>
       {confirming && (
@@ -118,7 +120,6 @@ function PlanBuilderContent({ state, actions, onLeave, onDone }: ContentProps) {
           <p className="body-medium">{REPLACE_LINE}</p>
         </Dialog>
       )}
-      <Snackbar message={failures > 0 ? SAVE_FAILED : null} showId={failures} onDismiss={() => setFailures(0)} />
     </section>
   )
 }
@@ -126,6 +127,8 @@ function PlanBuilderContent({ state, actions, onLeave, onDone }: ContentProps) {
 type StepProps = { state: PlanBuilderState; actions: PlanBuilderActions }
 
 const WEEK = [1, 2, 3, 4, 5, 6, 7]
+/** "Mon", as on the weekday chips. */
+const shortDay = (day: number) => dayName(day, 'short').slice(0, 3)
 
 function DaysStep({ state, actions }: StepProps) {
   const { dayCount, days } = state
@@ -135,18 +138,18 @@ function DaysStep({ state, actions }: StepProps) {
       <SegmentedChoice
         label={DAYS_QUESTION}
         options={DAY_COUNTS.map((n) => `${n} days`)}
-        selectedIndex={dayCount == null ? null : DAY_COUNTS.indexOf(dayCount)}
+        selectedIndex={DAY_COUNTS.indexOf(dayCount)}
         onSelect={(i) => actions.chooseDayCount(DAY_COUNTS[i]!)}
       />
       <h2 className="pb-question headline-small">{WEEKDAYS_QUESTION}</h2>
       <Card contentPadding={0} className="pb-days">
         <div className="pb-days-row" role="group" aria-label={WEEKDAYS_QUESTION}>
           {WEEK.map((day) => (
-            <ChoiceChip key={day} text={dayName(day, 'short').slice(0, 3)} selected={days.includes(day)} onClick={() => actions.toggleDay(day)} />
+            <ChoiceChip key={day} text={shortDay(day)} selected={days.includes(day)} onClick={() => actions.toggleDay(day)} />
           ))}
         </div>
       </Card>
-      {dayCount != null && days.length !== dayCount && <p className="pb-hint body-medium">{`Choose ${dayCount} days.`}</p>}
+      <p className="pb-hint body-medium">{days.length === dayCount ? days.map(shortDay).join(', ') : `Choose ${dayCount} days.`}</p>
     </div>
   )
 }
@@ -170,6 +173,7 @@ function ExercisesStep({ state, actions }: StepProps) {
         recentIds={state.recentIds}
         onRow={actions.toggle}
         ticked={(entry) => state.ticked.has(pickKey(entry))}
+        chosen={[...state.ticked.values()]}
       />
     </>
   )
@@ -196,12 +200,23 @@ function BodyPartsStep({ state, actions }: StepProps) {
 
 type Swapping = { day: number; exercise: JsDraftExercise; options: JsLibraryExercise[] }
 
-function DraftStep({ draft, actions }: { draft: JsPlanDraft; actions: PlanBuilderActions }) {
+function DraftStep({ draft, actions, failed }: { draft: JsPlanDraft; actions: PlanBuilderActions; failed: boolean }) {
   const [swapping, setSwapping] = useState<Swapping | null>(null)
+  // "Use this plan" is at the foot of the page: bring the line into view when a save fails.
+  const failure = useRef<HTMLParagraphElement>(null)
+  useEffect(() => {
+    if (failed) failure.current?.scrollIntoView?.({ block: 'nearest' })
+  }, [failed])
   return (
     <div className="screen-body pb-body">
+      {failed && (
+        <p ref={failure} className="pb-failed body-medium" role="alert">
+          {SAVE_FAILED}
+        </p>
+      )}
       <h2 className="pb-question headline-small">Your draft week</h2>
       <p className="pb-hint body-medium">Swap any exercise, or ask for another draft. Nothing is saved until you use this plan.</p>
+      <SecondaryButton text="Another draft" onClick={actions.anotherDraft} className="pb-another" />
       {draft.sessions.map((session) => (
         <DraftSessionCard key={session.day} session={session} onSwap={(exercise) => setSwapping({ day: session.day, exercise, options: actions.alternatives(session.day, exercise.name) })} />
       ))}
@@ -249,8 +264,6 @@ function DraftStep({ draft, actions }: { draft: JsPlanDraft; actions: PlanBuilde
         </section>
       )}
 
-      <SecondaryButton text="Another draft" onClick={actions.anotherDraft} className="pb-another" />
-
       {swapping && (
         <SwapSheet
           swapping={swapping}
@@ -293,7 +306,7 @@ function DraftSessionCard({ session, onSwap }: { session: JsDraftSession; onSwap
                   {formatRpe(e.rpe)}
                 </p>
               </div>
-              <SecondaryButton text="Swap" onClick={() => onSwap(e)} compact />
+              <SecondaryButton text="Swap" label={`Swap ${e.name}`} onClick={() => onSwap(e)} compact />
             </li>
           ))}
         </ol>

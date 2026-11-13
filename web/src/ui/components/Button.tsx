@@ -12,6 +12,8 @@ export type ButtonProps = {
   /** 40 px tall to look at (still a 48 px touch target), for use inside cards and rows. */
   compact?: boolean
   className?: string
+  /** The accessible name, where the visible text alone does not say what the button acts on ("Swap Leg press"). */
+  label?: string
 }
 
 export type QuietButtonProps = Omit<ButtonProps, 'icon' | 'compact'>
@@ -25,9 +27,9 @@ export type IconButtonProps = {
   className?: string
 }
 
-function Base({ text, onClick, enabled = true, icon, compact = false, className, kind }: ButtonProps & { kind: string }) {
+function Base({ text, onClick, enabled = true, icon, compact = false, className, label, kind }: ButtonProps & { kind: string }) {
   return (
-    <button type="button" className={cx('gr-btn label-large', kind, compact && 'gr-btn-compact', className)} disabled={!enabled} onClick={onClick}>
+    <button type="button" className={cx('gr-btn label-large', kind, compact && 'gr-btn-compact', className)} aria-label={label} disabled={!enabled} onClick={onClick}>
       <span className="gr-btn-face">
         {icon != null && <span className="gr-btn-icon">{icon}</span>}
         <span className="gr-btn-text">{text}</span>
