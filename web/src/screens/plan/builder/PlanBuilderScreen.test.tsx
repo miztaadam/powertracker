@@ -332,6 +332,36 @@ describe('the plan builder', () => {
     expect(await planFor(db, 'POWERLIFTING')).toEqual(before.plan.filter((p) => p.mode === 'POWERLIFTING'))
   })
 
+  // Final review, minor 2: "Rebuild my plan" replaces the plan only; every logged session and set is kept.
+  it('rebuildingOverABodybuildingPlanWithLoggedSessions_keepsEverySessionAndSet_andThePowerliftingPlan', async () => {
+    await planOn('BODYBUILDING', 'Curl', { weekday: 1 })
+    await planOn('POWERLIFTING', 'Squat')
+    await onSide('BODYBUILDING')
+    const first = (await db.sessions.add({ date: addDays(TODAY, -9), bodyweightKg: 80, readiness: 4, mode: 'BODYBUILDING' })) as number
+    const curl = await resolveCatalogue(db, 'Curl')
+    await logSet(db, first, set(curl, 20, { reps: 12 }))
+    await logSet(db, first, set(curl, 20, { reps: 10, rpe: 9 }))
+    await logged(addDays(TODAY, -2), 'Curl')
+    const heavy = (await db.sessions.add({ date: addDays(TODAY, -5), bodyweightKg: null, readiness: null, mode: 'POWERLIFTING' })) as number
+    await logSet(db, heavy, set(await resolveCatalogue(db, 'Squat'), 140, { reps: 5 }))
+    const sessions = await db.sessions.toArray()
+    const sets = await db.sets.toArray()
+    expect(sessions).toHaveLength(3)
+    expect(sets).toHaveLength(4)
+    const before = await stored()
+
+    const { onDone } = show()
+    await toDraft()
+    await tap('Use this plan')
+    await userEvent.click(within(await screen.findByRole('dialog', { name: 'Use this plan?' })).getByRole('button', { name: 'Replace' }))
+    await waitFor(() => expect(onDone).toHaveBeenCalledOnce())
+
+    expect(await planFor(db, 'BODYBUILDING')).not.toEqual(before.plan.filter((p) => p.mode === 'BODYBUILDING'))
+    expect(await db.sessions.toArray()).toEqual(sessions)
+    expect(await db.sets.toArray()).toEqual(sets)
+    expect(await planFor(db, 'POWERLIFTING')).toEqual(before.plan.filter((p) => p.mode === 'POWERLIFTING'))
+  })
+
   it('anOwnExercise_isSavedByItsRow', async () => {
     const own = (await db.exercises.add({ name: 'Band pull thing', category: 'ACCESSORY', parentLift: null, muscles: [], isBuiltIn: false, archived: false })) as number
     await db.planItems.add({ weekday: 1, exerciseId: own, sets: 3, reps: 8, repsHigh: 12, targetRpe: 8, order: 0, mode: 'BODYBUILDING' })
