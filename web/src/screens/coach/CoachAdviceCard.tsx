@@ -86,7 +86,7 @@ function Detail({ lift, detail, side }: { lift: Lift | null; detail: CardDetail;
         </div>
       )
     case 'reEntry':
-      return <StatTile label="Load" value={String(detail.loadPct)} unit="%" note="of your last top sets, for 7 days" />
+      return <StatTile label="Load" value={String(detail.loadPct)} unit="%" note={side === 'BODYBUILDING' ? 'of your last weights, for 7 days' : 'of your last top sets, for 7 days'} />
     case 'weakPoint': {
       const { ratio, missPoint, muscles, additions } = detail
       return (
@@ -115,14 +115,14 @@ export type CoachAdviceCardProps = {
   card: CoachCard
   onApply: () => void
   onDismiss: () => void
-  /** The side the app is on. On the bodybuilding side a deload speaks of exercises and weights, not lifts and top sets. */
+  /** The side the app is on. On the bodybuilding side a deload or easing back in speaks of exercises and weights, not lifts and top sets. */
   side?: TrainingMode
 }
 
 /** What a card's tag names after its kind: the lift, else everything it covers. */
 function scopeOf(advice: CoachCard['advice'], side: TrainingMode): string {
   if (advice.lift) return LIFT_LABEL[advice.lift]
-  return advice.type === 'DELOAD' && side === 'BODYBUILDING' ? 'All exercises' : 'All lifts'
+  return (advice.type === 'DELOAD' || advice.type === 'RE_ENTRY') && side === 'BODYBUILDING' ? 'All exercises' : 'All lifts'
 }
 
 /** One card of the Coach feed: what kind of advice, what to do, the coach's reason, the figures behind it, Apply and Dismiss. */

@@ -479,6 +479,21 @@ describe('no powerlifting wording on the bodybuilding side (fix round ruling E)'
     expect(screen.getByText('of your last top sets')).toBeInTheDocument()
   })
 
+  it('theEasingBackInCard_saysAllExercisesAndLastWeights_andThePowerliftingCardIsUnchanged', async () => {
+    await db.advice.add(advice('RE_ENTRY', 'POWERLIFTING', RE_ENTRY, 'Ease back in.'))
+    await onSide('BODYBUILDING')
+    showCoach()
+    expect(await screen.findByText('Re-entry · All exercises')).toBeInTheDocument()
+    expect(screen.getByText('of your last weights, for 7 days')).toBeInTheDocument()
+    expect(screen.queryByText(/All lifts/)).toBeNull()
+    expect(screen.queryByText(/top sets/)).toBeNull()
+    cleanup()
+    await onSide('POWERLIFTING')
+    showCoach()
+    expect(await screen.findByText('Re-entry · All lifts')).toBeInTheDocument()
+    expect(screen.getByText('of your last top sets, for 7 days')).toBeInTheDocument()
+  })
+
   it('settings_hidesDefaultRpeStrictPressAndMainLiftRest_andNamesTheOneRest', async () => {
     await onSide('BODYBUILDING')
     render(<SettingsScreen db={db} onBack={() => {}} today={() => TODAY} />)
