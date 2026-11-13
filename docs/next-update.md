@@ -89,9 +89,9 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
 - The two apps currently disagree: Android `versionName` is "1.0", web `package.json` is "0.1.0". Use one version number for both and bump it with every update.
 - The web line could also show the build's short commit id, so it's easy to confirm a phone has the latest version.
 
-## Follow-up task (owner, 2026-11-13): Android thumbnails off the main thread
-- On Android the Exercises tab works each row's thumbnail out on the main thread the first time the row scrolls in (`ExerciseThumbnail` in `app/.../ui/library/ExercisePicture.kt`; the list is a `LazyColumn`). The results are only kept in memory, so the first scroll through the 225 rows after every launch does them all again.
-- A picture takes about 1 ms on a desktop JVM; a phone is several times slower (an estimate: it has not been measured on a device). A fast scroll could drop frames.
-- Suggested fix: work the thumbnail out off the main thread (a coroutine on a background dispatcher), showing the row's empty tile for a frame or two until it is ready, as the web already does for rows off screen. Keep the global cache. Measure on a real phone before and after if one is to hand.
-- The web has no such cost: its thumbnails are worked out when the app is built.
-- There is no Android speed check today; consider adding one with this task.
+## Done (2026-11-13): Android thumbnails off the main thread
+- The Exercises tab no longer works a thumbnail out on the main thread. One background worker (`ThumbnailLoader` in `app/.../ui/library/Thumbnails.kt`) looks the figure up and places its shapes, one thumbnail at a time, and keeps every ready one for the life of the process.
+- A row draws a ready thumbnail in its first frame; until then it shows its empty tile, the same size, so nothing moves. Rows on screen are served before the warm-up.
+- The warm-up: when the tab first shows its list, the worker works out every catalogue thumbnail in the list's order, once per process. The picker starts no thumbnail work.
+- The Android speed check is a test that no thumbnail is worked out on the main thread (`ThumbnailsTest`).
+- Not measured: no real phone was available, so frame times before and after are unknown. Check by scrolling the Exercises tab fast right after opening the app.
