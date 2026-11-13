@@ -88,3 +88,10 @@ through the shared `:domain` module and design tokens. Each item gets its own sp
 - Proposal, to confirm when the update starts: a small line at the bottom of Settings, e.g. "Grit 1.1 · AppsbyAdam", in both apps.
 - The two apps currently disagree: Android `versionName` is "1.0", web `package.json` is "0.1.0". Use one version number for both and bump it with every update.
 - The web line could also show the build's short commit id, so it's easy to confirm a phone has the latest version.
+
+## Follow-up task (owner, 2026-11-13): Android thumbnails off the main thread
+- On Android the Exercises tab works each row's thumbnail out on the main thread the first time the row scrolls in (`ExerciseThumbnail` in `app/.../ui/library/ExercisePicture.kt`; the list is a `LazyColumn`). The results are only kept in memory, so the first scroll through the 225 rows after every launch does them all again.
+- A picture takes about 1 ms on a desktop JVM; a phone is several times slower (an estimate: it has not been measured on a device). A fast scroll could drop frames.
+- Suggested fix: work the thumbnail out off the main thread (a coroutine on a background dispatcher), showing the row's empty tile for a frame or two until it is ready, as the web already does for rows off screen. Keep the global cache. Measure on a real phone before and after if one is to hand.
+- The web has no such cost: its thumbnails are worked out when the app is built.
+- There is no Android speed check today; consider adding one with this task.

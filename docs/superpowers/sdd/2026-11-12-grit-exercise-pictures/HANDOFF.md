@@ -2,16 +2,26 @@
 
 This folder is a tracked copy of the plan's working notes, which normally live in the git-ignored `.superpowers/sdd/2026-11-12-grit-exercise-pictures/`. It is synced so a new session can take over if this one ends.
 
-## Where things stand (synced after Task 13b)
+## Where things stand (synced during the final fix wave, 2026-11-13)
 
 - **Spec:** `docs/superpowers/specs/2026-11-12-grit-exercise-pictures-design.md` (binding authority).
 - **Plan:** `docs/superpowers/plans/2026-11-12-grit-exercise-pictures.md` (13 tasks).
-- **Ledger:** `progress.md` in this folder. Read it all: rulings R1–R19, parked findings, per-task status.
-- **Done, reviewed and pushed:** Tasks 1–12 (all 225 pictures), Task 13a `edec171` (thumbnails worked out at build time, catalogue warmed once after first paint; review Ready) and Task 13b `32ea347` (completeness check on, screenshots, `docs/library/pictures.html`). The pictures page was sent to the owner.
-- **Next:** the final whole-branch review from `review-final-brief.md` (set its HEAD to the branch head; a first run was lost to a container restart), then one fix wave as NEW commits (never amend pushed commits), then delete this tracked folder, then STOP and ask the owner about the merge (phone notification).
-- **For the owner to decide:** the @speed picker check "a few hundred exercises" lists 475 rows (the 225 catalogue exercises plus 250 stand-ins written before the catalogue grew; its comment at `web/e2e/library.spec.ts:166` is out of date). It passes, at parity with before the pictures, but with little room. The controller does not change that test.
-- **Parked for the fix wave:** the dev server does not refresh thumbnail data when the domain bundle changes while it runs (review-13a Minor); `docs/library/pictures/` holds three older draft files.
-- **Usage limit and restarts:** subagents can hit a 5-hour usage limit, and the container can restart; background agents are then lost or stopped. Push finished commits at once; resume a stopped builder with SendMessage or re-dispatch from its brief.
+- **Ledger:** `progress.md` in this folder. Read its last 15 entries first: the final review, the owner's decisions and the fix wave.
+- **Done, reviewed and pushed:** Tasks 1–13. All 225 pictures; build-time thumbnails `edec171`; completeness check on, screenshots and `docs/library/pictures.html` in `32ea347`. Final whole-branch review: Ready to merge, 0 Critical, 0 Important, 5 Minor (`review-final-report.md`).
+- **In progress: the final fix wave** (`task-14-fixwave-brief.md`), new commits on top of the branch head, never amended:
+  - A. Owner's finding: in the Smith calf raise (and the Barbell calf raise, same pose) the upper body reads as facing left while the feet point right. Redraw the bar-on-back hold so the body faces the way the feet point. The builder also lists other upright bar-on-back figures with the same look, for the owner; they are not changed.
+  - B. Split squat and Smith split squat take 140–240 ms to build; make them quick without changing the drawing.
+  - C. The dev server refreshes the thumbnail data when the domain bundle changes.
+  - D. One stale comment in `web/e2e/library.spec.ts` (text only).
+  - If the builder was cut off: check `git status` and `git log`; fixes already committed are done; finish the rest from the brief. Delete any temporary test file the builder left (for example `TmpDumpTest.kt`) before committing.
+- **After the fix wave, in this order:**
+  1. Look at the fixed calf raise renders; run `./gradlew :domain:jvmTest --tests '*figures*' :domain:checkWebDomain`, stop Gradle, run the speed project 5 times (`cd web && npx playwright test --project=speed --no-deps --trace off`); regenerate `docs/library/pictures.html` if the builder did not (`cd web && npm run figures:page`).
+  2. Send the owner the new Smith calf raise render and the list of other upright bar-on-back figures.
+  3. Remove from the branch the files the owner does not want merged: `.claude/agents/haiku-worker.md`, `.claude/agents/opus-builder.md`, `.claude/agents/sonnet-checker.md`, `.claude/skills/brain/SKILL.md`, `CLAUDE.md` (none exists on `main`). Do it last, with `git rm --cached` so the local copies stay: they define the subagents and the brain skill the session uses.
+  4. Delete this tracked folder (`docs/superpowers/sdd/`).
+  5. Push. Then STOP and ask the owner for a yes on the merge to `main` (phone notification). Never merge or open a pull request without it.
+- **Owner decisions (2026-11-13):** the picker "few hundred" speed check stays at 475 rows (only its comment is corrected); the Claude files above are not to be merged; the download size is fine; Android thumbnails off the main thread is a follow-up task (written into `docs/next-update.md`), not part of this merge. The two unrelated sections in `docs/next-update.md` stay unless the owner says otherwise.
+- **Usage limit and restarts:** subagents and the session can hit a 5-hour usage limit, and the container can restart; background agents are then lost or stopped. Push finished commits at once; resume a stopped builder with SendMessage or re-dispatch from its brief.
 
 ## The cycle each batch followed (Tasks 5–12, for reference)
 
