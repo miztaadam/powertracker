@@ -221,6 +221,12 @@ fun ExerciseBrowser(
     // A new search or filter starts from its best match, not from wherever the last list was scrolled to.
     LaunchedEffect(query, area, equipment, muscle, muscles) { listState.scrollToItem(0) }
     BackHandler(enabled = muscle != null) { state.browse(null) }
+    if (showThumbnails) {
+        val thumbnails = LocalThumbnails.current
+        // The head start: from the list's first showing, the loader's worker works out every catalogue thumbnail,
+        // in the order this list shows them. Only the first call counts, so it runs once per process.
+        LaunchedEffect(thumbnails) { thumbnails.warmUp(thumbnailOrder(list, byArea)) }
+    }
 
     Column(modifier.fillMaxSize()) {
         OutlinedTextField(
@@ -305,6 +311,16 @@ fun ExerciseBrowser(
 }
 
 private val PickerEntry.rowKey: String get() = catalogueName ?: "own-$exerciseId"
+
+/**
+ * The catalogue names of [list] in the order it shows them (under body areas when [byArea]), then the rest of the
+ * catalogue, each once: the warm-up's order. Names only: building it works nothing out.
+ */
+internal fun thumbnailOrder(list: PickerList, byArea: Boolean): List<String> {
+    // The same order as areaSections: the entries with no area first, then area by area, each area in the order given.
+    val all = if (byArea) list.all.sortedBy { it.library?.area?.ordinal ?: -1 } else list.all
+    return ((list.yours + all).mapNotNull { it.catalogueName } + Library.all().map { it.name }).distinct()
+}
 
 /** [entries] under their body areas, in the catalogue's area order; each area keeps the order it came in. */
 private fun LazyListScope.areaSections(entries: List<PickerEntry>, row: @Composable (PickerEntry) -> Unit) {

@@ -219,6 +219,10 @@ class ExercisePictureTest {
     @Test
     fun exercisesTab_rowsShowThumbnail() {
         showExercisesTab()
+        // The thumbnail is worked out in the background: wait for its drawing.
+        compose.waitUntil(10_000) {
+            compose.onAllNodes(hasTestTag("thumbnail-drawing") and hasAnyAncestor(hasTestTag("exercise-Bench")), useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
 
         val row = node("exercise-Bench")
         val thumbnail = compose.onNode(hasTestTag("exercise-thumbnail") and hasAnyAncestor(hasTestTag("exercise-Bench")), useUnmergedTree = true).fetchSemanticsNode()
