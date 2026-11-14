@@ -27,7 +27,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.minus
 
-/** Why a lagging group got no more work from a check-in. */
 /**
  * Why a lagging group got no more work: already at the ceiling; no candidate at all; no day with room; held for a
  * later check-in; or every direct exercise and candidate there was would take some group past the ceiling.

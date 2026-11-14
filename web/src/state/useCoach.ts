@@ -81,7 +81,7 @@ type Payload =
   | { kind: 'moreWork'; group: string; addSets: SetAdditionUi[]; newExercise: NewExerciseUi | null; weeklyBefore: number; weeklyAfter: number }
   | { kind: 'swap'; exerciseId: number; name: string; group: string; since: string; alternatives: string[] }
 
-/** The stored weekday name ("MONDAY") as 1 = Monday .. 7 = Sunday; the bridge already gives numbers. */
+/** A payload weekday as 1 = Monday .. 7 = Sunday: stored payloads hold the name ("MONDAY"); a number passes through. */
 const WEEKDAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
 const weekdayOf = (day: number | string): number => (typeof day === 'number' ? day : WEEKDAYS.indexOf(day) + 1)
 

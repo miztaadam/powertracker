@@ -207,7 +207,7 @@ export type BodyPartRow = {
 
 /**
  * Progress on the bodybuilding side: the body parts (stage 3), in the domain's order, then the plan's exercises
- * (spec §7.6), in plan order. `checkedIn` is false until the first check-in.
+ * (spec §7.6), in plan order. `checkedIn` is false until a check-in dated on or before today, as on Android.
  */
 export type BodybuildingProgressState = { loading: boolean; rows: BodybuildingRow[]; bodyParts: BodyPartRow[]; checkedIn: boolean }
 
@@ -216,7 +216,7 @@ export function buildBodybuildingProgress(history: JsHistory, plan: (PlanItemRow
   const jsPlan = plan.map(planItemToJs)
   return {
     loading: false,
-    checkedIn: checkIns.length > 0,
+    checkedIn: checkIns.some((c) => c.date <= today),
     bodyParts: grit.muscleProgressRows(history, jsPlan, checkIns.map(checkInToJs), today).map(
       (row): BodyPartRow => ({
         group: row.group,

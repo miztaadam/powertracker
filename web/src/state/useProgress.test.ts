@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { JsExercise, JsHistory, JsSession, JsSet } from '../domain'
 import { addDays } from './isoDate'
-import { buildProgress, type ChartRange } from './useProgress'
+import { buildBodybuildingProgress, buildProgress, type ChartRange } from './useProgress'
 
 // Ported from Android's ProgressViewModelBuildTest.
 
@@ -240,5 +240,17 @@ describe('buildProgress', () => {
     expect(on.prs.some((p) => p.lift === 'STRICT_PRESS')).toBe(false)
     expect(on.lifts.slice(0, -1)).toEqual(build(noPress).lifts)
     expect(build(noPress).totalKg).toBeCloseTo(517.5, 9)
+  })
+})
+
+describe('buildBodybuildingProgress', () => {
+  const checkIn = (date: string) => ({ id: 1, date, lagging: [], growingWell: [] })
+
+  it('checkedIn_onlyCountsACheckInOnOrBeforeToday', () => {
+    const empty = history()
+    expect(buildBodybuildingProgress(empty, [], today, []).checkedIn).toBe(false)
+    expect(buildBodybuildingProgress(empty, [], today, [checkIn(today)]).checkedIn).toBe(true)
+    // As on Android: a check-in dated after today does not count yet.
+    expect(buildBodybuildingProgress(empty, [], today, [checkIn(addDays(today, 1))]).checkedIn).toBe(false)
   })
 })

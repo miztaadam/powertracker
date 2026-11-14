@@ -196,7 +196,7 @@ data class JsAdvicePayload(
 @JsExport
 data class JsCheckIn(val date: String, val lagging: Array<String>, val growingWell: Array<String>, val id: Int = 0)
 
-/** A lagging [group] that got no advice: [reason] a `NoteReason` name (AT_CEILING, NO_EXERCISE, FULL, LATER). */
+/** A lagging [group] that got no advice: [reason] a `NoteReason` name (AT_CEILING, NO_EXERCISE, FULL, LATER, WOULD_PASS_CEILING). */
 @JsExport
 data class JsGroupNote(val group: String, val reason: String, val weeklySets: Int)
 
