@@ -133,7 +133,8 @@ class CoachViewModel(
                 muscles = AccessoryMap.muscles(payload.lift, payload.missPoint),
                 additions = weakPointAdditions(payload, plan, exercises),
             )
-            is AdvicePayload.Target -> null
+            // Stage 3's suggestions are not in this feed yet; they arrive with their own cards.
+            is AdvicePayload.Target, is AdvicePayload.MoreWork, is AdvicePayload.Swap -> null
         }
 
     /**
@@ -177,7 +178,7 @@ class CoachViewModel(
             is AdvicePayload.WeakPoint -> addToPlan(payload.lift, weakPointAdditions(payload, training.plan(settings.settings.first().trainingMode).first(), training.exercises().first()))
             is AdvicePayload.Deload -> "Deload week on — targets lightened for 7 days"
             is AdvicePayload.ReEntry -> "Easing back in for 7 days"
-            is AdvicePayload.Target -> return@once
+            is AdvicePayload.Target, is AdvicePayload.MoreWork, is AdvicePayload.Swap -> return@once
         }
         advice.setStatus(adviceId, AdviceStatus.APPLIED)
         _messages.send(message)
