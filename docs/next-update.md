@@ -98,6 +98,36 @@ Not yet tried on real phones: the plan builder line in README's manual checklist
 
 Still to come, each with its own plan (spec §8): stage 3, check-ins, the lagging-muscle coach and a body-part Progress; stage 4, stretch and squeeze cues.
 
+## Bodybuilding mode: stage 3 done, check-ins and the lagging-muscle coach (version 1.4, both apps)
+Plan: `docs/superpowers/plans/2026-11-14-grit-bodybuilding-mode-stage-3.md`.
+
+What the lifter gets:
+- A **check-in** every 4 weeks on the bodybuilding side (and at any time from Progress): every body part starts "on track", and the lifter marks the ones that are lagging and the ones growing well. The coach never judges this for them.
+- **More work for a lagging body part**, as a suggestion in the Coach feed: one more set on up to two of its exercises, or else one new exercise. One tap adds it to the plan; nothing changes without that tap. If the plan has changed since, only what still matches is added, and the card says so.
+- **A swap** when an exercise has been stuck for 3 weeks (no heavier weight and no more reps), with up to 3 alternatives that train the same body part. Body parts marked growing well are left alone: no more work and no swaps.
+- A **Body parts** section on Progress: for each body part, its ratings at the last 4 check-ins, the sets done in the last 7 days, its weekly sets in the plan, and how many of its exercises are going up.
+- Check-ins go in the backup, now version 4. A version 3 file still restores (with no check-ins); an older app refuses a version 4 file, so update both apps together.
+- The powerlifting side is unchanged: no check-in, no new suggestions, the same Progress.
+
+The sourced number (recorded in `CoachSources.kt`, `CoachSources.WEEKLY_CEILING`):
+- At most **20 counted sets a week for one body part**: Baz-Valle et al. 2022, "A Systematic Review of The Effects of Different Resistance Training Volumes on Muscle Hypertrophy", J Hum Kinet 81: 199–210 (https://pmc.ncbi.nlm.nih.gov/articles/PMC8884877/). In trained men, 12–20 weekly sets per muscle was the best range for growth, with no added benefit above 20. The coach takes 20 as a ceiling, not an aim. Grit counts a set in full for every body part an exercise works, so a body part reaches 20 sooner than by the study's count: the ceiling errs on the side of less.
+
+The designer's own numbers, not from the sources (for the owner to judge):
+- A round of more work adds one set to at most 2 exercises for the body part, or else one new exercise.
+- No exercise is taken above 4 sets.
+- A new exercise is 3 × 8–12 at RPE 8, added at the end of a training day.
+- A check-in falls due 28 days after the last one.
+- An exercise is stuck when it has not moved for 21 days and was done at least twice in that time.
+- No second swap for the same exercise within 28 days.
+- Up to 3 alternatives with a swap.
+
+The two whole-week limits, not from the sources, approved by the owner on 2026-11-14:
+- No allowed source gives a ceiling on a whole week's sets. In its place the week grows slowly: at most 3 body parts get more work from one check-in, and no session grows above 10 exercises.
+
+Not yet tried on real phones: the check-in line in README's manual checklist matters.
+
+Still to come, with its own plan (spec §8): stage 4, stretch and squeeze cues.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
