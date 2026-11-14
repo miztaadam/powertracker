@@ -27,6 +27,8 @@ export type CheckInState = {
   saved: SavedLine[]
   /** After saving: whether any body part got more work, so Coach has a card to see. */
   hasAdvice: boolean
+  /** True while Save is storing: Save is disabled until it is done. */
+  saving: boolean
 }
 
 export type CheckInActions = {
@@ -79,6 +81,7 @@ export function useCheckIn(db: GritDb, today: () => string): CheckInState & Chec
   const [growingWell, setGrowingWell] = useState<string[]>([])
   const [saved, setSaved] = useState<SavedLine[]>([])
   const saving = useRef(false)
+  const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     let live = true
@@ -105,12 +108,14 @@ export function useCheckIn(db: GritDb, today: () => string): CheckInState & Chec
   const save = useCallback(async () => {
     if (saving.current) return
     saving.current = true
+    setBusy(true)
     try {
       const lines = await storeCheckIn(db, clock.current(), lagging, growingWell)
       setSaved(lines)
       setStep('saved')
     } finally {
       saving.current = false
+      setBusy(false)
     }
   }, [db, lagging, growingWell])
 
@@ -122,6 +127,7 @@ export function useCheckIn(db: GritDb, today: () => string): CheckInState & Chec
     growingWell,
     saved,
     hasAdvice: saved.some((l) => l.kind === 'advice'),
+    saving: busy,
     toggleLagging,
     toggleGrowing,
     next,

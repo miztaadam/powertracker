@@ -40,6 +40,8 @@ type Story = {
    * cable crossover stuck since, with its open SWAP advice: a check-in is due again. The payloads are the domain's.
    */
   checkInDue?: boolean
+  /** Two check-ins (chest lagging four weeks ago, then growing well with lats two days ago), for Progress's ratings. */
+  checkIns?: boolean
 }
 
 /**
@@ -47,7 +49,7 @@ type Story = {
  * the bodybuilding plan (Monday, Wednesday, Friday), a powerlifting plan beside it, and two weeks of sessions.
  */
 async function seedStory(page: Page, story: Story = {}) {
-  await page.evaluate(async ({ todaySession = false, bodybuildingLeftOn = null, deload = false, checkInDue = false }) => {
+  await page.evaluate(async ({ todaySession = false, bodybuildingLeftOn = null, deload = false, checkInDue = false, checkIns = false }) => {
     const db = await new Promise<IDBDatabase>((done, fail) => {
       const request = indexedDB.open('grit')
       request.onsuccess = () => done(request.result)
@@ -132,6 +134,10 @@ async function seedStory(page: Page, story: Story = {}) {
         payloadJson: `{"type":"${P}.Swap","exerciseId":${crossover},"name":"Cable crossover","group":"CHEST","since":"2026-10-14","alternatives":["DB fly","Seated cable fly","Incline DB fly"]}`,
         mode: 'BODYBUILDING',
       })
+    }
+    if (checkIns) {
+      tx.objectStore('checkIns').add({ date: '2026-10-14', lagging: ['CHEST'], growingWell: [] })
+      tx.objectStore('checkIns').add({ date: '2026-11-09', lagging: [], growingWell: ['CHEST', 'LATS'] })
     }
     if (todaySession)
       await session('2026-11-11', [
@@ -318,6 +324,12 @@ for (const scheme of ['dark', 'light'] as const) {
       expect(await fitsThePhone(page)).toBe(true)
       await shoot(page, `checkin-lagging-bodybuilding-${scheme}`, 844)
       await page.getByRole('button', { name: 'Next' }).click()
+      // The browser's Back steps back to step 1, ticks kept, and Next goes on again.
+      await expect(page.getByRole('heading', { name: 'Which are growing well?' })).toBeVisible()
+      await page.goBack()
+      await expect(page.getByRole('heading', { name: 'Which body parts are lagging?' })).toBeVisible()
+      await expect(page.getByRole('checkbox', { name: 'Chest' })).toBeChecked()
+      await page.getByRole('button', { name: 'Next' }).click()
 
       await expect(page.getByRole('heading', { name: 'Which are growing well?' })).toBeVisible()
       await expect(page.getByRole('checkbox', { name: 'Chest' })).toBeDisabled()
@@ -345,7 +357,13 @@ for (const scheme of ['dark', 'light'] as const) {
 
     test('progress: each exercise’s best sets and whether it is going up', async ({ page }) => {
       await openOnWednesday(page, '#/progress')
-      await seedStory(page)
+      await seedStory(page, { checkIns: true })
+      // The body parts: each one's latest rating, and the earlier ones, oldest first.
+      const parts = page.getByRole('region', { name: 'Body parts' })
+      const chest = parts.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'Chest', exact: true }) })
+      await expect(chest).toContainText('Growing well')
+      await expect(chest).toContainText('Earlier: Lagging')
+      await expect(parts.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'Upper back', exact: true }) })).toContainText('On track')
       const incline = page.getByRole('button', { name: /^Incline DB press/ })
       await expect(incline).toContainText('24 × 12')
       await expect(incline).toContainText('26 × 11')
@@ -584,4 +602,16 @@ test('a check-in story: build a plan, train four weeks, check in, apply the coac
   await expect(row('Quads')).toContainText('Growing well')
   await expect(row('Lats')).toContainText('On track')
   await expect(page.getByText('Your first check-in is four weeks after your first bodybuilding session. You can check in any time.')).toHaveCount(0)
+})
+
+test('the check-in: the browser’s Back from step 1 leaves for where it was opened', async ({ page }) => {
+  await openOnWednesday(page, '#/progress')
+  await seedStory(page)
+  await page.getByRole('button', { name: 'Check in' }).click()
+  await page.getByRole('button', { name: 'Next' }).click()
+  await page.goBack()
+  await expect(page.getByRole('heading', { name: 'Which body parts are lagging?' })).toBeVisible()
+  await page.goBack()
+  await expect(page).toHaveURL(/#\/progress$/)
+  await expect(page.getByRole('heading', { level: 1, name: 'Progress' })).toBeVisible()
 })

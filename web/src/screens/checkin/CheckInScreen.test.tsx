@@ -182,6 +182,63 @@ describe('the check-in screen', () => {
     expect(screen.queryByRole('heading', { name: LAGGING_QUESTION })).toBeNull()
   })
 
+  it('browserBack_onStep2_goesBackToStep1_keepingTheTicks', async () => {
+    await defaultPlan()
+    const { onLeave } = show()
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Chest' }))
+    await tap('Next')
+    await userEvent.click(box('Quads'))
+    window.history.back()
+    expect(await screen.findByRole('heading', { name: LAGGING_QUESTION })).toBeInTheDocument()
+    expect((box('Chest') as HTMLInputElement).checked).toBe(true)
+    expect(onLeave).not.toHaveBeenCalled()
+    // Forward again by Next: growing well is as it was left.
+    await tap('Next')
+    expect((box('Quads') as HTMLInputElement).checked).toBe(true)
+    // The on-screen Back does the same as the browser's.
+    await tap('Back')
+    expect(await screen.findByRole('heading', { name: LAGGING_QUESTION })).toBeInTheDocument()
+  })
+
+  it('afterSaving_theStepIsGoneFromHistory_soDoneLeavesFromWhereItWasOpened', async () => {
+    await defaultPlan()
+    window.history.replaceState({ gritFrom: '#/progress' }, '')
+    const length = window.history.length
+    const { onDone } = show()
+    await tap('Next')
+    expect((window.history.state as { checkInStep?: string }).checkInStep).toBe('growing')
+    await tap('Save')
+    expect(await screen.findByRole('heading', { name: SAVED_TITLE })).toBeInTheDocument()
+    await waitFor(() => expect((window.history.state as { gritFrom?: string; checkInStep?: string })).toEqual({ gritFrom: '#/progress' }))
+    // Still on the saved step after the step entry is gone.
+    expect(screen.getByRole('heading', { name: SAVED_TITLE })).toBeInTheDocument()
+    expect(window.history.length).toBeGreaterThanOrEqual(length)
+    await tap('Done')
+    expect(onDone).toHaveBeenCalled()
+  })
+
+  it('closeOnStep2_leavesWithoutSaving', async () => {
+    await defaultPlan()
+    const { onLeave } = show()
+    await tap('Next')
+    await tap('Close')
+    await waitFor(() => expect(onLeave).toHaveBeenCalled())
+    expect((window.history.state as { checkInStep?: string } | null)?.checkInStep).toBeUndefined()
+    expect(await db.checkIns.count()).toBe(0)
+  })
+
+  it('save_isDisabledWhileSaving', async () => {
+    await defaultPlan()
+    show()
+    await tap('Next')
+    const transaction = vi.spyOn(db, 'transaction').mockImplementation((() => new Promise(() => {})) as never)
+    await tap('Save')
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }))
+    expect(transaction).toHaveBeenCalledTimes(1)
+    transaction.mockRestore()
+  })
+
   it('aFailedSave_changesNothing_andSaysSo', async () => {
     await defaultPlan()
     await db.advice.add(MORE_WORK_OPEN)

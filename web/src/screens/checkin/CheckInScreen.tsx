@@ -66,8 +66,42 @@ type ContentProps = { state: CheckInState; actions: CheckInActions; onLeave: () 
 
 const groups = () => grit.muscleGroups().map((id) => ({ id, label: grit.muscleGroupLabel(id) }))
 
+/** What the history entry of step 2 carries, beside what the page's own entry had (its `gritFrom`). */
+type StepEntry = { checkInStep?: 'growing' }
+const onStepEntry = () => (window.history.state as StepEntry | null)?.checkInStep === 'growing'
+
 function CheckInContent({ state, actions, onLeave, onSeeCoach, onDone }: ContentProps) {
   const { step } = state
+  // Step 2 has its own history entry (same address), so the browser's Back steps back to step 1, as Android's does;
+  // Back from step 1 leaves. What to do on the next popstate when it is not that: stay (after saving) or leave.
+  const nextPop = useRef<null | 'stay' | (() => void)>(null)
+  const stepNow = useRef(step)
+  stepNow.current = step
+  const { back } = actions
+  useEffect(() => {
+    const onPop = () => {
+      const then = nextPop.current
+      nextPop.current = null
+      if (then === 'stay') return
+      if (then != null) then()
+      else if (stepNow.current === 'growing') back()
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [back])
+  const next = () => {
+    window.history.pushState({ ...((window.history.state as object | null) ?? {}), checkInStep: 'growing' } satisfies StepEntry, '')
+    actions.next()
+  }
+  /** Drops step 2's entry, then does `then` ('stay' keeps the screen as it is). */
+  const dropStepEntry = (then: 'stay' | (() => void)) => {
+    if (!onStepEntry()) {
+      if (then !== 'stay') then()
+      return
+    }
+    nextPop.current = then
+    window.history.back()
+  }
   // A failed save is a plain line over the buttons, until the next try.
   const [failed, setFailed] = useState(false)
   const failure = useRef<HTMLParagraphElement>(null)
@@ -78,6 +112,8 @@ function CheckInContent({ state, actions, onLeave, onSeeCoach, onDone }: Content
     setFailed(false)
     try {
       await actions.save()
+      // Saved: Back no longer goes to step 2, and Done or See Coach leave from the page's own entry.
+      dropStepEntry('stay')
     } catch {
       setFailed(true)
     }
@@ -89,7 +125,7 @@ function CheckInContent({ state, actions, onLeave, onSeeCoach, onDone }: Content
         title={CHECK_IN_TITLE}
         eyebrow={eyebrow}
         label={<ModeLabel />}
-        navigation={step === 'saved' ? undefined : <IconButton label="Close" icon={<CloseIcon />} onClick={onLeave} />}
+        navigation={step === 'saved' ? undefined : <IconButton label="Close" icon={<CloseIcon />} onClick={() => dropStepEntry(onLeave)} />}
       />
       {step === 'lagging' && (
         <div className="screen-body ci-body">
@@ -136,11 +172,12 @@ function CheckInContent({ state, actions, onLeave, onSeeCoach, onDone }: Content
         </div>
       )}
       <div className="ci-actions">
-        {step === 'lagging' && <PrimaryButton text="Next" onClick={actions.next} />}
+        {step === 'lagging' && <PrimaryButton text="Next" onClick={next} />}
         {step === 'growing' && (
           <>
-            <SecondaryButton text="Back" onClick={actions.back} />
-            <PrimaryButton text="Save" onClick={() => void save()} />
+            {/* As the browser's Back: through history when step 2 has its entry. */}
+            <SecondaryButton text="Back" onClick={() => (onStepEntry() ? window.history.back() : actions.back())} />
+            <PrimaryButton text="Save" onClick={() => void save()} enabled={!state.saving} />
           </>
         )}
         {step === 'saved' && (

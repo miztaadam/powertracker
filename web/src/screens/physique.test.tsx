@@ -203,6 +203,50 @@ describe('Coach: more work', () => {
   })
 })
 
+describe('Coach: a failed write', () => {
+  const failing = () => {
+    throw new Error('disk full')
+  }
+
+  it('moreWork_addToPlan_leavesThePlanAndTheCardAndSaysSo', async () => {
+    await defaultPlan()
+    await checkIn(['CHEST'])
+    const before = await planRows()
+    // The set additions are updates of planned items.
+    db.planItems.hook('updating', failing)
+    try {
+      showCoach()
+      await userEvent.click(within(await card('Chest is lagging')).getByRole('button', { name: 'Add to plan' }))
+      expect(await screen.findByText("Couldn't update — try again")).toBeInTheDocument()
+      expect(await card('Chest is lagging')).toBeInTheDocument()
+    } finally {
+      db.planItems.hook('updating').unsubscribe(failing)
+    }
+    expect(await planRows()).toEqual(before)
+    expect((await db.advice.toArray()).map((a) => a.status)).toEqual(['OPEN'])
+  })
+
+  it('swap_leavesThePlanAndTheCardAndSaysSo', async () => {
+    await defaultPlan()
+    await stuckLegPress()
+    await storeStuck()
+    const before = await planRows()
+    // The swap's new items are added (its old ones deleted first, in the same transaction).
+    db.planItems.hook('creating', failing)
+    try {
+      showCoach()
+      await userEvent.click(within(await card("Leg press hasn't moved in 3 weeks")).getByRole('button', { name: 'Swap for Hack squat' }))
+      expect(await screen.findByText("Couldn't update — try again")).toBeInTheDocument()
+      expect(await screen.findByRole('button', { name: 'Swap for Hack squat' })).toBeInTheDocument()
+    } finally {
+      db.planItems.hook('creating').unsubscribe(failing)
+    }
+    expect(await planRows()).toEqual(before)
+    expect((await db.advice.toArray()).map((a) => a.status)).toEqual(['OPEN'])
+    expect((await db.exercises.toArray()).some((e) => e.name === 'Hack squat')).toBe(false)
+  })
+})
+
 describe('Coach: a stuck exercise', () => {
   it('card_andSwap_replacesItOnEveryPlannedDay_keepingThePrescription', async () => {
     await defaultPlan()
