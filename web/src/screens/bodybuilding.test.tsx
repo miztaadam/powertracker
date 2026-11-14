@@ -144,10 +144,12 @@ describe('Today on the bodybuilding side', () => {
     expect(await screen.findByText('26 kg × 8–12 @ 8')).toBeInTheDocument()
     expect(screen.getByText('Last time: 26 × 11, 10, 9. Beat it.')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Apply' }))
-    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Weight, kilograms' })).toHaveValue('26'))
-    // Set 1 did 11 last time: 12 to beat it.
-    expect(screen.getByRole('textbox', { name: 'Reps' })).toHaveValue('12')
-    expect(screen.getByRole('textbox', { name: 'RPE' })).toHaveValue('8')
+    // Set 1 did 11 last time: 12 to beat it. The three fields fill together, so wait for all of them.
+    await waitFor(() => {
+      expect(screen.getByRole('textbox', { name: 'Weight, kilograms' })).toHaveValue('26')
+      expect(screen.getByRole('textbox', { name: 'Reps' })).toHaveValue('12')
+      expect(screen.getByRole('textbox', { name: 'RPE' })).toHaveValue('8')
+    })
     const stored = await targets(db)
     expect(stored.map((t) => [t.mode, t.status])).toEqual([['BODYBUILDING', 'APPLIED']])
   })
