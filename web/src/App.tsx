@@ -5,6 +5,7 @@ import { singleTabGuard, type SingleTabGuard, type TabRole } from './platform/si
 import { acceptPrivateMode, detectPrivateMode, privateModeAccepted, requestPersistence } from './platform/storage'
 import { UPDATE_READY, useUpdatePrompt, type RegisterSW } from './platform/update'
 import { goBack, leave, navigate, useRoute, type Route } from './router'
+import { CheckInScreen } from './screens/checkin/CheckInScreen'
 import { CoachScreen } from './screens/coach/CoachScreen'
 import { InstallCard } from './screens/install/InstallCard'
 import { ExercisesScreen } from './screens/library/ExercisesScreen'
@@ -50,19 +51,24 @@ type Kept = { session: TodayState & TodayActions; browser: ExerciseBrowser }
 function screenFor(route: Route, db: GritDb, { session, browser }: Kept): ReactNode {
   const openSettings = () => navigate({ page: 'settings' })
   const openBuilder = () => navigate({ page: 'planBuilder' })
+  const openCheckIn = () => navigate({ page: 'checkIn' })
   if ('tab' in route) {
     const openPlan = () => navigate({ tab: 'plan' })
     if (route.tab === 'today') return <TodayView db={db} session={session} onOpenCoach={() => navigate({ tab: 'coach' })} onOpenSettings={openSettings} onOpenPlan={openPlan} onOpenBuilder={openBuilder} banner={<InstallCard db={db} />} />
-    if (route.tab === 'coach') return <CoachScreen db={db} onOpenPlan={openPlan} onOpenBuilder={openBuilder} />
-    if (route.tab === 'progress') return <ProgressScreen db={db} onOpenLift={(lift) => navigate({ page: 'lift', lift })} onOpenExercise={(exerciseId) => navigate({ page: 'exercise', exerciseId })} />
+    if (route.tab === 'coach') return <CoachScreen db={db} onOpenPlan={openPlan} onOpenBuilder={openBuilder} onOpenCheckIn={openCheckIn} />
+    if (route.tab === 'progress') return <ProgressScreen db={db} onOpenLift={(lift) => navigate({ page: 'lift', lift })} onOpenExercise={(exerciseId) => navigate({ page: 'exercise', exerciseId })} onCheckIn={openCheckIn} />
     if (route.tab === 'exercises') return <ExercisesScreen db={db} session={session} browser={browser} onOpenPlan={() => navigate({ tab: 'plan' })} onOpenToday={() => navigate({ tab: 'today' })} />
     return <PlanScreen db={db} onOpenSettings={openSettings} onBuildPlan={openBuilder} />
   }
   if (route.page === 'planBuilder') return <PlanBuilderScreen db={db} onLeave={leaveBuilder} onDone={() => goBack({ tab: 'plan' })} />
+  if (route.page === 'checkIn') return <CheckInScreen db={db} onLeave={leaveCheckIn} onSeeCoach={() => goBack({ tab: 'coach' })} onDone={leaveCheckIn} />
   if (route.page === 'settings') return <SettingsScreen db={db} onBack={() => goBack({ tab: 'plan' })} />
   if (route.page === 'exercise') return <ExerciseHistoryScreen db={db} exerciseId={route.exerciseId} onBack={() => goBack({ tab: 'progress' })} />
   return <LiftHistoryScreen db={db} lift={route.lift} onBack={() => goBack({ tab: 'progress' })} />
 }
+
+/** Leaving the check-in, saved or not, goes back where it was opened from (Coach or Progress), or to Coach. */
+const leaveCheckIn = () => leave({ tab: 'coach' })
 
 /** Leaving the builder unsaved goes back where it was opened from (Plan, Today or Coach), or to Plan. */
 const leaveBuilder = () => leave({ tab: 'plan' })

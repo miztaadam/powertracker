@@ -21,6 +21,14 @@ export declare namespace GritDomain {
             evaluate(history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
             coachingTargetsFor(mode: string, weekday: number, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
             coachingEvaluate(mode: string, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
+            coachingEvaluateWithCheckIns(mode: string, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>, checkIns: Array<JsCheckIn>): Array<JsAdvice>;
+            coachingCheckInDue(history: JsHistory, plan: Array<JsPlanItem>, checkIns: Array<JsCheckIn>, today: string): boolean;
+            physiqueAfterCheckIn(checkIn: JsCheckIn, history: JsHistory, plan: Array<JsPlanItem>, today: string, prior: Array<JsAdvice>): JsCheckInOutcome;
+            physiqueStuck(history: JsHistory, plan: Array<JsPlanItem>, checkIns: Array<JsCheckIn>, prior: Array<JsAdvice>, today: string): Array<JsAdvice>;
+            physiqueApplyMoreWork(payloadJson: string, plan: Array<JsPlanItem>, exercises: Array<JsExercise>): JsPlanChange;
+            physiqueApplySwap(payloadJson: string, choice: string, plan: Array<JsPlanItem>, exercises: Array<JsExercise>): JsPlanChange;
+            physiqueWeeklySets(plan: Array<JsPlanItem>, exercises: Array<JsExercise>, group: string): number;
+            muscleProgressRows(history: JsHistory, plan: Array<JsPlanItem>, checkIns: Array<JsCheckIn>, today: string): Array<JsMuscleRow>;
             welcomeBack(leftOn: Nullable<string>, today: string, hasPlan: boolean): boolean;
             repsToBeat(item: JsPlanItem, history: JsHistory, setNumber: number, today: string): number;
             bodybuildingProgress(history: JsHistory, plan: Array<JsPlanItem>, today: string): Array<JsExerciseTrend>;
@@ -331,8 +339,45 @@ export declare namespace JsPrescription {
         const constructor: abstract new () => JsPrescription;
     }
 }
+export declare class JsSetAddition {
+    constructor(weekday: number, exerciseId: number, name: string, fromSets: number, toSets: number);
+    get weekday(): number;
+    get exerciseId(): number;
+    get name(): string;
+    get fromSets(): number;
+    get toSets(): number;
+    copy(weekday?: number, exerciseId?: number, name?: string, fromSets?: number, toSets?: number): JsSetAddition;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsSetAddition {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsSetAddition;
+    }
+}
+export declare class JsNewExercise {
+    constructor(weekday: number, name: string, sets: number, repsLow: number, repsHigh: number, rpe: number);
+    get weekday(): number;
+    get name(): string;
+    get sets(): number;
+    get repsLow(): number;
+    get repsHigh(): number;
+    get rpe(): number;
+    copy(weekday?: number, name?: string, sets?: number, repsLow?: number, repsHigh?: number, rpe?: number): JsNewExercise;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsNewExercise {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsNewExercise;
+    }
+}
 export declare class JsAdvicePayload {
-    constructor(kind: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>);
+    constructor(kind: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>, group?: Nullable<string>, addSets?: Array<JsSetAddition>, newExercise?: Nullable<JsNewExercise>, weeklyBefore?: Nullable<number>, weeklyAfter?: Nullable<number>, name?: Nullable<string>, since?: Nullable<string>, alternatives?: Array<string>);
     get kind(): string;
     get exerciseId(): Nullable<number>;
     get weightKg(): Nullable<number>;
@@ -345,7 +390,15 @@ export declare class JsAdvicePayload {
     get lift(): Nullable<string>;
     get missPoint(): Nullable<string>;
     get repsHigh(): Nullable<number>;
-    copy(kind?: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>): JsAdvicePayload;
+    get group(): Nullable<string>;
+    get addSets(): Array<JsSetAddition>;
+    get newExercise(): Nullable<JsNewExercise>;
+    get weeklyBefore(): Nullable<number>;
+    get weeklyAfter(): Nullable<number>;
+    get name(): Nullable<string>;
+    get since(): Nullable<string>;
+    get alternatives(): Array<string>;
+    copy(kind?: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>, group?: Nullable<string>, addSets?: Array<JsSetAddition>, newExercise?: Nullable<JsNewExercise>, weeklyBefore?: Nullable<number>, weeklyAfter?: Nullable<number>, name?: Nullable<string>, since?: Nullable<string>, alternatives?: Array<string>): JsAdvicePayload;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;
@@ -354,6 +407,122 @@ export declare namespace JsAdvicePayload {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsAdvicePayload;
+    }
+}
+export declare class JsCheckIn {
+    constructor(date: string, lagging: Array<string>, growingWell: Array<string>, id?: number);
+    get date(): string;
+    get lagging(): Array<string>;
+    get growingWell(): Array<string>;
+    get id(): number;
+    copy(date?: string, lagging?: Array<string>, growingWell?: Array<string>, id?: number): JsCheckIn;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsCheckIn {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsCheckIn;
+    }
+}
+export declare class JsGroupNote {
+    constructor(group: string, reason: string, weeklySets: number);
+    get group(): string;
+    get reason(): string;
+    get weeklySets(): number;
+    copy(group?: string, reason?: string, weeklySets?: number): JsGroupNote;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGroupNote {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGroupNote;
+    }
+}
+export declare class JsCheckInOutcome {
+    constructor(advice: Array<JsAdvice>, notes: Array<JsGroupNote>, dismissed: Array<JsAdvice>);
+    get advice(): Array<JsAdvice>;
+    get notes(): Array<JsGroupNote>;
+    get dismissed(): Array<JsAdvice>;
+    copy(advice?: Array<JsAdvice>, notes?: Array<JsGroupNote>, dismissed?: Array<JsAdvice>): JsCheckInOutcome;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsCheckInOutcome {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsCheckInOutcome;
+    }
+}
+export declare class JsAddedPlanItem {
+    constructor(item: JsPlanItem, name: string);
+    get item(): JsPlanItem;
+    get name(): string;
+    copy(item?: JsPlanItem, name?: string): JsAddedPlanItem;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsAddedPlanItem {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsAddedPlanItem;
+    }
+}
+export declare class JsPlanChange {
+    constructor(updated: Array<JsPlanItem>, removed: Array<JsPlanItem>, added: Array<JsAddedPlanItem>, message: string, changed: boolean);
+    get updated(): Array<JsPlanItem>;
+    get removed(): Array<JsPlanItem>;
+    get added(): Array<JsAddedPlanItem>;
+    get message(): string;
+    get changed(): boolean;
+    copy(updated?: Array<JsPlanItem>, removed?: Array<JsPlanItem>, added?: Array<JsAddedPlanItem>, message?: string, changed?: boolean): JsPlanChange;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsPlanChange {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsPlanChange;
+    }
+}
+export declare class JsRating {
+    constructor(date: string, rating: string);
+    get date(): string;
+    get rating(): string;
+    copy(date?: string, rating?: string): JsRating;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsRating {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsRating;
+    }
+}
+export declare class JsMuscleRow {
+    constructor(group: string, ratings: Array<JsRating>, setsDone: number, setsPlanned: number, exercisesUp: number, exercisesTracked: number);
+    get group(): string;
+    get ratings(): Array<JsRating>;
+    get setsDone(): number;
+    get setsPlanned(): number;
+    get exercisesUp(): number;
+    get exercisesTracked(): number;
+    copy(group?: string, ratings?: Array<JsRating>, setsDone?: number, setsPlanned?: number, exercisesUp?: number, exercisesTracked?: number): JsMuscleRow;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsMuscleRow {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsMuscleRow;
     }
 }
 export declare class JsFormGuide {

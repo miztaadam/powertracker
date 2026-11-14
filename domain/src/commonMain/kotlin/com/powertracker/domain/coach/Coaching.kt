@@ -2,6 +2,7 @@ package com.powertracker.domain.coach
 
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdviceType
+import com.powertracker.domain.model.CheckIn
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
@@ -43,6 +44,10 @@ object Coaching {
      * the lifter: easing back in after a break and the fatigue deload (the same rule and the same one-at-a-time
      * rails as on the powerlifting side). The deload's other signals read only powerlifting sessions, so on the
      * bodybuilding side low readiness (over every session, as the rule reads it) is enough by itself.
+     *
+     * From stage 3 the bodybuilding side also gets [PhysiqueCoach.stuck]'s SWAP advice, reading [checkIns] for the
+     * growing-well groups; a deload or easing-back-in made in this same call counts as one created today. The
+     * powerlifting side ignores [checkIns].
      */
     fun evaluate(
         mode: TrainingMode,
@@ -51,6 +56,7 @@ object Coaching {
         settings: CoachSettings,
         today: LocalDate,
         priorAdvice: List<Advice>,
+        checkIns: List<CheckIn> = emptyList(),
     ): List<Advice> {
         val advice = Coach.evaluate(
             history, plan.on(mode), settings, today, priorAdvice.forSide(mode),
@@ -59,8 +65,31 @@ object Coaching {
         val kept = when (mode) {
             TrainingMode.POWERLIFTING -> advice
             TrainingMode.BODYBUILDING -> advice.filter { it.type == AdviceType.RE_ENTRY || it.type == AdviceType.DELOAD }
+        }.map { it.copy(mode = mode) }
+        return when (mode) {
+            TrainingMode.POWERLIFTING -> kept
+            TrainingMode.BODYBUILDING -> kept + PhysiqueCoach.stuck(history, plan.on(mode), checkIns, priorAdvice.forSide(mode) + kept, today)
         }
-        return kept.map { it.copy(mode = mode) }
+    }
+
+    /** Whether a check-in is due on the bodybuilding side ([PhysiqueCoach.checkInDue]). */
+    fun checkInDue(history: TrainingHistory, plan: List<PlanItem>, checkIns: List<CheckIn>, today: LocalDate): Boolean =
+        PhysiqueCoach.checkInDue(history, plan.on(TrainingMode.BODYBUILDING), checkIns, today)
+
+    /**
+     * What saving [checkIn] gives ([PhysiqueCoach.afterCheckIn]), from the bodybuilding side's plan only, with its
+     * advice stamped BODYBUILDING. The OPEN MORE_WORK advice of that side in [priorAdvice] comes back dismissed.
+     */
+    fun afterCheckIn(
+        checkIn: CheckIn,
+        history: TrainingHistory,
+        plan: List<PlanItem>,
+        today: LocalDate,
+        priorAdvice: List<Advice> = emptyList(),
+    ): CheckInOutcome {
+        val side = TrainingMode.BODYBUILDING
+        val outcome = PhysiqueCoach.afterCheckIn(checkIn, history, plan.on(side), today, priorAdvice.filter { it.mode == side })
+        return outcome.copy(advice = outcome.advice.map { it.copy(mode = side) })
     }
 
     /** The welcome-back card: this side has a plan and was left more than 30 days before [today]. */

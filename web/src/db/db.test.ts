@@ -416,9 +416,9 @@ describe('strict press upgrade', () => {
 
     // The same upgrade again, as a version on top.
     const upgrade = SCHEMA_VERSIONS.find((v) => v.version === 2)!.upgrade
-    const again = await openDb([...SCHEMA_VERSIONS, { version: 4, stores: {}, upgrade }])
+    const again = await openDb([...SCHEMA_VERSIONS, { version: 5, stores: {}, upgrade }])
 
-    expect(await installedVersion(name)).toBe(4)
+    expect(await installedVersion(name)).toBe(5)
     expect(await again.exercises.orderBy('id').toArray()).toEqual(once)
     expect((await rows(again)).slice(3)).toEqual([
       { id: 4, name: 'Strict press', category: 'STRICT_PRESS', isBuiltIn: true, archived: false },

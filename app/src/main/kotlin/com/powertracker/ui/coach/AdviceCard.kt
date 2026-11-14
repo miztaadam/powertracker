@@ -111,6 +111,8 @@ fun CoachAdviceCard(card: CoachCard, onApply: () -> Unit, onDismiss: () -> Unit,
                     }
                 }
             }
+            // Drawn by their own cards (PhysiqueCards.kt).
+            is CardDetail.MoreWork, is CardDetail.Swap -> Unit
         }
     }
 }

@@ -18,7 +18,7 @@ kotlin {
         nodejs {
             // A time limit, not an assertion: the golden-scenario checks take about a second on Node and went past
             // mocha's default 2 s on a busy machine.
-            testTask { useMocha { timeout = "10s" } }
+            testTask { useMocha { timeout = "20s" } }
         }
         binaries.library()
         generateTypeScriptDefinitions()

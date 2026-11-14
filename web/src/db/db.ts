@@ -5,6 +5,7 @@ import {
   SCHEMA_VERSIONS,
   type AdviceRow,
   type BaselineRow,
+  type CheckInRow,
   type ExerciseRow,
   type KeyValueRow,
   type PlanItemRow,
@@ -72,6 +73,7 @@ export class GritDb extends Dexie {
   baselines!: EntityTable<BaselineRow, 'exerciseId'>
   settings!: EntityTable<KeyValueRow, 'key'>
   meta!: EntityTable<KeyValueRow, 'key'>
+  checkIns!: EntityTable<CheckInRow, 'id'>
 
   constructor(name: string, versions: SchemaVersion[]) {
     super(name)

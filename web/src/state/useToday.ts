@@ -1,6 +1,7 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { addSet, planFor } from '../db/catalogue'
+import { checkInToJs, loadCheckIns } from '../db/checkIns'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
 import { sideOf, type AdviceRow, type PlanItemRow, type SetRow, type TrainingMode } from '../db/schema'
@@ -801,12 +802,14 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     try {
       // Advice is dated by the real clock: a session finished after midnight stores nothing under the day before.
       const clockDay = clock.current()
-      const newNotes = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice], async () => {
+      const newNotes = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.checkIns], async () => {
         // The coach of the session's own side looks at it, also after a switch since it was started.
         const side = now.side
-        const [history, plan, settings, advice] = await Promise.all([loadHistory(db), planFor(db, side), getSettings(db), db.advice.toArray()])
+        const [history, plan, settings, advice, checkIns] = await Promise.all([loadHistory(db), planFor(db, side), getSettings(db), db.advice.toArray(), loadCheckIns(db)])
         const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
-        const fresh = grit.coachingEvaluate(side, history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), clockDay, prior)
+        // The check-ins tell the bodybuilding coach which body parts are growing well (their exercises are left alone);
+        // the powerlifting coach does not read them.
+        const fresh = grit.coachingEvaluateWithCheckIns(side, history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), clockDay, prior, checkIns.map(checkInToJs))
         if (fresh.length > 0) await db.advice.bulkAdd(fresh.map((a) => withoutId(adviceFromJs(a))))
         return fresh.length
       })

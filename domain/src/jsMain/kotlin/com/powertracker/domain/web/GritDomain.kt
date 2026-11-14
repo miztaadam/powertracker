@@ -6,6 +6,10 @@ import com.powertracker.domain.coach.AccessoryMap
 import com.powertracker.domain.coach.BodybuildingCoach
 import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.coach.Coaching
+import com.powertracker.domain.coach.PhysiqueCoach
+import com.powertracker.domain.model.AdvicePayload
+import com.powertracker.domain.model.forSide
+import com.powertracker.domain.progress.MuscleProgress
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.e1rm.E1rm
 import com.powertracker.domain.history.HistoryStats
@@ -130,6 +134,72 @@ object GritDomain {
         parseDate("today", today),
         prior.map { it.toDomain() },
     ).map { it.toJs() }.toTypedArray()
+
+    /**
+     * As [coachingEvaluate], with the bodybuilding side's [checkIns]: on that side it adds the SWAP advice for stuck
+     * exercises (a growing-well group's exercises are left alone). The powerlifting side ignores [checkIns].
+     */
+    fun coachingEvaluateWithCheckIns(
+        mode: String,
+        history: JsHistory,
+        plan: Array<JsPlanItem>,
+        settings: JsCoachSettings,
+        today: String,
+        prior: Array<JsAdvice>,
+        checkIns: Array<JsCheckIn>,
+    ): Array<JsAdvice> = Coaching.evaluate(
+        parseEnum<TrainingMode>("mode", mode),
+        history.toDomain(),
+        plan.map { it.toDomain() },
+        settings.toDomain(),
+        parseDate("today", today),
+        prior.map { it.toDomain() },
+        checkIns.map { it.toDomain() },
+    ).map { it.toJs() }.toTypedArray()
+
+    /** Whether a check-in is due on the bodybuilding side: a plan, a session, and 28 days since the later of the last check-in and the first session. */
+    fun coachingCheckInDue(history: JsHistory, plan: Array<JsPlanItem>, checkIns: Array<JsCheckIn>, today: String): Boolean =
+        Coaching.checkInDue(history.toDomain(), plan.map { it.toDomain() }, checkIns.map { it.toDomain() }, parseDate("today", today))
+
+    /**
+     * What saving [checkIn] gives, from the whole plan (only the bodybuilding side's items are read): new MORE_WORK
+     * advice stamped BODYBUILDING, a note for every other lagging group, and the OPEN MORE_WORK advice of [prior] now
+     * DISMISSED (store those with the check-in).
+     */
+    fun physiqueAfterCheckIn(checkIn: JsCheckIn, history: JsHistory, plan: Array<JsPlanItem>, today: String, prior: Array<JsAdvice>): JsCheckInOutcome =
+        Coaching.afterCheckIn(
+            checkIn.toDomain(), history.toDomain(), plan.map { it.toDomain() }, parseDate("today", today), prior.map { it.toDomain() },
+        ).toJs()
+
+    /** The SWAP advice for the bodybuilding plan's stuck exercises (also part of [coachingEvaluateWithCheckIns]). */
+    fun physiqueStuck(history: JsHistory, plan: Array<JsPlanItem>, checkIns: Array<JsCheckIn>, prior: Array<JsAdvice>, today: String): Array<JsAdvice> =
+        PhysiqueCoach.stuck(
+            history.toDomain(), plan.map { it.toDomain() }, checkIns.map { it.toDomain() },
+            prior.map { it.toDomain() }.forSide(TrainingMode.BODYBUILDING), parseDate("today", today),
+        ).map { it.toJs() }.toTypedArray()
+
+    /** A MORE_WORK advice's stored payload ([payloadJson]) applied to the bodybuilding side of [plan]. */
+    fun physiqueApplyMoreWork(payloadJson: String, plan: Array<JsPlanItem>, exercises: Array<JsExercise>): JsPlanChange =
+        PhysiqueCoach.applyMoreWork(
+            payloadOf<AdvicePayload.MoreWork>("payloadJson", payloadJson), plan.map { it.toDomain() },
+            exercises.map { it.toDomain() }.associateBy { it.id },
+        ).toJs()
+
+    /** A SWAP advice's stored payload ([payloadJson]) applied with [choice], one of its alternatives. */
+    fun physiqueApplySwap(payloadJson: String, choice: String, plan: Array<JsPlanItem>, exercises: Array<JsExercise>): JsPlanChange =
+        PhysiqueCoach.applySwap(
+            payloadOf<AdvicePayload.Swap>("payloadJson", payloadJson), choice, plan.map { it.toDomain() },
+            exercises.map { it.toDomain() }.associateBy { it.id },
+        ).toJs()
+
+    /** [group]'s (a `MuscleGroup` name) weekly counted sets in the bodybuilding side of [plan]. */
+    fun physiqueWeeklySets(plan: Array<JsPlanItem>, exercises: Array<JsExercise>, group: String): Int =
+        PhysiqueCoach.weeklySets(plan.map { it.toDomain() }, exercises.map { it.toDomain() }.associateBy { it.id }, parseEnum<MuscleGroup>("group", group))
+
+    /** The bodybuilding side's body-part Progress rows, in `MuscleGroup` order. */
+    fun muscleProgressRows(history: JsHistory, plan: Array<JsPlanItem>, checkIns: Array<JsCheckIn>, today: String): Array<JsMuscleRow> =
+        MuscleProgress.rows(history.toDomain(), plan.map { it.toDomain() }, checkIns.map { it.toDomain() }, parseDate("today", today))
+            .map { it.toJs() }.toTypedArray()
 
     /** Whether to show the welcome-back card: the side has a plan and was left ([leftOn], ISO date or null) more than 30 days before [today]. */
     fun welcomeBack(leftOn: String?, today: String, hasPlan: Boolean): Boolean =

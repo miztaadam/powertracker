@@ -29,6 +29,10 @@ import {
   SerializationStrategyh6ouydnm6hci as SerializationStrategy,
   CompositeEncoderknecpkexzn3v as CompositeEncoder,
   Encoderqvmrpqtq8hnu as Encoder,
+  serializer3ikrxnm8b29d6 as serializer_0,
+  serializer2lw83vwvpnyms as serializer_1,
+  serializer36584sjyg5661 as serializer_2,
+  serializer1q7c5q67ysppr as serializer_3,
   NamedValueDecoderzk26ztf92xbq as NamedValueDecoder,
 } from './kotlinx-serialization-kotlinx-serialization-core.mjs';
 import {
@@ -58,6 +62,14 @@ import {
   captureStack1fzi4aczwc4hg as captureStack,
   defineProp3ur6h3slcvq4x as defineProp,
   fromInt1lka3ktyu79a4 as fromInt,
+  _UInt___init__impl__l7qpdl5ip6p2ldulrs as _UInt___init__impl__l7qpdl,
+  UInt__toString_impl_dbgl212c25g5qzedjl1 as UInt__toString_impl_dbgl21,
+  _ULong___init__impl__c78o9k1vasxel72m2l4 as _ULong___init__impl__c78o9k,
+  ULong__toString_impl_f9au7k36l427nkiqphd as ULong__toString_impl_f9au7k,
+  _UByte___init__impl__g9hnc49zztd2brjj2m as _UByte___init__impl__g9hnc4,
+  UByte__toString_impl_v72jg3k7aad61xjb4o as UByte__toString_impl_v72jg,
+  _UShort___init__impl__jigrne1e3nphhrejdd8 as _UShort___init__impl__jigrne,
+  UShort__toString_impl_edaoee2vx1is7vlchpz as UShort__toString_impl_edaoee,
   constructCallableReference23y65rf941mch as constructCallableReference,
   charSequenceLength3278n89t01tmv as charSequenceLength,
   charSequenceSubSequence1iwpdba8s3jc7 as charSequenceSubSequence,
@@ -91,21 +103,40 @@ import {
   ensureNotNull1e947j3ixpazm as ensureNotNull,
   contains3ue2qo8xhmpf1 as contains,
   plus17rl43at52ays as plus,
-  convertToIntofdoxh9bstof as convertToInt,
+  convertToByte1epqhkuyxuz5a as convertToByte,
   equalsLong28bsrfhwvd686 as equalsLong,
+  convertToShortvtefcftm709c as convertToShort,
+  convertToIntofdoxh9bstof as convertToInt,
   IllegalArgumentException2asla15b5jaob as IllegalArgumentException,
-  isFinite2t9l5a275mxm6 as isFinite,
+  isFinite1tx0gn65nl9tj as isFinite,
+  isFinite2t9l5a275mxm6 as isFinite_0,
+  charCodeAt1yspne1d8erbm as charCodeAt,
+  toUInt21lx0mz8wkp7c as toUInt,
+  _UInt___get_data__impl__f0vqqw30ojw38w2y6td as _UInt___get_data__impl__f0vqqw,
+  toULong266mnyksbttkw as toULong,
+  _ULong___get_data__impl__fggpzbbo8lz7f8fnfy as _ULong___get_data__impl__fggpzb,
+  toUByteh6p4wmqswkrs as toUByte,
+  _UByte___get_data__impl__jof9qr100nrznmlnqj as _UByte___get_data__impl__jof9qr,
+  toUShort7yqspfnhrot4 as toUShort,
+  _UShort___get_data__impl__g02451raj6q6epxg1b as _UShort___get_data__impl__g0245,
   objectCreate1ve4bgxiu4x98 as objectCreate,
   noWhenBranchMatchedException2a6r7ubxgky5j as noWhenBranchMatchedException,
+  toString1n9qg6fb0b5i8 as toString_1,
+  Companion_getInstance1crempiiqys0g as Companion_getInstance,
+  Companion_getInstance11ies3wlxhmd7 as Companion_getInstance_0,
+  Companion_getInstanceb1xi7131i8df as Companion_getInstance_1,
+  Companion_getInstance1foc7f9q9rk1s as Companion_getInstance_2,
+  setOf45ia9pnfhe90 as setOf,
   Char__toInt_impl_vasixd28v1p2u6jau5g as Char__toInt_impl_vasixd,
   numberToChar93r9buh19yek as numberToChar,
-  charCodeAt1yspne1d8erbm as charCodeAt,
-  toString1n9qg6fb0b5i8 as toString_1,
+  equals2v6cggk171b6e as equals_0,
   toByte4i43936u611k as toByte,
   startsWith26w8qjqapeeq6 as startsWith,
   numberRangeToNumber25vse2rgp6rs8 as numberRangeToNumber,
   ClosedRangehokgr73im9z3 as ClosedRange,
   contains2c50nlxg7en7o as contains_0,
+  single29ec4rh52687r as single,
+  Char19o2r8palgjof as Char,
   toInt2q8uldh7sc951 as toInt,
   toList3jhuyej2anx2q as toList,
   charSequenceGet1vxk1y5n17t1z as charSequenceGet,
@@ -153,6 +184,8 @@ initMetadataForClass(JsonException, 'JsonException', VOID, SerializationExceptio
 initMetadataForClass(JsonDecodingException, 'JsonDecodingException', VOID, JsonException);
 initMetadataForClass(JsonEncodingException, 'JsonEncodingException', VOID, JsonException);
 initMetadataForClass(Composer, 'Composer');
+initMetadataForClass(ComposerForUnsignedNumbers, 'ComposerForUnsignedNumbers', VOID, Composer);
+initMetadataForClass(ComposerForUnquotedLiterals, 'ComposerForUnquotedLiterals', VOID, Composer);
 initMetadataForClass(ComposerWithPrettyPrint, 'ComposerWithPrettyPrint', VOID, Composer);
 initMetadataForClass(JsonElementMarker, 'JsonElementMarker');
 initMetadataForObject(Tombstone, 'Tombstone');
@@ -166,10 +199,12 @@ initMetadataForClass(Key, 'Key', Key);
 initMetadataForClass(DescriptorSchemaCache, 'DescriptorSchemaCache', DescriptorSchemaCache);
 initMetadataForClass(DiscriminatorHolder, 'DiscriminatorHolder');
 initMetadataForClass(StreamingJsonDecoder, 'StreamingJsonDecoder', VOID, AbstractDecoder, [Decoder, CompositeDecoder]);
+initMetadataForClass(JsonDecoderForUnsignedTypes, 'JsonDecoderForUnsignedTypes', VOID, AbstractDecoder);
 initMetadataForClass(StreamingJsonEncoder, 'StreamingJsonEncoder', VOID, AbstractEncoder, [CompositeEncoder, Encoder]);
 initMetadataForClass(AbstractJsonTreeDecoder, 'AbstractJsonTreeDecoder', VOID, NamedValueDecoder, [Decoder, CompositeDecoder]);
 initMetadataForClass(JsonTreeDecoder, 'JsonTreeDecoder', VOID, AbstractJsonTreeDecoder);
 initMetadataForClass(JsonTreeListDecoder, 'JsonTreeListDecoder', VOID, AbstractJsonTreeDecoder);
+initMetadataForClass(JsonPrimitiveDecoder, 'JsonPrimitiveDecoder', VOID, AbstractJsonTreeDecoder);
 initMetadataForClass(JsonTreeMapDecoder, 'JsonTreeMapDecoder', VOID, JsonTreeDecoder);
 initMetadataForClass(AbstractJsonLexer, 'AbstractJsonLexer');
 initMetadataForObject(CharMappings, 'CharMappings');
@@ -189,27 +224,27 @@ function Default_getInstance() {
 }
 function Json(configuration, serializersModule) {
   Default_getInstance();
-  this.ru_1 = configuration;
-  this.su_1 = serializersModule;
-  this.tu_1 = new DescriptorSchemaCache();
+  this.q16_1 = configuration;
+  this.r16_1 = serializersModule;
+  this.s16_1 = new DescriptorSchemaCache();
 }
-protoOf(Json).pg = function () {
-  return this.su_1;
+protoOf(Json).gl = function () {
+  return this.r16_1;
 };
-protoOf(Json).uu = function (serializer, value) {
+protoOf(Json).t16 = function (serializer, value) {
   var result = new StringJsonWriter();
   try {
     encodeByWriter(this, result, serializer, value);
     return result.toString();
   }finally {
-    result.xu();
+    result.w16();
   }
 };
-protoOf(Json).vu = function (deserializer, string) {
+protoOf(Json).u16 = function (deserializer, string) {
   var lexer = StringJsonLexer_0(this, string);
-  var input = new StreamingJsonDecoder(this, LexerMode_OBJ_getInstance(), lexer, deserializer.md(), null);
-  var result = input.fg(deserializer);
-  lexer.lv();
+  var input = new StreamingJsonDecoder(this, LexerMode_OBJ_getInstance(), lexer, deserializer.rh(), null);
+  var result = input.qk(deserializer);
+  lexer.k17();
   return result;
 };
 function JsonClassDiscriminator() {
@@ -238,28 +273,28 @@ function JsonConfiguration(encodeDefaults, ignoreUnknownKeys, isLenient, allowSt
   classDiscriminatorMode = classDiscriminatorMode === VOID ? ClassDiscriminatorMode_POLYMORPHIC_getInstance() : classDiscriminatorMode;
   exceptionsWithDebugInfo = exceptionsWithDebugInfo === VOID ? true : exceptionsWithDebugInfo;
   maxNestingDepth = maxNestingDepth === VOID ? 400 : maxNestingDepth;
-  this.mv_1 = encodeDefaults;
-  this.nv_1 = ignoreUnknownKeys;
-  this.ov_1 = isLenient;
-  this.pv_1 = allowStructuredMapKeys;
-  this.qv_1 = prettyPrint;
-  this.rv_1 = explicitNulls;
-  this.sv_1 = prettyPrintIndent;
-  this.tv_1 = coerceInputValues;
-  this.uv_1 = useArrayPolymorphism;
-  this.vv_1 = classDiscriminator;
-  this.wv_1 = allowSpecialFloatingPointValues;
-  this.xv_1 = useAlternativeNames;
-  this.yv_1 = namingStrategy;
-  this.zv_1 = decodeEnumsCaseInsensitive;
-  this.aw_1 = allowTrailingComma;
-  this.bw_1 = allowComments;
-  this.cw_1 = classDiscriminatorMode;
-  this.dw_1 = exceptionsWithDebugInfo;
-  this.ew_1 = maxNestingDepth;
+  this.l17_1 = encodeDefaults;
+  this.m17_1 = ignoreUnknownKeys;
+  this.n17_1 = isLenient;
+  this.o17_1 = allowStructuredMapKeys;
+  this.p17_1 = prettyPrint;
+  this.q17_1 = explicitNulls;
+  this.r17_1 = prettyPrintIndent;
+  this.s17_1 = coerceInputValues;
+  this.t17_1 = useArrayPolymorphism;
+  this.u17_1 = classDiscriminator;
+  this.v17_1 = allowSpecialFloatingPointValues;
+  this.w17_1 = useAlternativeNames;
+  this.x17_1 = namingStrategy;
+  this.y17_1 = decodeEnumsCaseInsensitive;
+  this.z17_1 = allowTrailingComma;
+  this.a18_1 = allowComments;
+  this.b18_1 = classDiscriminatorMode;
+  this.c18_1 = exceptionsWithDebugInfo;
+  this.d18_1 = maxNestingDepth;
 }
 protoOf(JsonConfiguration).toString = function () {
-  return 'JsonConfiguration(encodeDefaults=' + this.mv_1 + ', ignoreUnknownKeys=' + this.nv_1 + ', isLenient=' + this.ov_1 + ', ' + ('allowStructuredMapKeys=' + this.pv_1 + ', prettyPrint=' + this.qv_1 + ', explicitNulls=' + this.rv_1 + ', ') + ("prettyPrintIndent='" + this.sv_1 + "', coerceInputValues=" + this.tv_1 + ', useArrayPolymorphism=' + this.uv_1 + ', ') + ("classDiscriminator='" + this.vv_1 + "', allowSpecialFloatingPointValues=" + this.wv_1 + ', ') + ('useAlternativeNames=' + this.xv_1 + ', namingStrategy=' + toString(this.yv_1) + ', decodeEnumsCaseInsensitive=' + this.zv_1 + ', ') + ('allowTrailingComma=' + this.aw_1 + ', allowComments=' + this.bw_1 + ', classDiscriminatorMode=' + this.cw_1.toString() + ', ') + ('exceptionsWithDebugInfo=' + this.dw_1 + ', maxNestingDepth=' + this.ew_1 + ')');
+  return 'JsonConfiguration(encodeDefaults=' + this.l17_1 + ', ignoreUnknownKeys=' + this.m17_1 + ', isLenient=' + this.n17_1 + ', ' + ('allowStructuredMapKeys=' + this.o17_1 + ', prettyPrint=' + this.p17_1 + ', explicitNulls=' + this.q17_1 + ', ') + ("prettyPrintIndent='" + this.r17_1 + "', coerceInputValues=" + this.s17_1 + ', useArrayPolymorphism=' + this.t17_1 + ', ') + ("classDiscriminator='" + this.u17_1 + "', allowSpecialFloatingPointValues=" + this.v17_1 + ', ') + ('useAlternativeNames=' + this.w17_1 + ', namingStrategy=' + toString(this.x17_1) + ', decodeEnumsCaseInsensitive=' + this.y17_1 + ', ') + ('allowTrailingComma=' + this.z17_1 + ', allowComments=' + this.a18_1 + ', classDiscriminatorMode=' + this.b18_1.toString() + ', ') + ('exceptionsWithDebugInfo=' + this.c18_1 + ', maxNestingDepth=' + this.d18_1 + ')');
 };
 var static_init_called;
 function static_init() {
@@ -288,11 +323,15 @@ function ClassDiscriminatorMode_POLYMORPHIC_getInstance() {
   static_init();
   return ClassDiscriminatorMode_POLYMORPHIC_instance;
 }
+function get_jsonUnquotedLiteralDescriptor() {
+  _init_properties_JsonElement_kt__7cbdc2();
+  return jsonUnquotedLiteralDescriptor;
+}
 var jsonUnquotedLiteralDescriptor;
 function Companion() {
 }
 var Companion_instance;
-function Companion_getInstance() {
+function Companion_getInstance_3() {
   return Companion_instance;
 }
 function JsonElement() {
@@ -300,7 +339,7 @@ function JsonElement() {
 function Companion_0() {
 }
 var Companion_instance_0;
-function Companion_getInstance_0() {
+function Companion_getInstance_4() {
   return Companion_instance_0;
 }
 function JsonObject$toString$lambda(_destruct__k2r9zo) {
@@ -312,66 +351,66 @@ function JsonObject$toString$lambda(_destruct__k2r9zo) {
   // Inline function 'kotlin.apply' call
   var this_0 = StringBuilder_init_$Create$();
   printQuoted(this_0, k);
-  this_0.u6(_Char___init__impl__6a9atx(58));
-  this_0.s6(v);
+  this_0.b7(_Char___init__impl__6a9atx(58));
+  this_0.z6(v);
   return this_0.toString();
 }
 function JsonObject(content) {
   JsonElement.call(this);
-  this.fw_1 = content;
+  this.e18_1 = content;
 }
 protoOf(JsonObject).equals = function (other) {
-  return equals(this.fw_1, other);
+  return equals(this.e18_1, other);
 };
 protoOf(JsonObject).hashCode = function () {
-  return hashCode(this.fw_1);
+  return hashCode(this.e18_1);
 };
 protoOf(JsonObject).toString = function () {
-  var tmp = this.fw_1.t();
+  var tmp = this.e18_1.t();
   return joinToString(tmp, ',', '{', '}', VOID, VOID, JsonObject$toString$lambda);
 };
 protoOf(JsonObject).m = function () {
-  return this.fw_1.m();
+  return this.e18_1.m();
 };
-protoOf(JsonObject).gw = function (key) {
-  return this.fw_1.r1(key);
+protoOf(JsonObject).f18 = function (key) {
+  return this.e18_1.r1(key);
 };
 protoOf(JsonObject).r1 = function (key) {
   if (!(!(key == null) ? typeof key === 'string' : false))
     return false;
-  return this.gw((!(key == null) ? typeof key === 'string' : false) ? key : THROW_CCE());
+  return this.f18((!(key == null) ? typeof key === 'string' : false) ? key : THROW_CCE());
 };
-protoOf(JsonObject).hw = function (key) {
-  return this.fw_1.t1(key);
+protoOf(JsonObject).g18 = function (key) {
+  return this.e18_1.t1(key);
 };
 protoOf(JsonObject).t1 = function (key) {
   if (!(!(key == null) ? typeof key === 'string' : false))
     return null;
-  return this.hw((!(key == null) ? typeof key === 'string' : false) ? key : THROW_CCE());
+  return this.g18((!(key == null) ? typeof key === 'string' : false) ? key : THROW_CCE());
 };
 protoOf(JsonObject).o = function () {
-  return this.fw_1.o();
+  return this.e18_1.o();
 };
 protoOf(JsonObject).u1 = function () {
-  return this.fw_1.u1();
+  return this.e18_1.u1();
 };
 protoOf(JsonObject).v1 = function () {
-  return this.fw_1.v1();
+  return this.e18_1.v1();
 };
 protoOf(JsonObject).t = function () {
-  return this.fw_1.t();
+  return this.e18_1.t();
 };
 function Companion_1() {
 }
 var Companion_instance_1;
-function Companion_getInstance_1() {
+function Companion_getInstance_5() {
   return Companion_instance_1;
 }
 function JsonPrimitive() {
   JsonElement.call(this);
 }
 protoOf(JsonPrimitive).toString = function () {
-  return this.iw();
+  return this.h18();
 };
 function get_jsonPrimitive(_this__u8e3s4) {
   _init_properties_JsonElement_kt__7cbdc2();
@@ -390,7 +429,7 @@ function get_contentOrNull(_this__u8e3s4) {
   if (_this__u8e3s4 instanceof JsonNull) {
     tmp = null;
   } else {
-    tmp = _this__u8e3s4.iw();
+    tmp = _this__u8e3s4.h18();
   }
   return tmp;
 }
@@ -401,10 +440,10 @@ function error(_this__u8e3s4, element) {
 function JsonNull() {
   JsonNull_instance = this;
   JsonPrimitive.call(this);
-  this.jw_1 = 'null';
+  this.i18_1 = 'null';
 }
-protoOf(JsonNull).iw = function () {
-  return this.jw_1;
+protoOf(JsonNull).h18 = function () {
+  return this.i18_1;
 };
 var JsonNull_instance;
 function JsonNull_getInstance() {
@@ -421,31 +460,31 @@ function JsonPrimitive_0(value) {
 function JsonLiteral(body, isString, coerceToInlineType) {
   coerceToInlineType = coerceToInlineType === VOID ? null : coerceToInlineType;
   JsonPrimitive.call(this);
-  this.kw_1 = isString;
-  this.lw_1 = coerceToInlineType;
-  this.mw_1 = toString_0(body);
-  if (!(this.lw_1 == null)) {
+  this.j18_1 = isString;
+  this.k18_1 = coerceToInlineType;
+  this.l18_1 = toString_0(body);
+  if (!(this.k18_1 == null)) {
     // Inline function 'kotlin.require' call
     // Inline function 'kotlin.require' call
-    if (!this.lw_1.ue()) {
+    if (!this.k18_1.zi()) {
       var message = 'Failed requirement.';
       throw IllegalArgumentException_init_$Create$(toString_0(message));
     }
   }
 }
-protoOf(JsonLiteral).iw = function () {
-  return this.mw_1;
+protoOf(JsonLiteral).h18 = function () {
+  return this.l18_1;
 };
 protoOf(JsonLiteral).toString = function () {
   var tmp;
-  if (this.kw_1) {
+  if (this.j18_1) {
     // Inline function 'kotlin.text.buildString' call
     // Inline function 'kotlin.apply' call
     var this_0 = StringBuilder_init_$Create$();
-    printQuoted(this_0, this.mw_1);
+    printQuoted(this_0, this.l18_1);
     tmp = this_0.toString();
   } else {
-    tmp = this.mw_1;
+    tmp = this.l18_1;
   }
   return tmp;
 };
@@ -456,77 +495,89 @@ protoOf(JsonLiteral).equals = function (other) {
     return false;
   if (!(other instanceof JsonLiteral))
     THROW_CCE();
-  if (!(this.kw_1 === other.kw_1))
+  if (!(this.j18_1 === other.j18_1))
     return false;
-  if (!(this.mw_1 === other.mw_1))
+  if (!(this.l18_1 === other.l18_1))
     return false;
   return true;
 };
 protoOf(JsonLiteral).hashCode = function () {
-  var result = getBooleanHashCode(this.kw_1);
-  result = imul(31, result) + getStringHashCode(this.mw_1) | 0;
+  var result = getBooleanHashCode(this.j18_1);
+  result = imul(31, result) + getStringHashCode(this.l18_1) | 0;
   return result;
 };
 function Companion_2() {
 }
 var Companion_instance_2;
-function Companion_getInstance_2() {
+function Companion_getInstance_6() {
   return Companion_instance_2;
 }
 function JsonArray(content) {
   JsonElement.call(this);
-  this.nw_1 = content;
+  this.m18_1 = content;
 }
 protoOf(JsonArray).equals = function (other) {
-  return equals(this.nw_1, other);
+  return equals(this.m18_1, other);
 };
 protoOf(JsonArray).hashCode = function () {
-  return hashCode(this.nw_1);
+  return hashCode(this.m18_1);
 };
 protoOf(JsonArray).toString = function () {
-  return joinToString(this.nw_1, ',', '[', ']');
+  return joinToString(this.m18_1, ',', '[', ']');
 };
 protoOf(JsonArray).m = function () {
-  return this.nw_1.m();
+  return this.m18_1.m();
 };
-protoOf(JsonArray).ow = function (element) {
-  return this.nw_1.r(element);
+protoOf(JsonArray).n18 = function (element) {
+  return this.m18_1.r(element);
 };
 protoOf(JsonArray).r = function (element) {
   if (!(element instanceof JsonElement))
     return false;
-  return this.ow(element instanceof JsonElement ? element : THROW_CCE());
+  return this.n18(element instanceof JsonElement ? element : THROW_CCE());
 };
 protoOf(JsonArray).j = function () {
-  return this.nw_1.j();
+  return this.m18_1.j();
 };
 protoOf(JsonArray).n = function (index) {
-  return this.nw_1.n(index);
+  return this.m18_1.n(index);
 };
-protoOf(JsonArray).pw = function (element) {
-  return this.nw_1.s(element);
+protoOf(JsonArray).o18 = function (element) {
+  return this.m18_1.s(element);
 };
 protoOf(JsonArray).s = function (element) {
   if (!(element instanceof JsonElement))
     return -1;
-  return this.pw(element instanceof JsonElement ? element : THROW_CCE());
+  return this.o18(element instanceof JsonElement ? element : THROW_CCE());
 };
 protoOf(JsonArray).q = function (index) {
-  return this.nw_1.q(index);
+  return this.m18_1.q(index);
 };
 protoOf(JsonArray).q1 = function (fromIndex, toIndex) {
-  return this.nw_1.q1(fromIndex, toIndex);
+  return this.m18_1.q1(fromIndex, toIndex);
 };
 protoOf(JsonArray).o = function () {
-  return this.nw_1.o();
+  return this.m18_1.o();
 };
+function get_booleanOrNull(_this__u8e3s4) {
+  _init_properties_JsonElement_kt__7cbdc2();
+  return toBooleanStrictOrNull(_this__u8e3s4.h18());
+}
 function parseLongImpl(_this__u8e3s4) {
   _init_properties_JsonElement_kt__7cbdc2();
-  return StringJsonLexer_0(Default_getInstance(), _this__u8e3s4.iw()).qw();
+  return StringJsonLexer_0(Default_getInstance(), _this__u8e3s4.h18()).p18();
+}
+function get_float(_this__u8e3s4) {
+  _init_properties_JsonElement_kt__7cbdc2();
+  // Inline function 'kotlin.text.toFloat' call
+  var this_0 = _this__u8e3s4.h18();
+  // Inline function 'kotlin.js.unsafeCast' call
+  // Inline function 'kotlin.js.asDynamic' call
+  return toDouble(this_0);
 }
 function get_double(_this__u8e3s4) {
   _init_properties_JsonElement_kt__7cbdc2();
-  return toDouble(_this__u8e3s4.iw());
+  return toDouble(_this__u8e3s4.h18());
 }
 var properties_initialized_JsonElement_kt_abxy8s;
 function _init_properties_JsonElement_kt__7cbdc2() {
@@ -539,11 +590,11 @@ function JsonDecodingException(fullMessage, shortMessage, offset, path, input, h
   cause = cause === VOID ? null : cause;
   JsonException.call(this, fullMessage, cause);
   captureStack(this, JsonDecodingException);
-  this.sw_1 = shortMessage;
-  this.tw_1 = offset;
-  this.uw_1 = path;
-  this.vw_1 = input;
-  this.ww_1 = hint;
+  this.r18_1 = shortMessage;
+  this.s18_1 = offset;
+  this.t18_1 = path;
+  this.u18_1 = input;
+  this.v18_1 = hint;
 }
 function JsonEncodingException(shortMessage, classSerialName, hint, cause) {
   classSerialName = classSerialName === VOID ? null : classSerialName;
@@ -551,115 +602,186 @@ function JsonEncodingException(shortMessage, classSerialName, hint, cause) {
   cause = cause === VOID ? null : cause;
   JsonException.call(this, formatEncodingException(shortMessage, hint), cause);
   captureStack(this, JsonEncodingException);
-  this.zw_1 = shortMessage;
-  this.ax_1 = classSerialName;
-  this.bx_1 = hint;
+  this.y18_1 = shortMessage;
+  this.z18_1 = classSerialName;
+  this.a19_1 = hint;
 }
 function JsonException(message, cause) {
   SerializationException_init_$Init$(message, cause, this);
   captureStack(this, JsonException);
-  this.xw_1 = message;
+  this.w18_1 = message;
   delete this.message;
 }
-protoOf(JsonException).e8 = function () {
-  return this.xw_1;
+protoOf(JsonException).l8 = function () {
+  return this.w18_1;
 };
 function Composer(writer) {
-  this.cx_1 = writer;
-  this.dx_1 = true;
+  this.b19_1 = writer;
+  this.c19_1 = true;
 }
-protoOf(Composer).ex = function () {
-  this.dx_1 = true;
+protoOf(Composer).d19 = function () {
+  this.c19_1 = true;
 };
-protoOf(Composer).fx = function () {
+protoOf(Composer).e19 = function () {
   return Unit_instance;
 };
-protoOf(Composer).gx = function () {
-  this.dx_1 = false;
+protoOf(Composer).f19 = function () {
+  this.c19_1 = false;
 };
-protoOf(Composer).hx = function () {
-  this.dx_1 = false;
+protoOf(Composer).g19 = function () {
+  this.c19_1 = false;
 };
-protoOf(Composer).ix = function () {
+protoOf(Composer).h19 = function () {
   return Unit_instance;
 };
-protoOf(Composer).jx = function (v) {
-  return this.cx_1.kx(v);
+protoOf(Composer).i19 = function (v) {
+  return this.b19_1.j19(v);
 };
-protoOf(Composer).lx = function (v) {
-  return this.cx_1.mx(v);
+protoOf(Composer).k19 = function (v) {
+  return this.b19_1.l19(v);
 };
-protoOf(Composer).nx = function (v) {
-  return this.cx_1.mx(v.toString());
+protoOf(Composer).m19 = function (v) {
+  return this.b19_1.l19(v.toString());
 };
-protoOf(Composer).ox = function (v) {
-  return this.cx_1.px(fromInt(v));
+protoOf(Composer).n19 = function (v) {
+  return this.b19_1.l19(v.toString());
 };
-protoOf(Composer).qx = function (v) {
-  return this.cx_1.px(v);
+protoOf(Composer).o19 = function (v) {
+  return this.b19_1.p19(fromInt(v));
 };
-protoOf(Composer).rx = function (value) {
-  return this.cx_1.sx(value);
+protoOf(Composer).q19 = function (v) {
+  return this.b19_1.p19(fromInt(v));
+};
+protoOf(Composer).r19 = function (v) {
+  return this.b19_1.p19(fromInt(v));
+};
+protoOf(Composer).s19 = function (v) {
+  return this.b19_1.p19(v);
+};
+protoOf(Composer).t19 = function (v) {
+  return this.b19_1.l19(v.toString());
+};
+protoOf(Composer).u19 = function (value) {
+  return this.b19_1.v19(value);
 };
 function Composer_0(sb, json) {
-  return json.ru_1.qv_1 ? new ComposerWithPrettyPrint(sb, json) : new Composer(sb);
+  return json.q16_1.p17_1 ? new ComposerWithPrettyPrint(sb, json) : new Composer(sb);
 }
+function ComposerForUnsignedNumbers(writer, forceQuoting) {
+  Composer.call(this, writer);
+  this.y19_1 = forceQuoting;
+}
+protoOf(ComposerForUnsignedNumbers).r19 = function (v) {
+  if (this.y19_1) {
+    // Inline function 'kotlin.toUInt' call
+    var tmp$ret$0 = _UInt___init__impl__l7qpdl(v);
+    this.u19(UInt__toString_impl_dbgl21(tmp$ret$0));
+  } else {
+    // Inline function 'kotlin.toUInt' call
+    var tmp$ret$1 = _UInt___init__impl__l7qpdl(v);
+    this.k19(UInt__toString_impl_dbgl21(tmp$ret$1));
+  }
+};
+protoOf(ComposerForUnsignedNumbers).s19 = function (v) {
+  if (this.y19_1) {
+    // Inline function 'kotlin.toULong' call
+    var tmp$ret$0 = _ULong___init__impl__c78o9k(v);
+    this.u19(ULong__toString_impl_f9au7k(tmp$ret$0));
+  } else {
+    // Inline function 'kotlin.toULong' call
+    var tmp$ret$1 = _ULong___init__impl__c78o9k(v);
+    this.k19(ULong__toString_impl_f9au7k(tmp$ret$1));
+  }
+};
+protoOf(ComposerForUnsignedNumbers).o19 = function (v) {
+  if (this.y19_1) {
+    // Inline function 'kotlin.toUByte' call
+    var tmp$ret$0 = _UByte___init__impl__g9hnc4(v);
+    this.u19(UByte__toString_impl_v72jg(tmp$ret$0));
+  } else {
+    // Inline function 'kotlin.toUByte' call
+    var tmp$ret$1 = _UByte___init__impl__g9hnc4(v);
+    this.k19(UByte__toString_impl_v72jg(tmp$ret$1));
+  }
+};
+protoOf(ComposerForUnsignedNumbers).q19 = function (v) {
+  if (this.y19_1) {
+    // Inline function 'kotlin.toUShort' call
+    var tmp$ret$0 = _UShort___init__impl__jigrne(v);
+    this.u19(UShort__toString_impl_edaoee(tmp$ret$0));
+  } else {
+    // Inline function 'kotlin.toUShort' call
+    var tmp$ret$1 = _UShort___init__impl__jigrne(v);
+    this.k19(UShort__toString_impl_edaoee(tmp$ret$1));
+  }
+};
+function ComposerForUnquotedLiterals(writer, forceQuoting) {
+  Composer.call(this, writer);
+  this.b1a_1 = forceQuoting;
+}
+protoOf(ComposerForUnquotedLiterals).u19 = function (value) {
+  if (this.b1a_1) {
+    protoOf(Composer).u19.call(this, value);
+  } else {
+    protoOf(Composer).k19.call(this, value);
+  }
+};
 function ComposerWithPrettyPrint(writer, json) {
   Composer.call(this, writer);
-  this.vx_1 = json;
-  this.wx_1 = 0;
+  this.e1a_1 = json;
+  this.f1a_1 = 0;
 }
-protoOf(ComposerWithPrettyPrint).ex = function () {
-  this.dx_1 = true;
-  this.wx_1 = this.wx_1 + 1 | 0;
+protoOf(ComposerWithPrettyPrint).d19 = function () {
+  this.c19_1 = true;
+  this.f1a_1 = this.f1a_1 + 1 | 0;
 };
-protoOf(ComposerWithPrettyPrint).fx = function () {
-  this.wx_1 = this.wx_1 - 1 | 0;
+protoOf(ComposerWithPrettyPrint).e19 = function () {
+  this.f1a_1 = this.f1a_1 - 1 | 0;
 };
-protoOf(ComposerWithPrettyPrint).gx = function () {
-  this.dx_1 = false;
-  this.lx('\n');
+protoOf(ComposerWithPrettyPrint).f19 = function () {
+  this.c19_1 = false;
+  this.k19('\n');
   // Inline function 'kotlin.repeat' call
-  var times = this.wx_1;
+  var times = this.f1a_1;
   var inductionVariable = 0;
   if (inductionVariable < times)
     do {
       var index = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
-      this.lx(this.vx_1.ru_1.sv_1);
+      this.k19(this.e1a_1.q16_1.r17_1);
     }
      while (inductionVariable < times);
 };
-protoOf(ComposerWithPrettyPrint).hx = function () {
-  if (this.dx_1)
-    this.dx_1 = false;
+protoOf(ComposerWithPrettyPrint).g19 = function () {
+  if (this.c19_1)
+    this.c19_1 = false;
   else {
-    this.gx();
+    this.f19();
   }
 };
-protoOf(ComposerWithPrettyPrint).ix = function () {
-  this.jx(_Char___init__impl__6a9atx(32));
+protoOf(ComposerWithPrettyPrint).h19 = function () {
+  this.i19(_Char___init__impl__6a9atx(32));
 };
 function readIfAbsent($this, descriptor, index) {
-  $this.yx_1 = (!descriptor.bf(index) && descriptor.af(index).ne());
-  return $this.yx_1;
+  $this.h1a_1 = (!descriptor.gj(index) && descriptor.fj(index).si());
+  return $this.h1a_1;
 }
 function JsonElementMarker$readIfAbsent$ref(p0) {
   return constructCallableReference(function (p0_0, p1) {
     var tmp0 = p0;
     return readIfAbsent(tmp0, p0_0, p1);
-  }, 2, 0, 23, 'readIfAbsent', [p0]);
+  }, 2, 0, 24, 'readIfAbsent', [p0]);
 }
 function JsonElementMarker(descriptor) {
   var tmp = this;
-  tmp.xx_1 = new ElementMarker(descriptor, JsonElementMarker$readIfAbsent$ref(this));
-  this.yx_1 = false;
+  tmp.g1a_1 = new ElementMarker(descriptor, JsonElementMarker$readIfAbsent$ref(this));
+  this.h1a_1 = false;
 }
-protoOf(JsonElementMarker).zx = function (index) {
-  this.xx_1.ti(index);
+protoOf(JsonElementMarker).i1a = function (index) {
+  this.g1a_1.xo(index);
 };
-protoOf(JsonElementMarker).ay = function () {
-  return this.xx_1.ui();
+protoOf(JsonElementMarker).j1a = function () {
+  return this.g1a_1.yo();
 };
 function minify(_this__u8e3s4, offset) {
   offset = offset === VOID ? -1 : offset;
@@ -687,13 +809,13 @@ function access$formatDecodingException$tJsonExceptionsKt(offset, shortMessage, 
 }
 function invalidTrailingComma(_this__u8e3s4, entity) {
   entity = entity === VOID ? 'object' : entity;
-  _this__u8e3s4.by('Trailing comma before the end of JSON ' + entity, _this__u8e3s4.hv_1 - 1 | 0, "Trailing commas are non-complaint JSON and not allowed by default. Use 'allowTrailingComma = true' in 'Json {}' builder to support them.");
+  _this__u8e3s4.k1a('Trailing comma before the end of JSON ' + entity, _this__u8e3s4.g17_1 - 1 | 0, "Trailing commas are non-complaint JSON and not allowed by default. Use 'allowTrailingComma = true' in 'Json {}' builder to support them.");
 }
 function throwInvalidFloatingPointDecoded(_this__u8e3s4, result) {
-  _this__u8e3s4.cy(nonFiniteFpMessage(result, null), VOID, "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'");
+  _this__u8e3s4.l1a(nonFiniteFpMessage(result, null), VOID, "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'");
 }
 function InvalidKeyKindException(keyDescriptor) {
-  return new JsonEncodingException("Value of type '" + keyDescriptor.ie() + "' can't be used in JSON as a key in the map. " + ("It should have either primitive or enum kind, but its kind is '" + keyDescriptor.te().toString() + "'"), keyDescriptor.ie(), "Use 'allowStructuredMapKeys = true' in 'Json {}' builder to convert such maps to [key1, value1, key2, value2,...] arrays.");
+  return new JsonEncodingException("Value of type '" + keyDescriptor.ni() + "' can't be used in JSON as a key in the map. " + ("It should have either primitive or enum kind, but its kind is '" + keyDescriptor.yi().toString() + "'"), keyDescriptor.ni(), "Use 'allowStructuredMapKeys = true' in 'Json {}' builder to convert such maps to [key1, value1, key2, value2,...] arrays.");
 }
 function InvalidFloatingPointEncoded(value, key) {
   key = key === VOID ? null : key;
@@ -710,7 +832,7 @@ function decodingExceptionOf_0(_this__u8e3s4, shortMessage, offset, path, hint, 
   cause = cause === VOID ? null : cause;
   // Inline function 'kotlinx.serialization.json.internal.ifDebugInput' call
   var tmp;
-  if (_this__u8e3s4.gv_1.dw_1) {
+  if (_this__u8e3s4.f17_1.c18_1) {
     tmp = toString_0(minify(input, offset));
   } else {
     tmp = null;
@@ -723,21 +845,21 @@ function formatDecodingException(offset, shortMessage, path, hint, input) {
   // Inline function 'kotlin.apply' call
   var this_0 = StringBuilder_init_$Create$();
   if (offset >= 0) {
-    this_0.t6('Unexpected JSON token at offset ' + offset + ': ');
+    this_0.a7('Unexpected JSON token at offset ' + offset + ': ');
   }
-  this_0.t6(shortMessage);
+  this_0.a7(shortMessage);
   // Inline function 'kotlin.text.isNullOrBlank' call
   if (!(path == null || isBlank(path))) {
-    this_0.t6(' at path: ');
-    this_0.t6(path);
+    this_0.a7(' at path: ');
+    this_0.a7(path);
   }
   // Inline function 'kotlin.text.isNullOrBlank' call
   if (!(hint == null || isBlank(hint))) {
-    this_0.t6('\n' + hint);
+    this_0.a7('\n' + hint);
   }
   if (!(input == null)) {
-    this_0.t6('\nJSON input: ');
-    this_0.t6(input);
+    this_0.a7('\nJSON input: ');
+    this_0.a7(input);
   }
   return this_0.toString();
 }
@@ -767,10 +889,10 @@ var JsonSerializationNamesKey;
 function ignoreUnknownKeys(_this__u8e3s4, json) {
   _init_properties_JsonNamesMap_kt__cbbp0k();
   var tmp;
-  if (json.ru_1.nv_1) {
+  if (json.q16_1.m17_1) {
     tmp = true;
   } else {
-    var tmp0 = _this__u8e3s4.we();
+    var tmp0 = _this__u8e3s4.bj();
     var tmp$ret$0;
     $l$block_0: {
       // Inline function 'kotlin.collections.any' call
@@ -809,10 +931,10 @@ function getJsonNameIndex(_this__u8e3s4, json, name) {
   var strategy = namingStrategy(_this__u8e3s4, json);
   if (!(strategy == null))
     return getJsonNameIndexSlowPath(_this__u8e3s4, json, name);
-  var index = _this__u8e3s4.ye(name);
+  var index = _this__u8e3s4.dj(name);
   if (!(index === -3))
     return index;
-  if (!json.ru_1.xv_1)
+  if (!json.q16_1.w17_1)
     return index;
   return getJsonNameIndexSlowPath(_this__u8e3s4, json, name);
 }
@@ -821,13 +943,13 @@ function getJsonNameIndexOrThrow(_this__u8e3s4, json, name, suffix) {
   _init_properties_JsonNamesMap_kt__cbbp0k();
   var index = getJsonNameIndex(_this__u8e3s4, json, name);
   if (index === -3)
-    throw SerializationException_init_$Create$(_this__u8e3s4.ie() + " does not contain element with name '" + name + "'" + suffix);
+    throw SerializationException_init_$Create$(_this__u8e3s4.ni() + " does not contain element with name '" + name + "'" + suffix);
   return index;
 }
 function getJsonElementName(_this__u8e3s4, json, index) {
   _init_properties_JsonNamesMap_kt__cbbp0k();
   var strategy = namingStrategy(_this__u8e3s4, json);
-  return strategy == null ? _this__u8e3s4.xe(index) : serializationNamesIndices(_this__u8e3s4, json, strategy)[index];
+  return strategy == null ? _this__u8e3s4.cj(index) : serializationNamesIndices(_this__u8e3s4, json, strategy)[index];
 }
 function getJsonEncodedNames(_this__u8e3s4, json) {
   _init_properties_JsonNamesMap_kt__cbbp0k();
@@ -836,7 +958,7 @@ function getJsonEncodedNames(_this__u8e3s4, json) {
 }
 function decodeCaseInsensitive(_this__u8e3s4, descriptor) {
   _init_properties_JsonNamesMap_kt__cbbp0k();
-  return _this__u8e3s4.ru_1.zv_1 && equals(descriptor.te(), ENUM_getInstance());
+  return _this__u8e3s4.q16_1.y17_1 && equals(descriptor.yi(), ENUM_getInstance());
 }
 function getJsonNameIndexSlowPath(_this__u8e3s4, json, name) {
   _init_properties_JsonNamesMap_kt__cbbp0k();
@@ -845,19 +967,19 @@ function getJsonNameIndexSlowPath(_this__u8e3s4, json, name) {
 }
 function namingStrategy(_this__u8e3s4, json) {
   _init_properties_JsonNamesMap_kt__cbbp0k();
-  return equals(_this__u8e3s4.te(), CLASS_getInstance()) ? json.ru_1.yv_1 : null;
+  return equals(_this__u8e3s4.yi(), CLASS_getInstance()) ? json.q16_1.x17_1 : null;
 }
 function serializationNamesIndices(_this__u8e3s4, json, strategy) {
   _init_properties_JsonNamesMap_kt__cbbp0k();
   var tmp = get_schemaCache(json);
   var tmp_0 = get_JsonSerializationNamesKey();
-  return tmp.ey(_this__u8e3s4, tmp_0, serializationNamesIndices$lambda(_this__u8e3s4, strategy));
+  return tmp.n1a(_this__u8e3s4, tmp_0, serializationNamesIndices$lambda(_this__u8e3s4, strategy));
 }
 function deserializationNamesMap(_this__u8e3s4, descriptor) {
   _init_properties_JsonNamesMap_kt__cbbp0k();
   var tmp = get_schemaCache(_this__u8e3s4);
   var tmp_0 = get_JsonDeserializationNamesKey();
-  return tmp.ey(descriptor, tmp_0, deserializationNamesMap$lambda(descriptor, _this__u8e3s4));
+  return tmp.n1a(descriptor, tmp_0, deserializationNamesMap$lambda(descriptor, _this__u8e3s4));
 }
 function buildDeserializationNamesMap(_this__u8e3s4, json) {
   _init_properties_JsonNamesMap_kt__cbbp0k();
@@ -866,13 +988,13 @@ function buildDeserializationNamesMap(_this__u8e3s4, json) {
   var useLowercaseEnums = decodeCaseInsensitive(json, _this__u8e3s4);
   var strategyForClasses = namingStrategy(_this__u8e3s4, json);
   var inductionVariable = 0;
-  var last = _this__u8e3s4.ve();
+  var last = _this__u8e3s4.aj();
   if (inductionVariable < last)
     do {
       var i = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
       // Inline function 'kotlin.collections.filterIsInstance' call
-      var tmp0 = _this__u8e3s4.ze(i);
+      var tmp0 = _this__u8e3s4.ej(i);
       // Inline function 'kotlin.collections.filterIsInstanceTo' call
       var destination = ArrayList_init_$Create$();
       var _iterator__ex2g4s = tmp0.j();
@@ -883,7 +1005,7 @@ function buildDeserializationNamesMap(_this__u8e3s4, json) {
         }
       }
       var tmp0_safe_receiver = singleOrNull(destination);
-      var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.fy_1;
+      var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.o1a_1;
       if (tmp1_safe_receiver == null)
         null;
       else {
@@ -908,9 +1030,9 @@ function buildDeserializationNamesMap(_this__u8e3s4, json) {
       if (useLowercaseEnums) {
         // Inline function 'kotlin.text.lowercase' call
         // Inline function 'kotlin.js.asDynamic' call
-        tmp_0 = _this__u8e3s4.xe(i).toLowerCase();
+        tmp_0 = _this__u8e3s4.cj(i).toLowerCase();
       } else if (!(strategyForClasses == null)) {
-        tmp_0 = strategyForClasses.gy(_this__u8e3s4, i, _this__u8e3s4.xe(i));
+        tmp_0 = strategyForClasses.p1a(_this__u8e3s4, i, _this__u8e3s4.cj(i));
       } else {
         tmp_0 = null;
       }
@@ -937,15 +1059,15 @@ function serializationNamesIndices$lambda($this_serializationNamesIndices, $stra
     // Inline function 'kotlin.collections.mutableSetOf' call
     var trackingSet = LinkedHashSet_init_$Create$();
     var tmp = 0;
-    var tmp_0 = $this_serializationNamesIndices.ve();
+    var tmp_0 = $this_serializationNamesIndices.aj();
     // Inline function 'kotlin.arrayOfNulls' call
     var tmp_1 = Array(tmp_0);
     while (tmp < tmp_0) {
       var tmp_2 = tmp;
-      var baseName = $this_serializationNamesIndices.xe(tmp_2);
-      var name = $strategy.gy($this_serializationNamesIndices, tmp_2, baseName);
+      var baseName = $this_serializationNamesIndices.cj(tmp_2);
+      var name = $strategy.p1a($this_serializationNamesIndices, tmp_2, baseName);
       if (!trackingSet.i(name))
-        throw new JsonEncodingException("The transformed name '" + name + "' for property " + baseName + ' already exists ' + ('in ' + toString_0($this_serializationNamesIndices)), $this_serializationNamesIndices.ie());
+        throw new JsonEncodingException("The transformed name '" + name + "' for property " + baseName + ' already exists ' + ('in ' + toString_0($this_serializationNamesIndices)), $this_serializationNamesIndices.ni());
       tmp_1[tmp_2] = name;
       tmp = tmp + 1 | 0;
     }
@@ -958,14 +1080,14 @@ function deserializationNamesMap$lambda($descriptor, $this_deserializationNamesM
   };
 }
 function buildDeserializationNamesMap$putOrThrow(_this__u8e3s4, $this_buildDeserializationNamesMap, name, index) {
-  var entity = equals($this_buildDeserializationNamesMap.te(), ENUM_getInstance()) ? 'enum value' : 'property';
+  var entity = equals($this_buildDeserializationNamesMap.yi(), ENUM_getInstance()) ? 'enum value' : 'property';
   // Inline function 'kotlin.collections.contains' call
   // Inline function 'kotlin.collections.containsKey' call
   if ((isInterface(_this__u8e3s4, KtMap) ? _this__u8e3s4 : THROW_CCE()).r1(name)) {
-    throw decodingExceptionOf("The suggested name '" + name + "' for " + entity + ' ' + $this_buildDeserializationNamesMap.xe(index) + ' is already one of the names for ' + entity + ' ' + ($this_buildDeserializationNamesMap.xe(getValue(_this__u8e3s4, name)) + ' in ' + toString_0($this_buildDeserializationNamesMap)));
+    throw decodingExceptionOf("The suggested name '" + name + "' for " + entity + ' ' + $this_buildDeserializationNamesMap.cj(index) + ' is already one of the names for ' + entity + ' ' + ($this_buildDeserializationNamesMap.cj(getValue(_this__u8e3s4, name)) + ' in ' + toString_0($this_buildDeserializationNamesMap)));
   }
   // Inline function 'kotlin.collections.set' call
-  _this__u8e3s4.m2(name, index);
+  _this__u8e3s4.t2(name, index);
 }
 var properties_initialized_JsonNamesMap_kt_ljpf42;
 function _init_properties_JsonNamesMap_kt__cbbp0k() {
@@ -988,8 +1110,8 @@ function RedactedKey_getInstance() {
   return RedactedKey_instance;
 }
 function resize($this) {
-  var newSize = imul($this.ly_1, 2);
-  $this.jy_1 = copyOf($this.jy_1, newSize);
+  var newSize = imul($this.u1a_1, 2);
+  $this.s1a_1 = copyOf($this.s1a_1, newSize);
   var tmp = 0;
   var tmp_0 = new Int32Array(newSize);
   while (tmp < newSize) {
@@ -998,7 +1120,7 @@ function resize($this) {
   }
   var newIndices = tmp_0;
   // Inline function 'kotlin.collections.copyInto' call
-  var this_0 = $this.ky_1;
+  var this_0 = $this.t1a_1;
   var endIndex = this_0.length;
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
@@ -1006,14 +1128,14 @@ function resize($this) {
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
   arrayCopy(tmp_1, newIndices, 0, 0, endIndex);
-  $this.ky_1 = newIndices;
+  $this.t1a_1 = newIndices;
 }
 function JsonPath(configuration) {
-  this.hy_1 = configuration.ew_1;
-  this.iy_1 = configuration.dw_1;
+  this.q1a_1 = configuration.d18_1;
+  this.r1a_1 = configuration.c18_1;
   var tmp = this;
   // Inline function 'kotlin.arrayOfNulls' call
-  tmp.jy_1 = Array(8);
+  tmp.s1a_1 = Array(8);
   var tmp_0 = this;
   var tmp_1 = 0;
   var tmp_2 = new Int32Array(8);
@@ -1021,89 +1143,89 @@ function JsonPath(configuration) {
     tmp_2[tmp_1] = -1;
     tmp_1 = tmp_1 + 1 | 0;
   }
-  tmp_0.ky_1 = tmp_2;
-  this.ly_1 = -1;
+  tmp_0.t1a_1 = tmp_2;
+  this.u1a_1 = -1;
 }
-protoOf(JsonPath).my = function (sd) {
-  this.ly_1 = this.ly_1 + 1 | 0;
-  var depth = this.ly_1;
-  if (depth >= this.hy_1) {
-    jsonTooNested(this.hy_1);
+protoOf(JsonPath).v1a = function (sd) {
+  this.u1a_1 = this.u1a_1 + 1 | 0;
+  var depth = this.u1a_1;
+  if (depth >= this.q1a_1) {
+    jsonTooNested(this.q1a_1);
   }
-  if (depth === this.jy_1.length) {
+  if (depth === this.s1a_1.length) {
     resize(this);
   }
-  this.jy_1[depth] = sd;
+  this.s1a_1[depth] = sd;
 };
-protoOf(JsonPath).ny = function (index) {
-  this.ky_1[this.ly_1] = index;
+protoOf(JsonPath).w1a = function (index) {
+  this.t1a_1[this.u1a_1] = index;
 };
-protoOf(JsonPath).oy = function (key) {
+protoOf(JsonPath).x1a = function (key) {
   var tmp;
-  if (!(this.ky_1[this.ly_1] === -2)) {
-    this.ly_1 = this.ly_1 + 1 | 0;
-    tmp = this.ly_1 === this.jy_1.length;
+  if (!(this.t1a_1[this.u1a_1] === -2)) {
+    this.u1a_1 = this.u1a_1 + 1 | 0;
+    tmp = this.u1a_1 === this.s1a_1.length;
   } else {
     tmp = false;
   }
   if (tmp) {
     resize(this);
   }
-  this.jy_1[this.ly_1] = this.iy_1 ? key : RedactedKey_instance;
-  this.ky_1[this.ly_1] = -2;
+  this.s1a_1[this.u1a_1] = this.r1a_1 ? key : RedactedKey_instance;
+  this.t1a_1[this.u1a_1] = -2;
 };
-protoOf(JsonPath).py = function () {
-  if (this.ky_1[this.ly_1] === -2) {
-    this.jy_1[this.ly_1] = Tombstone_instance;
+protoOf(JsonPath).y1a = function () {
+  if (this.t1a_1[this.u1a_1] === -2) {
+    this.s1a_1[this.u1a_1] = Tombstone_instance;
   }
 };
-protoOf(JsonPath).qy = function () {
-  var depth = this.ly_1;
-  if (this.ky_1[depth] === -2) {
-    this.ky_1[depth] = -1;
-    this.ly_1 = this.ly_1 - 1 | 0;
+protoOf(JsonPath).z1a = function () {
+  var depth = this.u1a_1;
+  if (this.t1a_1[depth] === -2) {
+    this.t1a_1[depth] = -1;
+    this.u1a_1 = this.u1a_1 - 1 | 0;
   }
-  if (!(this.ly_1 === -1)) {
-    this.ly_1 = this.ly_1 - 1 | 0;
+  if (!(this.u1a_1 === -1)) {
+    this.u1a_1 = this.u1a_1 - 1 | 0;
   }
 };
-protoOf(JsonPath).ry = function () {
+protoOf(JsonPath).a1b = function () {
   // Inline function 'kotlin.text.buildString' call
   // Inline function 'kotlin.apply' call
   var this_0 = StringBuilder_init_$Create$();
-  this_0.t6('$');
+  this_0.a7('$');
   // Inline function 'kotlin.repeat' call
-  var times = this.ly_1 + 1 | 0;
+  var times = this.u1a_1 + 1 | 0;
   var inductionVariable = 0;
   if (inductionVariable < times)
     do {
       var index = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
-      var element = this.jy_1[index];
+      var element = this.s1a_1[index];
       if (!(element == null) ? isInterface(element, SerialDescriptor) : false) {
-        if (equals(element.te(), LIST_getInstance())) {
-          if (!(this.ky_1[index] === -1)) {
-            this_0.t6('[');
-            this_0.n9(this.ky_1[index]);
-            this_0.t6(']');
+        if (equals(element.yi(), LIST_getInstance())) {
+          if (!(this.t1a_1[index] === -1)) {
+            this_0.a7('[');
+            this_0.u9(this.t1a_1[index]);
+            this_0.a7(']');
           }
         } else {
-          var idx = this.ky_1[index];
+          var idx = this.t1a_1[index];
           if (idx >= 0) {
-            this_0.t6('.');
-            this_0.t6(element.xe(idx));
+            this_0.a7('.');
+            this_0.a7(element.cj(idx));
           }
         }
       } else {
         if (element === RedactedKey_instance) {
-          this_0.t6('[<debug info disabled>]');
+          this_0.a7('[<debug info disabled>]');
         } else {
           if (!(element === Tombstone_instance)) {
-            this_0.t6('[');
-            this_0.t6("'");
-            this_0.s6(element);
-            this_0.t6("'");
-            this_0.t6(']');
+            this_0.a7('[');
+            this_0.a7("'");
+            this_0.z6(element);
+            this_0.a7("'");
+            this_0.a7(']');
           }
         }
       }
@@ -1112,24 +1234,24 @@ protoOf(JsonPath).ry = function () {
   return this_0.toString();
 };
 protoOf(JsonPath).toString = function () {
-  return this.ry();
+  return this.a1b();
 };
 function classDiscriminator(_this__u8e3s4, json) {
-  var _iterator__ex2g4s = _this__u8e3s4.we().j();
+  var _iterator__ex2g4s = _this__u8e3s4.bj().j();
   while (_iterator__ex2g4s.k()) {
     var annotation = _iterator__ex2g4s.l();
     if (annotation instanceof JsonClassDiscriminator)
-      return annotation.sy_1;
+      return annotation.b1b_1;
   }
-  return json.ru_1.vv_1;
+  return json.q16_1.u17_1;
 }
 function subtypeNotRegisteredMessageJson(subClassName, baseClass) {
-  var scope = "in the polymorphic scope of '" + baseClass.g8() + "'";
+  var scope = "in the polymorphic scope of '" + baseClass.n8() + "'";
   var tmp;
   if (subClassName == null) {
     tmp = to('Class discriminator was missing and no default serializers were registered ' + scope, null);
   } else {
-    tmp = to("Serializer for subclass '" + subClassName + "' is not found " + scope, "Check if class with serial name '" + subClassName + "' exists and serializer is registered in a corresponding SerializersModule.\n" + ("To be registered automatically, class '" + subClassName + "' has to be '@Serializable', and the base class '" + baseClass.g8() + "' has to be sealed and '@Serializable'."));
+    tmp = to("Serializer for subclass '" + subClassName + "' is not found " + scope, "Check if class with serial name '" + subClassName + "' exists and serializer is registered in a corresponding SerializersModule.\n" + ("To be registered automatically, class '" + subClassName + "' has to be '@Serializable', and the base class '" + baseClass.n8() + "' has to be sealed and '@Serializable'."));
   }
   return tmp;
 }
@@ -1154,10 +1276,10 @@ function checkKind(kind) {
   }
 }
 function checkEncodingConflicts(_this__u8e3s4, serializer, actualSerializer, classDiscriminator) {
-  if (getJsonEncodedNames(actualSerializer.md(), _this__u8e3s4).r(classDiscriminator)) {
-    var baseName = serializer.md().ie();
-    var actualName = actualSerializer.md().ie();
-    var text = _this__u8e3s4.ru_1.cw_1.equals(ClassDiscriminatorMode_ALL_JSON_OBJECTS_getInstance()) && baseName === actualName ? 'in ALL_JSON_OBJECTS class discriminator mode' : "as base class '" + baseName + "'";
+  if (getJsonEncodedNames(actualSerializer.rh(), _this__u8e3s4).r(classDiscriminator)) {
+    var baseName = serializer.rh().ni();
+    var actualName = actualSerializer.rh().ni();
+    var text = _this__u8e3s4.q16_1.b18_1.equals(ClassDiscriminatorMode_ALL_JSON_OBJECTS_getInstance()) && baseName === actualName ? 'in ALL_JSON_OBJECTS class discriminator mode' : "as base class '" + baseName + "'";
     var tmp0_shortMessage = "Class '" + actualName + "' cannot be serialized " + text + ' because' + (" it has property name that conflicts with JSON class discriminator '" + classDiscriminator + "'.");
     var tmp1_hint = 'You can either change class discriminator in JsonConfiguration, or rename property with @SerialName annotation.';
     throw new JsonEncodingException(tmp0_shortMessage, actualName, tmp1_hint);
@@ -1169,85 +1291,85 @@ function encodeByWriter(json, writer, serializer, value) {
   var size = get_entries().o();
   var tmp$ret$0 = Array(size);
   var encoder = StreamingJsonEncoder_init_$Create$(writer, json, tmp, tmp$ret$0);
-  encoder.gh(serializer, value);
+  encoder.jm(serializer, value);
 }
 function readObject($this) {
   // Inline function 'kotlinx.serialization.json.internal.JsonTreeReader.readObjectImpl' call
-  var lastToken = $this.cz_1.hz(6);
-  if ($this.cz_1.iz() === 4) {
-    $this.cz_1.cy('Unexpected leading comma');
+  var lastToken = $this.l1b_1.q1b(6);
+  if ($this.l1b_1.r1b() === 4) {
+    $this.l1b_1.l1a('Unexpected leading comma');
   }
   // Inline function 'kotlin.collections.linkedMapOf' call
   var result = LinkedHashMap_init_$Create$();
-  $l$loop: while ($this.cz_1.jz()) {
-    var key = $this.dz_1 ? $this.cz_1.lz() : $this.cz_1.kz();
-    $this.cz_1.hz(5);
-    var element = $this.mz();
+  $l$loop: while ($this.l1b_1.s1b()) {
+    var key = $this.m1b_1 ? $this.l1b_1.u1b() : $this.l1b_1.t1b();
+    $this.l1b_1.q1b(5);
+    var element = $this.v1b();
     // Inline function 'kotlin.collections.set' call
-    result.m2(key, element);
-    lastToken = $this.cz_1.nz();
+    result.t2(key, element);
+    lastToken = $this.l1b_1.w1b();
     var tmp0_subject = lastToken;
     if (tmp0_subject !== 4)
       if (tmp0_subject === 7)
         break $l$loop;
       else {
-        $this.cz_1.cy('Expected end of the object or comma');
+        $this.l1b_1.l1a('Expected end of the object or comma');
       }
   }
   if (lastToken === 6) {
-    $this.cz_1.hz(7);
+    $this.l1b_1.q1b(7);
   } else if (lastToken === 4) {
-    if (!$this.ez_1) {
-      invalidTrailingComma($this.cz_1);
+    if (!$this.n1b_1) {
+      invalidTrailingComma($this.l1b_1);
     }
-    $this.cz_1.hz(7);
+    $this.l1b_1.q1b(7);
   }
   return new JsonObject(result);
 }
 function readObject_0($this, $receiver, $completion) {
   var tmp = new $readObjectCOROUTINE$($this, $receiver, $completion);
-  tmp.j7_1 = Unit_instance;
-  tmp.k7_1 = null;
-  return tmp.p7();
+  tmp.q7_1 = Unit_instance;
+  tmp.r7_1 = null;
+  return tmp.w7();
 }
 function readArray($this) {
-  var lastToken = $this.cz_1.nz();
-  if ($this.cz_1.iz() === 4) {
-    $this.cz_1.cy('Unexpected leading comma');
+  var lastToken = $this.l1b_1.w1b();
+  if ($this.l1b_1.r1b() === 4) {
+    $this.l1b_1.l1a('Unexpected leading comma');
   }
   // Inline function 'kotlin.collections.arrayListOf' call
   var result = ArrayList_init_$Create$();
-  while ($this.cz_1.jz()) {
-    var element = $this.mz();
+  while ($this.l1b_1.s1b()) {
+    var element = $this.v1b();
     result.i(element);
-    lastToken = $this.cz_1.nz();
+    lastToken = $this.l1b_1.w1b();
     if (!(lastToken === 4)) {
-      var tmp0 = $this.cz_1;
+      var tmp0 = $this.l1b_1;
       // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.require' call
       var condition = lastToken === 9;
-      var position = tmp0.hv_1;
+      var position = tmp0.g17_1;
       if (!condition) {
         var tmp$ret$2 = 'Expected end of the array or comma';
-        tmp0.cy(tmp$ret$2, position);
+        tmp0.l1a(tmp$ret$2, position);
       }
     }
   }
   if (lastToken === 8) {
-    $this.cz_1.hz(9);
+    $this.l1b_1.q1b(9);
   } else if (lastToken === 4) {
-    if (!$this.ez_1) {
-      invalidTrailingComma($this.cz_1, 'array');
+    if (!$this.n1b_1) {
+      invalidTrailingComma($this.l1b_1, 'array');
     }
-    $this.cz_1.hz(9);
+    $this.l1b_1.q1b(9);
   }
   return new JsonArray(result);
 }
 function readValue($this, isString) {
   var tmp;
-  if ($this.dz_1 || !isString) {
-    tmp = $this.cz_1.lz();
+  if ($this.m1b_1 || !isString) {
+    tmp = $this.l1b_1.u1b();
   } else {
-    tmp = $this.cz_1.kz();
+    tmp = $this.l1b_1.t1b();
   }
   var string = tmp;
   if (!isString && string === 'null')
@@ -1258,46 +1380,46 @@ function readDeepRecursive($this) {
   return invoke(new DeepRecursiveFunction(JsonTreeReader$readDeepRecursive$slambda_0($this, null)), Unit_instance);
 }
 function JsonTreeReader$readDeepRecursive$slambda(this$0, resultContinuation) {
-  this.k10_1 = this$0;
+  this.t1c_1 = this$0;
   CoroutineImpl.call(this, resultContinuation);
 }
-protoOf(JsonTreeReader$readDeepRecursive$slambda).p10 = function ($this$DeepRecursiveFunction, it, $completion) {
-  var tmp = this.q10($this$DeepRecursiveFunction, it, $completion);
-  tmp.j7_1 = Unit_instance;
-  tmp.k7_1 = null;
-  return tmp.p7();
+protoOf(JsonTreeReader$readDeepRecursive$slambda).y1c = function ($this$DeepRecursiveFunction, it, $completion) {
+  var tmp = this.z1c($this$DeepRecursiveFunction, it, $completion);
+  tmp.q7_1 = Unit_instance;
+  tmp.r7_1 = null;
+  return tmp.w7();
 };
-protoOf(JsonTreeReader$readDeepRecursive$slambda).v7 = function (p1, p2, $completion) {
+protoOf(JsonTreeReader$readDeepRecursive$slambda).c8 = function (p1, p2, $completion) {
   var tmp = p1 instanceof DeepRecursiveScope ? p1 : THROW_CCE();
-  return this.p10(tmp, p2 instanceof Unit ? p2 : THROW_CCE(), $completion);
+  return this.y1c(tmp, p2 instanceof Unit ? p2 : THROW_CCE(), $completion);
 };
-protoOf(JsonTreeReader$readDeepRecursive$slambda).p7 = function () {
-  var suspendResult = this.j7_1;
+protoOf(JsonTreeReader$readDeepRecursive$slambda).w7 = function () {
+  var suspendResult = this.q7_1;
   $sm: do
     try {
-      var tmp = this.h7_1;
+      var tmp = this.o7_1;
       switch (tmp) {
         case 0:
-          this.i7_1 = 3;
-          var tmp0_subject = this.k10_1.cz_1.iz();
+          this.p7_1 = 3;
+          var tmp0_subject = this.t1c_1.l1b_1.r1b();
           if (tmp0_subject === 1) {
-            this.n10_1 = readValue(this.k10_1, true);
-            this.h7_1 = 2;
+            this.w1c_1 = readValue(this.t1c_1, true);
+            this.o7_1 = 2;
             continue $sm;
           } else {
             if (tmp0_subject === 0) {
-              this.n10_1 = readValue(this.k10_1, false);
-              this.h7_1 = 2;
+              this.w1c_1 = readValue(this.t1c_1, false);
+              this.o7_1 = 2;
               continue $sm;
             } else {
               if (tmp0_subject === 6) {
-                this.o10_1 = this.k10_1;
-                this.o10_1.gz_1 = this.o10_1.gz_1 + 1 | 0;
-                if (this.o10_1.gz_1 >= this.o10_1.fz_1) {
-                  jsonTooNested(this.o10_1.fz_1);
+                this.x1c_1 = this.t1c_1;
+                this.x1c_1.p1b_1 = this.x1c_1.p1b_1 + 1 | 0;
+                if (this.x1c_1.p1b_1 >= this.x1c_1.o1b_1) {
+                  jsonTooNested(this.x1c_1.o1b_1);
                 }
-                this.h7_1 = 1;
-                suspendResult = readObject_0(this.k10_1, this.l10_1, this);
+                this.o7_1 = 1;
+                suspendResult = readObject_0(this.t1c_1, this.u1c_1, this);
                 if (suspendResult === get_COROUTINE_SUSPENDED()) {
                   return suspendResult;
                 }
@@ -1305,19 +1427,19 @@ protoOf(JsonTreeReader$readDeepRecursive$slambda).p7 = function () {
               } else {
                 if (tmp0_subject === 8) {
                   var tmp_0 = this;
-                  var this_0 = this.k10_1;
-                  this_0.gz_1 = this_0.gz_1 + 1 | 0;
-                  if (this_0.gz_1 >= this_0.fz_1) {
-                    jsonTooNested(this_0.fz_1);
+                  var this_0 = this.t1c_1;
+                  this_0.p1b_1 = this_0.p1b_1 + 1 | 0;
+                  if (this_0.p1b_1 >= this_0.o1b_1) {
+                    jsonTooNested(this_0.o1b_1);
                   }
-                  var result = readArray(this.k10_1);
-                  this_0.gz_1 = this_0.gz_1 - 1 | 0;
-                  tmp_0.n10_1 = result;
-                  this.h7_1 = 2;
+                  var result = readArray(this.t1c_1);
+                  this_0.p1b_1 = this_0.p1b_1 - 1 | 0;
+                  tmp_0.w1c_1 = result;
+                  this.o7_1 = 2;
                   continue $sm;
                 } else {
                   var tmp_1 = this;
-                  this.k10_1.cz_1.cy("Can't begin reading element, unexpected token");
+                  this.t1c_1.l1b_1.l1a("Can't begin reading element, unexpected token");
                 }
               }
             }
@@ -1326,71 +1448,71 @@ protoOf(JsonTreeReader$readDeepRecursive$slambda).p7 = function () {
           break;
         case 1:
           var result_0 = suspendResult;
-          this.o10_1.gz_1 = this.o10_1.gz_1 - 1 | 0;
-          this.n10_1 = result_0;
-          this.h7_1 = 2;
+          this.x1c_1.p1b_1 = this.x1c_1.p1b_1 - 1 | 0;
+          this.w1c_1 = result_0;
+          this.o7_1 = 2;
           continue $sm;
         case 2:
-          return this.n10_1;
+          return this.w1c_1;
         case 3:
-          throw this.k7_1;
+          throw this.r7_1;
       }
     } catch ($p) {
       var e = $p;
-      if (this.i7_1 === 3) {
+      if (this.p7_1 === 3) {
         throw e;
       } else {
-        this.h7_1 = this.i7_1;
-        this.k7_1 = e;
+        this.o7_1 = this.p7_1;
+        this.r7_1 = e;
       }
     }
    while (true);
 };
-protoOf(JsonTreeReader$readDeepRecursive$slambda).q10 = function ($this$DeepRecursiveFunction, it, completion) {
-  var i = new JsonTreeReader$readDeepRecursive$slambda(this.k10_1, completion);
-  i.l10_1 = $this$DeepRecursiveFunction;
-  i.m10_1 = it;
+protoOf(JsonTreeReader$readDeepRecursive$slambda).z1c = function ($this$DeepRecursiveFunction, it, completion) {
+  var i = new JsonTreeReader$readDeepRecursive$slambda(this.t1c_1, completion);
+  i.u1c_1 = $this$DeepRecursiveFunction;
+  i.v1c_1 = it;
   return i;
 };
 function JsonTreeReader$readDeepRecursive$slambda_0(this$0, resultContinuation) {
   var i = new JsonTreeReader$readDeepRecursive$slambda(this$0, resultContinuation);
   return constructCallableReference(function ($this$DeepRecursiveFunction, it, $completion) {
-    return i.p10($this$DeepRecursiveFunction, it, $completion);
+    return i.y1c($this$DeepRecursiveFunction, it, $completion);
   }, 2);
 }
 function $readObjectCOROUTINE$(_this__u8e3s4, _this__u8e3s4_0, resultContinuation) {
   CoroutineImpl.call(this, resultContinuation);
-  this.wz_1 = _this__u8e3s4;
-  this.xz_1 = _this__u8e3s4_0;
+  this.f1c_1 = _this__u8e3s4;
+  this.g1c_1 = _this__u8e3s4_0;
 }
-protoOf($readObjectCOROUTINE$).p7 = function () {
-  var suspendResult = this.j7_1;
+protoOf($readObjectCOROUTINE$).w7 = function () {
+  var suspendResult = this.q7_1;
   $sm: do
     try {
-      var tmp = this.h7_1;
+      var tmp = this.o7_1;
       switch (tmp) {
         case 0:
-          this.i7_1 = 5;
-          this.zz_1 = this.wz_1;
-          this.a10_1 = this.zz_1.cz_1.hz(6);
-          if (this.zz_1.cz_1.iz() === 4) {
-            this.zz_1.cz_1.cy('Unexpected leading comma');
+          this.p7_1 = 5;
+          this.i1c_1 = this.f1c_1;
+          this.j1c_1 = this.i1c_1.l1b_1.q1b(6);
+          if (this.i1c_1.l1b_1.r1b() === 4) {
+            this.i1c_1.l1b_1.l1a('Unexpected leading comma');
           }
 
           var tmp_0 = this;
-          tmp_0.yz_1 = LinkedHashMap_init_$Create$();
-          this.h7_1 = 1;
+          tmp_0.h1c_1 = LinkedHashMap_init_$Create$();
+          this.o7_1 = 1;
           continue $sm;
         case 1:
-          if (!this.zz_1.cz_1.jz()) {
-            this.h7_1 = 4;
+          if (!this.i1c_1.l1b_1.s1b()) {
+            this.o7_1 = 4;
             continue $sm;
           }
 
-          this.b10_1 = this.zz_1.dz_1 ? this.zz_1.cz_1.lz() : this.zz_1.cz_1.kz();
-          this.zz_1.cz_1.hz(5);
-          this.h7_1 = 2;
-          suspendResult = this.xz_1.vc(Unit_instance, this);
+          this.k1c_1 = this.i1c_1.m1b_1 ? this.i1c_1.l1b_1.u1b() : this.i1c_1.l1b_1.t1b();
+          this.i1c_1.l1b_1.q1b(5);
+          this.o7_1 = 2;
+          suspendResult = this.g1c_1.df(Unit_instance, this);
           if (suspendResult === get_COROUTINE_SUSPENDED()) {
             return suspendResult;
           }
@@ -1398,91 +1520,91 @@ protoOf($readObjectCOROUTINE$).p7 = function () {
           continue $sm;
         case 2:
           var element = suspendResult;
-          var tmp0 = this.yz_1;
-          var key = this.b10_1;
-          tmp0.m2(key, element);
-          this.a10_1 = this.zz_1.cz_1.nz();
-          var tmp0_subject = this.a10_1;
+          var tmp0 = this.h1c_1;
+          var key = this.k1c_1;
+          tmp0.t2(key, element);
+          this.j1c_1 = this.i1c_1.l1b_1.w1b();
+          var tmp0_subject = this.j1c_1;
           if (tmp0_subject === 4) {
-            this.h7_1 = 3;
+            this.o7_1 = 3;
             continue $sm;
           } else {
             if (tmp0_subject === 7) {
-              this.h7_1 = 4;
+              this.o7_1 = 4;
               continue $sm;
             } else {
-              this.zz_1.cz_1.cy('Expected end of the object or comma');
+              this.i1c_1.l1b_1.l1a('Expected end of the object or comma');
             }
           }
 
           break;
         case 3:
-          this.h7_1 = 1;
+          this.o7_1 = 1;
           continue $sm;
         case 4:
-          if (this.a10_1 === 6) {
-            this.zz_1.cz_1.hz(7);
-          } else if (this.a10_1 === 4) {
-            if (!this.zz_1.ez_1) {
-              invalidTrailingComma(this.zz_1.cz_1);
+          if (this.j1c_1 === 6) {
+            this.i1c_1.l1b_1.q1b(7);
+          } else if (this.j1c_1 === 4) {
+            if (!this.i1c_1.n1b_1) {
+              invalidTrailingComma(this.i1c_1.l1b_1);
             }
-            this.zz_1.cz_1.hz(7);
+            this.i1c_1.l1b_1.q1b(7);
           }
 
-          return new JsonObject(this.yz_1);
+          return new JsonObject(this.h1c_1);
         case 5:
-          throw this.k7_1;
+          throw this.r7_1;
       }
     } catch ($p) {
       var e = $p;
-      if (this.i7_1 === 5) {
+      if (this.p7_1 === 5) {
         throw e;
       } else {
-        this.h7_1 = this.i7_1;
-        this.k7_1 = e;
+        this.o7_1 = this.p7_1;
+        this.r7_1 = e;
       }
     }
    while (true);
 };
 function JsonTreeReader(configuration, lexer) {
-  this.cz_1 = lexer;
-  this.dz_1 = configuration.ov_1;
-  this.ez_1 = configuration.aw_1;
-  this.fz_1 = configuration.ew_1;
-  this.gz_1 = this.cz_1.iv_1.ly_1;
+  this.l1b_1 = lexer;
+  this.m1b_1 = configuration.n17_1;
+  this.n1b_1 = configuration.z17_1;
+  this.o1b_1 = configuration.d18_1;
+  this.p1b_1 = this.l1b_1.h17_1.u1a_1;
 }
-protoOf(JsonTreeReader).mz = function () {
-  var token = this.cz_1.iz();
+protoOf(JsonTreeReader).v1b = function () {
+  var token = this.l1b_1.r1b();
   var tmp;
   if (token === 1) {
     tmp = readValue(this, true);
   } else if (token === 0) {
     tmp = readValue(this, false);
   } else if (token === 6) {
-    this.gz_1 = this.gz_1 + 1 | 0;
-    if (this.gz_1 >= this.fz_1) {
-      jsonTooNested(this.fz_1);
+    this.p1b_1 = this.p1b_1 + 1 | 0;
+    if (this.p1b_1 >= this.o1b_1) {
+      jsonTooNested(this.o1b_1);
     }
     var result;
-    if (this.gz_1 === 200) {
-      this.gz_1 = this.gz_1 - 1 | 0;
+    if (this.p1b_1 === 200) {
+      this.p1b_1 = this.p1b_1 - 1 | 0;
       result = readDeepRecursive(this);
     } else {
       result = readObject(this);
-      this.gz_1 = this.gz_1 - 1 | 0;
+      this.p1b_1 = this.p1b_1 - 1 | 0;
     }
     tmp = result;
   } else if (token === 8) {
     // Inline function 'kotlinx.serialization.json.internal.JsonTreeReader.withDepthControl' call
-    this.gz_1 = this.gz_1 + 1 | 0;
-    if (this.gz_1 >= this.fz_1) {
-      jsonTooNested(this.fz_1);
+    this.p1b_1 = this.p1b_1 + 1 | 0;
+    if (this.p1b_1 >= this.o1b_1) {
+      jsonTooNested(this.o1b_1);
     }
     var result_0 = readArray(this);
-    this.gz_1 = this.gz_1 - 1 | 0;
+    this.p1b_1 = this.p1b_1 - 1 | 0;
     tmp = result_0;
   } else {
-    this.cz_1.cy('Cannot read Json element because of unexpected ' + tokenDescription(token));
+    this.l1b_1.l1a('Cannot read Json element because of unexpected ' + tokenDescription(token));
   }
   return tmp;
 };
@@ -1516,11 +1638,11 @@ function get_entries() {
 var $ENTRIES;
 function LexerMode(name, ordinal, begin, end) {
   Enum.call(this, name, ordinal);
-  this.t10_1 = begin;
-  this.u10_1 = end;
+  this.c1d_1 = begin;
+  this.d1d_1 = end;
 }
 function modeFor(_this__u8e3s4, desc) {
-  var tmp0_subject = desc.te();
+  var tmp0_subject = desc.yi();
   var tmp;
   if (tmp0_subject instanceof PolymorphicKind) {
     tmp = LexerMode_POLY_OBJ_getInstance();
@@ -1530,8 +1652,8 @@ function modeFor(_this__u8e3s4, desc) {
     } else {
       if (equals(tmp0_subject, MAP_getInstance())) {
         // Inline function 'kotlinx.serialization.json.internal.selectMapMode' call
-        var keyDescriptor = carrierDescriptor(desc.af(0), _this__u8e3s4.pg());
-        var keyKind = keyDescriptor.te();
+        var keyDescriptor = carrierDescriptor(desc.fj(0), _this__u8e3s4.gl());
+        var keyKind = keyDescriptor.yi();
         var tmp_0;
         var tmp_1;
         if (keyKind instanceof PrimitiveKind) {
@@ -1542,7 +1664,7 @@ function modeFor(_this__u8e3s4, desc) {
         if (tmp_1) {
           tmp_0 = LexerMode_MAP_getInstance();
         } else {
-          if (_this__u8e3s4.ru_1.pv_1) {
+          if (_this__u8e3s4.q16_1.o17_1) {
             tmp_0 = LexerMode_LIST_getInstance();
           } else {
             throw InvalidKeyKindException(keyDescriptor);
@@ -1558,12 +1680,12 @@ function modeFor(_this__u8e3s4, desc) {
 }
 function carrierDescriptor(_this__u8e3s4, module_0) {
   var tmp;
-  if (equals(_this__u8e3s4.te(), CONTEXTUAL_getInstance())) {
+  if (equals(_this__u8e3s4.yi(), CONTEXTUAL_getInstance())) {
     var tmp0_safe_receiver = getContextualDescriptor(module_0, _this__u8e3s4);
     var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : carrierDescriptor(tmp0_safe_receiver, module_0);
     tmp = tmp1_elvis_lhs == null ? _this__u8e3s4 : tmp1_elvis_lhs;
-  } else if (_this__u8e3s4.ue()) {
-    tmp = carrierDescriptor(_this__u8e3s4.af(0), module_0);
+  } else if (_this__u8e3s4.zi()) {
+    tmp = carrierDescriptor(_this__u8e3s4.fj(0), module_0);
   } else {
     tmp = _this__u8e3s4;
   }
@@ -1588,16 +1710,16 @@ function LexerMode_POLY_OBJ_getInstance() {
 function Key() {
 }
 function DescriptorSchemaCache() {
-  this.dy_1 = createMapForCache(16);
+  this.m1a_1 = createMapForCache(16);
 }
-protoOf(DescriptorSchemaCache).v10 = function (descriptor, key, value) {
+protoOf(DescriptorSchemaCache).e1d = function (descriptor, key, value) {
   // Inline function 'kotlin.collections.getOrPut' call
-  var this_0 = this.dy_1;
+  var this_0 = this.m1a_1;
   var value_0 = this_0.t1(descriptor);
   var tmp;
   if (value_0 == null) {
     var answer = createMapForCache(2);
-    this_0.m2(descriptor, answer);
+    this_0.t2(descriptor, answer);
     tmp = answer;
   } else {
     tmp = value_0;
@@ -1606,10 +1728,10 @@ protoOf(DescriptorSchemaCache).v10 = function (descriptor, key, value) {
   var tmp2 = key instanceof Key ? key : THROW_CCE();
   // Inline function 'kotlin.collections.set' call
   var value_1 = !(value == null) ? value : THROW_CCE();
-  tmp0.m2(tmp2, value_1);
+  tmp0.t2(tmp2, value_1);
 };
-protoOf(DescriptorSchemaCache).ey = function (descriptor, key, defaultValue) {
-  var tmp0_safe_receiver = this.w10(descriptor, key);
+protoOf(DescriptorSchemaCache).n1a = function (descriptor, key, defaultValue) {
+  var tmp0_safe_receiver = this.f1d(descriptor, key);
   if (tmp0_safe_receiver == null)
     null;
   else {
@@ -1617,11 +1739,11 @@ protoOf(DescriptorSchemaCache).ey = function (descriptor, key, defaultValue) {
     return tmp0_safe_receiver;
   }
   var value = defaultValue();
-  this.v10(descriptor, key, value);
+  this.e1d(descriptor, key, value);
   return value;
 };
-protoOf(DescriptorSchemaCache).w10 = function (descriptor, key) {
-  var tmp0_safe_receiver = this.dy_1.t1(descriptor);
+protoOf(DescriptorSchemaCache).f1d = function (descriptor, key) {
+  var tmp0_safe_receiver = this.m1a_1.t1(descriptor);
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
@@ -1632,79 +1754,79 @@ protoOf(DescriptorSchemaCache).w10 = function (descriptor, key) {
   return !(tmp_0 == null) ? tmp_0 : null;
 };
 function DiscriminatorHolder(discriminatorToSkip) {
-  this.x10_1 = discriminatorToSkip;
+  this.g1d_1 = discriminatorToSkip;
 }
 function trySkip($this, $receiver, unknownKey) {
   if ($receiver == null)
     return false;
-  if ($receiver.x10_1 === unknownKey) {
-    $receiver.x10_1 = null;
+  if ($receiver.g1d_1 === unknownKey) {
+    $receiver.g1d_1 = null;
     return true;
   }
   return false;
 }
 function skipLeftoverElements($this, descriptor) {
-  while (!($this.rg(descriptor) === -1)) {
+  while (!($this.il(descriptor) === -1)) {
   }
 }
 function checkLeadingComma($this) {
-  if ($this.av_1.iz() === 4) {
-    $this.av_1.cy('Unexpected leading comma');
+  if ($this.z16_1.r1b() === 4) {
+    $this.z16_1.l1a('Unexpected leading comma');
   }
 }
 function decodeMapIndex($this) {
   var hasComma = false;
-  var decodingKey = !(($this.cv_1 % 2 | 0) === 0);
+  var decodingKey = !(($this.b17_1 % 2 | 0) === 0);
   if (decodingKey) {
-    if (!($this.cv_1 === -1)) {
-      hasComma = $this.av_1.z10();
+    if (!($this.b17_1 === -1)) {
+      hasComma = $this.z16_1.i1d();
     }
   } else {
-    $this.av_1.y10(_Char___init__impl__6a9atx(58));
+    $this.z16_1.h1d(_Char___init__impl__6a9atx(58));
   }
   var tmp;
-  if ($this.av_1.jz()) {
+  if ($this.z16_1.s1b()) {
     if (decodingKey) {
-      if ($this.cv_1 === -1) {
-        var tmp0 = $this.av_1;
+      if ($this.b17_1 === -1) {
+        var tmp0 = $this.z16_1;
         // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.require' call
         var condition = !hasComma;
-        var position = tmp0.hv_1;
+        var position = tmp0.g17_1;
         if (!condition) {
           var tmp$ret$1 = 'Unexpected leading comma';
-          tmp0.cy(tmp$ret$1, position);
+          tmp0.l1a(tmp$ret$1, position);
         }
       } else {
-        var tmp0_0 = $this.av_1;
+        var tmp0_0 = $this.z16_1;
         // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.require' call
         var condition_0 = hasComma;
-        var position_0 = tmp0_0.hv_1;
+        var position_0 = tmp0_0.g17_1;
         if (!condition_0) {
           var tmp$ret$3 = 'Expected comma after the key-value pair';
-          tmp0_0.cy(tmp$ret$3, position_0);
+          tmp0_0.l1a(tmp$ret$3, position_0);
         }
       }
     }
-    $this.cv_1 = $this.cv_1 + 1 | 0;
-    tmp = $this.cv_1;
+    $this.b17_1 = $this.b17_1 + 1 | 0;
+    tmp = $this.b17_1;
   } else {
-    if (hasComma && !$this.yu_1.ru_1.aw_1) {
-      invalidTrailingComma($this.av_1);
+    if (hasComma && !$this.x16_1.q16_1.z17_1) {
+      invalidTrailingComma($this.z16_1);
     }
     tmp = -1;
   }
   return tmp;
 }
 function coerceInputValue($this, descriptor, index) {
-  var tmp0 = $this.yu_1;
+  var tmp0 = $this.x16_1;
   var tmp$ret$0;
   $l$block_2: {
     // Inline function 'kotlinx.serialization.json.internal.tryCoerceValue' call
-    var isOptional = descriptor.bf(index);
-    var elementDescriptor = descriptor.af(index);
+    var isOptional = descriptor.gj(index);
+    var elementDescriptor = descriptor.fj(index);
     var tmp;
-    if (isOptional && !elementDescriptor.ne()) {
-      tmp = $this.av_1.a11(true);
+    if (isOptional && !elementDescriptor.si()) {
+      tmp = $this.z16_1.j1d(true);
     } else {
       tmp = false;
     }
@@ -1712,10 +1834,10 @@ function coerceInputValue($this, descriptor, index) {
       tmp$ret$0 = true;
       break $l$block_2;
     }
-    if (equals(elementDescriptor.te(), ENUM_getInstance())) {
+    if (equals(elementDescriptor.yi(), ENUM_getInstance())) {
       var tmp_0;
-      if (elementDescriptor.ne()) {
-        tmp_0 = $this.av_1.a11(false);
+      if (elementDescriptor.si()) {
+        tmp_0 = $this.z16_1.j1d(false);
       } else {
         tmp_0 = false;
       }
@@ -1723,7 +1845,7 @@ function coerceInputValue($this, descriptor, index) {
         tmp$ret$0 = false;
         break $l$block_2;
       }
-      var tmp0_elvis_lhs = $this.av_1.b11($this.ev_1.ov_1);
+      var tmp0_elvis_lhs = $this.z16_1.k1d($this.d17_1.n17_1);
       var tmp_1;
       if (tmp0_elvis_lhs == null) {
         tmp$ret$0 = false;
@@ -1733,9 +1855,9 @@ function coerceInputValue($this, descriptor, index) {
       }
       var enumValue = tmp_1;
       var enumIndex = getJsonNameIndex(elementDescriptor, tmp0, enumValue);
-      var coerceToNull = !tmp0.ru_1.rv_1 && elementDescriptor.ne();
+      var coerceToNull = !tmp0.q16_1.q17_1 && elementDescriptor.si();
       if (enumIndex === -3 && (isOptional || coerceToNull)) {
-        $this.av_1.kz();
+        $this.z16_1.t1b();
         tmp$ret$0 = true;
         break $l$block_2;
       }
@@ -1745,24 +1867,24 @@ function coerceInputValue($this, descriptor, index) {
   return tmp$ret$0;
 }
 function decodeObjectIndex($this, descriptor) {
-  var hasComma = $this.av_1.z10();
-  while ($this.av_1.jz()) {
+  var hasComma = $this.z16_1.i1d();
+  while ($this.z16_1.s1b()) {
     hasComma = false;
     var key = decodeStringKey($this);
-    $this.av_1.y10(_Char___init__impl__6a9atx(58));
-    var index = getJsonNameIndex(descriptor, $this.yu_1, key);
+    $this.z16_1.h1d(_Char___init__impl__6a9atx(58));
+    var index = getJsonNameIndex(descriptor, $this.x16_1, key);
     var tmp;
     if (!(index === -3)) {
       var tmp_0;
-      if ($this.ev_1.tv_1 && coerceInputValue($this, descriptor, index)) {
-        hasComma = $this.av_1.z10();
+      if ($this.d17_1.s17_1 && coerceInputValue($this, descriptor, index)) {
+        hasComma = $this.z16_1.i1d();
         tmp_0 = false;
       } else {
-        var tmp0_safe_receiver = $this.fv_1;
+        var tmp0_safe_receiver = $this.e17_1;
         if (tmp0_safe_receiver == null)
           null;
         else {
-          tmp0_safe_receiver.zx(index);
+          tmp0_safe_receiver.i1a(index);
         }
         return index;
       }
@@ -1775,34 +1897,34 @@ function decodeObjectIndex($this, descriptor) {
       hasComma = handleUnknown($this, descriptor, key);
     }
   }
-  if (hasComma && !$this.yu_1.ru_1.aw_1) {
-    invalidTrailingComma($this.av_1);
+  if (hasComma && !$this.x16_1.q16_1.z17_1) {
+    invalidTrailingComma($this.z16_1);
   }
-  var tmp1_safe_receiver = $this.fv_1;
-  var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.ay();
+  var tmp1_safe_receiver = $this.e17_1;
+  var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.j1a();
   return tmp2_elvis_lhs == null ? -1 : tmp2_elvis_lhs;
 }
 function handleUnknown($this, descriptor, key) {
-  if (ignoreUnknownKeys(descriptor, $this.yu_1) || trySkip($this, $this.dv_1, key)) {
-    $this.av_1.d11($this.ev_1.ov_1);
+  if (ignoreUnknownKeys(descriptor, $this.x16_1) || trySkip($this, $this.c17_1, key)) {
+    $this.z16_1.m1d($this.d17_1.n17_1);
   } else {
-    $this.av_1.iv_1.qy();
-    $this.av_1.c11(key);
+    $this.z16_1.h17_1.z1a();
+    $this.z16_1.l1d(key);
   }
-  return $this.av_1.z10();
+  return $this.z16_1.i1d();
 }
 function decodeListIndex($this) {
-  var hasComma = $this.av_1.z10();
+  var hasComma = $this.z16_1.i1d();
   var tmp;
-  if ($this.av_1.jz()) {
-    if (!($this.cv_1 === -1) && !hasComma) {
-      $this.av_1.cy('Expected end of the array or comma');
+  if ($this.z16_1.s1b()) {
+    if (!($this.b17_1 === -1) && !hasComma) {
+      $this.z16_1.l1a('Expected end of the array or comma');
     }
-    $this.cv_1 = $this.cv_1 + 1 | 0;
-    tmp = $this.cv_1;
+    $this.b17_1 = $this.b17_1 + 1 | 0;
+    tmp = $this.b17_1;
   } else {
-    if (hasComma && !$this.yu_1.ru_1.aw_1) {
-      invalidTrailingComma($this.av_1, 'array');
+    if (hasComma && !$this.x16_1.q16_1.z17_1) {
+      invalidTrailingComma($this.z16_1, 'array');
     }
     tmp = -1;
   }
@@ -1810,36 +1932,36 @@ function decodeListIndex($this) {
 }
 function decodeStringKey($this) {
   var tmp;
-  if ($this.ev_1.ov_1) {
-    tmp = $this.av_1.f11();
+  if ($this.d17_1.n17_1) {
+    tmp = $this.z16_1.o1d();
   } else {
-    tmp = $this.av_1.e11();
+    tmp = $this.z16_1.n1d();
   }
   return tmp;
 }
 function StreamingJsonDecoder(json, mode, lexer, descriptor, discriminatorHolder) {
   AbstractDecoder.call(this);
-  this.yu_1 = json;
-  this.zu_1 = mode;
-  this.av_1 = lexer;
-  this.bv_1 = this.yu_1.pg();
-  this.cv_1 = -1;
-  this.dv_1 = discriminatorHolder;
-  this.ev_1 = this.yu_1.ru_1;
-  this.fv_1 = this.ev_1.rv_1 ? null : new JsonElementMarker(descriptor);
+  this.x16_1 = json;
+  this.y16_1 = mode;
+  this.z16_1 = lexer;
+  this.a17_1 = this.x16_1.gl();
+  this.b17_1 = -1;
+  this.c17_1 = discriminatorHolder;
+  this.d17_1 = this.x16_1.q16_1;
+  this.e17_1 = this.d17_1.q17_1 ? null : new JsonElementMarker(descriptor);
 }
-protoOf(StreamingJsonDecoder).g11 = function () {
-  return this.yu_1;
+protoOf(StreamingJsonDecoder).p1d = function () {
+  return this.x16_1;
 };
-protoOf(StreamingJsonDecoder).pg = function () {
-  return this.bv_1;
+protoOf(StreamingJsonDecoder).gl = function () {
+  return this.a17_1;
 };
-protoOf(StreamingJsonDecoder).h11 = function () {
-  return (new JsonTreeReader(this.yu_1.ru_1, this.av_1)).mz();
+protoOf(StreamingJsonDecoder).q1d = function () {
+  return (new JsonTreeReader(this.x16_1.q16_1, this.z16_1)).v1b();
 };
-protoOf(StreamingJsonDecoder).fg = function (deserializer) {
-  var tmp2_withExceptionHandling_this = this.av_1.iv_1;
-  var tmp3_withExceptionHandling_this = this.av_1;
+protoOf(StreamingJsonDecoder).qk = function (deserializer) {
+  var tmp2_withExceptionHandling_this = this.z16_1.h17_1;
+  var tmp3_withExceptionHandling_this = this.z16_1;
   // Inline function 'kotlinx.serialization.json.internal.withExceptionHandling' call
   var tmp;
   try {
@@ -1847,13 +1969,13 @@ protoOf(StreamingJsonDecoder).fg = function (deserializer) {
     if (!(deserializer instanceof AbstractPolymorphicSerializer)) {
       tmp_0 = true;
     } else {
-      tmp_0 = this.yu_1.ru_1.uv_1;
+      tmp_0 = this.x16_1.q16_1.t17_1;
     }
     if (tmp_0) {
-      return deserializer.nd(this);
+      return deserializer.th(this);
     }
-    var discriminator = classDiscriminator(deserializer.md(), this.yu_1);
-    var tmp0_elvis_lhs = this.av_1.i11(discriminator, this.ev_1.ov_1);
+    var discriminator = classDiscriminator(deserializer.rh(), this.x16_1);
+    var tmp0_elvis_lhs = this.z16_1.r1d(discriminator, this.d17_1.n17_1);
     var tmp_1;
     if (tmp0_elvis_lhs == null) {
       var tmp2 = isInterface(deserializer, DeserializationStrategy) ? deserializer : THROW_CCE();
@@ -1864,22 +1986,22 @@ protoOf(StreamingJsonDecoder).fg = function (deserializer) {
         if (!(tmp2 instanceof AbstractPolymorphicSerializer)) {
           tmp_2 = true;
         } else {
-          tmp_2 = this.g11().ru_1.uv_1;
+          tmp_2 = this.p1d().q16_1.t17_1;
         }
         if (tmp_2) {
-          tmp$ret$2 = tmp2.nd(this);
+          tmp$ret$2 = tmp2.th(this);
           break $l$block;
         }
-        var discriminator_0 = classDiscriminator(tmp2.md(), this.g11());
-        var tmp2_0 = this.h11();
+        var discriminator_0 = classDiscriminator(tmp2.rh(), this.p1d());
+        var tmp2_0 = this.q1d();
         // Inline function 'kotlinx.serialization.json.internal.cast' call
-        var serialName = tmp2.md().ie();
+        var serialName = tmp2.rh().ni();
         if (!(tmp2_0 instanceof JsonObject)) {
-          var tmp2_1 = 'Expected ' + getKClass(JsonObject).g8() + ', but had ' + getKClassFromExpression(tmp2_0).g8() + ' as the serialized body of ' + serialName;
+          var tmp2_1 = 'Expected ' + getKClass(JsonObject).n8() + ', but had ' + getKClassFromExpression(tmp2_0).n8() + ' as the serialized body of ' + serialName;
           // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-          var path = this.av_1.iv_1.ry();
+          var path = this.z16_1.h17_1.a1b();
           var tmp_3;
-          if (this.g11().ru_1.dw_1) {
+          if (this.p1d().q16_1.c18_1) {
             var tmp$ret$8 = toString_0(tmp2_0);
             tmp_3 = toString_0(minify(tmp$ret$8));
           } else {
@@ -1889,19 +2011,19 @@ protoOf(StreamingJsonDecoder).fg = function (deserializer) {
           throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2_1, path, null, inputValue), tmp2_1, -1, path, inputValue, null);
         }
         var jsonTree = tmp2_0;
-        var tmp0_safe_receiver = jsonTree.hw(discriminator_0);
+        var tmp0_safe_receiver = jsonTree.g18(discriminator_0);
         var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : get_jsonPrimitive(tmp0_safe_receiver);
         var type = tmp1_safe_receiver == null ? null : get_contentOrNull(tmp1_safe_receiver);
-        var tmp_4 = tmp2.rd(this, type);
+        var tmp_4 = tmp2.wh(this, type);
         var actualSerializer = (!(tmp_4 == null) ? isInterface(tmp_4, DeserializationStrategy) : false) ? tmp_4 : null;
         if (actualSerializer == null) {
-          var _destruct__k2r9zo = subtypeNotRegisteredMessageJson(type, tmp2.qd());
-          var message = _destruct__k2r9zo.ab();
-          var hint = _destruct__k2r9zo.bb();
+          var _destruct__k2r9zo = subtypeNotRegisteredMessageJson(type, tmp2.vh());
+          var message = _destruct__k2r9zo.gb();
+          var hint = _destruct__k2r9zo.hb();
           // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-          var path_0 = this.av_1.iv_1.ry();
+          var path_0 = this.z16_1.h17_1.a1b();
           var tmp_5;
-          if (this.g11().ru_1.dw_1) {
+          if (this.p1d().q16_1.c18_1) {
             var tmp$ret$13 = jsonTree.toString();
             tmp_5 = toString_0(minify(tmp$ret$13));
           } else {
@@ -1910,23 +2032,23 @@ protoOf(StreamingJsonDecoder).fg = function (deserializer) {
           var inputValue_0 = tmp_5;
           throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, message, path_0, hint, inputValue_0), message, -1, path_0, inputValue_0, hint);
         }
-        tmp$ret$2 = readPolymorphicJson(this.g11(), discriminator_0, jsonTree, actualSerializer);
+        tmp$ret$2 = readPolymorphicJson(this.p1d(), discriminator_0, jsonTree, actualSerializer);
       }
       return tmp$ret$2;
     } else {
       tmp_1 = tmp0_elvis_lhs;
     }
     var type_0 = tmp_1;
-    var tmp_6 = deserializer.rd(this, type_0);
+    var tmp_6 = deserializer.wh(this, type_0);
     var actualSerializer_0 = (!(tmp_6 == null) ? isInterface(tmp_6, DeserializationStrategy) : false) ? tmp_6 : null;
     if (actualSerializer_0 == null) {
-      var _destruct__k2r9zo_0 = subtypeNotRegisteredMessageJson(type_0, deserializer.qd());
-      var message_0 = _destruct__k2r9zo_0.ab();
-      var hint_0 = _destruct__k2r9zo_0.bb();
-      this.av_1.cy(message_0, VOID, hint_0);
+      var _destruct__k2r9zo_0 = subtypeNotRegisteredMessageJson(type_0, deserializer.vh());
+      var message_0 = _destruct__k2r9zo_0.gb();
+      var hint_0 = _destruct__k2r9zo_0.hb();
+      this.z16_1.l1a(message_0, VOID, hint_0);
     }
-    this.dv_1 = new DiscriminatorHolder(discriminator);
-    tmp = actualSerializer_0.nd(this);
+    this.c17_1 = new DiscriminatorHolder(discriminator);
+    tmp = actualSerializer_0.th(this);
   } catch ($p) {
     var tmp_7;
     if ($p instanceof MissingFieldException) {
@@ -1934,7 +2056,7 @@ protoOf(StreamingJsonDecoder).fg = function (deserializer) {
       if (contains(ensureNotNull(e.message), 'at path'))
         throw e;
       var tmp_8 = plus(e.message, ' at path: ');
-      var tmp$ret$14 = tmp2_withExceptionHandling_this.ry();
+      var tmp$ret$14 = tmp2_withExceptionHandling_this.a1b();
       throw missingFieldExceptionWithNewMessage(e, tmp_8 + tmp$ret$14);
     } else {
       if ($p instanceof SerializationException) {
@@ -1944,12 +2066,12 @@ protoOf(StreamingJsonDecoder).fg = function (deserializer) {
         if ($p instanceof Exception) {
           var e_1 = $p;
           // Inline function 'kotlinx.serialization.json.internal.errorFromDeserializer' call
-          var path_1 = tmp2_withExceptionHandling_this.ry();
+          var path_1 = tmp2_withExceptionHandling_this.a1b();
           var causeMessage = e_1.message;
           var shortMessage = 'Deserialization failed because of ' + (causeMessage == null ? 'an exception' : "'" + causeMessage + "' exception") + ' in the decoder';
           var tmp_9;
-          if (this.g11().ru_1.dw_1) {
-            var tmp$ret$19 = tmp3_withExceptionHandling_this.j11();
+          if (this.p1d().q16_1.c18_1) {
+            var tmp$ret$19 = tmp3_withExceptionHandling_this.s1d();
             tmp_9 = toString_0(minify(tmp$ret$19));
           } else {
             tmp_9 = null;
@@ -1964,24 +2086,24 @@ protoOf(StreamingJsonDecoder).fg = function (deserializer) {
   }
   return tmp;
 };
-protoOf(StreamingJsonDecoder).gg = function (descriptor) {
-  var newMode = modeFor(this.yu_1, descriptor);
-  this.av_1.iv_1.my(descriptor);
-  this.av_1.y10(newMode.t10_1);
+protoOf(StreamingJsonDecoder).rk = function (descriptor) {
+  var newMode = modeFor(this.x16_1, descriptor);
+  this.z16_1.h17_1.v1a(descriptor);
+  this.z16_1.h1d(newMode.c1d_1);
   checkLeadingComma(this);
   var tmp;
   switch (newMode.x1_1) {
     case 1:
     case 2:
     case 3:
-      tmp = new StreamingJsonDecoder(this.yu_1, newMode, this.av_1, descriptor, this.dv_1);
+      tmp = new StreamingJsonDecoder(this.x16_1, newMode, this.z16_1, descriptor, this.c17_1);
       break;
     default:
       var tmp_0;
-      if (this.zu_1.equals(newMode) && this.yu_1.ru_1.rv_1) {
+      if (this.y16_1.equals(newMode) && this.x16_1.q16_1.q17_1) {
         tmp_0 = this;
       } else {
-        tmp_0 = new StreamingJsonDecoder(this.yu_1, newMode, this.av_1, descriptor, this.dv_1);
+        tmp_0 = new StreamingJsonDecoder(this.x16_1, newMode, this.z16_1, descriptor, this.c17_1);
       }
 
       tmp = tmp_0;
@@ -1989,44 +2111,44 @@ protoOf(StreamingJsonDecoder).gg = function (descriptor) {
   }
   return tmp;
 };
-protoOf(StreamingJsonDecoder).hg = function (descriptor) {
-  if (descriptor.ve() === 0 && ignoreUnknownKeys(descriptor, this.yu_1)) {
+protoOf(StreamingJsonDecoder).sk = function (descriptor) {
+  if (descriptor.aj() === 0 && ignoreUnknownKeys(descriptor, this.x16_1)) {
     skipLeftoverElements(this, descriptor);
   }
-  if (this.av_1.z10() && !this.yu_1.ru_1.aw_1) {
-    invalidTrailingComma(this.av_1, '');
+  if (this.z16_1.i1d() && !this.x16_1.q16_1.z17_1) {
+    invalidTrailingComma(this.z16_1, '');
   }
-  this.av_1.y10(this.zu_1.u10_1);
-  this.av_1.iv_1.qy();
+  this.z16_1.h1d(this.y16_1.d1d_1);
+  this.z16_1.h17_1.z1a();
 };
-protoOf(StreamingJsonDecoder).xf = function () {
+protoOf(StreamingJsonDecoder).ck = function () {
   var tmp;
-  var tmp0_safe_receiver = this.fv_1;
-  var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.yx_1;
+  var tmp0_safe_receiver = this.e17_1;
+  var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.h1a_1;
   if (!(tmp1_elvis_lhs == null ? false : tmp1_elvis_lhs)) {
-    tmp = !this.av_1.k11();
+    tmp = !this.z16_1.t1d();
   } else {
     tmp = false;
   }
   return tmp;
 };
-protoOf(StreamingJsonDecoder).yf = function () {
+protoOf(StreamingJsonDecoder).dk = function () {
   return null;
 };
-protoOf(StreamingJsonDecoder).mg = function (descriptor, index, deserializer, previousValue) {
-  var isMapKey = this.zu_1.equals(LexerMode_MAP_getInstance()) && (index & 1) === 0;
+protoOf(StreamingJsonDecoder).dl = function (descriptor, index, deserializer, previousValue) {
+  var isMapKey = this.y16_1.equals(LexerMode_MAP_getInstance()) && (index & 1) === 0;
   if (isMapKey) {
-    this.av_1.iv_1.py();
+    this.z16_1.h17_1.y1a();
   }
-  var value = protoOf(AbstractDecoder).mg.call(this, descriptor, index, deserializer, previousValue);
+  var value = protoOf(AbstractDecoder).dl.call(this, descriptor, index, deserializer, previousValue);
   if (isMapKey) {
-    this.av_1.iv_1.oy(value);
+    this.z16_1.h17_1.x1a(value);
   }
   return value;
 };
-protoOf(StreamingJsonDecoder).rg = function (descriptor) {
+protoOf(StreamingJsonDecoder).il = function (descriptor) {
   var index;
-  switch (this.zu_1.x1_1) {
+  switch (this.y16_1.x1_1) {
     case 0:
       index = decodeObjectIndex(this, descriptor);
       break;
@@ -2037,57 +2159,217 @@ protoOf(StreamingJsonDecoder).rg = function (descriptor) {
       index = decodeListIndex(this);
       break;
   }
-  if (!this.zu_1.equals(LexerMode_MAP_getInstance())) {
-    this.av_1.iv_1.ny(index);
+  if (!this.y16_1.equals(LexerMode_MAP_getInstance())) {
+    this.z16_1.h17_1.w1a(index);
   }
   return index;
 };
-protoOf(StreamingJsonDecoder).zf = function () {
-  var value = this.av_1.l11();
+protoOf(StreamingJsonDecoder).ek = function () {
+  return this.z16_1.u1d();
+};
+protoOf(StreamingJsonDecoder).fk = function () {
+  var value = this.z16_1.v1d();
+  if (!equalsLong(value, fromInt(convertToByte(value)))) {
+    this.z16_1.l1a("Failed to parse byte for input '" + value.toString() + "'");
+  }
+  return convertToByte(value);
+};
+protoOf(StreamingJsonDecoder).gk = function () {
+  var value = this.z16_1.v1d();
+  if (!equalsLong(value, fromInt(convertToShort(value)))) {
+    this.z16_1.l1a("Failed to parse short for input '" + value.toString() + "'");
+  }
+  return convertToShort(value);
+};
+protoOf(StreamingJsonDecoder).hk = function () {
+  var value = this.z16_1.v1d();
   if (!equalsLong(value, fromInt(convertToInt(value)))) {
-    this.av_1.cy("Failed to parse int for input '" + value.toString() + "'");
+    this.z16_1.l1a("Failed to parse int for input '" + value.toString() + "'");
   }
   return convertToInt(value);
 };
-protoOf(StreamingJsonDecoder).ag = function () {
-  return this.av_1.l11();
+protoOf(StreamingJsonDecoder).ik = function () {
+  return this.z16_1.v1d();
 };
-protoOf(StreamingJsonDecoder).bg = function () {
-  var tmp0 = this.av_1;
+protoOf(StreamingJsonDecoder).jk = function () {
+  var tmp0 = this.z16_1;
   var tmp$ret$0;
   $l$block: {
     // Inline function 'kotlinx.serialization.json.internal.parseString' call
-    var input = tmp0.lz();
+    var input = tmp0.u1b();
     try {
+      // Inline function 'kotlin.text.toFloat' call
+      // Inline function 'kotlin.js.unsafeCast' call
+      // Inline function 'kotlin.js.asDynamic' call
       tmp$ret$0 = toDouble(input);
       break $l$block;
     } catch ($p) {
       if ($p instanceof IllegalArgumentException) {
         var e = $p;
-        tmp0.cy("Failed to parse type '" + 'double' + "' for input '" + input + "'");
+        tmp0.l1a("Failed to parse type '" + 'float' + "' for input '" + input + "'");
       } else {
         throw $p;
       }
     }
   }
   var result = tmp$ret$0;
-  var specialFp = this.yu_1.ru_1.wv_1;
+  var specialFp = this.x16_1.q16_1.v17_1;
   if (specialFp || isFinite(result))
     return result;
-  throwInvalidFloatingPointDecoded(this.av_1, result);
+  throwInvalidFloatingPointDecoded(this.z16_1, result);
 };
-protoOf(StreamingJsonDecoder).cg = function () {
+protoOf(StreamingJsonDecoder).kk = function () {
+  var tmp0 = this.z16_1;
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlinx.serialization.json.internal.parseString' call
+    var input = tmp0.u1b();
+    try {
+      tmp$ret$0 = toDouble(input);
+      break $l$block;
+    } catch ($p) {
+      if ($p instanceof IllegalArgumentException) {
+        var e = $p;
+        tmp0.l1a("Failed to parse type '" + 'double' + "' for input '" + input + "'");
+      } else {
+        throw $p;
+      }
+    }
+  }
+  var result = tmp$ret$0;
+  var specialFp = this.x16_1.q16_1.v17_1;
+  if (specialFp || isFinite_0(result))
+    return result;
+  throwInvalidFloatingPointDecoded(this.z16_1, result);
+};
+protoOf(StreamingJsonDecoder).lk = function () {
+  var string = this.z16_1.u1b();
+  if (!(string.length === 1)) {
+    this.z16_1.l1a("Expected single char, but got '" + string + "'");
+  }
+  return charCodeAt(string, 0);
+};
+protoOf(StreamingJsonDecoder).mk = function () {
   var tmp;
-  if (this.ev_1.ov_1) {
-    tmp = this.av_1.f11();
+  if (this.d17_1.n17_1) {
+    tmp = this.z16_1.o1d();
   } else {
-    tmp = this.av_1.kz();
+    tmp = this.z16_1.t1b();
   }
   return tmp;
 };
-protoOf(StreamingJsonDecoder).dg = function (enumDescriptor) {
-  return getJsonNameIndexOrThrow(enumDescriptor, this.yu_1, this.cg(), ' at path ' + this.av_1.iv_1.ry());
+protoOf(StreamingJsonDecoder).ok = function (descriptor) {
+  return get_isUnsignedNumber(descriptor) ? new JsonDecoderForUnsignedTypes(this.z16_1, this.x16_1) : protoOf(AbstractDecoder).ok.call(this, descriptor);
 };
+protoOf(StreamingJsonDecoder).nk = function (enumDescriptor) {
+  return getJsonNameIndexOrThrow(enumDescriptor, this.x16_1, this.mk(), ' at path ' + this.z16_1.h17_1.a1b());
+};
+function JsonDecoderForUnsignedTypes(lexer, json) {
+  AbstractDecoder.call(this);
+  this.w1d_1 = lexer;
+  this.x1d_1 = json.gl();
+}
+protoOf(JsonDecoderForUnsignedTypes).gl = function () {
+  return this.x1d_1;
+};
+protoOf(JsonDecoderForUnsignedTypes).il = function (descriptor) {
+  // Inline function 'kotlin.error' call
+  var message = 'unsupported';
+  throw IllegalStateException_init_$Create$(toString_0(message));
+};
+protoOf(JsonDecoderForUnsignedTypes).hk = function () {
+  var tmp0 = this.w1d_1;
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlinx.serialization.json.internal.parseString' call
+    var input = tmp0.u1b();
+    try {
+      // Inline function 'kotlin.UInt.toInt' call
+      var this_0 = toUInt(input);
+      tmp$ret$0 = _UInt___get_data__impl__f0vqqw(this_0);
+      break $l$block;
+    } catch ($p) {
+      if ($p instanceof IllegalArgumentException) {
+        var e = $p;
+        tmp0.l1a("Failed to parse type '" + 'UInt' + "' for input '" + input + "'");
+      } else {
+        throw $p;
+      }
+    }
+  }
+  return tmp$ret$0;
+};
+protoOf(JsonDecoderForUnsignedTypes).ik = function () {
+  var tmp0 = this.w1d_1;
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlinx.serialization.json.internal.parseString' call
+    var input = tmp0.u1b();
+    try {
+      // Inline function 'kotlin.ULong.toLong' call
+      var this_0 = toULong(input);
+      tmp$ret$0 = _ULong___get_data__impl__fggpzb(this_0);
+      break $l$block;
+    } catch ($p) {
+      if ($p instanceof IllegalArgumentException) {
+        var e = $p;
+        tmp0.l1a("Failed to parse type '" + 'ULong' + "' for input '" + input + "'");
+      } else {
+        throw $p;
+      }
+    }
+  }
+  return tmp$ret$0;
+};
+protoOf(JsonDecoderForUnsignedTypes).fk = function () {
+  var tmp0 = this.w1d_1;
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlinx.serialization.json.internal.parseString' call
+    var input = tmp0.u1b();
+    try {
+      // Inline function 'kotlin.UByte.toByte' call
+      var this_0 = toUByte(input);
+      tmp$ret$0 = _UByte___get_data__impl__jof9qr(this_0);
+      break $l$block;
+    } catch ($p) {
+      if ($p instanceof IllegalArgumentException) {
+        var e = $p;
+        tmp0.l1a("Failed to parse type '" + 'UByte' + "' for input '" + input + "'");
+      } else {
+        throw $p;
+      }
+    }
+  }
+  return tmp$ret$0;
+};
+protoOf(JsonDecoderForUnsignedTypes).gk = function () {
+  var tmp0 = this.w1d_1;
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlinx.serialization.json.internal.parseString' call
+    var input = tmp0.u1b();
+    try {
+      // Inline function 'kotlin.UShort.toShort' call
+      var this_0 = toUShort(input);
+      tmp$ret$0 = _UShort___get_data__impl__g0245(this_0);
+      break $l$block;
+    } catch ($p) {
+      if ($p instanceof IllegalArgumentException) {
+        var e = $p;
+        tmp0.l1a("Failed to parse type '" + 'UShort' + "' for input '" + input + "'");
+      } else {
+        throw $p;
+      }
+    }
+  }
+  return tmp$ret$0;
+};
+function get_unsignedNumberDescriptors() {
+  _init_properties_StreamingJsonEncoder_kt__pn1bsi();
+  return unsignedNumberDescriptors;
+}
+var unsignedNumberDescriptors;
 function StreamingJsonEncoder_init_$Init$(output, json, mode, modeReuseCache, $this) {
   StreamingJsonEncoder.call($this, Composer_0(output, json), json, mode, modeReuseCache);
   return $this;
@@ -2096,56 +2378,56 @@ function StreamingJsonEncoder_init_$Create$(output, json, mode, modeReuseCache) 
   return StreamingJsonEncoder_init_$Init$(output, json, mode, modeReuseCache, objectCreate(protoOf(StreamingJsonEncoder)));
 }
 function encodeTypeInfo($this, discriminator, serialName) {
-  $this.ty_1.gx();
-  $this.zg(discriminator);
-  $this.ty_1.jx(_Char___init__impl__6a9atx(58));
-  $this.ty_1.ix();
-  $this.zg(serialName);
+  $this.c1b_1.f19();
+  $this.vl(discriminator);
+  $this.c1b_1.i19(_Char___init__impl__6a9atx(58));
+  $this.c1b_1.h19();
+  $this.vl(serialName);
 }
 function StreamingJsonEncoder(composer, json, mode, modeReuseCache) {
   AbstractEncoder.call(this);
-  this.ty_1 = composer;
-  this.uy_1 = json;
-  this.vy_1 = mode;
-  this.wy_1 = modeReuseCache;
-  this.xy_1 = this.uy_1.pg();
-  this.yy_1 = this.uy_1.ru_1;
-  this.zy_1 = false;
-  this.az_1 = null;
-  this.bz_1 = null;
-  var i = this.vy_1.x1_1;
-  if (!(this.wy_1 == null)) {
-    if (!(this.wy_1[i] === null) || !(this.wy_1[i] === this)) {
-      this.wy_1[i] = this;
+  this.c1b_1 = composer;
+  this.d1b_1 = json;
+  this.e1b_1 = mode;
+  this.f1b_1 = modeReuseCache;
+  this.g1b_1 = this.d1b_1.gl();
+  this.h1b_1 = this.d1b_1.q16_1;
+  this.i1b_1 = false;
+  this.j1b_1 = null;
+  this.k1b_1 = null;
+  var i = this.e1b_1.x1_1;
+  if (!(this.f1b_1 == null)) {
+    if (!(this.f1b_1[i] === null) || !(this.f1b_1[i] === this)) {
+      this.f1b_1[i] = this;
     }
   }
 }
-protoOf(StreamingJsonEncoder).g11 = function () {
-  return this.uy_1;
+protoOf(StreamingJsonEncoder).p1d = function () {
+  return this.d1b_1;
 };
-protoOf(StreamingJsonEncoder).pg = function () {
-  return this.xy_1;
+protoOf(StreamingJsonEncoder).gl = function () {
+  return this.g1b_1;
 };
-protoOf(StreamingJsonEncoder).lh = function (descriptor, index) {
-  return this.yy_1.mv_1;
+protoOf(StreamingJsonEncoder).om = function (descriptor, index) {
+  return this.h1b_1.l17_1;
 };
-protoOf(StreamingJsonEncoder).gh = function (serializer, value) {
+protoOf(StreamingJsonEncoder).jm = function (serializer, value) {
   // Inline function 'kotlinx.serialization.json.internal.withExceptionHandling' call
   var tmp;
   try {
     $l$block: {
       // Inline function 'kotlinx.serialization.json.internal.encodePolymorphically' call
-      if (this.g11().ru_1.uv_1) {
-        serializer.od(this, value);
+      if (this.p1d().q16_1.t17_1) {
+        serializer.sh(this, value);
         break $l$block;
       }
       var isPolymorphicSerializer = serializer instanceof AbstractPolymorphicSerializer;
       var tmp_0;
       if (isPolymorphicSerializer) {
-        tmp_0 = !this.g11().ru_1.cw_1.equals(ClassDiscriminatorMode_NONE_getInstance());
+        tmp_0 = !this.p1d().q16_1.b18_1.equals(ClassDiscriminatorMode_NONE_getInstance());
       } else {
         var tmp_1;
-        switch (this.g11().ru_1.cw_1.x1_1) {
+        switch (this.p1d().q16_1.b18_1.x1_1) {
           case 0:
           case 2:
             tmp_1 = false;
@@ -2153,7 +2435,7 @@ protoOf(StreamingJsonEncoder).gh = function (serializer, value) {
           case 1:
             // Inline function 'kotlin.let' call
 
-            var it = serializer.md().te();
+            var it = serializer.rh().yi();
             tmp_1 = equals(it, CLASS_getInstance()) || equals(it, OBJECT_getInstance());
             break;
           default:
@@ -2163,28 +2445,28 @@ protoOf(StreamingJsonEncoder).gh = function (serializer, value) {
         tmp_0 = tmp_1;
       }
       var needDiscriminator = tmp_0;
-      var baseClassDiscriminator = needDiscriminator ? classDiscriminator(serializer.md(), this.g11()) : null;
+      var baseClassDiscriminator = needDiscriminator ? classDiscriminator(serializer.rh(), this.p1d()) : null;
       var tmp_2;
       if (isPolymorphicSerializer) {
         var casted = serializer instanceof AbstractPolymorphicSerializer ? serializer : THROW_CCE();
         $l$block_0: {
           // Inline function 'kotlin.requireNotNull' call
           if (value == null) {
-            var message = 'Value for serializer ' + toString_0(serializer.md()) + ' should always be non-null. Please report issue to the kotlinx.serialization tracker.';
+            var message = 'Value for serializer ' + toString_0(serializer.rh()) + ' should always be non-null. Please report issue to the kotlinx.serialization tracker.';
             throw IllegalArgumentException_init_$Create$(toString_0(message));
           } else {
             break $l$block_0;
           }
         }
-        var tmp1_elvis_lhs = casted.pd(this, value);
+        var tmp1_elvis_lhs = casted.uh(this, value);
         var tmp_3;
         if (tmp1_elvis_lhs == null) {
           // Inline function 'kotlin.run' call
-          var tmp0_elvis_lhs = getKClassFromExpression(value).g8();
+          var tmp0_elvis_lhs = getKClassFromExpression(value).n8();
           var subClassName = tmp0_elvis_lhs == null ? toString_0(getKClassFromExpression(value)) : tmp0_elvis_lhs;
-          var _destruct__k2r9zo = subtypeNotRegisteredMessageJson(subClassName, casted.qd());
-          var message_0 = _destruct__k2r9zo.ab();
-          var hint = _destruct__k2r9zo.bb();
+          var _destruct__k2r9zo = subtypeNotRegisteredMessageJson(subClassName, casted.vh());
+          var message_0 = _destruct__k2r9zo.gb();
+          var hint = _destruct__k2r9zo.hb();
           throw new JsonEncodingException(message_0, subClassName, hint);
         } else {
           tmp_3 = tmp1_elvis_lhs;
@@ -2196,13 +2478,13 @@ protoOf(StreamingJsonEncoder).gh = function (serializer, value) {
       }
       var actualSerializer = tmp_2;
       if (!(baseClassDiscriminator == null)) {
-        access$checkEncodingConflicts$tJsonPolymorphicHelpersKt(this.g11(), serializer, actualSerializer, baseClassDiscriminator);
-        checkKind(actualSerializer.md().te());
-        var serialName = actualSerializer.md().ie();
-        this.az_1 = baseClassDiscriminator;
-        this.bz_1 = serialName;
+        access$checkEncodingConflicts$tJsonPolymorphicHelpersKt(this.p1d(), serializer, actualSerializer, baseClassDiscriminator);
+        checkKind(actualSerializer.rh().yi());
+        var serialName = actualSerializer.rh().ni();
+        this.j1b_1 = baseClassDiscriminator;
+        this.k1b_1 = serialName;
       }
-      actualSerializer.od(this, value);
+      actualSerializer.sh(this, value);
     }
     tmp = Unit_instance;
   } catch ($p) {
@@ -2214,7 +2496,7 @@ protoOf(StreamingJsonEncoder).gh = function (serializer, value) {
       if ($p instanceof Exception) {
         var e_0 = $p;
         var causeMessage = e_0.message;
-        var classSerialName = serializer.md().ie();
+        var classSerialName = serializer.rh().ni();
         var message_1 = 'Serialization ' + (isBlank(classSerialName) ? '' : "of '" + classSerialName + "' ") + 'failed because of ' + (causeMessage == null ? 'an exception' : "'" + causeMessage + "' exception") + ' in the encoder';
         throw new JsonEncodingException(message_1, classSerialName, VOID, e_0);
       } else {
@@ -2224,123 +2506,209 @@ protoOf(StreamingJsonEncoder).gh = function (serializer, value) {
   }
   return tmp;
 };
-protoOf(StreamingJsonEncoder).gg = function (descriptor) {
-  var newMode = modeFor(this.uy_1, descriptor);
-  if (!(newMode.t10_1 === _Char___init__impl__6a9atx(0))) {
-    this.ty_1.jx(newMode.t10_1);
-    this.ty_1.ex();
+protoOf(StreamingJsonEncoder).rk = function (descriptor) {
+  var newMode = modeFor(this.d1b_1, descriptor);
+  if (!(newMode.c1d_1 === _Char___init__impl__6a9atx(0))) {
+    this.c1b_1.i19(newMode.c1d_1);
+    this.c1b_1.d19();
   }
-  var discriminator = this.az_1;
+  var discriminator = this.j1b_1;
   if (!(discriminator == null)) {
-    var tmp0_elvis_lhs = this.bz_1;
-    encodeTypeInfo(this, discriminator, tmp0_elvis_lhs == null ? descriptor.ie() : tmp0_elvis_lhs);
-    this.az_1 = null;
-    this.bz_1 = null;
+    var tmp0_elvis_lhs = this.k1b_1;
+    encodeTypeInfo(this, discriminator, tmp0_elvis_lhs == null ? descriptor.ni() : tmp0_elvis_lhs);
+    this.j1b_1 = null;
+    this.k1b_1 = null;
   }
-  if (this.vy_1.equals(newMode)) {
+  if (this.e1b_1.equals(newMode)) {
     return this;
   }
-  var tmp1_safe_receiver = this.wy_1;
+  var tmp1_safe_receiver = this.f1b_1;
   var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver[newMode.x1_1];
-  return tmp2_elvis_lhs == null ? new StreamingJsonEncoder(this.ty_1, this.uy_1, newMode, this.wy_1) : tmp2_elvis_lhs;
+  return tmp2_elvis_lhs == null ? new StreamingJsonEncoder(this.c1b_1, this.d1b_1, newMode, this.f1b_1) : tmp2_elvis_lhs;
 };
-protoOf(StreamingJsonEncoder).hg = function (descriptor) {
-  if (!(this.vy_1.u10_1 === _Char___init__impl__6a9atx(0))) {
-    this.ty_1.fx();
-    this.ty_1.hx();
-    this.ty_1.jx(this.vy_1.u10_1);
+protoOf(StreamingJsonEncoder).sk = function (descriptor) {
+  if (!(this.e1b_1.d1d_1 === _Char___init__impl__6a9atx(0))) {
+    this.c1b_1.e19();
+    this.c1b_1.g19();
+    this.c1b_1.i19(this.e1b_1.d1d_1);
   }
 };
-protoOf(StreamingJsonEncoder).tg = function (descriptor, index) {
-  switch (this.vy_1.x1_1) {
+protoOf(StreamingJsonEncoder).kl = function (descriptor, index) {
+  switch (this.e1b_1.x1_1) {
     case 1:
-      if (!this.ty_1.dx_1) {
-        this.ty_1.jx(_Char___init__impl__6a9atx(44));
+      if (!this.c1b_1.c19_1) {
+        this.c1b_1.i19(_Char___init__impl__6a9atx(44));
       }
 
-      this.ty_1.gx();
+      this.c1b_1.f19();
       break;
     case 2:
-      if (!this.ty_1.dx_1) {
+      if (!this.c1b_1.c19_1) {
         var tmp = this;
         var tmp_0;
         if ((index % 2 | 0) === 0) {
-          this.ty_1.jx(_Char___init__impl__6a9atx(44));
-          this.ty_1.gx();
+          this.c1b_1.i19(_Char___init__impl__6a9atx(44));
+          this.c1b_1.f19();
           tmp_0 = true;
         } else {
-          this.ty_1.jx(_Char___init__impl__6a9atx(58));
-          this.ty_1.ix();
+          this.c1b_1.i19(_Char___init__impl__6a9atx(58));
+          this.c1b_1.h19();
           tmp_0 = false;
         }
-        tmp.zy_1 = tmp_0;
+        tmp.i1b_1 = tmp_0;
       } else {
-        this.zy_1 = true;
-        this.ty_1.gx();
+        this.i1b_1 = true;
+        this.c1b_1.f19();
       }
 
       break;
     case 3:
       if (index === 0)
-        this.zy_1 = true;
+        this.i1b_1 = true;
       if (index === 1) {
-        this.ty_1.jx(_Char___init__impl__6a9atx(44));
-        this.ty_1.ix();
-        this.zy_1 = false;
+        this.c1b_1.i19(_Char___init__impl__6a9atx(44));
+        this.c1b_1.h19();
+        this.i1b_1 = false;
       }
 
       break;
     default:
-      if (!this.ty_1.dx_1) {
-        this.ty_1.jx(_Char___init__impl__6a9atx(44));
+      if (!this.c1b_1.c19_1) {
+        this.c1b_1.i19(_Char___init__impl__6a9atx(44));
       }
 
-      this.ty_1.gx();
-      this.zg(getJsonElementName(descriptor, this.uy_1, index));
-      this.ty_1.jx(_Char___init__impl__6a9atx(58));
-      this.ty_1.ix();
+      this.c1b_1.f19();
+      this.vl(getJsonElementName(descriptor, this.d1b_1, index));
+      this.c1b_1.i19(_Char___init__impl__6a9atx(58));
+      this.c1b_1.h19();
       break;
   }
   return true;
 };
-protoOf(StreamingJsonEncoder).hh = function (descriptor, index, serializer, value) {
-  if (!(value == null) || this.yy_1.rv_1) {
-    protoOf(AbstractEncoder).hh.call(this, descriptor, index, serializer, value);
+protoOf(StreamingJsonEncoder).km = function (descriptor, index, serializer, value) {
+  if (!(value == null) || this.h1b_1.q17_1) {
+    protoOf(AbstractEncoder).km.call(this, descriptor, index, serializer, value);
   }
 };
-protoOf(StreamingJsonEncoder).vg = function () {
-  this.ty_1.lx('null');
-};
-protoOf(StreamingJsonEncoder).wg = function (value) {
-  if (this.zy_1) {
-    this.zg(value.toString());
+protoOf(StreamingJsonEncoder).xl = function (descriptor) {
+  var tmp;
+  if (get_isUnsignedNumber(descriptor)) {
+    // Inline function 'kotlinx.serialization.json.internal.StreamingJsonEncoder.composerAs' call
+    var tmp_0;
+    var tmp_1 = this.c1b_1;
+    if (tmp_1 instanceof ComposerForUnsignedNumbers) {
+      tmp_0 = this.c1b_1;
+    } else {
+      var tmp0 = this.c1b_1.b19_1;
+      var p1 = this.i1b_1;
+      tmp_0 = new ComposerForUnsignedNumbers(tmp0, p1);
+    }
+    var tmp$ret$0 = tmp_0;
+    tmp = new StreamingJsonEncoder(tmp$ret$0, this.d1b_1, this.e1b_1, null);
+  } else if (get_isUnquotedLiteral(descriptor)) {
+    // Inline function 'kotlinx.serialization.json.internal.StreamingJsonEncoder.composerAs' call
+    var tmp_2;
+    var tmp_3 = this.c1b_1;
+    if (tmp_3 instanceof ComposerForUnquotedLiterals) {
+      tmp_2 = this.c1b_1;
+    } else {
+      var tmp0_0 = this.c1b_1.b19_1;
+      var p1_0 = this.i1b_1;
+      tmp_2 = new ComposerForUnquotedLiterals(tmp0_0, p1_0);
+    }
+    var tmp$ret$2 = tmp_2;
+    tmp = new StreamingJsonEncoder(tmp$ret$2, this.d1b_1, this.e1b_1, null);
+  } else if (!(this.j1b_1 == null)) {
+    // Inline function 'kotlin.apply' call
+    this.k1b_1 = descriptor.ni();
+    tmp = this;
   } else {
-    this.ty_1.ox(value);
+    tmp = protoOf(AbstractEncoder).xl.call(this, descriptor);
+  }
+  return tmp;
+};
+protoOf(StreamingJsonEncoder).ml = function () {
+  this.c1b_1.k19('null');
+};
+protoOf(StreamingJsonEncoder).nl = function (value) {
+  if (this.i1b_1) {
+    this.vl(value.toString());
+  } else {
+    this.c1b_1.t19(value);
   }
 };
-protoOf(StreamingJsonEncoder).xg = function (value) {
-  if (this.zy_1) {
-    this.zg(value.toString());
+protoOf(StreamingJsonEncoder).ol = function (value) {
+  if (this.i1b_1) {
+    this.vl(value.toString());
   } else {
-    this.ty_1.qx(value);
+    this.c1b_1.o19(value);
   }
 };
-protoOf(StreamingJsonEncoder).yg = function (value) {
-  if (this.zy_1) {
-    this.zg(value.toString());
+protoOf(StreamingJsonEncoder).pl = function (value) {
+  if (this.i1b_1) {
+    this.vl(value.toString());
   } else {
-    this.ty_1.nx(value);
+    this.c1b_1.q19(value);
   }
-  if (!this.yy_1.wv_1 && !isFinite(value)) {
+};
+protoOf(StreamingJsonEncoder).ql = function (value) {
+  if (this.i1b_1) {
+    this.vl(value.toString());
+  } else {
+    this.c1b_1.r19(value);
+  }
+};
+protoOf(StreamingJsonEncoder).rl = function (value) {
+  if (this.i1b_1) {
+    this.vl(value.toString());
+  } else {
+    this.c1b_1.s19(value);
+  }
+};
+protoOf(StreamingJsonEncoder).sl = function (value) {
+  if (this.i1b_1) {
+    this.vl(value.toString());
+  } else {
+    this.c1b_1.m19(value);
+  }
+  if (!this.h1b_1.v17_1 && !isFinite(value)) {
     throw InvalidFloatingPointEncoded(value);
   }
 };
-protoOf(StreamingJsonEncoder).zg = function (value) {
-  return this.ty_1.rx(value);
+protoOf(StreamingJsonEncoder).tl = function (value) {
+  if (this.i1b_1) {
+    this.vl(value.toString());
+  } else {
+    this.c1b_1.n19(value);
+  }
+  if (!this.h1b_1.v17_1 && !isFinite_0(value)) {
+    throw InvalidFloatingPointEncoded(value);
+  }
 };
-protoOf(StreamingJsonEncoder).ah = function (enumDescriptor, index) {
-  this.zg(enumDescriptor.xe(index));
+protoOf(StreamingJsonEncoder).ul = function (value) {
+  this.vl(toString_1(value));
 };
+protoOf(StreamingJsonEncoder).vl = function (value) {
+  return this.c1b_1.u19(value);
+};
+protoOf(StreamingJsonEncoder).wl = function (enumDescriptor, index) {
+  this.vl(enumDescriptor.cj(index));
+};
+function get_isUnsignedNumber(_this__u8e3s4) {
+  _init_properties_StreamingJsonEncoder_kt__pn1bsi();
+  return _this__u8e3s4.zi() && get_unsignedNumberDescriptors().r(_this__u8e3s4);
+}
+function get_isUnquotedLiteral(_this__u8e3s4) {
+  _init_properties_StreamingJsonEncoder_kt__pn1bsi();
+  return _this__u8e3s4.zi() && equals(_this__u8e3s4, get_jsonUnquotedLiteralDescriptor());
+}
+var properties_initialized_StreamingJsonEncoder_kt_6ifwwk;
+function _init_properties_StreamingJsonEncoder_kt__pn1bsi() {
+  if (!properties_initialized_StreamingJsonEncoder_kt_6ifwwk) {
+    properties_initialized_StreamingJsonEncoder_kt_6ifwwk = true;
+    unsignedNumberDescriptors = setOf([serializer_0(Companion_getInstance()).rh(), serializer_1(Companion_getInstance_0()).rh(), serializer_2(Companion_getInstance_1()).rh(), serializer_3(Companion_getInstance_2()).rh()]);
+  }
+}
 function get_ESCAPE_STRINGS() {
   _init_properties_StringOps_kt__fcy1db();
   return ESCAPE_STRINGS;
@@ -2367,7 +2735,7 @@ function toHexChar(i) {
 }
 function printQuoted(_this__u8e3s4, value) {
   _init_properties_StringOps_kt__fcy1db();
-  _this__u8e3s4.u6(_Char___init__impl__6a9atx(34));
+  _this__u8e3s4.b7(_Char___init__impl__6a9atx(34));
   var lastPos = 0;
   var inductionVariable = 0;
   var last = charSequenceLength(value) - 1 | 0;
@@ -2379,17 +2747,21 @@ function printQuoted(_this__u8e3s4, value) {
       var this_0 = charCodeAt(value, i);
       var c = Char__toInt_impl_vasixd(this_0);
       if (c < get_ESCAPE_STRINGS().length && !(get_ESCAPE_STRINGS()[c] == null)) {
-        _this__u8e3s4.l9(value, lastPos, i);
-        _this__u8e3s4.t6(get_ESCAPE_STRINGS()[c]);
+        _this__u8e3s4.s9(value, lastPos, i);
+        _this__u8e3s4.a7(get_ESCAPE_STRINGS()[c]);
         lastPos = i + 1 | 0;
       }
     }
      while (inductionVariable <= last);
   if (!(lastPos === 0))
-    _this__u8e3s4.l9(value, lastPos, value.length);
+    _this__u8e3s4.s9(value, lastPos, value.length);
   else
-    _this__u8e3s4.t6(value);
-  _this__u8e3s4.u6(_Char___init__impl__6a9atx(34));
+    _this__u8e3s4.a7(value);
+  _this__u8e3s4.b7(_Char___init__impl__6a9atx(34));
+}
+function toBooleanStrictOrNull(_this__u8e3s4) {
+  _init_properties_StringOps_kt__fcy1db();
+  return equals_0(_this__u8e3s4, 'true', true) ? true : equals_0(_this__u8e3s4, 'false', true) ? false : null;
 }
 var properties_initialized_StringOps_kt_wzaea7;
 function _init_properties_StringOps_kt__fcy1db() {
@@ -2490,17 +2862,17 @@ function _init_properties_StringOps_kt__fcy1db() {
   }
 }
 function readPolymorphicJson(_this__u8e3s4, discriminator, element, deserializer) {
-  var descriptor = deserializer.md();
-  return (new JsonTreeDecoder(_this__u8e3s4, element, descriptor, discriminator, descriptor)).fg(deserializer);
+  var descriptor = deserializer.rh();
+  return (new JsonTreeDecoder(_this__u8e3s4, element, descriptor, discriminator, descriptor)).qk(deserializer);
 }
 function unparsedPrimitive($this, literal, primitive, tag) {
   var type = startsWith(primitive, 'i') ? 'an ' + primitive : 'a ' + primitive;
   var tmp2 = "Failed to parse literal '" + literal.toString() + "' as " + type + ' value';
   // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-  var path = $this.s11(tag);
+  var path = $this.e1e(tag);
   var tmp;
-  if ($this.g11().ru_1.dw_1) {
-    var tmp$ret$3 = toString_0($this.t11());
+  if ($this.p1d().q16_1.c18_1) {
+    var tmp$ret$3 = toString_0($this.f1e());
     tmp = toString_0(minify(tmp$ret$3));
   } else {
     tmp = null;
@@ -2511,40 +2883,40 @@ function unparsedPrimitive($this, literal, primitive, tag) {
 function AbstractJsonTreeDecoder(json, value, polymorphicDiscriminator) {
   polymorphicDiscriminator = polymorphicDiscriminator === VOID ? null : polymorphicDiscriminator;
   NamedValueDecoder.call(this);
-  this.o11_1 = json;
-  this.p11_1 = value;
-  this.q11_1 = polymorphicDiscriminator;
-  this.r11_1 = this.g11().ru_1;
+  this.a1e_1 = json;
+  this.b1e_1 = value;
+  this.c1e_1 = polymorphicDiscriminator;
+  this.d1e_1 = this.p1d().q16_1;
 }
-protoOf(AbstractJsonTreeDecoder).g11 = function () {
-  return this.o11_1;
+protoOf(AbstractJsonTreeDecoder).p1d = function () {
+  return this.a1e_1;
 };
 protoOf(AbstractJsonTreeDecoder).v = function () {
-  return this.p11_1;
+  return this.b1e_1;
 };
-protoOf(AbstractJsonTreeDecoder).pg = function () {
-  return this.g11().pg();
+protoOf(AbstractJsonTreeDecoder).gl = function () {
+  return this.p1d().gl();
 };
-protoOf(AbstractJsonTreeDecoder).t11 = function () {
-  var tmp0_safe_receiver = this.ml();
+protoOf(AbstractJsonTreeDecoder).f1e = function () {
+  var tmp0_safe_receiver = this.sw();
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
   } else {
     // Inline function 'kotlin.let' call
-    tmp = this.u11(tmp0_safe_receiver);
+    tmp = this.g1e(tmp0_safe_receiver);
   }
   var tmp1_elvis_lhs = tmp;
   return tmp1_elvis_lhs == null ? this.v() : tmp1_elvis_lhs;
 };
-protoOf(AbstractJsonTreeDecoder).s11 = function (currentTag) {
-  return this.ol() + ('.' + currentTag);
+protoOf(AbstractJsonTreeDecoder).e1e = function (currentTag) {
+  return this.uw() + ('.' + currentTag);
 };
-protoOf(AbstractJsonTreeDecoder).h11 = function () {
-  return this.t11();
+protoOf(AbstractJsonTreeDecoder).q1d = function () {
+  return this.f1e();
 };
-protoOf(AbstractJsonTreeDecoder).fg = function (deserializer) {
-  var tmp2_withExceptionHandling_this = this.t11();
+protoOf(AbstractJsonTreeDecoder).qk = function (deserializer) {
+  var tmp2_withExceptionHandling_this = this.f1e();
   // Inline function 'kotlinx.serialization.json.internal.withExceptionHandling' call
   var tmp;
   try {
@@ -2555,22 +2927,22 @@ protoOf(AbstractJsonTreeDecoder).fg = function (deserializer) {
       if (!(deserializer instanceof AbstractPolymorphicSerializer)) {
         tmp_0 = true;
       } else {
-        tmp_0 = this.g11().ru_1.uv_1;
+        tmp_0 = this.p1d().q16_1.t17_1;
       }
       if (tmp_0) {
-        tmp$ret$2 = deserializer.nd(this);
+        tmp$ret$2 = deserializer.th(this);
         break $l$block;
       }
-      var discriminator = classDiscriminator(deserializer.md(), this.g11());
-      var tmp2 = this.h11();
+      var discriminator = classDiscriminator(deserializer.rh(), this.p1d());
+      var tmp2 = this.q1d();
       // Inline function 'kotlinx.serialization.json.internal.cast' call
-      var serialName = deserializer.md().ie();
+      var serialName = deserializer.rh().ni();
       if (!(tmp2 instanceof JsonObject)) {
-        var tmp2_0 = 'Expected ' + getKClass(JsonObject).g8() + ', but had ' + getKClassFromExpression(tmp2).g8() + ' as the serialized body of ' + serialName;
+        var tmp2_0 = 'Expected ' + getKClass(JsonObject).n8() + ', but had ' + getKClassFromExpression(tmp2).n8() + ' as the serialized body of ' + serialName;
         // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-        var path = this.ol();
+        var path = this.uw();
         var tmp_1;
-        if (this.g11().ru_1.dw_1) {
+        if (this.p1d().q16_1.c18_1) {
           var tmp$ret$8 = toString_0(tmp2);
           tmp_1 = toString_0(minify(tmp$ret$8));
         } else {
@@ -2580,19 +2952,19 @@ protoOf(AbstractJsonTreeDecoder).fg = function (deserializer) {
         throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2_0, path, null, inputValue), tmp2_0, -1, path, inputValue, null);
       }
       var jsonTree = tmp2;
-      var tmp0_safe_receiver = jsonTree.hw(discriminator);
+      var tmp0_safe_receiver = jsonTree.g18(discriminator);
       var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : get_jsonPrimitive(tmp0_safe_receiver);
       var type = tmp1_safe_receiver == null ? null : get_contentOrNull(tmp1_safe_receiver);
-      var tmp_2 = deserializer.rd(this, type);
+      var tmp_2 = deserializer.wh(this, type);
       var actualSerializer = (!(tmp_2 == null) ? isInterface(tmp_2, DeserializationStrategy) : false) ? tmp_2 : null;
       if (actualSerializer == null) {
-        var _destruct__k2r9zo = subtypeNotRegisteredMessageJson(type, deserializer.qd());
-        var message = _destruct__k2r9zo.ab();
-        var hint = _destruct__k2r9zo.bb();
+        var _destruct__k2r9zo = subtypeNotRegisteredMessageJson(type, deserializer.vh());
+        var message = _destruct__k2r9zo.gb();
+        var hint = _destruct__k2r9zo.hb();
         // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-        var path_0 = this.ol();
+        var path_0 = this.uw();
         var tmp_3;
-        if (this.g11().ru_1.dw_1) {
+        if (this.p1d().q16_1.c18_1) {
           var tmp$ret$13 = jsonTree.toString();
           tmp_3 = toString_0(minify(tmp$ret$13));
         } else {
@@ -2601,7 +2973,7 @@ protoOf(AbstractJsonTreeDecoder).fg = function (deserializer) {
         var inputValue_0 = tmp_3;
         throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, message, path_0, hint, inputValue_0), message, -1, path_0, inputValue_0, hint);
       }
-      tmp$ret$2 = readPolymorphicJson(this.g11(), discriminator, jsonTree, actualSerializer);
+      tmp$ret$2 = readPolymorphicJson(this.p1d(), discriminator, jsonTree, actualSerializer);
     }
     tmp = tmp$ret$2;
   } catch ($p) {
@@ -2611,7 +2983,7 @@ protoOf(AbstractJsonTreeDecoder).fg = function (deserializer) {
       if (contains(ensureNotNull(e.message), 'at path'))
         throw e;
       var tmp_5 = plus(e.message, ' at path: ');
-      var tmp$ret$14 = this.ol();
+      var tmp$ret$14 = this.uw();
       throw missingFieldExceptionWithNewMessage(e, tmp_5 + tmp$ret$14);
     } else {
       if ($p instanceof SerializationException) {
@@ -2621,11 +2993,11 @@ protoOf(AbstractJsonTreeDecoder).fg = function (deserializer) {
         if ($p instanceof Exception) {
           var e_1 = $p;
           // Inline function 'kotlinx.serialization.json.internal.errorFromDeserializer' call
-          var path_1 = this.ol();
+          var path_1 = this.uw();
           var causeMessage = e_1.message;
           var shortMessage = 'Deserialization failed because of ' + (causeMessage == null ? 'an exception' : "'" + causeMessage + "' exception") + ' in the decoder';
           var tmp_6;
-          if (this.g11().ru_1.dw_1) {
+          if (this.p1d().q16_1.c18_1) {
             var tmp$ret$19 = toString_0(tmp2_withExceptionHandling_this);
             tmp_6 = toString_0(minify(tmp$ret$19));
           } else {
@@ -2641,12 +3013,12 @@ protoOf(AbstractJsonTreeDecoder).fg = function (deserializer) {
   }
   return tmp;
 };
-protoOf(AbstractJsonTreeDecoder).nl = function (parentName, childName) {
+protoOf(AbstractJsonTreeDecoder).tw = function (parentName, childName) {
   return childName;
 };
-protoOf(AbstractJsonTreeDecoder).gg = function (descriptor) {
-  var currentObject = this.t11();
-  var tmp0_subject = descriptor.te();
+protoOf(AbstractJsonTreeDecoder).rk = function (descriptor) {
+  var currentObject = this.f1e();
+  var tmp0_subject = descriptor.yi();
   var tmp;
   var tmp_0;
   if (equals(tmp0_subject, LIST_getInstance())) {
@@ -2655,16 +3027,16 @@ protoOf(AbstractJsonTreeDecoder).gg = function (descriptor) {
     tmp_0 = tmp0_subject instanceof PolymorphicKind;
   }
   if (tmp_0) {
-    var tmp_1 = this.g11();
+    var tmp_1 = this.p1d();
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
     // Inline function 'kotlinx.serialization.json.internal.cast' call
-    var serialName = descriptor.ie();
+    var serialName = descriptor.ni();
     if (!(currentObject instanceof JsonArray)) {
-      var tmp2 = 'Expected ' + getKClass(JsonArray).g8() + ', but had ' + getKClassFromExpression(currentObject).g8() + ' as the serialized body of ' + serialName;
+      var tmp2 = 'Expected ' + getKClass(JsonArray).n8() + ', but had ' + getKClassFromExpression(currentObject).n8() + ' as the serialized body of ' + serialName;
       // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-      var path = this.ol();
+      var path = this.uw();
       var tmp_2;
-      if (this.g11().ru_1.dw_1) {
+      if (this.p1d().q16_1.c18_1) {
         var tmp$ret$6 = toString_0(currentObject);
         tmp_2 = toString_0(minify(tmp$ret$6));
       } else {
@@ -2677,9 +3049,9 @@ protoOf(AbstractJsonTreeDecoder).gg = function (descriptor) {
   } else {
     if (equals(tmp0_subject, MAP_getInstance())) {
       // Inline function 'kotlinx.serialization.json.internal.selectMapMode' call
-      var this_0 = this.g11();
-      var keyDescriptor = carrierDescriptor(descriptor.af(0), this_0.pg());
-      var keyKind = keyDescriptor.te();
+      var this_0 = this.p1d();
+      var keyDescriptor = carrierDescriptor(descriptor.fj(0), this_0.gl());
+      var keyKind = keyDescriptor.yi();
       var tmp_3;
       var tmp_4;
       if (keyKind instanceof PrimitiveKind) {
@@ -2688,16 +3060,16 @@ protoOf(AbstractJsonTreeDecoder).gg = function (descriptor) {
         tmp_4 = equals(keyKind, ENUM_getInstance());
       }
       if (tmp_4) {
-        var tmp_5 = this.g11();
+        var tmp_5 = this.p1d();
         // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
         // Inline function 'kotlinx.serialization.json.internal.cast' call
-        var serialName_0 = descriptor.ie();
+        var serialName_0 = descriptor.ni();
         if (!(currentObject instanceof JsonObject)) {
-          var tmp2_0 = 'Expected ' + getKClass(JsonObject).g8() + ', but had ' + getKClassFromExpression(currentObject).g8() + ' as the serialized body of ' + serialName_0;
+          var tmp2_0 = 'Expected ' + getKClass(JsonObject).n8() + ', but had ' + getKClassFromExpression(currentObject).n8() + ' as the serialized body of ' + serialName_0;
           // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-          var path_0 = this.ol();
+          var path_0 = this.uw();
           var tmp_6;
-          if (this.g11().ru_1.dw_1) {
+          if (this.p1d().q16_1.c18_1) {
             var tmp$ret$15 = toString_0(currentObject);
             tmp_6 = toString_0(minify(tmp$ret$15));
           } else {
@@ -2708,17 +3080,17 @@ protoOf(AbstractJsonTreeDecoder).gg = function (descriptor) {
         }
         tmp_3 = new JsonTreeMapDecoder(tmp_5, currentObject, descriptor);
       } else {
-        if (this_0.ru_1.pv_1) {
-          var tmp_7 = this.g11();
+        if (this_0.q16_1.o17_1) {
+          var tmp_7 = this.p1d();
           // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
           // Inline function 'kotlinx.serialization.json.internal.cast' call
-          var serialName_1 = descriptor.ie();
+          var serialName_1 = descriptor.ni();
           if (!(currentObject instanceof JsonArray)) {
-            var tmp2_1 = 'Expected ' + getKClass(JsonArray).g8() + ', but had ' + getKClassFromExpression(currentObject).g8() + ' as the serialized body of ' + serialName_1;
+            var tmp2_1 = 'Expected ' + getKClass(JsonArray).n8() + ', but had ' + getKClassFromExpression(currentObject).n8() + ' as the serialized body of ' + serialName_1;
             // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-            var path_1 = this.ol();
+            var path_1 = this.uw();
             var tmp_8;
-            if (this.g11().ru_1.dw_1) {
+            if (this.p1d().q16_1.c18_1) {
               var tmp$ret$23 = toString_0(currentObject);
               tmp_8 = toString_0(minify(tmp$ret$23));
             } else {
@@ -2734,16 +3106,16 @@ protoOf(AbstractJsonTreeDecoder).gg = function (descriptor) {
       }
       tmp = tmp_3;
     } else {
-      var tmp_9 = this.g11();
+      var tmp_9 = this.p1d();
       // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
       // Inline function 'kotlinx.serialization.json.internal.cast' call
-      var serialName_2 = descriptor.ie();
+      var serialName_2 = descriptor.ni();
       if (!(currentObject instanceof JsonObject)) {
-        var tmp2_2 = 'Expected ' + getKClass(JsonObject).g8() + ', but had ' + getKClassFromExpression(currentObject).g8() + ' as the serialized body of ' + serialName_2;
+        var tmp2_2 = 'Expected ' + getKClass(JsonObject).n8() + ', but had ' + getKClassFromExpression(currentObject).n8() + ' as the serialized body of ' + serialName_2;
         // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-        var path_2 = this.ol();
+        var path_2 = this.uw();
         var tmp_10;
-        if (this.g11().ru_1.dw_1) {
+        if (this.p1d().q16_1.c18_1) {
           var tmp$ret$30 = toString_0(currentObject);
           tmp_10 = toString_0(minify(tmp$ret$30));
         } else {
@@ -2752,30 +3124,30 @@ protoOf(AbstractJsonTreeDecoder).gg = function (descriptor) {
         var inputValue_2 = tmp_10;
         throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2_2, path_2, null, inputValue_2), tmp2_2, -1, path_2, inputValue_2, null);
       }
-      tmp = new JsonTreeDecoder(tmp_9, currentObject, descriptor, this.q11_1);
+      tmp = new JsonTreeDecoder(tmp_9, currentObject, descriptor, this.c1e_1);
     }
   }
   return tmp;
 };
-protoOf(AbstractJsonTreeDecoder).hg = function (descriptor) {
+protoOf(AbstractJsonTreeDecoder).sk = function (descriptor) {
 };
-protoOf(AbstractJsonTreeDecoder).xf = function () {
-  var tmp = this.t11();
+protoOf(AbstractJsonTreeDecoder).ck = function () {
+  var tmp = this.f1e();
   return !(tmp instanceof JsonNull);
 };
-protoOf(AbstractJsonTreeDecoder).v11 = function (tag, enumDescriptor) {
-  var tmp = this.g11();
+protoOf(AbstractJsonTreeDecoder).h1e = function (tag, enumDescriptor) {
+  var tmp = this.p1d();
   // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.getPrimitiveValue' call
-  var tmp2 = this.u11(tag);
+  var tmp2 = this.g1e(tag);
   // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
   // Inline function 'kotlinx.serialization.json.internal.cast' call
-  var serialName = enumDescriptor.ie();
+  var serialName = enumDescriptor.ni();
   if (!(tmp2 instanceof JsonPrimitive)) {
-    var tmp2_0 = 'Expected ' + getKClass(JsonPrimitive).g8() + ', but had ' + getKClassFromExpression(tmp2).g8() + ' as the serialized body of ' + serialName;
+    var tmp2_0 = 'Expected ' + getKClass(JsonPrimitive).n8() + ', but had ' + getKClassFromExpression(tmp2).n8() + ' as the serialized body of ' + serialName;
     // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-    var path = this.s11(tag);
+    var path = this.e1e(tag);
     var tmp_0;
-    if (this.g11().ru_1.dw_1) {
+    if (this.p1d().q16_1.c18_1) {
       var tmp$ret$7 = toString_0(tmp2);
       tmp_0 = toString_0(minify(tmp$ret$7));
     } else {
@@ -2784,30 +3156,186 @@ protoOf(AbstractJsonTreeDecoder).v11 = function (tag, enumDescriptor) {
     var inputValue = tmp_0;
     throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2_0, path, null, inputValue), tmp2_0, -1, path, inputValue, null);
   }
-  return getJsonNameIndexOrThrow(enumDescriptor, tmp, tmp2.iw());
+  return getJsonNameIndexOrThrow(enumDescriptor, tmp, tmp2.h18());
 };
-protoOf(AbstractJsonTreeDecoder).vl = function (tag, enumDescriptor) {
-  return this.v11((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE(), enumDescriptor);
+protoOf(AbstractJsonTreeDecoder).gx = function (tag, enumDescriptor) {
+  return this.h1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE(), enumDescriptor);
 };
-protoOf(AbstractJsonTreeDecoder).w11 = function (tag) {
-  return !(this.u11(tag) === JsonNull_getInstance());
+protoOf(AbstractJsonTreeDecoder).i1e = function (tag) {
+  return !(this.g1e(tag) === JsonNull_getInstance());
 };
-protoOf(AbstractJsonTreeDecoder).ql = function (tag) {
-  return this.w11((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
+protoOf(AbstractJsonTreeDecoder).ww = function (tag) {
+  return this.i1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
 };
-protoOf(AbstractJsonTreeDecoder).x11 = function (tag) {
+protoOf(AbstractJsonTreeDecoder).j1e = function (tag) {
   var tmp$ret$0;
   $l$block: {
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.getPrimitiveValue' call
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
     // Inline function 'kotlinx.serialization.json.internal.cast' call
-    var value = this.u11(tag);
+    var value = this.g1e(tag);
     if (!(value instanceof JsonPrimitive)) {
-      var tmp2 = 'Expected ' + getKClass(JsonPrimitive).g8() + ', but had ' + getKClassFromExpression(value).g8() + ' as the serialized body of ' + 'int';
+      var tmp2 = 'Expected ' + getKClass(JsonPrimitive).n8() + ', but had ' + getKClassFromExpression(value).n8() + ' as the serialized body of ' + 'boolean';
       // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-      var path = this.s11(tag);
+      var path = this.e1e(tag);
       var tmp;
-      if (this.g11().ru_1.dw_1) {
+      if (this.p1d().q16_1.c18_1) {
+        var tmp$ret$7 = toString_0(value);
+        tmp = toString_0(minify(tmp$ret$7));
+      } else {
+        tmp = null;
+      }
+      var inputValue = tmp;
+      throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2, path, null, inputValue), tmp2, -1, path, inputValue, null);
+    }
+    var literal = value;
+    try {
+      var tmp0_elvis_lhs = get_booleanOrNull(literal);
+      var tmp_0;
+      if (tmp0_elvis_lhs == null) {
+        unparsedPrimitive(this, literal, 'boolean', tag);
+      } else {
+        tmp_0 = tmp0_elvis_lhs;
+      }
+      tmp$ret$0 = tmp_0;
+      break $l$block;
+    } catch ($p) {
+      if ($p instanceof IllegalArgumentException) {
+        var e = $p;
+        unparsedPrimitive(this, literal, 'boolean', tag);
+      } else {
+        throw $p;
+      }
+    }
+  }
+  return tmp$ret$0;
+};
+protoOf(AbstractJsonTreeDecoder).xw = function (tag) {
+  return this.j1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
+};
+protoOf(AbstractJsonTreeDecoder).k1e = function (tag) {
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.getPrimitiveValue' call
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
+    // Inline function 'kotlinx.serialization.json.internal.cast' call
+    var value = this.g1e(tag);
+    if (!(value instanceof JsonPrimitive)) {
+      var tmp2 = 'Expected ' + getKClass(JsonPrimitive).n8() + ', but had ' + getKClassFromExpression(value).n8() + ' as the serialized body of ' + 'byte';
+      // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
+      var path = this.e1e(tag);
+      var tmp;
+      if (this.p1d().q16_1.c18_1) {
+        var tmp$ret$7 = toString_0(value);
+        tmp = toString_0(minify(tmp$ret$7));
+      } else {
+        tmp = null;
+      }
+      var inputValue = tmp;
+      throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2, path, null, inputValue), tmp2, -1, path, inputValue, null);
+    }
+    var literal = value;
+    try {
+      var result = parseLongImpl(literal);
+      var tmp_0;
+      // Inline function 'kotlin.ranges.contains' call
+      var this_0 = numberRangeToNumber(-128, 127);
+      if (contains_0(isInterface(this_0, ClosedRange) ? this_0 : THROW_CCE(), result)) {
+        tmp_0 = convertToByte(result);
+      } else {
+        tmp_0 = null;
+      }
+      var tmp0_elvis_lhs = tmp_0;
+      var tmp_1;
+      if (tmp0_elvis_lhs == null) {
+        unparsedPrimitive(this, literal, 'byte', tag);
+      } else {
+        tmp_1 = tmp0_elvis_lhs;
+      }
+      tmp$ret$0 = tmp_1;
+      break $l$block;
+    } catch ($p) {
+      if ($p instanceof IllegalArgumentException) {
+        var e = $p;
+        unparsedPrimitive(this, literal, 'byte', tag);
+      } else {
+        throw $p;
+      }
+    }
+  }
+  return tmp$ret$0;
+};
+protoOf(AbstractJsonTreeDecoder).yw = function (tag) {
+  return this.k1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
+};
+protoOf(AbstractJsonTreeDecoder).l1e = function (tag) {
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.getPrimitiveValue' call
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
+    // Inline function 'kotlinx.serialization.json.internal.cast' call
+    var value = this.g1e(tag);
+    if (!(value instanceof JsonPrimitive)) {
+      var tmp2 = 'Expected ' + getKClass(JsonPrimitive).n8() + ', but had ' + getKClassFromExpression(value).n8() + ' as the serialized body of ' + 'short';
+      // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
+      var path = this.e1e(tag);
+      var tmp;
+      if (this.p1d().q16_1.c18_1) {
+        var tmp$ret$7 = toString_0(value);
+        tmp = toString_0(minify(tmp$ret$7));
+      } else {
+        tmp = null;
+      }
+      var inputValue = tmp;
+      throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2, path, null, inputValue), tmp2, -1, path, inputValue, null);
+    }
+    var literal = value;
+    try {
+      var result = parseLongImpl(literal);
+      var tmp_0;
+      // Inline function 'kotlin.ranges.contains' call
+      var this_0 = numberRangeToNumber(-32768, 32767);
+      if (contains_0(isInterface(this_0, ClosedRange) ? this_0 : THROW_CCE(), result)) {
+        tmp_0 = convertToShort(result);
+      } else {
+        tmp_0 = null;
+      }
+      var tmp0_elvis_lhs = tmp_0;
+      var tmp_1;
+      if (tmp0_elvis_lhs == null) {
+        unparsedPrimitive(this, literal, 'short', tag);
+      } else {
+        tmp_1 = tmp0_elvis_lhs;
+      }
+      tmp$ret$0 = tmp_1;
+      break $l$block;
+    } catch ($p) {
+      if ($p instanceof IllegalArgumentException) {
+        var e = $p;
+        unparsedPrimitive(this, literal, 'short', tag);
+      } else {
+        throw $p;
+      }
+    }
+  }
+  return tmp$ret$0;
+};
+protoOf(AbstractJsonTreeDecoder).zw = function (tag) {
+  return this.l1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
+};
+protoOf(AbstractJsonTreeDecoder).m1e = function (tag) {
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.getPrimitiveValue' call
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
+    // Inline function 'kotlinx.serialization.json.internal.cast' call
+    var value = this.g1e(tag);
+    if (!(value instanceof JsonPrimitive)) {
+      var tmp2 = 'Expected ' + getKClass(JsonPrimitive).n8() + ', but had ' + getKClassFromExpression(value).n8() + ' as the serialized body of ' + 'int';
+      // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
+      var path = this.e1e(tag);
+      var tmp;
+      if (this.p1d().q16_1.c18_1) {
         var tmp$ret$7 = toString_0(value);
         tmp = toString_0(minify(tmp$ret$7));
       } else {
@@ -2847,22 +3375,22 @@ protoOf(AbstractJsonTreeDecoder).x11 = function (tag) {
   }
   return tmp$ret$0;
 };
-protoOf(AbstractJsonTreeDecoder).rl = function (tag) {
-  return this.x11((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
+protoOf(AbstractJsonTreeDecoder).ax = function (tag) {
+  return this.m1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
 };
-protoOf(AbstractJsonTreeDecoder).y11 = function (tag) {
+protoOf(AbstractJsonTreeDecoder).n1e = function (tag) {
   var tmp$ret$0;
   $l$block: {
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.getPrimitiveValue' call
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
     // Inline function 'kotlinx.serialization.json.internal.cast' call
-    var value = this.u11(tag);
+    var value = this.g1e(tag);
     if (!(value instanceof JsonPrimitive)) {
-      var tmp2 = 'Expected ' + getKClass(JsonPrimitive).g8() + ', but had ' + getKClassFromExpression(value).g8() + ' as the serialized body of ' + 'long';
+      var tmp2 = 'Expected ' + getKClass(JsonPrimitive).n8() + ', but had ' + getKClassFromExpression(value).n8() + ' as the serialized body of ' + 'long';
       // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-      var path = this.s11(tag);
+      var path = this.e1e(tag);
       var tmp;
-      if (this.g11().ru_1.dw_1) {
+      if (this.p1d().q16_1.c18_1) {
         var tmp$ret$7 = toString_0(value);
         tmp = toString_0(minify(tmp$ret$7));
       } else {
@@ -2893,22 +3421,84 @@ protoOf(AbstractJsonTreeDecoder).y11 = function (tag) {
   }
   return tmp$ret$0;
 };
-protoOf(AbstractJsonTreeDecoder).sl = function (tag) {
-  return this.y11((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
+protoOf(AbstractJsonTreeDecoder).bx = function (tag) {
+  return this.n1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
 };
-protoOf(AbstractJsonTreeDecoder).z11 = function (tag) {
+protoOf(AbstractJsonTreeDecoder).o1e = function (tag) {
   var tmp$ret$0;
   $l$block: {
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.getPrimitiveValue' call
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
     // Inline function 'kotlinx.serialization.json.internal.cast' call
-    var value = this.u11(tag);
+    var value = this.g1e(tag);
     if (!(value instanceof JsonPrimitive)) {
-      var tmp2 = 'Expected ' + getKClass(JsonPrimitive).g8() + ', but had ' + getKClassFromExpression(value).g8() + ' as the serialized body of ' + 'double';
+      var tmp2 = 'Expected ' + getKClass(JsonPrimitive).n8() + ', but had ' + getKClassFromExpression(value).n8() + ' as the serialized body of ' + 'float';
       // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-      var path = this.s11(tag);
+      var path = this.e1e(tag);
       var tmp;
-      if (this.g11().ru_1.dw_1) {
+      if (this.p1d().q16_1.c18_1) {
+        var tmp$ret$7 = toString_0(value);
+        tmp = toString_0(minify(tmp$ret$7));
+      } else {
+        tmp = null;
+      }
+      var inputValue = tmp;
+      throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2, path, null, inputValue), tmp2, -1, path, inputValue, null);
+    }
+    var literal = value;
+    try {
+      var tmp0_elvis_lhs = get_float(literal);
+      var tmp_0;
+      if (tmp0_elvis_lhs == null) {
+        unparsedPrimitive(this, literal, 'float', tag);
+      } else {
+        tmp_0 = tmp0_elvis_lhs;
+      }
+      tmp$ret$0 = tmp_0;
+      break $l$block;
+    } catch ($p) {
+      if ($p instanceof IllegalArgumentException) {
+        var e = $p;
+        unparsedPrimitive(this, literal, 'float', tag);
+      } else {
+        throw $p;
+      }
+    }
+  }
+  var result = tmp$ret$0;
+  var specialFp = this.p1d().q16_1.v17_1;
+  if (specialFp || isFinite(result))
+    return result;
+  // Inline function 'kotlinx.serialization.json.internal.InvalidFloatingPointDecoded' call
+  var tmp2_0 = access$nonFiniteFpMessage$tJsonExceptionsKt(result, tag);
+  // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
+  var hint = "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'";
+  var tmp_1;
+  if (this.p1d().q16_1.c18_1) {
+    var tmp$ret$13 = toString_0(this.f1e());
+    tmp_1 = toString_0(minify(tmp$ret$13));
+  } else {
+    tmp_1 = null;
+  }
+  var inputValue_0 = tmp_1;
+  throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2_0, null, hint, inputValue_0), tmp2_0, -1, null, inputValue_0, hint);
+};
+protoOf(AbstractJsonTreeDecoder).cx = function (tag) {
+  return this.o1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
+};
+protoOf(AbstractJsonTreeDecoder).p1e = function (tag) {
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.getPrimitiveValue' call
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
+    // Inline function 'kotlinx.serialization.json.internal.cast' call
+    var value = this.g1e(tag);
+    if (!(value instanceof JsonPrimitive)) {
+      var tmp2 = 'Expected ' + getKClass(JsonPrimitive).n8() + ', but had ' + getKClassFromExpression(value).n8() + ' as the serialized body of ' + 'double';
+      // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
+      var path = this.e1e(tag);
+      var tmp;
+      if (this.p1d().q16_1.c18_1) {
         var tmp$ret$7 = toString_0(value);
         tmp = toString_0(minify(tmp$ret$7));
       } else {
@@ -2938,16 +3528,16 @@ protoOf(AbstractJsonTreeDecoder).z11 = function (tag) {
     }
   }
   var result = tmp$ret$0;
-  var specialFp = this.g11().ru_1.wv_1;
-  if (specialFp || isFinite(result))
+  var specialFp = this.p1d().q16_1.v17_1;
+  if (specialFp || isFinite_0(result))
     return result;
   // Inline function 'kotlinx.serialization.json.internal.InvalidFloatingPointDecoded' call
   var tmp2_0 = access$nonFiniteFpMessage$tJsonExceptionsKt(result, tag);
   // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
   var hint = "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'";
   var tmp_1;
-  if (this.g11().ru_1.dw_1) {
-    var tmp$ret$13 = toString_0(this.t11());
+  if (this.p1d().q16_1.c18_1) {
+    var tmp$ret$13 = toString_0(this.f1e());
     tmp_1 = toString_0(minify(tmp$ret$13));
   } else {
     tmp_1 = null;
@@ -2955,19 +3545,65 @@ protoOf(AbstractJsonTreeDecoder).z11 = function (tag) {
   var inputValue_0 = tmp_1;
   throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2_0, null, hint, inputValue_0), tmp2_0, -1, null, inputValue_0, hint);
 };
-protoOf(AbstractJsonTreeDecoder).tl = function (tag) {
-  return this.z11((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
+protoOf(AbstractJsonTreeDecoder).dx = function (tag) {
+  return this.p1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
 };
-protoOf(AbstractJsonTreeDecoder).a12 = function (tag) {
+protoOf(AbstractJsonTreeDecoder).q1e = function (tag) {
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.getPrimitiveValue' call
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
+    // Inline function 'kotlinx.serialization.json.internal.cast' call
+    var value = this.g1e(tag);
+    if (!(value instanceof JsonPrimitive)) {
+      var tmp2 = 'Expected ' + getKClass(JsonPrimitive).n8() + ', but had ' + getKClassFromExpression(value).n8() + ' as the serialized body of ' + 'char';
+      // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
+      var path = this.e1e(tag);
+      var tmp;
+      if (this.p1d().q16_1.c18_1) {
+        var tmp$ret$7 = toString_0(value);
+        tmp = toString_0(minify(tmp$ret$7));
+      } else {
+        tmp = null;
+      }
+      var inputValue = tmp;
+      throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2, path, null, inputValue), tmp2, -1, path, inputValue, null);
+    }
+    var literal = value;
+    try {
+      var tmp0_elvis_lhs = new Char(single(literal.h18()));
+      var tmp_0;
+      if (tmp0_elvis_lhs == null) {
+        unparsedPrimitive(this, literal, 'char', tag);
+      } else {
+        tmp_0 = tmp0_elvis_lhs;
+      }
+      tmp$ret$0 = tmp_0.d1_1;
+      break $l$block;
+    } catch ($p) {
+      if ($p instanceof IllegalArgumentException) {
+        var e = $p;
+        unparsedPrimitive(this, literal, 'char', tag);
+      } else {
+        throw $p;
+      }
+    }
+  }
+  return tmp$ret$0;
+};
+protoOf(AbstractJsonTreeDecoder).ex = function (tag) {
+  return this.q1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
+};
+protoOf(AbstractJsonTreeDecoder).r1e = function (tag) {
   // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
   // Inline function 'kotlinx.serialization.json.internal.cast' call
-  var value = this.u11(tag);
+  var value = this.g1e(tag);
   if (!(value instanceof JsonPrimitive)) {
-    var tmp2 = 'Expected ' + getKClass(JsonPrimitive).g8() + ', but had ' + getKClassFromExpression(value).g8() + ' as the serialized body of ' + 'string';
+    var tmp2 = 'Expected ' + getKClass(JsonPrimitive).n8() + ', but had ' + getKClassFromExpression(value).n8() + ' as the serialized body of ' + 'string';
     // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-    var path = this.s11(tag);
+    var path = this.e1e(tag);
     var tmp;
-    if (this.g11().ru_1.dw_1) {
+    if (this.p1d().q16_1.c18_1) {
       var tmp$ret$6 = toString_0(value);
       tmp = toString_0(minify(tmp$ret$6));
     } else {
@@ -2979,12 +3615,12 @@ protoOf(AbstractJsonTreeDecoder).a12 = function (tag) {
   var value_0 = value;
   if (!(value_0 instanceof JsonLiteral)) {
     var tmp2_0 = "Expected string value for a non-null key '" + tag + "', got null literal instead";
-    var tmp4 = this.s11(tag);
+    var tmp4 = this.e1e(tag);
     // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
     var hint = "Use 'coerceInputValues = true' in 'Json {}' builder to coerce nulls if property has a default value.";
     var tmp_0;
-    if (this.g11().ru_1.dw_1) {
-      var tmp$ret$10 = toString_0(this.t11());
+    if (this.p1d().q16_1.c18_1) {
+      var tmp$ret$10 = toString_0(this.f1e());
       tmp_0 = toString_0(minify(tmp$ret$10));
     } else {
       tmp_0 = null;
@@ -2992,14 +3628,14 @@ protoOf(AbstractJsonTreeDecoder).a12 = function (tag) {
     var inputValue_0 = tmp_0;
     throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2_0, tmp4, hint, inputValue_0), tmp2_0, -1, tmp4, inputValue_0, hint);
   }
-  if (!value_0.kw_1 && !this.g11().ru_1.ov_1) {
+  if (!value_0.j18_1 && !this.p1d().q16_1.n17_1) {
     var tmp2_1 = "String literal for value of key '" + tag + "' should be quoted";
-    var tmp4_0 = this.s11(tag);
+    var tmp4_0 = this.e1e(tag);
     // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
     var hint_0 = "Use 'isLenient = true' in 'Json {}' builder to accept non-compliant JSON.";
     var tmp_1;
-    if (this.g11().ru_1.dw_1) {
-      var tmp$ret$14 = toString_0(this.t11());
+    if (this.p1d().q16_1.c18_1) {
+      var tmp$ret$14 = toString_0(this.f1e());
       tmp_1 = toString_0(minify(tmp$ret$14));
     } else {
       tmp_1 = null;
@@ -3007,20 +3643,56 @@ protoOf(AbstractJsonTreeDecoder).a12 = function (tag) {
     var inputValue_1 = tmp_1;
     throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2_1, tmp4_0, hint_0, inputValue_1), tmp2_1, -1, tmp4_0, inputValue_1, hint_0);
   }
-  return value_0.mw_1;
+  return value_0.l18_1;
 };
-protoOf(AbstractJsonTreeDecoder).ul = function (tag) {
-  return this.a12((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
+protoOf(AbstractJsonTreeDecoder).fx = function (tag) {
+  return this.r1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE());
+};
+protoOf(AbstractJsonTreeDecoder).s1e = function (tag, inlineDescriptor) {
+  var tmp;
+  if (get_isUnsignedNumber(inlineDescriptor)) {
+    var tmp_0 = this.p1d();
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.getPrimitiveValue' call
+    var tmp2 = this.g1e(tag);
+    // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
+    // Inline function 'kotlinx.serialization.json.internal.cast' call
+    var serialName = inlineDescriptor.ni();
+    if (!(tmp2 instanceof JsonPrimitive)) {
+      var tmp2_0 = 'Expected ' + getKClass(JsonPrimitive).n8() + ', but had ' + getKClassFromExpression(tmp2).n8() + ' as the serialized body of ' + serialName;
+      // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
+      var path = this.e1e(tag);
+      var tmp_1;
+      if (this.p1d().q16_1.c18_1) {
+        var tmp$ret$7 = toString_0(tmp2);
+        tmp_1 = toString_0(minify(tmp$ret$7));
+      } else {
+        tmp_1 = null;
+      }
+      var inputValue = tmp_1;
+      throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2_0, path, null, inputValue), tmp2_0, -1, path, inputValue, null);
+    }
+    var lexer = StringJsonLexer_0(tmp_0, tmp2.h18());
+    tmp = new JsonDecoderForUnsignedTypes(lexer, this.p1d());
+  } else {
+    tmp = protoOf(NamedValueDecoder).hx.call(this, tag, inlineDescriptor);
+  }
+  return tmp;
+};
+protoOf(AbstractJsonTreeDecoder).hx = function (tag, inlineDescriptor) {
+  return this.s1e((!(tag == null) ? typeof tag === 'string' : false) ? tag : THROW_CCE(), inlineDescriptor);
+};
+protoOf(AbstractJsonTreeDecoder).ok = function (descriptor) {
+  return !(this.sw() == null) ? protoOf(NamedValueDecoder).ok.call(this, descriptor) : (new JsonPrimitiveDecoder(this.p1d(), this.v(), this.c1e_1)).ok(descriptor);
 };
 function coerceInputValue_0($this, descriptor, index, element) {
-  var tmp0 = $this.g11();
+  var tmp0 = $this.p1d();
   var tmp$ret$0;
   $l$block_2: {
     // Inline function 'kotlinx.serialization.json.internal.tryCoerceValue' call
-    var isOptional = descriptor.bf(index);
-    var elementDescriptor = descriptor.af(index);
+    var isOptional = descriptor.gj(index);
+    var elementDescriptor = descriptor.fj(index);
     var tmp;
-    if (isOptional && !elementDescriptor.ne()) {
+    if (isOptional && !elementDescriptor.si()) {
       tmp = element instanceof JsonNull;
     } else {
       tmp = false;
@@ -3029,9 +3701,9 @@ function coerceInputValue_0($this, descriptor, index, element) {
       tmp$ret$0 = true;
       break $l$block_2;
     }
-    if (equals(elementDescriptor.te(), ENUM_getInstance())) {
+    if (equals(elementDescriptor.yi(), ENUM_getInstance())) {
       var tmp_0;
-      if (elementDescriptor.ne()) {
+      if (elementDescriptor.si()) {
         tmp_0 = element instanceof JsonNull;
       } else {
         tmp_0 = false;
@@ -3051,7 +3723,7 @@ function coerceInputValue_0($this, descriptor, index, element) {
       }
       var enumValue = tmp_1;
       var enumIndex = getJsonNameIndex(elementDescriptor, tmp0, enumValue);
-      var coerceToNull = !tmp0.ru_1.rv_1 && elementDescriptor.ne();
+      var coerceToNull = !tmp0.q16_1.q17_1 && elementDescriptor.si();
       if (enumIndex === -3 && (isOptional || coerceToNull)) {
         tmp$ret$0 = true;
         break $l$block_2;
@@ -3063,11 +3735,11 @@ function coerceInputValue_0($this, descriptor, index, element) {
 }
 function throwUnknownKey($this, key) {
   var tmp2 = "Encountered an unknown key '" + key + "'";
-  var tmp4 = $this.ol();
+  var tmp4 = $this.uw();
   // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
   var hint = "Use 'ignoreUnknownKeys = true' in 'Json {}' builder or '@JsonIgnoreUnknownKeys' annotation to ignore unknown keys.";
   var tmp;
-  if ($this.g11().ru_1.dw_1) {
+  if ($this.p1d().q16_1.c18_1) {
     var tmp$ret$3 = $this.v().toString();
     tmp = toString_0(minify(tmp$ret$3));
   } else {
@@ -3080,81 +3752,81 @@ function JsonTreeDecoder(json, value, descriptor, polymorphicDiscriminator, poly
   polymorphicDiscriminator = polymorphicDiscriminator === VOID ? null : polymorphicDiscriminator;
   polyDescriptor = polyDescriptor === VOID ? null : polyDescriptor;
   AbstractJsonTreeDecoder.call(this, json, value, polymorphicDiscriminator);
-  this.h12_1 = value;
-  this.i12_1 = polyDescriptor;
-  this.j12_1 = this.v().t().j();
-  this.k12_1 = this.r11_1.rv_1 ? null : new JsonElementMarker(descriptor);
-  this.l12_1 = null;
-  this.m12_1 = null;
+  this.z1e_1 = value;
+  this.a1f_1 = polyDescriptor;
+  this.b1f_1 = this.v().t().j();
+  this.c1f_1 = this.d1e_1.q17_1 ? null : new JsonElementMarker(descriptor);
+  this.d1f_1 = null;
+  this.e1f_1 = null;
 }
 protoOf(JsonTreeDecoder).v = function () {
-  return this.h12_1;
+  return this.z1e_1;
 };
-protoOf(JsonTreeDecoder).rg = function (descriptor) {
-  var entries = this.j12_1;
+protoOf(JsonTreeDecoder).il = function (descriptor) {
+  var entries = this.b1f_1;
   $l$loop: while (entries.k()) {
     var entry = entries.l();
     var key = entry.u();
-    var index = getJsonNameIndex(descriptor, this.g11(), key);
+    var index = getJsonNameIndex(descriptor, this.p1d(), key);
     if (!(index === -3)) {
-      if (this.r11_1.tv_1 && coerceInputValue_0(this, descriptor, index, entry.v())) {
+      if (this.d1e_1.s17_1 && coerceInputValue_0(this, descriptor, index, entry.v())) {
         continue $l$loop;
       }
-      var tmp0_safe_receiver = this.k12_1;
+      var tmp0_safe_receiver = this.c1f_1;
       if (tmp0_safe_receiver == null)
         null;
       else {
-        tmp0_safe_receiver.zx(index);
+        tmp0_safe_receiver.i1a(index);
       }
-      this.l12_1 = key;
-      this.m12_1 = entry.v();
+      this.d1f_1 = key;
+      this.e1f_1 = entry.v();
       return index;
     }
-    if (!(key === this.q11_1) && !ignoreUnknownKeys(descriptor, this.g11())) {
+    if (!(key === this.c1e_1) && !ignoreUnknownKeys(descriptor, this.p1d())) {
       throwUnknownKey(this, key);
     }
   }
-  var tmp1_safe_receiver = this.k12_1;
-  var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.ay();
+  var tmp1_safe_receiver = this.c1f_1;
+  var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.j1a();
   var markerIndex = tmp2_elvis_lhs == null ? -1 : tmp2_elvis_lhs;
   if (!(markerIndex === -1)) {
-    this.l12_1 = descriptor.xe(markerIndex);
-    this.m12_1 = null;
+    this.d1f_1 = descriptor.cj(markerIndex);
+    this.e1f_1 = null;
   }
   return markerIndex;
 };
-protoOf(JsonTreeDecoder).xf = function () {
+protoOf(JsonTreeDecoder).ck = function () {
   var tmp;
-  var tmp0_safe_receiver = this.k12_1;
-  var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.yx_1;
+  var tmp0_safe_receiver = this.c1f_1;
+  var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.h1a_1;
   if (!(tmp1_elvis_lhs == null ? false : tmp1_elvis_lhs)) {
-    tmp = protoOf(AbstractJsonTreeDecoder).xf.call(this);
+    tmp = protoOf(AbstractJsonTreeDecoder).ck.call(this);
   } else {
     tmp = false;
   }
   return tmp;
 };
-protoOf(JsonTreeDecoder).il = function (descriptor, index) {
-  var tmp0_elvis_lhs = this.l12_1;
-  return tmp0_elvis_lhs == null ? descriptor.xe(index) : tmp0_elvis_lhs;
+protoOf(JsonTreeDecoder).ow = function (descriptor, index) {
+  var tmp0_elvis_lhs = this.d1f_1;
+  return tmp0_elvis_lhs == null ? descriptor.cj(index) : tmp0_elvis_lhs;
 };
-protoOf(JsonTreeDecoder).u11 = function (tag) {
-  var tmp0_elvis_lhs = this.m12_1;
+protoOf(JsonTreeDecoder).g1e = function (tag) {
+  var tmp0_elvis_lhs = this.e1f_1;
   return tmp0_elvis_lhs == null ? getValue(this.v(), tag) : tmp0_elvis_lhs;
 };
-protoOf(JsonTreeDecoder).gg = function (descriptor) {
-  if (descriptor === this.i12_1) {
-    var tmp = this.g11();
-    var tmp2 = this.t11();
+protoOf(JsonTreeDecoder).rk = function (descriptor) {
+  if (descriptor === this.a1f_1) {
+    var tmp = this.p1d();
+    var tmp2 = this.f1e();
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonTreeDecoder.cast' call
     // Inline function 'kotlinx.serialization.json.internal.cast' call
-    var serialName = this.i12_1.ie();
+    var serialName = this.a1f_1.ni();
     if (!(tmp2 instanceof JsonObject)) {
-      var tmp2_0 = 'Expected ' + getKClass(JsonObject).g8() + ', but had ' + getKClassFromExpression(tmp2).g8() + ' as the serialized body of ' + serialName;
+      var tmp2_0 = 'Expected ' + getKClass(JsonObject).n8() + ', but had ' + getKClassFromExpression(tmp2).n8() + ' as the serialized body of ' + serialName;
       // Inline function 'kotlinx.serialization.json.internal.decodingExceptionOf' call
-      var path = this.ol();
+      var path = this.uw();
       var tmp_0;
-      if (this.g11().ru_1.dw_1) {
+      if (this.p1d().q16_1.c18_1) {
         var tmp$ret$6 = toString_0(tmp2);
         tmp_0 = toString_0(minify(tmp$ret$6));
       } else {
@@ -3163,105 +3835,125 @@ protoOf(JsonTreeDecoder).gg = function (descriptor) {
       var inputValue = tmp_0;
       throw new JsonDecodingException(access$formatDecodingException$tJsonExceptionsKt(-1, tmp2_0, path, null, inputValue), tmp2_0, -1, path, inputValue, null);
     }
-    return new JsonTreeDecoder(tmp, tmp2, descriptor, this.q11_1, this.i12_1);
+    return new JsonTreeDecoder(tmp, tmp2, descriptor, this.c1e_1, this.a1f_1);
   }
-  return protoOf(AbstractJsonTreeDecoder).gg.call(this, descriptor);
+  return protoOf(AbstractJsonTreeDecoder).rk.call(this, descriptor);
 };
 function JsonTreeListDecoder(json, value) {
   AbstractJsonTreeDecoder.call(this, json, value);
-  this.t12_1 = value;
-  this.u12_1 = this.t12_1.o();
-  this.v12_1 = -1;
+  this.l1f_1 = value;
+  this.m1f_1 = this.l1f_1.o();
+  this.n1f_1 = -1;
 }
 protoOf(JsonTreeListDecoder).v = function () {
-  return this.t12_1;
+  return this.l1f_1;
 };
-protoOf(JsonTreeListDecoder).il = function (descriptor, index) {
+protoOf(JsonTreeListDecoder).ow = function (descriptor, index) {
   return index.toString();
 };
-protoOf(JsonTreeListDecoder).u11 = function (tag) {
-  return this.t12_1.n(toInt(tag));
+protoOf(JsonTreeListDecoder).g1e = function (tag) {
+  return this.l1f_1.n(toInt(tag));
 };
-protoOf(JsonTreeListDecoder).rg = function (descriptor) {
-  while (this.v12_1 < (this.u12_1 - 1 | 0)) {
-    this.v12_1 = this.v12_1 + 1 | 0;
-    return this.v12_1;
+protoOf(JsonTreeListDecoder).il = function (descriptor) {
+  while (this.n1f_1 < (this.m1f_1 - 1 | 0)) {
+    this.n1f_1 = this.n1f_1 + 1 | 0;
+    return this.n1f_1;
   }
   return -1;
+};
+function JsonPrimitiveDecoder(json, value, polymorphicDiscriminator) {
+  polymorphicDiscriminator = polymorphicDiscriminator === VOID ? null : polymorphicDiscriminator;
+  AbstractJsonTreeDecoder.call(this, json, value, polymorphicDiscriminator);
+  this.u1f_1 = value;
+  this.ix('primitive');
+}
+protoOf(JsonPrimitiveDecoder).v = function () {
+  return this.u1f_1;
+};
+protoOf(JsonPrimitiveDecoder).il = function (descriptor) {
+  return 0;
+};
+protoOf(JsonPrimitiveDecoder).g1e = function (tag) {
+  // Inline function 'kotlin.require' call
+  if (!(tag === 'primitive')) {
+    var message = "This input can only handle primitives with 'primitive' tag";
+    throw IllegalArgumentException_init_$Create$(toString_0(message));
+  }
+  return this.u1f_1;
 };
 function JsonTreeMapDecoder(json, value, descriptor) {
   JsonTreeDecoder.call(this, json, value, descriptor);
-  this.i13_1 = toList(value.u1());
-  this.j13_1 = imul(this.i13_1.o(), 2);
-  this.k13_1 = -1;
+  this.h1g_1 = toList(value.u1());
+  this.i1g_1 = imul(this.h1g_1.o(), 2);
+  this.j1g_1 = -1;
 }
-protoOf(JsonTreeMapDecoder).il = function (descriptor, index) {
+protoOf(JsonTreeMapDecoder).ow = function (descriptor, index) {
   var i = index / 2 | 0;
-  return this.i13_1.n(i);
+  return this.h1g_1.n(i);
 };
-protoOf(JsonTreeMapDecoder).rg = function (descriptor) {
-  while (this.k13_1 < (this.j13_1 - 1 | 0)) {
-    this.k13_1 = this.k13_1 + 1 | 0;
-    return this.k13_1;
+protoOf(JsonTreeMapDecoder).il = function (descriptor) {
+  while (this.j1g_1 < (this.i1g_1 - 1 | 0)) {
+    this.j1g_1 = this.j1g_1 + 1 | 0;
+    return this.j1g_1;
   }
   return -1;
 };
-protoOf(JsonTreeMapDecoder).u11 = function (tag) {
-  return (this.k13_1 % 2 | 0) === 0 ? JsonPrimitive_0(tag) : getValue(this.v(), tag);
+protoOf(JsonTreeMapDecoder).g1e = function (tag) {
+  return (this.j1g_1 % 2 | 0) === 0 ? JsonPrimitive_0(tag) : getValue(this.v(), tag);
 };
-protoOf(JsonTreeMapDecoder).hg = function (descriptor) {
+protoOf(JsonTreeMapDecoder).sk = function (descriptor) {
 };
 function appendEscape($this, lastPosition, current) {
-  $this.l13(lastPosition, current);
+  $this.k1g(lastPosition, current);
   return appendEsc($this, current + 1 | 0);
 }
 function decodedString($this, lastPosition, currentPosition) {
-  $this.l13(lastPosition, currentPosition);
-  var result = $this.kv_1.toString();
-  $this.kv_1.p9(0);
+  $this.k1g(lastPosition, currentPosition);
+  var result = $this.j17_1.toString();
+  $this.j17_1.x9(0);
   return result;
 }
 function takePeeked($this) {
   // Inline function 'kotlin.also' call
-  var this_0 = ensureNotNull($this.jv_1);
-  $this.jv_1 = null;
+  var this_0 = ensureNotNull($this.i17_1);
+  $this.i17_1 = null;
   return this_0;
 }
 function wasUnquotedString($this) {
-  return !(charSequenceGet($this.j11(), $this.hv_1 - 1 | 0) === _Char___init__impl__6a9atx(34));
+  return !(charSequenceGet($this.s1d(), $this.g17_1 - 1 | 0) === _Char___init__impl__6a9atx(34));
 }
 function appendEsc($this, startPosition) {
   var currentPosition = startPosition;
-  currentPosition = $this.m13(currentPosition);
+  currentPosition = $this.l1g(currentPosition);
   if (currentPosition === -1) {
-    $this.cy('Expected escape sequence to continue, got EOF');
+    $this.l1a('Expected escape sequence to continue, got EOF');
   }
-  var tmp = $this.j11();
+  var tmp = $this.s1d();
   var _unary__edvuaz = currentPosition;
   currentPosition = _unary__edvuaz + 1 | 0;
   var currentChar = charSequenceGet(tmp, _unary__edvuaz);
   if (currentChar === _Char___init__impl__6a9atx(117)) {
-    return appendHex($this, $this.j11(), currentPosition);
+    return appendHex($this, $this.s1d(), currentPosition);
   }
   // Inline function 'kotlin.code' call
   var tmp$ret$0 = Char__toInt_impl_vasixd(currentChar);
   var c = escapeToChar(tmp$ret$0);
   if (c === _Char___init__impl__6a9atx(0)) {
-    $this.cy("Invalid escaped char '" + toString_1(currentChar) + "'");
+    $this.l1a("Invalid escaped char '" + toString_1(currentChar) + "'");
   }
-  $this.kv_1.u6(c);
+  $this.j17_1.b7(c);
   return currentPosition;
 }
 function appendHex($this, source, startPos) {
   if ((startPos + 4 | 0) >= charSequenceLength(source)) {
-    $this.hv_1 = startPos;
-    $this.n13();
-    if (($this.hv_1 + 4 | 0) >= charSequenceLength(source)) {
-      $this.cy('Unexpected EOF during unicode escape');
+    $this.g17_1 = startPos;
+    $this.m1g();
+    if (($this.g17_1 + 4 | 0) >= charSequenceLength(source)) {
+      $this.l1a('Unexpected EOF during unicode escape');
     }
-    return appendHex($this, source, $this.hv_1);
+    return appendHex($this, source, $this.g17_1);
   }
-  $this.kv_1.u6(numberToChar((((fromHexChar($this, source, startPos) << 12) + (fromHexChar($this, source, startPos + 1 | 0) << 8) | 0) + (fromHexChar($this, source, startPos + 2 | 0) << 4) | 0) + fromHexChar($this, source, startPos + 3 | 0) | 0));
+  $this.j17_1.b7(numberToChar((((fromHexChar($this, source, startPos) << 12) + (fromHexChar($this, source, startPos + 1 | 0) << 8) | 0) + (fromHexChar($this, source, startPos + 2 | 0) << 4) | 0) + fromHexChar($this, source, startPos + 3 | 0) | 0));
   return startPos + 4 | 0;
 }
 function fromHexChar($this, source, currentPosition) {
@@ -3286,9 +3978,60 @@ function fromHexChar($this, source, currentPosition) {
     var this_2 = _Char___init__impl__6a9atx(65);
     tmp = (tmp_2 - Char__toInt_impl_vasixd(this_2) | 0) + 10 | 0;
   } else {
-    $this.cy("Invalid toHexChar char '" + toString_1(character) + "' in unicode escape");
+    $this.l1a("Invalid toHexChar char '" + toString_1(character) + "' in unicode escape");
   }
   return tmp;
+}
+function consumeBoolean2($this, start) {
+  var current = $this.l1g(start);
+  if (current >= charSequenceLength($this.s1d()) || current === -1) {
+    $this.l1a('EOF');
+  }
+  var tmp = $this.s1d();
+  var _unary__edvuaz = current;
+  current = _unary__edvuaz + 1 | 0;
+  // Inline function 'kotlin.code' call
+  var this_0 = charSequenceGet(tmp, _unary__edvuaz);
+  var tmp0_subject = Char__toInt_impl_vasixd(this_0) | 32;
+  var tmp_0;
+  // Inline function 'kotlin.code' call
+  var this_1 = _Char___init__impl__6a9atx(116);
+  if (tmp0_subject === Char__toInt_impl_vasixd(this_1)) {
+    consumeBooleanLiteral($this, 'rue', current);
+    tmp_0 = true;
+  } else {
+    // Inline function 'kotlin.code' call
+    var this_2 = _Char___init__impl__6a9atx(102);
+    if (tmp0_subject === Char__toInt_impl_vasixd(this_2)) {
+      consumeBooleanLiteral($this, 'alse', current);
+      tmp_0 = false;
+    } else {
+      $this.l1a("Expected valid boolean literal prefix, but had '" + $this.u1b() + "'");
+    }
+  }
+  return tmp_0;
+}
+function consumeBooleanLiteral($this, literalSuffix, current) {
+  if ((charSequenceLength($this.s1d()) - current | 0) < literalSuffix.length) {
+    $this.l1a('Unexpected end of boolean literal');
+  }
+  var inductionVariable = 0;
+  var last = charSequenceLength(literalSuffix) - 1 | 0;
+  if (inductionVariable <= last)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      var expected = charCodeAt(literalSuffix, i);
+      var actual = charSequenceGet($this.s1d(), current + i | 0);
+      // Inline function 'kotlin.code' call
+      var tmp = Char__toInt_impl_vasixd(expected);
+      // Inline function 'kotlin.code' call
+      if (!(tmp === (Char__toInt_impl_vasixd(actual) | 32))) {
+        $this.l1a("Expected valid boolean literal prefix, but had '" + $this.u1b() + "'");
+      }
+    }
+     while (inductionVariable <= last);
+  $this.g17_1 = current + literalSuffix.length | 0;
 }
 function consumeNumericLiteral$calculateExponent(exponentAccumulator, isExponentPositive) {
   var tmp;
@@ -3312,78 +4055,78 @@ function consumeNumericLiteral$calculateExponent(exponentAccumulator, isExponent
   return tmp;
 }
 function AbstractJsonLexer(configuration) {
-  this.gv_1 = configuration;
-  this.hv_1 = 0;
-  this.iv_1 = new JsonPath(this.gv_1);
-  this.jv_1 = null;
-  this.kv_1 = StringBuilder_init_$Create$();
+  this.f17_1 = configuration;
+  this.g17_1 = 0;
+  this.h17_1 = new JsonPath(this.f17_1);
+  this.i17_1 = null;
+  this.j17_1 = StringBuilder_init_$Create$();
 }
-protoOf(AbstractJsonLexer).n13 = function () {
+protoOf(AbstractJsonLexer).m1g = function () {
 };
-protoOf(AbstractJsonLexer).z10 = function () {
-  var current = this.o13();
-  var source = this.j11();
+protoOf(AbstractJsonLexer).i1d = function () {
+  var current = this.n1g();
+  var source = this.s1d();
   if (current >= charSequenceLength(source) || current === -1)
     return false;
   if (charSequenceGet(source, current) === _Char___init__impl__6a9atx(44)) {
-    this.hv_1 = this.hv_1 + 1 | 0;
+    this.g17_1 = this.g17_1 + 1 | 0;
     return true;
   }
   return false;
 };
-protoOf(AbstractJsonLexer).p13 = function (c) {
+protoOf(AbstractJsonLexer).o1g = function (c) {
   return c === _Char___init__impl__6a9atx(125) || c === _Char___init__impl__6a9atx(93) || (c === _Char___init__impl__6a9atx(58) || c === _Char___init__impl__6a9atx(44)) ? false : true;
 };
-protoOf(AbstractJsonLexer).lv = function () {
-  var nextToken = this.nz();
+protoOf(AbstractJsonLexer).k17 = function () {
+  var nextToken = this.w1b();
   if (!(nextToken === 10)) {
-    this.cy('Expected EOF after parsing, but had ' + toString_1(charSequenceGet(this.j11(), this.hv_1 - 1 | 0)) + ' instead');
+    this.l1a('Expected EOF after parsing, but had ' + toString_1(charSequenceGet(this.s1d(), this.g17_1 - 1 | 0)) + ' instead');
   }
 };
-protoOf(AbstractJsonLexer).hz = function (expected) {
-  var token = this.nz();
+protoOf(AbstractJsonLexer).q1b = function (expected) {
+  var token = this.w1b();
   if (!(token === expected)) {
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.fail' call
     var expected_0 = tokenDescription(expected);
-    var position = true && this.hv_1 > 0 ? this.hv_1 - 1 | 0 : this.hv_1;
-    var s = this.hv_1 === charSequenceLength(this.j11()) || position < 0 ? 'EOF' : toString_1(charSequenceGet(this.j11(), position));
+    var position = true && this.g17_1 > 0 ? this.g17_1 - 1 | 0 : this.g17_1;
+    var s = this.g17_1 === charSequenceLength(this.s1d()) || position < 0 ? 'EOF' : toString_1(charSequenceGet(this.s1d(), position));
     var tmp$ret$1 = 'Expected ' + expected_0 + ", but had '" + s + "' instead";
-    this.cy(tmp$ret$1, position);
+    this.l1a(tmp$ret$1, position);
   }
   return token;
 };
-protoOf(AbstractJsonLexer).q13 = function (expected) {
-  if (this.hv_1 > 0 && expected === _Char___init__impl__6a9atx(34)) {
+protoOf(AbstractJsonLexer).p1g = function (expected) {
+  if (this.g17_1 > 0 && expected === _Char___init__impl__6a9atx(34)) {
     var tmp$ret$0;
     $l$block: {
       // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.withPositionRollback' call
-      var snapshot = this.hv_1;
+      var snapshot = this.g17_1;
       try {
-        this.hv_1 = this.hv_1 - 1 | 0;
-        tmp$ret$0 = this.lz();
+        this.g17_1 = this.g17_1 - 1 | 0;
+        tmp$ret$0 = this.u1b();
         break $l$block;
       }finally {
-        this.hv_1 = snapshot;
+        this.g17_1 = snapshot;
       }
     }
     var inputLiteral = tmp$ret$0;
     if (inputLiteral === 'null') {
-      this.by("Expected string literal but 'null' literal was found", this.hv_1 - 1 | 0, "Use 'coerceInputValues = true' in 'Json {}' builder to coerce nulls if property has a default value.");
+      this.k1a("Expected string literal but 'null' literal was found", this.g17_1 - 1 | 0, "Use 'coerceInputValues = true' in 'Json {}' builder to coerce nulls if property has a default value.");
     }
   }
   // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.fail' call
   var expectedToken = charToTokenClass(expected);
   var expected_0 = tokenDescription(expectedToken);
-  var position = true && this.hv_1 > 0 ? this.hv_1 - 1 | 0 : this.hv_1;
-  var s = this.hv_1 === charSequenceLength(this.j11()) || position < 0 ? 'EOF' : toString_1(charSequenceGet(this.j11(), position));
+  var position = true && this.g17_1 > 0 ? this.g17_1 - 1 | 0 : this.g17_1;
+  var s = this.g17_1 === charSequenceLength(this.s1d()) || position < 0 ? 'EOF' : toString_1(charSequenceGet(this.s1d(), position));
   var tmp$ret$3 = 'Expected ' + expected_0 + ", but had '" + s + "' instead";
-  this.cy(tmp$ret$3, position);
+  this.l1a(tmp$ret$3, position);
 };
-protoOf(AbstractJsonLexer).iz = function () {
-  var source = this.j11();
-  var cpos = this.hv_1;
+protoOf(AbstractJsonLexer).r1b = function () {
+  var source = this.s1d();
+  var cpos = this.g17_1;
   $l$loop_0: while (true) {
-    cpos = this.m13(cpos);
+    cpos = this.l1g(cpos);
     if (cpos === -1)
       break $l$loop_0;
     var ch = charSequenceGet(source, cpos);
@@ -3391,16 +4134,16 @@ protoOf(AbstractJsonLexer).iz = function () {
       cpos = cpos + 1 | 0;
       continue $l$loop_0;
     }
-    this.hv_1 = cpos;
+    this.g17_1 = cpos;
     return charToTokenClass(ch);
   }
-  this.hv_1 = cpos;
+  this.g17_1 = cpos;
   return 10;
 };
-protoOf(AbstractJsonLexer).a11 = function (doConsume) {
-  var current = this.o13();
-  current = this.m13(current);
-  var len = charSequenceLength(this.j11()) - current | 0;
+protoOf(AbstractJsonLexer).j1d = function (doConsume) {
+  var current = this.n1g();
+  current = this.l1g(current);
+  var len = charSequenceLength(this.s1d()) - current | 0;
   if (len < 4 || current === -1)
     return false;
   var inductionVariable = 0;
@@ -3408,50 +4151,50 @@ protoOf(AbstractJsonLexer).a11 = function (doConsume) {
     do {
       var i = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
-      if (!(charCodeAt('null', i) === charSequenceGet(this.j11(), current + i | 0)))
+      if (!(charCodeAt('null', i) === charSequenceGet(this.s1d(), current + i | 0)))
         return false;
     }
      while (inductionVariable <= 3);
-  if (len > 4 && charToTokenClass(charSequenceGet(this.j11(), current + 4 | 0)) === 0)
+  if (len > 4 && charToTokenClass(charSequenceGet(this.s1d(), current + 4 | 0)) === 0)
     return false;
   if (doConsume) {
-    this.hv_1 = current + 4 | 0;
+    this.g17_1 = current + 4 | 0;
   }
   return true;
 };
-protoOf(AbstractJsonLexer).k11 = function (doConsume, $super) {
+protoOf(AbstractJsonLexer).t1d = function (doConsume, $super) {
   doConsume = doConsume === VOID ? true : doConsume;
-  return $super === VOID ? this.a11(doConsume) : $super.a11.call(this, doConsume);
+  return $super === VOID ? this.j1d(doConsume) : $super.j1d.call(this, doConsume);
 };
-protoOf(AbstractJsonLexer).b11 = function (isLenient) {
-  var token = this.iz();
+protoOf(AbstractJsonLexer).k1d = function (isLenient) {
+  var token = this.r1b();
   var tmp;
   if (isLenient) {
     if (!(token === 1) && !(token === 0))
       return null;
-    tmp = this.lz();
+    tmp = this.u1b();
   } else {
     if (!(token === 1))
       return null;
-    tmp = this.kz();
+    tmp = this.t1b();
   }
   var string = tmp;
-  this.jv_1 = string;
+  this.i17_1 = string;
   return string;
 };
-protoOf(AbstractJsonLexer).r13 = function () {
-  this.jv_1 = null;
+protoOf(AbstractJsonLexer).q1g = function () {
+  this.i17_1 = null;
 };
-protoOf(AbstractJsonLexer).s13 = function (startPos, endPos) {
+protoOf(AbstractJsonLexer).r1g = function (startPos, endPos) {
   // Inline function 'kotlin.text.substring' call
-  var this_0 = this.j11();
+  var this_0 = this.s1d();
   return toString_0(charSequenceSubSequence(this_0, startPos, endPos));
 };
-protoOf(AbstractJsonLexer).kz = function () {
-  if (!(this.jv_1 == null)) {
+protoOf(AbstractJsonLexer).t1b = function () {
+  if (!(this.i17_1 == null)) {
     return takePeeked(this);
   }
-  return this.e11();
+  return this.n1d();
 };
 protoOf(AbstractJsonLexer).consumeString2 = function (source, startPosition, current) {
   var currentPosition = current;
@@ -3461,19 +4204,19 @@ protoOf(AbstractJsonLexer).consumeString2 = function (source, startPosition, cur
   while (!(char === _Char___init__impl__6a9atx(34))) {
     if (char === _Char___init__impl__6a9atx(92)) {
       usedAppend = true;
-      currentPosition = this.m13(appendEscape(this, lastPosition, currentPosition));
+      currentPosition = this.l1g(appendEscape(this, lastPosition, currentPosition));
       if (currentPosition === -1) {
-        this.cy('Unexpected EOF', currentPosition);
+        this.l1a('Unexpected EOF', currentPosition);
       }
       lastPosition = currentPosition;
     } else {
       currentPosition = currentPosition + 1 | 0;
       if (currentPosition >= charSequenceLength(source)) {
         usedAppend = true;
-        this.l13(lastPosition, currentPosition);
-        currentPosition = this.m13(currentPosition);
+        this.k1g(lastPosition, currentPosition);
+        currentPosition = this.l1g(currentPosition);
         if (currentPosition === -1) {
-          this.cy('Unexpected EOF', currentPosition);
+          this.l1a('Unexpected EOF', currentPosition);
         }
         lastPosition = currentPosition;
       }
@@ -3482,45 +4225,45 @@ protoOf(AbstractJsonLexer).consumeString2 = function (source, startPosition, cur
   }
   var tmp;
   if (!usedAppend) {
-    tmp = this.s13(lastPosition, currentPosition);
+    tmp = this.r1g(lastPosition, currentPosition);
   } else {
     tmp = decodedString(this, lastPosition, currentPosition);
   }
   var string = tmp;
-  this.hv_1 = currentPosition + 1 | 0;
+  this.g17_1 = currentPosition + 1 | 0;
   return string;
 };
-protoOf(AbstractJsonLexer).f11 = function () {
-  var result = this.lz();
+protoOf(AbstractJsonLexer).o1d = function () {
+  var result = this.u1b();
   if (result === 'null' && wasUnquotedString(this)) {
-    this.cy("Unexpected 'null' value instead of string literal");
+    this.l1a("Unexpected 'null' value instead of string literal");
   }
   return result;
 };
-protoOf(AbstractJsonLexer).lz = function () {
-  if (!(this.jv_1 == null)) {
+protoOf(AbstractJsonLexer).u1b = function () {
+  if (!(this.i17_1 == null)) {
     return takePeeked(this);
   }
-  var current = this.o13();
-  if (current >= charSequenceLength(this.j11()) || current === -1) {
-    this.cy('EOF', current);
+  var current = this.n1g();
+  if (current >= charSequenceLength(this.s1d()) || current === -1) {
+    this.l1a('EOF', current);
   }
-  var token = charToTokenClass(charSequenceGet(this.j11(), current));
+  var token = charToTokenClass(charSequenceGet(this.s1d(), current));
   if (token === 1) {
-    return this.kz();
+    return this.t1b();
   }
   if (!(token === 0)) {
-    this.cy('Expected beginning of the string, but got ' + toString_1(charSequenceGet(this.j11(), current)));
+    this.l1a('Expected beginning of the string, but got ' + toString_1(charSequenceGet(this.s1d(), current)));
   }
   var usedAppend = false;
-  while (charToTokenClass(charSequenceGet(this.j11(), current)) === 0) {
+  while (charToTokenClass(charSequenceGet(this.s1d(), current)) === 0) {
     current = current + 1 | 0;
-    if (current >= charSequenceLength(this.j11())) {
+    if (current >= charSequenceLength(this.s1d())) {
       usedAppend = true;
-      this.l13(this.hv_1, current);
-      var eof = this.m13(current);
+      this.k1g(this.g17_1, current);
+      var eof = this.l1g(current);
       if (eof === -1) {
-        this.hv_1 = current;
+        this.g17_1 = current;
         return decodedString(this, 0, 0);
       } else {
         current = eof;
@@ -3529,32 +4272,32 @@ protoOf(AbstractJsonLexer).lz = function () {
   }
   var tmp;
   if (!usedAppend) {
-    tmp = this.s13(this.hv_1, current);
+    tmp = this.r1g(this.g17_1, current);
   } else {
-    tmp = decodedString(this, this.hv_1, current);
+    tmp = decodedString(this, this.g17_1, current);
   }
   var result = tmp;
-  this.hv_1 = current;
+  this.g17_1 = current;
   return result;
 };
-protoOf(AbstractJsonLexer).l13 = function (fromIndex, toIndex) {
-  this.kv_1.l9(this.j11(), fromIndex, toIndex);
+protoOf(AbstractJsonLexer).k1g = function (fromIndex, toIndex) {
+  this.j17_1.s9(this.s1d(), fromIndex, toIndex);
 };
-protoOf(AbstractJsonLexer).d11 = function (allowLenientStrings) {
+protoOf(AbstractJsonLexer).m1d = function (allowLenientStrings) {
   // Inline function 'kotlin.collections.mutableListOf' call
   var tokenStack = ArrayList_init_$Create$();
-  var lastToken = this.iz();
+  var lastToken = this.r1b();
   if (!(lastToken === 8) && !(lastToken === 6)) {
-    this.lz();
+    this.u1b();
     return Unit_instance;
   }
   $l$loop: while (true) {
-    lastToken = this.iz();
+    lastToken = this.r1b();
     if (lastToken === 1) {
       if (allowLenientStrings)
-        this.lz();
+        this.u1b();
       else
-        this.e11();
+        this.n1d();
       continue $l$loop;
     }
     var tmp0_subject = lastToken;
@@ -3562,49 +4305,49 @@ protoOf(AbstractJsonLexer).d11 = function (allowLenientStrings) {
       tokenStack.i(lastToken);
     } else if (tmp0_subject === 9) {
       if (!(last(tokenStack) === 8)) {
-        this.cy('found ] instead of }');
+        this.l1a('found ] instead of }');
       }
       removeLast(tokenStack);
     } else if (tmp0_subject === 7) {
       if (!(last(tokenStack) === 6)) {
-        this.cy('found } instead of ]');
+        this.l1a('found } instead of ]');
       }
       removeLast(tokenStack);
     } else if (tmp0_subject === 10) {
-      this.cy('Unexpected end of input due to malformed JSON during ignoring unknown keys');
+      this.l1a('Unexpected end of input due to malformed JSON during ignoring unknown keys');
     }
-    this.nz();
+    this.w1b();
     if (tokenStack.o() === 0)
       return Unit_instance;
   }
 };
 protoOf(AbstractJsonLexer).toString = function () {
-  return "JsonReader(source='" + toString_0(this.j11()) + "', currentPosition=" + this.hv_1 + ')';
+  return "JsonReader(source='" + toString_0(this.s1d()) + "', currentPosition=" + this.g17_1 + ')';
 };
-protoOf(AbstractJsonLexer).c11 = function (key) {
-  var processed = this.s13(0, this.hv_1);
+protoOf(AbstractJsonLexer).l1d = function (key) {
+  var processed = this.r1g(0, this.g17_1);
   var lastIndexOf_0 = lastIndexOf(processed, key);
-  this.by("Encountered an unknown key '" + key + "'", lastIndexOf_0, "Use 'ignoreUnknownKeys = true' in 'Json {}' builder or '@JsonIgnoreUnknownKeys' annotation to ignore unknown keys.");
+  this.k1a("Encountered an unknown key '" + key + "'", lastIndexOf_0, "Use 'ignoreUnknownKeys = true' in 'Json {}' builder or '@JsonIgnoreUnknownKeys' annotation to ignore unknown keys.");
 };
-protoOf(AbstractJsonLexer).by = function (message, position, hint) {
-  throw decodingExceptionOf_0(this, message, position, this.iv_1.ry(), hint, this.j11());
+protoOf(AbstractJsonLexer).k1a = function (message, position, hint) {
+  throw decodingExceptionOf_0(this, message, position, this.h17_1.a1b(), hint, this.s1d());
 };
-protoOf(AbstractJsonLexer).cy = function (message, position, hint, $super) {
-  position = position === VOID ? this.hv_1 : position;
+protoOf(AbstractJsonLexer).l1a = function (message, position, hint, $super) {
+  position = position === VOID ? this.g17_1 : position;
   hint = hint === VOID ? null : hint;
-  return $super === VOID ? this.by(message, position, hint) : $super.by.call(this, message, position, hint);
+  return $super === VOID ? this.k1a(message, position, hint) : $super.k1a.call(this, message, position, hint);
 };
-protoOf(AbstractJsonLexer).l11 = function () {
-  var current = this.o13();
-  current = this.m13(current);
-  if (current >= charSequenceLength(this.j11()) || current === -1) {
-    this.cy('EOF');
+protoOf(AbstractJsonLexer).v1d = function () {
+  var current = this.n1g();
+  current = this.l1g(current);
+  if (current >= charSequenceLength(this.s1d()) || current === -1) {
+    this.l1a('EOF');
   }
   var tmp;
-  if (charSequenceGet(this.j11(), current) === _Char___init__impl__6a9atx(34)) {
+  if (charSequenceGet(this.s1d(), current) === _Char___init__impl__6a9atx(34)) {
     current = current + 1 | 0;
-    if (current === charSequenceLength(this.j11())) {
-      this.cy('EOF');
+    if (current === charSequenceLength(this.s1d())) {
+      this.l1a('EOF');
     }
     tmp = true;
   } else {
@@ -3617,11 +4360,11 @@ protoOf(AbstractJsonLexer).l11 = function () {
   var isExponentPositive = false;
   var hasExponent = false;
   var start = current;
-  $l$loop_4: while (!(current === charSequenceLength(this.j11()))) {
-    var ch = charSequenceGet(this.j11(), current);
+  $l$loop_4: while (!(current === charSequenceLength(this.s1d()))) {
+    var ch = charSequenceGet(this.s1d(), current);
     if ((ch === _Char___init__impl__6a9atx(101) || ch === _Char___init__impl__6a9atx(69)) && !hasExponent) {
       if (current === start) {
-        this.cy("Unexpected symbol '" + toString_1(ch) + "' in numeric literal", current);
+        this.l1a("Unexpected symbol '" + toString_1(ch) + "' in numeric literal", current);
       }
       isExponentPositive = true;
       hasExponent = true;
@@ -3630,7 +4373,7 @@ protoOf(AbstractJsonLexer).l11 = function () {
     }
     if (ch === _Char___init__impl__6a9atx(45) && hasExponent) {
       if (current === start) {
-        this.cy("Unexpected symbol '-' in numeric literal", current);
+        this.l1a("Unexpected symbol '-' in numeric literal", current);
       }
       isExponentPositive = false;
       current = current + 1 | 0;
@@ -3638,7 +4381,7 @@ protoOf(AbstractJsonLexer).l11 = function () {
     }
     if (ch === _Char___init__impl__6a9atx(43) && hasExponent) {
       if (current === start) {
-        this.cy("Unexpected symbol '+' in numeric literal", current);
+        this.l1a("Unexpected symbol '+' in numeric literal", current);
       }
       isExponentPositive = true;
       current = current + 1 | 0;
@@ -3646,7 +4389,7 @@ protoOf(AbstractJsonLexer).l11 = function () {
     }
     if (ch === _Char___init__impl__6a9atx(45)) {
       if (!(current === start)) {
-        this.cy("Unexpected symbol '-' in numeric literal", current);
+        this.l1a("Unexpected symbol '-' in numeric literal", current);
       }
       isNegative = true;
       current = current + 1 | 0;
@@ -3658,7 +4401,7 @@ protoOf(AbstractJsonLexer).l11 = function () {
     current = current + 1 | 0;
     var digit = Char__minus_impl_a2frrh(ch, _Char___init__impl__6a9atx(48));
     if (!(0 <= digit ? digit <= 9 : false)) {
-      this.cy("Unexpected symbol '" + toString_1(ch) + "' in numeric literal", current - 1 | 0);
+      this.l1a("Unexpected symbol '" + toString_1(ch) + "' in numeric literal", current - 1 | 0);
     }
     if (hasExponent) {
       // Inline function 'kotlin.Long.times' call
@@ -3674,31 +4417,31 @@ protoOf(AbstractJsonLexer).l11 = function () {
     var this_3 = multiply(this_2, fromInt(10));
     accumulator = subtract(this_3, fromInt(digit));
     if (compare(accumulator, new Long(0, 0)) > 0) {
-      this.cy('Numeric value overflow');
+      this.l1a('Numeric value overflow');
     }
   }
   var hasChars = !(current === start);
   if (start === current || (isNegative && start === (current - 1 | 0))) {
-    this.cy('Expected numeric literal', current);
+    this.l1a('Expected numeric literal', current);
   }
   if (hasQuotation) {
     if (!hasChars) {
-      this.cy('EOF');
+      this.l1a('EOF');
     }
-    if (!(charSequenceGet(this.j11(), current) === _Char___init__impl__6a9atx(34))) {
-      this.cy('Expected closing quotation mark', current);
+    if (!(charSequenceGet(this.s1d(), current) === _Char___init__impl__6a9atx(34))) {
+      this.l1a('Expected closing quotation mark', current);
     }
     current = current + 1 | 0;
   }
-  this.hv_1 = current;
+  this.g17_1 = current;
   if (hasExponent) {
     var doubleAccumulator = toNumber(accumulator) * consumeNumericLiteral$calculateExponent(exponentAccumulator, isExponentPositive);
     if (doubleAccumulator > toNumber(new Long(-1, 2147483647)) || doubleAccumulator < toNumber(new Long(0, -2147483648))) {
-      this.cy('Numeric value overflow');
+      this.l1a('Numeric value overflow');
     }
     // Inline function 'kotlin.math.floor' call
     if (!(Math.floor(doubleAccumulator) === doubleAccumulator)) {
-      this.cy("Can't convert " + doubleAccumulator + ' to Long');
+      this.l1a("Can't convert " + doubleAccumulator + ' to Long');
     }
     accumulator = numberToLong(doubleAccumulator);
   }
@@ -3708,20 +4451,45 @@ protoOf(AbstractJsonLexer).l11 = function () {
   } else if (!equalsLong(accumulator, new Long(0, -2147483648))) {
     tmp_0 = negate(accumulator);
   } else {
-    this.cy('Numeric value overflow');
+    this.l1a('Numeric value overflow');
   }
   return tmp_0;
 };
-protoOf(AbstractJsonLexer).qw = function () {
-  var result = this.l11();
-  var next = this.nz();
+protoOf(AbstractJsonLexer).p18 = function () {
+  var result = this.v1d();
+  var next = this.w1b();
   if (!(next === 10)) {
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.fail' call
     var expected = tokenDescription(10);
-    var position = true && this.hv_1 > 0 ? this.hv_1 - 1 | 0 : this.hv_1;
-    var s = this.hv_1 === charSequenceLength(this.j11()) || position < 0 ? 'EOF' : toString_1(charSequenceGet(this.j11(), position));
+    var position = true && this.g17_1 > 0 ? this.g17_1 - 1 | 0 : this.g17_1;
+    var s = this.g17_1 === charSequenceLength(this.s1d()) || position < 0 ? 'EOF' : toString_1(charSequenceGet(this.s1d(), position));
     var tmp$ret$1 = "Expected input to contain a single valid number, but got '" + s + "' after it";
-    this.cy(tmp$ret$1, position);
+    this.l1a(tmp$ret$1, position);
+  }
+  return result;
+};
+protoOf(AbstractJsonLexer).u1d = function () {
+  var current = this.n1g();
+  if (current === charSequenceLength(this.s1d())) {
+    this.l1a('EOF');
+  }
+  var tmp;
+  if (charSequenceGet(this.s1d(), current) === _Char___init__impl__6a9atx(34)) {
+    current = current + 1 | 0;
+    tmp = true;
+  } else {
+    tmp = false;
+  }
+  var hasQuotation = tmp;
+  var result = consumeBoolean2(this, current);
+  if (hasQuotation) {
+    if (this.g17_1 === charSequenceLength(this.s1d())) {
+      this.l1a('EOF');
+    }
+    if (!(charSequenceGet(this.s1d(), this.g17_1) === _Char___init__impl__6a9atx(34))) {
+      this.l1a('Expected closing quotation mark');
+    }
+    this.g17_1 = this.g17_1 + 1 | 0;
   }
   return result;
 };
@@ -3729,7 +4497,7 @@ function charToTokenClass(c) {
   var tmp;
   // Inline function 'kotlin.code' call
   if (Char__toInt_impl_vasixd(c) < 126) {
-    var tmp_0 = CharMappings_getInstance().u13_1;
+    var tmp_0 = CharMappings_getInstance().t1g_1;
     // Inline function 'kotlin.code' call
     tmp = tmp_0[Char__toInt_impl_vasixd(c)];
   } else {
@@ -3741,7 +4509,7 @@ function tokenDescription(token) {
   return token === 1 ? "quotation mark '\"'" : token === 2 ? "string escape sequence '\\'" : token === 4 ? "comma ','" : token === 5 ? "colon ':'" : token === 6 ? "start of the object '{'" : token === 7 ? "end of the object '}'" : token === 8 ? "start of the array '['" : token === 9 ? "end of the array ']'" : token === 10 ? 'end of the input' : token === 127 ? 'invalid token' : 'valid token';
 }
 function escapeToChar(c) {
-  return c < 117 ? CharMappings_getInstance().t13_1[c] : _Char___init__impl__6a9atx(0);
+  return c < 117 ? CharMappings_getInstance().s1g_1[c] : _Char___init__impl__6a9atx(0);
 }
 function initEscape($this) {
   var inductionVariable = 0;
@@ -3787,7 +4555,7 @@ function initC2ESC($this, c, esc) {
   if (!(esc === _Char___init__impl__6a9atx(117))) {
     // Inline function 'kotlin.code' call
     var tmp$ret$0 = Char__toInt_impl_vasixd(esc);
-    $this.t13_1[tmp$ret$0] = numberToChar(c);
+    $this.s1g_1[tmp$ret$0] = numberToChar(c);
   }
 }
 function initC2ESC_0($this, c, esc) {
@@ -3796,7 +4564,7 @@ function initC2ESC_0($this, c, esc) {
   return initC2ESC($this, tmp$ret$0, esc);
 }
 function initC2TC($this, c, cl) {
-  $this.u13_1[c] = cl;
+  $this.t1g_1[c] = cl;
 }
 function initC2TC_0($this, c, cl) {
   // Inline function 'kotlin.code' call
@@ -3805,8 +4573,8 @@ function initC2TC_0($this, c, cl) {
 }
 function CharMappings() {
   CharMappings_instance = this;
-  this.t13_1 = charArray(117);
-  this.u13_1 = new Int8Array(126);
+  this.s1g_1 = charArray(117);
+  this.t1g_1 = new Int8Array(126);
   initEscape(this);
   initCharToToken(this);
 }
@@ -3819,48 +4587,48 @@ function CharMappings_getInstance() {
 function StringJsonLexerWithComments(source, configuration) {
   StringJsonLexer.call(this, source, configuration);
 }
-protoOf(StringJsonLexerWithComments).nz = function () {
-  var source = this.j11();
-  var cpos = this.o13();
+protoOf(StringJsonLexerWithComments).w1b = function () {
+  var source = this.s1d();
+  var cpos = this.n1g();
   if (cpos >= source.length || cpos === -1)
     return 10;
-  this.hv_1 = cpos + 1 | 0;
+  this.g17_1 = cpos + 1 | 0;
   return charToTokenClass(charCodeAt(source, cpos));
 };
-protoOf(StringJsonLexerWithComments).jz = function () {
-  var current = this.o13();
-  if (current >= this.j11().length || current === -1)
+protoOf(StringJsonLexerWithComments).s1b = function () {
+  var current = this.n1g();
+  if (current >= this.s1d().length || current === -1)
     return false;
-  return this.p13(charCodeAt(this.j11(), current));
+  return this.o1g(charCodeAt(this.s1d(), current));
 };
-protoOf(StringJsonLexerWithComments).y10 = function (expected) {
-  var source = this.j11();
-  var current = this.o13();
+protoOf(StringJsonLexerWithComments).h1d = function (expected) {
+  var source = this.s1d();
+  var current = this.n1g();
   if (current >= source.length || current === -1) {
-    this.hv_1 = -1;
-    this.q13(expected);
+    this.g17_1 = -1;
+    this.p1g(expected);
   }
   var c = charCodeAt(source, current);
-  this.hv_1 = current + 1 | 0;
+  this.g17_1 = current + 1 | 0;
   if (c === expected)
     return Unit_instance;
   else {
-    this.q13(expected);
+    this.p1g(expected);
   }
 };
-protoOf(StringJsonLexerWithComments).iz = function () {
-  var source = this.j11();
-  var cpos = this.o13();
+protoOf(StringJsonLexerWithComments).r1b = function () {
+  var source = this.s1d();
+  var cpos = this.n1g();
   if (cpos >= source.length || cpos === -1)
     return 10;
-  this.hv_1 = cpos;
+  this.g17_1 = cpos;
   return charToTokenClass(charCodeAt(source, cpos));
 };
-protoOf(StringJsonLexerWithComments).o13 = function () {
-  var current = this.hv_1;
+protoOf(StringJsonLexerWithComments).n1g = function () {
+  var current = this.g17_1;
   if (current === -1)
     return current;
-  var source = this.j11();
+  var source = this.s1d();
   $l$loop_1: while (current < source.length) {
     var c = charCodeAt(source, current);
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.isWs' call
@@ -3881,8 +4649,8 @@ protoOf(StringJsonLexerWithComments).o13 = function () {
       } else if (tmp0_subject === _Char___init__impl__6a9atx(42)) {
         current = indexOf(source, '*/', current + 2 | 0);
         if (current === -1) {
-          this.hv_1 = source.length;
-          this.cy('Expected end of the block comment: "*/", but had EOF instead');
+          this.g17_1 = source.length;
+          this.l1a('Expected end of the block comment: "*/", but had EOF instead');
         } else {
           current = current + 2 | 0;
         }
@@ -3891,22 +4659,22 @@ protoOf(StringJsonLexerWithComments).o13 = function () {
     }
     break $l$loop_1;
   }
-  this.hv_1 = current;
+  this.g17_1 = current;
   return current;
 };
 function StringJsonLexer(source, configuration) {
   AbstractJsonLexer.call(this, configuration);
-  this.g14_1 = source;
+  this.f1h_1 = source;
 }
-protoOf(StringJsonLexer).j11 = function () {
-  return this.g14_1;
+protoOf(StringJsonLexer).s1d = function () {
+  return this.f1h_1;
 };
-protoOf(StringJsonLexer).m13 = function (position) {
-  return position < this.j11().length ? position : -1;
+protoOf(StringJsonLexer).l1g = function (position) {
+  return position < this.s1d().length ? position : -1;
 };
-protoOf(StringJsonLexer).nz = function () {
-  var source = this.j11();
-  var cpos = this.hv_1;
+protoOf(StringJsonLexer).w1b = function () {
+  var source = this.s1d();
+  var cpos = this.g17_1;
   $l$loop: while (!(cpos === -1) && cpos < source.length) {
     var _unary__edvuaz = cpos;
     cpos = _unary__edvuaz + 1 | 0;
@@ -3914,17 +4682,17 @@ protoOf(StringJsonLexer).nz = function () {
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.isWs' call
     if (c === _Char___init__impl__6a9atx(32) || c === _Char___init__impl__6a9atx(10) || c === _Char___init__impl__6a9atx(13) || c === _Char___init__impl__6a9atx(9))
       continue $l$loop;
-    this.hv_1 = cpos;
+    this.g17_1 = cpos;
     return charToTokenClass(c);
   }
-  this.hv_1 = source.length;
+  this.g17_1 = source.length;
   return 10;
 };
-protoOf(StringJsonLexer).jz = function () {
-  var current = this.hv_1;
+protoOf(StringJsonLexer).s1b = function () {
+  var current = this.g17_1;
   if (current === -1)
     return false;
-  var source = this.j11();
+  var source = this.s1d();
   $l$loop: while (current < source.length) {
     var c = charCodeAt(source, current);
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.isWs' call
@@ -3932,17 +4700,17 @@ protoOf(StringJsonLexer).jz = function () {
       current = current + 1 | 0;
       continue $l$loop;
     }
-    this.hv_1 = current;
-    return this.p13(c);
+    this.g17_1 = current;
+    return this.o1g(c);
   }
-  this.hv_1 = current;
+  this.g17_1 = current;
   return false;
 };
-protoOf(StringJsonLexer).o13 = function () {
-  var current = this.hv_1;
+protoOf(StringJsonLexer).n1g = function () {
+  var current = this.g17_1;
   if (current === -1)
     return current;
-  var source = this.j11();
+  var source = this.s1d();
   $l$loop: while (current < source.length) {
     var c = charCodeAt(source, current);
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.isWs' call
@@ -3952,15 +4720,15 @@ protoOf(StringJsonLexer).o13 = function () {
       break $l$loop;
     }
   }
-  this.hv_1 = current;
+  this.g17_1 = current;
   return current;
 };
-protoOf(StringJsonLexer).y10 = function (expected) {
-  if (this.hv_1 === -1) {
-    this.q13(expected);
+protoOf(StringJsonLexer).h1d = function (expected) {
+  if (this.g17_1 === -1) {
+    this.p1g(expected);
   }
-  var source = this.j11();
-  var cpos = this.hv_1;
+  var source = this.s1d();
+  var cpos = this.g17_1;
   $l$loop: while (cpos < source.length) {
     var _unary__edvuaz = cpos;
     cpos = _unary__edvuaz + 1 | 0;
@@ -3968,90 +4736,90 @@ protoOf(StringJsonLexer).y10 = function (expected) {
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.isWs' call
     if (c === _Char___init__impl__6a9atx(32) || c === _Char___init__impl__6a9atx(10) || c === _Char___init__impl__6a9atx(13) || c === _Char___init__impl__6a9atx(9))
       continue $l$loop;
-    this.hv_1 = cpos;
+    this.g17_1 = cpos;
     if (c === expected)
       return Unit_instance;
-    this.q13(expected);
+    this.p1g(expected);
   }
-  this.hv_1 = -1;
-  this.q13(expected);
+  this.g17_1 = -1;
+  this.p1g(expected);
 };
-protoOf(StringJsonLexer).e11 = function () {
-  this.y10(_Char___init__impl__6a9atx(34));
-  var current = this.hv_1;
-  var closingQuote = indexOf_0(this.j11(), _Char___init__impl__6a9atx(34), current);
+protoOf(StringJsonLexer).n1d = function () {
+  this.h1d(_Char___init__impl__6a9atx(34));
+  var current = this.g17_1;
+  var closingQuote = indexOf_0(this.s1d(), _Char___init__impl__6a9atx(34), current);
   if (closingQuote === -1) {
-    this.lz();
+    this.u1b();
     // Inline function 'kotlinx.serialization.json.internal.AbstractJsonLexer.fail' call
     var expected = tokenDescription(1);
-    var position = false && this.hv_1 > 0 ? this.hv_1 - 1 | 0 : this.hv_1;
-    var s = this.hv_1 === charSequenceLength(this.j11()) || position < 0 ? 'EOF' : toString_1(charSequenceGet(this.j11(), position));
+    var position = false && this.g17_1 > 0 ? this.g17_1 - 1 | 0 : this.g17_1;
+    var s = this.g17_1 === charSequenceLength(this.s1d()) || position < 0 ? 'EOF' : toString_1(charSequenceGet(this.s1d(), position));
     var tmp$ret$1 = 'Expected ' + expected + ", but had '" + s + "' instead";
-    this.cy(tmp$ret$1, position);
+    this.l1a(tmp$ret$1, position);
   }
   var inductionVariable = current;
   if (inductionVariable < closingQuote)
     do {
       var i = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
-      if (charCodeAt(this.j11(), i) === _Char___init__impl__6a9atx(92)) {
-        return this.consumeString2(this.j11(), this.hv_1, i);
+      if (charCodeAt(this.s1d(), i) === _Char___init__impl__6a9atx(92)) {
+        return this.consumeString2(this.s1d(), this.g17_1, i);
       }
     }
      while (inductionVariable < closingQuote);
-  this.hv_1 = closingQuote + 1 | 0;
-  return substring(this.j11(), current, closingQuote);
+  this.g17_1 = closingQuote + 1 | 0;
+  return substring(this.s1d(), current, closingQuote);
 };
-protoOf(StringJsonLexer).i11 = function (keyToMatch, isLenient) {
-  var positionSnapshot = this.hv_1;
+protoOf(StringJsonLexer).r1d = function (keyToMatch, isLenient) {
+  var positionSnapshot = this.g17_1;
   try {
-    if (!(this.nz() === 6))
+    if (!(this.w1b() === 6))
       return null;
-    var firstKey = this.b11(isLenient);
+    var firstKey = this.k1d(isLenient);
     if (!(firstKey === keyToMatch))
       return null;
-    this.r13();
-    if (!(this.nz() === 5))
+    this.q1g();
+    if (!(this.w1b() === 5))
       return null;
-    return this.b11(isLenient);
+    return this.k1d(isLenient);
   }finally {
-    this.hv_1 = positionSnapshot;
-    this.r13();
+    this.g17_1 = positionSnapshot;
+    this.q1g();
   }
 };
 function StringJsonLexer_0(json, source) {
-  return !json.ru_1.bw_1 ? new StringJsonLexer(source, json.ru_1) : new StringJsonLexerWithComments(source, json.ru_1);
+  return !json.q16_1.a18_1 ? new StringJsonLexer(source, json.q16_1) : new StringJsonLexerWithComments(source, json.q16_1);
 }
 function get_schemaCache(_this__u8e3s4) {
-  return _this__u8e3s4.tu_1;
+  return _this__u8e3s4.s16_1;
 }
 function StringJsonWriter() {
-  this.wu_1 = StringBuilder_init_$Create$_0(128);
+  this.v16_1 = StringBuilder_init_$Create$_0(128);
 }
-protoOf(StringJsonWriter).px = function (value) {
-  this.wu_1.o9(value);
+protoOf(StringJsonWriter).p19 = function (value) {
+  this.v16_1.v9(value);
 };
-protoOf(StringJsonWriter).kx = function (char) {
-  this.wu_1.u6(char);
+protoOf(StringJsonWriter).j19 = function (char) {
+  this.v16_1.b7(char);
 };
-protoOf(StringJsonWriter).mx = function (text) {
-  this.wu_1.t6(text);
+protoOf(StringJsonWriter).l19 = function (text) {
+  this.v16_1.a7(text);
 };
-protoOf(StringJsonWriter).sx = function (text) {
-  printQuoted(this.wu_1, text);
+protoOf(StringJsonWriter).v19 = function (text) {
+  printQuoted(this.v16_1, text);
 };
-protoOf(StringJsonWriter).xu = function () {
-  this.wu_1.q9();
+protoOf(StringJsonWriter).w16 = function () {
+  this.v16_1.y9();
 };
 protoOf(StringJsonWriter).toString = function () {
-  return this.wu_1.toString();
+  return this.v16_1.toString();
 };
 function createMapForCache(initialCapacity) {
   return HashMap_init_$Create$(initialCapacity);
 }
 //region block: post-declaration
 defineProp(protoOf(JsonException), 'message', function () {
-  return this.e8();
+  return this.l8();
 });
 //endregion
 //region block: init

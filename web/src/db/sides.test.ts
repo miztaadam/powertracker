@@ -74,7 +74,8 @@ describe('schema version 3', () => {
     }
     v2.close()
 
-    const db = await openDb()
+    // The upgrade to version 3 itself (version 4 came later and only adds a store).
+    const db = await openDb(SCHEMA_VERSIONS.filter((v) => v.version <= 3))
 
     expect(await installedVersion(name)).toBe(3)
     const stamped = <T extends object>(rows: T[]) => rows.map((r) => ({ ...r, mode: 'POWERLIFTING' }))

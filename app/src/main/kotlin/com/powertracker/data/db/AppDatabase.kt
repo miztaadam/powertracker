@@ -12,9 +12,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 @Database(
     entities = [
         ExerciseEntity::class, SessionEntity::class, SetEntity::class,
-        PlanItemEntity::class, AdviceEntity::class, BaselineEntity::class,
+        PlanItemEntity::class, AdviceEntity::class, BaselineEntity::class, CheckInEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -25,11 +25,12 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun plan(): PlanDao
     abstract fun advice(): AdviceDao
     abstract fun baselines(): BaselineDao
+    abstract fun checkIns(): CheckInDao
 
     companion object {
         fun build(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "powertracker.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .addCallback(SeedCallback)
                 .build()
 
@@ -77,6 +78,17 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         db.execSQL("ALTER TABLE plan_item ADD COLUMN repsHigh INTEGER")
         db.execSQL("ALTER TABLE session ADD COLUMN mode TEXT NOT NULL DEFAULT 'POWERLIFTING'")
         db.execSQL("ALTER TABLE advice ADD COLUMN mode TEXT NOT NULL DEFAULT 'POWERLIFTING'")
+    }
+}
+
+/** Version 4, stage 3: the bodybuilding check-ins, in a new table. Nothing already stored changes. */
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `check_ins` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `date` INTEGER NOT NULL, " +
+                "`lagging` TEXT NOT NULL, `growingWell` TEXT NOT NULL)",
+        )
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_check_ins_date` ON `check_ins` (`date`)")
     }
 }
 

@@ -30,9 +30,9 @@ import {
   IllegalArgumentException_init_$Init$c3q2g5ghz7m0 as IllegalArgumentException_init_$Init$_0,
   IllegalArgumentException_init_$Init$1kkn5cqzzyumg as IllegalArgumentException_init_$Init$_1,
   IllegalArgumentException2asla15b5jaob as IllegalArgumentException,
+  isBlank1dvkhjjvox3p0 as isBlank,
   ArrayList_init_$Create$2xrifdqz5xirg as ArrayList_init_$Create$,
   HashSet_init_$Create$b2fvq2b4c4v2 as HashSet_init_$Create$,
-  isBlank1dvkhjjvox3p0 as isBlank,
   equals2au1ep9vhcato as equals,
   toList383f556t1dixk as toList,
   toHashSet1qrcsl3g8ugc8 as toHashSet,
@@ -48,6 +48,14 @@ import {
   ensureNotNull1e947j3ixpazm as ensureNotNull,
   getStringHashCode26igk1bx568vk as getStringHashCode,
   Long2qws0ah9gnpki as Long,
+  Char19o2r8palgjof as Char,
+  Duration__toIsoString_impl_9h6wsm1isvj2n1k1yz8 as Duration__toIsoString_impl_9h6wsm,
+  Duration5ynfiptaqcrg as Duration,
+  Companion_getInstance2jahap30xtp3t as Companion_getInstance,
+  Instant2s2zyzgfc4947 as Instant,
+  Companion_getInstance138pnyl3l6agm as Companion_getInstance_0,
+  Uuid1zxgztb7abqxx as Uuid,
+  Companion_getInstance2o9uk4k3kfl5 as Companion_getInstance_1,
   toIntOrNull3w2d066r9pvwm as toIntOrNull,
   hashCodeq5arwsb9dgti as hashCode,
   IndexOutOfBoundsException_init_$Create$k95f9vzk11af as IndexOutOfBoundsException_init_$Create$,
@@ -74,11 +82,85 @@ import {
   HashMap_init_$Create$g6b5bm370ovq as HashMap_init_$Create$,
   booleanArray2jdug9b51huk7 as booleanArray,
   emptyMapr06gerzljqtm as emptyMap,
+  Companion_getInstance1genqokpkr3uz as Companion_getInstance_2,
+  isCharArray21auq5hbrg68m as isCharArray,
+  copyOf2p23ljc5f5ea3 as copyOf,
+  DoubleCompanionObject_instance43opzxl97v4p as DoubleCompanionObject_instance,
+  isDoubleArray1wyh4nyf7pjxn as isDoubleArray,
+  copyOfgossjg6lh6js as copyOf_0,
+  FloatCompanionObject_instanceokgc3apyetrg as FloatCompanionObject_instance,
+  isFloatArrayjjscnqphw92j as isFloatArray,
+  copyOfq9pcgcgbldck as copyOf_1,
+  Companion_getInstance2yxzayjl8o21a as Companion_getInstance_3,
+  isLongArray2hqvh9jsglssi as isLongArray,
+  copyOf9mbsebmgnw4t as copyOf_2,
+  Companion_getInstance11ies3wlxhmd7 as Companion_getInstance_4,
+  _ULongArray___get_size__impl__ju6dtr202zbq0mnq27s as _ULongArray___get_size__impl__ju6dtr,
+  ULongArray3nd0d80mdwjj8 as ULongArray,
+  _ULongArray___get_storage__impl__28e64jr3nto0sn44go as _ULongArray___get_storage__impl__28e64j,
+  _ULongArray___init__impl__twm1l32hx2p2tkf1yk as _ULongArray___init__impl__twm1l3,
+  _ULong___init__impl__c78o9k1vasxel72m2l4 as _ULong___init__impl__c78o9k,
+  ULongArray__get_impl_pr71q9399vaqruv2nhv as ULongArray__get_impl_pr71q9,
+  _ULong___get_data__impl__fggpzbbo8lz7f8fnfy as _ULong___get_data__impl__fggpzb,
+  IntCompanionObject_instance3g0jtywew2pgh as IntCompanionObject_instance,
+  isIntArrayeijsubfngq38 as isIntArray,
+  copyOf3rutauicler23 as copyOf_3,
+  Companion_getInstance1crempiiqys0g as Companion_getInstance_5,
+  _UIntArray___get_size__impl__r6l8ci363v3neofz6lm as _UIntArray___get_size__impl__r6l8ci,
+  UIntArrayrp6cv44n5v4y as UIntArray,
+  _UIntArray___get_storage__impl__92a0v011llee1eit29k as _UIntArray___get_storage__impl__92a0v0,
+  _UIntArray___init__impl__ghjpc61ipdjtpvetv4q as _UIntArray___init__impl__ghjpc6,
+  _UInt___init__impl__l7qpdl5ip6p2ldulrs as _UInt___init__impl__l7qpdl,
+  UIntArray__get_impl_gp5kza9j53w29hfyue as UIntArray__get_impl_gp5kza,
+  _UInt___get_data__impl__f0vqqw30ojw38w2y6td as _UInt___get_data__impl__f0vqqw,
+  ShortCompanionObject_instance33mqksfmw0mrs as ShortCompanionObject_instance,
+  isShortArraywz30zxwtqi8h as isShortArray,
+  copyOf39s58md6y6rn6 as copyOf_4,
+  Companion_getInstance1foc7f9q9rk1s as Companion_getInstance_6,
+  _UShortArray___get_size__impl__jqto1b2ufu97m66fe6o as _UShortArray___get_size__impl__jqto1b,
+  UShortArray11avpmknxdgvv as UShortArray,
+  _UShortArray___get_storage__impl__t2jpv5vwyttef17wd6 as _UShortArray___get_storage__impl__t2jpv5,
+  _UShortArray___init__impl__9b26ef35x6jp7uuoumr as _UShortArray___init__impl__9b26ef,
+  _UShort___init__impl__jigrne1e3nphhrejdd8 as _UShort___init__impl__jigrne,
+  UShortArray__get_impl_fnbhmx2opdoe19gpa9f as UShortArray__get_impl_fnbhmx,
+  _UShort___get_data__impl__g02451raj6q6epxg1b as _UShort___get_data__impl__g0245,
+  ByteCompanionObject_instance1r92wkzdy7g72 as ByteCompanionObject_instance,
+  isByteArray4nnzfn1x4o3w as isByteArray,
+  copyOfwy6h3t5vzqpl as copyOf_5,
+  Companion_getInstanceb1xi7131i8df as Companion_getInstance_7,
+  _UByteArray___get_size__impl__h6pkdvvbgvcqs6floa as _UByteArray___get_size__impl__h6pkdv,
+  UByteArray2qu4d6gwssdf9 as UByteArray,
+  _UByteArray___get_storage__impl__d4kctt1j62rlq0o4l4a as _UByteArray___get_storage__impl__d4kctt,
+  _UByteArray___init__impl__ip4y9n1laeec2dn8xeh as _UByteArray___init__impl__ip4y9n,
+  _UByte___init__impl__g9hnc49zztd2brjj2m as _UByte___init__impl__g9hnc4,
+  UByteArray__get_impl_t5f3hv2p3mnhavewinq as UByteArray__get_impl_t5f3hv,
+  _UByte___get_data__impl__jof9qr100nrznmlnqj as _UByte___get_data__impl__jof9qr,
+  BooleanCompanionObject_instance2tls5h1cufcrh as BooleanCompanionObject_instance,
+  isBooleanArray35llghle4c6w1 as isBooleanArray,
+  copyOf37mht4mx7mjgh as copyOf_6,
+  charArray2ujmm1qusno00 as charArray,
+  _ULongArray___init__impl__twm1l39g76mgefo3i0 as _ULongArray___init__impl__twm1l3_0,
+  ULongArray__set_impl_z19mvhkfwz87ruujvs as ULongArray__set_impl_z19mvh,
+  _UIntArray___init__impl__ghjpc62fnuksf3r5j9k as _UIntArray___init__impl__ghjpc6_0,
+  UIntArray__set_impl_7f2zu2tazd6l4qyq51 as UIntArray__set_impl_7f2zu2,
+  _UShortArray___init__impl__9b26eftay922a1mq7k as _UShortArray___init__impl__9b26ef_0,
+  UShortArray__set_impl_6d8whp2ks3cfavbrzax as UShortArray__set_impl_6d8whp,
+  _UByteArray___init__impl__ip4y9n1cvrvnisuepir as _UByteArray___init__impl__ip4y9n_0,
+  UByteArray__set_impl_jvcicn2pkpqr7t9ajj8 as UByteArray__set_impl_jvcicn,
+  trimIndent1qytc1wvt8suh as trimIndent,
+  Unitkvevlwgzwiuc as Unit,
   charSequenceLength3278n89t01tmv as charSequenceLength,
   lastOrNull1aq5oz189qoe1 as lastOrNull,
   get_lastIndex1yw0x4k50k51w as get_lastIndex_0,
+  UInt1hthisrv6cndi as UInt,
+  ULong3f9k7s38t3rfp as ULong,
+  UBytep4j7r1t64gz1 as UByte,
+  UShort26xnqty60t7le as UShort,
   get_indicesc04v40g017hw as get_indices,
   get_indices377latqcai313 as get_indices_0,
+  PrimitiveClasses_getInstance13wbaztpz3e2d as PrimitiveClasses_getInstance,
+  getKClass3t8tygqu4lcxf as getKClass,
+  mapOf1xd03cq9cnmy8 as mapOf,
 } from './kotlin-kotlin-stdlib.mjs';
 //region block: imports
 var imul = Math.imul;
@@ -113,8 +195,13 @@ initMetadataForInterface(CachedNames, 'CachedNames');
 initMetadataForClass(SerialDescriptorImpl, 'SerialDescriptorImpl', VOID, VOID, [SerialDescriptor, CachedNames]);
 initMetadataForClass(SerialKind, 'SerialKind');
 initMetadataForClass(PrimitiveKind, 'PrimitiveKind', VOID, SerialKind);
+initMetadataForObject(BOOLEAN, 'BOOLEAN', VOID, PrimitiveKind);
+initMetadataForObject(BYTE, 'BYTE', VOID, PrimitiveKind);
+initMetadataForObject(CHAR, 'CHAR', VOID, PrimitiveKind);
+initMetadataForObject(SHORT, 'SHORT', VOID, PrimitiveKind);
 initMetadataForObject(INT, 'INT', VOID, PrimitiveKind);
 initMetadataForObject(LONG, 'LONG', VOID, PrimitiveKind);
+initMetadataForObject(FLOAT, 'FLOAT', VOID, PrimitiveKind);
 initMetadataForObject(DOUBLE, 'DOUBLE', VOID, PrimitiveKind);
 initMetadataForObject(STRING, 'STRING', VOID, PrimitiveKind);
 initMetadataForClass(PolymorphicKind, 'PolymorphicKind', VOID, SerialKind);
@@ -127,7 +214,7 @@ initMetadataForObject(LIST, 'LIST', VOID, StructureKind);
 initMetadataForObject(MAP, 'MAP', VOID, StructureKind);
 initMetadataForObject(OBJECT, 'OBJECT', VOID, StructureKind);
 function decodeSerializableValue(deserializer) {
-  return deserializer.nd(this);
+  return deserializer.th(this);
 }
 initMetadataForInterface(Decoder, 'Decoder');
 function decodeSequentially() {
@@ -138,28 +225,28 @@ function decodeCollectionSize(descriptor) {
 }
 function decodeSerializableElement$default(descriptor, index, deserializer, previousValue, $super) {
   previousValue = previousValue === VOID ? null : previousValue;
-  return $super === VOID ? this.mg(descriptor, index, deserializer, previousValue) : $super.mg.call(this, descriptor, index, deserializer, previousValue);
+  return $super === VOID ? this.dl(descriptor, index, deserializer, previousValue) : $super.dl.call(this, descriptor, index, deserializer, previousValue);
 }
 initMetadataForInterface(CompositeDecoder, 'CompositeDecoder');
 initMetadataForClass(AbstractDecoder, 'AbstractDecoder', VOID, VOID, [Decoder, CompositeDecoder]);
 function encodeNotNullMark() {
 }
 function beginCollection(descriptor, collectionSize) {
-  return this.gg(descriptor);
+  return this.rk(descriptor);
 }
 function encodeSerializableValue(serializer, value) {
-  serializer.od(this, value);
+  serializer.sh(this, value);
 }
 function encodeNullableSerializableValue(serializer, value) {
-  var isNullabilitySupported = serializer.md().ne();
+  var isNullabilitySupported = serializer.rh().si();
   if (isNullabilitySupported) {
-    return this.gh(isInterface(serializer, SerializationStrategy) ? serializer : THROW_CCE(), value);
+    return this.jm(isInterface(serializer, SerializationStrategy) ? serializer : THROW_CCE(), value);
   }
   if (value == null) {
-    this.vg();
+    this.ml();
   } else {
-    this.jh();
-    this.gh(serializer, value);
+    this.mm();
+    this.jm(serializer, value);
   }
 }
 initMetadataForInterface(Encoder, 'Encoder');
@@ -168,12 +255,19 @@ function shouldEncodeElementDefault(descriptor, index) {
 }
 initMetadataForInterface(CompositeEncoder, 'CompositeEncoder');
 initMetadataForClass(AbstractEncoder, 'AbstractEncoder', VOID, VOID, [Encoder, CompositeEncoder]);
+initMetadataForObject(NothingSerializer_0, 'NothingSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(DurationSerializer, 'DurationSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(InstantSerializer, 'InstantSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(UuidSerializer, 'UuidSerializer', VOID, VOID, [KSerializer]);
 initMetadataForClass(ListLikeDescriptor, 'ListLikeDescriptor', VOID, VOID, [SerialDescriptor]);
 initMetadataForClass(ArrayListClassDesc, 'ArrayListClassDesc', VOID, ListLikeDescriptor);
+initMetadataForClass(PrimitiveArrayDescriptor, 'PrimitiveArrayDescriptor', VOID, ListLikeDescriptor);
 initMetadataForClass(AbstractCollectionSerializer, 'AbstractCollectionSerializer', VOID, VOID, [KSerializer]);
 initMetadataForClass(CollectionLikeSerializer, 'CollectionLikeSerializer', VOID, AbstractCollectionSerializer);
 initMetadataForClass(CollectionSerializer, 'CollectionSerializer', VOID, CollectionLikeSerializer);
 initMetadataForClass(ArrayListSerializer, 'ArrayListSerializer', VOID, CollectionSerializer);
+initMetadataForClass(PrimitiveArraySerializer, 'PrimitiveArraySerializer', VOID, CollectionLikeSerializer);
+initMetadataForClass(PrimitiveArrayBuilder, 'PrimitiveArrayBuilder');
 initMetadataForCompanion(Companion);
 initMetadataForClass(ElementMarker, 'ElementMarker');
 initMetadataForClass(EnumSerializer, 'EnumSerializer', VOID, VOID, [KSerializer]);
@@ -185,15 +279,52 @@ function typeParametersSerializers() {
 }
 initMetadataForInterface(GeneratedSerializer, 'GeneratedSerializer', VOID, VOID, [KSerializer]);
 initMetadataForClass(InlinePrimitiveDescriptor$1, VOID, VOID, VOID, [GeneratedSerializer]);
+initMetadataForObject(NoOpEncoder, 'NoOpEncoder', VOID, AbstractEncoder);
+initMetadataForObject(NothingSerialDescriptor, 'NothingSerialDescriptor', VOID, VOID, [SerialDescriptor]);
 initMetadataForClass(NullableSerializer, 'NullableSerializer', VOID, VOID, [KSerializer]);
 initMetadataForClass(SerialDescriptorForNullable, 'SerialDescriptorForNullable', VOID, VOID, [SerialDescriptor, CachedNames]);
+initMetadataForClass(ObjectSerializer, 'ObjectSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(CharArraySerializer_0, 'CharArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForObject(DoubleArraySerializer_0, 'DoubleArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForObject(FloatArraySerializer_0, 'FloatArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForObject(LongArraySerializer_0, 'LongArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForObject(ULongArraySerializer_0, 'ULongArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForObject(IntArraySerializer_0, 'IntArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForObject(UIntArraySerializer_0, 'UIntArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForObject(ShortArraySerializer_0, 'ShortArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForObject(UShortArraySerializer_0, 'UShortArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForObject(ByteArraySerializer_0, 'ByteArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForObject(UByteArraySerializer_0, 'UByteArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForObject(BooleanArraySerializer_0, 'BooleanArraySerializer', VOID, PrimitiveArraySerializer, [KSerializer]);
+initMetadataForClass(CharArrayBuilder, 'CharArrayBuilder', VOID, PrimitiveArrayBuilder);
+initMetadataForClass(DoubleArrayBuilder, 'DoubleArrayBuilder', VOID, PrimitiveArrayBuilder);
+initMetadataForClass(FloatArrayBuilder, 'FloatArrayBuilder', VOID, PrimitiveArrayBuilder);
+initMetadataForClass(LongArrayBuilder, 'LongArrayBuilder', VOID, PrimitiveArrayBuilder);
+initMetadataForClass(ULongArrayBuilder, 'ULongArrayBuilder', VOID, PrimitiveArrayBuilder);
+initMetadataForClass(IntArrayBuilder, 'IntArrayBuilder', VOID, PrimitiveArrayBuilder);
+initMetadataForClass(UIntArrayBuilder, 'UIntArrayBuilder', VOID, PrimitiveArrayBuilder);
+initMetadataForClass(ShortArrayBuilder, 'ShortArrayBuilder', VOID, PrimitiveArrayBuilder);
+initMetadataForClass(UShortArrayBuilder, 'UShortArrayBuilder', VOID, PrimitiveArrayBuilder);
+initMetadataForClass(ByteArrayBuilder, 'ByteArrayBuilder', VOID, PrimitiveArrayBuilder);
+initMetadataForClass(UByteArrayBuilder, 'UByteArrayBuilder', VOID, PrimitiveArrayBuilder);
+initMetadataForClass(BooleanArrayBuilder, 'BooleanArrayBuilder', VOID, PrimitiveArrayBuilder);
 initMetadataForObject(StringSerializer, 'StringSerializer', VOID, VOID, [KSerializer]);
-initMetadataForClass(PrimitiveSerialDescriptor, 'PrimitiveSerialDescriptor', VOID, VOID, [SerialDescriptor]);
+initMetadataForClass(PrimitiveSerialDescriptor_0, 'PrimitiveSerialDescriptor', VOID, VOID, [SerialDescriptor]);
 initMetadataForObject(IntSerializer, 'IntSerializer', VOID, VOID, [KSerializer]);
 initMetadataForObject(LongSerializer, 'LongSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(ByteSerializer, 'ByteSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(ShortSerializer, 'ShortSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(CharSerializer, 'CharSerializer', VOID, VOID, [KSerializer]);
 initMetadataForObject(DoubleSerializer, 'DoubleSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(FloatSerializer, 'FloatSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(BooleanSerializer, 'BooleanSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(UnitSerializer, 'UnitSerializer', VOID, VOID, [KSerializer]);
 initMetadataForClass(TaggedDecoder, 'TaggedDecoder', VOID, VOID, [Decoder, CompositeDecoder]);
 initMetadataForClass(NamedValueDecoder, 'NamedValueDecoder', VOID, TaggedDecoder);
+initMetadataForObject(UIntSerializer, 'UIntSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(ULongSerializer, 'ULongSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(UByteSerializer, 'UByteSerializer', VOID, VOID, [KSerializer]);
+initMetadataForObject(UShortSerializer, 'UShortSerializer', VOID, VOID, [KSerializer]);
 initMetadataForClass(SerializersModule, 'SerializersModule');
 initMetadataForClass(SerialModuleImpl, 'SerialModuleImpl', VOID, SerializersModule);
 initMetadataForClass(SerializableWith, 'SerializableWith', VOID, VOID, VOID, VOID, 0);
@@ -205,20 +336,20 @@ function DeserializationStrategy() {
 function SerializationStrategy() {
 }
 function findPolymorphicSerializer(_this__u8e3s4, encoder, value) {
-  var tmp0_elvis_lhs = _this__u8e3s4.pd(encoder, value);
+  var tmp0_elvis_lhs = _this__u8e3s4.uh(encoder, value);
   var tmp;
   if (tmp0_elvis_lhs == null) {
-    throwSubtypeNotRegistered(getKClassFromExpression(value), _this__u8e3s4.qd());
+    throwSubtypeNotRegistered(getKClassFromExpression(value), _this__u8e3s4.vh());
   } else {
     tmp = tmp0_elvis_lhs;
   }
   return tmp;
 }
 function findPolymorphicSerializer_0(_this__u8e3s4, decoder, klassName) {
-  var tmp0_elvis_lhs = _this__u8e3s4.rd(decoder, klassName);
+  var tmp0_elvis_lhs = _this__u8e3s4.wh(decoder, klassName);
   var tmp;
   if (tmp0_elvis_lhs == null) {
-    throwSubtypeNotRegistered_0(klassName, _this__u8e3s4.qd());
+    throwSubtypeNotRegistered_0(klassName, _this__u8e3s4.vh());
   } else {
     tmp = tmp0_elvis_lhs;
   }
@@ -226,7 +357,7 @@ function findPolymorphicSerializer_0(_this__u8e3s4, decoder, klassName) {
 }
 function SealedClassSerializer_init_$Init$(serialName, baseClass, subclasses, subclassSerializers, classAnnotations, $this) {
   SealedClassSerializer.call($this, serialName, baseClass, subclasses, subclassSerializers);
-  $this.td_1 = asList(classAnnotations);
+  $this.yh_1 = asList(classAnnotations);
   return $this;
 }
 function SealedClassSerializer_init_$Create$(serialName, baseClass, subclasses, subclassSerializers, classAnnotations) {
@@ -236,26 +367,26 @@ function SealedClassSerializer$descriptor$delegate$lambda$lambda$lambda(this$0) 
   return function ($this$buildSerialDescriptor) {
     // Inline function 'kotlin.collections.forEach' call
     // Inline function 'kotlin.collections.iterator' call
-    var _iterator__ex2g4s = this$0.wd_1.t().j();
+    var _iterator__ex2g4s = this$0.bi_1.t().j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
       // Inline function 'kotlin.collections.component1' call
       var name = element.u();
       // Inline function 'kotlin.collections.component2' call
       var serializer = element.v();
-      $this$buildSerialDescriptor.fe(name, serializer.md());
+      $this$buildSerialDescriptor.ki(name, serializer.rh());
     }
     return Unit_instance;
   };
 }
 function SealedClassSerializer$descriptor$delegate$lambda$lambda(this$0) {
   return function ($this$buildSerialDescriptor) {
-    $this$buildSerialDescriptor.fe('type', serializer(StringCompanionObject_instance).md());
-    var tmp = 'kotlinx.serialization.Sealed<' + this$0.sd_1.g8() + '>';
+    $this$buildSerialDescriptor.ki('type', serializer(StringCompanionObject_instance).rh());
+    var tmp = 'kotlinx.serialization.Sealed<' + this$0.xh_1.n8() + '>';
     var tmp_0 = CONTEXTUAL_getInstance();
     var elementDescriptor = buildSerialDescriptor(tmp, tmp_0, [], SealedClassSerializer$descriptor$delegate$lambda$lambda$lambda(this$0));
-    $this$buildSerialDescriptor.fe('value', elementDescriptor);
-    $this$buildSerialDescriptor.zd_1 = this$0.td_1;
+    $this$buildSerialDescriptor.ki('value', elementDescriptor);
+    $this$buildSerialDescriptor.ei_1 = this$0.yh_1;
     return Unit_instance;
   };
 }
@@ -267,54 +398,54 @@ function SealedClassSerializer$descriptor$delegate$lambda($serialName, this$0) {
 }
 function SealedClassSerializer$_get_descriptor_$ref_m511rz() {
   return constructCallableReference(function (p0) {
-    return p0.md();
+    return p0.rh();
   }, 1, 0, 0);
 }
 function SealedClassSerializer$$inlined$groupingBy$1($this) {
-  this.ge_1 = $this;
+  this.li_1 = $this;
 }
-protoOf(SealedClassSerializer$$inlined$groupingBy$1).k2 = function () {
-  return this.ge_1.j();
+protoOf(SealedClassSerializer$$inlined$groupingBy$1).r2 = function () {
+  return this.li_1.j();
 };
-protoOf(SealedClassSerializer$$inlined$groupingBy$1).he = function (element) {
-  return element.v().md().ie();
+protoOf(SealedClassSerializer$$inlined$groupingBy$1).mi = function (element) {
+  return element.v().rh().ni();
 };
-protoOf(SealedClassSerializer$$inlined$groupingBy$1).l2 = function (element) {
-  return this.he(element);
+protoOf(SealedClassSerializer$$inlined$groupingBy$1).s2 = function (element) {
+  return this.mi(element);
 };
 function SealedClassSerializer(serialName, baseClass, subclasses, subclassSerializers) {
   AbstractPolymorphicSerializer.call(this);
-  this.sd_1 = baseClass;
-  this.td_1 = emptyList();
+  this.xh_1 = baseClass;
+  this.yh_1 = emptyList();
   var tmp = this;
   var tmp_0 = LazyThreadSafetyMode_PUBLICATION_getInstance();
-  tmp.ud_1 = lazy(tmp_0, SealedClassSerializer$descriptor$delegate$lambda(serialName, this));
+  tmp.zh_1 = lazy(tmp_0, SealedClassSerializer$descriptor$delegate$lambda(serialName, this));
   if (!(subclasses.length === subclassSerializers.length)) {
-    throw IllegalArgumentException_init_$Create$('All subclasses of sealed class ' + this.sd_1.g8() + ' should be marked @Serializable');
+    throw IllegalArgumentException_init_$Create$('All subclasses of sealed class ' + this.xh_1.n8() + ' should be marked @Serializable');
   }
-  this.vd_1 = toMap(zip(subclasses, subclassSerializers));
+  this.ai_1 = toMap(zip(subclasses, subclassSerializers));
   var tmp_1 = this;
   // Inline function 'kotlin.collections.groupingBy' call
-  var this_0 = this.vd_1.t();
+  var this_0 = this.ai_1.t();
   // Inline function 'kotlin.collections.aggregate' call
   var tmp0 = new SealedClassSerializer$$inlined$groupingBy$1(this_0);
   // Inline function 'kotlin.collections.mutableMapOf' call
   // Inline function 'kotlin.collections.aggregateTo' call
   var destination = LinkedHashMap_init_$Create$();
   // Inline function 'kotlin.collections.iterator' call
-  var _iterator__ex2g4s = tmp0.k2();
+  var _iterator__ex2g4s = tmp0.r2();
   while (_iterator__ex2g4s.k()) {
     var e = _iterator__ex2g4s.l();
-    var key = tmp0.l2(e);
+    var key = tmp0.s2(e);
     var accumulator = destination.t1(key);
     accumulator == null && !destination.r1(key);
     if (!(accumulator == null)) {
       // Inline function 'kotlin.error' call
-      var message = "Multiple sealed subclasses of '" + toString(this.sd_1) + "' have the same serial name '" + key + "':" + (" '" + toString(accumulator.u()) + "', '" + toString(e.u()) + "'");
+      var message = "Multiple sealed subclasses of '" + toString(this.xh_1) + "' have the same serial name '" + key + "':" + (" '" + toString(accumulator.u()) + "', '" + toString(e.u()) + "'");
       throw IllegalStateException_init_$Create$(toString(message));
     }
     // Inline function 'kotlin.collections.set' call
-    destination.m2(key, e);
+    destination.t2(key, e);
   }
   // Inline function 'kotlin.collections.mapValues' call
   // Inline function 'kotlin.collections.mapValuesTo' call
@@ -325,29 +456,29 @@ function SealedClassSerializer(serialName, baseClass, subclasses, subclassSerial
     var element = _iterator__ex2g4s_0.l();
     var tmp_2 = element.u();
     var tmp$ret$12 = element.v().v();
-    destination_0.m2(tmp_2, tmp$ret$12);
+    destination_0.t2(tmp_2, tmp$ret$12);
   }
-  tmp_1.wd_1 = destination_0;
+  tmp_1.bi_1 = destination_0;
 }
-protoOf(SealedClassSerializer).qd = function () {
-  return this.sd_1;
+protoOf(SealedClassSerializer).vh = function () {
+  return this.xh_1;
 };
-protoOf(SealedClassSerializer).md = function () {
-  var tmp0 = this.ud_1;
+protoOf(SealedClassSerializer).rh = function () {
+  var tmp0 = this.zh_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('descriptor', 1, tmp, SealedClassSerializer$_get_descriptor_$ref_m511rz(), null);
   return tmp0.v();
 };
-protoOf(SealedClassSerializer).rd = function (decoder, klassName) {
+protoOf(SealedClassSerializer).wh = function (decoder, klassName) {
   // Inline function 'kotlin.collections.get' call
-  var this_0 = this.wd_1;
+  var this_0 = this.bi_1;
   var tmp0_elvis_lhs = (isInterface(this_0, KtMap) ? this_0 : THROW_CCE()).t1(klassName);
-  return tmp0_elvis_lhs == null ? protoOf(AbstractPolymorphicSerializer).rd.call(this, decoder, klassName) : tmp0_elvis_lhs;
+  return tmp0_elvis_lhs == null ? protoOf(AbstractPolymorphicSerializer).wh.call(this, decoder, klassName) : tmp0_elvis_lhs;
 };
-protoOf(SealedClassSerializer).pd = function (encoder, value) {
-  var tmp0_elvis_lhs = this.vd_1.t1(getKClassFromExpression(value));
-  var tmp1_safe_receiver = tmp0_elvis_lhs == null ? protoOf(AbstractPolymorphicSerializer).pd.call(this, encoder, value) : tmp0_elvis_lhs;
+protoOf(SealedClassSerializer).uh = function (encoder, value) {
+  var tmp0_elvis_lhs = this.ai_1.t1(getKClassFromExpression(value));
+  var tmp1_safe_receiver = tmp0_elvis_lhs == null ? protoOf(AbstractPolymorphicSerializer).uh.call(this, encoder, value) : tmp0_elvis_lhs;
   var tmp;
   if (tmp1_safe_receiver == null) {
     tmp = null;
@@ -370,11 +501,11 @@ function MissingFieldException_init_$Create$(missingFields, serialName) {
 function MissingFieldException(message, cause, missingFields, serialName) {
   SerializationException_init_$Init$_1(message, cause, this);
   captureStack(this, MissingFieldException);
-  this.ke_1 = missingFields;
-  this.le_1 = serialName;
+  this.pi_1 = missingFields;
+  this.qi_1 = serialName;
 }
-protoOf(MissingFieldException).me = function (newMessage) {
-  return new MissingFieldException(newMessage, this, this.ke_1, this.le_1);
+protoOf(MissingFieldException).ri = function (newMessage) {
+  return new MissingFieldException(newMessage, this, this.pi_1, this.qi_1);
 };
 function SerializationException_init_$Init$($this) {
   IllegalArgumentException_init_$Init$($this);
@@ -420,14 +551,101 @@ function UnknownFieldException(message) {
 function serializer(_this__u8e3s4) {
   return StringSerializer_getInstance();
 }
+function serializer_0(_this__u8e3s4) {
+  return UIntSerializer_getInstance();
+}
+function serializer_1(_this__u8e3s4) {
+  return ULongSerializer_getInstance();
+}
+function serializer_2(_this__u8e3s4) {
+  return UByteSerializer_getInstance();
+}
+function serializer_3(_this__u8e3s4) {
+  return UShortSerializer_getInstance();
+}
 function get_nullable(_this__u8e3s4) {
   var tmp;
-  if (_this__u8e3s4.md().ne()) {
+  if (_this__u8e3s4.rh().si()) {
     tmp = isInterface(_this__u8e3s4, KSerializer) ? _this__u8e3s4 : THROW_CCE();
   } else {
     tmp = new NullableSerializer(_this__u8e3s4);
   }
   return tmp;
+}
+function serializer_4(_this__u8e3s4) {
+  return IntSerializer_getInstance();
+}
+function serializer_5(_this__u8e3s4) {
+  return LongSerializer_getInstance();
+}
+function serializer_6(_this__u8e3s4) {
+  return ByteSerializer_getInstance();
+}
+function serializer_7(_this__u8e3s4) {
+  return ShortSerializer_getInstance();
+}
+function serializer_8(_this__u8e3s4) {
+  return CharSerializer_getInstance();
+}
+function CharArraySerializer() {
+  return CharArraySerializer_getInstance();
+}
+function serializer_9(_this__u8e3s4) {
+  return DoubleSerializer_getInstance();
+}
+function DoubleArraySerializer() {
+  return DoubleArraySerializer_getInstance();
+}
+function serializer_10(_this__u8e3s4) {
+  return FloatSerializer_getInstance();
+}
+function FloatArraySerializer() {
+  return FloatArraySerializer_getInstance();
+}
+function LongArraySerializer() {
+  return LongArraySerializer_getInstance();
+}
+function ULongArraySerializer() {
+  return ULongArraySerializer_getInstance();
+}
+function IntArraySerializer() {
+  return IntArraySerializer_getInstance();
+}
+function UIntArraySerializer() {
+  return UIntArraySerializer_getInstance();
+}
+function ShortArraySerializer() {
+  return ShortArraySerializer_getInstance();
+}
+function UShortArraySerializer() {
+  return UShortArraySerializer_getInstance();
+}
+function ByteArraySerializer() {
+  return ByteArraySerializer_getInstance();
+}
+function UByteArraySerializer() {
+  return UByteArraySerializer_getInstance();
+}
+function serializer_11(_this__u8e3s4) {
+  return BooleanSerializer_getInstance();
+}
+function BooleanArraySerializer() {
+  return BooleanArraySerializer_getInstance();
+}
+function serializer_12(_this__u8e3s4) {
+  return UnitSerializer_getInstance();
+}
+function NothingSerializer() {
+  return NothingSerializer_getInstance();
+}
+function serializer_13(_this__u8e3s4) {
+  return DurationSerializer_getInstance();
+}
+function serializer_14(_this__u8e3s4) {
+  return InstantSerializer_getInstance();
+}
+function serializer_15(_this__u8e3s4) {
+  return UuidSerializer_getInstance();
 }
 function ContextDescriptor() {
 }
@@ -438,18 +656,18 @@ function getContextualDescriptor(_this__u8e3s4, descriptor) {
     tmp = null;
   } else {
     // Inline function 'kotlin.let' call
-    var tmp0_safe_receiver_0 = _this__u8e3s4.oe(tmp0_safe_receiver);
-    tmp = tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.md();
+    var tmp0_safe_receiver_0 = _this__u8e3s4.ti(tmp0_safe_receiver);
+    tmp = tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.rh();
   }
   return tmp;
 }
 function get_capturedKClass(_this__u8e3s4) {
   var tmp;
   if (_this__u8e3s4 instanceof ContextDescriptor) {
-    tmp = _this__u8e3s4.se_1;
+    tmp = _this__u8e3s4.xi_1;
   } else {
     if (_this__u8e3s4 instanceof SerialDescriptorForNullable) {
-      tmp = get_capturedKClass(_this__u8e3s4.pe_1);
+      tmp = get_capturedKClass(_this__u8e3s4.ui_1);
     } else {
       tmp = null;
     }
@@ -467,77 +685,86 @@ function get_elementNames(_this__u8e3s4) {
   return new elementNames$$inlined$Iterable$1(_this__u8e3s4);
 }
 function elementDescriptors$1($this_elementDescriptors) {
-  this.df_1 = $this_elementDescriptors;
-  this.cf_1 = $this_elementDescriptors.ve();
+  this.ij_1 = $this_elementDescriptors;
+  this.hj_1 = $this_elementDescriptors.aj();
 }
 protoOf(elementDescriptors$1).k = function () {
-  return this.cf_1 > 0;
+  return this.hj_1 > 0;
 };
 protoOf(elementDescriptors$1).l = function () {
-  var tmp = this.df_1.ve();
-  var _unary__edvuaz = this.cf_1;
-  this.cf_1 = _unary__edvuaz - 1 | 0;
-  return this.df_1.af(tmp - _unary__edvuaz | 0);
+  var tmp = this.ij_1.aj();
+  var _unary__edvuaz = this.hj_1;
+  this.hj_1 = _unary__edvuaz - 1 | 0;
+  return this.ij_1.fj(tmp - _unary__edvuaz | 0);
 };
 function elementDescriptors$$inlined$Iterable$1($this_elementDescriptors) {
-  this.ef_1 = $this_elementDescriptors;
+  this.jj_1 = $this_elementDescriptors;
 }
 protoOf(elementDescriptors$$inlined$Iterable$1).j = function () {
-  return new elementDescriptors$1(this.ef_1);
+  return new elementDescriptors$1(this.jj_1);
 };
 function elementNames$1($this_elementNames) {
-  this.gf_1 = $this_elementNames;
-  this.ff_1 = $this_elementNames.ve();
+  this.lj_1 = $this_elementNames;
+  this.kj_1 = $this_elementNames.aj();
 }
 protoOf(elementNames$1).k = function () {
-  return this.ff_1 > 0;
+  return this.kj_1 > 0;
 };
 protoOf(elementNames$1).l = function () {
-  var tmp = this.gf_1.ve();
-  var _unary__edvuaz = this.ff_1;
-  this.ff_1 = _unary__edvuaz - 1 | 0;
-  return this.gf_1.xe(tmp - _unary__edvuaz | 0);
+  var tmp = this.lj_1.aj();
+  var _unary__edvuaz = this.kj_1;
+  this.kj_1 = _unary__edvuaz - 1 | 0;
+  return this.lj_1.cj(tmp - _unary__edvuaz | 0);
 };
 function elementNames$$inlined$Iterable$1($this_elementNames) {
-  this.hf_1 = $this_elementNames;
+  this.mj_1 = $this_elementNames;
 }
 protoOf(elementNames$$inlined$Iterable$1).j = function () {
-  return new elementNames$1(this.hf_1);
+  return new elementNames$1(this.mj_1);
 };
-function ClassSerialDescriptorBuilder(serialName) {
-  this.xd_1 = serialName;
-  this.yd_1 = false;
-  this.zd_1 = emptyList();
-  this.ae_1 = ArrayList_init_$Create$();
-  this.be_1 = HashSet_init_$Create$();
-  this.ce_1 = ArrayList_init_$Create$();
-  this.de_1 = ArrayList_init_$Create$();
-  this.ee_1 = ArrayList_init_$Create$();
-}
-protoOf(ClassSerialDescriptorBuilder).if = function (elementName, descriptor, annotations, isOptional) {
+function PrimitiveSerialDescriptor(serialName, kind) {
+  // Inline function 'kotlin.text.isNotBlank' call
   // Inline function 'kotlin.require' call
-  if (!this.be_1.i(elementName)) {
-    var message = "Element with name '" + elementName + "' is already registered in " + this.xd_1;
+  if (!!isBlank(serialName)) {
+    var message = 'Blank serial names are prohibited';
+    throw IllegalArgumentException_init_$Create$(toString(message));
+  }
+  return PrimitiveDescriptorSafe(serialName, kind);
+}
+function ClassSerialDescriptorBuilder(serialName) {
+  this.ci_1 = serialName;
+  this.di_1 = false;
+  this.ei_1 = emptyList();
+  this.fi_1 = ArrayList_init_$Create$();
+  this.gi_1 = HashSet_init_$Create$();
+  this.hi_1 = ArrayList_init_$Create$();
+  this.ii_1 = ArrayList_init_$Create$();
+  this.ji_1 = ArrayList_init_$Create$();
+}
+protoOf(ClassSerialDescriptorBuilder).nj = function (elementName, descriptor, annotations, isOptional) {
+  // Inline function 'kotlin.require' call
+  if (!this.gi_1.i(elementName)) {
+    var message = "Element with name '" + elementName + "' is already registered in " + this.ci_1;
     throw IllegalArgumentException_init_$Create$(toString(message));
   }
   // Inline function 'kotlin.collections.plusAssign' call
-  this.ae_1.i(elementName);
+  this.fi_1.i(elementName);
   // Inline function 'kotlin.collections.plusAssign' call
-  this.ce_1.i(descriptor);
+  this.hi_1.i(descriptor);
   // Inline function 'kotlin.collections.plusAssign' call
-  this.de_1.i(annotations);
+  this.ii_1.i(annotations);
   // Inline function 'kotlin.collections.plusAssign' call
-  this.ee_1.i(isOptional);
+  this.ji_1.i(isOptional);
 };
-protoOf(ClassSerialDescriptorBuilder).fe = function (elementName, descriptor, annotations, isOptional, $super) {
+protoOf(ClassSerialDescriptorBuilder).ki = function (elementName, descriptor, annotations, isOptional, $super) {
   annotations = annotations === VOID ? emptyList() : annotations;
   isOptional = isOptional === VOID ? false : isOptional;
   var tmp;
   if ($super === VOID) {
-    this.if(elementName, descriptor, annotations, isOptional);
+    this.nj(elementName, descriptor, annotations, isOptional);
     tmp = Unit_instance;
   } else {
-    tmp = $super.if.call(this, elementName, descriptor, annotations, isOptional);
+    tmp = $super.nj.call(this, elementName, descriptor, annotations, isOptional);
   }
   return tmp;
 };
@@ -562,10 +789,10 @@ function buildSerialDescriptor(serialName, kind, typeParameters, builder) {
   }
   var sdBuilder = new ClassSerialDescriptorBuilder(serialName);
   builder(sdBuilder);
-  return new SerialDescriptorImpl(serialName, kind, sdBuilder.ae_1.o(), toList(typeParameters), sdBuilder);
+  return new SerialDescriptorImpl(serialName, kind, sdBuilder.fi_1.o(), toList(typeParameters), sdBuilder);
 }
 function _get__hashCode__tgwhef($this) {
-  var tmp0 = $this.uf_1;
+  var tmp0 = $this.zj_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('_hashCode', 1, tmp, SerialDescriptorImpl$_get__hashCode_$ref_2v7wzp(), null);
@@ -573,7 +800,7 @@ function _get__hashCode__tgwhef($this) {
 }
 function SerialDescriptorImpl$_hashCode$delegate$lambda(this$0) {
   return function () {
-    return hashCodeImpl(this$0, this$0.tf_1);
+    return hashCodeImpl(this$0, this$0.yj_1);
   };
 }
 function SerialDescriptorImpl$_get__hashCode_$ref_2v7wzp() {
@@ -582,67 +809,67 @@ function SerialDescriptorImpl$_get__hashCode_$ref_2v7wzp() {
   }, 1, 0, 1);
 }
 function SerialDescriptorImpl(serialName, kind, elementsCount, typeParameters, builder) {
-  this.jf_1 = serialName;
-  this.kf_1 = kind;
-  this.lf_1 = elementsCount;
-  this.mf_1 = builder.zd_1;
-  this.nf_1 = toHashSet(builder.ae_1);
+  this.oj_1 = serialName;
+  this.pj_1 = kind;
+  this.qj_1 = elementsCount;
+  this.rj_1 = builder.ei_1;
+  this.sj_1 = toHashSet(builder.fi_1);
   var tmp = this;
   // Inline function 'kotlin.collections.toTypedArray' call
-  var this_0 = builder.ae_1;
-  tmp.of_1 = copyToArray(this_0);
-  this.pf_1 = compactArray(builder.ce_1);
+  var this_0 = builder.fi_1;
+  tmp.tj_1 = copyToArray(this_0);
+  this.uj_1 = compactArray(builder.hi_1);
   var tmp_0 = this;
   // Inline function 'kotlin.collections.toTypedArray' call
-  var this_1 = builder.de_1;
-  tmp_0.qf_1 = copyToArray(this_1);
-  this.rf_1 = toBooleanArray(builder.ee_1);
+  var this_1 = builder.ii_1;
+  tmp_0.vj_1 = copyToArray(this_1);
+  this.wj_1 = toBooleanArray(builder.ji_1);
   var tmp_1 = this;
   // Inline function 'kotlin.collections.map' call
-  var this_2 = withIndex(this.of_1);
+  var this_2 = withIndex(this.tj_1);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_2, 10));
   var _iterator__ex2g4s = this_2.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$4 = to(item.qa_1, item.pa_1);
+    var tmp$ret$4 = to(item.fb_1, item.eb_1);
     destination.i(tmp$ret$4);
   }
-  tmp_1.sf_1 = toMap(destination);
-  this.tf_1 = compactArray(typeParameters);
+  tmp_1.xj_1 = toMap(destination);
+  this.yj_1 = compactArray(typeParameters);
   var tmp_2 = this;
-  tmp_2.uf_1 = lazy_0(SerialDescriptorImpl$_hashCode$delegate$lambda(this));
+  tmp_2.zj_1 = lazy_0(SerialDescriptorImpl$_hashCode$delegate$lambda(this));
 }
-protoOf(SerialDescriptorImpl).ie = function () {
-  return this.jf_1;
+protoOf(SerialDescriptorImpl).ni = function () {
+  return this.oj_1;
 };
-protoOf(SerialDescriptorImpl).te = function () {
-  return this.kf_1;
+protoOf(SerialDescriptorImpl).yi = function () {
+  return this.pj_1;
 };
-protoOf(SerialDescriptorImpl).ve = function () {
-  return this.lf_1;
+protoOf(SerialDescriptorImpl).aj = function () {
+  return this.qj_1;
 };
-protoOf(SerialDescriptorImpl).we = function () {
-  return this.mf_1;
+protoOf(SerialDescriptorImpl).bj = function () {
+  return this.rj_1;
 };
-protoOf(SerialDescriptorImpl).vf = function () {
-  return this.nf_1;
+protoOf(SerialDescriptorImpl).ak = function () {
+  return this.sj_1;
 };
-protoOf(SerialDescriptorImpl).xe = function (index) {
-  return getChecked(this.of_1, index);
+protoOf(SerialDescriptorImpl).cj = function (index) {
+  return getChecked(this.tj_1, index);
 };
-protoOf(SerialDescriptorImpl).ye = function (name) {
-  var tmp0_elvis_lhs = this.sf_1.t1(name);
+protoOf(SerialDescriptorImpl).dj = function (name) {
+  var tmp0_elvis_lhs = this.xj_1.t1(name);
   return tmp0_elvis_lhs == null ? -3 : tmp0_elvis_lhs;
 };
-protoOf(SerialDescriptorImpl).ze = function (index) {
-  return getChecked(this.qf_1, index);
+protoOf(SerialDescriptorImpl).ej = function (index) {
+  return getChecked(this.vj_1, index);
 };
-protoOf(SerialDescriptorImpl).af = function (index) {
-  return getChecked(this.pf_1, index);
+protoOf(SerialDescriptorImpl).fj = function (index) {
+  return getChecked(this.uj_1, index);
 };
-protoOf(SerialDescriptorImpl).bf = function (index) {
-  return getChecked_0(this.rf_1, index);
+protoOf(SerialDescriptorImpl).gj = function (index) {
+  return getChecked_0(this.wj_1, index);
 };
 protoOf(SerialDescriptorImpl).equals = function (other) {
   var tmp$ret$0;
@@ -656,29 +883,29 @@ protoOf(SerialDescriptorImpl).equals = function (other) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
-    if (!(this.ie() === other.ie())) {
+    if (!(this.ni() === other.ni())) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
-    if (!contentEquals(this.tf_1, other.tf_1)) {
+    if (!contentEquals(this.yj_1, other.yj_1)) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
-    if (!(this.ve() === other.ve())) {
+    if (!(this.aj() === other.aj())) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
     var inductionVariable = 0;
-    var last = this.ve();
+    var last = this.aj();
     if (inductionVariable < last)
       do {
         var index = inductionVariable;
         inductionVariable = inductionVariable + 1 | 0;
-        if (!(this.af(index).ie() === other.af(index).ie())) {
+        if (!(this.fj(index).ni() === other.fj(index).ni())) {
           tmp$ret$0 = false;
           break $l$block_5;
         }
-        if (!equals(this.af(index).te(), other.af(index).te())) {
+        if (!equals(this.fj(index).yi(), other.fj(index).yi())) {
           tmp$ret$0 = false;
           break $l$block_5;
         }
@@ -696,6 +923,46 @@ protoOf(SerialDescriptorImpl).toString = function () {
 };
 function buildSerialDescriptor$lambda(_this__u8e3s4) {
   return Unit_instance;
+}
+function BOOLEAN() {
+  BOOLEAN_instance = this;
+  PrimitiveKind.call(this);
+}
+var BOOLEAN_instance;
+function BOOLEAN_getInstance() {
+  if (BOOLEAN_instance == null)
+    new BOOLEAN();
+  return BOOLEAN_instance;
+}
+function BYTE() {
+  BYTE_instance = this;
+  PrimitiveKind.call(this);
+}
+var BYTE_instance;
+function BYTE_getInstance() {
+  if (BYTE_instance == null)
+    new BYTE();
+  return BYTE_instance;
+}
+function CHAR() {
+  CHAR_instance = this;
+  PrimitiveKind.call(this);
+}
+var CHAR_instance;
+function CHAR_getInstance() {
+  if (CHAR_instance == null)
+    new CHAR();
+  return CHAR_instance;
+}
+function SHORT() {
+  SHORT_instance = this;
+  PrimitiveKind.call(this);
+}
+var SHORT_instance;
+function SHORT_getInstance() {
+  if (SHORT_instance == null)
+    new SHORT();
+  return SHORT_instance;
 }
 function INT() {
   INT_instance = this;
@@ -716,6 +983,16 @@ function LONG_getInstance() {
   if (LONG_instance == null)
     new LONG();
   return LONG_instance;
+}
+function FLOAT() {
+  FLOAT_instance = this;
+  PrimitiveKind.call(this);
+}
+var FLOAT_instance;
+function FLOAT_getInstance() {
+  if (FLOAT_instance == null)
+    new FLOAT();
+  return FLOAT_instance;
 }
 function DOUBLE() {
   DOUBLE_instance = this;
@@ -776,7 +1053,7 @@ function CONTEXTUAL_getInstance() {
 function SerialKind() {
 }
 protoOf(SerialKind).toString = function () {
-  return ensureNotNull(getKClassFromExpression(this).g8());
+  return ensureNotNull(getKClassFromExpression(this).n8());
 };
 protoOf(SerialKind).hashCode = function () {
   return getStringHashCode(this.toString());
@@ -826,128 +1103,215 @@ function StructureKind() {
 }
 function AbstractDecoder() {
 }
-protoOf(AbstractDecoder).wf = function () {
+protoOf(AbstractDecoder).bk = function () {
   throw SerializationException_init_$Create$_0(toString(getKClassFromExpression(this)) + " can't retrieve untyped values");
 };
-protoOf(AbstractDecoder).xf = function () {
+protoOf(AbstractDecoder).ck = function () {
   return true;
 };
-protoOf(AbstractDecoder).yf = function () {
+protoOf(AbstractDecoder).dk = function () {
   return null;
 };
-protoOf(AbstractDecoder).zf = function () {
-  var tmp = this.wf();
+protoOf(AbstractDecoder).ek = function () {
+  var tmp = this.bk();
+  return typeof tmp === 'boolean' ? tmp : THROW_CCE();
+};
+protoOf(AbstractDecoder).fk = function () {
+  var tmp = this.bk();
   return typeof tmp === 'number' ? tmp : THROW_CCE();
 };
-protoOf(AbstractDecoder).ag = function () {
-  var tmp = this.wf();
+protoOf(AbstractDecoder).gk = function () {
+  var tmp = this.bk();
+  return typeof tmp === 'number' ? tmp : THROW_CCE();
+};
+protoOf(AbstractDecoder).hk = function () {
+  var tmp = this.bk();
+  return typeof tmp === 'number' ? tmp : THROW_CCE();
+};
+protoOf(AbstractDecoder).ik = function () {
+  var tmp = this.bk();
   return tmp instanceof Long ? tmp : THROW_CCE();
 };
-protoOf(AbstractDecoder).bg = function () {
-  var tmp = this.wf();
+protoOf(AbstractDecoder).jk = function () {
+  var tmp = this.bk();
   return typeof tmp === 'number' ? tmp : THROW_CCE();
 };
-protoOf(AbstractDecoder).cg = function () {
-  var tmp = this.wf();
+protoOf(AbstractDecoder).kk = function () {
+  var tmp = this.bk();
+  return typeof tmp === 'number' ? tmp : THROW_CCE();
+};
+protoOf(AbstractDecoder).lk = function () {
+  var tmp = this.bk();
+  return tmp instanceof Char ? tmp.d1_1 : THROW_CCE();
+};
+protoOf(AbstractDecoder).mk = function () {
+  var tmp = this.bk();
   return typeof tmp === 'string' ? tmp : THROW_CCE();
 };
-protoOf(AbstractDecoder).dg = function (enumDescriptor) {
-  var tmp = this.wf();
+protoOf(AbstractDecoder).nk = function (enumDescriptor) {
+  var tmp = this.bk();
   return typeof tmp === 'number' ? tmp : THROW_CCE();
 };
-protoOf(AbstractDecoder).eg = function (deserializer, previousValue) {
-  return this.fg(deserializer);
-};
-protoOf(AbstractDecoder).gg = function (descriptor) {
+protoOf(AbstractDecoder).ok = function (descriptor) {
   return this;
 };
-protoOf(AbstractDecoder).hg = function (descriptor) {
+protoOf(AbstractDecoder).pk = function (deserializer, previousValue) {
+  return this.qk(deserializer);
 };
-protoOf(AbstractDecoder).ig = function (descriptor, index) {
-  return this.zf();
+protoOf(AbstractDecoder).rk = function (descriptor) {
+  return this;
 };
-protoOf(AbstractDecoder).jg = function (descriptor, index) {
-  return this.ag();
+protoOf(AbstractDecoder).sk = function (descriptor) {
 };
-protoOf(AbstractDecoder).kg = function (descriptor, index) {
-  return this.bg();
+protoOf(AbstractDecoder).tk = function (descriptor, index) {
+  return this.ek();
 };
-protoOf(AbstractDecoder).lg = function (descriptor, index) {
-  return this.cg();
+protoOf(AbstractDecoder).uk = function (descriptor, index) {
+  return this.fk();
 };
-protoOf(AbstractDecoder).mg = function (descriptor, index, deserializer, previousValue) {
-  return this.eg(deserializer, previousValue);
+protoOf(AbstractDecoder).vk = function (descriptor, index) {
+  return this.gk();
 };
-protoOf(AbstractDecoder).og = function (descriptor, index, deserializer, previousValue) {
+protoOf(AbstractDecoder).wk = function (descriptor, index) {
+  return this.hk();
+};
+protoOf(AbstractDecoder).xk = function (descriptor, index) {
+  return this.ik();
+};
+protoOf(AbstractDecoder).yk = function (descriptor, index) {
+  return this.jk();
+};
+protoOf(AbstractDecoder).zk = function (descriptor, index) {
+  return this.kk();
+};
+protoOf(AbstractDecoder).al = function (descriptor, index) {
+  return this.lk();
+};
+protoOf(AbstractDecoder).bl = function (descriptor, index) {
+  return this.mk();
+};
+protoOf(AbstractDecoder).cl = function (descriptor, index) {
+  return this.ok(descriptor.fj(index));
+};
+protoOf(AbstractDecoder).dl = function (descriptor, index, deserializer, previousValue) {
+  return this.pk(deserializer, previousValue);
+};
+protoOf(AbstractDecoder).fl = function (descriptor, index, deserializer, previousValue) {
   // Inline function 'kotlinx.serialization.encoding.decodeIfNullable' call
-  var isNullabilitySupported = deserializer.md().ne();
+  var isNullabilitySupported = deserializer.rh().si();
   var tmp;
-  if (isNullabilitySupported || this.xf()) {
-    tmp = this.eg(deserializer, previousValue);
+  if (isNullabilitySupported || this.ck()) {
+    tmp = this.pk(deserializer, previousValue);
   } else {
-    tmp = this.yf();
+    tmp = this.dk();
   }
   return tmp;
 };
 function AbstractEncoder() {
 }
-protoOf(AbstractEncoder).gg = function (descriptor) {
+protoOf(AbstractEncoder).rk = function (descriptor) {
   return this;
 };
-protoOf(AbstractEncoder).hg = function (descriptor) {
+protoOf(AbstractEncoder).sk = function (descriptor) {
 };
-protoOf(AbstractEncoder).tg = function (descriptor, index) {
+protoOf(AbstractEncoder).kl = function (descriptor, index) {
   return true;
 };
-protoOf(AbstractEncoder).ug = function (value) {
+protoOf(AbstractEncoder).ll = function (value) {
   throw SerializationException_init_$Create$_0('Non-serializable ' + toString(getKClassFromExpression(value)) + ' is not supported by ' + toString(getKClassFromExpression(this)) + ' encoder');
 };
-protoOf(AbstractEncoder).vg = function () {
+protoOf(AbstractEncoder).ml = function () {
   throw SerializationException_init_$Create$_0("'null' is not supported by default");
 };
-protoOf(AbstractEncoder).wg = function (value) {
-  return this.ug(value);
+protoOf(AbstractEncoder).nl = function (value) {
+  return this.ll(value);
 };
-protoOf(AbstractEncoder).xg = function (value) {
-  return this.ug(value);
+protoOf(AbstractEncoder).ol = function (value) {
+  return this.ll(value);
 };
-protoOf(AbstractEncoder).yg = function (value) {
-  return this.ug(value);
+protoOf(AbstractEncoder).pl = function (value) {
+  return this.ll(value);
 };
-protoOf(AbstractEncoder).zg = function (value) {
-  return this.ug(value);
+protoOf(AbstractEncoder).ql = function (value) {
+  return this.ll(value);
 };
-protoOf(AbstractEncoder).ah = function (enumDescriptor, index) {
-  return this.ug(index);
+protoOf(AbstractEncoder).rl = function (value) {
+  return this.ll(value);
 };
-protoOf(AbstractEncoder).bh = function (descriptor, index, value) {
-  if (this.tg(descriptor, index)) {
-    this.wg(value);
+protoOf(AbstractEncoder).sl = function (value) {
+  return this.ll(value);
+};
+protoOf(AbstractEncoder).tl = function (value) {
+  return this.ll(value);
+};
+protoOf(AbstractEncoder).ul = function (value) {
+  return this.ll(new Char(value));
+};
+protoOf(AbstractEncoder).vl = function (value) {
+  return this.ll(value);
+};
+protoOf(AbstractEncoder).wl = function (enumDescriptor, index) {
+  return this.ll(index);
+};
+protoOf(AbstractEncoder).xl = function (descriptor) {
+  return this;
+};
+protoOf(AbstractEncoder).yl = function (descriptor, index, value) {
+  if (this.kl(descriptor, index)) {
+    this.nl(value);
   }
 };
-protoOf(AbstractEncoder).ch = function (descriptor, index, value) {
-  if (this.tg(descriptor, index)) {
-    this.xg(value);
+protoOf(AbstractEncoder).zl = function (descriptor, index, value) {
+  if (this.kl(descriptor, index)) {
+    this.ol(value);
   }
 };
-protoOf(AbstractEncoder).dh = function (descriptor, index, value) {
-  if (this.tg(descriptor, index)) {
-    this.yg(value);
+protoOf(AbstractEncoder).am = function (descriptor, index, value) {
+  if (this.kl(descriptor, index)) {
+    this.pl(value);
   }
 };
-protoOf(AbstractEncoder).eh = function (descriptor, index, value) {
-  if (this.tg(descriptor, index)) {
-    this.zg(value);
+protoOf(AbstractEncoder).bm = function (descriptor, index, value) {
+  if (this.kl(descriptor, index)) {
+    this.ql(value);
   }
 };
-protoOf(AbstractEncoder).fh = function (descriptor, index, serializer, value) {
-  if (this.tg(descriptor, index)) {
-    this.gh(serializer, value);
+protoOf(AbstractEncoder).cm = function (descriptor, index, value) {
+  if (this.kl(descriptor, index)) {
+    this.rl(value);
   }
 };
-protoOf(AbstractEncoder).hh = function (descriptor, index, serializer, value) {
-  if (this.tg(descriptor, index)) {
-    this.ih(serializer, value);
+protoOf(AbstractEncoder).dm = function (descriptor, index, value) {
+  if (this.kl(descriptor, index)) {
+    this.sl(value);
+  }
+};
+protoOf(AbstractEncoder).em = function (descriptor, index, value) {
+  if (this.kl(descriptor, index)) {
+    this.tl(value);
+  }
+};
+protoOf(AbstractEncoder).fm = function (descriptor, index, value) {
+  if (this.kl(descriptor, index)) {
+    this.ul(value);
+  }
+};
+protoOf(AbstractEncoder).gm = function (descriptor, index, value) {
+  if (this.kl(descriptor, index)) {
+    this.vl(value);
+  }
+};
+protoOf(AbstractEncoder).hm = function (descriptor, index) {
+  return this.kl(descriptor, index) ? this.xl(descriptor.fj(index)) : NoOpEncoder_getInstance();
+};
+protoOf(AbstractEncoder).im = function (descriptor, index, serializer, value) {
+  if (this.kl(descriptor, index)) {
+    this.jm(serializer, value);
+  }
+};
+protoOf(AbstractEncoder).km = function (descriptor, index, serializer, value) {
+  if (this.kl(descriptor, index)) {
+    this.lm(serializer, value);
   }
 };
 function Decoder() {
@@ -959,46 +1323,46 @@ function Encoder() {
 function CompositeEncoder() {
 }
 function decodeSequentially_0($this, compositeDecoder) {
-  var klassName = compositeDecoder.lg($this.md(), 0);
+  var klassName = compositeDecoder.bl($this.rh(), 0);
   var serializer = findPolymorphicSerializer_0($this, compositeDecoder, klassName);
-  return compositeDecoder.ng($this.md(), 1, serializer);
+  return compositeDecoder.el($this.rh(), 1, serializer);
 }
 function AbstractPolymorphicSerializer() {
 }
-protoOf(AbstractPolymorphicSerializer).je = function (encoder, value) {
+protoOf(AbstractPolymorphicSerializer).oi = function (encoder, value) {
   var actualSerializer = findPolymorphicSerializer(this, encoder, value);
   // Inline function 'kotlinx.serialization.encoding.encodeStructure' call
-  var descriptor = this.md();
-  var composite = encoder.gg(descriptor);
-  composite.eh(this.md(), 0, actualSerializer.md().ie());
-  var tmp = this.md();
+  var descriptor = this.rh();
+  var composite = encoder.rk(descriptor);
+  composite.gm(this.rh(), 0, actualSerializer.rh().ni());
+  var tmp = this.rh();
   // Inline function 'kotlinx.serialization.internal.cast' call
   var tmp$ret$2 = isInterface(actualSerializer, SerializationStrategy) ? actualSerializer : THROW_CCE();
-  composite.fh(tmp, 1, tmp$ret$2, value);
-  composite.hg(descriptor);
+  composite.im(tmp, 1, tmp$ret$2, value);
+  composite.sk(descriptor);
 };
-protoOf(AbstractPolymorphicSerializer).od = function (encoder, value) {
-  return this.je(encoder, !(value == null) ? value : THROW_CCE());
+protoOf(AbstractPolymorphicSerializer).sh = function (encoder, value) {
+  return this.oi(encoder, !(value == null) ? value : THROW_CCE());
 };
-protoOf(AbstractPolymorphicSerializer).nd = function (decoder) {
+protoOf(AbstractPolymorphicSerializer).th = function (decoder) {
   // Inline function 'kotlinx.serialization.encoding.decodeStructure' call
-  var descriptor = this.md();
-  var composite = decoder.gg(descriptor);
+  var descriptor = this.rh();
+  var composite = decoder.rk(descriptor);
   var tmp$ret$1;
   $l$block: {
     var klassName = null;
     var value = null;
-    if (composite.qg()) {
+    if (composite.hl()) {
       tmp$ret$1 = decodeSequentially_0(this, composite);
       break $l$block;
     }
     mainLoop: while (true) {
-      var index = composite.rg(this.md());
+      var index = composite.il(this.rh());
       switch (index) {
         case -1:
           break mainLoop;
         case 0:
-          klassName = composite.lg(this.md(), index);
+          klassName = composite.bl(this.rh(), index);
           break;
         case 1:
           var tmp0 = klassName;
@@ -1016,7 +1380,7 @@ protoOf(AbstractPolymorphicSerializer).nd = function (decoder) {
 
           klassName = tmp$ret$2;
           var serializer = findPolymorphicSerializer_0(this, composite, klassName);
-          value = composite.ng(this.md(), index, serializer);
+          value = composite.el(this.rh(), index, serializer);
           break;
         default:
           var tmp0_elvis_lhs = klassName;
@@ -1039,46 +1403,143 @@ protoOf(AbstractPolymorphicSerializer).nd = function (decoder) {
     tmp$ret$1 = !(tmp == null) ? tmp : THROW_CCE();
   }
   var result = tmp$ret$1;
-  composite.hg(descriptor);
+  composite.sk(descriptor);
   return result;
 };
-protoOf(AbstractPolymorphicSerializer).rd = function (decoder, klassName) {
-  return decoder.pg().mh(this.qd(), klassName);
+protoOf(AbstractPolymorphicSerializer).wh = function (decoder, klassName) {
+  return decoder.gl().pm(this.vh(), klassName);
 };
-protoOf(AbstractPolymorphicSerializer).pd = function (encoder, value) {
-  return encoder.pg().nh(this.qd(), value);
+protoOf(AbstractPolymorphicSerializer).uh = function (encoder, value) {
+  return encoder.gl().qm(this.vh(), value);
 };
 function throwSubtypeNotRegistered(subClass, baseClass) {
-  var tmp0_elvis_lhs = subClass.g8();
+  var tmp0_elvis_lhs = subClass.n8();
   throwSubtypeNotRegistered_0(tmp0_elvis_lhs == null ? toString(subClass) : tmp0_elvis_lhs, baseClass);
 }
 function throwSubtypeNotRegistered_0(subClassName, baseClass) {
-  var scope = "in the polymorphic scope of '" + baseClass.g8() + "'";
-  throw SerializationException_init_$Create$_0(subClassName == null ? 'Class discriminator was missing and no default serializers were registered ' + scope + '.' : "Serializer for subclass '" + subClassName + "' is not found " + scope + '.\n' + ("Check if class with serial name '" + subClassName + "' exists and serializer is registered in a corresponding SerializersModule.\n") + ("To be registered automatically, class '" + subClassName + "' has to be '@Serializable', and the base class '" + baseClass.g8() + "' has to be sealed and '@Serializable'."));
+  var scope = "in the polymorphic scope of '" + baseClass.n8() + "'";
+  throw SerializationException_init_$Create$_0(subClassName == null ? 'Class discriminator was missing and no default serializers were registered ' + scope + '.' : "Serializer for subclass '" + subClassName + "' is not found " + scope + '.\n' + ("Check if class with serial name '" + subClassName + "' exists and serializer is registered in a corresponding SerializersModule.\n") + ("To be registered automatically, class '" + subClassName + "' has to be '@Serializable', and the base class '" + baseClass.n8() + "' has to be sealed and '@Serializable'."));
+}
+function NothingSerializer_0() {
+  NothingSerializer_instance = this;
+  this.rm_1 = NothingSerialDescriptor_getInstance();
+}
+protoOf(NothingSerializer_0).rh = function () {
+  return this.rm_1;
+};
+protoOf(NothingSerializer_0).sm = function (encoder, value) {
+  throw SerializationException_init_$Create$_0("'kotlin.Nothing' cannot be serialized");
+};
+protoOf(NothingSerializer_0).sh = function (encoder, value) {
+  var tmp;
+  if (false) {
+    tmp = value;
+  } else {
+    tmp = THROW_CCE();
+  }
+  return this.sm(encoder, tmp);
+};
+protoOf(NothingSerializer_0).th = function (decoder) {
+  throw SerializationException_init_$Create$_0("'kotlin.Nothing' does not have instances");
+};
+var NothingSerializer_instance;
+function NothingSerializer_getInstance() {
+  if (NothingSerializer_instance == null)
+    new NothingSerializer_0();
+  return NothingSerializer_instance;
+}
+function DurationSerializer() {
+  DurationSerializer_instance = this;
+  this.tm_1 = new PrimitiveSerialDescriptor_0('kotlin.time.Duration', STRING_getInstance());
+}
+protoOf(DurationSerializer).rh = function () {
+  return this.tm_1;
+};
+protoOf(DurationSerializer).um = function (encoder, value) {
+  encoder.vl(Duration__toIsoString_impl_9h6wsm(value));
+};
+protoOf(DurationSerializer).sh = function (encoder, value) {
+  return this.um(encoder, value instanceof Duration ? value.zd_1 : THROW_CCE());
+};
+protoOf(DurationSerializer).vm = function (decoder) {
+  return Companion_getInstance().ae(decoder.mk());
+};
+protoOf(DurationSerializer).th = function (decoder) {
+  return new Duration(this.vm(decoder));
+};
+var DurationSerializer_instance;
+function DurationSerializer_getInstance() {
+  if (DurationSerializer_instance == null)
+    new DurationSerializer();
+  return DurationSerializer_instance;
+}
+function InstantSerializer() {
+  InstantSerializer_instance = this;
+  this.wm_1 = new PrimitiveSerialDescriptor_0('kotlin.time.Instant', STRING_getInstance());
+}
+protoOf(InstantSerializer).rh = function () {
+  return this.wm_1;
+};
+protoOf(InstantSerializer).xm = function (encoder, value) {
+  encoder.vl(value.toString());
+};
+protoOf(InstantSerializer).sh = function (encoder, value) {
+  return this.xm(encoder, value instanceof Instant ? value : THROW_CCE());
+};
+protoOf(InstantSerializer).th = function (decoder) {
+  return Companion_getInstance_0().me(decoder.mk());
+};
+var InstantSerializer_instance;
+function InstantSerializer_getInstance() {
+  if (InstantSerializer_instance == null)
+    new InstantSerializer();
+  return InstantSerializer_instance;
+}
+function UuidSerializer() {
+  UuidSerializer_instance = this;
+  this.ym_1 = new PrimitiveSerialDescriptor_0('kotlin.uuid.Uuid', STRING_getInstance());
+}
+protoOf(UuidSerializer).rh = function () {
+  return this.ym_1;
+};
+protoOf(UuidSerializer).zm = function (encoder, value) {
+  encoder.vl(value.toString());
+};
+protoOf(UuidSerializer).sh = function (encoder, value) {
+  return this.zm(encoder, value instanceof Uuid ? value : THROW_CCE());
+};
+protoOf(UuidSerializer).th = function (decoder) {
+  return Companion_getInstance_1().uf(decoder.mk());
+};
+var UuidSerializer_instance;
+function UuidSerializer_getInstance() {
+  if (UuidSerializer_instance == null)
+    new UuidSerializer();
+  return UuidSerializer_instance;
 }
 function CachedNames() {
 }
 function ArrayListClassDesc(elementDesc) {
   ListLikeDescriptor.call(this, elementDesc);
 }
-protoOf(ArrayListClassDesc).ie = function () {
+protoOf(ArrayListClassDesc).ni = function () {
   return 'kotlin.collections.ArrayList';
 };
 function ListLikeDescriptor(elementDescriptor) {
-  this.qh_1 = elementDescriptor;
-  this.rh_1 = 1;
+  this.cn_1 = elementDescriptor;
+  this.dn_1 = 1;
 }
-protoOf(ListLikeDescriptor).te = function () {
+protoOf(ListLikeDescriptor).yi = function () {
   return LIST_getInstance();
 };
-protoOf(ListLikeDescriptor).ve = function () {
-  return this.rh_1;
+protoOf(ListLikeDescriptor).aj = function () {
+  return this.dn_1;
 };
-protoOf(ListLikeDescriptor).xe = function (index) {
-  requireNonNegativeIndex(index, this.ie());
+protoOf(ListLikeDescriptor).cj = function (index) {
+  requireNonNegativeIndex(index, this.ni());
   return index.toString();
 };
-protoOf(ListLikeDescriptor).ye = function (name) {
+protoOf(ListLikeDescriptor).dj = function (name) {
   var tmp0_safe_receiver = toIntOrNull(name);
   var tmp;
   if (tmp0_safe_receiver == null) {
@@ -1096,67 +1557,74 @@ protoOf(ListLikeDescriptor).ye = function (name) {
   var tmp1_elvis_lhs = tmp;
   return tmp1_elvis_lhs == null ? -3 : tmp1_elvis_lhs;
 };
-protoOf(ListLikeDescriptor).bf = function (index) {
-  requireNonNegativeIndex(index, this.ie());
+protoOf(ListLikeDescriptor).gj = function (index) {
+  requireNonNegativeIndex(index, this.ni());
   return false;
 };
-protoOf(ListLikeDescriptor).ze = function (index) {
-  requireNonNegativeIndex(index, this.ie());
+protoOf(ListLikeDescriptor).ej = function (index) {
+  requireNonNegativeIndex(index, this.ni());
   return emptyList();
 };
-protoOf(ListLikeDescriptor).af = function (index) {
-  requireNonNegativeIndex(index, this.ie());
-  return this.qh_1;
+protoOf(ListLikeDescriptor).fj = function (index) {
+  requireNonNegativeIndex(index, this.ni());
+  return this.cn_1;
 };
 protoOf(ListLikeDescriptor).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof ListLikeDescriptor))
     return false;
-  if (equals(this.qh_1, other.qh_1) && this.ie() === other.ie())
+  if (equals(this.cn_1, other.cn_1) && this.ni() === other.ni())
     return true;
   return false;
 };
 protoOf(ListLikeDescriptor).hashCode = function () {
-  return imul(hashCode(this.qh_1), 31) + getStringHashCode(this.ie()) | 0;
+  return imul(hashCode(this.cn_1), 31) + getStringHashCode(this.ni()) | 0;
 };
 protoOf(ListLikeDescriptor).toString = function () {
-  return this.ie() + '(' + toString(this.qh_1) + ')';
+  return this.ni() + '(' + toString(this.cn_1) + ')';
 };
 function requireNonNegativeIndex(index, name) {
   if (index < 0)
     throw IndexOutOfBoundsException_init_$Create$('Illegal index ' + index + ', ' + name + ' expects only non-negative indices');
 }
+function PrimitiveArrayDescriptor(primitive) {
+  ListLikeDescriptor.call(this, primitive);
+  this.gn_1 = primitive.ni() + 'Array';
+}
+protoOf(PrimitiveArrayDescriptor).ni = function () {
+  return this.gn_1;
+};
 function ArrayListSerializer(element) {
   CollectionSerializer.call(this, element);
-  this.th_1 = new ArrayListClassDesc(element.md());
+  this.in_1 = new ArrayListClassDesc(element.rh());
 }
-protoOf(ArrayListSerializer).md = function () {
-  return this.th_1;
+protoOf(ArrayListSerializer).rh = function () {
+  return this.in_1;
 };
-protoOf(ArrayListSerializer).uh = function (initialCapacityHint) {
+protoOf(ArrayListSerializer).jn = function (initialCapacityHint) {
   if (initialCapacityHint === -1) {
     // Inline function 'kotlin.collections.arrayListOf' call
     return ArrayList_init_$Create$();
   }
   return ArrayList_init_$Create$_0(initialCapacityHint);
 };
-protoOf(ArrayListSerializer).vh = function (_this__u8e3s4) {
+protoOf(ArrayListSerializer).kn = function (_this__u8e3s4) {
   return _this__u8e3s4.o();
 };
-protoOf(ArrayListSerializer).wh = function (_this__u8e3s4) {
-  return this.vh(_this__u8e3s4 instanceof ArrayList ? _this__u8e3s4 : THROW_CCE());
+protoOf(ArrayListSerializer).ln = function (_this__u8e3s4) {
+  return this.kn(_this__u8e3s4 instanceof ArrayList ? _this__u8e3s4 : THROW_CCE());
 };
-protoOf(ArrayListSerializer).xh = function (_this__u8e3s4) {
+protoOf(ArrayListSerializer).mn = function (_this__u8e3s4) {
   return _this__u8e3s4;
 };
-protoOf(ArrayListSerializer).yh = function (_this__u8e3s4) {
-  return this.xh(_this__u8e3s4 instanceof ArrayList ? _this__u8e3s4 : THROW_CCE());
+protoOf(ArrayListSerializer).nn = function (_this__u8e3s4) {
+  return this.mn(_this__u8e3s4 instanceof ArrayList ? _this__u8e3s4 : THROW_CCE());
 };
-protoOf(ArrayListSerializer).zh = function (_this__u8e3s4, expectedSize) {
+protoOf(ArrayListSerializer).on = function (_this__u8e3s4, expectedSize) {
   if (_this__u8e3s4 instanceof ArrayList) {
     // Inline function 'kotlin.also' call
-    _this__u8e3s4.b4(expectedSize);
+    _this__u8e3s4.i4(expectedSize);
     return _this__u8e3s4;
   }
   if (expectedSize === _this__u8e3s4.o())
@@ -1166,54 +1634,54 @@ protoOf(ArrayListSerializer).zh = function (_this__u8e3s4, expectedSize) {
   this_0.p(_this__u8e3s4);
   return this_0;
 };
-protoOf(ArrayListSerializer).ai = function (_this__u8e3s4, expectedSize) {
-  return this.zh((!(_this__u8e3s4 == null) ? isInterface(_this__u8e3s4, KtList) : false) ? _this__u8e3s4 : THROW_CCE(), expectedSize);
+protoOf(ArrayListSerializer).pn = function (_this__u8e3s4, expectedSize) {
+  return this.on((!(_this__u8e3s4 == null) ? isInterface(_this__u8e3s4, KtList) : false) ? _this__u8e3s4 : THROW_CCE(), expectedSize);
 };
-protoOf(ArrayListSerializer).bi = function (_this__u8e3s4, index, element) {
-  _this__u8e3s4.i3(index, element);
+protoOf(ArrayListSerializer).qn = function (_this__u8e3s4, index, element) {
+  _this__u8e3s4.p3(index, element);
 };
-protoOf(ArrayListSerializer).ci = function (_this__u8e3s4, index, element) {
-  return this.bi(_this__u8e3s4 instanceof ArrayList ? _this__u8e3s4 : THROW_CCE(), index, element);
+protoOf(ArrayListSerializer).rn = function (_this__u8e3s4, index, element) {
+  return this.qn(_this__u8e3s4 instanceof ArrayList ? _this__u8e3s4 : THROW_CCE(), index, element);
 };
 function CollectionSerializer(element) {
   CollectionLikeSerializer.call(this, element);
 }
-protoOf(CollectionSerializer).ei = function (_this__u8e3s4) {
+protoOf(CollectionSerializer).tn = function (_this__u8e3s4) {
   return _this__u8e3s4.o();
 };
-protoOf(CollectionSerializer).mi = function (_this__u8e3s4) {
-  return this.ei((!(_this__u8e3s4 == null) ? isInterface(_this__u8e3s4, Collection) : false) ? _this__u8e3s4 : THROW_CCE());
+protoOf(CollectionSerializer).bo = function (_this__u8e3s4) {
+  return this.tn((!(_this__u8e3s4 == null) ? isInterface(_this__u8e3s4, Collection) : false) ? _this__u8e3s4 : THROW_CCE());
 };
-protoOf(CollectionSerializer).fi = function (_this__u8e3s4) {
+protoOf(CollectionSerializer).un = function (_this__u8e3s4) {
   return _this__u8e3s4.j();
 };
-protoOf(CollectionSerializer).ni = function (_this__u8e3s4) {
-  return this.fi((!(_this__u8e3s4 == null) ? isInterface(_this__u8e3s4, Collection) : false) ? _this__u8e3s4 : THROW_CCE());
+protoOf(CollectionSerializer).co = function (_this__u8e3s4) {
+  return this.un((!(_this__u8e3s4 == null) ? isInterface(_this__u8e3s4, Collection) : false) ? _this__u8e3s4 : THROW_CCE());
 };
 function CollectionLikeSerializer(elementSerializer) {
   AbstractCollectionSerializer.call(this);
-  this.gi_1 = elementSerializer;
+  this.vn_1 = elementSerializer;
 }
-protoOf(CollectionLikeSerializer).hi = function (encoder, value) {
-  var size = this.mi(value);
+protoOf(CollectionLikeSerializer).wn = function (encoder, value) {
+  var size = this.bo(value);
   // Inline function 'kotlinx.serialization.encoding.encodeCollection' call
-  var descriptor = this.md();
-  var composite = encoder.kh(descriptor, size);
-  var iterator = this.ni(value);
+  var descriptor = this.rh();
+  var composite = encoder.nm(descriptor, size);
+  var iterator = this.co(value);
   var inductionVariable = 0;
   if (inductionVariable < size)
     do {
       var index = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
-      composite.fh(this.md(), index, this.gi_1, iterator.l());
+      composite.im(this.rh(), index, this.vn_1, iterator.l());
     }
      while (inductionVariable < size);
-  composite.hg(descriptor);
+  composite.sk(descriptor);
 };
-protoOf(CollectionLikeSerializer).od = function (encoder, value) {
-  return this.hi(encoder, value);
+protoOf(CollectionLikeSerializer).sh = function (encoder, value) {
+  return this.wn(encoder, value);
 };
-protoOf(CollectionLikeSerializer).ii = function (decoder, builder, startIndex, size) {
+protoOf(CollectionLikeSerializer).xn = function (decoder, builder, startIndex, size) {
   // Inline function 'kotlin.require' call
   if (!(size >= 0)) {
     var message = 'Size must be known in advance when using READ_ALL';
@@ -1224,18 +1692,18 @@ protoOf(CollectionLikeSerializer).ii = function (decoder, builder, startIndex, s
     do {
       var index = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
-      this.ji(decoder, startIndex + index | 0, builder, false);
+      this.yn(decoder, startIndex + index | 0, builder, false);
     }
      while (inductionVariable < size);
 };
-protoOf(CollectionLikeSerializer).ji = function (decoder, index, builder, checkIndex) {
-  this.ci(builder, index, decoder.ng(this.md(), index, this.gi_1));
+protoOf(CollectionLikeSerializer).yn = function (decoder, index, builder, checkIndex) {
+  this.rn(builder, index, decoder.el(this.rh(), index, this.vn_1));
 };
 function AbstractCollectionSerializer() {
 }
-protoOf(AbstractCollectionSerializer).li = function (decoder, previous) {
-  var compositeDecoder = decoder.gg(this.md());
-  var expectedSize = compositeDecoder.sg(this.md());
+protoOf(AbstractCollectionSerializer).ao = function (decoder, previous) {
+  var compositeDecoder = decoder.rk(this.rh());
+  var expectedSize = compositeDecoder.jl(this.rh());
   // Inline function 'kotlin.require' call
   if (!(expectedSize >= -1)) {
     var message = 'Decoded collection size should be either non-negative, or -1 (meaning, unknown). Was: ' + expectedSize;
@@ -1243,45 +1711,115 @@ protoOf(AbstractCollectionSerializer).li = function (decoder, previous) {
   }
   var tmp;
   if (!(previous == null)) {
-    tmp = this.ai(previous, this.mi(previous) + coerceAtLeast(expectedSize, 0) | 0);
+    tmp = this.pn(previous, this.bo(previous) + coerceAtLeast(expectedSize, 0) | 0);
   } else {
-    tmp = this.uh(expectedSize);
+    tmp = this.jn(expectedSize);
   }
   var builder = tmp;
-  var startIndex = this.wh(builder);
-  if (compositeDecoder.qg()) {
-    this.ii(compositeDecoder, builder, startIndex, expectedSize);
+  var startIndex = this.ln(builder);
+  if (compositeDecoder.hl()) {
+    this.xn(compositeDecoder, builder, startIndex, expectedSize);
   } else {
     $l$loop: while (true) {
-      var index = compositeDecoder.rg(this.md());
+      var index = compositeDecoder.il(this.rh());
       if (index === -1)
         break $l$loop;
-      this.ki(compositeDecoder, startIndex + index | 0, builder);
+      this.zn(compositeDecoder, startIndex + index | 0, builder);
     }
   }
-  compositeDecoder.hg(this.md());
-  return this.yh(builder);
+  compositeDecoder.sk(this.rh());
+  return this.nn(builder);
 };
-protoOf(AbstractCollectionSerializer).nd = function (decoder) {
-  return this.li(decoder, null);
+protoOf(AbstractCollectionSerializer).th = function (decoder) {
+  return this.ao(decoder, null);
 };
-protoOf(AbstractCollectionSerializer).ki = function (decoder, index, builder, checkIndex, $super) {
+protoOf(AbstractCollectionSerializer).zn = function (decoder, index, builder, checkIndex, $super) {
   checkIndex = checkIndex === VOID ? true : checkIndex;
   var tmp;
   if ($super === VOID) {
-    this.ji(decoder, index, builder, checkIndex);
+    this.yn(decoder, index, builder, checkIndex);
     tmp = Unit_instance;
   } else {
-    tmp = $super.ji.call(this, decoder, index, builder, checkIndex);
+    tmp = $super.yn.call(this, decoder, index, builder, checkIndex);
+  }
+  return tmp;
+};
+function PrimitiveArraySerializer(primitiveSerializer) {
+  CollectionLikeSerializer.call(this, primitiveSerializer);
+  this.eo_1 = new PrimitiveArrayDescriptor(primitiveSerializer.rh());
+}
+protoOf(PrimitiveArraySerializer).rh = function () {
+  return this.eo_1;
+};
+protoOf(PrimitiveArraySerializer).fo = function (_this__u8e3s4) {
+  return _this__u8e3s4.go();
+};
+protoOf(PrimitiveArraySerializer).ln = function (_this__u8e3s4) {
+  return this.fo(_this__u8e3s4 instanceof PrimitiveArrayBuilder ? _this__u8e3s4 : THROW_CCE());
+};
+protoOf(PrimitiveArraySerializer).ho = function (_this__u8e3s4) {
+  return _this__u8e3s4.io();
+};
+protoOf(PrimitiveArraySerializer).nn = function (_this__u8e3s4) {
+  return this.ho(_this__u8e3s4 instanceof PrimitiveArrayBuilder ? _this__u8e3s4 : THROW_CCE());
+};
+protoOf(PrimitiveArraySerializer).jo = function (_this__u8e3s4) {
+  // Inline function 'kotlin.error' call
+  var message = 'This method lead to boxing and must not be used, use writeContents instead';
+  throw IllegalStateException_init_$Create$(toString(message));
+};
+protoOf(PrimitiveArraySerializer).co = function (_this__u8e3s4) {
+  return this.jo(_this__u8e3s4);
+};
+protoOf(PrimitiveArraySerializer).ko = function (_this__u8e3s4, index, element) {
+  // Inline function 'kotlin.error' call
+  var message = 'This method lead to boxing and must not be used, use Builder.append instead';
+  throw IllegalStateException_init_$Create$(toString(message));
+};
+protoOf(PrimitiveArraySerializer).rn = function (_this__u8e3s4, index, element) {
+  return this.ko(_this__u8e3s4 instanceof PrimitiveArrayBuilder ? _this__u8e3s4 : THROW_CCE(), index, element);
+};
+protoOf(PrimitiveArraySerializer).jn = function (initialCapacityHint) {
+  if (initialCapacityHint === -1)
+    return this.lo();
+  return this.mo(initialCapacityHint);
+};
+protoOf(PrimitiveArraySerializer).po = function (encoder, value) {
+  var size = this.bo(value);
+  // Inline function 'kotlinx.serialization.encoding.encodeCollection' call
+  var descriptor = this.eo_1;
+  var composite = encoder.nm(descriptor, size);
+  this.oo(composite, value, size);
+  composite.sk(descriptor);
+};
+protoOf(PrimitiveArraySerializer).sh = function (encoder, value) {
+  return this.po(encoder, value);
+};
+protoOf(PrimitiveArraySerializer).wn = function (encoder, value) {
+  return this.po(encoder, value);
+};
+protoOf(PrimitiveArraySerializer).th = function (decoder) {
+  return this.ao(decoder, null);
+};
+function PrimitiveArrayBuilder() {
+}
+protoOf(PrimitiveArrayBuilder).ro = function (requiredCapacity, $super) {
+  requiredCapacity = requiredCapacity === VOID ? this.go() + 1 | 0 : requiredCapacity;
+  var tmp;
+  if ($super === VOID) {
+    this.qo(requiredCapacity);
+    tmp = Unit_instance;
+  } else {
+    tmp = $super.qo.call(this, requiredCapacity);
   }
   return tmp;
 };
 function Companion() {
   Companion_instance = this;
-  this.oi_1 = longArray(0);
+  this.so_1 = longArray(0);
 }
 var Companion_instance;
-function Companion_getInstance() {
+function Companion_getInstance_8() {
   if (Companion_instance == null)
     new Companion();
   return Companion_instance;
@@ -1298,36 +1836,36 @@ function prepareHighMarksArray($this, elementsCount) {
 function markHigh($this, index) {
   var slot = (index >>> 6 | 0) - 1 | 0;
   var offsetInSlot = index & 63;
-  $this.si_1[slot] = bitwiseOr($this.si_1[slot], shiftLeft(new Long(1, 0), offsetInSlot));
+  $this.wo_1[slot] = bitwiseOr($this.wo_1[slot], shiftLeft(new Long(1, 0), offsetInSlot));
 }
 function nextUnmarkedHighIndex($this) {
   var inductionVariable = 0;
-  var last = $this.si_1.length - 1 | 0;
+  var last = $this.wo_1.length - 1 | 0;
   if (inductionVariable <= last)
     do {
       var slot = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
       var slotOffset = imul(slot + 1 | 0, 64);
-      var slotMarks = $this.si_1[slot];
+      var slotMarks = $this.wo_1[slot];
       while (!equalsLong(slotMarks, new Long(-1, -1))) {
         var indexInSlot = countTrailingZeroBits(invert(slotMarks));
         slotMarks = bitwiseOr(slotMarks, shiftLeft(new Long(1, 0), indexInSlot));
         var index = slotOffset + indexInSlot | 0;
-        if ($this.qi_1($this.pi_1, index)) {
-          $this.si_1[slot] = slotMarks;
+        if ($this.uo_1($this.to_1, index)) {
+          $this.wo_1[slot] = slotMarks;
           return index;
         }
       }
-      $this.si_1[slot] = slotMarks;
+      $this.wo_1[slot] = slotMarks;
     }
      while (inductionVariable <= last);
   return -1;
 }
 function ElementMarker(descriptor, readIfAbsent) {
-  Companion_getInstance();
-  this.pi_1 = descriptor;
-  this.qi_1 = readIfAbsent;
-  var elementsCount = this.pi_1.ve();
+  Companion_getInstance_8();
+  this.to_1 = descriptor;
+  this.uo_1 = readIfAbsent;
+  var elementsCount = this.to_1.aj();
   if (elementsCount <= 64) {
     var tmp = this;
     var tmp_0;
@@ -1336,26 +1874,26 @@ function ElementMarker(descriptor, readIfAbsent) {
     } else {
       tmp_0 = shiftLeft(new Long(-1, -1), elementsCount);
     }
-    tmp.ri_1 = tmp_0;
-    this.si_1 = Companion_getInstance().oi_1;
+    tmp.vo_1 = tmp_0;
+    this.wo_1 = Companion_getInstance_8().so_1;
   } else {
-    this.ri_1 = new Long(0, 0);
-    this.si_1 = prepareHighMarksArray(this, elementsCount);
+    this.vo_1 = new Long(0, 0);
+    this.wo_1 = prepareHighMarksArray(this, elementsCount);
   }
 }
-protoOf(ElementMarker).ti = function (index) {
+protoOf(ElementMarker).xo = function (index) {
   if (index < 64) {
-    this.ri_1 = bitwiseOr(this.ri_1, shiftLeft(new Long(1, 0), index));
+    this.vo_1 = bitwiseOr(this.vo_1, shiftLeft(new Long(1, 0), index));
   } else {
     markHigh(this, index);
   }
 };
-protoOf(ElementMarker).ui = function () {
-  var elementsCount = this.pi_1.ve();
-  while (!equalsLong(this.ri_1, new Long(-1, -1))) {
-    var index = countTrailingZeroBits(invert(this.ri_1));
-    this.ri_1 = bitwiseOr(this.ri_1, shiftLeft(new Long(1, 0), index));
-    if (this.qi_1(this.pi_1, index)) {
+protoOf(ElementMarker).yo = function () {
+  var elementsCount = this.to_1.aj();
+  while (!equalsLong(this.vo_1, new Long(-1, -1))) {
+    var index = countTrailingZeroBits(invert(this.vo_1));
+    this.vo_1 = bitwiseOr(this.vo_1, shiftLeft(new Long(1, 0), index));
+    if (this.uo_1(this.to_1, index)) {
       return index;
     }
   }
@@ -1368,64 +1906,64 @@ function createSimpleEnumSerializer(serialName, values) {
   return new EnumSerializer(serialName, values);
 }
 function createUnmarkedDescriptor($this, serialName) {
-  var d = new EnumDescriptor(serialName, $this.vi_1.length);
+  var d = new EnumDescriptor(serialName, $this.zo_1.length);
   // Inline function 'kotlin.collections.forEach' call
-  var indexedObject = $this.vi_1;
+  var indexedObject = $this.zo_1;
   var inductionVariable = 0;
   var last = indexedObject.length;
   while (inductionVariable < last) {
     var element = indexedObject[inductionVariable];
     inductionVariable = inductionVariable + 1 | 0;
-    d.kj(element.w1_1);
+    d.op(element.w1_1);
   }
   return d;
 }
 function EnumSerializer$descriptor$delegate$lambda(this$0, $serialName) {
   return function () {
-    var tmp0_elvis_lhs = this$0.wi_1;
+    var tmp0_elvis_lhs = this$0.ap_1;
     return tmp0_elvis_lhs == null ? createUnmarkedDescriptor(this$0, $serialName) : tmp0_elvis_lhs;
   };
 }
 function EnumSerializer$_get_descriptor_$ref_j67dlw() {
   return constructCallableReference(function (p0) {
-    return p0.md();
+    return p0.rh();
   }, 1, 0, 2);
 }
 function EnumSerializer(serialName, values) {
-  this.vi_1 = values;
-  this.wi_1 = null;
+  this.zo_1 = values;
+  this.ap_1 = null;
   var tmp = this;
-  tmp.xi_1 = lazy_0(EnumSerializer$descriptor$delegate$lambda(this, serialName));
+  tmp.bp_1 = lazy_0(EnumSerializer$descriptor$delegate$lambda(this, serialName));
 }
-protoOf(EnumSerializer).md = function () {
-  var tmp0 = this.xi_1;
+protoOf(EnumSerializer).rh = function () {
+  var tmp0 = this.bp_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('descriptor', 1, tmp, EnumSerializer$_get_descriptor_$ref_j67dlw(), null);
   return tmp0.v();
 };
-protoOf(EnumSerializer).lj = function (encoder, value) {
-  var index = indexOf(this.vi_1, value);
+protoOf(EnumSerializer).pp = function (encoder, value) {
+  var index = indexOf(this.zo_1, value);
   if (index === -1) {
-    throw SerializationException_init_$Create$_0(toString(value) + ' is not a valid enum ' + this.md().ie() + ', ' + ('must be one of ' + contentToString(this.vi_1)));
+    throw SerializationException_init_$Create$_0(toString(value) + ' is not a valid enum ' + this.rh().ni() + ', ' + ('must be one of ' + contentToString(this.zo_1)));
   }
-  encoder.ah(this.md(), index);
+  encoder.wl(this.rh(), index);
 };
-protoOf(EnumSerializer).od = function (encoder, value) {
-  return this.lj(encoder, value instanceof Enum ? value : THROW_CCE());
+protoOf(EnumSerializer).sh = function (encoder, value) {
+  return this.pp(encoder, value instanceof Enum ? value : THROW_CCE());
 };
-protoOf(EnumSerializer).nd = function (decoder) {
-  var index = decoder.dg(this.md());
-  if (!(0 <= index ? index <= (this.vi_1.length - 1 | 0) : false)) {
-    throw SerializationException_init_$Create$_0('' + index + ' is not among valid ' + this.md().ie() + ' enum values, ' + ('values size is ' + this.vi_1.length));
+protoOf(EnumSerializer).th = function (decoder) {
+  var index = decoder.nk(this.rh());
+  if (!(0 <= index ? index <= (this.zo_1.length - 1 | 0) : false)) {
+    throw SerializationException_init_$Create$_0('' + index + ' is not among valid ' + this.rh().ni() + ' enum values, ' + ('values size is ' + this.zo_1.length));
   }
-  return this.vi_1[index];
+  return this.zo_1[index];
 };
 protoOf(EnumSerializer).toString = function () {
-  return 'kotlinx.serialization.internal.EnumSerializer<' + this.md().ie() + '>';
+  return 'kotlinx.serialization.internal.EnumSerializer<' + this.rh().ni() + '>';
 };
 function _get_elementDescriptors__y23q9p($this) {
-  var tmp0 = $this.zj_1;
+  var tmp0 = $this.dq_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('elementDescriptors', 1, tmp, EnumDescriptor$_get_elementDescriptors_$ref_5lvk4a(), null);
@@ -1439,7 +1977,7 @@ function EnumDescriptor$elementDescriptors$delegate$lambda($elementsCount, $name
     var tmp_1 = Array(tmp_0);
     while (tmp < tmp_0) {
       var tmp_2 = tmp;
-      tmp_1[tmp_2] = buildSerialDescriptor($name + '.' + this$0.xe(tmp_2), OBJECT_getInstance(), []);
+      tmp_1[tmp_2] = buildSerialDescriptor($name + '.' + this$0.cj(tmp_2), OBJECT_getInstance(), []);
       tmp = tmp + 1 | 0;
     }
     return tmp_1;
@@ -1452,14 +1990,14 @@ function EnumDescriptor$_get_elementDescriptors_$ref_5lvk4a() {
 }
 function EnumDescriptor(name, elementsCount) {
   PluginGeneratedSerialDescriptor.call(this, name, VOID, elementsCount);
-  this.yj_1 = ENUM_getInstance();
+  this.cq_1 = ENUM_getInstance();
   var tmp = this;
-  tmp.zj_1 = lazy_0(EnumDescriptor$elementDescriptors$delegate$lambda(elementsCount, name, this));
+  tmp.dq_1 = lazy_0(EnumDescriptor$elementDescriptors$delegate$lambda(elementsCount, name, this));
 }
-protoOf(EnumDescriptor).te = function () {
-  return this.yj_1;
+protoOf(EnumDescriptor).yi = function () {
+  return this.cq_1;
 };
-protoOf(EnumDescriptor).af = function (index) {
+protoOf(EnumDescriptor).fj = function (index) {
   return getChecked(_get_elementDescriptors__y23q9p(this), index);
 };
 protoOf(EnumDescriptor).equals = function (other) {
@@ -1469,19 +2007,19 @@ protoOf(EnumDescriptor).equals = function (other) {
     return false;
   if (!isInterface(other, SerialDescriptor))
     return false;
-  if (!(other.te() === ENUM_getInstance()))
+  if (!(other.yi() === ENUM_getInstance()))
     return false;
-  if (!(this.ie() === other.ie()))
+  if (!(this.ni() === other.ni()))
     return false;
   if (!equals(cachedSerialNames(this), cachedSerialNames(other)))
     return false;
   return true;
 };
 protoOf(EnumDescriptor).toString = function () {
-  return joinToString(get_elementNames(this), ', ', this.ie() + '(', ')');
+  return joinToString(get_elementNames(this), ', ', this.ni() + '(', ')');
 };
 protoOf(EnumDescriptor).hashCode = function () {
-  var result = getStringHashCode(this.ie());
+  var result = getStringHashCode(this.ni());
   // Inline function 'kotlinx.serialization.internal.elementsHashCodeBy' call
   // Inline function 'kotlin.collections.fold' call
   var accumulator = 1;
@@ -1503,10 +2041,10 @@ function InlinePrimitiveDescriptor(name, primitiveSerializer) {
 }
 function InlineClassDescriptor(name, generatedSerializer) {
   PluginGeneratedSerialDescriptor.call(this, name, generatedSerializer, 1);
-  this.ok_1 = true;
+  this.sq_1 = true;
 }
-protoOf(InlineClassDescriptor).ue = function () {
-  return this.ok_1;
+protoOf(InlineClassDescriptor).zi = function () {
+  return this.sq_1;
 };
 protoOf(InlineClassDescriptor).hashCode = function () {
   return imul(protoOf(PluginGeneratedSerialDescriptor).hashCode.call(this), 31);
@@ -1523,29 +2061,29 @@ protoOf(InlineClassDescriptor).equals = function (other) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
-    if (!(this.ie() === other.ie())) {
+    if (!(this.ni() === other.ni())) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
-    if (!(other.ok_1 && contentEquals(this.ak(), other.ak()))) {
+    if (!(other.sq_1 && contentEquals(this.eq(), other.eq()))) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
-    if (!(this.ve() === other.ve())) {
+    if (!(this.aj() === other.aj())) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
     var inductionVariable = 0;
-    var last = this.ve();
+    var last = this.aj();
     if (inductionVariable < last)
       do {
         var index = inductionVariable;
         inductionVariable = inductionVariable + 1 | 0;
-        if (!(this.af(index).ie() === other.af(index).ie())) {
+        if (!(this.fj(index).ni() === other.fj(index).ni())) {
           tmp$ret$0 = false;
           break $l$block_5;
         }
-        if (!equals(this.af(index).te(), other.af(index).te())) {
+        if (!equals(this.fj(index).yi(), other.fj(index).yi())) {
           tmp$ret$0 = false;
           break $l$block_5;
         }
@@ -1556,55 +2094,152 @@ protoOf(InlineClassDescriptor).equals = function (other) {
   return tmp$ret$0;
 };
 function InlinePrimitiveDescriptor$1($primitiveSerializer) {
-  this.pk_1 = $primitiveSerializer;
+  this.tq_1 = $primitiveSerializer;
 }
-protoOf(InlinePrimitiveDescriptor$1).qk = function () {
+protoOf(InlinePrimitiveDescriptor$1).uq = function () {
   // Inline function 'kotlin.arrayOf' call
   // Inline function 'kotlin.js.unsafeCast' call
   // Inline function 'kotlin.js.asDynamic' call
-  return [this.pk_1];
+  return [this.tq_1];
 };
-protoOf(InlinePrimitiveDescriptor$1).md = function () {
+protoOf(InlinePrimitiveDescriptor$1).rh = function () {
   // Inline function 'kotlin.error' call
   var message = 'unsupported';
   throw IllegalStateException_init_$Create$(toString(message));
 };
-protoOf(InlinePrimitiveDescriptor$1).od = function (encoder, value) {
+protoOf(InlinePrimitiveDescriptor$1).sh = function (encoder, value) {
   // Inline function 'kotlin.error' call
   var message = 'unsupported';
   throw IllegalStateException_init_$Create$(toString(message));
 };
-protoOf(InlinePrimitiveDescriptor$1).nd = function (decoder) {
+protoOf(InlinePrimitiveDescriptor$1).th = function (decoder) {
   // Inline function 'kotlin.error' call
   var message = 'unsupported';
   throw IllegalStateException_init_$Create$(toString(message));
 };
 function missingFieldExceptionWithNewMessage(exception, message) {
-  return exception.me(message);
+  return exception.ri(message);
 }
 function jsonCachedSerialNames(_this__u8e3s4) {
   return cachedSerialNames(_this__u8e3s4);
 }
-function NullableSerializer(serializer) {
-  this.sk_1 = serializer;
-  this.tk_1 = new SerialDescriptorForNullable(this.sk_1.md());
+function NoOpEncoder() {
+  NoOpEncoder_instance = this;
+  AbstractEncoder.call(this);
+  this.wq_1 = EmptySerializersModule_0();
 }
-protoOf(NullableSerializer).md = function () {
-  return this.tk_1;
+protoOf(NoOpEncoder).gl = function () {
+  return this.wq_1;
 };
-protoOf(NullableSerializer).uk = function (encoder, value) {
+protoOf(NoOpEncoder).ll = function (value) {
+  return Unit_instance;
+};
+protoOf(NoOpEncoder).ml = function () {
+  return Unit_instance;
+};
+protoOf(NoOpEncoder).nl = function (value) {
+  return Unit_instance;
+};
+protoOf(NoOpEncoder).ol = function (value) {
+  return Unit_instance;
+};
+protoOf(NoOpEncoder).pl = function (value) {
+  return Unit_instance;
+};
+protoOf(NoOpEncoder).ql = function (value) {
+  return Unit_instance;
+};
+protoOf(NoOpEncoder).rl = function (value) {
+  return Unit_instance;
+};
+protoOf(NoOpEncoder).sl = function (value) {
+  return Unit_instance;
+};
+protoOf(NoOpEncoder).tl = function (value) {
+  return Unit_instance;
+};
+protoOf(NoOpEncoder).ul = function (value) {
+  return Unit_instance;
+};
+protoOf(NoOpEncoder).vl = function (value) {
+  return Unit_instance;
+};
+protoOf(NoOpEncoder).wl = function (enumDescriptor, index) {
+  return Unit_instance;
+};
+var NoOpEncoder_instance;
+function NoOpEncoder_getInstance() {
+  if (NoOpEncoder_instance == null)
+    new NoOpEncoder();
+  return NoOpEncoder_instance;
+}
+function error($this) {
+  throw IllegalStateException_init_$Create$('Descriptor for type `kotlin.Nothing` does not have elements');
+}
+function NothingSerialDescriptor() {
+  NothingSerialDescriptor_instance = this;
+  this.xq_1 = OBJECT_getInstance();
+  this.yq_1 = 'kotlin.Nothing';
+}
+protoOf(NothingSerialDescriptor).yi = function () {
+  return this.xq_1;
+};
+protoOf(NothingSerialDescriptor).ni = function () {
+  return this.yq_1;
+};
+protoOf(NothingSerialDescriptor).aj = function () {
+  return 0;
+};
+protoOf(NothingSerialDescriptor).cj = function (index) {
+  error(this);
+};
+protoOf(NothingSerialDescriptor).dj = function (name) {
+  error(this);
+};
+protoOf(NothingSerialDescriptor).gj = function (index) {
+  error(this);
+};
+protoOf(NothingSerialDescriptor).fj = function (index) {
+  error(this);
+};
+protoOf(NothingSerialDescriptor).ej = function (index) {
+  error(this);
+};
+protoOf(NothingSerialDescriptor).toString = function () {
+  return 'NothingSerialDescriptor';
+};
+protoOf(NothingSerialDescriptor).equals = function (other) {
+  return this === other;
+};
+protoOf(NothingSerialDescriptor).hashCode = function () {
+  return getStringHashCode(this.yq_1) + imul(31, this.xq_1.hashCode()) | 0;
+};
+var NothingSerialDescriptor_instance;
+function NothingSerialDescriptor_getInstance() {
+  if (NothingSerialDescriptor_instance == null)
+    new NothingSerialDescriptor();
+  return NothingSerialDescriptor_instance;
+}
+function NullableSerializer(serializer) {
+  this.zq_1 = serializer;
+  this.ar_1 = new SerialDescriptorForNullable(this.zq_1.rh());
+}
+protoOf(NullableSerializer).rh = function () {
+  return this.ar_1;
+};
+protoOf(NullableSerializer).br = function (encoder, value) {
   if (!(value == null)) {
-    encoder.jh();
-    encoder.gh(this.sk_1, value);
+    encoder.mm();
+    encoder.jm(this.zq_1, value);
   } else {
-    encoder.vg();
+    encoder.ml();
   }
 };
-protoOf(NullableSerializer).od = function (encoder, value) {
-  return this.uk(encoder, value);
+protoOf(NullableSerializer).sh = function (encoder, value) {
+  return this.br(encoder, value);
 };
-protoOf(NullableSerializer).nd = function (decoder) {
-  return decoder.xf() ? decoder.fg(this.sk_1) : decoder.yf();
+protoOf(NullableSerializer).th = function (decoder) {
+  return decoder.ck() ? decoder.qk(this.zq_1) : decoder.dk();
 };
 protoOf(NullableSerializer).equals = function (other) {
   if (this === other)
@@ -1613,25 +2248,25 @@ protoOf(NullableSerializer).equals = function (other) {
     return false;
   if (!(other instanceof NullableSerializer))
     THROW_CCE();
-  if (!equals(this.sk_1, other.sk_1))
+  if (!equals(this.zq_1, other.zq_1))
     return false;
   return true;
 };
 protoOf(NullableSerializer).hashCode = function () {
-  return hashCode(this.sk_1);
+  return hashCode(this.zq_1);
 };
 function SerialDescriptorForNullable(original) {
-  this.pe_1 = original;
-  this.qe_1 = this.pe_1.ie() + '?';
-  this.re_1 = cachedSerialNames(this.pe_1);
+  this.ui_1 = original;
+  this.vi_1 = this.ui_1.ni() + '?';
+  this.wi_1 = cachedSerialNames(this.ui_1);
 }
-protoOf(SerialDescriptorForNullable).ie = function () {
-  return this.qe_1;
+protoOf(SerialDescriptorForNullable).ni = function () {
+  return this.vi_1;
 };
-protoOf(SerialDescriptorForNullable).vf = function () {
-  return this.re_1;
+protoOf(SerialDescriptorForNullable).ak = function () {
+  return this.wi_1;
 };
-protoOf(SerialDescriptorForNullable).ne = function () {
+protoOf(SerialDescriptorForNullable).si = function () {
   return true;
 };
 protoOf(SerialDescriptorForNullable).equals = function (other) {
@@ -1639,42 +2274,100 @@ protoOf(SerialDescriptorForNullable).equals = function (other) {
     return true;
   if (!(other instanceof SerialDescriptorForNullable))
     return false;
-  if (!equals(this.pe_1, other.pe_1))
+  if (!equals(this.ui_1, other.ui_1))
     return false;
   return true;
 };
 protoOf(SerialDescriptorForNullable).toString = function () {
-  return toString(this.pe_1) + '?';
+  return toString(this.ui_1) + '?';
 };
 protoOf(SerialDescriptorForNullable).hashCode = function () {
-  return imul(hashCode(this.pe_1), 31);
+  return imul(hashCode(this.ui_1), 31);
 };
-protoOf(SerialDescriptorForNullable).te = function () {
-  return this.pe_1.te();
+protoOf(SerialDescriptorForNullable).yi = function () {
+  return this.ui_1.yi();
 };
-protoOf(SerialDescriptorForNullable).ue = function () {
-  return this.pe_1.ue();
+protoOf(SerialDescriptorForNullable).zi = function () {
+  return this.ui_1.zi();
 };
-protoOf(SerialDescriptorForNullable).ve = function () {
-  return this.pe_1.ve();
+protoOf(SerialDescriptorForNullable).aj = function () {
+  return this.ui_1.aj();
 };
-protoOf(SerialDescriptorForNullable).we = function () {
-  return this.pe_1.we();
+protoOf(SerialDescriptorForNullable).bj = function () {
+  return this.ui_1.bj();
 };
-protoOf(SerialDescriptorForNullable).xe = function (index) {
-  return this.pe_1.xe(index);
+protoOf(SerialDescriptorForNullable).cj = function (index) {
+  return this.ui_1.cj(index);
 };
-protoOf(SerialDescriptorForNullable).ye = function (name) {
-  return this.pe_1.ye(name);
+protoOf(SerialDescriptorForNullable).dj = function (name) {
+  return this.ui_1.dj(name);
 };
-protoOf(SerialDescriptorForNullable).ze = function (index) {
-  return this.pe_1.ze(index);
+protoOf(SerialDescriptorForNullable).ej = function (index) {
+  return this.ui_1.ej(index);
 };
-protoOf(SerialDescriptorForNullable).af = function (index) {
-  return this.pe_1.af(index);
+protoOf(SerialDescriptorForNullable).fj = function (index) {
+  return this.ui_1.fj(index);
 };
-protoOf(SerialDescriptorForNullable).bf = function (index) {
-  return this.pe_1.bf(index);
+protoOf(SerialDescriptorForNullable).gj = function (index) {
+  return this.ui_1.gj(index);
+};
+function ObjectSerializer$descriptor$delegate$lambda$lambda(this$0) {
+  return function ($this$buildSerialDescriptor) {
+    $this$buildSerialDescriptor.ei_1 = this$0.dr_1;
+    return Unit_instance;
+  };
+}
+function ObjectSerializer$descriptor$delegate$lambda($serialName, this$0) {
+  return function () {
+    var tmp = OBJECT_getInstance();
+    return buildSerialDescriptor($serialName, tmp, [], ObjectSerializer$descriptor$delegate$lambda$lambda(this$0));
+  };
+}
+function ObjectSerializer$_get_descriptor_$ref_7z4xb6() {
+  return constructCallableReference(function (p0) {
+    return p0.rh();
+  }, 1, 0, 4);
+}
+function ObjectSerializer(serialName, objectInstance) {
+  this.cr_1 = objectInstance;
+  this.dr_1 = emptyList();
+  var tmp = this;
+  var tmp_0 = LazyThreadSafetyMode_PUBLICATION_getInstance();
+  tmp.er_1 = lazy(tmp_0, ObjectSerializer$descriptor$delegate$lambda(serialName, this));
+}
+protoOf(ObjectSerializer).rh = function () {
+  var tmp0 = this.er_1;
+  var tmp = KProperty1;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('descriptor', 1, tmp, ObjectSerializer$_get_descriptor_$ref_7z4xb6(), null);
+  return tmp0.v();
+};
+protoOf(ObjectSerializer).oi = function (encoder, value) {
+  encoder.rk(this.rh()).sk(this.rh());
+};
+protoOf(ObjectSerializer).sh = function (encoder, value) {
+  return this.oi(encoder, !(value == null) ? value : THROW_CCE());
+};
+protoOf(ObjectSerializer).th = function (decoder) {
+  // Inline function 'kotlinx.serialization.encoding.decodeStructure' call
+  var descriptor = this.rh();
+  var composite = decoder.rk(descriptor);
+  var tmp$ret$1;
+  $l$block_0: {
+    if (composite.hl()) {
+      tmp$ret$1 = Unit_instance;
+      break $l$block_0;
+    }
+    var index = composite.il(this.rh());
+    if (index === -1) {
+      tmp$ret$1 = Unit_instance;
+      break $l$block_0;
+    } else
+      throw SerializationException_init_$Create$_0('Unexpected index ' + index);
+  }
+  var result = tmp$ret$1;
+  composite.sk(descriptor);
+  return this.cr_1;
 };
 function get_EMPTY_DESCRIPTOR_ARRAY() {
   _init_properties_Platform_common_kt__3qzecs();
@@ -1705,16 +2398,16 @@ function compactArray(_this__u8e3s4) {
 function cachedSerialNames(_this__u8e3s4) {
   _init_properties_Platform_common_kt__3qzecs();
   if (isInterface(_this__u8e3s4, CachedNames))
-    return _this__u8e3s4.vf();
-  var result = HashSet_init_$Create$_0(_this__u8e3s4.ve());
+    return _this__u8e3s4.ak();
+  var result = HashSet_init_$Create$_0(_this__u8e3s4.aj());
   var inductionVariable = 0;
-  var last = _this__u8e3s4.ve();
+  var last = _this__u8e3s4.aj();
   if (inductionVariable < last)
     do {
       var i = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
       // Inline function 'kotlin.collections.plusAssign' call
-      var element = _this__u8e3s4.xe(i);
+      var element = _this__u8e3s4.cj(i);
       result.i(element);
     }
      while (inductionVariable < last);
@@ -1741,16 +2434,16 @@ function throwMissingFieldException(seen, goldenMask, descriptor) {
       inductionVariable = inductionVariable + 1 | 0;
       if (!((missingFieldsBits & 1) === 0)) {
         // Inline function 'kotlin.collections.plusAssign' call
-        var element = descriptor.xe(i);
+        var element = descriptor.cj(i);
         missingFields.i(element);
       }
       missingFieldsBits = missingFieldsBits >>> 1 | 0;
     }
      while (inductionVariable < 32);
-  throw MissingFieldException_init_$Create$(missingFields, descriptor.ie());
+  throw MissingFieldException_init_$Create$(missingFields, descriptor.ni());
 }
 function hashCodeImpl(_this__u8e3s4, typeParams) {
-  var result = getStringHashCode(_this__u8e3s4.ie());
+  var result = getStringHashCode(_this__u8e3s4.ni());
   result = imul(31, result) + contentHashCode(typeParams) | 0;
   var elementDescriptors = get_elementDescriptors(_this__u8e3s4);
   // Inline function 'kotlinx.serialization.internal.elementsHashCodeBy' call
@@ -1762,7 +2455,7 @@ function hashCodeImpl(_this__u8e3s4, typeParams) {
     var hash = accumulator;
     var tmp = imul(31, hash);
     // Inline function 'kotlin.hashCode' call
-    var tmp0_safe_receiver = element.ie();
+    var tmp0_safe_receiver = element.ni();
     var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : hashCode(tmp0_safe_receiver);
     accumulator = tmp + (tmp1_elvis_lhs == null ? 0 : tmp1_elvis_lhs) | 0;
   }
@@ -1776,7 +2469,7 @@ function hashCodeImpl(_this__u8e3s4, typeParams) {
     var hash_0 = accumulator_0;
     var tmp_0 = imul(31, hash_0);
     // Inline function 'kotlin.hashCode' call
-    var tmp0_safe_receiver_0 = element_0.te();
+    var tmp0_safe_receiver_0 = element_0.yi();
     var tmp1_elvis_lhs_0 = tmp0_safe_receiver_0 == null ? null : hashCode(tmp0_safe_receiver_0);
     accumulator_0 = tmp_0 + (tmp1_elvis_lhs_0 == null ? 0 : tmp1_elvis_lhs_0) | 0;
   }
@@ -1786,19 +2479,19 @@ function hashCodeImpl(_this__u8e3s4, typeParams) {
   return result;
 }
 function toStringImpl(_this__u8e3s4) {
-  var tmp = until(0, _this__u8e3s4.ve());
-  var tmp_0 = _this__u8e3s4.ie() + '(';
+  var tmp = until(0, _this__u8e3s4.aj());
+  var tmp_0 = _this__u8e3s4.ni() + '(';
   return joinToString(tmp, ', ', tmp_0, ')', VOID, VOID, toStringImpl$lambda(_this__u8e3s4));
 }
 function _get_childSerializers__7vnyfa($this) {
-  var tmp0 = $this.hj_1;
+  var tmp0 = $this.lp_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('childSerializers', 1, tmp, PluginGeneratedSerialDescriptor$_get_childSerializers_$ref_e7suca(), null);
   return tmp0.v();
 }
 function _get__hashCode__tgwhef_0($this) {
-  var tmp0 = $this.jj_1;
+  var tmp0 = $this.np_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('_hashCode', 1, tmp, PluginGeneratedSerialDescriptor$_get__hashCode_$ref_cmj4vz(), null);
@@ -1807,34 +2500,34 @@ function _get__hashCode__tgwhef_0($this) {
 function buildIndices($this) {
   var indices = HashMap_init_$Create$();
   var inductionVariable = 0;
-  var last = $this.cj_1.length - 1 | 0;
+  var last = $this.gp_1.length - 1 | 0;
   if (inductionVariable <= last)
     do {
       var i = inductionVariable;
       inductionVariable = inductionVariable + 1 | 0;
       // Inline function 'kotlin.collections.set' call
-      var key = $this.cj_1[i];
-      indices.m2(key, i);
+      var key = $this.gp_1[i];
+      indices.t2(key, i);
     }
      while (inductionVariable <= last);
   return indices;
 }
 function PluginGeneratedSerialDescriptor$childSerializers$delegate$lambda(this$0) {
   return function () {
-    var tmp0_safe_receiver = this$0.zi_1;
-    var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.qk();
+    var tmp0_safe_receiver = this$0.dp_1;
+    var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.uq();
     return tmp1_elvis_lhs == null ? get_EMPTY_SERIALIZER_ARRAY() : tmp1_elvis_lhs;
   };
 }
 function PluginGeneratedSerialDescriptor$_get_childSerializers_$ref_e7suca() {
   return constructCallableReference(function (p0) {
     return _get_childSerializers__7vnyfa(p0);
-  }, 1, 0, 4);
+  }, 1, 0, 5);
 }
 function PluginGeneratedSerialDescriptor$typeParameterDescriptors$delegate$lambda(this$0) {
   return function () {
-    var tmp0_safe_receiver = this$0.zi_1;
-    var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.rk();
+    var tmp0_safe_receiver = this$0.dp_1;
+    var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.vq();
     var tmp;
     if (tmp1_safe_receiver == null) {
       tmp = null;
@@ -1847,7 +2540,7 @@ function PluginGeneratedSerialDescriptor$typeParameterDescriptors$delegate$lambd
       while (inductionVariable < last) {
         var item = tmp1_safe_receiver[inductionVariable];
         inductionVariable = inductionVariable + 1 | 0;
-        var tmp$ret$2 = item.md();
+        var tmp$ret$2 = item.rh();
         destination.i(tmp$ret$2);
       }
       tmp = destination;
@@ -1857,110 +2550,110 @@ function PluginGeneratedSerialDescriptor$typeParameterDescriptors$delegate$lambd
 }
 function PluginGeneratedSerialDescriptor$_get_typeParameterDescriptors_$ref_jk3pka() {
   return constructCallableReference(function (p0) {
-    return p0.ak();
-  }, 1, 0, 5);
+    return p0.eq();
+  }, 1, 0, 6);
 }
 function PluginGeneratedSerialDescriptor$_hashCode$delegate$lambda(this$0) {
   return function () {
-    return hashCodeImpl(this$0, this$0.ak());
+    return hashCodeImpl(this$0, this$0.eq());
   };
 }
 function PluginGeneratedSerialDescriptor$_get__hashCode_$ref_cmj4vz() {
   return constructCallableReference(function (p0) {
     return _get__hashCode__tgwhef_0(p0);
-  }, 1, 0, 6);
+  }, 1, 0, 7);
 }
 function PluginGeneratedSerialDescriptor(serialName, generatedSerializer, elementsCount) {
   generatedSerializer = generatedSerializer === VOID ? null : generatedSerializer;
-  this.yi_1 = serialName;
-  this.zi_1 = generatedSerializer;
-  this.aj_1 = elementsCount;
-  this.bj_1 = -1;
+  this.cp_1 = serialName;
+  this.dp_1 = generatedSerializer;
+  this.ep_1 = elementsCount;
+  this.fp_1 = -1;
   var tmp = this;
   var tmp_0 = 0;
-  var tmp_1 = this.aj_1;
+  var tmp_1 = this.ep_1;
   // Inline function 'kotlin.arrayOfNulls' call
   var tmp_2 = Array(tmp_1);
   while (tmp_0 < tmp_1) {
     tmp_2[tmp_0] = '[UNINITIALIZED]';
     tmp_0 = tmp_0 + 1 | 0;
   }
-  tmp.cj_1 = tmp_2;
+  tmp.gp_1 = tmp_2;
   var tmp_3 = this;
   // Inline function 'kotlin.arrayOfNulls' call
-  var size = this.aj_1;
-  tmp_3.dj_1 = Array(size);
-  this.ej_1 = null;
-  this.fj_1 = booleanArray(this.aj_1);
-  this.gj_1 = emptyMap();
+  var size = this.ep_1;
+  tmp_3.hp_1 = Array(size);
+  this.ip_1 = null;
+  this.jp_1 = booleanArray(this.ep_1);
+  this.kp_1 = emptyMap();
   var tmp_4 = this;
   var tmp_5 = LazyThreadSafetyMode_PUBLICATION_getInstance();
-  tmp_4.hj_1 = lazy(tmp_5, PluginGeneratedSerialDescriptor$childSerializers$delegate$lambda(this));
+  tmp_4.lp_1 = lazy(tmp_5, PluginGeneratedSerialDescriptor$childSerializers$delegate$lambda(this));
   var tmp_6 = this;
   var tmp_7 = LazyThreadSafetyMode_PUBLICATION_getInstance();
-  tmp_6.ij_1 = lazy(tmp_7, PluginGeneratedSerialDescriptor$typeParameterDescriptors$delegate$lambda(this));
+  tmp_6.mp_1 = lazy(tmp_7, PluginGeneratedSerialDescriptor$typeParameterDescriptors$delegate$lambda(this));
   var tmp_8 = this;
   var tmp_9 = LazyThreadSafetyMode_PUBLICATION_getInstance();
-  tmp_8.jj_1 = lazy(tmp_9, PluginGeneratedSerialDescriptor$_hashCode$delegate$lambda(this));
+  tmp_8.np_1 = lazy(tmp_9, PluginGeneratedSerialDescriptor$_hashCode$delegate$lambda(this));
 }
-protoOf(PluginGeneratedSerialDescriptor).ie = function () {
-  return this.yi_1;
+protoOf(PluginGeneratedSerialDescriptor).ni = function () {
+  return this.cp_1;
 };
-protoOf(PluginGeneratedSerialDescriptor).ve = function () {
-  return this.aj_1;
+protoOf(PluginGeneratedSerialDescriptor).aj = function () {
+  return this.ep_1;
 };
-protoOf(PluginGeneratedSerialDescriptor).te = function () {
+protoOf(PluginGeneratedSerialDescriptor).yi = function () {
   return CLASS_getInstance();
 };
-protoOf(PluginGeneratedSerialDescriptor).we = function () {
-  var tmp0_elvis_lhs = this.ej_1;
+protoOf(PluginGeneratedSerialDescriptor).bj = function () {
+  var tmp0_elvis_lhs = this.ip_1;
   return tmp0_elvis_lhs == null ? emptyList() : tmp0_elvis_lhs;
 };
-protoOf(PluginGeneratedSerialDescriptor).vf = function () {
-  return this.gj_1.u1();
-};
 protoOf(PluginGeneratedSerialDescriptor).ak = function () {
-  var tmp0 = this.ij_1;
+  return this.kp_1.u1();
+};
+protoOf(PluginGeneratedSerialDescriptor).eq = function () {
+  var tmp0 = this.mp_1;
   var tmp = KProperty1;
   // Inline function 'kotlin.getValue' call
   getPropertyCallableRef('typeParameterDescriptors', 1, tmp, PluginGeneratedSerialDescriptor$_get_typeParameterDescriptors_$ref_jk3pka(), null);
   return tmp0.v();
 };
-protoOf(PluginGeneratedSerialDescriptor).bk = function (name, isOptional) {
-  this.bj_1 = this.bj_1 + 1 | 0;
-  this.cj_1[this.bj_1] = name;
-  this.fj_1[this.bj_1] = isOptional;
-  this.dj_1[this.bj_1] = null;
-  if (this.bj_1 === (this.aj_1 - 1 | 0)) {
-    this.gj_1 = buildIndices(this);
+protoOf(PluginGeneratedSerialDescriptor).fq = function (name, isOptional) {
+  this.fp_1 = this.fp_1 + 1 | 0;
+  this.gp_1[this.fp_1] = name;
+  this.jp_1[this.fp_1] = isOptional;
+  this.hp_1[this.fp_1] = null;
+  if (this.fp_1 === (this.ep_1 - 1 | 0)) {
+    this.kp_1 = buildIndices(this);
   }
 };
-protoOf(PluginGeneratedSerialDescriptor).kj = function (name, isOptional, $super) {
+protoOf(PluginGeneratedSerialDescriptor).op = function (name, isOptional, $super) {
   isOptional = isOptional === VOID ? false : isOptional;
   var tmp;
   if ($super === VOID) {
-    this.bk(name, isOptional);
+    this.fq(name, isOptional);
     tmp = Unit_instance;
   } else {
-    tmp = $super.bk.call(this, name, isOptional);
+    tmp = $super.fq.call(this, name, isOptional);
   }
   return tmp;
 };
-protoOf(PluginGeneratedSerialDescriptor).af = function (index) {
-  return getChecked(_get_childSerializers__7vnyfa(this), index).md();
+protoOf(PluginGeneratedSerialDescriptor).fj = function (index) {
+  return getChecked(_get_childSerializers__7vnyfa(this), index).rh();
 };
-protoOf(PluginGeneratedSerialDescriptor).bf = function (index) {
-  return getChecked_0(this.fj_1, index);
+protoOf(PluginGeneratedSerialDescriptor).gj = function (index) {
+  return getChecked_0(this.jp_1, index);
 };
-protoOf(PluginGeneratedSerialDescriptor).ze = function (index) {
-  var tmp0_elvis_lhs = getChecked(this.dj_1, index);
+protoOf(PluginGeneratedSerialDescriptor).ej = function (index) {
+  var tmp0_elvis_lhs = getChecked(this.hp_1, index);
   return tmp0_elvis_lhs == null ? emptyList() : tmp0_elvis_lhs;
 };
-protoOf(PluginGeneratedSerialDescriptor).xe = function (index) {
-  return getChecked(this.cj_1, index);
+protoOf(PluginGeneratedSerialDescriptor).cj = function (index) {
+  return getChecked(this.gp_1, index);
 };
-protoOf(PluginGeneratedSerialDescriptor).ye = function (name) {
-  var tmp0_elvis_lhs = this.gj_1.t1(name);
+protoOf(PluginGeneratedSerialDescriptor).dj = function (name) {
+  var tmp0_elvis_lhs = this.kp_1.t1(name);
   return tmp0_elvis_lhs == null ? -3 : tmp0_elvis_lhs;
 };
 protoOf(PluginGeneratedSerialDescriptor).equals = function (other) {
@@ -1975,29 +2668,29 @@ protoOf(PluginGeneratedSerialDescriptor).equals = function (other) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
-    if (!(this.ie() === other.ie())) {
+    if (!(this.ni() === other.ni())) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
-    if (!contentEquals(this.ak(), other.ak())) {
+    if (!contentEquals(this.eq(), other.eq())) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
-    if (!(this.ve() === other.ve())) {
+    if (!(this.aj() === other.aj())) {
       tmp$ret$0 = false;
       break $l$block_5;
     }
     var inductionVariable = 0;
-    var last = this.ve();
+    var last = this.aj();
     if (inductionVariable < last)
       do {
         var index = inductionVariable;
         inductionVariable = inductionVariable + 1 | 0;
-        if (!(this.af(index).ie() === other.af(index).ie())) {
+        if (!(this.fj(index).ni() === other.fj(index).ni())) {
           tmp$ret$0 = false;
           break $l$block_5;
         }
-        if (!equals(this.af(index).te(), other.af(index).te())) {
+        if (!equals(this.fj(index).yi(), other.fj(index).yi())) {
           tmp$ret$0 = false;
           break $l$block_5;
         }
@@ -2015,7 +2708,7 @@ protoOf(PluginGeneratedSerialDescriptor).toString = function () {
 };
 function toStringImpl$lambda($this_toStringImpl) {
   return function (i) {
-    return $this_toStringImpl.xe(i) + ': ' + $this_toStringImpl.af(i).ie();
+    return $this_toStringImpl.cj(i) + ': ' + $this_toStringImpl.fj(i).ni();
   };
 }
 function get_EMPTY_SERIALIZER_ARRAY() {
@@ -2035,21 +2728,1246 @@ function _init_properties_PluginHelperInterfaces_kt__xgvzfp() {
     EMPTY_SERIALIZER_ARRAY = [];
   }
 }
+function CharArraySerializer_0() {
+  CharArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_8(Companion_getInstance_2()));
+}
+protoOf(CharArraySerializer_0).hr = function (_this__u8e3s4) {
+  return _this__u8e3s4.length;
+};
+protoOf(CharArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.hr((!(_this__u8e3s4 == null) ? isCharArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE());
+};
+protoOf(CharArraySerializer_0).ir = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _this__u8e3s4.length)
+    return CharArrayBuilder_init_$Create$(_this__u8e3s4);
+  return new CharArrayBuilder(copyOf(_this__u8e3s4, expectedSize), _this__u8e3s4.length);
+};
+protoOf(CharArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.ir((!(_this__u8e3s4 == null) ? isCharArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE(), expectedSize);
+};
+protoOf(CharArraySerializer_0).mo = function (size) {
+  return CharArrayBuilder_init_$Create$_0(size);
+};
+protoOf(CharArraySerializer_0).lo = function () {
+  return CharArrayBuilder_init_$Create$_1();
+};
+protoOf(CharArraySerializer_0).jr = function (decoder, index, builder, checkIndex) {
+  builder.mr(decoder.al(this.eo_1, index));
+};
+protoOf(CharArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.jr(decoder, index, builder instanceof CharArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(CharArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.jr(decoder, index, builder instanceof CharArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(CharArraySerializer_0).nr = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      encoder.fm(this.eo_1, i, content[i]);
+    }
+     while (inductionVariable < size);
+};
+protoOf(CharArraySerializer_0).oo = function (encoder, content, size) {
+  return this.nr(encoder, (!(content == null) ? isCharArray(content) : false) ? content : THROW_CCE(), size);
+};
+var CharArraySerializer_instance;
+function CharArraySerializer_getInstance() {
+  if (CharArraySerializer_instance == null)
+    new CharArraySerializer_0();
+  return CharArraySerializer_instance;
+}
+function DoubleArraySerializer_0() {
+  DoubleArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_9(DoubleCompanionObject_instance));
+}
+protoOf(DoubleArraySerializer_0).qr = function (_this__u8e3s4) {
+  return _this__u8e3s4.length;
+};
+protoOf(DoubleArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.qr((!(_this__u8e3s4 == null) ? isDoubleArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE());
+};
+protoOf(DoubleArraySerializer_0).rr = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _this__u8e3s4.length)
+    return DoubleArrayBuilder_init_$Create$(_this__u8e3s4);
+  return new DoubleArrayBuilder(copyOf_0(_this__u8e3s4, expectedSize), _this__u8e3s4.length);
+};
+protoOf(DoubleArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.rr((!(_this__u8e3s4 == null) ? isDoubleArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE(), expectedSize);
+};
+protoOf(DoubleArraySerializer_0).mo = function (size) {
+  return DoubleArrayBuilder_init_$Create$_0(size);
+};
+protoOf(DoubleArraySerializer_0).lo = function () {
+  return DoubleArrayBuilder_init_$Create$_1();
+};
+protoOf(DoubleArraySerializer_0).sr = function (decoder, index, builder, checkIndex) {
+  builder.vr(decoder.zk(this.eo_1, index));
+};
+protoOf(DoubleArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.sr(decoder, index, builder instanceof DoubleArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(DoubleArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.sr(decoder, index, builder instanceof DoubleArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(DoubleArraySerializer_0).wr = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      encoder.em(this.eo_1, i, content[i]);
+    }
+     while (inductionVariable < size);
+};
+protoOf(DoubleArraySerializer_0).oo = function (encoder, content, size) {
+  return this.wr(encoder, (!(content == null) ? isDoubleArray(content) : false) ? content : THROW_CCE(), size);
+};
+var DoubleArraySerializer_instance;
+function DoubleArraySerializer_getInstance() {
+  if (DoubleArraySerializer_instance == null)
+    new DoubleArraySerializer_0();
+  return DoubleArraySerializer_instance;
+}
+function FloatArraySerializer_0() {
+  FloatArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_10(FloatCompanionObject_instance));
+}
+protoOf(FloatArraySerializer_0).zr = function (_this__u8e3s4) {
+  return _this__u8e3s4.length;
+};
+protoOf(FloatArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.zr((!(_this__u8e3s4 == null) ? isFloatArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE());
+};
+protoOf(FloatArraySerializer_0).as = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _this__u8e3s4.length)
+    return FloatArrayBuilder_init_$Create$(_this__u8e3s4);
+  return new FloatArrayBuilder(copyOf_1(_this__u8e3s4, expectedSize), _this__u8e3s4.length);
+};
+protoOf(FloatArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.as((!(_this__u8e3s4 == null) ? isFloatArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE(), expectedSize);
+};
+protoOf(FloatArraySerializer_0).mo = function (size) {
+  return FloatArrayBuilder_init_$Create$_0(size);
+};
+protoOf(FloatArraySerializer_0).lo = function () {
+  return FloatArrayBuilder_init_$Create$_1();
+};
+protoOf(FloatArraySerializer_0).bs = function (decoder, index, builder, checkIndex) {
+  builder.es(decoder.yk(this.eo_1, index));
+};
+protoOf(FloatArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.bs(decoder, index, builder instanceof FloatArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(FloatArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.bs(decoder, index, builder instanceof FloatArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(FloatArraySerializer_0).fs = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      encoder.dm(this.eo_1, i, content[i]);
+    }
+     while (inductionVariable < size);
+};
+protoOf(FloatArraySerializer_0).oo = function (encoder, content, size) {
+  return this.fs(encoder, (!(content == null) ? isFloatArray(content) : false) ? content : THROW_CCE(), size);
+};
+var FloatArraySerializer_instance;
+function FloatArraySerializer_getInstance() {
+  if (FloatArraySerializer_instance == null)
+    new FloatArraySerializer_0();
+  return FloatArraySerializer_instance;
+}
+function LongArraySerializer_0() {
+  LongArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_5(Companion_getInstance_3()));
+}
+protoOf(LongArraySerializer_0).is = function (_this__u8e3s4) {
+  return _this__u8e3s4.length;
+};
+protoOf(LongArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.is((!(_this__u8e3s4 == null) ? isLongArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE());
+};
+protoOf(LongArraySerializer_0).js = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _this__u8e3s4.length)
+    return LongArrayBuilder_init_$Create$(_this__u8e3s4);
+  return new LongArrayBuilder(copyOf_2(_this__u8e3s4, expectedSize), _this__u8e3s4.length);
+};
+protoOf(LongArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.js((!(_this__u8e3s4 == null) ? isLongArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE(), expectedSize);
+};
+protoOf(LongArraySerializer_0).mo = function (size) {
+  return LongArrayBuilder_init_$Create$_0(size);
+};
+protoOf(LongArraySerializer_0).lo = function () {
+  return LongArrayBuilder_init_$Create$_1();
+};
+protoOf(LongArraySerializer_0).ks = function (decoder, index, builder, checkIndex) {
+  builder.ns(decoder.xk(this.eo_1, index));
+};
+protoOf(LongArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.ks(decoder, index, builder instanceof LongArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(LongArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.ks(decoder, index, builder instanceof LongArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(LongArraySerializer_0).os = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      encoder.cm(this.eo_1, i, content[i]);
+    }
+     while (inductionVariable < size);
+};
+protoOf(LongArraySerializer_0).oo = function (encoder, content, size) {
+  return this.os(encoder, (!(content == null) ? isLongArray(content) : false) ? content : THROW_CCE(), size);
+};
+var LongArraySerializer_instance;
+function LongArraySerializer_getInstance() {
+  if (LongArraySerializer_instance == null)
+    new LongArraySerializer_0();
+  return LongArraySerializer_instance;
+}
+function ULongArraySerializer_0() {
+  ULongArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_1(Companion_getInstance_4()));
+}
+protoOf(ULongArraySerializer_0).rs = function (_this__u8e3s4) {
+  return _ULongArray___get_size__impl__ju6dtr(_this__u8e3s4);
+};
+protoOf(ULongArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.rs(_this__u8e3s4 instanceof ULongArray ? _this__u8e3s4.eh_1 : THROW_CCE());
+};
+protoOf(ULongArraySerializer_0).ss = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _ULongArray___get_size__impl__ju6dtr(_this__u8e3s4))
+    return ULongArrayBuilder_init_$Create$(_this__u8e3s4);
+  // Inline function 'kotlin.collections.copyOf' call
+  var tmp$ret$0 = _ULongArray___init__impl__twm1l3(copyOf_2(_ULongArray___get_storage__impl__28e64j(_this__u8e3s4), expectedSize));
+  return new ULongArrayBuilder(tmp$ret$0, _ULongArray___get_size__impl__ju6dtr(_this__u8e3s4));
+};
+protoOf(ULongArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.ss(_this__u8e3s4 instanceof ULongArray ? _this__u8e3s4.eh_1 : THROW_CCE(), expectedSize);
+};
+protoOf(ULongArraySerializer_0).mo = function (size) {
+  return ULongArrayBuilder_init_$Create$_0(size);
+};
+protoOf(ULongArraySerializer_0).lo = function () {
+  return ULongArrayBuilder_init_$Create$_1();
+};
+protoOf(ULongArraySerializer_0).ts = function (decoder, index, builder, checkIndex) {
+  // Inline function 'kotlin.toULong' call
+  var this_0 = decoder.cl(this.eo_1, index).ik();
+  var tmp$ret$0 = _ULong___init__impl__c78o9k(this_0);
+  builder.ws(tmp$ret$0);
+};
+protoOf(ULongArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.ts(decoder, index, builder instanceof ULongArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(ULongArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.ts(decoder, index, builder instanceof ULongArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(ULongArraySerializer_0).xs = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      var tmp = encoder.hm(this.eo_1, i);
+      // Inline function 'kotlin.ULong.toLong' call
+      var this_0 = ULongArray__get_impl_pr71q9(content, i);
+      var tmp$ret$0 = _ULong___get_data__impl__fggpzb(this_0);
+      tmp.rl(tmp$ret$0);
+    }
+     while (inductionVariable < size);
+};
+protoOf(ULongArraySerializer_0).oo = function (encoder, content, size) {
+  return this.xs(encoder, content instanceof ULongArray ? content.eh_1 : THROW_CCE(), size);
+};
+var ULongArraySerializer_instance;
+function ULongArraySerializer_getInstance() {
+  if (ULongArraySerializer_instance == null)
+    new ULongArraySerializer_0();
+  return ULongArraySerializer_instance;
+}
+function IntArraySerializer_0() {
+  IntArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_4(IntCompanionObject_instance));
+}
+protoOf(IntArraySerializer_0).at = function (_this__u8e3s4) {
+  return _this__u8e3s4.length;
+};
+protoOf(IntArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.at((!(_this__u8e3s4 == null) ? isIntArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE());
+};
+protoOf(IntArraySerializer_0).bt = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _this__u8e3s4.length)
+    return IntArrayBuilder_init_$Create$(_this__u8e3s4);
+  return new IntArrayBuilder(copyOf_3(_this__u8e3s4, expectedSize), _this__u8e3s4.length);
+};
+protoOf(IntArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.bt((!(_this__u8e3s4 == null) ? isIntArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE(), expectedSize);
+};
+protoOf(IntArraySerializer_0).mo = function (size) {
+  return IntArrayBuilder_init_$Create$_0(size);
+};
+protoOf(IntArraySerializer_0).lo = function () {
+  return IntArrayBuilder_init_$Create$_1();
+};
+protoOf(IntArraySerializer_0).ct = function (decoder, index, builder, checkIndex) {
+  builder.ft(decoder.wk(this.eo_1, index));
+};
+protoOf(IntArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.ct(decoder, index, builder instanceof IntArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(IntArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.ct(decoder, index, builder instanceof IntArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(IntArraySerializer_0).gt = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      encoder.bm(this.eo_1, i, content[i]);
+    }
+     while (inductionVariable < size);
+};
+protoOf(IntArraySerializer_0).oo = function (encoder, content, size) {
+  return this.gt(encoder, (!(content == null) ? isIntArray(content) : false) ? content : THROW_CCE(), size);
+};
+var IntArraySerializer_instance;
+function IntArraySerializer_getInstance() {
+  if (IntArraySerializer_instance == null)
+    new IntArraySerializer_0();
+  return IntArraySerializer_instance;
+}
+function UIntArraySerializer_0() {
+  UIntArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_0(Companion_getInstance_5()));
+}
+protoOf(UIntArraySerializer_0).jt = function (_this__u8e3s4) {
+  return _UIntArray___get_size__impl__r6l8ci(_this__u8e3s4);
+};
+protoOf(UIntArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.jt(_this__u8e3s4 instanceof UIntArray ? _this__u8e3s4.tg_1 : THROW_CCE());
+};
+protoOf(UIntArraySerializer_0).kt = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _UIntArray___get_size__impl__r6l8ci(_this__u8e3s4))
+    return UIntArrayBuilder_init_$Create$(_this__u8e3s4);
+  // Inline function 'kotlin.collections.copyOf' call
+  var tmp$ret$0 = _UIntArray___init__impl__ghjpc6(copyOf_3(_UIntArray___get_storage__impl__92a0v0(_this__u8e3s4), expectedSize));
+  return new UIntArrayBuilder(tmp$ret$0, _UIntArray___get_size__impl__r6l8ci(_this__u8e3s4));
+};
+protoOf(UIntArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.kt(_this__u8e3s4 instanceof UIntArray ? _this__u8e3s4.tg_1 : THROW_CCE(), expectedSize);
+};
+protoOf(UIntArraySerializer_0).mo = function (size) {
+  return UIntArrayBuilder_init_$Create$_0(size);
+};
+protoOf(UIntArraySerializer_0).lo = function () {
+  return UIntArrayBuilder_init_$Create$_1();
+};
+protoOf(UIntArraySerializer_0).lt = function (decoder, index, builder, checkIndex) {
+  // Inline function 'kotlin.toUInt' call
+  var this_0 = decoder.cl(this.eo_1, index).hk();
+  var tmp$ret$0 = _UInt___init__impl__l7qpdl(this_0);
+  builder.ot(tmp$ret$0);
+};
+protoOf(UIntArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.lt(decoder, index, builder instanceof UIntArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(UIntArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.lt(decoder, index, builder instanceof UIntArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(UIntArraySerializer_0).pt = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      var tmp = encoder.hm(this.eo_1, i);
+      // Inline function 'kotlin.UInt.toInt' call
+      var this_0 = UIntArray__get_impl_gp5kza(content, i);
+      var tmp$ret$0 = _UInt___get_data__impl__f0vqqw(this_0);
+      tmp.ql(tmp$ret$0);
+    }
+     while (inductionVariable < size);
+};
+protoOf(UIntArraySerializer_0).oo = function (encoder, content, size) {
+  return this.pt(encoder, content instanceof UIntArray ? content.tg_1 : THROW_CCE(), size);
+};
+var UIntArraySerializer_instance;
+function UIntArraySerializer_getInstance() {
+  if (UIntArraySerializer_instance == null)
+    new UIntArraySerializer_0();
+  return UIntArraySerializer_instance;
+}
+function ShortArraySerializer_0() {
+  ShortArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_7(ShortCompanionObject_instance));
+}
+protoOf(ShortArraySerializer_0).st = function (_this__u8e3s4) {
+  return _this__u8e3s4.length;
+};
+protoOf(ShortArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.st((!(_this__u8e3s4 == null) ? isShortArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE());
+};
+protoOf(ShortArraySerializer_0).tt = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _this__u8e3s4.length)
+    return ShortArrayBuilder_init_$Create$(_this__u8e3s4);
+  return new ShortArrayBuilder(copyOf_4(_this__u8e3s4, expectedSize), _this__u8e3s4.length);
+};
+protoOf(ShortArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.tt((!(_this__u8e3s4 == null) ? isShortArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE(), expectedSize);
+};
+protoOf(ShortArraySerializer_0).mo = function (size) {
+  return ShortArrayBuilder_init_$Create$_0(size);
+};
+protoOf(ShortArraySerializer_0).lo = function () {
+  return ShortArrayBuilder_init_$Create$_1();
+};
+protoOf(ShortArraySerializer_0).ut = function (decoder, index, builder, checkIndex) {
+  builder.xt(decoder.vk(this.eo_1, index));
+};
+protoOf(ShortArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.ut(decoder, index, builder instanceof ShortArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(ShortArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.ut(decoder, index, builder instanceof ShortArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(ShortArraySerializer_0).yt = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      encoder.am(this.eo_1, i, content[i]);
+    }
+     while (inductionVariable < size);
+};
+protoOf(ShortArraySerializer_0).oo = function (encoder, content, size) {
+  return this.yt(encoder, (!(content == null) ? isShortArray(content) : false) ? content : THROW_CCE(), size);
+};
+var ShortArraySerializer_instance;
+function ShortArraySerializer_getInstance() {
+  if (ShortArraySerializer_instance == null)
+    new ShortArraySerializer_0();
+  return ShortArraySerializer_instance;
+}
+function UShortArraySerializer_0() {
+  UShortArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_3(Companion_getInstance_6()));
+}
+protoOf(UShortArraySerializer_0).bu = function (_this__u8e3s4) {
+  return _UShortArray___get_size__impl__jqto1b(_this__u8e3s4);
+};
+protoOf(UShortArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.bu(_this__u8e3s4 instanceof UShortArray ? _this__u8e3s4.ph_1 : THROW_CCE());
+};
+protoOf(UShortArraySerializer_0).cu = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _UShortArray___get_size__impl__jqto1b(_this__u8e3s4))
+    return UShortArrayBuilder_init_$Create$(_this__u8e3s4);
+  // Inline function 'kotlin.collections.copyOf' call
+  var tmp$ret$0 = _UShortArray___init__impl__9b26ef(copyOf_4(_UShortArray___get_storage__impl__t2jpv5(_this__u8e3s4), expectedSize));
+  return new UShortArrayBuilder(tmp$ret$0, _UShortArray___get_size__impl__jqto1b(_this__u8e3s4));
+};
+protoOf(UShortArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.cu(_this__u8e3s4 instanceof UShortArray ? _this__u8e3s4.ph_1 : THROW_CCE(), expectedSize);
+};
+protoOf(UShortArraySerializer_0).mo = function (size) {
+  return UShortArrayBuilder_init_$Create$_0(size);
+};
+protoOf(UShortArraySerializer_0).lo = function () {
+  return UShortArrayBuilder_init_$Create$_1();
+};
+protoOf(UShortArraySerializer_0).du = function (decoder, index, builder, checkIndex) {
+  // Inline function 'kotlin.toUShort' call
+  var this_0 = decoder.cl(this.eo_1, index).gk();
+  var tmp$ret$0 = _UShort___init__impl__jigrne(this_0);
+  builder.gu(tmp$ret$0);
+};
+protoOf(UShortArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.du(decoder, index, builder instanceof UShortArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(UShortArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.du(decoder, index, builder instanceof UShortArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(UShortArraySerializer_0).hu = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      var tmp = encoder.hm(this.eo_1, i);
+      // Inline function 'kotlin.UShort.toShort' call
+      var this_0 = UShortArray__get_impl_fnbhmx(content, i);
+      var tmp$ret$0 = _UShort___get_data__impl__g0245(this_0);
+      tmp.pl(tmp$ret$0);
+    }
+     while (inductionVariable < size);
+};
+protoOf(UShortArraySerializer_0).oo = function (encoder, content, size) {
+  return this.hu(encoder, content instanceof UShortArray ? content.ph_1 : THROW_CCE(), size);
+};
+var UShortArraySerializer_instance;
+function UShortArraySerializer_getInstance() {
+  if (UShortArraySerializer_instance == null)
+    new UShortArraySerializer_0();
+  return UShortArraySerializer_instance;
+}
+function ByteArraySerializer_0() {
+  ByteArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_6(ByteCompanionObject_instance));
+}
+protoOf(ByteArraySerializer_0).ku = function (_this__u8e3s4) {
+  return _this__u8e3s4.length;
+};
+protoOf(ByteArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.ku((!(_this__u8e3s4 == null) ? isByteArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE());
+};
+protoOf(ByteArraySerializer_0).lu = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _this__u8e3s4.length)
+    return ByteArrayBuilder_init_$Create$(_this__u8e3s4);
+  return new ByteArrayBuilder(copyOf_5(_this__u8e3s4, expectedSize), _this__u8e3s4.length);
+};
+protoOf(ByteArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.lu((!(_this__u8e3s4 == null) ? isByteArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE(), expectedSize);
+};
+protoOf(ByteArraySerializer_0).mo = function (size) {
+  return ByteArrayBuilder_init_$Create$_0(size);
+};
+protoOf(ByteArraySerializer_0).lo = function () {
+  return ByteArrayBuilder_init_$Create$_1();
+};
+protoOf(ByteArraySerializer_0).mu = function (decoder, index, builder, checkIndex) {
+  builder.pu(decoder.uk(this.eo_1, index));
+};
+protoOf(ByteArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.mu(decoder, index, builder instanceof ByteArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(ByteArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.mu(decoder, index, builder instanceof ByteArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(ByteArraySerializer_0).qu = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      encoder.zl(this.eo_1, i, content[i]);
+    }
+     while (inductionVariable < size);
+};
+protoOf(ByteArraySerializer_0).oo = function (encoder, content, size) {
+  return this.qu(encoder, (!(content == null) ? isByteArray(content) : false) ? content : THROW_CCE(), size);
+};
+var ByteArraySerializer_instance;
+function ByteArraySerializer_getInstance() {
+  if (ByteArraySerializer_instance == null)
+    new ByteArraySerializer_0();
+  return ByteArraySerializer_instance;
+}
+function UByteArraySerializer_0() {
+  UByteArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_2(Companion_getInstance_7()));
+}
+protoOf(UByteArraySerializer_0).tu = function (_this__u8e3s4) {
+  return _UByteArray___get_size__impl__h6pkdv(_this__u8e3s4);
+};
+protoOf(UByteArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.tu(_this__u8e3s4 instanceof UByteArray ? _this__u8e3s4.ig_1 : THROW_CCE());
+};
+protoOf(UByteArraySerializer_0).uu = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _UByteArray___get_size__impl__h6pkdv(_this__u8e3s4))
+    return UByteArrayBuilder_init_$Create$(_this__u8e3s4);
+  // Inline function 'kotlin.collections.copyOf' call
+  var tmp$ret$0 = _UByteArray___init__impl__ip4y9n(copyOf_5(_UByteArray___get_storage__impl__d4kctt(_this__u8e3s4), expectedSize));
+  return new UByteArrayBuilder(tmp$ret$0, _UByteArray___get_size__impl__h6pkdv(_this__u8e3s4));
+};
+protoOf(UByteArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.uu(_this__u8e3s4 instanceof UByteArray ? _this__u8e3s4.ig_1 : THROW_CCE(), expectedSize);
+};
+protoOf(UByteArraySerializer_0).mo = function (size) {
+  return UByteArrayBuilder_init_$Create$_0(size);
+};
+protoOf(UByteArraySerializer_0).lo = function () {
+  return UByteArrayBuilder_init_$Create$_1();
+};
+protoOf(UByteArraySerializer_0).vu = function (decoder, index, builder, checkIndex) {
+  // Inline function 'kotlin.toUByte' call
+  var this_0 = decoder.cl(this.eo_1, index).fk();
+  var tmp$ret$0 = _UByte___init__impl__g9hnc4(this_0);
+  builder.yu(tmp$ret$0);
+};
+protoOf(UByteArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.vu(decoder, index, builder instanceof UByteArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(UByteArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.vu(decoder, index, builder instanceof UByteArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(UByteArraySerializer_0).zu = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      var tmp = encoder.hm(this.eo_1, i);
+      // Inline function 'kotlin.UByte.toByte' call
+      var this_0 = UByteArray__get_impl_t5f3hv(content, i);
+      var tmp$ret$0 = _UByte___get_data__impl__jof9qr(this_0);
+      tmp.ol(tmp$ret$0);
+    }
+     while (inductionVariable < size);
+};
+protoOf(UByteArraySerializer_0).oo = function (encoder, content, size) {
+  return this.zu(encoder, content instanceof UByteArray ? content.ig_1 : THROW_CCE(), size);
+};
+var UByteArraySerializer_instance;
+function UByteArraySerializer_getInstance() {
+  if (UByteArraySerializer_instance == null)
+    new UByteArraySerializer_0();
+  return UByteArraySerializer_instance;
+}
+function BooleanArraySerializer_0() {
+  BooleanArraySerializer_instance = this;
+  PrimitiveArraySerializer.call(this, serializer_11(BooleanCompanionObject_instance));
+}
+protoOf(BooleanArraySerializer_0).cv = function (_this__u8e3s4) {
+  return _this__u8e3s4.length;
+};
+protoOf(BooleanArraySerializer_0).bo = function (_this__u8e3s4) {
+  return this.cv((!(_this__u8e3s4 == null) ? isBooleanArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE());
+};
+protoOf(BooleanArraySerializer_0).dv = function (_this__u8e3s4, expectedSize) {
+  if (expectedSize === _this__u8e3s4.length)
+    return BooleanArrayBuilder_init_$Create$(_this__u8e3s4);
+  return new BooleanArrayBuilder(copyOf_6(_this__u8e3s4, expectedSize), _this__u8e3s4.length);
+};
+protoOf(BooleanArraySerializer_0).pn = function (_this__u8e3s4, expectedSize) {
+  return this.dv((!(_this__u8e3s4 == null) ? isBooleanArray(_this__u8e3s4) : false) ? _this__u8e3s4 : THROW_CCE(), expectedSize);
+};
+protoOf(BooleanArraySerializer_0).mo = function (size) {
+  return BooleanArrayBuilder_init_$Create$_0(size);
+};
+protoOf(BooleanArraySerializer_0).lo = function () {
+  return BooleanArrayBuilder_init_$Create$_1();
+};
+protoOf(BooleanArraySerializer_0).ev = function (decoder, index, builder, checkIndex) {
+  builder.hv(decoder.tk(this.eo_1, index));
+};
+protoOf(BooleanArraySerializer_0).yn = function (decoder, index, builder, checkIndex) {
+  return this.ev(decoder, index, builder instanceof BooleanArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(BooleanArraySerializer_0).no = function (decoder, index, builder, checkIndex) {
+  return this.ev(decoder, index, builder instanceof BooleanArrayBuilder ? builder : THROW_CCE(), checkIndex);
+};
+protoOf(BooleanArraySerializer_0).iv = function (encoder, content, size) {
+  var inductionVariable = 0;
+  if (inductionVariable < size)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      encoder.yl(this.eo_1, i, content[i]);
+    }
+     while (inductionVariable < size);
+};
+protoOf(BooleanArraySerializer_0).oo = function (encoder, content, size) {
+  return this.iv(encoder, (!(content == null) ? isBooleanArray(content) : false) ? content : THROW_CCE(), size);
+};
+var BooleanArraySerializer_instance;
+function BooleanArraySerializer_getInstance() {
+  if (BooleanArraySerializer_instance == null)
+    new BooleanArraySerializer_0();
+  return BooleanArraySerializer_instance;
+}
+function CharArrayBuilder_init_$Init$(bufferWithData, $this) {
+  CharArrayBuilder.call($this, bufferWithData, bufferWithData.length);
+  return $this;
+}
+function CharArrayBuilder_init_$Create$(bufferWithData) {
+  return CharArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(CharArrayBuilder)));
+}
+function CharArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  CharArrayBuilder.call($this, charArray(initialCapacity), 0);
+  return $this;
+}
+function CharArrayBuilder_init_$Create$_0(initialCapacity) {
+  return CharArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(CharArrayBuilder)));
+}
+function CharArrayBuilder_init_$Init$_1($this) {
+  CharArrayBuilder.call($this, charArray(10), 0);
+  return $this;
+}
+function CharArrayBuilder_init_$Create$_1() {
+  return CharArrayBuilder_init_$Init$_1(objectCreate(protoOf(CharArrayBuilder)));
+}
+function CharArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.kr_1 = bufferWithData;
+  this.lr_1 = initialPosition;
+}
+protoOf(CharArrayBuilder).go = function () {
+  return this.lr_1;
+};
+protoOf(CharArrayBuilder).qo = function (requiredCapacity) {
+  if (this.kr_1.length < requiredCapacity)
+    this.kr_1 = copyOf(this.kr_1, coerceAtLeast(requiredCapacity, imul(this.kr_1.length, 2)));
+};
+protoOf(CharArrayBuilder).mr = function (c) {
+  this.ro();
+  var tmp = this.kr_1;
+  var _unary__edvuaz = this.lr_1;
+  this.lr_1 = _unary__edvuaz + 1 | 0;
+  tmp[_unary__edvuaz] = c;
+};
+protoOf(CharArrayBuilder).io = function () {
+  return copyOf(this.kr_1, this.lr_1);
+};
+function DoubleArrayBuilder_init_$Init$(bufferWithData, $this) {
+  DoubleArrayBuilder.call($this, bufferWithData, bufferWithData.length);
+  return $this;
+}
+function DoubleArrayBuilder_init_$Create$(bufferWithData) {
+  return DoubleArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(DoubleArrayBuilder)));
+}
+function DoubleArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  DoubleArrayBuilder.call($this, new Float64Array(initialCapacity), 0);
+  return $this;
+}
+function DoubleArrayBuilder_init_$Create$_0(initialCapacity) {
+  return DoubleArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(DoubleArrayBuilder)));
+}
+function DoubleArrayBuilder_init_$Init$_1($this) {
+  DoubleArrayBuilder.call($this, new Float64Array(10), 0);
+  return $this;
+}
+function DoubleArrayBuilder_init_$Create$_1() {
+  return DoubleArrayBuilder_init_$Init$_1(objectCreate(protoOf(DoubleArrayBuilder)));
+}
+function DoubleArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.tr_1 = bufferWithData;
+  this.ur_1 = initialPosition;
+}
+protoOf(DoubleArrayBuilder).go = function () {
+  return this.ur_1;
+};
+protoOf(DoubleArrayBuilder).qo = function (requiredCapacity) {
+  if (this.tr_1.length < requiredCapacity)
+    this.tr_1 = copyOf_0(this.tr_1, coerceAtLeast(requiredCapacity, imul(this.tr_1.length, 2)));
+};
+protoOf(DoubleArrayBuilder).vr = function (c) {
+  this.ro();
+  var tmp = this.tr_1;
+  var _unary__edvuaz = this.ur_1;
+  this.ur_1 = _unary__edvuaz + 1 | 0;
+  tmp[_unary__edvuaz] = c;
+};
+protoOf(DoubleArrayBuilder).io = function () {
+  return copyOf_0(this.tr_1, this.ur_1);
+};
+function FloatArrayBuilder_init_$Init$(bufferWithData, $this) {
+  FloatArrayBuilder.call($this, bufferWithData, bufferWithData.length);
+  return $this;
+}
+function FloatArrayBuilder_init_$Create$(bufferWithData) {
+  return FloatArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(FloatArrayBuilder)));
+}
+function FloatArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  FloatArrayBuilder.call($this, new Float32Array(initialCapacity), 0);
+  return $this;
+}
+function FloatArrayBuilder_init_$Create$_0(initialCapacity) {
+  return FloatArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(FloatArrayBuilder)));
+}
+function FloatArrayBuilder_init_$Init$_1($this) {
+  FloatArrayBuilder.call($this, new Float32Array(10), 0);
+  return $this;
+}
+function FloatArrayBuilder_init_$Create$_1() {
+  return FloatArrayBuilder_init_$Init$_1(objectCreate(protoOf(FloatArrayBuilder)));
+}
+function FloatArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.cs_1 = bufferWithData;
+  this.ds_1 = initialPosition;
+}
+protoOf(FloatArrayBuilder).go = function () {
+  return this.ds_1;
+};
+protoOf(FloatArrayBuilder).qo = function (requiredCapacity) {
+  if (this.cs_1.length < requiredCapacity)
+    this.cs_1 = copyOf_1(this.cs_1, coerceAtLeast(requiredCapacity, imul(this.cs_1.length, 2)));
+};
+protoOf(FloatArrayBuilder).es = function (c) {
+  this.ro();
+  var tmp = this.cs_1;
+  var _unary__edvuaz = this.ds_1;
+  this.ds_1 = _unary__edvuaz + 1 | 0;
+  tmp[_unary__edvuaz] = c;
+};
+protoOf(FloatArrayBuilder).io = function () {
+  return copyOf_1(this.cs_1, this.ds_1);
+};
+function LongArrayBuilder_init_$Init$(bufferWithData, $this) {
+  LongArrayBuilder.call($this, bufferWithData, bufferWithData.length);
+  return $this;
+}
+function LongArrayBuilder_init_$Create$(bufferWithData) {
+  return LongArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(LongArrayBuilder)));
+}
+function LongArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  LongArrayBuilder.call($this, longArray(initialCapacity), 0);
+  return $this;
+}
+function LongArrayBuilder_init_$Create$_0(initialCapacity) {
+  return LongArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(LongArrayBuilder)));
+}
+function LongArrayBuilder_init_$Init$_1($this) {
+  LongArrayBuilder.call($this, longArray(10), 0);
+  return $this;
+}
+function LongArrayBuilder_init_$Create$_1() {
+  return LongArrayBuilder_init_$Init$_1(objectCreate(protoOf(LongArrayBuilder)));
+}
+function LongArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.ls_1 = bufferWithData;
+  this.ms_1 = initialPosition;
+}
+protoOf(LongArrayBuilder).go = function () {
+  return this.ms_1;
+};
+protoOf(LongArrayBuilder).qo = function (requiredCapacity) {
+  if (this.ls_1.length < requiredCapacity)
+    this.ls_1 = copyOf_2(this.ls_1, coerceAtLeast(requiredCapacity, imul(this.ls_1.length, 2)));
+};
+protoOf(LongArrayBuilder).ns = function (c) {
+  this.ro();
+  var tmp = this.ls_1;
+  var _unary__edvuaz = this.ms_1;
+  this.ms_1 = _unary__edvuaz + 1 | 0;
+  tmp[_unary__edvuaz] = c;
+};
+protoOf(LongArrayBuilder).io = function () {
+  return copyOf_2(this.ls_1, this.ms_1);
+};
+function ULongArrayBuilder_init_$Init$(bufferWithData, $this) {
+  ULongArrayBuilder.call($this, bufferWithData, _ULongArray___get_size__impl__ju6dtr(bufferWithData));
+  return $this;
+}
+function ULongArrayBuilder_init_$Create$(bufferWithData) {
+  return ULongArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(ULongArrayBuilder)));
+}
+function ULongArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  ULongArrayBuilder.call($this, _ULongArray___init__impl__twm1l3_0(initialCapacity), 0);
+  return $this;
+}
+function ULongArrayBuilder_init_$Create$_0(initialCapacity) {
+  return ULongArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(ULongArrayBuilder)));
+}
+function ULongArrayBuilder_init_$Init$_1($this) {
+  ULongArrayBuilder.call($this, _ULongArray___init__impl__twm1l3_0(10), 0);
+  return $this;
+}
+function ULongArrayBuilder_init_$Create$_1() {
+  return ULongArrayBuilder_init_$Init$_1(objectCreate(protoOf(ULongArrayBuilder)));
+}
+function ULongArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.us_1 = bufferWithData;
+  this.vs_1 = initialPosition;
+}
+protoOf(ULongArrayBuilder).go = function () {
+  return this.vs_1;
+};
+protoOf(ULongArrayBuilder).qo = function (requiredCapacity) {
+  if (_ULongArray___get_size__impl__ju6dtr(this.us_1) < requiredCapacity) {
+    var tmp = this;
+    var tmp0 = this.us_1;
+    // Inline function 'kotlin.collections.copyOf' call
+    var newSize = coerceAtLeast(requiredCapacity, imul(_ULongArray___get_size__impl__ju6dtr(this.us_1), 2));
+    tmp.us_1 = _ULongArray___init__impl__twm1l3(copyOf_2(_ULongArray___get_storage__impl__28e64j(tmp0), newSize));
+  }
+};
+protoOf(ULongArrayBuilder).ws = function (c) {
+  this.ro();
+  var tmp = this.us_1;
+  var _unary__edvuaz = this.vs_1;
+  this.vs_1 = _unary__edvuaz + 1 | 0;
+  ULongArray__set_impl_z19mvh(tmp, _unary__edvuaz, c);
+};
+protoOf(ULongArrayBuilder).jv = function () {
+  var tmp0 = this.us_1;
+  // Inline function 'kotlin.collections.copyOf' call
+  var newSize = this.vs_1;
+  return _ULongArray___init__impl__twm1l3(copyOf_2(_ULongArray___get_storage__impl__28e64j(tmp0), newSize));
+};
+protoOf(ULongArrayBuilder).io = function () {
+  return new ULongArray(this.jv());
+};
+function IntArrayBuilder_init_$Init$(bufferWithData, $this) {
+  IntArrayBuilder.call($this, bufferWithData, bufferWithData.length);
+  return $this;
+}
+function IntArrayBuilder_init_$Create$(bufferWithData) {
+  return IntArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(IntArrayBuilder)));
+}
+function IntArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  IntArrayBuilder.call($this, new Int32Array(initialCapacity), 0);
+  return $this;
+}
+function IntArrayBuilder_init_$Create$_0(initialCapacity) {
+  return IntArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(IntArrayBuilder)));
+}
+function IntArrayBuilder_init_$Init$_1($this) {
+  IntArrayBuilder.call($this, new Int32Array(10), 0);
+  return $this;
+}
+function IntArrayBuilder_init_$Create$_1() {
+  return IntArrayBuilder_init_$Init$_1(objectCreate(protoOf(IntArrayBuilder)));
+}
+function IntArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.dt_1 = bufferWithData;
+  this.et_1 = initialPosition;
+}
+protoOf(IntArrayBuilder).go = function () {
+  return this.et_1;
+};
+protoOf(IntArrayBuilder).qo = function (requiredCapacity) {
+  if (this.dt_1.length < requiredCapacity)
+    this.dt_1 = copyOf_3(this.dt_1, coerceAtLeast(requiredCapacity, imul(this.dt_1.length, 2)));
+};
+protoOf(IntArrayBuilder).ft = function (c) {
+  this.ro();
+  var tmp = this.dt_1;
+  var _unary__edvuaz = this.et_1;
+  this.et_1 = _unary__edvuaz + 1 | 0;
+  tmp[_unary__edvuaz] = c;
+};
+protoOf(IntArrayBuilder).io = function () {
+  return copyOf_3(this.dt_1, this.et_1);
+};
+function UIntArrayBuilder_init_$Init$(bufferWithData, $this) {
+  UIntArrayBuilder.call($this, bufferWithData, _UIntArray___get_size__impl__r6l8ci(bufferWithData));
+  return $this;
+}
+function UIntArrayBuilder_init_$Create$(bufferWithData) {
+  return UIntArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(UIntArrayBuilder)));
+}
+function UIntArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  UIntArrayBuilder.call($this, _UIntArray___init__impl__ghjpc6_0(initialCapacity), 0);
+  return $this;
+}
+function UIntArrayBuilder_init_$Create$_0(initialCapacity) {
+  return UIntArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(UIntArrayBuilder)));
+}
+function UIntArrayBuilder_init_$Init$_1($this) {
+  UIntArrayBuilder.call($this, _UIntArray___init__impl__ghjpc6_0(10), 0);
+  return $this;
+}
+function UIntArrayBuilder_init_$Create$_1() {
+  return UIntArrayBuilder_init_$Init$_1(objectCreate(protoOf(UIntArrayBuilder)));
+}
+function UIntArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.mt_1 = bufferWithData;
+  this.nt_1 = initialPosition;
+}
+protoOf(UIntArrayBuilder).go = function () {
+  return this.nt_1;
+};
+protoOf(UIntArrayBuilder).qo = function (requiredCapacity) {
+  if (_UIntArray___get_size__impl__r6l8ci(this.mt_1) < requiredCapacity) {
+    var tmp = this;
+    var tmp0 = this.mt_1;
+    // Inline function 'kotlin.collections.copyOf' call
+    var newSize = coerceAtLeast(requiredCapacity, imul(_UIntArray___get_size__impl__r6l8ci(this.mt_1), 2));
+    tmp.mt_1 = _UIntArray___init__impl__ghjpc6(copyOf_3(_UIntArray___get_storage__impl__92a0v0(tmp0), newSize));
+  }
+};
+protoOf(UIntArrayBuilder).ot = function (c) {
+  this.ro();
+  var tmp = this.mt_1;
+  var _unary__edvuaz = this.nt_1;
+  this.nt_1 = _unary__edvuaz + 1 | 0;
+  UIntArray__set_impl_7f2zu2(tmp, _unary__edvuaz, c);
+};
+protoOf(UIntArrayBuilder).kv = function () {
+  var tmp0 = this.mt_1;
+  // Inline function 'kotlin.collections.copyOf' call
+  var newSize = this.nt_1;
+  return _UIntArray___init__impl__ghjpc6(copyOf_3(_UIntArray___get_storage__impl__92a0v0(tmp0), newSize));
+};
+protoOf(UIntArrayBuilder).io = function () {
+  return new UIntArray(this.kv());
+};
+function ShortArrayBuilder_init_$Init$(bufferWithData, $this) {
+  ShortArrayBuilder.call($this, bufferWithData, bufferWithData.length);
+  return $this;
+}
+function ShortArrayBuilder_init_$Create$(bufferWithData) {
+  return ShortArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(ShortArrayBuilder)));
+}
+function ShortArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  ShortArrayBuilder.call($this, new Int16Array(initialCapacity), 0);
+  return $this;
+}
+function ShortArrayBuilder_init_$Create$_0(initialCapacity) {
+  return ShortArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(ShortArrayBuilder)));
+}
+function ShortArrayBuilder_init_$Init$_1($this) {
+  ShortArrayBuilder.call($this, new Int16Array(10), 0);
+  return $this;
+}
+function ShortArrayBuilder_init_$Create$_1() {
+  return ShortArrayBuilder_init_$Init$_1(objectCreate(protoOf(ShortArrayBuilder)));
+}
+function ShortArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.vt_1 = bufferWithData;
+  this.wt_1 = initialPosition;
+}
+protoOf(ShortArrayBuilder).go = function () {
+  return this.wt_1;
+};
+protoOf(ShortArrayBuilder).qo = function (requiredCapacity) {
+  if (this.vt_1.length < requiredCapacity)
+    this.vt_1 = copyOf_4(this.vt_1, coerceAtLeast(requiredCapacity, imul(this.vt_1.length, 2)));
+};
+protoOf(ShortArrayBuilder).xt = function (c) {
+  this.ro();
+  var tmp = this.vt_1;
+  var _unary__edvuaz = this.wt_1;
+  this.wt_1 = _unary__edvuaz + 1 | 0;
+  tmp[_unary__edvuaz] = c;
+};
+protoOf(ShortArrayBuilder).io = function () {
+  return copyOf_4(this.vt_1, this.wt_1);
+};
+function UShortArrayBuilder_init_$Init$(bufferWithData, $this) {
+  UShortArrayBuilder.call($this, bufferWithData, _UShortArray___get_size__impl__jqto1b(bufferWithData));
+  return $this;
+}
+function UShortArrayBuilder_init_$Create$(bufferWithData) {
+  return UShortArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(UShortArrayBuilder)));
+}
+function UShortArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  UShortArrayBuilder.call($this, _UShortArray___init__impl__9b26ef_0(initialCapacity), 0);
+  return $this;
+}
+function UShortArrayBuilder_init_$Create$_0(initialCapacity) {
+  return UShortArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(UShortArrayBuilder)));
+}
+function UShortArrayBuilder_init_$Init$_1($this) {
+  UShortArrayBuilder.call($this, _UShortArray___init__impl__9b26ef_0(10), 0);
+  return $this;
+}
+function UShortArrayBuilder_init_$Create$_1() {
+  return UShortArrayBuilder_init_$Init$_1(objectCreate(protoOf(UShortArrayBuilder)));
+}
+function UShortArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.eu_1 = bufferWithData;
+  this.fu_1 = initialPosition;
+}
+protoOf(UShortArrayBuilder).go = function () {
+  return this.fu_1;
+};
+protoOf(UShortArrayBuilder).qo = function (requiredCapacity) {
+  if (_UShortArray___get_size__impl__jqto1b(this.eu_1) < requiredCapacity) {
+    var tmp = this;
+    var tmp0 = this.eu_1;
+    // Inline function 'kotlin.collections.copyOf' call
+    var newSize = coerceAtLeast(requiredCapacity, imul(_UShortArray___get_size__impl__jqto1b(this.eu_1), 2));
+    tmp.eu_1 = _UShortArray___init__impl__9b26ef(copyOf_4(_UShortArray___get_storage__impl__t2jpv5(tmp0), newSize));
+  }
+};
+protoOf(UShortArrayBuilder).gu = function (c) {
+  this.ro();
+  var tmp = this.eu_1;
+  var _unary__edvuaz = this.fu_1;
+  this.fu_1 = _unary__edvuaz + 1 | 0;
+  UShortArray__set_impl_6d8whp(tmp, _unary__edvuaz, c);
+};
+protoOf(UShortArrayBuilder).lv = function () {
+  var tmp0 = this.eu_1;
+  // Inline function 'kotlin.collections.copyOf' call
+  var newSize = this.fu_1;
+  return _UShortArray___init__impl__9b26ef(copyOf_4(_UShortArray___get_storage__impl__t2jpv5(tmp0), newSize));
+};
+protoOf(UShortArrayBuilder).io = function () {
+  return new UShortArray(this.lv());
+};
+function ByteArrayBuilder_init_$Init$(bufferWithData, $this) {
+  ByteArrayBuilder.call($this, bufferWithData, bufferWithData.length);
+  return $this;
+}
+function ByteArrayBuilder_init_$Create$(bufferWithData) {
+  return ByteArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(ByteArrayBuilder)));
+}
+function ByteArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  ByteArrayBuilder.call($this, new Int8Array(initialCapacity), 0);
+  return $this;
+}
+function ByteArrayBuilder_init_$Create$_0(initialCapacity) {
+  return ByteArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(ByteArrayBuilder)));
+}
+function ByteArrayBuilder_init_$Init$_1($this) {
+  ByteArrayBuilder.call($this, new Int8Array(10), 0);
+  return $this;
+}
+function ByteArrayBuilder_init_$Create$_1() {
+  return ByteArrayBuilder_init_$Init$_1(objectCreate(protoOf(ByteArrayBuilder)));
+}
+function ByteArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.nu_1 = bufferWithData;
+  this.ou_1 = initialPosition;
+}
+protoOf(ByteArrayBuilder).go = function () {
+  return this.ou_1;
+};
+protoOf(ByteArrayBuilder).qo = function (requiredCapacity) {
+  if (this.nu_1.length < requiredCapacity)
+    this.nu_1 = copyOf_5(this.nu_1, coerceAtLeast(requiredCapacity, imul(this.nu_1.length, 2)));
+};
+protoOf(ByteArrayBuilder).pu = function (c) {
+  this.ro();
+  var tmp = this.nu_1;
+  var _unary__edvuaz = this.ou_1;
+  this.ou_1 = _unary__edvuaz + 1 | 0;
+  tmp[_unary__edvuaz] = c;
+};
+protoOf(ByteArrayBuilder).io = function () {
+  return copyOf_5(this.nu_1, this.ou_1);
+};
+function UByteArrayBuilder_init_$Init$(bufferWithData, $this) {
+  UByteArrayBuilder.call($this, bufferWithData, _UByteArray___get_size__impl__h6pkdv(bufferWithData));
+  return $this;
+}
+function UByteArrayBuilder_init_$Create$(bufferWithData) {
+  return UByteArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(UByteArrayBuilder)));
+}
+function UByteArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  UByteArrayBuilder.call($this, _UByteArray___init__impl__ip4y9n_0(initialCapacity), 0);
+  return $this;
+}
+function UByteArrayBuilder_init_$Create$_0(initialCapacity) {
+  return UByteArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(UByteArrayBuilder)));
+}
+function UByteArrayBuilder_init_$Init$_1($this) {
+  UByteArrayBuilder.call($this, _UByteArray___init__impl__ip4y9n_0(10), 0);
+  return $this;
+}
+function UByteArrayBuilder_init_$Create$_1() {
+  return UByteArrayBuilder_init_$Init$_1(objectCreate(protoOf(UByteArrayBuilder)));
+}
+function UByteArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.wu_1 = bufferWithData;
+  this.xu_1 = initialPosition;
+}
+protoOf(UByteArrayBuilder).go = function () {
+  return this.xu_1;
+};
+protoOf(UByteArrayBuilder).qo = function (requiredCapacity) {
+  if (_UByteArray___get_size__impl__h6pkdv(this.wu_1) < requiredCapacity) {
+    var tmp = this;
+    var tmp0 = this.wu_1;
+    // Inline function 'kotlin.collections.copyOf' call
+    var newSize = coerceAtLeast(requiredCapacity, imul(_UByteArray___get_size__impl__h6pkdv(this.wu_1), 2));
+    tmp.wu_1 = _UByteArray___init__impl__ip4y9n(copyOf_5(_UByteArray___get_storage__impl__d4kctt(tmp0), newSize));
+  }
+};
+protoOf(UByteArrayBuilder).yu = function (c) {
+  this.ro();
+  var tmp = this.wu_1;
+  var _unary__edvuaz = this.xu_1;
+  this.xu_1 = _unary__edvuaz + 1 | 0;
+  UByteArray__set_impl_jvcicn(tmp, _unary__edvuaz, c);
+};
+protoOf(UByteArrayBuilder).mv = function () {
+  var tmp0 = this.wu_1;
+  // Inline function 'kotlin.collections.copyOf' call
+  var newSize = this.xu_1;
+  return _UByteArray___init__impl__ip4y9n(copyOf_5(_UByteArray___get_storage__impl__d4kctt(tmp0), newSize));
+};
+protoOf(UByteArrayBuilder).io = function () {
+  return new UByteArray(this.mv());
+};
+function BooleanArrayBuilder_init_$Init$(bufferWithData, $this) {
+  BooleanArrayBuilder.call($this, bufferWithData, bufferWithData.length);
+  return $this;
+}
+function BooleanArrayBuilder_init_$Create$(bufferWithData) {
+  return BooleanArrayBuilder_init_$Init$(bufferWithData, objectCreate(protoOf(BooleanArrayBuilder)));
+}
+function BooleanArrayBuilder_init_$Init$_0(initialCapacity, $this) {
+  BooleanArrayBuilder.call($this, booleanArray(initialCapacity), 0);
+  return $this;
+}
+function BooleanArrayBuilder_init_$Create$_0(initialCapacity) {
+  return BooleanArrayBuilder_init_$Init$_0(initialCapacity, objectCreate(protoOf(BooleanArrayBuilder)));
+}
+function BooleanArrayBuilder_init_$Init$_1($this) {
+  BooleanArrayBuilder.call($this, booleanArray(10), 0);
+  return $this;
+}
+function BooleanArrayBuilder_init_$Create$_1() {
+  return BooleanArrayBuilder_init_$Init$_1(objectCreate(protoOf(BooleanArrayBuilder)));
+}
+function BooleanArrayBuilder(bufferWithData, initialPosition) {
+  PrimitiveArrayBuilder.call(this);
+  this.fv_1 = bufferWithData;
+  this.gv_1 = initialPosition;
+}
+protoOf(BooleanArrayBuilder).go = function () {
+  return this.gv_1;
+};
+protoOf(BooleanArrayBuilder).qo = function (requiredCapacity) {
+  if (this.fv_1.length < requiredCapacity)
+    this.fv_1 = copyOf_6(this.fv_1, coerceAtLeast(requiredCapacity, imul(this.fv_1.length, 2)));
+};
+protoOf(BooleanArrayBuilder).hv = function (c) {
+  this.ro();
+  var tmp = this.fv_1;
+  var _unary__edvuaz = this.gv_1;
+  this.gv_1 = _unary__edvuaz + 1 | 0;
+  tmp[_unary__edvuaz] = c;
+};
+protoOf(BooleanArrayBuilder).io = function () {
+  return copyOf_6(this.fv_1, this.gv_1);
+};
+function get_BUILTIN_SERIALIZERS() {
+  _init_properties_Primitives_kt__k0eto4();
+  return BUILTIN_SERIALIZERS;
+}
+var BUILTIN_SERIALIZERS;
 function StringSerializer() {
   StringSerializer_instance = this;
-  this.vk_1 = new PrimitiveSerialDescriptor('kotlin.String', STRING_getInstance());
+  this.nv_1 = new PrimitiveSerialDescriptor_0('kotlin.String', STRING_getInstance());
 }
-protoOf(StringSerializer).md = function () {
-  return this.vk_1;
+protoOf(StringSerializer).rh = function () {
+  return this.nv_1;
 };
-protoOf(StringSerializer).wk = function (encoder, value) {
-  return encoder.zg(value);
+protoOf(StringSerializer).ov = function (encoder, value) {
+  return encoder.vl(value);
 };
-protoOf(StringSerializer).od = function (encoder, value) {
-  return this.wk(encoder, (!(value == null) ? typeof value === 'string' : false) ? value : THROW_CCE());
+protoOf(StringSerializer).sh = function (encoder, value) {
+  return this.ov(encoder, (!(value == null) ? typeof value === 'string' : false) ? value : THROW_CCE());
 };
-protoOf(StringSerializer).nd = function (decoder) {
-  return decoder.cg();
+protoOf(StringSerializer).th = function (decoder) {
+  return decoder.mk();
 };
 var StringSerializer_instance;
 function StringSerializer_getInstance() {
@@ -2057,67 +3975,84 @@ function StringSerializer_getInstance() {
     new StringSerializer();
   return StringSerializer_instance;
 }
-function error($this) {
-  throw IllegalStateException_init_$Create$('Primitive descriptor ' + $this.xk_1 + ' does not have elements');
+function PrimitiveDescriptorSafe(serialName, kind) {
+  _init_properties_Primitives_kt__k0eto4();
+  checkNameIsNotAPrimitive(serialName);
+  return new PrimitiveSerialDescriptor_0(serialName, kind);
 }
-function PrimitiveSerialDescriptor(serialName, kind) {
-  this.xk_1 = serialName;
-  this.yk_1 = kind;
+function error_0($this) {
+  throw IllegalStateException_init_$Create$('Primitive descriptor ' + $this.pv_1 + ' does not have elements');
 }
-protoOf(PrimitiveSerialDescriptor).ie = function () {
-  return this.xk_1;
+function PrimitiveSerialDescriptor_0(serialName, kind) {
+  this.pv_1 = serialName;
+  this.qv_1 = kind;
+}
+protoOf(PrimitiveSerialDescriptor_0).ni = function () {
+  return this.pv_1;
 };
-protoOf(PrimitiveSerialDescriptor).te = function () {
-  return this.yk_1;
+protoOf(PrimitiveSerialDescriptor_0).yi = function () {
+  return this.qv_1;
 };
-protoOf(PrimitiveSerialDescriptor).ve = function () {
+protoOf(PrimitiveSerialDescriptor_0).aj = function () {
   return 0;
 };
-protoOf(PrimitiveSerialDescriptor).xe = function (index) {
-  error(this);
+protoOf(PrimitiveSerialDescriptor_0).cj = function (index) {
+  error_0(this);
 };
-protoOf(PrimitiveSerialDescriptor).ye = function (name) {
-  error(this);
+protoOf(PrimitiveSerialDescriptor_0).dj = function (name) {
+  error_0(this);
 };
-protoOf(PrimitiveSerialDescriptor).bf = function (index) {
-  error(this);
+protoOf(PrimitiveSerialDescriptor_0).gj = function (index) {
+  error_0(this);
 };
-protoOf(PrimitiveSerialDescriptor).af = function (index) {
-  error(this);
+protoOf(PrimitiveSerialDescriptor_0).fj = function (index) {
+  error_0(this);
 };
-protoOf(PrimitiveSerialDescriptor).ze = function (index) {
-  error(this);
+protoOf(PrimitiveSerialDescriptor_0).ej = function (index) {
+  error_0(this);
 };
-protoOf(PrimitiveSerialDescriptor).toString = function () {
-  return 'PrimitiveDescriptor(' + this.xk_1 + ')';
+protoOf(PrimitiveSerialDescriptor_0).toString = function () {
+  return 'PrimitiveDescriptor(' + this.pv_1 + ')';
 };
-protoOf(PrimitiveSerialDescriptor).equals = function (other) {
+protoOf(PrimitiveSerialDescriptor_0).equals = function (other) {
   if (this === other)
     return true;
-  if (!(other instanceof PrimitiveSerialDescriptor))
+  if (!(other instanceof PrimitiveSerialDescriptor_0))
     return false;
-  if (this.xk_1 === other.xk_1 && equals(this.yk_1, other.yk_1))
+  if (this.pv_1 === other.pv_1 && equals(this.qv_1, other.qv_1))
     return true;
   return false;
 };
-protoOf(PrimitiveSerialDescriptor).hashCode = function () {
-  return getStringHashCode(this.xk_1) + imul(31, this.yk_1.hashCode()) | 0;
+protoOf(PrimitiveSerialDescriptor_0).hashCode = function () {
+  return getStringHashCode(this.pv_1) + imul(31, this.qv_1.hashCode()) | 0;
 };
+function checkNameIsNotAPrimitive(serialName) {
+  _init_properties_Primitives_kt__k0eto4();
+  var values = get_BUILTIN_SERIALIZERS().v1();
+  var _iterator__ex2g4s = values.j();
+  while (_iterator__ex2g4s.k()) {
+    var primitive = _iterator__ex2g4s.l();
+    var primitiveName = primitive.rh().ni();
+    if (serialName === primitiveName) {
+      throw IllegalArgumentException_init_$Create$(trimIndent('\n                The name of serial descriptor should uniquely identify associated serializer.\n                For serial name ' + serialName + ' there already exists ' + getKClassFromExpression(primitive).n8() + '.\n                Please refer to SerialDescriptor documentation for additional information.\n            '));
+    }
+  }
+}
 function IntSerializer() {
   IntSerializer_instance = this;
-  this.zk_1 = new PrimitiveSerialDescriptor('kotlin.Int', INT_getInstance());
+  this.rv_1 = new PrimitiveSerialDescriptor_0('kotlin.Int', INT_getInstance());
 }
-protoOf(IntSerializer).md = function () {
-  return this.zk_1;
+protoOf(IntSerializer).rh = function () {
+  return this.rv_1;
 };
-protoOf(IntSerializer).al = function (encoder, value) {
-  return encoder.wg(value);
+protoOf(IntSerializer).sv = function (encoder, value) {
+  return encoder.ql(value);
 };
-protoOf(IntSerializer).od = function (encoder, value) {
-  return this.al(encoder, (!(value == null) ? typeof value === 'number' : false) ? value : THROW_CCE());
+protoOf(IntSerializer).sh = function (encoder, value) {
+  return this.sv(encoder, (!(value == null) ? typeof value === 'number' : false) ? value : THROW_CCE());
 };
-protoOf(IntSerializer).nd = function (decoder) {
-  return decoder.zf();
+protoOf(IntSerializer).th = function (decoder) {
+  return decoder.hk();
 };
 var IntSerializer_instance;
 function IntSerializer_getInstance() {
@@ -2127,19 +4062,19 @@ function IntSerializer_getInstance() {
 }
 function LongSerializer() {
   LongSerializer_instance = this;
-  this.bl_1 = new PrimitiveSerialDescriptor('kotlin.Long', LONG_getInstance());
+  this.tv_1 = new PrimitiveSerialDescriptor_0('kotlin.Long', LONG_getInstance());
 }
-protoOf(LongSerializer).md = function () {
-  return this.bl_1;
+protoOf(LongSerializer).rh = function () {
+  return this.tv_1;
 };
-protoOf(LongSerializer).cl = function (encoder, value) {
-  return encoder.xg(value);
+protoOf(LongSerializer).uv = function (encoder, value) {
+  return encoder.rl(value);
 };
-protoOf(LongSerializer).od = function (encoder, value) {
-  return this.cl(encoder, value instanceof Long ? value : THROW_CCE());
+protoOf(LongSerializer).sh = function (encoder, value) {
+  return this.uv(encoder, value instanceof Long ? value : THROW_CCE());
 };
-protoOf(LongSerializer).nd = function (decoder) {
-  return decoder.ag();
+protoOf(LongSerializer).th = function (decoder) {
+  return decoder.ik();
 };
 var LongSerializer_instance;
 function LongSerializer_getInstance() {
@@ -2147,21 +4082,90 @@ function LongSerializer_getInstance() {
     new LongSerializer();
   return LongSerializer_instance;
 }
+function ByteSerializer() {
+  ByteSerializer_instance = this;
+  this.vv_1 = new PrimitiveSerialDescriptor_0('kotlin.Byte', BYTE_getInstance());
+}
+protoOf(ByteSerializer).rh = function () {
+  return this.vv_1;
+};
+protoOf(ByteSerializer).wv = function (encoder, value) {
+  return encoder.ol(value);
+};
+protoOf(ByteSerializer).sh = function (encoder, value) {
+  return this.wv(encoder, (!(value == null) ? typeof value === 'number' : false) ? value : THROW_CCE());
+};
+protoOf(ByteSerializer).th = function (decoder) {
+  return decoder.fk();
+};
+var ByteSerializer_instance;
+function ByteSerializer_getInstance() {
+  if (ByteSerializer_instance == null)
+    new ByteSerializer();
+  return ByteSerializer_instance;
+}
+function ShortSerializer() {
+  ShortSerializer_instance = this;
+  this.xv_1 = new PrimitiveSerialDescriptor_0('kotlin.Short', SHORT_getInstance());
+}
+protoOf(ShortSerializer).rh = function () {
+  return this.xv_1;
+};
+protoOf(ShortSerializer).yv = function (encoder, value) {
+  return encoder.pl(value);
+};
+protoOf(ShortSerializer).sh = function (encoder, value) {
+  return this.yv(encoder, (!(value == null) ? typeof value === 'number' : false) ? value : THROW_CCE());
+};
+protoOf(ShortSerializer).th = function (decoder) {
+  return decoder.gk();
+};
+var ShortSerializer_instance;
+function ShortSerializer_getInstance() {
+  if (ShortSerializer_instance == null)
+    new ShortSerializer();
+  return ShortSerializer_instance;
+}
+function CharSerializer() {
+  CharSerializer_instance = this;
+  this.zv_1 = new PrimitiveSerialDescriptor_0('kotlin.Char', CHAR_getInstance());
+}
+protoOf(CharSerializer).rh = function () {
+  return this.zv_1;
+};
+protoOf(CharSerializer).aw = function (encoder, value) {
+  return encoder.ul(value);
+};
+protoOf(CharSerializer).sh = function (encoder, value) {
+  return this.aw(encoder, value instanceof Char ? value.d1_1 : THROW_CCE());
+};
+protoOf(CharSerializer).bw = function (decoder) {
+  return decoder.lk();
+};
+protoOf(CharSerializer).th = function (decoder) {
+  return new Char(this.bw(decoder));
+};
+var CharSerializer_instance;
+function CharSerializer_getInstance() {
+  if (CharSerializer_instance == null)
+    new CharSerializer();
+  return CharSerializer_instance;
+}
 function DoubleSerializer() {
   DoubleSerializer_instance = this;
-  this.dl_1 = new PrimitiveSerialDescriptor('kotlin.Double', DOUBLE_getInstance());
+  this.cw_1 = new PrimitiveSerialDescriptor_0('kotlin.Double', DOUBLE_getInstance());
 }
-protoOf(DoubleSerializer).md = function () {
-  return this.dl_1;
+protoOf(DoubleSerializer).rh = function () {
+  return this.cw_1;
 };
-protoOf(DoubleSerializer).el = function (encoder, value) {
-  return encoder.yg(value);
+protoOf(DoubleSerializer).dw = function (encoder, value) {
+  return encoder.tl(value);
 };
-protoOf(DoubleSerializer).od = function (encoder, value) {
-  return this.el(encoder, (!(value == null) ? typeof value === 'number' : false) ? value : THROW_CCE());
+protoOf(DoubleSerializer).sh = function (encoder, value) {
+  return this.dw(encoder, (!(value == null) ? typeof value === 'number' : false) ? value : THROW_CCE());
 };
-protoOf(DoubleSerializer).nd = function (decoder) {
-  return decoder.bg();
+protoOf(DoubleSerializer).th = function (decoder) {
+  return decoder.kk();
 };
 var DoubleSerializer_instance;
 function DoubleSerializer_getInstance() {
@@ -2169,20 +4173,97 @@ function DoubleSerializer_getInstance() {
     new DoubleSerializer();
   return DoubleSerializer_instance;
 }
+function FloatSerializer() {
+  FloatSerializer_instance = this;
+  this.ew_1 = new PrimitiveSerialDescriptor_0('kotlin.Float', FLOAT_getInstance());
+}
+protoOf(FloatSerializer).rh = function () {
+  return this.ew_1;
+};
+protoOf(FloatSerializer).fw = function (encoder, value) {
+  return encoder.sl(value);
+};
+protoOf(FloatSerializer).sh = function (encoder, value) {
+  return this.fw(encoder, (!(value == null) ? typeof value === 'number' : false) ? value : THROW_CCE());
+};
+protoOf(FloatSerializer).th = function (decoder) {
+  return decoder.jk();
+};
+var FloatSerializer_instance;
+function FloatSerializer_getInstance() {
+  if (FloatSerializer_instance == null)
+    new FloatSerializer();
+  return FloatSerializer_instance;
+}
+function BooleanSerializer() {
+  BooleanSerializer_instance = this;
+  this.gw_1 = new PrimitiveSerialDescriptor_0('kotlin.Boolean', BOOLEAN_getInstance());
+}
+protoOf(BooleanSerializer).rh = function () {
+  return this.gw_1;
+};
+protoOf(BooleanSerializer).hw = function (encoder, value) {
+  return encoder.nl(value);
+};
+protoOf(BooleanSerializer).sh = function (encoder, value) {
+  return this.hw(encoder, (!(value == null) ? typeof value === 'boolean' : false) ? value : THROW_CCE());
+};
+protoOf(BooleanSerializer).th = function (decoder) {
+  return decoder.ek();
+};
+var BooleanSerializer_instance;
+function BooleanSerializer_getInstance() {
+  if (BooleanSerializer_instance == null)
+    new BooleanSerializer();
+  return BooleanSerializer_instance;
+}
+function UnitSerializer() {
+  UnitSerializer_instance = this;
+  this.iw_1 = new ObjectSerializer('kotlin.Unit', Unit_instance);
+}
+protoOf(UnitSerializer).rh = function () {
+  return this.iw_1.rh();
+};
+protoOf(UnitSerializer).jw = function (encoder, value) {
+  this.iw_1.oi(encoder, Unit_instance);
+};
+protoOf(UnitSerializer).sh = function (encoder, value) {
+  return this.jw(encoder, value instanceof Unit ? value : THROW_CCE());
+};
+protoOf(UnitSerializer).kw = function (decoder) {
+  this.iw_1.th(decoder);
+};
+protoOf(UnitSerializer).th = function (decoder) {
+  this.kw(decoder);
+  return Unit_instance;
+};
+var UnitSerializer_instance;
+function UnitSerializer_getInstance() {
+  if (UnitSerializer_instance == null)
+    new UnitSerializer();
+  return UnitSerializer_instance;
+}
+var properties_initialized_Primitives_kt_6dpii6;
+function _init_properties_Primitives_kt__k0eto4() {
+  if (!properties_initialized_Primitives_kt_6dpii6) {
+    properties_initialized_Primitives_kt_6dpii6 = true;
+    BUILTIN_SERIALIZERS = initBuiltins();
+  }
+}
 function NamedValueDecoder() {
   TaggedDecoder.call(this);
 }
-protoOf(NamedValueDecoder).hl = function (_this__u8e3s4, index) {
-  return this.jl(this.il(_this__u8e3s4, index));
+protoOf(NamedValueDecoder).nw = function (_this__u8e3s4, index) {
+  return this.pw(this.ow(_this__u8e3s4, index));
 };
-protoOf(NamedValueDecoder).jl = function (nestedName) {
-  var tmp0_elvis_lhs = this.ml();
-  return this.nl(tmp0_elvis_lhs == null ? '' : tmp0_elvis_lhs, nestedName);
+protoOf(NamedValueDecoder).pw = function (nestedName) {
+  var tmp0_elvis_lhs = this.sw();
+  return this.tw(tmp0_elvis_lhs == null ? '' : tmp0_elvis_lhs, nestedName);
 };
-protoOf(NamedValueDecoder).il = function (descriptor, index) {
-  return descriptor.xe(index);
+protoOf(NamedValueDecoder).ow = function (descriptor, index) {
+  return descriptor.cj(index);
 };
-protoOf(NamedValueDecoder).nl = function (parentName, childName) {
+protoOf(NamedValueDecoder).tw = function (parentName, childName) {
   var tmp;
   // Inline function 'kotlin.text.isEmpty' call
   if (charSequenceLength(parentName) === 0) {
@@ -2192,33 +4273,33 @@ protoOf(NamedValueDecoder).nl = function (parentName, childName) {
   }
   return tmp;
 };
-protoOf(NamedValueDecoder).ol = function () {
-  return this.kl_1.m() ? '$' : joinToString(this.kl_1, '.', '$.');
+protoOf(NamedValueDecoder).uw = function () {
+  return this.qw_1.m() ? '$' : joinToString(this.qw_1, '.', '$.');
 };
 function tagBlock($this, tag, block) {
-  $this.wl(tag);
+  $this.ix(tag);
   var r = block();
-  if (!$this.ll_1) {
-    $this.xl();
+  if (!$this.rw_1) {
+    $this.jx();
   }
-  $this.ll_1 = false;
+  $this.rw_1 = false;
   return r;
 }
 function TaggedDecoder$decodeSerializableElement$lambda(this$0, $deserializer, $previousValue) {
   return function () {
-    return this$0.eg($deserializer, $previousValue);
+    return this$0.pk($deserializer, $previousValue);
   };
 }
 function TaggedDecoder$decodeNullableSerializableElement$lambda(this$0, $deserializer, $previousValue) {
   return function () {
     var tmp0 = this$0;
     // Inline function 'kotlinx.serialization.encoding.decodeIfNullable' call
-    var isNullabilitySupported = $deserializer.md().ne();
+    var isNullabilitySupported = $deserializer.rh().si();
     var tmp;
-    if (isNullabilitySupported || tmp0.xf()) {
-      tmp = this$0.eg($deserializer, $previousValue);
+    if (isNullabilitySupported || tmp0.ck()) {
+      tmp = this$0.pk($deserializer, $previousValue);
     } else {
-      tmp = tmp0.yf();
+      tmp = tmp0.dk();
     }
     return tmp;
   };
@@ -2226,43 +4307,71 @@ function TaggedDecoder$decodeNullableSerializableElement$lambda(this$0, $deseria
 function TaggedDecoder() {
   var tmp = this;
   // Inline function 'kotlin.collections.arrayListOf' call
-  tmp.kl_1 = ArrayList_init_$Create$();
-  this.ll_1 = false;
+  tmp.qw_1 = ArrayList_init_$Create$();
+  this.rw_1 = false;
 }
-protoOf(TaggedDecoder).pg = function () {
+protoOf(TaggedDecoder).gl = function () {
   return EmptySerializersModule_0();
 };
-protoOf(TaggedDecoder).pl = function (tag) {
+protoOf(TaggedDecoder).vw = function (tag) {
   throw SerializationException_init_$Create$_0(toString(getKClassFromExpression(this)) + " can't retrieve untyped values");
 };
-protoOf(TaggedDecoder).ql = function (tag) {
+protoOf(TaggedDecoder).ww = function (tag) {
   return true;
 };
-protoOf(TaggedDecoder).rl = function (tag) {
-  var tmp = this.pl(tag);
+protoOf(TaggedDecoder).xw = function (tag) {
+  var tmp = this.vw(tag);
+  return typeof tmp === 'boolean' ? tmp : THROW_CCE();
+};
+protoOf(TaggedDecoder).yw = function (tag) {
+  var tmp = this.vw(tag);
   return typeof tmp === 'number' ? tmp : THROW_CCE();
 };
-protoOf(TaggedDecoder).sl = function (tag) {
-  var tmp = this.pl(tag);
+protoOf(TaggedDecoder).zw = function (tag) {
+  var tmp = this.vw(tag);
+  return typeof tmp === 'number' ? tmp : THROW_CCE();
+};
+protoOf(TaggedDecoder).ax = function (tag) {
+  var tmp = this.vw(tag);
+  return typeof tmp === 'number' ? tmp : THROW_CCE();
+};
+protoOf(TaggedDecoder).bx = function (tag) {
+  var tmp = this.vw(tag);
   return tmp instanceof Long ? tmp : THROW_CCE();
 };
-protoOf(TaggedDecoder).tl = function (tag) {
-  var tmp = this.pl(tag);
+protoOf(TaggedDecoder).cx = function (tag) {
+  var tmp = this.vw(tag);
   return typeof tmp === 'number' ? tmp : THROW_CCE();
 };
-protoOf(TaggedDecoder).ul = function (tag) {
-  var tmp = this.pl(tag);
+protoOf(TaggedDecoder).dx = function (tag) {
+  var tmp = this.vw(tag);
+  return typeof tmp === 'number' ? tmp : THROW_CCE();
+};
+protoOf(TaggedDecoder).ex = function (tag) {
+  var tmp = this.vw(tag);
+  return tmp instanceof Char ? tmp.d1_1 : THROW_CCE();
+};
+protoOf(TaggedDecoder).fx = function (tag) {
+  var tmp = this.vw(tag);
   return typeof tmp === 'string' ? tmp : THROW_CCE();
 };
-protoOf(TaggedDecoder).vl = function (tag, enumDescriptor) {
-  var tmp = this.pl(tag);
+protoOf(TaggedDecoder).gx = function (tag, enumDescriptor) {
+  var tmp = this.vw(tag);
   return typeof tmp === 'number' ? tmp : THROW_CCE();
 };
-protoOf(TaggedDecoder).eg = function (deserializer, previousValue) {
-  return this.fg(deserializer);
+protoOf(TaggedDecoder).hx = function (tag, inlineDescriptor) {
+  // Inline function 'kotlin.apply' call
+  this.ix(tag);
+  return this;
 };
-protoOf(TaggedDecoder).xf = function () {
-  var tmp0_elvis_lhs = this.ml();
+protoOf(TaggedDecoder).pk = function (deserializer, previousValue) {
+  return this.qk(deserializer);
+};
+protoOf(TaggedDecoder).ok = function (descriptor) {
+  return this.hx(this.jx(), descriptor);
+};
+protoOf(TaggedDecoder).ck = function () {
+  var tmp0_elvis_lhs = this.sw();
   var tmp;
   if (tmp0_elvis_lhs == null) {
     return false;
@@ -2270,62 +4379,215 @@ protoOf(TaggedDecoder).xf = function () {
     tmp = tmp0_elvis_lhs;
   }
   var currentTag = tmp;
-  return this.ql(currentTag);
+  return this.ww(currentTag);
 };
-protoOf(TaggedDecoder).yf = function () {
+protoOf(TaggedDecoder).dk = function () {
   return null;
 };
-protoOf(TaggedDecoder).zf = function () {
-  return this.rl(this.xl());
+protoOf(TaggedDecoder).ek = function () {
+  return this.xw(this.jx());
 };
-protoOf(TaggedDecoder).ag = function () {
-  return this.sl(this.xl());
+protoOf(TaggedDecoder).fk = function () {
+  return this.yw(this.jx());
 };
-protoOf(TaggedDecoder).bg = function () {
-  return this.tl(this.xl());
+protoOf(TaggedDecoder).gk = function () {
+  return this.zw(this.jx());
 };
-protoOf(TaggedDecoder).cg = function () {
-  return this.ul(this.xl());
+protoOf(TaggedDecoder).hk = function () {
+  return this.ax(this.jx());
 };
-protoOf(TaggedDecoder).dg = function (enumDescriptor) {
-  return this.vl(this.xl(), enumDescriptor);
+protoOf(TaggedDecoder).ik = function () {
+  return this.bx(this.jx());
 };
-protoOf(TaggedDecoder).gg = function (descriptor) {
+protoOf(TaggedDecoder).jk = function () {
+  return this.cx(this.jx());
+};
+protoOf(TaggedDecoder).kk = function () {
+  return this.dx(this.jx());
+};
+protoOf(TaggedDecoder).lk = function () {
+  return this.ex(this.jx());
+};
+protoOf(TaggedDecoder).mk = function () {
+  return this.fx(this.jx());
+};
+protoOf(TaggedDecoder).nk = function (enumDescriptor) {
+  return this.gx(this.jx(), enumDescriptor);
+};
+protoOf(TaggedDecoder).rk = function (descriptor) {
   return this;
 };
-protoOf(TaggedDecoder).hg = function (descriptor) {
+protoOf(TaggedDecoder).sk = function (descriptor) {
 };
-protoOf(TaggedDecoder).ig = function (descriptor, index) {
-  return this.rl(this.hl(descriptor, index));
+protoOf(TaggedDecoder).tk = function (descriptor, index) {
+  return this.xw(this.nw(descriptor, index));
 };
-protoOf(TaggedDecoder).jg = function (descriptor, index) {
-  return this.sl(this.hl(descriptor, index));
+protoOf(TaggedDecoder).uk = function (descriptor, index) {
+  return this.yw(this.nw(descriptor, index));
 };
-protoOf(TaggedDecoder).kg = function (descriptor, index) {
-  return this.tl(this.hl(descriptor, index));
+protoOf(TaggedDecoder).vk = function (descriptor, index) {
+  return this.zw(this.nw(descriptor, index));
 };
-protoOf(TaggedDecoder).lg = function (descriptor, index) {
-  return this.ul(this.hl(descriptor, index));
+protoOf(TaggedDecoder).wk = function (descriptor, index) {
+  return this.ax(this.nw(descriptor, index));
 };
-protoOf(TaggedDecoder).mg = function (descriptor, index, deserializer, previousValue) {
-  var tmp = this.hl(descriptor, index);
+protoOf(TaggedDecoder).xk = function (descriptor, index) {
+  return this.bx(this.nw(descriptor, index));
+};
+protoOf(TaggedDecoder).yk = function (descriptor, index) {
+  return this.cx(this.nw(descriptor, index));
+};
+protoOf(TaggedDecoder).zk = function (descriptor, index) {
+  return this.dx(this.nw(descriptor, index));
+};
+protoOf(TaggedDecoder).al = function (descriptor, index) {
+  return this.ex(this.nw(descriptor, index));
+};
+protoOf(TaggedDecoder).bl = function (descriptor, index) {
+  return this.fx(this.nw(descriptor, index));
+};
+protoOf(TaggedDecoder).cl = function (descriptor, index) {
+  return this.hx(this.nw(descriptor, index), descriptor.fj(index));
+};
+protoOf(TaggedDecoder).dl = function (descriptor, index, deserializer, previousValue) {
+  var tmp = this.nw(descriptor, index);
   return tagBlock(this, tmp, TaggedDecoder$decodeSerializableElement$lambda(this, deserializer, previousValue));
 };
-protoOf(TaggedDecoder).og = function (descriptor, index, deserializer, previousValue) {
-  var tmp = this.hl(descriptor, index);
+protoOf(TaggedDecoder).fl = function (descriptor, index, deserializer, previousValue) {
+  var tmp = this.nw(descriptor, index);
   return tagBlock(this, tmp, TaggedDecoder$decodeNullableSerializableElement$lambda(this, deserializer, previousValue));
 };
-protoOf(TaggedDecoder).ml = function () {
-  return lastOrNull(this.kl_1);
+protoOf(TaggedDecoder).sw = function () {
+  return lastOrNull(this.qw_1);
 };
-protoOf(TaggedDecoder).wl = function (name) {
-  this.kl_1.i(name);
+protoOf(TaggedDecoder).ix = function (name) {
+  this.qw_1.i(name);
 };
-protoOf(TaggedDecoder).xl = function () {
-  var r = this.kl_1.w2(get_lastIndex_0(this.kl_1));
-  this.ll_1 = true;
+protoOf(TaggedDecoder).jx = function () {
+  var r = this.qw_1.d3(get_lastIndex_0(this.qw_1));
+  this.rw_1 = true;
   return r;
 };
+function UIntSerializer() {
+  UIntSerializer_instance = this;
+  this.kx_1 = InlinePrimitiveDescriptor('kotlin.UInt', serializer_4(IntCompanionObject_instance));
+}
+protoOf(UIntSerializer).rh = function () {
+  return this.kx_1;
+};
+protoOf(UIntSerializer).lx = function (encoder, value) {
+  var tmp = encoder.xl(this.kx_1);
+  // Inline function 'kotlin.UInt.toInt' call
+  var tmp$ret$0 = _UInt___get_data__impl__f0vqqw(value);
+  tmp.ql(tmp$ret$0);
+};
+protoOf(UIntSerializer).sh = function (encoder, value) {
+  return this.lx(encoder, value instanceof UInt ? value.og_1 : THROW_CCE());
+};
+protoOf(UIntSerializer).mx = function (decoder) {
+  // Inline function 'kotlin.toUInt' call
+  var this_0 = decoder.ok(this.kx_1).hk();
+  return _UInt___init__impl__l7qpdl(this_0);
+};
+protoOf(UIntSerializer).th = function (decoder) {
+  return new UInt(this.mx(decoder));
+};
+var UIntSerializer_instance;
+function UIntSerializer_getInstance() {
+  if (UIntSerializer_instance == null)
+    new UIntSerializer();
+  return UIntSerializer_instance;
+}
+function ULongSerializer() {
+  ULongSerializer_instance = this;
+  this.nx_1 = InlinePrimitiveDescriptor('kotlin.ULong', serializer_5(Companion_getInstance_3()));
+}
+protoOf(ULongSerializer).rh = function () {
+  return this.nx_1;
+};
+protoOf(ULongSerializer).ox = function (encoder, value) {
+  var tmp = encoder.xl(this.nx_1);
+  // Inline function 'kotlin.ULong.toLong' call
+  var tmp$ret$0 = _ULong___get_data__impl__fggpzb(value);
+  tmp.rl(tmp$ret$0);
+};
+protoOf(ULongSerializer).sh = function (encoder, value) {
+  return this.ox(encoder, value instanceof ULong ? value.zg_1 : THROW_CCE());
+};
+protoOf(ULongSerializer).px = function (decoder) {
+  // Inline function 'kotlin.toULong' call
+  var this_0 = decoder.ok(this.nx_1).ik();
+  return _ULong___init__impl__c78o9k(this_0);
+};
+protoOf(ULongSerializer).th = function (decoder) {
+  return new ULong(this.px(decoder));
+};
+var ULongSerializer_instance;
+function ULongSerializer_getInstance() {
+  if (ULongSerializer_instance == null)
+    new ULongSerializer();
+  return ULongSerializer_instance;
+}
+function UByteSerializer() {
+  UByteSerializer_instance = this;
+  this.qx_1 = InlinePrimitiveDescriptor('kotlin.UByte', serializer_6(ByteCompanionObject_instance));
+}
+protoOf(UByteSerializer).rh = function () {
+  return this.qx_1;
+};
+protoOf(UByteSerializer).rx = function (encoder, value) {
+  var tmp = encoder.xl(this.qx_1);
+  // Inline function 'kotlin.UByte.toByte' call
+  var tmp$ret$0 = _UByte___get_data__impl__jof9qr(value);
+  tmp.ol(tmp$ret$0);
+};
+protoOf(UByteSerializer).sh = function (encoder, value) {
+  return this.rx(encoder, value instanceof UByte ? value.dg_1 : THROW_CCE());
+};
+protoOf(UByteSerializer).sx = function (decoder) {
+  // Inline function 'kotlin.toUByte' call
+  var this_0 = decoder.ok(this.qx_1).fk();
+  return _UByte___init__impl__g9hnc4(this_0);
+};
+protoOf(UByteSerializer).th = function (decoder) {
+  return new UByte(this.sx(decoder));
+};
+var UByteSerializer_instance;
+function UByteSerializer_getInstance() {
+  if (UByteSerializer_instance == null)
+    new UByteSerializer();
+  return UByteSerializer_instance;
+}
+function UShortSerializer() {
+  UShortSerializer_instance = this;
+  this.tx_1 = InlinePrimitiveDescriptor('kotlin.UShort', serializer_7(ShortCompanionObject_instance));
+}
+protoOf(UShortSerializer).rh = function () {
+  return this.tx_1;
+};
+protoOf(UShortSerializer).ux = function (encoder, value) {
+  var tmp = encoder.xl(this.tx_1);
+  // Inline function 'kotlin.UShort.toShort' call
+  var tmp$ret$0 = _UShort___get_data__impl__g0245(value);
+  tmp.pl(tmp$ret$0);
+};
+protoOf(UShortSerializer).sh = function (encoder, value) {
+  return this.ux(encoder, value instanceof UShort ? value.kh_1 : THROW_CCE());
+};
+protoOf(UShortSerializer).vx = function (decoder) {
+  // Inline function 'kotlin.toUShort' call
+  var this_0 = decoder.ok(this.tx_1).gk();
+  return _UShort___init__impl__jigrne(this_0);
+};
+protoOf(UShortSerializer).th = function (decoder) {
+  return new UShort(this.vx(decoder));
+};
+var UShortSerializer_instance;
+function UShortSerializer_getInstance() {
+  if (UShortSerializer_instance == null)
+    new UShortSerializer();
+  return UShortSerializer_instance;
+}
 function get_EmptySerializersModuleLegacyJs() {
   _init_properties_SerializersModule_kt__u78ha3();
   return EmptySerializersModule;
@@ -2333,33 +4595,33 @@ function get_EmptySerializersModuleLegacyJs() {
 var EmptySerializersModule;
 function SerializersModule() {
 }
-protoOf(SerializersModule).oe = function (kClass, typeArgumentsSerializers, $super) {
+protoOf(SerializersModule).ti = function (kClass, typeArgumentsSerializers, $super) {
   typeArgumentsSerializers = typeArgumentsSerializers === VOID ? emptyList() : typeArgumentsSerializers;
-  return $super === VOID ? this.yl(kClass, typeArgumentsSerializers) : $super.yl.call(this, kClass, typeArgumentsSerializers);
+  return $super === VOID ? this.wx(kClass, typeArgumentsSerializers) : $super.wx.call(this, kClass, typeArgumentsSerializers);
 };
 function SerialModuleImpl(class2ContextualFactory, polyBase2Serializers, polyBase2DefaultSerializerProvider, polyBase2NamedSerializers, polyBase2DefaultDeserializerProvider, hasInterfaceContextualSerializers) {
   SerializersModule.call(this);
-  this.zl_1 = class2ContextualFactory;
-  this.am_1 = polyBase2Serializers;
-  this.bm_1 = polyBase2DefaultSerializerProvider;
-  this.cm_1 = polyBase2NamedSerializers;
-  this.dm_1 = polyBase2DefaultDeserializerProvider;
-  this.em_1 = hasInterfaceContextualSerializers;
+  this.xx_1 = class2ContextualFactory;
+  this.yx_1 = polyBase2Serializers;
+  this.zx_1 = polyBase2DefaultSerializerProvider;
+  this.ay_1 = polyBase2NamedSerializers;
+  this.by_1 = polyBase2DefaultDeserializerProvider;
+  this.cy_1 = hasInterfaceContextualSerializers;
 }
-protoOf(SerialModuleImpl).nh = function (baseClass, value) {
-  if (!baseClass.h8(value))
+protoOf(SerialModuleImpl).qm = function (baseClass, value) {
+  if (!baseClass.o8(value))
     return null;
-  var tmp0_safe_receiver = this.am_1.t1(baseClass);
+  var tmp0_safe_receiver = this.yx_1.t1(baseClass);
   var tmp = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.t1(getKClassFromExpression(value));
   var registered = (!(tmp == null) ? isInterface(tmp, SerializationStrategy) : false) ? tmp : null;
   if (!(registered == null))
     return registered;
-  var tmp_0 = this.bm_1.t1(baseClass);
+  var tmp_0 = this.zx_1.t1(baseClass);
   var tmp1_safe_receiver = (!(tmp_0 == null) ? typeof tmp_0 === 'function' : false) ? tmp_0 : null;
   return tmp1_safe_receiver == null ? null : tmp1_safe_receiver(value);
 };
-protoOf(SerialModuleImpl).mh = function (baseClass, serializedClassName) {
-  var tmp0_safe_receiver = this.cm_1.t1(baseClass);
+protoOf(SerialModuleImpl).pm = function (baseClass, serializedClassName) {
+  var tmp0_safe_receiver = this.ay_1.t1(baseClass);
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
@@ -2371,13 +4633,13 @@ protoOf(SerialModuleImpl).mh = function (baseClass, serializedClassName) {
   var registered = (!(tmp_0 == null) ? isInterface(tmp_0, KSerializer) : false) ? tmp_0 : null;
   if (!(registered == null))
     return registered;
-  var tmp_1 = this.dm_1.t1(baseClass);
+  var tmp_1 = this.by_1.t1(baseClass);
   var tmp1_safe_receiver = (!(tmp_1 == null) ? typeof tmp_1 === 'function' : false) ? tmp_1 : null;
   return tmp1_safe_receiver == null ? null : tmp1_safe_receiver(serializedClassName);
 };
-protoOf(SerialModuleImpl).yl = function (kClass, typeArgumentsSerializers) {
-  var tmp0_safe_receiver = this.zl_1.t1(kClass);
-  var tmp = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.fm(typeArgumentsSerializers);
+protoOf(SerialModuleImpl).wx = function (kClass, typeArgumentsSerializers) {
+  var tmp0_safe_receiver = this.xx_1.t1(kClass);
+  var tmp = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.dy(typeArgumentsSerializers);
   return (tmp == null ? true : isInterface(tmp, KSerializer)) ? tmp : null;
 };
 var properties_initialized_SerializersModule_kt_fjigjn;
@@ -2402,34 +4664,41 @@ function getChecked_0(_this__u8e3s4, index) {
     throw IndexOutOfBoundsException_init_$Create$('Index ' + index + ' out of bounds ' + get_indices_0(_this__u8e3s4).toString());
   return _this__u8e3s4[index];
 }
+function initBuiltins() {
+  return mapOf([to(PrimitiveClasses_getInstance().h9(), serializer(StringCompanionObject_instance)), to(getKClass(Char), serializer_8(Companion_getInstance_2())), to(PrimitiveClasses_getInstance().k9(), CharArraySerializer()), to(PrimitiveClasses_getInstance().f9(), serializer_9(DoubleCompanionObject_instance)), to(PrimitiveClasses_getInstance().r9(), DoubleArraySerializer()), to(PrimitiveClasses_getInstance().e9(), serializer_10(FloatCompanionObject_instance)), to(PrimitiveClasses_getInstance().q9(), FloatArraySerializer()), to(PrimitiveClasses_getInstance().d9(), serializer_5(Companion_getInstance_3())), to(PrimitiveClasses_getInstance().p9(), LongArraySerializer()), to(getKClass(ULong), serializer_1(Companion_getInstance_4())), to(getKClass(ULongArray), ULongArraySerializer()), to(PrimitiveClasses_getInstance().c9(), serializer_4(IntCompanionObject_instance)), to(PrimitiveClasses_getInstance().n9(), IntArraySerializer()), to(getKClass(UInt), serializer_0(Companion_getInstance_5())), to(getKClass(UIntArray), UIntArraySerializer()), to(PrimitiveClasses_getInstance().b9(), serializer_7(ShortCompanionObject_instance)), to(PrimitiveClasses_getInstance().m9(), ShortArraySerializer()), to(getKClass(UShort), serializer_3(Companion_getInstance_6())), to(getKClass(UShortArray), UShortArraySerializer()), to(PrimitiveClasses_getInstance().a9(), serializer_6(ByteCompanionObject_instance)), to(PrimitiveClasses_getInstance().l9(), ByteArraySerializer()), to(getKClass(UByte), serializer_2(Companion_getInstance_7())), to(getKClass(UByteArray), UByteArraySerializer()), to(PrimitiveClasses_getInstance().z8(), serializer_11(BooleanCompanionObject_instance)), to(PrimitiveClasses_getInstance().j9(), BooleanArraySerializer()), to(getKClass(Unit), serializer_12(Unit_instance)), to(PrimitiveClasses_getInstance().y8(), NothingSerializer()), to(getKClass(Duration), serializer_13(Companion_getInstance())), to(getKClass(Instant), serializer_14(Companion_getInstance_0())), to(getKClass(Uuid), serializer_15(Companion_getInstance_1()))]);
+}
 //region block: post-declaration
-protoOf(SerialDescriptorImpl).ne = get_isNullable;
-protoOf(SerialDescriptorImpl).ue = get_isInline;
-protoOf(AbstractDecoder).ng = decodeSerializableElement$default;
-protoOf(AbstractDecoder).fg = decodeSerializableValue;
-protoOf(AbstractDecoder).qg = decodeSequentially;
-protoOf(AbstractDecoder).sg = decodeCollectionSize;
-protoOf(AbstractEncoder).jh = encodeNotNullMark;
-protoOf(AbstractEncoder).kh = beginCollection;
-protoOf(AbstractEncoder).gh = encodeSerializableValue;
-protoOf(AbstractEncoder).ih = encodeNullableSerializableValue;
-protoOf(AbstractEncoder).lh = shouldEncodeElementDefault;
-protoOf(ListLikeDescriptor).ne = get_isNullable;
-protoOf(ListLikeDescriptor).ue = get_isInline;
-protoOf(ListLikeDescriptor).we = get_annotations;
-protoOf(PluginGeneratedSerialDescriptor).ne = get_isNullable;
-protoOf(PluginGeneratedSerialDescriptor).ue = get_isInline;
-protoOf(InlinePrimitiveDescriptor$1).rk = typeParametersSerializers;
-protoOf(PrimitiveSerialDescriptor).ne = get_isNullable;
-protoOf(PrimitiveSerialDescriptor).ue = get_isInline;
-protoOf(PrimitiveSerialDescriptor).we = get_annotations;
-protoOf(TaggedDecoder).ng = decodeSerializableElement$default;
-protoOf(TaggedDecoder).fg = decodeSerializableValue;
-protoOf(TaggedDecoder).qg = decodeSequentially;
-protoOf(TaggedDecoder).sg = decodeCollectionSize;
+protoOf(SerialDescriptorImpl).si = get_isNullable;
+protoOf(SerialDescriptorImpl).zi = get_isInline;
+protoOf(AbstractDecoder).el = decodeSerializableElement$default;
+protoOf(AbstractDecoder).qk = decodeSerializableValue;
+protoOf(AbstractDecoder).hl = decodeSequentially;
+protoOf(AbstractDecoder).jl = decodeCollectionSize;
+protoOf(AbstractEncoder).mm = encodeNotNullMark;
+protoOf(AbstractEncoder).nm = beginCollection;
+protoOf(AbstractEncoder).jm = encodeSerializableValue;
+protoOf(AbstractEncoder).lm = encodeNullableSerializableValue;
+protoOf(AbstractEncoder).om = shouldEncodeElementDefault;
+protoOf(ListLikeDescriptor).si = get_isNullable;
+protoOf(ListLikeDescriptor).zi = get_isInline;
+protoOf(ListLikeDescriptor).bj = get_annotations;
+protoOf(PluginGeneratedSerialDescriptor).si = get_isNullable;
+protoOf(PluginGeneratedSerialDescriptor).zi = get_isInline;
+protoOf(InlinePrimitiveDescriptor$1).vq = typeParametersSerializers;
+protoOf(NothingSerialDescriptor).si = get_isNullable;
+protoOf(NothingSerialDescriptor).zi = get_isInline;
+protoOf(NothingSerialDescriptor).bj = get_annotations;
+protoOf(PrimitiveSerialDescriptor_0).si = get_isNullable;
+protoOf(PrimitiveSerialDescriptor_0).zi = get_isInline;
+protoOf(PrimitiveSerialDescriptor_0).bj = get_annotations;
+protoOf(TaggedDecoder).el = decodeSerializableElement$default;
+protoOf(TaggedDecoder).qk = decodeSerializableValue;
+protoOf(TaggedDecoder).hl = decodeSequentially;
+protoOf(TaggedDecoder).jl = decodeCollectionSize;
 //endregion
 //region block: exports
 export {
+  STRING_getInstance as STRING_getInstance7xungxdjbzv,
   CONTEXTUAL_getInstance as CONTEXTUAL_getInstance20l1ap7hne5we,
   ENUM_getInstance as ENUM_getInstance25239ht7oag6o,
   CLASS_getInstance as CLASS_getInstance3jy3ydw5832xx,
@@ -2446,8 +4715,13 @@ export {
   UnknownFieldException_init_$Create$ as UnknownFieldException_init_$Create$3n7tjepqfwwvc,
   get_nullable as get_nullable197rfua9r7fsz,
   serializer as serializer1x79l67jvwntn,
+  serializer_3 as serializer1q7c5q67ysppr,
+  serializer_0 as serializer3ikrxnm8b29d6,
+  serializer_2 as serializer36584sjyg5661,
+  serializer_1 as serializer2lw83vwvpnyms,
   PolymorphicKind as PolymorphicKindla9gurooefwb,
   PrimitiveKind as PrimitiveKindndgbuh6is7ze,
+  PrimitiveSerialDescriptor as PrimitiveSerialDescriptor3egfp53lutxj2,
   SerialDescriptor as SerialDescriptor2pelqekb5ic3a,
   ENUM as ENUMlmq49cvwy4ow,
   getContextualDescriptor as getContextualDescriptor2n1gf3b895yb8,
@@ -2471,6 +4745,7 @@ export {
   throwMissingFieldException as throwMissingFieldException2cmke0v3ynf14,
   EmptySerializersModule_0 as EmptySerializersModule991ju6pz9b79,
   DeserializationStrategy as DeserializationStrategy1z3z5pj9f7zc8,
+  KSerializer as KSerializerzf77vz1967fq,
   MissingFieldException as MissingFieldException24tqif29emcmi,
   SerializableWith as SerializableWithd2dap36updxd,
   SerializationException as SerializationExceptioneqrdve3ts2n9,

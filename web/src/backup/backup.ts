@@ -3,6 +3,7 @@ import type { Table } from 'dexie'
 import type {
   AdviceRow,
   BaselineRow,
+  CheckInRow,
   ExerciseRow,
   KeyValueRow,
   PlanItemRow,
@@ -13,6 +14,8 @@ import type {
 import { sideOf } from '../db/schema'
 import { DEFAULT_SETTINGS, settingsFromRows, type AppSettings } from '../db/settings'
 import { applyStrictPressUpgrade } from '../db/strictPressUpgrade'
+import { inGroupOrder } from '../db/checkIns'
+import { grit } from '../domain'
 import {
   ADVICE_STATUSES,
   ADVICE_TYPES,
@@ -84,6 +87,7 @@ type Rows = {
   planItems: (PlanItemRow & { id: number })[]
   advice: (AdviceRow & { id: number })[]
   baselines: BaselineRow[]
+  checkIns: (CheckInRow & { id: number })[]
 }
 
 const byId = <T extends { id: number }>(a: T, b: T) => a.id - b.id
@@ -94,7 +98,9 @@ const byId = <T extends { id: number }>(a: T, b: T) => a.id - b.id
  * Takes any Dexie so the safety copy can run against a database still on an older schema.
  */
 export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile> {
-  const names = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'settings']
+  // A database still on a schema before check-ins (a safety copy before upgrading) has none to export.
+  const hasCheckIns = db.tables.some((t) => t.name === 'checkIns')
+  const names = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'settings', ...(hasCheckIns ? ['checkIns'] : [])]
   return db.transaction('r', names, async () => {
     const all = <T>(name: string) => (db.table(name) as Table<T>).toArray()
     const settings = settingsFromRows(await all<KeyValueRow>('settings'))
@@ -104,6 +110,7 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
     const planItems = (await all<PlanItemRow & { id: number }>('planItems')).sort(byId)
     const advice = (await all<AdviceRow & { id: number }>('advice')).sort(byId)
     const baselines = (await all<BaselineRow>('baselines')).sort((a, b) => a.exerciseId - b.exerciseId)
+    const checkIns = hasCheckIns ? (await all<CheckInRow & { id: number }>('checkIns')).sort(byId) : []
     return {
       version: BACKUP_VERSION,
       exportedAt: nowMs,
@@ -172,6 +179,7 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
         mode: sideOf(a),
       })),
       baselines: baselines.map((b) => ({ exerciseId: b.exerciseId, e1rmKg: b.e1rmKg, date: isoToEpochDay(b.date) })),
+      checkIns: checkIns.map((c) => ({ id: c.id, date: isoToEpochDay(c.date), lagging: [...c.lagging], growingWell: [...c.growingWell] })),
     }
   })
 }
@@ -210,7 +218,7 @@ const modeOf = (o: Obj, key = 'mode'): string => (key in o ? str(o, key) : 'POWE
 
 function parseBackup(root: Obj): BackupFile {
   const top = ['version', 'exportedAt', 'settings', 'exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines']
-  const o = obj(root, 'backup', top)
+  const o = obj(root, 'backup', top, ['checkIns'])
   const s = obj(
     o.settings,
     'settings',
@@ -300,6 +308,15 @@ function parseBackup(root: Obj): BackupFile {
       const x = obj(v, p, ['exerciseId', 'e1rmKg', 'date'])
       return { exerciseId: int(x, 'exerciseId'), e1rmKg: num(x, 'e1rmKg'), date: int(x, 'date') }
     }),
+    // Version 4. An older file has none.
+    checkIns:
+      'checkIns' in o
+        ? list(o.checkIns, 'checkIns', (v, p) => {
+            const x = obj(v, p, ['id', 'date', 'lagging', 'growingWell'])
+            const groups = (k: string) => list(x[k], `${p}.${k}`, (g) => (typeof g === 'string' ? g : bad(`${k}: expected string`)))
+            return { id: int(x, 'id'), date: int(x, 'date'), lagging: groups('lagging'), growingWell: groups('growingWell') }
+          })
+        : [],
   }
 }
 
@@ -386,12 +403,21 @@ function mapBackup(file: BackupFile): Mapped {
     mode: side(a.mode),
   }))
   const baselines = file.baselines.map((b) => ({ exerciseId: b.exerciseId, e1rmKg: b.e1rmKg, date: epochDayToIso(b.date) }))
+  const groups = grit.muscleGroups()
+  const checkIns = file.checkIns.map((c) => {
+    for (const g of [...c.lagging, ...c.growingWell]) oneOf(g, groups, 'muscle group')
+    unique([...c.lagging, ...c.growingWell], 'muscle group in a check-in')
+    // Stored in the domain's order, as the app writes them.
+    return { id: c.id, date: epochDayToIso(c.date), lagging: inGroupOrder(c.lagging), growingWell: inGroupOrder(c.growingWell) }
+  })
 
   unique(exercises.map((e) => e.id), 'exercise id')
   unique(sets.map((s) => s.id), 'set id')
   unique(planItems.map((p) => p.id), 'plan item id')
   unique(advice.map((a) => a.id), 'advice id')
   unique(baselines.map((b) => b.exerciseId), 'baseline')
+  unique(checkIns.map((c) => c.id), 'check-in id')
+  unique(checkIns.map((c) => c.date), 'check-in date')
   const exerciseIds = new Set(exercises.map((e) => e.id))
   const sessionIds = new Set(sessions.map((s) => s.id))
   for (const s of sets) {
@@ -406,7 +432,7 @@ function mapBackup(file: BackupFile): Mapped {
   const bodybuildingTrainingDays = (st.bodybuildingTrainingDays ?? DEFAULT_SETTINGS.bodybuildingTrainingDays).map(weekday)
   const leftOn = (day: number | null | undefined) => (day == null ? null : epochDayToIso(day))
   return {
-    rows: { exercises, sessions, sets, planItems, advice, baselines },
+    rows: { exercises, sessions, sets, planItems, advice, baselines, checkIns },
     settings: {
       changePlates: st.changePlates,
       defaultRpe: st.defaultRpe,
@@ -473,9 +499,9 @@ const aboutReplacedData = (key: string) => key === 'today:active' || key === 're
 export async function restoreBackup(db: Dexie, file: BackupFile): Promise<void> {
   const { rows, settings } = mapBackup(file)
   const t = <T>(name: string) => db.table(name) as Table<T>
-  const stores = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'settings', 'meta']
+  const stores = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'checkIns', 'settings', 'meta']
   await db.transaction('rw', stores, async () => {
-    for (const name of ['sets', 'advice', 'planItems', 'baselines', 'sessions', 'exercises']) await t(name).clear()
+    for (const name of ['sets', 'advice', 'planItems', 'baselines', 'checkIns', 'sessions', 'exercises']) await t(name).clear()
     await t<KeyValueRow>('meta')
       .filter((row) => aboutReplacedData(row.key))
       .delete()
@@ -485,6 +511,7 @@ export async function restoreBackup(db: Dexie, file: BackupFile): Promise<void> 
     await t<PlanItemRow>('planItems').bulkAdd(rows.planItems)
     await t<AdviceRow>('advice').bulkAdd(rows.advice)
     await t<BaselineRow>('baselines').bulkAdd(rows.baselines)
+    await t<CheckInRow>('checkIns').bulkAdd(rows.checkIns)
     const kept: (keyof AppSettings)[] = ['keepAwake', 'lastBackupAt', 'appLock']
     const entries = (Object.keys(DEFAULT_SETTINGS) as (keyof AppSettings)[])
       .filter((k) => !kept.includes(k))

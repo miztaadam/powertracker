@@ -3,11 +3,15 @@ package com.powertracker.data
 import androidx.room.withTransaction
 import com.powertracker.data.db.AppDatabase
 import com.powertracker.data.db.BaselineEntity
+import com.powertracker.data.db.CheckInEntity
 import com.powertracker.data.db.ExerciseEntity
 import com.powertracker.data.db.PlanItemEntity
 import com.powertracker.data.db.SessionEntity
 import com.powertracker.data.db.SetEntity
+import com.powertracker.domain.coach.PlanChange
+import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.Baseline
+import com.powertracker.domain.model.CheckIn
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
@@ -133,6 +137,23 @@ open class TrainingRepository(private val db: AppDatabase) {
 
     suspend fun archiveExercise(id: Long) = db.exercises().archive(id)
 
+    /** The bodybuilding check-ins, oldest first. */
+    fun checkIns(): Flow<List<CheckIn>> = db.checkIns().observeAll().map { list -> list.map { it.toDomain() } }
+
+    /** Saves [checkIn]; one already stored on the same date is replaced. */
+    suspend fun saveCheckIn(checkIn: CheckIn): Long = db.checkIns().upsert(checkIn.toEntity())
+
+    /**
+     * Carries out a coach's change to the bodybuilding plan in one transaction: [PlanChange.updated] saved,
+     * [PlanChange.removed] deleted, and each of [PlanChange.added] inserted on its catalogue name's row (found, restored or
+     * inserted as [savePlanItem] does). If anything fails, the plan and the exercise rows are left as they were.
+     */
+    suspend fun applyPlanChange(change: PlanChange) = db.withTransaction {
+        for (item in change.updated) savePlanItem(item)
+        for (item in change.removed) db.plan().delete(item.id)
+        for ((item, name) in change.added) savePlanItem(item.copy(id = 0), name)
+    }
+
     suspend fun setBaseline(b: Baseline) = db.baselines().upsert(BaselineEntity(b.exerciseId, b.e1rmKg, b.date))
 }
 
@@ -146,3 +167,13 @@ private fun LoggedSet.toEntity(id: Long, sessionId: Long) =
     SetEntity(id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet)
 
 private fun PlanItemEntity.toDomain() = PlanItem(id, weekday, exerciseId, sets, reps, targetRpe, sortOrder, mode, repsHigh)
+
+/** The stored form of a check-in's groups: Kotlin names, comma-separated, in [MuscleGroup] order. */
+internal fun groupsToDb(groups: Set<MuscleGroup>): String = MuscleGroup.entries.filter { it in groups }.joinToString(",") { it.name }
+
+internal fun groupsFromDb(text: String): Set<MuscleGroup> =
+    text.split(",").filter { it.isNotEmpty() }.mapTo(LinkedHashSet()) { MuscleGroup.valueOf(it) }
+
+private fun CheckIn.toEntity() = CheckInEntity(id, date, groupsToDb(lagging), groupsToDb(growingWell))
+
+private fun CheckInEntity.toDomain() = CheckIn(date, groupsFromDb(lagging), groupsFromDb(growingWell), id)

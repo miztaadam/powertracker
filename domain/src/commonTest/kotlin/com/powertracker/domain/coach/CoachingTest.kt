@@ -207,3 +207,78 @@ class CoachingTest {
         assertFalse(Coaching.welcomeBack(today, today, hasPlan = true))
     }
 }
+
+/** Stage 3 through the one entry point: check-ins, due, and stuck exercises on the bodybuilding side only. */
+class CoachingCheckInTest {
+    private val today = LocalDate(2026, 11, 14)
+    private val bbPlan = PhysiqueFixtures.default3
+    private fun ago(days: Int) = today.minus(days, DateTimeUnit.DAY)
+
+    private fun bbSession(daysAgo: Int, kg: Double = 40.0, mode: TrainingMode = TrainingMode.BODYBUILDING) = com.powertracker.domain.model.LoggedSession(
+        100L - daysAgo, ago(daysAgo), null, null,
+        List(3) { com.powertracker.domain.model.LoggedSet(PhysiqueFixtures.idOf("Leg extension"), kg, 10, 8.0, false, null, false) }, mode,
+    )
+
+    @Test
+    fun aCheckInIsDueTwentyEightDaysAfterTheLaterOfTheLastCheckInAndTheFirstSession() {
+        val h = PhysiqueFixtures.history(listOf(bbSession(28), bbSession(3)))
+        assertFalse(Coaching.checkInDue(h, emptyList(), emptyList(), today), "no plan")
+        assertFalse(Coaching.checkInDue(h, bbPlan.map { it.copy(mode = TrainingMode.POWERLIFTING) }, emptyList(), today), "no bodybuilding plan")
+        assertFalse(Coaching.checkInDue(PhysiqueFixtures.history(listOf(bbSession(40, mode = TrainingMode.POWERLIFTING))), bbPlan, emptyList(), today), "no session")
+        assertTrue(Coaching.checkInDue(h, bbPlan, emptyList(), today), "28 days after the first session")
+        assertFalse(Coaching.checkInDue(PhysiqueFixtures.history(listOf(bbSession(27))), bbPlan, emptyList(), today), "27 days")
+        val checkIn = com.powertracker.domain.model.CheckIn(ago(27), emptySet(), emptySet())
+        assertFalse(Coaching.checkInDue(h, bbPlan, listOf(checkIn), today), "27 days after the check-in")
+        assertTrue(Coaching.checkInDue(h, bbPlan, listOf(checkIn.copy(date = ago(28))), today), "28 days after the check-in")
+        // The later of the two: a check-in older than the first session does not make it due sooner.
+        assertFalse(Coaching.checkInDue(PhysiqueFixtures.history(listOf(bbSession(20))), bbPlan, listOf(checkIn.copy(date = ago(60))), today))
+    }
+
+    @Test
+    fun afterCheckInReadsOnlyTheBodybuildingPlanAndStampsTheSide() {
+        val checkIn = com.powertracker.domain.model.CheckIn(today, setOf(com.powertracker.domain.library.MuscleGroup.CHEST), emptySet())
+        val power = bbPlan.map { it.copy(id = it.id + 1000, mode = TrainingMode.POWERLIFTING, sets = 1) }
+        val out = Coaching.afterCheckIn(checkIn, PhysiqueFixtures.history(), bbPlan + power, today)
+        assertEquals(PhysiqueCoach.afterCheckIn(checkIn, PhysiqueFixtures.history(), bbPlan, today), out)
+        assertTrue(out.advice.isNotEmpty() && out.advice.all { it.mode == TrainingMode.BODYBUILDING })
+        // A powerlifting side's MORE_WORK cannot exist, but its other advice is never dismissed.
+        val stall = Advice(AdviceType.STALL, null, today, "s", 1, AdvicePayload.Accessories(emptyList()))
+        assertEquals(emptyList(), Coaching.afterCheckIn(checkIn, PhysiqueFixtures.history(), bbPlan, today, listOf(stall)).dismissed)
+    }
+
+    @Test
+    fun bodybuildingEvaluateAddsStuckExercises() {
+        val h = PhysiqueFixtures.history(listOf(bbSession(28), bbSession(14), bbSession(7)))
+        val advice = Coaching.evaluate(TrainingMode.BODYBUILDING, h, bbPlan, CoachSettings(), today, emptyList())
+        assertEquals(listOf(AdviceType.SWAP), advice.map { it.type })
+        assertEquals(PhysiqueCoach.stuck(h, bbPlan, emptyList(), emptyList(), today), advice)
+        val growing = com.powertracker.domain.model.CheckIn(ago(2), emptySet(), setOf(com.powertracker.domain.library.MuscleGroup.QUADS))
+        assertEquals(emptyList(), Coaching.evaluate(TrainingMode.BODYBUILDING, h, bbPlan, CoachSettings(), today, emptyList(), listOf(growing)))
+        // The powerlifting side never gets one.
+        assertTrue(Coaching.evaluate(TrainingMode.POWERLIFTING, h, bbPlan, CoachSettings(), today, emptyList()).none { it.type == AdviceType.SWAP })
+    }
+
+    @Test
+    fun aDeloadMadeInTheSameEvaluationHoldsBackTheSwaps() {
+        // Four low-readiness sessions give a readiness deload on the bodybuilding side; the flat leg extension waits.
+        val sessions = listOf(28, 14, 7, 3, 1).map { d -> bbSession(d).copy(readiness = 1) }
+        val h = PhysiqueFixtures.history(sessions)
+        val advice = Coaching.evaluate(TrainingMode.BODYBUILDING, h, bbPlan, CoachSettings(), today, emptyList())
+        assertEquals(listOf(AdviceType.DELOAD), advice.map { it.type })
+    }
+
+    @Test
+    fun thePowerliftingSideIgnoresCheckIns() {
+        val checkIns = listOf(
+            com.powertracker.domain.model.CheckIn(GoldenScenario.day(10), com.powertracker.domain.library.MuscleGroup.entries.take(6).toSet(), com.powertracker.domain.library.MuscleGroup.entries.drop(10).toSet()),
+        )
+        for (cp in GoldenScenario.checkpoints) {
+            val h = GoldenScenario.historyUntil(cp.today)
+            assertEquals(
+                Coaching.evaluate(TrainingMode.POWERLIFTING, h, GoldenScenario.plan, GoldenScenario.settings, cp.today, cp.storedAdvice),
+                Coaching.evaluate(TrainingMode.POWERLIFTING, h, GoldenScenario.plan, GoldenScenario.settings, cp.today, cp.storedAdvice, checkIns),
+                cp.label,
+            )
+        }
+    }
+}

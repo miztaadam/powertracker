@@ -1,5 +1,5 @@
 /**
- * Android backup format, version 3: mirrors `BackupFile` and its DTOs in
+ * Android backup format, version 4: mirrors `BackupFile` and its DTOs in
  * app/src/main/kotlin/com/powertracker/data/Backup.kt field for field.
  * Dates are epochDay, weekdays 1–7 (Monday = 1), enums are their Kotlin names.
  */
@@ -7,8 +7,10 @@
  * 2: the strict press release (category STRICT_PRESS, `settings.showStrictPress`).
  * 3: bodybuilding mode (the training side: `mode` on sessions, plan items and advice, `repsHigh` on plan items, and
  * four settings). Version 1 and 2 files still restore, everything in them on the powerlifting side.
+ * 4: check-ins (a top-level `checkIns`) and the advice types MORE_WORK and SWAP. A version 1 to 3 file restores with
+ * no check-ins.
  */
-export const BACKUP_VERSION = 3
+export const BACKUP_VERSION = 4
 
 /** The domain's `TrainingMode` names. */
 export { TRAINING_MODES } from '../db/schema'
@@ -16,7 +18,7 @@ export { TRAINING_MODES } from '../db/schema'
 export const CATEGORIES = ['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS', 'VARIATION', 'ACCESSORY'] as const
 export const MAIN_LIFTS = ['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS'] as const
 export const MISS_POINTS = ['FLOOR', 'MID', 'LOCKOUT'] as const
-export const ADVICE_TYPES = ['TARGET', 'STALL', 'DELOAD', 'WEAK_POINT', 'RE_ENTRY'] as const
+export const ADVICE_TYPES = ['TARGET', 'STALL', 'DELOAD', 'WEAK_POINT', 'RE_ENTRY', 'MORE_WORK', 'SWAP'] as const
 export const ADVICE_STATUSES = ['OPEN', 'APPLIED', 'DISMISSED'] as const
 /** Android's `RestAlert` enum. */
 export const ANDROID_REST_ALERTS = ['VIBRATE', 'SOUND_AND_VIBRATE', 'OFF'] as const
@@ -98,6 +100,9 @@ export type AdviceDto = {
 
 export type BaselineDto = { exerciseId: number; e1rmKg: number; date: number }
 
+/** Version 4: one check-in. `lagging` and `growingWell` are `MuscleGroup` names; every other group is on track. */
+export type CheckInDto = { id: number; date: number; lagging: string[]; growingWell: string[] }
+
 export type BackupFile = {
   version: number
   exportedAt: number
@@ -108,4 +113,6 @@ export type BackupFile = {
   planItems: PlanItemDto[]
   advice: AdviceDto[]
   baselines: BaselineDto[]
+  /** Version 4; absent from an older file, which means none. The parser fills it in. */
+  checkIns: CheckInDto[]
 }

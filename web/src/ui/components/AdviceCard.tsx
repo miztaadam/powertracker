@@ -15,8 +15,8 @@ export type AdviceCardProps = {
   tag: string
   /** What to do. */
   title: string
-  /** Why. */
-  body: string
+  /** Why. Left out when the detail below says it all. */
+  body?: string
   primaryAction?: string
   onPrimary?: () => void
   secondaryAction?: string
@@ -38,7 +38,7 @@ export function AdviceCard({ tone, icon, tag, title, body, primaryAction, onPrim
       </div>
       <div className="gr-advice-copy">
         <h2 className="gr-advice-title headline-medium">{title}</h2>
-        <p className="gr-advice-body body-medium">{body}</p>
+        {body != null && <p className="gr-advice-body body-medium">{body}</p>}
       </div>
       {children}
       {(primaryAction != null || secondaryAction != null) && (

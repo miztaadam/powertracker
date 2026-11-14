@@ -99,5 +99,17 @@ data class BaselineEntity(
     val date: LocalDate,
 )
 
+/**
+ * Version 4 (stage 3): one bodybuilding check-in per date. [lagging] and [growingWell] are muscle groups by their Kotlin
+ * names, comma-separated ("CHEST,SIDE_DELTS"; empty for none); every other group was on track.
+ */
+@Entity(tableName = "check_ins", indices = [Index(value = ["date"], unique = true)])
+data class CheckInEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val date: LocalDate,
+    val lagging: String,
+    val growingWell: String,
+)
+
 /** The column default for `mode`: rows from before version 3 are on the powerlifting side ([MIGRATION_2_3]). */
 private const val POWERLIFTING = "POWERLIFTING"

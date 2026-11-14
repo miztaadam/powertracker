@@ -17,12 +17,14 @@ export type ProgressScreenProps = {
   onOpenExercise?: (exerciseId: number) => void
   /** The real clock, as `YYYY-MM-DD`. Default is the device's local date. */
   today?: () => string
+  /** Opens a check-in, from the bodybuilding side's Check in button. */
+  onCheckIn?: () => void
 }
 
 /** Where the lifter stands: total and lift e1RMs, their trend, records, weekly volume, ratios and bodyweight. */
-export function ProgressScreen({ db, onOpenLift, onOpenExercise = () => {}, today = todayIso }: ProgressScreenProps) {
+export function ProgressScreen({ db, onOpenLift, onOpenExercise = () => {}, today = todayIso, onCheckIn }: ProgressScreenProps) {
   const { state, setRange, side, bodybuilding } = useProgress(db, today)
-  if (side === 'BODYBUILDING') return <BodybuildingProgressContent state={bodybuilding} onOpenExercise={onOpenExercise} />
+  if (side === 'BODYBUILDING') return <BodybuildingProgressContent state={bodybuilding} onOpenExercise={onOpenExercise} onCheckIn={onCheckIn} />
   return <ProgressContent state={state} onRange={setRange} onOpenLift={onOpenLift} />
 }
 

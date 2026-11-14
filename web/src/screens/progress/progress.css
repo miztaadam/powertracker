@@ -227,3 +227,51 @@
   flex: none;
   color: var(--text-muted);
 }
+
+/* The bodybuilding side's check-in button, and the line under it before the first check-in. */
+.bb-check-in {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.bb-check-in-line {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.bb-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* One body part: its name and rating on one line, then its figures. Not a button: it opens nothing. */
+.bb-part {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+}
+
+.bb-part-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.bb-part-name {
+  margin: 0;
+  color: var(--text);
+}
+
+.bb-part-line {
+  margin: 0;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.bb-part-earlier {
+  margin: 0;
+  color: var(--text-muted);
+}

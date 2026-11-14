@@ -19,6 +19,7 @@ import {
   epochDayToIso,
 } from './backup'
 import { BACKUP_VERSION, type BackupFile } from './format'
+import { grit } from '../domain'
 
 const FIXTURES = resolve(__dirname, '__fixtures__')
 /** What the previous apps wrote (version 1): frozen, and must keep restoring. */
@@ -27,8 +28,12 @@ const WEB_V1_FIXTURE = resolve(FIXTURES, 'web-v1.json')
 /** What the strict press apps wrote (version 2): frozen since version 3, and must keep restoring. */
 const ANDROID_V2_FIXTURE = resolve(FIXTURES, 'android-v2.json')
 const WEB_V2_FIXTURE = resolve(FIXTURES, 'web-v2.json')
-/** What this app writes now (version 3, bodybuilding mode). Regenerate with UPDATE_FIXTURES=1. */
-const WEB_FIXTURE = resolve(FIXTURES, 'web-v3.json')
+/** What the bodybuilding mode apps wrote (version 3): frozen since version 4, and must keep restoring. */
+const WEB_V3_FIXTURE = resolve(FIXTURES, 'web-v3.json')
+/** What this app writes now (version 4, check-ins). Regenerate with UPDATE_FIXTURES=1. */
+const WEB_FIXTURE = resolve(FIXTURES, 'web-v4.json')
+/** What the Android app writes now (version 4, stage 3 Task 2). */
+const ANDROID_V4_FIXTURE = resolve(FIXTURES, 'android-v4.json')
 const EXPORTED_AT = 1_793_000_000_000
 
 let n = 0
@@ -62,7 +67,7 @@ const decodeOk = (text: string): BackupFile => {
  * Mirrors the Android fixture's breadth, deterministically. `strictPress` adds what version 2 brought, as
  * Android's fixture has it: the switch on and a catalogue "Strict press" row with an "off the shoulders" miss.
  */
-async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = false } = {}) {
+async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = false, checkIns = false } = {}) {
   await ensureSeeded(db)
   const byName = new Map((await db.exercises.toArray()).map((e) => [e.name, e.id as number]))
   const squat = byName.get('Squat')!
@@ -143,6 +148,26 @@ async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = f
       mode: 'BODYBUILDING',
     })
   }
+  if (checkIns) {
+    // Version 4: two check-ins, a MORE_WORK and a SWAP advice, with their payloads exactly as the domain writes them.
+    await db.checkIns.bulkAdd([
+      { date: '2026-10-03', lagging: [], growingWell: ['BICEPS'] },
+      { date: '2026-10-31', lagging: ['CHEST', 'SIDE_DELTS'], growingWell: ['QUADS'] },
+    ])
+    const curl = await resolveCatalogue(db, 'Curl')
+    await db.advice.bulkAdd([
+      {
+        ...adv('MORE_WORK', null, 'You marked chest as lagging. Add Pec deck on Monday, 3 × 8–12 @ 8. That takes it from 0 to 3 sets a week.', 0,
+          `{"type":"${P}MoreWork","group":"CHEST","addSets":[],"newExercise":{"weekday":"MONDAY","name":"Pec deck","sets":3,"repsLow":8,"repsHigh":12,"rpe":8},"weeklyBefore":0,"weeklyAfter":3}`, 'OPEN'),
+        mode: 'BODYBUILDING',
+      },
+      {
+        ...adv('SWAP', null, "Curl hasn't moved in 3 weeks. Same weight and no more reps since 3 Oct.", 0,
+          `{"type":"${P}Swap","exerciseId":${curl},"name":"Curl","group":"BICEPS","since":"2026-10-03","alternatives":["Cable curl","EZ-bar curl","Incline DB curl"]}`, 'DISMISSED'),
+        mode: 'BODYBUILDING',
+      },
+    ])
+  }
 }
 
 /** Version 3's fields as an older file means them: everything on the powerlifting side, neither side ever left. */
@@ -162,7 +187,14 @@ function withV3Defaults(file: Record<string, unknown>): Record<string, unknown> 
     sessions: rows('sessions', { mode: 'POWERLIFTING' }),
     planItems: rows('planItems', { mode: 'POWERLIFTING', repsHigh: null }),
     advice: rows('advice', { mode: 'POWERLIFTING' }),
+    // Version 4: no check-ins.
+    checkIns: [],
   }
+}
+
+/** A version 3 file as it exports here once restored: the current version, with no check-ins. */
+function withV4Defaults(file: Record<string, unknown>): Record<string, unknown> {
+  return { ...file, version: BACKUP_VERSION, checkIns: [] }
 }
 
 /** What a version-1 file with no strict press row exports as once restored here: the current version, switch off, all powerlifting. */
@@ -428,7 +460,7 @@ describe('backup', () => {
 
   it('webFixture_isUpToDate', async () => {
     const db = await openDb()
-    await buildSampleDb(db, { strictPress: true, bodybuilding: true })
+    await buildSampleDb(db, { strictPress: true, bodybuilding: true, checkIns: true })
     const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
     if (process.env.UPDATE_FIXTURES === '1') {
       writeFileSync(WEB_FIXTURE, JSON.stringify(JSON.parse(text), null, 4) + '\n')
@@ -438,7 +470,8 @@ describe('backup', () => {
     const file = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
     expect(file.settings.restAlert).toBe('VIBRATE')
     expect(file.settings.webRestAlert).toBe('SILENT')
-    expect(file.version).toBe(3)
+    expect(file.version).toBe(4)
+    expect(file.checkIns).toHaveLength(2)
     expect(file.settings.showStrictPress).toBe(true)
     expect(file.exercises.filter((e) => e.category === 'STRICT_PRESS').map((e) => e.name)).toEqual(['Strict press'])
   })
@@ -562,7 +595,7 @@ describe('backup version 3', () => {
     const text = encodeBackup(exported)
     const json = JSON.parse(text) as BackupFile
 
-    expect(json.version).toBe(3)
+    expect(json.version).toBe(BACKUP_VERSION)
     expect(json.settings).toMatchObject({
       trainingMode: 'BODYBUILDING',
       trainingDays: [2, 4, 6],
@@ -609,12 +642,9 @@ describe('backup version 3', () => {
     expect((await getSettings(db)).trainingMode).toBe('POWERLIFTING')
   })
 
-  it('v3File_onVersion2Decoder_isTooNew_andVersion4IsTooNewHere', async () => {
-    const text = readFileSync(WEB_FIXTURE, 'utf8')
+  it('v3File_onVersion2Decoder_isTooNew', async () => {
+    const text = readFileSync(WEB_V3_FIXTURE, 'utf8')
     expect(decodeBackup(text, 2)).toEqual({ ok: false, kind: 'TOO_NEW', version: 3 })
-    const v4 = JSON.stringify({ ...readJson(WEB_FIXTURE), version: 4 })
-    expect(decodeBackup(v4)).toEqual({ ok: false, kind: 'TOO_NEW', version: 4 })
-    expect(BACKUP_VERSION).toBe(3)
   })
 
   it('decode_newKeys_areOptionalButTyped', () => {
@@ -708,4 +738,137 @@ describe('cross-platform restore, version 3', () => {
     })
     expect(activeTrainingDays(s)).toEqual([1, 3, 5, 6])
   })
+})
+
+/** Bodybuilding mode stage 3: backup version 4 carries the check-ins and the two new advice types. */
+describe('backup version 4', () => {
+  it('v4RoundTrip_keepsCheckInsAndTheNewAdvice', async () => {
+    const db = await openDb()
+    await buildSampleDb(db, { strictPress: true, bodybuilding: true, checkIns: true })
+    const exported = await exportBackup(db, EXPORTED_AT)
+    const text = encodeBackup(exported)
+    const json = JSON.parse(text) as BackupFile
+
+    expect(json.version).toBe(4)
+    expect(json.checkIns).toEqual([
+      { id: 1, date: isoToEpochDay('2026-10-03'), lagging: [], growingWell: ['BICEPS'] },
+      { id: 2, date: isoToEpochDay('2026-10-31'), lagging: ['CHEST', 'SIDE_DELTS'], growingWell: ['QUADS'] },
+    ])
+    expect(json.advice.slice(-2).map((a) => [a.type, a.status, a.mode, a.createdAt])).toEqual([
+      ['MORE_WORK', 'OPEN', 'BODYBUILDING', isoToEpochDay('2026-10-30')],
+      ['SWAP', 'DISMISSED', 'BODYBUILDING', isoToEpochDay('2026-10-30')],
+    ])
+    expect(json.advice.at(-2)!.payload).toContain('"newExercise":{"weekday":"MONDAY","name":"Pec deck"')
+
+    // Everything changed here comes back from the file.
+    await db.checkIns.clear()
+    await db.checkIns.add({ date: '2026-11-12', lagging: ['CALVES'], growingWell: [] })
+    await db.advice.where('type').anyOf('MORE_WORK', 'SWAP').delete()
+    await restoreBackup(db, decodeOk(text))
+
+    expect(await exportBackup(db, EXPORTED_AT)).toEqual(exported)
+    expect((await db.checkIns.orderBy('date').toArray()).map((c) => [c.id, c.date, c.lagging, c.growingWell])).toEqual([
+      [1, '2026-10-03', [], ['BICEPS']],
+      [2, '2026-10-31', ['CHEST', 'SIDE_DELTS'], ['QUADS']],
+    ])
+    // A payload is kept exactly as written, and the domain still reads it.
+    const swap = (await db.advice.where('type').equals('SWAP').first())!
+    expect(swap.payloadJson).toBe(exported.advice.at(-1)!.payload)
+    expect(grit.advicePayload(swap.payloadJson)?.alternatives).toEqual(['Cable curl', 'EZ-bar curl', 'Incline DB curl'])
+  })
+
+  it('webV3Fixture_restoresWithNoCheckIns', async () => {
+    const db = await openDb()
+    await db.checkIns.add({ date: '2026-11-01', lagging: ['CHEST'], growingWell: [] }) // must be wiped
+    const v3 = readJson(WEB_V3_FIXTURE)
+    expect(v3.version).toBe(3)
+    expect('checkIns' in v3).toBe(false)
+    await restoreBackup(db, decodeOk(readFileSync(WEB_V3_FIXTURE, 'utf8')))
+
+    expect(await db.checkIns.count()).toBe(0)
+    const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
+    const expected = withoutExportedAt(withV4Defaults(v3))
+    ;(expected.settings as Record<string, unknown>).appLock = false // this device's own
+    expect(withoutExportedAt(out)).toEqual(expected)
+  })
+
+  it('v4File_onVersion3Decoder_isTooNew_andVersion5IsTooNewHere', () => {
+    const text = readFileSync(WEB_FIXTURE, 'utf8')
+    expect(decodeBackup(text, 3)).toEqual({ ok: false, kind: 'TOO_NEW', version: 4 })
+    const v5 = JSON.stringify({ ...readJson(WEB_FIXTURE), version: 5 })
+    expect(decodeBackup(v5)).toEqual({ ok: false, kind: 'TOO_NEW', version: 5 })
+    expect(BACKUP_VERSION).toBe(4)
+  })
+
+  it('decode_checkIns_areOptionalButTyped', () => {
+    type Loose = Record<string, unknown> & { checkIns: Record<string, unknown>[]; advice: Record<string, unknown>[] }
+    const valid = readJson(WEB_FIXTURE) as Loose
+    const mut = (f: (o: Loose) => void) => {
+      const o = structuredClone(valid)
+      f(o)
+      return JSON.stringify(o)
+    }
+    const corrupt = (text: string) => {
+      const r = decodeBackup(text)
+      expect(r.ok === false && r.kind, text.slice(0, 80)).toBe('CORRUPT')
+    }
+    corrupt(mut((o) => (o.checkIns = null as never)))
+    corrupt(mut((o) => (o.checkIns[0]!.lagging = ['PECS'])))
+    corrupt(mut((o) => (o.checkIns[0]!.growingWell = 'BICEPS')))
+    corrupt(mut((o) => (o.checkIns[0]!.date = '2026-10-03')))
+    corrupt(mut((o) => delete o.checkIns[0]!.growingWell))
+    corrupt(mut((o) => (o.checkIns[0]!.extra = 1)))
+    // One per date, ids unique, and a group never both lagging and growing well.
+    corrupt(mut((o) => (o.checkIns[1]!.date = o.checkIns[0]!.date)))
+    corrupt(mut((o) => (o.checkIns[1]!.id = o.checkIns[0]!.id)))
+    corrupt(mut((o) => (o.checkIns[1]!.growingWell = ['CHEST'])))
+    corrupt(mut((o) => (o.advice.at(-1)!.type = 'SWAPS')))
+
+    // Absent means none, as in an older file.
+    const old = decodeOk(mut((o) => delete (o as Partial<Loose>).checkIns))
+    expect(old.checkIns).toEqual([])
+    // Groups come back in the domain's order, as the app stores them.
+    const reordered = decodeOk(mut((o) => (o.checkIns[1]!.lagging = ['SIDE_DELTS', 'CHEST'])))
+    expect(reordered.checkIns[1]!.lagging).toEqual(['SIDE_DELTS', 'CHEST'])
+  })
+
+  it('restore_storesGroupsInTheDomainsOrder', async () => {
+    const db = await openDb()
+    const file = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
+    file.checkIns[1]!.lagging = ['SIDE_DELTS', 'CHEST']
+    await restoreBackup(db, file)
+    expect((await db.checkIns.get(2))!.lagging).toEqual(['CHEST', 'SIDE_DELTS'])
+  })
+})
+
+describe('cross-platform restore, version 4', () => {
+  /**
+   * Android's version-4 backup: two check-ins, a MORE_WORK and a SWAP advice, both sides' plans and a few sessions.
+   * Written by the Android app (stage 3 Task 2).
+   */
+  const androidV4Fixture_restoresOnWeb = async () => {
+    const android = readJson(ANDROID_V4_FIXTURE) as unknown as BackupFile
+    expect(android.version).toBe(4)
+    const db = await openDb()
+    await ensureSeeded(db)
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_V4_FIXTURE, 'utf8')))
+
+    // Every check-in, every advice (the two new types among them) and both sides' plans come back.
+    const checkIns = await db.checkIns.orderBy('id').toArray()
+    expect(checkIns.map((c) => [c.id, isoToEpochDay(c.date), [...c.lagging].sort(), [...c.growingWell].sort()])).toEqual(
+      android.checkIns.map((c) => [c.id, c.date, [...c.lagging].sort(), [...c.growingWell].sort()]),
+    )
+    expect(checkIns.length).toBeGreaterThanOrEqual(2)
+    const advice = await db.advice.orderBy('id').toArray()
+    expect(advice.map((a) => [a.id, a.type, a.status, a.mode, a.payloadJson])).toEqual(android.advice.map((a) => [a.id, a.type, a.status, a.mode, a.payload]))
+    expect(advice.map((a) => a.type)).toEqual(expect.arrayContaining(['MORE_WORK', 'SWAP']))
+    for (const a of advice.filter((x) => x.type === 'MORE_WORK' || x.type === 'SWAP')) expect(grit.advicePayload(a.payloadJson)?.kind).toBe(a.type === 'SWAP' ? 'Swap' : 'MoreWork')
+    for (const side of ['POWERLIFTING', 'BODYBUILDING'] as const) {
+      expect((await planFor(db, side)).length).toBe(android.planItems.filter((p) => (p.mode ?? 'POWERLIFTING') === side).length)
+    }
+    // And it exports again with the same check-ins.
+    const out = await exportBackup(db, EXPORTED_AT)
+    expect(out.checkIns.map((c) => c.id)).toEqual(android.checkIns.map((c) => c.id))
+  }
+  it('androidV4Fixture_restoresOnWeb', androidV4Fixture_restoresOnWeb)
 })

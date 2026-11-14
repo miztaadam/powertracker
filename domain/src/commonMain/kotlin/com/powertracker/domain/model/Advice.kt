@@ -1,14 +1,25 @@
 package com.powertracker.domain.model
 
+import com.powertracker.domain.library.MuscleGroup
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 
-enum class AdviceType { TARGET, STALL, DELOAD, WEAK_POINT, RE_ENTRY }
+/** New values go last: the names are stored in databases and backups. */
+enum class AdviceType { TARGET, STALL, DELOAD, WEAK_POINT, RE_ENTRY, MORE_WORK, SWAP }
 
 enum class AdviceStatus { OPEN, APPLIED, DISMISSED }
 
 @Serializable
 data class AccessoryPrescription(val exerciseName: String, val sets: Int, val repsLow: Int, val repsHigh: Int)
+
+/** One more set for the plan item on [weekday] holding [exerciseId] ([name] when the advice was made): [fromSets] to [toSets]. */
+@Serializable
+data class SetAddition(val weekday: DayOfWeek, val exerciseId: Long, val name: String, val fromSets: Int, val toSets: Int)
+
+/** A catalogue exercise ([name]) to add at the end of [weekday], [sets] x [repsLow]-[repsHigh] at [rpe]. */
+@Serializable
+data class NewExercise(val weekday: DayOfWeek, val name: String, val sets: Int, val repsLow: Int, val repsHigh: Int, val rpe: Double)
 
 @Serializable
 sealed interface AdvicePayload {
@@ -37,6 +48,26 @@ sealed interface AdvicePayload {
 
     @Serializable
     data class ReEntry(val loadFactor: Double = 0.85) : AdvicePayload
+
+    /**
+     * More work for a lagging [group] (bodybuilding side): either [addSets] (one or two) or [newExercise], never both.
+     * [weeklyBefore] and [weeklyAfter] are the group's weekly counted sets in the plan before and after applying it.
+     */
+    @Serializable
+    data class MoreWork(
+        val group: MuscleGroup,
+        val addSets: List<SetAddition>,
+        val newExercise: NewExercise?,
+        val weeklyBefore: Int,
+        val weeklyAfter: Int,
+    ) : AdvicePayload
+
+    /**
+     * A stuck exercise ([exerciseId], [name]; its main [group]) that has not beaten its session of [since], and up to
+     * three catalogue exercises to swap it for, best first.
+     */
+    @Serializable
+    data class Swap(val exerciseId: Long, val name: String, val group: MuscleGroup, val since: LocalDate, val alternatives: List<String>) : AdvicePayload
 }
 
 data class Advice(

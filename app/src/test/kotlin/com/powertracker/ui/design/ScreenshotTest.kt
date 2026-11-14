@@ -147,6 +147,7 @@ class ScreenshotTest {
     fun coachBodybuilding() = render("coach-bodybuilding", Tab.COACH, TrainingMode.BODYBUILDING) { CoachBodybuildingShowcase() }
 
     @Test
+    @Config(qualifiers = "w412dp-h1456dp-xhdpi")
     fun progressBodybuilding() = render("progress-bodybuilding", Tab.PROGRESS, TrainingMode.BODYBUILDING) { ProgressBodybuildingShowcase() }
 
     @Test
@@ -154,6 +155,20 @@ class ScreenshotTest {
     fun settingsBodybuilding() = render("settings-bodybuilding", null, TrainingMode.BODYBUILDING) {
         SettingsShowcase(bodybuilding = true)
     }
+
+    // Stage 3: the check-in's three steps, and Coach with the check-in due and the two new cards.
+    @Test
+    fun checkInLagging() = render("checkin-lagging-bodybuilding", null, TrainingMode.BODYBUILDING) { CheckInLaggingShowcase() }
+
+    @Test
+    fun checkInGrowing() = render("checkin-growing-bodybuilding", null, TrainingMode.BODYBUILDING) { CheckInGrowingShowcase() }
+
+    @Test
+    fun checkInSaved() = render("checkin-saved-bodybuilding", null, TrainingMode.BODYBUILDING) { CheckInSavedShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1150dp-xhdpi")
+    fun coachCheckIn() = render("coach-checkin-bodybuilding", Tab.COACH, TrainingMode.BODYBUILDING) { CoachCheckInShowcase() }
 
     // The bodybuilding side's plan builder (stage 2): its four steps.
     @Test

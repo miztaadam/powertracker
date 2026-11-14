@@ -1,11 +1,15 @@
 import type { ReactNode } from 'react'
 import type { TrainingMode } from '../../db/schema'
 import type { Lift } from '../../router'
-import type { CardDetail, CoachCard, Prescription } from '../../state/useCoach'
+import type { CardDetail, CoachCard, NewExerciseUi, Prescription, SetAdditionUi } from '../../state/useCoach'
 import type { MissPoint } from '../../state/useToday'
+import { grit } from '../../domain'
+import { dayName } from '../../state/weekdayNames'
 import { AdviceCard } from '../../ui/components/AdviceCard'
-import { formatKg } from '../../ui/components/format'
-import { BalanceIcon, BatteryAlertIcon, ReplayIcon, TrendingFlatIcon } from '../../ui/components/icons'
+import { SecondaryButton } from '../../ui/components/Button'
+import { formatKg, formatRpe } from '../../ui/components/format'
+import { BalanceIcon, BatteryAlertIcon, FitnessCenterIcon, ReplayIcon, TrendingFlatIcon } from '../../ui/components/icons'
+import { formatDayMonth } from '../progress/dates'
 import { Eyebrow, NumberDisplay } from '../../ui/components/NumberDisplay'
 import { RatioBar } from '../../ui/components/RatioBar'
 import { Sparkline } from '../../ui/components/Sparkline'
@@ -108,12 +112,16 @@ function Detail({ lift, detail, side }: { lift: Lift | null; detail: CardDetail;
         </>
       )
     }
+    case 'moreWork':
+    case 'swap':
+      return null
   }
 }
 
 export type CoachAdviceCardProps = {
   card: CoachCard
-  onApply: () => void
+  /** Apply; a swap passes the alternative tapped. */
+  onApply: (choice?: string) => void
   onDismiss: () => void
   /** The side the app is on. On the bodybuilding side a deload or easing back in speaks of exercises and weights, not lifts and top sets. */
   side?: TrainingMode
@@ -125,9 +133,62 @@ function scopeOf(advice: CoachCard['advice'], side: TrainingMode): string {
   return (advice.type === 'DELOAD' || advice.type === 'RE_ENTRY') && side === 'BODYBUILDING' ? 'All exercises' : 'All lifts'
 }
 
+/** A body part's name as a title starts it: "Side delts". */
+const groupName = (group: string) => grit.muscleGroupLabel(group)
+
+/** "One more set of Incline DB press on Monday (3 → 4)". */
+export const setAdditionLine = (a: SetAdditionUi) => `One more set of ${a.name} on ${dayName(a.weekday)} (${a.fromSets} → ${a.toSets})`
+
+/** "Add Pec deck on Thursday, 3 × 8–12 @ 8". */
+export const newExerciseLine = (n: NewExerciseUi) => `Add ${n.name} on ${dayName(n.weekday)}, ${n.sets} × ${n.repsLow}–${n.repsHigh} @ ${formatRpe(n.rpe)}`
+
+/**
+ * A lagging body part (stage 3): what the coach would add, one line each, then the body part's weekly sets before and
+ * after. Nothing changes until "Add to plan".
+ */
+function MoreWorkCard({ detail, onApply, onDismiss }: { detail: Extract<CardDetail, { kind: 'moreWork' }>; onApply: () => void; onDismiss: () => void }) {
+  const lines = detail.newExercise ? [newExerciseLine(detail.newExercise)] : detail.addSets.map(setAdditionLine)
+  return (
+    <AdviceCard tone="info" icon={<FitnessCenterIcon />} tag="More work" title={`${groupName(detail.group)} is lagging`} primaryAction="Add to plan" onPrimary={onApply} secondaryAction="Dismiss" onSecondary={onDismiss}>
+      <ul className="coach-list">
+        {lines.map((line) => (
+          <li key={line} className="coach-list-row">
+            <span className="coach-list-name body-medium">{line}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="coach-muted body-medium">{`${groupName(detail.group)}: ${detail.weeklyBefore} → ${detail.weeklyAfter} sets a week`}</p>
+    </AdviceCard>
+  )
+}
+
+/** An exercise that has not moved for three weeks or more (stage 3): one button per alternative, then Dismiss. */
+function SwapCard({ detail, onSwap, onDismiss }: { detail: Extract<CardDetail, { kind: 'swap' }>; onSwap: (choice: string) => void; onDismiss: () => void }) {
+  const weeks = `${detail.weeks} ${detail.weeks === 1 ? 'week' : 'weeks'}`
+  return (
+    <AdviceCard
+      tone="warning"
+      icon={<TrendingFlatIcon />}
+      tag="Stuck"
+      title={`${detail.name} hasn't moved in ${weeks}`}
+      body={`Same weight and no more reps since ${formatDayMonth(detail.since)}. Another exercise for ${groupName(detail.group).toLowerCase()} can get it moving.`}
+      secondaryAction="Dismiss"
+      onSecondary={onDismiss}
+    >
+      <div className="coach-swaps">
+        {detail.alternatives.map((name) => (
+          <SecondaryButton key={name} text={`Swap for ${name}`} onClick={() => onSwap(name)} compact />
+        ))}
+      </div>
+    </AdviceCard>
+  )
+}
+
 /** One card of the Coach feed: what kind of advice, what to do, the coach's reason, the figures behind it, Apply and Dismiss. */
 export function CoachAdviceCard({ card, onApply, onDismiss, side = 'POWERLIFTING' }: CoachAdviceCardProps) {
   const { advice, detail } = card
+  if (detail.kind === 'moreWork') return <MoreWorkCard detail={detail} onApply={() => onApply()} onDismiss={onDismiss} />
+  if (detail.kind === 'swap') return <SwapCard detail={detail} onSwap={(choice) => onApply(choice)} onDismiss={onDismiss} />
   const look = lookFor(advice.type, advice.lift, detail)
   return (
     <AdviceCard

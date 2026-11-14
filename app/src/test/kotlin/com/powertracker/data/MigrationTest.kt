@@ -6,6 +6,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.powertracker.data.db.AppDatabase
 import com.powertracker.data.db.MIGRATION_1_2
 import com.powertracker.data.db.MIGRATION_2_3
+import com.powertracker.data.db.MIGRATION_3_4
 import com.powertracker.data.db.StrictPressUpgrade
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -207,6 +208,54 @@ class MigrationTest {
         assertEquals(Row(4, "Strict press", "STRICT_PRESS", true, false), exercises(db).last())
         assertEquals(listOf(1L to 4L), sets(db))
         assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM plan_item"))
+        assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM session"))
+        db.close()
+    }
+
+    @Test
+    fun schemaV3_opens() {
+        helper.createDatabase(name, 3).close()
+    }
+
+    /** Stage 3: a version 3 database keeps every row and gains an empty check-in table. */
+    @Test
+    fun upgrade3To4_keepsEveryRow_addsAnEmptyCheckInTable() {
+        helper.createDatabase(name, 3).use { db ->
+            seedMainLifts(db)
+            session(db, 1, 20_400)
+            set(db, 1, 1, 1, 140.0)
+            planItem(db, 1, 1)
+            advice(db, 1, "TARGET", "OPEN")
+            db.execSQL("UPDATE session SET mode = 'BODYBUILDING' WHERE id = 1")
+        }
+
+        val db = helper.runMigrationsAndValidate(name, 4, true, MIGRATION_3_4)
+
+        assertEquals(3, exercises(db).size)
+        assertEquals(listOf(1L to 1L), sets(db))
+        assertEquals(listOf(1L to 1L), planItems(db))
+        assertEquals(listOf(1L), ids(db, "SELECT id FROM advice"))
+        assertEquals(listOf("BODYBUILDING"), strings(db, "SELECT mode FROM session"))
+        assertEquals(emptyList<Long>(), ids(db, "SELECT id FROM check_ins"))
+        // One check-in per date.
+        db.execSQL("INSERT INTO check_ins (date, lagging, growingWell) VALUES (20450, 'CHEST', '')")
+        val second = runCatching { db.execSQL("INSERT INTO check_ins (date, lagging, growingWell) VALUES (20450, '', 'QUADS')") }
+        assertEquals(true, second.isFailure)
+        db.close()
+    }
+
+    /** A version 1 database still reaches version 4 through every upgrade in turn. */
+    @Test
+    fun upgrade1To4_runsEveryStep() {
+        helper.createDatabase(name, 1).use { db ->
+            seedMainLifts(db)
+            session(db, 1, 20_400)
+            set(db, 1, 1, 1, 140.0)
+        }
+
+        val db = helper.runMigrationsAndValidate(name, 4, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+
+        assertEquals(listOf(1L to 1L), sets(db))
         assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM session"))
         db.close()
     }
