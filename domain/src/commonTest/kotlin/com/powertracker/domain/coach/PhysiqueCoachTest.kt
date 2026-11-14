@@ -685,4 +685,64 @@ class PhysiqueCoachTest {
         val out = PhysiqueCoach.afterCheckIn(checkIn(setOf(MuscleGroup.CHEST)), h, plan, today)
         assertEquals(listOf(GroupNote(MuscleGroup.CHEST, NoteReason.WOULD_PASS_CEILING, 3)), out.notes)
     }
+
+    // ---- applying more work re-checks the ceiling ----
+
+    @Test
+    fun chestAdviceAppliedAfterTricepsReachedTwentySkipsTheAdditionsThatTouchTriceps() {
+        // Rope pushdown on Monday raised by hand from 3 to 11 sets: triceps 20.
+        val edited = default3.map { if (it == at(default3, MONDAY, "Rope pushdown")) it.copy(sets = 11) else it }
+        assertEquals(20, PhysiqueCoach.weeklySets(edited, exercises, MuscleGroup.TRICEPS))
+        val change = PhysiqueCoach.applyMoreWork(chest, edited, exercises)
+        // DB press (pecs, front delts) applies; Incline DB press (pecs, front delts, triceps) does not.
+        assertEquals(listOf(at(default3, MONDAY, "DB press").copy(sets = 4)), change.updated)
+        assertEquals("Added a set to 1 exercise; 1 exercise would take a body part past 20 sets a week and was left as it is", change.message)
+        assertTrue(change.changed)
+        // A new exercise too: 18 sets of DB shrug leave no room for 3 sets of Barbell shrug.
+        val shrugs = default3 + item(100, FRIDAY, "DB shrug", 18, 8)
+        assertEquals(
+            PlanChange(emptyList(), emptyList(), emptyList(), "Your plan has changed since; that would take a body part past 20 sets a week, so nothing was added", false),
+            PhysiqueCoach.applyMoreWork(traps, shrugs, exercises),
+        )
+    }
+
+    @Test
+    fun aSuggestionAppliedAfterRandomEditsNeverTakesAGroupPastTheCeiling() {
+        val random = Random(2026)
+        var skipped = 0
+        for ((name, plan) in plans) for ((lagging, growing) in checkIns(name.hashCode(), 3).takeLast(3)) {
+            val advice = outcome(plan, lagging, growing).advice
+            if (advice.isEmpty()) continue
+            repeat(3) { round ->
+                // Random edits: sets changed by hand, items removed, then perhaps another suggestion or a swap first.
+                var edited = plan.mapNotNull { item ->
+                    when (random.nextInt(10)) {
+                        0 -> null
+                        1, 2 -> item.copy(sets = 1 + random.nextInt(8))
+                        else -> item
+                    }
+                }
+                when (random.nextInt(3)) {
+                    0 -> edited = apply(PhysiqueCoach.applyMoreWork(moreWork(advice.random(random)), edited, exercises), edited)
+                    1 -> {
+                        val e = exercises.getValue(edited.random(random).exerciseId)
+                        val group = PlanBuilder.mainGroup(e.muscles)
+                        val alt = PhysiqueCoach.swapAlternatives(e, edited, exercises).firstOrNull()
+                        if (group != null && alt != null) {
+                            val payload = AdvicePayload.Swap(e.id, e.name, group, today, listOf(alt.name))
+                            edited = apply(PhysiqueCoach.applySwap(payload, alt.name, edited, exercises), edited)
+                        }
+                    }
+                    else -> Unit
+                }
+                for (a in advice) {
+                    val change = PhysiqueCoach.applyMoreWork(moreWork(a), edited, exercises)
+                    if ("past 20" in change.message) skipped++
+                    assertTrue(keepsCeiling(edited, apply(change, edited)), "$name, round $round, ${moreWork(a)}\n${PhysiqueFixtures.describe(edited)}")
+                }
+            }
+        }
+        // The ceiling really refused some.
+        assertTrue(skipped > 0)
+    }
 }

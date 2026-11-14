@@ -413,34 +413,61 @@ object PhysiqueCoach {
     const val NOTHING_ADDED = "Your plan has changed since; nothing was added"
     const val NOTHING_SWAPPED = "Your plan has changed since; nothing was swapped"
 
+    /** More work that would now take a body part past the weekly ceiling. */
+    const val NOTHING_ADDED_PAST_CEILING = "Your plan has changed since; that would take a body part past 20 sets a week, so nothing was added"
+
     /** A swap that would now take a body part past the weekly ceiling. */
     const val PAST_CEILING = "Your plan has changed since; that swap would take a body part past 20 sets a week, so nothing was swapped"
 
     /**
      * [payload] applied to the bodybuilding side's items of [plan]. A set addition applies only while the plan still
      * has that item (weekday and exercise) at its `fromSets`; a new exercise only while it is still not in the plan
-     * and its day has fewer than [MAX_EXERCISES] items. What did not apply is left alone, and the message says so.
+     * and its day has fewer than [MAX_EXERCISES] items. Each change is taken only if it keeps every group it works at the
+     * ceiling or under on the current plan, counting the changes already taken (a group above it is never raised).
+     * What did not apply is left alone, and the message says so.
      */
     fun applyMoreWork(payload: AdvicePayload.MoreWork, plan: List<PlanItem>, exercises: Map<Long, Exercise>): PlanChange {
         val items = inWeekOrder(plan.on(TrainingMode.BODYBUILDING))
-        val updated = mutableListOf<PlanItem>()
-        for (add in payload.addSets) {
-            val item = items.firstOrNull { it.weekday == add.weekday && it.exerciseId == add.exerciseId && it.sets == add.fromSets && it !in updated }
-            if (item != null) updated += item
+        // Weekly sets on the current plan, raised as each change below is taken, so the ones already taken count.
+        val weekly = MuscleGroup.entries.associateWithTo(HashMap()) { g -> weeklySets(items, exercises, g) }
+        /** Every group [muscles] work stays at the ceiling or under with [sets] more (a group above it is never raised). */
+        fun take(muscles: List<String>, sets: Int): Boolean {
+            val groups = groupsOf(muscles)
+            if (groups.any { weekly.getValue(it) + sets > WEEKLY_CEILING }) return false
+            for (g in groups) weekly[g] = weekly.getValue(g) + sets
+            return true
         }
-        val updates = updated.map { item -> item.copy(sets = payload.addSets.first { it.weekday == item.weekday && it.exerciseId == item.exerciseId }.toSets) }
+        val updates = mutableListOf<PlanItem>()
+        var changedSince = 0
+        var pastCeiling = 0
+        for (add in payload.addSets) {
+            val item = items.firstOrNull { it.weekday == add.weekday && it.exerciseId == add.exerciseId && it.sets == add.fromSets && updates.none { u -> u.id == it.id } }
+            when {
+                item == null -> changedSince++
+                !take(exercises[item.exerciseId]?.muscles.orEmpty(), add.toSets - add.fromSets) -> pastCeiling++
+                else -> updates += item.copy(sets = add.toSets)
+            }
+        }
         val added = mutableListOf<Pair<PlanItem, String>>()
         val new = payload.newExercise
-        if (new != null && !inPlan(new.name, items, exercises) && items.count { it.weekday == new.weekday } < MAX_EXERCISES) {
-            val order = (items.filter { it.weekday == new.weekday }.maxOfOrNull { it.order } ?: -1) + 1
-            added += PlanItem(0, new.weekday, 0, new.sets, new.repsLow, new.rpe, order, TrainingMode.BODYBUILDING, new.repsHigh) to new.name
+        if (new != null) {
+            when {
+                inPlan(new.name, items, exercises) || items.count { it.weekday == new.weekday } >= MAX_EXERCISES -> changedSince++
+                !take(Library.find(new.name)?.muscles.orEmpty(), new.sets) -> pastCeiling++
+                else -> {
+                    val order = (items.filter { it.weekday == new.weekday }.maxOfOrNull { it.order } ?: -1) + 1
+                    added += PlanItem(0, new.weekday, 0, new.sets, new.repsLow, new.rpe, order, TrainingMode.BODYBUILDING, new.repsHigh) to new.name
+                }
+            }
         }
-        val skipped = payload.addSets.size - updates.size
         val message = when {
             added.isNotEmpty() -> "Added ${new!!.name} to ${dayName(new.weekday)}"
-            updates.isEmpty() -> NOTHING_ADDED
-            skipped == 0 -> "Added a set to ${exercisesText(updates.size)}"
-            else -> "Added a set to ${exercisesText(updates.size)}; ${exercisesText(skipped)} had changed since and was left as it is"
+            updates.isEmpty() -> if (pastCeiling > 0) NOTHING_ADDED_PAST_CEILING else NOTHING_ADDED
+            else -> buildString {
+                append("Added a set to ${exercisesText(updates.size)}")
+                if (changedSince > 0) append("; ${exercisesText(changedSince)} had changed since and was left as it is")
+                if (pastCeiling > 0) append("; ${exercisesText(pastCeiling)} would take a body part past 20 sets a week and was left as it is")
+            }
         }
         return PlanChange(updates, emptyList(), added, message, updates.isNotEmpty() || added.isNotEmpty())
     }
