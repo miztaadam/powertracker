@@ -47,13 +47,15 @@ class PhysiqueBridgeTest {
         assertEquals(listOf("BODYBUILDING", "BODYBUILDING"), out.advice.map { it.mode })
         assertEquals(0, out.notes.size)
         // The stored payload decodes for the screens.
-        val traps = GritDomain.advicePayload(out.advice[0].payloadJson)!!
+        // Chest is a target group, so it comes before traps.
+        val traps = GritDomain.advicePayload(out.advice[1].payloadJson)!!
         assertEquals("MoreWork", traps.kind)
         assertEquals("TRAPS", traps.group)
         assertEquals(3, traps.newExercise!!.weekday)
         assertEquals("Barbell shrug", traps.newExercise!!.name)
         assertEquals(0, traps.weeklyBefore)
-        val chest = GritDomain.advicePayload(out.advice[1].payloadJson)!!
+        val chest = GritDomain.advicePayload(out.advice[0].payloadJson)!!
+        assertEquals("CHEST", chest.group)
         assertEquals(listOf(1, 3), chest.addSets.map { it.weekday })
         // Saving again dismisses the open ones.
         val again = GritDomain.physiqueAfterCheckIn(checkIn, jsHistory, jsPlan, today.toString(), out.advice)
@@ -65,14 +67,14 @@ class PhysiqueBridgeTest {
     @Test
     fun applyingCrossesTheBoundary() {
         val out = GritDomain.physiqueAfterCheckIn(checkIn, jsHistory, jsPlan, today.toString(), emptyArray())
-        val traps = GritDomain.physiqueApplyMoreWork(out.advice[0].payloadJson, jsPlan, jsExercises)
+        val traps = GritDomain.physiqueApplyMoreWork(out.advice[1].payloadJson, jsPlan, jsExercises)
         assertEquals("Added Barbell shrug to Wednesday", traps.message)
         assertTrue(traps.changed)
         assertEquals("Barbell shrug", traps.added.single().name)
         assertEquals(3, traps.added.single().item.weekday)
         assertEquals("BODYBUILDING", traps.added.single().item.mode)
         assertEquals(12, traps.added.single().item.repsHigh)
-        val chest = GritDomain.physiqueApplyMoreWork(out.advice[1].payloadJson, jsPlan, jsExercises)
+        val chest = GritDomain.physiqueApplyMoreWork(out.advice[0].payloadJson, jsPlan, jsExercises)
         assertEquals("Added a set to 2 exercises", chest.message)
         assertContentEquals(intArrayOf(4, 4), chest.updated.map { it.sets }.toIntArray())
         // A swap payload is not more work.

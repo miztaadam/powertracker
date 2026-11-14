@@ -90,7 +90,7 @@ object PhysiqueCoach {
     private const val NEW_RPE = PlanBuilder.RPE
 
     /** Held, carried or drill work, not done for 8-12 reps: never a new exercise or an alternative. */
-    private val NOT_FOR_REPS = listOf("plank", "carry", "walk", "hold", "clamshell", "quadruped", "rotation")
+    private val NOT_FOR_REPS = listOf("plank", "carry", "walk", "hold", "clamshell", "quadruped", "rotation", "pallof")
 
     private val UPPER: Set<MuscleGroup> = setOf(
         MuscleGroup.CHEST, MuscleGroup.LATS, MuscleGroup.UPPER_BACK, MuscleGroup.TRAPS, MuscleGroup.FRONT_DELTS,
@@ -175,26 +175,69 @@ object PhysiqueCoach {
     }
 
     /**
-     * New-exercise candidates for [group], best first: those whose kind differs from every kind in [kinds] (they work
-     * the group differently), then by position in their kind's defaults, then catalogue order.
+     * New-exercise candidates for [group], best first: those whose kind differs from the kind of every plan item whose
+     * main group is [group] (they work it differently), then the rest of [order]'s keys.
      */
     internal fun newExerciseCandidates(group: MuscleGroup, plan: List<PlanItem>, exercises: Map<Long, Exercise>): List<LibraryExercise> {
         val items = plan.on(TrainingMode.BODYBUILDING)
         val kinds = items.filter { mainGroupOf(it, exercises) == group }.mapNotNull { exercises[it.exerciseId] }.map(::kindOf).toSet()
-        return order(candidates(group, items, exercises)) { kindOf(it) !in kinds }
+        return order(group, candidates(group, items, exercises)) { kindOf(it) !in kinds }
     }
 
-    /** Swap alternatives for the stuck [exercise], best first: the same kind first, then defaults, then catalogue order. */
+    /**
+     * Every swap alternative for the stuck [exercise] the rules allow, best first: the same kind first, then the rest of
+     * [order]'s keys. When the exercise's first equipment (catalogue exercises only) is not BODYWEIGHT or BAND, no
+     * alternative whose first equipment is; and only alternatives that keep the ceiling ([swapKeepsCeiling]).
+     */
     internal fun swapAlternatives(exercise: Exercise, plan: List<PlanItem>, exercises: Map<Long, Exercise>): List<LibraryExercise> {
         val group = PlanBuilder.mainGroup(exercise.muscles) ?: return emptyList()
         val kind = kindOf(exercise)
         val items = plan.on(TrainingMode.BODYBUILDING)
-        return order(candidates(group, items, exercises)) { kindOf(it) == kind }
+        val loaded = Library.find(exercise.name)?.equipment?.firstOrNull()?.let { !light(it) } ?: false
+        return order(group, candidates(group, items, exercises)) { kindOf(it) == kind }
+            .filter { !loaded || !lightFirst(it) }
+            .filter { swapKeepsCeiling(exercise.id, it.muscles, items, exercises) }
     }
 
-    /** [first] ones first, then by position in their kind's defaults (listed ones first, in list order), then catalogue order. */
-    private fun order(list: List<LibraryExercise>, first: (LibraryExercise) -> Boolean): List<LibraryExercise> =
-        list.sortedWith(compareBy({ if (first(it)) 0 else 1 }, { catalogue.getValue(it.name).defaultsRank }, { catalogue.getValue(it.name).index }))
+    private fun light(e: Equipment) = e == Equipment.BODYWEIGHT || e == Equipment.BAND
+
+    private fun lightFirst(e: LibraryExercise) = e.equipment.firstOrNull()?.let(::light) ?: false
+
+    /** The groups whose preferred list comes before their kind's defaults: glutes take the builder's glutes-priority list. */
+    private val PREFERRED: Map<MuscleGroup, List<String>> = mapOf(MuscleGroup.GLUTES to PlanBuilder.GLUTE_PRIORITY_DEFAULTS)
+
+    /**
+     * [first] ones first; then, except for abs and obliques, those whose first equipment is not BODYWEIGHT or BAND;
+     * then [group]'s preferred list, in order; then their kind's defaults, in order; then catalogue order.
+     */
+    private fun order(group: MuscleGroup, list: List<LibraryExercise>, first: (LibraryExercise) -> Boolean): List<LibraryExercise> {
+        val preferred = PREFERRED[group].orEmpty()
+        val core = group == MuscleGroup.ABS || group == MuscleGroup.OBLIQUES
+        return list.sortedWith(
+            compareBy(
+                { if (first(it)) 0 else 1 },
+                { if (!core && lightFirst(it)) 1 else 0 },
+                { preferred.indexOf(it.name).let { i -> if (i >= 0) i else preferred.size } },
+                { catalogue.getValue(it.name).defaultsRank },
+                { catalogue.getValue(it.name).index },
+            ),
+        )
+    }
+
+    /**
+     * Whether putting [muscles]' exercise in the place of [exerciseId] on every day it is planned, with the same sets,
+     * leaves every group at the ceiling or under, or, for a group already above it, does not raise it.
+     */
+    private fun swapKeepsCeiling(exerciseId: Long, muscles: List<String>, plan: List<PlanItem>, exercises: Map<Long, Exercise>): Boolean {
+        val held = plan.filter { it.exerciseId == exerciseId }.sumOf { it.sets }
+        val old = groupsOf(exercises[exerciseId]?.muscles.orEmpty())
+        val new = groupsOf(muscles)
+        return (old + new).all { g ->
+            val before = weeklySets(plan, exercises, g)
+            val after = before - (if (g in old) held else 0) + (if (g in new) held else 0)
+            after <= WEEKLY_CEILING || after <= before
+        }
+    }
 
     // ---- check-in: more work ----
 
@@ -271,7 +314,8 @@ object PhysiqueCoach {
     /**
      * What saving [checkIn] gives (the rule "More work"), for the bodybuilding side's items of [plan]. Every OPEN
      * MORE_WORK advice in [priorAdvice] comes back DISMISSED in [CheckInOutcome.dismissed]. The lagging groups are
-     * taken fewest weekly sets first (ties in [MuscleGroup] order); the first [MAX_GROUPS] that can be given more work
+     * taken the builder's 12 target groups first, then the rest, each fewest weekly sets first (ties in [MuscleGroup]
+     * order); the first [MAX_GROUPS] that can be given more work
      * each get one MORE_WORK advice and every other lagging group a note. The suggestions of one check-in are chosen
      * one after another on a working copy of the plan, so applying all of them together keeps every group at the
      * ceiling or under and no new exercise takes a day's last place twice.
@@ -288,7 +332,10 @@ object PhysiqueCoach {
         val dismissed = priorAdvice
             .filter { it.type == AdviceType.MORE_WORK && it.status == AdviceStatus.OPEN }
             .map { it.copy(status = AdviceStatus.DISMISSED) }
-        val lagging = checkIn.lagging.sortedWith(compareBy({ weeklySets(items, exercises, it) }, { it.ordinal }))
+        // The builder's 12 target groups first, then the other six; within each, fewest weekly sets first.
+        val lagging = checkIn.lagging.sortedWith(
+            compareBy({ if (it in PlanBuilder.TARGET_GROUPS) 0 else 1 }, { weeklySets(items, exercises, it) }, { it.ordinal }),
+        )
         val w = Working(items, exercises.toMutableMap())
         val advice = mutableListOf<Advice>()
         val notes = mutableListOf<GroupNote>()
@@ -345,6 +392,11 @@ object PhysiqueCoach {
 
     private fun rpeText(rpe: Double): String = if (rpe == rpe.toLong().toDouble()) "${rpe.toLong()}" else "$rpe"
 
+    private val MONTHS = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+    /** "3 Nov". */
+    internal fun shortDate(date: LocalDate): String = "${date.day} ${MONTHS[date.month.ordinal]}"
+
     /** "Monday" ... "Sunday". */
     internal fun dayName(day: DayOfWeek): String = day.name.lowercase().replaceFirstChar { it.uppercase() }
 
@@ -353,6 +405,9 @@ object PhysiqueCoach {
     /** Nothing applied: the plan changed since the advice was made. */
     const val NOTHING_ADDED = "Your plan has changed since; nothing was added"
     const val NOTHING_SWAPPED = "Your plan has changed since; nothing was swapped"
+
+    /** A swap that would now take a body part past the weekly ceiling. */
+    const val PAST_CEILING = "Your plan has changed since; that swap would take a body part past 20 sets a week, so nothing was swapped"
 
     /**
      * [payload] applied to the bodybuilding side's items of [plan]. A set addition applies only while the plan still
@@ -388,7 +443,8 @@ object PhysiqueCoach {
     /**
      * [payload]'s stuck exercise swapped for [choice] (one of its alternatives) in every bodybuilding plan item that
      * holds it, keeping weekday, order, sets, reps and RPE: the old items in `removed`, their replacements (exerciseId 0)
-     * in `added`. Nothing changes when the stuck exercise is no longer in the plan or [choice] is in it by now.
+     * in `added`. Nothing changes when the stuck exercise is no longer in the plan, [choice] is in it by now, or the
+     * swap would now take a group past the weekly ceiling (or raise one already above it).
      */
     fun applySwap(payload: AdvicePayload.Swap, choice: String, plan: List<PlanItem>, exercises: Map<Long, Exercise>): PlanChange {
         require(payload.alternatives.any { Library.normalise(it) == Library.normalise(choice) }) { "choice: '$choice' is not one of ${payload.alternatives}" }
@@ -396,6 +452,10 @@ object PhysiqueCoach {
         val items = inWeekOrder(plan.on(TrainingMode.BODYBUILDING))
         val holding = items.filter { it.exerciseId == payload.exerciseId }
         if (holding.isEmpty() || inPlan(name, items, exercises)) return PlanChange(emptyList(), emptyList(), emptyList(), NOTHING_SWAPPED, false)
+        val entry = Library.find(name) ?: throw IllegalArgumentException("choice: '$name' is not in the catalogue")
+        if (!swapKeepsCeiling(payload.exerciseId, entry.muscles, items, exercises)) {
+            return PlanChange(emptyList(), emptyList(), emptyList(), PAST_CEILING, false)
+        }
         return PlanChange(
             emptyList(), holding, holding.map { it.copy(id = 0, exerciseId = 0) to name },
             "Swapped ${payload.name} for $name", true,
@@ -452,9 +512,9 @@ object PhysiqueCoach {
             if (window.size < 2 || window.any { beats(it.second, baseline.second) }) continue
             val alternatives = swapAlternatives(exercise, items, history.exercises).take(ALTERNATIVES).map { it.name }
             if (alternatives.isEmpty()) continue
-            val days = baseline.first.daysUntil(today)
-            val reason = "${exercise.name} has not gone up in ${days / 7} weeks (${window.size} sessions since). " +
-                "Try swapping it for another ${group.label.lowercase()} exercise."
+            val weeks = baseline.first.daysUntil(today) / 7
+            val reason = "${exercise.name} hasn't moved in $weeks ${if (weeks == 1) "week" else "weeks"}. " +
+                "Same weight and no more reps since ${shortDate(baseline.first)}."
             out += Advice(
                 AdviceType.SWAP, null, today, reason, 0,
                 AdvicePayload.Swap(id, exercise.name, group, baseline.first, alternatives), mode = TrainingMode.BODYBUILDING,

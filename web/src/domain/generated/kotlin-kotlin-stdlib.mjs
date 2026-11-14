@@ -113,7 +113,7 @@ initMetadataForObject(Digit, 'Digit');
 initMetadataForInterface(Comparator, 'Comparator');
 initMetadataForObject(Unit, 'Unit');
 initMetadataForClass(AbstractCollection, 'AbstractCollection', VOID, VOID, [Collection]);
-initMetadataForClass(AbstractMutableCollection, 'AbstractMutableCollection', VOID, AbstractCollection, [MutableIterable, Collection]);
+initMetadataForClass(AbstractMutableCollection, 'AbstractMutableCollection', VOID, AbstractCollection, [Collection, MutableIterable]);
 initMetadataForClass(IteratorImpl, 'IteratorImpl');
 initMetadataForClass(ListIteratorImpl, 'ListIteratorImpl', VOID, IteratorImpl);
 initMetadataForClass(AbstractMutableList, 'AbstractMutableList', VOID, AbstractMutableCollection, [Collection, MutableIterable, KtList]);
@@ -126,7 +126,7 @@ initMetadataForCompanion(Companion_2);
 initMetadataForClass(ArrayList, 'ArrayList', ArrayList_init_$Create$, AbstractMutableList, [Collection, MutableIterable, KtList, RandomAccess]);
 initMetadataForClass(HashMap, 'HashMap', HashMap_init_$Create$, AbstractMutableMap, [KtMap]);
 initMetadataForClass(HashMapKeys, 'HashMapKeys', VOID, AbstractMutableSet, [KtSet, Collection, MutableIterable]);
-initMetadataForClass(HashMapValues, 'HashMapValues', VOID, AbstractMutableCollection, [MutableIterable, Collection]);
+initMetadataForClass(HashMapValues, 'HashMapValues', VOID, AbstractMutableCollection, [Collection, MutableIterable]);
 initMetadataForClass(HashMapEntrySetBase, 'HashMapEntrySetBase', VOID, AbstractMutableSet, [KtSet, Collection, MutableIterable]);
 initMetadataForClass(HashMapEntrySet, 'HashMapEntrySet', VOID, HashMapEntrySetBase);
 initMetadataForClass(HashMapKeysDefault$iterator$1);
@@ -3300,11 +3300,11 @@ function listOf(element) {
   var tmp$ret$0 = [element];
   return new ArrayList(tmp$ret$0);
 }
-function setOf(element) {
-  return hashSetOf([element]);
-}
 function mapOf(pair) {
   return hashMapOf([pair]);
+}
+function setOf(element) {
+  return hashSetOf([element]);
 }
 function mapCapacity(expectedSize) {
   return expectedSize;

@@ -546,7 +546,7 @@ class PhysiqueCoachTest {
 
     @Test
     fun candidatesAreAccessoriesOfTheGroupOnPlanEquipmentNotInThePlanNorHeldOrCarried() {
-        val words = listOf("plank", "carry", "walk", "hold", "clamshell", "quadruped", "rotation")
+        val words = listOf("plank", "carry", "walk", "hold", "clamshell", "quadruped", "rotation", "pallof")
         val planned = default3.map { Library.normalise(exercises.getValue(it.exerciseId).name) }.toSet()
         val equipment = default3.flatMap { Library.find(exercises.getValue(it.exerciseId).name)!!.equipment }.toSet() + com.powertracker.domain.library.Equipment.BODYWEIGHT
         for (g in MuscleGroup.entries) for (c in PhysiqueCoach.newExerciseCandidates(g, default3, exercises)) {
@@ -556,5 +556,103 @@ class PhysiqueCoachTest {
             assertTrue(c.equipment.all { it in equipment }, c.name)
             assertTrue(words.none { c.name.contains(it, ignoreCase = true) }, c.name)
         }
+    }
+
+    // ---- revised rules: lagging order, candidate order, swap ceiling ----
+
+    private fun light(e: com.powertracker.domain.library.LibraryExercise) =
+        e.equipment.first() == com.powertracker.domain.library.Equipment.BODYWEIGHT || e.equipment.first() == com.powertracker.domain.library.Equipment.BAND
+
+    private fun kindOf(e: com.powertracker.domain.library.LibraryExercise) = PlanBuilder.kindOf(e.name, e.muscles, e.kind == Kind.COMPOUND, true)
+
+    @Test
+    fun targetGroupsComeBeforeTheOtherSixWhenEverythingLags() {
+        val out = outcome(default3, MuscleGroup.entries.toSet())
+        // Rear delts, calves and abs are the target groups with the fewest weekly sets (6 each).
+        assertEquals(listOf(MuscleGroup.REAR_DELTS, MuscleGroup.CALVES, MuscleGroup.ABS), out.advice.map { moreWork(it).group })
+        assertTrue(out.notes.all { it.reason == NoteReason.LATER })
+        val four = outcome(default4, MuscleGroup.entries.toSet())
+        assertTrue(four.advice.all { moreWork(it).group in PlanBuilder.TARGET_GROUPS })
+        // A lone non-target group still gets its round.
+        assertEquals(listOf(MuscleGroup.TRAPS), outcome(default3, setOf(MuscleGroup.TRAPS, MuscleGroup.LATS)).advice.map { moreWork(it).group }.filter { it == MuscleGroup.TRAPS })
+        assertEquals(listOf(MuscleGroup.LATS, MuscleGroup.TRAPS), outcome(default3, setOf(MuscleGroup.TRAPS, MuscleGroup.LATS)).advice.map { moreWork(it).group })
+    }
+
+    @Test
+    fun candidatesPutLoadedExercisesBeforeBodyweightAndBandOnesExceptForCore() {
+        for ((name, plan) in plans.take(32)) for (g in MuscleGroup.entries) {
+            val kinds = plan.filter { PlanBuilder.mainGroup(exercises.getValue(it.exerciseId).muscles) == g }
+                .map { exercises.getValue(it.exerciseId) }.map { e -> Library.find(e.name)!!.let(::kindOf) }.toSet()
+            val keys = PhysiqueCoach.newExerciseCandidates(g, plan, exercises).map { c ->
+                val differs = if (kindOf(c) !in kinds) 0 else 1
+                val heavy = if (g != MuscleGroup.ABS && g != MuscleGroup.OBLIQUES && light(c)) 1 else 0
+                differs * 2 + heavy
+            }
+            assertEquals(keys.sorted(), keys, "$name $g")
+        }
+    }
+
+    @Test
+    fun glutesPreferTheBuildersGlutesPriorityDefaults() {
+        assertEquals(listOf("Hip thrust", "Machine hip thrust"), PhysiqueCoach.newExerciseCandidates(MuscleGroup.GLUTES, default3, exercises).take(2).map { it.name })
+        assertTrue(PhysiqueCoach.newExerciseCandidates(MuscleGroup.OBLIQUES, default3, exercises).none { it.name.contains("Pallof") })
+    }
+
+    @Test
+    fun aLoadedExerciseIsNeverSwappedForABodyweightOrBandOne() {
+        for ((name, plan) in plans.take(32)) for (id in plan.map { it.exerciseId }.distinct()) {
+            val e = exercises.getValue(id)
+            if (light(Library.find(e.name)!!)) continue
+            assertTrue(PhysiqueCoach.swapAlternatives(e, plan, exercises).none(::light), "$name ${e.name}")
+        }
+        assertTrue("Bodyweight squat" !in PhysiqueCoach.swapAlternatives(exercises.getValue(idOf("Leg press")), default3, exercises).map { it.name })
+    }
+
+    /** Every group at the ceiling or under, or not raised. */
+    private fun keepsCeiling(before: List<PlanItem>, after: List<PlanItem>): Boolean {
+        val b = weekly(before)
+        return weekly(after).all { (g, v) -> v <= PhysiqueCoach.WEEKLY_CEILING || v <= b.getValue(g) }
+    }
+
+    @Test
+    fun noSwapOfferedOrAppliedBreaksTheCeiling() {
+        var offered = 0
+        var refused = 0
+        for ((name, plan) in plans.take(32)) for (id in plan.map { it.exerciseId }.distinct()) {
+            val e = exercises.getValue(id)
+            val group = PlanBuilder.mainGroup(e.muscles) ?: continue
+            val alternatives = PhysiqueCoach.swapAlternatives(e, plan, exercises).map { it.name }
+            for (alt in alternatives) {
+                val change = PhysiqueCoach.applySwap(AdvicePayload.Swap(id, e.name, group, today, listOf(alt)), alt, plan, exercises)
+                assertTrue(change.changed, "$name ${e.name} -> $alt offered but not applied")
+                assertTrue(keepsCeiling(plan, apply(change, plan)), "$name ${e.name} -> $alt")
+                offered++
+            }
+            // Any other candidate of its group, applied as if offered: it applies only when it keeps the ceiling.
+            for (c in PhysiqueCoach.newExerciseCandidates(group, plan, exercises).filter { it.name !in alternatives }) {
+                val change = PhysiqueCoach.applySwap(AdvicePayload.Swap(id, e.name, group, today, listOf(c.name)), c.name, plan, exercises)
+                if (change.changed) assertTrue(keepsCeiling(plan, apply(change, plan)), "$name ${e.name} -> ${c.name}") else refused++
+            }
+        }
+        assertTrue(offered > 0 && refused > 0)
+    }
+
+    @Test
+    fun aCableLegCurlOnFourDaysVariantThreeIsNotSwappedForARdl() {
+        val plan = PhysiqueFixtures.build(FOUR_DAYS, emptyList(), 3)
+        assertEquals(20, PhysiqueCoach.weeklySets(plan, exercises, MuscleGroup.GLUTES))
+        val curl = exercises.getValue(idOf("Cable leg curl"))
+        val alternatives = PhysiqueCoach.swapAlternatives(curl, plan, exercises).map { it.name }
+        assertTrue("DB RDL" !in alternatives && "Stiff-leg deadlift" !in alternatives, "$alternatives")
+        // Offered earlier (say, before the plan changed), it is refused when applied.
+        val change = PhysiqueCoach.applySwap(AdvicePayload.Swap(curl.id, curl.name, MuscleGroup.HAMSTRINGS, today, listOf("DB RDL")), "DB RDL", plan, exercises)
+        assertEquals(PlanChange(emptyList(), emptyList(), emptyList(), "Your plan has changed since; that swap would take a body part past 20 sets a week, so nothing was swapped", false), change)
+    }
+
+    @Test
+    fun theSwapReasonReadsLikeItsCard() {
+        // The baseline was 28 days before 14 Nov.
+        assertEquals("Leg extension hasn't moved in 4 weeks. Same weight and no more reps since 17 Oct.", stuck().single().reason)
+
     }
 }
