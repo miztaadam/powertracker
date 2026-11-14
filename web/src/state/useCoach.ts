@@ -2,8 +2,9 @@ import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
 import { adviceForSide, historyOn } from './sides'
-import { planFor, resolveCatalogue } from '../db/catalogue'
-import { exerciseToJs } from '../db/mapping'
+import { applyPlanChange, planFor, resolveCatalogue } from '../db/catalogue'
+import { checkInToJs, loadCheckIns } from '../db/checkIns'
+import { exerciseToJs, planItemToJs } from '../db/mapping'
 import { sideOf, type AdviceRow, type ExerciseRow, type PlanItemRow, type TrainingMode } from '../db/schema'
 import { grit, type JsExercise, type JsHistory } from '../domain'
 import { LIFTS, type Lift } from '../router'
@@ -24,6 +25,19 @@ export type CardDetail =
   | { kind: 'reEntry'; loadPct: number }
   /** `additions` is what Apply would add to the plan; `muscles` goes with `missPoint`. */
   | { kind: 'weakPoint'; ratio: RatioUi | null; missPoint: MissPoint | null; muscles: string[]; additions: Prescription[] }
+  /**
+   * A lagging body part (bodybuilding side): `group` is its `MuscleGroup` name. Either sets added to planned exercises
+   * or one new exercise; its weekly sets before and after.
+   */
+  | { kind: 'moreWork'; group: string; addSets: SetAdditionUi[]; newExercise: NewExerciseUi | null; weeklyBefore: number; weeklyAfter: number }
+  /** An exercise stuck for three weeks or more (bodybuilding side): what to swap it for, best first. */
+  | { kind: 'swap'; exerciseId: number; name: string; group: string; since: string; weeks: number; alternatives: string[] }
+
+/** One more set of a planned exercise on one day. */
+export type SetAdditionUi = { weekday: number; name: string; fromSets: number; toSets: number }
+
+/** A new exercise for a day, with its prescription. */
+export type NewExerciseUi = { weekday: number; name: string; sets: number; repsLow: number; repsHigh: number; rpe: number }
 
 export type CoachAdvice = { id: number; type: string; lift: Lift | null; createdAt: string; reason: string }
 
@@ -38,16 +52,21 @@ export type CoachState = {
   message: CoachMessage | null
   /** The side whose feed this is: the side the app is on. Left out, the powerlifting side. */
   side?: TrainingMode
+  /** A check-in is due (bodybuilding side only): the card at the top of the feed. */
+  checkInDue?: boolean
 }
 
 export type CoachActions = {
-  /** Carries out the advice: accessories go into the plan; a deload or re-entry only needs to be accepted. */
-  apply: (adviceId: number) => Promise<void>
+  /**
+   * Carries out the advice: accessories go into the plan; a deload or re-entry only needs to be accepted. More work
+   * changes the plan as it says; a swap needs `choice`, one of its alternatives.
+   */
+  apply: (adviceId: number, choice?: string) => Promise<void>
   dismiss: (adviceId: number) => Promise<void>
   clearMessage: () => void
 }
 
-const FEED_ORDER = ['DELOAD', 'RE_ENTRY', 'STALL', 'WEAK_POINT']
+const FEED_ORDER = ['DELOAD', 'RE_ENTRY', 'STALL', 'WEAK_POINT', 'MORE_WORK', 'SWAP']
 const TREND_WEEKS = 6
 const WEAK_POINT_ADDITIONS = 2
 const E1RM_DAYS = 28
@@ -59,6 +78,12 @@ type Payload =
   | { kind: 'deload'; volumeFactor: number; loadFactor: number }
   | { kind: 'reEntry'; loadFactor: number }
   | { kind: 'weakPoint'; lift: Lift; missPoint: MissPoint | null }
+  | { kind: 'moreWork'; group: string; addSets: SetAdditionUi[]; newExercise: NewExerciseUi | null; weeklyBefore: number; weeklyAfter: number }
+  | { kind: 'swap'; exerciseId: number; name: string; group: string; since: string; alternatives: string[] }
+
+/** The stored weekday name ("MONDAY") as 1 = Monday .. 7 = Sunday; the bridge already gives numbers. */
+const WEEKDAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
+const weekdayOf = (day: number | string): number => (typeof day === 'number' ? day : WEEKDAYS.indexOf(day) + 1)
 
 /** Any main lift, strict press included: its advice shows whatever the Progress setting says. */
 const asLift = (value: unknown): Lift | null => (LIFTS.includes(value as Lift) ? (value as Lift) : null)
@@ -78,6 +103,22 @@ function parsePayload(payloadJson: string): Payload | null {
       const missPoint = MISS_POINTS.includes(p.missPoint as MissPoint) ? (p.missPoint as MissPoint) : null
       return lift ? { kind: 'weakPoint', lift, missPoint } : null
     }
+    case 'MoreWork': {
+      if (p.group == null || p.weeklyBefore == null || p.weeklyAfter == null) return null
+      const n = p.newExercise
+      return {
+        kind: 'moreWork',
+        group: p.group,
+        addSets: p.addSets.map((a) => ({ weekday: weekdayOf(a.weekday), name: a.name, fromSets: a.fromSets, toSets: a.toSets })),
+        newExercise: n ? { weekday: weekdayOf(n.weekday), name: n.name, sets: n.sets, repsLow: n.repsLow, repsHigh: n.repsHigh, rpe: n.rpe } : null,
+        weeklyBefore: p.weeklyBefore,
+        weeklyAfter: p.weeklyAfter,
+      }
+    }
+    case 'Swap':
+      return p.exerciseId != null && p.name != null && p.group != null && p.since != null
+        ? { kind: 'swap', exerciseId: p.exerciseId, name: p.name, group: p.group, since: p.since, alternatives: [...p.alternatives] }
+        : null
     default:
       return null
   }
@@ -87,7 +128,7 @@ type StoredAdvice = AdviceRow & { id: number }
 type LibraryExercise = JsExercise
 type StoredPlanItem = PlanItemRow & { id: number }
 
-type Stored = { today: string; side: TrainingMode; open: StoredAdvice[]; history: JsHistory; plan: StoredPlanItem[] }
+type Stored = { today: string; side: TrainingMode; open: StoredAdvice[]; history: JsHistory; plan: StoredPlanItem[]; checkInDue: boolean }
 
 /**
  * The feed of the side the app is on: its own advice, and every deload and easing back in whatever side it was
@@ -96,8 +137,10 @@ type Stored = { today: string; side: TrainingMode; open: StoredAdvice[]; history
 async function readStored(db: GritDb, today: string): Promise<Stored> {
   const settings = await getSettings(db)
   const side = settings.trainingMode
-  const [open, history, plan] = await Promise.all([db.advice.where('status').equals('OPEN').toArray(), loadHistory(db), planFor(db, side)])
-  return { today, side, open: adviceForSide(open as StoredAdvice[], side), history: historyOn(history, side), plan: plan as StoredPlanItem[] }
+  const [open, history, plan, checkIns] = await Promise.all([db.advice.where('status').equals('OPEN').toArray(), loadHistory(db), planFor(db, side), loadCheckIns(db)])
+  // Check-ins belong to the bodybuilding side only.
+  const checkInDue = side === 'BODYBUILDING' && grit.coachingCheckInDue(history, plan.map(planItemToJs), checkIns.map(checkInToJs), today)
+  return { today, side, open: adviceForSide(open as StoredAdvice[], side), history: historyOn(history, side), plan: plan as StoredPlanItem[], checkInDue }
 }
 
 /** An OPEN deload or re-entry stops counting after two weeks; the domain decides when. */
@@ -144,7 +187,7 @@ function weakPointAdditions(lift: Lift, missPoint: MissPoint | null, plan: PlanI
     .map(({ name, heavy }) => (heavy ? { exerciseName: name, sets: 3, repsLow: 3, repsHigh: 5 } : { exerciseName: name, sets: 3, repsLow: 8, repsHigh: 10 }))
 }
 
-function detailFor(lift: Lift | null, payload: Payload, d: Stored): CardDetail {
+function detailFor(lift: Lift | null, payload: Payload, d: Stored, createdAt: string): CardDetail {
   switch (payload.kind) {
     case 'accessories': {
       const trend = lift ? grit.weeklyTrend(d.history, lift, d.today).slice(-TREND_WEEKS).map((p) => p.value) : []
@@ -163,7 +206,17 @@ function detailFor(lift: Lift | null, payload: Payload, d: Stored): CardDetail {
         muscles: [...grit.accessoryMuscles(payload.lift, payload.missPoint)],
         additions: weakPointAdditions(payload.lift, payload.missPoint, d.plan, d.history.exercises),
       }
+    case 'moreWork':
+      return payload
+    case 'swap':
+      return { ...payload, weeks: weeksSince(payload.since, createdAt) }
   }
+}
+
+/** Whole weeks from `since` to `until` (ISO dates), as the coach counts them in a swap's reason. */
+function weeksSince(since: string, until: string): number {
+  const days = (Date.parse(`${until}T00:00:00Z`) - Date.parse(`${since}T00:00:00Z`)) / 86_400_000
+  return Math.max(0, Math.floor(days / 7))
 }
 
 /** The feed: most urgent kind first, then newest. Targets belong to Today and are left out. */
@@ -174,8 +227,10 @@ function build(d: Stored, busy: ReadonlySet<number>): CoachCard[] {
     .flatMap((a): CoachCard[] => {
       const payload = parsePayload(a.payloadJson)
       if (!payload) return []
+      // A swap for an exercise no longer in the plan has nothing to swap.
+      if (payload.kind === 'swap' && !d.plan.some((p) => p.exerciseId === payload.exerciseId)) return []
       const lift = asLift(a.lift)
-      return [{ advice: { id: a.id, type: a.type, lift, createdAt: a.createdAt, reason: a.reason }, detail: detailFor(lift, payload, d) }]
+      return [{ advice: { id: a.id, type: a.type, lift, createdAt: a.createdAt, reason: a.reason }, detail: detailFor(lift, payload, d, a.createdAt) }]
     })
 }
 
@@ -216,15 +271,34 @@ async function addToPlan(db: GritDb, lift: Lift | null, prescriptions: Prescript
  * Applies one piece of open advice and marks it APPLIED, in one transaction: if any write fails, the
  * plan is left as it was. Returns the confirmation, or null when there was nothing to apply.
  */
-function applyAdvice(db: GritDb, adviceId: number): Promise<string | null> {
+/** What applying did: the words to show, and whether the advice is done (a swap that could not be made stays open). */
+type Applied = { text: string; done: boolean }
+
+function applyAdvice(db: GritDb, adviceId: number, choice: string | undefined): Promise<Applied | null> {
   return db.transaction('rw', [db.advice, db.planItems, db.exercises, db.settings], async () => {
     const target = await db.advice.get(adviceId)
     const payload = target?.status === 'OPEN' && target.type !== 'TARGET' ? parsePayload(target.payloadJson) : null
     if (!target || !payload) return null
+    if (payload.kind === 'swap' && (choice == null || !payload.alternatives.includes(choice))) return null
     let message: string
     if (payload.kind === 'deload') message = 'Deload week on — targets lightened for 7 days'
     else if (payload.kind === 'reEntry') message = 'Easing back in for 7 days'
-    else {
+    else if (payload.kind === 'moreWork' || payload.kind === 'swap') {
+      // The domain works out what still applies to the bodybuilding plan as it is now; only that is changed, and the
+      // advice is done either way (its message says when nothing could be).
+      const [plan, rows] = await Promise.all([planFor(db, 'BODYBUILDING'), db.exercises.toArray()])
+      const jsPlan = plan.map(planItemToJs)
+      const exercises = rows.map((row) => exerciseToJs(row as ExerciseRow & { id: number }))
+      const change =
+        payload.kind === 'moreWork'
+          ? grit.physiqueApplyMoreWork(target.payloadJson, jsPlan, exercises)
+          : grit.physiqueApplySwap(target.payloadJson, choice!, jsPlan, exercises)
+      // A swap that cannot be made changes nothing and its card stays, so another alternative can be tried. More work
+      // is done either way, as the plan says.
+      if (payload.kind === 'swap' && !change.changed) return { text: change.message, done: false }
+      await applyPlanChange(db, change)
+      message = change.message
+    } else {
       // Added to the plan of the side the advice is for.
       const side = sideOf(target)
       const [plan, rows] = await Promise.all([planFor(db, side), db.exercises.toArray()])
@@ -235,7 +309,7 @@ function applyAdvice(db: GritDb, adviceId: number): Promise<string | null> {
           : await addToPlan(db, payload.lift, weakPointAdditions(payload.lift, payload.missPoint, plan, exercises), plan, exercises, side)
     }
     await db.advice.update(adviceId, { status: 'APPLIED' })
-    return message
+    return { text: message, done: true }
   })
 }
 
@@ -264,14 +338,18 @@ export function useCoach(db: GritDb, today: () => string): CoachState & CoachAct
   const say = useCallback((text: string) => setMessage({ id: ++messageCount.current, text }), [])
 
   const once = useCallback(
-    async (adviceId: number, work: () => Promise<string | null>) => {
+    async (adviceId: number, work: () => Promise<Applied | null>) => {
       if (busy.current.has(adviceId)) return
       busy.current.add(adviceId)
       setHidden(new Set(busy.current))
       try {
         const done = await work()
         // Kept hidden on success: the stored status reaches the feed a moment after this returns.
-        if (done != null) say(done)
+        if (done != null) say(done.text)
+        if (done != null && !done.done) {
+          busy.current.delete(adviceId)
+          setHidden(new Set(busy.current))
+        }
       } catch {
         // A failed write must not lose the advice: the card comes back and the lifter can try again.
         busy.current.delete(adviceId)
@@ -282,7 +360,7 @@ export function useCoach(db: GritDb, today: () => string): CoachState & CoachAct
     [say],
   )
 
-  const apply = useCallback((adviceId: number) => once(adviceId, () => applyAdvice(db, adviceId)), [db, once])
+  const apply = useCallback((adviceId: number, choice?: string) => once(adviceId, () => applyAdvice(db, adviceId, choice)), [db, once])
   const dismiss = useCallback(
     (adviceId: number) =>
       once(adviceId, async () => {
@@ -294,5 +372,5 @@ export function useCoach(db: GritDb, today: () => string): CoachState & CoachAct
   const clearMessage = useCallback(() => setMessage(null), [])
 
   const cards = useMemo(() => (stored ? build(stored, hidden) : []), [stored, hidden])
-  return { loading: stored == null, cards, message, side: stored?.side ?? 'POWERLIFTING', apply, dismiss, clearMessage }
+  return { loading: stored == null, cards, message, side: stored?.side ?? 'POWERLIFTING', checkInDue: stored?.checkInDue ?? false, apply, dismiss, clearMessage }
 }

@@ -1,5 +1,6 @@
-import { grit } from '../domain'
+import { grit, type JsPlanChange } from '../domain'
 import type { GritDb } from './db'
+import { planItemFromJs } from './mapping'
 import { sideOf, type PlanItemRow, type SetRow, type TrainingMode } from './schema'
 
 /**
@@ -107,5 +108,21 @@ export function addSet(db: GritDb, set: Unresolved<Omit<SetRow, 'id'>>, catalogu
   return db.transaction('rw', db.exercises, db.sets, async () => {
     const exerciseId = await exerciseFor(db, set.exerciseId, catalogueName)
     return (await db.sets.add({ ...set, exerciseId })) as number
+  })
+}
+
+/**
+ * Carries out a coach's change to the plan (a MORE_WORK or SWAP advice applied by the domain), in one transaction:
+ * `updated` items are saved, `removed` ones deleted, and each `added` item gets its catalogue exercise found, restored
+ * or inserted. A failure part-way leaves the plan as it was. Joins the caller's transaction when it has these tables.
+ */
+export function applyPlanChange(db: GritDb, change: JsPlanChange): Promise<void> {
+  return db.transaction('rw', db.exercises, db.planItems, async () => {
+    for (const item of change.updated) await db.planItems.put(planItemFromJs(item))
+    if (change.removed.length > 0) await db.planItems.bulkDelete(change.removed.map((p) => p.id))
+    for (const { item, name } of change.added) {
+      const { id: _new, ...row } = planItemFromJs(item)
+      await db.planItems.add({ ...row, exerciseId: await resolveCatalogue(db, name) })
+    }
   })
 }

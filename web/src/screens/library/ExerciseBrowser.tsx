@@ -203,13 +203,16 @@ function AreaSections({ entries, rows }: { entries: readonly PickerEntry[]; rows
   )
 }
 
-/** Muscle groups to tick, two to a row: the Muscles drop-down's list, and the plan builder's body parts. */
-export function MuscleChecklist({ groups, ticked, onToggle }: { groups: readonly { id: string; label: string }[]; ticked: readonly string[]; onToggle: (group: string) => void }) {
+/**
+ * Muscle groups to tick, two to a row: the Muscles drop-down's list, the plan builder's body parts and the check-in's.
+ * `disabled` groups are shown but cannot be ticked.
+ */
+export function MuscleChecklist({ groups, ticked, onToggle, disabled = [] }: { groups: readonly { id: string; label: string }[]; ticked: readonly string[]; onToggle: (group: string) => void; disabled?: readonly string[] }) {
   return (
     <div className="lib-options">
       {groups.map((g) => (
-        <label key={g.id} className="lib-option title-medium">
-          <input type="checkbox" checked={ticked.includes(g.id)} onChange={() => onToggle(g.id)} />
+        <label key={g.id} className={disabled.includes(g.id) ? 'lib-option lib-option-disabled title-medium' : 'lib-option title-medium'}>
+          <input type="checkbox" checked={ticked.includes(g.id)} disabled={disabled.includes(g.id)} onChange={() => onToggle(g.id)} />
           {g.label}
         </label>
       ))}

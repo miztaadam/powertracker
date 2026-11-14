@@ -106,4 +106,24 @@ describe('app shell routing', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Build my plan' })).toBeInTheDocument()
     expect(screen.getByText('Step 1 of 4')).toBeInTheDocument()
   })
+
+  it('#/checkin is the check-in on the bodybuilding side, and Coach on the powerlifting side', async () => {
+    expect(parseHash('#/checkin')).toEqual({ page: 'checkIn' })
+    expect(routeToHash({ page: 'checkIn' })).toBe('#/checkin')
+    window.location.hash = '#/checkin'
+    show()
+    await opened()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Coach' })).toBeInTheDocument()
+    expect(window.location.hash).toBe('#/coach')
+    cleanup()
+
+    const db = await openGritDb(fx.name)
+    await updateSettings(db, (s) => ({ ...s, trainingMode: 'BODYBUILDING' }))
+    db.close()
+    window.location.hash = '#/checkin'
+    show()
+    await opened()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Check-in' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Which body parts are lagging?' })).toBeInTheDocument()
+  })
 })

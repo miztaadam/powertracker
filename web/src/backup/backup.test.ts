@@ -32,7 +32,7 @@ const WEB_V2_FIXTURE = resolve(FIXTURES, 'web-v2.json')
 const WEB_V3_FIXTURE = resolve(FIXTURES, 'web-v3.json')
 /** What this app writes now (version 4, check-ins). Regenerate with UPDATE_FIXTURES=1. */
 const WEB_FIXTURE = resolve(FIXTURES, 'web-v4.json')
-/** What the Android app writes now (version 4): its builder writes it; until it exists the test restoring it waits for it. */
+/** What the Android app writes now (version 4, stage 3 Task 2). */
 const ANDROID_V4_FIXTURE = resolve(FIXTURES, 'android-v4.json')
 const EXPORTED_AT = 1_793_000_000_000
 
@@ -844,7 +844,7 @@ describe('backup version 4', () => {
 describe('cross-platform restore, version 4', () => {
   /**
    * Android's version-4 backup: two check-ins, a MORE_WORK and a SWAP advice, both sides' plans and a few sessions.
-   * Stage 3 Task 2 (the Android builder) writes it; until it is in the repository this test waits for it (`todo`).
+   * Written by the Android app (stage 3 Task 2).
    */
   const androidV4Fixture_restoresOnWeb = async () => {
     const android = readJson(ANDROID_V4_FIXTURE) as unknown as BackupFile
@@ -870,6 +870,5 @@ describe('cross-platform restore, version 4', () => {
     const out = await exportBackup(db, EXPORTED_AT)
     expect(out.checkIns.map((c) => c.id)).toEqual(android.checkIns.map((c) => c.id))
   }
-  if (existsSync(ANDROID_V4_FIXTURE)) it('androidV4Fixture_restoresOnWeb', androidV4Fixture_restoresOnWeb)
-  else it.todo('androidV4Fixture_restoresOnWeb: WAITING for web/src/backup/__fixtures__/android-v4.json from the Android builder')
+  it('androidV4Fixture_restoresOnWeb', androidV4Fixture_restoresOnWeb)
 })

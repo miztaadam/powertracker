@@ -1,9 +1,10 @@
 import { liveQuery } from 'dexie'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { planFor } from '../db/catalogue'
+import { checkInToJs, loadCheckIns } from '../db/checkIns'
 import { getSettings, loadHistory, type GritDb } from '../db/db'
 import { planItemToJs } from '../db/mapping'
-import type { PlanItemRow, TrainingMode } from '../db/schema'
+import type { CheckInRow, PlanItemRow, TrainingMode } from '../db/schema'
 import { grit, type JsHistory, type JsPr } from '../domain'
 import { historyOn } from './sides'
 import { LIFTS, type Lift } from '../router'
@@ -186,14 +187,47 @@ export type BodybuildingRow = {
   goingUp: boolean | null
 }
 
-/** Progress on the bodybuilding side (spec §7.6): the plan's exercises, in plan order. */
-export type BodybuildingProgressState = { loading: boolean; rows: BodybuildingRow[] }
+/** A body part's rating at one check-in. */
+export type Rating = 'ON_TRACK' | 'GROWING_WELL' | 'LAGGING'
 
-/** The bodybuilding side's rows: the domain's `bodybuildingProgress` over the whole log and that side's plan. */
-export function buildBodybuildingProgress(history: JsHistory, plan: (PlanItemRow & { id: number })[], today: string): BodybuildingProgressState {
+/** One body part on Progress (stage 3): its ratings, the sets done against those planned, and its exercises' trend. */
+export type BodyPartRow = {
+  /** The `MuscleGroup` name. */
+  group: string
+  /** Its rating at each of its last four check-ins, oldest first. Empty before the first check-in. */
+  ratings: { date: string; rating: Rating }[]
+  /** Counted sets done in the 7 days ending today. */
+  setsDone: number
+  /** Weekly counted sets in the plan. */
+  setsPlanned: number
+  /** Of the plan's exercises whose main group it is: how many are going up, and how many have enough sessions to tell. */
+  exercisesUp: number
+  exercisesTracked: number
+}
+
+/**
+ * Progress on the bodybuilding side: the body parts (stage 3), in the domain's order, then the plan's exercises
+ * (spec §7.6), in plan order. `checkedIn` is false until the first check-in.
+ */
+export type BodybuildingProgressState = { loading: boolean; rows: BodybuildingRow[]; bodyParts: BodyPartRow[]; checkedIn: boolean }
+
+/** The bodybuilding side's rows: the domain's `bodybuildingProgress` and `muscleProgressRows` over the whole log and that side's plan. */
+export function buildBodybuildingProgress(history: JsHistory, plan: (PlanItemRow & { id: number })[], today: string, checkIns: (CheckInRow & { id: number })[] = []): BodybuildingProgressState {
+  const jsPlan = plan.map(planItemToJs)
   return {
     loading: false,
-    rows: grit.bodybuildingProgress(history, plan.map(planItemToJs), today).map(
+    checkedIn: checkIns.length > 0,
+    bodyParts: grit.muscleProgressRows(history, jsPlan, checkIns.map(checkInToJs), today).map(
+      (row): BodyPartRow => ({
+        group: row.group,
+        ratings: row.ratings.map((r) => ({ date: r.date, rating: r.rating as Rating })),
+        setsDone: row.setsDone,
+        setsPlanned: row.setsPlanned,
+        exercisesUp: row.exercisesUp,
+        exercisesTracked: row.exercisesTracked,
+      }),
+    ),
+    rows: grit.bodybuildingProgress(history, jsPlan, today).map(
       (trend): BodybuildingRow => ({
         exerciseId: trend.exerciseId,
         name: trend.name,
@@ -204,7 +238,7 @@ export function buildBodybuildingProgress(history: JsHistory, plan: (PlanItemRow
   }
 }
 
-type Stored = { today: string; history: JsHistory; showStrictPress: boolean; side: TrainingMode; plan: (PlanItemRow & { id: number })[] }
+type Stored = { today: string; history: JsHistory; showStrictPress: boolean; side: TrainingMode; plan: (PlanItemRow & { id: number })[]; checkIns: (CheckInRow & { id: number })[] }
 
 /**
  * Where the lifter stands, read live from the database: it follows every logged set. `today` is the
@@ -223,8 +257,8 @@ export function useProgress(
   useEffect(() => {
     // The setting is read with the history, so the screen follows the switch while it is open.
     const subscription = liveQuery(async () => {
-      const [history, settings, plan] = await Promise.all([loadHistory(db), getSettings(db), planFor(db, 'BODYBUILDING')])
-      return { today: clock.current(), history, showStrictPress: settings.showStrictPress, side: settings.trainingMode, plan }
+      const [history, settings, plan, checkIns] = await Promise.all([loadHistory(db), getSettings(db), planFor(db, 'BODYBUILDING'), loadCheckIns(db)])
+      return { today: clock.current(), history, showStrictPress: settings.showStrictPress, side: settings.trainingMode, plan, checkIns }
     }).subscribe({ next: setStored, error: setReadError })
     return () => subscription.unsubscribe()
   }, [db])
@@ -234,6 +268,9 @@ export function useProgress(
   const side = stored?.side ?? 'POWERLIFTING'
   const powerlifting = useMemo(() => (stored ? historyOn(stored.history, 'POWERLIFTING') : null), [stored])
   const state = useMemo(() => (stored && powerlifting ? buildProgress(powerlifting, range, stored.today, stored.showStrictPress) : empty(true, range, false)), [stored, powerlifting, range])
-  const bodybuilding = useMemo(() => (stored?.side === 'BODYBUILDING' ? buildBodybuildingProgress(stored.history, stored.plan, stored.today) : { loading: stored == null, rows: [] }), [stored])
+  const bodybuilding = useMemo(
+    () => (stored?.side === 'BODYBUILDING' ? buildBodybuildingProgress(stored.history, stored.plan, stored.today, stored.checkIns) : { loading: stored == null, rows: [], bodyParts: [], checkedIn: false }),
+    [stored],
+  )
   return { state, setRange, side, bodybuilding }
 }
