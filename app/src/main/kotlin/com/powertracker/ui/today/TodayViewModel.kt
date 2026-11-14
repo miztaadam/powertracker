@@ -478,6 +478,8 @@ class TodayViewModel(
                 settings.settings.first().coach(),
                 date,
                 advice.all(),
+                // The latest check-in's growing-well body parts keep their exercises out of the swaps (stage 3).
+                training.checkIns().first(),
             )
             if (fresh.isNotEmpty()) advice.insert(fresh)
             val done = now.items.filter { it.sets.isNotEmpty() }

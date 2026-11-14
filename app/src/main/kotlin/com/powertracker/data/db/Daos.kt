@@ -80,3 +80,13 @@ interface BaselineDao {
     @Insert suspend fun insertAll(b: List<BaselineEntity>)
     @Query("DELETE FROM baseline") suspend fun clear()
 }
+
+@Dao
+interface CheckInDao {
+    @Query("SELECT * FROM check_ins ORDER BY date") fun observeAll(): Flow<List<CheckInEntity>>
+    /** A check-in on a date that already has one replaces it. */
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun upsert(c: CheckInEntity): Long
+    @Query("SELECT * FROM check_ins ORDER BY date") suspend fun all(): List<CheckInEntity>
+    @Insert suspend fun insertAll(c: List<CheckInEntity>)
+    @Query("DELETE FROM check_ins") suspend fun clear()
+}

@@ -10,7 +10,10 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.library.MuscleGroup
+import com.powertracker.domain.model.MuscleRating
 import com.powertracker.domain.progress.ExerciseTrend
+import com.powertracker.domain.progress.MuscleRow
 import com.powertracker.ui.coach.CardDetail
 import com.powertracker.ui.coach.CoachCard
 import com.powertracker.ui.coach.CoachContent
@@ -104,7 +107,10 @@ fun CoachBodybuildingShowcase() {
     )
 }
 
-/** Progress on the bodybuilding side: each planned exercise's best set from its last four sessions, and its trend. */
+/**
+ * Progress on the bodybuilding side: the Check in button, each body part's ratings and sets (stage 3), then each planned
+ * exercise's best set from its last four sessions, and its trend.
+ */
 @Composable
 fun ProgressBodybuildingShowcase() {
     fun best(daysAgo: Int, kg: Double, reps: Int) = SHOWCASE_DATE.minus(daysAgo, DateTimeUnit.DAY) to LoggedSet(0, kg, reps, 8.0, false, null, false)
@@ -117,8 +123,22 @@ fun ProgressBodybuildingShowcase() {
         ExerciseTrend(6, "Bench", emptyList(), goingUp = null),
         ExerciseTrend(7, "Seated cable row", emptyList(), goingUp = null),
     )
+    // Stage 3: two check-ins, four weeks apart, the second today.
+    val checkIns = listOf(LocalDate(2026, 10, 14), SHOWCASE_DATE)
+    fun row(group: MuscleGroup, first: MuscleRating, now: MuscleRating, done: Int, planned: Int, up: Int = 0, tracked: Int = 0) =
+        MuscleRow(group, checkIns.zip(listOf(first, now)), done, planned, up, tracked)
+    val muscles = listOf(
+        row(MuscleGroup.CHEST, MuscleRating.ON_TRACK, MuscleRating.LAGGING, 8, 12, up = 2, tracked = 2),
+        row(MuscleGroup.LATS, MuscleRating.ON_TRACK, MuscleRating.ON_TRACK, 5, 6, up = 0, tracked = 1),
+        row(MuscleGroup.UPPER_BACK, MuscleRating.ON_TRACK, MuscleRating.ON_TRACK, 6, 9),
+        row(MuscleGroup.FRONT_DELTS, MuscleRating.ON_TRACK, MuscleRating.ON_TRACK, 6, 12),
+        row(MuscleGroup.SIDE_DELTS, MuscleRating.LAGGING, MuscleRating.LAGGING, 3, 6),
+        row(MuscleGroup.TRICEPS, MuscleRating.ON_TRACK, MuscleRating.ON_TRACK, 6, 12),
+        row(MuscleGroup.QUADS, MuscleRating.ON_TRACK, MuscleRating.GROWING_WELL, 3, 6, up = 1, tracked = 1),
+        row(MuscleGroup.GLUTES, MuscleRating.ON_TRACK, MuscleRating.ON_TRACK, 3, 6),
+    )
     ProgressContent(
-        ProgressState(loading = false, hasData = true, mode = TrainingMode.BODYBUILDING, trends = trends),
+        ProgressState(loading = false, hasData = true, mode = TrainingMode.BODYBUILDING, trends = trends, muscles = muscles, checkedIn = true),
         onRange = {}, onOpenLift = {},
     )
 }

@@ -1,0 +1,682 @@
+{
+    "version": 4,
+    "exportedAt": 1793000000000,
+    "settings": {
+        "changePlates": true,
+        "defaultRpe": 7.5,
+        "trainingDays": [
+            2,
+            4,
+            6
+        ],
+        "appLock": true,
+        "restMainSec": 210,
+        "restAccessorySec": 75,
+        "restAlert": "SOUND_AND_VIBRATE",
+        "webRestAlert": null,
+        "showStrictPress": true,
+        "trainingMode": "BODYBUILDING",
+        "bodybuildingTrainingDays": [
+            1,
+            3,
+            5,
+            6
+        ],
+        "powerliftingLeftOn": 20757,
+        "bodybuildingLeftOn": 20750
+    },
+    "exercises": [
+        {
+            "id": 1,
+            "name": "Squat",
+            "category": "SQUAT",
+            "parentLift": null,
+            "muscles": [
+                "Quads",
+                "Glutes"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 2,
+            "name": "Bench",
+            "category": "BENCH",
+            "parentLift": null,
+            "muscles": [
+                "Pecs",
+                "Triceps",
+                "Front delts"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 3,
+            "name": "Deadlift",
+            "category": "DEADLIFT",
+            "parentLift": null,
+            "muscles": [
+                "Hamstrings",
+                "Glutes",
+                "Lats"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 4,
+            "name": "Pause squat",
+            "category": "VARIATION",
+            "parentLift": "SQUAT",
+            "muscles": [
+                "Quads",
+                "Glutes"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 5,
+            "name": "Front squat",
+            "category": "VARIATION",
+            "parentLift": "SQUAT",
+            "muscles": [
+                "Quads",
+                "Glutes",
+                "Upper back",
+                "Trunk"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 6,
+            "name": "Bulgarian split squat",
+            "category": "ACCESSORY",
+            "parentLift": null,
+            "muscles": [
+                "Quads",
+                "Glutes"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 7,
+            "name": "Pin squat",
+            "category": "VARIATION",
+            "parentLift": "SQUAT",
+            "muscles": [
+                "Upper back",
+                "Trunk"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 8,
+            "name": "Safety-bar squat",
+            "category": "VARIATION",
+            "parentLift": "SQUAT",
+            "muscles": [
+                "Upper back",
+                "Trunk"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 9,
+            "name": "Hip thrust",
+            "category": "ACCESSORY",
+            "parentLift": null,
+            "muscles": [
+                "Glutes",
+                "Hips",
+                "Upper back"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 10,
+            "name": "Box squat",
+            "category": "VARIATION",
+            "parentLift": "SQUAT",
+            "muscles": [
+                "Glutes",
+                "Hips"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 11,
+            "name": "Spoto press",
+            "category": "VARIATION",
+            "parentLift": "BENCH",
+            "muscles": [
+                "Pecs",
+                "Front delts"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 12,
+            "name": "Long-pause bench",
+            "category": "VARIATION",
+            "parentLift": "BENCH",
+            "muscles": [
+                "Pecs",
+                "Front delts"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 13,
+            "name": "DB press",
+            "category": "ACCESSORY",
+            "parentLift": null,
+            "muscles": [
+                "Pecs",
+                "Front delts"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 14,
+            "name": "Pin press",
+            "category": "VARIATION",
+            "parentLift": "BENCH",
+            "muscles": [
+                "Pecs",
+                "Triceps"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 15,
+            "name": "Larsen press",
+            "category": "VARIATION",
+            "parentLift": "BENCH",
+            "muscles": [
+                "Pecs",
+                "Triceps"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 16,
+            "name": "Close-grip bench",
+            "category": "VARIATION",
+            "parentLift": "BENCH",
+            "muscles": [
+                "Triceps"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 17,
+            "name": "JM press",
+            "category": "ACCESSORY",
+            "parentLift": null,
+            "muscles": [
+                "Triceps"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 18,
+            "name": "Board press",
+            "category": "VARIATION",
+            "parentLift": "BENCH",
+            "muscles": [
+                "Triceps"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 19,
+            "name": "Deficit deadlift",
+            "category": "VARIATION",
+            "parentLift": "DEADLIFT",
+            "muscles": [
+                "Quads",
+                "Lats",
+                "Position"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 20,
+            "name": "Paused deadlift",
+            "category": "VARIATION",
+            "parentLift": "DEADLIFT",
+            "muscles": [
+                "Quads",
+                "Lats",
+                "Position"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 21,
+            "name": "RDL",
+            "category": "ACCESSORY",
+            "parentLift": null,
+            "muscles": [
+                "Hamstrings",
+                "Lats",
+                "Glutes",
+                "Upper back"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 22,
+            "name": "Paused deadlift at the knee",
+            "category": "VARIATION",
+            "parentLift": "DEADLIFT",
+            "muscles": [
+                "Hamstrings",
+                "Lats"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 23,
+            "name": "Block pull",
+            "category": "VARIATION",
+            "parentLift": "DEADLIFT",
+            "muscles": [
+                "Glutes",
+                "Upper back"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 24,
+            "name": "Curl",
+            "category": "ACCESSORY",
+            "parentLift": null,
+            "muscles": [
+                "Biceps"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 25,
+            "name": "Row",
+            "category": "ACCESSORY",
+            "parentLift": null,
+            "muscles": [
+                "Lats",
+                "Upper back"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 26,
+            "name": "Pull-up",
+            "category": "ACCESSORY",
+            "parentLift": null,
+            "muscles": [
+                "Lats",
+                "Biceps"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        },
+        {
+            "id": 27,
+            "name": "Zercher squat",
+            "category": "VARIATION",
+            "parentLift": "SQUAT",
+            "muscles": [
+                "Quads",
+                "Core"
+            ],
+            "isBuiltIn": false,
+            "archived": false
+        },
+        {
+            "id": 28,
+            "name": "Strict press",
+            "category": "STRICT_PRESS",
+            "parentLift": null,
+            "muscles": [
+                "Front delts",
+                "Side delts",
+                "Triceps"
+            ],
+            "isBuiltIn": true,
+            "archived": false
+        }
+    ],
+    "sessions": [
+        {
+            "id": 1,
+            "date": 20753,
+            "bodyweightKg": 84.5,
+            "readiness": 4,
+            "mode": "POWERLIFTING"
+        },
+        {
+            "id": 2,
+            "date": 20755,
+            "bodyweightKg": null,
+            "readiness": null,
+            "mode": "POWERLIFTING"
+        },
+        {
+            "id": 3,
+            "date": 20759,
+            "bodyweightKg": 84.0,
+            "readiness": 3,
+            "mode": "BODYBUILDING"
+        }
+    ],
+    "sets": [
+        {
+            "id": 1,
+            "sessionId": 1,
+            "exerciseId": 1,
+            "weightKg": 140.0,
+            "reps": 5,
+            "rpe": 8.0,
+            "failed": false,
+            "missPoint": null,
+            "isTopSet": true
+        },
+        {
+            "id": 2,
+            "sessionId": 1,
+            "exerciseId": 1,
+            "weightKg": 147.5,
+            "reps": 3,
+            "rpe": null,
+            "failed": true,
+            "missPoint": "MID",
+            "isTopSet": false
+        },
+        {
+            "id": 3,
+            "sessionId": 1,
+            "exerciseId": 27,
+            "weightKg": 100.0,
+            "reps": 6,
+            "rpe": 7.5,
+            "failed": false,
+            "missPoint": null,
+            "isTopSet": false
+        },
+        {
+            "id": 4,
+            "sessionId": 2,
+            "exerciseId": 2,
+            "weightKg": 102.5,
+            "reps": 4,
+            "rpe": 9.0,
+            "failed": false,
+            "missPoint": null,
+            "isTopSet": true
+        },
+        {
+            "id": 5,
+            "sessionId": 2,
+            "exerciseId": 2,
+            "weightKg": 105.0,
+            "reps": 1,
+            "rpe": 10.0,
+            "failed": true,
+            "missPoint": "LOCKOUT",
+            "isTopSet": false
+        },
+        {
+            "id": 6,
+            "sessionId": 2,
+            "exerciseId": 28,
+            "weightKg": 60.0,
+            "reps": 5,
+            "rpe": 8.5,
+            "failed": false,
+            "missPoint": null,
+            "isTopSet": true
+        },
+        {
+            "id": 7,
+            "sessionId": 2,
+            "exerciseId": 28,
+            "weightKg": 65.0,
+            "reps": 2,
+            "rpe": 10.0,
+            "failed": true,
+            "missPoint": "FLOOR",
+            "isTopSet": false
+        },
+        {
+            "id": 8,
+            "sessionId": 3,
+            "exerciseId": 24,
+            "weightKg": 16.0,
+            "reps": 11,
+            "rpe": 8.0,
+            "failed": false,
+            "missPoint": null,
+            "isTopSet": false
+        },
+        {
+            "id": 9,
+            "sessionId": 3,
+            "exerciseId": 24,
+            "weightKg": 16.0,
+            "reps": 9,
+            "rpe": 9.0,
+            "failed": false,
+            "missPoint": null,
+            "isTopSet": false
+        }
+    ],
+    "planItems": [
+        {
+            "id": 1,
+            "weekday": 2,
+            "exerciseId": 1,
+            "sets": 4,
+            "reps": 5,
+            "targetRpe": 8.0,
+            "sortOrder": 0,
+            "mode": "POWERLIFTING",
+            "repsHigh": null
+        },
+        {
+            "id": 2,
+            "weekday": 2,
+            "exerciseId": 4,
+            "sets": 3,
+            "reps": 4,
+            "targetRpe": 7.5,
+            "sortOrder": 1,
+            "mode": "POWERLIFTING",
+            "repsHigh": null
+        },
+        {
+            "id": 3,
+            "weekday": 6,
+            "exerciseId": 2,
+            "sets": 5,
+            "reps": 3,
+            "targetRpe": 8.5,
+            "sortOrder": 0,
+            "mode": "POWERLIFTING",
+            "repsHigh": null
+        },
+        {
+            "id": 4,
+            "weekday": 1,
+            "exerciseId": 24,
+            "sets": 3,
+            "reps": 8,
+            "targetRpe": 8.0,
+            "sortOrder": 0,
+            "mode": "BODYBUILDING",
+            "repsHigh": 12
+        },
+        {
+            "id": 5,
+            "weekday": 1,
+            "exerciseId": 1,
+            "sets": 4,
+            "reps": 10,
+            "targetRpe": 8.0,
+            "sortOrder": 1,
+            "mode": "BODYBUILDING",
+            "repsHigh": 15
+        }
+    ],
+    "advice": [
+        {
+            "id": 1,
+            "type": "TARGET",
+            "lift": "SQUAT",
+            "createdAt": 20756,
+            "reason": "Last top set was clean at RPE 8",
+            "severity": 1,
+            "payload": "{\"type\":\"com.powertracker.domain.model.AdvicePayload.Target\",\"exerciseId\":1,\"weightKg\":142.5,\"reps\":5,\"rpe\":8.0,\"sets\":4}",
+            "status": "OPEN",
+            "mode": "POWERLIFTING"
+        },
+        {
+            "id": 2,
+            "type": "STALL",
+            "lift": "BENCH",
+            "createdAt": 20756,
+            "reason": "No bench PR in four weeks",
+            "severity": 2,
+            "payload": "{\"type\":\"com.powertracker.domain.model.AdvicePayload.Accessories\",\"items\":[{\"exerciseName\":\"Pause bench\",\"sets\":3,\"repsLow\":5,\"repsHigh\":8}]}",
+            "status": "APPLIED",
+            "mode": "POWERLIFTING"
+        },
+        {
+            "id": 3,
+            "type": "DELOAD",
+            "lift": null,
+            "createdAt": 20756,
+            "reason": "Fatigue is building",
+            "severity": 3,
+            "payload": "{\"type\":\"com.powertracker.domain.model.AdvicePayload.Deload\"}",
+            "status": "DISMISSED",
+            "mode": "POWERLIFTING"
+        },
+        {
+            "id": 4,
+            "type": "WEAK_POINT",
+            "lift": "SQUAT",
+            "createdAt": 20756,
+            "reason": "Misses cluster mid-lift",
+            "severity": 2,
+            "payload": "{\"type\":\"com.powertracker.domain.model.AdvicePayload.WeakPoint\",\"lift\":\"SQUAT\",\"missPoint\":\"MID\"}",
+            "status": "OPEN",
+            "mode": "POWERLIFTING"
+        },
+        {
+            "id": 5,
+            "type": "RE_ENTRY",
+            "lift": null,
+            "createdAt": 20756,
+            "reason": "Back after a break",
+            "severity": 1,
+            "payload": "{\"type\":\"com.powertracker.domain.model.AdvicePayload.ReEntry\"}",
+            "status": "OPEN",
+            "mode": "POWERLIFTING"
+        },
+        {
+            "id": 6,
+            "type": "TARGET",
+            "lift": null,
+            "createdAt": 20756,
+            "reason": "Last time: 16 × 11, 9. Beat it. Coach suggests 16 × 8–12 @ 8.",
+            "severity": 0,
+            "payload": "{\"type\":\"com.powertracker.domain.model.AdvicePayload.Target\",\"exerciseId\":24,\"weightKg\":16.0,\"reps\":8,\"rpe\":8.0,\"repsHigh\":12}",
+            "status": "OPEN",
+            "mode": "BODYBUILDING"
+        },
+        {
+            "id": 7,
+            "type": "MORE_WORK",
+            "lift": null,
+            "createdAt": 20759,
+            "reason": "You marked chest as lagging. Add Pec deck on Monday, 3 × 8–12 @ 8. That takes it from 0 to 3 sets a week.",
+            "severity": 0,
+            "payload": "{\"type\":\"com.powertracker.domain.model.AdvicePayload.MoreWork\",\"group\":\"CHEST\",\"addSets\":[],\"newExercise\":{\"weekday\":\"MONDAY\",\"name\":\"Pec deck\",\"sets\":3,\"repsLow\":8,\"repsHigh\":12,\"rpe\":8.0},\"weeklyBefore\":0,\"weeklyAfter\":3}",
+            "status": "OPEN",
+            "mode": "BODYBUILDING"
+        },
+        {
+            "id": 8,
+            "type": "MORE_WORK",
+            "lift": null,
+            "createdAt": 20759,
+            "reason": "You marked side delts as lagging. Add a set to Curl on Monday. That takes it from 3 to 4 sets a week.",
+            "severity": 0,
+            "payload": "{\"type\":\"com.powertracker.domain.model.AdvicePayload.MoreWork\",\"group\":\"SIDE_DELTS\",\"addSets\":[{\"weekday\":\"MONDAY\",\"exerciseId\":24,\"name\":\"Curl\",\"fromSets\":3,\"toSets\":4}],\"newExercise\":null,\"weeklyBefore\":3,\"weeklyAfter\":4}",
+            "status": "APPLIED",
+            "mode": "BODYBUILDING"
+        },
+        {
+            "id": 9,
+            "type": "SWAP",
+            "lift": null,
+            "createdAt": 20759,
+            "reason": "Curl hasn't moved in 4 weeks. Same weight and no more reps since 5 Oct.",
+            "severity": 0,
+            "payload": "{\"type\":\"com.powertracker.domain.model.AdvicePayload.Swap\",\"exerciseId\":24,\"name\":\"Curl\",\"group\":\"BICEPS\",\"since\":\"2026-10-05\",\"alternatives\":[\"Cable curl\",\"EZ-bar curl\",\"Incline DB curl\"]}",
+            "status": "OPEN",
+            "mode": "BODYBUILDING"
+        }
+    ],
+    "baselines": [
+        {
+            "exerciseId": 1,
+            "e1rmKg": 172.5,
+            "date": 20697
+        }
+    ],
+    "checkIns": [
+        {
+            "id": 1,
+            "date": 20731,
+            "lagging": [],
+            "growingWell": [
+                "BICEPS"
+            ]
+        },
+        {
+            "id": 2,
+            "date": 20759,
+            "lagging": [
+                "CHEST",
+                "SIDE_DELTS"
+            ],
+            "growingWell": [
+                "QUADS"
+            ]
+        }
+    ]
+}

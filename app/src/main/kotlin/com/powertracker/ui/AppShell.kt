@@ -37,6 +37,7 @@ import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.coroutines.flow.map
+import com.powertracker.ui.checkin.CheckInScreen
 import com.powertracker.ui.coach.CoachScreen
 import com.powertracker.ui.library.ExercisesScreen
 import com.powertracker.ui.plan.PlanScreen
@@ -66,6 +67,8 @@ object Routes {
     fun exerciseHistory(id: Long) = "exerciseHistory/$id"
     /** The bodybuilding side's plan builder (stage 2). */
     const val PLAN_BUILDER = "planBuilder"
+    /** The bodybuilding side's check-in (stage 3). */
+    const val CHECK_IN = "checkIn"
 }
 
 @Composable
@@ -86,6 +89,7 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
 
     // "My goals have changed": on the bodybuilding side it runs the plan builder again; on the powerlifting side it opens Plan.
     val mode by remember(settings) { settings.settings.map { it.trainingMode } }.collectAsState(initial = null)
+    fun checkIn() = nav.navigate(Routes.CHECK_IN) { launchSingleTop = true }
     fun goalsChanged() = if (mode == TrainingMode.BODYBUILDING) nav.navigate(Routes.PLAN_BUILDER) { launchSingleTop = true } else openTab(Tab.PLAN)
 
     Scaffold(
@@ -105,12 +109,13 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
                     onOpenPlan = ::goalsChanged,
                 )
             }
-            composable(Tab.COACH.route) { CoachScreen(training, advice, settings, onOpenPlan = ::goalsChanged) }
+            composable(Tab.COACH.route) { CoachScreen(training, advice, settings, onOpenPlan = ::goalsChanged, onCheckIn = ::checkIn) }
             composable(Tab.PROGRESS.route) {
                 ProgressScreen(
                     training, settings,
                     onOpenLift = { nav.navigate(Routes.liftHistory(it.name)) },
                     onOpenExercise = { nav.navigate(Routes.exerciseHistory(it)) },
+                    onCheckIn = ::checkIn,
                 )
             }
             composable(Tab.EXERCISES.route) { entry ->
@@ -138,6 +143,17 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
                     onSaved = {
                         nav.popBackStack()
                         openTab(Tab.PLAN)
+                    },
+                )
+            }
+            composable(Routes.CHECK_IN) {
+                CheckInScreen(
+                    training, advice, settings,
+                    onClose = { nav.popBackStack() },
+                    // To Coach, wherever the check-in was opened from, to see the suggestions.
+                    onSeeCoach = {
+                        nav.popBackStack()
+                        openTab(Tab.COACH)
                     },
                 )
             }

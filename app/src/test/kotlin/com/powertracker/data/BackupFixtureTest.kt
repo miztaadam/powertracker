@@ -9,13 +9,17 @@ import com.powertracker.data.db.ExerciseEntity
 import com.powertracker.data.db.PlanItemEntity
 import com.powertracker.data.db.SessionEntity
 import com.powertracker.data.db.SetEntity
+import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.AccessoryPrescription
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.CheckIn
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.NewExercise
+import com.powertracker.domain.model.SetAddition
 import com.powertracker.domain.model.TrainingMode
 import java.io.File
 import kotlinx.coroutines.flow.first
@@ -40,9 +44,10 @@ import org.robolectric.RobolectricTestRunner
 
 /**
  * The web app restores the committed Android backup in its own tests, so the file must track what Android really
- * exports: since version 3 that is android-v3.json. Regenerate it with
- * `./gradlew :app:testDebugUnitTest -Pfixtures.update=true`. The version 1 and 2 fixtures are frozen: they are what the
- * previous apps wrote, and must keep restoring, everything in them on the powerlifting side.
+ * exports: since version 4 that is android-v4.json. Regenerate it with
+ * `./gradlew :app:testDebugUnitTest -Pfixtures.update=true`. The version 1 to 3 fixtures are frozen: they are what the
+ * previous apps wrote, and must keep restoring (versions 1 and 2 with everything on the powerlifting side, version 3
+ * with no check-ins).
  *
  * Comparison is semantic (parsed JSON, `exportedAt` ignored): Kotlin/JS prints whole doubles without ".0",
  * so byte equality would be wrong.
@@ -55,12 +60,14 @@ class BackupFixtureTest {
 
     // Gradle runs app tests with the module directory as the working directory.
     private val fixtureDir = File("../web/src/backup/__fixtures__")
-    private val androidFixture = File(fixtureDir, "android-v3.json")
+    private val androidFixture = File(fixtureDir, "android-v4.json")
+    private val androidV3Fixture = File(fixtureDir, "android-v3.json")
     private val androidV2Fixture = File(fixtureDir, "android-v2.json")
     private val androidV1Fixture = File(fixtureDir, "android-v1.json")
     private val webFixture = File(fixtureDir, "web-v1.json")
     private val webV2Fixture = File(fixtureDir, "web-v2.json")
     private val webV3Fixture = File(fixtureDir, "web-v3.json")
+    private val webV4Fixture = File(fixtureDir, "web-v4.json")
 
     @Before
     fun setUp() {
@@ -144,6 +151,24 @@ class BackupFixtureTest {
             ),
         )
         db.baselines().upsert(BaselineEntity(squat, 172.5, LocalDate(2026, 9, 1)))
+
+        // Version 4: two check-ins, and the lagging-muscle coach's two kinds of advice.
+        val training = TrainingRepository(db)
+        training.saveCheckIn(CheckIn(LocalDate(2026, 10, 5), emptySet(), setOf(MuscleGroup.BICEPS)))
+        training.saveCheckIn(CheckIn(LocalDate(2026, 11, 2), setOf(MuscleGroup.CHEST, MuscleGroup.SIDE_DELTS), setOf(MuscleGroup.QUADS)))
+        db.advice().insert(
+            listOf(
+                advice(AdviceType.MORE_WORK, null, "You marked chest as lagging. Add Pec deck on Monday, 3 × 8–12 @ 8. That takes it from 0 to 3 sets a week.", 0,
+                    AdvicePayload.MoreWork(MuscleGroup.CHEST, emptyList(), NewExercise(DayOfWeek.MONDAY, "Pec deck", 3, 8, 12, 8.0), 0, 3),
+                    AdviceStatus.OPEN).copy(mode = TrainingMode.BODYBUILDING, createdAt = LocalDate(2026, 11, 2)),
+                advice(AdviceType.MORE_WORK, null, "You marked side delts as lagging. Add a set to Curl on Monday. That takes it from 3 to 4 sets a week.", 0,
+                    AdvicePayload.MoreWork(MuscleGroup.SIDE_DELTS, listOf(SetAddition(DayOfWeek.MONDAY, curl, "Curl", 3, 4)), null, 3, 4),
+                    AdviceStatus.APPLIED).copy(mode = TrainingMode.BODYBUILDING, createdAt = LocalDate(2026, 11, 2)),
+                advice(AdviceType.SWAP, null, "Curl hasn't moved in 4 weeks. Same weight and no more reps since 5 Oct.", 0,
+                    AdvicePayload.Swap(curl, "Curl", MuscleGroup.BICEPS, LocalDate(2026, 10, 5), listOf("Cable curl", "EZ-bar curl", "Incline DB curl")),
+                    AdviceStatus.OPEN).copy(mode = TrainingMode.BODYBUILDING, createdAt = LocalDate(2026, 11, 2)),
+            ),
+        )
     }
 
     private fun tree(text: String): JsonElement = Json.parseToJsonElement(text)
@@ -181,11 +206,49 @@ class BackupFixtureTest {
     @Test
     fun androidFixture_holdsBothSides() {
         val root = tree(androidFixture.readText()) as JsonObject
-        assertEquals(JsonPrimitive(3), root.getValue("version"))
+        assertEquals(JsonPrimitive(4), root.getValue("version"))
         for (list in listOf("planItems", "sessions", "advice")) {
             val modes = (root.getValue(list) as JsonArray).map { ((it as JsonObject).getValue("mode") as JsonPrimitive).content }.toSet()
             assertEquals(list, setOf("POWERLIFTING", "BODYBUILDING"), modes)
         }
+    }
+
+    /** Stage 3: the committed fixture holds check-ins and both new kinds of advice, so the web app's restore covers them. */
+    @Test
+    fun androidFixture_holdsCheckInsAndTheNewAdvice() {
+        val root = tree(androidFixture.readText()) as JsonObject
+        assertEquals(2, (root.getValue("checkIns") as JsonArray).size)
+        val types = (root.getValue("advice") as JsonArray).map { ((it as JsonObject).getValue("type") as JsonPrimitive).content }
+        assertTrue(types.containsAll(listOf("MORE_WORK", "SWAP")))
+    }
+
+    /** The version 3 Android backup restores exactly, with no check-ins. */
+    @Test
+    fun androidV3Fixture_restoresWithNoCheckIns() = runTest {
+        val actual = restoreAndExport(androidV3Fixture)
+        assertEquals(asUpgradedV3(tree(androidV3Fixture.readText())), actual)
+        assertTrue(db.checkIns().all().isEmpty())
+        assertEquals(TrainingMode.BODYBUILDING, settings.settings.first().trainingMode)
+    }
+
+    /** Stage 3: the web app's version 4 backup restores exactly, every check-in and every advice with it. */
+    @Test
+    fun webV4Fixture_restoresOnAndroid() = runTest {
+        assertTrue("Missing ${webV4Fixture.path}; the web app writes it", webV4Fixture.exists())
+        val fixture = tree(webV4Fixture.readText()) as JsonObject
+        assertEquals(JsonPrimitive(4), fixture.getValue("version"))
+        val actual = restoreAndExport(webV4Fixture)
+        assertEquals(withoutExportedAt(fixture), actual)
+        val checkIns = TrainingRepository(db).checkIns().first()
+        assertEquals((fixture.getValue("checkIns") as JsonArray).size, checkIns.size)
+        assertTrue(checkIns.any { it.lagging.isNotEmpty() || it.growingWell.isNotEmpty() })
+        val stored = db.advice().all()
+        assertEquals((fixture.getValue("advice") as JsonArray).size, stored.size)
+        // Each new advice's payload is one this app reads.
+        val payloads = stored.filter { it.type == AdviceType.MORE_WORK || it.type == AdviceType.SWAP }
+            .map { Json.decodeFromString(AdvicePayload.serializer(), it.payload) }
+        assertTrue(payloads.any { it is AdvicePayload.MoreWork })
+        assertTrue(payloads.any { it is AdvicePayload.Swap })
     }
 
     /** An Android version 1 backup restores, and exports again as the current version with the strict press switch off. */
@@ -237,7 +300,7 @@ class BackupFixtureTest {
     fun webV3Fixture_restoresOnAndroid() = runTest {
         assertTrue("Missing ${webV3Fixture.path}", webV3Fixture.exists())
         val actual = restoreAndExport(webV3Fixture)
-        assertEquals(withoutExportedAt(tree(webV3Fixture.readText())), actual)
+        assertEquals(asUpgradedV3(tree(webV3Fixture.readText())), actual)
         assertEquals(TrainingMode.BODYBUILDING, settings.settings.first().trainingMode)
         assertTrue(db.plan().all().any { it.mode == TrainingMode.BODYBUILDING && it.repsHigh != null })
         assertTrue(db.sessions().all().any { it.mode == TrainingMode.BODYBUILDING })
@@ -264,6 +327,13 @@ class BackupFixtureTest {
         return withSidesAdded(v2)
     }
 
+    /** What a version 3 file exports as once restored: the current version, with no check-ins. */
+    private fun asUpgradedV3(v3: JsonElement): JsonElement {
+        val root = v3 as JsonObject
+        assertEquals(JsonPrimitive(3), root.getValue("version"))
+        return withoutExportedAt(JsonObject(root + mapOf("version" to JsonPrimitive(Backup.VERSION), "checkIns" to JsonArray(emptyList()))))
+    }
+
     private fun withSidesAdded(root: JsonObject): JsonElement {
         val powerlifting = JsonPrimitive("POWERLIFTING")
         fun stamp(list: String, vararg extra: Pair<String, JsonElement>) =
@@ -281,6 +351,7 @@ class BackupFixtureTest {
                 root + mapOf(
                     "version" to JsonPrimitive(Backup.VERSION), "settings" to settings, "sessions" to stamp("sessions"),
                     "planItems" to stamp("planItems", "repsHigh" to JsonNull), "advice" to stamp("advice"),
+                    "checkIns" to JsonArray(emptyList()),
                 ),
             ),
         )

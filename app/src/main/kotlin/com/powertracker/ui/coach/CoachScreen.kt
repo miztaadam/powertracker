@@ -37,6 +37,7 @@ fun CoachScreen(
     settings: SettingsRepository,
     today: () -> LocalDate = ::systemToday,
     onOpenPlan: () -> Unit = {},
+    onCheckIn: () -> Unit = {},
 ) {
     val viewModel: CoachViewModel = viewModel(factory = CoachViewModel.factory(training, advice, settings, today))
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -50,6 +51,7 @@ fun CoachScreen(
     }
     CoachContent(
         state, onApply = viewModel::apply, onDismiss = viewModel::dismiss, snackbar = snackbar,
+        onSwap = viewModel::swap, onCheckIn = onCheckIn,
         onResumePlan = viewModel::answerWelcomeBack,
         onGoalsChanged = {
             viewModel.answerWelcomeBack()
@@ -67,6 +69,8 @@ fun CoachContent(
     snackbar: SnackbarHostState = remember { SnackbarHostState() },
     onResumePlan: () -> Unit = {},
     onGoalsChanged: () -> Unit = {},
+    onSwap: (adviceId: Long, choice: String) -> Unit = { _, _ -> },
+    onCheckIn: () -> Unit = {},
 ) {
     val count = state.cards.size
     val eyebrow = when {
@@ -88,7 +92,11 @@ fun CoachContent(
             if (!state.loading && state.welcomeBack) {
                 item(key = "welcome-back") { WelcomeBackCard(onResumePlan, onGoalsChanged, Modifier.animateItem()) }
             }
-            if (!state.loading && state.cards.isEmpty()) {
+            if (!state.loading && state.checkInDue) {
+                item(key = "check-in-due") { CheckInDueCard(onCheckIn, Modifier.animateItem()) }
+            }
+            // The due card is something to do, so the feed is not "empty" beside it.
+            if (!state.loading && state.cards.isEmpty() && !state.checkInDue) {
                 item(key = "empty") {
                     EmptyState(
                         Icons.Filled.Bolt,
@@ -99,7 +107,12 @@ fun CoachContent(
                 }
             }
             items(state.cards, key = { it.advice.id }) { card ->
-                CoachAdviceCard(card, onApply = { onApply(card.advice.id) }, onDismiss = { onDismiss(card.advice.id) }, Modifier.animateItem())
+                val id = card.advice.id
+                when (val detail = card.detail) {
+                    is CardDetail.MoreWork -> MoreWorkCard(card.advice, detail.payload, { onApply(id) }, { onDismiss(id) }, Modifier.animateItem())
+                    is CardDetail.Swap -> SwapCard(card.advice, detail.payload, { onSwap(id, it) }, { onDismiss(id) }, Modifier.animateItem())
+                    else -> CoachAdviceCard(card, onApply = { onApply(id) }, onDismiss = { onDismiss(id) }, Modifier.animateItem())
+                }
             }
         }
     }

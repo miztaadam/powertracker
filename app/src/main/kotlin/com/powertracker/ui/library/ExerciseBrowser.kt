@@ -437,13 +437,22 @@ fun MusclesContent(ticked: Set<MuscleGroup>, onToggle: (MuscleGroup) -> Unit, on
     }
 }
 
-/** [groups] as tick boxes, two to a row, in the order given: the Muscles drop-down's list, also the plan builder's body parts. */
+/**
+ * [groups] as tick boxes, two to a row, in the order given: the Muscles drop-down's list, also the plan builder's body
+ * parts and the check-in's. A group in [locked] is shown but cannot be ticked.
+ */
 @Composable
-fun MuscleOptions(groups: List<MuscleGroup>, ticked: Set<MuscleGroup>, onToggle: (MuscleGroup) -> Unit, modifier: Modifier = Modifier) {
+fun MuscleOptions(
+    groups: List<MuscleGroup>,
+    ticked: Set<MuscleGroup>,
+    onToggle: (MuscleGroup) -> Unit,
+    modifier: Modifier = Modifier,
+    locked: Set<MuscleGroup> = emptySet(),
+) {
     Column(modifier) {
         for (row in groups.chunked(OPTION_COLUMNS)) {
             Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-                for (group in row) MuscleOption(group, group in ticked, onToggle, Modifier.weight(1f))
+                for (group in row) MuscleOption(group, group in ticked, onToggle, Modifier.weight(1f), enabled = group !in locked)
                 repeat(OPTION_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
             }
         }
@@ -451,14 +460,14 @@ fun MuscleOptions(groups: List<MuscleGroup>, ticked: Set<MuscleGroup>, onToggle:
 }
 
 @Composable
-private fun MuscleOption(group: MuscleGroup, ticked: Boolean, onToggle: (MuscleGroup) -> Unit, modifier: Modifier = Modifier) {
+private fun MuscleOption(group: MuscleGroup, ticked: Boolean, onToggle: (MuscleGroup) -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
     Row(
         modifier
             .heightIn(min = Space.touch)
             .clip(MaterialTheme.shapes.small)
-            .toggleable(value = ticked, role = Role.Checkbox, onValueChange = { onToggle(group) })
+            .toggleable(value = ticked, enabled = enabled, role = Role.Checkbox, onValueChange = { onToggle(group) })
             .testTag("muscle-option-${group.name}"),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Space.m),
@@ -467,9 +476,10 @@ private fun MuscleOption(group: MuscleGroup, ticked: Boolean, onToggle: (MuscleG
         Checkbox(
             checked = ticked,
             onCheckedChange = null,
+            enabled = enabled,
             colors = CheckboxDefaults.colors(checkedColor = pt.accent, checkmarkColor = pt.onAccent, uncheckedColor = scheme.outline),
         )
-        Text(group.label, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface, modifier = Modifier.weight(1f))
+        Text(group.label, style = MaterialTheme.typography.titleMedium, color = if (enabled) scheme.onSurface else pt.muted, modifier = Modifier.weight(1f))
     }
 }
 

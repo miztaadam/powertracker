@@ -12,6 +12,7 @@ import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.coach.AccessoryMap
 import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.coach.Coaching
+import com.powertracker.domain.coach.PhysiqueCoach
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.library.Library
@@ -66,6 +67,12 @@ sealed interface CardDetail {
         val muscles: List<String>,
         val additions: List<AccessoryPrescription>,
     ) : CardDetail
+
+    /** More work for a lagging body part (stage 3, bodybuilding side): what Add to plan would change. */
+    data class MoreWork(val payload: AdvicePayload.MoreWork) : CardDetail
+
+    /** A stuck exercise and the alternatives to swap it for (stage 3, bodybuilding side). */
+    data class Swap(val payload: AdvicePayload.Swap) : CardDetail
 }
 
 data class CoachCard(val advice: Advice, val detail: CardDetail)
@@ -75,6 +82,8 @@ data class CoachState(
     val cards: List<CoachCard> = emptyList(),
     /** The welcome-back card for the side the app is on, shown above the advice (bodybuilding mode spec §7.7). */
     val welcomeBack: Boolean = false,
+    /** A bodybuilding check-in is due (stage 3): its card leads the feed. Never on the powerlifting side. */
+    val checkInDue: Boolean = false,
 )
 
 class CoachViewModel(
@@ -97,7 +106,7 @@ class CoachViewModel(
 
     /** The feed is the advice of the side the app is on, with every deload and easing back in. */
     val state: StateFlow<CoachState> =
-        combine(combine(advice.open(), busy, ::Pair), training.history(), training.plans(), training.exercises(), settings.settings) { (open, busy), history, plans, exercises, s ->
+        combine(combine(advice.open(), busy, training.checkIns(), ::Triple), training.history(), training.plans(), training.exercises(), settings.settings) { (open, busy, checkIns), history, plans, exercises, s ->
             val mode = s.trainingMode
             val plan = plans.of(mode)
             // The cards' trends and ratios are powerlifting figures: bodybuilding sessions do not touch them (spec §5.3).
@@ -107,7 +116,10 @@ class CoachViewModel(
                 .filter { it.type in FEED_ORDER && it.id !in busy && !expired(it, date) }
                 .sortedWith(compareBy<Advice> { FEED_ORDER.indexOf(it.type) }.thenByDescending { it.createdAt }.thenByDescending { it.id })
                 .mapNotNull { a -> detail(a, stats, date, plan, exercises)?.let { CoachCard(a, it) } }
-            CoachState(loading = false, cards = cards, welcomeBack = Coaching.welcomeBack(s.leftOn(mode), date, plan.isNotEmpty()))
+            CoachState(
+                loading = false, cards = cards, welcomeBack = Coaching.welcomeBack(s.leftOn(mode), date, plan.isNotEmpty()),
+                checkInDue = mode == TrainingMode.BODYBUILDING && Coaching.checkInDue(history, plans.bodybuilding, checkIns, date),
+            )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CoachState())
 
     /** The welcome-back card was answered, either way: the side the app is on is marked as not left. */
@@ -133,8 +145,10 @@ class CoachViewModel(
                 muscles = AccessoryMap.muscles(payload.lift, payload.missPoint),
                 additions = weakPointAdditions(payload, plan, exercises),
             )
-            // Stage 3's suggestions are not in this feed yet; they arrive with their own cards.
-            is AdvicePayload.Target, is AdvicePayload.MoreWork, is AdvicePayload.Swap -> null
+            is AdvicePayload.MoreWork -> CardDetail.MoreWork(payload)
+            // A swap for an exercise no longer in the plan has nothing left to swap.
+            is AdvicePayload.Swap -> if (plan.any { it.exerciseId == payload.exerciseId }) CardDetail.Swap(payload) else null
+            is AdvicePayload.Target -> null
         }
 
     /**
@@ -178,10 +192,42 @@ class CoachViewModel(
             is AdvicePayload.WeakPoint -> addToPlan(payload.lift, weakPointAdditions(payload, training.plan(settings.settings.first().trainingMode).first(), training.exercises().first()))
             is AdvicePayload.Deload -> "Deload week on — targets lightened for 7 days"
             is AdvicePayload.ReEntry -> "Easing back in for 7 days"
-            is AdvicePayload.Target, is AdvicePayload.MoreWork, is AdvicePayload.Swap -> return@once
+            is AdvicePayload.MoreWork -> {
+                val plan = training.plan(TrainingMode.BODYBUILDING).first()
+                val change = PhysiqueCoach.applyMoreWork(payload, plan, training.exercises().first().associateBy { it.id })
+                // Applied even when the plan changed since and nothing fitted: the message says so and the card goes.
+                training.inTransaction {
+                    training.applyPlanChange(change)
+                    advice.setStatus(adviceId, AdviceStatus.APPLIED)
+                }
+                _messages.send(change.message)
+                return@once
+            }
+            is AdvicePayload.Target, is AdvicePayload.Swap -> return@once
         }
         advice.setStatus(adviceId, AdviceStatus.APPLIED)
         _messages.send(message)
+    }
+
+    /**
+     * Swaps a stuck exercise for [choice], one of its alternatives, on every day it is planned. When the plan changed
+     * since so that the swap no longer fits, nothing changes, the message says why and the card stays, so another
+     * alternative can still be chosen.
+     */
+    fun swap(adviceId: Long, choice: String) = once(adviceId) {
+        val target = advice.open().first().firstOrNull { it.id == adviceId } ?: return@once
+        val payload = target.payload as? AdvicePayload.Swap ?: return@once
+        val plan = training.plan(TrainingMode.BODYBUILDING).first()
+        val change = PhysiqueCoach.applySwap(payload, choice, plan, training.exercises().first().associateBy { it.id })
+        if (change.changed) {
+            training.inTransaction {
+                training.applyPlanChange(change)
+                advice.setStatus(adviceId, AdviceStatus.APPLIED)
+            }
+        } else {
+            busy.update { it - adviceId }
+        }
+        _messages.send(change.message)
     }
 
     fun dismiss(adviceId: Long) = once(adviceId) { advice.setStatus(adviceId, AdviceStatus.DISMISSED) }
@@ -251,7 +297,9 @@ class CoachViewModel(
     private class LiftPair(val numerator: MainLift, val denominator: MainLift, val range: ClosedFloatingPointRange<Double>)
 
     companion object {
-        private val FEED_ORDER = listOf(AdviceType.DELOAD, AdviceType.RE_ENTRY, AdviceType.STALL, AdviceType.WEAK_POINT)
+        private val FEED_ORDER = listOf(
+            AdviceType.DELOAD, AdviceType.RE_ENTRY, AdviceType.STALL, AdviceType.WEAK_POINT, AdviceType.MORE_WORK, AdviceType.SWAP,
+        )
         private const val TREND_WEEKS = 6
         private const val WEAK_POINT_ADDITIONS = 2
         private const val UPDATE_FAILED = "Couldn't update — try again"

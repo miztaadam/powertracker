@@ -18,6 +18,9 @@ import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.on
 import com.powertracker.domain.progress.BodybuildingProgress
 import com.powertracker.domain.progress.ExerciseTrend
+import com.powertracker.domain.progress.MuscleProgress
+import com.powertracker.domain.progress.MuscleRow
+import com.powertracker.domain.model.CheckIn
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.coach.RatioUi
 import kotlinx.coroutines.flow.Flow
@@ -80,6 +83,10 @@ data class ProgressState(
     val mode: TrainingMode = TrainingMode.POWERLIFTING,
     /** The bodybuilding side: the plan's exercises with their last four sessions' best sets (spec §7.6). */
     val trends: List<ExerciseTrend> = emptyList(),
+    /** The bodybuilding side (stage 3): one row per body part, with its check-in ratings and sets. */
+    val muscles: List<MuscleRow> = emptyList(),
+    /** The bodybuilding side: at least one check-in has been saved. */
+    val checkedIn: Boolean = false,
 )
 
 /** An estimate is not worth more than half a kilo of precision. */
@@ -95,10 +102,13 @@ class ProgressViewModel(
     private val range = MutableStateFlow(ChartRange.MONTHS_6)
 
     val state: StateFlow<ProgressState> =
-        combine(training.history(), range, showStrictPress, mode, training.plan(TrainingMode.BODYBUILDING)) { history, range, press, side, plan ->
+        combine(
+            training.history(), range, showStrictPress, mode,
+            combine(training.plan(TrainingMode.BODYBUILDING), training.checkIns(), ::Pair),
+        ) { history, range, press, side, (plan, checkIns) ->
             when (side) {
                 TrainingMode.POWERLIFTING -> build(history, range, today(), press)
-                TrainingMode.BODYBUILDING -> buildBodybuilding(history, plan, today())
+                TrainingMode.BODYBUILDING -> buildBodybuilding(history, plan, today(), checkIns)
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProgressState())
 
@@ -119,14 +129,21 @@ class ProgressViewModel(
 
         private fun percent(factor: Double) = (factor * 100).roundToInt()
 
-        /** The bodybuilding side's list: one row per exercise in its plan, in plan order. */
-        internal fun buildBodybuilding(history: TrainingHistory, plan: List<com.powertracker.domain.model.PlanItem>, today: LocalDate): ProgressState {
+        /** The bodybuilding side: one row per body part (stage 3), then one per exercise in its plan, in plan order. */
+        internal fun buildBodybuilding(
+            history: TrainingHistory,
+            plan: List<com.powertracker.domain.model.PlanItem>,
+            today: LocalDate,
+            checkIns: List<CheckIn> = emptyList(),
+        ): ProgressState {
             val trends = BodybuildingProgress.rows(history, plan, today)
             return ProgressState(
                 loading = false,
                 hasData = trends.isNotEmpty(),
                 mode = TrainingMode.BODYBUILDING,
                 trends = trends,
+                muscles = MuscleProgress.rows(history, plan, checkIns, today),
+                checkedIn = checkIns.any { it.date <= today },
             )
         }
 

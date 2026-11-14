@@ -50,6 +50,10 @@ import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.progress.ExerciseTrend
+import com.powertracker.domain.progress.MuscleRow
+import com.powertracker.domain.model.MuscleRating
+import com.powertracker.ui.components.SecondaryButton
+import androidx.compose.ui.platform.testTag
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.coach.RatioUi
 import com.powertracker.ui.components.BarStrip
@@ -87,15 +91,22 @@ fun ProgressScreen(
     onOpenLift: (MainLift) -> Unit,
     today: () -> LocalDate = ::systemToday,
     onOpenExercise: (exerciseId: Long) -> Unit = {},
+    onCheckIn: () -> Unit = {},
 ) {
     val viewModel: ProgressViewModel = viewModel(factory = ProgressViewModel.factory(training, settings, today))
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ProgressContent(state, onRange = viewModel::setRange, onOpenLift = onOpenLift, onOpenExercise = onOpenExercise)
+    ProgressContent(state, onRange = viewModel::setRange, onOpenLift = onOpenLift, onOpenExercise = onOpenExercise, onCheckIn = onCheckIn)
 }
 
 /** The Progress screen without its view model. */
 @Composable
-fun ProgressContent(state: ProgressState, onRange: (ChartRange) -> Unit, onOpenLift: (MainLift) -> Unit, onOpenExercise: (exerciseId: Long) -> Unit = {}) {
+fun ProgressContent(
+    state: ProgressState,
+    onRange: (ChartRange) -> Unit,
+    onOpenLift: (MainLift) -> Unit,
+    onOpenExercise: (exerciseId: Long) -> Unit = {},
+    onCheckIn: () -> Unit = {},
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -111,14 +122,22 @@ fun ProgressContent(state: ProgressState, onRange: (ChartRange) -> Unit, onOpenL
             when {
                 state.loading -> Unit
                 // The powerlifting charts, records and total belong to that side (bodybuilding mode spec §7.6).
-                state.mode == TrainingMode.BODYBUILDING -> if (state.trends.isEmpty()) {
-                    EmptyState(
-                        Icons.Filled.Insights,
-                        "No exercises in your plan yet",
-                        "Add exercises on the Plan tab and log them on Today. Each one's best sets will show here.",
-                    )
-                } else {
-                    BodybuildingSection(state, onOpenExercise)
+                state.mode == TrainingMode.BODYBUILDING -> {
+                    // Stage 3: a check-in any time, then the body parts above the stage 1 exercise rows.
+                    CheckInStart(state.checkedIn, onCheckIn)
+                    if (state.muscles.isNotEmpty()) BodyPartsSection(state.muscles)
+                    if (state.trends.isEmpty()) {
+                        EmptyState(
+                            Icons.Filled.Insights,
+                            "No exercises in your plan yet",
+                            "Add exercises on the Plan tab and log them on Today. Each one's best sets will show here.",
+                        )
+                    } else {
+                        Column {
+                            SectionHeader("Exercises")
+                            BodybuildingSection(state, onOpenExercise)
+                        }
+                    }
                 }
                 !state.hasData -> EmptyState(
                     Icons.Filled.Insights,
@@ -396,6 +415,72 @@ private fun BodybuildingSection(state: ProgressState, onOpenExercise: (Long) -> 
                 }
             }
     }
+}
+
+// Stage 3's words on Progress. The web app's Progress uses the same.
+const val FIRST_CHECK_IN_LINE = "Your first check-in is four weeks after your first bodybuilding session. You can check in any time."
+
+fun ratingText(rating: MuscleRating): String = when (rating) {
+    MuscleRating.LAGGING -> "Lagging"
+    MuscleRating.GROWING_WELL -> "Growing well"
+    MuscleRating.ON_TRACK -> "On track"
+}
+
+/** "11 of 14 planned sets in the last 7 days"; with none planned, "3 sets in the last 7 days". */
+fun setsText(row: MuscleRow): String =
+    if (row.setsPlanned == 0) "${row.setsDone} ${if (row.setsDone == 1) "set" else "sets"} in the last 7 days"
+    else "${row.setsDone} of ${row.setsPlanned} planned sets in the last 7 days"
+
+/** "2 of 3 exercises going up"; null when none of the body part's exercises has enough sessions to tell. */
+fun goingUpText(row: MuscleRow): String? =
+    if (row.exercisesTracked == 0) null
+    else "${row.exercisesUp} of ${row.exercisesTracked} ${if (row.exercisesTracked == 1) "exercise" else "exercises"} going up"
+
+/** The Check in button, with a line before the first check-in saying when one falls due. */
+@Composable
+private fun CheckInStart(checkedIn: Boolean, onCheckIn: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(Space.s)) {
+        SecondaryButton("Check in", onCheckIn, Modifier.fillMaxWidth().testTag("progress-check-in"))
+        if (!checkedIn) {
+            Text(FIRST_CHECK_IN_LINE, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = Space.xs))
+        }
+    }
+}
+
+/** One row per body part: its latest rating, the sets done against the plan, how its exercises move, earlier ratings. */
+@Composable
+private fun BodyPartsSection(rows: List<MuscleRow>) {
+    val pt = PowertrackerTheme.colors
+    Column {
+        SectionHeader("Body parts")
+        PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
+            rows.forEachIndexed { i, row ->
+                if (i > 0) HorizontalDivider(color = pt.hairline)
+                val latest = row.ratings.lastOrNull()?.second
+                val earlier = row.ratings.dropLast(1).map { ratingText(it.second) }
+                Row(
+                    Modifier.fillMaxWidth().padding(vertical = Space.m).semantics(mergeDescendants = true) {}.testTag("body-part-${row.group.name}"),
+                    horizontalArrangement = Arrangement.spacedBy(Space.m),
+                ) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
+                        Text(row.group.label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                        Text(setsText(row), style = MaterialTheme.typography.bodyMedium, color = pt.muted)
+                        goingUpText(row)?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = pt.muted) }
+                        if (earlier.isNotEmpty()) {
+                            Text(earlier.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = pt.muted)
+                        }
+                    }
+                    if (latest != null) Pill(ratingText(latest), tone = latest.tone())
+                }
+            }
+        }
+    }
+}
+
+private fun MuscleRating.tone(): Tone = when (this) {
+    MuscleRating.LAGGING -> Tone.WARNING
+    MuscleRating.GROWING_WELL -> Tone.SUCCESS
+    MuscleRating.ON_TRACK -> Tone.NEUTRAL
 }
 
 @Composable

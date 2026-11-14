@@ -311,7 +311,7 @@ class BackupTest {
         val exported = service.export(1L)
         val text = Backup.encode(exported)
         val root = Json.parseToJsonElement(text).jsonObject
-        assertEquals(3, root.getValue("version").jsonPrimitive.int)
+        assertEquals(Backup.VERSION, root.getValue("version").jsonPrimitive.int)
         val s = root.getValue("settings").jsonObject
         assertEquals("BODYBUILDING", s.getValue("trainingMode").jsonPrimitive.content)
         assertEquals(listOf(1, 3, 4, 5), s.getValue("bodybuildingTrainingDays").jsonArray.map { it.jsonPrimitive.int })
@@ -359,16 +359,111 @@ class BackupTest {
     }
 
     @Test
-    fun v4File_isTooNew() = runTest {
-        val text = Backup.encode(service.export(1L).copy(version = 4))
-        assertEquals(BackupResult.TooNew(4), Backup.decode(text))
+    fun v5File_isTooNew() = runTest {
+        val text = Backup.encode(service.export(1L).copy(version = 5))
+        assertEquals(BackupResult.TooNew(5), Backup.decode(text))
+    }
+
+    /** Stage 3: version 4 carries the check-ins and the two new advice types, and restores exactly. */
+    @Test
+    fun v4RoundTrip_keepsCheckInsAndTheNewAdvice() = runTest {
+        seedBothSides()
+        seedStage3()
+        val exported = service.export(1L)
+        val text = Backup.encode(exported)
+        val root = Json.parseToJsonElement(text).jsonObject
+        assertEquals(4, root.getValue("version").jsonPrimitive.int)
+        val checkIns = root.getValue("checkIns").jsonArray.map { it.jsonObject }
+        assertEquals(listOf(LocalDate(2026, 10, 13).toEpochDays().toInt(), LocalDate(2026, 11, 10).toEpochDays().toInt()),
+            checkIns.map { it.getValue("date").jsonPrimitive.int })
+        assertEquals(listOf("CHEST", "SIDE_DELTS"), checkIns[1].getValue("lagging").jsonArray.map { it.jsonPrimitive.content })
+        assertEquals(listOf("QUADS"), checkIns[1].getValue("growingWell").jsonArray.map { it.jsonPrimitive.content })
+        assertEquals(listOf("id", "date", "lagging", "growingWell"), checkIns[0].keys.toList())
+        val types = root.getValue("advice").jsonArray.map { it.jsonObject.getValue("type").jsonPrimitive.content }
+        assertTrue(types.containsAll(listOf("MORE_WORK", "SWAP")))
+
+        db.checkIns().clear()
+        db.advice().clear()
+        service.restore((Backup.decode(text) as BackupResult.Ok).file)
+
+        assertEquals(exported, service.export(1L))
+        val read = TrainingRepository(db).checkIns().first()
+        assertEquals(setOf(com.powertracker.domain.library.MuscleGroup.QUADS), read[1].growingWell)
+        val payloads = db.advice().all().filter { it.type == AdviceType.MORE_WORK || it.type == AdviceType.SWAP }
+            .map { Json.decodeFromString(com.powertracker.domain.model.AdvicePayload.serializer(), it.payload) }
+        assertTrue(payloads.any { it is com.powertracker.domain.model.AdvicePayload.MoreWork })
+        assertTrue(payloads.any { it is com.powertracker.domain.model.AdvicePayload.Swap })
+    }
+
+    /** A version 3 file has no check-ins: it restores with none, and replaces any stored. */
+    @Test
+    fun v3File_restoresWithNoCheckIns() = runTest {
+        seedBothSides()
+        seedStage3()
+        val root = Json.parseToJsonElement(Backup.encode(service.export(1L))).jsonObject
+        val v3 = JsonObject(root - "checkIns" + ("version" to JsonPrimitive(3)) +
+            ("advice" to JsonArray(root.getValue("advice").jsonArray.filter { it.jsonObject.getValue("type").jsonPrimitive.content !in setOf("MORE_WORK", "SWAP") })))
+
+        val decoded = Backup.decode(v3.toString())
+        assertTrue(decoded.toString(), decoded is BackupResult.Ok)
+        service.restore((decoded as BackupResult.Ok).file)
+
+        assertEquals(emptyList<Any>(), db.checkIns().all())
+        assertEquals(2, db.sessions().all().size)
+    }
+
+    @Test
+    fun badCheckIns_areCorrupt() = runTest {
+        seedBothSides()
+        seedStage3()
+        val file = service.export(1L)
+        val first = file.checkIns.first()
+        for (bad in listOf(
+            file.copy(checkIns = file.checkIns + first.copy(id = 99)),
+            file.copy(checkIns = listOf(first.copy(lagging = listOf("WINGS")))),
+            file.copy(checkIns = listOf(first.copy(lagging = listOf("CHEST"), growingWell = listOf("CHEST")))),
+        )) {
+            assertTrue(bad.toString(), Backup.decode(Backup.encode(bad)) is BackupResult.Corrupt)
+        }
+    }
+
+    private suspend fun seedStage3() {
+        val training = TrainingRepository(db)
+        training.saveCheckIn(com.powertracker.domain.model.CheckIn(LocalDate(2026, 10, 13), emptySet(), setOf(com.powertracker.domain.library.MuscleGroup.BICEPS)))
+        training.saveCheckIn(
+            com.powertracker.domain.model.CheckIn(
+                LocalDate(2026, 11, 10),
+                setOf(com.powertracker.domain.library.MuscleGroup.CHEST, com.powertracker.domain.library.MuscleGroup.SIDE_DELTS),
+                setOf(com.powertracker.domain.library.MuscleGroup.QUADS),
+            ),
+        )
+        val curl = db.exercises().all().first { it.name == "Curl" }.id
+        AdviceRepository(db).insert(
+            listOf(
+                com.powertracker.domain.model.Advice(
+                    AdviceType.MORE_WORK, null, LocalDate(2026, 11, 10), "You marked chest as lagging.", 0,
+                    com.powertracker.domain.model.AdvicePayload.MoreWork(
+                        com.powertracker.domain.library.MuscleGroup.CHEST, emptyList(),
+                        com.powertracker.domain.model.NewExercise(DayOfWeek.MONDAY, "Pec deck", 3, 8, 12, 8.0), 0, 3,
+                    ),
+                    mode = TrainingMode.BODYBUILDING,
+                ),
+                com.powertracker.domain.model.Advice(
+                    AdviceType.SWAP, null, LocalDate(2026, 11, 3), "Curl hasn't moved in 3 weeks.", 0,
+                    com.powertracker.domain.model.AdvicePayload.Swap(
+                        curl, "Curl", com.powertracker.domain.library.MuscleGroup.BICEPS, LocalDate(2026, 10, 13), listOf("Cable curl", "EZ-bar curl"),
+                    ),
+                    status = AdviceStatus.DISMISSED, mode = TrainingMode.BODYBUILDING,
+                ),
+            ),
+        )
     }
 
     /** An app that reads only version 2 turns a version 3 file away. */
     @Test
     fun v3File_onVersion2Decoder_isTooNew() = runTest {
         seedBothSides()
-        assertEquals(BackupResult.TooNew(3), Backup.decode(Backup.encode(service.export(1L)), supportedVersion = 2))
+        assertEquals(BackupResult.TooNew(3), Backup.decode(Backup.encode(service.export(1L).copy(version = 3)), supportedVersion = 2))
     }
 
     @Test
