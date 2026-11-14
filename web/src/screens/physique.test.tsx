@@ -330,11 +330,11 @@ describe('Progress: body parts', () => {
     const chest = within(parts).getAllByRole('listitem')[0]!
     expect(within(chest).getByRole('heading').textContent).toBe('Chest')
     expect(within(chest).getByText('Growing well')).toBeInTheDocument()
-    expect(within(chest).getByText('Lagging · On track')).toBeInTheDocument()
+    expect(within(chest).getByText('Earlier: Lagging · On track')).toBeInTheDocument()
     // DB press works the front delts too: on track at every check-in.
     const delts = within(parts).getAllByRole('listitem').find((r) => within(r).getByRole('heading').textContent === 'Front delts')!
     expect(within(delts).getByText('On track')).toBeInTheDocument()
-    expect(within(delts).getByText('On track · On track')).toBeInTheDocument()
+    expect(within(delts).getByText('Earlier: On track · On track')).toBeInTheDocument()
     expect(screen.queryByText(/Your first check-in/)).toBeNull()
     expect(checkInToJs({ id: 1, date: TODAY, lagging: [], growingWell: [] }).date).toBe(TODAY)
   })
@@ -354,6 +354,14 @@ describe('Progress: body parts', () => {
     const parts = await screen.findByRole('region', { name: 'Body parts' })
     const biceps = within(parts).getAllByRole('listitem').find((r) => within(r).getByRole('heading').textContent === 'Biceps')!
     expect(within(biceps).getByText('1 set in the last 7 days')).toBeInTheDocument()
+  })
+
+  it('anEmptyPlan_hasNoCheckInButton', async () => {
+    await session(3, [['DB press', 26, 10]])
+    showProgress()
+    expect(await screen.findByText('No exercises in your plan yet')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Check in' })).toBeNull()
+    expect(screen.queryByText(/Your first check-in/)).toBeNull()
   })
 
   it('thePowerliftingSide_hasNoneOfIt', async () => {

@@ -6,7 +6,7 @@ import { updateSettings, type GritDb } from '../../db/db'
 import { grit } from '../../domain'
 import { draftItems } from '../../state/usePlanBuilder'
 import { TODAY, addDays, exerciseNamed, todayFixture } from '../../test/todayFixture'
-import { CheckInScreen, GROWING_QUESTION, LAGGING_LINE, LAGGING_QUESTION, SAVED_TITLE } from './CheckInScreen'
+import { CheckInScreen, GROWING_LINE, GROWING_QUESTION, LAGGING_LINE, LAGGING_QUESTION, SAVED_TITLE } from './CheckInScreen'
 
 /** Bodybuilding mode stage 3 (plan Task 2, "What the lifter sees" 2): the check-in screen. */
 
@@ -79,6 +79,8 @@ describe('the check-in screen', () => {
     show()
     await userEvent.click(await screen.findByRole('checkbox', { name: 'Chest' }))
     await tap('Next')
+    expect(screen.getByText(GROWING_LINE)).toBeInTheDocument()
+    expect(GROWING_LINE).toBe("Body parts marked lagging can't also be growing well.")
     const chest = box('Chest') as HTMLInputElement
     expect(chest).toBeDisabled()
     expect(chest.checked).toBe(false)

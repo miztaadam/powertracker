@@ -271,6 +271,15 @@ describe.each([
       expect(ratio(get('--outline'), get(s))).toBeGreaterThanOrEqual(3)
     })
   }
+  // The check-in's locked tiles (a body part already marked lagging, on step 2) sit on a card (--surface): their name
+  // and their box are drawn in --text-muted, so they read as unavailable and still pass, light mode included.
+  it('the locked check-in tile on --surface: its name at least 4.5:1 and its box at least 3:1', () => {
+    const library = readFileSync(resolve(process.cwd(), 'src/screens/library/library.css'), 'utf8')
+    const rule = (selector: string) => library.slice(library.indexOf(`${selector} {`)).split('}')[0]!
+    expect(rule('.lib-option-disabled')).toContain('color: var(--text-muted)')
+    expect(rule('.lib-option-disabled input')).toContain('border: 2px solid var(--text-muted)')
+    expect(ratio(get('--text-muted'), get('--surface'))).toBeGreaterThanOrEqual(4.5)
+  })
   for (const s of ['--bg', '--surface', '--container']) {
     it(`--chart-press against ${s} is at least 3:1`, () => {
       expect(ratio(get('--chart-press'), get(s))).toBeGreaterThanOrEqual(3)

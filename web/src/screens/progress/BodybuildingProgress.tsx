@@ -34,7 +34,8 @@ export function BodybuildingProgressContent({ state, onOpenExercise, onCheckIn =
     <section className="screen">
       <ScreenHeader title="Progress" eyebrow="Best set per session" label={<ModeLabel />} />
       <div className="screen-body">
-        {!state.loading && (
+        {/* An empty plan has nothing to check in on (coordinator's ruling, as on Android). */}
+        {!state.loading && state.rows.length > 0 && (
           <div className="bb-check-in">
             <SecondaryButton text="Check in" onClick={onCheckIn} />
             {!state.checkedIn && <p className="bb-check-in-line body-medium">{FIRST_CHECK_IN_LINE}</p>}
@@ -95,7 +96,7 @@ export function goingUpLine(row: Pick<BodyPartRow, 'exercisesUp' | 'exercisesTra
 
 /**
  * One body part: its name and its rating at the latest check-in, the sets done against those planned, how many of its
- * exercises are going up, and its earlier ratings, oldest first. Before the first check-in it has no rating.
+ * exercises are going up, and its earlier ratings, oldest first ("Earlier: Lagging · On track"; left out with none). Before the first check-in it has no rating.
  */
 function BodyPart({ row }: { row: BodyPartRow }) {
   const latest = row.ratings.at(-1)
@@ -109,7 +110,7 @@ function BodyPart({ row }: { row: BodyPartRow }) {
       </div>
       <p className="bb-part-line body-medium">{setsLine(row)}</p>
       {goingUp != null && <p className="bb-part-line body-medium">{goingUp}</p>}
-      {earlier.length > 0 && <p className="bb-part-earlier body-small">{earlier.map((r) => RATING[r.rating].text).join(' · ')}</p>}
+      {earlier.length > 0 && <p className="bb-part-earlier body-small">{`Earlier: ${earlier.map((r) => RATING[r.rating].text).join(' · ')}`}</p>}
     </li>
   )
 }

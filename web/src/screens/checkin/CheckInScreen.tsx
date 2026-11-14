@@ -14,6 +14,7 @@ export const CHECK_IN_TITLE = 'Check-in'
 export const LAGGING_QUESTION = 'Which body parts are lagging?'
 export const LAGGING_LINE = 'Leave a body part unticked if it is on track.'
 export const GROWING_QUESTION = 'Which are growing well?'
+export const GROWING_LINE = "Body parts marked lagging can't also be growing well."
 export const SAVED_TITLE = 'Check-in saved'
 const SAVE_FAILED = 'The check-in could not be saved. Nothing was changed.'
 
@@ -104,6 +105,7 @@ function CheckInContent({ state, actions, onLeave, onSeeCoach, onDone }: Content
       {step === 'growing' && (
         <div className="screen-body ci-body">
           <h2 className="ci-question headline-small">{GROWING_QUESTION}</h2>
+          <p className="ci-hint body-medium">{GROWING_LINE}</p>
           <Card contentPadding={0} className="ci-groups">
             <div role="group" aria-label={GROWING_QUESTION}>
               <MuscleChecklist groups={groups()} ticked={state.growingWell} onToggle={actions.toggleGrowing} disabled={state.lagging} />

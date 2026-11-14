@@ -524,8 +524,19 @@
   background: var(--accent);
 }
 
-/* A group shown but not tickable (the check-in's second step: those already marked lagging). */
+/*
+ * A group shown but not tickable (the check-in's second step: those already marked lagging). Name and an empty box in
+ * --text-muted, which the contrast tests hold to 4.5:1 on the card in every palette (tokens.test.ts).
+ */
 .lib-option-disabled {
   color: var(--text-muted);
   cursor: default;
+}
+
+.lib-option-disabled input {
+  appearance: none;
+  box-sizing: border-box;
+  border: 2px solid var(--text-muted);
+  border-radius: 2px;
+  background: transparent;
 }
