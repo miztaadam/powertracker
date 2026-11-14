@@ -81,6 +81,18 @@ export type BaselineRow = {
   date: string
 }
 
+/**
+ * One check-in on the bodybuilding side (stage 3): the body parts the lifter marked lagging and growing well that
+ * day, as `MuscleGroup` names in the domain's order; every other group is on track. One per date.
+ */
+export type CheckInRow = {
+  id?: number
+  /** ISO `YYYY-MM-DD`, unique. */
+  date: string
+  lagging: string[]
+  growingWell: string[]
+}
+
 export type KeyValueRow = { key: string; value: unknown }
 
 /** One numbered Dexie version. `stores` uses Dexie's schema-string syntax. */
@@ -99,6 +111,7 @@ export const TABLE_NAMES = [
   'baselines',
   'settings',
   'meta',
+  'checkIns',
 ] as const
 
 /** Only fields that are valid IndexedDB keys and get queried are indexed (booleans are not keys).
@@ -123,6 +136,8 @@ export const SCHEMA_VERSIONS: SchemaVersion[] = [
   // Bodybuilding mode: each side keeps its own plan, so plan items are read by mode. Everything already stored was
   // made on the powerlifting side.
   { version: 3, stores: { planItems: '++id, weekday, exerciseId, mode' }, upgrade: stampPowerlifting },
+  // Check-ins (bodybuilding mode stage 3): a new, empty store; nothing already stored changes.
+  { version: 4, stores: { checkIns: '++id, &date' } },
 ]
 
 /** Schema version 3's upgrade: every plan item, session and advice row without a side is on the powerlifting side. */
