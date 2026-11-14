@@ -96,4 +96,40 @@ object CoachSources {
         url = "https://exrx.net/WeightTraining/Guidelines",
         accessed = "2026-11-13",
     )
+
+    /**
+     * The lagging-muscle coach's weekly ceiling, [PhysiqueCoach.WEEKLY_CEILING] = at most 20 counted sets a week for
+     * one body part.
+     *
+     * What the page says: Baz-Valle, Balsalobre-Fernandez, Alix-Fages and Santos-Concejero (2022), "A Systematic
+     * Review of The Effects of Different Resistance Training Volumes on Muscle Hypertrophy", Journal of Human
+     * Kinetics 81: 199-210. The review sorts training into low (under 12), moderate (12-20) and high (over 20) weekly
+     * sets per muscle group, over seven studies, and concludes that 12-20 weekly sets per muscle group may be the best
+     * standard recommendation for growth in young, trained men; for the quadriceps and the biceps, training each
+     * muscle twice a week, there was no added benefit from going above that range. The search summary also notes the
+     * review found a different effect for the triceps than for the quadriceps or biceps. The coach takes 20 as a
+     * ceiling, not as an aim.
+     *
+     * Our count gives a set in full to every group an exercise works (the plan builder's rule), where the study counts
+     * a set for the muscle it is aimed at, so a body part reaches 20 counted sets sooner than it would by the study's
+     * count: the ceiling errs on the side of less.
+     *
+     * Checked on 2026-11-14 by a web search restricted to the allowed sources; the page itself was not opened.
+     *
+     * Not sourced, the designer's own numbers, flagged for the owner and approved by the owner on 2026-11-14: a
+     * check-in falls due 28 days after the last one ([PhysiqueCoach.CHECK_IN_DAYS]); one round of suggestions for each
+     * check-in; a round adds one set to at most two exercises for a body part, or else one new exercise of 3 sets; no
+     * exercise is taken above 4 sets ([PhysiqueCoach.MAX_SETS]); at most 3 body parts get more work from one check-in
+     * ([PhysiqueCoach.MAX_GROUPS]); no session grows above 10 exercises ([PhysiqueCoach.MAX_EXERCISES]); an exercise
+     * is stuck when it has not moved for 21 days and was done at least twice in that time ([PhysiqueCoach.STUCK_DAYS]);
+     * a swap is not suggested again for the same exercise within 28 days ([PhysiqueCoach.SWAP_COOLDOWN_DAYS]); up to 3
+     * alternatives are offered ([PhysiqueCoach.ALTERNATIVES]). No allowed source gives a ceiling on a whole week's
+     * sets; the limits of 3 body parts a check-in and 10 exercises a session stand in for one.
+     */
+    val WEEKLY_CEILING = Source(
+        title = "A Systematic Review of The Effects of Different Resistance Training Volumes on Muscle Hypertrophy (J Hum Kinet 2022; 81: 199-210)",
+        publisher = "PubMed Central (peer-reviewed)",
+        url = "https://pmc.ncbi.nlm.nih.gov/articles/PMC8884877/",
+        accessed = "2026-11-14",
+    )
 }

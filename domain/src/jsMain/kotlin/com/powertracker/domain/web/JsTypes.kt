@@ -17,7 +17,11 @@ import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.coach.AccessoryOption
+import com.powertracker.domain.coach.CheckInOutcome
 import com.powertracker.domain.coach.CoachSettings
+import com.powertracker.domain.coach.PlanChange
+import com.powertracker.domain.model.CheckIn
+import com.powertracker.domain.progress.MuscleRow
 import com.powertracker.domain.library.FormGuide
 import com.powertracker.domain.library.LibraryExercise
 import com.powertracker.domain.library.figures.Capsule
@@ -143,9 +147,19 @@ data class JsRatioRange(val numerator: String, val denominator: String, val low:
 @JsExport
 data class JsPrescription(val exerciseName: String, val sets: Int, val repsLow: Int, val repsHigh: Int)
 
+/** One more set for the plan item on [weekday] (1-7) holding [exerciseId]: [fromSets] to [toSets]. */
+@JsExport
+data class JsSetAddition(val weekday: Int, val exerciseId: Int, val name: String, val fromSets: Int, val toSets: Int)
+
+/** A catalogue exercise ([name]) to add at the end of [weekday] (1-7), [sets] x [repsLow]-[repsHigh] at [rpe]. */
+@JsExport
+data class JsNewExercise(val weekday: Int, val name: String, val sets: Int, val repsLow: Int, val repsHigh: Int, val rpe: Double)
+
 /**
- * A decoded `AdvicePayload`. [kind] is "Target", "Accessories", "Deload", "WeakPoint" or "ReEntry"; only the
- * fields of that kind are set, with Android's defaults where the JSON leaves one out.
+ * A decoded `AdvicePayload`. [kind] is "Target", "Accessories", "Deload", "WeakPoint", "ReEntry", "MoreWork" or
+ * "Swap"; only the fields of that kind are set, with Android's defaults where the JSON leaves one out.
+ * MoreWork: [group], [addSets] or [newExercise], [weeklyBefore], [weeklyAfter]. Swap: [exerciseId], [name], [group],
+ * [since] (ISO date), [alternatives].
  */
 @JsExport
 data class JsAdvicePayload(
@@ -163,6 +177,63 @@ data class JsAdvicePayload(
     val missPoint: String? = null,
     /** Target: the top of the rep range, or null for fixed reps. */
     val repsHigh: Int? = null,
+    /** MoreWork and Swap: a `MuscleGroup` name. */
+    val group: String? = null,
+    val addSets: Array<JsSetAddition> = emptyArray(),
+    val newExercise: JsNewExercise? = null,
+    val weeklyBefore: Int? = null,
+    val weeklyAfter: Int? = null,
+    /** Swap: the stuck exercise's name. */
+    val name: String? = null,
+    val since: String? = null,
+    val alternatives: Array<String> = emptyArray(),
+)
+
+/**
+ * A check-in: [date] ISO, [lagging] and [growingWell] disjoint `MuscleGroup` names (every other group is on track);
+ * [id] 0 for one not yet stored.
+ */
+@JsExport
+data class JsCheckIn(val date: String, val lagging: Array<String>, val growingWell: Array<String>, val id: Int = 0)
+
+/** A lagging [group] that got no advice: [reason] a `NoteReason` name (AT_CEILING, NO_EXERCISE, FULL, LATER). */
+@JsExport
+data class JsGroupNote(val group: String, val reason: String, val weeklySets: Int)
+
+/** What saving a check-in gives: new MORE_WORK [advice], [notes], and the OPEN MORE_WORK advice now DISMISSED. */
+@JsExport
+data class JsCheckInOutcome(val advice: Array<JsAdvice>, val notes: Array<JsGroupNote>, val dismissed: Array<JsAdvice>)
+
+/** A plan item to insert (id 0, exerciseId 0) and the catalogue [name] to resolve for it. */
+@JsExport
+data class JsAddedPlanItem(val item: JsPlanItem, val name: String)
+
+/**
+ * A change to the bodybuilding plan, for one transaction: save [updated], delete [removed], insert [added] after
+ * resolving each catalogue name. [changed] is false when nothing applied; [message] says what happened.
+ */
+@JsExport
+data class JsPlanChange(
+    val updated: Array<JsPlanItem>,
+    val removed: Array<JsPlanItem>,
+    val added: Array<JsAddedPlanItem>,
+    val message: String,
+    val changed: Boolean,
+)
+
+/** A body part's rating at one check-in: [rating] a `MuscleRating` name. */
+@JsExport
+data class JsRating(val date: String, val rating: String)
+
+/** One body part on the bodybuilding Progress screen; [group] a `MuscleGroup` name, [ratings] oldest first. */
+@JsExport
+data class JsMuscleRow(
+    val group: String,
+    val ratings: Array<JsRating>,
+    val setsDone: Int,
+    val setsPlanned: Int,
+    val exercisesUp: Int,
+    val exercisesTracked: Int,
 )
 
 /** A form guide: [purpose] is one or two sentences; the UI appends `GritDomain.safetyLine()` after [mistakes]. */
@@ -296,6 +367,47 @@ internal fun JsPlanItem.toDomain() = PlanItem(
     parseEnum<TrainingMode>("plan.mode", mode), repsHigh,
 )
 
+internal fun PlanItem.toJs() = JsPlanItem(
+    id.toFacadeId("plan.id"), weekday.isoDayNumber, exerciseId.toFacadeId("plan.exerciseId"), sets, reps, targetRpe, order,
+    mode.name, repsHigh,
+)
+
+internal fun JsCheckIn.toDomain(): CheckIn {
+    val lagging = lagging.map { parseEnum<MuscleGroup>("checkIn.lagging", it) }.toSet()
+    val growing = growingWell.map { parseEnum<MuscleGroup>("checkIn.growingWell", it) }.toSet()
+    require(lagging.none { it in growing }) { "checkIn: ${lagging.filter { it in growing }} both lagging and growing well" }
+    return CheckIn(parseDate("checkIn.date", date), lagging, growing, id.toLong())
+}
+
+internal fun CheckInOutcome.toJs() = JsCheckInOutcome(
+    advice.map { it.toJs() }.toTypedArray(),
+    notes.map { JsGroupNote(it.group.name, it.reason.name, it.weeklySets) }.toTypedArray(),
+    dismissed.map { it.toJs() }.toTypedArray(),
+)
+
+internal fun PlanChange.toJs() = JsPlanChange(
+    updated.map { it.toJs() }.toTypedArray(),
+    removed.map { it.toJs() }.toTypedArray(),
+    added.map { (item, name) -> JsAddedPlanItem(item.toJs(), name) }.toTypedArray(),
+    message,
+    changed,
+)
+
+internal fun MuscleRow.toJs() = JsMuscleRow(
+    group.name, ratings.map { (date, rating) -> JsRating(date.toString(), rating.name) }.toTypedArray(),
+    setsDone, setsPlanned, exercisesUp, exercisesTracked,
+)
+
+/** The stored payload [payloadJson], which must be an `AdvicePayload` of type [T]. */
+internal inline fun <reified T : AdvicePayload> payloadOf(field: String, payloadJson: String): T {
+    val payload = try {
+        androidJson.decodeFromString(AdvicePayload.serializer(), payloadJson)
+    } catch (e: IllegalArgumentException) {
+        throw IllegalArgumentException("$field: not an AdvicePayload (${e.message})", e)
+    }
+    return payload as? T ?: throw IllegalArgumentException("$field: a ${payload::class.simpleName}, not a ${T::class.simpleName}")
+}
+
 internal fun JsBaseline.toDomain() = Baseline(exerciseId.toLong(), e1rmKg, parseDate("baseline.date", date))
 
 internal fun JsHistory.toDomain() = TrainingHistory(
@@ -396,6 +508,18 @@ internal fun decodePayload(payloadJson: String): JsAdvicePayload? {
         is AdvicePayload.Deload -> JsAdvicePayload("Deload", volumeFactor = payload.volumeFactor, loadFactor = payload.loadFactor)
         is AdvicePayload.WeakPoint -> JsAdvicePayload("WeakPoint", lift = payload.lift.name, missPoint = payload.missPoint?.name)
         is AdvicePayload.ReEntry -> JsAdvicePayload("ReEntry", loadFactor = payload.loadFactor)
+        is AdvicePayload.MoreWork -> JsAdvicePayload(
+            "MoreWork", group = payload.group.name,
+            addSets = payload.addSets.map {
+                JsSetAddition(it.weekday.isoDayNumber, it.exerciseId.toFacadeId("payload.addSets.exerciseId"), it.name, it.fromSets, it.toSets)
+            }.toTypedArray(),
+            newExercise = payload.newExercise?.let { JsNewExercise(it.weekday.isoDayNumber, it.name, it.sets, it.repsLow, it.repsHigh, it.rpe) },
+            weeklyBefore = payload.weeklyBefore, weeklyAfter = payload.weeklyAfter,
+        )
+        is AdvicePayload.Swap -> JsAdvicePayload(
+            "Swap", exerciseId = payload.exerciseId.toFacadeId("payload.exerciseId"), group = payload.group.name,
+            name = payload.name, since = payload.since.toString(), alternatives = payload.alternatives.toTypedArray(),
+        )
     }
 }
 

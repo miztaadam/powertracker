@@ -38,6 +38,8 @@ object CoachSnapshot {
         is AdvicePayload.Deload -> "deload(${n(p.volumeFactor)},${n(p.loadFactor)})"
         is AdvicePayload.WeakPoint -> "weak(${p.lift},${p.missPoint})"
         is AdvicePayload.ReEntry -> "reentry(${n(p.loadFactor)})"
+        is AdvicePayload.MoreWork -> "morework($p)"
+        is AdvicePayload.Swap -> "swap($p)"
     }
 
     private fun advice(a: Advice) = "${a.type}|${a.lift}|${a.createdAt}|${a.severity}|${a.status}|${a.reason}|${payload(a.payload)}"
