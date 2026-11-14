@@ -9,6 +9,7 @@ import com.powertracker.data.db.ExerciseEntity
 import com.powertracker.data.db.PlanItemEntity
 import com.powertracker.data.db.SessionEntity
 import com.powertracker.data.db.SetEntity
+import com.powertracker.domain.coach.PhysiqueCoach
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.AccessoryPrescription
 import com.powertracker.domain.model.AdvicePayload
@@ -152,8 +153,17 @@ class BackupFixtureTest {
         )
         db.baselines().upsert(BaselineEntity(squat, 172.5, LocalDate(2026, 9, 1)))
 
-        // Version 4: two check-ins, and the lagging-muscle coach's two kinds of advice.
+        // Version 4: two check-ins, and the lagging-muscle coach's two kinds of advice, true to the plan: a lateral raise
+        // at 4 sets after its applied set addition, and no chest work yet for the open Pec deck suggestion.
         val training = TrainingRepository(db)
+        val raise = CatalogueResolver(db).resolve("Lateral raise")
+        db.plan().upsert(PlanItemEntity(weekday = DayOfWeek.MONDAY, exerciseId = raise, sets = 4, reps = 8, targetRpe = 8.0, sortOrder = 2,
+            mode = TrainingMode.BODYBUILDING, repsHigh = 12))
+        val bbPlan = training.plan(TrainingMode.BODYBUILDING).first()
+        val known = training.exercises().first().associateBy { it.id }
+        // Before the applied addition the raise had 3 sets.
+        val sideBefore = PhysiqueCoach.weeklySets(bbPlan, known, MuscleGroup.SIDE_DELTS) - 1
+        check(sideBefore == 3 && PhysiqueCoach.weeklySets(bbPlan, known, MuscleGroup.CHEST) == 0)
         training.saveCheckIn(CheckIn(LocalDate(2026, 10, 5), emptySet(), setOf(MuscleGroup.BICEPS)))
         training.saveCheckIn(CheckIn(LocalDate(2026, 11, 2), setOf(MuscleGroup.CHEST, MuscleGroup.SIDE_DELTS), setOf(MuscleGroup.QUADS)))
         db.advice().insert(
@@ -161,8 +171,9 @@ class BackupFixtureTest {
                 advice(AdviceType.MORE_WORK, null, "You marked chest as lagging. Add Pec deck on Monday, 3 × 8–12 @ 8. That takes it from 0 to 3 sets a week.", 0,
                     AdvicePayload.MoreWork(MuscleGroup.CHEST, emptyList(), NewExercise(DayOfWeek.MONDAY, "Pec deck", 3, 8, 12, 8.0), 0, 3),
                     AdviceStatus.OPEN).copy(mode = TrainingMode.BODYBUILDING, createdAt = LocalDate(2026, 11, 2)),
-                advice(AdviceType.MORE_WORK, null, "You marked side delts as lagging. Add a set to Curl on Monday. That takes it from 3 to 4 sets a week.", 0,
-                    AdvicePayload.MoreWork(MuscleGroup.SIDE_DELTS, listOf(SetAddition(DayOfWeek.MONDAY, curl, "Curl", 3, 4)), null, 3, 4),
+                // Applied: the lateral raise went from 3 to 4 sets, the only side-delt work in the plan.
+                advice(AdviceType.MORE_WORK, null, "You marked side delts as lagging. Add a set to Lateral raise on Monday. That takes it from 3 to 4 sets a week.", 0,
+                    AdvicePayload.MoreWork(MuscleGroup.SIDE_DELTS, listOf(SetAddition(DayOfWeek.MONDAY, raise, "Lateral raise", 3, 4)), null, sideBefore, sideBefore + 1),
                     AdviceStatus.APPLIED).copy(mode = TrainingMode.BODYBUILDING, createdAt = LocalDate(2026, 11, 2)),
                 advice(AdviceType.SWAP, null, "Curl hasn't moved in 4 weeks. Same weight and no more reps since 5 Oct.", 0,
                     AdvicePayload.Swap(curl, "Curl", MuscleGroup.BICEPS, LocalDate(2026, 10, 5), listOf("Cable curl", "EZ-bar curl", "Incline DB curl")),

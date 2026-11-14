@@ -127,14 +127,14 @@ class CheckInTest {
         training.plan(BODYBUILDING).first().map { it.weekday to (n.getValue(it.exerciseId) to it.sets) }
     }
 
-    private fun coachVm() = CoachViewModel(training, advice, settings) { today }.also { vm -> viewModels += vm; collectors.launch { vm.state.collect {} } }
+    private fun coachVm(repository: AdviceRepository = advice) = CoachViewModel(training, repository, settings) { today }.also { vm -> viewModels += vm; collectors.launch { vm.state.collect {} } }
 
     private fun CoachViewModel.await(condition: (CoachState) -> Boolean): CoachState {
         await("coach state") { !state.value.loading && condition(state.value) }
         return state.value
     }
 
-    private fun checkInVm() = CheckInViewModel(training, advice, settings) { today }.also { vm -> viewModels += vm; collectors.launch { vm.state.collect {} } }
+    private fun checkInVm(repository: AdviceRepository = advice) = CheckInViewModel(training, repository, settings) { today }.also { vm -> viewModels += vm; collectors.launch { vm.state.collect {} } }
 
     private fun progressVm() = ProgressViewModel(training, settings.showStrictPress, settings.settings.map { it.trainingMode }) { today }
         .also { vm -> viewModels += vm; collectors.launch { vm.state.collect {} } }
@@ -469,5 +469,89 @@ class CheckInTest {
         onSide(POWERLIFTING)
         val powerlifting = vm.await { it.mode == POWERLIFTING }
         assertEquals(emptyList<Any>(), powerlifting.muscles)
+    }
+
+    // ---- failed writes (fix round) ----
+
+    /** Stores like the real repository, but the advice's status write fails: it comes after the plan change in one transaction. */
+    private val failingStatus by lazy {
+        object : AdviceRepository(db) {
+            override suspend fun setStatus(id: Long, status: AdviceStatus) = throw IllegalStateException("disk full")
+        }
+    }
+
+    private fun CoachViewModel.messagesInto(list: MutableList<String>) = collectors.launch { messages.collect { list += it } }
+
+    @Test
+    fun moreWork_whenStoringFails_bringsTheCardBack_andThePlanIsAsItWas() {
+        standardPlan()
+        val press = id("DB press")
+        runBlocking { advice.insert(listOf(moreWork(MuscleGroup.CHEST, listOf(SetAddition(DayOfWeek.MONDAY, press, "DB press", 3, 4)), null, 6, 7))) }
+        val before = bbPlan()
+        val vm = coachVm(failingStatus)
+        val id = vm.await { it.cards.size == 1 }.cards.single().advice.id
+        val messages = mutableListOf<String>()
+        vm.messagesInto(messages)
+
+        vm.apply(id)
+        await("message") { messages.isNotEmpty() }
+
+        assertEquals(listOf("Couldn't update — try again"), messages)
+        assertEquals(listOf(id), vm.await { it.cards.size == 1 }.cards.map { it.advice.id })
+        assertEquals(before, bbPlan())
+        assertEquals(AdviceStatus.OPEN, runBlocking { advice.all() }.single().status)
+    }
+
+    @Test
+    fun swap_whenStoringFails_bringsTheCardBack_andThePlanIsAsItWas() {
+        plan("Leg extension", DayOfWeek.MONDAY, 0)
+        plan("Leg extension", DayOfWeek.WEDNESDAY, 0)
+        runBlocking { advice.insert(listOf(swapAdvice("Leg extension", listOf("Split squat")))) }
+        val before = bbPlan()
+        val vm = coachVm(failingStatus)
+        val id = vm.await { it.cards.size == 1 }.cards.single().advice.id
+        val messages = mutableListOf<String>()
+        vm.messagesInto(messages)
+
+        vm.swap(id, "Split squat")
+        await("message") { messages.isNotEmpty() }
+
+        assertEquals(listOf("Couldn't update — try again"), messages)
+        assertEquals(listOf(id), vm.await { it.cards.size == 1 }.cards.map { it.advice.id })
+        assertEquals(before, bbPlan())
+        assertTrue(runBlocking { training.exercises().first() }.none { it.name == "Split squat" })
+    }
+
+    @Test
+    fun save_whenStoringFails_saysSo_andStoresNothing() {
+        standardPlan()
+        session(ago(30), BODYBUILDING, "DB press" to (26.0 to 10))
+        val old = moreWork(MuscleGroup.BICEPS, emptyList(), NewExercise(DayOfWeek.MONDAY, "Cable curl", 3, 8, 12, 8.0), 0, 3)
+        runBlocking { advice.insert(listOf(old)) }
+        // The last write of the three fails: the check-in and the dismissal before it must go back with it.
+        val failingInsert = object : AdviceRepository(db) {
+            override suspend fun insert(advice: List<Advice>) = throw IllegalStateException("disk full")
+        }
+        val vm = checkInVm(failingInsert)
+        await("loaded") { !vm.state.value.loading }
+        vm.toggleLagging(MuscleGroup.CHEST)
+        vm.next()
+        vm.save()
+        await("failed") { vm.state.value.failed }
+
+        assertEquals(CheckInStep.GROWING, vm.state.value.step)
+        assertEquals(emptyList<CheckIn>(), runBlocking { training.checkIns().first() })
+        val all = runBlocking { advice.all() }
+        assertEquals(1, all.size)
+        assertEquals(AdviceStatus.OPEN, all.single().status)
+    }
+
+    // ---- an empty plan (fix round) ----
+
+    @Test
+    fun withAnEmptyPlan_noCheckInIsOffered() {
+        session(ago(40), BODYBUILDING, "Curl" to (16.0 to 10))
+        assertFalse(coachVm().await { true }.checkInDue)
+        assertEquals(emptyList<Any>(), progressVm().await { true }.trends)
     }
 }

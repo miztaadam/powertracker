@@ -55,6 +55,7 @@ const val CHECK_IN_TITLE = "Check-in"
 const val LAGGING_HEADING = "Which body parts are lagging?"
 const val LAGGING_LINE = "Leave a body part unticked if it is on track."
 const val GROWING_HEADING = "Which are growing well?"
+const val GROWING_LINE = "Body parts marked lagging can't also be growing well."
 const val SAVED_HEADING = "Check-in saved"
 const val MORE_WORK_SUGGESTED = "More work suggested on Coach"
 const val SEE_COACH = "See Coach"
@@ -158,7 +159,7 @@ fun CheckInContent(state: CheckInState, actions: CheckInActions) {
                     Groups(state.lagging, actions.onLagging)
                 }
                 CheckInStep.GROWING -> {
-                    StepHeading(GROWING_HEADING)
+                    StepHeading(GROWING_HEADING, GROWING_LINE)
                     Groups(state.growingWell, actions.onGrowing, locked = state.lagging)
                 }
                 CheckInStep.SAVED -> Saved(state)

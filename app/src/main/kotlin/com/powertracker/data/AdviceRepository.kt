@@ -16,7 +16,7 @@ open class AdviceRepository(private val db: AppDatabase) {
 
     suspend fun all(): List<Advice> = db.advice().all().map { it.toDomain() }
 
-    suspend fun insert(advice: List<Advice>) = db.advice().insert(advice.map { it.toEntity() })
+    open suspend fun insert(advice: List<Advice>) = db.advice().insert(advice.map { it.toEntity() })
 
     open suspend fun setStatus(id: Long, status: AdviceStatus) = db.advice().setStatus(id, status)
 }

@@ -147,7 +147,7 @@ class ScreenshotTest {
     fun coachBodybuilding() = render("coach-bodybuilding", Tab.COACH, TrainingMode.BODYBUILDING) { CoachBodybuildingShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1440dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1456dp-xhdpi")
     fun progressBodybuilding() = render("progress-bodybuilding", Tab.PROGRESS, TrainingMode.BODYBUILDING) { ProgressBodybuildingShowcase() }
 
     @Test

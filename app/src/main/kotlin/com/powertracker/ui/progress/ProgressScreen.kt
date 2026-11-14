@@ -123,8 +123,9 @@ fun ProgressContent(
                 state.loading -> Unit
                 // The powerlifting charts, records and total belong to that side (bodybuilding mode spec §7.6).
                 state.mode == TrainingMode.BODYBUILDING -> {
-                    // Stage 3: a check-in any time, then the body parts above the stage 1 exercise rows.
-                    CheckInStart(state.checkedIn, onCheckIn)
+                    // Stage 3: a check-in any time, then the body parts above the stage 1 exercise rows. With no plan
+                    // (no exercise rows) there is nothing a check-in could add to, so it is not offered.
+                    if (state.trends.isNotEmpty()) CheckInStart(state.checkedIn, onCheckIn)
                     if (state.muscles.isNotEmpty()) BodyPartsSection(state.muscles)
                     if (state.trends.isEmpty()) {
                         EmptyState(
@@ -439,7 +440,8 @@ fun goingUpText(row: MuscleRow): String? =
 /** The Check in button, with a line before the first check-in saying when one falls due. */
 @Composable
 private fun CheckInStart(checkedIn: Boolean, onCheckIn: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(Space.s)) {
+    // Clear of the title, as the first card on the other screens sits below their headers.
+    Column(Modifier.padding(top = Space.m), verticalArrangement = Arrangement.spacedBy(Space.s)) {
         SecondaryButton("Check in", onCheckIn, Modifier.fillMaxWidth().testTag("progress-check-in"))
         if (!checkedIn) {
             Text(FIRST_CHECK_IN_LINE, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = Space.xs))

@@ -86,6 +86,7 @@ class CheckInScreensTest {
             )
         }
         compose.onNodeWithText("Which are growing well?").assertExists()
+        compose.onNodeWithText("Body parts marked lagging can't also be growing well.").assertExists()
         compose.onNodeWithTag("muscle-option-CHEST").assertIsNotEnabled()
         compose.onNodeWithTag("muscle-option-QUADS").assertIsOn()
         compose.onNodeWithTag("muscle-option-CHEST").performClick()
@@ -274,6 +275,26 @@ class CheckInScreensTest {
         // Never rated: no rating label.
         compose.onNodeWithText("On track").assertDoesNotExist()
         compose.onNodeWithText("0 of 1 exercise going up").assertExists()
+    }
+
+    @Test
+    fun saveFailing_showsItsLine() {
+        show { CheckInContent(CheckInState(loading = false, available = true, step = CheckInStep.GROWING, failed = true), CheckInActions()) }
+        compose.onNodeWithText("The check-in could not be saved. Nothing was changed.").assertExists()
+    }
+
+    /** With no plan there is nothing a check-in could add to: no button, no first-check-in line. */
+    @Test
+    fun progress_withAnEmptyPlan_offersNoCheckIn() {
+        show {
+            ProgressContent(
+                ProgressState(loading = false, hasData = false, mode = TrainingMode.BODYBUILDING, muscles = listOf(row(MuscleGroup.CHEST, listOf(MuscleRating.LAGGING), 0, 0, 0, 0))),
+                onRange = {}, onOpenLift = {},
+            )
+        }
+        compose.onNodeWithText("Check in").assertDoesNotExist()
+        compose.onNodeWithText("Your first check-in is four weeks after your first bodybuilding session. You can check in any time.").assertDoesNotExist()
+        compose.onNodeWithText("No exercises in your plan yet").assertExists()
     }
 
     @Test

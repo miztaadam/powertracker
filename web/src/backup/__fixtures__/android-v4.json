@@ -367,6 +367,17 @@
             ],
             "isBuiltIn": true,
             "archived": false
+        },
+        {
+            "id": 29,
+            "name": "Lateral raise",
+            "category": "ACCESSORY",
+            "parentLift": null,
+            "muscles": [
+                "Side delts"
+            ],
+            "isBuiltIn": true,
+            "archived": false
         }
     ],
     "sessions": [
@@ -548,6 +559,17 @@
             "sortOrder": 1,
             "mode": "BODYBUILDING",
             "repsHigh": 15
+        },
+        {
+            "id": 6,
+            "weekday": 1,
+            "exerciseId": 29,
+            "sets": 4,
+            "reps": 8,
+            "targetRpe": 8.0,
+            "sortOrder": 2,
+            "mode": "BODYBUILDING",
+            "repsHigh": 12
         }
     ],
     "advice": [
@@ -633,9 +655,9 @@
             "type": "MORE_WORK",
             "lift": null,
             "createdAt": 20759,
-            "reason": "You marked side delts as lagging. Add a set to Curl on Monday. That takes it from 3 to 4 sets a week.",
+            "reason": "You marked side delts as lagging. Add a set to Lateral raise on Monday. That takes it from 3 to 4 sets a week.",
             "severity": 0,
-            "payload": "{\"type\":\"com.powertracker.domain.model.AdvicePayload.MoreWork\",\"group\":\"SIDE_DELTS\",\"addSets\":[{\"weekday\":\"MONDAY\",\"exerciseId\":24,\"name\":\"Curl\",\"fromSets\":3,\"toSets\":4}],\"newExercise\":null,\"weeklyBefore\":3,\"weeklyAfter\":4}",
+            "payload": "{\"type\":\"com.powertracker.domain.model.AdvicePayload.MoreWork\",\"group\":\"SIDE_DELTS\",\"addSets\":[{\"weekday\":\"MONDAY\",\"exerciseId\":29,\"name\":\"Lateral raise\",\"fromSets\":3,\"toSets\":4}],\"newExercise\":null,\"weeklyBefore\":3,\"weeklyAfter\":4}",
             "status": "APPLIED",
             "mode": "BODYBUILDING"
         },

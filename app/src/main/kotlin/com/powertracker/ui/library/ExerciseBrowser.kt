@@ -477,7 +477,11 @@ private fun MuscleOption(group: MuscleGroup, ticked: Boolean, onToggle: (MuscleG
             checked = ticked,
             onCheckedChange = null,
             enabled = enabled,
-            colors = CheckboxDefaults.colors(checkedColor = pt.accent, checkmarkColor = pt.onAccent, uncheckedColor = scheme.outline),
+            // A locked box keeps the outline (3:1, the design system's minimum for a control's edge) rather than
+            // Material's faint disabled grey; its label goes to muted text (4.5:1). TokenContrastTest checks both.
+            colors = CheckboxDefaults.colors(
+                checkedColor = pt.accent, checkmarkColor = pt.onAccent, uncheckedColor = scheme.outline, disabledUncheckedColor = scheme.outline,
+            ),
         )
         Text(group.label, style = MaterialTheme.typography.titleMedium, color = if (enabled) scheme.onSurface else pt.muted, modifier = Modifier.weight(1f))
     }
