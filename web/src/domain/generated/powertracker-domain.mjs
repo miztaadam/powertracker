@@ -2903,11 +2903,13 @@ function static_init() {
   NoteReason_NO_EXERCISE_instance = new NoteReason('NO_EXERCISE', 1);
   NoteReason_FULL_instance = new NoteReason('FULL', 2);
   NoteReason_LATER_instance = new NoteReason('LATER', 3);
+  NoteReason_WOULD_PASS_CEILING_instance = new NoteReason('WOULD_PASS_CEILING', 4);
 }
 var NoteReason_AT_CEILING_instance;
 var NoteReason_NO_EXERCISE_instance;
 var NoteReason_FULL_instance;
 var NoteReason_LATER_instance;
+var NoteReason_WOULD_PASS_CEILING_instance;
 function NoteReason(name, ordinal) {
   Enum.call(this, name, ordinal);
 }
@@ -3620,11 +3622,11 @@ function choose($this, group, w) {
     tmp_6 = minWith(open, compareBy([tmp_8, tmp_9, PhysiqueCoach$choose$lambda_7]));
   }
   var day = tmp_6;
-  var tmp0_1 = $this.f1r(group, w.w1q_1, ex);
+  var candidates = $this.f1r(group, w.w1q_1, ex);
   var tmp$ret$22;
   $l$block_2: {
     // Inline function 'kotlin.collections.firstOrNull' call
-    var _iterator__ex2g4s_7 = tmp0_1.j();
+    var _iterator__ex2g4s_7 = candidates.j();
     while (_iterator__ex2g4s_7.k()) {
       var element_4 = _iterator__ex2g4s_7.l();
       if (w.b1r(element_4.j1q_1, 3)) {
@@ -3637,7 +3639,7 @@ function choose($this, group, w) {
   var tmp1_elvis_lhs = tmp$ret$22;
   var tmp_10;
   if (tmp1_elvis_lhs == null) {
-    return new None(NoteReason_NO_EXERCISE_getInstance());
+    return new None(candidates.m() && direct.m() ? NoteReason_NO_EXERCISE_getInstance() : NoteReason_WOULD_PASS_CEILING_getInstance());
   } else {
     tmp_10 = tmp1_elvis_lhs;
   }
@@ -4165,21 +4167,28 @@ protoOf(PhysiqueCoach).c1s = function (exercise, plan, exercises) {
   var group = tmp;
   var kind = kindOf(this, exercise);
   var items = on_0(plan, TrainingMode_BODYBUILDING_getInstance());
-  var tmp1_safe_receiver = Library_getInstance().e1q(exercise.j1j_1);
-  var tmp2_safe_receiver = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.i1q_1;
-  var tmp3_safe_receiver = tmp2_safe_receiver == null ? null : firstOrNull(tmp2_safe_receiver);
+  var core = group.equals(MuscleGroup_ABS_getInstance()) || group.equals(MuscleGroup_OBLIQUES_getInstance());
   var tmp_0;
-  if (tmp3_safe_receiver == null) {
-    tmp_0 = null;
+  if (!core) {
+    var tmp1_safe_receiver = Library_getInstance().e1q(exercise.j1j_1);
+    var tmp2_safe_receiver = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.i1q_1;
+    var tmp3_safe_receiver = tmp2_safe_receiver == null ? null : firstOrNull(tmp2_safe_receiver);
+    var tmp_1;
+    if (tmp3_safe_receiver == null) {
+      tmp_1 = null;
+    } else {
+      // Inline function 'kotlin.let' call
+      tmp_1 = !light_0(PhysiqueCoach_getInstance(), tmp3_safe_receiver);
+    }
+    var tmp4_elvis_lhs = tmp_1;
+    tmp_0 = tmp4_elvis_lhs == null ? false : tmp4_elvis_lhs;
   } else {
-    // Inline function 'kotlin.let' call
-    tmp_0 = !light_0(PhysiqueCoach_getInstance(), tmp3_safe_receiver);
+    tmp_0 = false;
   }
-  var tmp4_elvis_lhs = tmp_0;
-  var loaded = tmp4_elvis_lhs == null ? false : tmp4_elvis_lhs;
-  var tmp_1 = candidates(this, group, items, exercises);
+  var loaded = tmp_0;
+  var tmp_2 = candidates(this, group, items, exercises);
   // Inline function 'kotlin.collections.filter' call
-  var tmp0 = order(this, group, tmp_1, PhysiqueCoach$swapAlternatives$lambda(kind));
+  var tmp0 = order(this, group, tmp_2, PhysiqueCoach$swapAlternatives$lambda(kind));
   // Inline function 'kotlin.collections.filterTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -4946,6 +4955,10 @@ function NoteReason_FULL_getInstance() {
 function NoteReason_LATER_getInstance() {
   static_init();
   return NoteReason_LATER_instance;
+}
+function NoteReason_WOULD_PASS_CEILING_getInstance() {
+  static_init();
+  return NoteReason_WOULD_PASS_CEILING_instance;
 }
 function Scale(factor) {
   this.u1s_1 = factor;

@@ -157,7 +157,7 @@ class PhysiqueCoachTest {
             assertCeiling(plan, applyAll(plan, out.advice), "$label, all applied")
         }
         // The properties are not empty: every kind of outcome happens over these plans.
-        assertEquals(setOf("new", "sets", "AT_CEILING", "NO_EXERCISE", "FULL", "LATER"), seen)
+        assertEquals(setOf("new", "sets", "AT_CEILING", "NO_EXERCISE", "FULL", "LATER", "WOULD_PASS_CEILING"), seen)
     }
 
     @Test
@@ -603,6 +603,8 @@ class PhysiqueCoachTest {
         for ((name, plan) in plans.take(32)) for (id in plan.map { it.exerciseId }.distinct()) {
             val e = exercises.getValue(id)
             if (light(Library.find(e.name)!!)) continue
+            // Abs and obliques keep their bodyweight and band alternatives.
+            if (PlanBuilder.mainGroup(e.muscles) in setOf(MuscleGroup.ABS, MuscleGroup.OBLIQUES)) continue
             assertTrue(PhysiqueCoach.swapAlternatives(e, plan, exercises).none(::light), "$name ${e.name}")
         }
         assertTrue("Bodyweight squat" !in PhysiqueCoach.swapAlternatives(exercises.getValue(idOf("Leg press")), default3, exercises).map { it.name })
@@ -654,5 +656,33 @@ class PhysiqueCoachTest {
         // The baseline was 28 days before 14 Nov.
         assertEquals("Leg extension hasn't moved in 4 weeks. Same weight and no more reps since 17 Oct.", stuck().single().reason)
 
+    }
+
+    @Test
+    fun absAndObliquesSwapsKeepTheirBodyweightAlternatives() {
+        assertEquals(
+            listOf("Machine crunch", "Reverse crunch", "Ab wheel rollout"),
+            PhysiqueCoach.swapAlternatives(exercises.getValue(idOf("Cable crunch")), default3, exercises).take(3).map { it.name },
+        )
+    }
+
+    @Test
+    fun aGroupBlockedOnlyByTheCeilingSaysSo() {
+        // Four days, everything lagging: rear delts' set on Face pull takes upper back to 20 in this round, so every
+        // upper back exercise and candidate would pass it. Candidates exist, so it is not NO_EXERCISE.
+        val notes = outcome(default4, MuscleGroup.entries.toSet()).notes
+        assertEquals(GroupNote(MuscleGroup.UPPER_BACK, NoteReason.WOULD_PASS_CEILING, 19), notes.single { it.group == MuscleGroup.UPPER_BACK })
+        assertTrue(PhysiqueCoach.newExerciseCandidates(MuscleGroup.UPPER_BACK, default4, exercises).isNotEmpty())
+        // A bodyweight-only plan with triceps at 20 (an own triceps exercise): the 3-set incline push-up (which works
+        // triceps) cannot take a set, and any chest candidate on bodyweight would pass the ceiling too.
+        val ownTriceps = com.powertracker.domain.model.Exercise(9001, "My triceps press", com.powertracker.domain.model.Category.ACCESSORY, null, listOf("Triceps"), false)
+        val h = TrainingHistory(emptyList(), exercises + (ownTriceps.id to ownTriceps), emptyList())
+        val plan = listOf(
+            item(1, MONDAY, "Incline push-up", 3, 0),
+            PlanItem(2, WEDNESDAY, ownTriceps.id, 17, 8, 8.0, 0, TrainingMode.BODYBUILDING, 12),
+        )
+        assertEquals(20, PhysiqueCoach.weeklySets(plan, h.exercises, MuscleGroup.TRICEPS))
+        val out = PhysiqueCoach.afterCheckIn(checkIn(setOf(MuscleGroup.CHEST)), h, plan, today)
+        assertEquals(listOf(GroupNote(MuscleGroup.CHEST, NoteReason.WOULD_PASS_CEILING, 3)), out.notes)
     }
 }

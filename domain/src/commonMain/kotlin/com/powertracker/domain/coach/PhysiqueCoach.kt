@@ -28,7 +28,11 @@ import kotlinx.datetime.daysUntil
 import kotlinx.datetime.minus
 
 /** Why a lagging group got no more work from a check-in. */
-enum class NoteReason { AT_CEILING, NO_EXERCISE, FULL, LATER }
+/**
+ * Why a lagging group got no more work: already at the ceiling; no candidate at all; no day with room; held for a
+ * later check-in; or every direct exercise and candidate there was would take some group past the ceiling.
+ */
+enum class NoteReason { AT_CEILING, NO_EXERCISE, FULL, LATER, WOULD_PASS_CEILING }
 
 /** A lagging [group] that got no advice, why, and its [weeklySets] in the plan. */
 data class GroupNote(val group: MuscleGroup, val reason: NoteReason, val weeklySets: Int)
@@ -193,7 +197,9 @@ object PhysiqueCoach {
         val group = PlanBuilder.mainGroup(exercise.muscles) ?: return emptyList()
         val kind = kindOf(exercise)
         val items = plan.on(TrainingMode.BODYBUILDING)
-        val loaded = Library.find(exercise.name)?.equipment?.firstOrNull()?.let { !light(it) } ?: false
+        // Abs and obliques are trained with bodyweight and bands as much as with loads: no filter for them.
+        val core = group == MuscleGroup.ABS || group == MuscleGroup.OBLIQUES
+        val loaded = !core && Library.find(exercise.name)?.equipment?.firstOrNull()?.let { !light(it) } ?: false
         return order(group, candidates(group, items, exercises)) { kindOf(it) == kind }
             .filter { !loaded || !lightFirst(it) }
             .filter { swapKeepsCeiling(exercise.id, it.muscles, items, exercises) }
@@ -306,8 +312,9 @@ object PhysiqueCoach {
             fun items(d: DayOfWeek) = w.items.count { it.weekday == d }
             open.minWith(compareBy({ -inHalf(it) }, { items(it) }, { it }))
         }
-        val entry = newExerciseCandidates(group, w.items, ex).firstOrNull { w.fits(it.muscles, NEW_SETS) }
-            ?: return Choice.None(NoteReason.NO_EXERCISE)
+        val candidates = newExerciseCandidates(group, w.items, ex)
+        val entry = candidates.firstOrNull { w.fits(it.muscles, NEW_SETS) }
+            ?: return Choice.None(if (candidates.isEmpty() && direct.isEmpty()) NoteReason.NO_EXERCISE else NoteReason.WOULD_PASS_CEILING)
         return Choice.New(entry, day)
     }
 
