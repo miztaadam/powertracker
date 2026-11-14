@@ -469,7 +469,7 @@ private fun BodyPartsSection(rows: List<MuscleRow>) {
                         Text(setsText(row), style = MaterialTheme.typography.bodyMedium, color = pt.muted)
                         goingUpText(row)?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = pt.muted) }
                         if (earlier.isNotEmpty()) {
-                            Text(earlier.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = pt.muted)
+                            Text("Earlier: " + earlier.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = pt.muted)
                         }
                     }
                     if (latest != null) Pill(ratingText(latest), tone = latest.tone())

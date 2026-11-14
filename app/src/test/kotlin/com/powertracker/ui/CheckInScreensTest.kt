@@ -248,7 +248,9 @@ class CheckInScreensTest {
         compose.onNodeWithText("Chest").assertExists()
         compose.onNodeWithText("11 of 14 planned sets in the last 7 days").assertExists()
         compose.onNodeWithText("2 of 3 exercises going up").assertExists()
-        compose.onNodeWithText("Lagging · On track · Growing well").assertExists()
+        compose.onNodeWithText("Earlier: Lagging · On track · Growing well").assertExists()
+        // Quads have one check-in only: no earlier line.
+        assertEquals(1, compose.onAllNodesWithText("Earlier:", substring = true).fetchSemanticsNodes().size)
         compose.onAllNodesWithText("Lagging").fetchSemanticsNodes().let { assertEquals(1, it.size) }
         compose.onNodeWithText("On track").assertExists()
         compose.onNodeWithText("6 of 9 planned sets in the last 7 days").assertExists()
