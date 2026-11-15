@@ -25,8 +25,7 @@ const show = (onOpenSettings: () => void = () => {}) => render(<PlanScreen db={d
 const day = (name: string) => screen.findByRole('region', { name })
 const dialog = () => within(screen.getByRole('dialog'))
 const rowsOf = (section: HTMLElement) => within(section).queryAllByRole('listitem').map((row) => row.getAttribute('aria-label'))
-/** The part of a picker row that picks the exercise. */
-/** The part of the picker's row that picks it, once the row is drawn. */
+/** The part of a picker row that picks the exercise, once the row is drawn. */
 const pickerRow = async (name: string) => within(await dialog().findByRole('listitem', { name })).getAllByRole('button')[0]!
 const storedPlan = async () => (await db.planItems.toArray()).map(({ id: _id, ...rest }) => rest)
 

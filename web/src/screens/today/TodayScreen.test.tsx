@@ -37,8 +37,7 @@ const waitForSets = (count: number) => waitFor(async () => expect(await setsOn(d
 
 const exerciseRows = async (name: string) => (await db.exercises.toArray()).filter((e) => e.name.toLowerCase() === name.toLowerCase())
 const picker = () => within(screen.getByRole('dialog', { name: 'Add exercise' }))
-/** The part of a picker row that picks the exercise. */
-/** The part of the picker's row that picks it, once the row is drawn. */
+/** The part of a picker row that picks the exercise, once the row is drawn. */
 const pickerRow = async (name: string) => within(await picker().findByRole('listitem', { name })).getAllByRole('button')[0]!
 const openPicker = () => tapWhenShown('Add exercise')
 

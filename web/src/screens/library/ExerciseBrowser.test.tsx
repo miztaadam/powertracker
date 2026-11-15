@@ -1,6 +1,6 @@
-import { Profiler } from 'react'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { Profiler, StrictMode } from 'react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { pickerList, useExerciseBrowser, type StoredExercise } from '../../state/exercisePicker'
 import { ExerciseBrowser, FIRST_ROWS } from './ExerciseBrowser'
 import { AREAS } from './labels'
@@ -24,7 +24,7 @@ function expected(exercises: readonly StoredExercise[], query = '', byArea = fal
  * The browser as the picker (`grid`) or the Exercises tab (`dropdown`) has it. Each commit's row count is kept, read
  * from the page as React finishes drawing it.
  */
-function show(muscleFilter: 'grid' | 'dropdown', exercises: readonly StoredExercise[] = [], create?: string) {
+function show(muscleFilter: 'grid' | 'dropdown', exercises: readonly StoredExercise[] = [], create?: string, strict = false) {
   const drawn: number[] = []
   function Harness() {
     const browser = useExerciseBrowser()
@@ -34,13 +34,26 @@ function show(muscleFilter: 'grid' | 'dropdown', exercises: readonly StoredExerc
       </Profiler>
     )
   }
-  render(<Harness />)
+  render(strict ? (
+    <StrictMode>
+      <Harness />
+    </StrictMode>
+  ) : (
+    <Harness />
+  ))
   return drawn
 }
 
 const type = (text: string) => fireEvent.change(screen.getByRole('textbox', { name: 'Search exercises' }), { target: { value: text } })
 /** Long enough for any draw still to come. */
 const aWhile = () => new Promise<void>((done) => setTimeout(done, 100))
+
+/** Frames and timeouts under the test's control, so what is still pending can be counted. */
+const fakeFrames = () => vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'setTimeout', 'clearTimeout'] })
+
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 describe('ExerciseBrowser drawing', () => {
   it('firstRows_isAScreenful', () => {
@@ -144,4 +157,57 @@ describe('ExerciseBrowser drawing', () => {
     rerender(<Harness exercises={tyres} />)
     await waitFor(() => expect(shownNames()).toEqual(expected(tyres, 'tyre')))
   })
+
+  it('unmountingWhileTheRestIsPending_throwsNothing_andLeavesNoFrameOrTimeout', () => {
+    fakeFrames()
+    // Before the frame: the frame is pending.
+    const first = render(<ExerciseBrowser state={browserState()} muscleFilter="grid" exercises={[]} recentIds={[]} onRow={() => {}} />)
+    expect(shownNames()).toHaveLength(FIRST_ROWS)
+    expect(vi.getTimerCount()).toBe(1)
+    expect(() => first.unmount()).not.toThrow()
+    expect(vi.getTimerCount()).toBe(0)
+
+    // After the frame: the timeout is pending.
+    const second = render(<ExerciseBrowser state={browserState()} muscleFilter="grid" exercises={[]} recentIds={[]} onRow={() => {}} />)
+    vi.advanceTimersToNextFrame()
+    expect(vi.getTimerCount()).toBe(1)
+    expect(() => second.unmount()).not.toThrow()
+    expect(vi.getTimerCount()).toBe(0)
+    expect(() => vi.runAllTimers()).not.toThrow()
+  })
+
+  it('aNewSearchWhileTheRestIsPending_cancelsTheOldDraw_andEndsUpWhole', () => {
+    fakeFrames()
+    show('grid')
+    expect(shownNames()).toHaveLength(FIRST_ROWS)
+    expect(vi.getTimerCount()).toBe(1)
+
+    // Typed before the rest came: only the new search's draw is pending.
+    type('a')
+    const full = expected([], 'a')
+    expect(shownNames()).toEqual(full.slice(0, FIRST_ROWS))
+    expect(vi.getTimerCount()).toBe(1)
+    act(() => vi.advanceTimersToNextFrame())
+    act(() => vi.runOnlyPendingTimers())
+    expect(shownNames()).toEqual(full)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('inStrictMode_theListEndsUpWholeAndInOrder', async () => {
+    const mine = [own(1, 'Tyre flip'), own(2, 'Keg carry')]
+    const full = expected(mine)
+    const drawn = show('grid', mine, undefined, true)
+    expect(shownNames()).toEqual(full.slice(0, FIRST_ROWS))
+    await waitFor(() => expect(shownNames()).toEqual(full))
+    await aWhile()
+    // One draw of the rest, though StrictMode runs the effect twice.
+    expect(drawn.at(-1)).toBe(full.length)
+    expect(drawn.filter((n) => n === full.length)).toHaveLength(1)
+  })
 })
+
+/** A browser state that stays as it is: nothing is searched or filtered. */
+function browserState() {
+  const none = () => {}
+  return { query: '', area: null, equipment: [], muscle: null, muscles: [], search: none, chooseArea: none, toggleEquipment: none, browse: none, toggleMuscle: none, clearMuscles: none }
+}
