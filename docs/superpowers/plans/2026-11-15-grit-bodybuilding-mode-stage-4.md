@@ -14,8 +14,8 @@
 
 1. **Where the lines show.** The spec says "in the form guide on both sides", but the standing rule is that the powerlifting side does not change while bodybuilding mode is off. **Recommended: the bodybuilding side only** (the Today card, and a "Stretch and squeeze" section in the form guide while bodybuilding mode is on). The other choice is the guide on both sides, as the spec says.
 2. **The mockup's line will not ship.** The approved mockup's dumbbell bench line, "Elbows drop below the bench at the bottom", goes deeper than Grit's own guide, which lowers the dumbbells "to the sides of your chest". The lines never ask for more range than the guide (rule F2 below).
-3. **The lines are derived, not quoted.** The pilot (below) found that the sources often say where a muscle is stretched ("lower until chest muscles are stretched"), but no source says where to squeeze. The squeeze line is worked out from the end of the guide's lifting step and the muscle being trained. No source is claimed for a benefit of squeezing; the owner's focus is the requirement.
-4. **The designer's numbers and wording (not sourced):** each line at most 64 characters; the fixed line for an exercise with none: **"No stretch or squeeze to aim for: this one is held, not moved."**
+3. **The lines are derived, not quoted.** The pilot (below) found that the sources often say where a muscle is stretched (ExRx: "lower until chest muscles are stretched"), and Grit's own guides sometimes do ("until your arms and shoulders are fully stretched"), but not for every exercise (none was found for the leg extension), and no source says where to squeeze. So each line is worked out from the guide's own steps and the muscle being trained, by the rules below, and checked by an independent review. No source is claimed for a benefit of squeezing; the owner's focus is the requirement.
+4. **The designer's calls (not sourced):** each line at most 64 characters; the Today card shows nothing for an exercise with no stretch or squeeze (the guide sheet carries the one line the spec asks for); the fixed line for such an exercise: **"No stretch or squeeze to aim for here: this one trains you to stay steady."**
 
 ## Global Constraints
 
@@ -24,24 +24,24 @@
 - **The idea's sources** (re-checked by Task 1 and recorded in `Sources.kt` as general sources, not shown in the app):
   - Maeo et al. 2021, "Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths", https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/
   - "Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals", https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/
-  - ACE, "Muscles in Motion" (a shortening muscle is the one doing the lifting), https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/
+  - ACE, "Muscles in Motion" (ACE's own exam-preparation pages count as ACE material, not as a blog) (a shortening muscle is the one doing the lifting), https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/
   - Nothing is claimed for squeezing. The attentional-focus reviews found (PMC8622562, PMC8751186) do not support a hypertrophy benefit; do not cite them as if they did.
 - **The rules for a line (each batch writes to them; each review checks them):**
   - **F1 Muscle.** A line names a muscle from the exercise's own `muscles` list, normally its first. Plain names: "chest", "lats", "quads", "hamstrings", "glutes", "calves", "side delts", "biceps", "triceps".
   - **F2 Range.** The stretch line is the point in the guide's own steps where that muscle is longest; it never asks for more range than the guide's steps and mistakes allow (no "below the bench" where the guide says "to the sides of your chest", no "lock out" where the guide says not to). Where a source says "until … stretched", use that point, as far as the guide allows.
   - **F3 Squeeze.** The squeeze line is the end of the guide's lifting step, where that muscle is shortest. No pause length, no number, no claim of a benefit.
   - **F4 Safety.** Nothing that contradicts the guide's setup, cues, mistakes or safety notes; no pushing into pain; no "as far as you can" on a loaded spine.
-  - **F5 None.** Only exercises held or carried (planks, carries, holds, anti-rotation holds) get the fixed line instead. An exercise that moves always gets two lines.
+  - **F5 None.** In the spec's words: an exercise with no meaningful stretch or squeeze of the muscle it trains (a plank, a carry, a Pallof press) gets the fixed line instead of inventing one. The review checks every "none": an exercise whose guide moves a muscle from long to short (a lateral raise, a curl) gets two lines.
   - **F6 Shape.** Each line one sentence, at most 64 characters, starting with a capital, ending with a full stop, no jargon ("eccentric", "concentric", "peak contraction" are out).
   - **F7 Sources.** Each exercise's lines list at least one `SourceId`, normally the ExRx or ACE page already listed for its guide, plus a general source where the line rests on the idea rather than the page.
 - **Pilot samples (to be checked again in their batch; the owner sees these with the plan):**
   - DB bench: Stretch "Your chest stretches as the dumbbells reach your chest." Squeeze "Squeeze your chest as you press the dumbbells up."
   - DB fly: Stretch "Your chest stretches as the dumbbells reach shoulder level." Squeeze "Squeeze your chest as the dumbbells come together." (ExRx DBFly: "lower … until chest muscles are stretched"; "until nearly touching".)
   - RDL: Stretch "Your hamstrings stretch as your hips go back." Squeeze "Squeeze your glutes as you stand tall." (ExRx RomanianDeadlift: "until hamstring is stretched fully".)
-  - Standing calf raise: Stretch "Your calves stretch as your heels drop." Squeeze "Squeeze your calves with your heels as high as they go." (ExRx: "lower heels … until calves are stretched"; "as high as possible".)
-  - Lat pulldown: Stretch "Your lats stretch with your arms straight above you." Squeeze "Squeeze your lats with the bar at your upper chest."
-  - Leg extension: Stretch "Your quads stretch with your knees bent at the start." Squeeze "Squeeze your quads as your legs straighten."
-  - Plank: the fixed line.
+  - Standing calf raise: Stretch "Your calves stretch as your heels drop below the block." Squeeze "Squeeze your calves with your heels as high as they go." (Guide: "Slowly lower your heels below the edge of the block"; ExRx: "until calves are stretched".)
+  - Lat pulldown: Stretch "Your lats stretch with your arms straight above you." Squeeze "Squeeze your lats with the bar at your upper chest." (Guide: "Pull the bar down to your upper chest", "Return under control until your arms and shoulders are fully stretched".)
+  - Leg extension: Stretch "Your quads stretch with your knees bent at the start." Squeeze "Squeeze your quads as your legs straighten." (Derived: no source sentence for the stretch was found.)
+  - Plank, Farmer's walk, Pallof press: the fixed line.
 - **Speed:** the catalogue objects (`grit.library()`) do not grow. The lines come from their own bridge call, asked for one exercise at a time. The web speed checks are run before Task 1 and after it (see the 2026-11-15 note in `docs/next-update.md`); a miss during this stage is re-run alone on a quiet machine before anything is changed, and the checks are never loosened.
 - **The powerlifting side** follows the owner's decision 1. With bodybuilding mode off and decision 1 as recommended, every powerlifting screen and screenshot is unchanged.
 - **No storage or backup change.** App version 1.5 on both apps (last task).
@@ -67,7 +67,7 @@
 **Interfaces:**
 - Produces:
   - `sealed interface MuscleFocus { val sources: List<SourceId> }` with `data class Lines(val stretch: String, val squeeze: String, override val sources: List<SourceId>)` and `data class NoFocus(override val sources: List<SourceId>)`.
-  - `Library.NO_FOCUS_LINE = "No stretch or squeeze to aim for: this one is held, not moved."`
+  - `Library.NO_FOCUS_LINE = "No stretch or squeeze to aim for here: this one trains you to stay steady."`
   - `Library.focus(name: String): MuscleFocus?`, matched like `Library.find` (ignoring case); null for a name not in the catalogue or not written yet.
   - JS: `@JsExport data class JsMuscleFocus(val stretch: String?, val squeeze: String?, val none: String?)` (exactly one of `none` or the pair is set) and `GritDomain.muscleFocus(name: String): JsMuscleFocus?`. `JsLibraryExercise` is unchanged.
 
@@ -79,7 +79,7 @@
   - `focus_neverMentionsBelowTheBench`: no line contains "below the bench".
   - `focus_mainLiftsAreAllWritten`: every `BodyArea.MAIN_LIFTS` exercise has an entry.
   - `focus_findsByNameIgnoringCase`: `Library.focus("dB FLY")` equals `Library.focus("DB fly")` once Chest is written; for now test it with `"SQUAT"` and `"Squat"`; `Library.focus("My own lift")` is null.
-- [ ] **Step 3:** Implement the model, the lookup (one map joined from the area maps) and the bridge. Re-check the idea's sources with WebSearch (allowed domains) and add them to `Sources.kt`.
+- [ ] **Step 3:** Implement the model, the lookup (one map joined from the area maps, built lazily on the first `Library.focus` call so `library()` does not pay for it) and the bridge. Re-check the idea's sources with WebSearch (allowed domains) and add them to `Sources.kt`.
 - [ ] **Step 4: Main lifts content.** For each `MAIN_LIFTS` exercise, research and write its lines to rules F1–F7. Keep a research log in the report (exercise, the query, the URL, the sentence that supports the stretch point).
 - [ ] **Step 5:** Extend the sources and guides writers so each exercise shows its two lines (or the fixed line) and their sources. Regenerate: `./gradlew :domain:jvmTest --tests '*SourcesDocTest*' -Psources.update=true`.
 - [ ] **Step 6:** `./gradlew :domain:allTests :domain:syncWebDomain :domain:checkWebDomain`. Expected: PASS.
@@ -110,7 +110,7 @@
 
 ## Task 3: Web: the Today card and the guide sheet
 
-Runs beside Task 2. Never runs `syncWebDomain`: it uses the bundle Task 1 committed.
+Runs beside Task 2 (the only two tasks run at once). Never runs `syncWebDomain`: it uses the bundle Task 1 committed.
 
 **Files:**
 - Modify: `web/src/screens/today/ExerciseCard.tsx`, `web/src/screens/library/FormGuideSheet.tsx` (and their callers only as far as they must pass the side), the matching CSS.
@@ -136,7 +136,7 @@ Runs beside Task 2. Never runs `syncWebDomain`: it uses the bundle Task 1 commit
 | 9 | `focus/HamstringsGlutesFocus.kt` | Hamstrings and glutes |
 | 10 | `focus/CalvesCoreFocus.kt` | Calves and core |
 
-The batches run one at a time (they all regenerate `sources.md`, `guides.html` and the web bundle), and may run while Tasks 2 and 3 are being built.
+The batches run one at a time (they all regenerate `sources.md`, `guides.html` and the web bundle), and start only after Tasks 2 and 3 have landed: a batch runs Gradle and rewrites `web/src/domain/generated/` in the same checkout, and Gradle load beside the web tests makes them flaky.
 
 **For each batch:**
 - [ ] **Step 1: Research** each exercise in the allowed sources (WebSearch, `allowed_domains`). Log the query, the URL and the supporting sentence for each stretch point.

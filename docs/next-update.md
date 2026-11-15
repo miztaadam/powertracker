@@ -160,7 +160,7 @@ The web app holds two screens to 100 ms on opening, after each keystroke and aft
 
 Measured on 2026-11-15 on the build machine (production build, a fresh page for each open, timed the way the checks time it):
 - **The Exercises tab is the tight one.** Opening it: median about 70–76 ms, 90% of opens under about 90 ms, worst 96–108 ms (30 opens, then 4 batches of 16). The one miss in two full e2e runs was this check (104 ms).
-- **The picker has a little more room.** Opening it with the catalogue (225 rows): median about 55–64 ms, worst 86–93 ms, with one 125 ms outlier in 64 opens. Keystrokes and filter changes take about 20–75 ms on both screens. The 475-row picker check was not measured this way.
+- **The picker has a little more room.** Opening it with the catalogue (225 rows): median about 55–64 ms, worst 86–93 ms, with one 125 ms outlier in 64 opens. Keystrokes and filter changes in the picker take about 20–75 ms (not logged for the tab). The 475-row picker check was not measured this way.
 
 Where an open's time goes (about, from comparing builds):
 - **About 25 ms is the measuring itself.** The tests fix the date with Playwright's clock, which also replaces the page's `requestAnimationFrame` and `performance.now`. So "two frames" is two 16 ms timer ticks, and a no-op takes 20–32 ms to time.
@@ -174,7 +174,7 @@ Tried and dropped:
 
 What would give real room, each needing the owner's say because it changes what the checks hold the screens to:
 1. **Draw the first screenful at once and the rest straight after.** About 15 ms saved here, likely more on a phone. The checks would then time the rows on screen, with the full list following a moment later.
-2. **Time real frames.** Keep the fixed date but not the faked frame timer while timing, so the 100 ms is spent on the app rather than on timer ticks.
+2. **Time real frames** (untried: not yet shown that the date can stay fixed without faking the frame timer). Keep the fixed date but not the faked frame timer while timing, so the 100 ms is spent on the app rather than on timer ticks.
 3. **Change the limit**, to one agreed for a real phone.
 
 Nothing here says what a real phone does: no phone was available.
