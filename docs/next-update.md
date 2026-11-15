@@ -155,7 +155,26 @@ Still to come, with its own plan (spec §8): stage 4, stretch and squeeze cues.
 - The Android speed check is a test that no thumbnail is worked out on the main thread (`ThumbnailsTest`).
 - Not measured: no real phone was available, so frame times before and after are unknown. Check by scrolling the Exercises tab fast right after opening the app.
 
-## Follow-up (2026-11-13): the picker speed check has no headroom
-- The web app's exercise picker is held to 100 ms by two end-to-end checks (`web/e2e/library.spec.ts`, tagged @speed). On the build machine they land between about 85 and 118 ms, so a run misses now and then.
-- Measured on a quiet machine, the same checks alternating between the build before bodybuilding mode and the build with it: 11 of 12 runs passed before, 10 of 12 after (misses at 110 ms before; 105 and 100 ms after). The two builds are not measurably different; the check was already at its limit.
-- Worth doing as its own task: find where the picker's time goes when it opens with the whole catalogue (225 rows, or 475 with a lifter's own), and either make it faster or agree a limit with the owner that reflects a real phone. Do not loosen the check without the owner's say.
+## Follow-up (2026-11-13, measured 2026-11-15): the 100 ms speed checks have no headroom
+The web app holds two screens to 100 ms on opening, after each keystroke and after each filter change: the exercise picker (`web/e2e/library.spec.ts`) and the Exercises tab (`web/e2e/pictures.spec.ts`), both tagged @speed.
+
+Measured on 2026-11-15 on the build machine (production build, a fresh page for each open, timed the way the checks time it):
+- **The Exercises tab is the tight one.** Opening it: median about 70–76 ms, 90% of opens under about 90 ms, worst 96–108 ms (30 opens, then 4 batches of 16). The one miss in two full e2e runs was this check (104 ms).
+- **The picker has a little more room.** Opening it with the catalogue (225 rows): median about 55–64 ms, worst 86–93 ms, with one 125 ms outlier in 64 opens. Keystrokes and filter changes take about 20–75 ms on both screens. The 475-row picker check was not measured this way.
+
+Where an open's time goes (about, from comparing builds):
+- **About 25 ms is the measuring itself.** The tests fix the date with Playwright's clock, which also replaces the page's `requestAnimationFrame` and `performance.now`. So "two frames" is two 16 ms timer ticks, and a no-op takes 20–32 ms to time.
+- **About 15–25 ms is the first open after a page load.** Every check times a first open; later opens of the same screen are faster (picker about 32 ms, tab about 50 ms).
+- **About 15 ms is drawing the rows.** Drawing only 40 rows instead of all 225 cut the picker's median from about 60 to 47 ms and the tab's from about 70 to 58 ms.
+- **About 10 ms is the tab's thumbnails.**
+
+Tried and dropped:
+- Working out the muscle groups at start-up: no measurable change.
+- Memoising the rows: the tab draws its list twice on opening (once before its plan data arrives, once after), and memoising cut the second draw to 26 rows, but the open got no faster across 64 opens. Batches of the same build differ by 5–10 ms, so a gain of that size cannot be seen here.
+
+What would give real room, each needing the owner's say because it changes what the checks hold the screens to:
+1. **Draw the first screenful at once and the rest straight after.** About 15 ms saved here, likely more on a phone. The checks would then time the rows on screen, with the full list following a moment later.
+2. **Time real frames.** Keep the fixed date but not the faked frame timer while timing, so the 100 ms is spent on the app rather than on timer ticks.
+3. **Change the limit**, to one agreed for a real phone.
+
+Nothing here says what a real phone does: no phone was available.
