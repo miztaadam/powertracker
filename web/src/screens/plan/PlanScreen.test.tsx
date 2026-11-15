@@ -26,7 +26,8 @@ const day = (name: string) => screen.findByRole('region', { name })
 const dialog = () => within(screen.getByRole('dialog'))
 const rowsOf = (section: HTMLElement) => within(section).queryAllByRole('listitem').map((row) => row.getAttribute('aria-label'))
 /** The part of a picker row that picks the exercise. */
-const pickerRow = (name: string) => within(dialog().getByRole('listitem', { name })).getAllByRole('button')[0]!
+/** The part of the picker's row that picks it, once the row is drawn. */
+const pickerRow = async (name: string) => within(await dialog().findByRole('listitem', { name })).getAllByRole('button')[0]!
 const storedPlan = async () => (await db.planItems.toArray()).map(({ id: _id, ...rest }) => rest)
 
 describe('PlanScreen', () => {
@@ -40,7 +41,7 @@ describe('PlanScreen', () => {
     expect(screen.getByRole('dialog', { name: 'Add to Monday' })).toBeInTheDocument()
     await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), 'Squat')
     // Picking adds it straight away: a compound lift at 3 sets × 5 reps @ the default RPE 8.
-    await userEvent.click(pickerRow('Squat'))
+    await userEvent.click(await pickerRow('Squat'))
 
     await waitFor(() => expect(rowsOf(monday)).toEqual(['Squat  3 × 5 @ 8']))
     expect(within(monday).getByText('1 exercise · 3 sets')).toBeInTheDocument()
@@ -108,7 +109,7 @@ describe('PlanScreen', () => {
     await waitFor(() => expect(rowsOf(monday)).toEqual(['Bench  5 × 5 @ 8', 'Row  5 × 5 @ 8', 'Squat  5 × 5 @ 8']))
     // A new item goes after the last one.
     await userEvent.click(within(monday).getByRole('button', { name: 'Add' }))
-    await userEvent.click(pickerRow('Deadlift'))
+    await userEvent.click(await pickerRow('Deadlift'))
     await waitFor(() => expect(rowsOf(monday)[3]).toBe('Deadlift  3 × 5 @ 8'))
   })
 
@@ -122,7 +123,7 @@ describe('PlanScreen', () => {
   it('customExercise_isCreatedAndAdded', async () => {
     show()
     await userEvent.click(within(await day('Wednesday')).getByRole('button', { name: 'Add' }))
-    await userEvent.click(dialog().getByRole('button', { name: 'Create your own' }))
+    await userEvent.click(await dialog().findByRole('button', { name: 'Create your own' }))
     const custom = () => within(screen.getByRole('dialog', { name: 'Add custom exercise' }))
     expect(custom().getByRole('button', { name: 'Create' })).toBeDisabled()
     await userEvent.type(custom().getByRole('textbox', { name: 'Name' }), '  Cluster squat ')
@@ -159,7 +160,7 @@ describe('PlanScreen', () => {
     // Changed, then cancelled: nothing is stored, not even the exercise's row.
     await edit()
     await userEvent.click(editDialog().getByRole('button', { name: 'Change' }))
-    await userEvent.click(within(within(screen.getByRole('dialog', { name: 'Change exercise' })).getByRole('listitem', { name: 'Curl' })).getAllByRole('button')[0]!)
+    await userEvent.click(within(await within(screen.getByRole('dialog', { name: 'Change exercise' })).findByRole('listitem', { name: 'Curl' })).getAllByRole('button')[0]!)
     expect(screen.getAllByRole('dialog')).toHaveLength(1)
     expect(editDialog().getByRole('group', { name: 'Exercise' })).toHaveTextContent('Curl')
     await userEvent.click(editDialog().getByRole('button', { name: 'Cancel' }))
@@ -169,7 +170,7 @@ describe('PlanScreen', () => {
     // Changed and saved: the row comes with the item, which keeps its place and its numbers.
     await edit()
     await userEvent.click(editDialog().getByRole('button', { name: 'Change' }))
-    await userEvent.click(within(within(screen.getByRole('dialog', { name: 'Change exercise' })).getByRole('listitem', { name: 'Curl' })).getAllByRole('button')[0]!)
+    await userEvent.click(within(await within(screen.getByRole('dialog', { name: 'Change exercise' })).findByRole('listitem', { name: 'Curl' })).getAllByRole('button')[0]!)
     await userEvent.click(editDialog().getByRole('button', { name: 'Decrease Sets' }))
     await userEvent.click(editDialog().getByRole('button', { name: 'Save' }))
     await waitFor(() => expect(rowsOf(monday)).toEqual(['Curl  3 × 6 @ 7.5']))
@@ -229,7 +230,7 @@ describe('PlanScreen', () => {
     show()
     vi.spyOn(db.planItems, 'add').mockRejectedValue(new Error('disk full'))
     await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
-    await userEvent.click(pickerRow('Squat'))
+    await userEvent.click(await pickerRow('Squat'))
     expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
     expect(await storedPlan()).toEqual([])
   })

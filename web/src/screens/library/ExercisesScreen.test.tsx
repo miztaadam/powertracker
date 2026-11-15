@@ -7,6 +7,7 @@ import { grit, todayIso } from '../../domain'
 import { pickerList, useExerciseBrowser, type StoredExercise } from '../../state/exercisePicker'
 import { useToday, weekdayOf, type TodayActions, type TodayState } from '../../state/useToday'
 import { TODAY, exerciseNamed, plan, setsOn, startSession, todayFixture } from '../../test/todayFixture'
+import { wholeList } from '../../test/wholeList'
 import { ExercisesScreen } from './ExercisesScreen'
 import { FormGuideSheet } from './FormGuideSheet'
 import { AREAS } from './labels'
@@ -56,14 +57,19 @@ async function showTab({ stale = false }: { stale?: boolean } = {}): Promise<Sho
   render(<Harness />)
   await waitFor(() => expect(latest?.loading).toBe(false))
   await screen.findByRole('listitem', { name: 'Squat' })
+  await wholeList()
   return { session: () => latest!, onOpenPlan, onOpenToday }
 }
 
-/** The whole app on the Exercises tab, on the device's own date. */
+/** The whole app on the Exercises tab, on the device's own date. On the tab, it waits for the whole list. */
 async function showApp(hash = '#/exercises') {
   window.location.hash = hash
   render(<App dbName={fx.name} />)
   await screen.findByRole('navigation', { name: 'Main' })
+  if (hash === '#/exercises') {
+    await screen.findByRole('listitem', { name: 'Squat' })
+    await wholeList()
+  }
 }
 
 const tabLink = (name: string) => within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name })
@@ -90,9 +96,17 @@ const inGroups = (groups: string[], equipment: string[] = []) => grit.exercisesB
 const key = (name: string) => name.toLowerCase().replace(/[-_]/g, ' ')
 const sorted = (names: string[]) => [...names].sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0))
 
+/** Searches, and waits for the whole list it finds. */
 async function search(text: string) {
   await userEvent.clear(searchBox())
   if (text !== '') await userEvent.type(searchBox(), text)
+  await wholeList()
+}
+
+/** Taps a chip or a button that changes the list, and waits for the whole of the new list. */
+async function tapAndWait(target: Element) {
+  await userEvent.click(target)
+  await wholeList()
 }
 
 /** Ticks (or unticks) muscle groups in the drop-down, then closes it. */
@@ -100,6 +114,7 @@ async function tick(...groups: string[]) {
   await userEvent.click(musclesButton())
   for (const group of groups) await userEvent.click(musclesSheet().getByRole('checkbox', { name: label(group) }))
   await userEvent.click(musclesSheet().getByRole('button', { name: 'Close' }))
+  await wholeList()
 }
 
 const openRow = (name: string) => userEvent.click(screen.getByRole('button', { name: `Open ${name}` }))
@@ -176,10 +191,10 @@ describe('Exercises tab', () => {
     await search('')
 
     // A body area keeps its heading; the lifter's own have no area.
-    await userEvent.click(chip('Body area', 'Calves'))
+    await tapAndWait(chip('Body area', 'Calves'))
     expect(shownNames()).toEqual(libraryNames('', ['CALVES']))
     expect(headings()).toEqual(['Calves'])
-    await userEvent.click(chip('Body area', 'All'))
+    await tapAndWait(chip('Body area', 'All'))
 
     // One muscle ticked: its exercises, the lifter's own among them, alphabetically.
     await tick('QUADS')
@@ -254,9 +269,9 @@ describe('Exercises tab', () => {
     expect(shownNames()).toEqual(sorted([...inGroups(['CALVES', 'QUADS']), 'Tyre flip']))
 
     // Equipment narrows it, any of the chosen; the lifter's own have none.
-    await userEvent.click(chip('Equipment', 'Dumbbell'))
+    await tapAndWait(chip('Equipment', 'Dumbbell'))
     expect(shownNames()).toEqual(inGroups(['CALVES', 'QUADS'], ['DUMBBELL']))
-    await userEvent.click(chip('Equipment', 'Smith machine'))
+    await tapAndWait(chip('Equipment', 'Smith machine'))
     const both = inGroups(['CALVES', 'QUADS'], ['DUMBBELL', 'SMITH'])
     expect(shownNames()).toEqual(both)
     expect(both).toContain('Smith calf raise')
@@ -281,7 +296,7 @@ describe('Exercises tab', () => {
     expect(shownNames()).toEqual(inGroups(['QUADS', 'BICEPS', 'CALVES']))
 
     // A chip takes its own muscle away, in the list and in the drop-down.
-    await userEvent.click(within(chosen()!).getByRole('button', { name: 'Remove Quads' }))
+    await tapAndWait(within(chosen()!).getByRole('button', { name: 'Remove Quads' }))
     expect(chosenLabels()).toEqual(['Biceps', 'Calves'])
     expect(shownNames()).toEqual(inGroups(['BICEPS', 'CALVES']))
     expect(musclesButton()).toHaveTextContent('Muscles · 2')
@@ -291,7 +306,7 @@ describe('Exercises tab', () => {
     await userEvent.click(musclesSheet().getByRole('button', { name: 'Close' }))
 
     // "Clear" takes them all away: back to everything under its body area.
-    await userEvent.click(within(chosen()!).getByRole('button', { name: 'Clear' }))
+    await tapAndWait(within(chosen()!).getByRole('button', { name: 'Clear' }))
     expect(chosen()).toBeNull()
     expect(musclesButton()).toHaveTextContent(/^Muscles$/)
     expect(headings()).toEqual(AREAS.map((a) => a.label))
@@ -391,6 +406,38 @@ describe('Exercises tab', () => {
     expect(await storedPlan()).toEqual([...stored, { weekday: 3, exerciseId: squat.id, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: 'POWERLIFTING' }])
     expect(await rows('Squat')).toHaveLength(1)
     expect(shown.onOpenPlan).not.toHaveBeenCalled()
+  })
+
+  it('aScrolledList_keepsEveryRowAndItsPlace_whenARowFarDownIsOpenedAndAddedToThePlan', async () => {
+    // The tab's data is read afresh when a sheet opens, a message shows and an exercise is added: none of it may cut a
+    // list the lifter has scrolled down back to its first screenful.
+    layOutLikeAPhone()
+    await showTab()
+    const full = AREAS.flatMap((a) => libraryNames('', [a.id]))
+    await waitFor(() => expect(shownNames()).toEqual(full))
+    const scroller = document.querySelector<HTMLElement>('.lib-scroll')!
+    scroller.scrollTop = 9000
+    const far = full[full.length - 3]!
+    const farRow = screen.getByRole('listitem', { name: far })
+    // Any row taken off the page, even for a moment.
+    const removed: string[] = []
+    const watch = new MutationObserver((changes) => {
+      for (const change of changes) for (const node of change.removedNodes) if (node instanceof HTMLElement && node.matches('.lib-row')) removed.push(node.getAttribute('aria-label')!)
+    })
+    watch.observe(scroller, { childList: true, subtree: true })
+
+    await addToPlan(far, 'Monday')
+    await waitFor(() => expect(snackbar()).toHaveTextContent('Added to Monday'))
+    expect((await rows(far))[0]).toMatchObject({ name: far, isBuiltIn: true })
+    await settled()
+    watch.disconnect()
+
+    // The same row, never redrawn, every row still there, and the list where the lifter left it.
+    expect(screen.getByRole('listitem', { name: far })).toBe(farRow)
+    expect(farRow.isConnected).toBe(true)
+    expect(removed).toEqual([])
+    expect(shownNames()).toEqual(full)
+    expect(scroller.scrollTop).toBe(9000)
   })
 
   it('addToToday_onlyDuringOpenSession', async () => {
@@ -590,8 +637,8 @@ describe('Exercises tab', () => {
     await screen.findByRole('listitem', { name: 'Squat' })
 
     await tick('BICEPS', 'FOREARMS')
-    await userEvent.click(chip('Body area', 'Arms'))
-    await userEvent.click(chip('Equipment', 'Dumbbell'))
+    await tapAndWait(chip('Body area', 'Arms'))
+    await tapAndWait(chip('Equipment', 'Dumbbell'))
     await search('curl')
     const names = shownNames()
     expect(names).toEqual(libraryNames('curl', ['ARMS'], ['DUMBBELL']).filter((n) => inGroups(['BICEPS', 'FOREARMS']).includes(n)))

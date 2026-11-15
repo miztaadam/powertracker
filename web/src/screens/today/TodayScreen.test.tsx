@@ -38,7 +38,8 @@ const waitForSets = (count: number) => waitFor(async () => expect(await setsOn(d
 const exerciseRows = async (name: string) => (await db.exercises.toArray()).filter((e) => e.name.toLowerCase() === name.toLowerCase())
 const picker = () => within(screen.getByRole('dialog', { name: 'Add exercise' }))
 /** The part of a picker row that picks the exercise. */
-const pickerRow = (name: string) => within(picker().getByRole('listitem', { name })).getAllByRole('button')[0]!
+/** The part of the picker's row that picks it, once the row is drawn. */
+const pickerRow = async (name: string) => within(await picker().findByRole('listitem', { name })).getAllByRole('button')[0]!
 const openPicker = () => tapWhenShown('Add exercise')
 
 const weightField = () => screen.getByRole('textbox', { name: 'Weight, kilograms' })
@@ -357,7 +358,7 @@ describe('TodayScreen', () => {
     expect(picker().getByText('No exercises match. Try fewer filters, or create your own.')).toBeInTheDocument()
     await userEvent.clear(picker().getByRole('textbox'))
     await userEvent.type(picker().getByRole('textbox'), 'dead')
-    await userEvent.click(pickerRow('Deadlift'))
+    await userEvent.click(await pickerRow('Deadlift'))
 
     // The added exercise is the one being logged, with no weight yet.
     expect(await screen.findByRole('heading', { name: 'Deadlift' })).toBeInTheDocument()
@@ -373,7 +374,7 @@ describe('TodayScreen', () => {
 
     // Picking one already in the session just opens its card.
     await openPicker()
-    await userEvent.click(pickerRow('Squat'))
+    await userEvent.click(await pickerRow('Squat'))
     expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Squat' })).toBeInTheDocument()
   })
@@ -415,7 +416,7 @@ describe('TodayScreen', () => {
     show()
 
     await openPicker()
-    await userEvent.click(pickerRow('Curl'))
+    await userEvent.click(await pickerRow('Curl'))
     expect(await screen.findByText('Exercise 2 of 2')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Curl' })).toBeInTheDocument()
     // On the card, not in the data: taking it back leaves nothing behind.
@@ -425,7 +426,7 @@ describe('TodayScreen', () => {
     expect(await db.exercises.toArray()).toEqual(before)
 
     await openPicker()
-    await userEvent.click(pickerRow('Curl'))
+    await userEvent.click(await pickerRow('Curl'))
     expect(await screen.findByText('Exercise 2 of 2')).toBeInTheDocument()
     await typeWeight('20')
     await tap('Log set 1')
@@ -459,7 +460,7 @@ describe('TodayScreen', () => {
     show()
 
     await openPicker()
-    await userEvent.click(pickerRow('Curl'))
+    await userEvent.click(await pickerRow('Curl'))
     expect(await screen.findByText('Exercise 2 of 2')).toBeInTheDocument()
     expect((await exerciseRows('Curl'))[0]!.archived).toBe(true)
 
@@ -477,7 +478,7 @@ describe('TodayScreen', () => {
     await startSession(db, TODAY)
     show()
     await openPicker()
-    await userEvent.click(pickerRow('Curl'))
+    await userEvent.click(await pickerRow('Curl'))
     await screen.findByText('Exercise 2 of 2')
     await typeWeight('20')
     vi.spyOn(db.sets, 'add').mockRejectedValue(new Error('disk full'))
@@ -513,7 +514,7 @@ describe('TodayScreen', () => {
     await startSession(db, TODAY)
     show()
     await openPicker()
-    await userEvent.click(picker().getByRole('button', { name: 'Create your own' }))
+    await userEvent.click(await picker().findByRole('button', { name: 'Create your own' }))
     const custom = within(screen.getByRole('dialog', { name: 'Add custom exercise' }))
     await userEvent.type(custom.getByRole('textbox', { name: 'Name' }), 'biceps curl')
     await userEvent.click(custom.getByRole('button', { name: 'Create' }))

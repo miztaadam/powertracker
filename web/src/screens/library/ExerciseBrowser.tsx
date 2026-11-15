@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react'
+import { Fragment, startTransition, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react'
 import { muscleGroups, normalise, pickerList, type ExerciseBrowser as BrowserState, type PickerEntry, type StoredExercise } from '../../state/exercisePicker'
 import { IconButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
@@ -16,6 +16,18 @@ import './library.css'
 export const NO_MATCH = 'No exercises match. Try fewer filters, or create your own.'
 /** The same where exercises are only browsed, not made. */
 export const NO_MATCH_BROWSING = 'No exercises match.'
+
+/**
+ * How many rows are drawn at once when the list opens, and again after each new search or filter: enough to fill a
+ * 375 × 812 phone below the picker's muscle grid, and the Exercises tab's 600 px look-ahead for thumbnails. The rest
+ * are drawn straight after, so what is on screen comes up first. "Your exercises" count first, then the list in the
+ * order it is shown.
+ */
+export const FIRST_ROWS = 24
+
+/** What the lifter chose: a change to any of it draws the list afresh from its first screenful. */
+type Inputs = Pick<BrowserState, 'query' | 'area' | 'equipment' | 'muscle' | 'muscles'>
+const sameInputs = (a: Inputs, b: Inputs) => a.query === b.query && a.area === b.area && a.equipment === b.equipment && a.muscle === b.muscle && a.muscles === b.muscles
 
 export type ExerciseBrowserProps = {
   /** The search and filters, kept by the caller for as long as they should last. */
@@ -70,6 +82,38 @@ export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onR
   const byArea = dropdown && muscles.length === 0 && !searching
   const browsed = muscle != null ? muscleGroups().find((g) => g.id === muscle) : undefined
   const isEmpty = list.yours.length === 0 && list.all.length === 0
+
+  // The first screenful is drawn at once and the rest straight after. Only what the lifter chose starts it again: the
+  // exercises are read afresh whenever the data changes (a sheet opens, a message shows, an exercise is added), and a
+  // list scrolled down must not shrink back to its first rows under the lifter's thumb. A new choice is caught here,
+  // while drawing, so a keystroke never draws the whole list first and cuts it after.
+  const inputs: Inputs = { query, area, equipment, muscle, muscles }
+  const [drawing, setDrawing] = useState({ inputs, whole: false })
+  let whole = drawing.whole
+  if (!sameInputs(drawing.inputs, inputs)) {
+    setDrawing({ inputs, whole: false })
+    whole = false
+  }
+  const cut = !whole && list.yours.length + list.all.length > FIRST_ROWS
+  const shown = useMemo(() => {
+    if (!cut) return list
+    const yours = list.yours.slice(0, FIRST_ROWS)
+    return { yours, all: (byArea ? inAreaOrder(list.all) : list.all).slice(0, FIRST_ROWS - yours.length) }
+  }, [cut, list, byArea])
+  // The rest once the first screenful is on screen: after the next frame, and as an update that gives way to a tap
+  // or a keystroke. A list that fits in the first draw has no rest to wait for.
+  useEffect(() => {
+    if (!cut) return
+    const drawn: Inputs = { query, area, equipment, muscle, muscles }
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const frame = requestAnimationFrame(() => {
+      timer = setTimeout(() => startTransition(() => setDrawing((d) => (sameInputs(d.inputs, drawn) ? { ...d, whole: true } : d))), 0)
+    })
+    return () => {
+      cancelAnimationFrame(frame)
+      if (timer != null) clearTimeout(timer)
+    }
+  }, [cut, query, area, equipment, muscle, muscles])
 
   // A new search or filter starts from its best match, not from wherever the last list was scrolled to.
   const scroller = useRef<HTMLDivElement>(null)
@@ -163,17 +207,19 @@ export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onR
           )
         ) : (
           <>
-            {list.yours.length > 0 && (
+            {shown.yours.length > 0 && (
               <>
                 <SectionHeader className="lib-heading" title="Your exercises" />
-                {rows(list.yours)}
-                {!byArea && <SectionHeader className="lib-heading" title="All exercises" />}
+                {rows(shown.yours)}
+                {/* While the first screenful is all there is, no heading waits below it with nothing under it. */}
+                {!byArea && (!cut || shown.all.length > 0) && <SectionHeader className="lib-heading" title="All exercises" />}
               </>
             )}
             {/* After "Chosen", the list needs a heading of its own; by area, the areas give it one. */}
-            {list.yours.length === 0 && chosen.length > 0 && !byArea && <SectionHeader className="lib-heading" title="All exercises" />}
-            {byArea ? <AreaSections entries={list.all} rows={rows} /> : rows(list.all)}
-            {create != null && <div className="lib-create">{create}</div>}
+            {shown.yours.length === 0 && chosen.length > 0 && !byArea && <SectionHeader className="lib-heading" title="All exercises" />}
+            {byArea ? <AreaSections entries={shown.all} rows={rows} /> : rows(shown.all)}
+            {/* Below the list, so it comes once the whole list is drawn, not under the first screenful. */}
+            {create != null && !cut && <div className="lib-create">{create}</div>}
           </>
         )}
       </div>
@@ -182,23 +228,35 @@ export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onR
   )
 }
 
-/** `entries` under their body areas, in the catalogue's area order; each area keeps the order it came in. */
+/**
+ * `entries` by body area, in the catalogue's area order; each area keeps the order it came in. The lifter's own have
+ * no area. While nothing is filtered they are under "Your exercises", so none is expected here.
+ */
+function underAreas(entries: readonly PickerEntry[]) {
+  return {
+    noArea: entries.filter((e) => e.library == null),
+    areas: AREAS.map((area) => ({ area, entries: entries.filter((e) => e.library?.area === area.id) })).filter((a) => a.entries.length > 0),
+  }
+}
+
+/** `entries` in the order `AreaSections` shows them, top to bottom. */
+function inAreaOrder(entries: readonly PickerEntry[]): PickerEntry[] {
+  const { noArea, areas } = underAreas(entries)
+  return [...noArea, ...areas.flatMap((a) => a.entries)]
+}
+
+/** `entries` under their body areas. */
 function AreaSections({ entries, rows }: { entries: readonly PickerEntry[]; rows: (entries: readonly PickerEntry[]) => ReactNode }) {
-  // The lifter's own have no area. While nothing is filtered they are under "Your exercises", so none is expected here.
-  const noArea = entries.filter((e) => e.library == null)
+  const { noArea, areas } = underAreas(entries)
   return (
     <>
       {noArea.length > 0 && rows(noArea)}
-      {AREAS.map((area) => {
-        const inArea = entries.filter((e) => e.library?.area === area.id)
-        if (inArea.length === 0) return null
-        return (
-          <Fragment key={area.id}>
-            <SectionHeader className="lib-heading" title={area.label} />
-            {rows(inArea)}
-          </Fragment>
-        )
-      })}
+      {areas.map(({ area, entries: inArea }) => (
+        <Fragment key={area.id}>
+          <SectionHeader className="lib-heading" title={area.label} />
+          {rows(inArea)}
+        </Fragment>
+      ))}
     </>
   )
 }

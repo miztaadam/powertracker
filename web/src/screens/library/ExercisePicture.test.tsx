@@ -7,6 +7,7 @@ import { grit } from '../../domain'
 import { useExerciseBrowser, type StoredExercise } from '../../state/exercisePicker'
 import { useToday } from '../../state/useToday'
 import { TODAY, todayFixture } from '../../test/todayFixture'
+import { wholeList } from '../../test/wholeList'
 import { ExercisePicker } from './ExercisePicker'
 import { ExercisePicture, ExerciseThumbnail, pictureLabel } from './ExercisePicture'
 import { ExercisesScreen } from './ExercisesScreen'
@@ -58,7 +59,7 @@ afterEach(async () => {
 
 const ownExercise = () => db.exercises.add({ name: 'Tyre flip', category: 'ACCESSORY', parentLift: null, muscles: ['Quads', 'Glutes'], isBuiltIn: false, archived: false })
 
-/** The Exercises tab over the seeded exercises. */
+/** The Exercises tab over the seeded exercises, its whole list drawn. */
 async function showExercisesTab() {
   function Harness() {
     const session = useToday(db, () => TODAY)
@@ -67,6 +68,7 @@ async function showExercisesTab() {
   }
   render(<Harness />)
   await screen.findByRole('listitem', { name: 'Squat' })
+  await wholeList()
 }
 
 const row = (name: string) => screen.getByRole('listitem', { name })

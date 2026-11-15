@@ -1,6 +1,7 @@
 import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
+import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
 import { openOnWednesday, readAllTables, repsField, rpeField, tabBar, weightField } from './helpers'
 
 // The bodybuilding side's screens (bodybuilding mode spec §7.3 to §7.7) with a sample story like the owner's mockup
@@ -265,6 +266,8 @@ for (const scheme of ['dark', 'light'] as const) {
       // Every tick under "Chosen" at the top, then the list with the same rows ticked.
       const chosen = page.getByRole('region', { name: 'Chosen' })
       await expect(chosen.getByRole('listitem')).toHaveCount(8)
+      // The whole list under it, every catalogue row as well as the eight, before the step is measured and shot.
+      await expect.poll(() => page.locator('.lib-row').count()).toBeGreaterThanOrEqual(8 + GritDomain.getInstance().library().length)
       await expect(chosen.getByRole('listitem', { name: 'Incline DB press' }).getByRole('checkbox')).toHaveAttribute('aria-checked', 'true')
       await expect(page.getByRole('listitem', { name: 'Incline DB press' }).last().getByRole('checkbox')).toHaveAttribute('aria-checked', 'true')
       expect(await smallTargets(page)).toEqual([])

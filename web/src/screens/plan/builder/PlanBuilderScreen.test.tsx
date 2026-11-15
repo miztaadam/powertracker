@@ -6,6 +6,7 @@ import { getSettings, updateSettings, type AppSettings, type GritDb } from '../.
 import type { PlanItemRow, TrainingMode } from '../../../db/schema'
 import { grit } from '../../../domain'
 import { TODAY, addDays, exerciseNamed, logSet, set, todayFixture } from '../../../test/todayFixture'
+import { wholeList } from '../../../test/wholeList'
 import { CoachScreen } from '../../coach/CoachScreen'
 import { TodayScreen } from '../../today/TodayScreen'
 import { PlanScreen } from '../PlanScreen'
@@ -148,6 +149,7 @@ describe('the plan builder', () => {
     await step(1)
     await tap('Next')
     await step(2)
+    await wholeList()
     expect(screen.getByRole('heading', { name: 'Which exercises do you do now?' })).toBeInTheDocument()
     expect(screen.getByText('3 chosen')).toBeInTheDocument()
     for (const name of ['Squat', 'Curl', 'Leg press']) expect(exerciseRow(name)).toHaveAttribute('aria-checked', 'true')
@@ -155,6 +157,7 @@ describe('the plan builder', () => {
     await userEvent.type(screen.getByRole('textbox', { name: 'Search exercises' }), 'Leg extension')
     expect(exerciseRow('Leg extension')).toHaveAttribute('aria-checked', 'false')
     await userEvent.clear(screen.getByRole('textbox', { name: 'Search exercises' }))
+    await wholeList()
 
     for (const name of ['Squat', 'Curl', 'Leg press']) await userEvent.click(exerciseRow(name))
     expect(screen.getByRole('heading', { name: 'Which exercises would you like to do?' })).toBeInTheDocument()
@@ -410,6 +413,7 @@ describe('the plan builder', () => {
     await step(1)
     await tap('Next')
     await step(2)
+    await wholeList()
     expect([...chosenNames()].sort()).toEqual([...names].sort())
     for (const name of names) {
       expect(chosenRow(name)).toHaveAttribute('aria-checked', 'true')
@@ -433,6 +437,7 @@ describe('the plan builder', () => {
     expect(chosenNames().at(-1)).toBe('Hack squat')
     expect(chosenNames()).toHaveLength(8)
     await userEvent.clear(screen.getByRole('textbox', { name: 'Search exercises' }))
+    await wholeList()
 
     for (const name of chosenNames()) await userEvent.click(chosenRow(name!))
     expect(chosen()).toBeNull()
@@ -446,22 +451,28 @@ describe('the plan builder', () => {
     await step(1)
     await tap('Next')
     await step(2)
+    await wholeList()
     const search = () => screen.getByRole('textbox', { name: 'Search exercises' })
     await userEvent.type(search(), 'Leg press')
     await userEvent.click(exerciseRow('Leg press'))
     await userEvent.clear(search())
+    await wholeList()
     expect(exerciseRow('Leg press')).toHaveAttribute('aria-checked', 'true')
     expect(exerciseRow('Curl')).toHaveAttribute('aria-checked', 'true')
 
     // A body area, then equipment: the ticks are kept, shown or not.
     const area = within(screen.getByRole('group', { name: 'Body area' }))
     await userEvent.click(area.getByRole('checkbox', { name: 'Quads' }))
+    await wholeList()
     expect(exerciseRow('Leg press')).toHaveAttribute('aria-checked', 'true')
     await userEvent.click(within(screen.getByRole('group', { name: 'Equipment' })).getByRole('checkbox', { name: 'Machine' }))
+    await wholeList()
     expect(exerciseRow('Leg press')).toHaveAttribute('aria-checked', 'true')
     expect(exerciseRow('Leg extension')).toHaveAttribute('aria-checked', 'false')
     await userEvent.click(within(screen.getByRole('group', { name: 'Equipment' })).getByRole('checkbox', { name: 'Machine' }))
+    await wholeList()
     await userEvent.click(area.getByRole('checkbox', { name: 'All' }))
+    await wholeList()
     expect(exerciseRow('Curl')).toHaveAttribute('aria-checked', 'true')
     expect(screen.getByText('2 chosen')).toBeInTheDocument()
 
@@ -470,12 +481,14 @@ describe('the plan builder', () => {
     await step(1)
     await tap('Next')
     await step(2)
+    await wholeList()
     expect(screen.getByText('2 chosen')).toBeInTheDocument()
     for (const name of ['Leg press', 'Curl']) expect(exerciseRow(name)).toHaveAttribute('aria-checked', 'true')
     await tap('Next')
     await step(3)
     await tap('Back')
     await step(2)
+    await wholeList()
     expect([...chosenNames()].sort()).toEqual(['Curl', 'Leg press'])
     for (const name of ['Leg press', 'Curl']) expect(exerciseRow(name)).toHaveAttribute('aria-checked', 'true')
   })

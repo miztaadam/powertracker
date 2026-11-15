@@ -6,6 +6,7 @@ import type { ExerciseRow } from '../../db/schema'
 import { grit } from '../../domain'
 import { pickerList, type CustomExercise, type PickerEntry, type StoredExercise } from '../../state/exercisePicker'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
+import { wholeList } from '../../test/wholeList'
 import { set, startSession, logSet, todayFixture, TODAY } from '../../test/todayFixture'
 import { PlanScreen } from '../plan/PlanScreen'
 import { ExercisePicker } from './ExercisePicker'
@@ -54,9 +55,17 @@ const key = (name: string) => name.toLowerCase().replace(/[-_]/g, ' ')
 const inGroup = (group: string, equipment: string[] = [], mine: string[] = []) =>
   [...grit.exercisesByMuscle(group, equipment).map((e) => e.name), ...mine].sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0))
 
+/** Searches, and waits for the whole list it finds. */
 async function search(text: string) {
   await userEvent.clear(searchBox())
   if (text !== '') await userEvent.type(searchBox(), text)
+  await wholeList()
+}
+
+/** Taps a chip, a muscle tile or a button that changes the list, and waits for the whole of the new list. */
+async function tapAndWait(target: Element) {
+  await userEvent.click(target)
+  await wholeList()
 }
 
 const own = (id: number, name: string, muscles: string[] = []): StoredExercise => ({ id, name, category: 'ACCESSORY', muscles, archived: false })
@@ -67,6 +76,7 @@ async function showPicker(extra: StoredExercise[] = [], recentIds: number[] = []
   const created: CustomExercise[] = []
   const exercises = [...(await stored()), ...extra]
   render(<ExercisePicker title="Add exercise" exercises={exercises} recentIds={recentIds} onPick={(e) => picked.push(e)} onCreateCustom={(c) => created.push(c)} onDismiss={() => {}} />)
+  await wholeList()
   return { picked, created }
 }
 
@@ -79,6 +89,7 @@ async function showPlanPicker() {
 async function addToMonday() {
   await userEvent.click(within(await screen.findByRole('region', { name: 'Monday' })).getByRole('button', { name: 'Add' }))
   expect(screen.getByRole('dialog', { name: 'Add to Monday' })).toBeInTheDocument()
+  await wholeList()
 }
 
 describe('ExercisePicker', () => {
@@ -106,7 +117,7 @@ describe('ExercisePicker', () => {
     expect(libraryNames('squat').length).toBeGreaterThan(1)
     expect(shownNames()).toEqual(libraryNames('squat'))
 
-    await userEvent.click(picker().getByRole('button', { name: 'Clear search' }))
+    await tapAndWait(picker().getByRole('button', { name: 'Clear search' }))
     expect(searchBox()).toHaveValue('')
     expect(shows('Bench')).toBe(true)
   })
@@ -114,32 +125,32 @@ describe('ExercisePicker', () => {
   it('areaAndEquipmentChips_filter', async () => {
     await showPicker()
 
-    await userEvent.click(chip('Body area', 'Back'))
+    await tapAndWait(chip('Body area', 'Back'))
     expect(chip('Body area', 'Back')).toBeChecked()
     expect(chip('Body area', 'All')).not.toBeChecked()
     expect(shownNames()).toEqual(libraryNames('', ['BACK']))
     expect(shows('Row') && shows('Pull-up')).toBe(true)
 
     // Equipment narrows it; a second equipment chip widens it again (any of the chosen).
-    await userEvent.click(chip('Equipment', 'Bodyweight'))
+    await tapAndWait(chip('Equipment', 'Bodyweight'))
     expect(shows('Pull-up')).toBe(true)
     expect(shows('Row')).toBe(false)
-    await userEvent.click(chip('Equipment', 'Barbell'))
+    await tapAndWait(chip('Equipment', 'Barbell'))
     expect(chip('Equipment', 'Bodyweight')).toBeChecked()
     expect(chip('Equipment', 'Barbell')).toBeChecked()
     expect(shows('Pull-up') && shows('Row')).toBe(true)
 
     // One body area at a time.
-    await userEvent.click(chip('Body area', 'Arms'))
+    await tapAndWait(chip('Body area', 'Arms'))
     expect(chip('Body area', 'Back')).not.toBeChecked()
     const arms = libraryNames('', ['ARMS'], ['BODYWEIGHT', 'BARBELL'])
     expect(arms.length).toBeGreaterThan(0)
     expect(shownNames()).toEqual(arms)
 
     // "All" with no equipment brings everything back.
-    await userEvent.click(chip('Body area', 'All'))
-    await userEvent.click(chip('Equipment', 'Bodyweight'))
-    await userEvent.click(chip('Equipment', 'Barbell'))
+    await tapAndWait(chip('Body area', 'All'))
+    await tapAndWait(chip('Equipment', 'Bodyweight'))
+    await tapAndWait(chip('Equipment', 'Barbell'))
     expect(chip('Body area', 'All')).toBeChecked()
     expect(shows('Squat') && shows('Pull-up') && shows('Curl')).toBe(true)
   })
@@ -172,8 +183,8 @@ describe('ExercisePicker', () => {
     // Filters with nothing in them say the same.
     cleanup()
     await showPicker()
-    await userEvent.click(chip('Body area', 'Back'))
-    await userEvent.click(chip('Equipment', 'Kettlebell'))
+    await tapAndWait(chip('Body area', 'Back'))
+    await tapAndWait(chip('Equipment', 'Kettlebell'))
     expect(libraryNames('', ['BACK'], ['KETTLEBELL'])).toEqual([])
     expect(picker().getByText(NO_MATCH)).toBeInTheDocument()
   })
@@ -309,11 +320,11 @@ describe('ExercisePicker', () => {
     expect(grid()).toBeInTheDocument()
 
     // So does a body area; "All" brings it back. Equipment leaves it where it is.
-    await userEvent.click(chip('Body area', 'Back'))
+    await tapAndWait(chip('Body area', 'Back'))
     expect(grid()).toBeNull()
-    await userEvent.click(chip('Body area', 'All'))
+    await tapAndWait(chip('Body area', 'All'))
     expect(grid()).toBeInTheDocument()
-    await userEvent.click(chip('Equipment', 'Dumbbell'))
+    await tapAndWait(chip('Equipment', 'Dumbbell'))
     expect(grid()).toBeInTheDocument()
     expect(shownNames()).toEqual(libraryNames('', [], ['DUMBBELL']))
   })
@@ -341,7 +352,7 @@ describe('ExercisePicker', () => {
     expect(names(pickerList('', null, [], exercises, []).yours)).toContain('Tyre drag')
 
     const { picked } = await showPicker([mine, unmapped, archived], [bench.id])
-    await userEvent.click(tile('Chest'))
+    await tapAndWait(tile('Chest'))
     expect(heading('Chest exercises')).toBeInTheDocument()
     expect(heading('Your exercises')).toBeNull()
     expect(heading('All exercises')).toBeNull()
@@ -368,33 +379,33 @@ describe('ExercisePicker', () => {
     expect(dumbbell.includes('DB press') && !dumbbell.includes('Bench')).toBe(true)
 
     await showPicker([mine])
-    await userEvent.click(tile('Chest'))
-    await userEvent.click(chip('Equipment', 'Dumbbell'))
+    await tapAndWait(tile('Chest'))
+    await tapAndWait(chip('Equipment', 'Dumbbell'))
     expect(chip('Equipment', 'Dumbbell')).toBeChecked()
     expect(heading('Chest exercises')).toBeInTheDocument()
     expect(shownNames()).toEqual(dumbbell)
 
     // A second equipment widens it (any of the chosen); none brings the whole group back.
-    await userEvent.click(chip('Equipment', 'Barbell'))
+    await tapAndWait(chip('Equipment', 'Barbell'))
     expect(shownNames()).toEqual(inGroup('CHEST', ['DUMBBELL', 'BARBELL']))
     expect(shows('DB press') && shows('Bench') && !shows('Squat')).toBe(true)
-    await userEvent.click(chip('Equipment', 'Dumbbell'))
-    await userEvent.click(chip('Equipment', 'Barbell'))
+    await tapAndWait(chip('Equipment', 'Dumbbell'))
+    await tapAndWait(chip('Equipment', 'Barbell'))
     expect(shownNames()).toEqual(inGroup('CHEST', [], ['Tyre flip']))
 
     // Nothing left says so, and the way back stays. An equipment chosen before the muscle counts too.
-    await userEvent.click(chip('Equipment', 'Specialty bar'))
+    await tapAndWait(chip('Equipment', 'Specialty bar'))
     expect(grit.exercisesByMuscle('CHEST', ['SPECIALTY_BAR'])).toHaveLength(0)
     expect(picker().getByText(NO_MATCH)).toBeInTheDocument()
-    await userEvent.click(allMuscles()!)
-    await userEvent.click(tile('Upper back'))
+    await tapAndWait(allMuscles()!)
+    await tapAndWait(tile('Upper back'))
     expect(inGroup('UPPER_BACK', ['SPECIALTY_BAR']).length).toBeGreaterThan(0)
     expect(shownNames()).toEqual(inGroup('UPPER_BACK', ['SPECIALTY_BAR']))
   })
 
   it('typing_leavesMuscleMode', async () => {
     await showPicker()
-    await userEvent.click(tile('Chest'))
+    await tapAndWait(tile('Chest'))
     expect(shows('Squat')).toBe(false)
 
     // The search is the ordinary one, over everything.
@@ -410,8 +421,8 @@ describe('ExercisePicker', () => {
     expect(shownNames()).toEqual(libraryNames())
 
     // A body area leaves the muscle too.
-    await userEvent.click(tile('Chest'))
-    await userEvent.click(chip('Body area', 'Back'))
+    await tapAndWait(tile('Chest'))
+    await tapAndWait(chip('Body area', 'Back'))
     expect(heading('Chest exercises')).toBeNull()
     expect(shownNames()).toEqual(libraryNames('', ['BACK']))
   })
@@ -419,11 +430,11 @@ describe('ExercisePicker', () => {
   it('backFromMuscle_returnsToGrid', async () => {
     const bench = (await stored()).find((e) => e.name === 'Bench')!
     await showPicker([], [bench.id])
-    await userEvent.click(tile('Calves'))
+    await tapAndWait(tile('Calves'))
     expect(grid()).toBeNull()
     expect(shows('Bench')).toBe(false)
 
-    await userEvent.click(allMuscles()!)
+    await tapAndWait(allMuscles()!)
     expect(grid()).toBeInTheDocument()
     expect(heading('Calves exercises')).toBeNull()
     expect(allMuscles()).toBeNull()
@@ -431,7 +442,7 @@ describe('ExercisePicker', () => {
     expect(shownNames()).toHaveLength(libraryNames().length)
 
     // Another muscle can be opened straight away.
-    await userEvent.click(tile('Quads'))
+    await tapAndWait(tile('Quads'))
     expect(heading('Quads exercises')).toBeInTheDocument()
     expect(shows('Squat')).toBe(true)
   })
@@ -440,7 +451,7 @@ describe('ExercisePicker', () => {
     // Like Android's back button: Escape steps out of a muscle first, and only then closes the picker.
     const onDismiss = vi.fn()
     render(<ExercisePicker title="Add exercise" exercises={await stored()} recentIds={[]} onPick={() => {}} onCreateCustom={() => {}} onDismiss={onDismiss} />)
-    await userEvent.click(tile('Calves'))
+    await tapAndWait(tile('Calves'))
     expect(heading('Calves exercises')).toBeInTheDocument()
 
     await userEvent.keyboard('{Escape}')
@@ -454,7 +465,7 @@ describe('ExercisePicker', () => {
 
   it('muscleInfo_opensGuideWithoutPicking', async () => {
     const { picked } = await showPicker()
-    await userEvent.click(tile('Quads'))
+    await tapAndWait(tile('Quads'))
     await checkInfoButtonOpensGuide('Squat')
     expect(picked).toEqual([])
     // The picker is where it was.

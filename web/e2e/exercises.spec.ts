@@ -101,7 +101,7 @@ test('the Exercises tab fits a 375 px phone with full-size targets', async ({ pa
 
   await expect(page.getByText(`${grit.library().length} exercises`)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Your exercises' })).toBeVisible()
-  expect(await shownNames(page)).toHaveLength(grit.library().length)
+  await expect.poll(() => shownNames(page)).toHaveLength(grit.library().length)
   expect(await overflowing(page)).toEqual([])
   expect(await smallTargets(page, '.shell-main')).toEqual([])
   // The search box is at least 16 px, or iOS zooms the page when it is tapped.
@@ -120,6 +120,8 @@ test('the Exercises tab fits a 375 px phone with full-size targets', async ({ pa
   await tick(page, 'FRONT_DELTS', 'SIDE_DELTS', 'REAR_DELTS', 'UPPER_BACK', 'LOWER_BACK', 'HAMSTRINGS')
   const sheet = page.getByRole('dialog', { name: 'Muscles' })
   await expect(sheet.getByRole('checkbox')).toHaveCount(18)
+  // The list behind the sheet, all of it, before the page is measured.
+  await expect.poll(() => shownNames(page)).toEqual(grit.exercisesByMuscles(['FRONT_DELTS', 'SIDE_DELTS', 'REAR_DELTS', 'UPPER_BACK', 'LOWER_BACK', 'HAMSTRINGS'], []).map((e) => e.name))
   expect(await overflowing(page)).toEqual([])
   expect(await smallTargets(page, '.gr-dialog')).toEqual([])
   await sheet.getByRole('button', { name: 'Close' }).click()
@@ -129,11 +131,12 @@ test('the Exercises tab fits a 375 px phone with full-size targets', async ({ pa
   await expect(chosen.getByRole('button', { name: /^Remove / })).toHaveCount(6)
   await expect(page.getByRole('button', { name: 'Muscles · 6' })).toBeVisible()
   await expect(chosen.getByRole('button', { name: 'Clear' })).toBeInViewport({ ratio: 0.99 })
-  expect(await shownNames(page)).toEqual(grit.exercisesByMuscles(['FRONT_DELTS', 'SIDE_DELTS', 'REAR_DELTS', 'UPPER_BACK', 'LOWER_BACK', 'HAMSTRINGS'], []).map((e) => e.name))
+  await expect.poll(() => shownNames(page)).toEqual(grit.exercisesByMuscles(['FRONT_DELTS', 'SIDE_DELTS', 'REAR_DELTS', 'UPPER_BACK', 'LOWER_BACK', 'HAMSTRINGS'], []).map((e) => e.name))
   expect(await overflowing(page)).toEqual([])
   expect(await smallTargets(page, '.shell-main')).toEqual([])
   await chosen.getByRole('button', { name: 'Clear' }).click()
   await expect(chosen).toHaveCount(0)
+  await expect.poll(() => shownNames(page)).toHaveLength(grit.library().length)
 
   // The guide with both actions, in reach under a long guide; then the day chooser.
   await openRow(page, 'Bulgarian split squat')

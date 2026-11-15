@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
+import { AREAS } from '../src/screens/library/labels'
 import { openOnWednesday, tabBar } from './helpers'
 
 // The exercise pictures on the narrowest iPhone, where they are really laid out and really coloured: the two-pose
@@ -12,6 +13,11 @@ const LABEL = `Picture: ${bench.startCaption}, then ${bench.endCaption}.`
 
 /** How long the Exercises tab may take to settle after it opens, after a keystroke and after a filter change. */
 const SETTLE_MS = 100
+/**
+ * How many rows the tab draws at once (FIRST_ROWS in src/screens/library/ExerciseBrowser.tsx). The rest follow
+ * straight after, in one draw, so at any moment the list is either its first rows or all of it.
+ */
+const FIRST_ROWS = 24
 
 test.use({ viewport: { width: 375, height: 812 } })
 
@@ -214,6 +220,8 @@ test('guideSheet_noFigure_showsNoPictureArea', async ({ page }) => {
 
 test('exercisesTab_rowsShowThumbnail', async ({ page }) => {
   await openTab(page)
+  // The first screenful comes first and the rest straight after: every row, before they are counted.
+  await expect.poll(() => page.locator('.shell-main .lib-row').count()).toBeGreaterThanOrEqual(grit.library().length)
   const names = await page.locator('.shell-main .lib-row').count()
   expect(names).toBeGreaterThanOrEqual(grit.library().length)
   await expect(page.locator('.shell-main .lib-thumb')).toHaveCount(names)
@@ -324,6 +332,8 @@ test('picker_hasNoThumbnails', async ({ page }) => {
   await page.getByRole('region', { name: 'Monday' }).getByRole('button', { name: 'Add' }).click()
   const picker = page.getByRole('dialog', { name: /^Add to / })
   await expect(picker.getByRole('listitem', { name: 'Bench', exact: true })).toBeVisible()
+  // Every row drawn, so none of them has one.
+  await expect.poll(() => picker.locator('.lib-row').count()).toBeGreaterThanOrEqual(grit.library().length)
   await expect(page.locator('.lib-thumb')).toHaveCount(0)
   await expect(page.locator('svg.fig')).toHaveCount(0)
 })
@@ -428,7 +438,9 @@ test.describe('Exercises tab speed', { tag: '@speed' }, () => {
   /**
    * Does one thing to the Exercises tab inside the page and measures, on the page's own clock, how long it takes
    * until the result has been drawn: the change, its render, and two frames. Returns the time, the rows then on
-   * screen and how many of them have a tile and a drawn thumbnail.
+   * screen and how many of them have a tile and a drawn thumbnail. What is timed is the first screenful
+   * (FIRST_ROWS), with the thumbnails on it: the rest of the list may or may not have followed by then, and the
+   * test waits for it after.
    */
   const settle = (page: Page, action: { open: true } | { type: string } | { chip: string }) =>
     page.evaluate(async (action) => {
@@ -458,6 +470,17 @@ test.describe('Exercises tab speed', { tag: '@speed' }, () => {
 
   const sorted = (names: readonly string[]) => [...names].sort()
   const library = (query = '', areas: string[] = [], equipment: string[] = []) => grit.searchLibrary(query, areas, equipment).map((e) => e.name)
+  /** The list as the tab shows it: under body areas while nothing is searched, ranked while something is. */
+  const inOrderShown = (query = '', areas: string[] = [], equipment: string[] = []) => {
+    const found = grit.searchLibrary(query, areas, equipment)
+    return query !== '' ? found.map((e) => e.name) : AREAS.flatMap((a) => found.filter((e) => e.area === a.id).map((e) => e.name))
+  }
+  const shownNames = (page: Page) => page.evaluate(() => Array.from(document.querySelectorAll('.shell-main .lib-row'), (row) => row.getAttribute('aria-label')!))
+  /** The rows drawn at settle are the list's first screenful or more: the start of `expected`, in its order. */
+  const expectFirstRows = (rows: string[], expected: readonly string[], what: string) => {
+    expect(rows.length, `${what}: ${rows.length} rows`).toBeGreaterThanOrEqual(Math.min(FIRST_ROWS, expected.length))
+    expect(rows, what).toEqual(expected.slice(0, rows.length))
+  }
 
   test('the Exercises tab settles within 100 ms with its thumbnails when it opens, on every keystroke and on every filter change', async ({ page }) => {
     await openOnWednesday(page, '#/today')
@@ -469,22 +492,28 @@ test.describe('Exercises tab speed', { tag: '@speed' }, () => {
     const withFigure = (names: readonly string[]) => names.filter((name) => grit.figureInfo(name) != null)
     expect(withFigure(library())).toContain('Bench')
 
-    // Opening it lists the whole catalogue, a tile on every row. The thumbnails on screen are drawn in that time.
+    // Opening it lists the whole catalogue, a tile on every row: its first screenful in the time, with the
+    // thumbnails on screen drawn, and the rest straight after.
     const opened = await settle(page, { open: true })
-    expect(sorted(opened.rows)).toEqual(sorted(library()))
+    expectFirstRows(opened.rows, inOrderShown(), 'opening')
     expect(opened.tiles).toBe(opened.rows.length)
     expect(opened.drawn).toContain('Bench')
     expect(opened.ms, `opening took ${opened.ms} ms`).toBeLessThan(SETTLE_MS)
+    await expect.poll(() => shownNames(page)).toEqual(inOrderShown())
+    expect(sorted(await shownNames(page))).toEqual(sorted(library()))
 
     // Typing, one key at a time; then deleting it again.
     for (const typed of ['b', 'be', 'ben', 'benc', 'bench', 'benc', '', 'pull up', 'RDL', 'romanian', '']) {
       const result = await settle(page, { type: typed })
       const names = typed === '' ? sorted(library()) : library(typed)
-      expect(typed === '' ? sorted(result.rows) : result.rows, `"${typed}"`).toEqual(names)
+      expectFirstRows(result.rows, inOrderShown(typed), `"${typed}"`)
       expect(result.tiles, `"${typed}"`).toBe(result.rows.length)
       // A search starts from the top, so every match with a figure is near enough to be drawn at once.
       if (typed !== '' && names.length < 8) expect(sorted(result.drawn), `"${typed}"`).toEqual(sorted(withFigure(names)))
       expect(result.ms, `"${typed}" took ${result.ms} ms`).toBeLessThan(SETTLE_MS)
+      // The whole list before the next key, so its drawing is not timed with the next one.
+      await expect.poll(() => shownNames(page), `"${typed}"`).toEqual(inOrderShown(typed))
+      expect(typed === '' ? sorted(await shownNames(page)) : await shownNames(page), `"${typed}"`).toEqual(names)
     }
 
     // Filters: one body area at a time, any of the chosen equipment.
@@ -499,10 +528,12 @@ test.describe('Exercises tab speed', { tag: '@speed' }, () => {
     ]
     for (const [chip, areas, equipment] of steps) {
       const result = await settle(page, { chip })
-      expect(sorted(result.rows), chip).toEqual(sorted(library('', areas, equipment)))
+      expectFirstRows(result.rows, inOrderShown('', areas, equipment), chip)
       expect(result.tiles, chip).toBe(result.rows.length)
       if (areas.includes('MAIN_LIFTS')) expect(result.drawn, chip).toContain('Bench')
       expect(result.ms, `${chip} took ${result.ms} ms`).toBeLessThan(SETTLE_MS)
+      await expect.poll(() => shownNames(page), chip).toEqual(inOrderShown('', areas, equipment))
+      expect(sorted(await shownNames(page)), chip).toEqual(sorted(library('', areas, equipment)))
     }
   })
 })
