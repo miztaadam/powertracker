@@ -155,6 +155,14 @@ Still to come, with its own plan (spec §8): stage 4, stretch and squeeze cues.
 - The Android speed check is a test that no thumbnail is worked out on the main thread (`ThumbnailsTest`).
 - Not measured: no real phone was available, so frame times before and after are unknown. Check by scrolling the Exercises tab fast right after opening the app.
 
+## Done (2026-11-15): faster exercise lists (version 1.4.1, both apps)
+- The exercise picker and the Exercises tab show the first screenful of exercises at once; the rest of the list follows straight after.
+- Measured on the build machine (medians, about): opening the tab went from 64 to 49 ms, opening the picker from 51 to 45 ms.
+- The two speed checks still hold the screens to 100 ms, now timed on the first screenful; they then wait for the whole list.
+- "Create your own" appears below the list once the whole list is drawn.
+- Android is unchanged.
+- Not measured on a real phone.
+
 ## Follow-up (2026-11-13, measured 2026-11-15): the 100 ms speed checks have no headroom
 The web app holds two screens to 100 ms on opening, after each keystroke and after each filter change: the exercise picker (`web/e2e/library.spec.ts`) and the Exercises tab (`web/e2e/pictures.spec.ts`), both tagged @speed.
 
@@ -173,7 +181,7 @@ Tried and dropped:
 - Memoising the rows: the tab draws its list twice on opening (once before its plan data arrives, once after), and memoising cut the second draw to 26 rows, but the open got no faster across 64 opens. Batches of the same build differ by 5–10 ms, so a gain of that size cannot be seen here.
 
 What would give real room, each needing the owner's say because it changes what the checks hold the screens to:
-1. **Draw the first screenful at once and the rest straight after.** About 15 ms saved here, likely more on a phone. The checks would then time the rows on screen, with the full list following a moment later.
+1. **Draw the first screenful at once and the rest straight after.** Done in version 1.4.1 (see above).
 2. **Time real frames** (untried: not yet shown that the date can stay fixed without faking the frame timer). Keep the fixed date but not the faked frame timer while timing, so the 100 ms is spent on the app rather than on timer ticks.
 3. **Change the limit**, to one agreed for a real phone.
 
