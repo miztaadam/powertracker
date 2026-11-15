@@ -119,6 +119,18 @@ describe('ExerciseBrowser drawing', () => {
     expect(screen.getByRole('button', { name: 'Create your own' })).toBeInTheDocument()
   })
 
+  it('moreThan24OfYourOwn_theFirstDrawHasNoAllExercisesHeadingWithNothingUnderIt', async () => {
+    const tyres = Array.from({ length: 30 }, (_, i) => own(i + 1, `Tyre ${String(i + 1).padStart(2, '0')}`))
+    show('grid', tyres)
+    const headings = () => screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
+
+    // The 24 rows are all the lifter's own: the catalogue's heading waits for the catalogue.
+    expect(shownNames()).toEqual(expected(tyres).slice(0, FIRST_ROWS))
+    expect(headings()).toEqual(['Browse by muscle', 'Your exercises'])
+    await waitFor(() => expect(shownNames()).toEqual(expected(tyres)))
+    expect(headings()).toEqual(['Browse by muscle', 'Your exercises', 'All exercises'])
+  })
+
   it('aListThatGrowsPast24_isDrawnWhole', async () => {
     // The search is short at first; then the lifter's own exercises arrive (the tab reads them after it opens).
     const tyres = Array.from({ length: 30 }, (_, i) => own(i + 1, `Tyre ${String(i + 1).padStart(2, '0')}`))

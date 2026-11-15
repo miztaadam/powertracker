@@ -1,12 +1,21 @@
 import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
+import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
 import { openOnWednesday, seedFlatBench, tabBar, tap } from './helpers'
 
 // The screens that need a particular state to be seen, dark and light. The rest (today, coach, progress,
 // lift history, plan, settings and the showcase) are written by the specs that exercise them. A normal run writes to test-results/screens/;
 // UPDATE_SCREENSHOTS=1 rewrites the committed PNGs in docs/design/web/screens/. Look at them after a visual change.
 const outDir = resolve(process.cwd(), process.env.UPDATE_SCREENSHOTS === '1' ? '../docs/design/web/screens' : 'test-results/screens')
+
+const grit = GritDomain.getInstance()
+
+/**
+ * Waits until the exercise list has at least `rows` rows. The picker and the Exercises tab draw their first screenful
+ * at once and the rest straight after, so a shot waits for the rest.
+ */
+const wholeList = (page: Page, rows: number) => expect.poll(() => page.locator('.lib-row').count()).toBeGreaterThanOrEqual(rows)
 
 async function shoot(page: Page, name: string) {
   mkdirSync(outDir, { recursive: true })
@@ -57,13 +66,16 @@ for (const scheme of ['dark', 'light'] as const) {
     await tap(page, 'Start session')
     await tap(page, 'Add exercise')
     await expect(page.getByRole('dialog', { name: 'Add exercise' }).getByRole('heading', { name: 'All exercises' })).toBeVisible()
+    await wholeList(page, grit.library().length)
     await shoot(page, `exercise-picker-${scheme}`)
 
     // One muscle chosen from the grid.
     await page.getByRole('group', { name: 'Browse by muscle' }).getByRole('button', { name: 'Quads' }).click()
     await expect(page.getByRole('dialog', { name: 'Add exercise' }).getByRole('heading', { name: 'Quads exercises' })).toBeVisible()
+    await wholeList(page, grit.exercisesByMuscle('QUADS', []).length)
     await shoot(page, `exercise-picker-muscle-${scheme}`)
     await page.getByRole('button', { name: 'All muscles' }).click()
+    await wholeList(page, grit.library().length)
 
     await page.getByRole('button', { name: 'Form guide for Squat' }).click()
     await expect(page.getByRole('dialog', { name: 'Form guide for Squat' }).getByRole('heading', { name: 'How to do it' })).toBeVisible()
@@ -80,6 +92,7 @@ for (const scheme of ['dark', 'light'] as const) {
     await tap(page, 'Start session')
     await tabBar(page).getByRole('link', { name: 'Exercises' }).click()
     await expect(page.getByRole('heading', { name: 'Main lifts' })).toBeVisible()
+    await wholeList(page, grit.library().length)
     await shoot(page, `exercises-${scheme}`)
 
     // Two muscle groups ticked, with the drop-down still open over the tab.
@@ -88,6 +101,7 @@ for (const scheme of ['dark', 'light'] as const) {
     await muscles.getByRole('checkbox', { name: 'Quads' }).check()
     await muscles.getByRole('checkbox', { name: 'Calves' }).check()
     await expect(page.getByRole('button', { name: 'Muscles · 2' })).toBeAttached()
+    await wholeList(page, grit.exercisesByMuscles(['QUADS', 'CALVES'], []).length)
     await shoot(page, `exercises-muscles-${scheme}`)
     await muscles.getByRole('button', { name: 'Close' }).click()
     await shoot(page, `exercises-muscles-chosen-${scheme}`)
