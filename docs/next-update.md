@@ -157,7 +157,7 @@ Still to come, with its own plan (spec §8): stage 4, stretch and squeeze cues.
 
 ## Done (2026-11-15): faster exercise lists (version 1.4.1, both apps)
 - The exercise picker and the Exercises tab show the first screenful of exercises at once; the rest of the list follows straight after.
-- Measured on the build machine (medians, about): opening the tab went from 64 to 49 ms, opening the picker from 51 to 45 ms.
+- Measured on the build machine, the 1.4 build against the 1.4.1 build, alternated, 32 fresh opens each: opening the tab went from a median of about 70 to 55 ms (worst 93–98 to 70–75 ms), opening the picker from about 56 to 47 ms (worst 71–95 to 56–69 ms).
 - The two speed checks still hold the screens to 100 ms, now timed on the first screenful; they then wait for the whole list.
 - "Create your own" appears below the list once the whole list is drawn.
 - Android is unchanged.

@@ -110,7 +110,7 @@
 
 ## Task 3: Web: the Today card and the guide sheet
 
-Runs beside Task 2 (the only two tasks run at once). Never runs `syncWebDomain`: it uses the bundle Task 1 committed.
+Runs beside Task 2 (the only two tasks run at once). Never runs `syncWebDomain`: it uses the bundle Task 1 committed. Since 1.4.1 the exercise lists draw their first 24 rows, then the rest a frame later, so new web tests that read a long list wait for it with the `wholeList` helper (`web/src/test/wholeList.ts`) or `expect.poll`.
 
 **Files:**
 - Modify: `web/src/screens/today/ExerciseCard.tsx`, `web/src/screens/library/FormGuideSheet.tsx` (and their callers only as far as they must pass the side), the matching CSS.
@@ -152,7 +152,7 @@ The batches run one at a time (they all regenerate `sources.md`, `guides.html` a
 **Files:** `MuscleFocusTest.kt`, `app/build.gradle.kts`, `web/package.json`, `docs/next-update.md`, `README.md`, Settings screenshots on both apps.
 
 - [ ] **Step 1:** Replace the per-area tests with `focus_everyCatalogueExerciseIsWritten` and make `Library.focus` non-null for every catalogue name. Run `./gradlew :domain:allTests`. Expected: PASS.
-- [ ] **Step 2:** Version 1.5 on both apps (Android versionName 1.5 / versionCode 6; web 1.5.0) and the Settings screenshots that show it.
+- [ ] **Step 2:** Version 1.5 on both apps (Android versionName 1.5 / versionCode 7; web 1.5.0) and the Settings screenshots that show it.
 - [ ] **Step 3:** `docs/next-update.md`: a stage 4 section (what the lifter gets; the idea's sources; that the lines are derived and how; the designer's 64-character cap and fixed line; phones untried). README: one line in the manual phone checklist ("read the stretch and squeeze on a bodybuilding Today card").
 - [ ] **Step 4:** The full run: `./gradlew :domain:allTests --rerun-tasks :domain:checkWebDomain :app:testDebugUnitTest`, and `cd web && npm test && npm run typecheck && npm run build && npm run e2e -- --trace off`. Expected: PASS.
 - [ ] **Step 5: Commit** `chore: version 1.5; stretch and squeeze notes`.
