@@ -36,7 +36,6 @@ import com.powertracker.data.AppSettings
 import com.powertracker.data.BackupService
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.data.db.ExerciseEntity
 import com.powertracker.domain.library.Equipment
 import com.powertracker.domain.library.Kind
@@ -47,6 +46,7 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.AppShell
 import com.powertracker.ui.PtBottomBar
 import com.powertracker.ui.Tab
@@ -79,12 +79,16 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
 class ExercisesScreenTest {
-    @get:Rule
+    /** Outermost: the database closes after the compose rule has torn the screen down, and once no query is running. */
+    @get:Rule(order = 0)
+    val database = TestDatabase()
+
+    @get:Rule(order = 1)
     val compose = createComposeRule()
 
     private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
-    private lateinit var db: AppDatabase
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var advice: AdviceRepository
     private lateinit var settings: SettingsRepository
@@ -96,7 +100,6 @@ class ExercisesScreenTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         advice = AdviceRepository(db)
         settings = SettingsRepository(context)
@@ -107,7 +110,6 @@ class ExercisesScreenTest {
     fun tearDown() {
         // The view models made here have no owner to clear them: stop their work before the database goes.
         for (vm in viewModels) vm.viewModelScope.cancel()
-        db.close()
     }
 
     private val viewModels = mutableListOf<ViewModel>()

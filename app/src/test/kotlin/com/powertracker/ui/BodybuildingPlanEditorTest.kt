@@ -12,16 +12,15 @@ import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingMode.BODYBUILDING
 import com.powertracker.domain.model.TrainingMode.POWERLIFTING
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.plan.PlanScreen
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -34,25 +33,25 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
 class BodybuildingPlanEditorTest {
-    @get:Rule
+    /** Outermost: the database closes after the compose rule has torn the screen down, and once no query is running. */
+    @get:Rule(order = 0)
+    val database = TestDatabase()
+
+    @get:Rule(order = 1)
     val compose = createComposeRule()
 
     private val today = LocalDate(2026, 11, 11)
-    private lateinit var db: AppDatabase
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var settings: SettingsRepository
 
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         settings = SettingsRepository(context)
         runBlocking { settings.update { AppSettings(trainingMode = BODYBUILDING) } }
     }
-
-    @After
-    fun tearDown() = db.close()
 
     @Test
     fun plan_editor_hasTwoRepsSteppers_theTopNeverBelowTheBottom() {

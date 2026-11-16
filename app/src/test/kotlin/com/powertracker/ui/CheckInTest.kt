@@ -8,7 +8,6 @@ import com.powertracker.data.AdviceRepository
 import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
@@ -23,6 +22,7 @@ import com.powertracker.domain.model.SetAddition
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.TrainingMode.BODYBUILDING
 import com.powertracker.domain.model.TrainingMode.POWERLIFTING
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.checkin.CheckInStep
 import com.powertracker.ui.checkin.CheckInViewModel
 import com.powertracker.ui.checkin.noteText
@@ -49,6 +49,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -62,7 +63,11 @@ import org.robolectric.Shadows.shadowOf
 class CheckInTest {
     private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
-    private lateinit var db: AppDatabase
+    /** Closes the database after `@After` has stopped the view models, once no query is running. */
+    @get:Rule
+    val database = TestDatabase()
+
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var advice: AdviceRepository
     private lateinit var settings: SettingsRepository
@@ -72,7 +77,6 @@ class CheckInTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         advice = AdviceRepository(db)
         settings = SettingsRepository(context)
@@ -83,7 +87,6 @@ class CheckInTest {
     fun tearDown() {
         collectors.cancel()
         for (vm in viewModels) vm.viewModelScope.cancel()
-        db.close()
     }
 
     private fun await(what: String, condition: () -> Boolean) {

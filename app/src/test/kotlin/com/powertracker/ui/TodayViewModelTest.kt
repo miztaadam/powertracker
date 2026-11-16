@@ -2,12 +2,12 @@ package com.powertracker.ui
 
 import android.content.Context
 import android.os.Looper
+import androidx.lifecycle.viewModelScope
 import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceStatus
@@ -16,6 +16,7 @@ import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.today.TodayAdd
 import com.powertracker.ui.today.TodayViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -34,6 +35,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -43,18 +45,22 @@ import org.robolectric.Shadows.shadowOf
 class TodayViewModelTest {
     private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
-    private lateinit var db: AppDatabase
+    /** Closes the database after `@After` has stopped the view models, once no query is running. */
+    @get:Rule
+    val database = TestDatabase()
+
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var advice: AdviceRepository
     private lateinit var settings: SettingsRepository
     private lateinit var squat: Exercise
     private lateinit var curl: Exercise
     private val collectors = CoroutineScope(Dispatchers.Main)
+    private val viewModels = mutableListOf<androidx.lifecycle.ViewModel>()
 
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         advice = AdviceRepository(db)
         settings = SettingsRepository(context)
@@ -69,10 +75,12 @@ class TodayViewModelTest {
     @After
     fun tearDown() {
         collectors.cancel()
-        db.close()
+        // Nothing of this test may keep reading the database once it is closed.
+        for (vm in viewModels) vm.viewModelScope.cancel()
     }
 
     private fun viewModel() = TodayViewModel(training, advice, settings) { today }.also { vm ->
+        viewModels += vm
         collectors.launch { vm.state.collect {} }
     }
 
@@ -256,7 +264,7 @@ class TodayViewModelTest {
             training.logSet(training.startSession(today.minus(6, DateTimeUnit.DAY), null, null), set(bench, 100.0).copy(rpe = 7.0))
         }
         var clock = today
-        val vm = TodayViewModel(training, advice, settings) { clock }.also { v -> collectors.launch { v.state.collect {} } }
+        val vm = TodayViewModel(training, advice, settings) { clock }.also { v -> viewModels += v; collectors.launch { v.state.collect {} } }
         await("first coach pass") { vm.coachPasses.value >= 1 }
         assertEquals(listOf(squat.id), runBlocking { advice.all() }.filter { it.type == AdviceType.TARGET }.map { targetExercise(it) })
 
@@ -280,7 +288,7 @@ class TodayViewModelTest {
         // A session started before midnight and still on screen after it: "Add to today" follows what Today shows.
         runBlocking { training.startSession(today, null, null) }
         var clock = today
-        val vm = TodayViewModel(training, advice, settings) { clock }.also { v -> collectors.launch { v.state.collect {} } }
+        val vm = TodayViewModel(training, advice, settings) { clock }.also { v -> viewModels += v; collectors.launch { v.state.collect {} } }
         await("state") { !vm.state.value.loading }
 
         clock = today.plus(1, DateTimeUnit.DAY)

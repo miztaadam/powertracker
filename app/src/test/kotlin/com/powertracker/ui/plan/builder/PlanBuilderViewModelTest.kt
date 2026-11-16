@@ -7,7 +7,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.Category
@@ -19,6 +18,7 @@ import com.powertracker.domain.model.TrainingMode.POWERLIFTING
 import com.powertracker.domain.plan.BuilderAnswers
 import com.powertracker.domain.plan.BuilderPick
 import com.powertracker.domain.plan.PlanBuilder
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.library.PickerEntry
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
@@ -39,6 +39,7 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -49,7 +50,11 @@ import org.robolectric.Shadows.shadowOf
 class PlanBuilderViewModelTest {
     private val today = LocalDate(2026, 11, 11) // a Wednesday
 
-    private lateinit var db: AppDatabase
+    /** Closes the database after `@After` has stopped the view models, once no query is running. */
+    @get:Rule
+    val database = TestDatabase()
+
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var settings: SettingsRepository
     private val viewModels = mutableListOf<PlanBuilderViewModel>()
@@ -57,7 +62,6 @@ class PlanBuilderViewModelTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         settings = SettingsRepository(context)
         runBlocking { settings.update { AppSettings(trainingMode = BODYBUILDING, bodybuildingTrainingDays = setOf(MONDAY, WEDNESDAY, FRIDAY)) } }
@@ -66,7 +70,6 @@ class PlanBuilderViewModelTest {
     @After
     fun tearDown() {
         for (vm in viewModels) vm.viewModelScope.cancel()
-        db.close()
     }
 
     private fun await(what: String, condition: () -> Boolean) {

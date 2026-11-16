@@ -19,8 +19,8 @@ import com.powertracker.data.AppSettings
 import com.powertracker.data.BackupService
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.library.checkRpeInfoOpensSheet
 import com.powertracker.ui.plan.PlanScreen
 import com.powertracker.ui.plan.SettingsScreen
@@ -35,7 +35,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.ExternalResource
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -44,27 +43,22 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
 class RpeInfoTest {
-    /** Outermost: the database closes only after the compose rule has disposed the composition. */
+    /** Outermost: the database closes after the compose rule has torn the screen down, and once no query is running. */
     @get:Rule(order = 0)
-    val closeDatabase = object : ExternalResource() {
-        override fun after() {
-            if (::db.isInitialized) db.close()
-        }
-    }
+    val database = TestDatabase()
 
     @get:Rule(order = 1)
     val compose = createComposeRule()
 
     private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
-    private lateinit var db: AppDatabase
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var settings: SettingsRepository
 
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         settings = SettingsRepository(context)
         runBlocking {
