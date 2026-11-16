@@ -82,7 +82,29 @@ test.describe('with motion on', () => {
 
   test('the charts fill in when Progress opens: lines draw, bars grow, markers slide', async ({ page }) => {
     await seed(page, 6)
-    await openProgress(page)
+    // Tap Progress and pause every fill-in animation the moment the charts are in the page, so a busy machine cannot
+    // let one finish (and leave the list) before it is looked at.
+    await page.evaluate(
+      () =>
+        new Promise<void>((done) => {
+          const pause = () => {
+            if (document.querySelectorAll('.gr-fill-in').length < 8) return false
+            document.getAnimations().forEach((a) => {
+              const target = (a.effect as KeyframeEffect | null)?.target
+              if (target instanceof Element && target.closest('.gr-fill-in') != null) a.pause()
+            })
+            return true
+          }
+          const watch = new MutationObserver(() => {
+            if (pause()) {
+              watch.disconnect()
+              done()
+            }
+          })
+          watch.observe(document.body, { childList: true, subtree: true })
+          document.querySelector<HTMLAnchorElement>('nav[aria-label="Main"] a[href="#/progress"]')!.click()
+        }),
+    )
     // The words are all there from the first frame: a screen reader never hears a half-drawn chart.
     await expect(trend(page).getByRole('img', { name: /^Line chart\. Latest: Squat \d/ })).toBeAttached()
     await expect(page.getByText('Squat volume this week: 825 kg')).toBeAttached()
