@@ -133,6 +133,10 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] In Safari (not installed), the install card shows the Share, then Add to Home Screen steps.
 - [ ] The browser bar's colour matches the page in dark and light, on both training sides.
 - [ ] Press a button: it sinks a little and springs back. Settings has no "Vibrate on taps" switch.
+- [ ] Log a set: it slides in.
+- [ ] Open another exercise on Today: it is smooth, with no gap.
+- [ ] With reduce motion on, nothing slides.
+- [ ] Choose Chest, then Barbell, in the picker: Bench is listed.
 
 ## Owner's manual Android checks (the web app in Chrome)
 
@@ -145,6 +149,10 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Press a button: it sinks a little and springs back.
 - [ ] A normal Log set buzzes once. A new squat best buzzes twice.
 - [ ] Turn off "Vibrate on taps" in Settings (under Rest alert): Log set no longer buzzes.
+- [ ] Log a set: it slides in.
+- [ ] Open another exercise on Today: it is smooth, with no gap.
+- [ ] With reduce motion on, nothing slides.
+- [ ] Choose Chest, then Barbell, in the picker: Bench is listed.
 
 ## Owner's manual checks in the Android app itself
 
@@ -152,6 +160,10 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] A normal Log set buzzes once.
 - [ ] Log a new squat best: it buzzes twice.
 - [ ] Turn off "Vibrate on taps" in Settings (under Rest alert): Log set no longer buzzes.
+- [ ] Log a set: it slides in.
+- [ ] Open another exercise on Today: it is smooth, with no gap.
+- [ ] With reduce motion on, nothing slides.
+- [ ] Choose Chest, then Barbell, in the picker: Bench is listed.
 
 ## Where things are
 

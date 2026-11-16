@@ -225,10 +225,24 @@ Spec: `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md`. Plan: 
 - **Reduce motion:** with the phone's reduce-motion setting on, nothing sinks or springs.
 - Not yet tried on a real phone.
 
-### Fixed (owner, 2026-11-16): main lifts show under their body area
-- In the picker and on the Exercises tab, choosing **Chest** then **Barbell** left out Bench: the main lifts sat only under Main lifts.
-- Now a body area also lists its main lift and that lift's variations: Bench under Chest, Squat under Quads, Deadlift under Hamstrings & glutes, Strict press under Shoulders. They still show under Main lifts too.
-- With an area chosen, the Exercises tab's list keeps the search's order instead of area headings.
+## Done: things slide into place (version 1.8, both apps)
+Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-3.md`. This is stage 3 of the new look and motion.
+
+- **What slides:**
+  - Today: the card you open opens in place, and the one closing shrinks with its content. Logged sets slide in and out. Adding or removing an exercise slides the cards below.
+  - Coach: a card you apply or dismiss slides away.
+  - Plan: rows slide past each other when you move one, and slide in and out when you add or delete one.
+- **What does not slide:** changing tabs, the exercise picker, the Exercises tab, dialogs and Progress.
+- **Timing:** about 280 ms; nothing takes longer than 350 ms.
+- **Reduce motion:** with the phone's reduce motion setting on, nothing slides.
+- **On the web:** the tab bar, the header and the rest bar stay still while things slide.
+- **A tap during a slide always lands.** On a computer, a mouse click during a slide can be lost; a finger tap on a phone is not.
+- **Log set on the web:** the new set shows about 14 ms later on average than in 1.7, the one frame the slide needs.
+- **Fixed (found by the owner):** in the picker and on the Exercises tab, choosing **Chest** then **Barbell** left out Bench.
+  - Now a body area also lists its main lift and that lift's variations: Bench under Chest, Squat under Quads, Deadlift under Hamstrings & glutes, Strict press under Shoulders.
+  - They still show under Main lifts too. On the Exercises tab they sit under the chosen area's heading.
+- **Fixed:** Plan rows now fit 306–320 px phones and 130% zoom.
+- Not yet tried on a real phone.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
