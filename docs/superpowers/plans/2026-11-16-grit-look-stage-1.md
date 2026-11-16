@@ -11,7 +11,7 @@
 
 **Tech Stack:** Kotlin, Jetpack Compose (BOM 2026.02.01), Robolectric; React and CSS, vitest, Playwright.
 
-**Spec:** `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md`, §1–3 and stage 1 of §4.
+**Spec:** `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md`, §1–3 and stage 1 of §4. **Approved by the owner on 2026-11-16** (the example-only features stay out; picker thumbnails stay paused).
 
 ## Global Constraints
 - **Every feature stays.** Existing tests pass unedited, except screenshots and the tests that pin the old look. Those are the contrast and token tests, and any test that asserts a card border. Each change to such a test is listed in the report, with the reason.
