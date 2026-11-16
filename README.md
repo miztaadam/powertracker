@@ -135,7 +135,8 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 
 ## Owner's manual Android checks (the web app in Chrome)
 
-- [ ] The install card says to open the browser's menu (⋮), then Install app or Add to Home screen. With a log, its note says "apart from your browser's".
+- [ ] The install card says to open the browser's menu (⋮), then Install app or Add to Home screen. With a log, its note says the log stays in this browser and suggests a backup now and then.
+- [ ] Log a set in Chrome, then install Grit from Chrome's menu and open the installed app: the log is there.
 - [ ] Installed, the launcher icon is round or squircle with the whole "GRIT" mark inside, nothing cut off.
 - [ ] Settings shows Sound, Sound + vibrate, Silent and Off. With Sound + vibrate, rest end beeps and buzzes twice.
 - [ ] On a narrow phone (360 px or less), no screen scrolls sideways. "Sound +" wraps over "vibrate" if needed.

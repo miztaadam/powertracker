@@ -23,7 +23,8 @@ afterEach(async () => {
 
 const COPY = 'Add Grit to your Home Screen: tap Share, then Add to Home Screen. Installed, your training log is protected from being cleared.'
 const MOVE = /The installed app keeps its own log, apart from Safari's, and starts empty\. You have already logged here: tap Export backup before you add Grit to the Home Screen, then restore that file in the installed app \(Plan, Settings, Restore backup\)\./
-const MOVE_ANDROID = /The installed app keeps its own log, apart from your browser's, and starts empty\. You have already logged here: tap Export backup before you add Grit to the Home Screen, then restore that file in the installed app \(Plan, Settings, Restore backup\)\./
+/** Android: Chrome's installed app shares this browser's storage, so there is nothing to move, only a copy to keep. */
+const SHARED_ANDROID = 'Your log stays in this browser, so the installed app opens with it. Export a backup now and then to keep a copy.'
 const settled = () => new Promise((done) => setTimeout(done, 50))
 
 describe('InstallCard', () => {
@@ -104,17 +105,21 @@ describe('InstallCard wording by phone', () => {
     render(<InstallCard db={db} />)
     expect(await screen.findByText(ANDROID_COPY)).toBeInTheDocument()
     expect(screen.queryByText(COPY)).toBeNull()
-    // The separate-storage note names the browser rather than Safari; the export stays as it is.
-    expect(await screen.findByText(MOVE_ANDROID)).toBeInTheDocument()
+    // No separate-storage note: the installed app opens with this log. The export stays.
+    expect(await screen.findByText(SHARED_ANDROID)).toBeInTheDocument()
     expect(screen.queryByText(MOVE)).toBeNull()
     expect(screen.getByRole('button', { name: 'Export backup' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Not now' })).toBeInTheDocument()
   })
 
-  it('installCard_iPhone_keepsTheSafariSteps', async () => {
+  it('installCard_iPhone_keepsTheSafariSteps_andTheSeparateStorageNote', async () => {
     fakeAgent(IPHONE_UA)
+    await startSession(db, TODAY)
     render(<InstallCard db={db} />)
     expect(await screen.findByText(COPY)).toBeInTheDocument()
     expect(screen.queryByText(ANDROID_COPY)).toBeNull()
+    expect(await screen.findByText(MOVE)).toBeInTheDocument()
+    expect(screen.queryByText(SHARED_ANDROID)).toBeNull()
+    expect(screen.getByRole('button', { name: 'Export backup' })).toBeInTheDocument()
   })
 })

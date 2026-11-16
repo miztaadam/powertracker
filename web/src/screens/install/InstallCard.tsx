@@ -28,8 +28,10 @@ async function read(db: GritDb): Promise<Shown> {
 /**
  * Shown while Grit runs in a browser tab and not from the Home Screen: how to install it, and why
  * (an installed app's storage is not cleared by the browser). On iPhone the installed app has its
- * own storage, apart from Safari's (on Android, the browser's), so when there is already a log here
- * the card also says to export it first and restore it in the installed app, and offers the export.
+ * own storage, apart from Safari's, so when there is already a log here the card also says to export
+ * it first and restore it in the installed app. On Android, Chrome's installed app shares this
+ * browser's storage and opens with the log, so the card only suggests keeping a backup now and then.
+ * Either way, with a log here it offers the export.
  * Grit works without installing, so "Not now" puts the card away for good.
  */
 export function InstallCard({ db }: { db: GritDb }) {
@@ -66,7 +68,9 @@ export function InstallCard({ db }: { db: GritDb }) {
       <p className="install-body body-medium">{`${steps} Installed, your training log is protected from being cleared.`}</p>
       {shown.hasLog && (
         <p className="install-body body-medium">
-          {`The installed app keeps its own log, apart from ${android ? "your browser's" : "Safari's"}, and starts empty. You have already logged here: tap Export backup before you add Grit to the Home Screen, then restore that file in the installed app (Plan, Settings, Restore backup).`}
+          {android
+            ? 'Your log stays in this browser, so the installed app opens with it. Export a backup now and then to keep a copy.'
+            : "The installed app keeps its own log, apart from Safari's, and starts empty. You have already logged here: tap Export backup before you add Grit to the Home Screen, then restore that file in the installed app (Plan, Settings, Restore backup)."}
         </p>
       )}
       {note != null && (

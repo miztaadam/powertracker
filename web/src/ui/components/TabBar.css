@@ -31,6 +31,8 @@
   align-items: center;
   justify-content: center;
   width: 64px;
+  /* Five tabs on a phone under 320 px: the pill gives up a few pixels rather than run into the next tab. */
+  max-width: 100%;
   height: 32px;
   border-radius: 16px;
   transition: background-color 150ms ease;

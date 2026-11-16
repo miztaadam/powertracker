@@ -1,43 +1,45 @@
 import { expect, test, type Page } from '@playwright/test'
 import { openOnWednesday, tabBar, tap, weightField } from './helpers'
 
-// The narrowest phones in use: many Android phones are 320–360 px wide (an iPhone is 375 px and up). On each
-// screen, on both training sides, the page must not scroll sideways and nothing may reach past the screen or
-// out of its own box.
+// The narrowest phones in use: many Android phones are 306–360 px wide (an iPhone is 375 px and up). On each
+// screen, on both training sides, at 306 and 320 px, the page must not scroll sideways and nothing may reach past
+// the screen or out of its own box.
 
-test.use({ viewport: { width: 320, height: 568 } })
+/** The rows that scroll sideways on purpose: one line of chips. Everything else that scrolls, scrolls only up and down. */
+const SIDEWAYS_ROWS = '.lib-chips'
 
 /**
- * Things wider than the phone: the page, or any element of the screen, the tab bar, the snackbar or an open
- * sheet reaching past either edge, and text that does not fit its own box. A row that scrolls sideways on
- * purpose (overflow-x auto or scroll) may hold more than the screen.
+ * Things wider than the phone:
+ * - the page, or any scroll container (the screen, a sheet) that scrolls sideways, other than a chip row;
+ * - any element of the screen, the tab bar, the snackbar or an open sheet reaching past either edge, other than
+ *   inside a chip row;
+ * - text that does not fit its own box.
+ * A scroll container's overflow-x computes to auto whenever its overflow-y is auto, so being one says nothing about
+ * scrolling sideways: its scrollWidth does.
  */
-const overflowing = (page: Page) =>
-  page.evaluate(() => {
+const overflowing = (page: Page, sidewaysRows = SIDEWAYS_ROWS) =>
+  page.evaluate((rows) => {
     const found: string[] = []
+    const name = (el: Element) => `${el.tagName.toLowerCase()}.${el.className}`
     if (document.documentElement.scrollWidth > window.innerWidth) found.push('page')
-    const scrollsSideways = (el: Element) => ['auto', 'scroll'].includes(getComputedStyle(el).overflowX)
-    for (const el of document.querySelectorAll<HTMLElement>('.shell-main *, .gr-tabbar *, .gr-snackbar, .gr-snackbar *, .gr-dialog, .gr-dialog *')) {
+    for (const el of document.querySelectorAll<HTMLElement>('.shell-main, .shell-main *, .gr-tabbar *, .gr-snackbar, .gr-snackbar *, .gr-dialog, .gr-dialog *')) {
       if (el.closest('.sr-only')) continue
-      let inScroller = false
-      for (let up = el.parentElement; up != null && up !== document.body; up = up.parentElement) {
-        if (scrollsSideways(up)) {
-          inScroller = true
-          break
-        }
-      }
+      const style = getComputedStyle(el)
+      const scroller = ['auto', 'scroll'].includes(style.overflowX)
+      if (scroller && !el.matches(rows) && el.scrollWidth > el.clientWidth + 1) found.push(`scrolls sideways ${name(el)}: ${el.scrollWidth} > ${el.clientWidth}`)
+      if (el.parentElement?.closest(rows)) continue
       const box = el.getBoundingClientRect()
-      if (!inScroller && box.width > 0 && (box.right > window.innerWidth + 0.5 || box.left < -0.5)) found.push(`${el.tagName.toLowerCase()}.${el.className}`)
+      if (box.width > 0 && (box.right > window.innerWidth + 0.5 || box.left < -0.5)) found.push(`outside ${name(el)}`)
       // Text that does not fit its own box.
       if (
         el.matches('li, p, h1, h2, h3, a, label, .gr-btn-text, .gr-chip-face, .gr-segment-face, .gr-snackbar-message, .lib-row-name, .lib-row-muscles') &&
-        !scrollsSideways(el) &&
+        !scroller &&
         el.scrollWidth > el.clientWidth + 1
       )
-        found.push(`clipped ${el.tagName.toLowerCase()}.${el.className}: ${el.textContent}`)
+        found.push(`clipped ${name(el)}: ${el.textContent}`)
     }
     return found
-  })
+  }, sidewaysRows)
 
 /** Puts the app on the bodybuilding side, straight in IndexedDB, and reloads. */
 async function bodybuilding(page: Page) {
@@ -60,8 +62,10 @@ async function bodybuilding(page: Page) {
   await expect(tabBar(page)).toBeVisible()
 }
 
+for (const width of [306, 320])
 for (const side of ['powerlifting', 'bodybuilding'] as const) {
-  test.describe(`a 320 px phone, ${side} side`, () => {
+  test.describe(`a ${width} px phone, ${side} side`, () => {
+    test.use({ viewport: { width, height: 568 } })
     test.beforeEach(async ({ page }) => {
       await openOnWednesday(page)
       if (side === 'bodybuilding') await bodybuilding(page)

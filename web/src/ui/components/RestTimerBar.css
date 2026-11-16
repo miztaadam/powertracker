@@ -3,6 +3,8 @@
   overflow: hidden;
   border-radius: var(--radius-lg);
   background: var(--container-high);
+  /* A layer of its own above the screen: in dark an open card behind it has the same colour. */
+  box-shadow: var(--elevation-card);
 }
 
 .gr-rest-track {
