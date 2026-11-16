@@ -434,11 +434,31 @@ test('today: the stretch and squeeze lines wrap without clipping at 130% zoom', 
   await expect(card.getByText(squat.stretch!, { exact: true })).toBeVisible()
   await expect(card.getByText('SQUEEZE', { exact: true })).toBeVisible()
   await expect(card.getByText(squat.squeeze!, { exact: true })).toBeVisible()
-  // Between the logged set and the weight entry.
-  const top = async (text: string) => (await card.getByText(text, { exact: true }).boundingBox())!.y
-  const set1 = (await card.getByRole('button', { name: /^Set 1:/ }).boundingBox())!
-  expect(await top('STRETCH')).toBeGreaterThanOrEqual(set1.y + set1.height)
-  expect(await top(squat.squeeze!)).toBeLessThan((await weightField(page).boundingBox())!.y)
+  // Today scrolls the open card to the top with a smooth scroll: measure once it has come to rest, not part way.
+  await expect
+    .poll(() => page.locator('.shell-main').evaluate((el) => new Promise<boolean>((done) => {
+      const before = el.scrollTop
+      requestAnimationFrame(() => requestAnimationFrame(() => done(el.scrollTop === before)))
+    })))
+    .toBe(true)
+  // Between the logged set and the weight entry, every position read in the same frame.
+  const order = await card.evaluate((el) => {
+    const bottomOf = (node: Element | null | undefined) => node!.getBoundingClientRect().bottom
+    const topOf = (node: Element | null | undefined) => node!.getBoundingClientRect().top
+    const labels = el.querySelectorAll('.today-cue-label')
+    const lines = el.querySelectorAll('.today-cue-line')
+    return {
+      // Set 1, the one set done: the button around its figures.
+      setBottom: bottomOf(el.querySelector('.gr-set-visual')?.closest('button')),
+      stretchTop: topOf(labels[0]),
+      squeezeLabel: labels[1]?.textContent,
+      squeezeLineTop: topOf(lines[1]),
+      weightTop: topOf(el.querySelector('input[aria-label="Weight, kilograms"]')),
+    }
+  })
+  expect(order.squeezeLabel).toBe('SQUEEZE')
+  expect(order.stretchTop).toBeGreaterThanOrEqual(order.setBottom)
+  expect(order.squeezeLineTop).toBeLessThan(order.weightTop)
 
   const fit = await card.evaluate((el) => {
     const found: string[] = []
