@@ -3211,8 +3211,8 @@ Stretch and squeeze (bodybuilding side):
 
 Sources of the stretch and squeeze:
 
-- [Exercise Library: Swing](https://www.acefitness.org/resources/everyone/exercise-library/391/swing/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Kettlebell Two Arm Swing](https://exrx.net/WeightExercises/Kettlebell/KBTwoArmSwing). ExRx.net, accessed 2026-11-11.
+- [Certified January 2025: The ACE Do it Better Series: The Two-handed Kettlebell Swing](https://www.acefitness.org/continuing-education/certified/january-2025/8788/the-ace-do-it-better-series-the-two-handed-kettlebell-swing/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
@@ -3361,6 +3361,7 @@ Stretch and squeeze (bodybuilding side):
 
 Sources of the stretch and squeeze:
 
+- [Exercise Library: Stability Ball Reverse Extensions](https://www.acefitness.org/resources/everyone/exercise-library/64/stability-ball-reverse-extensions/). American Council on Exercise (ACE), accessed 2026-11-16.
 - [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
@@ -3424,7 +3425,7 @@ Sources of the stretch and squeeze:
 Stretch and squeeze (bodybuilding side):
 
 - Stretch: Your glutes stretch as your hips lower under control.
-- Squeeze: Squeeze your glutes as you press through your planted foot.
+- Squeeze: Squeeze your glutes as you press up on one foot, abs braced.
 
 Sources of the stretch and squeeze:
 
@@ -3519,6 +3520,18 @@ Sources of the stretch and squeeze:
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your calves stretch as your heels drop below the block.
+- Squeeze: Squeeze your calves as your heels rise as high as they go.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Standing Leg Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/BBStandingCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Donkey calf raise
 
 - [Lever Donkey Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/LVDonkeyCalfRaise). ExRx.net, accessed 2026-11-11.
@@ -3526,6 +3539,18 @@ Sources of the stretch and squeeze:
 - [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your calves stretch as your heels drop below the block.
+- Squeeze: Squeeze your calves as your heels rise as high as they go.
+
+Sources of the stretch and squeeze:
+
+- [Lever Donkey Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/LVDonkeyCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Dumbbell calf raise
 
@@ -3535,6 +3560,18 @@ Sources of the stretch and squeeze:
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your calves stretch as your heels drop below the block.
+- Squeeze: Squeeze your calves as your heels rise as high as they go.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Standing Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/DBStandingCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Leg press calf raise
 
 - [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
@@ -3542,6 +3579,18 @@ Sources of the stretch and squeeze:
 - [Sled Single Leg 45° Leg Press](https://exrx.net/WeightExercises/Quadriceps/SLSingleLeg45LegPress). ExRx.net, accessed 2026-11-11.
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your calves stretch as your heels come back below the platform.
+- Squeeze: Squeeze your calves as you point your ankles all the way.
+
+Sources of the stretch and squeeze:
+
+- [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Seated calf raise
 
@@ -3552,12 +3601,35 @@ Sources of the stretch and squeeze:
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your calves stretch as your heels drop below the platform.
+- Squeeze: Squeeze your calves as your heels rise as high as they go.
+
+Sources of the stretch and squeeze:
+
+- [Lever Seated Calf Raise](https://exrx.net/WeightExercises/Soleus/LVSeatedCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Seated dumbbell calf raise
 
 - [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your calves stretch as your heels drop below the step.
+- Squeeze: Squeeze your calves as your heels rise as high as they go.
+
+Sources of the stretch and squeeze:
+
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Single-leg calf raise
 
@@ -3566,6 +3638,18 @@ Sources of the stretch and squeeze:
 - [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your calves stretch as your heel drops below the step.
+- Squeeze: Squeeze your calves as your heel rises as high as it goes.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Single Leg Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/DBSingleLegCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Smith calf raise
 
@@ -3576,6 +3660,18 @@ Sources of the stretch and squeeze:
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your calves stretch as your heels drop below the block.
+- Squeeze: Squeeze your calves as your heels rise as high as they go.
+
+Sources of the stretch and squeeze:
+
+- [Smith Standing Leg Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/SMStandingCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Standing calf raise
 
 - [Lever Standing Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise). ExRx.net, accessed 2026-11-11.
@@ -3583,6 +3679,18 @@ Sources of the stretch and squeeze:
 - [Sled 45° Calf Press](https://exrx.net/WeightExercises/Gastrocnemius/SL45CalfPress). ExRx.net, accessed 2026-11-11.
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your calves stretch as your heels drop below the block.
+- Squeeze: Squeeze your calves as your heels rise as high as they go.
+
+Sources of the stretch and squeeze:
+
+- [Lever Standing Calf Raise](https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise). ExRx.net, accessed 2026-11-11.
+- [Get Stronger Calves with These 5 Exercises](https://www.acefitness.org/resources/pros/expert-articles/5771/get-stronger-calves-with-these-5-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ## Core
 
@@ -3592,11 +3700,42 @@ Sources of the stretch and squeeze:
 - [Core-strengthening Stability Ball Workout](https://www.acefitness.org/resources/pros/expert-articles/5123/core-strengthening-stability-ball-workout/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: TRX Front Rollout](https://www.acefitness.org/resources/everyone/exercise-library/79/trx-reg-front-rollout/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your abs stretch as you roll out, stopping before your hips sag.
+- Squeeze: Squeeze your abs as you pull the wheel back to your knees.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: TRX Front Rollout](https://www.acefitness.org/resources/everyone/exercise-library/79/trx-reg-front-rollout/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Core-strengthening Stability Ball Workout](https://www.acefitness.org/resources/pros/expert-articles/5123/core-strengthening-stability-ball-workout/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Bicycle crunch
 
 - [Exercise Library: Supine Bicycle Crunches](https://www.acefitness.org/resources/everyone/exercise-library/241/supine-bicycle-crunches/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your obliques stretch as you turn back to switch sides.
+- Squeeze: Squeeze your obliques as your elbow turns to the opposite knee.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Supine Bicycle Crunches](https://www.acefitness.org/resources/everyone/exercise-library/241/supine-bicycle-crunches/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Bird dog
+
+- [Exercise Library: Bird Dog](https://www.acefitness.org/resources/everyone/exercise-library/14/bird-dog/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
 
 - [Exercise Library: Bird Dog](https://www.acefitness.org/resources/everyone/exercise-library/14/bird-dog/). American Council on Exercise (ACE), accessed 2026-11-11.
 
@@ -3607,15 +3746,45 @@ Sources of the stretch and squeeze:
 - [Most Common Weight Training Mistakes](https://exrx.net/WeightTraining/Mistakes). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your abs stretch as you return to the start, hips still.
+- Squeeze: Squeeze your abs as your elbows come toward your thighs.
+
+Sources of the stretch and squeeze:
+
+- [Cable Kneeling Crunch](https://exrx.net/WeightExercises/RectusAbdominis/CBKneelingCrunch). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Cable woodchop
 
 - [Exercise Library: Standing Rotational Chop](https://www.acefitness.org/resources/everyone/exercise-library/349/standing-rotational-chop/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [7 Exercises to Create an Anti-Rotation Progression Sequence](https://www.acefitness.org/resources/pros/expert-articles/5625/7-exercises-to-create-an-anti-rotation-progression-sequence/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your obliques stretch with the handle above your near shoulder.
+- Squeeze: Squeeze your obliques as the handle sweeps down to your far hip.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Standing Rotational Chop](https://www.acefitness.org/resources/everyone/exercise-library/349/standing-rotational-chop/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Dead bug
 
 - [Exercise Library: Supine Dead Bug](https://www.acefitness.org/resources/everyone/exercise-library/147/supine-dead-bug/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Supine Dead Bug](https://www.acefitness.org/resources/everyone/exercise-library/147/supine-dead-bug/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Farmer's walk
 
@@ -3624,10 +3793,30 @@ Sources of the stretch and squeeze:
 - [Strongman Exercises That Work Great for Fitness Clients](https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Farmer's Carry](https://www.acefitness.org/resources/everyone/exercise-library/359/farmer-s-carry/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+
 ### Floor crunch
 
 - [Exercise Library: Crunch](https://www.acefitness.org/resources/everyone/exercise-library/52/crunch/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your abs stretch as you lower slowly back to the floor.
+- Squeeze: Squeeze your abs as your ribs curl toward your hips.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Crunch](https://www.acefitness.org/resources/everyone/exercise-library/52/crunch/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Front plank
 
@@ -3651,11 +3840,31 @@ Sources of the stretch and squeeze:
 - [Most Common Weight Training Mistakes](https://exrx.net/WeightTraining/Mistakes). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your abs stretch as you return to the start, hips still.
+- Squeeze: Squeeze your abs as you curl your trunk into a C shape.
+
+Sources of the stretch and squeeze:
+
+- [Lever Seated Crunch (chest pad)](https://exrx.net/WeightExercises/RectusAbdominis/LVSeatedCrunchChestPad). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Pallof press
 
 - [Exercise Library: Standing Anti-Rotation Press](https://www.acefitness.org/resources/everyone/exercise-library/332/standing-anti-rotation-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [7 Exercises to Create an Anti-Rotation Progression Sequence](https://www.acefitness.org/resources/pros/expert-articles/5625/7-exercises-to-create-an-anti-rotation-progression-sequence/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Standing Anti-Rotation Press](https://www.acefitness.org/resources/everyone/exercise-library/332/standing-anti-rotation-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [7 Exercises to Create an Anti-Rotation Progression Sequence](https://www.acefitness.org/resources/pros/expert-articles/5625/7-exercises-to-create-an-anti-rotation-progression-sequence/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 ### Plate pinch carry
 
@@ -3663,9 +3872,29 @@ Sources of the stretch and squeeze:
 - [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Strongman Exercises That Work Great for Fitness Clients](https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
+
+- [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [How to Improve Grip Strength](https://www.acefitness.org/resources/pros/expert-articles/5765/how-to-improve-grip-strength/). American Council on Exercise (ACE), accessed 2026-11-11.
+
 ### Reverse crunch
 
 - [Exercise Library: Reverse Crunch](https://www.acefitness.org/resources/everyone/exercise-library/76/reverse-crunch/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your abs stretch as you lower, knees back over your hips.
+- Squeeze: Squeeze your abs as your hips roll up toward your ribs.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Reverse Crunch](https://www.acefitness.org/resources/everyone/exercise-library/76/reverse-crunch/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Side plank
 
@@ -3674,9 +3903,29 @@ Sources of the stretch and squeeze:
 - [Side Plank](https://exrx.net/WeightExercises/Obliques/BWSidePlank). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Side Plank with Straight Leg](https://www.acefitness.org/resources/everyone/exercise-library/101/side-plank-with-straight-leg/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Side Plank](https://exrx.net/WeightExercises/Obliques/BWSidePlank). ExRx.net, accessed 2026-11-11.
+
 ### Stability ball rollout
 
 - [Core-strengthening Stability Ball Workout](https://www.acefitness.org/resources/pros/expert-articles/5123/core-strengthening-stability-ball-workout/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your abs stretch as you push the ball out, before your hips sag.
+- Squeeze: Squeeze your abs as you roll the ball back to the start.
+
+Sources of the stretch and squeeze:
+
+- [Core-strengthening Stability Ball Workout](https://www.acefitness.org/resources/pros/expert-articles/5123/core-strengthening-stability-ball-workout/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Suitcase carry
 
@@ -3685,11 +3934,29 @@ Sources of the stretch and squeeze:
 - [NSCA Coach 7.1: Implementing Core Training Concepts into Strength Training for Sport](https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Strongman Exercises That Work Great for Fitness Clients](https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Suitcase Carry](https://www.acefitness.org/resources/everyone/exercise-library/358/suitcase-carry/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+
 ### Waiter's carry
 
 - [NSCA Coach 7.1: Implementing Core Training Concepts into Strength Training for Sport](https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Strongman Exercises That Work Great for Fitness Clients](https://www.acefitness.org/resources/pros/expert-articles/7099/strongman-exercises-that-work-great-for-fitness-clients/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
+
+- [NSCA Coach 7.1: Implementing Core Training Concepts into Strength Training for Sport](https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Increase Hip and Trunk Stability with Loaded Carries for Injury Prevention, Rehabilitation, and Performance](https://www.nsca.com/education/articles/nsca-coach/increase-hip-and-trunk-stability-with-loaded-carries/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 
 ## RPE scale
 

@@ -16,8 +16,8 @@ import com.powertracker.domain.library.Sources
 
 /**
  * Two lines that rest on the guide alone (owner decision 3), for an exercise whose only allowed page asks for more
- * range than the guide at the point a line names, and no other page stops where the guide does. Only the idea's
- * sources are listed.
+ * range than the guide at the point a line names, and no other page stops where the guide does (today only the
+ * machine hip abduction). Only the idea's sources are listed.
  */
 private fun guideOnlyLines(stretch: String, squeeze: String): MuscleFocus.Lines =
     MuscleFocus.Lines(stretch, squeeze, listOf(Sources.PMC_LENGTHENED_PARTIALS, Sources.ACE_MUSCLES_IN_MOTION))
@@ -126,7 +126,7 @@ internal val hamstringsGlutesFocus: List<Pair<String, MuscleFocus>> by lazy {
         // ---- Bridges and thrusts ----
         "Glute bridge" to lines(HIPS_LOWER, HIPS_RISE_BRACED, Sources.ACE_GLUTE_BRIDGE),
         "Single-leg glute bridge" to lines(
-            HIPS_LOWER, "Squeeze your glutes as you press through your planted foot.",
+            HIPS_LOWER, "Squeeze your glutes as you press up on one foot, abs braced.",
             Sources.ACE_SINGLE_LEG_GLUTE_BRIDGE, Sources.EXRX_SINGLE_LEG_HIP_BRIDGE,
         ),
         // ACE 318: "slowly lower the tailbone back to the floor".
@@ -148,9 +148,13 @@ internal val hamstringsGlutesFocus: List<Pair<String, MuscleFocus>> by lazy {
         // ---- Swings ----
         // Fast, but the guide hinges the bell back (hamstrings long) and drives the hips forward to stand (glutes
         // short), as the jump squat and clap push-up get two lines. No pause in the squeeze: the bell keeps moving.
+        // ExRx KBTwoArmSwing (confirmed): the bell swings back under the hips, hip and knee extension drive it up.
+        // The hinge sentence ("pull the kettlebell back between the legs ... push the hips forward") is from ACE's
+        // two-handed swing technique article (Do it Better), not ACE 391, whose own text did not come back; so
+        // that article is cited, not ACE 391.
         "Kettlebell swing" to hamstringLines(
             SWING_HINGE, "Squeeze your glutes as you drive your hips forward.",
-            Sources.ACE_KB_SWING, Sources.EXRX_KB_TWO_ARM_SWING,
+            Sources.EXRX_KB_TWO_ARM_SWING, Sources.ACE_KB_SWING_TECHNIQUE,
         ),
         "Single-arm kettlebell swing" to hamstringLines(
             SWING_HINGE, "Squeeze your glutes as you push your hips forward.",
@@ -160,10 +164,13 @@ internal val hamstringsGlutesFocus: List<Pair<String, MuscleFocus>> by lazy {
         // ---- Hip extensions ----
         // ExRx BWReverseHyperextension raises the legs "as high as possible until legs are nearly straight" and lets
         // some lifters move through the lower back too: more than the guide's "nearly in line with your body", at
-        // the point the squeeze names. No other allowed page covers it, so the lines rest on the guide alone.
-        "Reverse hyper" to guideOnlyLines(
+        // the point the squeeze names, so it is not cited. ACE 64 (Stability Ball Reverse Extensions), the same prone
+        // hip extension of straight legs, raises them "until they are parallel with your torso" and warns against
+        // going past it: the guide's own stop, so it is cited (off the guide's list).
+        "Reverse hyper" to lines(
             "Your glutes stretch as your legs lower back to the start.",
             "Squeeze your glutes as your legs rise nearly in line with you.",
+            Sources.ACE_STABILITY_BALL_REVERSE_EXTENSIONS,
         ),
         // ACE 270: lift the leg only as high as the low back stays controlled; the guide's "Move only at the hip".
         "Quadruped hip extension" to lines(

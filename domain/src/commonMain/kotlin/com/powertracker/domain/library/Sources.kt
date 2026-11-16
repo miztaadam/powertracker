@@ -388,6 +388,8 @@ object Sources {
     val PMC_LONG_MUSCLE_LENGTH_HAMSTRINGS = SourceId("pmc-hamstrings-hypertrophy-long-vs-short-muscle-lengths")
     val PMC_LENGTHENED_PARTIALS = SourceId("pmc-lengthened-partial-repetitions-trained")
     val ACE_MUSCLES_IN_MOTION = SourceId("ace-muscles-in-motion")
+    // Cited by a line only (the reverse hyper's stop), not by a guide.
+    val ACE_STABILITY_BALL_REVERSE_EXTENSIONS = SourceId("ace-stability-ball-reverse-extensions")
     val all: Map<SourceId, Source> = mapOf(
         IPF_RULES_2026 to Source(
             "IPF Technical Rulebook 2026", IPF,
@@ -1701,6 +1703,10 @@ object Sources {
         ACE_MUSCLES_IN_MOTION to Source(
             "Muscles in Motion", ACE,
             "https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/", FOCUS,
+        ),
+        ACE_STABILITY_BALL_REVERSE_EXTENSIONS to Source(
+            "Exercise Library: Stability Ball Reverse Extensions", ACE,
+            "https://www.acefitness.org/resources/everyone/exercise-library/64/stability-ball-reverse-extensions/", FOCUS,
         ),
     )
 }

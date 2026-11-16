@@ -21,7 +21,8 @@ private const val FRONT_LEG_LOW = "Your quads stretch in your front leg, back kn
 private const val FRONT_LEG_STRAIGHTENS = "Squeeze your quads as your front leg straightens."
 private const val FRONT_FOOT_STAND = "Squeeze your quads as you push through your front foot to stand."
 // The leg press guides lower to about a right angle at the knee and stop sooner if the hips lift off the pad; they
-// press until the legs are "straight but not locked".
+// press until the legs are "straight but not locked". The hack squat uses it too: its guide lowers until the knees
+// are just short of fully bent, and the hips on the pad asks for less range than that, never more (see its entry).
 private const val PRESS_BOTTOM = "Your quads stretch at the bottom, hips still on the pad."
 
 /** BodyArea.QUADS: each exercise's stretch and squeeze, keyed by catalogue name. */
