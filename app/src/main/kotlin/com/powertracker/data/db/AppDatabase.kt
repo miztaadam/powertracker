@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import java.util.concurrent.Executor
 
 @Database(
     entities = [
@@ -34,10 +35,15 @@ abstract class AppDatabase : RoomDatabase() {
                 .addCallback(SeedCallback)
                 .build()
 
-        fun inMemory(context: Context): AppDatabase =
+        /**
+         * For tests. [queryExecutor] runs every query and transaction when given, so a test can wait for the ones
+         * still running before it closes the database; the app's database is never closed.
+         */
+        fun inMemory(context: Context, queryExecutor: Executor? = null): AppDatabase =
             Room.inMemoryDatabaseBuilder(context.applicationContext, AppDatabase::class.java)
                 .allowMainThreadQueries()
                 .addCallback(SeedCallback)
+                .apply { if (queryExecutor != null) setQueryExecutor(queryExecutor) }
                 .build()
     }
 
