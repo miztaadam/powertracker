@@ -5,8 +5,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * docs/library/guides.html is one page with every form guide, for the owner to read through. It is generated from
- * [Library.all]; this test fails when it is stale and rewrites it with
+ * docs/library/guides.html is one page with every form guide, for the owner to read through, with each exercise's
+ * stretch and squeeze lines where they are written. It is generated from [Library.all] and [Library.focus]; this test
+ * fails when it is stale and rewrites it with
  * `./gradlew :domain:jvmTest --tests '*GuidesDocTest*' -Pguides.update=true`.
  */
 class GuidesDocTest {
@@ -71,6 +72,13 @@ class GuidesDocTest {
                 section("Setup", e.guide.setup, ordered = false)
                 section("How to do it", e.guide.steps, ordered = true)
                 section("Cues", e.guide.cues, ordered = false)
+                when (val focus = Library.focus(e.name)) {
+                    is MuscleFocus.Lines -> section(
+                        "Stretch and squeeze (bodybuilding side)", listOf("Stretch: ${focus.stretch}", "Squeeze: ${focus.squeeze}"), ordered = false,
+                    )
+                    is MuscleFocus.NoFocus -> section("Stretch and squeeze (bodybuilding side)", listOf(Library.NO_FOCUS_LINE), ordered = false)
+                    null -> Unit
+                }
                 section("Common mistakes", e.guide.mistakes, ordered = false)
                 appendLine("<p class=\"safety\">${esc(Library.SAFETY_LINE)}</p>")
                 appendLine("</article>")

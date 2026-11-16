@@ -17,6 +17,9 @@ object Library {
     /** The fixed last line of every guide sheet. Kept out of the guide data; the UI appends it. */
     const val SAFETY_LINE = "Stop if you feel sharp pain. For an injury or a condition, check with a doctor or physiotherapist."
 
+    /** The one line the guide shows for an exercise with nothing to stretch or squeeze ([MuscleFocus.NoFocus]). */
+    const val NO_FOCUS_LINE = "No stretch or squeeze to aim for here: this one trains you to stay steady."
+
     private val catalogue: List<LibraryExercise> by lazy {
         mainLifts + chest + back + shoulders + arms + quads + hamstringsGlutes + calves + core
     }
@@ -50,6 +53,13 @@ object Library {
 
     /** The entry whose name or alias equals [name] once both are normalised; null when there is none. */
     fun find(name: String): LibraryExercise? = byKey[normalise(name)]
+
+    /**
+     * The stretch and squeeze of the catalogue entry [name] resolves to, the same way [find] resolves names, aliases
+     * and former names, ignoring case; null for anything not in the catalogue or not written yet. The lines are
+     * joined on the first call, never by [all].
+     */
+    fun focus(name: String): MuscleFocus? = find(name)?.let { MuscleFocuses.all[it.name] }
 
     /**
      * Entries in [areas] (empty = any) that need any of [equipment] (empty = any) and match [query]. Ranked:

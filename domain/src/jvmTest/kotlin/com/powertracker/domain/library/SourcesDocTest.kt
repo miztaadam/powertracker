@@ -5,8 +5,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * docs/library/sources.md lists every catalogue exercise's sources, by area, then the RPE sheet's. It is generated
- * from [Library.all], [RpeGuide] and [Sources.all]; this test fails when it is stale and rewrites it with
+ * docs/library/sources.md lists every catalogue exercise's sources (and its stretch and squeeze lines, with theirs), by
+ * area, then the RPE sheet's. It is generated from [Library.all], [Library.focus], [RpeGuide] and [Sources.all]; this
+ * test fails when it is stale and rewrites it with
  * `./gradlew :domain:jvmTest --tests '*SourcesDocTest*' -Psources.update=true`.
  */
 class SourcesDocTest {
@@ -24,10 +25,12 @@ class SourcesDocTest {
     private fun render(): String = buildString {
         appendLine("# Exercise library sources")
         appendLine()
-        appendLine("Generated from `Library.all()`, `RpeGuide` and `Sources.all` by `SourcesDocTest`. Do not edit by hand. Regenerate with")
+        appendLine("Generated from `Library.all()`, `Library.focus`, `RpeGuide` and `Sources.all` by `SourcesDocTest`. Do not edit by hand. Regenerate with")
         appendLine("`./gradlew :domain:jvmTest --tests '*SourcesDocTest*' -Psources.update=true`.")
         appendLine()
         appendLine("Each exercise lists the sources its form guide was checked against. Sources are not shown in the app.")
+        appendLine("Where an exercise has its stretch and squeeze lines, they follow, with their own sources. The lines are worked out")
+        appendLine("from the exercise's own guide, never asking for more range than its steps; no source is claimed for squeezing.")
         for (area in BodyArea.entries) {
             appendLine()
             appendLine("## ${title(area)}")
@@ -43,6 +46,25 @@ class SourcesDocTest {
                 for (id in e.sources) {
                     appendLine(line(id))
                 }
+                val focus = Library.focus(e.name) ?: continue
+                appendLine()
+                when (focus) {
+                    is MuscleFocus.Lines -> {
+                        appendLine("Stretch and squeeze (bodybuilding side):")
+                        appendLine()
+                        appendLine("- Stretch: ${focus.stretch}")
+                        appendLine("- Squeeze: ${focus.squeeze}")
+                    }
+                    is MuscleFocus.NoFocus -> {
+                        appendLine("Stretch and squeeze (bodybuilding side):")
+                        appendLine()
+                        appendLine("- ${Library.NO_FOCUS_LINE}")
+                    }
+                }
+                appendLine()
+                appendLine("Sources of the stretch and squeeze:")
+                appendLine()
+                for (id in focus.sources) appendLine(line(id))
             }
         }
         appendLine()

@@ -20,6 +20,7 @@ import com.powertracker.domain.library.figure
 import com.powertracker.domain.library.hasFigure
 import com.powertracker.domain.library.figures.FigureRenderer
 import com.powertracker.domain.library.figures.Which
+import com.powertracker.domain.library.MuscleFocus
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.library.MuscleGroups
 import com.powertracker.domain.library.RpeGuide
@@ -400,6 +401,18 @@ object GritDomain {
             else -> throw IllegalArgumentException("which: '$which' is not one of start, end")
         }
         return Library.figure(name)?.let { f -> FigureRenderer.shapes(f, panel).map { it.toJs() }.toTypedArray() }
+    }
+
+    /**
+     * The stretch and squeeze of the catalogue entry [name] resolves to (names, aliases and former names, ignoring
+     * case, as [formGuide]): either [JsMuscleFocus.stretch] and [JsMuscleFocus.squeeze], or [JsMuscleFocus.none] (the
+     * fixed line); null for anything not in the catalogue or not written yet. Asked for one exercise at a time, so
+     * [library] carries no lines.
+     */
+    fun muscleFocus(name: String): JsMuscleFocus? = when (val focus = Library.focus(name)) {
+        is MuscleFocus.Lines -> JsMuscleFocus(focus.stretch, focus.squeeze, null)
+        is MuscleFocus.NoFocus -> JsMuscleFocus(null, null, Library.NO_FOCUS_LINE)
+        null -> null
     }
 
     /** The fixed last line of every guide sheet, which the UI appends after the guide. */

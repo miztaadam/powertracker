@@ -1,9 +1,11 @@
 # Exercise library sources
 
-Generated from `Library.all()`, `RpeGuide` and `Sources.all` by `SourcesDocTest`. Do not edit by hand. Regenerate with
+Generated from `Library.all()`, `Library.focus`, `RpeGuide` and `Sources.all` by `SourcesDocTest`. Do not edit by hand. Regenerate with
 `./gradlew :domain:jvmTest --tests '*SourcesDocTest*' -Psources.update=true`.
 
 Each exercise lists the sources its form guide was checked against. Sources are not shown in the app.
+Where an exercise has its stretch and squeeze lines, they follow, with their own sources. The lines are worked out
+from the exercise's own guide, never asking for more range than its steps; no source is claimed for squeezing.
 
 ## Main lifts
 
@@ -13,6 +15,17 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest is at its longest as your upper arms touch the floor.
+- Squeeze: Squeeze your chest as you press to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Floor Press](https://exrx.net/WeightExercises/PectoralSternal/BBFloorPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Bench
 
 - [IPF Technical Rulebook 2026](https://www.powerlifting.sport/fileadmin/ipf/data/rules/technical-rules/english/2026_IPF_Technical_Rulebook__effective_01_March_2026__v3.pdf). International Powerlifting Federation (IPF), accessed 2026-11-11.
@@ -20,11 +33,35 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Barbell Bench Press (power lift)](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift). ExRx.net, accessed 2026-11-11.
 - [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches in the pause with the bar on your chest.
+- Squeeze: Squeeze your chest as you press the bar up.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Bench Press](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress). ExRx.net, accessed 2026-11-11.
+- [Barbell Bench Press (power lift)](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Block pull
 
 - [Barbell Block Pull](https://exrx.net/WeightExercises/GluteusMaximus/BBBlockPull). ExRx.net, accessed 2026-11-11.
 - [Barbell Rack Pull](https://exrx.net/WeightExercises/ErectorSpinae/BBRackPull). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as you lower the bar to the blocks.
+- Squeeze: Squeeze your glutes as you stand tall with your knees locked.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Block Pull](https://exrx.net/WeightExercises/GluteusMaximus/BBBlockPull). ExRx.net, accessed 2026-11-11.
+- [Barbell Rack Pull](https://exrx.net/WeightExercises/ErectorSpinae/BBRackPull). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Board press
 
@@ -32,14 +69,49 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Barbell Bench Press (power lift)](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift). ExRx.net, accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as the bar touches the board.
+- Squeeze: Squeeze your triceps as your elbows lock.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Board Press](https://exrx.net/WeightExercises/PectoralSternal/BBBoardPress). ExRx.net, accessed 2026-11-11.
+- [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Box squat
 
 - [Barbell Box Squat](https://exrx.net/WeightExercises/GluteusMaximus/BBBoxSquat). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as you sit back onto the box.
+- Squeeze: Squeeze your glutes as you drive up to standing.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Box Squat](https://exrx.net/WeightExercises/GluteusMaximus/BBBoxSquat). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Close-grip bench
 
 - [Exercise Library: Close-grip Bench Press](https://www.acefitness.org/resources/everyone/exercise-library/311/close-grip-bench-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Barbell Close Grip Bench Press](https://exrx.net/WeightExercises/Triceps/BBCloseGripBenchPress). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as the bar comes down to your chest.
+- Squeeze: Squeeze your triceps as your elbows lock.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Close Grip Bench Press](https://exrx.net/WeightExercises/Triceps/BBCloseGripBenchPress). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Close-grip Bench Press](https://www.acefitness.org/resources/everyone/exercise-library/311/close-grip-bench-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Deadlift
 
@@ -49,17 +121,54 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [ProSource September 2015: Technique Series: How to Deadlift](https://www.acefitness.org/continuing-education/prosource/september-2015/5579/technique-series-how-to-deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as you push your hips back to lower.
+- Squeeze: Squeeze your glutes as you stand tall with your knees locked.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Deadlift](https://exrx.net/WeightExercises/GluteusMaximus/BBDeadlift). ExRx.net, accessed 2026-11-11.
+- [Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/6/deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Deficit deadlift
 
 - [Barbell Deficit Deadlift](https://exrx.net/WeightExercises/ErectorSpinae/BBDeficitDeadlift). ExRx.net, accessed 2026-11-11.
 - [Barbell Deadlift](https://exrx.net/WeightExercises/GluteusMaximus/BBDeadlift). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch as you squat down to grip the bar.
+- Squeeze: Squeeze your quads as you stand tall with your knees locked.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Deficit Deadlift](https://exrx.net/WeightExercises/ErectorSpinae/BBDeficitDeadlift). ExRx.net, accessed 2026-11-11.
+- [Barbell Deadlift](https://exrx.net/WeightExercises/GluteusMaximus/BBDeadlift). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Front squat
 
 - [Barbell Front Squat](https://exrx.net/WeightExercises/Quadriceps/BBFrontSquat). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Front Squat](https://www.acefitness.org/resources/everyone/exercise-library/22/front-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Front Squat to Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/315/front-squat-to-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom of your squat.
+- Squeeze: Squeeze your quads as your hips and knees straighten.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Front Squat](https://exrx.net/WeightExercises/Quadriceps/BBFrontSquat). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Front Squat](https://www.acefitness.org/resources/everyone/exercise-library/22/front-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### High-bar squat
 
@@ -69,11 +178,35 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Muscle activation varies between high-bar and low-bar back squat](https://pmc.ncbi.nlm.nih.gov/articles/PMC7289144/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom of your squat.
+- Squeeze: Squeeze your quads as your hips and knees straighten.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Larsen press
 
 - [Barbell Bench Press](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress). ExRx.net, accessed 2026-11-11.
 - [Neuromuscular Control During the Bench Press Movement in an Elite Disabled and Able-Bodied Athlete](https://pmc.ncbi.nlm.nih.gov/articles/PMC5765801/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Barbell Bench Press (power lift)](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the bar comes down to your chest.
+- Squeeze: Squeeze your chest as you press the bar up.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Bench Press](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress). ExRx.net, accessed 2026-11-11.
+- [Neuromuscular Control During the Bench Press Movement in an Elite Disabled and Able-Bodied Athlete](https://pmc.ncbi.nlm.nih.gov/articles/PMC5765801/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Long-pause bench
 
@@ -81,11 +214,35 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Barbell Bench Press (power lift)](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift). ExRx.net, accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches in the long pause on your chest.
+- Squeeze: Squeeze your chest as you press the bar up.
+
+Sources of the stretch and squeeze:
+
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
+- [Barbell Bench Press (power lift)](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Pause squat
 
 - [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
 - [Back Squat Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/11/back-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch in the pause at your normal depth.
+- Squeeze: Squeeze your quads as you stand tall.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
+- [Back Squat Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/11/back-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Paused deadlift
 
@@ -93,6 +250,18 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/6/deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch as you bend down to grip the bar.
+- Squeeze: Squeeze your quads as you stand tall with your knees locked.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Deadlift](https://exrx.net/WeightExercises/GluteusMaximus/BBDeadlift). ExRx.net, accessed 2026-11-11.
+- [Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/6/deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Paused deadlift at the knee
 
@@ -102,6 +271,19 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch in the pause just below your knees.
+- Squeeze: Squeeze your hamstrings as you stand tall.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Deadlift](https://exrx.net/WeightExercises/GluteusMaximus/BBDeadlift). ExRx.net, accessed 2026-11-11.
+- [Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/6/deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Pin press
 
 - [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
@@ -109,13 +291,43 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Barbell Bench Press](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress). ExRx.net, accessed 2026-11-11.
 - [Barbell Bench Press (power lift)](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift). ExRx.net, accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the bar settles on the pins.
+- Squeeze: Squeeze your chest as you press the bar up off the pins.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Bench Press](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress). ExRx.net, accessed 2026-11-11.
+- [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Pin squat
 
 - [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
 - [Back Squat Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/11/back-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
+- [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+
 ### Safety-bar squat
+
+- [Safety Barbell Squat](https://exrx.net/WeightExercises/GluteusMaximus/SBSquat). ExRx.net, accessed 2026-11-11.
+- [A Biomechanical Comparison of the Safety-Bar, High-Bar and Low-Bar Squat around the Sticking Region among Recreationally Resistance-Trained Men and Women](https://pmc.ncbi.nlm.nih.gov/articles/PMC8392107/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
 
 - [Safety Barbell Squat](https://exrx.net/WeightExercises/GluteusMaximus/SBSquat). ExRx.net, accessed 2026-11-11.
 - [A Biomechanical Comparison of the Safety-Bar, High-Bar and Low-Bar Squat around the Sticking Region among Recreationally Resistance-Trained Men and Women](https://pmc.ncbi.nlm.nih.gov/articles/PMC8392107/). PubMed Central (peer-reviewed), accessed 2026-11-11.
@@ -126,12 +338,36 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Barbell Bench Press (power lift)](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift). ExRx.net, accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches with the bar held just above your chest.
+- Squeeze: Squeeze your chest as you press the bar up.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Bench Press](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Squat
 
 - [IPF Technical Rulebook 2026](https://www.powerlifting.sport/fileadmin/ipf/data/rules/technical-rules/english/2026_IPF_Technical_Rulebook__effective_01_March_2026__v3.pdf). International Powerlifting Federation (IPF), accessed 2026-11-11.
 - [Back Squat Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/11/back-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
 - [The back squat: A proposed assessment of functional deficits and technical factors that limit performance](https://pmc.ncbi.nlm.nih.gov/articles/PMC4262933/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch with your hip crease below your knee.
+- Squeeze: Squeeze your quads as you stand tall with your knees locked.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
+- [Back Squat Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/11/back-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Strict press
 
@@ -141,10 +377,33 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Upper extremity weightlifting injuries: Diagnosis and management](https://pmc.ncbi.nlm.nih.gov/articles/PMC5895929/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch with the bar at the front of your neck.
+- Squeeze: Squeeze your front delts as you press to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Military Press](https://exrx.net/WeightExercises/DeltoidAnterior/BBMilitaryPress). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Standing Shoulder Press](https://www.acefitness.org/resources/everyone/exercise-library/71/standing-shoulder-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Sumo deadlift
 
 - [Barbell Sumo Deadlift](https://exrx.net/WeightExercises/ErectorSpinae/BBSumoDeadlift). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as you push your hips back to lower.
+- Squeeze: Squeeze your glutes as you stand tall with your shoulders back.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Sumo Deadlift](https://exrx.net/WeightExercises/ErectorSpinae/BBSumoDeadlift). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Tempo squat
 
@@ -153,10 +412,33 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
 - [Back Squat Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/11/back-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch as you slowly reach your normal depth.
+- Squeeze: Squeeze your quads as you drive up to standing.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
+- [The effects of eccentric phase tempo in squats on hypertrophy, strength, and contractile properties of the quadriceps femoris muscle](https://pmc.ncbi.nlm.nih.gov/articles/PMC11754408/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Trap-bar deadlift
 
 - [Trap Bar Deadlift](https://exrx.net/WeightExercises/GluteusMaximus/TBDeadlift). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as you push your hips back to lower.
+- Squeeze: Squeeze your glutes as your hips and knees straighten fully.
+
+Sources of the stretch and squeeze:
+
+- [Trap Bar Deadlift](https://exrx.net/WeightExercises/GluteusMaximus/TBDeadlift). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Wide-grip bench
 
@@ -166,6 +448,18 @@ Each exercise lists the sources its form guide was checked against. Sources are 
 - [Comparison of Muscle Activity between the Horizontal Bench Press and the Seated Chest Press Exercises Using Several Grips](https://pmc.ncbi.nlm.nih.gov/articles/PMC10203828/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the bar comes down to your chest.
+- Squeeze: Squeeze your chest as you press the bar up.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Bench Press](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress). ExRx.net, accessed 2026-11-11.
+- [Barbell Bench Press (power lift)](https://exrx.net/WeightExercises/PectoralSternal/BBBenchPressPowerLift). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ## Chest
 

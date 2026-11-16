@@ -246,6 +246,13 @@ data class JsFormGuide(
     val mistakes: Array<String>,
 )
 
+/**
+ * An exercise's stretch and squeeze: exactly one of [none] (the fixed line for a hold or a carry) or the pair
+ * [stretch] and [squeeze] is set.
+ */
+@JsExport
+data class JsMuscleFocus(val stretch: String?, val squeeze: String?, val none: String?)
+
 /** The RPE sheet's heading and its lines, in order. Unlike a form guide it takes no safety line. */
 @JsExport
 data class JsRpeGuide(val title: String, val lines: Array<String>)

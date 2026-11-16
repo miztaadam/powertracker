@@ -20,6 +20,7 @@ object Sources {
     private const val L10 = "2026-11-11"
     private const val FIX = "2026-11-11"
     private const val RPE = "2026-11-12"
+    private const val FOCUS = "2026-11-16"
 
     // Main lifts and their variations
     val IPF_RULES_2026 = SourceId("ipf-technical-rules-2026")
@@ -381,6 +382,12 @@ object Sources {
     val PMC_RIR_RPE_APPLICATION = SourceId("pmc-rir-based-rpe-scale-application")
     val PMC_RPE_SCALES_VALIDITY_REVIEW = SourceId("pmc-rpe-scales-validity-systematic-review")
     val PMC_REGULATING_MONITORING_RT = SourceId("pmc-methods-regulating-monitoring-resistance-training")
+
+    // Stretch and squeeze (stage 4): the general sources for the idea, cited by the lines rather than the guides.
+    // Nothing is claimed for squeezing.
+    val PMC_LONG_MUSCLE_LENGTH_HAMSTRINGS = SourceId("pmc-hamstrings-hypertrophy-long-vs-short-muscle-lengths")
+    val PMC_LENGTHENED_PARTIALS = SourceId("pmc-lengthened-partial-repetitions-trained")
+    val ACE_MUSCLES_IN_MOTION = SourceId("ace-muscles-in-motion")
     val all: Map<SourceId, Source> = mapOf(
         IPF_RULES_2026 to Source(
             "IPF Technical Rulebook 2026", IPF,
@@ -1681,6 +1688,19 @@ object Sources {
         PMC_REGULATING_MONITORING_RT to Source(
             "Methods for Regulating and Monitoring Resistance Training", PMC,
             "https://pmc.ncbi.nlm.nih.gov/articles/PMC7706636/", RPE,
+        ),
+        PMC_LONG_MUSCLE_LENGTH_HAMSTRINGS to Source(
+            "Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/", FOCUS,
+        ),
+        PMC_LENGTHENED_PARTIALS to Source(
+            "Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions " +
+                "during resistance training in trained individuals", PMC,
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/", FOCUS,
+        ),
+        ACE_MUSCLES_IN_MOTION to Source(
+            "Muscles in Motion", ACE,
+            "https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/", FOCUS,
         ),
     )
 }

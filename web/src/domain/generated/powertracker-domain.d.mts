@@ -68,6 +68,7 @@ export declare namespace GritDomain {
             figureInfo(name: string): Nullable<JsFigureInfo>;
             hasFigure(name: string): boolean;
             figureShapes(name: string, which: string): Nullable<Array<JsFigureShape>>;
+            muscleFocus(name: string): Nullable<JsMuscleFocus>;
             safetyLine(): string;
             rpeGuide(): JsRpeGuide;
             ratioRanges(): Array<JsRatioRange>;
@@ -541,6 +542,22 @@ export declare namespace JsFormGuide {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsFormGuide;
+    }
+}
+export declare class JsMuscleFocus {
+    constructor(stretch: Nullable<string>, squeeze: Nullable<string>, none: Nullable<string>);
+    get stretch(): Nullable<string>;
+    get squeeze(): Nullable<string>;
+    get none(): Nullable<string>;
+    copy(stretch?: Nullable<string>, squeeze?: Nullable<string>, none?: Nullable<string>): JsMuscleFocus;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsMuscleFocus {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsMuscleFocus;
     }
 }
 export declare class JsRpeGuide {
