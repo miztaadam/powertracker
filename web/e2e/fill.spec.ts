@@ -205,11 +205,13 @@ test.describe('with motion on', () => {
     await openProgress(page)
     await expect.poll(() => complete(page)).toBe('complete')
     const before = await trend(page).elementHandle()
+    const sparkBefore = await page.locator('.gr-spark.gr-fill-in').elementHandle()
     await page.getByText('8 wk').click()
     await page.getByText('All', { exact: true }).click()
     await expect(page.getByRole('radio', { name: 'All' })).toBeChecked()
-    // A new line, drawn in again.
+    // A new line, drawn in again; the total sparkline too, as on Android.
     expect(await trend(page).evaluate((el, old) => el !== old, before)).toBe(true)
+    expect(await page.locator('.gr-spark.gr-fill-in').evaluate((el, old) => el !== old, sparkBefore)).toBe(true)
     await expect.poll(() => complete(page)).toBe('complete')
     await expect(trend(page).locator('polyline')).toHaveCount(3)
   })

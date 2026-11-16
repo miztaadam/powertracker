@@ -44,7 +44,7 @@ export function SummaryCard({ state, onOpenLift }: { state: ProgressState; onOpe
             <NumberDisplay value={formatKg(state.totalKg)} unit="kg" label={totalLabel} size="hero" />
             {totalChange && <Pill text={`${totalChange.text} in 4 weeks`} tone={totalChange.tone} icon={totalChange.icon} />}
           </div>
-          {state.totalTrend.length >= 2 && <Sparkline values={state.totalTrend.map((p) => p.kg)} color="var(--accent-text)" fillIn className="progress-total-spark" />}
+          {state.totalTrend.length >= 2 && <Sparkline key={state.range} values={state.totalTrend.map((p) => p.kg)} color="var(--accent-text)" fillIn className="progress-total-spark" />}
         </div>
       ) : (
         <div>
