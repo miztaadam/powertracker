@@ -182,16 +182,6 @@ class FormGuideSheetTest {
     }
 
     @Test
-    fun guideSheet_bodybuilding_notYetWritten_hasNoSection() {
-        // A catalogue exercise whose lines are not written yet has its guide but no section (none once all are written).
-        val unwritten = Library.all().firstOrNull { Library.focus(it.name) == null } ?: return
-        show(unwritten.name, mode = TrainingMode.BODYBUILDING)
-        compose.onNode(hasText("Cues") and inSheet).assertExists()
-        compose.onNode(hasText("Stretch and squeeze") and inSheet).assertDoesNotExist()
-        compose.onNode(hasText(Library.NO_FOCUS_LINE) and inSheet).assertDoesNotExist()
-    }
-
-    @Test
     fun guideSheet_switchingTheMode_showsOrHidesTheSectionAtOnce() {
         show("Squat")
         compose.onNode(hasText("Stretch and squeeze") and inSheet).assertDoesNotExist()

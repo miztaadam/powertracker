@@ -126,8 +126,6 @@ The two whole-week limits, not from the sources, approved by the owner on 2026-1
 
 Not yet tried on real phones: the check-in line in README's manual checklist matters.
 
-Still to come, with its own plan (spec §8): stage 4, stretch and squeeze cues.
-
 ## Bodybuilding mode: stage 4 done, stretch and squeeze cues (version 1.5, both apps)
 Plan: `docs/superpowers/plans/2026-11-15-grit-bodybuilding-mode-stage-4.md`.
 
@@ -144,12 +142,12 @@ The idea's sources (recorded in `Sources.kt` as general sources, not shown in th
 
 How the lines were written:
 - The sources often say where a muscle is stretched, but not for every exercise, and none says where to squeeze. So each line is worked out from the exercise's own guide by rules F1–F7 in the plan: it names a muscle the exercise trains; the stretch is where the guide's steps make that muscle longest, never more range than the guide allows; the squeeze is the end of the guide's lifting step; nothing goes against the guide's cues, mistakes or safety notes; an exercise with no real stretch or squeeze gets the fixed line; each line is one plain sentence; and each exercise lists its ExRx or ACE pages.
-- An independent review checked every batch against each exercise's guide and the allowed sources, and the fixes it asked for were made.
+- An independent review checked every batch against each exercise's guide and the allowed sources, and the fixes it asked for were made, or settled by a ruling and listed under Follow-ups.
 - Nothing claims a benefit for squeezing; it is there because the owner asked for the focus.
 
 The designer's own calls, not from the sources, approved by the owner on 2026-11-16:
 - Each line is at most 64 characters.
-- The fixed line's wording, above.
+- The fixed line's wording, above. The owner has since been asked whether to shorten it, because it fits the sled push, the carries and the woodchop poorly.
 
 Not yet tried on real phones: the stretch and squeeze line in README's manual checklist matters.
 

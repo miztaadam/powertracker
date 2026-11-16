@@ -171,7 +171,7 @@ describe('FormGuideSheet stretch and squeeze', () => {
   })
 
   it('guideSheet_bodybuilding_notWrittenYet_hasNoSection', () => {
-    // A catalogue exercise whose lines are not written yet: the lookup gives null, and the sheet is as on the other side.
+    // Every catalogue exercise has lines now, so this fakes the lookup giving null: the sheet is as on the other side.
     const lookup = vi.spyOn(grit, 'muscleFocus').mockImplementation(() => null)
     try {
       const guide = grit.findInLibrary('Squat')!.guide

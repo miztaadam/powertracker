@@ -27,6 +27,7 @@ sealed interface MuscleFocus {
 /**
  * Every exercise's lines, keyed by catalogue name exactly, joined from the area files under `focus/`. Each area file
  * holds a `by lazy` list of pairs (not a map, so a name written twice is caught here rather than silently dropped).
+ * Every catalogue name has an entry (MuscleFocusTest), so [Library.focus] is null only outside the catalogue.
  * Nothing is built until the first [Library.focus] call, so `Library.all()` and the picker do not pay for it.
  */
 internal object MuscleFocuses {

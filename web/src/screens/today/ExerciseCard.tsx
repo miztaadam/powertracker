@@ -190,7 +190,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
 /**
  * Where the muscle stretches and where to squeeze it (stage 4), between the logged sets and the weight entry as the
  * mockup has it: bodybuilding side only. Nothing at all, taking no room, for an exercise with no lines: one with
- * nothing to aim for (a plank), one not written yet, or the lifter's own.
+ * nothing to aim for (a plank), or the lifter's own (outside the catalogue).
  */
 function Cues({ name }: { name: string }) {
   const focus = muscleFocus(name)

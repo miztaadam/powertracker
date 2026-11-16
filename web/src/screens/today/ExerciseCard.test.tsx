@@ -553,7 +553,7 @@ describe('stretch and squeeze on the exercise card', () => {
   })
 
   it('bodybuildingCard_notWrittenYet_showsNothing', async () => {
-    // A catalogue exercise whose lines are not written yet: the lookup gives null.
+    // Every catalogue exercise has lines now, so this fakes the lookup giving null: the card shows nothing.
     const lookup = vi.spyOn(grit, 'muscleFocus').mockImplementation(() => null)
     try {
       await onlyToday('BODYBUILDING', squatId)

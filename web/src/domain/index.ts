@@ -34,7 +34,7 @@ export type MuscleFocus = { kind: 'lines'; stretch: string; squeeze: string } | 
 
 /**
  * The stretch and squeeze lines for the exercise `name`, matched like its guide (a catalogue name or alias, ignoring
- * case). Null for the lifter's own exercise, and for a catalogue exercise whose lines are not written yet.
+ * case). Null only for a name outside the catalogue (the lifter's own exercise): every catalogue exercise has lines.
  */
 export function muscleFocus(name: string): MuscleFocus | null {
   const focus = grit.muscleFocus(name)

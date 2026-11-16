@@ -56,7 +56,7 @@ object Library {
 
     /**
      * The stretch and squeeze of the catalogue entry [name] resolves to, the same way [find] resolves names, aliases
-     * and former names, ignoring case; null for anything not in the catalogue or not written yet. The lines are
+     * and former names, ignoring case; null only for a name outside the catalogue (the lifter's own exercise). The lines are
      * joined on the first call, never by [all].
      */
     fun focus(name: String): MuscleFocus? = find(name)?.let { MuscleFocuses.all[it.name] }

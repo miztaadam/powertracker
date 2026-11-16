@@ -406,7 +406,7 @@ object GritDomain {
     /**
      * The stretch and squeeze of the catalogue entry [name] resolves to (names, aliases and former names, ignoring
      * case, as [formGuide]): either [JsMuscleFocus.stretch] and [JsMuscleFocus.squeeze], or [JsMuscleFocus.none] (the
-     * fixed line); null for anything not in the catalogue or not written yet. Asked for one exercise at a time, so
+     * fixed line); null only for a name outside the catalogue (the lifter's own exercise). Asked for one exercise at a time, so
      * [library] carries no lines.
      */
     fun muscleFocus(name: String): JsMuscleFocus? = when (val focus = Library.focus(name)) {
