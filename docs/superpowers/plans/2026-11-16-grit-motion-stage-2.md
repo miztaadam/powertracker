@@ -51,7 +51,7 @@
   - Android: Robolectric screenshots use `LocalMotion` off.
   - Web: Playwright passes `animations: 'disabled'` already; also set `data-motion="off"` for the e2e project.
 - **Haptics:**
-  - Never on the powerlifting or bodybuilding side's data alone. Each buzz goes with something you can see on screen.
+  - Each buzz goes with something you can see on screen.
   - No buzz while the setting is off.
   - On the web, none where `navigator.vibrate` is missing.
 - **Fixed rules:**
