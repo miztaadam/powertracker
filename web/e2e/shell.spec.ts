@@ -69,3 +69,56 @@ test('the page background is painted on html too, so overscroll and the system b
   expect(html).toBe(body)
   expect(html).not.toBe('rgba(0, 0, 0, 0)')
 })
+
+// iOS 26 Home Screen app (WebKit bug 301108): with viewport-fit=cover and a black-translucent status bar, the
+// viewport is short by the status bar's height, so the shell reaches down by that inset too, capped at the large
+// viewport so it can never run past the screen. Chromium cannot pretend to be in standalone display mode, so the
+// rule is reached through the class the head script sets there (`ios-standalone`).
+test.describe('the iOS Home Screen app', () => {
+  async function measure(page: Page) {
+    return page.evaluate(() => {
+      const probe = document.createElement('div')
+      probe.style.cssText = 'position: fixed; top: 0; height: 100lvh; visibility: hidden'
+      document.body.append(probe)
+      const lvh = probe.getBoundingClientRect().height
+      probe.remove()
+      const shell = document.querySelector('.shell')!
+      return {
+        lvh,
+        viewport: window.innerHeight,
+        shellTop: shell.getBoundingClientRect().top,
+        shellHeight: shell.getBoundingClientRect().height,
+        // The minimum as the box shows it: html squeezed to 10 px is held up by its min-height, if it has one.
+        htmlMinHeight: (() => {
+          const html = document.documentElement
+          html.style.height = '10px'
+          const held = html.getBoundingClientRect().height
+          html.style.height = ''
+          return held === 10 ? 0 : held
+        })(),
+        pageScrolls: document.scrollingElement!.scrollHeight > window.innerHeight,
+      }
+    })
+  }
+
+  test('reaches down by the status-bar inset, capped at the large viewport', async ({ page }) => {
+    const cdp = await page.context().newCDPSession(page)
+    await cdp.send('Emulation.setSafeAreaInsetsOverride' as never, { insets: { top: 59, bottom: 34, left: 0, right: 0 } } as never)
+    await openOnWednesday(page)
+    const before = await measure(page)
+    // Outside the Home Screen app nothing changes: the shell is the viewport, html has no minimum.
+    expect(before.shellHeight).toBe(before.viewport)
+    expect(before.htmlMinHeight).toBe(0)
+
+    await page.evaluate(() => document.documentElement.classList.add('ios-standalone'))
+    const after = await measure(page)
+    const expected = Math.min(after.lvh, after.viewport + 59)
+    expect(after.shellTop).toBe(0)
+    expect(after.shellHeight).toBe(expected)
+    // The page behind can never show a strip either.
+    expect(after.htmlMinHeight).toBe(expected)
+    // The 1.5rem strip and the trimmed tab inset are as before.
+    expect(px(await page.locator('.shell-main').evaluate((el) => getComputedStyle(el).paddingTop))).toBe(59 + 24)
+    expect(px(await tabBar(page).evaluate((el) => getComputedStyle(el).paddingBottom))).toBe(20)
+  })
+})
