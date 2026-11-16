@@ -50,6 +50,9 @@ import kotlinx.datetime.LocalDate
 import com.powertracker.ui.coach.SwapCard
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import com.powertracker.ui.library.ExercisePickerContent
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.performTextReplacement
 
 /**
  * Press feedback and the buzz (stage 2, Task 2): a press sinks and springs back only with motion on, never on a
@@ -371,5 +374,22 @@ class PressAndHapticsTest {
         assertTrue("a quick tap sinks visibly ($smallest vs $rest)", smallest < rest * 0.985f)
         frames(500)
         assertEquals(rest, width("Log set"), 0.01f)
+    }
+
+    @Test
+    fun aPickerRow_sinksWhilePressed() {
+        show {
+            ExercisePickerContent("Add exercise", emptyList(), emptyList(), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {})
+        }
+        compose.onNodeWithTag("exercise-search").performTextReplacement("Hammer")
+        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("exercise-Hammer curl")).fetchSemanticsNodes().isNotEmpty() }
+        val rest = width("Hammer curl")
+        compose.mainClock.autoAdvance = false
+        compose.onNodeWithTag("exercise-Hammer curl").performTouchInput { down(center) }
+        frames(250)
+        assertEquals(rest * PRESS_SCALE, width("Hammer curl"), rest * 0.003f)
+        compose.onNodeWithTag("exercise-Hammer curl").performTouchInput { cancel() }
+        frames(600)
+        assertEquals(rest, width("Hammer curl"), 0.01f)
     }
 }

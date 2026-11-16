@@ -74,6 +74,7 @@ import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.Exercise
 import com.powertracker.ui.components.ChoiceChip
 import com.powertracker.ui.components.pressScale
+import com.powertracker.ui.theme.LocalMotion
 import com.powertracker.ui.components.cardHighlight
 import com.powertracker.ui.components.cardShadow
 import com.powertracker.ui.components.EmptyState
@@ -541,13 +542,15 @@ private fun BrowserRow(
 ) {
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
-    // The row sinks while pressed; a press that becomes a scroll of the list springs back and picks nothing.
-    val interaction = remember { MutableInteractionSource() }
+    // The row sinks while pressed; a press that becomes a scroll of the list springs back and picks nothing. With
+    // motion off there is no sink, and no source of its own: the click then sets up its ripple only when first touched,
+    // as before, so a list of rows costs nothing more to open.
+    val interaction = if (LocalMotion.current) remember { MutableInteractionSource() } else null
     val indication = LocalIndication.current
     Column {
         Row(
             Modifier
-                .pressScale(interaction)
+                .then(if (interaction != null) Modifier.pressScale(interaction) else Modifier)
                 .fillMaxWidth()
                 .heightIn(min = 64.dp)
                 .then(
