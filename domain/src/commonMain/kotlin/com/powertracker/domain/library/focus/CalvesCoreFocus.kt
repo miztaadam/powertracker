@@ -15,10 +15,10 @@ import com.powertracker.domain.library.Sources
 // test's "Squeeze your X as ..." with the same point: ExRx's calf pages raise the heels "as high as possible". It is
 // the ankle's range, not the spine's, so F4's "as far as you can on a loaded spine" does not apply.
 //
-// Core: F5 decides. A guide that holds the trunk still while the body is held, carried, or the limbs move (planks,
-// carries, the Pallof press, the dead bug, the bird dog) gets the fixed line. A guide whose steps move the trunk
-// (crunches, the chop) or roll the body out and back (rollouts) gets two lines, the stretch only as far as the
-// guide's range and the rollouts keeping their guide's low-back stop (F4).
+// Core: F5 decides. A guide that holds the trunk still while the body is held, carried, rolled out, or turned from
+// the hips (planks, carries, the Pallof press, the rollouts, the chop, the dead bug, the bird dog) gets the fixed
+// line. A guide whose steps curl or twist the trunk itself (the crunches) gets two lines, the stretch only as far as
+// the guide's range (F2, F4).
 
 private const val CALVES_SQUEEZE = "Squeeze your calves as your heels rise as high as they go."
 private const val CALVES_BELOW_BLOCK = "Your calves stretch as your heels drop below the block."
@@ -96,31 +96,21 @@ internal val calvesCoreFocus: List<Pair<String, MuscleFocus>> by lazy {
         "Pallof press" to MuscleFocus.NoFocus(
             listOf(Sources.ACE_STANDING_ANTI_ROTATION_PRESS, Sources.ACE_ANTI_ROTATION_PROGRESSION),
         ),
-        // Not anti-rotation: the guide turns the chest and belly together under load, from above the near shoulder
-        // to the far hip, and returns under control. "Trains you to stay steady" would be false for it. The lines
-        // name the handle's two ends, not a twist of the spine. ACE 349: the chest and stomach turn together.
-        "Cable woodchop" to lines(
-            "Your obliques stretch with the handle above your near shoulder.",
-            "Squeeze your obliques as the handle sweeps down to your far hip.",
-            Sources.ACE_STANDING_ROTATIONAL_CHOP,
-        ),
+        // The guide's "trunk and hips turn together" (cue: "Chest and belly turn together"; mistake: twisting with
+        // the shoulders only) turns the trunk as one block with the hips, so the obliques hold one length while they
+        // pass the force through: no long or short point (F5). ACE 349: move the chest and stomach together. The
+        // fixed line's wording for a moving drill is with the owner, as for the sled push.
+        "Cable woodchop" to MuscleFocus.NoFocus(listOf(Sources.ACE_STANDING_ROTATIONAL_CHOP)),
 
         // ---- Rollouts ----
-        // The stretch keeps the guide's stop. ExRx BWKneelingWheelRollout rolls out as far as the shoulders go,
-        // lowering the torso to the floor, past the guide's stop, so it is not cited. The two ACE pages the guide's
-        // stop comes from are: TRX front rollout (no arching or sagging) and the stability ball kneeling roll-out
-        // ("stop if your hips start to sag").
-        "Ab wheel rollout" to lines(
-            "Your abs stretch as you roll out, stopping before your hips sag.",
-            "Squeeze your abs as you pull the wheel back to your knees.",
-            Sources.ACE_TRX_FRONT_ROLLOUT, Sources.ACE_STABILITY_BALL_CORE,
-        ),
-        // The same rollout on forearms, with the same stop (ACE 5123: "stop if your hips start to sag").
-        "Stability ball rollout" to lines(
-            "Your abs stretch as you push the ball out, before your hips sag.",
-            "Squeeze your abs as you roll the ball back to the start.",
-            Sources.ACE_STABILITY_BALL_CORE,
-        ),
+        // A moving plank: the guide keeps the trunk stiff ("keep your trunk from sagging") while the shoulders and
+        // hips move, and the return is "by bending at your hips", so the abs hold one length (F5, like the dead
+        // bug). ExRx BWKneelingWheelRollout makes the abs stabilizers, working nearly isometrically. The guide's
+        // stop before the hips sag stays in the guide. Its pages: TRX front rollout and ACE 5123.
+        "Ab wheel rollout" to MuscleFocus.NoFocus(listOf(Sources.ACE_TRX_FRONT_ROLLOUT, Sources.ACE_STABILITY_BALL_CORE)),
+        // The same on forearms: the guide keeps the trunk still, hips in line with the body. ExRx BWBallRollout: the
+        // abs work almost isometrically. ACE 5123 keeps the abs engaged throughout and stops before the hips sag.
+        "Stability ball rollout" to MuscleFocus.NoFocus(listOf(Sources.ACE_STABILITY_BALL_CORE)),
 
         // ---- Crunches ----
         // The guide's range is the floor and back: the stretch is its "Lower slowly back down", no arching.

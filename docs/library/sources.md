@@ -3702,15 +3702,12 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your abs stretch as you roll out, stopping before your hips sag.
-- Squeeze: Squeeze your abs as you pull the wheel back to your knees.
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
 
 Sources of the stretch and squeeze:
 
 - [Exercise Library: TRX Front Rollout](https://www.acefitness.org/resources/everyone/exercise-library/79/trx-reg-front-rollout/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Core-strengthening Stability Ball Workout](https://www.acefitness.org/resources/pros/expert-articles/5123/core-strengthening-stability-ball-workout/). American Council on Exercise (ACE), accessed 2026-11-11.
-- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
-- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Bicycle crunch
 
@@ -3764,14 +3761,11 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your obliques stretch with the handle above your near shoulder.
-- Squeeze: Squeeze your obliques as the handle sweeps down to your far hip.
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
 
 Sources of the stretch and squeeze:
 
 - [Exercise Library: Standing Rotational Chop](https://www.acefitness.org/resources/everyone/exercise-library/349/standing-rotational-chop/). American Council on Exercise (ACE), accessed 2026-11-11.
-- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
-- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Dead bug
 
@@ -3918,14 +3912,11 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your abs stretch as you push the ball out, before your hips sag.
-- Squeeze: Squeeze your abs as you roll the ball back to the start.
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
 
 Sources of the stretch and squeeze:
 
 - [Core-strengthening Stability Ball Workout](https://www.acefitness.org/resources/pros/expert-articles/5123/core-strengthening-stability-ball-workout/). American Council on Exercise (ACE), accessed 2026-11-11.
-- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
-- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Suitcase carry
 
