@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
-import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.theme.BodybuildingDarkColorScheme
 import com.powertracker.ui.theme.BodybuildingDarkPtColors
 import com.powertracker.ui.theme.BodybuildingLightColorScheme
@@ -133,19 +132,16 @@ class TokenContrastTest {
     /** The soft card (DESIGN.md "Space and shape"), as the web's `--elevation-card`: one shadow per scheme, both sides. */
     @Test
     fun cardShadow_isPinned() {
-        val dark = cardShadowFor(TrainingMode.POWERLIFTING, darkTheme = true)
+        val dark = cardShadowFor(darkTheme = true)
         assertEquals(8.dp, dark.elevation)
         assertEquals(Color.Black.copy(alpha = 0.35f), dark.ambient)
         assertEquals(Color.Black.copy(alpha = 0.35f), dark.spot)
         assertEquals(Color.White.copy(alpha = 0.05f), dark.highlight)
-        val light = cardShadowFor(TrainingMode.POWERLIFTING, darkTheme = false)
+        val light = cardShadowFor(darkTheme = false)
         assertEquals(8.dp, light.elevation)
         assertEquals(Color(0xFF111315).copy(alpha = 0.06f), light.ambient)
         assertEquals(Color(0xFF111315).copy(alpha = 0.08f), light.spot)
         assertEquals(Color.Transparent, light.highlight)
-        // The bodybuilding side uses the same shadows.
-        assertEquals(dark, cardShadowFor(TrainingMode.BODYBUILDING, darkTheme = true))
-        assertEquals(light, cardShadowFor(TrainingMode.BODYBUILDING, darkTheme = false))
     }
 
     /** The strict press chart colour, as on the web (`--chart-press`): a line and a dot must stand out from what they are drawn on. */

@@ -13,9 +13,8 @@ val LocalTrainingMode = staticCompositionLocalOf { TrainingMode.POWERLIFTING }
 
 val LocalCardShadow = staticCompositionLocalOf { DarkCardShadow }
 
-/** The soft card's shadow for a side and scheme. Both sides use the same shadows; only the scheme picks. */
-@Suppress("UNUSED_PARAMETER")
-fun cardShadowFor(mode: TrainingMode, darkTheme: Boolean): CardShadow = if (darkTheme) DarkCardShadow else LightCardShadow
+/** The soft card's shadow for a scheme. Both sides use the same shadows. */
+fun cardShadowFor(darkTheme: Boolean): CardShadow = if (darkTheme) DarkCardShadow else LightCardShadow
 
 /**
  * The brand theme. Android 12 dynamic colour is deliberately not used: the palette is part of the
@@ -44,7 +43,7 @@ fun PowertrackerTheme(
     CompositionLocalProvider(
         LocalPtColors provides pt,
         LocalTrainingMode provides mode,
-        LocalCardShadow provides cardShadowFor(mode, darkTheme),
+        LocalCardShadow provides cardShadowFor(darkTheme),
     ) {
         MaterialTheme(
             colorScheme = scheme,
