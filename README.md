@@ -132,6 +132,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Settings shows three rest alerts and the line "iPhones don't let web apps vibrate."
 - [ ] In Safari (not installed), the install card shows the Share, then Add to Home Screen steps.
 - [ ] The browser bar's colour matches the page in dark and light, on both training sides.
+- [ ] Press a button: it sinks a little and springs back. Settings has no "Vibrate on taps" switch.
 
 ## Owner's manual Android checks (the web app in Chrome)
 
@@ -141,6 +142,9 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Settings shows Sound, Sound + vibrate, Silent and Off. With Sound + vibrate, rest end beeps and buzzes twice.
 - [ ] On a narrow phone (360 px or less), no screen scrolls sideways. "Sound +" wraps over "vibrate" if needed.
 - [ ] Restore a backup from the Android app. An app set to vibrate comes back as Sound + vibrate.
+- [ ] Press a button: it sinks a little and springs back.
+- [ ] Log set buzzes once. A new squat best buzzes twice.
+- [ ] Turn off "Vibrate on taps" in Settings (under Rest alert): Log set no longer buzzes.
 
 ## Where things are
 

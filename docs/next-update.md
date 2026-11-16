@@ -207,6 +207,22 @@ In 1.6.1 the owner still saw a band of page about 55 pt high below the tab bar o
 - An Android app set to vibrate only comes back as "Sound + vibrate" when its backup is restored in an Android browser, since the web has no vibrate-only alert.
 - Thumbnails in the exercise picker stay paused. They come after the look and motion work.
 
+## Done: press feedback and vibration (version 1.7, both apps)
+Spec: `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md`. Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-2.md`. This is stage 2 of the new look and motion.
+
+- **Press:** everything you can tap sinks to 97% of its size when pressed and springs back when you let go. The tab bar's icons go to 92%, because they are small.
+- **What buzzes:**
+  - Log set and Missed give one short tick.
+  - A new best for squat, bench, deadlift or strict press buzzes twice. The first set of a lift counts as a best.
+  - Apply and Swap on the coach, Add to plan and Add to today give one tick.
+  - Each step on Today's weight, reps and RPE steppers gives one tick.
+  - Nothing else buzzes.
+- **Where it works:** the Android app, and the web app on Android phones. iPhones can't vibrate.
+- **The switch:** "Vibrate on taps" sits under Rest alert in Settings. It is hidden on iPhone. It is not in backups (owner, option A): it belongs to the phone, and after a restore it is on.
+- **Backups:** 1.7 reads backups as before, and its backup readers ignore settings they don't know, so a later version can add a setting without breaking them.
+- **Reduce motion:** with the phone's reduce-motion setting on, nothing sinks or springs.
+- Not yet tried on a real phone.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
