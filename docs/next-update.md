@@ -157,6 +157,41 @@ Follow-ups noticed during stage 4:
 - The Hack squat guide has no "stop if your hips leave the pad".
 - On the web at 130% zoom on a 375 px phone, the Today card's RPE stepper runs past the edge (it did before stage 4).
 
+## Done: the new look (version 1.6, both apps)
+Spec: `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md`. Plan: `docs/superpowers/plans/2026-11-16-grit-look-stage-1.md`. This is stage 1 of the new look and motion; nothing behaves differently.
+
+What the lifter sees:
+- **Soft layered cards, in dark and light.** Cards no longer have a thin border. They stand off the background by a step in tone and one soft shadow. In dark there is also a faint light line along each card's top edge. The same goes for menus, the picker's muscle tiles and the shell's buttons. Rows inside a card keep a softer divider line. Rows in the exercise picker and on the Exercises tab get no shadow.
+- **A dark grey accent on the powerlifting side, in place of chalk.** It covers the buttons, the current tab, switches, rest progress, the coach chip and the chart lines.
+  - Dark: `#93979D`, with near-black ink `#0B0C0E`. Light: `#4A4D52`, with near-white ink `#F6F7F8`.
+  - The soft accent backgrounds: `#2A2C2F` with `#DEDFE1` text in dark, `#DCDEE0` with `#2F3135` text in light.
+  - **The owner chose the grey.** The examples' dark grey `#868A91` failed the contrast tests as text, so the owner chose option A: the lighter `#93979D` for both the fill and the text. Every colour pair passes the contrast tests.
+- **Bodybuilding keeps its blue and the Barlow font.** Only its cards change.
+- **State outlines stay as they were:** the selected chip and segment, the planned-set ring, the switch-off border, text-field borders and rings, the number field's underline and the focus ring.
+- How it is drawn: the web uses one shadow token per scheme. Android draws the same shadows as soft copies of the card's shape (`dropShadow`), plus a 1 dp inner line for the dark highlight. So the shadows also show in the screenshots.
+- The screenshots on both apps were taken again. Not yet looked at on a real phone.
+
+### iPhone and phone fixes (web app, also in 1.6)
+The owner's list of nine, from commits `182f1ad` and `92704c9`:
+1. **Home Screen setup: changed.** Numbers are no longer phone links; the manifest gets an id; a new maskable icon keeps the whole mark inside Android's round or squircle mask. The rest was already fine.
+2. **Status-bar strip: changed.** In the installed iPhone app, the top of each screen sits below the status bar.
+3. **Tab bar: changed in part.** Its height is one shared token now. **It keeps its full bottom inset**, because Grit's tabs are 80 px with labels; the suggested 14 px trim came from another app.
+4. **View Transitions: do not apply.** Grit uses none.
+5. **Theme colour: changed.** One theme-colour tag, set before the first paint on both sides, so the browser bar matches the page in dark and light.
+6. **Narrow phones: changed.** A new 320 px check covers Today, the picker, Settings, Progress and Coach. Only the rest alert's segments overflowed; they may now wrap.
+7. **Sound on iPhone: changed.** The tone unlocks on the first touch and recovers after a call or a trip to another app. A tone that cannot play within 1 s is dropped, so it never sounds long after the rest.
+8. **Vibration: changed.** A new rest alert, "Sound + vibrate", where the browser can vibrate (Android). iPhones hide it and say "iPhones don't let web apps vibrate."
+9. **Install card: changed.** On Android it says to open the browser's menu (⋮), and the separate-storage note says "apart from your browser's" instead of "apart from Safari's".
+
+Push notifications do not apply: Grit sends none.
+
+Follow-ups noticed during the new look:
+- The Exercises tab speed check, in quiet timing against 1.5.0, had two single slow opens (80 and 90 ms). Both are still under the 100 ms limit, and the medians were the same as 1.5.0.
+- In the three quiet speed runs for 1.6, the first two passed and the third failed once: the picker's first open took 114 ms (limit 100).
+- "Sound + vibrate" wraps onto two lines on 320–390 px phones, so on most Android phones. The owner may prefer a shorter label.
+- An Android app set to vibrate only comes back as "Sound + vibrate" when its backup is restored in an Android browser, since the web has no vibrate-only alert.
+- Thumbnails in the exercise picker stay paused. They come after the look and motion work.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;

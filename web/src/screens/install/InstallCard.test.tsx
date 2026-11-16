@@ -23,6 +23,7 @@ afterEach(async () => {
 
 const COPY = 'Add Grit to your Home Screen: tap Share, then Add to Home Screen. Installed, your training log is protected from being cleared.'
 const MOVE = /The installed app keeps its own log, apart from Safari's, and starts empty\. You have already logged here: tap Export backup before you add Grit to the Home Screen, then restore that file in the installed app \(Plan, Settings, Restore backup\)\./
+const MOVE_ANDROID = /The installed app keeps its own log, apart from your browser's, and starts empty\. You have already logged here: tap Export backup before you add Grit to the Home Screen, then restore that file in the installed app \(Plan, Settings, Restore backup\)\./
 const settled = () => new Promise((done) => setTimeout(done, 50))
 
 describe('InstallCard', () => {
@@ -103,8 +104,9 @@ describe('InstallCard wording by phone', () => {
     render(<InstallCard db={db} />)
     expect(await screen.findByText(ANDROID_COPY)).toBeInTheDocument()
     expect(screen.queryByText(COPY)).toBeNull()
-    // The separate-storage note and the export stay as they are.
-    expect(await screen.findByText(MOVE)).toBeInTheDocument()
+    // The separate-storage note names the browser rather than Safari; the export stays as it is.
+    expect(await screen.findByText(MOVE_ANDROID)).toBeInTheDocument()
+    expect(screen.queryByText(MOVE)).toBeNull()
     expect(screen.getByRole('button', { name: 'Export backup' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Not now' })).toBeInTheDocument()
   })

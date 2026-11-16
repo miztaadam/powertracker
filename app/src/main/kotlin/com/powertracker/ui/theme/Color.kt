@@ -234,8 +234,9 @@ val BodybuildingLightColorScheme: ColorScheme = LightColorScheme.copy(
 )
 
 /**
- * The soft card's shadow (DESIGN.md "Space and shape"), the web's `--elevation-card`: [elevation] with tinted [ambient]
- * and [spot] colours for `Modifier.shadow`, and in dark a [highlight] drawn as a 1 dp line along the card's top edge.
+ * The soft card's shadow (DESIGN.md "Space and shape"), the web's `--elevation-card`, drawn in `PtCard.kt` as two
+ * `dropShadow` layers (the [spot] colour at y [elevation], blur three times it; the [ambient] colour at y 1 dp, blur
+ * 2 dp) and in dark a [highlight] drawn as a 1 dp `innerShadow` along the card's top edge.
  * The bodybuilding side uses the same shadows. Read through [PowertrackerTheme.cardShadow].
  */
 @Immutable

@@ -86,8 +86,11 @@ elevation is a token per scheme, the same on both sides:
 - light: two soft near-black shadows, `#111315` at 6% (y 1, blur 2) and at 8% (y 8, blur 24)
   (web `--elevation-card: 0 1px 2px rgba(17,19,21,.06), 0 8px 24px rgba(17,19,21,.08)`).
 
-On Android it is `PowertrackerTheme.cardShadow` (`CardShadow` in `Color.kt`): `Elevation.card` (8 dp) for
-`Modifier.shadow`, with the ambient and spot colours above, and in dark the highlight as a 1 dp line on the top edge.
+On Android it is `PowertrackerTheme.cardShadow` (`CardShadow` in `Color.kt`), drawn by `PtCard.kt` as blurred copies
+of the card's shape, like CSS `box-shadow` (not `Modifier.shadow`, which fades the colours on a device and does not draw
+in the screenshots): two `dropShadow` layers, the spot colour at y `Elevation.card` (8 dp) with blur 24 dp and the ambient
+colour at y 1 dp with blur 2 dp; in dark, the highlight as a 1 dp `innerShadow` along the top edge. In dark the close
+layer is black at 35%, which the web lacks; it falls on the near-black background and does not show.
 Only cards take it: no shadow on rows, in the exercise picker or on the Exercises tab. Row dividers inside a
 card stay, as the hairline at reduced strength. State outlines are not card borders and stay (see Components).
 

@@ -125,6 +125,21 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Check-in: on the bodybuilding side, open Progress and do a check-in (mark a body part lagging), then apply a suggestion from Coach and check the plan changed.
 - [ ] Stretch and squeeze: on the bodybuilding side, read the stretch and squeeze lines on a Today card.
 - [ ] Update: deploy a second version. The prompt "Update ready — tap to refresh" shows only after you finish a session, and the app reloads only when tapped.
+- [ ] Home Screen: add Grit to the Home Screen. The icon and name are "Grit", and it opens on Today.
+- [ ] The top of each screen sits clear of the status bar, with no smeared title.
+- [ ] Numbers such as 180 or 100 kg are not phone links.
+- [ ] Start a rest and lock the phone or switch apps, then come back. The tone sounds at rest end.
+- [ ] Settings shows three rest alerts and the line "iPhones don't let web apps vibrate."
+- [ ] In Safari (not installed), the install card shows the Share, then Add to Home Screen steps.
+- [ ] The browser bar's colour matches the page in dark and light, on both training sides.
+
+## Owner's manual Android checks (the web app in Chrome)
+
+- [ ] The install card says to open the browser's menu (⋮), then Install app or Add to Home screen. With a log, its note says "apart from your browser's".
+- [ ] Installed, the launcher icon is round or squircle with the whole "GRIT" mark inside, nothing cut off.
+- [ ] Settings shows Sound, Sound + vibrate, Silent and Off. With Sound + vibrate, rest end beeps and buzzes twice.
+- [ ] On a narrow phone (360 px or less), no screen scrolls sideways. "Sound +" wraps over "vibrate" if needed.
+- [ ] Restore a backup from the Android app. An app set to vibrate comes back as Sound + vibrate.
 
 ## Where things are
 
