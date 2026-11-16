@@ -88,7 +88,7 @@
   align-items: center;
   gap: var(--space-3);
   min-height: 40px;
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
 }
 
 .pb-grow {
@@ -119,7 +119,7 @@
   flex-direction: column;
   gap: var(--space-1);
   padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
 }
 
 .pb-left-out-row:last-child {
@@ -143,7 +143,7 @@
   display: flex;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-5);
-  border-top: 1px solid var(--hairline);
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
   background: var(--bg);
 }
 

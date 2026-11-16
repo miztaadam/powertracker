@@ -168,9 +168,10 @@
   min-height: 56px;
   margin: 0;
   padding: var(--space-2);
-  border: 1px solid var(--hairline);
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
   background: var(--surface);
+  box-shadow: var(--elevation-card);
   color: var(--text);
   text-align: center;
   /* Labels wrap only at spaces, never mid-word, also at 130% zoom. */
@@ -217,7 +218,7 @@
   right: 0;
   bottom: 0;
   height: 1px;
-  background: var(--hairline);
+  background: color-mix(in srgb, var(--hairline) 60%, transparent);
 }
 
 /* Forced colours drop backgrounds: draw the hairline in the system text colour so it stays visible. */
@@ -457,7 +458,7 @@
   gap: var(--space-3);
   margin-bottom: calc(-1 * env(safe-area-inset-bottom));
   padding: var(--space-4) var(--space-6) calc(var(--space-4) + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--hairline);
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
   background: var(--surface);
 }
 

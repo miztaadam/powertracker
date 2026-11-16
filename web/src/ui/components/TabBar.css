@@ -2,7 +2,7 @@
   flex: none;
   display: flex;
   background: var(--surface);
-  border-top: 1px solid var(--hairline);
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
   padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 

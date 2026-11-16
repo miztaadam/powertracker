@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
   min-height: 64px;
-  border-top: 1px solid var(--hairline);
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
 }
 
 .plan-row-position {
@@ -70,7 +70,7 @@
   align-items: center;
   gap: var(--space-3);
   min-height: 56px;
-  border-top: 1px solid var(--hairline);
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
 }
 
 /* The dialogs. */

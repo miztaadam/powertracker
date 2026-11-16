@@ -15,7 +15,7 @@
 
 /* Rows of a group, with a hairline between them. */
 .settings-group > * + * {
-  border-top: 1px solid var(--hairline);
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
 }
 
 .settings-row {

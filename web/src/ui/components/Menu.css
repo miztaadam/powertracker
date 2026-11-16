@@ -14,9 +14,10 @@
   flex-direction: column;
   min-width: 168px;
   padding: var(--space-3) 0;
-  border: 1px solid var(--hairline);
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
   background: var(--container-highest);
+  box-shadow: var(--elevation-card);
   scroll-margin: var(--space-5);
   animation: gr-fade 120ms ease;
 }

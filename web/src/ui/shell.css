@@ -48,7 +48,7 @@
   min-height: var(--touch);
   margin: 0;
   padding: var(--space-3) var(--space-5);
-  border: 1px solid var(--hairline);
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
   background: var(--container-high);
   color: var(--accent-text);
