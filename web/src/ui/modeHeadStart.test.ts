@@ -86,6 +86,18 @@ describe('the head-start script', () => {
     expect(themeColor()).toBe('#EDF2FA')
   })
 
+  it('setsThePowerliftingLightColourToo_whenTheSystemIsLight', () => {
+    resetPage()
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: q.includes('light') }))
+    try {
+      runScript()
+    } finally {
+      vi.unstubAllGlobals()
+    }
+    expect(document.documentElement.dataset.mode).toBeUndefined()
+    expect(themeColor()).toBe('#F4F4F0')
+  })
+
   it('isLoadedInTheHeadAsAPlainScript_beforeTheApp', () => {
     const head = INDEX.slice(0, INDEX.indexOf('</head>'))
     const tag = head.match(/<script[^>]*src="\/mode-head-start\.js"[^>]*><\/script>/)?.[0]

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { openOnWednesday, tabBar, tap } from './helpers'
+import { openOnWednesday, tabBar, tap, weightField } from './helpers'
 
 // The narrowest phones in use: many Android phones are 320–360 px wide (an iPhone is 375 px and up). On each
 // screen, on both training sides, the page must not scroll sideways and nothing may reach past the screen or
@@ -69,7 +69,14 @@ for (const side of ['powerlifting', 'bodybuilding'] as const) {
 
     test('Today with a session open fits', async ({ page }) => {
       await tap(page, 'Start session')
-      await expect(page.getByRole('button', { name: 'Add exercise' })).toBeVisible()
+      // An exercise on it, so its card is measured too.
+      await tap(page, 'Add exercise')
+      const picker = page.getByRole('dialog', { name: /^(Add to |Add exercise)/ })
+      await picker.getByRole('textbox', { name: 'Search exercises' }).fill('squat')
+      await picker.getByRole('listitem', { name: 'Squat', exact: true }).getByRole('button').first().click()
+      await expect(page.getByRole('heading', { name: 'Squat' })).toBeVisible()
+      // The exercise card with its three steppers, the widest thing on Today.
+      await expect(weightField(page)).toBeVisible()
       expect(await overflowing(page)).toEqual([])
     })
 
@@ -78,7 +85,9 @@ for (const side of ['powerlifting', 'bodybuilding'] as const) {
       await page.getByRole('region', { name: 'Monday' }).getByRole('button', { name: 'Add' }).click()
       const picker = page.getByRole('dialog', { name: /^(Add to |Add exercise)/ })
       await expect(picker).toBeVisible()
-      await expect(picker.getByRole('button', { name: /^Form guide for / }).first()).toBeVisible()
+      // Every row drawn before the dialog is measured.
+      const guides = picker.getByRole('button', { name: /^Form guide for / })
+      await expect.poll(() => guides.count()).toBeGreaterThan(50)
       expect(await overflowing(page)).toEqual([])
     })
 
