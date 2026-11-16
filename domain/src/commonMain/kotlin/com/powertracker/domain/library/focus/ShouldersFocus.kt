@@ -78,9 +78,10 @@ internal val shouldersFocus: List<Pair<String, MuscleFocus>> by lazy {
             "Squeeze your side delts as your elbow reaches shoulder height.",
             Sources.EXRX_CB_ONE_ARM_LATERAL_RAISE,
         ),
-        // The guide and ExRx: until the upper arms are level with the floor (horizontal).
+        // The guide and ExRx: until the upper arms are level with the floor (horizontal). With the elbows at shoulder
+        // height the upper arms are level, so the shared line names the same top, with a point the lifter can see.
         "Machine lateral raise" to lines(
-            SIDE_DOWN, "Squeeze your side delts as your upper arms reach level.",
+            SIDE_DOWN, SIDE_ELBOWS_UP,
             Sources.EXRX_LV_LATERAL_RAISE, Sources.EXRX_DB_LATERAL_RAISE,
         ),
 
@@ -91,11 +92,12 @@ internal val shouldersFocus: List<Pair<String, MuscleFocus>> by lazy {
             "Your front delts stretch as the dumbbells lower to your thighs.", FRONT_ARMS_UP,
             Sources.ACE_FRONT_RAISE,
         ),
-        // ExRx is the only barbell page and goes past horizontal; the line keeps the guide's shoulder height, as ACE does.
+        // ExRx's barbell page goes past horizontal, at the very point the squeeze names, so it is not cited for the
+        // line; ACE's front raise stops at shoulder height, as the guide does.
         "Barbell front raise" to lines(
             "Your front delts stretch as the bar lowers to your thighs.",
             "Squeeze your front delts as the bar reaches shoulder height.",
-            Sources.EXRX_BB_FRONT_RAISE, Sources.ACE_FRONT_RAISE,
+            Sources.ACE_FRONT_RAISE,
         ),
         // The guide starts with the arm slightly back at the side and stops at about shoulder height. ExRx's cable
         // page goes well above horizontal, so ACE's shoulder-level stop is cited instead.
@@ -146,9 +148,9 @@ internal val shouldersFocus: List<Pair<String, MuscleFocus>> by lazy {
             Sources.EXRX_DB_LYING_EXTERNAL_ROTATION,
         ),
         // The other way round: the lifting step ends with the forearm across the belly (ExRx too). The guide names no
-        // start position, so the stretch names no landmark.
+        // start angle, and the cable pulls the arm outward, so the stretch stops at the start rather than "out".
         "Cable internal rotation" to lines(
-            "Your rotator cuff stretches as your arm turns back out.",
+            "Your rotator cuff stretches as your arm turns back to the start.",
             "Squeeze your rotator cuff as your forearm crosses your belly.",
             Sources.EXRX_CB_INTERNAL_ROTATION,
         ),

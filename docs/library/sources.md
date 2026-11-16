@@ -1615,7 +1615,6 @@ Stretch and squeeze (bodybuilding side):
 
 Sources of the stretch and squeeze:
 
-- [Barbell Front Raise](https://exrx.net/WeightExercises/DeltoidAnterior/BBFrontRaise). ExRx.net, accessed 2026-11-11.
 - [Front Raise](https://www.acefitness.org/resources/everyone/exercise-library/54/front-raise/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
@@ -1662,7 +1661,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your rotator cuff stretches as your arm turns back out.
+- Stretch: Your rotator cuff stretches as your arm turns back to the start.
 - Squeeze: Squeeze your rotator cuff as your forearm crosses your belly.
 
 Sources of the stretch and squeeze:
@@ -1832,7 +1831,7 @@ Sources of the stretch and squeeze:
 Stretch and squeeze (bodybuilding side):
 
 - Stretch: Your side delts stretch as your arms lower to your sides.
-- Squeeze: Squeeze your side delts as your upper arms reach level.
+- Squeeze: Squeeze your side delts as your elbows reach shoulder height.
 
 Sources of the stretch and squeeze:
 
@@ -2003,37 +2002,115 @@ Sources of the stretch and squeeze:
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as you lower to straight arms.
+- Squeeze: Squeeze your biceps as your forearms come upright.
+
+Sources of the stretch and squeeze:
+
+- [Cable Curl](https://exrx.net/WeightExercises/Biceps/CBCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Cable hammer curl
 
 - [Cable Hammer Curl](https://exrx.net/WeightExercises/Brachioradialis/CBHammerCurl). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your forearms stretch as you lower to straight arms.
+- Squeeze: Squeeze your forearms as you curl the rope forward and up.
+
+Sources of the stretch and squeeze:
+
+- [Cable Hammer Curl](https://exrx.net/WeightExercises/Brachioradialis/CBHammerCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Cable overhead triceps extension
 
 - [Cable Triceps Extension (with rope)](https://exrx.net/WeightExercises/Triceps/CBStandingTricepsExtensionRope). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as your forearms reach your upper arms.
+- Squeeze: Squeeze your triceps as your arms straighten overhead.
+
+Sources of the stretch and squeeze:
+
+- [Cable Triceps Extension (with rope)](https://exrx.net/WeightExercises/Triceps/CBStandingTricepsExtensionRope). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Close-grip push-up
 
 - [Close Grip Push-up](https://exrx.net/WeightExercises/Triceps/BWCloseGripPushup). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as you lower toward the floor.
+- Squeeze: Squeeze your triceps as you push up to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Close Grip Push-up](https://exrx.net/WeightExercises/Triceps/BWCloseGripPushup). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Concentration curl
 
 - [Dumbbell Concentration Curl](https://exrx.net/WeightExercises/Brachialis/DBConcentrationCurl). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as you lower to a straight arm.
+- Squeeze: Squeeze your biceps as you curl to the front of your shoulder.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Concentration Curl](https://exrx.net/WeightExercises/Brachialis/DBConcentrationCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Curl
 
 - [Barbell Curl](https://exrx.net/WeightExercises/Biceps/BBCurl). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as you lower to straight arms.
+- Squeeze: Squeeze your biceps as your forearms come upright.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Curl](https://exrx.net/WeightExercises/Biceps/BBCurl). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### DB curl
 
 - [Dumbbell Alternating Curl](https://exrx.net/WeightExercises/Biceps/DBCurl). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as you lower to a straight arm.
+- Squeeze: Squeeze your biceps as your palm turns to face your shoulder.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Alternating Curl](https://exrx.net/WeightExercises/Biceps/DBCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### DB lying triceps extension
 
@@ -2042,10 +2119,32 @@ Sources of the stretch and squeeze:
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as the dumbbells come beside your head.
+- Squeeze: Squeeze your triceps as you straighten your arms.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Lying Triceps Extension](https://exrx.net/WeightExercises/Triceps/DBLyingTriExt). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### DB overhead triceps extension
 
 - [Exercise Library: Triceps Extension](https://www.acefitness.org/resources/everyone/exercise-library/74/triceps-extension/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Dumbbell Triceps Extension](https://exrx.net/WeightExercises/Triceps/DBTriExt). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as your forearms near level with the floor.
+- Squeeze: Squeeze your triceps as you press back to upright arms.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Triceps Extension](https://www.acefitness.org/resources/everyone/exercise-library/74/triceps-extension/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### DB preacher curl
 
@@ -2053,11 +2152,33 @@ Sources of the stretch and squeeze:
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as you lower to a straight arm.
+- Squeeze: Squeeze your biceps as your forearm comes upright.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell One Arm Preacher Curl](https://exrx.net/WeightExercises/Brachialis/DBPreacherCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Drag curl
 
 - [Barbell Drag Curl](https://exrx.net/WeightExercises/Biceps/BBDragCurl). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as you lower to straight arms.
+- Squeeze: Squeeze your biceps as your forearms come upright.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Drag Curl](https://exrx.net/WeightExercises/Biceps/BBDragCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### EZ-bar curl
 
@@ -2065,10 +2186,34 @@ Sources of the stretch and squeeze:
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as you lower to straight arms.
+- Squeeze: Squeeze your biceps as your forearms come upright.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Curl](https://exrx.net/WeightExercises/Biceps/BBCurl). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Hammer curl
 
 - [Exercise Library: Hammer Curl](https://www.acefitness.org/resources/everyone/exercise-library/10/hammer-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Dumbbell Alternating Hammer Curl](https://exrx.net/WeightExercises/Brachioradialis/DBHammerCurl). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your forearms stretch as you lower to straight arms.
+- Squeeze: Squeeze your forearms as the dumbbells reach your shoulders.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Hammer Curl](https://www.acefitness.org/resources/everyone/exercise-library/10/hammer-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Alternating Hammer Curl](https://exrx.net/WeightExercises/Brachioradialis/DBHammerCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Incline DB curl
 
@@ -2076,21 +2221,65 @@ Sources of the stretch and squeeze:
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch with your arm hanging straight down.
+- Squeeze: Squeeze your biceps as your palm turns to face your shoulder.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Alternating Incline Curl](https://exrx.net/WeightExercises/Biceps/DBInclineCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### JM press
 
 - [Barbell JM Bench Press](https://exrx.net/WeightExercises/Triceps/BBJMPress). ExRx.net, accessed 2026-11-11.
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as your forearms meet your upper arms.
+- Squeeze: Squeeze your triceps as your elbows lock.
+
+Sources of the stretch and squeeze:
+
+- [Barbell JM Bench Press](https://exrx.net/WeightExercises/Triceps/BBJMPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Machine curl
 
 - [Exercise Library: Seated Biceps Curl](https://www.acefitness.org/resources/everyone/exercise-library/184/seated-biceps-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Lever Isolateral Preacher Curl (plate loaded)](https://exrx.net/WeightExercises/Brachialis/LVPreacherCurlH). ExRx.net, accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as your arms lower to nearly straight.
+- Squeeze: Squeeze your biceps as you curl the handles toward your chest.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Seated Biceps Curl](https://www.acefitness.org/resources/everyone/exercise-library/184/seated-biceps-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Machine triceps extension
 
 - [Lever Triceps Extension](https://exrx.net/WeightExercises/Triceps/LVTriExt). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as your forearms return to your upper arms.
+- Squeeze: Squeeze your triceps as your arms straighten.
+
+Sources of the stretch and squeeze:
+
+- [Lever Triceps Extension](https://exrx.net/WeightExercises/Triceps/LVTriExt). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### One-arm cable curl
 
@@ -2098,10 +2287,33 @@ Sources of the stretch and squeeze:
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as you lower to a straight arm.
+- Squeeze: Squeeze your biceps as your forearm comes upright.
+
+Sources of the stretch and squeeze:
+
+- [Cable One Arm Curl](https://exrx.net/WeightExercises/Biceps/CBOneArmCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### One-arm pushdown
 
 - [Cable One Arm Pushdown](https://exrx.net/WeightExercises/Triceps/CBOneArmPushdown). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as the handle rises, elbow at your side.
+- Squeeze: Squeeze your triceps as your arm nearly straightens.
+
+Sources of the stretch and squeeze:
+
+- [Cable One Arm Pushdown](https://exrx.net/WeightExercises/Triceps/CBOneArmPushdown). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Preacher curl
 
@@ -2109,11 +2321,34 @@ Sources of the stretch and squeeze:
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as you lower to straight arms.
+- Squeeze: Squeeze your biceps as your forearms come upright.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Preacher Curl](https://exrx.net/WeightExercises/Brachialis/BBPreacherCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Reverse curl
 
 - [Exercise Library: Reverse Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/310/reverse-bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Barbell Reverse Curl](https://exrx.net/WeightExercises/Brachioradialis/BBReverseCurl). ExRx.net, accessed 2026-11-11.
 - [How to Improve Grip Strength](https://www.acefitness.org/resources/pros/expert-articles/5765/how-to-improve-grip-strength/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your forearms stretch as you lower to straight arms.
+- Squeeze: Squeeze your forearms as you curl the bar up, palms down.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Reverse Curl](https://exrx.net/WeightExercises/Brachioradialis/BBReverseCurl). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Reverse Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/310/reverse-bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Reverse wrist curl
 
@@ -2122,16 +2357,51 @@ Sources of the stretch and squeeze:
 - [How to Improve Grip Strength](https://www.acefitness.org/resources/pros/expert-articles/5765/how-to-improve-grip-strength/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your forearms stretch as your knuckles point down.
+- Squeeze: Squeeze your forearms as your knuckles point up.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Reverse Wrist Curl](https://exrx.net/WeightExercises/WristExtensors/BBReverseWristCurl). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Reverse Wrist Curl](https://exrx.net/WeightExercises/WristExtensors/DBReverseWristCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Rope pushdown
 
 - [Cable Pushdown (with rope attachment)](https://exrx.net/WeightExercises/Triceps/CBPushdownRope). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as the rope rises, elbows at your sides.
+- Squeeze: Squeeze your triceps as you turn your palms down at the bottom.
+
+Sources of the stretch and squeeze:
+
+- [Cable Pushdown (with rope attachment)](https://exrx.net/WeightExercises/Triceps/CBPushdownRope). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Seated DB curl
 
 - [Dumbbell Seated Curl](https://exrx.net/WeightExercises/Biceps/DBSeatedCurl). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as you lower to a straight arm.
+- Squeeze: Squeeze your biceps as your palm turns to face your shoulder.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Seated Curl](https://exrx.net/WeightExercises/Biceps/DBSeatedCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Skull crusher
 
@@ -2140,16 +2410,49 @@ Sources of the stretch and squeeze:
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as the bar nears your forehead.
+- Squeeze: Squeeze your triceps as you press the bar back up.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Lying Triceps Extension "Skull Crusher"](https://exrx.net/WeightExercises/Triceps/BBLyingTriExtSC). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Spider curl
 
 - [Barbell Prone Incline Curl](https://exrx.net/WeightExercises/Brachialis/BBProneInclineCurl). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Bicep Curl](https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your biceps stretch as you lower to straight arms.
+- Squeeze: Squeeze your biceps as your elbows bend all the way.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Prone Incline Curl](https://exrx.net/WeightExercises/Brachialis/BBProneInclineCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Triangle push-up
 
 - [ACE Study Identifies Best Triceps Exercises](https://www.acefitness.org/certifiednewsarticle/3008/ace-study-identifies-best-triceps-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as you lower toward the floor.
+- Squeeze: Squeeze your triceps as your elbows straighten.
+
+Sources of the stretch and squeeze:
+
+- [ACE Study Identifies Best Triceps Exercises](https://www.acefitness.org/certifiednewsarticle/3008/ace-study-identifies-best-triceps-exercises/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Triceps dip
 
@@ -2159,10 +2462,34 @@ Sources of the stretch and squeeze:
 - [Follow-up Q and A: Dangerous Dips](https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch with your upper arms level with the floor.
+- Squeeze: Squeeze your triceps as you push up to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Weighted Triceps Dip](https://exrx.net/WeightExercises/Triceps/WtTriDip). ExRx.net, accessed 2026-11-11.
+- [Follow-up Q and A: Dangerous Dips](https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Triceps kickback
 
 - [Exercise Library: Triceps Kickback](https://www.acefitness.org/resources/everyone/exercise-library/55/triceps-kickback/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Dumbbell Kickback](https://exrx.net/WeightExercises/Triceps/DBKickback). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as your forearm hangs straight down.
+- Squeeze: Squeeze your triceps as your arm straightens behind you.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Triceps Kickback](https://www.acefitness.org/resources/everyone/exercise-library/55/triceps-kickback/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Kickback](https://exrx.net/WeightExercises/Triceps/DBKickback). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Triceps pushdown
 
@@ -2170,12 +2497,36 @@ Sources of the stretch and squeeze:
 - [Cable Pushdown (with V-bar)](https://exrx.net/WeightExercises/Triceps/CBPushdownVBar). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your triceps stretch as the bar rises, elbows at your sides.
+- Squeeze: Squeeze your triceps as your arms nearly straighten.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Cable Pushdown](https://exrx.net/WeightExercises/Triceps/CBPushdown). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Wrist curl
 
 - [Barbell Wrist Curl](https://exrx.net/WeightExercises/WristFlexors/BBWristCurl). ExRx.net, accessed 2026-11-11.
 - [Dumbbell Wrist Curl](https://exrx.net/WeightExercises/WristFlexors/DBWristCurl). ExRx.net, accessed 2026-11-11.
 - [How to Improve Grip Strength](https://www.acefitness.org/resources/pros/expert-articles/5765/how-to-improve-grip-strength/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your forearms stretch as the weight rolls down to your fingers.
+- Squeeze: Squeeze your forearms as you curl your wrists up.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Wrist Curl](https://exrx.net/WeightExercises/WristFlexors/BBWristCurl). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Wrist Curl](https://exrx.net/WeightExercises/WristFlexors/DBWristCurl). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ## Quads
 

@@ -33,7 +33,7 @@
   - **F4 Safety.** Nothing that contradicts the guide's setup, cues, mistakes or safety notes; no pushing into pain; no "as far as you can" on a loaded spine.
   - **F5 None.** In the spec's words: an exercise with no meaningful stretch or squeeze of the muscle it trains (a plank, a carry, a Pallof press) gets the fixed line instead of inventing one. The review checks every "none": an exercise whose guide moves a muscle from long to short (a lateral raise, a curl) gets two lines.
   - **F6 Shape.** Each line one sentence, at most 64 characters, starting with a capital, ending with a full stop, no jargon ("eccentric", "concentric", "peak contraction" are out).
-  - **F7 Sources.** Each exercise's lines list at least one `SourceId`, normally the ExRx or ACE page already listed for its guide, plus a general source where the line rests on the idea rather than the page.
+  - **F7 Sources.** Each exercise's lines list at least one `SourceId`, normally the ExRx or ACE page already listed for its guide, plus a general source where the line rests on the idea rather than the page. A page that asks for more range than the guide's step or mistakes allow, at the point the line names, is not cited for that line (controller ruling, 2026-11-16).
 - **Pilot samples (to be checked again in their batch; the owner sees these with the plan):**
   - DB bench: Stretch "Your chest stretches as the dumbbells reach your chest." Squeeze "Squeeze your chest as you press the dumbbells up."
   - DB fly: Stretch "Your chest stretches as the dumbbells reach shoulder level." Squeeze "Squeeze your chest as the dumbbells come together." (ExRx DBFly: "lower … until chest muscles are stretched"; "until nearly touching".)

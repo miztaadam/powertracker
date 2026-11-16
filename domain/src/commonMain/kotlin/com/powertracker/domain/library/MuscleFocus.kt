@@ -1,5 +1,6 @@
 package com.powertracker.domain.library
 
+import com.powertracker.domain.library.focus.armsFocus
 import com.powertracker.domain.library.focus.backFocus
 import com.powertracker.domain.library.focus.calvesCoreFocus
 import com.powertracker.domain.library.focus.chestFocus
@@ -28,7 +29,7 @@ sealed interface MuscleFocus {
  */
 internal object MuscleFocuses {
     /** The area lists, in catalogue order. Tests read these to check each name appears once. */
-    internal val areas: List<List<Pair<String, MuscleFocus>>> by lazy { listOf(mainLiftsFocus, chestFocus, backFocus, shouldersFocus, calvesCoreFocus) }
+    internal val areas: List<List<Pair<String, MuscleFocus>>> by lazy { listOf(mainLiftsFocus, chestFocus, backFocus, shouldersFocus, armsFocus, calvesCoreFocus) }
 
     internal val all: Map<String, MuscleFocus> by lazy {
         val merged = LinkedHashMap<String, MuscleFocus>()
