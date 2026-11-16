@@ -16,7 +16,7 @@
 ## Global Constraints
 - **Every feature stays.** Existing tests pass unedited, except screenshots and the tests that pin the old look. Those are the contrast and token tests, and any test that asserts a card border. Each change to such a test is listed in the report, with the reason.
 - **Powerlifting accent:**
-  - dark: `#868A91` with ink `#0B0C0E`;
+  - dark: `#93979D` with ink `#0B0C0E` (owner, 2026-11-16, option A);
   - light: `#4A4D52` with ink `#F6F7F8`.
   This covers every place the chalk accent was used: the accent fill, accent text, the accent container, and the on-container colour.
   - Pick the container pair so that each pair passes the existing contrast tests (4.5:1 for text, 3:1 for non-text). Record the values in the report.

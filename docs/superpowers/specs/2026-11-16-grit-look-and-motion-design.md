@@ -5,7 +5,7 @@ Owner's brief (2026-11-16): "elevate the current UI to a premium, AAA-quality ex
 ## 1. Decisions made with the owner (2026-11-16)
 - **Keep every feature.** This is a restyle and motion pass over the screens Grit has; nothing is removed, and every existing test still passes (only screenshots and tests that pin the old look change).
 - **Colours.**
-  - The powerlifting side keeps its dark (and light) palette, but its accent changes from chalk to **dark grey**: `#868A91` with ink `#0B0C0E` in dark (ink on accent 5.6:1). In light it is `#4A4D52` with ink `#F6F7F8` (7.9:1). These are the designer's light values, shown in the examples.
+  - The powerlifting side keeps its dark (and light) palette, but its accent changes from chalk to **dark grey**: `#93979D` with ink `#0B0C0E` in dark (owner picked `#868A91` on 2026-11-16, then chose this hair-lighter grey, option A, because `#868A91` fails the contrast tests as accent text on raised panels). In light it is `#4A4D52` with ink `#F6F7F8` (7.9:1). These are the designer's light values, shown in the examples.
   - The bodybuilding side keeps its blue, unchanged.
   - This changes the powerlifting side on purpose: the standing rule that it does not change is lifted for this project only.
 - **Type:** Barlow and Barlow Condensed stay. The brief's Inter or Roboto was not taken.
