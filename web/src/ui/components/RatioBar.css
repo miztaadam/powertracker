@@ -64,3 +64,20 @@
   transform: translateX(-50%);
   white-space: nowrap;
 }
+
+/* Stage 4: on Progress (.gr-fill-in) the marker slides to its value from the start of the bar in 450 ms, with motion on.
+   The bar is a size container only then, so the slide can be a transform in its width (cqw); --xq is --x as a number.
+   It fills backwards only, so once it ends the marker is placed exactly as above. */
+:root:not([data-motion='off']) .gr-fill-in .gr-ratio-bar {
+  container-type: inline-size;
+}
+
+:root:not([data-motion='off']) .gr-fill-in .gr-ratio-marker {
+  animation: gr-ratio-slide 450ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+@keyframes gr-ratio-slide {
+  from {
+    transform: translateX(calc(3px - clamp(3px, var(--xq, 0) * 1cqw, 100cqw - 3px)));
+  }
+}

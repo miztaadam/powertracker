@@ -26,6 +26,8 @@ import { Switch } from './Switch'
 import { TabBar } from './TabBar'
 import { TextField } from './TextField'
 import { BoltIcon } from './icons'
+import { BarStrip } from './BarStrip'
+import { Sparkline } from './Sparkline'
 
 describe('SetRow', () => {
   it('reads a done set as one sentence', () => {
@@ -717,5 +719,90 @@ describe('Stepper haptics', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Increase Rest' }))
     expect(onIncrement).toHaveBeenCalledTimes(2)
     expect(vibrate).not.toHaveBeenCalled()
+  })
+})
+
+// Stage 4: the charts on Progress fill in when they mount. The animation is CSS only (charts.css, RatioBar.css), so the
+// DOM is the finished chart from the first frame: every point, bar height, marker and label is already in place.
+describe('charts that fill in', () => {
+  const series = [
+    { name: 'Squat', color: 'var(--chart-squat)', values: [170, null, 187.5] },
+    { name: 'Bench', color: 'var(--chart-bench)', values: [110, 112.5, 122.5] },
+  ]
+
+  it('a line chart is complete in the DOM, with its name and values', () => {
+    const { container } = render(<LineChart series={series} xLabels={['Aug', '', 'Nov']} fillIn />)
+    expect(container.querySelector('.gr-linechart')).toHaveClass('gr-fill-in')
+    expect(screen.getByRole('img', { name: 'Line chart. Latest: Squat 187.5 kg, Bench 122.5 kg' })).toBeInTheDocument()
+    // The same lines as the chart that does not fill in: every point is there from the start.
+    const still = render(<LineChart series={series} xLabels={['Aug', '', 'Nov']} />).container
+    const points = (root: Element) => Array.from(root.querySelectorAll('polyline')).map((p) => p.getAttribute('points'))
+    expect(points(container)).toHaveLength(2)
+    expect(points(container)).toEqual(points(still))
+    expect(container.querySelectorAll('.gr-plot-marker')).toHaveLength(2)
+    expect(within(container as HTMLElement).getByText('187.5')).toBeInTheDocument()
+  })
+
+  it('a sparkline is complete in the DOM', () => {
+    const { container } = render(<Sparkline values={[1, 3, 2]} color="red" fillIn />)
+    expect(container.querySelector('.gr-spark')).toHaveClass('gr-fill-in')
+    expect(container.querySelector('polyline')!.getAttribute('points')).toBe('0,100 50,0 100,50')
+    expect(container.querySelector('.gr-spark-fill')).not.toBeNull()
+    expect(container.querySelector('.gr-plot-marker')).not.toBeNull()
+  })
+
+  it('bars are at their full heights, each with its place in the stagger', () => {
+    const { container } = render(<BarStrip values={[50, 0, 100]} color="red" fillIn />)
+    expect(container.querySelector('.gr-bars')).toHaveClass('gr-fill-in')
+    const bars = Array.from(container.querySelectorAll<HTMLElement>('.gr-bar'))
+    expect(bars.map((b) => b.style.height)).toEqual(['50%', '', '100%'])
+    expect(bars.map((b) => b.style.getPropertyValue('--i'))).toEqual(['0', '1', '2'])
+  })
+
+  it('the ratio marker sits at its value, with the figures written out', () => {
+    const { container } = render(<RatioBar label="Bench ÷ Squat" valuePct={65} lowPct={60} highPct={70} fillIn />)
+    expect(container.querySelector('.gr-ratio')).toHaveClass('gr-fill-in')
+    const marker = container.querySelector<HTMLElement>('.gr-ratio-marker')!
+    expect(marker.style.getPropertyValue('--x')).toBe('50%')
+    expect(marker.style.getPropertyValue('--xq')).toBe('50')
+    expect(screen.getByText('65%')).toBeInTheDocument()
+    expect(screen.getByText('In range')).toBeInTheDocument()
+  })
+
+  it('stays still where it is not asked for (Coach, the showcase)', () => {
+    const { container } = render(
+      <>
+        <LineChart series={series} xLabels={['Aug', '', 'Nov']} />
+        <Sparkline values={[1, 3, 2]} color="red" />
+        <BarStrip values={[50, 100]} color="red" />
+        <RatioBar label="Bench ÷ Squat" valuePct={65} lowPct={60} highPct={70} />
+      </>,
+    )
+    expect(container.querySelector('.gr-fill-in')).toBeNull()
+    expect(container.querySelector<HTMLElement>('.gr-bar')!.style.getPropertyValue('--i')).toBe('')
+    expect(container.querySelector<HTMLElement>('.gr-ratio-marker')!.style.getPropertyValue('--xq')).toBe('')
+  })
+
+  it('new data on the same chart keeps its nodes, so it does not draw again', () => {
+    const { container, rerender } = render(<LineChart series={series} xLabels={['Aug', '', 'Nov']} fillIn />)
+    const svg = container.querySelector('svg')
+    const bars = render(<BarStrip values={[0, 100]} color="red" fillIn />)
+    const stub = bars.container.querySelector('.gr-bar-stub')
+    rerender(<LineChart series={[{ ...series[0]!, values: [170, 180, 190] }, series[1]!]} xLabels={['Aug', '', 'Nov']} fillIn />)
+    bars.rerender(<BarStrip values={[40, 100]} color="red" fillIn />)
+    expect(container.querySelector('svg')).toBe(svg)
+    // An empty week that fills is the same bar, so it does not grow again either.
+    expect(bars.container.querySelector('.gr-bar')).toBe(stub)
+  })
+
+  it('animates only with motion on', () => {
+    for (const file of ['charts.css', 'RatioBar.css']) {
+      const css = readFileSync(resolve(process.cwd(), 'src/ui/components', file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
+      const rules = Array.from(css.matchAll(/([^{}]+)\{([^{}]*)\}/g)).filter(([, , body]) => /\banimation|container-type/.test(body!))
+      expect(rules.length).toBeGreaterThan(0)
+      for (const [, selector] of rules) {
+        for (const one of selector!.split(',')) expect(one.trim()).toMatch(/^:root:not\(\[data-motion='off'\]\) /)
+      }
+    }
   })
 })

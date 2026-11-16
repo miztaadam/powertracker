@@ -12,6 +12,11 @@ export type LineChartProps = {
   xLabels: readonly string[]
   /** Default "kg". */
   unit?: string
+  /**
+   * Draw the lines in, left to right, when the chart mounts (Progress only). CSS only, with motion on; the DOM is the
+   * finished chart from the first frame. Give the chart a `key` that changes when it should draw again.
+   */
+  fillIn?: boolean
   className?: string
 }
 
@@ -27,7 +32,7 @@ function latest(s: ChartSeries): number {
  * Change over time on one shared axis. A legend with each series' latest value is always shown;
  * values are written in text colour, the dot beside them carries identity.
  */
-export function LineChart({ series, xLabels, unit = 'kg', className }: LineChartProps) {
+export function LineChart({ series, xLabels, unit = 'kg', fillIn = false, className }: LineChartProps) {
   const all = series.flatMap((s) => s.values.filter((v): v is number => v != null))
   const summary = series.map((s) => `${s.name} ${formatChartValue(latest(s))} ${unit}`).join(', ')
   const count = Math.max(0, ...series.map((s) => s.values.length))
@@ -36,7 +41,7 @@ export function LineChart({ series, xLabels, unit = 'kg', className }: LineChart
   const y = (v: number) => 100 - ((v - lo) / (hi - lo)) * 100
 
   return (
-    <div className={cx('gr-linechart', className)}>
+    <div className={cx('gr-linechart', fillIn && 'gr-fill-in', className)}>
       <div className="gr-legend">
         {series.map((s) => (
           <span key={s.name} className="gr-legend-item">

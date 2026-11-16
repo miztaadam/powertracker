@@ -44,7 +44,7 @@ export function SummaryCard({ state, onOpenLift }: { state: ProgressState; onOpe
             <NumberDisplay value={formatKg(state.totalKg)} unit="kg" label={totalLabel} size="hero" />
             {totalChange && <Pill text={`${totalChange.text} in 4 weeks`} tone={totalChange.tone} icon={totalChange.icon} />}
           </div>
-          {state.totalTrend.length >= 2 && <Sparkline values={state.totalTrend.map((p) => p.kg)} color="var(--accent-text)" className="progress-total-spark" />}
+          {state.totalTrend.length >= 2 && <Sparkline values={state.totalTrend.map((p) => p.kg)} color="var(--accent-text)" fillIn className="progress-total-spark" />}
         </div>
       ) : (
         <div>
@@ -94,7 +94,8 @@ export function TrendCard({ state, onRange }: { state: ProgressState; onRange: (
       />
       <Eyebrow text="Weekly best e1RM" />
       {series.length > 0 ? (
-        <LineChart series={series} xLabels={axisLabels(state.weeks)} />
+        // Keyed on the range: a new range is a new line, drawn in again. New data in the same range is not.
+        <LineChart key={state.range} series={series} xLabels={axisLabels(state.weeks)} fillIn />
       ) : (
         // The range selector stays, so a longer range is one tap away.
         <p className="progress-note body-medium">No sessions in this range. Try a longer one.</p>
@@ -160,7 +161,7 @@ export function VolumeSection({ state }: { state: ProgressState }) {
                   </span>
                   <NumberDisplay value={thisWeek} unit="kg" size="medium" />
                 </div>
-                <BarStrip values={weeks} color={LIFT_COLOR[lift]} className="progress-volume-bars" />
+                <BarStrip values={weeks} color={LIFT_COLOR[lift]} fillIn className="progress-volume-bars" />
               </div>
             </div>
           )
@@ -186,7 +187,7 @@ export function RatioSection({ ratios }: { ratios: RatioUi[] }) {
       <SectionHeader title="Lift ratios" />
       <Card spacing={16}>
         {ratios.map((r) => (
-          <RatioBar key={r.numerator} label={`${LIFT_LABEL[r.numerator]} ÷ ${LIFT_LABEL[r.denominator]}`} valuePct={r.valuePct} lowPct={r.lowPct} highPct={r.highPct} />
+          <RatioBar key={r.numerator} label={`${LIFT_LABEL[r.numerator]} ÷ ${LIFT_LABEL[r.denominator]}`} valuePct={r.valuePct} lowPct={r.lowPct} highPct={r.highPct} fillIn />
         ))}
       </Card>
     </section>
@@ -204,7 +205,7 @@ export function BodyweightSection({ points }: { points: { date: string; kg: numb
     <section>
       <SectionHeader title="Bodyweight" />
       <Card>
-        <LineChart series={[{ name: 'Latest', color: 'var(--text-secondary)', values: days.map((d) => byDate.get(d) ?? null) }]} xLabels={axisLabels(days)} />
+        <LineChart series={[{ name: 'Latest', color: 'var(--text-secondary)', values: days.map((d) => byDate.get(d) ?? null) }]} xLabels={axisLabels(days)} fillIn />
       </Card>
     </section>
   )

@@ -170,6 +170,33 @@ describe('ProgressScreen', () => {
     await waitFor(() => expect(screen.queryByText(/No sessions in this range/)).toBeNull())
   })
 
+  it('charts_fillInOnProgress_andDrawAgainOnlyForANewRange', async () => {
+    await seed()
+    await show()
+    const { container } = { container: document.body }
+    // The total sparkline, the trend and bodyweight lines, every volume strip and every ratio marker fill in.
+    expect(container.querySelector('.progress-total-spark')).toHaveClass('gr-fill-in')
+    expect(container.querySelectorAll('.gr-linechart.gr-fill-in')).toHaveLength(2)
+    expect(container.querySelectorAll('.gr-bars.gr-fill-in')).toHaveLength(3)
+    expect(container.querySelectorAll('.gr-ratio.gr-fill-in')).toHaveLength(2)
+    expect(container.querySelectorAll('.gr-fill-in')).toHaveLength(8)
+    const trend = () => screen.getByText('Weekly best e1RM').parentElement!.querySelector('.gr-linechart')
+    const before = trend()
+    const bars = container.querySelector('.gr-bars')
+
+    // New data while the screen is open (a sync, a set logged) keeps the same charts: nothing draws again.
+    await log(addDays(TODAY, -1), 93, ['Squat', 150, 5, 8])
+    await screen.findByText('Squat volume this week: 1,475 kg')
+    expect(trend()).toBe(before)
+    expect(container.querySelector('.gr-bars')).toBe(bars)
+
+    // A new range is a new line, so it draws in again.
+    await userEvent.click(screen.getByRole('radio', { name: '1 yr' }))
+    await waitFor(() => expect(trend()).not.toBe(before))
+    expect(trend()).toHaveClass('gr-fill-in')
+    expect(container.querySelector('.gr-bars')).toBe(bars)
+  })
+
   it('emptyState_showsHint', async () => {
     await show('No lifts logged yet')
 
