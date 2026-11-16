@@ -21,6 +21,12 @@ object Space {
     val touch = 48.dp
 }
 
+/** Shadow heights. Cards are soft and layered: tone steps and one soft shadow, no border ([CardShadow]). */
+object Elevation {
+    /** `PtCard` and the web's `Card`: the drop shadow's y offset is about this, its blur about three times it. */
+    val card = 8.dp
+}
+
 val PowertrackerShapes = Shapes(
     extraSmall = RoundedCornerShape(6.dp),
     small = RoundedCornerShape(10.dp),

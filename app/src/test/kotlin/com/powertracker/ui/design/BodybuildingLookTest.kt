@@ -117,7 +117,7 @@ class BodybuildingLookTest {
         assertEquals(Color(0xFF8DB8FF), seen["dark accent"])
         assertEquals(Color(0xFF1F4FA8), seen["light primary"])
         assertEquals(Color(0xFF1F4FA8), seen["light accent"])
-        assertEquals(Color(0xFFDCD6C8), seen["powerlifting dark accent"])
+        assertEquals(Color(0xFF93979D), seen["powerlifting dark accent"])
     }
 
     @Test
@@ -132,7 +132,7 @@ class BodybuildingLookTest {
             }
         }
         compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("bodybuilding-mode")).fetchSemanticsNodes().isNotEmpty() }
-        assertEquals(Color(0xFFDCD6C8), accent)
+        assertEquals(Color(0xFF93979D), accent)
         assertEquals(0, labelCount())
 
         compose.onNodeWithTag("bodybuilding-mode").performClick()
@@ -146,7 +146,7 @@ class BodybuildingLookTest {
 
         compose.onNodeWithTag("bodybuilding-mode").performClick()
         compose.waitUntil(5_000) { runBlocking { settings.settings.first().trainingMode } == TrainingMode.POWERLIFTING }
-        compose.waitUntil(5_000) { accent == Color(0xFFDCD6C8) }
+        compose.waitUntil(5_000) { accent == Color(0xFF93979D) }
         compose.waitUntil(5_000) { labelCount() == 0 }
     }
 

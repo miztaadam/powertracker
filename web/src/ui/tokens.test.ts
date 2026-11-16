@@ -97,25 +97,25 @@ function over(fg: string, bg: string, alpha: number): string {
 
 const accent = {
   dark: {
-    '--accent': '#DCD6C8',
-    '--accent-ink': '#1A1812',
-    '--accent-text': '#DCD6C8',
-    '--accent-container': '#332F26',
-    '--accent-on-container': '#EAE4D5',
+    '--accent': '#93979D',
+    '--accent-ink': '#0B0C0E',
+    '--accent-text': '#93979D',
+    '--accent-container': '#2A2C2F',
+    '--accent-on-container': '#DEDFE1',
   },
   light: {
-    '--accent': '#46423B',
-    '--accent-ink': '#FBF8F1',
-    '--accent-text': '#4B463E',
-    '--accent-container': '#E8E2D4',
-    '--accent-on-container': '#39342B',
+    '--accent': '#4A4D52',
+    '--accent-ink': '#F6F7F8',
+    '--accent-text': '#4A4D52',
+    '--accent-container': '#DCDEE0',
+    '--accent-on-container': '#2F3135',
   },
 } as const
 
 describe.each([
   ['dark', dark],
   ['light', light],
-] as const)('%s accent (warm chalk)', (name, theme) => {
+] as const)('%s accent (grey)', (name, theme) => {
   const get = (k: string): string => {
     const v = theme[k]
     if (!v) throw new Error(`missing token ${k}`)
@@ -145,6 +145,39 @@ describe.each([
   }
   it('the fill against the secondary-button fill is at least 3:1', () => {
     expect(ratio(get('--accent'), get('--container-highest'))).toBeGreaterThanOrEqual(3)
+  })
+})
+
+/** Every declaration of `name` in the block that `open` starts, whatever its value (the hex-only `block` skips shadows). */
+function declared(source: string, open: RegExp, name: string): string | undefined {
+  const m = open.exec(source)
+  if (!m) throw new Error(`block not found: ${open}`)
+  let depth = 1
+  let i = m.index + m[0].length
+  const start = i
+  while (depth > 0 && i < source.length) {
+    const c = source[i++]
+    if (c === '{') depth++
+    else if (c === '}') depth--
+  }
+  const body = source.slice(start, i - 1)
+  const d = new RegExp(`${name}\\s*:\\s*([^;]+);`).exec(body)
+  return d?.[1]?.replace(/\s+/g, ' ').trim()
+}
+
+// The soft card's shadow (DESIGN.md "Space and shape"), as on Android (Color.kt `CardShadow`). The bodybuilding side
+// uses the same shadows, so its blocks do not set it.
+describe('card elevation', () => {
+  const LIGHT = /@media\s*\(prefers-color-scheme:\s*light\)\s*\{\s*:root\s*\{/
+  it('dark: a white top highlight at 5% and a soft black drop shadow', () => {
+    expect(declared(css, /:root\s*\{/, '--elevation-card')).toBe('inset 0 1px 0 rgba(255,255,255,.05), 0 8px 24px rgba(0,0,0,.35)')
+  })
+  it('light: two soft near-black shadows', () => {
+    expect(declared(css, LIGHT, '--elevation-card')).toBe('0 1px 2px rgba(17,19,21,.06), 0 8px 24px rgba(17,19,21,.08)')
+  })
+  it('the bodybuilding side keeps the same shadows', () => {
+    expect(declared(css, /:root\[data-mode='bodybuilding'\]\s*\{/, '--elevation-card')).toBeUndefined()
+    expect(declared(css, /@media\s*\(prefers-color-scheme:\s*light\)\s*\{\s*:root\[data-mode='bodybuilding'\]\s*\{/, '--elevation-card')).toBeUndefined()
   })
 })
 

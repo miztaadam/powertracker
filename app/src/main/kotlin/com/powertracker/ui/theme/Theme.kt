@@ -11,10 +11,16 @@ import com.powertracker.domain.model.TrainingMode
 /** The side the app is on, for the few things that differ by side (the mode label). Set by [PowertrackerTheme]. */
 val LocalTrainingMode = staticCompositionLocalOf { TrainingMode.POWERLIFTING }
 
+val LocalCardShadow = staticCompositionLocalOf { DarkCardShadow }
+
+/** The soft card's shadow for a side and scheme. Both sides use the same shadows; only the scheme picks. */
+@Suppress("UNUSED_PARAMETER")
+fun cardShadowFor(mode: TrainingMode, darkTheme: Boolean): CardShadow = if (darkTheme) DarkCardShadow else LightCardShadow
+
 /**
  * The brand theme. Android 12 dynamic colour is deliberately not used: the palette is part of the
  * product and state colours must mean the same thing on every phone. [mode] picks between the powerlifting
- * side's chalk and graphite and the bodybuilding side's blue (bodybuilding mode spec §7.2).
+ * side's grey and graphite and the bodybuilding side's blue (bodybuilding mode spec §7.2).
  */
 @Composable
 fun PowertrackerTheme(
@@ -35,7 +41,11 @@ fun PowertrackerTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-    CompositionLocalProvider(LocalPtColors provides pt, LocalTrainingMode provides mode) {
+    CompositionLocalProvider(
+        LocalPtColors provides pt,
+        LocalTrainingMode provides mode,
+        LocalCardShadow provides cardShadowFor(mode, darkTheme),
+    ) {
         MaterialTheme(
             colorScheme = scheme,
             typography = PowertrackerTypography,
@@ -49,4 +59,8 @@ object PowertrackerTheme {
     /** Brand colours beyond the Material scheme (accent fill, state and lift colours). */
     val colors: PtColors
         @Composable @ReadOnlyComposable get() = LocalPtColors.current
+
+    /** The soft card's shadow for the current scheme. */
+    val cardShadow: CardShadow
+        @Composable @ReadOnlyComposable get() = LocalCardShadow.current
 }

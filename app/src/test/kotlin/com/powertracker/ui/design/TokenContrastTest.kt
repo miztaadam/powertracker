@@ -4,6 +4,8 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.unit.dp
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.theme.BodybuildingDarkColorScheme
 import com.powertracker.ui.theme.BodybuildingDarkPtColors
 import com.powertracker.ui.theme.BodybuildingLightColorScheme
@@ -13,12 +15,13 @@ import com.powertracker.ui.theme.DarkPtColors
 import com.powertracker.ui.theme.LightColorScheme
 import com.powertracker.ui.theme.LightPtColors
 import com.powertracker.ui.theme.PtColors
+import com.powertracker.ui.theme.cardShadowFor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * WCAG AA (4.5:1) for every text/background pairing the design system allows, plus the warm chalk
+ * WCAG AA (4.5:1) for every text/background pairing the design system allows, plus the grey
  * accent: its exact values and the 3:1 minimums that keep the primary button and the selected
  * outline visible.
  */
@@ -107,24 +110,42 @@ class TokenContrastTest {
     }
 
     @Test
-    fun darkAccent_isWarmChalk() {
-        assertEquals(Color(0xFFDCD6C8), DarkPtColors.accent)
-        assertEquals(Color(0xFF1A1812), DarkPtColors.onAccent)
-        assertEquals(Color(0xFFDCD6C8), DarkPtColors.accentText)
-        assertEquals(Color(0xFF332F26), DarkPtColors.accentContainer)
-        assertEquals(Color(0xFFEAE4D5), DarkPtColors.onAccentContainer)
+    fun darkAccent_isGrey() {
+        assertEquals(Color(0xFF93979D), DarkPtColors.accent)
+        assertEquals(Color(0xFF0B0C0E), DarkPtColors.onAccent)
+        assertEquals(Color(0xFF93979D), DarkPtColors.accentText)
+        assertEquals(Color(0xFF2A2C2F), DarkPtColors.accentContainer)
+        assertEquals(Color(0xFFDEDFE1), DarkPtColors.onAccentContainer)
         assertEquals(DarkPtColors.accent, DarkColorScheme.primary)
         assertEquals(DarkPtColors.onAccent, DarkColorScheme.onPrimary)
     }
 
     @Test
-    fun lightAccent_isWarmChalk() {
-        assertEquals(Color(0xFF46423B), LightPtColors.accent)
-        assertEquals(Color(0xFFFBF8F1), LightPtColors.onAccent)
-        assertEquals(Color(0xFF4B463E), LightPtColors.accentText)
-        assertEquals(Color(0xFFE8E2D4), LightPtColors.accentContainer)
-        assertEquals(Color(0xFF39342B), LightPtColors.onAccentContainer)
+    fun lightAccent_isGrey() {
+        assertEquals(Color(0xFF4A4D52), LightPtColors.accent)
+        assertEquals(Color(0xFFF6F7F8), LightPtColors.onAccent)
+        assertEquals(Color(0xFF4A4D52), LightPtColors.accentText)
+        assertEquals(Color(0xFFDCDEE0), LightPtColors.accentContainer)
+        assertEquals(Color(0xFF2F3135), LightPtColors.onAccentContainer)
         assertEquals(LightPtColors.accentText, LightColorScheme.primary)
+    }
+
+    /** The soft card (DESIGN.md "Space and shape"), as the web's `--elevation-card`: one shadow per scheme, both sides. */
+    @Test
+    fun cardShadow_isPinned() {
+        val dark = cardShadowFor(TrainingMode.POWERLIFTING, darkTheme = true)
+        assertEquals(8.dp, dark.elevation)
+        assertEquals(Color.Black.copy(alpha = 0.35f), dark.ambient)
+        assertEquals(Color.Black.copy(alpha = 0.35f), dark.spot)
+        assertEquals(Color.White.copy(alpha = 0.05f), dark.highlight)
+        val light = cardShadowFor(TrainingMode.POWERLIFTING, darkTheme = false)
+        assertEquals(8.dp, light.elevation)
+        assertEquals(Color(0xFF111315).copy(alpha = 0.06f), light.ambient)
+        assertEquals(Color(0xFF111315).copy(alpha = 0.08f), light.spot)
+        assertEquals(Color.Transparent, light.highlight)
+        // The bodybuilding side uses the same shadows.
+        assertEquals(dark, cardShadowFor(TrainingMode.BODYBUILDING, darkTheme = true))
+        assertEquals(light, cardShadowFor(TrainingMode.BODYBUILDING, darkTheme = false))
     }
 
     /** The strict press chart colour, as on the web (`--chart-press`): a line and a dot must stand out from what they are drawn on. */

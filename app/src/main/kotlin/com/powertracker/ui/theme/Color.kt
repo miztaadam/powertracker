@@ -6,11 +6,12 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 
 /** Brand colours Material's scheme has no slot for. Read through [PowertrackerTheme.colors]. */
 @Immutable
 data class PtColors(
-    /** The one accent, warm chalk, as a fill: the primary button, the current tab, a switch that is on. */
+    /** The one accent, grey on the powerlifting side and blue on the bodybuilding side, as a fill: the primary button, the current tab, a switch that is on. */
     val accent: Color,
     val onAccent: Color,
     /** Accent as text or icon on a neutral surface. */
@@ -36,16 +37,16 @@ data class PtColors(
     val bench: Color,
     val deadlift: Color,
     val press: Color,
-    /** Hairlines between rows and around cards. */
+    /** Hairlines between rows. Cards have no border: they take [CardShadow]. */
     val hairline: Color,
 )
 
 val DarkPtColors = PtColors(
-    accent = Color(0xFFDCD6C8),
-    onAccent = Color(0xFF1A1812),
-    accentText = Color(0xFFDCD6C8),
-    accentContainer = Color(0xFF332F26),
-    onAccentContainer = Color(0xFFEAE4D5),
+    accent = Color(0xFF93979D),
+    onAccent = Color(0xFF0B0C0E),
+    accentText = Color(0xFF93979D),
+    accentContainer = Color(0xFF2A2C2F),
+    onAccentContainer = Color(0xFFDEDFE1),
     muted = Color(0xFF959BA4),
     success = Color(0xFF3DD68C),
     successContainer = Color(0xFF0F2A1D),
@@ -63,11 +64,11 @@ val DarkPtColors = PtColors(
 )
 
 val LightPtColors = PtColors(
-    accent = Color(0xFF46423B),
-    onAccent = Color(0xFFFBF8F1),
-    accentText = Color(0xFF4B463E),
-    accentContainer = Color(0xFFE8E2D4),
-    onAccentContainer = Color(0xFF39342B),
+    accent = Color(0xFF4A4D52),
+    onAccent = Color(0xFFF6F7F8),
+    accentText = Color(0xFF4A4D52),
+    accentContainer = Color(0xFFDCDEE0),
+    onAccentContainer = Color(0xFF2F3135),
     muted = Color(0xFF595E66),
     success = Color(0xFF0F6B3D),
     successContainer = Color(0xFFDDF5E7),
@@ -86,7 +87,7 @@ val LightPtColors = PtColors(
 
 val LocalPtColors = staticCompositionLocalOf { DarkPtColors }
 
-/** Dark first: graphite surfaces stepping up in tone, chalk text. */
+/** Dark first: graphite surfaces stepping up in tone, chalk-white text, a grey accent. */
 val DarkColorScheme: ColorScheme = darkColorScheme(
     primary = DarkPtColors.accent,
     onPrimary = DarkPtColors.onAccent,
@@ -127,7 +128,7 @@ val DarkColorScheme: ColorScheme = darkColorScheme(
     scrim = Color(0xFF000000),
 )
 
-/** Light: chalk-paper background, white cards, ink text. The accent turns from chalk to graphite. */
+/** Light: chalk-paper background, white cards, ink text. The grey accent turns darker. */
 val LightColorScheme: ColorScheme = lightColorScheme(
     primary = LightPtColors.accentText,
     onPrimary = Color(0xFFFFFFFF),
@@ -230,6 +231,28 @@ val BodybuildingLightColorScheme: ColorScheme = LightColorScheme.copy(
     surfaceContainerHigh = Color(0xFFD6E1F1),
     surfaceContainerHighest = Color(0xFFCEDCF1),
     inversePrimary = BodybuildingDarkPtColors.accent,
+)
+
+/**
+ * The soft card's shadow (DESIGN.md "Space and shape"), the web's `--elevation-card`: [elevation] with tinted [ambient]
+ * and [spot] colours for `Modifier.shadow`, and in dark a [highlight] drawn as a 1 dp line along the card's top edge.
+ * The bodybuilding side uses the same shadows. Read through [PowertrackerTheme.cardShadow].
+ */
+@Immutable
+data class CardShadow(val elevation: Dp, val ambient: Color, val spot: Color, val highlight: Color)
+
+val DarkCardShadow = CardShadow(
+    elevation = Elevation.card,
+    ambient = Color.Black.copy(alpha = 0.35f),
+    spot = Color.Black.copy(alpha = 0.35f),
+    highlight = Color.White.copy(alpha = 0.05f),
+)
+
+val LightCardShadow = CardShadow(
+    elevation = Elevation.card,
+    ambient = Color(0xFF111315).copy(alpha = 0.06f),
+    spot = Color(0xFF111315).copy(alpha = 0.08f),
+    highlight = Color.Transparent,
 )
 
 /** IPF-style plate colours by weight in kg. Fixed in both themes: they picture real objects. */
