@@ -322,6 +322,30 @@ class BodybuildingContentTest {
     }
 
     @Test
+    fun bodybuildingCard_finished_keepsTheCues_aboveTheNextButton() {
+        val squatLines = lines("Squat")
+        val threeSets = twoSets + stored(3, 26.0, 9, 8.0)
+        compose.setContent {
+            PowertrackerTheme(mode = TrainingMode.BODYBUILDING) {
+                TodayContent(
+                    TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat, threeSets)), mode = TrainingMode.BODYBUILDING),
+                    TodayActions(),
+                )
+            }
+        }
+        compose.onNodeWithText("Done", useUnmergedTree = true).assertExists()
+        // The exercise is done: no weight entry, the button that moves on instead, and the cues still there above it.
+        compose.onNodeWithContentDescription("Weight, kilograms").assertDoesNotExist()
+        val lastSet = compose.onNodeWithText("Set 3: 26 kg × 9", substring = true).getUnclippedBoundsInRoot().bottom
+        val button = top("Finish session")
+        val order = listOf(top("STRETCH"), top(squatLines.stretch), top("SQUEEZE"), top(squatLines.squeeze))
+        assertTrue("the cues come after the logged sets", order.all { it >= lastSet })
+        assertTrue("the cues come before the Finish button", order.all { it < button })
+        val cuesBottom = compose.onNodeWithText(squatLines.squeeze, useUnmergedTree = true).getUnclippedBoundsInRoot().bottom
+        assertTrue("the whole cue block ends above the button", cuesBottom <= button)
+    }
+
+    @Test
     fun powerliftingCard_showsNoCues() {
         showCard(squat, TrainingMode.POWERLIFTING)
         compose.onNodeWithText("Squat", useUnmergedTree = true).assertExists()
