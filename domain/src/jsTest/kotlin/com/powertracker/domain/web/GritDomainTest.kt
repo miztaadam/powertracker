@@ -185,6 +185,19 @@ class GritDomainTest {
     }
 
     @Test
+    fun isNewPr_followsTheDomainRule() {
+        val history = jsHistory(GoldenScenario.day(70))
+        val bench = GritDomain.prs(history, "BENCH").last()
+        val benchId = history.exercises.first { it.name == "Bench" }.id
+        val heavier = JsSet(benchId, bench.weightKg + 20.0, bench.reps, bench.rpe, false, null, false)
+        val same = JsSet(benchId, bench.weightKg, bench.reps, bench.rpe, false, null, false)
+        assertTrue(GritDomain.isNewPr(history, heavier, "2026-03-20", "POWERLIFTING"))
+        assertFalse(GritDomain.isNewPr(history, same, "2026-03-20", "POWERLIFTING"))
+        assertFalse(GritDomain.isNewPr(history, heavier.copy(failed = true), "2026-03-20", "POWERLIFTING"))
+        assertFalse(GritDomain.isNewPr(history, heavier, "2026-03-20", "BODYBUILDING"))
+    }
+
+    @Test
     fun strictPress_liftsLabelsAndRatios() {
         assertContentEquals(arrayOf("SQUAT", "BENCH", "DEADLIFT", "STRICT_PRESS"), GritDomain.mainLifts())
         assertEquals("Strict press", GritDomain.liftLabel("STRICT_PRESS"))
