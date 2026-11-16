@@ -25,6 +25,21 @@
   padding-top: calc(env(safe-area-inset-top) + 1.5rem);
 }
 
+/* The iOS Home Screen app again: with viewport-fit=cover and a black-translucent status bar, iOS 26 makes the
+   viewport short by the status bar's height (WebKit bug 301108), so a shell pinned to the viewport stops that much
+   above the bottom of the screen. It reaches down by the top inset instead (100% of a fixed element is the
+   viewport), capped at the large viewport so it can never run past the screen once WebKit is fixed. html gets the
+   same minimum, so the page behind it never shows a strip either. */
+.ios-standalone {
+  min-height: min(100lvh, calc(100% + env(safe-area-inset-top)));
+}
+
+.ios-standalone .shell {
+  top: 0;
+  bottom: auto;
+  height: min(100lvh, calc(100% + env(safe-area-inset-top)));
+}
+
 .screen {
   display: flex;
   flex-direction: column;

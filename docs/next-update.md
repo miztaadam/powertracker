@@ -193,6 +193,12 @@ The owner tried 1.6 as a Home Screen app on iOS 26 and saw two things at the bot
 - **A darker strip under the tab bar.** In the Home Screen app, the page's full height stops short of the bottom of the screen. The app's frame is now pinned to the screen's edges, so it always reaches the bottom. The page colour is now on the page's root too.
 - New checks stand in for an iPhone's home bar in Chromium and measure both. Real phones: not tried yet.
 
+### Done: the iOS 26 Home Screen gap, second fix (1.6.2)
+In 1.6.1 the owner still saw a band of page about 55 pt high below the tab bar on the iPhone.
+- **Cause:** a WebKit bug (301108). In a Home Screen app that draws under the status bar, iOS 26 makes the page's viewport short by the status bar's height, so anything sized to the screen stopped that much above the bottom.
+- **Fix:** in the iOS Home Screen app only, the app's frame reaches down by the status bar's height too. It is capped at the full screen height, so it cannot run past the screen once Apple fixes the bug. The page behind gets the same minimum height. The same fix is used by another open-source app framework (frappe-ui).
+- Not yet checked on a real iPhone; the owner's check will confirm it. Chromium cannot reproduce the bug, so the new check only proves the rule is applied, not that the gap is gone.
+
 ### Follow-ups noticed during the new look
 - The Exercises tab speed check, in quiet timing against 1.5.0, had two single slow opens (80 and 90 ms). Both are still under the 100 ms limit, and the medians were the same as 1.5.0. Timed before the sound-engine fix; the release's quiet speed runs passed, but the tab was not re-timed against 1.5.0 after it.
 - An Android test, `PlanBuilderScreenTest`, failed twice during full runs on a closed database connection and passed alone each time. Worth its own look.
