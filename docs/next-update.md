@@ -155,7 +155,7 @@ Not yet tried on real phones: the stretch and squeeze line in README's manual ch
 Follow-ups noticed during stage 4:
 - The Seated cable fly guide has no mistake against going past the start.
 - The Hack squat guide has no "stop if your hips leave the pad".
-- On the web at 130% zoom on a 375 px phone, the Today card's RPE stepper runs past the edge (it did before stage 4).
+- On the web at 130% zoom on a 375 px phone, the Today card's RPE stepper runs past the edge (it did before stage 4). **Fixed in 1.6:** under 375 px the RPE stepper takes its own row, and the 130% zoom check covers the steppers again.
 
 ## Done: the new look (version 1.6, both apps)
 Spec: `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md`. Plan: `docs/superpowers/plans/2026-11-16-grit-look-stage-1.md`. This is stage 1 of the new look and motion; nothing behaves differently.
@@ -169,6 +169,8 @@ What the lifter sees:
 - **Bodybuilding keeps its blue and the Barlow font.** Only its cards change.
 - **State outlines stay as they were:** the selected chip and segment, the planned-set ring, the switch-off border, text-field borders and rings, the number field's underline and the focus ring.
 - How it is drawn: the web uses one shadow token per scheme. Android draws the same shadows as soft copies of the card's shape (`dropShadow`), plus a 1 dp inner line for the dark highlight. So the shadows also show in the screenshots.
+- **The rest bar has its own layer** on both apps (the card shadow), so in dark it no longer runs into an open card behind it.
+- **Narrow phones (web), under 375 px wide:** on Today the RPE stepper moves to its own row under weight and reps (buttons stay 48 px, text 16 px), and the tab bar's pills may narrow. At 375 px and wider nothing moves. This includes 360 px, a common Android width.
 - The screenshots on both apps were taken again. Not yet looked at on a real phone.
 
 ### iPhone and phone fixes (web app, also in 1.6)
@@ -178,15 +180,16 @@ The owner's list of nine, from commits `182f1ad` and `92704c9`:
 3. **Tab bar: changed in part.** Its height is one shared token now. **It keeps its full bottom inset**, because Grit's tabs are 80 px with labels; the suggested 14 px trim came from another app.
 4. **View Transitions: do not apply.** Grit uses none.
 5. **Theme colour: changed.** One theme-colour tag, set before the first paint on both sides, so the browser bar matches the page in dark and light.
-6. **Narrow phones: changed.** A new 320 px check covers Today, the picker, Settings, Progress and Coach. Only the rest alert's segments overflowed; they may now wrap.
+6. **Narrow phones: changed.** A check at 306 and 320 px covers Today with an exercise open, the picker, Settings, Progress and Coach on both sides; it checks that nothing scrolls sideways, inside the scrolling screen too. It found the rest alert's segments and Today's RPE stepper (which was already too wide in 1.5) too wide; both are fixed. No root font-size steps were needed.
 7. **Sound on iPhone: changed.** The tone unlocks on the first touch and recovers after a call or a trip to another app. A tone that cannot play within 1 s is dropped, so it never sounds long after the rest.
 8. **Vibration: changed.** A new rest alert, "Sound + vibrate", where the browser can vibrate (Android). iPhones hide it and say "iPhones don't let web apps vibrate."
-9. **Install card: changed.** On Android it says to open the browser's menu (⋮), and the separate-storage note says "apart from your browser's" instead of "apart from Safari's".
+9. **Install card: changed.** On Android it says to open the browser's menu (⋮). Chrome's installed app shares the browser's storage, so on Android the separate-storage sentence is replaced (owner, 2026-11-16) by: "Your log stays in this browser, so the installed app opens with it. Export a backup now and then to keep a copy." iPhone keeps its sentence about Safari's separate storage.
 
 Push notifications do not apply: Grit sends none.
 
 ### Follow-ups noticed during the new look
-- The Exercises tab speed check, in quiet timing against 1.5.0, had two single slow opens (80 and 90 ms). Both are still under the 100 ms limit, and the medians were the same as 1.5.0.
+- The Exercises tab speed check, in quiet timing against 1.5.0, had two single slow opens (80 and 90 ms). Both are still under the 100 ms limit, and the medians were the same as 1.5.0. Timed before the sound-engine fix; the release's quiet speed runs passed, but the tab was not re-timed against 1.5.0 after it.
+- An Android test, `PlanBuilderScreenTest`, failed twice during full runs on a closed database connection and passed alone each time. Worth its own look.
 - The picker's occasional slow first open in 1.6 (one run took 114 ms; the limit is 100 ms) came from the new iPhone sound unlock: it made the sound engine inside the first tap. The engine is now made just after start-up, so a tap only wakes it.
 - "Sound + vibrate" wraps onto two lines on 320–390 px phones, so on most Android phones. The owner may prefer a shorter label.
 - An Android app set to vibrate only comes back as "Sound + vibrate" when its backup is restored in an Android browser, since the web has no vibrate-only alert.
