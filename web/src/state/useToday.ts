@@ -6,7 +6,7 @@ import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/d
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
 import { sideOf, type AdviceRow, type PlanItemRow, type SetRow, type TrainingMode } from '../db/schema'
 import { haptic, hapticsPossible } from '../platform/haptics'
-import { slideNextChange } from '../ui/viewTransition'
+import { slideNextChange, withTransition } from '../ui/viewTransition'
 import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 
@@ -127,8 +127,10 @@ export type TodayActions = {
   /**
    * Makes an exercise of the lifter's own, adds it to this session and resolves to the id its card
    * is shown under. A catalogue name is added from the catalogue instead of being made again.
+   * `onAdded`, when given, runs with that id in the same step as the add, which slides in (stage 3): once the new
+   * exercise is on screen, so its card can open as it arrives.
    */
-  createExercise: (exercise: CustomExercise) => Promise<number | null>
+  createExercise: (exercise: CustomExercise, onAdded?: (id: number | null) => void) => Promise<number | null>
   /**
    * Adds an exercise from another screen (the Exercises tab) the way "Add exercise" here does: a
    * catalogue exercise by `catalogueName`, with no row until its first set; the lifter's own by
@@ -623,6 +625,14 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   const waiting = useRef<{ setId: number; done: () => void }[]>([])
   const loadWaiting = useRef<(() => void)[]>([])
   const closed = useRef(false)
+  const knownWaiting = useRef<{ id: number; done: () => void }[]>([])
+  useEffect(() => {
+    const ids = new Set(state.exercises.map((e) => e.id))
+    knownWaiting.current = knownWaiting.current.filter((w) => {
+      if (ids.has(w.id)) w.done()
+      return !ids.has(w.id)
+    })
+  })
   useEffect(() => {
     if (!state.loading) loadWaiting.current.splice(0).forEach((done) => done())
     const onScreen = new Set(state.items.flatMap((i) => i.sets.map((s) => s.id)))
@@ -645,6 +655,21 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     while (latest.current.loading && !closed.current) await new Promise<void>((resolve) => loadWaiting.current.push(resolve))
     return !closed.current
   }, [])
+
+  /** Waits until the exercise row `id` is in the screen's data (or a moment has passed). */
+  const known = useCallback(
+    (id: number) =>
+      new Promise<void>((resolve) => {
+        if (latest.current.exercises.some((e) => e.id === id)) return resolve()
+        const timer = setTimeout(done, SHOWN_TIMEOUT_MS)
+        function done() {
+          clearTimeout(timer)
+          resolve()
+        }
+        knownWaiting.current.push({ id, done })
+      }),
+    [],
+  )
 
   const shown = useCallback(
     (setId: number) =>
@@ -839,13 +864,23 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   )
 
   const createExercise = useCallback<TodayActions['createExercise']>(
-    async (exercise) => {
+    async (exercise, onAdded) => {
       const entry = await createCustomExercise(db, exercise)
-      if (entry.library) return addFromCatalogue(entry.library.name)
-      if (entry.exerciseId != null) addExercise(entry.exerciseId)
-      return entry.exerciseId
+      const newRow = entry.library == null ? entry.exerciseId : null
+      // A new row of the lifter's own reaches the screen with the next read: wait for it, so it slides in whole.
+      if (newRow != null) await known(newRow)
+      let id: number | null = null
+      withTransition(() => {
+        if (entry.library) id = addFromCatalogue(entry.library.name)
+        else if (entry.exerciseId != null) {
+          addExercise(entry.exerciseId)
+          id = entry.exerciseId
+        }
+        onAdded?.(id)
+      })
+      return entry.library ? catalogueId(entry.library.name, latest.current.exercises) : entry.exerciseId
     },
-    [db, addExercise, addFromCatalogue],
+    [db, addExercise, addFromCatalogue, known],
   )
 
   const removeExercise = useCallback(

@@ -55,6 +55,24 @@
   white-space: nowrap;
 }
 
+/* Under 360 px (the narrowest Android phones, and 130% zoom on an iPhone) the four controls would leave the text about
+   30 px: the row wraps, the name and numbers get the whole line and the controls sit under them on the right. */
+@media (max-width: 359px) {
+  .plan-row {
+    flex-wrap: wrap;
+    padding-bottom: var(--space-2);
+  }
+
+  .plan-row-text {
+    flex-basis: calc(100% - 24px);
+    padding-bottom: 0;
+  }
+
+  .plan-row-text + * {
+    margin-left: auto;
+  }
+}
+
 /* Known bests: a line of explanation, then one row per main lift. */
 
 .plan-bests {

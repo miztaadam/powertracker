@@ -206,13 +206,13 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
             })
           }}
           onCreateCustom={(exercise) => {
-            raw.createExercise(exercise).then(
-              (id) => {
+            // The new exercise slides in with its card open, like a picked one.
+            raw
+              .createExercise(exercise, (id) => {
                 if (id != null && !inSessionAlready(id)) haptic('tick')
                 setActiveId(id)
-              },
-              () => setFailures((n) => n + 1),
-            )
+              })
+              .catch(() => setFailures((n) => n + 1))
             setPicking(false)
           }}
           onDismiss={() => setPicking(false)}

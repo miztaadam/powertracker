@@ -150,6 +150,32 @@ test('a tap during a slide reaches the page: a stepper steps', async ({ page }) 
   await expect(reps).toHaveValue('6')
 })
 
+test('a mouse click during a slide lands, once', async ({ page }) => {
+  await openWithPlan(page)
+  await startSession(page)
+  const reps = page.getByRole('textbox', { name: 'Reps', exact: true })
+  await expect(reps).toHaveValue('5')
+  const at = await page.getByRole('button', { name: 'Increase Reps' }).evaluate((el) => {
+    const r = el.getBoundingClientRect()
+    return { x: r.x + r.width / 2, y: r.y + r.height / 2 }
+  })
+  await page.mouse.move(at.x, at.y)
+  await page.evaluate(() => [...document.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.includes('Log set 1'))!.click())
+  await page.waitForFunction(sliding)
+  // Where the stepper is now, after the set slid in above it; the mouse goes down without moving first.
+  const now = await page.getByRole('button', { name: 'Increase Reps' }).evaluate((el) => {
+    const r = el.getBoundingClientRect()
+    return { x: r.x + r.width / 2, y: r.y + r.height / 2 }
+  })
+  await page.mouse.move(now.x, now.y)
+  expect(await page.evaluate(sliding)).toBe(true)
+  await page.mouse.down()
+  await page.mouse.up()
+  await expect(reps).toHaveValue('6')
+  await page.waitForTimeout(400)
+  await expect(reps).toHaveValue('6')
+})
+
 test('delete the last set, then log one straight away: the rows end right', async ({ page }) => {
   await openWithPlan(page)
   await startSession(page)
@@ -245,6 +271,17 @@ test('opening another exercise slides; the picker and the Exercises tab never do
   await picker.getByRole('listitem', { name: 'Front squat', exact: true }).getByRole('button').first().click()
   await expect(page.getByRole('heading', { level: 2, name: 'Front squat' })).toBeVisible()
   expect(await started(page)).toBe(beforePicker + 1)
+
+  // One of the lifter's own, made from the picker, slides in the same way, with its card open.
+  await page.waitForFunction(() => !document.getAnimations().some((a) => (a.effect as KeyframeEffect | null)?.pseudoElement?.startsWith('::view-transition')))
+  const beforeCustom = await started(page)
+  await page.getByRole('button', { name: 'Add exercise' }).click()
+  await picker.getByRole('button', { name: 'Create your own' }).click()
+  const custom = page.getByRole('dialog', { name: 'Add custom exercise' })
+  await custom.getByRole('textbox', { name: 'Name' }).fill('Pin squat')
+  await custom.getByRole('button', { name: 'Create' }).click()
+  await expect(page.getByRole('heading', { level: 2, name: 'Pin squat' })).toBeVisible()
+  expect(await started(page)).toBe(beforeCustom + 1)
 
   const beforeTab = await started(page)
   await tabBar(page).getByRole('link', { name: 'Exercises' }).click()

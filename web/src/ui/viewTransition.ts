@@ -11,7 +11,7 @@ import { flushSync } from 'react-dom'
  *   transitions, `update` runs at once and nothing moves, as before.
  * - A transition still running when the next one starts is skipped first, so it ends where it was going and the
  *   new one starts from the screen as it is. Every update runs, in order.
- * - A finger going down during a transition skips it too, so the tap is never held up or lost.
+ * - A press during a transition (finger, mouse or pen) skips it too, so the tap or click is never held up or lost.
  */
 type Transition = { skipTransition: () => void; finished: Promise<void>; ready: Promise<void>; updateCallbackDone: Promise<void> }
 type StartViewTransition = (update: () => void) => Transition
@@ -45,10 +45,13 @@ export function withTransition(update: () => void): void {
     return
   }
   running = transition
-  // The browser leaves the pictures out of hit testing, so a tap during the slide would land on nothing: the finger
-  // going down ends the slide at once, so the tap reaches what is under it. Only listened for while one runs.
-  const skipOnPress = () => transition.skipTransition()
-  window.addEventListener('pointerdown', skipOnPress, { capture: true })
+  // The browser leaves the pictures out of hit testing, so a press during the slide would land on nothing (<html>): any
+  // pointer going down ends the slide at once. Only listened for while one runs.
+  const skipOnPress = (event: PointerEvent) => {
+    transition.skipTransition()
+    if (event.target === document.documentElement) clickLandsUnder()
+  }
+  document.addEventListener('pointerdown', skipOnPress, { capture: true })
   // A skipped transition (a new one, a hidden page, a name used twice) rejects `ready`: the update has still run,
   // so there is nothing to report. A failed update rejects the others; its error has gone to React already.
   transition.ready.catch(() => {})
@@ -56,12 +59,39 @@ export function withTransition(update: () => void): void {
   transition.finished
     .catch(() => {})
     .finally(() => {
-      window.removeEventListener('pointerdown', skipOnPress, { capture: true })
+      document.removeEventListener('pointerdown', skipOnPress, { capture: true })
       if (running === transition) {
         running = null
         root.classList.remove(NAMING_CLASS)
       }
     })
+}
+
+/**
+ * A press that went down on <html> during a slide. A finger's tap still reaches what is under it once the slide is
+ * skipped, but a mouse click goes to the element both the press and the release were on, <html>, and would be lost:
+ * that click, and only that one, is handed to what is under the pointer now.
+ */
+function clickLandsUnder() {
+  const root = document.documentElement
+  const onClick = (click: MouseEvent) => {
+    stop()
+    if (click.target !== root) return
+    const under = document.elementFromPoint(click.clientX, click.clientY)
+    if (under == null || under === root) return
+    click.stopImmediatePropagation()
+    click.preventDefault()
+    if (under instanceof HTMLElement && under.matches('input, textarea, select')) under.focus()
+    // The same click, on what is under the pointer (an icon inside a button is fine: it bubbles up to the button).
+    under.dispatchEvent(new MouseEvent('click', click))
+  }
+  const stop = () => {
+    clearTimeout(timer)
+    document.removeEventListener('click', onClick, { capture: true })
+  }
+  // A press held longer than a click, or one that never ends in a click, is left alone.
+  const timer = setTimeout(stop, 1000)
+  document.addEventListener('click', onClick, { capture: true })
 }
 
 /**

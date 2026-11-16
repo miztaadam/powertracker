@@ -163,16 +163,13 @@ for (const [label, viewport] of [
       }
       await expect(monday.getByRole('listitem')).toHaveCount(2)
       await page.waitForFunction(() => !document.getAnimations().some((a) => (a.effect as KeyframeEffect | null)?.pseudoElement?.startsWith('::view-transition')))
-      // On the narrowest phones a row's numbers already run past their narrow column before anything moves (the same
-      // with motion off, and in 1.7): the move adds nothing to that.
-      const atRest = await overflowing(page)
+      expect(await overflowing(page)).toEqual([])
       await monday.getByRole('button', { name: 'Move down' }).first().click()
       await page.waitForFunction(sliding)
-      expect(await overflowing(page)).toEqual(atRest)
+      expect(await overflowing(page)).toEqual([])
       await expect(monday.getByRole('listitem').first()).toHaveAttribute('aria-label', /^Bench/)
       await page.waitForFunction(() => !document.getAnimations().some((a) => (a.effect as KeyframeEffect | null)?.pseudoElement?.startsWith('::view-transition')))
-      expect(await overflowing(page)).toEqual(atRest)
-      expect(atRest.every((found) => found.startsWith('clipped p.plan-row-dose'))).toBe(true)
+      expect(await overflowing(page)).toEqual([])
     })
   })
 }
