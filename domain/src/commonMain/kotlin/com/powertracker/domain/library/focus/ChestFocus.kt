@@ -22,7 +22,8 @@ private const val HANDLES_TOGETHER = "Squeeze your chest as the handles come tog
 private const val PUSH_TO_STRAIGHT = "Squeeze your chest as you push up to straight arms."
 // The dip guides stop with the upper arms level with the floor: "no deeper".
 private const val DIP_BOTTOM = "Your chest stretches with your upper arms level with the floor."
-// The push-up guides lower the chest toward the floor, not onto it.
+// The push-up guides lower the chest toward the floor and name no stop short of it, so they lower to or near the
+// floor (ACE 41: until the chest or chin touches it).
 private const val TOWARD_FLOOR = "Your chest stretches as you lower toward the floor."
 
 /** BodyArea.CHEST: each exercise's stretch and squeeze, keyed by catalogue name. */

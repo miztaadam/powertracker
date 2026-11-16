@@ -23,7 +23,7 @@ private const val FOREARMS_DOWN = "Your forearms stretch as you lower to straigh
 // are "nearly straight" (locking hard is a mistake), so no squeeze says straight or lock.
 private const val TRICEPS_PUSH_NEARLY = "Squeeze your triceps as your arms nearly straighten."
 private const val TRICEPS_PUSH_UP = "Squeeze your triceps as you push up to straight arms."
-// The push-up guides lower "toward the floor", not onto it.
+// The push-up guides lower "toward the floor" and name no stop short of it, so they lower to or near the floor.
 private const val TRICEPS_TOWARD_FLOOR = "Your triceps stretch as you lower toward the floor."
 
 /** BodyArea.ARMS: each exercise's stretch and squeeze, keyed by catalogue name. */
@@ -90,21 +90,23 @@ internal val armsFocus: List<Pair<String, MuscleFocus>> by lazy {
         ),
 
         // ---- Triceps: pushdowns and extensions ----
-        // The stretch is the guide's top, with the elbows still at the sides. ExRx returns "until forearm is close to
-        // upper arm" with the elbows kept at the sides, inside the guide's stop; ACE 185 stops just short of lockout.
+        // The stretch is the guide's top, with the elbows still at the sides. ACE 185 returns until the elbows begin to
+        // drift forward (the guide's stop) and pushes down just short of lockout, so it is cited alone. The ExRx
+        // pushdown pages let the elbow travel up at the top, past the guide's stop at the point the stretch names, so
+        // they are not cited for these lines (they stay on the guides' own lists).
         "Triceps pushdown" to lines(
             "Your triceps stretch as the bar rises, elbows at your sides.", TRICEPS_PUSH_NEARLY,
-            Sources.ACE_TRICEPS_PUSHDOWNS, Sources.EXRX_CB_PUSHDOWN,
+            Sources.ACE_TRICEPS_PUSHDOWNS,
         ),
         "Rope pushdown" to lines(
             "Your triceps stretch as the rope rises, elbows at your sides.",
             "Squeeze your triceps as you turn your palms down at the bottom.",
-            Sources.EXRX_CB_PUSHDOWN_ROPE, Sources.ACE_TRICEPS_PUSHDOWNS,
+            Sources.ACE_TRICEPS_PUSHDOWNS,
         ),
         "One-arm pushdown" to lines(
             "Your triceps stretch as the handle rises, elbow at your side.",
             "Squeeze your triceps as your arm nearly straightens.",
-            Sources.EXRX_CB_ONE_ARM_PUSHDOWN, Sources.ACE_TRICEPS_PUSHDOWNS,
+            Sources.ACE_TRICEPS_PUSHDOWNS,
         ),
         // ExRx and the guide: lower until the forearms touch the upper arms; straighten the arms overhead.
         "Cable overhead triceps extension" to lines(
@@ -120,11 +122,12 @@ internal val armsFocus: List<Pair<String, MuscleFocus>> by lazy {
             Sources.ACE_TRICEPS_EXTENSION,
         ),
         // The guide stops "just above your forehead, or sooner" and presses up "without locking your elbows", so the
-        // squeeze names no lockout. ACE 36 allows lowering "just behind your head", past the guide, so it is not cited.
+        // squeeze names no lockout. ACE 36 stops at the same point ("just above the forehead, or sooner if the upper
+        // arms begin to drift back"), so it comes first; ExRx lowers toward the forehead and goes no further.
         "Skull crusher" to lines(
             "Your triceps stretch as the bar nears your forehead.",
             "Squeeze your triceps as you press the bar back up.",
-            Sources.EXRX_BB_SKULL_CRUSHER,
+            Sources.ACE_LYING_BB_TRI_EXT, Sources.EXRX_BB_SKULL_CRUSHER,
         ),
         // ExRx and the guide: lower until the dumbbells are beside the head.
         "DB lying triceps extension" to lines(
@@ -151,8 +154,12 @@ internal val armsFocus: List<Pair<String, MuscleFocus>> by lazy {
             "Your triceps stretch with your upper arms level with the floor.", TRICEPS_PUSH_UP,
             Sources.EXRX_WT_TRI_DIP, Sources.ACE_DANGEROUS_DIPS,
         ),
-        // ACE 41 lowers until the chest or chin reaches the floor, past the guide's "toward", so it is not cited.
-        "Close-grip push-up" to lines(TRICEPS_TOWARD_FLOOR, TRICEPS_PUSH_UP, Sources.EXRX_CLOSE_GRIP_PUSH_UP),
+        // ExRx: body rigid, lower by bending the elbows, press up to straight arms. ACE 41 lowers until the chest or chin
+        // touches the floor, which the guide's "toward the floor" allows, so it is the second source.
+        "Close-grip push-up" to lines(
+            TRICEPS_TOWARD_FLOOR, TRICEPS_PUSH_UP,
+            Sources.EXRX_CLOSE_GRIP_PUSH_UP, Sources.ACE_PUSH_UP,
+        ),
         // The ACE study's triangle push-up: hands in a triangle, torso rigid, arms extended fully at the top.
         "Triangle push-up" to lines(
             TRICEPS_TOWARD_FLOOR, "Squeeze your triceps as your elbows straighten.",

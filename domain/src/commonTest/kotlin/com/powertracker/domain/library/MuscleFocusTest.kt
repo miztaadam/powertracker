@@ -106,6 +106,12 @@ class MuscleFocusTest {
     }
 
     @Test
+    fun focus_quadsIsAllWritten() {
+        val missing = Library.all().filter { it.area == BodyArea.QUADS && Library.focus(it.name) == null }.map { it.name }
+        assertTrue(missing.isEmpty(), "quad exercises with no lines: $missing")
+    }
+
+    @Test
     fun focus_findsByNameIgnoringCase() {
         val squat = assertNotNull(Library.focus("Squat"))
         assertEquals(squat, Library.focus("SQUAT"))

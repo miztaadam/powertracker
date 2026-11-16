@@ -2059,6 +2059,7 @@ Stretch and squeeze (bodybuilding side):
 Sources of the stretch and squeeze:
 
 - [Close Grip Push-up](https://exrx.net/WeightExercises/Triceps/BWCloseGripPushup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
@@ -2310,7 +2311,6 @@ Stretch and squeeze (bodybuilding side):
 
 Sources of the stretch and squeeze:
 
-- [Cable One Arm Pushdown](https://exrx.net/WeightExercises/Triceps/CBOneArmPushdown). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
@@ -2381,7 +2381,6 @@ Stretch and squeeze (bodybuilding side):
 
 Sources of the stretch and squeeze:
 
-- [Cable Pushdown (with rope attachment)](https://exrx.net/WeightExercises/Triceps/CBPushdownRope). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
@@ -2417,6 +2416,7 @@ Stretch and squeeze (bodybuilding side):
 
 Sources of the stretch and squeeze:
 
+- [Exercise Library: Lying Barbell Triceps Extensions](https://www.acefitness.org/resources/everyone/exercise-library/36/lying-barbell-triceps-extensions/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Barbell Lying Triceps Extension "Skull Crusher"](https://exrx.net/WeightExercises/Triceps/BBLyingTriExtSC). ExRx.net, accessed 2026-11-11.
 - [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
@@ -2505,7 +2505,6 @@ Stretch and squeeze (bodybuilding side):
 Sources of the stretch and squeeze:
 
 - [Exercise Library: Triceps Pushdowns](https://www.acefitness.org/resources/everyone/exercise-library/185/triceps-pushdowns/). American Council on Exercise (ACE), accessed 2026-11-11.
-- [Cable Pushdown](https://exrx.net/WeightExercises/Triceps/CBPushdown). ExRx.net, accessed 2026-11-11.
 - [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
@@ -2537,6 +2536,18 @@ Sources of the stretch and squeeze:
 - [Exercise Library: Forward Lunge](https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch in your front leg, back knee near the floor.
+- Squeeze: Squeeze your quads as your front leg straightens.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Forward Lunge](https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Barbell Lunge](https://exrx.net/WeightExercises/Quadriceps/BBLunge). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Barbell reverse lunge
 
 - [Exercise Library: Reverse Lunge](https://www.acefitness.org/resources/everyone/exercise-library/319/reverse-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
@@ -2544,26 +2555,83 @@ Sources of the stretch and squeeze:
 - [Dumbbell Rear Lunge](https://exrx.net/WeightExercises/Quadriceps/DBRearLunge). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch in your front leg, back knee near the floor.
+- Squeeze: Squeeze your quads as you push through your front foot to stand.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Reverse Lunge](https://www.acefitness.org/resources/everyone/exercise-library/319/reverse-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Rear Lunge](https://exrx.net/WeightExercises/Quadriceps/DBRearLunge). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Bodyweight squat
 
 - [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Squat](https://exrx.net/WeightExercises/Quadriceps/BWSquat). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom of your squat.
+- Squeeze: Squeeze your quads as you push through your feet to stand.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Bulgarian split squat
 
 - [Dumbbell Single Leg Split Squat](https://exrx.net/WeightExercises/Quadriceps/DBSingleLegSplitSquat). ExRx.net, accessed 2026-11-11.
 - [Effects of rear-foot instability devices on lower-limb muscle activation during the Bulgarian split squat in male football players](https://pmc.ncbi.nlm.nih.gov/articles/PMC12819420/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch in your front leg, back knee near the floor.
+- Squeeze: Squeeze your quads as you drive up through your front foot.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Single Leg Split Squat](https://exrx.net/WeightExercises/Quadriceps/DBSingleLegSplitSquat). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Curtsy lunge
 
 - [8 Butt-toning Moves](https://www.acefitness.org/resources/pros/expert-articles/6355/8-butt-toning-moves/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as you lower, front knee over your heel.
+- Squeeze: Squeeze your glutes as you push up through your front leg.
+
+Sources of the stretch and squeeze:
+
+- [8 Butt-toning Moves](https://www.acefitness.org/resources/pros/expert-articles/6355/8-butt-toning-moves/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### DB squat
 
 - [Dumbbell Squat](https://exrx.net/WeightExercises/Quadriceps/DBSquat). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom of your squat.
+- Squeeze: Squeeze your quads as your hips and knees straighten.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Squat](https://exrx.net/WeightExercises/Quadriceps/DBSquat). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Goblet squat
 
@@ -2572,21 +2640,68 @@ Sources of the stretch and squeeze:
 - [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom of your squat.
+- Squeeze: Squeeze your quads as your hips and knees straighten.
+
+Sources of the stretch and squeeze:
+
+- [Kettlebell Goblet Squat](https://exrx.net/WeightExercises/Kettlebell/KBGobletSquat). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Hack squat
 
 - [Sled Hack Squat](https://exrx.net/WeightExercises/Quadriceps/SLHackSquat). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch with your knees just short of fully bent.
+- Squeeze: Squeeze your quads as your knees and hips straighten.
+
+Sources of the stretch and squeeze:
+
+- [Sled Hack Squat](https://exrx.net/WeightExercises/Quadriceps/SLHackSquat). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Jump squat
 
 - [Exercise Library: Squat Jumps](https://www.acefitness.org/resources/everyone/exercise-library/116/squat-jumps/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Squat Jump](https://www.acefitness.org/resources/everyone/exercise-library/222/squat-jump/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch as you dip, stopping before your heels lift.
+- Squeeze: Squeeze your quads as you jump up.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Squat Jump](https://www.acefitness.org/resources/everyone/exercise-library/222/squat-jump/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Squat Jumps](https://www.acefitness.org/resources/everyone/exercise-library/116/squat-jumps/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Kettlebell front squat
 
 - [Kettlebell Front Squat](https://exrx.net/WeightExercises/Kettlebell/KBFrontSquat). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom of your squat.
+- Squeeze: Squeeze your quads as your hips and knees straighten.
+
+Sources of the stretch and squeeze:
+
+- [Kettlebell Front Squat](https://exrx.net/WeightExercises/Kettlebell/KBFrontSquat). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Lateral lunge
 
@@ -2595,16 +2710,50 @@ Sources of the stretch and squeeze:
 - [Total-body Dumbbell Workout](https://www.acefitness.org/resources/pros/expert-articles/3718/total-body-dumbbell-workout/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch as you sit back on the leg you stepped onto.
+- Squeeze: Squeeze your quads as you push back to the middle.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Lateral Lunge](https://www.acefitness.org/resources/everyone/exercise-library/364/lateral-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Alternating Side Lunge](https://exrx.net/WeightExercises/Quadriceps/DBSideLunge). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Lateral step-up
 
 - [Dumbbell Lateral Step-up](https://exrx.net/WeightExercises/GluteusMaximus/DBLateralStepUp). ExRx.net, accessed 2026-11-11.
 - [6 Lower Body Exercises to Do Instead of Squats](https://www.acefitness.org/resources/pros/expert-articles/5028/6-lower-body-exercises-to-do-instead-of-squats/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch with your near foot on the box, knee bent.
+- Squeeze: Squeeze your quads as the leg on the box straightens.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Lateral Step-up](https://exrx.net/WeightExercises/GluteusMaximus/DBLateralStepUp). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Leg extension
 
 - [Lever Leg Extension](https://exrx.net/WeightExercises/Quadriceps/LVLegExtension). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch with your knees bent at the start.
+- Squeeze: Squeeze your quads as your legs straighten.
+
+Sources of the stretch and squeeze:
+
+- [Lever Leg Extension](https://exrx.net/WeightExercises/Quadriceps/LVLegExtension). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Leg press
 
@@ -2613,17 +2762,52 @@ Sources of the stretch and squeeze:
 - [Seated Leg Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/154/seated-leg-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Sled Single Leg 45° Leg Press](https://exrx.net/WeightExercises/Quadriceps/SLSingleLeg45LegPress). ExRx.net, accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom, hips still on the pad.
+- Squeeze: Squeeze your quads as your legs straighten, knees not locked.
+
+Sources of the stretch and squeeze:
+
+- [Seated Leg Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/154/seated-leg-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Lever squat
 
 - [Lever Squat](https://exrx.net/WeightExercises/Quadriceps/LVSquat). ExRx.net, accessed 2026-11-11.
 - [Lever Squat (plate loaded)](https://exrx.net/WeightExercises/Quadriceps/LVSquatPL). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom of your squat.
+- Squeeze: Squeeze your quads as your hips and knees straighten.
+
+Sources of the stretch and squeeze:
+
+- [Lever Squat](https://exrx.net/WeightExercises/Quadriceps/LVSquat). ExRx.net, accessed 2026-11-11.
+- [Lever Squat (plate loaded)](https://exrx.net/WeightExercises/Quadriceps/LVSquatPL). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Lunge
 
 - [Exercise Library: Forward Lunge](https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Dumbbell Lunge](https://exrx.net/WeightExercises/Quadriceps/DBLunge). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Lunge](https://www.acefitness.org/resources/everyone/exercise-library/363/lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch in your front leg, back knee near the floor.
+- Squeeze: Squeeze your quads as you push off your front leg to stand.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Forward Lunge](https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Lunge](https://exrx.net/WeightExercises/Quadriceps/DBLunge). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Reverse lunge
 
@@ -2632,10 +2816,33 @@ Sources of the stretch and squeeze:
 - [5 Lunge Variations You Need to Try](https://www.acefitness.org/resources/pros/expert-articles/5818/5-lunge-variations-you-need-to-try/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch in your front leg, back knee near the floor.
+- Squeeze: Squeeze your quads as you push through your front foot to stand.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Rear Lunge](https://exrx.net/WeightExercises/Quadriceps/DBRearLunge). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Reverse Lunge](https://www.acefitness.org/resources/everyone/exercise-library/319/reverse-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Single-leg box squat
 
 - [Single Leg Box Squat (pistol)](https://exrx.net/WeightExercises/Quadriceps/BWSingleLegBoxSquat). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch as you lower on one leg to touch the box.
+- Squeeze: Squeeze your quads as your standing leg straightens.
+
+Sources of the stretch and squeeze:
+
+- [Single Leg Box Squat (pistol)](https://exrx.net/WeightExercises/Quadriceps/BWSingleLegBoxSquat). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Single-leg leg extension
 
@@ -2643,16 +2850,47 @@ Sources of the stretch and squeeze:
 - [Lever Leg Extension](https://exrx.net/WeightExercises/Quadriceps/LVLegExtension). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch with your knee bent at the start.
+- Squeeze: Squeeze your quads as your working leg straightens.
+
+Sources of the stretch and squeeze:
+
+- [Lever Alternating Leg Extension](https://exrx.net/WeightExercises/Quadriceps/LVAlternatingLegExtension). ExRx.net, accessed 2026-11-11.
+- [Lever Leg Extension](https://exrx.net/WeightExercises/Quadriceps/LVLegExtension). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Single-leg leg press
 
 - [Sled Single Leg 45° Leg Press](https://exrx.net/WeightExercises/Quadriceps/SLSingleLeg45LegPress). ExRx.net, accessed 2026-11-11.
 - [Seated Leg Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/154/seated-leg-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Sled 45° Leg Press (gluteus maximus)](https://exrx.net/WeightExercises/GluteusMaximus/SL45LegPress). ExRx.net, accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom, hips still on the pad.
+- Squeeze: Squeeze your quads as your leg straightens, knee not locked.
+
+Sources of the stretch and squeeze:
+
+- [Seated Leg Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/154/seated-leg-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Sled push
 
 - [Sled Push](https://exrx.net/WeightExercises/Power/WTPushSprint). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
+
+- [Sled Push](https://exrx.net/WeightExercises/Power/WTPushSprint). ExRx.net, accessed 2026-11-11.
 
 ### Smith front squat
 
@@ -2661,11 +2899,34 @@ Sources of the stretch and squeeze:
 - [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom of your squat.
+- Squeeze: Squeeze your quads as your hips and knees straighten.
+
+Sources of the stretch and squeeze:
+
+- [Smith Front Squat](https://exrx.net/WeightExercises/Quadriceps/SMFrontSquat). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Smith split squat
 
 - [Smith Split Squat](https://exrx.net/WeightExercises/Quadriceps/SMSplitSquat). ExRx.net, accessed 2026-11-11.
 - [Smith Seated Calf Raise](https://exrx.net/WeightExercises/Soleus/SMSeatedCalfRaise). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch in your front leg, back knee near the floor.
+- Squeeze: Squeeze your quads as both legs straighten to stand.
+
+Sources of the stretch and squeeze:
+
+- [Smith Split Squat](https://exrx.net/WeightExercises/Quadriceps/SMSplitSquat). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Smith squat
 
@@ -2674,10 +2935,33 @@ Sources of the stretch and squeeze:
 - [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom of your squat.
+- Squeeze: Squeeze your quads as your hips and knees straighten.
+
+Sources of the stretch and squeeze:
+
+- [Smith Squat](https://exrx.net/WeightExercises/Quadriceps/SMSquat). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bodyweight Squat](https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Split squat
 
 - [Dumbbell Split Squat](https://exrx.net/WeightExercises/Quadriceps/DBSplitSquat). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch in your front leg, back knee near the floor.
+- Squeeze: Squeeze your quads as your front leg straightens.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Split Squat](https://exrx.net/WeightExercises/Quadriceps/DBSplitSquat). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Step-up
 
@@ -2686,16 +2970,52 @@ Sources of the stretch and squeeze:
 - [6 Lower Body Exercises to Do Instead of Squats](https://www.acefitness.org/resources/pros/expert-articles/5028/6-lower-body-exercises-to-do-instead-of-squats/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch with your lead foot on the box, knee bent.
+- Squeeze: Squeeze your quads as your lead leg straightens on the box.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Step-up](https://exrx.net/WeightExercises/Quadriceps/DBStepUp). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Step-Up](https://www.acefitness.org/resources/everyone/exercise-library/28/step-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Walking lunge
 
 - [Dumbbell Walking Lunge](https://exrx.net/WeightExercises/Quadriceps/DBWalkingLunge). ExRx.net, accessed 2026-11-11.
 - [5 Lunge Variations You Need to Try](https://www.acefitness.org/resources/pros/expert-articles/5818/5-lunge-variations-you-need-to-try/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Forward Lunge](https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch in your front leg, back knee near the floor.
+- Squeeze: Squeeze your quads as you stand up on your front leg.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Forward Lunge](https://www.acefitness.org/resources/everyone/exercise-library/94/forward-lunge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Dumbbell Walking Lunge](https://exrx.net/WeightExercises/Quadriceps/DBWalkingLunge). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Zercher squat
 
 - [Barbell Zercher Squat](https://exrx.net/WeightExercises/GluteusMaximus/BBZercherSquat). ExRx.net, accessed 2026-11-11.
 - [Zercher Squat: Field Alternative for Front Squat](https://www.nsca.com/education/articles/kinetic-select/zercher-squat-field-alternative-for-front-squat/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your quads stretch at the bottom of your squat.
+- Squeeze: Squeeze your quads as your hips and knees straighten.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Zercher Squat](https://exrx.net/WeightExercises/GluteusMaximus/BBZercherSquat). ExRx.net, accessed 2026-11-11.
+- [Zercher Squat: Field Alternative for Front Squat](https://www.nsca.com/education/articles/kinetic-select/zercher-squat-field-alternative-for-front-squat/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ## Hamstrings and glutes
 
