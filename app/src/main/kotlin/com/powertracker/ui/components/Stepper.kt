@@ -61,15 +61,18 @@ import androidx.compose.ui.zIndex
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 
-/** A − or + button. It sinks when pressed, and each step ticks once: one tap, one step, one buzz (there is no auto-repeat). */
+/**
+ * A − or + button. It sinks when pressed. With [tick] each step buzzes once: one tap, one step, one buzz (there is no
+ * auto-repeat). Only the set entry's weight, reps and RPE tick (owner decision 2); every other stepper is quiet.
+ */
 @Composable
-private fun StepButton(icon: ImageVector, description: String, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun StepButton(icon: ImageVector, description: String, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, tick: Boolean = false) {
     val scheme = MaterialTheme.colorScheme
     val interaction = remember { MutableInteractionSource() }
     val haptics = rememberHaptics()
     FilledIconButton(
         onClick = {
-            haptics.tick()
+            if (tick) haptics.tick()
             onClick()
         },
         enabled = enabled,
@@ -95,9 +98,11 @@ fun Stepper(
     onDecrement: () -> Unit,
     onIncrement: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Each step buzzes once ([rememberHaptics]); only the set entry's steppers do. */
+    tick: Boolean = false,
 ) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) {
-        StepButton(Icons.Filled.Remove, "Decrease $label", canDecrement, onDecrement, Modifier.size(Space.touch))
+        StepButton(Icons.Filled.Remove, "Decrease $label", canDecrement, onDecrement, Modifier.size(Space.touch), tick)
         Text(
             valueText,
             style = MaterialTheme.typography.headlineSmall,
@@ -105,7 +110,7 @@ fun Stepper(
             maxLines = 1,
             modifier = Modifier.widthIn(min = 72.dp).padding(horizontal = Space.s),
         )
-        StepButton(Icons.Filled.Add, "Increase $label", canIncrement, onIncrement, Modifier.size(Space.touch))
+        StepButton(Icons.Filled.Add, "Increase $label", canIncrement, onIncrement, Modifier.size(Space.touch), tick)
     }
 }
 
@@ -148,6 +153,8 @@ fun StepperField(
     unit: String? = null,
     entry: StepperEntry? = null,
     labelAction: (@Composable () -> Unit)? = null,
+    /** Each step buzzes once ([rememberHaptics]): Today's weight, reps and RPE pass true; nothing else does. */
+    tick: Boolean = false,
 ) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         if (entry != null) {
@@ -160,8 +167,8 @@ fun StepperField(
             )
         }
         Row(Modifier.fillMaxWidth().padding(top = Space.s), horizontalArrangement = Arrangement.spacedBy(Space.xs)) {
-            StepButton(Icons.Filled.Remove, "Decrease $label", canDecrement, onDecrement, Modifier.weight(1f).height(Space.touch))
-            StepButton(Icons.Filled.Add, "Increase $label", canIncrement, onIncrement, Modifier.weight(1f).height(Space.touch))
+            StepButton(Icons.Filled.Remove, "Decrease $label", canDecrement, onDecrement, Modifier.weight(1f).height(Space.touch), tick)
+            StepButton(Icons.Filled.Add, "Increase $label", canIncrement, onIncrement, Modifier.weight(1f).height(Space.touch), tick)
         }
     }
 }

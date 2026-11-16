@@ -23,6 +23,10 @@ import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
 import com.powertracker.ui.theme.color
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
+import com.powertracker.ui.theme.LocalMotion
 
 /**
  * A labelled figure with an optional change note underneath ("+5 kg in 4 wk"). With [onClick] the
@@ -40,11 +44,20 @@ fun StatTile(
     onClick: (() -> Unit)? = null,
     onClickLabel: String? = null,
 ) {
+    // A tile that opens something sinks when pressed, its background with it.
+    val source = if (onClick != null && LocalMotion.current) remember { MutableInteractionSource() } else null
     Box(
         modifier
+            .then(if (source != null) Modifier.pressScale(source) else Modifier)
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .then(if (onClick != null) Modifier.clickable(onClickLabel = onClickLabel, role = Role.Button, onClick = onClick) else Modifier),
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(source, LocalIndication.current, onClickLabel = onClickLabel, role = Role.Button, onClick = onClick)
+                } else {
+                    Modifier
+                },
+            ),
     ) {
         Column(Modifier.padding(Space.m), verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
             NumberDisplay(value, unit = unit, label = label, size = NumberSize.MEDIUM)

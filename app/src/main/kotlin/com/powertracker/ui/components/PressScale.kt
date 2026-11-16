@@ -22,6 +22,14 @@ import androidx.compose.ui.unit.Constraints
 import com.powertracker.ui.theme.LocalMotion
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.remember
+import androidx.compose.ui.semantics.Role
+import androidx.compose.material3.DropdownMenuItem
 
 /** How far a pressed control sinks (owner decision 1). */
 const val PRESS_SCALE = 0.97f
@@ -149,4 +157,54 @@ private class PressScaleNode(var source: InteractionSource, var pressedScale: Fl
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) { placeable.placeWithLayer(0, 0, layerBlock = layer) }
     }
+}
+
+/**
+ * [clickable] that sinks while pressed ([pressScale]). With motion off it is the plain click, with no source of its own,
+ * so the ripple is still set up on first touch as before. Put it where the click was: everything after it sinks.
+ */
+@Composable
+fun Modifier.pressClickable(
+    enabled: Boolean = true,
+    onClickLabel: String? = null,
+    role: Role? = null,
+    onClick: () -> Unit,
+): Modifier {
+    val source = if (LocalMotion.current) remember { MutableInteractionSource() } else null
+    val sinks = if (source != null) pressScale(source, enabled) else this
+    return sinks.clickable(source, LocalIndication.current, enabled, onClickLabel, role, onClick)
+}
+
+/** [toggleable] that sinks while pressed, as [pressClickable]. */
+@Composable
+fun Modifier.pressToggleable(value: Boolean, enabled: Boolean = true, role: Role? = null, onValueChange: (Boolean) -> Unit): Modifier {
+    val source = if (LocalMotion.current) remember { MutableInteractionSource() } else null
+    val sinks = if (source != null) pressScale(source, enabled) else this
+    return sinks.toggleable(value, source, LocalIndication.current, enabled, role, onValueChange)
+}
+
+/** Material's [IconButton] that sinks while pressed: info, close, back, the ⋮ menu, move up and down. */
+@Composable
+fun PtIconButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable () -> Unit) {
+    val source = if (LocalMotion.current) remember { MutableInteractionSource() } else null
+    IconButton(
+        onClick = onClick,
+        modifier = if (source != null) modifier.pressScale(source, enabled) else modifier,
+        enabled = enabled,
+        interactionSource = source,
+        content = content,
+    )
+}
+
+/** Material's [DropdownMenuItem] that sinks while pressed. */
+@Composable
+fun PtDropdownMenuItem(text: @Composable () -> Unit, onClick: () -> Unit, leadingIcon: (@Composable () -> Unit)? = null) {
+    val source = if (LocalMotion.current) remember { MutableInteractionSource() } else null
+    DropdownMenuItem(
+        text = text,
+        onClick = onClick,
+        modifier = if (source != null) Modifier.pressScale(source) else Modifier,
+        leadingIcon = leadingIcon,
+        interactionSource = source,
+    )
 }

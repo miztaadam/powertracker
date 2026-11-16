@@ -98,6 +98,11 @@ class CoachViewModel(
     /** One-line confirmations for a snackbar ("Added 2 exercises to Wednesday"). */
     val messages: Flow<String> = _messages.receiveAsFlow()
 
+    private val _applied = Channel<Long>(Channel.BUFFERED)
+
+    /** The id of each advice once its Apply or Swap is stored: one per apply, never for a tap that applied nothing. */
+    val applied: Flow<Long> = _applied.receiveAsFlow()
+
     /**
      * Advice being applied or dismissed. Its card leaves the feed at once, so it cannot be tapped
      * twice and does not redraw while its accessories land in the plan; it comes back if the work fails.
@@ -200,12 +205,14 @@ class CoachViewModel(
                     training.applyPlanChange(change)
                     advice.setStatus(adviceId, AdviceStatus.APPLIED)
                 }
+                _applied.send(adviceId)
                 _messages.send(change.message)
                 return@once
             }
             is AdvicePayload.Target, is AdvicePayload.Swap -> return@once
         }
         advice.setStatus(adviceId, AdviceStatus.APPLIED)
+        _applied.send(adviceId)
         _messages.send(message)
     }
 
@@ -224,6 +231,7 @@ class CoachViewModel(
                 training.applyPlanChange(change)
                 advice.setStatus(adviceId, AdviceStatus.APPLIED)
             }
+            _applied.send(adviceId)
         } else {
             busy.update { it - adviceId }
         }

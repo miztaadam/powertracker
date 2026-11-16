@@ -1234,4 +1234,33 @@ class TodayScreenTest {
         assertEquals(1, haptics.ticks)
         assertEquals(1, haptics.calls.size)
     }
+
+    @Test
+    fun coachApply_ticksOnceTheTargetIsIn_evenOnADoubleTap() {
+        runBlocking { training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY))) }
+        startSession()
+        showWithHaptics()
+        waitForText("155 × 5 @ 8")
+        val click = compose.onNodeWithText("Apply").fetchSemanticsNode().config[SemanticsActions.OnClick].action!!
+        compose.runOnUiThread {
+            click()
+            click()
+        }
+        waitForField({ weight }, "155")
+        waitFor { compose.onAllNodesWithText("Apply").fetchSemanticsNodes().isEmpty() }
+        settled()
+        assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
+    }
+
+    @Test
+    fun coachDismiss_doesNotBuzz() {
+        runBlocking { training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY))) }
+        startSession()
+        showWithHaptics()
+        waitForText("155 × 5 @ 8")
+        compose.onNodeWithContentDescription("Dismiss").performClick()
+        waitFor { compose.onAllNodesWithText("Apply").fetchSemanticsNodes().isEmpty() }
+        settled()
+        assertEquals(0, haptics.calls.size)
+    }
 }

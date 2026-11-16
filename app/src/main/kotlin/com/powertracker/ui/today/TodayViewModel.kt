@@ -126,6 +126,9 @@ enum class TodayAdd {
 sealed interface TodayEvent {
     /** A set was saved; the rest timer starts from this. */
     data class SetLogged(val isMainOrVariation: Boolean) : TodayEvent
+
+    /** A coach target was put into the editor (Apply). */
+    data object TargetApplied : TodayEvent
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -368,18 +371,31 @@ class TodayViewModel(
 
     /** Puts the coach's numbers into the editor and marks the advice applied. */
     fun applyTarget(adviceId: Long) {
+        // A second tap landing before the first has applied (a double tap) applies nothing more and says nothing more.
+        if (!applyingTargets.add(adviceId)) return
         viewModelScope.launch {
-            val now = loaded()
-            val item = now.items.firstOrNull { it.suggestion?.id == adviceId } ?: return@launch
-            val target = item.suggestion ?: return@launch
-            val payload = target.payload as? AdvicePayload.Target ?: return@launch
-            // A range target fills the reps to beat for the set about to be done (bodybuilding mode spec §5.3).
-            val reps = appliedReps(payload, item.planned, training.history().first(), item.sets.size + 1)
-            // Status first: if storing it fails, the editor keeps its numbers and the chip stays.
-            advice.setStatus(adviceId, AdviceStatus.APPLIED)
-            edit(payload.exerciseId, SetEditor(payload.weightKg, reps, payload.rpe))
+            var applied = false
+            try {
+                val now = loaded()
+                val item = now.items.firstOrNull { it.suggestion?.id == adviceId } ?: return@launch
+                val target = item.suggestion ?: return@launch
+                val payload = target.payload as? AdvicePayload.Target ?: return@launch
+                // A range target fills the reps to beat for the set about to be done (bodybuilding mode spec §5.3).
+                val reps = appliedReps(payload, item.planned, training.history().first(), item.sets.size + 1)
+                // Status first: if storing it fails, the editor keeps its numbers and the chip stays.
+                advice.setStatus(adviceId, AdviceStatus.APPLIED)
+                edit(payload.exerciseId, SetEditor(payload.weightKg, reps, payload.rpe))
+                applied = true
+                _events.emit(TodayEvent.TargetApplied)
+            } finally {
+                // Kept once applied: the advice is closed for good. Otherwise it can be tried again.
+                if (!applied) applyingTargets.remove(adviceId)
+            }
         }
     }
+
+    /** Coach targets whose Apply is under way or done; touched on the main thread only. */
+    private val applyingTargets = mutableSetOf<Long>()
 
     fun dismissTarget(adviceId: Long) {
         viewModelScope.launch { advice.setStatus(adviceId, AdviceStatus.DISMISSED) }

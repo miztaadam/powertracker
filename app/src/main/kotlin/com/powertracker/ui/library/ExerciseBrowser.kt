@@ -40,7 +40,6 @@ import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -84,6 +83,9 @@ import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
+import com.powertracker.ui.components.PtIconButton
+import com.powertracker.ui.components.pressClickable
+import com.powertracker.ui.components.pressToggleable
 
 /** Tiles to a row in the muscle grid: three names fit a 360 dp phone. */
 private const val MUSCLE_COLUMNS = 3
@@ -249,7 +251,7 @@ fun ExerciseBrowser(
             onValueChange = state::search,
             placeholder = { Text("Search exercises", style = MaterialTheme.typography.bodyLarge) },
             leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-            trailingIcon = if (query.isEmpty()) null else ({ IconButton(onClick = { state.search("") }, modifier = Modifier.size(Space.touch)) { Icon(Icons.Filled.Close, "Clear search") } }),
+            trailingIcon = if (query.isEmpty()) null else ({ PtIconButton(onClick = { state.search("") }, modifier = Modifier.size(Space.touch)) { Icon(Icons.Filled.Close, "Clear search") } }),
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyLarge,
             shape = MaterialTheme.shapes.medium,
@@ -374,7 +376,7 @@ private fun DropdownChip(text: String, count: Int, onClick: () -> Unit, modifier
         modifier
             .sizeIn(minHeight = Space.touch)
             .clip(CircleShape)
-            .clickable(role = Role.Button, onClickLabel = "Choose", onClick = onClick)
+            .pressClickable(role = Role.Button, onClickLabel = "Choose", onClick = onClick)
             .padding(vertical = 4.dp)
             .background(if (chosen) scheme.surfaceContainerHighest else scheme.surfaceContainerHigh, CircleShape)
             .border(1.dp, if (chosen) scheme.outline else androidx.compose.ui.graphics.Color.Transparent, CircleShape)
@@ -414,7 +416,7 @@ private fun RemovableChip(text: String, onRemove: () -> Unit, modifier: Modifier
         modifier
             .sizeIn(minHeight = Space.touch)
             .clip(CircleShape)
-            .clickable(role = Role.Button, onClickLabel = "Remove", onClick = onRemove)
+            .pressClickable(role = Role.Button, onClickLabel = "Remove", onClick = onRemove)
             .padding(vertical = 4.dp)
             .background(scheme.surfaceContainerHighest, CircleShape)
             .border(1.dp, scheme.outline, CircleShape)
@@ -472,7 +474,7 @@ private fun MuscleOption(group: MuscleGroup, ticked: Boolean, onToggle: (MuscleG
         modifier
             .heightIn(min = Space.touch)
             .clip(MaterialTheme.shapes.small)
-            .toggleable(value = ticked, enabled = enabled, role = Role.Checkbox, onValueChange = { onToggle(group) })
+            .pressToggleable(value = ticked, enabled = enabled, role = Role.Checkbox, onValueChange = { onToggle(group) })
             .testTag("muscle-option-${group.name}"),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Space.m),
@@ -508,9 +510,13 @@ private fun MuscleGrid(groups: List<MuscleGroup>, onPick: (MuscleGroup) -> Unit)
 @Composable
 private fun MuscleTile(group: MuscleGroup, onPick: (MuscleGroup) -> Unit, modifier: Modifier = Modifier) {
     val shape = MaterialTheme.shapes.medium
+    val source = if (LocalMotion.current) remember { MutableInteractionSource() } else null
     Surface(
         onClick = { onPick(group) },
-        modifier = modifier.heightIn(min = 56.dp).cardShadow(shape).testTag("muscle-${group.name}"),
+        modifier = modifier
+            .then(if (source != null) Modifier.pressScale(source) else Modifier)
+            .heightIn(min = 56.dp).cardShadow(shape).testTag("muscle-${group.name}"),
+        interactionSource = source,
         shape = shape,
         color = MaterialTheme.colorScheme.surface,
     ) {

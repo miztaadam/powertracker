@@ -74,6 +74,8 @@ import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
 import kotlin.math.roundToLong
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import com.powertracker.ui.components.pressScale
 
 /** Where the primary button leads once an exercise's sets are done: the next exercise, or Finish. */
 class NextStep(val label: String, val onClick: () -> Unit)
@@ -212,12 +214,15 @@ fun ExerciseCard(
             title = { Text("Set $number") },
             text = { Text(doseText(stored.set.weightKg, stored.set.reps, stored.set.rpe) + if (stored.set.failed) " · failed" else "", style = MaterialTheme.typography.headlineSmall) },
             confirmButton = {
+                val deleteSource = remember { MutableInteractionSource() }
                 TextButton(
                     onClick = {
                         actions.onDeleteSet(stored.id)
                         selected = null
                     },
+                    modifier = Modifier.pressScale(deleteSource),
                     colors = ButtonDefaults.textButtonColors(contentColor = PowertrackerTheme.colors.danger),
+                    interactionSource = deleteSource,
                 ) { Text("Delete set", style = MaterialTheme.typography.labelLarge) }
             },
             dismissButton = { QuietButton("Keep", { selected = null }) },
@@ -339,6 +344,7 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
             onIncrement = { step(EntryKind.KG) { it.copy(weightKg = stepWeight(it.weightKg, weightStepKg)) } },
             modifier = Modifier.weight(1.25f), unit = "kg",
             entry = entry(EntryKind.KG, "Weight, kilograms", KeyboardType.Decimal, placeholder = "kg"),
+            tick = true,
         )
         StepperField(
             "Reps", shown(EntryKind.REPS)?.text ?: e.reps.toString(),
@@ -348,6 +354,7 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
             onIncrement = { step(EntryKind.REPS) { it.copy(reps = it.reps + 1) } },
             modifier = Modifier.weight(1f),
             entry = entry(EntryKind.REPS, "Reps", KeyboardType.Number),
+            tick = true,
         )
         StepperField(
             "RPE", shown(EntryKind.RPE)?.text ?: formatRpe(e.rpe),
@@ -357,6 +364,7 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
             onIncrement = { step(EntryKind.RPE) { it.copy(rpe = (it.rpe + 0.5).coerceAtMost(MAX_RPE)) } },
             modifier = Modifier.weight(1f),
             entry = entry(EntryKind.RPE, "RPE", KeyboardType.Decimal),
+            tick = true,
             labelAction = { RpeInfoButton(inline = true) },
         )
     }

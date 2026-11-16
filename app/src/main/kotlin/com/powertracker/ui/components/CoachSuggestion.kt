@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,17 +40,8 @@ fun CoachSuggestion(headline: String, reason: String, onApply: () -> Unit, onDis
             Text(headline, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
             Text(reason, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        val haptics = rememberHaptics()
-        PrimaryButton(
-            "Apply",
-            {
-                haptics.tick()
-                onApply()
-            },
-            compact = true,
-            modifier = Modifier.padding(start = Space.s),
-        )
-        IconButton(onClick = onDismiss) {
+        PrimaryButton("Apply", onApply, compact = true, modifier = Modifier.padding(start = Space.s))
+        PtIconButton(onClick = onDismiss) {
             Icon(Icons.Filled.Close, contentDescription = "Dismiss", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
         }
     }

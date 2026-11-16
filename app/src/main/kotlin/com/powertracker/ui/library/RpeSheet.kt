@@ -11,7 +11,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +25,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import com.powertracker.domain.library.RpeGuide
 import com.powertracker.ui.theme.Space
+import com.powertracker.ui.components.PtIconButton
 
 /** What the info button is called, for a screen reader. */
 const val RPE_INFO_LABEL = "What RPE means"
@@ -51,12 +51,12 @@ fun RpeInfoButton(modifier: Modifier = Modifier, inline: Boolean = false) {
                 layout(width, 0) { button.place((width - button.width) / 2, -button.height / 2) }
             },
         ) {
-            IconButton(onClick = { open = true }, modifier = Modifier.size(Space.touch)) {
+            PtIconButton(onClick = { open = true }, modifier = Modifier.size(Space.touch)) {
                 Icon(Icons.Outlined.Info, contentDescription = RPE_INFO_LABEL, tint = tint, modifier = Modifier.size(18.dp))
             }
         }
     } else {
-        IconButton(onClick = { open = true }, modifier = modifier.size(Space.touch)) {
+        PtIconButton(onClick = { open = true }, modifier = modifier.size(Space.touch)) {
             Icon(Icons.Outlined.Info, contentDescription = RPE_INFO_LABEL, tint = tint)
         }
     }

@@ -27,7 +27,6 @@ import com.powertracker.ui.theme.Tone
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
-import com.powertracker.ui.components.rememberHaptics
 
 // The lagging-muscle coach's words on Coach (stage 3 plan, Task 2). The web app's Coach uses the same.
 const val CHECK_IN_DUE_TITLE = "Time for your check-in"
@@ -100,18 +99,9 @@ fun SwapCard(advice: Advice, payload: AdvicePayload.Swap, onSwap: (String) -> Un
         modifier = modifier.testTag("swap-${advice.id}"),
         secondaryAction = "Dismiss", onSecondary = onDismiss,
     ) {
-        val haptics = rememberHaptics()
         Column(verticalArrangement = Arrangement.spacedBy(Space.s)) {
             for (name in payload.alternatives) {
-                SecondaryButton(
-                    "Swap for $name",
-                    {
-                        haptics.tick()
-                        onSwap(name)
-                    },
-                    Modifier.fillMaxWidth(),
-                    compact = true,
-                )
+                SecondaryButton("Swap for $name", { onSwap(name) }, Modifier.fillMaxWidth(), compact = true)
             }
         }
     }

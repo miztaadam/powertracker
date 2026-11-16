@@ -21,7 +21,6 @@ import androidx.compose.material.icons.outlined.HealthAndSafety
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -46,6 +45,7 @@ import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.theme.LocalTrainingMode
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
+import com.powertracker.ui.components.PtIconButton
 
 /** What the sheet says for an exercise the catalogue does not know. */
 const val NO_GUIDE = "No form guide for your own exercises."
@@ -154,7 +154,7 @@ internal fun GuideHeader(title: String, eyebrow: String?, closeLabel: String, on
             Text(title, style = MaterialTheme.typography.headlineMedium, color = scheme.onSurface, modifier = Modifier.semantics { heading() })
             if (eyebrow != null) Eyebrow(eyebrow, Modifier.padding(top = Space.xxs))
         }
-        IconButton(onClick = onClose, modifier = Modifier.size(Space.touch)) { Icon(Icons.Filled.Close, contentDescription = closeLabel, tint = scheme.onSurfaceVariant) }
+        PtIconButton(onClick = onClose, modifier = Modifier.size(Space.touch)) { Icon(Icons.Filled.Close, contentDescription = closeLabel, tint = scheme.onSurfaceVariant) }
     }
 }
 

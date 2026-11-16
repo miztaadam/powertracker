@@ -53,6 +53,13 @@ import androidx.compose.foundation.rememberScrollState
 import com.powertracker.ui.library.ExercisePickerContent
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import com.powertracker.ui.library.ExercisesContent
 
 /**
  * Press feedback and the buzz (stage 2, Task 2): a press sinks and springs back only with motion on, never on a
@@ -216,7 +223,7 @@ class PressAndHapticsTest {
         var value = 0
         show {
             WithHaptics(fake) {
-                Stepper("Sets", "3", canDecrement = false, canIncrement = true, onDecrement = { value-- }, onIncrement = { value++ })
+                Stepper("Sets", "3", canDecrement = false, canIncrement = true, onDecrement = { value-- }, onIncrement = { value++ }, tick = true)
             }
         }
         repeat(3) { compose.onNodeWithContentDescription("Increase Sets").performClick() }
@@ -231,7 +238,7 @@ class PressAndHapticsTest {
         val fake = FakeHapticFeedback()
         show {
             WithHaptics(fake) {
-                StepperField("Reps", "5", canDecrement = true, canIncrement = true, onDecrement = {}, onIncrement = {})
+                StepperField("Reps", "5", canDecrement = true, canIncrement = true, onDecrement = {}, onIncrement = {}, tick = true)
             }
         }
         compose.mainClock.autoAdvance = false
@@ -249,14 +256,10 @@ class PressAndHapticsTest {
         val fake = FakeHapticFeedback()
         show {
             WithHaptics(fake, vibrateOnTaps = false) {
-                Column {
-                    Stepper("Sets", "3", canDecrement = true, canIncrement = true, onDecrement = {}, onIncrement = {})
-                    CoachSuggestion("155 × 5 @ 8", "Last time 150 × 5 @ 7.", onApply = {}, onDismiss = {})
-                }
+                Stepper("Sets", "3", canDecrement = true, canIncrement = true, onDecrement = {}, onIncrement = {}, tick = true)
             }
         }
         compose.onNodeWithContentDescription("Increase Sets").performClick()
-        compose.onNodeWithText("Apply").performClick()
         compose.waitForIdle()
         assertEquals(emptyList<HapticFeedbackType>(), fake.calls)
     }
@@ -268,7 +271,7 @@ class PressAndHapticsTest {
         compose.setContent {
             ModeTheme(settings, motion = false) {
                 CompositionLocalProvider(LocalHapticFeedback provides fake) {
-                    Stepper("Sets", "3", canDecrement = true, canIncrement = true, onDecrement = {}, onIncrement = {})
+                    Stepper("Sets", "3", canDecrement = true, canIncrement = true, onDecrement = {}, onIncrement = {}, tick = true)
                 }
             }
         }
@@ -303,7 +306,7 @@ class PressAndHapticsTest {
     }
 
     @Test
-    fun coachApply_ticksOnce_dismissDoesNot() {
+    fun coachCards_doNotBuzzThemselves_theScreenTicksOnceTheApplyIsStored() {
         val fake = FakeHapticFeedback()
         var applied = 0
         show {
@@ -321,8 +324,7 @@ class PressAndHapticsTest {
         compose.onNodeWithContentDescription("Dismiss").performClick()
         compose.waitForIdle()
         assertEquals(2, applied)
-        assertEquals(2, fake.ticks)
-        assertEquals(2, fake.calls.size)
+        assertEquals(0, fake.calls.size)
     }
 
     @Test
@@ -330,7 +332,7 @@ class PressAndHapticsTest {
         val fake = FakeHapticFeedback()
         show {
             WithHaptics(fake) {
-                Stepper("Sets", "1", canDecrement = false, canIncrement = false, onDecrement = {}, onIncrement = {})
+                Stepper("Sets", "1", canDecrement = false, canIncrement = false, onDecrement = {}, onIncrement = {}, tick = true)
             }
         }
         compose.onNodeWithContentDescription("Decrease Sets").performClick()
@@ -340,7 +342,7 @@ class PressAndHapticsTest {
     }
 
     @Test
-    fun swapFor_ticksOnce_perTap() {
+    fun swapCard_doesNotBuzzItself_theScreenTicksOnceTheSwapIsStored() {
         val fake = FakeHapticFeedback()
         val swapped = mutableListOf<String>()
         val swap = AdvicePayload.Swap(2, "Lat pulldown", MuscleGroup.LATS, LocalDate(2026, 10, 14), listOf("Machine pulldown", "Close-grip pulldown"))
@@ -350,7 +352,7 @@ class PressAndHapticsTest {
         compose.onNodeWithText("Dismiss").performClick()
         compose.waitForIdle()
         assertEquals(listOf("Close-grip pulldown"), swapped)
-        assertEquals(listOf(HapticFeedbackType.ContextClick), fake.calls)
+        assertEquals(emptyList<HapticFeedbackType>(), fake.calls)
     }
 
     @Test
@@ -391,5 +393,110 @@ class PressAndHapticsTest {
         compose.onNodeWithTag("exercise-Hammer curl").performTouchInput { cancel() }
         frames(600)
         assertEquals(rest, width("Hammer curl"), 0.01f)
+    }
+
+    @Test
+    fun steppers_doNotTick_unlessAsked_onlyTheSetEntryDoes() {
+        val fake = FakeHapticFeedback()
+        var steps = 0
+        show {
+            WithHaptics(fake) {
+                Column {
+                    Stepper("Rest", "3:00", canDecrement = true, canIncrement = true, onDecrement = { steps++ }, onIncrement = { steps++ })
+                    StepperField("Sets", "3", canDecrement = true, canIncrement = true, onDecrement = { steps++ }, onIncrement = { steps++ })
+                }
+            }
+        }
+        compose.onNodeWithContentDescription("Increase Rest").performClick()
+        compose.onNodeWithContentDescription("Decrease Sets").performClick()
+        compose.waitForIdle()
+        assertEquals(2, steps)
+        assertEquals(0, fake.calls.size)
+    }
+
+    // ---- Every tappable thing sinks (fix round) ----
+
+    /** Presses [tag] and reports how far the text [inside] sank, as a fraction of its width at rest. */
+    private fun sinkOf(tag: String, inside: String): Float = sinkOf(compose.onNodeWithTag(tag), tag) { width(inside) }
+
+    private fun sinkOf(node: SemanticsNodeInteraction, name: String, measure: () -> Float): Float {
+        compose.mainClock.autoAdvance = true
+        compose.waitForIdle()
+        val rest = measure()
+        compose.mainClock.autoAdvance = false
+        node.performTouchInput { down(center) }
+        frames(250)
+        val pressed = measure()
+        node.performTouchInput { cancel() }
+        frames(600)
+        assertEquals("$name springs back", rest, measure(), 0.01f)
+        return pressed / rest
+    }
+
+    /** The set row clears its children's semantics, so it is measured by its own (clickable) node, inside the sink. */
+    private val setRow get() = compose.onNode(hasClickAction() and hasAnyAncestor(hasTestTag("set-box")), useUnmergedTree = true)
+
+    private fun setRowSink() = sinkOf(setRow, "set row") { setRow.fetchSemanticsNode().boundsInRoot.width }
+
+    @Composable
+    private fun EveryKind() {
+        Column {
+            PtIconButton(onClick = {}, modifier = Modifier.testTag("icon")) { Text("i") }
+            PtIconButton(onClick = {}, modifier = Modifier.testTag("icon-off"), enabled = false) { Text("o") }
+            StatTile("Squat", "180", Modifier.testTag("tile"), unit = "kg", onClick = {}, onClickLabel = "Open history")
+            StatTile("Bench", "120", Modifier.testTag("tile-still"), unit = "kg")
+            Box(Modifier.testTag("set-box")) { SetRow(1, 150.0, 5, 8.0, SetState.DONE, onClick = {}) }
+            Box(Modifier.pressClickable { }.testTag("clickable")) { Text("Click") }
+            Box(Modifier.pressClickable(enabled = false) { }.testTag("clickable-off")) { Text("Off") }
+            var on by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+            Box(Modifier.pressToggleable(on) { on = it }.testTag("toggle")) { Text("Toggle") }
+            PtMenuItemHost()
+        }
+    }
+
+    @Composable
+    private fun PtMenuItemHost() {
+        Box(Modifier.testTag("menu")) { PtDropdownMenuItem(text = { Text("Edit") }, onClick = {}) }
+    }
+
+    @Test
+    fun everyTappableKind_sinks_withMotionOn_butNotWhenDisabledOrNotTappable() {
+        show { EveryKind() }
+        assertEquals(PRESS_SCALE, sinkOf("icon", "i"), 0.003f)
+        assertEquals(PRESS_SCALE, sinkOf("tile", "180"), 0.003f)
+        assertEquals(PRESS_SCALE, setRowSink(), 0.003f)
+        assertEquals(PRESS_SCALE, sinkOf("clickable", "Click"), 0.003f)
+        assertEquals(PRESS_SCALE, sinkOf("toggle", "Toggle"), 0.003f)
+        assertEquals(PRESS_SCALE, sinkOf("menu", "Edit"), 0.003f)
+        assertEquals(1f, sinkOf("icon-off", "o"), 0f)
+        assertEquals(1f, sinkOf("clickable-off", "Off"), 0f)
+        assertEquals(1f, sinkOf("tile-still", "120"), 0f)
+    }
+
+    @Test
+    fun everyTappableKind_staysStill_withMotionOff() {
+        show(motion = false) { EveryKind() }
+        for ((tag, text) in listOf("icon" to "i", "tile" to "180", "clickable" to "Click", "toggle" to "Toggle", "menu" to "Edit")) {
+            assertEquals(tag, 1f, sinkOf(tag, text), 0f)
+        }
+        assertEquals(1f, setRowSink(), 0f)
+    }
+
+    @Test
+    fun thePickersMuscleTiles_andDropDownChip_sink() {
+        show {
+            ExercisePickerContent("Add exercise", emptyList(), emptyList(), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {})
+        }
+        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("muscle-CHEST")).fetchSemanticsNodes().isNotEmpty() }
+        val chest = { compose.onNode(hasText("Chest") and hasAnyAncestor(hasTestTag("muscle-CHEST")), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.width }
+        assertEquals(PRESS_SCALE, sinkOf(compose.onNodeWithTag("muscle-CHEST"), "muscle tile", chest), 0.003f)
+    }
+
+    @Test
+    fun theExercisesTabsMuscleDropDownChip_sinks() {
+        show { ExercisesContent(emptyList(), emptyList(), onOpen = {}) }
+        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("muscles-dropdown")).fetchSemanticsNodes().isNotEmpty() }
+        val chip = { compose.onNode(hasText("Muscles") and hasAnyAncestor(hasTestTag("muscles-dropdown")), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.width }
+        assertEquals(PRESS_SCALE, sinkOf(compose.onNodeWithTag("muscles-dropdown"), "drop-down chip", chip), 0.003f)
     }
 }

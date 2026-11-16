@@ -115,6 +115,8 @@ fun TodayScreen(
                     haptics.tick()
                     setLogged(event.isMainOrVariation)
                 }
+                // Coach Apply ticks once the target is in the editor.
+                TodayEvent.TargetApplied -> haptics.tick()
             }
         }
     }

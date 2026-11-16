@@ -27,9 +27,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -91,6 +89,8 @@ import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
 import com.powertracker.ui.components.rememberHaptics
+import com.powertracker.ui.components.PtIconButton
+import com.powertracker.ui.components.PtDropdownMenuItem
 
 /** The text shown for one plan item, e.g. "Squat  3 × 5 @ 8", or "Curl  3 × 8–12 @ 8" for a rep range. */
 fun planItemText(name: String, item: PlanItem): String = "$name  ${item.sets} × ${repsText(item.reps, item.repsHigh)} @ ${formatRpe(item.targetRpe)}"
@@ -200,17 +200,17 @@ fun PlanContent(
         containerColor = scheme.background,
         topBar = {
             ScreenHeader("Plan", eyebrow = "Weekly template", modeLabel = true) {
-                IconButton(onClick = onOpenSettings) {
+                PtIconButton(onClick = onOpenSettings) {
                     Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = scheme.onSurfaceVariant)
                 }
                 // The bodybuilding side's menu; an empty plan has its own button instead.
                 if (state.mode == TrainingMode.BODYBUILDING && !state.emptySide) {
                     Box {
-                        IconButton(onClick = { menuOpen = true }) {
+                        PtIconButton(onClick = { menuOpen = true }) {
                             Icon(Icons.Filled.MoreVert, contentDescription = PLAN_OPTIONS, tint = scheme.onSurfaceVariant)
                         }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                            DropdownMenuItem(
+                            PtDropdownMenuItem(
                                 text = { Text(REBUILD_MY_PLAN) },
                                 leadingIcon = { Icon(Icons.Filled.Refresh, null) },
                                 onClick = {
@@ -334,12 +334,12 @@ private fun PlanItemRow(
             Text(prescription, style = MaterialTheme.typography.headlineSmall, color = scheme.onSurface)
         }
         InfoButton(name)
-        IconButton(onClick = { onMove(-1) }, enabled = canMoveUp) { Icon(Icons.Filled.KeyboardArrowUp, "Move up") }
-        IconButton(onClick = { onMove(1) }, enabled = canMoveDown) { Icon(Icons.Filled.KeyboardArrowDown, "Move down") }
+        PtIconButton(onClick = { onMove(-1) }, enabled = canMoveUp) { Icon(Icons.Filled.KeyboardArrowUp, "Move up") }
+        PtIconButton(onClick = { onMove(1) }, enabled = canMoveDown) { Icon(Icons.Filled.KeyboardArrowDown, "Move down") }
         Box {
-            IconButton(onClick = { menuOpen = true }) { Icon(Icons.Filled.MoreVert, "More") }
+            PtIconButton(onClick = { menuOpen = true }) { Icon(Icons.Filled.MoreVert, "More") }
             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                DropdownMenuItem(
+                PtDropdownMenuItem(
                     text = { Text("Edit") },
                     leadingIcon = { Icon(Icons.Filled.Edit, null) },
                     onClick = {
@@ -347,7 +347,7 @@ private fun PlanItemRow(
                         onEdit()
                     },
                 )
-                DropdownMenuItem(
+                PtDropdownMenuItem(
                     text = { Text("Delete", color = scheme.error) },
                     leadingIcon = { Icon(Icons.Filled.Delete, null, tint = scheme.error) },
                     onClick = {
