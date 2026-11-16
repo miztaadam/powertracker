@@ -21,7 +21,7 @@ afterEach(async () => {
   for (const key of ['share', 'canShare']) Object.defineProperty(navigator, key, { value: undefined, configurable: true })
 })
 
-const COPY = 'Add Grit to your Home Screen: tap Share, then Add to Home Screen. Installed, your training log is protected from being cleared.'
+const COPY = 'In Safari, tap Share, then Add to Home Screen, and open Grit from the new icon. Installed, your training log is protected from being cleared.'
 const MOVE = /The installed app keeps its own log, apart from Safari's, and starts empty\. You have already logged here: tap Export backup before you add Grit to the Home Screen, then restore that file in the installed app \(Plan, Settings, Restore backup\)\./
 /** Android: Chrome's installed app shares this browser's storage, so there is nothing to move, only a copy to keep. */
 const SHARED_ANDROID = 'Your log stays in this browser, so the installed app opens with it. Export a backup now and then to keep a copy.'

@@ -11,7 +11,7 @@ import { UploadIcon } from '../../ui/components/icons'
 import './install.css'
 
 /** How to install: Safari's Share sheet on iPhone (and as the default), the browser's menu on Android. */
-export const INSTALL_STEPS_SAFARI = 'Add Grit to your Home Screen: tap Share, then Add to Home Screen.'
+export const INSTALL_STEPS_SAFARI = 'In Safari, tap Share, then Add to Home Screen, and open Grit from the new icon.'
 export const INSTALL_STEPS_ANDROID = "Open your browser's menu (⋮), then tap Install app or Add to Home screen."
 
 /** In `meta`: true once the lifter answered the card with "Not now". */
