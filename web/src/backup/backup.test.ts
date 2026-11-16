@@ -393,7 +393,6 @@ describe('backup', () => {
     corrupt(mut((o) => (o.planItems[0]!.weekday = 8)))
     corrupt(mut((o) => (o.settings.trainingDays = [0])))
     corrupt(mut((o) => (o.extra = 1)))
-    corrupt(mut((o) => (o.settings.extra = 1)))
     corrupt(mut((o) => ((o.sets[0] as Record<string, unknown>).extra = 1)))
     corrupt(mut((o) => delete (o as Partial<Loose>).baselines))
     corrupt(mut((o) => delete (o.sets[0] as Partial<Loose['sets'][number]>).rpe))
@@ -871,6 +870,45 @@ describe('cross-platform restore, version 4', () => {
     expect(out.checkIns.map((c) => c.id)).toEqual(android.checkIns.map((c) => c.id))
   }
   it('androidV4Fixture_restoresOnWeb', androidV4Fixture_restoresOnWeb)
+})
+
+describe('settings this app does not know (stage 2, owner option A)', () => {
+  const withSettings = (extra: Record<string, unknown>) => {
+    const o = readJson(ANDROID_V4_FIXTURE)
+    return JSON.stringify({ ...o, settings: { ...(o.settings as Record<string, unknown>), ...extra } })
+  }
+
+  it('androidV4Fixture_withAnUnknownSetting_restores_asTheFixtureDoes', async () => {
+    const text = withSettings({ vibrateOnTaps: false, somethingLater: { a: 1 } })
+    const db = await openDb()
+    await ensureSeeded(db)
+    await restoreBackup(db, decodeOk(text))
+    const fromNew = withoutExportedAt((await exportBackup(db, EXPORTED_AT)) as unknown as Record<string, unknown>)
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_V4_FIXTURE, 'utf8')))
+    const fromFixture = withoutExportedAt((await exportBackup(db, EXPORTED_AT)) as unknown as Record<string, unknown>)
+    expect(fromNew).toEqual(fromFixture)
+    expect(decodeOk(text).settings).toEqual(decodeOk(readFileSync(ANDROID_V4_FIXTURE, 'utf8')).settings)
+  })
+
+  it('unknownKeys_outsideSettings_areStillCorrupt', () => {
+    const o = readJson(ANDROID_V4_FIXTURE)
+    const corrupt = (v: unknown) => expect(decodeBackup(JSON.stringify(v))).toMatchObject({ ok: false, kind: 'CORRUPT' })
+    corrupt({ ...o, somethingLater: 1 })
+    const sets = o.sets as Record<string, unknown>[]
+    corrupt({ ...o, sets: [{ ...sets[0], extra: 1 }, ...sets.slice(1)] })
+    corrupt({ ...o, settings: { ...(o.settings as Record<string, unknown>), restAlert: 'LOUD' } })
+    corrupt({ ...o, settings: { ...(o.settings as Record<string, unknown>), showStrictPress: 'yes' } })
+  })
+
+  it('vibrateOnTaps_isNotInTheExport_andIsOnAfterARestore', async () => {
+    const db = await openDb()
+    await ensureSeeded(db)
+    await updateSettings(db, (s) => ({ ...s, vibrateOnTaps: false }))
+    const out = encodeBackup(await exportBackup(db, EXPORTED_AT))
+    expect(out).not.toContain('vibrateOnTaps')
+    await restoreBackup(db, decodeOk(out))
+    expect((await getSettings(db)).vibrateOnTaps).toBe(true)
+  })
 })
 
 describe('rest alert and vibration', () => {

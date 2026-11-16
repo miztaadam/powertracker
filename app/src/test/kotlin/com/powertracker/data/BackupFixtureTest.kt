@@ -37,6 +37,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.doubleOrNull
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -315,6 +316,46 @@ class BackupFixtureTest {
         assertEquals(TrainingMode.BODYBUILDING, settings.settings.first().trainingMode)
         assertTrue(db.plan().all().any { it.mode == TrainingMode.BODYBUILDING && it.repsHigh != null })
         assertTrue(db.sessions().all().any { it.mode == TrainingMode.BODYBUILDING })
+    }
+
+    /**
+     * Stage 2 (owner, option A): a settings key this app does not know is ignored, so a later app can add a setting
+     * without older apps turning its backups away. "Vibrate on taps" is not in the backup: a restore leaves it on.
+     */
+    @Test
+    fun androidV4Fixture_withSettingsThisAppDoesNotKnow_restores() = runTest {
+        val fixture = tree(androidFixture.readText()) as JsonObject
+        val settingsJson = fixture.getValue("settings") as JsonObject
+        val later = mapOf("vibrateOnTaps" to JsonPrimitive(false), "somethingLater" to JsonObject(mapOf("a" to JsonPrimitive(1))))
+        val withNew = JsonObject(fixture + ("settings" to JsonObject(settingsJson + later)))
+        settings.update { it.copy(vibrateOnTaps = false) }
+
+        val result = Backup.decode(withNew.toString())
+        assertTrue(result.toString(), result is BackupResult.Ok)
+        service.restore((result as BackupResult.Ok).file)
+
+        assertEquals(withoutExportedAt(fixture), withoutExportedAt(tree(pretty.encodeToString(BackupFile.serializer(), service.export(EXPORTED_AT)))))
+        assertTrue(settings.settings.first().vibrateOnTaps)
+    }
+
+    /** Only `settings` is lenient: an unknown key anywhere else, or a known setting with a bad value, is still corrupt. */
+    @Test
+    fun unknownKeys_outsideSettings_areStillCorrupt() {
+        val fixture = tree(androidFixture.readText()) as JsonObject
+        assertTrue(Backup.decode(JsonObject(fixture + ("somethingLater" to JsonPrimitive(1))).toString()) is BackupResult.Corrupt)
+        val sets = fixture.getValue("sets") as JsonArray
+        val firstSet = JsonObject(sets[0] as JsonObject + ("extra" to JsonPrimitive(1)))
+        assertTrue(Backup.decode(JsonObject(fixture + ("sets" to JsonArray(listOf(firstSet) + sets.drop(1)))).toString()) is BackupResult.Corrupt)
+        val settingsJson = fixture.getValue("settings") as JsonObject
+        assertTrue(Backup.decode(JsonObject(fixture + ("settings" to JsonObject(settingsJson + ("restAlert" to JsonPrimitive("LOUD"))))).toString()) is BackupResult.Corrupt)
+        assertTrue(Backup.decode(JsonObject(fixture + ("settings" to JsonPrimitive(1))).toString()) is BackupResult.Corrupt)
+    }
+
+    /** "Vibrate on taps" stays on this phone: the export never carries it, so 1.6 apps keep reading 1.7 backups. */
+    @Test
+    fun export_leavesVibrateOnTapsOut() = runTest {
+        settings.update { it.copy(vibrateOnTaps = false) }
+        assertFalse(Backup.encode(service.export(EXPORTED_AT)).contains("vibrateOnTaps"))
     }
 
     private suspend fun restoreAndExport(fixture: File): JsonElement {

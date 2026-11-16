@@ -182,6 +182,21 @@ object Backup {
     private val strict = Json { ignoreUnknownKeys = false }
     private val writer = Json { encodeDefaults = true }
 
+    /** The setting names this app reads; any other key inside `settings` is dropped before the strict decode. */
+    private val knownSettings: Set<String> = (0 until BackupSettings.serializer().descriptor.elementsCount)
+        .map(BackupSettings.serializer().descriptor::getElementName).toSet()
+
+    /**
+     * Since 1.7 a key inside `settings` that this app does not know is ignored, so a later app can add a setting without
+     * a version bump and without this app turning its backups away (1.6 rejected them). Only `settings` is lenient:
+     * an unknown key anywhere else is still corrupt, and a known setting is still checked as strictly as before.
+     */
+    private fun withoutUnknownSettings(root: JsonObject): JsonObject {
+        val settings = root["settings"] as? JsonObject ?: return root
+        if (settings.keys.all { it in knownSettings }) return root
+        return JsonObject(root + ("settings" to JsonObject(settings.filterKeys { it in knownSettings })))
+    }
+
     fun encode(file: BackupFile): String = writer.encodeToString(BackupFile.serializer(), file)
 
     /** [supportedVersion] is the newest version this app reads; tests lower it to stand in for an older app. */
@@ -192,7 +207,7 @@ object Backup {
             val v = (root["version"] as? JsonPrimitive)?.takeIf { !it.isString }?.intOrNull
             if (v == null || v <= 0) return BackupResult.Corrupt("Missing or invalid version")
             if (v > supportedVersion) return BackupResult.TooNew(v)
-            val file = strict.decodeFromJsonElement(BackupFile.serializer(), root)
+            val file = strict.decodeFromJsonElement(BackupFile.serializer(), withoutUnknownSettings(root))
             // Reject bad enum names / out-of-range weekdays here rather than at restore time.
             file.exercises.forEach { it.toEntity() }
             file.sessions.forEach { it.toEntity() }
