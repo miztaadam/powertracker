@@ -16,7 +16,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md` §2–4, stage 4.
 
-## Owner decisions needed before building
+## Owner decisions (approved by the owner on 2026-11-16, all three as written)
 1. **What fills in**, from the inventory of both apps:
    - **The powerlifting side:**
      - the total sparkline on the summary card;
