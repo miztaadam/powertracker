@@ -94,6 +94,9 @@ fun appVersionLine(versionName: String): String = "Grit $versionName · AppsbyAd
 /** The same line as a screen reader says it, without the middle dots. */
 fun appVersionSpoken(versionName: String): String = "Grit version $versionName, by AppsbyAdam"
 
+/** The "Vibrate on taps" row's second line; the web app says the same. */
+const val VIBRATE_ON_TAPS_SUPPORTING = "A short buzz when you log a set and on other main taps"
+
 /** The name offered when exporting a backup on [date]. */
 fun backupFileName(date: LocalDate): String = "grit-backup-$date.json"
 
@@ -294,6 +297,8 @@ fun SettingsContent(
                     { i -> onUpdate { it.copy(restAlert = REST_ALERT_LABELS[i].first) } },
                     Modifier.padding(bottom = Space.m),
                 )
+                RowDivider()
+                SwitchRow("Vibrate on taps", VIBRATE_ON_TAPS_SUPPORTING, settings.vibrateOnTaps) { v -> onUpdate { it.copy(vibrateOnTaps = v) } }
             }
 
             SectionHeader("Privacy", Modifier.padding(top = Space.m))

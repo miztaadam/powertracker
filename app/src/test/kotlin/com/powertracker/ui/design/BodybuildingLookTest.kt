@@ -124,7 +124,7 @@ class BodybuildingLookTest {
         runBlocking { settings.update { it.copy(trainingDays = setOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY)) } }
         var accent = Color.Unspecified
         compose.setContent {
-            ModeTheme(settings.settings, darkTheme = true) {
+            ModeTheme(settings.settings, darkTheme = true, motion = false) {
                 val a = PowertrackerTheme.colors.accent
                 SideEffect { accent = a }
                 SettingsScreen(settings, BackupService(db, settings), onBack = {}, today = { LocalDate(2026, 11, 13) })

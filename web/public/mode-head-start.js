@@ -6,6 +6,9 @@
 // - `ios-standalone` on <html> in the iOS Home Screen app, where iOS 26 blurs a band under the status bar and the
 //   shell leaves it clear (shell.css). The same checks as isIos (src/platform/device.ts) and isStandalone
 //   (src/platform/storage.ts).
+// - `data-motion="off"` on <html> while the system asks for reduced motion (kept current when that changes), or
+//   while a test run asks: the `grit:motion` key set to `off` (playwright.config.ts sets it for every e2e page, so
+//   screenshots and position checks run still). CSS motion rules sit under :root:not([data-motion="off"]).
 // Wrapped in a function so that none of its names become globals.
 ;(function () {
   var bodybuilding = false
@@ -26,5 +29,24 @@
     if (ios && standalone) root.classList.add('ios-standalone')
   } catch (e) {
     // Nothing here may stop the page: the app sets the colours again once it runs.
+  }
+  try {
+    var page = document.documentElement
+    var testOff = false
+    try {
+      testOff = localStorage.getItem('grit:motion') === 'off'
+    } catch (e) {
+      // Storage blocked: only the system setting counts.
+    }
+    var reduce = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null
+    var applyMotion = function () {
+      if (testOff || (reduce && reduce.matches)) page.setAttribute('data-motion', 'off')
+      else page.removeAttribute('data-motion')
+    }
+    applyMotion()
+    if (reduce && typeof reduce.addEventListener === 'function') reduce.addEventListener('change', applyMotion)
+    else if (reduce && typeof reduce.addListener === 'function') reduce.addListener(applyMotion)
+  } catch (e) {
+    // Motion stays on; tokens.css still stops transitions for reduced motion.
   }
 })()

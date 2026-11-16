@@ -135,6 +135,7 @@ describe('settings', () => {
       bodybuildingTrainingDays: [1, 3, 5],
       powerliftingLeftOn: null,
       bodybuildingLeftOn: null,
+      vibrateOnTaps: true,
     })
     await updateSettings(db, (s) => ({ ...s, changePlates: true, trainingDays: [2, 4], lastBackupAt: '2026-11-11' }))
     const s = await getSettings(db)
@@ -148,6 +149,19 @@ describe('settings', () => {
   })
 
   /** Strict press spec §4.2: off by default, and stored once switched. */
+  /** Stage 2: "Vibrate on taps" is on by default, stored once switched, and apart from the rest alert. */
+  it('vibrateOnTaps_defaultsOn_andPersists', async () => {
+    const db = await openDb()
+    expect(DEFAULT_SETTINGS.vibrateOnTaps).toBe(true)
+    expect((await getSettings(db)).vibrateOnTaps).toBe(true)
+    await updateSettings(db, (s) => ({ ...s, vibrateOnTaps: false }))
+    expect((await getSettings(db)).vibrateOnTaps).toBe(false)
+    expect(await db.settings.get('vibrateOnTaps')).toEqual({ key: 'vibrateOnTaps', value: false })
+    expect((await getSettings(db)).restAlert).toBe('SOUND')
+    await db.settings.put({ key: 'vibrateOnTaps', value: 'yes' })
+    expect((await getSettings(db)).vibrateOnTaps).toBe(true)
+  })
+
   it('showStrictPress_defaultsOff_andPersists', async () => {
     const db = await openDb()
     expect(DEFAULT_SETTINGS.showStrictPress).toBe(false)

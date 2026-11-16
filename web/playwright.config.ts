@@ -17,6 +17,15 @@ const SPEED = /@speed/
 export const E2E_BUILD_ID = 'a1b2c3d'
 const env = { GRIT_BUILD_ID: E2E_BUILD_ID }
 
+// Motion off on every e2e page (stage 2): public/mode-head-start.js reads this key and puts data-motion="off" on
+// <html>, so screenshots and position checks run still, as Robolectric does on Android. Set through the browser
+// storage every test context starts with, so no spec has to remember a fixture; a motion-on test clears it with
+// test.use({ storageState: { cookies: [], origins: [] } }). The key is MOTION_KEY in src/ui/modeHeadStart.ts.
+const MOTION_OFF = [4173, 4174, 4175].map((port) => ({
+  origin: `http://localhost:${port}`,
+  localStorage: [{ name: 'grit:motion', value: 'off' }],
+}))
+
 export default defineConfig({
   testDir: './e2e',
   reporter: 'list',
@@ -27,6 +36,7 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4173',
     ...iphone,
+    storageState: { cookies: [], origins: MOTION_OFF },
     launchOptions: existsSync(CHROMIUM) ? { executablePath: CHROMIUM } : {},
   },
   webServer: [

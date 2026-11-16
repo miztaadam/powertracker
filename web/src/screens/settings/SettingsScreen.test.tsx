@@ -492,6 +492,35 @@ describe('rest alert and vibration', () => {
     await waitFor(() => expect(screen.getByRole('radio', { name: 'Sound + vibrate' })).toBeChecked())
   })
 
+  /** Stage 2: "Vibrate on taps" is shown only where the browser can vibrate, under the rest alert, on by default. */
+  it('vibrateOnTaps_whereTheBrowserCanVibrate_isUnderTheRestAlert_andSaved', async () => {
+    fake('vibrate', () => true)
+    show()
+    const row = await screen.findByRole('switch', { name: 'Vibrate on taps' })
+    expect(row).toBeChecked()
+    const alert = document.querySelector('.settings-rest-alert')!.closest('.settings-block')!
+    expect(alert.nextElementSibling).toContainElement(row)
+    await userEvent.click(row)
+    await waitFor(async () => expect((await getSettings(db)).vibrateOnTaps).toBe(false))
+    await waitFor(() => expect(screen.getByRole('switch', { name: 'Vibrate on taps' })).not.toBeChecked())
+    expect((await getSettings(db)).restAlert).toBe('SOUND')
+  })
+
+  it('vibrateOnTaps_isHidden_onIPhone_besideTheLineThatSaysWhy', async () => {
+    fake('userAgent', IPHONE_UA)
+    show()
+    await screen.findByRole('switch', { name: 'Change plates' })
+    expect(screen.queryByRole('switch', { name: 'Vibrate on taps' })).toBeNull()
+    expect(screen.queryByText('Vibrate on taps')).toBeNull()
+    expect(screen.getByText(NO_VIBRATION_ON_IPHONE)).toBeInTheDocument()
+  })
+
+  it('vibrateOnTaps_isHidden_whereTheBrowserCannotVibrate', async () => {
+    show()
+    await screen.findByRole('switch', { name: 'Change plates' })
+    expect(screen.queryByRole('switch', { name: 'Vibrate on taps' })).toBeNull()
+  })
+
   it('iPhone_hasNoVibrateOption_andSaysWhy', async () => {
     fake('userAgent', IPHONE_UA)
     show()

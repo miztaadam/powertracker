@@ -455,6 +455,8 @@ function mapBackup(file: BackupFile): Mapped {
       bodybuildingTrainingDays: [...new Set(bodybuildingTrainingDays)].sort((a, b) => a - b),
       powerliftingLeftOn: leftOn(st.powerliftingLeftOn),
       bodybuildingLeftOn: leftOn(st.bodybuildingLeftOn),
+      // Not in the backup (owner, option A): a restore puts it back on, its default, as on Android.
+      vibrateOnTaps: DEFAULT_SETTINGS.vibrateOnTaps,
     },
   }
 }

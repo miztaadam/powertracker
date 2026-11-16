@@ -3,6 +3,8 @@ package com.powertracker.ui
 import android.content.Context
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -213,6 +215,26 @@ class PlanScreenTest {
 
         compose.waitUntil(5_000) { runBlocking { settings.settings.first().restAlert } == RestAlert.SOUND_AND_VIBRATE }
         compose.onNodeWithText("Sound + vibrate").assertIsSelected()
+    }
+
+    /** Stage 2: always shown on Android, under the rest alert, on by default; the switch is stored. */
+    @Test
+    fun settings_vibrateOnTaps_isUnderRestAlert_onByDefault_andPersists() {
+        compose.setContent { SettingsScreen(settings, BackupService(db, settings), onBack = {}) }
+
+        val row = compose.onNodeWithText("Vibrate on taps")
+        row.assertIsOn()
+        val alertBottom = compose.onNodeWithText("Vibrate only").getUnclippedBoundsInRoot().bottom
+        assertTrue("under the rest alert", row.getUnclippedBoundsInRoot().top >= alertBottom)
+        assertTrue("above app lock", row.getUnclippedBoundsInRoot().bottom <= compose.onNodeWithText("App lock").getUnclippedBoundsInRoot().top)
+
+        row.performClick()
+        compose.waitUntil(5_000) { !runBlocking { settings.settings.first().vibrateOnTaps } }
+        row.assertIsOff()
+        assertEquals(RestAlert.VIBRATE, runBlocking { settings.settings.first().restAlert })
+
+        row.performClick()
+        compose.waitUntil(5_000) { runBlocking { settings.settings.first().vibrateOnTaps } }
     }
 
     @Test

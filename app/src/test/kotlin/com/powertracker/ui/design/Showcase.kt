@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -61,6 +62,7 @@ import com.powertracker.ui.plan.PlanContent
 import com.powertracker.ui.plan.PlanRow
 import com.powertracker.ui.plan.PlanUiState
 import com.powertracker.ui.plan.SettingsContent
+import com.powertracker.ui.theme.LocalMotion
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -85,13 +87,16 @@ internal val DEADLIFT = listOf(232.5f, 235f, 237.5f, 237.5f, 240f, 242.5f, 242.5
 /** Theme, background, a stand-in status bar, and the real bottom bar when [tab] is given. */
 @Composable
 fun ShowcaseFrame(dark: Boolean, tab: Tab?, mode: TrainingMode = TrainingMode.POWERLIFTING, content: @Composable () -> Unit) {
-    PowertrackerTheme(mode = mode, darkTheme = dark) {
-        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-            Row(Modifier.fillMaxWidth().height(28.dp).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("9:41", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground)
+    // Screenshots are taken with motion off (stage 2), whatever LocalMotion's default.
+    CompositionLocalProvider(LocalMotion provides false) {
+        PowertrackerTheme(mode = mode, darkTheme = dark) {
+            Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+                Row(Modifier.fillMaxWidth().height(28.dp).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("9:41", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground)
+                }
+                Box(Modifier.weight(1f)) { content() }
+                if (tab != null) PtBottomBar(tab.route) {}
             }
-            Box(Modifier.weight(1f)) { content() }
-            if (tab != null) PtBottomBar(tab.route) {}
         }
     }
 }

@@ -42,6 +42,11 @@ data class AppSettings(
     /** The day each side was last left; null until it is first left. */
     val powerliftingLeftOn: LocalDate? = null,
     val bodybuildingLeftOn: LocalDate? = null,
+    /**
+     * "Vibrate on taps" (stage 2): a short buzz on the main actions, apart from [restAlert]. A setting of this phone
+     * only: it is not in the backup (owner, option A), so a restore leaves it on, its default.
+     */
+    val vibrateOnTaps: Boolean = true,
 ) {
     fun coach(): CoachSettings = CoachSettings(defaultRpe = defaultRpe, changePlates = changePlates)
 
@@ -120,6 +125,7 @@ class SettingsRepository(context: Context) {
         /** ISO dates (YYYY-MM-DD); absent until the side is first left. */
         val POWERLIFTING_LEFT_ON = stringPreferencesKey("powerliftingLeftOn")
         val BODYBUILDING_LEFT_ON = stringPreferencesKey("bodybuildingLeftOn")
+        val VIBRATE_ON_TAPS = booleanPreferencesKey("vibrateOnTaps")
 
         fun Preferences.toAppSettings(): AppSettings {
             val d = AppSettings()
@@ -137,6 +143,7 @@ class SettingsRepository(context: Context) {
                 bodybuildingTrainingDays = this[BODYBUILDING_TRAINING_DAYS]?.let(::parseDays) ?: d.bodybuildingTrainingDays,
                 powerliftingLeftOn = this[POWERLIFTING_LEFT_ON]?.let(::parseDate),
                 bodybuildingLeftOn = this[BODYBUILDING_LEFT_ON]?.let(::parseDate),
+                vibrateOnTaps = this[VIBRATE_ON_TAPS] ?: d.vibrateOnTaps,
             )
         }
 
@@ -155,6 +162,7 @@ class SettingsRepository(context: Context) {
             this[BODYBUILDING_TRAINING_DAYS] = s.bodybuildingTrainingDays.sorted().joinToString(",") { it.name }
             writeDate(POWERLIFTING_LEFT_ON, s.powerliftingLeftOn)
             writeDate(BODYBUILDING_LEFT_ON, s.bodybuildingLeftOn)
+            this[VIBRATE_ON_TAPS] = s.vibrateOnTaps
         }
 
         fun androidx.datastore.preferences.core.MutablePreferences.writeDate(key: Preferences.Key<String>, date: LocalDate?) {
