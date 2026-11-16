@@ -8,7 +8,8 @@ export type AppSettings = {
   appLock: boolean
   restMainSec: number
   restAccessorySec: number
-  restAlert: 'SOUND' | 'SILENT' | 'OFF'
+  /** `SOUND_AND_VIBRATE` is offered only where the browser can vibrate (Android); elsewhere it acts as `SOUND`. */
+  restAlert: 'SOUND' | 'SOUND_AND_VIBRATE' | 'SILENT' | 'OFF'
   keepAwake: boolean
   lastBackupAt: string | null
   /** Strict press on Progress and in the total (strict press spec §4.2). Coaching ignores it. */
@@ -60,7 +61,7 @@ export function settingsFromRows(rows: KeyValueRow[]): AppSettings {
       merged[r.key] = r.value
     }
   }
-  if (!['SOUND', 'SILENT', 'OFF'].includes(merged.restAlert as string)) merged.restAlert = DEFAULT_SETTINGS.restAlert
+  if (!['SOUND', 'SOUND_AND_VIBRATE', 'SILENT', 'OFF'].includes(merged.restAlert as string)) merged.restAlert = DEFAULT_SETTINGS.restAlert
   if (!(TRAINING_MODES as readonly string[]).includes(merged.trainingMode as string)) merged.trainingMode = DEFAULT_SETTINGS.trainingMode
   return merged as AppSettings
 }

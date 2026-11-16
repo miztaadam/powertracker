@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { onDataReplaced } from '../backup/backup'
 import { getSettings, type AppSettings, type GritDb } from '../db/db'
 import { playRestTone, unlockAudioOnGesture } from '../platform/audio'
+import { vibrateRestEnd } from '../platform/device'
 import { RestTimerStore, useRestTimer, type RestTimerState, type RestTimerStorage } from '../platform/restTimer'
 import { releaseWakeLock, requestWakeLock } from '../platform/wakeLock'
 
@@ -78,7 +79,9 @@ export function useRest(db: GritDb | null): Rest {
         if (lateMs > STALE_ALERT_MS) return
         const announce = ({ restAlert }: AppSettings) => {
           if (restAlert === 'OFF') return
-          if (restAlert === 'SOUND') playRestTone()
+          if (restAlert === 'SOUND' || restAlert === 'SOUND_AND_VIBRATE') playRestTone()
+          // Only Android browsers can vibrate; elsewhere Sound + vibrate is just the sound.
+          if (restAlert === 'SOUND_AND_VIBRATE') vibrateRestEnd()
           setFlashId((id) => id + 1)
         }
         // A rest picked up after a reload can reach zero before the settings have been read: read them for it.

@@ -87,3 +87,32 @@ describe('InstallCard', () => {
     expect(await screen.findByText(MOVE)).toBeInTheDocument()
   })
 })
+
+describe('InstallCard wording by phone', () => {
+  const ANDROID_UA = 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36'
+  const IPHONE_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1'
+  const ANDROID_COPY = "Open your browser's menu (⋮), then tap Install app or Add to Home screen. Installed, your training log is protected from being cleared."
+  const fakeAgent = (ua: string) => Object.defineProperty(navigator, 'userAgent', { value: ua, configurable: true })
+  afterEach(() => {
+    delete (navigator as unknown as Record<string, unknown>).userAgent
+  })
+
+  it('installCard_android_saysToUseTheBrowsersMenu_andKeepsTheRest', async () => {
+    fakeAgent(ANDROID_UA)
+    await startSession(db, TODAY)
+    render(<InstallCard db={db} />)
+    expect(await screen.findByText(ANDROID_COPY)).toBeInTheDocument()
+    expect(screen.queryByText(COPY)).toBeNull()
+    // The separate-storage note and the export stay as they are.
+    expect(await screen.findByText(MOVE)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Export backup' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Not now' })).toBeInTheDocument()
+  })
+
+  it('installCard_iPhone_keepsTheSafariSteps', async () => {
+    fakeAgent(IPHONE_UA)
+    render(<InstallCard db={db} />)
+    expect(await screen.findByText(COPY)).toBeInTheDocument()
+    expect(screen.queryByText(ANDROID_COPY)).toBeNull()
+  })
+})

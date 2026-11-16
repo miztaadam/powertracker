@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { activeTrainingDays, setTrainingMode, withTrainingDayToggled, type AppSettings, type GritDb } from '../../db/db'
 import { todayIso } from '../../domain'
+import { canVibrate, isIos } from '../../platform/device'
 import { clearLock, createLock, lockSupported } from '../../platform/passkeyLock'
 import { useSettings, type SettingsActions, type SettingsState } from '../../state/useSettings'
 import { dayName } from '../../state/weekdayNames'
@@ -30,9 +31,14 @@ export type SettingsScreenProps = {
   now?: () => number
 }
 
-/** How the lifter is told a rest is over. A phone browser cannot vibrate, so Silent only flashes the screen. */
+/**
+ * How the lifter is told a rest is over. Android browsers can vibrate, so there Sound + vibrate is offered too;
+ * iPhones give web apps no vibration at all, so there it is not, and Silent only flashes the screen everywhere.
+ */
 const REST_ALERTS: readonly AppSettings['restAlert'][] = ['SOUND', 'SILENT', 'OFF']
-const REST_ALERT_LABEL: Record<AppSettings['restAlert'], string> = { SOUND: 'Sound', SILENT: 'Silent', OFF: 'Off' }
+const REST_ALERTS_WITH_VIBRATION: readonly AppSettings['restAlert'][] = ['SOUND', 'SOUND_AND_VIBRATE', 'SILENT', 'OFF']
+const REST_ALERT_LABEL: Record<AppSettings['restAlert'], string> = { SOUND: 'Sound', SOUND_AND_VIBRATE: 'Sound + vibrate', SILENT: 'Silent', OFF: 'Off' }
+export const NO_VIBRATION_ON_IPHONE = "iPhones don't let web apps vibrate."
 const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7]
 const SAVE_FAILED = "Couldn't save — try again."
 const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value))
@@ -109,6 +115,10 @@ export function SettingsContent({ settings, onUpdate, onAppLock, onBodybuilding 
   // The bodybuilding side has no main lifts: it hides the powerlifting rows (planned effort for main lifts, strict
   // press on Progress, main lift rest) and its one rest is every exercise's. Their stored values are kept as they are.
   const powerlifting = settings.trainingMode !== 'BODYBUILDING'
+  const vibrates = canVibrate()
+  const restAlerts = vibrates ? REST_ALERTS_WITH_VIBRATION : REST_ALERTS
+  // Sound + vibrate restored onto a phone that cannot vibrate is the sound alone.
+  const restAlert = settings.restAlert === 'SOUND_AND_VIBRATE' && !vibrates ? 'SOUND' : settings.restAlert
   return (
     <>
       <SectionHeader title="Training style" />
@@ -180,10 +190,12 @@ export function SettingsContent({ settings, onUpdate, onAppLock, onBodybuilding 
           <RowLabel label="Rest alert" supporting="How you're told the rest is over" />
           <SegmentedChoice
             label="Rest alert"
-            options={REST_ALERTS.map((alert) => REST_ALERT_LABEL[alert])}
-            selectedIndex={REST_ALERTS.indexOf(settings.restAlert)}
-            onSelect={(i) => onUpdate((s) => ({ ...s, restAlert: REST_ALERTS[i] ?? s.restAlert }))}
+            className="settings-rest-alert"
+            options={restAlerts.map((alert) => REST_ALERT_LABEL[alert])}
+            selectedIndex={restAlerts.indexOf(restAlert)}
+            onSelect={(i) => onUpdate((s) => ({ ...s, restAlert: restAlerts[i] ?? s.restAlert }))}
           />
+          {!vibrates && isIos() && <p className="settings-supporting settings-note body-small">{NO_VIBRATION_ON_IPHONE}</p>}
         </div>
         <SwitchRow label="Keep screen awake during rests" supporting="The screen stays on while the rest timer runs" checked={settings.keepAwake} onChange={(v) => onUpdate((s) => ({ ...s, keepAwake: v }))} />
       </Group>

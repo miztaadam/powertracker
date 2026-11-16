@@ -11,7 +11,7 @@ import { TODAY, exerciseNamed, plan, todayFixture } from '../../test/todayFixtur
 import { CREDENTIAL_ID, cancelled, clearWebAuthn, mockWebAuthn } from '../../test/webauthn'
 import { shownVersion } from './appVersion'
 import { APP_VERSION } from './build'
-import { SettingsScreen } from './SettingsScreen'
+import { NO_VIBRATION_ON_IPHONE, SettingsScreen } from './SettingsScreen'
 
 const WEB_BACKUP = readFileSync(resolve(__dirname, '../../backup/__fixtures__/web-v1.json'), 'utf8')
 const NOW = new Date(2026, 10, 11, 9, 41).getTime()
@@ -469,5 +469,49 @@ describe('SettingsScreen', () => {
     // Read once, without the dots: the visible text is hidden from screen readers and a spoken copy stands in.
     expect(line.closest('[aria-hidden="true"]')).not.toBeNull()
     expect(screen.getByText(`Grit version ${shownVersion(APP_VERSION)}, build a1b2c3d, by AppsbyAdam`)).toHaveClass('sr-only')
+  })
+})
+
+describe('rest alert and vibration', () => {
+  const IPHONE_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1'
+  const fake = (key: string, value: unknown) => Object.defineProperty(navigator, key, { value, configurable: true })
+  afterEach(() => {
+    // Deleted, not set to undefined: `'vibrate' in navigator` must be false again.
+    for (const key of ['vibrate', 'userAgent']) delete (navigator as unknown as Record<string, unknown>)[key]
+  })
+  const alerts = () => screen.getAllByRole('radio').filter((r) => r.closest('[aria-label="Rest alert"]')).map((r) => r.parentElement?.textContent)
+
+  it('android_offersSoundAndVibrate_andSavesIt', async () => {
+    fake('vibrate', () => true)
+    show()
+    await screen.findByRole('switch', { name: 'Change plates' })
+    expect(alerts()).toEqual(['Sound', 'Sound + vibrate', 'Silent', 'Off'])
+    expect(screen.queryByText(NO_VIBRATION_ON_IPHONE)).toBeNull()
+    await userEvent.click(screen.getByRole('radio', { name: 'Sound + vibrate' }))
+    await waitFor(async () => expect((await getSettings(db)).restAlert).toBe('SOUND_AND_VIBRATE'))
+    await waitFor(() => expect(screen.getByRole('radio', { name: 'Sound + vibrate' })).toBeChecked())
+  })
+
+  it('iPhone_hasNoVibrateOption_andSaysWhy', async () => {
+    fake('userAgent', IPHONE_UA)
+    show()
+    await screen.findByRole('switch', { name: 'Change plates' })
+    expect(alerts()).toEqual(['Sound', 'Silent', 'Off'])
+    expect(screen.getByText(NO_VIBRATION_ON_IPHONE)).toBeInTheDocument()
+  })
+
+  it('aDesktopBrowserWithoutVibration_hasNeitherTheOptionNorTheIPhoneLine', async () => {
+    show()
+    await screen.findByRole('switch', { name: 'Change plates' })
+    expect(alerts()).toEqual(['Sound', 'Silent', 'Off'])
+    expect(screen.queryByText(NO_VIBRATION_ON_IPHONE)).toBeNull()
+  })
+
+  it('soundAndVibrate_onAPhoneThatCannotVibrate_showsAsSound', async () => {
+    fake('userAgent', IPHONE_UA)
+    await updateSettings(db, (s) => ({ ...s, restAlert: 'SOUND_AND_VIBRATE' }))
+    show()
+    await screen.findByRole('switch', { name: 'Change plates' })
+    expect(screen.getByRole('radio', { name: 'Sound' })).toBeChecked()
   })
 })

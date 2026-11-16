@@ -15,6 +15,12 @@
   padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
 }
 
+/* The iOS Home Screen app (the head script sets the class): iOS 26 blurs a band a little below the status
+   bar, so the screen starts clear of it. */
+.ios-standalone .shell-main {
+  padding-top: calc(env(safe-area-inset-top) + 1.5rem);
+}
+
 .screen {
   display: flex;
   flex-direction: column;
@@ -37,7 +43,7 @@
 /* Messages sit above the tab bar and above the rest bar while it shows. App sets
    --rest-dock-height to the measured height of .shell-rest, 0 when there is none. */
 .shell {
-  --snackbar-bottom: calc(80px + var(--rest-dock-height, 0px) + var(--space-4) + env(safe-area-inset-bottom));
+  --snackbar-bottom: calc(var(--tabbar-height) + var(--rest-dock-height, 0px) + var(--space-4) + env(safe-area-inset-bottom));
 }
 
 /* "Update ready — tap to refresh", docked with the rest bar: the whole strip is the button. */

@@ -174,6 +174,37 @@ describe('useRest', () => {
       expect(screen.getByTestId('rest-flash')).toBeInTheDocument()
     })
 
+    it('SOUND_AND_VIBRATE plays the tone, buzzes twice and flashes where the phone can vibrate (Android)', async () => {
+      const vibrate = vi.fn(() => true)
+      Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true })
+      try {
+        await restToZero('SOUND_AND_VIBRATE')
+      } finally {
+        delete (navigator as unknown as Record<string, unknown>).vibrate
+      }
+      expect(beeps).toHaveLength(2)
+      expect(vibrate).toHaveBeenCalledTimes(1)
+      expect(vibrate).toHaveBeenCalledWith([200, 100, 200])
+      expect(screen.getByTestId('rest-flash')).toBeInTheDocument()
+    })
+
+    it('SOUND_AND_VIBRATE is the tone and the flash where the phone cannot vibrate (iPhone)', async () => {
+      await restToZero('SOUND_AND_VIBRATE')
+      expect(beeps).toHaveLength(2)
+      expect(screen.getByTestId('rest-flash')).toBeInTheDocument()
+    })
+
+    it('SOUND never vibrates', async () => {
+      const vibrate = vi.fn(() => true)
+      Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true })
+      try {
+        await restToZero('SOUND')
+      } finally {
+        delete (navigator as unknown as Record<string, unknown>).vibrate
+      }
+      expect(vibrate).not.toHaveBeenCalled()
+    })
+
     it('OFF does nothing', async () => {
       await restToZero('OFF')
       expect(beeps).toEqual([])

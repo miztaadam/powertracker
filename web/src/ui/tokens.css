@@ -98,6 +98,8 @@
   --space-6: 24px;
   --space-7: 32px;
   --touch: 48px;
+  /* The tab bar's own height, above the home-bar inset: the tab bar and everything docked above it use it. */
+  --tabbar-height: 80px;
   --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 14px;

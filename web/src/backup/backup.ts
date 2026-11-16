@@ -16,6 +16,7 @@ import { DEFAULT_SETTINGS, settingsFromRows, type AppSettings } from '../db/sett
 import { applyStrictPressUpgrade } from '../db/strictPressUpgrade'
 import { inGroupOrder } from '../db/checkIns'
 import { grit } from '../domain'
+import { canVibrate } from '../platform/device'
 import {
   ADVICE_STATUSES,
   ADVICE_TYPES,
@@ -48,13 +49,21 @@ export function backupFileName(date: string): string {
 // ---- rest alert mapping (spec §5) -------------------------------------------------------------
 
 export function androidRestAlertOf(web: WebRestAlert): AndroidRestAlert {
-  return web === 'SOUND' ? 'SOUND_AND_VIBRATE' : web === 'SILENT' ? 'VIBRATE' : 'OFF'
+  return web === 'SOUND' || web === 'SOUND_AND_VIBRATE' ? 'SOUND_AND_VIBRATE' : web === 'SILENT' ? 'VIBRATE' : 'OFF'
 }
 
-/** `webRestAlert` wins when it is a known web value; otherwise Android's value maps (vibrate -> sound). */
-export function webRestAlertOf(restAlert: string, webRestAlert: string | null): WebRestAlert {
-  if ((WEB_REST_ALERTS as readonly string[]).includes(webRestAlert ?? '')) return webRestAlert as WebRestAlert
-  return restAlert === 'OFF' ? 'OFF' : 'SOUND'
+/**
+ * `webRestAlert` wins when it is a known web value; otherwise Android's value maps. Where this browser can
+ * vibrate (Android), Android's vibrating alerts keep the vibration as Sound + vibrate (the web has no
+ * vibrate-only alert); elsewhere they become Sound, the alert a phone that cannot vibrate can give.
+ */
+export function webRestAlertOf(restAlert: string, webRestAlert: string | null, vibrates: boolean = canVibrate()): WebRestAlert {
+  const web: WebRestAlert = (WEB_REST_ALERTS as readonly string[]).includes(webRestAlert ?? '')
+    ? (webRestAlert as WebRestAlert)
+    : restAlert === 'OFF'
+      ? 'OFF'
+      : 'SOUND_AND_VIBRATE'
+  return web === 'SOUND_AND_VIBRATE' && !vibrates ? 'SOUND' : web
 }
 
 // ---- epochDay <-> ISO date ---------------------------------------------------------------------

@@ -872,3 +872,70 @@ describe('cross-platform restore, version 4', () => {
   }
   it('androidV4Fixture_restoresOnWeb', androidV4Fixture_restoresOnWeb)
 })
+
+describe('rest alert and vibration', () => {
+  afterEach(() => {
+    delete (navigator as unknown as Record<string, unknown>).vibrate
+  })
+
+  it('androidsVibratingAlerts_keepTheVibration_whereTheBrowserCanVibrate', () => {
+    expect(webRestAlertOf('SOUND_AND_VIBRATE', null, true)).toBe('SOUND_AND_VIBRATE')
+    // The web has no vibrate-only alert: the vibration is kept, with the sound.
+    expect(webRestAlertOf('VIBRATE', null, true)).toBe('SOUND_AND_VIBRATE')
+    expect(webRestAlertOf('OFF', null, true)).toBe('OFF')
+  })
+
+  it('androidsVibratingAlerts_becomeSound_whereItCannot', () => {
+    expect(webRestAlertOf('SOUND_AND_VIBRATE', null, false)).toBe('SOUND')
+    expect(webRestAlertOf('VIBRATE', null, false)).toBe('SOUND')
+    expect(webRestAlertOf('OFF', null, false)).toBe('OFF')
+  })
+
+  it('theWebsSoundAndVibrate_isKeptWhereItCanVibrate_andIsSoundWhereItCannot', () => {
+    expect(webRestAlertOf('SOUND_AND_VIBRATE', 'SOUND_AND_VIBRATE', true)).toBe('SOUND_AND_VIBRATE')
+    expect(webRestAlertOf('SOUND_AND_VIBRATE', 'SOUND_AND_VIBRATE', false)).toBe('SOUND')
+    // The other web values win as before, on either kind of phone.
+    for (const vibrates of [true, false]) {
+      expect(webRestAlertOf('VIBRATE', 'SILENT', vibrates)).toBe('SILENT')
+      expect(webRestAlertOf('SOUND_AND_VIBRATE', 'SOUND', vibrates)).toBe('SOUND')
+      expect(webRestAlertOf('OFF', 'OFF', vibrates)).toBe('OFF')
+    }
+  })
+
+  it('soundAndVibrate_exportsAsAndroidsSoundAndVibrate', () => {
+    expect(androidRestAlertOf('SOUND_AND_VIBRATE')).toBe('SOUND_AND_VIBRATE')
+  })
+
+  it('aBackupFromAnAndroidPhone_restoresWithVibration_onAnAndroidBrowser', async () => {
+    Object.defineProperty(navigator, 'vibrate', { value: () => true, configurable: true })
+    const db = await openDb()
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_V4_FIXTURE, 'utf8')))
+    expect((await getSettings(db)).restAlert).toBe('SOUND_AND_VIBRATE')
+  })
+
+  it('aBackupFromAnAndroidPhone_restoresWithSound_onAnIPhone', async () => {
+    const db = await openDb()
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_V4_FIXTURE, 'utf8')))
+    expect((await getSettings(db)).restAlert).toBe('SOUND')
+  })
+
+  it('soundAndVibrate_roundTripsThroughABackup_andTheFormatStaysTheSame', async () => {
+    Object.defineProperty(navigator, 'vibrate', { value: () => true, configurable: true })
+    const db = await openDb()
+    await updateSettings(db, (s) => ({ ...s, restAlert: 'SOUND_AND_VIBRATE' }))
+    const file = await exportBackup(db, EXPORTED_AT)
+    expect(file.version).toBe(BACKUP_VERSION)
+    expect(file.settings.restAlert).toBe('SOUND_AND_VIBRATE')
+    expect(file.settings.webRestAlert).toBe('SOUND_AND_VIBRATE')
+    // It decodes as any other backup does.
+    const decoded = decodeOk(encodeBackup(file))
+    await updateSettings(db, (s) => ({ ...s, restAlert: 'OFF' }))
+    await restoreBackup(db, decoded)
+    expect((await getSettings(db)).restAlert).toBe('SOUND_AND_VIBRATE')
+
+    // The same file on an iPhone: the sound alone.
+    delete (navigator as unknown as Record<string, unknown>).vibrate
+    await restoreBackup(db, decoded)
+    expect((await getSettings(db)).restAlert).toBe('SOUND')
+  })
+})

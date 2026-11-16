@@ -22,8 +22,8 @@ export const ADVICE_TYPES = ['TARGET', 'STALL', 'DELOAD', 'WEAK_POINT', 'RE_ENTR
 export const ADVICE_STATUSES = ['OPEN', 'APPLIED', 'DISMISSED'] as const
 /** Android's `RestAlert` enum. */
 export const ANDROID_REST_ALERTS = ['VIBRATE', 'SOUND_AND_VIBRATE', 'OFF'] as const
-/** The web app's rest alert, carried in `webRestAlert`. */
-export const WEB_REST_ALERTS = ['SOUND', 'SILENT', 'OFF'] as const
+/** The web app's rest alert, carried in `webRestAlert` (Android keeps that field as it is, unread). */
+export const WEB_REST_ALERTS = ['SOUND', 'SOUND_AND_VIBRATE', 'SILENT', 'OFF'] as const
 
 export type AndroidRestAlert = (typeof ANDROID_REST_ALERTS)[number]
 export type WebRestAlert = (typeof WEB_REST_ALERTS)[number]

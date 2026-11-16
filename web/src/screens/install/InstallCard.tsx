@@ -3,11 +3,16 @@ import { useEffect, useRef, useState } from 'react'
 import { exportBackupFile } from '../../backup/exportFile'
 import type { GritDb } from '../../db/db'
 import { todayIso } from '../../domain'
+import { isAndroid } from '../../platform/device'
 import { isStandalone } from '../../platform/storage'
 import { QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
 import { UploadIcon } from '../../ui/components/icons'
 import './install.css'
+
+/** How to install: Safari's Share sheet on iPhone (and as the default), the browser's menu on Android. */
+export const INSTALL_STEPS_SAFARI = 'Add Grit to your Home Screen: tap Share, then Add to Home Screen.'
+export const INSTALL_STEPS_ANDROID = "Open your browser's menu (⋮), then tap Install app or Add to Home screen."
 
 /** In `meta`: true once the lifter answered the card with "Not now". */
 export const INSTALL_DISMISSED_KEY = 'install:dismissed'
@@ -29,6 +34,7 @@ async function read(db: GritDb): Promise<Shown> {
  */
 export function InstallCard({ db }: { db: GritDb }) {
   const [standalone] = useState(isStandalone)
+  const [steps] = useState(() => (isAndroid() ? INSTALL_STEPS_ANDROID : INSTALL_STEPS_SAFARI))
   // Hidden until the stored answer has been read, so the card does not flash for someone who said no.
   const [shown, setShown] = useState<Shown>({ dismissed: true, hasLog: false })
   const [note, setNote] = useState<string | null>(null)
@@ -56,7 +62,7 @@ export function InstallCard({ db }: { db: GritDb }) {
         <img className="install-icon" src="/icons/icon-192.png" alt="" width={48} height={48} />
         <h2 className="install-title headline-small">Install Grit</h2>
       </div>
-      <p className="install-body body-medium">Add Grit to your Home Screen: tap Share, then Add to Home Screen. Installed, your training log is protected from being cleared.</p>
+      <p className="install-body body-medium">{`${steps} Installed, your training log is protected from being cleared.`}</p>
       {shown.hasLog && (
         <p className="install-body body-medium">
           The installed app keeps its own log, apart from Safari's, and starts empty. You have already logged here: tap Export backup before you add Grit to the Home Screen, then restore that file in the installed app (Plan, Settings, Restore backup).

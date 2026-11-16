@@ -56,6 +56,19 @@ label.settings-row {
   padding-bottom: var(--space-4);
 }
 
+/* Four rest alerts on a narrow phone (Android, with Sound + vibrate): a long one wraps onto two lines inside
+   its segment instead of running out of it. */
+.settings-rest-alert .gr-segment-face {
+  padding: 0 var(--space-1);
+  white-space: normal;
+  text-align: center;
+}
+
+/* A plain line under the rest alert's choices (iPhone: no vibration). */
+.settings-note {
+  margin: var(--space-2) 0 0;
+}
+
 /* Seven days share the card's width: each chip keeps its 48 px, so the faces give up their side padding. */
 .settings-days {
   padding: var(--space-3) var(--space-2);
