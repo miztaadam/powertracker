@@ -3357,7 +3357,7 @@ Sources of the stretch and squeeze:
 Stretch and squeeze (bodybuilding side):
 
 - Stretch: Your glutes stretch as your legs lower back to the start.
-- Squeeze: Squeeze your glutes as your legs come up nearly in line.
+- Squeeze: Squeeze your glutes as your legs rise nearly in line with you.
 
 Sources of the stretch and squeeze:
 

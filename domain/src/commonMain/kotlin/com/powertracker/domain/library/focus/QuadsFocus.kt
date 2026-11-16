@@ -12,7 +12,7 @@ import com.powertracker.domain.library.Sources
 
 // "At the bottom": each guide's own depth and its own stop-sooner rule, where it has one, never "below parallel". Most
 // stop sooner if the heels lift or the back rounds; the Zercher squat's rule is the shoulders or back rounding, and the
-// Lever squat has none (its lever is set so the hips go about level with the knees).
+// Lever squat has none (its lever is set so the hips go level with the knees or slightly lower).
 private const val SQUAT_BOTTOM = "Your quads stretch at the bottom of your squat."
 // The guides' "Stand up by straightening your knees and hips."
 private const val SQUAT_STAND = "Squeeze your quads as your hips and knees straighten."

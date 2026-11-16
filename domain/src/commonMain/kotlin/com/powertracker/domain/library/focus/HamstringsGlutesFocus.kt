@@ -163,7 +163,7 @@ internal val hamstringsGlutesFocus: List<Pair<String, MuscleFocus>> by lazy {
         // the point the squeeze names. No other allowed page covers it, so the lines rest on the guide alone.
         "Reverse hyper" to guideOnlyLines(
             "Your glutes stretch as your legs lower back to the start.",
-            "Squeeze your glutes as your legs come up nearly in line.",
+            "Squeeze your glutes as your legs rise nearly in line with you.",
         ),
         // ACE 270: lift the leg only as high as the low back stays controlled; the guide's "Move only at the hip".
         "Quadruped hip extension" to lines(
@@ -182,7 +182,8 @@ internal val hamstringsGlutesFocus: List<Pair<String, MuscleFocus>> by lazy {
             "Your glutes stretch with your legs together at the start.",
             "Squeeze your glutes as you push your legs apart.",
         ),
-        // The guide's start crosses the cuffed leg in front (ExRx CBHipAbduction); its stop is ACE 38's hips tilting.
+        // The guide's start crosses the cuffed leg in front (ExRx CBHipAbduction, which sweeps the leg out and back
+        // with no "as far as possible"); its stop is ACE 38's hips tilting.
         "Cable hip abduction" to lines(
             "Your glutes stretch with your cuffed leg crossed in front.",
             "Squeeze your glutes as your leg lifts out, hips still level.",
