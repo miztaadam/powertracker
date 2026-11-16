@@ -2,6 +2,7 @@ package com.powertracker.ui.library
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertIsDisplayed
@@ -16,6 +17,8 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ActivityScenario
 import com.powertracker.domain.library.Library
+import com.powertracker.domain.library.MuscleFocus
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.theme.PowertrackerTheme
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -44,11 +47,15 @@ class FormGuideSheetTest {
         scenario?.close()
     }
 
-    private fun show(name: String, fontScale: Float = 1f) {
+    /** The side the sheet is shown on; a test can switch it while the sheet is open. */
+    private val side = mutableStateOf(TrainingMode.POWERLIFTING)
+
+    private fun show(name: String, fontScale: Float = 1f, mode: TrainingMode = TrainingMode.POWERLIFTING) {
         RuntimeEnvironment.setFontScale(fontScale)
+        side.value = mode
         scenario = ActivityScenario.launch(ComponentActivity::class.java).onActivity { activity ->
             assertEquals(fontScale, activity.resources.configuration.fontScale, 0.001f)
-            activity.setContent { PowertrackerTheme { FormGuideSheet(name, onDismiss = {}) } }
+            activity.setContent { PowertrackerTheme(mode = side.value) { FormGuideSheet(name, onDismiss = {}) } }
         }
         compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("form-guide")).fetchSemanticsNodes().isNotEmpty() }
     }
@@ -132,5 +139,77 @@ class FormGuideSheetTest {
             val n = node.fetchSemanticsNode()
             assertEquals("\"$line\" is not clipped", n.size.height.toFloat(), n.boundsInRoot.height, 0.5f)
         }
+    }
+
+    // ---- Stretch and squeeze (stage 4): a section of its own while bodybuilding mode is on ----
+
+    private fun lines(name: String) = Library.focus(name) as MuscleFocus.Lines
+
+    @Test
+    fun guideSheet_bodybuilding_hasStretchAndSqueeze() {
+        val guide = Library.find("Squat")!!.guide
+        val squat = lines("Squat")
+        show("Squat", mode = TrainingMode.BODYBUILDING)
+
+        // After "Cues" (and its lines), before "Common mistakes": the heading, the stretch, then the squeeze.
+        val order = listOf("Cues") + guide.cues + listOf("Stretch and squeeze", squat.stretch, squat.squeeze, "Common mistakes")
+        val tops = order.map { top(it) }
+        assertEquals("the section sits after Cues, in order", tops.sortedBy { it.value }, tops)
+        compose.onNode(hasText(Library.NO_FOCUS_LINE) and inSheet).assertDoesNotExist()
+    }
+
+    @Test
+    fun guideSheet_bodybuilding_noFocus_showsTheFixedLine() {
+        show("Front plank", mode = TrainingMode.BODYBUILDING)
+        val tops = listOf("Cues", "Stretch and squeeze", Library.NO_FOCUS_LINE, "Common mistakes").map { top(it) }
+        assertEquals(tops.sortedBy { it.value }, tops)
+    }
+
+    @Test
+    fun guideSheet_powerlifting_hasNoStretchAndSqueeze() {
+        show("Squat")
+        compose.onNode(hasText("Cues") and inSheet).assertExists()
+        compose.onNode(hasText("Stretch and squeeze") and inSheet).assertDoesNotExist()
+        compose.onNode(hasText(lines("Squat").stretch) and inSheet).assertDoesNotExist()
+        compose.onNode(hasText(lines("Squat").squeeze) and inSheet).assertDoesNotExist()
+    }
+
+    @Test
+    fun guideSheet_bodybuilding_custom_hasNoSection() {
+        show("Tyre flip", mode = TrainingMode.BODYBUILDING)
+        compose.onNode(hasText("Stretch and squeeze") and inSheet).assertDoesNotExist()
+        compose.onNode(hasText(Library.NO_FOCUS_LINE) and inSheet).assertDoesNotExist()
+    }
+
+    @Test
+    fun guideSheet_bodybuilding_notYetWritten_hasNoSection() {
+        // A catalogue exercise whose lines are not written yet has its guide but no section (none once all are written).
+        val unwritten = Library.all().firstOrNull { Library.focus(it.name) == null } ?: return
+        show(unwritten.name, mode = TrainingMode.BODYBUILDING)
+        compose.onNode(hasText("Cues") and inSheet).assertExists()
+        compose.onNode(hasText("Stretch and squeeze") and inSheet).assertDoesNotExist()
+        compose.onNode(hasText(Library.NO_FOCUS_LINE) and inSheet).assertDoesNotExist()
+    }
+
+    @Test
+    fun guideSheet_switchingTheMode_showsOrHidesTheSectionAtOnce() {
+        show("Squat")
+        compose.onNode(hasText("Stretch and squeeze") and inSheet).assertDoesNotExist()
+        side.value = TrainingMode.BODYBUILDING
+        compose.waitForIdle()
+        compose.onNode(hasText("Stretch and squeeze") and inSheet).assertExists()
+        compose.onNode(hasText(lines("Squat").stretch) and inSheet).assertExists()
+        side.value = TrainingMode.POWERLIFTING
+        compose.waitForIdle()
+        compose.onNode(hasText("Stretch and squeeze") and inSheet).assertDoesNotExist()
+    }
+
+    @Test
+    fun guideSheet_restoredRowUnderCatalogueName_showsLines() {
+        // A stored row named in lower case, as a restored backup can be: Squat's lines, matched as its guide is.
+        show("squat", mode = TrainingMode.BODYBUILDING)
+        compose.onNode(hasText("Stretch and squeeze") and inSheet).assertExists()
+        compose.onNode(hasText(lines("Squat").stretch) and inSheet).assertExists()
+        compose.onNode(hasText(lines("Squat").squeeze) and inSheet).assertExists()
     }
 }

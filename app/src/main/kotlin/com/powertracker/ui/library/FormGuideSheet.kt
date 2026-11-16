@@ -28,6 +28,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -37,9 +38,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.LibraryExercise
+import com.powertracker.domain.library.MuscleFocus
 import com.powertracker.domain.library.figure
 import com.powertracker.domain.library.figures.ExerciseFigure
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.components.Eyebrow
+import com.powertracker.ui.theme.LocalTrainingMode
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 
@@ -77,7 +81,7 @@ internal fun GuideSheet(onDismiss: () -> Unit, content: @Composable () -> Unit) 
 
 /**
  * The sheet's content without the sheet: name, where and with what, the two-pose picture, purpose, the
- * four sections, the safety line. [actions] (the Exercises tab's "Add to plan" and "Add to today") stay in view under
+ * four sections (with "Stretch and squeeze" after Cues on the bodybuilding side), the safety line. [actions] (the Exercises tab's "Add to plan" and "Add to today") stay in view under
  * the guide as it scrolls, below the safety line that ends it.
  */
 @Composable
@@ -109,6 +113,7 @@ fun FormGuideContent(
                     GuideSection("Setup", guide.setup, numbered = false)
                     GuideSection("How to do it", guide.steps, numbered = true)
                     GuideSection("Cues", guide.cues, numbered = false)
+                    StretchAndSqueeze(exerciseName)
                     GuideSection("Common mistakes", guide.mistakes, numbered = false)
                 }
                 SafetyLine(Modifier.padding(top = Space.xl))
@@ -119,6 +124,25 @@ fun FormGuideContent(
             Box(Modifier.fillMaxWidth().padding(horizontal = Space.xl, vertical = Space.m).testTag("guide-actions")) { actions() }
         }
     }
+}
+
+/** The section's heading on the bodybuilding side. */
+const val STRETCH_AND_SQUEEZE = "Stretch and squeeze"
+
+/**
+ * Where the muscle is stretched and where it is squeezed, or the one fixed line for a hold or a carry. Only while
+ * bodybuilding mode is on (read from the theme, as the mode label is), so the powerlifting side's guide is unchanged
+ * and switching the mode shows or hides it at once. An exercise with no lines yet has no section.
+ */
+@Composable
+private fun StretchAndSqueeze(exerciseName: String) {
+    if (LocalTrainingMode.current != TrainingMode.BODYBUILDING) return
+    val lines = when (val focus = remember(exerciseName) { Library.focus(exerciseName) }) {
+        is MuscleFocus.Lines -> listOf(focus.stretch, focus.squeeze)
+        is MuscleFocus.NoFocus -> listOf(Library.NO_FOCUS_LINE)
+        null -> return
+    }
+    GuideSection(STRETCH_AND_SQUEEZE, lines, numbered = false)
 }
 
 /** The top of a guide sheet: its title, an optional eyebrow under it, and the close button. */

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Bolt
@@ -32,13 +33,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.powertracker.data.StoredSet
+import com.powertracker.domain.library.Library
+import com.powertracker.domain.library.MuscleFocus
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.Category
@@ -187,6 +192,13 @@ fun ExerciseCard(
             }
         }
 
+        // Bodybuilding side only, and only for an exercise with two lines: a hold, a custom exercise or one not written
+        // yet adds nothing here, not even a gap.
+        if (bodybuilding) {
+            val focus = remember(item.exercise.name) { Library.focus(item.exercise.name) as? MuscleFocus.Lines }
+            if (focus != null) MuscleCues(focus)
+        }
+
         if (!item.isComplete || extraSet) {
             HorizontalDivider(color = PowertrackerTheme.colors.hairline)
             Editor(item, weightStepKg, changePlates, actions)
@@ -212,6 +224,27 @@ fun ExerciseCard(
             },
             dismissButton = { QuietButton("Keep", { selected = null }) },
         )
+    }
+}
+
+/** Wide enough for "SQUEEZE" at any font size: it grows with the text, so the label is never cut. */
+private val CUE_LABEL_WIDTH = 72.sp
+
+/**
+ * Where the muscle is stretched and where it is squeezed, each line behind its label, as the bodybuilding mockup has
+ * them between the logged sets and the weight entry. The lines wrap; nothing is cut at a large font size.
+ */
+@Composable
+private fun MuscleCues(focus: MuscleFocus.Lines) {
+    val labelWidth = with(LocalDensity.current) { CUE_LABEL_WIDTH.toDp() }
+    Column(Modifier.testTag("muscle-cues"), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+        HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+        for ((label, line) in listOf("Stretch" to focus.stretch, "Squeeze" to focus.squeeze)) {
+            Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
+                Eyebrow(label, Modifier.width(labelWidth).alignByBaseline(), color = PowertrackerTheme.colors.accentText)
+                Text(line, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f).alignByBaseline())
+            }
+        }
     }
 }
 

@@ -1,5 +1,20 @@
 package com.powertracker.ui
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Density
+import com.powertracker.domain.library.Library
+import com.powertracker.domain.library.MuscleFocus
+import com.powertracker.ui.design.assertTextsFit
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.robolectric.annotation.GraphicsMode
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -216,5 +231,146 @@ class BodybuildingContentTest {
         assertEquals(listOf(2L, 8L), openedExercises)
         assertEquals(emptyList<MainLift>(), opened)
         compose.onNode(hasTestTag("mode-label")).assertExists()
+    }
+
+    // ---- Stretch and squeeze (stage 4): on the bodybuilding side's Today card only ----
+
+    private val squat = Exercise(1, "Squat", Category.SQUAT, null, emptyList(), isBuiltIn = true)
+    private val plank = Exercise(9, "Front plank", Category.ACCESSORY, null, emptyList(), isBuiltIn = true)
+    private val tyreFlip = Exercise(900, "Tyre flip", Category.ACCESSORY, null, emptyList(), isBuiltIn = false)
+    private val twoSets = listOf(stored(1, 26.0, 11, 8.0), stored(2, 26.0, 10, 8.0))
+
+    private fun lines(name: String) = Library.focus(name) as MuscleFocus.Lines
+
+    private var shownCard: MutableState<Pair<Exercise, TrainingMode>>? = null
+
+    /** One exercise card on [mode]'s side, in that side's theme. Called again, it swaps the card in place. */
+    private fun showCard(exercise: Exercise, mode: TrainingMode) {
+        shownCard?.let {
+            it.value = exercise to mode
+            compose.waitForIdle()
+            return
+        }
+        val card = mutableStateOf(exercise to mode).also { shownCard = it }
+        compose.setContent {
+            val (shown, side) = card.value
+            PowertrackerTheme(mode = side) {
+                TodayContent(TodayState(date, loading = false, sessionId = 1, items = listOf(item(shown, twoSets)), mode = side), TodayActions())
+            }
+        }
+    }
+
+    private fun top(text: String) = compose.onNodeWithText(text, useUnmergedTree = true).getUnclippedBoundsInRoot().top
+
+    /** From the exercise's name to the Missed button: the height a cue block would add to. */
+    private fun cardSpan(name: String) = top("Missed") - top(name)
+
+    @Test
+    fun bodybuildingCard_showsStretchAndSqueeze() {
+        val squatLines = lines("Squat")
+        showCard(squat, TrainingMode.BODYBUILDING)
+
+        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText(squatLines.stretch, useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("SQUEEZE", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText(squatLines.squeeze, useUnmergedTree = true).assertExists()
+        // As the mockup: after the logged sets, before the weight entry; the stretch first, each label beside its line.
+        val lastSet = compose.onNodeWithText("Set 2: 26 kg × 10", substring = true).getUnclippedBoundsInRoot().bottom
+        val weight = compose.onNodeWithContentDescription("Weight, kilograms").getUnclippedBoundsInRoot().top
+        val order = listOf(top("STRETCH"), top(squatLines.stretch), top("SQUEEZE"), top(squatLines.squeeze))
+        assertTrue("the cues come after the logged sets", order.all { it >= lastSet })
+        assertTrue("the cues come before the weight entry", order.all { it < weight })
+        assertTrue("the stretch comes before the squeeze", order[1] < order[3])
+        assertEquals("STRETCH sits beside its line", order[0].value, order[1].value, 4f)
+        assertEquals("SQUEEZE sits beside its line", order[2].value, order[3].value, 4f)
+    }
+
+    @Test
+    fun bodybuildingCard_restoredRowUnderCatalogueName_showsLines() {
+        // A row restored from a backup under a catalogue name, in another case: matched as its guide is.
+        showCard(squat.copy(name = "squat"), TrainingMode.BODYBUILDING)
+        compose.onNodeWithText(lines("Squat").stretch, useUnmergedTree = true).assertExists()
+        compose.onNodeWithText(lines("Squat").squeeze, useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun bodybuildingCard_noFocus_showsNothing() {
+        // The plank has NoFocus: the card shows nothing (the guide sheet carries the fixed line).
+        assertTrue(Library.focus("Front plank") is MuscleFocus.NoFocus)
+        showCard(plank, TrainingMode.BODYBUILDING)
+        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithText("SQUEEZE", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithText(Library.NO_FOCUS_LINE, useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("muscle-cues", useUnmergedTree = true).assertDoesNotExist()
+        val plankSpan = cardSpan("Front plank")
+
+        // The lifter's own exercise: nothing either.
+        showCard(tyreFlip, TrainingMode.BODYBUILDING)
+        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithText("SQUEEZE", useUnmergedTree = true).assertDoesNotExist()
+        val ownSpan = cardSpan("Tyre flip")
+
+        // No gap: both cards are exactly as tall as the same card on the powerlifting side, which has no cues at all.
+        showCard(plank, TrainingMode.POWERLIFTING)
+        val powerliftingSpan = cardSpan("Front plank")
+        assertEquals(powerliftingSpan.value, plankSpan.value, 0.5f)
+        assertEquals(powerliftingSpan.value, ownSpan.value, 0.5f)
+
+        // And the guard: a card that does have lines is taller by its cue block.
+        showCard(squat.copy(category = Category.ACCESSORY), TrainingMode.BODYBUILDING)
+        assertTrue(cardSpan("Squat") > powerliftingSpan)
+    }
+
+    @Test
+    fun powerliftingCard_showsNoCues() {
+        showCard(squat, TrainingMode.POWERLIFTING)
+        compose.onNodeWithText("Squat", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithText("SQUEEZE", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithText(lines("Squat").stretch, useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("muscle-cues", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "w360dp-h2400dp-xhdpi")
+    fun bodybuildingCard_largeFont_wrapsWithoutClipping() {
+        val squatLines = lines("Squat")
+        var fontScale = 0f
+        compose.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 1.3f)) {
+                fontScale = LocalDensity.current.fontScale
+                PowertrackerTheme(mode = TrainingMode.BODYBUILDING) {
+                    TodayContent(
+                        TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat, twoSets)), mode = TrainingMode.BODYBUILDING),
+                        TodayActions(),
+                    )
+                }
+            }
+        }
+        compose.waitForIdle()
+        assertEquals(1.3f, fontScale, 0.001f)
+        val screen = compose.onRoot().getUnclippedBoundsInRoot()
+        for (text in listOf("STRETCH", "SQUEEZE", squatLines.stretch, squatLines.squeeze)) {
+            val node = compose.onNodeWithText(text, useUnmergedTree = true)
+            val b = node.getUnclippedBoundsInRoot()
+            assertTrue("\"$text\" fits across the screen", b.left >= screen.left && b.right <= screen.right)
+            val n = node.fetchSemanticsNode()
+            assertEquals("\"$text\" is not clipped", n.size.height.toFloat(), n.boundsInRoot.height, 0.5f)
+            assertEquals("\"$text\" is not cut at the side", n.size.width.toFloat(), n.boundsInRoot.width, 0.5f)
+            val layouts = mutableListOf<TextLayoutResult>()
+            n.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+            val layout = layouts.single()
+            assertFalse("\"$text\" is cut short", layout.hasVisualOverflow)
+            assertFalse("\"$text\" is ellipsised", (0 until layout.lineCount).any { layout.isLineEllipsized(it) })
+            if (text.length > 20) assertTrue("\"$text\" is shown whole", layout.layoutInput.text.text == text)
+        }
+        // At this size the long line wraps rather than running on.
+        val stretch = mutableListOf<TextLayoutResult>().also {
+            compose.onNodeWithText(squatLines.stretch, useUnmergedTree = true).fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(it)
+        }.single()
+        assertTrue("the stretch line wraps at font scale 1.3 on a 360 dp phone", stretch.lineCount > 1)
+        compose.assertTextsFit()
     }
 }

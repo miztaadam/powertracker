@@ -41,12 +41,12 @@ import java.io.File
  * real `ProgressContent` / `LiftHistoryContent` from a sample training history, Progress once more
  * with the strict press switch on. Settings is captured with that switch off and on, and with bodybuilding mode on; Today, Plan, Coach (with the welcome-back card) and Progress have bodybuilding captures too, in the blue look. The exercise picker
  * is the real `ExercisePickerContent`, on its muscle grid and inside one muscle; the form guide is the real `FormGuideContent` in a stand-in
- * for the bottom sheet, for the squat, the bench press and the lat pulldown, each with its two-pose picture (the sheet itself is its own window, which this capture cannot see). The Exercises tab is
+ * for the bottom sheet, for the squat, the bench press and the lat pulldown, each with its two-pose picture, and the squat once more with bodybuilding mode on, in the blue look with its stretch and squeeze section (the sheet itself is its own window, which this capture cannot see). The Exercises tab is
  * the real `ExercisesContent`; its Muscles drop-down, the guide with its actions and the day chooser are their
  * real content in the same stand-in, the first and last over the tab. Today, Plan, the Exercises captures,
  * the exercise picker,
  * lift history, the empty Coach feed and the two lock screens are phone size (412 × 915 dp); the
- * other Coach captures, Progress, Settings, the three form guides and the RPE sheet are full-page captures of a scrolling screen, so
+ * other Coach captures, Progress, Settings, the four form guides and the RPE sheet are full-page captures of a scrolling screen, so
  * their height differs. The launcher icon is rendered by [LauncherIconTest].
  */
 @RunWith(RobolectricTestRunner::class)
@@ -213,6 +213,11 @@ class ScreenshotTest {
     @Test
     @Config(qualifiers = "w412dp-h1370dp-xhdpi")
     fun formGuideLatPulldown() = render("form-guide-lat-pulldown", null) { FormGuideLatPulldownShowcase() }
+
+    // The squat's guide with bodybuilding mode on: its "Stretch and squeeze" section after Cues (stage 4).
+    @Test
+    @Config(qualifiers = "w412dp-h1640dp-xhdpi")
+    fun formGuideBodybuilding() = render("form-guide-bodybuilding", null, TrainingMode.BODYBUILDING) { FormGuideShowcase() }
 
     @Test
     @Config(qualifiers = "w412dp-h560dp-xhdpi")
