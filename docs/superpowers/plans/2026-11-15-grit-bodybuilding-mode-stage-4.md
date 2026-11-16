@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-11-13-grit-bodybuilding-mode-design.md` §8 "Stage 4", with §3 and §9. Stages 1–3 are merged (their plans are beside this one). The form guide content rules are in `docs/superpowers/plans/2026-11-11-grit-exercise-library.md` (Global Constraints).
 
-## Owner decisions needed before building
+## Owner decisions (approved by the owner on 2026-11-16: all four as written, decision 1 as recommended, the bodybuilding side only)
 
 1. **Where the lines show.** The spec says "in the form guide on both sides", but the standing rule is that the powerlifting side does not change while bodybuilding mode is off. **Recommended: the bodybuilding side only** (the Today card, and a "Stretch and squeeze" section in the form guide while bodybuilding mode is on). The other choice is the guide on both sides, as the spec says.
 2. **The mockup's line will not ship.** The approved mockup's dumbbell bench line, "Elbows drop below the bench at the bottom", goes deeper than Grit's own guide, which lowers the dumbbells "to the sides of your chest". The lines never ask for more range than the guide (rule F2 below).
