@@ -66,7 +66,7 @@ const complete = (page: Page) =>
       return target instanceof Element && target.closest('.gr-fill-in') != null
     })
     if (running.length > 0) return `${running.length} running`
-    for (const svg of document.querySelectorAll('.gr-fill-in svg')) if (getComputedStyle(svg).clipPath !== 'none') return 'clipped line'
+    for (const svg of document.querySelectorAll('.gr-fill-in svg, .gr-spark.gr-fill-in')) if (getComputedStyle(svg).clipPath !== 'none') return 'clipped line'
     for (const el of document.querySelectorAll('.gr-fill-in .gr-bar, .gr-fill-in .gr-ratio-marker')) if (getComputedStyle(el).transform !== 'none') return `moved ${el.className}`
     for (const el of document.querySelectorAll('.gr-fill-in .gr-plot-marker, .gr-fill-in .gr-spark-fill')) if (getComputedStyle(el).opacity !== '1') return `faded ${el.className}`
     return 'complete'
@@ -118,17 +118,21 @@ test.describe('with motion on', () => {
       const of = (selector: string) => all.filter((a) => ((a.effect as KeyframeEffect).target as Element).matches(selector))
       const at = (list: Animation[], ms: number) => list.forEach((a) => (a.currentTime = ms))
       const ends = (list: Animation[]) => list.map((a) => a.effect!.getComputedTiming().endTime as number)
-      const lines = of('.gr-fill-in svg')
+      const lines = of('.gr-fill-in svg, .gr-spark.gr-fill-in')
       const bars = of('.gr-fill-in .gr-bar')
       const markers = of('.gr-fill-in .gr-ratio-marker')
       const svg = document.querySelector('.gr-card .gr-linechart svg')!
       const bar = document.querySelector<HTMLElement>('.gr-fill-in .gr-bar:not(.gr-bar-stub)')!
       const marker = document.querySelector<HTMLElement>('.gr-fill-in .gr-ratio-marker')!
       const lineAnimation = lines.find((a) => (a.effect as KeyframeEffect).target === svg)!
+      const spark = document.querySelector<HTMLElement>('.gr-spark.gr-fill-in')!
+      const sparkFill = spark.querySelector('.gr-spark-fill')!
       const scale = () => new DOMMatrix(getComputedStyle(bar).transform).d
       const shift = () => new DOMMatrix(getComputedStyle(marker).transform).e
 
       at(all, 300)
+      // The total sparkline is wiped whole: its shaded area is revealed with the line, never shown ahead of it.
+      const sparkMid = { clip: getComputedStyle(spark).clipPath, fillOpacity: getComputedStyle(sparkFill).opacity, animated: sparkFill.getAnimations().length }
       const mid = { clip: getComputedStyle(svg).clipPath, line: lineAnimation.effect!.getComputedTiming().progress as number, bar: scale(), marker: shift() }
       at(all, 0)
       // The marker starts at the start of the bar: its left edge on the track's.
@@ -136,7 +140,7 @@ test.describe('with motion on', () => {
       at(all, 750)
       const done = { clip: getComputedStyle(svg).clipPath, bar: getComputedStyle(bar).transform, marker: getComputedStyle(marker).transform }
       all.forEach((a) => a.finish())
-      return { counts: [lines.length, bars.length, markers.length], lineEnds: ends(lines), barEnds: ends(bars), markerEnds: ends(markers), mid, startGap, done }
+      return { sparkMid, counts: [lines.length, bars.length, markers.length], lineEnds: ends(lines), barEnds: ends(bars), markerEnds: ends(markers), mid, startGap, done }
     })
     // Two lines (trend, bodyweight) and the total sparkline; three strips of eight bars; two ratio markers.
     expect(seen.counts).toEqual([3, 24, 2])
@@ -146,6 +150,8 @@ test.describe('with motion on', () => {
     expect(Math.max(...seen.markerEnds)).toBe(450)
     // Mid-way the line is partly drawn, the bars are partly grown and the marker is on its way.
     expect(seen.mid.clip).not.toBe('none')
+    expect(seen.sparkMid.clip).not.toBe('none')
+    expect(seen.sparkMid).toMatchObject({ fillOpacity: '1', animated: 0 })
     expect(seen.mid.line).toBeGreaterThan(0)
     expect(seen.mid.line).toBeLessThan(1)
     expect(seen.mid.bar).toBeGreaterThan(0)
@@ -206,6 +212,43 @@ test.describe('with motion on', () => {
     expect(await trend(page).evaluate((el, old) => el !== old, before)).toBe(true)
     await expect.poll(() => complete(page)).toBe('complete')
     await expect(trend(page).locator('polyline')).toHaveCount(3)
+  })
+
+  test('the bodyweight line draws again on a range change, and ends complete', async ({ page }) => {
+    await seed(page, 6)
+    await openProgress(page)
+    await expect.poll(() => complete(page)).toBe('complete')
+    // The bodyweight chart is the last line chart on Progress.
+    const bodyweight = page.locator('.gr-linechart').last()
+    const before = await bodyweight.elementHandle()
+    // Choose 8 wk and catch the new bodyweight line as it mounts, pausing its drawing to look at it.
+    const drawing = await page.evaluate(
+      () =>
+        new Promise<{ animations: number; clip: string }>((done) => {
+          const last = () => Array.from(document.querySelectorAll('.gr-linechart svg')).at(-1)
+          const old = last()
+          const watch = new MutationObserver(() => {
+            const svg = last()
+            if (svg == null || svg === old) return
+            watch.disconnect()
+            const animations = svg.getAnimations()
+            animations.forEach((a) => {
+              a.pause()
+              a.currentTime = 300
+            })
+            const seen = { animations: animations.length, clip: getComputedStyle(svg).clipPath }
+            animations.forEach((a) => a.finish())
+            done(seen)
+          })
+          watch.observe(document.body, { childList: true, subtree: true })
+          Array.from(document.querySelectorAll<HTMLElement>('.gr-segment')).find((r) => r.textContent === '8 wk')!.click()
+        }),
+    )
+    expect(drawing.animations).toBe(1)
+    expect(drawing.clip).not.toBe('none')
+    await expect(page.getByRole('radio', { name: '8 wk' })).toBeChecked()
+    expect(await bodyweight.evaluate((el, old) => el !== old, before)).toBe(true)
+    await expect.poll(() => complete(page)).toBe('complete')
   })
 
   test('leaving Progress mid-fill and coming back starts cleanly', async ({ page }) => {

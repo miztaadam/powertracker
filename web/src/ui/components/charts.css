@@ -180,17 +180,14 @@
    backwards only: once it ends the chart is the plain chart again, with no clip or transform left on it.
 
    Lines are revealed left to right by a clip on the SVG. A dash on the line (pathLength) cannot do it here: the lines use
-   non-scaling strokes in a stretched box, where the dash is measured on screen and the path length is not. */
+   non-scaling strokes in a stretched box, where the dash is measured on screen and the path length is not.
+   A sparkline is wiped whole, so the area under it is revealed with its line (the area keeps its own clip). */
 :root:not([data-motion='off']) .gr-fill-in .gr-plot-lines svg,
-:root:not([data-motion='off']) .gr-fill-in .gr-spark-line svg {
+:root:not([data-motion='off']) .gr-spark.gr-fill-in {
   animation: gr-draw 600ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 
-/* The area under a sparkline fades in with its line; the end dot shows as the line reaches it. */
-:root:not([data-motion='off']) .gr-fill-in .gr-spark-fill {
-  animation: gr-show 600ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
-}
-
+/* The end dot shows as the line reaches it. */
 :root:not([data-motion='off']) .gr-fill-in .gr-plot-marker {
   animation: gr-show 150ms ease-out 450ms backwards;
 }
