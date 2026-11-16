@@ -2,7 +2,6 @@ package com.powertracker.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -88,7 +87,7 @@ fun SetRow(
             .fillMaxWidth()
             .heightIn(min = Space.touch)
             .clip(MaterialTheme.shapes.small)
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .then(if (onClick != null) Modifier.pressClickable(onClick = onClick) else Modifier)
             .clearAndSetSemantics { text = AnnotatedString(spoken) },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Space.m),

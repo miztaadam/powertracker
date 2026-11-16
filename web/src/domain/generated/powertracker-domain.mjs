@@ -36152,7 +36152,51 @@ protoOf(ProgressMath).o33 = function (history, lift) {
   }
   return prs;
 };
-protoOf(ProgressMath).p33 = function (history, lift) {
+protoOf(ProgressMath).p33 = function (history, set, date, mode) {
+  if (!mode.equals(TrainingMode_POWERLIFTING_getInstance()))
+    return false;
+  var tmp0_safe_receiver = history.p1i_1.t1(set.x1i_1);
+  var tmp;
+  if (tmp0_safe_receiver == null) {
+    tmp = null;
+  } else {
+    // Inline function 'kotlin.takeIf' call
+    var tmp_0;
+    if (tmp0_safe_receiver.u1l()) {
+      tmp_0 = tmp0_safe_receiver;
+    } else {
+      tmp_0 = null;
+    }
+    tmp = tmp_0;
+  }
+  var tmp1_safe_receiver = tmp;
+  var tmp2_elvis_lhs = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.p1j();
+  var tmp_1;
+  if (tmp2_elvis_lhs == null) {
+    return false;
+  } else {
+    tmp_1 = tmp2_elvis_lhs;
+  }
+  var lift = tmp_1;
+  if (!this.n33(history, set, lift))
+    return false;
+  var sides = on(history, TrainingMode_POWERLIFTING_getInstance());
+  // Inline function 'kotlin.collections.filter' call
+  var tmp0 = sides.o1i_1;
+  // Inline function 'kotlin.collections.filterTo' call
+  var destination = ArrayList_init_$Create$();
+  var _iterator__ex2g4s = tmp0.j();
+  while (_iterator__ex2g4s.k()) {
+    var element = _iterator__ex2g4s.l();
+    if (element.s1i_1.a10(date) <= 0) {
+      destination.i(element);
+    }
+  }
+  var before = sides.y2z(destination);
+  var after = before.y2z(plus_2(before.o1i_1, new LoggedSession(new Long(-1, -1), date, null, null, listOf_0(set), TrainingMode_POWERLIFTING_getInstance())));
+  return this.o33(after, lift).o() > this.o33(before, lift).o();
+};
+protoOf(ProgressMath).q33 = function (history, lift) {
   // Inline function 'kotlin.collections.mutableMapOf' call
   var volume = LinkedHashMap_init_$Create$();
   var _iterator__ex2g4s = history.o1i_1.j();
@@ -36177,7 +36221,7 @@ protoOf(ProgressMath).p33 = function (history, lift) {
   var tmp$ret$3 = new sam$kotlin_Comparator$0_14(tmp);
   return sortedWith(this_0, tmp$ret$3);
 };
-protoOf(ProgressMath).q33 = function (stats, until, includeStrictPress) {
+protoOf(ProgressMath).r33 = function (stats, until, includeStrictPress) {
   var included = includeStrictPress ? plus_2(this.m33_1, MainLift_STRICT_PRESS_getInstance()) : this.m33_1;
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
@@ -36216,17 +36260,17 @@ function SeedLibrary$exercises$Acc(heavy, lift, muscles) {
     tmp = muscles;
   }
   muscles = tmp;
-  this.r33_1 = heavy;
-  this.s33_1 = lift;
-  this.t33_1 = muscles;
+  this.s33_1 = heavy;
+  this.t33_1 = lift;
+  this.u33_1 = muscles;
 }
 function SeedLibrary() {
   SeedLibrary_instance = this;
-  this.u33_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.v33_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(SeedLibrary).v33 = function () {
+protoOf(SeedLibrary).w33 = function () {
   var found = LinkedHashMap_init_$Create$();
-  var _iterator__ex2g4s = this.u33_1.j();
+  var _iterator__ex2g4s = this.v33_1.j();
   while (_iterator__ex2g4s.k()) {
     var lift = _iterator__ex2g4s.l();
     var _iterator__ex2g4s_0 = get_entries_4().j();
@@ -36248,14 +36292,14 @@ protoOf(SeedLibrary).v33 = function () {
           tmp = value;
         }
         // Inline function 'kotlin.collections.plusAssign' call
-        var this_0 = tmp.t33_1;
+        var this_0 = tmp.u33_1;
         addAll(this_0, muscles);
       }
     }
   }
   var tmp_0 = found.u1();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = this.u33_1;
+  var tmp0 = this.v33_1;
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s_2 = tmp0.j();
@@ -36289,7 +36333,7 @@ protoOf(SeedLibrary).v33 = function () {
     var name = item_0.u();
     // Inline function 'kotlin.collections.component2' call
     var acc = item_0.v();
-    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.r33_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.r33_1 ? acc.s33_1 : null, toList_0(acc.t33_1), true);
+    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.s33_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.s33_1 ? acc.t33_1 : null, toList_0(acc.u33_1), true);
     destination_1.i(tmp$ret$13);
   }
   var mapped = destination_1;
@@ -36338,32 +36382,32 @@ function HighReps_getInstance() {
   return HighReps_instance;
 }
 function BigJump(fromKg) {
-  this.w33_1 = fromKg;
+  this.x33_1 = fromKg;
 }
 protoOf(BigJump).toString = function () {
-  return 'BigJump(fromKg=' + this.w33_1 + ')';
+  return 'BigJump(fromKg=' + this.x33_1 + ')';
 };
 protoOf(BigJump).hashCode = function () {
-  return getNumberHashCode(this.w33_1);
+  return getNumberHashCode(this.x33_1);
 };
 protoOf(BigJump).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BigJump))
     return false;
-  if (!equals(this.w33_1, other.w33_1))
+  if (!equals(this.x33_1, other.x33_1))
     return false;
   return true;
 };
 function InputValidator() {
-  this.x33_1 = 12;
-  this.y33_1 = 1.3;
-  this.z33_1 = 500.0;
+  this.y33_1 = 12;
+  this.z33_1 = 1.3;
+  this.a34_1 = 500.0;
 }
-protoOf(InputValidator).a34 = function (kg) {
+protoOf(InputValidator).b34 = function (kg) {
   return isFinite(kg) && kg > 0.0 && kg <= 500.0;
 };
-protoOf(InputValidator).b34 = function (text) {
+protoOf(InputValidator).c34 = function (text) {
   // Inline function 'kotlin.text.trim' call
   var tmp$ret$0 = toString(trim(isCharSequence(text) ? text : THROW_CCE()));
   var tmp0_safe_receiver = toDoubleOrNull(replace_0(tmp$ret$0, _Char___init__impl__6a9atx(44), _Char___init__impl__6a9atx(46)));
@@ -36373,7 +36417,7 @@ protoOf(InputValidator).b34 = function (text) {
   } else {
     // Inline function 'kotlin.takeIf' call
     var tmp_0;
-    if (this.a34(tmp0_safe_receiver)) {
+    if (this.b34(tmp0_safe_receiver)) {
       tmp_0 = tmp0_safe_receiver;
     } else {
       tmp_0 = null;
@@ -36382,7 +36426,7 @@ protoOf(InputValidator).b34 = function (text) {
   }
   return tmp;
 };
-protoOf(InputValidator).c34 = function (weightKg, reps, lastWeightKg) {
+protoOf(InputValidator).d34 = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
@@ -36415,6 +36459,9 @@ function GritDomain$physiqueWeeklySets$lambda(it) {
   return it.w1_1;
 }
 function GritDomain$planBuilderBuild$lambda(it) {
+  return it.w1_1;
+}
+function GritDomain$isNewPr$lambda(it) {
   return it.w1_1;
 }
 function GritDomain$accessoryOptions$lambda(it) {
@@ -36474,7 +36521,7 @@ protoOf(GritDomain).loadStep = function (changePlates) {
 };
 protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = InputValidator_instance.c34(weightKg, reps, lastWeightKg);
+  var this_0 = InputValidator_instance.d34(weightKg, reps, lastWeightKg);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -36497,7 +36544,7 @@ protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   return copyToArray(destination);
 };
 protoOf(GritDomain).parseBaselineKg = function (text) {
-  return InputValidator_instance.b34(text);
+  return InputValidator_instance.c34(text);
 };
 protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, today, prior) {
   var tmp = Coach_getInstance();
@@ -37357,9 +37404,44 @@ protoOf(GritDomain).prs = function (history, lift) {
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination);
 };
+protoOf(GritDomain).isNewPr = function (history, set, date, mode) {
+  var tmp = ProgressMath_getInstance();
+  var tmp_0 = toDomain_5(history);
+  var tmp_1 = toDomain_0(set);
+  var tmp_2 = parseDate('date', date);
+  // Inline function 'com.powertracker.domain.web.parseEnum' call
+  // Inline function 'kotlin.enumValues' call
+  var tmp0 = values_10();
+  var tmp$ret$2;
+  $l$block: {
+    // Inline function 'kotlin.collections.firstOrNull' call
+    var inductionVariable = 0;
+    var last = tmp0.length;
+    while (inductionVariable < last) {
+      var element = tmp0[inductionVariable];
+      inductionVariable = inductionVariable + 1 | 0;
+      if (element.w1_1 === mode) {
+        tmp$ret$2 = element;
+        break $l$block;
+      }
+    }
+    tmp$ret$2 = null;
+  }
+  var tmp0_elvis_lhs = tmp$ret$2;
+  var tmp_3;
+  if (tmp0_elvis_lhs == null) {
+    // Inline function 'kotlin.enumValues' call
+    var tmp_4 = values_10();
+    throw IllegalArgumentException_init_$Create$('mode' + ": '" + mode + "' is not one of " + joinToString_0(tmp_4, VOID, VOID, VOID, VOID, VOID, GritDomain$isNewPr$lambda));
+  } else {
+    tmp_3 = tmp0_elvis_lhs;
+  }
+  var tmp$ret$0 = tmp_3;
+  return tmp.p33(tmp_0, tmp_1, tmp_2, tmp$ret$0);
+};
 protoOf(GritDomain).weeklyVolume = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().p33(toDomain_5(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().q33(toDomain_5(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -37466,7 +37548,7 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = SeedLibrary_getInstance().v33();
+  var this_0 = SeedLibrary_getInstance().w33();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -37479,7 +37561,7 @@ protoOf(GritDomain).seedExercises = function () {
   return copyToArray(destination);
 };
 protoOf(GritDomain).total = function (history, until, includeStrictPress) {
-  return ProgressMath_getInstance().q33(new HistoryStats(toDomain_5(history)), parseDate('until', until), includeStrictPress);
+  return ProgressMath_getInstance().r33(new HistoryStats(toDomain_5(history)), parseDate('until', until), includeStrictPress);
 };
 protoOf(GritDomain).mainLifts = function () {
   // Inline function 'kotlin.collections.map' call
@@ -38029,25 +38111,25 @@ function JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived
   this.isBuiltIn = isBuiltIn;
   this.archived = archived;
 }
-protoOf(JsExercise).d34 = function () {
+protoOf(JsExercise).e34 = function () {
   return this.id;
 };
 protoOf(JsExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsExercise).e34 = function () {
+protoOf(JsExercise).f34 = function () {
   return this.category;
 };
-protoOf(JsExercise).f34 = function () {
+protoOf(JsExercise).g34 = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).g34 = function () {
+protoOf(JsExercise).h34 = function () {
   return this.muscles;
 };
-protoOf(JsExercise).h34 = function () {
+protoOf(JsExercise).i34 = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).i34 = function () {
+protoOf(JsExercise).j34 = function () {
   return this.archived;
 };
 protoOf(JsExercise).gb = function () {
@@ -38059,19 +38141,19 @@ protoOf(JsExercise).hb = function () {
 protoOf(JsExercise).tf = function () {
   return this.category;
 };
-protoOf(JsExercise).j34 = function () {
+protoOf(JsExercise).k34 = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).k34 = function () {
+protoOf(JsExercise).l34 = function () {
   return this.muscles;
 };
-protoOf(JsExercise).l34 = function () {
+protoOf(JsExercise).m34 = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).m34 = function () {
+protoOf(JsExercise).n34 = function () {
   return this.archived;
 };
-protoOf(JsExercise).n34 = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(JsExercise).o34 = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
@@ -38082,7 +38164,7 @@ protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, is
   muscles = muscles === VOID ? this.muscles : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.isBuiltIn : isBuiltIn;
   archived = archived === VOID ? this.archived : archived;
-  return $super === VOID ? this.n34(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.n34.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.o34(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.o34.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).toString = function () {
   return 'JsExercise(id=' + this.id + ', name=' + this.name + ', category=' + this.category + ', parentLift=' + this.parentLift + ', muscles=' + toString(this.muscles) + ', isBuiltIn=' + this.isBuiltIn + ', archived=' + this.archived + ')';
@@ -38127,25 +38209,25 @@ function JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   this.missPoint = missPoint;
   this.isTopSet = isTopSet;
 }
-protoOf(JsSet).o34 = function () {
+protoOf(JsSet).p34 = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).p34 = function () {
+protoOf(JsSet).q34 = function () {
   return this.weightKg;
 };
-protoOf(JsSet).q34 = function () {
+protoOf(JsSet).r34 = function () {
   return this.reps;
 };
-protoOf(JsSet).r34 = function () {
+protoOf(JsSet).s34 = function () {
   return this.rpe;
 };
-protoOf(JsSet).s34 = function () {
+protoOf(JsSet).t34 = function () {
   return this.failed;
 };
-protoOf(JsSet).t34 = function () {
+protoOf(JsSet).u34 = function () {
   return this.missPoint;
 };
-protoOf(JsSet).u34 = function () {
+protoOf(JsSet).v34 = function () {
   return this.isTopSet;
 };
 protoOf(JsSet).gb = function () {
@@ -38157,19 +38239,19 @@ protoOf(JsSet).hb = function () {
 protoOf(JsSet).tf = function () {
   return this.reps;
 };
-protoOf(JsSet).j34 = function () {
+protoOf(JsSet).k34 = function () {
   return this.rpe;
 };
-protoOf(JsSet).k34 = function () {
+protoOf(JsSet).l34 = function () {
   return this.failed;
 };
-protoOf(JsSet).l34 = function () {
+protoOf(JsSet).m34 = function () {
   return this.missPoint;
 };
-protoOf(JsSet).m34 = function () {
+protoOf(JsSet).n34 = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).v34 = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
+protoOf(JsSet).w34 = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   return new JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, $super) {
@@ -38180,7 +38262,7 @@ protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoi
   failed = failed === VOID ? this.failed : failed;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   isTopSet = isTopSet === VOID ? this.isTopSet : isTopSet;
-  return $super === VOID ? this.v34(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.v34.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
+  return $super === VOID ? this.w34(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.w34.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).toString = function () {
   return 'JsSet(exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', failed=' + this.failed + ', missPoint=' + this.missPoint + ', isTopSet=' + this.isTopSet + ')';
@@ -38225,22 +38307,22 @@ function JsSession(id, date, bodyweightKg, readiness, sets, mode) {
   this.sets = sets;
   this.mode = mode;
 }
-protoOf(JsSession).d34 = function () {
+protoOf(JsSession).e34 = function () {
   return this.id;
 };
-protoOf(JsSession).w34 = function () {
+protoOf(JsSession).x34 = function () {
   return this.date;
 };
-protoOf(JsSession).x34 = function () {
+protoOf(JsSession).y34 = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).y34 = function () {
+protoOf(JsSession).z34 = function () {
   return this.readiness;
 };
-protoOf(JsSession).z34 = function () {
+protoOf(JsSession).a35 = function () {
   return this.sets;
 };
-protoOf(JsSession).a35 = function () {
+protoOf(JsSession).b35 = function () {
   return this.mode;
 };
 protoOf(JsSession).gb = function () {
@@ -38252,16 +38334,16 @@ protoOf(JsSession).hb = function () {
 protoOf(JsSession).tf = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).j34 = function () {
+protoOf(JsSession).k34 = function () {
   return this.readiness;
 };
-protoOf(JsSession).k34 = function () {
+protoOf(JsSession).l34 = function () {
   return this.sets;
 };
-protoOf(JsSession).l34 = function () {
+protoOf(JsSession).m34 = function () {
   return this.mode;
 };
-protoOf(JsSession).b35 = function (id, date, bodyweightKg, readiness, sets, mode) {
+protoOf(JsSession).c35 = function (id, date, bodyweightKg, readiness, sets, mode) {
   return new JsSession(id, date, bodyweightKg, readiness, sets, mode);
 };
 protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, mode, $super) {
@@ -38271,7 +38353,7 @@ protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, mod
   readiness = readiness === VOID ? this.readiness : readiness;
   sets = sets === VOID ? this.sets : sets;
   mode = mode === VOID ? this.mode : mode;
-  return $super === VOID ? this.b35(id, date, bodyweightKg, readiness, sets, mode) : $super.b35.call(this, id, date, bodyweightKg, readiness, sets, mode);
+  return $super === VOID ? this.c35(id, date, bodyweightKg, readiness, sets, mode) : $super.c35.call(this, id, date, bodyweightKg, readiness, sets, mode);
 };
 protoOf(JsSession).toString = function () {
   return 'JsSession(id=' + this.id + ', date=' + this.date + ', bodyweightKg=' + this.bodyweightKg + ', readiness=' + this.readiness + ', sets=' + toString(this.sets) + ', mode=' + this.mode + ')';
@@ -38317,31 +38399,31 @@ function JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order, mode,
   this.mode = mode;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPlanItem).d34 = function () {
+protoOf(JsPlanItem).e34 = function () {
   return this.id;
 };
-protoOf(JsPlanItem).c35 = function () {
+protoOf(JsPlanItem).d35 = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).o34 = function () {
+protoOf(JsPlanItem).p34 = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).z34 = function () {
+protoOf(JsPlanItem).a35 = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).q34 = function () {
+protoOf(JsPlanItem).r34 = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).d35 = function () {
+protoOf(JsPlanItem).e35 = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).e35 = function () {
+protoOf(JsPlanItem).f35 = function () {
   return this.order;
 };
-protoOf(JsPlanItem).a35 = function () {
+protoOf(JsPlanItem).b35 = function () {
   return this.mode;
 };
-protoOf(JsPlanItem).f35 = function () {
+protoOf(JsPlanItem).g35 = function () {
   return this.repsHigh;
 };
 protoOf(JsPlanItem).gb = function () {
@@ -38353,25 +38435,25 @@ protoOf(JsPlanItem).hb = function () {
 protoOf(JsPlanItem).tf = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).j34 = function () {
+protoOf(JsPlanItem).k34 = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).k34 = function () {
+protoOf(JsPlanItem).l34 = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).l34 = function () {
+protoOf(JsPlanItem).m34 = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).m34 = function () {
+protoOf(JsPlanItem).n34 = function () {
   return this.order;
 };
-protoOf(JsPlanItem).g35 = function () {
+protoOf(JsPlanItem).h35 = function () {
   return this.mode;
 };
-protoOf(JsPlanItem).h35 = function () {
+protoOf(JsPlanItem).i35 = function () {
   return this.repsHigh;
 };
-protoOf(JsPlanItem).i35 = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) {
+protoOf(JsPlanItem).j35 = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) {
   return new JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
 };
 protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh, $super) {
@@ -38384,7 +38466,7 @@ protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, target
   order = order === VOID ? this.order : order;
   mode = mode === VOID ? this.mode : mode;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.i35(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) : $super.i35.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
+  return $super === VOID ? this.j35(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) : $super.j35.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
 };
 protoOf(JsPlanItem).toString = function () {
   return 'JsPlanItem(id=' + this.id + ', weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', sets=' + this.sets + ', reps=' + this.reps + ', targetRpe=' + this.targetRpe + ', order=' + this.order + ', mode=' + this.mode + ', repsHigh=' + this.repsHigh + ')';
@@ -38431,13 +38513,13 @@ function JsBaseline(exerciseId, e1rmKg, date) {
   this.e1rmKg = e1rmKg;
   this.date = date;
 }
-protoOf(JsBaseline).o34 = function () {
+protoOf(JsBaseline).p34 = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).j35 = function () {
+protoOf(JsBaseline).k35 = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).w34 = function () {
+protoOf(JsBaseline).x34 = function () {
   return this.date;
 };
 protoOf(JsBaseline).gb = function () {
@@ -38449,14 +38531,14 @@ protoOf(JsBaseline).hb = function () {
 protoOf(JsBaseline).tf = function () {
   return this.date;
 };
-protoOf(JsBaseline).k35 = function (exerciseId, e1rmKg, date) {
+protoOf(JsBaseline).l35 = function (exerciseId, e1rmKg, date) {
   return new JsBaseline(exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).copy = function (exerciseId, e1rmKg, date, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   e1rmKg = e1rmKg === VOID ? this.e1rmKg : e1rmKg;
   date = date === VOID ? this.date : date;
-  return $super === VOID ? this.k35(exerciseId, e1rmKg, date) : $super.k35.call(this, exerciseId, e1rmKg, date);
+  return $super === VOID ? this.l35(exerciseId, e1rmKg, date) : $super.l35.call(this, exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).toString = function () {
   return 'JsBaseline(exerciseId=' + this.exerciseId + ', e1rmKg=' + this.e1rmKg + ', date=' + this.date + ')';
@@ -38492,31 +38574,31 @@ function JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJs
   this.payloadJson = payloadJson;
   this.mode = mode;
 }
-protoOf(JsAdvice).d34 = function () {
+protoOf(JsAdvice).e34 = function () {
   return this.id;
 };
-protoOf(JsAdvice).l35 = function () {
+protoOf(JsAdvice).m35 = function () {
   return this.type;
 };
-protoOf(JsAdvice).m35 = function () {
+protoOf(JsAdvice).n35 = function () {
   return this.lift;
 };
-protoOf(JsAdvice).n35 = function () {
+protoOf(JsAdvice).o35 = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).o35 = function () {
+protoOf(JsAdvice).p35 = function () {
   return this.reason;
 };
-protoOf(JsAdvice).p35 = function () {
+protoOf(JsAdvice).q35 = function () {
   return this.severity;
 };
-protoOf(JsAdvice).q35 = function () {
+protoOf(JsAdvice).r35 = function () {
   return this.status;
 };
-protoOf(JsAdvice).r35 = function () {
+protoOf(JsAdvice).s35 = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).a35 = function () {
+protoOf(JsAdvice).b35 = function () {
   return this.mode;
 };
 protoOf(JsAdvice).gb = function () {
@@ -38528,25 +38610,25 @@ protoOf(JsAdvice).hb = function () {
 protoOf(JsAdvice).tf = function () {
   return this.lift;
 };
-protoOf(JsAdvice).j34 = function () {
+protoOf(JsAdvice).k34 = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).k34 = function () {
+protoOf(JsAdvice).l34 = function () {
   return this.reason;
 };
-protoOf(JsAdvice).l34 = function () {
+protoOf(JsAdvice).m34 = function () {
   return this.severity;
 };
-protoOf(JsAdvice).m34 = function () {
+protoOf(JsAdvice).n34 = function () {
   return this.status;
 };
-protoOf(JsAdvice).g35 = function () {
+protoOf(JsAdvice).h35 = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).h35 = function () {
+protoOf(JsAdvice).i35 = function () {
   return this.mode;
 };
-protoOf(JsAdvice).s35 = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode) {
+protoOf(JsAdvice).t35 = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode) {
   return new JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
 };
 protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode, $super) {
@@ -38559,7 +38641,7 @@ protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, 
   status = status === VOID ? this.status : status;
   payloadJson = payloadJson === VOID ? this.payloadJson : payloadJson;
   mode = mode === VOID ? this.mode : mode;
-  return $super === VOID ? this.s35(id, type, lift, createdAt, reason, severity, status, payloadJson, mode) : $super.s35.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
+  return $super === VOID ? this.t35(id, type, lift, createdAt, reason, severity, status, payloadJson, mode) : $super.t35.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
 };
 protoOf(JsAdvice).toString = function () {
   return 'JsAdvice(id=' + this.id + ', type=' + this.type + ', lift=' + this.lift + ', createdAt=' + this.createdAt + ', reason=' + this.reason + ', severity=' + this.severity + ', status=' + this.status + ', payloadJson=' + this.payloadJson + ', mode=' + this.mode + ')';
@@ -38606,13 +38688,13 @@ function JsHistory(sessions, exercises, baselines) {
   this.exercises = exercises;
   this.baselines = baselines;
 }
-protoOf(JsHistory).t35 = function () {
+protoOf(JsHistory).u35 = function () {
   return this.sessions;
 };
-protoOf(JsHistory).u35 = function () {
+protoOf(JsHistory).v35 = function () {
   return this.exercises;
 };
-protoOf(JsHistory).v35 = function () {
+protoOf(JsHistory).w35 = function () {
   return this.baselines;
 };
 protoOf(JsHistory).gb = function () {
@@ -38624,14 +38706,14 @@ protoOf(JsHistory).hb = function () {
 protoOf(JsHistory).tf = function () {
   return this.baselines;
 };
-protoOf(JsHistory).w35 = function (sessions, exercises, baselines) {
+protoOf(JsHistory).x35 = function (sessions, exercises, baselines) {
   return new JsHistory(sessions, exercises, baselines);
 };
 protoOf(JsHistory).copy = function (sessions, exercises, baselines, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   exercises = exercises === VOID ? this.exercises : exercises;
   baselines = baselines === VOID ? this.baselines : baselines;
-  return $super === VOID ? this.w35(sessions, exercises, baselines) : $super.w35.call(this, sessions, exercises, baselines);
+  return $super === VOID ? this.x35(sessions, exercises, baselines) : $super.x35.call(this, sessions, exercises, baselines);
 };
 protoOf(JsHistory).toString = function () {
   return 'JsHistory(sessions=' + toString(this.sessions) + ', exercises=' + toString(this.exercises) + ', baselines=' + toString(this.baselines) + ')';
@@ -38659,10 +38741,10 @@ function JsBestSet(date, set) {
   this.date = date;
   this.set = set;
 }
-protoOf(JsBestSet).w34 = function () {
+protoOf(JsBestSet).x34 = function () {
   return this.date;
 };
-protoOf(JsBestSet).x35 = function () {
+protoOf(JsBestSet).y35 = function () {
   return this.set;
 };
 protoOf(JsBestSet).gb = function () {
@@ -38671,13 +38753,13 @@ protoOf(JsBestSet).gb = function () {
 protoOf(JsBestSet).hb = function () {
   return this.set;
 };
-protoOf(JsBestSet).y35 = function (date, set) {
+protoOf(JsBestSet).z35 = function (date, set) {
   return new JsBestSet(date, set);
 };
 protoOf(JsBestSet).copy = function (date, set, $super) {
   date = date === VOID ? this.date : date;
   set = set === VOID ? this.set : set;
-  return $super === VOID ? this.y35(date, set) : $super.y35.call(this, date, set);
+  return $super === VOID ? this.z35(date, set) : $super.z35.call(this, date, set);
 };
 protoOf(JsBestSet).toString = function () {
   return 'JsBestSet(date=' + this.date + ', set=' + this.set.toString() + ')';
@@ -38704,16 +38786,16 @@ function JsExerciseTrend(exerciseId, name, bestSets, goingUp) {
   this.bestSets = bestSets;
   this.goingUp = goingUp;
 }
-protoOf(JsExerciseTrend).o34 = function () {
+protoOf(JsExerciseTrend).p34 = function () {
   return this.exerciseId;
 };
 protoOf(JsExerciseTrend).b14 = function () {
   return this.name;
 };
-protoOf(JsExerciseTrend).z35 = function () {
+protoOf(JsExerciseTrend).a36 = function () {
   return this.bestSets;
 };
-protoOf(JsExerciseTrend).a36 = function () {
+protoOf(JsExerciseTrend).b36 = function () {
   return this.goingUp;
 };
 protoOf(JsExerciseTrend).gb = function () {
@@ -38725,10 +38807,10 @@ protoOf(JsExerciseTrend).hb = function () {
 protoOf(JsExerciseTrend).tf = function () {
   return this.bestSets;
 };
-protoOf(JsExerciseTrend).j34 = function () {
+protoOf(JsExerciseTrend).k34 = function () {
   return this.goingUp;
 };
-protoOf(JsExerciseTrend).b36 = function (exerciseId, name, bestSets, goingUp) {
+protoOf(JsExerciseTrend).c36 = function (exerciseId, name, bestSets, goingUp) {
   return new JsExerciseTrend(exerciseId, name, bestSets, goingUp);
 };
 protoOf(JsExerciseTrend).copy = function (exerciseId, name, bestSets, goingUp, $super) {
@@ -38736,7 +38818,7 @@ protoOf(JsExerciseTrend).copy = function (exerciseId, name, bestSets, goingUp, $
   name = name === VOID ? this.name : name;
   bestSets = bestSets === VOID ? this.bestSets : bestSets;
   goingUp = goingUp === VOID ? this.goingUp : goingUp;
-  return $super === VOID ? this.b36(exerciseId, name, bestSets, goingUp) : $super.b36.call(this, exerciseId, name, bestSets, goingUp);
+  return $super === VOID ? this.c36(exerciseId, name, bestSets, goingUp) : $super.c36.call(this, exerciseId, name, bestSets, goingUp);
 };
 protoOf(JsExerciseTrend).toString = function () {
   return 'JsExerciseTrend(exerciseId=' + this.exerciseId + ', name=' + this.name + ', bestSets=' + toString(this.bestSets) + ', goingUp=' + this.goingUp + ')';
@@ -38767,10 +38849,10 @@ function JsCoachSettings(defaultRpe, changePlates) {
   this.defaultRpe = defaultRpe;
   this.changePlates = changePlates;
 }
-protoOf(JsCoachSettings).c36 = function () {
+protoOf(JsCoachSettings).d36 = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).d36 = function () {
+protoOf(JsCoachSettings).e36 = function () {
   return this.changePlates;
 };
 protoOf(JsCoachSettings).gb = function () {
@@ -38779,13 +38861,13 @@ protoOf(JsCoachSettings).gb = function () {
 protoOf(JsCoachSettings).hb = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).e36 = function (defaultRpe, changePlates) {
+protoOf(JsCoachSettings).f36 = function (defaultRpe, changePlates) {
   return new JsCoachSettings(defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).copy = function (defaultRpe, changePlates, $super) {
   defaultRpe = defaultRpe === VOID ? this.defaultRpe : defaultRpe;
   changePlates = changePlates === VOID ? this.changePlates : changePlates;
-  return $super === VOID ? this.e36(defaultRpe, changePlates) : $super.e36.call(this, defaultRpe, changePlates);
+  return $super === VOID ? this.f36(defaultRpe, changePlates) : $super.f36.call(this, defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).toString = function () {
   return 'JsCoachSettings(defaultRpe=' + this.defaultRpe + ', changePlates=' + this.changePlates + ')';
@@ -38810,7 +38892,7 @@ function JsWeeklyPoint(weekStart, value) {
   this.weekStart = weekStart;
   this.value = value;
 }
-protoOf(JsWeeklyPoint).f36 = function () {
+protoOf(JsWeeklyPoint).g36 = function () {
   return this.weekStart;
 };
 protoOf(JsWeeklyPoint).v = function () {
@@ -38822,13 +38904,13 @@ protoOf(JsWeeklyPoint).gb = function () {
 protoOf(JsWeeklyPoint).hb = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).g36 = function (weekStart, value) {
+protoOf(JsWeeklyPoint).h36 = function (weekStart, value) {
   return new JsWeeklyPoint(weekStart, value);
 };
 protoOf(JsWeeklyPoint).copy = function (weekStart, value, $super) {
   weekStart = weekStart === VOID ? this.weekStart : weekStart;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.g36(weekStart, value) : $super.g36.call(this, weekStart, value);
+  return $super === VOID ? this.h36(weekStart, value) : $super.h36.call(this, weekStart, value);
 };
 protoOf(JsWeeklyPoint).toString = function () {
   return 'JsWeeklyPoint(weekStart=' + this.weekStart + ', value=' + this.value + ')';
@@ -38856,19 +38938,19 @@ function JsPr(date, e1rmKg, weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsPr).w34 = function () {
+protoOf(JsPr).x34 = function () {
   return this.date;
 };
-protoOf(JsPr).j35 = function () {
+protoOf(JsPr).k35 = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).p34 = function () {
+protoOf(JsPr).q34 = function () {
   return this.weightKg;
 };
-protoOf(JsPr).q34 = function () {
+protoOf(JsPr).r34 = function () {
   return this.reps;
 };
-protoOf(JsPr).r34 = function () {
+protoOf(JsPr).s34 = function () {
   return this.rpe;
 };
 protoOf(JsPr).gb = function () {
@@ -38880,13 +38962,13 @@ protoOf(JsPr).hb = function () {
 protoOf(JsPr).tf = function () {
   return this.weightKg;
 };
-protoOf(JsPr).j34 = function () {
+protoOf(JsPr).k34 = function () {
   return this.reps;
 };
-protoOf(JsPr).k34 = function () {
+protoOf(JsPr).l34 = function () {
   return this.rpe;
 };
-protoOf(JsPr).h36 = function (date, e1rmKg, weightKg, reps, rpe) {
+protoOf(JsPr).i36 = function (date, e1rmKg, weightKg, reps, rpe) {
   return new JsPr(date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
@@ -38895,7 +38977,7 @@ protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.h36(date, e1rmKg, weightKg, reps, rpe) : $super.h36.call(this, date, e1rmKg, weightKg, reps, rpe);
+  return $super === VOID ? this.i36(date, e1rmKg, weightKg, reps, rpe) : $super.i36.call(this, date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).toString = function () {
   return 'JsPr(date=' + this.date + ', e1rmKg=' + this.e1rmKg + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -38932,7 +39014,7 @@ function JsAccessoryOption(name, heavy) {
 protoOf(JsAccessoryOption).b14 = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).i36 = function () {
+protoOf(JsAccessoryOption).j36 = function () {
   return this.heavy;
 };
 protoOf(JsAccessoryOption).gb = function () {
@@ -38941,13 +39023,13 @@ protoOf(JsAccessoryOption).gb = function () {
 protoOf(JsAccessoryOption).hb = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).j36 = function (name, heavy) {
+protoOf(JsAccessoryOption).k36 = function (name, heavy) {
   return new JsAccessoryOption(name, heavy);
 };
 protoOf(JsAccessoryOption).copy = function (name, heavy, $super) {
   name = name === VOID ? this.name : name;
   heavy = heavy === VOID ? this.heavy : heavy;
-  return $super === VOID ? this.j36(name, heavy) : $super.j36.call(this, name, heavy);
+  return $super === VOID ? this.k36(name, heavy) : $super.k36.call(this, name, heavy);
 };
 protoOf(JsAccessoryOption).toString = function () {
   return 'JsAccessoryOption(name=' + this.name + ', heavy=' + this.heavy + ')';
@@ -38974,13 +39056,13 @@ function JsRatioRange(numerator, denominator, low, high) {
   this.low = low;
   this.high = high;
 }
-protoOf(JsRatioRange).k36 = function () {
+protoOf(JsRatioRange).l36 = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).l36 = function () {
+protoOf(JsRatioRange).m36 = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).m36 = function () {
+protoOf(JsRatioRange).n36 = function () {
   return this.low;
 };
 protoOf(JsRatioRange).b2w = function () {
@@ -38995,10 +39077,10 @@ protoOf(JsRatioRange).hb = function () {
 protoOf(JsRatioRange).tf = function () {
   return this.low;
 };
-protoOf(JsRatioRange).j34 = function () {
+protoOf(JsRatioRange).k34 = function () {
   return this.high;
 };
-protoOf(JsRatioRange).n36 = function (numerator, denominator, low, high) {
+protoOf(JsRatioRange).o36 = function (numerator, denominator, low, high) {
   return new JsRatioRange(numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super) {
@@ -39006,7 +39088,7 @@ protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super
   denominator = denominator === VOID ? this.denominator : denominator;
   low = low === VOID ? this.low : low;
   high = high === VOID ? this.high : high;
-  return $super === VOID ? this.n36(numerator, denominator, low, high) : $super.n36.call(this, numerator, denominator, low, high);
+  return $super === VOID ? this.o36(numerator, denominator, low, high) : $super.o36.call(this, numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).toString = function () {
   return 'JsRatioRange(numerator=' + this.numerator + ', denominator=' + this.denominator + ', low=' + this.low + ', high=' + this.high + ')';
@@ -39039,16 +39121,16 @@ function JsPrescription(exerciseName, sets, repsLow, repsHigh) {
   this.repsLow = repsLow;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPrescription).o36 = function () {
+protoOf(JsPrescription).p36 = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).z34 = function () {
+protoOf(JsPrescription).a35 = function () {
   return this.sets;
 };
-protoOf(JsPrescription).p36 = function () {
+protoOf(JsPrescription).q36 = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).f35 = function () {
+protoOf(JsPrescription).g35 = function () {
   return this.repsHigh;
 };
 protoOf(JsPrescription).gb = function () {
@@ -39060,10 +39142,10 @@ protoOf(JsPrescription).hb = function () {
 protoOf(JsPrescription).tf = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).j34 = function () {
+protoOf(JsPrescription).k34 = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).q36 = function (exerciseName, sets, repsLow, repsHigh) {
+protoOf(JsPrescription).r36 = function (exerciseName, sets, repsLow, repsHigh) {
   return new JsPrescription(exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, $super) {
@@ -39071,7 +39153,7 @@ protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, 
   sets = sets === VOID ? this.sets : sets;
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.q36(exerciseName, sets, repsLow, repsHigh) : $super.q36.call(this, exerciseName, sets, repsLow, repsHigh);
+  return $super === VOID ? this.r36(exerciseName, sets, repsLow, repsHigh) : $super.r36.call(this, exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).toString = function () {
   return 'JsPrescription(exerciseName=' + this.exerciseName + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ')';
@@ -39105,19 +39187,19 @@ function JsSetAddition(weekday, exerciseId, name, fromSets, toSets) {
   this.fromSets = fromSets;
   this.toSets = toSets;
 }
-protoOf(JsSetAddition).c35 = function () {
+protoOf(JsSetAddition).d35 = function () {
   return this.weekday;
 };
-protoOf(JsSetAddition).o34 = function () {
+protoOf(JsSetAddition).p34 = function () {
   return this.exerciseId;
 };
 protoOf(JsSetAddition).b14 = function () {
   return this.name;
 };
-protoOf(JsSetAddition).r36 = function () {
+protoOf(JsSetAddition).s36 = function () {
   return this.fromSets;
 };
-protoOf(JsSetAddition).s36 = function () {
+protoOf(JsSetAddition).t36 = function () {
   return this.toSets;
 };
 protoOf(JsSetAddition).gb = function () {
@@ -39129,13 +39211,13 @@ protoOf(JsSetAddition).hb = function () {
 protoOf(JsSetAddition).tf = function () {
   return this.name;
 };
-protoOf(JsSetAddition).j34 = function () {
+protoOf(JsSetAddition).k34 = function () {
   return this.fromSets;
 };
-protoOf(JsSetAddition).k34 = function () {
+protoOf(JsSetAddition).l34 = function () {
   return this.toSets;
 };
-protoOf(JsSetAddition).t36 = function (weekday, exerciseId, name, fromSets, toSets) {
+protoOf(JsSetAddition).u36 = function (weekday, exerciseId, name, fromSets, toSets) {
   return new JsSetAddition(weekday, exerciseId, name, fromSets, toSets);
 };
 protoOf(JsSetAddition).copy = function (weekday, exerciseId, name, fromSets, toSets, $super) {
@@ -39144,7 +39226,7 @@ protoOf(JsSetAddition).copy = function (weekday, exerciseId, name, fromSets, toS
   name = name === VOID ? this.name : name;
   fromSets = fromSets === VOID ? this.fromSets : fromSets;
   toSets = toSets === VOID ? this.toSets : toSets;
-  return $super === VOID ? this.t36(weekday, exerciseId, name, fromSets, toSets) : $super.t36.call(this, weekday, exerciseId, name, fromSets, toSets);
+  return $super === VOID ? this.u36(weekday, exerciseId, name, fromSets, toSets) : $super.u36.call(this, weekday, exerciseId, name, fromSets, toSets);
 };
 protoOf(JsSetAddition).toString = function () {
   return 'JsSetAddition(weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', name=' + this.name + ', fromSets=' + this.fromSets + ', toSets=' + this.toSets + ')';
@@ -39182,22 +39264,22 @@ function JsNewExercise(weekday, name, sets, repsLow, repsHigh, rpe) {
   this.repsHigh = repsHigh;
   this.rpe = rpe;
 }
-protoOf(JsNewExercise).c35 = function () {
+protoOf(JsNewExercise).d35 = function () {
   return this.weekday;
 };
 protoOf(JsNewExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsNewExercise).z34 = function () {
+protoOf(JsNewExercise).a35 = function () {
   return this.sets;
 };
-protoOf(JsNewExercise).p36 = function () {
+protoOf(JsNewExercise).q36 = function () {
   return this.repsLow;
 };
-protoOf(JsNewExercise).f35 = function () {
+protoOf(JsNewExercise).g35 = function () {
   return this.repsHigh;
 };
-protoOf(JsNewExercise).r34 = function () {
+protoOf(JsNewExercise).s34 = function () {
   return this.rpe;
 };
 protoOf(JsNewExercise).gb = function () {
@@ -39209,16 +39291,16 @@ protoOf(JsNewExercise).hb = function () {
 protoOf(JsNewExercise).tf = function () {
   return this.sets;
 };
-protoOf(JsNewExercise).j34 = function () {
+protoOf(JsNewExercise).k34 = function () {
   return this.repsLow;
 };
-protoOf(JsNewExercise).k34 = function () {
+protoOf(JsNewExercise).l34 = function () {
   return this.repsHigh;
 };
-protoOf(JsNewExercise).l34 = function () {
+protoOf(JsNewExercise).m34 = function () {
   return this.rpe;
 };
-protoOf(JsNewExercise).u36 = function (weekday, name, sets, repsLow, repsHigh, rpe) {
+protoOf(JsNewExercise).v36 = function (weekday, name, sets, repsLow, repsHigh, rpe) {
   return new JsNewExercise(weekday, name, sets, repsLow, repsHigh, rpe);
 };
 protoOf(JsNewExercise).copy = function (weekday, name, sets, repsLow, repsHigh, rpe, $super) {
@@ -39228,7 +39310,7 @@ protoOf(JsNewExercise).copy = function (weekday, name, sets, repsLow, repsHigh, 
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.u36(weekday, name, sets, repsLow, repsHigh, rpe) : $super.u36.call(this, weekday, name, sets, repsLow, repsHigh, rpe);
+  return $super === VOID ? this.v36(weekday, name, sets, repsLow, repsHigh, rpe) : $super.v36.call(this, weekday, name, sets, repsLow, repsHigh, rpe);
 };
 protoOf(JsNewExercise).toString = function () {
   return 'JsNewExercise(weekday=' + this.weekday + ', name=' + this.name + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ')';
@@ -39326,61 +39408,61 @@ function JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, vol
 protoOf(JsAdvicePayload).yi = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).o34 = function () {
+protoOf(JsAdvicePayload).p34 = function () {
   return this.exerciseId;
 };
-protoOf(JsAdvicePayload).p34 = function () {
+protoOf(JsAdvicePayload).q34 = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).q34 = function () {
+protoOf(JsAdvicePayload).r34 = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).r34 = function () {
+protoOf(JsAdvicePayload).s34 = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).z34 = function () {
+protoOf(JsAdvicePayload).a35 = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).v36 = function () {
+protoOf(JsAdvicePayload).w36 = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).w36 = function () {
+protoOf(JsAdvicePayload).x36 = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).x36 = function () {
+protoOf(JsAdvicePayload).y36 = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).m35 = function () {
+protoOf(JsAdvicePayload).n35 = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).t34 = function () {
+protoOf(JsAdvicePayload).u34 = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).f35 = function () {
+protoOf(JsAdvicePayload).g35 = function () {
   return this.repsHigh;
 };
-protoOf(JsAdvicePayload).y36 = function () {
+protoOf(JsAdvicePayload).z36 = function () {
   return this.group;
 };
-protoOf(JsAdvicePayload).z36 = function () {
+protoOf(JsAdvicePayload).a37 = function () {
   return this.addSets;
 };
-protoOf(JsAdvicePayload).a37 = function () {
+protoOf(JsAdvicePayload).b37 = function () {
   return this.newExercise;
 };
-protoOf(JsAdvicePayload).b37 = function () {
+protoOf(JsAdvicePayload).c37 = function () {
   return this.weeklyBefore;
 };
-protoOf(JsAdvicePayload).c37 = function () {
+protoOf(JsAdvicePayload).d37 = function () {
   return this.weeklyAfter;
 };
 protoOf(JsAdvicePayload).b14 = function () {
   return this.name;
 };
-protoOf(JsAdvicePayload).d37 = function () {
+protoOf(JsAdvicePayload).e37 = function () {
   return this.since;
 };
-protoOf(JsAdvicePayload).e37 = function () {
+protoOf(JsAdvicePayload).f37 = function () {
   return this.alternatives;
 };
 protoOf(JsAdvicePayload).gb = function () {
@@ -39392,58 +39474,58 @@ protoOf(JsAdvicePayload).hb = function () {
 protoOf(JsAdvicePayload).tf = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).j34 = function () {
+protoOf(JsAdvicePayload).k34 = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).k34 = function () {
+protoOf(JsAdvicePayload).l34 = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).l34 = function () {
+protoOf(JsAdvicePayload).m34 = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).m34 = function () {
+protoOf(JsAdvicePayload).n34 = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).g35 = function () {
+protoOf(JsAdvicePayload).h35 = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).h35 = function () {
+protoOf(JsAdvicePayload).i35 = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).f37 = function () {
+protoOf(JsAdvicePayload).g37 = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).g37 = function () {
+protoOf(JsAdvicePayload).h37 = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).h37 = function () {
+protoOf(JsAdvicePayload).i37 = function () {
   return this.repsHigh;
 };
-protoOf(JsAdvicePayload).i37 = function () {
+protoOf(JsAdvicePayload).j37 = function () {
   return this.group;
 };
-protoOf(JsAdvicePayload).j37 = function () {
+protoOf(JsAdvicePayload).k37 = function () {
   return this.addSets;
 };
-protoOf(JsAdvicePayload).k37 = function () {
+protoOf(JsAdvicePayload).l37 = function () {
   return this.newExercise;
 };
-protoOf(JsAdvicePayload).l37 = function () {
+protoOf(JsAdvicePayload).m37 = function () {
   return this.weeklyBefore;
 };
-protoOf(JsAdvicePayload).m37 = function () {
+protoOf(JsAdvicePayload).n37 = function () {
   return this.weeklyAfter;
 };
-protoOf(JsAdvicePayload).n37 = function () {
+protoOf(JsAdvicePayload).o37 = function () {
   return this.name;
 };
-protoOf(JsAdvicePayload).o37 = function () {
+protoOf(JsAdvicePayload).p37 = function () {
   return this.since;
 };
-protoOf(JsAdvicePayload).p37 = function () {
+protoOf(JsAdvicePayload).q37 = function () {
   return this.alternatives;
 };
-protoOf(JsAdvicePayload).q37 = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives) {
+protoOf(JsAdvicePayload).r37 = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives) {
   return new JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives);
 };
 protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, $super) {
@@ -39467,7 +39549,7 @@ protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe,
   name = name === VOID ? this.name : name;
   since = since === VOID ? this.since : since;
   alternatives = alternatives === VOID ? this.alternatives : alternatives;
-  return $super === VOID ? this.q37(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives) : $super.q37.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives);
+  return $super === VOID ? this.r37(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives) : $super.r37.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives);
 };
 protoOf(JsAdvicePayload).toString = function () {
   return 'JsAdvicePayload(kind=' + this.kind + ', exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', sets=' + this.sets + ', items=' + toString(this.items) + ', volumeFactor=' + this.volumeFactor + ', loadFactor=' + this.loadFactor + ', lift=' + this.lift + ', missPoint=' + this.missPoint + ', repsHigh=' + this.repsHigh + ', group=' + this.group + ', addSets=' + toString(this.addSets) + ', newExercise=' + toString_1(this.newExercise) + ', weeklyBefore=' + this.weeklyBefore + ', weeklyAfter=' + this.weeklyAfter + ', name=' + this.name + ', since=' + this.since + ', alternatives=' + toString(this.alternatives) + ')';
@@ -39549,16 +39631,16 @@ function JsCheckIn(date, lagging, growingWell, id) {
   this.growingWell = growingWell;
   this.id = id;
 }
-protoOf(JsCheckIn).w34 = function () {
+protoOf(JsCheckIn).x34 = function () {
   return this.date;
 };
-protoOf(JsCheckIn).r37 = function () {
+protoOf(JsCheckIn).s37 = function () {
   return this.lagging;
 };
-protoOf(JsCheckIn).s37 = function () {
+protoOf(JsCheckIn).t37 = function () {
   return this.growingWell;
 };
-protoOf(JsCheckIn).d34 = function () {
+protoOf(JsCheckIn).e34 = function () {
   return this.id;
 };
 protoOf(JsCheckIn).gb = function () {
@@ -39570,10 +39652,10 @@ protoOf(JsCheckIn).hb = function () {
 protoOf(JsCheckIn).tf = function () {
   return this.growingWell;
 };
-protoOf(JsCheckIn).j34 = function () {
+protoOf(JsCheckIn).k34 = function () {
   return this.id;
 };
-protoOf(JsCheckIn).t37 = function (date, lagging, growingWell, id) {
+protoOf(JsCheckIn).u37 = function (date, lagging, growingWell, id) {
   return new JsCheckIn(date, lagging, growingWell, id);
 };
 protoOf(JsCheckIn).copy = function (date, lagging, growingWell, id, $super) {
@@ -39581,7 +39663,7 @@ protoOf(JsCheckIn).copy = function (date, lagging, growingWell, id, $super) {
   lagging = lagging === VOID ? this.lagging : lagging;
   growingWell = growingWell === VOID ? this.growingWell : growingWell;
   id = id === VOID ? this.id : id;
-  return $super === VOID ? this.t37(date, lagging, growingWell, id) : $super.t37.call(this, date, lagging, growingWell, id);
+  return $super === VOID ? this.u37(date, lagging, growingWell, id) : $super.u37.call(this, date, lagging, growingWell, id);
 };
 protoOf(JsCheckIn).toString = function () {
   return 'JsCheckIn(date=' + this.date + ', lagging=' + toString(this.lagging) + ', growingWell=' + toString(this.growingWell) + ', id=' + this.id + ')';
@@ -39613,13 +39695,13 @@ function JsGroupNote(group, reason, weeklySets) {
   this.reason = reason;
   this.weeklySets = weeklySets;
 }
-protoOf(JsGroupNote).y36 = function () {
+protoOf(JsGroupNote).z36 = function () {
   return this.group;
 };
-protoOf(JsGroupNote).o35 = function () {
+protoOf(JsGroupNote).p35 = function () {
   return this.reason;
 };
-protoOf(JsGroupNote).u37 = function () {
+protoOf(JsGroupNote).v37 = function () {
   return this.weeklySets;
 };
 protoOf(JsGroupNote).gb = function () {
@@ -39631,14 +39713,14 @@ protoOf(JsGroupNote).hb = function () {
 protoOf(JsGroupNote).tf = function () {
   return this.weeklySets;
 };
-protoOf(JsGroupNote).v37 = function (group, reason, weeklySets) {
+protoOf(JsGroupNote).w37 = function (group, reason, weeklySets) {
   return new JsGroupNote(group, reason, weeklySets);
 };
 protoOf(JsGroupNote).copy = function (group, reason, weeklySets, $super) {
   group = group === VOID ? this.group : group;
   reason = reason === VOID ? this.reason : reason;
   weeklySets = weeklySets === VOID ? this.weeklySets : weeklySets;
-  return $super === VOID ? this.v37(group, reason, weeklySets) : $super.v37.call(this, group, reason, weeklySets);
+  return $super === VOID ? this.w37(group, reason, weeklySets) : $super.w37.call(this, group, reason, weeklySets);
 };
 protoOf(JsGroupNote).toString = function () {
   return 'JsGroupNote(group=' + this.group + ', reason=' + this.reason + ', weeklySets=' + this.weeklySets + ')';
@@ -39667,13 +39749,13 @@ function JsCheckInOutcome(advice, notes, dismissed) {
   this.notes = notes;
   this.dismissed = dismissed;
 }
-protoOf(JsCheckInOutcome).w37 = function () {
+protoOf(JsCheckInOutcome).x37 = function () {
   return this.advice;
 };
-protoOf(JsCheckInOutcome).x37 = function () {
+protoOf(JsCheckInOutcome).y37 = function () {
   return this.notes;
 };
-protoOf(JsCheckInOutcome).y37 = function () {
+protoOf(JsCheckInOutcome).z37 = function () {
   return this.dismissed;
 };
 protoOf(JsCheckInOutcome).gb = function () {
@@ -39685,14 +39767,14 @@ protoOf(JsCheckInOutcome).hb = function () {
 protoOf(JsCheckInOutcome).tf = function () {
   return this.dismissed;
 };
-protoOf(JsCheckInOutcome).z37 = function (advice, notes, dismissed) {
+protoOf(JsCheckInOutcome).a38 = function (advice, notes, dismissed) {
   return new JsCheckInOutcome(advice, notes, dismissed);
 };
 protoOf(JsCheckInOutcome).copy = function (advice, notes, dismissed, $super) {
   advice = advice === VOID ? this.advice : advice;
   notes = notes === VOID ? this.notes : notes;
   dismissed = dismissed === VOID ? this.dismissed : dismissed;
-  return $super === VOID ? this.z37(advice, notes, dismissed) : $super.z37.call(this, advice, notes, dismissed);
+  return $super === VOID ? this.a38(advice, notes, dismissed) : $super.a38.call(this, advice, notes, dismissed);
 };
 protoOf(JsCheckInOutcome).toString = function () {
   return 'JsCheckInOutcome(advice=' + toString(this.advice) + ', notes=' + toString(this.notes) + ', dismissed=' + toString(this.dismissed) + ')';
@@ -39720,7 +39802,7 @@ function JsAddedPlanItem(item, name) {
   this.item = item;
   this.name = name;
 }
-protoOf(JsAddedPlanItem).a38 = function () {
+protoOf(JsAddedPlanItem).b38 = function () {
   return this.item;
 };
 protoOf(JsAddedPlanItem).b14 = function () {
@@ -39732,13 +39814,13 @@ protoOf(JsAddedPlanItem).gb = function () {
 protoOf(JsAddedPlanItem).hb = function () {
   return this.name;
 };
-protoOf(JsAddedPlanItem).b38 = function (item, name) {
+protoOf(JsAddedPlanItem).c38 = function (item, name) {
   return new JsAddedPlanItem(item, name);
 };
 protoOf(JsAddedPlanItem).copy = function (item, name, $super) {
   item = item === VOID ? this.item : item;
   name = name === VOID ? this.name : name;
-  return $super === VOID ? this.b38(item, name) : $super.b38.call(this, item, name);
+  return $super === VOID ? this.c38(item, name) : $super.c38.call(this, item, name);
 };
 protoOf(JsAddedPlanItem).toString = function () {
   return 'JsAddedPlanItem(item=' + this.item.toString() + ', name=' + this.name + ')';
@@ -39766,19 +39848,19 @@ function JsPlanChange(updated, removed, added, message, changed) {
   this.message = message;
   this.changed = changed;
 }
-protoOf(JsPlanChange).c38 = function () {
+protoOf(JsPlanChange).d38 = function () {
   return this.updated;
 };
-protoOf(JsPlanChange).d38 = function () {
+protoOf(JsPlanChange).e38 = function () {
   return this.removed;
 };
-protoOf(JsPlanChange).e38 = function () {
+protoOf(JsPlanChange).f38 = function () {
   return this.added;
 };
 protoOf(JsPlanChange).l8 = function () {
   return this.message;
 };
-protoOf(JsPlanChange).f38 = function () {
+protoOf(JsPlanChange).g38 = function () {
   return this.changed;
 };
 protoOf(JsPlanChange).gb = function () {
@@ -39790,13 +39872,13 @@ protoOf(JsPlanChange).hb = function () {
 protoOf(JsPlanChange).tf = function () {
   return this.added;
 };
-protoOf(JsPlanChange).j34 = function () {
+protoOf(JsPlanChange).k34 = function () {
   return this.message;
 };
-protoOf(JsPlanChange).k34 = function () {
+protoOf(JsPlanChange).l34 = function () {
   return this.changed;
 };
-protoOf(JsPlanChange).g38 = function (updated, removed, added, message, changed) {
+protoOf(JsPlanChange).h38 = function (updated, removed, added, message, changed) {
   return new JsPlanChange(updated, removed, added, message, changed);
 };
 protoOf(JsPlanChange).copy = function (updated, removed, added, message, changed, $super) {
@@ -39805,7 +39887,7 @@ protoOf(JsPlanChange).copy = function (updated, removed, added, message, changed
   added = added === VOID ? this.added : added;
   message = message === VOID ? this.message : message;
   changed = changed === VOID ? this.changed : changed;
-  return $super === VOID ? this.g38(updated, removed, added, message, changed) : $super.g38.call(this, updated, removed, added, message, changed);
+  return $super === VOID ? this.h38(updated, removed, added, message, changed) : $super.h38.call(this, updated, removed, added, message, changed);
 };
 protoOf(JsPlanChange).toString = function () {
   return 'JsPlanChange(updated=' + toString(this.updated) + ', removed=' + toString(this.removed) + ', added=' + toString(this.added) + ', message=' + this.message + ', changed=' + this.changed + ')';
@@ -39839,10 +39921,10 @@ function JsRating(date, rating) {
   this.date = date;
   this.rating = rating;
 }
-protoOf(JsRating).w34 = function () {
+protoOf(JsRating).x34 = function () {
   return this.date;
 };
-protoOf(JsRating).h38 = function () {
+protoOf(JsRating).i38 = function () {
   return this.rating;
 };
 protoOf(JsRating).gb = function () {
@@ -39851,13 +39933,13 @@ protoOf(JsRating).gb = function () {
 protoOf(JsRating).hb = function () {
   return this.rating;
 };
-protoOf(JsRating).i38 = function (date, rating) {
+protoOf(JsRating).j38 = function (date, rating) {
   return new JsRating(date, rating);
 };
 protoOf(JsRating).copy = function (date, rating, $super) {
   date = date === VOID ? this.date : date;
   rating = rating === VOID ? this.rating : rating;
-  return $super === VOID ? this.i38(date, rating) : $super.i38.call(this, date, rating);
+  return $super === VOID ? this.j38(date, rating) : $super.j38.call(this, date, rating);
 };
 protoOf(JsRating).toString = function () {
   return 'JsRating(date=' + this.date + ', rating=' + this.rating + ')';
@@ -39886,22 +39968,22 @@ function JsMuscleRow(group, ratings, setsDone, setsPlanned, exercisesUp, exercis
   this.exercisesUp = exercisesUp;
   this.exercisesTracked = exercisesTracked;
 }
-protoOf(JsMuscleRow).y36 = function () {
+protoOf(JsMuscleRow).z36 = function () {
   return this.group;
 };
-protoOf(JsMuscleRow).j38 = function () {
+protoOf(JsMuscleRow).k38 = function () {
   return this.ratings;
 };
-protoOf(JsMuscleRow).k38 = function () {
+protoOf(JsMuscleRow).l38 = function () {
   return this.setsDone;
 };
-protoOf(JsMuscleRow).l38 = function () {
+protoOf(JsMuscleRow).m38 = function () {
   return this.setsPlanned;
 };
-protoOf(JsMuscleRow).m38 = function () {
+protoOf(JsMuscleRow).n38 = function () {
   return this.exercisesUp;
 };
-protoOf(JsMuscleRow).n38 = function () {
+protoOf(JsMuscleRow).o38 = function () {
   return this.exercisesTracked;
 };
 protoOf(JsMuscleRow).gb = function () {
@@ -39913,16 +39995,16 @@ protoOf(JsMuscleRow).hb = function () {
 protoOf(JsMuscleRow).tf = function () {
   return this.setsDone;
 };
-protoOf(JsMuscleRow).j34 = function () {
+protoOf(JsMuscleRow).k34 = function () {
   return this.setsPlanned;
 };
-protoOf(JsMuscleRow).k34 = function () {
+protoOf(JsMuscleRow).l34 = function () {
   return this.exercisesUp;
 };
-protoOf(JsMuscleRow).l34 = function () {
+protoOf(JsMuscleRow).m34 = function () {
   return this.exercisesTracked;
 };
-protoOf(JsMuscleRow).o38 = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) {
+protoOf(JsMuscleRow).p38 = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) {
   return new JsMuscleRow(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
 };
 protoOf(JsMuscleRow).copy = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked, $super) {
@@ -39932,7 +40014,7 @@ protoOf(JsMuscleRow).copy = function (group, ratings, setsDone, setsPlanned, exe
   setsPlanned = setsPlanned === VOID ? this.setsPlanned : setsPlanned;
   exercisesUp = exercisesUp === VOID ? this.exercisesUp : exercisesUp;
   exercisesTracked = exercisesTracked === VOID ? this.exercisesTracked : exercisesTracked;
-  return $super === VOID ? this.o38(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) : $super.o38.call(this, group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
+  return $super === VOID ? this.p38(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) : $super.p38.call(this, group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
 };
 protoOf(JsMuscleRow).toString = function () {
   return 'JsMuscleRow(group=' + this.group + ', ratings=' + toString(this.ratings) + ', setsDone=' + this.setsDone + ', setsPlanned=' + this.setsPlanned + ', exercisesUp=' + this.exercisesUp + ', exercisesTracked=' + this.exercisesTracked + ')';
@@ -39972,19 +40054,19 @@ function JsFormGuide(purpose, setup, steps, cues, mistakes) {
   this.cues = cues;
   this.mistakes = mistakes;
 }
-protoOf(JsFormGuide).p38 = function () {
+protoOf(JsFormGuide).q38 = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).q38 = function () {
+protoOf(JsFormGuide).r38 = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).r38 = function () {
+protoOf(JsFormGuide).s38 = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).s38 = function () {
+protoOf(JsFormGuide).t38 = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).t38 = function () {
+protoOf(JsFormGuide).u38 = function () {
   return this.mistakes;
 };
 protoOf(JsFormGuide).gb = function () {
@@ -39996,13 +40078,13 @@ protoOf(JsFormGuide).hb = function () {
 protoOf(JsFormGuide).tf = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).j34 = function () {
+protoOf(JsFormGuide).k34 = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).k34 = function () {
+protoOf(JsFormGuide).l34 = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).u38 = function (purpose, setup, steps, cues, mistakes) {
+protoOf(JsFormGuide).v38 = function (purpose, setup, steps, cues, mistakes) {
   return new JsFormGuide(purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $super) {
@@ -40011,7 +40093,7 @@ protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $su
   steps = steps === VOID ? this.steps : steps;
   cues = cues === VOID ? this.cues : cues;
   mistakes = mistakes === VOID ? this.mistakes : mistakes;
-  return $super === VOID ? this.u38(purpose, setup, steps, cues, mistakes) : $super.u38.call(this, purpose, setup, steps, cues, mistakes);
+  return $super === VOID ? this.v38(purpose, setup, steps, cues, mistakes) : $super.v38.call(this, purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).toString = function () {
   return 'JsFormGuide(purpose=' + this.purpose + ', setup=' + toString(this.setup) + ', steps=' + toString(this.steps) + ', cues=' + toString(this.cues) + ', mistakes=' + toString(this.mistakes) + ')';
@@ -40046,13 +40128,13 @@ function JsMuscleFocus(stretch, squeeze, none) {
   this.squeeze = squeeze;
   this.none = none;
 }
-protoOf(JsMuscleFocus).v38 = function () {
+protoOf(JsMuscleFocus).w38 = function () {
   return this.stretch;
 };
-protoOf(JsMuscleFocus).w38 = function () {
+protoOf(JsMuscleFocus).x38 = function () {
   return this.squeeze;
 };
-protoOf(JsMuscleFocus).x38 = function () {
+protoOf(JsMuscleFocus).y38 = function () {
   return this.none;
 };
 protoOf(JsMuscleFocus).gb = function () {
@@ -40064,14 +40146,14 @@ protoOf(JsMuscleFocus).hb = function () {
 protoOf(JsMuscleFocus).tf = function () {
   return this.none;
 };
-protoOf(JsMuscleFocus).y38 = function (stretch, squeeze, none) {
+protoOf(JsMuscleFocus).z38 = function (stretch, squeeze, none) {
   return new JsMuscleFocus(stretch, squeeze, none);
 };
 protoOf(JsMuscleFocus).copy = function (stretch, squeeze, none, $super) {
   stretch = stretch === VOID ? this.stretch : stretch;
   squeeze = squeeze === VOID ? this.squeeze : squeeze;
   none = none === VOID ? this.none : none;
-  return $super === VOID ? this.y38(stretch, squeeze, none) : $super.y38.call(this, stretch, squeeze, none);
+  return $super === VOID ? this.z38(stretch, squeeze, none) : $super.z38.call(this, stretch, squeeze, none);
 };
 protoOf(JsMuscleFocus).toString = function () {
   return 'JsMuscleFocus(stretch=' + this.stretch + ', squeeze=' + this.squeeze + ', none=' + this.none + ')';
@@ -40099,10 +40181,10 @@ function JsRpeGuide(title, lines) {
   this.title = title;
   this.lines = lines;
 }
-protoOf(JsRpeGuide).z38 = function () {
+protoOf(JsRpeGuide).a39 = function () {
   return this.title;
 };
-protoOf(JsRpeGuide).a39 = function () {
+protoOf(JsRpeGuide).b39 = function () {
   return this.lines;
 };
 protoOf(JsRpeGuide).gb = function () {
@@ -40111,13 +40193,13 @@ protoOf(JsRpeGuide).gb = function () {
 protoOf(JsRpeGuide).hb = function () {
   return this.lines;
 };
-protoOf(JsRpeGuide).b39 = function (title, lines) {
+protoOf(JsRpeGuide).c39 = function (title, lines) {
   return new JsRpeGuide(title, lines);
 };
 protoOf(JsRpeGuide).copy = function (title, lines, $super) {
   title = title === VOID ? this.title : title;
   lines = lines === VOID ? this.lines : lines;
-  return $super === VOID ? this.b39(title, lines) : $super.b39.call(this, title, lines);
+  return $super === VOID ? this.c39(title, lines) : $super.c39.call(this, title, lines);
 };
 protoOf(JsRpeGuide).toString = function () {
   return 'JsRpeGuide(title=' + this.title + ', lines=' + toString(this.lines) + ')';
@@ -40152,28 +40234,28 @@ function JsLibraryExercise(name, aliases, area, equipment, muscles, kind, catego
 protoOf(JsLibraryExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).c39 = function () {
+protoOf(JsLibraryExercise).d39 = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).d39 = function () {
+protoOf(JsLibraryExercise).e39 = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).e39 = function () {
+protoOf(JsLibraryExercise).f39 = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).g34 = function () {
+protoOf(JsLibraryExercise).h34 = function () {
   return this.muscles;
 };
 protoOf(JsLibraryExercise).yi = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).e34 = function () {
+protoOf(JsLibraryExercise).f34 = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).f34 = function () {
+protoOf(JsLibraryExercise).g34 = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).f39 = function () {
+protoOf(JsLibraryExercise).g39 = function () {
   return this.guide;
 };
 protoOf(JsLibraryExercise).gb = function () {
@@ -40185,25 +40267,25 @@ protoOf(JsLibraryExercise).hb = function () {
 protoOf(JsLibraryExercise).tf = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).j34 = function () {
+protoOf(JsLibraryExercise).k34 = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).k34 = function () {
+protoOf(JsLibraryExercise).l34 = function () {
   return this.muscles;
 };
-protoOf(JsLibraryExercise).l34 = function () {
+protoOf(JsLibraryExercise).m34 = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).m34 = function () {
+protoOf(JsLibraryExercise).n34 = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).g35 = function () {
+protoOf(JsLibraryExercise).h35 = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).h35 = function () {
+protoOf(JsLibraryExercise).i35 = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).g39 = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
+protoOf(JsLibraryExercise).h39 = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
   return new JsLibraryExercise(name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide, $super) {
@@ -40216,7 +40298,7 @@ protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, musc
   category = category === VOID ? this.category : category;
   parentLift = parentLift === VOID ? this.parentLift : parentLift;
   guide = guide === VOID ? this.guide : guide;
-  return $super === VOID ? this.g39(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.g39.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
+  return $super === VOID ? this.h39(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.h39.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).toString = function () {
   return 'JsLibraryExercise(name=' + this.name + ', aliases=' + toString(this.aliases) + ', area=' + this.area + ', equipment=' + toString(this.equipment) + ', muscles=' + toString(this.muscles) + ', kind=' + this.kind + ', category=' + this.category + ', parentLift=' + this.parentLift + ', guide=' + this.guide.toString() + ')';
@@ -40268,16 +40350,16 @@ function JsBuilderPick(name, muscles, compound, equipment, inCatalogue) {
 protoOf(JsBuilderPick).b14 = function () {
   return this.name;
 };
-protoOf(JsBuilderPick).g34 = function () {
+protoOf(JsBuilderPick).h34 = function () {
   return this.muscles;
 };
-protoOf(JsBuilderPick).h39 = function () {
+protoOf(JsBuilderPick).i39 = function () {
   return this.compound;
 };
-protoOf(JsBuilderPick).e39 = function () {
+protoOf(JsBuilderPick).f39 = function () {
   return this.equipment;
 };
-protoOf(JsBuilderPick).i39 = function () {
+protoOf(JsBuilderPick).j39 = function () {
   return this.inCatalogue;
 };
 protoOf(JsBuilderPick).gb = function () {
@@ -40289,13 +40371,13 @@ protoOf(JsBuilderPick).hb = function () {
 protoOf(JsBuilderPick).tf = function () {
   return this.compound;
 };
-protoOf(JsBuilderPick).j34 = function () {
+protoOf(JsBuilderPick).k34 = function () {
   return this.equipment;
 };
-protoOf(JsBuilderPick).k34 = function () {
+protoOf(JsBuilderPick).l34 = function () {
   return this.inCatalogue;
 };
-protoOf(JsBuilderPick).j39 = function (name, muscles, compound, equipment, inCatalogue) {
+protoOf(JsBuilderPick).k39 = function (name, muscles, compound, equipment, inCatalogue) {
   return new JsBuilderPick(name, muscles, compound, equipment, inCatalogue);
 };
 protoOf(JsBuilderPick).copy = function (name, muscles, compound, equipment, inCatalogue, $super) {
@@ -40304,7 +40386,7 @@ protoOf(JsBuilderPick).copy = function (name, muscles, compound, equipment, inCa
   compound = compound === VOID ? this.compound : compound;
   equipment = equipment === VOID ? this.equipment : equipment;
   inCatalogue = inCatalogue === VOID ? this.inCatalogue : inCatalogue;
-  return $super === VOID ? this.j39(name, muscles, compound, equipment, inCatalogue) : $super.j39.call(this, name, muscles, compound, equipment, inCatalogue);
+  return $super === VOID ? this.k39(name, muscles, compound, equipment, inCatalogue) : $super.k39.call(this, name, muscles, compound, equipment, inCatalogue);
 };
 protoOf(JsBuilderPick).toString = function () {
   return 'JsBuilderPick(name=' + this.name + ', muscles=' + toString(this.muscles) + ', compound=' + this.compound + ', equipment=' + toString(this.equipment) + ', inCatalogue=' + this.inCatalogue + ')';
@@ -40350,34 +40432,34 @@ function JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGr
 protoOf(JsDraftExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsDraftExercise).i39 = function () {
+protoOf(JsDraftExercise).j39 = function () {
   return this.inCatalogue;
 };
-protoOf(JsDraftExercise).z34 = function () {
+protoOf(JsDraftExercise).a35 = function () {
   return this.sets;
 };
-protoOf(JsDraftExercise).p36 = function () {
+protoOf(JsDraftExercise).q36 = function () {
   return this.repsLow;
 };
-protoOf(JsDraftExercise).f35 = function () {
+protoOf(JsDraftExercise).g35 = function () {
   return this.repsHigh;
 };
-protoOf(JsDraftExercise).r34 = function () {
+protoOf(JsDraftExercise).s34 = function () {
   return this.rpe;
 };
-protoOf(JsDraftExercise).k39 = function () {
+protoOf(JsDraftExercise).l39 = function () {
   return this.mainGroup;
 };
-protoOf(JsDraftExercise).g34 = function () {
+protoOf(JsDraftExercise).h34 = function () {
   return this.muscles;
 };
-protoOf(JsDraftExercise).h39 = function () {
+protoOf(JsDraftExercise).i39 = function () {
   return this.compound;
 };
-protoOf(JsDraftExercise).l39 = function () {
+protoOf(JsDraftExercise).m39 = function () {
   return this.slot;
 };
-protoOf(JsDraftExercise).m39 = function () {
+protoOf(JsDraftExercise).n39 = function () {
   return this.lead;
 };
 protoOf(JsDraftExercise).gb = function () {
@@ -40389,31 +40471,31 @@ protoOf(JsDraftExercise).hb = function () {
 protoOf(JsDraftExercise).tf = function () {
   return this.sets;
 };
-protoOf(JsDraftExercise).j34 = function () {
+protoOf(JsDraftExercise).k34 = function () {
   return this.repsLow;
 };
-protoOf(JsDraftExercise).k34 = function () {
+protoOf(JsDraftExercise).l34 = function () {
   return this.repsHigh;
 };
-protoOf(JsDraftExercise).l34 = function () {
+protoOf(JsDraftExercise).m34 = function () {
   return this.rpe;
 };
-protoOf(JsDraftExercise).m34 = function () {
+protoOf(JsDraftExercise).n34 = function () {
   return this.mainGroup;
 };
-protoOf(JsDraftExercise).g35 = function () {
+protoOf(JsDraftExercise).h35 = function () {
   return this.muscles;
 };
-protoOf(JsDraftExercise).h35 = function () {
+protoOf(JsDraftExercise).i35 = function () {
   return this.compound;
 };
-protoOf(JsDraftExercise).f37 = function () {
+protoOf(JsDraftExercise).g37 = function () {
   return this.slot;
 };
-protoOf(JsDraftExercise).g37 = function () {
+protoOf(JsDraftExercise).h37 = function () {
   return this.lead;
 };
-protoOf(JsDraftExercise).n39 = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
+protoOf(JsDraftExercise).o39 = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
   return new JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
 protoOf(JsDraftExercise).copy = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead, $super) {
@@ -40428,7 +40510,7 @@ protoOf(JsDraftExercise).copy = function (name, inCatalogue, sets, repsLow, reps
   compound = compound === VOID ? this.compound : compound;
   slot = slot === VOID ? this.slot : slot;
   lead = lead === VOID ? this.lead : lead;
-  return $super === VOID ? this.n39(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.n39.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
+  return $super === VOID ? this.o39(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.o39.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
 protoOf(JsDraftExercise).toString = function () {
   return 'JsDraftExercise(name=' + this.name + ', inCatalogue=' + this.inCatalogue + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ', mainGroup=' + this.mainGroup + ', muscles=' + toString(this.muscles) + ', compound=' + this.compound + ', slot=' + this.slot + ', lead=' + this.lead + ')';
@@ -40484,10 +40566,10 @@ function JsDraftSession(day, title, exercises) {
 protoOf(JsDraftSession).j11 = function () {
   return this.day;
 };
-protoOf(JsDraftSession).z38 = function () {
+protoOf(JsDraftSession).a39 = function () {
   return this.title;
 };
-protoOf(JsDraftSession).u35 = function () {
+protoOf(JsDraftSession).v35 = function () {
   return this.exercises;
 };
 protoOf(JsDraftSession).gb = function () {
@@ -40499,14 +40581,14 @@ protoOf(JsDraftSession).hb = function () {
 protoOf(JsDraftSession).tf = function () {
   return this.exercises;
 };
-protoOf(JsDraftSession).o39 = function (day, title, exercises) {
+protoOf(JsDraftSession).p39 = function (day, title, exercises) {
   return new JsDraftSession(day, title, exercises);
 };
 protoOf(JsDraftSession).copy = function (day, title, exercises, $super) {
   day = day === VOID ? this.day : day;
   title = title === VOID ? this.title : title;
   exercises = exercises === VOID ? this.exercises : exercises;
-  return $super === VOID ? this.o39(day, title, exercises) : $super.o39.call(this, day, title, exercises);
+  return $super === VOID ? this.p39(day, title, exercises) : $super.p39.call(this, day, title, exercises);
 };
 protoOf(JsDraftSession).toString = function () {
   return 'JsDraftSession(day=' + this.day + ', title=' + this.title + ', exercises=' + toString(this.exercises) + ')';
@@ -40536,16 +40618,16 @@ function JsGroupVolume(group, weeklySets, days, short) {
   this.days = days;
   this.short = short;
 }
-protoOf(JsGroupVolume).y36 = function () {
+protoOf(JsGroupVolume).z36 = function () {
   return this.group;
 };
-protoOf(JsGroupVolume).u37 = function () {
+protoOf(JsGroupVolume).v37 = function () {
   return this.weeklySets;
 };
 protoOf(JsGroupVolume).hy = function () {
   return this.days;
 };
-protoOf(JsGroupVolume).p39 = function () {
+protoOf(JsGroupVolume).q39 = function () {
   return this.short;
 };
 protoOf(JsGroupVolume).gb = function () {
@@ -40557,10 +40639,10 @@ protoOf(JsGroupVolume).hb = function () {
 protoOf(JsGroupVolume).tf = function () {
   return this.days;
 };
-protoOf(JsGroupVolume).j34 = function () {
+protoOf(JsGroupVolume).k34 = function () {
   return this.short;
 };
-protoOf(JsGroupVolume).q39 = function (group, weeklySets, days, short) {
+protoOf(JsGroupVolume).r39 = function (group, weeklySets, days, short) {
   return new JsGroupVolume(group, weeklySets, days, short);
 };
 protoOf(JsGroupVolume).copy = function (group, weeklySets, days, short, $super) {
@@ -40568,7 +40650,7 @@ protoOf(JsGroupVolume).copy = function (group, weeklySets, days, short, $super) 
   weeklySets = weeklySets === VOID ? this.weeklySets : weeklySets;
   days = days === VOID ? this.days : days;
   short = short === VOID ? this.short : short;
-  return $super === VOID ? this.q39(group, weeklySets, days, short) : $super.q39.call(this, group, weeklySets, days, short);
+  return $super === VOID ? this.r39(group, weeklySets, days, short) : $super.r39.call(this, group, weeklySets, days, short);
 };
 protoOf(JsGroupVolume).toString = function () {
   return 'JsGroupVolume(group=' + this.group + ', weeklySets=' + this.weeklySets + ', days=' + this.days + ', short=' + this.short + ')';
@@ -40602,7 +40684,7 @@ function JsLeftOut(name, reason) {
 protoOf(JsLeftOut).b14 = function () {
   return this.name;
 };
-protoOf(JsLeftOut).o35 = function () {
+protoOf(JsLeftOut).p35 = function () {
   return this.reason;
 };
 protoOf(JsLeftOut).gb = function () {
@@ -40611,13 +40693,13 @@ protoOf(JsLeftOut).gb = function () {
 protoOf(JsLeftOut).hb = function () {
   return this.reason;
 };
-protoOf(JsLeftOut).i38 = function (name, reason) {
+protoOf(JsLeftOut).j38 = function (name, reason) {
   return new JsLeftOut(name, reason);
 };
 protoOf(JsLeftOut).copy = function (name, reason, $super) {
   name = name === VOID ? this.name : name;
   reason = reason === VOID ? this.reason : reason;
-  return $super === VOID ? this.i38(name, reason) : $super.i38.call(this, name, reason);
+  return $super === VOID ? this.j38(name, reason) : $super.j38.call(this, name, reason);
 };
 protoOf(JsLeftOut).toString = function () {
   return 'JsLeftOut(name=' + this.name + ', reason=' + this.reason + ')';
@@ -40643,13 +40725,13 @@ function JsPlanDraft(sessions, volume, leftOut) {
   this.volume = volume;
   this.leftOut = leftOut;
 }
-protoOf(JsPlanDraft).t35 = function () {
+protoOf(JsPlanDraft).u35 = function () {
   return this.sessions;
 };
-protoOf(JsPlanDraft).r39 = function () {
+protoOf(JsPlanDraft).s39 = function () {
   return this.volume;
 };
-protoOf(JsPlanDraft).s39 = function () {
+protoOf(JsPlanDraft).t39 = function () {
   return this.leftOut;
 };
 protoOf(JsPlanDraft).gb = function () {
@@ -40661,14 +40743,14 @@ protoOf(JsPlanDraft).hb = function () {
 protoOf(JsPlanDraft).tf = function () {
   return this.leftOut;
 };
-protoOf(JsPlanDraft).t39 = function (sessions, volume, leftOut) {
+protoOf(JsPlanDraft).u39 = function (sessions, volume, leftOut) {
   return new JsPlanDraft(sessions, volume, leftOut);
 };
 protoOf(JsPlanDraft).copy = function (sessions, volume, leftOut, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   volume = volume === VOID ? this.volume : volume;
   leftOut = leftOut === VOID ? this.leftOut : leftOut;
-  return $super === VOID ? this.t39(sessions, volume, leftOut) : $super.t39.call(this, sessions, volume, leftOut);
+  return $super === VOID ? this.u39(sessions, volume, leftOut) : $super.u39.call(this, sessions, volume, leftOut);
 };
 protoOf(JsPlanDraft).toString = function () {
   return 'JsPlanDraft(sessions=' + toString(this.sessions) + ', volume=' + toString(this.volume) + ', leftOut=' + toString(this.leftOut) + ')';
@@ -40698,16 +40780,16 @@ function JsFigureInfo(startCaption, endCaption, thumbnail, viewBox) {
   this.thumbnail = thumbnail;
   this.viewBox = viewBox;
 }
-protoOf(JsFigureInfo).u39 = function () {
+protoOf(JsFigureInfo).v39 = function () {
   return this.startCaption;
 };
-protoOf(JsFigureInfo).v39 = function () {
+protoOf(JsFigureInfo).w39 = function () {
   return this.endCaption;
 };
-protoOf(JsFigureInfo).w39 = function () {
+protoOf(JsFigureInfo).x39 = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).x39 = function () {
+protoOf(JsFigureInfo).y39 = function () {
   return this.viewBox;
 };
 protoOf(JsFigureInfo).gb = function () {
@@ -40719,10 +40801,10 @@ protoOf(JsFigureInfo).hb = function () {
 protoOf(JsFigureInfo).tf = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).j34 = function () {
+protoOf(JsFigureInfo).k34 = function () {
   return this.viewBox;
 };
-protoOf(JsFigureInfo).y39 = function (startCaption, endCaption, thumbnail, viewBox) {
+protoOf(JsFigureInfo).z39 = function (startCaption, endCaption, thumbnail, viewBox) {
   return new JsFigureInfo(startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, viewBox, $super) {
@@ -40730,7 +40812,7 @@ protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, view
   endCaption = endCaption === VOID ? this.endCaption : endCaption;
   thumbnail = thumbnail === VOID ? this.thumbnail : thumbnail;
   viewBox = viewBox === VOID ? this.viewBox : viewBox;
-  return $super === VOID ? this.y39(startCaption, endCaption, thumbnail, viewBox) : $super.y39.call(this, startCaption, endCaption, thumbnail, viewBox);
+  return $super === VOID ? this.z39(startCaption, endCaption, thumbnail, viewBox) : $super.z39.call(this, startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).toString = function () {
   return 'JsFigureInfo(startCaption=' + this.startCaption + ', endCaption=' + this.endCaption + ', thumbnail=' + this.thumbnail + ', viewBox=' + toString(this.viewBox) + ')';
@@ -40764,7 +40846,7 @@ function JsFigureShape(kind, role) {
 protoOf(JsFigureShape).yi = function () {
   return this.kind;
 };
-protoOf(JsFigureShape).z39 = function () {
+protoOf(JsFigureShape).a3a = function () {
   return this.role;
 };
 function JsFigureCircle(role, cx, cy, r) {
@@ -40773,13 +40855,13 @@ function JsFigureCircle(role, cx, cy, r) {
   this.cy = cy;
   this.r = r;
 }
-protoOf(JsFigureCircle).a3a = function () {
+protoOf(JsFigureCircle).b3a = function () {
   return this.cx;
 };
-protoOf(JsFigureCircle).b3a = function () {
+protoOf(JsFigureCircle).c3a = function () {
   return this.cy;
 };
-protoOf(JsFigureCircle).c3a = function () {
+protoOf(JsFigureCircle).d3a = function () {
   return this.r;
 };
 function JsFigureCapsule(role, x1, y1, x2, y2, width) {
@@ -40790,16 +40872,16 @@ function JsFigureCapsule(role, x1, y1, x2, y2, width) {
   this.y2 = y2;
   this.width = width;
 }
-protoOf(JsFigureCapsule).d3a = function () {
+protoOf(JsFigureCapsule).e3a = function () {
   return this.x1;
 };
-protoOf(JsFigureCapsule).e3a = function () {
+protoOf(JsFigureCapsule).f3a = function () {
   return this.y1;
 };
-protoOf(JsFigureCapsule).f3a = function () {
+protoOf(JsFigureCapsule).g3a = function () {
   return this.x2;
 };
-protoOf(JsFigureCapsule).g3a = function () {
+protoOf(JsFigureCapsule).h3a = function () {
   return this.y2;
 };
 protoOf(JsFigureCapsule).b2g = function () {
@@ -40813,16 +40895,16 @@ function JsFigureRect(role, x, y, w, h, radius) {
   this.h = h;
   this.radius = radius;
 }
-protoOf(JsFigureRect).h3a = function () {
+protoOf(JsFigureRect).i3a = function () {
   return this.x;
 };
-protoOf(JsFigureRect).i3a = function () {
+protoOf(JsFigureRect).j3a = function () {
   return this.y;
 };
-protoOf(JsFigureRect).j3a = function () {
+protoOf(JsFigureRect).k3a = function () {
   return this.w;
 };
-protoOf(JsFigureRect).k3a = function () {
+protoOf(JsFigureRect).l3a = function () {
   return this.h;
 };
 protoOf(JsFigureRect).r2q = function () {
@@ -40832,7 +40914,7 @@ function JsFigurePolygon(role, points) {
   JsFigureShape.call(this, 'polygon', role);
   this.points = points;
 }
-protoOf(JsFigurePolygon).l3a = function () {
+protoOf(JsFigurePolygon).m3a = function () {
   return this.points;
 };
 function toFacadeId(_this__u8e3s4, field) {

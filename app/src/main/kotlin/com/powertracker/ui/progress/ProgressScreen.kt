@@ -1,7 +1,6 @@
 package com.powertracker.ui.progress
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,6 +81,7 @@ import kotlin.math.abs
 import kotlin.math.roundToLong
 import com.powertracker.ui.components.LineChart as SeriesChart
 import com.powertracker.ui.components.SoftDivider
+import com.powertracker.ui.components.pressClickable
 
 /** Where the lifter stands: total and lift e1RMs, their trend, records, weekly volume, ratios and bodyweight. */
 @Composable
@@ -397,7 +397,7 @@ private fun BodybuildingSection(state: ProgressState, onOpenExercise: (Long) -> 
                 val spoken = listOfNotNull(trend.name, if (trend.bestSets.isEmpty()) sets else bestSetText(trend, ", "), trendWords).joinToString(". ")
                 Row(
                     Modifier.fillMaxWidth()
-                        .clickable(onClickLabel = "Open history") { onOpenExercise(trend.exerciseId) }
+                        .pressClickable(onClickLabel = "Open history") { onOpenExercise(trend.exerciseId) }
                         .semantics { contentDescription = spoken }
                         .heightIn(min = 56.dp).padding(vertical = Space.s),
                     verticalAlignment = Alignment.CenterVertically,

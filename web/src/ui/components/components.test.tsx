@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AdviceCard } from './AdviceCard'
 import { PrimaryButton, QuietButton, SecondaryButton } from './Button'
 import { CoachSuggestion } from './CoachSuggestion'
@@ -21,6 +21,7 @@ import { formatKg } from './format'
 import { StatTile } from './StatTile'
 import { NumberField } from './NumberField'
 import { Stepper, StepperField } from './StepperField'
+import { setTapHaptics } from '../../platform/haptics'
 import { Switch } from './Switch'
 import { TabBar } from './TabBar'
 import { TextField } from './TextField'
@@ -678,5 +679,43 @@ describe('NumberField', () => {
     expect(screen.getByRole('textbox')).toBeInvalid()
     expect(screen.getByRole('textbox')).toHaveAccessibleDescription('0 to 1000 kg')
     expect(screen.getByRole('alert')).toHaveTextContent('0 to 1000 kg')
+  })
+})
+
+// ---- Stage 2: only the set entry steppers tick (owner decision 2: weight, reps and RPE on Today; nothing else buzzes) ----
+describe('Stepper haptics', () => {
+  let vibrate: ReturnType<typeof vi.fn>
+  beforeEach(() => {
+    vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, writable: true, value: vibrate })
+    setTapHaptics(true)
+  })
+  afterEach(() => {
+    setTapHaptics(false)
+    Reflect.deleteProperty(navigator, 'vibrate')
+  })
+
+  it('a StepperField with tick: each step ticks once, a disabled one never', async () => {
+    const onIncrement = vi.fn()
+    render(<StepperField label="Reps" valueText="1" canDecrement={false} canIncrement onDecrement={() => {}} onIncrement={onIncrement} tick />)
+    await userEvent.click(screen.getByRole('button', { name: 'Increase Reps' }))
+    expect(onIncrement).toHaveBeenCalledOnce()
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+    await userEvent.click(screen.getByRole('button', { name: 'Decrease Reps' }))
+    expect(vibrate).toHaveBeenCalledOnce()
+  })
+
+  it('a StepperField does not tick by default, and the one-line Stepper never does', async () => {
+    const onIncrement = vi.fn()
+    render(
+      <>
+        <StepperField label="Reps" valueText="5" canDecrement canIncrement onDecrement={() => {}} onIncrement={onIncrement} />
+        <Stepper label="Rest" valueText="3:00" canDecrement canIncrement onDecrement={() => {}} onIncrement={onIncrement} />
+      </>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Increase Reps' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Increase Rest' }))
+    expect(onIncrement).toHaveBeenCalledTimes(2)
+    expect(vibrate).not.toHaveBeenCalled()
   })
 })

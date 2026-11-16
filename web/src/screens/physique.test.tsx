@@ -7,6 +7,7 @@ import { loadHistory, updateSettings, type GritDb } from '../db/db'
 import { adviceFromJs, planItemToJs } from '../db/mapping'
 import type { AdviceRow, TrainingMode } from '../db/schema'
 import { grit, JsCheckIn } from '../domain'
+import { setTapHaptics } from '../platform/haptics'
 import { draftItems } from '../state/usePlanBuilder'
 import { TODAY, addDays, exerciseNamed, logSet, set, todayFixture } from '../test/todayFixture'
 import { CoachScreen } from './coach/CoachScreen'
@@ -416,5 +417,58 @@ describe('Progress: body parts', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Progress' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Check in' })).toBeNull()
     expect(screen.queryByRole('region', { name: 'Body parts' })).toBeNull()
+  })
+})
+
+// ---- Stage 2: a "Swap for X" ticks once (platform/haptics.ts) ----
+describe('Coach: a stuck exercise, haptics', () => {
+  afterEach(() => {
+    setTapHaptics(false)
+    Reflect.deleteProperty(navigator, 'vibrate')
+  })
+
+  it('swap_ticksOnce', async () => {
+    const vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, writable: true, value: vibrate })
+    setTapHaptics(true)
+    await defaultPlan()
+    await stuckLegPress()
+    await storeStuck()
+    showCoach()
+    await userEvent.click(within(await card("Leg press hasn't moved in 3 weeks")).getByRole('button', { name: 'Swap for Hack squat' }))
+    expect(await screen.findByText('Swapped Leg press for Hack squat')).toBeInTheDocument()
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('aSwapThatChangesNothing_orFails_doesNotBuzz', async () => {
+    const vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, writable: true, value: vibrate })
+    setTapHaptics(true)
+    await defaultPlan()
+    await stuckLegPress()
+    await storeStuck()
+    // Hack squat is already in the plan: that swap changes nothing and the card stays.
+    const hack = (await db.exercises.add({ name: 'Hack squat', category: 'ACCESSORY', parentLift: null, muscles: ['Quads', 'Glutes'], isBuiltIn: true, archived: false })) as number
+    await db.planItems.add({ weekday: 3, exerciseId: hack, sets: 3, reps: 8, repsHigh: 12, targetRpe: 8, order: 99, mode: 'BODYBUILDING' })
+    showCoach()
+    await userEvent.click(within(await card("Leg press hasn't moved in 3 weeks")).getByRole('button', { name: 'Swap for Hack squat' }))
+    expect(await screen.findByText('Your plan has changed since; nothing was swapped')).toBeInTheDocument()
+    expect(vibrate).not.toHaveBeenCalled()
+    // A swap whose write fails changes nothing either.
+    const failing = () => {
+      throw new Error('disk full')
+    }
+    db.planItems.hook('creating', failing)
+    try {
+      await userEvent.click(await screen.findByRole('button', { name: 'Swap for DB squat' }))
+      expect(await screen.findByText("Couldn't update — try again")).toBeInTheDocument()
+    } finally {
+      db.planItems.hook('creating').unsubscribe(failing)
+    }
+    expect(vibrate).not.toHaveBeenCalled()
+    // The one that applies buzzes once.
+    await userEvent.click(await screen.findByRole('button', { name: 'Swap for DB squat' }))
+    expect(await screen.findByText('Swapped Leg press for DB squat')).toBeInTheDocument()
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
   })
 })

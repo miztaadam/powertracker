@@ -2,9 +2,12 @@ package com.powertracker.domain.progress
 
 import com.powertracker.domain.e1rm.E1rm
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.model.on
 import com.powertracker.domain.time.mondayOfWeek
 import kotlinx.datetime.LocalDate
 
@@ -38,6 +41,25 @@ object ProgressMath {
             }
         }
         return prs
+    }
+
+    /**
+     * Whether [set], about to be logged on [date] in a session on the [mode] side, is a new record under exactly the
+     * rule of [prs]: a completed set of a main lift itself whose e1RM beats every earlier one of that lift. [history] is
+     * everything stored before it; only the powerlifting side's sessions up to [date] count, as in Lift history.
+     * As in [prs], the first completed set of a lift is its first record. Variations, accessories, failed sets and the
+     * bodybuilding side never are.
+     */
+    fun isNewPr(history: TrainingHistory, set: LoggedSet, date: LocalDate, mode: TrainingMode): Boolean {
+        if (mode != TrainingMode.POWERLIFTING) return false
+        val lift = history.exercises[set.exerciseId]?.takeIf { it.isMainLift }?.mainLift ?: return false
+        if (!history.isCompletedMainSet(set, lift)) return false
+        val sides = history.on(TrainingMode.POWERLIFTING)
+        val before = sides.copy(sessions = sides.sessions.filter { it.date <= date })
+        // The set walks last (a later session on the same date sorts after the stored ones), so it adds a record only
+        // when it is one.
+        val after = before.copy(sessions = before.sessions + LoggedSession(-1, date, null, null, listOf(set), TrainingMode.POWERLIFTING))
+        return prs(after, lift).size > prs(before, lift).size
     }
 
     /** Σ weight × reps of completed main-lift sets per ISO week (keyed by its Monday), oldest first. Weeks without such sets are left out. */

@@ -1,7 +1,6 @@
 package com.powertracker.ui.plan.builder
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -86,6 +84,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
+import com.powertracker.ui.components.PtIconButton
+import com.powertracker.ui.components.pressClickable
 
 // The builder's words (stage 2 plan, Task 2). The web app's builder uses the same.
 const val BUILDER_TITLE = "Build my plan"
@@ -205,7 +205,7 @@ fun PlanBuilderContent(state: PlanBuilderState, actions: PlanBuilderActions) {
                 BUILDER_TITLE,
                 eyebrow = stepText(state.step),
                 modeLabel = true,
-                navigation = { IconButton(onClick = actions.onClose) { Icon(Icons.Filled.Close, CLOSE) } },
+                navigation = { PtIconButton(onClick = actions.onClose) { Icon(Icons.Filled.Close, CLOSE) } },
             )
         },
         bottomBar = { BuilderBar(state, actions) },
@@ -484,7 +484,7 @@ private fun AlternativeRow(option: LibraryExercise, onPick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     Column {
         Column(
-            Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(onClickLabel = "Swap in ${option.name}", onClick = onPick).padding(vertical = Space.s).testTag("alternative"),
+            Modifier.fillMaxWidth().heightIn(min = 56.dp).pressClickable(onClickLabel = "Swap in ${option.name}", onClick = onPick).padding(vertical = Space.s).testTag("alternative"),
         ) {
             Text(option.name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
             if (option.muscles.isNotEmpty()) Text(option.muscles.joinToString(", "), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)

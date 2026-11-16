@@ -270,6 +270,10 @@ object GritDomain {
     fun prs(history: JsHistory, lift: String): Array<JsPr> =
         ProgressMath.prs(history.toDomain(), parseLift("lift", lift)).map { it.toJs() }.toTypedArray()
 
+    /** Whether [set], about to be logged on [date] in a [mode] session, is a new best (ProgressMath.isNewPr). */
+    fun isNewPr(history: JsHistory, set: JsSet, date: String, mode: String): Boolean =
+        ProgressMath.isNewPr(history.toDomain(), set.toDomain(), parseDate("date", date), parseEnum<TrainingMode>("mode", mode))
+
     fun weeklyVolume(history: JsHistory, lift: String): Array<JsWeeklyPoint> =
         ProgressMath.weeklyVolume(history.toDomain(), parseLift("lift", lift))
             .map { (week, volume) -> JsWeeklyPoint(week.toString(), volume) }.toTypedArray()

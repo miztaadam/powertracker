@@ -3,6 +3,8 @@ package com.powertracker.ui
 import android.content.Context
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -49,6 +51,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import com.powertracker.ui.components.FakeHapticFeedback
+import com.powertracker.ui.components.WithHaptics
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(qualifiers = "w411dp-h2400dp-xxhdpi")
@@ -215,6 +220,26 @@ class PlanScreenTest {
         compose.onNodeWithText("Sound + vibrate").assertIsSelected()
     }
 
+    /** Stage 2: always shown on Android, under the rest alert, on by default; the switch is stored. */
+    @Test
+    fun settings_vibrateOnTaps_isUnderRestAlert_onByDefault_andPersists() {
+        compose.setContent { SettingsScreen(settings, BackupService(db, settings), onBack = {}) }
+
+        val row = compose.onNodeWithText("Vibrate on taps")
+        row.assertIsOn()
+        val alertBottom = compose.onNodeWithText("Vibrate only").getUnclippedBoundsInRoot().bottom
+        assertTrue("under the rest alert", row.getUnclippedBoundsInRoot().top >= alertBottom)
+        assertTrue("above app lock", row.getUnclippedBoundsInRoot().bottom <= compose.onNodeWithText("App lock").getUnclippedBoundsInRoot().top)
+
+        row.performClick()
+        compose.waitUntil(5_000) { !runBlocking { settings.settings.first().vibrateOnTaps } }
+        row.assertIsOff()
+        assertEquals(RestAlert.VIBRATE, runBlocking { settings.settings.first().restAlert })
+
+        row.performClick()
+        compose.waitUntil(5_000) { runBlocking { settings.settings.first().vibrateOnTaps } }
+    }
+
     @Test
     fun settings_appLockRow_saysWhatItDoes() {
         compose.setContent { SettingsScreen(settings, BackupService(db, settings), onBack = {}) }
@@ -278,5 +303,31 @@ class PlanScreenTest {
         // It is a main lift like the other three: it can be given a known best.
         compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("baseline-Strict press")).fetchSemanticsNodes().isNotEmpty() }
         for (lift in listOf("Squat", "Bench", "Deadlift")) compose.onNodeWithTag("baseline-$lift").assertExists()
+    }
+
+    // ---- The buzz (stage 2): adding to a day from the picker ticks once; changing an exercise does not ----
+
+    @Test
+    fun addToADay_ticksOnce_changeExercise_doesNotTick() {
+        val haptics = FakeHapticFeedback()
+        compose.setContent { WithHaptics(haptics) { PlanScreen(training, settings, onOpenSettings = {}) } }
+
+        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("add-MONDAY")).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        compose.onNodeWithTag("exercise-search").performTextReplacement("Squat")
+        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("exercise-Squat")).fetchSemanticsNodes().isNotEmpty() }
+        assertEquals(0, haptics.calls.size)
+        compose.onNodeWithTag("exercise-Squat").performClick()
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  3 × 5 @ 8").fetchSemanticsNodes().isNotEmpty() }
+        assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
+
+        compose.onNodeWithContentDescription("More").performClick()
+        compose.onNodeWithText("Edit").performClick()
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        compose.onNodeWithTag("exercise-search").performTextReplacement("curl")
+        compose.onNodeWithTag("exercise-Curl").performClick()
+        compose.onNodeWithText("Edit Monday").assertExists()
+        compose.waitForIdle()
+        assertEquals(1, haptics.calls.size)
     }
 }

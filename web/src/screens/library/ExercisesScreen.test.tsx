@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from '../../App'
 import { updateSettings, type GritDb } from '../../db/db'
 import { grit, todayIso } from '../../domain'
+import { setTapHaptics } from '../../platform/haptics'
 import { pickerList, useExerciseBrowser, type StoredExercise } from '../../state/exercisePicker'
 import { useToday, weekdayOf, type TodayActions, type TodayState } from '../../state/useToday'
 import { TODAY, exerciseNamed, plan, setsOn, startSession, todayFixture } from '../../test/todayFixture'
@@ -671,5 +672,55 @@ describe('Exercises tab', () => {
     expect(chip('Equipment', 'Dumbbell')).not.toBeChecked()
     expect(chosen()).toBeNull()
     expect(shownNames()).toHaveLength(225)
+  })
+})
+
+// ---- Stage 2: the guide's "Add to plan" and "Add to today" tick once each (platform/haptics.ts) ----
+describe('ExercisesScreen haptics', () => {
+  let vibrate: ReturnType<typeof vi.fn>
+  beforeEach(() => {
+    vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, writable: true, value: vibrate })
+    setTapHaptics(true)
+  })
+  afterEach(() => {
+    setTapHaptics(false)
+    Reflect.deleteProperty(navigator, 'vibrate')
+  })
+
+  it('addToPlan_ticksOnce_onTheAdd', async () => {
+    await showTab()
+    await openRow('Hack squat')
+    await userEvent.click(guide('Hack squat').getByRole('button', { name: 'Add to plan' }))
+    expect(vibrate, 'choosing the day is not the add yet').not.toHaveBeenCalled()
+    // A double tap on the day adds once, and ticks once.
+    await userEvent.dblClick(dayChooser().getByRole('button', { name: 'Monday' }))
+    await waitFor(() => expect(snackbar()).toHaveTextContent('Added to'))
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('addToToday_ticksOnce', async () => {
+    await startSession(db, TODAY)
+    await showTab()
+    await addToToday('Hack squat')
+    await waitFor(() => expect(snackbar()).toHaveTextContent('Added to today'))
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('aFailedOrAlreadyThereAdd_doesNotBuzz', async () => {
+    const squat = await exerciseNamed(db, 'Squat')
+    await plan(db, squat.id, { weekday: 1 })
+    await showTab()
+    await addToPlan('Squat', 'Monday')
+    await waitFor(() => expect(snackbar()).toHaveTextContent('Already in your plan on Monday.'))
+    expect(vibrate, 'already there: nothing added').not.toHaveBeenCalled()
+
+    const failing = vi.spyOn(db.planItems, 'add').mockImplementation(() => {
+      throw new Error('disk full')
+    })
+    await addToPlan('Hack squat', 'Monday')
+    await waitFor(() => expect(snackbar()).toHaveTextContent(SAVE_FAILED))
+    expect(failing).toHaveBeenCalledOnce()
+    expect(vibrate, 'a failed add does not buzz').not.toHaveBeenCalled()
   })
 })

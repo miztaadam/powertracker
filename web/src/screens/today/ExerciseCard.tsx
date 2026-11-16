@@ -121,6 +121,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         <CoachSuggestion
           headline={targetHeadline(item.suggestion.target)}
           reason={targetReason(item.suggestion)}
+          // Ticks once the target is applied (useToday), once however fast the taps.
           onApply={() => void actions.applyTarget(item.suggestion!.id)}
           onDismiss={() => void actions.dismissTarget(item.suggestion!.id)}
         />
@@ -343,6 +344,7 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
           canIncrement={weight == null || weight < MAX_KG}
           onDecrement={() => step('kg', (now) => stepWeight(now.weightKg, -weightStepKg))}
           onIncrement={() => step('kg', (now) => stepWeight(now.weightKg, weightStepKg))}
+          tick
           field={field('kg', 'Weight, kilograms', weightText, 'decimal', 'kg')}
         />
         <StepperField
@@ -352,6 +354,7 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
           canIncrement={typed.reps < MAX_REPS}
           onDecrement={() => step('reps', (now) => now.reps - 1)}
           onIncrement={() => step('reps', (now) => now.reps + 1)}
+          tick
           field={field('reps', 'Reps', String(e.reps), 'numeric')}
         />
         <StepperField
@@ -361,6 +364,7 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
           canIncrement={typed.rpe < MAX_RPE}
           onDecrement={() => step('rpe', (now) => Math.max(MIN_RPE, now.rpe - 0.5))}
           onIncrement={() => step('rpe', (now) => Math.min(MAX_RPE, now.rpe + 0.5))}
+          tick
           field={field('rpe', 'RPE', formatRpe(e.rpe), 'decimal')}
           labelAction={<RpeInfoButton inline />}
         />

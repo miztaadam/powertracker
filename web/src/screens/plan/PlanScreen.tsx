@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { GritDb } from '../../db/db'
 import { grit, todayIso } from '../../domain'
+import { haptic } from '../../platform/haptics'
 import { usePlan, type DaySection, type PlanActions, type PlanExercise, type PlanItem, type PlanRow, type PlanState } from '../../state/usePlan'
 import { dayName } from '../../state/weekdayNames'
 import { IconButton, PrimaryButton, SecondaryButton } from '../../ui/components/Button'
@@ -112,12 +113,18 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
           title={`Add to ${dayName(dialog.weekday)}`}
           exercises={state.exercises}
           recentIds={state.recentIds}
+          // The picker answers once, so each add ticks once, when it is stored; a failed add does not buzz.
           onPick={(entry) => {
-            reported(actions.add(dialog.weekday, entry))
+            reported(actions.add(dialog.weekday, entry).then(() => haptic('tick')))
             setDialog(null)
           }}
           onCreateCustom={(exercise) => {
-            reported(actions.addCustomExercise(exercise).then((entry) => actions.add(dialog.weekday, entry)))
+            reported(
+              actions
+                .addCustomExercise(exercise)
+                .then((entry) => actions.add(dialog.weekday, entry))
+                .then(() => haptic('tick')),
+            )
             setDialog(null)
           }}
           onDismiss={() => setDialog(null)}

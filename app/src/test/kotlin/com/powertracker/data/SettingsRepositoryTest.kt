@@ -60,6 +60,21 @@ class SettingsRepositoryTest {
     }
 
     /** Bodybuilding mode spec §6: off by default, neither side ever left, the powerlifting days active. */
+    /** Stage 2: "Vibrate on taps" is on by default and stored on its own, apart from the rest alert. */
+    @Test
+    fun vibrateOnTaps_defaultsOn_andPersists() = runTest {
+        settings.update { AppSettings() }
+        assertTrue(AppSettings().vibrateOnTaps)
+        assertTrue(settings.settings.first().vibrateOnTaps)
+
+        settings.update { it.copy(vibrateOnTaps = false) }
+        assertFalse(settings.settings.first().vibrateOnTaps)
+        assertEquals(RestAlert.VIBRATE, settings.settings.first().restAlert)
+
+        settings.update { it.copy(vibrateOnTaps = true) }
+        assertTrue(settings.settings.first().vibrateOnTaps)
+    }
+
     @Test
     fun trainingMode_defaults() = runTest {
         settings.update { AppSettings() }

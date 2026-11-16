@@ -28,6 +28,7 @@ import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.theme.Space
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import com.powertracker.ui.components.rememberHaptics
 
 /** The coach's open advice, most urgent first. Nothing changes until the lifter taps Apply. */
 @Composable
@@ -42,6 +43,9 @@ fun CoachScreen(
     val viewModel: CoachViewModel = viewModel(factory = CoachViewModel.factory(training, advice, settings, today))
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
+    // Apply and Swap tick once the change is stored: one buzz per apply, none for a second tap that applied nothing.
+    val haptics = rememberHaptics()
+    LaunchedEffect(viewModel) { viewModel.applied.collect { haptics.tick() } }
     LaunchedEffect(viewModel) {
         viewModel.messages.collect { message ->
             // The newest confirmation replaces the one on screen instead of queueing behind it.

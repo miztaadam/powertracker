@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { openGritDb, setTrainingMode, type GritDb } from '../db/db'
 import { useTrainingMode } from '../state/useTrainingMode'
-import { MODE_KEY, rememberMode, rememberedMode } from './modeHeadStart'
+import { MODE_KEY, MOTION_KEY, rememberMode, rememberedMode } from './modeHeadStart'
 
 const SCRIPT = readFileSync(resolve(process.cwd(), 'public/mode-head-start.js'), 'utf8')
 const INDEX = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8')
@@ -105,6 +105,64 @@ describe('the head-start script', () => {
     expect(tag).not.toMatch(/type="module"|defer|async/)
     expect(head.indexOf('name="theme-color"')).toBeLessThan(head.indexOf('mode-head-start.js'))
     expect(INDEX.indexOf('mode-head-start.js')).toBeLessThan(INDEX.indexOf('/src/main.tsx'))
+  })
+})
+
+describe('the motion-off switch (stage 2)', () => {
+  const motion = () => document.documentElement.getAttribute('data-motion')
+  /** A system reduced-motion setting that can change while the page is open. */
+  function fakeReducedMotion(initially: boolean) {
+    const listeners: (() => void)[] = []
+    const query = { matches: initially, addEventListener: (_: string, f: () => void) => listeners.push(f) }
+    vi.stubGlobal('matchMedia', (q: string) => (q.includes('reduced-motion') ? query : { matches: false }))
+    return (now: boolean) => {
+      query.matches = now
+      listeners.forEach((f) => f())
+    }
+  }
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    document.documentElement.removeAttribute('data-motion')
+    localStorage.removeItem(MOTION_KEY)
+  })
+
+  it('motionIsOn_whenNothingAsksOtherwise', () => {
+    runScript()
+    expect(motion()).toBeNull()
+    fakeReducedMotion(false)
+    runScript()
+    expect(motion()).toBeNull()
+  })
+
+  it('reducedMotion_turnsItOff_atStartAndLive', () => {
+    const change = fakeReducedMotion(true)
+    runScript()
+    expect(motion()).toBe('off')
+    change(false)
+    expect(motion()).toBeNull()
+    change(true)
+    expect(motion()).toBe('off')
+  })
+
+  it('theTestFlag_turnsItOff_whateverTheSystemSays', () => {
+    localStorage.setItem(MOTION_KEY, 'off')
+    const change = fakeReducedMotion(false)
+    runScript()
+    expect(motion()).toBe('off')
+    change(true)
+    change(false)
+    expect(motion()).toBe('off')
+  })
+
+  it('aMatchMediaWithoutListeners_stillSetsItOnce', () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: q.includes('reduced-motion') }))
+    expect(runScript).not.toThrow()
+    expect(motion()).toBe('off')
+  })
+
+  it('theScriptAndTheKeyAgree', () => {
+    expect(MOTION_KEY).toBe('grit:motion')
+    expect(SCRIPT).toContain(`'${MOTION_KEY}'`)
   })
 })
 

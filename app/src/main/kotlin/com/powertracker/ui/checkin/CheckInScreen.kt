@@ -15,7 +15,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -49,6 +48,7 @@ import com.powertracker.ui.library.MuscleOptions
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import kotlinx.datetime.LocalDate
+import com.powertracker.ui.components.PtIconButton
 
 // The check-in's words (stage 3 plan, Task 2). The web app's check-in uses the same.
 const val CHECK_IN_TITLE = "Check-in"
@@ -144,7 +144,7 @@ fun CheckInContent(state: CheckInState, actions: CheckInActions) {
                 eyebrow = checkInStepText(state.step),
                 modeLabel = true,
                 navigation = if (state.step == CheckInStep.SAVED) null else {
-                    { IconButton(onClick = actions.onClose) { Icon(Icons.Filled.Close, "Close") } }
+                    { PtIconButton(onClick = actions.onClose) { Icon(Icons.Filled.Close, "Close") } }
                 },
             )
         },

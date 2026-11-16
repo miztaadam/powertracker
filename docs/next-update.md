@@ -197,15 +197,33 @@ The owner tried 1.6 as a Home Screen app on iOS 26 and saw two things at the bot
 In 1.6.1 the owner still saw a band of page about 55 pt high below the tab bar on the iPhone.
 - **Cause:** a WebKit bug (301108). In a Home Screen app that draws under the status bar, iOS 26 makes the page's viewport short by the status bar's height, so anything sized to the screen stopped that much above the bottom.
 - **Fix:** in the iOS Home Screen app only, the app's frame reaches down by the status bar's height too. It is capped at the full screen height, so it cannot run past the screen once Apple fixes the bug. The page behind gets the same minimum height. The same fix is used by another open-source app framework (frappe-ui).
-- Not yet checked on a real iPhone; the owner's check will confirm it. Chromium cannot reproduce the bug, so the new check only proves the rule is applied, not that the gap is gone.
+- **Checked on the owner's iPhone (iOS 26, Home Screen app) on 2026-11-16: fixed.** Chromium cannot reproduce the bug, so the automated check only proves the rule is applied.
 
 ### Follow-ups noticed during the new look
 - The Exercises tab speed check, in quiet timing against 1.5.0, had two single slow opens (80 and 90 ms). Both are still under the 100 ms limit, and the medians were the same as 1.5.0. Timed before the sound-engine fix; the release's quiet speed runs passed, but the tab was not re-timed against 1.5.0 after it.
-- An Android test, `PlanBuilderScreenTest`, failed twice during full runs on a closed database connection and passed alone each time. Worth its own look.
+- An Android test, `PlanBuilderScreenTest`, failed during full runs on a closed database connection. Fixed separately (commits `cc9a24d`, `6824288`): every screen and view-model test now closes its database only once nothing reads it.
 - The picker's occasional slow first open in 1.6 (one run took 114 ms; the limit is 100 ms) came from the new iPhone sound unlock: it made the sound engine inside the first tap. The engine is now made just after start-up, so a tap only wakes it.
 - "Sound + vibrate" wraps onto two lines on 320–390 px phones, so on most Android phones. The owner may prefer a shorter label.
 - An Android app set to vibrate only comes back as "Sound + vibrate" when its backup is restored in an Android browser, since the web has no vibrate-only alert.
 - Thumbnails in the exercise picker stay paused. They come after the look and motion work.
+
+## Done: press feedback and vibration (version 1.7, both apps)
+Spec: `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md`. Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-2.md`. This is stage 2 of the new look and motion.
+
+- **Press:** everything you can tap sinks to 97% of its size when pressed and springs back when you let go. The tab bar's icons go to 92%, because they are small.
+- **What buzzes:**
+  - Log set and Missed give one short tick.
+  - A new best for squat, bench, deadlift or strict press buzzes twice. The first set of a lift counts as a best.
+  - Apply and Swap on the coach, Add to plan and Add to today give one tick.
+  - Each step on Today's weight, reps and RPE steppers gives one tick.
+  - Nothing else buzzes.
+- **Where it works:** the Android app, and the web app on Android phones. iPhones can't vibrate.
+  - The web app shows the switch wherever the browser says it can vibrate. In practice that is Android browsers.
+  - Desktop Chrome shows the switch too, but nothing buzzes there.
+- **The switch:** "Vibrate on taps" sits under Rest alert in Settings. It is hidden on iPhone. It is not in backups (owner, option A): it belongs to the phone, and after a restore it is on.
+- **Backups:** 1.7 reads backups as before, and its backup readers ignore settings they don't know, so a later version can add a setting without breaking them.
+- **Reduce motion:** with the phone's reduce-motion setting on, nothing sinks or springs.
+- Not yet tried on a real phone.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):

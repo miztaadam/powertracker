@@ -1,6 +1,8 @@
 package com.powertracker.ui.components
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
@@ -35,11 +38,20 @@ fun PtCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val shape = MaterialTheme.shapes.large
+    // A card that is a button sinks when pressed, shadow and all.
+    val interaction = if (onClick != null) remember { MutableInteractionSource() } else null
     Surface(
         modifier = modifier
+            .then(if (interaction != null) Modifier.pressScale(interaction) else Modifier)
             .fillMaxWidth()
             .cardShadow(shape)
-            .then(if (onClick != null) Modifier.clip(shape).clickable(onClickLabel = onClickLabel, onClick = onClick) else Modifier),
+            .then(
+                if (onClick != null) {
+                    Modifier.clip(shape).clickable(interaction, LocalIndication.current, onClickLabel = onClickLabel, onClick = onClick)
+                } else {
+                    Modifier
+                },
+            ),
         shape = shape,
         color = MaterialTheme.colorScheme.surface,
     ) {

@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -46,6 +45,7 @@ import com.powertracker.ui.theme.Tone
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
+import com.powertracker.ui.components.PtIconButton
 
 /** Every session of one lift, newest first. [lift] is the route argument: a [MainLift] name. */
 @Composable
@@ -84,7 +84,7 @@ fun ExerciseHistoryContent(state: ExerciseHistoryState, onBack: () -> Unit) {
                     count == 1 -> "1 session"
                     else -> "$count sessions"
                 },
-                navigation = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                navigation = { PtIconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
             ) { state.name?.let { InfoButton(it) } }
         },
     ) { padding ->
@@ -120,7 +120,7 @@ fun LiftHistoryContent(lift: MainLift, state: LiftHistoryState, onBack: () -> Un
                     count == 1 -> "1 session"
                     else -> "$count sessions"
                 },
-                navigation = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                navigation = { PtIconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
             ) { InfoButton(lift.label) }
         },
     ) { padding ->

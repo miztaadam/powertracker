@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -33,6 +32,7 @@ import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.theme.Space
+import com.powertracker.ui.components.PtIconButton
 
 /** What the picker says when nothing matches. */
 const val NO_MATCH = "No exercises match. Try fewer filters, or create your own."
@@ -213,7 +213,7 @@ fun ExercisePickerContent(
     }
 
     Column(Modifier.fillMaxSize()) {
-        ScreenHeader(title, navigation = { IconButton(onClick = onClose, modifier = Modifier.size(Space.touch)) { Icon(Icons.Filled.Close, "Close", tint = scheme.onSurfaceVariant) } })
+        ScreenHeader(title, navigation = { PtIconButton(onClick = onClose, modifier = Modifier.size(Space.touch)) { Icon(Icons.Filled.Close, "Close", tint = scheme.onSurfaceVariant) } })
         ExerciseBrowser(
             state = browser,
             exercises = exercises,

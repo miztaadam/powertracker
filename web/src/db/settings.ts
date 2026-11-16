@@ -24,6 +24,12 @@ export type AppSettings = {
   /** ISO `YYYY-MM-DD`: the day each side was last left. Null until it is first left. */
   powerliftingLeftOn: string | null
   bodybuildingLeftOn: string | null
+  /**
+   * "Vibrate on taps" (stage 2): a short buzz on the main actions, apart from `restAlert`. Offered only where the
+   * browser can vibrate. A setting of this phone only: not in the backup (owner, option A), so a restore puts it back
+   * on, its default.
+   */
+  vibrateOnTaps: boolean
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -41,6 +47,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   bodybuildingTrainingDays: [1, 3, 5],
   powerliftingLeftOn: null,
   bodybuildingLeftOn: null,
+  vibrateOnTaps: true,
 }
 
 /** The two lists, copied, so a caller changing one never changes the defaults or the stored copy it was read from. */

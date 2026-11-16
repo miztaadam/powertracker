@@ -39,6 +39,8 @@ const REST_ALERTS: readonly AppSettings['restAlert'][] = ['SOUND', 'SILENT', 'OF
 const REST_ALERTS_WITH_VIBRATION: readonly AppSettings['restAlert'][] = ['SOUND', 'SOUND_AND_VIBRATE', 'SILENT', 'OFF']
 const REST_ALERT_LABEL: Record<AppSettings['restAlert'], string> = { SOUND: 'Sound', SOUND_AND_VIBRATE: 'Sound + vibrate', SILENT: 'Silent', OFF: 'Off' }
 export const NO_VIBRATION_ON_IPHONE = "iPhones don't let web apps vibrate."
+/** The "Vibrate on taps" row's second line; the Android app says the same. */
+export const VIBRATE_ON_TAPS_SUPPORTING = 'A short buzz when you log a set and on other main taps'
 const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7]
 const SAVE_FAILED = "Couldn't save — try again."
 const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value))
@@ -197,6 +199,10 @@ export function SettingsContent({ settings, onUpdate, onAppLock, onBodybuilding 
           />
           {!vibrates && isIos() && <p className="settings-supporting settings-note body-small">{NO_VIBRATION_ON_IPHONE}</p>}
         </div>
+        {/* Only where the browser can vibrate: an iPhone has the line above instead. */}
+        {vibrates && (
+          <SwitchRow label="Vibrate on taps" supporting={VIBRATE_ON_TAPS_SUPPORTING} checked={settings.vibrateOnTaps} onChange={(v) => onUpdate((s) => ({ ...s, vibrateOnTaps: v }))} />
+        )}
         <SwitchRow label="Keep screen awake during rests" supporting="The screen stays on while the rest timer runs" checked={settings.keepAwake} onChange={(v) => onUpdate((s) => ({ ...s, keepAwake: v }))} />
       </Group>
 

@@ -111,7 +111,7 @@ async function shoot(page: Page, name: string, height: number) {
 
 const narrowPhone = { width: 375, height: 812 }
 // Tall enough for the whole Settings screen, version line included.
-const SETTINGS_HEIGHT = 1790
+const SETTINGS_HEIGHT = 1860
 
 for (const scheme of ['dark', 'light'] as const) {
   test(`plan and settings match the mockup story (${scheme})`, async ({ page }) => {

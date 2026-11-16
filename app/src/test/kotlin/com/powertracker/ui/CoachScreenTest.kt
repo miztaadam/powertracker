@@ -36,6 +36,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.semantics.SemanticsActions
+import com.powertracker.ui.components.FakeHapticFeedback
+import com.powertracker.ui.components.WithHaptics
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
@@ -159,5 +163,39 @@ class CoachScreenTest {
         show()
         waitFor { shows("No advice right now. Keep logging.") }
         compose.onNodeWithText("Coach suggests", substring = true).assertDoesNotExist()
+    }
+
+    // ---- The buzz (stage 2): one tick per apply, once it is stored ----
+
+    @Test
+    fun apply_ticksOnce_evenOnADoubleTap() {
+        val haptics = FakeHapticFeedback()
+        insertStall()
+        compose.setContent { PowertrackerTheme { WithHaptics(haptics) { CoachScreen(training, advice, settings, today = { today }) } } }
+        waitFor { shows("Bench has stalled") }
+
+        // Two taps inside one frame: one apply, one buzz.
+        val click = compose.onNodeWithText("Add to plan").fetchSemanticsNode().config[SemanticsActions.OnClick].action!!
+        compose.runOnUiThread {
+            click()
+            click()
+        }
+        waitFor { runBlocking { advice.all() }.single().status == AdviceStatus.APPLIED }
+        waitFor { haptics.calls.isNotEmpty() }
+        waitFor { shows("Added 2 exercises to Wednesday") }
+        compose.waitForIdle()
+        assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
+    }
+
+    @Test
+    fun dismiss_doesNotBuzz() {
+        val haptics = FakeHapticFeedback()
+        insertStall()
+        compose.setContent { PowertrackerTheme { WithHaptics(haptics) { CoachScreen(training, advice, settings, today = { today }) } } }
+        waitFor { shows("Bench has stalled") }
+        compose.onNodeWithText("Dismiss").performClick()
+        waitFor { runBlocking { advice.all() }.single().status == AdviceStatus.DISMISSED }
+        compose.waitForIdle()
+        assertEquals(0, haptics.calls.size)
     }
 }

@@ -557,4 +557,32 @@ class CheckInTest {
         assertFalse(coachVm().await { true }.checkInDue)
         assertEquals(emptyList<Any>(), progressVm().await { true }.trends)
     }
+
+    // ---- The buzz (stage 2): the view model says when an apply is stored, once, and not for a swap that changed nothing ----
+
+    @Test
+    fun applied_isSentOncePerStoredSwap_notForOneThatChangesNothing_norForADoubleCall() {
+        plan("Leg extension", DayOfWeek.MONDAY, 0)
+        plan("Split squat", DayOfWeek.WEDNESDAY, 0)
+        runBlocking { advice.insert(listOf(swapAdvice("Leg extension", listOf("Split squat", "Bulgarian split squat")))) }
+        val vm = coachVm()
+        val card = vm.await { s -> s.cards.any { it.detail is CardDetail.Swap } }.cards.single()
+        val applied = mutableListOf<Long>()
+        val messages = mutableListOf<String>()
+        collectors.launch { vm.applied.collect { applied += it } }
+        collectors.launch { vm.messages.collect { messages += it } }
+
+        // Already in the plan: nothing changes, the card stays, nothing is applied.
+        vm.swap(card.advice.id, "Split squat")
+        await("first message") { messages.size == 1 }
+        assertEquals(emptyList<Long>(), applied)
+
+        // Twice in a row: swapped once, applied once.
+        vm.swap(card.advice.id, "Bulgarian split squat")
+        vm.swap(card.advice.id, "Bulgarian split squat")
+        await("second message") { messages.size == 2 }
+        assertEquals("Swapped Leg extension for Bulgarian split squat", messages.last())
+        await("applied") { applied.isNotEmpty() }
+        assertEquals(listOf(card.advice.id), applied.toList())
+    }
 }

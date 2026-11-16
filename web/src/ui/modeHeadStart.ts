@@ -8,6 +8,13 @@ import type { TrainingMode } from '../db/schema'
  */
 export const MODE_KEY = 'grit:trainingMode'
 
+/**
+ * The browser-storage key a test run sets to `off` to run with motion off (playwright.config.ts sets it for every
+ * e2e page). public/mode-head-start.js reads it, with the system's reduced-motion setting, and puts
+ * `data-motion="off"` on <html>. Kept in step with that script.
+ */
+export const MOTION_KEY = 'grit:motion'
+
 /** The side last remembered; the powerlifting side when nothing (or nothing readable) is remembered. */
 export function rememberedMode(): TrainingMode {
   try {

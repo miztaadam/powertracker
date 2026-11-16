@@ -202,14 +202,14 @@ export function encodeBackup(file: BackupFile): string {
   return JSON.stringify(file)
 }
 
-// ---- decode (strict, like Android's ignoreUnknownKeys = false) -----------------------------------
+// ---- decode (strict, like Android's ignoreUnknownKeys = false; since 1.7, except unknown keys inside `settings`) ----
 
 type Obj = Record<string, unknown>
 
-function obj(v: unknown, path: string, keys: readonly string[], optional: readonly string[] = []): Obj {
+function obj(v: unknown, path: string, keys: readonly string[], optional: readonly string[] = [], unknownKeys: 'reject' | 'ignore' = 'reject'): Obj {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return bad(`${path}: expected object`)
   const o = v as Obj
-  for (const k of Object.keys(o)) if (!keys.includes(k) && !optional.includes(k)) bad(`${path}: unknown key ${k}`)
+  if (unknownKeys === 'reject') for (const k of Object.keys(o)) if (!keys.includes(k) && !optional.includes(k)) bad(`${path}: unknown key ${k}`)
   for (const k of keys) if (!(k in o)) bad(`${path}: missing ${k}`)
   return o
 }
@@ -233,6 +233,9 @@ function parseBackup(root: Obj): BackupFile {
     'settings',
     ['changePlates', 'defaultRpe', 'trainingDays', 'appLock', 'restMainSec', 'restAccessorySec'],
     ['restAlert', 'webRestAlert', 'showStrictPress', 'trainingMode', 'bodybuildingTrainingDays', 'powerliftingLeftOn', 'bodybuildingLeftOn'],
+    // A setting this app does not know is ignored, so a later app can add one without older apps turning its backups
+    // away (1.6 rejected them). Known settings are still checked; unknown keys anywhere else are still corrupt.
+    'ignore',
   )
   return {
     version: int(o, 'version'),
@@ -455,6 +458,8 @@ function mapBackup(file: BackupFile): Mapped {
       bodybuildingTrainingDays: [...new Set(bodybuildingTrainingDays)].sort((a, b) => a - b),
       powerliftingLeftOn: leftOn(st.powerliftingLeftOn),
       bodybuildingLeftOn: leftOn(st.bodybuildingLeftOn),
+      // Not in the backup (owner, option A): a restore puts it back on, its default, as on Android.
+      vibrateOnTaps: DEFAULT_SETTINGS.vibrateOnTaps,
     },
   }
 }

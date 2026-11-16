@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import type { GritDb } from '../../db/db'
 import { todayIso } from '../../domain'
+import { haptic } from '../../platform/haptics'
 import { exerciseCount, type ExerciseBrowser as BrowserState, type PickerEntry } from '../../state/exercisePicker'
 import { planDayChoices, usePlan } from '../../state/usePlan'
 import type { TodayActions, TodayState } from '../../state/useToday'
@@ -79,14 +80,23 @@ export function ExercisesScreen({ db, session, onOpenPlan, onOpenToday, browser,
   const addToPlan = (entry: PickerEntry, weekday: number) =>
     once(
       () => plan.addOnce(weekday, entry),
-      (result) => (result === 'ADDED' ? say(`Added to ${dayName(weekday)}`, 'Open Plan', onOpenPlan) : say(`Already in your plan on ${dayName(weekday)}.`)),
+      (result) => {
+        if (result === 'ADDED') {
+          // One tick once the add is stored; none when it was already there or failed.
+          haptic('tick')
+          say(`Added to ${dayName(weekday)}`, 'Open Plan', onOpenPlan)
+        } else say(`Already in your plan on ${dayName(weekday)}.`)
+      },
     )
   const addToToday = (entry: PickerEntry) =>
     once(
       // The session is looked at again now: it may have been finished since this button was drawn.
       () => session.addToOpenSession(entry.library?.name ?? null, entry.exerciseId),
       (result) => {
-        if (result === 'ADDED') say('Added to today', 'Open Today', onOpenToday)
+        if (result === 'ADDED') {
+          haptic('tick')
+          say('Added to today', 'Open Today', onOpenToday)
+        }
         else if (result === 'ALREADY_THERE') say("Already in today's session.")
         // Refused: there is no open session any more. Nothing was added.
         else if (result === 'REFUSED') say(SAVE_FAILED)

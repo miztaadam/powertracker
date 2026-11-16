@@ -53,6 +53,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.datetime.LocalDate
+import com.powertracker.domain.progress.ProgressMath
 
 /** The numbers in the steppers for the next set. [weightKg] is null until the lifter enters one. */
 data class SetEditor(val weightKg: Double?, val reps: Int, val rpe: Double)
@@ -126,6 +127,15 @@ enum class TodayAdd {
 sealed interface TodayEvent {
     /** A set was saved; the rest timer starts from this. */
     data class SetLogged(val isMainOrVariation: Boolean) : TodayEvent
+
+    /**
+     * The buzz for a saved set, sent just after [SetLogged] once the history has been asked whether it is a new best
+     * ([isNewBest], ProgressMath.isNewPr). While "Vibrate on taps" is off the history is not read and it says false.
+     */
+    data class SetBuzz(val isNewBest: Boolean) : TodayEvent
+
+    /** A coach target was put into the editor (Apply). */
+    data object TargetApplied : TodayEvent
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -334,19 +344,34 @@ class TodayViewModel(
                         return@launch
                     }
                 }
+                val stored = set.copy(exerciseId = exerciseId, isTopSet = false)
                 // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
                 // A stand-in id means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
-                val setId = training.logSet(sessionId, set.copy(exerciseId = exerciseId, isTopSet = false), catalogueName = catalogueEntry(exerciseId)?.name)
+                val setId = training.logSet(sessionId, stored, catalogueName = catalogueEntry(exerciseId)?.name)
                 local.update { it.copy(pending = null) }
                 // Every exercise on the bodybuilding side takes the accessory rest (bodybuilding mode spec §5.3).
                 val mainRest = now.mode == TrainingMode.POWERLIFTING && item?.exercise?.category != Category.ACCESSORY
                 _events.emit(TodayEvent.SetLogged(isMainOrVariation = mainRest))
+                // The buzz is worked out after the save, beside it: it never holds the set up, and if it fails it ticks.
+                viewModelScope.launch { _events.emit(TodayEvent.SetBuzz(isNewBest(setId, stored, now.mode))) }
                 // Hold the guard until the new set is on screen, so the button the lifter sees is never stale.
                 withTimeoutOrNull(SHOWN_TIMEOUT_MS) { state.first { s -> s.items.any { i -> i.sets.any { it.id == setId } } } }
             } finally {
                 saving.value = false
             }
         }
+    }
+
+    /**
+     * Whether the set just saved as [setId] is a new best, asked of the history without it, under the rule Progress uses
+     * for its records. False (a tick) when the history cannot be read; not asked at all while nothing would buzz.
+     */
+    private suspend fun isNewBest(setId: Long, set: LoggedSet, mode: TrainingMode): Boolean = try {
+        settings.settings.first().vibrateOnTaps && ProgressMath.isNewPr(training.historyWithout(setId), set, date, mode)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        false
     }
 
     /** Back to the editor without saving the held set. */
@@ -368,18 +393,31 @@ class TodayViewModel(
 
     /** Puts the coach's numbers into the editor and marks the advice applied. */
     fun applyTarget(adviceId: Long) {
+        // A second tap landing before the first has applied (a double tap) applies nothing more and says nothing more.
+        if (!applyingTargets.add(adviceId)) return
         viewModelScope.launch {
-            val now = loaded()
-            val item = now.items.firstOrNull { it.suggestion?.id == adviceId } ?: return@launch
-            val target = item.suggestion ?: return@launch
-            val payload = target.payload as? AdvicePayload.Target ?: return@launch
-            // A range target fills the reps to beat for the set about to be done (bodybuilding mode spec §5.3).
-            val reps = appliedReps(payload, item.planned, training.history().first(), item.sets.size + 1)
-            // Status first: if storing it fails, the editor keeps its numbers and the chip stays.
-            advice.setStatus(adviceId, AdviceStatus.APPLIED)
-            edit(payload.exerciseId, SetEditor(payload.weightKg, reps, payload.rpe))
+            var applied = false
+            try {
+                val now = loaded()
+                val item = now.items.firstOrNull { it.suggestion?.id == adviceId } ?: return@launch
+                val target = item.suggestion ?: return@launch
+                val payload = target.payload as? AdvicePayload.Target ?: return@launch
+                // A range target fills the reps to beat for the set about to be done (bodybuilding mode spec §5.3).
+                val reps = appliedReps(payload, item.planned, training.history().first(), item.sets.size + 1)
+                // Status first: if storing it fails, the editor keeps its numbers and the chip stays.
+                advice.setStatus(adviceId, AdviceStatus.APPLIED)
+                edit(payload.exerciseId, SetEditor(payload.weightKg, reps, payload.rpe))
+                applied = true
+                _events.emit(TodayEvent.TargetApplied)
+            } finally {
+                // Kept once applied: the advice is closed for good. Otherwise it can be tried again.
+                if (!applied) applyingTargets.remove(adviceId)
+            }
         }
     }
+
+    /** Coach targets whose Apply is under way or done; touched on the main thread only. */
+    private val applyingTargets = mutableSetOf<Long>()
 
     fun dismissTarget(adviceId: Long) {
         viewModelScope.launch { advice.setStatus(adviceId, AdviceStatus.DISMISSED) }

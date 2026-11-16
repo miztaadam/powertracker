@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -75,6 +73,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
+import com.powertracker.ui.components.PtIconButton
+import com.powertracker.ui.components.pressToggleable
 
 /** Outcome of reading a backup file chosen by the user. */
 sealed interface RestoreCheck {
@@ -93,6 +93,9 @@ fun appVersionLine(versionName: String): String = "Grit $versionName · AppsbyAd
 
 /** The same line as a screen reader says it, without the middle dots. */
 fun appVersionSpoken(versionName: String): String = "Grit version $versionName, by AppsbyAdam"
+
+/** The "Vibrate on taps" row's second line; the web app says the same. */
+const val VIBRATE_ON_TAPS_SUPPORTING = "A short buzz when you log a set and on other main taps"
 
 /** The name offered when exporting a backup on [date]. */
 fun backupFileName(date: LocalDate): String = "grit-backup-$date.json"
@@ -202,7 +205,7 @@ fun SettingsContent(
             ScreenHeader(
                 "Settings",
                 modeLabel = true,
-                navigation = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                navigation = { PtIconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
             )
         },
         snackbarHost = { SnackbarHost(snackbar) },
@@ -294,6 +297,8 @@ fun SettingsContent(
                     { i -> onUpdate { it.copy(restAlert = REST_ALERT_LABELS[i].first) } },
                     Modifier.padding(bottom = Space.m),
                 )
+                RowDivider()
+                SwitchRow("Vibrate on taps", VIBRATE_ON_TAPS_SUPPORTING, settings.vibrateOnTaps) { v -> onUpdate { it.copy(vibrateOnTaps = v) } }
             }
 
             SectionHeader("Privacy", Modifier.padding(top = Space.m))
@@ -352,7 +357,7 @@ private fun SwitchRow(label: String, supporting: String, checked: Boolean, modif
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
     Row(
-        modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
+        modifier.fillMaxWidth().pressToggleable(value = checked, role = Role.Switch, onValueChange = onChange),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Space.m),
     ) {

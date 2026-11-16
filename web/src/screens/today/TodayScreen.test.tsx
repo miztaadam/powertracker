@@ -1,10 +1,12 @@
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resolveCatalogue } from '../../db/catalogue'
 import type { GritDb } from '../../db/db'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { DELOAD_ADVICE, TODAY, addDays, baseline, exerciseNamed, logSet, plan, set, setsOn, startSession, targets, todayFixture } from '../../test/todayFixture'
+import { setTapHaptics } from '../../platform/haptics'
+import { grit } from '../../domain'
 import { TodayScreen } from './TodayScreen'
 
 let fx: ReturnType<typeof todayFixture>
@@ -601,5 +603,166 @@ describe('TodayScreen', () => {
     await waitForSets(1)
     // A strict press set starts the main-lift rest.
     await waitFor(() => expect(rests).toEqual([true]))
+  })
+})
+
+// ---- Stage 2: the buzz on the main actions (platform/haptics.ts), with a fake vibrator ----
+describe('TodayScreen haptics', () => {
+  let vibrate: ReturnType<typeof vi.fn>
+  beforeEach(() => {
+    vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, writable: true, value: vibrate })
+    setTapHaptics(true)
+  })
+  afterEach(() => {
+    setTapHaptics(false)
+    Reflect.deleteProperty(navigator, 'vibrate')
+  })
+
+  it('logSet_ticksOnce', async () => {
+    await startSession(db, TODAY)
+    show()
+    await tapWhenShown('Log set 1')
+    await waitForSets(1)
+    await findButton('Log set 2')
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('missed_ticksOnce', async () => {
+    await startSession(db, TODAY)
+    show()
+    await findButton('Log set 1')
+    await tap('Missed')
+    await waitForSets(1)
+    await findButton('Log set 2')
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('stepperStep_ticksOncePerTap', async () => {
+    await startSession(db, TODAY)
+    show()
+    await findButton('Log set 1')
+    await tap('Increase Weight')
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('typo_ticksOnlyWhenTheSetIsSaved', async () => {
+    await startSession(db, TODAY)
+    show()
+    await findButton('Log set 1')
+    await typeWeight('250')
+    await tap('Log set 1')
+    await screen.findByRole('dialog', { name: 'Did you mean 250 kg × 5?' })
+    expect(vibrate, 'the warning saves nothing, so it does not buzz').not.toHaveBeenCalled()
+    await tap('Confirm')
+    await waitForSets(1)
+    // 250 × 5 beats last week's 150 × 5 @ 7: a new best, so the stronger buzz (round B).
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith([30, 40, 60])
+  })
+
+  it('pickerAdd_ticksOnce', async () => {
+    await startSession(db, TODAY)
+    show()
+    await openPicker()
+    await userEvent.type(picker().getByRole('textbox', { name: 'Search exercises' }), 'dead')
+    await userEvent.click(await pickerRow('Deadlift'))
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Add exercise' })).toBeNull())
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('coachSuggestionApply_ticksOnce', async () => {
+    await baseline(db, squatId, 190, addDays(TODAY, -30))
+    await startSession(db, TODAY)
+    show()
+    expect(await screen.findByText('155 × 5 @ 8')).toBeInTheDocument()
+    await tap('Apply')
+    await waitFor(() => expect(weightField()).toHaveValue('155'))
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('newBest_buzzesTheBestPattern_once_thenTheEqualSetAndAMissTick', async () => {
+    await startSession(db, TODAY)
+    show()
+    await findButton('Log set 1')
+    // Last week's best is 150 × 5 @ 7; 180 × 5 @ 8 beats it.
+    await typeWeight('180')
+    await tap('Log set 1')
+    await waitForSets(1)
+    await findButton('Log set 2')
+    expect(vibrate.mock.calls).toEqual([[[30, 40, 60]]])
+    await tap('Log set 2')
+    await waitForSets(2)
+    await findButton('Log set 3')
+    await typeWeight('190')
+    await tap('Missed')
+    await waitForSets(3)
+    expect(vibrate.mock.calls).toEqual([[[30, 40, 60]], [10], [10]])
+  })
+
+  it('coachSuggestionApply_doubleTap_appliesAndTicksOnce', async () => {
+    await baseline(db, squatId, 190, addDays(TODAY, -30))
+    await startSession(db, TODAY)
+    show()
+    expect(await screen.findByText('155 × 5 @ 8')).toBeInTheDocument()
+    const apply = button('Apply')
+    fireEvent.click(apply)
+    fireEvent.click(apply)
+    await waitFor(() => expect(weightField()).toHaveValue('155'))
+    await waitFor(async () => expect((await db.advice.toArray()).filter((a) => a.status === 'APPLIED')).toHaveLength(1))
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('aFailingBestCheck_stillSavesTheSet_andTicks', async () => {
+    const check = vi.spyOn(grit, 'isNewPr').mockImplementation(() => {
+      throw new Error('history gone')
+    })
+    try {
+      await startSession(db, TODAY)
+      show()
+      await findButton('Log set 1')
+      await typeWeight('180') // would be a new best
+      await tap('Log set 1')
+      await waitForSets(1)
+      await waitFor(() => expect(vibrate).toHaveBeenCalledExactlyOnceWith(10))
+      expect(check).toHaveBeenCalledOnce()
+    } finally {
+      check.mockRestore()
+    }
+  })
+
+  it('withNothingToBuzz_theBestCheckIsSkipped', async () => {
+    setTapHaptics(false)
+    const check = vi.spyOn(grit, 'isNewPr')
+    try {
+      await startSession(db, TODAY)
+      show()
+      await tapWhenShown('Log set 1')
+      await waitForSets(1)
+      await findButton('Log set 2')
+      expect(check).not.toHaveBeenCalled()
+    } finally {
+      check.mockRestore()
+    }
+  })
+
+  it('pickingAnExerciseAlreadyInTheSession_doesNotBuzz', async () => {
+    await startSession(db, TODAY)
+    show()
+    await openPicker()
+    await userEvent.type(picker().getByRole('textbox', { name: 'Search exercises' }), 'squat')
+    await userEvent.click(await pickerRow('Squat'))
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Add exercise' })).toBeNull())
+    expect(vibrate).not.toHaveBeenCalled()
+  })
+
+  it('setting off_nothingBuzzes', async () => {
+    setTapHaptics(false)
+    await startSession(db, TODAY)
+    show()
+    await findButton('Log set 1')
+    await tap('Increase Weight')
+    await tap('Log set 1')
+    await waitForSets(1)
+    expect(vibrate).not.toHaveBeenCalled()
   })
 })

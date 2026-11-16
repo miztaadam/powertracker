@@ -103,9 +103,13 @@ class PlanViewModel(
      * at the default RPE; on the bodybuilding side 3 × 8–12 @ 8 for anything. A catalogue exercise gets
      * its row, if it has none yet, in the same transaction.
      */
-    fun add(day: DayOfWeek, entry: PickerEntry) {
+    /** Adds [entry] to [day]; [onAdded] runs once it is stored. */
+    fun add(day: DayOfWeek, entry: PickerEntry, onAdded: () -> Unit = {}) {
         val item = newItem(state.value.mode, day, entry, state.value.defaultRpe, nextOrder(day))
-        viewModelScope.launch { training.savePlanItem(item, entry.catalogueName) }
+        viewModelScope.launch {
+            training.savePlanItem(item, entry.catalogueName)
+            onAdded()
+        }
     }
 
     /**
