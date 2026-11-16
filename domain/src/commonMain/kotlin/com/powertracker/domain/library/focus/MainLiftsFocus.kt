@@ -86,7 +86,7 @@ internal val mainLiftsFocus: List<Pair<String, MuscleFocus>> by lazy {
         ),
         // A partial range, but the chest still goes from longer to shorter: the stretch is at the pins.
         "Pin press" to lines(
-            "Your chest stretches as the bar settles on the pins.", "Squeeze your chest as you press the bar up off the pins.",
+            "Your chest stretches as the bar settles on the pins.", CHEST_PRESS_UP,
             Sources.EXRX_BB_BENCH, Sources.PMC_STICKING_POINT_REVIEW,
         ),
         "Larsen press" to lines(CHEST_TO_CHEST, CHEST_PRESS_UP, Sources.EXRX_BB_BENCH, Sources.PMC_BENCH_WITHOUT_LEGS),
@@ -108,15 +108,15 @@ internal val mainLiftsFocus: List<Pair<String, MuscleFocus>> by lazy {
 
         // ---- Deadlift variations ----
         "Deficit deadlift" to lines(
-            "Your quads stretch as you squat down to grip the bar.", QUADS_STAND_LOCKED,
+            "Your quads stretch as the bar settles on the floor.", QUADS_STAND_LOCKED,
             Sources.EXRX_DEFICIT_DEADLIFT, Sources.EXRX_BB_DEADLIFT,
         ),
         "Paused deadlift" to lines(
-            "Your quads stretch as you bend down to grip the bar.", QUADS_STAND_LOCKED,
+            "Your quads stretch as the bar settles on the floor.", QUADS_STAND_LOCKED,
             Sources.EXRX_BB_DEADLIFT, Sources.ACE_DEADLIFT,
         ),
         "Paused deadlift at the knee" to hamstringLines(
-            "Your hamstrings stretch in the pause just below your knees.", "Squeeze your hamstrings as you stand tall.",
+            "Your hamstrings stretch in the pause, the bar below your knees.", "Squeeze your hamstrings as you stand tall.",
             Sources.EXRX_BB_DEADLIFT, Sources.ACE_DEADLIFT,
         ),
         "Block pull" to lines(

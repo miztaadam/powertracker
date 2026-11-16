@@ -142,7 +142,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your quads stretch as you squat down to grip the bar.
+- Stretch: Your quads stretch as the bar settles on the floor.
 - Squeeze: Squeeze your quads as you stand tall with your knees locked.
 
 Sources of the stretch and squeeze:
@@ -253,7 +253,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your quads stretch as you bend down to grip the bar.
+- Stretch: Your quads stretch as the bar settles on the floor.
 - Squeeze: Squeeze your quads as you stand tall with your knees locked.
 
 Sources of the stretch and squeeze:
@@ -273,7 +273,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your hamstrings stretch in the pause just below your knees.
+- Stretch: Your hamstrings stretch in the pause, the bar below your knees.
 - Squeeze: Squeeze your hamstrings as you stand tall.
 
 Sources of the stretch and squeeze:
@@ -294,7 +294,7 @@ Sources of the stretch and squeeze:
 Stretch and squeeze (bodybuilding side):
 
 - Stretch: Your chest stretches as the bar settles on the pins.
-- Squeeze: Squeeze your chest as you press the bar up off the pins.
+- Squeeze: Squeeze your chest as you press the bar up.
 
 Sources of the stretch and squeeze:
 
