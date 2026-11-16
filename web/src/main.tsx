@@ -2,12 +2,15 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import { warmCatalogue } from './state/exercisePicker'
+import { installPressHold } from './ui/pressHold'
 import { syncThemeColor } from './ui/theme'
 import './ui/tokens.css'
 // Press feedback for every tappable component (stage 2); its own sheet, after the tokens.
 import './ui/press.css'
 
 syncThemeColor()
+// A quick tap still shows its sink (press.css): one listener for the whole page.
+installPressHold()
 
 const root = document.getElementById('root')
 if (!root) throw new Error('missing #root')

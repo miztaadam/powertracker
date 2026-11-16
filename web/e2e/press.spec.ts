@@ -71,6 +71,64 @@ test.describe('with motion on', () => {
     await release(page)
   })
 
+  test('a quick tap still shows its sink', async ({ page }) => {
+    const button = await aButton(page)
+    await button.scrollIntoViewIfNeeded()
+    const box = (await button.boundingBox())!
+    // Watch the scale every frame from before the tap; the tap's down and up come with no wait between them.
+    const smallest = button.evaluate(
+      (el) =>
+        new Promise<number>((done) => {
+          let min = 1
+          const start = performance.now()
+          const frame = () => {
+            const t = getComputedStyle(el).transform
+            min = Math.min(min, t === 'none' ? 1 : new DOMMatrixReadOnly(t).a)
+            if (performance.now() - start < 400) requestAnimationFrame(frame)
+            else done(min)
+          }
+          requestAnimationFrame(frame)
+        }),
+    )
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(2, 2)
+    await page.mouse.up()
+    expect(await smallest).toBeLessThan(0.99)
+    await expect.poll(() => scaleOf(button)).toBe(1)
+  })
+
+  test('chips, muscle tiles, icon buttons and the Muscles drop-down sink too', async ({ page }) => {
+    await page.goto('/#/plan')
+    await page.locator('section[aria-label="Monday"]').getByRole('button', { name: 'Add' }).click()
+    const picker = page.getByRole('dialog', { name: 'Add to Monday' })
+    for (const target of [
+      picker.locator('.gr-chip').first(),
+      picker.locator('.lib-muscle').first(),
+      picker.getByRole('button', { name: 'Close', exact: true }).first(),
+    ]) {
+      await pressOn(page, target)
+      await expect.poll(() => scaleOf(target)).toBeCloseTo(0.97, 3)
+      await release(page)
+      await expect.poll(() => scaleOf(target)).toBe(1)
+    }
+    await page.goto('/#/exercises')
+    const dropdown = page.getByRole('button', { name: /^Muscles/ })
+    await pressOn(page, dropdown)
+    await expect.poll(() => scaleOf(dropdown)).toBeCloseTo(0.97, 3)
+    await release(page)
+  })
+
+  test('a Settings switch sinks when its row is pressed', async ({ page }) => {
+    await page.goto('/#/settings')
+    const row = page.locator('label.settings-row').filter({ hasText: 'Change plates' })
+    const toggle = row.getByRole('switch')
+    await pressOn(page, row.locator('.settings-supporting, p').first())
+    await expect.poll(() => scaleOf(toggle)).toBeCloseTo(0.97, 3)
+    await release(page)
+    await expect.poll(() => scaleOf(toggle)).toBe(1)
+  })
+
   test('a disabled button never sinks', async ({ page }) => {
     const button = await aButton(page)
     for (const disable of ['disabled', 'aria-disabled'] as const) {

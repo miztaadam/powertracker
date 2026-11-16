@@ -361,12 +361,14 @@ export function useCoach(db: GritDb, today: () => string): CoachState & CoachAct
     [say],
   )
 
-  // Apply and "Swap for …" tick once, behind the guard, so a double tap buzzes once. Dismiss does not buzz.
+  // Apply and "Swap for …" tick once the advice is applied: a tap that applies nothing (a second tap, a swap the plan
+  // no longer allows, a failed write) does not buzz. Dismiss does not buzz.
   const apply = useCallback(
     (adviceId: number, choice?: string) =>
-      once(adviceId, () => {
-        haptic('tick')
-        return applyAdvice(db, adviceId, choice)
+      once(adviceId, async () => {
+        const applied = await applyAdvice(db, adviceId, choice)
+        if (applied?.done === true) haptic('tick')
+        return applied
       }),
     [db, once],
   )
