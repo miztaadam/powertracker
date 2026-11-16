@@ -25,7 +25,7 @@
   - The elevation is a token per palette and scheme:
     - dark: an inner top highlight of white at 5%, plus a soft drop shadow of black at about 35%, blur about 24, y offset about 8;
     - light: two soft shadows of near-black at 6–8%.
-  - Android uses `Modifier.shadow` with a tinted ambient and spot colour, or the tonal elevation of `Surface`. It must match the web closely.
+  - Android uses Compose `dropShadow` plus a 1 dp `innerShadow` (Task 2 found `Modifier.shadow` draws nothing in screenshots and too faint on devices). It must match the web closely.
   - Card radius stays as it is.
 - **Row dividers inside cards stay**, but use a softer tone (`hairline` at reduced strength, or the container tone). The rows must still be told apart in both schemes.
 - **State outlines stay unchanged:**
