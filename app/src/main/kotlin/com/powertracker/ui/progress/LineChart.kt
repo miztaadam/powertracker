@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.powertracker.ui.components.ChartSeries
+import com.powertracker.ui.components.DrawnComplete
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
@@ -33,6 +34,7 @@ internal fun axisLabels(dates: List<LocalDate>): List<String> {
 /**
  * One measurement over time (bodyweight), drawn with the design system's chart. The points sit at
  * their dates, so an uneven gap between them reads as one. [name] labels the latest value in the legend.
+ * [drawn] is how much of the line is drawn ([com.powertracker.ui.components.rememberDrawIn]).
  */
 @Composable
 fun LineChart(
@@ -40,11 +42,12 @@ fun LineChart(
     modifier: Modifier = Modifier,
     name: String = "Latest",
     color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    drawn: () -> Float = DrawnComplete,
 ) {
     if (points.isEmpty()) return
     val byDate = points.toMap()
     val first = points.minOf { it.first }
     val last = points.maxOf { it.first }
     val days = generateSequence(first) { it.plus(1, DateTimeUnit.DAY) }.takeWhile { it <= last }.toList()
-    SeriesChart(listOf(ChartSeries(name, color, days.map { byDate[it]?.toFloat() })), axisLabels(days), modifier)
+    SeriesChart(listOf(ChartSeries(name, color, days.map { byDate[it]?.toFloat() })), axisLabels(days), modifier, drawn = drawn)
 }

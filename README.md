@@ -137,6 +137,9 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Open another exercise on Today: it is smooth, with no gap.
 - [ ] With reduce motion on, nothing slides.
 - [ ] Choose Chest, then Barbell, in the picker: Bench is listed.
+- [ ] Open Progress: the charts draw in.
+- [ ] Change the range: the line draws again.
+- [ ] With reduce motion on, the charts are complete at once.
 
 ## Owner's manual Android checks (the web app in Chrome)
 
@@ -153,6 +156,9 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Open another exercise on Today: it is smooth, with no gap.
 - [ ] With reduce motion on, nothing slides.
 - [ ] Choose Chest, then Barbell, in the picker: Bench is listed.
+- [ ] Open Progress: the charts draw in.
+- [ ] Change the range: the line draws again.
+- [ ] With reduce motion on, the charts are complete at once.
 
 ## Owner's manual checks in the Android app itself
 
@@ -164,6 +170,9 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Open another exercise on Today: it is smooth, with no gap.
 - [ ] With reduce motion on, nothing slides.
 - [ ] Choose Chest, then Barbell, in the picker: Bench is listed.
+- [ ] Open Progress: the charts draw in.
+- [ ] Change the range: the line draws again.
+- [ ] With reduce motion on, the charts are complete at once.
 
 ## Where things are
 

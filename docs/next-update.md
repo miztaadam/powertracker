@@ -244,6 +244,30 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-3.md`. This is stage 
 - **Fixed:** Plan rows now fit 306–320 px phones and 130% zoom.
 - Not yet tried on a real phone.
 
+## Done: charts fill in (version 1.9, both apps)
+Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 4, the last stage, of the new look and motion.
+
+- **Lines draw in:** on Progress (powerlifting side), lines draw from left to right in 600 ms: the trend line, the total sparkline with its shaded area, and the bodyweight line. They draw again when you change the range.
+- **Bars grow:** the weekly volume bars grow one after another, all done within 700 ms.
+- **Ratio markers slide:** each marker slides into place in 450 ms. The bands themselves show at once.
+- **What never moves:** numbers, labels and stat tiles.
+- **Unchanged:** bodybuilding Progress has no charts, so nothing changes there. Lift history has no chart on either app.
+- **Reduce motion:** with the phone's reduce motion setting on, every chart is complete at once.
+- **Speed:** opening Progress is not slower. Its first paint stays within 10 ms of 1.8.
+- Not yet tried on a real phone.
+
+## The new look and motion: done (1.6 to 1.9)
+- **1.6:** the new look: soft layered cards and a dark grey accent on the powerlifting side.
+- **1.7:** everything you tap sinks and springs back, and the main actions buzz ("Vibrate on taps").
+- **1.8:** things slide into place on Today, Coach and Plan.
+- **1.9:** charts fill in on Progress.
+
+**Open follow-ups:**
+- Pictures in the exercise picker. These come next, at the owner's wish.
+- "Sound + vibrate" wraps onto two lines on narrow phones.
+- Two guide gaps: the Seated cable fly guide and the Hack squat guide (see the 1.5 notes).
+- The Exercises tab still opens slowly now and then (single slow opens, still under 100 ms).
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;

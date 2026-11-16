@@ -54,7 +54,8 @@ export function ProgressContent({ state, onRange, onOpenLift }: ProgressContentP
             {state.prs.length > 0 && <RecordsSection prs={state.prs} />}
             <VolumeSection state={state} />
             {state.ratios.length > 0 && <RatioSection ratios={state.ratios} />}
-            {state.bodyweight.length > 0 && <BodyweightSection points={state.bodyweight} />}
+            {/* Keyed on the range, as the trend line is: a new range draws the line in again. */}
+            {state.bodyweight.length > 0 && <BodyweightSection key={state.range} points={state.bodyweight} />}
           </>
         )}
       </div>
