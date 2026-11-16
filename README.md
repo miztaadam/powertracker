@@ -26,11 +26,11 @@ Needs JDK 17 or newer and the Android SDK (platform 37); point `local.properties
 ```sh
 ./gradlew :app:assembleDebug          # debug APK in app/build/outputs/apk/debug/
 ./gradlew :app:installDebug           # install on a connected phone or emulator
-./gradlew :domain:test :app:testDebugUnitTest   # all tests
+./gradlew :domain:allTests :app:testDebugUnitTest   # all Kotlin tests (also run on every PR)
 ```
 
-All tests are JVM tests: `:domain` is plain Kotlin, and the Android tests in `app/src/test` run
-under Robolectric, so no emulator is needed. If Maven Central answers HTTP 429 on the first
+No emulator is needed: `:domain` is plain Kotlin, tested on the JVM and on Node, and the Android tests in `app/src/test` run
+under Robolectric. If Maven Central answers HTTP 429 on the first
 download of dependencies, run again with `--max-workers=1`.
 
 ## Release APK
