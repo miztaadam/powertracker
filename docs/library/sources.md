@@ -311,12 +311,15 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- Stretch: Your quads stretch as you squat down onto the pins.
+- Squeeze: Squeeze your quads as you stand tall with your knees locked.
 
 Sources of the stretch and squeeze:
 
 - [Barbell Squat](https://exrx.net/WeightExercises/Quadriceps/BBSquat). ExRx.net, accessed 2026-11-11.
 - [Understanding and Overcoming the Sticking Point in Resistance Exercise](https://pmc.ncbi.nlm.nih.gov/articles/PMC4887540/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Safety-bar squat
 
@@ -325,12 +328,15 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- Stretch: Your quads stretch at the bottom of your squat.
+- Squeeze: Squeeze your quads as your hips and knees straighten.
 
 Sources of the stretch and squeeze:
 
 - [Safety Barbell Squat](https://exrx.net/WeightExercises/GluteusMaximus/SBSquat). ExRx.net, accessed 2026-11-11.
 - [A Biomechanical Comparison of the Safety-Bar, High-Bar and Low-Bar Squat around the Sticking Region among Recreationally Resistance-Trained Men and Women](https://pmc.ncbi.nlm.nih.gov/articles/PMC8392107/). PubMed Central (peer-reviewed), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Spoto press
 
@@ -1607,6 +1613,15 @@ Sources of the stretch and squeeze:
 - [Exercise Library: Front Plank](https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Front Plank](https://exrx.net/WeightExercises/RectusAbdominis/BWFrontPlank). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- No stretch or squeeze to aim for here: this one trains you to stay steady.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Front Plank](https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Front Plank](https://exrx.net/WeightExercises/RectusAbdominis/BWFrontPlank). ExRx.net, accessed 2026-11-11.
 
 ### Machine crunch
 

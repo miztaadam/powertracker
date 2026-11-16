@@ -27,7 +27,7 @@
   - ACE, "Muscles in Motion" (ACE's own exam-preparation pages count as ACE material, not as a blog) (a shortening muscle is the one doing the lifting), https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/
   - Nothing is claimed for squeezing. The attentional-focus reviews found (PMC8622562, PMC8751186) do not support a hypertrophy benefit; do not cite them as if they did.
 - **The rules for a line (each batch writes to them; each review checks them):**
-  - **F1 Muscle.** A line names a muscle from the exercise's own `muscles` list, normally its first. Plain names: "chest", "lats", "quads", "hamstrings", "glutes", "calves", "side delts", "biceps", "triceps".
+  - **F1 Muscle.** A line names a muscle from the exercise's own `muscles` list, normally its first. Plain names: "chest", "lats", "quads", "hamstrings", "glutes", "calves", "side delts", "biceps", "triceps". Exception (controller ruling, 2026-11-16): a main-lift variation (category VARIATION, with a `parentLift`) may name a muscle from its parent lift's catalogue entry (for SQUAT, the "Squat" entry: quads, glutes).
   - **F2 Range.** The stretch line is the point in the guide's own steps where that muscle is longest; it never asks for more range than the guide's steps and mistakes allow (no "below the bench" where the guide says "to the sides of your chest", no "lock out" where the guide says not to). Where a source says "until … stretched", use that point, as far as the guide allows.
   - **F3 Squeeze.** The squeeze line is the end of the guide's lifting step, where that muscle is shortest. No pause length, no number, no claim of a benefit.
   - **F4 Safety.** Nothing that contradicts the guide's setup, cues, mistakes or safety notes; no pushing into pain; no "as far as you can" on a loaded spine.
@@ -81,7 +81,7 @@
   - `focus_findsByNameIgnoringCase`: `Library.focus("dB FLY")` equals `Library.focus("DB fly")` once Chest is written; for now test it with `"SQUAT"` and `"Squat"`; `Library.focus("My own lift")` is null.
 - [ ] **Step 3:** Implement the model, the lookup (one map joined from the area maps, built lazily on the first `Library.focus` call so `library()` does not pay for it) and the bridge. Re-check the idea's sources with WebSearch (allowed domains) and add them to `Sources.kt`.
 - [ ] **Step 4: Main lifts content.** For each `MAIN_LIFTS` exercise, research and write its lines to rules F1–F7. Keep a research log in the report (exercise, the query, the URL, the sentence that supports the stretch point).
-- [ ] **Step 5:** Extend the sources and guides writers so each exercise shows its two lines (or the fixed line) and their sources. Regenerate: `./gradlew :domain:jvmTest --tests '*SourcesDocTest*' -Psources.update=true`.
+- [ ] **Step 5:** Extend the sources and guides writers so each exercise shows its two lines (or the fixed line) and their sources. Regenerate: `./gradlew :domain:jvmTest --tests '*SourcesDocTest*' --tests '*GuidesDocTest*' -Psources.update=true -Pguides.update=true` (`guides.html` is written by `GuidesDocTest`).
 - [ ] **Step 6:** `./gradlew :domain:allTests :domain:syncWebDomain :domain:checkWebDomain`. Expected: PASS.
 - [ ] **Step 7:** Run the speed project three times again on a quiet machine and record the times beside Step 1's. A miss is re-run alone before anything else is done.
 - [ ] **Step 8: Commit** `feat(domain): stretch and squeeze lines, with the main lifts`.
@@ -142,7 +142,7 @@ The batches run one at a time (they all regenerate `sources.md`, `guides.html` a
 - [ ] **Step 1: Research** each exercise in the allowed sources (WebSearch, `allowed_domains`). Log the query, the URL and the supporting sentence for each stretch point.
 - [ ] **Step 2: Write** its lines to rules F1–F7, reading the exercise's own guide first.
 - [ ] **Step 3:** Add a test line to `MuscleFocusTest`: `focus_<area>IsAllWritten` (every exercise of that area has an entry).
-- [ ] **Step 4:** Regenerate the docs, then `./gradlew :domain:allTests :domain:syncWebDomain :domain:checkWebDomain`. Expected: PASS.
+- [ ] **Step 4:** Regenerate the docs (`./gradlew :domain:jvmTest --tests '*SourcesDocTest*' --tests '*GuidesDocTest*' -Psources.update=true -Pguides.update=true`), then `./gradlew :domain:allTests :domain:syncWebDomain :domain:checkWebDomain`. Expected: PASS.
 - [ ] **Step 5: Commit** `feat(domain): stretch and squeeze lines for <area>`.
 
 **Content review (each batch, and Task 1's main lifts):** an independent reviewer re-checks every line against its exercise's guide and sources, using WebSearch restricted to the allowed domains. It flags: a line that breaks F1–F7; a stretch point the guide does not reach; a squeeze that is not the end of the guide's lifting step; anything unsafe; a disallowed source; jargon.

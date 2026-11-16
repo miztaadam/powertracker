@@ -61,9 +61,13 @@ internal val mainLiftsFocus: List<Pair<String, MuscleFocus>> by lazy {
         ),
         // "At the bottom", not "thighs level": the guide says to stop sooner if the heels lift or the back rounds.
         "Front squat" to lines(QUADS_BOTTOM, QUADS_STRAIGHTEN, Sources.EXRX_BB_FRONT_SQUAT, Sources.ACE_FRONT_SQUAT),
-        // The catalogue lists only the upper back and trunk for these two, and the guide holds both steady.
-        "Pin squat" to MuscleFocus.NoFocus(listOf(Sources.EXRX_BB_SQUAT, Sources.PMC_STICKING_POINT_REVIEW)),
-        "Safety-bar squat" to MuscleFocus.NoFocus(listOf(Sources.EXRX_SAFETY_BAR_SQUAT, Sources.PMC_SAFETY_BAR_SQUAT)),
+        // These two list only the upper back and trunk, so they name the quads from their parent, the Squat entry
+        // (the F1 exception for variations). The pin squat starts from the pins: its stretch is there, never lower.
+        "Pin squat" to lines(
+            "Your quads stretch as you squat down onto the pins.", QUADS_STAND_LOCKED,
+            Sources.EXRX_BB_SQUAT, Sources.PMC_STICKING_POINT_REVIEW,
+        ),
+        "Safety-bar squat" to lines(QUADS_BOTTOM, QUADS_STRAIGHTEN, Sources.EXRX_SAFETY_BAR_SQUAT, Sources.PMC_SAFETY_BAR_SQUAT),
         "Box squat" to lines(
             "Your glutes stretch as you sit back onto the box.", "Squeeze your glutes as you drive up to standing.",
             Sources.EXRX_BB_BOX_SQUAT,

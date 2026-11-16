@@ -19,7 +19,7 @@ class MuscleFocusBridgeTest {
 
     @Test
     fun muscleFocus_noFocus_setsTheFixedLineOnly() {
-        val js = assertNotNull(GritDomain.muscleFocus("Pin squat"))
+        val js = assertNotNull(GritDomain.muscleFocus("Front plank"))
         assertEquals(Library.NO_FOCUS_LINE, js.none)
         assertNull(js.stretch)
         assertNull(js.squeeze)

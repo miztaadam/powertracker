@@ -36,6 +36,28 @@ class MuscleFocusTest {
         assertEquals("No stretch or squeeze to aim for here: this one trains you to stay steady.", Library.NO_FOCUS_LINE)
     }
 
+    /**
+     * F1, with its exception for variations (controller ruling, 2026-11-16): the muscle a line names belongs to the
+     * same muscle group as one in the exercise's own list or, for a main-lift variation, in its parent lift's entry.
+     * Lines start "Your <muscle> stretch(es) ..." / "Your <muscle> is ..." and "Squeeze your <muscle> as ...".
+     */
+    @Test
+    fun focus_namesAMuscleOfTheExerciseOrItsParent() {
+        val stretch = Regex("^Your (.+?) (?:stretch|stretches|is) ")
+        val squeeze = Regex("^Squeeze your (.+?) as ")
+        for ((name, focus) in entries) {
+            if (focus !is MuscleFocus.Lines) continue
+            val e = assertNotNull(Library.find(name))
+            val parent = e.parentLift?.let { lift -> Library.all().single { it.parentLift == null && it.category.name == lift.name } }
+            val groups = (e.muscles + parent?.muscles.orEmpty()).mapNotNull { MuscleGroups.of(it) }.toSet()
+            for ((rule, line) in listOf(stretch to focus.stretch, squeeze to focus.squeeze)) {
+                val named = assertNotNull(rule.find(line), "$name: line does not name its muscle in the usual way: $line").groupValues[1]
+                val group = assertNotNull(MuscleGroups.of(named), "$name: '$named' is not a muscle group")
+                assertTrue(group in groups, "$name: '$named' is not in its muscles${if (parent != null) " or its parent's" else ""}")
+            }
+        }
+    }
+
     @Test
     fun focus_hasSources() {
         for ((name, focus) in entries) {
