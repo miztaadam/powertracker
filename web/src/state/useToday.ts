@@ -683,14 +683,14 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
             return
           }
         }
-        // One tick per set saved, Log set or Missed. Today does not know here whether the set is a new best, so it
-        // is always a tick (the stronger `best` buzz waits for a best Today can see).
-        haptic('tick')
         // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
         // A stand-in key means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
         const entry = standInEntry(itemKey)
         const row = { sessionId: now.sessionId, exerciseId: entry ? null : itemKey, weightKg: set.weightKg, reps: set.reps, rpe: set.rpe, failed: set.failed, missPoint: null, isTopSet: false }
         const setId = await addSet(db, row, entry?.name ?? null)
+        // One tick per set saved, Log set or Missed; a failed write does not buzz. Today does not know here whether
+        // the set is a new best, so it is always a tick (the stronger `best` buzz waits for a best Today can see).
+        haptic('tick')
         update((l) => ({ ...l, pending: null }))
         touch(now.date)
         // Every exercise on the bodybuilding side takes the accessory rest (spec §5.3).

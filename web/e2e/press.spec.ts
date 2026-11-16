@@ -76,6 +76,8 @@ test.describe('with motion on', () => {
     for (const disable of ['disabled', 'aria-disabled'] as const) {
       await button.evaluate((el, how) => (how === 'disabled' ? el.setAttribute('disabled', '') : el.setAttribute('aria-disabled', 'true')), disable)
       await pressOn(page, button)
+      // A disabled button never becomes :active in Chromium; an aria-disabled one does, so check the press landed.
+      if (disable === 'aria-disabled') expect(await button.evaluate((el) => el.matches(':active'))).toBe(true)
       // Longer than the 90 ms press.
       await page.waitForTimeout(200)
       expect(await scaleOf(button), disable).toBe(1)
