@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { grit, muscleFocus } from '../../domain'
 import type { TrainingMode } from '../../db/schema'
+import { haptic } from '../../platform/haptics'
 import type { MissPoint, PlannedItem, SetEditor, StoredSet, Suggestion, Target, TodayActions, TodayItem } from '../../state/useToday'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
@@ -121,7 +122,11 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         <CoachSuggestion
           headline={targetHeadline(item.suggestion.target)}
           reason={targetReason(item.suggestion)}
-          onApply={() => void actions.applyTarget(item.suggestion!.id)}
+          onApply={() => {
+            // Apply on the coach's suggestion ticks, as Apply on a coach card does.
+            haptic('tick')
+            void actions.applyTarget(item.suggestion!.id)
+          }}
           onDismiss={() => void actions.dismissTarget(item.suggestion!.id)}
         />
       )}

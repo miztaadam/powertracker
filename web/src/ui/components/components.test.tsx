@@ -21,6 +21,7 @@ import { formatKg } from './format'
 import { StatTile } from './StatTile'
 import { NumberField } from './NumberField'
 import { Stepper, StepperField } from './StepperField'
+import { setTapHaptics } from '../../platform/haptics'
 import { Switch } from './Switch'
 import { TabBar } from './TabBar'
 import { TextField } from './TextField'
@@ -678,5 +679,26 @@ describe('NumberField', () => {
     expect(screen.getByRole('textbox')).toBeInvalid()
     expect(screen.getByRole('textbox')).toHaveAccessibleDescription('0 to 1000 kg')
     expect(screen.getByRole('alert')).toHaveTextContent('0 to 1000 kg')
+  })
+})
+
+// ---- Stage 2: each − or + step ticks once (platform/haptics.ts), like the Android app's shared step button ----
+describe('Stepper haptics', () => {
+  it('each step ticks once, a disabled one never', async () => {
+    const vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, writable: true, value: vibrate })
+    setTapHaptics(true)
+    try {
+      const onIncrement = vi.fn()
+      render(<StepperField label="Reps" valueText="1" canDecrement={false} canIncrement onDecrement={() => {}} onIncrement={onIncrement} />)
+      await userEvent.click(screen.getByRole('button', { name: 'Increase Reps' }))
+      expect(onIncrement).toHaveBeenCalledOnce()
+      expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+      await userEvent.click(screen.getByRole('button', { name: 'Decrease Reps' }))
+      expect(vibrate).toHaveBeenCalledOnce()
+    } finally {
+      setTapHaptics(false)
+      Reflect.deleteProperty(navigator, 'vibrate')
+    }
   })
 })

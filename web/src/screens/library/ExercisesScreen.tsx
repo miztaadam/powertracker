@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import type { GritDb } from '../../db/db'
 import { todayIso } from '../../domain'
+import { haptic } from '../../platform/haptics'
 import { exerciseCount, type ExerciseBrowser as BrowserState, type PickerEntry } from '../../state/exercisePicker'
 import { planDayChoices, usePlan } from '../../state/usePlan'
 import type { TodayActions, TodayState } from '../../state/useToday'
@@ -64,6 +65,8 @@ export function ExercisesScreen({ db, session, onOpenPlan, onOpenToday, browser,
   const once = <R,>(add: () => Promise<R>, report: (result: R) => void) => {
     if (answered.current) return
     answered.current = true
+    // Add to plan (on the day) or Add to today: one tick per add.
+    haptic('tick')
     add().then(
       (result) => {
         close()

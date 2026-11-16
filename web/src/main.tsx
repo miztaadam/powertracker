@@ -4,6 +4,8 @@ import { App } from './App'
 import { warmCatalogue } from './state/exercisePicker'
 import { syncThemeColor } from './ui/theme'
 import './ui/tokens.css'
+// Press feedback for every tappable component (stage 2); its own sheet, after the tokens.
+import './ui/press.css'
 
 syncThemeColor()
 

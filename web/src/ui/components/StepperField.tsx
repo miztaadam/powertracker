@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
+import { stepHaptic } from '../../platform/haptics'
 import { cx } from './format'
 import { AddIcon, RemoveIcon } from './icons'
 import { Eyebrow, NumberDisplay } from './NumberDisplay'
@@ -23,9 +24,15 @@ export type StepperFieldProps = StepperProps & {
   labelAction?: ReactNode
 }
 
+/** A − or + button. Each step ticks once (a held Enter or Space repeats the click: at most one tick every 100 ms), as the Android app's does. */
 function StepButton({ label, icon, enabled, onClick, wide }: { label: string; icon: ReactNode; enabled: boolean; onClick: () => void; wide: boolean }) {
+  const lastTick = useRef(Number.NEGATIVE_INFINITY)
+  const step = () => {
+    stepHaptic(lastTick)
+    onClick()
+  }
   return (
-    <button type="button" className={cx('gr-step-btn', wide && 'gr-step-btn-wide')} aria-label={label} disabled={!enabled} onClick={onClick}>
+    <button type="button" className={cx('gr-step-btn', wide && 'gr-step-btn-wide')} aria-label={label} disabled={!enabled} onClick={step}>
       {icon}
     </button>
   )

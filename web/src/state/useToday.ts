@@ -5,6 +5,7 @@ import { checkInToJs, loadCheckIns } from '../db/checkIns'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
 import { sideOf, type AdviceRow, type PlanItemRow, type SetRow, type TrainingMode } from '../db/schema'
+import { haptic } from '../platform/haptics'
 import { grit, JsCoachSettings, JsExercise, type JsHistory, type JsLibraryExercise, type JsSet } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 
@@ -682,6 +683,9 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
             return
           }
         }
+        // One tick per set saved, Log set or Missed. Today does not know here whether the set is a new best, so it
+        // is always a tick (the stronger `best` buzz waits for a best Today can see).
+        haptic('tick')
         // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
         // A stand-in key means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
         const entry = standInEntry(itemKey)

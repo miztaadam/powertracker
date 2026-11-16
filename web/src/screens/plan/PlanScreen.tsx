@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { GritDb } from '../../db/db'
 import { grit, todayIso } from '../../domain'
+import { haptic } from '../../platform/haptics'
 import { usePlan, type DaySection, type PlanActions, type PlanExercise, type PlanItem, type PlanRow, type PlanState } from '../../state/usePlan'
 import { dayName } from '../../state/weekdayNames'
 import { IconButton, PrimaryButton, SecondaryButton } from '../../ui/components/Button'
@@ -112,11 +113,14 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
           title={`Add to ${dayName(dialog.weekday)}`}
           exercises={state.exercises}
           recentIds={state.recentIds}
+          // The picker answers once, so each add ticks once.
           onPick={(entry) => {
+            haptic('tick')
             reported(actions.add(dialog.weekday, entry))
             setDialog(null)
           }}
           onCreateCustom={(exercise) => {
+            haptic('tick')
             reported(actions.addCustomExercise(exercise).then((entry) => actions.add(dialog.weekday, entry)))
             setDialog(null)
           }}

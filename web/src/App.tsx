@@ -29,6 +29,7 @@ import { useExerciseBrowser, type ExerciseBrowser } from './state/exercisePicker
 import { useGritDb } from './state/useGritDb'
 import { useRest, type Rest } from './state/useRest'
 import { useToday, type TodayActions, type TodayState } from './state/useToday'
+import { useTapHaptics } from './state/useTapHaptics'
 import { useTrainingMode } from './state/useTrainingMode'
 import { TrainingModeContext } from './ui/components/ModeLabel'
 import { RestFlash } from './ui/components/RestFlash'
@@ -125,6 +126,8 @@ function Opened({ dbName, schemaVersions, registerSW }: AppProps) {
   const rest = useRest(db)
   // The side the app is on: its look on the page root, its label on the top-level screens.
   const mode = useTrainingMode(db)
+  // "Vibrate on taps", followed live for the buzz on the main actions (platform/haptics.ts).
+  useTapHaptics(db)
   // Null until the browser has been asked.
   const [privateMode, setPrivateMode] = useState<boolean | null>(null)
   const [outdated, setOutdated] = useState(false)

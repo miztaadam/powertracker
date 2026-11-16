@@ -1,0 +1,55 @@
+/*
+ * Press feedback (stage 2, owner decision 1): what you tap sinks to 97% in 90 ms and springs back with a small
+ * overshoot in 260 ms; the tab bar's icons sink to 92%. A visual scale only: the box keeps its size, so nothing
+ * around it moves. Never on a disabled control. Nothing at all with motion off (data-motion="off" on <html>: tests,
+ * and anyone whose phone asks for reduced motion).
+ *
+ * The timing lives in two custom properties: at rest they hold the release, and :active swaps in the press, so the
+ * browser uses 90 ms going in and the spring coming out. Elements that already have a transition repeat it beside
+ * the transform, or this rule would take it away. CSS only: no script per row on the long lists.
+ */
+
+:root:not([data-motion='off']) :is(.gr-btn, .gr-icon-btn, .gr-segment, .gr-step-btn, .lib-row-main, .today-row-card, .gr-tab-indicator) {
+  --press-ms: 260ms;
+  --press-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+:root:not([data-motion='off']) :is(.gr-btn, .gr-icon-btn, .gr-segment, .lib-row-main, .today-row-card) {
+  transition: transform var(--press-ms) var(--press-ease);
+}
+
+:root:not([data-motion='off']) .gr-step-btn {
+  transition:
+    transform var(--press-ms) var(--press-ease),
+    filter 120ms ease;
+}
+
+:root:not([data-motion='off']) .gr-tab-indicator {
+  transition:
+    transform var(--press-ms) var(--press-ease),
+    background-color 150ms ease;
+}
+
+/* Buttons (every variant), segments, the stepper's − and +, and the library rows (the picker and the Exercises tab). */
+:root:not([data-motion='off']) :is(.gr-btn, .gr-icon-btn, .gr-segment, .gr-step-btn, .lib-row-main):active:not(:disabled, [aria-disabled='true']) {
+  --press-ms: 90ms;
+  --press-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(0.97);
+}
+
+/* The tab bar: the icon and its pill sink further, because they are small. */
+:root:not([data-motion='off']) .gr-tab:active:not([aria-disabled='true']) .gr-tab-indicator {
+  --press-ms: 90ms;
+  --press-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(0.92);
+}
+
+/*
+ * A folded Today row: the whole card sinks when its row is pressed, not when the info button beside it is. A rule of
+ * its own, so a browser without :has() drops only this one.
+ */
+:root:not([data-motion='off']) .today-row-card:has(> .today-row:active:not(:disabled, [aria-disabled='true'])) {
+  --press-ms: 90ms;
+  --press-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(0.97);
+}

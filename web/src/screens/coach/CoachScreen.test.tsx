@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resolveCatalogue } from '../../db/catalogue'
 import type { GritDb } from '../../db/db'
 import { updateSettings } from '../../db/db'
+import { setTapHaptics } from '../../platform/haptics'
 import { advice, insertAdvice, payload, planOf, rx, statuses } from '../../test/coachFixture'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, addDays, exerciseNamed, logSet, plan, set, startSession, todayFixture } from '../../test/todayFixture'
@@ -216,5 +217,36 @@ describe('CoachScreen', () => {
 
     await waitFor(async () => expect(await statuses(db)).toEqual(['APPLIED']))
     expect(await screen.findByText('Added 2 exercises to Monday')).toBeInTheDocument()
+  })
+})
+
+// ---- Stage 2: Apply ticks once (platform/haptics.ts); Dismiss does not buzz ----
+describe('CoachScreen haptics', () => {
+  let vibrate: ReturnType<typeof vi.fn>
+  beforeEach(() => {
+    vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, writable: true, value: vibrate })
+    setTapHaptics(true)
+  })
+  afterEach(() => {
+    setTapHaptics(false)
+    Reflect.deleteProperty(navigator, 'vibrate')
+  })
+
+  it('apply_ticksOnce_evenOnADoubleTap', async () => {
+    await insertStall()
+    show()
+    await userEvent.dblClick(await screen.findByRole('button', { name: 'Add to plan' }))
+    await waitFor(async () => expect(await statuses(db)).toEqual(['APPLIED']))
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('dismiss_doesNotBuzz', async () => {
+    await insertStall()
+    show()
+    await screen.findByRole('heading', { name: 'Bench has stalled' })
+    await tap('Dismiss')
+    await waitFor(async () => expect(await statuses(db)).toEqual(['DISMISSED']))
+    expect(vibrate).not.toHaveBeenCalled()
   })
 })

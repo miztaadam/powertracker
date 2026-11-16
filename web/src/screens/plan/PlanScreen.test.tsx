@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { encodeBackup, exportBackup } from '../../backup/backup'
 import { resolveCatalogue } from '../../db/catalogue'
 import type { GritDb } from '../../db/db'
+import { setTapHaptics } from '../../platform/haptics'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, exerciseNamed, plan, todayFixture } from '../../test/todayFixture'
 import { PlanScreen } from './PlanScreen'
@@ -246,5 +247,26 @@ describe('PlanScreen', () => {
     // It is a main lift like the other three: it can be given a known best.
     expect(await screen.findByRole('group', { name: 'Strict press' })).toBeInTheDocument()
     for (const lift of ['Squat', 'Bench', 'Deadlift']) expect(screen.getByRole('group', { name: lift })).toBeInTheDocument()
+  })
+})
+
+// ---- Stage 2: adding from the picker ticks once (platform/haptics.ts) ----
+describe('PlanScreen haptics', () => {
+  afterEach(() => {
+    setTapHaptics(false)
+    Reflect.deleteProperty(navigator, 'vibrate')
+  })
+
+  it('pickerAdd_ticksOnce', async () => {
+    const vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, writable: true, value: vibrate })
+    setTapHaptics(true)
+    show()
+    const monday = await day('Monday')
+    await userEvent.click(within(monday).getByRole('button', { name: 'Add' }))
+    await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), 'Squat')
+    await userEvent.dblClick(await pickerRow('Squat'))
+    await waitFor(() => expect(rowsOf(monday)).toEqual(['Squat  3 × 5 @ 8']))
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
   })
 })

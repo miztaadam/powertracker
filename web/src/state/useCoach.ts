@@ -7,6 +7,7 @@ import { checkInToJs, loadCheckIns } from '../db/checkIns'
 import { exerciseToJs, planItemToJs } from '../db/mapping'
 import { sideOf, type AdviceRow, type ExerciseRow, type PlanItemRow, type TrainingMode } from '../db/schema'
 import { grit, type JsExercise, type JsHistory } from '../domain'
+import { haptic } from '../platform/haptics'
 import { LIFTS, type Lift } from '../router'
 import type { MissPoint } from './useToday'
 import { dayName } from './weekdayNames'
@@ -360,7 +361,15 @@ export function useCoach(db: GritDb, today: () => string): CoachState & CoachAct
     [say],
   )
 
-  const apply = useCallback((adviceId: number, choice?: string) => once(adviceId, () => applyAdvice(db, adviceId, choice)), [db, once])
+  // Apply and "Swap for …" tick once, behind the guard, so a double tap buzzes once. Dismiss does not buzz.
+  const apply = useCallback(
+    (adviceId: number, choice?: string) =>
+      once(adviceId, () => {
+        haptic('tick')
+        return applyAdvice(db, adviceId, choice)
+      }),
+    [db, once],
+  )
   const dismiss = useCallback(
     (adviceId: number) =>
       once(adviceId, async () => {

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { GritDb } from '../../db/db'
 import { todayIso } from '../../domain'
+import { haptic } from '../../platform/haptics'
 import { otherSideLine } from '../../state/sides'
 import { useToday, type TodayActions, type TodayItem, type TodayState } from '../../state/useToday'
 import { useWelcomeBack } from '../../state/useWelcomeBack'
@@ -180,8 +181,9 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
           title="Add exercise"
           exercises={state.exercises}
           recentIds={state.recentIds}
-          // Picking one already in the session just opens its card.
+          // Picking one already in the session just opens its card. The picker answers once, so this ticks once.
           onPick={(entry) => {
+            haptic('tick')
             if (entry.library) setActiveId(actions.addFromCatalogue(entry.library.name))
             else if (entry.exerciseId != null) {
               actions.addExercise(entry.exerciseId)
@@ -190,6 +192,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
             setPicking(false)
           }}
           onCreateCustom={(exercise) => {
+            haptic('tick')
             raw.createExercise(exercise).then(setActiveId, () => setFailures((n) => n + 1))
             setPicking(false)
           }}

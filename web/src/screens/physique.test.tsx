@@ -7,6 +7,7 @@ import { loadHistory, updateSettings, type GritDb } from '../db/db'
 import { adviceFromJs, planItemToJs } from '../db/mapping'
 import type { AdviceRow, TrainingMode } from '../db/schema'
 import { grit, JsCheckIn } from '../domain'
+import { setTapHaptics } from '../platform/haptics'
 import { draftItems } from '../state/usePlanBuilder'
 import { TODAY, addDays, exerciseNamed, logSet, set, todayFixture } from '../test/todayFixture'
 import { CoachScreen } from './coach/CoachScreen'
@@ -416,5 +417,26 @@ describe('Progress: body parts', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Progress' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Check in' })).toBeNull()
     expect(screen.queryByRole('region', { name: 'Body parts' })).toBeNull()
+  })
+})
+
+// ---- Stage 2: a "Swap for X" ticks once (platform/haptics.ts) ----
+describe('Coach: a stuck exercise, haptics', () => {
+  afterEach(() => {
+    setTapHaptics(false)
+    Reflect.deleteProperty(navigator, 'vibrate')
+  })
+
+  it('swap_ticksOnce', async () => {
+    const vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, writable: true, value: vibrate })
+    setTapHaptics(true)
+    await defaultPlan()
+    await stuckLegPress()
+    await storeStuck()
+    showCoach()
+    await userEvent.click(within(await card("Leg press hasn't moved in 3 weeks")).getByRole('button', { name: 'Swap for Hack squat' }))
+    expect(await screen.findByText('Swapped Leg press for Hack squat')).toBeInTheDocument()
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
   })
 })
