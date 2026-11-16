@@ -6,7 +6,7 @@ import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/d
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
 import { sideOf, type AdviceRow, type PlanItemRow, type SetRow, type TrainingMode } from '../db/schema'
 import { haptic } from '../platform/haptics'
-import { grit, JsCoachSettings, JsExercise, type JsHistory, type JsLibraryExercise, type JsSet } from '../domain'
+import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 
 /** The numbers in the steppers for the next set. `weightKg` is null until the lifter enters one. */
@@ -298,6 +298,17 @@ async function coachPass(db: GritDb, date: string, today: () => string): Promise
 const topSets = new WeakMap<JsHistory, Map<string, JsSet | null>>()
 
 /** The top set of the latest session before `before` that has this exercise, as the coach picks it. */
+/** Whether [row], about to be saved on [date] in a [side] session, is a new record of its lift (ProgressMath.isNewPr). */
+export function isNewBest(
+  history: JsHistory,
+  row: { exerciseId: number | null; weightKg: number; reps: number; rpe: number | null; failed: boolean },
+  date: string,
+  side: TrainingMode,
+): boolean {
+  if (row.exerciseId == null) return false
+  return grit.isNewPr(history, new JsSet(row.exerciseId, row.weightKg, row.reps, row.rpe, row.failed, null, false), date, side)
+}
+
 function lastTopSet(history: JsHistory, exerciseId: number, before: string): JsSet | null {
   let known = topSets.get(history)
   if (!known) topSets.set(history, (known = new Map()))
@@ -687,10 +698,12 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // A stand-in key means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
         const entry = standInEntry(itemKey)
         const row = { sessionId: now.sessionId, exerciseId: entry ? null : itemKey, weightKg: set.weightKg, reps: set.reps, rpe: set.rpe, failed: set.failed, missPoint: null, isTopSet: false }
+        // Asked of the history before the set is in it, under the rule Progress uses for its records (a stand-in is a
+        // catalogue exercise with no row yet: never a main lift).
+        const best = !entry && isNewBest(await loadHistory(db), row, now.date, now.side)
         const setId = await addSet(db, row, entry?.name ?? null)
-        // One tick per set saved, Log set or Missed; a failed write does not buzz. Today does not know here whether
-        // the set is a new best, so it is always a tick (the stronger `best` buzz waits for a best Today can see).
-        haptic('tick')
+        // One buzz per set saved, Log set or Missed; a failed write does not buzz. A new best gets the stronger buzz.
+        haptic(best ? 'best' : 'tick')
         update((l) => ({ ...l, pending: null }))
         touch(now.date)
         // Every exercise on the bodybuilding side takes the accessory rest (spec §5.3).
@@ -720,14 +733,27 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
 
   const deleteSet = useCallback((setId: number) => db.sets.delete(setId), [db])
 
+  // Coach targets whose Apply is under way or done: a second tap landing before the first has applied (a double tap)
+  // applies nothing more and buzzes nothing more. Kept once applied, as the advice is closed for good.
+  const applyingTargets = useRef(new Set<number>())
   const applyTarget = useCallback(
     async (adviceId: number) => {
-      const suggestion = latest.current.items.map((i) => i.suggestion).find((s) => s?.id === adviceId)
-      if (!suggestion) return
-      // Status first: if storing it fails, the editor keeps its numbers and the chip stays.
-      await db.advice.update(adviceId, { status: 'APPLIED' })
-      const { exerciseId, weightKg, reps, rpe } = suggestion.target
-      edit(exerciseId, { weightKg, reps: suggestion.applyReps ?? reps, rpe })
+      if (applyingTargets.current.has(adviceId)) return
+      applyingTargets.current.add(adviceId)
+      let applied = false
+      try {
+        const suggestion = latest.current.items.map((i) => i.suggestion).find((s) => s?.id === adviceId)
+        if (!suggestion) return
+        // Status first: if storing it fails, the editor keeps its numbers and the chip stays.
+        await db.advice.update(adviceId, { status: 'APPLIED' })
+        const { exerciseId, weightKg, reps, rpe } = suggestion.target
+        edit(exerciseId, { weightKg, reps: suggestion.applyReps ?? reps, rpe })
+        applied = true
+        // One tick once the target is in the editor.
+        haptic('tick')
+      } finally {
+        if (!applied) applyingTargets.current.delete(adviceId)
+      }
     },
     [db, edit],
   )

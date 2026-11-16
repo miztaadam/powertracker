@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resolveCatalogue } from '../../db/catalogue'
@@ -655,7 +655,8 @@ describe('TodayScreen haptics', () => {
     expect(vibrate, 'the warning saves nothing, so it does not buzz').not.toHaveBeenCalled()
     await tap('Confirm')
     await waitForSets(1)
-    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+    // 250 × 5 beats last week's 150 × 5 @ 7: a new best, so the stronger buzz (round B).
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith([30, 40, 60])
   })
 
   it('pickerAdd_ticksOnce', async () => {
@@ -675,6 +676,38 @@ describe('TodayScreen haptics', () => {
     expect(await screen.findByText('155 × 5 @ 8')).toBeInTheDocument()
     await tap('Apply')
     await waitFor(() => expect(weightField()).toHaveValue('155'))
+    expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('newBest_buzzesTheBestPattern_once_thenTheEqualSetAndAMissTick', async () => {
+    await startSession(db, TODAY)
+    show()
+    await findButton('Log set 1')
+    // Last week's best is 150 × 5 @ 7; 180 × 5 @ 8 beats it.
+    await typeWeight('180')
+    await tap('Log set 1')
+    await waitForSets(1)
+    await findButton('Log set 2')
+    expect(vibrate.mock.calls).toEqual([[[30, 40, 60]]])
+    await tap('Log set 2')
+    await waitForSets(2)
+    await findButton('Log set 3')
+    await typeWeight('190')
+    await tap('Missed')
+    await waitForSets(3)
+    expect(vibrate.mock.calls).toEqual([[[30, 40, 60]], [10], [10]])
+  })
+
+  it('coachSuggestionApply_doubleTap_appliesAndTicksOnce', async () => {
+    await baseline(db, squatId, 190, addDays(TODAY, -30))
+    await startSession(db, TODAY)
+    show()
+    expect(await screen.findByText('155 × 5 @ 8')).toBeInTheDocument()
+    const apply = button('Apply')
+    fireEvent.click(apply)
+    fireEvent.click(apply)
+    await waitFor(() => expect(weightField()).toHaveValue('155'))
+    await waitFor(async () => expect((await db.advice.toArray()).filter((a) => a.status === 'APPLIED')).toHaveLength(1))
     expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
   })
 
