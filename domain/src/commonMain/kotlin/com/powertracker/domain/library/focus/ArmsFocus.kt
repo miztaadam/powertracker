@@ -123,7 +123,8 @@ internal val armsFocus: List<Pair<String, MuscleFocus>> by lazy {
         ),
         // The guide stops "just above your forehead, or sooner" and presses up "without locking your elbows", so the
         // squeeze names no lockout. ACE 36 stops at the same point ("just above the forehead, or sooner if the upper
-        // arms begin to drift back"), so it comes first; ExRx lowers toward the forehead and goes no further.
+        // arms begin to drift back"), so it comes first. ExRx is kept second: the search summaries gave its wording
+        // both as "lower bar to forehead" and as "toward the forehead", slowing as it nears.
         "Skull crusher" to lines(
             "Your triceps stretch as the bar nears your forehead.",
             "Squeeze your triceps as you press the bar back up.",

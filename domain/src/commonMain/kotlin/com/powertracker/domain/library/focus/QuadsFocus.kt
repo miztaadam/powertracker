@@ -10,7 +10,9 @@ import com.powertracker.domain.library.Sources
 // guide's step or mistakes allow, at the point the line names, is not cited for that line (controller ruling,
 // 2026-11-16).
 
-// "At the bottom": the guide's own depth, with its stop-sooner rule (heels lift, back rounds), never "below parallel".
+// "At the bottom": each guide's own depth and its own stop-sooner rule, where it has one, never "below parallel". Most
+// stop sooner if the heels lift or the back rounds; the Zercher squat's rule is the shoulders or back rounding, and the
+// Lever squat has none (its lever is set so the hips go about level with the knees).
 private const val SQUAT_BOTTOM = "Your quads stretch at the bottom of your squat."
 // The guides' "Stand up by straightening your knees and hips."
 private const val SQUAT_STAND = "Squeeze your quads as your hips and knees straighten."
@@ -86,9 +88,11 @@ internal val quadsFocus: List<Pair<String, MuscleFocus>> by lazy {
             PRESS_BOTTOM, "Squeeze your quads as your working leg straightens, not locked.",
             Sources.ACE_SEATED_LEG_PRESS,
         ),
-        // ExRx SLHackSquat: lower "until knees are just short of complete flexion", the guide's own words.
+        // The guide lowers "until your knees are just short of fully bent" (ExRx SLHackSquat's words). ExRx's comments
+        // add: if the pelvis pulls away from the back pad lower down, stop short of that. The guide lacks that rule, so
+        // the stretch names the hips on the pad (PRESS_BOTTOM), asking for less range than the guide, never more.
         "Hack squat" to lines(
-            "Your quads stretch with your knees just short of fully bent.",
+            PRESS_BOTTOM,
             "Squeeze your quads as your knees and hips straighten.",
             Sources.EXRX_SL_HACK_SQUAT,
         ),

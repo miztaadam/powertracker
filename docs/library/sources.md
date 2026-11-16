@@ -2659,7 +2659,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your quads stretch with your knees just short of fully bent.
+- Stretch: Your quads stretch at the bottom, hips still on the pad.
 - Squeeze: Squeeze your quads as your knees and hips straighten.
 
 Sources of the stretch and squeeze:
@@ -3025,11 +3025,35 @@ Sources of the stretch and squeeze:
 - [Barbell Hip Thrust](https://exrx.net/WeightExercises/GluteusMaximus/BBHipThrust). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Glute Bridge](https://www.acefitness.org/resources/everyone/exercise-library/49/glute-bridge/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as you slowly lower your tailbone.
+- Squeeze: Squeeze your glutes as your hips rise, abs still braced.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Hip Bridge](https://www.acefitness.org/resources/everyone/exercise-library/318/hip-bridge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Exercise Library: Glute Bridge](https://www.acefitness.org/resources/everyone/exercise-library/49/glute-bridge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Cable hip abduction
 
 - [Cable Hip Abduction](https://exrx.net/WeightExercises/HipAbductor/CBHipAbduction). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Side Lying Hip Abduction](https://www.acefitness.org/resources/everyone/exercise-library/38/side-lying-hip-abduction/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch with your cuffed leg crossed in front.
+- Squeeze: Squeeze your glutes as your leg lifts out, hips still level.
+
+Sources of the stretch and squeeze:
+
+- [Cable Hip Abduction](https://exrx.net/WeightExercises/HipAbductor/CBHipAbduction). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Side Lying Hip Abduction](https://www.acefitness.org/resources/everyone/exercise-library/38/side-lying-hip-abduction/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Cable leg curl
 
@@ -3037,16 +3061,52 @@ Sources of the stretch and squeeze:
 - [Cable Bent-over Leg Curl](https://exrx.net/WeightExercises/Hamstrings/CBBentOverLegCurl). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as your knee straightens, hips still.
+- Squeeze: Squeeze your hamstrings as your knee bends all the way.
+
+Sources of the stretch and squeeze:
+
+- [Cable Standing Leg Curl](https://exrx.net/WeightExercises/Hamstrings/CBStandingLegCurl). ExRx.net, accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Clamshell
 
 - [6 Glute Medius Exercises for Strength and Stability](https://www.acefitness.org/resources/pros/expert-articles/6936/6-glute-medius-exercises-for-strength-amp-stability/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Ankles, Knees and Hips: 10 Joint-Friendly Exercises for the Lower Extremity](https://www.acefitness.org/resources/pros/expert-articles/9158/ankles-knees-and-hips-10-joint-friendly-exercises-for-the-lower-extremity/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as your top knee lowers to the other.
+- Squeeze: Squeeze your glutes as your top knee lifts, pelvis still.
+
+Sources of the stretch and squeeze:
+
+- [6 Glute Medius Exercises for Strength and Stability](https://www.acefitness.org/resources/pros/expert-articles/6936/6-glute-medius-exercises-for-strength-amp-stability/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Ankles, Knees and Hips: 10 Joint-Friendly Exercises for the Lower Extremity](https://www.acefitness.org/resources/pros/expert-articles/9158/ankles-knees-and-hips-10-joint-friendly-exercises-for-the-lower-extremity/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### DB hip thrust
 
 - [Exercise Library: Elevated Glute Bridge](https://www.acefitness.org/resources/everyone/exercise-library/367/elevated-glute-bridge/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Barbell Hip Thrust](https://exrx.net/WeightExercises/GluteusMaximus/BBHipThrust). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as your tailbone lowers toward the floor.
+- Squeeze: Squeeze your glutes as your body straightens, chest down.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Elevated Glute Bridge](https://www.acefitness.org/resources/everyone/exercise-library/367/elevated-glute-bridge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Barbell Hip Thrust](https://exrx.net/WeightExercises/GluteusMaximus/BBHipThrust). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### DB RDL
 
@@ -3055,15 +3115,50 @@ Sources of the stretch and squeeze:
 - [Romanian Deadlift (RDL)](https://www.nsca.com/education/articles/kinetic-select/romanian-deadlift-rdl/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as your hips go back.
+- Squeeze: Squeeze your glutes as you drive your hips forward to stand.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Romanian Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/317/romanian-deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Glute bridge
 
 - [Exercise Library: Glute Bridge](https://www.acefitness.org/resources/everyone/exercise-library/49/glute-bridge/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Glute Bridge: Single-Leg Progression](https://www.acefitness.org/resources/everyone/exercise-library/145/glute-bridge-single-leg-progression/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as your hips lower under control.
+- Squeeze: Squeeze your glutes as your hips rise, abs still braced.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Glute Bridge](https://www.acefitness.org/resources/everyone/exercise-library/49/glute-bridge/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Glute-ham raise
 
 - [Inverse Leg Curl](https://exrx.net/WeightExercises/Hamstrings/BWHamstringRaise). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as your body lowers to level, no lower.
+- Squeeze: Squeeze your hamstrings as your knees bend to pull you back up.
+
+Sources of the stretch and squeeze:
+
+- [Inverse Leg Curl](https://exrx.net/WeightExercises/Hamstrings/BWHamstringRaise). ExRx.net, accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Good morning
 
@@ -3072,10 +3167,35 @@ Sources of the stretch and squeeze:
 - [Romanian Deadlift (RDL)](https://www.nsca.com/education/articles/kinetic-select/romanian-deadlift-rdl/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as your torso nears level, back flat.
+- Squeeze: Squeeze your glutes as your hips straighten to stand.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Bent Knee Good-morning](https://exrx.net/WeightExercises/GluteusMaximus/BBBentKneeGoodMorning). ExRx.net, accessed 2026-11-11.
+- [Barbell Good-morning](https://exrx.net/WeightExercises/Hamstrings/BBGoodMorning). ExRx.net, accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Hip thrust
 
 - [Barbell Hip Thrust](https://exrx.net/WeightExercises/GluteusMaximus/BBHipThrust). ExRx.net, accessed 2026-11-11.
 - [Certified November 2019: Understanding the Barbell Hip Thrust](https://www.acefitness.org/continuing-education/certified/november-2019/7403/understanding-the-barbell-hip-thrust/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as you lower your hips under control.
+- Squeeze: Squeeze your glutes as your body straightens, chest down.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Hip Thrust](https://exrx.net/WeightExercises/GluteusMaximus/BBHipThrust). ExRx.net, accessed 2026-11-11.
+- [Certified November 2019: Understanding the Barbell Hip Thrust](https://www.acefitness.org/continuing-education/certified/november-2019/7403/understanding-the-barbell-hip-thrust/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Kettlebell swing
 
@@ -3084,39 +3204,132 @@ Sources of the stretch and squeeze:
 - [Two-Arm Kettlebell Swing](https://www.nsca.com/education/articles/kinetic-select/two-arm-kettlebell-swing/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Kettlebell Two Arm Swing](https://exrx.net/WeightExercises/Kettlebell/KBTwoArmSwing). ExRx.net, accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as you hinge to swing the bell back.
+- Squeeze: Squeeze your glutes as you drive your hips forward.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Swing](https://www.acefitness.org/resources/everyone/exercise-library/391/swing/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Kettlebell Two Arm Swing](https://exrx.net/WeightExercises/Kettlebell/KBTwoArmSwing). ExRx.net, accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Lateral band walk
 
 - [Ankles, Knees and Hips: 10 Joint-Friendly Exercises for the Lower Extremity](https://www.acefitness.org/resources/pros/expert-articles/9158/ankles-knees-and-hips-10-joint-friendly-exercises-for-the-lower-extremity/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as your feet come back in, band still tight.
+- Squeeze: Squeeze your glutes as you step out to the side.
+
+Sources of the stretch and squeeze:
+
+- [Ankles, Knees and Hips: 10 Joint-Friendly Exercises for the Lower Extremity](https://www.acefitness.org/resources/pros/expert-articles/9158/ankles-knees-and-hips-10-joint-friendly-exercises-for-the-lower-extremity/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Lying leg curl
 
 - [Lever Lying Leg Curl](https://exrx.net/WeightExercises/Hamstrings/LVLyingLegCurl). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Lying Hamstrings Curl](https://www.acefitness.org/resources/everyone/exercise-library/153/lying-hamstrings-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch with your knees straight, hips down.
+- Squeeze: Squeeze your hamstrings as the pad comes up toward your thighs.
+
+Sources of the stretch and squeeze:
+
+- [Lever Lying Leg Curl](https://exrx.net/WeightExercises/Hamstrings/LVLyingLegCurl). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lying Hamstrings Curl](https://www.acefitness.org/resources/everyone/exercise-library/153/lying-hamstrings-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Machine hip abduction
 
 - [Lever Seated Hip Abduction](https://exrx.net/WeightExercises/HipAbductor/LVSeatedHipAbduction). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch with your legs together at the start.
+- Squeeze: Squeeze your glutes as you push your legs apart.
+
+Sources of the stretch and squeeze:
+
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Machine hip adduction
 
 - [Lever Seated Hip Adduction](https://exrx.net/WeightExercises/HipAdductors/LVSeatedHipAdduction). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your adductors stretch with your legs out at the starting width.
+- Squeeze: Squeeze your adductors as your legs come all the way together.
+
+Sources of the stretch and squeeze:
+
+- [Lever Seated Hip Adduction](https://exrx.net/WeightExercises/HipAdductors/LVSeatedHipAdduction). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Machine hip thrust
 
 - [Lever Hip Thrust](https://exrx.net/WeightExercises/GluteusMaximus/LVHipThrustPL). ExRx.net, accessed 2026-11-11.
 - [Barbell Hip Thrust](https://exrx.net/WeightExercises/GluteusMaximus/BBHipThrust). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as your hips lower under control.
+- Squeeze: Squeeze your glutes as your hips straighten, chest down.
+
+Sources of the stretch and squeeze:
+
+- [Lever Hip Thrust](https://exrx.net/WeightExercises/GluteusMaximus/LVHipThrustPL). ExRx.net, accessed 2026-11-11.
+- [Barbell Hip Thrust](https://exrx.net/WeightExercises/GluteusMaximus/BBHipThrust). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Nordic curl
 
 - [Self-assisted Inverse Leg Curl (on floor)](https://exrx.net/WeightExercises/Hamstrings/ASHamstringRaiseSelfFloor). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch while they control the way down.
+- Squeeze: Squeeze your hamstrings as they pull you back up to kneeling.
+
+Sources of the stretch and squeeze:
+
+- [Self-assisted Inverse Leg Curl (on floor)](https://exrx.net/WeightExercises/Hamstrings/ASHamstringRaiseSelfFloor). ExRx.net, accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Quadruped hip extension
 
 - [Exercise Library: Quadruped Bent-knee Hip Extensions](https://www.acefitness.org/resources/everyone/exercise-library/270/quadruped-bent-knee-hip-extensions/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as your knee lowers back under your hip.
+- Squeeze: Squeeze your glutes as your leg lifts, moving only at the hip.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Quadruped Bent-knee Hip Extensions](https://www.acefitness.org/resources/everyone/exercise-library/270/quadruped-bent-knee-hip-extensions/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### RDL
 
@@ -3124,31 +3337,101 @@ Sources of the stretch and squeeze:
 - [Exercise Library: Romanian Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/317/romanian-deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Romanian Deadlift (RDL)](https://www.nsca.com/education/articles/kinetic-select/romanian-deadlift-rdl/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as your hips go back.
+- Squeeze: Squeeze your glutes as you stand tall.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Romanian Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/317/romanian-deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Reverse hyper
 
 - [Reverse Hyper-extension](https://exrx.net/WeightExercises/GluteusMaximus/BWReverseHyperextension). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as your legs lower back to the start.
+- Squeeze: Squeeze your glutes as your legs come up nearly in line.
+
+Sources of the stretch and squeeze:
+
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Seated leg curl
 
 - [Lever Seated Leg Curl](https://exrx.net/WeightExercises/Hamstrings/LVSeatedLegCurl). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch with your legs straight in front of you.
+- Squeeze: Squeeze your hamstrings as you pull the pad back under you.
+
+Sources of the stretch and squeeze:
+
+- [Lever Seated Leg Curl](https://exrx.net/WeightExercises/Hamstrings/LVSeatedLegCurl). ExRx.net, accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Side-lying hip abduction
 
 - [Exercise Library: Side Lying Hip Abduction](https://www.acefitness.org/resources/everyone/exercise-library/38/side-lying-hip-abduction/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as you lower your top leg slowly.
+- Squeeze: Squeeze your glutes as your top leg lifts, hips still stacked.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Side Lying Hip Abduction](https://www.acefitness.org/resources/everyone/exercise-library/38/side-lying-hip-abduction/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Single-arm kettlebell swing
 
 - [Exercise Library: Single Arm Swing](https://www.acefitness.org/resources/everyone/exercise-library/392/single-arm-swing/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified January 2025: The ACE Do it Better Series: The Two-handed Kettlebell Swing](https://www.acefitness.org/continuing-education/certified/january-2025/8788/the-ace-do-it-better-series-the-two-handed-kettlebell-swing/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as you hinge to swing the bell back.
+- Squeeze: Squeeze your glutes as you push your hips forward.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Single Arm Swing](https://www.acefitness.org/resources/everyone/exercise-library/392/single-arm-swing/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Certified January 2025: The ACE Do it Better Series: The Two-handed Kettlebell Swing](https://www.acefitness.org/continuing-education/certified/january-2025/8788/the-ace-do-it-better-series-the-two-handed-kettlebell-swing/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Single-leg glute bridge
 
 - [Exercise Library: Glute Bridge: Single-Leg Progression](https://www.acefitness.org/resources/everyone/exercise-library/145/glute-bridge-single-leg-progression/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Single Leg Hip Bridge](https://exrx.net/WeightExercises/GluteusMaximus/BWLyingHipExtension). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Glute Bridge](https://www.acefitness.org/resources/everyone/exercise-library/49/glute-bridge/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your glutes stretch as your hips lower under control.
+- Squeeze: Squeeze your glutes as you press through your planted foot.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Glute Bridge: Single-Leg Progression](https://www.acefitness.org/resources/everyone/exercise-library/145/glute-bridge-single-leg-progression/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Single Leg Hip Bridge](https://exrx.net/WeightExercises/GluteusMaximus/BWLyingHipExtension). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Single-leg RDL
 
@@ -3158,15 +3441,52 @@ Sources of the stretch and squeeze:
 - [ProSource January 2016: ACE Technique Series: Romanian Deadlift](https://www.acefitness.org/continuing-education/prosource/january-2016/5767/ace-technique-series-romanian-deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Romanian Deadlift (RDL)](https://www.nsca.com/education/articles/kinetic-select/romanian-deadlift-rdl/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch in your standing leg as you hinge down.
+- Squeeze: Squeeze your glutes as your standing leg drives you back up.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Single Leg Stiff-leg Deadlift](https://exrx.net/WeightExercises/GluteusMaximus/DBSingleLegStiffLegDeadlift). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Single-Leg Romanian Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/329/single-leg-romanian-deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Stability ball leg curl
 
 - [Exercise Library: Stability Ball Hamstring Curl](https://www.acefitness.org/resources/everyone/exercise-library/59/stability-ball-hamstring-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as you roll the ball back out, hips up.
+- Squeeze: Squeeze your hamstrings as you pull your heels toward your hips.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Stability Ball Hamstring Curl](https://www.acefitness.org/resources/everyone/exercise-library/59/stability-ball-hamstring-curl/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Standing leg curl
 
 - [Lever Standing Leg Curl](https://exrx.net/WeightExercises/Hamstrings/LVStandingLegCurl). ExRx.net, accessed 2026-11-11.
 - [Lever Standing Leg Curl (on multi-hip machine)](https://exrx.net/WeightExercises/Hamstrings/LVStandingLegCurlMultiHip). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as your knee straightens, hips bent.
+- Squeeze: Squeeze your hamstrings as the pad rises toward your thigh.
+
+Sources of the stretch and squeeze:
+
+- [Lever Standing Leg Curl](https://exrx.net/WeightExercises/Hamstrings/LVStandingLegCurl). ExRx.net, accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Stiff-leg deadlift
 
@@ -3175,6 +3495,18 @@ Sources of the stretch and squeeze:
 - [Barbell Straight Leg Deadlift](https://exrx.net/WeightExercises/Hamstrings/BBStraightLegDeadlift). ExRx.net, accessed 2026-11-11.
 - [Romanian Deadlift (RDL)](https://www.nsca.com/education/articles/kinetic-select/romanian-deadlift-rdl/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as the bar nears your knees, back flat.
+- Squeeze: Squeeze your glutes as your hips straighten to stand.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Romanian Deadlift](https://www.acefitness.org/resources/everyone/exercise-library/317/romanian-deadlift/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ## Calves
 
