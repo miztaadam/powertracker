@@ -1,5 +1,5 @@
 # Runs the Kotlin tests: the shared coach in :domain (JVM and JS on Node) and the Android app's
-# Robolectric tests. Nothing here needs an emulator. The web app's own tests are not run here.
+# Robolectric tests, one after the other. Nothing here needs an emulator. The web app's own tests are not run here.
 name: Tests
 
 on:
@@ -37,8 +37,15 @@ jobs:
       - name: Accept the Android SDK licenses
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
 
-      - name: Run the tests
-        run: ./gradlew :domain:allTests :app:testDebugUnitTest --continue
+      # Two steps, not one Gradle run: in one run Gradle compiles the app alongside the domain's Node tests, and the
+      # slowest of those (whole sweeps of the plan builder) then run past mocha's time limit on the runner's cores.
+      - name: Domain tests (JVM and Node)
+        run: ./gradlew :domain:allTests
+
+      - name: App unit tests (Robolectric)
+        # Runs even when the domain tests failed, so one run reports both.
+        if: success() || failure()
+        run: ./gradlew :app:testDebugUnitTest
 
       - name: Keep the test reports
         if: failure()
