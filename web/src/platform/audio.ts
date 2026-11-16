@@ -26,27 +26,56 @@ function playSilence(audio: AudioContext): void {
   }
 }
 
+/** The context, made now if there is none yet. Null when this device has no Web Audio, or refuses one. */
+function ensureContext(): AudioContext | null {
+  if (context != null || typeof AudioContext === 'undefined') return context
+  try {
+    context = new AudioContext()
+  } catch {
+    // No audio on this device: the flash still marks the end of a rest.
+  }
+  return context
+}
+
 /**
- * Makes the app's audio context on a gesture and resumes it whenever it is not running. iOS keeps
- * Web Audio locked until a user gesture and may suspend or interrupt it again later, so this listens
- * for the whole life of the app, not only for the first tap. iOS counts the end of a touch, a click or
- * a key as the gesture, not always a `pointerdown`, so it listens to all four; until the context runs,
- * each gesture also plays a silent sample. When the page comes back into view, a stopped context is
- * resumed. Returns the function that stops listening.
+ * Gets the app's audio context ready and keeps it running. Making a context is slow (tens of
+ * milliseconds), so it is made once, just after the first paint and outside any gesture; it starts
+ * suspended, which is fine. A tap then only has to resume it, and the first tap stays fast. If it is
+ * not made yet, or making it failed, the next gesture makes it, as before.
+ *
+ * iOS keeps Web Audio locked until a user gesture and may suspend or interrupt it again later, so this
+ * listens for the whole life of the app, not only for the first tap. iOS counts the end of a touch, a
+ * click or a key as the gesture, not always a `pointerdown`, so it listens to all four; until the
+ * context runs, each gesture resumes it and plays a silent sample. When the page comes back into view,
+ * a stopped context is resumed. Returns the function that stops listening (and the early making, if it
+ * has not happened yet).
  */
 export function unlockAudioOnGesture(): () => void {
   const unlock = () => {
-    if (typeof AudioContext === 'undefined') return
+    const audio = ensureContext()
+    if (audio == null) return
     try {
-      context ??= new AudioContext()
-      if (context.state !== 'running') {
+      if (audio.state !== 'running') {
         // iOS rejects a resume it does not count as a gesture; the next one tries again.
-        context.resume().catch(() => {})
-        playSilence(context)
+        audio.resume().catch(() => {})
+        playSilence(audio)
       }
     } catch {
       // No audio on this device: the flash still marks the end of a rest.
     }
+  }
+  // After the first paint: the frame, then a task after it, so the making never delays what is drawn.
+  // Where the page draws no frames (a test page), the first gesture makes it instead.
+  let frame: number | undefined
+  let task: ReturnType<typeof setTimeout> | undefined
+  if (typeof requestAnimationFrame === 'function') {
+    frame = requestAnimationFrame(() => {
+      frame = undefined
+      task = setTimeout(() => {
+        task = undefined
+        ensureContext()
+      }, 0)
+    })
   }
   const onVisible = () => {
     if (document.visibilityState !== 'visible' || context == null || !stopped(context)) return
@@ -60,6 +89,8 @@ export function unlockAudioOnGesture(): () => void {
   for (const event of events) window.addEventListener(event, unlock, { capture: true, passive: true })
   document.addEventListener('visibilitychange', onVisible)
   return () => {
+    if (frame !== undefined) cancelAnimationFrame(frame)
+    if (task !== undefined) clearTimeout(task)
     for (const event of events) window.removeEventListener(event, unlock, { capture: true })
     document.removeEventListener('visibilitychange', onVisible)
   }

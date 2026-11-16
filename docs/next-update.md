@@ -187,7 +187,7 @@ Push notifications do not apply: Grit sends none.
 
 ### Follow-ups noticed during the new look
 - The Exercises tab speed check, in quiet timing against 1.5.0, had two single slow opens (80 and 90 ms). Both are still under the 100 ms limit, and the medians were the same as 1.5.0.
-- In the three quiet speed runs for 1.6, the first two passed and the third failed once: the picker's first open took 114 ms (limit 100).
+- The picker's occasional slow first open in 1.6 (one run took 114 ms; the limit is 100 ms) came from the new iPhone sound unlock: it made the sound engine inside the first tap. The engine is now made just after start-up, so a tap only wakes it.
 - "Sound + vibrate" wraps onto two lines on 320–390 px phones, so on most Android phones. The owner may prefer a shorter label.
 - An Android app set to vibrate only comes back as "Sound + vibrate" when its backup is restored in an Android browser, since the web has no vibrate-only alert.
 - Thumbnails in the exercise picker stay paused. They come after the look and motion work.

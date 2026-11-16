@@ -7,6 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 type Audio = typeof import('./audio')
 
 let contexts: FakeAudioContext[]
+/** Set to make the next `new AudioContext()` throw, as a browser without a free audio device does. */
+let failNextCreate = false
 let beeps: number[]
 let silences: number
 /** How the next `resume()` answers: at once, refused, or held until the test lets it go. */
@@ -31,6 +33,10 @@ class FakeAudioContext {
     return Promise.resolve()
   })
   constructor() {
+    if (failNextCreate) {
+      failNextCreate = false
+      throw new DOMException('no audio device', 'NotSupportedError')
+    }
     contexts.push(this)
   }
   createBuffer(channels: number, length: number, rate: number) {
@@ -63,6 +69,7 @@ beforeEach(async () => {
   contexts = []
   beeps = []
   silences = 0
+  failNextCreate = false
   resumeMode = 'resolve'
   visibility = 'visible'
   vi.stubGlobal('AudioContext', FakeAudioContext)
@@ -198,5 +205,69 @@ describe('the rest tone after an interruption', () => {
     release()
     await flush()
     expect(beeps).toHaveLength(2)
+  })
+})
+
+describe('making the context at start-up, off the tap', () => {
+  // A browser's frames, run by hand: jsdom draws none.
+  let frames: FrameRequestCallback[]
+  const paint = async () => {
+    for (const frame of frames.splice(0)) frame(0)
+    await flush()
+  }
+  beforeEach(() => {
+    stopListening()
+    frames = []
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => frames.push(cb))
+    vi.stubGlobal('cancelAnimationFrame', (id: number) => {
+      frames[id - 1] = () => {}
+    })
+    stopListening = audio.unlockAudioOnGesture()
+  })
+
+  it('is made after the first paint, without a gesture, and is not resumed or primed then', async () => {
+    expect(contexts).toEqual([])
+    await paint()
+    expect(contexts).toHaveLength(1)
+    expect(context().resume).not.toHaveBeenCalled()
+    expect(silences).toBe(0)
+  })
+
+  it('a gesture then makes no context: it only resumes the one made early and plays the silent sample', async () => {
+    await paint()
+    const made = vi.spyOn(globalThis, 'AudioContext')
+    window.dispatchEvent(new Event('click'))
+    await flush()
+    expect(made).not.toHaveBeenCalled()
+    expect(contexts).toHaveLength(1)
+    expect(context().resume).toHaveBeenCalledTimes(1)
+    expect(silences).toBe(1)
+    expect(context().state).toBe('running')
+  })
+
+  it('a gesture before the first paint makes it, and the paint makes no second one', async () => {
+    window.dispatchEvent(new Event('touchend'))
+    await flush()
+    expect(contexts).toHaveLength(1)
+    await paint()
+    expect(contexts).toHaveLength(1)
+    expect(silences).toBe(1)
+  })
+
+  it('when the early one fails, the gesture still makes it', async () => {
+    failNextCreate = true
+    await paint()
+    expect(contexts).toEqual([])
+    window.dispatchEvent(new Event('pointerdown'))
+    await flush()
+    expect(contexts).toHaveLength(1)
+    expect(context().state).toBe('running')
+    expect(silences).toBe(1)
+  })
+
+  it('stopping before the first paint makes none', async () => {
+    stopListening()
+    await paint()
+    expect(contexts).toEqual([])
   })
 })
