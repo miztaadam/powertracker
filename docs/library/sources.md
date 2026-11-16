@@ -805,7 +805,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your chest stretches as you lower your chest to the edge.
+- Stretch: Your chest stretches as you lower it to the edge.
 - Squeeze: Squeeze your chest as you push up to straight arms.
 
 Sources of the stretch and squeeze:
@@ -1016,11 +1016,35 @@ Sources of the stretch and squeeze:
 - [Calculating Actual Resistance](https://exrx.net/WeightTraining/Bodyweight). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch as you lower to straight arms.
+- Squeeze: Squeeze your lats as your elbows reach your sides.
+
+Sources of the stretch and squeeze:
+
+- [Machine-assisted Chin-up](https://exrx.net/WeightExercises/LatissimusDorsi/AsUnderhandChinup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Assisted pull-up
 
 - [Machine-assisted Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/AsPullupKneeling). ExRx.net, accessed 2026-11-11.
 - [Calculating Actual Resistance](https://exrx.net/WeightTraining/Bodyweight). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch as you lower to straight arms.
+- Squeeze: Squeeze your lats as your neck reaches the height of your hands.
+
+Sources of the stretch and squeeze:
+
+- [Machine-assisted Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/AsPullupKneeling). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Back extension
 
@@ -1029,15 +1053,50 @@ Sources of the stretch and squeeze:
 - [Loading conditions in the spine, hip and knee during different executions of back extension exercises](https://pmc.ncbi.nlm.nih.gov/articles/PMC5404334/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as your hips bend to a right angle.
+- Squeeze: Squeeze your glutes as you rise in line with your legs.
+
+Sources of the stretch and squeeze:
+
+- [45° Hyperextension (hands behind hips)](https://exrx.net/WeightExercises/ErectorSpinae/BW45HyperextensionHips). ExRx.net, accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Band-assisted pull-up
 
 - [Band-assisted Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/ASPullupBand). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch as you lower to straight arms.
+- Squeeze: Squeeze your lats as your chin rises above the bar.
+
+Sources of the stretch and squeeze:
+
+- [Band-assisted Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/ASPullupBand). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Barbell shrug
 
 - [Barbell Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your traps stretch as you lower your shoulders back down.
+- Squeeze: Squeeze your traps as your shoulders reach their highest.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/BBShrug). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Chest-supported row
 
@@ -1045,20 +1104,67 @@ Sources of the stretch and squeeze:
 - [Dumbbell Lying Row](https://exrx.net/WeightExercises/BackGeneral/DBLyingRow). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your upper back stretches as your arms hang straight down.
+- Squeeze: Squeeze your upper back as your shoulder blades come together.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Incline Row](https://exrx.net/WeightExercises/BackGeneral/DBInclineRow). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Lying Row](https://exrx.net/WeightExercises/BackGeneral/DBLyingRow). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Chest-supported T-bar row
 
 - [Lever Incline Row (plate loaded)](https://exrx.net/WeightExercises/BackGeneral/LVInclineRow). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your upper back stretches as your arms hang straight down.
+- Squeeze: Squeeze your upper back as you pull your shoulders back.
+
+Sources of the stretch and squeeze:
+
+- [Lever Incline Row (plate loaded)](https://exrx.net/WeightExercises/BackGeneral/LVInclineRow). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Chin-up
 
 - [Chin-up](https://exrx.net/WeightExercises/LatissimusDorsi/BWUnderhandChinup). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch as you lower to straight arms.
+- Squeeze: Squeeze your lats as your elbows reach your sides.
+
+Sources of the stretch and squeeze:
+
+- [Chin-up](https://exrx.net/WeightExercises/LatissimusDorsi/BWUnderhandChinup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Close-grip pulldown
 
 - [Cable Close Grip Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBCloseGripPulldown). ExRx.net, accessed 2026-11-11.
 - [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch with your arms straight above you.
+- Squeeze: Squeeze your lats as the handle reaches your upper chest.
+
+Sources of the stretch and squeeze:
+
+- [Cable Close Grip Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBCloseGripPulldown). ExRx.net, accessed 2026-11-11.
+- [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### DB pullover
 
@@ -1066,10 +1172,32 @@ Sources of the stretch and squeeze:
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches with your upper arms level with your torso.
+- Squeeze: Squeeze your chest as you bring the dumbbell back over you.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Pullover](https://exrx.net/WeightExercises/PectoralSternal/DBPullover). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### DB shrug
 
 - [Dumbbell Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/DBShrug). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your traps stretch as you lower your shoulders back down.
+- Squeeze: Squeeze your traps as your shoulders reach their highest.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/DBShrug). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Face pull
 
@@ -1077,35 +1205,117 @@ Sources of the stretch and squeeze:
 - [Cable Standing Rear Delt Row (with rope)](https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingRearDeltRowRope). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your rear delts stretch as your arms straighten in front of you.
+- Squeeze: Squeeze your rear delts as you pull the rope toward your face.
+
+Sources of the stretch and squeeze:
+
+- [Face Pull (Machine)](https://www.nsca.com/education/articles/kinetic-select/face-pull-machine/). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
+- [Cable Standing Rear Delt Row (with rope)](https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingRearDeltRowRope). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Inverted row
 
 - [Inverted Row](https://exrx.net/WeightExercises/BackGeneral/BWSupineRow). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your upper back stretches as your arms straighten below the bar.
+- Squeeze: Squeeze your upper back as your chest reaches the bar.
+
+Sources of the stretch and squeeze:
+
+- [Inverted Row](https://exrx.net/WeightExercises/BackGeneral/BWSupineRow). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Lat pulldown
 
 - [Cable Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBFrontPulldown). ExRx.net, accessed 2026-11-11.
 - [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch with your arms straight above you.
+- Squeeze: Squeeze your lats as the bar reaches your upper chest.
+
+Sources of the stretch and squeeze:
+
+- [Cable Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBFrontPulldown). ExRx.net, accessed 2026-11-11.
+- [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Machine pulldown
 
 - [Lever Front Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/LVFrontPulldown). ExRx.net, accessed 2026-11-11.
 - [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch with your arms straight above you.
+- Squeeze: Squeeze your lats as the lever reaches your upper chest.
+
+Sources of the stretch and squeeze:
+
+- [Lever Front Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/LVFrontPulldown). ExRx.net, accessed 2026-11-11.
+- [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Machine pullover
 
 - [Lever Pullover](https://exrx.net/WeightExercises/LatissimusDorsi/LVPullover). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch as your arms return in line with your torso.
+- Squeeze: Squeeze your lats as your elbows reach your sides.
+
+Sources of the stretch and squeeze:
+
+- [Lever Pullover](https://exrx.net/WeightExercises/LatissimusDorsi/LVPullover). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Machine row
 
 - [Lever Seated Row](https://exrx.net/WeightExercises/BackGeneral/LVSeatedRow). ExRx.net, accessed 2026-11-11.
 - [Seated Row](https://www.acefitness.org/resources/everyone/exercise-library/168/seated-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your upper back stretches as you return to straight arms.
+- Squeeze: Squeeze your upper back as your elbows pass your torso.
+
+Sources of the stretch and squeeze:
+
+- [Lever Seated Row](https://exrx.net/WeightExercises/BackGeneral/LVSeatedRow). ExRx.net, accessed 2026-11-11.
+- [Seated Row](https://www.acefitness.org/resources/everyone/exercise-library/168/seated-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Neutral-grip pull-up
 
 - [Neutral Grip Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/BWPullupN). ExRx.net, accessed 2026-11-11.
 - [Parallel Close Grip Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/BWCloseGripChinup). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch as you lower to straight arms.
+- Squeeze: Squeeze your lats as your neck reaches the height of your hands.
+
+Sources of the stretch and squeeze:
+
+- [Neutral Grip Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/BWPullupN). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### One-arm cable row
 
@@ -1114,30 +1324,101 @@ Sources of the stretch and squeeze:
 - [Exercise Library: Single Arm Row (cable)](https://www.acefitness.org/resources/everyone/exercise-library/337/single-arm-row/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your upper back stretches as you slowly straighten your arm.
+- Squeeze: Squeeze your upper back as you pull your shoulder back.
+
+Sources of the stretch and squeeze:
+
+- [Cable One Arm Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBOneArmRow). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Single Arm Row (cable)](https://www.acefitness.org/resources/everyone/exercise-library/337/single-arm-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### One-arm DB row
 
 - [Dumbbell Bent-over Row](https://exrx.net/WeightExercises/BackGeneral/DBBentOverRow). ExRx.net, accessed 2026-11-11.
 - [Single Arm Row Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/126/single-arm-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your upper back stretches as your arm hangs straight down.
+- Squeeze: Squeeze your upper back as the dumbbell reaches your ribs.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Bent-over Row](https://exrx.net/WeightExercises/BackGeneral/DBBentOverRow). ExRx.net, accessed 2026-11-11.
+- [Single Arm Row Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/126/single-arm-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### One-arm pulldown
 
 - [Cable One Arm Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBOneArmPulldown). ExRx.net, accessed 2026-11-11.
 - [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch with your arm straight and your shoulder up.
+- Squeeze: Squeeze your lats as the handle reaches the side of your chest.
+
+Sources of the stretch and squeeze:
+
+- [Cable One Arm Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBOneArmPulldown). ExRx.net, accessed 2026-11-11.
+- [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Pull-up
 
 - [Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/BWPullup). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch as you lower to straight arms.
+- Squeeze: Squeeze your lats as your chin clears the bar.
+
+Sources of the stretch and squeeze:
+
+- [Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/BWPullup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Row
 
 - [Barbell Bent-over Row](https://exrx.net/WeightExercises/BackGeneral/BBBentOverRow). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch as your arms hang straight down.
+- Squeeze: Squeeze your lats as the bar reaches your upper waist.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Bent-over Row](https://exrx.net/WeightExercises/BackGeneral/BBBentOverRow). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Seal row
 
 - [Cambered Barbell Lying Row](https://exrx.net/WeightExercises/BackGeneral/CamberedBarLyingRow). ExRx.net, accessed 2026-11-11.
 - [Dumbbell Lying Row](https://exrx.net/WeightExercises/BackGeneral/DBLyingRow). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your upper back stretches as your arms hang straight down.
+- Squeeze: Squeeze your upper back as the weight reaches your body.
+
+Sources of the stretch and squeeze:
+
+- [Cambered Barbell Lying Row](https://exrx.net/WeightExercises/BackGeneral/CamberedBarLyingRow). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Lying Row](https://exrx.net/WeightExercises/BackGeneral/DBLyingRow). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Seated cable row
 
@@ -1146,10 +1427,33 @@ Sources of the stretch and squeeze:
 - [Seated Row (cable)](https://www.acefitness.org/resources/everyone/exercise-library/48/seated-row/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your upper back stretches as you return to straight arms.
+- Squeeze: Squeeze your upper back as you pull your shoulders back.
+
+Sources of the stretch and squeeze:
+
+- [Cable Straight Back Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBStraightBackSeatedRow). ExRx.net, accessed 2026-11-11.
+- [Seated Row (cable)](https://www.acefitness.org/resources/everyone/exercise-library/48/seated-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Straight-arm pulldown
 
 - [Cable Seated Pullover (straight-arm pulldown)](https://exrx.net/WeightExercises/LatissimusDorsi/CBSeatedStraightArmPullover). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch as the bar returns overhead.
+- Squeeze: Squeeze your lats as you pull the bar all the way down.
+
+Sources of the stretch and squeeze:
+
+- [Cable Seated Pullover (straight-arm pulldown)](https://exrx.net/WeightExercises/LatissimusDorsi/CBSeatedStraightArmPullover). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### T-bar row
 
@@ -1159,16 +1463,52 @@ Sources of the stretch and squeeze:
 - [Bent-Over Row](https://www.acefitness.org/resources/everyone/exercise-library/12/bent-over-row/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your upper back stretches as your arms hang straight down.
+- Squeeze: Squeeze your upper back as the handles reach your torso.
+
+Sources of the stretch and squeeze:
+
+- [Lever T-bar Row (plate loaded)](https://exrx.net/WeightExercises/BackGeneral/LVTBarRow). ExRx.net, accessed 2026-11-11.
+- [Bent-Over Row](https://www.acefitness.org/resources/everyone/exercise-library/12/bent-over-row/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Trap-bar shrug
 
 - [Trap Bar Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/TBShrug). ExRx.net, accessed 2026-11-11.
 - [Dumbbell Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/DBShrug). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your traps stretch as you lower your shoulders back down.
+- Squeeze: Squeeze your traps as your shoulders reach their highest.
+
+Sources of the stretch and squeeze:
+
+- [Trap Bar Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/TBShrug). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Shrug](https://exrx.net/WeightExercises/TrapeziusUpper/DBShrug). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Underhand pulldown
 
 - [Cable Underhand Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBUnderhandPulldown). ExRx.net, accessed 2026-11-11.
 - [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch with your arms straight above you.
+- Squeeze: Squeeze your lats as your elbows reach your sides.
+
+Sources of the stretch and squeeze:
+
+- [Cable Underhand Pulldown](https://exrx.net/WeightExercises/LatissimusDorsi/CBUnderhandPulldown). ExRx.net, accessed 2026-11-11.
+- [Seated Lat Pulldown](https://www.acefitness.org/resources/everyone/exercise-library/158/seated-lat-pulldown/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Weighted back extension
 
@@ -1178,21 +1518,70 @@ Sources of the stretch and squeeze:
 - [Loading conditions in the spine, hip and knee during different executions of back extension exercises](https://pmc.ncbi.nlm.nih.gov/articles/PMC5404334/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your hamstrings stretch as your hips bend to a right angle.
+- Squeeze: Squeeze your glutes as you rise in line with your legs.
+
+Sources of the stretch and squeeze:
+
+- [Weighted 45° Hyperextension](https://exrx.net/WeightExercises/ErectorSpinae/Wt45Hyperextension). ExRx.net, accessed 2026-11-11.
+- [Weighted 45° Back Extension (on hyperextension apparatus)](https://exrx.net/WeightExercises/ErectorSpinae/Wt45BackExtension). ExRx.net, accessed 2026-11-11.
+- [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Weighted chin-up
 
 - [Weighted Chin-up](https://exrx.net/WeightExercises/LatissimusDorsi/WtUnderhandChinup). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch as you lower to straight arms.
+- Squeeze: Squeeze your lats as your elbows reach your sides.
+
+Sources of the stretch and squeeze:
+
+- [Weighted Chin-up](https://exrx.net/WeightExercises/LatissimusDorsi/WtUnderhandChinup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Weighted pull-up
 
 - [Weighted Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/WtPullup). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your lats stretch as you lower to straight arms.
+- Squeeze: Squeeze your lats as your chin clears the bar.
+
+Sources of the stretch and squeeze:
+
+- [Weighted Pull-up](https://exrx.net/WeightExercises/LatissimusDorsi/WtPullup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Pull-ups](https://www.acefitness.org/resources/everyone/exercise-library/191/pull-ups/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Wide-grip cable row
 
 - [Cable Wide Grip Straight Back Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBWideGripStrBackSeatedRow). ExRx.net, accessed 2026-11-11.
 - [Cable Wide Grip Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBWideGripSeatedRow). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your upper back stretches as you return to straight arms.
+- Squeeze: Squeeze your upper back as you pull your shoulders back.
+
+Sources of the stretch and squeeze:
+
+- [Cable Wide Grip Straight Back Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBWideGripStrBackSeatedRow). ExRx.net, accessed 2026-11-11.
+- [Cable Wide Grip Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBWideGripSeatedRow). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ## Shoulders
 

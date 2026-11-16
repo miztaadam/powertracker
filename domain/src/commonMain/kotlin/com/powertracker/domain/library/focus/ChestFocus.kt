@@ -104,7 +104,7 @@ internal val chestFocus: List<Pair<String, MuscleFocus>> by lazy {
         // ---- Push-ups ----
         "Push-up" to lines(TOWARD_FLOOR, "Squeeze your chest as you push the floor away.", Sources.EXRX_PUSH_UP, Sources.ACE_PUSH_UP),
         "Incline push-up" to lines(
-            "Your chest stretches as you lower your chest to the edge.", PUSH_TO_STRAIGHT,
+            "Your chest stretches as you lower it to the edge.", PUSH_TO_STRAIGHT,
             Sources.EXRX_INCLINE_PUSH_UP, Sources.ACE_PUSH_UP,
         ),
         // "All the way down", but with the body straight: the guide counts arching to get lower as a mistake.
