@@ -67,7 +67,7 @@
 **Interfaces:**
 - Produces:
   - `sealed interface MuscleFocus { val sources: List<SourceId> }` with `data class Lines(val stretch: String, val squeeze: String, override val sources: List<SourceId>)` and `data class NoFocus(override val sources: List<SourceId>)`.
-  - `Library.NO_FOCUS_LINE = "No stretch or squeeze to aim for here: this one trains you to stay steady."`
+  - `Library.NO_FOCUS_LINE = "No stretch or squeeze to aim for in this one."` (shortened by the owner on 2026-11-16; first approved as "…here: this one trains you to stay steady.")
   - `Library.focus(name: String): MuscleFocus?`, matched like `Library.find` (ignoring case); null for a name not in the catalogue or not written yet.
   - JS: `@JsExport data class JsMuscleFocus(val stretch: String?, val squeeze: String?, val none: String?)` (exactly one of `none` or the pair is set) and `GritDomain.muscleFocus(name: String): JsMuscleFocus?`. `JsLibraryExercise` is unchanged.
 
