@@ -100,6 +100,9 @@
   --touch: 48px;
   /* The tab bar's own height, above the home-bar inset: the tab bar and everything docked above it use it. */
   --tabbar-height: 80px;
+  /* What the tab bar keeps of the iPhone home-bar inset (34 px): 20 px, so the labels have no tall empty band
+     under them; 0 where there is no home bar. Everything docked at the bottom uses it, so it all moves together. */
+  --tab-inset: max(0px, calc(env(safe-area-inset-bottom) - 14px));
   --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 14px;
@@ -198,6 +201,11 @@ html,
 body,
 #root {
   height: 100%;
+}
+
+/* The page colour on html too: iOS overscroll and the system bars take theirs from it. */
+html {
+  background: var(--bg);
 }
 
 body {

@@ -3,7 +3,7 @@
   position: fixed;
   left: calc(var(--space-5) + env(safe-area-inset-left));
   right: calc(var(--space-5) + env(safe-area-inset-right));
-  bottom: var(--snackbar-bottom, calc(var(--tabbar-height) + var(--space-4) + env(safe-area-inset-bottom)));
+  bottom: var(--snackbar-bottom, calc(var(--tabbar-height) + var(--space-4) + var(--tab-inset)));
   z-index: 10;
   display: flex;
   justify-content: center;

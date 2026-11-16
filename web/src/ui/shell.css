@@ -1,7 +1,11 @@
 .shell {
+  /* Pinned to the screen's edges, not sized from html, body and #root: in the iOS Home Screen app their 100%
+     stops short of the bottom of the screen, which left a strip of page under the tab bar. Fixed, it also never
+     scrolls the page: only .shell-main scrolls. */
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
   background: var(--bg);
 }
 
@@ -43,7 +47,7 @@
 /* Messages sit above the tab bar and above the rest bar while it shows. App sets
    --rest-dock-height to the measured height of .shell-rest, 0 when there is none. */
 .shell {
-  --snackbar-bottom: calc(var(--tabbar-height) + var(--rest-dock-height, 0px) + var(--space-4) + env(safe-area-inset-bottom));
+  --snackbar-bottom: calc(var(--tabbar-height) + var(--rest-dock-height, 0px) + var(--space-4) + var(--tab-inset));
 }
 
 /* "Update ready — tap to refresh", docked with the rest bar: the whole strip is the button. */

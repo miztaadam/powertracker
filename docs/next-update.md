@@ -177,7 +177,7 @@ What the lifter sees:
 The owner's list of nine, from commits `182f1ad` and `92704c9`:
 1. **Home Screen setup: changed.** Numbers are no longer phone links; the manifest gets an id; a new maskable icon keeps the whole mark inside Android's round or squircle mask. The rest was already fine.
 2. **Status-bar strip: changed.** In the installed iPhone app, the top of each screen sits below the status bar.
-3. **Tab bar: changed in part.** Its height is one shared token now. **It keeps its full bottom inset**, because Grit's tabs are 80 px with labels; the suggested 14 px trim came from another app.
+3. **Tab bar: changed.** Its height is one shared token now. In 1.6 it kept its full bottom inset; 1.6.1 applies the suggested 14 px trim (see below), because on a real iPhone the full inset left a tall empty band under the labels.
 4. **View Transitions: do not apply.** Grit uses none.
 5. **Theme colour: changed.** One theme-colour tag, set before the first paint on both sides, so the browser bar matches the page in dark and light.
 6. **Narrow phones: changed.** A check at 306 and 320 px covers Today with an exercise open, the picker, Settings, Progress and Coach on both sides; it checks that nothing scrolls sideways, inside the scrolling screen too. It found the rest alert's segments and Today's RPE stepper (which was already too wide in 1.5) too wide; both are fixed. No root font-size steps were needed.
@@ -186,6 +186,12 @@ The owner's list of nine, from commits `182f1ad` and `92704c9`:
 9. **Install card: changed.** On Android it says to open the browser's menu (⋮). Chrome's installed app shares the browser's storage, so on Android the separate-storage sentence is replaced (owner, 2026-11-16) by: "Your log stays in this browser, so the installed app opens with it. Export a backup now and then to keep a copy." iPhone keeps its sentence about Safari's separate storage.
 
 Push notifications do not apply: Grit sends none.
+
+### Done: iPhone bottom fix (1.6.1)
+The owner tried 1.6 as a Home Screen app on iOS 26 and saw two things at the bottom of the screen, both now fixed:
+- **A tall empty band under the tab labels.** The tab bar now keeps 20 px of the iPhone's 34 px home-bar space instead of all of it. The snackbar moves with it. Sheets and full-screen views still keep the full space, as the guide says.
+- **A darker strip under the tab bar.** In the Home Screen app, the page's full height stops short of the bottom of the screen. The app's frame is now pinned to the screen's edges, so it always reaches the bottom. The page colour is now on the page's root too.
+- New checks stand in for an iPhone's home bar in Chromium and measure both. Real phones: not tried yet.
 
 ### Follow-ups noticed during the new look
 - The Exercises tab speed check, in quiet timing against 1.5.0, had two single slow opens (80 and 90 ms). Both are still under the 100 ms limit, and the medians were the same as 1.5.0. Timed before the sound-engine fix; the release's quiet speed runs passed, but the tab was not re-timed against 1.5.0 after it.
