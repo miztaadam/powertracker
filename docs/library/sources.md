@@ -2871,7 +2871,7 @@ Sources of the stretch and squeeze:
 Stretch and squeeze (bodybuilding side):
 
 - Stretch: Your quads stretch at the bottom, hips still on the pad.
-- Squeeze: Squeeze your quads as your leg straightens, knee not locked.
+- Squeeze: Squeeze your quads as your working leg straightens, not locked.
 
 Sources of the stretch and squeeze:
 

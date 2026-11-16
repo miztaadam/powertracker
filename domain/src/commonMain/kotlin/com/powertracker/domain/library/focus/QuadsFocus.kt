@@ -83,7 +83,7 @@ internal val quadsFocus: List<Pair<String, MuscleFocus>> by lazy {
         // ExRx SLSingleLeg45LegPress also lowers to just short of complete flexion, so ACE 154 (which lists the
         // single-leg press as a variation) is cited alone.
         "Single-leg leg press" to lines(
-            PRESS_BOTTOM, "Squeeze your quads as your leg straightens, knee not locked.",
+            PRESS_BOTTOM, "Squeeze your quads as your working leg straightens, not locked.",
             Sources.ACE_SEATED_LEG_PRESS,
         ),
         // ExRx SLHackSquat: lower "until knees are just short of complete flexion", the guide's own words.
