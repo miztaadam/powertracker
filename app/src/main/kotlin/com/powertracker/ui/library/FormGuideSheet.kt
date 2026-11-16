@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.HealthAndSafety
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +42,7 @@ import com.powertracker.domain.library.figure
 import com.powertracker.domain.library.figures.ExerciseFigure
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.components.Eyebrow
+import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.theme.LocalTrainingMode
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
@@ -120,7 +120,7 @@ fun FormGuideContent(
             }
         }
         if (actions != null) {
-            HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+            SoftDivider()
             Box(Modifier.fillMaxWidth().padding(horizontal = Space.xl, vertical = Space.m).testTag("guide-actions")) { actions() }
         }
     }

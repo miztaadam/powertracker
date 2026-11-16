@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,6 +37,7 @@ import com.powertracker.ui.components.QuietButton
 import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.components.StatTile
 import com.powertracker.ui.components.formatKg
+import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 
@@ -67,7 +67,7 @@ fun StartSessionCard(items: List<TodayItem>, dayName: String, onStart: (bodyweig
         } else {
             Column {
                 items.forEachIndexed { i, item ->
-                    if (i > 0) HorizontalDivider(color = pt.hairline)
+                    if (i > 0) SoftDivider()
                     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(vertical = Space.xs), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
                         Column(Modifier.weight(1f)) {
                             Text(item.exercise.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -84,7 +84,7 @@ fun StartSessionCard(items: List<TodayItem>, dayName: String, onStart: (bodyweig
             }
         }
 
-        HorizontalDivider(color = pt.hairline)
+        SoftDivider()
 
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {

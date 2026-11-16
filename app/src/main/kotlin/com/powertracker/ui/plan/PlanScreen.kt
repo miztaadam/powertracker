@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -76,6 +75,7 @@ import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.components.SectionHeader
 import com.powertracker.ui.components.Stepper
 import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.library.ExercisePickerScreen
 import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.library.PickerEntry
@@ -247,7 +247,7 @@ fun PlanContent(
                             modifier = Modifier.padding(vertical = Space.s),
                         )
                         for (lift in state.mainExercises) {
-                            HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+                            SoftDivider()
                             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Text(lift.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                                 SecondaryButton("Set best", { onSetBaseline(lift) }, compact = true, modifier = Modifier.testTag("baseline-${lift.name}"))
@@ -287,7 +287,7 @@ private fun DayCard(
             )
         }
         rows.forEachIndexed { i, row ->
-            HorizontalDivider(Modifier.padding(end = Space.s), color = PowertrackerTheme.colors.hairline)
+            SoftDivider(Modifier.padding(end = Space.s))
             PlanItemRow(
                 position = i + 1,
                 name = row.exerciseName,

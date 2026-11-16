@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +38,7 @@ import com.powertracker.ui.components.SetRow
 import com.powertracker.ui.components.SetState
 import com.powertracker.ui.components.StatTile
 import com.powertracker.ui.components.formatKg
+import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
@@ -171,7 +171,7 @@ private fun SessionCard(session: HistorySession) {
             modifier = Modifier.semantics { heading() },
         )
         session.groups.forEachIndexed { i, group ->
-            if (i > 0) HorizontalDivider(Modifier.padding(vertical = Space.xs), color = pt.hairline)
+            if (i > 0) SoftDivider(Modifier.padding(vertical = Space.xs))
             Column {
                 if (group.isVariation) {
                     Text(group.exerciseName, style = MaterialTheme.typography.titleSmall, color = scheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.xs))

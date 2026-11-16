@@ -18,7 +18,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -64,6 +63,7 @@ import com.powertracker.ui.components.SectionHeader
 import com.powertracker.ui.components.SegmentedChoice
 import com.powertracker.ui.components.Stepper
 import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.library.RpeInfoButton
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
@@ -334,7 +334,7 @@ private fun Group(content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
-private fun RowDivider() = HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+private fun RowDivider() = SoftDivider()
 
 @Composable
 private fun RowLabel(label: String, supporting: String, modifier: Modifier = Modifier, labelAction: (@Composable () -> Unit)? = null) {

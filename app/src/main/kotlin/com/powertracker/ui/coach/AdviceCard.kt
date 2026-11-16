@@ -13,7 +13,6 @@ import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.filled.Balance
 import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.Replay
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +36,7 @@ import com.powertracker.ui.components.RatioBar
 import com.powertracker.ui.components.Sparkline
 import com.powertracker.ui.components.StatTile
 import com.powertracker.ui.components.formatKg
+import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.theme.LocalTrainingMode
 import com.powertracker.ui.theme.PowertrackerTheme
@@ -127,7 +127,7 @@ private fun PrescriptionList(items: List<AccessoryPrescription>) {
     if (items.isEmpty()) return
     Column(Modifier.background(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.shapes.medium).padding(horizontal = Space.m, vertical = Space.xs)) {
         items.forEachIndexed { i, item ->
-            if (i > 0) HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+            if (i > 0) SoftDivider()
             Row(
                 Modifier.fillMaxWidth().heightIn(min = 40.dp).semantics(mergeDescendants = true) {},
                 verticalAlignment = Alignment.CenterVertically,

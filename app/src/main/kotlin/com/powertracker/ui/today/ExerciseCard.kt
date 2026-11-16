@@ -1,6 +1,5 @@
 package com.powertracker.ui.today
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,7 +16,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,7 +29,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -70,6 +67,7 @@ import com.powertracker.ui.components.StepperEntry
 import com.powertracker.ui.components.StepperField
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.library.RpeInfoButton
 import com.powertracker.ui.theme.PowertrackerTheme
@@ -200,7 +198,7 @@ fun ExerciseCard(
         }
 
         if (!item.isComplete || extraSet) {
-            HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+            SoftDivider()
             Editor(item, weightStepKg, changePlates, actions)
         } else {
             PrimaryButton(next.label, next.onClick, Modifier.fillMaxWidth().padding(top = Space.xs), icon = Icons.AutoMirrored.Filled.ArrowForward)
@@ -238,7 +236,7 @@ private val CUE_LABEL_WIDTH = 72.sp
 private fun MuscleCues(focus: MuscleFocus.Lines) {
     val labelWidth = with(LocalDensity.current) { CUE_LABEL_WIDTH.toDp() }
     Column(Modifier.testTag("muscle-cues"), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-        HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+        SoftDivider()
         for ((label, line) in listOf("Stretch" to focus.stretch, "Squeeze" to focus.squeeze)) {
             Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
                 Eyebrow(label, Modifier.width(labelWidth).alignByBaseline(), color = PowertrackerTheme.colors.accentText)
@@ -393,8 +391,10 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
 fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
     PtCard(
-        modifier.clip(MaterialTheme.shapes.large).clickable(onClickLabel = "Log ${item.exercise.name}", onClick = onClick),
+        modifier,
         contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.s),
+        onClickLabel = "Log ${item.exercise.name}",
+        onClick = onClick,
     ) {
         Row(Modifier.heightIn(min = 40.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
             Text(item.exercise.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))

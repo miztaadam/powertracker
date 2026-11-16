@@ -21,7 +21,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -70,6 +69,7 @@ import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.components.SectionHeader
 import com.powertracker.ui.components.SegmentedChoice
 import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.library.ExerciseBrowser
 import com.powertracker.ui.library.FormGuideSheet
 import com.powertracker.ui.library.GuideHeader
@@ -234,7 +234,7 @@ fun PlanBuilderContent(state: PlanBuilderState, actions: PlanBuilderActions) {
 private fun BuilderBar(state: PlanBuilderState, actions: PlanBuilderActions) {
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.navigationBarsPadding()) {
-            HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+            SoftDivider()
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = Space.gutter, vertical = Space.m),
                 horizontalArrangement = Arrangement.spacedBy(Space.m),
@@ -398,7 +398,7 @@ private fun SessionCard(session: DraftSession, modifier: Modifier = Modifier, on
             Text("${session.exercises.size} exercises · $sets sets", style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted)
         }
         session.exercises.forEachIndexed { i, exercise ->
-            HorizontalDivider(Modifier.padding(end = Space.s), color = PowertrackerTheme.colors.hairline)
+            SoftDivider(Modifier.padding(end = Space.s))
             DraftRow(i + 1, exercise, onSwap = { onSwap(exercise.name) })
         }
     }
@@ -430,7 +430,7 @@ private fun VolumeCard(volume: List<GroupVolume>, modifier: Modifier = Modifier)
         SectionHeader(WEEKLY_SETS, Modifier.padding(top = Space.s))
         PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.s), spacing = 0.dp) {
             volume.forEachIndexed { i, v ->
-                if (i > 0) HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+                if (i > 0) SoftDivider()
                 VolumeRow(v)
             }
             Text(GUIDELINE, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.m, bottom = Space.s))
@@ -469,7 +469,7 @@ private fun LeftOutCard(leftOut: List<LeftOut>) {
         SectionHeader(LEFT_OUT, Modifier.padding(top = Space.s))
         PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.s), spacing = 0.dp) {
             leftOut.forEachIndexed { i, l ->
-                if (i > 0) HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+                if (i > 0) SoftDivider()
                 Column(Modifier.fillMaxWidth().padding(vertical = Space.s)) {
                     Text(l.name, style = MaterialTheme.typography.titleMedium)
                     Text(l.reason, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -489,6 +489,6 @@ private fun AlternativeRow(option: LibraryExercise, onPick: () -> Unit) {
             Text(option.name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
             if (option.muscles.isNotEmpty()) Text(option.muscles.joinToString(", "), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
         }
-        HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+        SoftDivider()
     }
 }

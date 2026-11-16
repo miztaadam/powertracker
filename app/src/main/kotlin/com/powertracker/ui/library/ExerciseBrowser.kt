@@ -1,7 +1,6 @@
 package com.powertracker.ui.library
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,7 +37,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -73,10 +71,13 @@ import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.Exercise
 import com.powertracker.ui.components.ChoiceChip
+import com.powertracker.ui.components.cardHighlight
+import com.powertracker.ui.components.cardShadow
 import com.powertracker.ui.components.EmptyState
 import com.powertracker.ui.components.Eyebrow
 import com.powertracker.ui.components.QuietButton
 import com.powertracker.ui.components.SecondaryButton
+import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 
@@ -502,14 +503,14 @@ private fun MuscleGrid(groups: List<MuscleGroup>, onPick: (MuscleGroup) -> Unit)
 
 @Composable
 private fun MuscleTile(group: MuscleGroup, onPick: (MuscleGroup) -> Unit, modifier: Modifier = Modifier) {
+    val shape = MaterialTheme.shapes.medium
     Surface(
         onClick = { onPick(group) },
-        modifier = modifier.heightIn(min = 56.dp).testTag("muscle-${group.name}"),
-        shape = MaterialTheme.shapes.medium,
+        modifier = modifier.heightIn(min = 56.dp).cardShadow(shape).testTag("muscle-${group.name}"),
+        shape = shape,
         color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, PowertrackerTheme.colors.hairline),
     ) {
-        Box(Modifier.padding(horizontal = Space.xs), contentAlignment = Alignment.Center) {
+        Box(Modifier.cardHighlight(shape).padding(horizontal = Space.xs), contentAlignment = Alignment.Center) {
             Text(group.label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center)
         }
     }
@@ -577,6 +578,6 @@ private fun BrowserRow(
             // Its own button, outside the row's click.
             InfoIconButton(entry.name, onClick = { onInfo(entry) })
         }
-        HorizontalDivider(Modifier.padding(start = Space.gutter), color = PowertrackerTheme.colors.hairline)
+        SoftDivider(Modifier.padding(start = Space.gutter))
     }
 }

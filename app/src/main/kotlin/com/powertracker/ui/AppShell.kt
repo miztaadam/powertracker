@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -50,6 +49,7 @@ import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.today.TodayScreen
 import com.powertracker.ui.today.rememberRestTimerHooks
 import com.powertracker.ui.today.rememberTodayViewModel
+import com.powertracker.ui.components.SoftDivider
 
 enum class Tab(val route: String, val label: String, val icon: ImageVector) {
     TODAY("today", "Today", Icons.Filled.FitnessCenter),
@@ -176,7 +176,7 @@ fun PtBottomBar(currentRoute: String?, onSelect: (Tab) -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
     Column {
-        HorizontalDivider(color = pt.hairline)
+        SoftDivider()
         NavigationBar(containerColor = scheme.surface, tonalElevation = 0.dp) {
             for (tab in Tab.entries) {
                 NavigationBarItem(

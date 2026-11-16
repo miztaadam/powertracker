@@ -27,7 +27,6 @@ import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Insights
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -82,6 +81,7 @@ import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToLong
 import com.powertracker.ui.components.LineChart as SeriesChart
+import com.powertracker.ui.components.SoftDivider
 
 /** Where the lifter stands: total and lift e1RMs, their trend, records, weekly volume, ratios and bodyweight. */
 @Composable
@@ -303,7 +303,7 @@ private fun PrSection(prs: List<PrUi>) {
         SectionHeader("Records")
         PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
             prs.forEachIndexed { i, (lift, pr) ->
-                if (i > 0) HorizontalDivider(color = pt.hairline)
+                if (i > 0) SoftDivider()
                 val date = (if (pr.date.year == thisYear) PR_DATE else PR_DATE_WITH_YEAR).format(pr.date.toJavaLocalDate())
                 val set = "${formatKg(pr.weightKg)} × ${pr.reps}" + (pr.rpe?.let { " @ ${formatRpe(it)}" } ?: "")
                 val e1rm = formatKg(pr.e1rmKg.toHalfKg())
@@ -389,7 +389,7 @@ private fun BodybuildingSection(state: ProgressState, onOpenExercise: (Long) -> 
     val pt = PowertrackerTheme.colors
     PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
             state.trends.forEachIndexed { i, trend ->
-                if (i > 0) HorizontalDivider(color = pt.hairline)
+                if (i > 0) SoftDivider()
                 val sets = if (trend.bestSets.isEmpty()) "Not logged yet" else bestSetText(trend)
                 // Read as the web reads it, "DB press. 26 × 10, 26 × 11. Going up" (a list, not "dot"), then the click
                 // label "Open history". The trend icons are left silent, since their words are already in it.
@@ -457,7 +457,7 @@ private fun BodyPartsSection(rows: List<MuscleRow>) {
         SectionHeader("Body parts")
         PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
             rows.forEachIndexed { i, row ->
-                if (i > 0) HorizontalDivider(color = pt.hairline)
+                if (i > 0) SoftDivider()
                 val latest = row.ratings.lastOrNull()?.second
                 val earlier = row.ratings.dropLast(1).map { ratingText(it.second) }
                 Row(

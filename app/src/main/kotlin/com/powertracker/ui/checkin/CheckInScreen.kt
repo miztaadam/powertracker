@@ -14,7 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +44,7 @@ import com.powertracker.ui.components.PrimaryButton
 import com.powertracker.ui.components.PtCard
 import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.components.SecondaryButton
+import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.library.MuscleOptions
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
@@ -196,7 +196,7 @@ private fun Saved(state: CheckInState) {
     if (state.lines.isEmpty()) return
     PtCard(Modifier.padding(top = Space.s), contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
         state.lines.forEachIndexed { i, line ->
-            if (i > 0) HorizontalDivider(color = pt.hairline)
+            if (i > 0) SoftDivider()
             Column(Modifier.fillMaxWidth().padding(vertical = Space.m).semantics(mergeDescendants = true) {}.testTag("saved-${line.group.name}")) {
                 Text(line.group.label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                 Text(line.text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -209,7 +209,7 @@ private fun Saved(state: CheckInState) {
 private fun CheckInBar(state: CheckInState, actions: CheckInActions) {
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.navigationBarsPadding()) {
-            HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+            SoftDivider()
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = Space.gutter, vertical = Space.m),
                 horizontalArrangement = Arrangement.spacedBy(Space.m),
