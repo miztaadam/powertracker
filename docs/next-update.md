@@ -236,7 +236,7 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-3.md`. This is stage 
 - **Timing:** about 280 ms; nothing takes longer than 350 ms.
 - **Reduce motion:** with the phone's reduce motion setting on, nothing slides.
 - **On the web:** the tab bar, the header and the rest bar stay still while things slide.
-- **A tap during a slide always lands.** On a computer, a mouse click during a slide can be lost; a finger tap on a phone is not.
+- **A tap or click during a slide always lands:** it ends the slide at once and reaches what is under it.
 - **Log set on the web:** the new set shows about 14 ms later on average than in 1.7, the one frame the slide needs.
 - **Fixed (found by the owner):** in the picker and on the Exercises tab, choosing **Chest** then **Barbell** left out Bench.
   - Now a body area also lists its main lift and that lift's variations: Bench under Chest, Squat under Quads, Deadlift under Hamstrings & glutes, Strict press under Shoulders.
