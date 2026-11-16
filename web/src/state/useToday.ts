@@ -6,6 +6,7 @@ import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/d
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
 import { sideOf, type AdviceRow, type PlanItemRow, type SetRow, type TrainingMode } from '../db/schema'
 import { haptic, hapticsPossible } from '../platform/haptics'
+import { slideNextChange } from '../ui/viewTransition'
 import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 
@@ -520,11 +521,14 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
 
   const [stored, setStored] = useState<Stored>()
   const [readError, setReadError] = useState<unknown>(null)
+  // Stage 3: the read after Log set or Delete set slides the set in or out (the sets on screen are its shape). Every
+  // other read lands at once.
+  const [slide] = useState(() => slideNextChange<Stored>(setStored, (s) => `${s.date}:${s.sessionId}:${s.sets.map((set) => set.id).join()}`))
   useEffect(() => {
     if (!resumed) return
-    const subscription = liveQuery(() => readStored(db, date)).subscribe({ next: setStored, error: setReadError })
+    const subscription = liveQuery(() => readStored(db, date)).subscribe({ next: slide.next, error: setReadError })
     return () => subscription.unsubscribe()
-  }, [db, date, resumed])
+  }, [db, date, resumed, slide])
   // A failed read is for the app's error boundary, not for an empty screen that looks like no data.
   if (readError != null) throw readError
   const [localState, setLocal] = useState<Local>(() => emptyLocal(date))
@@ -712,7 +716,14 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // A stand-in key means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
         const entry = standInEntry(itemKey)
         const row = { sessionId: now.sessionId, exerciseId: entry ? null : itemKey, weightKg: set.weightKg, reps: set.reps, rpe: set.rpe, failed: set.failed, missPoint: null, isTopSet: false }
-        const setId = await addSet(db, row, entry?.name ?? null)
+        slide.arm()
+        let setId: number
+        try {
+          setId = await addSet(db, row, entry?.name ?? null)
+        } catch (e) {
+          slide.disarm()
+          throw e
+        }
         // One buzz per set saved, Log set or Missed; a failed write does not buzz. A new best gets the stronger buzz,
         // worked out after the save and beside it: it never holds the set up, and if it fails the set still ticks.
         if (hapticsPossible()) void buzzForSet(db, setId, row, now.date, now.side)
@@ -726,7 +737,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         saving.current = false
       }
     },
-    [db, update, shown, loaded, touch],
+    [db, update, shown, loaded, touch, slide],
   )
 
   const confirmPending = useCallback(async () => {
@@ -743,7 +754,18 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     [db],
   )
 
-  const deleteSet = useCallback((setId: number) => db.sets.delete(setId), [db])
+  const deleteSet = useCallback(
+    async (setId: number) => {
+      slide.arm()
+      try {
+        await db.sets.delete(setId)
+      } catch (e) {
+        slide.disarm()
+        throw e
+      }
+    },
+    [db, slide],
+  )
 
   // Coach targets whose Apply is under way or done: a second tap landing before the first has applied (a double tap)
   // applies nothing more and buzzes nothing more. Kept once applied, as the advice is closed for good.

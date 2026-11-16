@@ -12,6 +12,7 @@ import { Menu } from '../../ui/components/Menu'
 import { ScreenHeader, SectionHeader } from '../../ui/components/ScreenHeader'
 import { ModeLabel } from '../../ui/components/ModeLabel'
 import { Snackbar } from '../../ui/components/Snackbar'
+import { slideName } from '../../ui/viewTransition'
 import { ExercisePicker } from '../library/ExercisePicker'
 import { InfoButton } from '../library/InfoButton'
 import { BaselineDialog, PlanItemDialog } from './PlanDialogs'
@@ -176,7 +177,7 @@ function DayCard({ section, onAdd, onEdit, onMove, onDelete }: DayCardProps) {
   const sets = rows.reduce((sum, row) => sum + row.item.sets, 0)
   const summary = rows.length === 0 ? 'Rest day' : `${rows.length} ${rows.length === 1 ? 'exercise' : 'exercises'} · ${sets} sets`
   return (
-    <section aria-label={name}>
+    <section aria-label={name} className="plan-day-section" {...slideName(`day-${section.weekday}`)}>
       <Card contentPadding={0} spacing={0} className="plan-day">
         <div className="plan-day-head">
           <div className="plan-grow">
@@ -219,7 +220,7 @@ type PlanItemRowProps = {
 function PlanItemRow({ position, row, canMoveUp, canMoveDown, onMove, onEdit, onDelete }: PlanItemRowProps) {
   const { item, exerciseName } = row
   return (
-    <li className="plan-row" aria-label={planItemText(exerciseName, item)}>
+    <li className="plan-row" aria-label={planItemText(exerciseName, item)} {...slideName(`plan-${item.id}`)}>
       <span className="plan-row-position title-small" aria-hidden="true">
         {position}
       </span>

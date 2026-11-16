@@ -15,6 +15,7 @@ import { PlateStrip, PlateStripNote } from '../../ui/components/PlateStrip'
 import { SegmentedChoice } from '../../ui/components/SegmentedChoice'
 import { SetRow } from '../../ui/components/SetRow'
 import { StepperField } from '../../ui/components/StepperField'
+import { slideName, withTransition } from '../../ui/viewTransition'
 import { InfoButton } from '../library/InfoButton'
 import { RpeInfoButton } from '../library/RpeSheet'
 import { MAX_KG, MAX_REPS, MAX_RPE, MIN_RPE, entryMessage, parseEntry, type EntryKind } from './entry'
@@ -130,7 +131,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
       {item.sets.length > 0 && (
         <div>
           {item.sets.map((set, i) => (
-            <div key={set.id}>
+            <div key={set.id} {...slideName(`set-${set.id}`)}>
               <SetRow
                 index={i + 1}
                 weightKg={set.weightKg}
@@ -157,7 +158,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         <>
           <PrimaryButton className="today-next" text={next.label} onClick={next.onClick} icon={<ArrowForwardIcon />} />
           <div className="today-center">
-            <QuietButton text="Add another set" onClick={() => setExtraSet(true)} />
+            <QuietButton text="Add another set" onClick={() => withTransition(() => setExtraSet(true))} />
           </div>
         </>
       )}

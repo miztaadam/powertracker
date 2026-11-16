@@ -11,6 +11,7 @@ import { AddIcon, FitnessCenterIcon } from '../../ui/components/icons'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
 import { ModeLabel } from '../../ui/components/ModeLabel'
 import { Snackbar } from '../../ui/components/Snackbar'
+import { afterTransition, slideName, withTransition } from '../../ui/viewTransition'
 import { BackupReminderCard } from './BackupReminderCard'
 import { ExerciseCard, ExerciseRow, type NextStep } from './ExerciseCard'
 import { StartSessionCard, SummaryCard } from './SessionCards'
@@ -99,6 +100,8 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
     applyTarget: reported(raw.applyTarget),
     dismissTarget: reported(raw.dismissTarget),
     finishSession: reported(raw.finishSession),
+    // The exercise slides out and the rows below close up (stage 3).
+    removeExercise: (exerciseId) => withTransition(() => raw.removeExercise(exerciseId)),
   }
   const { resolved } = state
   const inSession = state.sessionId != null && state.summary == null
@@ -126,12 +129,13 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
 
   const activeCard = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (inSession && activeExerciseId != null) activeCard.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
+    // After any slide (stage 3): a scroll under the moving pictures would make the screen jump when they land.
+    if (inSession && activeExerciseId != null) afterTransition(() => activeCard.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' }))
   }, [inSession, activeExerciseId])
 
   function nextStep(index: number): NextStep {
     const upNext = [...items.slice(index + 1), ...items.slice(0, index)].find(hasWorkLeft)
-    return upNext ? { label: `Next: ${upNext.exercise.name}`, onClick: () => setActiveId(upNext.exercise.id) } : { label: 'Finish session', onClick: () => void actions.finishSession() }
+    return upNext ? { label: `Next: ${upNext.exercise.name}`, onClick: () => withTransition(() => setActiveId(upNext.exercise.id)) } : { label: 'Finish session', onClick: () => void actions.finishSession() }
   }
 
   return (
@@ -154,7 +158,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
           <>
             {items.map((item, i) =>
               item === active ? (
-                <div key={keyOf(item)} ref={activeCard}>
+                <div key={keyOf(item)} ref={activeCard} className="today-item" {...slideName(`item-${keyOf(item)}`)}>
                   <ExerciseCard
                     item={item}
                     position={i + 1}
@@ -167,11 +171,13 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
                   />
                 </div>
               ) : (
-                <ExerciseRow key={keyOf(item)} item={item} onClick={() => setActiveId(item.exercise.id)} />
+                <div key={keyOf(item)} className="today-item" {...slideName(`item-${keyOf(item)}`)}>
+                  <ExerciseRow item={item} onClick={() => withTransition(() => setActiveId(item.exercise.id))} />
+                </div>
               ),
             )}
             {items.length === 0 && <EmptyState icon={<FitnessCenterIcon />} title="No exercises yet" body="Add what you are training today and log it set by set." />}
-            <SecondaryButton text="Add exercise" onClick={() => setPicking(true)} icon={<AddIcon />} />
+            <SecondaryButton className="today-add" text="Add exercise" onClick={() => setPicking(true)} icon={<AddIcon />} />
           </>
         )}
       </div>
@@ -186,15 +192,18 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
           // Picking one already in the session just opens its card, with no buzz. A new one ticks once it is added; the
           // picker answers once, so once.
           onPick={(entry) => {
-            let id: number | null = null
-            if (entry.library) id = actions.addFromCatalogue(entry.library.name)
-            else if (entry.exerciseId != null) {
-              actions.addExercise(entry.exerciseId)
-              id = entry.exerciseId
-            }
-            if (id != null && !inSessionAlready(id)) haptic('tick')
-            setActiveId(id)
+            // The picker closes at once, as before; the exercise then slides into the session (stage 3).
             setPicking(false)
+            withTransition(() => {
+              let id: number | null = null
+              if (entry.library) id = actions.addFromCatalogue(entry.library.name)
+              else if (entry.exerciseId != null) {
+                actions.addExercise(entry.exerciseId)
+                id = entry.exerciseId
+              }
+              if (id != null && !inSessionAlready(id)) haptic('tick')
+              setActiveId(id)
+            })
           }}
           onCreateCustom={(exercise) => {
             raw.createExercise(exercise).then(

@@ -7,6 +7,8 @@ import { syncThemeColor } from './ui/theme'
 import './ui/tokens.css'
 // Press feedback for every tappable component (stage 2); its own sheet, after the tokens.
 import './ui/press.css'
+// Things slide into place (stage 3): the names and timing of the few changes that move.
+import './ui/vt.css'
 
 syncThemeColor()
 // A quick tap still shows its sink (press.css): one listener for the whole page.

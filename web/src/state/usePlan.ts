@@ -5,6 +5,7 @@ import { activeTrainingDays, getSettings, type AppSettings, type GritDb } from '
 import { exerciseToJs } from '../db/mapping'
 import { sideOf, type ExerciseRow, type PlanItemRow, type TrainingMode } from '../db/schema'
 import { grit } from '../domain'
+import { slideNextChange } from '../ui/viewTransition'
 import { DEFAULT_SETS, createCustomExercise, defaultReps, recentExerciseIds, type CustomExercise, type PickerEntry } from './exercisePicker'
 
 export type PlanItem = PlanItemRow & { id: number }
@@ -124,26 +125,50 @@ async function newItem(db: GritDb, weekday: number, entry: PickerEntry, side: Tr
   return { weekday, exerciseId: entry.exerciseId, sets: DEFAULT_SETS, reps: defaultReps(entry), targetRpe: Math.min(MAX_RPE, Math.max(MIN_RPE, defaultRpe)) }
 }
 
+/** The rows of each day in the order they are drawn: what a slide waits for a change to. */
+const rowOrder = (stored: Stored | null): string =>
+  stored == null
+    ? ''
+    : [...stored.plan]
+        .sort((a, b) => a.weekday - b.weekday || a.order - b.order || a.id - b.id)
+        .map((p) => `${p.weekday}:${p.id}`)
+        .join()
+
+/** Runs a write of the Plan screen's, asking that the change it makes slides into place; a write that fails asks nothing. */
+async function sliding(slide: { arm: () => void; disarm: () => void }, write: () => Promise<unknown>): Promise<void> {
+  slide.arm()
+  try {
+    await write()
+  } catch (e) {
+    slide.disarm()
+    throw e
+  }
+}
+
 const EMPTY: Omit<PlanState, 'loading'> = { sections: [], exercises: [], recentIds: [], mainExercises: [], defaultRpe: 8, trainingDays: [], side: 'POWERLIFTING' }
 
 /** The weekly plan, read live from the database, and the edits the Plan screen makes to it. */
 export function usePlan(db: GritDb, today: () => string): PlanState & PlanActions {
   const [stored, setStored] = useState<Stored | null>(null)
   const [readError, setReadError] = useState<unknown>(null)
+  // Stage 3: the read after an add, a move or a delete on the Plan screen slides the rows into place (the rows of each
+  // day, in order, are its shape). Every other read lands at once: "Add to plan" on the Exercises tab never slides.
+  const [slide] = useState(() => slideNextChange<Stored | null>(setStored, rowOrder))
   useEffect(() => {
-    const subscription = liveQuery(() => readStored(db)).subscribe({ next: setStored, error: setReadError })
+    const subscription = liveQuery(() => readStored(db)).subscribe({ next: slide.next, error: setReadError })
     return () => subscription.unsubscribe()
-  }, [db])
+  }, [db, slide])
   // A failed read is for the app's error boundary, not for an empty screen that looks like no plan.
   if (readError != null) throw readError
 
   const add = useCallback<PlanActions['add']>(
-    async (weekday, entry) => {
-      // The side as stored at the moment of the tap, which the screen shows.
-      const side = await activeSide(db)
-      await addPlanItem(db, await newItem(db, weekday, entry, side), entry.library?.name ?? null, side)
-    },
-    [db],
+    (weekday, entry) =>
+      sliding(slide, async () => {
+        // The side as stored at the moment of the tap, which the screen shows.
+        const side = await activeSide(db)
+        await addPlanItem(db, await newItem(db, weekday, entry, side), entry.library?.name ?? null, side)
+      }),
+    [db, slide],
   )
 
   const addOnce = useCallback<PlanActions['addOnce']>(
@@ -169,27 +194,29 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
   )
 
   const remove = useCallback<PlanActions['remove']>(
-    async (item) => {
-      await db.planItems.delete(item.id)
-    },
-    [db],
+    (item) =>
+      sliding(slide, async () => {
+        await db.planItems.delete(item.id)
+      }),
+    [db, slide],
   )
 
   const move = useCallback<PlanActions['move']>(
-    async (item, direction) => {
-      await db.transaction('rw', db.planItems, async () => {
-        const items = await planItemsOn(db, item.weekday, sideOf(item))
-        const from = items.findIndex((p) => p.id === item.id)
-        const moved = items[from]
-        const neighbour = items[from + direction]
-        if (moved == null || neighbour == null) return
-        items[from + direction] = moved
-        items[from] = neighbour
-        // Renumbered rather than swapped, so two items that share an order still change places.
-        await Promise.all(items.map((p, order) => (p.order === order ? null : db.planItems.update(p.id, { order }))))
-      })
-    },
-    [db],
+    (item, direction) =>
+      sliding(slide, () =>
+        db.transaction('rw', db.planItems, async () => {
+          const items = await planItemsOn(db, item.weekday, sideOf(item))
+          const from = items.findIndex((p) => p.id === item.id)
+          const moved = items[from]
+          const neighbour = items[from + direction]
+          if (moved == null || neighbour == null) return
+          items[from + direction] = moved
+          items[from] = neighbour
+          // Renumbered rather than swapped, so two items that share an order still change places.
+          await Promise.all(items.map((p, order) => (p.order === order ? null : db.planItems.update(p.id, { order }))))
+        }),
+      ),
+    [db, slide],
   )
 
   const addCustomExercise = useCallback<PlanActions['addCustomExercise']>((exercise) => createCustomExercise(db, exercise), [db])

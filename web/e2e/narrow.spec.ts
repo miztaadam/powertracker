@@ -115,3 +115,64 @@ for (const side of ['powerlifting', 'bodybuilding'] as const) {
     })
   })
 }
+
+// Stage 3, with motion on (every check above runs still): logging a set and moving a plan row slide into place, and
+// nothing reaches past the screen while they move or once they have landed. At 306 and 320 px, and at 130% zoom on a
+// 375 px phone (laid out 1.3 times narrower and shorter).
+const sliding = () => document.getAnimations().some((a) => (a.effect as KeyframeEffect | null)?.pseudoElement?.startsWith('::view-transition') === true)
+
+for (const [label, viewport] of [
+  ['a 306 px phone', { width: 306, height: 568 }],
+  ['a 320 px phone', { width: 320, height: 568 }],
+  ['130% zoom', { width: Math.floor(375 / 1.3), height: Math.floor(812 / 1.3) }],
+] as const) {
+  test.describe(`${label}, with motion on`, () => {
+    test.use({ viewport, storageState: { cookies: [], origins: [] } })
+    test.beforeEach(async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: 'no-preference' })
+      await openOnWednesday(page)
+      expect(await page.evaluate(() => document.documentElement.getAttribute('data-motion'))).toBeNull()
+    })
+
+    test('a logged set slides in and nothing overflows', async ({ page }) => {
+      await tap(page, 'Start session')
+      await tap(page, 'Add exercise')
+      const picker = page.getByRole('dialog', { name: /^(Add to |Add exercise)/ })
+      await picker.getByRole('textbox', { name: 'Search exercises' }).fill('squat')
+      await picker.getByRole('listitem', { name: 'Squat', exact: true }).getByRole('button').first().click()
+      await expect(page.getByRole('heading', { name: 'Squat' })).toBeVisible()
+      await weightField(page).fill('100')
+      await weightField(page).blur()
+      await page.getByRole('button', { name: 'Log set 1' }).click()
+      await page.waitForFunction(sliding)
+      expect(await overflowing(page)).toEqual([])
+      await expect(page.getByRole('button', { name: 'Log set 2' })).toBeVisible()
+      await page.waitForFunction(() => !document.getAnimations().some((a) => (a.effect as KeyframeEffect | null)?.pseudoElement?.startsWith('::view-transition')))
+      expect(await overflowing(page)).toEqual([])
+    })
+
+    test('a plan row moves and nothing overflows', async ({ page }) => {
+      await page.goto('/#/plan')
+      const monday = page.getByRole('region', { name: 'Monday' })
+      for (const name of ['Squat', 'Bench']) {
+        await monday.getByRole('button', { name: 'Add' }).click()
+        const picker = page.getByRole('dialog', { name: /^Add to / })
+        await picker.getByRole('textbox', { name: 'Search exercises' }).fill(name)
+        await picker.getByRole('listitem', { name, exact: true }).getByRole('button').first().click()
+        await expect(picker).toHaveCount(0)
+      }
+      await expect(monday.getByRole('listitem')).toHaveCount(2)
+      await page.waitForFunction(() => !document.getAnimations().some((a) => (a.effect as KeyframeEffect | null)?.pseudoElement?.startsWith('::view-transition')))
+      // On the narrowest phones a row's numbers already run past their narrow column before anything moves (the same
+      // with motion off, and in 1.7): the move adds nothing to that.
+      const atRest = await overflowing(page)
+      await monday.getByRole('button', { name: 'Move down' }).first().click()
+      await page.waitForFunction(sliding)
+      expect(await overflowing(page)).toEqual(atRest)
+      await expect(monday.getByRole('listitem').first()).toHaveAttribute('aria-label', /^Bench/)
+      await page.waitForFunction(() => !document.getAnimations().some((a) => (a.effect as KeyframeEffect | null)?.pseudoElement?.startsWith('::view-transition')))
+      expect(await overflowing(page)).toEqual(atRest)
+      expect(atRest.every((found) => found.startsWith('clipped p.plan-row-dose'))).toBe(true)
+    })
+  })
+}

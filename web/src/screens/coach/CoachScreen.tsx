@@ -10,6 +10,7 @@ import { BoltIcon } from '../../ui/components/icons'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
 import { ModeLabel } from '../../ui/components/ModeLabel'
 import { Snackbar } from '../../ui/components/Snackbar'
+import { slideName } from '../../ui/viewTransition'
 import { CoachAdviceCard } from './CoachAdviceCard'
 import { WelcomeBackCard } from './WelcomeBackCard'
 import './coach.css'
@@ -82,7 +83,9 @@ export function CoachContent({ state, actions, welcome, checkIn }: CoachContentP
           <EmptyState icon={<BoltIcon />} title="No advice right now. Keep logging." body="The coach looks at your training each time you finish a session." />
         )}
         {state.cards.map((card) => (
-          <CoachAdviceCard key={card.advice.id} card={card} side={state.side} onApply={(choice) => void actions.apply(card.advice.id, choice)} onDismiss={() => void actions.dismiss(card.advice.id)} />
+          <div key={card.advice.id} {...slideName(`advice-${card.advice.id}`)}>
+            <CoachAdviceCard card={card} side={state.side} onApply={(choice) => void actions.apply(card.advice.id, choice)} onDismiss={() => void actions.dismiss(card.advice.id)} />
+          </div>
         ))}
       </div>
       {/* The newest confirmation replaces the one on screen. */}

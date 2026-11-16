@@ -11,6 +11,7 @@ import { haptic } from '../platform/haptics'
 import { LIFTS, type Lift } from '../router'
 import type { MissPoint } from './useToday'
 import { dayName } from './weekdayNames'
+import { withTransition } from '../ui/viewTransition'
 
 /** An accessory and its dose, as the coach prescribes it. */
 export type Prescription = { exerciseName: string; sets: number; repsLow: number; repsHigh: number }
@@ -342,7 +343,8 @@ export function useCoach(db: GritDb, today: () => string): CoachState & CoachAct
     async (adviceId: number, work: () => Promise<Applied | null>) => {
       if (busy.current.has(adviceId)) return
       busy.current.add(adviceId)
-      setHidden(new Set(busy.current))
+      // The card slides away and the cards below close up (stage 3).
+      withTransition(() => setHidden(new Set(busy.current)))
       try {
         const done = await work()
         // Kept hidden on success: the stored status reaches the feed a moment after this returns.
