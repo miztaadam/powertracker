@@ -273,7 +273,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your hamstrings stretch in the pause, the bar below your knees.
+- Stretch: Your hamstrings stretch with the bar paused below your knees.
 - Squeeze: Squeeze your hamstrings as you stand tall.
 
 Sources of the stretch and squeeze:
@@ -365,7 +365,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your quads stretch with your hip crease below your knee.
+- Stretch: Your quads stretch at the bottom of your squat.
 - Squeeze: Squeeze your quads as you stand tall with your knees locked.
 
 Sources of the stretch and squeeze:
@@ -474,6 +474,18 @@ Sources of the stretch and squeeze:
 - [Archer Push-up](https://exrx.net/WeightExercises/PectoralSternal/BWArcherPushup). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches on the bent arm's side as you lower.
+- Squeeze: Squeeze your chest as you press up with the bent arm.
+
+Sources of the stretch and squeeze:
+
+- [Archer Push-up](https://exrx.net/WeightExercises/PectoralSternal/BWArcherPushup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Assisted dip
 
 - [Machine-assisted Chest Dip](https://exrx.net/WeightExercises/PectoralSternal/AsChestDip). ExRx.net, accessed 2026-11-11.
@@ -483,16 +495,52 @@ Sources of the stretch and squeeze:
 - [Follow-up Q and A: Dangerous Dips](https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches with your upper arms level with the floor.
+- Squeeze: Squeeze your chest as you push up to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Machine-assisted Chest Dip](https://exrx.net/WeightExercises/PectoralSternal/AsChestDip). ExRx.net, accessed 2026-11-11.
+- [Follow-up Q and A: Dangerous Dips](https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Cable chest press
 
 - [Cable Isolateral Standing Chest Press](https://exrx.net/WeightExercises/PectoralSternal/CBStandingChestPress). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Seated Cable Press](https://www.acefitness.org/resources/everyone/exercise-library/165/seated-cable-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the handles come close to your chest.
+- Squeeze: Squeeze your chest as your arms straighten.
+
+Sources of the stretch and squeeze:
+
+- [Cable Isolateral Standing Chest Press](https://exrx.net/WeightExercises/PectoralSternal/CBStandingChestPress). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Seated Cable Press](https://www.acefitness.org/resources/everyone/exercise-library/165/seated-cable-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Cable crossover
 
 - [Cable Isolateral Standing Fly](https://exrx.net/WeightExercises/PectoralSternal/CBStandingFly). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Standing Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/160/standing-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Standing Incline Cable Flyes](https://www.acefitness.org/resources/everyone/exercise-library/163/standing-incline-cable-flyes/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as your arms go back out to your sides.
+- Squeeze: Squeeze your chest as your hands come together.
+
+Sources of the stretch and squeeze:
+
+- [Cable Isolateral Standing Fly](https://exrx.net/WeightExercises/PectoralSternal/CBStandingFly). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Standing Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/160/standing-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Chest dip
 
@@ -502,10 +550,34 @@ Sources of the stretch and squeeze:
 - [Follow-up Q and A: Dangerous Dips](https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches with your upper arms level with the floor.
+- Squeeze: Squeeze your chest as you push up to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Chest Dip](https://exrx.net/WeightExercises/PectoralSternal/BWChestDip). ExRx.net, accessed 2026-11-11.
+- [Follow-up Q and A: Dangerous Dips](https://www.acefitness.org/certifiednewsarticle/1657/follow-up-q-and-a-dangerous-dips/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Clap push-up
 
 - [Clap Push-up](https://exrx.net/Plyometrics/ClapPushUp). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as you lower toward the floor.
+- Squeeze: Squeeze your chest as you push off the floor.
+
+Sources of the stretch and squeeze:
+
+- [Clap Push-up](https://exrx.net/Plyometrics/ClapPushUp). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### DB fly
 
@@ -513,10 +585,34 @@ Sources of the stretch and squeeze:
 - [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the dumbbells reach shoulder level.
+- Squeeze: Squeeze your chest as the dumbbells come together.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Fly](https://exrx.net/WeightExercises/PectoralSternal/DBFly). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### DB press
 
 - [Dumbbell Bench Press](https://exrx.net/WeightExercises/PectoralSternal/DBBenchPress). ExRx.net, accessed 2026-11-11.
 - [How To Do a Chest Press](https://www.acefitness.org/resources/everyone/exercise-library/19/chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the dumbbells reach your chest.
+- Squeeze: Squeeze your chest as you press the dumbbells up.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Bench Press](https://exrx.net/WeightExercises/PectoralSternal/DBBenchPress). ExRx.net, accessed 2026-11-11.
+- [How To Do a Chest Press](https://www.acefitness.org/resources/everyone/exercise-library/19/chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Decline bench press
 
@@ -525,12 +621,36 @@ Sources of the stretch and squeeze:
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the bar comes down to your chest.
+- Squeeze: Squeeze your chest as you press the bar up.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Decline Bench Press](https://exrx.net/WeightExercises/PectoralSternal/BBDeclineBenchPress). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Decline DB fly
 
 - [Dumbbell Decline Fly](https://exrx.net/WeightExercises/PectoralSternal/DBDeclineFly). ExRx.net, accessed 2026-11-11.
 - [Dumbbell Decline Bench Press](https://exrx.net/WeightExercises/PectoralSternal/DBDeclineBenchPress). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the dumbbells reach shoulder level.
+- Squeeze: Squeeze your chest as the dumbbells nearly touch.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Decline Fly](https://exrx.net/WeightExercises/PectoralSternal/DBDeclineFly). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Decline DB press
 
@@ -539,22 +659,70 @@ Sources of the stretch and squeeze:
 - [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the dumbbells reach your chest.
+- Squeeze: Squeeze your chest as you press the dumbbells up.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Decline Bench Press](https://exrx.net/WeightExercises/PectoralSternal/DBDeclineBenchPress). ExRx.net, accessed 2026-11-11.
+- [How To Do a Chest Press](https://www.acefitness.org/resources/everyone/exercise-library/19/chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Decline machine press
 
 - [Lever Decline Chest Press (plate loaded)](https://exrx.net/WeightExercises/PectoralSternal/LVDeclineChestPressPL). ExRx.net, accessed 2026-11-11.
 - [Seated Chest Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/188/seated-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Seated Close-Grip Chest Press](https://www.acefitness.org/resources/everyone/exercise-library/189/seated-close-grip-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the handles come back to the start.
+- Squeeze: Squeeze your chest as your arms straighten.
+
+Sources of the stretch and squeeze:
+
+- [Lever Decline Chest Press (plate loaded)](https://exrx.net/WeightExercises/PectoralSternal/LVDeclineChestPressPL). ExRx.net, accessed 2026-11-11.
+- [Seated Chest Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/188/seated-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Decline push-up
 
 - [Decline Push-up](https://exrx.net/WeightExercises/PectoralClavicular/BWDeclinePushup). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches at the bottom, with your body straight.
+- Squeeze: Squeeze your chest as you push up to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Decline Push-up](https://exrx.net/WeightExercises/PectoralClavicular/BWDeclinePushup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Incline bench cable fly
 
 - [Cable Isolateral Incline Fly](https://exrx.net/WeightExercises/PectoralClavicular/CBInclineFly). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as your hands reach shoulder level.
+- Squeeze: Squeeze your chest as the handles come together.
+
+Sources of the stretch and squeeze:
+
+- [Cable Isolateral Incline Fly](https://exrx.net/WeightExercises/PectoralClavicular/CBInclineFly). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Incline bench press
 
@@ -564,11 +732,35 @@ Sources of the stretch and squeeze:
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the bar comes down to your chest.
+- Squeeze: Squeeze your chest as you press the bar up.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Incline Bench Press](https://exrx.net/WeightExercises/PectoralClavicular/BBInclineBenchPress). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Incline DB fly
 
 - [Dumbbell Incline Fly](https://exrx.net/WeightExercises/PectoralClavicular/DBInclineFly). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the dumbbells reach shoulder level.
+- Squeeze: Squeeze your chest as the dumbbells come nearly together.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Incline Fly](https://exrx.net/WeightExercises/PectoralClavicular/DBInclineFly). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Incline DB press
 
@@ -576,26 +768,86 @@ Sources of the stretch and squeeze:
 - [Exercise Library: Incline Chest Press](https://www.acefitness.org/resources/everyone/exercise-library/25/incline-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the dumbbells reach your upper chest.
+- Squeeze: Squeeze your chest as you press the dumbbells up.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Incline Bench Press](https://exrx.net/WeightExercises/PectoralClavicular/DBInclineBenchPress). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Incline Chest Press](https://www.acefitness.org/resources/everyone/exercise-library/25/incline-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Incline machine press
 
 - [Lever Incline Chest Press](https://exrx.net/WeightExercises/PectoralClavicular/LVInclineChestPress). ExRx.net, accessed 2026-11-11.
 - [Seated Chest Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/188/seated-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Seated Close-Grip Chest Press](https://www.acefitness.org/resources/everyone/exercise-library/189/seated-close-grip-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the handles come back to the start.
+- Squeeze: Squeeze your chest as your arms straighten.
+
+Sources of the stretch and squeeze:
+
+- [Lever Incline Chest Press](https://exrx.net/WeightExercises/PectoralClavicular/LVInclineChestPress). ExRx.net, accessed 2026-11-11.
+- [Seated Chest Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/188/seated-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Incline push-up
 
 - [Incline Push-up](https://exrx.net/WeightExercises/PectoralSternal/BWInclinePushup). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as you lower your chest to the edge.
+- Squeeze: Squeeze your chest as you push up to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Incline Push-up](https://exrx.net/WeightExercises/PectoralSternal/BWInclinePushup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Knee push-up
 
 - [Push-up (on knees)](https://exrx.net/WeightExercises/PectoralSternal/BWPushupKnee). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Bent-knee Push-up](https://www.acefitness.org/resources/everyone/exercise-library/13/bent-knee-push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as you lower toward the floor.
+- Squeeze: Squeeze your chest as you push back up.
+
+Sources of the stretch and squeeze:
+
+- [Push-up (on knees)](https://exrx.net/WeightExercises/PectoralSternal/BWPushupKnee). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Bent-knee Push-up](https://www.acefitness.org/resources/everyone/exercise-library/13/bent-knee-push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Low-to-high cable fly
 
 - [Cable Standing Incline Fly](https://exrx.net/WeightExercises/PectoralClavicular/CBStandingInclineFly). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Standing Incline Cable Flyes](https://www.acefitness.org/resources/everyone/exercise-library/163/standing-incline-cable-flyes/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as your arms open back to the start.
+- Squeeze: Squeeze your chest as your hands meet at face height.
+
+Sources of the stretch and squeeze:
+
+- [Cable Standing Incline Fly](https://exrx.net/WeightExercises/PectoralClavicular/CBStandingInclineFly). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Standing Incline Cable Flyes](https://www.acefitness.org/resources/everyone/exercise-library/163/standing-incline-cable-flyes/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Lying cable fly
 
@@ -603,11 +855,35 @@ Sources of the stretch and squeeze:
 - [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as your hands reach shoulder level.
+- Squeeze: Squeeze your chest as the handles come together.
+
+Sources of the stretch and squeeze:
+
+- [Cable Isolateral Lying Fly](https://exrx.net/WeightExercises/PectoralSternal/CBLyingFly). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Lying Chest Fly](https://www.acefitness.org/resources/everyone/exercise-library/21/lying-chest-fly/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Machine chest press
 
 - [Lever Chest Press](https://exrx.net/WeightExercises/PectoralSternal/LVChestPress). ExRx.net, accessed 2026-11-11.
 - [Seated Chest Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/188/seated-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Exercise Library: Seated Close-Grip Chest Press](https://www.acefitness.org/resources/everyone/exercise-library/189/seated-close-grip-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the handles come back to the start.
+- Squeeze: Squeeze your chest as your arms straighten.
+
+Sources of the stretch and squeeze:
+
+- [Lever Chest Press](https://exrx.net/WeightExercises/PectoralSternal/LVChestPress). ExRx.net, accessed 2026-11-11.
+- [Seated Chest Press Exercise Guide](https://www.acefitness.org/resources/everyone/exercise-library/188/seated-chest-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Pec deck
 
@@ -615,15 +891,50 @@ Sources of the stretch and squeeze:
 - [Lever Isolateral Pec Deck Fly](https://exrx.net/WeightExercises/PectoralSternal/LVPecDeckFly). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the handles come back to the start.
+- Squeeze: Squeeze your chest as the handles come together.
+
+Sources of the stretch and squeeze:
+
+- [Lever Isolateral Pec Deck Fly](https://exrx.net/WeightExercises/PectoralSternal/LVPecDeckFly). ExRx.net, accessed 2026-11-11.
+- [Lever Isolateral Seated Fly](https://exrx.net/WeightExercises/PectoralSternal/LVSeatedFly). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Push-up
 
 - [Push-up](https://exrx.net/WeightExercises/PectoralSternal/BWPushup). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as you lower toward the floor.
+- Squeeze: Squeeze your chest as you push the floor away.
+
+Sources of the stretch and squeeze:
+
+- [Push-up](https://exrx.net/WeightExercises/PectoralSternal/BWPushup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Seated cable fly
 
 - [Cable Isolateral Cable Fly](https://exrx.net/WeightExercises/PectoralSternal/CBSeatedFly). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the handles go back to the start.
+- Squeeze: Squeeze your chest as the handles come together.
+
+Sources of the stretch and squeeze:
+
+- [Cable Isolateral Cable Fly](https://exrx.net/WeightExercises/PectoralSternal/CBSeatedFly). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Smith bench press
 
@@ -631,11 +942,35 @@ Sources of the stretch and squeeze:
 - [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the bar comes down to your chest.
+- Squeeze: Squeeze your chest as you press the bar up.
+
+Sources of the stretch and squeeze:
+
+- [Smith Bench Press](https://exrx.net/WeightExercises/PectoralSternal/SMBenchPress). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Smith decline press
 
 - [Smith Decline Bench Press](https://exrx.net/WeightExercises/PectoralSternal/SMDeclineBenchPress). ExRx.net, accessed 2026-11-11.
 - [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the bar comes down to your lower chest.
+- Squeeze: Squeeze your chest as you press the bar up.
+
+Sources of the stretch and squeeze:
+
+- [Smith Decline Bench Press](https://exrx.net/WeightExercises/PectoralSternal/SMDeclineBenchPress). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Smith incline press
 
@@ -643,11 +978,35 @@ Sources of the stretch and squeeze:
 - [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as the bar comes down to your chest.
+- Squeeze: Squeeze your chest as you press the bar up.
+
+Sources of the stretch and squeeze:
+
+- [Smith Incline Bench Press](https://exrx.net/WeightExercises/PectoralClavicular/SMInclineBenchPress). ExRx.net, accessed 2026-11-11.
+- [Bench Press Analyses](https://exrx.net/Kinesiology/BenchPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Weighted push-up
 
 - [Weighted Push-up](https://exrx.net/WeightExercises/PectoralSternal/WtPushup). ExRx.net, accessed 2026-11-11.
 - [Weighted Push-up (on handles)](https://exrx.net/WeightExercises/PectoralSternal/WtPushupHandles). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your chest stretches as you bend your elbows to lower.
+- Squeeze: Squeeze your chest as you push up to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Weighted Push-up](https://exrx.net/WeightExercises/PectoralSternal/WtPushup). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Push-ups](https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ## Back
 

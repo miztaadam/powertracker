@@ -79,6 +79,15 @@ class MuscleFocusTest {
     }
 
     @Test
+    fun focus_chestIsAllWritten() {
+        val missing = Library.all().filter { it.area == BodyArea.CHEST && Library.focus(it.name) == null }.map { it.name }
+        assertTrue(missing.isEmpty(), "chest exercises with no lines: $missing")
+        // The plan's case check, once Chest is written.
+        val fly = assertNotNull(Library.focus("DB fly"))
+        assertEquals(fly, Library.focus("dB FLY"))
+    }
+
+    @Test
     fun focus_findsByNameIgnoringCase() {
         val squat = assertNotNull(Library.focus("Squat"))
         assertEquals(squat, Library.focus("SQUAT"))

@@ -33,11 +33,8 @@ private const val GLUTES_HIPS_BACK = "Your glutes stretch as you push your hips 
 /** BodyArea.MAIN_LIFTS: each exercise's stretch and squeeze, keyed by catalogue name. */
 internal val mainLiftsFocus: List<Pair<String, MuscleFocus>> by lazy {
     listOf(
-        // Competition depth, exactly as the guide gives it: hip crease below the top of the knee.
-        "Squat" to lines(
-            "Your quads stretch with your hip crease below your knee.", QUADS_STAND_LOCKED,
-            Sources.EXRX_BB_SQUAT, Sources.ACE_BACK_SQUAT,
-        ),
+        // "At the bottom": the guide's own competition depth (hip crease below the top of the knee), no deeper.
+        "Squat" to lines(QUADS_BOTTOM, QUADS_STAND_LOCKED, Sources.EXRX_BB_SQUAT, Sources.ACE_BACK_SQUAT),
         // The bar goes to the chest and pauses there; no deeper.
         "Bench" to lines(
             "Your chest stretches in the pause with the bar on your chest.", CHEST_PRESS_UP,
@@ -120,7 +117,7 @@ internal val mainLiftsFocus: List<Pair<String, MuscleFocus>> by lazy {
             Sources.EXRX_BB_DEADLIFT, Sources.ACE_DEADLIFT,
         ),
         "Paused deadlift at the knee" to hamstringLines(
-            "Your hamstrings stretch in the pause, the bar below your knees.", "Squeeze your hamstrings as you stand tall.",
+            "Your hamstrings stretch with the bar paused below your knees.", "Squeeze your hamstrings as you stand tall.",
             Sources.EXRX_BB_DEADLIFT, Sources.ACE_DEADLIFT,
         ),
         "Block pull" to lines(
