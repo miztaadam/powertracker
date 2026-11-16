@@ -1,7 +1,9 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type { GritDb } from '../../db/db'
+import { updateSettings, type GritDb } from '../../db/db'
+import type { TrainingMode } from '../../db/schema'
+import { grit } from '../../domain'
 import { TODAY, addDays, baseline, exerciseNamed, logSet, plan, set, setsOn, startSession, targets, todayFixture } from '../../test/todayFixture'
 import { TodayScreen } from './TodayScreen'
 
@@ -437,5 +439,91 @@ describe('typed numbers on the exercise card', () => {
     expect(button('Log set 1')).toBeDisabled()
     expect(button('Missed')).toBeDisabled()
     expect(await setsOn(db, TODAY)).toEqual([])
+  })
+})
+
+// Stage 4: where the muscle stretches and where it is squeezed, on the bodybuilding side only (owner decision 1).
+describe('stretch and squeeze on the exercise card', () => {
+  /** Today's plan is `name` alone, 3 × 8–12 on `mode`, with today's session and the app on that side. */
+  async function onlyToday(mode: TrainingMode, exerciseId: number) {
+    await db.planItems.clear()
+    await db.planItems.add({ weekday: 3, exerciseId, sets: 3, reps: 8, ...(mode === 'BODYBUILDING' ? { repsHigh: 12 } : {}), targetRpe: 8, order: 0, mode })
+    await db.sessions.where('date').equals(TODAY).modify({ mode })
+    await updateSettings(db, (s) => ({ ...s, trainingMode: mode }))
+  }
+  /** A stored row for a catalogue exercise the seed does not hold. */
+  const addCatalogueRow = async (name: string) => {
+    const entry = grit.findInLibrary(name)!
+    return (await db.exercises.add({ name: entry.name, category: entry.category, parentLift: entry.parentLift ?? null, muscles: [...entry.muscles], isBuiltIn: true, archived: false })) as number
+  }
+  const squat = grit.muscleFocus('Squat')!
+  const NO_FOCUS_LINE = 'No stretch or squeeze to aim for here: this one trains you to stay steady.'
+  const cues = () => document.querySelector('.today-cues')
+
+  it('bodybuildingCard_showsStretchAndSqueeze', async () => {
+    await onlyToday('BODYBUILDING', squatId)
+    const session = (await db.sessions.where('date').equals(TODAY).first())!.id!
+    await logSet(db, session, set(squatId, 100, { reps: 10 }))
+    show()
+    await screen.findByText('Set 2 of 3')
+
+    const stretch = screen.getByText('STRETCH')
+    const squeeze = screen.getByText('SQUEEZE')
+    expect(screen.getByText(squat.stretch!)).toBeInTheDocument()
+    expect(screen.getByText(squat.squeeze!)).toBeInTheDocument()
+    // Labels in the eyebrow style, the lines in 16 px body text, stretch first.
+    expect(stretch).toHaveClass('eyebrow')
+    expect(squeeze).toHaveClass('eyebrow')
+    expect(screen.getByText(squat.stretch!)).toHaveClass('body-large')
+    expect(screen.getByText(squat.squeeze!)).toHaveClass('body-large')
+    expect(stretch.compareDocumentPosition(squeeze) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    // Between the logged sets and the weight entry, as the mockup.
+    const lastSet = screen.getByRole('button', { name: /^Set 1/ })
+    expect(lastSet.compareDocumentPosition(stretch) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(squeeze.compareDocumentPosition(weight()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('bodybuildingCard_noFocus_showsNothing', async () => {
+    const plank = await addCatalogueRow('Front plank')
+    expect(grit.muscleFocus('Front plank')).toMatchObject({ stretch: null, squeeze: null, none: NO_FOCUS_LINE })
+    await onlyToday('BODYBUILDING', plank)
+    show()
+    await screen.findByRole('heading', { name: 'Front plank' })
+    await ready()
+    expect(screen.queryByText('STRETCH')).toBeNull()
+    expect(screen.queryByText('SQUEEZE')).toBeNull()
+    expect(screen.queryByText(NO_FOCUS_LINE)).toBeNull()
+    expect(cues()).toBeNull()
+
+    // The lifter's own exercise: no lines, and no empty place for them.
+    cleanup()
+    const own = (await db.exercises.add({ name: 'Tyre flip', category: 'ACCESSORY', parentLift: null, muscles: ['QUADS'], isBuiltIn: false, archived: false })) as number
+    expect(grit.muscleFocus('Tyre flip')).toBeNull()
+    await onlyToday('BODYBUILDING', own)
+    show()
+    await screen.findByRole('heading', { name: 'Tyre flip' })
+    await ready()
+    expect(screen.queryByText('STRETCH')).toBeNull()
+    expect(cues()).toBeNull()
+  })
+
+  it('bodybuildingCard_restoredRowUnderCatalogueName_showsLines', async () => {
+    // A row restored from a backup under a catalogue name, in lower case: matched the way its guide is.
+    await db.exercises.update(squatId, { name: 'squat' })
+    await onlyToday('BODYBUILDING', squatId)
+    show()
+    await screen.findByRole('heading', { name: 'squat' })
+    expect(await screen.findByText(squat.stretch!)).toBeInTheDocument()
+    expect(screen.getByText(squat.squeeze!)).toBeInTheDocument()
+  })
+
+  it('powerliftingCard_showsNoCues', async () => {
+    show()
+    await screen.findByRole('heading', { name: 'Squat' })
+    await ready()
+    expect(screen.queryByText('STRETCH')).toBeNull()
+    expect(screen.queryByText('SQUEEZE')).toBeNull()
+    expect(screen.queryByText(squat.stretch!)).toBeNull()
+    expect(cues()).toBeNull()
   })
 })

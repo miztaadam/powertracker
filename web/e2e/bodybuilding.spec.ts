@@ -43,6 +43,8 @@ type Story = {
   checkInDue?: boolean
   /** Two check-ins (chest lagging four weeks ago, then growing well with lats two days ago), for Progress's ratings. */
   checkIns?: boolean
+  /** Stage 4: Squat leads Wednesday's bodybuilding plan, with one set done today, for its stretch and squeeze. */
+  squatToday?: boolean
 }
 
 /**
@@ -50,7 +52,7 @@ type Story = {
  * the bodybuilding plan (Monday, Wednesday, Friday), a powerlifting plan beside it, and two weeks of sessions.
  */
 async function seedStory(page: Page, story: Story = {}) {
-  await page.evaluate(async ({ todaySession = false, bodybuildingLeftOn = null, deload = false, checkInDue = false, checkIns = false }) => {
+  await page.evaluate(async ({ todaySession = false, bodybuildingLeftOn = null, deload = false, checkInDue = false, checkIns = false, squatToday = false }) => {
     const db = await new Promise<IDBDatabase>((done, fail) => {
       const request = indexedDB.open('grit')
       request.onsuccess = () => done(request.result)
@@ -140,6 +142,10 @@ async function seedStory(page: Page, story: Story = {}) {
       tx.objectStore('checkIns').add({ date: '2026-10-14', lagging: ['CHEST'], growingWell: [] })
       tx.objectStore('checkIns').add({ date: '2026-11-09', lagging: [], growingWell: ['CHEST', 'LATS'] })
     }
+    if (squatToday) {
+      plan(3, idOf('Squat'), -1, 10, 15)
+      await session('2026-11-11', [[idOf('Squat'), 80, 12]])
+    }
     if (todaySession)
       await session('2026-11-11', [
         [incline, 26, 11],
@@ -203,6 +209,30 @@ for (const scheme of ['dark', 'light'] as const) {
       await expect(card.getByText('Last time: 26 × 11, 10, 9. Beat it.')).toHaveCount(0)
       await expect(weightField(page)).toHaveValue('26')
       await expect(repsField(page)).toHaveValue('10')
+    })
+
+    test('the form guide: stretch and squeeze after the cues', async ({ page }) => {
+      const squat = GritDomain.getInstance().muscleFocus('Squat')!
+      await openOnWednesday(page, '#/exercises')
+      await seedStory(page)
+      await page.getByRole('button', { name: 'Open Squat', exact: true }).click()
+      const guide = page.getByRole('dialog', { name: 'Form guide for Squat' })
+      const section = guide.getByRole('heading', { level: 3, name: 'Stretch and squeeze' })
+      await expect(section).toBeAttached()
+      await expect(guide.getByText(squat.stretch!, { exact: true })).toBeAttached()
+      await expect(guide.getByText(squat.squeeze!, { exact: true })).toBeAttached()
+      await guide.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)))
+      await page.setViewportSize({ width: 390, height: 844 })
+      // The section near the top of the sheet, with the end of the cues above it.
+      await guide.evaluate((el) => {
+        const heading = Array.from(el.querySelectorAll('h3')).find((h) => h.textContent === 'Stretch and squeeze')!
+        el.scrollTo(0, heading.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop - 220)
+      })
+      await expect(section).toBeInViewport()
+      await expect(guide.getByText(squat.squeeze!, { exact: true })).toBeInViewport()
+      await page.evaluate(() => document.fonts.ready)
+      mkdirSync(outDir, { recursive: true })
+      await page.screenshot({ path: resolve(outDir, `form-guide-bodybuilding-${scheme}.png`), animations: 'disabled' })
     })
 
     test('plan: the side’s own plan and days, rows as ranges', async ({ page }) => {
@@ -390,6 +420,51 @@ for (const scheme of ['dark', 'light'] as const) {
     })
   })
 }
+
+// Stage 4. The lines on the card wrap and are never cut off at 130% zoom on a 375 px phone (review focus 2).
+test('today: the stretch and squeeze lines wrap without clipping at 130% zoom', async ({ page }) => {
+  const squat = GritDomain.getInstance().muscleFocus('Squat')!
+  await openOnWednesday(page)
+  await seedStory(page, { squatToday: true })
+  // What 130% zoom does to a 375 × 812 phone: the page is laid out 1.3 times narrower and shorter.
+  await page.setViewportSize({ width: Math.floor(375 / 1.3), height: Math.floor(812 / 1.3) })
+  const card = page.locator('.gr-card', { has: page.getByRole('heading', { name: 'Squat' }) })
+  await expect(card.getByText('Set 2 of 3')).toBeVisible()
+  await expect(card.getByText('STRETCH', { exact: true })).toBeVisible()
+  await expect(card.getByText(squat.stretch!)).toBeVisible()
+  await expect(card.getByText('SQUEEZE', { exact: true })).toBeVisible()
+  await expect(card.getByText(squat.squeeze!)).toBeVisible()
+  // Between the logged set and the weight entry.
+  const top = async (text: string) => (await card.getByText(text, { exact: true }).boundingBox())!.y
+  const set1 = (await card.getByRole('button', { name: /^Set 1:/ }).boundingBox())!
+  expect(await top('STRETCH')).toBeGreaterThanOrEqual(set1.y + set1.height)
+  expect(await top(squat.squeeze!)).toBeLessThan((await weightField(page).boundingBox())!.y)
+
+  const fit = await card.evaluate((el) => {
+    const found: string[] = []
+    // The lines and their labels. (The RPE stepper reaches past a 288 px screen with or without them: a separate matter.)
+    for (const node of el.querySelectorAll<HTMLElement>('.today-cues, .today-cues *')) {
+      if (node.closest('.sr-only')) continue
+      const box = node.getBoundingClientRect()
+      if (box.width > 0 && (box.right > window.innerWidth + 0.5 || box.left < -0.5)) found.push(`outside ${node.tagName.toLowerCase()}.${node.className}`)
+    }
+    for (const node of el.querySelectorAll<HTMLElement>('.today-cue > p')) {
+      if (node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1) found.push(`clipped ${node.textContent}`)
+    }
+    return found
+  })
+  expect(fit).toEqual([])
+  expect(await fitsThePhone(page)).toBe(true)
+  // The long lines wrap onto more than one line, in 16 px text.
+  for (const line of [squat.stretch!, squat.squeeze!]) {
+    const shape = await card.getByText(line, { exact: true }).evaluate((node) => ({ height: node.getBoundingClientRect().height, lineHeight: parseFloat(getComputedStyle(node).lineHeight), fontSize: parseFloat(getComputedStyle(node).fontSize) }))
+    expect(shape.fontSize, line).toBeGreaterThanOrEqual(16)
+    expect(shape.height, line).toBeGreaterThan(shape.lineHeight * 1.5)
+  }
+  // For looking at, not committed.
+  mkdirSync(resolve(process.cwd(), 'test-results/screens'), { recursive: true })
+  await page.screenshot({ path: resolve(process.cwd(), 'test-results/screens/today-cues-zoom.png'), fullPage: true, animations: 'disabled' })
+})
 
 test('switching sides swaps the plan, keeps one log, and a day already trained stays on its session', async ({ page }) => {
   await openOnWednesday(page, '#/settings')

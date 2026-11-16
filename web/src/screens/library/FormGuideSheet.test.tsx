@@ -1,7 +1,9 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import type { TrainingMode } from '../../db/schema'
 import { grit } from '../../domain'
+import { TrainingModeContext } from '../../ui/components/ModeLabel'
 import { NO_GUIDE, checkInfoButtonOpensGuide, guideIsOpen } from '../../test/guideChecks'
 import { FormGuideSheet } from './FormGuideSheet'
 import { InfoButton } from './InfoButton'
@@ -122,5 +124,58 @@ describe('InfoButton', () => {
     expect(onDismiss).not.toHaveBeenCalled()
     await userEvent.keyboard('{Escape}')
     expect(onDismiss).toHaveBeenCalledOnce()
+  })
+})
+
+// Stage 4: the "Stretch and squeeze" section, after Cues, only while bodybuilding mode is on (owner decision 1).
+describe('FormGuideSheet stretch and squeeze', () => {
+  const NO_FOCUS_LINE = 'No stretch or squeeze to aim for here: this one trains you to stay steady.'
+  const onSide = (mode: TrainingMode, name: string) => (
+    <TrainingModeContext.Provider value={mode}>
+      <FormGuideSheet name={name} onClose={() => {}} />
+    </TrainingModeContext.Provider>
+  )
+
+  it('guideSheet_bodybuilding_hasStretchAndSqueeze', () => {
+    const guide = grit.findInLibrary('Squat')!.guide
+    const focus = grit.muscleFocus('Squat')!
+    const { rerender } = render(onSide('BODYBUILDING', 'Squat'))
+    const inSheet = within(sheet('Squat'))
+    expect(inSheet.getByRole('heading', { level: 3, name: 'Stretch and squeeze' })).toBeInTheDocument()
+    // Right after Cues: its two lines, stretch first, as the guide's other lines are.
+    const lines = linesOf(sheet('Squat'))
+    const at = lines.indexOf('Stretch and squeeze')
+    expect(lines.slice(at - guide.cues.length - 1, at)).toEqual(['Cues', ...guide.cues])
+    expect(lines.slice(at, at + 4)).toEqual(['Stretch and squeeze', focus.stretch, focus.squeeze, 'Common mistakes'])
+    expect(inSheet.getByText(focus.stretch!).closest('.body-large')).not.toBeNull()
+
+    // An exercise with nothing to aim for says so in one line.
+    rerender(onSide('BODYBUILDING', 'Front plank'))
+    const plank = linesOf(sheet('Front plank'))
+    const plankAt = plank.indexOf('Stretch and squeeze')
+    expect(plankAt).toBeGreaterThan(plank.indexOf('Cues'))
+    expect(plank.slice(plankAt, plankAt + 3)).toEqual(['Stretch and squeeze', NO_FOCUS_LINE, 'Common mistakes'])
+
+    // Bodybuilding mode off: no section, and the sheet is exactly as before. Switching shows or hides it at once.
+    rerender(onSide('POWERLIFTING', 'Squat'))
+    expect(within(sheet('Squat')).queryByRole('heading', { name: 'Stretch and squeeze' })).toBeNull()
+    expect(within(sheet('Squat')).queryByText(focus.stretch!)).toBeNull()
+    rerender(onSide('POWERLIFTING', 'Front plank'))
+    expect(within(sheet('Front plank')).queryByText(NO_FOCUS_LINE)).toBeNull()
+    rerender(onSide('BODYBUILDING', 'Squat'))
+    expect(within(sheet('Squat')).getByText(focus.squeeze!)).toBeInTheDocument()
+
+    // The lifter's own exercise has no guide, so no section either.
+    rerender(onSide('BODYBUILDING', 'Tyre flip'))
+    expect(linesOf(sheet('Tyre flip'))).toEqual(['Tyre flip', NO_GUIDE, SAFETY])
+  })
+
+  it('guideSheet_restoredRowUnderCatalogueName_showsLines', () => {
+    const focus = grit.muscleFocus('Squat')!
+    render(onSide('BODYBUILDING', 'squat'))
+    const inSheet = within(sheet('squat'))
+    expect(inSheet.getByRole('heading', { level: 3, name: 'Stretch and squeeze' })).toBeInTheDocument()
+    expect(inSheet.getByText(focus.stretch!)).toBeInTheDocument()
+    expect(inSheet.getByText(focus.squeeze!)).toBeInTheDocument()
   })
 })

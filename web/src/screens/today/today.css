@@ -49,6 +49,36 @@
   gap: var(--space-3);
 }
 
+/*
+ * Stretch and squeeze (bodybuilding side): a label column and the line beside it, as the mockup. The hairline above
+ * sets them apart from the logged sets; the editor's own hairline closes them off below. The lines wrap as far as
+ * they need, at any text size.
+ */
+.today-cues {
+  display: grid;
+  /* The labels share one column, as wide as the longer of them; the lines take the rest. */
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--space-3) var(--space-4);
+  align-items: baseline;
+  padding: var(--space-3) var(--space-2) var(--space-2);
+  border-top: 1px solid var(--hairline);
+}
+
+.today-cue {
+  display: contents;
+}
+
+.today-cue > p {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--text);
+}
+
+.today-cue > .today-cue-label {
+  color: var(--accent-text);
+}
+
 .today-miss {
   display: flex;
   align-items: center;

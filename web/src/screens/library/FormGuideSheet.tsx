@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react'
-import { grit } from '../../domain'
+import { useContext, type ReactNode } from 'react'
+import { grit, muscleFocus } from '../../domain'
 import { IconButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
 import { CloseIcon, HealthAndSafetyIcon } from '../../ui/components/icons'
+import { TrainingModeContext } from '../../ui/components/ModeLabel'
 import { ExercisePicture } from './ExercisePicture'
 import { whereAndWith } from './labels'
 import './library.css'
@@ -21,11 +22,14 @@ export type FormGuideSheetProps = {
  * The form guide for the exercise `name`, as a sheet to read between sets. The guide follows the
  * name: a catalogue name or alias shows the catalogue guide, whoever made the row; any other name
  * shows `NO_GUIDE`. A guide whose exercise has a figure opens with its picture, above the purpose.
- * Every guide ends with the safety line; `actions` sit below it.
+ * While bodybuilding mode is on, a "Stretch and squeeze" section follows Cues (stage 4): the two lines, or the one
+ * line saying there is nothing to aim for; with the mode off the sheet is as it always was. Every guide ends with the
+ * safety line; `actions` sit below it.
  */
 export function FormGuideSheet({ name, onClose, actions }: FormGuideSheetProps) {
   const entry = grit.findInLibrary(name)
   const guide = entry?.guide
+  const focus = useContext(TrainingModeContext) === 'BODYBUILDING' ? muscleFocus(name) : null
   return (
     <Dialog
       open
@@ -51,6 +55,7 @@ export function FormGuideSheet({ name, onClose, actions }: FormGuideSheetProps) 
             <GuideSection title="Setup" lines={guide.setup} />
             <GuideSection title="How to do it" lines={guide.steps} numbered />
             <GuideSection title="Cues" lines={guide.cues} />
+            {focus && <GuideSection title="Stretch and squeeze" lines={focus.kind === 'lines' ? [focus.stretch, focus.squeeze] : [focus.line]} />}
             <GuideSection title="Common mistakes" lines={guide.mistakes} />
           </>
         ) : (

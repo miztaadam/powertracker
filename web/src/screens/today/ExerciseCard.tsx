@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { grit } from '../../domain'
+import { grit, muscleFocus } from '../../domain'
 import type { TrainingMode } from '../../db/schema'
 import type { MissPoint, PlannedItem, SetEditor, StoredSet, Suggestion, Target, TodayActions, TodayItem } from '../../state/useToday'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
@@ -145,6 +145,8 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         </div>
       )}
 
+      {!powerlifting && <Cues name={item.exercise.name} />}
+
       {!item.isComplete || extraSet ? (
         <>
           <hr className="today-hairline" />
@@ -182,6 +184,28 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         </Dialog>
       )}
     </Card>
+  )
+}
+
+/**
+ * Where the muscle stretches and where to squeeze it (stage 4), between the logged sets and the weight entry as the
+ * mockup has it: bodybuilding side only. Nothing at all, taking no room, for an exercise with no lines: one with
+ * nothing to aim for (a plank), one not written yet, or the lifter's own.
+ */
+function Cues({ name }: { name: string }) {
+  const focus = muscleFocus(name)
+  if (focus?.kind !== 'lines') return null
+  return (
+    <div className="today-cues">
+      <div className="today-cue">
+        <Eyebrow className="today-cue-label" text="STRETCH" />
+        <p className="body-large">{focus.stretch}</p>
+      </div>
+      <div className="today-cue">
+        <Eyebrow className="today-cue-label" text="SQUEEZE" />
+        <p className="body-large">{focus.squeeze}</p>
+      </div>
+    </div>
   )
 }
 

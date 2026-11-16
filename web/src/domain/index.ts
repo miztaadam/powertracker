@@ -14,6 +14,7 @@ export {
   JsFormGuide,
   JsHistory,
   JsLibraryExercise,
+  JsMuscleFocus,
   JsMuscleRow,
   JsPlanDraft,
   JsPlanChange,
@@ -27,6 +28,21 @@ export {
 
 /** The shared Kotlin domain (coach, load maths, progress). Plain data in, plain data out. */
 export const grit = GritDomain.getInstance()
+
+/** Where an exercise's target muscle is stretched and where it is squeezed (stage 4), or the one line saying there is none. */
+export type MuscleFocus = { kind: 'lines'; stretch: string; squeeze: string } | { kind: 'none'; line: string }
+
+/**
+ * The stretch and squeeze lines for the exercise `name`, matched like its guide (a catalogue name or alias, ignoring
+ * case). Null for the lifter's own exercise, and for a catalogue exercise whose lines are not written yet.
+ */
+export function muscleFocus(name: string): MuscleFocus | null {
+  const focus = grit.muscleFocus(name)
+  if (focus == null) return null
+  if (focus.none != null) return { kind: 'none', line: focus.none }
+  if (focus.stretch == null || focus.squeeze == null) return null
+  return { kind: 'lines', stretch: focus.stretch, squeeze: focus.squeeze }
+}
 
 /** The device's local calendar date as `YYYY-MM-DD` (never the UTC date). */
 export function todayIso(): string {
