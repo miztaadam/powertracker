@@ -24,6 +24,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -263,25 +264,28 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
                     // The list's items in order, for sliding them only when one is added, removed or moved.
                     val keys: List<Any> = if (motion) items.map { itemKey(it.exercise.id) } + (if (items.isEmpty()) listOf("empty") else emptyList()) + "add" else emptyList()
                     itemsIndexed(items, key = { _, item -> itemKey(item.exercise.id) }) { i, item ->
+                        // With motion on, opening another exercise slides the closing card down to its row and the
+                        // opening one up from its row, in place; the rows below follow.
                         val exercise = @Composable {
-                            if (item === active) {
-                                val upNext = (items.drop(i + 1) + items.take(i)).firstOrNull { it.hasWorkLeft() }
-                                val next = if (upNext != null) {
-                                    NextStep("Next: ${upNext.exercise.name}") { activeId = upNext.exercise.id }
-                                } else {
-                                    NextStep("Finish session", actions.onFinish)
-                                }
-                                ExerciseCard(
-                                    item, i + 1, items.size, state.weightStepKg, state.changePlates, next, actions,
-                                    bodybuilding = state.mode == TrainingMode.BODYBUILDING,
-                                )
-                            } else {
-                                ExerciseRow(item, onClick = { activeId = item.exercise.id })
-                            }
+                            SlidingSwap(
+                                opened = item === active,
+                                row = { rowModifier -> ExerciseRow(item, onClick = { activeId = item.exercise.id }, modifier = rowModifier) },
+                                card = { content ->
+                                    val upNext = (items.drop(i + 1) + items.take(i)).firstOrNull { it.hasWorkLeft() }
+                                    val next = if (upNext != null) {
+                                        NextStep("Next: ${upNext.exercise.name}") { activeId = upNext.exercise.id }
+                                    } else {
+                                        NextStep("Finish session", actions.onFinish)
+                                    }
+                                    ExerciseCard(
+                                        item, i + 1, items.size, state.weightStepKg, state.changePlates, next, actions,
+                                        bodybuilding = state.mode == TrainingMode.BODYBUILDING,
+                                        slidingContent = content,
+                                    )
+                                },
+                            )
                         }
-                        // With motion on, the row and the card share one box, so opening it slides its height from one
-                        // to the other and the rows below slide with it.
-                        if (motion) Box(slidingListItem(keys).slidingOpen(opened = item === active, gapBelow = Space.m)) { exercise() } else exercise()
+                        if (motion) Box(slidingListItem(keys).testTag("exercise-${item.exercise.id}")) { exercise() } else exercise()
                     }
                     if (items.isEmpty()) {
                         item(key = "empty") {

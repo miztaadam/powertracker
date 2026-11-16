@@ -9,6 +9,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -110,8 +112,8 @@ class LayoutMotionTest {
         fun ms(px: Float) = spring.getDurationNanos(AnimationVector1D(0f), AnimationVector1D(px), AnimationVector1D(0f)) / 1_000_000
         // A card-sized move (100 dp at xxhdpi, in pixels) takes about 280 ms.
         assertTrue("a card's move takes ${ms(300f)} ms", ms(300f) in 250..310)
-        // From a set row (48 dp) to more than a card ever opens by (400 dp): never past 350 ms.
-        for (px in listOf(144f, 300f, 900f, 1200f)) assertTrue("a $px px move takes ${ms(px)} ms", ms(px) <= 350)
+        // From a set row (48 dp) to more than a full card opens or closes by (600 dp): never past 350 ms.
+        for (px in listOf(144f, 300f, 900f, 1800f)) assertTrue("a $px px move takes ${ms(px)} ms", ms(px) <= 350)
         assertEquals(150, FADE_MS)
     }
 
@@ -159,24 +161,88 @@ class LayoutMotionTest {
         assertEquals(1, setRows(1).size)
     }
 
+    /** Whether the band of [box] below [fromTop] is the card's colour all down its middle, not the page's. */
+    private fun surfaceFills(box: Rect, fromTop: Float): Boolean {
+        val view = (compose.onRoot().fetchSemanticsNode().root as androidx.compose.ui.platform.ViewRootForTest).view
+        val bitmap = android.graphics.Bitmap.createBitmap(view.width, view.height, android.graphics.Bitmap.Config.ARGB_8888)
+        view.draw(android.graphics.Canvas(bitmap))
+        val page = bitmap.getPixel(2, (box.top + fromTop).toInt())
+        val x = box.left.toInt() + 6
+        val ys = ((box.top + fromTop).toInt() until (box.bottom - 8).toInt())
+        return ys.count { bitmap.getPixel(x, it) != page } > ys.count() * 9 / 10
+    }
+
+    private fun itemBounds(exercise: Exercise) = compose.onNode(hasTestTag("exercise-${exercise.id}")).bounds()
+
     @Test
-    fun theOpenCard_changesBySliding() {
-        showToday(TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat), item(bench), item(row))))
-        val before = compose.onNodeWithText("Add exercise").bounds()
+    fun theOpenCard_changesBySliding_theClosingOneShrinksWithItsContent() {
+        showToday(TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat, listOf(stored(1, squat, 100.0))), item(bench), item(row))))
+        val squatOpen = itemBounds(squat).height
+        val rowClosed = itemBounds(bench).height
 
         compose.onNodeWithText("Barbell row").performClick()
-        advance(64)
-        val mid = compose.onNodeWithText("Add exercise").bounds()
-        // 350 ms from the tap: settled.
-        advance(286)
-        val end = compose.onNodeWithText("Add exercise").bounds()
-        // Squat closes to a row and the row opens to a card: the heights trade places as they slide.
-        assertNotEquals(before.top, mid.top)
-        assertTrue("settled after 350 ms", compose.onNodeWithText("Log set 1").bounds().top > compose.onNodeWithText("Barbell row").bounds().top)
+        advance(16)
+        // Frame by frame up to 350 ms from the tap: Squat's card closes through every height between open and a row,
+        // and nowhere in the list is there a gap taller than one row.
+        val heights = mutableListOf<Float>()
+        var closingCardWasDrawn = false
+        for (t in 1..21) {
+            val items = listOf(squat, bench, row).map { itemBounds(it) }
+            heights += items[0].height
+            // Below where the row will be, the closing box shows the card's surface, not the page behind it.
+            if (items[0].height > rowClosed + 40) closingCardWasDrawn = surfaceFills(items[0], fromTop = rowClosed + 8)
+            items.zipWithNext { a, b -> assertTrue("gap ${b.top - a.bottom} at ${t * 16} ms", b.top - a.bottom < rowClosed) }
+            advance(16)
+        }
+        assertTrue("Squat closing: $heights", heights.any { it < squatOpen - 10 && it > rowClosed + 10 })
+        assertTrue("the closing card is drawn, not a blank", closingCardWasDrawn)
+        assertTrue("never below a row: $heights", heights.all { it >= rowClosed - 1 })
+        // Settled by 350 ms: Squat is its row, the row's card is open.
+        val settled = listOf(squat, bench, row).map { itemBounds(it) }
+        assertEquals(rowClosed, settled[0].height, 1f)
         advance(1_000)
-        assertEquals(end, compose.onNodeWithText("Add exercise").bounds())
+        assertEquals(settled, listOf(squat, bench, row).map { itemBounds(it) })
         assertEquals(1, compose.onAllNodes(hasText("Log set 1")).fetchSemanticsNodes().size)
-        assertTrue("mid ${mid.top} not yet at ${end.top}", mid.top != end.top)
+        assertEquals(1, compose.onAllNodes(hasText("1 of 5")).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h800dp-xxhdpi")
+    fun narrowPhone_atFontScale130_openingAnotherExercise_endsWithNothingCut() {
+        today = TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat, listOf(stored(1, squat, 100.0))), item(bench)))
+        show(motion = true) {
+            val density = androidx.compose.ui.platform.LocalDensity.current
+            CompositionLocalProvider(androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(density.density, 1.3f)) {
+                TodayContent(today, TodayActions())
+            }
+        }
+        compose.onNodeWithText("Bench").performClick()
+        advance(1_000)
+        // Every part of the open card and of the closed row lies inside its item, which nothing is drawn past.
+        for (exercise in listOf(squat, bench)) {
+            val box = itemBounds(exercise)
+            compose.onAllNodes(hasAnyAncestor(hasTestTag("exercise-${exercise.id}"))).fetchSemanticsNodes().forEach { node ->
+                val b = node.boundsInRoot
+                assertTrue("${node.config} at $b outside $box", b.top >= box.top - 0.5f && b.bottom <= box.bottom + 0.5f && b.left >= box.left - 0.5f && b.right <= box.right + 0.5f)
+            }
+        }
+        val root = compose.onRoot().bounds()
+        assertTrue(itemBounds(bench).right <= root.right)
+        compose.onNodeWithText("Log set 1").bounds()
+    }
+
+    @Test
+    fun logSet_timedFromTapToTheRowInPlace() {
+        showToday(TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat, listOf(stored(1, squat, 100.0))))))
+        compose.onNodeWithText("Log set 2").performClick()
+        // Where Missed sits, frame by frame, for a second.
+        val frames = (0 until 63).map { advance(16); setRows(2).size to compose.onNodeWithText("Missed").bounds() }
+        val shownAt = (frames.indexOfFirst { it.first == 1 } + 1) * 16
+        val final = frames.last().second
+        val ms = (frames.indexOfFirst { it.second == final } + 1) * 16
+        println("LOGSET row shown at $shownAt ms, in place at $ms ms")
+        assertTrue("row shown at $shownAt ms", shownAt <= 32)
+        assertTrue("in place at $ms ms", ms <= 350)
     }
 
     @Test

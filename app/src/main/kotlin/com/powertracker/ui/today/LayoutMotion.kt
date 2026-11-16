@@ -4,6 +4,15 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animate
+import androidx.compose.ui.zIndex
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
@@ -58,10 +67,10 @@ import kotlinx.coroutines.launch
 
 /**
  * The stiffness of the move spring: with [Spring.DampingRatioLowBouncy] a card-sized move (300 px, 100 dp at xxhdpi)
- * settles to the pixel in about 280 ms, and a move of 400 dp, more than a card ever opens by, in under 350 ms
- * (LayoutMotionTest pins both).
+ * settles to the pixel in about 270 ms, and a move of 600 dp, more than a full card opens or closes by, in under
+ * 350 ms (LayoutMotionTest pins both).
  */
-internal const val MOVE_STIFFNESS = 850f
+internal const val MOVE_STIFFNESS = 950f
 
 /** Fades: 150 ms. */
 internal const val FADE_MS = 150
@@ -174,8 +183,11 @@ private class SlidingMemory<T> {
 }
 
 /** A row on its way out takes no taps and is not read out. */
-private fun Modifier.leaving(scope: AnimatedVisibilityScope): Modifier {
-    if (scope.transition.targetState != EnterExitState.PostExit) return this
+private fun Modifier.leaving(scope: AnimatedVisibilityScope): Modifier =
+    if (scope.transition.targetState != EnterExitState.PostExit) this else inert()
+
+/** Takes no taps and is not read out. */
+private fun Modifier.inert(): Modifier {
     return this
         .clearAndSetSemantics {}
         .pointerInput(Unit) {
@@ -186,78 +198,161 @@ private fun Modifier.leaving(scope: AnimatedVisibilityScope): Modifier {
 }
 
 /**
- * An item whose height changes when it opens or closes (Today's exercise: a one-line row, or the full card). When
- * [opened] changes, the height slides from the old one to the new one; any other change of height (a set row sliding
- * in inside the card) is followed at once, since that change already slides. While it slides the content is cut at
- * the sliding edge, but never at the sides or the top, so the card's shadow stays; at rest nothing is cut.
- * With motion off it adds nothing.
+ * Today's exercise as a one-line [row] or the full [card], sliding from one to the other in place. With motion off it
+ * is one or the other, as before, and [card] gets null.
+ *
+ * With motion on, [card] gets the modifier for its inner content (inside the card's surface, under its padding):
+ * - **Opening:** the card replaces the row at once at the row's height, and its content is uncovered from the top as
+ *   it grows to its own height. The surface and its shadow follow the growing edge.
+ * - **Closing:** the card keeps all its content and shrinks to the row's height, its content cut at the shrinking
+ *   edge (never the surface or its shadow). The row cross-fades in over it during the last 150 ms, then takes over.
+ * - Either way it is one move spring ([moveSpring]); the rows below follow it at once, so no gap opens. Re-opening
+ *   a closing card turns it round from where it is.
+ *
+ * [cardPadding] is the card's padding above plus below its content (PtCard's default, 16 dp each), so the card is the
+ * row's height exactly when its content is that much shorter.
  */
 @Composable
-fun Modifier.slidingOpen(opened: Boolean, shadowRoom: Dp = 32.dp, gapBelow: Dp = 12.dp): Modifier =
-    if (!LocalMotion.current) this else this then SlidingOpenElement(opened, shadowRoom, gapBelow)
-
-private class SlidingOpenElement(val opened: Boolean, val shadowRoom: Dp, val gapBelow: Dp) : ModifierNodeElement<SlidingOpenNode>() {
-    override fun create() = SlidingOpenNode(opened, shadowRoom, gapBelow)
-
-    override fun update(node: SlidingOpenNode) {
-        node.opened = opened
-        node.shadowRoom = shadowRoom
-        node.gapBelow = gapBelow
+fun SlidingSwap(
+    opened: Boolean,
+    row: @Composable (Modifier) -> Unit,
+    card: @Composable (content: Modifier?) -> Unit,
+    cardPadding: Dp = 32.dp,
+) {
+    if (!LocalMotion.current) {
+        if (opened) card(null) else row(Modifier)
+        return
     }
-
-    override fun InspectorInfo.inspectableProperties() {
-        name = "slidingOpen"
-        properties["opened"] = opened
+    val swap = remember { SwapState(opened) }
+    val closing = !opened && (swap.lastOpened || swap.closing)
+    // The card's content starts at the row's height when it opens in place of the row.
+    if (opened && !swap.lastOpened) swap.openFromRow = true
+    SideEffect {
+        if (!opened && swap.lastOpened) {
+            swap.closing = true
+            swap.rowAlpha = 0f
+        }
+        if (opened) swap.closing = false
+        swap.lastOpened = opened
     }
-
-    override fun equals(other: Any?) = other is SlidingOpenElement && other.opened == opened && other.shadowRoom == shadowRoom && other.gapBelow == gapBelow
-    override fun hashCode() = (opened.hashCode() * 31 + shadowRoom.hashCode()) * 31 + gapBelow.hashCode()
+    Box {
+        if (!opened) {
+            // Measured first, so the closing card knows the height it is going to; drawn on top, fading in.
+            val alpha = if (closing) Modifier.graphicsLayer { this.alpha = swap.rowAlpha } else Modifier
+            row(Modifier.zIndex(1f).then(alpha).then(RowHeightElement(swap)))
+        }
+        // A closing card takes no taps and is not read out: the row under it is the exercise now.
+        if (opened || closing) card(SwapContentElement(swap, !opened, cardPadding).let { if (closing) Modifier.then(it).inert() else Modifier.then(it) })
+    }
 }
 
-private class SlidingOpenNode(var opened: Boolean, var shadowRoom: Dp, var gapBelow: Dp) : Modifier.Node(), LayoutModifierNode, DrawModifierNode {
-    private var height: Animatable<Int, *>? = null
-    private var openedAtLastMeasure = opened
+private class SwapState(opened: Boolean) {
+    var lastOpened = opened
+    var closing by mutableStateOf(false)
+    var openFromRow = false
+    var rowHeight = -1
+    var rowAlpha by mutableFloatStateOf(0f)
+}
 
-    // The content's own height, and the height the box takes this frame; the content is cut only while it is taller.
-    private var contentHeight = 0
-    private var boxHeight = 0
+/** Records the row's height for the card closing over it. */
+private class RowHeightElement(val swap: SwapState) : ModifierNodeElement<RowHeightNode>() {
+    override fun create() = RowHeightNode(swap)
+    override fun update(node: RowHeightNode) {
+        node.swap = swap
+    }
+    override fun InspectorInfo.inspectableProperties() {
+        name = "rowHeight"
+    }
+    override fun equals(other: Any?) = other is RowHeightElement && other.swap === swap
+    override fun hashCode() = System.identityHashCode(swap)
+}
+
+private class RowHeightNode(var swap: SwapState) : Modifier.Node(), LayoutModifierNode {
+    override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        swap.rowHeight = placeable.height
+        return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+    }
+}
+
+private class SwapContentElement(val swap: SwapState, val closing: Boolean, val cardPadding: Dp) : ModifierNodeElement<SwapContentNode>() {
+    override fun create() = SwapContentNode(swap, closing, cardPadding)
+    override fun update(node: SwapContentNode) {
+        node.swap = swap
+        node.closing = closing
+        node.cardPadding = cardPadding
+    }
+    override fun InspectorInfo.inspectableProperties() {
+        name = "swapContent"
+        properties["closing"] = closing
+    }
+    override fun equals(other: Any?) = other is SwapContentElement && other.swap === swap && other.closing == closing && other.cardPadding == cardPadding
+    override fun hashCode() = (System.identityHashCode(swap) * 31 + closing.hashCode()) * 31 + cardPadding.hashCode()
+}
+
+/**
+ * The card's content, measured at its own height but taking the sliding height, and cut there. Only an open or a
+ * close slides; any other change of the content's height (a set row sliding in) is followed at once.
+ */
+private class SwapContentNode(var swap: SwapState, var closing: Boolean, var cardPadding: Dp) : Modifier.Node(), LayoutModifierNode, DrawModifierNode {
+    private var height: Animatable<Int, *>? = null
+    private var wasClosing = closing
+    private var natural = 0
+    private var shown = 0
 
     override fun onDetach() {
         height = null
     }
 
     override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
-        val placeable = measurable.measure(constraints)
-        val target = placeable.height
-        val anim = height ?: Animatable(target, Int.VectorConverter, 1).also { height = it }
-        val toggled = opened != openedAtLastMeasure
-        openedAtLastMeasure = opened
-        if (target != anim.targetValue) {
-            if (toggled || anim.isRunning) {
-                coroutineScope.launch { anim.animateTo(target, moveSpring(1)) }
+        val placeable = measurable.measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
+        natural = placeable.height
+        val rowContent = if (swap.rowHeight >= 0) (swap.rowHeight - cardPadding.roundToPx()).coerceAtLeast(0) else 0
+        val target = if (closing) rowContent else natural
+        val toggled = closing != wasClosing
+        wasClosing = closing
+        var anim = height
+        if (anim == null) {
+            val start = if (swap.openFromRow && swap.rowHeight >= 0) rowContent else target
+            swap.openFromRow = false
+            anim = Animatable(start, Int.VectorConverter, 1).also { height = it }
+        }
+        if (target != anim.targetValue || (anim.value != target && !anim.isRunning)) {
+            if (toggled || anim.isRunning || anim.value != target) {
+                val from = anim.value
+                val closingNow = closing
+                coroutineScope.launch {
+                    if (closingNow) launch { fadeInRow(from, target) }
+                    anim.animateTo(target, moveSpring(1))
+                    if (closingNow && closing) swap.closing = false
+                }
             } else {
                 coroutineScope.launch { anim.snapTo(target) }
             }
         }
-        // A change that is not an open or a close shows at once, not a frame late.
-        val shown = if (toggled || anim.isRunning) anim.value else target
-        val h = constraints.constrainHeight(shown)
-        if (contentHeight != target || boxHeight != h) {
-            contentHeight = target
-            boxHeight = h
+        val sliding = toggled || anim.isRunning || anim.value != target
+        val h = constraints.constrainHeight(if (sliding) anim.value else target)
+        if (shown != h) {
+            shown = h
             invalidateDraw()
         }
         return layout(placeable.width, h) { placeable.place(0, 0) }
     }
 
+    /** The row fades in over the closing card in the last [FADE_MS] of its slide. */
+    private suspend fun fadeInRow(from: Int, to: Int) {
+        val ms = moveSpring(1f).vectorize(Float.VectorConverter)
+            .getDurationNanos(AnimationVector1D(from.toFloat()), AnimationVector1D(to.toFloat()), AnimationVector1D(0f)) / 1_000_000
+        swap.rowAlpha = 0f
+        animate(0f, 1f, animationSpec = tween(FADE_MS, delayMillis = (ms - FADE_MS).toInt().coerceAtLeast(0))) { value, _ -> swap.rowAlpha = value }
+    }
+
     override fun ContentDrawScope.draw() {
-        if (boxHeight >= contentHeight) {
+        if (shown >= natural) {
             drawContent()
             return
         }
-        val side = shadowRoom.toPx()
-        // The draw size here is the content's, not the box's: cut at the box.
-        clipRect(-side, -side, size.width + side, boxHeight + gapBelow.toPx()) { this@draw.drawContent() }
+        clipRect(0f, 0f, size.width, shown.toFloat()) { this@draw.drawContent() }
     }
 }
 

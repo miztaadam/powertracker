@@ -2,6 +2,7 @@ package com.powertracker.ui.today
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -145,12 +146,61 @@ fun ExerciseCard(
     actions: TodayActions,
     modifier: Modifier = Modifier,
     bodybuilding: Boolean = false,
+    /** With motion on, Today's modifier for the card's content as it opens and closes ([SlidingSwap]); null otherwise. */
+    slidingContent: Modifier? = null,
 ) {
     val id = item.exercise.id
     var extraSet by rememberSaveable(id) { mutableStateOf(false) }
     var selected by remember { mutableStateOf<Pair<Int, StoredSet>?>(null) }
 
     PtCard(modifier, spacing = Space.s) {
+        if (slidingContent == null) {
+            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }) { selected = it }
+        } else {
+            Column(slidingContent, verticalArrangement = Arrangement.spacedBy(Space.s)) {
+                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }) { selected = it }
+            }
+        }
+    }
+
+    selected?.let { (number, stored) ->
+        AlertDialog(
+            onDismissRequest = { selected = null },
+            title = { Text("Set $number") },
+            text = { Text(doseText(stored.set.weightKg, stored.set.reps, stored.set.rpe) + if (stored.set.failed) " · failed" else "", style = MaterialTheme.typography.headlineSmall) },
+            confirmButton = {
+                val deleteSource = remember { MutableInteractionSource() }
+                TextButton(
+                    onClick = {
+                        actions.onDeleteSet(stored.id)
+                        selected = null
+                    },
+                    modifier = Modifier.pressScale(deleteSource),
+                    colors = ButtonDefaults.textButtonColors(contentColor = PowertrackerTheme.colors.danger),
+                    interactionSource = deleteSource,
+                ) { Text("Delete set", style = MaterialTheme.typography.labelLarge) }
+            },
+            dismissButton = { QuietButton("Keep", { selected = null }) },
+        )
+    }
+}
+
+/** What the card holds, top to bottom. */
+@Composable
+private fun ColumnScope.CardContent(
+    item: TodayItem,
+    position: Int,
+    count: Int,
+    weightStepKg: Double,
+    changePlates: Boolean,
+    next: NextStep,
+    actions: TodayActions,
+    bodybuilding: Boolean,
+    extraSet: Boolean,
+    onAddSet: () -> Unit,
+    onSelect: (Pair<Int, StoredSet>) -> Unit,
+) {
+    val id = item.exercise.id
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Eyebrow("Exercise $position of $count")
@@ -192,7 +242,7 @@ fun ExerciseCard(
                         rpe = set.rpe,
                         state = if (set.failed) SetState.FAILED else SetState.DONE,
                         isTopSet = i == top,
-                        onClick = { selected = i + 1 to stored },
+                        onClick = { onSelect(i + 1 to stored) },
                     )
                     if (!bodybuilding && (set.failed || (set.rpe ?: 0.0) >= GRIND_RPE)) {
                         MissRow(i + 1, set, item.exercise.mainLift) { actions.onMissPoint(stored.id, it) }
@@ -216,30 +266,8 @@ fun ExerciseCard(
         }
         SlidingBlock(!entering, spacing = Space.s) {
             PrimaryButton(next.label, next.onClick, Modifier.fillMaxWidth().padding(top = Space.xs), icon = Icons.AutoMirrored.Filled.ArrowForward)
-            QuietButton("Add another set", { extraSet = true }, Modifier.align(Alignment.CenterHorizontally))
+            QuietButton("Add another set", onAddSet, Modifier.align(Alignment.CenterHorizontally))
         }
-    }
-
-    selected?.let { (number, stored) ->
-        AlertDialog(
-            onDismissRequest = { selected = null },
-            title = { Text("Set $number") },
-            text = { Text(doseText(stored.set.weightKg, stored.set.reps, stored.set.rpe) + if (stored.set.failed) " · failed" else "", style = MaterialTheme.typography.headlineSmall) },
-            confirmButton = {
-                val deleteSource = remember { MutableInteractionSource() }
-                TextButton(
-                    onClick = {
-                        actions.onDeleteSet(stored.id)
-                        selected = null
-                    },
-                    modifier = Modifier.pressScale(deleteSource),
-                    colors = ButtonDefaults.textButtonColors(contentColor = PowertrackerTheme.colors.danger),
-                    interactionSource = deleteSource,
-                ) { Text("Delete set", style = MaterialTheme.typography.labelLarge) }
-            },
-            dismissButton = { QuietButton("Keep", { selected = null }) },
-        )
-    }
 }
 
 /** Wide enough for "SQUEEZE" at any font size: it grows with the text, so the label is never cut. */
