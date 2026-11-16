@@ -83,6 +83,7 @@ import com.powertracker.ui.plan.builder.PLAN_OPTIONS
 import com.powertracker.ui.plan.builder.REBUILD_MY_PLAN
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
+import com.powertracker.ui.today.SlidingColumnItems
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaDayOfWeek
@@ -289,7 +290,9 @@ private fun DayCard(
                 modifier = Modifier.testTag("add-${section.day}").semantics { contentDescription = "Add exercise to ${dayName(section.day)}" },
             )
         }
-        rows.forEachIndexed { i, row ->
+        // With motion on, a new row slides in, a deleted one slides out, and Move up and Move down slide two rows past
+        // each other.
+        SlidingColumnItems(rows, key = { it.item.id }, reorder = true) { i, row ->
             SoftDivider(Modifier.padding(end = Space.s))
             PlanItemRow(
                 position = i + 1,

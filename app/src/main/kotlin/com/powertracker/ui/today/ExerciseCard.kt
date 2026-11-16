@@ -77,6 +77,11 @@ import kotlin.math.roundToLong
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.powertracker.ui.components.pressScale
 
+/** The sets last shown, kept for drawing the last one as it slides out. */
+private class LastSets {
+    var sets: List<StoredSet> = emptyList()
+}
+
 /** Where the primary button leads once an exercise's sets are done: the next exercise, or Finish. */
 class NextStep(val label: String, val onClick: () -> Unit)
 
@@ -171,10 +176,14 @@ fun ExerciseCard(
             CoachSuggestion(targetHeadline(target), targetReason(advice), onApply = { actions.onApply(advice.id) }, onDismiss = { actions.onDismiss(advice.id) })
         }
 
-        if (item.sets.isNotEmpty()) {
-            val top = if (bodybuilding) null else topSetIndex(item.logged)
+        // With motion on, the last set to be deleted is drawn as it was while it slides out.
+        val lastSets = remember(id) { LastSets() }
+        if (item.sets.isNotEmpty()) lastSets.sets = item.sets
+        SlidingBlock(item.sets.isNotEmpty()) {
+            val sets = item.sets.ifEmpty { lastSets.sets }
+            val top = if (bodybuilding) null else topSetIndex(sets.map { it.set })
             Column {
-                item.sets.forEachIndexed { i, stored ->
+                SlidingColumnItems(sets, key = { it.id }) { i, stored ->
                     val set = stored.set
                     SetRow(
                         index = i + 1,
@@ -199,10 +208,13 @@ fun ExerciseCard(
             if (focus != null) MuscleCues(focus)
         }
 
-        if (!item.isComplete || extraSet) {
+        // The entry, or once the sets are done, the way on: one slides closed as the other slides open.
+        val entering = !item.isComplete || extraSet
+        SlidingBlock(entering, spacing = Space.s) {
             SoftDivider()
             Editor(item, weightStepKg, changePlates, actions)
-        } else {
+        }
+        SlidingBlock(!entering, spacing = Space.s) {
             PrimaryButton(next.label, next.onClick, Modifier.fillMaxWidth().padding(top = Space.xs), icon = Icons.AutoMirrored.Filled.ArrowForward)
             QuietButton("Add another set", { extraSet = true }, Modifier.align(Alignment.CenterHorizontally))
         }

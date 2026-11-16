@@ -1,6 +1,7 @@
 package com.powertracker.ui.today
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,6 +44,7 @@ import com.powertracker.ui.components.RestTimerBar
 import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.library.ExercisePickerScreen
+import com.powertracker.ui.theme.LocalMotion
 import com.powertracker.ui.theme.Space
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaDayOfWeek
@@ -203,6 +205,12 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
     // Pin it once chosen, so finishing its last set does not whisk the card (and its "where did it stall?") away.
     LaunchedEffect(active?.exercise?.id) { if (activeId == null) activeId = active?.exercise?.id }
 
+    // With motion on, a catalogue exercise keeps its stand-in's key once its row is saved, so its card stays put
+    // instead of fading out and in again. With motion off the key is the id, as before.
+    val motion = LocalMotion.current
+    val standInOf = if (motion) state.resolved.entries.associate { (standIn, id) -> id to standIn } else emptyMap()
+    fun itemKey(id: Long): Long = standInOf[id] ?: id
+
     val list = rememberLazyListState()
     // The note and the welcome-back card, when shown, come before the exercises: the first exercise keeps them in view.
     val leading = (if (state.sideNote != null) 1 else 0) + (if (state.welcomeBack) 1 else 0)
@@ -252,29 +260,36 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
                     StartSessionCard(items, state.date.dayOfWeek.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()), actions.onStartSession)
                 }
                 else -> {
-                    itemsIndexed(items, key = { _, item -> item.exercise.id }) { i, item ->
-                        if (item === active) {
-                            val upNext = (items.drop(i + 1) + items.take(i)).firstOrNull { it.hasWorkLeft() }
-                            val next = if (upNext != null) {
-                                NextStep("Next: ${upNext.exercise.name}") { activeId = upNext.exercise.id }
+                    // The list's items in order, for sliding them only when one is added, removed or moved.
+                    val keys: List<Any> = if (motion) items.map { itemKey(it.exercise.id) } + (if (items.isEmpty()) listOf("empty") else emptyList()) + "add" else emptyList()
+                    itemsIndexed(items, key = { _, item -> itemKey(item.exercise.id) }) { i, item ->
+                        val exercise = @Composable {
+                            if (item === active) {
+                                val upNext = (items.drop(i + 1) + items.take(i)).firstOrNull { it.hasWorkLeft() }
+                                val next = if (upNext != null) {
+                                    NextStep("Next: ${upNext.exercise.name}") { activeId = upNext.exercise.id }
+                                } else {
+                                    NextStep("Finish session", actions.onFinish)
+                                }
+                                ExerciseCard(
+                                    item, i + 1, items.size, state.weightStepKg, state.changePlates, next, actions,
+                                    bodybuilding = state.mode == TrainingMode.BODYBUILDING,
+                                )
                             } else {
-                                NextStep("Finish session", actions.onFinish)
+                                ExerciseRow(item, onClick = { activeId = item.exercise.id })
                             }
-                            ExerciseCard(
-                                item, i + 1, items.size, state.weightStepKg, state.changePlates, next, actions,
-                                bodybuilding = state.mode == TrainingMode.BODYBUILDING,
-                            )
-                        } else {
-                            ExerciseRow(item, onClick = { activeId = item.exercise.id })
                         }
+                        // With motion on, the row and the card share one box, so opening it slides its height from one
+                        // to the other and the rows below slide with it.
+                        if (motion) Box(slidingListItem(keys).slidingOpen(opened = item === active, gapBelow = Space.m)) { exercise() } else exercise()
                     }
                     if (items.isEmpty()) {
                         item(key = "empty") {
-                            EmptyState(Icons.Filled.FitnessCenter, "No exercises yet", "Add what you are training today and log it set by set.")
+                            EmptyState(Icons.Filled.FitnessCenter, "No exercises yet", "Add what you are training today and log it set by set.", slidingListItem(keys))
                         }
                     }
                     item(key = "add") {
-                        SecondaryButton("Add exercise", { picking = true }, Modifier.fillMaxWidth(), icon = Icons.Filled.Add)
+                        SecondaryButton("Add exercise", { picking = true }, slidingListItem(keys).fillMaxWidth(), icon = Icons.Filled.Add)
                     }
                 }
             }

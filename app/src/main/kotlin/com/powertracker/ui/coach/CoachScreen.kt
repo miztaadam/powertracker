@@ -26,6 +26,7 @@ import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.EmptyState
 import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.theme.Space
+import com.powertracker.ui.today.slidingItem
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import com.powertracker.ui.components.rememberHaptics
@@ -94,10 +95,10 @@ fun CoachContent(
             verticalArrangement = Arrangement.spacedBy(Space.m),
         ) {
             if (!state.loading && state.welcomeBack) {
-                item(key = "welcome-back") { WelcomeBackCard(onResumePlan, onGoalsChanged, Modifier.animateItem()) }
+                item(key = "welcome-back") { WelcomeBackCard(onResumePlan, onGoalsChanged, slidingItem()) }
             }
             if (!state.loading && state.checkInDue) {
-                item(key = "check-in-due") { CheckInDueCard(onCheckIn, Modifier.animateItem()) }
+                item(key = "check-in-due") { CheckInDueCard(onCheckIn, slidingItem()) }
             }
             // The due card is something to do, so the feed is not "empty" beside it.
             if (!state.loading && state.cards.isEmpty() && !state.checkInDue) {
@@ -106,16 +107,16 @@ fun CoachContent(
                         Icons.Filled.Bolt,
                         "No advice right now. Keep logging.",
                         "The coach looks at your training each time you finish a session.",
-                        Modifier.animateItem(),
+                        slidingItem(),
                     )
                 }
             }
             items(state.cards, key = { it.advice.id }) { card ->
                 val id = card.advice.id
                 when (val detail = card.detail) {
-                    is CardDetail.MoreWork -> MoreWorkCard(card.advice, detail.payload, { onApply(id) }, { onDismiss(id) }, Modifier.animateItem())
-                    is CardDetail.Swap -> SwapCard(card.advice, detail.payload, { onSwap(id, it) }, { onDismiss(id) }, Modifier.animateItem())
-                    else -> CoachAdviceCard(card, onApply = { onApply(id) }, onDismiss = { onDismiss(id) }, Modifier.animateItem())
+                    is CardDetail.MoreWork -> MoreWorkCard(card.advice, detail.payload, { onApply(id) }, { onDismiss(id) }, slidingItem())
+                    is CardDetail.Swap -> SwapCard(card.advice, detail.payload, { onSwap(id, it) }, { onDismiss(id) }, slidingItem())
+                    else -> CoachAdviceCard(card, onApply = { onApply(id) }, onDismiss = { onDismiss(id) }, slidingItem())
                 }
             }
         }
