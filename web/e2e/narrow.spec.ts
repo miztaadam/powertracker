@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { openOnWednesday, tabBar, tap, weightField } from './helpers'
 
 // The narrowest phones in use: many Android phones are 306–360 px wide (an iPhone is 375 px and up). On each
-// screen, on both training sides, at 306 and 320 px, the page must not scroll sideways and nothing may reach past
+// screen, on both training sides, at 306 and 320 px (and 390, a common iPhone), the page must not scroll sideways and nothing may reach past
 // the screen or out of its own box.
 
 /** The rows that scroll sideways on purpose: one line of chips. Everything else that scrolls, scrolls only up and down. */
@@ -62,7 +62,7 @@ async function bodybuilding(page: Page) {
   await expect(tabBar(page)).toBeVisible()
 }
 
-for (const width of [306, 320])
+for (const width of [306, 320, 390])
 for (const side of ['powerlifting', 'bodybuilding'] as const) {
   test.describe(`a ${width} px phone, ${side} side`, () => {
     test.use({ viewport: { width, height: 568 } })

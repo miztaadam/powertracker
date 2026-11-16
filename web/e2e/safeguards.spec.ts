@@ -8,7 +8,7 @@ import { openOnWednesday, seedFlatBench, tabBar } from './helpers'
 test('install card shows in a browser tab until it is put away', async ({ page }) => {
   await page.goto('/#/today')
   await expect(page.getByRole('heading', { name: 'Install Grit' })).toBeVisible()
-  await expect(page.getByText('Add Grit to your Home Screen: tap Share, then Add to Home Screen. Installed, your training log is protected from being cleared.')).toBeVisible()
+  await expect(page.getByText('In Safari, tap Share, then Add to Home Screen, and open Grit from the new icon. Installed, your training log is protected from being cleared.')).toBeVisible()
 
   await page.getByRole('button', { name: 'Not now' }).click()
   await expect(page.getByRole('heading', { name: 'Install Grit' })).toBeHidden()

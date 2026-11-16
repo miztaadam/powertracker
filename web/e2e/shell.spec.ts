@@ -122,3 +122,25 @@ test.describe('the iOS Home Screen app', () => {
     expect(px(await tabBar(page).evaluate((el) => getComputedStyle(el).paddingBottom))).toBe(20)
   })
 })
+
+// A centred dialog keeps clear of the status bar and the home bar; on a phone without them it keeps its 24 px.
+for (const [top, bottom, expected] of [
+  [47, 34, [47, 34]],
+  [0, 0, [24, 24]],
+] as const) {
+  test(`a centred dialog's backdrop pads ${expected[0]} px at the top and ${expected[1]} px at the bottom with a ${top}/${bottom} px safe area`, async ({ page }) => {
+    const cdp = await page.context().newCDPSession(page)
+    await cdp.send('Emulation.setSafeAreaInsetsOverride' as never, { insets: { top, bottom, left: 0, right: 0 } } as never)
+    await openOnWednesday(page)
+    const padding = await page.locator('.shell').evaluate((el) => {
+      const scrim = document.createElement('div')
+      scrim.className = 'gr-dialog-scrim'
+      el.append(scrim)
+      const style = getComputedStyle(scrim)
+      const values = [style.paddingTop, style.paddingBottom]
+      scrim.remove()
+      return values
+    })
+    expect(padding.map(px)).toEqual([...expected])
+  })
+}

@@ -5,7 +5,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-6);
+  /* Clear of the status bar and the home bar, so a tall dialog never runs under either. */
+  padding: max(var(--space-6), env(safe-area-inset-top)) max(var(--space-6), env(safe-area-inset-right)) max(var(--space-6), env(safe-area-inset-bottom))
+    max(var(--space-6), env(safe-area-inset-left));
   background: var(--scrim);
   animation: gr-fade 150ms ease;
 }
