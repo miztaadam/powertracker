@@ -21,7 +21,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md` §2–4, stage 3.
 
-## Owner decisions needed before building
+## Owner decisions (approved by the owner on 2026-11-16, all three as written)
 1. **What moves (from the inventory of both apps):**
    - **Today:**
      - Opening another exercise: the open card closes and the tapped one opens in place, with the rows below sliding.
