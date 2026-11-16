@@ -1204,6 +1204,8 @@ class TodayScreenTest {
         compose.onNodeWithContentDescription("Increase RPE").performClick()
         compose.onNodeWithText("Log set 1").performClick()
         waitForSets(1)
+        // The guard against a double tap holds until the set is on screen.
+        waitForText("Log set 2")
         compose.onNodeWithText("Missed").performClick()
         waitForSets(2)
         settled()
@@ -1262,5 +1264,48 @@ class TodayScreenTest {
         waitFor { compose.onAllNodesWithText("Apply").fetchSemanticsNodes().isEmpty() }
         settled()
         assertEquals(0, haptics.calls.size)
+    }
+
+    @Test
+    fun aNewBest_buzzesTheStrongerBuzz_once_andTheNextEqualSetTicks() {
+        startSession()
+        showWithHaptics()
+        waitForText("Log set 1")
+        // Last week's best is 150 × 5 @ 7; 180 × 5 @ 8 beats it.
+        weight.type("180")
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForSets(1)
+        waitForText("Log set 2")
+        settled()
+        assertEquals(listOf(HapticFeedbackType.Confirm), haptics.calls.toList())
+
+        // The same set again is no new best: a tick.
+        compose.onNodeWithText("Log set 2").performClick()
+        waitForSets(2)
+        settled()
+        assertEquals(listOf(HapticFeedbackType.Confirm, HapticFeedbackType.ContextClick), haptics.calls.toList())
+
+        // A missed heavier set is never a best.
+        weight.type("190")
+        compose.onNodeWithText("Missed").performClick()
+        waitForSets(3)
+        settled()
+        assertEquals(listOf(HapticFeedbackType.Confirm, HapticFeedbackType.ContextClick, HapticFeedbackType.ContextClick), haptics.calls.toList())
+    }
+
+    @Test
+    fun anAccessory_neverBuzzesTheBest_evenItsFirstSet() {
+        startSession()
+        showWithHaptics()
+        waitForText("Log set 1")
+        pickFromLibrary("Hammer curl")
+        compose.onNodeWithTag("exercise-Hammer curl").performClick()
+        waitFor { compose.onAllNodes(hasTestTag("exercise-search")).fetchSemanticsNodes().isEmpty() }
+        weight.type("20")
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForSets(1)
+        settled()
+        // The pick ticked, then the set ticked.
+        assertEquals(listOf(HapticFeedbackType.ContextClick, HapticFeedbackType.ContextClick), haptics.calls.toList())
     }
 }

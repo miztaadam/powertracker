@@ -105,14 +105,14 @@ fun TodayScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val setLogged by rememberUpdatedState(onSetLogged)
-    // Log set and Missed tick once the set is saved: one buzz per set, none for an entry that was refused or held.
-    // Today does not know at this point whether the set is a new best, so it is always a tick, never [Haptics.best].
+    // Log set and Missed buzz once the set is saved: one buzz per set, none for an entry that was refused or held.
+    // A new best gets the stronger buzz instead of the tick.
     val haptics = rememberHaptics()
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
                 is TodayEvent.SetLogged -> {
-                    haptics.tick()
+                    if (event.isNewBest) haptics.best() else haptics.tick()
                     setLogged(event.isMainOrVariation)
                 }
                 // Coach Apply ticks once the target is in the editor.

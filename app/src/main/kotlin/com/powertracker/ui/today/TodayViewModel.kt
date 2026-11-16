@@ -53,6 +53,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.datetime.LocalDate
+import com.powertracker.domain.progress.ProgressMath
 
 /** The numbers in the steppers for the next set. [weightKg] is null until the lifter enters one. */
 data class SetEditor(val weightKg: Double?, val reps: Int, val rpe: Double)
@@ -124,8 +125,8 @@ enum class TodayAdd {
 }
 
 sealed interface TodayEvent {
-    /** A set was saved; the rest timer starts from this. */
-    data class SetLogged(val isMainOrVariation: Boolean) : TodayEvent
+    /** A set was saved; the rest timer starts from this. [isNewBest]: it is a new record of its lift (ProgressMath.isNewPr). */
+    data class SetLogged(val isMainOrVariation: Boolean, val isNewBest: Boolean = false) : TodayEvent
 
     /** A coach target was put into the editor (Apply). */
     data object TargetApplied : TodayEvent
@@ -337,13 +338,16 @@ class TodayViewModel(
                         return@launch
                     }
                 }
+                val stored = set.copy(exerciseId = exerciseId, isTopSet = false)
+                // Asked of the history before the set is in it, under the rule Progress uses for its records.
+                val isNewBest = ProgressMath.isNewPr(training.history().first(), stored, date, now.mode)
                 // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
                 // A stand-in id means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
-                val setId = training.logSet(sessionId, set.copy(exerciseId = exerciseId, isTopSet = false), catalogueName = catalogueEntry(exerciseId)?.name)
+                val setId = training.logSet(sessionId, stored, catalogueName = catalogueEntry(exerciseId)?.name)
                 local.update { it.copy(pending = null) }
                 // Every exercise on the bodybuilding side takes the accessory rest (bodybuilding mode spec §5.3).
                 val mainRest = now.mode == TrainingMode.POWERLIFTING && item?.exercise?.category != Category.ACCESSORY
-                _events.emit(TodayEvent.SetLogged(isMainOrVariation = mainRest))
+                _events.emit(TodayEvent.SetLogged(isMainOrVariation = mainRest, isNewBest = isNewBest))
                 // Hold the guard until the new set is on screen, so the button the lifter sees is never stale.
                 withTimeoutOrNull(SHOWN_TIMEOUT_MS) { state.first { s -> s.items.any { i -> i.sets.any { it.id == setId } } } }
             } finally {
