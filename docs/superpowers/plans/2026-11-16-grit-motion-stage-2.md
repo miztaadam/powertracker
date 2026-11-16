@@ -39,7 +39,9 @@
 3. **The setting.**
    - "Vibrate on taps" is on by default and sits under Rest alert in Settings. The rest alert keeps its own setting.
    - On iPhone the setting is hidden, as the rest alert's vibrate option already is.
-   - The setting goes into the backup as one new optional field. The backup version stays the same, so older apps simply ignore it.
+   - **Owner, 2026-11-16 (option A):** the setting is NOT in the backup. It is a per-device preference, and after a restore it is on, its default. Backups stay exactly as in 1.6 and restore on every version.
+     - The 1.6 readers reject unknown keys in `settings`, which is why it stays out.
+     - 1.7's readers also ignore unknown keys inside `settings`, so a future setting can be added without this problem. Unknown keys elsewhere are still rejected.
 
 ## Global Constraints
 - Every feature stays. Existing tests pass unedited, except tests that pin animation timing; any test changed is listed with its reason.
@@ -74,11 +76,12 @@
 ### Task 1: The motion-off switch and the setting (both apps)
 - **Android:**
   - `LocalMotion` (on/off). Read the system's animator duration scale, so 0 means off. Robolectric test rules set it off.
-  - The setting "Vibrate on taps" (boolean, default true) in settings storage and in the backup, as an optional field.
+  - The setting "Vibrate on taps" (boolean, default true) in settings storage, not in the backup.
 - **Web:**
   - `data-motion="off"` on `<html>` when Playwright sets it (an e2e fixture) or the user prefers reduced motion. CSS motion rules sit under `:root:not([data-motion="off"])`.
-  - The same setting in `db/settings.ts` and the backup.
-  - Settings UI on both apps; hidden on iPhone. Backup round-trip tests in both directions.
+  - The same setting in `db/settings.ts`. It is not in the backup (owner, option A).
+  - Settings UI on both apps; hidden on iPhone.
+  - Both backup readers ignore unknown keys inside `settings` only. Tests: a file with an extra settings key restores, an extra key elsewhere is still corrupt, and the existing fixtures restore unchanged.
 - Commit: `feat: motion-off switch and the "Vibrate on taps" setting`.
 
 ### Task 2: Android press and haptics (after Task 1)
