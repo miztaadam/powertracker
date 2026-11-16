@@ -195,17 +195,25 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
 function Cues({ name }: { name: string }) {
   const focus = muscleFocus(name)
   if (focus?.kind !== 'lines') return null
+  const rows: [label: string, line: string][] = [
+    ['Stretch', focus.stretch],
+    ['Squeeze', focus.squeeze],
+  ]
   return (
-    <div className="today-cues">
-      <div className="today-cue">
-        <Eyebrow className="today-cue-label" text="STRETCH" />
-        <p className="body-large">{focus.stretch}</p>
-      </div>
-      <div className="today-cue">
-        <Eyebrow className="today-cue-label" text="SQUEEZE" />
-        <p className="body-large">{focus.squeeze}</p>
-      </div>
-    </div>
+    // A list of two, each row read once as "Stretch: …", as on Android; what shows is the label beside its line.
+    <ul role="list" className="today-cues" aria-label="Stretch and squeeze">
+      {rows.map(([label, line]) => (
+        <li key={label} className="today-cue">
+          <span className="today-cue-label eyebrow" aria-hidden="true">
+            {label.toUpperCase()}
+          </span>
+          <span className="today-cue-line body-large" aria-hidden="true">
+            {line}
+          </span>
+          <span className="sr-only">{`${label}: ${line}`}</span>
+        </li>
+      ))}
+    </ul>
   )
 }
 

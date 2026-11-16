@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { updateSettings, type GritDb } from '../../db/db'
 import type { TrainingMode } from '../../db/schema'
 import { grit } from '../../domain'
@@ -515,6 +515,70 @@ describe('stretch and squeeze on the exercise card', () => {
     await screen.findByRole('heading', { name: 'squat' })
     expect(await screen.findByText(squat.stretch!)).toBeInTheDocument()
     expect(screen.getByText(squat.squeeze!)).toBeInTheDocument()
+  })
+
+  /** What a screen reader reads for an element: its text, without what is hidden from it. */
+  const spoken = (el: Element): string =>
+    Array.from(el.childNodes)
+      .map((n) => (n.nodeType === Node.TEXT_NODE ? (n.textContent ?? '') : n instanceof Element && n.getAttribute('aria-hidden') !== 'true' ? spoken(n) : ''))
+      .join('')
+
+  it('bodybuildingCard_eachCueRow_readsAsLabelAndLine', async () => {
+    await onlyToday('BODYBUILDING', squatId)
+    show()
+    await screen.findByText(squat.stretch!)
+    // One list of two items, each read as one: "Stretch: …", then "Squeeze: …", as Android reads them.
+    const list = screen.getByRole('list', { name: 'Stretch and squeeze' })
+    const rows = within(list).getAllByRole('listitem')
+    expect(rows.map(spoken)).toEqual([`Stretch: ${squat.stretch}`, `Squeeze: ${squat.squeeze}`])
+  })
+
+  it('bodybuildingCard_sideSwitch_hidesAndShowsTheCues', async () => {
+    await onlyToday('BODYBUILDING', squatId)
+    // A set done, so the squat is in today's session whichever side it is on.
+    const session = (await db.sessions.where('date').equals(TODAY).first())!.id!
+    await logSet(db, session, set(squatId, 100, { reps: 10 }))
+    show()
+    await screen.findByText(squat.stretch!)
+    const heading = screen.getByRole('heading', { name: 'Squat' })
+    // Today's session moves to the powerlifting side: the same card, without the lines; and back again.
+    await db.sessions.where('date').equals(TODAY).modify({ mode: 'POWERLIFTING' })
+    await waitFor(() => expect(screen.queryByText('STRETCH')).toBeNull())
+    expect(cues()).toBeNull()
+    expect(screen.getByRole('heading', { name: 'Squat' })).toBe(heading)
+    await db.sessions.where('date').equals(TODAY).modify({ mode: 'BODYBUILDING' })
+    expect(await screen.findByText(squat.stretch!)).toBeInTheDocument()
+    expect(screen.getByText('SQUEEZE')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Squat' })).toBe(heading)
+  })
+
+  it('bodybuildingCard_notWrittenYet_showsNothing', async () => {
+    // A catalogue exercise whose lines are not written yet: the lookup gives null.
+    const lookup = vi.spyOn(grit, 'muscleFocus').mockImplementation(() => null)
+    try {
+      await onlyToday('BODYBUILDING', squatId)
+      show()
+      await ready()
+      expect(screen.queryByText('STRETCH')).toBeNull()
+      expect(cues()).toBeNull()
+      expect(lookup).toHaveBeenCalledWith('Squat')
+    } finally {
+      lookup.mockRestore()
+    }
+  })
+
+  it('bodybuildingCard_finished_keepsTheCuesAboveTheNextButton', async () => {
+    await onlyToday('BODYBUILDING', squatId)
+    const session = (await db.sessions.where('date').equals(TODAY).first())!.id!
+    for (const reps of [12, 11, 10]) await logSet(db, session, set(squatId, 100, { reps }))
+    show()
+    const finish = await screen.findByRole('button', { name: 'Finish session' })
+    expect(screen.queryByRole('textbox', { name: 'Weight, kilograms' })).toBeNull()
+    const squeeze = screen.getByText(squat.squeeze!)
+    expect(screen.getByText('STRETCH')).toBeInTheDocument()
+    expect(squeeze.compareDocumentPosition(finish) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const lastSet = screen.getByRole('button', { name: /^Set 3:/ })
+    expect(lastSet.compareDocumentPosition(screen.getByText('STRETCH')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('powerliftingCard_showsNoCues', async () => {

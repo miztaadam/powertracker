@@ -431,9 +431,9 @@ test('today: the stretch and squeeze lines wrap without clipping at 130% zoom', 
   const card = page.locator('.gr-card', { has: page.getByRole('heading', { name: 'Squat' }) })
   await expect(card.getByText('Set 2 of 3')).toBeVisible()
   await expect(card.getByText('STRETCH', { exact: true })).toBeVisible()
-  await expect(card.getByText(squat.stretch!)).toBeVisible()
+  await expect(card.getByText(squat.stretch!, { exact: true })).toBeVisible()
   await expect(card.getByText('SQUEEZE', { exact: true })).toBeVisible()
-  await expect(card.getByText(squat.squeeze!)).toBeVisible()
+  await expect(card.getByText(squat.squeeze!, { exact: true })).toBeVisible()
   // Between the logged set and the weight entry.
   const top = async (text: string) => (await card.getByText(text, { exact: true }).boundingBox())!.y
   const set1 = (await card.getByRole('button', { name: /^Set 1:/ }).boundingBox())!
@@ -449,7 +449,7 @@ test('today: the stretch and squeeze lines wrap without clipping at 130% zoom', 
       const box = node.getBoundingClientRect()
       if (box.width > 0 && (box.right > window.innerWidth + 0.5 || box.left < -0.5)) found.push(`outside ${node.tagName.toLowerCase()}.${node.className}`)
     }
-    for (const node of el.querySelectorAll<HTMLElement>('.today-cue > p')) {
+    for (const node of el.querySelectorAll<HTMLElement>('.today-cue-line')) {
       if (node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1) found.push(`clipped ${node.textContent}`)
     }
     return found

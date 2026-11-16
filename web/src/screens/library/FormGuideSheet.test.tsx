@@ -170,6 +170,22 @@ describe('FormGuideSheet stretch and squeeze', () => {
     expect(linesOf(sheet('Tyre flip'))).toEqual(['Tyre flip', NO_GUIDE, SAFETY])
   })
 
+  it('guideSheet_bodybuilding_notWrittenYet_hasNoSection', () => {
+    // A catalogue exercise whose lines are not written yet: the lookup gives null, and the sheet is as on the other side.
+    const lookup = vi.spyOn(grit, 'muscleFocus').mockImplementation(() => null)
+    try {
+      const guide = grit.findInLibrary('Squat')!.guide
+      render(onSide('BODYBUILDING', 'Squat'))
+      expect(lookup).toHaveBeenCalledWith('Squat')
+      expect(within(sheet('Squat')).queryByRole('heading', { name: 'Stretch and squeeze' })).toBeNull()
+      const lines = linesOf(sheet('Squat'))
+      const at = lines.indexOf('Common mistakes')
+      expect(lines.slice(at - guide.cues.length - 1, at)).toEqual(['Cues', ...guide.cues])
+    } finally {
+      lookup.mockRestore()
+    }
+  })
+
   it('guideSheet_restoredRowUnderCatalogueName_showsLines', () => {
     const focus = grit.muscleFocus('Squat')!
     render(onSide('BODYBUILDING', 'squat'))
