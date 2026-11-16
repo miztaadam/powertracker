@@ -70,6 +70,10 @@ import com.powertracker.ui.components.Sparkline
 import com.powertracker.ui.components.StatTile
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.components.LINE_DRAW_MS
+import com.powertracker.ui.components.MARKER_SLIDE_MS
+import com.powertracker.ui.components.rememberBarsGrowIn
+import com.powertracker.ui.components.rememberDrawIn
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -155,7 +159,7 @@ fun ProgressContent(
                     if (state.prs.isNotEmpty()) PrSection(state.prs)
                     VolumeSection(state)
                     if (state.ratios.isNotEmpty()) RatioSection(state.ratios)
-                    if (state.bodyweight.isNotEmpty()) BodyweightSection(state.bodyweight)
+                    if (state.bodyweight.isNotEmpty()) BodyweightSection(state.bodyweight, state.range)
                 }
             }
         }
@@ -224,7 +228,9 @@ private fun SummaryCard(state: ProgressState, onOpenLift: (MainLift) -> Unit) {
                     if (change != null) Pill("${change.text} in 4 weeks", tone = change.tone, icon = change.icon)
                 }
                 if (state.totalTrend.size >= 2) {
-                    Sparkline(state.totalTrend.map { it.second.toFloat() }, pt.accentText, Modifier.weight(1f).height(88.dp))
+                    // The trend covers the chosen range, so it draws in again when the range changes.
+                    val drawn = rememberDrawIn(state.range, LINE_DRAW_MS)
+                    Sparkline(state.totalTrend.map { it.second.toFloat() }, pt.accentText, Modifier.weight(1f).height(88.dp), drawn = drawn::value)
                 }
             }
         } else {
@@ -280,7 +286,8 @@ private fun TrendCard(state: ProgressState, onRange: (ChartRange) -> Unit) {
         SegmentedChoice(ChartRange.entries.map { it.label }, state.range.ordinal, { onRange(ChartRange.entries[it]) })
         Eyebrow("Weekly best e1RM")
         if (series.isNotEmpty()) {
-            SeriesChart(series, axisLabels(state.weeks))
+            val drawn = rememberDrawIn(state.range, LINE_DRAW_MS)
+            SeriesChart(series, axisLabels(state.weeks), drawn = drawn::value)
         } else {
             // The range selector stays, so a longer range is one tap away.
             Text(
@@ -358,7 +365,9 @@ private fun VolumeSection(state: ProgressState) {
                         }
                         NumberDisplay(formatVolume(volume.thisWeekKg), unit = "kg", size = NumberSize.MEDIUM)
                     }
-                    BarStrip(volume.weeks, volume.lift.chartColor(), Modifier.weight(1f).height(48.dp))
+                    // The last 8 weeks whatever the range: they grow in once, when Progress opens.
+                    val grown = rememberBarsGrowIn(Unit)
+                    BarStrip(volume.weeks, volume.lift.chartColor(), Modifier.weight(1f).height(48.dp), grown = grown::value)
                 }
             }
             Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
@@ -491,16 +500,19 @@ private fun RatioSection(ratios: List<RatioUi>) {
         SectionHeader("Lift ratios")
         PtCard(spacing = Space.l) {
             for (ratio in ratios) {
-                RatioBar("${ratio.numerator.label} ÷ ${ratio.denominator.label}", ratio.valuePct, ratio.lowPct, ratio.highPct)
+                val slid = rememberDrawIn(Unit, MARKER_SLIDE_MS)
+                RatioBar("${ratio.numerator.label} ÷ ${ratio.denominator.label}", ratio.valuePct, ratio.lowPct, ratio.highPct, slid = slid::value)
             }
         }
     }
 }
 
 @Composable
-private fun BodyweightSection(points: List<Pair<LocalDate, Double>>) {
+private fun BodyweightSection(points: List<Pair<LocalDate, Double>>, range: ChartRange) {
     Column {
         SectionHeader("Bodyweight")
-        PtCard { LineChart(points, name = "Latest") }
+        // Its points are those in the chosen range, so it draws in again when the range changes.
+        val drawn = rememberDrawIn(range, LINE_DRAW_MS)
+        PtCard { LineChart(points, name = "Latest", drawn = drawn::value) }
     }
 }
