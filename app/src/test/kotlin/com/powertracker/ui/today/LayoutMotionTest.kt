@@ -13,7 +13,10 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import com.powertracker.data.StoredSet
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
@@ -123,7 +126,8 @@ class LayoutMotionTest {
         // The new row is there, still opening: the buttons below it are on their way down.
         assertEquals(1, setRows(2).size)
         val mid = compose.onNodeWithText("Missed").bounds()
-        advance(350)
+        // 350 ms from the tap: settled.
+        advance(286)
         val end = compose.onNodeWithText("Missed").bounds()
         assertTrue("mid ${mid.top} between ${before.top} and ${end.top}", mid.top > before.top && mid.top < end.top)
         advance(1_000)
@@ -145,7 +149,8 @@ class LayoutMotionTest {
         // Still closing: the buttons are on their way up. The row going is not read out.
         assertEquals(0, setRows(2).size)
         val mid = compose.onNodeWithText("Missed").bounds()
-        advance(350)
+        // 350 ms from the tap: settled.
+        advance(286)
         val end = compose.onNodeWithText("Missed").bounds()
         assertTrue("mid ${mid.top} between ${end.top} and ${before.top}", mid.top < before.top && mid.top > end.top)
         advance(1_000)
@@ -162,7 +167,8 @@ class LayoutMotionTest {
         compose.onNodeWithText("Barbell row").performClick()
         advance(64)
         val mid = compose.onNodeWithText("Add exercise").bounds()
-        advance(350)
+        // 350 ms from the tap: settled.
+        advance(286)
         val end = compose.onNodeWithText("Add exercise").bounds()
         // Squat closes to a row and the row opens to a card: the heights trade places as they slide.
         assertNotEquals(before.top, mid.top)
@@ -244,6 +250,78 @@ class LayoutMotionTest {
     }
 
     @Test
+    fun anAddedExercise_fadesIn_andWhatIsBelowSlides() {
+        showToday(TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat), item(bench))))
+        val before = compose.onNodeWithText("Add exercise").bounds()
+        compose.runOnUiThread { today = today.copy(items = today.items + item(row)) }
+        compose.waitForIdle()
+        advance(64)
+        val mid = compose.onNodeWithText("Add exercise").bounds()
+        advance(286)
+        val end = compose.onNodeWithText("Add exercise").bounds()
+        assertTrue("mid ${mid.top} between ${before.top} and ${end.top}", mid.top > before.top && mid.top < end.top)
+        advance(1_000)
+        assertEquals(end, compose.onNodeWithText("Add exercise").bounds())
+        assertEquals(1, compose.onAllNodes(hasText("Barbell row")).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun aRemovedExercise_fadesOut_takesNoTaps_andWhatIsBelowSlidesUp() {
+        // An exercise added today with nothing logged has Remove; Bench below it has a set, so its button is "Log set 2".
+        val added = item(squat).copy(planned = null, targetSets = null)
+        var removed = 0
+        today = TodayState(date, loading = false, sessionId = 1, items = listOf(added, item(bench, listOf(stored(1, bench, 100.0)))))
+        val actions = TodayActions(
+            onLogSet = { tapped, _ -> logged += tapped.exercise.id.toInt() },
+            onRemoveExercise = { id ->
+                removed++
+                today = today.copy(items = today.items.filter { it.exercise.id != id })
+            },
+        )
+        show(motion = true) { TodayContent(today, actions) }
+        val before = compose.onNodeWithText("Add exercise").bounds()
+        val logButton = compose.onNodeWithText("Log set 1").bounds()
+
+        compose.onNodeWithText("Remove").performClick()
+        advance(32)
+        // A tap where the leaving card's Log set was never logs a set for it.
+        compose.onRoot().performTouchInput { click(logButton.center) }
+        advance(32)
+        val mid = compose.onNodeWithText("Add exercise").bounds()
+        advance(286)
+        val end = compose.onNodeWithText("Add exercise").bounds()
+        assertTrue("mid ${mid.top} between ${end.top} and ${before.top}", mid.top < before.top && mid.top > end.top)
+        advance(1_000)
+        assertEquals(end, compose.onNodeWithText("Add exercise").bounds())
+        assertEquals(1, removed)
+        assertTrue("logged $logged", squat.id.toInt() !in logged)
+        assertEquals(0, compose.onAllNodes(hasText("Squat")).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h640dp-xxhdpi")
+    fun next_onASmallPhone_scrollsToTheOpenedCard_whileItSlides() {
+        val more = (4L..6L).map { Exercise(it, "Accessory $it", Category.ACCESSORY, null, emptyList(), isBuiltIn = true) }
+        val lastSetLeft = item(squat, listOf(stored(1, squat, 100.0)), target = 2)
+        showToday(TodayState(date, loading = false, sessionId = 1, items = listOf(lastSetLeft, item(bench), item(row)) + more.map { item(it) }))
+        compose.onNodeWithText("Log set 2").performClick()
+        advance(1_000)
+
+        compose.onNodeWithText("Next: Bench").performClick()
+        advance(96)
+        val root = compose.onRoot().bounds()
+        advance(1_000)
+        val heading = compose.onNodeWithText("Bench").bounds()
+        val log = compose.onNodeWithText("Log set 1").bounds()
+        // Bench is open and in view, and has stopped moving.
+        assertTrue("Bench at $heading in $root", heading.top >= root.top && heading.bottom <= root.bottom)
+        assertTrue("Log set 1 at $log in $root", log.top >= root.top && log.bottom <= root.bottom)
+        advance(1_000)
+        assertEquals(heading, compose.onNodeWithText("Bench").bounds())
+        assertEquals(1, compose.onAllNodes(hasText("Log set 1")).fetchSemanticsNodes().size)
+    }
+
+    @Test
     fun withMotionOff_aLoggedSetIsThereAtOnce() {
         showToday(TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat, listOf(stored(1, squat, 100.0))))), motion = false)
         compose.onNodeWithText("Log set 2").performClick()
@@ -299,7 +377,8 @@ class LayoutMotionTest {
         val bMid = planRow(b).bounds().top
         assertTrue("a moving down: $aTop < $aMid < $bTop", aMid > aTop && aMid < bTop)
         assertTrue("b moving up: $aTop < $bMid < $bTop", bMid > aTop && bMid < bTop)
-        advance(350)
+        // 350 ms from the tap: settled.
+        advance(286)
         assertEquals(bTop, planRow(a).bounds().top)
         assertEquals(aTop, planRow(b).bounds().top)
 
@@ -308,7 +387,8 @@ class LayoutMotionTest {
         advance(64)
         val aBack = planRow(a).bounds().top
         assertTrue("a moving up: $aTop < $aBack < $bTop", aBack > aTop && aBack < bTop)
-        advance(350)
+        // 350 ms from the tap: settled.
+        advance(286)
         assertEquals(aTop, planRow(a).bounds().top)
         assertEquals(bTop, planRow(b).bounds().top)
     }
@@ -324,7 +404,8 @@ class LayoutMotionTest {
         advance(64)
         val cMid = planRow(c).bounds().top
         assertTrue("c closing up: $bTop < $cMid < $cTop", cMid > bTop && cMid < cTop)
-        advance(350)
+        // 350 ms from the tap: settled.
+        advance(286)
         assertEquals(bTop, planRow(c).bounds().top)
         assertEquals(0, compose.onAllNodes(hasText(planItemText(names.getValue(b.exerciseId), b))).fetchSemanticsNodes().size)
     }
