@@ -247,16 +247,21 @@ class ChartsDrawInTest {
 
     @Test
     fun motionOff_everythingIsComplete_atTheFirstFrame() {
+        var warning = Color.Unspecified
         show(motion = false) {
+            warning = Tone.WARNING.color()
             Column {
                 RisingSparkline()
                 FourBars()
-                Box(Modifier.width(300.dp)) { RatioBar("Bench ÷ Squat", 75, 60, 70, slid = rememberDrawIn(Unit, MARKER_SLIDE_MS)::value) }
+                Box(Modifier.width(300.dp).testTag("ratio")) { RatioBar("Bench ÷ Squat", 75, 60, 70, slid = rememberDrawIn(Unit, MARKER_SLIDE_MS)::value) }
             }
         }
         val bmp = snapshot()
         assertTrue("line complete", bmp.redRight(0, 60) >= 194)
         for (x in listOf(23, 74, 125, 176)) assertEquals("bar at $x full", 60, (60 until 120).count { isRed(bmp.getPixel(x, it)) })
+        val bottom = compose.onNodeWithTag("ratio").fetchSemanticsNode().boundsInRoot.bottom.toInt()
+        val marker = (0 until 300).filter { x -> (bottom - 34 until bottom).any { isColor(bmp.getPixel(x, it), warning) } }
+        assertTrue("marker at its value ($marker)", marker.isNotEmpty() && marker.average() > 200)
     }
 
     // ---- The real Progress screen ----
