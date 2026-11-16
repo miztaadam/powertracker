@@ -113,15 +113,18 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
           title={`Add to ${dayName(dialog.weekday)}`}
           exercises={state.exercises}
           recentIds={state.recentIds}
-          // The picker answers once, so each add ticks once.
+          // The picker answers once, so each add ticks once, when it is stored; a failed add does not buzz.
           onPick={(entry) => {
-            haptic('tick')
-            reported(actions.add(dialog.weekday, entry))
+            reported(actions.add(dialog.weekday, entry).then(() => haptic('tick')))
             setDialog(null)
           }}
           onCreateCustom={(exercise) => {
-            haptic('tick')
-            reported(actions.addCustomExercise(exercise).then((entry) => actions.add(dialog.weekday, entry)))
+            reported(
+              actions
+                .addCustomExercise(exercise)
+                .then((entry) => actions.add(dialog.weekday, entry))
+                .then(() => haptic('tick')),
+            )
             setDialog(null)
           }}
           onDismiss={() => setDialog(null)}

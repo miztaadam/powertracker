@@ -108,6 +108,8 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
 
   // A catalogue exercise added without a row changes id when its first set saves the row: follow it.
   const chosenId = activeId != null ? (resolved[activeId] ?? activeId) : null
+  /** Whether [id] is already on screen in the session (as drawn before the add). */
+  const inSessionAlready = (id: number) => items.some((i) => i.exercise.id === (resolved[id] ?? id))
   useEffect(() => {
     if (chosenId !== activeId) setActiveId(chosenId)
   }, [chosenId, activeId])
@@ -181,19 +183,27 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
           title="Add exercise"
           exercises={state.exercises}
           recentIds={state.recentIds}
-          // Picking one already in the session just opens its card. The picker answers once, so this ticks once.
+          // Picking one already in the session just opens its card, with no buzz. A new one ticks once it is added; the
+          // picker answers once, so once.
           onPick={(entry) => {
-            haptic('tick')
-            if (entry.library) setActiveId(actions.addFromCatalogue(entry.library.name))
+            let id: number | null = null
+            if (entry.library) id = actions.addFromCatalogue(entry.library.name)
             else if (entry.exerciseId != null) {
               actions.addExercise(entry.exerciseId)
-              setActiveId(entry.exerciseId)
+              id = entry.exerciseId
             }
+            if (id != null && !inSessionAlready(id)) haptic('tick')
+            setActiveId(id)
             setPicking(false)
           }}
           onCreateCustom={(exercise) => {
-            haptic('tick')
-            raw.createExercise(exercise).then(setActiveId, () => setFailures((n) => n + 1))
+            raw.createExercise(exercise).then(
+              (id) => {
+                if (id != null && !inSessionAlready(id)) haptic('tick')
+                setActiveId(id)
+              },
+              () => setFailures((n) => n + 1),
+            )
             setPicking(false)
           }}
           onDismiss={() => setPicking(false)}

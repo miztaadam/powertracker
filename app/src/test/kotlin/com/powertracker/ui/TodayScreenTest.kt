@@ -76,6 +76,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import com.powertracker.ui.components.FakeHapticFeedback
 import com.powertracker.ui.components.WithHaptics
 import androidx.compose.ui.semantics.SemanticsActions
+import com.powertracker.domain.model.TrainingHistory
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
@@ -1307,5 +1308,59 @@ class TodayScreenTest {
         settled()
         // The pick ticked, then the set ticked.
         assertEquals(listOf(HapticFeedbackType.ContextClick, HapticFeedbackType.ContextClick), haptics.calls.toList())
+    }
+
+    // ---- Review round: the best check never holds up or fails a save ----
+
+    @Test
+    fun aFailingHistoryRead_stillSavesTheSet_andTicks() {
+        val failing = object : TrainingRepository(db) {
+            override suspend fun historyWithout(setId: Long): TrainingHistory = throw IllegalStateException("disk gone")
+        }
+        startSession()
+        compose.setContent {
+            PowertrackerTheme { WithHaptics(haptics) { TodayScreen(failing, advice, settings, onOpenCoach = {}, today = { today }) } }
+        }
+        waitForText("Log set 1")
+        weight.type("180") // would be a new best
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForSets(1)
+        waitFor { haptics.calls.isNotEmpty() }
+        settled()
+        assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
+    }
+
+    @Test
+    fun withVibrateOnTapsOff_theHistoryIsNotRead() {
+        var reads = 0
+        val counting = object : TrainingRepository(db) {
+            override suspend fun historyWithout(setId: Long): TrainingHistory {
+                reads++
+                return super.historyWithout(setId)
+            }
+        }
+        runBlocking { settings.update { it.copy(vibrateOnTaps = false) } }
+        startSession()
+        compose.setContent {
+            PowertrackerTheme { WithHaptics(haptics, vibrateOnTaps = false) { TodayScreen(counting, advice, settings, onOpenCoach = {}, today = { today }) } }
+        }
+        waitForText("Log set 1")
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForSets(1)
+        settled()
+        assertEquals(0, reads)
+        assertEquals(0, haptics.calls.size)
+    }
+
+    @Test
+    fun pickingAnExerciseAlreadyInTheSession_onlyOpensIt_withNoBuzz() {
+        startSession()
+        showWithHaptics()
+        waitForText("Log set 1")
+        pickFromLibrary("Squat")
+        compose.onNodeWithTag("exercise-Squat").performClick()
+        waitFor { compose.onAllNodes(hasTestTag("exercise-search")).fetchSemanticsNodes().isEmpty() }
+        settled()
+        assertEquals(0, haptics.calls.size)
     }
 }

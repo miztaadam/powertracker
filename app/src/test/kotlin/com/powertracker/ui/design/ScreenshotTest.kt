@@ -129,11 +129,11 @@ class ScreenshotTest {
     fun plan() = render("plan", Tab.PLAN) { PlanShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1330dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1400dp-xhdpi")
     fun settings() = render("settings", null) { SettingsShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1330dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1400dp-xhdpi")
     fun settingsStrictPress() = render("settings-strict-press", null) { SettingsShowcase(strictPress = true) }
 
     // The bodybuilding side (bodybuilding mode spec §7): its blue look and label, its own Today, Plan, Coach and Progress.

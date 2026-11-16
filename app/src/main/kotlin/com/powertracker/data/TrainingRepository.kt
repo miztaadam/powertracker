@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
+import kotlinx.coroutines.flow.first
 
 /** Each side's plan. */
 data class Plans(val powerlifting: List<PlanItem>, val bodybuilding: List<PlanItem>) {
@@ -42,9 +43,21 @@ open class TrainingRepository(private val db: AppDatabase) {
         db.sets().observeAll(),
         db.exercises().observeAll(),
         db.baselines().observeAll(),
-    ) { sessions, sets, exercises, baselines ->
+        ::historyOf,
+    )
+
+    /** The history as it was before the set [setId] was logged: everything stored, read once, but that set. */
+    open suspend fun historyWithout(setId: Long): TrainingHistory =
+        historyOf(
+            db.sessions().observeAll().first(),
+            db.sets().observeAll().first().filter { it.id != setId },
+            db.exercises().observeAll().first(),
+            db.baselines().observeAll().first(),
+        )
+
+    private fun historyOf(sessions: List<SessionEntity>, sets: List<SetEntity>, exercises: List<ExerciseEntity>, baselines: List<BaselineEntity>): TrainingHistory {
         val setsBySession = sets.groupBy { it.sessionId }
-        TrainingHistory(
+        return TrainingHistory(
             sessions = sessions.map { s -> s.toDomain(setsBySession[s.id].orEmpty().map { it.toDomain() }) },
             exercises = exercises.map { it.toDomain() }.associateBy { it.id },
             baselines = baselines.map { Baseline(it.exerciseId, it.e1rmKg, it.date) },

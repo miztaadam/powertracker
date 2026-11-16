@@ -148,7 +148,6 @@ describe('settings', () => {
     expect((await getSettings(db)).defaultRpe).toBe(8.0)
   })
 
-  /** Strict press spec §4.2: off by default, and stored once switched. */
   /** Stage 2: "Vibrate on taps" is on by default, stored once switched, and apart from the rest alert. */
   it('vibrateOnTaps_defaultsOn_andPersists', async () => {
     const db = await openDb()
@@ -162,6 +161,7 @@ describe('settings', () => {
     expect((await getSettings(db)).vibrateOnTaps).toBe(true)
   })
 
+  /** Strict press spec §4.2: off by default, and stored once switched. */
   it('showStrictPress_defaultsOff_andPersists', async () => {
     const db = await openDb()
     expect(DEFAULT_SETTINGS.showStrictPress).toBe(false)

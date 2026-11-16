@@ -706,4 +706,21 @@ describe('ExercisesScreen haptics', () => {
     await waitFor(() => expect(snackbar()).toHaveTextContent('Added to today'))
     expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
   })
+
+  it('aFailedOrAlreadyThereAdd_doesNotBuzz', async () => {
+    const squat = await exerciseNamed(db, 'Squat')
+    await plan(db, squat.id, { weekday: 1 })
+    await showTab()
+    await addToPlan('Squat', 'Monday')
+    await waitFor(() => expect(snackbar()).toHaveTextContent('Already in your plan on Monday.'))
+    expect(vibrate, 'already there: nothing added').not.toHaveBeenCalled()
+
+    const failing = vi.spyOn(db.planItems, 'add').mockImplementation(() => {
+      throw new Error('disk full')
+    })
+    await addToPlan('Hack squat', 'Monday')
+    await waitFor(() => expect(snackbar()).toHaveTextContent(SAVE_FAILED))
+    expect(failing).toHaveBeenCalledOnce()
+    expect(vibrate, 'a failed add does not buzz').not.toHaveBeenCalled()
+  })
 })

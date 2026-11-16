@@ -178,13 +178,15 @@ export async function openGritDb(
   return db
 }
 
-export async function loadHistory(db: GritDb): Promise<JsHistory> {
-  const [sessions, sets, exercises, baselines] = await Promise.all([
+export async function loadHistory(db: GritDb, exceptSetId?: number): Promise<JsHistory> {
+  const [sessions, allSets, exercises, baselines] = await Promise.all([
     db.sessions.orderBy('date').toArray(),
     db.sets.orderBy('id').toArray(),
     db.exercises.toArray(),
     db.baselines.toArray(),
   ])
+  // With `exceptSetId`: the history as it was before that set was logged.
+  const sets = exceptSetId == null ? allSets : allSets.filter((s) => s.id !== exceptSetId)
   const bySession = new Map<number, SetRow[]>()
   for (const s of sets) {
     const list = bySession.get(s.sessionId) ?? []

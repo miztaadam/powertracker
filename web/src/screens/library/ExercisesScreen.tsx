@@ -65,8 +65,6 @@ export function ExercisesScreen({ db, session, onOpenPlan, onOpenToday, browser,
   const once = <R,>(add: () => Promise<R>, report: (result: R) => void) => {
     if (answered.current) return
     answered.current = true
-    // Add to plan (on the day) or Add to today: one tick per add.
-    haptic('tick')
     add().then(
       (result) => {
         close()
@@ -82,14 +80,23 @@ export function ExercisesScreen({ db, session, onOpenPlan, onOpenToday, browser,
   const addToPlan = (entry: PickerEntry, weekday: number) =>
     once(
       () => plan.addOnce(weekday, entry),
-      (result) => (result === 'ADDED' ? say(`Added to ${dayName(weekday)}`, 'Open Plan', onOpenPlan) : say(`Already in your plan on ${dayName(weekday)}.`)),
+      (result) => {
+        if (result === 'ADDED') {
+          // One tick once the add is stored; none when it was already there or failed.
+          haptic('tick')
+          say(`Added to ${dayName(weekday)}`, 'Open Plan', onOpenPlan)
+        } else say(`Already in your plan on ${dayName(weekday)}.`)
+      },
     )
   const addToToday = (entry: PickerEntry) =>
     once(
       // The session is looked at again now: it may have been finished since this button was drawn.
       () => session.addToOpenSession(entry.library?.name ?? null, entry.exerciseId),
       (result) => {
-        if (result === 'ADDED') say('Added to today', 'Open Today', onOpenToday)
+        if (result === 'ADDED') {
+          haptic('tick')
+          say('Added to today', 'Open Today', onOpenToday)
+        }
         else if (result === 'ALREADY_THERE') say("Already in today's session.")
         // Refused: there is no open session any more. Nothing was added.
         else if (result === 'REFUSED') say(SAVE_FAILED)

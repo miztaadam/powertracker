@@ -143,7 +143,14 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] On a narrow phone (360 px or less), no screen scrolls sideways. "Sound +" wraps over "vibrate" if needed.
 - [ ] Restore a backup from the Android app. An app set to vibrate comes back as Sound + vibrate.
 - [ ] Press a button: it sinks a little and springs back.
-- [ ] Log set buzzes once. A new squat best buzzes twice.
+- [ ] A normal Log set buzzes once. A new squat best buzzes twice.
+- [ ] Turn off "Vibrate on taps" in Settings (under Rest alert): Log set no longer buzzes.
+
+## Owner's manual checks in the Android app itself
+
+- [ ] Press a button, a chip or a row: it sinks a little and springs back.
+- [ ] A normal Log set buzzes once.
+- [ ] Log a new squat best: it buzzes twice.
 - [ ] Turn off "Vibrate on taps" in Settings (under Rest alert): Log set no longer buzzes.
 
 ## Where things are

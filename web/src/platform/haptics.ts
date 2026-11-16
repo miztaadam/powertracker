@@ -16,13 +16,18 @@ export function setTapHaptics(on: boolean): void {
   tapsOn = on
 }
 
+/** Whether a buzz could happen at all: the setting is on and the browser can vibrate. Work done only to choose a buzz is skipped otherwise. */
+export function hapticsPossible(): boolean {
+  return tapsOn && canVibrate()
+}
+
 /**
  * A buzz for a main action (stage 2, owner decision 2). Each goes with something on screen. Does nothing while the
  * setting is off or where the browser cannot vibrate (iPhones give web apps no vibration). `navigator.vibrate`
  * replaces any buzz still running, so fast taps never queue up.
  */
 export function haptic(kind: HapticKind): void {
-  if (!tapsOn || !canVibrate()) return
+  if (!hapticsPossible()) return
   try {
     navigator.vibrate(PATTERN[kind])
   } catch {

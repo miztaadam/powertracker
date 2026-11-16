@@ -106,15 +106,13 @@ fun TodayScreen(
 
     val setLogged by rememberUpdatedState(onSetLogged)
     // Log set and Missed buzz once the set is saved: one buzz per set, none for an entry that was refused or held.
-    // A new best gets the stronger buzz instead of the tick.
+    // A new best gets the stronger buzz instead of the tick; the view model says which just after the save.
     val haptics = rememberHaptics()
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                is TodayEvent.SetLogged -> {
-                    if (event.isNewBest) haptics.best() else haptics.tick()
-                    setLogged(event.isMainOrVariation)
-                }
+                is TodayEvent.SetLogged -> setLogged(event.isMainOrVariation)
+                is TodayEvent.SetBuzz -> if (event.isNewBest) haptics.best() else haptics.tick()
                 // Coach Apply ticks once the target is in the editor.
                 TodayEvent.TargetApplied -> haptics.tick()
             }
@@ -189,8 +187,12 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
     val inSession = state.inSession
     var activeId by rememberSaveable { mutableStateOf<Long?>(null) }
     var picking by rememberSaveable { mutableStateOf(false) }
-    // Adding an exercise from the picker ticks.
+    // Adding an exercise from the picker ticks, once it is added.
     val haptics = rememberHaptics()
+    // Read when called, from the session as last drawn (before the add).
+    val shownItems by rememberUpdatedState(items)
+    val resolvedIds by rememberUpdatedState(state.resolved)
+    fun inSessionAlready(id: Long): Boolean = shownItems.any { it.exercise.id == (resolvedIds[id] ?: id) }
 
     // A catalogue exercise added without a row changes id when its first set saves the row: follow it.
     val chosenId = activeId?.let { state.resolved[it] ?: it }
@@ -286,16 +288,19 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
             title = "Add exercise",
             exercises = state.exercises,
             recentIds = state.recentIds,
-            // Picking one already in the session just opens its card.
+            // Picking one already in the session just opens its card, with no buzz; a new one ticks once it is added.
             onPick = { entry ->
-                haptics.tick()
                 val name = entry.catalogueName
-                activeId = if (name != null) actions.onAddFromCatalogue(name) else entry.exerciseId?.also(actions.onAddExercise)
+                val id = if (name != null) actions.onAddFromCatalogue(name) else entry.exerciseId?.also(actions.onAddExercise)
+                if (id != null && !inSessionAlready(id)) haptics.tick()
+                activeId = id
                 picking = false
             },
             onCreateCustom = { name, category, parent, muscles ->
-                haptics.tick()
-                actions.onCreateExercise(name, category, parent, muscles) { id -> activeId = id }
+                actions.onCreateExercise(name, category, parent, muscles) { id ->
+                    if (!inSessionAlready(id)) haptics.tick()
+                    activeId = id
+                }
                 picking = false
             },
             onDismiss = { picking = false },

@@ -218,6 +218,8 @@ Spec: `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md`. Plan: 
   - Each step on Today's weight, reps and RPE steppers gives one tick.
   - Nothing else buzzes.
 - **Where it works:** the Android app, and the web app on Android phones. iPhones can't vibrate.
+  - The web app shows the switch wherever the browser says it can vibrate. In practice that is Android browsers.
+  - Desktop Chrome shows the switch too, but nothing buzzes there.
 - **The switch:** "Vibrate on taps" sits under Rest alert in Settings. It is hidden on iPhone. It is not in backups (owner, option A): it belongs to the phone, and after a restore it is on.
 - **Backups:** 1.7 reads backups as before, and its backup readers ignore settings they don't know, so a later version can add a setting without breaking them.
 - **Reduce motion:** with the phone's reduce-motion setting on, nothing sinks or springs.

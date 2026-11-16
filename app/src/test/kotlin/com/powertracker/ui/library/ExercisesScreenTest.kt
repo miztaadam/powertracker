@@ -842,4 +842,44 @@ class ExercisesScreenTest {
         waitFor { says("Added to Monday") }
         assertEquals(0, haptics.calls.size)
     }
+
+    @Test
+    fun guideSheet_aFailedOrAlreadyThereAdd_doesNotBuzz() {
+        val haptics = FakeHapticFeedback()
+        val failing = object : TrainingRepository(db) {
+            override suspend fun savePlanItem(item: PlanItem, catalogueName: String?): Long = throw IllegalStateException("disk full")
+        }
+        todayVm = TodayViewModel(failing, advice, settings) { today }.also { viewModels += it }
+        compose.setContent {
+            PowertrackerTheme {
+                WithHaptics(haptics) { ExercisesScreen(failing, settings, todayVm, onOpenPlan = {}, onOpenToday = {}, today = { today }) }
+            }
+        }
+        waitFor { has("exercise-list") && !todayVm.state.value.loading }
+        openGuide("Hammer curl")
+        chooseDay()
+        compose.onNodeWithTag("day-MONDAY").performClick()
+        waitFor { says(SAVE_FAILED) }
+        compose.waitForIdle()
+        assertEquals("a failed add does not buzz", 0, haptics.calls.size)
+    }
+
+    @Test
+    fun guideSheet_alreadyInThePlan_doesNotBuzz() {
+        val haptics = FakeHapticFeedback()
+        runBlocking { training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, id("Squat"), sets = 3, reps = 5, targetRpe = 8.0, order = 0)) }
+        todayVm = TodayViewModel(training, advice, settings) { today }.also { viewModels += it }
+        compose.setContent {
+            PowertrackerTheme {
+                WithHaptics(haptics) { ExercisesScreen(training, settings, todayVm, onOpenPlan = {}, onOpenToday = {}, today = { today }) }
+            }
+        }
+        waitFor { has("exercise-list") && !todayVm.state.value.loading }
+        openGuide("Squat")
+        chooseDay()
+        compose.onNodeWithTag("day-MONDAY").performClick()
+        waitFor { says("Already in your plan on Monday.") }
+        compose.waitForIdle()
+        assertEquals(0, haptics.calls.size)
+    }
 }

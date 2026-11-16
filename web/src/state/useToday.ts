@@ -5,7 +5,7 @@ import { checkInToJs, loadCheckIns } from '../db/checkIns'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
 import { sideOf, type AdviceRow, type PlanItemRow, type SetRow, type TrainingMode } from '../db/schema'
-import { haptic } from '../platform/haptics'
+import { haptic, hapticsPossible } from '../platform/haptics'
 import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 
@@ -297,7 +297,20 @@ async function coachPass(db: GritDb, date: string, today: () => string): Promise
 // answers are kept for as long as the history object they were worked out from.
 const topSets = new WeakMap<JsHistory, Map<string, JsSet | null>>()
 
-/** The top set of the latest session before `before` that has this exercise, as the coach picks it. */
+/**
+ * The buzz for the set just saved as [setId]: `best` when it is a new record of its lift, asked of the history without
+ * it, else `tick`, and `tick` too when the history cannot be read.
+ */
+export async function buzzForSet(db: GritDb, setId: number, row: Parameters<typeof isNewBest>[1], date: string, side: TrainingMode): Promise<void> {
+  let best = false
+  try {
+    best = row.exerciseId != null && isNewBest(await loadHistory(db, setId), row, date, side)
+  } catch {
+    // Fall back to the tick: the set is saved either way.
+  }
+  haptic(best ? 'best' : 'tick')
+}
+
 /** Whether [row], about to be saved on [date] in a [side] session, is a new record of its lift (ProgressMath.isNewPr). */
 export function isNewBest(
   history: JsHistory,
@@ -309,6 +322,7 @@ export function isNewBest(
   return grit.isNewPr(history, new JsSet(row.exerciseId, row.weightKg, row.reps, row.rpe, row.failed, null, false), date, side)
 }
 
+/** The top set of the latest session before `before` that has this exercise, as the coach picks it. */
 function lastTopSet(history: JsHistory, exerciseId: number, before: string): JsSet | null {
   let known = topSets.get(history)
   if (!known) topSets.set(history, (known = new Map()))
@@ -698,12 +712,10 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // A stand-in key means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
         const entry = standInEntry(itemKey)
         const row = { sessionId: now.sessionId, exerciseId: entry ? null : itemKey, weightKg: set.weightKg, reps: set.reps, rpe: set.rpe, failed: set.failed, missPoint: null, isTopSet: false }
-        // Asked of the history before the set is in it, under the rule Progress uses for its records (a stand-in is a
-        // catalogue exercise with no row yet: never a main lift).
-        const best = !entry && isNewBest(await loadHistory(db), row, now.date, now.side)
         const setId = await addSet(db, row, entry?.name ?? null)
-        // One buzz per set saved, Log set or Missed; a failed write does not buzz. A new best gets the stronger buzz.
-        haptic(best ? 'best' : 'tick')
+        // One buzz per set saved, Log set or Missed; a failed write does not buzz. A new best gets the stronger buzz,
+        // worked out after the save and beside it: it never holds the set up, and if it fails the set still ticks.
+        if (hapticsPossible()) void buzzForSet(db, setId, row, now.date, now.side)
         update((l) => ({ ...l, pending: null }))
         touch(now.date)
         // Every exercise on the bodybuilding side takes the accessory rest (spec §5.3).

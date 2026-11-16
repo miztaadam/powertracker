@@ -6,6 +6,7 @@ import type { GritDb } from '../../db/db'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { DELOAD_ADVICE, TODAY, addDays, baseline, exerciseNamed, logSet, plan, set, setsOn, startSession, targets, todayFixture } from '../../test/todayFixture'
 import { setTapHaptics } from '../../platform/haptics'
+import { grit } from '../../domain'
 import { TodayScreen } from './TodayScreen'
 
 let fx: ReturnType<typeof todayFixture>
@@ -709,6 +710,49 @@ describe('TodayScreen haptics', () => {
     await waitFor(() => expect(weightField()).toHaveValue('155'))
     await waitFor(async () => expect((await db.advice.toArray()).filter((a) => a.status === 'APPLIED')).toHaveLength(1))
     expect(vibrate).toHaveBeenCalledExactlyOnceWith(10)
+  })
+
+  it('aFailingBestCheck_stillSavesTheSet_andTicks', async () => {
+    const check = vi.spyOn(grit, 'isNewPr').mockImplementation(() => {
+      throw new Error('history gone')
+    })
+    try {
+      await startSession(db, TODAY)
+      show()
+      await findButton('Log set 1')
+      await typeWeight('180') // would be a new best
+      await tap('Log set 1')
+      await waitForSets(1)
+      await waitFor(() => expect(vibrate).toHaveBeenCalledExactlyOnceWith(10))
+      expect(check).toHaveBeenCalledOnce()
+    } finally {
+      check.mockRestore()
+    }
+  })
+
+  it('withNothingToBuzz_theBestCheckIsSkipped', async () => {
+    setTapHaptics(false)
+    const check = vi.spyOn(grit, 'isNewPr')
+    try {
+      await startSession(db, TODAY)
+      show()
+      await tapWhenShown('Log set 1')
+      await waitForSets(1)
+      await findButton('Log set 2')
+      expect(check).not.toHaveBeenCalled()
+    } finally {
+      check.mockRestore()
+    }
+  })
+
+  it('pickingAnExerciseAlreadyInTheSession_doesNotBuzz', async () => {
+    await startSession(db, TODAY)
+    show()
+    await openPicker()
+    await userEvent.type(picker().getByRole('textbox', { name: 'Search exercises' }), 'squat')
+    await userEvent.click(await pickerRow('Squat'))
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Add exercise' })).toBeNull())
+    expect(vibrate).not.toHaveBeenCalled()
   })
 
   it('setting off_nothingBuzzes', async () => {

@@ -82,12 +82,11 @@ fun ExercisesScreen(
     var choosingDay by rememberSaveable { mutableStateOf(false) }
     // A sheet answers once: a second tap landing before it closes (a double tap) adds nothing more and says nothing more.
     val answered = remember { mutableStateOf(false) }
-    // Add to plan (on the day picked) and Add to today tick once, when the add is accepted.
+    // Add to plan (on the day picked) and Add to today tick once the add is stored; not when it was already there or failed.
     val haptics = rememberHaptics()
     fun once(add: () -> Unit) {
         if (!answered.value) {
             answered.value = true
-            haptics.tick()
             add()
         }
     }
@@ -128,7 +127,10 @@ fun ExercisesScreen(
                             viewModel.addOnce(day, entry) { result ->
                                 close()
                                 when (result) {
-                                    PlanAdd.ADDED -> say("Added to ${dayName(day)}", "Open Plan", onOpenPlan)
+                                    PlanAdd.ADDED -> {
+                                        haptics.tick()
+                                        say("Added to ${dayName(day)}", "Open Plan", onOpenPlan)
+                                    }
                                     PlanAdd.ALREADY_THERE -> say("Already in your plan on ${dayName(day)}.")
                                     PlanAdd.FAILED -> say(SAVE_FAILED)
                                 }
@@ -149,7 +151,10 @@ fun ExercisesScreen(
                                 todayViewModel.addToOpenSession(entry.catalogueName, entry.exerciseId) { result ->
                                     close()
                                     when (result) {
-                                        TodayAdd.ADDED -> say("Added to today", "Open Today", onOpenToday)
+                                        TodayAdd.ADDED -> {
+                                            haptics.tick()
+                                            say("Added to today", "Open Today", onOpenToday)
+                                        }
                                         TodayAdd.ALREADY_THERE -> say("Already in today's session.")
                                         TodayAdd.REFUSED -> say(SAVE_FAILED)
                                     }

@@ -125,8 +125,14 @@ enum class TodayAdd {
 }
 
 sealed interface TodayEvent {
-    /** A set was saved; the rest timer starts from this. [isNewBest]: it is a new record of its lift (ProgressMath.isNewPr). */
-    data class SetLogged(val isMainOrVariation: Boolean, val isNewBest: Boolean = false) : TodayEvent
+    /** A set was saved; the rest timer starts from this. */
+    data class SetLogged(val isMainOrVariation: Boolean) : TodayEvent
+
+    /**
+     * The buzz for a saved set, sent just after [SetLogged] once the history has been asked whether it is a new best
+     * ([isNewBest], ProgressMath.isNewPr). While "Vibrate on taps" is off the history is not read and it says false.
+     */
+    data class SetBuzz(val isNewBest: Boolean) : TodayEvent
 
     /** A coach target was put into the editor (Apply). */
     data object TargetApplied : TodayEvent
@@ -339,21 +345,33 @@ class TodayViewModel(
                     }
                 }
                 val stored = set.copy(exerciseId = exerciseId, isTopSet = false)
-                // Asked of the history before the set is in it, under the rule Progress uses for its records.
-                val isNewBest = ProgressMath.isNewPr(training.history().first(), stored, date, now.mode)
                 // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
                 // A stand-in id means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
                 val setId = training.logSet(sessionId, stored, catalogueName = catalogueEntry(exerciseId)?.name)
                 local.update { it.copy(pending = null) }
                 // Every exercise on the bodybuilding side takes the accessory rest (bodybuilding mode spec §5.3).
                 val mainRest = now.mode == TrainingMode.POWERLIFTING && item?.exercise?.category != Category.ACCESSORY
-                _events.emit(TodayEvent.SetLogged(isMainOrVariation = mainRest, isNewBest = isNewBest))
+                _events.emit(TodayEvent.SetLogged(isMainOrVariation = mainRest))
+                // The buzz is worked out after the save, beside it: it never holds the set up, and if it fails it ticks.
+                viewModelScope.launch { _events.emit(TodayEvent.SetBuzz(isNewBest(setId, stored, now.mode))) }
                 // Hold the guard until the new set is on screen, so the button the lifter sees is never stale.
                 withTimeoutOrNull(SHOWN_TIMEOUT_MS) { state.first { s -> s.items.any { i -> i.sets.any { it.id == setId } } } }
             } finally {
                 saving.value = false
             }
         }
+    }
+
+    /**
+     * Whether the set just saved as [setId] is a new best, asked of the history without it, under the rule Progress uses
+     * for its records. False (a tick) when the history cannot be read; not asked at all while nothing would buzz.
+     */
+    private suspend fun isNewBest(setId: Long, set: LoggedSet, mode: TrainingMode): Boolean = try {
+        settings.settings.first().vibrateOnTaps && ProgressMath.isNewPr(training.historyWithout(setId), set, date, mode)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        false
     }
 
     /** Back to the editor without saving the held set. */

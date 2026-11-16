@@ -138,7 +138,7 @@ fun PlanScreen(
         onBuild = onOpenBuilder,
     )
 
-    // Adding an exercise to a day ticks; changing one in the edit dialog does not.
+    // Adding an exercise to a day ticks once it is stored; changing one in the edit dialog does not.
     val haptics = rememberHaptics()
     when (val d = dialog) {
         // Picking adds the exercise with its default sets and reps; they are edited from the row, as before.
@@ -147,13 +147,11 @@ fun PlanScreen(
             exercises = state.exercises,
             recentIds = state.recentIds,
             onPick = { entry ->
-                haptics.tick()
-                viewModel.add(d.day, entry)
+                viewModel.add(d.day, entry) { haptics.tick() }
                 dialog = null
             },
             onCreateCustom = { name, category, parent, muscles ->
-                haptics.tick()
-                viewModel.addCustomExercise(name, category, parent, muscles) { entry -> viewModel.add(d.day, entry) }
+                viewModel.addCustomExercise(name, category, parent, muscles) { entry -> viewModel.add(d.day, entry) { haptics.tick() } }
                 dialog = null
             },
             onDismiss = { dialog = null },
