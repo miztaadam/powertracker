@@ -24,7 +24,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md`, §2–4, stage 2.
 
-## Owner decisions needed before building
+## Owner decisions (approved by the owner on 2026-11-16, all three as written)
 1. **The press.**
    - Every tappable thing sinks to 97% of its size, in about 90 ms, and springs back with a small overshoot in about 260 ms. These are the timings in the examples you tried.
    - The tab bar's icons sink to 92%, because they are small.
