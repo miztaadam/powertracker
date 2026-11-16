@@ -210,9 +210,12 @@ class PlanBuilderTest {
         assertEquals(4480, priorityAnswers.size)
         assertTrue(priorityAnswers.any { a -> a.picks.any { it.name == ownWithMuscles.name } && a.variant == 3 })
         val failures = mutableListOf<String>()
+        // The 14 priority sets of one answer share its draft without priorities: built once, not 14 times.
+        val withoutPriorities = HashMap<BuilderAnswers, Map<MuscleGroup, Int>>()
         for (a in priorityAnswers) {
             val with = sets(PlanBuilder.build(a))
-            val without = sets(PlanBuilder.build(a.copy(priorities = emptyList())))
+            val base = a.copy(priorities = emptyList())
+            val without = withoutPriorities.getOrPut(base) { sets(PlanBuilder.build(base)) }
             for (g in PlanBuilder.TARGET_GROUPS) if (with.getValue(g) < without.getValue(g)) failures += "lowers $g ${without[g]}->${with[g]}: $a"
             for (g in a.priorities) {
                 if (with.getValue(g) <= without.getValue(g)) failures += "does not raise $g ${without[g]}->${with[g]}: $a"
