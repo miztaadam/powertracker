@@ -10,7 +10,6 @@ import com.powertracker.data.AdviceRepository
 import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.model.AccessoryPrescription
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
@@ -20,6 +19,7 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.coach.CoachScreen
 import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.theme.PowertrackerTheme
@@ -29,7 +29,6 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -41,12 +40,16 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
 class CoachScreenTest {
-    @get:Rule
+    /** Outermost: the database closes after the compose rule has torn the screen down, and once no query is running. */
+    @get:Rule(order = 0)
+    val database = TestDatabase()
+
+    @get:Rule(order = 1)
     val compose = createComposeRule()
 
     private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
-    private lateinit var db: AppDatabase
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var advice: AdviceRepository
     private lateinit var settings: SettingsRepository
@@ -57,7 +60,6 @@ class CoachScreenTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         advice = AdviceRepository(db)
         settings = SettingsRepository(context)
@@ -66,9 +68,6 @@ class CoachScreenTest {
             exercises = training.exercises().first()
         }
     }
-
-    @After
-    fun tearDown() = db.close()
 
     private fun id(name: String) = exercises.first { it.name == name }.id
 

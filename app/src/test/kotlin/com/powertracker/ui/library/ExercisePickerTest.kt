@@ -33,7 +33,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.data.db.ExerciseEntity
 import com.powertracker.domain.library.BodyArea
 import com.powertracker.domain.library.Equipment
@@ -44,13 +43,13 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.plan.PlanScreen
 import com.powertracker.ui.theme.PowertrackerTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -67,10 +66,14 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
 class ExercisePickerTest {
-    @get:Rule
+    /** Outermost: the database closes after the compose rule has torn the screen down, and once no query is running. */
+    @get:Rule(order = 0)
+    val database = TestDatabase()
+
+    @get:Rule(order = 1)
     val compose = createComposeRule()
 
-    private lateinit var db: AppDatabase
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var settings: SettingsRepository
 
@@ -81,14 +84,10 @@ class ExercisePickerTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         settings = SettingsRepository(context)
         runBlocking { settings.update { AppSettings() } }
     }
-
-    @After
-    fun tearDown() = db.close()
 
     private fun stored(): List<Exercise> = runBlocking { training.exercises().first() }
 

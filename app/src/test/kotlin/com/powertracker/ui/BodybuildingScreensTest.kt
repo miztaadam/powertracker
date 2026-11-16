@@ -10,7 +10,6 @@ import com.powertracker.data.BackupResult
 import com.powertracker.data.BackupService
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.library.Kind
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
@@ -22,6 +21,7 @@ import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.TrainingMode.BODYBUILDING
 import com.powertracker.domain.model.TrainingMode.POWERLIFTING
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.coach.CoachState
 import com.powertracker.ui.coach.CoachViewModel
 import com.powertracker.ui.library.PickerEntry
@@ -52,6 +52,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -63,7 +64,11 @@ import java.io.File
 class BodybuildingScreensTest {
     private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
-    private lateinit var db: AppDatabase
+    /** Closes the database after `@After` has stopped the view models, once no query is running. */
+    @get:Rule
+    val database = TestDatabase()
+
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var advice: AdviceRepository
     private lateinit var settings: SettingsRepository
@@ -76,7 +81,6 @@ class BodybuildingScreensTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         advice = AdviceRepository(db)
         settings = SettingsRepository(context)
@@ -94,7 +98,6 @@ class BodybuildingScreensTest {
         collectors.cancel()
         // Nothing of this test may keep reading the database once it is closed.
         for (vm in viewModels) vm.viewModelScope.cancel()
-        db.close()
     }
 
     private fun await(what: String, condition: () -> Boolean) {

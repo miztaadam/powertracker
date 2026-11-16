@@ -26,7 +26,6 @@ import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.StoredSet
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSession
@@ -34,6 +33,7 @@ import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.plates.PlateLoader
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.design.assertTextsFit
 import com.powertracker.ui.library.rpeSheetIsOpen
 import com.powertracker.ui.plan.PlanScreen
@@ -71,7 +71,11 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "w360dp-h2400dp-xhdpi")
 class StrictPressSmallPhoneTest {
-    @get:Rule
+    /** Outermost: the database closes after the compose rule has torn the screen down, and once no query is running. */
+    @get:Rule(order = 0)
+    val database = TestDatabase()
+
+    @get:Rule(order = 1)
     val compose = createComposeRule()
 
     private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
@@ -201,33 +205,28 @@ class StrictPressSmallPhoneTest {
     @Test
     fun planDialog_rpeInfo_fitsASmallPhone() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val db = AppDatabase.inMemory(context)
-        try {
-            val training = TrainingRepository(db)
-            val settings = SettingsRepository(context)
-            runBlocking {
-                settings.update { AppSettings() }
-                val id = training.exercises().first().first { it.name == "Squat" }.id
-                training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, id, sets = 5, reps = 5, targetRpe = 8.5, order = 0))
-            }
-            compose.setContent { PowertrackerTheme { PlanScreen(training, settings, onOpenSettings = {}) } }
-            compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  5 × 5 @ 8.5").fetchSemanticsNodes().isNotEmpty() }
-            compose.onAllNodesWithContentDescription("More")[0].performClick()
-            compose.onNodeWithText("Edit").performClick()
-            compose.onNodeWithText("Edit Wednesday").assertExists()
-
-            val inDialog = hasAnyAncestor(isDialog())
-            val info = compose.onNode(hasContentDescription("What RPE means") and inDialog)
-            info.assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
-            val bounds = info.getUnclippedBoundsInRoot()
-            val minus = compose.onNode(hasContentDescription("Decrease RPE") and inDialog).getUnclippedBoundsInRoot()
-            val plus = compose.onNode(hasContentDescription("Increase RPE") and inDialog).getUnclippedBoundsInRoot()
-            val dialog = compose.onNode(isDialog()).getUnclippedBoundsInRoot()
-            assertTrue("the info button is clear of the stepper", bounds.right <= minus.left)
-            assertTrue("the row stays inside the dialog", bounds.left >= 0.dp && plus.right <= dialog.right - dialog.left)
-        } finally {
-            compose.runOnIdle { }
-            db.close()
+        val db = database.db
+        val training = TrainingRepository(db)
+        val settings = SettingsRepository(context)
+        runBlocking {
+            settings.update { AppSettings() }
+            val id = training.exercises().first().first { it.name == "Squat" }.id
+            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, id, sets = 5, reps = 5, targetRpe = 8.5, order = 0))
         }
+        compose.setContent { PowertrackerTheme { PlanScreen(training, settings, onOpenSettings = {}) } }
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  5 × 5 @ 8.5").fetchSemanticsNodes().isNotEmpty() }
+        compose.onAllNodesWithContentDescription("More")[0].performClick()
+        compose.onNodeWithText("Edit").performClick()
+        compose.onNodeWithText("Edit Wednesday").assertExists()
+
+        val inDialog = hasAnyAncestor(isDialog())
+        val info = compose.onNode(hasContentDescription("What RPE means") and inDialog)
+        info.assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+        val bounds = info.getUnclippedBoundsInRoot()
+        val minus = compose.onNode(hasContentDescription("Decrease RPE") and inDialog).getUnclippedBoundsInRoot()
+        val plus = compose.onNode(hasContentDescription("Increase RPE") and inDialog).getUnclippedBoundsInRoot()
+        val dialog = compose.onNode(isDialog()).getUnclippedBoundsInRoot()
+        assertTrue("the info button is clear of the stepper", bounds.right <= minus.left)
+        assertTrue("the row stays inside the dialog", bounds.left >= 0.dp && plus.right <= dialog.right - dialog.left)
     }
 }
