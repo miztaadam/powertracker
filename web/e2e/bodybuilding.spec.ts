@@ -442,9 +442,10 @@ test('today: the stretch and squeeze lines wrap without clipping at 130% zoom', 
 
   const fit = await card.evaluate((el) => {
     const found: string[] = []
-    // The lines and their labels. (The RPE stepper reaches past a 288 px screen with or without them: a separate matter.)
-    for (const node of el.querySelectorAll<HTMLElement>('.today-cues, .today-cues *')) {
-      if (node.closest('.sr-only')) continue
+    // The whole card, but for the stepper row: the RPE stepper reaches past a 288 px screen on a card with no lines too,
+    // a separate matter.
+    for (const node of el.querySelectorAll<HTMLElement>('*')) {
+      if (node.closest('.sr-only') || node.closest('.today-steppers')) continue
       const box = node.getBoundingClientRect()
       if (box.width > 0 && (box.right > window.innerWidth + 0.5 || box.left < -0.5)) found.push(`outside ${node.tagName.toLowerCase()}.${node.className}`)
     }
