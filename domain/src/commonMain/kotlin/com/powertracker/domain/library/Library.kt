@@ -11,6 +11,8 @@ import com.powertracker.domain.library.areas.quads
 import com.powertracker.domain.library.areas.shoulders
 import com.powertracker.domain.library.figures.ExerciseFigure
 import com.powertracker.domain.library.figures.Figures
+import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.MainLift
 
 /** The exercise catalogue: static data compiled into both apps, and the search both pickers use. */
 object Library {
@@ -62,7 +64,32 @@ object Library {
     fun focus(name: String): MuscleFocus? = find(name)?.let { MuscleFocuses.all[it.name] }
 
     /**
-     * Entries in [areas] (empty = any) that need any of [equipment] (empty = any) and match [query]. Ranked:
+     * The body area each main lift belongs to, besides Main lifts: a chosen area also lists its main lift and that lift's
+     * variations (Bench and Close-grip bench under Chest). Owner, 2026-11-16.
+     */
+    private val LIFT_AREA: Map<MainLift, BodyArea> = mapOf(
+        MainLift.BENCH to BodyArea.CHEST,
+        MainLift.SQUAT to BodyArea.QUADS,
+        MainLift.DEADLIFT to BodyArea.HAMSTRINGS_GLUTES,
+        MainLift.STRICT_PRESS to BodyArea.SHOULDERS,
+    )
+
+    /** The main lift [e] is or varies, from its category or its parent lift (never its muscles); null for the rest. */
+    private fun liftOf(e: LibraryExercise): MainLift? = when (e.category) {
+        Category.SQUAT -> MainLift.SQUAT
+        Category.BENCH -> MainLift.BENCH
+        Category.DEADLIFT -> MainLift.DEADLIFT
+        Category.STRICT_PRESS -> MainLift.STRICT_PRESS
+        Category.VARIATION -> e.parentLift
+        Category.ACCESSORY -> null
+    }
+
+    /** Whether [e] shows under the chosen [area]: its own area, or, for a main lift or variation, its lift's area. */
+    fun inArea(e: LibraryExercise, area: BodyArea): Boolean = e.area == area || liftOf(e)?.let { LIFT_AREA[it] } == area
+
+    /**
+     * Entries in [areas] (empty = any; a main lift and its variations also count in their lift's area, [inArea]) that
+     * need any of [equipment] (empty = any) and match [query]. Each entry at most once. Ranked:
      * an exact name or alias, names starting with the query, names containing it, aliases, then muscles; alphabetical within a rank.
      * A blank query returns every entry in the filters, alphabetically.
      */
@@ -73,7 +100,7 @@ object Library {
     ): List<LibraryExercise> {
         val q = normalise(query)
         val filtered = catalogue.filter { e ->
-            (areas.isEmpty() || e.area in areas) && (equipment.isEmpty() || e.equipment.any { it in equipment })
+            (areas.isEmpty() || areas.any { inArea(e, it) }) && (equipment.isEmpty() || e.equipment.any { it in equipment })
         }
         if (q.isEmpty()) return filtered.sortedWith(alphabetical)
         return filtered

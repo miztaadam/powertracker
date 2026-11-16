@@ -155,6 +155,17 @@ describe('ExercisePicker', () => {
     expect(shows('Squat') && shows('Pull-up') && shows('Curl')).toBe(true)
   })
 
+  it('chestThenBarbell_listsBench_withItsVariations', async () => {
+    await showPicker()
+    await tapAndWait(chip('Body area', 'Chest'))
+    await tapAndWait(chip('Equipment', 'Barbell'))
+    expect(shows('Bench')).toBe(true)
+    expect(shows('Close-grip bench') && shows('Incline bench press')).toBe(true)
+    expect(shows('Squat')).toBe(false)
+    // In the domain's order, not under area headings.
+    expect(shownNames()).toEqual(libraryNames('', ['CHEST'], ['BARBELL']))
+  })
+
   it('everyAreaAndEquipment_hasAChip', async () => {
     await showPicker()
     for (const e of grit.library()) {

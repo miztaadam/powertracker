@@ -300,8 +300,12 @@ class BodybuildingScreensTest {
         vm.logSet(vm.state.value.items.single().planned!!.id, squat.id, set(squat, 60.0, 10))
         await("set") { vm.state.value.items.single().sets.size == 1 }
         await("event") { events.isNotEmpty() }
-        // Squat would get the main-lift rest on the powerlifting side.
-        assertEquals(TodayEvent.SetLogged(isMainOrVariation = false), events.single())
+        // Squat would get the main-lift rest on the powerlifting side. (The set's buzz, SetBuzz, comes after it, and a
+        // bodybuilding set is never a best.)
+        assertEquals(TodayEvent.SetLogged(isMainOrVariation = false), events.first())
+        assertEquals(1, events.count { it is TodayEvent.SetLogged })
+        await("buzz") { events.any { it is TodayEvent.SetBuzz } }
+        assertEquals(listOf(TodayEvent.SetBuzz(isNewBest = false)), events.filterIsInstance<TodayEvent.SetBuzz>())
     }
 
     @Test

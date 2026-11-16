@@ -470,10 +470,14 @@ test.describe('Exercises tab speed', { tag: '@speed' }, () => {
 
   const sorted = (names: readonly string[]) => [...names].sort()
   const library = (query = '', areas: string[] = [], equipment: string[] = []) => grit.searchLibrary(query, areas, equipment).map((e) => e.name)
-  /** The list as the tab shows it: under body areas while nothing is searched, ranked while something is. */
+  /**
+   * The list as the tab shows it: under body areas while nothing is searched, ranked while something is. With one
+   * area chosen, everything is under that area in the domain's order, the main lifts it also lists included.
+   */
   const inOrderShown = (query = '', areas: string[] = [], equipment: string[] = []) => {
     const found = grit.searchLibrary(query, areas, equipment)
-    return query !== '' ? found.map((e) => e.name) : AREAS.flatMap((a) => found.filter((e) => e.area === a.id).map((e) => e.name))
+    if (query !== '' || areas.length === 1) return found.map((e) => e.name)
+    return AREAS.flatMap((a) => found.filter((e) => e.area === a.id).map((e) => e.name))
   }
   const shownNames = (page: Page) => page.evaluate(() => Array.from(document.querySelectorAll('.shell-main .lib-row'), (row) => row.getAttribute('aria-label')!))
   /** The rows drawn at settle are the list's first screenful or more: the start of `expected`, in its order. */

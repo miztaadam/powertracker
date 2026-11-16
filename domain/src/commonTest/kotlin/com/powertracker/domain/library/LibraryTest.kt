@@ -5,6 +5,7 @@ import com.powertracker.domain.library.areas.OVER_FACE_SPOT
 import com.powertracker.domain.library.areas.RACK_IT
 import com.powertracker.domain.library.areas.RACK_SAFETY
 import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.seed.SeedLibrary
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -301,11 +302,15 @@ class LibraryTest {
         assertEquals(alphabetical(chestDumbbell), chestDumbbell)
         val quadSquats = Library.search("squat", areas = setOf(BodyArea.QUADS))
         assertTrue("Bulgarian split squat" in names(quadSquats) && "Goblet squat" in names(quadSquats), "${names(quadSquats)}")
-        assertTrue(quadSquats.all { it.area == BodyArea.QUADS })
+        // Squat and its variations also show under Quads (owner, 2026-11-16).
+        assertTrue(quadSquats.all { Library.inArea(it, BodyArea.QUADS) })
+        // Without the deadlift family, exactly as before; with it, the main-lift entries follow the owner's rule.
+        val legs = Library.search("", setOf(BodyArea.HAMSTRINGS_GLUTES, BodyArea.CALVES), setOf(Equipment.BARBELL))
         assertEquals(
             listOf("Barbell calf raise", "Barbell glute bridge", "Good morning", "Hip thrust", "RDL", "Stiff-leg deadlift"),
-            names(Library.search("", setOf(BodyArea.HAMSTRINGS_GLUTES, BodyArea.CALVES), setOf(Equipment.BARBELL))),
+            names(legs.filter { it.area != BodyArea.MAIN_LIFTS }),
         )
+        assertTrue(legs.filter { it.area == BodyArea.MAIN_LIFTS }.all { it.category == Category.DEADLIFT || it.parentLift == MainLift.DEADLIFT })
     }
 
     @Test
@@ -691,5 +696,54 @@ class LibraryTest {
         assertTrue(Library.isStrictPressUpgradeName("Overhead-Press "))
         assertTrue(Library.isStrictPressUpgradeName("OHP"))
         assertTrue(!Library.isStrictPressUpgradeName("Seated barbell press"))
+    }
+
+    // ---- Main lifts under their body area (owner, 2026-11-16): Bench under Chest ----
+
+    @Test
+    fun chestAndBarbell_includesBench_closeGripBench_andInclineBench() {
+        val found = names(Library.search("", setOf(BodyArea.CHEST), setOf(Equipment.BARBELL)))
+        assertTrue(found.containsAll(listOf("Bench", "Close-grip bench", "Incline bench press")), "$found")
+        assertTrue("Squat" !in found && "Deadlift" !in found)
+    }
+
+    @Test
+    fun eachLift_showsUnderItsArea_byItsLift_notItsMuscles() {
+        assertTrue(names(Library.search("", setOf(BodyArea.QUADS))).containsAll(listOf("Squat", "Pause squat")))
+        assertTrue(names(Library.search("", setOf(BodyArea.HAMSTRINGS_GLUTES))).containsAll(listOf("Deadlift", "Sumo deadlift")))
+        assertTrue("Strict press" in names(Library.search("", setOf(BodyArea.SHOULDERS))))
+        // Every variation goes with its parent lift's area, whatever muscles it lists ("Upper back, Trunk").
+        val areaOf = mapOf(MainLift.BENCH to BodyArea.CHEST, MainLift.SQUAT to BodyArea.QUADS, MainLift.DEADLIFT to BodyArea.HAMSTRINGS_GLUTES, MainLift.STRICT_PRESS to BodyArea.SHOULDERS)
+        for (v in Library.all().filter { it.category == Category.VARIATION }) {
+            val area = areaOf.getValue(v.parentLift!!)
+            assertTrue(v in Library.search("", setOf(area)), "${v.name} under $area")
+            assertTrue(BodyArea.entries.filter { it != area && it != BodyArea.MAIN_LIFTS }.none { v in Library.search("", setOf(it)) }, v.name)
+        }
+        // Accessories keep their one area.
+        assertTrue(Library.all().filter { it.category == Category.ACCESSORY }.all { e -> BodyArea.entries.filter { Library.inArea(e, it) } == listOf(e.area) })
+    }
+
+    @Test
+    fun mainLifts_stillListsThem_andNoArea_listsEachOnce() {
+        assertTrue(names(Library.search("", setOf(BodyArea.MAIN_LIFTS))).containsAll(listOf("Squat", "Bench", "Deadlift", "Strict press", "Close-grip bench", "Pause squat", "Sumo deadlift")))
+        val all = Library.search("")
+        assertEquals(Library.all().size, all.size)
+        assertEquals(all.size, all.distinct().size)
+        // Two areas chosen together still list an entry once.
+        val two = Library.search("", setOf(BodyArea.MAIN_LIFTS, BodyArea.CHEST))
+        assertEquals(two.size, two.distinct().size)
+    }
+
+    @Test
+    fun equipmentAndSearch_stillNarrowAnAreasMainLifts() {
+        val chest = Library.search("", setOf(BodyArea.CHEST))
+        val dumbbell = Library.search("", setOf(BodyArea.CHEST), setOf(Equipment.DUMBBELL))
+        assertTrue("Bench" in names(chest) && "Bench" !in names(dumbbell))
+        val searched = Library.search("close", setOf(BodyArea.CHEST))
+        assertEquals("Close-grip bench", names(searched).first())
+        assertTrue("Bench" !in names(searched))
+        // Ranked as any search: an exact name first.
+        assertEquals("Bench", names(Library.search("bench", setOf(BodyArea.CHEST))).first())
+        assertEquals(alphabetical(chest), chest)
     }
 }

@@ -98,8 +98,8 @@ export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onR
   const shown = useMemo(() => {
     if (!cut) return list
     const yours = list.yours.slice(0, FIRST_ROWS)
-    return { yours, all: (byArea ? inAreaOrder(list.all) : list.all).slice(0, FIRST_ROWS - yours.length) }
-  }, [cut, list, byArea])
+    return { yours, all: (byArea ? inAreaOrder(list.all, area) : list.all).slice(0, FIRST_ROWS - yours.length) }
+  }, [cut, list, byArea, area])
   // The rest once the first screenful is on screen: after the next frame, and as an update that gives way to a tap
   // or a keystroke. A list that fits in the first draw has no rest to wait for.
   useEffect(() => {
@@ -217,7 +217,7 @@ export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onR
             )}
             {/* After "Chosen", the list needs a heading of its own; by area, the areas give it one. */}
             {shown.yours.length === 0 && chosen.length > 0 && !byArea && <SectionHeader className="lib-heading" title="All exercises" />}
-            {byArea ? <AreaSections entries={shown.all} rows={rows} /> : rows(shown.all)}
+            {byArea ? <AreaSections entries={shown.all} chosen={area} rows={rows} /> : rows(shown.all)}
             {/* Below the list, so it comes once the whole list is drawn, not under the first screenful. */}
             {create != null && !cut && <div className="lib-create">{create}</div>}
           </>
@@ -230,24 +230,35 @@ export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onR
 
 /**
  * `entries` by body area, in the catalogue's area order; each area keeps the order it came in. The lifter's own have
- * no area. While nothing is filtered they are under "Your exercises", so none is expected here.
+ * no area. While nothing is filtered they are under "Your exercises", so none is expected here. With a `chosen` area
+ * every catalogue entry goes under it, the main lifts it also lists (Bench under Chest) included, in the order given.
  */
-function underAreas(entries: readonly PickerEntry[]) {
+function underAreas(entries: readonly PickerEntry[], chosen: string | null) {
   return {
     noArea: entries.filter((e) => e.library == null),
-    areas: AREAS.map((area) => ({ area, entries: entries.filter((e) => e.library?.area === area.id) })).filter((a) => a.entries.length > 0),
+    areas: AREAS.map((area) => ({ area, entries: entries.filter((e) => e.library != null && (chosen ?? e.library.area) === area.id) })).filter(
+      (a) => a.entries.length > 0,
+    ),
   }
 }
 
 /** `entries` in the order `AreaSections` shows them, top to bottom. */
-function inAreaOrder(entries: readonly PickerEntry[]): PickerEntry[] {
-  const { noArea, areas } = underAreas(entries)
+function inAreaOrder(entries: readonly PickerEntry[], chosen: string | null): PickerEntry[] {
+  const { noArea, areas } = underAreas(entries, chosen)
   return [...noArea, ...areas.flatMap((a) => a.entries)]
 }
 
 /** `entries` under their body areas. */
-function AreaSections({ entries, rows }: { entries: readonly PickerEntry[]; rows: (entries: readonly PickerEntry[]) => ReactNode }) {
-  const { noArea, areas } = underAreas(entries)
+function AreaSections({
+  entries,
+  chosen,
+  rows,
+}: {
+  entries: readonly PickerEntry[]
+  chosen: string | null
+  rows: (entries: readonly PickerEntry[]) => ReactNode
+}) {
+  const { noArea, areas } = underAreas(entries, chosen)
   return (
     <>
       {noArea.length > 0 && rows(noArea)}

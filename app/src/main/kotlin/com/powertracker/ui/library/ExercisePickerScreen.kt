@@ -131,7 +131,8 @@ fun pickerList(
     val alphabetical = compareBy<PickerEntry>({ Library.normalise(it.name) }, { it.name })
 
     if (muscles.isNotEmpty()) {
-        val inGroups = Library.byMuscles(muscles, equipment).filter { area == null || it.area == area }
+        // A chosen area as the catalogue's search has it: a main lift also counts in its lift's area (Bench under Chest).
+        val inGroups = Library.byMuscles(muscles, equipment).filter { area == null || Library.inArea(it, area) }
         // The lifter's own have no body area or equipment: they only show while neither is chosen.
         val theirs = if (equipment.isEmpty() && area == null) owned.filter { e -> muscles.any { MuscleGroups.works(e.muscles, it) } } else emptyList()
         if (q.isEmpty()) return PickerList(emptyList(), (inGroups.map(::catalogue) + theirs.map(::own)).sortedWith(alphabetical))

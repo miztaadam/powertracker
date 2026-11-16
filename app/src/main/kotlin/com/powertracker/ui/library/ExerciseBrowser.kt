@@ -242,7 +242,7 @@ fun ExerciseBrowser(
         val thumbnails = LocalThumbnails.current
         // The head start: from the list's first showing, the loader's worker works out every catalogue thumbnail,
         // in the order this list shows them. Only the first call counts, so it runs once per process.
-        LaunchedEffect(thumbnails) { thumbnails.warmUp(thumbnailOrder(list, byArea)) }
+        LaunchedEffect(thumbnails) { thumbnails.warmUp(thumbnailOrder(list, byArea && area == null)) }
     }
 
     Column(modifier.fillMaxSize()) {
@@ -318,7 +318,7 @@ fun ExerciseBrowser(
                 }
                 // After "Chosen", the list needs a heading of its own; by area, the areas give it one.
                 if (list.yours.isEmpty() && chosen.isNotEmpty() && !byArea) item(key = "all") { ListHeading("All exercises") }
-                if (byArea) areaSections(list.all, row) else items(list.all, key = { it.rowKey }) { row(it) }
+                if (byArea) areaSections(list.all, row, area) else items(list.all, key = { it.rowKey }) { row(it) }
                 if (onCreate != null) {
                     item(key = "create") {
                         Column(Modifier.fillMaxWidth().padding(top = Space.l), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -347,9 +347,12 @@ internal fun thumbnailOrder(list: PickerList, byArea: Boolean): List<String> {
     return ((list.yours + all).mapNotNull { it.catalogueName } + Library.all().map { it.name }).distinct()
 }
 
-/** [entries] under their body areas, in the catalogue's area order; each area keeps the order it came in. */
-private fun LazyListScope.areaSections(entries: List<PickerEntry>, row: @Composable (PickerEntry) -> Unit) {
-    val byArea = entries.groupBy { it.library?.area }
+/**
+ * [entries] under their body areas, in the catalogue's area order; each area keeps the order it came in. With a [chosen]
+ * area every catalogue entry goes under it, the main lifts it also lists (Bench under Chest) included, in the order given.
+ */
+private fun LazyListScope.areaSections(entries: List<PickerEntry>, row: @Composable (PickerEntry) -> Unit, chosen: BodyArea?) {
+    val byArea = entries.groupBy { e -> e.library?.let { chosen ?: it.area } }
     // The lifter's own have no area. While nothing is filtered they are under "Your exercises", so none is expected here.
     items(byArea[null].orEmpty(), key = { it.rowKey }) { row(it) }
     for (area in BodyArea.entries) {

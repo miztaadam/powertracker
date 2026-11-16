@@ -225,6 +225,11 @@ Spec: `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md`. Plan: 
 - **Reduce motion:** with the phone's reduce-motion setting on, nothing sinks or springs.
 - Not yet tried on a real phone.
 
+### Fixed (owner, 2026-11-16): main lifts show under their body area
+- In the picker and on the Exercises tab, choosing **Chest** then **Barbell** left out Bench: the main lifts sat only under Main lifts.
+- Now a body area also lists its main lift and that lift's variations: Bench under Chest, Squat under Quads, Deadlift under Hamstrings & glutes, Strict press under Shoulders. They still show under Main lifts too.
+- With an area chosen, the Exercises tab's list keeps the search's order instead of area headings.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;

@@ -195,6 +195,13 @@ describe('Exercises tab', () => {
     await tapAndWait(chip('Body area', 'Calves'))
     expect(shownNames()).toEqual(libraryNames('', ['CALVES']))
     expect(headings()).toEqual(['Calves'])
+    // Chest, then Barbell: Bench is there, under the Chest heading, with its variations (owner, 2026-11-16).
+    await tapAndWait(chip('Body area', 'Chest'))
+    await tapAndWait(chip('Equipment', 'Barbell'))
+    expect(shownNames()).toEqual(libraryNames('', ['CHEST'], ['BARBELL']))
+    expect(shownNames()).toEqual(expect.arrayContaining(['Bench', 'Close-grip bench', 'Incline bench press']))
+    expect(headings()).toEqual(['Chest'])
+    await tapAndWait(chip('Equipment', 'Barbell'))
     await tapAndWait(chip('Body area', 'All'))
 
     // One muscle ticked: its exercises, the lifter's own among them, alphabetically.
@@ -414,7 +421,8 @@ describe('Exercises tab', () => {
     // list the lifter has scrolled down back to its first screenful.
     layOutLikeAPhone()
     await showTab()
-    const full = AREAS.flatMap((a) => libraryNames('', [a.id]))
+    // Each exercise once, under its own area (a main lift also matches its lift's area when that area is chosen).
+    const full = AREAS.flatMap((a) => grit.searchLibrary('', [a.id], []).filter((e) => e.area === a.id).map((e) => e.name))
     await waitFor(() => expect(shownNames()).toEqual(full))
     const scroller = document.querySelector<HTMLElement>('.lib-scroll')!
     scroller.scrollTop = 9000

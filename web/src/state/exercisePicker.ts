@@ -153,7 +153,9 @@ export function pickerList(
   }
   const works = (e: StoredExercise, group: string) => e.muscles.some((m) => grit.muscleGroupOf(m) === group)
   if (muscles.length > 0) {
-    const inGroups = grit.exercisesByMuscles([...muscles], [...equipment]).filter((e) => area == null || e.area === area)
+    // A chosen area as the catalogue's search has it: a main lift also counts in its lift's area (Bench under Chest).
+    const inArea = area == null ? null : new Set(grit.searchLibrary('', [area], []).map((e) => e.name))
+    const inGroups = grit.exercisesByMuscles([...muscles], [...equipment]).filter((e) => inArea == null || inArea.has(e.name))
     // The lifter's own have no body area or equipment: they only show while neither is chosen.
     const theirs = equipment.length === 0 && area == null ? owned.filter((e) => muscles.some((group) => works(e, group))) : []
     if (q === '') return { yours: [], all: alphabetical([...inGroups.map(fromCatalogue), ...theirs.map(ownEntry)]) }

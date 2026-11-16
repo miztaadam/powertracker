@@ -731,4 +731,14 @@ class ExercisePickerTest {
         scrollToRow("exercise-Squat")
         assertEquals(0, compose.onAllNodesWithContentDescription("Form guide for Squat").fetchSemanticsNodes().size - 1)
     }
+
+    @Test
+    fun chestThenBarbell_listsBench_withItsVariations() {
+        showPicker()
+        tapChip("area-CHEST")
+        tapChip("equipment-BARBELL")
+        assertTrue(shows("exercise-Bench"))
+        assertTrue(shows("exercise-Close-grip bench") && shows("exercise-Incline bench press"))
+        assertFalse(shows("exercise-Squat"))
+    }
 }

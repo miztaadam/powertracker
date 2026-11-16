@@ -882,4 +882,17 @@ class ExercisesScreenTest {
         compose.waitForIdle()
         assertEquals(0, haptics.calls.size)
     }
+
+    @Test
+    fun chestThenBarbell_listsBench_underTheChestHeading() {
+        show()
+        tapChip("area-CHEST")
+        tapChip("equipment-BARBELL")
+        assertTrue(shows("exercise-Bench"))
+        assertTrue(shows("exercise-Close-grip bench") && shows("exercise-Incline bench press"))
+        assertFalse(shows("exercise-Squat"))
+        scrollToTop()
+        assertTrue(has("area-heading-CHEST"))
+        assertFalse(has("area-heading-MAIN_LIFTS"))
+    }
 }
