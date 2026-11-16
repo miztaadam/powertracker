@@ -1174,7 +1174,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your chest stretches with your upper arms level with your torso.
+- Stretch: Your chest stretches as the dumbbell goes back over your head.
 - Squeeze: Squeeze your chest as you bring the dumbbell back over you.
 
 Sources of the stretch and squeeze:
@@ -1273,7 +1273,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- Stretch: Your lats stretch as your arms return in line with your torso.
+- Stretch: Your lats stretch as your upper arms go back overhead.
 - Squeeze: Squeeze your lats as your elbows reach your sides.
 
 Sources of the stretch and squeeze:
@@ -1526,7 +1526,7 @@ Stretch and squeeze (bodybuilding side):
 Sources of the stretch and squeeze:
 
 - [Weighted 45° Hyperextension](https://exrx.net/WeightExercises/ErectorSpinae/Wt45Hyperextension). ExRx.net, accessed 2026-11-11.
-- [Weighted 45° Back Extension (on hyperextension apparatus)](https://exrx.net/WeightExercises/ErectorSpinae/Wt45BackExtension). ExRx.net, accessed 2026-11-11.
+- [45° Hyperextension (hands behind hips)](https://exrx.net/WeightExercises/ErectorSpinae/BW45HyperextensionHips). ExRx.net, accessed 2026-11-11.
 - [Greater Hamstrings Muscle Hypertrophy but Similar Damage Protection after Training at Long versus Short Muscle Lengths](https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
@@ -1579,7 +1579,7 @@ Stretch and squeeze (bodybuilding side):
 Sources of the stretch and squeeze:
 
 - [Cable Wide Grip Straight Back Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBWideGripStrBackSeatedRow). ExRx.net, accessed 2026-11-11.
-- [Cable Wide Grip Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBWideGripSeatedRow). ExRx.net, accessed 2026-11-11.
+- [Cable Straight Back Seated Row](https://exrx.net/WeightExercises/BackGeneral/CBStraightBackSeatedRow). ExRx.net, accessed 2026-11-11.
 - [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
 - [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
@@ -1591,17 +1591,51 @@ Sources of the stretch and squeeze:
 - [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch as the dumbbells return to the start.
+- Squeeze: Squeeze your front delts as you press to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Arnold Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBArnoldPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Barbell front raise
 
 - [Barbell Front Raise](https://exrx.net/WeightExercises/DeltoidAnterior/BBFrontRaise). ExRx.net, accessed 2026-11-11.
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch as the bar lowers to your thighs.
+- Squeeze: Squeeze your front delts as the bar reaches shoulder height.
+
+Sources of the stretch and squeeze:
+
+- [Barbell Front Raise](https://exrx.net/WeightExercises/DeltoidAnterior/BBFrontRaise). ExRx.net, accessed 2026-11-11.
+- [Front Raise](https://www.acefitness.org/resources/everyone/exercise-library/54/front-raise/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Cable external rotation
 
 - [Cable Standing Shoulder External Rotation](https://exrx.net/WeightExercises/Infraspinatus/CBStandingExternalRotation). ExRx.net, accessed 2026-11-11.
 - [Rotator Cuff External Rotation](https://www.acefitness.org/resources/everyone/exercise-library/352/rotator-cuff-external-rotation/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your rotator cuff stretches with your forearm across your belly.
+- Squeeze: Squeeze your rotator cuff as you turn your arm outward.
+
+Sources of the stretch and squeeze:
+
+- [Rotator Cuff External Rotation](https://www.acefitness.org/resources/everyone/exercise-library/352/rotator-cuff-external-rotation/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Cable front raise
 
@@ -1610,10 +1644,32 @@ Sources of the stretch and squeeze:
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch as your arm lowers to your side.
+- Squeeze: Squeeze your front delts as the handle reaches shoulder height.
+
+Sources of the stretch and squeeze:
+
+- [Front Raise](https://www.acefitness.org/resources/everyone/exercise-library/54/front-raise/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Cable internal rotation
 
 - [Cable Standing Shoulder Internal Rotation](https://exrx.net/WeightExercises/Subscapularis/CBStandingInternalRotation). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your rotator cuff stretches as your arm turns back out.
+- Squeeze: Squeeze your rotator cuff as your forearm crosses your belly.
+
+Sources of the stretch and squeeze:
+
+- [Cable Standing Shoulder Internal Rotation](https://exrx.net/WeightExercises/Subscapularis/CBStandingInternalRotation). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Cable lateral raise
 
@@ -1621,15 +1677,48 @@ Sources of the stretch and squeeze:
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your side delts stretch as your arm lowers to your side.
+- Squeeze: Squeeze your side delts as your elbow reaches shoulder height.
+
+Sources of the stretch and squeeze:
+
+- [Cable One Arm Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/CBOneArmLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Cable rear delt row
 
 - [Cable Rear Delt Row](https://exrx.net/WeightExercises/DeltoidPosterior/CBRearDeltRow). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your rear delts stretch as your arms straighten in front of you.
+- Squeeze: Squeeze your rear delts as your elbows go slightly behind you.
+
+Sources of the stretch and squeeze:
+
+- [Cable Rear Delt Row](https://exrx.net/WeightExercises/DeltoidPosterior/CBRearDeltRow). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Cable reverse fly
 
 - [Cable Isolateral Reverse Fly](https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingReverseFly). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your rear delts stretch as your hands return in front of you.
+- Squeeze: Squeeze your rear delts as you pull your arms out to the sides.
+
+Sources of the stretch and squeeze:
+
+- [Cable Isolateral Reverse Fly](https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingReverseFly). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Chest-supported rear delt raise
 
@@ -1637,26 +1726,82 @@ Sources of the stretch and squeeze:
 - [Dumbbell Rear Lateral Raise](https://exrx.net/WeightExercises/DeltoidPosterior/DBRearLateralRaise). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your rear delts stretch as you lower the dumbbells back down.
+- Squeeze: Squeeze your rear delts as your elbows reach shoulder height.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Lying Rear Lateral Raise](https://exrx.net/WeightExercises/DeltoidPosterior/DBLyingRearLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### DB shoulder press
 
 - [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Dumbbell Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBShoulderPress). ExRx.net, accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch as the dumbbells reach shoulder height.
+- Squeeze: Squeeze your front delts as you press to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBShoulderPress). ExRx.net, accessed 2026-11-11.
+- [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Front raise
 
 - [Front Raise](https://www.acefitness.org/resources/everyone/exercise-library/54/front-raise/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Dumbbell Front Raise](https://exrx.net/WeightExercises/DeltoidAnterior/DBFrontRaise). ExRx.net, accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch as the dumbbells lower to your thighs.
+- Squeeze: Squeeze your front delts as your arms reach shoulder height.
+
+Sources of the stretch and squeeze:
+
+- [Front Raise](https://www.acefitness.org/resources/everyone/exercise-library/54/front-raise/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Kettlebell press
 
 - [Single-arm Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/395/single-arm-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch as your elbow comes down to your ribs.
+- Squeeze: Squeeze your front delts as you press the kettlebell overhead.
+
+Sources of the stretch and squeeze:
+
+- [Single-arm Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/395/single-arm-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Landmine press
 
 - [Lever One Arm Shoulder Press (plate loaded)](https://exrx.net/WeightExercises/DeltoidAnterior/LVOneArmShoulderPress). ExRx.net, accessed 2026-11-11.
 - [Certified September 2025: The ACE Workout Builder for Landmine Training](https://www.acefitness.org/continuing-education/certified/september-2025/8948/the-ace-workout-builder-for-landmine-training/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch as the bar comes back to your shoulder.
+- Squeeze: Squeeze your front delts as you press up and forward.
+
+Sources of the stretch and squeeze:
+
+- [Lever One Arm Shoulder Press (plate loaded)](https://exrx.net/WeightExercises/DeltoidAnterior/LVOneArmShoulderPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Lateral raise
 
@@ -1665,6 +1810,18 @@ Sources of the stretch and squeeze:
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your side delts stretch as your arms lower to your sides.
+- Squeeze: Squeeze your side delts as your elbows reach shoulder height.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Lateral Raise](https://www.acefitness.org/resources/everyone/exercise-library/26/lateral-raise/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Machine lateral raise
 
 - [Lever Isolateral Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/LVLateralRaise). ExRx.net, accessed 2026-11-11.
@@ -1672,11 +1829,34 @@ Sources of the stretch and squeeze:
 - [Dumbbell Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your side delts stretch as your arms lower to your sides.
+- Squeeze: Squeeze your side delts as your upper arms reach level.
+
+Sources of the stretch and squeeze:
+
+- [Lever Isolateral Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/LVLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Dumbbell Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/DBLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Machine reverse fly
 
 - [Lever Seated Reverse Fly (overhand grip)](https://exrx.net/WeightExercises/DeltoidPosterior/LVReverseFlyOverhand). ExRx.net, accessed 2026-11-11.
 - [Cable Isolateral Reverse Fly](https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingReverseFly). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your rear delts stretch as the handles return in front of you.
+- Squeeze: Squeeze your rear delts as your elbows go just behind you.
+
+Sources of the stretch and squeeze:
+
+- [Lever Seated Reverse Fly (overhand grip)](https://exrx.net/WeightExercises/DeltoidPosterior/LVReverseFlyOverhand). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Machine shoulder press
 
@@ -1684,16 +1864,51 @@ Sources of the stretch and squeeze:
 - [Lever Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/LVShoulderPress). ExRx.net, accessed 2026-11-11.
 - [Exercise Library: Seated Machine Close-Grip Shoulder Press](https://www.acefitness.org/resources/everyone/exercise-library/187/seated-machine-close-grip-shoulder-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch as the handles come back to the start.
+- Squeeze: Squeeze your front delts as your elbows nearly straighten.
+
+Sources of the stretch and squeeze:
+
+- [Seated Shoulder Press (machine)](https://www.acefitness.org/resources/everyone/exercise-library/186/seated-shoulder-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lever Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/LVShoulderPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### One-arm DB press
 
 - [Dumbbell One Arm Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBOneArmShoulderPress). ExRx.net, accessed 2026-11-11.
 - [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch as the dumbbell reaches your shoulder.
+- Squeeze: Squeeze your front delts as you press to a straight arm.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell One Arm Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/DBOneArmShoulderPress). ExRx.net, accessed 2026-11-11.
+- [Seated Overhead Press](https://www.acefitness.org/resources/everyone/exercise-library/45/seated-overhead-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Rear delt raise
 
 - [Dumbbell Rear Lateral Raise](https://exrx.net/WeightExercises/DeltoidPosterior/DBRearLateralRaise). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your rear delts stretch as you lower the dumbbells back down.
+- Squeeze: Squeeze your rear delts as your elbows reach shoulder height.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Rear Lateral Raise](https://exrx.net/WeightExercises/DeltoidPosterior/DBRearLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Seated barbell press
 
@@ -1702,11 +1917,33 @@ Sources of the stretch and squeeze:
 - [Strength and Conditioning Professional Standards and Guidelines: Summary (rev. Dec. 2018)](https://www.nsca.com/contentassets/477221070254471aab20116550658891/standards-and-guidelines-summary-rev.-dec.-2018.pdf). National Strength and Conditioning Association (NSCA), accessed 2026-11-11.
 - [Upper extremity weightlifting injuries: Diagnosis and management](https://pmc.ncbi.nlm.nih.gov/articles/PMC5895929/). PubMed Central (peer-reviewed), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch as the bar comes down to chin height.
+- Squeeze: Squeeze your front delts as you press to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Exercise Library: Seated Shoulder Press (barbell)](https://www.acefitness.org/resources/everyone/exercise-library/43/seated-shoulder-press/). American Council on Exercise (ACE), accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Seated lateral raise
 
 - [Dumbbell Seated Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/DBSeatedLateralRaise). ExRx.net, accessed 2026-11-11.
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your side delts stretch as your arms lower to your sides.
+- Squeeze: Squeeze your side delts as your elbows reach shoulder height.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Seated Lateral Raise](https://exrx.net/WeightExercises/DeltoidLateral/DBSeatedLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ### Seated rear delt raise
 
@@ -1714,16 +1951,49 @@ Sources of the stretch and squeeze:
 - [Dumbbell Rear Lateral Raise](https://exrx.net/WeightExercises/DeltoidPosterior/DBRearLateralRaise). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your rear delts stretch as you lower the dumbbells back down.
+- Squeeze: Squeeze your rear delts as your elbows reach shoulder height.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Seated Rear Lateral Raise](https://exrx.net/WeightExercises/DeltoidPosterior/DBSeatedRearLateralRaise). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Side-lying external rotation
 
 - [Dumbbell Lying Shoulder External Rotation](https://exrx.net/WeightExercises/Infraspinatus/DBLyingExternalRotation). ExRx.net, accessed 2026-11-11.
 - [Common Resistance Training Mistakes](https://exrx.net/Kinesiology/Errors). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your rotator cuff stretches as you lower the dumbbell back down.
+- Squeeze: Squeeze your rotator cuff as you turn the dumbbell up.
+
+Sources of the stretch and squeeze:
+
+- [Dumbbell Lying Shoulder External Rotation](https://exrx.net/WeightExercises/Infraspinatus/DBLyingExternalRotation). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
+
 ### Smith shoulder press
 
 - [Smith Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/SMShoulderPress). ExRx.net, accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
+
+Stretch and squeeze (bodybuilding side):
+
+- Stretch: Your front delts stretch as the bar lowers to your shoulders.
+- Squeeze: Squeeze your front delts as you press to straight arms.
+
+Sources of the stretch and squeeze:
+
+- [Smith Shoulder Press](https://exrx.net/WeightExercises/DeltoidAnterior/SMShoulderPress). ExRx.net, accessed 2026-11-11.
+- [Lengthened partial repetitions elicit similar muscular adaptations as full range of motion repetitions during resistance training in trained individuals](https://pmc.ncbi.nlm.nih.gov/articles/PMC11829627/). PubMed Central (peer-reviewed), accessed 2026-11-16.
+- [Muscles in Motion](https://www.acefitness.org/fitness-certifications/ace-answers/exam-preparation-blog/3580/muscles-in-motion/). American Council on Exercise (ACE), accessed 2026-11-16.
 
 ## Arms
 

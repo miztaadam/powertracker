@@ -4,6 +4,7 @@ import com.powertracker.domain.library.focus.backFocus
 import com.powertracker.domain.library.focus.calvesCoreFocus
 import com.powertracker.domain.library.focus.chestFocus
 import com.powertracker.domain.library.focus.mainLiftsFocus
+import com.powertracker.domain.library.focus.shouldersFocus
 
 /**
  * Where a catalogue exercise's target muscle is stretched and where it is squeezed, for the bodybuilding side.
@@ -27,7 +28,7 @@ sealed interface MuscleFocus {
  */
 internal object MuscleFocuses {
     /** The area lists, in catalogue order. Tests read these to check each name appears once. */
-    internal val areas: List<List<Pair<String, MuscleFocus>>> by lazy { listOf(mainLiftsFocus, chestFocus, backFocus, calvesCoreFocus) }
+    internal val areas: List<List<Pair<String, MuscleFocus>>> by lazy { listOf(mainLiftsFocus, chestFocus, backFocus, shouldersFocus, calvesCoreFocus) }
 
     internal val all: Map<String, MuscleFocus> by lazy {
         val merged = LinkedHashMap<String, MuscleFocus>()

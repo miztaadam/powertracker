@@ -53,7 +53,7 @@ internal val backFocus: List<Pair<String, MuscleFocus>> by lazy {
         ),
         "Wide-grip cable row" to lines(
             UPPER_BACK_STRAIGHT_ARMS, UPPER_BACK_SHOULDERS_BACK,
-            Sources.EXRX_CB_WIDE_GRIP_STR_BACK_ROW, Sources.EXRX_CB_WIDE_GRIP_SEATED_ROW,
+            Sources.EXRX_CB_WIDE_GRIP_STR_BACK_ROW, Sources.EXRX_CB_STRAIGHT_BACK_SEATED_ROW,
         ),
         // The guide pulls the shoulder back at the end, then "slowly straighten your arm".
         "One-arm cable row" to lines(
@@ -137,16 +137,16 @@ internal val backFocus: List<Pair<String, MuscleFocus>> by lazy {
 
         // ---- Pullovers ----
         // Pecs first. ExRx and the guide: lower until the upper arms are (about) in line with the torso, no further;
-        // forcing it lower is a mistake.
+        // forcing it lower is a mistake. The line names the direction only, so the guide's own stop sets the range.
         "DB pullover" to lines(
-            "Your chest stretches with your upper arms level with your torso.",
+            "Your chest stretches as the dumbbell goes back over your head.",
             "Squeeze your chest as you bring the dumbbell back over you.",
             Sources.EXRX_DB_PULLOVER,
         ),
         // ExRx: return "until shoulders are fully flexed, or upper arms are parallel to torso". The guide's mistake:
-        // forcing the range further than the shoulders allow.
+        // forcing the range further than the shoulders allow. The line names the direction only, as for the DB pullover.
         "Machine pullover" to lines(
-            "Your lats stretch as your arms return in line with your torso.", LATS_ELBOWS_SIDES,
+            "Your lats stretch as your upper arms go back overhead.", LATS_ELBOWS_SIDES,
             Sources.EXRX_LV_PULLOVER,
         ),
 
@@ -160,7 +160,7 @@ internal val backFocus: List<Pair<String, MuscleFocus>> by lazy {
         // "beyond mild stretch throughout hamstrings and low back". The guide stops at a right angle.
         "Back extension" to hamstringLines(HAMSTRINGS_RIGHT_ANGLE, GLUTES_IN_LINE, Sources.EXRX_45_HYPEREXTENSION),
         "Weighted back extension" to hamstringLines(
-            HAMSTRINGS_RIGHT_ANGLE, GLUTES_IN_LINE, Sources.EXRX_WT_45_HYPEREXTENSION, Sources.EXRX_WT_45_BACK_EXTENSION,
+            HAMSTRINGS_RIGHT_ANGLE, GLUTES_IN_LINE, Sources.EXRX_WT_45_HYPEREXTENSION, Sources.EXRX_45_HYPEREXTENSION,
         ),
 
         // ---- Face pulls ----
