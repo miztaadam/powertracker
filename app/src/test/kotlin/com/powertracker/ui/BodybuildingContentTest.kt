@@ -329,6 +329,13 @@ class BodybuildingContentTest {
         compose.onNodeWithText("SQUEEZE", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithText(lines("Squat").stretch, useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithTag("muscle-cues", useUnmergedTree = true).assertDoesNotExist()
+
+        // Switching the side shows the cues at once, and switching back hides them.
+        showCard(squat, TrainingMode.BODYBUILDING)
+        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertExists()
+        showCard(squat, TrainingMode.POWERLIFTING)
+        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("muscle-cues", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
