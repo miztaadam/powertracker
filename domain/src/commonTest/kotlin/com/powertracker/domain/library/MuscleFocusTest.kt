@@ -73,56 +73,9 @@ class MuscleFocusTest {
     }
 
     @Test
-    fun focus_mainLiftsAreAllWritten() {
-        val missing = Library.all().filter { it.area == BodyArea.MAIN_LIFTS && Library.focus(it.name) == null }.map { it.name }
-        assertTrue(missing.isEmpty(), "main lifts with no lines: $missing")
-    }
-
-    @Test
-    fun focus_chestIsAllWritten() {
-        val missing = Library.all().filter { it.area == BodyArea.CHEST && Library.focus(it.name) == null }.map { it.name }
-        assertTrue(missing.isEmpty(), "chest exercises with no lines: $missing")
-        // The plan's case check, once Chest is written.
-        val fly = assertNotNull(Library.focus("DB fly"))
-        assertEquals(fly, Library.focus("dB FLY"))
-    }
-
-    @Test
-    fun focus_backIsAllWritten() {
-        val missing = Library.all().filter { it.area == BodyArea.BACK && Library.focus(it.name) == null }.map { it.name }
-        assertTrue(missing.isEmpty(), "back exercises with no lines: $missing")
-    }
-
-    @Test
-    fun focus_shouldersIsAllWritten() {
-        val missing = Library.all().filter { it.area == BodyArea.SHOULDERS && Library.focus(it.name) == null }.map { it.name }
-        assertTrue(missing.isEmpty(), "shoulder exercises with no lines: $missing")
-    }
-
-    @Test
-    fun focus_armsIsAllWritten() {
-        val missing = Library.all().filter { it.area == BodyArea.ARMS && Library.focus(it.name) == null }.map { it.name }
-        assertTrue(missing.isEmpty(), "arm exercises with no lines: $missing")
-    }
-
-    @Test
-    fun focus_quadsIsAllWritten() {
-        val missing = Library.all().filter { it.area == BodyArea.QUADS && Library.focus(it.name) == null }.map { it.name }
-        assertTrue(missing.isEmpty(), "quad exercises with no lines: $missing")
-    }
-
-    @Test
-    fun focus_hamstringsGlutesIsAllWritten() {
-        val missing = Library.all().filter { it.area == BodyArea.HAMSTRINGS_GLUTES && Library.focus(it.name) == null }.map { it.name }
-        assertTrue(missing.isEmpty(), "hamstring and glute exercises with no lines: $missing")
-    }
-
-    @Test
-    fun focus_calvesCoreIsAllWritten() {
-        val missing = Library.all()
-            .filter { (it.area == BodyArea.CALVES || it.area == BodyArea.CORE) && Library.focus(it.name) == null }
-            .map { it.name }
-        assertTrue(missing.isEmpty(), "calf and core exercises with no lines: $missing")
+    fun focus_everyCatalogueExerciseIsWritten() {
+        val missing = Library.all().filter { Library.focus(it.name) == null }.map { it.name }
+        assertTrue(missing.isEmpty(), "catalogue exercises with no lines: $missing")
     }
 
     @Test
@@ -130,6 +83,8 @@ class MuscleFocusTest {
         val squat = assertNotNull(Library.focus("Squat"))
         assertEquals(squat, Library.focus("SQUAT"))
         assertEquals(squat, Library.focus("back squat"), "an alias finds the same lines, as it finds the same guide")
+        val fly = assertNotNull(Library.focus("DB fly"))
+        assertEquals(fly, Library.focus("dB FLY"))
         assertNull(Library.focus("My own lift"))
     }
 }

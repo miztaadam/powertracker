@@ -123,6 +123,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Bodybuilding mode: turn it on in Settings and back off (the look and label change at once), log a set on each side, then export a backup and restore it on the other platform (Android to iPhone or the reverse); both sides' plans and sessions come through.
 - [ ] Plan builder: on the bodybuilding side, open Plan, tap Build my plan (or Rebuild my plan in the menu), answer the three questions, tap Use this plan, then train its first day from Today.
 - [ ] Check-in: on the bodybuilding side, open Progress and do a check-in (mark a body part lagging), then apply a suggestion from Coach and check the plan changed.
+- [ ] Stretch and squeeze: on the bodybuilding side, read the stretch and squeeze lines on a Today card.
 - [ ] Update: deploy a second version. The prompt "Update ready — tap to refresh" shows only after you finish a session, and the app reloads only when tapped.
 
 ## Where things are
