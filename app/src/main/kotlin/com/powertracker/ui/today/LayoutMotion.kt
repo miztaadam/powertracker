@@ -224,7 +224,9 @@ fun SlidingSwap(
         return
     }
     val swap = remember { SwapState(opened) }
-    val closing = !opened && (swap.lastOpened || swap.closing)
+    // swap.closing is read first, so this composition follows it: the card goes when the close finishes, even when
+    // nothing else here changes.
+    val closing = !opened && (swap.closing || swap.lastOpened)
     // The card's content starts at the row's height when it opens in place of the row.
     if (opened && !swap.lastOpened) swap.openFromRow = true
     SideEffect {
@@ -317,8 +319,10 @@ private class SwapContentNode(var swap: SwapState, var closing: Boolean, var car
             swap.openFromRow = false
             anim = Animatable(start, Int.VectorConverter, 1).also { height = it }
         }
+        var slides = false
         if (target != anim.targetValue || (anim.value != target && !anim.isRunning)) {
             if (toggled || anim.isRunning || anim.value != target) {
+                slides = true
                 val from = anim.value
                 val closingNow = closing
                 coroutineScope.launch {
@@ -328,6 +332,14 @@ private class SwapContentNode(var swap: SwapState, var closing: Boolean, var car
                 }
             } else {
                 coroutineScope.launch { anim.snapTo(target) }
+            }
+        }
+        // A close with nothing to slide (the content is already the row's height, or the slide toward it is still on its
+        // way): finish the swap now, or the card would stay over the row, inert, with the row unseen.
+        if (closing && toggled && !slides && !anim.isRunning) {
+            coroutineScope.launch {
+                swap.rowAlpha = 1f
+                if (closing) swap.closing = false
             }
         }
         val sliding = toggled || anim.isRunning || anim.value != target

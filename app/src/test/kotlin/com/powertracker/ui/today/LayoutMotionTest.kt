@@ -42,6 +42,15 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
 
 /**
  * Layout motion (stage 3): with motion on and the clock driven by hand, a logged set slides in, a deleted one slides
@@ -385,6 +394,30 @@ class LayoutMotionTest {
         advance(1_000)
         assertEquals(heading, compose.onNodeWithText("Bench").bounds())
         assertEquals(1, compose.onAllNodes(hasText("Log set 1")).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun aClosingCard_whoseContentIsAlreadyTheRowsHeight_finishesAtOnce() {
+        // 48 dp row; the card's content is 48 - 32 dp of padding = 16 dp, so there is nothing to slide when it closes.
+        var opened by mutableStateOf(true)
+        var rowTaps = 0
+        show(motion = true) {
+            SlidingSwap(
+                opened = opened,
+                row = { m -> Box(m.fillMaxWidth().height(48.dp).clickable { rowTaps++ }.testTag("swap-row")) },
+                card = { content -> Box(Modifier.fillMaxWidth().padding(vertical = 16.dp).testTag("swap-card")) { Box((content ?: Modifier).fillMaxWidth().height(16.dp)) } },
+            )
+        }
+        compose.waitForIdle()
+        compose.onNodeWithTag("swap-card").assertExists()
+        opened = false
+        compose.waitForIdle()
+        advance(600)
+        compose.waitForIdle()
+        compose.onNodeWithTag("swap-card").assertDoesNotExist()
+        compose.onNodeWithTag("swap-row").performClick()
+        compose.waitForIdle()
+        assertEquals("the row takes taps", 1, rowTaps)
     }
 
     @Test

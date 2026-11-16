@@ -1140,12 +1140,15 @@ class TodayScreenTest {
 
         compose.onNodeWithText("Log set 1").performClick()
         waitForText("Log set 2")
-        compose.waitForIdle()
+        // The buzz is worked out just after the save, beside it.
+        waitFor { haptics.calls.isNotEmpty() }
+        settled()
         assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
 
         compose.onNodeWithText("Missed").performClick()
         waitForText("Log set 3")
-        compose.waitForIdle()
+        waitFor { haptics.calls.size >= 2 }
+        settled()
         assertEquals(2, haptics.ticks)
         assertEquals("a tick, never the best buzz: Today does not know a new best when it logs", 2, haptics.calls.size)
     }
