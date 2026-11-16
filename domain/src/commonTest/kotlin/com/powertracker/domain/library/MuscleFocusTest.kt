@@ -33,7 +33,7 @@ class MuscleFocusTest {
             assertTrue(line.first().isUpperCase(), "$name: no capital: $line")
             assertTrue(line.endsWith("."), "$name: no full stop: $line")
         }
-        assertEquals("No stretch or squeeze to aim for here: this one trains you to stay steady.", Library.NO_FOCUS_LINE)
+        assertEquals("No stretch or squeeze to aim for in this one.", Library.NO_FOCUS_LINE)
     }
 
     /**

@@ -98,8 +98,7 @@ internal val calvesCoreFocus: List<Pair<String, MuscleFocus>> by lazy {
         ),
         // The guide's "trunk and hips turn together" (cue: "Chest and belly turn together"; mistake: twisting with
         // the shoulders only) turns the trunk as one block with the hips, so the obliques hold one length while they
-        // pass the force through: no long or short point (F5). ACE 349: move the chest and stomach together. The
-        // fixed line's wording for a moving drill is with the owner, as for the sled push.
+        // pass the force through: no long or short point (F5). ACE 349: move the chest and stomach together.
         "Cable woodchop" to MuscleFocus.NoFocus(listOf(Sources.ACE_STANDING_ROTATIONAL_CHOP)),
 
         // ---- Rollouts ----

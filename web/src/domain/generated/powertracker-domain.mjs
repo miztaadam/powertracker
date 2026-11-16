@@ -6801,7 +6801,7 @@ function folds$fold($this_buildMap, chars, base) {
 function Library() {
   Library_instance = this;
   this.y1p_1 = 'Stop if you feel sharp pain. For an injury or a condition, check with a doctor or physiotherapist.';
-  this.z1p_1 = 'No stretch or squeeze to aim for here: this one trains you to stay steady.';
+  this.z1p_1 = 'No stretch or squeeze to aim for in this one.';
   var tmp = this;
   tmp.a1q_1 = lazy(Library$catalogue$delegate$lambda);
   var tmp_0 = this;
@@ -37984,7 +37984,7 @@ protoOf(GritDomain).muscleFocus = function (name) {
     tmp = new JsMuscleFocus(focus.i1u_1, focus.j1u_1, null);
   } else {
     if (focus instanceof NoFocus) {
-      tmp = new JsMuscleFocus(null, null, 'No stretch or squeeze to aim for here: this one trains you to stay steady.');
+      tmp = new JsMuscleFocus(null, null, 'No stretch or squeeze to aim for in this one.');
     } else {
       if (focus == null) {
         tmp = null;

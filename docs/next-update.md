@@ -131,7 +131,7 @@ Plan: `docs/superpowers/plans/2026-11-15-grit-bodybuilding-mode-stage-4.md`.
 
 What the lifter gets:
 - **Two short lines for each exercise** on the bodybuilding side: where the muscle is stretched and where it is squeezed. They show on the Today card and in a "Stretch and squeeze" section of the form guide while bodybuilding mode is on.
-- **One fixed line for holds and carries** (a plank, a carry, the Pallof press and the like), in the guide only: "No stretch or squeeze to aim for here: this one trains you to stay steady." The Today card shows nothing for these.
+- **One fixed line for holds and carries** (a plank, a carry, the Pallof press and the like), in the guide only: "No stretch or squeeze to aim for in this one." The Today card shows nothing for these. 13 exercises get the fixed line and 212 get two lines.
 - Every catalogue exercise has its lines or the fixed line. The lifter's own exercises show none, and leave no gap.
 - The powerlifting side is unchanged while bodybuilding mode is off, and switching the mode shows or hides the lines at once.
 
@@ -142,12 +142,13 @@ The idea's sources (recorded in `Sources.kt` as general sources, not shown in th
 
 How the lines were written:
 - The sources often say where a muscle is stretched, but not for every exercise, and none says where to squeeze. So each line is worked out from the exercise's own guide by rules F1–F7 in the plan: it names a muscle the exercise trains; the stretch is where the guide's steps make that muscle longest, never more range than the guide allows; the squeeze is the end of the guide's lifting step; nothing goes against the guide's cues, mistakes or safety notes; an exercise with no real stretch or squeeze gets the fixed line; each line is one plain sentence; and each exercise lists its ExRx or ACE pages.
+- The allowed sites can be searched but not opened, so every source was checked against its search summary, not the full page. A few pages came back only as links, and a few supporting sentences came from the matching ExRx page in another muscle folder.
 - An independent review checked every batch against each exercise's guide and the allowed sources, and the fixes it asked for were made, or settled by a ruling and listed under Follow-ups.
 - Nothing claims a benefit for squeezing; it is there because the owner asked for the focus.
 
 The designer's own calls, not from the sources, approved by the owner on 2026-11-16:
 - Each line is at most 64 characters.
-- The fixed line's wording, above. The owner has since been asked whether to shorten it, because it fits the sled push, the carries and the woodchop poorly.
+- The fixed line's wording, above. The owner approved the shorter line on 2026-11-16, after being asked, because the old ending ("…this one trains you to stay steady") fitted the sled push, the carries and the woodchop poorly.
 
 Not yet tried on real phones: the stretch and squeeze line in README's manual checklist matters.
 
@@ -155,7 +156,6 @@ Follow-ups noticed during stage 4:
 - The Seated cable fly guide has no mistake against going past the start.
 - The Hack squat guide has no "stop if your hips leave the pad".
 - On the web at 130% zoom on a 375 px phone, the Today card's RPE stepper runs past the edge (it did before stage 4).
-- The fixed line's wording ("…this one trains you to stay steady") fits the sled push, the carries and the woodchop poorly; the owner has been asked.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):

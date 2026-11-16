@@ -457,7 +457,7 @@ describe('stretch and squeeze on the exercise card', () => {
     return (await db.exercises.add({ name: entry.name, category: entry.category, parentLift: entry.parentLift ?? null, muscles: [...entry.muscles], isBuiltIn: true, archived: false })) as number
   }
   const squat = grit.muscleFocus('Squat')!
-  const NO_FOCUS_LINE = 'No stretch or squeeze to aim for here: this one trains you to stay steady.'
+  const NO_FOCUS_LINE = 'No stretch or squeeze to aim for in this one.'
   const cues = () => document.querySelector('.today-cues')
 
   it('bodybuildingCard_showsStretchAndSqueeze', async () => {

@@ -18,7 +18,7 @@ object Library {
     const val SAFETY_LINE = "Stop if you feel sharp pain. For an injury or a condition, check with a doctor or physiotherapist."
 
     /** The one line the guide shows for an exercise with nothing to stretch or squeeze ([MuscleFocus.NoFocus]). */
-    const val NO_FOCUS_LINE = "No stretch or squeeze to aim for here: this one trains you to stay steady."
+    const val NO_FOCUS_LINE = "No stretch or squeeze to aim for in this one."
 
     private val catalogue: List<LibraryExercise> by lazy {
         mainLifts + chest + back + shoulders + arms + quads + hamstringsGlutes + calves + core

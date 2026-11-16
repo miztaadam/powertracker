@@ -160,6 +160,7 @@ Each gets its own plan when its turn comes; these are the decisions that plan mu
 
 ### Stage 4: stretch and squeeze cues
 - Two short lines for each of the 225 catalogue exercises: where the stretch is and where the squeeze is. Shown on the Today card on the bodybuilding side (as in the mockup) and in the form guide on both sides. **(owner: the focus; call: where they show)**
+  (Owner, 2026-11-16: the lines show on the bodybuilding side only; the form guide shows them only while bodybuilding mode is on.)
 - Written from, and checked against, the allowed sources with an independent review pass, exactly as the form guides were; sources recorded per exercise. An exercise with no meaningful stretch or squeeze (a carry, a hold) says so in one line rather than inventing one.
 - Content only: it can be written while stages 2 and 3 are built.
 

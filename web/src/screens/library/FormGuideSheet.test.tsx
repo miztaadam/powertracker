@@ -129,7 +129,7 @@ describe('InfoButton', () => {
 
 // Stage 4: the "Stretch and squeeze" section, after Cues, only while bodybuilding mode is on (owner decision 1).
 describe('FormGuideSheet stretch and squeeze', () => {
-  const NO_FOCUS_LINE = 'No stretch or squeeze to aim for here: this one trains you to stay steady.'
+  const NO_FOCUS_LINE = 'No stretch or squeeze to aim for in this one.'
   const onSide = (mode: TrainingMode, name: string) => (
     <TrainingModeContext.Provider value={mode}>
       <FormGuideSheet name={name} onClose={() => {}} />

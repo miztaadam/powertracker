@@ -2886,7 +2886,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3702,7 +3702,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3730,7 +3730,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3761,7 +3761,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3774,7 +3774,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3789,7 +3789,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3820,7 +3820,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3853,7 +3853,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3868,7 +3868,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3899,7 +3899,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3912,7 +3912,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3927,7 +3927,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
@@ -3942,7 +3942,7 @@ Sources of the stretch and squeeze:
 
 Stretch and squeeze (bodybuilding side):
 
-- No stretch or squeeze to aim for here: this one trains you to stay steady.
+- No stretch or squeeze to aim for in this one.
 
 Sources of the stretch and squeeze:
 
