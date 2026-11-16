@@ -1,5 +1,6 @@
 package com.powertracker.ui.components
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.heightIn
@@ -12,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -36,6 +38,7 @@ private fun Label(text: String, icon: ImageVector?, spoken: Boolean = true) {
 
 // Compact buttons are 40 dp tall to look at, but Material pads their touch target to 48 dp
 // (minimum interactive size), so they still meet Space.touch. ComponentsTest checks this.
+// Every button sinks when pressed ([pressScale]); the buzz, where there is one, is made by the caller ([rememberHaptics]).
 
 /** The one accent-filled action on a screen or card. [compact] is for use inside cards and rows. */
 @Composable
@@ -48,10 +51,12 @@ fun PrimaryButton(
     compact: Boolean = false,
 ) {
     val c = PowertrackerTheme.colors
+    val interaction = remember { MutableInteractionSource() }
     Button(
         onClick = onClick,
-        modifier = modifier.heightIn(min = if (compact) 40.dp else 52.dp),
+        modifier = modifier.pressScale(interaction, enabled).heightIn(min = if (compact) 40.dp else 52.dp),
         enabled = enabled,
+        interactionSource = interaction,
         shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.buttonColors(containerColor = c.accent, contentColor = c.onAccent),
         contentPadding = if (compact) Compact else Regular,
@@ -72,12 +77,15 @@ fun SecondaryButton(
     compact: Boolean = false,
     label: String? = null,
 ) {
+    val interaction = remember { MutableInteractionSource() }
     Button(
         onClick = onClick,
         modifier = modifier
+            .pressScale(interaction, enabled)
             .then(if (label != null) Modifier.semantics { contentDescription = label } else Modifier)
             .heightIn(min = if (compact) 40.dp else 52.dp),
         enabled = enabled,
+        interactionSource = interaction,
         shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -90,10 +98,12 @@ fun SecondaryButton(
 /** A text-only action: dismiss, cancel, skip. */
 @Composable
 fun QuietButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+    val interaction = remember { MutableInteractionSource() }
     TextButton(
         onClick = onClick,
-        modifier = modifier.heightIn(min = 40.dp),
+        modifier = modifier.pressScale(interaction, enabled).heightIn(min = 40.dp),
         enabled = enabled,
+        interactionSource = interaction,
         shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
         contentPadding = Compact,

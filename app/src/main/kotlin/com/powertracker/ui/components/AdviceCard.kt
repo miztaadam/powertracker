@@ -57,7 +57,18 @@ fun AdviceCard(
         content?.invoke(this)
         if (primaryAction != null || secondaryAction != null) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-                if (primaryAction != null) PrimaryButton(primaryAction, onPrimary, compact = true)
+                // The primary action is the card's Apply ("Add to plan", "Apply deload" and so on): it ticks.
+                val haptics = rememberHaptics()
+                if (primaryAction != null) {
+                    PrimaryButton(
+                        primaryAction,
+                        {
+                            haptics.tick()
+                            onPrimary()
+                        },
+                        compact = true,
+                    )
+                }
                 if (secondaryAction != null) QuietButton(secondaryAction, onSecondary)
             }
         }

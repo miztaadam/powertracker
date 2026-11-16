@@ -90,6 +90,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
+import com.powertracker.ui.components.rememberHaptics
 
 /** The text shown for one plan item, e.g. "Squat  3 × 5 @ 8", or "Curl  3 × 8–12 @ 8" for a rep range. */
 fun planItemText(name: String, item: PlanItem): String = "$name  ${item.sets} × ${repsText(item.reps, item.repsHigh)} @ ${formatRpe(item.targetRpe)}"
@@ -137,6 +138,8 @@ fun PlanScreen(
         onBuild = onOpenBuilder,
     )
 
+    // Adding an exercise to a day ticks; changing one in the edit dialog does not.
+    val haptics = rememberHaptics()
     when (val d = dialog) {
         // Picking adds the exercise with its default sets and reps; they are edited from the row, as before.
         is PlanDialog.Add -> ExercisePickerScreen(
@@ -144,10 +147,12 @@ fun PlanScreen(
             exercises = state.exercises,
             recentIds = state.recentIds,
             onPick = { entry ->
+                haptics.tick()
                 viewModel.add(d.day, entry)
                 dialog = null
             },
             onCreateCustom = { name, category, parent, muscles ->
+                haptics.tick()
                 viewModel.addCustomExercise(name, category, parent, muscles) { entry -> viewModel.add(d.day, entry) }
                 dialog = null
             },

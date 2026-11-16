@@ -1,5 +1,6 @@
 package com.powertracker.ui
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -50,6 +51,8 @@ import com.powertracker.ui.today.TodayScreen
 import com.powertracker.ui.today.rememberRestTimerHooks
 import com.powertracker.ui.today.rememberTodayViewModel
 import com.powertracker.ui.components.SoftDivider
+import com.powertracker.ui.components.TAB_PRESS_SCALE
+import com.powertracker.ui.components.pressScale
 
 enum class Tab(val route: String, val label: String, val icon: ImageVector) {
     TODAY("today", "Today", Icons.Filled.FitnessCenter),
@@ -179,11 +182,14 @@ fun PtBottomBar(currentRoute: String?, onSelect: (Tab) -> Unit) {
         SoftDivider()
         NavigationBar(containerColor = scheme.surface, tonalElevation = 0.dp) {
             for (tab in Tab.entries) {
+                // The icon sinks while its tab is pressed: further than a button, as it is small.
+                val interaction = remember { MutableInteractionSource() }
                 NavigationBarItem(
                     selected = currentRoute == tab.route,
                     onClick = { onSelect(tab) },
                     modifier = Modifier.testTag("tab-${tab.route}"),
-                    icon = { Icon(tab.icon, contentDescription = null) },
+                    icon = { Icon(tab.icon, contentDescription = null, modifier = Modifier.pressScale(interaction, pressedScale = TAB_PRESS_SCALE)) },
+                    interactionSource = interaction,
                     label = { Text(tab.label, style = MaterialTheme.typography.labelMedium) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = pt.onAccent,

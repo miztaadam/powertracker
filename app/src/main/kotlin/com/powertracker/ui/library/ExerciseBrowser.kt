@@ -3,7 +3,9 @@ package com.powertracker.ui.library
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -71,6 +73,7 @@ import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.Exercise
 import com.powertracker.ui.components.ChoiceChip
+import com.powertracker.ui.components.pressScale
 import com.powertracker.ui.components.cardHighlight
 import com.powertracker.ui.components.cardShadow
 import com.powertracker.ui.components.EmptyState
@@ -538,14 +541,18 @@ private fun BrowserRow(
 ) {
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
+    // The row sinks while pressed; a press that becomes a scroll of the list springs back and picks nothing.
+    val interaction = remember { MutableInteractionSource() }
+    val indication = LocalIndication.current
     Column {
         Row(
             Modifier
+                .pressScale(interaction)
                 .fillMaxWidth()
                 .heightIn(min = 64.dp)
                 .then(
-                    if (ticked == null) Modifier.clickable(onClickLabel = clickLabel) { onRow(entry) }
-                    else Modifier.toggleable(value = ticked, role = Role.Checkbox, onValueChange = { onRow(entry) }),
+                    if (ticked == null) Modifier.clickable(interaction, indication, onClickLabel = clickLabel) { onRow(entry) }
+                    else Modifier.toggleable(value = ticked, interactionSource = interaction, indication = indication, role = Role.Checkbox, onValueChange = { onRow(entry) }),
                 )
                 .padding(start = if (ticked == null) Space.gutter else Space.xs, end = Space.xs)
                 .testTag(tag),

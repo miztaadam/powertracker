@@ -41,7 +41,16 @@ fun CoachSuggestion(headline: String, reason: String, onApply: () -> Unit, onDis
             Text(headline, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
             Text(reason, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        PrimaryButton("Apply", onApply, compact = true, modifier = Modifier.padding(start = Space.s))
+        val haptics = rememberHaptics()
+        PrimaryButton(
+            "Apply",
+            {
+                haptics.tick()
+                onApply()
+            },
+            compact = true,
+            modifier = Modifier.padding(start = Space.s),
+        )
         IconButton(onClick = onDismiss) {
             Icon(Icons.Filled.Close, contentDescription = "Dismiss", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
         }

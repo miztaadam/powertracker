@@ -72,6 +72,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import com.powertracker.ui.components.FakeHapticFeedback
+import com.powertracker.ui.components.WithHaptics
+import androidx.compose.ui.semantics.SemanticsActions
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
@@ -1116,5 +1120,118 @@ class TodayScreenTest {
         waitForSets(1)
         waitFor { rests.isNotEmpty() }
         assertEquals("a strict press set starts the main-lift rest", listOf(true), rests)
+    }
+
+    // ---- The buzz (stage 2): Log set and Missed tick once a set is saved ----
+
+    private val haptics = FakeHapticFeedback()
+
+    private fun showWithHaptics(vibrateOnTaps: Boolean = true) = compose.setContent {
+        PowertrackerTheme { WithHaptics(haptics, vibrateOnTaps) { TodayScreen(training, advice, settings, onOpenCoach = {}, today = { today }) } }
+    }
+
+    @Test
+    fun logSet_andMissed_tickOncePerSavedSet() {
+        startSession()
+        showWithHaptics()
+        waitForText("Log set 1")
+        assertEquals(0, haptics.calls.size)
+
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForText("Log set 2")
+        compose.waitForIdle()
+        assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
+
+        compose.onNodeWithText("Missed").performClick()
+        waitForText("Log set 3")
+        compose.waitForIdle()
+        assertEquals(2, haptics.ticks)
+        assertEquals("a tick, never the best buzz: Today does not know a new best when it logs", 2, haptics.calls.size)
+    }
+
+    @Test
+    fun logSet_doubleTap_ticksOnce() {
+        startSession()
+        showWithHaptics()
+        waitForText("Log set 1")
+        val click = compose.onNodeWithText("Log set 1").fetchSemanticsNode().config[SemanticsActions.OnClick].action!!
+        compose.runOnUiThread {
+            click()
+            click()
+        }
+        waitForSets(1)
+        waitForText("Log set 2")
+        settled()
+        assertEquals(1, loggedToday().size)
+        assertEquals(1, haptics.calls.size)
+    }
+
+    @Test
+    fun aHeldOrRefusedSet_doesNotTick_untilItIsSaved() {
+        startSession()
+        showWithHaptics()
+        waitForText("Log set 1")
+
+        // Refused: the cursor goes to the field, nothing is saved, nothing buzzes.
+        weight.type("1200")
+        compose.onNodeWithText("Log set 1").performClick()
+        weight.assertIsFocused()
+        settled()
+        assertEquals(0, haptics.calls.size)
+        weight.type("150")
+
+        // Held as a likely typo: the question is on screen, no buzz yet. Each step on the way ticked once.
+        repeat(8) { compose.onNodeWithContentDescription("Increase Reps").performClick() } // 5 -> 13
+        compose.waitForIdle()
+        assertEquals(8, haptics.ticks)
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForText("Did you mean")
+        settled()
+        assertEquals(8, haptics.calls.size)
+
+        // Confirmed: saved, one tick.
+        compose.onNodeWithText("Confirm").performClick()
+        waitForSets(1)
+        settled()
+        assertEquals(9, haptics.calls.size)
+    }
+
+    @Test
+    fun withVibrateOnTapsOff_loggingAndStepping_doNotBuzz() {
+        startSession()
+        showWithHaptics(vibrateOnTaps = false)
+        waitForText("Log set 1")
+        compose.onNodeWithContentDescription("Increase RPE").performClick()
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForSets(1)
+        compose.onNodeWithText("Missed").performClick()
+        waitForSets(2)
+        settled()
+        assertEquals(emptyList<HapticFeedbackType>(), haptics.calls.toList())
+    }
+
+    @Test
+    fun noWeightYet_disabledLogAndMissed_doNotBuzz() {
+        benchWithNoWeight()
+        startSession()
+        showWithHaptics()
+        waitForText("Log set 1")
+        compose.onNodeWithText("Log set 1").assertIsNotEnabled().performClick()
+        compose.onNodeWithText("Missed").assertIsNotEnabled().performClick()
+        settled()
+        assertEquals(0, haptics.calls.size)
+    }
+
+    @Test
+    fun pickingFromTheAddExercisePicker_ticksOnce() {
+        startSession()
+        showWithHaptics()
+        waitForText("Log set 1")
+        pickFromLibrary("Hammer curl")
+        compose.onNodeWithTag("exercise-Hammer curl").performClick()
+        waitFor { compose.onAllNodes(hasTestTag("exercise-search")).fetchSemanticsNodes().isEmpty() }
+        compose.waitForIdle()
+        assertEquals(1, haptics.ticks)
+        assertEquals(1, haptics.calls.size)
     }
 }

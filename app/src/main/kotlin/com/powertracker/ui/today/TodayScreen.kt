@@ -50,6 +50,7 @@ import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
+import com.powertracker.ui.components.rememberHaptics
 
 /** The rest countdown to dock above the bottom bar; supplied by whoever runs the timer. */
 data class RestTimerUi(
@@ -104,10 +105,16 @@ fun TodayScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val setLogged by rememberUpdatedState(onSetLogged)
+    // Log set and Missed tick once the set is saved: one buzz per set, none for an entry that was refused or held.
+    // Today does not know at this point whether the set is a new best, so it is always a tick, never [Haptics.best].
+    val haptics = rememberHaptics()
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                is TodayEvent.SetLogged -> setLogged(event.isMainOrVariation)
+                is TodayEvent.SetLogged -> {
+                    haptics.tick()
+                    setLogged(event.isMainOrVariation)
+                }
             }
         }
     }
@@ -180,6 +187,8 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
     val inSession = state.inSession
     var activeId by rememberSaveable { mutableStateOf<Long?>(null) }
     var picking by rememberSaveable { mutableStateOf(false) }
+    // Adding an exercise from the picker ticks.
+    val haptics = rememberHaptics()
 
     // A catalogue exercise added without a row changes id when its first set saves the row: follow it.
     val chosenId = activeId?.let { state.resolved[it] ?: it }
@@ -277,11 +286,13 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
             recentIds = state.recentIds,
             // Picking one already in the session just opens its card.
             onPick = { entry ->
+                haptics.tick()
                 val name = entry.catalogueName
                 activeId = if (name != null) actions.onAddFromCatalogue(name) else entry.exerciseId?.also(actions.onAddExercise)
                 picking = false
             },
             onCreateCustom = { name, category, parent, muscles ->
+                haptics.tick()
                 actions.onCreateExercise(name, category, parent, muscles) { id -> activeId = id }
                 picking = false
             },

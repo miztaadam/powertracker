@@ -43,6 +43,7 @@ import com.powertracker.ui.today.TodayViewModel
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import com.powertracker.ui.components.rememberHaptics
 
 /** What the tab says when an add could not be stored. */
 const val SAVE_FAILED = "Couldn't save — try again."
@@ -81,9 +82,12 @@ fun ExercisesScreen(
     var choosingDay by rememberSaveable { mutableStateOf(false) }
     // A sheet answers once: a second tap landing before it closes (a double tap) adds nothing more and says nothing more.
     val answered = remember { mutableStateOf(false) }
+    // Add to plan (on the day picked) and Add to today tick once, when the add is accepted.
+    val haptics = rememberHaptics()
     fun once(add: () -> Unit) {
         if (!answered.value) {
             answered.value = true
+            haptics.tick()
             add()
         }
     }

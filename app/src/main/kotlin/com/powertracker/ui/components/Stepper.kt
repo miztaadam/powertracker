@@ -1,6 +1,7 @@
 package com.powertracker.ui.components
 
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,13 +61,20 @@ import androidx.compose.ui.zIndex
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 
+/** A − or + button. It sinks when pressed, and each step ticks once: one tap, one step, one buzz (there is no auto-repeat). */
 @Composable
 private fun StepButton(icon: ImageVector, description: String, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
+    val interaction = remember { MutableInteractionSource() }
+    val haptics = rememberHaptics()
     FilledIconButton(
-        onClick = onClick,
+        onClick = {
+            haptics.tick()
+            onClick()
+        },
         enabled = enabled,
-        modifier = modifier,
+        modifier = modifier.pressScale(interaction, enabled),
+        interactionSource = interaction,
         shape = MaterialTheme.shapes.small,
         colors = IconButtonDefaults.filledIconButtonColors(
             containerColor = scheme.surfaceContainerHighest,
