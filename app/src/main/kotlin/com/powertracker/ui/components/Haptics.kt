@@ -1,5 +1,6 @@
 package com.powertracker.ui.components
 
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
@@ -27,8 +28,11 @@ class Haptics internal constructor(private val feedback: State<HapticFeedback>, 
     /** One short tick. A light click, which every phone this app runs on (API 26 and up) has. */
     fun tick() = perform(HapticFeedbackType.ContextClick)
 
-    /** The stronger buzz for a new best: the "confirm" pattern (a double pulse on most phones; a heavy click on older ones). */
-    fun best() = perform(HapticFeedbackType.Confirm)
+    /**
+     * The stronger buzz for a new best: the phone's "confirm" pattern (a double pulse on most phones). Before Android 11
+     * the platform has no confirm and androidx would play an ordinary key click, so those phones get the long-press buzz.
+     */
+    fun best() = perform(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) HapticFeedbackType.Confirm else HapticFeedbackType.LongPress)
 
     private fun perform(type: HapticFeedbackType) {
         if (on.value) feedback.value.performHapticFeedback(type)

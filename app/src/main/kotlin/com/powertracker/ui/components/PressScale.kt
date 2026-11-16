@@ -1,5 +1,6 @@
 package com.powertracker.ui.components
 
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
@@ -73,7 +74,8 @@ private class PressScaleNode(var source: InteractionSource, var pressedScale: Fl
     private val scale = mutableFloatStateOf(1f)
     private var velocity = 0f
     private var listening: Job? = null
-    private var animating: Job? = null
+    private var sinking: Job? = null
+    private var springing: Job? = null
     private val layer: GraphicsLayerScope.() -> Unit = {
         val s = scale.floatValue
         scaleX = s
@@ -84,7 +86,8 @@ private class PressScaleNode(var source: InteractionSource, var pressedScale: Fl
 
     override fun onDetach() {
         listening = null
-        animating = null
+        sinking = null
+        springing = null
         scale.floatValue = 1f
         velocity = 0f
     }
@@ -96,29 +99,50 @@ private class PressScaleNode(var source: InteractionSource, var pressedScale: Fl
             val presses = mutableListOf<PressInteraction.Press>()
             source.interactions.collect { interaction ->
                 when (interaction) {
-                    is PressInteraction.Press -> presses += interaction
-                    is PressInteraction.Release -> presses -= interaction.press
-                    is PressInteraction.Cancel -> presses -= interaction.press
-                    else -> return@collect
+                    is PressInteraction.Press -> {
+                        presses += interaction
+                        sink()
+                    }
+                    // A tap: the sink plays out first, so even a quick one shows (in a scrolling screen the press is
+                    // only reported with its release).
+                    is PressInteraction.Release -> {
+                        presses -= interaction.press
+                        if (presses.isEmpty()) springBack(afterSink = true)
+                    }
+                    // Not a tap after all (it became a scroll): straight back.
+                    is PressInteraction.Cancel -> {
+                        presses -= interaction.press
+                        if (presses.isEmpty()) springBack(afterSink = false)
+                    }
                 }
-                follow(down = presses.isNotEmpty())
             }
         }
     }
 
-    private fun follow(down: Boolean) {
-        val target = if (down) pressedScale else 1f
-        if (animating?.isActive != true && scale.floatValue == target) return
-        animating?.cancel()
-        // A new target takes over from the running animation, from where it is and how fast it is going.
-        animating = coroutineScope.launch {
-            val spec = if (down) tween(PRESS_DOWN_MS, easing = FastOutSlowInEasing) else PressRelease
-            animate(scale.floatValue, target, velocity, spec) { value, speed ->
-                scale.floatValue = value
-                velocity = speed
-            }
-            velocity = 0f
+    private fun sink() {
+        springing?.cancel()
+        sinking?.cancel()
+        sinking = coroutineScope.launch { glide(pressedScale, tween(PRESS_DOWN_MS, easing = FastOutSlowInEasing)) }
+    }
+
+    private fun springBack(afterSink: Boolean) {
+        val sink = sinking
+        if (!afterSink) sink?.cancel()
+        springing?.cancel()
+        if (sink?.isActive != true && scale.floatValue == 1f) return
+        springing = coroutineScope.launch {
+            sink?.join()
+            glide(1f, PressRelease)
         }
+    }
+
+    /** From where it is and how fast it is going, to [target]. */
+    private suspend fun glide(target: Float, spec: AnimationSpec<Float>) {
+        animate(scale.floatValue, target, velocity, spec) { value, speed ->
+            scale.floatValue = value
+            velocity = speed
+        }
+        velocity = 0f
     }
 
     override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {

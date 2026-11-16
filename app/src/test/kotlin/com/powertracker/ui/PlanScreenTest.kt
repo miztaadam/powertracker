@@ -51,6 +51,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import com.powertracker.ui.components.FakeHapticFeedback
+import com.powertracker.ui.components.WithHaptics
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(qualifiers = "w411dp-h2400dp-xxhdpi")
@@ -300,5 +303,31 @@ class PlanScreenTest {
         // It is a main lift like the other three: it can be given a known best.
         compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("baseline-Strict press")).fetchSemanticsNodes().isNotEmpty() }
         for (lift in listOf("Squat", "Bench", "Deadlift")) compose.onNodeWithTag("baseline-$lift").assertExists()
+    }
+
+    // ---- The buzz (stage 2): adding to a day from the picker ticks once; changing an exercise does not ----
+
+    @Test
+    fun addToADay_ticksOnce_changeExercise_doesNotTick() {
+        val haptics = FakeHapticFeedback()
+        compose.setContent { WithHaptics(haptics) { PlanScreen(training, settings, onOpenSettings = {}) } }
+
+        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("add-MONDAY")).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        compose.onNodeWithTag("exercise-search").performTextReplacement("Squat")
+        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("exercise-Squat")).fetchSemanticsNodes().isNotEmpty() }
+        assertEquals(0, haptics.calls.size)
+        compose.onNodeWithTag("exercise-Squat").performClick()
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  3 × 5 @ 8").fetchSemanticsNodes().isNotEmpty() }
+        assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
+
+        compose.onNodeWithContentDescription("More").performClick()
+        compose.onNodeWithText("Edit").performClick()
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        compose.onNodeWithTag("exercise-search").performTextReplacement("curl")
+        compose.onNodeWithTag("exercise-Curl").performClick()
+        compose.onNodeWithText("Edit Monday").assertExists()
+        compose.waitForIdle()
+        assertEquals(1, haptics.calls.size)
     }
 }

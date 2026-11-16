@@ -48,6 +48,8 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.datetime.LocalDate
 import com.powertracker.ui.coach.SwapCard
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 
 /**
  * Press feedback and the buzz (stage 2, Task 2): a press sinks and springs back only with motion on, never on a
@@ -346,5 +348,28 @@ class PressAndHapticsTest {
         compose.waitForIdle()
         assertEquals(listOf("Close-grip pulldown"), swapped)
         assertEquals(listOf(HapticFeedbackType.ContextClick), fake.calls)
+    }
+
+    @Test
+    fun aQuickTap_inAScrollingScreen_stillSinks_thenSpringsBack() {
+        show {
+            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                PrimaryButton("Log set", {})
+                Box(Modifier.height(2000.dp))
+            }
+        }
+        compose.waitForIdle()
+        val rest = width("Log set")
+        compose.mainClock.autoAdvance = false
+        // Inside a scrolling screen the press is held back, then reported with its release when the finger lifts first.
+        compose.onNodeWithText("Log set").performTouchInput { click(center) }
+        var smallest = rest
+        repeat(30) {
+            frames(16)
+            smallest = minOf(smallest, width("Log set"))
+        }
+        assertTrue("a quick tap sinks visibly ($smallest vs $rest)", smallest < rest * 0.985f)
+        frames(500)
+        assertEquals(rest, width("Log set"), 0.01f)
     }
 }
