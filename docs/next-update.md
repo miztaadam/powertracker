@@ -161,7 +161,7 @@ Follow-ups noticed during stage 4:
 Spec: `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md`. Plan: `docs/superpowers/plans/2026-11-16-grit-look-stage-1.md`. This is stage 1 of the new look and motion; nothing behaves differently.
 
 What the lifter sees:
-- **Soft layered cards, in dark and light.** Cards no longer have a thin border. They stand off the background by a step in tone and one soft shadow. In dark there is also a faint light line along each card's top edge. The same goes for menus, the picker's muscle tiles and the shell's buttons. Rows inside a card keep a softer divider line. Rows in the exercise picker and on the Exercises tab get no shadow.
+- **Soft layered cards, in dark and light.** Cards no longer have a thin border. They stand off the background by a step in tone and one soft shadow. In dark there is also a faint light line along each card's top edge. Menus and the picker's muscle tiles get the same; the shell's buttons lose their border and take no shadow. Rows inside a card keep a softer divider line. Rows in the exercise picker and on the Exercises tab get no shadow.
 - **A dark grey accent on the powerlifting side, in place of chalk.** It covers the buttons, the current tab, switches, rest progress, the coach chip and the chart lines.
   - Dark: `#93979D`, with near-black ink `#0B0C0E`. Light: `#4A4D52`, with near-white ink `#F6F7F8`.
   - The soft accent backgrounds: `#2A2C2F` with `#DEDFE1` text in dark, `#DCDEE0` with `#2F3135` text in light.
@@ -185,7 +185,7 @@ The owner's list of nine, from commits `182f1ad` and `92704c9`:
 
 Push notifications do not apply: Grit sends none.
 
-Follow-ups noticed during the new look:
+### Follow-ups noticed during the new look
 - The Exercises tab speed check, in quiet timing against 1.5.0, had two single slow opens (80 and 90 ms). Both are still under the 100 ms limit, and the medians were the same as 1.5.0.
 - In the three quiet speed runs for 1.6, the first two passed and the third failed once: the picker's first open took 114 ms (limit 100).
 - "Sound + vibrate" wraps onto two lines on 320–390 px phones, so on most Android phones. The owner may prefer a shorter label.
