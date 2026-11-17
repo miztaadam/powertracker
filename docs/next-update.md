@@ -348,7 +348,7 @@ Plan: `docs/superpowers/plans/2026-11-17-grit-1-11-follow-ups.md`. The owner sai
 - Picker open with Powerlifting, 375 × 812 at 3x, Chromium. Builds alternate each round and their order flips every round. Only quiet rounds count.
 - Each build waits for `serviceWorker.ready` and network idle before the tap. For B, its sheet URL is decoded with `new Image().decode()` before the tap.
 - Measures: the picker's open, and a keystroke typed straight after it.
-- Pass rule: the A/A noise is the bootstrap 95% interval of the median of (base2 − base1). The candidate passes a measure when the median of (candidate − mean of the two bases) is no bigger than that interval's larger end.
+- Pass rule: the A/A noise is the bootstrap 95% interval of the median of (base2 − base1). The candidate passes a measure when the median of (candidate − mean of the two bases) is no bigger than the larger of that interval's two ends, taken without sign (for [-3, 1] the bound is 3).
 - Slow opens are those from 45 ms. The candidate's share must be no higher than the higher base's. Every keystroke must stay under 100 ms.
 
 **Spike, 40 rounds each, at equal bundle sizes** (the fairer second run). Times in ms; "paired" is the median difference from the mean of the two bases, with its 95% interval.
@@ -360,6 +360,8 @@ Plan: `docs/superpowers/plans/2026-11-17-grit-1-11-follow-ups.md`. The owner sai
 | empty tiles | 34.0 | 54 | 30% | +0.0 [-5, 4] within | 36.5 | 50 | -1.5 within |
 | C, merged paths | 51.5 | 73 | 88% | +15.3 [8.75, 19.25] over | 48.5 | 69 | +10.3 over |
 | B, sheet decoded first | 35.5 | 72 | 35% | +0.0 [-4.25, 3.5] within | 34.0 | 59 | -2.0 within |
+
+B's slow-open share (35%, 14 of 40, against at most 28%) was over the rule, but not beyond chance at 40 rounds. That is why the 160-round run followed.
 
 **Decision run, 160 rounds each:**
 

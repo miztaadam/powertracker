@@ -148,7 +148,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Installed, the launcher icon is round or squircle with the whole "GRIT" mark inside, nothing cut off.
 - [ ] Settings shows Sound, Sound + vibrate, Silent and Off. With Sound + vibrate, rest end beeps and buzzes twice.
 - [ ] On a narrow phone (360 px or less), no screen scrolls sideways. "Sound +" wraps over "vibrate" if needed.
-- [ ] In Chrome's settings, set page zoom to 130% (Accessibility): the Exercises tab shows no pictures, and the names stay whole.
+- [ ] In Chrome's settings, set page zoom to 130% (Accessibility): no name on the Exercises tab breaks inside a word. If the page becomes narrower than 320 px, its rows show no pictures.
 - [ ] Restore a backup from the Android app. An app set to vibrate comes back as Sound + vibrate.
 - [ ] Press a button: it sinks a little and springs back.
 - [ ] A normal Log set buzzes once. A new squat best buzzes twice.
@@ -176,8 +176,8 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] With reduce motion on, the charts are complete at once.
 - [ ] Open Add on a Plan day: the names come up at once, with the pictures straight after.
 - [ ] In that picker, your own exercise has an empty tile.
-- [ ] With the largest text, the pictures in the picker and on the Exercises tab give way: rows show no tile, and the names stay whole.
-- [ ] With text one step up, on a phone 360 dp wide or more, the picker and the Exercises tab keep their pictures, and no name breaks inside a word.
+- [ ] At every text size, no exercise name in the picker or on the Exercises tab breaks inside a word. Where a row has too little room (large text on a narrower phone), it shows no tile at all.
+- [ ] With text one step up, on a phone 360 dp wide or more, the picker and the Exercises tab keep their pictures.
 
 ## Where things are
 
