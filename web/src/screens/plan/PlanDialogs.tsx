@@ -15,9 +15,12 @@ import './plan.css'
 
 export type PlanItemDialogProps = {
   title: string
-  item: PlanItem
-  /** The name of the item's exercise as stored. */
+  /** A stored item (Edit), or the ready-made numbers of one not stored yet (Plan's Add), which has no id. */
+  item: Pick<PlanItem, 'sets' | 'reps' | 'targetRpe' | 'repsHigh'> & Partial<Pick<PlanItem, 'mode'>>
+  /** The name of the item's exercise as stored, or of the exercise just picked. */
   exerciseName: string
+  /** The confirm button: "Save" (Edit), or "Add" on Plan's Add. */
+  confirmText?: string
   /** The lifter's exercises and the recently used ones, for the picker behind "Change". */
   exercises: readonly StoredExercise[]
   recentIds: readonly number[]
@@ -35,7 +38,7 @@ export type PlanItemDialogProps = {
  * range (the bodybuilding side) has two reps steppers, the bottom and the top; the top never goes below the bottom
  * and goes up to 30. Fixed reps (the powerlifting side) go up to 20.
  */
-export function PlanItemDialog({ title, item, exerciseName, exercises, recentIds, onCreateCustom, onFailure, onSave, onDismiss }: PlanItemDialogProps) {
+export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save', exercises, recentIds, onCreateCustom, onFailure, onSave, onDismiss }: PlanItemDialogProps) {
   // Null until the exercise is changed; saved with the item, not before.
   const [changed, setChanged] = useState<PickerEntry | null>(null)
   const [sets, setSets] = useState(item.sets)
@@ -54,7 +57,7 @@ export function PlanItemDialog({ title, item, exerciseName, exercises, recentIds
         actions={
           <>
             <QuietButton text="Cancel" onClick={onDismiss} />
-            <PrimaryButton text="Save" onClick={() => onSave(changed, sets, reps, rpe, repsHigh ?? undefined)} compact />
+            <PrimaryButton text={confirmText} onClick={() => onSave(changed, sets, reps, rpe, repsHigh ?? undefined)} compact />
           </>
         }
       >

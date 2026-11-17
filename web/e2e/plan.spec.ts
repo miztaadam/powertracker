@@ -60,6 +60,9 @@ async function openPlan(page: Page, plan: SamplePlanItem[] = [], sessionDates: s
   await expect(page.getByRole('region', { name: 'Monday' })).toBeVisible()
 }
 
+/** The sets and reps form a pick on Plan's Add opens: the dialog with the Sets stepper (the picker has the same title). */
+const addForm = (page: Page) => page.getByRole('dialog').filter({ has: page.getByRole('group', { name: 'Sets' }) })
+
 /** The plan as the screen reads it out: one line per item, per day. */
 const rowsOf = (page: Page, day: string) =>
   page
@@ -243,11 +246,15 @@ test.describe('on a 375 px iPhone', () => {
     const monday = page.getByRole('region', { name: 'Monday' })
     const dialog = page.getByRole('dialog')
 
-    // Picking from the library adds the exercise straight away, with its default sets and reps.
+    // Picking from the library opens the form with its default sets and reps; Add stores them.
     await monday.getByRole('button', { name: 'Add' }).click()
     await expect(page.getByRole('dialog', { name: 'Add to Monday' })).toBeVisible()
     await dialog.getByRole('textbox', { name: 'Search exercises' }).fill('squat')
     await dialog.getByRole('listitem', { name: 'Squat', exact: true }).getByRole('button').first().click()
+    await expect(addForm(page).getByRole('group', { name: 'Reps' })).toContainText('5')
+    expect(await overflowing(page)).toEqual([])
+    expect(await smallTargets(page)).toEqual([])
+    await addForm(page).getByRole('button', { name: 'Add', exact: true }).click()
     await expect(dialog).toHaveCount(0)
     await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Squat  3 × 5 @ 8'])
 
@@ -261,6 +268,7 @@ test.describe('on a 375 px iPhone', () => {
     expect(await overflowing(page)).toEqual([])
     expect(await smallTargets(page)).toEqual([])
     await custom.getByRole('button', { name: 'Create' }).click()
+    await addForm(page).getByRole('button', { name: 'Add', exact: true }).click()
     await expect(monday.getByRole('listitem')).toHaveCount(2)
 
     // Its sets are changed from the row.
@@ -286,6 +294,34 @@ test.describe('on a 375 px iPhone', () => {
     await page.reload()
     await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveCount(2)
     await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Cluster squat  4 × 5 @ 8', 'Squat  3 × 5 @ 8'])
+  })
+
+  test('planAdd_chooseSetsReps_storedAndShownInRow', async ({ page }) => {
+    await openPlan(page)
+    const monday = page.getByRole('region', { name: 'Monday' })
+    await monday.getByRole('button', { name: 'Add' }).click()
+    const picker = page.getByRole('dialog', { name: 'Add to Monday' })
+    await picker.getByRole('textbox', { name: 'Search exercises' }).fill('bench')
+    await picker.getByRole('listitem', { name: 'Bench', exact: true }).getByRole('button').first().click()
+
+    // Bench opens as 3 × 5; made 5 × 3 before anything is stored.
+    const form = addForm(page)
+    await expect(form.getByRole('group', { name: 'Exercise' })).toContainText('Bench')
+    await form.getByRole('button', { name: 'Increase Sets' }).click()
+    await form.getByRole('button', { name: 'Increase Sets' }).click()
+    await form.getByRole('button', { name: 'Decrease Reps' }).click()
+    await form.getByRole('button', { name: 'Decrease Reps' }).click()
+    await expect(form.getByRole('group', { name: 'Sets' })).toContainText('5')
+    await expect(form.getByRole('group', { name: 'Reps' })).toContainText('3')
+    expect(await rowsOf(page, 'Monday')).toEqual([])
+
+    await form.getByRole('button', { name: 'Add', exact: true }).click()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Bench  5 × 3 @ 8'])
+    await expect(monday.getByText('5 × 3')).toBeVisible()
+    // Stored, not only drawn.
+    await page.reload()
+    await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Bench  5 × 3 @ 8'])
   })
 
   test('a backup is exported, and restoring it asks before replacing everything', async ({ page }) => {

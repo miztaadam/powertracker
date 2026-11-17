@@ -159,6 +159,8 @@ for (const [label, viewport] of [
         const picker = page.getByRole('dialog', { name: /^Add to / })
         await picker.getByRole('textbox', { name: 'Search exercises' }).fill(name)
         await picker.getByRole('listitem', { name, exact: true }).getByRole('button').first().click()
+        // The sets and reps form the pick opens: its Add stores the item.
+        await page.getByRole('dialog').filter({ has: page.getByRole('group', { name: 'Sets' }) }).getByRole('button', { name: 'Add', exact: true }).click()
         await expect(picker).toHaveCount(0)
       }
       await expect(monday.getByRole('listitem')).toHaveCount(2)

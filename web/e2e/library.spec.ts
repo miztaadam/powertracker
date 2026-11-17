@@ -60,6 +60,9 @@ function expectFirstRows(rows: (string | null)[], expected: readonly string[], w
   expect(rows, what).toEqual(expected.slice(0, rows.length))
 }
 
+/** Taps Add on the sets and reps form that a pick on Plan's Add opens (it has the picker's title). */
+const confirmAdd = (page: Page) => page.getByRole('dialog').filter({ has: page.getByRole('group', { name: 'Sets' }) }).getByRole('button', { name: 'Add', exact: true }).click()
+
 async function openPlanPicker(page: Page) {
   await page.getByRole('region', { name: 'Monday' }).getByRole('button', { name: 'Add' }).click()
   await expect(picker(page)).toBeVisible()
@@ -327,6 +330,7 @@ test('the muscle grid fits a 375 px phone with full-size targets', async ({ page
   await tiles.filter({ hasText: 'Calves' }).click()
   const calf = grit.exercisesByMuscle('CALVES', [])[0]!.name
   await pickerRow(page, calf).getByRole('button').first().click()
+  await confirmAdd(page)
   await expect(picker(page)).toHaveCount(0)
   await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveAttribute('aria-label', new RegExp(`^${calf}  3 × `))
 })
@@ -382,6 +386,7 @@ test('the picker fits a 375 px phone with full-size targets', async ({ page }) =
 
   // The long name is added and still fits its plan row, beside four full-size controls.
   await pickerRow(page, 'Tyre flip with a very long name that has to wrap somewhere').getByRole('button').first().click()
+  await confirmAdd(page)
   await expect(picker(page)).toHaveCount(0)
   await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveAttribute('aria-label', 'Tyre flip with a very long name that has to wrap somewhere  3 × 10 @ 8')
   expect(await overflowing(page)).toEqual([])

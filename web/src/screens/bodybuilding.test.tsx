@@ -100,6 +100,9 @@ describe('Plan on the bodybuilding side', () => {
     const picker = within(await screen.findByRole('dialog', { name: 'Add to Wednesday' }))
     await userEvent.type(picker.getByRole('textbox', { name: 'Search exercises' }), 'Curl')
     await userEvent.click(within(await picker.findByRole('listitem', { name: 'Curl' })).getAllByRole('button')[0]!)
+    // The form opens with the side's ready-made numbers; Add stores them.
+    const form = within((await screen.findByRole('group', { name: 'Sets' })).closest<HTMLElement>('[role="dialog"]')!)
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
 
     expect(await screen.findByRole('listitem', { name: 'Curl 3 × 8–12 @ 8' })).toBeInTheDocument()
     const bb = await planFor(db, 'BODYBUILDING')

@@ -498,6 +498,7 @@ test('switching sides swaps the plan, keeps one log, and a day already trained s
   const picker = page.getByRole('dialog', { name: 'Add to Wednesday' })
   await picker.getByRole('textbox', { name: 'Search exercises' }).fill('Curl')
   await picker.getByRole('listitem', { name: 'Curl' }).getByRole('button').first().click()
+  await page.getByRole('dialog').filter({ has: page.getByRole('group', { name: 'Reps to' }) }).getByRole('button', { name: 'Add', exact: true }).click()
   await expect(page.getByRole('listitem', { name: 'Curl  3 × 8–12 @ 8' })).toBeVisible()
 
   // Today: the range; log a set on this side.

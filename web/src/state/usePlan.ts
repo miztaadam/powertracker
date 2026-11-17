@@ -45,12 +45,20 @@ export function planDayChoices(trainingDays: readonly number[]): number[] {
 export const MIN_RPE = 6
 export const MAX_RPE = 10
 
+/** The numbers of a plan item not stored yet: what the add form opens with, and what it gives back to `add`. */
+export type PlanDraft = { sets: number; reps: number; targetRpe: number; repsHigh?: number }
+
 export type PlanActions = {
   /**
-   * Adds what was picked at the end of the day: 3 × 5 for a compound lift, 3 × 10 for an accessory,
-   * at the default RPE. A catalogue exercise gets its row, if it has none yet, in the same transaction.
+   * The ready-made numbers a pick would be added with on the side the app is on: 3 × 5 for a compound lift,
+   * 3 × 10 for an accessory, at the default RPE; on the bodybuilding side 3 × 8-12 at RPE 8. Stores nothing.
    */
-  add: (weekday: number, entry: PickerEntry) => Promise<void>
+  draft: (weekday: number, entry: PickerEntry) => Promise<PlanDraft>
+  /**
+   * Adds what was picked at the end of the day with the numbers chosen in the add form, laid over the ready-made
+   * ones. A catalogue exercise gets its row, if it has none yet, in the same transaction.
+   */
+  add: (weekday: number, entry: PickerEntry, chosen: PlanDraft) => Promise<void>
   /**
    * `add` for the Exercises tab, where the day is chosen after the exercise: the same defaults and the
    * same single transaction, but an exercise already on that day is left alone. It reads what is
@@ -161,12 +169,23 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
   // A failed read is for the app's error boundary, not for an empty screen that looks like no plan.
   if (readError != null) throw readError
 
+  const draft = useCallback<PlanActions['draft']>(
+    async (weekday, entry) => {
+      const { sets, reps, targetRpe, ...rest } = await newItem(db, weekday, entry, await activeSide(db))
+      return { sets, reps, targetRpe, ...('repsHigh' in rest ? { repsHigh: rest.repsHigh } : {}) }
+    },
+    [db],
+  )
+
   const add = useCallback<PlanActions['add']>(
-    (weekday, entry) =>
+    (weekday, entry, chosen) =>
       sliding(slide, async () => {
         // The side as stored at the moment of the tap, which the screen shows.
         const side = await activeSide(db)
-        await addPlanItem(db, await newItem(db, weekday, entry, side), entry.library?.name ?? null, side)
+        const { sets, reps, targetRpe, repsHigh } = chosen
+        // No `repsHigh` key at all for fixed reps, as adding has always stored them.
+        const item = { ...(await newItem(db, weekday, entry, side)), sets, reps, targetRpe, ...(repsHigh != null ? { repsHigh } : {}) }
+        await addPlanItem(db, item, entry.library?.name ?? null, side)
       }),
     [db, slide],
   )
@@ -231,5 +250,5 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
   )
 
   const state = useMemo(() => (stored ? build(stored) : EMPTY), [stored])
-  return { loading: stored == null, ...state, add, addOnce, save, remove, move, addCustomExercise, setBaseline }
+  return { loading: stored == null, ...state, draft, add, addOnce, save, remove, move, addCustomExercise, setBaseline }
 }
