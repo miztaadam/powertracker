@@ -269,6 +269,8 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 
 - The Exercises tab still opens slowly now and then (single slow opens, still under 100 ms).
 - The web Exercises tab breaks 4 long names inside a word at 288 px (a 375 px phone at 130% zoom): Smith shoulder press, Concentration curl, Bodyweight squat, Quadruped hip extension. It did in 1.9 too; found while trying the web picker.
 - The Android Exercises tab at 130% text was not checked when the picker's large-text rule went in (1.10).
+- Six web screenshots are out of date: `today-install`, `lock-setup` and `session-saved` (dark and light) still show the install card's wording from before ca5877f. A re-shoot fixes them; they were left alone in 1.10 because only Settings shots were meant to change.
+- A Today slide test (`slide.spec.ts`, three quick Log set taps) failed about 1 run in 3 before 1.10. The cause was the test, not the app: it tapped while the card was still scrolling into view. Fixed in 1cc526c (80 of 80 runs). Shown under emulated touch, not on a phone.
 
 ## Done: thumbnails in the picker (1.10, Android app)
 Plan: `docs/superpowers/plans/2026-11-17-grit-picker-thumbnails.md`.
