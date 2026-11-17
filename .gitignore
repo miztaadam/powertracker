@@ -11,3 +11,4 @@ web/dist-update/
 web/test-results/
 web/playwright-report/
 web/.figure-sheets/
+*.tsbuildinfo
