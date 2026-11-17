@@ -21,7 +21,7 @@
 
 **Spec:** the owner's request (2026-11-16), "thumbnails in the exercise picker when adding to the plan, both modes", and the speed note in `docs/superpowers/specs/2026-11-16-grit-look-and-motion-design.md` §5. The Exercises tab's thumbnail work: `docs/next-update.md`, "Android thumbnails off the main thread".
 
-## Owner decisions (to approve)
+## Owner decisions (approved by the owner on 2026-11-17, all three as written)
 1. **Where.** Every place you choose exercises gets the thumbnails, on both sides:
    - Plan's **Add** on a day;
    - Today's **Add exercise**;
