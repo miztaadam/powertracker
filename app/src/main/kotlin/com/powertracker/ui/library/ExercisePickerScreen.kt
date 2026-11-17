@@ -178,8 +178,8 @@ fun ExercisePickerScreen(
 }
 
 /**
- * The picker without its window: the shared [ExerciseBrowser] on its muscle grid, under a title and
- * a close button. Tapping a row picks it; tapping its info button only opens the guide.
+ * The picker without its window: the shared [ExerciseBrowser] on its muscle grid, each row with its thumbnail, under a
+ * title and a close button. Tapping a row picks it; tapping its info button only opens the guide.
  */
 @Composable
 fun ExercisePickerContent(
@@ -224,6 +224,9 @@ fun ExercisePickerContent(
             onInfo = { guideFor = it.name },
             rowLabel = { "Add $it" },
             onCreate = { creating = true },
+            showThumbnails = true,
+            // Under 320 dp of text room (a narrow phone at large text) the thumbnail would break long names.
+            thumbnailMinRoomDp = PICKER_THUMBNAIL_MIN_ROOM_DP,
         )
     }
 

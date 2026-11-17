@@ -23,7 +23,8 @@ import java.util.concurrent.ConcurrentHashMap
 class Thumbnail(val shapes: List<Shape>?)
 
 /**
- * Works out the Exercises tab's thumbnails away from the main thread, and keeps the ones that are ready.
+ * Works out the thumbnails of the Exercises tab, the picker and the plan builder away from the main thread, and keeps
+ * the ones that are ready.
  *
  * All the work (the [figureFor] lookup, which solves the figure's poses the first time, and [shapesFor]) is done by
  * one worker coroutine on [dispatcher], one thumbnail at a time, so it never competes with itself for the cores.
@@ -151,5 +152,8 @@ internal val catalogueFigure: (String) -> ExerciseFigure? = { Library.figure(it)
 /** The catalogue's thumbnails, for the life of the process. */
 val CatalogueThumbnails = ThumbnailLoader(catalogueFigure)
 
-/** Where the Exercises tab gets its thumbnails; tests provide a loader of their own. */
+/**
+ * Where the rows of the Exercises tab, the picker and the plan builder get their thumbnails; tests provide a loader of
+ * their own.
+ */
 val LocalThumbnails = staticCompositionLocalOf { CatalogueThumbnails }

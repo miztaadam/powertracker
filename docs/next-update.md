@@ -263,10 +263,48 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 
 - **1.9:** charts fill in on Progress.
 
 **Open follow-ups:**
-- Pictures in the exercise picker. These come next, at the owner's wish.
+- Pictures in the web picker and plan builder: tried and waiting (see "Web picker thumbnails: tried, waiting"). Android has them since 1.10.
 - "Sound + vibrate" wraps onto two lines on narrow phones.
 - Two guide gaps: the Seated cable fly guide and the Hack squat guide (see the 1.5 notes).
 - The Exercises tab still opens slowly now and then (single slow opens, still under 100 ms).
+- The web Exercises tab breaks 4 long names inside a word at 288 px (a 375 px phone at 130% zoom): Smith shoulder press, Concentration curl, Bodyweight squat, Quadruped hip extension. It did in 1.9 too; found while trying the web picker.
+- The Android Exercises tab at 130% text was not checked when the picker's large-text rule went in (1.10).
+
+## Done: thumbnails in the picker (1.10, Android app)
+Plan: `docs/superpowers/plans/2026-11-17-grit-picker-thumbnails.md`.
+
+- **What you see:**
+  - Plan's **Add** on a day, Today's **Add exercise** and the plan builder's exercise list lead each row with the Exercises tab's thumbnail. The picker has them on both sides; the plan builder is on the bodybuilding side only.
+  - The tile, the picture and its colours are the tab's, in dark and light. Picker rows have no shadow.
+  - Your own exercises have an empty tile, so the names stay lined up. The muscle grid and the chips are unchanged.
+  - The picture is decorative: a row's spoken name, and its ticked state in the plan builder, are unchanged.
+- **Names at once, pictures straight after:** a row comes up with its name and an empty tile at full size, and the picture fills the tile when it is ready, so nothing moves. A picture that is already ready shows in the row's first frame.
+- **Narrow phones and large text:** the room for a row is the screen's width over the text size (`screenWidthDp / fontScale`).
+  - Picker rows show the thumbnail from 320 dp of room.
+  - The plan builder's rows, which also have a tick box, show it from 360 dp.
+  - Below that a row has no tile at all, so no catalogue name breaks inside a word.
+  - The Exercises tab is unchanged at every width.
+- **The warm-up:** the picker and the plan builder ask for the tab's warm-up, in the order their own list shows.
+  - Only the first request counts, so the one background worker still works every thumbnail out once per process, whichever list opens first. Rows on screen are served first.
+  - Nothing is worked out on the main thread (`ThumbnailsTest`, which now covers the picker).
+  - A list that shows no tiles (large text) asks for no warm-up.
+- **The web app** is 1.10 too, with no visible change: its picker waits (next section).
+- Not timed on a phone: the Android speed check is the main-thread test. Not yet tried on a real phone.
+
+## Web picker thumbnails: tried, waiting
+Owner decision 3 (2026-11-17): the web picker and plan builder stay without thumbnails, because no try kept the picker's speed. The Exercises tab is unchanged.
+
+- **The bar**, against 1.9.0, alternating builds, 160 quiet rounds each:
+  - the picker's median first open within 3 ms, and its worst within 10 ms;
+  - a keystroke typed straight after the open within 5 ms of 1.9.0's median, and always under 100 ms;
+  - the tab no slower.
+- **Where the cost is:** drawing the pictures, about 10–12 ms on the open. The empty tiles and the watchers cost nothing measurable.
+- **Round 1, one batch 50 ms after the names:** open median +2 ms, but its 95% interval reached 6.5 ms, so not proven. A keystroke straight after: +8 ms median, and 1 in 160 took 107 ms.
+- **Round 2, 2 pictures at a time** (on-screen rows back to back, the rest 33 ms apart): open +3 ms, at the limit. A keystroke straight after: +9.5 ms median, a miss.
+- **Round 3, 2 at a time with 33 ms after each:** a keystroke straight after passed (+4 ms median, worst 68 ms). The open missed: median 50 ms against 39 ms. Opens fall into a fast group and a slow group, and round 3 landed in the slow group in 64% of opens, against 47% for 1.9.0.
+- In every round the first screenful's pictures were in within 250 ms (round 3: 112–183 ms). Each round moved about 10 ms of drawing; none removed it.
+- **The untried lever:** a cheaper picture, such as one prebuilt image per thumbnail in place of SVG shapes. It would need its own plan, with its cost measured first.
+- The rounds' code diffs are kept locally, outside the repo.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
@@ -291,7 +329,7 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 
 ## Done (2026-11-13): Android thumbnails off the main thread
 - The Exercises tab no longer works a thumbnail out on the main thread. One background worker (`ThumbnailLoader` in `app/.../ui/library/Thumbnails.kt`) looks the figure up and places its shapes, one thumbnail at a time, and keeps every ready one for the life of the process.
 - A row draws a ready thumbnail in its first frame; until then it shows its empty tile, the same size, so nothing moves. Rows on screen are served before the warm-up.
-- The warm-up: when the tab first shows its list, the worker works out every catalogue thumbnail in the list's order, once per process. The picker starts no thumbnail work.
+- The warm-up: when the tab first shows its list, the worker works out every catalogue thumbnail in the list's order, once per process. Since 1.10 the picker and the plan builder ask for the same warm-up in their own list's order; whichever list opens first sets the order, and it still runs once. A list that shows no tiles (large text, see 1.10) asks for none.
 - The Android speed check is a test that no thumbnail is worked out on the main thread (`ThumbnailsTest`).
 - Not measured: no real phone was available, so frame times before and after are unknown. Check by scrolling the Exercises tab fast right after opening the app.
 

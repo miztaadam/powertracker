@@ -34,6 +34,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,7 @@ import com.powertracker.domain.library.figure
 import com.powertracker.domain.library.figures.Role
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.seed.SeedLibrary
 import com.powertracker.ui.design.assertTextsFit
 import com.powertracker.ui.theme.DarkColorScheme
@@ -68,8 +70,8 @@ import org.robolectric.annotation.GraphicsMode
 import kotlin.math.abs
 
 /**
- * The exercise pictures: the two-pose picture in the guide sheet and the thumbnails on the Exercises tab. "Bench" is
- * the exercise with a figure; a lookup that finds nothing stands in for one without.
+ * The exercise pictures: the two-pose picture in the guide sheet and the thumbnails on the Exercises tab, in the picker
+ * and in the plan builder. "Bench" is the exercise with a figure; a lookup that finds nothing stands in for one without.
  */
 // Native graphics, so text is measured at its real size and the canvas really draws: the checks here depend on both.
 @RunWith(RobolectricTestRunner::class)
@@ -83,6 +85,7 @@ class ExercisePictureTest {
     private var scenario: ActivityScenario<ComponentActivity>? = null
 
     private var dark by mutableStateOf(true)
+    private var mode = TrainingMode.POWERLIFTING
 
     private val bench = Library.figure("Bench")!!
     private val label = "Picture: ${bench.startCaption}, then ${bench.endCaption}."
@@ -97,7 +100,7 @@ class ExercisePictureTest {
         RuntimeEnvironment.setFontScale(fontScale)
         scenario = ActivityScenario.launch(ComponentActivity::class.java).onActivity { activity ->
             activity.setContent {
-                PowertrackerTheme(darkTheme = dark) { Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) { content() } }
+                PowertrackerTheme(mode = mode, darkTheme = dark) { Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) { content() } }
             }
         }
         compose.waitForIdle()
@@ -270,14 +273,269 @@ class ExercisePictureTest {
         assertEquals("nothing is drawn on it", 0, colours.of(DarkColorScheme.onSurface) + colours.of(DarkPtColors.muted) + colours.of(DarkPtColors.accent))
     }
 
-    @Test
-    fun picker_hasNoThumbnails() {
-        val seeded = SeedLibrary.exercises()
-        show { ExercisePickerContent("Add to Monday", seeded + own, listOf(seeded.first { it.name == "Bench" }.id), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {}) }
+    private fun tileOf(row: String): SemanticsNode =
+        compose.onNode(hasTestTag("exercise-thumbnail") and hasAnyAncestor(hasTestTag(row)), useUnmergedTree = true).fetchSemanticsNode()
 
-        compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Bench"))
-        compose.onNodeWithTag("exercise-Bench", useUnmergedTree = true).assertExists()
-        compose.onAllNodesWithTag("exercise-thumbnail", useUnmergedTree = true).assertCountEquals(0)
+    private fun drawnIn(row: String): Boolean =
+        compose.onAllNodes(hasTestTag("thumbnail-drawing") and hasAnyAncestor(hasTestTag(row)), useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+
+    private fun textIn(row: String, text: String): SemanticsNode =
+        compose.onNode(androidx.compose.ui.test.hasText(text) and hasAnyAncestor(hasTestTag(row)), useUnmergedTree = true).fetchSemanticsNode()
+
+    @Test
+    fun picker_rowsShowThumbnail() {
+        val seeded = SeedLibrary.exercises()
+        for (side in TrainingMode.entries) {
+            scenario?.close()
+            mode = side
+            show { ExercisePickerContent("Add to Monday", seeded + own, listOf(seeded.first { it.name == "Bench" }.id), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {}) }
+
+            val list = compose.onNodeWithTag("exercise-list")
+            list.performScrollToNode(hasTestTag("exercise-Bench"))
+            // The thumbnail is worked out in the background: wait for its drawing.
+            compose.waitUntil(10_000) { drawnIn("exercise-Bench") }
+            val row = node("exercise-Bench").boundsInRoot
+            val tile = tileOf("exercise-Bench")
+            // The tab's tile: about 56 × 40, at the left of the row, before the name, centred in the row's height.
+            assertEquals("$side", toPx(56), tile.boundsInRoot.width, 1f)
+            assertEquals("$side", toPx(40), tile.boundsInRoot.height, 1f)
+            assertEquals("$side", toPx(16), tile.boundsInRoot.left - row.left, 1f)
+            val benchName = textIn("exercise-Bench", "Bench").boundsInRoot
+            assertTrue("$side: the thumbnail is left of the name", tile.boundsInRoot.right < benchName.left)
+            assertEquals("$side", row.center.y, tile.boundsInRoot.center.y, 1f)
+            // Decorative, as on the tab: it says nothing, and the row's spoken name is unchanged.
+            assertNull(tile.config.getOrNull(SemanticsProperties.ContentDescription))
+            assertTrue(compose.onAllNodes(hasTestTag("exercise-thumbnail")).fetchSemanticsNodes().isEmpty())
+            compose.onNodeWithTag("exercise-Bench").assertHeightIsAtLeast(Space.touch)
+
+            // The lifter's own exercise: an empty tile of the same size, so its name lines up with Bench's.
+            list.performScrollToNode(hasTestTag("exercise-Tyre flip"))
+            val ownTile = tileOf("exercise-Tyre flip").boundsInRoot
+            assertEquals("$side: the same size as a drawn thumbnail", tile.boundsInRoot.size, ownTile.size)
+            assertEquals("$side", tile.boundsInRoot.left, ownTile.left, 0.5f)
+            assertFalse("$side: nothing is drawn for it", drawnIn("exercise-Tyre flip"))
+            assertEquals("$side: names stay aligned", benchName.left, textIn("exercise-Tyre flip", "Tyre flip").boundsInRoot.left, 0.5f)
+        }
+    }
+
+    /** The names that broke inside a word in a ticked row at 320 dp with a thumbnail beside them. */
+    private val longNames = listOf(
+        "Safety-bar squat", "Chest-supported row", "Chest-supported T-bar row", "Neutral-grip pull-up",
+        "Chest-supported rear delt raise", "Smith shoulder press", "Concentration curl", "Bodyweight squat",
+    )
+
+    /** The plan builder's exercises step with [longNames] stored and ticked: each is under "Chosen" and in the list. */
+    private fun showBuilderWithLongNamesTicked(fontScale: Float = 1f) {
+        val stored = longNames.mapIndexed { i, n ->
+            val lib = Library.find(n)!!
+            Exercise(100L + i, lib.name, lib.category, lib.parentLift, lib.muscles, isBuiltIn = true)
+        }
+        val entries = stored.map(com.powertracker.ui.plan.builder.PlanBuilderViewModel::entryFor)
+        val ticked = entries.associate { com.powertracker.ui.plan.builder.pickKey(it) to com.powertracker.ui.plan.builder.PlanBuilderViewModel.chosen(it) }
+        val state = com.powertracker.ui.plan.builder.PlanBuilderState(
+            loading = false,
+            mode = TrainingMode.BODYBUILDING,
+            step = com.powertracker.ui.plan.builder.BuilderStep.EXERCISES,
+            exercises = stored,
+            recentIds = stored.map { it.id },
+            ticked = ticked,
+        )
+        mode = TrainingMode.BODYBUILDING
+        show(fontScale) {
+            com.powertracker.ui.plan.builder.PlanBuilderContent(
+                state,
+                com.powertracker.ui.plan.builder.PlanBuilderActions(isTicked = { com.powertracker.ui.plan.builder.pickKey(it) in state.ticked }),
+            )
+        }
+    }
+
+    /** [name] in [row] wraps only between words (or after a hyphen), never inside one. */
+    private fun assertNameWhole(row: String, name: String) {
+        val node = textIn(row, name)
+        val layouts = mutableListOf<TextLayoutResult>()
+        node.config[SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
+        val layout = layouts.single()
+        val lines = (0 until layout.lineCount).map { name.substring(layout.getLineStart(it), layout.getLineEnd(it)) }
+        for (line in 0 until layout.lineCount - 1) {
+            val end = layout.getLineEnd(line, visibleEnd = true)
+            assertTrue("$row: \"$name\" is broken inside a word: $lines", name[end] == ' ' || name[end - 1] == ' ' || name[end - 1] == '-')
+        }
+    }
+
+    /** The row's tick, name, equipment and 48 dp info button, left to right inside the row. */
+    private fun assertRowFits(row: String, name: String) {
+        val bounds = node(row).boundsInRoot
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.Role, androidx.compose.ui.semantics.Role.Checkbox) and hasTestTag(row), useUnmergedTree = true).assertExists()
+        val text = textIn(row, name).boundsInRoot
+        val info = compose.onNode(
+            androidx.compose.ui.test.hasClickAction() and androidx.compose.ui.test.hasAnyDescendant(androidx.compose.ui.test.hasContentDescription("Form guide for $name")) and hasAnyAncestor(hasTestTag(row)),
+            useUnmergedTree = true,
+        ).fetchSemanticsNode().boundsInRoot
+        assertTrue("$row: the name is inside the row", text.left >= bounds.left && text.right <= info.left)
+        assertTrue("$row: the info button is inside the row", info.right <= bounds.right + 0.5f)
+        assertTrue("$row: the info button keeps its 48 dp target", info.width >= toPx(48) - 0.5f && info.height >= toPx(48) - 0.5f)
+    }
+
+    /**
+     * The plan builder at 320 dp: a ticked row has its tick box, so under 360 dp it shows no thumbnail and no empty tile,
+     * and every long name stays whole. The picker at the same width keeps its thumbnails.
+     */
+    @Test
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun planBuilder_tickedRow_namesWholeAt320() {
+        for (theme in listOf(true, false)) {
+            scenario?.close()
+            dark = theme
+            showBuilderWithLongNamesTicked()
+            assertEquals(toPx(320), compose.onRoot().fetchSemanticsNode().boundsInRoot.width, 0.5f)
+            for (name in longNames) {
+                for (row in listOf("chosen-$name", "exercise-$name")) {
+                    compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag(row))
+                    assertTrue("$row has no tile", compose.onAllNodes(hasTestTag("exercise-thumbnail") and hasAnyAncestor(hasTestTag(row)), useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
+                    assertNameWhole(row, name)
+                    assertRowFits(row, name)
+                }
+            }
+            compose.assertTextsFit()
+        }
+
+        // The picker is unchanged at this width: its rows keep the thumbnail.
+        scenario?.close()
+        mode = TrainingMode.POWERLIFTING
+        show { ExercisePickerContent("Add to Monday", SeedLibrary.exercises() + own, emptyList(), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {}) }
+        compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Concentration curl"))
+        assertEquals(toPx(56), tileOf("exercise-Concentration curl").boundsInRoot.width, 1f)
+        assertNameWhole("exercise-Concentration curl", "Concentration curl")
+    }
+
+    /** The plan builder at 360 dp: ticked rows show the tab's thumbnail, and the long names still stay whole. */
+    @Test
+    @Config(qualifiers = "w360dp-h2400dp-xhdpi")
+    fun planBuilder_showsThumbnailsAt360() {
+        showBuilderWithLongNamesTicked()
+        for (name in longNames) {
+            for (row in listOf("chosen-$name", "exercise-$name")) {
+                compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag(row))
+                compose.waitUntil(10_000) { drawnIn(row) }
+                val tile = tileOf(row).boundsInRoot
+                assertEquals(toPx(56), tile.width, 1f)
+                assertEquals(toPx(40), tile.height, 1f)
+                assertTrue("$row: the name follows the tile", textIn(row, name).boundsInRoot.left > tile.right)
+                assertNameWhole(row, name)
+                assertRowFits(row, name)
+            }
+        }
+        compose.assertTextsFit()
+    }
+
+    /**
+     * Scrolls the list from top to bottom and returns every catalogue name, with the rows it was seen in, that wraps
+     * inside a word, and how many catalogue names it saw.
+     */
+    private fun namesBrokenInsideAWord(): Pair<List<String>, Int> {
+        val catalogue = Library.all().map { it.name }
+        val broken = LinkedHashSet<String>()
+        val seen = HashSet<String>()
+        val list = compose.onNodeWithTag("exercise-list")
+        var index = 0
+        while (true) {
+            try {
+                list.performScrollToIndex(index)
+            } catch (e: Throwable) {
+                break
+            }
+            compose.waitForIdle()
+            for (name in catalogue) {
+                for (row in listOf("exercise-$name", "chosen-$name")) {
+                    val nodes = compose.onAllNodes(
+                        SemanticsMatcher.expectValue(SemanticsProperties.Text, listOf(androidx.compose.ui.text.AnnotatedString(name))) and hasAnyAncestor(hasTestTag(row)),
+                        useUnmergedTree = true,
+                    ).fetchSemanticsNodes()
+                    if (nodes.isEmpty()) continue
+                    seen += name
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    nodes.first().config[SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
+                    val layout = layouts.single()
+                    val inside = (0 until layout.lineCount - 1).any { line ->
+                        val end = layout.getLineEnd(line, visibleEnd = true)
+                        !(name[end] == ' ' || name[end - 1] == ' ' || name[end - 1] == '-')
+                    }
+                    if (inside) broken += "$row: " + (0 until layout.lineCount).map { name.substring(layout.getLineStart(it), layout.getLineEnd(it)) }
+                }
+            }
+            index += 4
+        }
+        return broken.toList() to seen.size
+    }
+
+    private fun showPicker(fontScale: Float) = show(fontScale) {
+        ExercisePickerContent("Add to Monday", SeedLibrary.exercises() + own, emptyList(), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {})
+    }
+
+    private fun thumbnailCount(): Int = nodes("exercise-thumbnail").size
+
+    /** At 130% text the picker leaves the thumbnails out at 320 and 360 dp, so no catalogue name breaks inside a word. */
+    @Test
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun picker_namesWholeAtFontScale1_3() {
+        for (width in listOf(320, 360)) {
+            scenario?.close()
+            RuntimeEnvironment.setQualifiers("w${width}dp-h2400dp-xhdpi")
+            showPicker(1.3f)
+            assertEquals(toPx(width), compose.onRoot().fetchSemanticsNode().boundsInRoot.width, 0.5f)
+            val (broken, seen) = namesBrokenInsideAWord()
+            assertEquals("every catalogue name checked at $width dp", Library.all().size, seen)
+            assertTrue("at $width dp, 130% text, broken inside a word: $broken", broken.isEmpty())
+            assertEquals("no tiles at $width dp, 130% text", 0, thumbnailCount())
+        }
+    }
+
+    /** At the default text size the picker keeps its thumbnails at 320 dp. */
+    @Test
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun picker_showsThumbnailsAt320_defaultFont() {
+        showPicker(1f)
+        compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Concentration curl"))
+        compose.waitUntil(10_000) { drawnIn("exercise-Concentration curl") }
+        assertEquals(toPx(56), tileOf("exercise-Concentration curl").boundsInRoot.width, 1f)
+        assertNameWhole("exercise-Concentration curl", "Concentration curl")
+    }
+
+    /** At 130% text the plan builder at 360 dp leaves the thumbnails out, so no name breaks inside a word. */
+    @Test
+    @Config(qualifiers = "w360dp-h2400dp-xhdpi")
+    fun planBuilder_namesWholeAtFontScale1_3() {
+        showBuilderWithLongNamesTicked(fontScale = 1.3f)
+        val (broken, seen) = namesBrokenInsideAWord()
+        assertEquals("every catalogue name checked", Library.all().size, seen)
+        assertTrue("130% text, broken inside a word: $broken", broken.isEmpty())
+        assertEquals("no tiles at 130% text", 0, thumbnailCount())
+    }
+
+    /** At the edge of the picker's room: 319 dp at the default text size has no tile, 320 dp has one. */
+    @Test
+    @Config(qualifiers = "w319dp-h2400dp-xhdpi")
+    fun picker_thumbnailEdge_319hides_320shows() {
+        for ((width, tiles) in listOf(319 to false, 320 to true)) {
+            scenario?.close()
+            RuntimeEnvironment.setQualifiers("w${width}dp-h2400dp-xhdpi")
+            showPicker(1f)
+            compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Bench"))
+            assertEquals("tiles at $width dp", tiles, thumbnailCount() > 0)
+        }
+    }
+
+    /** At the edge of a ticked row's room: 359 dp at the default text size has no tile, 360 dp has one. */
+    @Test
+    @Config(qualifiers = "w359dp-h2400dp-xhdpi")
+    fun planBuilder_thumbnailEdge_359hides_360shows() {
+        for ((width, tiles) in listOf(359 to false, 360 to true)) {
+            scenario?.close()
+            RuntimeEnvironment.setQualifiers("w${width}dp-h2400dp-xhdpi")
+            showBuilderWithLongNamesTicked()
+            compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("chosen-Concentration curl"))
+            assertEquals("tiles at $width dp", tiles, thumbnailCount() > 0)
+        }
     }
 
     @Test

@@ -100,6 +100,28 @@ async function openWithPlan(page: Page, hash = '#/today') {
 async function startSession(page: Page) {
   await page.getByRole('button', { name: 'Start session' }).click()
   await expect(page.getByRole('button', { name: 'Log set 1' })).toBeVisible()
+  // The card then scrolls into view, smoothly (TodayScreen's afterTransition). tapNow aims where the button is when it
+  // looks: aimed mid-scroll, the finger lands on what has scrolled under that point by then. So wait until the card is
+  // in view and has kept still for a few frames (the scroll starts a few frames after the tap, so stillness alone is
+  // not enough).
+  await page.evaluate(async () => {
+    const frame = () => new Promise((done) => requestAnimationFrame(done))
+    const main = document.querySelector('.shell-main')!
+    const log = [...document.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.includes('Log set 1'))!
+    const card = log.closest('.today-item')!
+    let last = ''
+    let still = 0
+    while (still < 5) {
+      await frame()
+      const box = card.getBoundingClientRect()
+      const view = main.getBoundingClientRect()
+      // Where scrollIntoView({ block: 'nearest' }) leaves it: top not cut off, and the whole card in view if it fits.
+      const inView = box.top >= view.top - 1 && (box.bottom <= view.bottom + 1 || box.top <= view.top + 1)
+      const now = `${box.top}:${main.scrollTop}`
+      still = inView && now === last ? still + 1 : 0
+      last = now
+    }
+  })
 }
 
 test('three quick Log set taps log three sets, in order, each sliding in once', async ({ page }) => {

@@ -173,6 +173,9 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
+- [ ] Open Add on a Plan day: the names come up at once, with the pictures straight after.
+- [ ] In that picker, your own exercise has an empty tile.
+- [ ] With the largest text, the pictures give way: rows show no tile, and the names stay whole.
 
 ## Where things are
 

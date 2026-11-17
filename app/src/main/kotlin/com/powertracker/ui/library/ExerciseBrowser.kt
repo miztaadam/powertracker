@@ -57,6 +57,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -184,7 +186,7 @@ fun rememberExerciseBrowserState(muscleFilter: MuscleFilter, initialMuscle: Musc
 /**
  * Browsing the catalogue and the lifter's own exercises, shared by the picker and the Exercises tab:
  * search, body-area chips (one at a time), equipment chips (any of the chosen), then the rows, each
- * with its info button and, on the Exercises tab, its thumbnail. What a row tap and an info tap do is up to the screen.
+ * with its info button and, where [showThumbnails] is set, its thumbnail. What a row tap and an info tap do is up to the screen.
  *
  * By muscle it works one of two ways ([ExerciseBrowserState.muscleFilter]). As a grid, tiles lead
  * the list while nothing is searched and no body area is chosen; a tile lists that muscle's
@@ -208,8 +210,17 @@ fun ExerciseBrowser(
     modifier: Modifier = Modifier,
     /** Opens "Create your own"; null where exercises are only browsed. */
     onCreate: (() -> Unit)? = null,
-    /** A small picture at the left of each row: the Exercises tab has them, the picker does not. */
+    /**
+     * A small picture at the left of each row: the Exercises tab, the picker and the plan builder have them. Where room
+     * is short (see [thumbnailMinRoomDp]) rows leave it out, with no empty tile, so long names stay whole.
+     */
     showThumbnails: Boolean = false,
+    /**
+     * The least room, in text terms ([textRoomDp]), at which rows show their thumbnail: 0 shows it always (the Exercises
+     * tab), [PICKER_THUMBNAIL_MIN_ROOM_DP] for the picker. Ticked rows (the plan builder's) need at least
+     * [TICKED_THUMBNAIL_MIN_ROOM_DP] whatever this says.
+     */
+    thumbnailMinRoomDp: Int = 0,
     /**
      * Multi-select: when set, every row is a tick box showing whether its exercise is chosen, and a row tap ([onRow])
      * ticks or unticks it. Null (the picker, the Exercises tab) keeps rows as plain taps.
@@ -238,10 +249,13 @@ fun ExerciseBrowser(
     // A new search or filter starts from its best match, not from wherever the last list was scrolled to.
     LaunchedEffect(query, area, equipment, muscle, muscles) { listState.scrollToItem(0) }
     BackHandler(enabled = muscle != null) { state.browse(null) }
-    if (showThumbnails) {
+    val minRoom = if (ticked != null) maxOf(thumbnailMinRoomDp, TICKED_THUMBNAIL_MIN_ROOM_DP) else thumbnailMinRoomDp
+    val rowThumbnails = showThumbnails && textRoomDp() >= minRoom
+    if (rowThumbnails) {
         val thumbnails = LocalThumbnails.current
-        // The head start: from the list's first showing, the loader's worker works out every catalogue thumbnail,
-        // in the order this list shows them. Only the first call counts, so it runs once per process.
+        // The head start: from the first showing of any list with thumbnails (the tab, the picker or the plan builder),
+        // the loader's worker works out every catalogue thumbnail, in the order that list shows them. Only the first
+        // call counts, so it runs once per process.
         LaunchedEffect(thumbnails) { thumbnails.warmUp(thumbnailOrder(list, byArea && area == null)) }
     }
 
@@ -293,11 +307,11 @@ fun ExerciseBrowser(
                     ListHeading("${group.label} exercises")
                 }
             }
-            val row: @Composable (PickerEntry) -> Unit = { entry -> BrowserRow(entry, rowLabel(entry.name), onRow, onInfo, showThumbnails, ticked?.invoke(entry)) }
+            val row: @Composable (PickerEntry) -> Unit = { entry -> BrowserRow(entry, rowLabel(entry.name), onRow, onInfo, rowThumbnails, ticked?.invoke(entry)) }
             if (chosen.isNotEmpty()) {
                 item(key = "chosen") { ListHeading("Chosen") }
                 items(chosen, key = { "chosen-${it.rowKey}" }) { entry ->
-                    BrowserRow(entry, rowLabel(entry.name), onRow, onInfo, showThumbnails, ticked?.invoke(entry) ?: true, tag = "chosen-${entry.name}")
+                    BrowserRow(entry, rowLabel(entry.name), onRow, onInfo, rowThumbnails, ticked?.invoke(entry) ?: true, tag = "chosen-${entry.name}")
                 }
             }
             if (list.isEmpty) {
@@ -537,6 +551,19 @@ private fun ListHeading(text: String, modifier: Modifier = Modifier) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 }
+
+/** The least text room ([textRoomDp]) in which a picker row shows its thumbnail. */
+const val PICKER_THUMBNAIL_MIN_ROOM_DP = 320
+
+/** The least text room ([textRoomDp]) in which a ticked row (the plan builder's), with its tick box, shows its thumbnail. */
+internal const val TICKED_THUMBNAIL_MIN_ROOM_DP = 360
+
+/**
+ * The screen's width in text terms: its width in dp over the font scale, so 360 dp at 130% text counts as about 277.
+ * (On the web, zoom shrinks the CSS width the same way.)
+ */
+@Composable
+internal fun textRoomDp(): Float = LocalConfiguration.current.screenWidthDp / LocalDensity.current.fontScale
 
 @Composable
 private fun BrowserRow(
