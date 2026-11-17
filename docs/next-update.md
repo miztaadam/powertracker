@@ -310,6 +310,10 @@ Plan: `docs/superpowers/plans/2026-11-17-grit-1-11-follow-ups.md`. The owner sai
   - The `lock-setup` screenshot now also waits for the Today screen behind the dialog: the "Install Grit" heading and its icon (2a59dd7). Before, 1 of 20 shots caught it half-loaded; after, 0 of 20, twice.
 - **Found, not fixed (open follow-up):** the Android plan builder breaks 2 names, Chest-supported row and Chest-supported rear delt raise, at 320 dp × 1.3, even with no picture. The row's tick box, equipment and info button leave too little room. It was already so in 1.9. The existing large-text test checks only 360 dp. A fix needs a smaller gap or hyphenation: the owner's or planner's call.
 - **The web picker and plan builder** have no thumbnails in 1.11, as in 1.10.
+- **Tests changed** (all follow from the new Android floors, and the web is unchanged):
+  - `ExercisePictureTest.picker_namesWholeAtFontScale1_3`: "no tiles" became a per-case flag, since at 309 dp of room the tile now shows.
+  - `ExercisePictureTest.picker_thumbnailEdge_319hides_320shows` became `picker_thumbnailEdge_308hides_309shows`.
+  - `ThumbnailsTest.tab_stillWarmsUp_afterATilelessPicker` is replaced by `tab_largeText_startsNoWarmUp` and `tab_stillWarmsUp_afterATilelessPlanBuilder`, because the picker's floor is now below the tab's, so a tile-less picker under a tiled tab can't happen.
 - Not yet tried on a real phone.
 
 ## Web picker thumbnails: tried, waiting

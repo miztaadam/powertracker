@@ -14,7 +14,7 @@
 
 ## Decisions (the owner's "Do them all" covers the work; the owner still says yes before any merge)
 1. **One text-room rule for every list with thumbnails, on both apps.**
-   - A row shows its thumbnail only when the text room is at least 320 (the picker and the Exercises tab), or at least 360 (the plan builder's tick-box rows).
+   - A row shows its thumbnail only when the text room is at least 320 (the picker and the Exercises tab), or at least 360 (the plan builder's tick-box rows). *(As built: Android 309 for the picker and 311 for the tab, the loosest floors that keep every name whole, per Task 3. The web tab is under 320 px.)*
    - Text room is the screen width divided by the font scale on Android, or the viewport width in CSS px on the web, which already includes zoom.
    - Below the rule, there is no tile at all. This is the 1.10 picker rule, extended to the tab.
    - At default text on phones 320 wide and up, nothing changes.
