@@ -33,6 +33,7 @@ import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.plan.PlanScreen
@@ -85,8 +86,10 @@ class PlanScreenTest {
         compose.onNodeWithTag("add-MONDAY").performClick()
         compose.onNodeWithTag("exercise-search").performTextReplacement("Squat")
         compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("exercise-Squat")).fetchSemanticsNodes().isNotEmpty() }
-        // Picking adds it straight away. Defaults for a compound lift are 3 sets x 5 reps @ RPE 8.
+        // Picking opens the form with the defaults for a compound lift, 3 sets x 5 reps @ RPE 8; Add stores them.
         compose.onNodeWithTag("exercise-Squat").performClick()
+        compose.waitUntil(5_000) { compose.onAllNodes(hasText("Add") and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNode(hasText("Add") and hasAnyAncestor(isDialog())).performClick()
 
         compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  3 × 5 @ 8").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("Squat  3 × 5 @ 8").assertExists()
@@ -318,6 +321,8 @@ class PlanScreenTest {
         compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("exercise-Squat")).fetchSemanticsNodes().isNotEmpty() }
         assertEquals(0, haptics.calls.size)
         compose.onNodeWithTag("exercise-Squat").performClick()
+        compose.waitUntil(5_000) { compose.onAllNodes(hasText("Add") and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNode(hasText("Add") and hasAnyAncestor(isDialog())).performClick()
         compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  3 × 5 @ 8").fetchSemanticsNodes().isNotEmpty() }
         assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
 
@@ -329,5 +334,234 @@ class PlanScreenTest {
         compose.onNodeWithText("Edit Monday").assertExists()
         compose.waitForIdle()
         assertEquals(1, haptics.calls.size)
+    }
+
+    // ---- Choosing sets and reps when adding (1.12): picking opens the form; only Add stores ----
+
+    /** Idles between checks, as ExercisePickerTest does: what is stored is read straight from the database. */
+    private fun waitFor(condition: () -> Boolean) = compose.waitUntil(5_000) {
+        compose.waitForIdle()
+        condition()
+    }
+
+    private fun exists(matcher: androidx.compose.ui.test.SemanticsMatcher) = compose.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
+
+    private fun plan(mode: TrainingMode = TrainingMode.POWERLIFTING) = runBlocking { training.plan(mode).first() }
+
+    /** Opens Add on Monday and picks [name] from the list. */
+    private fun pickOnMonday(name: String) {
+        waitFor { exists(hasTestTag("add-MONDAY")) }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        compose.onNodeWithTag("exercise-search").performTextReplacement(name)
+        waitFor { exists(hasTestTag("exercise-$name")) }
+        compose.onNodeWithTag("exercise-$name").performClick()
+    }
+
+    /** The add form is open, for [name], titled for Monday. */
+    private fun assertAddForm(name: String) {
+        waitFor { exists(hasText("Sets") and hasAnyAncestor(isDialog())) }
+        compose.onNode(hasText("Add to Monday") and hasAnyAncestor(isDialog())).assertExists()
+        compose.onNode(hasText(name) and hasAnyAncestor(isDialog())).assertExists()
+        addButton().assertExists()
+        compose.onNode(hasText("Save") and hasAnyAncestor(isDialog())).assertDoesNotExist()
+    }
+
+    /** What the form's [label] stepper shows. */
+    private fun assertField(label: String, value: String) {
+        compose.onNode(hasText(value) and hasAnyAncestor(hasTestTag("plan-field-$label"))).assertExists()
+    }
+
+    private fun addButton() = compose.onNode(hasText("Add") and hasAnyAncestor(isDialog()))
+
+    private fun tap(description: String) = compose.onNodeWithContentDescription(description).performClick()
+
+    /** Runs [node]'s click twice in one go on the UI thread, as two taps landing in the same frame would. */
+    private fun doubleTap(node: androidx.compose.ui.test.SemanticsNodeInteraction) {
+        val click = node.fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsActions.OnClick].action!!
+        compose.runOnUiThread {
+            click()
+            click()
+        }
+    }
+
+    private fun squatId() = runBlocking { training.exercises().first() }.first { it.name == "Squat" }.id
+
+    @Test
+    fun planAdd_pick_opensFormWithDefaults() {
+        runBlocking { settings.update { it.copy(defaultRpe = 7.5) } }
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+
+        assertAddForm("Squat")
+        assertField("Sets", "3")
+        assertField("Reps", "5")
+        assertField("RPE", "7.5")
+        compose.onNodeWithText("Reps from").assertDoesNotExist()
+        compose.waitForIdle()
+        assertTrue(plan().isEmpty())
+    }
+
+    @Test
+    fun planAdd_changeNumbers_addStoresThem() {
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        tap("Increase Sets")
+        tap("Increase Reps")
+        tap("Decrease RPE")
+        assertField("Sets", "4")
+        assertField("Reps", "6")
+        assertField("RPE", "7.5")
+        compose.waitForIdle()
+        assertTrue("nothing is stored before Add", plan().isEmpty())
+
+        addButton().performClick()
+        waitFor { plan().isNotEmpty() }
+        assertEquals(listOf(PlanItem(0, DayOfWeek.MONDAY, squatId(), sets = 4, reps = 6, targetRpe = 7.5, order = 0)), plan().map { it.copy(id = 0) })
+        waitFor { exists(hasText("Squat  4 × 6 @ 7.5")) }
+        compose.onNode(hasText("Sets") and hasAnyAncestor(isDialog())).assertDoesNotExist()
+    }
+
+    @Test
+    fun planAdd_cancel_storesNothing() {
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        tap("Increase Sets")
+        compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick()
+        compose.waitForIdle()
+        compose.onNode(hasText("Sets") and hasAnyAncestor(isDialog())).assertDoesNotExist()
+        assertTrue(plan().isEmpty())
+
+        // Change, then Cancel: nothing either.
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        tap("Change exercise")
+        compose.onNodeWithTag("exercise-search").performTextReplacement("curl")
+        waitFor { exists(hasTestTag("exercise-Curl")) }
+        compose.onNodeWithTag("exercise-Curl").performClick()
+        waitFor { exists(hasText("Curl") and hasAnyAncestor(isDialog())) }
+        compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick()
+        compose.waitForIdle()
+        assertTrue(plan().isEmpty())
+    }
+
+    @Test
+    fun planAdd_bodybuilding_storesRange() {
+        runBlocking { settings.update { com.powertracker.data.AppSettings(trainingMode = TrainingMode.BODYBUILDING) } }
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Curl")
+
+        assertAddForm("Curl")
+        assertField("Sets", "3")
+        assertField("Reps from", "8")
+        assertField("Reps to", "12")
+        assertField("RPE", "8")
+        tap("Decrease Reps from")
+        tap("Increase Reps to")
+        tap("Increase Reps to")
+        compose.waitForIdle()
+        assertTrue(plan(TrainingMode.BODYBUILDING).isEmpty())
+
+        addButton().performClick()
+        waitFor { plan(TrainingMode.BODYBUILDING).isNotEmpty() }
+        val item = plan(TrainingMode.BODYBUILDING).single()
+        assertEquals(listOf(3, 7, 14), listOf(item.sets, item.reps, item.repsHigh))
+        assertEquals(8.0, item.targetRpe, 0.0)
+        assertEquals(DayOfWeek.MONDAY, item.weekday)
+        assertTrue(plan(TrainingMode.POWERLIFTING).isEmpty())
+        waitFor { exists(hasText("Curl  3 × 7–14 @ 8")) }
+    }
+
+    @Test
+    fun planAdd_ownExercise_opensForm() {
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        fun create(name: String) {
+            waitFor { exists(hasTestTag("add-MONDAY")) }
+            compose.onNodeWithTag("add-MONDAY").performClick()
+            compose.onNodeWithTag("exercise-search").performTextReplacement("zzz")
+            compose.onNodeWithText("Create your own").performClick()
+            compose.onNodeWithText("Name").performTextReplacement(name)
+            compose.onNodeWithText("Create").performClick()
+        }
+        fun rows(name: String) = runBlocking { db.exercises().all() }.filter { it.name == name }
+
+        // Created, then Cancel: it stays in the library, and nothing is added.
+        create("Tyre flip")
+        assertAddForm("Tyre flip")
+        assertEquals(1, rows("Tyre flip").size)
+        compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick()
+        compose.waitForIdle()
+        assertEquals(1, rows("Tyre flip").size)
+        assertTrue(plan().isEmpty())
+
+        // Created, then Add: stored with the chosen numbers.
+        create("Sled push")
+        assertAddForm("Sled push")
+        tap("Increase Sets")
+        addButton().performClick()
+        waitFor { plan().isNotEmpty() }
+        val item = plan().single()
+        assertEquals(rows("Sled push").single().id, item.exerciseId)
+        assertEquals(4, item.sets)
+    }
+
+    @Test
+    fun planAdd_doubleTapAdd_storesOne() {
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+
+        doubleTap(addButton())
+        waitFor { plan().isNotEmpty() }
+        compose.waitForIdle()
+        assertEquals(1, plan().size)
+    }
+
+    @Test
+    fun planAdd_survivesRecreation() {
+        val restoration = androidx.compose.ui.test.junit4.StateRestorationTester(compose)
+        restoration.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        tap("Increase Sets")
+        tap("Increase Sets")
+        assertField("Sets", "5")
+
+        restoration.emulateSavedInstanceStateRestore()
+
+        assertAddForm("Squat")
+        assertField("Sets", "5")
+        assertField("Reps", "5")
+        compose.waitForIdle()
+        assertTrue(plan().isEmpty())
+        addButton().performClick()
+        waitFor { plan().isNotEmpty() }
+        assertEquals(listOf(5 to 5), plan().map { it.sets to it.reps })
+        assertEquals(squatId(), plan().single().exerciseId)
+    }
+
+    @Test
+    fun planAdd_ticksOnceWhenStored() {
+        val haptics = FakeHapticFeedback()
+        compose.setContent { WithHaptics(haptics) { PlanScreen(training, settings, onOpenSettings = {}) } }
+
+        // Picking, stepping and Cancel are quiet.
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        tap("Increase Sets")
+        compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick()
+        compose.waitForIdle()
+        assertEquals(0, haptics.calls.size)
+
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        compose.waitForIdle()
+        assertEquals(0, haptics.calls.size)
+        addButton().performClick()
+        waitFor { plan().isNotEmpty() }
+        waitFor { haptics.calls.isNotEmpty() }
+        compose.waitForIdle()
+        assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
     }
 }
