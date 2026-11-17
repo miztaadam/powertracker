@@ -32,6 +32,10 @@
    - On Android, a picture shows in the first frame if it is ready. The tab's warm-up and now the picker's make most pictures ready.
    - The 100 ms speed checks stay exactly as they are and must pass.
 3. **If the web can't keep its speed.** Android ships with the thumbnails anyway. On the web the picker stays without them, and I come back to you with the timings. Nothing ships slower.
+   - **Outcome (2026-11-17):**
+     - **The web waits.** The web picker and plan builder ship in 1.10 without thumbnails; the web's code is as in 1.9.
+     - **Three rounds** (one batch after the names; 2 at a time; 2 at a time with a gap after each) each moved about 10 ms of drawing rather than removing it, and each missed the bar.
+     - **Android:** the room for a row is the screen's width over the text size (`screenWidthDp / fontScale`). Picker rows show the thumbnail from 320 dp of room and the plan builder's tick-box rows from 360 dp. Below that they show no tile at all.
 
 ## Global Constraints
 - **Every feature stays.** Existing tests pass unedited, except these two, which pinned "the picker has no thumbnails" and are turned around:
