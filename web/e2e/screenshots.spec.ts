@@ -204,6 +204,9 @@ for (const scheme of ['dark', 'light'] as const) {
     })
     await page.reload()
     await expect(page.getByRole('dialog', { name: 'Set up App lock again?' })).toBeVisible()
+    // The screen behind the dialog is in the shot too: Today with its install card, and the card's icon loaded.
+    await expect(page.getByRole('heading', { name: 'Install Grit' })).toBeVisible()
+    await expect.poll(() => page.locator('img.install-icon').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
     await shoot(page, `lock-setup-${scheme}`)
   })
 

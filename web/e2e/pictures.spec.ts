@@ -327,6 +327,53 @@ test('exercisesTab_customExercise_showsEmptyTile', async ({ page }) => {
   expect(await own.locator('.lib-thumb').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe((await tokens(page))['--container-high'])
 })
 
+/**
+ * The catalogue names on the tab that break inside a word: a word whose letters are laid out on more than one line.
+ * A hyphen is a place a line may end, so "Safety-bar" over two lines at its hyphen is two whole words.
+ * Every row is laid out for this, rows off screen too (they skip layout through `content-visibility` otherwise).
+ */
+const namesBrokenInsideAWord = (page: Page) =>
+  page.locator('.shell-main .lib-scroll').evaluate((list) => {
+    const laidOut = document.createElement('style')
+    laidOut.textContent = '.lib-row { content-visibility: visible !important; }'
+    document.head.append(laidOut)
+    const broken: string[] = []
+    for (const name of list.querySelectorAll('.lib-row-name')) {
+      const text = name.firstChild
+      if (text == null || text.nodeType !== Node.TEXT_NODE) continue
+      for (const word of text.textContent!.matchAll(/[^\s-]+/g)) {
+        const range = document.createRange()
+        range.setStart(text, word.index)
+        range.setEnd(text, word.index + word[0].length)
+        if (new Set(Array.from(range.getClientRects(), (r) => Math.round(r.top))).size > 1) {
+          broken.push(name.textContent!)
+          break
+        }
+      }
+    }
+    laidOut.remove()
+    return broken
+  })
+
+test('exercisesTab_namesWholeAt288', async ({ page }) => {
+  // A 375 px phone at 130% zoom: 288 CSS px of room. Under 320 a row has no tile at all, so every name stays whole.
+  await page.setViewportSize({ width: 288, height: 625 })
+  await openTab(page)
+  await expect.poll(() => page.locator('.shell-main .lib-row').count()).toBeGreaterThanOrEqual(grit.library().length)
+  expect(await namesBrokenInsideAWord(page)).toEqual([])
+  for (const tile of await boxes(page.locator('.shell-main .lib-thumb'))) expect([tile.width, tile.height]).toEqual([0, 0])
+  // The name starts where the tile would have been, and nothing reaches past the phone.
+  const benchRow = await box(row(page, 'Bench').getByRole('button', { name: 'Open Bench' }))
+  expect((await box(row(page, 'Bench').locator('.lib-row-name'))).left - benchRow.left).toBeLessThan(56)
+  expect(await overflowing(page)).toEqual([])
+
+  // From 320 px the tiles are back, and the names are still whole.
+  await page.setViewportSize({ width: 320, height: 693 })
+  await expect.poll(async () => (await box(row(page, 'Bench').locator('.lib-thumb'))).width).toBeCloseTo(56, 0)
+  await expect(row(page, 'Bench').locator('.lib-thumb svg.fig')).toHaveCount(1)
+  expect(await namesBrokenInsideAWord(page)).toEqual([])
+})
+
 test('picker_hasNoThumbnails', async ({ page }) => {
   await openOnWednesday(page, '#/plan')
   await page.getByRole('region', { name: 'Monday' }).getByRole('button', { name: 'Add' }).click()
