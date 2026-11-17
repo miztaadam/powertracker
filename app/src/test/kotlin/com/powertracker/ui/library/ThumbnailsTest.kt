@@ -100,9 +100,13 @@ class ThumbnailsTest {
 
     private var showing by mutableStateOf(true)
 
+    /** Text size: overrides the font scale the rows read their room from. */
+    private var fontScale by mutableStateOf(1f)
+
     private fun show(loader: ThumbnailLoader, content: @Composable () -> Unit) {
         compose.setContent {
-            CompositionLocalProvider(LocalThumbnails provides loader) {
+            val density = androidx.compose.ui.platform.LocalDensity.current
+            CompositionLocalProvider(LocalThumbnails provides loader, androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(density.density, fontScale)) {
                 PowertrackerTheme(darkTheme = true) { Box { if (showing) content() } }
             }
         }
@@ -407,6 +411,68 @@ class ThumbnailsTest {
         val w = b.width.toInt()
         val h = b.height.toInt()
         return IntArray(w * h).also { shot.getPixels(it, 0, w, b.left.toInt(), b.top.toInt(), w, h) }.toList()
+    }
+
+    private fun showBuilder(loader: ThumbnailLoader) = show(loader) {
+        val state = com.powertracker.ui.plan.builder.PlanBuilderState(
+            loading = false,
+            mode = com.powertracker.domain.model.TrainingMode.BODYBUILDING,
+            step = com.powertracker.ui.plan.builder.BuilderStep.EXERCISES,
+            exercises = seeded,
+        )
+        com.powertracker.ui.plan.builder.PlanBuilderContent(state, com.powertracker.ui.plan.builder.PlanBuilderActions())
+    }
+
+    /** A picker with no room for thumbnails (130% text at 320 dp) asks for no warm-up and works nothing out. */
+    @Test
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun picker_largeText_startsNoWarmUp() {
+        fontScale = 1.3f
+        val recording = Recording()
+        val loader = loader(recording, Dispatchers.Default)
+        showPicker(loader)
+        compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Bench"))
+        Thread.sleep(200)
+        compose.waitForIdle()
+
+        assertFalse("no warm-up asked", loader.warmUpRequested)
+        assertTrue("nothing worked out: ${recording.looked.take(5)}", recording.looked.isEmpty())
+    }
+
+    /** The same for the plan builder: 130% text at 320 dp leaves its ticked rows no room, so no warm-up. */
+    @Test
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun planBuilder_largeText_startsNoWarmUp() {
+        fontScale = 1.3f
+        val recording = Recording()
+        val loader = loader(recording, Dispatchers.Default)
+        showBuilder(loader)
+        Thread.sleep(200)
+        compose.waitForIdle()
+
+        assertFalse("no warm-up asked", loader.warmUpRequested)
+        assertTrue("nothing worked out: ${recording.looked.take(5)}", recording.looked.isEmpty())
+    }
+
+    /** After a picker that showed no tiles, the Exercises tab (which keeps its thumbnails at any size) still warms up. */
+    @Test
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun tab_stillWarmsUp_afterATilelessPicker() {
+        fontScale = 1.3f
+        val recording = Recording()
+        val loader = loader(recording, Dispatchers.Default)
+        var tab by mutableStateOf(false)
+        show(loader) {
+            if (tab) ExercisesContent(seeded + own, recentIds = listOf(seeded.first { it.name == "Bench" }.id), onOpen = {})
+            else ExercisePickerContent("Add to Monday", seeded + own, listOf(seeded.first { it.name == "Bench" }.id), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {})
+        }
+        assertFalse(loader.warmUpRequested)
+
+        tab = true
+        compose.waitForIdle()
+        assertTrue("the tab asks for the warm-up", loader.warmUpRequested)
+        compose.waitUntil(60_000) { catalogue.all { loader.peek(it) != null } }
+        assertEquals("each worked out once", catalogue.size, recording.looked.size)
     }
 
     @Test

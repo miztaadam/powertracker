@@ -326,20 +326,18 @@ class ExercisePictureTest {
 
     /** The plan builder's exercises step with [longNames] stored and ticked: each is under "Chosen" and in the list. */
     private fun showBuilderWithLongNamesTicked(fontScale: Float = 1f) {
-        val ticks = longNames.mapIndexed { i, n ->
+        val stored = longNames.mapIndexed { i, n ->
             val lib = Library.find(n)!!
             Exercise(100L + i, lib.name, lib.category, lib.parentLift, lib.muscles, isBuiltIn = true)
         }
-        // The list holds the whole catalogue whatever is stored; these are stored so they can be ticked.
-        val stored = ticks
-        val entries = ticks.map(com.powertracker.ui.plan.builder.PlanBuilderViewModel::entryFor)
+        val entries = stored.map(com.powertracker.ui.plan.builder.PlanBuilderViewModel::entryFor)
         val ticked = entries.associate { com.powertracker.ui.plan.builder.pickKey(it) to com.powertracker.ui.plan.builder.PlanBuilderViewModel.chosen(it) }
         val state = com.powertracker.ui.plan.builder.PlanBuilderState(
             loading = false,
             mode = TrainingMode.BODYBUILDING,
             step = com.powertracker.ui.plan.builder.BuilderStep.EXERCISES,
             exercises = stored,
-            recentIds = ticks.map { it.id },
+            recentIds = stored.map { it.id },
             ticked = ticked,
         )
         mode = TrainingMode.BODYBUILDING
@@ -512,6 +510,32 @@ class ExercisePictureTest {
         assertEquals("every catalogue name checked", Library.all().size, seen)
         assertTrue("130% text, broken inside a word: $broken", broken.isEmpty())
         assertEquals("no tiles at 130% text", 0, thumbnailCount())
+    }
+
+    /** At the edge of the picker's room: 319 dp at the default text size has no tile, 320 dp has one. */
+    @Test
+    @Config(qualifiers = "w319dp-h2400dp-xhdpi")
+    fun picker_thumbnailEdge_319hides_320shows() {
+        for ((width, tiles) in listOf(319 to false, 320 to true)) {
+            scenario?.close()
+            RuntimeEnvironment.setQualifiers("w${width}dp-h2400dp-xhdpi")
+            showPicker(1f)
+            compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Bench"))
+            assertEquals("tiles at $width dp", tiles, thumbnailCount() > 0)
+        }
+    }
+
+    /** At the edge of a ticked row's room: 359 dp at the default text size has no tile, 360 dp has one. */
+    @Test
+    @Config(qualifiers = "w359dp-h2400dp-xhdpi")
+    fun planBuilder_thumbnailEdge_359hides_360shows() {
+        for ((width, tiles) in listOf(359 to false, 360 to true)) {
+            scenario?.close()
+            RuntimeEnvironment.setQualifiers("w${width}dp-h2400dp-xhdpi")
+            showBuilderWithLongNamesTicked()
+            compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("chosen-Concentration curl"))
+            assertEquals("tiles at $width dp", tiles, thumbnailCount() > 0)
+        }
     }
 
     @Test
