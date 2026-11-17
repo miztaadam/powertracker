@@ -470,17 +470,30 @@ class ThumbnailsTest {
         assertTrue("nothing worked out: ${recording.looked.take(5)}", recording.looked.isEmpty())
     }
 
-    /** After a picker that showed no tiles (115% text at 360 dp), the Exercises tab, which keeps its thumbnails there, still warms up. */
+    /**
+     * After a plan builder that showed no tiles (115% text at 360 dp), the Exercises tab, which keeps its thumbnails there,
+     * still warms up. (The picker cannot stand in: its floor is below the tab's, so it never hides its tiles where the tab
+     * shows them.)
+     */
     @Test
     @Config(qualifiers = "w360dp-h2400dp-xhdpi")
-    fun tab_stillWarmsUp_afterATilelessPicker() {
+    fun tab_stillWarmsUp_afterATilelessPlanBuilder() {
         fontScale = 1.15f
         val recording = Recording()
         val loader = loader(recording, Dispatchers.Default)
         var tab by mutableStateOf(false)
         show(loader) {
-            if (tab) ExercisesContent(seeded + own, recentIds = listOf(seeded.first { it.name == "Bench" }.id), onOpen = {})
-            else ExercisePickerContent("Add to Monday", seeded + own, listOf(seeded.first { it.name == "Bench" }.id), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {})
+            if (tab) {
+                ExercisesContent(seeded + own, recentIds = listOf(seeded.first { it.name == "Bench" }.id), onOpen = {})
+            } else {
+                val state = com.powertracker.ui.plan.builder.PlanBuilderState(
+                    loading = false,
+                    mode = com.powertracker.domain.model.TrainingMode.BODYBUILDING,
+                    step = com.powertracker.ui.plan.builder.BuilderStep.EXERCISES,
+                    exercises = seeded,
+                )
+                com.powertracker.ui.plan.builder.PlanBuilderContent(state, com.powertracker.ui.plan.builder.PlanBuilderActions())
+            }
         }
         assertFalse(loader.warmUpRequested)
 

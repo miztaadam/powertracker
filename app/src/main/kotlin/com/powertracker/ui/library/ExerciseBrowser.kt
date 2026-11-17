@@ -552,8 +552,12 @@ private fun ListHeading(text: String, modifier: Modifier = Modifier) {
     )
 }
 
-/** The least text room ([textRoomDp]) in which a picker row shows its thumbnail. */
-const val PICKER_THUMBNAIL_MIN_ROOM_DP = 320
+/**
+ * The least text room ([textRoomDp]) in which a picker row shows its thumbnail. Measured: with the tile, 308 dp of room
+ * on a 320 dp screen breaks "Chest-supported row" inside a word, 309 keeps every catalogue name whole. So 360 dp at 115%
+ * text (313) keeps the pictures.
+ */
+const val PICKER_THUMBNAIL_MIN_ROOM_DP = 309
 
 /** The least text room ([textRoomDp]) in which a ticked row (the plan builder's), with its tick box, shows its thumbnail. */
 internal const val TICKED_THUMBNAIL_MIN_ROOM_DP = 360

@@ -474,19 +474,24 @@ class ExercisePictureTest {
 
     private fun thumbnailCount(): Int = nodes("exercise-thumbnail").size
 
-    /** At 130% text the picker leaves the thumbnails out at 320 and 360 dp, so no catalogue name breaks inside a word. */
+    /**
+     * At 130% text the picker leaves the thumbnails out at 320 and 360 dp, so no catalogue name breaks inside a word. At
+     * its edge ([PICKER_THUMBNAIL_MIN_ROOM_DP] of text room on a 320 dp screen, the narrowest) and at 360 dp at 115% it
+     * keeps them, and the names still stay whole.
+     */
     @Test
     @Config(qualifiers = "w320dp-h2400dp-xhdpi")
     fun picker_namesWholeAtFontScale1_3() {
-        for (width in listOf(320, 360)) {
+        val edge = 320f / PICKER_THUMBNAIL_MIN_ROOM_DP
+        for ((width, scale, tiles) in listOf(Triple(320, 1.3f, false), Triple(360, 1.3f, false), Triple(320, edge, true), Triple(360, 1.15f, true))) {
             scenario?.close()
             RuntimeEnvironment.setQualifiers("w${width}dp-h2400dp-xhdpi")
-            showPicker(1.3f)
+            showPicker(scale)
             assertEquals(toPx(width), compose.onRoot().fetchSemanticsNode().boundsInRoot.width, 0.5f)
+            assertEquals("tiles at $width dp, text x$scale", tiles, thumbnailCount() > 0)
             val (broken, seen) = namesBrokenInsideAWord()
-            assertEquals("every catalogue name checked at $width dp", Library.all().size, seen)
-            assertTrue("at $width dp, 130% text, broken inside a word: $broken", broken.isEmpty())
-            assertEquals("no tiles at $width dp, 130% text", 0, thumbnailCount())
+            assertEquals("every catalogue name checked at $width dp, text x$scale", Library.all().size, seen)
+            assertTrue("at $width dp, text x$scale, broken inside a word: $broken", broken.isEmpty())
         }
     }
 
@@ -541,11 +546,11 @@ class ExercisePictureTest {
         }
     }
 
-    /** At the edge of the picker's room: 319 dp at the default text size has no tile, 320 dp has one. */
+    /** At the edge of the picker's room: 308 dp at the default text size has no tile, 309 dp has one. */
     @Test
-    @Config(qualifiers = "w319dp-h2400dp-xhdpi")
-    fun picker_thumbnailEdge_319hides_320shows() {
-        for ((width, tiles) in listOf(319 to false, 320 to true)) {
+    @Config(qualifiers = "w308dp-h2400dp-xhdpi")
+    fun picker_thumbnailEdge_308hides_309shows() {
+        for ((width, tiles) in listOf(308 to false, 309 to true)) {
             scenario?.close()
             RuntimeEnvironment.setQualifiers("w${width}dp-h2400dp-xhdpi")
             showPicker(1f)
