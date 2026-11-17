@@ -286,6 +286,14 @@
   aspect-ratio: 4 / 3;
 }
 
+/* Under 320 px of room (a 375 px phone at 130% zoom is 288) the tile would leave too little for the name, and long
+   words such as "Concentration" break inside: there is no tile at all, as in the picker on Android. */
+@media (max-width: 319px) {
+  .lib-thumb {
+    display: none;
+  }
+}
+
 .lib-row-equipment {
   flex: none;
   color: var(--text-muted);
