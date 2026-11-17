@@ -9,7 +9,13 @@
 - **Web:** `<ExerciseBrowser thumbnails>` in `ExercisePicker.tsx` and `PlanBuilderScreen.tsx`. The tab's `ExerciseThumbnail` already draws only tiles on or near the screen, from shapes worked out at build time (`thumbnails.ts`).
 - **The web's speed:**
   - **Where it stands:** a quick try on 2026-11-16 made the picker's first open about 8 ms slower on average, and 3 of 12 speed runs went over 100 ms (worst 114 ms).
-  - **The fix:** in the picker, rows are drawn first and their pictures one moment later, after the list has settled. The empty tile is there from the start at full size, so nothing moves when a picture arrives.
+  - **What the check measures:** the speed check (`settle` in `e2e/library.spec.ts`) times a tap or a keystroke plus two frames. The tab's pictures are drawn when their row's watcher fires, which happens inside those two frames. So the earlier cost is the tiles, the watchers or the drawing, and which of these is not yet known.
+  - **The approach:** Task 2 first measures where the cost is, then picks the fix.
+  - **What is promised:**
+    - the speed checks unchanged;
+    - the pictures for the first screenful drawn within 250 ms of the open;
+    - nothing moving when a picture arrives, because the empty tile is there from the start at full size.
+  - **Not allowed:** pushing the work just past the measured window. A keystroke straight after the open, while pictures are still coming, must still settle within 100 ms.
 
 **Tech Stack:** Kotlin, Compose BOM 2026.02.01, Robolectric; React 18, vitest, Playwright.
 
@@ -22,7 +28,7 @@
    - the plan builder's exercise list.
 
    Your own exercises have no figure, so they get the empty tile, as on the Exercises tab, which keeps the names lined up. The muscle grid and the chips are unchanged.
-2. **Rows first, then pictures.** When the picker opens, or after you type or change a filter, the names appear at once as today, and the pictures fill in a moment later.
+2. **Names at once, pictures straight after.** When the picker opens, or after you type or change a filter, the names appear at once as today. The pictures are all in within a quarter of a second.
    - On Android, a picture shows in the first frame if it is ready. The tab's warm-up and now the picker's make most pictures ready.
    - The 100 ms speed checks stay exactly as they are and must pass.
 3. **If the web can't keep its speed.** Android ships with the thumbnails anyway. On the web the picker stays without them, and I come back to you with the timings. Nothing ships slower.
@@ -32,7 +38,7 @@
   - Android `ExercisePictureTest.picker_hasNoThumbnails` and `ThumbnailsTest.picker_startsNoThumbnailWork`;
   - web `pictures.spec.ts`, `ExercisePicture.test.tsx` `picker_hasNoThumbnails`.
 
-  List any other test that changes, with the reason.
+  Before starting, grep for other assertions that the picker or plan builder has none (`svg.fig`, `.lib-thumb`). List any other test that changes, with the reason.
 - **Speed:** the speed checks are timed against 1.9.0, alternating builds, 16+ opens each. The web checks are `library.spec.ts` (picker open, keystrokes, filters, a few hundred exercises, the muscle grid) and `pictures.spec.ts`; the Android one is "no thumbnail worked out on the main thread".
   - **The bar:** the picker's median first open is within 3 ms of 1.9.0, its worst open within 10 ms, and 5 quiet speed runs pass 5 of 5.
   - The Exercises tab must not get slower.
@@ -78,8 +84,8 @@
 ### Task 2: Web picker thumbnails (beside Task 1)
 **Files:**
 - `screens/library/ExercisePicker.tsx` and `screens/plan/builder/PlanBuilderScreen.tsx`: pass `thumbnails`.
-- `screens/library/ExercisePicture.tsx`: add `ExerciseThumbnail({ name, later }: { name?: string | null; later?: boolean })`. With `later`, a tile's drawing waits until the list has settled, after the next two frames, and after any later search, through the existing watcher.
-- `screens/library/ExerciseBrowser.tsx`: pass `later` through only for the picker. The Exercises tab is unchanged.
+- `screens/library/ExercisePicture.tsx` and `ExerciseBrowser.tsx`: only as the diagnosis below calls for. The Exercises tab's behaviour and timing are unchanged.
+- **Note on the clock:** the Playwright speed project fakes `requestAnimationFrame` and `performance.now`, so frame-based delays don't behave there as on a phone. Any delay must use real timing (`setTimeout` or `requestIdleCallback` with a timeout). The 250 ms deadline is checked in the `e2e` project, which runs on a real clock with motion on.
 
 **Steps:**
 - [ ] Turn vitest `picker_hasNoThumbnails` into `picker_rowsShowThumbnail`: once settled, Bench's tile holds its picture, and your own exercise's tile is empty and the same size.
@@ -88,10 +94,19 @@
   - `picker_search_eachRowShowsItsOwnPicture`;
   - `picker_noOverflow_at320_and375`;
   - `planBuilder_tickedRow_fitsAt320`.
-- [ ] **Time it.** Run the 1.9.0 build and this build alternately, 16+ opens each, with `library.spec.ts` and `pictures.spec.ts`. Record the medians and worst opens in the report.
-  - If it meets the bar in Global Constraints, carry on.
-  - If not, try `requestIdleCallback` (with a timeout of 200 ms) in place of two frames, and time it again.
-  - If it still misses, stop and report. That is owner decision 3.
+- [ ] **Diagnose first, before any fix.** Time against 1.9.0, alternating builds, 16+ opens each, with `library.spec.ts` and `pictures.spec.ts`, in two variants:
+  - (a) the flag simply switched on;
+  - (b) empty tiles only, with no watcher and no drawing.
+
+  Record the medians and worst opens of both in the report.
+- [ ] **Pick the fix from that:**
+  - If (a) meets the bar, ship (a).
+  - If the drawing is the cost, draw the first screenful's pictures in one batch after the rows are painted, on a real timer.
+  - If the tiles or watchers are the cost, use one watcher for the list rather than one per row, or a lighter tile.
+
+  Re-time it after the fix. If it still misses the bar, stop and report: that is owner decision 3.
+- [ ] Add e2e `picker_firstScreenfulPictures_within250ms` (motion on, real clock).
+- [ ] Add a speed check `picker_keystrokeWhilePicturesArrive_settlesWithin100ms`, using `settle` straight after the open.
 - [ ] Run `npm test`, typecheck and the full e2e. Re-shoot the screenshots with `UPDATE_SCREENSHOTS=1`. Only picker and plan-builder PNGs should change, apart from the known form-guide noise; list them.
 - [ ] Commit: `feat(web): thumbnails in the exercise picker`.
 
