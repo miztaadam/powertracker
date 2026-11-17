@@ -184,7 +184,7 @@ fun rememberExerciseBrowserState(muscleFilter: MuscleFilter, initialMuscle: Musc
 /**
  * Browsing the catalogue and the lifter's own exercises, shared by the picker and the Exercises tab:
  * search, body-area chips (one at a time), equipment chips (any of the chosen), then the rows, each
- * with its info button and, on the Exercises tab, its thumbnail. What a row tap and an info tap do is up to the screen.
+ * with its info button and, where [showThumbnails] is set, its thumbnail. What a row tap and an info tap do is up to the screen.
  *
  * By muscle it works one of two ways ([ExerciseBrowserState.muscleFilter]). As a grid, tiles lead
  * the list while nothing is searched and no body area is chosen; a tile lists that muscle's
@@ -208,7 +208,7 @@ fun ExerciseBrowser(
     modifier: Modifier = Modifier,
     /** Opens "Create your own"; null where exercises are only browsed. */
     onCreate: (() -> Unit)? = null,
-    /** A small picture at the left of each row: the Exercises tab has them, the picker does not. */
+    /** A small picture at the left of each row: the Exercises tab and the picker have them, the plan builder does not. */
     showThumbnails: Boolean = false,
     /**
      * Multi-select: when set, every row is a tick box showing whether its exercise is chosen, and a row tap ([onRow])
@@ -240,8 +240,9 @@ fun ExerciseBrowser(
     BackHandler(enabled = muscle != null) { state.browse(null) }
     if (showThumbnails) {
         val thumbnails = LocalThumbnails.current
-        // The head start: from the list's first showing, the loader's worker works out every catalogue thumbnail,
-        // in the order this list shows them. Only the first call counts, so it runs once per process.
+        // The head start: from the first showing of any list with thumbnails (the tab or the picker),
+        // the loader's worker works out every catalogue thumbnail, in the order that list shows them. Only the first
+        // call counts, so it runs once per process.
         LaunchedEffect(thumbnails) { thumbnails.warmUp(thumbnailOrder(list, byArea && area == null)) }
     }
 

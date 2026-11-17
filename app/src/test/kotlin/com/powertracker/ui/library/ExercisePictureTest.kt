@@ -43,6 +43,7 @@ import com.powertracker.domain.library.figure
 import com.powertracker.domain.library.figures.Role
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.seed.SeedLibrary
 import com.powertracker.ui.design.assertTextsFit
 import com.powertracker.ui.theme.DarkColorScheme
@@ -68,8 +69,8 @@ import org.robolectric.annotation.GraphicsMode
 import kotlin.math.abs
 
 /**
- * The exercise pictures: the two-pose picture in the guide sheet and the thumbnails on the Exercises tab. "Bench" is
- * the exercise with a figure; a lookup that finds nothing stands in for one without.
+ * The exercise pictures: the two-pose picture in the guide sheet and the thumbnails on the Exercises tab and in the
+ * picker. "Bench" is the exercise with a figure; a lookup that finds nothing stands in for one without.
  */
 // Native graphics, so text is measured at its real size and the canvas really draws: the checks here depend on both.
 @RunWith(RobolectricTestRunner::class)
@@ -83,6 +84,7 @@ class ExercisePictureTest {
     private var scenario: ActivityScenario<ComponentActivity>? = null
 
     private var dark by mutableStateOf(true)
+    private var mode = TrainingMode.POWERLIFTING
 
     private val bench = Library.figure("Bench")!!
     private val label = "Picture: ${bench.startCaption}, then ${bench.endCaption}."
@@ -97,7 +99,7 @@ class ExercisePictureTest {
         RuntimeEnvironment.setFontScale(fontScale)
         scenario = ActivityScenario.launch(ComponentActivity::class.java).onActivity { activity ->
             activity.setContent {
-                PowertrackerTheme(darkTheme = dark) { Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) { content() } }
+                PowertrackerTheme(mode = mode, darkTheme = dark) { Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) { content() } }
             }
         }
         compose.waitForIdle()
@@ -270,14 +272,49 @@ class ExercisePictureTest {
         assertEquals("nothing is drawn on it", 0, colours.of(DarkColorScheme.onSurface) + colours.of(DarkPtColors.muted) + colours.of(DarkPtColors.accent))
     }
 
-    @Test
-    fun picker_hasNoThumbnails() {
-        val seeded = SeedLibrary.exercises()
-        show { ExercisePickerContent("Add to Monday", seeded + own, listOf(seeded.first { it.name == "Bench" }.id), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {}) }
+    private fun tileOf(row: String): SemanticsNode =
+        compose.onNode(hasTestTag("exercise-thumbnail") and hasAnyAncestor(hasTestTag(row)), useUnmergedTree = true).fetchSemanticsNode()
 
-        compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Bench"))
-        compose.onNodeWithTag("exercise-Bench", useUnmergedTree = true).assertExists()
-        compose.onAllNodesWithTag("exercise-thumbnail", useUnmergedTree = true).assertCountEquals(0)
+    private fun drawnIn(row: String): Boolean =
+        compose.onAllNodes(hasTestTag("thumbnail-drawing") and hasAnyAncestor(hasTestTag(row)), useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+
+    private fun textIn(row: String, text: String): SemanticsNode =
+        compose.onNode(androidx.compose.ui.test.hasText(text) and hasAnyAncestor(hasTestTag(row)), useUnmergedTree = true).fetchSemanticsNode()
+
+    @Test
+    fun picker_rowsShowThumbnail() {
+        val seeded = SeedLibrary.exercises()
+        for (side in TrainingMode.entries) {
+            scenario?.close()
+            mode = side
+            show { ExercisePickerContent("Add to Monday", seeded + own, listOf(seeded.first { it.name == "Bench" }.id), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {}) }
+
+            val list = compose.onNodeWithTag("exercise-list")
+            list.performScrollToNode(hasTestTag("exercise-Bench"))
+            // The thumbnail is worked out in the background: wait for its drawing.
+            compose.waitUntil(10_000) { drawnIn("exercise-Bench") }
+            val row = node("exercise-Bench").boundsInRoot
+            val tile = tileOf("exercise-Bench")
+            // The tab's tile: about 56 × 40, at the left of the row, before the name, centred in the row's height.
+            assertEquals("$side", toPx(56), tile.boundsInRoot.width, 1f)
+            assertEquals("$side", toPx(40), tile.boundsInRoot.height, 1f)
+            assertEquals("$side", toPx(16), tile.boundsInRoot.left - row.left, 1f)
+            val benchName = textIn("exercise-Bench", "Bench").boundsInRoot
+            assertTrue("$side: the thumbnail is left of the name", tile.boundsInRoot.right < benchName.left)
+            assertEquals("$side", row.center.y, tile.boundsInRoot.center.y, 1f)
+            // Decorative, as on the tab: it says nothing, and the row's spoken name is unchanged.
+            assertNull(tile.config.getOrNull(SemanticsProperties.ContentDescription))
+            assertTrue(compose.onAllNodes(hasTestTag("exercise-thumbnail")).fetchSemanticsNodes().isEmpty())
+            compose.onNodeWithTag("exercise-Bench").assertHeightIsAtLeast(Space.touch)
+
+            // The lifter's own exercise: an empty tile of the same size, so its name lines up with Bench's.
+            list.performScrollToNode(hasTestTag("exercise-Tyre flip"))
+            val ownTile = tileOf("exercise-Tyre flip").boundsInRoot
+            assertEquals("$side: the same size as a drawn thumbnail", tile.boundsInRoot.size, ownTile.size)
+            assertEquals("$side", tile.boundsInRoot.left, ownTile.left, 0.5f)
+            assertFalse("$side: nothing is drawn for it", drawnIn("exercise-Tyre flip"))
+            assertEquals("$side: names stay aligned", benchName.left, textIn("exercise-Tyre flip", "Tyre flip").boundsInRoot.left, 0.5f)
+        }
     }
 
     @Test

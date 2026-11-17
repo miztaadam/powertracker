@@ -178,8 +178,8 @@ fun ExercisePickerScreen(
 }
 
 /**
- * The picker without its window: the shared [ExerciseBrowser] on its muscle grid, under a title and
- * a close button. Tapping a row picks it; tapping its info button only opens the guide.
+ * The picker without its window: the shared [ExerciseBrowser] on its muscle grid, each row with its thumbnail, under a
+ * title and a close button. Tapping a row picks it; tapping its info button only opens the guide.
  */
 @Composable
 fun ExercisePickerContent(
@@ -224,6 +224,7 @@ fun ExercisePickerContent(
             onInfo = { guideFor = it.name },
             rowLabel = { "Add $it" },
             onCreate = { creating = true },
+            showThumbnails = true,
         )
     }
 

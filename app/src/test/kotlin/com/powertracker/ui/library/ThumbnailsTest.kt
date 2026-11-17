@@ -16,8 +16,14 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import com.powertracker.domain.library.Library
@@ -49,8 +55,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * The Exercises tab's thumbnails are worked out by a background worker: never on the main thread, an empty tile until
- * ready, no flash once ready, a head start for the whole catalogue, and nothing for the picker or own exercises. Each
+ * The thumbnails on the Exercises tab and in the picker are worked out by a background worker: never on the main thread,
+ * an empty tile until ready, no flash once ready, one head start for the whole catalogue, and nothing for own exercises. Each
  * test has a loader of its own (through [LocalThumbnails]), so none depends on what another left in the app's cache.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -253,19 +259,154 @@ class ThumbnailsTest {
         assertEquals(catalogue.filter { it !in shown }, filtered.drop(3))
     }
 
+    private fun showPicker(loader: ThumbnailLoader) = show(loader) {
+        ExercisePickerContent("Add to Monday", seeded + own, listOf(seeded.first { it.name == "Bench" }.id), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {})
+    }
+
     @Test
-    fun picker_startsNoThumbnailWork() {
-        val held = StandardTestDispatcher()
+    fun picker_neverWorksAThumbnailOutOnTheMainThread() {
+        val main = Looper.getMainLooper().thread
         val recording = Recording()
-        val loader = loader(recording, held)
-        show(loader) {
-            ExercisePickerContent("Add to Monday", seeded + own, listOf(seeded.first { it.name == "Bench" }.id), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {})
-        }
+        val loader = loader(recording, Dispatchers.Default)
+        showPicker(loader)
+
+        // Into a muscle, down its list, back out and down the whole list, as a lifter would.
+        compose.onNodeWithTag("muscle-QUADS").performClick()
+        val list = compose.onNodeWithTag("exercise-list")
+        repeat(3) { list.performTouchInput { swipeUp() } }
+        compose.onNodeWithTag("exercise-search").performTextInput("press")
+        repeat(3) { list.performTouchInput { swipeUp() } }
+        compose.waitUntil(10_000) { composedRows().any(::drawn) }
+
+        assertTrue("the picker asked for the warm-up", loader.warmUpRequested)
+        assertTrue("thumbnails were worked out", recording.calls.any { it.first.startsWith("figure ") } && recording.calls.any { it.first == "shapes" })
+        val onMain = recording.calls.filter { it.second == main }.map { it.first }
+        assertTrue("worked out on the main thread: ${onMain.take(5)}", onMain.isEmpty())
+    }
+
+    /** Review Focus 2: the picker opened before the Exercises tab ever was. Names first, empty tiles, then pictures; nothing moves. */
+    @Test
+    fun picker_beforeTheTab_namesAndEmptyTilesFirst_thenTheDrawings() {
+        val held = StandardTestDispatcher()
+        showPicker(loader(Recording(), held))
+        compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Bench"))
+
+        compose.onNode(hasText("Bench") and hasAnyAncestor(hasTestTag("exercise-Bench")), useUnmergedTree = true).assertExists()
+        val before = tile("Bench").fetchSemanticsNode().boundsInRoot
+        assertFalse(drawn("Bench"))
+        assertEquals("the same tile as an own exercise's", tile("Tyre flip").fetchSemanticsNode().boundsInRoot.size, before.size)
+
         held.scheduler.advanceUntilIdle()
         compose.waitForIdle()
+        assertTrue(drawn("Bench"))
+        assertEquals("nothing moves when the drawing arrives", before, tile("Bench").fetchSemanticsNode().boundsInRoot)
+        assertFalse("the lifter's own exercise stays an empty tile", drawn("Tyre flip"))
+    }
 
-        assertFalse(loader.warmUpRequested)
-        assertTrue(recording.looked.isEmpty())
+    /** One warm-up per process, whichever list asks first: the picker, then the tab, works each thumbnail out once. */
+    @Test
+    fun picker_thenTab_oneWarmUp_eachThumbnailOnce() {
+        val recording = Recording()
+        val loader = loader(recording, Dispatchers.Default)
+        var tab by mutableStateOf(false)
+        show(loader) {
+            if (tab) ExercisesContent(seeded + own, recentIds = listOf(seeded.first { it.name == "Bench" }.id), onOpen = {})
+            else ExercisePickerContent("Add to Monday", seeded + own, listOf(seeded.first { it.name == "Bench" }.id), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {})
+        }
+        assertTrue(loader.warmUpRequested)
+        compose.waitUntil(60_000) { catalogue.all { loader.peek(it) != null } }
+
+        // The tab opened after the picker starts no second warm-up.
+        tab = true
+        compose.waitForIdle()
+        compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Bench"))
+        assertTrue(drawn("Bench"))
+        Thread.sleep(200)
+        assertEquals("one at a time", 1, recording.mostAtOnce.get())
+        assertEquals("each worked out once", catalogue.size, recording.looked.size)
+        assertEquals(catalogue.toSet(), recording.looked.toSet())
+    }
+
+    /**
+     * Review Focus 1: typing quickly. After each of three letters, a row shows a picture only if its own is ready, and
+     * every picture drawn is its own exercise's: the same pixels as that exercise's tile showed before any search.
+     */
+    @Test
+    fun pickerSearch_eachRowShowsItsOwnPicture() {
+        val held = StandardTestDispatcher()
+        val loader = loader(Recording(), held)
+        // Only Bench is ready when the picker opens; the worker is held.
+        CoroutineScope(held).launch { loader.load("Bench") }
+        held.scheduler.advanceUntilIdle()
+        showPicker(loader)
+        val search = compose.onNodeWithTag("exercise-search")
+
+        for (letter in listOf("b", "e", "n")) {
+            search.performTextInput(letter)
+            compose.waitForIdle()
+            val rows = composedRows()
+            assertTrue("rows for \"$letter\"", rows.isNotEmpty())
+            for (row in rows.distinct()) assertEquals("$row after \"$letter\": drawn only if its own is ready", loader.peek(row) != null, drawn(row))
+        }
+
+        // With every thumbnail ready, each search's rows show their own pictures.
+        search.performTextClearance()
+        held.scheduler.advanceUntilIdle()
+        compose.waitForIdle()
+        val seen = HashMap<String, List<Int>>()
+        fun check(step: String) {
+            compose.waitForIdle()
+            val shot = screen()
+            val rows = composedRows().distinct().filter { onScreen(it, shot) }
+            assertTrue("rows on screen for $step", rows.size > 2)
+            for (row in rows) {
+                assertTrue("$row is drawn ($step)", drawn(row))
+                val pixels = tilePixels(row, shot)
+                val own = seen.getOrPut(row) { pixels }
+                // The same picture drawn lower or higher in the list differs only in a few edge pixels' smoothing (about
+                // 30 of its 8960); a different picture differs in well over a thousand. (Some exercises share a picture.)
+                val ownDiff = differing(own, pixels)
+                val nearestOther = seen.filterKeys { loader.peek(it)!!.shapes != loader.peek(row)!!.shapes }.values.minOfOrNull { differing(it, pixels) } ?: Int.MAX_VALUE
+                assertTrue("$row shows its own picture ($step): $ownDiff pixels off its own, $nearestOther off the nearest other", ownDiff <= 150 && ownDiff * 4 < nearestOther)
+            }
+        }
+        // Each picture the last search shows, as its own row showed it in the list before any search.
+        val last = catalogue.filter { "ben" in Library.normalise(it) }
+        assertTrue(last.size > 1)
+        for (name in last) {
+            compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-$name"))
+            compose.waitForIdle()
+            seen[name] = tilePixels(name, screen())
+        }
+        compose.onNodeWithTag("exercise-list").performScrollToIndex(0)
+        for (letter in listOf("b", "e", "n")) {
+            search.performTextInput(letter)
+            check("after \"$letter\"")
+        }
+        assertTrue("pictures were compared with others", seen.keys.map { loader.peek(it)!!.shapes }.distinct().size > 5)
+    }
+
+    /** The screen as drawn. */
+    private fun screen(): android.graphics.Bitmap {
+        compose.waitForIdle()
+        val view = (compose.onRoot().fetchSemanticsNode().root as androidx.compose.ui.platform.ViewRootForTest).view
+        return android.graphics.Bitmap.createBitmap(view.width, view.height, android.graphics.Bitmap.Config.ARGB_8888).also { view.draw(android.graphics.Canvas(it)) }
+    }
+
+    private fun onScreen(row: String, shot: android.graphics.Bitmap): Boolean {
+        val b = tile(row).fetchSemanticsNode().boundsInRoot
+        // Whole: a tile cut by the list's edge is left out.
+        val whole = tile(row).fetchSemanticsNode().size
+        return b.left >= 0 && b.top >= 0 && b.right <= shot.width && b.bottom <= shot.height && b.height.toInt() == whole.height && b.width.toInt() == whole.width
+    }
+
+    private fun differing(a: List<Int>, b: List<Int>): Int = if (a.size != b.size) Int.MAX_VALUE else a.indices.count { a[it] != b[it] }
+
+    private fun tilePixels(row: String, shot: android.graphics.Bitmap): List<Int> {
+        val b = tile(row).fetchSemanticsNode().boundsInRoot
+        val w = b.width.toInt()
+        val h = b.height.toInt()
+        return IntArray(w * h).also { shot.getPixels(it, 0, w, b.left.toInt(), b.top.toInt(), w, h) }.toList()
     }
 
     @Test
