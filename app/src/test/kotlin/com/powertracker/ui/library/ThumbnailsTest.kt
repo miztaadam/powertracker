@@ -454,11 +454,27 @@ class ThumbnailsTest {
         assertTrue("nothing worked out: ${recording.looked.take(5)}", recording.looked.isEmpty())
     }
 
-    /** After a picker that showed no tiles, the Exercises tab (which keeps its thumbnails at any size) still warms up. */
+    /** The Exercises tab with no room for thumbnails (130% text at 320 dp) asks for no warm-up and works nothing out. */
     @Test
     @Config(qualifiers = "w320dp-h2400dp-xhdpi")
-    fun tab_stillWarmsUp_afterATilelessPicker() {
+    fun tab_largeText_startsNoWarmUp() {
         fontScale = 1.3f
+        val recording = Recording()
+        val loader = loader(recording, Dispatchers.Default)
+        showTab(loader)
+        compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Bench"))
+        Thread.sleep(200)
+        compose.waitForIdle()
+
+        assertFalse("no warm-up asked", loader.warmUpRequested)
+        assertTrue("nothing worked out: ${recording.looked.take(5)}", recording.looked.isEmpty())
+    }
+
+    /** After a picker that showed no tiles (115% text at 360 dp), the Exercises tab, which keeps its thumbnails there, still warms up. */
+    @Test
+    @Config(qualifiers = "w360dp-h2400dp-xhdpi")
+    fun tab_stillWarmsUp_afterATilelessPicker() {
+        fontScale = 1.15f
         val recording = Recording()
         val loader = loader(recording, Dispatchers.Default)
         var tab by mutableStateOf(false)

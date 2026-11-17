@@ -194,9 +194,17 @@ fun ExercisesContent(
             rowLabel = { "Open $it" },
             modifier = Modifier.padding(padding),
             showThumbnails = true,
+            thumbnailMinRoomDp = TAB_THUMBNAIL_MIN_ROOM_DP,
         )
     }
 }
+
+/**
+ * The least text room ([textRoomDp]) in which an Exercises tab row shows its thumbnail. Measured: with the tile, 310 dp
+ * of room on a 320 dp screen breaks "Chest-supported row" inside a word, 311 keeps every catalogue name whole. So 360 dp
+ * at 115% text (313) keeps the pictures; 320 dp at 115% and 360 dp at 130% leave them out.
+ */
+internal const val TAB_THUMBNAIL_MIN_ROOM_DP = 311
 
 /** What the guide sheet offers on the Exercises tab: the plan always, today's session while one is open. */
 @Composable

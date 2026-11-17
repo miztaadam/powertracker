@@ -216,9 +216,9 @@ fun ExerciseBrowser(
      */
     showThumbnails: Boolean = false,
     /**
-     * The least room, in text terms ([textRoomDp]), at which rows show their thumbnail: 0 shows it always (the Exercises
-     * tab), [PICKER_THUMBNAIL_MIN_ROOM_DP] for the picker. Ticked rows (the plan builder's) need at least
-     * [TICKED_THUMBNAIL_MIN_ROOM_DP] whatever this says.
+     * The least room, in text terms ([textRoomDp]), at which rows show their thumbnail: 0 shows it always,
+     * [TAB_THUMBNAIL_MIN_ROOM_DP] for the Exercises tab, [PICKER_THUMBNAIL_MIN_ROOM_DP] for the picker. Ticked rows (the
+     * plan builder's) need at least [TICKED_THUMBNAIL_MIN_ROOM_DP] whatever this says.
      */
     thumbnailMinRoomDp: Int = 0,
     /**

@@ -512,6 +512,35 @@ class ExercisePictureTest {
         assertEquals("no tiles at 130% text", 0, thumbnailCount())
     }
 
+    /**
+     * The Exercises tab at large text: below [TAB_THUMBNAIL_MIN_ROOM_DP] of text room (320 dp at 115% and 130%, 360 dp at
+     * 130%) its rows leave the thumbnail out, so no catalogue name breaks inside a word; at 360 dp at 115% and 412 dp at
+     * 115% and 130% they keep it, and the names still stay whole.
+     */
+    @Test
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun exercisesTab_namesWholeAtLargeText() {
+        val seeded = SeedLibrary.exercises()
+        for ((width, scale, tiles) in listOf(Triple(320, 1.15f, false), Triple(320, 1.3f, false), Triple(360, 1.15f, true), Triple(360, 1.3f, false), Triple(412, 1.15f, true), Triple(412, 1.3f, true))) {
+            scenario?.close()
+            RuntimeEnvironment.setQualifiers("w${width}dp-h2400dp-xhdpi")
+            show(scale) { ExercisesContent(seeded + own, recentIds = listOf(seeded.first { it.name == "Bench" }.id), onOpen = {}) }
+            assertEquals(toPx(width), compose.onRoot().fetchSemanticsNode().boundsInRoot.width, 0.5f)
+            assertEquals("tiles at $width dp, text x$scale", tiles, thumbnailCount() > 0)
+            val (broken, seen) = namesBrokenInsideAWord()
+            assertEquals("every catalogue name checked at $width dp, text x$scale", Library.all().size, seen)
+            assertTrue("at $width dp, text x$scale, broken inside a word: $broken", broken.isEmpty())
+        }
+
+        // The edge, on the narrowest phone: 310 dp of text room has no tile, 311 has one.
+        for ((room, tiles) in listOf(310f to false, 311f to true)) {
+            scenario?.close()
+            RuntimeEnvironment.setQualifiers("w320dp-h2400dp-xhdpi")
+            show(320f / room) { ExercisesContent(seeded + own, recentIds = emptyList(), onOpen = {}) }
+            assertEquals("tiles at $room dp of text room", tiles, thumbnailCount() > 0)
+        }
+    }
+
     /** At the edge of the picker's room: 319 dp at the default text size has no tile, 320 dp has one. */
     @Test
     @Config(qualifiers = "w319dp-h2400dp-xhdpi")
