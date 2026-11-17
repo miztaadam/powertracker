@@ -447,6 +447,27 @@ class PlanScreenTest {
     }
 
     @Test
+    fun planAdd_change_keepsTheNumbers_andAddStoresTheNewExercise() {
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        tap("Increase Sets")
+        tap("Change exercise")
+        compose.onNodeWithTag("exercise-search").performTextReplacement("curl")
+        waitFor { exists(hasTestTag("exercise-Curl")) }
+        compose.onNodeWithTag("exercise-Curl").performClick()
+        waitFor { exists(hasText("Curl") and hasAnyAncestor(isDialog())) }
+        // What was typed is not overwritten by the new exercise's ready-made numbers.
+        assertField("Sets", "4")
+        assertField("Reps", "5")
+
+        addButton().performClick()
+        waitFor { plan().isNotEmpty() }
+        val curl = runBlocking { training.exercises().first() }.single { it.name == "Curl" }
+        assertEquals(listOf(Triple(curl.id, 4, 5)), plan().map { Triple(it.exerciseId, it.sets, it.reps) })
+    }
+
+    @Test
     fun planAdd_bodybuilding_storesRange() {
         runBlocking { settings.update { com.powertracker.data.AppSettings(trainingMode = TrainingMode.BODYBUILDING) } }
         compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }

@@ -295,7 +295,7 @@ class ExercisePickerTest {
         assertTrue(plan().isEmpty())
         assertEquals(before, runBlocking { db.exercises().all() })
 
-        // Tapping the row itself is what adds it.
+        // Tapping the row itself is what opens the add form, and its Add stores it.
         scrollToRow("exercise-Curl")
         compose.onNodeWithTag("exercise-Curl").performClick()
         confirmAdd()
