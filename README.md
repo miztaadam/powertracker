@@ -176,7 +176,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] With reduce motion on, the charts are complete at once.
 - [ ] Open Add on a Plan day: the names come up at once, with the pictures straight after.
 - [ ] In that picker, your own exercise has an empty tile.
-- [ ] At every text size, no exercise name in the picker or on the Exercises tab breaks inside a word. Where a row has too little room (large text on a narrower phone), it shows no tile at all.
+- [ ] With text one or two steps up (115% or 130%), no exercise name in the picker or on the Exercises tab breaks inside a word. Where a row has too little room (large text on a narrower phone), it shows no tile at all.
 - [ ] With text one step up, on a phone 360 dp wide or more, the picker and the Exercises tab keep their pictures.
 
 ## Where things are
