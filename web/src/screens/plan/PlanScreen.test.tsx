@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { encodeBackup, exportBackup } from '../../backup/backup'
@@ -453,6 +453,85 @@ describe('PlanScreen add form', () => {
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(screen.queryByRole('group', { name: 'Sets' })).toBeNull()
     expect(await storedPlan()).toEqual([])
+  })
+
+  it('planAdd_pick_swapsStraightToTheForm_focusInside_andBackToAddOnClose', async () => {
+    show()
+    const monday = await day('Monday')
+    const add = within(monday).getByRole('button', { name: 'Add' })
+    add.focus()
+    await userEvent.click(add)
+    await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), 'Squat')
+    const row = await pickerRow('Squat')
+
+    // One act, no waiting: the form is there, the picker gone, and the focus inside the form, never back on Add.
+    const focused: Element[] = []
+    const track = (e: FocusEvent) => focused.push(e.target as Element)
+    document.addEventListener('focusin', track)
+    act(() => row.click())
+    document.removeEventListener('focusin', track)
+    const dialogs = screen.getAllByRole('dialog')
+    expect(dialogs).toHaveLength(1)
+    expect(within(dialogs[0]!).getByRole('group', { name: 'Sets' })).toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Search exercises' })).toBeNull()
+    expect(dialogs[0]!.contains(document.activeElement)).toBe(true)
+    expect(focused).not.toContain(add)
+
+    // Closed, by Cancel or by Add: the focus is back on the day's Add.
+    await userEvent.click(within(dialogs[0]!).getByRole('button', { name: 'Cancel' }))
+    expect(document.activeElement).toBe(add)
+    add.focus()
+    await pickOn('Monday', 'Squat')
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Add' }))
+    expect(document.activeElement).toBe(add)
+    await waitFor(() => expect(rowsOf(monday)).toEqual(['Squat  3 × 5 @ 8']))
+  })
+
+  it('planAdd_ownExercise_pickerStaysUntilTheFormOpens', async () => {
+    show()
+    await userEvent.click(within(await day('Wednesday')).getByRole('button', { name: 'Add' }))
+    let made!: () => void
+    const original = db.exercises.add.bind(db.exercises)
+    vi.spyOn(db.exercises, 'add').mockImplementation(((row: never) => new Promise((done) => (made = () => done(original(row))))) as never)
+    await createOwn('Tyre flip')
+    // Still being made: the picker is still there, never an empty moment.
+    expect(screen.getByRole('textbox', { name: 'Search exercises' })).toBeInTheDocument()
+    await act(async () => made())
+    const dialogs = await waitFor(() => {
+      const open = screen.getAllByRole('dialog')
+      expect(within(open[0]!).getByRole('group', { name: 'Exercise' })).toHaveTextContent('Tyre flip')
+      return open
+    })
+    expect(dialogs).toHaveLength(1)
+    expect(screen.queryByRole('textbox', { name: 'Search exercises' })).toBeNull()
+  })
+
+  it('planAdd_sideChangedWhileOpen_storesTheFormsNumbersOnTheStoredSide', async () => {
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addForm()
+    await updateSettings(db, (s) => ({ ...s, trainingMode: 'BODYBUILDING' }))
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    await waitFor(async () => expect(await storedPlan()).toHaveLength(1))
+    const squat = await exerciseNamed(db, 'Squat')
+    // The form's 3 × 5 @ 8 (no range), on the side as stored at the tap.
+    expect(await storedPlan()).toEqual([{ weekday: 1, exerciseId: squat.id, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: 'BODYBUILDING' }])
+  })
+
+  it('planAdd_twoClicksBeforeARender_storeOne', async () => {
+    show()
+    const add = vi.spyOn(db.planItems, 'add')
+    await pickOn('Monday', 'Squat')
+    const button = (await addForm()).getByRole('button', { name: 'Add' })
+    // Both clicks reach the button before React renders the form away: only the guard stops the second.
+    act(() => {
+      button.click()
+      button.click()
+    })
+    await waitFor(async () => expect(await storedPlan()).toHaveLength(1))
+    await new Promise((done) => setTimeout(done, 50))
+    expect(await storedPlan()).toHaveLength(1)
+    expect(add).toHaveBeenCalledOnce()
   })
 
   it('planAdd_doubleTapAdd_storesOne', async () => {

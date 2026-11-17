@@ -65,9 +65,8 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
   const reported = (work: Promise<unknown>) => void work.catch(() => setFailures((n) => n + 1))
   // The add form whose Add was tapped: a second tap on it, before it has closed, stores nothing more.
   const added = useRef<OpenDialog>(null)
-  // Opens the add form with the ready-made numbers for `entry`, unless another dialog was opened meanwhile.
-  const openAddForm = (weekday: number, entry: PickerEntry) =>
-    actions.draft(weekday, entry).then((draft) => setDialog((open) => open ?? { kind: 'addDetails', weekday, entry, draft }))
+  // The add form, with the ready-made numbers for `entry`, in the picker's place: one render, no moment without a dialog.
+  const addForm = (weekday: number, entry: PickerEntry): OpenDialog => ({ kind: 'addDetails', weekday, entry, draft: actions.draft(entry) })
 
   const bodybuilding = !state.loading && state.side === 'BODYBUILDING'
   const empty = bodybuilding && state.sections.every((section) => section.rows.length === 0)
@@ -121,24 +120,33 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
       </div>
 
       {/*
-        Picking opens the sets and reps form, filled in with the ready-made numbers; its Add stores the item and Cancel
-        stores nothing. Your own exercise is created first (and kept, whatever the form does); if that fails, no form opens.
+        Picking opens the sets and reps form in the same render, filled in with the ready-made numbers; its Add stores the
+        item and Cancel stores nothing. Your own exercise is created first (and kept, whatever the form does); if that
+        fails, no form opens.
       */}
-      {dialog?.kind === 'add' && (
-        <ExercisePicker
-          title={`Add to ${dayName(dialog.weekday)}`}
-          exercises={state.exercises}
-          recentIds={state.recentIds}
-          onPick={(entry) => {
-            reported(openAddForm(dialog.weekday, entry))
-            setDialog(null)
-          }}
-          onCreateCustom={(exercise) => {
-            reported(actions.addCustomExercise(exercise).then((entry) => openAddForm(dialog.weekday, entry)))
-            setDialog(null)
-          }}
-          onDismiss={() => setDialog(null)}
-        />
+      {(dialog?.kind === 'add' || dialog?.kind === 'addDetails') && (
+        // While its add form is open, the picker stays mounted but hidden: closing it there would send the focus back to
+        // the day's Add for a moment. Both close together, and the focus then goes back to Add.
+        <div style={{ display: dialog.kind === 'addDetails' ? 'none' : 'contents' }}>
+          <ExercisePicker
+            title={`Add to ${dayName(dialog.weekday)}`}
+            exercises={state.exercises}
+            recentIds={state.recentIds}
+            onPick={(entry) => setDialog(addForm(dialog.weekday, entry))}
+            // The picker stays until the exercise is made, then the form opens over it; if making it fails, it closes.
+            onCreateCustom={(exercise) => {
+              const picker = dialog
+              actions.addCustomExercise(exercise).then(
+                (entry) => setDialog((open) => (open === picker ? addForm(picker.weekday, entry) : open)),
+                () => {
+                  setDialog((open) => (open === picker ? null : open))
+                  setFailures((n) => n + 1)
+                },
+              )
+            }}
+            onDismiss={() => setDialog(null)}
+          />
+        </div>
       )}
       {dialog?.kind === 'addDetails' && (
         <PlanItemDialog

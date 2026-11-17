@@ -253,7 +253,8 @@ test.describe('on a 375 px iPhone', () => {
     await dialog.getByRole('listitem', { name: 'Squat', exact: true }).getByRole('button').first().click()
     await expect(addForm(page).getByRole('group', { name: 'Reps' })).toContainText('5')
     expect(await overflowing(page)).toEqual([])
-    expect(await smallTargets(page)).toEqual([])
+    // The picker it came from is still mounted under the form, hidden: its controls measure 0 × 0.
+    expect((await smallTargets(page)).filter((target) => !target.endsWith(' 0×0'))).toEqual([])
     await addForm(page).getByRole('button', { name: 'Add', exact: true }).click()
     await expect(dialog).toHaveCount(0)
     await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Squat  3 × 5 @ 8'])
