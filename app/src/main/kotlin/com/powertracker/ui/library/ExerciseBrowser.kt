@@ -57,6 +57,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -208,7 +209,10 @@ fun ExerciseBrowser(
     modifier: Modifier = Modifier,
     /** Opens "Create your own"; null where exercises are only browsed. */
     onCreate: (() -> Unit)? = null,
-    /** A small picture at the left of each row: the Exercises tab and the picker have them, the plan builder does not. */
+    /**
+     * A small picture at the left of each row: the Exercises tab, the picker and the plan builder have them. Ticked
+     * rows (the plan builder's) leave it out on screens under [TICKED_THUMBNAIL_MIN_WIDTH_DP] wide.
+     */
     showThumbnails: Boolean = false,
     /**
      * Multi-select: when set, every row is a tick box showing whether its exercise is chosen, and a row tap ([onRow])
@@ -240,7 +244,7 @@ fun ExerciseBrowser(
     BackHandler(enabled = muscle != null) { state.browse(null) }
     if (showThumbnails) {
         val thumbnails = LocalThumbnails.current
-        // The head start: from the first showing of any list with thumbnails (the tab or the picker),
+        // The head start: from the first showing of any list with thumbnails (the tab, the picker or the plan builder),
         // the loader's worker works out every catalogue thumbnail, in the order that list shows them. Only the first
         // call counts, so it runs once per process.
         LaunchedEffect(thumbnails) { thumbnails.warmUp(thumbnailOrder(list, byArea && area == null)) }
@@ -539,6 +543,9 @@ private fun ListHeading(text: String, modifier: Modifier = Modifier) {
     )
 }
 
+/** The narrowest screen, in dp, on which a ticked row (the plan builder's) shows its thumbnail. */
+internal const val TICKED_THUMBNAIL_MIN_WIDTH_DP = 360
+
 @Composable
 private fun BrowserRow(
     entry: PickerEntry,
@@ -581,7 +588,10 @@ private fun BrowserRow(
                 )
             }
             // The lifter's own exercise has no catalogue name, so its tile is empty.
-            if (showThumbnail) ExerciseThumbnail(entry.catalogueName, Modifier.padding(end = Space.m))
+            // A ticked row also has its tick box: on a screen under 360 dp wide there is no room for the thumbnail too
+            // without breaking long names inside a word, so it shows neither picture nor empty tile there.
+            val roomForThumbnail = ticked == null || LocalConfiguration.current.screenWidthDp >= TICKED_THUMBNAIL_MIN_WIDTH_DP
+            if (showThumbnail && roomForThumbnail) ExerciseThumbnail(entry.catalogueName, Modifier.padding(end = Space.m))
             Column(Modifier.weight(1f).padding(vertical = Space.s)) {
                 Text(entry.name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
                 if (entry.muscles.isNotEmpty()) {

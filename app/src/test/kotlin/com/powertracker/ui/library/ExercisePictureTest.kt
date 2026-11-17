@@ -69,8 +69,8 @@ import org.robolectric.annotation.GraphicsMode
 import kotlin.math.abs
 
 /**
- * The exercise pictures: the two-pose picture in the guide sheet and the thumbnails on the Exercises tab and in the
- * picker. "Bench" is the exercise with a figure; a lookup that finds nothing stands in for one without.
+ * The exercise pictures: the two-pose picture in the guide sheet and the thumbnails on the Exercises tab, in the picker
+ * and in the plan builder. "Bench" is the exercise with a figure; a lookup that finds nothing stands in for one without.
  */
 // Native graphics, so text is measured at its real size and the canvas really draws: the checks here depend on both.
 @RunWith(RobolectricTestRunner::class)
@@ -315,6 +315,116 @@ class ExercisePictureTest {
             assertFalse("$side: nothing is drawn for it", drawnIn("exercise-Tyre flip"))
             assertEquals("$side: names stay aligned", benchName.left, textIn("exercise-Tyre flip", "Tyre flip").boundsInRoot.left, 0.5f)
         }
+    }
+
+    /** The names that broke inside a word in a ticked row at 320 dp with a thumbnail beside them. */
+    private val longNames = listOf(
+        "Safety-bar squat", "Chest-supported row", "Chest-supported T-bar row", "Neutral-grip pull-up",
+        "Chest-supported rear delt raise", "Smith shoulder press", "Concentration curl", "Bodyweight squat",
+    )
+
+    /** The plan builder's exercises step with [longNames] stored and ticked: each is under "Chosen" and in the list. */
+    private fun showBuilderWithLongNamesTicked() {
+        val stored = longNames.mapIndexed { i, n ->
+            val lib = Library.find(n)!!
+            Exercise(100L + i, lib.name, lib.category, lib.parentLift, lib.muscles, isBuiltIn = true)
+        }
+        val entries = stored.map(com.powertracker.ui.plan.builder.PlanBuilderViewModel::entryFor)
+        val ticked = entries.associate { com.powertracker.ui.plan.builder.pickKey(it) to com.powertracker.ui.plan.builder.PlanBuilderViewModel.chosen(it) }
+        val state = com.powertracker.ui.plan.builder.PlanBuilderState(
+            loading = false,
+            mode = TrainingMode.BODYBUILDING,
+            step = com.powertracker.ui.plan.builder.BuilderStep.EXERCISES,
+            exercises = stored,
+            recentIds = stored.map { it.id },
+            ticked = ticked,
+        )
+        mode = TrainingMode.BODYBUILDING
+        show {
+            com.powertracker.ui.plan.builder.PlanBuilderContent(
+                state,
+                com.powertracker.ui.plan.builder.PlanBuilderActions(isTicked = { com.powertracker.ui.plan.builder.pickKey(it) in state.ticked }),
+            )
+        }
+    }
+
+    /** [name] in [row] wraps only between words (or after a hyphen), never inside one. */
+    private fun assertNameWhole(row: String, name: String) {
+        val node = textIn(row, name)
+        val layouts = mutableListOf<TextLayoutResult>()
+        node.config[SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
+        val layout = layouts.single()
+        val lines = (0 until layout.lineCount).map { name.substring(layout.getLineStart(it), layout.getLineEnd(it)) }
+        for (line in 0 until layout.lineCount - 1) {
+            val end = layout.getLineEnd(line, visibleEnd = true)
+            assertTrue("$row: \"$name\" is broken inside a word: $lines", name[end] == ' ' || name[end - 1] == ' ' || name[end - 1] == '-')
+        }
+    }
+
+    /** The row's tick, name, equipment and 48 dp info button, left to right inside the row. */
+    private fun assertRowFits(row: String, name: String) {
+        val bounds = node(row).boundsInRoot
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.Role, androidx.compose.ui.semantics.Role.Checkbox) and hasTestTag(row), useUnmergedTree = true).assertExists()
+        val text = textIn(row, name).boundsInRoot
+        val info = compose.onNode(
+            androidx.compose.ui.test.hasClickAction() and androidx.compose.ui.test.hasAnyDescendant(androidx.compose.ui.test.hasContentDescription("Form guide for $name")) and hasAnyAncestor(hasTestTag(row)),
+            useUnmergedTree = true,
+        ).fetchSemanticsNode().boundsInRoot
+        assertTrue("$row: the name is inside the row", text.left >= bounds.left && text.right <= info.left)
+        assertTrue("$row: the info button is inside the row", info.right <= bounds.right + 0.5f)
+        assertTrue("$row: the info button keeps its 48 dp target", info.width >= toPx(48) - 0.5f && info.height >= toPx(48) - 0.5f)
+    }
+
+    /**
+     * The plan builder at 320 dp: a ticked row has its tick box, so under 360 dp it shows no thumbnail and no empty tile,
+     * and every long name stays whole. The picker at the same width keeps its thumbnails.
+     */
+    @Test
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun planBuilder_tickedRow_namesWholeAt320() {
+        for (theme in listOf(true, false)) {
+            scenario?.close()
+            dark = theme
+            showBuilderWithLongNamesTicked()
+            assertEquals(toPx(320), compose.onRoot().fetchSemanticsNode().boundsInRoot.width, 0.5f)
+            for (name in longNames) {
+                for (row in listOf("chosen-$name", "exercise-$name")) {
+                    compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag(row))
+                    assertTrue("$row has no tile", compose.onAllNodes(hasTestTag("exercise-thumbnail") and hasAnyAncestor(hasTestTag(row)), useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
+                    assertNameWhole(row, name)
+                    assertRowFits(row, name)
+                }
+            }
+            compose.assertTextsFit()
+        }
+
+        // The picker is unchanged at this width: its rows keep the thumbnail.
+        scenario?.close()
+        mode = TrainingMode.POWERLIFTING
+        show { ExercisePickerContent("Add to Monday", SeedLibrary.exercises() + own, emptyList(), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {}) }
+        compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Concentration curl"))
+        assertEquals(toPx(56), tileOf("exercise-Concentration curl").boundsInRoot.width, 1f)
+        assertNameWhole("exercise-Concentration curl", "Concentration curl")
+    }
+
+    /** The plan builder at 360 dp: ticked rows show the tab's thumbnail, and the long names still stay whole. */
+    @Test
+    @Config(qualifiers = "w360dp-h2400dp-xhdpi")
+    fun planBuilder_showsThumbnailsAt360() {
+        showBuilderWithLongNamesTicked()
+        for (name in longNames) {
+            for (row in listOf("chosen-$name", "exercise-$name")) {
+                compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag(row))
+                compose.waitUntil(10_000) { drawnIn(row) }
+                val tile = tileOf(row).boundsInRoot
+                assertEquals(toPx(56), tile.width, 1f)
+                assertEquals(toPx(40), tile.height, 1f)
+                assertTrue("$row: the name follows the tile", textIn(row, name).boundsInRoot.left > tile.right)
+                assertNameWhole(row, name)
+                assertRowFits(row, name)
+            }
+        }
+        compose.assertTextsFit()
     }
 
     @Test

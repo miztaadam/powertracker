@@ -316,6 +316,7 @@ private fun ExercisesStep(state: PlanBuilderState, actions: PlanBuilderActions) 
             modifier = Modifier.weight(1f),
             ticked = { entry -> state.ticked.containsKey(pickKey(entry)) },
             chosen = state.chosen,
+            showThumbnails = true,
         )
     }
     guideFor?.let { name -> FormGuideSheet(name, onDismiss = { guideFor = null }) }
