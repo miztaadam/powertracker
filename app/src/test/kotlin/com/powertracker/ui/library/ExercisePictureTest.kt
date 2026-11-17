@@ -34,6 +34,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
@@ -324,23 +325,25 @@ class ExercisePictureTest {
     )
 
     /** The plan builder's exercises step with [longNames] stored and ticked: each is under "Chosen" and in the list. */
-    private fun showBuilderWithLongNamesTicked() {
-        val stored = longNames.mapIndexed { i, n ->
+    private fun showBuilderWithLongNamesTicked(fontScale: Float = 1f) {
+        val ticks = longNames.mapIndexed { i, n ->
             val lib = Library.find(n)!!
             Exercise(100L + i, lib.name, lib.category, lib.parentLift, lib.muscles, isBuiltIn = true)
         }
-        val entries = stored.map(com.powertracker.ui.plan.builder.PlanBuilderViewModel::entryFor)
+        // The list holds the whole catalogue whatever is stored; these are stored so they can be ticked.
+        val stored = ticks
+        val entries = ticks.map(com.powertracker.ui.plan.builder.PlanBuilderViewModel::entryFor)
         val ticked = entries.associate { com.powertracker.ui.plan.builder.pickKey(it) to com.powertracker.ui.plan.builder.PlanBuilderViewModel.chosen(it) }
         val state = com.powertracker.ui.plan.builder.PlanBuilderState(
             loading = false,
             mode = TrainingMode.BODYBUILDING,
             step = com.powertracker.ui.plan.builder.BuilderStep.EXERCISES,
             exercises = stored,
-            recentIds = stored.map { it.id },
+            recentIds = ticks.map { it.id },
             ticked = ticked,
         )
         mode = TrainingMode.BODYBUILDING
-        show {
+        show(fontScale) {
             com.powertracker.ui.plan.builder.PlanBuilderContent(
                 state,
                 com.powertracker.ui.plan.builder.PlanBuilderActions(isTicked = { com.powertracker.ui.plan.builder.pickKey(it) in state.ticked }),
@@ -425,6 +428,90 @@ class ExercisePictureTest {
             }
         }
         compose.assertTextsFit()
+    }
+
+    /**
+     * Scrolls the list from top to bottom and returns every catalogue name, with the rows it was seen in, that wraps
+     * inside a word, and how many catalogue names it saw.
+     */
+    private fun namesBrokenInsideAWord(): Pair<List<String>, Int> {
+        val catalogue = Library.all().map { it.name }
+        val broken = LinkedHashSet<String>()
+        val seen = HashSet<String>()
+        val list = compose.onNodeWithTag("exercise-list")
+        var index = 0
+        while (true) {
+            try {
+                list.performScrollToIndex(index)
+            } catch (e: Throwable) {
+                break
+            }
+            compose.waitForIdle()
+            for (name in catalogue) {
+                for (row in listOf("exercise-$name", "chosen-$name")) {
+                    val nodes = compose.onAllNodes(
+                        SemanticsMatcher.expectValue(SemanticsProperties.Text, listOf(androidx.compose.ui.text.AnnotatedString(name))) and hasAnyAncestor(hasTestTag(row)),
+                        useUnmergedTree = true,
+                    ).fetchSemanticsNodes()
+                    if (nodes.isEmpty()) continue
+                    seen += name
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    nodes.first().config[SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
+                    val layout = layouts.single()
+                    val inside = (0 until layout.lineCount - 1).any { line ->
+                        val end = layout.getLineEnd(line, visibleEnd = true)
+                        !(name[end] == ' ' || name[end - 1] == ' ' || name[end - 1] == '-')
+                    }
+                    if (inside) broken += "$row: " + (0 until layout.lineCount).map { name.substring(layout.getLineStart(it), layout.getLineEnd(it)) }
+                }
+            }
+            index += 4
+        }
+        return broken.toList() to seen.size
+    }
+
+    private fun showPicker(fontScale: Float) = show(fontScale) {
+        ExercisePickerContent("Add to Monday", SeedLibrary.exercises() + own, emptyList(), onPick = {}, onCreateCustom = { _, _, _, _ -> }, onClose = {})
+    }
+
+    private fun thumbnailCount(): Int = nodes("exercise-thumbnail").size
+
+    /** At 130% text the picker leaves the thumbnails out at 320 and 360 dp, so no catalogue name breaks inside a word. */
+    @Test
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun picker_namesWholeAtFontScale1_3() {
+        for (width in listOf(320, 360)) {
+            scenario?.close()
+            RuntimeEnvironment.setQualifiers("w${width}dp-h2400dp-xhdpi")
+            showPicker(1.3f)
+            assertEquals(toPx(width), compose.onRoot().fetchSemanticsNode().boundsInRoot.width, 0.5f)
+            val (broken, seen) = namesBrokenInsideAWord()
+            assertEquals("every catalogue name checked at $width dp", Library.all().size, seen)
+            assertTrue("at $width dp, 130% text, broken inside a word: $broken", broken.isEmpty())
+            assertEquals("no tiles at $width dp, 130% text", 0, thumbnailCount())
+        }
+    }
+
+    /** At the default text size the picker keeps its thumbnails at 320 dp. */
+    @Test
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun picker_showsThumbnailsAt320_defaultFont() {
+        showPicker(1f)
+        compose.onNodeWithTag("exercise-list").performScrollToNode(hasTestTag("exercise-Concentration curl"))
+        compose.waitUntil(10_000) { drawnIn("exercise-Concentration curl") }
+        assertEquals(toPx(56), tileOf("exercise-Concentration curl").boundsInRoot.width, 1f)
+        assertNameWhole("exercise-Concentration curl", "Concentration curl")
+    }
+
+    /** At 130% text the plan builder at 360 dp leaves the thumbnails out, so no name breaks inside a word. */
+    @Test
+    @Config(qualifiers = "w360dp-h2400dp-xhdpi")
+    fun planBuilder_namesWholeAtFontScale1_3() {
+        showBuilderWithLongNamesTicked(fontScale = 1.3f)
+        val (broken, seen) = namesBrokenInsideAWord()
+        assertEquals("every catalogue name checked", Library.all().size, seen)
+        assertTrue("130% text, broken inside a word: $broken", broken.isEmpty())
+        assertEquals("no tiles at 130% text", 0, thumbnailCount())
     }
 
     @Test

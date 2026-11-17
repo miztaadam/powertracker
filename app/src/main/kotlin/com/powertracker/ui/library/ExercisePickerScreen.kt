@@ -225,6 +225,8 @@ fun ExercisePickerContent(
             rowLabel = { "Add $it" },
             onCreate = { creating = true },
             showThumbnails = true,
+            // Under 320 dp of text room (a narrow phone at large text) the thumbnail would break long names.
+            thumbnailMinRoomDp = PICKER_THUMBNAIL_MIN_ROOM_DP,
         )
     }
 
