@@ -263,14 +263,12 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 
 - **1.9:** charts fill in on Progress.
 
 **Open follow-ups:**
-- Pictures in the web picker and plan builder: tried and waiting (see "Web picker thumbnails: tried, waiting"). Android has them since 1.10.
+- Pictures in the web picker and plan builder: tried twice and waiting for the owner's decision (see "Web picker thumbnails: tried, waiting"). Android has them since 1.10.
 - "Sound + vibrate" wraps onto two lines on narrow phones.
 - Two guide gaps: the Seated cable fly guide and the Hack squat guide (see the 1.5 notes).
 - The Exercises tab still opens slowly now and then (single slow opens, still under 100 ms).
-- The web Exercises tab breaks 4 long names inside a word at 288 px (a 375 px phone at 130% zoom): Smith shoulder press, Concentration curl, Bodyweight squat, Quadruped hip extension. It did in 1.9 too; found while trying the web picker.
-- The Android Exercises tab at 130% text was not checked when the picker's large-text rule went in (1.10).
-- Six web screenshots are out of date: `today-install`, `lock-setup` and `session-saved` (dark and light) still show the install card's wording from before ca5877f. A re-shoot fixes them; they were left alone in 1.10 because only Settings shots were meant to change.
-- A Today slide test (`slide.spec.ts`, three quick Log set taps) failed about 1 run in 3 before 1.10. The cause was the test, not the app: it tapped while the card was still scrolling into view. Fixed in 1cc526c (80 of 80 runs). Shown under emulated touch, not on a phone.
+- The Android plan builder breaks 2 names (Chest-supported row, Chest-supported rear delt raise) at 320 dp × 1.3 text, even with no picture (see the 1.11 notes).
+- Done in 1.11 (see "Done: the 1.10 follow-ups"): the web tab's 4 broken names at 288 px; the Android tab at 130% text; the six stale web screenshots; the Today slide test (1cc526c, 80 of 80 runs, under emulated touch).
 
 ## Done: thumbnails in the picker (1.10, Android app)
 Plan: `docs/superpowers/plans/2026-11-17-grit-picker-thumbnails.md`.
@@ -293,20 +291,111 @@ Plan: `docs/superpowers/plans/2026-11-17-grit-picker-thumbnails.md`.
 - **The web app** is 1.10 too, with no visible change: its picker waits (next section).
 - Not timed on a phone: the Android speed check is the main-thread test. Not yet tried on a real phone.
 
-## Web picker thumbnails: tried, waiting
-Owner decision 3 (2026-11-17): the web picker and plan builder stay without thumbnails, because no try kept the picker's speed. The Exercises tab is unchanged.
+## Done: the 1.10 follow-ups (1.11, both apps)
+Plan: `docs/superpowers/plans/2026-11-17-grit-1-11-follow-ups.md`. The owner said "Do them all" (2026-11-17). Three of the four are done; the web picker's pictures still wait (next section).
 
-- **The bar**, against 1.9.0, alternating builds, 160 quiet rounds each:
-  - the picker's median first open within 3 ms, and its worst within 10 ms;
-  - a keystroke typed straight after the open within 5 ms of 1.9.0's median, and always under 100 ms;
-  - the tab no slower.
-- **Where the cost is:** drawing the pictures, about 10–12 ms on the open. The empty tiles and the watchers cost nothing measurable.
-- **Round 1, one batch 50 ms after the names:** open median +2 ms, but its 95% interval reached 6.5 ms, so not proven. A keystroke straight after: +8 ms median, and 1 in 160 took 107 ms.
-- **Round 2, 2 pictures at a time** (on-screen rows back to back, the rest 33 ms apart): open +3 ms, at the limit. A keystroke straight after: +9.5 ms median, a miss.
-- **Round 3, 2 at a time with 33 ms after each:** a keystroke straight after passed (+4 ms median, worst 68 ms). The open missed: median 50 ms against 39 ms. Opens fall into a fast group and a slow group, and round 3 landed in the slow group in 64% of opens, against 47% for 1.9.0.
-- In every round the first screenful's pictures were in within 250 ms (round 3: 112–183 ms). Each round moved about 10 ms of drawing; none removed it.
-- **The untried lever:** a cheaper picture, such as one prebuilt image per thumbnail in place of SVG shapes. It would need its own plan, with its cost measured first.
-- The rounds' code diffs are kept locally, outside the repo.
+- **Android picker, at large text:** picker rows show the thumbnail from 309 dp of text room, down from 320 (13903f9). Text room is the screen's width over the text size (`screenWidthDp / fontScale`).
+  - Measured on a 320 dp screen with the tile: 308 dp of room breaks "Chest-supported row" inside a word, and 309 keeps every catalogue name whole.
+  - So 360 dp at 115% text and 412 dp at 130% now keep the pictures. 320 dp at 115% and 130%, and 360 dp at 130%, still leave them out.
+- **Android Exercises tab, at large text:** tab rows show the thumbnail from 311 dp of text room (63ad807). Before, the tab showed it at every size.
+  - On a 320 dp screen, 310 dp of room breaks "Chest-supported row" and 311 keeps every name whole. In 1.10 the tab broke 5 names at 320 dp × 1.15, 16 at 320 dp × 1.3 and 2 at 360 dp × 1.3.
+  - So 320 dp at 115% and 130%, and 360 dp at 130%, leave the tile out, with no empty tile. 360 dp at 115% and 412 dp keep it.
+  - At the default text size on 320 dp and up, nothing changes. A tab with no tiles asks for no warm-up.
+- **Web Exercises tab, at large zoom:** under 320 px of viewport, a tab row has no thumbnail tile (e1402f2). A 375 px phone at 130% zoom is 288 px.
+  - Smith shoulder press, Concentration curl, Bodyweight squat and Quadruped hip extension no longer break inside a word. From 320 px the tab is unchanged.
+  - New e2e check: `exercisesTab_namesWholeAt288`, at 288 and 320 px.
+- **Stale web screenshots:** `today-install`, `session-saved` and `lock-setup` (dark and light) are re-shot with the install card's wording since ca5877f (e1402f2).
+- **Two test fixes:**
+  - The Today slide test (three quick Log set taps) now waits for the card to scroll into view before the first tap (1cc526c).
+  - The `lock-setup` screenshot now also waits for the Today screen behind the dialog: the "Install Grit" heading and its icon (2a59dd7). Before, 1 of 20 shots caught it half-loaded; after, 0 of 20, twice.
+- **Found, not fixed (open follow-up):** the Android plan builder breaks 2 names, Chest-supported row and Chest-supported rear delt raise, at 320 dp × 1.3, even with no picture. The row's tick box, equipment and info button leave too little room. It was already so in 1.9. The existing large-text test checks only 360 dp. A fix needs a smaller gap or hyphenation: the owner's or planner's call.
+- **The web picker and plan builder** have no thumbnails in 1.11, as in 1.10.
+- Not yet tried on a real phone.
+
+## Web picker thumbnails: tried, waiting
+**Waiting for the owner's decision.** The web picker and plan builder have no thumbnails in 1.10 or 1.11. The web Exercises tab keeps its SVG pictures. The spike's files are local only and will be lost, so this section keeps what is needed to rebuild option B later.
+
+### 1.10: three ways of scheduling the same SVG pictures (owner decision 3)
+- Each tile was a React subtree of SVG shapes, about 10–12 ms of drawing on the picker's open.
+- Round 1 (one batch 50 ms after the names), round 2 (2 pictures at a time) and round 3 (2 at a time with 33 ms after each) each moved that drawing rather than removing it, and each missed the bar on the open or on a keystroke straight after.
+- The first screenful's pictures were in within 250 ms in every round.
+
+### 1.11: a cheaper picture (follow-up Task 1). It missed, so nothing was built.
+**Feasibility: the colours.** Read from the `.fig` role classes, over all 225 catalogue thumbnails:
+- Six roles: BODY (225 figures), EQUIPMENT (225), GAP (225), BODY_FAR (188), ACCENT (155), ACCENT_FILL (103).
+- Each figure uses 3 to 6 colours: 3 in 12 figures, 4 in 71, 5 in 51, 6 in 91. None uses one.
+- Every role changes with dark and light. ACCENT, ACCENT_FILL, GAP (the tile's surface) and BODY_FAR (text mixed with the surface) also change with the side. That makes **4 palettes**.
+- GAP paints the surface colour over shapes drawn before it, and ACCENT_FILL is 10% see-through. So drawing order matters, and **no single mask, nor one mask per colour, can rebuild the picture**. A baked-in image needs one set per palette (2 schemes × 2 sides).
+- About 30 shapes per figure (5370 capsules, 623 circles, 527 polygons and 219 rects in all), in about 9 runs of the same colour (17 at most).
+
+**What each format costs** (all 225 figures):
+- Size:
+  - today's compact shape data: 181 KB (52 KB gzipped);
+  - the same shapes as SVG markup: 1.38 MB (195 KB gzipped);
+  - merged paths, one `<path>` per run of a colour: 940 KB (210 KB gzipped);
+  - SVG data URIs: 1.99 MB per palette, about 8 MB for 4;
+  - a 3x PNG sheet: 1.05 MB per palette, about 4.2 MB for 4.
+  - For scale, the whole `dist` was 2.2 MB, with a 1.88 MB JS chunk.
+- Main-thread time, on a test page with 225 picker-like rows (Chromium, 375 × 812 at 3x, the DevTools task time over 400 ms):
+  - empty tiles: 10–15 ms, the floor;
+  - today's SVG for the first 24 rows: +15 ms built with DOM calls, +5 to 10 ms set as one `innerHTML` string. So most of 1.10's cost is the browser's SVG work, not React;
+  - merged paths: +1 ms for 24 rows, +15 ms for all 225;
+  - `<use>` of one symbol sheet: +2 to 5 ms for 24 rows;
+  - (A) an SVG data URI as each row's background: +110 ms. One external SVG sheet with `<view>` fragments: seconds;
+  - (B) a PNG sheet served over HTTP: +6 ms, all after the first two frames. From a blob URL +65 ms; one PNG per tile +140 ms.
+
+**How it was timed** (to reuse for B):
+- Picker open with Powerlifting, 375 × 812 at 3x, Chromium. Builds alternate each round and their order flips every round. Only quiet rounds count.
+- Each build waits for `serviceWorker.ready` and network idle before the tap. For B, its sheet URL is decoded with `new Image().decode()` before the tap.
+- Measures: the picker's open, and a keystroke typed straight after it.
+- Pass rule: the A/A noise is the bootstrap 95% interval of the median of (base2 − base1). The candidate passes a measure when the median of (candidate − mean of the two bases) is no bigger than that interval's larger end.
+- Slow opens are those from 45 ms. The candidate's share must be no higher than the higher base's. Every keystroke must stay under 100 ms.
+
+**Spike, 40 rounds each, at equal bundle sizes** (the fairer second run). Times in ms; "paired" is the median difference from the mean of the two bases, with its 95% interval.
+
+| build | open median | worst | slow ≥45 | open paired | key median | key worst | key paired |
+|---|---|---|---|---|---|---|---|
+| base1 | 32.0 | 59 | 28% | | 38.0 | 45 | |
+| base2 | 33.0 | 56 | 25% | A/A +0.0 [-3, 1], bound 3 | 36.5 | 50 | A/A -1.0 [-4, 2], bound 4 |
+| empty tiles | 34.0 | 54 | 30% | +0.0 [-5, 4] within | 36.5 | 50 | -1.5 within |
+| C, merged paths | 51.5 | 73 | 88% | +15.3 [8.75, 19.25] over | 48.5 | 69 | +10.3 over |
+| B, sheet decoded first | 35.5 | 72 | 35% | +0.0 [-4.25, 3.5] within | 34.0 | 59 | -2.0 within |
+
+**Decision run, 160 rounds each:**
+
+| build | open median | worst | slow ≥45 | open paired | key median | key worst | key paired |
+|---|---|---|---|---|---|---|---|
+| base1 | 33.5 | 70 | 27% | | 36.0 | 55 | |
+| base2 | 33.0 | 69 | 19% | A/A -1.0 [-1, 0], bound 1 | 35.0 | 52 | A/A -0.5 [-1, 1], bound 1 |
+| empty tiles | 33.0 | 62 | 19% | -1.5 [-3, -0.5] within | 34.0 | 51 | -1.5 within |
+| B, sheet decoded first | 33.0 | 69 | 19% | -0.5 [-1.75, 0] within | 35.0 | 52 | -1.0 within |
+
+**Why vector loses:**
+- In an earlier 40-round run, every vector form missed: 1.10's React SVG +13.3 ms on the open, the same markup set by `innerHTML` +12.0, merged paths +8.3 to +9.3, SVG data URIs +31.0. Caveat: that run's builds differed in size by up to 2 MB, and it did not wait for the service worker. The second run, at equal sizes, confirms it (merged paths +15.3).
+- On the test page merged paths took only +1 ms of main-thread time, yet the open is +8 to +15 ms. The likely reason: the open waits for the next frame, and that frame waits for the vector paths to be rasterised. So drawing antialiased paths is on the open's path whatever the format, React or not.
+- Empty tiles cost nothing. Only a picture that is already a decoded bitmap reaches the baselines' speed.
+
+**B passes only when its sheet is decoded before the first open.**
+- Cold B, with the sheet precached but not decoded (40 rounds): open +5.8 ms [0, 13] against a bound of 1, slow opens 50% against 13% and 15%; keystroke straight after +19.3 ms [12.25, 23] against a bound of 2. It misses.
+- So B needs a warm-up that decodes the current palette's sheet at app start or at idle, off the main thread, before the first open. That is start-up work and memory: about 18 MB per decoded 3x sheet.
+
+**B's sizes** (all 4 palettes, measured with Chromium's encoders):
+- One sheet is 2520 × 1800: 225 tiles of 168 × 120, which is a 56 × 40 tile at 3x. Used as each row's CSS background.
+- 3x PNG: 4.25 MB (about 1.05 MB per palette). 2x PNG: 2.50 MB.
+- WebP at quality 1: 2.84 MB at 3x and 1.55 MB at 2x. This is lossy, so the pixels change.
+- Lossless WebP and PNG optimisers were not available, so their gain is not measured.
+- A 3x sheet is scaled down on a 2x screen. Native 2x sheets add more size.
+
+**The rasteriser question:** nothing in the tree can rasterise in Node, and Vercel's build has no Chromium. The likely choice is a native npm package (for example `@resvg/resvg-js`), a new dependency on the deploy build. Its antialiasing is not Chromium's, so the pictures would differ from 1.10's at edge level. Then either the tab's screenshots change, or the tab keeps its SVG and the app ships both formats.
+
+**Merged paths are not pixel-exact.** Against today's markup, at 2x and 3x in all 4 palettes:
+- no holes and no colour changes, but 100k to 160k edge pixels differ per palette (2–3% of the area);
+- about 10 per tile differ by more than 32 levels, up to 94 to 120, on thin gap outlines.
+- The cause: Skia antialiases a filled outline differently from a round-capped stroke or a circle, and overlapping edges of one colour only once. Today's markup set by `innerHTML` is pixel-exact.
+
+**Not measured for B:** the 250 ms pictures-in check, the Exercises tab, and the bodybuilding side. The spike had one palette (powerlifting, dark).
+
+**The next step, untried:** every pixel is a fixed blend of four colours (text, muted, accent and surface). So one set of 3 alpha sheets, stacked as CSS masks in the theme's colours, might serve all 4 palettes. Spike it for size, cost and exactness before building anything.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):

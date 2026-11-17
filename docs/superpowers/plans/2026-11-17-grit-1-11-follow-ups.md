@@ -36,6 +36,7 @@
      - On-screen pictures must be in within 250 ms. For a CSS background, "in" means the image has loaded and decoded; observe it with an `Image().decode()` of the same URL, or a resource-timing entry, and say which.
      - Speed project 5 of 5.
    - **If it misses:** the web picker keeps waiting, and the owner gets the numbers. The Exercises tab moves to the new picture only if it passes the same bar. Any changed pixel in the tab's screenshots is a finding.
+   - **Outcome (2026-11-17):** it missed, so the web waits. The web picker and plan builder ship in 1.11 without thumbnails, as in 1.10, and the web tab keeps its SVG pictures. Only a raster sheet decoded before the first open met the bar; building it needs the owner's decision. The findings and numbers are in `docs/next-update.md`, "Web picker thumbnails: tried, waiting".
 3. **Stale screenshots** (`today-install`, `lock-setup`, `session-saved`, dark and light): re-shoot only. Their wording is already right in the app, since ca5877f.
 
 ## Global Constraints
@@ -95,3 +96,5 @@ Then:
 1. independent reviews per platform;
 2. fixes;
 3. the owner's yes before the merge.
+
+Note (2026-11-17): the owner's standing permission ("Don't ask before merging, just do it") supersedes step 3, "the owner's yes before the merge".
