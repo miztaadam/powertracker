@@ -434,7 +434,7 @@ private val hackSquat: ExerciseFigure by lazy {
             "Lean back on the sled with your shoulders under the pads.",
             "Place your feet on the platform. Lower puts more work on your quads; higher puts more on your glutes.",
             "Straighten your legs and release the lock.",
-            "Lower by bending your hips and knees until your knees are just short of fully bent.",
+            "Lower by bending your hips and knees until your knees are just short of fully bent. Stop sooner if your hips start to lift off the pad.",
         ),
         contacts = listOf(
             Contact(BodyPoint.UPPER_BACK, Surface.BACK_PAD, BOTH),

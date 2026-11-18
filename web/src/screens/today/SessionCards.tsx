@@ -22,12 +22,15 @@ export type StartSessionCardProps = {
   onStart: (bodyweightKg: number | null, readiness: number | null) => void
   /** Opens the reason sheet for a planned row (1.13); left out, there are no row menus. */
   onSkipToday?: (item: TodayItem) => void
-  /** Everything planned today was skipped (1.13): it is not a day with nothing planned. */
-  allSkipped?: boolean
+  /** How many of today's planned exercises are skipped (1.13). With none left on the list, the eyebrow counts them. */
+  skipped?: number
 }
 
 /** Before the first set: what is planned today, two optional check-in numbers, and Start. */
-export function StartSessionCard({ items, dayName, onStart, onSkipToday, allSkipped = false }: StartSessionCardProps) {
+export function StartSessionCard({ items, dayName, onStart, onSkipToday, skipped = 0 }: StartSessionCardProps) {
+  // Everything planned today was skipped: it is not a day with nothing planned. Anything on the list, an exercise the
+  // lifter added included, is left to do.
+  const allSkipped = items.length === 0 && skipped > 0
   const [bodyweight, setBodyweight] = useState<number | null>(null)
   const [readiness, setReadiness] = useState<number | null>(null)
   const [typingBodyweight, setTypingBodyweight] = useState(false)
@@ -35,7 +38,15 @@ export function StartSessionCard({ items, dayName, onStart, onSkipToday, allSkip
   return (
     <Card>
       <div>
-        <Eyebrow text={items.length === 0 && !allSkipped ? 'Nothing planned' : `${dayName} · ${items.length} ${items.length === 1 ? 'exercise' : 'exercises'}`} />
+        <Eyebrow
+          text={
+            allSkipped
+              ? `${dayName} · ${skipped} skipped`
+              : items.length === 0
+                ? 'Nothing planned'
+                : `${dayName} · ${items.length} ${items.length === 1 ? 'exercise' : 'exercises'}`
+          }
+        />
         <h2 className="headline-medium">Ready to train?</h2>
       </div>
 

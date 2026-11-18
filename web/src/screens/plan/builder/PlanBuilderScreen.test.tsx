@@ -52,13 +52,16 @@ const button = (name: string | RegExp) => screen.getByRole('button', { name })
 const tap = (name: string | RegExp) => userEvent.click(button(name))
 const step = (n: number) => screen.findByText(`Step ${n} of 4`)
 const chosen = () => screen.queryByRole('region', { name: 'Chosen' })
-/** The exercise's tick box in the browser's list, under "Chosen" (which repeats the ticked ones). */
-const exerciseRow = (name: string) => {
-  const rows = screen.getAllByRole('listitem', { name }).filter((li) => !chosen()?.contains(li))
+/**
+ * The exercise's tick box in the browser's list, under "Chosen" (which repeats the ticked ones). Each lookup walks the
+ * whole page, 225 rows and more, so a caller checking many rows can look "Chosen" up once and pass it as `region`.
+ */
+const exerciseRow = (name: string, region = chosen()) => {
+  const rows = screen.getAllByRole('listitem', { name }).filter((li) => !region?.contains(li))
   expect(rows).toHaveLength(1)
   return within(rows[0]!).getByRole('checkbox')
 }
-const chosenRow = (name: string) => within(within(chosen()!).getByRole('listitem', { name })).getByRole('checkbox')
+const chosenRow = (name: string, region = chosen()!) => within(within(region).getByRole('listitem', { name })).getByRole('checkbox')
 const chosenNames = () => {
   const region = chosen()
   return region ? within(region).getAllByRole('listitem').map((li) => li.getAttribute('aria-label')) : []
@@ -415,10 +418,13 @@ describe('the plan builder', () => {
     await step(2)
     await wholeList()
     expect([...chosenNames()].sort()).toEqual([...names].sort())
+    // One walk of the page per row, not six.
+    const region = chosen()!
     for (const name of names) {
-      expect(chosenRow(name)).toHaveAttribute('aria-checked', 'true')
-      expect(exerciseRow(name)).toHaveAttribute('aria-checked', 'true')
-      expect(follows(chosen()!, exerciseRow(name))).toBe(true)
+      const inList = exerciseRow(name, region)
+      expect(chosenRow(name, region)).toHaveAttribute('aria-checked', 'true')
+      expect(inList).toHaveAttribute('aria-checked', 'true')
+      expect(follows(region, inList)).toBe(true)
     }
     expect(within(chosen()!).getByRole('heading', { name: 'Chosen' })).toBeInTheDocument()
 

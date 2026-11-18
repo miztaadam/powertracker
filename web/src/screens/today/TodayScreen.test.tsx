@@ -9,6 +9,7 @@ import { DELOAD_ADVICE, TODAY, addDays, baseline, exerciseNamed, logSet, plan, s
 import { setTapHaptics } from '../../platform/haptics'
 import { grit } from '../../domain'
 import { TodayScreen } from './TodayScreen'
+import { createYourOwn } from '../../test/wholeList'
 
 let fx: ReturnType<typeof todayFixture>
 let db: GritDb
@@ -549,7 +550,7 @@ describe('TodayScreen', () => {
     await startSession(db, TODAY)
     show()
     await openPicker()
-    await userEvent.click(await picker().findByRole('button', { name: 'Create your own' }))
+    await userEvent.click(await createYourOwn(picker()))
     const custom = within(screen.getByRole('dialog', { name: 'Add custom exercise' }))
     await userEvent.type(custom.getByRole('textbox', { name: 'Name' }), 'biceps curl')
     await userEvent.click(custom.getByRole('button', { name: 'Create' }))

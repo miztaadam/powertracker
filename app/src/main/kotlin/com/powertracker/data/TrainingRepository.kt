@@ -184,8 +184,9 @@ open class TrainingRepository(private val db: AppDatabase) {
      * re-skip to "Out of time" leaves none). An answered card stays. A PAIN skip also deletes that day's OPEN TARGET
      * advice for the exercise on both sides, since the hold crosses sides: it was worked out without the hold, and Today
      * works a target out again only when none is stored for the day. A PAIN skip also deletes the exercise's OPEN busy or
-     * repeat SKIP cards on its side, whichever skip made them, so its pain card replaces them (a pain skip always
-     * tells you; [com.powertracker.domain.coach.SkipCoach]). An open pain card or SWAP card stays.
+     * repeat SKIP cards on its side, whichever skip made them, so its pain card replaces them: a pain card is held back
+     * only by an open pain card for the exercise on that side, or by a dismissed one made in the last 7 days (the quiet
+     * spell, counted from when the card was made; [com.powertracker.domain.coach.SkipCoach]). An open pain card or SWAP card stays.
      *
      * [cards] gets the stored skip (with its id) and every stored skip, both sides', and returns the advice to insert. It
      * runs inside the transaction: if it throws, nothing is stored. It should only compute, from what the caller read

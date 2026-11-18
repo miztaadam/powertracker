@@ -8,6 +8,7 @@ import com.powertracker.data.AdviceRepository
 import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
+import com.powertracker.domain.coach.Coaching
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceStatus
@@ -449,6 +450,48 @@ class SkipTodayViewModelTest {
         await("pain card") { skipCards().any { it.reason == SkipReason.PAIN } }
         assertEquals(listOf(SkipReason.PAIN), skipCards().map { it.reason })
         assertEquals(2, storedSkips().size)
+    }
+
+    /**
+     * A pain skip of squat [daysAgo] days ago, given the coach's real card, which was then dismissed; the skip itself
+     * was then taken back, so only the dismissed card is left and nothing holds squat's weight.
+     */
+    private fun dismissedPainCard(item: Long, daysAgo: Int) = runBlocking {
+        val day = today.minus(daysAgo, DateTimeUnit.DAY)
+        val id = training.skip(Skip(0, day, TrainingMode.POWERLIFTING, squat.id, item, SkipReason.PAIN)) { stored, all ->
+            val plans = training.plans().first()
+            Coaching.afterSkip(stored, all, training.history().first(), plans.powerlifting + plans.bodybuilding, day, advice.all())
+        }
+        val card = advice.all().single { it.type == AdviceType.SKIP }
+        advice.setStatus(card.id, AdviceStatus.DISMISSED)
+        training.unskip(id)
+    }
+
+    @Test
+    fun painSkip_withinTheQuietSpellOfADismissedPainCard_givesNoCard_butTheHoldApplies() {
+        val item = squatWithHistory()
+        dismissedPainCard(item, 3)
+        val vm = viewModel()
+        await("target") { todaysTarget(squat)?.weightKg == 155.0 }
+
+        vm.skip(squat.id, item, SkipReason.PAIN)
+
+        await("held") { storedSkips().size == 1 && todaysTarget(squat)?.weightKg == 150.0 }
+        settle()
+        assertEquals(listOf(AdviceStatus.DISMISSED), runBlocking { advice.all() }.filter { it.type == AdviceType.SKIP }.map { it.status })
+    }
+
+    @Test
+    fun painSkip_7DaysAfterADismissedPainCard_givesTheCard() {
+        val item = squatWithHistory()
+        dismissedPainCard(item, 7)
+        val vm = viewModel()
+        await("target") { todaysTarget(squat) != null }
+
+        vm.skip(squat.id, item, SkipReason.PAIN)
+
+        await("pain card") { skipCards().any { it.reason == SkipReason.PAIN } }
+        assertEquals(today, runBlocking { advice.all() }.single { it.type == AdviceType.SKIP && it.status == AdviceStatus.OPEN }.createdAt)
     }
 
     private fun skipCards(): List<AdvicePayload.Skipped> = runBlocking { advice.all() }

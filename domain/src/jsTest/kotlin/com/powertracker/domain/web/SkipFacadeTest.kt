@@ -66,6 +66,19 @@ class SkipFacadeTest {
     }
 
     @Test
+    fun afterSkip_aDismissedPainCardQuietsPainSkipsFor7Days() {
+        // A pain card made on the 10th and dismissed: no pain card through the 16th, one again from the 17th. Applied: no quiet spell.
+        val first = JsSkip(1, "2026-11-10", "BODYBUILDING", 1, 10, "PAIN")
+        val card = GritDomain.coachingAfterSkip(first, arrayOf(first), history, plan, "2026-11-10", emptyArray()).single().copy(id = 40)
+        val dismissed = card.copy(status = "DISMISSED")
+        for ((day, cards) in listOf("2026-11-13" to 0, "2026-11-16" to 0, "2026-11-17" to 1, "2026-11-18" to 1)) {
+            val pain = JsSkip(2, day, "BODYBUILDING", 1, 10, "PAIN")
+            assertEquals(cards, GritDomain.coachingAfterSkip(pain, arrayOf(first, pain), history, plan, day, arrayOf(dismissed)).size, day)
+            assertEquals(1, GritDomain.coachingAfterSkip(pain, arrayOf(first, pain), history, plan, day, arrayOf(card.copy(status = "APPLIED"))).size, day)
+        }
+    }
+
+    @Test
     fun applySkipSwapSwapsTheNamedSide() {
         val payload = """{"type":"com.powertracker.domain.model.AdvicePayload.Skipped","skipId":2,"exerciseId":1,"name":"Lat pulldown","reason":"BUSY","alternatives":["Machine pulldown"]}"""
         val bb = GritDomain.coachingApplySkipSwap(payload, "Machine pulldown", "BODYBUILDING", plan, arrayOf(pulldown, legPress, squat))

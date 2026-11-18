@@ -22,7 +22,7 @@ private const val FRONT_LEG_STRAIGHTENS = "Squeeze your quads as your front leg 
 private const val FRONT_FOOT_STAND = "Squeeze your quads as you push through your front foot to stand."
 // The leg press guides lower to about a right angle at the knee and stop sooner if the hips lift off the pad; they
 // press until the legs are "straight but not locked". The hack squat uses it too: its guide lowers until the knees
-// are just short of fully bent, and the hips on the pad asks for less range than that, never more (see its entry).
+// are just short of fully bent, and stops sooner if the hips start to lift off the pad (see its entry).
 private const val PRESS_BOTTOM = "Your quads stretch at the bottom, hips still on the pad."
 
 /** BodyArea.QUADS: each exercise's stretch and squeeze, keyed by catalogue name. */
@@ -90,8 +90,8 @@ internal val quadsFocus: List<Pair<String, MuscleFocus>> by lazy {
             Sources.ACE_SEATED_LEG_PRESS,
         ),
         // The guide lowers "until your knees are just short of fully bent" (ExRx SLHackSquat's words). ExRx's comments
-        // add: if the pelvis pulls away from the back pad lower down, stop short of that. The guide lacks that rule, so
-        // the stretch names the hips on the pad (PRESS_BOTTOM), asking for less range than the guide, never more.
+        // add: if the pelvis pulls away from the back pad lower down, stop short of that. The guide carries that rule
+        // (since 1.13.1), and the stretch names the hips on the pad (PRESS_BOTTOM), the guide's own limit.
         "Hack squat" to lines(
             PRESS_BOTTOM,
             "Squeeze your quads as your knees and hips straighten.",

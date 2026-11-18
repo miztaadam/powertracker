@@ -366,7 +366,9 @@ internal val quads: List<LibraryExercise> = listOf(
                 "Straighten your legs and release the lock.",
             ),
             steps = listOf(
-                "Lower by bending your hips and knees until your knees are just short of fully bent.",
+                // ExRx SLHackSquat's comments: if the pelvis pulls away from the back pad lower down, lower the sled
+                // only to just short of that. Checked on 2026-11-18 from the search summary; the page was not opened.
+                "Lower by bending your hips and knees until your knees are just short of fully bent. Stop sooner if your hips start to lift off the pad.",
                 "Push back up by straightening your knees and hips.",
                 "After the last rep, put the lock back on with your legs straight before you get off.",
             ),

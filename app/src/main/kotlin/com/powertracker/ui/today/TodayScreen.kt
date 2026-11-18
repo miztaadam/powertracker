@@ -299,7 +299,7 @@ fun TodayContent(
                         StartSessionCard(
                             items, state.date.dayOfWeek.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()), actions.onStartSession,
                             onSkipToday = { skippingId = it.exercise.id },
-                            allSkipped = items.isEmpty() && state.skippedToday.isNotEmpty(),
+                            skipped = state.skippedToday.size,
                         )
                     }
                     if (state.skippedToday.isNotEmpty()) {

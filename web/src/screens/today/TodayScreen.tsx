@@ -193,7 +193,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
               dayName={weekday}
               onStart={(bodyweightKg, readiness) => void actions.startSession(bodyweightKg, readiness)}
               onSkipToday={(item) => skipToday(item)?.()}
-              allSkipped={items.length === 0 && state.skippedToday.length > 0}
+              skipped={state.skippedToday.length}
             />
             {skippedLine}
           </>

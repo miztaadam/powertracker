@@ -92,7 +92,7 @@ internal val chestFocus: List<Pair<String, MuscleFocus>> by lazy {
         ),
         "Lying cable fly" to lines(HANDS_SHOULDER_LEVEL, HANDLES_TOGETHER, Sources.EXRX_CB_LYING_FLY, Sources.ACE_LYING_CHEST_FLY),
         "Incline bench cable fly" to lines(HANDS_SHOULDER_LEVEL, HANDLES_TOGETHER, Sources.EXRX_CB_INCLINE_FLY, Sources.ACE_LYING_CHEST_FLY),
-        // The guide lets the handles go back "under control" and gives no further point: the start.
+        // The guide lets the handles go back "under control" to the start, hands never further back than the armpits.
         "Seated cable fly" to lines(
             "Your chest stretches as the handles go back to the start.", HANDLES_TOGETHER,
             Sources.EXRX_CB_SEATED_FLY,
