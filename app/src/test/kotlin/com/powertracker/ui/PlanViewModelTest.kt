@@ -177,6 +177,29 @@ class PlanViewModelTest {
     }
 
     @Test
+    fun add_aThrowAfterTheStore_isNotReportedAsAFailedSave() {
+        val vm = viewModel()
+        vm.await { it.exercises.isNotEmpty() }
+        var added = 0
+        var failed = 0
+
+        // The item is stored; what runs after it (closing the form, the tick) is not part of the write.
+        vm.add(DayOfWeek.MONDAY, entry("Squat"), sets = 5, reps = 3, rpe = 7.5, repsHigh = null, onAdded = {
+            added++
+            throw IllegalStateException("after the store")
+        }, onFailed = { failed++ })
+        idleUntil({ "added $added" }) { added == 1 }
+        repeat(20) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(5)
+        }
+
+        assertEquals(1, stored().size)
+        assertEquals("no \"Couldn't save\" for a stored item", emptyList<String>(), messages)
+        assertEquals("the guard is not released into a second add", 0, failed)
+    }
+
+    @Test
     fun aWriteThatWorks_saysNothing() {
         val vm = viewModel()
         vm.await { it.exercises.isNotEmpty() }
