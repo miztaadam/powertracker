@@ -79,16 +79,20 @@ fun StartSessionCard(
                 items.forEachIndexed { i, item ->
                     if (i > 0) SoftDivider()
                     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(vertical = Space.xs), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-                        Column(Modifier.weight(1f)) {
-                            Text(item.exercise.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            (item.suggestion?.payload as? AdvicePayload.Target)?.let { target ->
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.xs)) {
-                                    Icon(Icons.Filled.Bolt, contentDescription = null, tint = pt.accentText, modifier = Modifier.size(14.dp))
-                                    Text("Coach suggests ${targetHeadline(target)}", style = MaterialTheme.typography.bodySmall, color = pt.accentText, maxLines = 1)
+                        // The name is never cut: where it and the plan do not fit on one line, the plan goes under it.
+                        WrappingPair(Modifier.weight(1f), first = {
+                            Column {
+                                Text(item.exercise.name, style = MaterialTheme.typography.titleMedium)
+                                (item.suggestion?.payload as? AdvicePayload.Target)?.let { target ->
+                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.xs)) {
+                                        Icon(Icons.Filled.Bolt, contentDescription = null, tint = pt.accentText, modifier = Modifier.size(14.dp))
+                                        Text("Coach suggests ${targetHeadline(target)}", style = MaterialTheme.typography.bodySmall, color = pt.accentText, maxLines = 1)
+                                    }
                                 }
                             }
+                        }) {
+                            item.planned?.let { Text(planText(it), style = MaterialTheme.typography.headlineSmall, maxLines = 1) }
                         }
-                        item.planned?.let { Text(planText(it), style = MaterialTheme.typography.headlineSmall, maxLines = 1) }
                         if (onSkipToday != null && item.canSkip) SkipMenuButton(item.exercise.name, { onSkipToday(item) })
                     }
                 }

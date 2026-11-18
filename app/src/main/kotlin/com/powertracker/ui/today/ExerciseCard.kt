@@ -205,21 +205,19 @@ private fun ColumnScope.CardContent(
 ) {
     val id = item.exercise.id
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Eyebrow("Exercise $position of $count")
-                Text(
-                    item.exercise.name,
-                    style = MaterialTheme.typography.headlineMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.semantics { heading() },
-                )
-            }
-            when {
-                item.planned == null && item.sets.isEmpty() -> QuietButton("Remove", { actions.onRemoveExercise(id) })
-                item.isComplete -> Pill("Done", tone = Tone.SUCCESS, icon = Icons.Filled.Check)
-                item.targetSets != null -> Pill("Set ${item.sets.size + 1} of ${item.targetSets}")
-                else -> Pill("Set ${item.sets.size + 1}")
+            // The name is never cut: where it and the set count do not fit on one line, the count goes under it.
+            WrappingPair(Modifier.weight(1f), first = {
+                Column {
+                    Eyebrow("Exercise $position of $count")
+                    Text(item.exercise.name, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+                }
+            }) {
+                when {
+                    item.planned == null && item.sets.isEmpty() -> QuietButton("Remove", { actions.onRemoveExercise(id) })
+                    item.isComplete -> Pill("Done", tone = Tone.SUCCESS, icon = Icons.Filled.Check)
+                    item.targetSets != null -> Pill("Set ${item.sets.size + 1} of ${item.targetSets}")
+                    else -> Pill("Set ${item.sets.size + 1}")
+                }
             }
             InfoButton(item.exercise.name)
             if (onSkipToday != null) SkipMenuButton(item.exercise.name, onSkipToday)
@@ -449,15 +447,24 @@ fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modif
         onClick = onClick,
     ) {
         Row(Modifier.heightIn(min = 40.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-            Text(item.exercise.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-            if (item.suggestion != null) {
-                Icon(Icons.Filled.Bolt, contentDescription = "Coach suggestion", tint = PowertrackerTheme.colors.accentText, modifier = Modifier.size(18.dp))
-            }
-            item.planned?.let { Text(planText(it), style = MaterialTheme.typography.headlineSmall, color = scheme.onSurfaceVariant, maxLines = 1) }
-            when {
-                item.isComplete -> Pill("Done", tone = Tone.SUCCESS, icon = Icons.Filled.Check)
-                item.sets.isNotEmpty() && item.targetSets != null -> Pill("${item.sets.size} of ${item.targetSets}")
-                item.sets.isNotEmpty() -> Pill("${item.sets.size} ${if (item.sets.size == 1) "set" else "sets"}")
+            // The name is never cut: where it and the plan do not fit on one line, the plan goes under it, and a long
+            // name wraps between words.
+            WrappingPair(Modifier.weight(1f), first = {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+                    Text(item.exercise.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f, fill = false))
+                    if (item.suggestion != null) {
+                        Icon(Icons.Filled.Bolt, contentDescription = "Coach suggestion", tint = PowertrackerTheme.colors.accentText, modifier = Modifier.size(18.dp))
+                    }
+                }
+            }) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+                    item.planned?.let { Text(planText(it), style = MaterialTheme.typography.headlineSmall, color = scheme.onSurfaceVariant, maxLines = 1) }
+                    when {
+                        item.isComplete -> Pill("Done", tone = Tone.SUCCESS, icon = Icons.Filled.Check)
+                        item.sets.isNotEmpty() && item.targetSets != null -> Pill("${item.sets.size} of ${item.targetSets}")
+                        item.sets.isNotEmpty() -> Pill("${item.sets.size} ${if (item.sets.size == 1) "set" else "sets"}")
+                    }
+                }
             }
             InfoButton(item.exercise.name)
             if (onSkipToday != null) SkipMenuButton(item.exercise.name, onSkipToday)
