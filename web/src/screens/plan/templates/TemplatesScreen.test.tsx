@@ -382,6 +382,38 @@ describe('saving a template', () => {
   })
 })
 
+describe('a replace whose training days cannot be set', () => {
+  it('leavesTheOldPlanItsSkipAndItsDays_saysNothingWasChanged_andATryAgainSavesBoth', async () => {
+    const bench = await item('POWERLIFTING', 3, 'Bench')
+    await item('POWERLIFTING', 1, 'Curl')
+    await updateSettings(db, (s) => ({ ...s, trainingDays: [1, 3] }))
+    await storeSkip(db, { date: addDays(TODAY, -2), mode: 'POWERLIFTING', exerciseId: await id('Bench'), planItemId: bench, reason: 'BUSY' }, () => [])
+    const rows = await planFor(db, 'POWERLIFTING')
+    const skips = await storedSkips(db)
+
+    const { onSaved } = show('POWERLIFTING')
+    await openTemplate('3-day powerlifting')
+    // The plan is replaced first; then the side's days are written, and that write fails, once.
+    const put = vi.spyOn(db.settings, 'bulkPut').mockRejectedValueOnce(new Error('disk full'))
+    await tap('Use this plan')
+    await userEvent.click(within(screen.getByRole('dialog', { name: 'Replace your powerlifting plan?' })).getByRole('button', { name: 'Replace' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('The plan could not be saved. Nothing was changed.')
+    expect(put).toHaveBeenCalledOnce()
+    // One transaction: the old plan is there with its own ids, its skip still points at its item, the days are as stored.
+    expect(await planFor(db, 'POWERLIFTING')).toEqual(rows)
+    expect(await storedSkips(db)).toEqual(skips)
+    expect((await getSettings(db)).trainingDays).toEqual([1, 3])
+    expect(onSaved).not.toHaveBeenCalled()
+
+    put.mockRestore()
+    await tap('Use this plan')
+    await userEvent.click(within(screen.getByRole('dialog', { name: 'Replace your powerlifting plan?' })).getByRole('button', { name: 'Replace' }))
+    await waitFor(() => expect(onSaved).toHaveBeenCalledOnce())
+    expect(await described('POWERLIFTING')).toEqual(expected('pl-3', [1, 3, 5]))
+    expect((await getSettings(db)).trainingDays).toEqual([1, 3, 5])
+  })
+})
+
 describe('the coach after a template is saved', () => {
   async function todaysTarget(exerciseId: number) {
     const rows = (await db.advice.toArray()).filter((a) => a.type === 'TARGET' && a.createdAt === TODAY && a.status === 'OPEN')
