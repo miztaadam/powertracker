@@ -891,7 +891,17 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     [db],
   )
 
-  const addExercise = useCallback((exerciseId: number) => update((l) => (l.added.includes(exerciseId) ? l : { ...l, added: [...l.added, exerciseId] })), [update])
+  const addLocally = useCallback((exerciseId: number) => update((l) => (l.added.includes(exerciseId) ? l : { ...l, added: [...l.added, exerciseId] })), [update])
+  // A planned exercise skipped today and added again (the picker, the Exercises tab) is taken back as Bring back does
+  // (1.13): it is its planned row again, not an added one. If that write fails, it is added for the session instead.
+  const addExercise = useCallback(
+    (exerciseId: number) => {
+      const skipped = latest.current.skippedToday.find((s) => s.exerciseId === exerciseId)
+      if (skipped == null) return addLocally(exerciseId)
+      unskip(db, skipped.skipId).catch(() => addLocally(exerciseId))
+    },
+    [db, addLocally],
+  )
 
   const addFromCatalogue = useCallback<TodayActions['addFromCatalogue']>(
     (name) => {

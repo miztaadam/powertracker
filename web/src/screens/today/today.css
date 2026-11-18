@@ -11,6 +11,48 @@
   text-overflow: ellipsis;
 }
 
+/*
+ * An exercise's name on Today (1.13): never cut short, also with the row menu beside it. It wraps at a space (or after a
+ * hyphen, as any text does), never inside a word, as on Android.
+ */
+.today-name {
+  min-width: 0;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
+}
+
+/* A name and what goes with it (the plan, a count): side by side when they fit, else the second part on a line below. */
+.today-pair {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-4);
+  row-gap: var(--space-1);
+}
+
+.today-pair-first {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.today-pair-second {
+  flex: none;
+  margin-left: auto;
+}
+
+.today-pair-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* The suggestion under a name is cut to the room the name leaves; it never widens the line itself. */
+.today-plan-suggestion {
+  contain: inline-size;
+}
+
 .today-nowrap {
   white-space: nowrap;
 }
@@ -45,8 +87,20 @@
 
 .today-card-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
+}
+
+/* The open card's title (1.13): beside the pill and the buttons when it fits, else on a line of its own above them. */
+.today-card-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.today-card-head > .today-card-title + * {
+  margin-left: auto;
 }
 
 /*

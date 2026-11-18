@@ -46,16 +46,21 @@ export function StartSessionCard({ items, dayName, onStart, onSkipToday, allSkip
         <ul className="today-plan">
           {items.map((item) => (
             <li key={item.exercise.id} className="today-plan-line">
-              <div className="today-grow">
-                <p className="today-ellipsis title-medium">{item.exercise.name}</p>
-                {item.suggestion && (
-                  <p className="today-plan-suggestion body-small">
-                    <BoltIcon size={14} />
-                    <span className="today-ellipsis">Coach suggests {targetHeadline(item.suggestion.target)}</span>
+              {/* The plan goes under the name when both do not fit beside the menu: the name is never cut short. */}
+              <div className="today-grow today-pair">
+                <div className="today-pair-first">
+                  <p className="today-name title-medium">
+                    {item.exercise.name}
                   </p>
-                )}
+                  {item.suggestion && (
+                    <p className="today-plan-suggestion body-small">
+                      <BoltIcon size={14} />
+                      <span className="today-ellipsis">Coach suggests {targetHeadline(item.suggestion.target)}</span>
+                    </p>
+                  )}
+                </div>
+                {item.planned && <span className="today-pair-second today-nowrap headline-small">{planText(item.planned)}</span>}
               </div>
-              {item.planned && <span className="today-nowrap headline-small">{planText(item.planned)}</span>}
               {onSkipToday && item.planned && item.sets.length === 0 && <SkipMenu name={item.exercise.name} onSkipToday={() => onSkipToday(item)} />}
             </li>
           ))}

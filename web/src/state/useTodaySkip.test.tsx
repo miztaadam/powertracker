@@ -193,6 +193,45 @@ describe('skipping on Today', () => {
     expect((await storedSkips(db)).map((s) => [s.mode, s.planItemId])).toEqual([['BODYBUILDING', item]])
   })
 
+  it('addSkippedExerciseFromPicker_unskipsIt', async () => {
+    // Adding a skipped exercise again, from the picker, by row or by catalogue name, or from the Exercises tab, takes
+    // its skip back the way Bring back does: it is its planned row again, with its menu, and not an added one.
+    const items = await threePlanned()
+    await startSession(db, TODAY)
+    const vm = show()
+    await waitFor(() => expect(ids(vm)).toHaveLength(3))
+    await act(() => vm.current.skip(bench, items[1]!, 'PAIN'))
+    await waitFor(() => expect(ids(vm)).toEqual([squat, row]))
+    expect(await openSkipCards()).toHaveLength(1)
+
+    act(() => vm.current.addExercise(bench))
+    await waitFor(() => expect(ids(vm)).toEqual([squat, bench, row]))
+    expect(vm.current.items[1]!.planned?.id).toBe(items[1])
+    expect(vm.current.skippedToday).toEqual([])
+    expect(await storedSkips(db)).toEqual([])
+    // As Bring back: the skip's open card goes with it.
+    expect(await openSkipCards()).toEqual([])
+
+    // By catalogue name too.
+    await act(() => vm.current.skip(row, items[2]!, null))
+    await waitFor(() => expect(ids(vm)).toEqual([squat, bench]))
+    act(() => void vm.current.addFromCatalogue('Row'))
+    await waitFor(() => expect(ids(vm)).toEqual([squat, bench, row]))
+    expect(vm.current.items[2]!.planned?.id).toBe(items[2])
+
+    // And from the Exercises tab's "Add to today".
+    await act(() => vm.current.skip(squat, items[0]!, 'TIME'))
+    await waitFor(() => expect(ids(vm)).toEqual([bench, row]))
+    let added: unknown = null
+    await act(async () => {
+      added = await vm.current.addToOpenSession(null, squat)
+    })
+    expect(added).toBe('ADDED')
+    await waitFor(() => expect(ids(vm)).toEqual([squat, bench, row]))
+    expect(vm.current.items[0]!.planned?.id).toBe(items[0])
+    expect(await storedSkips(db)).toEqual([])
+  })
+
   it('skip_yesterdaysSkip_notHiddenToday', async () => {
     await plan(squat, 0)
     await storeSkip(db, { date: addDays(TODAY, -1), mode: 'POWERLIFTING', exerciseId: squat, planItemId: null, reason: null }, () => [])

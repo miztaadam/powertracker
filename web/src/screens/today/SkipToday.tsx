@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import type { SkipReason } from '../../db/schema'
 import type { SkippedToday } from '../../state/useToday'
 import { QuietButton, SecondaryButton } from '../../ui/components/Button'
@@ -32,8 +32,9 @@ export const SKIP_ANSWERS: readonly [text: string, reason: SkipReason | null][] 
 ]
 
 /**
- * How long, in ms, the reason sheet ignores taps on its answers and outside it once it opens: it opens under the finger
- * that chose Skip today, where a double tap's second tap would land (as Plan's add form, ADD_FORM_TAP_WINDOW_MS).
+ * How long, in ms, the reason sheet ignores taps on its answers and outside it once it is open: it opens under the finger
+ * that chose Skip today, where a double tap's second tap would land (as Plan's add form, ADD_FORM_TAP_WINDOW_MS). Counted
+ * from the end of its slide up, as on Android, so the slide does not use the moment up; taps meanwhile are ignored too.
  */
 export const SKIP_SHEET_TAP_WINDOW_MS = 300
 
@@ -55,21 +56,34 @@ export type SkipReasonSheetProps = {
 
 /**
  * Asks why `name` is skipped. Choosing an answer calls `onReason`; Escape or a tap outside calls `onDismiss` and nothing
- * is stored. For SKIP_SHEET_TAP_WINDOW_MS after it opens, taps on the answers and outside do nothing; the keyboard
+ * is stored. While it slides up and for SKIP_SHEET_TAP_WINDOW_MS after, taps on the answers and outside do nothing; the keyboard
  * (Enter, Space, Escape) is not held, as on Plan's add form.
  */
 export function SkipReasonSheet({ name, onReason, onDismiss }: SkipReasonSheetProps) {
-  const [openedAt] = useState(eventClock)
+  // When the sheet finished sliding up, on the events' clock; null while it is still moving.
+  const [openedAt, setOpenedAt] = useState<number | null>(null)
+  const taps = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    let gone = false
+    const panel = taps.current?.querySelector('.gr-dialog')
+    const moving = panel?.getAnimations?.() ?? []
+    Promise.all(moving.map((a) => a.finished.catch(() => {}))).then(() => {
+      if (!gone) setOpenedAt(eventClock())
+    })
+    return () => {
+      gone = true
+    }
+  }, [])
   const title = skipSheetTitle(name)
-  // A click made by a tap (detail 1 or more) on an answer or the scrim, too soon after the sheet opened, stops here.
+  // A click made by a tap (detail 1 or more) on an answer or the scrim, while the sheet slides up or too soon after, stops here.
   const holdEarlyTaps = (e: MouseEvent<HTMLDivElement>) => {
-    if (e.detail === 0 || e.timeStamp - openedAt >= SKIP_SHEET_TAP_WINDOW_MS) return
+    if (e.detail === 0 || (openedAt != null && e.timeStamp - openedAt >= SKIP_SHEET_TAP_WINDOW_MS)) return
     const target = e.target as Element
     // The Dialog is drawn in place, so the scrim is this wrapper's only child.
     if (target === e.currentTarget.firstElementChild || target.closest('.today-skip-answers') != null) e.stopPropagation()
   }
   return (
-    <div className="today-skip-taps" onClickCapture={holdEarlyTaps}>
+    <div ref={taps} className="today-skip-taps" onClickCapture={holdEarlyTaps}>
       <Dialog
         open
         variant="sheet"
@@ -99,7 +113,9 @@ export function SkippedTodayLine({ skipped, onBringBack }: { skipped: readonly S
       <ul role="list" className="today-skipped-list">
         {skipped.map((s) => (
           <li key={s.exerciseId} className="today-skipped-row">
-            <span className="today-grow today-ellipsis body-medium">{s.name}</span>
+            <span className="today-grow today-name body-medium">
+              {s.name}
+            </span>
             <QuietButton text={BRING_BACK} label={`${BRING_BACK} ${s.name}`} onClick={() => onBringBack(s.exerciseId)} />
           </li>
         ))}

@@ -1,7 +1,10 @@
 import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
+import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
 import { openOnWednesday, pastTheTapWindow, tabBar } from './helpers'
+
+const grit = GritDomain.getInstance()
 
 // 1.13: skipping a planned exercise on Today, and the coach's card for it. A normal run writes the screenshots to
 // test-results/screens/; UPDATE_SCREENSHOTS=1 rewrites the committed PNGs in docs/design/web/screens/.
@@ -15,10 +18,17 @@ async function shoot(page: Page, name: string) {
 
 type Side = 'POWERLIFTING' | 'BODYBUILDING'
 
-/** Plans `names` on Wednesdays, in that order, on `side`'s side, and puts the app on that side; then reloads. */
+/**
+ * Plans `names` on Wednesdays, in that order, on `side`'s side, and puts the app on that side; then reloads. A catalogue
+ * exercise with no row yet gets one, as the app makes it.
+ */
 async function planWednesday(page: Page, side: Side, names: string[]) {
+  const catalogue = names.flatMap((name) => {
+    const e = grit.findInLibrary(name)
+    return e ? [{ name: e.name, category: e.category, parentLift: e.parentLift ?? null, muscles: [...e.muscles], isBuiltIn: true, archived: false }] : []
+  })
   await page.evaluate(
-    async ({ side, names }) => {
+    async ({ side, names, catalogue }) => {
       const db = await new Promise<IDBDatabase>((done, fail) => {
         const request = indexedDB.open('grit')
         request.onsuccess = () => done(request.result)
@@ -33,6 +43,14 @@ async function planWednesday(page: Page, side: Side, names: string[]) {
         const all = tx.objectStore('exercises').getAll()
         all.onsuccess = () => done(all.result)
       })
+      for (const row of catalogue) {
+        if (exercises.some((e) => e.name === row.name)) continue
+        const id = await new Promise<number>((done) => {
+          const add = tx.objectStore('exercises').add(row)
+          add.onsuccess = () => done(add.result as number)
+        })
+        exercises.push({ id, name: row.name })
+      }
       names.forEach((name, order) => {
         const exerciseId = exercises.find((e) => e.name === name)!.id
         const item = side === 'BODYBUILDING' ? { sets: 3, reps: 8, repsHigh: 12 } : { sets: 3, reps: 5 }
@@ -42,18 +60,20 @@ async function planWednesday(page: Page, side: Side, names: string[]) {
       await settled
       db.close()
     },
-    { side, names },
+    { side, names, catalogue },
   )
   await page.reload()
   await expect(tabBar(page)).toBeVisible()
 }
 
-/** Opens `name`'s row menu and taps Skip today; the reason sheet opens and, after its moment, takes taps. */
+/** Opens `name`'s row menu and taps Skip today; the reason sheet slides up and, after its moment, takes taps. */
 async function openSheet(page: Page, name: string) {
   await page.getByRole('button', { name: `Options for ${name}` }).click()
   await page.getByRole('menuitem', { name: 'Skip today' }).click()
   const sheet = page.getByRole('dialog', { name: `Why skip ${name}?` })
   await expect(sheet).toBeVisible()
+  // Its answers take taps 300 ms after it has finished sliding up.
+  await sheet.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)))
   await pastTheTapWindow(page)
   return sheet
 }
@@ -101,6 +121,27 @@ test('skip_painOnBench_rowLeaves_cardShows_undoTakesBoth', async ({ page }) => {
   await expect(page.getByText('Wednesday · 2 exercises')).toBeVisible()
   await tabBar(page).getByRole('link', { name: 'Coach' }).click()
   await expect(page.getByText('Nothing open')).toBeVisible()
+})
+
+test('doubleTapSkipToday_aTapJustAfterTheSlide_picksNothing', async ({ page }) => {
+  await openOnWednesday(page)
+  await planWednesday(page, 'POWERLIFTING', ['Squat', 'Bench'])
+  await page.getByRole('button', { name: 'Options for Bench' }).click()
+  await page.getByRole('menuitem', { name: 'Skip today' }).click()
+  const sheet = page.getByRole('dialog', { name: 'Why skip Bench?' })
+  // 150 ms after it has finished sliding up (some 350 ms after it opened): still inside the moment, which is counted
+  // from the end of the slide.
+  await sheet.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)))
+  await page.waitForTimeout(150)
+  await sheet.getByRole('button', { name: 'Pain' }).click()
+  await page.waitForTimeout(100)
+  await expect(sheet).toBeVisible()
+  await expect(page.getByText('Wednesday · 2 exercises')).toBeVisible()
+  // Once the moment has passed, the answer is taken.
+  await pastTheTapWindow(page)
+  await sheet.getByRole('button', { name: 'Pain' }).click()
+  await expect(sheet).toBeHidden()
+  await expect(page.getByText('Wednesday · 1 exercise')).toBeVisible()
 })
 
 for (const scheme of ['dark', 'light'] as const) {
@@ -154,6 +195,65 @@ for (const scheme of ['dark', 'light'] as const) {
       await expect(squatCard.getByRole('button')).toHaveText(['Dismiss'])
       await squatCard.evaluate((el) => el.scrollIntoView({ block: 'center' }))
       await shoot(page, `coach-skip-pain${suffix}`)
+    })
+  }
+}
+
+/**
+ * Every exercise name on Today's rows, whole: not cut short (no ellipsis, nothing clipped) and broken only at a space
+ * (or after a hyphen), never inside a word. Each part of the name is checked to sit on one line.
+ */
+async function namesWhole(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const bad: string[] = []
+    for (const el of document.querySelectorAll<HTMLElement>('.today-name')) {
+      const name = el.textContent ?? ''
+      if (el.scrollWidth > el.clientWidth + 1 || getComputedStyle(el).textOverflow === 'ellipsis') bad.push(`${name}: cut short`)
+      // Each word's characters, wherever they sit (a hyphenated word has a span of its own), on one line.
+      const chars: [Text, number][] = []
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) for (let i = 0; i < (node as Text).length; i++) chars.push([node as Text, i])
+      let at = 0
+      for (const word of name.split(/(?<=[ -])/).map((w) => w.replace(/ $/, ''))) {
+        const lines = new Set<number>()
+        for (const [node, i] of chars.slice(at, at + word.length)) {
+          const range = document.createRange()
+          range.setStart(node, i)
+          range.setEnd(node, i + 1)
+          for (const r of range.getClientRects()) if (r.width > 0) lines.add(Math.round(r.top))
+        }
+        if (lines.size > 1) bad.push(`${name}: "${word}" broken`)
+        at += word.length + (name[at + word.length] === ' ' ? 1 : 0)
+      }
+    }
+    return bad
+  })
+}
+
+// At 320 px, and at 130% zoom on a 320 px phone (laid out 1.3 times narrower, as e2e/narrow.spec.ts does), the longest
+// names beside the ⋮ wrap at a space and stay whole, on the start card, the folded rows, the open card and the skipped line.
+for (const [label, viewport] of [
+  ['a 320 px phone', { width: 320, height: 640 }],
+  ['a 320 px phone at 130% zoom', { width: Math.floor(320 / 1.3), height: Math.floor(640 / 1.3) }],
+] as const) {
+  for (const side of ['POWERLIFTING', 'BODYBUILDING'] as const) {
+    test.describe(`on ${label}, ${side.toLowerCase()} side`, () => {
+      test.use({ viewport })
+      test('todayRows_namesBesideTheMenu_areWhole', async ({ page }) => {
+        await openOnWednesday(page)
+        const names = ['Cable overhead triceps extension', 'Chest-supported rear delt raise', 'Paused deadlift at the knee', 'Cable crossover']
+        await planWednesday(page, side, names)
+        await expect(page.getByRole('button', { name: `Options for ${names[1]}` })).toBeAttached()
+        expect(await namesWhole(page)).toEqual([])
+        await page.getByRole('button', { name: 'Start session' }).click()
+        await expect(page.getByRole('button', { name: `Options for ${names[1]}` })).toBeAttached()
+        expect(await page.locator('.today-name').count()).toBe(names.length)
+        expect(await namesWhole(page)).toEqual([])
+        // Skipped: the line's names too.
+        await (await openSheet(page, names[3]!)).getByRole('button', { name: 'Just skip' }).click()
+        await expect(skippedLine(page).getByText(names[3]!)).toBeAttached()
+        expect(await namesWhole(page)).toEqual([])
+      })
     })
   }
 }
