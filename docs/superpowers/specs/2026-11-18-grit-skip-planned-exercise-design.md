@@ -47,7 +47,9 @@
 - **An exercise with logged sets** has no **Skip today**. The sets you did count, and the rest are simply not done, as today.
 
 ## What the coach does
-The coach reads skips over the last 28 days, the window it already uses for dismissal memory. All counts are per exercise and per side. *(Thresholds are my calls, product rules rather than training numbers, so they need no source. The owner can change them.)*
+The coach reads skips over the last 28 days, the window it already uses for dismissal memory. Busy and no-reason counts are per exercise and per side. *(My call: the pain hold belongs to the lifter, like deloads and easing back in. A pain skip holds that exercise's weight on both sides, and a logged session of it on either side ends the hold.)*
+
+**When cards appear** *(my call)*: at the moment of the skip, not at Finish. Skips don't need a session, and the coach otherwise runs only at Finish. Undo, or Bring back, takes back any card that its skip created and that is still open. *(Thresholds are my calls, product rules rather than training numbers, so they need no source. The owner can change them.)*
 
 - **Busy or no equipment:** the 2nd such skip of the same exercise within 28 days creates a SWAP card for a similar exercise that uses different equipment, chosen from the catalogue the way the coach's existing swaps are. **Apply** swaps the plan item, and **Dismiss** follows the usual memory.
 - **Pain:** on the first pain skip, these happen together:
@@ -55,7 +57,7 @@ The coach reads skips over the last 28 days, the window it already uses for dism
   - **The weight is held:** the coach makes no weight increase for that exercise until a session of it is logged after the pain skip. A logged session ends the hold: it means you did it again, so the pain apparently allowed it.
   - **Wording on persistent pain:** for example, seeing a professional if it lasts. This must come from the approved sources, looked up during planning and cited in `CoachSources.kt` like the coach's other numbers. If the sources support no such line, the card goes without it.
 - **Out of time:** nothing changes, and there is no card.
-- **Just skip (no reason):** the 3rd skip of the same exercise within 28 days, of any reason except out of time, creates one card asking whether to keep it in the plan, offering a swap. It is not stacked on a busy or pain card that is already open for that exercise.
+- **Just skip (no reason):** the 3rd skip of the same exercise within 28 days, of any reason except out of time, creates one card asking whether to keep it in the plan, offering a swap. *(My call: the card has only Swap and Dismiss, with no "Remove from plan", since changing the plan beyond a swap is a non-goal.)* It is not stacked on a busy or pain card that is already open for that exercise.
 - **Skips are never failures.** No rule may read a skip as a missed set, a stall or a reason to deload or ease back in. `ReturnRule` (time off) keeps reading sessions only.
 
 ## Storage, backups and edge cases
@@ -69,7 +71,7 @@ The coach reads skips over the last 28 days, the window it already uses for dism
 - **One skip per exercise per date per side.** Skipping again replaces the reason.
 - **Backups include skips.**
   - An older backup restores with no skips.
-  - A backup with skips restored into an older app version follows that app's existing rule for unknown fields. Record what that rule is, and don't break it.
+  - A backup with skips restored into an older app version is turned away as too new, which is that app's existing rule (it rejects unknown keys outside `settings`). The backup format version goes up.
 - **When things are deleted:** deleting a plan item keeps its skips, so the coach's history stays true. Deleting a custom exercise also removes its skips.
 - **Dates use the same local-date rule as sessions** (`today()`).
 
