@@ -203,7 +203,6 @@ In 1.6.1 the owner still saw a band of page about 55 pt high below the tab bar o
 - The Exercises tab speed check, in quiet timing against 1.5.0, had two single slow opens (80 and 90 ms). Both are still under the 100 ms limit, and the medians were the same as 1.5.0. Timed before the sound-engine fix; the release's quiet speed runs passed, but the tab was not re-timed against 1.5.0 after it.
 - An Android test, `PlanBuilderScreenTest`, failed during full runs on a closed database connection. Fixed separately (commits `cc9a24d`, `6824288`): every screen and view-model test now closes its database only once nothing reads it.
 - The picker's occasional slow first open in 1.6 (one run took 114 ms; the limit is 100 ms) came from the new iPhone sound unlock: it made the sound engine inside the first tap. The engine is now made just after start-up, so a tap only wakes it.
-- "Sound + vibrate" wraps onto two lines on 320–390 px phones, so on most Android phones. The owner may prefer a shorter label.
 - An Android app set to vibrate only comes back as "Sound + vibrate" when its backup is restored in an Android browser, since the web has no vibrate-only alert.
 - Thumbnails in the exercise picker stay paused. They come after the look and motion work.
 
@@ -264,7 +263,6 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 
 
 **Open follow-ups:**
 - Pictures in the web picker and plan builder: closed by the owner on 2026-11-18 after three trials (see "Web picker thumbnails: tried, closed"). Android has them since 1.10.
-- "Sound + vibrate" wraps onto two lines on narrow phones (web). Measured in 1.12.2: it cannot fit one line with a smaller font or tighter padding, so a different arrangement is the owner's call (see "Done: the 1.12.2 tidy-up"). Android's fits.
 - Two guide gaps: the Seated cable fly guide and the Hack squat guide (see the 1.5 notes).
 - The Exercises tab still opens slowly now and then (single slow opens, still under 100 ms).
 - Done in 1.12.2 (see "Done: the 1.12.2 tidy-up"): the Android plan builder's 2 broken names at 320 dp × 1.3; every Plan write on Android catches a failure; a failed own-exercise save keeps what was typed.
@@ -482,6 +480,15 @@ Not yet tried on a real phone.
 - **Version:** Android 1.12.1 (versionCode 18), web 1.12.1. Settings shots re-shot on both apps; no other screenshot changed.
 - **Not changed in 1.12.1:** other writes still did not catch a failure: among others, Plan's Save (edit), move, delete and known best. **Done in 1.12.2.**
 - **Review notes (open, low):** Today's `SaveFailed` goes through a `MutableSharedFlow` with no replay, so if Today is off screen when the insert fails (you left the tab, or the screen is being recreated), the message is lost: there is no crash, but no message either. Plan's buffered `Channel` has no such gap.
+
+## Done: 1.12.3, "Sound + vibrate" on one line (web; both apps' version)
+The owner chose option A (2026-11-18): on the web, Settings' rest-alert segments are sized to their own labels, as Android's are.
+
+- **Web Settings:** each segment starts at its label's width and takes an equal share of what is left (`SegmentedChoice`'s new opt-in `sizeToLabels`; every other use keeps equal segments). The labels' side padding is 1 px instead of 2.
+  - At 306, 320, 360 and 390 px every label is on one line at 15 px, whole, with its text unchanged. The row still fills its width and every segment is 48 px tall. From 340 px wide every segment is also at least 48 px wide; at 320 px "Off" is about 31 px wide (it was about 60 with equal segments).
+  - At 130% text on a 320 px phone (246 px of page) there is not room for one line: "Sound + vibrate" wraps at its spaces, onto three lines ("Sound" / "+" / "vibrate"), never inside a word and never clipped.
+  - New e2e check in `web/e2e/narrow.spec.ts`, on a browser that can vibrate.
+- **Version:** Android 1.12.3 (versionCode 20), web 1.12.3. Settings shots re-shot on both apps (the web ones also show the new row).
 
 ## Done: the 1.12.2 tidy-up (both apps)
 Plan: `docs/superpowers/plans/2026-11-18-grit-1-12-2-tidy-up.md`. The owner said "go ahead" (2026-11-18).
