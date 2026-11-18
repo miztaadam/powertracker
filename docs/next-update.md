@@ -153,8 +153,8 @@ The designer's own calls, not from the sources, approved by the owner on 2026-11
 Not yet tried on real phones: the stretch and squeeze line in README's manual checklist matters.
 
 Follow-ups noticed during stage 4:
-- The Seated cable fly guide has no mistake against going past the start.
-- The Hack squat guide has no "stop if your hips leave the pad".
+- The Seated cable fly guide has no mistake against going past the start. **Done in 1.13.1:** "Letting your hands go back past the level of your armpits."
+- The Hack squat guide has no "stop if your hips leave the pad". **Done in 1.13.1:** "Stop sooner if your hips start to lift off the pad."
 - On the web at 130% zoom on a 375 px phone, the Today card's RPE stepper runs past the edge (it did before stage 4). **Fixed in 1.6:** under 375 px the RPE stepper takes its own row, and the 130% zoom check covers the steppers again.
 
 ## Done: the new look (version 1.6, both apps)
@@ -263,9 +263,9 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 
 
 **Open follow-ups:**
 - Pictures in the web picker and plan builder: closed by the owner on 2026-11-18 after three trials (see "Web picker thumbnails: tried, closed"). Android has them since 1.10.
-- Two guide gaps: the Seated cable fly guide and the Hack squat guide (see the 1.5 notes).
 - The Exercises tab still opens slowly now and then (single slow opens, still under 100 ms).
 - Tests that sometimes failed under load (looked into on 2026-11-18, test-only changes in 0721be6 and 4df3af3; no app cause found). Fixed in the tests: Android `PlanScreenTest.planAdd_tapAfterTheWindow_works` waited for the row in the database and then checked once that the add form had closed, which happens a moment later, when the write's answer reaches the screen (proven by holding that answer 300 ms); it now waits for both, as do `planAdd_changeNumbers_addStoresThem` and the rest-alert and vibrate-on-taps settings tests (the rest-alert one by the same shape, unproven: its failing line was never recorded, and it now prints the stored and shown values if it times out). Web `planAdd_cancel_storesNothing` polled 1 s for "Create your own", which is drawn only after the rest of the 225-row list; `createYourOwn` now waits for the list's frames, then finds it once. The web 5 s timeouts were plain work at about 80% of the limit: the Exercises tab tests are now laid out as on a phone (thumbnails near the screen only), and the browse and picker-search tests are split into parts under their own names. Verified: 3 quiet Android and 3 quiet web runs green, and one Gradle run with `npm test` back to back alongside, all green (web had failed in 5 of 5 loaded runs before). Still open: `planAdd_changeToOwnExerciseFails_afterThePickerWasClosed_theAddFormSaysSo` did not fail in 10 full runs here, so its cause is not established; its wait now prints where the message went, the test and wall clocks and the database work in flight when it times out. Next at risk on the web: the figure plugin test (about 2.7 s quiet, 4.9 s once under load).
+- Done in 1.13.1 (see "Done: 1.13.1, the 1.13 follow-ups"): the two guide gaps, Seated cable fly and Hack squat.
 - Done in 1.12.2 (see "Done: the 1.12.2 tidy-up"): the Android plan builder's 2 broken names at 320 dp × 1.3; every Plan write on Android catches a failure; a failed own-exercise save keeps what was typed.
 - Done in 1.11 (see "Done: the 1.10 follow-ups"): the web tab's 4 broken names at 288 px; the Android tab at 130% text; the six stale web screenshots; the Today slide test (1cc526c, 80 of 80 runs, under emulated touch).
 

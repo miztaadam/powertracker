@@ -36,8 +36,8 @@ const scope = (db: GritDb) => [db.skips, db.advice, db.sessions, db.sets, db.exe
  *   it was worked out without the hold, and Today works a target out again only when none is stored for the day;
  * - a PAIN skip also deletes the exercise's OPEN busy or repeat SKIP cards on its side, whichever skip made them, so
  *   its pain card replaces them (a pain card is held back only by an open pain card for the exercise on that side, or
- *   by one dismissed within 7 days of when it was made: the quiet spell, the domain's `SkipCoach`). An open pain or SWAP
- *   card stays;
+ *   by a dismissed one made in the last 7 days: the quiet spell, counted from when the card was made, the domain's
+ *   `SkipCoach`). An open pain or SWAP card stays;
  * - then `cards` runs, and what it returns is inserted. If it throws, nothing is stored.
  */
 export function skip(db: GritDb, skip: Omit<SkipRow, 'id'>, cards: SkipCards): Promise<number> {
