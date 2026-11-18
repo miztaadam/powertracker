@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.powertracker.BuildConfig
 import com.powertracker.data.AppSettings
 import com.powertracker.data.Backup
@@ -296,6 +297,8 @@ fun SettingsContent(
                     REST_ALERT_LABELS.indexOfFirst { it.first == settings.restAlert },
                     { i -> onUpdate { it.copy(restAlert = REST_ALERT_LABELS[i].first) } },
                     Modifier.padding(bottom = Space.m),
+                    // At 320 dp and 130% text the labels would be cut short at their usual 15 sp.
+                    minFontSize = 12.sp,
                 )
                 RowDivider()
                 SwitchRow("Vibrate on taps", VIBRATE_ON_TAPS_SUPPORTING, settings.vibrateOnTaps) { v -> onUpdate { it.copy(vibrateOnTaps = v) } }

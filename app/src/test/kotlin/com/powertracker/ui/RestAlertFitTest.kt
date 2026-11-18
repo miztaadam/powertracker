@@ -46,6 +46,43 @@ class RestAlertFitTest {
 
     private val labels = listOf("Vibrate only", "Sound + vibrate", "Off")
 
+    /** Starts Settings at [width] dp and [scale] text, and lists every rest-alert label not whole on one line at 12 sp or more. */
+    private fun clippedLabels(width: Int, scale: Float): List<String> {
+        scenario?.close()
+        RuntimeEnvironment.setQualifiers("w${width}dp-h2400dp-xhdpi")
+        RuntimeEnvironment.setFontScale(scale)
+        scenario = ActivityScenario.launch(ComponentActivity::class.java).onActivity { activity ->
+            activity.setContent { PowertrackerTheme { SettingsContent(AppSettings(), onUpdate = {}, onExport = {}, onRestore = {}, onBack = {}) } }
+        }
+        compose.waitForIdle()
+        val density = compose.onRoot().fetchSemanticsNode().layoutInfo.density
+        assertEquals(width * density.density, compose.onRoot().fetchSemanticsNode().boundsInRoot.width, 0.5f)
+        return labels.mapNotNull { label ->
+            val node = compose.onAllNodes(
+                SemanticsMatcher.expectValue(SemanticsProperties.Text, listOf(AnnotatedString(label))) and hasAnyAncestor(isSelectable()),
+                useUnmergedTree = true,
+            ).fetchSemanticsNodes().single()
+            val layouts = mutableListOf<TextLayoutResult>()
+            node.config[SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
+            val layout = layouts.single()
+            // What the label needs on one line, unclipped, against the box it is laid out in.
+            val shown = label.substring(0, layout.getLineEnd(0, visibleEnd = true))
+            val line = layout.getLineRight(0) - layout.getLineLeft(0)
+            val sp = with(density) { layout.layoutInput.style.fontSize.toPx() } / density.density / scale
+            val whole = layout.lineCount == 1 && shown == label && !layout.isLineEllipsized(0) &&
+                line <= layout.size.width + 1f && sp >= 12f
+            if (whole) null else "\"$label\" at $width dp, text x$scale: shows \"$shown\" ($line px in ${layout.size.width} px, $sp sp)"
+        }
+    }
+
+    @Test
+    fun restAlert_eachLabelWholeOnOneLine_at320dpAt130Percent() {
+        // 1.12.2 review: at 320 dp and 130% text (246 dp of room) "Vibrate only", "Sound + vibrate" and "Off" were cut
+        // short. Now each is whole, at no smaller than 12 sp, and still at 320 dp and at 360 dp x 1.3.
+        val problems = clippedLabels(320, 1.3f) + clippedLabels(320, 1f) + clippedLabels(360, 1.3f)
+        assertTrue("labels not whole on one line: $problems", problems.isEmpty())
+    }
+
     @Test
     fun restAlert_eachLabelWholeOnOneLine_at320dp_and360dpAt130Percent() {
         // 320 dp at 100% text and 360 dp at 130%: 320 and 277 dp of text room. (At 320 dp and 130%, 246 dp of room, the
