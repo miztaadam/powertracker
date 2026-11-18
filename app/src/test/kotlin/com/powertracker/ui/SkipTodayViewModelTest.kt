@@ -454,6 +454,33 @@ class SkipTodayViewModelTest {
     private fun skipCards(): List<AdvicePayload.Skipped> = runBlocking { advice.all() }
         .filter { it.type == AdviceType.SKIP && it.status == AdviceStatus.OPEN }.map { it.payload as AdvicePayload.Skipped }
 
+    /** Pins today's behaviour for the owner to rule on (report, call 8): a skipped exercise added again from the picker. */
+    @Test
+    fun skippedExercise_addedFromThePicker_showsAsAdded_andItsSkipStays() {
+        val items = threePlanned()
+        runBlocking { training.startSession(today, null, null) }
+        val vm = viewModel()
+        await("rows") { ids(vm).size == 3 }
+        vm.skip(bench.id, items[1], SkipReason.BUSY)
+        await("bench leaves") { ids(vm) == listOf(squat.id, row.id) }
+
+        vm.addExercise(bench.id)
+
+        // Back as an added row (Remove, no plan), off the skipped line; its skip is still stored.
+        await("bench added") { ids(vm) == listOf(squat.id, row.id, bench.id) }
+        assertEquals(null, vm.state.value.items.last().planned)
+        assertEquals(emptyList<SkippedToday>(), vm.state.value.skippedToday)
+        assertEquals(1, storedSkips().size)
+
+        // Once a set is logged it is the planned row again, and Finish still counts the skip.
+        vm.logSet(null, bench.id, set(bench, 80.0))
+        await("bench planned again") { ids(vm) == listOf(squat.id, bench.id, row.id) }
+        assertEquals(items[1], vm.state.value.items[1].planned?.id)
+        vm.finishSession()
+        await("summary") { vm.state.value.summary != null }
+        assertEquals(1, vm.state.value.summary?.skipped)
+    }
+
     @Test
     fun skip_doubleCall_storesOneSkipAndOneEvent() {
         val items = threePlanned()

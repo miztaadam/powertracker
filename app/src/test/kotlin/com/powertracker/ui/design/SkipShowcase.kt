@@ -92,7 +92,7 @@ fun TodaySkipMenuShowcase(mode: TrainingMode = TrainingMode.POWERLIFTING) {
         SkipToday(mode)
         // Where the menu drops from the second row's ⋮.
         Surface(
-            Modifier.align(Alignment.TopEnd).padding(top = 588.dp, end = 24.dp).width(200.dp),
+            Modifier.align(Alignment.TopEnd).padding(top = if (mode == TrainingMode.BODYBUILDING) 636.dp else 588.dp, end = 24.dp).width(200.dp),
             shape = MenuDefaults.shape,
             color = MenuDefaults.containerColor,
             tonalElevation = MenuDefaults.TonalElevation,

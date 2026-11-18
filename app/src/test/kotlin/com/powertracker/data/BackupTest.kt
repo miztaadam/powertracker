@@ -436,7 +436,7 @@ class BackupTest {
         }
     }
 
-    /** 1.13: a version 5 file restored over other version 5 skips replaces them, clashing ids and keys included. */
+    /** 1.13: a version 5 file restored over other version 5 skips replaces them, one on the same date, side and exercise included. */
     @Test
     fun v5File_restoredOverOtherSkips_replacesThem() = runTest {
         seedBothSides()
@@ -444,7 +444,7 @@ class BackupTest {
         val exported = service.export(1L)
         val text = Backup.encode(exported)
 
-        // Different skips now: one on the same date, side and exercise with another reason, and new ones.
+        // Different skips now, under new ids: one on the same date, side and exercise with another reason, and three more.
         db.skips().clear()
         db.advice().clear()
         val training = TrainingRepository(db)
