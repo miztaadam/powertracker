@@ -1,13 +1,14 @@
-import { liveQuery } from 'dexie'
+import Dexie, { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { addSet, planFor } from '../db/catalogue'
 import { checkInToJs, loadCheckIns } from '../db/checkIns'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
-import { sideOf, type AdviceRow, type PlanItemRow, type SetRow, type TrainingMode } from '../db/schema'
+import { sideOf, type AdviceRow, type PlanItemRow, type SetRow, type SkipReason, type TrainingMode } from '../db/schema'
+import { skip as storeSkip, skips as readSkips, skipToJs, unskip, type StoredSkip } from '../db/skips'
 import { haptic, hapticsPossible } from '../platform/haptics'
 import { slideNextChange, withTransition } from '../ui/viewTransition'
-import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise } from '../domain'
+import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise, type JsSkip } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 
 /** The numbers in the steppers for the next set. `weightKg` is null until the lifter enters one. */
@@ -62,7 +63,14 @@ export type TodayAdd =
   /** There is no open, unfinished session to add to (or no such exercise); nothing changed. */
   | 'REFUSED'
 
-export type FinishSummary = { setCount: number; exerciseCount: number; newNotes: number }
+/** `skipped` (1.13) is how many exercises were skipped that day on the session's side; there only when 1 or more. */
+export type FinishSummary = { setCount: number; exerciseCount: number; newNotes: number; skipped?: number }
+
+/** A planned exercise skipped today on the side shown (1.13), for the "Skipped today" line and its Bring back. */
+export type SkippedToday = { exerciseId: number; name: string; skipId: number }
+
+/** A skip just stored: its id, for Undo, and the exercise's name, for the snackbar. */
+export type SkipDone = { skipId: number; name: string }
 
 export type TodayState = {
   /** The day this screen logs to, `YYYY-MM-DD`. */
@@ -93,6 +101,8 @@ export type TodayState = {
   side: TrainingMode
   /** The side the app is on now, from Settings. */
   activeSide: TrainingMode
+  /** Today's planned exercises skipped on the side shown, in plan order (1.13); they are not in `items`. */
+  skippedToday: SkippedToday[]
 }
 
 export type TodayActions = {
@@ -142,6 +152,17 @@ export type TodayActions = {
   addToOpenSession: (catalogueName: string | null, exerciseId: number | null) => Promise<TodayAdd | null>
   /** Takes back an added exercise that has no sets yet. */
   removeExercise: (exerciseId: number) => void
+  /**
+   * Skips `exerciseId`, planned today with no sets logged, for today on the side shown, with an optional reason (null is
+   * "Just skip"). The skip and the coach's card for it, if any, are stored together, and it ticks once. Skipping needs no
+   * session; skipping one already skipped today replaces its reason and its card. Resolves to null when nothing was
+   * stored (sets logged, not planned today, or another skip still being stored: a double tap). Rejects when the write fails.
+   */
+  skip: (exerciseId: number, planItemId: number | null, reason: SkipReason | null) => Promise<SkipDone | null>
+  /** Undo on the snackbar: takes back the skip `skipId` and its still-open card. An answered card stays. */
+  undoSkip: (skipId: number) => Promise<void>
+  /** Bring back on the "Skipped today" line: takes back today's skip of `exerciseId` on the side shown. */
+  bringBack: (exerciseId: number) => Promise<void>
   /** Runs the coach over the history including today and stores what is new. */
   finishSession: () => Promise<void>
   /** Back to logging after the summary; if midnight has passed meanwhile, on to the new day. */
@@ -165,6 +186,8 @@ type Stored = {
   settings: AppSettings
   targets: (Omit<Suggestion, 'applyReps'> & { status: string })[]
   side: TrainingMode
+  /** Every stored skip, both sides': the pain hold crosses sides. */
+  skips: StoredSkip[]
 }
 
 /** What only this screen knows: edited numbers, exercises added but not yet logged, open prompts. */
@@ -215,7 +238,7 @@ async function sideFor(db: GritDb, date: string, settings: AppSettings): Promise
 }
 
 async function readStored(db: GritDb, date: string): Promise<Stored> {
-  const [session, history, settings, advice] = await Promise.all([db.sessions.where('date').equals(date).first(), loadHistory(db), getSettings(db), db.advice.toArray()])
+  const [session, history, settings, advice, skips] = await Promise.all([db.sessions.where('date').equals(date).first(), loadHistory(db), getSettings(db), db.advice.toArray(), readSkips(db)])
   const side = session ? sideOf(session) : settings.trainingMode
   const plan = await planFor(db, side)
   const sets = session?.id != null ? await db.sets.where('sessionId').equals(session.id).sortBy('id') : []
@@ -228,6 +251,7 @@ async function readStored(db: GritDb, date: string): Promise<Stored> {
     settings,
     targets: todaysTargets(advice, date, side),
     side,
+    skips,
   }
 }
 
@@ -268,15 +292,17 @@ async function coachPass(db: GritDb, date: string, today: () => string): Promise
   let writing = false
   try {
     // One transaction, so two passes (two tabs, a remount) cannot both find the target missing.
-    await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.meta], async () => {
-      const [history, settings, advice] = await Promise.all([loadHistory(db), getSettings(db), db.advice.toArray()])
+    await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.meta, db.skips], async () => {
+      const [history, settings, advice, skips] = await Promise.all([loadHistory(db), getSettings(db), db.advice.toArray(), readSkips(db)])
       const side = await sideFor(db, date, settings)
       const plan = await planFor(db, side)
       const known = new Set(todaysTargets(advice, date, side).map((t) => t.target.exerciseId))
       // The whole advice list: the domain counts each side's own, and every deload and easing back in.
       const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
       const fresh: AdviceRow[] = []
-      for (const a of grit.coachingTargetsFor(side, weekdayOf(date), history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), date, prior)) {
+      // Every skip, both sides': a pain skip on either holds the exercise's weight (1.13).
+      const held = skips.map(skipToJs)
+      for (const a of grit.coachingTargetsForWithSkips(side, weekdayOf(date), history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), date, prior, held)) {
         const exerciseId = parseTarget(a.payloadJson)?.exerciseId
         if (exerciseId == null || known.has(exerciseId)) continue
         known.add(exerciseId)
@@ -351,7 +377,7 @@ function catalogueId(name: string, exercises: readonly JsExercise[]): number | n
   return exercises.find((e) => sameName(e.name, entry.name))?.id ?? standInId(entry)
 }
 
-function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'exercises' | 'recentIds' | 'resolved' | 'weightStepKg' | 'changePlates' | 'side' | 'activeSide'> {
+function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'exercises' | 'recentIds' | 'resolved' | 'weightStepKg' | 'changePlates' | 'side' | 'activeSide' | 'skippedToday'> {
   const exercises = new Map(d.history.exercises.map((e) => [e.id, e]))
   // Oldest first, like resolveCatalogue: with two rows of one name, the one shown is the one saved to.
   const live = d.history.exercises.filter((e) => !e.archived).sort((a, b) => a.id - b.id)
@@ -368,12 +394,16 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
   }
   const added = l.added.map((id) => resolved[id] ?? id)
   // One card per exercise: sets are stored per exercise, so a second plan line for the same one merges into the first.
-  const planned: PlannedItem[] = []
+  const allPlanned: PlannedItem[] = []
   for (const p of d.plan.filter((p) => p.weekday === weekdayOf(d.date)).sort((a, b) => a.order - b.order)) {
-    if (!planned.some((q) => q.exerciseId === p.exerciseId)) planned.push(p)
+    if (!allPlanned.some((q) => q.exerciseId === p.exerciseId)) allPlanned.push(p)
   }
-  const plannedIds = new Set(planned.map((p) => p.exerciseId))
   const loggedIds = d.sets.map((s) => s.exerciseId)
+  // A planned exercise skipped today on this side leaves the list (1.13), unless sets were logged for it after all.
+  const skippedIds = new Map(d.skips.filter((s) => s.date === d.date && s.mode === d.side).map((s) => [s.exerciseId, s]))
+  const planned = allPlanned.filter((p) => !skippedIds.has(p.exerciseId) || loggedIds.includes(p.exerciseId))
+  const plannedIds = new Set(planned.map((p) => p.exerciseId))
+  const jsSkips: JsSkip[] | null = d.side === 'BODYBUILDING' ? d.skips.map(skipToJs) : null
   const addedIds = [...new Set([...loggedIds.filter((id) => !added.includes(id)), ...added])].filter((id) => !plannedIds.has(id))
 
   function item(exercise: JsExercise, plan: PlannedItem | null): TodayItem {
@@ -393,8 +423,9 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
           : { weightKg: top?.weightKg ?? null, reps: plan?.reps ?? top?.reps ?? DEFAULT_REPS, rpe })
     const targetSets = plan ? (applied?.sets ?? plan.sets) : null
     const open = mine.find((t) => t.status === 'OPEN')
-    // On the bodybuilding side Apply fills in the reps to beat for the set about to be logged.
-    const applyReps = open && plan && d.side === 'BODYBUILDING' ? grit.repsToBeat(planItemToJs(plan), d.history, sets.length + 1, d.date) : (open?.target.reps ?? 0)
+    // On the bodybuilding side Apply fills in the reps to beat for the set about to be logged. Under a pain hold the aim is
+    // not reset to the low end of the range, so the skips go too.
+    const applyReps = open && plan && jsSkips ? grit.repsToBeatWithSkips(planItemToJs(plan), d.history, sets.length + 1, d.date, jsSkips) : (open?.target.reps ?? 0)
     return {
       exercise,
       planned: plan,
@@ -418,6 +449,13 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
     const exercise = exercises.get(id) ?? (entry ? new JsExercise(id, entry.name, entry.category, entry.parentLift, [...entry.muscles], true, false) : undefined)
     if (exercise) items.push(item(exercise, null))
   }
+  // Only what is still planned today and not on the list: after a swap there is nothing left to bring back.
+  const shownIds = new Set(items.map((i) => i.exercise.id))
+  const skippedToday = allPlanned.flatMap((p): SkippedToday[] => {
+    const skip = skippedIds.get(p.exerciseId)
+    const exercise = exercises.get(p.exerciseId)
+    return skip && exercise && !shownIds.has(p.exerciseId) ? [{ exerciseId: p.exerciseId, name: exercise.name, skipId: skip.id }] : []
+  })
   return {
     sessionId: d.sessionId,
     items,
@@ -428,6 +466,7 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
     changePlates: d.settings.changePlates,
     side: d.side,
     activeSide: d.settings.trainingMode,
+    skippedToday,
   }
 }
 
@@ -575,6 +614,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     coachPasses,
     side: built?.side ?? 'POWERLIFTING',
     activeSide: built?.activeSide ?? 'POWERLIFTING',
+    skippedToday: built?.skippedToday ?? [],
   }
 
   // Actions read the newest state and callbacks through refs, so a tap never acts on a stale screen.
@@ -601,7 +641,11 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   )
 
   // Ask the coach for today's targets when the screen opens and again if the plan changes.
-  const planKey = current ? JSON.stringify([current.side, current.plan, current.settings.defaultRpe, current.settings.changePlates]) : null
+  // And again when a skip is stored or taken back (1.13): a pain skip, and taking any skip back, delete that day's target,
+  // which is then worked out again, with or without the hold.
+  const planKey = current
+    ? JSON.stringify([current.side, current.plan, current.settings.defaultRpe, current.settings.changePlates, current.skips.map((s) => [s.id, s.date, s.reason])])
+    : null
   useEffect(() => {
     if (planKey == null) return
     let stale = false
@@ -668,6 +712,28 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
           resolve()
         }
         knownWaiting.current.push({ id, done })
+      }),
+    [],
+  )
+
+  /** Waits until the screen's state passes `test` (or a moment has passed). */
+  const stateWaiting = useRef<{ test: (s: TodayState) => boolean; done: () => void }[]>([])
+  useEffect(() => {
+    stateWaiting.current = stateWaiting.current.filter((w) => {
+      if (w.test(latest.current)) w.done()
+      return !w.test(latest.current)
+    })
+  })
+  const until = useCallback(
+    (test: (s: TodayState) => boolean) =>
+      new Promise<void>((resolve) => {
+        if (test(latest.current) || closed.current) return resolve()
+        const timer = setTimeout(done, SHOWN_TIMEOUT_MS)
+        function done() {
+          clearTimeout(timer)
+          resolve()
+        }
+        stateWaiting.current.push({ test, done })
       }),
     [],
   )
@@ -903,7 +969,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     try {
       // Advice is dated by the real clock: a session finished after midnight stores nothing under the day before.
       const clockDay = clock.current()
-      const newNotes = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.checkIns], async () => {
+      const [newNotes, skipped] = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.checkIns, db.skips], async () => {
         // The coach of the session's own side looks at it, also after a switch since it was started.
         const side = now.side
         const [history, plan, settings, advice, checkIns] = await Promise.all([loadHistory(db), planFor(db, side), getSettings(db), db.advice.toArray(), loadCheckIns(db)])
@@ -912,18 +978,69 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // the powerlifting coach does not read them.
         const fresh = grit.coachingEvaluateWithCheckIns(side, history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), clockDay, prior, checkIns.map(checkInToJs))
         if (fresh.length > 0) await db.advice.bulkAdd(fresh.map((a) => withoutId(adviceFromJs(a))))
-        return fresh.length
+        // The exercises skipped that day on the session's side (1.13).
+        const skipped = await db.skips.where('[date+mode+exerciseId]').between([now.date, side, Dexie.minKey], [now.date, side, Dexie.maxKey]).count()
+        return [fresh.length, skipped] as const
       })
       // Finished: it no longer keeps the screen, here or after a reload.
       activity.current = null
       db.meta.delete(ACTIVITY_KEY).catch(() => {})
       const done = now.items.filter((i) => i.sets.length > 0)
       // A summary already up is kept: it is the one that counted the new notes.
-      update((l) => (l.summary != null ? l : { ...l, summary: { setCount: done.reduce((n, i) => n + i.sets.length, 0), exerciseCount: done.length, newNotes } }))
+      const summary: FinishSummary = { setCount: done.reduce((n, i) => n + i.sets.length, 0), exerciseCount: done.length, newNotes, ...(skipped > 0 ? { skipped } : {}) }
+      update((l) => (l.summary != null ? l : { ...l, summary }))
     } finally {
       finishing.current = false
     }
   }, [db, update])
+
+  // True while a skip is being stored; a second Skip today meanwhile (a double tap) is ignored.
+  const skipping = useRef(false)
+  const skip = useCallback<TodayActions['skip']>(
+    async (exerciseId, planItemId, reason) => {
+      if (skipping.current) return null
+      skipping.current = true
+      // Released once the row has left the screen (below), or straight away when nothing is stored.
+      let held = false
+      try {
+        if (!(await loaded())) return null
+        const now = latest.current
+        const item = now.items.find((i) => i.exercise.id === exerciseId)
+        // A row on the list, planned and with nothing logged; or one skipped already today, whose reason this replaces.
+        const again = now.skippedToday.find((s) => s.exerciseId === exerciseId)
+        const name = item != null ? (item.planned == null || item.sets.length > 0 ? null : item.exercise.name) : (again?.name ?? null)
+        if (name == null) return null
+        const day = now.date
+        const skipId = await storeSkip(db, { date: day, mode: now.side, exerciseId, planItemId: planItemId ?? item?.planned?.id ?? null, reason }, async (stored, all) => {
+          // Read here, inside the transaction: a re-skip's old card is already gone, so it does not hold back the new
+          // reason's card. The whole plan, both sides', and every piece of advice: the coach picks out the skip's side.
+          const [history, plan, advice] = await Promise.all([loadHistory(db), db.planItems.toArray(), db.advice.toArray()])
+          return grit.coachingAfterSkip(stored, all, history, (plan as PlannedItem[]).map(planItemToJs), day, advice.map((a) => adviceToJs(a as AdviceRow & { id: number })))
+        })
+        // One tick once it is stored.
+        haptic('tick')
+        // Hold the guard until the row has left, so a second tap on a row still drawn cannot skip it again.
+        held = true
+        void until((s) => !s.items.some((i) => i.exercise.id === exerciseId)).then(() => {
+          skipping.current = false
+        })
+        return { skipId, name }
+      } finally {
+        if (!held) skipping.current = false
+      }
+    },
+    [db, loaded, until],
+  )
+
+  const undoSkip = useCallback<TodayActions['undoSkip']>((skipId) => unskip(db, skipId), [db])
+
+  const bringBack = useCallback<TodayActions['bringBack']>(
+    async (exerciseId) => {
+      const skipId = latest.current.skippedToday.find((s) => s.exerciseId === exerciseId)?.skipId
+      if (skipId != null) await unskip(db, skipId)
+    },
+    [db],
+  )
 
   const dismissSummary = useCallback(() => {
     update((l) => ({ ...l, summary: null }))
@@ -947,6 +1064,9 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     addToOpenSession,
     createExercise,
     removeExercise,
+    skip,
+    undoSkip,
+    bringBack,
     finishSession,
     dismissSummary,
     refreshDay,

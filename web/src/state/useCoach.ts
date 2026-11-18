@@ -34,6 +34,11 @@ export type CardDetail =
   | { kind: 'moreWork'; group: string; addSets: SetAdditionUi[]; newExercise: NewExerciseUi | null; weeklyBefore: number; weeklyAfter: number }
   /** An exercise stuck for three weeks or more (bodybuilding side): what to swap it for, best first. */
   | { kind: 'swap'; exerciseId: number; name: string; group: string; since: string; weeks: number; alternatives: string[] }
+  /**
+   * A planned exercise skipped on Today (1.13): what to swap it for, best first. No alternatives (a main lift's pain card,
+   * or nothing left to swap to): Dismiss only. The coach's reason says why and what follows.
+   */
+  | { kind: 'skip'; exerciseId: number; name: string; alternatives: string[] }
 
 /** One more set of a planned exercise on one day. */
 export type SetAdditionUi = { weekday: number; name: string; fromSets: number; toSets: number }
@@ -68,7 +73,7 @@ export type CoachActions = {
   clearMessage: () => void
 }
 
-const FEED_ORDER = ['DELOAD', 'RE_ENTRY', 'STALL', 'WEAK_POINT', 'MORE_WORK', 'SWAP']
+const FEED_ORDER = ['DELOAD', 'RE_ENTRY', 'STALL', 'WEAK_POINT', 'MORE_WORK', 'SWAP', 'SKIP']
 const TREND_WEEKS = 6
 const WEAK_POINT_ADDITIONS = 2
 const E1RM_DAYS = 28
@@ -82,6 +87,7 @@ type Payload =
   | { kind: 'weakPoint'; lift: Lift; missPoint: MissPoint | null }
   | { kind: 'moreWork'; group: string; addSets: SetAdditionUi[]; newExercise: NewExerciseUi | null; weeklyBefore: number; weeklyAfter: number }
   | { kind: 'swap'; exerciseId: number; name: string; group: string; since: string; alternatives: string[] }
+  | { kind: 'skip'; exerciseId: number; name: string; alternatives: string[] }
 
 /** A payload weekday as 1 = Monday .. 7 = Sunday: stored payloads hold the name ("MONDAY"); a number passes through. */
 const WEEKDAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
@@ -121,6 +127,8 @@ function parsePayload(payloadJson: string): Payload | null {
       return p.exerciseId != null && p.name != null && p.group != null && p.since != null
         ? { kind: 'swap', exerciseId: p.exerciseId, name: p.name, group: p.group, since: p.since, alternatives: [...p.alternatives] }
         : null
+    case 'Skipped':
+      return p.exerciseId != null && p.name != null ? { kind: 'skip', exerciseId: p.exerciseId, name: p.name, alternatives: [...p.alternatives] } : null
     default:
       return null
   }
@@ -212,6 +220,8 @@ function detailFor(lift: Lift | null, payload: Payload, d: Stored, createdAt: st
       return payload
     case 'swap':
       return { ...payload, weeks: weeksSince(payload.since, createdAt) }
+    case 'skip':
+      return payload
   }
 }
 
@@ -230,7 +240,7 @@ function build(d: Stored, busy: ReadonlySet<number>): CoachCard[] {
       const payload = parsePayload(a.payloadJson)
       if (!payload) return []
       // A swap for an exercise no longer in the plan has nothing to swap.
-      if (payload.kind === 'swap' && !d.plan.some((p) => p.exerciseId === payload.exerciseId)) return []
+      if ((payload.kind === 'swap' || payload.kind === 'skip') && !d.plan.some((p) => p.exerciseId === payload.exerciseId)) return []
       const lift = asLift(a.lift)
       return [{ advice: { id: a.id, type: a.type, lift, createdAt: a.createdAt, reason: a.reason }, detail: detailFor(lift, payload, d, a.createdAt) }]
     })
@@ -281,11 +291,21 @@ function applyAdvice(db: GritDb, adviceId: number, choice: string | undefined): 
     const target = await db.advice.get(adviceId)
     const payload = target?.status === 'OPEN' && target.type !== 'TARGET' ? parsePayload(target.payloadJson) : null
     if (!target || !payload) return null
-    if (payload.kind === 'swap' && (choice == null || !payload.alternatives.includes(choice))) return null
+    if ((payload.kind === 'swap' || payload.kind === 'skip') && (choice == null || !payload.alternatives.includes(choice))) return null
     let message: string
     if (payload.kind === 'deload') message = 'Deload week on — targets lightened for 7 days'
     else if (payload.kind === 'reEntry') message = 'Easing back in for 7 days'
-    else if (payload.kind === 'moreWork' || payload.kind === 'swap') {
+    else if (payload.kind === 'skip') {
+      // A skipped exercise is swapped on the skip's own side, in every plan item of that side (1.13). One that cannot be
+      // swapped (past the bodybuilding side's ceiling, or swapped meanwhile) changes nothing and its card stays.
+      const side = sideOf(target)
+      const [plan, rows] = await Promise.all([planFor(db, side), db.exercises.toArray()])
+      const exercises = rows.map((row) => exerciseToJs(row as ExerciseRow & { id: number }))
+      const change = grit.coachingApplySkipSwap(target.payloadJson, choice!, side, plan.map(planItemToJs), exercises)
+      if (!change.changed) return { text: change.message, done: false }
+      await applyPlanChange(db, change)
+      message = change.message
+    } else if (payload.kind === 'moreWork' || payload.kind === 'swap') {
       // The domain works out what still applies to the bodybuilding plan as it is now; only that is changed, and the
       // advice is done either way (its message says when nothing could be).
       const [plan, rows] = await Promise.all([planFor(db, 'BODYBUILDING'), db.exercises.toArray()])

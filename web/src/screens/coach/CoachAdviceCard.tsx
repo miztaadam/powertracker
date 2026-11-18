@@ -8,7 +8,7 @@ import { dayName } from '../../state/weekdayNames'
 import { AdviceCard } from '../../ui/components/AdviceCard'
 import { SecondaryButton } from '../../ui/components/Button'
 import { formatKg, formatRpe } from '../../ui/components/format'
-import { BalanceIcon, BatteryAlertIcon, FitnessCenterIcon, ReplayIcon, TrendingFlatIcon } from '../../ui/components/icons'
+import { BalanceIcon, BatteryAlertIcon, FitnessCenterIcon, ReplayIcon, SkipNextIcon, TrendingFlatIcon } from '../../ui/components/icons'
 import { formatDayMonth } from '../progress/dates'
 import { Eyebrow, NumberDisplay } from '../../ui/components/NumberDisplay'
 import { RatioBar } from '../../ui/components/RatioBar'
@@ -114,6 +114,7 @@ function Detail({ lift, detail, side }: { lift: Lift | null; detail: CardDetail;
     }
     case 'moreWork':
     case 'swap':
+    case 'skip':
       return null
   }
 }
@@ -184,11 +185,33 @@ function SwapCard({ detail, onSwap, onDismiss }: { detail: Extract<CardDetail, {
   )
 }
 
+/** The skip card's title (1.13): "Bench skipped". The coach's reason says why and what follows. */
+export const skipTitle = (name: string) => `${name} skipped`
+
+/**
+ * A planned exercise skipped on Today (1.13), in the stuck exercise's look: one button per alternative, best first, then
+ * Dismiss. With no alternatives (a main lift's pain card, or nothing left to swap to) it is Dismiss only.
+ */
+function SkipCard({ detail, reason, onSwap, onDismiss }: { detail: Extract<CardDetail, { kind: 'skip' }>; reason: string; onSwap: (choice: string) => void; onDismiss: () => void }) {
+  return (
+    <AdviceCard tone="warning" icon={<SkipNextIcon />} tag="Skipped" title={skipTitle(detail.name)} body={reason} secondaryAction="Dismiss" onSecondary={onDismiss}>
+      {detail.alternatives.length > 0 && (
+        <div className="coach-swaps">
+          {detail.alternatives.map((name) => (
+            <SecondaryButton key={name} text={`Swap for ${name}`} onClick={() => onSwap(name)} compact />
+          ))}
+        </div>
+      )}
+    </AdviceCard>
+  )
+}
+
 /** One card of the Coach feed: what kind of advice, what to do, the coach's reason, the figures behind it, Apply and Dismiss. */
 export function CoachAdviceCard({ card, onApply, onDismiss, side = 'POWERLIFTING' }: CoachAdviceCardProps) {
   const { advice, detail } = card
   if (detail.kind === 'moreWork') return <MoreWorkCard detail={detail} onApply={() => onApply()} onDismiss={onDismiss} />
   if (detail.kind === 'swap') return <SwapCard detail={detail} onSwap={(choice) => onApply(choice)} onDismiss={onDismiss} />
+  if (detail.kind === 'skip') return <SkipCard detail={detail} reason={advice.reason} onSwap={(choice) => onApply(choice)} onDismiss={onDismiss} />
   const look = lookFor(advice.type, advice.lift, detail)
   return (
     <AdviceCard

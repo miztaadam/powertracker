@@ -19,6 +19,7 @@ import { slideName, withTransition } from '../../ui/viewTransition'
 import { InfoButton } from '../library/InfoButton'
 import { RpeInfoButton } from '../library/RpeSheet'
 import { MAX_KG, MAX_REPS, MAX_RPE, MIN_RPE, entryMessage, parseEntry, type EntryKind } from './entry'
+import { SkipMenu } from './SkipToday'
 import './today.css'
 
 /** Where the accent button leads once an exercise's sets are done: the next exercise, or Finish. */
@@ -90,10 +91,12 @@ export type ExerciseCardProps = {
    * question (spec §7.4); a set can still be marked Missed.
    */
   side?: TrainingMode
+  /** Opens the reason sheet (1.13); left out, there is no row menu (an added exercise, or one with sets). */
+  onSkipToday?: () => void
 }
 
 /** The exercise being logged: coach chip, sets so far, steppers, plates and the one big button. */
-export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING' }: ExerciseCardProps) {
+export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING', onSkipToday }: ExerciseCardProps) {
   const id = item.exercise.id
   const [extraSet, setExtraSet] = useState(false)
   const [selected, setSelected] = useState<{ number: number; set: StoredSet } | null>(null)
@@ -116,6 +119,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
           <Pill text={item.targetSets != null ? `Set ${nextNumber} of ${item.targetSets}` : `Set ${nextNumber}`} />
         )}
         <InfoButton name={item.exercise.name} />
+        {onSkipToday && <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} />}
       </div>
 
       {item.suggestion && (
@@ -388,8 +392,8 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
   )
 }
 
-/** Another exercise in today's session, folded to one line. Tap to log it. */
-export function ExerciseRow({ item, onClick }: { item: TodayItem; onClick: () => void }) {
+/** Another exercise in today's session, folded to one line. Tap to log it. `onSkipToday` (1.13) adds the row menu. */
+export function ExerciseRow({ item, onClick, onSkipToday }: { item: TodayItem; onClick: () => void; onSkipToday?: () => void }) {
   return (
     <Card contentPadding={0} className="today-row-card">
       <button type="button" className="today-row" onClick={onClick}>
@@ -410,6 +414,7 @@ export function ExerciseRow({ item, onClick }: { item: TodayItem; onClick: () =>
       </button>
       {/* Beside the row's button, not inside it: reading the guide must not open the card. */}
       <InfoButton name={item.exercise.name} />
+      {onSkipToday && <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} />}
     </Card>
   )
 }

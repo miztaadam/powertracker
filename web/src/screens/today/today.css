@@ -307,3 +307,43 @@
   margin: 0;
   color: var(--text-secondary);
 }
+
+/* Skipping a planned exercise for today (1.13). */
+
+/* The reason sheet: the question, then the four answers, one under another, full width. */
+.today-skip-head {
+  padding: var(--space-6) var(--space-6) var(--space-4);
+}
+
+.today-skip-answers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+/* The quiet line at the end of the list: what was skipped today, each with Bring back. */
+.today-skipped {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--space-2);
+}
+
+.today-skipped-title {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.today-skipped-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.today-skipped-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch);
+  color: var(--text-secondary);
+}

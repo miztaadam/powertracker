@@ -18,6 +18,7 @@ import { StartSessionCard, SummaryCard } from './SessionCards'
 import { WelcomeBackCard } from '../coach/WelcomeBackCard'
 import { ExercisePicker } from '../library/ExercisePicker'
 import { TypoDialog } from './TodayDialogs'
+import { SkippedTodayLine, SkipReasonSheet, UNDO, skippedMessage } from './SkipToday'
 import './today.css'
 
 export type TodayScreenProps = {
@@ -66,6 +67,9 @@ function dateParts(isoDate: string): { weekday: string; day: string; month: stri
   return { weekday: part('weekday'), day: part('day'), month: part('month') }
 }
 
+/** Whether Today offers "Skip today" for this row (1.13): a planned exercise with nothing logged. */
+const canSkip = (item: TodayItem) => item.planned != null && item.sets.length === 0
+
 /** Planned sets still to do, or an added exercise with nothing logged yet. */
 const hasWorkLeft = (item: TodayItem) => (item.targetSets != null ? !item.isComplete : item.sets.length === 0)
 
@@ -81,15 +85,22 @@ export type TodayContentProps = {
 
 const SAVE_FAILED = "Couldn't save — try again."
 
+/** How long a snackbar stays: the Snackbar's own default, also for the skip's, which has Undo. */
+const SNACKBAR_MS = 4000
+
 /** The Today screen without its data source. A write that fails says so; it never fails silently. */
 export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome }: TodayContentProps) {
   const { items } = state
-  // Counts failed writes: 0 shows nothing, and each new failure shows the message afresh.
-  const [failures, setFailures] = useState(0)
+  // The snackbar's message: a failed write, or a skip with its Undo (1.13). The newest replaces the one on screen, and each
+  // new one shows afresh (its id changes, also when the text repeats).
+  const [note, setNote] = useState<{ id: number; text: string; undoSkipId?: number } | null>(null)
+  const noteCount = useRef(0)
+  const say = (text: string, undoSkipId?: number) => setNote({ id: ++noteCount.current, text, undoSkipId })
+  const failed = () => say(SAVE_FAILED)
   const reported =
     <A extends unknown[]>(action: (...args: A) => Promise<void>) =>
     (...args: A) =>
-      action(...args).catch(() => setFailures((n) => n + 1))
+      action(...args).catch(failed)
   const actions: TodayActions = {
     ...raw,
     startSession: reported(raw.startSession),
@@ -100,6 +111,8 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
     applyTarget: reported(raw.applyTarget),
     dismissTarget: reported(raw.dismissTarget),
     finishSession: reported(raw.finishSession),
+    undoSkip: reported(raw.undoSkip),
+    bringBack: reported(raw.bringBack),
     // The exercise slides out and the rows below close up (stage 3).
     removeExercise: (exerciseId) => withTransition(() => raw.removeExercise(exerciseId)),
   }
@@ -107,6 +120,8 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
   const inSession = state.sessionId != null && state.summary == null
   const [activeId, setActiveId] = useState<number | null>(null)
   const [picking, setPicking] = useState(false)
+  // The exercise whose reason sheet is open (1.13).
+  const [skippingId, setSkippingId] = useState<number | null>(null)
   const { weekday, day, month } = dateParts(state.date)
 
   // A catalogue exercise added without a row changes id when its first set saves the row: follow it.
@@ -133,6 +148,25 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
     if (inSession && activeExerciseId != null) afterTransition(() => activeCard.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' }))
   }, [inSession, activeExerciseId])
 
+  // The reason sheet closes by itself if the row can no longer be skipped (a set was logged meanwhile, or it left the plan).
+  const skipping = skippingId != null ? items.find((i) => i.exercise.id === skippingId) : undefined
+  const skippable = skipping != null && canSkip(skipping)
+  useEffect(() => {
+    if (skippingId != null && !state.loading && !skippable) setSkippingId(null)
+  }, [skippingId, skippable, state.loading])
+  const skipToday = (item: TodayItem) => (canSkip(item) ? () => setSkippingId(item.exercise.id) : undefined)
+  /** An answer in the sheet: the exercise is skipped, and the snackbar offers Undo once it is stored. It ticks (useToday). */
+  const chooseReason = (item: TodayItem, reason: Parameters<TodayActions['skip']>[2]) => {
+    setSkippingId(null)
+    raw
+      .skip(item.exercise.id, item.planned?.id ?? null, reason)
+      .then((done) => {
+        if (done) say(skippedMessage(done.name), done.skipId)
+      })
+      .catch(failed)
+  }
+  const skippedLine = state.skippedToday.length > 0 && <SkippedTodayLine skipped={state.skippedToday} onBringBack={(id) => void actions.bringBack(id)} />
+
   function nextStep(index: number): NextStep {
     const upNext = [...items.slice(index + 1), ...items.slice(0, index)].find(hasWorkLeft)
     return upNext ? { label: `Next: ${upNext.exercise.name}`, onClick: () => withTransition(() => setActiveId(upNext.exercise.id)) } : { label: 'Finish session', onClick: () => void actions.finishSession() }
@@ -153,7 +187,16 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
         {state.loading ? null : state.summary != null ? (
           <SummaryCard summary={state.summary} onOpenCoach={onOpenCoach} onKeepLogging={actions.dismissSummary} />
         ) : state.sessionId == null ? (
-          <StartSessionCard items={items} dayName={weekday} onStart={(bodyweightKg, readiness) => void actions.startSession(bodyweightKg, readiness)} />
+          <>
+            <StartSessionCard
+              items={items}
+              dayName={weekday}
+              onStart={(bodyweightKg, readiness) => void actions.startSession(bodyweightKg, readiness)}
+              onSkipToday={(item) => skipToday(item)?.()}
+              allSkipped={items.length === 0 && state.skippedToday.length > 0}
+            />
+            {skippedLine}
+          </>
         ) : (
           <>
             {items.map((item, i) =>
@@ -168,21 +211,26 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
                     next={nextStep(i)}
                     actions={actions}
                     side={state.side}
+                    onSkipToday={skipToday(item)}
                   />
                 </div>
               ) : (
                 <div key={keyOf(item)} className="today-item" {...slideName(`item-${keyOf(item)}`)}>
-                  <ExerciseRow item={item} onClick={() => withTransition(() => setActiveId(item.exercise.id))} />
+                  <ExerciseRow item={item} onClick={() => withTransition(() => setActiveId(item.exercise.id))} onSkipToday={skipToday(item)} />
                 </div>
               ),
             )}
             {items.length === 0 && <EmptyState icon={<FitnessCenterIcon />} title="No exercises yet" body="Add what you are training today and log it set by set." />}
             <SecondaryButton className="today-add" text="Add exercise" onClick={() => setPicking(true)} icon={<AddIcon />} />
+            {skippedLine}
           </>
         )}
       </div>
 
       {state.pending && <TypoDialog pending={state.pending} onConfirm={() => void actions.confirmPending()} onEdit={actions.cancelPending} />}
+
+      {/* Back, Escape or a tap outside cancels: nothing is stored. */}
+      {skipping && skippable && <SkipReasonSheet name={skipping.exercise.name} onReason={(reason) => chooseReason(skipping, reason)} onDismiss={() => setSkippingId(null)} />}
 
       {picking && (
         <ExercisePicker
@@ -218,11 +266,23 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
             )
           }
           onDismiss={() => setPicking(false)}
-          onCreateFailedWhileClosed={() => setFailures((n) => n + 1)}
+          onCreateFailedWhileClosed={failed}
         />
       )}
 
-      <Snackbar message={failures > 0 ? SAVE_FAILED : null} showId={failures} onDismiss={() => setFailures(0)} />
+      <Snackbar
+        message={note?.text ?? null}
+        showId={note?.id}
+        actionLabel={note?.undoSkipId != null ? UNDO : undefined}
+        // Undo takes back the skip and its still-open card; an answered card stays.
+        onAction={() => {
+          if (note?.undoSkipId != null) void actions.undoSkip(note.undoSkipId)
+          setNote(null)
+        }}
+        // Undo is on offer for the usual snackbar time.
+        durationMs={SNACKBAR_MS}
+        onDismiss={() => setNote(null)}
+      />
     </section>
   )
 }

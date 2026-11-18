@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Dexie from 'dexie'
 import { grit, JsAdvice, JsPlanChange, type JsSkip } from '../domain'
 import { applyPlanChange, deletePlanItem, replacePlan, updatePlanItem } from './catalogue'
@@ -234,6 +234,21 @@ describe('skips', () => {
     ])
   })
 
+  it('reSkip_whoseCardsThrow_rollsBackTheUpdatedRowAndTheDeletedCard', async () => {
+    const db = await openDb()
+    const id = await skip(db, curlSkip('BUSY', { planItemId: 3 }), (stored) => [jsCard(stored)])
+    const [skipsBefore, adviceBefore] = [await db.skips.toArray(), await db.advice.toArray()]
+    await expect(
+      skip(db, curlSkip('PAIN', { planItemId: 4 }), () => {
+        throw new Error('boom')
+      }),
+    ).rejects.toThrow('boom')
+    // The row keeps its old reason and plan item, and its card, deleted before `cards` ran, is back.
+    expect(await db.skips.toArray()).toEqual(skipsBefore)
+    expect(await db.advice.toArray()).toEqual(adviceBefore)
+    expect(grit.advicePayload((await db.advice.toArray())[0]!.payloadJson)?.skipId).toBe(id)
+  })
+
   it('reSkip_toOutOfTime_leavesNoCard', async () => {
     const db = await openDb()
     await skip(db, curlSkip('PAIN'), (stored) => [jsCard(stored)])
@@ -286,6 +301,27 @@ describe('unskip', () => {
     )
     await unskip(db, id)
     expect((await db.advice.toArray()).map((a) => a.id)).toEqual(ids.slice(2))
+  })
+
+  it('unskip_isAtomic_aFailureHalfwayKeepsTheSkipAndItsCard', async () => {
+    const db = await openDb()
+    const id = await skip(db, curlSkip('PAIN'), (stored) => [jsCard(stored)])
+    await db.advice.add(target(12, 'BODYBUILDING'))
+    const [skipsBefore, adviceBefore] = [await db.skips.toArray(), await db.advice.toArray()]
+    // The last step, reading the targets' payloads, fails: the card and the skip, already deleted by then, come back.
+    const read = grit.advicePayload.bind(grit)
+    const spy = vi.spyOn(grit, 'advicePayload').mockImplementation((json: string) => {
+      const p = read(json)
+      if (p?.kind === 'Target') throw new Error('boom')
+      return p
+    })
+    try {
+      await expect(unskip(db, id)).rejects.toThrow('boom')
+    } finally {
+      spy.mockRestore()
+    }
+    expect(await db.skips.toArray()).toEqual(skipsBefore)
+    expect(await db.advice.toArray()).toEqual(adviceBefore)
   })
 
   it('anUnknownId_changesNothing', async () => {
