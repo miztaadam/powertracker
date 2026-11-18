@@ -40,7 +40,7 @@
 
 ---
 
-### Task 1: Research the template contents (no code)
+### Task 1: Research the template contents (nothing committed)
 **Files:** report only: `.superpowers/sdd/2026-11-16-grit-look/templates-task-1-report.md`.
 
 - [ ] **Search the allowed sources** for:
@@ -88,7 +88,8 @@ object PlanTemplates {
 - **`alternatives`:**
   - empty for a main lift (category SQUAT, BENCH, DEADLIFT or STRICT_PRESS);
   - for a VARIATION, the other catalogue variations with the same `parentLift` not already on that day;
-  - otherwise `PlanBuilder.alternatives` with no picks.
+  - otherwise `PlanBuilder.alternatives` with no picks, **minus** main lifts, variations and any exercise already elsewhere in the week (an offered swap must never break the same-numbers rule);
+  - every `DraftExercise` gets a non-null `slot` (via `PlanBuilder.kindOf`), so `alternatives` doesn't fall back to its wider same-main-group branch.
 - **JS exports,** in the existing style of the `planBuilder*` exports:
   - `planTemplatesFor(mode)`, `planTemplateSuggestedDays(count, current)`, `planTemplateDraft(id, days, strictPress)`, `planTemplateAlternatives(id, draft, day, name)` and `planTemplateSwap(draft, day, from, to)`;
   - the draft travels as the existing `JsPlanDraft`.
@@ -103,7 +104,8 @@ object PlanTemplates {
   - `suggestedDays(3, {MON, WED, FRI}) == [MON, WED, FRI]`, and `suggestedDays(4, {MON, WED, FRI})` is the fixed spread;
   - strict-press entries appear only with `strictPress = true`;
   - `alternatives` is empty for squat, gives only same-`parentLift` variations for a variation, and gives the builder's list for an accessory;
-  - `swap` keeps sets, reps and RPE.
+  - `swap` keeps sets, reps and RPE;
+  - for every template and every exercise, no offered alternative is a main lift or variation (unless the exercise is a variation), and after any offered swap a lift on two days still has equal sets, reps and RPE.
 - [ ] Run `./gradlew :domain:allTests` and see them fail.
 - [ ] Implement `PlanTemplates` with Task 1's agreed contents, add the sources and the exports, and regenerate the web package.
 - [ ] Run `./gradlew :domain:allTests :domain:checkWebDomain` and see them pass.
@@ -140,7 +142,8 @@ object PlanTemplates {
   - replacing shows the confirm, **Cancel** stores nothing, and **Replace** replaces only that side;
   - history, bests, skips and the other side are unchanged;
   - powerlifting items have `repsHigh` null;
-  - with history, the coach's target for a lift on two days is right.
+  - with history, the coach's target for a lift on two days is right;
+  - **replacing with state tied to the old plan** (`replacePlan` leaves advice alone and gives new item ids; powerlifting has never had a whole-plan replace): an open SWAP or SKIP card for an old item, then Apply, doesn't crash or write to a missing item (it does what the bodybuilding Rebuild does today, or is cleared if that crashes); a skip made today keeps its record; a session in progress keeps its logged sets.
 - [ ] Run them and see them fail.
 - [ ] Implement.
 - [ ] Run `./gradlew :app:testDebugUnitTest --tests '*Plan*' --tests '*Template*'` and see them pass.
@@ -157,7 +160,7 @@ object PlanTemplates {
 - **Consumes:** Task 2's JS exports, `replacePlan(db, mode, items)` from `web/src/db/catalogue.ts`, and the builder's `draftItems` (extended for fixed reps).
 - **Produces:** the same steps, state, strings and behaviour as Task 3.
 
-- [ ] **Write the failing tests:** Task 3's list, as vitest and e2e cases. Also, at 320 px and 130% zoom, the list and the draft have no sideways scroll and no clipped names.
+- [ ] **Write the failing tests:** Task 3's list, including the replace-with-old-state cases, as vitest and e2e cases. Also, at 320 px and 130% zoom, the list and the draft have no sideways scroll and no clipped names.
 - [ ] Run them and see them fail.
 - [ ] Implement.
 - [ ] Run `npm test`, `npx tsc -b` and `npx playwright test e2e/templates.spec.ts --trace off`, and see them pass.
