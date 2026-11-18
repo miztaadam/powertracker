@@ -20,13 +20,17 @@ import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.validation.InputValidator
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.library.PickerEntry
+import com.powertracker.ui.library.SAVE_FAILED
 import com.powertracker.ui.library.recentExerciseIds
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
@@ -71,6 +75,11 @@ class PlanViewModel(
     private val settings: SettingsRepository,
     private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
+
+    private val _messages = Channel<String>(Channel.BUFFERED)
+
+    /** One-line messages for the screen's snackbar: a save that failed ([SAVE_FAILED]). */
+    val messages: Flow<String> = _messages.receiveAsFlow()
 
     /** True while [addOnce] is saving; further calls are ignored until it has answered. */
     private val adding = MutableStateFlow(false)
@@ -203,7 +212,7 @@ class PlanViewModel(
      * Creates a custom exercise and reports it as a picker entry, ready for the add form or [save]. A name the
      * catalogue knows (a name or an alias, ignoring case) is not made again: the catalogue's entry is
      * reported instead, tied to its oldest live row if it has one, and gets its row like any other
-     * catalogue exercise when it is saved.
+     * catalogue exercise when it is saved. If the save fails, [onCreated] is not called and [messages] says so.
      */
     fun addCustomExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onCreated: (PickerEntry) -> Unit) {
         val trimmed = name.trim()
@@ -214,7 +223,15 @@ class PlanViewModel(
             return
         }
         viewModelScope.launch {
-            val id = training.addExercise(Exercise(0, trimmed, category, parentLift, muscles, isBuiltIn = false))
+            val id = try {
+                training.addExercise(Exercise(0, trimmed, category, parentLift, muscles, isBuiltIn = false))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A failed write must not crash the app: nothing was saved, no form opens, and the lifter is told.
+                _messages.send(SAVE_FAILED)
+                return@launch
+            }
             onCreated(PickerEntry(trimmed, muscles, if (category == Category.ACCESSORY) Kind.ACCESSORY else Kind.COMPOUND, library = null, exerciseId = id))
         }
     }
