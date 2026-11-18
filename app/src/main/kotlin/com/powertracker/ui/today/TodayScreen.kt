@@ -14,6 +14,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,8 +47,10 @@ import com.powertracker.ui.components.RestTimerBar
 import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.library.ExercisePickerScreen
+import com.powertracker.ui.library.SAVE_FAILED
 import com.powertracker.ui.theme.LocalMotion
 import com.powertracker.ui.theme.Space
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaDayOfWeek
 import kotlinx.datetime.toJavaLocalDate
@@ -111,6 +115,7 @@ fun TodayScreen(
     // Log set and Missed buzz once the set is saved: one buzz per set, none for an entry that was refused or held.
     // A new best gets the stronger buzz instead of the tick; the view model says which just after the save.
     val haptics = rememberHaptics()
+    val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
@@ -118,6 +123,11 @@ fun TodayScreen(
                 is TodayEvent.SetBuzz -> if (event.isNewBest) haptics.best() else haptics.tick()
                 // Coach Apply ticks once the target is in the editor.
                 TodayEvent.TargetApplied -> haptics.tick()
+                // A failed save is said, as the Exercises tab says one: the newest message replaces the one on screen.
+                TodayEvent.SaveFailed -> {
+                    snackbar.currentSnackbarData?.dismiss()
+                    launch { snackbar.showSnackbar(SAVE_FAILED) }
+                }
             }
         }
     }
@@ -155,7 +165,7 @@ fun TodayScreen(
             },
         )
     }
-    TodayContent(state, actions, restTimer)
+    TodayContent(state, actions, restTimer, snackbar)
 }
 
 /**
@@ -185,7 +195,12 @@ private val HEADER_DATE = DateTimeFormatter.ofPattern("EEEE d MMMM")
 
 /** The Today screen without its view model: start card, the session's exercises, or the finish summary. */
 @Composable
-fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerUi? = null) {
+fun TodayContent(
+    state: TodayState,
+    actions: TodayActions,
+    restTimer: RestTimerUi? = null,
+    snackbar: SnackbarHostState = remember { SnackbarHostState() },
+) {
     val items = state.items
     val inSession = state.inSession
     var activeId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -227,6 +242,7 @@ fun TodayContent(state: TodayState, actions: TodayActions, restTimer: RestTimerU
                 if (inSession) SecondaryButton("Finish", actions.onFinish, compact = true, modifier = Modifier.padding(end = Space.s))
             }
         },
+        snackbarHost = { SnackbarHost(snackbar) },
         bottomBar = {
             if (restTimer != null) {
                 RestTimerBar(

@@ -31,6 +31,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -91,6 +93,7 @@ import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.today.SlidingColumnItems
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaDayOfWeek
@@ -190,6 +193,14 @@ fun PlanScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var dialog by rememberSaveable(stateSaver = PlanDialog.Saver) { mutableStateOf(null) }
+    val snackbar = remember { SnackbarHostState() }
+    LaunchedEffect(viewModel) {
+        viewModel.messages.collect { message ->
+            // A failed save is said, as the Exercises tab says one: the newest message replaces the one on screen.
+            snackbar.currentSnackbarData?.dismiss()
+            launch { snackbar.showSnackbar(message) }
+        }
+    }
 
     PlanContent(
         state = state,
@@ -200,6 +211,7 @@ fun PlanScreen(
         onDelete = viewModel::delete,
         onSetBaseline = { lift -> dialog = PlanDialog.Baseline(lift) },
         onBuild = onOpenBuilder,
+        snackbar = snackbar,
     )
 
     // Adding an exercise to a day ticks once it is stored; changing one in the edit dialog does not.
@@ -275,6 +287,7 @@ fun PlanContent(
     onSetBaseline: (Exercise) -> Unit,
     /** The bodybuilding side's plan builder: the empty plan's button and the menu's "Rebuild my plan". */
     onBuild: () -> Unit = {},
+    snackbar: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val scheme = MaterialTheme.colorScheme
     var menuOpen by remember { mutableStateOf(false) }
@@ -305,6 +318,7 @@ fun PlanContent(
                 }
             }
         },
+        snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         LazyColumn(
             Modifier.padding(padding).fillMaxWidth(),

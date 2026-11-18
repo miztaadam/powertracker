@@ -456,9 +456,20 @@ Not yet tried on a real phone.
   - **Tests:** `planAdd_secondTapOfADoubleTap_isIgnored` and `planAdd_tapAfterTheWindow_works`, on both apps. Each fails with the window taken out, and each kind of tap (Add, Cancel, outside) fails its own check when only its hold is taken out.
   - **Existing tests:** every test that picked and then tapped **Add** or **Cancel** at once was itself a double tap, so each now waits the moment out first (a clock step in the shared helpers, a 300 ms wait in e2e). These are Android's `PlanScreenTest` helper and its two inline taps, and `ExercisePickerTest.confirmAdd`; the web's `addForm` and `confirmAdd` helpers, `bodybuilding.test`, and the focus test's Cancel; and in e2e, plan, library, narrow and bodybuilding.
 - **Android, two new tests:**
-  - `planAdd_ownExerciseFails_opensNoForm`: the database insert itself fails. No form opens and nothing is stored. Nothing on Android catches that failure, though: as before 1.12, it escapes the view model's coroutine, which on a phone crashes the app. The test expects that. The web shows "Couldn't save" instead. Catching it on Android is a follow-up.
+  - `planAdd_ownExerciseFails_opensNoForm`: the database insert itself fails. No form opens and nothing is stored. In 1.12 nothing on Android caught that failure: it escaped the view model's coroutine, which on a phone crashes the app, and the test expected that. The web shows "Couldn't save" instead. **Done in 1.12.1** (below): Android now catches it and says so, and the test is now `planAdd_ownExerciseFails_saysSo_opensNoForm`.
   - `planAdd_survivesRecreation_bodybuilding`: the restored form keeps Reps from and Reps to, and **Add** stores `repsHigh`.
 - **Web e2e:** the 375 px tap-target check leaves out only the hidden picker's controls, not every 0 × 0 control on the page.
+
+## Done: a failed own-exercise save no longer crashes Android (1.12.1, both apps' version)
+- **What the lifter sees:** if creating their own exercise fails at the database (a full disk, a broken database), Android shows "Couldn't save — try again." in a snackbar, as the Exercises tab and the web already say a failed save. Before, the failure escaped the view model's coroutine and crashed the app.
+- **Every place that creates one:** Plan's Add, **Change** in the plan's add and edit forms (one view model call, `PlanViewModel.addCustomExercise`), and Today's **Add exercise** (`TodayViewModel.createExercise`). The Exercises tab has no "Create your own".
+- **On failure:** no form opens, Change leaves the form on its exercise, Today adds no card, nothing is stored, and nothing buzzes. Cancelling is not caught: it is passed on.
+- **How:** the insert is caught as `addOnce` already catches its write. Plan's view model sends the message to the screen's snackbar (as Coach does); Today's sends a `SaveFailed` event. Plan and Today gained a snackbar for it.
+- **Behind the form:** on Change, the message shows on Plan's own screen, under the open form's scrim, as the web's does under its form.
+- **Tests (Android):** `planAdd_ownExerciseFails_saysSo_opensNoForm` (was `planAdd_ownExerciseFails_opensNoForm`, which expected the crash), `planAdd_changeToOwnExerciseFails_saysSo_formKeepsItsExercise`, `planEdit_changeToOwnExerciseFails_saysSo_rowKeepsItsExercise` and `TodayScreenTest.createYourOwn_whenTheSaveFails_saysSo_addsNothing_noTick`. Each fails without the catch. They wait for the message instead of a fixed 500 ms. The `ExpectCrash` rule, now unused, is gone.
+- **Version:** Android 1.12.1 (versionCode 18), web 1.12.1. Settings shots re-shot on both apps; no other screenshot changed.
+- **Not changed:** other writes still do not catch a failure, as before: among others, Plan's Save (edit), move, delete and known best.
+- **Review notes (open, low):** after a failure you reopen the picker and type the name again, because the picker has already closed. Today's `SaveFailed` goes through a `MutableSharedFlow` with no replay, so if Today is off screen when the insert fails (you left the tab, or the screen is being recreated), the message is lost: there is no crash, but no message either. Plan's buffered `Channel` has no such gap.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):

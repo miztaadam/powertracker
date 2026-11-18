@@ -36,6 +36,7 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.testing.TestDatabase
+import com.powertracker.ui.library.SAVE_FAILED
 import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.plan.ADD_FORM_TAP_WINDOW_MS
 import com.powertracker.ui.plan.PlanScreen
@@ -61,10 +62,6 @@ import com.powertracker.ui.components.WithHaptics
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(qualifiers = "w411dp-h2400dp-xxhdpi")
 class PlanScreenTest {
-    /** Outside even the database: sees what escapes the whole test, which is how an uncaught exception in the app shows. */
-    @get:Rule(order = -2)
-    val crash = ExpectCrash()
-
     /** Outermost: the database closes after the compose rule has torn the screen down, and once no query is running. */
     @get:Rule(order = 0)
     val database = TestDatabase()
@@ -699,33 +696,81 @@ class PlanScreenTest {
 
     // ---- Review gaps ----
 
-    @Test
-    fun planAdd_ownExerciseFails_opensNoForm() {
-        // The insert itself fails, as a full disk or a broken database would make it: the throw the real path meets,
-        // inside the view model's coroutine. Nothing catches it there, so on a phone it crashes the app; here it fails
-        // the run, which [crash] expects.
-        crash.expected = { it is android.database.sqlite.SQLiteException && "disk full" in it.message.orEmpty() }
-        db.openHelper.writableDatabase.execSQL(
-            "CREATE TRIGGER fail_exercise_insert BEFORE INSERT ON exercise BEGIN SELECT RAISE(ABORT, 'disk full'); END",
-        )
-        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
-        waitFor { exists(hasTestTag("add-MONDAY")) }
-        compose.onNodeWithTag("add-MONDAY").performClick()
+    /** Makes every insert into the exercise table fail, as a full disk or a broken database would: the throw the real path meets. */
+    private fun failExerciseInserts() = db.openHelper.writableDatabase.execSQL(
+        "CREATE TRIGGER fail_exercise_insert BEFORE INSERT ON exercise BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+    )
+
+    /** In the open picker: searches for nothing, then creates "Tyre flip" with "Create your own". */
+    private fun createTyreFlip() {
         compose.onNodeWithTag("exercise-search").performTextReplacement("zzz")
         compose.onNodeWithText("Create your own").performClick()
         compose.onNodeWithText("Name").performTextReplacement("Tyre flip")
         compose.onNodeWithText("Create").performClick()
-        // The insert runs on the database's threads; give it time to fail and its coroutine time to resume.
-        repeat(20) {
-            Thread.sleep(25)
-            compose.waitForIdle()
-        }
+    }
 
-        // No form opened, and nothing was stored.
+    /** The failed save is said; that is also the moment the failure has been handled. */
+    private fun waitForSaveFailed() = waitFor { exists(hasText(SAVE_FAILED)) }
+
+    private fun tyreFlipStored() = runBlocking { db.exercises().all() }.any { it.name == "Tyre flip" }
+
+    @Test
+    fun planAdd_ownExerciseFails_saysSo_opensNoForm() {
+        // A failed insert must not escape the view model's coroutine (on a phone that crashes the app): it is said.
+        failExerciseInserts()
+        val haptics = FakeHapticFeedback()
+        compose.setContent { WithHaptics(haptics) { PlanScreen(training, settings, onOpenSettings = {}) } }
+        waitFor { exists(hasTestTag("add-MONDAY")) }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        createTyreFlip()
+        waitForSaveFailed()
+
+        // No form opened, nothing was stored, and nothing buzzed.
         assertTrue(!formOpen())
         compose.onNode(hasText("Add to Monday") and hasAnyAncestor(isDialog())).assertDoesNotExist()
         assertTrue(plan().isEmpty())
-        assertTrue(runBlocking { db.exercises().all() }.none { it.name == "Tyre flip" })
+        assertTrue(!tyreFlipStored())
+        assertEquals(0, haptics.calls.size)
+    }
+
+    @Test
+    fun planAdd_changeToOwnExerciseFails_saysSo_formKeepsItsExercise() {
+        failExerciseInserts()
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        createTyreFlip()
+        waitForSaveFailed()
+
+        // The add form is still on Squat, nothing was stored, and its Add still stores Squat.
+        assertAddForm("Squat")
+        compose.onNode(hasText("Tyre flip") and hasAnyAncestor(isDialog())).assertDoesNotExist()
+        assertTrue(plan().isEmpty())
+        assertTrue(!tyreFlipStored())
+        addButton().performClick()
+        waitFor { plan().isNotEmpty() }
+        assertEquals(squatId(), plan().single().exerciseId)
+    }
+
+    @Test
+    fun planEdit_changeToOwnExerciseFails_saysSo_rowKeepsItsExercise() {
+        val squat = squatId()
+        runBlocking { training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, squat, sets = 3, reps = 5, targetRpe = 8.0, order = 0)) }
+        failExerciseInserts()
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        waitFor { exists(hasText("Squat  3 × 5 @ 8")) }
+        compose.onNodeWithContentDescription("More").performClick()
+        compose.onNodeWithText("Edit").performClick()
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        createTyreFlip()
+        waitForSaveFailed()
+
+        // The edit form is still on Squat, and the row is as it was.
+        compose.onNodeWithText("Edit Monday").assertExists()
+        compose.onNode(hasText("Squat") and hasAnyAncestor(isDialog())).assertExists()
+        assertTrue(!tyreFlipStored())
+        assertEquals(listOf(squat), plan().map { it.exerciseId })
     }
 
     @Test
@@ -756,25 +801,4 @@ class PlanScreenTest {
         assertEquals(listOf(3, 7, 14), listOf(item.sets, item.reps, item.repsHigh))
         assertEquals(TrainingMode.BODYBUILDING, item.mode)
     }
-}
-
-/**
- * Expects the test to fail with an exception that [expected] matches, itself or as a cause: an exception nothing in the
- * app catches. Anything else that failed (an assertion, a timeout) is rethrown, even with the expected one attached to
- * it as suppressed. Set [expected] in the test; left null, the rule changes nothing.
- */
-class ExpectCrash : org.junit.rules.TestRule {
-    var expected: ((Throwable) -> Boolean)? = null
-
-    override fun apply(base: org.junit.runners.model.Statement, description: org.junit.runner.Description) =
-        object : org.junit.runners.model.Statement() {
-            override fun evaluate() {
-                val thrown = runCatching { base.evaluate() }.exceptionOrNull()
-                val expect = expected ?: return thrown?.let { throw it } ?: Unit
-                if (thrown == null) throw AssertionError("expected the failure to escape uncaught, but the test passed")
-                if (generateSequence(thrown) { it.cause }.none(expect)) throw thrown
-                // The expected crash, and nothing more beside it.
-                thrown.suppressed.firstOrNull { s -> generateSequence(s) { it.cause }.none(expect) }?.let { throw it }
-            }
-        }
 }

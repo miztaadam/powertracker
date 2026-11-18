@@ -15,6 +15,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelected
@@ -53,6 +54,7 @@ import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.components.formatKg
+import com.powertracker.ui.library.SAVE_FAILED
 import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.today.TodayScreen
@@ -310,6 +312,27 @@ class TodayScreenTest {
         val sled = exerciseRows("Tyre flip").single()
         assertEquals(false, sled.isBuiltIn)
         compose.checkInfoButtonOpensGuide("Tyre flip")
+    }
+
+    @Test
+    fun createYourOwn_whenTheSaveFails_saysSo_addsNothing_noTick() {
+        // A failed insert must not escape the view model's coroutine (on a phone that crashes the app): it is said.
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_exercise_insert BEFORE INSERT ON exercise BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        startSession()
+        showWithHaptics()
+        waitForText("Log set 1")
+        pickFromLibrary("Tyre flip")
+        compose.onNodeWithText("Create your own").performClick()
+        compose.onNodeWithText("Create").performClick()
+        waitForText(SAVE_FAILED)
+
+        // The picker closed, no card was added, nothing was stored, and nothing buzzed.
+        compose.onAllNodes(hasTestTag("exercise-search")).assertCountEquals(0)
+        compose.onNodeWithText("EXERCISE 2 OF 2", substring = true).assertDoesNotExist()
+        assertTrue(exerciseRows("Tyre flip").isEmpty())
+        assertEquals(0, haptics.calls.size)
     }
 
     @Test

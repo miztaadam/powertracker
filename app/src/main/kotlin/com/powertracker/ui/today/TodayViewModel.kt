@@ -136,6 +136,9 @@ sealed interface TodayEvent {
 
     /** A coach target was put into the editor (Apply). */
     data object TargetApplied : TodayEvent
+
+    /** A save failed and nothing changed: the screen says so ([com.powertracker.ui.library.SAVE_FAILED]). */
+    data object SaveFailed : TodayEvent
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -482,7 +485,8 @@ class TodayViewModel(
 
     /**
      * Creates a custom exercise, adds it to this session and reports its id. A name the catalogue knows
-     * (a name or an alias, ignoring case) is added from the catalogue instead, as if it had been picked.
+     * (a name or an alias, ignoring case) is added from the catalogue instead, as if it had been picked. If the save
+     * fails, [onCreated] is not called and [events] sends [TodayEvent.SaveFailed].
      */
     fun createExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onCreated: (Long) -> Unit) {
         val known = Library.find(name.trim())
@@ -491,7 +495,15 @@ class TodayViewModel(
             return
         }
         viewModelScope.launch {
-            val id = training.addExercise(Exercise(0, name.trim(), category, parentLift, muscles, isBuiltIn = false))
+            val id = try {
+                training.addExercise(Exercise(0, name.trim(), category, parentLift, muscles, isBuiltIn = false))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A failed write must not crash the app: nothing was saved or added, and the lifter is told.
+                _events.emit(TodayEvent.SaveFailed)
+                return@launch
+            }
             addExercise(id)
             onCreated(id)
         }
