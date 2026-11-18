@@ -66,6 +66,14 @@ label.settings-row {
   text-align: center;
 }
 
+/* Where the row has room for it (from 340 px wide: 266 px of row), every rest alert is at least a 48 px target,
+   "Off" too. Narrower, "Sound + vibrate" needs that room to stay on one line, so the short ones keep their own width. */
+@media (min-width: 340px) {
+  .settings-rest-alert.gr-segmented-fit .gr-segment {
+    min-width: var(--touch);
+  }
+}
+
 /* A plain line under the rest alert's choices (iPhone: no vibration). */
 .settings-note {
   margin: var(--space-2) 0 0;
