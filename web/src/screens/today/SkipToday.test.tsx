@@ -6,8 +6,10 @@ import { skip as storeSkip, skips as storedSkips } from '../../db/skips'
 import { setTapHaptics } from '../../platform/haptics'
 import { pastTheTapWindow } from '../../test/tapWindow'
 import { TODAY, addDays, exerciseNamed, logSet, set, startSession, todayFixture } from '../../test/todayFixture'
-import { grit } from '../../domain'
+import { grit, JsExercise } from '../../domain'
 import { CoachScreen } from '../coach/CoachScreen'
+import type { TodayItem } from '../../state/useToday'
+import { StartSessionCard } from './SessionCards'
 import { TodayScreen } from './TodayScreen'
 
 /** 1.13: skipping a planned exercise on Today: the row menu, the sheet, Undo, Bring back (as Android's `SkipTodayScreenTest`). */
@@ -180,13 +182,64 @@ describe('Skip today', () => {
     // Before a session: not the rest day's "Nothing planned".
     expect(screen.queryByText('Nothing planned')).toBeNull()
     expect(screen.queryByText(/There is nothing in your plan/)).toBeNull()
-    expect(screen.getByText('Wednesday · 0 exercises')).toBeInTheDocument()
+    // 1.13.1: with none left, the eyebrow counts the skipped, not "0 exercises".
+    expect(screen.getByText('Wednesday · 2 skipped')).toBeInTheDocument()
+    expect(screen.queryByText('Wednesday · 0 exercises')).toBeNull()
     expect(within(skippedLine()!).getAllByRole('button', { name: /^Bring back / })).toHaveLength(2)
 
     // In the session too, the line stays.
     await userEvent.click(screen.getByRole('button', { name: 'Start session' }))
     expect(await screen.findByRole('button', { name: 'Add exercise' })).toBeInTheDocument()
     expect(within(skippedLine()!).getAllByRole('button', { name: /^Bring back / })).toHaveLength(2)
+  })
+
+  /** Both planned exercises skipped before a session. */
+  async function skipBoth() {
+    show()
+    await skipWith('Squat', 'Just skip')
+    await waitFor(() => expect(menu('Squat')).toBeNull())
+    await skipWith('Bench', 'Just skip')
+    expect(await screen.findByText('Wednesday · 2 skipped')).toBeInTheDocument()
+  }
+
+  it('startCard_oneLeft_keepsTheExerciseCount', async () => {
+    show()
+    await skipWith('Bench', 'Just skip')
+    await waitFor(() => expect(menu('Bench')).toBeNull())
+    expect(screen.getByText('Wednesday · 1 exercise')).toBeInTheDocument()
+    expect(screen.queryByText(/ skipped$/)).toBeNull()
+  })
+
+  it('startCard_allSkipped_undo_restoresTheCount', async () => {
+    await skipBoth()
+    expect(await screen.findByText('Bench skipped.')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Undo' }))
+    await waitFor(() => expect(menu('Bench')).not.toBeNull())
+    expect(screen.getByText('Wednesday · 1 exercise')).toBeInTheDocument()
+    expect(screen.queryByText(/ skipped$/)).toBeNull()
+    expect((await storedSkips(db)).map((s) => s.exerciseId)).toEqual([squat])
+  })
+
+  it('startCard_allSkipped_bringBack_restoresTheCount', async () => {
+    await skipBoth()
+    await userEvent.click(within(skippedLine()!).getByRole('button', { name: 'Bring back Squat' }))
+    await waitFor(() => expect(menu('Squat')).not.toBeNull())
+    expect(screen.getByText('Wednesday · 1 exercise')).toBeInTheDocument()
+    expect(screen.queryByText(/ skipped$/)).toBeNull()
+    await userEvent.click(within(skippedLine()!).getByRole('button', { name: 'Bring back Bench' }))
+    await waitFor(() => expect(menu('Bench')).not.toBeNull())
+    expect(screen.getByText('Wednesday · 2 exercises')).toBeInTheDocument()
+    expect(await storedSkips(db)).toEqual([])
+  })
+
+  it('startCard_skipsAndAnAddedExercise_countsWhatIsLeft', async () => {
+    // An exercise the lifter added (no plan item) is left to do: the normal count, not the skipped one.
+    const row = await exerciseNamed(db, 'Deadlift')
+    const exercise = new JsExercise(row.id, row.name, row.category, row.parentLift ?? null, [...(row.muscles ?? [])], true, false)
+    const added: TodayItem = { exercise, planned: null, suggestion: null, sets: [], editor: { weightKg: null, reps: 5, rpe: 8 }, targetSets: null, isComplete: false, perSide: null, lastWeightKg: null }
+    render(<StartSessionCard items={[added]} dayName="Wednesday" onStart={() => {}} skipped={2} />)
+    expect(screen.getByText('Wednesday · 1 exercise')).toBeInTheDocument()
+    expect(screen.queryByText(/ skipped$/)).toBeNull()
   })
 
   it('finish_countsSkipped_inTheSummary', async () => {

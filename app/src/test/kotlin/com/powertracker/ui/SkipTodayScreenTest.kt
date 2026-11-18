@@ -30,6 +30,9 @@ import com.powertracker.ui.components.FakeHapticFeedback
 import com.powertracker.ui.components.WithHaptics
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.today.SKIP_SHEET_TAP_WINDOW_MS
+import com.powertracker.ui.today.SetEditor
+import com.powertracker.ui.today.StartSessionCard
+import com.powertracker.ui.today.TodayItem
 import com.powertracker.ui.today.TodayScreen
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -294,7 +297,9 @@ class SkipTodayScreenTest {
         assertTrue(!exists("Nothing planned"))
         assertTrue(!exists("There is nothing in your plan"))
         assertEquals(2, compose.onAllNodesWithText("Bring back").fetchSemanticsNodes().size)
-        compose.onNodeWithText("WEDNESDAY · 0 EXERCISES").assertExists()
+        // 1.13.1: with none left, the eyebrow counts the skipped, not "0 exercises".
+        compose.onNodeWithText("WEDNESDAY · 2 SKIPPED").assertExists()
+        assertTrue(!exists("0 EXERCISES"))
 
         // In the session too, the line stays.
         compose.onNodeWithText("Start session").performScrollTo().performClick()
@@ -302,6 +307,68 @@ class SkipTodayScreenTest {
         assertTrue(!exists("There is nothing in your plan"))
         waitFor { exists("Skipped today") }
         assertEquals(2, compose.onAllNodesWithText("Bring back").fetchSemanticsNodes().size)
+    }
+
+    /** Both planned exercises skipped before a session. */
+    private fun skipBoth() {
+        show()
+        openSheet("Squat")
+        choose("Just skip")
+        waitFor { skips().size == 1 && !menuExists("Squat") }
+        openSheet("Bench")
+        choose("Just skip")
+        waitFor { skips().size == 2 && exists("Bench skipped.") }
+    }
+
+    @Test
+    fun startCard_oneLeft_keepsTheExerciseCount() {
+        show()
+        openSheet("Bench")
+        choose("Just skip")
+        waitFor { skips().size == 1 && !menuExists("Bench") }
+
+        compose.onNodeWithText("WEDNESDAY · 1 EXERCISE").assertExists()
+        assertTrue(!exists("SKIPPED"))
+    }
+
+    @Test
+    fun startCard_allSkipped_undo_restoresTheCount() {
+        skipBoth()
+        waitFor { exists("WEDNESDAY · 2 SKIPPED") }
+
+        compose.onNodeWithText("Undo").performClick()
+
+        waitFor { skips().size == 1 && menuExists("Bench") }
+        compose.onNodeWithText("WEDNESDAY · 1 EXERCISE").assertExists()
+        assertTrue(!exists("SKIPPED"))
+    }
+
+    @Test
+    fun startCard_allSkipped_bringBack_restoresTheCount() {
+        skipBoth()
+        waitFor { exists("WEDNESDAY · 2 SKIPPED") }
+
+        compose.onNodeWithContentDescription("Bring back Squat").performScrollTo().performClick()
+        waitFor { skips().size == 1 && menuExists("Squat") }
+        compose.onNodeWithText("WEDNESDAY · 1 EXERCISE").assertExists()
+        assertTrue(!exists("SKIPPED"))
+
+        compose.onNodeWithContentDescription("Bring back Bench").performScrollTo().performClick()
+        waitFor { skips().isEmpty() && menuExists("Bench") }
+        compose.onNodeWithText("WEDNESDAY · 2 EXERCISES").assertExists()
+    }
+
+    @Test
+    fun startCard_skipsAndAnAddedExercise_countsWhatIsLeft() {
+        // An exercise the lifter added (no plan item) is left to do: the normal count, not the skipped one.
+        val added = TodayItem(
+            exercise = bench, planned = null, suggestion = null, sets = emptyList(), editor = SetEditor(null, 5, 8.0),
+            targetSets = null, perSide = null, lastWeightKg = null,
+        )
+        compose.setContent { PowertrackerTheme { StartSessionCard(listOf(added), "Wednesday", { _, _ -> }, skipped = 2) } }
+
+        compose.onNodeWithText("WEDNESDAY · 1 EXERCISE").assertExists()
+        assertTrue(!exists("SKIPPED"))
     }
 
     @Test

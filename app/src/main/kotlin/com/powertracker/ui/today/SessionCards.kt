@@ -52,9 +52,12 @@ fun StartSessionCard(
     modifier: Modifier = Modifier,
     /** Opens the reason sheet for a planned row; null shows no row menus. */
     onSkipToday: ((TodayItem) -> Unit)? = null,
-    /** Everything planned today was skipped: it is not a day with nothing planned. */
-    allSkipped: Boolean = false,
+    /** How many of today's planned exercises are skipped. With none left on the list, the eyebrow counts them. */
+    skipped: Int = 0,
 ) {
+    // Everything planned today was skipped: it is not a day with nothing planned. Anything on the list, an exercise the
+    // lifter added included, is left to do.
+    val allSkipped = items.isEmpty() && skipped > 0
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
     var bodyweight by rememberSaveable { mutableStateOf<Double?>(null) }
@@ -63,7 +66,13 @@ fun StartSessionCard(
 
     PtCard(modifier) {
         Column {
-            Eyebrow(if (items.isEmpty() && !allSkipped) "Nothing planned" else "$dayName · ${items.size} ${if (items.size == 1) "exercise" else "exercises"}")
+            Eyebrow(
+                when {
+                    allSkipped -> "$dayName · $skipped skipped"
+                    items.isEmpty() -> "Nothing planned"
+                    else -> "$dayName · ${items.size} ${if (items.size == 1) "exercise" else "exercises"}"
+                },
+            )
             Text("Ready to train?", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
         }
 
