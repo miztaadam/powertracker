@@ -2141,21 +2141,16 @@ protoOf(Coach).c1l = function (day, history, plan, settings, today, priorAdvice,
         tmp$ret$9 = null;
         break $l$block_1;
       }
+      var tmp2_elvis_lhs = ProgressionRule_getInstance().h1n(element_0, exercise, stats, settings, today);
       var tmp_3;
-      if (SkipCoach_instance.c1m(element_0.r1h_1, skips, history, today)) {
-        tmp_3 = ProgressionRule_getInstance().i1n(element_0, exercise, stats, today);
-      } else {
-        tmp_3 = ProgressionRule_getInstance().h1n(element_0, exercise, stats, settings, today);
-      }
-      var tmp2_elvis_lhs = tmp_3;
-      var tmp_4;
       if (tmp2_elvis_lhs == null) {
         tmp$ret$9 = null;
         break $l$block_1;
       } else {
-        tmp_4 = tmp2_elvis_lhs;
+        tmp_3 = tmp2_elvis_lhs;
       }
-      var target = tmp_4;
+      var free = tmp_3;
+      var target = SkipCoach_instance.c1m(element_0.r1h_1, skips, history, today) ? ProgressionRule_getInstance().i1n(free, element_0, stats, today) : free;
       var eased = ReturnRule_getInstance().d1m(target, element_0, exercise, history, TrainingMode_POWERLIFTING_getInstance(), settings, today);
       tmp$ret$9 = clamp_0(Coach_getInstance(), eased, element_0, exercise, stats, all, settings, today, deload, reEntry);
     }
@@ -5258,20 +5253,24 @@ protoOf(ProgressionRule).h1n = function (item, exercise, stats, settings, today)
   var reason = this.i1m(last, weight, reps, item.u1h_1);
   return new Advice(AdviceType_TARGET_getInstance(), exercise.p1j(), today, reason, 0, new Target(item.r1h_1, weight, reps, item.u1h_1));
 };
-protoOf(ProgressionRule).i1n = function (item, exercise, stats, today) {
+protoOf(ProgressionRule).i1n = function (target, item, stats, today) {
   var tmp0_elvis_lhs = stats.b1l(item.r1h_1, today);
   var tmp;
   if (tmp0_elvis_lhs == null) {
-    return null;
+    return target;
   } else {
     tmp = tmp0_elvis_lhs;
   }
   var last = tmp.hb();
+  var tmp_0 = target.d1i_1;
+  var payload = tmp_0 instanceof Target ? tmp_0 : THROW_CCE();
+  if (payload.i1i_1 <= last.y1i_1)
+    return target;
   var tmp0 = item.t1h_1;
   // Inline function 'kotlin.comparisons.maxOf' call
   var b = last.z1i_1;
   var reps = Math.max(tmp0, b);
-  return new Advice(AdviceType_TARGET_getInstance(), exercise.p1j(), today, this.i1m(last, last.y1i_1, reps, item.u1h_1), 0, new Target(item.r1h_1, last.y1i_1, reps, item.u1h_1));
+  return target.n1i(VOID, VOID, VOID, this.i1m(last, last.y1i_1, reps, item.u1h_1), VOID, payload.v1k(VOID, last.y1i_1, reps));
 };
 protoOf(ProgressionRule).a1k = function (exercise, lastKg) {
   return exercise.k1j_1.equals(Category_ACCESSORY_getInstance()) || lastKg < 20.0;
@@ -5518,7 +5517,7 @@ function busy($this, skip, busy, exercise, main, today, alternatives) {
     tmp = this_0;
   }
   var offered = tmp;
-  var reason = "You've skipped " + exercise.j1j_1 + ' twice in 4 weeks because you were busy or had no equipment. Swap it for one of these?';
+  var reason = "You've skipped " + exercise.j1j_1 + ' ' + times($this, busy) + ' in 4 weeks because you were busy or had no equipment. Swap it for one of these?';
   return card($this, skip, exercise, main, today, reason, 2, offered);
 }
 function repeat($this, skip, notTime, exercise, main, today, alternatives) {
@@ -5533,8 +5532,11 @@ function repeat($this, skip, notTime, exercise, main, today, alternatives) {
     tmp = this_0;
   }
   var offered = tmp;
-  var reason = "You've skipped " + exercise.j1j_1 + ' 3 times in 4 weeks. Keep it in your plan, or swap it for one of these?';
+  var reason = "You've skipped " + exercise.j1j_1 + ' ' + times($this, notTime) + ' in 4 weeks. Keep it in your plan, or swap it for one of these?';
   return card($this, skip, exercise, main, today, reason, 1, offered);
+}
+function times($this, n) {
+  return n === 2 ? 'twice' : '' + n + ' times';
 }
 function card($this, skip, exercise, main, today, reason, severity, alternatives) {
   return new Advice(AdviceType_SKIP_getInstance(), main ? exercise.p1j() : null, today, reason, severity, new Skipped(skip.u1t_1, skip.x1t_1, exercise.j1j_1, skip.z1t_1, alternatives), VOID, VOID, skip.w1t_1);

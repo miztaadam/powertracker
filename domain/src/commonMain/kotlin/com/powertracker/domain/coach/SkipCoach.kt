@@ -22,12 +22,12 @@ import kotlinx.datetime.minus
  *
  * [afterSkip] runs when a skip is stored and gives at most one SKIP card, by the skip's reason, counted per exercise
  * and per side over the [WINDOW_DAYS] days ending on the skip's date (that skip included):
- * - pain: every pain skip. The card offers gentler alternatives and says the weight is held ([held]); for a main lift,
+ * - pain: every pain skip. The card offers gentler alternatives and says the weight won't go up ([held]); for a main lift,
  *   or with nothing left to swap to, it only says the weight is held;
  * - busy or no equipment: the [BUSY_SKIPS]th busy skip, or a later one. Alternatives whose first equipment differs;
  * - repeat: the [REPEAT_SKIPS]th skip of any reason but time, or a later one. Alternatives as they come;
  * - out of time: never a card, and not counted.
- * Earlier in that list wins; a rule with no alternative to offer gives way to the next. A main lift (category SQUAT,
+ * The busy and repeat texts give the real count. Earlier in that list wins; a rule with no alternative to offer gives way to the next. A main lift (category SQUAT,
  * BENCH, DEADLIFT or STRICT_PRESS) is never swapped out: it gets only the pain card. No card while an OPEN SKIP or
  * SWAP card for the exercise stands on that side, within [CARD_COOLDOWN_DAYS] days of an earlier SKIP card for it,
  * or within [DISMISSED_MEMORY_DAYS] days of a dismissed one at least as severe (pain over busy over repeat).
@@ -141,16 +141,19 @@ object SkipCoach {
     private fun busy(skip: Skip, busy: Int, exercise: Exercise, main: Boolean, today: LocalDate, alternatives: () -> List<String>): Advice? {
         if (main || skip.reason != SkipReason.BUSY || busy < BUSY_SKIPS) return null
         val offered = alternatives().ifEmpty { return null }
-        val reason = "You've skipped ${exercise.name} twice in 4 weeks because you were busy or had no equipment. Swap it for one of these?"
+        val reason = "You've skipped ${exercise.name} ${times(busy)} in 4 weeks because you were busy or had no equipment. Swap it for one of these?"
         return card(skip, exercise, main, today, reason, BUSY_SEVERITY, offered)
     }
 
     private fun repeat(skip: Skip, notTime: Int, exercise: Exercise, main: Boolean, today: LocalDate, alternatives: () -> List<String>): Advice? {
         if (main || skip.reason == SkipReason.TIME || notTime < REPEAT_SKIPS) return null
         val offered = alternatives().ifEmpty { return null }
-        val reason = "You've skipped ${exercise.name} 3 times in 4 weeks. Keep it in your plan, or swap it for one of these?"
+        val reason = "You've skipped ${exercise.name} ${times(notTime)} in 4 weeks. Keep it in your plan, or swap it for one of these?"
         return card(skip, exercise, main, today, reason, REPEAT_SEVERITY, offered)
     }
+
+    /** "twice", or "3 times", "4 times", ...: the cards count from 2. */
+    private fun times(n: Int) = if (n == 2) "twice" else "$n times"
 
     /** A SKIP card; its lift is the exercise's own for a main lift, and null for anything else (a variation included). */
     private fun card(skip: Skip, exercise: Exercise, main: Boolean, today: LocalDate, reason: String, severity: Int, alternatives: List<String>) = Advice(

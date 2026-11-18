@@ -282,9 +282,20 @@ class SkipCoachTest {
             val remembered = s.date < third.date.plus(28, DateTimeUnit.DAY)
             assertEquals(if (remembered) 0 else 1, made.size, "skip ${i + 1} on ${s.date}")
         }
-        // Busy skips likewise: a 3rd busy skip still gives the busy card.
+        // Busy skips likewise: a 3rd busy skip still gives the busy card, with its real count.
         val busy = after(skip(20, SkipReason.BUSY), skip(10, SkipReason.BUSY), skip(0, SkipReason.BUSY)).single()
-        assertTrue(busy.reason.startsWith("You've skipped Lat pulldown twice"), busy.reason)
+        assertTrue(busy.reason.startsWith("You've skipped Lat pulldown 3 times in 4 weeks because"), busy.reason)
+    }
+
+    @Test
+    fun cardTextsUseTheRealCount() {
+        val busy = after(skip(21, SkipReason.BUSY), skip(14, SkipReason.BUSY), skip(7, SkipReason.BUSY), skip(0, SkipReason.BUSY)).single()
+        assertEquals(
+            "You've skipped Lat pulldown 4 times in 4 weeks because you were busy or had no equipment. Swap it for one of these?",
+            busy.reason,
+        )
+        val repeat = after(skip(21, null), skip(14, SkipReason.TIME), skip(10, SkipReason.PAIN), skip(7, null), skip(0, null)).single()
+        assertEquals("You've skipped Lat pulldown 4 times in 4 weeks. Keep it in your plan, or swap it for one of these?", repeat.reason)
     }
 
     @Test

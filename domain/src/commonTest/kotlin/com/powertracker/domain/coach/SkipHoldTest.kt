@@ -19,6 +19,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
  * The pain hold: after a pain skip, on either side, an exercise's weight does not go up until a session holding a set
@@ -58,24 +59,43 @@ class SkipHoldTest {
     }
 
     @Test
-    fun painSkip_afterAMissedTopSet_repeatsTheWeight() {
-        // Progression would take 5% off a missed top set; held, no decision is made and the weight repeats.
+    fun painSkip_afterAMissedTopSet_stillComesDown() {
+        // The hold blocks increases only: the 5% drop after a missed top set still applies.
         val h = history(start) {
             session(0) { squat(100.0, 5, rpe = 7.0) }
             session(2) { squat(100.0, 5, rpe = 7.0) }
             session(4) { squat(100.0, 5, failed = true) }
         }
-        assertEquals(95.0, pl(h, emptyList()).target().weightKg)
-        assertEquals(100.0, pl(h, listOf(skip(5, SkipReason.PAIN, Ids.SQUAT, POWERLIFTING))).target().weightKg)
+        val free = pl(h, emptyList())
+        assertEquals(95.0, free.target().weightKg)
+        assertEquals(free, pl(h, listOf(skip(5, SkipReason.PAIN, Ids.SQUAT, POWERLIFTING))))
+        // So does the smaller drop after a top set well over the target RPE.
+        val hard = history(start) { for (d in listOf(0, 2, 4)) session(d) { squat(100.0, 5, rpe = 10.0) } }
+        val freeHard = pl(hard, emptyList())
+        assertTrue(freeHard.target().weightKg < 100.0)
+        assertEquals(freeHard, pl(hard, listOf(skip(5, SkipReason.PAIN, Ids.SQUAT, POWERLIFTING))))
     }
 
     @Test
     fun painSkip_keepsTheLastRepsWhenTheyWereAbovePlan() {
-        // A curl progressed by reps to 10 on a plan of 8: held, the aim stays at 10, not back to 8.
+        // Bench 100 x 6 on a plan of 5: progression would add weight; held, 100 x 6 again, not back to 5 reps.
+        val bench = PlanItem(3, DayOfWeek.MONDAY, Ids.BENCH, 3, 5, 8.0, 0)
+        val h = history(start) { for (d in listOf(0, 2, 4)) session(d) { bench(100.0, 6) } }
+        fun target(skips: List<Skip>) =
+            Coaching.targetsFor(POWERLIFTING, DayOfWeek.MONDAY, h, listOf(bench), settings, today, emptyList(), skips).single()
+        assertEquals(102.5, target(emptyList()).target().weightKg)
+        assertEquals(AdvicePayload.Target(Ids.BENCH, 100.0, 6, 8.0), target(listOf(skip(5, SkipReason.PAIN, Ids.BENCH, POWERLIFTING))).payload)
+    }
+
+    @Test
+    fun painSkip_whenProgressionAddsOnlyARep_keepsIt() {
+        // A light curl whose next step is a rep, not weight: no increase in weight, so the hold leaves it alone.
         val curl = PlanItem(3, DayOfWeek.MONDAY, Ids.CURL, 3, 8, 8.0, 0)
         val h = history(start) { session(4) { set(Ids.CURL, 12.0, 10, isTopSet = true) } }
-        val held = Coaching.targetsFor(POWERLIFTING, DayOfWeek.MONDAY, h, listOf(curl), settings, today, emptyList(), listOf(skip(5, SkipReason.PAIN, Ids.CURL, POWERLIFTING))).single()
-        assertEquals(AdvicePayload.Target(Ids.CURL, 12.0, 10, 8.0), held.payload)
+        fun target(skips: List<Skip>) =
+            Coaching.targetsFor(POWERLIFTING, DayOfWeek.MONDAY, h, listOf(curl), settings, today, emptyList(), skips).single()
+        assertEquals(12.0, target(emptyList()).target().weightKg)
+        assertEquals(target(emptyList()), target(listOf(skip(5, SkipReason.PAIN, Ids.CURL, POWERLIFTING))))
     }
 
     @Test
@@ -171,6 +191,17 @@ class SkipHoldTest {
         // The day after, that session releases it.
         assertEquals(true, SkipCoach.held(Ids.DB_PRESS, skips, midSession, today))
         assertEquals(false, SkipCoach.held(Ids.DB_PRESS, skips, midSession, today.plus(1, DateTimeUnit.DAY)))
+    }
+
+    @Test
+    fun bodybuilding_painSkip_withNoIncreaseDue_changesNothing() {
+        // Reps short of the top: no increase is due, so the hold changes neither the target nor the rep aim.
+        val short = history(start) { session(0, mode = BODYBUILDING) { set(Ids.DB_PRESS, 26.0, 11); set(Ids.DB_PRESS, 26.0, 10); set(Ids.DB_PRESS, 26.0, 9) } }
+        val skips = listOf(skip(3, SkipReason.PAIN, Ids.DB_PRESS, BODYBUILDING))
+        assertEquals(bb(short, emptyList()), bb(short, skips))
+        for (set in 1..4) {
+            assertEquals(BodybuildingCoach.repsToBeat(pressItem, short, set, today), BodybuildingCoach.repsToBeat(pressItem, short, set, today, skips), "set $set")
+        }
     }
 
     @Test

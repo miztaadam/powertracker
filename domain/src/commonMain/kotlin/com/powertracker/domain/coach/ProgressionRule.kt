@@ -60,20 +60,19 @@ object ProgressionRule {
     }
 
     /**
-     * The target while a pain skip holds the exercise ([SkipCoach.held]): no decision, the last top set again, its
-     * weight whatever that set was, and its reps when they were above the plan's (reps added by progression), else the
-     * planned reps. Null when the exercise has no prior top set.
+     * [target] (progression's own) while a pain skip holds the exercise ([SkipCoach.held]): the hold blocks increases
+     * only. When [target] adds weight to the last top set, the last top set again instead, its weight, and its reps
+     * when they were above the plan's (reps added by progression), else the planned reps. Any other target, a
+     * decrease or a repeat, is kept as it is.
      */
-    fun held(item: PlanItem, exercise: Exercise, stats: HistoryStats, today: LocalDate): Advice? {
-        val (_, last) = stats.lastTopSet(item.exerciseId, today) ?: return null
+    fun held(target: Advice, item: PlanItem, stats: HistoryStats, today: LocalDate): Advice {
+        val (_, last) = stats.lastTopSet(item.exerciseId, today) ?: return target
+        val payload = target.payload as AdvicePayload.Target
+        if (payload.weightKg <= last.weightKg) return target
         val reps = maxOf(item.reps, last.reps)
-        return Advice(
-            type = AdviceType.TARGET,
-            lift = exercise.mainLift,
-            createdAt = today,
+        return target.copy(
             reason = describe(last, last.weightKg, reps, item.targetRpe),
-            severity = 0,
-            payload = AdvicePayload.Target(item.exerciseId, last.weightKg, reps, item.targetRpe),
+            payload = payload.copy(weightKg = last.weightKg, reps = reps),
         )
     }
 
