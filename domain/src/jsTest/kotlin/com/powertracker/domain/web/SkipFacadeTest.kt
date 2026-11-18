@@ -39,10 +39,17 @@ class SkipFacadeTest {
         assertEquals(listOf<Any?>("Skipped", 2, 1, "Lat pulldown", "BUSY"), listOf(payload.kind, payload.skipId, payload.exerciseId, payload.name, payload.skipReason))
         assertTrue(payload.alternatives.isNotEmpty())
 
-        // The card stored and handed back blocks a second one.
+        // The card stored and handed back blocks a second busy one.
         val stored = card.copy(id = 40)
-        val third = JsSkip(3, "2026-11-18", "BODYBUILDING", 1, 10, "PAIN")
-        assertEquals(0, GritDomain.coachingAfterSkip(third, arrayOf(first, third), history, plan, "2026-11-18", arrayOf(stored)).size)
+        val third = JsSkip(3, "2026-11-19", "BODYBUILDING", 1, 10, "BUSY")
+        assertEquals(0, GritDomain.coachingAfterSkip(third, arrayOf(first, second, third), history, plan, "2026-11-19", arrayOf(stored)).size)
+        // A pain skip always tells you: an open busy card does not hold back its card (the caller deletes the busy one),
+        // and only an open pain card holds back a second pain card.
+        val painSkip = JsSkip(6, "2026-11-19", "BODYBUILDING", 1, 10, "PAIN")
+        val painCard = GritDomain.coachingAfterSkip(painSkip, arrayOf(first, second, painSkip), history, plan, "2026-11-19", arrayOf(stored)).single()
+        assertEquals("PAIN", GritDomain.advicePayload(painCard.payloadJson)!!.skipReason)
+        val again = JsSkip(7, "2026-11-20", "BODYBUILDING", 1, 10, "PAIN")
+        assertEquals(0, GritDomain.coachingAfterSkip(again, arrayOf(first, second, painSkip, again), history, plan, "2026-11-20", arrayOf(painCard.copy(id = 41))).size)
 
         // A main lift's pain card: no alternatives, the lift set, no reason left out of the payload.
         val pain = JsSkip(4, "2026-11-18", "POWERLIFTING", 3, 13, "PAIN")
