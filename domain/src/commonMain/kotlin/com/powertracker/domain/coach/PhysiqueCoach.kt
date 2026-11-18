@@ -43,7 +43,7 @@ data class GroupNote(val group: MuscleGroup, val reason: NoteReason, val weeklyS
 data class CheckInOutcome(val advice: List<Advice>, val notes: List<GroupNote>, val dismissed: List<Advice> = emptyList())
 
 /**
- * A change to the bodybuilding plan, to carry out in one transaction: save [updated], delete [removed], and insert
+ * A change to one side's plan (the bodybuilding side's, but for a skip card's swap), to carry out in one transaction: save [updated], delete [removed], and insert
  * each of [added] (exerciseId 0) after resolving its catalogue name. [changed] is false when nothing applied.
  */
 data class PlanChange(
@@ -57,7 +57,8 @@ data class PlanChange(
 /**
  * The lagging-muscle coach of the bodybuilding side (stage 3 plan, "The rules"): more work for a lagging body part,
  * swaps for a stuck exercise, and applying either to the plan. Pure functions; the same inputs give the same output.
- * Every function reads only the bodybuilding side's plan items of the plan it is given.
+ * Every function reads only the bodybuilding side's plan items of the plan it is given, except that swap alternatives
+ * and a swap can also be worked out on the powerlifting side, for a skipped exercise ([SkipCoach]).
  *
  * The weekly ceiling is sourced (CoachSources.WEEKLY_CEILING); every other number here is the designer's, not sourced.
  */
@@ -191,17 +192,25 @@ object PhysiqueCoach {
      * Every swap alternative for the stuck [exercise] the rules allow, best first: the same kind first, then the rest of
      * [order]'s keys. When the exercise's first equipment (catalogue exercises only) is not BODYWEIGHT or BAND, no
      * alternative whose first equipment is; and only alternatives that keep the ceiling ([swapKeepsCeiling]).
+     *
+     * [mode] is the side whose plan items are read (candidates come from that side's equipment and leave out what is
+     * already planned there). The weekly ceiling belongs to the bodybuilding side: the powerlifting side has none.
      */
-    internal fun swapAlternatives(exercise: Exercise, plan: List<PlanItem>, exercises: Map<Long, Exercise>): List<LibraryExercise> {
+    internal fun swapAlternatives(
+        exercise: Exercise,
+        plan: List<PlanItem>,
+        exercises: Map<Long, Exercise>,
+        mode: TrainingMode = TrainingMode.BODYBUILDING,
+    ): List<LibraryExercise> {
         val group = PlanBuilder.mainGroup(exercise.muscles) ?: return emptyList()
         val kind = kindOf(exercise)
-        val items = plan.on(TrainingMode.BODYBUILDING)
+        val items = plan.on(mode)
         // Abs and obliques are trained with bodyweight and bands as much as with loads: no filter for them.
         val core = group == MuscleGroup.ABS || group == MuscleGroup.OBLIQUES
         val loaded = !core && Library.find(exercise.name)?.equipment?.firstOrNull()?.let { !light(it) } ?: false
         return order(group, candidates(group, items, exercises)) { kindOf(it) == kind }
             .filter { !loaded || !lightFirst(it) }
-            .filter { swapKeepsCeiling(exercise.id, it.muscles, items, exercises) }
+            .filter { mode != TrainingMode.BODYBUILDING || swapKeepsCeiling(exercise.id, it.muscles, items, exercises) }
     }
 
     private fun light(e: Equipment) = e == Equipment.BODYWEIGHT || e == Equipment.BAND
@@ -479,19 +488,34 @@ object PhysiqueCoach {
      * in `added`. Nothing changes when the stuck exercise is no longer in the plan, [choice] is in it by now, or the
      * swap would now take a group past the weekly ceiling (or raise one already above it).
      */
-    fun applySwap(payload: AdvicePayload.Swap, choice: String, plan: List<PlanItem>, exercises: Map<Long, Exercise>): PlanChange {
-        require(payload.alternatives.any { Library.normalise(it) == Library.normalise(choice) }) { "choice: '$choice' is not one of ${payload.alternatives}" }
-        val name = payload.alternatives.first { Library.normalise(it) == Library.normalise(choice) }
-        val items = inWeekOrder(plan.on(TrainingMode.BODYBUILDING))
-        val holding = items.filter { it.exerciseId == payload.exerciseId }
-        if (holding.isEmpty() || inPlan(name, items, exercises)) return PlanChange(emptyList(), emptyList(), emptyList(), NOTHING_SWAPPED, false)
-        val entry = Library.find(name) ?: throw IllegalArgumentException("choice: '$name' is not in the catalogue")
-        if (!swapKeepsCeiling(payload.exerciseId, entry.muscles, items, exercises)) {
+    fun applySwap(payload: AdvicePayload.Swap, choice: String, plan: List<PlanItem>, exercises: Map<Long, Exercise>): PlanChange =
+        swap(payload.exerciseId, payload.name, payload.alternatives, choice, TrainingMode.BODYBUILDING, plan, exercises)
+
+    /**
+     * [exerciseId] ([name]) swapped for [choice], one of [alternatives], in every [mode] plan item that holds it, as
+     * [applySwap] describes. Only the bodybuilding side checks the weekly ceiling.
+     */
+    internal fun swap(
+        exerciseId: Long,
+        name: String,
+        alternatives: List<String>,
+        choice: String,
+        mode: TrainingMode,
+        plan: List<PlanItem>,
+        exercises: Map<Long, Exercise>,
+    ): PlanChange {
+        require(alternatives.any { Library.normalise(it) == Library.normalise(choice) }) { "choice: '$choice' is not one of $alternatives" }
+        val chosen = alternatives.first { Library.normalise(it) == Library.normalise(choice) }
+        val items = inWeekOrder(plan.on(mode))
+        val holding = items.filter { it.exerciseId == exerciseId }
+        if (holding.isEmpty() || inPlan(chosen, items, exercises)) return PlanChange(emptyList(), emptyList(), emptyList(), NOTHING_SWAPPED, false)
+        val entry = Library.find(chosen) ?: throw IllegalArgumentException("choice: '$chosen' is not in the catalogue")
+        if (mode == TrainingMode.BODYBUILDING && !swapKeepsCeiling(exerciseId, entry.muscles, items, exercises)) {
             return PlanChange(emptyList(), emptyList(), emptyList(), PAST_CEILING, false)
         }
         return PlanChange(
-            emptyList(), holding, holding.map { it.copy(id = 0, exerciseId = 0) to name },
-            "Swapped ${payload.name} for $name", true,
+            emptyList(), holding, holding.map { it.copy(id = 0, exerciseId = 0) to chosen },
+            "Swapped $name for $chosen", true,
         )
     }
 

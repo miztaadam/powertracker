@@ -116,24 +116,24 @@ initMetadataForClass(AbstractCollection, 'AbstractCollection', VOID, VOID, [Coll
 initMetadataForClass(AbstractMutableCollection, 'AbstractMutableCollection', VOID, AbstractCollection, [Collection, MutableIterable]);
 initMetadataForClass(IteratorImpl, 'IteratorImpl');
 initMetadataForClass(ListIteratorImpl, 'ListIteratorImpl', VOID, IteratorImpl);
-initMetadataForClass(AbstractMutableList, 'AbstractMutableList', VOID, AbstractMutableCollection, [Collection, KtList, MutableIterable]);
+initMetadataForClass(AbstractMutableList, 'AbstractMutableList', VOID, AbstractMutableCollection, [Collection, MutableIterable, KtList]);
 initMetadataForInterface(RandomAccess, 'RandomAccess');
 initMetadataForClass(SubList, 'SubList', VOID, AbstractMutableList, [RandomAccess]);
 initMetadataForClass(AbstractMap, 'AbstractMap', VOID, VOID, [KtMap]);
 initMetadataForClass(AbstractMutableMap, 'AbstractMutableMap', VOID, AbstractMap, [KtMap]);
-initMetadataForClass(AbstractMutableSet, 'AbstractMutableSet', VOID, AbstractMutableCollection, [Collection, KtSet, MutableIterable]);
+initMetadataForClass(AbstractMutableSet, 'AbstractMutableSet', VOID, AbstractMutableCollection, [KtSet, Collection, MutableIterable]);
 initMetadataForCompanion(Companion_2);
-initMetadataForClass(ArrayList, 'ArrayList', ArrayList_init_$Create$, AbstractMutableList, [Collection, KtList, MutableIterable, RandomAccess]);
+initMetadataForClass(ArrayList, 'ArrayList', ArrayList_init_$Create$, AbstractMutableList, [Collection, MutableIterable, KtList, RandomAccess]);
 initMetadataForClass(HashMap, 'HashMap', HashMap_init_$Create$, AbstractMutableMap, [KtMap]);
-initMetadataForClass(HashMapKeys, 'HashMapKeys', VOID, AbstractMutableSet, [Collection, KtSet, MutableIterable]);
+initMetadataForClass(HashMapKeys, 'HashMapKeys', VOID, AbstractMutableSet, [KtSet, Collection, MutableIterable]);
 initMetadataForClass(HashMapValues, 'HashMapValues', VOID, AbstractMutableCollection, [Collection, MutableIterable]);
-initMetadataForClass(HashMapEntrySetBase, 'HashMapEntrySetBase', VOID, AbstractMutableSet, [Collection, KtSet, MutableIterable]);
+initMetadataForClass(HashMapEntrySetBase, 'HashMapEntrySetBase', VOID, AbstractMutableSet, [KtSet, Collection, MutableIterable]);
 initMetadataForClass(HashMapEntrySet, 'HashMapEntrySet', VOID, HashMapEntrySetBase);
 initMetadataForClass(HashMapKeysDefault$iterator$1);
 initMetadataForClass(HashMapKeysDefault, 'HashMapKeysDefault', VOID, AbstractMutableSet);
 initMetadataForClass(HashMapValuesDefault$iterator$1);
 initMetadataForClass(HashMapValuesDefault, 'HashMapValuesDefault', VOID, AbstractMutableCollection);
-initMetadataForClass(HashSet, 'HashSet', HashSet_init_$Create$, AbstractMutableSet, [Collection, KtSet, MutableIterable]);
+initMetadataForClass(HashSet, 'HashSet', HashSet_init_$Create$, AbstractMutableSet, [KtSet, Collection, MutableIterable]);
 initMetadataForCompanion(Companion_3);
 initMetadataForClass(Itr, 'Itr');
 initMetadataForClass(KeysItr, 'KeysItr', VOID, Itr);
@@ -179,7 +179,7 @@ initMetadataForInterface(InternalMap, 'InternalMap');
 initMetadataForClass(InternalHashMap, 'InternalHashMap', InternalHashMap_init_$Create$, VOID, [InternalMap]);
 initMetadataForObject(EmptyHolder, 'EmptyHolder');
 initMetadataForClass(LinkedHashMap, 'LinkedHashMap', LinkedHashMap_init_$Create$, HashMap, [KtMap]);
-initMetadataForClass(LinkedHashSet, 'LinkedHashSet', LinkedHashSet_init_$Create$, HashSet, [Collection, KtSet, MutableIterable]);
+initMetadataForClass(LinkedHashSet, 'LinkedHashSet', LinkedHashSet_init_$Create$, HashSet, [KtSet, Collection, MutableIterable]);
 initMetadataForInterface(Continuation, 'Continuation');
 initMetadataForClass(InterceptedCoroutine, 'InterceptedCoroutine', VOID, VOID, [Continuation]);
 initMetadataForClass(CoroutineImpl, 'CoroutineImpl', VOID, InterceptedCoroutine, [Continuation]);
@@ -316,6 +316,9 @@ function CharSequence() {
 function Comparable() {
 }
 function Number_0() {
+}
+function throwUnsupportedOperationException(message) {
+  throw UnsupportedOperationException_init_$Create$_0(message);
 }
 function get_indices(_this__u8e3s4) {
   return new IntRange(0, get_lastIndex(_this__u8e3s4));
@@ -807,6 +810,12 @@ function minWith(_this__u8e3s4, comparator) {
   }
   return min;
 }
+function plus_0(_this__u8e3s4, element) {
+  var result = ArrayList_init_$Create$_0(_this__u8e3s4.o() + 1 | 0);
+  result.p(_this__u8e3s4);
+  result.i(element);
+  return result;
+}
 function drop(_this__u8e3s4, n) {
   // Inline function 'kotlin.require' call
   if (!(n >= 0)) {
@@ -914,12 +923,6 @@ function zipWithNext(_this__u8e3s4) {
     tmp$ret$0 = result;
   }
   return tmp$ret$0;
-}
-function plus_0(_this__u8e3s4, element) {
-  var result = ArrayList_init_$Create$_0(_this__u8e3s4.o() + 1 | 0);
-  result.p(_this__u8e3s4);
-  result.i(element);
-  return result;
 }
 function max(_this__u8e3s4) {
   var iterator = _this__u8e3s4.j();
@@ -2666,6 +2669,11 @@ function getKPropMetadata(paramCount, setter) {
   _init_properties_reflectRuntime_kt__5r4uu3();
   return get_propertyRefClassMetadataCache()[paramCount][setter == null ? 0 : 1];
 }
+function getLocalDelegateReference(name, superType, mutable) {
+  _init_properties_reflectRuntime_kt__5r4uu3();
+  var lambda = getLocalDelegateReference$lambda();
+  return getPropertyCallableRef(name, 0, superType, lambda, mutable ? lambda : null, VOID);
+}
 function constructCallableReference(callable, arity, flags, signatureId, name, bounds) {
   _init_properties_reflectRuntime_kt__5r4uu3();
   callable.callableName = name;
@@ -2674,6 +2682,11 @@ function constructCallableReference(callable, arity, flags, signatureId, name, b
   callable.$id = signatureId;
   callable.$bound = bounds;
   return callable;
+}
+function getLocalDelegateReference$lambda() {
+  return function () {
+    throwUnsupportedOperationException('Not supported for local property reference.');
+  };
 }
 var properties_initialized_reflectRuntime_kt_inkhwd;
 function _init_properties_reflectRuntime_kt__5r4uu3() {
@@ -12558,6 +12571,7 @@ export {
   defineProp as defineProp3ur6h3slcvq4x,
   equals as equals2au1ep9vhcato,
   getBooleanHashCode as getBooleanHashCode1bbj3u6b3v0a7,
+  getLocalDelegateReference as getLocalDelegateReference2ls94nvl5ojb2,
   getNumberHashCode as getNumberHashCode2l4nbdcihl25f,
   getPropertyCallableRef as getPropertyCallableRef3hckxc0xueiaj,
   getStringHashCode as getStringHashCode26igk1bx568vk,

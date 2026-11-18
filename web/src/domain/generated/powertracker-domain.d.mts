@@ -20,6 +20,9 @@ export declare namespace GritDomain {
             targetsFor(weekday: number, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
             evaluate(history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
             coachingTargetsFor(mode: string, weekday: number, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
+            coachingTargetsForWithSkips(mode: string, weekday: number, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>, skips: Array<JsSkip>): Array<JsAdvice>;
+            coachingAfterSkip(skip: JsSkip, skips: Array<JsSkip>, history: JsHistory, plan: Array<JsPlanItem>, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
+            coachingApplySkipSwap(payloadJson: string, choice: string, mode: string, plan: Array<JsPlanItem>, exercises: Array<JsExercise>): JsPlanChange;
             coachingEvaluate(mode: string, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
             coachingEvaluateWithCheckIns(mode: string, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>, checkIns: Array<JsCheckIn>): Array<JsAdvice>;
             coachingCheckInDue(history: JsHistory, plan: Array<JsPlanItem>, checkIns: Array<JsCheckIn>, today: string): boolean;
@@ -31,6 +34,7 @@ export declare namespace GritDomain {
             muscleProgressRows(history: JsHistory, plan: Array<JsPlanItem>, checkIns: Array<JsCheckIn>, today: string): Array<JsMuscleRow>;
             welcomeBack(leftOn: Nullable<string>, today: string, hasPlan: boolean): boolean;
             repsToBeat(item: JsPlanItem, history: JsHistory, setNumber: number, today: string): number;
+            repsToBeatWithSkips(item: JsPlanItem, history: JsHistory, setNumber: number, today: string, skips: Array<JsSkip>): number;
             bodybuildingProgress(history: JsHistory, plan: Array<JsPlanItem>, today: string): Array<JsExerciseTrend>;
             planBuilderBuild(days: Array<number>, picks: Array<JsBuilderPick>, priorities: Array<string>, variant: number): JsPlanDraft;
             planBuilderAlternatives(name: string, draft: JsPlanDraft, picks: Array<JsBuilderPick>, day: Nullable<number>): Array<JsLibraryExercise>;
@@ -194,6 +198,25 @@ export declare namespace JsAdvice {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsAdvice;
+    }
+}
+export declare class JsSkip {
+    constructor(id: number, date: string, mode: string, exerciseId: number, planItemId: Nullable<number>, reason: Nullable<string>);
+    get id(): number;
+    get date(): string;
+    get mode(): string;
+    get exerciseId(): number;
+    get planItemId(): Nullable<number>;
+    get reason(): Nullable<string>;
+    copy(id?: number, date?: string, mode?: string, exerciseId?: number, planItemId?: Nullable<number>, reason?: Nullable<string>): JsSkip;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsSkip {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsSkip;
     }
 }
 export declare class JsHistory {
@@ -379,7 +402,7 @@ export declare namespace JsNewExercise {
     }
 }
 export declare class JsAdvicePayload {
-    constructor(kind: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>, group?: Nullable<string>, addSets?: Array<JsSetAddition>, newExercise?: Nullable<JsNewExercise>, weeklyBefore?: Nullable<number>, weeklyAfter?: Nullable<number>, name?: Nullable<string>, since?: Nullable<string>, alternatives?: Array<string>);
+    constructor(kind: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>, group?: Nullable<string>, addSets?: Array<JsSetAddition>, newExercise?: Nullable<JsNewExercise>, weeklyBefore?: Nullable<number>, weeklyAfter?: Nullable<number>, name?: Nullable<string>, since?: Nullable<string>, alternatives?: Array<string>, skipId?: Nullable<number>, skipReason?: Nullable<string>);
     get kind(): string;
     get exerciseId(): Nullable<number>;
     get weightKg(): Nullable<number>;
@@ -400,7 +423,9 @@ export declare class JsAdvicePayload {
     get name(): Nullable<string>;
     get since(): Nullable<string>;
     get alternatives(): Array<string>;
-    copy(kind?: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>, group?: Nullable<string>, addSets?: Array<JsSetAddition>, newExercise?: Nullable<JsNewExercise>, weeklyBefore?: Nullable<number>, weeklyAfter?: Nullable<number>, name?: Nullable<string>, since?: Nullable<string>, alternatives?: Array<string>): JsAdvicePayload;
+    get skipId(): Nullable<number>;
+    get skipReason(): Nullable<string>;
+    copy(kind?: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>, group?: Nullable<string>, addSets?: Array<JsSetAddition>, newExercise?: Nullable<JsNewExercise>, weeklyBefore?: Nullable<number>, weeklyAfter?: Nullable<number>, name?: Nullable<string>, since?: Nullable<string>, alternatives?: Array<string>, skipId?: Nullable<number>, skipReason?: Nullable<string>): JsAdvicePayload;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;

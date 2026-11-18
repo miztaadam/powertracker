@@ -59,6 +59,22 @@ object ProgressionRule {
         )
     }
 
+    /**
+     * The target while a pain skip holds the exercise ([SkipCoach.held]): no decision, the last top set's weight again
+     * for the planned reps, whatever that set was. Null when the exercise has no prior top set.
+     */
+    fun held(item: PlanItem, exercise: Exercise, stats: HistoryStats, today: LocalDate): Advice? {
+        val (_, last) = stats.lastTopSet(item.exerciseId, today) ?: return null
+        return Advice(
+            type = AdviceType.TARGET,
+            lift = exercise.mainLift,
+            createdAt = today,
+            reason = describe(last, last.weightKg, item.reps, item.targetRpe),
+            severity = 0,
+            payload = AdvicePayload.Target(item.exerciseId, last.weightKg, item.reps, item.targetRpe),
+        )
+    }
+
     /** Accessories, and anything logged below the empty bar, are not loaded on a barbell: no bar floor. */
     internal fun isFreeLoad(exercise: Exercise, lastKg: Double): Boolean =
         exercise.category == Category.ACCESSORY || lastKg < PlateLoader.BAR_KG

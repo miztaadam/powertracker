@@ -8,6 +8,7 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.on
@@ -38,6 +39,8 @@ import kotlin.math.roundToLong
  * A target is eased by the re-entry factor at most once, whatever the route, and its reason drops "Time to add
  * weight." when the final weight is not above last time's.
  * No lift is special here: there is no minimum history and no main-lift rule.
+ * While a pain skip holds an exercise ([SkipCoach.held]) no increase is earned: the weight repeats and the reps aim
+ * carries on from last time ([repsToBeat]) rather than starting again at the low end.
  */
 object BodybuildingCoach {
     /** The size of a weight increase, as a fraction of the last weight. Source: [CoachSources.BODYBUILDING_INCREASE]. */
@@ -60,6 +63,7 @@ object BodybuildingCoach {
         settings: CoachSettings,
         today: LocalDate,
         priorAdvice: List<Advice>,
+        skips: List<Skip> = emptyList(),
     ): List<Advice> {
         val all = HistoryStats(history)
         val side = HistoryStats(history.on(TrainingMode.BODYBUILDING))
@@ -74,7 +78,8 @@ object BodybuildingCoach {
             .mapNotNull { item ->
                 val exercise = history.exercises[item.exerciseId]?.takeUnless { it.archived } ?: return@mapNotNull null
                 // The break's re-entry clamp eases a first-time weight itself: never a second 0.85.
-                val target = target(item, exercise, history, settings, today, easeOldHistory = reEntry == null)
+                val held = SkipCoach.held(item.exerciseId, skips, history, today)
+                val target = target(item, exercise, history, settings, today, easeOldHistory = reEntry == null, held = held)
                     ?: return@mapNotNull null
                 val eased = ReturnRule.ease(target, item, exercise, history, TrainingMode.BODYBUILDING, settings, today)
                 withoutAddWeight(clamp(eased, item, exercise, side, all, settings, deload, reEntry), item, history, today)
@@ -83,11 +88,12 @@ object BodybuildingCoach {
 
     /**
      * Reps to put in the reps field for set [setNumber] (1-based): last time's reps for that set + 1, capped at the
-     * top of the range; the low end the first time, after an increase, and for a set not done last time.
+     * top of the range; the low end the first time, after an increase, and for a set not done last time. While a pain
+     * skip in [skips] holds the exercise there is no increase, so no return to the low end either.
      */
-    fun repsToBeat(item: PlanItem, history: TrainingHistory, setNumber: Int, today: LocalDate): Int {
+    fun repsToBeat(item: PlanItem, history: TrainingHistory, setNumber: Int, today: LocalDate, skips: List<Skip> = emptyList()): Int {
         val last = lastSets(item.exerciseId, history, today) ?: return item.reps
-        if (earnedIncrease(last, item)) return item.reps
+        if (earnedIncrease(last, item) && !SkipCoach.held(item.exerciseId, skips, history, today)) return item.reps
         val set = last.getOrNull(setNumber - 1) ?: return item.reps
         return minOf(set.reps + 1, high(item))
     }
@@ -125,13 +131,14 @@ object BodybuildingCoach {
         settings: CoachSettings,
         today: LocalDate,
         easeOldHistory: Boolean,
+        held: Boolean,
     ): Advice? {
         val last = lastSets(item.exerciseId, history, today)
         val (weight, opening) = if (last == null) {
             firstTimeWeight(item, exercise, history, settings, today, easeOldHistory)?.let { it to FIRST_TIME_TEXT } ?: return null
         } else {
             val heaviest = heaviest(last)
-            if (earnedIncrease(last, item)) {
+            if (!held && earnedIncrease(last, item)) {
                 increased(heaviest, exercise, settings.changePlates) to "${lastTime(last)} $INCREASE_TEXT"
             } else {
                 heaviest to "${lastTime(last)} $REPEAT_TEXT"

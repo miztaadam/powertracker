@@ -6,7 +6,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 
 /** New values go last: the names are stored in databases and backups. */
-enum class AdviceType { TARGET, STALL, DELOAD, WEAK_POINT, RE_ENTRY, MORE_WORK, SWAP }
+enum class AdviceType { TARGET, STALL, DELOAD, WEAK_POINT, RE_ENTRY, MORE_WORK, SWAP, SKIP }
 
 enum class AdviceStatus { OPEN, APPLIED, DISMISSED }
 
@@ -68,6 +68,14 @@ sealed interface AdvicePayload {
      */
     @Serializable
     data class Swap(val exerciseId: Long, val name: String, val group: MuscleGroup, val since: LocalDate, val alternatives: List<String>) : AdvicePayload
+
+    /**
+     * The coach's answer to the skip [skipId] of [exerciseId] ([name] when it was made), skipped for [reason] (null: no
+     * reason given): up to three catalogue exercises to swap it for, best first. [alternatives] is empty for a main
+     * lift, and for a pain skip with nothing left to swap to: then the card only says the weight is held.
+     */
+    @Serializable
+    data class Skipped(val skipId: Long, val exerciseId: Long, val name: String, val reason: SkipReason?, val alternatives: List<String>) : AdvicePayload
 }
 
 data class Advice(

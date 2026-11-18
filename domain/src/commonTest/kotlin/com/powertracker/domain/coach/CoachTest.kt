@@ -43,7 +43,7 @@ class CoachTest {
             AdviceType.DELOAD -> AdvicePayload.Deload()
             AdviceType.WEAK_POINT -> AdvicePayload.WeakPoint(lift!!, null)
             AdviceType.RE_ENTRY -> AdvicePayload.ReEntry()
-            AdviceType.MORE_WORK, AdviceType.SWAP -> error("not a powerlifting advice type")
+            AdviceType.MORE_WORK, AdviceType.SWAP, AdviceType.SKIP -> error("not a powerlifting advice type")
         }
         return Advice(type, lift, createdAt, "prior", severity, payload, status)
     }
