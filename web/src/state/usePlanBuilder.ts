@@ -110,13 +110,16 @@ export type PlanBuilderActions = {
   save: () => Promise<void>
 }
 
-/** The items a draft saves as: in session order, each exercise in its place; the lifter's own by their rows. */
-export function draftItems(draft: JsPlanDraft, picks: Iterable<PickerEntry>): NewPlanItem[] {
+/**
+ * The items a draft saves as: in session order, each exercise in its place; the lifter's own by their rows. With
+ * `fixedReps` (the powerlifting side's templates) the items store no `repsHigh` key, as every fixed-reps row.
+ */
+export function draftItems(draft: JsPlanDraft, picks: Iterable<PickerEntry>, fixedReps = false): NewPlanItem[] {
   const own = new Map<string, number>()
   for (const p of picks) if (p.library == null && p.exerciseId != null) own.set(p.name.toLowerCase(), p.exerciseId)
   return draft.sessions.flatMap((session) =>
     session.exercises.map((e) => {
-      const item = { weekday: session.day, sets: e.sets, reps: e.repsLow, repsHigh: e.repsHigh, targetRpe: e.rpe }
+      const item = { weekday: session.day, sets: e.sets, reps: e.repsLow, ...(fixedReps ? {} : { repsHigh: e.repsHigh }), targetRpe: e.rpe }
       if (e.inCatalogue) return { item: { ...item, exerciseId: null }, catalogueName: e.name }
       const exerciseId = own.get(e.name.toLowerCase())
       if (exerciseId == null) throw new Error(`${e.name} is not one of the ticked exercises`)

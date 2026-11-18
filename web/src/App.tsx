@@ -13,6 +13,8 @@ import { BlankScreen } from './screens/lock/GateScreen'
 import { LockGateHost } from './screens/lock/LockGateHost'
 import { PlanBuilderScreen } from './screens/plan/builder/PlanBuilderScreen'
 import { PlanScreen } from './screens/plan/PlanScreen'
+import { TemplatesScreen } from './screens/plan/templates/TemplatesScreen'
+import { planSetText } from './state/useTemplates'
 import { ExerciseHistoryScreen } from './screens/progress/ExerciseHistoryScreen'
 import { LiftHistoryScreen } from './screens/progress/LiftHistoryScreen'
 import { ProgressScreen } from './screens/progress/ProgressScreen'
@@ -46,10 +48,13 @@ export type AppProps = {
   registerSW?: RegisterSW
 }
 
-/** What outlives the screens: today's session, shared by the Today and Exercises tabs, and the Exercises tab's search and filters. */
-type Kept = { session: TodayState & TodayActions; browser: ExerciseBrowser }
+/**
+ * What outlives the screens: today's session, shared by the Today and Exercises tabs, the Exercises tab's search and
+ * filters, and Plan's message after a template is saved ("Plan set: …"), which Plan shows once and clears.
+ */
+type Kept = { session: TodayState & TodayActions; browser: ExerciseBrowser; planMessage: string | null; setPlanMessage: (message: string | null) => void }
 
-function screenFor(route: Route, db: GritDb, { session, browser }: Kept): ReactNode {
+function screenFor(route: Route, db: GritDb, { session, browser, planMessage, setPlanMessage }: Kept): ReactNode {
   const openSettings = () => navigate({ page: 'settings' })
   const openBuilder = () => navigate({ page: 'planBuilder' })
   const openCheckIn = () => navigate({ page: 'checkIn' })
@@ -59,9 +64,31 @@ function screenFor(route: Route, db: GritDb, { session, browser }: Kept): ReactN
     if (route.tab === 'coach') return <CoachScreen db={db} onOpenPlan={openPlan} onOpenBuilder={openBuilder} onOpenCheckIn={openCheckIn} />
     if (route.tab === 'progress') return <ProgressScreen db={db} onOpenLift={(lift) => navigate({ page: 'lift', lift })} onOpenExercise={(exerciseId) => navigate({ page: 'exercise', exerciseId })} onCheckIn={openCheckIn} />
     if (route.tab === 'exercises') return <ExercisesScreen db={db} session={session} browser={browser} onOpenPlan={() => navigate({ tab: 'plan' })} onOpenToday={() => navigate({ tab: 'today' })} />
-    return <PlanScreen db={db} onOpenSettings={openSettings} onBuildPlan={openBuilder} />
+    return (
+      <PlanScreen
+        db={db}
+        onOpenSettings={openSettings}
+        onBuildPlan={openBuilder}
+        onChooseTemplate={(mode) => navigate({ page: 'templates', mode })}
+        message={planMessage}
+        onMessageShown={() => setPlanMessage(null)}
+      />
+    )
   }
   if (route.page === 'planBuilder') return <PlanBuilderScreen db={db} onLeave={leaveBuilder} onDone={() => goBack({ tab: 'plan' })} />
+  if (route.page === 'templates')
+    return (
+      <TemplatesScreen
+        key={route.mode}
+        db={db}
+        mode={route.mode}
+        onLeave={() => leave({ tab: 'plan' })}
+        onSaved={(name) => {
+          setPlanMessage(planSetText(name))
+          goBack({ tab: 'plan' })
+        }}
+      />
+    )
   if (route.page === 'checkIn') return <CheckInScreen db={db} onLeave={leaveCheckIn} onSeeCoach={() => goBack({ tab: 'coach' })} onDone={leaveCheckIn} />
   if (route.page === 'settings') return <SettingsScreen db={db} onBack={() => goBack({ tab: 'plan' })} />
   if (route.page === 'exercise') return <ExerciseHistoryScreen db={db} exerciseId={route.exerciseId} onBack={() => goBack({ tab: 'progress' })} />
@@ -83,6 +110,7 @@ function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: 
   // other tabs are on screen, and no longer than the page.
   const session = useToday(db, todayIso, rest.onSetLogged)
   const browser = useExerciseBrowser()
+  const [planMessage, setPlanMessage] = useState<string | null>(null)
   const activeTab = 'tab' in route ? route.tab : null
   // The session outlives the Today tab, so coming back to the tab reads the clock again, as coming
   // back to the front does (a finish summary up, or a session being logged, keeps the day).
@@ -100,7 +128,7 @@ function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: 
   const dockHeight = useElementHeight(dock, showDock)
   return (
     <div className="shell" style={{ '--rest-dock-height': `${dockHeight}px` } as CSSProperties}>
-      <main className="shell-main">{screenFor(route, db, { session, browser })}</main>
+      <main className="shell-main">{screenFor(route, db, { session, browser, planMessage, setPlanMessage })}</main>
       {showDock && (
         <div className="shell-rest" ref={dock}>
           {update.ready && (

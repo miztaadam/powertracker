@@ -1,14 +1,15 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { GritDb } from '../../db/db'
 import { grit, todayIso } from '../../domain'
 import { haptic } from '../../platform/haptics'
+import type { TrainingMode } from '../../db/schema'
 import type { PickerEntry } from '../../state/exercisePicker'
 import { usePlan, type DaySection, type PlanActions, type PlanDraft, type PlanExercise, type PlanItem, type PlanRow, type PlanState } from '../../state/usePlan'
 import { dayName } from '../../state/weekdayNames'
 import { IconButton, PrimaryButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
 import { formatRpe } from '../../ui/components/format'
-import { AddIcon, DeleteIcon, EditIcon, KeyboardArrowDownIcon, KeyboardArrowUpIcon, ReplayIcon, SettingsIcon } from '../../ui/components/icons'
+import { AddIcon, DeleteIcon, EditIcon, KeyboardArrowDownIcon, KeyboardArrowUpIcon, ReplayIcon, SettingsIcon, ViewAgendaIcon } from '../../ui/components/icons'
 import { Menu } from '../../ui/components/Menu'
 import { ScreenHeader, SectionHeader } from '../../ui/components/ScreenHeader'
 import { ModeLabel } from '../../ui/components/ModeLabel'
@@ -24,14 +25,19 @@ export type PlanScreenProps = {
   onOpenSettings: () => void
   /** Opens the plan builder, which only the bodybuilding side has. Without it the side offers no builder. */
   onBuildPlan?: () => void
+  /** Opens the templates for the side shown (1.14), on both sides. Without it Plan offers no templates. */
+  onChooseTemplate?: (mode: TrainingMode) => void
+  /** A message for the snackbar once (after a template is saved, "Plan set: …"); `onMessageShown` clears it. */
+  message?: string | null
+  onMessageShown?: () => void
   /** The real clock, as `YYYY-MM-DD`. Default is the device's local date. */
   today?: () => string
 }
 
 /** The weekly template: one card per training day, then the known bests. */
-export function PlanScreen({ db, onOpenSettings, onBuildPlan, today = todayIso }: PlanScreenProps) {
+export function PlanScreen({ db, onOpenSettings, onBuildPlan, onChooseTemplate, message, onMessageShown, today = todayIso }: PlanScreenProps) {
   const plan = usePlan(db, today)
-  return <PlanContent state={plan} actions={plan} onOpenSettings={onOpenSettings} onBuildPlan={onBuildPlan} />
+  return <PlanContent state={plan} actions={plan} onOpenSettings={onOpenSettings} onBuildPlan={onBuildPlan} onChooseTemplate={onChooseTemplate} message={message} onMessageShown={onMessageShown} />
 }
 
 /** An item's reps: "5", or a range "8–12" on the bodybuilding side. */
@@ -45,6 +51,11 @@ export function planItemText(name: string, item: Pick<PlanItem, 'sets' | 'reps' 
 /** An empty bodybuilding plan says so, and offers the plan builder. */
 export const EMPTY_BODYBUILDING_PLAN = 'Your bodybuilding plan is empty. Add exercises to each training day.'
 
+/** The line an empty powerlifting plan shows, over its "Choose a template" button (1.14). */
+export const EMPTY_POWERLIFTING_PLAN = 'Your plan is empty. Start from a template or add exercises to each day.'
+
+export const CHOOSE_A_TEMPLATE = 'Choose a template'
+
 type OpenDialog =
   | { kind: 'add'; weekday: number }
   /** The sets and reps form for what was just picked on Plan's Add: nothing is stored until its Add. */
@@ -53,12 +64,20 @@ type OpenDialog =
   | { kind: 'baseline'; lift: PlanExercise }
   | null
 
-export type PlanContentProps = { state: PlanState; actions: PlanActions; onOpenSettings: () => void; onBuildPlan?: () => void }
+export type PlanContentProps = {
+  state: PlanState
+  actions: PlanActions
+  onOpenSettings: () => void
+  onBuildPlan?: () => void
+  onChooseTemplate?: (mode: TrainingMode) => void
+  message?: string | null
+  onMessageShown?: () => void
+}
 
 const SAVE_FAILED = "Couldn't save — try again."
 
 /** The Plan screen without its data source. A write that fails says so; it never fails silently. */
-export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: PlanContentProps) {
+export function PlanContent({ state, actions, onOpenSettings, onBuildPlan, onChooseTemplate, message, onMessageShown }: PlanContentProps) {
   const [dialog, setDialog] = useState<OpenDialog>(null)
   // Counts failed writes: 0 shows nothing, and each new failure shows the message afresh.
   const [failures, setFailures] = useState(0)
@@ -68,14 +87,33 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
   // The add form, with the ready-made numbers for `entry`, in the picker's place: one render, no moment without a dialog.
   const addForm = (weekday: number, entry: PickerEntry): OpenDialog => ({ kind: 'addDetails', weekday, entry, draft: actions.draft(entry) })
 
-  const bodybuilding = !state.loading && state.side === 'BODYBUILDING'
-  const empty = bodybuilding && state.sections.every((section) => section.rows.length === 0)
+  // A message from elsewhere (a template saved) is taken once: shown here, and cleared where it came from.
+  const [note, setNote] = useState<{ text: string; id: number } | null>(null)
+  const shownMessage = useRef(onMessageShown)
+  shownMessage.current = onMessageShown
+  useEffect(() => {
+    if (message == null) return
+    setNote((n) => ({ text: message, id: (n?.id ?? 0) + 1 }))
+    shownMessage.current?.()
+  }, [message])
+
+  // Nothing is called empty, and no menu is drawn, until the stored plan has been read (as Android's 9c89f4d).
+  const loaded = !state.loading
+  const bodybuilding = loaded && state.side === 'BODYBUILDING'
+  const emptyPlan = loaded && state.sections.every((section) => section.rows.length === 0)
+  // The bodybuilding side always says when it is empty; the powerlifting side does when it has templates to offer.
+  const empty = emptyPlan && (bodybuilding || onChooseTemplate != null)
+  const chooseTemplate = onChooseTemplate ? () => onChooseTemplate(state.side) : undefined
   const settings = <IconButton label="Settings" icon={<SettingsIcon />} onClick={onOpenSettings} />
-  // The builder belongs to the bodybuilding side; the powerlifting side's header is as it was.
+  // Each side's menu once it has a plan: the builder on the bodybuilding side, then the templates on both.
+  const menu = [
+    ...(bodybuilding && onBuildPlan ? [{ text: 'Rebuild my plan', icon: <ReplayIcon />, onSelect: onBuildPlan }] : []),
+    ...(chooseTemplate ? [{ text: CHOOSE_A_TEMPLATE, icon: <ViewAgendaIcon />, onSelect: chooseTemplate }] : []),
+  ]
   const headerActions =
-    bodybuilding && !empty && onBuildPlan ? (
+    loaded && !emptyPlan && menu.length > 0 ? (
       <span className="plan-header-actions">
-        <Menu label="Plan options" items={[{ text: 'Rebuild my plan', icon: <ReplayIcon />, onSelect: onBuildPlan }]} />
+        <Menu label="Plan options" items={menu} />
         {settings}
       </span>
     ) : (
@@ -88,8 +126,12 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
       <div className="screen-body">
         {empty && (
           <div className="plan-empty">
-            <p className="plan-empty-side body-medium">{EMPTY_BODYBUILDING_PLAN}</p>
-            {onBuildPlan && <PrimaryButton text="Build my plan" onClick={onBuildPlan} className="plan-build" />}
+            <p className="plan-empty-side body-medium">{bodybuilding ? EMPTY_BODYBUILDING_PLAN : EMPTY_POWERLIFTING_PLAN}</p>
+            {/* A template is the first choice on both sides; the bodybuilding builder is under it. */}
+            {chooseTemplate && <PrimaryButton text={CHOOSE_A_TEMPLATE} onClick={chooseTemplate} className="plan-empty-wide" />}
+            {bodybuilding &&
+              onBuildPlan &&
+              (chooseTemplate ? <SecondaryButton text="Build my plan" onClick={onBuildPlan} className="plan-build plan-empty-wide" /> : <PrimaryButton text="Build my plan" onClick={onBuildPlan} className="plan-build" />)}
           </div>
         )}
         {state.sections.map((section) => (
@@ -193,7 +235,11 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
         />
       )}
 
-      <Snackbar message={failures > 0 ? SAVE_FAILED : null} showId={failures} onDismiss={() => setFailures(0)} />
+      <Snackbar
+        message={failures > 0 ? SAVE_FAILED : (note?.text ?? null)}
+        showId={failures > 0 ? failures : `note-${note?.id ?? 0}`}
+        onDismiss={() => (failures > 0 ? setFailures(0) : setNote(null))}
+      />
     </section>
   )
 }
