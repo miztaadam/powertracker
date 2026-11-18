@@ -607,7 +607,7 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-skip-planned-exercise-design.md`; 
 - Plan and Exercises tests that sometimes failed under load: looked into on 2026-11-18 (see "Tests that sometimes failed under load" under "The new look and motion"). Android `planAdd_tapAfterTheWindow_works` and the rest-alert test (its likely cause; unproven), and web `planAdd_cancel_storesNothing`, `addToPlan_choosesDay_andUsesDefaults` and `exercisesTab_browseByMuscleAndSearchWork`, are fixed in the tests. Open: Android `PlanScreenTest.planAdd_changeToOwnExerciseFails_afterThePickerWasClosed_theAddFormSaysSo` (cause not established; it now prints what it saw on a timeout).
 - The web has no speed test for opening Today, which gained the ⋮ and the wrapping names; the speed checks cover only the picker and the Exercises tab.
 - **Check-in may lose its place on a reload (1.14, unchecked):** the web's plan templates lost theirs after a reload on the draft until `a06f573`, which steps off the leftover history entry. The check-in screen has the same kind of step entry and probably the same case after a reload on its second step. Not checked or changed.
-- **A stale coach card stays open (1.14):** after a plan is replaced (Choose a template, or Rebuild my plan), a swap card for an exercise no longer in the plan says "Your plan has changed since; nothing was swapped" on Apply and stays open until dismissed. It could close itself, or hide, once its exercise has left the plan.
+- **A stale coach card stays open (1.14):** after a plan is replaced (Choose a template, or Rebuild my plan), a coach card (swap or skip) for an exercise no longer in the plan says "Your plan has changed since; nothing was swapped" on Apply and stays open until dismissed. It could close itself, or hide, once its exercise has left the plan.
 
 Not yet tried on a real phone.
 
@@ -692,7 +692,7 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-plan-templates-design.md`; plan: `
 
 **The sourced numbers** (all in `CoachSources.kt`, checked on 2026-11-18 from the search summary):
 - **Days a week by experience** (`TEMPLATE_DAYS`): NSCA "Determination of Resistance Training Frequency" (beginner 2–3, intermediate 3–4, advanced 4–6, advanced being a year or more), and the ACSM 2009 progression models as ExRx's "Weight Training Guidelines" summarise them (2–3, 3–4, 4–5). The templates take 3, 4 and 5, inside every band.
-- **Main-lift loading** (`TEMPLATE_STRENGTH_LOAD`, `TEMPLATE_STRENGTH_PHASE`, `TEMPLATE_NSCA_TABLE`): ACSM 2026 via ExRx and acsm.org (strength at 80% 1RM or more, 2–3 sets an exercise, 2 or more sessions a week); NSCA "Preparatory Period" (basic strength 80–95% 1RM, 2–6 sets of 2–6 reps); the NSCA Essentials table via ACE (maximum strength 6 reps or fewer at 85% or more).
+- **Main-lift loading** (`TEMPLATE_STRENGTH_LOAD`, `TEMPLATE_STRENGTH_PHASE`, `TEMPLATE_NSCA_TABLE`): ExRx's "Weight Training Guidelines", summarising ACSM 2026 and 2009 (strength at 80% 1RM or more, 2–3 sets an exercise, 2 or more sessions a week); NSCA "Preparatory Period" (basic strength 80–95% 1RM, 2–6 sets of 2–6 reps); the NSCA Essentials table via ACE (maximum strength 6 reps or fewer at 85% or more).
 - **The floor** (`TEMPLATE_STRENGTH_FLOOR`): PMC8435792 on powerlifters' minimum effective dose, 3–6 working sets a week of 1–5 reps above 80% 1RM at RPE 7.5–9.5 over 1–3 sessions a lift. Every template is at or above it.
 - **Reps @ RPE to %1RM** (`TEMPLATE_LOAD_CHART`): ExRx "Predicting One-rep Max" (5 = 87%, 6 = 85%), the NSCA Training Load Chart, PMC10933212 and PMC7706636 (RPE as reps in reserve). So 4 × 4 @ 8 is about 85% and 5 × 3 @ 8 about 87%.
 - **The accessory range** (`TEMPLATE_ACCESSORY_RANGE`): ExRx "Sample Powerlifting Program", 3 × 8–10; with the NSCA's 6–12 for hypertrophy.
@@ -716,7 +716,7 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-plan-templates-design.md`; plan: `
 
 **A replace with old state:**
 - History, bests, check-ins, coach cards and the other side's plan and days are untouched. Skips keep their records, their plan item cleared, as when a plan item is deleted. A session in progress keeps its logged sets.
-- **A coach card about the old plan** acts on the plan as it is now, as after Rebuild my plan. If its exercise is not in the new plan, Apply says "Your plan has changed since; nothing was swapped" and the card stays open until it is dismissed. If the exercise is in the new plan, the swap lands on the new items. (A skip card is not shown once its exercise has left that side's plan, as in 1.13; the same holds for it if it is applied.)
+- **A coach card about the old plan** acts on the plan as it is now, as after Rebuild my plan. If its exercise is not in the new plan, Apply says "Your plan has changed since; nothing was swapped" and the card stays open until it is dismissed. If the exercise is in the new plan, the swap lands on the new items.
 
 **The 1.14 review fixes (also in 1.14):**
 - **The bodybuilding builder's save is now all or nothing on Android,** as the templates': the plan and the days in one transaction, the days last and put back on a failure. So its "Nothing was changed" is true. The web builder already saved in one transaction.
