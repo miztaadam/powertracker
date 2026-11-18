@@ -263,7 +263,7 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 
 - **1.9:** charts fill in on Progress.
 
 **Open follow-ups:**
-- Pictures in the web picker and plan builder: tried three times and waiting for the owner's decision (see "Web picker thumbnails: tried, waiting"). Android has them since 1.10.
+- Pictures in the web picker and plan builder: closed by the owner on 2026-11-18 after three trials (see "Web picker thumbnails: tried, closed"). Android has them since 1.10.
 - "Sound + vibrate" wraps onto two lines on narrow phones.
 - Two guide gaps: the Seated cable fly guide and the Hack squat guide (see the 1.5 notes).
 - The Exercises tab still opens slowly now and then (single slow opens, still under 100 ms).
@@ -316,8 +316,8 @@ Plan: `docs/superpowers/plans/2026-11-17-grit-1-11-follow-ups.md`. The owner sai
   - `ThumbnailsTest.tab_stillWarmsUp_afterATilelessPicker` is replaced by `tab_largeText_startsNoWarmUp` and `tab_stillWarmsUp_afterATilelessPlanBuilder`, because the picker's floor is now below the tab's, so a tile-less picker under a tiled tab can't happen.
 - Not yet tried on a real phone.
 
-## Web picker thumbnails: tried, waiting
-**Waiting for the owner's decision.** The web picker and plan builder have no thumbnails in 1.10 or 1.11. The web Exercises tab keeps its SVG pictures. The spike's files are local only and will be lost, so this section keeps what is needed to rebuild option B later.
+## Web picker thumbnails: tried, closed
+**Closed by the owner on 2026-11-18.** No pictures in the web picker or plan builder. Reasons: decoded-image memory (about 24–54 MB), sheets that would have to be made in a browser and committed for every picture change, and slower first opens; Android already has pictures. The data below stays in case this is reopened. The web picker and plan builder have no thumbnails in 1.10 or 1.11. The web Exercises tab keeps its SVG pictures. The spike's files are local only and will be lost, so this section keeps what is needed to rebuild option B later.
 
 ### 1.10: three ways of scheduling the same SVG pictures (owner decision 3)
 - Each tile was a React subtree of SVG shapes, about 10–12 ms of drawing on the picker's open.
