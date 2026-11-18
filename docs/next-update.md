@@ -469,6 +469,7 @@ Not yet tried on a real phone.
 - **Tests (Android):** `planAdd_ownExerciseFails_saysSo_opensNoForm` (was `planAdd_ownExerciseFails_opensNoForm`, which expected the crash), `planAdd_changeToOwnExerciseFails_saysSo_formKeepsItsExercise`, `planEdit_changeToOwnExerciseFails_saysSo_rowKeepsItsExercise` and `TodayScreenTest.createYourOwn_whenTheSaveFails_saysSo_addsNothing_noTick`. Each fails without the catch. They wait for the message instead of a fixed 500 ms. The `ExpectCrash` rule, now unused, is gone.
 - **Version:** Android 1.12.1 (versionCode 18), web 1.12.1. Settings shots re-shot on both apps; no other screenshot changed.
 - **Not changed:** other writes still do not catch a failure, as before: among others, Plan's Save (edit), move, delete and known best.
+- **Review notes (open, low):** after a failure you reopen the picker and type the name again, because the picker has already closed. Today's `SaveFailed` goes through a `MutableSharedFlow` with no replay, so if Today is off screen when the insert fails (you left the tab, or the screen is being recreated), the message is lost: there is no crash, but no message either. Plan's buffered `Channel` has no such gap.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
