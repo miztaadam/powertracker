@@ -774,6 +774,41 @@ class PlanScreenTest {
     }
 
     @Test
+    fun planAdd_addFails_saysSo_formKeepsItsNumbers_andASecondAddWorks() {
+        // Every plan item write is refused, as a full disk would refuse it.
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_plan_insert BEFORE INSERT ON plan_item BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        val haptics = FakeHapticFeedback()
+        compose.setContent { WithHaptics(haptics) { PlanScreen(training, settings, onOpenSettings = {}) } }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        tap("Increase Sets")
+        tap("Increase Reps")
+        assertField("Sets", "4")
+        assertField("Reps", "6")
+        addButton().performClick()
+        waitForSaveFailed()
+
+        // The form is still open on Squat with the numbers set, nothing was stored, and nothing buzzed.
+        assertAddForm("Squat")
+        assertField("Sets", "4")
+        assertField("Reps", "6")
+        assertTrue(plan().isEmpty())
+        assertEquals(0, haptics.calls.size)
+
+        // Once the disk has room, a second Add stores those numbers, once, closes the form and ticks.
+        db.openHelper.writableDatabase.execSQL("DROP TRIGGER fail_plan_insert")
+        addButton().performClick()
+        waitFor { plan().isNotEmpty() && !formOpen() }
+        val item = plan().single()
+        assertEquals(squatId(), item.exerciseId)
+        assertEquals(4, item.sets)
+        assertEquals(6, item.reps)
+        assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
+    }
+
+    @Test
     fun planAdd_survivesRecreation_bodybuilding() {
         runBlocking { settings.update { com.powertracker.data.AppSettings(trainingMode = TrainingMode.BODYBUILDING) } }
         val restoration = androidx.compose.ui.test.junit4.StateRestorationTester(compose)

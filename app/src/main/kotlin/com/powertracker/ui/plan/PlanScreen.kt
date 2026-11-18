@@ -234,23 +234,35 @@ fun PlanScreen(
             },
             onDismiss = { dialog = null },
         )
-        is PlanDialog.AddDetails -> PlanItemDialog(
-            title = "Add to ${dayName(d.day)}",
-            state = state,
-            item = d.draft,
-            exerciseName = d.entry.name,
-            confirmText = "Add",
-            ignoreTapsForMillis = ADD_FORM_TAP_WINDOW_MS,
-            onCreateCustom = viewModel::addCustomExercise,
-            onSave = { exercise, sets, reps, rpe, repsHigh ->
-                // Stored once: a second tap in the same frame finds the form already closed.
-                if (dialog == d) {
-                    dialog = null
-                    viewModel.add(d.day, exercise ?: d.entry, sets, reps, rpe, repsHigh) { haptics.tick() }
-                }
-            },
-            onDismiss = { dialog = null },
-        )
+        is PlanDialog.AddDetails -> {
+            // True from Add's tap until the write answers: a second tap meanwhile stores nothing more.
+            var adding by remember(d) { mutableStateOf(false) }
+            PlanItemDialog(
+                title = "Add to ${dayName(d.day)}",
+                state = state,
+                item = d.draft,
+                exerciseName = d.entry.name,
+                confirmText = "Add",
+                ignoreTapsForMillis = ADD_FORM_TAP_WINDOW_MS,
+                onCreateCustom = viewModel::addCustomExercise,
+                onSave = { exercise, sets, reps, rpe, repsHigh ->
+                    // The form stays open until the item is stored, then closes and ticks. If the write fails, the
+                    // form stays as it is, with its numbers, the message is said, and Add works again.
+                    if (!adding) {
+                        adding = true
+                        viewModel.add(
+                            d.day, exercise ?: d.entry, sets, reps, rpe, repsHigh,
+                            onAdded = {
+                                if (dialog == d) dialog = null
+                                haptics.tick()
+                            },
+                            onFailed = { adding = false },
+                        )
+                    }
+                },
+                onDismiss = { dialog = null },
+            )
+        }
         is PlanDialog.Edit -> PlanItemDialog(
             title = "Edit ${dayName(d.item.weekday)}",
             state = state,
