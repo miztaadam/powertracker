@@ -55,6 +55,16 @@ function useDraftEntry(step: TemplatesState['step'], back: () => boolean) {
   // What the next popstate is for when it is not the browser's Back from the draft: nothing, or `then`.
   const nextPop = useRef<null | 'stay' | (() => void)>(null)
   const pushed = useRef(false)
+  // Opened on a draft entry left from before (a reload on the draft): the screen starts on the list, so it steps off
+  // that entry once, or Close and a save would land on it rather than on the screen's own entry. Once: StrictMode runs
+  // this twice, and a second step back would leave the screen.
+  const steppedOff = useRef(false)
+  useEffect(() => {
+    if (steppedOff.current || !onDraftEntry()) return
+    steppedOff.current = true
+    nextPop.current = 'stay'
+    window.history.back()
+  }, [])
   useEffect(() => {
     const onPop = () => {
       const then = nextPop.current

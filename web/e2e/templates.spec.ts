@@ -338,6 +338,27 @@ test.describe('browser back, as Android', () => {
     await expect(page).not.toHaveURL(/templates/)
   })
 
+  test('after a reload on the draft, a save still goes to Plan and Close leaves in one tap', async ({ page }) => {
+    await openOnWednesday(page)
+    await page.goto('/#/plan')
+    await page.getByRole('button', { name: 'Choose a template' }).click()
+    await page.getByRole('button', { name: '3-day powerlifting' }).click()
+    await page.reload()
+    await expect(list(page)).toBeVisible()
+    await page.getByRole('button', { name: '3-day powerlifting' }).click()
+    await page.getByRole('button', { name: 'Use this plan' }).click()
+    await expect(page.getByText('Plan set: 3-day powerlifting.')).toBeVisible()
+    await expect(page).toHaveURL(/#\/plan$/)
+
+    await page.getByRole('button', { name: 'Plan options' }).click()
+    await page.getByRole('menuitem', { name: 'Choose a template' }).click()
+    await page.getByRole('button', { name: '4-day powerlifting' }).click()
+    await page.reload()
+    await expect(list(page)).toBeVisible()
+    await page.getByRole('button', { name: 'Close', exact: true }).click()
+    await expect(page).toHaveURL(/#\/plan$/)
+  })
+
   test('after a save, back from Plan never returns to the templates, opened from Plan or from a link', async ({ page }) => {
     await openOnWednesday(page)
     await page.goto('/#/plan')
