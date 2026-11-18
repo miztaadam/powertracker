@@ -33,12 +33,15 @@ import com.powertracker.domain.model.missPointLabel as domainMissPointLabel
 import com.powertracker.domain.model.repsText as domainRepsText
 import com.powertracker.domain.plan.BuilderAnswers
 import com.powertracker.domain.plan.PlanBuilder
+import com.powertracker.domain.plan.PlanTemplate
+import com.powertracker.domain.plan.PlanTemplates
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.domain.progress.BodybuildingProgress
 import com.powertracker.domain.progress.ProgressMath
 import com.powertracker.domain.seed.SeedLibrary
 import com.powertracker.domain.validation.InputValidator
 import com.powertracker.domain.validation.InputWarning
+import kotlinx.datetime.isoDayNumber
 
 /**
  * The coach and its helpers for the web app. Everything crossing this boundary is plain data (see JsTypes.kt);
@@ -323,6 +326,36 @@ object GritDomain {
 
     /** The `MuscleGroup` names a priority may be, in the builder's order: the 12 target groups. */
     fun planBuilderTargetGroups(): Array<String> = PlanBuilder.TARGET_GROUPS.map { it.name }.toTypedArray()
+
+    /** The ready-made plans for [mode] (a `TrainingMode` name), fewest days first. */
+    fun planTemplatesFor(mode: String): Array<JsPlanTemplate> =
+        PlanTemplates.forMode(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** The weekdays (1-7, Monday = 1, in week order) to tick first for a [count]-day template: [current] when it has [count] days, else a fixed spread. */
+    fun planTemplateSuggestedDays(count: Int, current: Array<Int>): Array<Int> =
+        PlanTemplates.suggestedDays(count, current.map { parseWeekday("current", it) }.toSet()).map { it.isoDayNumber }.toTypedArray()
+
+    /**
+     * Template [id] as a draft week on [days] (1-7, as many as the template has, distinct; sorted Monday first), with
+     * strict-press entries only when [strictPress]. Throws IllegalArgumentException for an unknown id or wrong days.
+     */
+    fun planTemplateDraft(id: String, days: Array<Int>, strictPress: Boolean): JsPlanDraft =
+        PlanTemplates.draft(templateById(id), days.map { parseWeekday("days", it) }, strictPress).toJs()
+
+    /**
+     * Catalogue exercises to swap [name] on [day] (1-7) of template [id]'s [draft] for: none for a main lift, other
+     * variations of the same lift for a variation, otherwise the builder's list without main lifts and variations;
+     * never one already in the week.
+     */
+    fun planTemplateAlternatives(id: String, draft: JsPlanDraft, day: Int, name: String): Array<JsLibraryExercise> =
+        PlanTemplates.alternatives(templateById(id), draft.toDomain(), parseWeekday("day", day), name).map { it.toJs() }.toTypedArray()
+
+    /** [draft] with [from] on [day] (1-7) replaced by the catalogue exercise [to], same place, sets, reps and RPE; volume recounted. */
+    fun planTemplateSwap(draft: JsPlanDraft, day: Int, from: String, to: String): JsPlanDraft =
+        PlanTemplates.swap(draft.toDomain(), parseWeekday("day", day), from, to).toJs()
+
+    private fun templateById(id: String): PlanTemplate =
+        PlanTemplates.byId(id) ?: throw IllegalArgumentException("id: no plan template '$id'")
 
     fun weeklyTrend(history: JsHistory, lift: String, until: String): Array<JsWeeklyPoint> =
         HistoryStats(history.toDomain()).weeklyTrend(parseLift("lift", lift), parseDate("until", until))

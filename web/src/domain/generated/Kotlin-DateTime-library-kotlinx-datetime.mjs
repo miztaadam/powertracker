@@ -3722,10 +3722,17 @@ Formats_instance_0 = new Formats_0();
 //endregion
 //region block: exports
 export {
+  DayOfWeek_FRIDAY_getInstance as DayOfWeek_FRIDAY_getInstance3psmv5z0rk53n,
+  DayOfWeek_MONDAY_getInstance as DayOfWeek_MONDAY_getInstance3u0uptycixs65,
+  DayOfWeek_SATURDAY_getInstance as DayOfWeek_SATURDAY_getInstance2pwh8d7e3vqkf,
+  DayOfWeek_THURSDAY_getInstance as DayOfWeek_THURSDAY_getInstance2fa72o4vitekp,
+  DayOfWeek_TUESDAY_getInstance as DayOfWeek_TUESDAY_getInstanceyj9r0qh47k6j,
+  DayOfWeek_WEDNESDAY_getInstance as DayOfWeek_WEDNESDAY_getInstancewvb0t9y8yjce,
   LocalDateSerializer_getInstance as LocalDateSerializer_getInstance3qg2c8779i3ej,
   Companion_getInstance_5 as Companion_getInstance3rf6ssn2f6rf5,
   Companion_getInstance_14 as Companion_getInstance3h03aipe2gus4,
   DatePeriod_init_$Create$ as DatePeriod_init_$Create$3taapb72awtm9,
+  get_entries as get_entries2ar453qbk297a,
   values as values3tr2ffumvy98e,
   DayOfWeek_0 as DayOfWeek2xlo40o03f5e,
   daysUntil as daysUntili13lhjyhczcn,
