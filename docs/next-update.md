@@ -518,7 +518,7 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-skip-planned-exercise-design.md`; 
 - The exercise leaves the list, with one tick, and a snackbar reads "<name> skipped." with **Undo**. Two plan lines of the same exercise leave together.
 - A "Skipped today" line at the end of the list names each skipped exercise with **Bring back**, which returns it to its place. Adding a skipped exercise again (Today's Add exercise, or the Exercises tab's Add to today) brings it back the same way.
 - No session is needed: a skip belongs to the date and the side shown.
-- With every planned exercise skipped, the start card reads "WEDNESDAY · 0 EXERCISES"; in a session the usual "No exercises yet" stays above the line.
+- With every planned exercise skipped, the start card reads "WEDNESDAY · 2 SKIPPED", the count on the "Skipped today" line (1.13.1; in 1.13 it read "WEDNESDAY · 0 EXERCISES"); in a session the usual "No exercises yet" stays above the line.
 - Finish's summary adds ", n skipped": "No new coach notes, 1 skipped".
 - Names on Today's rows stay whole: a long name wraps between words, and its plan goes under it.
 
@@ -553,7 +553,7 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-skip-planned-exercise-design.md`; 
 - The four answers ignore taps while the sheet slides up and for 300 ms after; a tap outside cancels at once, on both apps; back and the keyboard are never held.
 - The ⋮ is also on the start card's rows and the open card, not only on the folded rows.
 - The "Skipped today" line shows at once, not only after the snackbar, and not on Finish's summary.
-- With everything skipped, the start card says "0 exercises" with no "nothing in your plan" text.
+- With everything skipped, the start card says "<day> · n skipped" (1.13.1; "0 exercises" in 1.13) with no "nothing in your plan" text.
 - The thresholds are "from the 2nd" and "from the 3rd", not "exactly", so a dismissed card can come back once its 28 days are over.
 - A busy skip with no alternative on other equipment falls through to the 3-skips rule.
 - Adding a skipped exercise again takes its skip back, as Bring back does.
@@ -605,9 +605,35 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-skip-planned-exercise-design.md`; 
 
 **Open follow-ups:**
 - Plan and Exercises tests that sometimes failed under load: looked into on 2026-11-18 (see "Tests that sometimes failed under load" under "The new look and motion"). Android `planAdd_tapAfterTheWindow_works` and the rest-alert test (its likely cause; unproven), and web `planAdd_cancel_storesNothing`, `addToPlan_choosesDay_andUsesDefaults` and `exercisesTab_browseByMuscleAndSearchWork`, are fixed in the tests. Open: Android `PlanScreenTest.planAdd_changeToOwnExerciseFails_afterThePickerWasClosed_theAddFormSaysSo` (cause not established; it now prints what it saw on a timeout).
-- "WEDNESDAY · 0 EXERCISES" when every exercise is skipped reads oddly; the owner's call on wording.
-- Gentler alternatives on the pain card (machine or cable before free weights): researched on 2026-11-18 in the allowed sources and not built. No source gives a rule for ordering alternatives when an exercise hurts. The nearest, NSCA's older-adults position statement ("consider weight machines (as opposed to free weights)" for joint pain or limited range), covers older adults with joint pain, rests on machines limiting the range, and says nothing about cables, Smith, bands or bodyweight; it was seen only as a search summary, and the full text was not confirmed. The other hits were about general machine stability, one lift (Smith squat), or a survey that showed association only. The alternatives stay in their current order.
 - The web has no speed test for opening Today, which gained the ⋮ and the wrapping names; the speed checks cover only the picker and the Exercises tab.
+
+Not yet tried on a real phone.
+
+## Done: 1.13.1, the 1.13 follow-ups (both apps)
+Plan: `docs/superpowers/plans/2026-11-18-grit-1-13-1-follow-ups.md`.
+
+- **Two guide lines (both apps, from the shared guide):**
+  - Seated cable fly gains a third mistake: "Letting your hands go back past the level of your armpits." (ACE Standing Incline Cable Flyes, as the low-to-high cable fly already reads it.)
+  - Hack squat's first step now reads "Lower by bending your hips and knees until your knees are just short of fully bent. Stop sooner if your hips start to lift off the pad." (ExRx Sled Hack Squat.)
+  - Both checked on 2026-11-18 from the search summary. No allowed source says "behind the body" outright, so that wording is not used.
+- **Today, when everything is skipped:** the start card reads "<WEEKDAY> · n SKIPPED", for example "WEDNESDAY · 2 SKIPPED". It used to read "WEDNESDAY · 0 EXERCISES".
+  - n is the count on the "Skipped today" line.
+  - It shows only when nothing is left on the list. With one exercise left it still reads "· 1 exercise". Undo and Bring back put the exercise count back.
+  - With nothing planned it still reads "Nothing planned".
+- **A quiet spell after a pain card is dismissed:** for 7 days after a pain card for an exercise on a side is dismissed, a new pain skip of it on that side gives no new card.
+  - The 7 days count from when the card was made, not when it was dismissed. Advice stores no dismissal date, and adding one would change the database and the backups. So a card made 0 to 6 days ago holds a new one back, and one made 7 or more days ago does not. A card left open for a long time and then dismissed starts a short quiet spell, or none.
+  - The weight is still held during the quiet spell, since the hold comes from the skip, not the card.
+  - An applied pain card starts no quiet spell. Main lifts' Dismiss-only cards count.
+  - Busy and repeat cards keep their rules. A dismissed pain card still holds them back for 28 days.
+- **Gentler alternatives on the pain card (machine or cable before free weights): researched, not built.** No allowed source gives a rule for ordering alternatives when an exercise hurts.
+  - The nearest is NSCA's older-adults position statement: "consider weight machines (as opposed to free weights)" for joint pain or limited range. It is not enough: it covers older adults only, its reason is that machines limit the range, it says nothing about cables, Smith, bands or bodyweight, and its full wording was seen only as a search summary.
+  - The other results were about machines' stability in general, one lift (the Smith squat), or a survey that showed association only.
+  - The alternatives stay in their current order.
+- **Existing tests changed:**
+  - Android `SkipTodayScreenTest.skipEveryPlannedExercise_noRestDayView_skippedLineShown` and the web test of the same name in `SkipToday.test.tsx`: "0 exercises" became "2 skipped", the text this update replaces.
+  - Domain `SkipCoachTest.openPainSkipCard_pain_givesNoSecond`: its "not once it was answered" probe used a pain card dismissed 2 days ago, which the quiet spell now holds back; it uses an applied card.
+  - Domain `SkipCoachTest.cardInLast7Days_pain_stillGivesThePainCard`: it covers applied cards only; dismissed ones are covered by the new `quietSpell_*` tests.
+- **Version:** Android 1.13.1 (versionCode 22), web 1.13.1. Settings shots re-shot on both apps; no other screenshot changed.
 
 Not yet tried on a real phone.
 
