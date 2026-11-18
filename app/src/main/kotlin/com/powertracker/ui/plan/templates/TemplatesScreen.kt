@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,6 +68,7 @@ import com.powertracker.ui.plan.builder.WeekdayChips
 import com.powertracker.ui.plan.builder.chooseDaysText
 import com.powertracker.ui.plan.builder.chosenDaysText
 import com.powertracker.ui.plan.dayName
+import com.powertracker.ui.theme.LocalTrainingMode
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import kotlinx.datetime.DayOfWeek
@@ -157,14 +159,17 @@ fun TemplatesContent(state: TemplatesState, actions: TemplatesActions) {
     Scaffold(
         containerColor = scheme.background,
         topBar = {
-            ScreenHeader(
-                if (state.step == TemplateStep.DRAFT && chosen != null) chosen.name else CHOOSE_A_TEMPLATE,
-                eyebrow = if (state.step == TemplateStep.DRAFT) CHOOSE_A_TEMPLATE else null,
-                modeLabel = true,
-                navigation = { PtIconButton(onClick = actions.onClose) { Icon(Icons.Filled.Close, CLOSE) } },
-                // "5-day body-part split" is a line and a half at 320 dp with large text.
-                titleMaxLines = Int.MAX_VALUE,
-            )
+            // The mode label is the side these templates are for, as on the web, not whichever side the app is on.
+            CompositionLocalProvider(LocalTrainingMode provides state.mode) {
+                ScreenHeader(
+                    if (state.step == TemplateStep.DRAFT && chosen != null) chosen.name else CHOOSE_A_TEMPLATE,
+                    eyebrow = if (state.step == TemplateStep.DRAFT) CHOOSE_A_TEMPLATE else null,
+                    modeLabel = true,
+                    navigation = { PtIconButton(onClick = actions.onClose) { Icon(Icons.Filled.Close, CLOSE) } },
+                    // "5-day body-part split" is a line and a half at 320 dp with large text.
+                    titleMaxLines = Int.MAX_VALUE,
+                )
+            }
         },
         bottomBar = { if (state.step == TemplateStep.DRAFT) DraftBar(state, actions) },
     ) { padding ->

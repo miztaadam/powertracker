@@ -214,6 +214,19 @@ class TemplatesScreenTest {
         assertEquals("Upper A · Lower A · Upper B · Lower B", templateDayTitles(PlanTemplates.byId("bb-4")!!))
     }
 
+    /** The header's mode label is the side the templates are for, not the app's side. */
+    @Test
+    fun theHeadersModeLabel_isTheTemplatesSide_notTheApps() {
+        var appSide by mutableStateOf(POWERLIFTING)
+        var templatesSide by mutableStateOf(BODYBUILDING)
+        compose.setContent { PowertrackerTheme(mode = appSide) { TemplatesContent(TemplatesState(templatesSide, loading = false), TemplatesActions()) } }
+        compose.onNodeWithTag("mode-label").assertExists()
+        appSide = BODYBUILDING
+        templatesSide = POWERLIFTING
+        compose.waitForIdle()
+        compose.onNodeWithTag("mode-label").assertDoesNotExist()
+    }
+
     private fun templates(mode: TrainingMode, onSaved: (String) -> Unit = {}, onClose: () -> Unit = {}) {
         runBlocking { settings.update { it.copy(trainingMode = mode) } }
         compose.setContent { PowertrackerTheme(mode = mode) { TemplatesScreen(mode, training, settings, onClose = onClose, onSaved = onSaved) } }
@@ -420,16 +433,16 @@ class TemplatesSmallPhoneTest {
         scenario?.close()
     }
 
-    private fun show(mode: TrainingMode, content: @Composable () -> Unit) {
+    private fun show(mode: TrainingMode, fontScale: Float = 1.3f, content: @Composable () -> Unit) {
         scenario?.close()
-        RuntimeEnvironment.setFontScale(1.3f)
+        RuntimeEnvironment.setFontScale(fontScale)
         scenario = ActivityScenario.launch(ComponentActivity::class.java).onActivity { activity ->
             activity.setContent {
                 PowertrackerTheme(mode = mode) { Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) { content() } }
             }
         }
         compose.waitForIdle()
-        assertEquals(1.3f, RuntimeEnvironment.getApplication().resources.configuration.fontScale, 0.001f)
+        assertEquals(fontScale, RuntimeEnvironment.getApplication().resources.configuration.fontScale, 0.001f)
     }
 
     private fun draftState(id: String, strictPress: Boolean = true): TemplatesState {
@@ -583,8 +596,26 @@ class TemplatesSmallPhoneTest {
             compose.onNodeWithContentDescription(PLAN_OPTIONS).performClick()
             compose.waitForIdle()
             assertTrue(compose.onAllNodesWithText(CHOOSE_A_TEMPLATE).fetchSemanticsNodes().isNotEmpty())
+            assertEquals("Rebuild my plan only on bodybuilding", mode == BODYBUILDING, compose.onAllNodesWithText(REBUILD_MY_PLAN).fetchSemanticsNodes().isNotEmpty())
             assertFits("$mode's open Plan menu", listOf(CHOOSE_A_TEMPLATE, REBUILD_MY_PLAN))
         }
+    }
+
+    /** A 360 dp phone at default text: seven to a row cut "Mon" to "Mo", so the chips go 4 + 3, every label whole. */
+    @Test
+    @Config(qualifiers = "w360dp-h2000dp-xxhdpi")
+    fun theChips_at360WithDefaultText_areTwoRows_withEveryLabelWhole() {
+        show(POWERLIFTING, fontScale = 1f) { TemplatesContent(draftState("pl-3"), TemplatesActions()) }
+        compose.assertTextsFitInEveryWindow(360f * 3)
+        assertTrue("two rows", compose.onNodeWithTag("template-day-FRIDAY").fetchSemanticsNode().positionInRoot.y > compose.onNodeWithTag("template-day-MONDAY").fetchSemanticsNode().positionInRoot.y)
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h2000dp-xxhdpi")
+    fun theChips_at411WithDefaultText_areOneRow() {
+        show(POWERLIFTING, fontScale = 1f) { TemplatesContent(draftState("pl-3"), TemplatesActions()) }
+        compose.assertTextsFitInEveryWindow(411f * 3)
+        assertEquals(compose.onNodeWithTag("template-day-MONDAY").fetchSemanticsNode().positionInRoot.y, compose.onNodeWithTag("template-day-SUNDAY").fetchSemanticsNode().positionInRoot.y, 0.5f)
     }
 
     @Test

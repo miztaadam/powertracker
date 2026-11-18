@@ -394,7 +394,8 @@ fun WeekdayChips(days: Set<DayOfWeek>, onDay: (DayOfWeek) -> Unit, tagPrefix: St
             val density = LocalDensity.current
             val widest = remember(measurer, style, density) { DayOfWeek.entries.maxOf { measurer.measure(shortDayName(it), style).size.width } }
             // A seventh of the row, less the room on each side of a chip's label, must hold the widest label.
-            val room = with(density) { (maxWidth - Space.xxs * 6).toPx() / 7 - (CHOICE_CHIP_PADDING * 2).toPx() }
+            // Whole pixels, as the row and the padding are laid out: a chip can come out a pixel narrower than a seventh.
+            val room = with(density) { kotlin.math.floor((maxWidth - Space.xxs * 6).toPx() / 7) - CHOICE_CHIP_PADDING.roundToPx() * 2 }
             val oneRow = widest <= room
             val rows = if (oneRow) listOf(DayOfWeek.entries) else listOf(DayOfWeek.entries.take(4), DayOfWeek.entries.drop(4))
             Column(verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
