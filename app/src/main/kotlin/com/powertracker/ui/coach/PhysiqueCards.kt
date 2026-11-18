@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -88,6 +89,32 @@ fun MoreWorkCard(advice: Advice, payload: AdvicePayload.MoreWork, onApply: () ->
     ) {
         Text(weeklyLine(payload), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
     }
+}
+
+/** The skip card's title (1.13): "Bench skipped". The coach's reason says why and what follows. */
+fun skipTitle(payload: AdvicePayload.Skipped): String = "${payload.name} skipped"
+
+/**
+ * A skipped planned exercise, in the stuck exercise's look: one button per alternative, best first, then Dismiss. With
+ * no alternatives (a main lift's pain card, or nothing left to swap to) it is Dismiss only.
+ */
+@Composable
+fun SkipCard(advice: Advice, payload: AdvicePayload.Skipped, onSwap: (String) -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+    AdviceCard(
+        tone = Tone.WARNING, icon = Icons.Filled.SkipNext, tag = "Skipped",
+        title = skipTitle(payload), body = advice.reason,
+        modifier = modifier.testTag("skip-${advice.id}"),
+        secondaryAction = "Dismiss", onSecondary = onDismiss,
+        content = if (payload.alternatives.isEmpty()) null else {
+            {
+                Column(verticalArrangement = Arrangement.spacedBy(Space.s)) {
+                    for (name in payload.alternatives) {
+                        SecondaryButton("Swap for $name", { onSwap(name) }, Modifier.fillMaxWidth(), compact = true)
+                    }
+                }
+            }
+        },
+    )
 }
 
 /** A stuck exercise: one button per alternative, best first, then Dismiss. */

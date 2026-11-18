@@ -436,6 +436,40 @@ class BackupTest {
         }
     }
 
+    /** 1.13: a version 5 file restored over other version 5 skips replaces them, clashing ids and keys included. */
+    @Test
+    fun v5File_restoredOverOtherSkips_replacesThem() = runTest {
+        seedBothSides()
+        seedSkips()
+        val exported = service.export(1L)
+        val text = Backup.encode(exported)
+
+        // Different skips now: one on the same date, side and exercise with another reason, and new ones.
+        db.skips().clear()
+        db.advice().clear()
+        val training = TrainingRepository(db)
+        val exercises = db.exercises().all().associateBy { it.name }
+        val day = LocalDate(2026, 11, 18)
+        training.skip(com.powertracker.domain.model.Skip(0, day, TrainingMode.BODYBUILDING, exercises.getValue("Curl").id, null, com.powertracker.domain.model.SkipReason.BUSY)) { _, _ -> emptyList() }
+        training.skip(com.powertracker.domain.model.Skip(0, day, TrainingMode.POWERLIFTING, exercises.getValue("Bench").id, null, com.powertracker.domain.model.SkipReason.PAIN)) { _, _ -> emptyList() }
+        training.skip(com.powertracker.domain.model.Skip(0, LocalDate(2026, 11, 1), TrainingMode.POWERLIFTING, exercises.getValue("Deadlift").id, null, null)) { _, _ -> emptyList() }
+        training.skip(com.powertracker.domain.model.Skip(0, LocalDate(2026, 11, 2), TrainingMode.POWERLIFTING, exercises.getValue("Row").id, null, null)) { _, _ -> emptyList() }
+
+        service.restore((Backup.decode(text) as BackupResult.Ok).file)
+
+        assertEquals(exported, service.export(1L))
+        assertEquals(exported.skips.size, db.skips().all().size)
+    }
+
+    /** 1.13: a version 6 file, from a later app, is turned away as too new. */
+    @Test
+    fun v6File_isTooNew() = runTest {
+        seedSkips()
+        val root = Json.parseToJsonElement(Backup.encode(service.export(1L))).jsonObject
+        val v6 = JsonObject(root + ("version" to JsonPrimitive(6)))
+        assertEquals(BackupResult.TooNew(6), Backup.decode(v6.toString()))
+    }
+
     /** Three skips: today's pain skip of curl on the bodybuilding side (with its card), and two on the powerlifting side. */
     private suspend fun seedSkips(): List<Long> {
         val training = TrainingRepository(db)

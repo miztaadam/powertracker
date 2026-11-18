@@ -230,6 +230,31 @@ class ScreenshotTest {
     @Config(qualifiers = "w412dp-h560dp-xhdpi")
     fun rpeSheet() = render("rpe-sheet", null) { RpeSheetShowcase() }
 
+    // 1.13, skipping a planned exercise: the row menu, the reason sheet, the "Skipped today" line and the SKIP cards.
+    @Test
+    fun todaySkipMenu() = render("today-skip-menu", Tab.TODAY) { TodaySkipMenuShowcase() }
+
+    @Test
+    fun todaySkipMenuBodybuilding() = render("today-skip-menu-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodaySkipMenuShowcase(TrainingMode.BODYBUILDING) }
+
+    @Test
+    fun todaySkipSheet() = render("today-skip-sheet", Tab.TODAY) { TodaySkipSheetShowcase() }
+
+    @Test
+    fun todaySkipSheetBodybuilding() = render("today-skip-sheet-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodaySkipSheetShowcase(TrainingMode.BODYBUILDING) }
+
+    @Test
+    fun todaySkipped() = render("today-skipped", Tab.TODAY) { TodaySkippedShowcase() }
+
+    @Test
+    fun todaySkippedBodybuilding() = render("today-skipped-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodaySkippedShowcase(TrainingMode.BODYBUILDING) }
+
+    @Test
+    fun coachSkip() = render("coach-skip", Tab.COACH) { CoachSkipShowcase() }
+
+    @Test
+    fun coachSkipBodybuilding() = render("coach-skip-bodybuilding", Tab.COACH, TrainingMode.BODYBUILDING) { CoachSkipShowcase(TrainingMode.BODYBUILDING) }
+
     @Test
     fun lock() = render("lock", null) { LockScreen(noDeviceLock = false, onUnlock = {}, onContinue = {}) }
 

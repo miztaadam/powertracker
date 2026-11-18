@@ -148,6 +148,8 @@ fun ExerciseCard(
     bodybuilding: Boolean = false,
     /** With motion on, Today's modifier for the card's content as it opens and closes ([SlidingSwap]); null otherwise. */
     slidingContent: Modifier? = null,
+    /** Opens the reason sheet; null hides the row menu (an added exercise, or one with sets). */
+    onSkipToday: (() -> Unit)? = null,
 ) {
     val id = item.exercise.id
     var extraSet by rememberSaveable(id) { mutableStateOf(false) }
@@ -155,10 +157,10 @@ fun ExerciseCard(
 
     PtCard(modifier, spacing = Space.s) {
         if (slidingContent == null) {
-            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }) { selected = it }
+            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }, onSkipToday) { selected = it }
         } else {
             Column(slidingContent, verticalArrangement = Arrangement.spacedBy(Space.s)) {
-                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }) { selected = it }
+                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }, onSkipToday) { selected = it }
             }
         }
     }
@@ -198,6 +200,7 @@ private fun ColumnScope.CardContent(
     bodybuilding: Boolean,
     extraSet: Boolean,
     onAddSet: () -> Unit,
+    onSkipToday: (() -> Unit)?,
     onSelect: (Pair<Int, StoredSet>) -> Unit,
 ) {
     val id = item.exercise.id
@@ -219,6 +222,7 @@ private fun ColumnScope.CardContent(
                 else -> Pill("Set ${item.sets.size + 1}")
             }
             InfoButton(item.exercise.name)
+            if (onSkipToday != null) SkipMenuButton(item.exercise.name, onSkipToday)
         }
 
         item.suggestion?.let { advice ->
@@ -436,7 +440,7 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
 
 /** Another exercise in today's session, folded to one line. Tap to log it. */
 @Composable
-fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modifier, onSkipToday: (() -> Unit)? = null) {
     val scheme = MaterialTheme.colorScheme
     PtCard(
         modifier,
@@ -456,6 +460,7 @@ fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modif
                 item.sets.isNotEmpty() -> Pill("${item.sets.size} ${if (item.sets.size == 1) "set" else "sets"}")
             }
             InfoButton(item.exercise.name)
+            if (onSkipToday != null) SkipMenuButton(item.exercise.name, onSkipToday)
         }
     }
 }

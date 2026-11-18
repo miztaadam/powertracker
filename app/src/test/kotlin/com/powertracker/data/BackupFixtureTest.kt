@@ -74,6 +74,7 @@ class BackupFixtureTest {
     private val webV2Fixture = File(fixtureDir, "web-v2.json")
     private val webV3Fixture = File(fixtureDir, "web-v3.json")
     private val webV4Fixture = File(fixtureDir, "web-v4.json")
+    private val webV5Fixture = File(fixtureDir, "web-v5.json")
 
     @Before
     fun setUp() {
@@ -306,6 +307,24 @@ class BackupFixtureTest {
             .map { Json.decodeFromString(AdvicePayload.serializer(), it.payload) }
         assertTrue(payloads.any { it is AdvicePayload.MoreWork })
         assertTrue(payloads.any { it is AdvicePayload.Swap })
+    }
+
+    /** 1.13: the web app's version 5 backup restores exactly, its skips and its SKIP card with it. */
+    @Test
+    fun webV5Fixture_restoresOnAndroid_withItsSkips() = runTest {
+        assertTrue("Missing ${webV5Fixture.path}; the web app writes it", webV5Fixture.exists())
+        val fixture = tree(webV5Fixture.readText()) as JsonObject
+        assertEquals(JsonPrimitive(5), fixture.getValue("version"))
+        val actual = restoreAndExport(webV5Fixture)
+        assertEquals(withoutExportedAt(fixture), actual)
+        val skips = TrainingRepository(db).skips().first()
+        assertEquals((fixture.getValue("skips") as JsonArray).size, skips.size)
+        assertTrue(skips.isNotEmpty())
+        val cards = db.advice().all().filter { it.type == AdviceType.SKIP }
+            .map { Json.decodeFromString(AdvicePayload.serializer(), it.payload) as AdvicePayload.Skipped }
+        assertTrue(cards.isNotEmpty())
+        // Each card belongs to a restored skip of the same exercise.
+        for (card in cards) assertEquals(card.exerciseId, skips.single { it.id == card.skipId }.exerciseId)
     }
 
     /** An Android version 1 backup restores, and exports again as the current version with the strict press switch off. */
