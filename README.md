@@ -143,6 +143,10 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Skip one, let the snackbar go, then tap Bring back on the "Skipped today" line: it is back in its place.
 - [ ] Skip a main lift (Bench) for Pain: Coach shows its card with Dismiss only. Skip an accessory (Curl) for Pain: its card offers Swap buttons, and a swap changes the plan.
 - [ ] After a pain skip, the next time that exercise is on Today its weight is held: the target does not go up.
+- [ ] Templates: on an empty powerlifting plan, tap Choose a template, pick one, tick its weekdays and tap Use this plan: Plan shows its week on those days and "Plan set: <name>." Do the same on an empty bodybuilding plan, where Choose a template is the main button over Build my plan.
+- [ ] Templates, weekdays: in a draft, untick a day: Use this plan is off and the cards read "Day 1", "Day 2"… Tick another day: the week moves onto it.
+- [ ] Templates, Swap: a main lift (Squat, Bench, Deadlift) has no Swap; an accessory's Swap lists other exercises and a pick keeps its sets, reps and RPE.
+- [ ] Templates over a plan: from the Plan menu (⋮), Choose a template, then Use this plan asks "Replace your … plan?". Cancel changes nothing; Replace sets the new week, and History and bests are as they were. Back from a draft returns to the list.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
@@ -169,6 +173,10 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Skip one, let the snackbar go, then tap Bring back on the "Skipped today" line: it is back in its place.
 - [ ] Skip a main lift (Bench) for Pain: Coach shows its card with Dismiss only. Skip an accessory (Curl) for Pain: its card offers Swap buttons, and a swap changes the plan.
 - [ ] After a pain skip, the next time that exercise is on Today its weight is held: the target does not go up.
+- [ ] Templates: on an empty powerlifting plan, tap Choose a template, pick one, tick its weekdays and tap Use this plan: Plan shows its week on those days and "Plan set: <name>." Do the same on an empty bodybuilding plan, where Choose a template is the main button over Build my plan.
+- [ ] Templates, weekdays: in a draft, untick a day: Use this plan is off and the cards read "Day 1", "Day 2"… Tick another day: the week moves onto it.
+- [ ] Templates, Swap: a main lift (Squat, Bench, Deadlift) has no Swap; an accessory's Swap lists other exercises and a pick keeps its sets, reps and RPE.
+- [ ] Templates over a plan: from the Plan menu (⋮), Choose a template, then Use this plan asks "Replace your … plan?". Cancel changes nothing; Replace sets the new week, and History and bests are as they were. The browser's back from a draft returns to the list.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
@@ -189,6 +197,10 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Skip one, let the snackbar go, then tap Bring back on the "Skipped today" line: it is back in its place.
 - [ ] Skip a main lift (Bench) for Pain: Coach shows its card with Dismiss only. Skip an accessory (Curl) for Pain: its card offers Swap buttons, and a swap changes the plan.
 - [ ] After a pain skip, the next time that exercise is on Today its weight is held: the target does not go up.
+- [ ] Templates: on an empty powerlifting plan, tap Choose a template, pick one, tick its weekdays and tap Use this plan: Plan shows its week on those days and "Plan set: <name>." Do the same on an empty bodybuilding plan, where Choose a template is the main button over Build my plan.
+- [ ] Templates, weekdays: in a draft, untick a day: Use this plan is off and the cards read "Day 1", "Day 2"… Tick another day: the week moves onto it.
+- [ ] Templates, Swap: a main lift (Squat, Bench, Deadlift) has no Swap; an accessory's Swap lists other exercises and a pick keeps its sets, reps and RPE.
+- [ ] Templates over a plan: from the Plan menu (⋮), Choose a template, then Use this plan asks "Replace your … plan?". Cancel changes nothing; Replace sets the new week, and History and bests are as they were. The phone's back from a draft returns to the list.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
