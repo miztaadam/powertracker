@@ -70,6 +70,15 @@ class SkipHoldTest {
     }
 
     @Test
+    fun painSkip_keepsTheLastRepsWhenTheyWereAbovePlan() {
+        // A curl progressed by reps to 10 on a plan of 8: held, the aim stays at 10, not back to 8.
+        val curl = PlanItem(3, DayOfWeek.MONDAY, Ids.CURL, 3, 8, 8.0, 0)
+        val h = history(start) { session(4) { set(Ids.CURL, 12.0, 10, isTopSet = true) } }
+        val held = Coaching.targetsFor(POWERLIFTING, DayOfWeek.MONDAY, h, listOf(curl), settings, today, emptyList(), listOf(skip(5, SkipReason.PAIN, Ids.CURL, POWERLIFTING))).single()
+        assertEquals(AdvicePayload.Target(Ids.CURL, 12.0, 10, 8.0), held.payload)
+    }
+
+    @Test
     fun painSkip_onOtherSide_holdsToo() {
         assertEquals(100.0, pl(squats(), listOf(skip(5, SkipReason.PAIN, Ids.SQUAT, BODYBUILDING))).target().weightKg)
     }
@@ -147,6 +156,21 @@ class SkipHoldTest {
         val short = history(start) { session(0, mode = BODYBUILDING) { set(Ids.DB_PRESS, 26.0, 11); set(Ids.DB_PRESS, 26.0, 10) } }
         assertEquals(12, BodybuildingCoach.repsToBeat(pressItem, short, 1, today, skips))
         assertEquals(11, BodybuildingCoach.repsToBeat(pressItem, short, 2, today, skips))
+    }
+
+    @Test
+    fun todaysOwnSession_doesNotReleaseTheHoldMidSession() {
+        // Today's first set is logged: the target stored this morning was held, and set 2 keeps its aim.
+        val skips = listOf(skip(3, SkipReason.PAIN, Ids.DB_PRESS, BODYBUILDING))
+        val midSession = history(start) {
+            session(0, mode = BODYBUILDING) { repeat(3) { set(Ids.DB_PRESS, 26.0, 12) } }
+            session(7, mode = BODYBUILDING) { set(Ids.DB_PRESS, 26.0, 12) }
+        }
+        assertEquals(12, BodybuildingCoach.repsToBeat(pressItem, midSession, 2, today, skips))
+        assertEquals(26.0, bb(midSession, skips).target().weightKg)
+        // The day after, that session releases it.
+        assertEquals(true, SkipCoach.held(Ids.DB_PRESS, skips, midSession, today))
+        assertEquals(false, SkipCoach.held(Ids.DB_PRESS, skips, midSession, today.plus(1, DateTimeUnit.DAY)))
     }
 
     @Test

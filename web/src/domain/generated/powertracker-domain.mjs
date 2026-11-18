@@ -5267,7 +5267,11 @@ protoOf(ProgressionRule).i1n = function (item, exercise, stats, today) {
     tmp = tmp0_elvis_lhs;
   }
   var last = tmp.hb();
-  return new Advice(AdviceType_TARGET_getInstance(), exercise.p1j(), today, this.i1m(last, last.y1i_1, item.t1h_1, item.u1h_1), 0, new Target(item.r1h_1, last.y1i_1, item.t1h_1, item.u1h_1));
+  var tmp0 = item.t1h_1;
+  // Inline function 'kotlin.comparisons.maxOf' call
+  var b = last.z1i_1;
+  var reps = Math.max(tmp0, b);
+  return new Advice(AdviceType_TARGET_getInstance(), exercise.p1j(), today, this.i1m(last, last.y1i_1, reps, item.u1h_1), 0, new Target(item.r1h_1, last.y1i_1, reps, item.u1h_1));
 };
 protoOf(ProgressionRule).a1k = function (exercise, lastKg) {
   return exercise.k1j_1.equals(Category_ACCESSORY_getInstance()) || lastKg < 20.0;
@@ -5503,7 +5507,7 @@ function pain($this, skip, exercise, main, today, alternatives) {
   return card($this, skip, exercise, main, today, reason, 3, offered);
 }
 function busy($this, skip, busy, exercise, main, today, alternatives) {
-  if (main || !equals(skip.z1t_1, SkipReason_BUSY_getInstance()) || !(busy === 2))
+  if (main || !equals(skip.z1t_1, SkipReason_BUSY_getInstance()) || busy < 2)
     return null;
   // Inline function 'kotlin.collections.ifEmpty' call
   var this_0 = alternatives();
@@ -5518,7 +5522,7 @@ function busy($this, skip, busy, exercise, main, today, alternatives) {
   return card($this, skip, exercise, main, today, reason, 2, offered);
 }
 function repeat($this, skip, notTime, exercise, main, today, alternatives) {
-  if (main || equals(skip.z1t_1, SkipReason_TIME_getInstance()) || !(notTime === 3))
+  if (main || equals(skip.z1t_1, SkipReason_TIME_getInstance()) || notTime < 3)
     return null;
   // Inline function 'kotlin.collections.ifEmpty' call
   var this_0 = alternatives();
@@ -5880,7 +5884,7 @@ protoOf(SkipCoach).c1m = function (exerciseId, skips, history, today) {
     while (_iterator__ex2g4s_0.k()) {
       var element_0 = _iterator__ex2g4s_0.l();
       var tmp_1;
-      if (element_0.s1i_1.a10(latest) > 0) {
+      if (element_0.s1i_1.a10(latest) > 0 && element_0.s1i_1.a10(today) < 0) {
         var tmp0_0 = element_0.v1i_1;
         var tmp$ret$8;
         $l$block_2: {

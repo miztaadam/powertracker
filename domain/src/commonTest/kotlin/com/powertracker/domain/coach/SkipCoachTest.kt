@@ -269,6 +269,25 @@ class SkipCoachTest {
     }
 
     @Test
+    fun aWeeklySkipper_getsTheCardBackOnceTheDismissalIsForgotten() {
+        // A skip with no reason every week. The 3rd gives the card, which is dismissed; it is not made again while
+        // the dismissal is remembered, but comes back once it is not, though the count is past 3 by then.
+        val weekly = (6 downTo 0).map { w -> skip(w * 7, null) }
+        val third = weekly[2]
+        val card = Coaching.afterSkip(third, weekly.take(3), history, bothSides, third.date, emptyList()).single()
+        val dismissed = card.copy(status = AdviceStatus.DISMISSED, id = 50)
+        for (i in 3 until weekly.size) {
+            val s = weekly[i]
+            val made = Coaching.afterSkip(s, weekly.take(i + 1), history, bothSides, s.date, listOf(dismissed))
+            val remembered = s.date < third.date.plus(28, DateTimeUnit.DAY)
+            assertEquals(if (remembered) 0 else 1, made.size, "skip ${i + 1} on ${s.date}")
+        }
+        // Busy skips likewise: a 3rd busy skip still gives the busy card.
+        val busy = after(skip(20, SkipReason.BUSY), skip(10, SkipReason.BUSY), skip(0, SkipReason.BUSY)).single()
+        assertTrue(busy.reason.startsWith("You've skipped Lat pulldown twice"), busy.reason)
+    }
+
+    @Test
     fun onlyOneCardPerSkip_painWins() {
         // The second busy skip and the third skip at once: one card, the busy one.
         val busy = after(skip(20, null), skip(10, SkipReason.BUSY), skip(0, SkipReason.BUSY)).single()
