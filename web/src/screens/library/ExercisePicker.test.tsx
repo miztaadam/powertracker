@@ -103,33 +103,44 @@ async function addToMonday() {
 }
 
 describe('ExercisePicker', () => {
-  it('search_filtersAsYouType', async () => {
-    await showPicker()
-    expect(shows('Squat') && shows('Pull-up')).toBe(true)
-    // The search box is typed in on a phone: 16 px text, or iOS zooms the page.
-    expect(searchBox()).toHaveClass('gr-field-input')
+  // One check in three parts, each from a fresh picker: typed key by key over the 225 rows, the whole of it took most
+  // of a test's time limit.
+  describe('search_filtersAsYouType', () => {
+    beforeEach(async () => {
+      await showPicker()
+    })
 
-    await search('pu')
-    expect(shows('Pull-up')).toBe(true)
-    expect(shows('Squat')).toBe(false)
+    it('filters as you type', async () => {
+      expect(shows('Squat') && shows('Pull-up')).toBe(true)
+      // The search box is typed in on a phone: 16 px text, or iOS zooms the page.
+      expect(searchBox()).toHaveClass('gr-field-input')
 
-    // Typed the way people type: no hyphen, any case, an alias.
-    await search('pull up')
-    expect(shows('Pull-up')).toBe(true)
-    await search('PULL-UP')
-    expect(shows('Pull-up')).toBe(true)
-    await search('romanian')
-    expect(shows('RDL')).toBe(true)
-    expect(shows('Pull-up')).toBe(false)
+      await search('pu')
+      expect(shows('Pull-up')).toBe(true)
+      expect(shows('Squat')).toBe(false)
+    })
 
-    // Every row on screen is one the shared search returns, in its order.
-    await search('squat')
-    expect(libraryNames('squat').length).toBeGreaterThan(1)
-    expect(shownNames()).toEqual(libraryNames('squat'))
+    it('finds what is typed the way people type', async () => {
+      // No hyphen, any case, an alias.
+      await search('pull up')
+      expect(shows('Pull-up')).toBe(true)
+      await search('PULL-UP')
+      expect(shows('Pull-up')).toBe(true)
+      await search('romanian')
+      expect(shows('RDL')).toBe(true)
+      expect(shows('Pull-up')).toBe(false)
+    })
 
-    await tapAndWait(picker().getByRole('button', { name: 'Clear search' }))
-    expect(searchBox()).toHaveValue('')
-    expect(shows('Bench')).toBe(true)
+    it('shows what the shared search returns, in its order, until cleared', async () => {
+      // Every row on screen is one the shared search returns, in its order.
+      await search('squat')
+      expect(libraryNames('squat').length).toBeGreaterThan(1)
+      expect(shownNames()).toEqual(libraryNames('squat'))
+
+      await tapAndWait(picker().getByRole('button', { name: 'Clear search' }))
+      expect(searchBox()).toHaveValue('')
+      expect(shows('Bench')).toBe(true)
+    })
   })
 
   it('areaAndEquipmentChips_filter', async () => {

@@ -141,6 +141,12 @@ const own = (name: string, muscles: string[] = []) => db.exercises.add({ name, c
 const sessionNames = (shown: Shown) => shown.session().items.map((i) => i.exercise.name)
 
 describe('Exercises tab', () => {
+  // Every test here sees the tab laid out as on a phone (layOutLikeAPhone, below): only the rows near the screen draw
+  // their thumbnails, as in a browser. Without it jsdom would draw all 226, and each query would walk their thousands
+  // of shapes: seconds of work that a loaded machine stretches past the test's time limit. Drawing thumbnails is
+  // covered in ExercisePicture.test.tsx; these tests are about the rows.
+  beforeEach(() => layOutLikeAPhone())
+
   it('exercisesTab_isTheFourthOfFiveTabs_andFits', async () => {
     await showApp('#/today')
     const links = within(screen.getByRole('navigation', { name: 'Main' })).getAllByRole('link')
@@ -156,58 +162,68 @@ describe('Exercises tab', () => {
     expect(tabLink('Today')).not.toHaveAttribute('aria-current')
   })
 
-  it('exercisesTab_browseByMuscleAndSearchWork', async () => {
-    // Laid out as on a phone, so only the rows near the screen draw their thumbnails, as in a browser. jsdom lays
-    // nothing out: every row would be at the top, all 226 thumbnails drawn, and each query below would walk their
-    // several thousand shapes. Drawing thumbnails is covered in ExercisePicture.test.tsx; this is about the rows.
-    layOutLikeAPhone()
-    await own('Tyre flip', ['Quads'])
-    await showTab()
-    // Only the rows near the top drew theirs.
-    expect(document.querySelectorAll('.lib-thumb svg.fig').length).toBeGreaterThan(0)
-    expect(document.querySelectorAll('.lib-thumb svg.fig').length).toBeLessThan(30)
+  // One check in four parts, each from a fresh tab: over the 226 rows the whole of it took most of a test's time limit.
+  describe('exercisesTab_browseByMuscleAndSearchWork', () => {
+    beforeEach(async () => {
+      await own('Tyre flip', ['Quads'])
+      await showTab()
+    })
 
-    // The catalogue and the lifter's own that it does not have.
-    expect(grit.library()).toHaveLength(225)
-    expect(screen.getByText('226 exercises')).toBeInTheDocument()
-    // Nothing ticked: the lifter's own first, then everything under its body area, each exercise once.
-    expect(headings()).toEqual(['Your exercises', ...AREAS.map((a) => a.label)])
-    expect(sorted(shownNames() as string[])).toEqual(sorted([...libraryNames(), 'Tyre flip']))
-    const row = (name: string) => screen.getByRole('listitem', { name })
-    const heading = (name: string) => screen.getByRole('heading', { level: 2, name })
-    expect(before(heading('Your exercises'), row('Tyre flip')) && before(row('Tyre flip'), heading('Main lifts'))).toBe(true)
-    expect(before(heading('Main lifts'), row('Squat')) && before(row('Squat'), heading('Chest'))).toBe(true)
-    expect(before(heading('Calves'), row('Standing calf raise')) && before(row('Standing calf raise'), heading('Core'))).toBe(true)
-    // The tab has the drop-down, not the picker's tile grid.
-    expect(screen.queryByRole('group', { name: 'Browse by muscle' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Create your own' })).toBeNull()
+    it('lists the catalogue under its body areas, your own exercises first', async () => {
+      // Only the rows near the top drew theirs.
+      expect(document.querySelectorAll('.lib-thumb svg.fig').length).toBeGreaterThan(0)
+      expect(document.querySelectorAll('.lib-thumb svg.fig').length).toBeLessThan(30)
 
-    // A search is ranked, not grouped.
-    await search('calf')
-    expect(shownNames()).toEqual(libraryNames('calf'))
-    expect(headings()).toEqual([])
-    await search('zzzz')
-    expect(screen.getByRole('heading', { name: 'No exercises match.' })).toBeInTheDocument()
-    expect(screen.getByText('Try fewer filters.')).toBeInTheDocument()
-    await search('')
+      // The catalogue and the lifter's own that it does not have.
+      expect(grit.library()).toHaveLength(225)
+      expect(screen.getByText('226 exercises')).toBeInTheDocument()
+      // Nothing ticked: the lifter's own first, then everything under its body area, each exercise once.
+      expect(headings()).toEqual(['Your exercises', ...AREAS.map((a) => a.label)])
+      expect(sorted(shownNames() as string[])).toEqual(sorted([...libraryNames(), 'Tyre flip']))
+      const row = (name: string) => screen.getByRole('listitem', { name })
+      const heading = (name: string) => screen.getByRole('heading', { level: 2, name })
+      expect(before(heading('Your exercises'), row('Tyre flip')) && before(row('Tyre flip'), heading('Main lifts'))).toBe(true)
+      expect(before(heading('Main lifts'), row('Squat')) && before(row('Squat'), heading('Chest'))).toBe(true)
+      expect(before(heading('Calves'), row('Standing calf raise')) && before(row('Standing calf raise'), heading('Core'))).toBe(true)
+      // The tab has the drop-down, not the picker's tile grid.
+      expect(screen.queryByRole('group', { name: 'Browse by muscle' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Create your own' })).toBeNull()
+    })
 
-    // A body area keeps its heading; the lifter's own have no area.
-    await tapAndWait(chip('Body area', 'Calves'))
-    expect(shownNames()).toEqual(libraryNames('', ['CALVES']))
-    expect(headings()).toEqual(['Calves'])
-    // Chest, then Barbell: Bench is there, under the Chest heading, with its variations (owner, 2026-11-16).
-    await tapAndWait(chip('Body area', 'Chest'))
-    await tapAndWait(chip('Equipment', 'Barbell'))
-    expect(shownNames()).toEqual(libraryNames('', ['CHEST'], ['BARBELL']))
-    expect(shownNames()).toEqual(expect.arrayContaining(['Bench', 'Close-grip bench', 'Incline bench press']))
-    expect(headings()).toEqual(['Chest'])
-    await tapAndWait(chip('Equipment', 'Barbell'))
-    await tapAndWait(chip('Body area', 'All'))
+    it('ranks a search, not grouped', async () => {
+      await search('calf')
+      expect(shownNames()).toEqual(libraryNames('calf'))
+      expect(headings()).toEqual([])
+      await search('zzzz')
+      expect(screen.getByRole('heading', { name: 'No exercises match.' })).toBeInTheDocument()
+      expect(screen.getByText('Try fewer filters.')).toBeInTheDocument()
+      await search('')
+      // Cleared, the list is grouped again.
+      expect(headings()).toEqual(['Your exercises', ...AREAS.map((a) => a.label)])
+    })
 
-    // One muscle ticked: its exercises, the lifter's own among them, alphabetically.
-    await tick('QUADS')
-    expect(shownNames()).toEqual(sorted([...inGroups(['QUADS']), 'Tyre flip']))
-    expect(headings()).toEqual([])
+    it('keeps the heading of a body area, and filters by equipment within it', async () => {
+      // A body area keeps its heading; the lifter's own have no area.
+      await tapAndWait(chip('Body area', 'Calves'))
+      expect(shownNames()).toEqual(libraryNames('', ['CALVES']))
+      expect(headings()).toEqual(['Calves'])
+      // Chest, then Barbell: Bench is there, under the Chest heading, with its variations (owner, 2026-11-16).
+      await tapAndWait(chip('Body area', 'Chest'))
+      await tapAndWait(chip('Equipment', 'Barbell'))
+      expect(shownNames()).toEqual(libraryNames('', ['CHEST'], ['BARBELL']))
+      expect(shownNames()).toEqual(expect.arrayContaining(['Bench', 'Close-grip bench', 'Incline bench press']))
+      expect(headings()).toEqual(['Chest'])
+      await tapAndWait(chip('Equipment', 'Barbell'))
+      await tapAndWait(chip('Body area', 'All'))
+      // Back to all: grouped again.
+      expect(headings()).toEqual(['Your exercises', ...AREAS.map((a) => a.label)])
+    })
+
+    it('lists the exercises of one ticked muscle, your own among them, alphabetically', async () => {
+      await tick('QUADS')
+      expect(shownNames()).toEqual(sorted([...inGroups(['QUADS']), 'Tyre flip']))
+      expect(headings()).toEqual([])
+    })
   })
 
   /**
@@ -226,7 +242,8 @@ describe('Exercises tab', () => {
     const box = (top: number, height: number) => ({ top, bottom: top + height, left: 0, right: 375, width: 375, height, x: 0, y: top, toJSON: () => ({}) })
     vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
       if (this.classList.contains('lib-scroll')) return box(0, 700)
-      if (this.classList.contains('lib-row')) return box(Array.prototype.indexOf.call(document.querySelectorAll('.lib-row'), this) * 64, 64)
+      // The live collection, not querySelectorAll: asked once per row, a fresh query of the whole page each time adds up.
+      if (this.classList.contains('lib-row')) return box(Array.prototype.indexOf.call(document.getElementsByClassName('lib-row'), this) * 64, 64)
       return box(0, 0)
     })
   }
@@ -419,7 +436,6 @@ describe('Exercises tab', () => {
   it('aScrolledList_keepsEveryRowAndItsPlace_whenARowFarDownIsOpenedAndAddedToThePlan', async () => {
     // The tab's data is read afresh when a sheet opens, a message shows and an exercise is added: none of it may cut a
     // list the lifter has scrolled down back to its first screenful.
-    layOutLikeAPhone()
     await showTab()
     // Each exercise once, under its own area (a main lift also matches its lift's area when that area is chosen).
     const full = AREAS.flatMap((a) => grit.searchLibrary('', [a.id], []).filter((e) => e.area === a.id).map((e) => e.name))

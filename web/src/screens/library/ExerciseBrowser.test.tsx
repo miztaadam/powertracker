@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { pickerList, useExerciseBrowser, type StoredExercise } from '../../state/exercisePicker'
 import { ExerciseBrowser, FIRST_ROWS } from './ExerciseBrowser'
 import { AREAS } from './labels'
+import { createYourOwn } from '../../test/wholeList'
 
 // How the list is drawn: the first screenful at once, the rest straight after. What the rows say and where they lead
 // is checked in ExercisePicker.test.tsx and ExercisesScreen.test.tsx.
@@ -125,7 +126,7 @@ describe('ExerciseBrowser drawing', () => {
     show('grid', [], 'Create your own')
     expect(shownNames()).toHaveLength(FIRST_ROWS)
     expect(screen.queryByRole('button', { name: 'Create your own' })).toBeNull()
-    expect(await screen.findByRole('button', { name: 'Create your own' })).toBeInTheDocument()
+    expect(await createYourOwn()).toBeInTheDocument()
     expect(shownNames()).toEqual(expected([]))
     // With nothing found it is in the empty state, at once.
     type('zercher carry')

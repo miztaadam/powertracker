@@ -1,6 +1,7 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect } from 'vitest'
+import { createYourOwn } from './wholeList'
 
 /** What `fillCustomExercise` types into "Create your own": a variation of the bench, with two muscles. */
 export const OWN_NAME = 'Tyre flip'
@@ -15,7 +16,7 @@ const chip = (text: string) => form().getByRole('checkbox', { name: text })
 
 /** Opens "Create your own" in the open picker. */
 export async function openCreateForm() {
-  await userEvent.click(await screen.findByRole('button', { name: 'Create your own' }))
+  await userEvent.click(await createYourOwn())
   expect(createForm()).not.toBeNull()
 }
 

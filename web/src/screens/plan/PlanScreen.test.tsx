@@ -9,6 +9,7 @@ import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, exerciseNamed, plan, todayFixture } from '../../test/todayFixture'
 import { PlanScreen } from './PlanScreen'
 import { pastTheTapWindow } from '../../test/tapWindow'
+import { createYourOwn } from '../../test/wholeList'
 import {
   OWN_NAME,
   createForm,
@@ -138,7 +139,7 @@ describe('PlanScreen', () => {
   it('customExercise_isCreatedAndAdded', async () => {
     show()
     await userEvent.click(within(await day('Wednesday')).getByRole('button', { name: 'Add' }))
-    await userEvent.click(await dialog().findByRole('button', { name: 'Create your own' }))
+    await userEvent.click(await createYourOwn(dialog()))
     const custom = () => within(screen.getByRole('dialog', { name: 'Add custom exercise' }))
     expect(custom().getByRole('button', { name: 'Create' })).toBeDisabled()
     await userEvent.type(custom().getByRole('textbox', { name: 'Name' }), '  Cluster squat ')
@@ -288,7 +289,7 @@ async function pickOn(day: string, name: string) {
 }
 /** Fills in the custom exercise form opened by "Create your own", and creates it. */
 async function createOwn(name: string, variationOf?: string) {
-  await userEvent.click(await screen.findByRole('button', { name: 'Create your own' }))
+  await userEvent.click(await createYourOwn())
   const custom = () => within(screen.getByRole('dialog', { name: 'Add custom exercise' }))
   await userEvent.type(custom().getByRole('textbox', { name: 'Name' }), name)
   if (variationOf) {
