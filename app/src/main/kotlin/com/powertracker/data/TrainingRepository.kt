@@ -183,7 +183,9 @@ open class TrainingRepository(private val db: AppDatabase) {
      * still-OPEN SKIP cards are deleted first, so the new reason's card replaces the old one rather than stacking (and a
      * re-skip to "Out of time" leaves none). An answered card stays. A PAIN skip also deletes that day's OPEN TARGET
      * advice for the exercise on both sides, since the hold crosses sides: it was worked out without the hold, and Today
-     * works a target out again only when none is stored for the day.
+     * works a target out again only when none is stored for the day. A PAIN skip also deletes the exercise's OPEN busy or
+     * repeat SKIP cards on its side, whichever skip made them, so its pain card replaces them (a pain skip always
+     * tells you; [com.powertracker.domain.coach.SkipCoach]). An open pain card or SWAP card stays.
      *
      * [cards] gets the stored skip (with its id) and every stored skip, both sides', and returns the advice to insert. It
      * runs inside the transaction: if it throws, nothing is stored. It should only compute, from what the caller read
@@ -194,7 +196,10 @@ open class TrainingRepository(private val db: AppDatabase) {
         val row = SkipEntity(existing?.id ?: 0, skip.date, skip.mode, skip.exerciseId, skip.planItemId, skip.reason)
         val id = if (existing == null) db.skips().insert(row) else existing.id.also { db.skips().update(row) }
         if (existing != null) deleteOpenCards(existing.id)
-        if (skip.reason == SkipReason.PAIN) deleteOpenTargets(skip.date, skip.exerciseId)
+        if (skip.reason == SkipReason.PAIN) {
+            deleteOpenTargets(skip.date, skip.exerciseId)
+            deleteOpenNonPainCards(skip.mode, skip.exerciseId)
+        }
         val made = cards(row.copy(id = id).toDomain(), db.skips().all().map { it.toDomain() })
         if (made.isNotEmpty()) db.advice().insert(made.map { it.toEntity() })
         id
@@ -215,6 +220,15 @@ open class TrainingRepository(private val db: AppDatabase) {
     /** Deletes the OPEN SKIP advice carrying [skipId]; the payloads are matched exactly, never by text. */
     private suspend fun deleteOpenCards(skipId: Long) {
         val cards = db.advice().openOf(AdviceType.SKIP).filter { (it.decoded() as? AdvicePayload.Skipped)?.skipId == skipId }
+        if (cards.isNotEmpty()) db.advice().delete(cards.map { it.id })
+    }
+
+    /** Deletes [mode]'s OPEN SKIP advice for [exerciseId] whose skip was not for pain; the payloads are matched exactly. */
+    private suspend fun deleteOpenNonPainCards(mode: TrainingMode, exerciseId: Long) {
+        val cards = db.advice().openOf(AdviceType.SKIP).filter { a ->
+            val p = a.decoded() as? AdvicePayload.Skipped
+            a.mode == mode && p != null && p.exerciseId == exerciseId && p.reason != SkipReason.PAIN
+        }
         if (cards.isNotEmpty()) db.advice().delete(cards.map { it.id })
     }
 

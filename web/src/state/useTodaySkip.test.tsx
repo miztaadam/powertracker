@@ -1,7 +1,9 @@
 import { act, cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { GritDb } from '../db/db'
-import type { TrainingMode } from '../db/schema'
+import { loadHistory } from '../db/db'
+import { adviceToJs, planItemToJs } from '../db/mapping'
+import type { AdviceRow, TrainingMode } from '../db/schema'
 import { skip as storeSkip, skips as storedSkips } from '../db/skips'
 import { grit } from '../domain'
 import { TODAY, addDays, baseline, exerciseNamed, logSet, set, startSession, todayFixture } from '../test/todayFixture'
@@ -390,6 +392,33 @@ describe('skips and the coach on Today', () => {
     await act(() => vm.current.skip(curl, item, 'PAIN'))
     await waitFor(async () => expect((await openSkipCards()).map((p) => p.skipReason)).toEqual(['PAIN']))
     expect(await storedSkips(db)).toHaveLength(2)
+  })
+})
+
+describe('a pain skip always tells you (final review, 1.13)', () => {
+  it('painSkip_afterAnEarlierDaysBusyCard_replacesIt', async () => {
+    // Curl on the bodybuilding side, busy 7 and 2 days ago: the second gives the real busy card, still open.
+    await onSide('BODYBUILDING')
+    const item = await plan(curl, 0, 'BODYBUILDING')
+    await storeSkip(db, { date: addDays(TODAY, -7), mode: 'BODYBUILDING', exerciseId: curl, planItemId: item, reason: 'BUSY' }, () => [])
+    const twoDaysAgo = addDays(TODAY, -2)
+    await storeSkip(db, { date: twoDaysAgo, mode: 'BODYBUILDING', exerciseId: curl, planItemId: item, reason: 'BUSY' }, async (stored, all) => {
+      const [history, plan, advice] = await Promise.all([loadHistory(db), db.planItems.toArray(), db.advice.toArray()])
+      return grit.coachingAfterSkip(stored, all, history, plan.map((p) => planItemToJs(p as typeof p & { id: number })), twoDaysAgo, advice.map((a) => adviceToJs(a as AdviceRow & { id: number })))
+    })
+    expect((await openSkipCards()).map((p) => p.skipReason)).toEqual(['BUSY'])
+
+    const vm = show()
+    await waitFor(() => expect(ids(vm)).toEqual([curl]))
+    await act(() => vm.current.skip(curl, item, 'PAIN'))
+
+    await waitFor(async () => expect((await openSkipCards()).map((p) => p.skipReason)).toEqual(['PAIN']))
+    cleanup()
+    const coach = renderHook(() => useCoach(db, () => TODAY)).result
+    await waitFor(() => expect(coach.current.cards).toHaveLength(1))
+    expect(coach.current.cards[0]!.detail).toMatchObject({ kind: 'skip', exerciseId: curl })
+    const stored = (await db.advice.where('type').equals('SKIP').toArray()).filter((a) => a.status === 'OPEN')
+    expect(stored.map((a) => a.reason)).toEqual([expect.stringContaining('If the pain persists or gets worse, see a physician.')])
   })
 })
 

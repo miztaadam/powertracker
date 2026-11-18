@@ -1,7 +1,7 @@
 import { grit, JsSkip, type JsAdvice } from '../domain'
 import type { GritDb } from './db'
 import { adviceFromJs } from './mapping'
-import type { AdviceRow, SkipRow } from './schema'
+import { sideOf, type AdviceRow, type SkipRow } from './schema'
 
 /** A stored skip. */
 export type StoredSkip = SkipRow & { id: number }
@@ -34,6 +34,8 @@ const scope = (db: GritDb) => [db.skips, db.advice, db.sessions, db.sets, db.exe
  *   stacking; an answered card stays;
  * - a PAIN skip deletes that date's OPEN TARGET advice for the exercise on both sides, since the hold crosses sides:
  *   it was worked out without the hold, and Today works a target out again only when none is stored for the day;
+ * - a PAIN skip also deletes the exercise's OPEN busy or repeat SKIP cards on its side, whichever skip made them, so
+ *   its pain card replaces them (a pain skip always tells you; the domain's `SkipCoach`). An open pain or SWAP card stays;
  * - then `cards` runs, and what it returns is inserted. If it throws, nothing is stored.
  */
 export function skip(db: GritDb, skip: Omit<SkipRow, 'id'>, cards: SkipCards): Promise<number> {
@@ -47,7 +49,10 @@ export function skip(db: GritDb, skip: Omit<SkipRow, 'id'>, cards: SkipCards): P
       await db.skips.put({ ...row, id })
       await deleteOpenCards(db, id)
     }
-    if (skip.reason === 'PAIN') await deleteOpenTargets(db, skip.date, skip.exerciseId)
+    if (skip.reason === 'PAIN') {
+      await deleteOpenTargets(db, skip.date, skip.exerciseId)
+      await deleteOpenNonPainCards(db, skip.mode, skip.exerciseId)
+    }
     const all = (await skips(db)).map(skipToJs)
     const made = await cards(skipToJs({ ...row, id }), all)
     if (made.length > 0) await db.advice.bulkAdd(made.map((a) => withoutId(adviceFromJs(a))))
@@ -85,6 +90,15 @@ async function deleteOpenCards(db: GritDb, skipId: number): Promise<void> {
     .where('type')
     .equals('SKIP')
     .filter((a) => a.status === 'OPEN' && isPayload(a, 'Skipped', (p) => p.skipId === skipId))
+    .delete()
+}
+
+/** Deletes `mode`'s OPEN SKIP advice for `exerciseId` whose skip was not for pain; the payloads are read through the domain. */
+async function deleteOpenNonPainCards(db: GritDb, mode: SkipRow['mode'], exerciseId: number): Promise<void> {
+  await db.advice
+    .where('type')
+    .equals('SKIP')
+    .filter((a) => a.status === 'OPEN' && sideOf(a) === mode && isPayload(a, 'Skipped', (p) => p.exerciseId === exerciseId && p.skipReason !== 'PAIN'))
     .delete()
 }
 

@@ -63,10 +63,16 @@ class SkipCoachTest {
 
     private fun firstEquipment(name: String) = Library.find(name)!!.equipment.first()
 
-    private fun card(exerciseId: Long, status: AdviceStatus, daysAgo: Int, severity: Int, mode: TrainingMode = BODYBUILDING) = Advice(
+    private fun card(exerciseId: Long, status: AdviceStatus, daysAgo: Int, severity: Int, mode: TrainingMode = BODYBUILDING, reason: SkipReason? = null) = Advice(
         AdviceType.SKIP, null, today.minus(daysAgo, DateTimeUnit.DAY), "r", severity,
-        AdvicePayload.Skipped(99, exerciseId, "x", null, listOf("Machine pulldown")), status, id = 77, mode = mode,
+        AdvicePayload.Skipped(99, exerciseId, "x", reason, listOf("Machine pulldown")), status, id = 77, mode = mode,
     )
+
+    /** A busy card's skips (the 2nd busy skip) and a repeat card's (the 3rd skip with no reason), for the rails below. */
+    private fun busyCard(prior: List<Advice>, mode: TrainingMode = BODYBUILDING) =
+        after(skip(5, SkipReason.BUSY, mode = mode), skip(0, SkipReason.BUSY, mode = mode), prior = prior)
+    private fun repeatCard(prior: List<Advice>, mode: TrainingMode = BODYBUILDING) =
+        after(skip(20, null, mode = mode), skip(10, null, mode = mode), skip(0, null, mode = mode), prior = prior)
 
     // ---- busy ----
 
@@ -224,31 +230,84 @@ class SkipCoachTest {
 
     // ---- what blocks a card ----
 
+    // Busy and repeat keep every rail. A pain skip always tells you (final review, 1.13): only an OPEN pain card for
+    // the exercise on that side holds back another; the hold applies either way.
+
+    private val openSwap = Advice(
+        AdviceType.SWAP, null, today.minus(30, DateTimeUnit.DAY), "r", 0,
+        AdvicePayload.Swap(pulldown, "Lat pulldown", MuscleGroup.LATS, today, listOf("Machine pulldown")), mode = BODYBUILDING,
+    )
+
     @Test
-    fun openSwapCard_blocksSkipCard() {
-        val swap = Advice(
-            AdviceType.SWAP, null, today.minus(30, DateTimeUnit.DAY), "r", 0,
-            AdvicePayload.Swap(pulldown, "Lat pulldown", MuscleGroup.LATS, today, listOf("Machine pulldown")), mode = BODYBUILDING,
-        )
-        assertEquals(emptyList(), after(skip(0, SkipReason.PAIN), prior = listOf(swap)))
+    fun openSwapCard_blocksBusyAndRepeatCards() {
+        assertEquals(emptyList(), busyCard(listOf(openSwap)))
+        assertEquals(emptyList(), repeatCard(listOf(openSwap)))
         // Not once it was acted on, and not another exercise's or the other side's.
-        assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(swap.copy(status = AdviceStatus.DISMISSED))).size)
-        assertEquals(1, after(skip(0, SkipReason.PAIN, mode = POWERLIFTING), prior = listOf(swap)).size)
+        assertEquals(1, busyCard(listOf(openSwap.copy(status = AdviceStatus.DISMISSED))).size)
+        assertEquals(1, repeatCard(listOf(openSwap.copy(status = AdviceStatus.DISMISSED))).size)
+        assertEquals(1, busyCard(listOf(openSwap), mode = POWERLIFTING).size)
     }
 
     @Test
-    fun openSkipCard_blocksAnother() {
-        val open = card(pulldown, AdviceStatus.OPEN, 20, 1)
+    fun openSwapCard_pain_stillGivesThePainCard() {
+        assertEquals(SkipReason.PAIN, after(skip(0, SkipReason.PAIN), prior = listOf(openSwap)).single().skipped().reason)
+    }
+
+    @Test
+    fun openSkipCard_blocksBusyAndRepeatCards() {
+        for (reason in listOf(SkipReason.BUSY, null, SkipReason.PAIN)) {
+            val open = card(pulldown, AdviceStatus.OPEN, 20, 1, reason = reason)
+            assertEquals(emptyList(), busyCard(listOf(open)))
+            assertEquals(emptyList(), repeatCard(listOf(open)))
+        }
+        assertEquals(1, busyCard(listOf(card(idOf("Leg press"), AdviceStatus.OPEN, 20, 1))).size)
+        assertEquals(1, busyCard(listOf(card(pulldown, AdviceStatus.OPEN, 20, 1, POWERLIFTING))).size)
+    }
+
+    @Test
+    fun openNonPainSkipCard_pain_givesThePainCard() {
+        for (reason in listOf(SkipReason.BUSY, null)) {
+            val open = card(pulldown, AdviceStatus.OPEN, 2, SkipCoach.BUSY_SEVERITY, reason = reason)
+            assertEquals(SkipReason.PAIN, after(skip(0, SkipReason.PAIN), prior = listOf(open)).single().skipped().reason)
+        }
+    }
+
+    @Test
+    fun openPainSkipCard_pain_givesNoSecond() {
+        val open = card(pulldown, AdviceStatus.OPEN, 2, SkipCoach.PAIN_SEVERITY, reason = SkipReason.PAIN)
         assertEquals(emptyList(), after(skip(0, SkipReason.PAIN), prior = listOf(open)))
-        assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(card(idOf("Leg press"), AdviceStatus.OPEN, 20, 1))).size)
-        assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(card(pulldown, AdviceStatus.OPEN, 20, 1, POWERLIFTING))).size)
+        // Not another exercise's or the other side's, and not once it was answered.
+        assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(open.copy(payload = (open.payload as AdvicePayload.Skipped).copy(exerciseId = idOf("Leg press"))))).size)
+        assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(open.copy(mode = POWERLIFTING))).size)
+        assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(open.copy(status = AdviceStatus.DISMISSED))).size)
+        // The hold still applies.
+        assertTrue(SkipCoach.held(pulldown, listOf(skip(0, SkipReason.PAIN)), history, today))
     }
 
     @Test
-    fun cardInLast7Days_blocksAnother() {
+    fun cardInLast7Days_blocksBusyAndRepeatCards() {
         val applied = card(pulldown, AdviceStatus.APPLIED, 6, 1)
-        assertEquals(emptyList(), after(skip(0, SkipReason.PAIN), prior = listOf(applied)))
-        assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(applied.copy(createdAt = today.minus(7, DateTimeUnit.DAY)))).size)
+        assertEquals(emptyList(), busyCard(listOf(applied)))
+        assertEquals(emptyList(), repeatCard(listOf(applied)))
+        val older = applied.copy(createdAt = today.minus(7, DateTimeUnit.DAY))
+        assertEquals(1, busyCard(listOf(older)).size)
+        assertEquals(1, repeatCard(listOf(older)).size)
+    }
+
+    @Test
+    fun cardInLast7Days_pain_stillGivesThePainCard() {
+        for (status in listOf(AdviceStatus.APPLIED, AdviceStatus.DISMISSED)) {
+            val recent = card(pulldown, status, 1, SkipCoach.PAIN_SEVERITY, reason = SkipReason.PAIN)
+            assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(recent)).size)
+        }
+    }
+
+    @Test
+    fun dismissedPainCard_pain_stillGivesThePainCard() {
+        val dismissed = card(pulldown, AdviceStatus.DISMISSED, 10, SkipCoach.PAIN_SEVERITY, reason = SkipReason.PAIN)
+        assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(dismissed)).size)
+        // A busy card stays held back by it.
+        assertEquals(emptyList(), busyCard(listOf(dismissed)))
     }
 
     @Test

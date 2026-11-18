@@ -5611,6 +5611,40 @@ function blocked($this, cards, today) {
   }
   return tmp;
 }
+function painBlocked($this, cards) {
+  var tmp$ret$0;
+  $l$block_0: {
+    // Inline function 'kotlin.collections.any' call
+    var tmp;
+    if (isInterface(cards, Collection)) {
+      tmp = cards.m();
+    } else {
+      tmp = false;
+    }
+    if (tmp) {
+      tmp$ret$0 = false;
+      break $l$block_0;
+    }
+    var _iterator__ex2g4s = cards.j();
+    while (_iterator__ex2g4s.k()) {
+      var element = _iterator__ex2g4s.l();
+      var tmp_0;
+      if (element.y1h_1.equals(AdviceType_SKIP_getInstance()) && element.e1i_1.equals(AdviceStatus_OPEN_getInstance())) {
+        var tmp_1 = element.d1i_1;
+        var tmp0_safe_receiver = tmp_1 instanceof Skipped ? tmp_1 : null;
+        tmp_0 = equals(tmp0_safe_receiver == null ? null : tmp0_safe_receiver.d1u_1, SkipReason_PAIN_getInstance());
+      } else {
+        tmp_0 = false;
+      }
+      if (tmp_0) {
+        tmp$ret$0 = true;
+        break $l$block_0;
+      }
+    }
+    tmp$ret$0 = false;
+  }
+  return tmp$ret$0;
+}
 function dismissedMemoryAllows($this, severity, cards, today) {
   // Inline function 'kotlin.collections.filter' call
   // Inline function 'kotlin.collections.filterTo' call
@@ -5738,7 +5772,8 @@ protoOf(SkipCoach).v1o = function (skip, skips, history, plan, today, priorAdvic
     }
   }
   var cards = destination;
-  if (blocked(this, cards, today))
+  var forPain = equals(skip.z1t_1, SkipReason_PAIN_getInstance());
+  if (forPain ? painBlocked(this, cards) : blocked(this, cards, today))
     return emptyList();
   var from = minus_0(skip.v1t_1, 27, Companion_getInstance().dz_1);
   // Inline function 'kotlin.collections.filter' call
@@ -5826,7 +5861,7 @@ protoOf(SkipCoach).v1o = function (skip, skips, history, plan, today, priorAdvic
     tmp_4 = tmp3_elvis_lhs;
   }
   var card = tmp_4;
-  if (!dismissedMemoryAllows(this, card.c1i_1, cards, today))
+  if (!forPain && !dismissedMemoryAllows(this, card.c1i_1, cards, today))
     return emptyList();
   return listOf_0(card);
 };

@@ -28,9 +28,13 @@ import kotlinx.datetime.minus
  * - repeat: the [REPEAT_SKIPS]th skip of any reason but time, or a later one. Alternatives as they come;
  * - out of time: never a card, and not counted.
  * The busy and repeat texts give the real count. Earlier in that list wins; a rule with no alternative to offer gives way to the next. A main lift (category SQUAT,
- * BENCH, DEADLIFT or STRICT_PRESS) is never swapped out: it gets only the pain card. No card while an OPEN SKIP or
- * SWAP card for the exercise stands on that side, within [CARD_COOLDOWN_DAYS] days of an earlier SKIP card for it,
- * or within [DISMISSED_MEMORY_DAYS] days of a dismissed one at least as severe (pain over busy over repeat).
+ * BENCH, DEADLIFT or STRICT_PRESS) is never swapped out: it gets only the pain card. No busy or repeat card while an
+ * OPEN SKIP or SWAP card for the exercise stands on that side, within [CARD_COOLDOWN_DAYS] days of an earlier SKIP
+ * card for it, or within [DISMISSED_MEMORY_DAYS] days of a dismissed one at least as severe (pain over busy over repeat).
+ *
+ * A pain skip always tells you: its card is held back only by an OPEN pain SKIP card for the exercise on that side
+ * (the hold applies either way). An OPEN SWAP card stays beside it; an OPEN busy or repeat SKIP card gives way to it,
+ * deleted by the storage that stores the skip (Android's `TrainingRepository.skip`, the web's `db/skips.ts`).
  *
  * Every number here is a product rule, the designer's and not sourced. The pain card's last line is sourced:
  * [CoachSources.SKIP_PAIN_PHYSICIAN] and [CoachSources.SKIP_PAIN_TRAIN_AROUND].
@@ -77,7 +81,8 @@ object SkipCoach {
         val exercise = history.exercises[skip.exerciseId] ?: return emptyList()
         val mode = skip.mode
         val cards = priorAdvice.filter { it.mode == mode && exerciseOf(it) == skip.exerciseId }
-        if (blocked(cards, today)) return emptyList()
+        val forPain = skip.reason == SkipReason.PAIN
+        if (if (forPain) painBlocked(cards) else blocked(cards, today)) return emptyList()
 
         val from = skip.date.minus(WINDOW_DAYS - 1, DateTimeUnit.DAY)
         // One skip per exercise, date and side: [skip] stands for its own date.
@@ -98,7 +103,7 @@ object SkipCoach {
             }
             ?: repeat(skip, notTime, exercise, main, today) { alternatives.take(ALTERNATIVES).map { it.name } }
             ?: return emptyList()
-        if (!dismissedMemoryAllows(card.severity, cards, today)) return emptyList()
+        if (!forPain && !dismissedMemoryAllows(card.severity, cards, today)) return emptyList()
         return listOf(card)
     }
 
@@ -179,6 +184,11 @@ object SkipCoach {
     private fun blocked(cards: List<Advice>, today: LocalDate): Boolean =
         cards.any { it.status == AdviceStatus.OPEN } ||
             cards.any { it.type == AdviceType.SKIP && within(it.createdAt, today, CARD_COOLDOWN_DAYS) }
+
+    /** An OPEN pain SKIP card stands: the only thing that holds back a pain card. */
+    private fun painBlocked(cards: List<Advice>): Boolean = cards.any {
+        it.type == AdviceType.SKIP && it.status == AdviceStatus.OPEN && (it.payload as? AdvicePayload.Skipped)?.reason == SkipReason.PAIN
+    }
 
     /**
      * False when the latest SKIP card dismissed within the [DISMISSED_MEMORY_DAYS] days ending [today] (counted from

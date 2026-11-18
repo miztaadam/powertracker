@@ -121,10 +121,7 @@ class SkipCoachCardTest {
      * stored with the coach's real card ([Coaching.afterSkip]). Returns the card as stored.
      */
     private fun painSkip(exercise: Exercise, mode: TrainingMode): Advice = runBlocking {
-        val repsHigh = if (mode == TrainingMode.BODYBUILDING) 12 else null
-        val item = training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, exercise.id, 3, 8, 8.0, 2, mode, repsHigh))
-        training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, ex("Squat").id, 3, 5, 8.0, 0, mode, repsHigh?.let { 8 }))
-        training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, ex("Bench").id, 3, 5, 8.0, 1, mode, repsHigh?.let { 8 }))
+        val item = painSkipSetUp(exercise, mode)
         val history = training.history().first()
         val plans = training.plans().first()
         training.skip(Skip(0, today, mode, exercise.id, item, SkipReason.PAIN)) { stored, all ->
@@ -133,7 +130,48 @@ class SkipCoachCardTest {
         advice.all().single { it.type == AdviceType.SKIP }
     }
 
+    /** [exercise] planned on Wednesday on [mode]'s side, with Squat and Bench beside it; returns its plan item's id. */
+    private fun painSkipSetUp(exercise: Exercise, mode: TrainingMode): Long = runBlocking {
+        val repsHigh = if (mode == TrainingMode.BODYBUILDING) 12 else null
+        val item = training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, exercise.id, 3, 8, 8.0, 2, mode, repsHigh))
+        training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, ex("Squat").id, 3, 5, 8.0, 0, mode, repsHigh?.let { 8 }))
+        training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, ex("Bench").id, 3, 5, 8.0, 1, mode, repsHigh?.let { 8 }))
+        item
+    }
+
     private fun planned(mode: TrainingMode) = runBlocking { training.plan(mode).first() }
+
+    /** A skip of [exercise] on [date] with [reason], stored with the coach's real card for it, if any. */
+    private fun skipOn(exercise: Exercise, mode: TrainingMode, date: LocalDate, reason: SkipReason) = runBlocking {
+        val history = training.history().first()
+        val plans = training.plans().first()
+        training.skip(Skip(0, date, mode, exercise.id, null, reason)) { stored, all ->
+            Coaching.afterSkip(stored, all, history, plans.powerlifting + plans.bodybuilding, date, advice.all())
+        }
+    }
+
+    /** Final review, 1.13: a pain skip always tells you, so an open busy card from an earlier day gives way to it. */
+    @Test
+    fun coach_painSkip_afterABusyCard_replacesIt() {
+        onSide(TrainingMode.BODYBUILDING)
+        val curl = ex("Curl")
+        skipOn(curl, TrainingMode.BODYBUILDING, LocalDate(2026, 11, 4), SkipReason.BUSY)
+        painSkipSetUp(curl, TrainingMode.BODYBUILDING)
+        skipOn(curl, TrainingMode.BODYBUILDING, LocalDate(2026, 11, 9), SkipReason.BUSY)
+        val busy = runBlocking { advice.all() }.single { it.type == AdviceType.SKIP }
+        assertEquals(SkipReason.BUSY, (busy.payload as AdvicePayload.Skipped).reason)
+
+        skipOn(curl, TrainingMode.BODYBUILDING, today, SkipReason.PAIN)
+
+        val cards = runBlocking { advice.all() }.filter { it.type == AdviceType.SKIP }
+        assertEquals(listOf(SkipReason.PAIN), cards.map { (it.payload as AdvicePayload.Skipped).reason })
+        val vm = viewModel()
+        val state = vm.await { it.cards.isNotEmpty() }
+        compose.setContent { PowertrackerTheme { CoachContent(state, onApply = {}, onDismiss = {}, onSwap = { _, _ -> }) } }
+        compose.onNodeWithText(cards.single().reason).assertExists()
+        compose.onNodeWithText("If the pain persists or gets worse, see a physician.", substring = true).assertExists()
+        assertEquals(0, compose.onAllNodesWithText("because you were busy", substring = true).fetchSemanticsNodes().size)
+    }
 
     private fun swapApplies(mode: TrainingMode) {
         onSide(mode)

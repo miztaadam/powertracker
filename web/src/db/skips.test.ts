@@ -181,7 +181,7 @@ describe('skips', () => {
         target(1, 'BODYBUILDING'), // another exercise
         target(12, 'BODYBUILDING', YESTERDAY), // another day
         target(12, 'BODYBUILDING', TODAY, 'APPLIED'), // already used
-        card(99, 12, 'BUSY', 'OPEN'), // not a target
+        card(99, 12, 'PAIN', 'OPEN'), // not a target (a pain card: a pain skip deletes an open busy one, final review 1.13)
       ],
       { allKeys: true },
     )
@@ -247,6 +247,42 @@ describe('skips', () => {
     expect(await db.skips.toArray()).toEqual(skipsBefore)
     expect(await db.advice.toArray()).toEqual(adviceBefore)
     expect(grit.advicePayload((await db.advice.toArray())[0]!.payloadJson)?.skipId).toBe(id)
+  })
+
+  // Final review, 1.13: a pain skip always tells you, as Android's `painSkip_deletesTheExercisesOpenBusyAndRepeatCards_onThatSideOnly`.
+  it('painSkip_deletesTheExercisesOpenBusyAndRepeatCards_onThatSideOnly_beforeCardsRun', async () => {
+    const db = await openDb()
+    const busy = await skip(db, curlSkip('BUSY', { date: YESTERDAY }), (stored) => [jsCard(stored)])
+    const repeat = await skip(db, curlSkip(null, { date: '2026-11-16' }), (stored) => [jsCard(stored)])
+    const answered = await skip(db, curlSkip('BUSY', { date: '2026-11-15' }), () => [])
+    await db.advice.add(card(answered, 12, 'BUSY', 'APPLIED'))
+    const pain = await skip(db, curlSkip('PAIN', { date: '2026-11-14' }), (stored) => [jsCard(stored)])
+    const otherSide = await skip(db, curlSkip('BUSY', { date: YESTERDAY, mode: 'POWERLIFTING' }), (stored) => [jsCard(stored)])
+    const otherExercise = await skip(db, curlSkip('BUSY', { date: YESTERDAY, exerciseId: 1 }), (stored) => [jsCard(stored)])
+    await db.advice.add({
+      type: 'SWAP', lift: null, createdAt: YESTERDAY, reason: 'Stuck', severity: 0, status: 'OPEN', mode: 'BODYBUILDING',
+      payloadJson: `{"type":"${P}Swap","exerciseId":12,"name":"Curl","group":"BICEPS","since":"${YESTERDAY}","alternatives":["Cable curl"]}`,
+    })
+    let seen = 0
+    const today = await skip(db, curlSkip('PAIN'), async (stored) => {
+      seen = await db.advice.count()
+      return [jsCard(stored)]
+    })
+    const skipCards = (await db.advice.orderBy('id').toArray()).map((a) => grit.advicePayload(a.payloadJson)).filter((p) => p?.kind === 'Skipped').map((p) => p!.skipId)
+    expect(skipCards).toEqual([answered, pain, otherSide, otherExercise, today])
+    expect(skipCards).not.toContain(busy)
+    expect(skipCards).not.toContain(repeat)
+    expect(await db.advice.where('type').equals('SWAP').count()).toBe(1)
+    // Gone before the coach looks.
+    expect(seen).toBe(5)
+  })
+
+  it('busySkip_keepsAnEarlierSkipsOpenCard', async () => {
+    const db = await openDb()
+    const busy = await skip(db, curlSkip('BUSY', { date: YESTERDAY }), (stored) => [jsCard(stored)])
+    await skip(db, curlSkip('BUSY'), none)
+    await skip(db, curlSkip(null, { date: '2026-11-19' }), none)
+    expect((await db.advice.toArray()).map((a) => grit.advicePayload(a.payloadJson)?.skipId)).toEqual([busy])
   })
 
   it('reSkip_toOutOfTime_leavesNoCard', async () => {

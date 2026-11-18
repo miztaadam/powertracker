@@ -251,6 +251,50 @@ class SkipStorageTest {
         assertEquals(2, priorSeen!!.size)
     }
 
+    /**
+     * Final review, 1.13: a pain skip always tells you. Before the coach looks, it deletes the exercise's OPEN busy or
+     * repeat SKIP cards on that side, whichever skip made them; an open pain card, a SWAP card, an answered card, and
+     * another side's or exercise's cards stay.
+     */
+    @Test
+    fun painSkip_deletesTheExercisesOpenBusyAndRepeatCards_onThatSideOnly() = runTest {
+        val curl = id("Curl")
+        val row = id("Row")
+        val busy = training.skip(skipOf(curl, SkipReason.BUSY, date = yesterday)) { stored, _ -> listOf(card(stored)) }
+        val repeat = training.skip(skipOf(curl, null, date = LocalDate(2026, 11, 16))) { stored, _ -> listOf(card(stored)) }
+        val answered = training.skip(skipOf(curl, SkipReason.BUSY, date = LocalDate(2026, 11, 15))) { stored, _ -> listOf(card(stored).copy(status = AdviceStatus.APPLIED)) }
+        val pain = training.skip(skipOf(curl, SkipReason.PAIN, date = LocalDate(2026, 11, 14))) { stored, _ -> listOf(card(stored)) }
+        val otherSide = training.skip(skipOf(curl, SkipReason.BUSY, mode = pl, date = yesterday)) { stored, _ -> listOf(card(stored)) }
+        val otherExercise = training.skip(skipOf(row, SkipReason.BUSY, date = yesterday)) { stored, _ -> listOf(card(stored)) }
+        val swap = Advice(AdviceType.SWAP, null, yesterday, "Stuck", 0, AdvicePayload.Swap(curl, "Curl", com.powertracker.domain.library.MuscleGroup.BICEPS, yesterday, listOf("Cable curl")), mode = bb)
+        advice.insert(listOf(swap))
+        var priorSeen: List<Advice>? = null
+
+        val painToday = training.skip(skipOf(curl, SkipReason.PAIN)) { stored, _ ->
+            priorSeen = advice.all()
+            listOf(card(stored))
+        }
+
+        val skipCards = advice.all().mapNotNull { a -> (a.payload as? AdvicePayload.Skipped)?.skipId }
+        assertEquals(listOf(answered, pain, otherSide, otherExercise, painToday), skipCards)
+        assertTrue(advice.all().any { it.type == AdviceType.SWAP })
+        assertTrue(busy !in skipCards && repeat !in skipCards)
+        // Gone before the coach looks.
+        assertEquals(5, priorSeen!!.size)
+    }
+
+    /** A busy or repeat skip leaves an earlier skip's open card alone. */
+    @Test
+    fun busySkip_keepsAnEarlierSkipsOpenCard() = runTest {
+        val curl = id("Curl")
+        val busy = training.skip(skipOf(curl, SkipReason.BUSY, date = yesterday)) { stored, _ -> listOf(card(stored)) }
+
+        training.skip(skipOf(curl, SkipReason.BUSY), ::noCards)
+        training.skip(skipOf(curl, null, date = LocalDate(2026, 11, 19)), ::noCards)
+
+        assertEquals(listOf(busy), advice.all().map { (it.payload as AdvicePayload.Skipped).skipId })
+    }
+
     /** A re-skip to "Out of time", for which the coach gives no card, leaves no card. */
     @Test
     fun reSkip_toOutOfTime_leavesNoCard() = runTest {
