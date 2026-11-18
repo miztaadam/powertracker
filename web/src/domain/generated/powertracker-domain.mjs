@@ -5264,12 +5264,13 @@ protoOf(ProgressionRule).i1n = function (target, item, stats, today) {
   var last = tmp.hb();
   var tmp_0 = target.d1i_1;
   var payload = tmp_0 instanceof Target ? tmp_0 : THROW_CCE();
-  if (payload.i1i_1 <= last.y1i_1)
-    return target;
   var tmp0 = item.t1h_1;
   // Inline function 'kotlin.comparisons.maxOf' call
   var b = last.z1i_1;
   var reps = Math.max(tmp0, b);
+  var increase = payload.i1i_1 > last.y1i_1 || (payload.i1i_1 === last.y1i_1 && payload.j1i_1 > reps);
+  if (!increase)
+    return target;
   return target.n1i(VOID, VOID, VOID, this.i1m(last, last.y1i_1, reps, item.u1h_1), VOID, payload.v1k(VOID, last.y1i_1, reps));
 };
 protoOf(ProgressionRule).a1k = function (exercise, lastKg) {

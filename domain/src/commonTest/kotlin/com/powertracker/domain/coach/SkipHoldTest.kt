@@ -88,14 +88,17 @@ class SkipHoldTest {
     }
 
     @Test
-    fun painSkip_whenProgressionAddsOnlyARep_keepsIt() {
-        // A light curl whose next step is a rep, not weight: no increase in weight, so the hold leaves it alone.
+    fun painSkip_whenProgressionAddsOnlyARep_holdsTheRepsToo() {
+        // A light curl whose next step is a rep, not weight: a rep at the same weight is an increase too, so held,
+        // 12 kg x 10 again, not x 11.
         val curl = PlanItem(3, DayOfWeek.MONDAY, Ids.CURL, 3, 8, 8.0, 0)
         val h = history(start) { session(4) { set(Ids.CURL, 12.0, 10, isTopSet = true) } }
         fun target(skips: List<Skip>) =
             Coaching.targetsFor(POWERLIFTING, DayOfWeek.MONDAY, h, listOf(curl), settings, today, emptyList(), skips).single()
-        assertEquals(12.0, target(emptyList()).target().weightKg)
-        assertEquals(target(emptyList()), target(listOf(skip(5, SkipReason.PAIN, Ids.CURL, POWERLIFTING))))
+        assertEquals(AdvicePayload.Target(Ids.CURL, 12.0, 11, 8.0), target(emptyList()).payload)
+        val held = target(listOf(skip(5, SkipReason.PAIN, Ids.CURL, POWERLIFTING)))
+        assertEquals(AdvicePayload.Target(Ids.CURL, 12.0, 10, 8.0), held.payload)
+        assertEquals("Last time: 12 × 10 @ 8. Coach suggests 12 × 10 @ 8.", held.reason)
     }
 
     @Test

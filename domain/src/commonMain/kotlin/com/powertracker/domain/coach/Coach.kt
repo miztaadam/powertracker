@@ -108,8 +108,9 @@ object Coach {
      * loads are capped against the top set from before that advice (and, for a deload, sets reduced). On the
      * first day back after a gap of 14 days or more, re-entry applies even before any RE_ENTRY advice exists.
      * After time on the bodybuilding side, [ReturnRule] eases each exercise's first target back first.
-     * An exercise held by a pain skip in [skips] ([SkipCoach.held]) gets no weight increase: where progression would
-     * add weight, the target repeats its latest top set instead ([ProgressionRule.held]); a decrease still applies. The
+     * An exercise held by a pain skip in [skips] ([SkipCoach.held]) gets no increase: where progression would add
+     * weight, or a rep at the same weight, the target repeats its latest top set instead ([ProgressionRule.held]); a
+     * decrease still applies. The
      * return rule and the clamps still apply after that.
      * Does not dedupe against prior TARGET advice: the app does that.
      */
