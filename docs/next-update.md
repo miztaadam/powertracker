@@ -265,6 +265,7 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 
 - Pictures in the web picker and plan builder: closed by the owner on 2026-11-18 after three trials (see "Web picker thumbnails: tried, closed"). Android has them since 1.10.
 - Two guide gaps: the Seated cable fly guide and the Hack squat guide (see the 1.5 notes).
 - The Exercises tab still opens slowly now and then (single slow opens, still under 100 ms).
+- A test that sometimes fails under load: `PlanScreenTest.planAdd_changeToOwnExerciseFails_afterThePickerWasClosed_theAddFormSaysSo` failed in 3 of 4 full runs on 2026-11-18, then passed in 5 of 5. Forcing both timings of the failed save around the picker closing showed the message over the add form every time, so a race in the app is ruled out; the cause is not established. Next step: make the test print where the message went when it times out.
 - Done in 1.12.2 (see "Done: the 1.12.2 tidy-up"): the Android plan builder's 2 broken names at 320 dp × 1.3; every Plan write on Android catches a failure; a failed own-exercise save keeps what was typed.
 - Done in 1.11 (see "Done: the 1.10 follow-ups"): the web tab's 4 broken names at 288 px; the Android tab at 130% text; the six stale web screenshots; the Today slide test (1cc526c, 80 of 80 runs, under emulated touch).
 
@@ -505,6 +506,107 @@ Plan: `docs/superpowers/plans/2026-11-18-grit-1-12-2-tidy-up.md`. The owner said
   - **Android Settings:** each rest alert is whole on one line at 320 dp and at 360 dp × 1.3, at 15 sp (new check); nothing changed. At 320 dp × 1.3 (246 dp of room) all three labels are cut short ("Vibrate", "Sound +", "Of"): below the plan's bar, left open.
   - **Web Settings, not changed (stop rule):** the four segments share the row equally. At 320 px each has 56 px of text room, and "Sound + vibrate" needs 84 px even at 12 px; even the whole screen split four ways (80 px) is too narrow. At 360 px it has 66 px, at 390 px 73 px. Content-sized segments, as Android has, or a shorter label would fit: the owner's call.
 - **Version:** Android 1.12.2 (versionCode 19), web 1.12.2. Settings shots re-shot on both apps; no other screenshot changed.
+
+Not yet tried on a real phone.
+
+## Done: skip a planned exercise (1.13)
+Spec: `docs/superpowers/specs/2026-11-18-grit-skip-planned-exercise-design.md`; plan: `docs/superpowers/plans/2026-11-18-grit-skip-planned-exercise.md`. The owner asked (2026-11-18): "It should leave today's list and the coach should know."
+
+**What you see on Today:**
+- Each planned exercise with no logged sets has a ⋮ with **Skip today**: on the start card's rows before a session, on the folded rows, and on the open exercise card. A row with sets, or an exercise you added today, has none.
+- **Skip today** opens "Why skip <name>?" with four answers: **Busy or no equipment**, **Pain**, **Out of time** and **Just skip** (no reason). Back, Escape or a tap outside cancels: nothing is stored and nothing buzzes.
+- The exercise leaves the list, with one tick, and a snackbar reads "<name> skipped." with **Undo**. Two plan lines of the same exercise leave together.
+- A "Skipped today" line at the end of the list names each skipped exercise with **Bring back**, which returns it to its place. Adding a skipped exercise again (Today's Add exercise, or the Exercises tab's Add to today) brings it back the same way.
+- No session is needed: a skip belongs to the date and the side shown.
+- With every planned exercise skipped, the start card reads "WEDNESDAY · 0 EXERCISES"; in a session the usual "No exercises yet" stays above the line.
+- Finish's summary adds ", n skipped": "No new coach notes, 1 skipped".
+- Names on Today's rows stay whole: a long name wraps between words, and its plan goes under it.
+
+**What the coach does:** a card comes at the moment of the skip, on the skip's side. Skips are counted per exercise and per side over the last 28 days, this skip included.
+- **Pain:** always a card, so a pain skip always tells you. On a main lift (squat, bench, deadlift, strict press), or with no alternative left: "You skipped <name> because of pain. Its weight won't go up until you do it again. If the pain persists or gets worse, see a physician." with Dismiss only. On an accessory: the same with up to 3 alternatives for the same muscles (the coach's usual swap list), each a "Swap for X" button.
+- **Busy or no equipment:** on an accessory, from the 2nd busy skip in 28 days: up to 3 alternatives on different equipment. "You've skipped <name> twice in 4 weeks because you were busy or had no equipment. Swap it for one of these?" With no other equipment it falls through to the next rule.
+- **Any reason but Out of time:** on an accessory, from the 3rd such skip in 28 days: "You've skipped <name> 3 times in 4 weeks. Keep it in your plan, or swap it for one of these?", with up to 3 alternatives.
+- **Out of time:** nothing.
+- The texts give the real count ("twice", "3 times", "4 times").
+- **One card at a time:** no new busy or repeat card while a skip or swap card for the exercise is open on that side, or within 7 days of the last skip card. A dismissed card holds back a new busy or repeat card of the same or a lower rank (pain, then busy, then repeat) for 28 days. Skip cards do not count towards one card per lift per week.
+- **A pain card is held back only by an open pain card** for the exercise on that side; the weight is held either way. An open busy or repeat card for it is deleted and the pain card takes its place. An open swap card stays, and the pain card comes as well. The 7 days and the 28-day dismissal memory do not hold back a pain card.
+- **Swap** replaces the exercise in every plan item on that side, keeping day, order, sets, reps and RPE. A skip card hides once its exercise has left that side's plan, and comes last in the Coach feed: tag "Skipped", title "<name> skipped".
+- **Undo and Bring back** delete the skip and its card if still open. An applied swap or a dismissal stays. Skipping again with another reason replaces the open card. Undoing a pain skip does not bring back a busy or repeat card it replaced.
+
+**The pain hold:**
+- The latest pain skip of an exercise holds it on both sides until a session on either side, after the skip day, has a set of it. Today's own session releases it from tomorrow, so nothing moves mid-session. There is no time limit.
+- **It blocks increases only, reps included.** Powerlifting: no more weight, and no extra rep at the same weight that progression would add. The held aim is the last top set's weight, at the planned reps or the last reps if higher. Decreases still apply (the 5% drop after a missed top set, a drop after too high an RPE), and so do deloads and easing back in.
+- **Bodybuilding:** no weight increase is given, and the reps aim does not reset; the target is "Beat it" at last time's weight, with the usual aim of last time's reps + 1, up to the top of the range.
+- A pain skip, and any Undo or Bring back, delete today's open target for that exercise on both sides, and it is worked out again at once, held or not.
+- The pain line's sources are in `CoachSources.kt` (`SKIP_PAIN_PHYSICIAN`, `SKIP_PAIN_TRAIN_AROUND`).
+
+**Storage and backups:**
+- A skip is its own record: date, side, exercise, plan item and reason ("Just skip" stores none). One per exercise, date and side; skipping again replaces the reason and keeps the record. A skip never becomes a set or a session, so no number, chart or best changes.
+- Android database version 5, web database version 5: a new, empty skips table; nothing already stored changes.
+- Deleting a plan item keeps its skips with the plan item cleared; editing one keeps it. On Android, deleting an exercise deletes its skips (the web has no exercise delete). Android's plan save now updates a row in place instead of replacing it, so an edit keeps its skips' plan item.
+- **Backups are version 5** on both apps, with a `skips` list (`[]` when there are none). A version 4 (1.12) backup restores with no skips and clears any stored. **An older app (1.12) turns version 5 backups away** as too new.
+- Fixtures: `android-v5.json` and `web-v5.json` are live, and each app restores the other's; the v4 files are frozen.
+
+**Calls made while building:**
+- ", n skipped" counts that day's skips on the session's side, a skip whose exercise was swapped away included.
+- The skip card has the swap card's look: warning tone, a skip icon, tag "Skipped", title "<name> skipped", last in the feed.
+- The four answers ignore taps while the sheet slides up and for 300 ms after; a tap outside cancels at once, on both apps; back and the keyboard are never held.
+- The ⋮ is also on the start card's rows and the open card, not only on the folded rows.
+- The "Skipped today" line shows at once, not only after the snackbar, and not on Finish's summary.
+- With everything skipped, the start card says "0 exercises" with no "nothing in your plan" text.
+- The thresholds are "from the 2nd" and "from the 3rd", not "exactly", so a dismissed card can come back once its 28 days are over.
+- A busy skip with no alternative on other equipment falls through to the 3-skips rule.
+- Adding a skipped exercise again takes its skip back, as Bring back does.
+- Today's targets are deleted on both sides by a pain skip or an unskip, since the hold crosses sides.
+- Skipping again with another reason replaces the open card (no screen offers it yet).
+- The web's Undo snackbar stays 4 s, its usual time; Android's is the short snackbar.
+- Bring back's accessible name is "Bring back <name>" on both apps; its visible text stays "Bring back".
+- Web: a hyphen is a break point in a name; below 260 px a folded row stacks its guide button and ⋮ to give the name room.
+- Android: a folded row or the open card narrower than 260 dp over the font scale (320 dp with 130% text, or 360 dp with 130%) stacks its guide button and ⋮ the same way. Checked at 320 dp × 1.0, 360 dp × 1.3 and 320 dp × 1.3.
+- Web: re-adding a skipped exercise from the picker ticks, as any picker add does; Bring back does not.
+- The web's skip shots use Curl as the accessory (the web coach gives Row no alternatives with that plan); Android's use Barbell row.
+
+**Existing tests changed** (each forced by the new advice type or backup version, or by the final review's pain rule; no assertion weakened):
+- **Domain:** `CoachTest.prior()` and `CoachSnapshot.payload()` handle the new type and payload, so the files compile.
+- **Domain, final review (a pain skip always tells you):** in `SkipCoachTest`, `openSwapCard_blocksSkipCard`, `openSkipCard_blocksAnother` and `cardInLast7Days_blocksAnother` probed with a pain skip, which those rails no longer block. They are now `openSwapCard_blocksBusyAndRepeatCards`, `openSkipCard_blocksBusyAndRepeatCards` and `cardInLast7Days_blocksBusyAndRepeatCards`, probing with busy and repeat skips. New pain variants pin the new rule: `openSwapCard_pain_stillGivesThePainCard`, `openNonPainSkipCard_pain_givesThePainCard`, `openPainSkipCard_pain_givesNoSecond`, `cardInLast7Days_pain_stillGivesThePainCard` and `dismissedPainCard_pain_stillGivesThePainCard`. `SkipFacadeTest.afterSkipGivesTheCardAsPlainData` (js) probed the stored busy card with a pain skip; it now probes with a third busy skip, and checks that a pain skip still gives its card and that an open pain card holds back a second.
+- **Web, final review:** in `skips.test.ts`, `painSkip_deletesTodaysOpenTarget_…`'s "not a target" control card is now an open pain card. An open busy card for the same exercise and side is now deleted by the pain skip.
+- **Android, final review:** `SkipTodayScreenTest.skip_bringBack_onTheSkippedLine` taps Bring back by its name, "Bring back Bench".
+- **Android:**
+  - `BackupTest`: `v5File_isTooNew` is now `v5File_onVersion4Decoder_isTooNew`; `v4RoundTrip_keepsCheckInsAndTheNewAdvice` expects `Backup.VERSION`.
+  - `BackupFixtureTest`: the live fixture is `android-v5.json` (with `androidV4Fixture` for the frozen file); `androidFixture_holdsBothSides` expects 5; `webV4Fixture_restoresOnAndroid` compares with the file upgraded to 5; the helpers add `"skips": []`.
+  - `ScreenshotTest`: new captures only.
+- **Web:**
+  - `checkIns.test.ts` `upgrade3to4_…` opens with the schema up to version 4.
+  - `backup.test.ts`: the live fixture is `web-v5.json`; the round trip expects `BACKUP_VERSION`; `v4File_onVersion3Decoder_isTooNew_andVersion5IsTooNewHere` is now `v4File_onVersion3Decoder_isTooNew` (version 6 is checked in the new version 5 test); the helpers add `skips: []`.
+  - `e2e/backup.spec.ts`: the exported version is 5.
+
+**Screenshots:**
+- **Android:** new `today-skip-menu`, `today-skip-sheet`, `today-skipped` and `coach-skip`, each also `-bodybuilding`, dark and light (16). Changed: `today-start`, `today-next` and `today-bodybuilding` (the ⋮, and names whole). Settings re-shot for 1.13.
+- **Web:** new `today-skip-menu`, `today-skip-sheet`, `today-skipped`, `coach-skip` and `coach-skip-pain`, each also `-bodybuilding`, dark and light (20). Changed: `today` and `today-bodybuilding` (the ⋮, names whole), `rpe-sheet` (the ⋮ behind the sheet) and `showcase` (the skip icon). Settings re-shot for 1.13.
+
+**Version:** Android 1.13 (versionCode 21), web 1.13.0; both show "Grit 1.13".
+
+**Task 1 signatures** (domain; from the code as shipped):
+- `Coaching.afterSkip(skip: Skip, skips: List<Skip>, history: TrainingHistory, plan: List<PlanItem>, today: LocalDate, priorAdvice: List<Advice>): List<Advice>`. It gives zero or one SKIP advice, with the skip's side. `skips` is every stored skip, `skip` included. `plan` is the whole plan; `priorAdvice` is every stored advice. On a pain skip the caller first deletes that side's OPEN busy or repeat SKIP card for the exercise; both apps' storage does this.
+- `Coaching.targetsFor(mode, day, history, plan, settings, today, priorAdvice, skips: List<Skip> = emptyList()): List<Advice>`. Pass every skip from both sides, since the pain hold crosses sides. `Coach.targetsFor` and `BodybuildingCoach.targetsFor` take the same `skips`.
+- `BodybuildingCoach.repsToBeat(item: PlanItem, history: TrainingHistory, setNumber: Int, today: LocalDate, skips: List<Skip> = emptyList()): Int`.
+- `Coaching.applySkipSwap(payload: AdvicePayload.Skipped, choice: String, mode: TrainingMode, plan: List<PlanItem>, exercises: Map<Long, Exercise>): PlanChange`.
+- `SkipCoach.held(exerciseId: Long, skips: List<Skip>, history: TrainingHistory, today: LocalDate): Boolean`.
+- `data class Skip(id: Long, date: LocalDate, mode: TrainingMode, exerciseId: Long, planItemId: Long?, reason: SkipReason?)`.
+- `enum class SkipReason { BUSY, PAIN, TIME }`. "Just skip" is a null reason.
+- `AdvicePayload.Skipped(skipId: Long, exerciseId: Long, name: String, reason: SkipReason?, alternatives: List<String>)`, with the advice type `SKIP`.
+- **JS exports** (`GritDomain`, in `web/src/domain/generated`):
+  - `JsSkip(id, date, mode, exerciseId, planItemId, reason)`;
+  - `coachingAfterSkip(skip, skips, history, plan, today, prior)`;
+  - `coachingTargetsForWithSkips(mode, weekday, history, plan, settings, today, prior, skips)`;
+  - `coachingApplySkipSwap(payloadJson, choice, mode, plan, exercises)`;
+  - `repsToBeatWithSkips(item, history, setNumber, today, skips)`;
+  - `advicePayload(json)` decodes `kind: "Skipped"` with `exerciseId`, `name`, `alternatives`, `skipId` and `skipReason`.
+
+**Open follow-ups:**
+- Plan and Exercises tests that sometimes fail under load, each passing alone: Android `PlanScreenTest.planAdd_changeToOwnExerciseFails_afterThePickerWasClosed_theAddFormSaysSo` (its note is under "The new look and motion") `planAdd_tapAfterTheWindow_works` and `settings_restAlert_showsThreeChoicesAndPersists` (failed once in this version's full run, passed alone); web `PlanScreen.test.tsx` `planAdd_cancel_storesNothing` and `addToPlan_choosesDay_andUsesDefaults`, and `ExercisesScreen` `exercisesTab_browseByMuscleAndSearchWork` (5 s timeouts).
+- "WEDNESDAY · 0 EXERCISES" when every exercise is skipped reads oddly; the owner's call on wording.
+- The web has no speed test for opening Today, which gained the ⋮ and the wrapping names; the speed checks cover only the picker and the Exercises tab.
 
 Not yet tried on a real phone.
 

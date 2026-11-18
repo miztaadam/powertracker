@@ -60,6 +60,19 @@
   - both apps' versions agree;
   - `git fetch` before any merge.
 
+## Findings from Task 1 (binding on Tasks 2–5)
+- **Both apps store only that day's TARGET advice** when Today opens, and skip recomputing an exercise that already has a target today, whatever its status. So:
+  - **`skip` with reason PAIN** also **deletes** (not dismisses) today's OPEN TARGET advice for that exercise and side, in the same transaction, so that the next target is worked out with the hold.
+  - **`unskip`** also deletes today's OPEN TARGET advice for that exercise and side, so that the target is worked out again without the hold.
+  - Test both on each app.
+- **Pass `skips` everywhere targets are worked out:**
+  - `targetsFor(..., skips)`;
+  - `repsToBeat(..., skips)` on Android, and `repsToBeatWithSkips` on the web.
+
+  Without the second, a held bodybuilding exercise keeps its weight but resets its reps.
+- **Task 1 added `AdvicePayload.Skipped`,** so the two exhaustive `when (payload)` in `CoachViewModel.kt` (lines ~139 and ~195) no longer compile. Task 2 adds a stopgap branch that hides the card (`null` / no-op) so the app builds, and Task 3 replaces it with the real card.
+- **The exact signatures** are in Task 1's report, copied under "Task 1 signatures" in `docs/next-update.md` when 1.13 ships.
+
 ## Review Focus
 1. **Sides are separate on Today:** a skip on the bodybuilding side leaves the same exercise on the powerlifting side's Today, and the reverse. Only the pain hold crosses sides.
 2. **Midnight:** a skip dated yesterday doesn't hide the exercise today, and "Skipped today" is empty.

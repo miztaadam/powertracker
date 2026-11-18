@@ -3,7 +3,10 @@ package com.powertracker.domain.coach
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.CheckIn
+import com.powertracker.domain.model.AdvicePayload
+import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.forSide
@@ -29,12 +32,13 @@ object Coaching {
         settings: CoachSettings,
         today: LocalDate,
         priorAdvice: List<Advice>,
+        skips: List<Skip> = emptyList(),
     ): List<Advice> {
         val items = plan.on(mode)
         val prior = priorAdvice.forSide(mode)
         val advice = when (mode) {
-            TrainingMode.POWERLIFTING -> Coach.targetsFor(day, history, items, settings, today, prior)
-            TrainingMode.BODYBUILDING -> BodybuildingCoach.targetsFor(day, history, items, settings, today, prior)
+            TrainingMode.POWERLIFTING -> Coach.targetsFor(day, history, items, settings, today, prior, skips)
+            TrainingMode.BODYBUILDING -> BodybuildingCoach.targetsFor(day, history, items, settings, today, prior, skips)
         }
         return advice.map { it.copy(mode = mode) }
     }
@@ -91,6 +95,12 @@ object Coaching {
         val outcome = PhysiqueCoach.afterCheckIn(checkIn, history, plan.on(side), today, priorAdvice.filter { it.mode == side })
         return outcome.copy(advice = outcome.advice.map { it.copy(mode = side) })
     }
+
+    fun afterSkip(skip: Skip, skips: List<Skip>, history: TrainingHistory, plan: List<PlanItem>, today: LocalDate, priorAdvice: List<Advice>): List<Advice> =
+        SkipCoach.afterSkip(skip, skips, history, plan, today, priorAdvice)
+
+    fun applySkipSwap(payload: AdvicePayload.Skipped, choice: String, mode: TrainingMode, plan: List<PlanItem>, exercises: Map<Long, Exercise>): PlanChange =
+        SkipCoach.applySkipSwap(payload, choice, mode, plan, exercises)
 
     /** The welcome-back card: this side has a plan and was left more than 30 days before [today]. */
     fun welcomeBack(leftOn: LocalDate?, today: LocalDate, hasPlan: Boolean): Boolean =

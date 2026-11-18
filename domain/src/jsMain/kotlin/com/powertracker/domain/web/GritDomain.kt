@@ -119,6 +119,62 @@ object GritDomain {
         prior.map { it.toDomain() },
     ).map { it.toJs() }.toTypedArray()
 
+    /**
+     * As [coachingTargetsFor], with every stored skip: an exercise held by a pain skip (on either side, until a session
+     * of it is logged after the skip) repeats its latest session's weight instead of going up.
+     */
+    fun coachingTargetsForWithSkips(
+        mode: String,
+        weekday: Int,
+        history: JsHistory,
+        plan: Array<JsPlanItem>,
+        settings: JsCoachSettings,
+        today: String,
+        prior: Array<JsAdvice>,
+        skips: Array<JsSkip>,
+    ): Array<JsAdvice> = Coaching.targetsFor(
+        parseEnum<TrainingMode>("mode", mode),
+        parseWeekday("weekday", weekday),
+        history.toDomain(),
+        plan.map { it.toDomain() },
+        settings.toDomain(),
+        parseDate("today", today),
+        prior.map { it.toDomain() },
+        skips.map { it.toDomain() },
+    ).map { it.toJs() }.toTypedArray()
+
+    /**
+     * The coach's answer to [skip], just stored: zero or one SKIP advice to store, stamped with the skip's side.
+     * [skips] is every stored skip, [skip] among them; [plan] the whole plan; [prior] every stored advice. A pain skip
+     * gives its card unless an OPEN pain SKIP card for the exercise stands on that side; the caller deletes that side's
+     * OPEN busy or repeat SKIP card for the exercise first ([com.powertracker.domain.coach.SkipCoach]).
+     */
+    fun coachingAfterSkip(
+        skip: JsSkip,
+        skips: Array<JsSkip>,
+        history: JsHistory,
+        plan: Array<JsPlanItem>,
+        today: String,
+        prior: Array<JsAdvice>,
+    ): Array<JsAdvice> = Coaching.afterSkip(
+        skip.toDomain(),
+        skips.map { it.toDomain() },
+        history.toDomain(),
+        plan.map { it.toDomain() },
+        parseDate("today", today),
+        prior.map { it.toDomain() },
+    ).map { it.toJs() }.toTypedArray()
+
+    /**
+     * A SKIP advice's stored payload ([payloadJson]) applied with [choice], one of its alternatives, to [mode]'s side
+     * (a `TrainingMode` name) of [plan]. The bodybuilding side keeps its weekly ceiling; the powerlifting side has none.
+     */
+    fun coachingApplySkipSwap(payloadJson: String, choice: String, mode: String, plan: Array<JsPlanItem>, exercises: Array<JsExercise>): JsPlanChange =
+        Coaching.applySkipSwap(
+            payloadOf<AdvicePayload.Skipped>("payloadJson", payloadJson), choice, parseEnum<TrainingMode>("mode", mode),
+            plan.map { it.toDomain() }, exercises.map { it.toDomain() }.associateBy { it.id },
+        ).toJs()
+
     /** New advice to store for [mode]'s side (a `TrainingMode` name). On the powerlifting side it is exactly [evaluate]. */
     fun coachingEvaluate(
         mode: String,
@@ -212,6 +268,13 @@ object GritDomain {
      */
     fun repsToBeat(item: JsPlanItem, history: JsHistory, setNumber: Int, today: String): Int =
         BodybuildingCoach.repsToBeat(item.toDomain(), history.toDomain(), setNumber, parseDate("today", today))
+
+    /**
+     * As [repsToBeat], with every stored skip: while a pain skip holds the exercise there is no increase, so the reps
+     * carry on from last time instead of starting again at the low end.
+     */
+    fun repsToBeatWithSkips(item: JsPlanItem, history: JsHistory, setNumber: Int, today: String, skips: Array<JsSkip>): Int =
+        BodybuildingCoach.repsToBeat(item.toDomain(), history.toDomain(), setNumber, parseDate("today", today), skips.map { it.toDomain() })
 
     /** The bodybuilding side's Progress rows: one per exercise in the bodybuilding plan, in plan order. */
     fun bodybuildingProgress(history: JsHistory, plan: Array<JsPlanItem>, today: String): Array<JsExerciseTrend> =

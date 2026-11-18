@@ -19,6 +19,7 @@ import { slideName, withTransition } from '../../ui/viewTransition'
 import { InfoButton } from '../library/InfoButton'
 import { RpeInfoButton } from '../library/RpeSheet'
 import { MAX_KG, MAX_REPS, MAX_RPE, MIN_RPE, entryMessage, parseEntry, type EntryKind } from './entry'
+import { SkipMenu } from './SkipToday'
 import './today.css'
 
 /** Where the accent button leads once an exercise's sets are done: the next exercise, or Finish. */
@@ -90,10 +91,12 @@ export type ExerciseCardProps = {
    * question (spec §7.4); a set can still be marked Missed.
    */
   side?: TrainingMode
+  /** Opens the reason sheet (1.13); left out, there is no row menu (an added exercise, or one with sets). */
+  onSkipToday?: () => void
 }
 
 /** The exercise being logged: coach chip, sets so far, steppers, plates and the one big button. */
-export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING' }: ExerciseCardProps) {
+export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING', onSkipToday }: ExerciseCardProps) {
   const id = item.exercise.id
   const [extraSet, setExtraSet] = useState(false)
   const [selected, setSelected] = useState<{ number: number; set: StoredSet } | null>(null)
@@ -104,9 +107,9 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
   return (
     <Card spacing={8}>
       <div className="today-card-head">
-        <div className="today-grow">
+        <div className="today-card-title">
           <Eyebrow text={`Exercise ${position} of ${count}`} />
-          <h2 className="today-ellipsis headline-medium">{item.exercise.name}</h2>
+          <h2 className="today-name headline-medium">{item.exercise.name}</h2>
         </div>
         {item.planned == null && item.sets.length === 0 ? (
           <QuietButton text="Remove" onClick={() => actions.removeExercise(id)} />
@@ -116,6 +119,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
           <Pill text={item.targetSets != null ? `Set ${nextNumber} of ${item.targetSets}` : `Set ${nextNumber}`} />
         )}
         <InfoButton name={item.exercise.name} />
+        {onSkipToday && <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} />}
       </div>
 
       {item.suggestion && (
@@ -388,28 +392,41 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
   )
 }
 
-/** Another exercise in today's session, folded to one line. Tap to log it. */
-export function ExerciseRow({ item, onClick }: { item: TodayItem; onClick: () => void }) {
+/** Another exercise in today's session, folded to one line. Tap to log it. `onSkipToday` (1.13) adds the row menu. */
+export function ExerciseRow({ item, onClick, onSkipToday }: { item: TodayItem; onClick: () => void; onSkipToday?: () => void }) {
   return (
     <Card contentPadding={0} className="today-row-card">
       <button type="button" className="today-row" onClick={onClick}>
-        <span className="today-grow today-ellipsis title-medium">{item.exercise.name}</span>
-        {item.suggestion && (
-          <span className="today-row-bolt" role="img" aria-label="Coach suggestion">
-            <BoltIcon size={18} />
+        {/* The plan and the count go under the name when both do not fit: the name is never cut short. */}
+        <span className="today-grow today-pair">
+          <span className="today-pair-first today-pair-row">
+            <span className="today-name title-medium">
+              {item.exercise.name}
+            </span>
+            {item.suggestion && (
+              <span className="today-row-bolt" role="img" aria-label="Coach suggestion">
+                <BoltIcon size={18} />
+              </span>
+            )}
           </span>
-        )}
-        {item.planned && <span className="today-row-plan headline-small">{planText(item.planned)}</span>}
-        {item.isComplete ? (
-          <Pill text="Done" tone="success" icon={<CheckIcon />} />
-        ) : item.sets.length > 0 && item.targetSets != null ? (
-          <Pill text={`${item.sets.length} of ${item.targetSets}`} />
-        ) : (
-          item.sets.length > 0 && <Pill text={`${item.sets.length} ${item.sets.length === 1 ? 'set' : 'sets'}`} />
-        )}
+          <span className="today-pair-second today-pair-row">
+            {item.planned && <span className="today-row-plan headline-small">{planText(item.planned)}</span>}
+            {item.isComplete ? (
+              <Pill text="Done" tone="success" icon={<CheckIcon />} />
+            ) : item.sets.length > 0 && item.targetSets != null ? (
+              <Pill text={`${item.sets.length} of ${item.targetSets}`} />
+            ) : (
+              item.sets.length > 0 && <Pill text={`${item.sets.length} ${item.sets.length === 1 ? 'set' : 'sets'}`} />
+            )}
+          </span>
+        </span>
       </button>
-      {/* Beside the row's button, not inside it: reading the guide must not open the card. */}
-      <InfoButton name={item.exercise.name} />
+      {/* Beside the row's button, not inside it: reading the guide must not open the card. On a narrow row the two stack,
+          so that a long word of the name still has its room (1.13). */}
+      <span className="today-row-actions">
+        <InfoButton name={item.exercise.name} />
+        {onSkipToday && <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} />}
+      </span>
     </Card>
   )
 }

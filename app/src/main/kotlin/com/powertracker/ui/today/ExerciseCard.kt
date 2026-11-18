@@ -1,6 +1,7 @@
 package com.powertracker.ui.today
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,6 +38,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.powertracker.data.StoredSet
@@ -148,6 +150,8 @@ fun ExerciseCard(
     bodybuilding: Boolean = false,
     /** With motion on, Today's modifier for the card's content as it opens and closes ([SlidingSwap]); null otherwise. */
     slidingContent: Modifier? = null,
+    /** Opens the reason sheet; null hides the row menu (an added exercise, or one with sets). */
+    onSkipToday: (() -> Unit)? = null,
 ) {
     val id = item.exercise.id
     var extraSet by rememberSaveable(id) { mutableStateOf(false) }
@@ -155,10 +159,10 @@ fun ExerciseCard(
 
     PtCard(modifier, spacing = Space.s) {
         if (slidingContent == null) {
-            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }) { selected = it }
+            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }, onSkipToday) { selected = it }
         } else {
             Column(slidingContent, verticalArrangement = Arrangement.spacedBy(Space.s)) {
-                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }) { selected = it }
+                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }, onSkipToday) { selected = it }
             }
         }
     }
@@ -198,28 +202,32 @@ private fun ColumnScope.CardContent(
     bodybuilding: Boolean,
     extraSet: Boolean,
     onAddSet: () -> Unit,
+    onSkipToday: (() -> Unit)?,
     onSelect: (Pair<Int, StoredSet>) -> Unit,
 ) {
     val id = item.exercise.id
+    val fontScale = LocalDensity.current.fontScale
+    BoxWithConstraints {
+        // PtCard's own padding, Space.l on each side, is part of the card's width.
+        val stacked = stacksActions(maxWidth + Space.l * 2, fontScale)
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Eyebrow("Exercise $position of $count")
-                Text(
-                    item.exercise.name,
-                    style = MaterialTheme.typography.headlineMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.semantics { heading() },
-                )
+            // The name is never cut: where it and the set count do not fit on one line, the count goes under it.
+            WrappingPair(Modifier.weight(1f), first = {
+                Column {
+                    Eyebrow("Exercise $position of $count")
+                    Text(item.exercise.name, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+                }
+            }) {
+                when {
+                    item.planned == null && item.sets.isEmpty() -> QuietButton("Remove", { actions.onRemoveExercise(id) })
+                    item.isComplete -> Pill("Done", tone = Tone.SUCCESS, icon = Icons.Filled.Check)
+                    item.targetSets != null -> Pill("Set ${item.sets.size + 1} of ${item.targetSets}")
+                    else -> Pill("Set ${item.sets.size + 1}")
+                }
             }
-            when {
-                item.planned == null && item.sets.isEmpty() -> QuietButton("Remove", { actions.onRemoveExercise(id) })
-                item.isComplete -> Pill("Done", tone = Tone.SUCCESS, icon = Icons.Filled.Check)
-                item.targetSets != null -> Pill("Set ${item.sets.size + 1} of ${item.targetSets}")
-                else -> Pill("Set ${item.sets.size + 1}")
-            }
-            InfoButton(item.exercise.name)
+            GuideAndMenu(item.exercise.name, onSkipToday, stacked)
         }
+    }
 
         item.suggestion?.let { advice ->
             val target = advice.payload as? AdvicePayload.Target ?: return@let
@@ -434,28 +442,63 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
     }
 }
 
+/**
+ * A folded row or open card narrower than this, over the font scale (a small phone with large text), stacks its guide
+ * button and its menu so the name keeps its room, as the web's row does below 260 px (1.13).
+ */
+internal val ROW_STACK_WIDTH = 260.dp
+
+/** Whether a row or card [width] wide, the whole card, stacks its guide button and menu ([ROW_STACK_WIDTH]). */
+internal fun stacksActions(width: Dp, fontScale: Float): Boolean = width / fontScale < ROW_STACK_WIDTH
+
+/** The guide button (ⓘ) and, with [onSkipToday], the row menu (⋮): side by side, or [stacked] one above the other. */
+@Composable
+private fun GuideAndMenu(name: String, onSkipToday: (() -> Unit)?, stacked: Boolean) {
+    if (stacked && onSkipToday != null) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            InfoButton(name)
+            SkipMenuButton(name, onSkipToday)
+        }
+    } else {
+        InfoButton(name)
+        if (onSkipToday != null) SkipMenuButton(name, onSkipToday)
+    }
+}
+
 /** Another exercise in today's session, folded to one line. Tap to log it. */
 @Composable
-fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modifier, onSkipToday: (() -> Unit)? = null) {
     val scheme = MaterialTheme.colorScheme
+    val fontScale = LocalDensity.current.fontScale
+    val padding = Space.l
     PtCard(
         modifier,
-        contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.s),
+        contentPadding = PaddingValues(horizontal = padding, vertical = Space.s),
         onClickLabel = "Log ${item.exercise.name}",
         onClick = onClick,
-    ) {
+    ) { BoxWithConstraints {
+        val stacked = stacksActions(maxWidth + padding * 2, fontScale)
         Row(Modifier.heightIn(min = 40.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-            Text(item.exercise.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-            if (item.suggestion != null) {
-                Icon(Icons.Filled.Bolt, contentDescription = "Coach suggestion", tint = PowertrackerTheme.colors.accentText, modifier = Modifier.size(18.dp))
+            // The name is never cut: where it and the plan do not fit on one line, the plan goes under it, and a long
+            // name wraps between words.
+            WrappingPair(Modifier.weight(1f), first = {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+                    Text(item.exercise.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f, fill = false))
+                    if (item.suggestion != null) {
+                        Icon(Icons.Filled.Bolt, contentDescription = "Coach suggestion", tint = PowertrackerTheme.colors.accentText, modifier = Modifier.size(18.dp))
+                    }
+                }
+            }) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+                    item.planned?.let { Text(planText(it), style = MaterialTheme.typography.headlineSmall, color = scheme.onSurfaceVariant, maxLines = 1) }
+                    when {
+                        item.isComplete -> Pill("Done", tone = Tone.SUCCESS, icon = Icons.Filled.Check)
+                        item.sets.isNotEmpty() && item.targetSets != null -> Pill("${item.sets.size} of ${item.targetSets}")
+                        item.sets.isNotEmpty() -> Pill("${item.sets.size} ${if (item.sets.size == 1) "set" else "sets"}")
+                    }
+                }
             }
-            item.planned?.let { Text(planText(it), style = MaterialTheme.typography.headlineSmall, color = scheme.onSurfaceVariant, maxLines = 1) }
-            when {
-                item.isComplete -> Pill("Done", tone = Tone.SUCCESS, icon = Icons.Filled.Check)
-                item.sets.isNotEmpty() && item.targetSets != null -> Pill("${item.sets.size} of ${item.targetSets}")
-                item.sets.isNotEmpty() -> Pill("${item.sets.size} ${if (item.sets.size == 1) "set" else "sets"}")
-            }
-            InfoButton(item.exercise.name)
+            GuideAndMenu(item.exercise.name, onSkipToday, stacked)
         }
-    }
+    } }
 }

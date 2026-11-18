@@ -132,4 +132,44 @@ object CoachSources {
         url = "https://pmc.ncbi.nlm.nih.gov/articles/PMC8884877/",
         accessed = "2026-11-14",
     )
+
+    /**
+     * The pain skip card's last line, [SkipCoach.PAIN_LINE] = "If the pain persists or gets worse, see a physician.",
+     * and its hold: the exercise's weight does not go up until it is done again ([SkipCoach.held]).
+     *
+     * What the page says: ExRx.net's "Exercise Adaptation / Injury Prevention Tidbits" advises seeing a physician when
+     * pain persists or worsens (a physical therapist can refer the lifter on), and progressing again only once the load
+     * can be done pain-free. The card says no more than that: it diagnoses nothing, and the hold makes no increase
+     * until the lifter has done the exercise again.
+     *
+     * Found on 2026-11-18 by a web search restricted to the allowed sources; the page itself was not opened.
+     *
+     * Not sourced, the designer's own product rules (no training numbers), approved with the plan on 2026-11-18: skips
+     * are counted over 28 days ([SkipCoach.WINDOW_DAYS]); the 2nd busy skip ([SkipCoach.BUSY_SKIPS]), the 1st pain skip
+     * and the 3rd skip of any reason but time ([SkipCoach.REPEAT_SKIPS]) give a card; no second card for an exercise
+     * within 7 days ([SkipCoach.CARD_COOLDOWN_DAYS]); a dismissed card is remembered for 28 days
+     * ([SkipCoach.DISMISSED_MEMORY_DAYS]); up to 3 alternatives ([SkipCoach.ALTERNATIVES]).
+     */
+    val SKIP_PAIN_PHYSICIAN = Source(
+        title = "Exercise Adaptation / Injury Prevention Tidbits",
+        publisher = "ExRx.net",
+        url = "https://exrx.net/Injury/InjuryTidbits",
+        accessed = "2026-11-18",
+    )
+
+    /**
+     * The pain skip card's offer of a gentler alternative for the same muscles: training goes on around the painful
+     * area rather than stopping.
+     *
+     * What the page says: ACSM's "Resting After an Injury: A Thing of the Past" supports staying active and training
+     * around an injured or painful area rather than complete rest.
+     *
+     * Found on 2026-11-18 by a web search restricted to the allowed sources; the page itself was not opened.
+     */
+    val SKIP_PAIN_TRAIN_AROUND = Source(
+        title = "Resting After an Injury: A Thing of the Past",
+        publisher = "American College of Sports Medicine (ACSM)",
+        url = "https://acsm.org/resting-after-an-injury-a-thing-of-the-past/",
+        accessed = "2026-11-18",
+    )
 }

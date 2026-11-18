@@ -7,6 +7,7 @@ import com.powertracker.data.db.AppDatabase
 import com.powertracker.data.db.MIGRATION_1_2
 import com.powertracker.data.db.MIGRATION_2_3
 import com.powertracker.data.db.MIGRATION_3_4
+import com.powertracker.data.db.MIGRATION_4_5
 import com.powertracker.data.db.StrictPressUpgrade
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -25,6 +26,11 @@ class MigrationTest {
     val helper = MigrationTestHelper(InstrumentationRegistry.getInstrumentation(), AppDatabase::class.java)
 
     private val name = "migration-test"
+
+    private companion object {
+        /** The name [AppDatabase.build] opens. */
+        const val APP_DB = "powertracker.db"
+    }
 
     @Test
     fun schemaV1_opens() {
@@ -257,6 +263,81 @@ class MigrationTest {
 
         assertEquals(listOf(1L to 1L), sets(db))
         assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM session"))
+        db.close()
+    }
+
+    @Test
+    fun schemaV4_opens() {
+        helper.createDatabase(name, 4).close()
+    }
+
+    /** 1.13: a version 4 database keeps every row and gains an empty skips table, one skip per exercise, date and side. */
+    @Test
+    fun upgrade4To5_keepsEveryRow_addsAnEmptySkipsTable() {
+        helper.createDatabase(name, 4).use { db ->
+            seedMainLifts(db)
+            session(db, 1, 20_400)
+            set(db, 1, 1, 1, 140.0)
+            planItem(db, 1, 1)
+            advice(db, 1, "TARGET", "OPEN")
+            db.execSQL("UPDATE session SET mode = 'BODYBUILDING' WHERE id = 1")
+            db.execSQL("INSERT INTO check_ins (date, lagging, growingWell) VALUES (20450, 'CHEST', '')")
+        }
+
+        val db = helper.runMigrationsAndValidate(name, 5, true, MIGRATION_4_5)
+
+        assertEquals(3, exercises(db).size)
+        assertEquals(listOf(1L to 1L), sets(db))
+        assertEquals(listOf(1L to 1L), planItems(db))
+        assertEquals(listOf(1L), ids(db, "SELECT id FROM advice"))
+        assertEquals(listOf("BODYBUILDING"), strings(db, "SELECT mode FROM session"))
+        assertEquals(listOf(20_450L), ids(db, "SELECT date FROM check_ins"))
+        assertEquals(emptyList<Long>(), ids(db, "SELECT id FROM skips"))
+        db.execSQL("INSERT INTO skips (date, mode, exerciseId, planItemId, reason) VALUES (20450, 'BODYBUILDING', 1, 1, 'PAIN')")
+        db.execSQL("INSERT INTO skips (date, mode, exerciseId, planItemId, reason) VALUES (20450, 'POWERLIFTING', 1, NULL, NULL)")
+        val second = runCatching { db.execSQL("INSERT INTO skips (date, mode, exerciseId, planItemId, reason) VALUES (20450, 'BODYBUILDING', 1, NULL, 'BUSY')") }
+        assertEquals(true, second.isFailure)
+        assertEquals(listOf("PAIN"), strings(db, "SELECT reason FROM skips WHERE mode = 'BODYBUILDING'"))
+        db.close()
+    }
+
+    /** The app's own database (not only this helper) carries the 4 to 5 step: a 1.12 phone opens on 1.13 with its data. */
+    @Test
+    fun appDatabase_opensAVersion4File() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        context.deleteDatabase(APP_DB)
+        helper.createDatabase(APP_DB, 4).use { db ->
+            seedMainLifts(db)
+            session(db, 1, 20_400)
+            set(db, 1, 1, 1, 140.0)
+        }
+
+        val app = AppDatabase.build(context)
+        try {
+            val db = app.openHelper.writableDatabase
+            assertEquals(5, db.version)
+            assertEquals(listOf(1L to 1L), sets(db))
+            assertEquals(emptyList<Long>(), ids(db, "SELECT id FROM skips"))
+        } finally {
+            app.close()
+            context.deleteDatabase(APP_DB)
+        }
+    }
+
+    /** A version 1 database still reaches version 5 through every upgrade in turn. */
+    @Test
+    fun upgrade1To5_runsEveryStep() {
+        helper.createDatabase(name, 1).use { db ->
+            seedMainLifts(db)
+            session(db, 1, 20_400)
+            set(db, 1, 1, 1, 140.0)
+        }
+
+        val db = helper.runMigrationsAndValidate(name, 5, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+
+        assertEquals(listOf(1L to 1L), sets(db))
+        assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM session"))
+        assertEquals(emptyList<Long>(), ids(db, "SELECT id FROM skips"))
         db.close()
     }
 

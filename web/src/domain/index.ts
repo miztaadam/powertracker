@@ -23,6 +23,7 @@ export {
   JsRatioRange,
   JsSession,
   JsSet,
+  JsSkip,
   JsWeeklyPoint,
 } from './generated/powertracker-domain.mjs'
 

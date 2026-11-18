@@ -1,5 +1,5 @@
 /**
- * Android backup format, version 4: mirrors `BackupFile` and its DTOs in
+ * Android backup format, version 5: mirrors `BackupFile` and its DTOs in
  * app/src/main/kotlin/com/powertracker/data/Backup.kt field for field.
  * Dates are epochDay, weekdays 1–7 (Monday = 1), enums are their Kotlin names.
  */
@@ -9,8 +9,10 @@
  * four settings). Version 1 and 2 files still restore, everything in them on the powerlifting side.
  * 4: check-ins (a top-level `checkIns`) and the advice types MORE_WORK and SWAP. A version 1 to 3 file restores with
  * no check-ins.
+ * 5: 1.13's skipped planned exercises (a top-level `skips`) and the advice type SKIP. A version 1 to 4 file restores
+ * with no skips; an app that reads only version 4 turns a version 5 file away as too new.
  */
-export const BACKUP_VERSION = 4
+export const BACKUP_VERSION = 5
 
 /** The domain's `TrainingMode` names. */
 export { TRAINING_MODES } from '../db/schema'
@@ -18,7 +20,9 @@ export { TRAINING_MODES } from '../db/schema'
 export const CATEGORIES = ['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS', 'VARIATION', 'ACCESSORY'] as const
 export const MAIN_LIFTS = ['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS'] as const
 export const MISS_POINTS = ['FLOOR', 'MID', 'LOCKOUT'] as const
-export const ADVICE_TYPES = ['TARGET', 'STALL', 'DELOAD', 'WEAK_POINT', 'RE_ENTRY', 'MORE_WORK', 'SWAP'] as const
+export const ADVICE_TYPES = ['TARGET', 'STALL', 'DELOAD', 'WEAK_POINT', 'RE_ENTRY', 'MORE_WORK', 'SWAP', 'SKIP'] as const
+/** The domain's `SkipReason` names; a skip with none is "Just skip". */
+export { SKIP_REASONS } from '../db/schema'
 export const ADVICE_STATUSES = ['OPEN', 'APPLIED', 'DISMISSED'] as const
 /** Android's `RestAlert` enum. */
 export const ANDROID_REST_ALERTS = ['VIBRATE', 'SOUND_AND_VIBRATE', 'OFF'] as const
@@ -103,6 +107,13 @@ export type BaselineDto = { exerciseId: number; e1rmKg: number; date: number }
 /** Version 4: one check-in. `lagging` and `growingWell` are `MuscleGroup` names; every other group is on track. */
 export type CheckInDto = { id: number; date: number; lagging: string[]; growingWell: string[] }
 
+/**
+ * Version 5: one skipped planned exercise, as Android's `SkipDto`, in its key order. `mode` and `reason` are names,
+ * `reason` null for "Just skip"; `planItemId` is null once that plan item was deleted. Android has no defaults here:
+ * every key is always written.
+ */
+export type SkipDto = { id: number; date: number; mode: string; exerciseId: number; planItemId: number | null; reason: string | null }
+
 export type BackupFile = {
   version: number
   exportedAt: number
@@ -115,4 +126,6 @@ export type BackupFile = {
   baselines: BaselineDto[]
   /** Version 4; absent from an older file, which means none. The parser fills it in. */
   checkIns: CheckInDto[]
+  /** Version 5; absent from an older file, which means none. The parser fills it in. */
+  skips: SkipDto[]
 }

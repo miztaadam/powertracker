@@ -11,6 +11,51 @@
   text-overflow: ellipsis;
 }
 
+/*
+ * An exercise's name on Today (1.13): never cut short, also with the row menu beside it. It wraps at a space (or after a
+ * hyphen, as any text does), never inside a word, as on Android.
+ */
+.today-name {
+  min-width: 0;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
+}
+
+/*
+ * A name and what goes with it (the plan, a count), as Android's WrappingPair: side by side when the name fits whole, the
+ * second part at the end; else the second part on a line below, at the start.
+ */
+.today-pair {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-4);
+  row-gap: var(--space-1);
+}
+
+/* As wide as the name to decide the wrap, then the rest of the line: the suggestion under the name has all of it. */
+.today-pair-first {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.today-pair-second {
+  flex: none;
+}
+
+.today-pair-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* The suggestion under a name is cut to the room the name leaves; it never widens the line itself. */
+.today-plan-suggestion {
+  contain: inline-size;
+}
+
 .today-nowrap {
   white-space: nowrap;
 }
@@ -45,9 +90,18 @@
 
 .today-card-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
 }
+
+/* The open card's title (1.13): beside the pill and the buttons when it fits, else on a line of its own above them. */
+.today-card-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
 
 /*
  * Stretch and squeeze (bodybuilding side): a label column and the line beside it, as the mockup. The hairline above
@@ -178,6 +232,23 @@
   padding-right: var(--space-2);
 }
 
+.gr-card.today-row-card {
+  container-type: inline-size;
+}
+
+.today-row-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+/* A row narrower than this (a small phone with large text) stacks its guide and its menu, so the name keeps its room. */
+@container (max-width: 260px) {
+  .today-row-actions {
+    flex-direction: column;
+  }
+}
+
 .today-row-card .today-row {
   flex: 1;
   width: auto;
@@ -305,5 +376,45 @@
 /* After a switch on a day already trained: the one line saying which side today's session is on. */
 .today-other-side {
   margin: 0;
+  color: var(--text-secondary);
+}
+
+/* Skipping a planned exercise for today (1.13). */
+
+/* The reason sheet: the question, then the four answers, one under another, full width. */
+.today-skip-head {
+  padding: var(--space-6) var(--space-6) var(--space-4);
+}
+
+.today-skip-answers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+/* The quiet line at the end of the list: what was skipped today, each with Bring back. */
+.today-skipped {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--space-2);
+}
+
+.today-skipped-title {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.today-skipped-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.today-skipped-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch);
   color: var(--text-secondary);
 }

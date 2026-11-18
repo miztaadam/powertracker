@@ -9,6 +9,7 @@ import { ChoiceChip } from '../../ui/components/SegmentedChoice'
 import { StatTile } from '../../ui/components/StatTile'
 import { planText, targetHeadline } from './ExerciseCard'
 import { NumberEntryDialog } from './TodayDialogs'
+import { SkipMenu } from './SkipToday'
 import './today.css'
 
 const MAX_BODYWEIGHT_KG = 400
@@ -19,10 +20,14 @@ export type StartSessionCardProps = {
   /** "Wednesday". */
   dayName: string
   onStart: (bodyweightKg: number | null, readiness: number | null) => void
+  /** Opens the reason sheet for a planned row (1.13); left out, there are no row menus. */
+  onSkipToday?: (item: TodayItem) => void
+  /** Everything planned today was skipped (1.13): it is not a day with nothing planned. */
+  allSkipped?: boolean
 }
 
 /** Before the first set: what is planned today, two optional check-in numbers, and Start. */
-export function StartSessionCard({ items, dayName, onStart }: StartSessionCardProps) {
+export function StartSessionCard({ items, dayName, onStart, onSkipToday, allSkipped = false }: StartSessionCardProps) {
   const [bodyweight, setBodyweight] = useState<number | null>(null)
   const [readiness, setReadiness] = useState<number | null>(null)
   const [typingBodyweight, setTypingBodyweight] = useState(false)
@@ -30,26 +35,33 @@ export function StartSessionCard({ items, dayName, onStart }: StartSessionCardPr
   return (
     <Card>
       <div>
-        <Eyebrow text={items.length === 0 ? 'Nothing planned' : `${dayName} · ${items.length} ${items.length === 1 ? 'exercise' : 'exercises'}`} />
+        <Eyebrow text={items.length === 0 && !allSkipped ? 'Nothing planned' : `${dayName} · ${items.length} ${items.length === 1 ? 'exercise' : 'exercises'}`} />
         <h2 className="headline-medium">Ready to train?</h2>
       </div>
 
+      {/* With everything skipped there is no list and no "nothing in your plan": the skipped line follows the card. */}
       {items.length === 0 ? (
-        <p className="today-secondary body-medium">There is nothing in your plan for {dayName}. You can still start a session and add exercises as you go.</p>
+        !allSkipped && <p className="today-secondary body-medium">There is nothing in your plan for {dayName}. You can still start a session and add exercises as you go.</p>
       ) : (
         <ul className="today-plan">
           {items.map((item) => (
             <li key={item.exercise.id} className="today-plan-line">
-              <div className="today-grow">
-                <p className="today-ellipsis title-medium">{item.exercise.name}</p>
-                {item.suggestion && (
-                  <p className="today-plan-suggestion body-small">
-                    <BoltIcon size={14} />
-                    <span className="today-ellipsis">Coach suggests {targetHeadline(item.suggestion.target)}</span>
+              {/* The plan goes under the name when both do not fit beside the menu: the name is never cut short. */}
+              <div className="today-grow today-pair">
+                <div className="today-pair-first">
+                  <p className="today-name title-medium">
+                    {item.exercise.name}
                   </p>
-                )}
+                  {item.suggestion && (
+                    <p className="today-plan-suggestion body-small">
+                      <BoltIcon size={14} />
+                      <span className="today-ellipsis">Coach suggests {targetHeadline(item.suggestion.target)}</span>
+                    </p>
+                  )}
+                </div>
+                {item.planned && <span className="today-pair-second today-nowrap headline-small">{planText(item.planned)}</span>}
               </div>
-              {item.planned && <span className="today-nowrap headline-small">{planText(item.planned)}</span>}
+              {onSkipToday && item.planned && item.sets.length === 0 && <SkipMenu name={item.exercise.name} onSkipToday={() => onSkipToday(item)} />}
             </li>
           ))}
         </ul>
@@ -102,7 +114,9 @@ export type SummaryCardProps = { summary: FinishSummary; onOpenCoach: () => void
 
 /** After Finish: what was logged and whether the coach has something new to say. */
 export function SummaryCard({ summary, onOpenCoach, onKeepLogging }: SummaryCardProps) {
-  const notes = summary.newNotes === 0 ? 'No new coach notes' : summary.newNotes === 1 ? '1 new coach note' : `${summary.newNotes} new coach notes`
+  const notes =
+    (summary.newNotes === 0 ? 'No new coach notes' : summary.newNotes === 1 ? '1 new coach note' : `${summary.newNotes} new coach notes`) +
+    (summary.skipped != null && summary.skipped >= 1 ? `, ${summary.skipped} skipped` : '')
   return (
     <Card>
       <div className="today-summary-head">

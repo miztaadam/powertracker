@@ -116,6 +116,7 @@ fun CoachContent(
                 when (val detail = card.detail) {
                     is CardDetail.MoreWork -> MoreWorkCard(card.advice, detail.payload, { onApply(id) }, { onDismiss(id) }, slidingItem())
                     is CardDetail.Swap -> SwapCard(card.advice, detail.payload, { onSwap(id, it) }, { onDismiss(id) }, slidingItem())
+                    is CardDetail.Skip -> SkipCard(card.advice, detail.payload, { onSwap(id, it) }, { onDismiss(id) }, slidingItem())
                     else -> CoachAdviceCard(card, onApply = { onApply(id) }, onDismiss = { onDismiss(id) }, slidingItem())
                 }
             }

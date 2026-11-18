@@ -14,8 +14,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +42,7 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.coach.WelcomeBackCard
 import com.powertracker.platform.systemToday
@@ -86,6 +89,10 @@ class TodayActions(
     val onAddFromCatalogue: (name: String) -> Long? = { null },
     val onCreateExercise: (name: String, Category, parentLift: MainLift?, muscles: List<String>, onFailed: () -> Unit, onCreated: (Long) -> Unit) -> Unit = { _, _, _, _, _, _ -> },
     val onRemoveExercise: (exerciseId: Long) -> Unit = {},
+    /** Skips a planned exercise for today, with the reason picked in the sheet (null for "Just skip"). */
+    val onSkip: (exerciseId: Long, planItemId: Long?, reason: SkipReason?) -> Unit = { _, _, _ -> },
+    /** Bring back on the "Skipped today" line. */
+    val onBringBack: (exerciseId: Long) -> Unit = {},
     val onFinish: () -> Unit = {},
     val onKeepLogging: () -> Unit = {},
     val onOpenCoach: () -> Unit = {},
@@ -129,6 +136,15 @@ fun TodayScreen(
                     snackbar.currentSnackbarData?.dismiss()
                     launch { snackbar.showSnackbar(SAVE_FAILED) }
                 }
+                // A skip ticks once it is stored, and Undo stays on offer for the snackbar's usual time.
+                is TodayEvent.Skipped -> {
+                    haptics.tick()
+                    snackbar.currentSnackbarData?.dismiss()
+                    launch {
+                        val result = snackbar.showSnackbar(skippedMessage(event.name), actionLabel = UNDO, duration = SnackbarDuration.Short)
+                        if (result == SnackbarResult.ActionPerformed) viewModel.undoSkip(event.skipId)
+                    }
+                }
             }
         }
     }
@@ -156,6 +172,8 @@ fun TodayScreen(
             onAddFromCatalogue = viewModel::addFromCatalogue,
             onCreateExercise = viewModel::createExercise,
             onRemoveExercise = viewModel::removeExercise,
+            onSkip = viewModel::skip,
+            onBringBack = viewModel::bringBack,
             onFinish = viewModel::finishSession,
             onKeepLogging = viewModel::dismissSummary,
             onOpenCoach = { openCoach() },
@@ -206,6 +224,8 @@ fun TodayContent(
     val inSession = state.inSession
     var activeId by rememberSaveable { mutableStateOf<Long?>(null) }
     var picking by rememberSaveable { mutableStateOf(false) }
+    // The exercise whose reason sheet is open; kept across recreation, so the question is still there.
+    var skippingId by rememberSaveable { mutableStateOf<Long?>(null) }
     // Adding an exercise from the picker ticks, once it is added.
     val haptics = rememberHaptics()
     // Read when called, from the session as last drawn (before the add).
@@ -274,8 +294,17 @@ fun TodayContent(
                 state.summary != null -> item(key = "summary") {
                     SummaryCard(state.summary, onOpenCoach = actions.onOpenCoach, onKeepLogging = actions.onKeepLogging)
                 }
-                state.sessionId == null -> item(key = "start") {
-                    StartSessionCard(items, state.date.dayOfWeek.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()), actions.onStartSession)
+                state.sessionId == null -> {
+                    item(key = "start") {
+                        StartSessionCard(
+                            items, state.date.dayOfWeek.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()), actions.onStartSession,
+                            onSkipToday = { skippingId = it.exercise.id },
+                            allSkipped = items.isEmpty() && state.skippedToday.isNotEmpty(),
+                        )
+                    }
+                    if (state.skippedToday.isNotEmpty()) {
+                        item(key = "skipped-today") { SkippedTodayLine(state.skippedToday, actions.onBringBack) }
+                    }
                 }
                 else -> {
                     // The list's items in order, for sliding them only when one is added, removed or moved.
@@ -286,7 +315,12 @@ fun TodayContent(
                         val exercise = @Composable {
                             SlidingSwap(
                                 opened = item === active,
-                                row = { rowModifier -> ExerciseRow(item, onClick = { activeId = item.exercise.id }, modifier = rowModifier) },
+                                row = { rowModifier ->
+                                    ExerciseRow(
+                                        item, onClick = { activeId = item.exercise.id }, modifier = rowModifier,
+                                        onSkipToday = if (item.canSkip) ({ skippingId = item.exercise.id }) else null,
+                                    )
+                                },
                                 card = { content ->
                                     val upNext = (items.drop(i + 1) + items.take(i)).firstOrNull { it.hasWorkLeft() }
                                     val next = if (upNext != null) {
@@ -298,6 +332,7 @@ fun TodayContent(
                                         item, i + 1, items.size, state.weightStepKg, state.changePlates, next, actions,
                                         bodybuilding = state.mode == TrainingMode.BODYBUILDING,
                                         slidingContent = content,
+                                        onSkipToday = if (item.canSkip) ({ skippingId = item.exercise.id }) else null,
                                     )
                                 },
                             )
@@ -312,12 +347,32 @@ fun TodayContent(
                     item(key = "add") {
                         SecondaryButton("Add exercise", { picking = true }, slidingListItem(keys).fillMaxWidth(), icon = Icons.Filled.Add)
                     }
+                    if (state.skippedToday.isNotEmpty()) {
+                        item(key = "skipped-today") { SkippedTodayLine(state.skippedToday, actions.onBringBack) }
+                    }
                 }
             }
         }
     }
 
     state.pending?.let { TypoDialog(it, onConfirm = actions.onConfirmPending, onEdit = actions.onEditPending) }
+
+    // The reason sheet: an answer skips the exercise; back or a tap outside cancels and stores nothing. It closes by
+    // itself if the row can no longer be skipped (a set was logged meanwhile, or it left the plan).
+    val skipping = skippingId?.let { id -> items.firstOrNull { it.exercise.id == id } }
+    if (skippingId != null && !state.loading && (skipping == null || !skipping.canSkip)) {
+        LaunchedEffect(skippingId) { skippingId = null }
+    }
+    if (skipping != null && skipping.canSkip) {
+        SkipReasonSheet(
+            skipping.exercise.name,
+            onReason = { reason ->
+                skippingId = null
+                actions.onSkip(skipping.exercise.id, skipping.planned?.id, reason)
+            },
+            onDismiss = { skippingId = null },
+        )
+    }
 
     // Failed creates from the picker's "Create your own": its form stays open with what was typed, and says so.
     var createFailures by remember { mutableIntStateOf(0) }

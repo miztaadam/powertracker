@@ -4,8 +4,10 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.powertracker.domain.model.AdviceStatus
+import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
@@ -53,7 +55,19 @@ interface PlanDao {
     /** One side's plan: the other side's rows are never read here. */
     @Query("SELECT * FROM plan_item WHERE mode = :mode ORDER BY weekday, sortOrder, id")
     fun observeSide(mode: TrainingMode): Flow<List<PlanItemEntity>>
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun upsert(p: PlanItemEntity): Long
+    /**
+     * Inserts a new item (id 0, or an id not stored yet) or updates the stored one in place, and returns its id. Not
+     * REPLACE: that deletes the row first, which would set its skips' `planItemId` to null on every edit (version 5).
+     */
+    @Transaction
+    suspend fun upsert(p: PlanItemEntity): Long {
+        val id = insertOrIgnore(p)
+        if (id != -1L) return id
+        update(p)
+        return p.id
+    }
+    @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun insertOrIgnore(p: PlanItemEntity): Long
+    @Update suspend fun update(p: PlanItemEntity)
     @Query("DELETE FROM plan_item WHERE id = :id") suspend fun delete(id: Long)
     @Query("SELECT * FROM plan_item ORDER BY id") suspend fun all(): List<PlanItemEntity>
     @Insert suspend fun insertAll(p: List<PlanItemEntity>)
@@ -70,6 +84,26 @@ interface AdviceDao {
     @Insert suspend fun insert(a: List<AdviceEntity>)
     @Query("DELETE FROM advice") suspend fun clear()
     @Query("UPDATE advice SET status = :status WHERE id = :id") suspend fun setStatus(id: Long, status: AdviceStatus)
+    /** [type]'s OPEN advice, both sides', made on [createdAt]; the payloads are matched in Kotlin, never with LIKE. */
+    @Query("SELECT * FROM advice WHERE type = :type AND status = 'OPEN' AND createdAt = :createdAt ORDER BY id")
+    suspend fun openOf(type: AdviceType, createdAt: LocalDate): List<AdviceEntity>
+    @Query("SELECT * FROM advice WHERE type = :type AND status = 'OPEN' ORDER BY id")
+    suspend fun openOf(type: AdviceType): List<AdviceEntity>
+    @Query("DELETE FROM advice WHERE id IN (:ids)") suspend fun delete(ids: List<Long>)
+}
+
+@Dao
+interface SkipDao {
+    @Query("SELECT * FROM skips ORDER BY date, id") fun observeAll(): Flow<List<SkipEntity>>
+    @Query("SELECT * FROM skips WHERE date = :date AND mode = :mode AND exerciseId = :exerciseId")
+    suspend fun find(date: LocalDate, mode: TrainingMode, exerciseId: Long): SkipEntity?
+    @Query("SELECT * FROM skips WHERE id = :id") suspend fun byId(id: Long): SkipEntity?
+    @Insert suspend fun insert(s: SkipEntity): Long
+    @Update suspend fun update(s: SkipEntity)
+    @Query("DELETE FROM skips WHERE id = :id") suspend fun delete(id: Long)
+    @Query("SELECT * FROM skips ORDER BY id") suspend fun all(): List<SkipEntity>
+    @Insert suspend fun insertAll(s: List<SkipEntity>)
+    @Query("DELETE FROM skips") suspend fun clear()
 }
 
 @Dao

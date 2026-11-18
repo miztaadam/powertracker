@@ -36,7 +36,7 @@ test('backupRoundTrip: export, clear site data, import, same data', async ({ pag
   expect(file.suggestedFilename()).toBe('grit-backup-2026-11-11.json')
   await expect(page.getByText('Backup saved.')).toBeVisible()
   const path = await file.path()
-  expect(JSON.parse(readFileSync(path, 'utf8')).version).toBe(4)
+  expect(JSON.parse(readFileSync(path, 'utf8')).version).toBe(5)
 
   // Site data cleared, as Safari does after weeks unused: the log is gone.
   const cdp = await context.newCDPSession(page)

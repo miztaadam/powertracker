@@ -59,6 +59,24 @@ object ProgressionRule {
         )
     }
 
+    /**
+     * [target] (progression's own) while a pain skip holds the exercise ([SkipCoach.held]): the hold blocks increases
+     * only. The held aim is the last top set's weight, and its reps when they were above the plan's (reps added by
+     * progression), else the planned reps. A target above that aim (more weight, or more reps at the same weight) is
+     * replaced by it; a decrease or a repeat is kept as it is.
+     */
+    fun held(target: Advice, item: PlanItem, stats: HistoryStats, today: LocalDate): Advice {
+        val (_, last) = stats.lastTopSet(item.exerciseId, today) ?: return target
+        val payload = target.payload as AdvicePayload.Target
+        val reps = maxOf(item.reps, last.reps)
+        val increase = payload.weightKg > last.weightKg || (payload.weightKg == last.weightKg && payload.reps > reps)
+        if (!increase) return target
+        return target.copy(
+            reason = describe(last, last.weightKg, reps, item.targetRpe),
+            payload = payload.copy(weightKg = last.weightKg, reps = reps),
+        )
+    }
+
     /** Accessories, and anything logged below the empty bar, are not loaded on a barbell: no bar floor. */
     internal fun isFreeLoad(exercise: Exercise, lastKg: Double): Boolean =
         exercise.category == Category.ACCESSORY || lastKg < PlateLoader.BAR_KG

@@ -9,6 +9,7 @@ import com.powertracker.data.db.ExerciseEntity
 import com.powertracker.data.db.PlanItemEntity
 import com.powertracker.data.db.SessionEntity
 import com.powertracker.data.db.SetEntity
+import com.powertracker.data.db.SkipEntity
 import com.powertracker.data.db.StrictPressUpgrade
 import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
@@ -17,6 +18,7 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.CheckIn
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.DayOfWeek
@@ -147,6 +149,19 @@ data class CheckInDto(val id: Long, val date: Long, val lagging: List<String>, v
     }
 }
 
+/**
+ * Version 5 (1.13): a skipped planned exercise. [date] is an epochDay; [mode], [reason] are names ([reason] null for
+ * "Just skip"); [planItemId] is null once that plan item was deleted.
+ */
+@Serializable
+data class SkipDto(val id: Long, val date: Long, val mode: String, val exerciseId: Long, val planItemId: Long?, val reason: String?) {
+    fun toEntity() = SkipEntity(id, LocalDate.fromEpochDays(date), TrainingMode.valueOf(mode), exerciseId, planItemId, reason?.let(SkipReason::valueOf))
+
+    companion object {
+        fun of(e: SkipEntity) = SkipDto(e.id, e.date.toEpochDays(), e.mode.name, e.exerciseId, e.planItemId, e.reason?.name)
+    }
+}
+
 @Serializable
 data class BackupFile(
     val version: Int,
@@ -160,6 +175,8 @@ data class BackupFile(
     val baselines: List<BaselineDto>,
     /** Version 4. An older file has none, which means no check-ins. */
     val checkIns: List<CheckInDto> = emptyList(),
+    /** Version 5. An older file has none, which means no skips. */
+    val skips: List<SkipDto> = emptyList(),
 )
 
 sealed interface BackupResult {
@@ -176,8 +193,10 @@ object Backup {
      * only version 2 turns a version 3 file away as too new, so both apps must be updated together.
      * 4: stage 3's bodybuilding check-ins (`checkIns`) and the MORE_WORK and SWAP advice. A version 3 file restores
      * with no check-ins.
+     * 5: 1.13's skipped planned exercises (`skips`) and the SKIP advice. A version 4 file restores with no skips; an app
+     * that reads only version 4 turns a version 5 file away as too new.
      */
-    const val VERSION = 4
+    const val VERSION = 5
 
     private val strict = Json { ignoreUnknownKeys = false }
     private val writer = Json { encodeDefaults = true }
@@ -217,6 +236,11 @@ object Backup {
             file.checkIns.forEach { it.toEntity() }
             // One check-in per date, as the database keeps them.
             if (file.checkIns.map { it.date }.toSet().size != file.checkIns.size) return BackupResult.Corrupt("Two check-ins on one date")
+            file.skips.forEach { it.toEntity() }
+            // One skip per exercise, date and side, as the database keeps them.
+            if (file.skips.map { Triple(it.date, it.mode, it.exerciseId) }.toSet().size != file.skips.size) {
+                return BackupResult.Corrupt("Two skips of one exercise on one date and side")
+            }
             file.settings.toAppSettings()
             return BackupResult.Ok(file)
         } catch (e: SerializationException) {
@@ -253,6 +277,7 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
                 },
                 baselines = db.baselines().all().map { BaselineDto(it.exerciseId, it.e1rmKg, it.date.toEpochDays()) },
                 checkIns = db.checkIns().all().map(CheckInDto::of),
+                skips = db.skips().all().map(SkipDto::of),
             )
         }
     }
@@ -261,7 +286,8 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
      * Replaces all data in one transaction; any failure rolls back and leaves existing data untouched. A version-1 file
      * gets the strict press upgrade on the way in, as the database got [com.powertracker.data.db.MIGRATION_1_2]. A
      * version 1 or 2 file has no sides: every row in it takes the powerlifting default, as the database got
-     * [com.powertracker.data.db.MIGRATION_2_3]. A file before version 4 has no check-ins, so none are kept.
+     * [com.powertracker.data.db.MIGRATION_2_3]. A file before version 4 has no check-ins, and one before version 5 no
+     * skips, so none are kept.
      */
     suspend fun restore(file: BackupFile) {
         // Map everything first so any bad file content fails before a single row is deleted.
@@ -273,8 +299,10 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
         val advice = file.advice.map { it.toEntity() }
         val baselines = file.baselines.map { it.toEntity() }
         val checkIns = file.checkIns.map { it.toEntity() }
+        val skips = file.skips.map { it.toEntity() }
         val newSettings = file.settings.toAppSettings()
         db.withTransaction {
+            db.skips().clear()
             db.sets().clear()
             db.checkIns().clear()
             db.advice().clear()
@@ -289,6 +317,7 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
             db.advice().insert(advice)
             db.baselines().insertAll(baselines)
             db.checkIns().insertAll(checkIns)
+            db.skips().insertAll(skips)
         }
         settings.update { newSettings }
     }

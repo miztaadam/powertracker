@@ -14,6 +14,8 @@ import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.Skip
+import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.coach.AccessoryOption
@@ -112,6 +114,20 @@ data class JsAdvice(
     val mode: String = "POWERLIFTING",
 )
 
+/**
+ * A skipped planned exercise: [date] ISO, [mode] a `TrainingMode` name, [planItemId] null once its plan item is
+ * deleted, [reason] a `SkipReason` name ("BUSY", "PAIN", "TIME") or null for no reason.
+ */
+@JsExport
+data class JsSkip(
+    val id: Int,
+    val date: String,
+    val mode: String,
+    val exerciseId: Int,
+    val planItemId: Int?,
+    val reason: String?,
+)
+
 @JsExport
 data class JsHistory(
     val sessions: Array<JsSession>,
@@ -156,10 +172,11 @@ data class JsSetAddition(val weekday: Int, val exerciseId: Int, val name: String
 data class JsNewExercise(val weekday: Int, val name: String, val sets: Int, val repsLow: Int, val repsHigh: Int, val rpe: Double)
 
 /**
- * A decoded `AdvicePayload`. [kind] is "Target", "Accessories", "Deload", "WeakPoint", "ReEntry", "MoreWork" or
- * "Swap"; only the fields of that kind are set, with Android's defaults where the JSON leaves one out.
+ * A decoded `AdvicePayload`. [kind] is "Target", "Accessories", "Deload", "WeakPoint", "ReEntry", "MoreWork",
+ * "Swap" or "Skipped"; only the fields of that kind are set, with Android's defaults where the JSON leaves one out.
  * MoreWork: [group], [addSets] or [newExercise], [weeklyBefore], [weeklyAfter]. Swap: [exerciseId], [name], [group],
- * [since] (ISO date), [alternatives].
+ * [since] (ISO date), [alternatives]. Skipped: [skipId], [exerciseId], [name], [skipReason] (a `SkipReason` name, or
+ * null for no reason), [alternatives] (empty for a main lift, or when only the hold is said).
  */
 @JsExport
 data class JsAdvicePayload(
@@ -187,6 +204,10 @@ data class JsAdvicePayload(
     val name: String? = null,
     val since: String? = null,
     val alternatives: Array<String> = emptyArray(),
+    /** Skipped: the skip the card answers. */
+    val skipId: Int? = null,
+    /** Skipped: a `SkipReason` name, or null when the skip gave no reason. */
+    val skipReason: String? = null,
 )
 
 /**
@@ -415,6 +436,11 @@ internal inline fun <reified T : AdvicePayload> payloadOf(field: String, payload
     return payload as? T ?: throw IllegalArgumentException("$field: a ${payload::class.simpleName}, not a ${T::class.simpleName}")
 }
 
+internal fun JsSkip.toDomain() = Skip(
+    id.toLong(), parseDate("skip.date", date), parseEnum<TrainingMode>("skip.mode", mode), exerciseId.toLong(),
+    planItemId?.toLong(), reason?.let { parseEnum<SkipReason>("skip.reason", it) },
+)
+
 internal fun JsBaseline.toDomain() = Baseline(exerciseId.toLong(), e1rmKg, parseDate("baseline.date", date))
 
 internal fun JsHistory.toDomain() = TrainingHistory(
@@ -526,6 +552,11 @@ internal fun decodePayload(payloadJson: String): JsAdvicePayload? {
         is AdvicePayload.Swap -> JsAdvicePayload(
             "Swap", exerciseId = payload.exerciseId.toFacadeId("payload.exerciseId"), group = payload.group.name,
             name = payload.name, since = payload.since.toString(), alternatives = payload.alternatives.toTypedArray(),
+        )
+        is AdvicePayload.Skipped -> JsAdvicePayload(
+            "Skipped", exerciseId = payload.exerciseId.toFacadeId("payload.exerciseId"), name = payload.name,
+            alternatives = payload.alternatives.toTypedArray(), skipId = payload.skipId.toFacadeId("payload.skipId"),
+            skipReason = payload.reason?.name,
         )
     }
 }

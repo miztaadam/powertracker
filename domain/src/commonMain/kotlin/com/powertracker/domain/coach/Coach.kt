@@ -9,6 +9,7 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.on
@@ -107,6 +108,10 @@ object Coach {
      * loads are capped against the top set from before that advice (and, for a deload, sets reduced). On the
      * first day back after a gap of 14 days or more, re-entry applies even before any RE_ENTRY advice exists.
      * After time on the bodybuilding side, [ReturnRule] eases each exercise's first target back first.
+     * An exercise held by a pain skip in [skips] ([SkipCoach.held]) gets no increase: where progression would add
+     * weight, or a rep at the same weight, the target repeats its latest top set instead ([ProgressionRule.held]); a
+     * decrease still applies. The
+     * return rule and the clamps still apply after that.
      * Does not dedupe against prior TARGET advice: the app does that.
      */
     fun targetsFor(
@@ -116,6 +121,7 @@ object Coach {
         settings: CoachSettings,
         today: LocalDate,
         priorAdvice: List<Advice>,
+        skips: List<Skip> = emptyList(),
     ): List<Advice> {
         val all = HistoryStats(history)
         val stats = powerliftingStats(history, all)
@@ -128,7 +134,8 @@ object Coach {
             val exercise = history.exercises[item.exerciseId]?.takeUnless { it.archived } ?: return@mapNotNull null
             val lift = exercise.mainLift
             if (lift != null && !hasMinimumHistory(lift, stats, history)) return@mapNotNull null
-            val target = ProgressionRule.target(item, exercise, stats, settings, today) ?: return@mapNotNull null
+            val free = ProgressionRule.target(item, exercise, stats, settings, today) ?: return@mapNotNull null
+            val target = if (SkipCoach.held(item.exerciseId, skips, history, today)) ProgressionRule.held(free, item, stats, today) else free
             val eased = ReturnRule.ease(target, item, exercise, history, TrainingMode.POWERLIFTING, settings, today)
             clamp(eased, item, exercise, stats, all, settings, today, deload, reEntry)
         }
@@ -155,9 +162,12 @@ object Coach {
         stats.sessionCount(lift) >= MIN_SESSIONS ||
             history.baselines.any { b -> history.exercises[b.exerciseId]?.let { it.isMainLift && it.mainLift == lift } == true }
 
-    /** Any non-TARGET advice for [lift] created today − 6 … today, whatever its status. */
+    /**
+     * Any non-TARGET advice for [lift] created today − 6 … today, whatever its status. A SKIP card is not counted: it
+     * answers the lifter's skip, and has its own rails ([SkipCoach]).
+     */
     private fun shownThisWeek(lift: MainLift, prior: List<Advice>, today: LocalDate): Boolean =
-        prior.any { it.type != AdviceType.TARGET && it.lift == lift && withinLastWeek(it.createdAt, today) }
+        prior.any { it.type != AdviceType.TARGET && it.type != AdviceType.SKIP && it.lift == lift && withinLastWeek(it.createdAt, today) }
 
     /**
      * False if the same type + lift is still OPEN (a deload or re-entry only for its first 14 days), or its

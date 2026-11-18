@@ -100,3 +100,19 @@ data class TrainingHistory(
     val exercises: Map<Long, Exercise>,
     val baselines: List<Baseline>,
 )
+
+/** Why a planned exercise was skipped; a skip with no reason ("Just skip") stores null. New values go last: the names are stored. */
+enum class SkipReason { BUSY, PAIN, TIME }
+
+/**
+ * A planned exercise the lifter did not do on [date], on the [mode] side. One per exercise, date and side. It is
+ * never a set: nothing that counts sets reads it. [planItemId] is null once that plan item is deleted.
+ */
+data class Skip(
+    val id: Long,
+    val date: LocalDate,
+    val mode: TrainingMode,
+    val exerciseId: Long,
+    val planItemId: Long?,
+    val reason: SkipReason?,
+)

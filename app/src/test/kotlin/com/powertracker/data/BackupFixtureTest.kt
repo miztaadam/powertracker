@@ -9,6 +9,7 @@ import com.powertracker.data.db.ExerciseEntity
 import com.powertracker.data.db.PlanItemEntity
 import com.powertracker.data.db.SessionEntity
 import com.powertracker.data.db.SetEntity
+import com.powertracker.domain.coach.Coaching
 import com.powertracker.domain.coach.PhysiqueCoach
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.AccessoryPrescription
@@ -21,6 +22,8 @@ import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.NewExercise
 import com.powertracker.domain.model.SetAddition
+import com.powertracker.domain.model.Skip
+import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode
 import java.io.File
 import kotlinx.coroutines.flow.first
@@ -46,10 +49,10 @@ import org.robolectric.RobolectricTestRunner
 
 /**
  * The web app restores the committed Android backup in its own tests, so the file must track what Android really
- * exports: since version 4 that is android-v4.json. Regenerate it with
- * `./gradlew :app:testDebugUnitTest -Pfixtures.update=true`. The version 1 to 3 fixtures are frozen: they are what the
+ * exports: since version 5 (1.13) that is android-v5.json. Regenerate it with
+ * `./gradlew :app:testDebugUnitTest -Pfixtures.update=true`. The version 1 to 4 fixtures are frozen: they are what the
  * previous apps wrote, and must keep restoring (versions 1 and 2 with everything on the powerlifting side, version 3
- * with no check-ins).
+ * with no check-ins, version 4 with no skips).
  *
  * Comparison is semantic (parsed JSON, `exportedAt` ignored): Kotlin/JS prints whole doubles without ".0",
  * so byte equality would be wrong.
@@ -62,7 +65,8 @@ class BackupFixtureTest {
 
     // Gradle runs app tests with the module directory as the working directory.
     private val fixtureDir = File("../web/src/backup/__fixtures__")
-    private val androidFixture = File(fixtureDir, "android-v4.json")
+    private val androidFixture = File(fixtureDir, "android-v5.json")
+    private val androidV4Fixture = File(fixtureDir, "android-v4.json")
     private val androidV3Fixture = File(fixtureDir, "android-v3.json")
     private val androidV2Fixture = File(fixtureDir, "android-v2.json")
     private val androidV1Fixture = File(fixtureDir, "android-v1.json")
@@ -70,6 +74,7 @@ class BackupFixtureTest {
     private val webV2Fixture = File(fixtureDir, "web-v2.json")
     private val webV3Fixture = File(fixtureDir, "web-v3.json")
     private val webV4Fixture = File(fixtureDir, "web-v4.json")
+    private val webV5Fixture = File(fixtureDir, "web-v5.json")
 
     @Before
     fun setUp() {
@@ -181,6 +186,21 @@ class BackupFixtureTest {
                     AdviceStatus.OPEN).copy(mode = TrainingMode.BODYBUILDING, createdAt = LocalDate(2026, 11, 2)),
             ),
         )
+
+        // Version 5: skips on both sides. Today's pain skip of the lateral raise carries the card the coach really gives
+        // for it; a skip with no reason, and last week's busy skip of bench, whose plan item has since gone.
+        val day = LocalDate(2026, 11, 4)
+        val items = db.plan().all()
+        val raiseItem = items.single { it.exerciseId == raise }.id
+        val squatItem = items.single { it.exerciseId == squat && it.mode == TrainingMode.POWERLIFTING }.id
+        val history = training.history().first()
+        val plans = training.plan(TrainingMode.BODYBUILDING).first() + training.plan(TrainingMode.POWERLIFTING).first()
+        val prior = AdviceRepository(db).all()
+        training.skip(Skip(0, day, TrainingMode.BODYBUILDING, raise, raiseItem, SkipReason.PAIN)) { stored, all ->
+            Coaching.afterSkip(stored, all, history, plans, day, prior).also { check(it.size == 1) }
+        }
+        training.skip(Skip(0, day, TrainingMode.POWERLIFTING, squat, squatItem, null)) { _, _ -> emptyList() }
+        training.skip(Skip(0, LocalDate(2026, 10, 28), TrainingMode.POWERLIFTING, bench, null, SkipReason.BUSY)) { _, _ -> emptyList() }
     }
 
     private fun tree(text: String): JsonElement = Json.parseToJsonElement(text)
@@ -218,7 +238,7 @@ class BackupFixtureTest {
     @Test
     fun androidFixture_holdsBothSides() {
         val root = tree(androidFixture.readText()) as JsonObject
-        assertEquals(JsonPrimitive(4), root.getValue("version"))
+        assertEquals(JsonPrimitive(5), root.getValue("version"))
         for (list in listOf("planItems", "sessions", "advice")) {
             val modes = (root.getValue(list) as JsonArray).map { ((it as JsonObject).getValue("mode") as JsonPrimitive).content }.toSet()
             assertEquals(list, setOf("POWERLIFTING", "BODYBUILDING"), modes)
@@ -232,6 +252,32 @@ class BackupFixtureTest {
         assertEquals(2, (root.getValue("checkIns") as JsonArray).size)
         val types = (root.getValue("advice") as JsonArray).map { ((it as JsonObject).getValue("type") as JsonPrimitive).content }
         assertTrue(types.containsAll(listOf("MORE_WORK", "SWAP")))
+    }
+
+    /** 1.13: the committed fixture holds skips on both sides, every reason form and a skip card, so the web app's restore covers them. */
+    @Test
+    fun androidFixture_holdsSkipsAndASkipCard() {
+        val root = tree(androidFixture.readText()) as JsonObject
+        val skips = (root.getValue("skips") as JsonArray).map { it as JsonObject }
+        assertEquals(3, skips.size)
+        assertEquals(setOf("POWERLIFTING", "BODYBUILDING"), skips.map { (it.getValue("mode") as JsonPrimitive).content }.toSet())
+        assertEquals(setOf(JsonPrimitive("PAIN"), JsonNull, JsonPrimitive("BUSY")), skips.map { it.getValue("reason") }.toSet())
+        assertTrue(skips.any { it.getValue("planItemId") == JsonNull })
+        val card = (root.getValue("advice") as JsonArray).map { it as JsonObject }.single { (it.getValue("type") as JsonPrimitive).content == "SKIP" }
+        val payload = Json.decodeFromString(AdvicePayload.serializer(), (card.getValue("payload") as JsonPrimitive).content) as AdvicePayload.Skipped
+        assertEquals(skips.first { it.getValue("reason") == JsonPrimitive("PAIN") }.getValue("id"), JsonPrimitive(payload.skipId))
+    }
+
+    /** 1.13: the 1.12 Android backup (version 4) restores exactly, with no skips. */
+    @Test
+    fun androidV4Fixture_restoresWithNoSkips() = runTest {
+        TrainingRepository(db).skip(Skip(0, LocalDate(2026, 11, 4), TrainingMode.POWERLIFTING, 1, null, null)) { _, _ -> emptyList() }
+
+        val actual = restoreAndExport(androidV4Fixture)
+
+        assertEquals(asUpgradedV4(tree(androidV4Fixture.readText())), actual)
+        assertTrue(db.skips().all().isEmpty())
+        assertEquals(2, db.checkIns().all().size)
     }
 
     /** The version 3 Android backup restores exactly, with no check-ins. */
@@ -250,7 +296,7 @@ class BackupFixtureTest {
         val fixture = tree(webV4Fixture.readText()) as JsonObject
         assertEquals(JsonPrimitive(4), fixture.getValue("version"))
         val actual = restoreAndExport(webV4Fixture)
-        assertEquals(withoutExportedAt(fixture), actual)
+        assertEquals(asUpgradedV4(fixture), actual)
         val checkIns = TrainingRepository(db).checkIns().first()
         assertEquals((fixture.getValue("checkIns") as JsonArray).size, checkIns.size)
         assertTrue(checkIns.any { it.lagging.isNotEmpty() || it.growingWell.isNotEmpty() })
@@ -261,6 +307,24 @@ class BackupFixtureTest {
             .map { Json.decodeFromString(AdvicePayload.serializer(), it.payload) }
         assertTrue(payloads.any { it is AdvicePayload.MoreWork })
         assertTrue(payloads.any { it is AdvicePayload.Swap })
+    }
+
+    /** 1.13: the web app's version 5 backup restores exactly, its skips and its SKIP card with it. */
+    @Test
+    fun webV5Fixture_restoresOnAndroid_withItsSkips() = runTest {
+        assertTrue("Missing ${webV5Fixture.path}; the web app writes it", webV5Fixture.exists())
+        val fixture = tree(webV5Fixture.readText()) as JsonObject
+        assertEquals(JsonPrimitive(5), fixture.getValue("version"))
+        val actual = restoreAndExport(webV5Fixture)
+        assertEquals(withoutExportedAt(fixture), actual)
+        val skips = TrainingRepository(db).skips().first()
+        assertEquals((fixture.getValue("skips") as JsonArray).size, skips.size)
+        assertTrue(skips.isNotEmpty())
+        val cards = db.advice().all().filter { it.type == AdviceType.SKIP }
+            .map { Json.decodeFromString(AdvicePayload.serializer(), it.payload) as AdvicePayload.Skipped }
+        assertTrue(cards.isNotEmpty())
+        // Each card belongs to a restored skip of the same exercise.
+        for (card in cards) assertEquals(card.exerciseId, skips.single { it.id == card.skipId }.exerciseId)
     }
 
     /** An Android version 1 backup restores, and exports again as the current version with the strict press switch off. */
@@ -383,7 +447,16 @@ class BackupFixtureTest {
     private fun asUpgradedV3(v3: JsonElement): JsonElement {
         val root = v3 as JsonObject
         assertEquals(JsonPrimitive(3), root.getValue("version"))
-        return withoutExportedAt(JsonObject(root + mapOf("version" to JsonPrimitive(Backup.VERSION), "checkIns" to JsonArray(emptyList()))))
+        return withoutExportedAt(
+            JsonObject(root + mapOf("version" to JsonPrimitive(Backup.VERSION), "checkIns" to JsonArray(emptyList()), "skips" to JsonArray(emptyList()))),
+        )
+    }
+
+    /** What a version 4 file exports as once restored: the current version, with no skips. */
+    private fun asUpgradedV4(v4: JsonElement): JsonElement {
+        val root = v4 as JsonObject
+        assertEquals(JsonPrimitive(4), root.getValue("version"))
+        return withoutExportedAt(JsonObject(root + mapOf("version" to JsonPrimitive(Backup.VERSION), "skips" to JsonArray(emptyList()))))
     }
 
     private fun withSidesAdded(root: JsonObject): JsonElement {
@@ -403,7 +476,7 @@ class BackupFixtureTest {
                 root + mapOf(
                     "version" to JsonPrimitive(Backup.VERSION), "settings" to settings, "sessions" to stamp("sessions"),
                     "planItems" to stamp("planItems", "repsHigh" to JsonNull), "advice" to stamp("advice"),
-                    "checkIns" to JsonArray(emptyList()),
+                    "checkIns" to JsonArray(emptyList()), "skips" to JsonArray(emptyList()),
                 ),
             ),
         )

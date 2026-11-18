@@ -233,7 +233,7 @@ export function usePlanBuilder(db: GritDb, today: () => string): PlanBuilderStat
     const items = draftItems(draft, ticked.values())
     const chosen = draft.sessions.map((s) => s.day)
     // One transaction: the plan and its days stand or fall together.
-    await db.transaction('rw', db.exercises, db.planItems, db.settings, async () => {
+    await db.transaction('rw', db.exercises, db.planItems, db.skips, db.settings, async () => {
       await replacePlan(db, 'BODYBUILDING', items)
       await updateSettings(db, (s) => ({ ...s, bodybuildingTrainingDays: [...chosen].sort((a, b) => a - b) }))
     })

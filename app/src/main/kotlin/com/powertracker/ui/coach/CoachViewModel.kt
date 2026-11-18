@@ -73,6 +73,9 @@ sealed interface CardDetail {
 
     /** A stuck exercise and the alternatives to swap it for (stage 3, bodybuilding side). */
     data class Swap(val payload: AdvicePayload.Swap) : CardDetail
+
+    /** A skipped planned exercise (1.13): its alternatives to swap it for, or none (Dismiss only), on either side. */
+    data class Skip(val payload: AdvicePayload.Skipped) : CardDetail
 }
 
 data class CoachCard(val advice: Advice, val detail: CardDetail)
@@ -154,6 +157,8 @@ class CoachViewModel(
             // A swap for an exercise no longer in the plan has nothing left to swap.
             is AdvicePayload.Swap -> if (plan.any { it.exerciseId == payload.exerciseId }) CardDetail.Swap(payload) else null
             is AdvicePayload.Target -> null
+            // Likewise a skip card, swap or not, once its exercise has left this side's plan.
+            is AdvicePayload.Skipped -> if (plan.any { it.exerciseId == payload.exerciseId }) CardDetail.Skip(payload) else null
         }
 
     /**
@@ -209,7 +214,7 @@ class CoachViewModel(
                 _messages.send(change.message)
                 return@once
             }
-            is AdvicePayload.Target, is AdvicePayload.Swap -> return@once
+            is AdvicePayload.Target, is AdvicePayload.Swap, is AdvicePayload.Skipped -> return@once
         }
         advice.setStatus(adviceId, AdviceStatus.APPLIED)
         _applied.send(adviceId)
@@ -223,9 +228,13 @@ class CoachViewModel(
      */
     fun swap(adviceId: Long, choice: String) = once(adviceId) {
         val target = advice.open().first().firstOrNull { it.id == adviceId } ?: return@once
-        val payload = target.payload as? AdvicePayload.Swap ?: return@once
-        val plan = training.plan(TrainingMode.BODYBUILDING).first()
-        val change = PhysiqueCoach.applySwap(payload, choice, plan, training.exercises().first().associateBy { it.id })
+        val exercises = training.exercises().first().associateBy { it.id }
+        val change = when (val payload = target.payload) {
+            is AdvicePayload.Swap -> PhysiqueCoach.applySwap(payload, choice, training.plan(TrainingMode.BODYBUILDING).first(), exercises)
+            // A skip card swaps on its own side: the side the exercise was skipped on.
+            is AdvicePayload.Skipped -> Coaching.applySkipSwap(payload, choice, target.mode, training.plan(target.mode).first(), exercises)
+            else -> return@once
+        }
         if (change.changed) {
             training.inTransaction {
                 training.applyPlanChange(change)
@@ -307,6 +316,7 @@ class CoachViewModel(
     companion object {
         private val FEED_ORDER = listOf(
             AdviceType.DELOAD, AdviceType.RE_ENTRY, AdviceType.STALL, AdviceType.WEAK_POINT, AdviceType.MORE_WORK, AdviceType.SWAP,
+            AdviceType.SKIP,
         )
         private const val TREND_WEEKS = 6
         private const val WEAK_POINT_ADDITIONS = 2

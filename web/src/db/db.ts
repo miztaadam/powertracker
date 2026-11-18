@@ -12,6 +12,7 @@ import {
   type SchemaVersion,
   type SessionRow,
   type SetRow,
+  type SkipRow,
 } from './schema'
 import { isQuotaError } from '../platform/storage'
 import { writeSafetyCopy } from './safety'
@@ -74,6 +75,7 @@ export class GritDb extends Dexie {
   settings!: EntityTable<KeyValueRow, 'key'>
   meta!: EntityTable<KeyValueRow, 'key'>
   checkIns!: EntityTable<CheckInRow, 'id'>
+  skips!: EntityTable<SkipRow, 'id'>
 
   constructor(name: string, versions: SchemaVersion[]) {
     super(name)

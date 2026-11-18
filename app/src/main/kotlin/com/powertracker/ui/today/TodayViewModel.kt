@@ -25,6 +25,8 @@ import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.Skip
+import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.forSide
@@ -80,7 +82,11 @@ data class TodayItem(
 /** A set held back because it looks like a typo; saved only after the lifter confirms. */
 data class PendingLog(val planItemId: Long?, val exerciseId: Long, val set: LoggedSet, val warnings: List<InputWarning>)
 
-data class FinishSummary(val setCount: Int, val exerciseCount: Int, val newNotes: Int)
+/** [skipped] is how many exercises were skipped today on the session's side ("Skip today"). */
+data class FinishSummary(val setCount: Int, val exerciseCount: Int, val newNotes: Int, val skipped: Int = 0)
+
+/** A planned exercise skipped today on the side shown, for the "Skipped today" line and its Bring back. */
+data class SkippedToday(val exerciseId: Long, val name: String, val skipId: Long)
 
 data class TodayState(
     val date: LocalDate,
@@ -106,6 +112,8 @@ data class TodayState(
     val sideNote: String? = null,
     /** The welcome-back card for the side the app is on (bodybuilding mode spec §7.7). */
     val welcomeBack: Boolean = false,
+    /** Today's planned exercises skipped on the side shown, in plan order; they are not in [items]. */
+    val skippedToday: List<SkippedToday> = emptyList(),
 ) {
     val pendingWarning: InputWarning? get() = pending?.warnings?.firstOrNull()
 
@@ -139,6 +147,9 @@ sealed interface TodayEvent {
 
     /** A save failed and nothing changed: the screen says so ([com.powertracker.ui.library.SAVE_FAILED]). */
     data object SaveFailed : TodayEvent
+
+    /** A planned exercise was skipped for today and stored as [skipId]: the screen ticks and offers Undo. */
+    data class Skipped(val skipId: Long, val name: String) : TodayEvent
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -168,6 +179,8 @@ class TodayViewModel(
         val targets: List<Advice>,
         val mode: TrainingMode,
         val activeHasPlan: Boolean,
+        /** Every stored skip, both sides': the pain hold crosses sides. */
+        val skips: List<Skip>,
     )
 
     private val local = MutableStateFlow(Local())
@@ -178,6 +191,9 @@ class TodayViewModel(
 
     /** True while [addToOpenSession] is working; further calls are ignored until it has answered. */
     private val addingToSession = MutableStateFlow(false)
+
+    /** True while a skip is being stored; a second Skip today meanwhile (a double tap) is ignored. */
+    private val skipping = MutableStateFlow(false)
 
     private val _coachPasses = MutableStateFlow(0)
 
@@ -211,28 +227,31 @@ class TodayViewModel(
 
     private val stored: Flow<Stored> =
         combine(
-            combine(session, training.history(), plan, ::Triple),
+            combine(session, training.history(), plan, training.skips()) { session, history, plan, skips -> Quad(session, history, plan, skips) },
             settings.settings, targets, mode, activeHasPlan,
-        ) { (session, history, plan), s, targets, mode, hasPlan ->
-            Stored(session.first, session.second, history, plan, s, targets, mode, hasPlan)
+        ) { (session, history, plan, skips), s, targets, mode, hasPlan ->
+            Stored(session.first, session.second, history, plan, s, targets, mode, hasPlan, skips)
         }
+
+    private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
 
     val state: StateFlow<TodayState> = combine(stored, local, ::build)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayState(date))
 
     init {
-        // Ask the coach for today's targets when the screen opens and again if the plan changes.
+        // Ask the coach for today's targets when the screen opens and again if the plan changes, or a skip is stored or
+        // taken back: a pain skip, and taking any skip back, delete that day's target, which is then worked out again.
         viewModelScope.launch {
-            combine(mode, plan, settings.settings) { mode, plan, s -> Triple(mode, plan, s.coach()) }
+            combine(mode, plan, settings.settings, training.skips()) { mode, plan, s, skips -> Quad(mode, plan, s.coach(), skips) }
                 .distinctUntilChanged()
-                .collect { (mode, plan, coach) ->
+                .collect { (mode, plan, coach, skips) ->
                     // A view model kept from an earlier day (the screen keys a new one per day) must not
                     // store targets dated that day any more.
                     if (today() != date) return@collect
                     val prior = advice.all()
                     // Each side has its own targets: one for the other side does not stand in for this one.
                     val known = todaysTargets(prior.forSide(mode)).map { it.exerciseId() }.toSet()
-                    val fresh = Coaching.targetsFor(mode, date.dayOfWeek, training.history().first(), plan, coach, date, prior)
+                    val fresh = Coaching.targetsFor(mode, date.dayOfWeek, training.history().first(), plan, coach, date, prior, skips)
                         .filter { it.exerciseId() !in known }
                         .distinctBy { it.exerciseId() }
                     if (fresh.isNotEmpty()) advice.insert(fresh)
@@ -247,9 +266,12 @@ class TodayViewModel(
     private fun build(d: Stored, l: Local): TodayState {
         val stats = HistoryStats(d.history)
         // One card per exercise: sets are stored per exercise, so a second plan line for the same one merges into the first.
-        val planned = d.plan.filter { it.weekday == date.dayOfWeek }.sortedBy { it.order }.distinctBy { it.exerciseId }
-        val plannedIds = planned.map { it.exerciseId }.toSet()
+        val allPlanned = d.plan.filter { it.weekday == date.dayOfWeek }.sortedBy { it.order }.distinctBy { it.exerciseId }
         val loggedIds = d.sets.map { it.set.exerciseId }.distinct()
+        // A planned exercise skipped today on this side leaves the list, unless sets were logged for it after all.
+        val skippedIds = todaysSkips(d.skips, d.mode).associateBy { it.exerciseId }
+        val planned = allPlanned.filter { it.exerciseId !in skippedIds || it.exerciseId in loggedIds }
+        val plannedIds = planned.map { it.exerciseId }.toSet()
         // A catalogue exercise added without a row gets one with its first set (or from the Plan tab meanwhile).
         val live = d.history.exercises.values.filter { !it.archived }.sortedBy { it.id }
         val resolved = l.added.filter { it < 0 }.mapNotNull { standIn ->
@@ -269,7 +291,7 @@ class TodayViewModel(
             val rpe = plan?.targetRpe ?: d.settings.defaultRpe
             val editor = l.editors[exercise.id] ?: l.editors[standInOf[exercise.id]] ?: when {
                 lastToday != null -> SetEditor(lastToday.weightKg, lastToday.reps, lastToday.rpe ?: rpe)
-                applied != null -> SetEditor(applied.weightKg, appliedReps(applied, plan, d.history, sets.size + 1), applied.rpe)
+                applied != null -> SetEditor(applied.weightKg, appliedReps(applied, plan, d.history, sets.size + 1, d.skips), applied.rpe)
                 else -> SetEditor(top?.weightKg, plan?.reps ?: top?.reps ?: DEFAULT_REPS, rpe)
             }
             return TodayItem(
@@ -286,6 +308,13 @@ class TodayViewModel(
 
         val items = planned.mapNotNull { p -> d.history.exercises[p.exerciseId]?.let { item(it, p) } } +
             addedIds.mapNotNull { id -> (d.history.exercises[id] ?: catalogueEntry(id)?.standIn(id))?.let { item(it, null) } }
+        // Only what is still planned today and not on the list: after a swap there is nothing left to bring back.
+        val shownIds = items.map { it.exercise.id }.toSet()
+        val skippedToday = allPlanned.mapNotNull { p ->
+            val skip = skippedIds[p.exerciseId] ?: return@mapNotNull null
+            if (p.exerciseId in shownIds) return@mapNotNull null
+            d.history.exercises[p.exerciseId]?.let { SkippedToday(it.id, it.name, skip.id) }
+        }
         return TodayState(
             date = date,
             loading = false,
@@ -301,12 +330,19 @@ class TodayViewModel(
             mode = d.mode,
             sideNote = if (d.sessionId != null && d.mode != d.settings.trainingMode) sideNote(d.mode) else null,
             welcomeBack = Coaching.welcomeBack(d.settings.leftOn(d.settings.trainingMode), date, d.activeHasPlan),
+            skippedToday = skippedToday,
         )
     }
 
-    /** The reps a target puts in the field: for a range, the reps to beat for [setNumber]; else the target's. */
-    private fun appliedReps(target: AdvicePayload.Target, plan: PlanItem?, history: TrainingHistory, setNumber: Int): Int =
-        if (target.repsHigh != null && plan != null) BodybuildingCoach.repsToBeat(plan, history, setNumber, date) else target.reps
+    /** The skips dated today on [mode]'s side. */
+    private fun todaysSkips(skips: List<Skip>, mode: TrainingMode) = skips.filter { it.date == date && it.mode == mode }
+
+    /**
+     * The reps a target puts in the field: for a range, the reps to beat for [setNumber]; else the target's. [skips] are
+     * every stored skip: under a pain hold the aim is not reset to the low end of the range.
+     */
+    private fun appliedReps(target: AdvicePayload.Target, plan: PlanItem?, history: TrainingHistory, setNumber: Int, skips: List<Skip>): Int =
+        if (target.repsHigh != null && plan != null) BodybuildingCoach.repsToBeat(plan, history, setNumber, date, skips) else target.reps
 
     private suspend fun loaded(): TodayState = state.first { !it.loading }
 
@@ -406,7 +442,7 @@ class TodayViewModel(
                 val target = item.suggestion ?: return@launch
                 val payload = target.payload as? AdvicePayload.Target ?: return@launch
                 // A range target fills the reps to beat for the set about to be done (bodybuilding mode spec §5.3).
-                val reps = appliedReps(payload, item.planned, training.history().first(), item.sets.size + 1)
+                val reps = appliedReps(payload, item.planned, training.history().first(), item.sets.size + 1, training.skips().first())
                 // Status first: if storing it fails, the editor keeps its numbers and the chip stays.
                 advice.setStatus(adviceId, AdviceStatus.APPLIED)
                 edit(payload.exerciseId, SetEditor(payload.weightKg, reps, payload.rpe))
@@ -426,8 +462,15 @@ class TodayViewModel(
         viewModelScope.launch { advice.setStatus(adviceId, AdviceStatus.DISMISSED) }
     }
 
-    /** Adds an exercise for this session only; it is kept once a set is logged for it. */
+    /**
+     * Adds an exercise for this session only; it is kept once a set is logged for it. One skipped today on this side is
+     * brought back instead ([bringBack]): its skip is taken back and it returns as its planned row.
+     */
     fun addExercise(exerciseId: Long) {
+        if (state.value.skippedToday.any { it.exerciseId == exerciseId }) {
+            bringBack(exerciseId)
+            return
+        }
         local.update { if (exerciseId in it.added) it else it.copy(added = it.added + exerciseId) }
     }
 
@@ -534,8 +577,68 @@ class TodayViewModel(
             )
             if (fresh.isNotEmpty()) advice.insert(fresh)
             val done = now.items.filter { it.sets.isNotEmpty() }
-            local.update { it.copy(summary = FinishSummary(done.sumOf { i -> i.sets.size }, done.size, fresh.size)) }
+            val skipped = todaysSkips(training.skips().first(), now.mode).size
+            local.update { it.copy(summary = FinishSummary(done.sumOf { i -> i.sets.size }, done.size, fresh.size, skipped)) }
         }
+    }
+
+    /**
+     * Skips [exerciseId], planned today with no sets logged, for today on the side shown, with an optional [reason]
+     * ("Just skip" is null). The skip and the coach's card for it, if any ([Coaching.afterSkip]), are stored together;
+     * [events] then sends [TodayEvent.Skipped]. Skipping needs no session. Skipping one already skipped today replaces
+     * its reason and its card. Anything else (sets logged, not planned today, or a skip already being stored) does nothing.
+     */
+    fun skip(exerciseId: Long, planItemId: Long?, reason: SkipReason?) {
+        if (!skipping.compareAndSet(expect = false, update = true)) return
+        viewModelScope.launch {
+            try {
+                val now = loaded()
+                val item = now.items.firstOrNull { it.exercise.id == exerciseId }
+                // A row on the list, planned and with nothing logged; or one skipped already today, whose reason this replaces.
+                val again = now.skippedToday.firstOrNull { it.exerciseId == exerciseId }
+                val name = when {
+                    item != null -> if (item.planned == null || item.sets.isNotEmpty()) return@launch else item.exercise.name
+                    again != null -> again.name
+                    else -> return@launch
+                }
+                val history = training.history().first()
+                val plans = training.plans().first()
+                val skipId = training.skip(Skip(0, date, now.mode, exerciseId, planItemId ?: item?.planned?.id, reason)) { stored, all ->
+                    // The advice is read here, inside the transaction: a re-skip's old card is already gone, so it
+                    // does not hold back the new reason's card.
+                    Coaching.afterSkip(stored, all, history, plans.powerlifting + plans.bodybuilding, date, advice.all())
+                }
+                _events.emit(TodayEvent.Skipped(skipId, name))
+                // Hold the guard until the row has left, so a second tap cannot skip it again.
+                withTimeoutOrNull(SHOWN_TIMEOUT_MS) { state.first { s -> s.items.none { it.exercise.id == exerciseId } } }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A failed write must not crash the app: nothing was stored, and the lifter is told.
+                _events.emit(TodayEvent.SaveFailed)
+            } finally {
+                skipping.value = false
+            }
+        }
+    }
+
+    /** Undo on the snackbar: takes back the skip [skipId] and its still-open card. An answered card stays. */
+    fun undoSkip(skipId: Long) {
+        viewModelScope.launch {
+            try {
+                training.unskip(skipId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _events.emit(TodayEvent.SaveFailed)
+            }
+        }
+    }
+
+    /** Bring back on the "Skipped today" line: takes back today's skip of [exerciseId] on the side shown. */
+    fun bringBack(exerciseId: Long) {
+        val skipId = state.value.skippedToday.firstOrNull { it.exerciseId == exerciseId }?.skipId ?: return
+        undoSkip(skipId)
     }
 
     /**

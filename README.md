@@ -138,6 +138,11 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] With reduce motion on, nothing slides.
 - [ ] Choose Chest, then Barbell, in the picker: Bench is listed.
 - [ ] On Plan, tap Add on a day and pick an exercise: a form opens at 3 × 5 or 3 × 10 (powerlifting) or 3 × 8–12 (bodybuilding). Add stores what you set; Cancel stores nothing.
+- [ ] On Today, skip a planned exercise with no sets (⋮, Skip today) once with each answer: Busy or no equipment, Pain, Out of time and Just skip. It leaves the list and "<name> skipped." shows with Undo. Escape or a tap outside the sheet skips nothing.
+- [ ] Skip one, then tap Undo on the snackbar: it is back in its place.
+- [ ] Skip one, let the snackbar go, then tap Bring back on the "Skipped today" line: it is back in its place.
+- [ ] Skip a main lift (Bench) for Pain: Coach shows its card with Dismiss only. Skip an accessory (Curl) for Pain: its card offers Swap buttons, and a swap changes the plan.
+- [ ] After a pain skip, the next time that exercise is on Today its weight is held: the target does not go up.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
@@ -159,6 +164,11 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] With reduce motion on, nothing slides.
 - [ ] Choose Chest, then Barbell, in the picker: Bench is listed.
 - [ ] On Plan, tap Add on a day and pick an exercise: a form opens at 3 × 5 or 3 × 10 (powerlifting) or 3 × 8–12 (bodybuilding). Add stores what you set; Cancel stores nothing.
+- [ ] On Today, skip a planned exercise with no sets (⋮, Skip today) once with each answer: Busy or no equipment, Pain, Out of time and Just skip. It leaves the list and "<name> skipped." shows with Undo. Escape or a tap outside the sheet skips nothing.
+- [ ] Skip one, then tap Undo on the snackbar: it is back in its place.
+- [ ] Skip one, let the snackbar go, then tap Bring back on the "Skipped today" line: it is back in its place.
+- [ ] Skip a main lift (Bench) for Pain: Coach shows its card with Dismiss only. Skip an accessory (Curl) for Pain: its card offers Swap buttons, and a swap changes the plan.
+- [ ] After a pain skip, the next time that exercise is on Today its weight is held: the target does not go up.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
@@ -174,6 +184,11 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] With reduce motion on, nothing slides.
 - [ ] Choose Chest, then Barbell, in the picker: Bench is listed.
 - [ ] On Plan, tap Add on a day and pick an exercise: a form opens at 3 × 5 or 3 × 10 (powerlifting) or 3 × 8–12 (bodybuilding). Add stores what you set; Cancel stores nothing.
+- [ ] On Today, skip a planned exercise with no sets (⋮, Skip today) once with each answer: Busy or no equipment, Pain, Out of time and Just skip. It leaves the list and "<name> skipped." shows with Undo. Back or a tap outside the sheet skips nothing.
+- [ ] Skip one, then tap Undo on the snackbar: it is back in its place.
+- [ ] Skip one, let the snackbar go, then tap Bring back on the "Skipped today" line: it is back in its place.
+- [ ] Skip a main lift (Bench) for Pain: Coach shows its card with Dismiss only. Skip an accessory (Curl) for Pain: its card offers Swap buttons, and a swap changes the plan.
+- [ ] After a pain skip, the next time that exercise is on Today its weight is held: the target does not go up.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.

@@ -8,14 +8,20 @@ import com.powertracker.data.db.ExerciseEntity
 import com.powertracker.data.db.PlanItemEntity
 import com.powertracker.data.db.SessionEntity
 import com.powertracker.data.db.SetEntity
+import com.powertracker.data.db.SkipEntity
 import com.powertracker.domain.coach.PlanChange
 import com.powertracker.domain.library.MuscleGroup
+import com.powertracker.domain.model.Advice
+import com.powertracker.domain.model.AdvicePayload
+import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.CheckIn
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.Skip
+import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +29,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.json.Json
 
 /** Each side's plan. */
 data class Plans(val powerlifting: List<PlanItem>, val bodybuilding: List<PlanItem>) {
@@ -167,6 +174,70 @@ open class TrainingRepository(private val db: AppDatabase) {
         for ((item, name) in change.added) savePlanItem(item.copy(id = 0), name)
     }
 
+    /** Every stored skip, both sides', oldest first. */
+    fun skips(): Flow<List<Skip>> = db.skips().observeAll().map { list -> list.map { it.toDomain() } }
+
+    /**
+     * Stores [skip] and the coach's cards for it, in one transaction, and returns the skip's id. A skip already stored for
+     * the same date, side and exercise is updated in place (its reason and plan item replaced, its id kept), and its
+     * still-OPEN SKIP cards are deleted first, so the new reason's card replaces the old one rather than stacking (and a
+     * re-skip to "Out of time" leaves none). An answered card stays. A PAIN skip also deletes that day's OPEN TARGET
+     * advice for the exercise on both sides, since the hold crosses sides: it was worked out without the hold, and Today
+     * works a target out again only when none is stored for the day. A PAIN skip also deletes the exercise's OPEN busy or
+     * repeat SKIP cards on its side, whichever skip made them, so its pain card replaces them (a pain skip always
+     * tells you; [com.powertracker.domain.coach.SkipCoach]). An open pain card or SWAP card stays.
+     *
+     * [cards] gets the stored skip (with its id) and every stored skip, both sides', and returns the advice to insert. It
+     * runs inside the transaction: if it throws, nothing is stored. It should only compute, from what the caller read
+     * beforehand.
+     */
+    suspend fun skip(skip: Skip, cards: suspend (stored: Skip, all: List<Skip>) -> List<Advice>): Long = db.withTransaction {
+        val existing = db.skips().find(skip.date, skip.mode, skip.exerciseId)
+        val row = SkipEntity(existing?.id ?: 0, skip.date, skip.mode, skip.exerciseId, skip.planItemId, skip.reason)
+        val id = if (existing == null) db.skips().insert(row) else existing.id.also { db.skips().update(row) }
+        if (existing != null) deleteOpenCards(existing.id)
+        if (skip.reason == SkipReason.PAIN) {
+            deleteOpenTargets(skip.date, skip.exerciseId)
+            deleteOpenNonPainCards(skip.mode, skip.exerciseId)
+        }
+        val made = cards(row.copy(id = id).toDomain(), db.skips().all().map { it.toDomain() })
+        if (made.isNotEmpty()) db.advice().insert(made.map { it.toEntity() })
+        id
+    }
+
+    /**
+     * Takes the skip [skipId] back (Undo, Bring back), in one transaction: the skip, its still-OPEN SKIP cards and that
+     * day's OPEN TARGET advice for the exercise on both sides are deleted, so the target is worked out again without the
+     * hold. A card already applied or dismissed stays. An unknown id changes nothing.
+     */
+    suspend fun unskip(skipId: Long) = db.withTransaction {
+        val skip = db.skips().byId(skipId) ?: return@withTransaction
+        deleteOpenCards(skipId)
+        db.skips().delete(skipId)
+        deleteOpenTargets(skip.date, skip.exerciseId)
+    }
+
+    /** Deletes the OPEN SKIP advice carrying [skipId]; the payloads are matched exactly, never by text. */
+    private suspend fun deleteOpenCards(skipId: Long) {
+        val cards = db.advice().openOf(AdviceType.SKIP).filter { (it.decoded() as? AdvicePayload.Skipped)?.skipId == skipId }
+        if (cards.isNotEmpty()) db.advice().delete(cards.map { it.id })
+    }
+
+    /** Deletes [mode]'s OPEN SKIP advice for [exerciseId] whose skip was not for pain; the payloads are matched exactly. */
+    private suspend fun deleteOpenNonPainCards(mode: TrainingMode, exerciseId: Long) {
+        val cards = db.advice().openOf(AdviceType.SKIP).filter { a ->
+            val p = a.decoded() as? AdvicePayload.Skipped
+            a.mode == mode && p != null && p.exerciseId == exerciseId && p.reason != SkipReason.PAIN
+        }
+        if (cards.isNotEmpty()) db.advice().delete(cards.map { it.id })
+    }
+
+    /** Deletes [date]'s OPEN TARGET advice for [exerciseId] on both sides; the payloads are matched exactly, never by text. */
+    private suspend fun deleteOpenTargets(date: LocalDate, exerciseId: Long) {
+        val targets = db.advice().openOf(AdviceType.TARGET, date).filter { (it.decoded() as? AdvicePayload.Target)?.exerciseId == exerciseId }
+        if (targets.isNotEmpty()) db.advice().delete(targets.map { it.id })
+    }
+
     suspend fun setBaseline(b: Baseline) = db.baselines().upsert(BaselineEntity(b.exerciseId, b.e1rmKg, b.date))
 }
 
@@ -178,6 +249,10 @@ private fun SetEntity.toDomain() = LoggedSet(exerciseId, weightKg, reps, rpe, fa
 
 private fun LoggedSet.toEntity(id: Long, sessionId: Long) =
     SetEntity(id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet)
+
+private fun SkipEntity.toDomain() = Skip(id, date, mode, exerciseId, planItemId, reason)
+
+private fun com.powertracker.data.db.AdviceEntity.decoded(): AdvicePayload = Json.decodeFromString(AdvicePayload.serializer(), payload)
 
 private fun PlanItemEntity.toDomain() = PlanItem(id, weekday, exerciseId, sets, reps, targetRpe, sortOrder, mode, repsHigh)
 

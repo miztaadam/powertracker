@@ -358,11 +358,141 @@ class BackupTest {
         assertNull(s.bodybuildingLeftOn)
     }
 
+    /** 1.13: an app that reads only version 4 (1.12) turns a version 5 file away as too new. */
     @Test
-    fun v5File_isTooNew() = runTest {
-        val text = Backup.encode(service.export(1L).copy(version = 5))
-        assertEquals(BackupResult.TooNew(5), Backup.decode(text))
+    fun v5File_onVersion4Decoder_isTooNew() = runTest {
+        val text = Backup.encode(service.export(1L))
+        assertEquals(BackupResult.TooNew(5), Backup.decode(text, supportedVersion = 4))
     }
+
+    /** 1.13: every backup is version 5 and has a `skips` list, even with nothing skipped. */
+    @Test
+    fun everyBackup_isVersion5_withOrWithoutSkips() = runTest {
+        val empty = Json.parseToJsonElement(Backup.encode(service.export(1L))).jsonObject
+        assertEquals(5, empty.getValue("version").jsonPrimitive.int)
+        assertEquals(JsonArray(emptyList()), empty.getValue("skips"))
+
+        seedSkips()
+        val full = Json.parseToJsonElement(Backup.encode(service.export(1L))).jsonObject
+        assertEquals(5, full.getValue("version").jsonPrimitive.int)
+        assertEquals(3, full.getValue("skips").jsonArray.size)
+    }
+
+    /** 1.13: version 5 carries the skips and their cards, and restores exactly. */
+    @Test
+    fun v5RoundTrip_keepsSkips() = runTest {
+        seedBothSides()
+        val ids = seedSkips()
+        val exported = service.export(1L)
+        val text = Backup.encode(exported)
+        val skips = Json.parseToJsonElement(text).jsonObject.getValue("skips").jsonArray.map { it.jsonObject }
+        assertEquals(listOf("id", "date", "mode", "exerciseId", "planItemId", "reason"), skips[0].keys.toList())
+        assertEquals(listOf("PAIN", null, "TIME"), skips.map { it.getValue("reason").jsonPrimitive.contentOrNullValue() })
+        assertEquals(LocalDate(2026, 11, 18).toEpochDays().toInt(), skips[0].getValue("date").jsonPrimitive.int)
+
+        db.skips().clear()
+        db.advice().clear()
+        service.restore((Backup.decode(text) as BackupResult.Ok).file)
+
+        assertEquals(exported, service.export(1L))
+        val read = TrainingRepository(db).skips().first().sortedBy { it.id }
+        assertEquals(ids, read.map { it.id })
+        assertEquals(listOf(com.powertracker.domain.model.SkipReason.PAIN, null, com.powertracker.domain.model.SkipReason.TIME), read.map { it.reason })
+        val card = db.advice().all().single { it.type == AdviceType.SKIP }
+        assertEquals(ids[0], (Json.decodeFromString(com.powertracker.domain.model.AdvicePayload.serializer(), card.payload) as com.powertracker.domain.model.AdvicePayload.Skipped).skipId)
+    }
+
+    /** 1.13: a version 4 (1.12) file has no skips: it restores with none, and replaces any stored. */
+    @Test
+    fun v4File_restoresWithNoSkips() = runTest {
+        seedBothSides()
+        seedStage3()
+        seedSkips()
+        val root = Json.parseToJsonElement(Backup.encode(service.export(1L))).jsonObject
+        val v4 = JsonObject(root - "skips" + ("version" to JsonPrimitive(4)) +
+            ("advice" to JsonArray(root.getValue("advice").jsonArray.filter { it.jsonObject.getValue("type").jsonPrimitive.content != "SKIP" })))
+
+        val decoded = Backup.decode(v4.toString(), supportedVersion = 4)
+        assertTrue(decoded.toString(), decoded is BackupResult.Ok)
+        assertEquals(emptyList<Any>(), (decoded as BackupResult.Ok).file.skips)
+        service.restore(decoded.file)
+
+        assertEquals(emptyList<Any>(), db.skips().all())
+        assertEquals(2, db.checkIns().all().size)
+        assertEquals(2, db.sessions().all().size)
+    }
+
+    @Test
+    fun badSkips_areCorrupt() = runTest {
+        seedSkips()
+        val file = service.export(1L)
+        val first = file.skips.first()
+        for (bad in listOf(
+            file.copy(skips = file.skips + first.copy(id = 99)),
+            file.copy(skips = listOf(first.copy(reason = "TIRED"))),
+            file.copy(skips = listOf(first.copy(mode = "CROSSFIT"))),
+        )) {
+            assertTrue(bad.toString(), Backup.decode(Backup.encode(bad)) is BackupResult.Corrupt)
+        }
+    }
+
+    /** 1.13: a version 5 file restored over other version 5 skips replaces them, one on the same date, side and exercise included. */
+    @Test
+    fun v5File_restoredOverOtherSkips_replacesThem() = runTest {
+        seedBothSides()
+        seedSkips()
+        val exported = service.export(1L)
+        val text = Backup.encode(exported)
+
+        // Different skips now, under new ids: one on the same date, side and exercise with another reason, and three more.
+        db.skips().clear()
+        db.advice().clear()
+        val training = TrainingRepository(db)
+        val exercises = db.exercises().all().associateBy { it.name }
+        val day = LocalDate(2026, 11, 18)
+        training.skip(com.powertracker.domain.model.Skip(0, day, TrainingMode.BODYBUILDING, exercises.getValue("Curl").id, null, com.powertracker.domain.model.SkipReason.BUSY)) { _, _ -> emptyList() }
+        training.skip(com.powertracker.domain.model.Skip(0, day, TrainingMode.POWERLIFTING, exercises.getValue("Bench").id, null, com.powertracker.domain.model.SkipReason.PAIN)) { _, _ -> emptyList() }
+        training.skip(com.powertracker.domain.model.Skip(0, LocalDate(2026, 11, 1), TrainingMode.POWERLIFTING, exercises.getValue("Deadlift").id, null, null)) { _, _ -> emptyList() }
+        training.skip(com.powertracker.domain.model.Skip(0, LocalDate(2026, 11, 2), TrainingMode.POWERLIFTING, exercises.getValue("Row").id, null, null)) { _, _ -> emptyList() }
+
+        service.restore((Backup.decode(text) as BackupResult.Ok).file)
+
+        assertEquals(exported, service.export(1L))
+        assertEquals(exported.skips.size, db.skips().all().size)
+    }
+
+    /** 1.13: a version 6 file, from a later app, is turned away as too new. */
+    @Test
+    fun v6File_isTooNew() = runTest {
+        seedSkips()
+        val root = Json.parseToJsonElement(Backup.encode(service.export(1L))).jsonObject
+        val v6 = JsonObject(root + ("version" to JsonPrimitive(6)))
+        assertEquals(BackupResult.TooNew(6), Backup.decode(v6.toString()))
+    }
+
+    /** Three skips: today's pain skip of curl on the bodybuilding side (with its card), and two on the powerlifting side. */
+    private suspend fun seedSkips(): List<Long> {
+        val training = TrainingRepository(db)
+        val exercises = db.exercises().all().associateBy { it.name }
+        val curl = exercises.getValue("Curl").id
+        val squat = exercises.getValue("Squat").id
+        val item = training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, curl, 3, 8, 8.0, 5, TrainingMode.BODYBUILDING, 12))
+        val day = LocalDate(2026, 11, 18)
+        val pain = training.skip(com.powertracker.domain.model.Skip(0, day, TrainingMode.BODYBUILDING, curl, item, com.powertracker.domain.model.SkipReason.PAIN)) { stored, _ ->
+            listOf(
+                com.powertracker.domain.model.Advice(
+                    AdviceType.SKIP, null, day, "You skipped Curl because of pain.", 3,
+                    com.powertracker.domain.model.AdvicePayload.Skipped(stored.id, curl, "Curl", stored.reason, listOf("Cable curl")),
+                    mode = TrainingMode.BODYBUILDING,
+                ),
+            )
+        }
+        val none = training.skip(com.powertracker.domain.model.Skip(0, day, TrainingMode.POWERLIFTING, squat, null, null)) { _, _ -> emptyList() }
+        val time = training.skip(com.powertracker.domain.model.Skip(0, LocalDate(2026, 11, 11), TrainingMode.POWERLIFTING, squat, null, com.powertracker.domain.model.SkipReason.TIME)) { _, _ -> emptyList() }
+        return listOf(pain, none, time)
+    }
+
+    private fun JsonPrimitive.contentOrNullValue(): String? = if (this is kotlinx.serialization.json.JsonNull) null else content
 
     /** Stage 3: version 4 carries the check-ins and the two new advice types, and restores exactly. */
     @Test
@@ -372,7 +502,7 @@ class BackupTest {
         val exported = service.export(1L)
         val text = Backup.encode(exported)
         val root = Json.parseToJsonElement(text).jsonObject
-        assertEquals(4, root.getValue("version").jsonPrimitive.int)
+        assertEquals(Backup.VERSION, root.getValue("version").jsonPrimitive.int)
         val checkIns = root.getValue("checkIns").jsonArray.map { it.jsonObject }
         assertEquals(listOf(LocalDate(2026, 10, 13).toEpochDays().toInt(), LocalDate(2026, 11, 10).toEpochDays().toInt()),
             checkIns.map { it.getValue("date").jsonPrimitive.int })
