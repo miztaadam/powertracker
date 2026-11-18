@@ -56,10 +56,12 @@ label.settings-row {
   padding-bottom: var(--space-4);
 }
 
-/* Four rest alerts on a narrow phone (Android, with Sound + vibrate): a long one wraps onto two lines inside
-   its segment instead of running out of it. */
+/* Four rest alerts (Android, with Sound + vibrate), each segment sized to its label: on one line on a phone at
+   normal text size. Only where even that has no room (130% text on a 320 px phone) does a long one wrap, at its
+   space, inside its segment instead of running out of it. Like Android's, the label gives up its side padding
+   first (1 px a side); with room to spare every segment grows by the same amount, so it looks the same there. */
 .settings-rest-alert .gr-segment-face {
-  padding: 0 var(--space-1);
+  padding: 0 1px;
   white-space: normal;
   text-align: center;
 }

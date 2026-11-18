@@ -178,3 +178,85 @@ for (const [label, viewport] of [
     })
   })
 }
+
+// 1.12.3: Settings' rest alerts on a phone that can vibrate (an Android browser), where "Sound + vibrate" is offered.
+// Each segment is as wide as its own label (as on Android); the segments still fill the row edge to edge and stay at
+// least 44 px tall, and every label keeps its text at 15 px, whole (no clipping, no ellipsis). At 306, 320, 360 and 390 px
+// each label is on one line. At 130% zoom on a 320 px phone (laid out 1.3 times narrower and shorter) there is not
+// room for that, so a label may wrap, but only at a space ("Sound +" / "vibrate"), never inside a word.
+for (const [label, viewport, oneLine] of [
+  ['a 306 px phone', { width: 306, height: 640 }, true],
+  ['a 320 px phone', { width: 320, height: 640 }, true],
+  ['a 360 px phone', { width: 360, height: 640 }, true],
+  ['a 390 px phone', { width: 390, height: 640 }, true],
+  ['a 320 px phone at 130% zoom', { width: Math.floor(320 / 1.3), height: Math.floor(640 / 1.3) }, false],
+] as const) {
+  test.describe(`${label} that can vibrate`, () => {
+    test.use({ viewport })
+    test('restAlert_eachLabelWhole', async ({ page }) => {
+      await page.addInitScript(() => Object.defineProperty(Navigator.prototype, 'vibrate', { configurable: true, value: () => true }))
+      await openOnWednesday(page)
+      await page.goto('/#/settings')
+      const alerts = page.getByRole('radiogroup', { name: 'Rest alert' })
+      // Something to measure: Sound + vibrate is drawn.
+      await expect(alerts.getByText('Sound + vibrate', { exact: true })).toBeVisible()
+      const row = await alerts.evaluate((group) => {
+        const style = getComputedStyle(group)
+        const inner = group.getBoundingClientRect()
+        const segments = [...group.querySelectorAll('.gr-segment')].map((s) => s.getBoundingClientRect())
+        return {
+          left: inner.left + parseFloat(style.paddingLeft),
+          right: inner.right - parseFloat(style.paddingRight),
+          first: segments[0]!.left,
+          last: segments[segments.length - 1]!.right,
+        }
+      })
+      expect(row.first, `the row starts at its edge at ${label}`).toBeCloseTo(row.left, 0)
+      expect(row.last, `the row reaches its edge at ${label}`).toBeCloseTo(row.right, 0)
+      const faces = await alerts.locator('.gr-segment-face').evaluateAll((all) =>
+        all.map((face) => {
+          const lineCount = (range: Range) => new Set([...range.getClientRects()].filter((r) => r.width > 0).map((r) => Math.round(r.top))).size
+          const whole = document.createRange()
+          whole.selectNodeContents(face)
+          // Each word on its own: one that spans two lines was broken inside it.
+          const node = face.firstChild as Text
+          const brokenWords = [...node.data.matchAll(/\S+/g)]
+            .filter((m) => {
+              const word = document.createRange()
+              word.setStart(node, m.index)
+              word.setEnd(node, m.index + m[0].length)
+              return lineCount(word) > 1
+            })
+            .map((m) => m[0])
+          const text = whole.getBoundingClientRect()
+          const box = face.getBoundingClientRect()
+          return {
+            text: face.textContent,
+            lines: lineCount(whole),
+            brokenWords,
+            px: parseFloat(getComputedStyle(face).fontSize),
+            scrollWidth: face.scrollWidth,
+            clientWidth: face.clientWidth,
+            inside: text.left >= box.left - 0.5 && text.right <= box.right + 0.5,
+            ellipsis: getComputedStyle(face).textOverflow === 'ellipsis',
+            height: face.closest('.gr-segment')!.getBoundingClientRect().height,
+          }
+        }),
+      )
+      expect(faces.map((f) => f.text)).toEqual(['Sound', 'Sound + vibrate', 'Silent', 'Off'])
+      for (const face of faces) {
+        if (oneLine) expect(face.lines, `${face.text} on one line at ${label}`).toBe(1)
+        expect(face.brokenWords, `${face.text} breaks only at a space at ${label}`).toEqual([])
+        expect(face.scrollWidth, `${face.text} not clipped at ${label}`).toBeLessThanOrEqual(face.clientWidth)
+        expect(face.inside, `${face.text} inside its segment at ${label}`).toBe(true)
+        expect(face.ellipsis, `${face.text} has no ellipsis at ${label}`).toBe(false)
+        expect(face.px, `${face.text} at ${label}`).toBe(15)
+        expect(face.height, `${face.text}'s tap target at ${label}`).toBeGreaterThanOrEqual(44)
+      }
+      // At 130% zoom on a 320 px phone other parts of the screen (the day chips, the tab bar) are not yet held to
+      // this check, so there it looks at the rest alerts only.
+      const found = await overflowing(page)
+      expect(oneLine ? found : found.filter((f) => /gr-segment/.test(f))).toEqual([])
+    })
+  })
+}

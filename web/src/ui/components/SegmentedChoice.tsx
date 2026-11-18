@@ -11,6 +11,11 @@ export type SegmentedChoiceProps = {
   /** Names the group for screen readers, e.g. "Where did it stall?". */
   label?: string
   className?: string
+  /**
+   * Each segment as wide as its own label, sharing out what is left equally (as Android's), instead of equal
+   * segments. For a row whose labels differ a lot in length (the rest alert's "Sound + vibrate" beside "Off").
+   */
+  sizeToLabels?: boolean
 }
 
 export type ChoiceChipProps = {
@@ -21,10 +26,10 @@ export type ChoiceChipProps = {
 }
 
 /** Pick exactly one (or none yet) of a few short options: miss point, chart range. */
-export function SegmentedChoice({ options, selectedIndex, onSelect, label, className }: SegmentedChoiceProps) {
+export function SegmentedChoice({ options, selectedIndex, onSelect, label, className, sizeToLabels = false }: SegmentedChoiceProps) {
   const name = useId()
   return (
-    <div className={cx('gr-segmented', className)} role="radiogroup" aria-label={label}>
+    <div className={cx('gr-segmented', sizeToLabels && 'gr-segmented-fit', className)} role="radiogroup" aria-label={label}>
       {options.map((option, i) => (
         <label key={option} className="gr-segment">
           <input

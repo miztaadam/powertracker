@@ -492,6 +492,13 @@ describe('rest alert and vibration', () => {
     await waitFor(() => expect(screen.getByRole('radio', { name: 'Sound + vibrate' })).toBeChecked())
   })
 
+  it('restAlert_segmentsAreSizedToTheirLabels', async () => {
+    fake('vibrate', () => true)
+    show()
+    await screen.findByRole('switch', { name: 'Change plates' })
+    expect(screen.getByRole('radiogroup', { name: 'Rest alert' })).toHaveClass('gr-segmented-fit')
+  })
+
   /** Stage 2: "Vibrate on taps" is shown only where the browser can vibrate, under the rest alert, on by default. */
   it('vibrateOnTaps_whereTheBrowserCanVibrate_isUnderTheRestAlert_andSaved', async () => {
     fake('vibrate', () => true)
