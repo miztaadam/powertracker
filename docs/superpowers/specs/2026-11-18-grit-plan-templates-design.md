@@ -49,7 +49,7 @@
   - **Swap** on each exercise, using the builder's existing similar-exercise rule.
   - **Use this plan** saves it, and **Back** returns to the list.
   - The bodybuilding draft also shows each body part's weekly sets, as the builder's draft does.
-- **Main lifts** (squat, bench, deadlift, and strict press when the lifter has it on) have no Swap in powerlifting templates, in line with the owner's decision A for skips: main lifts are never swapped out. *(My call: when strict press is on, the powerlifting templates include it; when it is off, they don't.)*
+- **Main lifts** (squat, bench, deadlift, and strict press when the lifter has it on) have no Swap in powerlifting templates, in line with the owner's decision A for skips: main lifts are never swapped out. See "Settled after the builder check" for variations and strict press.
 - **The confirm,** when the side already has a plan: "Replace your <side> plan? Your history and bests are kept." with **Replace** and **Cancel**.
 - **After saving:** back to Plan with the new week, and a snackbar "Plan set: <template name>."
 
@@ -70,6 +70,24 @@ These are the expected shapes. The planner checks each against the sources and c
   - **NSCA:** advanced 4–6 days a week.
   - **PMC review of powerlifters:** about 3–6 working sets a week of 1–5 reps above 80% 1RM at RPE 7.5–9.5, over 1–3 sessions for each lift.
 - **Exercises come from the existing catalogue only,** with the builder's order rule: compound lifts before accessory work (`BUILDER_ORDER`).
+
+## Settled after the builder check (my calls unless marked)
+1. **A lift on more than one day has the same sets × reps @ RPE on every day it appears.** Both coaches find "last time" by exercise, not by plan item (`HistoryStats.lastTopSet`, `ProgressionRule.target`, `BodybuildingCoach.lastSets`). Different reps on two days would give one day the wrong target. A heavy/light week is made with a variation instead (for example pause squat), which is its own exercise. Only the competition lift counts towards the sourced "sessions per lift" and "weekly working sets". Variations are extra and use the same sourced rep and RPE ranges.
+2. **Powerlifting accessories need a sourced fixed rep count,** since powerlifting items have fixed reps (`repsHigh` null). The planner searches the allowed sources first. If none gives one, the planner brings it to the owner before building: a designer's number marked as such, or no accessories. The builder's 3 × 8–12 is a bodybuilding range and isn't borrowed.
+3. **Bodybuilding volume matches the builder's own default weeks:**
+   - the big groups (chest, lats, quads, hamstrings, glutes, upper back, biceps, triceps) reach 10 or more counted weekly sets and two days;
+   - the small groups may come in under 10 and are shown as short, as in the builder's draft;
+   - no group goes over `PhysiqueCoach.WEEKLY_CEILING` (20), counted the way that ceiling counts.
+
+   The domain test checks exactly this.
+4. **Swap on a powerlifting template:**
+   - main lifts have no Swap;
+   - a variation of a main lift swaps only to other variations of the same lift;
+   - accessories use the builder's similar-exercise rule.
+5. **"Strict press on" means the existing `showStrictPress` setting.** When it is on, the powerlifting templates include strict press; when it is off, they don't. A saved plan is a snapshot: turning the setting on or off later changes nothing in it.
+6. **The template's sourced RPE is used in the draft,** not the Settings "Default RPE", which keeps applying to exercises added by hand. Every number can still be edited on Plan afterwards.
+7. **A new lifter gets no first target,** as today. With no history or known best, the coach gives a lift no target. The tests check that, plus a right target when there is history.
+8. **Saving uses the existing `replacePlan(mode, items)` on Android** (it clears only that side and leaves advice as it is), and the web's equivalent, which the planner checks is the same.
 
 ## Storage, backups and edge cases
 - **No new storage.** Templates live in code. Saving writes ordinary plan items and the side's training days, through the same path as the builder's **Use this plan**, and removes the side's old plan items.
@@ -99,7 +117,7 @@ These are the expected shapes. The planner checks each against the sources and c
   - Swap, with main lifts having none;
   - Use this plan on an empty side, and replacing a side's plan after the confirm, and Cancel changing nothing;
   - history, bests, skips and the other side untouched after a replace;
-  - the coach's first targets for a template's exercises are right, including a lift that appears twice in a week.
+  - the coach's targets for a template's exercises: none for a new lifter, and right ones with history, including a lift that appears on two days.
 - **Domain tests:**
   - every exercise exists in the catalogue;
   - each bodybuilding template meets its sourced weekly sets and frequency;
