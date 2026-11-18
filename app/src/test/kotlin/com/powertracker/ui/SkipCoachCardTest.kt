@@ -195,6 +195,47 @@ class SkipCoachCardTest {
     }
 
     @Test
+    fun coach_strictPressPainCard_dismissOnly() {
+        val pressId = runBlocking { training.resolveCatalogue("Strict press") }
+        exercises = runBlocking { training.exercises().first() }
+        val press = exercises.first { it.id == pressId }
+        val card = painSkip(press, TrainingMode.POWERLIFTING)
+        val payload = card.payload as AdvicePayload.Skipped
+        assertEquals(emptyList<String>(), payload.alternatives)
+        assertEquals(MainLift.STRICT_PRESS, card.lift)
+        val state = viewModel().await { it.cards.isNotEmpty() }
+        assertEquals(CardDetail.Skip(payload), state.cards.single().detail)
+        compose.setContent { PowertrackerTheme { CoachContent(state, onApply = {}, onDismiss = {}) } }
+        compose.onNodeWithText("${press.name} skipped").assertExists()
+        compose.onNodeWithText("Dismiss").assertExists()
+        assertEquals(0, compose.onAllNodesWithText("Swap for", substring = true).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun undoAfterTheSwapWasApplied_keepsTheSwap_andThePlan() {
+        onSide(TrainingMode.BODYBUILDING)
+        val card = painSkip(ex("Curl"), TrainingMode.BODYBUILDING)
+        val payload = card.payload as AdvicePayload.Skipped
+        val vm = viewModel()
+        vm.await { it.cards.isNotEmpty() }
+        vm.swap(card.id, payload.alternatives.first())
+        awaitTrue("applied") { runBlocking { advice.all() }.single { it.id == card.id }.status == AdviceStatus.APPLIED }
+        val planAfterSwap = planned(TrainingMode.BODYBUILDING)
+
+        // Undo on Today, after the swap: the skip goes; the applied card and the swapped plan stay.
+        val today = com.powertracker.ui.today.TodayViewModel(training, advice, settings) { this.today }.also { t ->
+            viewModels += t
+            collectors.launch { t.state.collect {} }
+        }
+        today.undoSkip(payload.skipId)
+
+        awaitTrue("skip gone") { runBlocking { training.skips().first() }.isEmpty() }
+        assertEquals(AdviceStatus.APPLIED, runBlocking { advice.all() }.single { it.id == card.id }.status)
+        assertEquals(planAfterSwap, planned(TrainingMode.BODYBUILDING))
+        assertTrue(planAfterSwap.none { it.exerciseId == ex("Curl").id })
+    }
+
+    @Test
     fun coach_skipCardWithAlternatives_showsASwapButtonForEach() {
         onSide(TrainingMode.BODYBUILDING)
         val card = painSkip(ex("Curl"), TrainingMode.BODYBUILDING)

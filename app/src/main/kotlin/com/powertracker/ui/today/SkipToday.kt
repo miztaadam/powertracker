@@ -36,7 +36,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.ui.components.PtDropdownMenuItem
@@ -175,9 +174,8 @@ fun SkippedTodayLine(skipped: List<SkippedToday>, onBringBack: (exerciseId: Long
                     s.name,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
+                    // Never cut: a long name wraps between words beside its Bring back.
+                    modifier = Modifier.weight(1f).padding(vertical = Space.xs),
                 )
                 QuietButton(BRING_BACK, { onBringBack(s.exerciseId) }, Modifier.testTag("bring-back-${s.exerciseId}"))
             }

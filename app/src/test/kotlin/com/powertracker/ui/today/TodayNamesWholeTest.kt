@@ -42,7 +42,7 @@ import org.robolectric.annotation.GraphicsMode
 /**
  * Every catalogue name on a Today row stays whole, with the row menu (⋮) beside it: not ellipsised, and wrapped only
  * between words (or after a hyphen), never inside one. Checked at 320 dp with 100% text and 360 dp with 130%, on the
- * folded rows, the start card's rows and the open exercise card's header, on both sides.
+ * folded rows, the start card's rows, the open exercise card's header and the "Skipped today" line, on both sides.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -134,6 +134,12 @@ class TodayNamesWholeTest {
             val (start, seenStart) = broken { "start" }
             assertEquals(names.size, seenStart)
             assertTrue("$mode at $width dp × $fontScale, start card: $start", start.isEmpty())
+
+            // The "Skipped today" line, each name beside its Bring back.
+            show(width, fontScale) { SkippedTodayLine(items.map { SkippedToday(it.exercise.id, it.exercise.name, it.exercise.id) }, onBringBack = {}) }
+            val (skipped, seenSkipped) = broken { "skipped-today" }
+            assertEquals(names.size, seenSkipped)
+            assertTrue("$mode at $width dp × $fontScale, skipped line: $skipped", skipped.isEmpty())
 
             // The open card's header, for the longest names.
             val longest = items.sortedByDescending { it.exercise.name.length }.take(12)
