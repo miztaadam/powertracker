@@ -179,9 +179,11 @@ open class TrainingRepository(private val db: AppDatabase) {
 
     /**
      * Stores [skip] and the coach's cards for it, in one transaction, and returns the skip's id. A skip already stored for
-     * the same date, side and exercise is updated in place (its reason and plan item replaced, its id kept), so a card
-     * that names it still does. A PAIN skip also deletes that day's OPEN TARGET advice for the exercise on its side: it
-     * was worked out without the hold, and Today works a target out again only when none is stored for the day.
+     * the same date, side and exercise is updated in place (its reason and plan item replaced, its id kept), and its
+     * still-OPEN SKIP cards are deleted first, so the new reason's card replaces the old one rather than stacking (and a
+     * re-skip to "Out of time" leaves none). An answered card stays. A PAIN skip also deletes that day's OPEN TARGET
+     * advice for the exercise on both sides, since the hold crosses sides: it was worked out without the hold, and Today
+     * works a target out again only when none is stored for the day.
      *
      * [cards] gets the stored skip (with its id) and every stored skip, both sides', and returns the advice to insert. It
      * runs inside the transaction: if it throws, nothing is stored. It should only compute, from what the caller read
@@ -191,7 +193,8 @@ open class TrainingRepository(private val db: AppDatabase) {
         val existing = db.skips().find(skip.date, skip.mode, skip.exerciseId)
         val row = SkipEntity(existing?.id ?: 0, skip.date, skip.mode, skip.exerciseId, skip.planItemId, skip.reason)
         val id = if (existing == null) db.skips().insert(row) else existing.id.also { db.skips().update(row) }
-        if (skip.reason == SkipReason.PAIN) deleteOpenTargets(skip.date, skip.mode, skip.exerciseId)
+        if (existing != null) deleteOpenCards(existing.id)
+        if (skip.reason == SkipReason.PAIN) deleteOpenTargets(skip.date, skip.exerciseId)
         val made = cards(row.copy(id = id).toDomain(), db.skips().all().map { it.toDomain() })
         if (made.isNotEmpty()) db.advice().insert(made.map { it.toEntity() })
         id
@@ -199,20 +202,25 @@ open class TrainingRepository(private val db: AppDatabase) {
 
     /**
      * Takes the skip [skipId] back (Undo, Bring back), in one transaction: the skip, its still-OPEN SKIP cards and that
-     * day's OPEN TARGET advice for the exercise on its side are deleted, so the target is worked out again without the
+     * day's OPEN TARGET advice for the exercise on both sides are deleted, so the target is worked out again without the
      * hold. A card already applied or dismissed stays. An unknown id changes nothing.
      */
     suspend fun unskip(skipId: Long) = db.withTransaction {
         val skip = db.skips().byId(skipId) ?: return@withTransaction
-        val cards = db.advice().openOf(AdviceType.SKIP).filter { (it.decoded() as? AdvicePayload.Skipped)?.skipId == skipId }
-        if (cards.isNotEmpty()) db.advice().delete(cards.map { it.id })
+        deleteOpenCards(skipId)
         db.skips().delete(skipId)
-        deleteOpenTargets(skip.date, skip.mode, skip.exerciseId)
+        deleteOpenTargets(skip.date, skip.exerciseId)
     }
 
-    /** Deletes [date]'s OPEN TARGET advice for [exerciseId] on [mode]; the payloads are matched exactly, never by text. */
-    private suspend fun deleteOpenTargets(date: LocalDate, mode: TrainingMode, exerciseId: Long) {
-        val targets = db.advice().openOf(AdviceType.TARGET, mode, date).filter { (it.decoded() as? AdvicePayload.Target)?.exerciseId == exerciseId }
+    /** Deletes the OPEN SKIP advice carrying [skipId]; the payloads are matched exactly, never by text. */
+    private suspend fun deleteOpenCards(skipId: Long) {
+        val cards = db.advice().openOf(AdviceType.SKIP).filter { (it.decoded() as? AdvicePayload.Skipped)?.skipId == skipId }
+        if (cards.isNotEmpty()) db.advice().delete(cards.map { it.id })
+    }
+
+    /** Deletes [date]'s OPEN TARGET advice for [exerciseId] on both sides; the payloads are matched exactly, never by text. */
+    private suspend fun deleteOpenTargets(date: LocalDate, exerciseId: Long) {
+        val targets = db.advice().openOf(AdviceType.TARGET, date).filter { (it.decoded() as? AdvicePayload.Target)?.exerciseId == exerciseId }
         if (targets.isNotEmpty()) db.advice().delete(targets.map { it.id })
     }
 

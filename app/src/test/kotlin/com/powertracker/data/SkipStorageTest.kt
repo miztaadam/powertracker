@@ -133,15 +133,18 @@ class SkipStorageTest {
         assertEquals(listOf(AdviceType.TARGET), advice.all().map { it.type })
     }
 
-    /** Task 1's finding: today's stored target was worked out without the hold, so a pain skip deletes it. */
+    /**
+     * Task 1's finding: today's stored target was worked out without the hold, so a pain skip deletes it, on both sides,
+     * since the hold crosses sides (coordinator's ruling).
+     */
     @Test
-    fun painSkip_deletesTodaysOpenTarget_forThatExerciseAndSideOnly() = runTest {
+    fun painSkip_deletesTodaysOpenTarget_forThatExerciseOnBothSides() = runTest {
         val curl = id("Curl")
         val row = id("Row")
         advice.insert(
             listOf(
                 target(curl, bb), // goes
-                target(curl, pl), // the other side: stays
+                target(curl, pl), // the other side: goes too
                 target(row, bb), // another exercise: stays
                 target(curl, bb, createdAt = yesterday), // yesterday's: stays
                 target(curl, bb, status = AdviceStatus.APPLIED), // already applied: stays
@@ -152,13 +155,10 @@ class SkipStorageTest {
         training.skip(skipOf(curl, SkipReason.PAIN)) { _, _ -> advicePassed = advice.all(); emptyList() }
 
         val left = advice.all().map { (it.payload as AdvicePayload.Target).exerciseId to (it.mode to it.status) }
-        assertEquals(
-            listOf(curl to (pl to AdviceStatus.OPEN), row to (bb to AdviceStatus.OPEN), curl to (bb to AdviceStatus.OPEN), curl to (bb to AdviceStatus.APPLIED)),
-            left,
-        )
-        // The target is gone before the coach looks.
-        assertEquals(4, advicePassed!!.size)
-        assertEquals(yesterday, advice.all()[2].createdAt)
+        assertEquals(listOf(row to (bb to AdviceStatus.OPEN), curl to (bb to AdviceStatus.OPEN), curl to (bb to AdviceStatus.APPLIED)), left)
+        // The targets are gone before the coach looks.
+        assertEquals(3, advicePassed!!.size)
+        assertEquals(yesterday, advice.all()[1].createdAt)
     }
 
     @Test
@@ -208,7 +208,7 @@ class SkipStorageTest {
 
     /** Task 1's finding: today's target may have been worked out with the hold, so taking the skip back deletes it. */
     @Test
-    fun unskip_deletesTodaysOpenTarget_forThatExerciseAndSideOnly() = runTest {
+    fun unskip_deletesTodaysOpenTarget_forThatExerciseOnBothSides() = runTest {
         val curl = id("Curl")
         val row = id("Row")
         val skipId = training.skip(skipOf(curl, SkipReason.BUSY), ::noCards)
@@ -217,7 +217,50 @@ class SkipStorageTest {
         training.unskip(skipId)
 
         val left = advice.all().map { (it.payload as AdvicePayload.Target).exerciseId to (it.mode to it.status) }
-        assertEquals(listOf(curl to (pl to AdviceStatus.OPEN), row to (bb to AdviceStatus.OPEN), curl to (bb to AdviceStatus.DISMISSED)), left)
+        assertEquals(listOf(row to (bb to AdviceStatus.OPEN), curl to (bb to AdviceStatus.DISMISSED)), left)
+    }
+
+    /** A re-skip with a new reason replaces the skip's open card rather than stacking a second one (coordinator's ruling). */
+    @Test
+    fun reSkip_withANewReason_replacesItsOpenCard() = runTest {
+        val curl = id("Curl")
+        val row = id("Row")
+        val skipId = training.skip(skipOf(curl, SkipReason.PAIN)) { stored, _ -> listOf(card(stored, listOf("Cable curl"))) }
+        val other = training.skip(skipOf(row, SkipReason.PAIN)) { stored, _ -> listOf(card(stored)) }
+        // An answered card from the same skip stays.
+        advice.insert(listOf(card(Skip(skipId, today, bb, curl, null, SkipReason.PAIN)).copy(status = AdviceStatus.DISMISSED)))
+        var priorSeen: List<Advice>? = null
+
+        val again = training.skip(skipOf(curl, SkipReason.BUSY)) { stored, _ ->
+            priorSeen = advice.all()
+            listOf(card(stored, listOf("EZ-bar curl")))
+        }
+
+        assertEquals(skipId, again)
+        val cards = advice.all().map { it.payload as AdvicePayload.Skipped }.map { Triple(it.skipId, it.reason, it.alternatives) }
+        assertEquals(
+            listOf(
+                Triple(other, SkipReason.PAIN, listOf("Cable curl")),
+                Triple(skipId, SkipReason.PAIN, listOf("Cable curl")),
+                Triple(skipId, SkipReason.BUSY, listOf("EZ-bar curl")),
+            ),
+            cards,
+        )
+        assertEquals(listOf(AdviceStatus.OPEN, AdviceStatus.DISMISSED, AdviceStatus.OPEN), advice.all().map { it.status })
+        // The old open card is gone before the coach looks, so it does not block the new one.
+        assertEquals(2, priorSeen!!.size)
+    }
+
+    /** A re-skip to "Out of time", for which the coach gives no card, leaves no card. */
+    @Test
+    fun reSkip_toOutOfTime_leavesNoCard() = runTest {
+        val curl = id("Curl")
+        training.skip(skipOf(curl, SkipReason.PAIN)) { stored, _ -> listOf(card(stored)) }
+
+        training.skip(skipOf(curl, SkipReason.TIME), ::noCards)
+
+        assertEquals(emptyList<Advice>(), advice.all())
+        assertEquals(SkipReason.TIME, training.skips().first().single().reason)
     }
 
     @Test

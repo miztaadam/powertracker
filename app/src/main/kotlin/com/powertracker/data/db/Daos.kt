@@ -84,9 +84,9 @@ interface AdviceDao {
     @Insert suspend fun insert(a: List<AdviceEntity>)
     @Query("DELETE FROM advice") suspend fun clear()
     @Query("UPDATE advice SET status = :status WHERE id = :id") suspend fun setStatus(id: Long, status: AdviceStatus)
-    /** [type]'s OPEN advice on [mode] made on [createdAt]; the payloads are matched in Kotlin, never with LIKE. */
-    @Query("SELECT * FROM advice WHERE type = :type AND status = 'OPEN' AND mode = :mode AND createdAt = :createdAt ORDER BY id")
-    suspend fun openOf(type: AdviceType, mode: TrainingMode, createdAt: LocalDate): List<AdviceEntity>
+    /** [type]'s OPEN advice, both sides', made on [createdAt]; the payloads are matched in Kotlin, never with LIKE. */
+    @Query("SELECT * FROM advice WHERE type = :type AND status = 'OPEN' AND createdAt = :createdAt ORDER BY id")
+    suspend fun openOf(type: AdviceType, createdAt: LocalDate): List<AdviceEntity>
     @Query("SELECT * FROM advice WHERE type = :type AND status = 'OPEN' ORDER BY id")
     suspend fun openOf(type: AdviceType): List<AdviceEntity>
     @Query("DELETE FROM advice WHERE id IN (:ids)") suspend fun delete(ids: List<Long>)
