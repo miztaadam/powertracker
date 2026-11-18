@@ -6,6 +6,7 @@ import com.powertracker.data.db.AppDatabase
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import org.junit.rules.ExternalResource
 
 /**
@@ -25,10 +26,30 @@ class TestDatabase : ExternalResource() {
 
     val db: AppDatabase get() = checkNotNull(opened) { "the database opens when the test starts" }
 
+    private val running = AtomicInteger()
+
+    /** Queries and writes handed to this rule's threads and not yet finished. */
+    val inFlight: Int get() = running.get()
+
     override fun before() {
         val threads = Executors.newCachedThreadPool { work -> Thread(work, "test-database").apply { isDaemon = true } }
         executor = threads
-        opened = AppDatabase.inMemory(ApplicationProvider.getApplicationContext<Context>(), threads)
+        val counted = java.util.concurrent.Executor { work ->
+            running.incrementAndGet()
+            try {
+                threads.execute {
+                    try {
+                        work.run()
+                    } finally {
+                        running.decrementAndGet()
+                    }
+                }
+            } catch (e: java.util.concurrent.RejectedExecutionException) {
+                running.decrementAndGet()
+                throw e
+            }
+        }
+        opened = AppDatabase.inMemory(ApplicationProvider.getApplicationContext<Context>(), counted)
     }
 
     override fun after() {

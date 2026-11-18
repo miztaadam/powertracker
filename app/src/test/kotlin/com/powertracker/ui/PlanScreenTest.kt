@@ -25,6 +25,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.printToString
 import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.Backup
 import com.powertracker.data.BackupService
@@ -230,7 +231,12 @@ class PlanScreenTest {
         compose.onNodeWithText("Off").assertExists()
         compose.onNodeWithText("Sound + vibrate").performClick()
 
-        compose.waitUntil(5_000) { runBlocking { settings.settings.first().restAlert } == RestAlert.SOUND_AND_VIBRATE }
+        // Stored, and shown: the screen hears of the stored value on its own, a moment later, so both are waited for.
+        val stored = { runBlocking { settings.settings.first().restAlert } }
+        val selected = { listOf("Vibrate only", "Sound + vibrate", "Off").filter { exists(hasText(it) and androidx.compose.ui.test.isSelected()) } }
+        waitOrSay({ "stored ${stored()}, selected on screen ${selected()}" }) {
+            stored() == RestAlert.SOUND_AND_VIBRATE && exists(hasText("Sound + vibrate") and androidx.compose.ui.test.isSelected())
+        }
         compose.onNodeWithText("Sound + vibrate").assertIsSelected()
     }
 
@@ -246,7 +252,7 @@ class PlanScreenTest {
         assertTrue("above app lock", row.getUnclippedBoundsInRoot().bottom <= compose.onNodeWithText("App lock").getUnclippedBoundsInRoot().top)
 
         row.performClick()
-        compose.waitUntil(5_000) { !runBlocking { settings.settings.first().vibrateOnTaps } }
+        compose.waitUntil(5_000) { !runBlocking { settings.settings.first().vibrateOnTaps } && exists(hasText("Vibrate on taps") and androidx.compose.ui.test.isOff()) }
         row.assertIsOff()
         assertEquals(RestAlert.VIBRATE, runBlocking { settings.settings.first().restAlert })
 
@@ -355,6 +361,16 @@ class PlanScreenTest {
     private fun waitFor(condition: () -> Boolean) = compose.waitUntil(5_000) {
         compose.waitForIdle()
         condition()
+    }
+
+    /** [compose]'s 5 s wait for [condition]; should it time out, [state] is printed first, to say which half was missing. */
+    private fun waitOrSay(state: () -> String, condition: () -> Boolean) {
+        try {
+            compose.waitUntil(5_000, condition)
+        } catch (timeout: androidx.compose.ui.test.ComposeTimeoutException) {
+            System.err.println("WAIT TIMED OUT: ${state()}")
+            throw timeout
+        }
     }
 
     private fun exists(matcher: androidx.compose.ui.test.SemanticsMatcher) = compose.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
@@ -470,7 +486,9 @@ class PlanScreenTest {
         addButton().performClick()
         waitFor { plan().isNotEmpty() }
         assertEquals(listOf(PlanItem(0, DayOfWeek.MONDAY, squatId(), sets = 4, reps = 6, targetRpe = 7.5, order = 0)), plan().map { it.copy(id = 0) })
-        waitFor { exists(hasText("Squat  4 × 6 @ 7.5")) }
+        // The row comes from the plan read again after the write, the closing from the write's own answer: two
+        // moments, so both are waited for.
+        waitFor { exists(hasText("Squat  4 × 6 @ 7.5")) && !formOpen() }
         compose.onNode(hasText("Sets") and hasAnyAncestor(isDialog())).assertDoesNotExist()
     }
 
@@ -685,7 +703,9 @@ class PlanScreenTest {
         // Once the moment has passed, Add stores.
         pastTheTapWindow()
         addButton().performClick()
-        waitFor { plan().isNotEmpty() }
+        // Stored, and closed: the form closes when the screen hears back from the write, a moment after the row is
+        // in the database, so both are waited for.
+        waitFor { plan().isNotEmpty() && !formOpen() }
         assertEquals(listOf(3 to 5), plan().map { it.sets to it.reps })
         assertTrue(!formOpen())
 
@@ -937,6 +957,73 @@ class PlanScreenTest {
 
     private fun pickerOpen() = exists(hasTestTag("exercise-search"))
 
+    /** Where [SAVE_FAILED] is now, and which dialogs are open: over a dialog in a popup, Plan's snackbar, or nowhere. */
+    private fun whereTheMessageIs(): String {
+        val inPopup = compose.onAllNodes(hasText(SAVE_FAILED) and hasAnyAncestor(androidx.compose.ui.test.isPopup())).fetchSemanticsNodes().size
+        val inDialog = compose.onAllNodes(hasText(SAVE_FAILED) and hasAnyAncestor(isDialog())).fetchSemanticsNodes().size
+        val anywhere = compose.onAllNodes(hasText(SAVE_FAILED)).fetchSemanticsNodes().size
+        val message = when {
+            anywhere == 0 -> "nowhere"
+            inPopup > 0 -> "in a popup (x$inPopup)" + if (anywhere > inPopup) ", and ${anywhere - inPopup} more elsewhere" else ""
+            inDialog > 0 -> "inside a dialog (x$inDialog), not in a popup"
+            else -> "in Plan's snackbar only (x$anywhere)"
+        }
+        val dialogs = buildList {
+            if (pickerOpen()) add("picker")
+            if (formOpen()) add("add form")
+            if (compose.createFormOpen()) add("create form")
+            val count = compose.onAllNodes(isDialog()).fetchSemanticsNodes().size
+            if (count > size) add("${count - size} other")
+        }
+        return "message $message; dialogs open: ${dialogs.ifEmpty { listOf("none") }.joinToString()}"
+    }
+
+    /**
+     * [waitFor], and should it time out, prints before rethrowing: each change during the wait (wall and test clock
+     * times), [whereTheMessageIs], the longest gap between two checks, the database work still running and its
+     * threads, and the semantics tree. So a failure says where the message went, and whether the test stalled (few
+     * checks, a long gap), the test clock leapt (far more than 16 ms a check), or the failure never came back.
+     */
+    private fun waitRecording(condition: () -> Boolean) {
+        val wallStart = System.nanoTime()
+        val clockStart = compose.mainClock.currentTime
+        val timeline = mutableListOf<String>()
+        var last = ""
+        var polls = 0
+        var lastPoll = wallStart
+        var longestGap = 0L
+        try {
+            waitFor {
+                val now = System.nanoTime()
+                longestGap = maxOf(longestGap, now - lastPoll)
+                lastPoll = now
+                polls++
+                condition().also { met ->
+                    // Cheap, so the wait idles as the plain one does: the full picture is taken at the timeout.
+                    val where = "condition $met, message anywhere ${exists(hasText(SAVE_FAILED))}, database work in flight ${database.inFlight}"
+                    if (where != last) {
+                        timeline += "  +${(now - wallStart) / 1_000_000} ms wall, +${compose.mainClock.currentTime - clockStart} ms test clock, check $polls: $where"
+                        last = where
+                    }
+                }
+            }
+        } catch (timeout: androidx.compose.ui.test.ComposeTimeoutException) {
+            val report = buildString {
+                appendLine("WAIT TIMED OUT after $polls checks, ${(System.nanoTime() - wallStart) / 1_000_000} ms wall, ${compose.mainClock.currentTime - clockStart} ms test clock; longest gap between checks ${longestGap / 1_000_000} ms")
+                appendLine("now: ${whereTheMessageIs()}; Tyre flip stored: ${tyreFlipStored()}; database work in flight: ${database.inFlight}")
+                timeline.forEach(::appendLine)
+                Thread.getAllStackTraces().filter { it.key.name == "test-database" }.forEach { (thread, stack) ->
+                    appendLine("thread ${thread.name} ${thread.state}:")
+                    stack.take(25).forEach { appendLine("    at $it") }
+                }
+            }
+            System.err.println(report)
+            val roots = compose.onAllNodes(androidx.compose.ui.test.isRoot())
+            roots.fetchSemanticsNodes().indices.forEach { System.err.println(roots[it].printToString(maxDepth = Int.MAX_VALUE)) }
+            throw timeout
+        }
+    }
+
     @Test
     fun planAdd_addFails_saysSoOverTheAddForm_whileItStaysOpen() {
         db.openHelper.writableDatabase.execSQL(
@@ -1018,7 +1105,7 @@ class PlanScreenTest {
         createThen(cancelInForm, closePicker)
 
         // Back on the add form, whose scrim hides Plan's snackbar: the add form says it.
-        waitFor { saidOverTheDialog() }
+        waitRecording { saidOverTheDialog() }
         assertTrue(!pickerOpen())
         assertAddForm("Squat")
         assertTrue(!tyreFlipStored())
