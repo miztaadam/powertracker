@@ -351,8 +351,8 @@ fun PlanContent(
                 PtIconButton(onClick = onOpenSettings) {
                     Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = scheme.onSurfaceVariant)
                 }
-                // Each side's menu; an empty plan has its own buttons instead.
-                if (!state.emptyPlan) {
+                // Each side's menu, once the stored plan is read; an empty plan has its own buttons instead.
+                if (state.loaded && !state.emptyPlan) {
                     Box {
                         PtIconButton(onClick = { menuOpen = true }) {
                             Icon(Icons.Filled.MoreVert, contentDescription = PLAN_OPTIONS, tint = scheme.onSurfaceVariant)

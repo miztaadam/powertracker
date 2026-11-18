@@ -82,9 +82,12 @@ fun replaceTitle(mode: TrainingMode): String = "Replace your ${if (mode == Train
 /** The snackbar on Plan after a save: "Plan set: 4-day upper/lower." */
 fun planSetText(name: String): String = "Plan set: $name."
 
+/** A draft day's name: its weekday once the weekdays match the template, else "Day 1", "Day 2", …. */
+fun templateDayName(index: Int, day: DayOfWeek, daysMatch: Boolean): String = if (daysMatch) dayName(day) else "Day ${index + 1}"
+
 /** A draft day's heading: "Monday · Squat & bench" once the weekdays match the template, else "Day 1 · Squat & bench". */
 fun templateSessionHeading(index: Int, day: DayOfWeek, title: String, daysMatch: Boolean): String =
-    "${if (daysMatch) dayName(day) else "Day ${index + 1}"} · $title"
+    "${templateDayName(index, day, daysMatch)} · $title"
 
 /** What the templates' content can ask of its view model. */
 data class TemplatesActions(
@@ -205,7 +208,8 @@ private fun TemplateRow(template: PlanTemplate, onClick: () -> Unit) {
 
 @Composable
 private fun TemplateDraft(template: PlanTemplate, draft: PlanDraft, state: TemplatesState, actions: TemplatesActions) {
-    var swapping by remember { mutableStateOf<Pair<DayOfWeek, String>?>(null) }
+    // The day, its index in the week (for "Day n" while the count is off) and the exercise being swapped.
+    var swapping by remember { mutableStateOf<Triple<DayOfWeek, Int, String>?>(null) }
     val listState = rememberLazyListState()
     LaunchedEffect(state.failed) { if (state.failed) listState.animateScrollToItem(0) }
     LazyColumn(
@@ -244,17 +248,19 @@ private fun TemplateDraft(template: PlanTemplate, draft: PlanDraft, state: Templ
                 headingText = templateSessionHeading(i, session.day, session.title, state.daysMatch),
                 fixedReps = state.fixedReps,
                 canSwap = { TemplatesViewModel.canSwap(it.name) },
-                onSwap = { name -> swapping = session.day to name },
+                onSwap = { name -> swapping = Triple(session.day, i, name) },
             )
         }
         // The bodybuilding draft shows each body part's weekly sets, as the builder's does; powerlifting has none.
         if (state.mode == TrainingMode.BODYBUILDING) item(key = "volume") { DraftVolumeCard(draft.volume, Modifier.testTag("volume")) }
         if (draft.leftOut.isNotEmpty()) item(key = "left-out") { DraftLeftOutCard(draft.leftOut) }
     }
-    swapping?.let { (day, name) ->
+    swapping?.let { (day, index, name) ->
         val options = remember(draft, day, name) { actions.alternatives(day, name) }
         DraftSwapSheet(
             day, name, options,
+            // The sheet names the day as its card does.
+            dayLabel = templateDayName(index, day, state.daysMatch),
             onPick = { to ->
                 actions.onSwap(day, name, to)
                 swapping = null

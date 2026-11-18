@@ -405,6 +405,144 @@ class TemplatesViewModelTest {
         assertTrue("the weight goes up from 100 kg", target.weightKg > 100.0)
     }
 
+    /** The bodybuilding side, on Monday, Wednesday and Friday: today (a Wednesday) is a training day of bb-3. */
+    private fun onBodybuilding() = runBlocking {
+        settings.update { it.copy(trainingMode = BODYBUILDING, bodybuildingTrainingDays = setOf(MONDAY, WEDNESDAY, FRIDAY)) }
+    }
+
+    @Test
+    fun aNewLifter_getsNoTargetOnABodybuildingTemplatesLifts() {
+        onBodybuilding()
+        save(vm(BODYBUILDING).also { it.choose("bb-3") })
+        assertEquals(setOf(MONDAY, WEDNESDAY, FRIDAY), stored().bodybuildingTrainingDays)
+        val today = todayVm()
+        await("today's rows") { today.state.value.items.any { it.exercise.name == "Face pull" } }
+        await("the coach has run") { today.coachPasses.value > 0 }
+        settle()
+        val items = today.state.value.items
+        assertTrue(items.size > 1)
+        for (item in items) assertNull("${item.exercise.name}: no target for a new lifter", todaysTarget(item.exercise))
+    }
+
+    /** Face pull is on bb-3's Wednesday and Friday, 3 × 8–12 @ 8 on both: Wednesday's target is a plain 3 × 8–12 face pull's. */
+    @Test
+    fun withHistory_aBodybuildingLiftOnTwoDays_getsTheSameTargetAsAPlainPlan() {
+        onBodybuilding()
+        val facePull = row("Face pull")
+        runBlocking {
+            val last = training.startSession(today.minus(7, DateTimeUnit.DAY), null, null, BODYBUILDING)
+            repeat(3) { training.logSet(last, LoggedSet(facePull.id, 20.0, 12, 8.0, false, null, false)) }
+            training.savePlanItem(PlanItem(0, WEDNESDAY, facePull.id, 3, 8, 8.0, 0, BODYBUILDING, 12))
+        }
+        val control = todayVm()
+        await("control target") { todaysTarget(facePull) != null }
+        val expected = todaysTarget(facePull)!!
+        control.viewModelScope.cancel()
+        runBlocking { db.advice().clear(); db.plan().clear() }
+
+        save(vm(BODYBUILDING).also { it.choose("bb-3") })
+        val items = plan(BODYBUILDING).filter { it.exerciseId == facePull.id }
+        assertEquals(setOf(WEDNESDAY, FRIDAY), items.map { it.weekday }.toSet())
+        assertTrue(items.all { listOf(it.sets, it.reps, it.repsHigh, it.targetRpe) == listOf(3, 8, 12, 8.0) })
+        todayVm()
+        await("target") { todaysTarget(facePull) != null }
+        assertEquals(expected, todaysTarget(facePull))
+    }
+
+    // A save that fails changes nothing
+
+    private data class OldState(val plan: List<PlanItem>, val skip: Skip, val days: AppSettings)
+
+    /** An old powerlifting plan, a skip of one of its items, and stored days (Mon, Wed, Fri) other than pl-4's spread. */
+    private fun oldPlanWithASkip(): OldState {
+        val curl = row("Curl")
+        runBlocking {
+            val old = training.savePlanItem(PlanItem(0, MONDAY, curl.id, 3, 10, 8.0, 0))
+            training.savePlanItem(PlanItem(0, FRIDAY, curl.id, 3, 10, 8.0, 0))
+            training.skip(Skip(0, today.minus(1, DateTimeUnit.DAY), POWERLIFTING, curl.id, old, SkipReason.BUSY)) { _, _ -> emptyList() }
+        }
+        return OldState(plan(POWERLIFTING), runBlocking { training.skips().first() }.single(), stored())
+    }
+
+    private fun assertUnchanged(before: OldState) {
+        assertEquals("the old plan, ids and all", before.plan, plan(POWERLIFTING))
+        assertEquals("the skip still points at its item", before.skip, runBlocking { training.skips().first() }.single())
+        assertEquals("both sides' days", before.days, stored())
+    }
+
+    private fun failingSave(
+        setDays: suspend (TrainingMode, Set<DayOfWeek>) -> Unit = { m, d -> com.powertracker.ui.plan.builder.setSideTrainingDays(settings, m, d) },
+        replacePlan: suspend (TrainingMode, List<Pair<PlanItem, String?>>) -> Unit = { m, items -> training.replacePlan(m, items) },
+    ): TemplatesViewModel {
+        val vm = TemplatesViewModel(POWERLIFTING, training, settings, setDays = setDays, replacePlan = replacePlan)
+        viewModels += vm
+        await("loaded") { !vm.state.value.loading }
+        vm.choose("pl-4")
+        assertTrue(vm.state.value.days != stored().trainingDays)
+        vm.use()
+        vm.confirmReplace()
+        await("failed") { vm.state.value.failed }
+        assertFalse(vm.state.value.saved)
+        settle()
+        return vm
+    }
+
+    private fun assertATryAgainSavesBoth(vm: TemplatesViewModel) {
+        save(vm)
+        assertFalse(vm.state.value.failed)
+        assertEquals(PlanTemplates.byId("pl-4")!!.sessions.sumOf { it.exercises.count { e -> !e.onlyWithStrictPress } }, plan(POWERLIFTING).size)
+        assertEquals(vm.state.value.days, stored().trainingDays)
+    }
+
+    @Test
+    fun aFailingDaysWrite_leavesTheOldPlanItsSkipAndTheDays_andATryAgainSavesBoth() {
+        val before = oldPlanWithASkip()
+        var failNext = true
+        val vm = failingSave(setDays = { mode, days ->
+            if (failNext) {
+                failNext = false
+                throw java.io.IOException("settings store unavailable")
+            }
+            com.powertracker.ui.plan.builder.setSideTrainingDays(settings, mode, days)
+        })
+        assertUnchanged(before)
+        assertATryAgainSavesBoth(vm)
+    }
+
+    /** The days are stored, then the store reports a failure: they are put back. */
+    @Test
+    fun aDaysWriteThatStoresThenFails_isPutBack() {
+        val before = oldPlanWithASkip()
+        var failNext = true
+        val vm = failingSave(setDays = { mode, days ->
+            com.powertracker.ui.plan.builder.setSideTrainingDays(settings, mode, days)
+            if (failNext) {
+                failNext = false
+                throw java.io.IOException("settings store unavailable")
+            }
+        })
+        assertUnchanged(before)
+        assertATryAgainSavesBoth(vm)
+    }
+
+    /** The plan's writes all run, then fail before the end: the transaction leaves the old plan, and the days are as they were. */
+    @Test
+    fun aFailingPlanWrite_leavesTheOldPlanItsSkipAndTheDays_andATryAgainSavesBoth() {
+        val before = oldPlanWithASkip()
+        var failNext = true
+        val vm = failingSave(replacePlan = { mode, items ->
+            training.inTransaction {
+                training.replacePlan(mode, items)
+                if (failNext) {
+                    failNext = false
+                    throw android.database.sqlite.SQLiteFullException("disk full")
+                }
+            }
+        })
+        assertUnchanged(before)
+        assertATryAgainSavesBoth(vm)
+    }
+
     // Replacing with state tied to the old plan
 
     private fun coach(): CoachViewModel = CoachViewModel(training, advice, settings) { today }.also { vm ->

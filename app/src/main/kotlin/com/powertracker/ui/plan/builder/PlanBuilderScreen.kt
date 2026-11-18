@@ -400,10 +400,18 @@ fun WeekdayChips(days: Set<DayOfWeek>, onDay: (DayOfWeek) -> Unit, tagPrefix: St
  * picked; the caller closes the sheet.
  */
 @Composable
-fun DraftSwapSheet(day: DayOfWeek, name: String, options: List<LibraryExercise>, onPick: (String) -> Unit, onDismiss: () -> Unit) {
+fun DraftSwapSheet(
+    day: DayOfWeek,
+    name: String,
+    options: List<LibraryExercise>,
+    onPick: (String) -> Unit,
+    onDismiss: () -> Unit,
+    /** The day as its card names it; the builder's cards name the weekday. */
+    dayLabel: String = dayName(day),
+) {
     GuideSheet(onDismiss = onDismiss) {
         Column(Modifier.fillMaxWidth().padding(start = Space.xl, end = Space.s, bottom = Space.xl).testTag("alternatives")) {
-            GuideHeader("$SWAP $name", dayName(day), closeLabel = "Close", onClose = onDismiss)
+            GuideHeader("$SWAP $name", dayLabel, closeLabel = "Close", onClose = onDismiss)
             if (options.isEmpty()) {
                 Text(NO_ALTERNATIVES, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.m))
             } else {

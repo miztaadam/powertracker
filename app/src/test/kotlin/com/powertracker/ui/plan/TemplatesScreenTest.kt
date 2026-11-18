@@ -172,6 +172,24 @@ class TemplatesScreenTest {
         assertFalse(vm.state.value.emptySide)
     }
 
+    /** The first frame, drawn from the view model's state before the stored plan is read: no menu, no empty line, no button. */
+    @Test
+    fun theFirstFrame_beforeThePlanIsRead_hasNoMenuAndNothingEmpty() {
+        runBlocking { training.savePlanItem(PlanItem(0, MONDAY, row("Squat").id, 3, 5, 8.0, 0)) }
+        val first = PlanViewModel(training, settings).state.value
+        assertFalse("the plan is not read yet", first.loaded)
+        compose.setContent {
+            PowertrackerTheme {
+                PlanContent(first, onOpenSettings = {}, onAdd = {}, onEdit = {}, onMove = { _, _ -> }, onDelete = {}, onSetBaseline = {})
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithContentDescription("Settings").assertExists()
+        assertTrue("no Plan menu", compose.onAllNodes(androidx.compose.ui.test.hasContentDescription(PLAN_OPTIONS)).fetchSemanticsNodes().isEmpty())
+        assertFalse(says(EMPTY_POWERLIFTING_PLAN))
+        assertFalse(says(CHOOSE_A_TEMPLATE))
+    }
+
     // The list and the draft
 
     @Test
@@ -253,6 +271,60 @@ class TemplatesScreenTest {
         compose.onNodeWithContentDescription("Swap Seated cable row").performClick()
         waitFor { has("alternatives") }
         assertTrue(compose.onAllNodes(hasTestTag("alternative")).fetchSemanticsNodes().isNotEmpty())
+    }
+
+    /** The names the open Swap sheet offers. */
+    private fun offered(): List<String> = compose.onAllNodes(hasTestTag("alternative")).fetchSemanticsNodes()
+        .map { it.config[androidx.compose.ui.semantics.SemanticsProperties.Text].first().text }
+
+    @Test
+    fun aVariation_swapsOnlyToVariationsOfTheSameLift() {
+        templates(POWERLIFTING)
+        open("pl-4")
+        // Pause squat is on the 4-day template's last day.
+        scrollTo("session-3")
+        compose.onNodeWithContentDescription("Swap Pause squat").performClick()
+        waitFor { has("alternatives") }
+        val names = offered()
+        assertTrue(names.isNotEmpty())
+        for (name in names) {
+            val e = com.powertracker.domain.library.Library.find(name)!!
+            assertEquals(name, listOf(com.powertracker.domain.model.Category.VARIATION, com.powertracker.domain.model.MainLift.SQUAT), listOf(e.category, e.parentLift))
+        }
+    }
+
+    @Test
+    fun strictPress_withTheSettingOn_isInTheDraft_andHasNoSwap() {
+        runBlocking { settings.setShowStrictPress(true) }
+        templates(POWERLIFTING)
+        open("pl-3")
+        scrollTo("session-1")
+        compose.onNode(hasText("Strict press") and hasAnyAncestor(hasTestTag("session-1"))).assertExists()
+        compose.onNodeWithContentDescription("Swap Strict press").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Swap Lat pulldown").assertExists()
+    }
+
+    /** The Swap sheet names the day as its card does (its eyebrow, in capitals): "Day 2" while the count is off, else the weekday. */
+    @Test
+    fun theSwapSheet_namesTheDayAsItsCardDoes() {
+        templates(POWERLIFTING)
+        open("pl-3")
+        val inSheet = hasAnyAncestor(hasTestTag("alternatives"))
+        scrollTo("session-1")
+        compose.onNodeWithContentDescription("Swap Lat pulldown").performClick()
+        waitFor { has("alternatives") }
+        compose.onNode(hasText("WEDNESDAY") and inSheet).assertExists()
+        compose.onNode(androidx.compose.ui.test.hasContentDescription("Close") and inSheet).performClick()
+        waitFor { !has("alternatives") }
+
+        compose.onNodeWithTag("draft-list").performScrollToNode(hasTestTag("template-day-FRIDAY"))
+        compose.onNodeWithTag("template-day-FRIDAY").performClick()
+        scrollTo("session-1")
+        assertTrue(says("Day 2 · Deadlift & bench"))
+        compose.onNodeWithContentDescription("Swap Lat pulldown").performClick()
+        waitFor { has("alternatives") }
+        compose.onNode(hasText("DAY 2") and inSheet).assertExists()
+        assertTrue("not the weekday it last had", compose.onAllNodes(hasText("WEDNESDAY") and inSheet).fetchSemanticsNodes().isEmpty())
     }
 
     @Test
