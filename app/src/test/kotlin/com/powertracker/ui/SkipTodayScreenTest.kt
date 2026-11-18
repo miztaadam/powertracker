@@ -190,6 +190,8 @@ class SkipTodayScreenTest {
         compose.onNodeWithText("Undo").assertExists()
         waitFor { exists("Skipped today") }
         compose.onNodeWithText("Bring back").assertExists()
+        // Its accessible name says what it brings back, as on the web.
+        compose.onNodeWithContentDescription("Bring back Bench").assertExists()
         assertTrue("the row left", !menuExists("Bench"))
         compose.onNodeWithText("Ready to train?").assertExists()
     }
@@ -218,7 +220,7 @@ class SkipTodayScreenTest {
         waitFor { exists("Skipped today") }
         assertEquals(listOf<SkipReason?>(null), skips().map { it.reason })
 
-        compose.onNodeWithText("Bring back").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Bring back Bench").performScrollTo().performClick()
 
         waitFor { skips().isEmpty() }
         waitFor { menuExists("Bench") && !exists("Skipped today") }

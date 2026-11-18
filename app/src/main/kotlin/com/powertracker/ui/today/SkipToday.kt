@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -58,6 +59,9 @@ fun skipSheetTitle(name: String): String = "Why skip $name?"
 
 /** The snackbar after a skip, with [UNDO]. */
 fun skippedMessage(name: String): String = "$name skipped."
+
+/** Bring back's label for a screen reader, as on the web: it names what it brings back. */
+fun bringBackLabel(name: String): String = "$BRING_BACK $name"
 
 /** The row menu's label, for a screen reader. */
 fun exerciseOptions(name: String): String = "Options for $name"
@@ -177,7 +181,11 @@ fun SkippedTodayLine(skipped: List<SkippedToday>, onBringBack: (exerciseId: Long
                     // Never cut: a long name wraps between words beside its Bring back.
                     modifier = Modifier.weight(1f).padding(vertical = Space.xs),
                 )
-                QuietButton(BRING_BACK, { onBringBack(s.exerciseId) }, Modifier.testTag("bring-back-${s.exerciseId}"))
+                QuietButton(
+                    BRING_BACK,
+                    { onBringBack(s.exerciseId) },
+                    Modifier.testTag("bring-back-${s.exerciseId}").semantics { contentDescription = bringBackLabel(s.name) },
+                )
             }
         }
     }
