@@ -403,6 +403,17 @@ B's slow-open share (35%, 14 of 40, against at most 28%) was over the rule, but 
 
 **The next step, untried:** every pixel is a fixed blend of four colours (text, muted, accent and surface). So one set of 3 alpha sheets, stacked as CSS masks in the theme's colours, might serve all 4 palettes. Spike it for size, cost and exactness before building anything.
 
+### After 1.12.1: one set of theme-coloured masks (owner's option 2). It missed, so nothing was built.
+- **Idea:** 3 alpha sheets (text, muted, accent) painted as CSS masks in the theme's colours, so one set covers all 4 palettes.
+- **Pixels:** close, not exact. 5–7% of tile pixels differ, about 80% of those by 1 level, worst 8 (none over 32), mostly on edges.
+- **Size:** 273 KB (2x) or 432 KB (3x) as optimised PNG; 221/351 KB as lossy WebP. Option B needed 2.5/4.25 MB. Decoded memory, worked out not measured: about 24 MB (2x) or 54 MB (3x).
+- **Speed:** decoded ahead, still missed at 40 rounds: open +11.5 ms (powerlifting), +8.5 (bodybuilding), keystroke +5.8, slow opens 55–75%. The cost is the first paint of the masks, not the decode.
+- **With one hidden masked tile painted at start-up (beyond the brief), 160 rounds:** open and keystroke within the bound, every keystroke under 100 ms, but slow opens 33% against a limit of 14%. Bodybuilding: open +4.0 against a bound of 3.
+- **Start-up:** decoded about 220 ms after load; +17 ms main-thread time (+25 ms with the primer).
+- **Exercises tab:** 5–12 ms faster to open with masks than with its SVG, and lighter on scroll.
+- **Making the sheets:** `@resvg/resvg-wasm` installs without a native build but differs from Chromium at edges by up to 98 levels, so the sheets would have to be made in Chromium and committed.
+- The trial's tools and diff are local only (`.superpowers/…/mask-trial/`).
+
 ## Done: choose sets and reps when adding (1.12, both apps)
 Spec: `docs/superpowers/specs/2026-11-17-grit-plan-add-sets-reps-design.md`; plan: `docs/superpowers/plans/2026-11-17-grit-plan-add-sets-reps.md`. The owner asked (2026-11-17): "When inputting exercises into my plan, I want to be able to select the reps sets."
 
