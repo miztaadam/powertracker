@@ -193,6 +193,7 @@ export function SettingsContent({ settings, onUpdate, onAppLock, onBodybuilding 
           <SegmentedChoice
             label="Rest alert"
             className="settings-rest-alert"
+            sizeToLabels
             options={restAlerts.map((alert) => REST_ALERT_LABEL[alert])}
             selectedIndex={restAlerts.indexOf(restAlert)}
             onSelect={(i) => onUpdate((s) => ({ ...s, restAlert: restAlerts[i] ?? s.restAlert }))}

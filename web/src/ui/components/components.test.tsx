@@ -191,6 +191,14 @@ describe('SegmentedChoice and ChoiceChip', () => {
     expect(screen.getAllByRole('radio').every((r) => !(r as HTMLInputElement).checked)).toBe(true)
   })
 
+  // 1.12.3: the rest alert opts in to segments sized to their labels; every other use keeps equal segments.
+  it('keeps equal segments unless sizeToLabels is set', () => {
+    const { rerender } = render(<SegmentedChoice label="Range" options={['A', 'B']} selectedIndex={0} onSelect={() => {}} />)
+    expect(screen.getByRole('radiogroup', { name: 'Range' })).not.toHaveClass('gr-segmented-fit')
+    rerender(<SegmentedChoice label="Range" options={['A', 'B']} selectedIndex={0} onSelect={() => {}} sizeToLabels />)
+    expect(screen.getByRole('radiogroup', { name: 'Range' })).toHaveClass('gr-segmented', 'gr-segmented-fit')
+  })
+
   it('a chip is a checkbox', async () => {
     const onClick = vi.fn()
     render(<ChoiceChip text="Mon" selected onClick={onClick} />)

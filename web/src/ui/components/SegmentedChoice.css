@@ -19,6 +19,13 @@
   user-select: none;
 }
 
+/* Opt-in (sizeToLabels): each segment starts at its label's width and takes an equal share of what is left. When
+   the row is too narrow even for that, a label that can wrap shrinks no further than its longest word. */
+.gr-segmented-fit .gr-segment {
+  flex: 1 1 auto;
+  min-width: auto;
+}
+
 .gr-segment-face {
   flex: 1;
   display: flex;
