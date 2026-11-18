@@ -183,7 +183,9 @@ object CoachSources {
      * (whole body, on non-consecutive days), intermediates 3-4 (split routines) and advanced lifters 4-6; an NSCA
      * classification table gives advanced as a year or more of training. ExRx.net's Weight Training Guidelines
      * (https://exrx.net/WeightTraining/Guidelines, the same page as [BUILDER_ORDER]) summarise the ACSM 2009
-     * progression models as novice 2-3 days, intermediate 3-4 and advanced 4-5, and say beginners train the whole body.
+     * progression models as novice 2-3 days, intermediate 3-4 and advanced 4-5. That beginners train the whole body
+     * (the 3-day bodybuilding template) is from the NSCA article and ExRx.net's training-split pages
+     * (https://exrx.net/Questions/WeightTrainingSplits, https://exrx.net/WeightTraining/Instructions).
      * 3, 4 and 5 days sit inside every one of these bands. NSCA sources disagree on how many months make a beginner or
      * an intermediate, so the lines name no months; all agree on "a year or more" for advanced.
      *
@@ -204,8 +206,9 @@ object CoachSources {
      * What the page says: ExRx.net's summary of the 2026 ACSM position stand: for strength, lift heavier loads (at
      * least 80% of 1RM) for 2-3 sets per exercise, at least 2 sessions a week, upper limit undetermined. The same page
      * summarises ACSM 2009: intermediate and advanced lifters train 1-12 RM periodised, eventually emphasising heavier
-     * loads (1-6 RM); advanced lifters 3-6 sets per exercise at 70-100% of 1RM, which the 4-day (4 x 4) and 5-day
-     * (5 x 3) templates' sets rest on. ACSM states "at least 2 sessions a week" for strength training and muscle
+     * loads (1-6 RM), which the 4-day (4 x 4) and 5-day (5 x 3) templates' reps rest on; advanced lifters 3-6 sets per
+     * exercise at 70-100% of 1RM, which the 5-day template's 5 sets rest on. The 4-day template's 4 sets rest on
+     * [TEMPLATE_STRENGTH_PHASE] (2-6 sets). ACSM states "at least 2 sessions a week" for strength training and muscle
      * groups; applying it to each lift is the designer's reading.
      *
      * Checked on 2026-11-18 from the search summary (a web search restricted to the allowed sources); the page itself
