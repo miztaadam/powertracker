@@ -142,3 +142,9 @@
   display: flex;
   align-items: center;
 }
+
+/* Plan's add form: the wrappers that hold its first taps (PlanItemDialog's ignoreTapsFor) are not drawn as boxes. */
+.plan-form-taps,
+.plan-form-actions {
+  display: contents;
+}

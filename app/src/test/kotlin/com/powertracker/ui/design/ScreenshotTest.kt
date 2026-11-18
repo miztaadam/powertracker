@@ -43,7 +43,8 @@ import java.io.File
  * is the real `ExercisePickerContent`, on its muscle grid and inside one muscle; the form guide is the real `FormGuideContent` in a stand-in
  * for the bottom sheet, for the squat, the bench press and the lat pulldown, each with its two-pose picture, and the squat once more with bodybuilding mode on, in the blue look with its stretch and squeeze section (the sheet itself is its own window, which this capture cannot see). The Exercises tab is
  * the real `ExercisesContent`; its Muscles drop-down, the guide with its actions and the day chooser are their
- * real content in the same stand-in, the first and last over the tab. Today, Plan, the Exercises captures,
+ * real content in the same stand-in, the first and last over the tab. Plan's add form, on both sides, is the real
+ * `PlanItemFields` in a stand-in for its AlertDialog window, over the Plan screen. Today, Plan (and its add form), the Exercises captures,
  * the exercise picker,
  * lift history, the empty Coach feed and the two lock screens are phone size (412 × 915 dp); the
  * other Coach captures, Progress, Settings, the four form guides and the RPE sheet are full-page captures of a scrolling screen, so
@@ -129,6 +130,9 @@ class ScreenshotTest {
     fun plan() = render("plan", Tab.PLAN) { PlanShowcase() }
 
     @Test
+    fun planAddForm() = render("plan-add-form", Tab.PLAN) { PlanAddFormShowcase() }
+
+    @Test
     @Config(qualifiers = "w412dp-h1400dp-xhdpi")
     fun settings() = render("settings", null) { SettingsShowcase() }
 
@@ -142,6 +146,9 @@ class ScreenshotTest {
 
     @Test
     fun planBodybuilding() = render("plan-bodybuilding", Tab.PLAN, TrainingMode.BODYBUILDING) { PlanBodybuildingShowcase() }
+
+    @Test
+    fun planAddFormBodybuilding() = render("plan-add-form-bodybuilding", Tab.PLAN, TrainingMode.BODYBUILDING) { PlanAddFormShowcase(TrainingMode.BODYBUILDING) }
 
     @Test
     fun coachBodybuilding() = render("coach-bodybuilding", Tab.COACH, TrainingMode.BODYBUILDING) { CoachBodybuildingShowcase() }

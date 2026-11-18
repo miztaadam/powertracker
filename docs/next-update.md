@@ -403,6 +403,63 @@ B's slow-open share (35%, 14 of 40, against at most 28%) was over the rule, but 
 
 **The next step, untried:** every pixel is a fixed blend of four colours (text, muted, accent and surface). So one set of 3 alpha sheets, stacked as CSS masks in the theme's colours, might serve all 4 palettes. Spike it for size, cost and exactness before building anything.
 
+## Done: choose sets and reps when adding (1.12, both apps)
+Spec: `docs/superpowers/specs/2026-11-17-grit-plan-add-sets-reps-design.md`; plan: `docs/superpowers/plans/2026-11-17-grit-plan-add-sets-reps.md`. The owner asked (2026-11-17): "When inputting exercises into my plan, I want to be able to select the reps sets."
+
+**What the lifter gets:**
+- On Plan's **Add** on a day, picking an exercise opens the sets and reps form, titled "Add to <Day>", with an **Add** button. Nothing is stored until **Add**.
+- **The form starts at the same ready-made numbers as before:**
+  - powerlifting: 3 × 5 for a compound lift and 3 × 10 for an accessory, at the default RPE;
+  - bodybuilding: 3 × 8–12 @ 8, with Reps from and Reps to.
+- **Add** stores exactly what is on the form, at the end of the day, with one tick. **Cancel**, back or a tap outside stores nothing and does not tick.
+- **The form's limits are Edit's:** sets 1–10, fixed reps up to 20, a range's top no lower than its bottom and up to 30, and RPE in steps of 0.5.
+- **Your own new exercise,** made from the picker's list, opens the same form once it is made. Cancel keeps it in your library and adds nothing. If making it fails, no form opens and the failure shows as before.
+- **Unchanged:** editing a row, Today's **Add exercise**, the plan builder, the Exercises tab's "Add to plan", the ready-made numbers and the picker.
+- The trade-off is one extra tap (**Add**) when the ready-made numbers are already right.
+
+**Calls made while building:**
+- **Change keeps the numbers on the form:** swapping the exercise inside the add form does not overwrite what you set, as in Edit. **Add** then stores the new exercise with those numbers.
+- **The web form opens in the picker's place, with no blank moment:** the numbers are worked out at once from what the screen has already read, and the picker stays mounted but hidden while its form is open. Focus goes straight from the row into the form, and back to the day's **Add** when both close (8e0f7e1).
+- **A double tap on Add stores one item, tested on both apps:**
+  - Android: `planAdd_doubleTapAdd_storesOne`. With the guard removed, it stores 2.
+  - Web: `planAdd_twoClicksBeforeARender_storeOne` (two clicks before React renders). With the guard removed, it stores 2. `planAdd_doubleTapAdd_storesOne` passes either way, because the form closes on the first tap.
+- **Android keeps the add form across rotation and process death,** with the picked exercise and the numbers, and stores nothing until **Add** (`planAdd_survivesRecreation`).
+  - Edit, Baseline and the picker still close on rotation, as before. The plan assumed Edit already survived it; it did not, and making them survive is a small follow-up if wanted.
+- **The side is read at the tap:** **Add** stores on the side the app is on at that moment, as the Exercises tab's "Add to plan" does. The form's shape (a range or fixed reps) comes from the side when the exercise was picked, so the two can differ only if the side is switched while the form is open.
+- **The Android add-form screenshots are a stand-in.** The capture cannot see a dialog's own window, so they draw the real form fields in a frame built from the dialog's defaults, over the Plan screen. The scrim covers only the content area there; on a phone it covers the whole screen.
+
+**Existing tests changed:** each picked on Plan's Add and expected the item stored at once, and each now also taps **Add** on the form. Nothing else in them changed, except where noted.
+- **Android:**
+  - `PlanScreenTest`: `addPlanItem_showsUnderWeekday` (its comment too) and `addToADay_ticksOnce_changeExercise_doesNotTick`.
+  - `ExercisePickerTest`: `pickerRow_doubleTap_addsOnce`, `createCustom_withCatalogueName_usesTheCatalogueEntry` and `compoundDefaults3x5_accessory3x10`, each in both halves; `pickerInfo_opensGuideWithoutPicking_inThePlan` (comment); and `restoredBuiltIn_appearsOnce_andIsReused`.
+  - `BodybuildingScreensTest.plan_newBodybuildingEntry_is3x8to12at8_onItsOwnSide` called the old three-argument `add`, which is gone. It now calls `draft`, then `add` with the draft's numbers, and its assertions are unchanged.
+- **Web, vitest:**
+  - `PlanScreen.test.tsx`: `addPlanItem_showsUnderWeekday`, `upDown_reorderWithinTheDay`, `customExercise_isCreatedAndAdded`, `failedSave_saysSo`, `pickerAdd_ticksOnce` and `aFailedPickerAdd_doesNotBuzz`.
+  - `ExercisePicker.test.tsx`: `pickerInfo_opensGuideWithoutPicking_inThePlan`, `restoredBuiltIn_appearsOnce_andIsReused`, `compoundDefaults3x5_accessory3x10`, `createCustom_withCatalogueName_usesTheCatalogueEntry` and `pickerRow_doubleTap_addsOnce`.
+  - `bodybuilding.test.tsx`: `addingAnExercise_gives3SetsOf8To12AtRpe8_onThatSideOnly`.
+- **Web, e2e:**
+  - `plan.spec`, "the plan is edited through its dialogs…". It also checks that the add form fits 375 px with full-size targets. It leaves out only the hidden picker's controls, the picker being still mounted under the form (narrowed in the review fixes, below).
+  - `narrow.spec`, "a plan row moves and nothing overflows" (3 viewports).
+  - `library.spec`, "the muscle grid fits…" and "the picker fits a 375 px phone…".
+  - `bodybuilding.spec`, "switching sides…".
+
+**New tests and screenshots:** the `planAdd_…` tests in `PlanScreenTest` and `PlanScreen.test.tsx`; the e2e `planAdd_chooseSetsReps_storedAndShownInRow` (Bench on Monday, 5 × 3, Add, and the row reads 5 × 3 after a reload); and `plan-add-form` and `plan-add-form-bodybuilding` shots, dark and light, on both apps. Settings shots are re-shot for 1.12; no other screenshot changed.
+
+Not yet tried on a real phone.
+
+### Review fixes (1.12)
+- **A double tap on a picker row no longer reaches the new form.** The form opens under the finger, so the second tap used to land on its **Add** (stored at once) or on the scrim (cancelled). Now, for 300 ms after it opens, the add form ignores taps on **Add**, **Cancel** and outside it, on both apps.
+  - **Still live in that moment:** the steppers and **Change** (a stray tap there only moves a number, which stays on screen), the keyboard (Enter, Space, Escape), and Android's back.
+  - **Screen readers:** Android's accessibility click is not held, since it does not come through a touch. On the web, a screen reader that activates with a plain click is not held, but one that simulates a tap (VoiceOver on iPhone) is held like a tap, for the same 300 ms.
+  - **How:** Android drops touches on the two buttons until the moment is over, and turns off dismiss-on-outside-tap meanwhile. The web stops tap clicks (`detail` 1 or more) on the buttons and the scrim, measured on the clock events are stamped with, since `performance.now()` is faked in the speed checks and `Date` is fixed in e2e.
+  - **Edit's form is unchanged.** A restored Android add form (after rotation) holds taps for a moment again, which does no harm.
+  - **Tests:** `planAdd_secondTapOfADoubleTap_isIgnored` and `planAdd_tapAfterTheWindow_works`, on both apps. Each fails with the window taken out, and each kind of tap (Add, Cancel, outside) fails its own check when only its hold is taken out.
+  - **Existing tests:** every test that picked and then tapped **Add** or **Cancel** at once was itself a double tap, so each now waits the moment out first (a clock step in the shared helpers, a 300 ms wait in e2e). These are Android's `PlanScreenTest` helper and its two inline taps, and `ExercisePickerTest.confirmAdd`; the web's `addForm` and `confirmAdd` helpers, `bodybuilding.test`, and the focus test's Cancel; and in e2e, plan, library, narrow and bodybuilding.
+- **Android, two new tests:**
+  - `planAdd_ownExerciseFails_opensNoForm`: the database insert itself fails. No form opens and nothing is stored. Nothing on Android catches that failure, though: as before 1.12, it escapes the view model's coroutine, which on a phone crashes the app. The test expects that. The web shows "Couldn't save" instead. Catching it on Android is a follow-up.
+  - `planAdd_survivesRecreation_bodybuilding`: the restored form keeps Reps from and Reps to, and **Add** stores `repsHigh`.
+- **Web e2e:** the 375 px tap-target check leaves out only the hidden picker's controls, not every 0 × 0 control on the page.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;

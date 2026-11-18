@@ -45,12 +45,20 @@ export function planDayChoices(trainingDays: readonly number[]): number[] {
 export const MIN_RPE = 6
 export const MAX_RPE = 10
 
+/** The numbers of a plan item not stored yet: what the add form opens with, and what it gives back to `add`. */
+export type PlanDraft = { sets: number; reps: number; targetRpe: number; repsHigh?: number }
+
 export type PlanActions = {
   /**
-   * Adds what was picked at the end of the day: 3 × 5 for a compound lift, 3 × 10 for an accessory,
-   * at the default RPE. A catalogue exercise gets its row, if it has none yet, in the same transaction.
+   * The ready-made numbers a pick would be added with on the side the screen shows (`planDraft`). Worked out from
+   * what is already read, without waiting, so the add form takes the picker's place in the same render. Stores nothing.
    */
-  add: (weekday: number, entry: PickerEntry) => Promise<void>
+  draft: (entry: PickerEntry) => PlanDraft
+  /**
+   * Adds what was picked at the end of the day with exactly the numbers chosen in the add form, on the side as
+   * stored at the moment of the tap. A catalogue exercise gets its row, if it has none yet, in the same transaction.
+   */
+  add: (weekday: number, entry: PickerEntry, chosen: PlanDraft) => Promise<void>
   /**
    * `add` for the Exercises tab, where the day is chosen after the exercise: the same defaults and the
    * same single transaction, but an exercise already on that day is left alone. It reads what is
@@ -116,13 +124,18 @@ function build({ plan, exercises, settings, recentIds }: Stored): Omit<PlanState
 }
 
 /**
- * What was picked as a new plan item for the day on `side`: on the powerlifting side 3 × 5 or 3 × 10 at the default
- * RPE as stored now; on the bodybuilding side 3 × 8-12 at RPE 8.
+ * The ready-made numbers of a new plan item on `side`: on the powerlifting side 3 × 5 for a compound lift or 3 × 10
+ * for an accessory at `defaultRpe` (kept within MIN_RPE-MAX_RPE); on the bodybuilding side 3 × 8-12 at RPE 8.
  */
+export function planDraft(side: TrainingMode, defaultRpe: number, entry: PickerEntry): PlanDraft {
+  if (side === 'BODYBUILDING') return { ...BODYBUILDING_DEFAULTS }
+  return { sets: DEFAULT_SETS, reps: defaultReps(entry), targetRpe: Math.min(MAX_RPE, Math.max(MIN_RPE, defaultRpe)) }
+}
+
+/** What was picked as a new plan item for the day on `side`, with `planDraft`'s numbers at the default RPE as stored now. */
 async function newItem(db: GritDb, weekday: number, entry: PickerEntry, side: TrainingMode) {
-  if (side === 'BODYBUILDING') return { weekday, exerciseId: entry.exerciseId, ...BODYBUILDING_DEFAULTS }
-  const { defaultRpe } = await getSettings(db)
-  return { weekday, exerciseId: entry.exerciseId, sets: DEFAULT_SETS, reps: defaultReps(entry), targetRpe: Math.min(MAX_RPE, Math.max(MIN_RPE, defaultRpe)) }
+  const defaultRpe = side === 'BODYBUILDING' ? 0 : (await getSettings(db)).defaultRpe
+  return { weekday, exerciseId: entry.exerciseId, ...planDraft(side, defaultRpe, entry) }
 }
 
 /** The rows of each day in the order they are drawn: what a slide waits for a change to. */
@@ -161,12 +174,18 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
   // A failed read is for the app's error boundary, not for an empty screen that looks like no plan.
   if (readError != null) throw readError
 
+  // The side and default RPE the screen shows, as last read.
+  const draft = useCallback<PlanActions['draft']>((entry) => planDraft(stored?.settings.trainingMode ?? EMPTY.side, stored?.settings.defaultRpe ?? EMPTY.defaultRpe, entry), [stored])
+
   const add = useCallback<PlanActions['add']>(
-    (weekday, entry) =>
+    (weekday, entry, chosen) =>
       sliding(slide, async () => {
         // The side as stored at the moment of the tap, which the screen shows.
         const side = await activeSide(db)
-        await addPlanItem(db, await newItem(db, weekday, entry, side), entry.library?.name ?? null, side)
+        const { sets, reps, targetRpe, repsHigh } = chosen
+        // The form's numbers win, even if the side changed while it was open. No `repsHigh` key at all for fixed reps.
+        const item = { weekday, exerciseId: entry.exerciseId, sets, reps, targetRpe, ...(repsHigh != null ? { repsHigh } : {}) }
+        await addPlanItem(db, item, entry.library?.name ?? null, side)
       }),
     [db, slide],
   )
@@ -231,5 +250,5 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
   )
 
   const state = useMemo(() => (stored ? build(stored) : EMPTY), [stored])
-  return { loading: stored == null, ...state, add, addOnce, save, remove, move, addCustomExercise, setBaseline }
+  return { loading: stored == null, ...state, draft, add, addOnce, save, remove, move, addCustomExercise, setBaseline }
 }

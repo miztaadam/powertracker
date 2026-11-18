@@ -33,13 +33,19 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -84,6 +90,7 @@ import com.powertracker.ui.plan.builder.REBUILD_MY_PLAN
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.today.SlidingColumnItems
+import kotlinx.coroutines.delay
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaDayOfWeek
@@ -102,17 +109,73 @@ const val EMPTY_BODYBUILDING_PLAN = "Your bodybuilding plan is empty. Add exerci
 /** The most reps the top of a range can be set to. */
 private const val MAX_RANGE_REPS = 30
 
+/** The most fixed reps a plan item can be set to. */
+private const val MAX_PLAN_REPS = 20
+
+/**
+ * How long, in ms, the add form ignores taps on Add, Cancel and outside it once it opens. It opens under the finger
+ * that picked the exercise, so the second tap of a double tap on the row would otherwise land on it.
+ */
+internal const val ADD_FORM_TAP_WINDOW_MS = 300L
+
 fun dayName(day: DayOfWeek): String = day.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
 
 // Dialogs holding text fields use full-width properties: with the platform-default width the field
 // never settles under Robolectric (the Compose test never goes idle).
 private val TEXT_FIELD_DIALOG = DialogProperties(usePlatformDefaultWidth = false)
 
+/** [TEXT_FIELD_DIALOG] while it ignores taps outside it ([ADD_FORM_TAP_WINDOW_MS]). */
+private val TEXT_FIELD_DIALOG_HOLDING_TAPS = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false)
+
+/**
+ * Swallows touches until [live] is true, before the button under them sees them, so a tap does nothing; keyboard and
+ * accessibility clicks do not come through touches and still work.
+ */
+private fun Modifier.dropTapsUntil(live: State<Boolean>): Modifier = pointerInput(live) {
+    awaitPointerEventScope {
+        while (true) {
+            val event = awaitPointerEvent(PointerEventPass.Initial)
+            if (!live.value) event.changes.forEach { it.consume() }
+        }
+    }
+}
+
 private sealed interface PlanDialog {
     /** The full-screen picker, adding to [day]. */
     data class Add(val day: DayOfWeek) : PlanDialog
+
+    /** The sets/reps form for [entry], just picked for [day]: [draft] holds the ready-made numbers, stored nowhere yet. */
+    data class AddDetails(val day: DayOfWeek, val entry: PickerEntry, val draft: PlanItem) : PlanDialog
     data class Edit(val item: PlanItem) : PlanDialog
     data class Baseline(val lift: Exercise) : PlanDialog
+
+    companion object {
+        /**
+         * Keeps the add form across a rotation or the process being killed: the day, the picked entry and the draft.
+         * The other dialogs are not kept, as before.
+         */
+        val Saver: Saver<PlanDialog?, Any> = listSaver(
+            save = { d ->
+                if (d !is PlanDialog.AddDetails) {
+                    emptyList()
+                } else {
+                    val entry = with(PickerEntry.Saver) { save(d.entry) } as List<*>
+                    val item = d.draft
+                    listOf(d.day.name) + entry + listOf(item.exerciseId, item.sets, item.reps, item.targetRpe, item.order, item.mode.name, item.repsHigh ?: -1)
+                }
+            },
+            restore = { v ->
+                if (v.isEmpty()) return@listSaver null
+                val day = DayOfWeek.valueOf(v[0] as String)
+                val entry = PickerEntry.Saver.restore(v.subList(1, 6))!!
+                val draft = PlanItem(
+                    0, day, v[6] as Long, v[7] as Int, v[8] as Int, v[9] as Double, v[10] as Int,
+                    TrainingMode.valueOf(v[11] as String), (v[12] as Int).takeIf { it >= 0 },
+                )
+                AddDetails(day, entry, draft)
+            },
+        )
+    }
 }
 
 @Composable
@@ -126,7 +189,7 @@ fun PlanScreen(
     onOpenBuilder: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var dialog by remember { mutableStateOf<PlanDialog?>(null) }
+    var dialog by rememberSaveable(stateSaver = PlanDialog.Saver) { mutableStateOf(null) }
 
     PlanContent(
         state = state,
@@ -142,18 +205,37 @@ fun PlanScreen(
     // Adding an exercise to a day ticks once it is stored; changing one in the edit dialog does not.
     val haptics = rememberHaptics()
     when (val d = dialog) {
-        // Picking adds the exercise with its default sets and reps; they are edited from the row, as before.
+        // Picking opens the sets/reps form with the ready-made numbers; nothing is stored until its Add. An exercise
+        // the lifter creates here is saved at once, as before, and then opens the same form. The form opens under the
+        // finger, so for a moment it ignores taps on Add, Cancel and outside it (ADD_FORM_TAP_WINDOW_MS).
         is PlanDialog.Add -> ExercisePickerScreen(
             title = "Add to ${dayName(d.day)}",
             exercises = state.exercises,
             recentIds = state.recentIds,
-            onPick = { entry ->
-                viewModel.add(d.day, entry) { haptics.tick() }
-                dialog = null
-            },
+            onPick = { entry -> dialog = PlanDialog.AddDetails(d.day, entry, viewModel.draft(d.day, entry)) },
             onCreateCustom = { name, category, parent, muscles ->
-                viewModel.addCustomExercise(name, category, parent, muscles) { entry -> viewModel.add(d.day, entry) { haptics.tick() } }
+                // Closed first: a name the catalogue knows answers at once, and the form it opens must stay open.
                 dialog = null
+                viewModel.addCustomExercise(name, category, parent, muscles) { entry ->
+                    dialog = PlanDialog.AddDetails(d.day, entry, viewModel.draft(d.day, entry))
+                }
+            },
+            onDismiss = { dialog = null },
+        )
+        is PlanDialog.AddDetails -> PlanItemDialog(
+            title = "Add to ${dayName(d.day)}",
+            state = state,
+            item = d.draft,
+            exerciseName = d.entry.name,
+            confirmText = "Add",
+            ignoreTapsForMillis = ADD_FORM_TAP_WINDOW_MS,
+            onCreateCustom = viewModel::addCustomExercise,
+            onSave = { exercise, sets, reps, rpe, repsHigh ->
+                // Stored once: a second tap in the same frame finds the form already closed.
+                if (dialog == d) {
+                    dialog = null
+                    viewModel.add(d.day, exercise ?: d.entry, sets, reps, rpe, repsHigh) { haptics.tick() }
+                }
             },
             onDismiss = { dialog = null },
         )
@@ -161,6 +243,7 @@ fun PlanScreen(
             title = "Edit ${dayName(d.item.weekday)}",
             state = state,
             item = d.item,
+            confirmText = "Save",
             onCreateCustom = viewModel::addCustomExercise,
             onSave = { exercise, sets, reps, rpe, repsHigh ->
                 viewModel.save(d.item, exercise, sets, reps, rpe, repsHigh)
@@ -361,15 +444,27 @@ private fun PlanItemRow(
     }
 }
 
-/** Sets, reps and RPE of a plan item, and its exercise, which "Change" swaps through the picker. */
+/**
+ * Sets, reps and RPE of a plan item, and its exercise, which "Change" swaps through the picker. Edit opens it on a
+ * stored row ("Save"); Add opens it on a draft that is stored only by [confirmText] ("Add").
+ */
 @Composable
 private fun PlanItemDialog(
     title: String,
     state: PlanUiState,
     item: PlanItem,
+    confirmText: String,
     onCreateCustom: (String, Category, MainLift?, List<String>, (PickerEntry) -> Unit) -> Unit,
     onSave: (exercise: PickerEntry?, sets: Int, reps: Int, rpe: Double, repsHigh: Int?) -> Unit,
     onDismiss: () -> Unit,
+    /** The exercise's name when it may have no stored row yet: the entry picked for the add form. */
+    exerciseName: String? = null,
+    /**
+     * For this long after it opens, taps on the confirm button, on Cancel and outside the dialog do nothing: the add
+     * form opens under the finger that picked, where a double tap's second tap lands. Keyboard, back and accessibility
+     * actions are not held; neither are the steppers and Change. 0 (Edit) holds nothing.
+     */
+    ignoreTapsForMillis: Long = 0L,
 ) {
     // Null until the exercise is changed; saved with the item, not before.
     var changed by rememberSaveable(stateSaver = PickerEntry.Saver) { mutableStateOf(null) }
@@ -379,36 +474,33 @@ private fun PlanItemDialog(
     var repsHigh by rememberSaveable { mutableStateOf(item.repsHigh ?: if (item.mode == TrainingMode.BODYBUILDING) item.reps else null) }
     var rpe by rememberSaveable { mutableStateOf(item.targetRpe) }
     var picking by rememberSaveable { mutableStateOf(false) }
-    val name = changed?.name ?: state.exercises.firstOrNull { it.id == item.exerciseId }?.name ?: "Unknown exercise"
+    val name = changed?.name ?: exerciseName ?: state.exercises.firstOrNull { it.id == item.exerciseId }?.name ?: "Unknown exercise"
+    // Not kept across recreation: a restored form holds taps for a moment again, which does no harm.
+    val tapsLive = remember { mutableStateOf(ignoreTapsForMillis <= 0L) }
+    if (!tapsLive.value) {
+        LaunchedEffect(Unit) {
+            delay(ignoreTapsForMillis)
+            tapsLive.value = true
+        }
+    }
+    val heldTaps = if (ignoreTapsForMillis > 0L) Modifier.dropTapsUntil(tapsLive) else Modifier
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        properties = TEXT_FIELD_DIALOG,
+        // A tap outside is the only way here that can't be told apart from back by its callback, so it is held by the
+        // window itself: back still closes the form at once.
+        properties = if (tapsLive.value) TEXT_FIELD_DIALOG else TEXT_FIELD_DIALOG_HOLDING_TAPS,
         modifier = Modifier.padding(horizontal = 16.dp),
         title = { Text(title) },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                Row(Modifier.fillMaxWidth().padding(bottom = Space.s), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Eyebrow("Exercise")
-                        Text(name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                    }
-                    SecondaryButton("Change", { picking = true }, compact = true, modifier = Modifier.semantics { contentDescription = "Change exercise" })
-                }
-                LabeledStepper("Sets", sets.toString(), sets > 1, sets < 10, { sets-- }, { sets++ })
-                val high = repsHigh
-                if (high == null) {
-                    LabeledStepper("Reps", reps.toString(), reps > 1, reps < 20, { reps-- }, { reps++ })
-                } else {
-                    // Two ends of the range; the top never goes below the bottom.
-                    LabeledStepper("Reps from", reps.toString(), reps > 1, reps < high, { reps-- }, { reps++ })
-                    LabeledStepper("Reps to", high.toString(), high > reps, high < MAX_RANGE_REPS, { repsHigh = high - 1 }, { repsHigh = high + 1 })
-                }
-                LabeledStepper("RPE", formatRpe(rpe), rpe > PlanViewModel.MIN_RPE, rpe < PlanViewModel.MAX_RPE, { rpe -= 0.5 }, { rpe += 0.5 }) { RpeInfoButton() }
-            }
+            PlanItemFields(
+                name, sets, reps, repsHigh, rpe,
+                onSets = { sets = it }, onReps = { reps = it }, onRepsHigh = { repsHigh = it }, onRpe = { rpe = it },
+                onChange = { picking = true },
+            )
         },
-        confirmButton = { PrimaryButton("Save", { onSave(changed, sets, reps, rpe, repsHigh) }, compact = true) },
-        dismissButton = { QuietButton("Cancel", onDismiss) },
+        confirmButton = { PrimaryButton(confirmText, { onSave(changed, sets, reps, rpe, repsHigh) }, heldTaps, compact = true) },
+        dismissButton = { QuietButton("Cancel", onDismiss, heldTaps) },
     )
 
     if (picking) {
@@ -429,6 +521,43 @@ private fun PlanItemDialog(
     }
 }
 
+/**
+ * The body of [PlanItemDialog]: the exercise with its "Change" button, then Sets, Reps (or Reps from and Reps to for a
+ * range, when [repsHigh] is set) and RPE, within Edit's limits. Internal so the mockups can draw it outside its window.
+ */
+@Composable
+internal fun PlanItemFields(
+    name: String,
+    sets: Int,
+    reps: Int,
+    repsHigh: Int?,
+    rpe: Double,
+    onSets: (Int) -> Unit,
+    onReps: (Int) -> Unit,
+    onRepsHigh: (Int) -> Unit,
+    onRpe: (Double) -> Unit,
+    onChange: () -> Unit,
+) {
+    Column(Modifier.verticalScroll(rememberScrollState())) {
+        Row(Modifier.fillMaxWidth().padding(bottom = Space.s), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Eyebrow("Exercise")
+                Text(name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+            }
+            SecondaryButton("Change", onChange, compact = true, modifier = Modifier.semantics { contentDescription = "Change exercise" })
+        }
+        LabeledStepper("Sets", sets.toString(), sets > 1, sets < 10, { onSets(sets - 1) }, { onSets(sets + 1) })
+        if (repsHigh == null) {
+            LabeledStepper("Reps", reps.toString(), reps > 1, reps < MAX_PLAN_REPS, { onReps(reps - 1) }, { onReps(reps + 1) })
+        } else {
+            // Two ends of the range; the top never goes below the bottom.
+            LabeledStepper("Reps from", reps.toString(), reps > 1, reps < repsHigh, { onReps(reps - 1) }, { onReps(reps + 1) })
+            LabeledStepper("Reps to", repsHigh.toString(), repsHigh > reps, repsHigh < MAX_RANGE_REPS, { onRepsHigh(repsHigh - 1) }, { onRepsHigh(repsHigh + 1) })
+        }
+        LabeledStepper("RPE", formatRpe(rpe), rpe > PlanViewModel.MIN_RPE, rpe < PlanViewModel.MAX_RPE, { onRpe(rpe - 0.5) }, { onRpe(rpe + 0.5) }) { RpeInfoButton() }
+    }
+}
+
 @Composable
 private fun LabeledStepper(
     label: String,
@@ -439,7 +568,7 @@ private fun LabeledStepper(
     onInc: () -> Unit,
     labelAction: (@Composable () -> Unit)? = null,
 ) {
-    Row(Modifier.fillMaxWidth().padding(vertical = Space.xs), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().padding(vertical = Space.xs).testTag("plan-field-$label"), verticalAlignment = Alignment.CenterVertically) {
         Text(label, style = MaterialTheme.typography.titleMedium)
         labelAction?.invoke()
         Spacer(Modifier.weight(1f))

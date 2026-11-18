@@ -295,9 +295,10 @@ class ExercisePickerTest {
         assertTrue(plan().isEmpty())
         assertEquals(before, runBlocking { db.exercises().all() })
 
-        // Tapping the row itself is what adds it.
+        // Tapping the row itself is what opens the add form, and its Add stores it.
         scrollToRow("exercise-Curl")
         compose.onNodeWithTag("exercise-Curl").performClick()
+        confirmAdd()
         waitFor { plan().size == 1 }
         assertFalse(shows("exercise-search"))
         assertEquals(rows("Curl").single().id, plan().single().exerciseId)
@@ -327,10 +328,19 @@ class ExercisePickerTest {
         scrollToRow("exercise-Curl")
         assertEquals(1, compose.onAllNodes(hasTestTag("exercise-Curl")).fetchSemanticsNodes().size)
         compose.onNodeWithTag("exercise-Curl").performClick()
+        confirmAdd()
         waitFor { plan().size == 1 }
 
         assertEquals(77L, plan().single().exerciseId)
         assertEquals(listOf(restored), rows("Curl"))
+    }
+
+    /** Picking on Plan opens the sets/reps form (1.12); its Add stores the item. */
+    private fun confirmAdd() {
+        waitFor { compose.onAllNodes(hasText("Add") and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isNotEmpty() }
+        // Past the moment in which the new form ignores taps (the second tap of a double tap on the row).
+        compose.mainClock.advanceTimeBy(com.powertracker.ui.plan.ADD_FORM_TAP_WINDOW_MS)
+        compose.onNode(hasText("Add") and hasAnyAncestor(isDialog())).performClick()
     }
 
     /** Runs [node]'s click twice in one go on the UI thread, as two taps landing in the same frame would. */
@@ -349,6 +359,7 @@ class ExercisePickerTest {
 
         // Two taps inside one frame, before the picker can close: the second picks nothing more.
         doubleTap(compose.onNodeWithTag("exercise-Curl"))
+        confirmAdd()
         waitFor { plan().isNotEmpty() }
         compose.waitForIdle()
         assertEquals(1, plan().size)
@@ -359,6 +370,7 @@ class ExercisePickerTest {
         search("Tyre flip")
         compose.onNodeWithText("Create your own").performClick()
         doubleTap(compose.onNodeWithText("Create"))
+        confirmAdd()
         waitFor { plan().size >= 2 }
         compose.waitForIdle()
         assertEquals(1, rows("Tyre flip").size)
@@ -376,6 +388,7 @@ class ExercisePickerTest {
         compose.onNodeWithText("Create your own").performClick()
         compose.onNodeWithText("Name").performTextReplacement(" Back squat ")
         compose.onNodeWithText("Create").performClick()
+        confirmAdd()
         waitFor { plan().size == 1 }
         assertEquals(squat.id, plan().single().exerciseId)
         assertEquals(before, runBlocking { db.exercises().all() })
@@ -388,6 +401,7 @@ class ExercisePickerTest {
         compose.onNodeWithText("Create your own").performClick()
         compose.onNodeWithText("Name").performTextReplacement("leg press")
         compose.onNodeWithText("Create").performClick()
+        confirmAdd()
         waitFor { plan().size == 2 }
         val legPress = rows("Leg press").single()
         assertEquals("Leg press", legPress.name)
@@ -439,11 +453,13 @@ class ExercisePickerTest {
 
         search("squat")
         compose.onNodeWithTag("exercise-Squat").performClick()
+        confirmAdd()
         waitFor { plan().size == 1 }
         compose.onNodeWithTag("add-MONDAY").performClick()
         waitFor { shows("exercise-search") }
         search("curl")
         compose.onNodeWithTag("exercise-Curl").performClick()
+        confirmAdd()
         waitFor { plan().size == 2 }
 
         val squat = stored().first { it.name == "Squat" }

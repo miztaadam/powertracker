@@ -1,13 +1,14 @@
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { encodeBackup, exportBackup } from '../../backup/backup'
-import { resolveCatalogue } from '../../db/catalogue'
-import type { GritDb } from '../../db/db'
+import { planFor, resolveCatalogue } from '../../db/catalogue'
+import { updateSettings, type GritDb } from '../../db/db'
 import { setTapHaptics } from '../../platform/haptics'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, exerciseNamed, plan, todayFixture } from '../../test/todayFixture'
 import { PlanScreen } from './PlanScreen'
+import { pastTheTapWindow } from '../../test/tapWindow'
 
 let fx: ReturnType<typeof todayFixture>
 let db: GritDb
@@ -18,6 +19,7 @@ beforeEach(async () => {
 })
 // Unmount before the database closes.
 afterEach(async () => {
+  vi.useRealTimers()
   cleanup()
   await fx.dispose()
 })
@@ -40,8 +42,9 @@ describe('PlanScreen', () => {
     await userEvent.click(within(monday).getByRole('button', { name: 'Add' }))
     expect(screen.getByRole('dialog', { name: 'Add to Monday' })).toBeInTheDocument()
     await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), 'Squat')
-    // Picking adds it straight away: a compound lift at 3 sets × 5 reps @ the default RPE 8.
+    // Picking opens the form with a compound lift's 3 sets × 5 reps @ the default RPE 8; Add stores it.
     await userEvent.click(await pickerRow('Squat'))
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Add' }))
 
     await waitFor(() => expect(rowsOf(monday)).toEqual(['Squat  3 × 5 @ 8']))
     expect(within(monday).getByText('1 exercise · 3 sets')).toBeInTheDocument()
@@ -110,6 +113,7 @@ describe('PlanScreen', () => {
     // A new item goes after the last one.
     await userEvent.click(within(monday).getByRole('button', { name: 'Add' }))
     await userEvent.click(await pickerRow('Deadlift'))
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Add' }))
     await waitFor(() => expect(rowsOf(monday)[3]).toBe('Deadlift  3 × 5 @ 8'))
   })
 
@@ -133,6 +137,7 @@ describe('PlanScreen', () => {
     await userEvent.click(custom().getByRole('checkbox', { name: 'Squat' }))
     await userEvent.type(custom().getByRole('textbox', { name: 'Muscles (comma-separated)' }), 'quads, , glutes')
     await userEvent.click(custom().getByRole('button', { name: 'Create' }))
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Add' }))
 
     // Made, and added to the day like a picked one: a variation is a compound lift, 3 × 5.
     await waitFor(async () => expect(rowsOf(await day('Wednesday'))).toEqual(['Cluster squat  3 × 5 @ 8']))
@@ -231,6 +236,7 @@ describe('PlanScreen', () => {
     vi.spyOn(db.planItems, 'add').mockRejectedValue(new Error('disk full'))
     await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
     await userEvent.click(await pickerRow('Squat'))
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Add' }))
     expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
     expect(await storedPlan()).toEqual([])
   })
@@ -250,6 +256,388 @@ describe('PlanScreen', () => {
   })
 })
 
+// ---- 1.12: picking on Plan's Add opens the sets and reps form; Add stores what it shows ----
+
+/** The add form, once a pick has opened it: the dialog with the Sets stepper (the picker has the same title). */
+const addFormNow = async () => within((await screen.findByRole('group', { name: 'Sets' })).closest<HTMLElement>('[role="dialog"]')!)
+/** The add form, with the clock moved past the moment in which it ignores taps (the second tap of a double tap). */
+const addForm = async () => {
+  const form = await addFormNow()
+  pastTheTapWindow()
+  return form
+}
+/** A tap on the scrim around the open add form: outside it. */
+const tapOutside = async () => userEvent.click((await screen.findByRole('group', { name: 'Sets' })).closest<HTMLElement>('[role="dialog"]')!.parentElement!)
+const formOpen = () => screen.queryByRole('group', { name: 'Sets' }) != null
+/** Opens Add on `day` and picks `name` from the picker. */
+async function pickOn(day: string, name: string) {
+  await userEvent.click(within(await screen.findByRole('region', { name: day })).getByRole('button', { name: 'Add' }))
+  await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), name)
+  await userEvent.click(await pickerRow(name))
+}
+/** Fills in the custom exercise form opened by "Create your own", and creates it. */
+async function createOwn(name: string, variationOf?: string) {
+  await userEvent.click(await screen.findByRole('button', { name: 'Create your own' }))
+  const custom = () => within(screen.getByRole('dialog', { name: 'Add custom exercise' }))
+  await userEvent.type(custom().getByRole('textbox', { name: 'Name' }), name)
+  if (variationOf) {
+    await userEvent.click(custom().getByRole('checkbox', { name: 'Variation' }))
+    await userEvent.click(custom().getByRole('checkbox', { name: variationOf }))
+  }
+  await userEvent.click(custom().getByRole('button', { name: 'Create' }))
+}
+
+describe('PlanScreen add form', () => {
+  afterEach(() => {
+    setTapHaptics(false)
+    Reflect.deleteProperty(navigator, 'vibrate')
+  })
+
+  it('planAdd_pick_opensFormWithDefaults', async () => {
+    // A default RPE that is not the fallback, so the form is seen to read it.
+    await updateSettings(db, (s) => ({ ...s, defaultRpe: 7 }))
+    show()
+    await pickOn('Monday', 'Squat')
+
+    // A compound lift: 3 × 5 at the default RPE, in a form titled for the day, with Add in place of Save.
+    const form = await addForm()
+    expect(screen.getByRole('dialog', { name: 'Add to Monday' })).toHaveTextContent('Sets')
+    expect(form.getByRole('group', { name: 'Exercise' })).toHaveTextContent('Squat')
+    expect(form.getByRole('group', { name: 'Sets' })).toHaveTextContent('3')
+    expect(form.getByRole('group', { name: 'Reps' })).toHaveTextContent('5')
+    expect(form.getByRole('group', { name: 'RPE' })).toHaveTextContent('7')
+    expect(form.queryByRole('group', { name: 'Reps from' })).toBeNull()
+    expect(form.getByRole('button', { name: 'Add' })).toBeInTheDocument()
+    expect(form.queryByRole('button', { name: 'Save' })).toBeNull()
+    expect(screen.getAllByRole('dialog')).toHaveLength(1)
+    expect(await storedPlan()).toEqual([])
+
+    // An accessory: 3 × 10.
+    await userEvent.click(form.getByRole('button', { name: 'Cancel' }))
+    await pickOn('Monday', 'Curl')
+    const accessory = await addForm()
+    expect(accessory.getByRole('group', { name: 'Exercise' })).toHaveTextContent('Curl')
+    expect(accessory.getByRole('group', { name: 'Reps' })).toHaveTextContent('10')
+    expect(accessory.getByRole('group', { name: 'RPE' })).toHaveTextContent('7')
+  })
+
+  it('planAdd_changeNumbers_addStoresThem', async () => {
+    const squat = await exerciseNamed(db, 'Squat')
+    await plan(db, squat.id, { weekday: 1, order: 0 })
+    show()
+    const monday = await day('Monday')
+    await waitFor(() => expect(rowsOf(monday)).toHaveLength(1))
+    await pickOn('Monday', 'Bench')
+    const form = await addForm()
+    await userEvent.click(form.getByRole('button', { name: 'Increase Sets' }))
+    await userEvent.click(form.getByRole('button', { name: 'Increase Reps' }))
+    await userEvent.click(form.getByRole('button', { name: 'Decrease RPE' }))
+    expect(form.getByRole('group', { name: 'Sets' })).toHaveTextContent('4')
+    expect(form.getByRole('group', { name: 'Reps' })).toHaveTextContent('6')
+    expect(form.getByRole('group', { name: 'RPE' })).toHaveTextContent('7.5')
+    // Nothing is stored before Add.
+    expect(await storedPlan()).toHaveLength(1)
+
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    // At the end of the day, with exactly those numbers.
+    await waitFor(() => expect(rowsOf(monday)).toEqual(['Squat  5 × 5 @ 8', 'Bench  4 × 6 @ 7.5']))
+    expect(screen.queryByRole('dialog')).toBeNull()
+    const bench = await exerciseNamed(db, 'Bench')
+    expect((await storedPlan()).find((p) => p.exerciseId === bench.id)).toEqual({ weekday: 1, exerciseId: bench.id, sets: 4, reps: 6, targetRpe: 7.5, order: 1, mode: 'POWERLIFTING' })
+  })
+
+  it('planAdd_cancel_storesNothing', async () => {
+    // A library exercise with no row yet: Change to it, then Cancel, stores no row either.
+    await db.exercises.delete((await exerciseNamed(db, 'Curl')).id)
+    const before = await db.exercises.toArray()
+    show()
+    const monday = await day('Monday')
+
+    // Cancel, Escape: nothing stored.
+    await pickOn('Monday', 'Squat')
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Cancel' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+    await pickOn('Monday', 'Squat')
+    await addForm()
+    await userEvent.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).toBeNull()
+
+    // Change, then Cancel: nothing added, and the changed-to exercise gets no row.
+    await pickOn('Monday', 'Squat')
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Change' }))
+    await userEvent.click(within(await within(screen.getByRole('dialog', { name: 'Change exercise' })).findByRole('listitem', { name: 'Curl' })).getAllByRole('button')[0]!)
+    const changed = await addForm()
+    expect(changed.getByRole('group', { name: 'Exercise' })).toHaveTextContent('Curl')
+    await userEvent.click(changed.getByRole('button', { name: 'Cancel' }))
+    expect(await db.exercises.toArray()).toEqual(before)
+
+    // Change to one of your own, made there, then Cancel: it stays in the library, and nothing is added.
+    await pickOn('Monday', 'Squat')
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Change' }))
+    await createOwn('Tyre flip')
+    await waitFor(async () => expect((await addForm()).getByRole('group', { name: 'Exercise' })).toHaveTextContent('Tyre flip'))
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Cancel' }))
+    expect(await db.exercises.where('name').equals('Tyre flip').count()).toBe(1)
+
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(rowsOf(monday)).toEqual([])
+    expect(await storedPlan()).toEqual([])
+  })
+
+  it('planAdd_changeExercise_keepsTheNumbers_andAddsTheNewOne', async () => {
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addForm()
+    await userEvent.click(form.getByRole('button', { name: 'Increase Sets' }))
+    await userEvent.click(form.getByRole('button', { name: 'Change' }))
+    await userEvent.click(within(await within(screen.getByRole('dialog', { name: 'Change exercise' })).findByRole('listitem', { name: 'Deadlift' })).getAllByRole('button')[0]!)
+    expect(form.getByRole('group', { name: 'Exercise' })).toHaveTextContent('Deadlift')
+    expect(form.getByRole('group', { name: 'Sets' })).toHaveTextContent('4')
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    await waitFor(async () => expect(rowsOf(await day('Monday'))).toEqual(['Deadlift  4 × 5 @ 8']))
+  })
+
+  it('planAdd_bodybuilding_storesRange', async () => {
+    await updateSettings(db, (s) => ({ ...s, trainingMode: 'BODYBUILDING', defaultRpe: 7, bodybuildingTrainingDays: [2, 3, 6] }))
+    const curl = await exerciseNamed(db, 'Curl')
+    show()
+
+    // 3 × 8–12 @ 8 by default, whatever the default RPE, and Add stores it as shown.
+    await pickOn('Wednesday', 'Curl')
+    const form = await addForm()
+    expect(form.getByRole('group', { name: 'Sets' })).toHaveTextContent('3')
+    expect(form.getByRole('group', { name: 'Reps from' })).toHaveTextContent('8')
+    expect(form.getByRole('group', { name: 'Reps to' })).toHaveTextContent('12')
+    expect(form.getByRole('group', { name: 'RPE' })).toHaveTextContent('8')
+    expect(form.queryByRole('group', { name: 'Reps' })).toBeNull()
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    await waitFor(async () => expect(rowsOf(await day('Wednesday'))).toEqual(['Curl  3 × 8–12 @ 8']))
+    expect((await planFor(db, 'BODYBUILDING')).map((p) => [p.weekday, p.exerciseId, p.sets, p.reps, p.repsHigh, p.targetRpe, p.mode])).toEqual([[3, curl.id, 3, 8, 12, 8, 'BODYBUILDING']])
+
+    // A changed range is stored as chosen.
+    await pickOn('Saturday', 'Curl')
+    const changed = await addForm()
+    await userEvent.click(changed.getByRole('button', { name: 'Decrease Reps from' }))
+    await userEvent.click(changed.getByRole('button', { name: 'Increase Reps to' }))
+    await userEvent.click(changed.getByRole('button', { name: 'Increase Reps to' }))
+    await userEvent.click(changed.getByRole('button', { name: 'Add' }))
+    await waitFor(async () => expect(rowsOf(await day('Saturday'))).toEqual(['Curl  3 × 7–14 @ 8']))
+    expect((await planFor(db, 'BODYBUILDING')).find((p) => p.weekday === 6)).toMatchObject({ sets: 3, reps: 7, repsHigh: 14, targetRpe: 8, mode: 'BODYBUILDING' })
+    expect(await planFor(db, 'POWERLIFTING')).toEqual([])
+  })
+
+  it('planAdd_ownExercise_opensForm', async () => {
+    show()
+    await userEvent.click(within(await day('Wednesday')).getByRole('button', { name: 'Add' }))
+    await createOwn('Cluster squat', 'Squat')
+
+    // Made first, then the form: a variation is a compound lift, 3 × 5.
+    const form = await addForm()
+    expect(screen.getByRole('dialog', { name: 'Add to Wednesday' })).toHaveTextContent('Cluster squat')
+    expect(form.getByRole('group', { name: 'Exercise' })).toHaveTextContent('Cluster squat')
+    expect(form.getByRole('group', { name: 'Sets' })).toHaveTextContent('3')
+    expect(form.getByRole('group', { name: 'Reps' })).toHaveTextContent('5')
+    const made = await db.exercises.where('name').equals('Cluster squat').toArray()
+    expect(made).toHaveLength(1)
+    expect(await storedPlan()).toEqual([])
+
+    await userEvent.click(form.getByRole('button', { name: 'Increase Sets' }))
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    await waitFor(async () => expect(rowsOf(await day('Wednesday'))).toEqual(['Cluster squat  4 × 5 @ 8']))
+    expect(await storedPlan()).toEqual([{ weekday: 3, exerciseId: made[0]!.id, sets: 4, reps: 5, targetRpe: 8, order: 0, mode: 'POWERLIFTING' }])
+
+    // Cancelled: the exercise stays in the library, and nothing more is added.
+    await userEvent.click(within(await day('Wednesday')).getByRole('button', { name: 'Add' }))
+    await createOwn('Tyre flip')
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Cancel' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(await db.exercises.where('name').equals('Tyre flip').count()).toBe(1)
+    expect(await storedPlan()).toHaveLength(1)
+  })
+
+  it('planAdd_ownExerciseFails_opensNoForm', async () => {
+    show()
+    vi.spyOn(db.exercises, 'add').mockRejectedValue(new Error('disk full'))
+    await userEvent.click(within(await day('Wednesday')).getByRole('button', { name: 'Add' }))
+    await createOwn('Cluster squat', 'Squat')
+    expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(screen.queryByRole('group', { name: 'Sets' })).toBeNull()
+    expect(await storedPlan()).toEqual([])
+  })
+
+  it('planAdd_pick_swapsStraightToTheForm_focusInside_andBackToAddOnClose', async () => {
+    show()
+    const monday = await day('Monday')
+    const add = within(monday).getByRole('button', { name: 'Add' })
+    add.focus()
+    await userEvent.click(add)
+    await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), 'Squat')
+    const row = await pickerRow('Squat')
+
+    // One act, no waiting: the form is there, the picker gone, and the focus inside the form, never back on Add.
+    const focused: Element[] = []
+    const track = (e: FocusEvent) => focused.push(e.target as Element)
+    document.addEventListener('focusin', track)
+    act(() => row.click())
+    document.removeEventListener('focusin', track)
+    const dialogs = screen.getAllByRole('dialog')
+    expect(dialogs).toHaveLength(1)
+    expect(within(dialogs[0]!).getByRole('group', { name: 'Sets' })).toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Search exercises' })).toBeNull()
+    expect(dialogs[0]!.contains(document.activeElement)).toBe(true)
+    expect(focused).not.toContain(add)
+
+    // Closed, by Cancel or by Add: the focus is back on the day's Add.
+    pastTheTapWindow()
+    await userEvent.click(within(dialogs[0]!).getByRole('button', { name: 'Cancel' }))
+    expect(document.activeElement).toBe(add)
+    add.focus()
+    await pickOn('Monday', 'Squat')
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Add' }))
+    expect(document.activeElement).toBe(add)
+    await waitFor(() => expect(rowsOf(monday)).toEqual(['Squat  3 × 5 @ 8']))
+  })
+
+  it('planAdd_ownExercise_pickerStaysUntilTheFormOpens', async () => {
+    show()
+    await userEvent.click(within(await day('Wednesday')).getByRole('button', { name: 'Add' }))
+    let made!: () => void
+    const original = db.exercises.add.bind(db.exercises)
+    vi.spyOn(db.exercises, 'add').mockImplementation(((row: never) => new Promise((done) => (made = () => done(original(row))))) as never)
+    await createOwn('Tyre flip')
+    // Still being made: the picker is still there, never an empty moment.
+    expect(screen.getByRole('textbox', { name: 'Search exercises' })).toBeInTheDocument()
+    await act(async () => made())
+    const dialogs = await waitFor(() => {
+      const open = screen.getAllByRole('dialog')
+      expect(within(open[0]!).getByRole('group', { name: 'Exercise' })).toHaveTextContent('Tyre flip')
+      return open
+    })
+    expect(dialogs).toHaveLength(1)
+    expect(screen.queryByRole('textbox', { name: 'Search exercises' })).toBeNull()
+  })
+
+  it('planAdd_sideChangedWhileOpen_storesTheFormsNumbersOnTheStoredSide', async () => {
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addForm()
+    await updateSettings(db, (s) => ({ ...s, trainingMode: 'BODYBUILDING' }))
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    await waitFor(async () => expect(await storedPlan()).toHaveLength(1))
+    const squat = await exerciseNamed(db, 'Squat')
+    // The form's 3 × 5 @ 8 (no range), on the side as stored at the tap.
+    expect(await storedPlan()).toEqual([{ weekday: 1, exerciseId: squat.id, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: 'BODYBUILDING' }])
+  })
+
+  it('planAdd_twoClicksBeforeARender_storeOne', async () => {
+    show()
+    const add = vi.spyOn(db.planItems, 'add')
+    await pickOn('Monday', 'Squat')
+    const button = (await addForm()).getByRole('button', { name: 'Add' })
+    // Both clicks reach the button before React renders the form away: only the guard stops the second.
+    act(() => {
+      button.click()
+      button.click()
+    })
+    await waitFor(async () => expect(await storedPlan()).toHaveLength(1))
+    await new Promise((done) => setTimeout(done, 50))
+    expect(await storedPlan()).toHaveLength(1)
+    expect(add).toHaveBeenCalledOnce()
+  })
+
+  it('planAdd_doubleTapAdd_storesOne', async () => {
+    show()
+    await pickOn('Monday', 'Squat')
+    await userEvent.dblClick((await addForm()).getByRole('button', { name: 'Add' }))
+    await waitFor(async () => expect(rowsOf(await day('Monday'))).toEqual(['Squat  3 × 5 @ 8']))
+    // Give a second write every chance to land.
+    await new Promise((done) => setTimeout(done, 50))
+    expect(await storedPlan()).toHaveLength(1)
+  })
+
+  it('planAdd_secondTapOfADoubleTap_isIgnored', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addFormNow()
+
+    // A tap on Add, on Cancel or outside, landing just after the form opened: nothing happens.
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    expect(formOpen()).toBe(true)
+    await userEvent.click(form.getByRole('button', { name: 'Cancel' }))
+    expect(formOpen()).toBe(true)
+    await tapOutside()
+    expect(formOpen()).toBe(true)
+    vi.setSystemTime(Date.now() + 299)
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    expect(formOpen()).toBe(true)
+    await new Promise((done) => setTimeout(done, 20))
+    expect(await storedPlan()).toEqual([])
+
+    // The steppers stay live, and the keyboard is not held: Enter on Add stores at once.
+    await userEvent.click(form.getByRole('button', { name: 'Increase Sets' }))
+    expect(form.getByRole('group', { name: 'Sets' })).toHaveTextContent('4')
+    form.getByRole('button', { name: 'Add' }).focus()
+    await userEvent.keyboard('{Enter}')
+    await waitFor(async () => expect((await storedPlan()).map((p) => [p.sets, p.reps])).toEqual([[4, 5]]))
+    expect(formOpen()).toBe(false)
+
+    // Nor is Escape.
+    await pickOn('Monday', 'Squat')
+    await addFormNow()
+    await userEvent.keyboard('{Escape}')
+    expect(formOpen()).toBe(false)
+    expect(await storedPlan()).toHaveLength(1)
+  })
+
+  it('planAdd_tapAfterTheWindow_works', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addFormNow()
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    expect(formOpen()).toBe(true)
+
+    // Once the moment has passed, Add stores.
+    vi.setSystemTime(Date.now() + 300)
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    await waitFor(async () => expect((await storedPlan()).map((p) => [p.sets, p.reps])).toEqual([[3, 5]]))
+    expect(formOpen()).toBe(false)
+
+    // And a tap outside closes the form, storing nothing more.
+    await pickOn('Monday', 'Squat')
+    await addFormNow()
+    await tapOutside()
+    expect(formOpen()).toBe(true)
+    vi.setSystemTime(Date.now() + 300)
+    await tapOutside()
+    expect(formOpen()).toBe(false)
+    expect(await storedPlan()).toHaveLength(1)
+  })
+
+  it('planAdd_ticksOnceWhenStored', async () => {
+    const vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, writable: true, value: vibrate })
+    setTapHaptics(true)
+    show()
+    const monday = await day('Monday')
+
+    // Picking and cancelling: no tick.
+    await pickOn('Monday', 'Squat')
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Cancel' }))
+    expect(vibrate).not.toHaveBeenCalled()
+
+    // Picking opens the form without a tick; Add ticks once, when it is stored.
+    await pickOn('Monday', 'Squat')
+    const form = await addForm()
+    expect(vibrate).not.toHaveBeenCalled()
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    await waitFor(() => expect(rowsOf(monday)).toEqual(['Squat  3 × 5 @ 8']))
+    await waitFor(() => expect(vibrate).toHaveBeenCalledExactlyOnceWith(10))
+  })
+})
+
 // ---- Stage 2: adding from the picker ticks once (platform/haptics.ts) ----
 describe('PlanScreen haptics', () => {
   afterEach(() => {
@@ -266,6 +654,7 @@ describe('PlanScreen haptics', () => {
     await userEvent.click(within(monday).getByRole('button', { name: 'Add' }))
     await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), 'Squat')
     await userEvent.dblClick(await pickerRow('Squat'))
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Add' }))
     await waitFor(() => expect(rowsOf(monday)).toEqual(['Squat  3 × 5 @ 8']))
     await waitFor(() => expect(vibrate).toHaveBeenCalledExactlyOnceWith(10))
   })
@@ -282,6 +671,7 @@ describe('PlanScreen haptics', () => {
     await userEvent.click(within(monday).getByRole('button', { name: 'Add' }))
     await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), 'Squat')
     await userEvent.click(await pickerRow('Squat'))
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Add' }))
     await waitFor(() => expect(failing).toHaveBeenCalled())
     await waitFor(() => expect(screen.getByText("Couldn't save — try again.")).toBeInTheDocument())
     expect(vibrate).not.toHaveBeenCalled()

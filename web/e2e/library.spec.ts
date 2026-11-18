@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { openOnWednesday, readAllTables, tap, typeInto, weightField } from './helpers'
+import { openOnWednesday, pastTheTapWindow, readAllTables, tap, typeInto, weightField } from './helpers'
 
 // The exercise library on the narrowest iPhone: the picker stays fast with the whole catalogue,
 // nothing overflows, every target is a full 48 px, and the form guide can be read to its last line
@@ -58,6 +58,14 @@ const shownNames = (page: Page) => picker(page).getByRole('listitem').evaluateAl
 function expectFirstRows(rows: (string | null)[], expected: readonly string[], what: string) {
   expect(rows.length, `${what}: ${rows.length} rows`).toBeGreaterThanOrEqual(Math.min(FIRST_ROWS, expected.length))
   expect(rows, what).toEqual(expected.slice(0, rows.length))
+}
+
+/** Taps Add on the sets and reps form that a pick on Plan's Add opens (it has the picker's title). */
+async function confirmAdd(page: Page) {
+  const form = page.getByRole('dialog').filter({ has: page.getByRole('group', { name: 'Sets' }) })
+  await expect(form).toBeVisible()
+  await pastTheTapWindow(page)
+  await form.getByRole('button', { name: 'Add', exact: true }).click()
 }
 
 async function openPlanPicker(page: Page) {
@@ -327,6 +335,7 @@ test('the muscle grid fits a 375 px phone with full-size targets', async ({ page
   await tiles.filter({ hasText: 'Calves' }).click()
   const calf = grit.exercisesByMuscle('CALVES', [])[0]!.name
   await pickerRow(page, calf).getByRole('button').first().click()
+  await confirmAdd(page)
   await expect(picker(page)).toHaveCount(0)
   await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveAttribute('aria-label', new RegExp(`^${calf}  3 × `))
 })
@@ -382,6 +391,7 @@ test('the picker fits a 375 px phone with full-size targets', async ({ page }) =
 
   // The long name is added and still fits its plan row, beside four full-size controls.
   await pickerRow(page, 'Tyre flip with a very long name that has to wrap somewhere').getByRole('button').first().click()
+  await confirmAdd(page)
   await expect(picker(page)).toHaveCount(0)
   await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveAttribute('aria-label', 'Tyre flip with a very long name that has to wrap somewhere  3 × 10 @ 8')
   expect(await overflowing(page)).toEqual([])

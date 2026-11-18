@@ -11,6 +11,7 @@ import { set, startSession, logSet, todayFixture, TODAY } from '../../test/today
 import { PlanScreen } from '../plan/PlanScreen'
 import { ExercisePicker } from './ExercisePicker'
 import { AREAS, EQUIPMENT } from './labels'
+import { pastTheTapWindow } from '../../test/tapWindow'
 
 // Ported from Android's ExercisePickerTest. Sizes and the 375 px layout are checked in e2e/library.spec.ts.
 
@@ -25,6 +26,7 @@ beforeEach(async () => {
 })
 // Unmount before the database closes.
 afterEach(async () => {
+  vi.useRealTimers()
   cleanup()
   await fx.dispose()
 })
@@ -84,6 +86,14 @@ async function showPicker(extra: StoredExercise[] = [], recentIds: number[] = []
 async function showPlanPicker() {
   render(<PlanScreen db={db} today={() => TODAY} onOpenSettings={() => {}} />)
   await addToMonday()
+}
+
+/** Taps Add on the sets and reps form that a pick on Plan's Add opens. */
+async function confirmAdd() {
+  const form = (await screen.findByRole('group', { name: 'Sets' })).closest<HTMLElement>('[role="dialog"]')!
+  // Past the moment in which the new form ignores taps (the second tap of a double tap on the row).
+  pastTheTapWindow()
+  await userEvent.click(within(form).getByRole('button', { name: 'Add' }))
 }
 
 async function addToMonday() {
@@ -233,8 +243,9 @@ describe('ExercisePicker', () => {
     expect(await storedPlan()).toEqual([])
     expect(await db.exercises.toArray()).toEqual(before)
 
-    // Tapping the row itself is what adds it.
+    // Tapping the row itself, then Add on its form, is what adds it.
     await userEvent.click(rowButton('Curl'))
+    await confirmAdd()
     await waitFor(async () => expect(await storedPlan()).toHaveLength(1))
     expect(screen.queryByRole('dialog')).toBeNull()
     expect((await storedPlan())[0]!.exerciseId).toBe((await rows('Curl'))[0]!.id)
@@ -260,6 +271,7 @@ describe('ExercisePicker', () => {
     await showPlanPicker()
     expect(shownNames().filter((n) => n === 'Curl')).toHaveLength(1)
     await userEvent.click(rowButton('Curl'))
+    await confirmAdd()
     await waitFor(async () => expect(await storedPlan()).toHaveLength(1))
 
     expect((await storedPlan())[0]!.exerciseId).toBe(77)
@@ -493,10 +505,12 @@ describe('ExercisePicker', () => {
 
     await search('squat')
     await userEvent.click(rowButton('Squat'))
+    await confirmAdd()
     await waitFor(async () => expect(await storedPlan()).toHaveLength(1))
     await addToMonday()
     await search('curl')
     await userEvent.click(rowButton('Curl'))
+    await confirmAdd()
     await waitFor(async () => expect(await storedPlan()).toHaveLength(2))
 
     const squat = (await rows('Squat'))[0]!
@@ -518,6 +532,7 @@ describe('ExercisePicker', () => {
     const custom = within(screen.getByRole('dialog', { name: 'Add custom exercise' }))
     await userEvent.type(custom.getByRole('textbox', { name: 'Name' }), 'curl')
     await userEvent.click(custom.getByRole('button', { name: 'Create' }))
+    await confirmAdd()
     await waitFor(async () => expect(await storedPlan()).toHaveLength(1))
 
     expect(await db.exercises.toArray()).toEqual(before)
@@ -532,6 +547,7 @@ describe('ExercisePicker', () => {
     const again = within(screen.getByRole('dialog', { name: 'Add custom exercise' }))
     await userEvent.type(again.getByRole('textbox', { name: 'Name' }), 'Romanian deadlift')
     await userEvent.click(again.getByRole('button', { name: 'Create' }))
+    await confirmAdd()
     await waitFor(async () => expect(await storedPlan()).toHaveLength(2))
 
     expect(await rows('Romanian deadlift')).toEqual([])
@@ -553,6 +569,7 @@ describe('ExercisePicker', () => {
     const add = vi.spyOn(db.planItems, 'add')
     await showPlanPicker()
     await userEvent.dblClick(rowButton('Squat'))
+    await confirmAdd()
     await waitFor(async () => expect(await storedPlan()).toHaveLength(1))
     await new Promise((r) => setTimeout(r, 100))
     expect(await storedPlan()).toHaveLength(1)

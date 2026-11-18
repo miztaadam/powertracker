@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { openOnWednesday, tabBar, tap, weightField } from './helpers'
+import { openOnWednesday, pastTheTapWindow, tabBar, tap, weightField } from './helpers'
 
 // The narrowest phones in use: many Android phones are 306–360 px wide (an iPhone is 375 px and up). On each
 // screen, on both training sides, at 306 and 320 px (and 390, a common iPhone), the page must not scroll sideways and nothing may reach past
@@ -159,6 +159,11 @@ for (const [label, viewport] of [
         const picker = page.getByRole('dialog', { name: /^Add to / })
         await picker.getByRole('textbox', { name: 'Search exercises' }).fill(name)
         await picker.getByRole('listitem', { name, exact: true }).getByRole('button').first().click()
+        // The sets and reps form the pick opens: its Add stores the item.
+        const form = page.getByRole('dialog').filter({ has: page.getByRole('group', { name: 'Sets' }) })
+        await expect(form).toBeVisible()
+        await pastTheTapWindow(page)
+        await form.getByRole('button', { name: 'Add', exact: true }).click()
         await expect(picker).toHaveCount(0)
       }
       await expect(monday.getByRole('listitem')).toHaveCount(2)

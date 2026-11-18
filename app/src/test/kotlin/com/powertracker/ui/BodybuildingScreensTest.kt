@@ -169,7 +169,10 @@ class BodybuildingScreensTest {
         save(plItem(squat, DayOfWeek.MONDAY))
         val vm = planVm()
         await("state") { vm.state.value.mode == BODYBUILDING }
-        vm.add(DayOfWeek.MONDAY, PickerEntry(bench.name, bench.muscles, Kind.COMPOUND, null, bench.id))
+        // The add form opens on the draft; Add with its numbers unchanged stores them.
+        val entry = PickerEntry(bench.name, bench.muscles, Kind.COMPOUND, null, bench.id)
+        val draft = vm.draft(DayOfWeek.MONDAY, entry)
+        vm.add(DayOfWeek.MONDAY, entry, draft.sets, draft.reps, draft.targetRpe, draft.repsHigh)
 
         await("saved") { runBlocking { training.plan(BODYBUILDING).first() }.isNotEmpty() }
         val item = runBlocking { training.plan(BODYBUILDING).first() }.single()

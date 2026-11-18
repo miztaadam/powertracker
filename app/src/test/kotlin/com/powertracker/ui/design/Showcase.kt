@@ -12,6 +12,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Surface
+import com.powertracker.ui.components.PrimaryButton
+import com.powertracker.ui.components.QuietButton
+import com.powertracker.ui.plan.PlanItemFields
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
@@ -268,6 +276,55 @@ fun PlanShowcase() {
         mainExercises = listOf(exercise(1, "Squat", Category.SQUAT), exercise(2, "Bench", Category.BENCH), exercise(3, "Deadlift", Category.DEADLIFT)),
     )
     PlanContent(state, onOpenSettings = {}, onAdd = {}, onEdit = {}, onMove = { _, _ -> }, onDelete = {}, onSetBaseline = {})
+}
+
+/**
+ * Plan's add form (1.12): picking an exercise on a day opens the sets/reps form with the ready-made numbers. The real
+ * [PlanItemFields] in a stand-in for the AlertDialog window (which this capture cannot see), drawn from
+ * [AlertDialogDefaults] over the Plan screen.
+ */
+@Composable
+fun PlanAddFormShowcase(mode: TrainingMode = TrainingMode.POWERLIFTING) {
+    val bodybuilding = mode == TrainingMode.BODYBUILDING
+    DialogShowcase(
+        behind = { if (bodybuilding) PlanBodybuildingShowcase() else PlanShowcase() },
+        title = "Add to Monday",
+        confirmText = "Add",
+    ) {
+        if (bodybuilding) {
+            PlanItemFields("Incline DB press", 3, 8, 12, 8.0, {}, {}, {}, {}, {})
+        } else {
+            PlanItemFields("Squat", 3, 5, null, 8.0, {}, {}, {}, {}, {})
+        }
+    }
+}
+
+/** A stand-in for an AlertDialog window: its shape, colours, padding and type, centred over [behind] under a scrim. */
+@Composable
+private fun DialogShowcase(behind: @Composable () -> Unit, title: String, confirmText: String, text: @Composable () -> Unit) {
+    Box(Modifier.fillMaxSize()) {
+        behind()
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f)))
+        Surface(
+            Modifier.align(Alignment.Center).padding(horizontal = 16.dp).widthIn(min = 280.dp, max = 560.dp),
+            shape = AlertDialogDefaults.shape,
+            color = AlertDialogDefaults.containerColor,
+            tonalElevation = AlertDialogDefaults.TonalElevation,
+        ) {
+            Column(Modifier.padding(24.dp)) {
+                CompositionLocalProvider(LocalContentColor provides AlertDialogDefaults.titleContentColor) {
+                    ProvideTextStyle(MaterialTheme.typography.headlineSmall) { Text(title, Modifier.padding(bottom = 16.dp)) }
+                }
+                CompositionLocalProvider(LocalContentColor provides AlertDialogDefaults.textContentColor) {
+                    ProvideTextStyle(MaterialTheme.typography.bodyMedium) { Box(Modifier.padding(bottom = 24.dp)) { text() } }
+                }
+                Row(Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    QuietButton("Cancel", {})
+                    PrimaryButton(confirmText, {}, compact = true)
+                }
+            }
+        }
+    }
 }
 
 @Composable

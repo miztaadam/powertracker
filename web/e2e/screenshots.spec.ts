@@ -136,6 +136,28 @@ for (const scheme of ['dark', 'light'] as const) {
     await shoot(page, `form-guide-lat-pulldown-${scheme}`)
   })
 
+  for (const side of ['powerlifting', 'bodybuilding'] as const) {
+    test(`screenshots: Plan's add form, ${side} side (${scheme})`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: scheme })
+      await openOnWednesday(page, '#/settings')
+      if (side === 'bodybuilding') {
+        await page.getByRole('switch', { name: 'Bodybuilding mode' }).click()
+        await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+      }
+      await tabBar(page).getByRole('link', { name: 'Plan' }).click()
+      await page.getByRole('region', { name: 'Wednesday' }).getByRole('button', { name: 'Add' }).click()
+      const picker = page.getByRole('dialog', { name: 'Add to Wednesday' })
+      const name = side === 'bodybuilding' ? 'Incline DB press' : 'Bench'
+      await picker.getByRole('textbox', { name: 'Search exercises' }).fill(name)
+      await picker.getByRole('listitem', { name, exact: true }).getByRole('button').first().click()
+      // The form, with the ready-made numbers: 3 × 5 @ 8 for a compound lift, or 3 × 8–12 @ 8.
+      const form = page.getByRole('dialog', { name: 'Add to Wednesday' }).filter({ has: page.getByRole('group', { name: 'Sets' }) })
+      await expect(form.getByRole('group', { name: side === 'bodybuilding' ? 'Reps to' : 'Reps' })).toContainText(side === 'bodybuilding' ? '12' : '5')
+      await form.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)))
+      await shoot(page, `plan-add-form${side === 'bodybuilding' ? '-bodybuilding' : ''}-${scheme}`)
+    })
+  }
+
   test(`screenshots: session saved (${scheme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme })
     await openOnWednesday(page)

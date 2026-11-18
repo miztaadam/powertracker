@@ -12,6 +12,7 @@ import { ExerciseHistoryScreen } from './progress/ExerciseHistoryScreen'
 import { ProgressScreen } from './progress/ProgressScreen'
 import { SettingsScreen } from './settings/SettingsScreen'
 import { TodayScreen } from './today/TodayScreen'
+import { pastTheTapWindow } from '../test/tapWindow'
 
 let fx: ReturnType<typeof todayFixture>
 let db: GritDb
@@ -27,6 +28,7 @@ beforeEach(async () => {
   curlId = (await exerciseNamed(db, 'Curl')).id
 })
 afterEach(async () => {
+  vi.useRealTimers()
   cleanup()
   await fx.dispose()
 })
@@ -100,6 +102,11 @@ describe('Plan on the bodybuilding side', () => {
     const picker = within(await screen.findByRole('dialog', { name: 'Add to Wednesday' }))
     await userEvent.type(picker.getByRole('textbox', { name: 'Search exercises' }), 'Curl')
     await userEvent.click(within(await picker.findByRole('listitem', { name: 'Curl' })).getAllByRole('button')[0]!)
+    // The form opens with the side's ready-made numbers; Add stores them.
+    const form = within((await screen.findByRole('group', { name: 'Sets' })).closest<HTMLElement>('[role="dialog"]')!)
+    // Past the moment in which the new form ignores taps (the second tap of a double tap on the row).
+    pastTheTapWindow()
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
 
     expect(await screen.findByRole('listitem', { name: 'Curl 3 × 8–12 @ 8' })).toBeInTheDocument()
     const bb = await planFor(db, 'BODYBUILDING')

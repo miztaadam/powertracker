@@ -99,21 +99,33 @@ class PlanViewModel(
     }
 
     /**
-     * Adds what was picked at the end of [day]: 3 × 5 for a compound lift, 3 × 10 for an accessory,
-     * at the default RPE; on the bodybuilding side 3 × 8–12 @ 8 for anything. A catalogue exercise gets
-     * its row, if it has none yet, in the same transaction.
+     * What picking [entry] for [day] fills the add form with, stored nowhere (id 0): 3 × 5 for a compound lift,
+     * 3 × 10 for an accessory, at the default RPE; on the bodybuilding side 3 × 8–12 @ 8 for anything.
      */
-    /** Adds [entry] to [day]; [onAdded] runs once it is stored. */
-    fun add(day: DayOfWeek, entry: PickerEntry, onAdded: () -> Unit = {}) {
-        val item = newItem(state.value.mode, day, entry, state.value.defaultRpe, nextOrder(day))
+    fun draft(day: DayOfWeek, entry: PickerEntry): PlanItem =
+        newItem(state.value.mode, day, entry, state.value.defaultRpe, nextOrder(day))
+
+    /**
+     * Adds [entry] at the end of [day] with the numbers chosen in the add form. A catalogue exercise gets its row, if
+     * it has none yet, in the same transaction. [repsHigh] is the top of a range (bodybuilding side), never below
+     * [reps]; fixed reps keep it null. [onAdded] runs once it is stored.
+     *
+     * The side and the place at the end of the day are read from what is stored, not from [state]: a form restored
+     * after the process was killed can be on screen before [state] has its first value.
+     */
+    fun add(day: DayOfWeek, entry: PickerEntry, sets: Int, reps: Int, rpe: Double, repsHigh: Int?, onAdded: () -> Unit = {}) {
         viewModelScope.launch {
+            val mode = settings.settings.first().trainingMode
+            val order = (training.plan(mode).first().filter { it.weekday == day }.maxOfOrNull { it.order } ?: -1) + 1
+            val item = newItem(mode, day, entry, rpe, order)
+                .copy(sets = sets, reps = reps, targetRpe = rpe, repsHigh = repsHigh?.coerceAtLeast(reps))
             training.savePlanItem(item, entry.catalogueName)
             onAdded()
         }
     }
 
     /**
-     * [add] for the Exercises tab, where the day is chosen after the exercise: the same defaults and the
+     * Adding from the Exercises tab, where the day is chosen after the exercise: [draft]'s defaults and the
      * same single transaction, but an exercise already on [day] is left alone, and [onResult] hears how
      * it went, once. A second call before that (a double tap) does nothing. Read from what is stored at
      * the moment of the call, so it does not depend on this view model's screen being shown.
@@ -188,7 +200,7 @@ class PlanViewModel(
     }
 
     /**
-     * Creates a custom exercise and reports it as a picker entry, ready to [add] or [save]. A name the
+     * Creates a custom exercise and reports it as a picker entry, ready for the add form or [save]. A name the
      * catalogue knows (a name or an alias, ignoring case) is not made again: the catalogue's entry is
      * reported instead, tied to its oldest live row if it has one, and gets its row like any other
      * catalogue exercise when it is saved.

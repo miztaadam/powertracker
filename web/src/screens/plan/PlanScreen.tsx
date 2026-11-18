@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { GritDb } from '../../db/db'
 import { grit, todayIso } from '../../domain'
 import { haptic } from '../../platform/haptics'
-import { usePlan, type DaySection, type PlanActions, type PlanExercise, type PlanItem, type PlanRow, type PlanState } from '../../state/usePlan'
+import type { PickerEntry } from '../../state/exercisePicker'
+import { usePlan, type DaySection, type PlanActions, type PlanDraft, type PlanExercise, type PlanItem, type PlanRow, type PlanState } from '../../state/usePlan'
 import { dayName } from '../../state/weekdayNames'
 import { IconButton, PrimaryButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
@@ -15,7 +16,7 @@ import { Snackbar } from '../../ui/components/Snackbar'
 import { slideName } from '../../ui/viewTransition'
 import { ExercisePicker } from '../library/ExercisePicker'
 import { InfoButton } from '../library/InfoButton'
-import { BaselineDialog, PlanItemDialog } from './PlanDialogs'
+import { ADD_FORM_TAP_WINDOW_MS, BaselineDialog, PlanItemDialog } from './PlanDialogs'
 import './plan.css'
 
 export type PlanScreenProps = {
@@ -44,7 +45,13 @@ export function planItemText(name: string, item: Pick<PlanItem, 'sets' | 'reps' 
 /** An empty bodybuilding plan says so, and offers the plan builder. */
 export const EMPTY_BODYBUILDING_PLAN = 'Your bodybuilding plan is empty. Add exercises to each training day.'
 
-type OpenDialog = { kind: 'add'; weekday: number } | { kind: 'edit'; item: PlanItem; exerciseName: string } | { kind: 'baseline'; lift: PlanExercise } | null
+type OpenDialog =
+  | { kind: 'add'; weekday: number }
+  /** The sets and reps form for what was just picked on Plan's Add: nothing is stored until its Add. */
+  | { kind: 'addDetails'; weekday: number; entry: PickerEntry; draft: PlanDraft }
+  | { kind: 'edit'; item: PlanItem; exerciseName: string }
+  | { kind: 'baseline'; lift: PlanExercise }
+  | null
 
 export type PlanContentProps = { state: PlanState; actions: PlanActions; onOpenSettings: () => void; onBuildPlan?: () => void }
 
@@ -56,6 +63,10 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
   // Counts failed writes: 0 shows nothing, and each new failure shows the message afresh.
   const [failures, setFailures] = useState(0)
   const reported = (work: Promise<unknown>) => void work.catch(() => setFailures((n) => n + 1))
+  // The add form whose Add was tapped: a second tap on it, before it has closed, stores nothing more.
+  const added = useRef<OpenDialog>(null)
+  // The add form, with the ready-made numbers for `entry`, in the picker's place: one render, no moment without a dialog.
+  const addForm = (weekday: number, entry: PickerEntry): OpenDialog => ({ kind: 'addDetails', weekday, entry, draft: actions.draft(entry) })
 
   const bodybuilding = !state.loading && state.side === 'BODYBUILDING'
   const empty = bodybuilding && state.sections.every((section) => section.rows.length === 0)
@@ -108,24 +119,52 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
         )}
       </div>
 
-      {/* Picking adds the exercise with its default sets and reps; they are edited from the row. */}
-      {dialog?.kind === 'add' && (
-        <ExercisePicker
+      {/*
+        Picking opens the sets and reps form in the same render, filled in with the ready-made numbers; its Add stores the
+        item and Cancel stores nothing. For its first moment the form ignores taps on Add, Cancel and outside it. Your own exercise is created first (and kept, whatever the form does); if that
+        fails, no form opens.
+      */}
+      {(dialog?.kind === 'add' || dialog?.kind === 'addDetails') && (
+        // While its add form is open, the picker stays mounted but hidden: closing it there would send the focus back to
+        // the day's Add for a moment. Both close together, and the focus then goes back to Add.
+        <div style={{ display: dialog.kind === 'addDetails' ? 'none' : 'contents' }}>
+          <ExercisePicker
+            title={`Add to ${dayName(dialog.weekday)}`}
+            exercises={state.exercises}
+            recentIds={state.recentIds}
+            onPick={(entry) => setDialog(addForm(dialog.weekday, entry))}
+            // The picker stays until the exercise is made, then the form opens over it; if making it fails, it closes.
+            onCreateCustom={(exercise) => {
+              const picker = dialog
+              actions.addCustomExercise(exercise).then(
+                (entry) => setDialog((open) => (open === picker ? addForm(picker.weekday, entry) : open)),
+                () => {
+                  setDialog((open) => (open === picker ? null : open))
+                  setFailures((n) => n + 1)
+                },
+              )
+            }}
+            onDismiss={() => setDialog(null)}
+          />
+        </div>
+      )}
+      {dialog?.kind === 'addDetails' && (
+        <PlanItemDialog
           title={`Add to ${dayName(dialog.weekday)}`}
+          item={dialog.draft}
+          exerciseName={dialog.entry.name}
+          confirmText="Add"
+          // It opens under the finger that picked: the second tap of a double tap on the row must not reach it.
+          ignoreTapsFor={ADD_FORM_TAP_WINDOW_MS}
           exercises={state.exercises}
           recentIds={state.recentIds}
-          // The picker answers once, so each add ticks once, when it is stored; a failed add does not buzz.
-          onPick={(entry) => {
-            reported(actions.add(dialog.weekday, entry).then(() => haptic('tick')))
-            setDialog(null)
-          }}
-          onCreateCustom={(exercise) => {
-            reported(
-              actions
-                .addCustomExercise(exercise)
-                .then((entry) => actions.add(dialog.weekday, entry))
-                .then(() => haptic('tick')),
-            )
+          onCreateCustom={actions.addCustomExercise}
+          onFailure={() => setFailures((n) => n + 1)}
+          // Each add ticks once, when it is stored; a failed add does not buzz.
+          onSave={(exercise, sets, reps, targetRpe, repsHigh) => {
+            if (added.current === dialog) return
+            added.current = dialog
+            reported(actions.add(dialog.weekday, exercise ?? dialog.entry, { sets, reps, targetRpe, ...(repsHigh != null ? { repsHigh } : {}) }).then(() => haptic('tick')))
             setDialog(null)
           }}
           onDismiss={() => setDialog(null)}
