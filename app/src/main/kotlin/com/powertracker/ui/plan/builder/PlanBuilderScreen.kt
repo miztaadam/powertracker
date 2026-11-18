@@ -48,6 +48,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -243,27 +244,44 @@ private fun BuilderBar(state: PlanBuilderState, actions: PlanBuilderActions) {
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.navigationBarsPadding()) {
             SoftDivider()
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = Space.gutter, vertical = Space.m),
-                horizontalArrangement = Arrangement.spacedBy(Space.m),
-            ) {
-                // The first step has no step before it: Close leaves.
-                if (state.step != BuilderStep.DAYS) {
-                    SecondaryButton("Back", actions.onBack, Modifier.weight(1f).testTag("builder-back"), enabled = !state.saving)
+            BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = Space.gutter, vertical = Space.m)) {
+                val label = when {
+                    state.step == BuilderStep.DRAFT -> USE_THIS_PLAN
+                    state.step == BuilderStep.EXERCISES && state.nothingTicked -> CHOOSE_FOR_ME
+                    state.step == BuilderStep.BODY_PARTS && state.priorities.isEmpty() -> "Skip"
+                    else -> "Next"
                 }
-                if (state.step == BuilderStep.DRAFT) {
-                    PrimaryButton(USE_THIS_PLAN, actions.onUse, Modifier.weight(1f).testTag("builder-use"), enabled = !state.saving)
-                } else {
-                    val label = when {
-                        state.step == BuilderStep.EXERCISES && state.nothingTicked -> CHOOSE_FOR_ME
-                        state.step == BuilderStep.BODY_PARTS && state.priorities.isEmpty() -> "Skip"
-                        else -> "Next"
+                val halves = labelFitsHalf(label, maxWidth)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+                    // The first step has no step before it: Close leaves.
+                    if (state.step != BuilderStep.DAYS) {
+                        SecondaryButton("Back", actions.onBack, (if (halves) Modifier.weight(1f) else Modifier).testTag("builder-back"), enabled = !state.saving)
                     }
-                    PrimaryButton(label, actions.onNext, Modifier.weight(1f).testTag("builder-next"), enabled = state.canNext)
+                    if (state.step == BuilderStep.DRAFT) {
+                        PrimaryButton(label, actions.onUse, Modifier.weight(1f).testTag("builder-use"), enabled = !state.saving)
+                    } else {
+                        PrimaryButton(label, actions.onNext, Modifier.weight(1f).testTag("builder-next"), enabled = state.canNext)
+                    }
                 }
             }
         }
     }
+}
+
+/** The room a full-size button leaves on each side of its label. */
+val BAR_BUTTON_PADDING = 20.dp
+
+/**
+ * Whether [label] fits half of a Back-and-main-button bar [maxWidth] wide. While it does, the two share the bar half
+ * and half; else (320 dp with large text) Back takes its own width and the main button the rest (1.14).
+ */
+@Composable
+fun labelFitsHalf(label: String, maxWidth: Dp): Boolean {
+    val measurer = rememberTextMeasurer()
+    val style = MaterialTheme.typography.labelLarge
+    val width = remember(measurer, style, label) { measurer.measure(label, style).size.width }
+    val half = with(LocalDensity.current) { ((maxWidth - Space.m) / 2 - BAR_BUTTON_PADDING * 2).toPx() }
+    return width <= half
 }
 
 @Composable

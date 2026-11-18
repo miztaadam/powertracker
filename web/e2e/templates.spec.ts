@@ -501,6 +501,48 @@ for (const [label, viewport] of [
       expect(await brokenWords(page)).toEqual([])
     })
 
+    // The bodybuilding builder's bar, which the templates' draft shares: on every step each label is whole, each face
+    // inside its own button, and the buttons side by side without overlapping.
+    test("the plan builder's bar, and the templates', fit on every step", async ({ page }) => {
+      const bar = '.pb-actions, .pb-actions *'
+      const barProblems = async () => [
+        ...(await overflowing(page, bar)),
+        ...(await page.evaluate(() => {
+          const found: string[] = []
+          const buttons = [...document.querySelectorAll<HTMLElement>('.pb-actions > .gr-btn')]
+          for (const b of buttons) {
+            const box = b.getBoundingClientRect()
+            const face = b.querySelector('.gr-btn-face')!.getBoundingClientRect()
+            if (face.left < box.left - 0.5 || face.right > box.right + 0.5) found.push(`face wider than its button: ${b.textContent}`)
+          }
+          for (let i = 1; i < buttons.length; i++) {
+            if (buttons[i]!.getBoundingClientRect().left < buttons[i - 1]!.getBoundingClientRect().right - 0.5) found.push(`overlap: ${buttons[i]!.textContent}`)
+          }
+          return found
+        })),
+      ]
+      await openOnWednesday(page, '#/plan')
+      await bodybuilding(page)
+      await page.getByRole('button', { name: 'Build my plan' }).click()
+      await expect(page.locator('.pb-actions').getByRole('button', { name: 'Next' })).toBeVisible()
+      expect(await barProblems(), 'days').toEqual([])
+      await page.getByRole('button', { name: 'Next' }).click()
+      await expect(page.locator('.pb-actions').getByRole('button', { name: 'Choose for me' })).toBeVisible()
+      expect(await barProblems(), 'exercises').toEqual([])
+      await page.getByRole('button', { name: 'Choose for me' }).click()
+      await expect(page.locator('.pb-actions').getByRole('button', { name: 'Skip' })).toBeVisible()
+      expect(await barProblems(), 'body parts').toEqual([])
+      await page.getByRole('button', { name: 'Skip' }).click()
+      await expect(page.locator('.pb-actions').getByRole('button', { name: 'Use this plan' })).toBeVisible()
+      expect(await barProblems(), 'draft').toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+
+      await page.goto('/#/plan/templates/bodybuilding')
+      await page.getByRole('button', { name: '3-day full body' }).click()
+      await expect(page.locator('.pb-actions').getByRole('button', { name: 'Use this plan' })).toBeVisible()
+      expect(await barProblems(), 'a template').toEqual([])
+    })
+
     test('the empty plan, on both sides, fits: its line and its buttons one over the other', async ({ page }) => {
       await openOnWednesday(page, '#/plan')
       const choose = page.locator('.plan-empty').getByRole('button', { name: 'Choose a template' })

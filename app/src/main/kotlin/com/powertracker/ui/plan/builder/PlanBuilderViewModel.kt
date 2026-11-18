@@ -23,6 +23,7 @@ import com.powertracker.platform.systemToday
 import com.powertracker.ui.library.PickerEntry
 import com.powertracker.ui.library.recentExerciseIds
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 
@@ -95,13 +97,14 @@ fun pickKey(entry: PickerEntry): String = entry.catalogueName ?: "own-${entry.ex
 /**
  * The bodybuilding plan builder (stage 2 plan, Task 2): days, exercises, body parts, then the draft the shared
  * [PlanBuilder] makes of those answers. Nothing is stored until the lifter uses the draft; then the side's whole plan is
- * replaced in one transaction and its training days set to the chosen weekdays. [setDays] stores those days (a test can
- * make it fail).
+ * replaced ([replacePlan]) and [setDays] sets its training days to the chosen weekdays, both or neither (see [store], as
+ * the templates save). A test can make either write fail.
  */
 class PlanBuilderViewModel(
     private val training: TrainingRepository,
     private val settings: SettingsRepository,
     private val setDays: suspend (Set<DayOfWeek>) -> Unit = { days -> setSideTrainingDays(settings, TrainingMode.BODYBUILDING, days) },
+    private val replacePlan: suspend (List<Pair<PlanItem, String?>>) -> Unit = { items -> training.replacePlan(TrainingMode.BODYBUILDING, items) },
     private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
     private val _state = MutableStateFlow(PlanBuilderState())
@@ -252,18 +255,37 @@ class PlanBuilderViewModel(
                 item to (if (e.inCatalogue) e.name else null)
             }
         }
+        val days = s.days
         viewModelScope.launch {
             try {
-                training.replacePlan(TrainingMode.BODYBUILDING, items)
-                setDays(s.days)
+                // Not cut short by leaving the screen mid-save: the writes finish, or are undone, together.
+                withContext(NonCancellable) { store(items, days) }
                 _state.update { it.copy(saving = false, saved = true) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                // The plan is replaced in one transaction, then the days are set. If either fails the builder stays open
-                // with the error and the lifter can try again: replacing the plan again gives the same plan.
+                // Nothing was changed (see store): the builder stays open with the error, and trying again saves both.
                 _state.update { it.copy(saving = false, failed = true) }
             }
+        }
+    }
+
+    /**
+     * Replaces the bodybuilding plan and sets its days, all or nothing. The days are set last, inside the plan's
+     * transaction: a failed days write rolls the plan back, and a failed plan write never reaches the days. If the
+     * transaction still fails once the days are stored (a store that wrote and then threw, or a failed commit), the
+     * side's days are put back as they were.
+     */
+    private suspend fun store(items: List<Pair<PlanItem, String?>>, days: Set<DayOfWeek>) {
+        val before = settings.settings.first().bodybuildingTrainingDays
+        try {
+            training.inTransaction {
+                replacePlan(items)
+                setDays(days)
+            }
+        } catch (e: Exception) {
+            if (settings.settings.first().bodybuildingTrainingDays != before) runCatching { setDays(before) }
+            throw e
         }
     }
 

@@ -331,12 +331,14 @@ class PlanTemplatesTest {
     }
 
     @Test
-    fun noOfferedSwapIsAMainLiftOrBreaksTheSameNumbersRule() {
+    fun noOfferedSwapIsAMainLiftOrAlreadyInTheWeekOrBreaksTheSameNumbersRule() {
         var swaps = 0
         for (t in all) for (draft in drafts(t)) for (s in draft.sessions) for (e in s.exercises) {
             val isVariation = category(e.name) == Category.VARIATION
+            val week = draft.sessions.flatMap { it.exercises }.map { Library.normalise(it.name) }.toSet()
             for (alt in PlanTemplates.alternatives(t, draft, s.day, e.name)) {
                 assertTrue(alt.category !in mainCategories, "${t.id} ${e.name} -> ${alt.name}: a main lift")
+                assertTrue(Library.normalise(alt.name) !in week, "${t.id} ${e.name} -> ${alt.name}: already in the week")
                 if (!isVariation) assertTrue(alt.category != Category.VARIATION, "${t.id} ${e.name} -> ${alt.name}: a variation")
                 val swapped = PlanTemplates.swap(draft, s.day, e.name, alt.name)
                 assertSameNumbers(swapped, "${t.id} ${e.name} -> ${alt.name}")

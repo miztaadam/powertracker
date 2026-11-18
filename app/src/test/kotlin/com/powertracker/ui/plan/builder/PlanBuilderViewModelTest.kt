@@ -13,6 +13,8 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.Skip
+import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode.BODYBUILDING
 import com.powertracker.domain.model.TrainingMode.POWERLIFTING
 import com.powertracker.domain.plan.BuilderAnswers
@@ -36,6 +38,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -403,7 +406,10 @@ class PlanBuilderViewModelTest {
         assertEquals(days, bbDays())
     }
 
-    /** Ruling P7: the plan is replaced first, then the days set; if setting the days fails, the builder stays open and can try again. */
+    /**
+     * Ruling P7, as 1.14 changed it: the plan and the days are saved together. If setting the days fails, nothing is
+     * stored, the builder stays open and can try again.
+     */
     @Test
     fun whenSettingTheDaysFails_theBuilderStaysOpenWithTheError_andTryingAgainSaves() {
         var failNext = true
@@ -425,16 +431,124 @@ class PlanBuilderViewModelTest {
         assertFalse(vm.state.value.saved)
         assertFalse(vm.state.value.saving)
         assertEquals(BuilderStep.DRAFT, vm.state.value.step)
-        assertEquals("the plan was replaced first", draft.sessions.sumOf { it.exercises.size }, bbPlan().size)
+        assertEquals("nothing was stored", emptyList<PlanItem>(), bbPlan())
         assertEquals(setOf(MONDAY, WEDNESDAY, FRIDAY), bbDays())
 
-        // Trying again: the plan now exists, so it asks first; the plan save repeats and the days are set.
+        // Trying again saves the plan and the days (asking first only if a plan were there).
         vm.use()
         if (vm.state.value.confirming) vm.confirmReplace()
         await("saved") { vm.state.value.saved }
         assertFalse(vm.state.value.failed)
         assertEquals(draft.sessions.sumOf { it.exercises.size }, bbPlan().size)
         assertEquals(setOf(MONDAY, WEDNESDAY, THURSDAY, FRIDAY), bbDays())
+    }
+
+    // A save that fails changes nothing (1.14, as the templates' save)
+
+    private data class OldState(val plan: List<PlanItem>, val skip: Skip, val days: AppSettings)
+
+    /** An old bodybuilding plan, a skip of one of its items, and stored days (Mon, Wed, Fri) other than the chosen ones. */
+    private fun oldPlanWithASkip(): OldState {
+        val curl = row("Curl")
+        runBlocking {
+            val old = training.savePlanItem(PlanItem(0, MONDAY, curl.id, 3, 8, 8.0, 0, BODYBUILDING, 12))
+            training.savePlanItem(PlanItem(0, FRIDAY, curl.id, 3, 8, 8.0, 0, BODYBUILDING, 12))
+            training.skip(Skip(0, today.minus(1, DateTimeUnit.DAY), BODYBUILDING, curl.id, old, SkipReason.BUSY)) { _, _ -> emptyList() }
+        }
+        return OldState(bbPlan(), runBlocking { training.skips().first() }.single(), runBlocking { settings.settings.first() })
+    }
+
+    private fun assertUnchanged(before: OldState) {
+        assertEquals("the old plan, ids and all", before.plan, bbPlan())
+        assertEquals("the skip still points at its item", before.skip, runBlocking { training.skips().first() }.single())
+        assertEquals("both sides' days", before.days, runBlocking { settings.settings.first() })
+    }
+
+    private fun settle() {
+        val deadline = System.currentTimeMillis() + 300
+        while (System.currentTimeMillis() < deadline) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(5)
+        }
+    }
+
+    /** Four days (Mon, Wed, Thu, Fri) from no picks, then Use this plan and Replace, which fails. */
+    private fun failingSave(
+        setDays: suspend (Set<DayOfWeek>) -> Unit = { d -> setSideTrainingDays(settings, BODYBUILDING, d) },
+        replacePlan: suspend (List<Pair<PlanItem, String?>>) -> Unit = { items -> training.replacePlan(BODYBUILDING, items) },
+    ): PlanBuilderViewModel {
+        val vm = PlanBuilderViewModel(training, settings, setDays = setDays, replacePlan = replacePlan, today = { today })
+        viewModels += vm
+        await("loaded") { !vm.state.value.loading }
+        vm.chooseDayCount(4)
+        vm.toggleDay(THURSDAY)
+        vm.next(); vm.untickAll(); vm.next(); vm.next()
+        assertNotNull(vm.state.value.draft)
+        vm.use()
+        vm.confirmReplace()
+        await("failed") { vm.state.value.failed }
+        assertFalse(vm.state.value.saved)
+        settle()
+        return vm
+    }
+
+    private fun assertATryAgainSavesBoth(vm: PlanBuilderViewModel) {
+        val draft = vm.state.value.draft!!
+        vm.use()
+        if (vm.state.value.confirming) vm.confirmReplace()
+        await("saved") { vm.state.value.saved }
+        assertFalse(vm.state.value.failed)
+        assertEquals(draft.sessions.sumOf { it.exercises.size }, bbPlan().size)
+        assertEquals(setOf(MONDAY, WEDNESDAY, THURSDAY, FRIDAY), bbDays())
+    }
+
+    @Test
+    fun aFailingDaysWrite_leavesTheOldPlanItsSkipAndTheDays_andATryAgainSavesBoth() {
+        val before = oldPlanWithASkip()
+        var failNext = true
+        val vm = failingSave(setDays = { days ->
+            if (failNext) {
+                failNext = false
+                throw java.io.IOException("settings store unavailable")
+            }
+            setSideTrainingDays(settings, BODYBUILDING, days)
+        })
+        assertUnchanged(before)
+        assertATryAgainSavesBoth(vm)
+    }
+
+    /** The days are stored, then the store reports a failure: they are put back. */
+    @Test
+    fun aDaysWriteThatStoresThenFails_isPutBack() {
+        val before = oldPlanWithASkip()
+        var failNext = true
+        val vm = failingSave(setDays = { days ->
+            setSideTrainingDays(settings, BODYBUILDING, days)
+            if (failNext) {
+                failNext = false
+                throw java.io.IOException("settings store unavailable")
+            }
+        })
+        assertUnchanged(before)
+        assertATryAgainSavesBoth(vm)
+    }
+
+    /** The plan's writes all run, then fail before the end: the transaction leaves the old plan, and the days are as they were. */
+    @Test
+    fun aFailingPlanWrite_leavesTheOldPlanItsSkipAndTheDays_andATryAgainSavesBoth() {
+        val before = oldPlanWithASkip()
+        var failNext = true
+        val vm = failingSave(replacePlan = { items ->
+            training.inTransaction {
+                training.replacePlan(BODYBUILDING, items)
+                if (failNext) {
+                    failNext = false
+                    throw android.database.sqlite.SQLiteFullException("disk full")
+                }
+            }
+        })
+        assertUnchanged(before)
+        assertATryAgainSavesBoth(vm)
     }
 
     /** Ruling P6: every ticked exercise, in the order ticked (pre-ticks first), for the "Chosen" section; no cap. */

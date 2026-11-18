@@ -32,14 +32,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.SettingsRepository
@@ -63,6 +60,7 @@ import com.powertracker.ui.plan.builder.DraftVolumeCard
 import com.powertracker.ui.plan.builder.REPLACE
 import com.powertracker.ui.plan.builder.SAVE_FAILED
 import com.powertracker.ui.plan.builder.USE_THIS_PLAN
+import com.powertracker.ui.plan.builder.labelFitsHalf
 import com.powertracker.ui.plan.builder.WHICH_DAYS_HEADING
 import com.powertracker.ui.plan.builder.WeekdayChips
 import com.powertracker.ui.plan.builder.chooseDaysText
@@ -298,11 +296,7 @@ private fun DraftBar(state: TemplatesState, actions: TemplatesActions) {
             BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = Space.gutter, vertical = Space.m)) {
                 // Half each, as the builder's bar, while "Use this plan" fits half; else (320 dp with large text) Back
                 // takes its own width and Use this plan the rest.
-                val measurer = rememberTextMeasurer()
-                val style = MaterialTheme.typography.labelLarge
-                val label = remember(measurer, style) { measurer.measure(USE_THIS_PLAN, style).size.width }
-                val half = with(LocalDensity.current) { ((maxWidth - Space.m) / 2 - BAR_BUTTON_PADDING * 2).toPx() }
-                val halves = label <= half
+                val halves = labelFitsHalf(USE_THIS_PLAN, maxWidth)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.m)) {
                     SecondaryButton("Back", actions.onBack, (if (halves) Modifier.weight(1f) else Modifier).testTag("templates-back"), enabled = !state.saving)
                     PrimaryButton(USE_THIS_PLAN, actions.onUse, Modifier.weight(1f).testTag("templates-use"), enabled = state.canUse)
@@ -311,6 +305,3 @@ private fun DraftBar(state: TemplatesState, actions: TemplatesActions) {
         }
     }
 }
-
-/** The room a full-size button leaves on each side of its label. */
-private val BAR_BUTTON_PADDING = 20.dp

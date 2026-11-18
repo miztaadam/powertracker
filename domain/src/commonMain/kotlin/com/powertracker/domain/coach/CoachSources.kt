@@ -322,7 +322,7 @@ object CoachSources {
      * What the template does: every day trains at most 3 of the big groups (chest, lats, quads, hamstrings, glutes,
      * upper back, biceps, triceps). Both Legs days also end with a Cable crunch, the owner's addition of 2026-11-18,
      * which adds abs and makes them 4 main groups. So the "who it suits" line keeps only the sourced "4-6 days a
-     * week" and does not claim "1-3 muscle groups a session" (the coordinator's call, 2026-11-18).
+     * week" and does not claim "1-3 muscle groups a session" (the owner's call, 2026-11-18).
      *
      * Checked on 2026-11-18 from the search summary (a web search restricted to the allowed sources); the page itself
      * was not opened.
