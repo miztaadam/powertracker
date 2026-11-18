@@ -55,8 +55,11 @@ data class PlanUiState(
     /** The side whose plan this is: the one the app is on. */
     val mode: TrainingMode = TrainingMode.POWERLIFTING,
 ) {
+    /** This side has no plan items: the screen offers a template (both sides) and the builder (bodybuilding). */
+    val emptyPlan: Boolean get() = sections.all { it.rows.isEmpty() }
+
     /** The bodybuilding side has no plan yet: the screen invites the lifter to fill it, day by day. */
-    val emptySide: Boolean get() = mode == TrainingMode.BODYBUILDING && sections.all { it.rows.isEmpty() }
+    val emptySide: Boolean get() = mode == TrainingMode.BODYBUILDING && emptyPlan
 }
 
 /** How adding an exercise from the Exercises tab went. */

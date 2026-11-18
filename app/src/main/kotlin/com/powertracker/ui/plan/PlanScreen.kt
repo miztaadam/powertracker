@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
@@ -41,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -92,6 +94,7 @@ import com.powertracker.ui.library.SAVE_FAILED
 import com.powertracker.ui.plan.builder.BUILD_MY_PLAN
 import com.powertracker.ui.plan.builder.PLAN_OPTIONS
 import com.powertracker.ui.plan.builder.REBUILD_MY_PLAN
+import com.powertracker.ui.plan.templates.CHOOSE_A_TEMPLATE
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.today.SlidingColumnItems
@@ -111,6 +114,9 @@ fun planItemText(name: String, item: PlanItem): String = "$name  ${item.sets} ×
 
 /** The line an empty bodybuilding plan shows, over its "Build my plan" button (bodybuilding mode spec §7.3, stage 2). */
 const val EMPTY_BODYBUILDING_PLAN = "Your bodybuilding plan is empty. Add exercises to each training day."
+
+/** The line an empty powerlifting plan shows, over its "Choose a template" button (1.14). */
+const val EMPTY_POWERLIFTING_PLAN = "Your plan is empty. Start from a template or add exercises to each day."
 
 /** The most reps the top of a range can be set to. */
 private const val MAX_RANGE_REPS = 30
@@ -197,6 +203,11 @@ fun PlanScreen(
     viewModel: PlanViewModel = viewModel(factory = PlanViewModel.factory(training, settings, today)),
     /** Opens the plan builder: offered on the bodybuilding side only. */
     onOpenBuilder: () -> Unit = {},
+    /** Opens the templates for the side shown (1.14). */
+    onOpenTemplates: (TrainingMode) -> Unit = {},
+    /** A message for the snackbar once (after a template is saved, "Plan set: …"); [onMessageShown] clears it. */
+    message: String? = null,
+    onMessageShown: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var dialog by rememberSaveable(stateSaver = PlanDialog.Saver) { mutableStateOf(null) }
@@ -206,6 +217,15 @@ fun PlanScreen(
             // A failed save is said, as the Exercises tab says one: the newest message replaces the one on screen.
             snackbar.currentSnackbarData?.dismiss()
             launch { snackbar.showSnackbar(message) }
+        }
+    }
+    // Shown in this screen's scope, not the effect's: clearing the message must not take the snackbar down with it.
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(message) {
+        if (message != null) {
+            snackbar.currentSnackbarData?.dismiss()
+            scope.launch { snackbar.showSnackbar(message) }
+            onMessageShown()
         }
     }
 
@@ -218,6 +238,7 @@ fun PlanScreen(
         onDelete = viewModel::delete,
         onSetBaseline = { lift -> dialog = PlanDialog.Baseline(lift) },
         onBuild = onOpenBuilder,
+        onTemplates = { onOpenTemplates(state.mode) },
         snackbar = snackbar,
     )
 
@@ -317,6 +338,8 @@ fun PlanContent(
     onSetBaseline: (Exercise) -> Unit,
     /** The bodybuilding side's plan builder: the empty plan's button and the menu's "Rebuild my plan". */
     onBuild: () -> Unit = {},
+    /** The side's templates: the empty plan's button and the menu's "Choose a template", on both sides. */
+    onTemplates: () -> Unit = {},
     snackbar: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val scheme = MaterialTheme.colorScheme
@@ -328,19 +351,29 @@ fun PlanContent(
                 PtIconButton(onClick = onOpenSettings) {
                     Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = scheme.onSurfaceVariant)
                 }
-                // The bodybuilding side's menu; an empty plan has its own button instead.
-                if (state.mode == TrainingMode.BODYBUILDING && !state.emptySide) {
+                // Each side's menu; an empty plan has its own buttons instead.
+                if (!state.emptyPlan) {
                     Box {
                         PtIconButton(onClick = { menuOpen = true }) {
                             Icon(Icons.Filled.MoreVert, contentDescription = PLAN_OPTIONS, tint = scheme.onSurfaceVariant)
                         }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                            if (state.mode == TrainingMode.BODYBUILDING) {
+                                PtDropdownMenuItem(
+                                    text = { Text(REBUILD_MY_PLAN) },
+                                    leadingIcon = { Icon(Icons.Filled.Refresh, null) },
+                                    onClick = {
+                                        menuOpen = false
+                                        onBuild()
+                                    },
+                                )
+                            }
                             PtDropdownMenuItem(
-                                text = { Text(REBUILD_MY_PLAN) },
-                                leadingIcon = { Icon(Icons.Filled.Refresh, null) },
+                                text = { Text(CHOOSE_A_TEMPLATE) },
+                                leadingIcon = { Icon(Icons.Filled.ViewAgenda, null) },
                                 onClick = {
                                     menuOpen = false
-                                    onBuild()
+                                    onTemplates()
                                 },
                             )
                         }
@@ -355,11 +388,14 @@ fun PlanContent(
             contentPadding = PaddingValues(start = Space.gutter, end = Space.gutter, top = Space.s, bottom = Space.xl),
             verticalArrangement = Arrangement.spacedBy(Space.m),
         ) {
-            if (state.emptySide) {
+            if (state.emptyPlan) {
                 item(key = "empty-side") {
+                    // A template is the first choice on both sides; the bodybuilding builder is under it.
                     Column(Modifier.padding(horizontal = Space.xs), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-                        Text(EMPTY_BODYBUILDING_PLAN, style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
-                        PrimaryButton(BUILD_MY_PLAN, onBuild, Modifier.testTag("build-my-plan"))
+                        val bodybuilding = state.mode == TrainingMode.BODYBUILDING
+                        Text(if (bodybuilding) EMPTY_BODYBUILDING_PLAN else EMPTY_POWERLIFTING_PLAN, style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
+                        PrimaryButton(CHOOSE_A_TEMPLATE, onTemplates, Modifier.fillMaxWidth().testTag("choose-template"))
+                        if (bodybuilding) SecondaryButton(BUILD_MY_PLAN, onBuild, Modifier.fillMaxWidth().testTag("build-my-plan"))
                     }
                 }
             }

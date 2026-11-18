@@ -127,8 +127,11 @@ fun shortDayName(day: DayOfWeek): String = day.toJavaDayOfWeek().getDisplayName(
 fun chosenDaysText(days: Set<DayOfWeek>): String = days.sorted().joinToString(", ", transform = ::shortDayName)
 fun stepText(step: BuilderStep): String = "Step ${step.ordinal + 1} of ${BuilderStep.entries.size}"
 
-/** "3 × 8–12 @ 8", as a Plan row prints it. */
-fun prescriptionText(e: DraftExercise): String = "${e.sets} × ${repsText(e.repsLow, e.repsHigh)} @ ${formatRpe(e.rpe)}"
+/** "3 × 8–12 @ 8", as a Plan row prints it; with [fixedReps] (powerlifting) "3 × 5 @ 8", with no range. */
+fun prescriptionText(e: DraftExercise, fixedReps: Boolean = false): String = "${e.sets} × ${draftRepsText(e, fixedReps)} @ ${formatRpe(e.rpe)}"
+
+/** A draft exercise's reps: its range, or with [fixedReps] the one count (a powerlifting draft holds repsHigh = repsLow). */
+fun draftRepsText(e: DraftExercise, fixedReps: Boolean = false): String = repsText(e.repsLow, if (fixedReps) null else e.repsHigh)
 
 /** What the builder's content can ask of its view model. */
 data class PlanBuilderActions(
@@ -278,18 +281,7 @@ private fun DaysStep(state: PlanBuilderState, actions: PlanBuilderActions) {
         SegmentedChoice(listOf(daysText(3), daysText(4)), selectedIndex = state.dayCount - 3, onSelect = { actions.onDayCount(it + 3) })
         Column {
             SectionHeader(WHICH_DAYS_HEADING, Modifier.padding(top = Space.s))
-            PtCard(contentPadding = PaddingValues(horizontal = Space.s, vertical = Space.s)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.xxs)) {
-                    for (day in DayOfWeek.entries) {
-                        ChoiceChip(
-                            text = shortDayName(day),
-                            selected = day in state.days,
-                            onClick = { actions.onDay(day) },
-                            modifier = Modifier.weight(1f).testTag("builder-day-${day.name}"),
-                        )
-                    }
-                }
-            }
+            WeekdayChips(state.days, actions.onDay, tagPrefix = "builder-day-")
             val line = if (state.days.size == state.dayCount) chosenDaysText(state.days) else chooseDaysText(state.dayCount)
             Text(line, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.s, start = Space.xs))
         }
@@ -363,26 +355,61 @@ private fun DraftStep(draft: PlanDraft, state: PlanBuilderState, actions: PlanBu
             SecondaryButton(ANOTHER_DRAFT, actions.onAnotherDraft, Modifier.testTag("builder-another"), enabled = !state.saving)
         }
         items(draft.sessions, key = { it.day }) { session ->
-            SessionCard(session, Modifier.testTag("session-${session.day.name}"), onSwap = { name -> swapping = session.day to name })
+            DraftSessionCard(session, Modifier.testTag("session-${session.day.name}"), onSwap = { name -> swapping = session.day to name })
         }
-        item(key = "volume") { VolumeCard(draft.volume, Modifier.testTag("volume")) }
-        if (draft.leftOut.isNotEmpty()) item(key = "left-out") { LeftOutCard(draft.leftOut) }
+        item(key = "volume") { DraftVolumeCard(draft.volume, Modifier.testTag("volume")) }
+        if (draft.leftOut.isNotEmpty()) item(key = "left-out") { DraftLeftOutCard(draft.leftOut) }
     }
     swapping?.let { (day, name) ->
         val options = remember(draft, day, name) { actions.alternatives(day, name) }
-        GuideSheet(onDismiss = { swapping = null }) {
-            Column(Modifier.fillMaxWidth().padding(start = Space.xl, end = Space.s, bottom = Space.xl).testTag("alternatives")) {
-                GuideHeader("$SWAP $name", dayName(day), closeLabel = "Close", onClose = { swapping = null })
-                if (options.isEmpty()) {
-                    Text(NO_ALTERNATIVES, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.m))
-                } else {
-                    LazyColumn(Modifier.padding(top = Space.s, end = Space.l)) {
-                        items(options, key = { it.name }) { option ->
-                            AlternativeRow(option) {
-                                actions.onSwap(day, name, option.name)
-                                swapping = null
-                            }
-                        }
+        DraftSwapSheet(
+            day, name, options,
+            onPick = { to ->
+                actions.onSwap(day, name, to)
+                swapping = null
+            },
+            onDismiss = { swapping = null },
+        )
+    }
+}
+
+// The draft week's parts, shared by the builder's draft and the templates' draft (1.14). The web app mirrors them.
+
+/**
+ * The seven weekday chips, Monday first, in a card; [days] are ticked. Each chip is tagged [tagPrefix] + the day's
+ * name ("builder-day-MONDAY").
+ */
+@Composable
+fun WeekdayChips(days: Set<DayOfWeek>, onDay: (DayOfWeek) -> Unit, tagPrefix: String, modifier: Modifier = Modifier) {
+    PtCard(modifier, contentPadding = PaddingValues(horizontal = Space.s, vertical = Space.s)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.xxs)) {
+            for (day in DayOfWeek.entries) {
+                ChoiceChip(
+                    text = shortDayName(day),
+                    selected = day in days,
+                    onClick = { onDay(day) },
+                    modifier = Modifier.weight(1f).testTag("$tagPrefix${day.name}"),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * The Swap sheet for [name] on [day]: [options] to pick from, or a line saying nothing fits. [onPick] gets the name
+ * picked; the caller closes the sheet.
+ */
+@Composable
+fun DraftSwapSheet(day: DayOfWeek, name: String, options: List<LibraryExercise>, onPick: (String) -> Unit, onDismiss: () -> Unit) {
+    GuideSheet(onDismiss = onDismiss) {
+        Column(Modifier.fillMaxWidth().padding(start = Space.xl, end = Space.s, bottom = Space.xl).testTag("alternatives")) {
+            GuideHeader("$SWAP $name", dayName(day), closeLabel = "Close", onClose = onDismiss)
+            if (options.isEmpty()) {
+                Text(NO_ALTERNATIVES, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = Space.m))
+            } else {
+                LazyColumn(Modifier.padding(top = Space.s, end = Space.l)) {
+                    items(options, key = { it.name }) { option ->
+                        AlternativeRow(option) { onPick(option.name) }
                     }
                 }
             }
@@ -390,27 +417,43 @@ private fun DraftStep(draft: PlanDraft, state: PlanBuilderState, actions: PlanBu
     }
 }
 
+/**
+ * One draft day: [headingText] (the builder's "Monday · Upper"), its exercise and set count, then a row for each exercise.
+ * [fixedReps] prints one rep count ("3 × 5 @ 8"), for powerlifting; [canSwap] says which rows have Swap, and [onSwap]
+ * gets the row's name.
+ */
 @Composable
-private fun SessionCard(session: DraftSession, modifier: Modifier = Modifier, onSwap: (String) -> Unit) {
+fun DraftSessionCard(
+    session: DraftSession,
+    modifier: Modifier = Modifier,
+    headingText: String = "${dayName(session.day)} · ${session.title}",
+    fixedReps: Boolean = false,
+    canSwap: (DraftExercise) -> Boolean = { true },
+    onSwap: (String) -> Unit,
+) {
     val sets = session.exercises.sumOf { it.sets }
     PtCard(modifier, contentPadding = PaddingValues(start = Space.l, end = Space.s, top = Space.m, bottom = Space.s), spacing = 0.dp) {
         Column(Modifier.padding(end = Space.s, bottom = Space.xs)) {
-            Text("${dayName(session.day)} · ${session.title}", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+            Text(headingText, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
             Text("${session.exercises.size} exercises · $sets sets", style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted)
         }
         session.exercises.forEachIndexed { i, exercise ->
             SoftDivider(Modifier.padding(end = Space.s))
-            DraftRow(i + 1, exercise, onSwap = { onSwap(exercise.name) })
+            DraftExerciseRow(i + 1, exercise, fixedReps = fixedReps, swappable = canSwap(exercise), onSwap = { onSwap(exercise.name) })
         }
     }
 }
 
+/**
+ * One exercise of a draft day: its place, name and "3 × 8–12 @ 8" (with [fixedReps], "3 × 5 @ 8"), and Swap when
+ * [swappable] (tagged "swap").
+ */
 @Composable
-private fun DraftRow(position: Int, exercise: DraftExercise, onSwap: () -> Unit) {
+fun DraftExerciseRow(position: Int, exercise: DraftExercise, fixedReps: Boolean = false, swappable: Boolean = true, onSwap: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val muted = PowertrackerTheme.colors.muted
     val prescription = buildAnnotatedString {
-        append("${exercise.sets} × ${repsText(exercise.repsLow, exercise.repsHigh)}")
+        append("${exercise.sets} × ${draftRepsText(exercise, fixedReps)}")
         withStyle(SpanStyle(color = muted)) { append(" @ ") }
         append(formatRpe(exercise.rpe))
     }
@@ -421,12 +464,13 @@ private fun DraftRow(position: Int, exercise: DraftExercise, onSwap: () -> Unit)
             Text(exercise.name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
             Text(prescription, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurface)
         }
-        SecondaryButton(SWAP, onSwap, Modifier.testTag("swap"), compact = true, label = "$SWAP ${exercise.name}")
+        if (swappable) SecondaryButton(SWAP, onSwap, Modifier.testTag("swap"), compact = true, label = "$SWAP ${exercise.name}")
     }
 }
 
+/** Each body part's weekly sets, "Under 10" on the short ones, and the guideline (tagged "volume-…" or "short-…"). */
 @Composable
-private fun VolumeCard(volume: List<GroupVolume>, modifier: Modifier = Modifier) {
+fun DraftVolumeCard(volume: List<GroupVolume>, modifier: Modifier = Modifier) {
     Column(modifier) {
         SectionHeader(WEEKLY_SETS, Modifier.padding(top = Space.s))
         PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.s), spacing = 0.dp) {
@@ -464,8 +508,9 @@ private fun VolumeRow(v: GroupVolume) {
     }
 }
 
+/** The exercises the draft could not place, each with why. */
 @Composable
-private fun LeftOutCard(leftOut: List<LeftOut>) {
+fun DraftLeftOutCard(leftOut: List<LeftOut>) {
     Column {
         SectionHeader(LEFT_OUT, Modifier.padding(top = Space.s))
         PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.s), spacing = 0.dp) {

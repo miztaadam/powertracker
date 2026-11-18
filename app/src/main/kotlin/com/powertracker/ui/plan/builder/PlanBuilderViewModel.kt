@@ -81,6 +81,14 @@ data class PlanBuilderState(
     val canNext: Boolean get() = available && (step != BuilderStep.DAYS || days.size == dayCount)
 }
 
+/**
+ * Stores [days] as [mode]'s training days: `bodybuildingTrainingDays` for the bodybuilding side, `trainingDays` for the
+ * powerlifting side, whichever side the app is on. The builder's and the templates' save (1.14) both set the days this way.
+ */
+suspend fun setSideTrainingDays(settings: SettingsRepository, mode: TrainingMode, days: Set<DayOfWeek>) = settings.update {
+    if (mode == TrainingMode.BODYBUILDING) it.copy(bodybuildingTrainingDays = days) else it.copy(trainingDays = days)
+}
+
 /** How the builder tells ticked exercises apart: a catalogue exercise by its name, the lifter's own by its row. */
 fun pickKey(entry: PickerEntry): String = entry.catalogueName ?: "own-${entry.exerciseId}"
 
@@ -93,7 +101,7 @@ fun pickKey(entry: PickerEntry): String = entry.catalogueName ?: "own-${entry.ex
 class PlanBuilderViewModel(
     private val training: TrainingRepository,
     private val settings: SettingsRepository,
-    private val setDays: suspend (Set<DayOfWeek>) -> Unit = { days -> settings.update { it.copy(bodybuildingTrainingDays = days) } },
+    private val setDays: suspend (Set<DayOfWeek>) -> Unit = { days -> setSideTrainingDays(settings, TrainingMode.BODYBUILDING, days) },
     private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
     private val _state = MutableStateFlow(PlanBuilderState())
