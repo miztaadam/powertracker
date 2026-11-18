@@ -3,6 +3,7 @@ package com.powertracker.ui.plan.templates
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -30,9 +31,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.SettingsRepository
@@ -156,6 +162,8 @@ fun TemplatesContent(state: TemplatesState, actions: TemplatesActions) {
                 eyebrow = if (state.step == TemplateStep.DRAFT) CHOOSE_A_TEMPLATE else null,
                 modeLabel = true,
                 navigation = { PtIconButton(onClick = actions.onClose) { Icon(Icons.Filled.Close, CLOSE) } },
+                // "5-day body-part split" is a line and a half at 320 dp with large text.
+                titleMaxLines = Int.MAX_VALUE,
             )
         },
         bottomBar = { if (state.step == TemplateStep.DRAFT) DraftBar(state, actions) },
@@ -220,7 +228,13 @@ private fun TemplateDraft(template: PlanTemplate, draft: PlanDraft, state: Templ
     ) {
         if (state.failed) {
             item(key = "failed") {
-                Text(SAVE_FAILED, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("save-failed"))
+                // Said as soon as it shows, as the web's alert is.
+                Text(
+                    SAVE_FAILED,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("save-failed").semantics { liveRegion = LiveRegionMode.Assertive },
+                )
             }
         }
         item(key = "days") {
@@ -237,7 +251,8 @@ private fun TemplateDraft(template: PlanTemplate, draft: PlanDraft, state: Templ
                     line,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = Space.s, start = Space.xs).testTag("days-line"),
+                    // Read out when it changes, as the web's status line is.
+                    modifier = Modifier.padding(top = Space.s, start = Space.xs).testTag("days-line").semantics { liveRegion = LiveRegionMode.Polite },
                 )
             }
         }
@@ -275,13 +290,22 @@ private fun DraftBar(state: TemplatesState, actions: TemplatesActions) {
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.navigationBarsPadding()) {
             SoftDivider()
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = Space.gutter, vertical = Space.m),
-                horizontalArrangement = Arrangement.spacedBy(Space.m),
-            ) {
-                SecondaryButton("Back", actions.onBack, Modifier.weight(1f).testTag("templates-back"), enabled = !state.saving)
-                PrimaryButton(USE_THIS_PLAN, actions.onUse, Modifier.weight(1f).testTag("templates-use"), enabled = state.canUse)
+            BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = Space.gutter, vertical = Space.m)) {
+                // Half each, as the builder's bar, while "Use this plan" fits half; else (320 dp with large text) Back
+                // takes its own width and Use this plan the rest.
+                val measurer = rememberTextMeasurer()
+                val style = MaterialTheme.typography.labelLarge
+                val label = remember(measurer, style) { measurer.measure(USE_THIS_PLAN, style).size.width }
+                val half = with(LocalDensity.current) { ((maxWidth - Space.m) / 2 - BAR_BUTTON_PADDING * 2).toPx() }
+                val halves = label <= half
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+                    SecondaryButton("Back", actions.onBack, (if (halves) Modifier.weight(1f) else Modifier).testTag("templates-back"), enabled = !state.saving)
+                    PrimaryButton(USE_THIS_PLAN, actions.onUse, Modifier.weight(1f).testTag("templates-use"), enabled = state.canUse)
+                }
             }
         }
     }
 }
+
+/** The room a full-size button leaves on each side of its label. */
+private val BAR_BUTTON_PADDING = 20.dp

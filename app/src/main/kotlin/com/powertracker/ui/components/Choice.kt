@@ -37,6 +37,9 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
+/** Room on each side of a [ChoiceChip]'s label. */
+val CHOICE_CHIP_PADDING = 10.dp
+
 /**
  * A toggle chip. Selected is tonal (container highest, text colour, a 1 dp outline), not inverse:
  * the primary button stays the brightest filled element on a screen.
@@ -54,7 +57,7 @@ fun ChoiceChip(text: String, selected: Boolean, onClick: () -> Unit, modifier: M
             .padding(vertical = 4.dp)
             .background(if (selected) scheme.surfaceContainerHighest else scheme.surfaceContainerHigh, CircleShape)
             .border(1.dp, if (selected) scheme.outline else Color.Transparent, CircleShape)
-            .padding(horizontal = 10.dp),
+            .padding(horizontal = CHOICE_CHIP_PADDING),
         contentAlignment = Alignment.Center,
     ) {
         Text(

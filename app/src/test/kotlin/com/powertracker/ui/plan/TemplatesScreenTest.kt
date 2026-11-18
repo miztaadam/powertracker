@@ -12,11 +12,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
@@ -45,6 +47,7 @@ import com.powertracker.domain.plan.PlanTemplates
 import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.AppShell
 import com.powertracker.ui.design.assertTextsFit
+import com.powertracker.ui.design.assertTextsFitInEveryWindow
 import com.powertracker.ui.plan.builder.BUILD_MY_PLAN
 import com.powertracker.ui.plan.builder.PLAN_OPTIONS
 import com.powertracker.ui.plan.builder.REBUILD_MY_PLAN
@@ -489,10 +492,108 @@ class TemplatesSmallPhoneTest {
         }
     }
 
+    private val screenPx = 320f * 2
+
+    /** Every text in every window fits, and none of [whole] breaks inside a word. */
+    private fun assertFits(what: String, whole: List<String>) {
+        compose.waitForIdle()
+        val checked = compose.assertTextsFitInEveryWindow(screenPx)
+        val shown = whole.filter { compose.onAllNodesWithText(it).fetchSemanticsNodes().isNotEmpty() }
+        assertTrue("$what: something to check", shown.isNotEmpty())
+        assertTrue("$what: every window was checked (${shown - checked.toSet()} missed)", checked.containsAll(shown))
+        val broken = namesBrokenInsideAWord(whole.distinct())
+        assertTrue("$what at 320 dp and 130%, broken inside a word: $broken", broken.isEmpty())
+    }
+
+    @Test
+    fun theConfirm_fitsAt320WithLargeText() {
+        for (t in listOf("pl-5", "bb-5")) {
+            val state = draftState(t).copy(hasPlan = true, confirming = true)
+            show(state.mode) { TemplatesContent(state, TemplatesActions()) }
+            compose.onNode(isDialog()).assertExists()
+            assertTrue(compose.onAllNodesWithText(replaceTitle(state.mode)).fetchSemanticsNodes().isNotEmpty())
+            assertFits("$t's confirm", listOf(replaceTitle(state.mode), REPLACE_KEPT, CANCEL, com.powertracker.ui.plan.builder.REPLACE))
+        }
+    }
+
+    @Test
+    fun theSaveFailedLine_fitsAt320WithLargeText() {
+        for (t in listOf("pl-5", "bb-5")) {
+            show(PlanTemplates.byId(t)!!.mode) { TemplatesContent(draftState(t).copy(failed = true), TemplatesActions()) }
+            compose.onNodeWithTag("save-failed").assert(
+                androidx.compose.ui.test.SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.LiveRegion, androidx.compose.ui.semantics.LiveRegionMode.Assertive),
+            )
+            compose.onNodeWithTag("days-line").assert(
+                androidx.compose.ui.test.SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.LiveRegion, androidx.compose.ui.semantics.LiveRegionMode.Polite),
+            )
+            assertFits("$t's save-failed line", listOf(com.powertracker.ui.plan.builder.SAVE_FAILED))
+        }
+    }
+
+    /** With one day unticked, every draft heads its days "Day 1 · …", "Day 2 · …". */
+    @Test
+    fun theDayNHeadings_fitAt320WithLargeText() {
+        for (mode in TrainingMode.entries) for (t in PlanTemplates.forMode(mode)) {
+            val full = draftState(t.id)
+            val state = full.copy(days = full.days - full.days.first())
+            show(mode) { TemplatesContent(state, TemplatesActions()) }
+            val headings = state.draft!!.sessions.mapIndexed { i, s -> com.powertracker.ui.plan.templates.templateSessionHeading(i, s.day, s.title, false) }
+            for (h in headings) assertTrue("${t.id}: $h shown", compose.onAllNodesWithText(h).fetchSemanticsNodes().isNotEmpty())
+            assertFits("${t.id}'s Day n headings", headings)
+        }
+    }
+
+    /** For each template, the Swap sheet of its longest swappable name: while the count is off ("Day n"), then on its weekday. */
+    @Test
+    fun theSwapSheet_fitsAt320WithLargeText() {
+        for (mode in TrainingMode.entries) for (t in PlanTemplates.forMode(mode)) for (matched in listOf(false, true)) {
+            val full = draftState(t.id)
+            val state = if (matched) full else full.copy(days = full.days - full.days.first())
+            val (session, exercise) = state.draft!!.sessions.flatMap { s -> s.exercises.map { s to it } }
+                .filter { com.powertracker.ui.plan.templates.TemplatesViewModel.canSwap(it.second.name) }
+                .maxBy { it.second.name.length }
+            val actions = TemplatesActions(alternatives = { day, name -> PlanTemplates.alternatives(t, state.draft!!, day, name) })
+            show(mode) { TemplatesContent(state, actions) }
+            compose.onNodeWithTag("draft-list").performScrollToNode(hasContentDescription("Swap ${exercise.name}"))
+            compose.onAllNodes(hasContentDescription("Swap ${exercise.name}"))[0].performClick()
+            compose.waitForIdle()
+            compose.onNodeWithTag("alternatives").assertExists()
+            val options = PlanTemplates.alternatives(t, state.draft!!, session.day, exercise.name).map { it.name }
+            assertFits("${t.id}'s Swap ${exercise.name} sheet (days matched: $matched)", listOf("Swap ${exercise.name}") + options)
+        }
+    }
+
+    /** The open Plan menu on both sides (bodybuilding has two items), and Plan's own day headings with items on all seven days. */
+    @Test
+    fun theOpenPlanMenu_andPlansDayHeadings_fitAt320WithLargeText() {
+        for (mode in TrainingMode.entries) {
+            val sections = DayOfWeek.entries.mapIndexed { i, day ->
+                val item = com.powertracker.domain.model.PlanItem(i + 1L, day, 1, 3, 5, 8.0, 0, mode, if (mode == BODYBUILDING) 8 else null)
+                DaySection(day, listOf(PlanRow(item, "Bench")))
+            }
+            show(mode) {
+                PlanContent(
+                    PlanUiState(sections = sections, mode = mode),
+                    onOpenSettings = {}, onAdd = {}, onEdit = {}, onMove = { _, _ -> }, onDelete = {}, onSetBaseline = {},
+                )
+            }
+            val days = DayOfWeek.entries.map { com.powertracker.ui.plan.dayName(it) }
+            for (d in days) assertTrue("$mode: $d shown", compose.onAllNodesWithText(d).fetchSemanticsNodes().isNotEmpty())
+            assertFits("$mode Plan's day headings", days)
+            compose.onNodeWithContentDescription(PLAN_OPTIONS).performClick()
+            compose.waitForIdle()
+            assertTrue(compose.onAllNodesWithText(CHOOSE_A_TEMPLATE).fetchSemanticsNodes().isNotEmpty())
+            assertFits("$mode's open Plan menu", listOf(CHOOSE_A_TEMPLATE, REBUILD_MY_PLAN))
+        }
+    }
+
     @Test
     fun theDraft_withSevenDaysToChooseFrom_keepsEveryChipWhole() {
         show(POWERLIFTING) { TemplatesContent(draftState("pl-5").copy(days = setOf(MONDAY, SATURDAY)), TemplatesActions()) }
         for (day in DayOfWeek.entries) compose.onNodeWithTag("template-day-${day.name}").assertExists()
         compose.assertTextsFit()
+        // Also no label cut to its first letters: seven to a row leave "Wed" too little room here, so they go 4 + 3.
+        compose.assertTextsFitInEveryWindow(screenPx)
+        assertTrue("two rows", compose.onNodeWithTag("template-day-FRIDAY").fetchSemanticsNode().positionInRoot.y > compose.onNodeWithTag("template-day-MONDAY").fetchSemanticsNode().positionInRoot.y)
     }
 }

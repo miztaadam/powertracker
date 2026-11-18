@@ -36,6 +36,8 @@ fun ScreenHeader(
     eyebrow: String? = null,
     modeLabel: Boolean = false,
     navigation: (@Composable () -> Unit)? = null,
+    /** One line by default; a screen whose titles are names it does not choose (a template's) lets them wrap. */
+    titleMaxLines: Int = 1,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
@@ -50,7 +52,7 @@ fun ScreenHeader(
                 title,
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onBackground,
-                maxLines = 1,
+                maxLines = titleMaxLines,
                 modifier = Modifier.semantics { heading() },
             )
         }

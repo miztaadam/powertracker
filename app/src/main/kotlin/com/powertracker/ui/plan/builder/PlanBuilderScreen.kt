@@ -3,9 +3,11 @@ package com.powertracker.ui.plan.builder
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -35,6 +37,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
@@ -43,6 +46,7 @@ import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,6 +62,7 @@ import com.powertracker.domain.plan.GroupVolume
 import com.powertracker.domain.plan.LeftOut
 import com.powertracker.domain.plan.PlanDraft
 import com.powertracker.platform.systemToday
+import com.powertracker.ui.components.CHOICE_CHIP_PADDING
 import com.powertracker.ui.components.ChoiceChip
 import com.powertracker.ui.components.PrimaryButton
 import com.powertracker.ui.components.PtCard
@@ -377,19 +382,36 @@ private fun DraftStep(draft: PlanDraft, state: PlanBuilderState, actions: PlanBu
 
 /**
  * The seven weekday chips, Monday first, in a card; [days] are ticked. Each chip is tagged [tagPrefix] + the day's
- * name ("builder-day-MONDAY").
+ * name ("builder-day-MONDAY"). They sit in one row when every short name fits its chip, else in two (Monday to Thursday,
+ * then Friday to Sunday): at 320 dp with large text a seventh of the row is too narrow for "Wed".
  */
 @Composable
 fun WeekdayChips(days: Set<DayOfWeek>, onDay: (DayOfWeek) -> Unit, tagPrefix: String, modifier: Modifier = Modifier) {
     PtCard(modifier, contentPadding = PaddingValues(horizontal = Space.s, vertical = Space.s)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.xxs)) {
-            for (day in DayOfWeek.entries) {
-                ChoiceChip(
-                    text = shortDayName(day),
-                    selected = day in days,
-                    onClick = { onDay(day) },
-                    modifier = Modifier.weight(1f).testTag("$tagPrefix${day.name}"),
-                )
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val measurer = rememberTextMeasurer()
+            val style = MaterialTheme.typography.labelLarge
+            val density = LocalDensity.current
+            val widest = remember(measurer, style, density) { DayOfWeek.entries.maxOf { measurer.measure(shortDayName(it), style).size.width } }
+            // A seventh of the row, less the room on each side of a chip's label, must hold the widest label.
+            val room = with(density) { (maxWidth - Space.xxs * 6).toPx() / 7 - (CHOICE_CHIP_PADDING * 2).toPx() }
+            val oneRow = widest <= room
+            val rows = if (oneRow) listOf(DayOfWeek.entries) else listOf(DayOfWeek.entries.take(4), DayOfWeek.entries.drop(4))
+            Column(verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
+                for (row in rows) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.xxs)) {
+                        for (day in row) {
+                            ChoiceChip(
+                                text = shortDayName(day),
+                                selected = day in days,
+                                onClick = { onDay(day) },
+                                modifier = Modifier.weight(1f).testTag("$tagPrefix${day.name}"),
+                            )
+                        }
+                        // The second row's three chips are as wide as the first row's four.
+                        if (row.size < rows.first().size) Spacer(Modifier.weight((rows.first().size - row.size).toFloat()))
+                    }
+                }
             }
         }
     }
