@@ -462,8 +462,15 @@ class TodayViewModel(
         viewModelScope.launch { advice.setStatus(adviceId, AdviceStatus.DISMISSED) }
     }
 
-    /** Adds an exercise for this session only; it is kept once a set is logged for it. */
+    /**
+     * Adds an exercise for this session only; it is kept once a set is logged for it. One skipped today on this side is
+     * brought back instead ([bringBack]): its skip is taken back and it returns as its planned row.
+     */
     fun addExercise(exerciseId: Long) {
+        if (state.value.skippedToday.any { it.exerciseId == exerciseId }) {
+            bringBack(exerciseId)
+            return
+        }
         local.update { if (exerciseId in it.added) it else it.copy(added = it.added + exerciseId) }
     }
 

@@ -454,9 +454,8 @@ class SkipTodayViewModelTest {
     private fun skipCards(): List<AdvicePayload.Skipped> = runBlocking { advice.all() }
         .filter { it.type == AdviceType.SKIP && it.status == AdviceStatus.OPEN }.map { it.payload as AdvicePayload.Skipped }
 
-    /** Pins today's behaviour for the owner to rule on (report, call 8): a skipped exercise added again from the picker. */
     @Test
-    fun skippedExercise_addedFromThePicker_showsAsAdded_andItsSkipStays() {
+    fun addSkippedExerciseFromPicker_unskipsIt() {
         val items = threePlanned()
         runBlocking { training.startSession(today, null, null) }
         val vm = viewModel()
@@ -464,21 +463,32 @@ class SkipTodayViewModelTest {
         vm.skip(bench.id, items[1], SkipReason.BUSY)
         await("bench leaves") { ids(vm) == listOf(squat.id, row.id) }
 
+        // Picked again: it is brought back, its skip taken back, in its planned place.
         vm.addExercise(bench.id)
 
-        // Back as an added row (Remove, no plan), off the skipped line; its skip is still stored.
-        await("bench added") { ids(vm) == listOf(squat.id, row.id, bench.id) }
-        assertEquals(null, vm.state.value.items.last().planned)
-        assertEquals(emptyList<SkippedToday>(), vm.state.value.skippedToday)
-        assertEquals(1, storedSkips().size)
-
-        // Once a set is logged it is the planned row again, and Finish still counts the skip.
-        vm.logSet(null, bench.id, set(bench, 80.0))
-        await("bench planned again") { ids(vm) == listOf(squat.id, bench.id, row.id) }
+        await("bench back") { ids(vm) == listOf(squat.id, bench.id, row.id) }
         assertEquals(items[1], vm.state.value.items[1].planned?.id)
+        await("skip gone") { storedSkips().isEmpty() }
+        assertEquals(emptyList<SkippedToday>(), vm.state.value.skippedToday)
         vm.finishSession()
         await("summary") { vm.state.value.summary != null }
-        assertEquals(1, vm.state.value.summary?.skipped)
+        assertEquals(0, vm.state.value.summary?.skipped)
+    }
+
+    @Test
+    fun addSkippedExerciseFromTheCatalogue_unskipsIt() {
+        val items = threePlanned()
+        runBlocking { training.startSession(today, null, null) }
+        val vm = viewModel()
+        await("rows") { ids(vm).size == 3 }
+        vm.skip(row.id, items[2], null)
+        await("row leaves") { ids(vm) == listOf(squat.id, bench.id) }
+
+        vm.addFromCatalogue("Row")
+
+        await("row back") { ids(vm) == listOf(squat.id, bench.id, row.id) }
+        await("skip gone") { storedSkips().isEmpty() }
+        assertEquals(items[2], vm.state.value.items[2].planned?.id)
     }
 
     @Test
