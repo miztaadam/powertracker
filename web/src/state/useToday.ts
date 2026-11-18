@@ -128,9 +128,10 @@ export type TodayActions = {
    * Makes an exercise of the lifter's own, adds it to this session and resolves to the id its card
    * is shown under. A catalogue name is added from the catalogue instead of being made again.
    * `onAdded`, when given, runs with that id in the same step as the add, which slides in (stage 3): once the new
-   * exercise is on screen, so its card can open as it arrives.
+   * exercise is on screen, so its card can open as it arrives. `onMade`, when given, runs as soon as the exercise is
+   * made (or found in the catalogue), before that step; if making it fails, neither runs and the promise rejects.
    */
-  createExercise: (exercise: CustomExercise, onAdded?: (id: number | null) => void) => Promise<number | null>
+  createExercise: (exercise: CustomExercise, onAdded?: (id: number | null) => void, onMade?: () => void) => Promise<number | null>
   /**
    * Adds an exercise from another screen (the Exercises tab) the way "Add exercise" here does: a
    * catalogue exercise by `catalogueName`, with no row until its first set; the lifter's own by
@@ -864,8 +865,9 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   )
 
   const createExercise = useCallback<TodayActions['createExercise']>(
-    async (exercise, onAdded) => {
+    async (exercise, onAdded, onMade) => {
       const entry = await createCustomExercise(db, exercise)
+      onMade?.()
       const newRow = entry.library == null ? entry.exerciseId : null
       // A new row of the lifter's own reaches the screen with the next read: wait for it, so it slides in whole.
       if (newRow != null) await known(newRow)

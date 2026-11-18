@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resolveCatalogue } from '../../db/catalogue'
 import type { GritDb } from '../../db/db'
+import { OWN_NAME, expectCustomExerciseEmpty, expectCustomExerciseKept, expectSaveFailedInTheForm, fillCustomExercise, openCreateForm, tapCreate } from '../../test/customExerciseChecks'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { DELOAD_ADVICE, TODAY, addDays, baseline, exerciseNamed, logSet, plan, set, setsOn, startSession, targets, todayFixture } from '../../test/todayFixture'
 import { setTapHaptics } from '../../platform/haptics'
@@ -507,6 +508,39 @@ describe('TodayScreen', () => {
     expect(sled).toHaveLength(1)
     expect(sled[0]!.isBuiltIn).toBe(false)
     await checkInfoButtonOpensGuide('Tyre flip')
+  })
+
+  it('createYourOwn_whenTheSaveFails_formKeepsEverything_saysSoInIt_noCard_noTick', async () => {
+    const vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { configurable: true, writable: true, value: vibrate })
+    setTapHaptics(true)
+    await startSession(db, TODAY)
+    show()
+    await openPicker()
+    await userEvent.type(picker().getByRole('textbox', { name: 'Search exercises' }), 'zzz')
+    vi.spyOn(db.exercises, 'add').mockRejectedValueOnce(new Error('disk full'))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await expectSaveFailedInTheForm()
+    expectCustomExerciseKept()
+    expect(screen.queryByText('Exercise 2 of 2')).toBeNull()
+    expect(await exerciseRows(OWN_NAME)).toEqual([])
+    expect(vibrate).not.toHaveBeenCalled()
+
+    // Once the disk has room, Create works again: stored as typed, added to the session, and the picker closes.
+    await tapCreate()
+    expect(await screen.findByText('Exercise 2 of 2')).toBeInTheDocument()
+    expect(screen.queryByRole('dialog', { name: 'Add exercise' })).toBeNull()
+    expect(await exerciseRows(OWN_NAME)).toEqual([expect.objectContaining({ category: 'VARIATION', parentLift: 'BENCH', muscles: ['Lats', 'Grip'] })])
+
+    // A successful create carries nothing over to the next one.
+    await openPicker()
+    await userEvent.type(picker().getByRole('textbox', { name: 'Search exercises' }), 'zzz')
+    await openCreateForm()
+    expectCustomExerciseEmpty('zzz')
+    setTapHaptics(false)
+    Reflect.deleteProperty(navigator, 'vibrate')
   })
 
   it('createCustom_withCatalogueName_usesTheCatalogueEntry', async () => {

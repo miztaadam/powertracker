@@ -205,17 +205,20 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
               setActiveId(id)
             })
           }}
-          onCreateCustom={(exercise) => {
-            // The new exercise slides in with its card open, like a picked one.
-            raw
-              .createExercise(exercise, (id) => {
+          // The picker closes once the exercise is made, and it then slides in with its card open, like a picked one.
+          // If making it fails, the picker's create form stays with what was typed, and says so.
+          onCreateCustom={(exercise) =>
+            raw.createExercise(
+              exercise,
+              (id) => {
                 if (id != null && !inSessionAlready(id)) haptic('tick')
                 setActiveId(id)
-              })
-              .catch(() => setFailures((n) => n + 1))
-            setPicking(false)
-          }}
+              },
+              () => setPicking(false),
+            )
+          }
           onDismiss={() => setPicking(false)}
+          onCreateFailedWhileClosed={() => setFailures((n) => n + 1)}
         />
       )}
 

@@ -133,18 +133,14 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
             exercises={state.exercises}
             recentIds={state.recentIds}
             onPick={(entry) => setDialog(addForm(dialog.weekday, entry))}
-            // The picker stays until the exercise is made, then the form opens over it; if making it fails, it closes.
+            // The picker stays until the exercise is made, then the form opens over it. If making it fails, the picker's
+            // create form stays with what was typed, and says so.
             onCreateCustom={(exercise) => {
               const picker = dialog
-              actions.addCustomExercise(exercise).then(
-                (entry) => setDialog((open) => (open === picker ? addForm(picker.weekday, entry) : open)),
-                () => {
-                  setDialog((open) => (open === picker ? null : open))
-                  setFailures((n) => n + 1)
-                },
-              )
+              return actions.addCustomExercise(exercise).then((entry) => setDialog((open) => (open === picker ? addForm(picker.weekday, entry) : open)))
             }}
             onDismiss={() => setDialog(null)}
+            onCreateFailedWhileClosed={() => setFailures((n) => n + 1)}
           />
         </div>
       )}

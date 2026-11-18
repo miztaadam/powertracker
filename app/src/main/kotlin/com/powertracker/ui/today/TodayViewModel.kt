@@ -486,9 +486,9 @@ class TodayViewModel(
     /**
      * Creates a custom exercise, adds it to this session and reports its id. A name the catalogue knows
      * (a name or an alias, ignoring case) is added from the catalogue instead, as if it had been picked. If the save
-     * fails, [onCreated] is not called and [events] sends [TodayEvent.SaveFailed].
+     * fails, [onCreated] is not called, [events] sends [TodayEvent.SaveFailed] and [onFailed] runs.
      */
-    fun createExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onCreated: (Long) -> Unit) {
+    fun createExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onFailed: () -> Unit = {}, onCreated: (Long) -> Unit) {
         val known = Library.find(name.trim())
         if (known != null) {
             addFromCatalogue(known.name)?.let(onCreated)
@@ -502,6 +502,7 @@ class TodayViewModel(
             } catch (e: Exception) {
                 // A failed write must not crash the app: nothing was saved or added, and the lifter is told.
                 _events.emit(TodayEvent.SaveFailed)
+                onFailed()
                 return@launch
             }
             addExercise(id)

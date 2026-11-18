@@ -506,15 +506,23 @@ class ExercisePictureTest {
         assertNameWhole("exercise-Concentration curl", "Concentration curl")
     }
 
-    /** At 130% text the plan builder at 360 dp leaves the thumbnails out, so no name breaks inside a word. */
+    /**
+     * At 130% text the plan builder at 360 dp, and since 1.12.2 at 320 dp, leaves the thumbnails out, and no name breaks
+     * inside a word (a break after the hyphen in "Chest-supported" is fine).
+     */
     @Test
     @Config(qualifiers = "w360dp-h2400dp-xhdpi")
     fun planBuilder_namesWholeAtFontScale1_3() {
-        showBuilderWithLongNamesTicked(fontScale = 1.3f)
-        val (broken, seen) = namesBrokenInsideAWord()
-        assertEquals("every catalogue name checked", Library.all().size, seen)
-        assertTrue("130% text, broken inside a word: $broken", broken.isEmpty())
-        assertEquals("no tiles at 130% text", 0, thumbnailCount())
+        for (width in listOf(360, 320)) {
+            scenario?.close()
+            RuntimeEnvironment.setQualifiers("w${width}dp-h2400dp-xhdpi")
+            showBuilderWithLongNamesTicked(fontScale = 1.3f)
+            assertEquals(toPx(width), compose.onRoot().fetchSemanticsNode().boundsInRoot.width, 0.5f)
+            val (broken, seen) = namesBrokenInsideAWord()
+            assertEquals("every catalogue name checked at $width dp", Library.all().size, seen)
+            assertTrue("130% text at $width dp, broken inside a word: $broken", broken.isEmpty())
+            assertEquals("no tiles at 130% text at $width dp", 0, thumbnailCount())
+        }
     }
 
     /**

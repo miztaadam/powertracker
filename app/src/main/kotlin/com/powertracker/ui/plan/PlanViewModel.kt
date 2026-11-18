@@ -117,19 +117,19 @@ class PlanViewModel(
     /**
      * Adds [entry] at the end of [day] with the numbers chosen in the add form. A catalogue exercise gets its row, if
      * it has none yet, in the same transaction. [repsHigh] is the top of a range (bodybuilding side), never below
-     * [reps]; fixed reps keep it null. [onAdded] runs once it is stored.
+     * [reps]; fixed reps keep it null. [onAdded] runs once it is stored, after the write, not inside it.
      *
      * The side and the place at the end of the day are read from what is stored, not from [state]: a form restored
-     * after the process was killed can be on screen before [state] has its first value.
+     * after the process was killed can be on screen before [state] has its first value. If the write fails, nothing is
+     * stored, [messages] says so and [onFailed] runs instead of [onAdded].
      */
-    fun add(day: DayOfWeek, entry: PickerEntry, sets: Int, reps: Int, rpe: Double, repsHigh: Int?, onAdded: () -> Unit = {}) {
-        viewModelScope.launch {
+    fun add(day: DayOfWeek, entry: PickerEntry, sets: Int, reps: Int, rpe: Double, repsHigh: Int?, onAdded: () -> Unit = {}, onFailed: () -> Unit = {}) {
+        write(onFailed, onDone = onAdded) {
             val mode = settings.settings.first().trainingMode
             val order = (training.plan(mode).first().filter { it.weekday == day }.maxOfOrNull { it.order } ?: -1) + 1
             val item = newItem(mode, day, entry, rpe, order)
                 .copy(sets = sets, reps = reps, targetRpe = rpe, repsHigh = repsHigh?.coerceAtLeast(reps))
             training.savePlanItem(item, entry.catalogueName)
-            onAdded()
         }
     }
 
@@ -186,25 +186,27 @@ class PlanViewModel(
             exerciseId = exercise?.exerciseId ?: existing.exerciseId, sets = sets, reps = reps, targetRpe = rpe,
             repsHigh = repsHigh?.coerceAtLeast(reps),
         )
-        viewModelScope.launch { training.savePlanItem(item, exercise?.catalogueName) }
+        write { training.savePlanItem(item, exercise?.catalogueName) }
     }
 
     private fun nextOrder(day: DayOfWeek): Int =
         (state.value.sections.firstOrNull { it.day == day }?.rows?.maxOfOrNull { it.item.order } ?: -1) + 1
 
     fun delete(item: PlanItem) {
-        viewModelScope.launch { training.deletePlanItem(item.id) }
+        write { training.deletePlanItem(item.id) }
     }
 
-    /** Swaps [item] with its neighbour in the given direction (-1 up, +1 down). */
+    /** Swaps [item] with its neighbour in the given direction (-1 up, +1 down): both orders in one transaction, or neither. */
     fun move(item: PlanItem, direction: Int) {
         val rows = state.value.sections.firstOrNull { it.day == item.weekday }?.rows ?: return
         val i = rows.indexOfFirst { it.item.id == item.id }
         val other = rows.getOrNull(i + direction)?.item ?: return
         if (i < 0) return
-        viewModelScope.launch {
-            training.savePlanItem(item.copy(order = other.order))
-            training.savePlanItem(other.copy(order = item.order))
+        write {
+            training.inTransaction {
+                training.savePlanItem(item.copy(order = other.order))
+                training.savePlanItem(other.copy(order = item.order))
+            }
         }
     }
 
@@ -212,9 +214,10 @@ class PlanViewModel(
      * Creates a custom exercise and reports it as a picker entry, ready for the add form or [save]. A name the
      * catalogue knows (a name or an alias, ignoring case) is not made again: the catalogue's entry is
      * reported instead, tied to its oldest live row if it has one, and gets its row like any other
-     * catalogue exercise when it is saved. If the save fails, [onCreated] is not called and [messages] says so.
+     * catalogue exercise when it is saved. If the save fails, [onCreated] is not called, [messages] says so and
+     * [onFailed] runs.
      */
-    fun addCustomExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onCreated: (PickerEntry) -> Unit) {
+    fun addCustomExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onFailed: () -> Unit = {}, onCreated: (PickerEntry) -> Unit) {
         val trimmed = name.trim()
         val known = Library.find(trimmed)
         if (known != null) {
@@ -230,6 +233,7 @@ class PlanViewModel(
             } catch (e: Exception) {
                 // A failed write must not crash the app: nothing was saved, no form opens, and the lifter is told.
                 _messages.send(SAVE_FAILED)
+                onFailed()
                 return@launch
             }
             onCreated(PickerEntry(trimmed, muscles, if (category == Category.ACCESSORY) Kind.ACCESSORY else Kind.COMPOUND, library = null, exerciseId = id))
@@ -239,7 +243,31 @@ class PlanViewModel(
     /** Ignores values the dialog would not accept (non-finite, 0 or below, above 500 kg). */
     fun setBaseline(mainExerciseId: Long, e1rmKg: Double) {
         if (!InputValidator.isValidBaselineKg(e1rmKg)) return
-        viewModelScope.launch { training.setBaseline(Baseline(mainExerciseId, e1rmKg, today())) }
+        write { training.setBaseline(Baseline(mainExerciseId, e1rmKg, today())) }
+    }
+
+    /**
+     * Runs one of Plan's writes ([add], [save], [delete], [move], [setBaseline]). A failure must not crash the app: it is
+     * caught, [messages] says so and [onFailed] runs. Cancelling is passed on. [onDone] runs once the write has worked,
+     * outside the catch: whatever it does after the store can never be told as a failed save.
+     */
+    private fun write(onFailed: () -> Unit = {}, onDone: () -> Unit = {}, block: suspend () -> Unit) {
+        viewModelScope.launch {
+            val stored = try {
+                block()
+                true
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                false
+            }
+            if (stored) {
+                onDone()
+            } else {
+                _messages.send(SAVE_FAILED)
+                onFailed()
+            }
+        }
     }
 
     companion object {

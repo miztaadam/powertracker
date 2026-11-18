@@ -587,6 +587,10 @@ private fun BrowserRow(
     // as before, so a list of rows costs nothing more to open.
     val interaction = if (LocalMotion.current) remember { MutableInteractionSource() } else null
     val indication = LocalIndication.current
+    // A plan builder row with no thumbnail (a narrow phone or large text, under the builder's floor) gives its name
+    // 8 dp more: the gaps beside the tick box and before the equipment close up from 8 and 12 dp to 4 and 8, so
+    // "Chest-supported" still fits whole on one line at 320 dp and 130% text.
+    val tight = ticked != null && !showThumbnail
     Column {
         Row(
             Modifier
@@ -607,7 +611,7 @@ private fun BrowserRow(
                     checked = ticked,
                     onCheckedChange = null,
                     colors = CheckboxDefaults.colors(checkedColor = pt.accent, checkmarkColor = pt.onAccent, uncheckedColor = scheme.outline),
-                    modifier = Modifier.padding(horizontal = Space.s),
+                    modifier = Modifier.padding(start = Space.s, end = if (tight) Space.xs else Space.s),
                 )
             }
             // The lifter's own exercise has no catalogue name, so its tile is empty.
@@ -623,7 +627,7 @@ private fun BrowserRow(
                 style = MaterialTheme.typography.labelMedium,
                 color = PowertrackerTheme.colors.muted,
                 maxLines = 1,
-                modifier = Modifier.padding(start = Space.m),
+                modifier = Modifier.padding(start = if (tight) Space.s else Space.m),
             )
             // Its own button, outside the row's click.
             InfoIconButton(entry.name, onClick = { onInfo(entry) })

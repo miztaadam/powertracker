@@ -9,6 +9,16 @@ import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, exerciseNamed, plan, todayFixture } from '../../test/todayFixture'
 import { PlanScreen } from './PlanScreen'
 import { pastTheTapWindow } from '../../test/tapWindow'
+import {
+  OWN_NAME,
+  createForm,
+  expectCustomExerciseEmpty,
+  expectCustomExerciseKept,
+  expectSaveFailedInTheForm,
+  fillCustomExercise,
+  openCreateForm,
+  tapCreate,
+} from '../../test/customExerciseChecks'
 
 let fx: ReturnType<typeof todayFixture>
 let db: GritDb
@@ -30,6 +40,7 @@ const dialog = () => within(screen.getByRole('dialog'))
 const rowsOf = (section: HTMLElement) => within(section).queryAllByRole('listitem').map((row) => row.getAttribute('aria-label'))
 /** The part of a picker row that picks the exercise, once the row is drawn. */
 const pickerRow = async (name: string) => within(await dialog().findByRole('listitem', { name })).getAllByRole('button')[0]!
+const exerciseRowsNamed = async (name: string) => (await db.exercises.toArray()).filter((e) => e.name === name)
 const storedPlan = async () => (await db.planItems.toArray()).map(({ id: _id, ...rest }) => rest)
 
 describe('PlanScreen', () => {
@@ -461,8 +472,95 @@ describe('PlanScreen add form', () => {
     await userEvent.click(within(await day('Wednesday')).getByRole('button', { name: 'Add' }))
     await createOwn('Cluster squat', 'Squat')
     expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
-    expect(screen.queryByRole('dialog')).toBeNull()
+    // Since 1.12.2 the picker and its create form stay open, to try again; no add form opens.
+    expect(screen.getByRole('dialog', { name: 'Add custom exercise' })).toBeInTheDocument()
     expect(screen.queryByRole('group', { name: 'Sets' })).toBeNull()
+    expect(await storedPlan()).toEqual([])
+  })
+
+  it('planAdd_ownExerciseFails_createFormKeepsEverything_saysSoInIt_andASecondCreateWorks', async () => {
+    show()
+    const add = vi.spyOn(db.exercises, 'add').mockRejectedValueOnce(new Error('disk full'))
+    await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await expectSaveFailedInTheForm()
+    expectCustomExerciseKept()
+    expect(formOpen()).toBe(false)
+    expect(await exerciseRowsNamed(OWN_NAME)).toEqual([])
+
+    // Once the disk has room, Create works again: stored as typed, and the add form opens on it.
+    await tapCreate()
+    expect((await addFormNow()).getByRole('group', { name: 'Exercise' })).toHaveTextContent(OWN_NAME)
+    expect(createForm()).toBeNull()
+    expect(add).toHaveBeenCalledTimes(2)
+    expect(await exerciseRowsNamed(OWN_NAME)).toEqual([expect.objectContaining({ category: 'VARIATION', parentLift: 'BENCH', muscles: ['Lats', 'Grip'] })])
+  })
+
+  it('planAdd_ownExerciseCreated_theNextCreateFormStartsEmpty', async () => {
+    show()
+    const monday = await day('Monday')
+    await userEvent.click(within(monday).getByRole('button', { name: 'Add' }))
+    await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), 'zzz')
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Cancel' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+
+    await userEvent.click(within(monday).getByRole('button', { name: 'Add' }))
+    await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), 'zzz')
+    await openCreateForm()
+    expectCustomExerciseEmpty('zzz')
+  })
+
+  it('planAdd_ownExerciseFails_afterTheFormWasCancelled_thePickerSaysSo', async () => {
+    show()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementation((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await userEvent.click(within(createForm()!).getByRole('button', { name: 'Cancel' }))
+    await act(async () => fail())
+    // The form is gone, so the picker says it over its list.
+    expect(await within(screen.getByRole('dialog', { name: 'Add to Monday' })).findByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect(screen.getAllByText("Couldn't save — try again.")).toHaveLength(1)
+  })
+
+  it('planAdd_ownExerciseFails_afterThePickerWasClosed_planSaysSo', async () => {
+    show()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementation((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await userEvent.click(within(createForm()!).getByRole('button', { name: 'Cancel' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Close' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+    await act(async () => fail())
+    expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
+  })
+
+  it('planChange_toOwnExerciseFails_createFormKeepsEverything_saysSoInIt', async () => {
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addForm()
+    vi.spyOn(db.exercises, 'add').mockRejectedValueOnce(new Error('disk full'))
+    await userEvent.click(form.getByRole('button', { name: 'Change' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await expectSaveFailedInTheForm()
+    expectCustomExerciseKept()
+
+    await tapCreate()
+    await waitFor(() => expect(createForm()).toBeNull())
+    expect(screen.queryByRole('dialog', { name: 'Change exercise' })).toBeNull()
+    expect((await addFormNow()).getByRole('group', { name: 'Exercise' })).toHaveTextContent(OWN_NAME)
     expect(await storedPlan()).toEqual([])
   })
 
@@ -675,5 +773,62 @@ describe('PlanScreen haptics', () => {
     await waitFor(() => expect(failing).toHaveBeenCalled())
     await waitFor(() => expect(screen.getByText("Couldn't save — try again.")).toBeInTheDocument())
     expect(vibrate).not.toHaveBeenCalled()
+  })
+
+  // ---- 1.12.2: every Plan write says a failure ----
+
+  it('failedEditSave_saysSo_rowUnchanged', async () => {
+    await plan(db, (await exerciseNamed(db, 'Bench')).id, { weekday: 1, sets: 4, reps: 6, targetRpe: 7.5 })
+    show()
+    const monday = await day('Monday')
+    await waitFor(() => expect(rowsOf(monday)).toEqual(['Bench  4 × 6 @ 7.5']))
+    vi.spyOn(db.planItems, 'update').mockRejectedValue(new Error('disk full'))
+    await userEvent.click(within(monday).getByRole('button', { name: 'More' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Edit' }))
+    await userEvent.click(dialog().getByRole('button', { name: 'Increase Sets' }))
+    await userEvent.click(dialog().getByRole('button', { name: 'Save' }))
+    expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect((await storedPlan()).map((p) => p.sets)).toEqual([4])
+  })
+
+  it('failedDelete_saysSo_rowKept', async () => {
+    await plan(db, (await exerciseNamed(db, 'Bench')).id, { weekday: 1 })
+    show()
+    const monday = await day('Monday')
+    await waitFor(() => expect(rowsOf(monday)).toHaveLength(1))
+    vi.spyOn(db.planItems, 'delete').mockRejectedValue(new Error('disk full'))
+    await userEvent.click(within(monday).getByRole('button', { name: 'More' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Delete' }))
+    expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect(await storedPlan()).toHaveLength(1)
+  })
+
+  it('failedMove_saysSo_andNeitherRowMoved', async () => {
+    for (const [order, name] of ['Squat', 'Bench'].entries()) await plan(db, (await exerciseNamed(db, name)).id, { weekday: 1, order })
+    show()
+    const monday = await day('Monday')
+    await waitFor(() => expect(rowsOf(monday)).toHaveLength(2))
+    // Only the second of the move's writes fails: the first must not be kept on its own.
+    const update = db.planItems.update.bind(db.planItems)
+    let calls = 0
+    vi.spyOn(db.planItems, 'update').mockImplementation(((...args: Parameters<typeof update>) =>
+      ++calls === 2 ? Promise.reject(new Error('disk full')) : update(...args)) as typeof update)
+    await userEvent.click(within(monday).getAllByRole('button', { name: 'Move down' })[0]!)
+    expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect(calls).toBe(2)
+    const squat = await exerciseNamed(db, 'Squat')
+    const bench = await exerciseNamed(db, 'Bench')
+    expect((await storedPlan()).map((p) => [p.exerciseId, p.order])).toEqual([[squat.id, 0], [bench.id, 1]])
+  })
+
+  it('failedBaseline_saysSo_storesNothing', async () => {
+    show()
+    vi.spyOn(db.baselines, 'put').mockRejectedValue(new Error('disk full'))
+    const bests = await screen.findByRole('group', { name: 'Squat' })
+    await userEvent.click(within(bests).getByRole('button', { name: 'Set best' }))
+    await userEvent.type(dialog().getByRole('textbox', { name: 'Estimated 1RM (kg)' }), '180')
+    await userEvent.click(dialog().getByRole('button', { name: 'Save' }))
+    expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect(await db.baselines.toArray()).toEqual([])
   })
 })

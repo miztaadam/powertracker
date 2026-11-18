@@ -26,7 +26,7 @@ export type PlanItemDialogProps = {
   recentIds: readonly number[]
   /** Creates a custom exercise; resolves to its picker entry, which becomes the item's exercise on Save. */
   onCreateCustom: (exercise: CustomExercise) => Promise<PickerEntry>
-  /** Called when creating the custom exercise failed. */
+  /** Creating the custom exercise failed after its picker had closed. */
   onFailure: () => void
   /** `exercise` is null unless the exercise itself was changed. `repsHigh` is given for a range (a bodybuilding item). */
   onSave: (exercise: PickerEntry | null, sets: number, reps: number, rpe: number, repsHigh?: number) => void
@@ -119,11 +119,15 @@ export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save'
             setChanged(entry)
             setPicking(false)
           }}
-          onCreateCustom={(exercise) => {
-            setPicking(false)
-            onCreateCustom(exercise).then(setChanged, onFailure)
-          }}
+          // The picker stays until the exercise is made; if making it fails, its create form stays with what was typed.
+          onCreateCustom={(exercise) =>
+            onCreateCustom(exercise).then((entry) => {
+              setChanged(entry)
+              setPicking(false)
+            })
+          }
           onDismiss={() => setPicking(false)}
+          onCreateFailedWhileClosed={onFailure}
         />
       )}
     </>

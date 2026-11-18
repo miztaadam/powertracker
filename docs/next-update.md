@@ -263,11 +263,11 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 
 - **1.9:** charts fill in on Progress.
 
 **Open follow-ups:**
-- Pictures in the web picker and plan builder: tried twice and waiting for the owner's decision (see "Web picker thumbnails: tried, waiting"). Android has them since 1.10.
-- "Sound + vibrate" wraps onto two lines on narrow phones.
+- Pictures in the web picker and plan builder: closed by the owner on 2026-11-18 after three trials (see "Web picker thumbnails: tried, closed"). Android has them since 1.10.
+- "Sound + vibrate" wraps onto two lines on narrow phones (web). Measured in 1.12.2: it cannot fit one line with a smaller font or tighter padding, so a different arrangement is the owner's call (see "Done: the 1.12.2 tidy-up"). Android's fits.
 - Two guide gaps: the Seated cable fly guide and the Hack squat guide (see the 1.5 notes).
 - The Exercises tab still opens slowly now and then (single slow opens, still under 100 ms).
-- The Android plan builder breaks 2 names (Chest-supported row, Chest-supported rear delt raise) at 320 dp × 1.3 text, even with no picture (see the 1.11 notes).
+- Done in 1.12.2 (see "Done: the 1.12.2 tidy-up"): the Android plan builder's 2 broken names at 320 dp × 1.3; every Plan write on Android catches a failure; a failed own-exercise save keeps what was typed.
 - Done in 1.11 (see "Done: the 1.10 follow-ups"): the web tab's 4 broken names at 288 px; the Android tab at 130% text; the six stale web screenshots; the Today slide test (1cc526c, 80 of 80 runs, under emulated touch).
 
 ## Done: thumbnails in the picker (1.10, Android app)
@@ -308,7 +308,7 @@ Plan: `docs/superpowers/plans/2026-11-17-grit-1-11-follow-ups.md`. The owner sai
 - **Two test fixes:**
   - The Today slide test (three quick Log set taps) now waits for the card to scroll into view before the first tap (1cc526c).
   - The `lock-setup` screenshot now also waits for the Today screen behind the dialog: the "Install Grit" heading and its icon (2a59dd7). Before, 1 of 20 shots caught it half-loaded; after, 0 of 20, twice.
-- **Found, not fixed (open follow-up):** the Android plan builder breaks 2 names, Chest-supported row and Chest-supported rear delt raise, at 320 dp × 1.3, even with no picture. The row's tick box, equipment and info button leave too little room. It was already so in 1.9. The existing large-text test checks only 360 dp. A fix needs a smaller gap or hyphenation: the owner's or planner's call.
+- **Found, not fixed in 1.11 (done in 1.12.2):** the Android plan builder breaks 2 names, Chest-supported row and Chest-supported rear delt raise, at 320 dp × 1.3, even with no picture. The row's tick box, equipment and info button leave too little room. It was already so in 1.9. The existing large-text test checks only 360 dp. A fix needs a smaller gap or hyphenation: the owner's or planner's call.
 - **The web picker and plan builder** have no thumbnails in 1.11, as in 1.10.
 - **Tests changed** (all follow from the new Android floors, and the web is unchanged):
   - `ExercisePictureTest.picker_namesWholeAtFontScale1_3`: "no tiles" became a per-case flag, since at 309 dp of room the tile now shows.
@@ -316,8 +316,8 @@ Plan: `docs/superpowers/plans/2026-11-17-grit-1-11-follow-ups.md`. The owner sai
   - `ThumbnailsTest.tab_stillWarmsUp_afterATilelessPicker` is replaced by `tab_largeText_startsNoWarmUp` and `tab_stillWarmsUp_afterATilelessPlanBuilder`, because the picker's floor is now below the tab's, so a tile-less picker under a tiled tab can't happen.
 - Not yet tried on a real phone.
 
-## Web picker thumbnails: tried, waiting
-**Waiting for the owner's decision.** The web picker and plan builder have no thumbnails in 1.10 or 1.11. The web Exercises tab keeps its SVG pictures. The spike's files are local only and will be lost, so this section keeps what is needed to rebuild option B later.
+## Web picker thumbnails: tried, closed
+**Closed by the owner on 2026-11-18.** No pictures in the web picker or plan builder. Reasons: decoded-image memory (about 24–54 MB), sheets that would have to be made in a browser and committed for every picture change, and slower first opens; Android already has pictures. The data below stays in case this is reopened. The web picker and plan builder have no thumbnails in 1.10 or 1.11. The web Exercises tab keeps its SVG pictures. The spike's files are local only and will be lost, so this section keeps what is needed to rebuild option B later.
 
 ### 1.10: three ways of scheduling the same SVG pictures (owner decision 3)
 - Each tile was a React subtree of SVG shapes, about 10–12 ms of drawing on the picker's open.
@@ -403,6 +403,18 @@ B's slow-open share (35%, 14 of 40, against at most 28%) was over the rule, but 
 
 **The next step, untried:** every pixel is a fixed blend of four colours (text, muted, accent and surface). So one set of 3 alpha sheets, stacked as CSS masks in the theme's colours, might serve all 4 palettes. Spike it for size, cost and exactness before building anything.
 
+### After 1.12.1: one set of theme-coloured masks (owner's option 2). It missed, so nothing was built.
+- **Idea:** 3 alpha sheets (text, muted, accent) painted as CSS masks in the theme's colours, so one set covers all 4 palettes.
+- **Pixels:** close, not exact. In a test grid, 5–7% of tile pixels differ, about 80% of those by 1 level, worst 8, mostly on edges. In the app's tab at 3x, up to 33 levels, but today's SVG itself moves by up to 32 there. The tab's committed screenshots would change.
+- **Size:** 273 KB (2x) or 432 KB (3x) as optimised PNG; 221/351 KB as lossy WebP. Option B needed 2.5/4.25 MB. Decoded memory, worked out not measured: about 24 MB (2x) or 54 MB (3x).
+- **Speed, the briefed build (decoded ahead):** missed at 40 rounds: open +11.5 ms (powerlifting), +8.5 (bodybuilding), keystroke +5.8, slow opens (45 ms or more) 55–75%. Cold (not decoded) is about the same. The cost is the first paint of the masks, not the decode, so it got no 160-round run.
+- **With one hidden masked tile painted at start-up (beyond the brief), 160 rounds:** open and keystroke within the bound, every keystroke under 100 ms, but slow opens (45 ms or more) were 33% against 9% and 14% for the two comparison builds. Worst open 70 ms, the same as the comparison builds, so no open came near 100 ms. With a real 1 s wait before the tap: still 40% against 18%. Bodybuilding at 40 rounds: open +4.0 against a bound of 3, slow opens 48% against 30%.
+- **Start-up:** decoded about 220 ms after load; +17 ms main-thread time (+25 ms with the primer).
+- **Pictures within 250 ms:** decoded 35–54 ms after the tap warm, 78–101 ms cold. On screen is not established: the only screenshot check came back 416–542 ms after the tap.
+- **Exercises tab:** 5–12 ms faster to open with masks than with its SVG, and lighter on scroll.
+- **Making the sheets:** `@resvg/resvg-wasm` installs without a native build (not tried on Vercel itself) but differs from Chromium at edges by up to about 98 levels, so the sheets would have to be made in Chromium and committed.
+- The trial's tools and diff are local only (`.superpowers/…/mask-trial/`).
+
 ## Done: choose sets and reps when adding (1.12, both apps)
 Spec: `docs/superpowers/specs/2026-11-17-grit-plan-add-sets-reps-design.md`; plan: `docs/superpowers/plans/2026-11-17-grit-plan-add-sets-reps.md`. The owner asked (2026-11-17): "When inputting exercises into my plan, I want to be able to select the reps sets."
 
@@ -468,8 +480,26 @@ Not yet tried on a real phone.
 - **Behind the form:** on Change, the message shows on Plan's own screen, under the open form's scrim, as the web's does under its form.
 - **Tests (Android):** `planAdd_ownExerciseFails_saysSo_opensNoForm` (was `planAdd_ownExerciseFails_opensNoForm`, which expected the crash), `planAdd_changeToOwnExerciseFails_saysSo_formKeepsItsExercise`, `planEdit_changeToOwnExerciseFails_saysSo_rowKeepsItsExercise` and `TodayScreenTest.createYourOwn_whenTheSaveFails_saysSo_addsNothing_noTick`. Each fails without the catch. They wait for the message instead of a fixed 500 ms. The `ExpectCrash` rule, now unused, is gone.
 - **Version:** Android 1.12.1 (versionCode 18), web 1.12.1. Settings shots re-shot on both apps; no other screenshot changed.
-- **Not changed:** other writes still do not catch a failure, as before: among others, Plan's Save (edit), move, delete and known best.
-- **Review notes (open, low):** after a failure you reopen the picker and type the name again, because the picker has already closed. Today's `SaveFailed` goes through a `MutableSharedFlow` with no replay, so if Today is off screen when the insert fails (you left the tab, or the screen is being recreated), the message is lost: there is no crash, but no message either. Plan's buffered `Channel` has no such gap.
+- **Not changed in 1.12.1:** other writes still did not catch a failure: among others, Plan's Save (edit), move, delete and known best. **Done in 1.12.2.**
+- **Review notes (open, low):** Today's `SaveFailed` goes through a `MutableSharedFlow` with no replay, so if Today is off screen when the insert fails (you left the tab, or the screen is being recreated), the message is lost: there is no crash, but no message either. Plan's buffered `Channel` has no such gap.
+
+## Done: the 1.12.2 tidy-up (both apps)
+Plan: `docs/superpowers/plans/2026-11-18-grit-1-12-2-tidy-up.md`. The owner said "go ahead" (2026-11-18).
+
+- **A failed plan write no longer crashes Android.** Add, Save (edit), Delete, the up and down arrows and "Set best" now go through one helper in `PlanViewModel` that catches the failure and says "Couldn't save — try again." in Plan's snackbar. Cancelling is passed on. `addOnce` and `addCustomExercise` are unchanged.
+  - **Move** was two separate writes; both are now one transaction, so a failure leaves neither row moved.
+  - **A failed Add** keeps the add form open with its numbers, and Add works again. The form now closes, and ticks, once the item is stored rather than at the tap. The message shows in Plan's snackbar, under the form's scrim.
+  - **Web:** all five writes already said a failure; new vitests confirm save, remove, move and setBaseline. The web's failed Add closes its form, as before.
+- **A failed own-exercise save keeps what was typed** (Plan's Add, Plan's Change and Today's Add exercise, on both apps). The create form stays open with the name, category, parent lift and muscles; the message is shown over the form (Android: a popup at the foot of the screen; web: a snackbar inside the dialog); Create works again. A successful create closes it, and the next one starts empty.
+  - Android keeps the form across a rotation wherever the picker itself survives one: Today and Plan's Change. Plan's Add picker still closes on rotation, as before (not in the add form's saved state).
+  - On Android the screen's own snackbar also gets the message, behind the picker; on the web only the form says it.
+- **Narrow phones:**
+  - **Android plan builder:** a row with no thumbnail closes up the gaps beside its tick box and before its equipment (8 and 12 dp to 4 and 8). Chest-supported row and Chest-supported rear delt raise no longer break inside a word at 320 dp × 1.3. Rows with a thumbnail, the picker and the tab are unchanged, and no screenshot changed. The large-text test now checks 320 dp too.
+  - **Android Settings:** each rest alert is whole on one line at 320 dp and at 360 dp × 1.3, at 15 sp (new check); nothing changed. At 320 dp × 1.3 (246 dp of room) all three labels are cut short ("Vibrate", "Sound +", "Of"): below the plan's bar, left open.
+  - **Web Settings, not changed (stop rule):** the four segments share the row equally. At 320 px each has 56 px of text room, and "Sound + vibrate" needs 84 px even at 12 px; even the whole screen split four ways (80 px) is too narrow. At 360 px it has 66 px, at 390 px 73 px. Content-sized segments, as Android has, or a shorter label would fit: the owner's call.
+- **Version:** Android 1.12.2 (versionCode 19), web 1.12.2. Settings shots re-shot on both apps; no other screenshot changed.
+
+Not yet tried on a real phone.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
