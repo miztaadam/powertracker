@@ -23,7 +23,6 @@
    - **Web:** the prototype's patterns, which set duration only.
 
 ## Non-goals
-- **Sound.** Not asked for, and the app has sound only for the rest alert.
 - **Animations anywhere else** in the app.
 - **A setting to turn the animations off,** beyond the phone's reduce-motion setting.
 - **Changing what the switch does.** The stored setting, the welcome-back card, and which plan and coach apply stay exactly as they are.
@@ -33,7 +32,7 @@
 - **Slowing the switch down.** The setting is stored at the tap, as now. The animation never blocks the app, and a tap anywhere skips to the end.
 - **Body imagery that reads as crude.** The pump's veins are light, like lightning or roots.
 - **Breaking accessibility:**
-  - **Reduce motion:** with the phone's reduce-motion setting on, there's no animation and no vibration, only the colour change;
+  - **Reduce motion:** with the phone's reduce-motion setting on, there's no animation, only the colour change, with the vibration and the sound;
   - **Screen reader:** a screen reader hears the switch's new state, as today;
   - **Nothing flashes more than 3 times a second.**
 
@@ -62,8 +61,14 @@
 - **A tap anywhere** during an animation skips to the end state. The tap does nothing else.
 - **Flipping the switch again during an animation** skips the running one and plays the new one.
 - **Vibration:**
-  - it follows the existing "Vibrate on taps" switch: when that's off, neither animation vibrates *(my call: it is the app's one vibration switch)*;
+  - **always on** (owner, 2026-11-18: "ignore vibration setting and force it"): the "Vibrate on taps" switch doesn't affect it. With reduce motion on there's no animation, but the vibration still plays, since it isn't motion *(my call)*;
   - on iPhone the web app can't vibrate, so it shows the animation only.
+
+## Sound (owner, 2026-11-18: "get Fable to design sounds for both animations")
+- **Each animation has its own sound,** timed to the clock: the hammer's swing, impact and aftershock; the pump's three beats and the flood.
+- **Made in code:** synthesised with the Web Audio API, with no recordings and no paid service. The apps ship the same sounds, rendered from that synthesis to small audio files, so both apps sound identical.
+- **Volume:** sounds follow the phone's media volume and silent mode. There's no in-app setting *(my call)*.
+- **Designed by Fable** in the prototype; the owner approves the sound before it's built.
 
 ## Constraints
 - **Timeline:** match the prototype's numbers. Each app may round them to its frame clock.
@@ -106,8 +111,8 @@
   - the colours change at the impact or the third beat;
   - a tap skips;
   - flipping again mid-animation;
-  - reduce motion gives no animation and no vibration;
-  - "Vibrate on taps" off gives no vibration;
+  - reduce motion gives no animation but keeps the vibration and the sound;
+  - "Vibrate on taps" off still vibrates;
   - the screen reader announces the switch state;
   - no flashing above 3 a second.
 - **Speed checks:** a test that each animation keeps its frames on time. On Android, the main-thread check style of `ThumbnailsTest`.
