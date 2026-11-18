@@ -58,6 +58,10 @@ The coach reads skips over the last 28 days, the window it already uses for dism
   - **Wording on persistent pain:** for example, seeing a professional if it lasts. This must come from the approved sources, looked up during planning and cited in `CoachSources.kt` like the coach's other numbers. If the sources support no such line, the card goes without it.
 - **Out of time:** nothing changes, and there is no card.
 - **Just skip (no reason):** the 3rd skip of the same exercise within 28 days, of any reason except out of time, creates one card asking whether to keep it in the plan, offering a swap. *(My call: the card has only Swap and Dismiss, with no "Remove from plan", since changing the plan beyond a swap is a non-goal.)* It is not stacked on a busy or pain card that is already open for that exercise.
+- **The main lifts are never swapped out** (owner's decision A, 2026-11-18). This covers squat, bench, deadlift and, when the lifter has it, strict press: any exercise whose category is a main-lift category (`SQUAT`, `BENCH`, `DEADLIFT`, `STRICT_PRESS`). On either side:
+  - **Pain:** the weight is held as above, and a card says so. The card has no swap, only Dismiss.
+  - **Busy, or skips with no reason:** no card.
+  - **Variations and accessories, powerlifting side included:** they get the same swap cards as on the bodybuilding side. That needs a powerlifting swap path, since SWAP is bodybuilding-only today. It follows the powerlifting coach's existing limit of one card per lift per week.
 - **Skips are never failures.** No rule may read a skip as a missed set, a stall or a reason to deload or ease back in. `ReturnRule` (time off) keeps reading sessions only.
 
 ## Storage, backups and edge cases
