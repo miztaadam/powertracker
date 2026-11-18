@@ -759,8 +759,9 @@ class PlanScreenTest {
 }
 
 /**
- * Expects the test to fail with an exception that [expected] matches, anywhere in its causes or suppressed exceptions:
- * an exception nothing in the app catches. Set [expected] in the test; left null, the rule changes nothing.
+ * Expects the test to fail with an exception that [expected] matches, itself or as a cause: an exception nothing in the
+ * app catches. Anything else that failed (an assertion, a timeout) is rethrown, even with the expected one attached to
+ * it as suppressed. Set [expected] in the test; left null, the rule changes nothing.
  */
 class ExpectCrash : org.junit.rules.TestRule {
     var expected: ((Throwable) -> Boolean)? = null
@@ -771,8 +772,9 @@ class ExpectCrash : org.junit.rules.TestRule {
                 val thrown = runCatching { base.evaluate() }.exceptionOrNull()
                 val expect = expected ?: return thrown?.let { throw it } ?: Unit
                 if (thrown == null) throw AssertionError("expected the failure to escape uncaught, but the test passed")
-                fun all(t: Throwable): Sequence<Throwable> = sequenceOf(t) + (listOfNotNull(t.cause) + t.suppressed).asSequence().flatMap(::all)
-                if (all(thrown).none(expect)) throw thrown
+                if (generateSequence(thrown) { it.cause }.none(expect)) throw thrown
+                // The expected crash, and nothing more beside it.
+                thrown.suppressed.firstOrNull { s -> generateSequence(s) { it.cause }.none(expect) }?.let { throw it }
             }
         }
 }
