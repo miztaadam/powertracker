@@ -4,7 +4,7 @@ import type { GritDb } from '../db/db'
 import { loadHistory } from '../db/db'
 import { adviceToJs, planItemToJs } from '../db/mapping'
 import type { AdviceRow, TrainingMode } from '../db/schema'
-import { skip as storeSkip, skips as storedSkips } from '../db/skips'
+import { skip as storeSkip, skips as storedSkips, unskip } from '../db/skips'
 import { grit } from '../domain'
 import { TODAY, addDays, baseline, exerciseNamed, logSet, set, startSession, todayFixture } from '../test/todayFixture'
 import { useToday } from './useToday'
@@ -419,6 +419,51 @@ describe('a pain skip always tells you (final review, 1.13)', () => {
     expect(coach.current.cards[0]!.detail).toMatchObject({ kind: 'skip', exerciseId: curl })
     const stored = (await db.advice.where('type').equals('SKIP').toArray()).filter((a) => a.status === 'OPEN')
     expect(stored.map((a) => a.reason)).toEqual([expect.stringContaining('If the pain persists or gets worse, see a physician.')])
+  })
+})
+
+describe('the quiet spell after a dismissed pain card (1.13.1)', () => {
+  /**
+   * A pain skip of squat `daysAgo` days ago, given the coach's real card, which was then dismissed; the skip itself
+   * was then taken back, so only the dismissed card is left and nothing holds squat's weight.
+   */
+  async function dismissedPainCard(item: number, daysAgo: number) {
+    const day = addDays(TODAY, -daysAgo)
+    const id = await storeSkip(db, { date: day, mode: 'POWERLIFTING', exerciseId: squat, planItemId: item, reason: 'PAIN' }, async (stored, all) => {
+      const [history, plan, advice] = await Promise.all([loadHistory(db), db.planItems.toArray(), db.advice.toArray()])
+      return grit.coachingAfterSkip(stored, all, history, plan.map((p) => planItemToJs(p as typeof p & { id: number })), day, advice.map((a) => adviceToJs(a as AdviceRow & { id: number })))
+    })
+    const card = (await db.advice.where('type').equals('SKIP').toArray()).find((a) => a.status === 'OPEN')!
+    await db.advice.update(card.id!, { status: 'DISMISSED' })
+    await unskip(db, id)
+  }
+  const skipCardStatuses = async () => (await db.advice.where('type').equals('SKIP').toArray()).map((a) => [a.status, a.createdAt])
+
+  it('painSkip_withinTheQuietSpellOfADismissedPainCard_givesNoCard_butTheHoldApplies', async () => {
+    const item = await squatWithHistory()
+    await dismissedPainCard(item, 3)
+    const vm = show()
+    await waitFor(async () => expect((await todaysTarget(squat))?.weightKg).toBe(155))
+    await act(async () => {
+      await vm.current.skip(squat, item, 'PAIN')
+    })
+    await waitFor(async () => expect((await todaysTarget(squat))?.weightKg).toBe(150))
+    expect((await storedSkips(db)).map((s) => s.reason)).toEqual(['PAIN'])
+    expect(await skipCardStatuses()).toEqual([['DISMISSED', addDays(TODAY, -3)]])
+  })
+
+  it('painSkip_7DaysAfterADismissedPainCard_givesTheCard', async () => {
+    const item = await squatWithHistory()
+    await dismissedPainCard(item, 7)
+    const vm = show()
+    await waitFor(async () => expect(await todaysTarget(squat)).not.toBeNull())
+    await act(async () => {
+      await vm.current.skip(squat, item, 'PAIN')
+    })
+    expect(await skipCardStatuses()).toEqual([
+      ['DISMISSED', addDays(TODAY, -7)],
+      ['OPEN', TODAY],
+    ])
   })
 })
 

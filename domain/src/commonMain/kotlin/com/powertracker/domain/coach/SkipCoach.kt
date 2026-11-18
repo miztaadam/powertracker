@@ -22,7 +22,7 @@ import kotlinx.datetime.minus
  *
  * [afterSkip] runs when a skip is stored and gives at most one SKIP card, by the skip's reason, counted per exercise
  * and per side over the [WINDOW_DAYS] days ending on the skip's date (that skip included):
- * - pain: every pain skip. The card offers gentler alternatives and says the weight won't go up ([held]); for a main lift,
+ * - pain: every pain skip, but for a quiet spell after a dismissed pain card (below). The card offers gentler alternatives and says the weight won't go up ([held]); for a main lift,
  *   or with nothing left to swap to, it only says the weight is held;
  * - busy or no equipment: the [BUSY_SKIPS]th busy skip, or a later one. Alternatives whose first equipment differs;
  * - repeat: the [REPEAT_SKIPS]th skip of any reason but time, or a later one. Alternatives as they come;
@@ -32,8 +32,11 @@ import kotlinx.datetime.minus
  * OPEN SKIP or SWAP card for the exercise stands on that side, within [CARD_COOLDOWN_DAYS] days of an earlier SKIP
  * card for it, or within [DISMISSED_MEMORY_DAYS] days of a dismissed one at least as severe (pain over busy over repeat).
  *
- * A pain skip always tells you: its card is held back only by an OPEN pain SKIP card for the exercise on that side
- * (the hold applies either way). An OPEN SWAP card stays beside it; an OPEN busy or repeat SKIP card gives way to it,
+ * A pain card is held back only by an OPEN pain SKIP card for the exercise on that side, or by a quiet spell: a pain
+ * SKIP card for it on that side, DISMISSED and made within the [CARD_COOLDOWN_DAYS] days ending today, as the 7-day
+ * rule counts them (made 0 to 6 days ago; one made 7 days ago no longer holds it back). An APPLIED pain card starts no
+ * quiet spell, and a busy or repeat card, dismissed or not, never holds back a pain card. The hold comes from the skip,
+ * not the card, so it applies either way ([held]). An OPEN SWAP card stays beside it; an OPEN busy or repeat SKIP card gives way to it,
  * deleted by the storage that stores the skip (Android's `TrainingRepository.skip`, the web's `db/skips.ts`).
  *
  * Every number here is a product rule, the designer's and not sourced. The pain card's last line is sourced:
@@ -49,7 +52,10 @@ object SkipCoach {
     /** The skip, of any reason but time, from which the repeat card is given. */
     const val REPEAT_SKIPS = 3
 
-    /** No second SKIP card for an exercise within this many days of the last, whatever became of it. */
+    /**
+     * No second busy or repeat SKIP card for an exercise within this many days of the last SKIP card, whatever became
+     * of it; and no pain card within this many days of a dismissed pain card (the quiet spell).
+     */
     const val CARD_COOLDOWN_DAYS = 7
 
     /** A dismissed SKIP card holds back one as severe or less for this many days, as the coach's other cards do. */
@@ -82,7 +88,7 @@ object SkipCoach {
         val mode = skip.mode
         val cards = priorAdvice.filter { it.mode == mode && exerciseOf(it) == skip.exerciseId }
         val forPain = skip.reason == SkipReason.PAIN
-        if (if (forPain) painBlocked(cards) else blocked(cards, today)) return emptyList()
+        if (if (forPain) painBlocked(cards, today) else blocked(cards, today)) return emptyList()
 
         val from = skip.date.minus(WINDOW_DAYS - 1, DateTimeUnit.DAY)
         // One skip per exercise, date and side: [skip] stands for its own date.
@@ -185,9 +191,16 @@ object SkipCoach {
         cards.any { it.status == AdviceStatus.OPEN } ||
             cards.any { it.type == AdviceType.SKIP && within(it.createdAt, today, CARD_COOLDOWN_DAYS) }
 
-    /** An OPEN pain SKIP card stands: the only thing that holds back a pain card. */
-    private fun painBlocked(cards: List<Advice>): Boolean = cards.any {
-        it.type == AdviceType.SKIP && it.status == AdviceStatus.OPEN && (it.payload as? AdvicePayload.Skipped)?.reason == SkipReason.PAIN
+    /**
+     * What holds back a pain card: an OPEN pain SKIP card stands, or one was DISMISSED and made within the
+     * [CARD_COOLDOWN_DAYS] days ending [today] (the quiet spell; counted from when it was made, as the other rails are,
+     * since advice keeps no date of its answer). An APPLIED one does neither.
+     */
+    private fun painBlocked(cards: List<Advice>, today: LocalDate): Boolean = cards.any {
+        it.type == AdviceType.SKIP && (it.payload as? AdvicePayload.Skipped)?.reason == SkipReason.PAIN && (
+            it.status == AdviceStatus.OPEN ||
+                (it.status == AdviceStatus.DISMISSED && within(it.createdAt, today, CARD_COOLDOWN_DAYS))
+            )
     }
 
     /**

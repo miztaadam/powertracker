@@ -276,10 +276,10 @@ class SkipCoachTest {
     fun openPainSkipCard_pain_givesNoSecond() {
         val open = card(pulldown, AdviceStatus.OPEN, 2, SkipCoach.PAIN_SEVERITY, reason = SkipReason.PAIN)
         assertEquals(emptyList(), after(skip(0, SkipReason.PAIN), prior = listOf(open)))
-        // Not another exercise's or the other side's, and not once it was answered.
+        // Not another exercise's or the other side's, and not once it was applied (a dismissal starts a quiet spell).
         assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(open.copy(payload = (open.payload as AdvicePayload.Skipped).copy(exerciseId = idOf("Leg press"))))).size)
         assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(open.copy(mode = POWERLIFTING))).size)
-        assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(open.copy(status = AdviceStatus.DISMISSED))).size)
+        assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(open.copy(status = AdviceStatus.APPLIED))).size)
         // The hold still applies.
         assertTrue(SkipCoach.held(pulldown, listOf(skip(0, SkipReason.PAIN)), history, today))
     }
@@ -296,7 +296,8 @@ class SkipCoachTest {
 
     @Test
     fun cardInLast7Days_pain_stillGivesThePainCard() {
-        for (status in listOf(AdviceStatus.APPLIED, AdviceStatus.DISMISSED)) {
+        // A dismissed one starts the quiet spell instead (quietSpell_* below).
+        for (status in listOf(AdviceStatus.APPLIED)) {
             val recent = card(pulldown, status, 1, SkipCoach.PAIN_SEVERITY, reason = SkipReason.PAIN)
             assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(recent)).size)
         }
@@ -308,6 +309,99 @@ class SkipCoachTest {
         assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(dismissed)).size)
         // A busy card stays held back by it.
         assertEquals(emptyList(), busyCard(listOf(dismissed)))
+    }
+
+    // ---- the quiet spell after a dismissed pain card ----
+
+    /** A real pain card for [exerciseId] on [mode]'s side, made [daysAgo] days ago and answered with [status]. */
+    private fun painCard(daysAgo: Int, status: AdviceStatus, exerciseId: Long = pulldown, mode: TrainingMode = BODYBUILDING) =
+        after(skip(daysAgo, SkipReason.PAIN, exerciseId, mode)).single()
+            .copy(createdAt = today.minus(daysAgo, DateTimeUnit.DAY), status = status, id = 60)
+
+    @Test
+    fun quietSpell_painCardDismissed3DaysAgo_painSkip_noCard_andTheHoldApplies() {
+        val dismissed = painCard(3, AdviceStatus.DISMISSED)
+        val now = skip(0, SkipReason.PAIN)
+        assertEquals(emptyList(), after(now, prior = listOf(dismissed)))
+        assertTrue(SkipCoach.held(pulldown, listOf(now), history, today))
+    }
+
+    @Test
+    fun quietSpell_painCardDismissed8DaysAgo_givesTheCard() {
+        val card = after(skip(0, SkipReason.PAIN), prior = listOf(painCard(8, AdviceStatus.DISMISSED))).single()
+        assertEquals(SkipReason.PAIN, card.skipped().reason)
+    }
+
+    @Test
+    fun quietSpell_appliedPainCard3DaysAgo_startsNone() {
+        assertEquals(SkipReason.PAIN, after(skip(0, SkipReason.PAIN), prior = listOf(painCard(3, AdviceStatus.APPLIED))).single().skipped().reason)
+    }
+
+    @Test
+    fun quietSpell_countsDaysAsTheSevenDayRuleDoes() {
+        // Made 0 to 6 days ago: quiet. Made 7 days ago: a card again, as cardInLast7Days_blocksBusyAndRepeatCards.
+        for (daysAgo in 0..6) {
+            assertEquals(emptyList(), after(skip(0, SkipReason.PAIN), prior = listOf(painCard(daysAgo, AdviceStatus.DISMISSED))), "$daysAgo days")
+        }
+        for (daysAgo in listOf(7, 8, 27)) {
+            assertEquals(1, after(skip(0, SkipReason.PAIN), prior = listOf(painCard(daysAgo, AdviceStatus.DISMISSED))).size, "$daysAgo days")
+        }
+        assertEquals(SkipCoach.CARD_COOLDOWN_DAYS, 7)
+    }
+
+    @Test
+    fun quietSpell_mainLiftDismissOnlyCard_too() {
+        val squat = idOf("Squat")
+        for (mode in TrainingMode.entries) {
+            val dismissed = painCard(3, AdviceStatus.DISMISSED, squat, mode)
+            assertEquals(MainLift.SQUAT, dismissed.lift)
+            val now = skip(0, SkipReason.PAIN, squat, mode)
+            assertEquals(emptyList(), after(now, prior = listOf(dismissed)), "$mode")
+            assertTrue(SkipCoach.held(squat, listOf(now), history, today))
+            assertEquals(1, after(skip(0, SkipReason.PAIN, squat, mode), prior = listOf(painCard(7, AdviceStatus.DISMISSED, squat, mode))).size, "$mode")
+        }
+    }
+
+    @Test
+    fun quietSpell_onlyThatExerciseAndSide() {
+        val dismissed = painCard(3, AdviceStatus.DISMISSED)
+        assertEquals(1, after(skip(0, SkipReason.PAIN, idOf("Leg press")), prior = listOf(dismissed)).size)
+        assertEquals(1, after(skip(0, SkipReason.PAIN, mode = POWERLIFTING), prior = listOf(dismissed)).size)
+    }
+
+    @Test
+    fun quietSpell_onlyAfterAPainCard_aDismissedBusyOrRepeatCardDoesNotQuietAPainSkip() {
+        for (reason in listOf(SkipReason.BUSY, null)) {
+            val dismissed = card(pulldown, AdviceStatus.DISMISSED, 3, SkipCoach.BUSY_SEVERITY, reason = reason)
+            assertEquals(SkipReason.PAIN, after(skip(0, SkipReason.PAIN), prior = listOf(dismissed)).single().skipped().reason, "$reason")
+        }
+    }
+
+    @Test
+    fun quietSpell_leavesBusyAndRepeatRailsAsTheyWere() {
+        // A dismissed busy card holds back busy and repeat cards for 28 days (counted from when it was made).
+        val busy = busyCard(emptyList()).single()
+        val dismissedBusy = busy.copy(createdAt = today.minus(27, DateTimeUnit.DAY), status = AdviceStatus.DISMISSED, id = 61)
+        assertEquals(emptyList(), busyCard(listOf(dismissedBusy)))
+        assertEquals(emptyList(), repeatCard(listOf(dismissedBusy)))
+        val forgotten = dismissedBusy.copy(createdAt = today.minus(28, DateTimeUnit.DAY))
+        assertEquals(1, busyCard(listOf(forgotten)).size)
+        assertEquals(1, repeatCard(listOf(forgotten)).size)
+        // A dismissed repeat card likewise holds back a repeat card for 28 days.
+        val repeat = repeatCard(emptyList()).single()
+        val dismissedRepeat = repeat.copy(createdAt = today.minus(27, DateTimeUnit.DAY), status = AdviceStatus.DISMISSED, id = 62)
+        assertEquals(emptyList(), repeatCard(listOf(dismissedRepeat)))
+        assertEquals(1, repeatCard(listOf(dismissedRepeat.copy(createdAt = today.minus(28, DateTimeUnit.DAY)))).size)
+        // A dismissed pain card still holds back busy and repeat cards for the 28 days, past its own 7.
+        for (daysAgo in listOf(3, 10, 27)) {
+            val dismissedPain = painCard(daysAgo, AdviceStatus.DISMISSED)
+            assertEquals(emptyList(), busyCard(listOf(dismissedPain)), "$daysAgo days")
+            assertEquals(emptyList(), repeatCard(listOf(dismissedPain)), "$daysAgo days")
+        }
+        assertEquals(1, busyCard(listOf(painCard(28, AdviceStatus.DISMISSED))).size)
+        // And an applied pain card, like any SKIP card, still holds them back for 7 days only.
+        assertEquals(emptyList(), busyCard(listOf(painCard(6, AdviceStatus.APPLIED))))
+        assertEquals(1, busyCard(listOf(painCard(7, AdviceStatus.APPLIED))).size)
     }
 
     @Test

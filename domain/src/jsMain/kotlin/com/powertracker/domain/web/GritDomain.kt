@@ -146,8 +146,9 @@ object GritDomain {
     /**
      * The coach's answer to [skip], just stored: zero or one SKIP advice to store, stamped with the skip's side.
      * [skips] is every stored skip, [skip] among them; [plan] the whole plan; [prior] every stored advice. A pain skip
-     * gives its card unless an OPEN pain SKIP card for the exercise stands on that side; the caller deletes that side's
-     * OPEN busy or repeat SKIP card for the exercise first ([com.powertracker.domain.coach.SkipCoach]).
+     * gives its card unless an OPEN pain SKIP card for the exercise stands on that side, or one was dismissed within 7
+     * days (made 0 to 6 days ago); the caller deletes that side's OPEN busy or repeat SKIP card for the exercise first
+     * ([com.powertracker.domain.coach.SkipCoach]).
      */
     fun coachingAfterSkip(
         skip: JsSkip,

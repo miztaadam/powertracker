@@ -5611,7 +5611,7 @@ function blocked($this, cards, today) {
   }
   return tmp;
 }
-function painBlocked($this, cards) {
+function painBlocked($this, cards, today) {
   var tmp$ret$0;
   $l$block_0: {
     // Inline function 'kotlin.collections.any' call
@@ -5629,10 +5629,16 @@ function painBlocked($this, cards) {
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
       var tmp_0;
-      if (element.y1h_1.equals(AdviceType_SKIP_getInstance()) && element.e1i_1.equals(AdviceStatus_OPEN_getInstance())) {
-        var tmp_1 = element.d1i_1;
-        var tmp0_safe_receiver = tmp_1 instanceof Skipped ? tmp_1 : null;
-        tmp_0 = equals(tmp0_safe_receiver == null ? null : tmp0_safe_receiver.d1u_1, SkipReason_PAIN_getInstance());
+      var tmp_1;
+      if (element.y1h_1.equals(AdviceType_SKIP_getInstance())) {
+        var tmp_2 = element.d1i_1;
+        var tmp0_safe_receiver = tmp_2 instanceof Skipped ? tmp_2 : null;
+        tmp_1 = equals(tmp0_safe_receiver == null ? null : tmp0_safe_receiver.d1u_1, SkipReason_PAIN_getInstance());
+      } else {
+        tmp_1 = false;
+      }
+      if (tmp_1) {
+        tmp_0 = element.e1i_1.equals(AdviceStatus_OPEN_getInstance()) || (element.e1i_1.equals(AdviceStatus_DISMISSED_getInstance()) && within_1(SkipCoach_instance, element.a1i_1, today, 7));
       } else {
         tmp_0 = false;
       }
@@ -5773,7 +5779,7 @@ protoOf(SkipCoach).v1o = function (skip, skips, history, plan, today, priorAdvic
   }
   var cards = destination;
   var forPain = equals(skip.z1t_1, SkipReason_PAIN_getInstance());
-  if (forPain ? painBlocked(this, cards) : blocked(this, cards, today))
+  if (forPain ? painBlocked(this, cards, today) : blocked(this, cards, today))
     return emptyList();
   var from = minus_0(skip.v1t_1, 27, Companion_getInstance().dz_1);
   // Inline function 'kotlin.collections.filter' call
