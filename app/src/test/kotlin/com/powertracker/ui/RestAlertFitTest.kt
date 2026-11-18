@@ -27,7 +27,8 @@ import org.robolectric.annotation.GraphicsMode
 
 /**
  * Settings' rest alerts on a narrow phone and at large text: each label, "Sound + vibrate" the longest, is laid out
- * whole on one line inside its segment, at no smaller than 12 sp. Checked in 1.12.2: it already was, so nothing changed.
+ * whole on one line inside its segment, at no smaller than 12 sp. At 320 dp and 130% text they step down together to
+ * fit (1.12.2 review); at 320 dp and at 360 dp x 1.3 they keep their usual 15 sp.
  */
 // Native graphics, so text is measured at its real size.
 @RunWith(RobolectricTestRunner::class)
@@ -86,7 +87,7 @@ class RestAlertFitTest {
     @Test
     fun restAlert_eachLabelWholeOnOneLine_at320dp_and360dpAt130Percent() {
         // 320 dp at 100% text and 360 dp at 130%: 320 and 277 dp of text room. (At 320 dp and 130%, 246 dp of room, the
-        // labels are cut short: that is below the plan's 320 dp of room and is left to the owner.)
+        // labels step down to fit: see restAlert_eachLabelWholeOnOneLine_at320dpAt130Percent.)
         val problems = mutableListOf<String>()
         for ((width, scale) in listOf(320 to 1f, 360 to 1.3f)) {
             scenario?.close()

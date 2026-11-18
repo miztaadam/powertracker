@@ -1025,6 +1025,24 @@ class PlanScreenTest {
     }
 
     @Test
+    fun planAdd_changeToOwnExerciseFails_afterTheFormWasCancelled_thePickerSaysSo() {
+        failExerciseInserts()
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        openCreateForm()
+        compose.fillCustomExercise()
+        createThen(cancelInForm)
+
+        // Change's picker is still open over the add form: the picker says it over its list.
+        waitFor { saidOverTheDialog() }
+        assertTrue(pickerOpen())
+        assertTrue(!compose.createFormOpen())
+        assertTrue(!tyreFlipStored())
+    }
+
+    @Test
     fun planAdd_rotatedWhileAdding_theFormIsNotRestoredOverTheStoredItem() {
         // The write is held until the test lets it go, as a slow disk would hold it.
         val release = kotlinx.coroutines.CompletableDeferred<Unit>()
