@@ -147,8 +147,19 @@
   background: var(--bg);
 }
 
+/*
+ * Half each while both labels fit. Where one does not (a 320 px phone at 130% zoom), it keeps its label's width and the
+ * other button takes the rest, as on Android; there the faces also give their labels a little more room.
+ */
 .pb-actions > .gr-btn {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: max-content;
+}
+
+@media (max-width: 300px) {
+  .pb-actions > .gr-btn .gr-btn-face {
+    padding-inline: var(--space-4);
+  }
 }
 
 /* A failed save: plain words at the top of the draft, until the next try. */

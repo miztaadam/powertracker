@@ -40,6 +40,7 @@ import com.powertracker.domain.plan.GroupVolume
 import com.powertracker.domain.plan.LeftOut
 import com.powertracker.domain.plan.PlanBuilder
 import com.powertracker.domain.plan.PlanDraft
+import com.powertracker.domain.plan.PlanTemplate
 import com.powertracker.domain.progress.ExerciseTrend
 import com.powertracker.domain.progress.Pr
 import kotlinx.datetime.DayOfWeek
@@ -344,6 +345,35 @@ data class JsLeftOut(val name: String, val reason: String)
 @JsExport
 data class JsPlanDraft(val sessions: Array<JsDraftSession>, val volume: Array<JsGroupVolume>, val leftOut: Array<JsLeftOut>)
 
+/**
+ * One exercise of a plan template day: [repsHigh] null for fixed reps (every powerlifting entry); [onlyWithStrictPress]
+ * true for an entry that appears only when strict press is on.
+ */
+@JsExport
+data class JsTemplateExercise(
+    val name: String,
+    val sets: Int,
+    val repsLow: Int,
+    val repsHigh: Int?,
+    val rpe: Double,
+    val onlyWithStrictPress: Boolean,
+)
+
+/** One day of a plan template: its [title] and its exercises in order. */
+@JsExport
+data class JsTemplateSession(val title: String, val exercises: Array<JsTemplateExercise>)
+
+/** A ready-made week: [mode] a `TrainingMode` name; [dayCount] how many weekdays it takes; [suits] who it is for. */
+@JsExport
+data class JsPlanTemplate(
+    val id: String,
+    val mode: String,
+    val name: String,
+    val suits: String,
+    val dayCount: Int,
+    val sessions: Array<JsTemplateSession>,
+)
+
 // ---- converters (internal: not part of the JS API) ----
 
 private val androidJson = Json
@@ -513,6 +543,16 @@ internal fun JsPlanDraft.toDomain() = PlanDraft(
     },
     volume.map { GroupVolume(parseEnum<MuscleGroup>("draft.volume.group", it.group), it.weeklySets, it.days, it.short) },
     leftOut.map { LeftOut(it.name, it.reason) },
+)
+
+internal fun PlanTemplate.toJs() = JsPlanTemplate(
+    id, mode.name, name, suits, dayCount,
+    sessions.map { s ->
+        JsTemplateSession(
+            s.title,
+            s.exercises.map { JsTemplateExercise(it.name, it.sets, it.repsLow, it.repsHigh, it.rpe, it.onlyWithStrictPress) }.toTypedArray(),
+        )
+    }.toTypedArray(),
 )
 
 internal fun Pr.toJs() = JsPr(date.toString(), e1rmKg, weightKg, reps, rpe)

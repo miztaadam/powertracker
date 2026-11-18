@@ -264,7 +264,7 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 
 **Open follow-ups:**
 - Pictures in the web picker and plan builder: closed by the owner on 2026-11-18 after three trials (see "Web picker thumbnails: tried, closed"). Android has them since 1.10.
 - The Exercises tab still opens slowly now and then (single slow opens, still under 100 ms).
-- Tests that sometimes failed under load (looked into on 2026-11-18, test-only changes in 0721be6 and 4df3af3; no app cause found). Fixed in the tests: Android `PlanScreenTest.planAdd_tapAfterTheWindow_works` waited for the row in the database and then checked once that the add form had closed, which happens a moment later, when the write's answer reaches the screen (proven by holding that answer 300 ms); it now waits for both, as do `planAdd_changeNumbers_addStoresThem` and the rest-alert and vibrate-on-taps settings tests (the rest-alert one by the same shape, unproven: its failing line was never recorded, and it now prints the stored and shown values if it times out). Web `planAdd_cancel_storesNothing` polled 1 s for "Create your own", which is drawn only after the rest of the 225-row list; `createYourOwn` now waits for the list's frames, then finds it once. The web 5 s timeouts were plain work at about 80% of the limit: the Exercises tab tests are now laid out as on a phone (thumbnails near the screen only), and the browse and picker-search tests are split into parts under their own names. Verified: 3 quiet Android and 3 quiet web runs green, and one Gradle run with `npm test` back to back alongside, all green (web had failed in 5 of 5 loaded runs before). Still open: `planAdd_changeToOwnExerciseFails_afterThePickerWasClosed_theAddFormSaysSo` did not fail in 10 full runs here, so its cause is not established; its wait now prints where the message went, the test and wall clocks and the database work in flight when it times out. Next at risk on the web: the figure plugin test (about 2.7 s quiet, 4.9 s once under load).
+- Tests that sometimes failed under load (looked into on 2026-11-18, test-only changes in 0721be6 and 4df3af3; no app cause found). Fixed in the tests: Android `PlanScreenTest.planAdd_tapAfterTheWindow_works` waited for the row in the database and then checked once that the add form had closed, which happens a moment later, when the write's answer reaches the screen (proven by holding that answer 300 ms); it now waits for both, as do `planAdd_changeNumbers_addStoresThem` and the rest-alert and vibrate-on-taps settings tests (the rest-alert one by the same shape, unproven: its failing line was never recorded, and it now prints the stored and shown values if it times out). Web `planAdd_cancel_storesNothing` polled 1 s for "Create your own", which is drawn only after the rest of the 225-row list; `createYourOwn` now waits for the list's frames, then finds it once. The web 5 s timeouts were plain work at about 80% of the limit: the Exercises tab tests are now laid out as on a phone (thumbnails near the screen only), and the browse and picker-search tests are split into parts under their own names. Verified: 3 quiet Android and 3 quiet web runs green, and one Gradle run with `npm test` back to back alongside, all green (web had failed in 5 of 5 loaded runs before). Still open: `planAdd_changeToOwnExerciseFails_afterThePickerWasClosed_theAddFormSaysSo` did not fail in 10 full runs here, so its cause is not established; its wait now prints where the message went, the test and wall clocks and the database work in flight when it times out. **Caught once on 2026-11-18,** in the full Android run on the merged 1.14 main (the same test also failed once in a full run during the 1.14 Android work; 2 of that branch's 6 full runs). What the recorder showed: at the first check the message was somewhere on screen, but the test's condition, the message shown over the add form, was not met. By 4.2 s on the test clock (2.7 s wall) the message was gone. The add form was still open, Tyre flip was not stored, and no database work was in flight. It passed 5 times alone and in the next full run. Not yet established: which copy of the message was showing. On Android the screen's own snackbar also gets it, behind the form (see the 1.12.1 notes), so the popup over the form may never have appeared. 1.14 changed Plan's first frame (`PlanUiState(loaded = false)`) and its header, which may have made it likelier. Next: the forced-order experiment, first in the next update. The capture is kept outside the repo. Next at risk on the web: the figure plugin test (about 2.7 s quiet, 4.9 s once under load).
 - Done in 1.13.1 (see "Done: 1.13.1, the 1.13 follow-ups"): the two guide gaps, Seated cable fly and Hack squat.
 - Done in 1.12.2 (see "Done: the 1.12.2 tidy-up"): the Android plan builder's 2 broken names at 320 dp × 1.3; every Plan write on Android catches a failure; a failed own-exercise save keeps what was typed.
 - Done in 1.11 (see "Done: the 1.10 follow-ups"): the web tab's 4 broken names at 288 px; the Android tab at 130% text; the six stale web screenshots; the Today slide test (1cc526c, 80 of 80 runs, under emulated touch).
@@ -606,6 +606,8 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-skip-planned-exercise-design.md`; 
 **Open follow-ups:**
 - Plan and Exercises tests that sometimes failed under load: looked into on 2026-11-18 (see "Tests that sometimes failed under load" under "The new look and motion"). Android `planAdd_tapAfterTheWindow_works` and the rest-alert test (its likely cause; unproven), and web `planAdd_cancel_storesNothing`, `addToPlan_choosesDay_andUsesDefaults` and `exercisesTab_browseByMuscleAndSearchWork`, are fixed in the tests. Open: Android `PlanScreenTest.planAdd_changeToOwnExerciseFails_afterThePickerWasClosed_theAddFormSaysSo` (cause not established; it now prints what it saw on a timeout).
 - The web has no speed test for opening Today, which gained the ⋮ and the wrapping names; the speed checks cover only the picker and the Exercises tab.
+- **Check-in may lose its place on a reload (1.14, unchecked):** the web's plan templates lost theirs after a reload on the draft until `a06f573`, which steps off the leftover history entry. The check-in screen has the same kind of step entry and probably the same case after a reload on its second step. Not checked or changed.
+- **A stale coach card stays open (1.14):** after a plan is replaced (Choose a template, or Rebuild my plan), a coach card (swap or skip) for an exercise no longer in the plan says "Your plan has changed since; nothing was swapped" on Apply and stays open until dismissed. It could close itself, or hide, once its exercise has left the plan.
 
 Not yet tried on a real phone.
 
@@ -634,6 +636,106 @@ Plan: `docs/superpowers/plans/2026-11-18-grit-1-13-1-follow-ups.md`.
   - Domain `SkipCoachTest.openPainSkipCard_pain_givesNoSecond`: its "not once it was answered" probe used a pain card dismissed 2 days ago, which the quiet spell now holds back; it uses an applied card.
   - Domain `SkipCoachTest.cardInLast7Days_pain_stillGivesThePainCard`: it covers applied cards only; dismissed ones are covered by the new `quietSpell_*` tests.
 - **Version:** Android 1.13.1 (versionCode 22), web 1.13.1. Settings shots re-shot on both apps; no other screenshot changed.
+
+Not yet tried on a real phone.
+
+## Done: plan templates (1.14, both apps)
+Spec: `docs/superpowers/specs/2026-11-18-grit-plan-templates-design.md`; plan: `docs/superpowers/plans/2026-11-18-grit-plan-templates.md`. The owner asked (2026-11-18): "We should have more built templates for powerlifters and for bodybuilders that they can choose from to get started."
+
+**What you see:**
+- **An empty plan:** on powerlifting, "Your plan is empty. Start from a template or add exercises to each day." over **Choose a template**. On bodybuilding, **Choose a template** is the main (full-width) button, with **Build my plan** under it as a secondary button. Adding exercises by hand still works.
+- **The Plan menu (⋮), on both sides while the side has a plan:** **Choose a template**, after **Rebuild my plan** on bodybuilding. Nothing is called empty, and no menu is drawn, before the stored plan is read.
+- **The list:** the side's three templates, fewest days first. Each card shows its name, "n days a week · <who it suits>" and its days' titles joined with " · ".
+- **The draft,** after tapping one:
+  - the template's name as the title, with "Choose a template" over it;
+  - "Which days?" with the seven weekday chips, ticked to start on the side's own training days when they are as many, else a fixed spread (3: Mon, Wed, Fri; 4: Mon, Tue, Thu, Fri; 5: Mon, Tue, Wed, Fri, Sat). The line under them reads "Mon, Wed, Fri", or "Choose n days." while the count is off;
+  - one card per day, "<Weekday> · <title>" ("Day n · <title>" while the count is off), each exercise with sets × reps @ RPE (fixed reps on powerlifting, "3 × 5 @ 8"; a range on bodybuilding, "3 × 8–12 @ 8");
+  - **Swap** on every exercise except the main lifts (squat, bench, deadlift and strict press). A variation swaps only to another variation of the same lift; anything else uses the builder's similar-exercise list. Nothing already in the week is offered, so a lift on two days keeps the same numbers on both;
+  - the weekly sets per body part on bodybuilding, as the builder's draft shows;
+  - **Back** (to the list) and **Use this plan**, which works only with exactly the template's number of days ticked. Changing the days never rebuilds the draft: swaps are kept, and the days move onto the chosen weekdays in week order.
+- **Strict press:** the powerlifting templates include it only when Settings' strict press is on, when the screen opens. A saved plan is a snapshot.
+- **Saving:** on a side with a plan, "Replace your powerlifting plan?" (or bodybuilding) and "Your history and bests are kept.", with **Cancel** and **Replace**. Cancel stores nothing. A save replaces that side's plan and sets that side's training days to the chosen days, both or neither: if it fails, "The plan could not be saved. Nothing was changed." shows at the top of the draft and Use this plan can be tried again. Then back to Plan with "Plan set: <name>."
+- **Back:** on both apps, back from the draft returns to the list; from the list it leaves.
+
+**The six templates** (Acc = 3 × 10 @ 8; [SP] = only with strict press on; every bodybuilding entry 8–12 @ 8, sets as shown):
+- **3-day powerlifting** ("New to powerlifting: 2–3 days a week"), main lifts 3 × 5 @ 8:
+  - Squat & bench: Squat, Bench, Seated cable row (Acc), Cable crunch (Acc);
+  - Deadlift & bench: Deadlift, Bench, [SP] Strict press, Lat pulldown (Acc), Triceps pushdown (Acc);
+  - Squat & deadlift: Squat, Deadlift, [SP] Strict press, Lying leg curl (Acc), Face pull (Acc).
+- **4-day powerlifting** ("Some training behind you: 3–4 days a week"), main lifts 4 × 4 @ 8, variations 3 × 5 @ 8:
+  - Squat & bench: Squat, Bench, Seated cable row, Cable crunch;
+  - Deadlift: Deadlift, [SP] Strict press, Close-grip bench, Lat pulldown, Lying leg curl;
+  - Squat & bench: Squat, Bench, One-arm DB row, Face pull;
+  - Deadlift: Deadlift, [SP] Strict press, Pause squat, Back extension, Triceps pushdown.
+- **5-day powerlifting** ("Experienced, a year or more of training: 4–6 days a week"), main lifts 5 × 3 @ 8, variations 3 × 5 @ 8:
+  - Squat & bench: Squat, Bench, Seated cable row, Cable crunch;
+  - Deadlift: Deadlift, [SP] Strict press, Close-grip bench, Lat pulldown, Lying leg curl;
+  - Variations: Pause squat, Spoto press, Chest-supported row, Face pull, Hammer curl;
+  - Squat & bench: Squat, Bench, One-arm DB row, Triceps pushdown;
+  - Deadlift: Deadlift, [SP] Strict press, Long-pause bench, Back extension, Cable crunch.
+- **3-day full body** ("New to lifting: 2–3 days a week, the whole body each day"):
+  - Full body A: Leg press 3, DB press 4, Lat pulldown 3, Seated leg curl 3, Lateral raise 3, DB curl 3, Rope pushdown 3;
+  - Full body B: DB RDL 3, Incline DB press 3, Seated cable row 4, Leg extension 3, Face pull 3, Standing calf raise 3, Cable crunch 3;
+  - Full body C: Hack squat 4, Machine chest press 3, Chin-up 3, Lying leg curl 4, Face pull 3, Triceps pushdown 3, Cable curl 3.
+- **4-day upper/lower** ("Some training behind you: 3–4 days a week"):
+  - Upper A: DB press 4, Seated cable row 4, DB shoulder press 3, Lat pulldown 3, Lateral raise 3, Face pull 3, DB curl 3, Rope pushdown 3;
+  - Lower A: Leg press 4, RDL 3, Leg extension 3, Seated leg curl 3, Standing calf raise 3, Cable crunch 3;
+  - Upper B: Incline DB press 4, Machine row 3, Chin-up 4, Cable crossover 3, Lateral raise 3, Face pull 3, Cable curl 3, Triceps pushdown 3;
+  - Lower B: Hack squat 4, Hip thrust 3, Lying leg curl 4, Bulgarian split squat 3, Standing calf raise 3, Cable crunch 3.
+- **5-day body-part split** ("Experienced, a year or more of training: 4–6 days a week"):
+  - Chest & back A: Machine chest press, Wide-grip cable row, Lat pulldown, Cable crossover (3 each);
+  - Legs A: Leg press 4, RDL 3, Leg extension 3, Seated leg curl 3, Standing calf raise 3, Cable crunch 3;
+  - Shoulders & arms: Lateral raise 4, then Cable lateral raise, DB curl, Rope pushdown, Cable curl, Triceps pushdown (3 each);
+  - Chest & back B: Incline DB press, T-bar row, Neutral-grip pull-up, Pec deck (3 each);
+  - Legs B: Hack squat 4, Hip thrust 3, Lying leg curl 4, Bulgarian split squat 3, Cable crunch 3.
+- **Checked by the domain tests:** every bodybuilding big group (chest, lats, quads, hamstrings, glutes, upper back, biceps, triceps) gets 10 or more counted sets a week on 2 or more days, the builder's way of counting, and no group goes over the coach's ceiling of 20 (highest: 12 on bb-3, 19 upper back on bb-4, 17 glutes on bb-5). Squat, bench and deadlift get 6, 8 and 10 working sets a week, on 2 sessions each, with strict press off or on.
+
+**The sourced numbers** (all in `CoachSources.kt`, checked on 2026-11-18 from the search summary):
+- **Days a week by experience** (`TEMPLATE_DAYS`): NSCA "Determination of Resistance Training Frequency" (beginner 2–3, intermediate 3–4, advanced 4–6, advanced being a year or more), and the ACSM 2009 progression models as ExRx's "Weight Training Guidelines" summarise them (2–3, 3–4, 4–5). The templates take 3, 4 and 5, inside every band.
+- **Main-lift loading** (`TEMPLATE_STRENGTH_LOAD`, `TEMPLATE_STRENGTH_PHASE`, `TEMPLATE_NSCA_TABLE`): ExRx's "Weight Training Guidelines", summarising ACSM 2026 and 2009 (strength at 80% 1RM or more, 2–3 sets an exercise, 2 or more sessions a week); NSCA "Preparatory Period" (basic strength 80–95% 1RM, 2–6 sets of 2–6 reps); the NSCA Essentials table via ACE (maximum strength 6 reps or fewer at 85% or more).
+- **The floor** (`TEMPLATE_STRENGTH_FLOOR`): PMC8435792 on powerlifters' minimum effective dose, 3–6 working sets a week of 1–5 reps above 80% 1RM at RPE 7.5–9.5 over 1–3 sessions a lift. Every template is at or above it.
+- **Reps @ RPE to %1RM** (`TEMPLATE_LOAD_CHART`): ExRx "Predicting One-rep Max" (5 = 87%, 6 = 85%), the NSCA Training Load Chart, PMC10933212 and PMC7706636 (RPE as reps in reserve). So 4 × 4 @ 8 is about 85% and 5 × 3 @ 8 about 87%.
+- **The accessory range** (`TEMPLATE_ACCESSORY_RANGE`): ExRx "Sample Powerlifting Program", 3 × 8–10; with the NSCA's 6–12 for hypertrophy.
+- **Splits for experienced lifters** (`TEMPLATE_SPLIT_ADVANCED`, `TEMPLATE_SPLIT_BODYBUILDERS`): ACSM's simplified 2009 summary (advanced 4–6 days, 1–3 muscle groups a session) and PMC7698840 (bodybuilders: a 5-day split, major groups twice a week).
+- Bodybuilding's 3 × 8–12 @ 8 is the owner's default, as in the builder.
+
+**The designer's choices, for the owner:**
+- The template names, ids and day titles; which exercises are chosen and which day each goes on; the fixed weekday spreads.
+- The reps and sets picked inside the sourced ranges: 3 × 5, 4 × 4 and 5 × 3 for the main lifts, 3 × 5 for every variation, RPE 8 on all of them, and every "4" set on bodybuilding.
+- **2 sessions a week for every lift in every template:** the sources allow 1–3; the templates differ by sets and reps instead.
+- **Accessories at 3 × 10 @ 8:** no allowed source gives a fixed accessory rep count for powerlifting. 10 is the owner's pick inside the sourced ranges (ExRx's 8–10, the NSCA's 6–12); it is marked as such in `CoachSources.kt`.
+- **The Cable crunch on both Legs days of the 5-day split** (the owner's addition): it gives abs 6 sets over 2 days, still short, and makes those days 4 muscle groups. So the "who it suits" line keeps only "4–6 days a week" and drops ACSM's "1–3 muscle groups a session".
+- "Not in the catalogue." as the left-out reason, if a template exercise were ever missing.
+
+**The owner's decisions:**
+- Templates differ by days a week (A).
+- A draft the lifter can adjust before saving: weekdays and Swap (A).
+- Approach 1: fixed templates in the shared domain, shown in the builder's draft screen.
+- Accessories (A): 3 × 10 @ RPE 8. The designer proposed 10, inside the sourced ranges, and the owner chose it; it is marked as such in `CoachSources.kt`.
+- **Choose a template** is the main button on the empty bodybuilding plan (owner, 2026-11-18: "keep choose a template as the main button").
+
+**A replace with old state:**
+- History, bests, check-ins, coach cards and the other side's plan and days are untouched. Skips keep their records, their plan item cleared, as when a plan item is deleted. A session in progress keeps its logged sets.
+- **A coach card about the old plan** acts on the plan as it is now, as after Rebuild my plan. If its exercise is not in the new plan, Apply says "Your plan has changed since; nothing was swapped" and the card stays open until it is dismissed. If the exercise is in the new plan, the swap lands on the new items.
+
+**The 1.14 review fixes (also in 1.14):**
+- **The bodybuilding builder's save is now all or nothing on Android,** as the templates': the plan and the days in one transaction, the days last and put back on a failure. So its "Nothing was changed" is true. The web builder already saved in one transaction.
+- **The builder's bar:** at 320 dp with 130% text, Android cut "Use this plan" to "Use this" and "Choose for me" too. Both apps now keep the bar half and half while the main label fits half; otherwise Back takes its own width. On the web, at 320 px with 130% zoom, "Choose for me" ran past the screen and "Use this plan" overlapped Back; there the bar's faces also get a little less side padding. Nothing changes at normal widths, and no builder shot changed.
+- **The weekday chips on Android go 4 + 3 at 360 dp with default text** (seven to a row had cut "Mon" to "Mo"), in the builder too. The screenshots are drawn at 412 dp, where the chips stay in one row, so no builder or template shot changed.
+
+**Existing tests changed:**
+- **Android:** `PlanBuilderViewModelTest.whenSettingTheDaysFails_theBuilderStaysOpenWithTheError_andTryingAgainSaves` asserted that the plan had been replaced before the failing days write (the old Ruling P7 order). It now asserts that nothing was stored, which is the fix.
+- **Domain:** `PlanTemplatesTest`'s swap sweep (new in 1.14) is now `noOfferedSwapIsAMainLiftOrAlreadyInTheWeekOrBreaksTheSameNumbersRule`, also checking that no offered alternative is already in the week.
+- No other existing test was edited; `thePowerliftingPlan_hasNoBuilder` (web) and the empty powerlifting plan's no-menu test (Android) pass unedited.
+
+**Screenshots:**
+- **Android:** new `templates-list`, `template-draft` (pl-4), `template-draft-bodybuilding` (bb-4) and `template-confirm`, dark and light. Changed: `plan` (the ⋮ in the header) and `plan-add-form` (drawn over it). Settings re-shot for 1.14.
+- **Web:** the same four new shots, dark and light. Changed: `plan`, `plan-add-form` (over the new empty-plan line and button), `plan-add-form-bodybuilding` (over the new button order) and `showcase` (the new icon). Settings re-shot for 1.14.
+- **Left as they are:** the web's `form-guide-*` and `today-rest-*` already differed before 1.14, and `exercise-guide-actions-*` varies between runs in a patch of a figure picture (both dark and light in the 1.14 run). None was reshot.
+
+**Version:** Android 1.14 (versionCode 23), web 1.14.0; both show "Grit 1.14".
+
+**Open follow-ups:** see the two 1.14 lines under the 1.13 open follow-ups (check-in on a reload; the stale coach card).
 
 Not yet tried on a real phone.
 

@@ -18,9 +18,17 @@
 
 .plan-day-head {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-4) var(--space-5) var(--space-3);
+}
+
+/* The day's name is never narrower than its longest word: where the name and Add do not fit on one line (a 320 px phone
+   at 130% zoom), Add goes under it on the right, as a plan row's controls do. Wider, the head is one line as before. */
+.plan-day-head > .plan-grow {
+  min-width: min-content;
 }
 
 .plan-rows {
@@ -138,9 +146,27 @@
   gap: var(--space-4);
 }
 
+/* With templates (1.14) the empty plan's buttons are the screen's width, one over the other. */
+.plan-empty-wide {
+  align-self: stretch;
+}
+
 .plan-header-actions {
   display: flex;
   align-items: center;
+}
+
+/*
+ * Plan's menu opens leftwards from beside Settings. On the narrowest screens (a 320 px phone at 130% zoom) it keeps to
+ * the screen, its items wrapping onto a second line; on wider ones it is as wide as its longest item, as before.
+ */
+.plan-header-actions .gr-menu-list {
+  width: max-content;
+  max-width: calc(100vw - var(--touch) - 2 * var(--space-3));
+}
+
+.plan-header-actions .gr-menu-item {
+  white-space: normal;
 }
 
 /* Plan's add form: the wrappers that hold its first taps (PlanItemDialog's ignoreTapsFor) are not drawn as boxes. */

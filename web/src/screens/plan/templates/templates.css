@@ -1,0 +1,62 @@
+/* The plan templates (1.14): the list's cards. The draft uses the builder's parts (builder.css, plan.css). */
+
+.tpl-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A card that opens its template: a button that looks like the standard card. */
+.tpl-row {
+  appearance: none;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tpl-row:active {
+  background: var(--container);
+}
+
+.tpl-name,
+.tpl-days,
+.tpl-titles {
+  display: block;
+  overflow-wrap: break-word;
+}
+
+.tpl-days {
+  color: var(--text-secondary);
+}
+
+.tpl-titles {
+  color: var(--text-muted);
+}
+
+/* A template's name is the screen's title: on a narrow phone it wraps rather than being cut off. */
+.tpl-header .gr-screen-title {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/*
+ * The weekday chips on the narrowest screens (a 320 px phone at 130% zoom): seven in one line would be too narrow for
+ * their names, so they go four and three, each still a full touch target. Wider screens, and the builder's chips, are
+ * as they were.
+ */
+@media (max-width: 300px) {
+  .tpl-draft .pb-days-row {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+
+  .tpl-draft .pb-days-row .gr-chip {
+    flex: 0 0 25%;
+  }
+}

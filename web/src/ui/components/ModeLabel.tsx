@@ -8,10 +8,12 @@ export const TrainingModeContext = createContext<TrainingMode>('POWERLIFTING')
 /**
  * The small BODYBUILDING pill under a top-level screen's date or overline (bodybuilding mode spec §7.2).
  * Drawn only on the bodybuilding side, so the powerlifting side is unchanged. Not a control: never a tab
- * stop, and a screen reader hears it once as "Bodybuilding mode".
+ * stop, and a screen reader hears it once as "Bodybuilding mode". A screen that belongs to one side whatever the app is
+ * on (the templates of the side in its address) passes that side as `mode`.
  */
-export function ModeLabel() {
-  if (useContext(TrainingModeContext) !== 'BODYBUILDING') return null
+export function ModeLabel({ mode }: { mode?: TrainingMode } = {}) {
+  const appMode = useContext(TrainingModeContext)
+  if ((mode ?? appMode) !== 'BODYBUILDING') return null
   return (
     <p className="gr-mode-label" data-testid="mode-label">
       <span className="gr-mode-label-pill" aria-hidden="true">

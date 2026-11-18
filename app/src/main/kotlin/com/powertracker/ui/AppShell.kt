@@ -20,7 +20,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
@@ -43,6 +47,8 @@ import com.powertracker.ui.library.ExercisesScreen
 import com.powertracker.ui.plan.PlanScreen
 import com.powertracker.ui.plan.SettingsScreen
 import com.powertracker.ui.plan.builder.PlanBuilderScreen
+import com.powertracker.ui.plan.templates.TemplatesScreen
+import com.powertracker.ui.plan.templates.planSetText
 import com.powertracker.ui.progress.ExerciseHistoryScreen
 import com.powertracker.ui.progress.LiftHistoryScreen
 import com.powertracker.ui.progress.ProgressScreen
@@ -70,6 +76,9 @@ object Routes {
     fun exerciseHistory(id: Long) = "exerciseHistory/$id"
     /** The bodybuilding side's plan builder (stage 2). */
     const val PLAN_BUILDER = "planBuilder"
+    /** A side's plan templates (1.14): the mode's name, POWERLIFTING or BODYBUILDING. */
+    const val TEMPLATES = "templates/{mode}"
+    fun templates(mode: TrainingMode) = "templates/${mode.name}"
     /** The bodybuilding side's check-in (stage 3). */
     const val CHECK_IN = "checkIn"
 }
@@ -93,6 +102,8 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
     // "My goals have changed": on the bodybuilding side it runs the plan builder again; on the powerlifting side it opens Plan.
     val mode by remember(settings) { settings.settings.map { it.trainingMode } }.collectAsState(initial = null)
     fun checkIn() = nav.navigate(Routes.CHECK_IN) { launchSingleTop = true }
+    // Plan's snackbar after a template is saved: set here, shown and cleared by Plan.
+    var planMessage by rememberSaveable { mutableStateOf<String?>(null) }
     fun goalsChanged() = if (mode == TrainingMode.BODYBUILDING) nav.navigate(Routes.PLAN_BUILDER) { launchSingleTop = true } else openTab(Tab.PLAN)
 
     Scaffold(
@@ -136,7 +147,27 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
                 PlanScreen(
                     training, settings, onOpenSettings = { nav.navigate(Routes.SETTINGS) },
                     onOpenBuilder = { nav.navigate(Routes.PLAN_BUILDER) { launchSingleTop = true } },
+                    onOpenTemplates = { side -> nav.navigate(Routes.templates(side)) { launchSingleTop = true } },
+                    message = planMessage,
+                    onMessageShown = { planMessage = null },
                 )
+            }
+            composable(Routes.TEMPLATES) { entry ->
+                val side = entry.arguments?.getString("mode")?.let { name -> TrainingMode.entries.firstOrNull { it.name == name } }
+                if (side == null) {
+                    LaunchedEffect(Unit) { nav.popBackStack() }
+                } else {
+                    TemplatesScreen(
+                        side, training, settings,
+                        onClose = { nav.popBackStack() },
+                        // Back to the Plan tab with the new week, and the snackbar there.
+                        onSaved = { name ->
+                            planMessage = planSetText(name)
+                            nav.popBackStack()
+                            openTab(Tab.PLAN)
+                        },
+                    )
+                }
             }
             composable(Routes.PLAN_BUILDER) {
                 PlanBuilderScreen(

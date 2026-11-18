@@ -152,11 +152,12 @@ import {
   contains2gm06f5aa19ov as contains_1,
   removeAll3o43e67jmwdpc as removeAll,
   listOfNotNull1v4ggfackvuny as listOfNotNull_0,
+  toList383f556t1dixk as toList,
+  toList3jhuyej2anx2q as toList_0,
   sortedDescending1829b1te0xwte as sortedDescending,
   modulo3mmbfwxzpcw3a as modulo,
-  toList2zksu85ukrmi as toList,
+  toList2zksu85ukrmi as toList_1,
   sum2ku6kbgxq0lee as sum,
-  toList3jhuyej2anx2q as toList_0,
   isFinite2t9l5a275mxm6 as isFinite,
   trim11nh7r46at6sx as trim,
   replaceqbix900hl8kl as replace_0,
@@ -168,7 +169,6 @@ import {
   getKClassFromExpression348iqjl4fnx2f as getKClassFromExpression,
   contains2c50nlxg7en7o as contains_2,
   convertToIntofdoxh9bstof as convertToInt,
-  toList383f556t1dixk as toList_1,
 } from './kotlin-kotlin-stdlib.mjs';
 import {
   Companion_getInstance3rf6ssn2f6rf5 as Companion_getInstance,
@@ -181,6 +181,13 @@ import {
   LocalDateSerializer_getInstance3qg2c8779i3ej as LocalDateSerializer_getInstance,
   DatePeriod_init_$Create$3taapb72awtm9 as DatePeriod_init_$Create$,
   minushnjyym3nfk5o as minus_1,
+  DayOfWeek_MONDAY_getInstance3u0uptycixs65 as DayOfWeek_MONDAY_getInstance,
+  DayOfWeek_THURSDAY_getInstance2fa72o4vitekp as DayOfWeek_THURSDAY_getInstance,
+  DayOfWeek_WEDNESDAY_getInstancewvb0t9y8yjce as DayOfWeek_WEDNESDAY_getInstance,
+  DayOfWeek_FRIDAY_getInstance3psmv5z0rk53n as DayOfWeek_FRIDAY_getInstance,
+  DayOfWeek_TUESDAY_getInstanceyj9r0qh47k6j as DayOfWeek_TUESDAY_getInstance,
+  DayOfWeek_SATURDAY_getInstance2pwh8d7e3vqkf as DayOfWeek_SATURDAY_getInstance,
+  get_entries2ar453qbk297a as get_entries,
   get_isoDayNumberrycq4er3aoh9 as get_isoDayNumber,
   Companion_getInstance3h03aipe2gus4 as Companion_getInstance_0,
   DayOfWeek2xlo40o03f5e as DayOfWeek,
@@ -532,16 +539,23 @@ initMetadataForClass(DraftSession, 'DraftSession');
 initMetadataForClass(GroupVolume, 'GroupVolume');
 initMetadataForClass(LeftOut, 'LeftOut');
 initMetadataForClass(PlanDraft, 'PlanDraft');
+initMetadataForClass(TemplateExercise, 'TemplateExercise');
+initMetadataForClass(TemplateSession, 'TemplateSession');
+initMetadataForClass(PlanTemplate, 'PlanTemplate');
+initMetadataForClass(sam$kotlin_Comparator$0_11, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
+initMetadataForClass(sam$kotlin_Comparator$0_12, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
+initMetadataForClass(sam$kotlin_Comparator$0_13, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
+initMetadataForObject(PlanTemplates, 'PlanTemplates');
 initMetadataForObject(PlateLoader, 'PlateLoader');
 initMetadataForClass(ExerciseTrend, 'ExerciseTrend');
-initMetadataForClass(sam$kotlin_Comparator$0_11, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
+initMetadataForClass(sam$kotlin_Comparator$0_14, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
 initMetadataForObject(BodybuildingProgress, 'BodybuildingProgress');
 initMetadataForClass(MuscleRow, 'MuscleRow');
-initMetadataForClass(sam$kotlin_Comparator$0_12, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
+initMetadataForClass(sam$kotlin_Comparator$0_15, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
 initMetadataForObject(MuscleProgress, 'MuscleProgress');
 initMetadataForClass(Pr, 'Pr');
-initMetadataForClass(sam$kotlin_Comparator$0_13, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
-initMetadataForClass(sam$kotlin_Comparator$0_14, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
+initMetadataForClass(sam$kotlin_Comparator$0_16, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
+initMetadataForClass(sam$kotlin_Comparator$0_17, 'sam$kotlin_Comparator$0', VOID, VOID, [Comparator, FunctionAdapter]);
 initMetadataForObject(ProgressMath, 'ProgressMath');
 initMetadataForClass(SeedLibrary$exercises$Acc, 'Acc');
 initMetadataForObject(SeedLibrary, 'SeedLibrary');
@@ -585,6 +599,9 @@ initMetadataForClass(JsDraftSession, 'JsDraftSession');
 initMetadataForClass(JsGroupVolume, 'JsGroupVolume');
 initMetadataForClass(JsLeftOut, 'JsLeftOut');
 initMetadataForClass(JsPlanDraft, 'JsPlanDraft');
+initMetadataForClass(JsTemplateExercise, 'JsTemplateExercise');
+initMetadataForClass(JsTemplateSession, 'JsTemplateSession');
+initMetadataForClass(JsPlanTemplate, 'JsPlanTemplate');
 initMetadataForClass(JsFigureInfo, 'JsFigureInfo');
 initMetadataForClass(JsFigureShape, 'JsFigureShape');
 initMetadataForClass(JsFigureCircle, 'JsFigureCircle', VOID, JsFigureShape);
@@ -669,7 +686,7 @@ protoOf(AccessoryMap).n1h = function (lift, miss) {
     tmp = getValue(this.k1h_1, to(lift, miss)).j1h_1;
   } else {
     // Inline function 'kotlin.collections.flatMap' call
-    var tmp0 = get_entries_4();
+    var tmp0 = get_entries_5();
     // Inline function 'kotlin.collections.flatMapTo' call
     var destination = ArrayList_init_$Create$();
     var _iterator__ex2g4s = tmp0.j();
@@ -706,7 +723,7 @@ protoOf(AccessoryMap).n1h = function (lift, miss) {
 };
 protoOf(AccessoryMap).o1h = function (lift) {
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = get_entries_4();
+  var tmp0 = get_entries_5();
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -2052,7 +2069,7 @@ protoOf(Coach).l1m = function (history, plan, settings, today, priorAdvice, read
     var accessoryNames = toSet(destination_1);
     // Inline function 'kotlin.collections.mapNotNullTo' call
     // Inline function 'kotlin.collections.forEach' call
-    var _iterator__ex2g4s_2 = get_entries_3().j();
+    var _iterator__ex2g4s_2 = get_entries_4().j();
     while (_iterator__ex2g4s_2.k()) {
       var element_1 = _iterator__ex2g4s_2.l();
       var tmp0_safe_receiver_1 = StallRule_instance.x1m(element_1, stats, settings, today, accessoryNames);
@@ -2491,7 +2508,7 @@ function topSet($this, sets) {
 }
 function rpeRising($this, sessions, history) {
   // Inline function 'kotlin.collections.filter' call
-  var tmp0 = get_entries_3();
+  var tmp0 = get_entries_4();
   // Inline function 'kotlin.collections.filterTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -2704,7 +2721,7 @@ function lowReadiness($this, sessions, windowStart) {
 function e1rmDown($this, stats, today) {
   var recentWeek = minus_0(mondayOfWeek(today), 1, Companion_getInstance().ez_1);
   // Inline function 'kotlin.collections.filter' call
-  var tmp0 = get_entries_3();
+  var tmp0 = get_entries_4();
   // Inline function 'kotlin.collections.filterTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -4429,7 +4446,7 @@ protoOf(PhysiqueCoach).g1s = function (day) {
 };
 protoOf(PhysiqueCoach).d1t = function (payload, plan, exercises) {
   var items = inWeekOrder(this, on_0(plan, TrainingMode_BODYBUILDING_getInstance()));
-  var tmp0 = get_entries_0();
+  var tmp0 = get_entries_1();
   // Inline function 'kotlin.collections.associateWithTo' call
   var destination = HashMap_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -6416,7 +6433,7 @@ protoOf(WeakPointRule).g1n = function (stats, today) {
       this_0.l1u_1.i(reason);
     }
   }
-  var _iterator__ex2g4s_0 = get_entries_3().j();
+  var _iterator__ex2g4s_0 = get_entries_4().j();
   while (_iterator__ex2g4s_0.k()) {
     var lift_0 = _iterator__ex2g4s_0.l();
     var tmp1_safe_receiver = missFlag(this, lift_0, stats, today);
@@ -7902,7 +7919,7 @@ function values_1() {
   static_init_1();
   return [Equipment_BARBELL_getInstance(), Equipment_DUMBBELL_getInstance(), Equipment_KETTLEBELL_getInstance(), Equipment_CABLE_getInstance(), Equipment_MACHINE_getInstance(), Equipment_BODYWEIGHT_getInstance(), Equipment_BAND_getInstance(), Equipment_SPECIALTY_BAR_getInstance(), Equipment_SMITH_getInstance()];
 }
-function get_entries() {
+function get_entries_0() {
   static_init_1();
   if ($ENTRIES == null)
     $ENTRIES = enumEntries(values_1());
@@ -8183,7 +8200,7 @@ function values_2() {
   static_init_3();
   return [MuscleGroup_CHEST_getInstance(), MuscleGroup_LATS_getInstance(), MuscleGroup_UPPER_BACK_getInstance(), MuscleGroup_TRAPS_getInstance(), MuscleGroup_LOWER_BACK_getInstance(), MuscleGroup_FRONT_DELTS_getInstance(), MuscleGroup_SIDE_DELTS_getInstance(), MuscleGroup_REAR_DELTS_getInstance(), MuscleGroup_BICEPS_getInstance(), MuscleGroup_TRICEPS_getInstance(), MuscleGroup_FOREARMS_getInstance(), MuscleGroup_QUADS_getInstance(), MuscleGroup_HAMSTRINGS_getInstance(), MuscleGroup_GLUTES_getInstance(), MuscleGroup_ADDUCTORS_getInstance(), MuscleGroup_CALVES_getInstance(), MuscleGroup_ABS_getInstance(), MuscleGroup_OBLIQUES_getInstance()];
 }
-function get_entries_0() {
+function get_entries_1() {
   static_init_3();
   if ($ENTRIES_0 == null)
     $ENTRIES_0 = enumEntries(values_2());
@@ -8278,7 +8295,7 @@ protoOf(MuscleGroups).t1u = function (exercises) {
   }
   var found = destination;
   // Inline function 'kotlin.collections.filter' call
-  var tmp0_0 = get_entries_0();
+  var tmp0_0 = get_entries_1();
   // Inline function 'kotlin.collections.filterTo' call
   var destination_1 = ArrayList_init_$Create$();
   var _iterator__ex2g4s_1 = tmp0_0.j();
@@ -9165,7 +9182,7 @@ function values_3() {
   static_init_5();
   return [Side_NEAR_getInstance(), Side_FAR_getInstance()];
 }
-function get_entries_1() {
+function get_entries_2() {
   static_init_5();
   if ($ENTRIES_1 == null)
     $ENTRIES_1 = enumEntries(values_3());
@@ -9723,7 +9740,7 @@ function values_4() {
   static_init_7();
   return [Which_START_getInstance(), Which_END_getInstance()];
 }
-function get_entries_2() {
+function get_entries_3() {
   static_init_7();
   if ($ENTRIES_2 == null)
     $ENTRIES_2 = enumEntries(values_4());
@@ -10568,7 +10585,7 @@ function probes(_this__u8e3s4, point) {
     case 5:
       // Inline function 'kotlin.collections.map' call
 
-      var this_0 = get_entries_1();
+      var this_0 = get_entries_2();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
@@ -10586,7 +10603,7 @@ function probes(_this__u8e3s4, point) {
     case 6:
       // Inline function 'kotlin.collections.map' call
 
-      var this_1 = get_entries_1();
+      var this_1 = get_entries_2();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
@@ -10608,7 +10625,7 @@ function probes(_this__u8e3s4, point) {
     case 9:
       // Inline function 'kotlin.collections.map' call
 
-      var this_2 = get_entries_1();
+      var this_2 = get_entries_2();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_2, 10));
@@ -10630,7 +10647,7 @@ function probes(_this__u8e3s4, point) {
     case 12:
       // Inline function 'kotlin.collections.map' call
 
-      var this_3 = get_entries_1();
+      var this_3 = get_entries_2();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_2 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_3, 10));
@@ -10652,7 +10669,7 @@ function probes(_this__u8e3s4, point) {
     case 15:
       // Inline function 'kotlin.collections.map' call
 
-      var this_4 = get_entries_1();
+      var this_4 = get_entries_2();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_3 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_4, 10));
@@ -10670,7 +10687,7 @@ function probes(_this__u8e3s4, point) {
     case 16:
       // Inline function 'kotlin.collections.map' call
 
-      var this_5 = get_entries_1();
+      var this_5 = get_entries_2();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_4 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_5, 10));
@@ -10688,7 +10705,7 @@ function probes(_this__u8e3s4, point) {
     case 17:
       // Inline function 'kotlin.collections.map' call
 
-      var this_6 = get_entries_1();
+      var this_6 = get_entries_2();
       // Inline function 'kotlin.collections.mapTo' call
 
       var destination_5 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_6, 10));
@@ -11322,7 +11339,7 @@ protoOf(FigureRenderer).a2h = function (figure) {
     return tmp0_safe_receiver;
   }
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = get_entries_2();
+  var tmp0 = get_entries_3();
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
@@ -15140,7 +15157,7 @@ function drawOn_1(_this__u8e3s4, s) {
         tmp_1 = listOf([cap_0(get_A_0(), g.z29(across.a2a(h)), g.y29(across.a2a(h)), 3.0), cap_0(get_A_0(), g.z29(across.a2a(h)), tip, 2.2), cap_0(get_A_0(), g.y29(across.a2a(h)), tip, 2.2)]);
       } else {
         // Inline function 'kotlin.collections.map' call
-        var this_0 = get_entries_1();
+        var this_0 = get_entries_2();
         // Inline function 'kotlin.collections.mapTo' call
         var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
         var _iterator__ex2g4s = this_0.j();
@@ -15167,7 +15184,7 @@ function drawOn_1(_this__u8e3s4, s) {
       } else {
         var c_0 = s.y2b_1.m2b_1.y29(s.z2b_1.m2b_1).a2a(0.5).y29(new Point(0.0, -6.0));
         // Inline function 'kotlin.collections.map' call
-        var this_1 = get_entries_1();
+        var this_1 = get_entries_2();
         // Inline function 'kotlin.collections.mapTo' call
         var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
         var _iterator__ex2g4s_0 = this_1.j();
@@ -16273,7 +16290,7 @@ function drawOn_8(_this__u8e3s4, s) {
     tmp = listOf_0(ring(Role_ACCENT_getInstance(), s.y2b_1.m2b_1.w29_1, s.y2b_1.m2b_1.x29_1, 3.4, 2.2));
   } else {
     // Inline function 'kotlin.collections.map' call
-    var this_0 = get_entries_1();
+    var this_0 = get_entries_2();
     // Inline function 'kotlin.collections.mapTo' call
     var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
     var _iterator__ex2g4s = this_0.j();
@@ -17055,7 +17072,7 @@ function drawOf_33(_this__u8e3s4, s) {
   this_0.i(new Placed(new RoundRect(get_E_3(), _this__u8e3s4.u2t_1 - 19.0, -_this__u8e3s4.w2t_1, 38.0, _this__u8e3s4.w2t_1 - _this__u8e3s4.v2t_1 - 26.0, 3.0)));
   this_0.i(new Placed(box_1(get_E_3(), seatSlab_6(_this__u8e3s4))));
   if (!(s == null) && s.s2b_1.equals(View_FRONT_getInstance())) {
-    var _iterator__ex2g4s = get_entries_1().j();
+    var _iterator__ex2g4s = get_entries_2().j();
     while (_iterator__ex2g4s.k()) {
       var side = _iterator__ex2g4s.l();
       var b = kneePad(_this__u8e3s4, side, s).hb();
@@ -17069,7 +17086,7 @@ function drawOf_33(_this__u8e3s4, s) {
     this_0.i(new Placed(new Capsule(get_E_3(), h.w29_1, h.x29_1, h.w29_1, -_this__u8e3s4.v2t_1 + 6.0, 3.0)));
   }
   if (!(s == null)) {
-    var _iterator__ex2g4s_1 = get_entries_1().j();
+    var _iterator__ex2g4s_1 = get_entries_2().j();
     while (_iterator__ex2g4s_1.k()) {
       var side_0 = _iterator__ex2g4s_1.l();
       var l = s.d2c(side_0);
@@ -17097,7 +17114,7 @@ function drawFrontOf_16(_this__u8e3s4, s) {
       var h = _iterator__ex2g4s.l();
       this_0.p(frontLever(new Point(h.w29_1 - 6.0, h.x29_1), new Point(h.w29_1 + 6.0, h.x29_1), 3.0));
     }
-    var _iterator__ex2g4s_0 = get_entries_1().j();
+    var _iterator__ex2g4s_0 = get_entries_2().j();
     while (_iterator__ex2g4s_0.k()) {
       var side = _iterator__ex2g4s_0.l();
       var _destruct__k2r9zo = kneePad(_this__u8e3s4, side, s);
@@ -17708,7 +17725,7 @@ function drawFrontOf_20(_this__u8e3s4, s) {
     if (s == null || !s.s2b_1.equals(View_FRONT_getInstance())) {
       break $l$block;
     }
-    var _iterator__ex2g4s = get_entries_1().j();
+    var _iterator__ex2g4s = get_entries_2().j();
     while (_iterator__ex2g4s.k()) {
       var side = _iterator__ex2g4s.l();
       var p = pivot(_this__u8e3s4, side);
@@ -28515,7 +28532,7 @@ var properties_initialized_Poses_kt_y3c9e6;
 function _init_properties_Poses_kt__cx5374() {
   if (!properties_initialized_Poses_kt_y3c9e6) {
     properties_initialized_Poses_kt_y3c9e6 = true;
-    BOTH = toSet(get_entries_2());
+    BOTH = toSet(get_entries_3());
     ARM_REACH = Segment_UPPER_ARM_getInstance().a() + Segment_FOREARM_getInstance().a() + Segment_HAND_getInstance().a() * 0.45;
     FORE_LINK = Segment_FOREARM_getInstance().a() + Segment_HAND_getInstance().a() * 0.45;
   }
@@ -33767,7 +33784,7 @@ function values_7() {
   static_init_19();
   return [MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance(), MainLift_STRICT_PRESS_getInstance()];
 }
-function get_entries_3() {
+function get_entries_4() {
   static_init_19();
   if ($ENTRIES_3 == null)
     $ENTRIES_3 = enumEntries(values_7());
@@ -33818,7 +33835,7 @@ function values_9() {
   static_init_21();
   return [MissPoint_FLOOR_getInstance(), MissPoint_MID_getInstance(), MissPoint_LOCKOUT_getInstance()];
 }
-function get_entries_4() {
+function get_entries_5() {
   static_init_21();
   if ($ENTRIES_4 == null)
     $ENTRIES_4 = enumEntries(values_9());
@@ -34557,51 +34574,6 @@ function sessions($this, days) {
   }
   return tmp_0;
 }
-function volume($this, sessions) {
-  // Inline function 'kotlin.collections.map' call
-  var this_0 = $this.i1q_1;
-  // Inline function 'kotlin.collections.mapTo' call
-  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
-  var _iterator__ex2g4s = this_0.j();
-  while (_iterator__ex2g4s.k()) {
-    var item = _iterator__ex2g4s.l();
-    var sets = 0;
-    var days = 0;
-    var _iterator__ex2g4s_0 = sessions.j();
-    while (_iterator__ex2g4s_0.k()) {
-      var s = _iterator__ex2g4s_0.l();
-      // Inline function 'kotlin.collections.filter' call
-      var tmp0 = s.e32_1;
-      // Inline function 'kotlin.collections.filterTo' call
-      var destination_0 = ArrayList_init_$Create$();
-      var _iterator__ex2g4s_1 = tmp0.j();
-      while (_iterator__ex2g4s_1.k()) {
-        var element = _iterator__ex2g4s_1.l();
-        if (MuscleGroups_getInstance().t1p(element.m32_1, item)) {
-          destination_0.i(element);
-        }
-      }
-      var here = destination_0;
-      var tmp = sets;
-      // Inline function 'kotlin.collections.sumOf' call
-      var sum = 0;
-      var _iterator__ex2g4s_2 = here.j();
-      while (_iterator__ex2g4s_2.k()) {
-        var element_0 = _iterator__ex2g4s_2.l();
-        var tmp_0 = sum;
-        sum = tmp_0 + element_0.h32_1 | 0;
-      }
-      sets = tmp + sum | 0;
-      // Inline function 'kotlin.collections.isNotEmpty' call
-      if (!here.m()) {
-        days = days + 1 | 0;
-      }
-    }
-    var tmp$ret$2 = new GroupVolume(item, sets, days, sets < 10);
-    destination.i(tmp$ret$2);
-  }
-  return destination;
-}
 function equipmentUse($this, picks) {
   // Inline function 'kotlin.collections.distinctBy' call
   var set = HashSet_init_$Create$();
@@ -34609,14 +34581,14 @@ function equipmentUse($this, picks) {
   var _iterator__ex2g4s = picks.j();
   while (_iterator__ex2g4s.k()) {
     var e = _iterator__ex2g4s.l();
-    var key = Library_getInstance().n1r(e.q32_1);
+    var key = Library_getInstance().n1r(e.c32_1);
     if (set.i(key)) {
       list.i(e);
     }
   }
   var once = list;
   // Inline function 'kotlin.collections.associateWith' call
-  var this_0 = get_entries();
+  var this_0 = get_entries_0();
   var result = LinkedHashMap_init_$Create$_0(coerceAtLeast(mapCapacity(collectionSizeOrDefault(this_0, 10)), 16));
   // Inline function 'kotlin.collections.associateWithTo' call
   var _iterator__ex2g4s_0 = this_0.j();
@@ -34639,7 +34611,7 @@ function equipmentUse($this, picks) {
       var _iterator__ex2g4s_1 = once.j();
       while (_iterator__ex2g4s_1.k()) {
         var element_0 = _iterator__ex2g4s_1.l();
-        if (element_0.t32_1.r(element)) {
+        if (element_0.f32_1.r(element)) {
           count = count + 1 | 0;
           checkCountOverflow(count);
         }
@@ -34702,16 +34674,16 @@ function rotate($this, list, variant) {
   return plus(drop(list, shift), take(list, shift));
 }
 function sam$kotlin_Comparator$0_8(function_0) {
-  this.v32_1 = function_0;
+  this.h32_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_8).ha = function (a, b) {
-  return this.v32_1(a, b);
+  return this.h32_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_8).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_8).g2 = function () {
-  return this.v32_1;
+  return this.h32_1;
 };
 protoOf(sam$kotlin_Comparator$0_8).equals = function (other) {
   var tmp;
@@ -34732,16 +34704,16 @@ protoOf(sam$kotlin_Comparator$0_8).hashCode = function () {
   return hashCode(this.g2());
 };
 function sam$kotlin_Comparator$0_9(function_0) {
-  this.w32_1 = function_0;
+  this.i32_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_9).ha = function (a, b) {
-  return this.w32_1(a, b);
+  return this.i32_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_9).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_9).g2 = function () {
-  return this.w32_1;
+  return this.i32_1;
 };
 protoOf(sam$kotlin_Comparator$0_9).equals = function (other) {
   var tmp;
@@ -34762,16 +34734,16 @@ protoOf(sam$kotlin_Comparator$0_9).hashCode = function () {
   return hashCode(this.g2());
 };
 function sam$kotlin_Comparator$0_10(function_0) {
-  this.x32_1 = function_0;
+  this.j32_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_10).ha = function (a, b) {
-  return this.x32_1(a, b);
+  return this.j32_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_10).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_10).g2 = function () {
-  return this.x32_1;
+  return this.j32_1;
 };
 protoOf(sam$kotlin_Comparator$0_10).equals = function (other) {
   var tmp;
@@ -34952,7 +34924,7 @@ function build$draft(priorities, item, slot) {
   return new DraftExercise(item.i31_1, item.j31_1, sets, 8, 12, 8.0, item.n31_1, item.k31_1, item.l31_1, tmp_0, (slot == null ? null : slot.q31_1) === true);
 }
 function build$priority(priorities, e) {
-  return contains_1(priorities, e.l32_1);
+  return contains_1(priorities, e.q32_1);
 }
 function PlanBuilder$sessions$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
@@ -35203,8 +35175,8 @@ protoOf(PlanBuilder).j1r = function (name, muscles, compound, inCatalogue) {
   }
   return tmp_0;
 };
-protoOf(PlanBuilder).y32 = function (answers) {
-  var days = answers.z32_1;
+protoOf(PlanBuilder).v32 = function (answers) {
+  var days = answers.w32_1;
   // Inline function 'kotlin.require' call
   if (!(days.o() === 3 || days.o() === 4)) {
     var message = 'days: ' + days.o() + ' days; the builder takes 3 or 4';
@@ -35215,7 +35187,7 @@ protoOf(PlanBuilder).y32 = function (answers) {
     var message_0 = 'days: a weekday is repeated';
     throw IllegalArgumentException_init_$Create$(toString(message_0));
   }
-  var priorities = answers.b33_1;
+  var priorities = answers.y32_1;
   // Inline function 'kotlin.require' call
   if (!(priorities.o() <= 3)) {
     var message_1 = 'priorities: ' + priorities.o() + '; at most 3';
@@ -35265,13 +35237,13 @@ protoOf(PlanBuilder).y32 = function (answers) {
     throw IllegalArgumentException_init_$Create$(toString(message_3));
   }
   // Inline function 'kotlin.collections.filter' call
-  var tmp0 = answers.a33_1;
+  var tmp0 = answers.x32_1;
   // Inline function 'kotlin.collections.filterTo' call
   var destination_0 = ArrayList_init_$Create$();
   var _iterator__ex2g4s_1 = tmp0.j();
   while (_iterator__ex2g4s_1.k()) {
     var element_1 = _iterator__ex2g4s_1.l();
-    if (element_1.u32_1 && Library_getInstance().y1q(element_1.q32_1) == null) {
+    if (element_1.g32_1 && Library_getInstance().y1q(element_1.c32_1) == null) {
       destination_0.i(element_1);
     }
   }
@@ -35281,7 +35253,7 @@ protoOf(PlanBuilder).y32 = function (answers) {
   var _iterator__ex2g4s_2 = destination_0.j();
   while (_iterator__ex2g4s_2.k()) {
     var item = _iterator__ex2g4s_2.l();
-    var tmp$ret$20 = item.q32_1;
+    var tmp$ret$20 = item.c32_1;
     destination_1.i(tmp$ret$20);
   }
   var unknown = destination_1;
@@ -35313,13 +35285,13 @@ protoOf(PlanBuilder).y32 = function (answers) {
     tmp0_0.i(element_3);
   }
   // Inline function 'kotlin.collections.distinctBy' call
-  var this_0 = answers.a33_1;
+  var this_0 = answers.x32_1;
   var set = HashSet_init_$Create$();
   var list = ArrayList_init_$Create$();
   var _iterator__ex2g4s_5 = this_0.j();
   while (_iterator__ex2g4s_5.k()) {
     var e = _iterator__ex2g4s_5.l();
-    var key = Library_getInstance().n1r(e.q32_1);
+    var key = Library_getInstance().n1r(e.c32_1);
     if (set.i(key)) {
       list.i(e);
     }
@@ -35330,7 +35302,7 @@ protoOf(PlanBuilder).y32 = function (answers) {
   var _iterator__ex2g4s_6 = list.j();
   while (_iterator__ex2g4s_6.k()) {
     var item_0 = _iterator__ex2g4s_6.l();
-    var tmp$ret$31 = new Item(item_0.q32_1, item_0.u32_1, item_0.r32_1, item_0.s32_1);
+    var tmp$ret$31 = new Item(item_0.c32_1, item_0.g32_1, item_0.d32_1, item_0.e32_1);
     destination_3.i(tmp$ret$31);
   }
   var picks = destination_3;
@@ -35421,7 +35393,7 @@ protoOf(PlanBuilder).y32 = function (answers) {
     } else
       target.y31_1 = pick_1;
   }
-  var equipmentUse_0 = equipmentUse(this, answers.a33_1);
+  var equipmentUse_0 = equipmentUse(this, answers.x32_1);
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
   var destination_6 = ArrayList_init_$Create$_0(collectionSizeOrDefault(picks, 10));
@@ -35464,9 +35436,9 @@ protoOf(PlanBuilder).y32 = function (answers) {
             var tmp$ret$55 = entry(this, item_2);
             destination_8.i(tmp$ret$55);
           }
-          tmp_3 = rotate(this, destination_8, answers.c33_1);
+          tmp_3 = rotate(this, destination_8, answers.z32_1);
         } else {
-          tmp_3 = defaultsFor(this, slot_0.p31_1, equipmentUse_0, answers.c33_1);
+          tmp_3 = defaultsFor(this, slot_0.p31_1, equipmentUse_0, answers.z32_1);
         }
         var candidates = tmp_3;
         var tmp$ret$56;
@@ -35575,11 +35547,56 @@ protoOf(PlanBuilder).y32 = function (answers) {
     destination_9.i(tmp$ret$62);
   }
   var draftSessions = destination_9;
-  return new PlanDraft(draftSessions, volume(this, draftSessions), leftOut);
+  return new PlanDraft(draftSessions, this.a33(draftSessions), leftOut);
 };
-protoOf(PlanBuilder).d33 = function (name, draft, picks, day) {
+protoOf(PlanBuilder).a33 = function (sessions) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = this.i1q_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var sets = 0;
+    var days = 0;
+    var _iterator__ex2g4s_0 = sessions.j();
+    while (_iterator__ex2g4s_0.k()) {
+      var s = _iterator__ex2g4s_0.l();
+      // Inline function 'kotlin.collections.filter' call
+      var tmp0 = s.d33_1;
+      // Inline function 'kotlin.collections.filterTo' call
+      var destination_0 = ArrayList_init_$Create$();
+      var _iterator__ex2g4s_1 = tmp0.j();
+      while (_iterator__ex2g4s_1.k()) {
+        var element = _iterator__ex2g4s_1.l();
+        if (MuscleGroups_getInstance().t1p(element.r32_1, item)) {
+          destination_0.i(element);
+        }
+      }
+      var here = destination_0;
+      var tmp = sets;
+      // Inline function 'kotlin.collections.sumOf' call
+      var sum = 0;
+      var _iterator__ex2g4s_2 = here.j();
+      while (_iterator__ex2g4s_2.k()) {
+        var element_0 = _iterator__ex2g4s_2.l();
+        var tmp_0 = sum;
+        sum = tmp_0 + element_0.m32_1 | 0;
+      }
+      sets = tmp + sum | 0;
+      // Inline function 'kotlin.collections.isNotEmpty' call
+      if (!here.m()) {
+        days = days + 1 | 0;
+      }
+    }
+    var tmp$ret$2 = new GroupVolume(item, sets, days, sets < 10);
+    destination.i(tmp$ret$2);
+  }
+  return destination;
+};
+protoOf(PlanBuilder).e33 = function (name, draft, picks, day) {
   var key = Library_getInstance().n1r(name);
-  var tmp0 = draft.e33_1;
+  var tmp0 = draft.f33_1;
   var tmp$ret$0;
   $l$block_1: {
     // Inline function 'kotlin.collections.firstOrNull' call
@@ -35587,8 +35604,8 @@ protoOf(PlanBuilder).d33 = function (name, draft, picks, day) {
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
       var tmp;
-      if (day == null || element.c32_1.equals(day)) {
-        var tmp0_0 = element.e32_1;
+      if (day == null || element.b33_1.equals(day)) {
+        var tmp0_0 = element.d33_1;
         var tmp$ret$2;
         $l$block_0: {
           // Inline function 'kotlin.collections.any' call
@@ -35605,7 +35622,7 @@ protoOf(PlanBuilder).d33 = function (name, draft, picks, day) {
           var _iterator__ex2g4s_0 = tmp0_0.j();
           while (_iterator__ex2g4s_0.k()) {
             var element_0 = _iterator__ex2g4s_0.l();
-            if (Library_getInstance().n1r(element_0.f32_1) === key) {
+            if (Library_getInstance().n1r(element_0.k32_1) === key) {
               tmp$ret$2 = true;
               break $l$block_0;
             }
@@ -35631,14 +35648,14 @@ protoOf(PlanBuilder).d33 = function (name, draft, picks, day) {
     tmp_1 = tmp0_elvis_lhs;
   }
   var session = tmp_1;
-  var tmp0_1 = session.e32_1;
+  var tmp0_1 = session.d33_1;
   var tmp$ret$4;
   $l$block_2: {
     // Inline function 'kotlin.collections.first' call
     var _iterator__ex2g4s_1 = tmp0_1.j();
     while (_iterator__ex2g4s_1.k()) {
       var element_1 = _iterator__ex2g4s_1.l();
-      if (Library_getInstance().n1r(element_1.f32_1) === key) {
+      if (Library_getInstance().n1r(element_1.k32_1) === key) {
         tmp$ret$4 = element_1;
         break $l$block_2;
       }
@@ -35647,19 +35664,19 @@ protoOf(PlanBuilder).d33 = function (name, draft, picks, day) {
   }
   var exercise = tmp$ret$4;
   // Inline function 'kotlin.collections.map' call
-  var this_0 = session.e32_1;
+  var this_0 = session.d33_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s_2 = this_0.j();
   while (_iterator__ex2g4s_2.k()) {
     var item = _iterator__ex2g4s_2.l();
-    var tmp$ret$8 = Library_getInstance().n1r(item.f32_1);
+    var tmp$ret$8 = Library_getInstance().n1r(item.k32_1);
     destination.i(tmp$ret$8);
   }
   var inSession = toSet(destination);
-  var kind = exercise.o32_1;
+  var kind = exercise.t32_1;
   if (kind == null) {
-    var tmp1_elvis_lhs = exercise.l32_1;
+    var tmp1_elvis_lhs = exercise.q32_1;
     var tmp_2;
     if (tmp1_elvis_lhs == null) {
       return emptyList();
@@ -35715,15 +35732,15 @@ protoOf(PlanBuilder).d33 = function (name, draft, picks, day) {
   }
   return plus(tmp_3, destination_3);
 };
-protoOf(PlanBuilder).h33 = function (draft, day, from, to) {
-  var tmp0 = draft.e33_1;
+protoOf(PlanBuilder).i33 = function (draft, day, from, to) {
+  var tmp0 = draft.f33_1;
   var tmp$ret$0;
   $l$block: {
     // Inline function 'kotlin.collections.firstOrNull' call
     var _iterator__ex2g4s = tmp0.j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
-      if (element.c32_1.equals(day)) {
+      if (element.b33_1.equals(day)) {
         tmp$ret$0 = element;
         break $l$block;
       }
@@ -35738,7 +35755,7 @@ protoOf(PlanBuilder).h33 = function (draft, day, from, to) {
     tmp = tmp0_elvis_lhs;
   }
   var session = tmp;
-  var tmp0_0 = session.e32_1;
+  var tmp0_0 = session.d33_1;
   var tmp$ret$2;
   $l$block_0: {
     // Inline function 'kotlin.collections.indexOfFirst' call
@@ -35746,7 +35763,7 @@ protoOf(PlanBuilder).h33 = function (draft, day, from, to) {
     var _iterator__ex2g4s_0 = tmp0_0.j();
     while (_iterator__ex2g4s_0.k()) {
       var item = _iterator__ex2g4s_0.l();
-      if (Library_getInstance().n1r(item.f32_1) === Library_getInstance().n1r(from)) {
+      if (Library_getInstance().n1r(item.k32_1) === Library_getInstance().n1r(from)) {
         tmp$ret$2 = index;
         break $l$block_0;
       }
@@ -35768,7 +35785,7 @@ protoOf(PlanBuilder).h33 = function (draft, day, from, to) {
     tmp_0 = tmp1_elvis_lhs;
   }
   var entry = tmp_0;
-  var tmp0_1 = session.e32_1;
+  var tmp0_1 = session.d33_1;
   var tmp$ret$6;
   $l$block_2: {
     // Inline function 'kotlin.collections.none' call
@@ -35785,7 +35802,7 @@ protoOf(PlanBuilder).h33 = function (draft, day, from, to) {
     var _iterator__ex2g4s_1 = tmp0_1.j();
     while (_iterator__ex2g4s_1.k()) {
       var element_0 = _iterator__ex2g4s_1.l();
-      if (Library_getInstance().n1r(element_0.f32_1) === Library_getInstance().n1r(entry.z1q_1)) {
+      if (Library_getInstance().n1r(element_0.k32_1) === Library_getInstance().n1r(entry.z1q_1)) {
         tmp$ret$6 = false;
         break $l$block_2;
       }
@@ -35797,30 +35814,30 @@ protoOf(PlanBuilder).h33 = function (draft, day, from, to) {
     var message_0 = "to: '" + entry.z1q_1 + "' is already on " + day.toString();
     throw IllegalArgumentException_init_$Create$(toString(message_0));
   }
-  var new_0 = session.e32_1.n(index_0).i33(entry.z1q_1, true, VOID, VOID, VOID, VOID, this.o1q(entry.d1r_1), entry.d1r_1, entry.e1r_1.equals(Kind_COMPOUND_getInstance()));
+  var new_0 = session.d33_1.n(index_0).j33(entry.z1q_1, true, VOID, VOID, VOID, VOID, this.o1q(entry.d1r_1), entry.d1r_1, entry.e1r_1.equals(Kind_COMPOUND_getInstance()));
   // Inline function 'kotlin.collections.map' call
-  var this_0 = draft.e33_1;
+  var this_0 = draft.f33_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s_2 = this_0.j();
   while (_iterator__ex2g4s_2.k()) {
     var item_0 = _iterator__ex2g4s_2.l();
     var tmp_2;
-    if (!item_0.c32_1.equals(day)) {
+    if (!item_0.b33_1.equals(day)) {
       tmp_2 = item_0;
     } else {
       // Inline function 'kotlin.also' call
-      var this_1 = toMutableList(item_0.e32_1);
+      var this_1 = toMutableList(item_0.d33_1);
       this_1.w2(index_0, new_0);
-      tmp_2 = item_0.j33(VOID, VOID, this_1);
+      tmp_2 = item_0.k33(VOID, VOID, this_1);
     }
     var tmp$ret$12 = tmp_2;
     destination.i(tmp$ret$12);
   }
   var sessions = destination;
-  return draft.k33(sessions, volume(this, sessions));
+  return draft.l33(sessions, this.a33(sessions));
 };
-protoOf(PlanBuilder).l33 = function (history, plans, today) {
+protoOf(PlanBuilder).m33 = function (history, plans, today) {
   var from = minus_1(today, DatePeriod_init_$Create$(VOID, VOID, 28));
   var tmp = PlanBuilder$suggestedPicks$lambda;
   var tmp_0 = PlanBuilder$suggestedPicks$lambda_0;
@@ -35892,21 +35909,21 @@ function PlanBuilder_getInstance() {
   return PlanBuilder_instance;
 }
 function BuilderPick(name, muscles, compound, equipment, inCatalogue) {
-  this.q32_1 = name;
-  this.r32_1 = muscles;
-  this.s32_1 = compound;
-  this.t32_1 = equipment;
-  this.u32_1 = inCatalogue;
+  this.c32_1 = name;
+  this.d32_1 = muscles;
+  this.e32_1 = compound;
+  this.f32_1 = equipment;
+  this.g32_1 = inCatalogue;
 }
 protoOf(BuilderPick).toString = function () {
-  return 'BuilderPick(name=' + this.q32_1 + ', muscles=' + toString(this.r32_1) + ', compound=' + this.s32_1 + ', equipment=' + toString(this.t32_1) + ', inCatalogue=' + this.u32_1 + ')';
+  return 'BuilderPick(name=' + this.c32_1 + ', muscles=' + toString(this.d32_1) + ', compound=' + this.e32_1 + ', equipment=' + toString(this.f32_1) + ', inCatalogue=' + this.g32_1 + ')';
 };
 protoOf(BuilderPick).hashCode = function () {
-  var result = getStringHashCode(this.q32_1);
-  result = imul(result, 31) + hashCode(this.r32_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.s32_1) | 0;
-  result = imul(result, 31) + hashCode(this.t32_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.u32_1) | 0;
+  var result = getStringHashCode(this.c32_1);
+  result = imul(result, 31) + hashCode(this.d32_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.e32_1) | 0;
+  result = imul(result, 31) + hashCode(this.f32_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.g32_1) | 0;
   return result;
 };
 protoOf(BuilderPick).equals = function (other) {
@@ -35914,7 +35931,115 @@ protoOf(BuilderPick).equals = function (other) {
     return true;
   if (!(other instanceof BuilderPick))
     return false;
-  if (!(this.q32_1 === other.q32_1))
+  if (!(this.c32_1 === other.c32_1))
+    return false;
+  if (!equals(this.d32_1, other.d32_1))
+    return false;
+  if (!(this.e32_1 === other.e32_1))
+    return false;
+  if (!equals(this.f32_1, other.f32_1))
+    return false;
+  if (!(this.g32_1 === other.g32_1))
+    return false;
+  return true;
+};
+function BuilderAnswers(days, picks, priorities, variant) {
+  variant = variant === VOID ? 0 : variant;
+  this.w32_1 = days;
+  this.x32_1 = picks;
+  this.y32_1 = priorities;
+  this.z32_1 = variant;
+}
+protoOf(BuilderAnswers).toString = function () {
+  return 'BuilderAnswers(days=' + toString(this.w32_1) + ', picks=' + toString(this.x32_1) + ', priorities=' + toString(this.y32_1) + ', variant=' + this.z32_1 + ')';
+};
+protoOf(BuilderAnswers).hashCode = function () {
+  var result = hashCode(this.w32_1);
+  result = imul(result, 31) + hashCode(this.x32_1) | 0;
+  result = imul(result, 31) + hashCode(this.y32_1) | 0;
+  result = imul(result, 31) + this.z32_1 | 0;
+  return result;
+};
+protoOf(BuilderAnswers).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof BuilderAnswers))
+    return false;
+  if (!equals(this.w32_1, other.w32_1))
+    return false;
+  if (!equals(this.x32_1, other.x32_1))
+    return false;
+  if (!equals(this.y32_1, other.y32_1))
+    return false;
+  if (!(this.z32_1 === other.z32_1))
+    return false;
+  return true;
+};
+function DraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
+  this.k32_1 = name;
+  this.l32_1 = inCatalogue;
+  this.m32_1 = sets;
+  this.n32_1 = repsLow;
+  this.o32_1 = repsHigh;
+  this.p32_1 = rpe;
+  this.q32_1 = mainGroup;
+  this.r32_1 = muscles;
+  this.s32_1 = compound;
+  this.t32_1 = slot;
+  this.u32_1 = lead;
+}
+protoOf(DraftExercise).n33 = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
+  return new DraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
+};
+protoOf(DraftExercise).j33 = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead, $super) {
+  name = name === VOID ? this.k32_1 : name;
+  inCatalogue = inCatalogue === VOID ? this.l32_1 : inCatalogue;
+  sets = sets === VOID ? this.m32_1 : sets;
+  repsLow = repsLow === VOID ? this.n32_1 : repsLow;
+  repsHigh = repsHigh === VOID ? this.o32_1 : repsHigh;
+  rpe = rpe === VOID ? this.p32_1 : rpe;
+  mainGroup = mainGroup === VOID ? this.q32_1 : mainGroup;
+  muscles = muscles === VOID ? this.r32_1 : muscles;
+  compound = compound === VOID ? this.s32_1 : compound;
+  slot = slot === VOID ? this.t32_1 : slot;
+  lead = lead === VOID ? this.u32_1 : lead;
+  return $super === VOID ? this.n33(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.n33.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
+};
+protoOf(DraftExercise).toString = function () {
+  return 'DraftExercise(name=' + this.k32_1 + ', inCatalogue=' + this.l32_1 + ', sets=' + this.m32_1 + ', repsLow=' + this.n32_1 + ', repsHigh=' + this.o32_1 + ', rpe=' + this.p32_1 + ', mainGroup=' + toString_1(this.q32_1) + ', muscles=' + toString(this.r32_1) + ', compound=' + this.s32_1 + ', slot=' + toString_1(this.t32_1) + ', lead=' + this.u32_1 + ')';
+};
+protoOf(DraftExercise).hashCode = function () {
+  var result = getStringHashCode(this.k32_1);
+  result = imul(result, 31) + getBooleanHashCode(this.l32_1) | 0;
+  result = imul(result, 31) + this.m32_1 | 0;
+  result = imul(result, 31) + this.n32_1 | 0;
+  result = imul(result, 31) + this.o32_1 | 0;
+  result = imul(result, 31) + getNumberHashCode(this.p32_1) | 0;
+  result = imul(result, 31) + (this.q32_1 == null ? 0 : this.q32_1.hashCode()) | 0;
+  result = imul(result, 31) + hashCode(this.r32_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.s32_1) | 0;
+  result = imul(result, 31) + (this.t32_1 == null ? 0 : this.t32_1.hashCode()) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.u32_1) | 0;
+  return result;
+};
+protoOf(DraftExercise).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof DraftExercise))
+    return false;
+  if (!(this.k32_1 === other.k32_1))
+    return false;
+  if (!(this.l32_1 === other.l32_1))
+    return false;
+  if (!(this.m32_1 === other.m32_1))
+    return false;
+  if (!(this.n32_1 === other.n32_1))
+    return false;
+  if (!(this.o32_1 === other.o32_1))
+    return false;
+  if (!equals(this.p32_1, other.p32_1))
+    return false;
+  if (!equals(this.q32_1, other.q32_1))
     return false;
   if (!equals(this.r32_1, other.r32_1))
     return false;
@@ -35926,135 +36051,27 @@ protoOf(BuilderPick).equals = function (other) {
     return false;
   return true;
 };
-function BuilderAnswers(days, picks, priorities, variant) {
-  variant = variant === VOID ? 0 : variant;
-  this.z32_1 = days;
-  this.a33_1 = picks;
-  this.b33_1 = priorities;
-  this.c33_1 = variant;
-}
-protoOf(BuilderAnswers).toString = function () {
-  return 'BuilderAnswers(days=' + toString(this.z32_1) + ', picks=' + toString(this.a33_1) + ', priorities=' + toString(this.b33_1) + ', variant=' + this.c33_1 + ')';
-};
-protoOf(BuilderAnswers).hashCode = function () {
-  var result = hashCode(this.z32_1);
-  result = imul(result, 31) + hashCode(this.a33_1) | 0;
-  result = imul(result, 31) + hashCode(this.b33_1) | 0;
-  result = imul(result, 31) + this.c33_1 | 0;
-  return result;
-};
-protoOf(BuilderAnswers).equals = function (other) {
-  if (this === other)
-    return true;
-  if (!(other instanceof BuilderAnswers))
-    return false;
-  if (!equals(this.z32_1, other.z32_1))
-    return false;
-  if (!equals(this.a33_1, other.a33_1))
-    return false;
-  if (!equals(this.b33_1, other.b33_1))
-    return false;
-  if (!(this.c33_1 === other.c33_1))
-    return false;
-  return true;
-};
-function DraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
-  this.f32_1 = name;
-  this.g32_1 = inCatalogue;
-  this.h32_1 = sets;
-  this.i32_1 = repsLow;
-  this.j32_1 = repsHigh;
-  this.k32_1 = rpe;
-  this.l32_1 = mainGroup;
-  this.m32_1 = muscles;
-  this.n32_1 = compound;
-  this.o32_1 = slot;
-  this.p32_1 = lead;
-}
-protoOf(DraftExercise).m33 = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
-  return new DraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
-};
-protoOf(DraftExercise).i33 = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead, $super) {
-  name = name === VOID ? this.f32_1 : name;
-  inCatalogue = inCatalogue === VOID ? this.g32_1 : inCatalogue;
-  sets = sets === VOID ? this.h32_1 : sets;
-  repsLow = repsLow === VOID ? this.i32_1 : repsLow;
-  repsHigh = repsHigh === VOID ? this.j32_1 : repsHigh;
-  rpe = rpe === VOID ? this.k32_1 : rpe;
-  mainGroup = mainGroup === VOID ? this.l32_1 : mainGroup;
-  muscles = muscles === VOID ? this.m32_1 : muscles;
-  compound = compound === VOID ? this.n32_1 : compound;
-  slot = slot === VOID ? this.o32_1 : slot;
-  lead = lead === VOID ? this.p32_1 : lead;
-  return $super === VOID ? this.m33(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.m33.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
-};
-protoOf(DraftExercise).toString = function () {
-  return 'DraftExercise(name=' + this.f32_1 + ', inCatalogue=' + this.g32_1 + ', sets=' + this.h32_1 + ', repsLow=' + this.i32_1 + ', repsHigh=' + this.j32_1 + ', rpe=' + this.k32_1 + ', mainGroup=' + toString_1(this.l32_1) + ', muscles=' + toString(this.m32_1) + ', compound=' + this.n32_1 + ', slot=' + toString_1(this.o32_1) + ', lead=' + this.p32_1 + ')';
-};
-protoOf(DraftExercise).hashCode = function () {
-  var result = getStringHashCode(this.f32_1);
-  result = imul(result, 31) + getBooleanHashCode(this.g32_1) | 0;
-  result = imul(result, 31) + this.h32_1 | 0;
-  result = imul(result, 31) + this.i32_1 | 0;
-  result = imul(result, 31) + this.j32_1 | 0;
-  result = imul(result, 31) + getNumberHashCode(this.k32_1) | 0;
-  result = imul(result, 31) + (this.l32_1 == null ? 0 : this.l32_1.hashCode()) | 0;
-  result = imul(result, 31) + hashCode(this.m32_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.n32_1) | 0;
-  result = imul(result, 31) + (this.o32_1 == null ? 0 : this.o32_1.hashCode()) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.p32_1) | 0;
-  return result;
-};
-protoOf(DraftExercise).equals = function (other) {
-  if (this === other)
-    return true;
-  if (!(other instanceof DraftExercise))
-    return false;
-  if (!(this.f32_1 === other.f32_1))
-    return false;
-  if (!(this.g32_1 === other.g32_1))
-    return false;
-  if (!(this.h32_1 === other.h32_1))
-    return false;
-  if (!(this.i32_1 === other.i32_1))
-    return false;
-  if (!(this.j32_1 === other.j32_1))
-    return false;
-  if (!equals(this.k32_1, other.k32_1))
-    return false;
-  if (!equals(this.l32_1, other.l32_1))
-    return false;
-  if (!equals(this.m32_1, other.m32_1))
-    return false;
-  if (!(this.n32_1 === other.n32_1))
-    return false;
-  if (!equals(this.o32_1, other.o32_1))
-    return false;
-  if (!(this.p32_1 === other.p32_1))
-    return false;
-  return true;
-};
 function DraftSession(day, title, exercises) {
-  this.c32_1 = day;
-  this.d32_1 = title;
-  this.e32_1 = exercises;
+  this.b33_1 = day;
+  this.c33_1 = title;
+  this.d33_1 = exercises;
 }
-protoOf(DraftSession).n33 = function (day, title, exercises) {
+protoOf(DraftSession).o33 = function (day, title, exercises) {
   return new DraftSession(day, title, exercises);
 };
-protoOf(DraftSession).j33 = function (day, title, exercises, $super) {
-  day = day === VOID ? this.c32_1 : day;
-  title = title === VOID ? this.d32_1 : title;
-  exercises = exercises === VOID ? this.e32_1 : exercises;
-  return $super === VOID ? this.n33(day, title, exercises) : $super.n33.call(this, day, title, exercises);
+protoOf(DraftSession).k33 = function (day, title, exercises, $super) {
+  day = day === VOID ? this.b33_1 : day;
+  title = title === VOID ? this.c33_1 : title;
+  exercises = exercises === VOID ? this.d33_1 : exercises;
+  return $super === VOID ? this.o33(day, title, exercises) : $super.o33.call(this, day, title, exercises);
 };
 protoOf(DraftSession).toString = function () {
-  return 'DraftSession(day=' + this.c32_1.toString() + ', title=' + this.d32_1 + ', exercises=' + toString(this.e32_1) + ')';
+  return 'DraftSession(day=' + this.b33_1.toString() + ', title=' + this.c33_1 + ', exercises=' + toString(this.d33_1) + ')';
 };
 protoOf(DraftSession).hashCode = function () {
-  var result = this.c32_1.hashCode();
-  result = imul(result, 31) + getStringHashCode(this.d32_1) | 0;
-  result = imul(result, 31) + hashCode(this.e32_1) | 0;
+  var result = this.b33_1.hashCode();
+  result = imul(result, 31) + getStringHashCode(this.c33_1) | 0;
+  result = imul(result, 31) + hashCode(this.d33_1) | 0;
   return result;
 };
 protoOf(DraftSession).equals = function (other) {
@@ -36062,28 +36079,28 @@ protoOf(DraftSession).equals = function (other) {
     return true;
   if (!(other instanceof DraftSession))
     return false;
-  if (!this.c32_1.equals(other.c32_1))
+  if (!this.b33_1.equals(other.b33_1))
     return false;
-  if (!(this.d32_1 === other.d32_1))
+  if (!(this.c33_1 === other.c33_1))
     return false;
-  if (!equals(this.e32_1, other.e32_1))
+  if (!equals(this.d33_1, other.d33_1))
     return false;
   return true;
 };
 function GroupVolume(group, weeklySets, days, short) {
-  this.o33_1 = group;
-  this.p33_1 = weeklySets;
-  this.q33_1 = days;
-  this.r33_1 = short;
+  this.p33_1 = group;
+  this.q33_1 = weeklySets;
+  this.r33_1 = days;
+  this.s33_1 = short;
 }
 protoOf(GroupVolume).toString = function () {
-  return 'GroupVolume(group=' + this.o33_1.toString() + ', weeklySets=' + this.p33_1 + ', days=' + this.q33_1 + ', short=' + this.r33_1 + ')';
+  return 'GroupVolume(group=' + this.p33_1.toString() + ', weeklySets=' + this.q33_1 + ', days=' + this.r33_1 + ', short=' + this.s33_1 + ')';
 };
 protoOf(GroupVolume).hashCode = function () {
-  var result = this.o33_1.hashCode();
-  result = imul(result, 31) + this.p33_1 | 0;
+  var result = this.p33_1.hashCode();
   result = imul(result, 31) + this.q33_1 | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.r33_1) | 0;
+  result = imul(result, 31) + this.r33_1 | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.s33_1) | 0;
   return result;
 };
 protoOf(GroupVolume).equals = function (other) {
@@ -36091,26 +36108,26 @@ protoOf(GroupVolume).equals = function (other) {
     return true;
   if (!(other instanceof GroupVolume))
     return false;
-  if (!this.o33_1.equals(other.o33_1))
-    return false;
-  if (!(this.p33_1 === other.p33_1))
+  if (!this.p33_1.equals(other.p33_1))
     return false;
   if (!(this.q33_1 === other.q33_1))
     return false;
   if (!(this.r33_1 === other.r33_1))
     return false;
+  if (!(this.s33_1 === other.s33_1))
+    return false;
   return true;
 };
 function LeftOut(name, reason) {
-  this.s33_1 = name;
-  this.t33_1 = reason;
+  this.t33_1 = name;
+  this.u33_1 = reason;
 }
 protoOf(LeftOut).toString = function () {
-  return 'LeftOut(name=' + this.s33_1 + ', reason=' + this.t33_1 + ')';
+  return 'LeftOut(name=' + this.t33_1 + ', reason=' + this.u33_1 + ')';
 };
 protoOf(LeftOut).hashCode = function () {
-  var result = getStringHashCode(this.s33_1);
-  result = imul(result, 31) + getStringHashCode(this.t33_1) | 0;
+  var result = getStringHashCode(this.t33_1);
+  result = imul(result, 31) + getStringHashCode(this.u33_1) | 0;
   return result;
 };
 protoOf(LeftOut).equals = function (other) {
@@ -36118,33 +36135,33 @@ protoOf(LeftOut).equals = function (other) {
     return true;
   if (!(other instanceof LeftOut))
     return false;
-  if (!(this.s33_1 === other.s33_1))
-    return false;
   if (!(this.t33_1 === other.t33_1))
+    return false;
+  if (!(this.u33_1 === other.u33_1))
     return false;
   return true;
 };
 function PlanDraft(sessions, volume, leftOut) {
-  this.e33_1 = sessions;
-  this.f33_1 = volume;
-  this.g33_1 = leftOut;
+  this.f33_1 = sessions;
+  this.g33_1 = volume;
+  this.h33_1 = leftOut;
 }
-protoOf(PlanDraft).u33 = function (sessions, volume, leftOut) {
+protoOf(PlanDraft).v33 = function (sessions, volume, leftOut) {
   return new PlanDraft(sessions, volume, leftOut);
 };
-protoOf(PlanDraft).k33 = function (sessions, volume, leftOut, $super) {
-  sessions = sessions === VOID ? this.e33_1 : sessions;
-  volume = volume === VOID ? this.f33_1 : volume;
-  leftOut = leftOut === VOID ? this.g33_1 : leftOut;
-  return $super === VOID ? this.u33(sessions, volume, leftOut) : $super.u33.call(this, sessions, volume, leftOut);
+protoOf(PlanDraft).l33 = function (sessions, volume, leftOut, $super) {
+  sessions = sessions === VOID ? this.f33_1 : sessions;
+  volume = volume === VOID ? this.g33_1 : volume;
+  leftOut = leftOut === VOID ? this.h33_1 : leftOut;
+  return $super === VOID ? this.v33(sessions, volume, leftOut) : $super.v33.call(this, sessions, volume, leftOut);
 };
 protoOf(PlanDraft).toString = function () {
-  return 'PlanDraft(sessions=' + toString(this.e33_1) + ', volume=' + toString(this.f33_1) + ', leftOut=' + toString(this.g33_1) + ')';
+  return 'PlanDraft(sessions=' + toString(this.f33_1) + ', volume=' + toString(this.g33_1) + ', leftOut=' + toString(this.h33_1) + ')';
 };
 protoOf(PlanDraft).hashCode = function () {
-  var result = hashCode(this.e33_1);
-  result = imul(result, 31) + hashCode(this.f33_1) | 0;
+  var result = hashCode(this.f33_1);
   result = imul(result, 31) + hashCode(this.g33_1) | 0;
+  result = imul(result, 31) + hashCode(this.h33_1) | 0;
   return result;
 };
 protoOf(PlanDraft).equals = function (other) {
@@ -36152,14 +36169,550 @@ protoOf(PlanDraft).equals = function (other) {
     return true;
   if (!(other instanceof PlanDraft))
     return false;
-  if (!equals(this.e33_1, other.e33_1))
-    return false;
   if (!equals(this.f33_1, other.f33_1))
     return false;
   if (!equals(this.g33_1, other.g33_1))
     return false;
+  if (!equals(this.h33_1, other.h33_1))
+    return false;
   return true;
 };
+function TemplateExercise(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) {
+  onlyWithStrictPress = onlyWithStrictPress === VOID ? false : onlyWithStrictPress;
+  this.w33_1 = name;
+  this.x33_1 = sets;
+  this.y33_1 = repsLow;
+  this.z33_1 = repsHigh;
+  this.a34_1 = rpe;
+  this.b34_1 = onlyWithStrictPress;
+}
+protoOf(TemplateExercise).toString = function () {
+  return 'TemplateExercise(name=' + this.w33_1 + ', sets=' + this.x33_1 + ', repsLow=' + this.y33_1 + ', repsHigh=' + this.z33_1 + ', rpe=' + this.a34_1 + ', onlyWithStrictPress=' + this.b34_1 + ')';
+};
+protoOf(TemplateExercise).hashCode = function () {
+  var result = getStringHashCode(this.w33_1);
+  result = imul(result, 31) + this.x33_1 | 0;
+  result = imul(result, 31) + this.y33_1 | 0;
+  result = imul(result, 31) + (this.z33_1 == null ? 0 : this.z33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a34_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.b34_1) | 0;
+  return result;
+};
+protoOf(TemplateExercise).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof TemplateExercise))
+    return false;
+  if (!(this.w33_1 === other.w33_1))
+    return false;
+  if (!(this.x33_1 === other.x33_1))
+    return false;
+  if (!(this.y33_1 === other.y33_1))
+    return false;
+  if (!(this.z33_1 == other.z33_1))
+    return false;
+  if (!equals(this.a34_1, other.a34_1))
+    return false;
+  if (!(this.b34_1 === other.b34_1))
+    return false;
+  return true;
+};
+function TemplateSession(title, exercises) {
+  this.c34_1 = title;
+  this.d34_1 = exercises;
+}
+protoOf(TemplateSession).toString = function () {
+  return 'TemplateSession(title=' + this.c34_1 + ', exercises=' + toString(this.d34_1) + ')';
+};
+protoOf(TemplateSession).hashCode = function () {
+  var result = getStringHashCode(this.c34_1);
+  result = imul(result, 31) + hashCode(this.d34_1) | 0;
+  return result;
+};
+protoOf(TemplateSession).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof TemplateSession))
+    return false;
+  if (!(this.c34_1 === other.c34_1))
+    return false;
+  if (!equals(this.d34_1, other.d34_1))
+    return false;
+  return true;
+};
+function PlanTemplate(id, mode, name, suits, sessions) {
+  this.e34_1 = id;
+  this.f34_1 = mode;
+  this.g34_1 = name;
+  this.h34_1 = suits;
+  this.i34_1 = sessions;
+}
+protoOf(PlanTemplate).j34 = function () {
+  return this.i34_1.o();
+};
+protoOf(PlanTemplate).toString = function () {
+  return 'PlanTemplate(id=' + this.e34_1 + ', mode=' + this.f34_1.toString() + ', name=' + this.g34_1 + ', suits=' + this.h34_1 + ', sessions=' + toString(this.i34_1) + ')';
+};
+protoOf(PlanTemplate).hashCode = function () {
+  var result = getStringHashCode(this.e34_1);
+  result = imul(result, 31) + this.f34_1.hashCode() | 0;
+  result = imul(result, 31) + getStringHashCode(this.g34_1) | 0;
+  result = imul(result, 31) + getStringHashCode(this.h34_1) | 0;
+  result = imul(result, 31) + hashCode(this.i34_1) | 0;
+  return result;
+};
+protoOf(PlanTemplate).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof PlanTemplate))
+    return false;
+  if (!(this.e34_1 === other.e34_1))
+    return false;
+  if (!this.f34_1.equals(other.f34_1))
+    return false;
+  if (!(this.g34_1 === other.g34_1))
+    return false;
+  if (!(this.h34_1 === other.h34_1))
+    return false;
+  if (!equals(this.i34_1, other.i34_1))
+    return false;
+  return true;
+};
+function lift($this, name, sets, reps, strictPressOnly) {
+  strictPressOnly = strictPressOnly === VOID ? false : strictPressOnly;
+  return new TemplateExercise(name, sets, reps, null, 8.0, strictPressOnly);
+}
+function variation_0($this, name) {
+  return new TemplateExercise(name, 3, 5, null, 8.0);
+}
+function acc($this, name) {
+  return new TemplateExercise(name, 3, 10, null, 8.0);
+}
+function bb($this, name, sets) {
+  sets = sets === VOID ? 3 : sets;
+  return new TemplateExercise(name, sets, 8, 12, 8.0);
+}
+function day($this, title, exercises) {
+  return new TemplateSession(title, toList(exercises));
+}
+function sam$kotlin_Comparator$0_11(function_0) {
+  this.k34_1 = function_0;
+}
+protoOf(sam$kotlin_Comparator$0_11).ha = function (a, b) {
+  return this.k34_1(a, b);
+};
+protoOf(sam$kotlin_Comparator$0_11).compare = function (a, b) {
+  return this.ha(a, b);
+};
+protoOf(sam$kotlin_Comparator$0_11).g2 = function () {
+  return this.k34_1;
+};
+protoOf(sam$kotlin_Comparator$0_11).equals = function (other) {
+  var tmp;
+  if (!(other == null) ? isInterface(other, Comparator) : false) {
+    var tmp_0;
+    if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
+      tmp_0 = equals(this.g2(), other.g2());
+    } else {
+      tmp_0 = false;
+    }
+    tmp = tmp_0;
+  } else {
+    tmp = false;
+  }
+  return tmp;
+};
+protoOf(sam$kotlin_Comparator$0_11).hashCode = function () {
+  return hashCode(this.g2());
+};
+function sam$kotlin_Comparator$0_12(function_0) {
+  this.l34_1 = function_0;
+}
+protoOf(sam$kotlin_Comparator$0_12).ha = function (a, b) {
+  return this.l34_1(a, b);
+};
+protoOf(sam$kotlin_Comparator$0_12).compare = function (a, b) {
+  return this.ha(a, b);
+};
+protoOf(sam$kotlin_Comparator$0_12).g2 = function () {
+  return this.l34_1;
+};
+protoOf(sam$kotlin_Comparator$0_12).equals = function (other) {
+  var tmp;
+  if (!(other == null) ? isInterface(other, Comparator) : false) {
+    var tmp_0;
+    if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
+      tmp_0 = equals(this.g2(), other.g2());
+    } else {
+      tmp_0 = false;
+    }
+    tmp = tmp_0;
+  } else {
+    tmp = false;
+  }
+  return tmp;
+};
+protoOf(sam$kotlin_Comparator$0_12).hashCode = function () {
+  return hashCode(this.g2());
+};
+function sam$kotlin_Comparator$0_13(function_0) {
+  this.m34_1 = function_0;
+}
+protoOf(sam$kotlin_Comparator$0_13).ha = function (a, b) {
+  return this.m34_1(a, b);
+};
+protoOf(sam$kotlin_Comparator$0_13).compare = function (a, b) {
+  return this.ha(a, b);
+};
+protoOf(sam$kotlin_Comparator$0_13).g2 = function () {
+  return this.m34_1;
+};
+protoOf(sam$kotlin_Comparator$0_13).equals = function (other) {
+  var tmp;
+  if (!(other == null) ? isInterface(other, Comparator) : false) {
+    var tmp_0;
+    if (!(other == null) ? isInterface(other, FunctionAdapter) : false) {
+      tmp_0 = equals(this.g2(), other.g2());
+    } else {
+      tmp_0 = false;
+    }
+    tmp = tmp_0;
+  } else {
+    tmp = false;
+  }
+  return tmp;
+};
+protoOf(sam$kotlin_Comparator$0_13).hashCode = function () {
+  return hashCode(this.g2());
+};
+function PL_3$main($this_run, name, sp) {
+  sp = sp === VOID ? false : sp;
+  return lift($this_run, name, 3, 5, sp);
+}
+function PL_4$main($this_run, name, sp) {
+  sp = sp === VOID ? false : sp;
+  return lift($this_run, name, 4, 4, sp);
+}
+function PL_5$main($this_run, name, sp) {
+  sp = sp === VOID ? false : sp;
+  return lift($this_run, name, 5, 3, sp);
+}
+function PlanTemplates$forMode$lambda(a, b) {
+  // Inline function 'kotlin.comparisons.compareValuesBy' call
+  var tmp = a.j34();
+  var tmp$ret$2 = b.j34();
+  return compareValues(tmp, tmp$ret$2);
+}
+function PlanTemplates$suggestedDays$lambda(a, b) {
+  // Inline function 'kotlin.comparisons.compareValuesBy' call
+  var tmp = a.x1_1;
+  var tmp$ret$2 = b.x1_1;
+  return compareValues(tmp, tmp$ret$2);
+}
+function PlanTemplates$draft$lambda(a, b) {
+  // Inline function 'kotlin.comparisons.compareValuesBy' call
+  var tmp = a.x1_1;
+  var tmp$ret$2 = b.x1_1;
+  return compareValues(tmp, tmp$ret$2);
+}
+function alternatives$free_0(week, e) {
+  return !week.r(Library_getInstance().n1r(e.z1q_1));
+}
+function PlanTemplates() {
+  PlanTemplates_instance = this;
+  this.n34_1 = 8.0;
+  this.o34_1 = 3;
+  this.p34_1 = 10;
+  this.q34_1 = 3;
+  this.r34_1 = 5;
+  var tmp = this;
+  // Inline function 'kotlin.run' call
+  tmp.s34_1 = new PlanTemplate('pl-3', TrainingMode_POWERLIFTING_getInstance(), '3-day powerlifting', 'New to powerlifting: 2\u20133 days a week', listOf([day(this, 'Squat & bench', [PL_3$main(this, 'Squat'), PL_3$main(this, 'Bench'), acc(this, 'Seated cable row'), acc(this, 'Cable crunch')]), day(this, 'Deadlift & bench', [PL_3$main(this, 'Deadlift'), PL_3$main(this, 'Bench'), PL_3$main(this, 'Strict press', true), acc(this, 'Lat pulldown'), acc(this, 'Triceps pushdown')]), day(this, 'Squat & deadlift', [PL_3$main(this, 'Squat'), PL_3$main(this, 'Deadlift'), PL_3$main(this, 'Strict press', true), acc(this, 'Lying leg curl'), acc(this, 'Face pull')])]));
+  var tmp_0 = this;
+  // Inline function 'kotlin.run' call
+  tmp_0.t34_1 = new PlanTemplate('pl-4', TrainingMode_POWERLIFTING_getInstance(), '4-day powerlifting', 'Some training behind you: 3\u20134 days a week', listOf([day(this, 'Squat & bench', [PL_4$main(this, 'Squat'), PL_4$main(this, 'Bench'), acc(this, 'Seated cable row'), acc(this, 'Cable crunch')]), day(this, 'Deadlift', [PL_4$main(this, 'Deadlift'), PL_4$main(this, 'Strict press', true), variation_0(this, 'Close-grip bench'), acc(this, 'Lat pulldown'), acc(this, 'Lying leg curl')]), day(this, 'Squat & bench', [PL_4$main(this, 'Squat'), PL_4$main(this, 'Bench'), acc(this, 'One-arm DB row'), acc(this, 'Face pull')]), day(this, 'Deadlift', [PL_4$main(this, 'Deadlift'), PL_4$main(this, 'Strict press', true), variation_0(this, 'Pause squat'), acc(this, 'Back extension'), acc(this, 'Triceps pushdown')])]));
+  var tmp_1 = this;
+  // Inline function 'kotlin.run' call
+  tmp_1.u34_1 = new PlanTemplate('pl-5', TrainingMode_POWERLIFTING_getInstance(), '5-day powerlifting', 'Experienced, a year or more of training: 4\u20136 days a week', listOf([day(this, 'Squat & bench', [PL_5$main(this, 'Squat'), PL_5$main(this, 'Bench'), acc(this, 'Seated cable row'), acc(this, 'Cable crunch')]), day(this, 'Deadlift', [PL_5$main(this, 'Deadlift'), PL_5$main(this, 'Strict press', true), variation_0(this, 'Close-grip bench'), acc(this, 'Lat pulldown'), acc(this, 'Lying leg curl')]), day(this, 'Variations', [variation_0(this, 'Pause squat'), variation_0(this, 'Spoto press'), acc(this, 'Chest-supported row'), acc(this, 'Face pull'), acc(this, 'Hammer curl')]), day(this, 'Squat & bench', [PL_5$main(this, 'Squat'), PL_5$main(this, 'Bench'), acc(this, 'One-arm DB row'), acc(this, 'Triceps pushdown')]), day(this, 'Deadlift', [PL_5$main(this, 'Deadlift'), PL_5$main(this, 'Strict press', true), variation_0(this, 'Long-pause bench'), acc(this, 'Back extension'), acc(this, 'Cable crunch')])]));
+  this.v34_1 = new PlanTemplate('bb-3', TrainingMode_BODYBUILDING_getInstance(), '3-day full body', 'New to lifting: 2\u20133 days a week, the whole body each day', listOf([day(this, 'Full body A', [bb(this, 'Leg press'), bb(this, 'DB press', 4), bb(this, 'Lat pulldown'), bb(this, 'Seated leg curl'), bb(this, 'Lateral raise'), bb(this, 'DB curl'), bb(this, 'Rope pushdown')]), day(this, 'Full body B', [bb(this, 'DB RDL'), bb(this, 'Incline DB press'), bb(this, 'Seated cable row', 4), bb(this, 'Leg extension'), bb(this, 'Face pull'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')]), day(this, 'Full body C', [bb(this, 'Hack squat', 4), bb(this, 'Machine chest press'), bb(this, 'Chin-up'), bb(this, 'Lying leg curl', 4), bb(this, 'Face pull'), bb(this, 'Triceps pushdown'), bb(this, 'Cable curl')])]));
+  this.w34_1 = new PlanTemplate('bb-4', TrainingMode_BODYBUILDING_getInstance(), '4-day upper/lower', 'Some training behind you: 3\u20134 days a week', listOf([day(this, 'Upper A', [bb(this, 'DB press', 4), bb(this, 'Seated cable row', 4), bb(this, 'DB shoulder press'), bb(this, 'Lat pulldown'), bb(this, 'Lateral raise'), bb(this, 'Face pull'), bb(this, 'DB curl'), bb(this, 'Rope pushdown')]), day(this, 'Lower A', [bb(this, 'Leg press', 4), bb(this, 'RDL'), bb(this, 'Leg extension'), bb(this, 'Seated leg curl'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')]), day(this, 'Upper B', [bb(this, 'Incline DB press', 4), bb(this, 'Machine row'), bb(this, 'Chin-up', 4), bb(this, 'Cable crossover'), bb(this, 'Lateral raise'), bb(this, 'Face pull'), bb(this, 'Cable curl'), bb(this, 'Triceps pushdown')]), day(this, 'Lower B', [bb(this, 'Hack squat', 4), bb(this, 'Hip thrust'), bb(this, 'Lying leg curl', 4), bb(this, 'Bulgarian split squat'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')])]));
+  this.x34_1 = new PlanTemplate('bb-5', TrainingMode_BODYBUILDING_getInstance(), '5-day body-part split', 'Experienced, a year or more of training: 4\u20136 days a week', listOf([day(this, 'Chest & back A', [bb(this, 'Machine chest press'), bb(this, 'Wide-grip cable row'), bb(this, 'Lat pulldown'), bb(this, 'Cable crossover')]), day(this, 'Legs A', [bb(this, 'Leg press', 4), bb(this, 'RDL'), bb(this, 'Leg extension'), bb(this, 'Seated leg curl'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')]), day(this, 'Shoulders & arms', [bb(this, 'Lateral raise', 4), bb(this, 'Cable lateral raise'), bb(this, 'DB curl'), bb(this, 'Rope pushdown'), bb(this, 'Cable curl'), bb(this, 'Triceps pushdown')]), day(this, 'Chest & back B', [bb(this, 'Incline DB press'), bb(this, 'T-bar row'), bb(this, 'Neutral-grip pull-up'), bb(this, 'Pec deck')]), day(this, 'Legs B', [bb(this, 'Hack squat', 4), bb(this, 'Hip thrust'), bb(this, 'Lying leg curl', 4), bb(this, 'Bulgarian split squat'), bb(this, 'Cable crunch')])]));
+  this.y34_1 = listOf([this.s34_1, this.t34_1, this.u34_1, this.v34_1, this.w34_1, this.x34_1]);
+  this.z34_1 = 'Not in the catalogue.';
+  this.a35_1 = mapOf([to(1, listOf_0(DayOfWeek_MONDAY_getInstance())), to(2, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_THURSDAY_getInstance()])), to(3, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_WEDNESDAY_getInstance(), DayOfWeek_FRIDAY_getInstance()])), to(4, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_TUESDAY_getInstance(), DayOfWeek_THURSDAY_getInstance(), DayOfWeek_FRIDAY_getInstance()])), to(5, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_TUESDAY_getInstance(), DayOfWeek_WEDNESDAY_getInstance(), DayOfWeek_FRIDAY_getInstance(), DayOfWeek_SATURDAY_getInstance()])), to(6, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_TUESDAY_getInstance(), DayOfWeek_WEDNESDAY_getInstance(), DayOfWeek_THURSDAY_getInstance(), DayOfWeek_FRIDAY_getInstance(), DayOfWeek_SATURDAY_getInstance()])), to(7, toList_0(get_entries()))]);
+  this.b35_1 = setOf([Category_SQUAT_getInstance(), Category_BENCH_getInstance(), Category_DEADLIFT_getInstance(), Category_STRICT_PRESS_getInstance()]);
+}
+protoOf(PlanTemplates).c35 = function (mode) {
+  // Inline function 'kotlin.collections.filter' call
+  var tmp0 = this.y34_1;
+  // Inline function 'kotlin.collections.filterTo' call
+  var destination = ArrayList_init_$Create$();
+  var _iterator__ex2g4s = tmp0.j();
+  while (_iterator__ex2g4s.k()) {
+    var element = _iterator__ex2g4s.l();
+    if (element.f34_1.equals(mode)) {
+      destination.i(element);
+    }
+  }
+  // Inline function 'kotlin.collections.sortedBy' call
+  // Inline function 'kotlin.comparisons.compareBy' call
+  var tmp = PlanTemplates$forMode$lambda;
+  var tmp$ret$4 = new sam$kotlin_Comparator$0_11(tmp);
+  return sortedWith(destination, tmp$ret$4);
+};
+protoOf(PlanTemplates).d35 = function (id) {
+  var tmp0 = this.y34_1;
+  var tmp$ret$0;
+  $l$block: {
+    // Inline function 'kotlin.collections.firstOrNull' call
+    var _iterator__ex2g4s = tmp0.j();
+    while (_iterator__ex2g4s.k()) {
+      var element = _iterator__ex2g4s.l();
+      if (element.e34_1 === id) {
+        tmp$ret$0 = element;
+        break $l$block;
+      }
+    }
+    tmp$ret$0 = null;
+  }
+  return tmp$ret$0;
+};
+protoOf(PlanTemplates).e35 = function (count, current) {
+  // Inline function 'kotlin.require' call
+  if (!(1 <= count ? count <= 7 : false)) {
+    var message = 'count: ' + count + '; 1 to 7 days';
+    throw IllegalArgumentException_init_$Create$(toString(message));
+  }
+  var tmp;
+  if (current.o() === count) {
+    // Inline function 'kotlin.collections.sortedBy' call
+    // Inline function 'kotlin.comparisons.compareBy' call
+    var tmp_0 = PlanTemplates$suggestedDays$lambda;
+    var tmp$ret$3 = new sam$kotlin_Comparator$0_12(tmp_0);
+    tmp = sortedWith(current, tmp$ret$3);
+  } else {
+    tmp = getValue(this.a35_1, count);
+  }
+  return tmp;
+};
+protoOf(PlanTemplates).f35 = function (template, days, strictPress) {
+  // Inline function 'kotlin.require' call
+  if (!(days.o() === template.j34())) {
+    var message = 'days: ' + days.o() + ' days; ' + template.g34_1 + ' has ' + template.j34();
+    throw IllegalArgumentException_init_$Create$(toString(message));
+  }
+  // Inline function 'kotlin.require' call
+  if (!(toSet(days).o() === days.o())) {
+    var message_0 = 'days: a weekday is repeated';
+    throw IllegalArgumentException_init_$Create$(toString(message_0));
+  }
+  // Inline function 'kotlin.collections.sortedBy' call
+  // Inline function 'kotlin.comparisons.compareBy' call
+  var tmp = PlanTemplates$draft$lambda;
+  var tmp$ret$5 = new sam$kotlin_Comparator$0_13(tmp);
+  var week = sortedWith(days, tmp$ret$5);
+  // Inline function 'kotlin.collections.mutableListOf' call
+  var leftOut = ArrayList_init_$Create$();
+  // Inline function 'kotlin.collections.mapIndexed' call
+  var this_0 = template.i34_1;
+  // Inline function 'kotlin.collections.mapIndexedTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var index = 0;
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var _unary__edvuaz = index;
+    index = _unary__edvuaz + 1 | 0;
+    var i = checkIndexOverflow(_unary__edvuaz);
+    // Inline function 'kotlin.collections.filter' call
+    var tmp0 = item.d34_1;
+    // Inline function 'kotlin.collections.filterTo' call
+    var destination_0 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_0 = tmp0.j();
+    while (_iterator__ex2g4s_0.k()) {
+      var element = _iterator__ex2g4s_0.l();
+      if (strictPress || !element.b34_1) {
+        destination_0.i(element);
+      }
+    }
+    // Inline function 'kotlin.collections.mapNotNull' call
+    // Inline function 'kotlin.collections.mapNotNullTo' call
+    var destination_1 = ArrayList_init_$Create$();
+    // Inline function 'kotlin.collections.forEach' call
+    var _iterator__ex2g4s_1 = destination_0.j();
+    while (_iterator__ex2g4s_1.k()) {
+      var element_0 = _iterator__ex2g4s_1.l();
+      var entry = Library_getInstance().y1q(element_0.w33_1);
+      if (entry == null) {
+        // Inline function 'kotlin.collections.plusAssign' call
+        var element_1 = new LeftOut(element_0.w33_1, 'Not in the catalogue.');
+        leftOut.i(element_1);
+      }
+      var tmp_0;
+      if (entry == null) {
+        tmp_0 = null;
+      } else {
+        // Inline function 'kotlin.let' call
+        tmp_0 = to(element_0, entry);
+      }
+      var tmp0_safe_receiver = tmp_0;
+      if (tmp0_safe_receiver == null)
+        null;
+      else {
+        // Inline function 'kotlin.let' call
+        destination_1.i(tmp0_safe_receiver);
+      }
+    }
+    // Inline function 'kotlin.collections.mapIndexed' call
+    // Inline function 'kotlin.collections.mapIndexedTo' call
+    var destination_2 = ArrayList_init_$Create$_0(collectionSizeOrDefault(destination_1, 10));
+    var index_0 = 0;
+    var _iterator__ex2g4s_2 = destination_1.j();
+    while (_iterator__ex2g4s_2.k()) {
+      var item_0 = _iterator__ex2g4s_2.l();
+      var _unary__edvuaz_0 = index_0;
+      index_0 = _unary__edvuaz_0 + 1 | 0;
+      var j = checkIndexOverflow(_unary__edvuaz_0);
+      var e = item_0.gb();
+      var entry_0 = item_0.hb();
+      var compound = entry_0.e1r_1.equals(Kind_COMPOUND_getInstance());
+      var tmp0_elvis_lhs = e.z33_1;
+      var tmp$ret$25 = new DraftExercise(entry_0.z1q_1, true, e.x33_1, e.y33_1, tmp0_elvis_lhs == null ? e.y33_1 : tmp0_elvis_lhs, e.a34_1, PlanBuilder_getInstance().o1q(entry_0.d1r_1), entry_0.d1r_1, compound, PlanBuilder_getInstance().j1r(entry_0.z1q_1, entry_0.d1r_1, compound, true), j === 0);
+      destination_2.i(tmp$ret$25);
+    }
+    var exercises = destination_2;
+    var tmp$ret$9 = new DraftSession(week.n(i), item.c34_1, exercises);
+    destination.i(tmp$ret$9);
+  }
+  var sessions = destination;
+  return new PlanDraft(sessions, PlanBuilder_getInstance().a33(sessions), leftOut);
+};
+protoOf(PlanTemplates).g35 = function (template, draft, day, name) {
+  // Inline function 'kotlin.require' call
+  if (!(draft.f33_1.o() === template.j34())) {
+    var message = 'draft: ' + draft.f33_1.o() + ' days; ' + template.g34_1 + ' has ' + template.j34();
+    throw IllegalArgumentException_init_$Create$(toString(message));
+  }
+  var key = Library_getInstance().n1r(name);
+  var tmp0 = draft.f33_1;
+  var tmp$ret$2;
+  $l$block: {
+    // Inline function 'kotlin.collections.firstOrNull' call
+    var _iterator__ex2g4s = tmp0.j();
+    while (_iterator__ex2g4s.k()) {
+      var element = _iterator__ex2g4s.l();
+      if (element.b33_1.equals(day)) {
+        tmp$ret$2 = element;
+        break $l$block;
+      }
+    }
+    tmp$ret$2 = null;
+  }
+  var tmp0_elvis_lhs = tmp$ret$2;
+  var tmp;
+  if (tmp0_elvis_lhs == null) {
+    return emptyList();
+  } else {
+    tmp = tmp0_elvis_lhs;
+  }
+  var session = tmp;
+  var tmp0_0 = session.d33_1;
+  var tmp$ret$4;
+  $l$block_1: {
+    // Inline function 'kotlin.collections.none' call
+    var tmp_0;
+    if (isInterface(tmp0_0, Collection)) {
+      tmp_0 = tmp0_0.m();
+    } else {
+      tmp_0 = false;
+    }
+    if (tmp_0) {
+      tmp$ret$4 = true;
+      break $l$block_1;
+    }
+    var _iterator__ex2g4s_0 = tmp0_0.j();
+    while (_iterator__ex2g4s_0.k()) {
+      var element_0 = _iterator__ex2g4s_0.l();
+      if (Library_getInstance().n1r(element_0.k32_1) === key) {
+        tmp$ret$4 = false;
+        break $l$block_1;
+      }
+    }
+    tmp$ret$4 = true;
+  }
+  if (tmp$ret$4)
+    return emptyList();
+  var tmp1_elvis_lhs = Library_getInstance().y1q(name);
+  var tmp_1;
+  if (tmp1_elvis_lhs == null) {
+    return emptyList();
+  } else {
+    tmp_1 = tmp1_elvis_lhs;
+  }
+  var entry = tmp_1;
+  // Inline function 'kotlin.collections.flatMap' call
+  var tmp0_1 = draft.f33_1;
+  // Inline function 'kotlin.collections.flatMapTo' call
+  var destination = ArrayList_init_$Create$();
+  var _iterator__ex2g4s_1 = tmp0_1.j();
+  while (_iterator__ex2g4s_1.k()) {
+    var element_1 = _iterator__ex2g4s_1.l();
+    // Inline function 'kotlin.collections.map' call
+    var this_0 = element_1.d33_1;
+    // Inline function 'kotlin.collections.mapTo' call
+    var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+    var _iterator__ex2g4s_2 = this_0.j();
+    while (_iterator__ex2g4s_2.k()) {
+      var item = _iterator__ex2g4s_2.l();
+      var tmp$ret$11 = Library_getInstance().n1r(item.k32_1);
+      destination_0.i(tmp$ret$11);
+    }
+    var list = destination_0;
+    addAll(destination, list);
+  }
+  var week = toSet(destination);
+  var tmp2_subject = entry.f1r_1;
+  var tmp_2;
+  if (this.b35_1.r(tmp2_subject)) {
+    tmp_2 = emptyList();
+  } else if (tmp2_subject.equals(Category_VARIATION_getInstance())) {
+    // Inline function 'kotlin.collections.filter' call
+    var tmp0_2 = Library_getInstance().l1s();
+    // Inline function 'kotlin.collections.filterTo' call
+    var destination_1 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_3 = tmp0_2.j();
+    while (_iterator__ex2g4s_3.k()) {
+      var element_2 = _iterator__ex2g4s_3.l();
+      if (element_2.f1r_1.equals(Category_VARIATION_getInstance()) && equals(element_2.g1r_1, entry.g1r_1) && alternatives$free_0(week, element_2)) {
+        destination_1.i(element_2);
+      }
+    }
+    tmp_2 = destination_1;
+  } else {
+    // Inline function 'kotlin.collections.filter' call
+    var tmp0_3 = PlanBuilder_getInstance().e33(name, draft, emptyList(), day);
+    // Inline function 'kotlin.collections.filterTo' call
+    var destination_2 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_4 = tmp0_3.j();
+    while (_iterator__ex2g4s_4.k()) {
+      var element_3 = _iterator__ex2g4s_4.l();
+      if (element_3.f1r_1.equals(Category_ACCESSORY_getInstance()) && alternatives$free_0(week, element_3)) {
+        destination_2.i(element_3);
+      }
+    }
+    tmp_2 = destination_2;
+  }
+  return tmp_2;
+};
+protoOf(PlanTemplates).i33 = function (draft, day, from, to) {
+  return PlanBuilder_getInstance().i33(draft, day, from, to);
+};
+var PlanTemplates_instance;
+function PlanTemplates_getInstance() {
+  if (PlanTemplates_instance == null)
+    new PlanTemplates();
+  return PlanTemplates_instance;
+}
 function toHundredths($this, kg) {
   return roundToLong(kg * 100.0);
 }
@@ -36175,11 +36728,11 @@ function PlateLoader() {
   this.l1k_1 = 100.0;
   this.m1k_1 = toHundredths(this, 20.0);
 }
-protoOf(PlateLoader).v33 = function (changePlates) {
+protoOf(PlateLoader).h35 = function (changePlates) {
   return changePlates ? sortedDescending(plus(this.i1k_1, this.j1k_1)) : this.i1k_1;
 };
 protoOf(PlateLoader).o1k = function (changePlates) {
-  return 2 * min(this.v33(changePlates));
+  return 2 * min(this.h35(changePlates));
 };
 protoOf(PlateLoader).n1k = function (kg, changePlates) {
   var step = toHundredths(this, this.o1k(changePlates));
@@ -36236,7 +36789,7 @@ protoOf(PlateLoader).s1t = function (anchor, kg, changePlates) {
   var tmp$ret$3 = compare(tmp0, b) >= 0 ? tmp0 : b;
   return fromHundredths(this, tmp$ret$3);
 };
-protoOf(PlateLoader).w33 = function (totalKg, changePlates) {
+protoOf(PlateLoader).i35 = function (totalKg, changePlates) {
   var beyondBar = subtract(toHundredths(this, totalKg), this.m1k_1);
   if (compare(beyondBar, new Long(0, 0)) < 0 || !equalsLong(modulo(beyondBar, new Long(2, 0)), new Long(0, 0)))
     return null;
@@ -36244,7 +36797,7 @@ protoOf(PlateLoader).w33 = function (totalKg, changePlates) {
   var remaining = divide(beyondBar, fromInt(2));
   // Inline function 'kotlin.collections.mutableListOf' call
   var result = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = this.v33(changePlates).j();
+  var _iterator__ex2g4s = this.h35(changePlates).j();
   while (_iterator__ex2g4s.k()) {
     var plate = _iterator__ex2g4s.l();
     var p = toHundredths(this, plate);
@@ -36263,19 +36816,19 @@ function PlateLoader_getInstance() {
   return PlateLoader_instance;
 }
 function ExerciseTrend(exerciseId, name, bestSets, goingUp) {
-  this.x33_1 = exerciseId;
-  this.y33_1 = name;
-  this.z33_1 = bestSets;
-  this.a34_1 = goingUp;
+  this.j35_1 = exerciseId;
+  this.k35_1 = name;
+  this.l35_1 = bestSets;
+  this.m35_1 = goingUp;
 }
 protoOf(ExerciseTrend).toString = function () {
-  return 'ExerciseTrend(exerciseId=' + this.x33_1.toString() + ', name=' + this.y33_1 + ', bestSets=' + toString(this.z33_1) + ', goingUp=' + this.a34_1 + ')';
+  return 'ExerciseTrend(exerciseId=' + this.j35_1.toString() + ', name=' + this.k35_1 + ', bestSets=' + toString(this.l35_1) + ', goingUp=' + this.m35_1 + ')';
 };
 protoOf(ExerciseTrend).hashCode = function () {
-  var result = this.x33_1.hashCode();
-  result = imul(result, 31) + getStringHashCode(this.y33_1) | 0;
-  result = imul(result, 31) + hashCode(this.z33_1) | 0;
-  result = imul(result, 31) + (this.a34_1 == null ? 0 : getBooleanHashCode(this.a34_1)) | 0;
+  var result = this.j35_1.hashCode();
+  result = imul(result, 31) + getStringHashCode(this.k35_1) | 0;
+  result = imul(result, 31) + hashCode(this.l35_1) | 0;
+  result = imul(result, 31) + (this.m35_1 == null ? 0 : getBooleanHashCode(this.m35_1)) | 0;
   return result;
 };
 protoOf(ExerciseTrend).equals = function (other) {
@@ -36283,13 +36836,13 @@ protoOf(ExerciseTrend).equals = function (other) {
     return true;
   if (!(other instanceof ExerciseTrend))
     return false;
-  if (!equalsLong(this.x33_1, other.x33_1))
+  if (!equalsLong(this.j35_1, other.j35_1))
     return false;
-  if (!(this.y33_1 === other.y33_1))
+  if (!(this.k35_1 === other.k35_1))
     return false;
-  if (!equals(this.z33_1, other.z33_1))
+  if (!equals(this.l35_1, other.l35_1))
     return false;
-  if (!(this.a34_1 == other.a34_1))
+  if (!(this.m35_1 == other.m35_1))
     return false;
   return true;
 };
@@ -36404,19 +36957,19 @@ function goingUp($this, sessions) {
   }
   return tmp;
 }
-function sam$kotlin_Comparator$0_11(function_0) {
-  this.b34_1 = function_0;
+function sam$kotlin_Comparator$0_14(function_0) {
+  this.n35_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_11).ha = function (a, b) {
-  return this.b34_1(a, b);
+protoOf(sam$kotlin_Comparator$0_14).ha = function (a, b) {
+  return this.n35_1(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_11).compare = function (a, b) {
+protoOf(sam$kotlin_Comparator$0_14).compare = function (a, b) {
   return this.ha(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_11).g2 = function () {
-  return this.b34_1;
+protoOf(sam$kotlin_Comparator$0_14).g2 = function () {
+  return this.n35_1;
 };
-protoOf(sam$kotlin_Comparator$0_11).equals = function (other) {
+protoOf(sam$kotlin_Comparator$0_14).equals = function (other) {
   var tmp;
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
@@ -36431,7 +36984,7 @@ protoOf(sam$kotlin_Comparator$0_11).equals = function (other) {
   }
   return tmp;
 };
-protoOf(sam$kotlin_Comparator$0_11).hashCode = function () {
+protoOf(sam$kotlin_Comparator$0_14).hashCode = function () {
   return hashCode(this.g2());
 };
 function BodybuildingProgress$rows$lambda(a, b) {
@@ -36447,9 +37000,9 @@ function BodybuildingProgress$rows$lambda_1(it) {
   return it.v1h_1;
 }
 function BodybuildingProgress() {
-  this.c34_1 = 4;
+  this.o35_1 = 4;
 }
-protoOf(BodybuildingProgress).d34 = function (history, plan, today) {
+protoOf(BodybuildingProgress).p35 = function (history, plan, today) {
   // Inline function 'kotlin.collections.filter' call
   var tmp0 = history.o1i_1;
   // Inline function 'kotlin.collections.filterTo' call
@@ -36464,7 +37017,7 @@ protoOf(BodybuildingProgress).d34 = function (history, plan, today) {
   // Inline function 'kotlin.collections.sortedBy' call
   // Inline function 'kotlin.comparisons.compareBy' call
   var tmp = BodybuildingProgress$rows$lambda;
-  var tmp$ret$4 = new sam$kotlin_Comparator$0_11(tmp);
+  var tmp$ret$4 = new sam$kotlin_Comparator$0_14(tmp);
   var sessions = sortedWith(destination, tmp$ret$4);
   // Inline function 'kotlin.collections.filter' call
   // Inline function 'kotlin.collections.filterTo' call
@@ -36589,23 +37142,23 @@ function BodybuildingProgress_getInstance() {
   return BodybuildingProgress_instance;
 }
 function MuscleRow(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) {
-  this.e34_1 = group;
-  this.f34_1 = ratings;
-  this.g34_1 = setsDone;
-  this.h34_1 = setsPlanned;
-  this.i34_1 = exercisesUp;
-  this.j34_1 = exercisesTracked;
+  this.q35_1 = group;
+  this.r35_1 = ratings;
+  this.s35_1 = setsDone;
+  this.t35_1 = setsPlanned;
+  this.u35_1 = exercisesUp;
+  this.v35_1 = exercisesTracked;
 }
 protoOf(MuscleRow).toString = function () {
-  return 'MuscleRow(group=' + this.e34_1.toString() + ', ratings=' + toString(this.f34_1) + ', setsDone=' + this.g34_1 + ', setsPlanned=' + this.h34_1 + ', exercisesUp=' + this.i34_1 + ', exercisesTracked=' + this.j34_1 + ')';
+  return 'MuscleRow(group=' + this.q35_1.toString() + ', ratings=' + toString(this.r35_1) + ', setsDone=' + this.s35_1 + ', setsPlanned=' + this.t35_1 + ', exercisesUp=' + this.u35_1 + ', exercisesTracked=' + this.v35_1 + ')';
 };
 protoOf(MuscleRow).hashCode = function () {
-  var result = this.e34_1.hashCode();
-  result = imul(result, 31) + hashCode(this.f34_1) | 0;
-  result = imul(result, 31) + this.g34_1 | 0;
-  result = imul(result, 31) + this.h34_1 | 0;
-  result = imul(result, 31) + this.i34_1 | 0;
-  result = imul(result, 31) + this.j34_1 | 0;
+  var result = this.q35_1.hashCode();
+  result = imul(result, 31) + hashCode(this.r35_1) | 0;
+  result = imul(result, 31) + this.s35_1 | 0;
+  result = imul(result, 31) + this.t35_1 | 0;
+  result = imul(result, 31) + this.u35_1 | 0;
+  result = imul(result, 31) + this.v35_1 | 0;
   return result;
 };
 protoOf(MuscleRow).equals = function (other) {
@@ -36613,33 +37166,33 @@ protoOf(MuscleRow).equals = function (other) {
     return true;
   if (!(other instanceof MuscleRow))
     return false;
-  if (!this.e34_1.equals(other.e34_1))
+  if (!this.q35_1.equals(other.q35_1))
     return false;
-  if (!equals(this.f34_1, other.f34_1))
+  if (!equals(this.r35_1, other.r35_1))
     return false;
-  if (!(this.g34_1 === other.g34_1))
+  if (!(this.s35_1 === other.s35_1))
     return false;
-  if (!(this.h34_1 === other.h34_1))
+  if (!(this.t35_1 === other.t35_1))
     return false;
-  if (!(this.i34_1 === other.i34_1))
+  if (!(this.u35_1 === other.u35_1))
     return false;
-  if (!(this.j34_1 === other.j34_1))
+  if (!(this.v35_1 === other.v35_1))
     return false;
   return true;
 };
-function sam$kotlin_Comparator$0_12(function_0) {
-  this.k34_1 = function_0;
+function sam$kotlin_Comparator$0_15(function_0) {
+  this.w35_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_12).ha = function (a, b) {
-  return this.k34_1(a, b);
+protoOf(sam$kotlin_Comparator$0_15).ha = function (a, b) {
+  return this.w35_1(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_12).compare = function (a, b) {
+protoOf(sam$kotlin_Comparator$0_15).compare = function (a, b) {
   return this.ha(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_12).g2 = function () {
-  return this.k34_1;
+protoOf(sam$kotlin_Comparator$0_15).g2 = function () {
+  return this.w35_1;
 };
-protoOf(sam$kotlin_Comparator$0_12).equals = function (other) {
+protoOf(sam$kotlin_Comparator$0_15).equals = function (other) {
   var tmp;
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
@@ -36654,7 +37207,7 @@ protoOf(sam$kotlin_Comparator$0_12).equals = function (other) {
   }
   return tmp;
 };
-protoOf(sam$kotlin_Comparator$0_12).hashCode = function () {
+protoOf(sam$kotlin_Comparator$0_15).hashCode = function () {
   return hashCode(this.g2());
 };
 function MuscleProgress$rows$lambda(a, b) {
@@ -36664,10 +37217,10 @@ function MuscleProgress$rows$lambda(a, b) {
   return compareValues(tmp, tmp$ret$2);
 }
 function MuscleProgress() {
-  this.l34_1 = 4;
-  this.m34_1 = 7;
+  this.x35_1 = 4;
+  this.y35_1 = 7;
 }
-protoOf(MuscleProgress).n34 = function (history, plan, checkIns, today) {
+protoOf(MuscleProgress).z35 = function (history, plan, checkIns, today) {
   var items = on_0(plan, TrainingMode_BODYBUILDING_getInstance());
   // Inline function 'kotlin.collections.filter' call
   // Inline function 'kotlin.collections.filterTo' call
@@ -36682,7 +37235,7 @@ protoOf(MuscleProgress).n34 = function (history, plan, checkIns, today) {
   // Inline function 'kotlin.collections.sortedBy' call
   // Inline function 'kotlin.comparisons.compareBy' call
   var tmp = MuscleProgress$rows$lambda;
-  var tmp$ret$4 = new sam$kotlin_Comparator$0_12(tmp);
+  var tmp$ret$4 = new sam$kotlin_Comparator$0_15(tmp);
   var tmp$ret$3 = sortedWith(destination, tmp$ret$4);
   var recent = takeLast(tmp$ret$3, 4);
   var latest = lastOrNull(recent);
@@ -36719,9 +37272,9 @@ protoOf(MuscleProgress).n34 = function (history, plan, checkIns, today) {
     addAll(destination_1, list);
   }
   var doneSets = destination_1;
-  var trends = BodybuildingProgress_instance.d34(history, items, today);
+  var trends = BodybuildingProgress_instance.p35(history, items, today);
   // Inline function 'kotlin.collections.mapNotNull' call
-  var tmp0_1 = get_entries_0();
+  var tmp0_1 = get_entries_1();
   // Inline function 'kotlin.collections.mapNotNullTo' call
   var destination_3 = ArrayList_init_$Create$();
   // Inline function 'kotlin.collections.forEach' call
@@ -36776,7 +37329,7 @@ protoOf(MuscleProgress).n34 = function (history, plan, checkIns, today) {
       while (_iterator__ex2g4s_5.k()) {
         var element_5 = _iterator__ex2g4s_5.l();
         var tmp_2;
-        var tmp0_safe_receiver_0 = history.p1i_1.t1(element_5.x33_1);
+        var tmp0_safe_receiver_0 = history.p1i_1.t1(element_5.j35_1);
         var tmp_3;
         if (tmp0_safe_receiver_0 == null) {
           tmp_3 = null;
@@ -36785,7 +37338,7 @@ protoOf(MuscleProgress).n34 = function (history, plan, checkIns, today) {
           tmp_3 = PlanBuilder_getInstance().o1q(tmp0_safe_receiver_0.m1j_1);
         }
         if (equals(tmp_3, element_3)) {
-          tmp_2 = !(element_5.a34_1 == null);
+          tmp_2 = !(element_5.m35_1 == null);
         } else {
           tmp_2 = false;
         }
@@ -36821,7 +37374,7 @@ protoOf(MuscleProgress).n34 = function (history, plan, checkIns, today) {
         var _iterator__ex2g4s_7 = own.j();
         while (_iterator__ex2g4s_7.k()) {
           var element_6 = _iterator__ex2g4s_7.l();
-          if (element_6.a34_1 === true) {
+          if (element_6.m35_1 === true) {
             count_0 = count_0 + 1 | 0;
             checkCountOverflow(count_0);
           }
@@ -36845,21 +37398,21 @@ function MuscleProgress_getInstance() {
   return MuscleProgress_instance;
 }
 function Pr(date, e1rmKg, weightKg, reps, rpe) {
-  this.o34_1 = date;
-  this.p34_1 = e1rmKg;
-  this.q34_1 = weightKg;
-  this.r34_1 = reps;
-  this.s34_1 = rpe;
+  this.a36_1 = date;
+  this.b36_1 = e1rmKg;
+  this.c36_1 = weightKg;
+  this.d36_1 = reps;
+  this.e36_1 = rpe;
 }
 protoOf(Pr).toString = function () {
-  return 'Pr(date=' + this.o34_1.toString() + ', e1rmKg=' + this.p34_1 + ', weightKg=' + this.q34_1 + ', reps=' + this.r34_1 + ', rpe=' + this.s34_1 + ')';
+  return 'Pr(date=' + this.a36_1.toString() + ', e1rmKg=' + this.b36_1 + ', weightKg=' + this.c36_1 + ', reps=' + this.d36_1 + ', rpe=' + this.e36_1 + ')';
 };
 protoOf(Pr).hashCode = function () {
-  var result = this.o34_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.p34_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.q34_1) | 0;
-  result = imul(result, 31) + this.r34_1 | 0;
-  result = imul(result, 31) + (this.s34_1 == null ? 0 : getNumberHashCode(this.s34_1)) | 0;
+  var result = this.a36_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.b36_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.c36_1) | 0;
+  result = imul(result, 31) + this.d36_1 | 0;
+  result = imul(result, 31) + (this.e36_1 == null ? 0 : getNumberHashCode(this.e36_1)) | 0;
   return result;
 };
 protoOf(Pr).equals = function (other) {
@@ -36867,34 +37420,34 @@ protoOf(Pr).equals = function (other) {
     return true;
   if (!(other instanceof Pr))
     return false;
-  if (!this.o34_1.equals(other.o34_1))
+  if (!this.a36_1.equals(other.a36_1))
     return false;
-  if (!equals(this.p34_1, other.p34_1))
+  if (!equals(this.b36_1, other.b36_1))
     return false;
-  if (!equals(this.q34_1, other.q34_1))
+  if (!equals(this.c36_1, other.c36_1))
     return false;
-  if (!(this.r34_1 === other.r34_1))
+  if (!(this.d36_1 === other.d36_1))
     return false;
-  if (!equals(this.s34_1, other.s34_1))
+  if (!equals(this.e36_1, other.e36_1))
     return false;
   return true;
 };
 function weekStart(date) {
   return mondayOfWeek(date);
 }
-function sam$kotlin_Comparator$0_13(function_0) {
-  this.t34_1 = function_0;
+function sam$kotlin_Comparator$0_16(function_0) {
+  this.f36_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_13).ha = function (a, b) {
-  return this.t34_1(a, b);
+protoOf(sam$kotlin_Comparator$0_16).ha = function (a, b) {
+  return this.f36_1(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_13).compare = function (a, b) {
+protoOf(sam$kotlin_Comparator$0_16).compare = function (a, b) {
   return this.ha(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_13).g2 = function () {
-  return this.t34_1;
+protoOf(sam$kotlin_Comparator$0_16).g2 = function () {
+  return this.f36_1;
 };
-protoOf(sam$kotlin_Comparator$0_13).equals = function (other) {
+protoOf(sam$kotlin_Comparator$0_16).equals = function (other) {
   var tmp;
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
@@ -36909,22 +37462,22 @@ protoOf(sam$kotlin_Comparator$0_13).equals = function (other) {
   }
   return tmp;
 };
-protoOf(sam$kotlin_Comparator$0_13).hashCode = function () {
+protoOf(sam$kotlin_Comparator$0_16).hashCode = function () {
   return hashCode(this.g2());
 };
-function sam$kotlin_Comparator$0_14(function_0) {
-  this.u34_1 = function_0;
+function sam$kotlin_Comparator$0_17(function_0) {
+  this.g36_1 = function_0;
 }
-protoOf(sam$kotlin_Comparator$0_14).ha = function (a, b) {
-  return this.u34_1(a, b);
+protoOf(sam$kotlin_Comparator$0_17).ha = function (a, b) {
+  return this.g36_1(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_14).compare = function (a, b) {
+protoOf(sam$kotlin_Comparator$0_17).compare = function (a, b) {
   return this.ha(a, b);
 };
-protoOf(sam$kotlin_Comparator$0_14).g2 = function () {
-  return this.u34_1;
+protoOf(sam$kotlin_Comparator$0_17).g2 = function () {
+  return this.g36_1;
 };
-protoOf(sam$kotlin_Comparator$0_14).equals = function (other) {
+protoOf(sam$kotlin_Comparator$0_17).equals = function (other) {
   var tmp;
   if (!(other == null) ? isInterface(other, Comparator) : false) {
     var tmp_0;
@@ -36939,7 +37492,7 @@ protoOf(sam$kotlin_Comparator$0_14).equals = function (other) {
   }
   return tmp;
 };
-protoOf(sam$kotlin_Comparator$0_14).hashCode = function () {
+protoOf(sam$kotlin_Comparator$0_17).hashCode = function () {
   return hashCode(this.g2());
 };
 function ProgressMath$prs$lambda(a, b) {
@@ -36956,9 +37509,9 @@ function ProgressMath$weeklyVolume$lambda(a, b) {
 }
 function ProgressMath() {
   ProgressMath_instance = this;
-  this.v34_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.h36_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(ProgressMath).w34 = function (_this__u8e3s4, set, lift) {
+protoOf(ProgressMath).i36 = function (_this__u8e3s4, set, lift) {
   var tmp;
   if (!set.b1j_1) {
     var tmp0_safe_receiver = _this__u8e3s4.p1i_1.t1(set.x1i_1);
@@ -36975,7 +37528,7 @@ protoOf(ProgressMath).w34 = function (_this__u8e3s4, set, lift) {
   }
   return tmp;
 };
-protoOf(ProgressMath).x34 = function (history, lift) {
+protoOf(ProgressMath).j36 = function (history, lift) {
   // Inline function 'kotlin.collections.mutableListOf' call
   var prs = ArrayList_init_$Create$();
   var best = 0.0;
@@ -36983,14 +37536,14 @@ protoOf(ProgressMath).x34 = function (history, lift) {
   var this_0 = history.o1i_1;
   // Inline function 'kotlin.comparisons.compareBy' call
   var tmp = ProgressMath$prs$lambda;
-  var tmp$ret$2 = new sam$kotlin_Comparator$0_13(tmp);
+  var tmp$ret$2 = new sam$kotlin_Comparator$0_16(tmp);
   var _iterator__ex2g4s = sortedWith(this_0, tmp$ret$2).j();
   while (_iterator__ex2g4s.k()) {
     var session = _iterator__ex2g4s.l();
     var _iterator__ex2g4s_0 = session.v1i_1.j();
     $l$loop: while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (!this.w34(history, set, lift))
+      if (!this.i36(history, set, lift))
         continue $l$loop;
       var e1rm = E1rm_getInstance().v1j(set.y1i_1, set.z1i_1, set.a1j_1);
       if (e1rm > best) {
@@ -37003,7 +37556,7 @@ protoOf(ProgressMath).x34 = function (history, lift) {
   }
   return prs;
 };
-protoOf(ProgressMath).y34 = function (history, set, date, mode) {
+protoOf(ProgressMath).k36 = function (history, set, date, mode) {
   if (!mode.equals(TrainingMode_POWERLIFTING_getInstance()))
     return false;
   var tmp0_safe_receiver = history.p1i_1.t1(set.x1i_1);
@@ -37029,7 +37582,7 @@ protoOf(ProgressMath).y34 = function (history, set, date, mode) {
     tmp_1 = tmp2_elvis_lhs;
   }
   var lift = tmp_1;
-  if (!this.w34(history, set, lift))
+  if (!this.i36(history, set, lift))
     return false;
   var sides = on(history, TrainingMode_POWERLIFTING_getInstance());
   // Inline function 'kotlin.collections.filter' call
@@ -37045,9 +37598,9 @@ protoOf(ProgressMath).y34 = function (history, set, date, mode) {
   }
   var before = sides.h31(destination);
   var after = before.h31(plus_2(before.o1i_1, new LoggedSession(new Long(-1, -1), date, null, null, listOf_0(set), TrainingMode_POWERLIFTING_getInstance())));
-  return this.x34(after, lift).o() > this.x34(before, lift).o();
+  return this.j36(after, lift).o() > this.j36(before, lift).o();
 };
-protoOf(ProgressMath).z34 = function (history, lift) {
+protoOf(ProgressMath).l36 = function (history, lift) {
   // Inline function 'kotlin.collections.mutableMapOf' call
   var volume = LinkedHashMap_init_$Create$();
   var _iterator__ex2g4s = history.o1i_1.j();
@@ -37056,7 +37609,7 @@ protoOf(ProgressMath).z34 = function (history, lift) {
     var _iterator__ex2g4s_0 = session.v1i_1.j();
     while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (this.w34(history, set, lift)) {
+      if (this.i36(history, set, lift)) {
         var week = weekStart(session.s1i_1);
         var tmp0_elvis_lhs = volume.t1(week);
         // Inline function 'kotlin.collections.set' call
@@ -37066,14 +37619,14 @@ protoOf(ProgressMath).z34 = function (history, lift) {
     }
   }
   // Inline function 'kotlin.collections.sortedBy' call
-  var this_0 = toList(volume);
+  var this_0 = toList_1(volume);
   // Inline function 'kotlin.comparisons.compareBy' call
   var tmp = ProgressMath$weeklyVolume$lambda;
-  var tmp$ret$3 = new sam$kotlin_Comparator$0_14(tmp);
+  var tmp$ret$3 = new sam$kotlin_Comparator$0_17(tmp);
   return sortedWith(this_0, tmp$ret$3);
 };
-protoOf(ProgressMath).a35 = function (stats, until, includeStrictPress) {
-  var included = includeStrictPress ? plus_2(this.v34_1, MainLift_STRICT_PRESS_getInstance()) : this.v34_1;
+protoOf(ProgressMath).m36 = function (stats, until, includeStrictPress) {
+  var included = includeStrictPress ? plus_2(this.h36_1, MainLift_STRICT_PRESS_getInstance()) : this.h36_1;
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(included, 10));
@@ -37111,20 +37664,20 @@ function SeedLibrary$exercises$Acc(heavy, lift, muscles) {
     tmp = muscles;
   }
   muscles = tmp;
-  this.b35_1 = heavy;
-  this.c35_1 = lift;
-  this.d35_1 = muscles;
+  this.n36_1 = heavy;
+  this.o36_1 = lift;
+  this.p36_1 = muscles;
 }
 function SeedLibrary() {
   SeedLibrary_instance = this;
-  this.e35_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.q36_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(SeedLibrary).f35 = function () {
+protoOf(SeedLibrary).r36 = function () {
   var found = LinkedHashMap_init_$Create$();
-  var _iterator__ex2g4s = this.e35_1.j();
+  var _iterator__ex2g4s = this.q36_1.j();
   while (_iterator__ex2g4s.k()) {
     var lift = _iterator__ex2g4s.l();
-    var _iterator__ex2g4s_0 = get_entries_4().j();
+    var _iterator__ex2g4s_0 = get_entries_5().j();
     while (_iterator__ex2g4s_0.k()) {
       var miss = _iterator__ex2g4s_0.l();
       var muscles = AccessoryMap_getInstance().m1h(lift, miss);
@@ -37143,14 +37696,14 @@ protoOf(SeedLibrary).f35 = function () {
           tmp = value;
         }
         // Inline function 'kotlin.collections.plusAssign' call
-        var this_0 = tmp.d35_1;
+        var this_0 = tmp.p36_1;
         addAll(this_0, muscles);
       }
     }
   }
   var tmp_0 = found.u1();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = this.e35_1;
+  var tmp0 = this.q36_1;
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s_2 = tmp0.j();
@@ -37184,7 +37737,7 @@ protoOf(SeedLibrary).f35 = function () {
     var name = item_0.u();
     // Inline function 'kotlin.collections.component2' call
     var acc = item_0.v();
-    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.b35_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.b35_1 ? acc.c35_1 : null, toList_0(acc.d35_1), true);
+    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.n36_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.n36_1 ? acc.o36_1 : null, toList_0(acc.p36_1), true);
     destination_1.i(tmp$ret$13);
   }
   var mapped = destination_1;
@@ -37233,32 +37786,32 @@ function HighReps_getInstance() {
   return HighReps_instance;
 }
 function BigJump(fromKg) {
-  this.g35_1 = fromKg;
+  this.s36_1 = fromKg;
 }
 protoOf(BigJump).toString = function () {
-  return 'BigJump(fromKg=' + this.g35_1 + ')';
+  return 'BigJump(fromKg=' + this.s36_1 + ')';
 };
 protoOf(BigJump).hashCode = function () {
-  return getNumberHashCode(this.g35_1);
+  return getNumberHashCode(this.s36_1);
 };
 protoOf(BigJump).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BigJump))
     return false;
-  if (!equals(this.g35_1, other.g35_1))
+  if (!equals(this.s36_1, other.s36_1))
     return false;
   return true;
 };
 function InputValidator() {
-  this.h35_1 = 12;
-  this.i35_1 = 1.3;
-  this.j35_1 = 500.0;
+  this.t36_1 = 12;
+  this.u36_1 = 1.3;
+  this.v36_1 = 500.0;
 }
-protoOf(InputValidator).k35 = function (kg) {
+protoOf(InputValidator).w36 = function (kg) {
   return isFinite(kg) && kg > 0.0 && kg <= 500.0;
 };
-protoOf(InputValidator).l35 = function (text) {
+protoOf(InputValidator).x36 = function (text) {
   // Inline function 'kotlin.text.trim' call
   var tmp$ret$0 = toString(trim(isCharSequence(text) ? text : THROW_CCE()));
   var tmp0_safe_receiver = toDoubleOrNull(replace_0(tmp$ret$0, _Char___init__impl__6a9atx(44), _Char___init__impl__6a9atx(46)));
@@ -37268,7 +37821,7 @@ protoOf(InputValidator).l35 = function (text) {
   } else {
     // Inline function 'kotlin.takeIf' call
     var tmp_0;
-    if (this.k35(tmp0_safe_receiver)) {
+    if (this.w36(tmp0_safe_receiver)) {
       tmp_0 = tmp0_safe_receiver;
     } else {
       tmp_0 = null;
@@ -37277,7 +37830,7 @@ protoOf(InputValidator).l35 = function (text) {
   }
   return tmp;
 };
-protoOf(InputValidator).m35 = function (weightKg, reps, lastWeightKg) {
+protoOf(InputValidator).y36 = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
@@ -37293,6 +37846,16 @@ protoOf(InputValidator).m35 = function (weightKg, reps, lastWeightKg) {
 var InputValidator_instance;
 function InputValidator_getInstance() {
   return InputValidator_instance;
+}
+function templateById($this, id) {
+  var tmp0_elvis_lhs = PlanTemplates_getInstance().d35(id);
+  var tmp;
+  if (tmp0_elvis_lhs == null) {
+    throw IllegalArgumentException_init_$Create$("id: no plan template '" + id + "'");
+  } else {
+    tmp = tmp0_elvis_lhs;
+  }
+  return tmp;
 }
 function ratioRange($this, numerator, denominator, typical) {
   return new JsRatioRange(numerator.w1_1, denominator.w1_1, typical.nc(), typical.oc());
@@ -37316,6 +37879,9 @@ function GritDomain$physiqueWeeklySets$lambda(it) {
   return it.w1_1;
 }
 function GritDomain$planBuilderBuild$lambda(it) {
+  return it.w1_1;
+}
+function GritDomain$planTemplatesFor$lambda(it) {
   return it.w1_1;
 }
 function GritDomain$isNewPr$lambda(it) {
@@ -37360,7 +37926,7 @@ protoOf(GritDomain).estimateE1rm = function (weightKg, reps, rpe) {
   return E1rm_getInstance().v1j(weightKg, reps, rpe);
 };
 protoOf(GritDomain).platesPerSide = function (totalKg, changePlates) {
-  var tmp0_safe_receiver = PlateLoader_getInstance().w33(totalKg, changePlates);
+  var tmp0_safe_receiver = PlateLoader_getInstance().i35(totalKg, changePlates);
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
@@ -37378,7 +37944,7 @@ protoOf(GritDomain).loadStep = function (changePlates) {
 };
 protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = InputValidator_instance.m35(weightKg, reps, lastWeightKg);
+  var this_0 = InputValidator_instance.y36(weightKg, reps, lastWeightKg);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -37401,7 +37967,7 @@ protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   return copyToArray(destination);
 };
 protoOf(GritDomain).parseBaselineKg = function (text) {
-  return InputValidator_instance.l35(text);
+  return InputValidator_instance.x36(text);
 };
 protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, today, prior) {
   var tmp = Coach_getInstance();
@@ -38251,7 +38817,7 @@ protoOf(GritDomain).muscleProgressRows = function (history, plan, checkIns, toda
     destination_0.i(tmp$ret$5);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.n34(tmp_0, tmp_1, destination_0, parseDate('today', today));
+  var this_0 = tmp.z35(tmp_0, tmp_1, destination_0, parseDate('today', today));
   // Inline function 'kotlin.collections.mapTo' call
   var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -38310,7 +38876,7 @@ protoOf(GritDomain).bodybuildingProgress = function (history, plan, today) {
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.d34(tmp_0, destination, parseDate('today', today));
+  var this_0 = tmp.p35(tmp_0, destination, parseDate('today', today));
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -38387,7 +38953,7 @@ protoOf(GritDomain).planBuilderBuild = function (days, picks, priorities, varian
     var tmp$ret$8 = tmp_2;
     destination_1.i(tmp$ret$8);
   }
-  return toJs_6(tmp.y32(new BuilderAnswers(tmp_0, tmp_1, destination_1, variant)));
+  return toJs_6(tmp.v32(new BuilderAnswers(tmp_0, tmp_1, destination_1, variant)));
 };
 protoOf(GritDomain).planBuilderAlternatives = function (name, draft, picks, day) {
   var tmp = PlanBuilder_getInstance();
@@ -38412,20 +38978,20 @@ protoOf(GritDomain).planBuilderAlternatives = function (name, draft, picks, day)
     tmp_2 = parseWeekday('day', day);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.d33(name, tmp_0, tmp_1, tmp_2);
+  var this_0 = tmp.e33(name, tmp_0, tmp_1, tmp_2);
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_0 = _iterator__ex2g4s.l();
-    var tmp$ret$7 = toJs_13(item_0);
+    var tmp$ret$7 = toJs_14(item_0);
     destination_0.i(tmp$ret$7);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination_0);
 };
 protoOf(GritDomain).planBuilderSwap = function (draft, day, from, to) {
-  return toJs_6(PlanBuilder_getInstance().h33(toDomain_10(draft), parseWeekday('day', day), from, to));
+  return toJs_6(PlanBuilder_getInstance().i33(toDomain_10(draft), parseWeekday('day', day), from, to));
 };
 protoOf(GritDomain).planBuilderSuggestedPicks = function (history, plans, today) {
   var tmp = PlanBuilder_getInstance();
@@ -38442,7 +39008,7 @@ protoOf(GritDomain).planBuilderSuggestedPicks = function (history, plans, today)
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.l33(tmp_0, destination, parseDate('today', today));
+  var this_0 = tmp.m33(tmp_0, destination, parseDate('today', today));
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -38471,6 +39037,108 @@ protoOf(GritDomain).planBuilderTargetGroups = function () {
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination);
 };
+protoOf(GritDomain).planTemplatesFor = function (mode) {
+  var tmp = PlanTemplates_getInstance();
+  // Inline function 'com.powertracker.domain.web.parseEnum' call
+  // Inline function 'kotlin.enumValues' call
+  var tmp0 = values_10();
+  var tmp$ret$2;
+  $l$block: {
+    // Inline function 'kotlin.collections.firstOrNull' call
+    var inductionVariable = 0;
+    var last = tmp0.length;
+    while (inductionVariable < last) {
+      var element = tmp0[inductionVariable];
+      inductionVariable = inductionVariable + 1 | 0;
+      if (element.w1_1 === mode) {
+        tmp$ret$2 = element;
+        break $l$block;
+      }
+    }
+    tmp$ret$2 = null;
+  }
+  var tmp0_elvis_lhs = tmp$ret$2;
+  var tmp_0;
+  if (tmp0_elvis_lhs == null) {
+    // Inline function 'kotlin.enumValues' call
+    var tmp_1 = values_10();
+    throw IllegalArgumentException_init_$Create$('mode' + ": '" + mode + "' is not one of " + joinToString_0(tmp_1, VOID, VOID, VOID, VOID, VOID, GritDomain$planTemplatesFor$lambda));
+  } else {
+    tmp_0 = tmp0_elvis_lhs;
+  }
+  var tmp$ret$0 = tmp_0;
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = tmp.c35(tmp$ret$0);
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$7 = toJs_9(item);
+    destination.i(tmp$ret$7);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
+};
+protoOf(GritDomain).planTemplateSuggestedDays = function (count, current) {
+  var tmp = PlanTemplates_getInstance();
+  // Inline function 'kotlin.collections.map' call
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(current.length);
+  var inductionVariable = 0;
+  var last = current.length;
+  while (inductionVariable < last) {
+    var item = current[inductionVariable];
+    inductionVariable = inductionVariable + 1 | 0;
+    var tmp$ret$2 = parseWeekday('current', item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = tmp.e35(count, toSet(destination));
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item_0 = _iterator__ex2g4s.l();
+    var tmp$ret$5 = get_isoDayNumber(item_0);
+    destination_0.i(tmp$ret$5);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination_0);
+};
+protoOf(GritDomain).planTemplateDraft = function (id, days, strictPress) {
+  var tmp = PlanTemplates_getInstance();
+  var tmp_0 = templateById(this, id);
+  // Inline function 'kotlin.collections.map' call
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(days.length);
+  var inductionVariable = 0;
+  var last = days.length;
+  while (inductionVariable < last) {
+    var item = days[inductionVariable];
+    inductionVariable = inductionVariable + 1 | 0;
+    var tmp$ret$2 = parseWeekday('days', item);
+    destination.i(tmp$ret$2);
+  }
+  return toJs_6(tmp.f35(tmp_0, destination, strictPress));
+};
+protoOf(GritDomain).planTemplateAlternatives = function (id, draft, day, name) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = PlanTemplates_getInstance().g35(templateById(this, id), toDomain_10(draft), parseWeekday('day', day), name);
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs_14(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
+};
+protoOf(GritDomain).planTemplateSwap = function (draft, day, from, to) {
+  return toJs_6(PlanTemplates_getInstance().i33(toDomain_10(draft), parseWeekday('day', day), from, to));
+};
 protoOf(GritDomain).weeklyTrend = function (history, lift, until) {
   // Inline function 'kotlin.collections.map' call
   var this_0 = (new HistoryStats(toDomain_6(history))).z1o(parseLift('lift', lift), parseDate('until', until));
@@ -38490,13 +39158,13 @@ protoOf(GritDomain).currentE1rm = function (history, lift, until, days) {
 };
 protoOf(GritDomain).prs = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().x34(toDomain_6(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().j36(toDomain_6(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = toJs_9(item);
+    var tmp$ret$2 = toJs_10(item);
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38535,11 +39203,11 @@ protoOf(GritDomain).isNewPr = function (history, set, date, mode) {
     tmp_3 = tmp0_elvis_lhs;
   }
   var tmp$ret$0 = tmp_3;
-  return tmp.y34(tmp_0, tmp_1, tmp_2, tmp$ret$0);
+  return tmp.k36(tmp_0, tmp_1, tmp_2, tmp$ret$0);
 };
 protoOf(GritDomain).weeklyVolume = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().z34(toDomain_6(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().l36(toDomain_6(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -38597,7 +39265,7 @@ protoOf(GritDomain).accessoryOptions = function (lift, miss) {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$9 = toJs_10(item);
+    var tmp$ret$9 = toJs_11(item);
     destination.i(tmp$ret$9);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38646,7 +39314,7 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = SeedLibrary_getInstance().f35();
+  var this_0 = SeedLibrary_getInstance().r36();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -38659,11 +39327,11 @@ protoOf(GritDomain).seedExercises = function () {
   return copyToArray(destination);
 };
 protoOf(GritDomain).total = function (history, until, includeStrictPress) {
-  return ProgressMath_getInstance().a35(new HistoryStats(toDomain_6(history)), parseDate('until', until), includeStrictPress);
+  return ProgressMath_getInstance().m36(new HistoryStats(toDomain_6(history)), parseDate('until', until), includeStrictPress);
 };
 protoOf(GritDomain).mainLifts = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = get_entries_3();
+  var this_0 = get_entries_4();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -38723,7 +39391,7 @@ protoOf(GritDomain).isMainLift = function (exercise) {
 protoOf(GritDomain).lastTopSet = function (history, exerciseId, before) {
   var tmp0_safe_receiver = (new HistoryStats(toDomain_6(history))).b1l(fromInt(exerciseId), parseDate('before', before));
   var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.nb_1;
-  return tmp1_safe_receiver == null ? null : toJs_11(tmp1_safe_receiver);
+  return tmp1_safe_receiver == null ? null : toJs_12(tmp1_safe_receiver);
 };
 protoOf(GritDomain).openAdviceExpired = function (type, createdAt, today) {
   var tmp = Coach_getInstance();
@@ -38768,7 +39436,7 @@ protoOf(GritDomain).library = function () {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = toJs_13(item);
+    var tmp$ret$2 = toJs_14(item);
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38776,7 +39444,7 @@ protoOf(GritDomain).library = function () {
 };
 protoOf(GritDomain).findInLibrary = function (name) {
   var tmp0_safe_receiver = Library_getInstance().y1q(name);
-  return tmp0_safe_receiver == null ? null : toJs_13(tmp0_safe_receiver);
+  return tmp0_safe_receiver == null ? null : toJs_14(tmp0_safe_receiver);
 };
 protoOf(GritDomain).isStrictPressUpgradeName = function (name) {
   return Library_getInstance().u1u(name);
@@ -38868,7 +39536,7 @@ protoOf(GritDomain).searchLibrary = function (query, areas, equipment) {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_1 = _iterator__ex2g4s.l();
-    var tmp$ret$18 = toJs_13(item_1);
+    var tmp$ret$18 = toJs_14(item_1);
     destination_1.i(tmp$ret$18);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38998,7 +39666,7 @@ protoOf(GritDomain).exercisesByMuscle = function (group, equipment) {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_0 = _iterator__ex2g4s.l();
-    var tmp$ret$15 = toJs_13(item_0);
+    var tmp$ret$15 = toJs_14(item_0);
     destination_0.i(tmp$ret$15);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -39091,7 +39759,7 @@ protoOf(GritDomain).exercisesByMuscles = function (groups, equipment) {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_1 = _iterator__ex2g4s.l();
-    var tmp$ret$18 = toJs_13(item_1);
+    var tmp$ret$18 = toJs_14(item_1);
     destination_1.i(tmp$ret$18);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -39100,7 +39768,7 @@ protoOf(GritDomain).exercisesByMuscles = function (groups, equipment) {
 protoOf(GritDomain).formGuide = function (name) {
   var tmp0_safe_receiver = Library_getInstance().y1q(name);
   var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.h1r_1;
-  return tmp1_safe_receiver == null ? null : toJs_12(tmp1_safe_receiver);
+  return tmp1_safe_receiver == null ? null : toJs_13(tmp1_safe_receiver);
 };
 protoOf(GritDomain).figureInfo = function (name) {
   var tmp0_safe_receiver = figure(Library_getInstance(), name);
@@ -39149,7 +39817,7 @@ protoOf(GritDomain).figureShapes = function (name, which) {
     var _iterator__ex2g4s = this_0.j();
     while (_iterator__ex2g4s.k()) {
       var item = _iterator__ex2g4s.l();
-      var tmp$ret$4 = toJs_14(item);
+      var tmp$ret$4 = toJs_15(item);
       destination.i(tmp$ret$4);
     }
     // Inline function 'kotlin.collections.toTypedArray' call
@@ -39209,25 +39877,25 @@ function JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived
   this.isBuiltIn = isBuiltIn;
   this.archived = archived;
 }
-protoOf(JsExercise).n35 = function () {
+protoOf(JsExercise).z36 = function () {
   return this.id;
 };
 protoOf(JsExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsExercise).o35 = function () {
+protoOf(JsExercise).a37 = function () {
   return this.category;
 };
-protoOf(JsExercise).p35 = function () {
+protoOf(JsExercise).b37 = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).q35 = function () {
+protoOf(JsExercise).c37 = function () {
   return this.muscles;
 };
-protoOf(JsExercise).r35 = function () {
+protoOf(JsExercise).d37 = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).s35 = function () {
+protoOf(JsExercise).e37 = function () {
   return this.archived;
 };
 protoOf(JsExercise).gb = function () {
@@ -39239,19 +39907,19 @@ protoOf(JsExercise).hb = function () {
 protoOf(JsExercise).tf = function () {
   return this.category;
 };
-protoOf(JsExercise).t35 = function () {
+protoOf(JsExercise).f37 = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).u35 = function () {
+protoOf(JsExercise).g37 = function () {
   return this.muscles;
 };
-protoOf(JsExercise).v35 = function () {
+protoOf(JsExercise).h37 = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).w35 = function () {
+protoOf(JsExercise).i37 = function () {
   return this.archived;
 };
-protoOf(JsExercise).x35 = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(JsExercise).j37 = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
@@ -39262,7 +39930,7 @@ protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, is
   muscles = muscles === VOID ? this.muscles : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.isBuiltIn : isBuiltIn;
   archived = archived === VOID ? this.archived : archived;
-  return $super === VOID ? this.x35(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.x35.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.j37(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.j37.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).toString = function () {
   return 'JsExercise(id=' + this.id + ', name=' + this.name + ', category=' + this.category + ', parentLift=' + this.parentLift + ', muscles=' + toString(this.muscles) + ', isBuiltIn=' + this.isBuiltIn + ', archived=' + this.archived + ')';
@@ -39307,25 +39975,25 @@ function JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   this.missPoint = missPoint;
   this.isTopSet = isTopSet;
 }
-protoOf(JsSet).y35 = function () {
+protoOf(JsSet).k37 = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).z35 = function () {
+protoOf(JsSet).l37 = function () {
   return this.weightKg;
 };
-protoOf(JsSet).a36 = function () {
+protoOf(JsSet).m37 = function () {
   return this.reps;
 };
-protoOf(JsSet).b36 = function () {
+protoOf(JsSet).n37 = function () {
   return this.rpe;
 };
-protoOf(JsSet).c36 = function () {
+protoOf(JsSet).o37 = function () {
   return this.failed;
 };
-protoOf(JsSet).d36 = function () {
+protoOf(JsSet).p37 = function () {
   return this.missPoint;
 };
-protoOf(JsSet).e36 = function () {
+protoOf(JsSet).q37 = function () {
   return this.isTopSet;
 };
 protoOf(JsSet).gb = function () {
@@ -39337,19 +40005,19 @@ protoOf(JsSet).hb = function () {
 protoOf(JsSet).tf = function () {
   return this.reps;
 };
-protoOf(JsSet).t35 = function () {
+protoOf(JsSet).f37 = function () {
   return this.rpe;
 };
-protoOf(JsSet).u35 = function () {
+protoOf(JsSet).g37 = function () {
   return this.failed;
 };
-protoOf(JsSet).v35 = function () {
+protoOf(JsSet).h37 = function () {
   return this.missPoint;
 };
-protoOf(JsSet).w35 = function () {
+protoOf(JsSet).i37 = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).f36 = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
+protoOf(JsSet).r37 = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   return new JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, $super) {
@@ -39360,7 +40028,7 @@ protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoi
   failed = failed === VOID ? this.failed : failed;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   isTopSet = isTopSet === VOID ? this.isTopSet : isTopSet;
-  return $super === VOID ? this.f36(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.f36.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
+  return $super === VOID ? this.r37(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.r37.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).toString = function () {
   return 'JsSet(exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', failed=' + this.failed + ', missPoint=' + this.missPoint + ', isTopSet=' + this.isTopSet + ')';
@@ -39405,22 +40073,22 @@ function JsSession(id, date, bodyweightKg, readiness, sets, mode) {
   this.sets = sets;
   this.mode = mode;
 }
-protoOf(JsSession).n35 = function () {
+protoOf(JsSession).z36 = function () {
   return this.id;
 };
-protoOf(JsSession).g36 = function () {
+protoOf(JsSession).s37 = function () {
   return this.date;
 };
-protoOf(JsSession).h36 = function () {
+protoOf(JsSession).t37 = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).i36 = function () {
+protoOf(JsSession).u37 = function () {
   return this.readiness;
 };
-protoOf(JsSession).j36 = function () {
+protoOf(JsSession).v37 = function () {
   return this.sets;
 };
-protoOf(JsSession).k36 = function () {
+protoOf(JsSession).w37 = function () {
   return this.mode;
 };
 protoOf(JsSession).gb = function () {
@@ -39432,16 +40100,16 @@ protoOf(JsSession).hb = function () {
 protoOf(JsSession).tf = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).t35 = function () {
+protoOf(JsSession).f37 = function () {
   return this.readiness;
 };
-protoOf(JsSession).u35 = function () {
+protoOf(JsSession).g37 = function () {
   return this.sets;
 };
-protoOf(JsSession).v35 = function () {
+protoOf(JsSession).h37 = function () {
   return this.mode;
 };
-protoOf(JsSession).l36 = function (id, date, bodyweightKg, readiness, sets, mode) {
+protoOf(JsSession).x37 = function (id, date, bodyweightKg, readiness, sets, mode) {
   return new JsSession(id, date, bodyweightKg, readiness, sets, mode);
 };
 protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, mode, $super) {
@@ -39451,7 +40119,7 @@ protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, mod
   readiness = readiness === VOID ? this.readiness : readiness;
   sets = sets === VOID ? this.sets : sets;
   mode = mode === VOID ? this.mode : mode;
-  return $super === VOID ? this.l36(id, date, bodyweightKg, readiness, sets, mode) : $super.l36.call(this, id, date, bodyweightKg, readiness, sets, mode);
+  return $super === VOID ? this.x37(id, date, bodyweightKg, readiness, sets, mode) : $super.x37.call(this, id, date, bodyweightKg, readiness, sets, mode);
 };
 protoOf(JsSession).toString = function () {
   return 'JsSession(id=' + this.id + ', date=' + this.date + ', bodyweightKg=' + this.bodyweightKg + ', readiness=' + this.readiness + ', sets=' + toString(this.sets) + ', mode=' + this.mode + ')';
@@ -39497,31 +40165,31 @@ function JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order, mode,
   this.mode = mode;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPlanItem).n35 = function () {
+protoOf(JsPlanItem).z36 = function () {
   return this.id;
 };
-protoOf(JsPlanItem).m36 = function () {
+protoOf(JsPlanItem).y37 = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).y35 = function () {
+protoOf(JsPlanItem).k37 = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).j36 = function () {
+protoOf(JsPlanItem).v37 = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).a36 = function () {
+protoOf(JsPlanItem).m37 = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).n36 = function () {
+protoOf(JsPlanItem).z37 = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).o36 = function () {
+protoOf(JsPlanItem).a38 = function () {
   return this.order;
 };
-protoOf(JsPlanItem).k36 = function () {
+protoOf(JsPlanItem).w37 = function () {
   return this.mode;
 };
-protoOf(JsPlanItem).p36 = function () {
+protoOf(JsPlanItem).b38 = function () {
   return this.repsHigh;
 };
 protoOf(JsPlanItem).gb = function () {
@@ -39533,25 +40201,25 @@ protoOf(JsPlanItem).hb = function () {
 protoOf(JsPlanItem).tf = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).t35 = function () {
+protoOf(JsPlanItem).f37 = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).u35 = function () {
+protoOf(JsPlanItem).g37 = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).v35 = function () {
+protoOf(JsPlanItem).h37 = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).w35 = function () {
+protoOf(JsPlanItem).i37 = function () {
   return this.order;
 };
-protoOf(JsPlanItem).q36 = function () {
+protoOf(JsPlanItem).c38 = function () {
   return this.mode;
 };
-protoOf(JsPlanItem).r36 = function () {
+protoOf(JsPlanItem).d38 = function () {
   return this.repsHigh;
 };
-protoOf(JsPlanItem).s36 = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) {
+protoOf(JsPlanItem).e38 = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) {
   return new JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
 };
 protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh, $super) {
@@ -39564,7 +40232,7 @@ protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, target
   order = order === VOID ? this.order : order;
   mode = mode === VOID ? this.mode : mode;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.s36(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) : $super.s36.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
+  return $super === VOID ? this.e38(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) : $super.e38.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
 };
 protoOf(JsPlanItem).toString = function () {
   return 'JsPlanItem(id=' + this.id + ', weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', sets=' + this.sets + ', reps=' + this.reps + ', targetRpe=' + this.targetRpe + ', order=' + this.order + ', mode=' + this.mode + ', repsHigh=' + this.repsHigh + ')';
@@ -39611,13 +40279,13 @@ function JsBaseline(exerciseId, e1rmKg, date) {
   this.e1rmKg = e1rmKg;
   this.date = date;
 }
-protoOf(JsBaseline).y35 = function () {
+protoOf(JsBaseline).k37 = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).t36 = function () {
+protoOf(JsBaseline).f38 = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).g36 = function () {
+protoOf(JsBaseline).s37 = function () {
   return this.date;
 };
 protoOf(JsBaseline).gb = function () {
@@ -39629,14 +40297,14 @@ protoOf(JsBaseline).hb = function () {
 protoOf(JsBaseline).tf = function () {
   return this.date;
 };
-protoOf(JsBaseline).u36 = function (exerciseId, e1rmKg, date) {
+protoOf(JsBaseline).g38 = function (exerciseId, e1rmKg, date) {
   return new JsBaseline(exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).copy = function (exerciseId, e1rmKg, date, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   e1rmKg = e1rmKg === VOID ? this.e1rmKg : e1rmKg;
   date = date === VOID ? this.date : date;
-  return $super === VOID ? this.u36(exerciseId, e1rmKg, date) : $super.u36.call(this, exerciseId, e1rmKg, date);
+  return $super === VOID ? this.g38(exerciseId, e1rmKg, date) : $super.g38.call(this, exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).toString = function () {
   return 'JsBaseline(exerciseId=' + this.exerciseId + ', e1rmKg=' + this.e1rmKg + ', date=' + this.date + ')';
@@ -39672,31 +40340,31 @@ function JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJs
   this.payloadJson = payloadJson;
   this.mode = mode;
 }
-protoOf(JsAdvice).n35 = function () {
+protoOf(JsAdvice).z36 = function () {
   return this.id;
 };
-protoOf(JsAdvice).v36 = function () {
+protoOf(JsAdvice).h38 = function () {
   return this.type;
 };
-protoOf(JsAdvice).w36 = function () {
+protoOf(JsAdvice).i38 = function () {
   return this.lift;
 };
-protoOf(JsAdvice).x36 = function () {
+protoOf(JsAdvice).j38 = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).y36 = function () {
+protoOf(JsAdvice).k38 = function () {
   return this.reason;
 };
-protoOf(JsAdvice).z36 = function () {
+protoOf(JsAdvice).l38 = function () {
   return this.severity;
 };
-protoOf(JsAdvice).a37 = function () {
+protoOf(JsAdvice).m38 = function () {
   return this.status;
 };
-protoOf(JsAdvice).b37 = function () {
+protoOf(JsAdvice).n38 = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).k36 = function () {
+protoOf(JsAdvice).w37 = function () {
   return this.mode;
 };
 protoOf(JsAdvice).gb = function () {
@@ -39708,25 +40376,25 @@ protoOf(JsAdvice).hb = function () {
 protoOf(JsAdvice).tf = function () {
   return this.lift;
 };
-protoOf(JsAdvice).t35 = function () {
+protoOf(JsAdvice).f37 = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).u35 = function () {
+protoOf(JsAdvice).g37 = function () {
   return this.reason;
 };
-protoOf(JsAdvice).v35 = function () {
+protoOf(JsAdvice).h37 = function () {
   return this.severity;
 };
-protoOf(JsAdvice).w35 = function () {
+protoOf(JsAdvice).i37 = function () {
   return this.status;
 };
-protoOf(JsAdvice).q36 = function () {
+protoOf(JsAdvice).c38 = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).r36 = function () {
+protoOf(JsAdvice).d38 = function () {
   return this.mode;
 };
-protoOf(JsAdvice).c37 = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode) {
+protoOf(JsAdvice).o38 = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode) {
   return new JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
 };
 protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode, $super) {
@@ -39739,7 +40407,7 @@ protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, 
   status = status === VOID ? this.status : status;
   payloadJson = payloadJson === VOID ? this.payloadJson : payloadJson;
   mode = mode === VOID ? this.mode : mode;
-  return $super === VOID ? this.c37(id, type, lift, createdAt, reason, severity, status, payloadJson, mode) : $super.c37.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
+  return $super === VOID ? this.o38(id, type, lift, createdAt, reason, severity, status, payloadJson, mode) : $super.o38.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
 };
 protoOf(JsAdvice).toString = function () {
   return 'JsAdvice(id=' + this.id + ', type=' + this.type + ', lift=' + this.lift + ', createdAt=' + this.createdAt + ', reason=' + this.reason + ', severity=' + this.severity + ', status=' + this.status + ', payloadJson=' + this.payloadJson + ', mode=' + this.mode + ')';
@@ -39789,22 +40457,22 @@ function JsSkip(id, date, mode, exerciseId, planItemId, reason) {
   this.planItemId = planItemId;
   this.reason = reason;
 }
-protoOf(JsSkip).n35 = function () {
+protoOf(JsSkip).z36 = function () {
   return this.id;
 };
-protoOf(JsSkip).g36 = function () {
+protoOf(JsSkip).s37 = function () {
   return this.date;
 };
-protoOf(JsSkip).k36 = function () {
+protoOf(JsSkip).w37 = function () {
   return this.mode;
 };
-protoOf(JsSkip).y35 = function () {
+protoOf(JsSkip).k37 = function () {
   return this.exerciseId;
 };
-protoOf(JsSkip).d37 = function () {
+protoOf(JsSkip).p38 = function () {
   return this.planItemId;
 };
-protoOf(JsSkip).y36 = function () {
+protoOf(JsSkip).k38 = function () {
   return this.reason;
 };
 protoOf(JsSkip).gb = function () {
@@ -39816,16 +40484,16 @@ protoOf(JsSkip).hb = function () {
 protoOf(JsSkip).tf = function () {
   return this.mode;
 };
-protoOf(JsSkip).t35 = function () {
+protoOf(JsSkip).f37 = function () {
   return this.exerciseId;
 };
-protoOf(JsSkip).u35 = function () {
+protoOf(JsSkip).g37 = function () {
   return this.planItemId;
 };
-protoOf(JsSkip).v35 = function () {
+protoOf(JsSkip).h37 = function () {
   return this.reason;
 };
-protoOf(JsSkip).e37 = function (id, date, mode, exerciseId, planItemId, reason) {
+protoOf(JsSkip).q38 = function (id, date, mode, exerciseId, planItemId, reason) {
   return new JsSkip(id, date, mode, exerciseId, planItemId, reason);
 };
 protoOf(JsSkip).copy = function (id, date, mode, exerciseId, planItemId, reason, $super) {
@@ -39835,7 +40503,7 @@ protoOf(JsSkip).copy = function (id, date, mode, exerciseId, planItemId, reason,
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   planItemId = planItemId === VOID ? this.planItemId : planItemId;
   reason = reason === VOID ? this.reason : reason;
-  return $super === VOID ? this.e37(id, date, mode, exerciseId, planItemId, reason) : $super.e37.call(this, id, date, mode, exerciseId, planItemId, reason);
+  return $super === VOID ? this.q38(id, date, mode, exerciseId, planItemId, reason) : $super.q38.call(this, id, date, mode, exerciseId, planItemId, reason);
 };
 protoOf(JsSkip).toString = function () {
   return 'JsSkip(id=' + this.id + ', date=' + this.date + ', mode=' + this.mode + ', exerciseId=' + this.exerciseId + ', planItemId=' + this.planItemId + ', reason=' + this.reason + ')';
@@ -39873,13 +40541,13 @@ function JsHistory(sessions, exercises, baselines) {
   this.exercises = exercises;
   this.baselines = baselines;
 }
-protoOf(JsHistory).f37 = function () {
+protoOf(JsHistory).r38 = function () {
   return this.sessions;
 };
-protoOf(JsHistory).g37 = function () {
+protoOf(JsHistory).s38 = function () {
   return this.exercises;
 };
-protoOf(JsHistory).h37 = function () {
+protoOf(JsHistory).t38 = function () {
   return this.baselines;
 };
 protoOf(JsHistory).gb = function () {
@@ -39891,14 +40559,14 @@ protoOf(JsHistory).hb = function () {
 protoOf(JsHistory).tf = function () {
   return this.baselines;
 };
-protoOf(JsHistory).i37 = function (sessions, exercises, baselines) {
+protoOf(JsHistory).u38 = function (sessions, exercises, baselines) {
   return new JsHistory(sessions, exercises, baselines);
 };
 protoOf(JsHistory).copy = function (sessions, exercises, baselines, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   exercises = exercises === VOID ? this.exercises : exercises;
   baselines = baselines === VOID ? this.baselines : baselines;
-  return $super === VOID ? this.i37(sessions, exercises, baselines) : $super.i37.call(this, sessions, exercises, baselines);
+  return $super === VOID ? this.u38(sessions, exercises, baselines) : $super.u38.call(this, sessions, exercises, baselines);
 };
 protoOf(JsHistory).toString = function () {
   return 'JsHistory(sessions=' + toString(this.sessions) + ', exercises=' + toString(this.exercises) + ', baselines=' + toString(this.baselines) + ')';
@@ -39926,10 +40594,10 @@ function JsBestSet(date, set) {
   this.date = date;
   this.set = set;
 }
-protoOf(JsBestSet).g36 = function () {
+protoOf(JsBestSet).s37 = function () {
   return this.date;
 };
-protoOf(JsBestSet).j37 = function () {
+protoOf(JsBestSet).v38 = function () {
   return this.set;
 };
 protoOf(JsBestSet).gb = function () {
@@ -39938,13 +40606,13 @@ protoOf(JsBestSet).gb = function () {
 protoOf(JsBestSet).hb = function () {
   return this.set;
 };
-protoOf(JsBestSet).k37 = function (date, set) {
+protoOf(JsBestSet).w38 = function (date, set) {
   return new JsBestSet(date, set);
 };
 protoOf(JsBestSet).copy = function (date, set, $super) {
   date = date === VOID ? this.date : date;
   set = set === VOID ? this.set : set;
-  return $super === VOID ? this.k37(date, set) : $super.k37.call(this, date, set);
+  return $super === VOID ? this.w38(date, set) : $super.w38.call(this, date, set);
 };
 protoOf(JsBestSet).toString = function () {
   return 'JsBestSet(date=' + this.date + ', set=' + this.set.toString() + ')';
@@ -39971,16 +40639,16 @@ function JsExerciseTrend(exerciseId, name, bestSets, goingUp) {
   this.bestSets = bestSets;
   this.goingUp = goingUp;
 }
-protoOf(JsExerciseTrend).y35 = function () {
+protoOf(JsExerciseTrend).k37 = function () {
   return this.exerciseId;
 };
 protoOf(JsExerciseTrend).b14 = function () {
   return this.name;
 };
-protoOf(JsExerciseTrend).l37 = function () {
+protoOf(JsExerciseTrend).x38 = function () {
   return this.bestSets;
 };
-protoOf(JsExerciseTrend).m37 = function () {
+protoOf(JsExerciseTrend).y38 = function () {
   return this.goingUp;
 };
 protoOf(JsExerciseTrend).gb = function () {
@@ -39992,10 +40660,10 @@ protoOf(JsExerciseTrend).hb = function () {
 protoOf(JsExerciseTrend).tf = function () {
   return this.bestSets;
 };
-protoOf(JsExerciseTrend).t35 = function () {
+protoOf(JsExerciseTrend).f37 = function () {
   return this.goingUp;
 };
-protoOf(JsExerciseTrend).n37 = function (exerciseId, name, bestSets, goingUp) {
+protoOf(JsExerciseTrend).z38 = function (exerciseId, name, bestSets, goingUp) {
   return new JsExerciseTrend(exerciseId, name, bestSets, goingUp);
 };
 protoOf(JsExerciseTrend).copy = function (exerciseId, name, bestSets, goingUp, $super) {
@@ -40003,7 +40671,7 @@ protoOf(JsExerciseTrend).copy = function (exerciseId, name, bestSets, goingUp, $
   name = name === VOID ? this.name : name;
   bestSets = bestSets === VOID ? this.bestSets : bestSets;
   goingUp = goingUp === VOID ? this.goingUp : goingUp;
-  return $super === VOID ? this.n37(exerciseId, name, bestSets, goingUp) : $super.n37.call(this, exerciseId, name, bestSets, goingUp);
+  return $super === VOID ? this.z38(exerciseId, name, bestSets, goingUp) : $super.z38.call(this, exerciseId, name, bestSets, goingUp);
 };
 protoOf(JsExerciseTrend).toString = function () {
   return 'JsExerciseTrend(exerciseId=' + this.exerciseId + ', name=' + this.name + ', bestSets=' + toString(this.bestSets) + ', goingUp=' + this.goingUp + ')';
@@ -40034,10 +40702,10 @@ function JsCoachSettings(defaultRpe, changePlates) {
   this.defaultRpe = defaultRpe;
   this.changePlates = changePlates;
 }
-protoOf(JsCoachSettings).o37 = function () {
+protoOf(JsCoachSettings).a39 = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).p37 = function () {
+protoOf(JsCoachSettings).b39 = function () {
   return this.changePlates;
 };
 protoOf(JsCoachSettings).gb = function () {
@@ -40046,13 +40714,13 @@ protoOf(JsCoachSettings).gb = function () {
 protoOf(JsCoachSettings).hb = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).q37 = function (defaultRpe, changePlates) {
+protoOf(JsCoachSettings).c39 = function (defaultRpe, changePlates) {
   return new JsCoachSettings(defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).copy = function (defaultRpe, changePlates, $super) {
   defaultRpe = defaultRpe === VOID ? this.defaultRpe : defaultRpe;
   changePlates = changePlates === VOID ? this.changePlates : changePlates;
-  return $super === VOID ? this.q37(defaultRpe, changePlates) : $super.q37.call(this, defaultRpe, changePlates);
+  return $super === VOID ? this.c39(defaultRpe, changePlates) : $super.c39.call(this, defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).toString = function () {
   return 'JsCoachSettings(defaultRpe=' + this.defaultRpe + ', changePlates=' + this.changePlates + ')';
@@ -40077,7 +40745,7 @@ function JsWeeklyPoint(weekStart, value) {
   this.weekStart = weekStart;
   this.value = value;
 }
-protoOf(JsWeeklyPoint).r37 = function () {
+protoOf(JsWeeklyPoint).d39 = function () {
   return this.weekStart;
 };
 protoOf(JsWeeklyPoint).v = function () {
@@ -40089,13 +40757,13 @@ protoOf(JsWeeklyPoint).gb = function () {
 protoOf(JsWeeklyPoint).hb = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).s37 = function (weekStart, value) {
+protoOf(JsWeeklyPoint).e39 = function (weekStart, value) {
   return new JsWeeklyPoint(weekStart, value);
 };
 protoOf(JsWeeklyPoint).copy = function (weekStart, value, $super) {
   weekStart = weekStart === VOID ? this.weekStart : weekStart;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.s37(weekStart, value) : $super.s37.call(this, weekStart, value);
+  return $super === VOID ? this.e39(weekStart, value) : $super.e39.call(this, weekStart, value);
 };
 protoOf(JsWeeklyPoint).toString = function () {
   return 'JsWeeklyPoint(weekStart=' + this.weekStart + ', value=' + this.value + ')';
@@ -40123,19 +40791,19 @@ function JsPr(date, e1rmKg, weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsPr).g36 = function () {
+protoOf(JsPr).s37 = function () {
   return this.date;
 };
-protoOf(JsPr).t36 = function () {
+protoOf(JsPr).f38 = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).z35 = function () {
+protoOf(JsPr).l37 = function () {
   return this.weightKg;
 };
-protoOf(JsPr).a36 = function () {
+protoOf(JsPr).m37 = function () {
   return this.reps;
 };
-protoOf(JsPr).b36 = function () {
+protoOf(JsPr).n37 = function () {
   return this.rpe;
 };
 protoOf(JsPr).gb = function () {
@@ -40147,13 +40815,13 @@ protoOf(JsPr).hb = function () {
 protoOf(JsPr).tf = function () {
   return this.weightKg;
 };
-protoOf(JsPr).t35 = function () {
+protoOf(JsPr).f37 = function () {
   return this.reps;
 };
-protoOf(JsPr).u35 = function () {
+protoOf(JsPr).g37 = function () {
   return this.rpe;
 };
-protoOf(JsPr).t37 = function (date, e1rmKg, weightKg, reps, rpe) {
+protoOf(JsPr).f39 = function (date, e1rmKg, weightKg, reps, rpe) {
   return new JsPr(date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
@@ -40162,7 +40830,7 @@ protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.t37(date, e1rmKg, weightKg, reps, rpe) : $super.t37.call(this, date, e1rmKg, weightKg, reps, rpe);
+  return $super === VOID ? this.f39(date, e1rmKg, weightKg, reps, rpe) : $super.f39.call(this, date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).toString = function () {
   return 'JsPr(date=' + this.date + ', e1rmKg=' + this.e1rmKg + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -40199,7 +40867,7 @@ function JsAccessoryOption(name, heavy) {
 protoOf(JsAccessoryOption).b14 = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).u37 = function () {
+protoOf(JsAccessoryOption).g39 = function () {
   return this.heavy;
 };
 protoOf(JsAccessoryOption).gb = function () {
@@ -40208,13 +40876,13 @@ protoOf(JsAccessoryOption).gb = function () {
 protoOf(JsAccessoryOption).hb = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).v37 = function (name, heavy) {
+protoOf(JsAccessoryOption).h39 = function (name, heavy) {
   return new JsAccessoryOption(name, heavy);
 };
 protoOf(JsAccessoryOption).copy = function (name, heavy, $super) {
   name = name === VOID ? this.name : name;
   heavy = heavy === VOID ? this.heavy : heavy;
-  return $super === VOID ? this.v37(name, heavy) : $super.v37.call(this, name, heavy);
+  return $super === VOID ? this.h39(name, heavy) : $super.h39.call(this, name, heavy);
 };
 protoOf(JsAccessoryOption).toString = function () {
   return 'JsAccessoryOption(name=' + this.name + ', heavy=' + this.heavy + ')';
@@ -40241,13 +40909,13 @@ function JsRatioRange(numerator, denominator, low, high) {
   this.low = low;
   this.high = high;
 }
-protoOf(JsRatioRange).w37 = function () {
+protoOf(JsRatioRange).i39 = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).x37 = function () {
+protoOf(JsRatioRange).j39 = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).y37 = function () {
+protoOf(JsRatioRange).k39 = function () {
   return this.low;
 };
 protoOf(JsRatioRange).h2x = function () {
@@ -40262,10 +40930,10 @@ protoOf(JsRatioRange).hb = function () {
 protoOf(JsRatioRange).tf = function () {
   return this.low;
 };
-protoOf(JsRatioRange).t35 = function () {
+protoOf(JsRatioRange).f37 = function () {
   return this.high;
 };
-protoOf(JsRatioRange).z37 = function (numerator, denominator, low, high) {
+protoOf(JsRatioRange).l39 = function (numerator, denominator, low, high) {
   return new JsRatioRange(numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super) {
@@ -40273,7 +40941,7 @@ protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super
   denominator = denominator === VOID ? this.denominator : denominator;
   low = low === VOID ? this.low : low;
   high = high === VOID ? this.high : high;
-  return $super === VOID ? this.z37(numerator, denominator, low, high) : $super.z37.call(this, numerator, denominator, low, high);
+  return $super === VOID ? this.l39(numerator, denominator, low, high) : $super.l39.call(this, numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).toString = function () {
   return 'JsRatioRange(numerator=' + this.numerator + ', denominator=' + this.denominator + ', low=' + this.low + ', high=' + this.high + ')';
@@ -40306,16 +40974,16 @@ function JsPrescription(exerciseName, sets, repsLow, repsHigh) {
   this.repsLow = repsLow;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPrescription).a38 = function () {
+protoOf(JsPrescription).m39 = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).j36 = function () {
+protoOf(JsPrescription).v37 = function () {
   return this.sets;
 };
-protoOf(JsPrescription).b38 = function () {
+protoOf(JsPrescription).n39 = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).p36 = function () {
+protoOf(JsPrescription).b38 = function () {
   return this.repsHigh;
 };
 protoOf(JsPrescription).gb = function () {
@@ -40327,10 +40995,10 @@ protoOf(JsPrescription).hb = function () {
 protoOf(JsPrescription).tf = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).t35 = function () {
+protoOf(JsPrescription).f37 = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).c38 = function (exerciseName, sets, repsLow, repsHigh) {
+protoOf(JsPrescription).o39 = function (exerciseName, sets, repsLow, repsHigh) {
   return new JsPrescription(exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, $super) {
@@ -40338,7 +41006,7 @@ protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, 
   sets = sets === VOID ? this.sets : sets;
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.c38(exerciseName, sets, repsLow, repsHigh) : $super.c38.call(this, exerciseName, sets, repsLow, repsHigh);
+  return $super === VOID ? this.o39(exerciseName, sets, repsLow, repsHigh) : $super.o39.call(this, exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).toString = function () {
   return 'JsPrescription(exerciseName=' + this.exerciseName + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ')';
@@ -40372,19 +41040,19 @@ function JsSetAddition(weekday, exerciseId, name, fromSets, toSets) {
   this.fromSets = fromSets;
   this.toSets = toSets;
 }
-protoOf(JsSetAddition).m36 = function () {
+protoOf(JsSetAddition).y37 = function () {
   return this.weekday;
 };
-protoOf(JsSetAddition).y35 = function () {
+protoOf(JsSetAddition).k37 = function () {
   return this.exerciseId;
 };
 protoOf(JsSetAddition).b14 = function () {
   return this.name;
 };
-protoOf(JsSetAddition).d38 = function () {
+protoOf(JsSetAddition).p39 = function () {
   return this.fromSets;
 };
-protoOf(JsSetAddition).e38 = function () {
+protoOf(JsSetAddition).q39 = function () {
   return this.toSets;
 };
 protoOf(JsSetAddition).gb = function () {
@@ -40396,13 +41064,13 @@ protoOf(JsSetAddition).hb = function () {
 protoOf(JsSetAddition).tf = function () {
   return this.name;
 };
-protoOf(JsSetAddition).t35 = function () {
+protoOf(JsSetAddition).f37 = function () {
   return this.fromSets;
 };
-protoOf(JsSetAddition).u35 = function () {
+protoOf(JsSetAddition).g37 = function () {
   return this.toSets;
 };
-protoOf(JsSetAddition).f38 = function (weekday, exerciseId, name, fromSets, toSets) {
+protoOf(JsSetAddition).r39 = function (weekday, exerciseId, name, fromSets, toSets) {
   return new JsSetAddition(weekday, exerciseId, name, fromSets, toSets);
 };
 protoOf(JsSetAddition).copy = function (weekday, exerciseId, name, fromSets, toSets, $super) {
@@ -40411,7 +41079,7 @@ protoOf(JsSetAddition).copy = function (weekday, exerciseId, name, fromSets, toS
   name = name === VOID ? this.name : name;
   fromSets = fromSets === VOID ? this.fromSets : fromSets;
   toSets = toSets === VOID ? this.toSets : toSets;
-  return $super === VOID ? this.f38(weekday, exerciseId, name, fromSets, toSets) : $super.f38.call(this, weekday, exerciseId, name, fromSets, toSets);
+  return $super === VOID ? this.r39(weekday, exerciseId, name, fromSets, toSets) : $super.r39.call(this, weekday, exerciseId, name, fromSets, toSets);
 };
 protoOf(JsSetAddition).toString = function () {
   return 'JsSetAddition(weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', name=' + this.name + ', fromSets=' + this.fromSets + ', toSets=' + this.toSets + ')';
@@ -40449,22 +41117,22 @@ function JsNewExercise(weekday, name, sets, repsLow, repsHigh, rpe) {
   this.repsHigh = repsHigh;
   this.rpe = rpe;
 }
-protoOf(JsNewExercise).m36 = function () {
+protoOf(JsNewExercise).y37 = function () {
   return this.weekday;
 };
 protoOf(JsNewExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsNewExercise).j36 = function () {
+protoOf(JsNewExercise).v37 = function () {
   return this.sets;
 };
-protoOf(JsNewExercise).b38 = function () {
+protoOf(JsNewExercise).n39 = function () {
   return this.repsLow;
 };
-protoOf(JsNewExercise).p36 = function () {
+protoOf(JsNewExercise).b38 = function () {
   return this.repsHigh;
 };
-protoOf(JsNewExercise).b36 = function () {
+protoOf(JsNewExercise).n37 = function () {
   return this.rpe;
 };
 protoOf(JsNewExercise).gb = function () {
@@ -40476,16 +41144,16 @@ protoOf(JsNewExercise).hb = function () {
 protoOf(JsNewExercise).tf = function () {
   return this.sets;
 };
-protoOf(JsNewExercise).t35 = function () {
+protoOf(JsNewExercise).f37 = function () {
   return this.repsLow;
 };
-protoOf(JsNewExercise).u35 = function () {
+protoOf(JsNewExercise).g37 = function () {
   return this.repsHigh;
 };
-protoOf(JsNewExercise).v35 = function () {
+protoOf(JsNewExercise).h37 = function () {
   return this.rpe;
 };
-protoOf(JsNewExercise).g38 = function (weekday, name, sets, repsLow, repsHigh, rpe) {
+protoOf(JsNewExercise).s39 = function (weekday, name, sets, repsLow, repsHigh, rpe) {
   return new JsNewExercise(weekday, name, sets, repsLow, repsHigh, rpe);
 };
 protoOf(JsNewExercise).copy = function (weekday, name, sets, repsLow, repsHigh, rpe, $super) {
@@ -40495,7 +41163,7 @@ protoOf(JsNewExercise).copy = function (weekday, name, sets, repsLow, repsHigh, 
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.g38(weekday, name, sets, repsLow, repsHigh, rpe) : $super.g38.call(this, weekday, name, sets, repsLow, repsHigh, rpe);
+  return $super === VOID ? this.s39(weekday, name, sets, repsLow, repsHigh, rpe) : $super.s39.call(this, weekday, name, sets, repsLow, repsHigh, rpe);
 };
 protoOf(JsNewExercise).toString = function () {
   return 'JsNewExercise(weekday=' + this.weekday + ', name=' + this.name + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ')';
@@ -40597,67 +41265,67 @@ function JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, vol
 protoOf(JsAdvicePayload).yi = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).y35 = function () {
+protoOf(JsAdvicePayload).k37 = function () {
   return this.exerciseId;
 };
-protoOf(JsAdvicePayload).z35 = function () {
+protoOf(JsAdvicePayload).l37 = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).a36 = function () {
+protoOf(JsAdvicePayload).m37 = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).b36 = function () {
+protoOf(JsAdvicePayload).n37 = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).j36 = function () {
+protoOf(JsAdvicePayload).v37 = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).h38 = function () {
+protoOf(JsAdvicePayload).t39 = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).i38 = function () {
+protoOf(JsAdvicePayload).u39 = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).j38 = function () {
+protoOf(JsAdvicePayload).v39 = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).w36 = function () {
+protoOf(JsAdvicePayload).i38 = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).d36 = function () {
+protoOf(JsAdvicePayload).p37 = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).p36 = function () {
+protoOf(JsAdvicePayload).b38 = function () {
   return this.repsHigh;
 };
-protoOf(JsAdvicePayload).k38 = function () {
+protoOf(JsAdvicePayload).w39 = function () {
   return this.group;
 };
-protoOf(JsAdvicePayload).l38 = function () {
+protoOf(JsAdvicePayload).x39 = function () {
   return this.addSets;
 };
-protoOf(JsAdvicePayload).m38 = function () {
+protoOf(JsAdvicePayload).y39 = function () {
   return this.newExercise;
 };
-protoOf(JsAdvicePayload).n38 = function () {
+protoOf(JsAdvicePayload).z39 = function () {
   return this.weeklyBefore;
 };
-protoOf(JsAdvicePayload).o38 = function () {
+protoOf(JsAdvicePayload).a3a = function () {
   return this.weeklyAfter;
 };
 protoOf(JsAdvicePayload).b14 = function () {
   return this.name;
 };
-protoOf(JsAdvicePayload).p38 = function () {
+protoOf(JsAdvicePayload).b3a = function () {
   return this.since;
 };
-protoOf(JsAdvicePayload).q38 = function () {
+protoOf(JsAdvicePayload).c3a = function () {
   return this.alternatives;
 };
-protoOf(JsAdvicePayload).r38 = function () {
+protoOf(JsAdvicePayload).d3a = function () {
   return this.skipId;
 };
-protoOf(JsAdvicePayload).s38 = function () {
+protoOf(JsAdvicePayload).e3a = function () {
   return this.skipReason;
 };
 protoOf(JsAdvicePayload).gb = function () {
@@ -40669,64 +41337,64 @@ protoOf(JsAdvicePayload).hb = function () {
 protoOf(JsAdvicePayload).tf = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).t35 = function () {
+protoOf(JsAdvicePayload).f37 = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).u35 = function () {
+protoOf(JsAdvicePayload).g37 = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).v35 = function () {
+protoOf(JsAdvicePayload).h37 = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).w35 = function () {
+protoOf(JsAdvicePayload).i37 = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).q36 = function () {
+protoOf(JsAdvicePayload).c38 = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).r36 = function () {
+protoOf(JsAdvicePayload).d38 = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).t38 = function () {
+protoOf(JsAdvicePayload).f3a = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).u38 = function () {
+protoOf(JsAdvicePayload).g3a = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).v38 = function () {
+protoOf(JsAdvicePayload).h3a = function () {
   return this.repsHigh;
 };
-protoOf(JsAdvicePayload).w38 = function () {
+protoOf(JsAdvicePayload).i3a = function () {
   return this.group;
 };
-protoOf(JsAdvicePayload).x38 = function () {
+protoOf(JsAdvicePayload).j3a = function () {
   return this.addSets;
 };
-protoOf(JsAdvicePayload).y38 = function () {
+protoOf(JsAdvicePayload).k3a = function () {
   return this.newExercise;
 };
-protoOf(JsAdvicePayload).z38 = function () {
+protoOf(JsAdvicePayload).l3a = function () {
   return this.weeklyBefore;
 };
-protoOf(JsAdvicePayload).a39 = function () {
+protoOf(JsAdvicePayload).m3a = function () {
   return this.weeklyAfter;
 };
-protoOf(JsAdvicePayload).b39 = function () {
+protoOf(JsAdvicePayload).n3a = function () {
   return this.name;
 };
-protoOf(JsAdvicePayload).c39 = function () {
+protoOf(JsAdvicePayload).o3a = function () {
   return this.since;
 };
-protoOf(JsAdvicePayload).d39 = function () {
+protoOf(JsAdvicePayload).p3a = function () {
   return this.alternatives;
 };
-protoOf(JsAdvicePayload).e39 = function () {
+protoOf(JsAdvicePayload).q3a = function () {
   return this.skipId;
 };
-protoOf(JsAdvicePayload).f39 = function () {
+protoOf(JsAdvicePayload).r3a = function () {
   return this.skipReason;
 };
-protoOf(JsAdvicePayload).g39 = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) {
+protoOf(JsAdvicePayload).s3a = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) {
   return new JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason);
 };
 protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason, $super) {
@@ -40752,7 +41420,7 @@ protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe,
   alternatives = alternatives === VOID ? this.alternatives : alternatives;
   skipId = skipId === VOID ? this.skipId : skipId;
   skipReason = skipReason === VOID ? this.skipReason : skipReason;
-  return $super === VOID ? this.g39(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) : $super.g39.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason);
+  return $super === VOID ? this.s3a(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) : $super.s3a.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason);
 };
 protoOf(JsAdvicePayload).toString = function () {
   return 'JsAdvicePayload(kind=' + this.kind + ', exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', sets=' + this.sets + ', items=' + toString(this.items) + ', volumeFactor=' + this.volumeFactor + ', loadFactor=' + this.loadFactor + ', lift=' + this.lift + ', missPoint=' + this.missPoint + ', repsHigh=' + this.repsHigh + ', group=' + this.group + ', addSets=' + toString(this.addSets) + ', newExercise=' + toString_1(this.newExercise) + ', weeklyBefore=' + this.weeklyBefore + ', weeklyAfter=' + this.weeklyAfter + ', name=' + this.name + ', since=' + this.since + ', alternatives=' + toString(this.alternatives) + ', skipId=' + this.skipId + ', skipReason=' + this.skipReason + ')';
@@ -40840,16 +41508,16 @@ function JsCheckIn(date, lagging, growingWell, id) {
   this.growingWell = growingWell;
   this.id = id;
 }
-protoOf(JsCheckIn).g36 = function () {
+protoOf(JsCheckIn).s37 = function () {
   return this.date;
 };
-protoOf(JsCheckIn).h39 = function () {
+protoOf(JsCheckIn).t3a = function () {
   return this.lagging;
 };
-protoOf(JsCheckIn).i39 = function () {
+protoOf(JsCheckIn).u3a = function () {
   return this.growingWell;
 };
-protoOf(JsCheckIn).n35 = function () {
+protoOf(JsCheckIn).z36 = function () {
   return this.id;
 };
 protoOf(JsCheckIn).gb = function () {
@@ -40861,10 +41529,10 @@ protoOf(JsCheckIn).hb = function () {
 protoOf(JsCheckIn).tf = function () {
   return this.growingWell;
 };
-protoOf(JsCheckIn).t35 = function () {
+protoOf(JsCheckIn).f37 = function () {
   return this.id;
 };
-protoOf(JsCheckIn).j39 = function (date, lagging, growingWell, id) {
+protoOf(JsCheckIn).v3a = function (date, lagging, growingWell, id) {
   return new JsCheckIn(date, lagging, growingWell, id);
 };
 protoOf(JsCheckIn).copy = function (date, lagging, growingWell, id, $super) {
@@ -40872,7 +41540,7 @@ protoOf(JsCheckIn).copy = function (date, lagging, growingWell, id, $super) {
   lagging = lagging === VOID ? this.lagging : lagging;
   growingWell = growingWell === VOID ? this.growingWell : growingWell;
   id = id === VOID ? this.id : id;
-  return $super === VOID ? this.j39(date, lagging, growingWell, id) : $super.j39.call(this, date, lagging, growingWell, id);
+  return $super === VOID ? this.v3a(date, lagging, growingWell, id) : $super.v3a.call(this, date, lagging, growingWell, id);
 };
 protoOf(JsCheckIn).toString = function () {
   return 'JsCheckIn(date=' + this.date + ', lagging=' + toString(this.lagging) + ', growingWell=' + toString(this.growingWell) + ', id=' + this.id + ')';
@@ -40904,13 +41572,13 @@ function JsGroupNote(group, reason, weeklySets) {
   this.reason = reason;
   this.weeklySets = weeklySets;
 }
-protoOf(JsGroupNote).k38 = function () {
+protoOf(JsGroupNote).w39 = function () {
   return this.group;
 };
-protoOf(JsGroupNote).y36 = function () {
+protoOf(JsGroupNote).k38 = function () {
   return this.reason;
 };
-protoOf(JsGroupNote).k39 = function () {
+protoOf(JsGroupNote).w3a = function () {
   return this.weeklySets;
 };
 protoOf(JsGroupNote).gb = function () {
@@ -40922,14 +41590,14 @@ protoOf(JsGroupNote).hb = function () {
 protoOf(JsGroupNote).tf = function () {
   return this.weeklySets;
 };
-protoOf(JsGroupNote).l39 = function (group, reason, weeklySets) {
+protoOf(JsGroupNote).x3a = function (group, reason, weeklySets) {
   return new JsGroupNote(group, reason, weeklySets);
 };
 protoOf(JsGroupNote).copy = function (group, reason, weeklySets, $super) {
   group = group === VOID ? this.group : group;
   reason = reason === VOID ? this.reason : reason;
   weeklySets = weeklySets === VOID ? this.weeklySets : weeklySets;
-  return $super === VOID ? this.l39(group, reason, weeklySets) : $super.l39.call(this, group, reason, weeklySets);
+  return $super === VOID ? this.x3a(group, reason, weeklySets) : $super.x3a.call(this, group, reason, weeklySets);
 };
 protoOf(JsGroupNote).toString = function () {
   return 'JsGroupNote(group=' + this.group + ', reason=' + this.reason + ', weeklySets=' + this.weeklySets + ')';
@@ -40958,13 +41626,13 @@ function JsCheckInOutcome(advice, notes, dismissed) {
   this.notes = notes;
   this.dismissed = dismissed;
 }
-protoOf(JsCheckInOutcome).m39 = function () {
+protoOf(JsCheckInOutcome).y3a = function () {
   return this.advice;
 };
-protoOf(JsCheckInOutcome).n39 = function () {
+protoOf(JsCheckInOutcome).z3a = function () {
   return this.notes;
 };
-protoOf(JsCheckInOutcome).o39 = function () {
+protoOf(JsCheckInOutcome).a3b = function () {
   return this.dismissed;
 };
 protoOf(JsCheckInOutcome).gb = function () {
@@ -40976,14 +41644,14 @@ protoOf(JsCheckInOutcome).hb = function () {
 protoOf(JsCheckInOutcome).tf = function () {
   return this.dismissed;
 };
-protoOf(JsCheckInOutcome).p39 = function (advice, notes, dismissed) {
+protoOf(JsCheckInOutcome).b3b = function (advice, notes, dismissed) {
   return new JsCheckInOutcome(advice, notes, dismissed);
 };
 protoOf(JsCheckInOutcome).copy = function (advice, notes, dismissed, $super) {
   advice = advice === VOID ? this.advice : advice;
   notes = notes === VOID ? this.notes : notes;
   dismissed = dismissed === VOID ? this.dismissed : dismissed;
-  return $super === VOID ? this.p39(advice, notes, dismissed) : $super.p39.call(this, advice, notes, dismissed);
+  return $super === VOID ? this.b3b(advice, notes, dismissed) : $super.b3b.call(this, advice, notes, dismissed);
 };
 protoOf(JsCheckInOutcome).toString = function () {
   return 'JsCheckInOutcome(advice=' + toString(this.advice) + ', notes=' + toString(this.notes) + ', dismissed=' + toString(this.dismissed) + ')';
@@ -41011,7 +41679,7 @@ function JsAddedPlanItem(item, name) {
   this.item = item;
   this.name = name;
 }
-protoOf(JsAddedPlanItem).q39 = function () {
+protoOf(JsAddedPlanItem).c3b = function () {
   return this.item;
 };
 protoOf(JsAddedPlanItem).b14 = function () {
@@ -41023,13 +41691,13 @@ protoOf(JsAddedPlanItem).gb = function () {
 protoOf(JsAddedPlanItem).hb = function () {
   return this.name;
 };
-protoOf(JsAddedPlanItem).r39 = function (item, name) {
+protoOf(JsAddedPlanItem).d3b = function (item, name) {
   return new JsAddedPlanItem(item, name);
 };
 protoOf(JsAddedPlanItem).copy = function (item, name, $super) {
   item = item === VOID ? this.item : item;
   name = name === VOID ? this.name : name;
-  return $super === VOID ? this.r39(item, name) : $super.r39.call(this, item, name);
+  return $super === VOID ? this.d3b(item, name) : $super.d3b.call(this, item, name);
 };
 protoOf(JsAddedPlanItem).toString = function () {
   return 'JsAddedPlanItem(item=' + this.item.toString() + ', name=' + this.name + ')';
@@ -41057,19 +41725,19 @@ function JsPlanChange(updated, removed, added, message, changed) {
   this.message = message;
   this.changed = changed;
 }
-protoOf(JsPlanChange).s39 = function () {
+protoOf(JsPlanChange).e3b = function () {
   return this.updated;
 };
-protoOf(JsPlanChange).t39 = function () {
+protoOf(JsPlanChange).f3b = function () {
   return this.removed;
 };
-protoOf(JsPlanChange).u39 = function () {
+protoOf(JsPlanChange).g3b = function () {
   return this.added;
 };
 protoOf(JsPlanChange).l8 = function () {
   return this.message;
 };
-protoOf(JsPlanChange).v39 = function () {
+protoOf(JsPlanChange).h3b = function () {
   return this.changed;
 };
 protoOf(JsPlanChange).gb = function () {
@@ -41081,13 +41749,13 @@ protoOf(JsPlanChange).hb = function () {
 protoOf(JsPlanChange).tf = function () {
   return this.added;
 };
-protoOf(JsPlanChange).t35 = function () {
+protoOf(JsPlanChange).f37 = function () {
   return this.message;
 };
-protoOf(JsPlanChange).u35 = function () {
+protoOf(JsPlanChange).g37 = function () {
   return this.changed;
 };
-protoOf(JsPlanChange).w39 = function (updated, removed, added, message, changed) {
+protoOf(JsPlanChange).i3b = function (updated, removed, added, message, changed) {
   return new JsPlanChange(updated, removed, added, message, changed);
 };
 protoOf(JsPlanChange).copy = function (updated, removed, added, message, changed, $super) {
@@ -41096,7 +41764,7 @@ protoOf(JsPlanChange).copy = function (updated, removed, added, message, changed
   added = added === VOID ? this.added : added;
   message = message === VOID ? this.message : message;
   changed = changed === VOID ? this.changed : changed;
-  return $super === VOID ? this.w39(updated, removed, added, message, changed) : $super.w39.call(this, updated, removed, added, message, changed);
+  return $super === VOID ? this.i3b(updated, removed, added, message, changed) : $super.i3b.call(this, updated, removed, added, message, changed);
 };
 protoOf(JsPlanChange).toString = function () {
   return 'JsPlanChange(updated=' + toString(this.updated) + ', removed=' + toString(this.removed) + ', added=' + toString(this.added) + ', message=' + this.message + ', changed=' + this.changed + ')';
@@ -41130,10 +41798,10 @@ function JsRating(date, rating) {
   this.date = date;
   this.rating = rating;
 }
-protoOf(JsRating).g36 = function () {
+protoOf(JsRating).s37 = function () {
   return this.date;
 };
-protoOf(JsRating).x39 = function () {
+protoOf(JsRating).j3b = function () {
   return this.rating;
 };
 protoOf(JsRating).gb = function () {
@@ -41142,13 +41810,13 @@ protoOf(JsRating).gb = function () {
 protoOf(JsRating).hb = function () {
   return this.rating;
 };
-protoOf(JsRating).y39 = function (date, rating) {
+protoOf(JsRating).k3b = function (date, rating) {
   return new JsRating(date, rating);
 };
 protoOf(JsRating).copy = function (date, rating, $super) {
   date = date === VOID ? this.date : date;
   rating = rating === VOID ? this.rating : rating;
-  return $super === VOID ? this.y39(date, rating) : $super.y39.call(this, date, rating);
+  return $super === VOID ? this.k3b(date, rating) : $super.k3b.call(this, date, rating);
 };
 protoOf(JsRating).toString = function () {
   return 'JsRating(date=' + this.date + ', rating=' + this.rating + ')';
@@ -41177,22 +41845,22 @@ function JsMuscleRow(group, ratings, setsDone, setsPlanned, exercisesUp, exercis
   this.exercisesUp = exercisesUp;
   this.exercisesTracked = exercisesTracked;
 }
-protoOf(JsMuscleRow).k38 = function () {
+protoOf(JsMuscleRow).w39 = function () {
   return this.group;
 };
-protoOf(JsMuscleRow).z39 = function () {
+protoOf(JsMuscleRow).l3b = function () {
   return this.ratings;
 };
-protoOf(JsMuscleRow).a3a = function () {
+protoOf(JsMuscleRow).m3b = function () {
   return this.setsDone;
 };
-protoOf(JsMuscleRow).b3a = function () {
+protoOf(JsMuscleRow).n3b = function () {
   return this.setsPlanned;
 };
-protoOf(JsMuscleRow).c3a = function () {
+protoOf(JsMuscleRow).o3b = function () {
   return this.exercisesUp;
 };
-protoOf(JsMuscleRow).d3a = function () {
+protoOf(JsMuscleRow).p3b = function () {
   return this.exercisesTracked;
 };
 protoOf(JsMuscleRow).gb = function () {
@@ -41204,16 +41872,16 @@ protoOf(JsMuscleRow).hb = function () {
 protoOf(JsMuscleRow).tf = function () {
   return this.setsDone;
 };
-protoOf(JsMuscleRow).t35 = function () {
+protoOf(JsMuscleRow).f37 = function () {
   return this.setsPlanned;
 };
-protoOf(JsMuscleRow).u35 = function () {
+protoOf(JsMuscleRow).g37 = function () {
   return this.exercisesUp;
 };
-protoOf(JsMuscleRow).v35 = function () {
+protoOf(JsMuscleRow).h37 = function () {
   return this.exercisesTracked;
 };
-protoOf(JsMuscleRow).e3a = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) {
+protoOf(JsMuscleRow).q3b = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) {
   return new JsMuscleRow(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
 };
 protoOf(JsMuscleRow).copy = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked, $super) {
@@ -41223,7 +41891,7 @@ protoOf(JsMuscleRow).copy = function (group, ratings, setsDone, setsPlanned, exe
   setsPlanned = setsPlanned === VOID ? this.setsPlanned : setsPlanned;
   exercisesUp = exercisesUp === VOID ? this.exercisesUp : exercisesUp;
   exercisesTracked = exercisesTracked === VOID ? this.exercisesTracked : exercisesTracked;
-  return $super === VOID ? this.e3a(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) : $super.e3a.call(this, group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
+  return $super === VOID ? this.q3b(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) : $super.q3b.call(this, group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
 };
 protoOf(JsMuscleRow).toString = function () {
   return 'JsMuscleRow(group=' + this.group + ', ratings=' + toString(this.ratings) + ', setsDone=' + this.setsDone + ', setsPlanned=' + this.setsPlanned + ', exercisesUp=' + this.exercisesUp + ', exercisesTracked=' + this.exercisesTracked + ')';
@@ -41263,19 +41931,19 @@ function JsFormGuide(purpose, setup, steps, cues, mistakes) {
   this.cues = cues;
   this.mistakes = mistakes;
 }
-protoOf(JsFormGuide).f3a = function () {
+protoOf(JsFormGuide).r3b = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).g3a = function () {
+protoOf(JsFormGuide).s3b = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).h3a = function () {
+protoOf(JsFormGuide).t3b = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).i3a = function () {
+protoOf(JsFormGuide).u3b = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).j3a = function () {
+protoOf(JsFormGuide).v3b = function () {
   return this.mistakes;
 };
 protoOf(JsFormGuide).gb = function () {
@@ -41287,13 +41955,13 @@ protoOf(JsFormGuide).hb = function () {
 protoOf(JsFormGuide).tf = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).t35 = function () {
+protoOf(JsFormGuide).f37 = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).u35 = function () {
+protoOf(JsFormGuide).g37 = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).k3a = function (purpose, setup, steps, cues, mistakes) {
+protoOf(JsFormGuide).w3b = function (purpose, setup, steps, cues, mistakes) {
   return new JsFormGuide(purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $super) {
@@ -41302,7 +41970,7 @@ protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $su
   steps = steps === VOID ? this.steps : steps;
   cues = cues === VOID ? this.cues : cues;
   mistakes = mistakes === VOID ? this.mistakes : mistakes;
-  return $super === VOID ? this.k3a(purpose, setup, steps, cues, mistakes) : $super.k3a.call(this, purpose, setup, steps, cues, mistakes);
+  return $super === VOID ? this.w3b(purpose, setup, steps, cues, mistakes) : $super.w3b.call(this, purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).toString = function () {
   return 'JsFormGuide(purpose=' + this.purpose + ', setup=' + toString(this.setup) + ', steps=' + toString(this.steps) + ', cues=' + toString(this.cues) + ', mistakes=' + toString(this.mistakes) + ')';
@@ -41337,13 +42005,13 @@ function JsMuscleFocus(stretch, squeeze, none) {
   this.squeeze = squeeze;
   this.none = none;
 }
-protoOf(JsMuscleFocus).l3a = function () {
+protoOf(JsMuscleFocus).x3b = function () {
   return this.stretch;
 };
-protoOf(JsMuscleFocus).m3a = function () {
+protoOf(JsMuscleFocus).y3b = function () {
   return this.squeeze;
 };
-protoOf(JsMuscleFocus).n3a = function () {
+protoOf(JsMuscleFocus).z3b = function () {
   return this.none;
 };
 protoOf(JsMuscleFocus).gb = function () {
@@ -41355,14 +42023,14 @@ protoOf(JsMuscleFocus).hb = function () {
 protoOf(JsMuscleFocus).tf = function () {
   return this.none;
 };
-protoOf(JsMuscleFocus).o3a = function (stretch, squeeze, none) {
+protoOf(JsMuscleFocus).a3c = function (stretch, squeeze, none) {
   return new JsMuscleFocus(stretch, squeeze, none);
 };
 protoOf(JsMuscleFocus).copy = function (stretch, squeeze, none, $super) {
   stretch = stretch === VOID ? this.stretch : stretch;
   squeeze = squeeze === VOID ? this.squeeze : squeeze;
   none = none === VOID ? this.none : none;
-  return $super === VOID ? this.o3a(stretch, squeeze, none) : $super.o3a.call(this, stretch, squeeze, none);
+  return $super === VOID ? this.a3c(stretch, squeeze, none) : $super.a3c.call(this, stretch, squeeze, none);
 };
 protoOf(JsMuscleFocus).toString = function () {
   return 'JsMuscleFocus(stretch=' + this.stretch + ', squeeze=' + this.squeeze + ', none=' + this.none + ')';
@@ -41390,10 +42058,10 @@ function JsRpeGuide(title, lines) {
   this.title = title;
   this.lines = lines;
 }
-protoOf(JsRpeGuide).p3a = function () {
+protoOf(JsRpeGuide).b3c = function () {
   return this.title;
 };
-protoOf(JsRpeGuide).q3a = function () {
+protoOf(JsRpeGuide).c3c = function () {
   return this.lines;
 };
 protoOf(JsRpeGuide).gb = function () {
@@ -41402,13 +42070,13 @@ protoOf(JsRpeGuide).gb = function () {
 protoOf(JsRpeGuide).hb = function () {
   return this.lines;
 };
-protoOf(JsRpeGuide).r3a = function (title, lines) {
+protoOf(JsRpeGuide).d3c = function (title, lines) {
   return new JsRpeGuide(title, lines);
 };
 protoOf(JsRpeGuide).copy = function (title, lines, $super) {
   title = title === VOID ? this.title : title;
   lines = lines === VOID ? this.lines : lines;
-  return $super === VOID ? this.r3a(title, lines) : $super.r3a.call(this, title, lines);
+  return $super === VOID ? this.d3c(title, lines) : $super.d3c.call(this, title, lines);
 };
 protoOf(JsRpeGuide).toString = function () {
   return 'JsRpeGuide(title=' + this.title + ', lines=' + toString(this.lines) + ')';
@@ -41443,28 +42111,28 @@ function JsLibraryExercise(name, aliases, area, equipment, muscles, kind, catego
 protoOf(JsLibraryExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).s3a = function () {
+protoOf(JsLibraryExercise).e3c = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).t3a = function () {
+protoOf(JsLibraryExercise).f3c = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).u3a = function () {
+protoOf(JsLibraryExercise).g3c = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).q35 = function () {
+protoOf(JsLibraryExercise).c37 = function () {
   return this.muscles;
 };
 protoOf(JsLibraryExercise).yi = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).o35 = function () {
+protoOf(JsLibraryExercise).a37 = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).p35 = function () {
+protoOf(JsLibraryExercise).b37 = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).v3a = function () {
+protoOf(JsLibraryExercise).h3c = function () {
   return this.guide;
 };
 protoOf(JsLibraryExercise).gb = function () {
@@ -41476,25 +42144,25 @@ protoOf(JsLibraryExercise).hb = function () {
 protoOf(JsLibraryExercise).tf = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).t35 = function () {
+protoOf(JsLibraryExercise).f37 = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).u35 = function () {
+protoOf(JsLibraryExercise).g37 = function () {
   return this.muscles;
 };
-protoOf(JsLibraryExercise).v35 = function () {
+protoOf(JsLibraryExercise).h37 = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).w35 = function () {
+protoOf(JsLibraryExercise).i37 = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).q36 = function () {
+protoOf(JsLibraryExercise).c38 = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).r36 = function () {
+protoOf(JsLibraryExercise).d38 = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).w3a = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
+protoOf(JsLibraryExercise).i3c = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
   return new JsLibraryExercise(name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide, $super) {
@@ -41507,7 +42175,7 @@ protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, musc
   category = category === VOID ? this.category : category;
   parentLift = parentLift === VOID ? this.parentLift : parentLift;
   guide = guide === VOID ? this.guide : guide;
-  return $super === VOID ? this.w3a(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.w3a.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
+  return $super === VOID ? this.i3c(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.i3c.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).toString = function () {
   return 'JsLibraryExercise(name=' + this.name + ', aliases=' + toString(this.aliases) + ', area=' + this.area + ', equipment=' + toString(this.equipment) + ', muscles=' + toString(this.muscles) + ', kind=' + this.kind + ', category=' + this.category + ', parentLift=' + this.parentLift + ', guide=' + this.guide.toString() + ')';
@@ -41559,16 +42227,16 @@ function JsBuilderPick(name, muscles, compound, equipment, inCatalogue) {
 protoOf(JsBuilderPick).b14 = function () {
   return this.name;
 };
-protoOf(JsBuilderPick).q35 = function () {
+protoOf(JsBuilderPick).c37 = function () {
   return this.muscles;
 };
-protoOf(JsBuilderPick).x3a = function () {
+protoOf(JsBuilderPick).j3c = function () {
   return this.compound;
 };
-protoOf(JsBuilderPick).u3a = function () {
+protoOf(JsBuilderPick).g3c = function () {
   return this.equipment;
 };
-protoOf(JsBuilderPick).y3a = function () {
+protoOf(JsBuilderPick).k3c = function () {
   return this.inCatalogue;
 };
 protoOf(JsBuilderPick).gb = function () {
@@ -41580,13 +42248,13 @@ protoOf(JsBuilderPick).hb = function () {
 protoOf(JsBuilderPick).tf = function () {
   return this.compound;
 };
-protoOf(JsBuilderPick).t35 = function () {
+protoOf(JsBuilderPick).f37 = function () {
   return this.equipment;
 };
-protoOf(JsBuilderPick).u35 = function () {
+protoOf(JsBuilderPick).g37 = function () {
   return this.inCatalogue;
 };
-protoOf(JsBuilderPick).z3a = function (name, muscles, compound, equipment, inCatalogue) {
+protoOf(JsBuilderPick).l3c = function (name, muscles, compound, equipment, inCatalogue) {
   return new JsBuilderPick(name, muscles, compound, equipment, inCatalogue);
 };
 protoOf(JsBuilderPick).copy = function (name, muscles, compound, equipment, inCatalogue, $super) {
@@ -41595,7 +42263,7 @@ protoOf(JsBuilderPick).copy = function (name, muscles, compound, equipment, inCa
   compound = compound === VOID ? this.compound : compound;
   equipment = equipment === VOID ? this.equipment : equipment;
   inCatalogue = inCatalogue === VOID ? this.inCatalogue : inCatalogue;
-  return $super === VOID ? this.z3a(name, muscles, compound, equipment, inCatalogue) : $super.z3a.call(this, name, muscles, compound, equipment, inCatalogue);
+  return $super === VOID ? this.l3c(name, muscles, compound, equipment, inCatalogue) : $super.l3c.call(this, name, muscles, compound, equipment, inCatalogue);
 };
 protoOf(JsBuilderPick).toString = function () {
   return 'JsBuilderPick(name=' + this.name + ', muscles=' + toString(this.muscles) + ', compound=' + this.compound + ', equipment=' + toString(this.equipment) + ', inCatalogue=' + this.inCatalogue + ')';
@@ -41641,34 +42309,34 @@ function JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGr
 protoOf(JsDraftExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsDraftExercise).y3a = function () {
+protoOf(JsDraftExercise).k3c = function () {
   return this.inCatalogue;
 };
-protoOf(JsDraftExercise).j36 = function () {
+protoOf(JsDraftExercise).v37 = function () {
   return this.sets;
 };
-protoOf(JsDraftExercise).b38 = function () {
+protoOf(JsDraftExercise).n39 = function () {
   return this.repsLow;
 };
-protoOf(JsDraftExercise).p36 = function () {
+protoOf(JsDraftExercise).b38 = function () {
   return this.repsHigh;
 };
-protoOf(JsDraftExercise).b36 = function () {
+protoOf(JsDraftExercise).n37 = function () {
   return this.rpe;
 };
-protoOf(JsDraftExercise).a3b = function () {
+protoOf(JsDraftExercise).m3c = function () {
   return this.mainGroup;
 };
-protoOf(JsDraftExercise).q35 = function () {
+protoOf(JsDraftExercise).c37 = function () {
   return this.muscles;
 };
-protoOf(JsDraftExercise).x3a = function () {
+protoOf(JsDraftExercise).j3c = function () {
   return this.compound;
 };
-protoOf(JsDraftExercise).b3b = function () {
+protoOf(JsDraftExercise).n3c = function () {
   return this.slot;
 };
-protoOf(JsDraftExercise).c3b = function () {
+protoOf(JsDraftExercise).o3c = function () {
   return this.lead;
 };
 protoOf(JsDraftExercise).gb = function () {
@@ -41680,31 +42348,31 @@ protoOf(JsDraftExercise).hb = function () {
 protoOf(JsDraftExercise).tf = function () {
   return this.sets;
 };
-protoOf(JsDraftExercise).t35 = function () {
+protoOf(JsDraftExercise).f37 = function () {
   return this.repsLow;
 };
-protoOf(JsDraftExercise).u35 = function () {
+protoOf(JsDraftExercise).g37 = function () {
   return this.repsHigh;
 };
-protoOf(JsDraftExercise).v35 = function () {
+protoOf(JsDraftExercise).h37 = function () {
   return this.rpe;
 };
-protoOf(JsDraftExercise).w35 = function () {
+protoOf(JsDraftExercise).i37 = function () {
   return this.mainGroup;
 };
-protoOf(JsDraftExercise).q36 = function () {
+protoOf(JsDraftExercise).c38 = function () {
   return this.muscles;
 };
-protoOf(JsDraftExercise).r36 = function () {
+protoOf(JsDraftExercise).d38 = function () {
   return this.compound;
 };
-protoOf(JsDraftExercise).t38 = function () {
+protoOf(JsDraftExercise).f3a = function () {
   return this.slot;
 };
-protoOf(JsDraftExercise).u38 = function () {
+protoOf(JsDraftExercise).g3a = function () {
   return this.lead;
 };
-protoOf(JsDraftExercise).d3b = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
+protoOf(JsDraftExercise).p3c = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
   return new JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
 protoOf(JsDraftExercise).copy = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead, $super) {
@@ -41719,7 +42387,7 @@ protoOf(JsDraftExercise).copy = function (name, inCatalogue, sets, repsLow, reps
   compound = compound === VOID ? this.compound : compound;
   slot = slot === VOID ? this.slot : slot;
   lead = lead === VOID ? this.lead : lead;
-  return $super === VOID ? this.d3b(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.d3b.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
+  return $super === VOID ? this.p3c(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.p3c.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
 protoOf(JsDraftExercise).toString = function () {
   return 'JsDraftExercise(name=' + this.name + ', inCatalogue=' + this.inCatalogue + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ', mainGroup=' + this.mainGroup + ', muscles=' + toString(this.muscles) + ', compound=' + this.compound + ', slot=' + this.slot + ', lead=' + this.lead + ')';
@@ -41775,10 +42443,10 @@ function JsDraftSession(day, title, exercises) {
 protoOf(JsDraftSession).j11 = function () {
   return this.day;
 };
-protoOf(JsDraftSession).p3a = function () {
+protoOf(JsDraftSession).b3c = function () {
   return this.title;
 };
-protoOf(JsDraftSession).g37 = function () {
+protoOf(JsDraftSession).s38 = function () {
   return this.exercises;
 };
 protoOf(JsDraftSession).gb = function () {
@@ -41790,14 +42458,14 @@ protoOf(JsDraftSession).hb = function () {
 protoOf(JsDraftSession).tf = function () {
   return this.exercises;
 };
-protoOf(JsDraftSession).e3b = function (day, title, exercises) {
+protoOf(JsDraftSession).q3c = function (day, title, exercises) {
   return new JsDraftSession(day, title, exercises);
 };
 protoOf(JsDraftSession).copy = function (day, title, exercises, $super) {
   day = day === VOID ? this.day : day;
   title = title === VOID ? this.title : title;
   exercises = exercises === VOID ? this.exercises : exercises;
-  return $super === VOID ? this.e3b(day, title, exercises) : $super.e3b.call(this, day, title, exercises);
+  return $super === VOID ? this.q3c(day, title, exercises) : $super.q3c.call(this, day, title, exercises);
 };
 protoOf(JsDraftSession).toString = function () {
   return 'JsDraftSession(day=' + this.day + ', title=' + this.title + ', exercises=' + toString(this.exercises) + ')';
@@ -41827,16 +42495,16 @@ function JsGroupVolume(group, weeklySets, days, short) {
   this.days = days;
   this.short = short;
 }
-protoOf(JsGroupVolume).k38 = function () {
+protoOf(JsGroupVolume).w39 = function () {
   return this.group;
 };
-protoOf(JsGroupVolume).k39 = function () {
+protoOf(JsGroupVolume).w3a = function () {
   return this.weeklySets;
 };
 protoOf(JsGroupVolume).hy = function () {
   return this.days;
 };
-protoOf(JsGroupVolume).f3b = function () {
+protoOf(JsGroupVolume).r3c = function () {
   return this.short;
 };
 protoOf(JsGroupVolume).gb = function () {
@@ -41848,10 +42516,10 @@ protoOf(JsGroupVolume).hb = function () {
 protoOf(JsGroupVolume).tf = function () {
   return this.days;
 };
-protoOf(JsGroupVolume).t35 = function () {
+protoOf(JsGroupVolume).f37 = function () {
   return this.short;
 };
-protoOf(JsGroupVolume).g3b = function (group, weeklySets, days, short) {
+protoOf(JsGroupVolume).s3c = function (group, weeklySets, days, short) {
   return new JsGroupVolume(group, weeklySets, days, short);
 };
 protoOf(JsGroupVolume).copy = function (group, weeklySets, days, short, $super) {
@@ -41859,7 +42527,7 @@ protoOf(JsGroupVolume).copy = function (group, weeklySets, days, short, $super) 
   weeklySets = weeklySets === VOID ? this.weeklySets : weeklySets;
   days = days === VOID ? this.days : days;
   short = short === VOID ? this.short : short;
-  return $super === VOID ? this.g3b(group, weeklySets, days, short) : $super.g3b.call(this, group, weeklySets, days, short);
+  return $super === VOID ? this.s3c(group, weeklySets, days, short) : $super.s3c.call(this, group, weeklySets, days, short);
 };
 protoOf(JsGroupVolume).toString = function () {
   return 'JsGroupVolume(group=' + this.group + ', weeklySets=' + this.weeklySets + ', days=' + this.days + ', short=' + this.short + ')';
@@ -41893,7 +42561,7 @@ function JsLeftOut(name, reason) {
 protoOf(JsLeftOut).b14 = function () {
   return this.name;
 };
-protoOf(JsLeftOut).y36 = function () {
+protoOf(JsLeftOut).k38 = function () {
   return this.reason;
 };
 protoOf(JsLeftOut).gb = function () {
@@ -41902,13 +42570,13 @@ protoOf(JsLeftOut).gb = function () {
 protoOf(JsLeftOut).hb = function () {
   return this.reason;
 };
-protoOf(JsLeftOut).y39 = function (name, reason) {
+protoOf(JsLeftOut).k3b = function (name, reason) {
   return new JsLeftOut(name, reason);
 };
 protoOf(JsLeftOut).copy = function (name, reason, $super) {
   name = name === VOID ? this.name : name;
   reason = reason === VOID ? this.reason : reason;
-  return $super === VOID ? this.y39(name, reason) : $super.y39.call(this, name, reason);
+  return $super === VOID ? this.k3b(name, reason) : $super.k3b.call(this, name, reason);
 };
 protoOf(JsLeftOut).toString = function () {
   return 'JsLeftOut(name=' + this.name + ', reason=' + this.reason + ')';
@@ -41934,13 +42602,13 @@ function JsPlanDraft(sessions, volume, leftOut) {
   this.volume = volume;
   this.leftOut = leftOut;
 }
-protoOf(JsPlanDraft).f37 = function () {
+protoOf(JsPlanDraft).r38 = function () {
   return this.sessions;
 };
-protoOf(JsPlanDraft).h3b = function () {
+protoOf(JsPlanDraft).t3c = function () {
   return this.volume;
 };
-protoOf(JsPlanDraft).i3b = function () {
+protoOf(JsPlanDraft).u3c = function () {
   return this.leftOut;
 };
 protoOf(JsPlanDraft).gb = function () {
@@ -41952,14 +42620,14 @@ protoOf(JsPlanDraft).hb = function () {
 protoOf(JsPlanDraft).tf = function () {
   return this.leftOut;
 };
-protoOf(JsPlanDraft).j3b = function (sessions, volume, leftOut) {
+protoOf(JsPlanDraft).v3c = function (sessions, volume, leftOut) {
   return new JsPlanDraft(sessions, volume, leftOut);
 };
 protoOf(JsPlanDraft).copy = function (sessions, volume, leftOut, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   volume = volume === VOID ? this.volume : volume;
   leftOut = leftOut === VOID ? this.leftOut : leftOut;
-  return $super === VOID ? this.j3b(sessions, volume, leftOut) : $super.j3b.call(this, sessions, volume, leftOut);
+  return $super === VOID ? this.v3c(sessions, volume, leftOut) : $super.v3c.call(this, sessions, volume, leftOut);
 };
 protoOf(JsPlanDraft).toString = function () {
   return 'JsPlanDraft(sessions=' + toString(this.sessions) + ', volume=' + toString(this.volume) + ', leftOut=' + toString(this.leftOut) + ')';
@@ -41983,22 +42651,239 @@ protoOf(JsPlanDraft).equals = function (other) {
     return false;
   return true;
 };
+function JsTemplateExercise(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) {
+  this.name = name;
+  this.sets = sets;
+  this.repsLow = repsLow;
+  this.repsHigh = repsHigh;
+  this.rpe = rpe;
+  this.onlyWithStrictPress = onlyWithStrictPress;
+}
+protoOf(JsTemplateExercise).b14 = function () {
+  return this.name;
+};
+protoOf(JsTemplateExercise).v37 = function () {
+  return this.sets;
+};
+protoOf(JsTemplateExercise).n39 = function () {
+  return this.repsLow;
+};
+protoOf(JsTemplateExercise).b38 = function () {
+  return this.repsHigh;
+};
+protoOf(JsTemplateExercise).n37 = function () {
+  return this.rpe;
+};
+protoOf(JsTemplateExercise).w3c = function () {
+  return this.onlyWithStrictPress;
+};
+protoOf(JsTemplateExercise).gb = function () {
+  return this.name;
+};
+protoOf(JsTemplateExercise).hb = function () {
+  return this.sets;
+};
+protoOf(JsTemplateExercise).tf = function () {
+  return this.repsLow;
+};
+protoOf(JsTemplateExercise).f37 = function () {
+  return this.repsHigh;
+};
+protoOf(JsTemplateExercise).g37 = function () {
+  return this.rpe;
+};
+protoOf(JsTemplateExercise).h37 = function () {
+  return this.onlyWithStrictPress;
+};
+protoOf(JsTemplateExercise).x3c = function (name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) {
+  return new JsTemplateExercise(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress);
+};
+protoOf(JsTemplateExercise).copy = function (name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress, $super) {
+  name = name === VOID ? this.name : name;
+  sets = sets === VOID ? this.sets : sets;
+  repsLow = repsLow === VOID ? this.repsLow : repsLow;
+  repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
+  rpe = rpe === VOID ? this.rpe : rpe;
+  onlyWithStrictPress = onlyWithStrictPress === VOID ? this.onlyWithStrictPress : onlyWithStrictPress;
+  return $super === VOID ? this.x3c(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) : $super.x3c.call(this, name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress);
+};
+protoOf(JsTemplateExercise).toString = function () {
+  return 'JsTemplateExercise(name=' + this.name + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ', onlyWithStrictPress=' + this.onlyWithStrictPress + ')';
+};
+protoOf(JsTemplateExercise).hashCode = function () {
+  var result = getStringHashCode(this.name);
+  result = imul(result, 31) + this.sets | 0;
+  result = imul(result, 31) + this.repsLow | 0;
+  result = imul(result, 31) + (this.repsHigh == null ? 0 : this.repsHigh) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.rpe) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.onlyWithStrictPress) | 0;
+  return result;
+};
+protoOf(JsTemplateExercise).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsTemplateExercise))
+    return false;
+  if (!(this.name === other.name))
+    return false;
+  if (!(this.sets === other.sets))
+    return false;
+  if (!(this.repsLow === other.repsLow))
+    return false;
+  if (!(this.repsHigh == other.repsHigh))
+    return false;
+  if (!equals(this.rpe, other.rpe))
+    return false;
+  if (!(this.onlyWithStrictPress === other.onlyWithStrictPress))
+    return false;
+  return true;
+};
+function JsTemplateSession(title, exercises) {
+  this.title = title;
+  this.exercises = exercises;
+}
+protoOf(JsTemplateSession).b3c = function () {
+  return this.title;
+};
+protoOf(JsTemplateSession).s38 = function () {
+  return this.exercises;
+};
+protoOf(JsTemplateSession).gb = function () {
+  return this.title;
+};
+protoOf(JsTemplateSession).hb = function () {
+  return this.exercises;
+};
+protoOf(JsTemplateSession).y3c = function (title, exercises) {
+  return new JsTemplateSession(title, exercises);
+};
+protoOf(JsTemplateSession).copy = function (title, exercises, $super) {
+  title = title === VOID ? this.title : title;
+  exercises = exercises === VOID ? this.exercises : exercises;
+  return $super === VOID ? this.y3c(title, exercises) : $super.y3c.call(this, title, exercises);
+};
+protoOf(JsTemplateSession).toString = function () {
+  return 'JsTemplateSession(title=' + this.title + ', exercises=' + toString(this.exercises) + ')';
+};
+protoOf(JsTemplateSession).hashCode = function () {
+  var result = getStringHashCode(this.title);
+  result = imul(result, 31) + hashCode(this.exercises) | 0;
+  return result;
+};
+protoOf(JsTemplateSession).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsTemplateSession))
+    return false;
+  if (!(this.title === other.title))
+    return false;
+  if (!equals(this.exercises, other.exercises))
+    return false;
+  return true;
+};
+function JsPlanTemplate(id, mode, name, suits, dayCount, sessions) {
+  this.id = id;
+  this.mode = mode;
+  this.name = name;
+  this.suits = suits;
+  this.dayCount = dayCount;
+  this.sessions = sessions;
+}
+protoOf(JsPlanTemplate).z36 = function () {
+  return this.id;
+};
+protoOf(JsPlanTemplate).w37 = function () {
+  return this.mode;
+};
+protoOf(JsPlanTemplate).b14 = function () {
+  return this.name;
+};
+protoOf(JsPlanTemplate).z3c = function () {
+  return this.suits;
+};
+protoOf(JsPlanTemplate).j34 = function () {
+  return this.dayCount;
+};
+protoOf(JsPlanTemplate).r38 = function () {
+  return this.sessions;
+};
+protoOf(JsPlanTemplate).gb = function () {
+  return this.id;
+};
+protoOf(JsPlanTemplate).hb = function () {
+  return this.mode;
+};
+protoOf(JsPlanTemplate).tf = function () {
+  return this.name;
+};
+protoOf(JsPlanTemplate).f37 = function () {
+  return this.suits;
+};
+protoOf(JsPlanTemplate).g37 = function () {
+  return this.dayCount;
+};
+protoOf(JsPlanTemplate).h37 = function () {
+  return this.sessions;
+};
+protoOf(JsPlanTemplate).a3d = function (id, mode, name, suits, dayCount, sessions) {
+  return new JsPlanTemplate(id, mode, name, suits, dayCount, sessions);
+};
+protoOf(JsPlanTemplate).copy = function (id, mode, name, suits, dayCount, sessions, $super) {
+  id = id === VOID ? this.id : id;
+  mode = mode === VOID ? this.mode : mode;
+  name = name === VOID ? this.name : name;
+  suits = suits === VOID ? this.suits : suits;
+  dayCount = dayCount === VOID ? this.dayCount : dayCount;
+  sessions = sessions === VOID ? this.sessions : sessions;
+  return $super === VOID ? this.a3d(id, mode, name, suits, dayCount, sessions) : $super.a3d.call(this, id, mode, name, suits, dayCount, sessions);
+};
+protoOf(JsPlanTemplate).toString = function () {
+  return 'JsPlanTemplate(id=' + this.id + ', mode=' + this.mode + ', name=' + this.name + ', suits=' + this.suits + ', dayCount=' + this.dayCount + ', sessions=' + toString(this.sessions) + ')';
+};
+protoOf(JsPlanTemplate).hashCode = function () {
+  var result = getStringHashCode(this.id);
+  result = imul(result, 31) + getStringHashCode(this.mode) | 0;
+  result = imul(result, 31) + getStringHashCode(this.name) | 0;
+  result = imul(result, 31) + getStringHashCode(this.suits) | 0;
+  result = imul(result, 31) + this.dayCount | 0;
+  result = imul(result, 31) + hashCode(this.sessions) | 0;
+  return result;
+};
+protoOf(JsPlanTemplate).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsPlanTemplate))
+    return false;
+  if (!(this.id === other.id))
+    return false;
+  if (!(this.mode === other.mode))
+    return false;
+  if (!(this.name === other.name))
+    return false;
+  if (!(this.suits === other.suits))
+    return false;
+  if (!(this.dayCount === other.dayCount))
+    return false;
+  if (!equals(this.sessions, other.sessions))
+    return false;
+  return true;
+};
 function JsFigureInfo(startCaption, endCaption, thumbnail, viewBox) {
   this.startCaption = startCaption;
   this.endCaption = endCaption;
   this.thumbnail = thumbnail;
   this.viewBox = viewBox;
 }
-protoOf(JsFigureInfo).k3b = function () {
+protoOf(JsFigureInfo).b3d = function () {
   return this.startCaption;
 };
-protoOf(JsFigureInfo).l3b = function () {
+protoOf(JsFigureInfo).c3d = function () {
   return this.endCaption;
 };
-protoOf(JsFigureInfo).m3b = function () {
+protoOf(JsFigureInfo).d3d = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).n3b = function () {
+protoOf(JsFigureInfo).e3d = function () {
   return this.viewBox;
 };
 protoOf(JsFigureInfo).gb = function () {
@@ -42010,10 +42895,10 @@ protoOf(JsFigureInfo).hb = function () {
 protoOf(JsFigureInfo).tf = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).t35 = function () {
+protoOf(JsFigureInfo).f37 = function () {
   return this.viewBox;
 };
-protoOf(JsFigureInfo).o3b = function (startCaption, endCaption, thumbnail, viewBox) {
+protoOf(JsFigureInfo).f3d = function (startCaption, endCaption, thumbnail, viewBox) {
   return new JsFigureInfo(startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, viewBox, $super) {
@@ -42021,7 +42906,7 @@ protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, view
   endCaption = endCaption === VOID ? this.endCaption : endCaption;
   thumbnail = thumbnail === VOID ? this.thumbnail : thumbnail;
   viewBox = viewBox === VOID ? this.viewBox : viewBox;
-  return $super === VOID ? this.o3b(startCaption, endCaption, thumbnail, viewBox) : $super.o3b.call(this, startCaption, endCaption, thumbnail, viewBox);
+  return $super === VOID ? this.f3d(startCaption, endCaption, thumbnail, viewBox) : $super.f3d.call(this, startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).toString = function () {
   return 'JsFigureInfo(startCaption=' + this.startCaption + ', endCaption=' + this.endCaption + ', thumbnail=' + this.thumbnail + ', viewBox=' + toString(this.viewBox) + ')';
@@ -42055,7 +42940,7 @@ function JsFigureShape(kind, role) {
 protoOf(JsFigureShape).yi = function () {
   return this.kind;
 };
-protoOf(JsFigureShape).p3b = function () {
+protoOf(JsFigureShape).g3d = function () {
   return this.role;
 };
 function JsFigureCircle(role, cx, cy, r) {
@@ -42064,13 +42949,13 @@ function JsFigureCircle(role, cx, cy, r) {
   this.cy = cy;
   this.r = r;
 }
-protoOf(JsFigureCircle).q3b = function () {
+protoOf(JsFigureCircle).h3d = function () {
   return this.cx;
 };
-protoOf(JsFigureCircle).r3b = function () {
+protoOf(JsFigureCircle).i3d = function () {
   return this.cy;
 };
-protoOf(JsFigureCircle).s3b = function () {
+protoOf(JsFigureCircle).j3d = function () {
   return this.r;
 };
 function JsFigureCapsule(role, x1, y1, x2, y2, width) {
@@ -42081,16 +42966,16 @@ function JsFigureCapsule(role, x1, y1, x2, y2, width) {
   this.y2 = y2;
   this.width = width;
 }
-protoOf(JsFigureCapsule).t3b = function () {
+protoOf(JsFigureCapsule).k3d = function () {
   return this.x1;
 };
-protoOf(JsFigureCapsule).u3b = function () {
+protoOf(JsFigureCapsule).l3d = function () {
   return this.y1;
 };
-protoOf(JsFigureCapsule).v3b = function () {
+protoOf(JsFigureCapsule).m3d = function () {
   return this.x2;
 };
-protoOf(JsFigureCapsule).w3b = function () {
+protoOf(JsFigureCapsule).n3d = function () {
   return this.y2;
 };
 protoOf(JsFigureCapsule).h2h = function () {
@@ -42104,16 +42989,16 @@ function JsFigureRect(role, x, y, w, h, radius) {
   this.h = h;
   this.radius = radius;
 }
-protoOf(JsFigureRect).x3b = function () {
+protoOf(JsFigureRect).o3d = function () {
   return this.x;
 };
-protoOf(JsFigureRect).y3b = function () {
+protoOf(JsFigureRect).p3d = function () {
   return this.y;
 };
-protoOf(JsFigureRect).z3b = function () {
+protoOf(JsFigureRect).q3d = function () {
   return this.w;
 };
-protoOf(JsFigureRect).a3c = function () {
+protoOf(JsFigureRect).r3d = function () {
   return this.h;
 };
 protoOf(JsFigureRect).x2r = function () {
@@ -42123,7 +43008,7 @@ function JsFigurePolygon(role, points) {
   JsFigureShape.call(this, 'polygon', role);
   this.points = points;
 }
-protoOf(JsFigurePolygon).b3c = function () {
+protoOf(JsFigurePolygon).s3d = function () {
   return this.points;
 };
 function toFacadeId(_this__u8e3s4, field) {
@@ -42234,7 +43119,7 @@ function toDomain(_this__u8e3s4) {
     // Inline function 'kotlin.let' call
     tmp_3 = parseLift('exercise.parentLift', tmp0_safe_receiver);
   }
-  return new Exercise(tmp, _this__u8e3s4.name, tmp_2, tmp_3, toList_1(_this__u8e3s4.muscles), _this__u8e3s4.isBuiltIn, _this__u8e3s4.archived);
+  return new Exercise(tmp, _this__u8e3s4.name, tmp_2, tmp_3, toList(_this__u8e3s4.muscles), _this__u8e3s4.isBuiltIn, _this__u8e3s4.archived);
 }
 function toJs(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -42586,7 +43471,7 @@ function toJs_2(_this__u8e3s4) {
 function toJs_3(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.f34_1;
+  var this_0 = _this__u8e3s4.r35_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -42599,7 +43484,7 @@ function toJs_3(_this__u8e3s4) {
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$3 = copyToArray(destination);
-  return new JsMuscleRow(_this__u8e3s4.e34_1.w1_1, tmp$ret$3, _this__u8e3s4.g34_1, _this__u8e3s4.h34_1, _this__u8e3s4.i34_1, _this__u8e3s4.j34_1);
+  return new JsMuscleRow(_this__u8e3s4.q35_1.w1_1, tmp$ret$3, _this__u8e3s4.s35_1, _this__u8e3s4.t35_1, _this__u8e3s4.u35_1, _this__u8e3s4.v35_1);
 }
 function toDomain_4(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -42862,9 +43747,9 @@ function toJs_4(_this__u8e3s4) {
 }
 function toJs_5(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  var tmp = toFacadeId(_this__u8e3s4.x33_1, 'trend.exerciseId');
+  var tmp = toFacadeId(_this__u8e3s4.j35_1, 'trend.exerciseId');
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.z33_1;
+  var this_0 = _this__u8e3s4.l35_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -42872,16 +43757,16 @@ function toJs_5(_this__u8e3s4) {
     var item = _iterator__ex2g4s.l();
     var date = item.gb();
     var set = item.hb();
-    var tmp$ret$2 = new JsBestSet(date.toString(), toJs_11(set));
+    var tmp$ret$2 = new JsBestSet(date.toString(), toJs_12(set));
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$3 = copyToArray(destination);
-  return new JsExerciseTrend(tmp, _this__u8e3s4.y33_1, tmp$ret$3, _this__u8e3s4.a34_1);
+  return new JsExerciseTrend(tmp, _this__u8e3s4.k35_1, tmp$ret$3, _this__u8e3s4.m35_1);
 }
 function toDomain_9(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  var tmp = toList_1(_this__u8e3s4.muscles);
+  var tmp = toList(_this__u8e3s4.muscles);
   // Inline function 'kotlin.collections.map' call
   var this_0 = _this__u8e3s4.equipment;
   // Inline function 'kotlin.collections.mapTo' call
@@ -42927,7 +43812,7 @@ function toDomain_9(_this__u8e3s4) {
 function toJs_6(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.e33_1;
+  var this_0 = _this__u8e3s4.f33_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -42939,25 +43824,25 @@ function toJs_6(_this__u8e3s4) {
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp = copyToArray(destination);
   // Inline function 'kotlin.collections.map' call
-  var this_1 = _this__u8e3s4.f33_1;
+  var this_1 = _this__u8e3s4.g33_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
   var _iterator__ex2g4s_0 = this_1.j();
   while (_iterator__ex2g4s_0.k()) {
     var item_0 = _iterator__ex2g4s_0.l();
-    var tmp$ret$6 = new JsGroupVolume(item_0.o33_1.w1_1, item_0.p33_1, item_0.q33_1, item_0.r33_1);
+    var tmp$ret$6 = new JsGroupVolume(item_0.p33_1.w1_1, item_0.q33_1, item_0.r33_1, item_0.s33_1);
     destination_0.i(tmp$ret$6);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp_0 = copyToArray(destination_0);
   // Inline function 'kotlin.collections.map' call
-  var this_2 = _this__u8e3s4.g33_1;
+  var this_2 = _this__u8e3s4.h33_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_2, 10));
   var _iterator__ex2g4s_1 = this_2.j();
   while (_iterator__ex2g4s_1.k()) {
     var item_1 = _iterator__ex2g4s_1.l();
-    var tmp$ret$10 = new JsLeftOut(item_1.s33_1, item_1.t33_1);
+    var tmp$ret$10 = new JsLeftOut(item_1.t33_1, item_1.u33_1);
     destination_1.i(tmp$ret$10);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -42966,9 +43851,9 @@ function toJs_6(_this__u8e3s4) {
 }
 function toJs_7(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  var tmp = get_isoDayNumber(_this__u8e3s4.c32_1);
+  var tmp = get_isoDayNumber(_this__u8e3s4.b33_1);
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.e32_1;
+  var this_0 = _this__u8e3s4.d33_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -42979,17 +43864,17 @@ function toJs_7(_this__u8e3s4) {
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$3 = copyToArray(destination);
-  return new JsDraftSession(tmp, _this__u8e3s4.d32_1, tmp$ret$3);
+  return new JsDraftSession(tmp, _this__u8e3s4.c33_1, tmp$ret$3);
 }
 function toJs_8(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  var tmp0_safe_receiver = _this__u8e3s4.l32_1;
+  var tmp0_safe_receiver = _this__u8e3s4.q32_1;
   var tmp = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.w1_1;
   // Inline function 'kotlin.collections.toTypedArray' call
-  var this_0 = _this__u8e3s4.m32_1;
+  var this_0 = _this__u8e3s4.r32_1;
   var tmp_0 = copyToArray(this_0);
-  var tmp1_safe_receiver = _this__u8e3s4.o32_1;
-  return new JsDraftExercise(_this__u8e3s4.f32_1, _this__u8e3s4.g32_1, _this__u8e3s4.h32_1, _this__u8e3s4.i32_1, _this__u8e3s4.j32_1, _this__u8e3s4.k32_1, tmp, tmp_0, _this__u8e3s4.n32_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.w1_1, _this__u8e3s4.p32_1);
+  var tmp1_safe_receiver = _this__u8e3s4.t32_1;
+  return new JsDraftExercise(_this__u8e3s4.k32_1, _this__u8e3s4.l32_1, _this__u8e3s4.m32_1, _this__u8e3s4.n32_1, _this__u8e3s4.o32_1, _this__u8e3s4.p32_1, tmp, tmp_0, _this__u8e3s4.s32_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.w1_1, _this__u8e3s4.u32_1);
 }
 function toDomain_10(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -43049,7 +43934,7 @@ function toDomain_10(_this__u8e3s4) {
         tmp_0 = tmp_1;
       }
       var tmp_3 = tmp_0;
-      var tmp_4 = toList_1(item_0.muscles);
+      var tmp_4 = toList(item_0.muscles);
       var tmp1_safe_receiver = item_0.slot;
       var tmp_5;
       if (tmp1_safe_receiver == null) {
@@ -43152,13 +44037,42 @@ function toDomain_10(_this__u8e3s4) {
 }
 function toJs_9(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return new JsPr(_this__u8e3s4.o34_1.toString(), _this__u8e3s4.p34_1, _this__u8e3s4.q34_1, _this__u8e3s4.r34_1, _this__u8e3s4.s34_1);
+  var tmp = _this__u8e3s4.j34();
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = _this__u8e3s4.i34_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    // Inline function 'kotlin.collections.map' call
+    var this_1 = item.d34_1;
+    // Inline function 'kotlin.collections.mapTo' call
+    var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
+    var _iterator__ex2g4s_0 = this_1.j();
+    while (_iterator__ex2g4s_0.k()) {
+      var item_0 = _iterator__ex2g4s_0.l();
+      var tmp$ret$5 = new JsTemplateExercise(item_0.w33_1, item_0.x33_1, item_0.y33_1, item_0.z33_1, item_0.a34_1, item_0.b34_1);
+      destination_0.i(tmp$ret$5);
+    }
+    // Inline function 'kotlin.collections.toTypedArray' call
+    var tmp$ret$6 = copyToArray(destination_0);
+    var tmp$ret$2 = new JsTemplateSession(item.c34_1, tmp$ret$6);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var tmp$ret$7 = copyToArray(destination);
+  return new JsPlanTemplate(_this__u8e3s4.e34_1, _this__u8e3s4.f34_1.w1_1, _this__u8e3s4.g34_1, _this__u8e3s4.h34_1, tmp, tmp$ret$7);
 }
 function toJs_10(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return new JsAccessoryOption(_this__u8e3s4.g1h_1, _this__u8e3s4.h1h_1);
+  return new JsPr(_this__u8e3s4.a36_1.toString(), _this__u8e3s4.b36_1, _this__u8e3s4.c36_1, _this__u8e3s4.d36_1, _this__u8e3s4.e36_1);
 }
 function toJs_11(_this__u8e3s4) {
+  _init_properties_JsTypes_kt__uiuq2m();
+  return new JsAccessoryOption(_this__u8e3s4.g1h_1, _this__u8e3s4.h1h_1);
+}
+function toJs_12(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp = toFacadeId(_this__u8e3s4.x1i_1, 'set.exerciseId');
   var tmp0_safe_receiver = _this__u8e3s4.c1j_1;
@@ -43259,7 +44173,7 @@ function decodePayload(payloadJson) {
   }
   return tmp_1;
 }
-function toJs_12(_this__u8e3s4) {
+function toJs_13(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   // Inline function 'kotlin.collections.toTypedArray' call
   var this_0 = _this__u8e3s4.j1v_1;
@@ -43275,7 +44189,7 @@ function toJs_12(_this__u8e3s4) {
   var tmp$ret$3 = copyToArray(this_3);
   return new JsFormGuide(_this__u8e3s4.i1v_1, tmp, tmp_0, tmp_1, tmp$ret$3);
 }
-function toJs_13(_this__u8e3s4) {
+function toJs_14(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   // Inline function 'kotlin.collections.toTypedArray' call
   var this_0 = _this__u8e3s4.a1r_1;
@@ -43296,9 +44210,9 @@ function toJs_13(_this__u8e3s4) {
   var this_2 = _this__u8e3s4.d1r_1;
   var tmp_1 = copyToArray(this_2);
   var tmp0_safe_receiver = _this__u8e3s4.g1r_1;
-  return new JsLibraryExercise(_this__u8e3s4.z1q_1, tmp, _this__u8e3s4.b1r_1.w1_1, tmp_0, tmp_1, _this__u8e3s4.e1r_1.w1_1, _this__u8e3s4.f1r_1.w1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.w1_1, toJs_12(_this__u8e3s4.h1r_1));
+  return new JsLibraryExercise(_this__u8e3s4.z1q_1, tmp, _this__u8e3s4.b1r_1.w1_1, tmp_0, tmp_1, _this__u8e3s4.e1r_1.w1_1, _this__u8e3s4.f1r_1.w1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.w1_1, toJs_13(_this__u8e3s4.h1r_1));
 }
-function toJs_14(_this__u8e3s4) {
+function toJs_15(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   if (_this__u8e3s4 instanceof Circle) {
@@ -43525,6 +44439,9 @@ export {
   JsGroupVolume as JsGroupVolume,
   JsLeftOut as JsLeftOut,
   JsPlanDraft as JsPlanDraft,
+  JsTemplateExercise as JsTemplateExercise,
+  JsTemplateSession as JsTemplateSession,
+  JsPlanTemplate as JsPlanTemplate,
   JsFigureInfo as JsFigureInfo,
   JsFigureShape as JsFigureShape,
   JsFigureCircle as JsFigureCircle,

@@ -191,6 +191,21 @@ class ScreenshotTest {
     @Config(qualifiers = "w412dp-h3330dp-xhdpi")
     fun planBuilderDraft() = render("plan-builder-draft-bodybuilding", null, TrainingMode.BODYBUILDING) { PlanBuilderShowcase(BuilderStep.DRAFT) }
 
+    // 1.14, plan templates: the list, a draft on each side and the confirm.
+    @Test
+    fun templatesList() = render("templates-list", null) { TemplatesListShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1720dp-xhdpi")
+    fun templateDraft() = render("template-draft", null) { TemplateDraftShowcase("pl-4") }
+
+    @Test
+    @Config(qualifiers = "w412dp-h3160dp-xhdpi")
+    fun templateDraftBodybuilding() = render("template-draft-bodybuilding", null, TrainingMode.BODYBUILDING) { TemplateDraftShowcase("bb-4") }
+
+    @Test
+    fun templateConfirm() = render("template-confirm", null) { TemplateConfirmShowcase() }
+
     @Test
     fun exercisePicker() = render("exercise-picker", null) { ExercisePickerShowcase() }
 

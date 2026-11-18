@@ -42,6 +42,11 @@ export declare namespace GritDomain {
             planBuilderSuggestedPicks(history: JsHistory, plans: Array<JsPlanItem>, today: string): Array<number>;
             planBuilderMaxPriorities(): number;
             planBuilderTargetGroups(): Array<string>;
+            planTemplatesFor(mode: string): Array<JsPlanTemplate>;
+            planTemplateSuggestedDays(count: number, current: Array<number>): Array<number>;
+            planTemplateDraft(id: string, days: Array<number>, strictPress: boolean): JsPlanDraft;
+            planTemplateAlternatives(id: string, draft: JsPlanDraft, day: number, name: string): Array<JsLibraryExercise>;
+            planTemplateSwap(draft: JsPlanDraft, day: number, from: string, to: string): JsPlanDraft;
             weeklyTrend(history: JsHistory, lift: string, until: string): Array<JsWeeklyPoint>;
             currentE1rm(history: JsHistory, lift: string, until: string, days: number): Nullable<number>;
             prs(history: JsHistory, lift: string): Array<JsPr>;
@@ -727,6 +732,59 @@ export declare namespace JsPlanDraft {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsPlanDraft;
+    }
+}
+export declare class JsTemplateExercise {
+    constructor(name: string, sets: number, repsLow: number, repsHigh: Nullable<number>, rpe: number, onlyWithStrictPress: boolean);
+    get name(): string;
+    get sets(): number;
+    get repsLow(): number;
+    get repsHigh(): Nullable<number>;
+    get rpe(): number;
+    get onlyWithStrictPress(): boolean;
+    copy(name?: string, sets?: number, repsLow?: number, repsHigh?: Nullable<number>, rpe?: number, onlyWithStrictPress?: boolean): JsTemplateExercise;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsTemplateExercise {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsTemplateExercise;
+    }
+}
+export declare class JsTemplateSession {
+    constructor(title: string, exercises: Array<JsTemplateExercise>);
+    get title(): string;
+    get exercises(): Array<JsTemplateExercise>;
+    copy(title?: string, exercises?: Array<JsTemplateExercise>): JsTemplateSession;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsTemplateSession {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsTemplateSession;
+    }
+}
+export declare class JsPlanTemplate {
+    constructor(id: string, mode: string, name: string, suits: string, dayCount: number, sessions: Array<JsTemplateSession>);
+    get id(): string;
+    get mode(): string;
+    get name(): string;
+    get suits(): string;
+    get dayCount(): number;
+    get sessions(): Array<JsTemplateSession>;
+    copy(id?: string, mode?: string, name?: string, suits?: string, dayCount?: number, sessions?: Array<JsTemplateSession>): JsPlanTemplate;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsPlanTemplate {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsPlanTemplate;
     }
 }
 export declare class JsFigureInfo {

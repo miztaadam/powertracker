@@ -301,7 +301,7 @@ fun PlanAddFormShowcase(mode: TrainingMode = TrainingMode.POWERLIFTING) {
 
 /** A stand-in for an AlertDialog window: its shape, colours, padding and type, centred over [behind] under a scrim. */
 @Composable
-private fun DialogShowcase(behind: @Composable () -> Unit, title: String, confirmText: String, text: @Composable () -> Unit) {
+internal fun DialogShowcase(behind: @Composable () -> Unit, title: String, confirmText: String, text: @Composable () -> Unit) {
     Box(Modifier.fillMaxSize()) {
         behind()
         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f)))

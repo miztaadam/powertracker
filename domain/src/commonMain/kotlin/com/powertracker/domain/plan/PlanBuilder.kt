@@ -306,7 +306,8 @@ object PlanBuilder {
         }
     }
 
-    private fun volume(sessions: List<DraftSession>): List<GroupVolume> = TARGET_GROUPS.map { group ->
+    /** Each target group's counted sets and days over [sessions]. Internal so `PlanTemplates` counts the same way. */
+    internal fun volume(sessions: List<DraftSession>): List<GroupVolume> = TARGET_GROUPS.map { group ->
         var sets = 0
         var days = 0
         for (s in sessions) {
