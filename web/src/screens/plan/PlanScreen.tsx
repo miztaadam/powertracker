@@ -16,7 +16,7 @@ import { Snackbar } from '../../ui/components/Snackbar'
 import { slideName } from '../../ui/viewTransition'
 import { ExercisePicker } from '../library/ExercisePicker'
 import { InfoButton } from '../library/InfoButton'
-import { BaselineDialog, PlanItemDialog } from './PlanDialogs'
+import { ADD_FORM_TAP_WINDOW_MS, BaselineDialog, PlanItemDialog } from './PlanDialogs'
 import './plan.css'
 
 export type PlanScreenProps = {
@@ -121,7 +121,7 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
 
       {/*
         Picking opens the sets and reps form in the same render, filled in with the ready-made numbers; its Add stores the
-        item and Cancel stores nothing. Your own exercise is created first (and kept, whatever the form does); if that
+        item and Cancel stores nothing. For its first moment the form ignores taps on Add, Cancel and outside it. Your own exercise is created first (and kept, whatever the form does); if that
         fails, no form opens.
       */}
       {(dialog?.kind === 'add' || dialog?.kind === 'addDetails') && (
@@ -154,6 +154,8 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
           item={dialog.draft}
           exerciseName={dialog.entry.name}
           confirmText="Add"
+          // It opens under the finger that picked: the second tap of a double tap on the row must not reach it.
+          ignoreTapsFor={ADD_FORM_TAP_WINDOW_MS}
           exercises={state.exercises}
           recentIds={state.recentIds}
           onCreateCustom={actions.addCustomExercise}

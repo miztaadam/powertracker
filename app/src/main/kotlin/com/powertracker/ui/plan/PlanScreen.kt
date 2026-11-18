@@ -33,6 +33,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +44,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -86,6 +90,7 @@ import com.powertracker.ui.plan.builder.REBUILD_MY_PLAN
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.today.SlidingColumnItems
+import kotlinx.coroutines.delay
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaDayOfWeek
@@ -107,11 +112,33 @@ private const val MAX_RANGE_REPS = 30
 /** The most fixed reps a plan item can be set to. */
 private const val MAX_PLAN_REPS = 20
 
+/**
+ * How long, in ms, the add form ignores taps on Add, Cancel and outside it once it opens. It opens under the finger
+ * that picked the exercise, so the second tap of a double tap on the row would otherwise land on it.
+ */
+internal const val ADD_FORM_TAP_WINDOW_MS = 300L
+
 fun dayName(day: DayOfWeek): String = day.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
 
 // Dialogs holding text fields use full-width properties: with the platform-default width the field
 // never settles under Robolectric (the Compose test never goes idle).
 private val TEXT_FIELD_DIALOG = DialogProperties(usePlatformDefaultWidth = false)
+
+/** [TEXT_FIELD_DIALOG] while it ignores taps outside it ([ADD_FORM_TAP_WINDOW_MS]). */
+private val TEXT_FIELD_DIALOG_HOLDING_TAPS = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false)
+
+/**
+ * Swallows touches until [live] is true, before the button under them sees them, so a tap does nothing; keyboard and
+ * accessibility clicks do not come through touches and still work.
+ */
+private fun Modifier.dropTapsUntil(live: State<Boolean>): Modifier = pointerInput(live) {
+    awaitPointerEventScope {
+        while (true) {
+            val event = awaitPointerEvent(PointerEventPass.Initial)
+            if (!live.value) event.changes.forEach { it.consume() }
+        }
+    }
+}
 
 private sealed interface PlanDialog {
     /** The full-screen picker, adding to [day]. */
@@ -179,7 +206,8 @@ fun PlanScreen(
     val haptics = rememberHaptics()
     when (val d = dialog) {
         // Picking opens the sets/reps form with the ready-made numbers; nothing is stored until its Add. An exercise
-        // the lifter creates here is saved at once, as before, and then opens the same form.
+        // the lifter creates here is saved at once, as before, and then opens the same form. The form opens under the
+        // finger, so for a moment it ignores taps on Add, Cancel and outside it (ADD_FORM_TAP_WINDOW_MS).
         is PlanDialog.Add -> ExercisePickerScreen(
             title = "Add to ${dayName(d.day)}",
             exercises = state.exercises,
@@ -200,6 +228,7 @@ fun PlanScreen(
             item = d.draft,
             exerciseName = d.entry.name,
             confirmText = "Add",
+            ignoreTapsForMillis = ADD_FORM_TAP_WINDOW_MS,
             onCreateCustom = viewModel::addCustomExercise,
             onSave = { exercise, sets, reps, rpe, repsHigh ->
                 // Stored once: a second tap in the same frame finds the form already closed.
@@ -430,6 +459,12 @@ private fun PlanItemDialog(
     onDismiss: () -> Unit,
     /** The exercise's name when it may have no stored row yet: the entry picked for the add form. */
     exerciseName: String? = null,
+    /**
+     * For this long after it opens, taps on the confirm button, on Cancel and outside the dialog do nothing: the add
+     * form opens under the finger that picked, where a double tap's second tap lands. Keyboard, back and accessibility
+     * actions are not held; neither are the steppers and Change. 0 (Edit) holds nothing.
+     */
+    ignoreTapsForMillis: Long = 0L,
 ) {
     // Null until the exercise is changed; saved with the item, not before.
     var changed by rememberSaveable(stateSaver = PickerEntry.Saver) { mutableStateOf(null) }
@@ -440,10 +475,21 @@ private fun PlanItemDialog(
     var rpe by rememberSaveable { mutableStateOf(item.targetRpe) }
     var picking by rememberSaveable { mutableStateOf(false) }
     val name = changed?.name ?: exerciseName ?: state.exercises.firstOrNull { it.id == item.exerciseId }?.name ?: "Unknown exercise"
+    // Not kept across recreation: a restored form holds taps for a moment again, which does no harm.
+    val tapsLive = remember { mutableStateOf(ignoreTapsForMillis <= 0L) }
+    if (!tapsLive.value) {
+        LaunchedEffect(Unit) {
+            delay(ignoreTapsForMillis)
+            tapsLive.value = true
+        }
+    }
+    val heldTaps = if (ignoreTapsForMillis > 0L) Modifier.dropTapsUntil(tapsLive) else Modifier
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        properties = TEXT_FIELD_DIALOG,
+        // A tap outside is the only way here that can't be told apart from back by its callback, so it is held by the
+        // window itself: back still closes the form at once.
+        properties = if (tapsLive.value) TEXT_FIELD_DIALOG else TEXT_FIELD_DIALOG_HOLDING_TAPS,
         modifier = Modifier.padding(horizontal = 16.dp),
         title = { Text(title) },
         text = {
@@ -453,8 +499,8 @@ private fun PlanItemDialog(
                 onChange = { picking = true },
             )
         },
-        confirmButton = { PrimaryButton(confirmText, { onSave(changed, sets, reps, rpe, repsHigh) }, compact = true) },
-        dismissButton = { QuietButton("Cancel", onDismiss) },
+        confirmButton = { PrimaryButton(confirmText, { onSave(changed, sets, reps, rpe, repsHigh) }, heldTaps, compact = true) },
+        dismissButton = { QuietButton("Cancel", onDismiss, heldTaps) },
     )
 
     if (picking) {

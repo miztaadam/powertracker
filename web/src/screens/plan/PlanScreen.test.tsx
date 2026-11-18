@@ -8,6 +8,7 @@ import { setTapHaptics } from '../../platform/haptics'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, exerciseNamed, plan, todayFixture } from '../../test/todayFixture'
 import { PlanScreen } from './PlanScreen'
+import { pastTheTapWindow } from '../../test/tapWindow'
 
 let fx: ReturnType<typeof todayFixture>
 let db: GritDb
@@ -18,6 +19,7 @@ beforeEach(async () => {
 })
 // Unmount before the database closes.
 afterEach(async () => {
+  vi.useRealTimers()
   cleanup()
   await fx.dispose()
 })
@@ -257,7 +259,16 @@ describe('PlanScreen', () => {
 // ---- 1.12: picking on Plan's Add opens the sets and reps form; Add stores what it shows ----
 
 /** The add form, once a pick has opened it: the dialog with the Sets stepper (the picker has the same title). */
-const addForm = async () => within((await screen.findByRole('group', { name: 'Sets' })).closest<HTMLElement>('[role="dialog"]')!)
+const addFormNow = async () => within((await screen.findByRole('group', { name: 'Sets' })).closest<HTMLElement>('[role="dialog"]')!)
+/** The add form, with the clock moved past the moment in which it ignores taps (the second tap of a double tap). */
+const addForm = async () => {
+  const form = await addFormNow()
+  pastTheTapWindow()
+  return form
+}
+/** A tap on the scrim around the open add form: outside it. */
+const tapOutside = async () => userEvent.click((await screen.findByRole('group', { name: 'Sets' })).closest<HTMLElement>('[role="dialog"]')!.parentElement!)
+const formOpen = () => screen.queryByRole('group', { name: 'Sets' }) != null
 /** Opens Add on `day` and picks `name` from the picker. */
 async function pickOn(day: string, name: string) {
   await userEvent.click(within(await screen.findByRole('region', { name: day })).getByRole('button', { name: 'Add' }))
@@ -478,6 +489,7 @@ describe('PlanScreen add form', () => {
     expect(focused).not.toContain(add)
 
     // Closed, by Cancel or by Add: the focus is back on the day's Add.
+    pastTheTapWindow()
     await userEvent.click(within(dialogs[0]!).getByRole('button', { name: 'Cancel' }))
     expect(document.activeElement).toBe(add)
     add.focus()
@@ -541,6 +553,66 @@ describe('PlanScreen add form', () => {
     await waitFor(async () => expect(rowsOf(await day('Monday'))).toEqual(['Squat  3 × 5 @ 8']))
     // Give a second write every chance to land.
     await new Promise((done) => setTimeout(done, 50))
+    expect(await storedPlan()).toHaveLength(1)
+  })
+
+  it('planAdd_secondTapOfADoubleTap_isIgnored', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addFormNow()
+
+    // A tap on Add, on Cancel or outside, landing just after the form opened: nothing happens.
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    expect(formOpen()).toBe(true)
+    await userEvent.click(form.getByRole('button', { name: 'Cancel' }))
+    expect(formOpen()).toBe(true)
+    await tapOutside()
+    expect(formOpen()).toBe(true)
+    vi.setSystemTime(Date.now() + 299)
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    expect(formOpen()).toBe(true)
+    await new Promise((done) => setTimeout(done, 20))
+    expect(await storedPlan()).toEqual([])
+
+    // The steppers stay live, and the keyboard is not held: Enter on Add stores at once.
+    await userEvent.click(form.getByRole('button', { name: 'Increase Sets' }))
+    expect(form.getByRole('group', { name: 'Sets' })).toHaveTextContent('4')
+    form.getByRole('button', { name: 'Add' }).focus()
+    await userEvent.keyboard('{Enter}')
+    await waitFor(async () => expect((await storedPlan()).map((p) => [p.sets, p.reps])).toEqual([[4, 5]]))
+    expect(formOpen()).toBe(false)
+
+    // Nor is Escape.
+    await pickOn('Monday', 'Squat')
+    await addFormNow()
+    await userEvent.keyboard('{Escape}')
+    expect(formOpen()).toBe(false)
+    expect(await storedPlan()).toHaveLength(1)
+  })
+
+  it('planAdd_tapAfterTheWindow_works', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addFormNow()
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    expect(formOpen()).toBe(true)
+
+    // Once the moment has passed, Add stores.
+    vi.setSystemTime(Date.now() + 300)
+    await userEvent.click(form.getByRole('button', { name: 'Add' }))
+    await waitFor(async () => expect((await storedPlan()).map((p) => [p.sets, p.reps])).toEqual([[3, 5]]))
+    expect(formOpen()).toBe(false)
+
+    // And a tap outside closes the form, storing nothing more.
+    await pickOn('Monday', 'Squat')
+    await addFormNow()
+    await tapOutside()
+    expect(formOpen()).toBe(true)
+    vi.setSystemTime(Date.now() + 300)
+    await tapOutside()
+    expect(formOpen()).toBe(false)
     expect(await storedPlan()).toHaveLength(1)
   })
 

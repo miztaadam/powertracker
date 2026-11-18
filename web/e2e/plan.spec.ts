@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { E2E_BUILD_ID } from '../playwright.config'
 import { shownVersion } from '../src/screens/settings/appVersion'
+import { pastTheTapWindow } from './helpers'
 
 // Plan and Settings with the same sample story as the Android mockups (docs/design/screens/plan-dark.png,
 // settings-dark.png). A normal run writes the screenshots to test-results/; UPDATE_SCREENSHOTS=1 rewrites
@@ -71,12 +72,16 @@ const rowsOf = (page: Page, day: string) =>
     .evaluateAll((rows) => rows.map((row) => row.getAttribute('aria-label')))
 
 /** Buttons, links and toggle chips smaller than 48 px in either direction (to within sub-pixel rounding). */
-const smallTargets = (page: Page) =>
-  page.evaluate(() =>
-    Array.from(document.querySelectorAll<HTMLElement>('button, a[href], .gr-chip, .gr-segment'))
-      .map((el) => ({ el, box: el.getBoundingClientRect() }))
-      .filter(({ box }) => box.width < 47.5 || box.height < 47.5)
-      .map(({ el, box }) => `${el.className} ${el.textContent} ${Math.round(box.width)}×${Math.round(box.height)}`),
+const smallTargets = (page: Page, { hiddenPickerSkipped = false } = {}) =>
+  page.evaluate(
+    (hiddenPickerSkipped) =>
+      Array.from(document.querySelectorAll<HTMLElement>('button, a[href], .gr-chip, .gr-segment'))
+        // The picker that opened Plan's add form stays mounted under it, hidden (display: none): not a target.
+        .filter((el) => !(hiddenPickerSkipped && el.closest('.gr-dialog-screen')?.checkVisibility() === false))
+        .map((el) => ({ el, box: el.getBoundingClientRect() }))
+        .filter(({ box }) => box.width < 47.5 || box.height < 47.5)
+        .map(({ el, box }) => `${el.className} ${el.textContent} ${Math.round(box.width)}×${Math.round(box.height)}`),
+    hiddenPickerSkipped,
   )
 
 /** Things wider than the phone: the page, the scrolling region, or any element reaching past either edge. */
@@ -253,8 +258,9 @@ test.describe('on a 375 px iPhone', () => {
     await dialog.getByRole('listitem', { name: 'Squat', exact: true }).getByRole('button').first().click()
     await expect(addForm(page).getByRole('group', { name: 'Reps' })).toContainText('5')
     expect(await overflowing(page)).toEqual([])
-    // The picker it came from is still mounted under the form, hidden: its controls measure 0 × 0.
-    expect((await smallTargets(page)).filter((target) => !target.endsWith(' 0×0'))).toEqual([])
+    // The picker it came from is still mounted under the form, hidden: only its controls are left out.
+    expect(await smallTargets(page, { hiddenPickerSkipped: true })).toEqual([])
+    await pastTheTapWindow(page)
     await addForm(page).getByRole('button', { name: 'Add', exact: true }).click()
     await expect(dialog).toHaveCount(0)
     await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Squat  3 × 5 @ 8'])
@@ -269,6 +275,8 @@ test.describe('on a 375 px iPhone', () => {
     expect(await overflowing(page)).toEqual([])
     expect(await smallTargets(page)).toEqual([])
     await custom.getByRole('button', { name: 'Create' }).click()
+    await expect(addForm(page)).toBeVisible()
+    await pastTheTapWindow(page)
     await addForm(page).getByRole('button', { name: 'Add', exact: true }).click()
     await expect(monday.getByRole('listitem')).toHaveCount(2)
 
@@ -316,6 +324,7 @@ test.describe('on a 375 px iPhone', () => {
     await expect(form.getByRole('group', { name: 'Reps' })).toContainText('3')
     expect(await rowsOf(page, 'Monday')).toEqual([])
 
+    await pastTheTapWindow(page)
     await form.getByRole('button', { name: 'Add', exact: true }).click()
     await expect(page.getByRole('dialog')).toHaveCount(0)
     await expect.poll(() => rowsOf(page, 'Monday')).toEqual(['Bench  5 × 3 @ 8'])

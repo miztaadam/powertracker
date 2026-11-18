@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { grit } from '../../domain'
 import type { CustomExercise, PickerEntry, StoredExercise } from '../../state/exercisePicker'
 import { sideOf } from '../../db/schema'
@@ -31,14 +31,26 @@ export type PlanItemDialogProps = {
   /** `exercise` is null unless the exercise itself was changed. `repsHigh` is given for a range (a bodybuilding item). */
   onSave: (exercise: PickerEntry | null, sets: number, reps: number, rpe: number, repsHigh?: number) => void
   onDismiss: () => void
+  /**
+   * For this many ms after it opens, taps on the confirm button, on Cancel and outside the dialog do nothing: Plan's add
+   * form opens under the finger that picked, where a double tap's second tap lands. Keyboard (Enter, Space, Escape) is
+   * not held; neither are the steppers and Change. Default 0 (Edit): nothing is held.
+   */
+  ignoreTapsFor?: number
 }
+
+/** How long Plan's add form ignores taps on Add, Cancel and outside it once it opens (see `ignoreTapsFor`). */
+export const ADD_FORM_TAP_WINDOW_MS = 300
+
+/** The time now, on the clock events are stamped with (`performance.now()` can be faked in tests; this is not). */
+const eventClock = () => new Event('now').timeStamp
 
 /**
  * Sets × reps @ RPE of a plan item, and its exercise, which "Change" swaps through the picker. An item with a rep
  * range (the bodybuilding side) has two reps steppers, the bottom and the top; the top never goes below the bottom
  * and goes up to 30. Fixed reps (the powerlifting side) go up to 20.
  */
-export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save', exercises, recentIds, onCreateCustom, onFailure, onSave, onDismiss }: PlanItemDialogProps) {
+export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save', exercises, recentIds, onCreateCustom, onFailure, onSave, onDismiss, ignoreTapsFor = 0 }: PlanItemDialogProps) {
   // Null until the exercise is changed; saved with the item, not before.
   const [changed, setChanged] = useState<PickerEntry | null>(null)
   const [sets, setSets] = useState(item.sets)
@@ -47,40 +59,57 @@ export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save'
   const [repsHigh, setRepsHigh] = useState(item.repsHigh ?? (sideOf(item) === 'BODYBUILDING' ? item.reps : null))
   const [rpe, setRpe] = useState(item.targetRpe)
   const [picking, setPicking] = useState(false)
+  const [openedAt] = useState(eventClock)
+  const actionsRef = useRef<HTMLSpanElement>(null)
+
+  const buttons = (
+    <>
+      <QuietButton text="Cancel" onClick={onDismiss} />
+      <PrimaryButton text={confirmText} onClick={() => onSave(changed, sets, reps, rpe, repsHigh ?? undefined)} compact />
+    </>
+  )
+  const dialog = (
+    <Dialog open title={title} onDismiss={onDismiss} actions={ignoreTapsFor > 0 ? <span ref={actionsRef} className="plan-form-actions">{buttons}</span> : buttons}>
+      <div className="plan-form">
+        <div className="plan-exercise" role="group" aria-label="Exercise">
+          <div className="plan-grow">
+            <Eyebrow text="Exercise" />
+            <p className="title-medium">{changed?.name ?? exerciseName}</p>
+          </div>
+          <SecondaryButton text="Change" onClick={() => setPicking(true)} compact />
+        </div>
+        <LabeledStepper label="Sets" value={String(sets)} canDecrement={sets > 1} canIncrement={sets < 10} onStep={(by) => setSets(sets + by)} />
+        {repsHigh == null ? (
+          <LabeledStepper label="Reps" value={String(reps)} canDecrement={reps > 1} canIncrement={reps < MAX_PLAN_REPS} onStep={(by) => setReps(reps + by)} />
+        ) : (
+          <>
+            <LabeledStepper label="Reps from" value={String(reps)} canDecrement={reps > 1} canIncrement={reps < repsHigh} onStep={(by) => setReps(reps + by)} />
+            <LabeledStepper label="Reps to" value={String(repsHigh)} canDecrement={repsHigh > reps} canIncrement={repsHigh < MAX_RANGE_REPS} onStep={(by) => setRepsHigh(repsHigh + by)} />
+          </>
+        )}
+        <LabeledStepper label="RPE" value={formatRpe(rpe)} canDecrement={rpe > MIN_RPE} canIncrement={rpe < MAX_RPE} onStep={(by) => setRpe(rpe + by * 0.5)} labelAction={<RpeInfoButton />} />
+      </div>
+    </Dialog>
+  )
+  // A click made by a tap (detail 1 or more) on Add, Cancel or the scrim, too soon after the form opened, stops here.
+  // Enter and Space on a button click with detail 0, and Escape is a key, so neither is held. A screen reader that
+  // activates with a plain click (detail 0) is not held either; one that simulates a tap is, like a tap.
+  const holdEarlyTaps = (e: MouseEvent<HTMLDivElement>) => {
+    if (e.detail === 0 || e.timeStamp - openedAt >= ignoreTapsFor) return
+    const target = e.target as Node
+    // The Dialog is drawn in place, so the scrim is this wrapper's only child.
+    if (target === e.currentTarget.firstElementChild || actionsRef.current?.contains(target)) e.stopPropagation()
+  }
 
   return (
     <>
-      <Dialog
-        open
-        title={title}
-        onDismiss={onDismiss}
-        actions={
-          <>
-            <QuietButton text="Cancel" onClick={onDismiss} />
-            <PrimaryButton text={confirmText} onClick={() => onSave(changed, sets, reps, rpe, repsHigh ?? undefined)} compact />
-          </>
-        }
-      >
-        <div className="plan-form">
-          <div className="plan-exercise" role="group" aria-label="Exercise">
-            <div className="plan-grow">
-              <Eyebrow text="Exercise" />
-              <p className="title-medium">{changed?.name ?? exerciseName}</p>
-            </div>
-            <SecondaryButton text="Change" onClick={() => setPicking(true)} compact />
-          </div>
-          <LabeledStepper label="Sets" value={String(sets)} canDecrement={sets > 1} canIncrement={sets < 10} onStep={(by) => setSets(sets + by)} />
-          {repsHigh == null ? (
-            <LabeledStepper label="Reps" value={String(reps)} canDecrement={reps > 1} canIncrement={reps < MAX_PLAN_REPS} onStep={(by) => setReps(reps + by)} />
-          ) : (
-            <>
-              <LabeledStepper label="Reps from" value={String(reps)} canDecrement={reps > 1} canIncrement={reps < repsHigh} onStep={(by) => setReps(reps + by)} />
-              <LabeledStepper label="Reps to" value={String(repsHigh)} canDecrement={repsHigh > reps} canIncrement={repsHigh < MAX_RANGE_REPS} onStep={(by) => setRepsHigh(repsHigh + by)} />
-            </>
-          )}
-          <LabeledStepper label="RPE" value={formatRpe(rpe)} canDecrement={rpe > MIN_RPE} canIncrement={rpe < MAX_RPE} onStep={(by) => setRpe(rpe + by * 0.5)} labelAction={<RpeInfoButton />} />
+      {ignoreTapsFor > 0 ? (
+        <div className="plan-form-taps" onClickCapture={holdEarlyTaps}>
+          {dialog}
         </div>
-      </Dialog>
+      ) : (
+        dialog
+      )}
       {picking && (
         <ExercisePicker
           title="Change exercise"

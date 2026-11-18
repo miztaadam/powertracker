@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { openOnWednesday, readAllTables, tap, typeInto, weightField } from './helpers'
+import { openOnWednesday, pastTheTapWindow, readAllTables, tap, typeInto, weightField } from './helpers'
 
 // The exercise library on the narrowest iPhone: the picker stays fast with the whole catalogue,
 // nothing overflows, every target is a full 48 px, and the form guide can be read to its last line
@@ -61,7 +61,12 @@ function expectFirstRows(rows: (string | null)[], expected: readonly string[], w
 }
 
 /** Taps Add on the sets and reps form that a pick on Plan's Add opens (it has the picker's title). */
-const confirmAdd = (page: Page) => page.getByRole('dialog').filter({ has: page.getByRole('group', { name: 'Sets' }) }).getByRole('button', { name: 'Add', exact: true }).click()
+async function confirmAdd(page: Page) {
+  const form = page.getByRole('dialog').filter({ has: page.getByRole('group', { name: 'Sets' }) })
+  await expect(form).toBeVisible()
+  await pastTheTapWindow(page)
+  await form.getByRole('button', { name: 'Add', exact: true }).click()
+}
 
 async function openPlanPicker(page: Page) {
   await page.getByRole('region', { name: 'Monday' }).getByRole('button', { name: 'Add' }).click()

@@ -11,6 +11,7 @@ import { set, startSession, logSet, todayFixture, TODAY } from '../../test/today
 import { PlanScreen } from '../plan/PlanScreen'
 import { ExercisePicker } from './ExercisePicker'
 import { AREAS, EQUIPMENT } from './labels'
+import { pastTheTapWindow } from '../../test/tapWindow'
 
 // Ported from Android's ExercisePickerTest. Sizes and the 375 px layout are checked in e2e/library.spec.ts.
 
@@ -25,6 +26,7 @@ beforeEach(async () => {
 })
 // Unmount before the database closes.
 afterEach(async () => {
+  vi.useRealTimers()
   cleanup()
   await fx.dispose()
 })
@@ -89,6 +91,8 @@ async function showPlanPicker() {
 /** Taps Add on the sets and reps form that a pick on Plan's Add opens. */
 async function confirmAdd() {
   const form = (await screen.findByRole('group', { name: 'Sets' })).closest<HTMLElement>('[role="dialog"]')!
+  // Past the moment in which the new form ignores taps (the second tap of a double tap on the row).
+  pastTheTapWindow()
   await userEvent.click(within(form).getByRole('button', { name: 'Add' }))
 }
 

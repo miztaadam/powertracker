@@ -3,6 +3,12 @@ import { expect, type Locator, type Page } from '@playwright/test'
 /** The sample Wednesday the flows run on. */
 export const WEDNESDAY = new Date('2026-11-11T09:41:00')
 
+/** How long Plan's add form ignores taps on Add, Cancel and outside once it opens (ADD_FORM_TAP_WINDOW_MS in PlanDialogs). */
+const ADD_FORM_TAP_WINDOW_MS = 300
+
+/** Waits until Plan's add form, open now, takes taps: it ignores them at first, as the second tap of a double tap on a row. */
+export const pastTheTapWindow = (page: Page) => page.waitForTimeout(ADD_FORM_TAP_WINDOW_MS)
+
 export const tabBar = (page: Page) => page.getByRole('navigation', { name: 'Main' })
 
 export async function tap(page: Page, name: string, times = 1) {

@@ -338,6 +338,8 @@ class ExercisePickerTest {
     /** Picking on Plan opens the sets/reps form (1.12); its Add stores the item. */
     private fun confirmAdd() {
         waitFor { compose.onAllNodes(hasText("Add") and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isNotEmpty() }
+        // Past the moment in which the new form ignores taps (the second tap of a double tap on the row).
+        compose.mainClock.advanceTimeBy(com.powertracker.ui.plan.ADD_FORM_TAP_WINDOW_MS)
         compose.onNode(hasText("Add") and hasAnyAncestor(isDialog())).performClick()
     }
 

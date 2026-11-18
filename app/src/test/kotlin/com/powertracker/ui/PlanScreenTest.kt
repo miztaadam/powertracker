@@ -23,6 +23,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.Backup
@@ -36,6 +37,7 @@ import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.library.checkInfoButtonOpensGuide
+import com.powertracker.ui.plan.ADD_FORM_TAP_WINDOW_MS
 import com.powertracker.ui.plan.PlanScreen
 import com.powertracker.ui.plan.RestoreCheck
 import com.powertracker.ui.plan.SettingsScreen
@@ -59,6 +61,10 @@ import com.powertracker.ui.components.WithHaptics
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(qualifiers = "w411dp-h2400dp-xxhdpi")
 class PlanScreenTest {
+    /** Outside even the database: sees what escapes the whole test, which is how an uncaught exception in the app shows. */
+    @get:Rule(order = -2)
+    val crash = ExpectCrash()
+
     /** Outermost: the database closes after the compose rule has torn the screen down, and once no query is running. */
     @get:Rule(order = 0)
     val database = TestDatabase()
@@ -89,6 +95,8 @@ class PlanScreenTest {
         // Picking opens the form with the defaults for a compound lift, 3 sets x 5 reps @ RPE 8; Add stores them.
         compose.onNodeWithTag("exercise-Squat").performClick()
         compose.waitUntil(5_000) { compose.onAllNodes(hasText("Add") and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isNotEmpty() }
+        // Past the moment in which the new form ignores taps (the second tap of a double tap on the row).
+        compose.mainClock.advanceTimeBy(ADD_FORM_TAP_WINDOW_MS)
         compose.onNode(hasText("Add") and hasAnyAncestor(isDialog())).performClick()
 
         compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  3 × 5 @ 8").fetchSemanticsNodes().isNotEmpty() }
@@ -322,6 +330,8 @@ class PlanScreenTest {
         assertEquals(0, haptics.calls.size)
         compose.onNodeWithTag("exercise-Squat").performClick()
         compose.waitUntil(5_000) { compose.onAllNodes(hasText("Add") and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isNotEmpty() }
+        // Past the moment in which the new form ignores taps (the second tap of a double tap on the row).
+        compose.mainClock.advanceTimeBy(ADD_FORM_TAP_WINDOW_MS)
         compose.onNode(hasText("Add") and hasAnyAncestor(isDialog())).performClick()
         compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  3 × 5 @ 8").fetchSemanticsNodes().isNotEmpty() }
         assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
@@ -357,13 +367,52 @@ class PlanScreenTest {
         compose.onNodeWithTag("exercise-$name").performClick()
     }
 
-    /** The add form is open, for [name], titled for Monday. */
-    private fun assertAddForm(name: String) {
+    /**
+     * The add form is open, for [name], titled for Monday. Then, unless [stayInTheTapWindow], the clock moves past the
+     * window in which the form ignores taps on Add, Cancel and outside (the second tap of a double tap on a row).
+     */
+    private fun assertAddForm(name: String, stayInTheTapWindow: Boolean = false) {
         waitFor { exists(hasText("Sets") and hasAnyAncestor(isDialog())) }
         compose.onNode(hasText("Add to Monday") and hasAnyAncestor(isDialog())).assertExists()
         compose.onNode(hasText(name) and hasAnyAncestor(isDialog())).assertExists()
         addButton().assertExists()
         compose.onNode(hasText("Save") and hasAnyAncestor(isDialog())).assertDoesNotExist()
+        if (!stayInTheTapWindow) pastTheTapWindow()
+    }
+
+    /** Moves the clock past the add form's tap window. */
+    private fun pastTheTapWindow() {
+        compose.mainClock.advanceTimeBy(ADD_FORM_TAP_WINDOW_MS)
+        compose.waitForIdle()
+    }
+
+    private fun formOpen() = exists(hasText("Sets") and hasAnyAncestor(isDialog()))
+
+    /**
+     * A tap outside the form, above it. The dialog's window wraps the form, and being modal it is sent touches outside
+     * its bounds too, as here: what a tap on the scrim does on a phone.
+     */
+    private fun tapOutside() {
+        val view = compose.onNode(isDialog()).fetchSemanticsNode().root as android.view.View
+        compose.runOnUiThread {
+            val root = view.rootView
+            val t = android.os.SystemClock.uptimeMillis()
+            val x = root.width / 2f
+            root.dispatchTouchEvent(android.view.MotionEvent.obtain(t, t, android.view.MotionEvent.ACTION_DOWN, x, -20f, 0))
+            root.dispatchTouchEvent(android.view.MotionEvent.obtain(t, t + 10, android.view.MotionEvent.ACTION_UP, x, -20f, 0))
+        }
+        compose.waitForIdle()
+    }
+
+    /** The system back, sent to the dialog's window. */
+    private fun pressBack() {
+        val view = compose.onNode(isDialog()).fetchSemanticsNode().root as android.view.View
+        compose.runOnUiThread {
+            val root = view.rootView
+            root.dispatchKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_BACK))
+            root.dispatchKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_BACK))
+        }
+        compose.waitForIdle()
     }
 
     /** What the form's [label] stepper shows. */
@@ -585,4 +634,145 @@ class PlanScreenTest {
         compose.waitForIdle()
         assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
     }
+
+    // ---- The second tap of a double tap on a picker row does not reach the new form ----
+
+    @Test
+    fun planAdd_secondTapOfADoubleTap_isIgnored() {
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        val opened = compose.mainClock.currentTime
+        assertAddForm("Squat", stayInTheTapWindow = true)
+
+        // A tap on Add, on Cancel, or outside the form, landing just after it opened: nothing happens.
+        addButton().performClick()
+        compose.waitForIdle()
+        assertTrue("Add is ignored", formOpen())
+        assertTrue(plan().isEmpty())
+        compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick()
+        compose.waitForIdle()
+        assertTrue("Cancel is ignored", formOpen())
+        tapOutside()
+        assertTrue("a tap outside is ignored", formOpen())
+
+        // The steppers stay live; Add by its accessibility action (not a tap) and back are not held either.
+        tap("Increase Sets")
+        assertField("Sets", "4")
+        pressBack()
+        assertTrue("back closes the form", !formOpen())
+        assertTrue("all of this inside the window", compose.mainClock.currentTime - opened < ADD_FORM_TAP_WINDOW_MS)
+        assertTrue(plan().isEmpty())
+
+        pickOnMonday("Squat")
+        assertAddForm("Squat", stayInTheTapWindow = true)
+        addButton().performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        waitFor { plan().isNotEmpty() }
+        assertEquals(1, plan().size)
+    }
+
+    @Test
+    fun planAdd_tapAfterTheWindow_works() {
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat", stayInTheTapWindow = true)
+        addButton().performClick()
+        compose.waitForIdle()
+        assertTrue(formOpen())
+
+        // Once the moment has passed, Add stores.
+        pastTheTapWindow()
+        addButton().performClick()
+        waitFor { plan().isNotEmpty() }
+        assertEquals(listOf(3 to 5), plan().map { it.sets to it.reps })
+        assertTrue(!formOpen())
+
+        // And a tap outside closes it, storing nothing more.
+        pickOnMonday("Squat")
+        assertAddForm("Squat", stayInTheTapWindow = true)
+        tapOutside()
+        assertTrue(formOpen())
+        pastTheTapWindow()
+        tapOutside()
+        waitFor { !formOpen() }
+        assertEquals(1, plan().size)
+    }
+
+    // ---- Review gaps ----
+
+    @Test
+    fun planAdd_ownExerciseFails_opensNoForm() {
+        // The insert itself fails, as a full disk or a broken database would make it: the throw the real path meets,
+        // inside the view model's coroutine. Nothing catches it there, so on a phone it crashes the app; here it fails
+        // the run, which [crash] expects.
+        crash.expected = { it is android.database.sqlite.SQLiteException && "disk full" in it.message.orEmpty() }
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_exercise_insert BEFORE INSERT ON exercise BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        waitFor { exists(hasTestTag("add-MONDAY")) }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        compose.onNodeWithTag("exercise-search").performTextReplacement("zzz")
+        compose.onNodeWithText("Create your own").performClick()
+        compose.onNodeWithText("Name").performTextReplacement("Tyre flip")
+        compose.onNodeWithText("Create").performClick()
+        // The insert runs on the database's threads; give it time to fail and its coroutine time to resume.
+        repeat(20) {
+            Thread.sleep(25)
+            compose.waitForIdle()
+        }
+
+        // No form opened, and nothing was stored.
+        assertTrue(!formOpen())
+        compose.onNode(hasText("Add to Monday") and hasAnyAncestor(isDialog())).assertDoesNotExist()
+        assertTrue(plan().isEmpty())
+        assertTrue(runBlocking { db.exercises().all() }.none { it.name == "Tyre flip" })
+    }
+
+    @Test
+    fun planAdd_survivesRecreation_bodybuilding() {
+        runBlocking { settings.update { com.powertracker.data.AppSettings(trainingMode = TrainingMode.BODYBUILDING) } }
+        val restoration = androidx.compose.ui.test.junit4.StateRestorationTester(compose)
+        restoration.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Curl")
+        assertAddForm("Curl")
+        tap("Decrease Reps from")
+        tap("Increase Reps to")
+        tap("Increase Reps to")
+        assertField("Reps from", "7")
+        assertField("Reps to", "14")
+
+        restoration.emulateSavedInstanceStateRestore()
+
+        assertAddForm("Curl")
+        assertField("Sets", "3")
+        assertField("Reps from", "7")
+        assertField("Reps to", "14")
+        assertField("RPE", "8")
+        compose.waitForIdle()
+        assertTrue(plan(TrainingMode.BODYBUILDING).isEmpty())
+        addButton().performClick()
+        waitFor { plan(TrainingMode.BODYBUILDING).isNotEmpty() }
+        val item = plan(TrainingMode.BODYBUILDING).single()
+        assertEquals(listOf(3, 7, 14), listOf(item.sets, item.reps, item.repsHigh))
+        assertEquals(TrainingMode.BODYBUILDING, item.mode)
+    }
+}
+
+/**
+ * Expects the test to fail with an exception that [expected] matches, anywhere in its causes or suppressed exceptions:
+ * an exception nothing in the app catches. Set [expected] in the test; left null, the rule changes nothing.
+ */
+class ExpectCrash : org.junit.rules.TestRule {
+    var expected: ((Throwable) -> Boolean)? = null
+
+    override fun apply(base: org.junit.runners.model.Statement, description: org.junit.runner.Description) =
+        object : org.junit.runners.model.Statement() {
+            override fun evaluate() {
+                val thrown = runCatching { base.evaluate() }.exceptionOrNull()
+                val expect = expected ?: return thrown?.let { throw it } ?: Unit
+                if (thrown == null) throw AssertionError("expected the failure to escape uncaught, but the test passed")
+                fun all(t: Throwable): Sequence<Throwable> = sequenceOf(t) + (listOfNotNull(t.cause) + t.suppressed).asSequence().flatMap(::all)
+                if (all(thrown).none(expect)) throw thrown
+            }
+        }
 }
