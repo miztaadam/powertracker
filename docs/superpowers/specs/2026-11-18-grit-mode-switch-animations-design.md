@@ -6,7 +6,7 @@
 - **Drawn and animated in code** (option 1), not a video clip or a Lottie file.
 - **Into powerlifting: Fable's "hammer drop",** tuned by the owner: smaller, hitting harder, and landing on the very bottom of the app. "Everything else is great."
 - **Into bodybuilding: "the pump"** (option B), Fable's design.
-- **The reference** is the prototype `mode-switch-fable.html`, published at https://claude.ai/artifact/U4Jz1Ya7MA9YkJzPFUKYes. A copy goes into the repo, under `docs/design/motion/mode-switch.html`, so the build has it. Its timeline numbers are the spec for timing, sizes and colours.
+- **The reference** is the prototype `mode-switch-fable.html`, published at https://claude.ai/artifact/U4Jz1Ya7MA9YkJzPFUKYes. A copy is in the repo at `docs/design/motion/mode-switch.html`. Its timeline numbers are the spec for timing, sizes and colours.
 
 ## Why
 - Switching sides is the biggest change the app makes: a new look, a new plan and a new coach. Today the colours just change.
@@ -77,6 +77,24 @@
   - no model names in code or commits;
   - new commits only, never amend;
   - e2e with `--trace off`.
+
+## Settled after the builder check (my calls)
+1. **Light scheme:**
+   - the screens use the app's light tokens;
+   - the effects keep the prototype's colours, except that in light the white flash becomes a dark punch (`#2A2E33` at the prototype's flash opacity, halved), and the cracks, dust and the pump's veins get a darker edge so they stay visible;
+   - the owner sees the light screenshots before the merge.
+2. **The switch at the top of Settings** (it is the first row there, and Settings scrolls):
+   - the pump's vein fan aims from the switch towards the screen's centre, and its lengths are scaled to reach the screen's edges;
+   - the shapes, the branching and the timing stay the prototype's;
+   - the flood circle grows from the switch until it covers the screen.
+3. **"POWERLIFTING stamps in":** the powerlifting side has no label (`ModeLabel` draws only on bodybuilding). A POWERLIFTING stamp, in the label's style, appears in the label's place at impact and fades out by the end of the animation. No permanent label is added.
+4. **What starts an animation:** only the lifter flipping the switch in this app. A backup restore, another browser tab, or anything else that changes the stored side changes the look with no animation, as today.
+5. **Colours:** the app's tokens win for the screens; the prototype's numbers are for the effects only.
+6. **The hammer lands on the bottom edge of the screen.** In Settings there is no tab bar (Android `AppShell.kt:112`), so the hammer lands on the bare bottom edge.
+7. **The content changes too, not just the colours.** For example, Settings shows different rows on each side. On the web, the reveal shows the real new screen: use the existing `web/src/ui/viewTransition.ts` snapshot helper where it fits. Android reveals the new screen the same way, inside a clip.
+8. **Tests:** the web e2e turns motion off on every page (`e2e/motion.spec.ts`), so the animation tests turn it on explicitly.
+9. **The reference** is committed at `docs/design/motion/mode-switch.html`.
+10. **The version** is 1.15 (versionCode 24). It ships after 1.14 (plan templates).
 
 ## Left to the builder
 - How each app layers the animation over the app (an overlay above the navigation host on Android, a fixed layer on the web), and how the theme change is timed to the impact or the third beat while the setting is stored at the tap.
