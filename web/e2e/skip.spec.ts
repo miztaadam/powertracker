@@ -2,7 +2,7 @@ import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { openOnWednesday, pastTheTapWindow, tabBar } from './helpers'
+import { openOnWednesday, pastTheTapWindow, seedFlatBench, tabBar } from './helpers'
 
 const grit = GritDomain.getInstance()
 
@@ -144,6 +144,15 @@ test('doubleTapSkipToday_aTapJustAfterTheSlide_picksNothing', async ({ page }) =
   await expect(page.getByText('Wednesday · 1 exercise')).toBeVisible()
 })
 
+test('startCard_suggestion_hasTheRoomBesideTheName', async ({ page }) => {
+  // The plan and the name share a wrapping line (1.13); the coach's suggestion under the name still has the line's room.
+  await openOnWednesday(page)
+  await seedFlatBench(page)
+  const suggestion = page.locator('.today-plan-suggestion .today-ellipsis')
+  await expect(suggestion).toHaveText(/^Coach suggests /)
+  expect(await suggestion.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true)
+})
+
 for (const scheme of ['dark', 'light'] as const) {
   for (const side of ['POWERLIFTING', 'BODYBUILDING'] as const) {
     const suffix = `${side === 'BODYBUILDING' ? '-bodybuilding' : ''}-${scheme}`
@@ -249,9 +258,12 @@ for (const [label, viewport] of [
         await expect(page.getByRole('button', { name: `Options for ${names[1]}` })).toBeAttached()
         expect(await page.locator('.today-name').count()).toBe(names.length)
         expect(await namesWhole(page)).toEqual([])
-        // Skipped: the line's names too.
+        // Skipped: the line's names too, beside Bring back, the longest included.
         await (await openSheet(page, names[3]!)).getByRole('button', { name: 'Just skip' }).click()
         await expect(skippedLine(page).getByText(names[3]!)).toBeAttached()
+        await (await openSheet(page, names[0]!)).getByRole('button', { name: 'Just skip' }).click()
+        await expect(skippedLine(page).getByText(names[0]!)).toBeAttached()
+        expect(await skippedLine(page).locator('.today-name').count()).toBe(2)
         expect(await namesWhole(page)).toEqual([])
       })
     })

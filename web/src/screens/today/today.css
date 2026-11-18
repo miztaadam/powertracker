@@ -22,7 +22,10 @@
   hyphens: manual;
 }
 
-/* A name and what goes with it (the plan, a count): side by side when they fit, else the second part on a line below. */
+/*
+ * A name and what goes with it (the plan, a count), as Android's WrappingPair: side by side when the name fits whole, the
+ * second part at the end; else the second part on a line below, at the start.
+ */
 .today-pair {
   display: flex;
   flex-wrap: wrap;
@@ -31,15 +34,15 @@
   row-gap: var(--space-1);
 }
 
+/* As wide as the name to decide the wrap, then the rest of the line: the suggestion under the name has all of it. */
 .today-pair-first {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   min-width: 0;
   max-width: 100%;
 }
 
 .today-pair-second {
   flex: none;
-  margin-left: auto;
 }
 
 .today-pair-row {
@@ -99,9 +102,6 @@
   max-width: 100%;
 }
 
-.today-card-head > .today-card-title + * {
-  margin-left: auto;
-}
 
 /*
  * Stretch and squeeze (bodybuilding side): a label column and the line beside it, as the mockup. The hairline above
