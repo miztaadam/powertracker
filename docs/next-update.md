@@ -263,7 +263,7 @@ Plan: `docs/superpowers/plans/2026-11-16-grit-motion-stage-4.md`. This is stage 
 - **1.9:** charts fill in on Progress.
 
 **Open follow-ups:**
-- Pictures in the web picker and plan builder: tried twice and waiting for the owner's decision (see "Web picker thumbnails: tried, waiting"). Android has them since 1.10.
+- Pictures in the web picker and plan builder: tried three times and waiting for the owner's decision (see "Web picker thumbnails: tried, waiting"). Android has them since 1.10.
 - "Sound + vibrate" wraps onto two lines on narrow phones.
 - Two guide gaps: the Seated cable fly guide and the Hack squat guide (see the 1.5 notes).
 - The Exercises tab still opens slowly now and then (single slow opens, still under 100 ms).
@@ -405,13 +405,14 @@ B's slow-open share (35%, 14 of 40, against at most 28%) was over the rule, but 
 
 ### After 1.12.1: one set of theme-coloured masks (owner's option 2). It missed, so nothing was built.
 - **Idea:** 3 alpha sheets (text, muted, accent) painted as CSS masks in the theme's colours, so one set covers all 4 palettes.
-- **Pixels:** close, not exact. 5–7% of tile pixels differ, about 80% of those by 1 level, worst 8 (none over 32), mostly on edges.
+- **Pixels:** close, not exact. In a test grid, 5–7% of tile pixels differ, about 80% of those by 1 level, worst 8, mostly on edges. In the app's tab at 3x, up to 33 levels, but today's SVG itself moves by up to 32 there. The tab's committed screenshots would change.
 - **Size:** 273 KB (2x) or 432 KB (3x) as optimised PNG; 221/351 KB as lossy WebP. Option B needed 2.5/4.25 MB. Decoded memory, worked out not measured: about 24 MB (2x) or 54 MB (3x).
-- **Speed:** decoded ahead, still missed at 40 rounds: open +11.5 ms (powerlifting), +8.5 (bodybuilding), keystroke +5.8, slow opens 55–75%. The cost is the first paint of the masks, not the decode.
-- **With one hidden masked tile painted at start-up (beyond the brief), 160 rounds:** open and keystroke within the bound, every keystroke under 100 ms, but slow opens 33% against a limit of 14%. Bodybuilding: open +4.0 against a bound of 3.
+- **Speed, the briefed build (decoded ahead):** missed at 40 rounds: open +11.5 ms (powerlifting), +8.5 (bodybuilding), keystroke +5.8, slow opens (45 ms or more) 55–75%. Cold (not decoded) is about the same. The cost is the first paint of the masks, not the decode, so it got no 160-round run.
+- **With one hidden masked tile painted at start-up (beyond the brief), 160 rounds:** open and keystroke within the bound, every keystroke under 100 ms, but slow opens (45 ms or more) were 33% against 9% and 14% for the two comparison builds. Worst open 70 ms, the same as the comparison builds, so no open came near 100 ms. With a real 1 s wait before the tap: still 40% against 18%. Bodybuilding at 40 rounds: open +4.0 against a bound of 3, slow opens 48% against 30%.
 - **Start-up:** decoded about 220 ms after load; +17 ms main-thread time (+25 ms with the primer).
+- **Pictures within 250 ms:** decoded 35–54 ms after the tap warm, 78–101 ms cold. On screen is not established: the only screenshot check came back 416–542 ms after the tap.
 - **Exercises tab:** 5–12 ms faster to open with masks than with its SVG, and lighter on scroll.
-- **Making the sheets:** `@resvg/resvg-wasm` installs without a native build but differs from Chromium at edges by up to 98 levels, so the sheets would have to be made in Chromium and committed.
+- **Making the sheets:** `@resvg/resvg-wasm` installs without a native build (not tried on Vercel itself) but differs from Chromium at edges by up to about 98 levels, so the sheets would have to be made in Chromium and committed.
 - The trial's tools and diff are local only (`.superpowers/…/mask-trial/`).
 
 ## Done: choose sets and reps when adding (1.12, both apps)
