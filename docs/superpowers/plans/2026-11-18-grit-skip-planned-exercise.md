@@ -21,8 +21,18 @@
   - **pain:** the 1st pain skip gives a card;
   - **repeat:** the 3rd skip of any reason other than time gives a card;
   - **time:** never a card.
-- **Card priority:** one skip creates at most one card, in the order pain, busy, repeat. No card when an OPEN `SKIP` card for that exercise exists, or when one was created for it in the last 7 days. A dismissed one follows the coach's existing 28-day dismissal memory, so a repeat card is not recreated within 28 days of its dismissal at the same or lower severity.
-- **The pain hold belongs to the lifter:** a pain skip on either side holds that exercise's weight on both sides, until a session holding a logged set of it is dated after the skip, on either side.
+- **Card priority:** one skip creates at most one card, in the order pain, busy, repeat. There is no card in three cases:
+  - an OPEN `SKIP` card or OPEN `SWAP` card for that exercise exists;
+  - a `SKIP` card was created for it in the last 7 days *(my call, replacing the design's "one card per lift per week")*;
+  - a dismissed card's memory blocks it (below).
+- **A pain skip with no alternative left** (not a main lift) falls back to the main-lift pain card: the hold notice, with Dismiss only. A pain skip always gives a card unless one of the three cases above blocks it.
+- **`SKIP` advice and the existing rails:** its `lift` is the exercise's `MainLift` for a main-lift category, and null otherwise.
+  - With `SKIP` cards in `priorAdvice`, `Coaching.evaluate` and `Coaching.targetsFor` return exactly what they return without them (tested).
+  - Every `when` or `switch` on `AdviceType` on both apps, the web's included, handles `SKIP`.
+  - A `SKIP` card is hidden once its exercise is not in that side's plan, as `Swap` already is. A dismissed one follows the coach's existing 28-day dismissal memory, so a repeat card is not recreated within 28 days of its dismissal at the same or lower severity.
+- **The pain hold belongs to the lifter:** a pain skip on either side holds that exercise's weight on both sides, until a session holding a logged set of it is dated after the skip, on either side. It has no time limit.
+  - **Held means no increase decision is made.** The target repeats that exercise's latest session on the side being targeted: the same weight, and the same reps aim it had then. It is not a cap applied afterwards, so the bodybuilding coach's reset to the low end of the range after an increase does not happen either.
+  - **If TARGET advice is stored ahead of time** (check `applyTarget(adviceId)` and where targets are stored on both apps), a pain skip dismisses that exercise's OPEN TARGET advice in the same transaction, so the next target is worked out with the hold.
 - **Cards appear at the moment of the skip,** with no session needed. **Undo** and **Bring back** delete the skip and any still-OPEN `SKIP` card whose `skipId` is that skip's, in one transaction. A card that was already applied or dismissed stays.
 - **One skip per exercise, per date, per side.** Skipping again replaces the reason and runs `afterSkip` again.
 - **Exact strings:**
@@ -34,10 +44,10 @@
   - Finish's summary adds ", n skipped" when n ≥ 1.
   - **Card text**, with `<name>` the exercise name:
     - **busy:** "You've skipped <name> twice in 4 weeks because you were busy or had no equipment. Swap it for one of these?"
-    - **pain, not a main lift:** "You skipped <name> because of pain. Try one of these instead. Its weight won't go up until you do <name> again. If the pain persists or gets worse, see a physician or physical therapist."
-    - **pain, a main lift:** "You skipped <name> because of pain. Its weight won't go up until you do it again. If the pain persists or gets worse, see a physician or physical therapist."
+    - **pain, not a main lift:** "You skipped <name> because of pain. Try one of these instead. Its weight won't go up until you do <name> again. If the pain persists or gets worse, see a physician."
+    - **pain, a main lift, or no alternative left:** "You skipped <name> because of pain. Its weight won't go up until you do it again. If the pain persists or gets worse, see a physician."
     - **repeat:** "You've skipped <name> 3 times in 4 weeks. Keep it in your plan, or swap it for one of these?"
-- **The pain line's source** is ExRx.net, "Exercise Adaptation / Injury Prevention Tidbits", https://exrx.net/Injury/InjuryTidbits. It advises seeing a physician when pain persists or worsens, and progressing again only when the load can be done pain-free. ACSM's "Resting After an Injury: A Thing of the Past", https://acsm.org/resting-after-an-injury-a-thing-of-the-past/, supports training around the painful area. Both were found on 2026-11-18 by a web search restricted to the allowed sources, without opening the pages. Cite them in `CoachSources.kt` in its existing style.
+- **The pain line's source** is ExRx.net, "Exercise Adaptation / Injury Prevention Tidbits", https://exrx.net/Injury/InjuryTidbits. It advises seeing a physician when pain persists or worsens (a physical therapist can refer you on), and progressing again only when the load can be done pain-free. ACSM's "Resting After an Injury: A Thing of the Past", https://acsm.org/resting-after-an-injury-a-thing-of-the-past/, supports training around the painful area. Both were found on 2026-11-18 by a web search restricted to the allowed sources, without opening the pages. Cite them in `CoachSources.kt` in its existing style.
 - **Haptics:** one tick when a skip is stored, none on cancel, Undo or Bring back.
 - **Version:** 1.13.0 on both apps, with versionCode the next after 1.12.3's.
 - **Existing tests** pass unedited. List any that changed, each with its reason.
@@ -79,7 +89,7 @@
   - It returns zero or one `SKIP` advice, stamped `mode = skip.mode`.
   - `skips` is every stored skip, including `skip`.
 - `Coaching.targetsFor(..., skips: List<Skip> = emptyList())`, and the same parameter on `Coach.targetsFor` and `BodybuildingCoach.targetsFor`.
-  - A held exercise's `Target.weightKg` is at most the heaviest non-missed set of its latest session.
+  - A held exercise's target repeats its latest session on that side (weight and reps aim), with no increase decision. See Global Constraints.
 - `Coaching.applySkipSwap(payload: AdvicePayload.Skipped, choice: String, mode: TrainingMode, plan: List<PlanItem>, exercises: Map<Long, Exercise>): PlanChange`
   - It swaps the exercise in every plan item of `mode`.
   - On the bodybuilding side it keeps `PhysiqueCoach`'s ceiling check and its "changed since" messages. On the powerlifting side there is no ceiling.
@@ -94,6 +104,9 @@
   - `busy_alternativesHaveDifferentFirstEquipment`;
   - `pain_first_givesCardWithAlternatives_andSourcedLine`, which asserts the exact pain string;
   - `pain_mainLift_givesCardWithNoAlternatives`, for each of the 4 main-lift categories;
+  - `pain_noAlternativeLeft_givesHoldCard`;
+  - `openSwapCard_blocksSkipCard`;
+  - `skipCards_inPriorAdvice_leaveEvaluateAndTargetsUnchanged`;
   - `busy_mainLift_noCard`;
   - `repeat_thirdNonTime_givesCard_secondDoesNot`;
   - `time_neverCard`, and `time_notCountedTowardRepeat`;
@@ -104,7 +117,7 @@
   - `otherSidesSkips_notCountedTowardThresholds`;
   - `card_carriesSkipId_andMode`.
 - [ ] **Write the failing hold tests,** powerlifting and bodybuilding:
-  - `painSkip_holdsTargetWeight`;
+  - `painSkip_holdsTargetWeight`, and on the bodybuilding side `painSkip_keepsRepsAim_noResetToLowEnd`;
   - `painSkip_onOtherSide_holdsToo`;
   - `loggedSessionAfterSkip_releasesHold`, on either side;
   - `busySkip_doesNotHold`;
@@ -135,7 +148,7 @@
   - the cascade and set-null behaviour;
   - a backup round-trips skips;
   - a 1.12-format backup restores with no skips;
-  - a backup with skips has the new format version.
+  - every 1.13 backup has the new format version, with or without skips.
 - [ ] Implement, then run `./gradlew :app:testDebugUnitTest`: all pass.
 - [ ] Commit `feat(app): store skips and include them in backups`.
 
@@ -166,7 +179,11 @@
   - `skip_ticksOnce`;
   - `skip_survivesRecreation`, for the sheet open with a reason not yet chosen;
   - `coach_skipCard_swapApplies`, on both sides;
-  - `coach_mainLiftPainCard_dismissOnly`.
+  - `coach_mainLiftPainCard_dismissOnly`;
+  - `painSkip_nextTodayTarget_isHeld`, an app-level check that the call site passes `skips`;
+  - `skipEveryPlannedExercise_noRestDayView_skippedLineShown`;
+  - `afterSwapApplied_skippedLine_dropsSwappedName`: no **Bring back** that does nothing;
+  - `doubleTapSkipToday_doesNotPickAReason`, using the 300 ms window after the sheet opens, as the add form does.
 - [ ] Implement, then run `./gradlew :app:testDebugUnitTest`: all pass.
 - [ ] Re-shoot with `-Pscreenshots.update=true`, adding the row menu, the sheet, the "Skipped today" line and a `SKIP` card, on both sides, dark and light. Only new shots, plus any shot of Today's rows if the menu icon changes them. List them.
 - [ ] Commit `feat(app): skip a planned exercise on Today`.
