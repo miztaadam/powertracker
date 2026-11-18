@@ -16,6 +16,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.text.AnnotatedString
@@ -41,8 +42,9 @@ import org.robolectric.annotation.GraphicsMode
 
 /**
  * Every catalogue name on a Today row stays whole, with the row menu (⋮) beside it: not ellipsised, and wrapped only
- * between words (or after a hyphen), never inside one. Checked at 320 dp with 100% text and 360 dp with 130%, on the
- * folded rows, the start card's rows, the open exercise card's header and the "Skipped today" line, on both sides.
+ * between words (or after a hyphen), never inside one. Checked at 320 dp with 100% text, 360 dp with 130% and 320 dp
+ * with 130%, on the folded rows, the start card's rows, the open exercise card's header and the "Skipped today" line,
+ * on both sides.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -163,4 +165,31 @@ class TodayNamesWholeTest {
 
     @Test
     fun todayNamesWhole_at360dpWith130PercentText() = check(360, 1.3f)
+
+    /** The width where the web stacks its guide button and ⋮ (final review, 1.13). */
+    @Test
+    fun todayNamesWhole_at320dpWith130PercentText() = check(320, 1.3f)
+
+    /** Whether the ⋮ sits under the guide button, on a folded row and on the open card, at [width] dp × [fontScale]. */
+    private fun stacked(width: Int, fontScale: Float): Pair<Boolean, Boolean> {
+        val it = item(0, "Curl", TrainingMode.POWERLIFTING)
+        show(width, fontScale) {
+            ExerciseRow(it, onClick = {}, onSkipToday = {})
+            ExerciseCard(it, 1, 1, 2.5, false, NextStep("Finish session") {}, TodayActions(), onSkipToday = {})
+        }
+        fun under(i: Int): Boolean {
+            val guide = compose.onAllNodes(hasContentDescription("Form guide for Curl"), useUnmergedTree = true).fetchSemanticsNodes()[i].boundsInRoot
+            val menu = compose.onAllNodes(hasContentDescription("Options for Curl"), useUnmergedTree = true).fetchSemanticsNodes()[i].boundsInRoot
+            return menu.top >= guide.bottom
+        }
+        return under(0) to under(1)
+    }
+
+    /** The guide button and ⋮ stack only where the card is narrower than ROW_STACK_WIDTH over the font scale. */
+    @Test
+    fun guideAndMenu_stackOnlyOnANarrowCard() {
+        assertEquals(true to true, stacked(320, 1.3f))
+        assertEquals(false to false, stacked(320, 1f))
+        assertEquals(false to false, stacked(411, 1.3f))
+    }
 }

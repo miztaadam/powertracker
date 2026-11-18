@@ -1,6 +1,7 @@
 package com.powertracker.ui.today
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,6 +38,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.powertracker.data.StoredSet
@@ -204,6 +206,10 @@ private fun ColumnScope.CardContent(
     onSelect: (Pair<Int, StoredSet>) -> Unit,
 ) {
     val id = item.exercise.id
+    val fontScale = LocalDensity.current.fontScale
+    BoxWithConstraints {
+        // PtCard's own padding, Space.l on each side, is part of the card's width.
+        val stacked = stacksActions(maxWidth + Space.l * 2, fontScale)
         Row(verticalAlignment = Alignment.CenterVertically) {
             // The name is never cut: where it and the set count do not fit on one line, the count goes under it.
             WrappingPair(Modifier.weight(1f), first = {
@@ -219,9 +225,9 @@ private fun ColumnScope.CardContent(
                     else -> Pill("Set ${item.sets.size + 1}")
                 }
             }
-            InfoButton(item.exercise.name)
-            if (onSkipToday != null) SkipMenuButton(item.exercise.name, onSkipToday)
+            GuideAndMenu(item.exercise.name, onSkipToday, stacked)
         }
+    }
 
         item.suggestion?.let { advice ->
             val target = advice.payload as? AdvicePayload.Target ?: return@let
@@ -436,16 +442,42 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
     }
 }
 
+/**
+ * A folded row or open card narrower than this, over the font scale (a small phone with large text), stacks its guide
+ * button and its menu so the name keeps its room, as the web's row does below 260 px (1.13).
+ */
+internal val ROW_STACK_WIDTH = 260.dp
+
+/** Whether a row or card [width] wide, the whole card, stacks its guide button and menu ([ROW_STACK_WIDTH]). */
+internal fun stacksActions(width: Dp, fontScale: Float): Boolean = width / fontScale < ROW_STACK_WIDTH
+
+/** The guide button (ⓘ) and, with [onSkipToday], the row menu (⋮): side by side, or [stacked] one above the other. */
+@Composable
+private fun GuideAndMenu(name: String, onSkipToday: (() -> Unit)?, stacked: Boolean) {
+    if (stacked && onSkipToday != null) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            InfoButton(name)
+            SkipMenuButton(name, onSkipToday)
+        }
+    } else {
+        InfoButton(name)
+        if (onSkipToday != null) SkipMenuButton(name, onSkipToday)
+    }
+}
+
 /** Another exercise in today's session, folded to one line. Tap to log it. */
 @Composable
 fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modifier, onSkipToday: (() -> Unit)? = null) {
     val scheme = MaterialTheme.colorScheme
+    val fontScale = LocalDensity.current.fontScale
+    val padding = Space.l
     PtCard(
         modifier,
-        contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.s),
+        contentPadding = PaddingValues(horizontal = padding, vertical = Space.s),
         onClickLabel = "Log ${item.exercise.name}",
         onClick = onClick,
-    ) {
+    ) { BoxWithConstraints {
+        val stacked = stacksActions(maxWidth + padding * 2, fontScale)
         Row(Modifier.heightIn(min = 40.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
             // The name is never cut: where it and the plan do not fit on one line, the plan goes under it, and a long
             // name wraps between words.
@@ -466,8 +498,7 @@ fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modif
                     }
                 }
             }
-            InfoButton(item.exercise.name)
-            if (onSkipToday != null) SkipMenuButton(item.exercise.name, onSkipToday)
+            GuideAndMenu(item.exercise.name, onSkipToday, stacked)
         }
-    }
+    } }
 }
