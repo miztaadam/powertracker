@@ -140,6 +140,7 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
               return actions.addCustomExercise(exercise).then((entry) => setDialog((open) => (open === picker ? addForm(picker.weekday, entry) : open)))
             }}
             onDismiss={() => setDialog(null)}
+            onCreateFailedWhileClosed={() => setFailures((n) => n + 1)}
           />
         </div>
       )}
@@ -154,6 +155,7 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
           exercises={state.exercises}
           recentIds={state.recentIds}
           onCreateCustom={actions.addCustomExercise}
+          onFailure={() => setFailures((n) => n + 1)}
           // Each add ticks once, when it is stored; a failed add does not buzz.
           onSave={(exercise, sets, reps, targetRpe, repsHigh) => {
             if (added.current === dialog) return
@@ -172,6 +174,7 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
           exercises={state.exercises}
           recentIds={state.recentIds}
           onCreateCustom={actions.addCustomExercise}
+          onFailure={() => setFailures((n) => n + 1)}
           onSave={(exercise, sets, reps, rpe, repsHigh) => {
             reported(actions.save(dialog.item, exercise, sets, reps, rpe, repsHigh))
             setDialog(null)

@@ -218,6 +218,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
             )
           }
           onDismiss={() => setPicking(false)}
+          onCreateFailedWhileClosed={() => setFailures((n) => n + 1)}
         />
       )}
 

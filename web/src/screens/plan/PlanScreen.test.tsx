@@ -515,6 +515,36 @@ describe('PlanScreen add form', () => {
     expectCustomExerciseEmpty('zzz')
   })
 
+  it('planAdd_ownExerciseFails_afterTheFormWasCancelled_thePickerSaysSo', async () => {
+    show()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementation((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await userEvent.click(within(createForm()!).getByRole('button', { name: 'Cancel' }))
+    await act(async () => fail())
+    // The form is gone, so the picker says it over its list.
+    expect(await within(screen.getByRole('dialog', { name: 'Add to Monday' })).findByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect(screen.getAllByText("Couldn't save — try again.")).toHaveLength(1)
+  })
+
+  it('planAdd_ownExerciseFails_afterThePickerWasClosed_planSaysSo', async () => {
+    show()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementation((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await userEvent.click(within(createForm()!).getByRole('button', { name: 'Cancel' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Close' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+    await act(async () => fail())
+    expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
+  })
+
   it('planChange_toOwnExerciseFails_createFormKeepsEverything_saysSoInIt', async () => {
     show()
     await pickOn('Monday', 'Squat')
