@@ -484,9 +484,16 @@ internal val chest: List<LibraryExercise> = listOf(
                 "Let them go back under control.",
             ),
             cues = listOf("Elbows high.", "Elbows fixed, slightly bent."),
-            mistakes = listOf(ELBOWS_CHANGE, "Letting your elbows drop instead of keeping them high."),
+            mistakes = listOf(
+                ELBOWS_CHANGE,
+                "Letting your elbows drop instead of keeping them high.",
+                // ACE's standing cable fly limit (hands not past the midline of the body, at armpit level), carried
+                // over as on the Low-to-high cable fly: ExRx gives only a stretch here. Checked on 2026-11-18 from the
+                // search summary; the page was not opened. No allowed source names the hands going behind the body.
+                "Letting your hands go back past the level of your armpits.",
+            ),
         ),
-        listOf(Sources.EXRX_CB_SEATED_FLY, Sources.ACE_BRACE_OR_BREATHE),
+        listOf(Sources.EXRX_CB_SEATED_FLY, Sources.ACE_STANDING_INCLINE_CABLE_FLYES, Sources.ACE_BRACE_OR_BREATHE),
     ),
 
     // ---- Dips ----

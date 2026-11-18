@@ -923,6 +923,7 @@ Sources of the stretch and squeeze:
 ### Seated cable fly
 
 - [Cable Isolateral Cable Fly](https://exrx.net/WeightExercises/PectoralSternal/CBSeatedFly). ExRx.net, accessed 2026-11-11.
+- [Exercise Library: Standing Incline Cable Flyes](https://www.acefitness.org/resources/everyone/exercise-library/163/standing-incline-cable-flyes/). American Council on Exercise (ACE), accessed 2026-11-11.
 - [Certified November 2025: Spinal Stability in the Real World: When to Brace and When to Breathe](https://www.acefitness.org/continuing-education/certified/november-2025/9006/spinal-stability-in-the-real-world-when-to-brace-and-when-to-breathe/). American Council on Exercise (ACE), accessed 2026-11-11.
 
 Stretch and squeeze (bodybuilding side):
