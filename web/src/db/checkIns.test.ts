@@ -51,7 +51,7 @@ describe('schema version 4', () => {
     const before = Object.fromEntries(await Promise.all(tables.map(async (t) => [t, await v3.table(t).toArray()])))
     v3.close()
 
-    const db = await openDb()
+    const db = await openDb(SCHEMA_VERSIONS.filter((v) => v.version <= 4))
 
     expect(await installedVersion(name)).toBe(4)
     for (const t of tables) expect(await db.table(t).toArray(), t).toEqual(before[t])

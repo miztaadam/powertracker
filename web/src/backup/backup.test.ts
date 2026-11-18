@@ -30,10 +30,14 @@ const ANDROID_V2_FIXTURE = resolve(FIXTURES, 'android-v2.json')
 const WEB_V2_FIXTURE = resolve(FIXTURES, 'web-v2.json')
 /** What the bodybuilding mode apps wrote (version 3): frozen since version 4, and must keep restoring. */
 const WEB_V3_FIXTURE = resolve(FIXTURES, 'web-v3.json')
-/** What this app writes now (version 4, check-ins). Regenerate with UPDATE_FIXTURES=1. */
-const WEB_FIXTURE = resolve(FIXTURES, 'web-v4.json')
-/** What the Android app writes now (version 4, stage 3 Task 2). */
+/** What the check-in apps wrote (version 4): frozen since version 5, and must keep restoring. */
+const WEB_V4_FIXTURE = resolve(FIXTURES, 'web-v4.json')
+/** What this app writes now (version 5, skips). Regenerate with UPDATE_FIXTURES=1. */
+const WEB_FIXTURE = resolve(FIXTURES, 'web-v5.json')
+/** What the Android app wrote in 1.12 (version 4, stage 3 Task 2): frozen. */
 const ANDROID_V4_FIXTURE = resolve(FIXTURES, 'android-v4.json')
+/** What the Android app writes now (version 5, 1.13 Task 2). */
+const ANDROID_V5_FIXTURE = resolve(FIXTURES, 'android-v5.json')
 const EXPORTED_AT = 1_793_000_000_000
 
 let n = 0
@@ -67,7 +71,7 @@ const decodeOk = (text: string): BackupFile => {
  * Mirrors the Android fixture's breadth, deterministically. `strictPress` adds what version 2 brought, as
  * Android's fixture has it: the switch on and a catalogue "Strict press" row with an "off the shoulders" miss.
  */
-async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = false, checkIns = false } = {}) {
+async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = false, checkIns = false, skips = false } = {}) {
   await ensureSeeded(db)
   const byName = new Map((await db.exercises.toArray()).map((e) => [e.name, e.id as number]))
   const squat = byName.get('Squat')!
@@ -168,6 +172,21 @@ async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = f
       },
     ])
   }
+  if (skips) {
+    // Version 5: three skips on both sides (pain, no reason, busy with its plan item since deleted) and the pain
+    // skip's OPEN card, its payload exactly as the domain writes it.
+    const curl = await resolveCatalogue(db, 'Curl')
+    const curlItem = (await db.planItems.where('exerciseId').equals(curl).first())?.id ?? null
+    const squatItem = (await db.planItems.where('exerciseId').equals(squat).first())!.id as number
+    const pain = (await db.skips.add({ date: '2026-10-30', mode: 'BODYBUILDING', exerciseId: curl, planItemId: curlItem, reason: 'PAIN' })) as number
+    await db.skips.add({ date: '2026-10-30', mode: 'POWERLIFTING', exerciseId: squat, planItemId: squatItem, reason: null })
+    await db.skips.add({ date: '2026-10-23', mode: 'POWERLIFTING', exerciseId: bench, planItemId: null, reason: 'BUSY' })
+    await db.advice.add({
+      ...adv('SKIP', null, "You skipped Curl because of pain. Try one of these instead. Its weight won't go up until you do Curl again. If the pain persists or gets worse, see a physician.", 3,
+        `{"type":"${P}Skipped","skipId":${pain},"exerciseId":${curl},"name":"Curl","reason":"PAIN","alternatives":["Cable curl"]}`, 'OPEN'),
+      mode: 'BODYBUILDING',
+    })
+  }
 }
 
 /** Version 3's fields as an older file means them: everything on the powerlifting side, neither side ever left. */
@@ -189,12 +208,19 @@ function withV3Defaults(file: Record<string, unknown>): Record<string, unknown> 
     advice: rows('advice', { mode: 'POWERLIFTING' }),
     // Version 4: no check-ins.
     checkIns: [],
+    // Version 5: no skips.
+    skips: [],
   }
 }
 
-/** A version 3 file as it exports here once restored: the current version, with no check-ins. */
+/** A version 3 file as it exports here once restored: the current version, with no check-ins and no skips. */
 function withV4Defaults(file: Record<string, unknown>): Record<string, unknown> {
-  return { ...file, version: BACKUP_VERSION, checkIns: [] }
+  return { ...file, version: BACKUP_VERSION, checkIns: [], skips: [] }
+}
+
+/** A version 4 file as it exports here once restored: the current version, with no skips. */
+function withV5Defaults(file: Record<string, unknown>): Record<string, unknown> {
+  return { ...file, version: BACKUP_VERSION, skips: [] }
 }
 
 /** What a version-1 file with no strict press row exports as once restored here: the current version, switch off, all powerlifting. */
@@ -459,7 +485,7 @@ describe('backup', () => {
 
   it('webFixture_isUpToDate', async () => {
     const db = await openDb()
-    await buildSampleDb(db, { strictPress: true, bodybuilding: true, checkIns: true })
+    await buildSampleDb(db, { strictPress: true, bodybuilding: true, checkIns: true, skips: true })
     const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
     if (process.env.UPDATE_FIXTURES === '1') {
       writeFileSync(WEB_FIXTURE, JSON.stringify(JSON.parse(text), null, 4) + '\n')
@@ -469,8 +495,10 @@ describe('backup', () => {
     const file = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
     expect(file.settings.restAlert).toBe('VIBRATE')
     expect(file.settings.webRestAlert).toBe('SILENT')
-    expect(file.version).toBe(4)
+    expect(file.version).toBe(5)
     expect(file.checkIns).toHaveLength(2)
+    expect(file.skips).toHaveLength(3)
+    expect(file.advice.filter((a) => a.type === 'SKIP')).toHaveLength(1)
     expect(file.settings.showStrictPress).toBe(true)
     expect(file.exercises.filter((e) => e.category === 'STRICT_PRESS').map((e) => e.name)).toEqual(['Strict press'])
   })
@@ -748,7 +776,7 @@ describe('backup version 4', () => {
     const text = encodeBackup(exported)
     const json = JSON.parse(text) as BackupFile
 
-    expect(json.version).toBe(4)
+    expect(json.version).toBe(BACKUP_VERSION)
     expect(json.checkIns).toEqual([
       { id: 1, date: isoToEpochDay('2026-10-03'), lagging: [], growingWell: ['BICEPS'] },
       { id: 2, date: isoToEpochDay('2026-10-31'), lagging: ['CHEST', 'SIDE_DELTS'], growingWell: ['QUADS'] },
@@ -791,12 +819,9 @@ describe('backup version 4', () => {
     expect(withoutExportedAt(out)).toEqual(expected)
   })
 
-  it('v4File_onVersion3Decoder_isTooNew_andVersion5IsTooNewHere', () => {
-    const text = readFileSync(WEB_FIXTURE, 'utf8')
+  it('v4File_onVersion3Decoder_isTooNew', () => {
+    const text = readFileSync(WEB_V4_FIXTURE, 'utf8')
     expect(decodeBackup(text, 3)).toEqual({ ok: false, kind: 'TOO_NEW', version: 4 })
-    const v5 = JSON.stringify({ ...readJson(WEB_FIXTURE), version: 5 })
-    expect(decodeBackup(v5)).toEqual({ ok: false, kind: 'TOO_NEW', version: 5 })
-    expect(BACKUP_VERSION).toBe(4)
   })
 
   it('decode_checkIns_areOptionalButTyped', () => {
@@ -837,6 +862,173 @@ describe('backup version 4', () => {
     file.checkIns[1]!.lagging = ['SIDE_DELTS', 'CHEST']
     await restoreBackup(db, file)
     expect((await db.checkIns.get(2))!.lagging).toEqual(['CHEST', 'SIDE_DELTS'])
+  })
+})
+
+/** 1.13: backup version 5 carries the skipped planned exercises and the SKIP advice, as Android's `SkipDto`. */
+describe('backup version 5', () => {
+  it('everyBackup_isVersion5_withOrWithoutSkips', async () => {
+    const db = await openDb()
+    expect(BACKUP_VERSION).toBe(5)
+    const empty = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
+    expect(empty.version).toBe(5)
+    expect(empty.skips).toEqual([])
+    await buildSampleDb(db, { bodybuilding: true, skips: true })
+    const full = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
+    expect(full.version).toBe(5)
+    expect(full.skips).toHaveLength(3)
+  })
+
+  it('v5RoundTrip_keepsSkips', async () => {
+    const db = await openDb()
+    await buildSampleDb(db, { strictPress: true, bodybuilding: true, checkIns: true, skips: true })
+    const exported = await exportBackup(db, EXPORTED_AT)
+    const text = encodeBackup(exported)
+    const json = JSON.parse(text) as BackupFile
+    const byName = new Map((await db.exercises.toArray()).map((e) => [e.name, e.id as number]))
+    const curlItem = (await db.planItems.where('exerciseId').equals(byName.get('Curl')!).first())!.id
+    const squatItem = (await db.planItems.where('exerciseId').equals(byName.get('Squat')!).first())!.id
+    // Android's SkipDto, key for key: dates are epochDays and both nulls are written out.
+    expect(json.skips).toEqual([
+      { id: 1, date: isoToEpochDay('2026-10-30'), mode: 'BODYBUILDING', exerciseId: byName.get('Curl'), planItemId: curlItem, reason: 'PAIN' },
+      { id: 2, date: isoToEpochDay('2026-10-30'), mode: 'POWERLIFTING', exerciseId: byName.get('Squat'), planItemId: squatItem, reason: null },
+      { id: 3, date: isoToEpochDay('2026-10-23'), mode: 'POWERLIFTING', exerciseId: byName.get('Bench'), planItemId: null, reason: 'BUSY' },
+    ])
+    expect(json.advice.at(-1)).toMatchObject({ type: 'SKIP', status: 'OPEN', mode: 'BODYBUILDING', lift: null })
+
+    // Everything changed here comes back from the file.
+    await db.skips.clear()
+    await db.skips.add({ date: '2026-11-12', mode: 'BODYBUILDING', exerciseId: byName.get('Curl')!, planItemId: null, reason: 'TIME' })
+    await db.advice.where('type').equals('SKIP').delete()
+    await restoreBackup(db, decodeOk(text))
+
+    expect(await exportBackup(db, EXPORTED_AT)).toEqual(exported)
+    expect((await db.skips.orderBy('id').toArray()).map((s) => [s.id, s.date, s.mode, s.reason, s.planItemId])).toEqual([
+      [1, '2026-10-30', 'BODYBUILDING', 'PAIN', curlItem],
+      [2, '2026-10-30', 'POWERLIFTING', null, squatItem],
+      [3, '2026-10-23', 'POWERLIFTING', 'BUSY', null],
+    ])
+    // The card still finds its skip, and the domain still reads it.
+    const card = (await db.advice.where('type').equals('SKIP').first())!
+    expect(grit.advicePayload(card.payloadJson)?.skipId).toBe(1)
+  })
+
+  it('webV4Fixture_restoresWithNoSkips', async () => {
+    const db = await openDb()
+    await ensureSeeded(db)
+    await db.skips.add({ date: '2026-11-01', mode: 'POWERLIFTING', exerciseId: 1, planItemId: null, reason: null }) // must be wiped
+    const v4 = readJson(WEB_V4_FIXTURE)
+    expect(v4.version).toBe(4)
+    expect('skips' in v4).toBe(false)
+    await restoreBackup(db, decodeOk(readFileSync(WEB_V4_FIXTURE, 'utf8')))
+
+    expect(await db.skips.count()).toBe(0)
+    const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
+    const expected = withoutExportedAt(withV5Defaults(v4))
+    ;(expected.settings as Record<string, unknown>).appLock = false // this device's own
+    expect(withoutExportedAt(out)).toEqual(expected)
+  })
+
+  it('v5File_onVersion4Decoder_isTooNew_andVersion6IsTooNewHere', () => {
+    const text = readFileSync(WEB_FIXTURE, 'utf8')
+    expect(decodeBackup(text, 4)).toEqual({ ok: false, kind: 'TOO_NEW', version: 5 })
+    expect(decodeBackup(readFileSync(ANDROID_V5_FIXTURE, 'utf8'), 4)).toEqual({ ok: false, kind: 'TOO_NEW', version: 5 })
+    const v6 = JSON.stringify({ ...readJson(WEB_FIXTURE), version: 6 })
+    expect(decodeBackup(v6)).toEqual({ ok: false, kind: 'TOO_NEW', version: 6 })
+  })
+
+  it('decode_skips_areOptionalButTyped', () => {
+    type Loose = Record<string, unknown> & { skips: Record<string, unknown>[]; advice: Record<string, unknown>[] }
+    const valid = readJson(WEB_FIXTURE) as Loose
+    const mut = (f: (o: Loose) => void) => {
+      const o = structuredClone(valid)
+      f(o)
+      return JSON.stringify(o)
+    }
+    const corrupt = (text: string) => {
+      const r = decodeBackup(text)
+      expect(r.ok === false && r.kind, text.slice(0, 120)).toBe('CORRUPT')
+    }
+    expect(valid.skips.length).toBe(3)
+    corrupt(mut((o) => (o.skips = null as never)))
+    corrupt(mut((o) => (o.skips[0]!.reason = 'TIRED')))
+    corrupt(mut((o) => (o.skips[0]!.mode = 'CROSSFIT')))
+    corrupt(mut((o) => delete o.skips[0]!.mode)) // Android's SkipDto has no default for it
+    corrupt(mut((o) => delete o.skips[0]!.reason)) // nor for the nullable ones
+    corrupt(mut((o) => delete o.skips[2]!.planItemId))
+    corrupt(mut((o) => (o.skips[0]!.date = '2026-10-30')))
+    corrupt(mut((o) => (o.skips[0]!.exerciseId = 1.5)))
+    corrupt(mut((o) => (o.skips[0]!.extra = 1)))
+    // Ids unique, one per exercise, date and side, and what they point at exists (Android's foreign keys).
+    corrupt(mut((o) => (o.skips[1]!.id = o.skips[0]!.id)))
+    corrupt(mut((o) => (o.skips[1] = { ...o.skips[0]!, id: 99 })))
+    corrupt(mut((o) => (o.skips[0]!.exerciseId = 9999)))
+    corrupt(mut((o) => (o.skips[0]!.planItemId = 9999)))
+    corrupt(mut((o) => (o.advice.at(-1)!.type = 'SKIPPED')))
+
+    // Absent means none, as in an older file; another side or date is another skip.
+    expect(decodeOk(mut((o) => delete (o as Partial<Loose>).skips)).skips).toEqual([])
+    expect(decodeOk(mut((o) => (o.skips[1] = { ...o.skips[0]!, id: 99, mode: 'POWERLIFTING' }))).skips).toHaveLength(3)
+  })
+
+  it('restore_clearsTheSkips_whenAFileHasNone', async () => {
+    const db = await openDb()
+    await buildSampleDb(db, { bodybuilding: true, skips: true })
+    const file = await exportBackup(db, EXPORTED_AT)
+    await restoreBackup(db, { ...file, skips: [] })
+    expect(await db.skips.count()).toBe(0)
+  })
+
+  it('safetyCopy_ofAVersion4Database_hasNoSkips', async () => {
+    const { SCHEMA_VERSIONS } = await import('../db/schema')
+    const v4 = await openGritDb(name, { schemaVersions: SCHEMA_VERSIONS.filter((v) => v.version <= 4) })
+    await ensureSeeded(v4)
+    v4.close()
+    // Opening on the current schema writes the copy from the version 4 data first, through exportBackup.
+    const db = await openDb()
+    const copy = (await readSafetyCopy(db))!
+    expect(copy.kind).toBe('backup')
+    const file = decodeOk(copy.json)
+    expect(file.version).toBe(BACKUP_VERSION)
+    expect(file.skips).toEqual([])
+  })
+})
+
+describe('cross-platform restore, version 5', () => {
+  /** Android's version-5 backup (1.13 Task 2): three skips on both sides and a pain skip's OPEN card. */
+  it('androidV5Fixture_restoresOnWeb', async () => {
+    const android = readJson(ANDROID_V5_FIXTURE) as unknown as BackupFile
+    expect(android.version).toBe(5)
+    const db = await openDb()
+    await ensureSeeded(db)
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_V5_FIXTURE, 'utf8')))
+
+    const stored = await db.skips.orderBy('id').toArray()
+    expect(stored.map((s) => [s.id, isoToEpochDay(s.date), s.mode, s.exerciseId, s.planItemId, s.reason])).toEqual(
+      android.skips.map((s) => [s.id, s.date, s.mode, s.exerciseId, s.planItemId, s.reason]),
+    )
+    expect(stored.map((s) => s.reason)).toEqual(expect.arrayContaining(['PAIN', null, 'BUSY']))
+    const card = (await db.advice.where('type').equals('SKIP').toArray())[0]!
+    const androidCard = android.advice.find((a) => a.type === 'SKIP')!
+    expect([card.id, card.status, card.mode, card.payloadJson]).toEqual([androidCard.id, androidCard.status, androidCard.mode, androidCard.payload])
+    const payload = grit.advicePayload(card.payloadJson)!
+    expect([payload.kind, payload.skipId, payload.skipReason]).toEqual(['Skipped', stored[0]!.id, 'PAIN'])
+
+    // And it exports again as Android wrote it: the same skips and card, under the same top-level keys.
+    const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
+    expect(out.skips).toEqual(android.skips)
+    expect((out.advice as unknown[]).find((a) => (a as { type: string }).type === 'SKIP')).toEqual(androidCard)
+    expect(Object.keys(out).sort()).toEqual(Object.keys(android).sort())
+  })
+
+  /** What Android's `SkipDto` decodes strictly (no defaults, no unknown keys): every key, in its order, nulls written out. */
+  it('aWebSkip_hasExactlyAndroidsKeys', async () => {
+    const android = readJson(ANDROID_V5_FIXTURE) as { skips: Record<string, unknown>[] }
+    const db = await openDb()
+    await buildSampleDb(db, { bodybuilding: true, skips: true })
+    const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as { skips: Record<string, unknown>[] }
+    for (const s of out.skips) expect(Object.keys(s)).toEqual(Object.keys(android.skips[0]!))
+    expect(Object.keys(android.skips[0]!)).toEqual(['id', 'date', 'mode', 'exerciseId', 'planItemId', 'reason'])
   })
 })
 

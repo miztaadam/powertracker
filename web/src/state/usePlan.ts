@@ -1,6 +1,6 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { addPlanItem, planFor, planItemsOn, updatePlanItem } from '../db/catalogue'
+import { addPlanItem, deletePlanItem, planFor, planItemsOn, updatePlanItem } from '../db/catalogue'
 import { activeTrainingDays, getSettings, type AppSettings, type GritDb } from '../db/db'
 import { exerciseToJs } from '../db/mapping'
 import { sideOf, type ExerciseRow, type PlanItemRow, type TrainingMode } from '../db/schema'
@@ -215,7 +215,7 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
   const remove = useCallback<PlanActions['remove']>(
     (item) =>
       sliding(slide, async () => {
-        await db.planItems.delete(item.id)
+        await deletePlanItem(db, item.id)
       }),
     [db, slide],
   )

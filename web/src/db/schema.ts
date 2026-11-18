@@ -93,6 +93,25 @@ export type CheckInRow = {
   growingWell: string[]
 }
 
+/** Why a planned exercise was skipped (1.13), as the domain's `SkipReason` names it; null is "Just skip". */
+export const SKIP_REASONS = ['BUSY', 'PAIN', 'TIME'] as const
+export type SkipReason = (typeof SKIP_REASONS)[number]
+
+/**
+ * A planned exercise skipped for a day (1.13), as Android's `skips` table holds it. One per date, side and exercise.
+ * `mode` is always written: a row without it would drop out of the unique `[date+mode+exerciseId]` index.
+ */
+export type SkipRow = {
+  id?: number
+  /** ISO `YYYY-MM-DD`, the local date, as on sessions. */
+  date: string
+  mode: TrainingMode
+  exerciseId: number
+  /** The plan item skipped; null once that plan item was deleted. */
+  planItemId: number | null
+  reason: SkipReason | null
+}
+
 export type KeyValueRow = { key: string; value: unknown }
 
 /** One numbered Dexie version. `stores` uses Dexie's schema-string syntax. */
@@ -112,6 +131,7 @@ export const TABLE_NAMES = [
   'settings',
   'meta',
   'checkIns',
+  'skips',
 ] as const
 
 /** Only fields that are valid IndexedDB keys and get queried are indexed (booleans are not keys).
@@ -138,6 +158,9 @@ export const SCHEMA_VERSIONS: SchemaVersion[] = [
   { version: 3, stores: { planItems: '++id, weekday, exerciseId, mode' }, upgrade: stampPowerlifting },
   // Check-ins (bodybuilding mode stage 3): a new, empty store; nothing already stored changes.
   { version: 4, stores: { checkIns: '++id, &date' } },
+  // Skipped planned exercises (1.13): a new, empty store; nothing already stored changes. A skip whose plan item is
+  // deleted keeps a null `planItemId`, which leaves the planItemId index (null is not a key).
+  { version: 5, stores: { skips: '++id, &[date+mode+exerciseId], exerciseId, planItemId' } },
 ]
 
 /** Schema version 3's upgrade: every plan item, session and advice row without a side is on the powerlifting side. */

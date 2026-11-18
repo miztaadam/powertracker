@@ -277,7 +277,7 @@ async function addToPlan(db: GritDb, lift: Lift | null, prescriptions: Prescript
 type Applied = { text: string; done: boolean }
 
 function applyAdvice(db: GritDb, adviceId: number, choice: string | undefined): Promise<Applied | null> {
-  return db.transaction('rw', [db.advice, db.planItems, db.exercises, db.settings], async () => {
+  return db.transaction('rw', [db.advice, db.planItems, db.exercises, db.skips, db.settings], async () => {
     const target = await db.advice.get(adviceId)
     const payload = target?.status === 'OPEN' && target.type !== 'TARGET' ? parsePayload(target.payloadJson) : null
     if (!target || !payload) return null

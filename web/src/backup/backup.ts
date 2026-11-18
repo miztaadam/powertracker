@@ -9,6 +9,8 @@ import type {
   PlanItemRow,
   SessionRow,
   SetRow,
+  SkipReason,
+  SkipRow,
   TrainingMode,
 } from '../db/schema'
 import { sideOf } from '../db/schema'
@@ -25,6 +27,7 @@ import {
   CATEGORIES,
   MAIN_LIFTS,
   MISS_POINTS,
+  SKIP_REASONS,
   TRAINING_MODES,
   WEB_REST_ALERTS,
   type AndroidRestAlert,
@@ -97,6 +100,7 @@ type Rows = {
   advice: (AdviceRow & { id: number })[]
   baselines: BaselineRow[]
   checkIns: (CheckInRow & { id: number })[]
+  skips: (SkipRow & { id: number })[]
 }
 
 const byId = <T extends { id: number }>(a: T, b: T) => a.id - b.id
@@ -109,7 +113,9 @@ const byId = <T extends { id: number }>(a: T, b: T) => a.id - b.id
 export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile> {
   // A database still on a schema before check-ins (a safety copy before upgrading) has none to export.
   const hasCheckIns = db.tables.some((t) => t.name === 'checkIns')
-  const names = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'settings', ...(hasCheckIns ? ['checkIns'] : [])]
+  // Nor, before version 5, skips.
+  const hasSkips = db.tables.some((t) => t.name === 'skips')
+  const names = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'settings', ...(hasCheckIns ? ['checkIns'] : []), ...(hasSkips ? ['skips'] : [])]
   return db.transaction('r', names, async () => {
     const all = <T>(name: string) => (db.table(name) as Table<T>).toArray()
     const settings = settingsFromRows(await all<KeyValueRow>('settings'))
@@ -120,6 +126,7 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
     const advice = (await all<AdviceRow & { id: number }>('advice')).sort(byId)
     const baselines = (await all<BaselineRow>('baselines')).sort((a, b) => a.exerciseId - b.exerciseId)
     const checkIns = hasCheckIns ? (await all<CheckInRow & { id: number }>('checkIns')).sort(byId) : []
+    const skips = hasSkips ? (await all<SkipRow & { id: number }>('skips')).sort(byId) : []
     return {
       version: BACKUP_VERSION,
       exportedAt: nowMs,
@@ -189,6 +196,8 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
       })),
       baselines: baselines.map((b) => ({ exerciseId: b.exerciseId, e1rmKg: b.e1rmKg, date: isoToEpochDay(b.date) })),
       checkIns: checkIns.map((c) => ({ id: c.id, date: isoToEpochDay(c.date), lagging: [...c.lagging], growingWell: [...c.growingWell] })),
+      // Android's SkipDto key order, every key written (it has no defaults).
+      skips: skips.map((k) => ({ id: k.id, date: isoToEpochDay(k.date), mode: k.mode, exerciseId: k.exerciseId, planItemId: k.planItemId ?? null, reason: k.reason ?? null })),
     }
   })
 }
@@ -227,7 +236,7 @@ const modeOf = (o: Obj, key = 'mode'): string => (key in o ? str(o, key) : 'POWE
 
 function parseBackup(root: Obj): BackupFile {
   const top = ['version', 'exportedAt', 'settings', 'exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines']
-  const o = obj(root, 'backup', top, ['checkIns'])
+  const o = obj(root, 'backup', top, ['checkIns', 'skips'])
   const s = obj(
     o.settings,
     'settings',
@@ -329,6 +338,21 @@ function parseBackup(root: Obj): BackupFile {
             return { id: int(x, 'id'), date: int(x, 'date'), lagging: groups('lagging'), growingWell: groups('growingWell') }
           })
         : [],
+    // Version 5. An older file has none. Every key is required, as Android's SkipDto has no defaults.
+    skips:
+      'skips' in o
+        ? list(o.skips, 'skips', (v, p) => {
+            const x = obj(v, p, ['id', 'date', 'mode', 'exerciseId', 'planItemId', 'reason'])
+            return {
+              id: int(x, 'id'),
+              date: int(x, 'date'),
+              mode: str(x, 'mode'),
+              exerciseId: int(x, 'exerciseId'),
+              planItemId: nullable(x, 'planItemId', int),
+              reason: nullable(x, 'reason', str),
+            }
+          })
+        : [],
   }
 }
 
@@ -422,6 +446,14 @@ function mapBackup(file: BackupFile): Mapped {
     // Stored in the domain's order, as the app writes them.
     return { id: c.id, date: epochDayToIso(c.date), lagging: inGroupOrder(c.lagging), growingWell: inGroupOrder(c.growingWell) }
   })
+  const skips = file.skips.map((k) => ({
+    id: k.id,
+    date: epochDayToIso(k.date),
+    mode: side(k.mode),
+    exerciseId: k.exerciseId,
+    planItemId: k.planItemId,
+    reason: k.reason === null ? null : (oneOf(k.reason, SKIP_REASONS, 'skip reason') as SkipReason),
+  }))
 
   unique(exercises.map((e) => e.id), 'exercise id')
   unique(sets.map((s) => s.id), 'set id')
@@ -430,6 +462,9 @@ function mapBackup(file: BackupFile): Mapped {
   unique(baselines.map((b) => b.exerciseId), 'baseline')
   unique(checkIns.map((c) => c.id), 'check-in id')
   unique(checkIns.map((c) => c.date), 'check-in date')
+  unique(skips.map((k) => k.id), 'skip id')
+  // One skip per exercise, date and side, as both apps keep them.
+  unique(skips.map((k) => `${k.date}|${k.mode}|${k.exerciseId}`), 'skip of one exercise on one date and side')
   const exerciseIds = new Set(exercises.map((e) => e.id))
   const sessionIds = new Set(sessions.map((s) => s.id))
   for (const s of sets) {
@@ -437,6 +472,12 @@ function mapBackup(file: BackupFile): Mapped {
   }
   for (const p of planItems) if (!exerciseIds.has(p.exerciseId)) bad('A plan item refers to a missing exercise')
   for (const b of baselines) if (!exerciseIds.has(b.exerciseId)) bad('A baseline refers to a missing exercise')
+  // Android's foreign keys: a skip's exercise exists, and so does its plan item unless it has none.
+  const planItemIds = new Set(planItems.map((p) => p.id))
+  for (const k of skips) {
+    if (!exerciseIds.has(k.exerciseId)) bad('A skip refers to a missing exercise')
+    if (k.planItemId !== null && !planItemIds.has(k.planItemId)) bad('A skip refers to a missing plan item')
+  }
 
   const st = file.settings
   oneOf(st.restAlert, ANDROID_REST_ALERTS, 'rest alert')
@@ -444,7 +485,7 @@ function mapBackup(file: BackupFile): Mapped {
   const bodybuildingTrainingDays = (st.bodybuildingTrainingDays ?? DEFAULT_SETTINGS.bodybuildingTrainingDays).map(weekday)
   const leftOn = (day: number | null | undefined) => (day == null ? null : epochDayToIso(day))
   return {
-    rows: { exercises, sessions, sets, planItems, advice, baselines, checkIns },
+    rows: { exercises, sessions, sets, planItems, advice, baselines, checkIns, skips },
     settings: {
       changePlates: st.changePlates,
       defaultRpe: st.defaultRpe,
@@ -513,9 +554,9 @@ const aboutReplacedData = (key: string) => key === 'today:active' || key === 're
 export async function restoreBackup(db: Dexie, file: BackupFile): Promise<void> {
   const { rows, settings } = mapBackup(file)
   const t = <T>(name: string) => db.table(name) as Table<T>
-  const stores = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'checkIns', 'settings', 'meta']
+  const stores = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'checkIns', 'skips', 'settings', 'meta']
   await db.transaction('rw', stores, async () => {
-    for (const name of ['sets', 'advice', 'planItems', 'baselines', 'checkIns', 'sessions', 'exercises']) await t(name).clear()
+    for (const name of ['skips', 'sets', 'advice', 'planItems', 'baselines', 'checkIns', 'sessions', 'exercises']) await t(name).clear()
     await t<KeyValueRow>('meta')
       .filter((row) => aboutReplacedData(row.key))
       .delete()
@@ -526,6 +567,7 @@ export async function restoreBackup(db: Dexie, file: BackupFile): Promise<void> 
     await t<AdviceRow>('advice').bulkAdd(rows.advice)
     await t<BaselineRow>('baselines').bulkAdd(rows.baselines)
     await t<CheckInRow>('checkIns').bulkAdd(rows.checkIns)
+    await t<SkipRow>('skips').bulkAdd(rows.skips)
     const kept: (keyof AppSettings)[] = ['keepAwake', 'lastBackupAt', 'appLock']
     const entries = (Object.keys(DEFAULT_SETTINGS) as (keyof AppSettings)[])
       .filter((k) => !kept.includes(k))

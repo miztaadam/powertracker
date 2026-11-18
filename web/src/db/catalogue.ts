@@ -2,6 +2,7 @@ import { grit, type JsPlanChange } from '../domain'
 import type { GritDb } from './db'
 import { planItemFromJs } from './mapping'
 import { sideOf, type PlanItemRow, type SetRow, type TrainingMode } from './schema'
+import { forgetPlanItems } from './skips'
 
 /**
  * The id of the exercise row for the catalogue exercise `name` (a name or an alias). Nothing is
@@ -79,17 +80,28 @@ export function updatePlanItem(db: GritDb, id: number, change: Unresolved<Pick<P
   })
 }
 
+/** Deletes a plan item; its skips stay, with no plan item (as Android's SET NULL). Joins the caller's transaction when it has these tables. */
+export function deletePlanItem(db: GritDb, id: number): Promise<void> {
+  return db.transaction('rw', db.planItems, db.skips, async () => {
+    await forgetPlanItems(db, [id])
+    await db.planItems.delete(id)
+  })
+}
+
 /** One item of a whole new plan for `replacePlan`: its day and prescription, and its exercise as for `addPlanItem`. */
 export type NewPlanItem = { item: Unresolved<Omit<PlanItemRow, 'id' | 'order' | 'mode'>>; catalogueName: string | null }
 
 /**
  * Replaces `mode`'s side's plan with `items`, in one transaction: that side's items are deleted, each catalogue name is
  * found, restored or inserted, and the items are added in the order given (each at the end of its day). A failure
- * part-way leaves the old plan as it was. The other side's plan is never touched.
+ * part-way leaves the old plan as it was. The other side's plan is never touched. The deleted items' skips stay, with
+ * no plan item.
  */
 export function replacePlan(db: GritDb, mode: TrainingMode, items: readonly NewPlanItem[]): Promise<void> {
-  return db.transaction('rw', db.exercises, db.planItems, async () => {
-    await db.planItems.bulkDelete((await planFor(db, mode)).map((p) => p.id))
+  return db.transaction('rw', db.exercises, db.planItems, db.skips, async () => {
+    const old = (await planFor(db, mode)).map((p) => p.id)
+    await forgetPlanItems(db, old)
+    await db.planItems.bulkDelete(old)
     const orders = new Map<number, number>()
     for (const { item, catalogueName } of items) {
       const exerciseId = await exerciseFor(db, item.exerciseId, catalogueName)
@@ -117,9 +129,13 @@ export function addSet(db: GritDb, set: Unresolved<Omit<SetRow, 'id'>>, catalogu
  * or inserted. A failure part-way leaves the plan as it was. Joins the caller's transaction when it has these tables.
  */
 export function applyPlanChange(db: GritDb, change: JsPlanChange): Promise<void> {
-  return db.transaction('rw', db.exercises, db.planItems, async () => {
+  return db.transaction('rw', db.exercises, db.planItems, db.skips, async () => {
+    // Updated in place, so an item keeps its id and its skips keep pointing at it.
     for (const item of change.updated) await db.planItems.put(planItemFromJs(item))
-    if (change.removed.length > 0) await db.planItems.bulkDelete(change.removed.map((p) => p.id))
+    if (change.removed.length > 0) {
+      await forgetPlanItems(db, change.removed.map((p) => p.id))
+      await db.planItems.bulkDelete(change.removed.map((p) => p.id))
+    }
     for (const { item, name } of change.added) {
       const { id: _new, ...row } = planItemFromJs(item)
       await db.planItems.add({ ...row, exerciseId: await resolveCatalogue(db, name) })
