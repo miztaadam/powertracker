@@ -154,6 +154,8 @@ class CoachViewModel(
             // A swap for an exercise no longer in the plan has nothing left to swap.
             is AdvicePayload.Swap -> if (plan.any { it.exerciseId == payload.exerciseId }) CardDetail.Swap(payload) else null
             is AdvicePayload.Target -> null
+            // Stopgap until the skip card has its own look: a SKIP card is not shown yet.
+            is AdvicePayload.Skipped -> null
         }
 
     /**
@@ -209,7 +211,7 @@ class CoachViewModel(
                 _messages.send(change.message)
                 return@once
             }
-            is AdvicePayload.Target, is AdvicePayload.Swap -> return@once
+            is AdvicePayload.Target, is AdvicePayload.Swap, is AdvicePayload.Skipped -> return@once
         }
         advice.setStatus(adviceId, AdviceStatus.APPLIED)
         _applied.send(adviceId)
