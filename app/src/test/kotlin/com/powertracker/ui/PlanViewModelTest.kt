@@ -19,6 +19,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import org.junit.After
@@ -178,6 +179,9 @@ class PlanViewModelTest {
 
     @Test
     fun add_aThrowAfterTheStore_isNotReportedAsAFailedSave() {
+        // The throw below escapes the view model, as it should: it is not a failed save. The coroutine test library
+        // keeps such a throw for the next test that uses it; this one collects it itself (it starts collecting here).
+        runTest {}
         val vm = viewModel()
         vm.await { it.exercises.isNotEmpty() }
         var added = 0
@@ -197,6 +201,8 @@ class PlanViewModelTest {
         assertEquals(1, stored().size)
         assertEquals("no \"Couldn't save\" for a stored item", emptyList<String>(), messages)
         assertEquals("the guard is not released into a second add", 0, failed)
+        val escaped = runCatching { runTest {} }.exceptionOrNull()
+        assertTrue("the throw escaped: $escaped", escaped != null && escaped.suppressed.any { it.message == "after the store" })
     }
 
     @Test

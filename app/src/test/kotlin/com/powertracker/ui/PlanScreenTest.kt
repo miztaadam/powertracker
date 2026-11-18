@@ -929,7 +929,10 @@ class PlanScreenTest {
         compose.runOnUiThread { clicks.forEach { it() } }
     }
 
-    /** The message, in a window of its own over whatever dialog is open (not behind it on the screen). */
+    /**
+     * The message, in a window of its own over whatever dialog is open (not behind it on the screen). Waited for at
+     * once, not after Plan's own: it is on screen only for the snackbar's few seconds.
+     */
     private fun saidOverTheDialog() = exists(hasText(SAVE_FAILED) and hasAnyAncestor(androidx.compose.ui.test.isPopup()))
 
     private fun pickerOpen() = exists(hasTestTag("exercise-search"))
@@ -943,7 +946,6 @@ class PlanScreenTest {
         pickOnMonday("Squat")
         assertAddForm("Squat")
         addButton().performClick()
-        waitForSaveFailed()
 
         // Plan's own snackbar is under the form's scrim: the form says it too, from its own window.
         waitFor { saidOverTheDialog() }
@@ -980,7 +982,6 @@ class PlanScreenTest {
         openCreateForm()
         compose.fillCustomExercise()
         createThen(cancelInForm)
-        waitForSaveFailed()
 
         // The full-screen picker hides Plan's snackbar: the picker says it over its list.
         waitFor { saidOverTheDialog() }
@@ -1015,7 +1016,6 @@ class PlanScreenTest {
         openCreateForm()
         compose.fillCustomExercise()
         createThen(cancelInForm, closePicker)
-        waitForSaveFailed()
 
         // Back on the add form, whose scrim hides Plan's snackbar: the add form says it.
         waitFor { saidOverTheDialog() }

@@ -366,7 +366,6 @@ class TodayScreenTest {
         waitFor { compose.createFormOpen() }
         compose.fillCustomExercise()
         createThen(cancelInForm)
-        waitForText(SAVE_FAILED)
 
         // The full-screen picker hides Today's snackbar: the picker says it over its list.
         waitFor { compose.onAllNodes(hasText(SAVE_FAILED) and hasAnyAncestor(androidx.compose.ui.test.isPopup())).fetchSemanticsNodes().isNotEmpty() }
