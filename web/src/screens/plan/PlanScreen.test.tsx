@@ -9,6 +9,16 @@ import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, exerciseNamed, plan, todayFixture } from '../../test/todayFixture'
 import { PlanScreen } from './PlanScreen'
 import { pastTheTapWindow } from '../../test/tapWindow'
+import {
+  OWN_NAME,
+  createForm,
+  expectCustomExerciseEmpty,
+  expectCustomExerciseKept,
+  expectSaveFailedInTheForm,
+  fillCustomExercise,
+  openCreateForm,
+  tapCreate,
+} from '../../test/customExerciseChecks'
 
 let fx: ReturnType<typeof todayFixture>
 let db: GritDb
@@ -30,6 +40,7 @@ const dialog = () => within(screen.getByRole('dialog'))
 const rowsOf = (section: HTMLElement) => within(section).queryAllByRole('listitem').map((row) => row.getAttribute('aria-label'))
 /** The part of a picker row that picks the exercise, once the row is drawn. */
 const pickerRow = async (name: string) => within(await dialog().findByRole('listitem', { name })).getAllByRole('button')[0]!
+const exerciseRowsNamed = async (name: string) => (await db.exercises.toArray()).filter((e) => e.name === name)
 const storedPlan = async () => (await db.planItems.toArray()).map(({ id: _id, ...rest }) => rest)
 
 describe('PlanScreen', () => {
@@ -461,8 +472,65 @@ describe('PlanScreen add form', () => {
     await userEvent.click(within(await day('Wednesday')).getByRole('button', { name: 'Add' }))
     await createOwn('Cluster squat', 'Squat')
     expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
-    expect(screen.queryByRole('dialog')).toBeNull()
+    // Since 1.12.2 the picker and its create form stay open, to try again; no add form opens.
+    expect(screen.getByRole('dialog', { name: 'Add custom exercise' })).toBeInTheDocument()
     expect(screen.queryByRole('group', { name: 'Sets' })).toBeNull()
+    expect(await storedPlan()).toEqual([])
+  })
+
+  it('planAdd_ownExerciseFails_createFormKeepsEverything_saysSoInIt_andASecondCreateWorks', async () => {
+    show()
+    const add = vi.spyOn(db.exercises, 'add').mockRejectedValueOnce(new Error('disk full'))
+    await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await expectSaveFailedInTheForm()
+    expectCustomExerciseKept()
+    expect(formOpen()).toBe(false)
+    expect(await exerciseRowsNamed(OWN_NAME)).toEqual([])
+
+    // Once the disk has room, Create works again: stored as typed, and the add form opens on it.
+    await tapCreate()
+    expect((await addFormNow()).getByRole('group', { name: 'Exercise' })).toHaveTextContent(OWN_NAME)
+    expect(createForm()).toBeNull()
+    expect(add).toHaveBeenCalledTimes(2)
+    expect(await exerciseRowsNamed(OWN_NAME)).toEqual([expect.objectContaining({ category: 'VARIATION', parentLift: 'BENCH', muscles: ['Lats', 'Grip'] })])
+  })
+
+  it('planAdd_ownExerciseCreated_theNextCreateFormStartsEmpty', async () => {
+    show()
+    const monday = await day('Monday')
+    await userEvent.click(within(monday).getByRole('button', { name: 'Add' }))
+    await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), 'zzz')
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await userEvent.click((await addForm()).getByRole('button', { name: 'Cancel' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+
+    await userEvent.click(within(monday).getByRole('button', { name: 'Add' }))
+    await userEvent.type(dialog().getByRole('textbox', { name: 'Search exercises' }), 'zzz')
+    await openCreateForm()
+    expectCustomExerciseEmpty('zzz')
+  })
+
+  it('planChange_toOwnExerciseFails_createFormKeepsEverything_saysSoInIt', async () => {
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addForm()
+    vi.spyOn(db.exercises, 'add').mockRejectedValueOnce(new Error('disk full'))
+    await userEvent.click(form.getByRole('button', { name: 'Change' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await expectSaveFailedInTheForm()
+    expectCustomExerciseKept()
+
+    await tapCreate()
+    await waitFor(() => expect(createForm()).toBeNull())
+    expect(screen.queryByRole('dialog', { name: 'Change exercise' })).toBeNull()
+    expect((await addFormNow()).getByRole('group', { name: 'Exercise' })).toHaveTextContent(OWN_NAME)
     expect(await storedPlan()).toEqual([])
   })
 

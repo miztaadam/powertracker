@@ -133,16 +133,11 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
             exercises={state.exercises}
             recentIds={state.recentIds}
             onPick={(entry) => setDialog(addForm(dialog.weekday, entry))}
-            // The picker stays until the exercise is made, then the form opens over it; if making it fails, it closes.
+            // The picker stays until the exercise is made, then the form opens over it. If making it fails, the picker's
+            // create form stays with what was typed, and says so.
             onCreateCustom={(exercise) => {
               const picker = dialog
-              actions.addCustomExercise(exercise).then(
-                (entry) => setDialog((open) => (open === picker ? addForm(picker.weekday, entry) : open)),
-                () => {
-                  setDialog((open) => (open === picker ? null : open))
-                  setFailures((n) => n + 1)
-                },
-              )
+              return actions.addCustomExercise(exercise).then((entry) => setDialog((open) => (open === picker ? addForm(picker.weekday, entry) : open)))
             }}
             onDismiss={() => setDialog(null)}
           />
@@ -159,7 +154,6 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
           exercises={state.exercises}
           recentIds={state.recentIds}
           onCreateCustom={actions.addCustomExercise}
-          onFailure={() => setFailures((n) => n + 1)}
           // Each add ticks once, when it is stored; a failed add does not buzz.
           onSave={(exercise, sets, reps, targetRpe, repsHigh) => {
             if (added.current === dialog) return
@@ -178,7 +172,6 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan }: Pla
           exercises={state.exercises}
           recentIds={state.recentIds}
           onCreateCustom={actions.addCustomExercise}
-          onFailure={() => setFailures((n) => n + 1)}
           onSave={(exercise, sets, reps, rpe, repsHigh) => {
             reported(actions.save(dialog.item, exercise, sets, reps, rpe, repsHigh))
             setDialog(null)

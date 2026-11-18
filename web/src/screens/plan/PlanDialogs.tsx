@@ -26,8 +26,6 @@ export type PlanItemDialogProps = {
   recentIds: readonly number[]
   /** Creates a custom exercise; resolves to its picker entry, which becomes the item's exercise on Save. */
   onCreateCustom: (exercise: CustomExercise) => Promise<PickerEntry>
-  /** Called when creating the custom exercise failed. */
-  onFailure: () => void
   /** `exercise` is null unless the exercise itself was changed. `repsHigh` is given for a range (a bodybuilding item). */
   onSave: (exercise: PickerEntry | null, sets: number, reps: number, rpe: number, repsHigh?: number) => void
   onDismiss: () => void
@@ -50,7 +48,7 @@ const eventClock = () => new Event('now').timeStamp
  * range (the bodybuilding side) has two reps steppers, the bottom and the top; the top never goes below the bottom
  * and goes up to 30. Fixed reps (the powerlifting side) go up to 20.
  */
-export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save', exercises, recentIds, onCreateCustom, onFailure, onSave, onDismiss, ignoreTapsFor = 0 }: PlanItemDialogProps) {
+export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save', exercises, recentIds, onCreateCustom, onSave, onDismiss, ignoreTapsFor = 0 }: PlanItemDialogProps) {
   // Null until the exercise is changed; saved with the item, not before.
   const [changed, setChanged] = useState<PickerEntry | null>(null)
   const [sets, setSets] = useState(item.sets)
@@ -119,10 +117,13 @@ export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save'
             setChanged(entry)
             setPicking(false)
           }}
-          onCreateCustom={(exercise) => {
-            setPicking(false)
-            onCreateCustom(exercise).then(setChanged, onFailure)
-          }}
+          // The picker stays until the exercise is made; if making it fails, its create form stays with what was typed.
+          onCreateCustom={(exercise) =>
+            onCreateCustom(exercise).then((entry) => {
+              setChanged(entry)
+              setPicking(false)
+            })
+          }
           onDismiss={() => setPicking(false)}
         />
       )}

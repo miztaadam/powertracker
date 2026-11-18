@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -220,20 +221,24 @@ fun PlanScreen(
         // Picking opens the sets/reps form with the ready-made numbers; nothing is stored until its Add. An exercise
         // the lifter creates here is saved at once, as before, and then opens the same form. The form opens under the
         // finger, so for a moment it ignores taps on Add, Cancel and outside it (ADD_FORM_TAP_WINDOW_MS).
-        is PlanDialog.Add -> ExercisePickerScreen(
-            title = "Add to ${dayName(d.day)}",
-            exercises = state.exercises,
-            recentIds = state.recentIds,
-            onPick = { entry -> dialog = PlanDialog.AddDetails(d.day, entry, viewModel.draft(d.day, entry)) },
-            onCreateCustom = { name, category, parent, muscles ->
-                // Closed first: a name the catalogue knows answers at once, and the form it opens must stay open.
-                dialog = null
-                viewModel.addCustomExercise(name, category, parent, muscles) { entry ->
-                    dialog = PlanDialog.AddDetails(d.day, entry, viewModel.draft(d.day, entry))
-                }
-            },
-            onDismiss = { dialog = null },
-        )
+        is PlanDialog.Add -> {
+            var createFailures by remember(d) { mutableIntStateOf(0) }
+            ExercisePickerScreen(
+                title = "Add to ${dayName(d.day)}",
+                exercises = state.exercises,
+                recentIds = state.recentIds,
+                onPick = { entry -> dialog = PlanDialog.AddDetails(d.day, entry, viewModel.draft(d.day, entry)) },
+                // The picker and its create form stay until the exercise is made, and the add form then takes their
+                // place. If making it fails, the create form is still there with what was typed, and says so.
+                onCreateCustom = { name, category, parent, muscles ->
+                    viewModel.addCustomExercise(name, category, parent, muscles, onFailed = { createFailures++ }) { entry ->
+                        dialog = PlanDialog.AddDetails(d.day, entry, viewModel.draft(d.day, entry))
+                    }
+                },
+                onDismiss = { dialog = null },
+                createFailures = createFailures,
+            )
+        }
         is PlanDialog.AddDetails -> {
             // True from Add's tap until the write answers: a second tap meanwhile stores nothing more.
             var adding by remember(d) { mutableStateOf(false) }
@@ -480,7 +485,7 @@ private fun PlanItemDialog(
     state: PlanUiState,
     item: PlanItem,
     confirmText: String,
-    onCreateCustom: (String, Category, MainLift?, List<String>, (PickerEntry) -> Unit) -> Unit,
+    onCreateCustom: (String, Category, MainLift?, List<String>, onFailed: () -> Unit, (PickerEntry) -> Unit) -> Unit,
     onSave: (exercise: PickerEntry?, sets: Int, reps: Int, rpe: Double, repsHigh: Int?) -> Unit,
     onDismiss: () -> Unit,
     /** The exercise's name when it may have no stored row yet: the entry picked for the add form. */
@@ -500,6 +505,7 @@ private fun PlanItemDialog(
     var repsHigh by rememberSaveable { mutableStateOf(item.repsHigh ?: if (item.mode == TrainingMode.BODYBUILDING) item.reps else null) }
     var rpe by rememberSaveable { mutableStateOf(item.targetRpe) }
     var picking by rememberSaveable { mutableStateOf(false) }
+    var createFailures by remember { mutableIntStateOf(0) }
     val name = changed?.name ?: exerciseName ?: state.exercises.firstOrNull { it.id == item.exerciseId }?.name ?: "Unknown exercise"
     // Not kept across recreation: a restored form holds taps for a moment again, which does no harm.
     val tapsLive = remember { mutableStateOf(ignoreTapsForMillis <= 0L) }
@@ -538,11 +544,15 @@ private fun PlanItemDialog(
                 changed = entry
                 picking = false
             },
+            // The picker stays until the exercise is made; if making it fails, its create form is still there.
             onCreateCustom = { customName, category, parent, muscles ->
-                onCreateCustom(customName, category, parent, muscles) { entry -> changed = entry }
-                picking = false
+                onCreateCustom(customName, category, parent, muscles, { createFailures++ }) { entry ->
+                    changed = entry
+                    picking = false
+                }
             },
             onDismiss = { picking = false },
+            createFailures = createFailures,
         )
     }
 }

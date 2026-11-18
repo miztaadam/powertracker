@@ -3,6 +3,7 @@ import type { Lift } from '../../router'
 import type { CustomExercise } from '../../state/exercisePicker'
 import { PrimaryButton, QuietButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
+import { Snackbar } from '../../ui/components/Snackbar'
 import { ChoiceChip } from '../../ui/components/SegmentedChoice'
 import { TextField } from '../../ui/components/TextField'
 import { LIFT_LABEL } from '../progress/lifts'
@@ -13,13 +14,19 @@ export type CustomExerciseDialogProps = {
   initialName: string
   onCreate: (exercise: CustomExercise) => void
   onDismiss: () => void
+  /** Creates that have failed; each one while the form is open says "Couldn't save — try again." over it. */
+  failures?: number
 }
+
+const SAVE_FAILED = "Couldn't save — try again."
 
 /** The lifts a variation can belong to: squat, bench and deadlift, as on Android. */
 const PARENT_LIFTS: readonly Lift[] = ['SQUAT', 'BENCH', 'DEADLIFT']
 
 /** Name a new exercise the catalogue does not have: a variation of a main lift, or an accessory. */
-export function CustomExerciseDialog({ initialName, onCreate, onDismiss }: CustomExerciseDialogProps) {
+export function CustomExerciseDialog({ initialName, onCreate, onDismiss, failures = 0 }: CustomExerciseDialogProps) {
+  // The failures already said (or from before the form opened): the message shows while there are newer ones.
+  const [said, setSaid] = useState(failures)
   const [name, setName] = useState(initialName)
   const [category, setCategory] = useState<CustomExercise['category']>('ACCESSORY')
   const [parent, setParent] = useState<Lift | null>(null)
@@ -68,6 +75,8 @@ export function CustomExerciseDialog({ initialName, onCreate, onDismiss }: Custo
         )}
         <TextField label="Muscles (comma-separated)" value={muscles} onChange={setMuscles} />
       </div>
+      {/* Inside the form, so it is drawn over the form's scrim (the screen's own is behind it, and inert). */}
+      <Snackbar message={failures > said ? SAVE_FAILED : null} showId={failures} onDismiss={() => setSaid(failures)} />
     </Dialog>
   )
 }

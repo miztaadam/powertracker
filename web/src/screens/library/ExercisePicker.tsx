@@ -17,7 +17,11 @@ export type ExercisePickerProps = {
   /** The row that was tapped. Called once: a second tap on the way out picks nothing more. */
   onPick: (entry: PickerEntry) => void
   /** An exercise of the lifter's own to make, and use as if it had been picked. Called once, like `onPick`. */
-  onCreateCustom: (exercise: CustomExercise) => void
+  /**
+   * Creates the lifter's own exercise. When it gives back a promise, the create form stays open until that settles: it
+   * closes once the exercise is made, and if making it fails it stays with everything typed and says so.
+   */
+  onCreateCustom: (exercise: CustomExercise) => unknown
   onDismiss: () => void
 }
 
@@ -38,7 +42,25 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
     answer(value)
   }
   const pick = once(onPick)
-  const create = once(onCreateCustom)
+  // Creates that failed while this picker was open: the create form stays, with what was typed, and says so.
+  const [createFailures, setCreateFailures] = useState(0)
+  const create = (exercise: CustomExercise) => {
+    if (answered.current) return
+    answered.current = true
+    const made = onCreateCustom(exercise)
+    if (typeof (made as PromiseLike<unknown> | null)?.then !== 'function') {
+      setCreating(false)
+      return
+    }
+    // The form stays open until the exercise is made. If that fails, nothing was answered: Create works again.
+    ;(made as PromiseLike<unknown>).then(
+      () => setCreating(false),
+      () => {
+        answered.current = false
+        setCreateFailures((n) => n + 1)
+      },
+    )
+  }
 
   // Escape steps back out of a muscle to the grid first, like Android's back button; then it closes the picker.
   const stepBack = () => (browser.muscle != null ? browser.browse(null) : onDismiss())
@@ -58,11 +80,9 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
       {creating && (
         <CustomExerciseDialog
           initialName={browser.query.trim()}
-          onCreate={(exercise) => {
-            setCreating(false)
-            create(exercise)
-          }}
+          onCreate={create}
           onDismiss={() => setCreating(false)}
+          failures={createFailures}
         />
       )}
     </>

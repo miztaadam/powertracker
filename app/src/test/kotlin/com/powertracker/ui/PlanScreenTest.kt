@@ -36,7 +36,13 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.testing.TestDatabase
+import com.powertracker.ui.library.OWN_NAME
 import com.powertracker.ui.library.SAVE_FAILED
+import com.powertracker.ui.library.assertCustomExerciseEmpty
+import com.powertracker.ui.library.assertCustomExerciseKept
+import com.powertracker.ui.library.assertSaveFailedOverTheForm
+import com.powertracker.ui.library.createFormOpen
+import com.powertracker.ui.library.fillCustomExercise
 import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.plan.ADD_FORM_TAP_WINDOW_MS
 import com.powertracker.ui.plan.PlanScreen
@@ -714,6 +720,103 @@ class PlanScreenTest {
 
     private fun tyreFlipStored() = runBlocking { db.exercises().all() }.any { it.name == "Tyre flip" }
 
+    private fun allowExerciseInserts() = db.openHelper.writableDatabase.execSQL("DROP TRIGGER fail_exercise_insert")
+
+    /** In the open picker: searches for nothing and opens "Create your own", without creating. */
+    private fun openCreateForm() {
+        compose.onNodeWithTag("exercise-search").performTextReplacement("zzz")
+        compose.onNodeWithText("Create your own").performClick()
+        waitFor { compose.createFormOpen() }
+    }
+
+    private fun tapCreate() = compose.onNode(hasText("Create") and hasAnyAncestor(hasTestTag("custom-exercise-form"))).performClick()
+
+    private fun closeCreateFormAndPicker() {
+        compose.onNode(hasText("Cancel") and hasAnyAncestor(hasTestTag("custom-exercise-form"))).performClick()
+        waitFor { !compose.createFormOpen() }
+        compose.onNodeWithContentDescription("Close").performClick()
+        waitFor { !exists(hasTestTag("exercise-search")) }
+    }
+
+    /** The exercise [fillCustomExercise] describes was stored, with everything typed. */
+    private fun assertOwnStored() {
+        val own = runBlocking { db.exercises().all() }.single { it.name == OWN_NAME }
+        assertEquals(Category.VARIATION, own.category)
+        assertEquals(com.powertracker.domain.model.MainLift.BENCH, own.parentLift)
+        assertEquals(listOf("Lats", "Grip"), own.muscles)
+    }
+
+    @Test
+    fun planAdd_ownExerciseFails_createFormKeepsEverything_saysSoOverIt_andASecondCreateWorks() {
+        failExerciseInserts()
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        waitFor { exists(hasTestTag("add-MONDAY")) }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        openCreateForm()
+        compose.fillCustomExercise()
+        tapCreate()
+        waitForSaveFailed()
+
+        // Back in the create form with everything typed, the message over it, and nothing stored.
+        compose.assertCustomExerciseKept()
+        compose.assertSaveFailedOverTheForm()
+        assertTrue(!formOpen())
+        assertTrue(!tyreFlipStored())
+
+        // Once the disk has room, Create works again: the exercise is stored as typed and the add form opens on it.
+        allowExerciseInserts()
+        tapCreate()
+        assertAddForm(OWN_NAME)
+        assertTrue(!compose.createFormOpen())
+        assertOwnStored()
+    }
+
+    @Test
+    fun planAdd_ownExerciseCreated_theNextCreateFormStartsEmpty() {
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        waitFor { exists(hasTestTag("add-MONDAY")) }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        openCreateForm()
+        compose.fillCustomExercise()
+        tapCreate()
+        assertAddForm(OWN_NAME)
+        pastTheTapWindow()
+        compose.onNode(hasText("Cancel") and hasAnyAncestor(isDialog())).performClick()
+        waitFor { !formOpen() }
+
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        openCreateForm()
+        compose.assertCustomExerciseEmpty("zzz")
+    }
+
+    @Test
+    fun planAdd_changeToOwnExerciseFails_createFormKeepsEverything_evenAfterRecreation() {
+        failExerciseInserts()
+        val restoration = androidx.compose.ui.test.junit4.StateRestorationTester(compose)
+        restoration.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        openCreateForm()
+        compose.fillCustomExercise()
+        tapCreate()
+        waitForSaveFailed()
+        compose.assertCustomExerciseKept()
+        compose.assertSaveFailedOverTheForm()
+
+        // The add form survives a rotation, and so do its picker and the create form, with what was typed.
+        restoration.emulateSavedInstanceStateRestore()
+        waitFor { compose.createFormOpen() }
+        compose.assertCustomExerciseKept()
+
+        allowExerciseInserts()
+        tapCreate()
+        waitFor { !compose.createFormOpen() && !exists(hasTestTag("exercise-search")) }
+        assertAddForm(OWN_NAME)
+        assertOwnStored()
+        assertTrue(plan().isEmpty())
+    }
+
     @Test
     fun planAdd_ownExerciseFails_saysSo_opensNoForm() {
         // A failed insert must not escape the view model's coroutine (on a phone that crashes the app): it is said.
@@ -727,7 +830,7 @@ class PlanScreenTest {
 
         // No form opened, nothing was stored, and nothing buzzed.
         assertTrue(!formOpen())
-        compose.onNode(hasText("Add to Monday") and hasAnyAncestor(isDialog())).assertDoesNotExist()
+        addButton().assertDoesNotExist()
         assertTrue(plan().isEmpty())
         assertTrue(!tyreFlipStored())
         assertEquals(0, haptics.calls.size)
@@ -745,9 +848,11 @@ class PlanScreenTest {
 
         // The add form is still on Squat, nothing was stored, and its Add still stores Squat.
         assertAddForm("Squat")
-        compose.onNode(hasText("Tyre flip") and hasAnyAncestor(isDialog())).assertDoesNotExist()
         assertTrue(plan().isEmpty())
         assertTrue(!tyreFlipStored())
+        // Since 1.12.2 the create form and the picker stay open after the failure: close both to reach the add form.
+        closeCreateFormAndPicker()
+        compose.onNode(hasText("Tyre flip") and hasAnyAncestor(isDialog())).assertDoesNotExist()
         addButton().performClick()
         waitFor { plan().isNotEmpty() }
         assertEquals(squatId(), plan().single().exerciseId)

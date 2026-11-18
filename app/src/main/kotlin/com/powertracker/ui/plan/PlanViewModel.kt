@@ -215,9 +215,10 @@ class PlanViewModel(
      * Creates a custom exercise and reports it as a picker entry, ready for the add form or [save]. A name the
      * catalogue knows (a name or an alias, ignoring case) is not made again: the catalogue's entry is
      * reported instead, tied to its oldest live row if it has one, and gets its row like any other
-     * catalogue exercise when it is saved. If the save fails, [onCreated] is not called and [messages] says so.
+     * catalogue exercise when it is saved. If the save fails, [onCreated] is not called, [messages] says so and
+     * [onFailed] runs.
      */
-    fun addCustomExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onCreated: (PickerEntry) -> Unit) {
+    fun addCustomExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onFailed: () -> Unit = {}, onCreated: (PickerEntry) -> Unit) {
         val trimmed = name.trim()
         val known = Library.find(trimmed)
         if (known != null) {
@@ -233,6 +234,7 @@ class PlanViewModel(
             } catch (e: Exception) {
                 // A failed write must not crash the app: nothing was saved, no form opens, and the lifter is told.
                 _messages.send(SAVE_FAILED)
+                onFailed()
                 return@launch
             }
             onCreated(PickerEntry(trimmed, muscles, if (category == Category.ACCESSORY) Kind.ACCESSORY else Kind.COMPOUND, library = null, exerciseId = id))

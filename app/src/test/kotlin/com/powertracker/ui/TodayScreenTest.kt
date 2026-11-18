@@ -47,6 +47,7 @@ import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MissPoint
@@ -54,7 +55,13 @@ import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.components.formatKg
+import com.powertracker.ui.library.OWN_NAME
 import com.powertracker.ui.library.SAVE_FAILED
+import com.powertracker.ui.library.assertCustomExerciseEmpty
+import com.powertracker.ui.library.assertCustomExerciseKept
+import com.powertracker.ui.library.assertSaveFailedOverTheForm
+import com.powertracker.ui.library.createFormOpen
+import com.powertracker.ui.library.fillCustomExercise
 import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.today.TodayScreen
@@ -328,11 +335,56 @@ class TodayScreenTest {
         compose.onNodeWithText("Create").performClick()
         waitForText(SAVE_FAILED)
 
-        // The picker closed, no card was added, nothing was stored, and nothing buzzed.
-        compose.onAllNodes(hasTestTag("exercise-search")).assertCountEquals(0)
+        // Since 1.12.2 the picker and its create form stay open, to try again. No card was added, nothing was stored,
+        // and nothing buzzed.
+        assertTrue(compose.createFormOpen())
         compose.onNodeWithText("EXERCISE 2 OF 2", substring = true).assertDoesNotExist()
         assertTrue(exerciseRows("Tyre flip").isEmpty())
         assertEquals(0, haptics.calls.size)
+    }
+
+    @Test
+    fun createYourOwn_whenTheSaveFails_formKeepsEverything_saysSoOverIt_evenAfterRecreation() {
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_exercise_insert BEFORE INSERT ON exercise BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        startSession()
+        val restoration = androidx.compose.ui.test.junit4.StateRestorationTester(compose)
+        restoration.setContent { PowertrackerTheme { WithHaptics(haptics) { TodayScreen(training, advice, settings, onOpenCoach = {}, today = { today }) } } }
+        waitForText("Log set 1")
+        pickFromLibrary("zzz")
+        compose.onNodeWithText("Create your own").performClick()
+        waitFor { compose.createFormOpen() }
+        compose.fillCustomExercise()
+        compose.onNode(hasText("Create") and hasAnyAncestor(hasTestTag("custom-exercise-form"))).performClick()
+        waitForText(SAVE_FAILED)
+
+        // Back in the create form with everything typed, the message over it, and nothing added.
+        compose.assertCustomExerciseKept()
+        compose.assertSaveFailedOverTheForm()
+        assertTrue(exerciseRows(OWN_NAME).isEmpty())
+
+        // A rotation keeps the picker and the create form, with what was typed.
+        restoration.emulateSavedInstanceStateRestore()
+        waitFor { compose.createFormOpen() }
+        compose.assertCustomExerciseKept()
+
+        // Once the disk has room, Create works again: stored as typed, added to the session, and it ticks once.
+        db.openHelper.writableDatabase.execSQL("DROP TRIGGER fail_exercise_insert")
+        compose.onNode(hasText("Create") and hasAnyAncestor(hasTestTag("custom-exercise-form"))).performClick()
+        waitForText("EXERCISE 2 OF 2")
+        assertTrue(!compose.createFormOpen())
+        val own = exerciseRows(OWN_NAME).single()
+        assertEquals(Category.VARIATION, own.category)
+        assertEquals(MainLift.BENCH, own.parentLift)
+        assertEquals(listOf("Lats", "Grip"), own.muscles)
+        assertEquals(1, haptics.calls.size)
+
+        // A successful create carries nothing over to the next one.
+        pickFromLibrary("zzz")
+        compose.onNodeWithText("Create your own").performClick()
+        waitFor { compose.createFormOpen() }
+        compose.assertCustomExerciseEmpty("zzz")
     }
 
     @Test

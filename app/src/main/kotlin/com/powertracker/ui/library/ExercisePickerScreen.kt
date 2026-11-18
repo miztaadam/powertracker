@@ -9,6 +9,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -169,10 +170,15 @@ fun ExercisePickerScreen(
     onPick: (PickerEntry) -> Unit,
     onCreateCustom: (name: String, Category, parentLift: MainLift?, muscles: List<String>) -> Unit,
     onDismiss: () -> Unit,
+    /** See [ExercisePickerContent]. */
+    createFailures: Int = 0,
 ) {
+    // Out here, in the screen's own composition, "Create your own" and what is typed into it survive a rotation
+    // (state saved inside the picker's window is not restored).
+    val createForm = rememberCustomExerciseForm()
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            ExercisePickerContent(title, exercises, recentIds, onPick, onCreateCustom, onDismiss)
+            ExercisePickerContent(title, exercises, recentIds, onPick, onCreateCustom, onDismiss, createFailures = createFailures, createForm = createForm)
         }
     }
 }
@@ -193,10 +199,17 @@ fun ExercisePickerContent(
     onClose: () -> Unit,
     /** The muscle group it opens on; null opens on the grid. */
     initialMuscle: MuscleGroup? = null,
+    /**
+     * How many of [onCreateCustom]'s creates have failed, as counted by whoever opened the picker. "Create your own"
+     * stays open after Create until the picker is closed, so when this goes up the form is still there with everything
+     * typed: it says so, and Create works again.
+     */
+    createFailures: Int = 0,
+    /** "Create your own": whether it is open and what is typed into it. */
+    createForm: CustomExerciseForm = rememberCustomExerciseForm(),
 ) {
     val scheme = MaterialTheme.colorScheme
     val browser = rememberExerciseBrowserState(MuscleFilter.GRID, initialMuscle)
-    var creating by rememberSaveable { mutableStateOf(false) }
     var guideFor by rememberSaveable { mutableStateOf<String?>(null) }
     // The picker answers once: a second tap landing before it closes (a double tap) picks or creates nothing more.
     val answered = remember { mutableStateOf(false) }
@@ -212,6 +225,13 @@ fun ExercisePickerContent(
             onCreateCustom(name, category, parent, muscles)
         }
     }
+    // Failures counted before this picker opened (or was restored) are not its own.
+    val failuresBefore = remember { createFailures }
+    val failures = (createFailures - failuresBefore).coerceAtLeast(0)
+    LaunchedEffect(failures) {
+        // A failed create has answered nothing: Create may be tapped again.
+        if (failures > 0) answered.value = false
+    }
 
     Column(Modifier.fillMaxSize()) {
         ScreenHeader(title, navigation = { PtIconButton(onClick = onClose, modifier = Modifier.size(Space.touch)) { Icon(Icons.Filled.Close, "Close", tint = scheme.onSurfaceVariant) } })
@@ -223,7 +243,7 @@ fun ExercisePickerContent(
             // Reading the guide must not pick the exercise.
             onInfo = { guideFor = it.name },
             rowLabel = { "Add $it" },
-            onCreate = { creating = true },
+            onCreate = { createForm.start(browser.query.trim()) },
             showThumbnails = true,
             // Under 309 dp of text room (a narrow phone at large text) the thumbnail would break long names.
             thumbnailMinRoomDp = PICKER_THUMBNAIL_MIN_ROOM_DP,
@@ -232,14 +252,13 @@ fun ExercisePickerContent(
 
     guideFor?.let { name -> FormGuideSheet(name, onDismiss = { guideFor = null }) }
 
-    if (creating) {
+    if (createForm.open) {
         CustomExerciseDialog(
-            initialName = browser.query.trim(),
-            onCreate = { name, category, parent, muscles ->
-                creating = false
-                createCustom(name, category, parent, muscles)
-            },
-            onDismiss = { creating = false },
+            form = createForm,
+            // The form stays open until the picker closes on the new exercise; if the create fails, it is still here.
+            onCreate = createCustom,
+            onDismiss = { createForm.open = false },
+            failures = failures,
         )
     }
 }

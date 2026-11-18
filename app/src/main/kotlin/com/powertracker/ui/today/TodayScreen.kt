@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -83,7 +84,7 @@ class TodayActions(
     val onAddExercise: (exerciseId: Long) -> Unit = {},
     /** Adds a catalogue exercise by name; returns the id its card is shown under. */
     val onAddFromCatalogue: (name: String) -> Long? = { null },
-    val onCreateExercise: (name: String, Category, parentLift: MainLift?, muscles: List<String>, onCreated: (Long) -> Unit) -> Unit = { _, _, _, _, _ -> },
+    val onCreateExercise: (name: String, Category, parentLift: MainLift?, muscles: List<String>, onFailed: () -> Unit, onCreated: (Long) -> Unit) -> Unit = { _, _, _, _, _, _ -> },
     val onRemoveExercise: (exerciseId: Long) -> Unit = {},
     val onFinish: () -> Unit = {},
     val onKeepLogging: () -> Unit = {},
@@ -318,6 +319,8 @@ fun TodayContent(
 
     state.pending?.let { TypoDialog(it, onConfirm = actions.onConfirmPending, onEdit = actions.onEditPending) }
 
+    // Failed creates from the picker's "Create your own": its form stays open with what was typed, and says so.
+    var createFailures by remember { mutableIntStateOf(0) }
     if (picking) {
         ExercisePickerScreen(
             title = "Add exercise",
@@ -331,14 +334,16 @@ fun TodayContent(
                 activeId = id
                 picking = false
             },
+            // The picker stays until the exercise is made; if making it fails, its create form is still there.
             onCreateCustom = { name, category, parent, muscles ->
-                actions.onCreateExercise(name, category, parent, muscles) { id ->
+                actions.onCreateExercise(name, category, parent, muscles, { createFailures++ }) { id ->
                     if (!inSessionAlready(id)) haptics.tick()
                     activeId = id
+                    picking = false
                 }
-                picking = false
             },
             onDismiss = { picking = false },
+            createFailures = createFailures,
         )
     }
 }
