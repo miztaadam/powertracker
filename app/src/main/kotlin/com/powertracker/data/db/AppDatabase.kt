@@ -13,9 +13,9 @@ import java.util.concurrent.Executor
 @Database(
     entities = [
         ExerciseEntity::class, SessionEntity::class, SetEntity::class,
-        PlanItemEntity::class, AdviceEntity::class, BaselineEntity::class, CheckInEntity::class,
+        PlanItemEntity::class, AdviceEntity::class, BaselineEntity::class, CheckInEntity::class, SkipEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -27,11 +27,12 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun advice(): AdviceDao
     abstract fun baselines(): BaselineDao
     abstract fun checkIns(): CheckInDao
+    abstract fun skips(): SkipDao
 
     companion object {
         fun build(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "powertracker.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .addCallback(SeedCallback)
                 .build()
 
@@ -95,6 +96,21 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
                 "`lagging` TEXT NOT NULL, `growingWell` TEXT NOT NULL)",
         )
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_check_ins_date` ON `check_ins` (`date`)")
+    }
+}
+
+/** Version 5 (1.13): skipped planned exercises, in a new table. Nothing already stored changes. */
+val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `skips` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `date` INTEGER NOT NULL, " +
+                "`mode` TEXT NOT NULL, `exerciseId` INTEGER NOT NULL, `planItemId` INTEGER, `reason` TEXT, " +
+                "FOREIGN KEY(`exerciseId`) REFERENCES `exercise`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , " +
+                "FOREIGN KEY(`planItemId`) REFERENCES `plan_item`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        )
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_skips_date_mode_exerciseId` ON `skips` (`date`, `mode`, `exerciseId`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_skips_exerciseId` ON `skips` (`exerciseId`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_skips_planItemId` ON `skips` (`planItemId`)")
     }
 }
 

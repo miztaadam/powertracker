@@ -21,10 +21,10 @@ open class AdviceRepository(private val db: AppDatabase) {
     open suspend fun setStatus(id: Long, status: AdviceStatus) = db.advice().setStatus(id, status)
 }
 
-private fun Advice.toEntity() = AdviceEntity(
+internal fun Advice.toEntity() = AdviceEntity(
     id, type, lift, createdAt, reason, severity, Json.encodeToString<AdvicePayload>(payload), status, mode,
 )
 
-private fun AdviceEntity.toDomain() = Advice(
+internal fun AdviceEntity.toDomain() = Advice(
     type, lift, createdAt, reason, severity, Json.decodeFromString<AdvicePayload>(payload), status, id, mode,
 )

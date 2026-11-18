@@ -10,6 +10,7 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -109,6 +110,28 @@ data class CheckInEntity(
     val date: LocalDate,
     val lagging: String,
     val growingWell: String,
+)
+
+/**
+ * Version 5 (1.13): a planned exercise not done on [date], on the [mode] side; one per exercise, date and side. Deleting
+ * the exercise deletes its skips; deleting the plan item keeps them, with [planItemId] null, so the coach's history
+ * stays true. [reason] is null for "Just skip".
+ */
+@Entity(
+    tableName = "skips",
+    foreignKeys = [
+        ForeignKey(ExerciseEntity::class, ["id"], ["exerciseId"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(PlanItemEntity::class, ["id"], ["planItemId"], onDelete = ForeignKey.SET_NULL),
+    ],
+    indices = [Index(value = ["date", "mode", "exerciseId"], unique = true), Index("exerciseId"), Index("planItemId")],
+)
+data class SkipEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val date: LocalDate,
+    val mode: TrainingMode,
+    val exerciseId: Long,
+    val planItemId: Long?,
+    val reason: SkipReason?,
 )
 
 /** The column default for `mode`: rows from before version 3 are on the powerlifting side ([MIGRATION_2_3]). */
