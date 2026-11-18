@@ -164,6 +164,14 @@ class TemplatesScreenTest {
         assertEquals(4, templates)
     }
 
+    /** Before the stored plan is read, Plan offers nothing: a full plan must not flash "Your plan is empty". */
+    @Test
+    fun beforeThePlanIsRead_nothingIsCalledEmpty() {
+        val vm = PlanViewModel(training, settings)
+        assertFalse(vm.state.value.emptyPlan)
+        assertFalse(vm.state.value.emptySide)
+    }
+
     // The list and the draft
 
     @Test
@@ -371,7 +379,28 @@ class TemplatesSmallPhoneTest {
                     assertTrue("${t.id}: ${e.name} shown", compose.onAllNodesWithText(e.name).fetchSemanticsNodes().isNotEmpty())
                 }
                 compose.assertTextsFit()
+                val broken = namesBrokenInsideAWord(draftState(t.id).draft!!.sessions.flatMap { it.exercises }.map { it.name }.distinct())
+                assertTrue("${t.id} at 320 dp and 130%, broken inside a word: $broken", broken.isEmpty())
             }
+        }
+    }
+
+    /** Of [names], those whose Text breaks onto a new line inside a word (after a space or a hyphen is fine). */
+    private fun namesBrokenInsideAWord(names: List<String>): List<String> = names.flatMap { name ->
+        compose.onAllNodes(
+            androidx.compose.ui.test.SemanticsMatcher.expectValue(
+                androidx.compose.ui.semantics.SemanticsProperties.Text, listOf(androidx.compose.ui.text.AnnotatedString(name)),
+            ),
+            useUnmergedTree = true,
+        ).fetchSemanticsNodes().mapNotNull { node ->
+            val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+            node.config[androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
+            val layout = layouts.single()
+            val inside = (0 until layout.lineCount - 1).any { line ->
+                val end = layout.getLineEnd(line, visibleEnd = true)
+                !(name[end] == ' ' || name[end - 1] == ' ' || name[end - 1] == '-')
+            }
+            if (inside) name else null
         }
     }
 

@@ -54,9 +54,11 @@ data class PlanUiState(
     val trainingDays: Set<DayOfWeek> = emptySet(),
     /** The side whose plan this is: the one the app is on. */
     val mode: TrainingMode = TrainingMode.POWERLIFTING,
+    /** False only for the screen's first frame, before the stored plan is read: nothing is called empty until then. */
+    val loaded: Boolean = true,
 ) {
     /** This side has no plan items: the screen offers a template (both sides) and the builder (bodybuilding). */
-    val emptyPlan: Boolean get() = sections.all { it.rows.isEmpty() }
+    val emptyPlan: Boolean get() = loaded && sections.all { it.rows.isEmpty() }
 
     /** The bodybuilding side has no plan yet: the screen invites the lifter to fill it, day by day. */
     val emptySide: Boolean get() = mode == TrainingMode.BODYBUILDING && emptyPlan
@@ -90,7 +92,7 @@ class PlanViewModel(
     /** The side the app is on: each keeps its own plan and days (bodybuilding mode spec §6, §7.3). */
     val state: StateFlow<PlanUiState> = combine(training.plans(), training.history(), settings.settings) { plans, history, s ->
         build(s.trainingMode, plans.of(s.trainingMode), history, s)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanUiState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanUiState(loaded = false))
 
     private fun build(mode: TrainingMode, plan: List<PlanItem>, history: TrainingHistory, s: AppSettings): PlanUiState {
         val exercises = history.exercises.values.sortedBy { it.id }
