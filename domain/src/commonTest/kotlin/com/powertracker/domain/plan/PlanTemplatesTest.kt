@@ -155,14 +155,15 @@ class PlanTemplatesTest {
     }
 
     @Test
-    fun theFiveDaySplitTrainsAtMostThreeMainGroupsASessionBesidesTheOwnersAbs() {
+    fun theFiveDaySplitTrainsAtMostThreeBigGroupsADayPlusTheOwnersAbs() {
         val bb5 = PlanTemplates.byId("bb-5")!!
         val draft = PlanTemplates.draft(bb5, days(5), strictPress = false)
-        val groups = draft.sessions.associate { s -> s.title to s.exercises.mapNotNull { it.mainGroup }.toSet() }
-        for ((title, g) in groups) assertTrue((g - MuscleGroup.ABS).size <= 3, "$title: $g")
-        // The owner's Cable crunch (2026-11-18) makes the Legs days 4 main groups: recorded here, open for the owner.
-        assertEquals(4, groups.getValue("Legs A").size)
-        assertEquals(4, groups.getValue("Legs B").size)
+        for (s in draft.sessions) {
+            val groups = s.exercises.mapNotNull { it.mainGroup }.toSet()
+            assertTrue((groups intersect bigGroups.toSet()).size <= 3, "${s.title}: $groups")
+            if (s.title.startsWith("Legs")) assertTrue(MuscleGroup.ABS in groups, "${s.title}: $groups")
+        }
+        assertEquals("Experienced, a year or more of training: 4–6 days a week", bb5.suits)
     }
 
     @Test

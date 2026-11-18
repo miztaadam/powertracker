@@ -165,11 +165,10 @@ object PlanTemplates {
     )
 
     private val BB_5 = PlanTemplate(
-        "bb-5", TrainingMode.BODYBUILDING, "5-day body-part split",
-        "Experienced, a year or more of training: 4–6 days a week, 1–3 muscle groups a session",
+        "bb-5", TrainingMode.BODYBUILDING, "5-day body-part split", "Experienced, a year or more of training: 4–6 days a week",
         listOf(
             day("Chest & back A", bb("Machine chest press"), bb("Wide-grip cable row"), bb("Lat pulldown"), bb("Cable crossover")),
-            // The Cable crunch is the owner's addition (2026-11-18): it makes this day 4 main groups.
+            // The Cable crunch is the owner's addition (2026-11-18): abs on top of the day's big groups.
             day(
                 "Legs A", bb("Leg press", 4), bb("RDL"), bb("Leg extension"), bb("Seated leg curl"), bb("Standing calf raise"),
                 bb("Cable crunch"),

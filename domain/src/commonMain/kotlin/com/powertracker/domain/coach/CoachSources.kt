@@ -313,14 +313,16 @@ object CoachSources {
     )
 
     /**
-     * The 5-day bodybuilding split for experienced lifters: 4-6 days a week, 1-3 muscle groups a session.
+     * The 5-day bodybuilding split for experienced lifters: 4-6 days a week, and the shape of its days.
      *
      * What the page says: ACSM's simplified summary of its 2009 progression models (a Chinese-language PDF on
      * acsm.org, read only through the search summary and not checked against the English original) gives advanced
      * lifters 4-6 days a week, training 1-3 muscle groups each session.
      *
-     * What the template does: 3 main groups on every day, except that both Legs days end with a Cable crunch, the
-     * owner's addition of 2026-11-18, which makes them 4 main groups (abs the fourth). Open for the owner.
+     * What the template does: every day trains at most 3 of the big groups (chest, lats, quads, hamstrings, glutes,
+     * upper back, biceps, triceps). Both Legs days also end with a Cable crunch, the owner's addition of 2026-11-18,
+     * which adds abs and makes them 4 main groups. So the "who it suits" line keeps only the sourced "4-6 days a
+     * week" and does not claim "1-3 muscle groups a session" (the coordinator's call, 2026-11-18).
      *
      * Checked on 2026-11-18 from the search summary (a web search restricted to the allowed sources); the page itself
      * was not opened.
