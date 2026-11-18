@@ -913,6 +913,146 @@ class PlanScreenTest {
         assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
     }
 
+    // ---- 1.12.2 review: a failure is said where the lifter is looking ----
+
+    /** The click of the node [matcher] finds, to run later (several in one go, as taps landing in one frame). */
+    private fun click(matcher: androidx.compose.ui.test.SemanticsMatcher): () -> Boolean =
+        compose.onNode(matcher).fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsActions.OnClick].action!!
+
+    private val createInForm = hasText("Create") and hasAnyAncestor(hasTestTag("custom-exercise-form"))
+    private val cancelInForm = hasText("Cancel") and hasAnyAncestor(hasTestTag("custom-exercise-form"))
+    private val closePicker = androidx.compose.ui.test.hasContentDescription("Close") and hasAnyAncestor(isDialog())
+
+    /** Taps Create in the filled create form and, before the save can answer, each of [then]. */
+    private fun createThen(vararg then: androidx.compose.ui.test.SemanticsMatcher) {
+        val clicks = (listOf(createInForm) + then).map(::click)
+        compose.runOnUiThread { clicks.forEach { it() } }
+    }
+
+    /** The message, in a window of its own over whatever dialog is open (not behind it on the screen). */
+    private fun saidOverTheDialog() = exists(hasText(SAVE_FAILED) and hasAnyAncestor(androidx.compose.ui.test.isPopup()))
+
+    private fun pickerOpen() = exists(hasTestTag("exercise-search"))
+
+    @Test
+    fun planAdd_addFails_saysSoOverTheAddForm_whileItStaysOpen() {
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_plan_insert BEFORE INSERT ON plan_item BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        addButton().performClick()
+        waitForSaveFailed()
+
+        // Plan's own snackbar is under the form's scrim: the form says it too, from its own window.
+        waitFor { saidOverTheDialog() }
+        assertAddForm("Squat")
+        assertTrue(plan().isEmpty())
+    }
+
+    @Test
+    fun planEdit_saveFails_formClosed_planSaysSo() {
+        val squat = squatId()
+        runBlocking { training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, squat, sets = 3, reps = 5, targetRpe = 8.0, order = 0)) }
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_plan_insert BEFORE INSERT ON plan_item BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        waitFor { exists(hasText("Squat  3 × 5 @ 8")) }
+        compose.onNodeWithContentDescription("More").performClick()
+        compose.onNodeWithText("Edit").performClick()
+        tap("Increase Sets")
+        compose.onNode(hasText("Save") and hasAnyAncestor(isDialog())).performClick()
+        waitForSaveFailed()
+
+        // Save closes the form at once, so Plan's own snackbar is in plain view; the row is as it was.
+        assertTrue(!exists(isDialog()))
+        assertEquals(listOf(3), plan().map { it.sets })
+    }
+
+    @Test
+    fun planAdd_ownExerciseFails_afterTheFormWasCancelled_thePickerSaysSo() {
+        failExerciseInserts()
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        waitFor { exists(hasTestTag("add-MONDAY")) }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        openCreateForm()
+        compose.fillCustomExercise()
+        createThen(cancelInForm)
+        waitForSaveFailed()
+
+        // The full-screen picker hides Plan's snackbar: the picker says it over its list.
+        waitFor { saidOverTheDialog() }
+        assertTrue(pickerOpen())
+        assertTrue(!compose.createFormOpen())
+        assertTrue(!tyreFlipStored())
+    }
+
+    @Test
+    fun planAdd_ownExerciseFails_afterThePickerWasClosed_planSaysSo() {
+        failExerciseInserts()
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        waitFor { exists(hasTestTag("add-MONDAY")) }
+        compose.onNodeWithTag("add-MONDAY").performClick()
+        openCreateForm()
+        compose.fillCustomExercise()
+        createThen(cancelInForm, closePicker)
+        waitForSaveFailed()
+
+        // Nothing is open over Plan: its own snackbar says it.
+        assertTrue(!exists(isDialog()))
+        assertTrue(!tyreFlipStored())
+    }
+
+    @Test
+    fun planAdd_changeToOwnExerciseFails_afterThePickerWasClosed_theAddFormSaysSo() {
+        failExerciseInserts()
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        openCreateForm()
+        compose.fillCustomExercise()
+        createThen(cancelInForm, closePicker)
+        waitForSaveFailed()
+
+        // Back on the add form, whose scrim hides Plan's snackbar: the add form says it.
+        waitFor { saidOverTheDialog() }
+        assertTrue(!pickerOpen())
+        assertAddForm("Squat")
+        assertTrue(!tyreFlipStored())
+    }
+
+    @Test
+    fun planAdd_rotatedWhileAdding_theFormIsNotRestoredOverTheStoredItem() {
+        // The write is held until the test lets it go, as a slow disk would hold it.
+        val release = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val slow = object : TrainingRepository(db) {
+            override suspend fun savePlanItem(item: PlanItem, catalogueName: String?): Long {
+                release.await()
+                return super.savePlanItem(item, catalogueName)
+            }
+        }
+        val restoration = androidx.compose.ui.test.junit4.StateRestorationTester(compose)
+        restoration.setContent { PlanScreen(slow, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        addButton().performClick()
+        compose.waitForIdle()
+        assertTrue(plan().isEmpty())
+
+        // A rotation while Add is saving: the form is not brought back, so a second Add cannot store it again.
+        restoration.emulateSavedInstanceStateRestore()
+        compose.waitForIdle()
+        assertTrue("the add form is not restored mid-add", !formOpen())
+        release.complete(Unit)
+        waitFor { plan().isNotEmpty() }
+        compose.waitForIdle()
+        assertEquals(1, plan().size)
+        assertTrue(!formOpen())
+    }
+
     @Test
     fun planAdd_survivesRecreation_bodybuilding() {
         runBlocking { settings.update { com.powertracker.data.AppSettings(trainingMode = TrainingMode.BODYBUILDING) } }

@@ -84,9 +84,11 @@ import com.powertracker.ui.components.Stepper
 import com.powertracker.ui.components.formatRpe
 import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.library.ExercisePickerScreen
+import com.powertracker.ui.library.FormMessage
 import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.library.PickerEntry
 import com.powertracker.ui.library.RpeInfoButton
+import com.powertracker.ui.library.SAVE_FAILED
 import com.powertracker.ui.plan.builder.BUILD_MY_PLAN
 import com.powertracker.ui.plan.builder.PLAN_OPTIONS
 import com.powertracker.ui.plan.builder.REBUILD_MY_PLAN
@@ -148,19 +150,23 @@ private sealed interface PlanDialog {
     /** The full-screen picker, adding to [day]. */
     data class Add(val day: DayOfWeek) : PlanDialog
 
-    /** The sets/reps form for [entry], just picked for [day]: [draft] holds the ready-made numbers, stored nowhere yet. */
-    data class AddDetails(val day: DayOfWeek, val entry: PickerEntry, val draft: PlanItem) : PlanDialog
+    /**
+     * The sets/reps form for [entry], just picked for [day]: [draft] holds the ready-made numbers, stored nowhere yet.
+     * [saving] is true from Add's tap until the write answers.
+     */
+    data class AddDetails(val day: DayOfWeek, val entry: PickerEntry, val draft: PlanItem, val saving: Boolean = false) : PlanDialog
     data class Edit(val item: PlanItem) : PlanDialog
     data class Baseline(val lift: Exercise) : PlanDialog
 
     companion object {
         /**
          * Keeps the add form across a rotation or the process being killed: the day, the picked entry and the draft.
-         * The other dialogs are not kept, as before.
+         * The other dialogs are not kept, as before, and neither is an add form whose Add is saving: its item may be
+         * stored by the time it is restored, and a second Add would store it again.
          */
         val Saver: Saver<PlanDialog?, Any> = listSaver(
             save = { d ->
-                if (d !is PlanDialog.AddDetails) {
+                if (d !is PlanDialog.AddDetails || d.saving) {
                     emptyList()
                 } else {
                     val entry = with(PickerEntry.Saver) { save(d.entry) } as List<*>
@@ -240,8 +246,8 @@ fun PlanScreen(
             )
         }
         is PlanDialog.AddDetails -> {
-            // True from Add's tap until the write answers: a second tap meanwhile stores nothing more.
-            var adding by remember(d) { mutableStateOf(false) }
+            // Failed Adds: the form says each one over itself, since Plan's snackbar is under its scrim.
+            var addFailures by remember { mutableIntStateOf(0) }
             PlanItemDialog(
                 title = "Add to ${dayName(d.day)}",
                 state = state,
@@ -252,20 +258,27 @@ fun PlanScreen(
                 onCreateCustom = viewModel::addCustomExercise,
                 onSave = { exercise, sets, reps, rpe, repsHigh ->
                     // The form stays open until the item is stored, then closes and ticks. If the write fails, the
-                    // form stays as it is, with its numbers, the message is said, and Add works again.
-                    if (!adding) {
-                        adding = true
+                    // form stays as it is, with its numbers, the message is said, and Add works again. Read at the
+                    // tap: a second tap meanwhile (in the same frame too) stores nothing more.
+                    val open = dialog
+                    if (open is PlanDialog.AddDetails && !open.saving) {
+                        val saving = open.copy(saving = true)
+                        dialog = saving
                         viewModel.add(
-                            d.day, exercise ?: d.entry, sets, reps, rpe, repsHigh,
+                            open.day, exercise ?: open.entry, sets, reps, rpe, repsHigh,
                             onAdded = {
-                                if (dialog == d) dialog = null
+                                if (dialog == saving) dialog = null
                                 haptics.tick()
                             },
-                            onFailed = { adding = false },
+                            onFailed = {
+                                if (dialog == saving) dialog = open
+                                addFailures++
+                            },
                         )
                     }
                 },
                 onDismiss = { dialog = null },
+                saveFailures = addFailures,
             )
         }
         is PlanDialog.Edit -> PlanItemDialog(
@@ -496,6 +509,8 @@ private fun PlanItemDialog(
      * actions are not held; neither are the steppers and Change. 0 (Edit) holds nothing.
      */
     ignoreTapsForMillis: Long = 0L,
+    /** How many of [onSave]'s writes have failed while the form stays open (Add): each one is said over the form. */
+    saveFailures: Int = 0,
 ) {
     // Null until the exercise is changed; saved with the item, not before.
     var changed by rememberSaveable(stateSaver = PickerEntry.Saver) { mutableStateOf(null) }
@@ -506,6 +521,10 @@ private fun PlanItemDialog(
     var rpe by rememberSaveable { mutableStateOf(item.targetRpe) }
     var picking by rememberSaveable { mutableStateOf(false) }
     var createFailures by remember { mutableIntStateOf(0) }
+    // Creates that failed once their picker had been closed: back here, under this form's scrim, Plan's snackbar is
+    // hidden, so the form says them.
+    var formCreateFailures by remember { mutableIntStateOf(0) }
+    val saveFailuresBefore = remember { saveFailures }
     val name = changed?.name ?: exerciseName ?: state.exercises.firstOrNull { it.id == item.exerciseId }?.name ?: "Unknown exercise"
     // Not kept across recreation: a restored form holds taps for a moment again, which does no harm.
     val tapsLive = remember { mutableStateOf(ignoreTapsForMillis <= 0L) }
@@ -525,6 +544,7 @@ private fun PlanItemDialog(
         modifier = Modifier.padding(horizontal = 16.dp),
         title = { Text(title) },
         text = {
+            FormMessage(SAVE_FAILED, showId = (saveFailures - saveFailuresBefore).coerceAtLeast(0) + formCreateFailures)
             PlanItemFields(
                 name, sets, reps, repsHigh, rpe,
                 onSets = { sets = it }, onReps = { reps = it }, onRepsHigh = { repsHigh = it }, onRpe = { rpe = it },
@@ -546,7 +566,10 @@ private fun PlanItemDialog(
             },
             // The picker stays until the exercise is made; if making it fails, its create form is still there.
             onCreateCustom = { customName, category, parent, muscles ->
-                onCreateCustom(customName, category, parent, muscles, { createFailures++ }) { entry ->
+                onCreateCustom(customName, category, parent, muscles, {
+                    createFailures++
+                    if (!picking) formCreateFailures++
+                }) { entry ->
                     changed = entry
                     picking = false
                 }

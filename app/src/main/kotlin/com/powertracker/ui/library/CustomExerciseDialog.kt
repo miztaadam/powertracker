@@ -148,11 +148,12 @@ fun CustomExerciseDialog(
 }
 
 /**
- * The screen's snackbar, drawn from inside the form's window so that it sits over the form's scrim at the foot of the
- * screen, where the screen's own would be hidden behind it. Shown afresh each time [showId] goes up from 0.
+ * The screen's snackbar, drawn from inside a dialog's window (this form, the picker, Plan's add and edit forms) so that
+ * it sits over that dialog and its scrim at the foot of the screen, where the screen's own would be hidden behind them.
+ * Shown afresh each time [showId] goes up from 0.
  */
 @Composable
-private fun FormMessage(message: String, showId: Int) {
+internal fun FormMessage(message: String, showId: Int) {
     val host = remember { SnackbarHostState() }
     LaunchedEffect(showId) {
         if (showId > 0) {

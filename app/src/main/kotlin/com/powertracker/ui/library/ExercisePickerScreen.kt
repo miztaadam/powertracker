@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -228,9 +229,15 @@ fun ExercisePickerContent(
     // Failures counted before this picker opened (or was restored) are not its own.
     val failuresBefore = remember { createFailures }
     val failures = (createFailures - failuresBefore).coerceAtLeast(0)
+    // Failures that came once "Create your own" had been cancelled: the picker says them over its list, since the
+    // screen's own snackbar is behind the picker.
+    var listFailures by remember { mutableIntStateOf(0) }
     LaunchedEffect(failures) {
         // A failed create has answered nothing: Create may be tapped again.
-        if (failures > 0) answered.value = false
+        if (failures > 0) {
+            answered.value = false
+            if (!createForm.open) listFailures++
+        }
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -249,6 +256,8 @@ fun ExercisePickerContent(
             thumbnailMinRoomDp = PICKER_THUMBNAIL_MIN_ROOM_DP,
         )
     }
+
+    FormMessage(SAVE_FAILED, showId = listFailures)
 
     guideFor?.let { name -> FormGuideSheet(name, onDismiss = { guideFor = null }) }
 

@@ -343,6 +343,58 @@ class TodayScreenTest {
         assertEquals(0, haptics.calls.size)
     }
 
+    /** Taps Create in the open create form and, before the save can answer, each node of [then]. */
+    private fun createThen(vararg then: androidx.compose.ui.test.SemanticsMatcher) {
+        val clicks = (listOf(hasText("Create") and hasAnyAncestor(hasTestTag("custom-exercise-form"))) + then).map { matcher ->
+            compose.onNode(matcher).fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsActions.OnClick].action!!
+        }
+        compose.runOnUiThread { clicks.forEach { it() } }
+    }
+
+    private val cancelInForm = hasText("Cancel") and hasAnyAncestor(hasTestTag("custom-exercise-form"))
+
+    @Test
+    fun createYourOwn_failsAfterTheFormWasCancelled_thePickerSaysSo() {
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_exercise_insert BEFORE INSERT ON exercise BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        startSession()
+        show()
+        waitForText("Log set 1")
+        pickFromLibrary("zzz")
+        compose.onNodeWithText("Create your own").performClick()
+        waitFor { compose.createFormOpen() }
+        compose.fillCustomExercise()
+        createThen(cancelInForm)
+        waitForText(SAVE_FAILED)
+
+        // The full-screen picker hides Today's snackbar: the picker says it over its list.
+        waitFor { compose.onAllNodes(hasText(SAVE_FAILED) and hasAnyAncestor(androidx.compose.ui.test.isPopup())).fetchSemanticsNodes().isNotEmpty() }
+        assertTrue(compose.onAllNodes(hasTestTag("exercise-search")).fetchSemanticsNodes().isNotEmpty())
+        assertTrue(!compose.createFormOpen())
+        assertTrue(exerciseRows(OWN_NAME).isEmpty())
+    }
+
+    @Test
+    fun createYourOwn_failsAfterThePickerWasClosed_todaySaysSo() {
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_exercise_insert BEFORE INSERT ON exercise BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        startSession()
+        show()
+        waitForText("Log set 1")
+        pickFromLibrary("zzz")
+        compose.onNodeWithText("Create your own").performClick()
+        waitFor { compose.createFormOpen() }
+        compose.fillCustomExercise()
+        createThen(cancelInForm, androidx.compose.ui.test.hasContentDescription("Close") and hasAnyAncestor(androidx.compose.ui.test.isDialog()))
+        waitForText(SAVE_FAILED)
+
+        // Nothing is open over Today: its own snackbar says it.
+        assertTrue(compose.onAllNodes(androidx.compose.ui.test.isDialog()).fetchSemanticsNodes().isEmpty())
+        assertTrue(exerciseRows(OWN_NAME).isEmpty())
+    }
+
     @Test
     fun createYourOwn_whenTheSaveFails_formKeepsEverything_saysSoOverIt_evenAfterRecreation() {
         db.openHelper.writableDatabase.execSQL(
