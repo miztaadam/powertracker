@@ -18,9 +18,17 @@
 
 .plan-day-head {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-4) var(--space-5) var(--space-3);
+}
+
+/* The day's name is never narrower than its longest word: where the name and Add do not fit on one line (a 320 px phone
+   at 130% zoom), Add goes under it on the right, as a plan row's controls do. Wider, the head is one line as before. */
+.plan-day-head > .plan-grow {
+  min-width: min-content;
 }
 
 .plan-rows {

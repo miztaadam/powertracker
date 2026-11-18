@@ -60,6 +60,22 @@ const overflowing = (page: Page, measured = EVERYTHING) =>
 /** Plan's own screen is not this task's: on it only the snackbar and the open menu are measured. */
 const PLAN_MENU = '.gr-snackbar, .gr-snackbar *, .gr-menu-list, .gr-menu-list *'
 
+/** With the parts of Plan this task changed or found clipping: the header (and its menu button), the empty plan's line and buttons, and the day heads. */
+const PLAN_PARTS = `${PLAN_MENU}, .gr-screen-header, .gr-screen-header *, .plan-empty, .plan-empty *, .plan-day-head, .plan-day-head *`
+
+/** The next plan item written fails, once. */
+const failNextPlanItem = (page: Page) =>
+  page.evaluate(() => {
+    const add = IDBObjectStore.prototype.add
+    IDBObjectStore.prototype.add = function (this: IDBObjectStore, ...args: Parameters<IDBObjectStore['add']>) {
+      if (this.name === 'planItems') {
+        IDBObjectStore.prototype.add = add
+        throw new DOMException('Broken', 'UnknownError')
+      }
+      return add.apply(this, args)
+    }
+  })
+
 /** Exercise and template names, and the day headings, that break inside a word rather than at a space. */
 const brokenWords = (page: Page) =>
   page.evaluate(() => {
@@ -255,6 +271,96 @@ test('a failed save says so at the top of the draft, and trying again saves', as
   await expect(page.getByText('Plan set: 3-day powerlifting.')).toBeVisible()
 })
 
+test("the header's mode label is the route's side, not the app's", async ({ page }) => {
+  await openOnWednesday(page)
+  await bodybuilding(page)
+  await page.goto('/#/plan/templates/powerlifting')
+  await expect(header(page).getByRole('heading', { level: 1, name: 'Choose a template' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '3-day powerlifting' })).toBeVisible()
+  await expect(page.getByTestId('mode-label')).toHaveCount(0)
+  // And the other way: the bodybuilding templates, with the app on powerlifting.
+  await page.goto('/#/plan')
+  await page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((done, fail) => {
+      const request = indexedDB.open('grit')
+      request.onsuccess = () => done(request.result)
+      request.onerror = () => fail(request.error)
+    })
+    await new Promise<void>((done, fail) => {
+      const tx = db.transaction('settings', 'readwrite')
+      tx.objectStore('settings').put({ key: 'trainingMode', value: 'POWERLIFTING' })
+      tx.oncomplete = () => done()
+      tx.onerror = () => fail(tx.error)
+    })
+    db.close()
+  })
+  await page.goto('/#/plan/templates/bodybuilding')
+  await page.reload()
+  // The powerlifting side draws no data-mode.
+  await expect(page.locator('html')).not.toHaveAttribute('data-mode', 'bodybuilding')
+  await expect(page.getByRole('button', { name: '3-day full body' })).toBeVisible()
+  await expect(header(page).getByTestId('mode-label')).toBeVisible()
+})
+
+test.describe('browser back, as Android', () => {
+  const list = (page: Page) => page.getByRole('list', { name: 'Templates' })
+  // Each starts on Today, then Plan, so a step back from Plan has somewhere to land.
+
+  test('from the draft returns to the list; from the list it leaves for Plan', async ({ page }) => {
+    await openOnWednesday(page)
+    await page.goto('/#/plan')
+    await page.getByRole('button', { name: 'Choose a template' }).click()
+    await page.getByRole('button', { name: '3-day powerlifting' }).click()
+    await expect(header(page).getByRole('heading', { level: 1, name: '3-day powerlifting' })).toBeVisible()
+    await page.goBack()
+    await expect(list(page)).toBeVisible()
+    await expect(page).toHaveURL(/#\/plan\/templates\/powerlifting$/)
+    await page.goBack()
+    await expect(page).toHaveURL(/#\/plan$/)
+    await expect(page.getByText('Your plan is empty. Start from a template or add exercises to each day.')).toBeVisible()
+  })
+
+  test("the draft's own Back, then the browser's, leaves; and after Close no entry is left behind", async ({ page }) => {
+    await openOnWednesday(page)
+    await page.goto('/#/plan')
+    await page.getByRole('button', { name: 'Choose a template' }).click()
+    await page.getByRole('button', { name: '4-day powerlifting' }).click()
+    await page.getByRole('button', { name: 'Back', exact: true }).click()
+    await expect(list(page)).toBeVisible()
+    await page.goBack()
+    await expect(page).toHaveURL(/#\/plan$/)
+    // Close from the draft: back on Plan, and the browser's Back does not reopen the templates.
+    await page.getByRole('button', { name: 'Choose a template' }).click()
+    await page.getByRole('button', { name: '4-day powerlifting' }).click()
+    await page.getByRole('button', { name: 'Close', exact: true }).click()
+    await expect(page).toHaveURL(/#\/plan$/)
+    await page.goBack()
+    await expect(page).not.toHaveURL(/templates/)
+  })
+
+  test('after a save, back from Plan never returns to the templates, opened from Plan or from a link', async ({ page }) => {
+    await openOnWednesday(page)
+    await page.goto('/#/plan')
+    await page.getByRole('button', { name: 'Choose a template' }).click()
+    await page.getByRole('button', { name: '3-day powerlifting' }).click()
+    await page.getByRole('button', { name: 'Use this plan' }).click()
+    await expect(page.getByText('Plan set: 3-day powerlifting.')).toBeVisible()
+    await expect(page).toHaveURL(/#\/plan$/)
+    await page.goBack()
+    await expect(page).toHaveURL(/#\/today$/)
+
+    // A link straight to the templates, from Today: the save puts Plan in its place.
+    await page.goto('/#/plan/templates/powerlifting')
+    await page.getByRole('button', { name: '4-day powerlifting' }).click()
+    await page.getByRole('button', { name: 'Use this plan' }).click()
+    await page.getByRole('dialog', { name: 'Replace your powerlifting plan?' }).getByRole('button', { name: 'Replace' }).click()
+    await expect(page.getByText('Plan set: 4-day powerlifting.')).toBeVisible()
+    await expect(page).toHaveURL(/#\/plan$/)
+    await page.goBack()
+    await expect(page).toHaveURL(/#\/today$/)
+  })
+})
+
 // The narrowest phone, and the same at 130% zoom (laid out 1.3 times narrower and shorter): the list, the drafts, the
 // Swap sheet, the confirm, the save-failed line and the open Plan menu never scroll sideways or cut a name off, and
 // no name breaks inside a word.
@@ -291,28 +397,23 @@ for (const [label, viewport] of [
       await sheet.getByRole('button', { name: 'Close', exact: true }).click()
 
       // The save-failed line.
-      await page.evaluate(() => {
-        const add = IDBObjectStore.prototype.add
-        IDBObjectStore.prototype.add = function (this: IDBObjectStore, ...args: Parameters<IDBObjectStore['add']>) {
-          if (this.name === 'planItems') {
-            IDBObjectStore.prototype.add = add
-            throw new DOMException('Broken', 'UnknownError')
-          }
-          return add.apply(this, args)
-        }
-      })
+      await failNextPlanItem(page)
       await page.getByRole('button', { name: 'Use this plan' }).click()
       await expect(page.getByRole('alert')).toBeVisible()
       expect(await overflowing(page)).toEqual([])
       await page.getByRole('button', { name: 'Use this plan' }).click()
       await expect(page.getByText('Plan set: 5-day powerlifting.')).toBeVisible()
-      expect(await overflowing(page, PLAN_MENU)).toEqual([])
+      // Plan's header with its menu icon, and the day heads ("Wednesday" is the longest).
+      await expect(header(page).getByRole('button', { name: 'Plan options' })).toBeVisible()
+      await expect(page.getByRole('heading', { level: 2, name: 'Wednesday' })).toBeVisible()
+      expect(await overflowing(page, PLAN_PARTS)).toEqual([])
+      expect(await brokenWords(page)).toEqual([])
       expect(await fitsThePhone(page)).toBe(true)
 
       // The open Plan menu, then the confirm over a plan.
       await page.getByRole('button', { name: 'Plan options' }).click()
       await expect(page.getByRole('menuitem', { name: 'Choose a template' })).toBeVisible()
-      expect(await overflowing(page, PLAN_MENU)).toEqual([])
+      expect(await overflowing(page, PLAN_PARTS)).toEqual([])
       expect(await fitsThePhone(page)).toBe(true)
       await page.getByRole('menuitem', { name: 'Choose a template' }).click()
       await page.getByRole('button', { name: '3-day powerlifting' }).click()
@@ -323,7 +424,7 @@ for (const [label, viewport] of [
       expect(await brokenWords(page)).toEqual([])
     })
 
-    test('the bodybuilding list, drafts and Swap sheet fit', async ({ page }) => {
+    test('the bodybuilding list, drafts, Swap sheet, save-failed line, confirm and Plan menu fit', async ({ page }) => {
       await openOnWednesday(page)
       await bodybuilding(page)
       await page.goto('/#/plan/templates/bodybuilding')
@@ -335,6 +436,12 @@ for (const [label, viewport] of [
         await expect(page.getByRole('region', { name: 'Weekly sets' })).toBeVisible()
         expect(await overflowing(page), name).toEqual([])
         expect(await brokenWords(page), name).toEqual([])
+        // The cards' headings while the count is off.
+        await days(page).getByText('Mon', { exact: true }).click()
+        await expect(page.getByRole('heading', { name: /^Day 1 · / })).toBeVisible()
+        expect(await overflowing(page), `${name}, days off`).toEqual([])
+        expect(await brokenWords(page), `${name}, days off`).toEqual([])
+        await days(page).getByText('Mon', { exact: true }).click()
         if (name !== '5-day body-part split') await page.getByRole('button', { name: 'Back', exact: true }).click()
       }
       await page.getByRole('button', { name: 'Swap Neutral-grip pull-up' }).click()
@@ -343,6 +450,54 @@ for (const [label, viewport] of [
       await sheet.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)))
       expect(await overflowing(page)).toEqual([])
       expect(await brokenWords(page)).toEqual([])
+      await sheet.getByRole('button', { name: 'Close', exact: true }).click()
+
+      // The save-failed line.
+      await failNextPlanItem(page)
+      await page.getByRole('button', { name: 'Use this plan' }).click()
+      await expect(page.getByRole('alert')).toBeVisible()
+      expect(await overflowing(page)).toEqual([])
+      await page.getByRole('button', { name: 'Use this plan' }).click()
+      await expect(page.getByText('Plan set: 5-day body-part split.')).toBeVisible()
+      await expect(header(page).getByRole('button', { name: 'Plan options' })).toBeVisible()
+      await expect(page.getByRole('heading', { level: 2, name: 'Wednesday' })).toBeVisible()
+      expect(await overflowing(page, PLAN_PARTS)).toEqual([])
+      expect(await brokenWords(page)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+
+      // The open Plan menu with its two items, then the confirm over a plan.
+      await page.getByRole('button', { name: 'Plan options' }).click()
+      await expect(page.getByRole('menuitem')).toHaveText(['Rebuild my plan', 'Choose a template'])
+      expect(await overflowing(page, PLAN_PARTS)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+      await page.getByRole('menuitem', { name: 'Choose a template' }).click()
+      await page.getByRole('button', { name: '3-day full body' }).click()
+      await page.getByRole('button', { name: 'Use this plan' }).click()
+      const confirm = page.getByRole('dialog', { name: 'Replace your bodybuilding plan?' })
+      await expect(confirm.getByText('Your history and bests are kept.')).toBeVisible()
+      await confirm.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)))
+      expect(await overflowing(page)).toEqual([])
+      expect(await brokenWords(page)).toEqual([])
+    })
+
+    test('the empty plan, on both sides, fits: its line and its buttons one over the other', async ({ page }) => {
+      await openOnWednesday(page, '#/plan')
+      const choose = page.locator('.plan-empty').getByRole('button', { name: 'Choose a template' })
+      await expect(page.getByText('Your plan is empty. Start from a template or add exercises to each day.')).toBeVisible()
+      await expect(choose).toBeVisible()
+      expect(await overflowing(page, PLAN_PARTS)).toEqual([])
+      expect(await brokenWords(page)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
+
+      await bodybuilding(page)
+      await expect(page.getByText('Your bodybuilding plan is empty. Add exercises to each training day.')).toBeVisible()
+      const build = page.locator('.plan-empty').getByRole('button', { name: 'Build my plan' })
+      await expect(build).toBeVisible()
+      const [a, b] = [await choose.boundingBox(), await build.boundingBox()]
+      expect(a!.y + a!.height).toBeLessThanOrEqual(b!.y)
+      expect(await overflowing(page, PLAN_PARTS)).toEqual([])
+      expect(await brokenWords(page)).toEqual([])
+      expect(await fitsThePhone(page)).toBe(true)
     })
   })
 }

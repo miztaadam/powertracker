@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { GritDb } from '../../../db/db'
 import type { TrainingMode } from '../../../db/schema'
 import type { JsDraftExercise, JsLibraryExercise, JsPlanDraft } from '../../../domain'
@@ -38,17 +38,73 @@ export type TemplatesScreenProps = {
   onSaved: (name: string) => void
 }
 
+/** What the draft's history entry carries, beside what the screen's own entry had (its `gritFrom`). */
+type DraftEntry = { templatesStep?: 'draft' }
+const onDraftEntry = () => (window.history.state as DraftEntry | null)?.templatesStep === 'draft'
+
+/**
+ * The draft has its own history entry (same address), so the browser's Back from the draft returns to the list, as
+ * Android's system back does; Back from the list leaves the screen. The entry is added when the draft opens and taken
+ * off when the list comes back by the screen's own Back. `drop(then)` takes it off before leaving or after a save, so
+ * that `then` (which goes one step back in history to where the screen was opened from) starts from the screen's own
+ * entry.
+ */
+function useDraftEntry(step: TemplatesState['step'], back: () => boolean) {
+  const stepNow = useRef(step)
+  stepNow.current = step
+  // What the next popstate is for when it is not the browser's Back from the draft: nothing, or `then`.
+  const nextPop = useRef<null | 'stay' | (() => void)>(null)
+  const pushed = useRef(false)
+  useEffect(() => {
+    const onPop = () => {
+      const then = nextPop.current
+      nextPop.current = null
+      if (then === 'stay') return
+      if (then != null) then()
+      else if (stepNow.current === 'draft') back()
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [back])
+  useEffect(() => {
+    if (step === 'draft' && !pushed.current) {
+      pushed.current = true
+      window.history.pushState({ ...((window.history.state as object | null) ?? {}), templatesStep: 'draft' } satisfies DraftEntry, '')
+    } else if (step === 'list' && pushed.current) {
+      pushed.current = false
+      // Back to the list by the screen's own Back: its entry goes too. After the browser's Back it is gone already.
+      if (onDraftEntry()) {
+        nextPop.current = 'stay'
+        window.history.back()
+      }
+    }
+  }, [step])
+  return useCallback((then: () => void) => {
+    if (!pushed.current || !onDraftEntry()) {
+      then()
+      return
+    }
+    pushed.current = false
+    nextPop.current = then
+    window.history.back()
+  }, [])
+}
+
 /** Choosing a plan template for one side (1.14): the list, then the chosen template's draft to adjust and use. */
 export function TemplatesScreen({ db, mode, onLeave, onSaved }: TemplatesScreenProps) {
   const templates = useTemplates(db, mode)
+  const drop = useDraftEntry(templates.step, templates.back)
   const done = useRef(onSaved)
   done.current = onSaved
   const name = templates.saved ? (templates.chosen?.name ?? null) : null
   useEffect(() => {
-    if (name != null) done.current(name)
-  }, [name])
+    if (name != null) drop(() => done.current(name))
+  }, [name, drop])
+  const leave = useRef(onLeave)
+  leave.current = onLeave
+  const close = useCallback(() => drop(() => leave.current()), [drop])
   if (templates.loading) return null
-  return <TemplatesContent state={templates} actions={templates} onLeave={onLeave} />
+  return <TemplatesContent state={templates} actions={templates} onLeave={close} />
 }
 
 export type TemplatesContentProps = { state: TemplatesState; actions: TemplatesActions; onLeave: () => void }
@@ -61,7 +117,7 @@ export function TemplatesContent({ state, actions, onLeave }: TemplatesContentPr
       <ScreenHeader
         title={drafting ? state.chosen!.name : CHOOSE_A_TEMPLATE}
         eyebrow={drafting ? CHOOSE_A_TEMPLATE : undefined}
-        label={<ModeLabel />}
+        label={<ModeLabel mode={state.mode} />}
         navigation={<IconButton label="Close" icon={<CloseIcon />} onClick={onLeave} />}
         className="tpl-header"
       />

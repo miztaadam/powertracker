@@ -13,6 +13,7 @@ import { useToday } from '../../../state/useToday'
 import type { PlanActions, PlanState } from '../../../state/usePlan'
 import { TODAY, addDays, baseline, logSet, set, startSession, todayFixture } from '../../../test/todayFixture'
 import { PlanContent, PlanScreen } from '../PlanScreen'
+import { TrainingModeContext } from '../../../ui/components/ModeLabel'
 import { TemplatesScreen } from './TemplatesScreen'
 
 /** Choosing a plan template (1.14, Task 4), as Android's TemplatesViewModelTest and TemplatesScreenTest. */
@@ -204,6 +205,58 @@ describe('the templates screen', () => {
     expect(useButton()).toBeEnabled()
   })
 
+  it('browserBack_fromTheDraft_returnsToTheList_asAndroidsBack_andTheScreensBackTakesItsEntryOff', async () => {
+    window.history.replaceState({ gritFrom: '#/plan' }, '')
+    const { onLeave } = show('POWERLIFTING')
+    await openTemplate('3-day powerlifting')
+    expect((window.history.state as { templatesStep?: string }).templatesStep).toBe('draft')
+    window.history.back()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Choose a template' })).toBeInTheDocument()
+    expect(onLeave).not.toHaveBeenCalled()
+    expect(window.history.state).toEqual({ gritFrom: '#/plan' })
+    // The draft's own Back does the same, and leaves no entry behind for the browser's Back to land on.
+    await openTemplate('4-day powerlifting')
+    await tap('Back')
+    await waitFor(() => expect(window.history.state).toEqual({ gritFrom: '#/plan' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Choose a template' })).toBeInTheDocument()
+    expect(onLeave).not.toHaveBeenCalled()
+  })
+
+  it('closeFromTheDraft_andASave_leaveFromTheScreensOwnEntry', async () => {
+    window.history.replaceState({ gritFrom: '#/plan' }, '')
+    const first = show('POWERLIFTING')
+    await openTemplate('3-day powerlifting')
+    await tap('Close')
+    await waitFor(() => expect(first.onLeave).toHaveBeenCalled())
+    expect(window.history.state).toEqual({ gritFrom: '#/plan' })
+    cleanup()
+
+    const second = show('POWERLIFTING')
+    await openTemplate('3-day powerlifting')
+    expect((window.history.state as { templatesStep?: string }).templatesStep).toBe('draft')
+    await userEvent.click(useButton())
+    await waitFor(() => expect(second.onSaved).toHaveBeenCalledWith('3-day powerlifting'))
+    expect(window.history.state).toEqual({ gritFrom: '#/plan' })
+  })
+
+  it('theHeadersModeLabel_isTheRoutesSide_notTheApps', async () => {
+    render(
+      <TrainingModeContext.Provider value="BODYBUILDING">
+        <TemplatesScreen db={db} mode="POWERLIFTING" onLeave={vi.fn()} onSaved={vi.fn()} />
+      </TrainingModeContext.Provider>,
+    )
+    expect(await screen.findByRole('heading', { level: 1, name: 'Choose a template' })).toBeInTheDocument()
+    expect(screen.queryByTestId('mode-label')).toBeNull()
+    cleanup()
+    render(
+      <TrainingModeContext.Provider value="POWERLIFTING">
+        <TemplatesScreen db={db} mode="BODYBUILDING" onLeave={vi.fn()} onSaved={vi.fn()} />
+      </TrainingModeContext.Provider>,
+    )
+    expect(await screen.findByRole('heading', { level: 1, name: 'Choose a template' })).toBeInTheDocument()
+    expect(screen.getByTestId('mode-label')).toHaveTextContent('Bodybuilding mode')
+  })
+
   it('useThisPlan_needsExactlyTheTemplatesDayCount_andTheCardsSayDayNWhileItIsOff', async () => {
     show('POWERLIFTING')
     await openTemplate('3-day powerlifting')
@@ -246,6 +299,36 @@ describe('the templates screen', () => {
     await userEvent.click(chip('Sun'))
     expect(within(screen.getByRole('region', { name: 'Thursday' })).getByRole('listitem', { name: `${offered[0]} 3 × 10 @ 8` })).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Sunday' })).toBeInTheDocument()
+  })
+
+  it('swap_inTheHook_refusesAMainLift_andANameThatIsNotOffered_andTakesOneThatIs', async () => {
+    // As Android's TemplatesViewModelTest: the domain's swap itself takes any name, so these are the hook's own refusals.
+    const hook = renderHook(() => useTemplates(db, 'POWERLIFTING'))
+    await waitFor(() => expect(hook.result.current.loading).toBe(false))
+    act(() => hook.result.current.choose('pl-3'))
+    const monday = () => hook.result.current.draft!.sessions.find((s) => s.day === 1)!.exercises.map((e) => e.name)
+    expect(monday()).toEqual(['Squat', 'Bench', 'Seated cable row', 'Cable crunch'])
+    const before = hook.result.current.draft
+
+    // A main lift is never swapped, even if asked.
+    expect(hook.result.current.alternatives(1, 'Squat')).toEqual([])
+    act(() => hook.result.current.swap(1, 'Squat', 'Leg press'))
+    expect(hook.result.current.draft).toBe(before)
+
+    // A real catalogue exercise that is not among the offered alternatives is refused too.
+    const offered = hook.result.current.alternatives(1, 'Seated cable row').map((e) => e.name)
+    expect(offered.length).toBeGreaterThan(0)
+    expect(grit.findInLibrary('Leg press')).not.toBeNull()
+    expect(offered).not.toContain('Leg press')
+    act(() => hook.result.current.swap(1, 'Seated cable row', 'Leg press'))
+    expect(hook.result.current.draft).toBe(before)
+
+    // One that is offered is swapped, with the same sets, reps and RPE.
+    act(() => hook.result.current.swap(1, 'Seated cable row', offered[0]!))
+    expect(monday()).toEqual(['Squat', 'Bench', offered[0], 'Cable crunch'])
+    const swapped = hook.result.current.draft!.sessions[0]!.exercises[2]!
+    expect([swapped.sets, swapped.repsLow, swapped.rpe]).toEqual([3, 10, 8])
+    hook.unmount()
   })
 
   it('aVariation_swapsOnlyToVariationsOfTheSameLift', async () => {
