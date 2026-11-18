@@ -32,7 +32,7 @@ export const SKIP_ANSWERS: readonly [text: string, reason: SkipReason | null][] 
 ]
 
 /**
- * How long, in ms, the reason sheet ignores taps on its answers and outside it once it is open: it opens under the finger
+ * How long, in ms, the reason sheet ignores taps on its answers once it is open: it opens under the finger
  * that chose Skip today, where a double tap's second tap would land (as Plan's add form, ADD_FORM_TAP_WINDOW_MS). Counted
  * from the end of its slide up, as on Android, so the slide does not use the moment up; taps meanwhile are ignored too.
  */
@@ -56,7 +56,7 @@ export type SkipReasonSheetProps = {
 
 /**
  * Asks why `name` is skipped. Choosing an answer calls `onReason`; Escape or a tap outside calls `onDismiss` and nothing
- * is stored. While it slides up and for SKIP_SHEET_TAP_WINDOW_MS after, taps on the answers and outside do nothing; the keyboard
+ * is stored. While it slides up and for SKIP_SHEET_TAP_WINDOW_MS after, taps on the answers do nothing (a tap outside still cancels, as on Android); the keyboard
  * (Enter, Space, Escape) is not held, as on Plan's add form.
  */
 export function SkipReasonSheet({ name, onReason, onDismiss }: SkipReasonSheetProps) {
@@ -75,12 +75,12 @@ export function SkipReasonSheet({ name, onReason, onDismiss }: SkipReasonSheetPr
     }
   }, [])
   const title = skipSheetTitle(name)
-  // A click made by a tap (detail 1 or more) on an answer or the scrim, while the sheet slides up or too soon after, stops here.
+  // A click made by a tap (detail 1 or more) on an answer, while the sheet slides up or too soon after, stops here.
   const holdEarlyTaps = (e: MouseEvent<HTMLDivElement>) => {
     if (e.detail === 0 || (openedAt != null && e.timeStamp - openedAt >= SKIP_SHEET_TAP_WINDOW_MS)) return
     const target = e.target as Element
-    // The Dialog is drawn in place, so the scrim is this wrapper's only child.
-    if (target === e.currentTarget.firstElementChild || target.closest('.today-skip-answers') != null) e.stopPropagation()
+    // Only the answers: a tap outside cancels at once, as on Android, since nothing is stored by it.
+    if (target.closest('.today-skip-answers') != null) e.stopPropagation()
   }
   return (
     <div ref={taps} className="today-skip-taps" onClickCapture={holdEarlyTaps}>

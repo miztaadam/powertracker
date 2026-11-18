@@ -184,6 +184,24 @@ describe('skipping on Today', () => {
     expect(vm.current.skippedToday.map((s) => s.exerciseId)).toEqual([squat])
   })
 
+  it('skip_otherSideUnaffected_aPowerliftingSkipLeavesBodybuilding', async () => {
+    await plan(squat, 0)
+    await plan(squat, 0, 'BODYBUILDING')
+    await onSide('BODYBUILDING')
+    // Skipped on the powerlifting side today.
+    await storeSkip(db, { date: TODAY, mode: 'POWERLIFTING', exerciseId: squat, planItemId: null, reason: 'BUSY' }, () => [])
+    const vm = show()
+    await waitFor(() => expect(vm.current.side).toBe('BODYBUILDING'))
+    await waitFor(() => expect(ids(vm)).toEqual([squat]))
+    expect(vm.current.skippedToday).toEqual([])
+
+    // And the powerlifting side's Today hides it.
+    await onSide('POWERLIFTING')
+    await waitFor(() => expect(vm.current.side).toBe('POWERLIFTING'))
+    await waitFor(() => expect(ids(vm)).toEqual([]))
+    expect(vm.current.skippedToday.map((s) => s.exerciseId)).toEqual([squat])
+  })
+
   it('skip_onTheBodybuildingSide_isStampedWithIt', async () => {
     await onSide('BODYBUILDING')
     const item = await plan(curl, 0, 'BODYBUILDING')
@@ -412,6 +430,25 @@ describe('the SKIP card on Coach', () => {
       await waitFor(() => expect(coach.current.cards).toEqual([]))
     })
   }
+
+  it('undoAfterTheSwapWasApplied_keepsTheSwap_andThePlan', async () => {
+    const { card, payload } = await painSkipCard(curl, 'BODYBUILDING')
+    const skipId = payload.skipId!
+    const coach = showCoach()
+    await waitFor(() => expect(coach.current.cards).toHaveLength(1))
+    await act(() => coach.current.apply(card.id!, payload.alternatives[0]!))
+    await waitFor(async () => expect((await db.advice.get(card.id!))?.status).toBe('APPLIED'))
+    const planAfterSwap = await db.planItems.toArray()
+
+    // Undo on Today afterwards: the skip goes, the applied swap and the plan stay as they are.
+    const vm = show()
+    await waitFor(() => expect(vm.current.loading).toBe(false))
+    await act(() => vm.current.undoSkip(skipId))
+    expect(await storedSkips(db)).toEqual([])
+    expect((await db.advice.get(card.id!))?.status).toBe('APPLIED')
+    expect(await db.planItems.toArray()).toEqual(planAfterSwap)
+    expect(planAfterSwap.map((p) => p.exerciseId)).not.toContain(curl)
+  })
 
   it('coach_skipCard_swapLeavesTheOtherSide', async () => {
     await db.planItems.add({ weekday: 5, exerciseId: curl, sets: 3, reps: 8, repsHigh: 12, targetRpe: 8, order: 0, mode: 'BODYBUILDING' })

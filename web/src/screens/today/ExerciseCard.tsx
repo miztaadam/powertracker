@@ -421,9 +421,12 @@ export function ExerciseRow({ item, onClick, onSkipToday }: { item: TodayItem; o
           </span>
         </span>
       </button>
-      {/* Beside the row's button, not inside it: reading the guide must not open the card. */}
-      <InfoButton name={item.exercise.name} />
-      {onSkipToday && <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} />}
+      {/* Beside the row's button, not inside it: reading the guide must not open the card. On a narrow row the two stack,
+          so that a long word of the name still has its room (1.13). */}
+      <span className="today-row-actions">
+        <InfoButton name={item.exercise.name} />
+        {onSkipToday && <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} />}
+      </span>
     </Card>
   )
 }

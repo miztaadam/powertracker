@@ -134,10 +134,8 @@ describe('Skip today', () => {
     vi.useFakeTimers({ toFake: ['Date'] })
     show()
     const s = await openSheet('Bench')
-    // The second tap of a double tap lands on an answer, or outside, just after the sheet opened: nothing happens.
+    // The second tap of a double tap lands on an answer just after the sheet opened: nothing happens.
     await userEvent.click(s.getByRole('button', { name: 'Pain' }))
-    expect(sheet()).not.toBeNull()
-    await userEvent.click(screen.getByRole('dialog', { name: 'Why skip Bench?' }).parentElement!)
     expect(sheet()).not.toBeNull()
     vi.setSystemTime(Date.now() + 299)
     await userEvent.click(s.getByRole('button', { name: 'Just skip' }))
@@ -149,6 +147,18 @@ describe('Skip today', () => {
     await userEvent.click(s.getByRole('button', { name: 'Out of time' }))
     await waitFor(async () => expect((await storedSkips(db)).map((x) => x.reason)).toEqual(['TIME']))
     expect(sheet()).toBeNull()
+  })
+
+  it('aTapOutside_duringTheMoment_cancelsAtOnce', async () => {
+    // Only the answers are held, as on Android: a tap outside the sheet just after it opened cancels it, storing nothing.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    show()
+    await openSheet('Bench')
+    await userEvent.click(screen.getByRole('dialog', { name: 'Why skip Bench?' }).parentElement!)
+    expect(sheet()).toBeNull()
+    await new Promise((done) => setTimeout(done, 50))
+    expect(await storedSkips(db)).toEqual([])
+    expect(menu('Bench')).not.toBeNull()
   })
 
   it('doubleTapSkipToday_keyboardIsNotHeld', async () => {

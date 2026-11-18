@@ -22,13 +22,13 @@ type Side = 'POWERLIFTING' | 'BODYBUILDING'
  * Plans `names` on Wednesdays, in that order, on `side`'s side, and puts the app on that side; then reloads. A catalogue
  * exercise with no row yet gets one, as the app makes it.
  */
-async function planWednesday(page: Page, side: Side, names: string[]) {
+async function planWednesday(page: Page, side: Side, names: string[], over: { sets?: number } = {}) {
   const catalogue = names.flatMap((name) => {
     const e = grit.findInLibrary(name)
     return e ? [{ name: e.name, category: e.category, parentLift: e.parentLift ?? null, muscles: [...e.muscles], isBuiltIn: true, archived: false }] : []
   })
   await page.evaluate(
-    async ({ side, names, catalogue }) => {
+    async ({ side, names, catalogue, over }) => {
       const db = await new Promise<IDBDatabase>((done, fail) => {
         const request = indexedDB.open('grit')
         request.onsuccess = () => done(request.result)
@@ -54,13 +54,13 @@ async function planWednesday(page: Page, side: Side, names: string[]) {
       names.forEach((name, order) => {
         const exerciseId = exercises.find((e) => e.name === name)!.id
         const item = side === 'BODYBUILDING' ? { sets: 3, reps: 8, repsHigh: 12 } : { sets: 3, reps: 5 }
-        tx.objectStore('planItems').add({ weekday: 3, exerciseId, targetRpe: 8, order, mode: side, ...item })
+        tx.objectStore('planItems').add({ weekday: 3, exerciseId, targetRpe: 8, order, mode: side, ...item, ...over })
       })
       tx.objectStore('settings').put({ key: 'trainingMode', value: side })
       await settled
       db.close()
     },
-    { side, names, catalogue },
+    { side, names, catalogue, over },
   )
   await page.reload()
   await expect(tabBar(page)).toBeVisible()
@@ -265,6 +265,84 @@ for (const [label, viewport] of [
         await expect(skippedLine(page).getByText(names[0]!)).toBeAttached()
         expect(await skippedLine(page).locator('.today-name').count()).toBe(2)
         expect(await namesWhole(page)).toEqual([])
+      })
+    })
+  }
+}
+
+/** Writes straight into the app's tables on `side` for the sample Wednesday: today's session, a set of each exercise planned, or a skip of each. */
+async function seedToday(page: Page, side: Side, what: { session?: boolean; setEach?: boolean; skipEach?: boolean; clearSets?: boolean }) {
+  await page.evaluate(
+    async ({ side, what }) => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      const tx = db.transaction(['planItems', 'sessions', 'sets', 'skips'], 'readwrite')
+      const settled = new Promise<void>((done, fail) => {
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      const all = <T,>(store: string) =>
+        new Promise<T[]>((done) => {
+          const r = tx.objectStore(store).getAll()
+          r.onsuccess = () => done(r.result as T[])
+        })
+      const date = '2026-11-11'
+      const items = (await all<{ id: number; exerciseId: number; mode: string; weekday: number }>('planItems')).filter((p) => p.mode === side && p.weekday === 3)
+      let session = (await all<{ id: number; date: string }>('sessions')).find((s) => s.date === date)?.id
+      if (what.session && session == null) {
+        session = await new Promise<number>((done) => {
+          const r = tx.objectStore('sessions').add({ date, bodyweightKg: null, readiness: null, mode: side })
+          r.onsuccess = () => done(r.result as number)
+        })
+      }
+      if (what.clearSets) tx.objectStore('sets').clear()
+      for (const p of items) {
+        if (what.setEach) tx.objectStore('sets').add({ sessionId: session, exerciseId: p.exerciseId, weightKg: 20, reps: 5, rpe: 8, failed: false, missPoint: null, isTopSet: false })
+        if (what.skipEach) tx.objectStore('skips').add({ date, mode: side, exerciseId: p.exerciseId, planItemId: p.id, reason: null })
+      }
+      await settled
+      db.close()
+    },
+    { side, what },
+  )
+  await page.reload()
+  await expect(tabBar(page)).toBeVisible()
+}
+
+// Every catalogue exercise's name, as Android's TodayNamesWholeTest: whole on the start card, on the folded rows, on the
+// rows marked Done and on the "Skipped today" line, on both sides, at 320 px and at 130% zoom on a 320 px phone.
+const everyName = grit.library().map((e) => e.name)
+for (const [label, viewport] of [
+  ['a 320 px phone', { width: 320, height: 640 }],
+  ['a 320 px phone at 130% zoom', { width: Math.floor(320 / 1.3), height: Math.floor(640 / 1.3) }],
+] as const) {
+  for (const side of ['POWERLIFTING', 'BODYBUILDING'] as const) {
+    test.describe(`on ${label}, ${side.toLowerCase()} side`, () => {
+      test.use({ viewport })
+      test('todayRows_everyCatalogueName_isWhole', async ({ page }) => {
+        test.setTimeout(120_000)
+        await openOnWednesday(page)
+        await planWednesday(page, side, everyName, { sets: 1 })
+        // The start card.
+        await expect(page.getByRole('button', { name: `Options for ${everyName.at(-1)}` })).toBeAttached()
+        expect(await page.locator('.today-name').count()).toBe(everyName.length)
+        expect(await namesWhole(page), 'start card').toEqual([])
+        // The folded rows, in a session.
+        await seedToday(page, side, { session: true })
+        await expect(page.getByRole('button', { name: 'Add exercise' })).toBeAttached()
+        expect(await page.locator('.today-row .today-name').count()).toBe(everyName.length - 1)
+        expect(await namesWhole(page), 'folded rows').toEqual([])
+        // Every row done: the Done pill beside the plan.
+        await seedToday(page, side, { setEach: true })
+        await expect(page.locator('.today-row').filter({ hasText: 'Done' })).toHaveCount(everyName.length - 1)
+        expect(await namesWhole(page), 'rows done').toEqual([])
+        // Every exercise skipped: the "Skipped today" line beside its Bring back.
+        await seedToday(page, side, { clearSets: true, skipEach: true })
+        await expect(skippedLine(page).locator('.today-name')).toHaveCount(everyName.length)
+        expect(await namesWhole(page), 'skipped line').toEqual([])
       })
     })
   }
