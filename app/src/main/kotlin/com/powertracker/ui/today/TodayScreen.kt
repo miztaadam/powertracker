@@ -259,9 +259,12 @@ fun TodayContent(
     val line = remember { LineMemory() }
     val lineKey = state.mode to state.date
     val hasLine = state.skippedToday.isNotEmpty()
+    // A skip made now on this side: an exercise on this side's list, as last drawn, has moved to the line. A side's
+    // state that comes in pieces (its side first, its own list and line after) has a line no exercise moved to.
+    val skippedNow = line.key == lineKey && state.skippedToday.any { it.exerciseId in line.listed }
     // True only in the draw the skip arrives in: the line rises if it is drawn then, never when first scrolled to later
     // or scrolled back.
-    val arriving = motion && !state.loading && line.key == lineKey && hasLine && !line.had
+    val arriving = motion && !state.loading && skippedNow && !line.had
     if (arriving) {
         line.arriving = true
         line.arrivals++
@@ -275,6 +278,7 @@ fun TodayContent(
         if (!state.loading) {
             line.key = lineKey
             line.had = hasLine
+            line.listed = items.mapTo(HashSet()) { it.exercise.id }
         }
     }
     val skippedLine = @Composable {
@@ -444,6 +448,8 @@ private class LineMemory {
     /** The side and day last drawn loaded: null until then, so what the screen opens with is simply there. */
     var key: Any? = null
     var had = false
+    /** The exercises on the list as last drawn loaded. */
+    var listed: Set<Long> = emptySet()
     var arriving = false
     var arrivals = 0
 }

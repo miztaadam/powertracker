@@ -248,8 +248,13 @@ class GuideTest {
                 assertEquals(progress, progress.sorted(), "step $i: progress never goes back")
                 val last = i == steps.lastIndex
                 assertEquals(GuideFrame(i, steps[i], 1.0, last), Guide.frame(id, mode, start + Guide.MOVE_MS))
-                // (A step that stands for a tap has the ring in its last moments: frame_aTapStep_ringsInTheHoldBeforeIt.)
-                if (!last) assertEquals(GuideFrame(i, steps[i], 1.0, false), Guide.frame(id, mode, start + span - 1).copy(tap = null, tapProgress = 0.0))
+                // Only the hold before a step that stands for a tap has the ring in its last moments; it is checked
+                // there without it (frame_aTapStep_ringsInTheHoldBeforeIt has the ring). Every other hold is exact.
+                if (!last) {
+                    val held = Guide.frame(id, mode, start + span - 1)
+                    val rings = Guide.tap(steps[i + 1]) != null
+                    assertEquals(GuideFrame(i, steps[i], 1.0, false), if (rings) held.copy(tap = null, tapProgress = 0.0) else held, "step $i's hold")
+                }
             }
             // The last step holds for good, done.
             val end = Guide.settledMs(steps.lastIndex)

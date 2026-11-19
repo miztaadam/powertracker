@@ -250,15 +250,15 @@ private fun ColumnScope.CardContent(
         // With motion on, the last set to be deleted is drawn as it was while it slides out.
         val lastSets = remember(id) { LastSets() }
         if (item.sets.isNotEmpty()) lastSets.sets = item.sets
-        // With motion on, a set new since the card was drawn has its tick drawn in. A side switch starts afresh.
+        // With motion on, a set new since the card was drawn has its tick drawn in. What the card has shown is kept
+        // with motion off too, so a set logged then is not taken for one logged now when motion comes back on. (No key
+        // on the side: a card's sets are its session's, and the session fixes the side Today shows.)
         val motion = LocalMotion.current
-        val seen = remember(bodybuilding) { SeenSets() }
-        if (motion) {
-            val ids = item.sets.map { it.id }
-            val shown = seen.shown
-            if (shown != null) ids.filterTo(seen.fresh) { it !in shown }
-            SideEffect { seen.shown = (shown ?: emptySet()) + ids }
-        }
+        val seen = remember { SeenSets() }
+        val ids = item.sets.map { it.id }
+        val shown = seen.shown
+        if (!motion) seen.fresh.clear() else if (shown != null) ids.filterTo(seen.fresh) { it !in shown }
+        SideEffect { seen.shown = (shown ?: emptySet()) + ids }
         SlidingBlock(item.sets.isNotEmpty()) {
             val sets = item.sets.ifEmpty { lastSets.sets }
             val top = if (bodybuilding) null else topSetIndex(sets.map { it.set })

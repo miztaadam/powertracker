@@ -747,6 +747,62 @@ class GuideScreenTest {
         assertNull(tapBox())
     }
 
+    /**
+     * A replay replays the extras: back on screen 4 after another page, the ring, the tick's draw and the skipped line's
+     * rise play again, each the same at the same time into its step. Each frame is read once the frame clock's own
+     * motion has settled, so what is left mid-way is the effect on the guide's (held) time.
+     */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun guide_replay_playsTheRingTheTickAndTheRiseAgain() {
+        val steps = Guide.steps(GuideScreenId.TODAY, TrainingMode.POWERLIFTING)
+        val ticked = stepIndex(GuideStep.TODAY_TICKED)
+        val skip = stepIndex(GuideStep.TODAY_SKIP)
+        val ringFrom = Guide.motionStartMs(steps, ticked)
+        val clock = HeldGuideClock(ringFrom - 20)
+        show(clock = clock, startAt = GuideScreenId.TODAY)
+        compose.mainClock.autoAdvance = false
+        fun at(ms: Int): Bitmap {
+            compose.runOnUiThread { clock.heldMs = ms }
+            androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+            compose.mainClock.advanceTimeByFrame()
+            compose.mainClock.advanceTimeBy(1_000)
+            return drawnBitmap()
+        }
+        class Run(val ringTap: GuideTap?, val ring: Bitmap, val tick: Bitmap, val ticked: Bitmap, val rise: Bitmap, val risen: Bitmap)
+        fun play(): Run {
+            at(ringFrom - 20)
+            val ring = at(ringFrom + Guide.TAP_MS / 2)
+            val tap = pictureFrame().tap
+            val tick = at(Guide.stepStartMs(ticked) + Guide.MOVE_MS / 2)
+            val tickedFrame = at(Guide.stepStartMs(ticked) + Guide.MOVE_MS)
+            at(Guide.stepStartMs(skip))
+            val rise = at(Guide.stepStartMs(skip) + Guide.MOVE_MS - Guide.FADE_MS / 2)
+            val risen = at(Guide.stepStartMs(skip) + Guide.MOVE_MS)
+            return Run(tap, ring, tick, tickedFrame, rise, risen)
+        }
+        val first = play()
+        assertEquals(GuideTap.LOG_SET, first.ringTap)
+        assertTrue("the tick is mid-draw", !first.tick.sameAs(first.ticked))
+        assertTrue("the line is mid-rise", !first.rise.sameAs(first.risen))
+        // To screen 5 and back, the clock set back to before the ring as the page is left: a new run of the picture.
+        compose.runOnUiThread { clock.heldMs = ringFrom - 20 }
+        compose.mainClock.autoAdvance = true
+        compose.onNodeWithTag("guide-next").performClick()
+        compose.waitForIdle()
+        assertOn(GuideScreenId.TARGETS)
+        compose.onNodeWithTag("guide-back").performClick()
+        compose.waitForIdle()
+        assertOn(GuideScreenId.TODAY)
+        compose.mainClock.autoAdvance = false
+        val again = play()
+        assertEquals(GuideTap.LOG_SET, again.ringTap)
+        assertTrue("the ring again", again.ring.sameAs(first.ring))
+        assertTrue("the tick again", again.tick.sameAs(first.tick))
+        assertTrue("the rise again", again.rise.sameAs(first.rise))
+        assertTrue(again.risen.sameAs(first.risen))
+    }
+
     @Test
     fun guide_ring_withMotionOff_isNotThere() {
         show(motionOn = false, clock = HeldGuideClock(), startAt = GuideScreenId.TODAY)

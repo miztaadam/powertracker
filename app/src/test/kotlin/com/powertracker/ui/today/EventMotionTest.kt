@@ -10,7 +10,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasScrollAction
@@ -41,7 +44,9 @@ import kotlinx.datetime.LocalDate
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -94,6 +99,7 @@ class EventMotionTest {
     private var today by mutableStateOf(TodayState(date, loading = true, sessionId = 1))
     private var themeMode by mutableStateOf(TrainingMode.POWERLIFTING)
     private var run by mutableIntStateOf(0)
+    private var motionOn by mutableStateOf(true)
 
     /** Log set stores the editor's set at once, as the view model does once saved: the next set id each time. */
     private val actions = TodayActions(
@@ -104,10 +110,11 @@ class EventMotionTest {
 
     private fun show(start: TodayState, motion: Boolean = true, content: @Composable () -> Unit = { TodayContent(today, actions) }) {
         today = start
+        motionOn = motion
         compose.mainClock.autoAdvance = false
         compose.setContent {
             key(run) {
-                CompositionLocalProvider(LocalMotion provides motion) { PowertrackerTheme(mode = themeMode) { content() } }
+                CompositionLocalProvider(LocalMotion provides motionOn) { PowertrackerTheme(mode = themeMode) { content() } }
             }
         }
         compose.mainClock.advanceTimeBy(1_000)
@@ -378,6 +385,147 @@ class EventMotionTest {
         show(state(item(squat), item(bench), item(row)), motion = false)
         set(state(item(squat), item(bench), skipped = listOf(row)))
         everyFrame { assertNull(rise()) }
+    }
+
+    @Test
+    fun tick_isNotDrawn_forAMissedSet() {
+        show(state(item(squat), item(bench)))
+        val missed = StoredSet(101, 1, LoggedSet(squat.id, 100.0, 0, null, true, null, isTopSet = false))
+        set(state(item(squat, listOf(missed)), item(bench)))
+        everyFrame { assertNull(tick(1)) }
+    }
+
+    @Test
+    fun tick_drawsIn_forEachOfSeveralSetsLoggedAtOnce() {
+        show(state(item(squat), item(bench)))
+        // Two sets come in one state (logged fast, saved together): each draws its own tick, from the same start.
+        set(state(item(squat, listOf(stored(101, squat), stored(102, squat))), item(bench)))
+        compose.mainClock.advanceTimeByFrame()
+        compose.mainClock.advanceTimeByFrame()
+        val first = assertNotNull_(tick(1))
+        val second = assertNotNull_(tick(2))
+        compose.mainClock.advanceTimeBy(EVENT_MOVE_MS / 2L)
+        assertEquals(first(), second(), 0.1f)
+        assertTrue("mid-draw: ${first()}", first() > 0.2f && first() < 0.8f)
+        compose.mainClock.advanceTimeBy(EVENT_MOVE_MS.toLong())
+        assertNull(tick(1))
+        assertNull(tick(2))
+    }
+
+    @Test
+    fun tick_isStill_whenItsCardClosesMidDrawAndOpensAgain() {
+        show(state(item(squat), item(bench)))
+        compose.onNodeWithText("Log set 1").performClick()
+        compose.mainClock.advanceTimeByFrame()
+        compose.mainClock.advanceTimeByFrame()
+        assertNotNull(tick(1))
+        compose.mainClock.advanceTimeBy(EVENT_MOVE_MS / 3L)
+        // Bench opened mid-draw: Squat's card closes to its row. Then Squat opened again.
+        compose.onNode(hasTestTag("exercise-${bench.id}")).performClick()
+        compose.mainClock.advanceTimeBy(1_000)
+        assertEquals("closed", 0, compose.onAllNodes(hasText("Set 1:", substring = true)).fetchSemanticsNodes().size)
+        compose.onNode(hasTestTag("exercise-${squat.id}")).performClick()
+        everyFrame { assertNull(tick(1)) }
+    }
+
+    @Test
+    fun tick_isStill_forASetLoggedWhileMotionWasOff_whenMotionComesBackOn() {
+        show(state(item(squat), item(bench)))
+        motionOn = false
+        Snapshot.sendApplyNotifications()
+        compose.mainClock.advanceTimeBy(500)
+        compose.onNodeWithText("Log set 1").performClick()
+        compose.mainClock.advanceTimeBy(500)
+        assertNull(tick(1))
+        motionOn = true
+        Snapshot.sendApplyNotifications()
+        everyFrame { assertNull(tick(1)) }
+        // With motion back on, the next set logged draws its own.
+        compose.onNodeWithText("Log set 2").performClick()
+        compose.mainClock.advanceTimeByFrame()
+        compose.mainClock.advanceTimeByFrame()
+        assertNotNull(tick(2))
+        assertNull(tick(1))
+    }
+
+    @Test
+    fun card_keepsWhatItHasShown_whileMotionIsOff() {
+        // The card itself stays composed across the toggle (Today's own tree changes with motion, so it rebuilds the
+        // card there; a card kept composed must not take a set logged while motion was off for one logged now).
+        show(state(item(squat))) {
+            ExerciseCard(today.items.first(), 1, 1, 2.5, false, NextStep("Finish session") {}, actions)
+        }
+        motionOn = false
+        Snapshot.sendApplyNotifications()
+        compose.mainClock.advanceTimeBy(500)
+        set(state(item(squat, listOf(stored(101, squat)))))
+        compose.mainClock.advanceTimeBy(500)
+        motionOn = true
+        Snapshot.sendApplyNotifications()
+        everyFrame { assertNull(tick(1)) }
+        set(state(item(squat, listOf(stored(101, squat), stored(102, squat)))))
+        compose.mainClock.advanceTimeByFrame()
+        compose.mainClock.advanceTimeByFrame()
+        assertNotNull(tick(2))
+        assertNull(tick(1))
+    }
+
+    @Test
+    fun line_isStill_whenASideSwitchComesHalfUpdated() {
+        // The new side drawn first with the old side's list and no line (its plan not yet read), then its own state
+        // with its line: the line was there all along on that side, not skipped now.
+        show(state(item(squat), item(bench)))
+        set(state(item(squat), item(bench)).copy(mode = TrainingMode.BODYBUILDING))
+        compose.mainClock.advanceTimeByFrame()
+        compose.mainClock.advanceTimeByFrame()
+        set(state(item(squat), item(bench), skipped = listOf(row)).copy(mode = TrainingMode.BODYBUILDING))
+        everyFrame { assertNull(rise()) }
+    }
+
+    @Test
+    fun line_risesAgain_whenBroughtBackThenSkippedAgain() {
+        show(state(item(squat), item(bench), item(row)))
+        set(state(item(squat), item(bench), skipped = listOf(row)))
+        compose.mainClock.advanceTimeBy(EVENT_MOVE_MS + 500L)
+        assertNull(rise())
+        // Brought back: the line goes. Skipped again: it comes with the skip, so it rises again.
+        set(state(item(squat), item(bench), item(row)))
+        compose.mainClock.advanceTimeBy(500)
+        assertEquals(0, compose.onAllNodes(hasTestTag("skipped-today")).fetchSemanticsNodes().size)
+        set(state(item(squat), item(bench), skipped = listOf(row)))
+        compose.mainClock.advanceTimeByFrame()
+        compose.mainClock.advanceTimeByFrame()
+        assertNotNull(rise())
+    }
+
+    @Test
+    fun line_withTheSystemsAnimationsOff_isStill() {
+        Settings.Global.putFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
+        set(state(item(squat), item(bench), item(row)))
+        compose.mainClock.autoAdvance = false
+        compose.setContent { ModeTheme(flowOf(AppSettings()), modeSwitch = null) { TodayContent(today, actions) } }
+        compose.mainClock.advanceTimeBy(1_000)
+        set(state(item(squat), item(bench), skipped = listOf(row)))
+        everyFrame { assertNull(rise()) }
+    }
+
+    @Test
+    fun tapAnchor_inTheApp_isTheModifierItself() {
+        var plain: Modifier? = null
+        var chained: Pair<Modifier, Modifier>? = null
+        var inTheGuide: Modifier? = null
+        compose.setContent {
+            plain = Modifier.tapAnchor(TapAnchor.LOG_SET)
+            val m = Modifier.padding(1.dp)
+            chained = m to m.tapAnchor(TapAnchor.LOG_SET)
+            CompositionLocalProvider(LocalTapAnchors provides TapAnchors()) { inTheGuide = Modifier.tapAnchor(TapAnchor.LOG_SET) }
+        }
+        compose.waitForIdle()
+        // No node, no semantics, nothing drawn: the very modifier it was called on.
+        assertSame(Modifier, plain)
+        assertSame(chained!!.first, chained!!.second)
+        // Where a guide asks, it is a node.
+        assertNotSame(Modifier, inTheGuide)
     }
 
     private fun <T> assertNotNull_(value: T?): T {

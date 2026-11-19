@@ -169,7 +169,10 @@ test('with the system asking for reduced motion: the same', async ({ browser, ba
   for (let t = 0; t <= grit.guideDoneMs(steps.length); t += 200) {
     await page.clock.runFor(200)
     await expect(picture(page).locator('.guide-flip-ghosts > *')).toHaveCount(0)
+    // The rise has no ghost: nothing of the guide's own motion runs at all.
+    expect(await picture(page).evaluate((el) => el.getAnimations({ subtree: true }).filter((a) => !(a instanceof CSSAnimation || a instanceof CSSTransition)).length)).toBe(0)
   }
+  await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_SKIP')
   await context.close()
 })
 
@@ -557,6 +560,97 @@ test.describe('with motion on', () => {
     await expect(picture(page).locator('.gr-set-done')).toHaveCount(0)
   })
 
+  /** Back to screen 4 from screen 5 on the held clock: a new run of its picture, at its time 0. */
+  async function pageReturn(page: Page) {
+    await page.getByTestId('guide-next').click()
+    await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen('TARGETS', 'POWERLIFTING').title)
+    await page.getByTestId('guide-back').click()
+    await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_EMPTY')
+    let pos = 0
+    return async (ms: number) => {
+      if (ms > pos) await page.clock.runFor(ms - pos)
+      pos = Math.max(pos, ms)
+    }
+  }
+
+  test('guide_replay_playsTheRingTheTickAndTheRiseAgain', async ({ page }) => {
+    const side = 'POWERLIFTING'
+    const steps = grit.guideSteps('TODAY', side)
+    const ticked = steps.indexOf('TODAY_TICKED')
+    const skip = steps.indexOf('TODAY_SKIP')
+    const ringMid = grit.guideMotionStartMs(steps, ticked) + grit.guideTapMs() / 2
+    const tickMid = grit.guideStepStartMs(ticked) + grit.guideMoveMs() - grit.guideFadeMs() / 2
+    const riseMid = grit.guideStepStartMs(skip) + grit.guideMoveMs() - grit.guideFadeMs() / 2
+    /** Each effect half-way, by its own animation's time. */
+    async function play(at: (ms: number) => Promise<void>) {
+      await at(ringMid)
+      const ring = await ownAnimations(page, '.guide-flip-ghosts > .guide-tap-ring')
+      await at(tickMid)
+      const tick = await ownAnimations(page, '.guide-flip-ghosts > .gr-set-dot-done, .guide-flip-ghosts > .gr-set-dot-done path')
+      await at(riseMid)
+      const rise = await ownAnimations(page, '.guide-picture-screen .today-skipped')
+      await at(grit.guideDoneMs(steps.length) + 100)
+      return { ring: ring.map((a) => a.time), tick: tick.map((a) => a.time), rise: rise.map((a) => a.time) }
+    }
+    const first = await play(await heldToday(page, side))
+    expect(first.ring).toHaveLength(1)
+    expect(first.tick).toHaveLength(2)
+    expect(first.rise).toHaveLength(1)
+    // Away and back: the same effects, at the same times into their steps (to within a frame of the page's clock).
+    const again = await play(await pageReturn(page))
+    for (const effect of ['ring', 'tick', 'rise'] as const) {
+      expect(again[effect], effect).toHaveLength(first[effect].length)
+      again[effect].forEach((time, i) => expect(Math.abs(time - first[effect][i]!), `${effect} ${time} against ${first[effect][i]}`).toBeLessThanOrEqual(FRAME_MS))
+    }
+  })
+
+  const exits = [
+    ['pageChange', (page: Page) => page.getByTestId('guide-next').click()],
+    ['close', (page: Page) => page.getByTestId('guide-skip').click()],
+  ] as const
+  const moments = ['midRing', 'midTick'] as const
+  for (const [exit, leave] of exits) {
+    for (const moment of moments) {
+      test(`guide_${exit}_${moment}_leavesNoAnimationOrStandInBehind`, async ({ page }) => {
+        // Every animation the guide's picture starts, kept to look at once its page has gone.
+        await page.addInitScript(() => {
+          const animate = Element.prototype.animate
+          const w = window as unknown as { __guideAnimations: Animation[] }
+          w.__guideAnimations = []
+          Element.prototype.animate = function (this: Element, ...args: Parameters<Element['animate']>) {
+            const animation = animate.apply(this, args)
+            if (this.closest('.guide-picture') != null) w.__guideAnimations.push(animation)
+            return animation
+          }
+        })
+        const side = 'POWERLIFTING'
+        const steps = grit.guideSteps('TODAY', side)
+        const ticked = steps.indexOf('TODAY_TICKED')
+        const at = await heldToday(page, side)
+        if (moment === 'midRing') {
+          await at(grit.guideMotionStartMs(steps, ticked) + grit.guideTapMs() / 2)
+          await expect(page.locator('.guide-tap-ring')).toHaveCount(1)
+        } else {
+          await at(grit.guideStepStartMs(ticked) + grit.guideMoveMs() - grit.guideFadeMs() / 2)
+          await expect(page.locator('.guide-flip-ghosts > .gr-set-dot-done')).toHaveCount(1)
+        }
+        const started = await page.evaluate(() => (window as unknown as { __guideAnimations: Animation[] }).__guideAnimations.length)
+        const running = await page.evaluate(() => (window as unknown as { __guideAnimations: Animation[] }).__guideAnimations.filter((a) => a.playState !== 'idle' && a.playState !== 'finished').length)
+        expect(running, 'the effect is under way').toBeGreaterThan(0)
+        await leave(page)
+        if (exit === 'pageChange') await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen('TARGETS', side).title)
+        else await expect(page.getByTestId('guide')).toHaveCount(0)
+        // Of what was under way, nothing is left running or held, on the page or off it; no ring or stand-in anywhere.
+        const left = await page.evaluate(
+          (started) => (window as unknown as { __guideAnimations: Animation[] }).__guideAnimations.slice(0, started).filter((a) => a.playState !== 'idle' && a.playState !== 'finished').length,
+          started,
+        )
+        expect(left, 'animations left behind').toBe(0)
+        await expect(page.locator('.guide-tap-ring, .guide-flip-ghosts > *')).toHaveCount(0)
+      })
+    }
+  }
+
   test('guideFlip_readsLayoutOncePerStepChange_neverPerFrame', async ({ page }) => {
     // Every box read inside the picture's phone, counted.
     await page.addInitScript(() => {
@@ -571,12 +665,13 @@ test.describe('with motion on', () => {
     const at = await heldToday(page, 'POWERLIFTING')
     const reads = () => page.evaluate(() => (window as unknown as { __guideReads: number }).__guideReads)
     const steps = grit.guideSteps('TODAY', 'POWERLIFTING')
+    const ticked = steps.indexOf('TODAY_TICKED')
     for (let i = 1; i < steps.length; i++) {
       await at(grit.guideStepStartMs(i) - 30)
       const held = await reads()
-      // The step change: its boxes read before and after the commit, once each. (A step after a tap ring comes on the
-      // first frame past its start, the ring running on frames: a frame's time is allowed.)
-      await at(grit.guideStepStartMs(i) + FRAME_MS)
+      // The step change: its boxes read before and after the commit, once each. Each comes on time, 1 ms past its
+      // start; only the step after the tap ring comes on the first frame past its start (the ring runs on frames).
+      await at(grit.guideStepStartMs(i) + (i === ticked ? FRAME_MS : 1))
       await expect(picture(page)).toHaveAttribute('data-step', steps[i]!)
       const change = (await reads()) - held
       expect(change, `${steps[i]}: reads at the step change`).toBeGreaterThan(0)
