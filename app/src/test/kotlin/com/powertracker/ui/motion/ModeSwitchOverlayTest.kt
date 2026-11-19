@@ -32,6 +32,7 @@ import com.powertracker.data.BackupService
 import com.powertracker.data.SettingsRepository
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.motion.ModeSwitchMotion
+import com.powertracker.domain.motion.Point
 import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.ModeTheme
 import com.powertracker.ui.plan.SettingsScreen
@@ -52,6 +53,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowLooper
 import java.io.File
 import kotlin.math.abs
 
@@ -545,8 +547,9 @@ class ModeSwitchOverlayTest {
     }
 
     /**
-     * Every frame of both animations keeps time: the overlay's draw takes under 16 ms on every frame of the drop and the
-     * pump, the moment included, under Robolectric's frame clock and after two warm-up runs (a phone's code is compiled
+     * Every frame of both animations keeps time: the overlay's draw and the reveal's (recording the old side, then drawing
+     * its picture outside the circle) take under 16 ms together on every frame of the drop and the pump, the moment
+     * included, and the reveal is drawn, under Robolectric's frame clock and after two warm-up runs (a phone's code is compiled
      * ahead of time). Robolectric runs no draw pass of its own, so each frame is drawn here, recorded as a phone's main
      * thread records it. A slow draw must repeat in a second measured pair to fail, so one pause of the test's own JVM
      * does not. The whole frame's wall time (the clock step, recomposition, layout and the draw), and the frame
@@ -557,11 +560,17 @@ class ModeSwitchOverlayTest {
     fun framesKeepTime_dropAndPump() {
         show()
         val view = (compose.onRoot().fetchSemanticsNode().root as ViewRootForTest).view
+        // Each frame's draw: the overlay's, plus the reveal's (recording the old side once, then drawing it outside the
+        // circle), summed over the frame.
         val draws = mutableListOf<Long>()
-        ModeSwitchProbe.onDraw = { draws += it }
-        class Run(val draws: List<Long>, val frames: List<Long>, val moment: Long)
+        var overlayNs = 0L
+        var revealNs = 0L
+        ModeSwitchProbe.onDraw = { overlayNs += it }
+        ModeSwitchProbe.onReveal = { revealNs += it }
+        class Run(val draws: List<Long>, val frames: List<Long>, val moment: Long, val reveals: Int)
         fun runOnce(): Run {
             draws.clear()
+            ModeSwitchProbe.reveals = 0
             val frames = mutableListOf<Long>()
             var moment = 0L
             compose.mainClock.autoAdvance = false
@@ -574,14 +583,17 @@ class ModeSwitchOverlayTest {
                 frame()
                 val took = System.nanoTime() - start
                 if (before < kind.moment && (controller.kind == null || controller.tMs >= kind.moment)) moment = took else frames += took
+                overlayNs = 0L
+                revealNs = 0L
                 val picture = android.graphics.Picture()
                 view.draw(picture.beginRecording(view.width, view.height))
                 picture.endRecording()
+                if (overlayNs > 0L) draws += overlayNs + revealNs
                 if (!controller.artReady) compose.waitUntil(2_000) { controller.kind == null || controller.artReady }
             }
             compose.mainClock.autoAdvance = true
             compose.waitForIdle()
-            return Run(draws.toList(), frames, moment)
+            return Run(draws.toList(), frames, moment, ModeSwitchProbe.reveals)
         }
         runOnce(); runOnce()
         // A pause of the test's own JVM (a collection after the other tests in this class) is not the draw's: a slow
@@ -593,12 +605,14 @@ class ModeSwitchOverlayTest {
             val pump = runOnce()
             assertTrue("drop frames drawn: ${drop.draws.size}", drop.draws.size > 50)
             assertTrue("pump frames drawn: ${pump.draws.size}", pump.draws.size > 60)
+            assertTrue("the drop's reveal drew the old side: ${drop.reveals} frames", drop.reveals > 0)
+            assertTrue("the pump's reveal drew the old side: ${pump.reveals} frames", pump.reveals > 0)
             slowestDraw = (drop.draws + pump.draws).max() / 1_000_000.0
             val slowestFrame = (drop.frames + pump.frames).max() / 1_000_000.0
-            println("attempt $attempt: slowest overlay draw $slowestDraw ms; slowest frame $slowestFrame ms; the moment: drop ${drop.moment / 1e6} ms, pump ${pump.moment / 1e6} ms")
+            println("attempt $attempt: slowest overlay and reveal draw $slowestDraw ms; slowest frame $slowestFrame ms; the moment: drop ${drop.moment / 1e6} ms, pump ${pump.moment / 1e6} ms")
             if (slowestDraw < 16.0) break
         }
-        assertTrue("slowest overlay draw $slowestDraw ms", slowestDraw < 16.0)
+        assertTrue("slowest overlay and reveal draw $slowestDraw ms", slowestDraw < 16.0)
     }
 
     @Test
@@ -626,48 +640,176 @@ class ModeSwitchOverlayTest {
 
     // ---- held frames for the owner ----
 
-    private fun shot(name: String, kind: ModeSwitchKind, at: Double, dark: Boolean) {
+    /** A held frame: as drawn, and (while the reveal is under way) drawn again with no reveal, the new side everywhere. */
+    private class Shot(val bitmap: Bitmap, val noReveal: Bitmap?, val widthDp: Double, val heightDp: Double, val source: Offset)
+
+    private fun capture(view: android.view.View): Bitmap =
+        Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888).also { view.draw(Canvas(it)) }
+
+    private fun shot(name: String, kind: ModeSwitchKind, at: Double, dark: Boolean): Shot {
         if (kind == ModeSwitchKind.PUMP) runBlocking { settings.update { it.copy(trainingMode = TrainingMode.POWERLIFTING) } }
         show(dark = dark)
         compose.mainClock.autoAdvance = false
         flip()
         val moment = if (kind == ModeSwitchKind.DROP) ModeSwitchMotion.DROP.impact else ModeSwitchMotion.PUMP.beats[2]
+        // Held before the wait, and before the window where the old side is recorded (a draw pass while waiting would
+        // record it then); then the stored write, so the switch in the shot says the new side, as the lifter sees it
+        // straight after the tap.
+        controller.hold(moment - 100)
+        waitStored(kind.target)
+        // ...and until the screen has it: the switch says the new side before the old side is recorded.
+        val want = if (kind.target == TrainingMode.BODYBUILDING) ToggleableState.On else ToggleableState.Off
+        val switchSays = { compose.onNodeWithTag("bodybuilding-mode").fetchSemanticsNode().config[SemanticsProperties.ToggleableState] }
+        for (i in 0 until 200) {
+            if (switchSays() == want) break
+            ShadowLooper.idleMainLooper()
+            frame()
+        }
+        assertEquals("the switch says the stored side", want, switchSays())
         val view = (compose.onRoot().fetchSemanticsNode().root as ViewRootForTest).view
-        controller.hold(moment - 30)
         frame()
         compose.waitUntil(5_000) { controller.artReady }
+        // The clock is held: these frames only let the switch's own thumb animation settle on the new side.
+        repeat(30) { frame() }
+        controller.hold(moment - 30)
         frame()
         // Robolectric runs no draw pass: this one is where a phone's frame would record the old side.
         view.draw(android.graphics.Picture().beginRecording(view.width, view.height))
         controller.hold(at)
         frame()
         frame()
-        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-        view.draw(Canvas(bitmap))
+        val bitmap = capture(view)
         assertEquals("412 dp wide at 2x", 824, bitmap.width)
         val corner = bitmap.getPixel(0, 0)
         val pixels = IntArray(bitmap.width * bitmap.height).also { bitmap.getPixels(it, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height) }
         assertTrue("$name rendered blank", pixels.count { it != corner } > pixels.size / 20)
+        val g = controller.geometry!!
+        val src = controller.pumpSource()
+        val underWay = if (kind == ModeSwitchKind.DROP) ModeSwitchMotion.dropFrame(at, g.widthDp, g.heightDp).let { it.revealRadius > 0 && !it.revealFull }
+        else ModeSwitchMotion.pumpFrame(at, g.widthDp, g.heightDp, src).let { it.floodRadius > 0 && !it.floodFull }
+        var noReveal: Bitmap? = null
+        if (underWay) {
+            ModeSwitchProbe.revealOff.value = true
+            frame()
+            noReveal = capture(view)
+            ModeSwitchProbe.revealOff.value = false
+            frame()
+        }
         val dir = File("build/screenshots").apply { mkdirs() }
         File(dir, "$name-${if (dark) "dark" else "light"}.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         compose.mainClock.autoAdvance = true
+        return Shot(bitmap, noReveal, g.widthDp, g.heightDp, Offset(src.x.toFloat(), src.y.toFloat()))
+    }
+
+    private val Int.r get() = (this shr 16) and 0xFF
+    private val Int.g get() = (this shr 8) and 0xFF
+    private val Int.b get() = this and 0xFF
+
+    /**
+     * The reveal drew the old side outside its circle: against the same frame with no reveal, pixels well outside the
+     * circle differ (the old side's rows are not the new side's), and pixels well inside are the same. [band] dp either
+     * side of the edge is left out: the drop's circle moves with the shake.
+     */
+    private fun assertRevealed(s: Shot, centreDp: Offset, radiusDp: Double, band: Double) {
+        val plain = assertNotNull("the reveal is under way", s.noReveal).let { s.noReveal!! }
+        var outside = 0
+        var outsideDiffer = 0
+        var inside = 0
+        var insideDiffer = 0
+        for (y in 0 until s.bitmap.height step 6) for (x in 0 until s.bitmap.width step 6) {
+            val d = kotlin.math.hypot(x / 2.0 - centreDp.x, y / 2.0 - centreDp.y)
+            val a = s.bitmap.getPixel(x, y)
+            val b = plain.getPixel(x, y)
+            val differs = abs(a.r - b.r) + abs(a.g - b.g) + abs(a.b - b.b) > 6
+            if (d > radiusDp + band) {
+                outside++
+                if (differs) outsideDiffer++
+            } else if (d < radiusDp - band) {
+                inside++
+                if (differs) insideDiffer++
+            }
+        }
+        assertTrue("outside the circle, the old side: $outsideDiffer of $outside pixels differ from the new side", outside > 0 && outsideDiffer > outside / 20)
+        assertTrue("inside the circle, the new side: $insideDiffer of $inside differ", inside > 0 && insideDiffer == 0)
     }
 
     @Test
-    fun shot_dropAtImpact_dark() = shot("mode-switch-drop-impact", ModeSwitchKind.DROP, ModeSwitchMotion.DROP.impact + 20, dark = true)
+    fun shot_dropAtImpact_dark() {
+        val at = ModeSwitchMotion.DROP.impact + 20
+        val s = shot("mode-switch-drop-impact", ModeSwitchKind.DROP, at, dark = true)
+        val f = ModeSwitchMotion.dropFrame(at, s.widthDp, s.heightDp)
+        assertRevealed(s, Offset(f.hitX.toFloat(), f.hitY.toFloat()), f.revealRadius, band = 40.0)
+    }
 
     @Test
-    fun shot_dropAtImpact_light() = shot("mode-switch-drop-impact", ModeSwitchKind.DROP, ModeSwitchMotion.DROP.impact + 20, dark = false)
+    fun shot_dropAtImpact_light() {
+        val at = ModeSwitchMotion.DROP.impact + 20
+        val s = shot("mode-switch-drop-impact", ModeSwitchKind.DROP, at, dark = false)
+        val f = ModeSwitchMotion.dropFrame(at, s.widthDp, s.heightDp)
+        assertRevealed(s, Offset(f.hitX.toFloat(), f.hitY.toFloat()), f.revealRadius, band = 40.0)
+        // Light: ring 1 is dark, so it reads over the punch and once it has gone (the prototype's near-white would be
+        // brighter than anything round it here). Sampled on the ring, across its upper half.
+        val samples = (235..305 step 7).map { deg ->
+            val a = Math.toRadians(deg.toDouble())
+            val p = s.bitmap.getPixel(((f.hitX + kotlin.math.cos(a) * f.ring1.radius) * 2).toInt(), ((f.hitY + kotlin.math.sin(a) * f.ring1.radius) * 2).toInt())
+            (p.r + p.g + p.b) / 3
+        }
+        assertTrue("ring 1 in light is dark: $samples", samples.count { it < 110 } >= samples.size * 3 / 4)
+    }
 
     @Test
-    fun shot_dropStamp_dark() = shot("mode-switch-drop-stamp", ModeSwitchKind.DROP, ModeSwitchMotion.DROP.impact + 200, dark = true)
+    fun shot_dropStamp_dark() {
+        shot("mode-switch-drop-stamp", ModeSwitchKind.DROP, ModeSwitchMotion.DROP.impact + 200, dark = true)
+    }
 
     @Test
-    fun shot_dropStamp_light() = shot("mode-switch-drop-stamp", ModeSwitchKind.DROP, ModeSwitchMotion.DROP.impact + 200, dark = false)
+    fun shot_dropStamp_light() {
+        val at = ModeSwitchMotion.DROP.impact + 200
+        val s = shot("mode-switch-drop-stamp", ModeSwitchKind.DROP, at, dark = false)
+        // Light, once the punch has gone: the sparks still alive are the darker orange, not the pale one.
+        val f = ModeSwitchMotion.dropFrame(at, s.widthDp, s.heightDp)
+        val strong = f.sparks.filter { it.opacity > .45 && (it.x1 + it.x2) in 0.0..(s.bitmap.width - 1.0) && (it.y1 + it.y2) in 0.0..(s.bitmap.height - 1.0) }
+        assertTrue("sparks alive at $at", strong.size >= 3)
+        val orange = strong.count { sp ->
+            val p = s.bitmap.getPixel(((sp.x1 + sp.x2)).toInt(), ((sp.y1 + sp.y2)).toInt())
+            p.r - p.b > 60 && p.b < 150
+        }
+        assertTrue("sparks drawn dark orange: $orange of ${strong.size}", orange >= strong.size / 2)
+    }
 
     @Test
-    fun shot_pumpAtThirdBeat_dark() = shot("mode-switch-pump-third-beat", ModeSwitchKind.PUMP, ModeSwitchMotion.PUMP.beats[2] + 120, dark = true)
+    fun shot_pumpAtThirdBeat_dark() {
+        val at = ModeSwitchMotion.PUMP.beats[2] + 120
+        val s = shot("mode-switch-pump-third-beat", ModeSwitchKind.PUMP, at, dark = true)
+        val f = ModeSwitchMotion.pumpFrame(at, s.widthDp, s.heightDp, Point(s.source.x.toDouble(), s.source.y.toDouble()))
+        // The flood's circle scales with the content (about 2% here), so it sits up to about 13 dp off the frame's.
+        assertRevealed(s, s.source, f.floodRadius, band = 24.0)
+    }
 
     @Test
-    fun shot_pumpAtThirdBeat_light() = shot("mode-switch-pump-third-beat", ModeSwitchKind.PUMP, ModeSwitchMotion.PUMP.beats[2] + 120, dark = false)
+    fun shot_pumpAtThirdBeat_light() {
+        val at = ModeSwitchMotion.PUMP.beats[2] + 120
+        val s = shot("mode-switch-pump-third-beat", ModeSwitchKind.PUMP, at, dark = false)
+        val src = Point(s.source.x.toDouble(), s.source.y.toDouble())
+        val f = ModeSwitchMotion.pumpFrame(at, s.widthDp, s.heightDp, src)
+        // The flood's circle scales with the content (about 2% here), so it sits up to about 13 dp off the frame's.
+        assertRevealed(s, s.source, f.floodRadius, band = 24.0)
+        // Light: the core veins carry their navy edge. Near a point on each main vein (where its second and third
+        // steps meet), a navy pixel.
+        val num = Regex("-?\\d+(\\.\\d+)?")
+        val mains = ModeSwitchMotion.veins(s.widthDp, s.heightDp, src).filter { it.layer == com.powertracker.domain.motion.VeinPath.LAYER_PULSE }
+        val edged = mains.count { v ->
+            val n = num.findAll(v.d).map { it.value.toDouble() }.toList()
+            val cx = (n[10] * 2).toInt()
+            val cy = (n[11] * 2).toInt()
+            (-12..12).any { dy ->
+                (-12..12).any { dx ->
+                    val x = cx + dx
+                    val y = cy + dy
+                    x in 0 until s.bitmap.width && y in 0 until s.bitmap.height && s.bitmap.getPixel(x, y).let { p -> p.b - p.r > 50 && p.r < 120 }
+                }
+            }
+        }
+        assertTrue("navy edges by $edged of ${mains.size} main veins", edged >= mains.size / 2)
+    }
 }

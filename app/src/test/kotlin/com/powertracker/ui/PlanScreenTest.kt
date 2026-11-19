@@ -1040,6 +1040,86 @@ class PlanScreenTest {
         assertTrue(plan().isEmpty())
     }
 
+    /**
+     * A failed Add is said once, over the add form, and not by Plan's own snackbar under it as well: every copy anywhere
+     * is counted, frame by frame, while the message runs its course (1.15, as Change already does).
+     */
+    @Test
+    fun planAdd_addFails_saidOnceOverTheForm_notByPlanToo() {
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_plan_insert BEFORE INSERT ON plan_item BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        addButton().performClick()
+        waitFor { copies() > 0 }
+        val first = copyNodes()
+        assertEquals("one copy (${whereTheMessageIs()})", 1, first.size)
+        assertTrue("over the add form", inAPopup(first.single()))
+        compose.mainClock.autoAdvance = false
+        try {
+            var appearances = 1
+            var most = 1
+            var lastIds = first.map { it.id }.toSet()
+            repeat(6_000 / 16) {
+                compose.mainClock.advanceTimeByFrame()
+                val nodes = copyNodes()
+                most = maxOf(most, nodes.size)
+                val ids = nodes.map { it.id }.toSet()
+                appearances += (ids - lastIds).size
+                lastIds = ids
+            }
+            assertEquals("never two at once", 1, most)
+            assertEquals("said once", 1, appearances)
+        } finally {
+            compose.mainClock.autoAdvance = true
+        }
+        assertAddForm("Squat")
+        assertTrue(plan().isEmpty())
+    }
+
+    /** An Add that fails once the form has gone (Cancel while it was saving): nobody else can say it, so Plan does, once. */
+    @Test
+    fun planAdd_addFails_afterTheFormWasCancelled_planSaysSoOnce() {
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_plan_insert BEFORE INSERT ON plan_item BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat", stayInTheTapWindow = false)
+        val release = database.holdWork()
+        try {
+            val add = click(hasText("Add") and hasAnyAncestor(isDialog()))
+            val cancel = click(hasText("Cancel") and hasAnyAncestor(isDialog()))
+            compose.runOnUiThread {
+                add()
+                cancel()
+            }
+            waitFor { !exists(isDialog()) }
+        } finally {
+            release()
+        }
+        waitFor { copies() == 1 }
+        val node = copyNodes().single()
+        assertTrue("in Plan's own snackbar", !inAPopup(node))
+        compose.mainClock.autoAdvance = false
+        try {
+            var appearances = 1
+            var lastIds = setOf(node.id)
+            repeat(6_000 / 16) {
+                compose.mainClock.advanceTimeByFrame()
+                val ids = copyNodes().map { it.id }.toSet()
+                appearances += (ids - lastIds).size
+                lastIds = ids
+            }
+            assertEquals("Plan says it once", 1, appearances)
+        } finally {
+            compose.mainClock.autoAdvance = true
+        }
+        assertTrue(plan().isEmpty())
+    }
+
     @Test
     fun planEdit_saveFails_formClosed_planSaysSo() {
         val squat = squatId()

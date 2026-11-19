@@ -290,7 +290,8 @@ fun PlanScreen(
             )
         }
         is PlanDialog.AddDetails -> {
-            // Failed Adds: the form says each one over itself, since Plan's snackbar is under its scrim.
+            // Failed Adds: the form says each one over itself, since Plan's snackbar is under its scrim, and Plan does not
+            // say it too. One that comes once the form has gone (Cancel while it was saving) is Plan's to say.
             var addFailures by remember { mutableIntStateOf(0) }
             PlanItemDialog(
                 title = "Add to ${dayName(d.day)}",
@@ -315,8 +316,12 @@ fun PlanScreen(
                                 haptics.tick()
                             },
                             onFailed = {
-                                if (dialog == saving) dialog = open
-                                addFailures++
+                                if (dialog == saving) {
+                                    dialog = open
+                                    addFailures++
+                                } else {
+                                    viewModel.saySaveFailed()
+                                }
                             },
                         )
                     }

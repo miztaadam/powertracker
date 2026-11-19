@@ -8,9 +8,11 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.os.VibrationAttributes
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import androidx.annotation.RequiresApi
 import com.powertracker.R
 import com.powertracker.domain.motion.ModeSwitchMotion
 
@@ -83,16 +85,36 @@ interface ModeSwitchVibrator {
     fun cancel()
 }
 
-private class AndroidVibrator(private val vibrator: Vibrator) : ModeSwitchVibrator {
+/**
+ * The phone's vibrator. On Android 13 and later every vibration says it is media ([MODE_SWITCH_VIBRATION_USAGE]), so the
+ * system does not take it for touch feedback: an app's vibration with no usage that is short enough to look like haptic
+ * feedback (the skip's tick, for one) is treated as touch, and turning touch feedback off mutes those. Media vibration
+ * has its own system switch ("Media vibration", on by default) and is not muted by touch feedback, by the app's
+ * "Vibrate on taps", or by silent mode. The system's master vibration switch, battery saver and the app being in the
+ * background still mute it. Before Android 13 the call is as it was, with no usage.
+ */
+internal class AndroidVibrator(private val vibrator: Vibrator) : ModeSwitchVibrator {
     override val hasVibrator get() = vibrator.hasVibrator()
     override val hasAmplitudeControl get() = vibrator.hasAmplitudeControl()
 
     override fun vibrate(waveform: ModeSwitchWaveform) {
         val amps = waveform.amplitudes
-        vibrator.vibrate(if (amps != null) VibrationEffect.createWaveform(waveform.timings, amps, -1) else VibrationEffect.createWaveform(waveform.timings, -1))
+        val effect = if (amps != null) VibrationEffect.createWaveform(waveform.timings, amps, -1) else VibrationEffect.createWaveform(waveform.timings, -1)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) MediaVibration.vibrate(vibrator, effect) else vibrator.vibrate(effect)
     }
 
     override fun cancel() = vibrator.cancel()
+}
+
+/** The usage the mode switch's vibrations carry on Android 13 and later (see [AndroidVibrator]). */
+const val MODE_SWITCH_VIBRATION_USAGE = VibrationAttributes.USAGE_MEDIA
+
+/** Kept apart, so the Android 13 class is only reached there. */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private object MediaVibration {
+    private val attributes by lazy { VibrationAttributes.createForUsage(MODE_SWITCH_VIBRATION_USAGE) }
+
+    fun vibrate(vibrator: Vibrator, effect: VibrationEffect) = vibrator.vibrate(effect, attributes)
 }
 
 private fun systemVibrator(context: Context): ModeSwitchVibrator? = runCatching {

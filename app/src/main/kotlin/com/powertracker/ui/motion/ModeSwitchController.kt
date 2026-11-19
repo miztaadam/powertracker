@@ -274,13 +274,25 @@ class ModeSwitchController(
 /** The app's controller, provided by the theme host; null outside the app (previews, showcases, most tests). */
 val LocalModeSwitch = staticCompositionLocalOf<ModeSwitchController?> { null }
 
-/** For tests: counts of work done, and each overlay frame's draw time. */
+/** For tests: counts of work done, each overlay frame's draw time and each reveal's, and the reveal turned off. */
 internal object ModeSwitchProbe {
     @Volatile var frames = 0
     var onDraw: ((Long) -> Unit)? = null
 
+    /** The reveal's work in a frame (recording the old side, or drawing it outside the circle), in ns. */
+    var onReveal: ((Long) -> Unit)? = null
+
+    /** How many frames have drawn the old side's picture outside the circle. */
+    var reveals = 0
+
+    /** Draws the content with no reveal (the new side everywhere), to compare a held frame with. */
+    val revealOff = androidx.compose.runtime.mutableStateOf(false)
+
     fun reset() {
         frames = 0
         onDraw = null
+        onReveal = null
+        reveals = 0
+        revealOff.value = false
     }
 }

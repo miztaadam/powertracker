@@ -3,6 +3,7 @@ package com.powertracker.ui.motion
 import android.content.Context
 import android.media.AudioManager
 import android.media.SoundPool
+import android.os.VibrationAttributes
 import android.os.Vibrator
 import androidx.test.core.app.ApplicationProvider
 import com.powertracker.R
@@ -193,20 +194,40 @@ class ModeSwitchFeedbackTest {
     @Test
     fun silentMode_playsNoSound_butStillVibrates() {
         val audio = context.getSystemService(AudioManager::class.java)
-        audio.ringerMode = AudioManager.RINGER_MODE_SILENT
         try {
-            lateinit var pool: SoundPool
-            val v = FakeVibrator()
-            val fb = AndroidModeSwitchFeedback(context, vibrator = { v }, soundPool = { defaultSoundPool().also { pool = it } })
-            fb.start(ModeSwitchKind.DROP)
-            runCatching { shadowOf(pool).notifyResourceLoaded(R.raw.grit_hammer_drop, true) }
-            ShadowLooper.idleMainLooper()
-            assertTrue(runCatching { !shadowOf(pool).wasResourcePlayed(R.raw.grit_hammer_drop) }.getOrDefault(true))
-            assertEquals(1, v.played.size)
-            fb.release()
+            // Normal first, the control: the same steps play the sound there.
+            for (silent in listOf(false, true)) {
+                audio.ringerMode = if (silent) AudioManager.RINGER_MODE_SILENT else AudioManager.RINGER_MODE_NORMAL
+                lateinit var pool: SoundPool
+                val v = FakeVibrator()
+                val fb = AndroidModeSwitchFeedback(context, vibrator = { v }, soundPool = { defaultSoundPool().also { pool = it } })
+                fb.prefetch(ModeSwitchKind.DROP)
+                shadowOf(pool).notifyResourceLoaded(R.raw.grit_hammer_drop, true)
+                ShadowLooper.idleMainLooper()
+                fb.start(ModeSwitchKind.DROP)
+                assertEquals(if (silent) "silent: no sound" else "normal: the sound", !silent, shadowOf(pool).wasResourcePlayed(R.raw.grit_hammer_drop))
+                assertEquals("it vibrates either way", 1, v.played.size)
+                fb.release()
+            }
         } finally {
             audio.ringerMode = AudioManager.RINGER_MODE_NORMAL
         }
+    }
+
+    @Test
+    fun theRealVibrator_saysItIsMedia_soTouchFeedbackOffDoesNotMuteIt() {
+        val shadow = shadowOf(context.getSystemService(Vibrator::class.java))
+        shadow.setHasVibrator(true)
+        shadow.setHasAmplitudeControl(true)
+        val fb = AndroidModeSwitchFeedback(context)
+        fb.start(ModeSwitchKind.PUMP)
+        assertEquals(VibrationAttributes.USAGE_MEDIA, (shadow.vibrationAttributesFromLastVibration as VibrationAttributes).usage)
+        // The skip's tick too: 40 ms with no usage is what the system takes for touch feedback.
+        fb.skip()
+        assertTrue(shadow.isVibrating)
+        assertEquals(40L, shadow.milliseconds)
+        assertEquals(VibrationAttributes.USAGE_MEDIA, (shadow.vibrationAttributesFromLastVibration as VibrationAttributes).usage)
+        fb.release()
     }
 
     @Test

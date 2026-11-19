@@ -159,7 +159,12 @@ fun ModeSwitchHost(content: @Composable () -> Unit) {
                         null -> Unit
                     }
                 }
-                .drawWithContent { drawRevealed(controller, reveal, density) { drawContent() } },
+                .drawWithContent {
+                    val probe = ModeSwitchProbe.onReveal
+                    val start = if (probe != null) System.nanoTime() else 0L
+                    drawRevealed(controller, reveal, density) { drawContent() }
+                    probe?.invoke(System.nanoTime() - start)
+                },
         ) {
             Box(Modifier.fillMaxSize().graphicsLayer()) { content() }
         }
@@ -261,9 +266,10 @@ private inline fun androidx.compose.ui.graphics.drawscope.ContentDrawScope.drawR
     val picture = reveal.picture.takeIf { reveal.forRun == run }
     if (full) {
         reveal.picture = null
-    } else if (picture != null) {
+    } else if (picture != null && !ModeSwitchProbe.revealOff.value) {
         val circle = Path().apply { addOval(androidx.compose.ui.geometry.Rect(centre, (radius * density).toFloat())) }
         clipPath(circle, ClipOp.Difference) { drawIntoCanvas { it.nativeCanvas.drawPicture(picture) } }
+        ModeSwitchProbe.reveals++
     }
 }
 
@@ -410,7 +416,13 @@ private class HammerArt(val shapes: List<Shape>, val rune: Shape)
 
 private val HAMMER_ART: HammerArt by lazy { HammerArt(ModeSwitchMotion.HAMMER_PATHS.map(::shapeOf), shapeOf(ModeSwitchMotion.HAMMER_RUNE)) }
 
-private class DropArt(val hammer: HammerArt, val cracks: List<Partial>, val burst: Path, val chalk: Array<Pair<Float, Color>>)
+private class DropArt(
+    val hammer: HammerArt,
+    val cracks: List<Partial>,
+    val burst: Path,
+    val chalk: Array<Pair<Float, Color>>,
+    val chalkLight: Array<Pair<Float, Color>>,
+)
 
 private fun buildDropArt(w: Double, h: Double): DropArt {
     val hit = ModeSwitchMotion.hitPoint(w, h)
@@ -420,7 +432,8 @@ private fun buildDropArt(w: Double, h: Double): DropArt {
         close()
     }
     val chalk = GRADIENT_BY_ID.getValue("gChalk").stops.map { it.offset.toFloat() to hex(it.color).copy(alpha = it.opacity.toFloat()) }.toTypedArray()
-    return DropArt(HAMMER_ART, cracks, burst, chalk)
+    val chalkLight = ModeSwitchMotion.LightColors.CHALK.map { it.offset.toFloat() to hex(it.color).copy(alpha = it.opacity.toFloat()) }.toTypedArray()
+    return DropArt(HAMMER_ART, cracks, burst, chalk, chalkLight)
 }
 
 private class Vein(val partial: Partial, val layer: String, val swell: Boolean, val d0: Double, val len: Double)
@@ -437,7 +450,6 @@ private fun buildPumpArt(w: Double, h: Double, src: Point): PumpArt {
 
 private val SHADOW = hex(ModeSwitchMotion.Colors.SHADOW)
 private val FLASH = hex(ModeSwitchMotion.Colors.FLASH)
-private val FLASH_LIGHT = hex(ModeSwitchMotion.Colors.FLASH_LIGHT)
 private val RING1 = hex(ModeSwitchMotion.Colors.RING1)
 private val RING2 = hex(ModeSwitchMotion.Colors.RING2)
 private val BURST = hex(ModeSwitchMotion.Colors.BURST)
@@ -448,9 +460,14 @@ private val EDGE = hex(ModeSwitchMotion.Colors.EDGE)
 private val EDGE_SOFT = hex(ModeSwitchMotion.Colors.EDGE_SOFT)
 private val NODE = hex(ModeSwitchMotion.Colors.NODE)
 
-/** The darker edge the light scheme gives the cracks, the chalk and the veins (spec "Settled" 1). */
-private val LIGHT_EDGE = Color(0xFF2A2E33)
-private val LIGHT_VEIN_EDGE = Color(0xFF123063)
+/** The light scheme's effects (spec "Settled" 1): the domain's one set, the web's too. */
+private object Light {
+    val FLASH = hex(ModeSwitchMotion.LightColors.FLASH)
+    val RING1 = hex(ModeSwitchMotion.LightColors.RING1)
+    val SPARK = hex(ModeSwitchMotion.LightColors.SPARK)
+    val BURST_EDGE = hex(ModeSwitchMotion.LightColors.BURST_EDGE)
+    val VEIN_EDGE = hex(ModeSwitchMotion.LightColors.VEIN_EDGE)
+}
 
 private val layerPaint = Paint()
 
@@ -495,15 +512,15 @@ private fun DrawScope.drawDrop(f: DropFrame, art: DropArt?, light: Boolean) {
             val drawn = f.crackDrawn.toFloat()
             for (c in art.cracks) {
                 // The dark edge under each crack, stronger in light so the crack reads on a pale screen.
-                val alpha = if (light && c.color == SHADOW) .9f else c.alpha
+                val alpha = if (light && c.color == SHADOW) ModeSwitchMotion.LightColors.CRACK_SHADOW_OPACITY.toFloat() else c.alpha
                 drawPath(c.cut(0f, drawn), c.color, alpha = alpha, style = Stroke(c.width, cap = StrokeCap.Round, join = StrokeJoin.Round))
             }
         }
     }
     if (f.flashOpacity > 0) {
-        if (light) drawRect(FLASH_LIGHT, alpha = (f.flashOpacity * .5).toFloat()) else drawRect(FLASH, alpha = f.flashOpacity.toFloat())
+        if (light) drawRect(Light.FLASH, alpha = (f.flashOpacity * ModeSwitchMotion.LightColors.FLASH_OPACITY_SCALE).toFloat()) else drawRect(FLASH, alpha = f.flashOpacity.toFloat())
     }
-    for ((ring, color) in listOf(f.ring1 to RING1, f.ring2 to RING2)) {
+    for ((ring, color) in listOf(f.ring1 to (if (light) Light.RING1 else RING1), f.ring2 to RING2)) {
         if (ring.opacity > 0) drawCircle(color, ring.radius.toFloat(), hit, alpha = ring.opacity.toFloat(), style = Stroke(ring.strokeWidth.toFloat()))
     }
     if (art != null) {
@@ -511,13 +528,17 @@ private fun DrawScope.drawDrop(f: DropFrame, art: DropArt?, light: Boolean) {
             if (d.opacity <= 0 || d.r <= 0) continue
             val c = Offset(d.cx.toFloat(), d.cy.toFloat())
             val r = d.r.toFloat()
-            drawCircle(Brush.radialGradient(*art.chalk, center = c, radius = r), r, c, alpha = d.opacity.toFloat())
-            if (light) drawCircle(LIGHT_EDGE, r * .7f, c, alpha = (d.opacity * .45).toFloat(), style = Stroke(1f))
+            drawCircle(Brush.radialGradient(*(if (light) art.chalkLight else art.chalk), center = c, radius = r), r, c, alpha = d.opacity.toFloat())
         }
     }
     if (art != null && f.burstOpacity > 0) {
         translate(hit.x, hit.y) {
-            scale(f.burstScale.toFloat(), pivot = Offset.Zero) { drawPath(art.burst, BURST, alpha = f.burstOpacity.toFloat()) }
+            scale(f.burstScale.toFloat(), pivot = Offset.Zero) {
+                drawPath(art.burst, BURST, alpha = f.burstOpacity.toFloat())
+                if (light) {
+                    drawPath(art.burst, Light.BURST_EDGE, alpha = f.burstOpacity.toFloat(), style = Stroke(ModeSwitchMotion.LightColors.BURST_EDGE_WIDTH.toFloat(), join = StrokeJoin.Round))
+                }
+            }
         }
     }
     if (art != null) {
@@ -526,7 +547,7 @@ private fun DrawScope.drawDrop(f: DropFrame, art: DropArt?, light: Boolean) {
     }
     for (s in f.sparks) {
         if (s.opacity <= 0) continue
-        drawLine(SPARK, Offset(s.x1.toFloat(), s.y1.toFloat()), Offset(s.x2.toFloat(), s.y2.toFloat()), ModeSwitchMotion.SPARK_WIDTH.toFloat(), StrokeCap.Round, alpha = s.opacity.toFloat())
+        drawLine(if (light) Light.SPARK else SPARK, Offset(s.x1.toFloat(), s.y1.toFloat()), Offset(s.x2.toFloat(), s.y2.toFloat()), ModeSwitchMotion.SPARK_WIDTH.toFloat(), StrokeCap.Round, alpha = s.opacity.toFloat())
     }
 }
 
@@ -549,12 +570,17 @@ private fun DrawScope.drawPump(f: PumpFrame, art: PumpArt?, light: Boolean) {
     val front = f.veinFront
     group(f.veinsOpacity.toFloat()) {
         group(f.glowLayerOpacity.toFloat()) {
-            for (v in art.veins) if (v.layer == VeinPath.LAYER_GLOW) drawVein(v, front, f.veinWidthScale, null)
+            for (v in art.veins) if (v.layer == VeinPath.LAYER_GLOW) drawVein(v, front, f.veinWidthScale)
+        }
+        // Light: a navy edge under the core veins, one layer below them (as the web draws it).
+        if (light) {
+            group(ModeSwitchMotion.LightColors.VEIN_EDGE_OPACITY.toFloat()) {
+                for (v in art.veins) if (v.layer == VeinPath.LAYER_CORE) drawVeinEdge(v, front, f.veinWidthScale)
+            }
         }
         for (v in art.veins) {
             when (v.layer) {
-                VeinPath.LAYER_CORE -> drawVein(v, front, f.veinWidthScale, if (light) LIGHT_VEIN_EDGE else null)
-                VeinPath.LAYER_HOT -> drawVein(v, front, f.veinWidthScale, null)
+                VeinPath.LAYER_CORE, VeinPath.LAYER_HOT -> drawVein(v, front, f.veinWidthScale)
             }
         }
         for (n in art.nodes) {
@@ -573,12 +599,18 @@ private fun DrawScope.drawPump(f: PumpFrame, art: PumpArt?, light: Boolean) {
     }
 }
 
-private fun DrawScope.drawVein(v: Vein, front: Double, widthScale: Double, edge: Color?) {
+private fun DrawScope.drawVein(v: Vein, front: Double, widthScale: Double) {
     val progress = ModeSwitchMotion.veinProgress(front, v.d0, v.len).toFloat()
     if (progress <= 0f) return
     val p = v.partial
     val width = if (v.swell) (p.width * widthScale).toFloat() else p.width
-    val path = p.cut(0f, progress)
-    if (edge != null) drawPath(path, edge, alpha = .55f, style = Stroke(width + 1.6f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    drawPath(path, p.color, alpha = p.alpha, style = Stroke(width, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    drawPath(p.cut(0f, progress), p.color, alpha = p.alpha, style = Stroke(width, cap = StrokeCap.Round, join = StrokeJoin.Round))
+}
+
+/** The light scheme's edge under a core vein: the core again in navy, as wide as [ModeSwitchMotion.veinEdgeWidth]. */
+private fun DrawScope.drawVeinEdge(v: Vein, front: Double, widthScale: Double) {
+    val progress = ModeSwitchMotion.veinProgress(front, v.d0, v.len).toFloat()
+    if (progress <= 0f) return
+    val width = ModeSwitchMotion.veinEdgeWidth(v.partial.width.toDouble(), if (v.swell) widthScale else 1.0).toFloat()
+    drawPath(v.partial.cut(0f, progress), Light.VEIN_EDGE, style = Stroke(width, cap = StrokeCap.Round, join = StrokeJoin.Round))
 }
