@@ -2,6 +2,7 @@ import { grit, type JsPlanChange } from '../domain'
 import type { GritDb } from './db'
 import { planItemFromJs } from './mapping'
 import { sideOf, type PlanItemRow, type SetRow, type TrainingMode } from './schema'
+import { getSettings, updateSettings } from './settings'
 import { forgetPlanItems } from './skips'
 
 /**
@@ -97,18 +98,81 @@ export type NewPlanItem = { item: Unresolved<Omit<PlanItemRow, 'id' | 'order' | 
  * part-way leaves the old plan as it was. The other side's plan is never touched. The deleted items' skips stay, with
  * no plan item.
  */
-export function replacePlan(db: GritDb, mode: TrainingMode, items: readonly NewPlanItem[]): Promise<void> {
+export function replacePlan(db: GritDb, mode: TrainingMode, items: readonly NewPlanItem[]): Promise<number[]> {
   return db.transaction('rw', db.exercises, db.planItems, db.skips, async () => {
     const old = (await planFor(db, mode)).map((p) => p.id)
     await forgetPlanItems(db, old)
     await db.planItems.bulkDelete(old)
     const orders = new Map<number, number>()
+    const added: number[] = []
     for (const { item, catalogueName } of items) {
       const exerciseId = await exerciseFor(db, item.exerciseId, catalogueName)
       const order = orders.get(item.weekday) ?? 0
       orders.set(item.weekday, order + 1)
-      await db.planItems.add({ ...item, exerciseId, order, mode })
+      added.push((await db.planItems.add({ ...item, exerciseId, order, mode })) as number)
     }
+    return added
+  })
+}
+
+/**
+ * A side's plan as it was before a whole-plan replace (1.14.1), for Undo: its items as stored (ids, days, order and
+ * numbers), the skips that pointed at them, and the side's training days; `replacedBy` is the ids the replace added.
+ */
+export type PlanSnapshot = {
+  mode: TrainingMode
+  items: (PlanItemRow & { id: number })[]
+  skipLinks: { skipId: number; planItemId: number }[]
+  days: number[]
+  replacedBy: number[]
+}
+
+/** The side's training days as stored. */
+const daysOf = (settings: { trainingDays: number[]; bodybuildingTrainingDays: number[] }, mode: TrainingMode) =>
+  mode === 'BODYBUILDING' ? settings.bodybuildingTrainingDays : settings.trainingDays
+
+/**
+ * `mode`'s plan as it is now, to undo the replace about to run, or null when the side has no plan items (an empty
+ * side gets no Undo). Call it in the save's transaction, before the replace, with `db.planItems`, `db.skips` and
+ * `db.settings` in its scope; `replacedBy` is left empty for the caller to fill with what `replacePlan` returns.
+ */
+export async function planSnapshot(db: GritDb, mode: TrainingMode): Promise<PlanSnapshot | null> {
+  return db.transaction('r', db.planItems, db.skips, db.settings, async () => {
+    const items = (await planFor(db, mode)).sort((a, b) => a.id - b.id)
+    if (items.length === 0) return null
+    const skips = await db.skips.where('planItemId').anyOf(items.map((p) => p.id)).toArray()
+    const skipLinks = skips.map((s) => ({ skipId: s.id!, planItemId: s.planItemId! }))
+    return { mode, items, skipLinks, days: [...daysOf(await getSettings(db), mode)], replacedBy: [] }
+  })
+}
+
+/**
+ * Undo of a whole-plan replace (1.14.1), in one transaction: `mode`'s items that the replace added are deleted (their
+ * skips kept, with no plan item), the snapshot's items are added back with their ids, the skips that pointed at them
+ * and still have no plan item point at them again, and the side's training days are put back. Sessions, sets, advice,
+ * check-ins and skips made since are not touched, nor is the other side.
+ *
+ * Only the latest replace can be undone: if the side's items are no longer exactly the ones the replace added (an
+ * Undo already ran, another plan was saved, or an item was added or deleted), it is "stale" and nothing changes.
+ * A failure part-way rolls everything back and rejects.
+ */
+export function restorePlan(db: GritDb, mode: TrainingMode, snapshot: PlanSnapshot): Promise<'restored' | 'stale'> {
+  return db.transaction('rw', db.planItems, db.skips, db.settings, async () => {
+    if (snapshot.mode !== mode) return 'stale'
+    const current = (await planFor(db, mode)).map((p) => p.id)
+    const added = new Set(snapshot.replacedBy)
+    if (current.length !== added.size || current.some((id) => !added.has(id))) return 'stale'
+    await forgetPlanItems(db, current)
+    await db.planItems.bulkDelete(current)
+    // Added, not put: an id taken since fails the undo rather than overwriting that row.
+    await db.planItems.bulkAdd(snapshot.items.map((p) => ({ ...p })))
+    for (const { skipId, planItemId } of snapshot.skipLinks) {
+      const skip = await db.skips.get(skipId)
+      if (skip != null && skip.planItemId == null) await db.skips.update(skipId, { planItemId })
+    }
+    const days = [...snapshot.days]
+    await updateSettings(db, (s) => (mode === 'BODYBUILDING' ? { ...s, bodybuildingTrainingDays: days } : { ...s, trainingDays: days }))
+    return 'restored'
   })
 }
 

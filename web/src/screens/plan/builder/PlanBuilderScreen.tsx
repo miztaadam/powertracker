@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { GritDb } from '../../../db/db'
+import type { PlanSnapshot } from '../../../db/catalogue'
 import { grit, todayIso, type JsDraftExercise, type JsLibraryExercise, type JsPlanDraft } from '../../../domain'
 import { useExerciseBrowser } from '../../../state/exercisePicker'
 import { BUILDER_STEPS, DAY_COUNTS, pickKey, usePlanBuilder, type PlanBuilderActions, type PlanBuilderState } from '../../../state/usePlanBuilder'
@@ -29,8 +30,8 @@ export type PlanBuilderScreenProps = {
   db: GritDb
   /** Leaves the builder without saving: nothing is changed. Also where the powerlifting side is sent. */
   onLeave: () => void
-  /** After "Use this plan" has saved: back to Plan. */
-  onDone: () => void
+  /** After "Use this plan" has saved: back to Plan, with what its snackbar can Undo when a plan was replaced (1.14.1). */
+  onDone: (undo?: PlanSnapshot) => void
   /** The real clock, as `YYYY-MM-DD`. Default is the device's local date. */
   today?: () => string
 }
@@ -49,7 +50,7 @@ export function PlanBuilderScreen({ db, onLeave, onDone, today = todayIso }: Pla
   return <PlanBuilderContent state={builder} actions={builder} onLeave={onLeave} onDone={onDone} />
 }
 
-type ContentProps = { state: PlanBuilderState; actions: PlanBuilderActions; onLeave: () => void; onDone: () => void }
+type ContentProps = { state: PlanBuilderState; actions: PlanBuilderActions; onLeave: () => void; onDone: (undo?: PlanSnapshot) => void }
 
 function PlanBuilderContent({ state, actions, onLeave, onDone }: ContentProps) {
   const { step } = state
@@ -63,8 +64,9 @@ function PlanBuilderContent({ state, actions, onLeave, onDone }: ContentProps) {
     if (saving.current) return
     saving.current = true
     try {
-      await actions.save()
-      onDone()
+      const undo = await actions.save()
+      if (undo != null) onDone(undo)
+      else onDone()
     } catch {
       setFailed(true)
     } finally {

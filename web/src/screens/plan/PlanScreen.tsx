@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { restorePlan, type PlanSnapshot } from '../../db/catalogue'
 import type { GritDb } from '../../db/db'
 import { grit, todayIso } from '../../domain'
 import { haptic } from '../../platform/haptics'
@@ -16,6 +17,7 @@ import { ModeLabel } from '../../ui/components/ModeLabel'
 import { Snackbar } from '../../ui/components/Snackbar'
 import { slideName } from '../../ui/viewTransition'
 import { ExercisePicker } from '../library/ExercisePicker'
+import { UNDO } from '../today/SkipToday'
 import { InfoButton } from '../library/InfoButton'
 import { ADD_FORM_TAP_WINDOW_MS, BaselineDialog, PlanItemDialog } from './PlanDialogs'
 import './plan.css'
@@ -27,8 +29,11 @@ export type PlanScreenProps = {
   onBuildPlan?: () => void
   /** Opens the templates for the side shown (1.14), on both sides. Without it Plan offers no templates. */
   onChooseTemplate?: (mode: TrainingMode) => void
-  /** A message for the snackbar once (after a template is saved, "Plan set: …"); `onMessageShown` clears it. */
-  message?: string | null
+  /**
+   * A message for the snackbar once (after a template is saved, "Plan set: …"); `onMessageShown` clears it. With an
+   * `undo`, the snackbar offers Undo of that plan replace for its usual time (1.14.1).
+   */
+  message?: string | PlanMessage | null
   onMessageShown?: () => void
   /** The real clock, as `YYYY-MM-DD`. Default is the device's local date. */
   today?: () => string
@@ -37,7 +42,20 @@ export type PlanScreenProps = {
 /** The weekly template: one card per training day, then the known bests. */
 export function PlanScreen({ db, onOpenSettings, onBuildPlan, onChooseTemplate, message, onMessageShown, today = todayIso }: PlanScreenProps) {
   const plan = usePlan(db, today)
-  return <PlanContent state={plan} actions={plan} onOpenSettings={onOpenSettings} onBuildPlan={onBuildPlan} onChooseTemplate={onChooseTemplate} message={message} onMessageShown={onMessageShown} />
+  // The snapshot's own side, whichever side Plan is showing.
+  const undoReplace = (undo: PlanSnapshot) => restorePlan(db, undo.mode, undo)
+  return (
+    <PlanContent
+      state={plan}
+      actions={plan}
+      onOpenSettings={onOpenSettings}
+      onBuildPlan={onBuildPlan}
+      onChooseTemplate={onChooseTemplate}
+      message={message}
+      onMessageShown={onMessageShown}
+      onUndoReplace={undoReplace}
+    />
+  )
 }
 
 /** An item's reps: "5", or a range "8–12" on the bodybuilding side. */
@@ -56,6 +74,18 @@ export const EMPTY_POWERLIFTING_PLAN = 'Your plan is empty. Start from a templat
 
 export const CHOOSE_A_TEMPLATE = 'Choose a template'
 
+/** A message for Plan's snackbar from elsewhere, and the plan replace its Undo takes back, if any (1.14.1). */
+export type PlanMessage = { text: string; undo?: PlanSnapshot }
+
+/** The builder's snackbar on Plan after a save (1.14.1). */
+export const PLAN_SAVED = 'Plan saved.'
+
+/** An Undo of a plan replace that failed: nothing changed. */
+export const UNDO_FAILED = "Couldn't undo. Your new plan is kept."
+
+/** How long a snackbar stays, also one with Undo: the Snackbar's own default. */
+const SNACKBAR_MS = 4000
+
 type OpenDialog =
   | { kind: 'add'; weekday: number }
   /** The sets and reps form for what was just picked on Plan's Add: nothing is stored until its Add. */
@@ -70,14 +100,16 @@ export type PlanContentProps = {
   onOpenSettings: () => void
   onBuildPlan?: () => void
   onChooseTemplate?: (mode: TrainingMode) => void
-  message?: string | null
+  message?: string | PlanMessage | null
   onMessageShown?: () => void
+  /** Undo of a plan replace: resolves to "stale" when a newer change came first, and nothing changed. */
+  onUndoReplace?: (undo: PlanSnapshot) => Promise<'restored' | 'stale'>
 }
 
 const SAVE_FAILED = "Couldn't save — try again."
 
 /** The Plan screen without its data source. A write that fails says so; it never fails silently. */
-export function PlanContent({ state, actions, onOpenSettings, onBuildPlan, onChooseTemplate, message, onMessageShown }: PlanContentProps) {
+export function PlanContent({ state, actions, onOpenSettings, onBuildPlan, onChooseTemplate, message, onMessageShown, onUndoReplace }: PlanContentProps) {
   const [dialog, setDialog] = useState<OpenDialog>(null)
   // Counts failed writes: 0 shows nothing, and each new failure shows the message afresh.
   const [failures, setFailures] = useState(0)
@@ -88,14 +120,27 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan, onCho
   const addForm = (weekday: number, entry: PickerEntry): OpenDialog => ({ kind: 'addDetails', weekday, entry, draft: actions.draft(entry) })
 
   // A message from elsewhere (a template saved) is taken once: shown here, and cleared where it came from.
-  const [note, setNote] = useState<{ text: string; id: number } | null>(null)
+  // Leaving Plan while it shows drops its Undo with it: the plan replace then stays, as after the snackbar's time.
+  const [note, setNote] = useState<{ text: string; id: number; undo?: PlanSnapshot } | null>(null)
   const shownMessage = useRef(onMessageShown)
   shownMessage.current = onMessageShown
   useEffect(() => {
     if (message == null) return
-    setNote((n) => ({ text: message, id: (n?.id ?? 0) + 1 }))
+    const { text, undo } = typeof message === 'string' ? { text: message, undo: undefined } : message
+    setNote((n) => ({ text, id: (n?.id ?? 0) + 1, undo }))
     shownMessage.current?.()
   }, [message])
+  const undoing = useRef(false)
+  const undoReplace = (undo: PlanSnapshot) => {
+    // One Undo at a time; a stale one (a newer replace or Undo came first) does nothing.
+    if (undoing.current || onUndoReplace == null) return
+    undoing.current = true
+    onUndoReplace(undo)
+      .catch(() => setNote((n) => ({ text: UNDO_FAILED, id: (n?.id ?? 0) + 1 })))
+      .finally(() => {
+        undoing.current = false
+      })
+  }
 
   // Nothing is called empty, and no menu is drawn, until the stored plan has been read (as Android's 9c89f4d).
   const loaded = !state.loading
@@ -238,6 +283,14 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan, onCho
       <Snackbar
         message={failures > 0 ? SAVE_FAILED : (note?.text ?? null)}
         showId={failures > 0 ? failures : `note-${note?.id ?? 0}`}
+        actionLabel={failures === 0 && note?.undo != null && onUndoReplace != null ? UNDO : undefined}
+        onAction={() => {
+          const undo = note?.undo
+          setNote(null)
+          if (undo != null) undoReplace(undo)
+        }}
+        // Undo is on offer for the usual snackbar time; after that the old plan is gone.
+        durationMs={SNACKBAR_MS}
         onDismiss={() => (failures > 0 ? setFailures(0) : setNote(null))}
       />
     </section>

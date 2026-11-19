@@ -12,7 +12,7 @@ import { ExercisesScreen } from './screens/library/ExercisesScreen'
 import { BlankScreen } from './screens/lock/GateScreen'
 import { LockGateHost } from './screens/lock/LockGateHost'
 import { PlanBuilderScreen } from './screens/plan/builder/PlanBuilderScreen'
-import { PlanScreen } from './screens/plan/PlanScreen'
+import { PLAN_SAVED, PlanScreen, type PlanMessage } from './screens/plan/PlanScreen'
 import { TemplatesScreen } from './screens/plan/templates/TemplatesScreen'
 import { planSetText } from './state/useTemplates'
 import { ExerciseHistoryScreen } from './screens/progress/ExerciseHistoryScreen'
@@ -52,7 +52,7 @@ export type AppProps = {
  * What outlives the screens: today's session, shared by the Today and Exercises tabs, the Exercises tab's search and
  * filters, and Plan's message after a template is saved ("Plan set: …"), which Plan shows once and clears.
  */
-type Kept = { session: TodayState & TodayActions; browser: ExerciseBrowser; planMessage: string | null; setPlanMessage: (message: string | null) => void }
+type Kept = { session: TodayState & TodayActions; browser: ExerciseBrowser; planMessage: PlanMessage | null; setPlanMessage: (message: PlanMessage | null) => void }
 
 function screenFor(route: Route, db: GritDb, { session, browser, planMessage, setPlanMessage }: Kept): ReactNode {
   const openSettings = () => navigate({ page: 'settings' })
@@ -75,7 +75,18 @@ function screenFor(route: Route, db: GritDb, { session, browser, planMessage, se
       />
     )
   }
-  if (route.page === 'planBuilder') return <PlanBuilderScreen db={db} onLeave={leaveBuilder} onDone={() => goBack({ tab: 'plan' })} />
+  if (route.page === 'planBuilder')
+    return (
+      <PlanBuilderScreen
+        db={db}
+        onLeave={leaveBuilder}
+        onDone={(undo) => {
+          // "Plan saved." (1.14.1), with Undo when a plan was replaced.
+          setPlanMessage({ text: PLAN_SAVED, undo })
+          goBack({ tab: 'plan' })
+        }}
+      />
+    )
   if (route.page === 'templates')
     return (
       <TemplatesScreen
@@ -83,8 +94,8 @@ function screenFor(route: Route, db: GritDb, { session, browser, planMessage, se
         db={db}
         mode={route.mode}
         onLeave={() => leave({ tab: 'plan' })}
-        onSaved={(name) => {
-          setPlanMessage(planSetText(name))
+        onSaved={(name, undo) => {
+          setPlanMessage({ text: planSetText(name), undo })
           goBack({ tab: 'plan' })
         }}
       />
@@ -110,7 +121,7 @@ function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: 
   // other tabs are on screen, and no longer than the page.
   const session = useToday(db, todayIso, rest.onSetLogged)
   const browser = useExerciseBrowser()
-  const [planMessage, setPlanMessage] = useState<string | null>(null)
+  const [planMessage, setPlanMessage] = useState<PlanMessage | null>(null)
   const activeTab = 'tab' in route ? route.tab : null
   // The session outlives the Today tab, so coming back to the tab reads the clock again, as coming
   // back to the front does (a finish summary up, or a session being logged, keeps the day).

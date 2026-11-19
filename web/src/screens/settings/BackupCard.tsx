@@ -1,7 +1,8 @@
 import { useRef, useState, type ChangeEvent } from 'react'
-import { backupFileName, decodeBackup, encodeBackup, exportBackup, markBackedUp, restoreBackup } from '../../backup/backup'
+import { backupFileName, decodeBackup, encodeBackup, exportBackup, markBackedUp, plansLostBy, restoreBackup } from '../../backup/backup'
 import type { BackupFile } from '../../backup/format'
 import { readSafetyCopy, writeSafetyCopy, type GritDb } from '../../db/db'
+import type { TrainingMode } from '../../db/schema'
 import { safetyCopyDate } from '../../db/safety'
 import { saveJsonFile } from '../../platform/saveFile'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
@@ -29,7 +30,27 @@ const TOO_NEW = 'This backup is from a newer version of Grit.'
 const NOT_A_BACKUP = "This file isn't a valid Grit backup."
 
 /** What replaces the data once confirmed, and how the question describes it. */
-type PendingRestore = { file: BackupFile; what: string; /** The file is the safety copy itself, which then stays as it is. */ fromSafetyCopy?: boolean; /** The copy of the current data could not be saved: this restore cannot be undone. */ noSafetyCopy?: boolean }
+type PendingRestore = {
+  file: BackupFile
+  what: string
+  /** The file is the safety copy itself, which then stays as it is. */
+  fromSafetyCopy?: boolean
+  /** The copy of the current data could not be saved: this restore cannot be undone. */
+  noSafetyCopy?: boolean
+  /** The sides with a plan now and none in the file (1.14.1): the question warns of that instead. */
+  plansLost?: TrainingMode[]
+}
+
+const sideName = (mode: TrainingMode) => (mode === 'BODYBUILDING' ? 'bodybuilding' : 'powerlifting')
+
+/** "This backup has no powerlifting plan", or "no powerlifting or bodybuilding plan" when both sides lose theirs. */
+export const noPlanTitle = (sides: readonly TrainingMode[]) => `This backup has no ${sides.map(sideName).join(' or ')} plan`
+
+/** What restoring a backup without the side's plan does; with both sides, "your current powerlifting and bodybuilding plans". */
+export const noPlanBody = (sides: readonly TrainingMode[]) =>
+  `Restoring it removes your current ${sides.map(sideName).join(' and ')} ${sides.length > 1 ? 'plans' : 'plan'}. Your other data is replaced by the backup's too.`
+
+export const RESTORE_ANYWAY = 'Restore anyway'
 
 const mediumDate = (date: Date) => new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(date)
 
@@ -78,11 +99,19 @@ export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, saf
       }
     })
 
-  /** Checks a backup's text; a valid one waits for the lifter's confirmation. */
-  const offer = (text: string | null, what: string, fromSafetyCopy = false) => {
+  /**
+   * Checks a backup's text; a valid one waits for the lifter's confirmation. When it would remove a side's plan (that
+   * side has items now and the file has none), the question says so first (1.14.1).
+   */
+  const offer = async (text: string | null, what: string, fromSafetyCopy = false) => {
     const decoded = text != null ? decodeBackup(text) : null
-    if (decoded?.ok) setPending({ file: decoded.file, what, fromSafetyCopy })
-    else onMessage(decoded?.kind === 'TOO_NEW' ? TOO_NEW : NOT_A_BACKUP)
+    if (!decoded?.ok) {
+      onMessage(decoded?.kind === 'TOO_NEW' ? TOO_NEW : NOT_A_BACKUP)
+      return
+    }
+    // Unreadable plan: no warning, and the question as before.
+    const plansLost = await plansLostBy(db, decoded.file).catch(() => [])
+    setPending({ file: decoded.file, what, fromSafetyCopy, plansLost })
   }
 
   const onFileChosen = (e: ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +133,7 @@ export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, saf
     exclusive(async () => {
       try {
         const copy = await readSafetyCopy(db)
-        offer(copy?.kind === 'backup' ? copy.json : null, `the safety copy saved${onDay(copy ? safetyCopyDate(copy) : null)}`, true)
+        await offer(copy?.kind === 'backup' ? copy.json : null, `the safety copy saved${onDay(copy ? safetyCopyDate(copy) : null)}`, true)
       } catch {
         onMessage(NOT_A_BACKUP)
       }
@@ -141,6 +170,9 @@ export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, saf
       }
     })
 
+  // The plan warning takes the question's place; asked again without a safety copy, the question is as before.
+  const plansLost = pending != null && !pending.noSafetyCopy ? (pending.plansLost ?? []) : []
+
   return (
     <Card>
       <p className="settings-text body-medium">Your log lives only on this phone. Export a file now and then so you can restore it.</p>
@@ -164,7 +196,29 @@ export function BackupCard({ db, lastBackupAt, storageProtected, safetyCopy, saf
         </>
       )}
 
-      {pending && (
+      {pending && plansLost.length > 0 && (
+        <Dialog
+          open
+          title={noPlanTitle(plansLost)}
+          onDismiss={() => setPending(null)}
+          actions={
+            <>
+              <QuietButton text="Cancel" onClick={() => setPending(null)} />
+              <PrimaryButton
+                text={RESTORE_ANYWAY}
+                onClick={() => {
+                  setPending(null)
+                  restore(pending)
+                }}
+                compact
+              />
+            </>
+          }
+        >
+          {noPlanBody(plansLost)}
+        </Dialog>
+      )}
+      {pending && plansLost.length === 0 && (
         <Dialog
           open
           title="Replace all data?"

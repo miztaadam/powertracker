@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { replacePlan, planFor, type NewPlanItem } from '../db/catalogue'
+import { replacePlan, planFor, planSnapshot, type NewPlanItem, type PlanSnapshot } from '../db/catalogue'
 import { getSettings, loadHistory, updateSettings, type GritDb } from '../db/db'
 import { planItemToJs } from '../db/mapping'
 import type { ExerciseRow, TrainingMode } from '../db/schema'
@@ -106,8 +106,11 @@ export type PlanBuilderActions = {
   swap: (day: number, from: string, to: string) => void
   /** Whether the bodybuilding side has a plan now, as stored: "Use this plan" asks first when it has. */
   hasPlan: () => Promise<boolean>
-  /** Saves the draft as the bodybuilding side's plan and its days as that side's training days, in one transaction. */
-  save: () => Promise<void>
+  /**
+   * Saves the draft as the bodybuilding side's plan and its days as that side's training days, in one transaction.
+   * Resolves to what Plan's snackbar can Undo (1.14.1), or null when the side had no plan.
+   */
+  save: () => Promise<PlanSnapshot | null>
 }
 
 /**
@@ -232,13 +235,15 @@ export function usePlanBuilder(db: GritDb, today: () => string): PlanBuilderStat
   const hasPlan = useCallback(async () => (await planFor(db, 'BODYBUILDING')).length > 0, [db])
 
   const save = useCallback(async () => {
-    if (draft == null) return
+    if (draft == null) return null
     const items = draftItems(draft, ticked.values())
     const chosen = draft.sessions.map((s) => s.day)
-    // One transaction: the plan and its days stand or fall together.
-    await db.transaction('rw', db.exercises, db.planItems, db.skips, db.settings, async () => {
-      await replacePlan(db, 'BODYBUILDING', items)
+    // One transaction: the plan and its days stand or fall together. The plan as it was is read in it, for Undo.
+    return db.transaction('rw', db.exercises, db.planItems, db.skips, db.settings, async () => {
+      const before = await planSnapshot(db, 'BODYBUILDING')
+      const added = await replacePlan(db, 'BODYBUILDING', items)
       await updateSettings(db, (s) => ({ ...s, bodybuildingTrainingDays: [...chosen].sort((a, b) => a - b) }))
+      return before && { ...before, replacedBy: added }
     })
   }, [db, draft, ticked])
 
