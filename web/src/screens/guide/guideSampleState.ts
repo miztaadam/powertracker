@@ -27,9 +27,10 @@ const planned = (p: JsPlanItem): PlannedItem => ({
  * Today on the sample's first day, in session, at `step` of screen 4: the sample lift's card with nothing in it, then
  * the weight, the reps and the RPE put in one by one, then the set logged (ticked), then the day's last planned
  * exercise skipped. The day is the domain's for screen 4 (`guideSampleTodayItems`, its first few items). Each item is built as `useToday` builds it for a lifter with no history: no weight yet, the plan's
- * reps and target RPE, the plan's sets, the plates for the weight.
+ * reps and target RPE, the plan's sets, the plates for the weight. The lift's editor shows `shown`: by default the step's
+ * end state (`guideSampleTodayEditor` at 1), part-way through a move the domain's in-between values.
  */
-export function guideTodayState(mode: TrainingMode, step: string): TodayState {
+export function guideTodayState(mode: TrainingMode, step: string, shown?: SetEditor): TodayState {
   const steps = grit.guideSteps('TODAY', mode)
   const at = steps.indexOf(step)
   if (at < 0) throw new Error(`${step} is not a step of the Today picture`)
@@ -43,13 +44,11 @@ export function guideTodayState(mode: TrainingMode, step: string): TodayState {
 
   function item(p: PlannedItem): TodayItem {
     const lift = p.exerciseId === liftId
-    const editor: SetEditor = lift
-      ? {
-          weightKg: reached('TODAY_WEIGHT') ? sample.doneWeightKg : null,
-          reps: reached('TODAY_REPS') ? sample.doneReps : p.reps,
-          rpe: reached('TODAY_RPE') ? sample.doneRpe : p.targetRpe,
-        }
-      : { weightKg: null, reps: p.reps, rpe: p.targetRpe }
+    const end = (): SetEditor => {
+      const e = grit.guideSampleTodayEditor(mode, step, 1)
+      return { weightKg: e.weightKg ?? null, reps: e.reps, rpe: e.rpe }
+    }
+    const editor: SetEditor = lift ? (shown ?? end()) : { weightKg: null, reps: p.reps, rpe: p.targetRpe }
     const sets: StoredSet[] =
       lift && reached('TODAY_TICKED')
         ? [{ id: 1, sessionId: SESSION_ID, exerciseId: liftId, weightKg: sample.doneWeightKg, reps: sample.doneReps, rpe: sample.doneRpe, failed: false, missPoint: null, isTopSet: false }]

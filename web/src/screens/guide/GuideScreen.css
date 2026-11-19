@@ -119,6 +119,13 @@
   box-sizing: border-box;
 }
 
+/* Rows gone in a step, fading where they were: over the screen, taking nothing. */
+.guide-flip-ghosts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 .guide-picture-screen {
   height: 100%;
   pointer-events: none;

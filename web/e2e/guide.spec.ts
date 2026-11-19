@@ -1,6 +1,6 @@
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { expect, test, type Page } from '@playwright/test'
+import { devices, expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
 import { BACK, DONE, EXAMPLE, NEXT, PHONE_HEIGHT, PHONE_WIDTH, SKIP, pictureDescription } from '../src/screens/guide/guideLabels'
 import { formatKg, formatRpe } from '../src/ui/components/format'
@@ -278,6 +278,25 @@ for (const [width, height] of [
 test.describe('with motion on', () => {
   test.use({ storageState: { cookies: [], origins: [] } })
 
+  /**
+   * Opens screen 4 on a held clock, its picture starting afresh at time 0 (Back and Next again, the clock paused), and
+   * gives a way to move the picture's time to `ms` from its start.
+   */
+  async function heldToday(page: Page, side: Side) {
+    await page.clock.install({ time: WEDNESDAY })
+    await openGuideOnToday(page, side)
+    const now = await page.evaluate(() => Date.now())
+    await page.clock.pauseAt(now + 1000)
+    await page.getByTestId('guide-back').click()
+    await page.getByTestId('guide-next').click()
+    await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_EMPTY')
+    let pos = 0
+    return async (ms: number) => {
+      if (ms > pos) await page.clock.runFor(ms - pos)
+      pos = Math.max(pos, ms)
+    }
+  }
+
   const runs: [Side, 'dark' | 'light'][] = [
     ['POWERLIFTING', 'dark'],
     ['BODYBUILDING', 'light'],
@@ -285,15 +304,8 @@ test.describe('with motion on', () => {
   for (const [side, scheme] of runs) {
     test(`guide_screen4_stepsThroughLoggingASet_onAHeldClock (${sideName(side)}, ${scheme})`, async ({ page }) => {
       await page.emulateMedia({ colorScheme: scheme })
-      await page.clock.install({ time: WEDNESDAY })
-      await openGuideOnToday(page, side)
-      const now = await page.evaluate(() => Date.now())
-      await page.clock.pauseAt(now + 1000)
-      // Back and forward again: screen 4 starts its picture afresh, on the held clock.
-      await page.getByTestId('guide-back').click()
-      await page.getByTestId('guide-next').click()
+      const at = await heldToday(page, side)
       const steps = grit.guideSteps('TODAY', side)
-      const stepMs = grit.guideStepMs()
       const frames = process.env.GUIDE_FRAMES
       const sample = grit.guideSampleTodaySet(side)
       const liftId = grit.guideSampleExercises(side).find((e) => e.name === sample.exerciseId)!.id
@@ -301,22 +313,183 @@ test.describe('with motion on', () => {
       const drawn = picture(page).locator('.guide-picture-screen')
       const field = (name: string) => drawn.getByRole('textbox', { name, includeHidden: true }).first()
       for (const [i, step] of steps.entries()) {
+        // Each step once its move has ended (and the page's own slide-in has run its course).
+        await at(Math.max(300, grit.guideSettledMs(i) + 20))
         await expect(picture(page)).toHaveAttribute('data-step', step)
+        await expect(picture(page)).toHaveAttribute('data-progress', '1')
         // What is drawn: the lift's editor fills field by field, then the set is ticked, then Skip today.
-        const at = (s: string) => i >= steps.indexOf(s)
-        await expect(field('Weight, kilograms')).toHaveValue(at('TODAY_WEIGHT') ? formatKg(sample.doneWeightKg) : '')
-        await expect(field('Reps')).toHaveValue(String(at('TODAY_REPS') ? sample.doneReps : item.reps))
-        await expect(field('RPE')).toHaveValue(formatRpe(at('TODAY_RPE') ? sample.doneRpe : item.targetRpe))
-        await expect(drawn.locator('.gr-set-done')).toHaveCount(at('TODAY_TICKED') ? 1 : 0)
-        await expect(drawn.locator('.today-skipped')).toHaveCount(at('TODAY_SKIP') ? 1 : 0)
-        // The page's slide-in has run its course: the frame shows the picture, not the move.
-        await page.clock.runFor(300)
+        const reached = (s: string) => i >= steps.indexOf(s)
+        await expect(field('Weight, kilograms')).toHaveValue(reached('TODAY_WEIGHT') ? formatKg(sample.doneWeightKg) : '')
+        await expect(field('Reps')).toHaveValue(String(reached('TODAY_REPS') ? sample.doneReps : item.reps))
+        await expect(field('RPE')).toHaveValue(formatRpe(reached('TODAY_RPE') ? sample.doneRpe : item.targetRpe))
+        await expect(drawn.locator('.gr-set-done')).toHaveCount(reached('TODAY_TICKED') ? 1 : 0)
+        await expect(drawn.locator('.today-skipped')).toHaveCount(reached('TODAY_SKIP') ? 1 : 0)
+        // Settled: nothing of the guide's own motion is left on the rows.
+        expect(await picture(page).evaluate((el) => el.getAnimations({ subtree: true }).filter((a) => !(a instanceof CSSAnimation || a instanceof CSSTransition)).length)).toBe(0)
+        await expect(picture(page).locator('.guide-flip-ghosts > *')).toHaveCount(0)
         if (frames) await shoot(page, frames, `web-today-${sideName(side)}-${scheme}-step${i + 1}`)
-        await page.clock.runFor(stepMs - 300)
       }
       // It holds on the last step.
-      await page.clock.runFor(stepMs * 3)
+      await at(grit.guideDoneMs(steps.length) + grit.guideStepMs() * 3)
       await expect(picture(page)).toHaveAttribute('data-step', steps.at(-1)!)
+    })
+  }
+
+  test('guide_today_skippedRow_slidesAndTheRestCloseUp', async ({ page }) => {
+    const side = 'POWERLIFTING'
+    const at = await heldToday(page, side)
+    const steps = grit.guideSteps('TODAY', side)
+    const skip = steps.indexOf('TODAY_SKIP')
+    const drawn = picture(page).locator('.guide-picture-screen')
+    const add = drawn.locator('.today-add')
+    await at(grit.guideSettledMs(skip - 1))
+    await expect(picture(page)).toHaveAttribute('data-step', steps[skip - 1]!)
+    const before = (await add.boundingBox())!
+    await expect(drawn.locator('.today-item')).toHaveCount(grit.guideSampleTodayItems(side).length)
+    // Mid-move: Add exercise slides up from where it was, the skipped row fades where it was, the line fades in.
+    await at(grit.guideStepStartMs(skip) + grit.guideMoveMs() / 4)
+    await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_SKIP')
+    await expect(drawn.locator('.today-item')).toHaveCount(grit.guideSampleTodayItems(side).length - 1)
+    const motion = await page.evaluate(() => {
+      const screen = document.querySelector('.guide-picture-screen')!
+      const own = (el: Element | null) => (el?.getAnimations() ?? []).filter((a) => !(a instanceof CSSAnimation || a instanceof CSSTransition)).map((a) => ({
+        time: Number(a.currentTime),
+        duration: Number(a.effect!.getTiming().duration),
+        state: a.playState,
+        properties: (a.effect as KeyframeEffect).getKeyframes().flatMap((k) => Object.keys(k).filter((p) => !['offset', 'easing', 'composite', 'computedOffset'].includes(p))),
+      }))
+      return {
+        add: own(screen.querySelector('.today-add')),
+        skipped: own(screen.querySelector('.today-skipped')),
+        ghosts: [...document.querySelectorAll('.guide-flip-ghosts > *')].map((g) => ({ text: g.textContent, animations: own(g) })),
+      }
+    })
+    expect(motion.add).toHaveLength(1)
+    expect(motion.add[0]!.properties).toEqual(['transform', 'transform'])
+    expect(motion.add[0]!.time).toBeGreaterThan(0)
+    expect(motion.add[0]!.time).toBeLessThan(motion.add[0]!.duration)
+    expect(motion.add[0]!.duration).toBe(grit.guideMoveMs())
+    expect(motion.skipped.map((a) => a.properties)).toEqual([['opacity', 'opacity']])
+    const exercises = grit.guideSampleExercises(side)
+    const liftId = exercises.find((e) => e.name === grit.guideSampleTodaySet(side).exerciseId)!.id
+    const skippedName = exercises.find((e) => e.id === grit.guideSampleTodayItems(side).filter((p) => p.exerciseId !== liftId).at(-1)!.exerciseId)!.name
+    expect(motion.ghosts).toHaveLength(1)
+    expect(motion.ghosts[0]!.text).toContain(skippedName)
+    expect(motion.ghosts[0]!.animations.map((a) => a.properties)).toEqual([['opacity', 'opacity']])
+    // Where it is drawn: on the way from its old box to its new, as far as the move's curve says.
+    const mid = (await add.boundingBox())!
+    const progress = grit.guideEase(motion.add[0]!.time / motion.add[0]!.duration)
+    await at(grit.guideSettledMs(skip) + 50)
+    const after = (await add.boundingBox())!
+    expect(after.y).toBeLessThan(before.y - 10)
+    expect(Math.abs(mid.y - (before.y + (after.y - before.y) * progress))).toBeLessThan(1.5)
+    expect(Math.abs(mid.x - after.x)).toBeLessThan(0.5)
+    // Settled: no motion left, no ghost.
+    expect(await picture(page).evaluate((el) => el.getAnimations({ subtree: true }).filter((a) => !(a instanceof CSSAnimation || a instanceof CSSTransition)).length)).toBe(0)
+    await expect(picture(page).locator('.guide-flip-ghosts > *')).toHaveCount(0)
+  })
+
+  test('guide_replayOrPageReturn_restartsWithoutPlayingBackwards', async ({ page }) => {
+    const at = await heldToday(page, 'POWERLIFTING')
+    const steps = grit.guideSteps('TODAY', 'POWERLIFTING')
+    await at(grit.guideDoneMs(steps.length) + 100)
+    await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_SKIP')
+    await page.getByTestId('guide-next').click()
+    await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen('TARGETS', 'POWERLIFTING').title)
+    await page.getByTestId('guide-back').click()
+    // At once on its first step, with nothing of the guide's motion on it: no row moving back from where it was.
+    await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_EMPTY')
+    expect(await picture(page).evaluate((el) => el.getAnimations({ subtree: true }).filter((a) => !(a instanceof CSSAnimation || a instanceof CSSTransition)).length)).toBe(0)
+    await expect(picture(page).locator('.guide-flip-ghosts > *')).toHaveCount(0)
+    await expect(picture(page).locator('.gr-set-done')).toHaveCount(0)
+  })
+
+  test('guideFlip_readsLayoutOncePerStepChange_neverPerFrame', async ({ page }) => {
+    // Every box read inside the picture's phone, counted.
+    await page.addInitScript(() => {
+      const read = Element.prototype.getBoundingClientRect
+      const w = window as unknown as { __guideReads: number }
+      w.__guideReads = 0
+      Element.prototype.getBoundingClientRect = function (this: Element) {
+        if (this.closest('.guide-phone') != null) w.__guideReads += 1
+        return read.call(this)
+      }
+    })
+    const at = await heldToday(page, 'POWERLIFTING')
+    const reads = () => page.evaluate(() => (window as unknown as { __guideReads: number }).__guideReads)
+    const steps = grit.guideSteps('TODAY', 'POWERLIFTING')
+    for (let i = 1; i < steps.length; i++) {
+      await at(grit.guideStepStartMs(i) - 30)
+      const held = await reads()
+      // The step change: its boxes read before and after the commit, once each.
+      await at(grit.guideStepStartMs(i) + 1)
+      await expect(picture(page)).toHaveAttribute('data-step', steps[i]!)
+      const change = (await reads()) - held
+      expect(change, `${steps[i]}: reads at the step change`).toBeGreaterThan(0)
+      // Then the move's frames, and the hold: no layout read at all.
+      const moving = await reads()
+      await at(grit.guideSettledMs(i) + 100)
+      expect((await reads()) - moving, `${steps[i]}: reads during the move`).toBe(0)
+      const targets = await page.locator('.guide-picture-screen .today-item, .guide-picture-screen .today-add, .guide-picture-screen .today-skipped').count()
+      expect(change, `${steps[i]}: one pass before and one after`).toBeLessThanOrEqual(2 * (targets + 20))
+    }
+  })
+
+  for (const side of SIDES) {
+    test(`the weight rolls in with its plates drawn from its first frame: nothing under the editor moves on the way (${sideName(side)})`, async ({ page }) => {
+      const at = await heldToday(page, side)
+      const weight = grit.guideSteps('TODAY', side).indexOf('TODAY_WEIGHT')
+      const card = picture(page).locator('.guide-picture-screen .today-item').first()
+      const seen: { kg: string; plates: string; log: number }[] = []
+      for (let into = 1; into <= grit.guideMoveMs(); into += 40) {
+        await at(grit.guideStepStartMs(weight) + into)
+        seen.push(
+          await card.evaluate((el) => ({
+            kg: el.querySelector<HTMLInputElement>('input[aria-label="Weight, kilograms"], .today-stepper-weight input')?.value ?? '',
+            plates: el.querySelector('.gr-plates')?.className ?? 'none',
+            log: (el.querySelector('.today-log') as HTMLElement).offsetTop,
+          })),
+        )
+      }
+      expect(new Set(seen.map((s) => s.kg)).size, `${side}: the weight rolls`).toBeGreaterThan(3)
+      expect(new Set(seen.map((s) => s.plates)), `${side}: ${seen.map((s) => s.plates)}`).toEqual(new Set([seen[0]!.plates]))
+      expect(seen[0]!.plates).not.toContain('gr-plates-note')
+      expect(new Set(seen.map((s) => s.log)), `${side}: the log row's place`).toEqual(new Set([seen[0]!.log]))
+    })
+  }
+})
+
+// For the owner (GUIDE_VIDEO=<dir>): screen 4 playing in real time with motion on, from its first step until a second
+// after its last has settled, recorded at the e2e phone's full screen (390 × 844). `<name>.json` beside each video says where in it
+// screen 4 opened, to trim from.
+test.describe('for the owner: screen 4 in real time', () => {
+  const dir = process.env.GUIDE_VIDEO
+  test.skip(dir == null, 'GUIDE_VIDEO is not set')
+  const runs: [Side, 'dark' | 'light'][] = [
+    ['POWERLIFTING', 'dark'],
+    ['BODYBUILDING', 'light'],
+  ]
+  for (const [side, scheme] of runs) {
+    test(`screen 4 video (${sideName(side)}, ${scheme})`, async ({ browser, baseURL }) => {
+      // Its own context, recording from its first frame: the e2e phone at its full screen height, so the picture is drawn
+      // as large as on the phone itself; motion on (no stored "off").
+      const { defaultBrowserType: _, ...phone } = devices['iPhone 13']
+      const size = { width: 390, height: 844 }
+      const context = await browser.newContext({ ...phone, viewport: size, baseURL, storageState: { cookies: [], origins: [] }, recordVideo: { dir: resolve(dir!, 'raw'), size } })
+      const page = await context.newPage()
+      const started = Date.now()
+      await page.emulateMedia({ colorScheme: scheme })
+      await openGuideOnToday(page, side)
+      const opened = (Date.now() - started) / 1000
+      await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_EMPTY')
+      await page.waitForTimeout(grit.guideDoneMs(grit.guideSteps('TODAY', side).length) + 1000)
+      await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_SKIP')
+      await page.close()
+      await context.close()
+      const name = `web-guide-today-${sideName(side)}-${scheme}`
+      mkdirSync(dir!, { recursive: true })
+      await page.video()!.saveAs(resolve(dir!, `${name}.webm`))
+      writeFileSync(resolve(dir!, `${name}.json`), JSON.stringify({ screen4OpenedAtSeconds: opened }))
     })
   }
 })

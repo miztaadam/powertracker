@@ -16,40 +16,100 @@ export type GuideExit = 'skipped' | 'done' | 'choose-template' | 'build-plan' | 
 /** A horizontal move at least this long, and longer than it is tall, turns the page. */
 const SWIPE_PX = 50
 
-/** Which step a picture shows. Tests hold it (`heldGuideClock`); the guide runs on `tickingGuideClock`. */
+/**
+ * A picture's time: how many milliseconds into its steps it is (`guideFrame` turns that into a step and its move's
+ * progress). Tests hold it (`heldGuideClock`); the guide runs on `tickingGuideClock`.
+ */
 export type GuideClock = {
-  /** A hook: the step, from 0 to `count` - 1, of a picture that started when `playing` last became true; 0 while not. */
-  useStep: (count: number, playing: boolean) => number
+  /** A hook: milliseconds into a picture of `count` steps, from 0 when it mounted; standing still while not `playing`. */
+  useElapsed: (count: number, playing: boolean) => number
 }
 
-/** One step every `guideStepMs()`, from the first, holding on the last. */
+/** The step a picture of `count` steps is on at `t` ms. */
+const stepAt = (count: number, t: number) => {
+  let index = 0
+  while (index < count - 1 && grit.guideStepStartMs(index + 1) <= t) index += 1
+  return index
+}
+
+/**
+ * Real time, one value a frame while a step moves (requestAnimationFrame) and one timer while it holds, so nothing is
+ * rendered; nothing at all once the last step has settled. It stands still while the page is hidden and goes on from
+ * there when it is shown again.
+ */
 export const tickingGuideClock: GuideClock = {
-  useStep(count, playing) {
-    const [shown, setShown] = useState({ count, playing, step: 0 })
-    // Started afresh each time the picture comes on screen, and back at 0 at once when it leaves.
-    const fresh = shown.count !== count || shown.playing !== playing
-    if (fresh) setShown({ count, playing, step: 0 })
+  useElapsed(count, playing) {
+    const [shown, setShown] = useState(0)
+    const at = useRef(0)
     useEffect(() => {
       if (!playing) return
-      const stepMs = grit.guideStepMs()
-      let step = 0
+      const done = grit.guideDoneMs(count)
+      let frame: number | undefined
       let timer: ReturnType<typeof setTimeout> | undefined
-      const tick = () => {
-        step += 1
-        setShown((s) => ({ ...s, step }))
-        if (step < count - 1) timer = setTimeout(tick, stepMs)
+      const set = (t: number) => {
+        at.current = t
+        setShown(t)
       }
-      if (count > 1) timer = setTimeout(tick, stepMs)
-      return () => clearTimeout(timer)
+      const stop = () => {
+        if (frame !== undefined) cancelAnimationFrame(frame)
+        clearTimeout(timer)
+        frame = undefined
+        timer = undefined
+      }
+      // The picture's time is the page's time less this: set when the clock (re)starts, so it never drifts.
+      let base = 0
+      const run = () => {
+        const t = at.current
+        if (t >= done) return
+        const index = stepAt(count, t)
+        const settled = grit.guideSettledMs(index)
+        if (t < settled) {
+          // A move: one value a frame.
+          const tick = () => {
+            const now = Math.min(settled, performance.now() - base)
+            set(now)
+            if (now < settled) frame = requestAnimationFrame(tick)
+            else run()
+          }
+          frame = requestAnimationFrame(tick)
+        } else {
+          // A hold: nothing changes until the next step starts.
+          const next = grit.guideStepStartMs(index + 1)
+          timer = setTimeout(
+            () => {
+              set(next)
+              run()
+            },
+            Math.max(0, next - (performance.now() - base)),
+          )
+        }
+      }
+      const start = () => {
+        base = performance.now() - at.current
+        run()
+      }
+      const onVisibility = () => {
+        stop()
+        if (!document.hidden) start()
+      }
+      document.addEventListener('visibilitychange', onVisibility)
+      if (!document.hidden) start()
+      return () => {
+        stop()
+        document.removeEventListener('visibilitychange', onVisibility)
+      }
     }, [count, playing])
-    return fresh ? 0 : Math.min(shown.step, count - 1)
+    return shown
   },
 }
 
-/** A clock a test moves by hand: every picture shows step `held` (within its own steps). */
-export function heldGuideClock(held: number): GuideClock {
-  return { useStep: (count) => Math.max(0, Math.min(held, count - 1)) }
+/** A clock a test moves by hand: every picture is `ms` into its steps (held within them). */
+export function heldGuideClock(ms: number): GuideClock {
+  return { useElapsed: (count) => Math.max(0, Math.min(ms, grit.guideDoneMs(count))) }
 }
+
+/** A held clock with every picture at step `index`, settled. */
+export const heldGuideClockAtStep = (index: number) => heldGuideClock(grit.guideSettledMs(index))
 
 export type GuideScreenProps = {
   mode: TrainingMode
@@ -98,8 +158,10 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle }: { id: string; mode
     if (focusTitle) titleRef.current?.focus()
   }, [focusTitle])
   const steps = useMemo(() => grit.guideSteps(id, mode), [id, mode])
-  const ticked = clock.useStep(steps.length, motionOn)
-  const step = steps.length === 0 ? null : (motionOn ? steps[ticked] : steps[steps.length - 1]) ?? null
+  const elapsed = clock.useElapsed(steps.length, motionOn)
+  // With motion off: the last step, still.
+  const t = motionOn ? Math.floor(elapsed) : grit.guideDoneMs(steps.length)
+  const frame = useMemo(() => (steps.length === 0 ? null : grit.guideFrame(id, mode, t)), [id, mode, t, steps.length])
   return (
     <div className="guide-page">
       {/* The text wraps and is never cut: past its share of the height it scrolls, and the picture takes the rest. */}
@@ -119,7 +181,7 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle }: { id: string; mode
             <Pill text={EXAMPLE} />
           </span>
         )}
-        <GuidePicture id={id} mode={mode} step={step} />
+        <GuidePicture id={id} mode={mode} frame={frame} moveMs={frame == null ? 0 : t - grit.guideStepStartMs(frame.stepIndex)} motionOn={motionOn} />
       </div>
     </div>
   )

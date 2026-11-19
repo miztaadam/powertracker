@@ -1,3 +1,4 @@
+import { Profiler } from 'react'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -6,7 +7,7 @@ import { grit } from '../../domain'
 import { formatKg, formatRpe } from '../../ui/components/format'
 import { setRowLabel } from '../../ui/components/SetRow'
 import { SKIPPED_TODAY } from '../today/SkipToday'
-import { BACK, EXAMPLE, GUIDE_LABEL, GuideScreen, NEXT, dotsLabel, heldGuideClock, pictureDescription, tickingGuideClock, type GuideClock, type GuideExit } from './GuideScreen'
+import { BACK, EXAMPLE, GUIDE_LABEL, GuideScreen, NEXT, dotsLabel, heldGuideClock, heldGuideClockAtStep, pictureDescription, tickingGuideClock, type GuideClock, type GuideExit } from './GuideScreen'
 import { guideTodayState } from './guideSampleState'
 
 /** The guide's shell and its Today picture (1.16, Task 2), as Android's `GuideScreenTest`. Copy comes from the domain. */
@@ -102,7 +103,7 @@ describe('the guide', () => {
       const item = liftItem(mode)
       const done = setRowLabel({ index: 1, weightKg: sample.doneWeightKg, reps: sample.doneReps, rpe: sample.doneRpe, state: 'done' })
       for (const [i, step] of steps.entries()) {
-        rerender(heldGuideClock(i))
+        rerender(heldGuideClockAtStep(i))
         expect(picture()).toHaveAttribute('data-step', step)
         // What is drawn at this step: the lift's editor fills field by field, then the set is ticked, then Skip today.
         const at = (s: string) => i >= steps.indexOf(s)
@@ -124,7 +125,7 @@ describe('the guide', () => {
       const { rerender } = show({ mode, startAt: 'TODAY' })
       const steps = grit.guideSteps('TODAY', mode)
       const drawnAt = (step: string) => {
-        rerender(heldGuideClock(steps.indexOf(step)))
+        rerender(heldGuideClockAtStep(steps.indexOf(step)))
         return drawnEditor()
       }
       const empty = drawnAt('TODAY_EMPTY')
@@ -167,15 +168,21 @@ describe('the guide', () => {
     }
   })
 
-  it('the real clock moves one step every step length, and holds on the last', () => {
+  it('the real clock moves each step, then holds it, and holds the last for good', () => {
     vi.useFakeTimers()
     show({ clock: tickingGuideClock, startAt: 'TODAY' })
     const steps = grit.guideSteps('TODAY', 'POWERLIFTING')
     expect(picture()).toHaveAttribute('data-step', steps[0])
-    act(() => vi.advanceTimersByTime(grit.guideStepMs()))
+    act(() => vi.advanceTimersByTime(grit.guideStepStartMs(1) + grit.guideMoveMs() / 2))
     expect(picture()).toHaveAttribute('data-step', steps[1])
-    act(() => vi.advanceTimersByTime(grit.guideStepMs() * 10))
+    const progress = Number(picture().getAttribute('data-progress'))
+    expect(progress).toBeGreaterThan(0)
+    expect(progress).toBeLessThan(1)
+    act(() => vi.advanceTimersByTime(grit.guideMoveMs()))
+    expect(picture()).toHaveAttribute('data-progress', '1')
+    act(() => vi.advanceTimersByTime(grit.guideDoneMs(steps.length) * 2))
     expect(picture()).toHaveAttribute('data-step', steps[steps.length - 1])
+    expect(picture()).toHaveAttribute('data-progress', '1')
   })
 
   it('guide_picturesShowingNumbers_areLabelledExample', async () => {
@@ -215,8 +222,9 @@ describe('the guide', () => {
   })
 
   it('no picture timer outlives the guide, or the page it belongs to', () => {
-    // Timeouts only: React's own scheduling (setImmediate) is not the guide's. Counted against what was pending before.
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    // The clock's own timers (timeouts and frames): React's own scheduling (setImmediate) is not the guide's. Counted
+    // against what was pending before.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
     const idle = vi.getTimerCount()
     const clockTimers = () => vi.getTimerCount() - idle
     const { unmount } = show({ clock: tickingGuideClock, startAt: 'TODAY' })
@@ -229,8 +237,82 @@ describe('the guide', () => {
     expect(clockTimers()).toBe(0)
     fireEvent.click(screen.getByTestId('guide-back'))
     expect(clockTimers()).toBe(1)
+    // Mid-move, one frame pending; gone with the guide.
+    act(() => vi.advanceTimersByTime(grit.guideStepStartMs(1) + grit.guideMoveMs() / 2))
+    expect(clockTimers()).toBe(1)
     unmount()
     expect(clockTimers()).toBe(0)
+  })
+
+  it('guide_whileAStepHolds_nothingRenders', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
+    let renders = 0
+    render(
+      <Profiler id="guide" onRender={() => (renders += 1)}>
+        <GuideScreen mode="POWERLIFTING" firstLaunch={false} hasPlan={false} motionOn onPickSide={() => {}} onClose={() => {}} clock={tickingGuideClock} startAt="TODAY" />
+      </Profiler>,
+    )
+    const slack = 50
+    act(() => vi.advanceTimersByTime(grit.guideSettledMs(1) + slack))
+    expect(picture()).toHaveAttribute('data-step', grit.guideSteps('TODAY', 'POWERLIFTING')[1])
+    expect(picture()).toHaveAttribute('data-progress', '1')
+    // A frame's time at a time, each in its own act, so each would be its own render.
+    const run = (ms: number) => {
+      for (let t = 0; t < ms; t += 16) act(() => vi.advanceTimersByTime(Math.min(16, ms - t)))
+    }
+    const held = renders
+    run(grit.guideStepStartMs(2) - grit.guideSettledMs(1) - 2 * slack)
+    expect(renders, 'rendered while the step held').toBe(held)
+    // A move renders, a frame at a time.
+    run(2 * slack + grit.guideMoveMs() / 2)
+    expect(renders).toBeGreaterThan(held + 3)
+  })
+
+  it('guide_clockStops_whenHiddenOrUnmounted: a hidden page stands the clock still; shown again, it goes on', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
+    const idle = vi.getTimerCount()
+    let hidden = false
+    const spy = vi.spyOn(document, 'hidden', 'get').mockImplementation(() => hidden)
+    show({ clock: tickingGuideClock, startAt: 'TODAY' })
+    act(() => vi.advanceTimersByTime(grit.guideSettledMs(1) + 50))
+    const steps = grit.guideSteps('TODAY', 'POWERLIFTING')
+    expect(picture()).toHaveAttribute('data-step', steps[1])
+    hidden = true
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+    expect(vi.getTimerCount() - idle).toBe(0)
+    act(() => vi.advanceTimersByTime(grit.guideStepMs() * 20))
+    expect(picture()).toHaveAttribute('data-step', steps[1])
+    hidden = false
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+    act(() => vi.advanceTimersByTime(grit.guideStepStartMs(2) - grit.guideSettledMs(1) + grit.guideMoveMs()))
+    expect(picture()).toHaveAttribute('data-step', steps[2])
+    spy.mockRestore()
+  })
+
+  it('guide_today_numbersRollThroughInBetweenValues: mid-move the weight is between empty and the set\'s', () => {
+    for (const mode of SIDES) {
+      const steps = grit.guideSteps('TODAY', mode)
+      const sample = grit.guideSampleTodaySet(mode)
+      const weightStep = steps.indexOf('TODAY_WEIGHT')
+      const seen = new Set<string>()
+      // The move's curve is fast at first: an eighth, a quarter and a third of its time are well inside it.
+      for (const into of [grit.guideMoveMs() / 8, grit.guideMoveMs() / 4, grit.guideMoveMs() / 3]) {
+        show({ mode, clock: heldGuideClock(grit.guideStepStartMs(weightStep) + into), startAt: 'TODAY' })
+        expect(picture()).toHaveAttribute('data-step', 'TODAY_WEIGHT')
+        const frame = grit.guideFrame('TODAY', mode, grit.guideStepStartMs(weightStep) + into)
+        const kg = grit.guideSampleTodayEditor(mode, 'TODAY_WEIGHT', frame.progress).weightKg!
+        expect(kg).toBeGreaterThan(0)
+        expect(kg).toBeLessThan(sample.doneWeightKg)
+        expect(drawnEditor().weight, `${mode} ${into} ms into the move`).toBe(formatKg(kg))
+        seen.add(drawnEditor().weight)
+        cleanup()
+      }
+      expect(seen.size, `${mode}: the weight rolls`).toBe(3)
+    }
   })
 
   it('opening the guide works out screen 1 only: no other screen\'s steps, and none of the sample', () => {
