@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { memo, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { onDbVersionChange, type GritDb } from './db/db'
 import type { SchemaVersion } from './db/schema'
 import { singleTabGuard, type SingleTabGuard, type TabRole } from './platform/singleTab'
@@ -113,8 +113,11 @@ const leaveCheckIn = () => leave({ tab: 'coach' })
 /** Leaving the builder unsaved goes back where it was opened from (Plan, Today or Coach), or to Plan. */
 const leaveBuilder = () => leave({ tab: 'plan' })
 
-/** The app itself: the screens, the tab bar and what docks above it. Rendered only while Grit is unlocked. */
-function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: RegisterSW }) {
+/**
+ * The app itself: the screens, the tab bar and what docks above it. Rendered only while Grit is unlocked. Memoised:
+ * a change of the side shown (the mode switch's moment) redraws only what reads it, not every screen's parent.
+ */
+const Shell = memo(function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: RegisterSW }) {
   const route = useRoute()
   const update = useUpdatePrompt(db, registerSW)
   // Kept here, above the screens: the session is the same one on the Today and Exercises tabs, and an
@@ -160,7 +163,7 @@ function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: 
       <ModeSwitchOverlay />
     </>
   )
-}
+})
 
 /** Opens the database, then shows the app behind its lock. Nothing of the log is rendered before the lock has had its say. */
 function Opened({ dbName, schemaVersions, registerSW }: AppProps) {

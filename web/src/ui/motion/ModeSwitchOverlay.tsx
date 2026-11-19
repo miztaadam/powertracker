@@ -115,6 +115,8 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
   let src = { x: 0, y: 0 }
   let stamp: HTMLElement | null = null
   let pill: HTMLElement | null = null
+  /** The new side is on, and its blocks are still to be measured (at the next frame's start). */
+  let settling = false
   // The reveal.
   let transition: ViewTransition | null = null
   let clip: Animation | null = null
@@ -124,6 +126,8 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
    */
   let oldMove: Animation | null = null
   let oldTransform = 'none'
+  /** The content's transform the last frame drew, held off while the pictures are taken. */
+  let wanted = ''
   let capturing = false
   let radius = 0
   let full = false
@@ -457,9 +461,13 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
     }
   }
 
-  /** The content's transform: on the shell, and on the old side's picture while the reveal runs. */
+  /**
+   * The content's transform: on the shell, and on the old side's picture while the reveal runs. While the pictures are
+   * taken it is held off, and put on again as soon as they are (the reveal's `ready`), whichever frame comes first.
+   */
   function moveContent(transform: string) {
     if (shell == null) return
+    wanted = transform
     if (capturing) transform = ''
     shell.style.transform = transform
     if (transition == null) return
@@ -619,12 +627,25 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
 
   /**
    * The POWERLIFTING stamp, just below the screen's title so it never covers it: inside the header (which hops as one
-   * block), placed from the new side's layout with every transform taken off, and taking no room of its own.
+   * block), taking no room of its own. Put in unseen with the new side; placed by `placeStamp`.
    */
   function addStamp() {
     const header = shell?.querySelector<HTMLElement>('.shell-main > .screen > .gr-screen-header') ?? null
+    if (header?.querySelector('.gr-screen-title') == null) return
+    stamp = document.createElement('span')
+    stamp.className = 'gr-mode-label-pill ms-stamp'
+    stamp.setAttribute('aria-hidden', 'true')
+    stamp.textContent = 'POWERLIFTING'
+    stamp.style.opacity = '0'
+    header.classList.add('ms-stamp-host')
+    header.appendChild(stamp)
+  }
+
+  /** Places the stamp from the new side's layout, with every transform taken off. */
+  function placeStamp() {
+    const header = stamp?.parentElement ?? null
     const title = header?.querySelector<HTMLElement>('.gr-screen-title') ?? null
-    if (shell == null || header == null || title == null) return
+    if (shell == null || stamp == null || header == null || title == null) return
     const shellTransform = shell.style.transform
     const headerTransform = header.style.transform
     shell.style.transform = ''
@@ -633,22 +654,33 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
     const t = title.getBoundingClientRect()
     shell.style.transform = shellTransform
     header.style.transform = headerTransform
-    stamp = document.createElement('span')
-    stamp.className = 'gr-mode-label-pill ms-stamp'
-    stamp.setAttribute('aria-hidden', 'true')
-    stamp.textContent = 'POWERLIFTING'
     stamp.style.left = `${t.left - h.left}px`
     stamp.style.top = `${t.bottom - h.top + STAMP_GAP}px`
-    stamp.style.opacity = '0'
-    header.classList.add('ms-stamp-host')
-    header.appendChild(stamp)
   }
 
-  /** Straight after the new side is put on: what hops or swells, and the label, are the new side's. */
+  /**
+   * Straight after the new side is put on, inside the reveal's update: what hops or swells, and the label, are the new
+   * side's, and the stamp goes in, unseen. Nothing is measured here: a measure would lay the new side out inside the
+   * update, and the browser lays it out again for the reveal straight after. The blocks are measured, and the stamp
+   * placed, at the next frame's start (`settle`), from the layout the reveal has just made. Until then nothing hops or
+   * swells: the blocks kept from the old side are let go, as a measure would.
+   */
   function afterSwap() {
-    blocks = measureBlocks(shell)
+    for (const b of blocks) b.el.style.transform = ''
+    blocks = []
+    settling = true
     if (kind === 'drop') addStamp()
     if (kind === 'pump') pill = shell?.querySelector<HTMLElement>('.gr-mode-label-pill') ?? null
+  }
+
+  /** Measured as a measure in the update would have been: with the content's own transform off. */
+  function settle() {
+    settling = false
+    const moved = shell?.style.transform ?? ''
+    if (shell != null) shell.style.transform = ''
+    blocks = measureBlocks(shell)
+    placeStamp()
+    if (shell != null) shell.style.transform = moved
   }
 
   function endReveal() {
@@ -707,6 +739,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       }
     },
     paint(t) {
+      if (settling) settle()
       if (drop != null) paintDrop(t, drop)
       else if (pump != null) paintPump(t, pump)
     },
@@ -740,6 +773,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
         .then(() => {
           if (transition !== mine) return
           capturing = false
+          moveContent(wanted)
           if (full) return
           const at = `at ${center.x}px ${center.y}px`
           clip = root.animate(
@@ -781,6 +815,8 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       stamp?.remove()
       root.classList.remove('ms-pumping')
       blocks = []
+      settling = false
+      wanted = ''
       drop = null
       pump = null
       stamp = null

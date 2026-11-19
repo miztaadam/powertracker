@@ -1,5 +1,5 @@
 import { liveQuery } from 'dexie'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { onDataReplaced } from '../backup/backup'
 import { getSettings, type AppSettings, type GritDb } from '../db/db'
 import { playRestTone, unlockAudioOnGesture } from '../platform/audio'
@@ -120,5 +120,8 @@ export function useRest(db: GritDb | null): Rest {
     [db, start],
   )
 
-  return { onSetLogged, store, running: timer.running, flashId }
+  // The same object while nothing in it changes, so what it is passed to need not redraw (the app's shell, when only
+  // the side shown changes).
+  const running = timer.running
+  return useMemo(() => ({ onSetLogged, store, running, flashId }), [onSetLogged, store, running, flashId])
 }
