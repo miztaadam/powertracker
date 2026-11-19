@@ -784,6 +784,92 @@ Plan: `docs/superpowers/plans/2026-11-19-grit-1-14-1-plan-safety-nets.md`.
 
 Not yet tried on a real phone.
 
+## Done: 1.15, mode switch animations (both apps)
+Spec: `docs/superpowers/specs/2026-11-18-grit-mode-switch-animations-design.md`; plan: `docs/superpowers/plans/2026-11-19-grit-mode-switch-animations.md`. The reference: `docs/design/motion/mode-switch.html` and, with the sounds, `docs/design/motion/mode-switch-sound.html`.
+
+**What the lifter gets:** flipping Bodybuilding mode in Settings plays an animation over the whole app, with its own sound and vibration.
+- **Into powerlifting: the hammer drop** (about 1.1 s). The hammer swings in and lands on the bottom edge of the screen; the flash, starburst, shock rings, cracks, chalk and sparks follow, with a hard decaying shake. The powerlifting look bursts out from the hit at the impact (250 ms), and a POWERLIFTING stamp shows just below the title, then fades.
+- **Into bodybuilding: the pump** (about 1.3 s). Three beats at 90, 400 and 750 ms, each bigger; veins of light run from the switch; the blue floods out in a circle from the switch on the third beat.
+- The setting is stored at the tap, as before. A tap anywhere outside the switch's row skips to the end. Flipping again mid-animation ends the running one and plays the new one.
+- A backup restore, another tab, or anything else that changes the stored side changes the look with no animation.
+
+**The owner's decisions:**
+- The hammer drop for powerlifting, tuned: smaller, hitting harder, and landing on the very bottom of the app.
+- The pump for bodybuilding.
+- Vibration is always forced, whatever "Vibrate on taps" says.
+- Reduce motion: no animation, but the vibration and the sound still play.
+- The sounds are approved (2026-11-19: "Animations and sounds are perfect").
+
+**My calls** (the spec's "Settled after the builder check"):
+1. **Light scheme:** the screens use the app's light tokens. The effects keep the reference's colours, except that in light the white flash becomes a dark punch (`#2A2E33` at half the flash opacity), and the cracks, chalk and veins get darker edges so they stay visible. The fix round added ring 1, the sparks and the starburst's edge to the light set (`ModeSwitchMotion.LightColors`, one set for both apps). The owner sees the light shots before the merge.
+2. **The switch is the first row of Settings, which scrolls:** the pump's vein fan aims from the switch towards the screen's centre, scaled to reach the edges; the flood grows from the switch until it covers the screen.
+3. **The POWERLIFTING stamp:** the powerlifting side has no label, so a stamp in the label's style shows at the impact and fades by the end. No permanent label was added. (Since the fix round it sits just below the title, taking no room, on both apps.)
+4. **Only the lifter's own flip in this app starts an animation.**
+5. **Colours:** the app's tokens for the screens, the reference's numbers for the effects only.
+6. **The hammer lands on the bottom edge of the screen.** Android's Settings has no tab bar, so it lands on the bare edge; on the web it lands over the tab bar.
+7. **The content changes too:** the new side's real screen opens inside the circle. On the web through a view transition, on Android inside a clip over a picture of the old side.
+8. **Tests:** the web e2e turns motion off on every page, so the animation tests turn it on.
+9. **The reference** is committed at `docs/design/motion/mode-switch.html`.
+10. **Version** 1.15, versionCode 25.
+
+**Where the apps differ (accepted):**
+- **Sound sync:** the web plays from the clock's offset, joins late and re-syncs drift. Android's `SoundPool` can't seek: it starts at the tap, drops a sound more than 150 ms late, and never re-syncs.
+- **Format:** Android ships Ogg. The web plays Ogg, or the WAV copy where the browser can't play Ogg.
+- **When the sound is decoded:** Android decodes when Settings opens. The web fetches the bytes when Settings opens and decodes at the tap.
+- **Silent mode:** Android plays no sound in silent or vibrate mode. The web can't read the ringer: an iPhone's silent switch mutes Web Audio, and Android browsers follow the media volume.
+- **Vibration:** Android uses amplitudes where the phone has amplitude control, and `USAGE_MEDIA` on Android 13 and later. The web sends `navigator.vibrate` timings only; iPhones get none.
+- **The old side during the reveal:** Android records it 60 ms before the moment, so its swells freeze from then. The web's view transition captures it at the moment.
+- **The circle:** on Android it moves with the shake and the swell. In the web's view transition it is fixed to the screen.
+- **Without view transitions (web only):** the old side's colour shows outside the circle, not its content.
+- **If a picture of the reveal cannot be animated (web only):** the old side stays still, or the new side shows at once (below).
+- **Shake and swell:** the web applies the reference's `deviceShakeY` and `deviceScale` to the shell and the overlay; Android doesn't use them.
+- **The switch at a pump's tap:** on the web it turns blue at the tap, as in the reference. On Android it doesn't.
+- **A tap on the switch during the reveal:** the web forwards the click from `<html>`; Android lets it through its row.
+- **The clock:** Android catches the picture up to the time since the tap once, then adds each frame's step. The web works out the time since the tap on every frame.
+- **Going away:** the web listens for `visibilitychange`. Android ends on Settings' `ON_PAUSE` (leave) and the host's `ON_STOP` (hidden).
+- **Speed checks:** Android times the draw under Robolectric. The web times real frames on the production build.
+
+**The web speed work** (`.superpowers/sdd/2026-11-16-grit-look/115-speed-fix-report.md` and `115-gate-hardening-report.md`):
+- **No `<html>` write per frame:** the old side moves on its own picture, a paused animation on `::view-transition-old(root)`, instead of a CSS variable on `<html>` that restyled the whole document every frame.
+- **A shorter moment:** the view transition's update no longer lays out the new side (the blocks are measured and the stamp placed in the next frame), and the shell is not redrawn when the side shown changes. The update went from a median 8.8 ms to 2.2 ms.
+- **Reveal work per frame** went from about 7 ms to about 4 ms (the gate's pooled median: the old build 6.5–8.2, this one 3.9–5.0).
+- **Deterministic pins,** on the held clock:
+  - no `<html>` writes mid-reveal (at most 16 over a whole switch);
+  - no `getBoundingClientRect` in the update;
+  - the circle grows frame by frame to the whole screen;
+  - the `endReveal` fallback: where the circle can't be animated, the reveal ends at once on the new side.
+- **The `pseudoElement` fallback:** an animation on a picture that the browser applies to `<html>` itself instead is cancelled at once; the old side then stays still, or, for the circle, the new side shows at once.
+- **The circle's and the old side's animations are cancelled** at the reveal's end, and when a reveal is cut short, so nothing is left behind.
+- **The gate** (`web/e2e/modeSwitch.spec.ts`, `@speed`): the app's own script per frame, the frame gaps, the tap, against an idle control and a CPU check that names a busy machine instead of the app, with per-kind reveal-work limits (pump 6.0 ms, drop 5.5 ms, pooled 5.5 ms).
+
+**Tests:**
+- **New, domain:** `ModeSwitchMotionTest` (the timeline, the shapes, the colours, the light set, the vein fan) and `FixedFormatTest` (the shapes' number format, byte for byte on the JVM and in Kotlin/JS, across its Int and Long paths). `ModeSwitchBridgeTest` for the web exports.
+- **New, Android:** `ModeSwitchOverlayTest`, `ModeSwitchFeedbackTest`, `ModeSwitchShellTest`; in `PlanScreenTest`, a failed Add then Cancel with no frame between, held by Plan and said once (it fails on `PlanScreen.kt` from before `0bb5edc`).
+- **New, web:** `ModeSwitchOverlay.test.tsx`, `modeSwitchFeedback.test.ts`, `e2e/modeSwitch.spec.ts` (the behaviour, the pins, the fallbacks, the offline sounds and the speed gate).
+- **Tightened, `ModeSwitchMotionTest`:** the hammer's 22 shapes and the rune are pinned in full (before, the count and two shapes); the five gradients and every effect colour are pinned, copied from the reference page (before, only the gradients' ids); the light set is pinned; the stamp is exactly .5 at 880 ms; the vein fan's centre must be within 10° of its aim from 24 switch places on 4 screens (before, 20° from one), every vein within 85° of the aim, and the fan wider than 100°.
+- **Existing tests changed:** Android `PlanViewModelTest`'s add-failure test is split (with the form's own `onFailed`, Plan's messages stay empty). The new 1.15 tests were also reworked in the fix round (the skip now cancels and ticks 40 ms on both apps; the shots check the reveal and the light colours; `framesKeepTime` includes the reveal). No other existing test was edited.
+
+**The Android vibration note:** the switch's vibration uses `USAGE_MEDIA` on Android 13 and later, so "Vibrate on taps" and touch feedback off don't mute it. It can still be muted by the system's Media vibration switch, the master vibration switch and battery saver. None of this is phone-tested.
+
+**Version:** Android 1.15 (versionCode 25), web 1.15. Settings shots re-shot on both apps.
+
+**Open, owner decision pending:**
+- **Whether the speed gate's lost-frame rule is a hard gate.** The rule fails a run when 2 or more animations of one kind have late frames. On HEAD it failed 2 of 13 quiet runs; the work limits alone separate the old and new builds cleanly. Options: make that rule report-only and keep the work limits hard, loosen the count, or keep it hard.
+- **Whether one skipped frame at the colour-change moment is acceptable,** and up to one bad animation per kind per run, given the spec says no dropped frames. Chromium draws no frame while the view transition captures the new side, in nearly every pump.
+- Before the merge, the owner sees the light shots (plan, spec "Settled" 1).
+
+**Untested:**
+- **Safari/WebKit and Firefox.** Only Chromium was available. Where a browser can't animate the reveal's pictures, the fallback applies: the old side stays still, or the new side shows at once.
+- On real phones: the vibration strength, the media-usage vibration with touch feedback off, the iPhone WAV fallback, the light colours on a real screen, and 60 fps on a mid-range Android phone.
+
+**Follow-ups:**
+- The 5.5 / 6.0 / 5.5 ms work limits are absolute milliseconds on this container (4 vCPUs, headless Chromium). A faster or slower machine needs them measured again.
+- `1abd100` on its own fails `npx tsc -b` (fixed by `7582ae5`). Skip it when bisecting.
+- No test can tell the `onPseudo` try/catch from the `ready` promise's `.catch`: removing the try/catch keeps every test green.
+- On a slow app with one idle miss, the gate says MACHINE BUSY, which hides the slow app (2 of 5 old-build runs). The run still fails.
+- In the drop mutants, the pump medians rose too, and nobody knows why.
+- `tools/render-mode-switch-sounds.js` has no test.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
