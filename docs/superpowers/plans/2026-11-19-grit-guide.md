@@ -205,6 +205,38 @@ fun todayEditor(mode: TrainingMode, step: GuideStep, progress: Double): GuideEdi
 
 **Not built without the owner's say** (each needs a real screen changed, so it would also change the real app): the tick drawing in; the "Skipped today" line sliding in on Android; a tap ring showing where a finger would press (Android gives the guide no way to find a control inside the picture).
 
+### Task 2c: The three extras, then the owner's clip
+
+The owner approved all three from a looping sketch (spec, "Amended while planning" point 8). This task runs before Task 3. Its new clip, not Task 2b's, is what the owner approves before Task 4.
+
+**Files:**
+- Modify (Android, real screen, these effects only): the Today set row's tick and the "Skipped today" block under `app/src/main/kotlin/com/powertracker/ui/today/`; `ui/guide/GuidePictures.kt`, `GuideScreen.kt`.
+- Modify (web, guide only): `web/src/screens/guide/guideFlip.ts`, `GuidePictures.tsx`, `GuideScreen.css`. No file under `web/src/screens/today/` changes.
+- Modify (domain): `Guide.kt` only if a step needs a "tap" target; `JsGuideTypes.kt` to match.
+- Test: beside each file changed, plus `web/e2e/guide.spec.ts`.
+
+**Values (from the sketch the owner saw; keep them):**
+- **Tick:** the circle scales 0.4 → 1.12 → 1 while fading in, and the check's line is drawn start to end. Whole effect within `MOVE_MS`.
+- **Ring:** one ring, 2 px line, centred on the button, growing about 4× while fading from 0.9 to 0, over `FADE_MS`…`MOVE_MS`, ending as the result appears. On screen 4 it is on "Log set" only (what the owner saw). Skip gets no ring unless the builder can anchor it on the row's menu button the same way; say which in the report.
+- **Skipped line:** rises 14 px while fading in.
+
+**Rules:**
+- **On the event only.** On the real Android screen the tick draws only for a set logged now. It does not replay for sets already logged when the screen opens, on restore from the saved state, when a row scrolls back into view, or on a mode switch. The skipped line does not move when the screen opens with skips already there. One test per case.
+- **Motion off.** The app's motion setting and the system's reduced motion turn all three off, on the real screen and in the guide. Tested on both.
+- **The guide's clock.** In the guide each effect is driven by the guide's time, so a held clock holds it and a replay replays it. On Android, if the real screen's tick runs on its own animation clock, the frame strip must still show it mid-draw.
+- **Web's paint rule, amended for the tick only:** the check's line may animate `stroke-dashoffset`; everything else stays transform and opacity. The ring and the rise are transform and opacity.
+- **Ring anchor.** First try to find the button without touching the real screen (web: a query inside the phone frame at the step change, one read; Android: an existing test tag or semantics). Only if that fails, add a marker to the real screen that draws nothing.
+- **At rest nothing changes.** The committed real-Today shots (Android and web) must be byte-for-byte unchanged, or the report says why not.
+
+- [ ] **Step 1:** Failing tests for the rules above (event-only cases, motion off, held clock, at-rest shots).
+- [ ] **Step 2:** Android: the tick and the skipped line on the real screen; the ring in the guide.
+- [ ] **Step 3:** Web: the tick, the ring and the rise in the guide's own layer.
+- [ ] **Step 4:** Full suites, not only the guide's (real screens changed): Gradle `:domain:allTests :domain:checkWebDomain :app:testDebugUnitTest`; web `npm test`, `npx tsc -b`, `npm run build`, `npx playwright test --trace off`. Watch the known `SkipTodayScreenTest` flake: rerun it alone before calling it one.
+- [ ] **Step 5:** Reshoot the `guide-today-*` shots; record the two web videos and the Android frame strip again into `scratchpad/guide-t2d/`. Commit, push if green.
+- [ ] **Step 6:** Stop. The owner approves this clip before Task 4. Task 4's pictures reuse the ring wherever a step stands for a tap.
+
+Task 5's notes gain a line: the real Today screen on Android now draws its tick and slides its "Skipped today" line.
+
 ### Task 3: Opening it: first launch, "seen", the side pick, screen 8, the Settings row
 
 **Files:** Android `data/GuideSeen.kt`, `data/db/Daos.kt`, `ui/AppShell.kt`, `ui/plan/SettingsScreen.kt`; web `screens/guide/guideSeen.ts`, `App.tsx`, `screens/settings/SettingsScreen.tsx`, `screens/install/InstallCard.tsx` (order only). Tests beside each, plus `web/e2e/guide.spec.ts`.

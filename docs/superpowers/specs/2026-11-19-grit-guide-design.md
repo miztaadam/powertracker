@@ -125,6 +125,11 @@
 6. **The owner sees one finished picture first** (screen 4, Today, on both apps) before the other seven are built.
 
 7. **Smoother motion (owner, 2026-11-19: "Plan for the smoother motion now").** The pictures flow between steps instead of snapping. Android's real screens already animate when their state changes, so the guide inherits that. The web's real screens animate only from taps, so the guide adds its own small layout animation there. On both apps the guide feeds in-between values (a weight counting up, a chart drawing in). No real screen is changed. Effects that would need one changed (the tick drawing in, a tap ring) are not built unless the owner asks. The owner sees a clip of screen 4 before the other pictures are built.
+8. **Three extras (owner, 2026-11-19, after a looping sketch: "I like all three").** An approved exception to point 7's "no real screen is changed", for these three effects only:
+   - **The tick draws itself in** when a set is logged. On Android the real Today screen gets it too. On the web it is the guide's own, and the real web Today is left alone until the owner says otherwise.
+   - **A tap ring** pulses once on the button just before its result appears. It shows only in the guide. Android may add a marker to the real screen so the guide can find the button; the marker draws nothing.
+   - **The "Skipped today" line rises in.** On Android the real Today screen gets it too. On the web the guide's line already fades in and gains the same rise.
+   Each plays on the event only (never on open, restore, or scrolling back into view), and each is off under the app's motion setting and reduced motion.
 
 ## Left to the builder
 - **The shape of the guide's definition** in the domain, and how each picture is drawn: reusing the real screens' components with sample state where that's clean, or drawn mock-ups.
