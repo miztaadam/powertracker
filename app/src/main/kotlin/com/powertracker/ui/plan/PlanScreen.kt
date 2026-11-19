@@ -577,6 +577,11 @@ private fun PlanItemDialog(
     // Creates that failed once their picker had been closed: back here, under this form's scrim, Plan's snackbar is
     // hidden, so the form says them.
     var formCreateFailures by remember { mutableIntStateOf(0) }
+    // Decided once the failure is drawn, as the picker decides its own: whoever is open then says it. Not at the failure
+    // itself, since a tap on Close in the same frame takes the picker away before it can.
+    LaunchedEffect(createFailures) {
+        if (createFailures > 0 && !picking) formCreateFailures++
+    }
     val saveFailuresBefore = remember { saveFailures }
     val name = changed?.name ?: exerciseName ?: state.exercises.firstOrNull { it.id == item.exerciseId }?.name ?: "Unknown exercise"
     // Not kept across recreation: a restored form holds taps for a moment again, which does no harm.
@@ -619,10 +624,7 @@ private fun PlanItemDialog(
             },
             // The picker stays until the exercise is made; if making it fails, its create form is still there.
             onCreateCustom = { customName, category, parent, muscles ->
-                onCreateCustom(customName, category, parent, muscles, {
-                    createFailures++
-                    if (!picking) formCreateFailures++
-                }) { entry ->
+                onCreateCustom(customName, category, parent, muscles, { createFailures++ }) { entry ->
                     changed = entry
                     picking = false
                 }

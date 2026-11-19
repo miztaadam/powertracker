@@ -31,14 +31,45 @@ class TestDatabase : ExternalResource() {
     /** Queries and writes handed to this rule's threads and not yet finished. */
     val inFlight: Int get() = running.get()
 
+    /**
+     * While true, work runs on the thread that hands it over, at once. A suspending query then answers before its caller
+     * has suspended, as it does when this rule's thread finishes first (a busy machine): the caller goes on without
+     * leaving the frame, or the tap, it was called from.
+     */
+    @Volatile
+    var answerAtOnce = false
+
+    @Volatile
+    private var gate: java.util.concurrent.CountDownLatch? = null
+
+    /** Work handed over from now on waits, on this rule's threads, until the returned function is called. */
+    fun holdWork(): () -> Unit {
+        val latch = java.util.concurrent.CountDownLatch(1)
+        gate = latch
+        return {
+            gate = null
+            latch.countDown()
+        }
+    }
+
     override fun before() {
         val threads = Executors.newCachedThreadPool { work -> Thread(work, "test-database").apply { isDaemon = true } }
         executor = threads
         val counted = java.util.concurrent.Executor { work ->
             running.incrementAndGet()
+            if (answerAtOnce) {
+                try {
+                    work.run()
+                } finally {
+                    running.decrementAndGet()
+                }
+                return@Executor
+            }
+            val held = gate
             try {
                 threads.execute {
                     try {
+                        held?.await()
                         work.run()
                     } finally {
                         running.decrementAndGet()

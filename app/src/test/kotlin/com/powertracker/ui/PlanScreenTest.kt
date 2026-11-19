@@ -1111,6 +1111,66 @@ class PlanScreenTest {
         assertTrue(!tyreFlipStored())
     }
 
+    /**
+     * The create form cancelled and gone, the failure lands and Close is tapped before the next frame: the picker counted
+     * it but is never drawn again to say it, so the add form must.
+     */
+    @Test
+    fun planAdd_changeToOwnExerciseFails_inTheFrameThePickerCloses_theAddFormSaysSo() {
+        failExerciseInserts()
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        openCreateForm()
+        compose.fillCustomExercise()
+        val release = database.holdWork()
+        compose.onNode(createInForm).performClick()
+        compose.onNode(cancelInForm).performClick()
+        waitFor { !compose.createFormOpen() && pickerOpen() }
+        val close = click(closePicker)
+        compose.runOnUiThread {
+            release()
+            // The failed insert hands its answer to the main thread; it is handled there, then Close, with no frame between.
+            while (database.inFlight > 0) Thread.sleep(1)
+            org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+            close()
+        }
+
+        waitRecording { saidOverTheDialog() }
+        assertTrue(!pickerOpen())
+        assertAddForm("Squat")
+        assertTrue(!tyreFlipStored())
+    }
+
+    /**
+     * The insert answers before the Create tap has returned (the database's thread was quicker than the main one), so
+     * the failure is handled while the create form is still open; then Cancel and Close, before any frame. The forms that
+     * were open at the failure are never drawn again: the add form, the one left, says it. The order the 2026-11-18 and
+     * 2026-11-19 failures of the test above were caught in.
+     */
+    @Test
+    fun planAdd_changeToOwnExerciseFails_answeredWithinTheCreateTap_thenThePickerClosed_theAddFormSaysSo() {
+        failExerciseInserts()
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        openCreateForm()
+        compose.fillCustomExercise()
+        database.answerAtOnce = true
+        try {
+            createThen(cancelInForm, closePicker)
+        } finally {
+            database.answerAtOnce = false
+        }
+
+        waitRecording { saidOverTheDialog() }
+        assertTrue(!pickerOpen())
+        assertAddForm("Squat")
+        assertTrue(!tyreFlipStored())
+    }
+
     @Test
     fun planAdd_changeToOwnExerciseFails_afterTheFormWasCancelled_thePickerSaysSo() {
         failExerciseInserts()
