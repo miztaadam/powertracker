@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -258,8 +259,18 @@ fun TodayContent(
     val line = remember { LineMemory() }
     val lineKey = state.mode to state.date
     val hasLine = state.skippedToday.isNotEmpty()
-    if (motion && !state.loading && line.key == lineKey && hasLine && !line.had) line.rising = true
-    if (!hasLine || line.key != lineKey) line.rising = false
+    // True only in the draw the skip arrives in: the line rises if it is drawn then, never when first scrolled to later
+    // or scrolled back.
+    val arriving = motion && !state.loading && line.key == lineKey && hasLine && !line.had
+    if (arriving) {
+        line.arriving = true
+        line.arrivals++
+    }
+    // The line, if it is on screen, is drawn in this frame's layout; by the next frame the arrival is over.
+    LaunchedEffect(line.arrivals) {
+        withFrameNanos {}
+        line.arriving = false
+    }
     SideEffect {
         if (!state.loading) {
             line.key = lineKey
@@ -267,7 +278,9 @@ fun TodayContent(
         }
     }
     val skippedLine = @Composable {
-        SkippedTodayLine(state.skippedToday, actions.onBringBack, if (line.rising) risingIn { line.rising = false } else Modifier)
+        // Whether it came with the skip, as this line was first drawn; kept while it is drawn, gone when it is not.
+        var rising by remember { mutableStateOf(line.arriving) }
+        SkippedTodayLine(state.skippedToday, actions.onBringBack, if (rising) risingIn { rising = false } else Modifier)
     }
 
     val list = rememberLazyListState()
@@ -431,7 +444,8 @@ private class LineMemory {
     /** The side and day last drawn loaded: null until then, so what the screen opens with is simply there. */
     var key: Any? = null
     var had = false
-    var rising = false
+    var arriving = false
+    var arrivals = 0
 }
 
 /** The skipped line rising [riseIn] as it fades in, over the last of its time; [onOver] when done. */

@@ -126,12 +126,15 @@
   pointer-events: none;
 }
 
-/* The tap ring (1.16): a thin circle on the control pressed, placed and sized where it is made; it grows as it fades. */
+/*
+ * The tap ring (1.16): a thin circle on the control pressed, placed and sized where it is made; it grows as it fades.
+ * In the pressed button's own ink (Log set: a primary button), so it shows on that button on either side and scheme.
+ */
 .guide-tap-ring {
   position: absolute;
   box-sizing: border-box;
   border-style: solid;
-  border-color: var(--text);
+  border-color: var(--accent-ink);
   border-radius: 50%;
 }
 

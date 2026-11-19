@@ -183,7 +183,8 @@ internal fun TodayPicture(mode: TrainingMode, step: GuideStep, progress: Double 
  */
 @Composable
 private fun TapRing(frame: GuideFrame, anchors: TapAnchors) {
-    val color = MaterialTheme.colorScheme.onBackground
+    // In the pressed button's own ink (Log set: a primary button), so it shows on that button on either side and scheme.
+    val color = PowertrackerTheme.colors.onAccent
     val tap = frame.tap
     val p = frame.tapProgress.toFloat()
     Box(

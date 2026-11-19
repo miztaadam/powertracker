@@ -219,7 +219,6 @@ class EventMotionTest {
     @Test
     @Config(qualifiers = "w411dp-h700dp-xxhdpi")
     fun tick_isStill_whenItsRowScrollsBackIntoView() {
-        val more = (10L..20L).map { Exercise(it, "Lift $it", Category.ACCESSORY, null, emptyList(), isBuiltIn = true) }
         show(state(item(squat), *more.map { item(it) }.toTypedArray()))
         compose.onNodeWithText("Log set 1").performClick()
         compose.mainClock.advanceTimeBy(EVENT_MOVE_MS + 500L)
@@ -306,6 +305,36 @@ class EventMotionTest {
         assertNull(rise())
         // A second skip while the line shows: the line is already there and stays where it is.
         set(state(item(squat), skipped = listOf(row, bench)))
+        everyFrame { assertNull(rise()) }
+    }
+
+    private val more = (10L..20L).map { Exercise(it, "Lift $it", Category.ACCESSORY, null, emptyList(), isBuiltIn = true) }
+
+    @Test
+    @Config(qualifiers = "w411dp-h700dp-xxhdpi")
+    fun line_isStill_whenFirstScrolledTo_afterASkipMadeOffScreen() {
+        show(state(item(squat), *more.map { item(it) }.toTypedArray(), item(row)))
+        set(state(item(squat), *more.map { item(it) }.toTypedArray(), skipped = listOf(row)))
+        compose.mainClock.advanceTimeBy(EVENT_MOVE_MS + 500L)
+        assertEquals("off-screen", 0, compose.onAllNodes(hasTestTag("skipped-today")).fetchSemanticsNodes().size)
+        // The list: the items, Add exercise, then the line.
+        todayList().performScrollToIndex(more.size + 2)
+        everyFrame { assertNull(rise()) }
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h700dp-xxhdpi")
+    fun line_isStill_whenScrolledAwayMidRiseAndBack() {
+        show(state(item(squat), *more.map { item(it) }.toTypedArray(), item(row)))
+        todayList().performScrollToIndex(more.size + 2)
+        compose.mainClock.advanceTimeBy(500)
+        set(state(item(squat), *more.map { item(it) }.toTypedArray(), skipped = listOf(row)))
+        compose.mainClock.advanceTimeByFrame()
+        compose.mainClock.advanceTimeByFrame()
+        assertNotNull("it rises where it is seen", rise())
+        todayList().performScrollToIndex(0)
+        compose.mainClock.advanceTimeBy(EVENT_MOVE_MS / 2L)
+        todayList().performScrollToIndex(more.size + 2)
         everyFrame { assertNull(rise()) }
     }
 
