@@ -172,8 +172,10 @@ class AndroidModeSwitchFeedback(
                     stream = made.play(id, 1f, 1f, 1, 0, 1f)
                 }
             }
-            ids[ModeSwitchKind.DROP] = made.load(app, R.raw.grit_hammer_drop, 1)
-            ids[ModeSwitchKind.PUMP] = made.load(app, R.raw.grit_pump, 1)
+            // The wanted one first: a fresh install is on powerlifting, so its first switch is the pump.
+            val other = if (kind == ModeSwitchKind.DROP) ModeSwitchKind.PUMP else ModeSwitchKind.DROP
+            ids[kind] = made.load(app, rawOf(kind), 1)
+            ids[other] = made.load(app, rawOf(other), 1)
         }
         val id = ids[kind] ?: return
         if (id in loaded) {
@@ -207,5 +209,7 @@ class AndroidModeSwitchFeedback(
 
     private companion object {
         const val LATE_MS = 150L
+
+        fun rawOf(kind: ModeSwitchKind) = if (kind == ModeSwitchKind.DROP) R.raw.grit_hammer_drop else R.raw.grit_pump
     }
 }

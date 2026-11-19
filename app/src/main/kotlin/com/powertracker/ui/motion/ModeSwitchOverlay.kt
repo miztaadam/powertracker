@@ -78,7 +78,8 @@ import kotlin.math.min
  * Without a [LocalModeSwitch] controller it is just [content].
  *
  * While an animation runs:
- * - one frame clock ([withFrameMillis]) drives the controller;
+ * - one frame clock ([withFrameMillis]) drives the controller on wall time, as the sound and the vibration run from the
+ *   tap: a late frame jumps ahead rather than falling behind them;
  * - the content shakes (the drop) or swells (the pump) as one layer;
  * - from just before the moment, the old side is kept as a recorded picture and drawn outside the reveal circle, so
  *   the new side's real screen opens inside it (spec "Settled" 7);
@@ -121,7 +122,7 @@ fun ModeSwitchHost(content: @Composable () -> Unit) {
         var last = withFrameMillis { it }
         while (controller.kind != null && controller.run == run) {
             withFrameMillis { now ->
-                if (controller.run == run) controller.advanceBy(min(MAX_STEP_MS, now - last).toDouble())
+                if (controller.run == run) controller.advanceBy((now - last).coerceAtLeast(0L).toDouble())
                 last = now
             }
         }
@@ -180,10 +181,10 @@ fun ModeSwitchHost(content: @Composable () -> Unit) {
     }
 }
 
-/** The longest step the clock takes in one frame, so a stalled frame never jumps the animation ahead. */
-private const val MAX_STEP_MS = 50L
-
-/** How long before the moment the old side is recorded: by then the screen under the hammer or the beats is still. */
+/**
+ * How long before the moment the old side is recorded: by then the screen under the hammer or the beats is still. A
+ * frame that jumps over this window gives a plain swap at the moment.
+ */
 private const val CAPTURE_LEAD_MS = 60.0
 
 private class ArtHolder {
