@@ -9,10 +9,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import com.powertracker.domain.guide.GuideScreenId
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.Tab
+import com.powertracker.ui.guide.GuideScreen
 import com.powertracker.ui.library.CatalogueThumbnails
 import com.powertracker.ui.lock.LockScreen
 import com.powertracker.ui.plan.builder.BuilderStep
@@ -275,4 +277,15 @@ class ScreenshotTest {
 
     @Test
     fun lockNoScreenLock() = render("lock-no-screen-lock", null) { LockScreen(noDeviceLock = true, onUnlock = {}, onContinue = {}) }
+
+    /** The guide's screen 4 at its last step (motion off shows it), on each side (1.16). */
+    @Test
+    fun guideTodayPowerlifting() = render("guide-today-powerlifting", null) { GuideTodayShowcase(TrainingMode.POWERLIFTING) }
+
+    @Test
+    fun guideTodayBodybuilding() = render("guide-today-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideTodayShowcase(TrainingMode.BODYBUILDING) }
 }
+
+@Composable
+private fun GuideTodayShowcase(mode: TrainingMode) =
+    GuideScreen(mode, firstLaunch = false, hasPlan = false, motionOn = false, onPickSide = {}, onClose = {}, startAt = GuideScreenId.TODAY)

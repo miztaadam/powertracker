@@ -4,7 +4,7 @@ import type { TrainingMode } from './db/schema'
 /** The main lifts, in the domain's order. */
 export type Lift = 'SQUAT' | 'BENCH' | 'DEADLIFT' | 'STRICT_PRESS'
 export type Tab = 'today' | 'coach' | 'progress' | 'exercises' | 'plan'
-export type Route = { tab: Tab } | { page: 'settings' } | { page: 'lift'; lift: Lift } | { page: 'exercise'; exerciseId: number } | { page: 'planBuilder' } | { page: 'templates'; mode: TrainingMode } | { page: 'checkIn' }
+export type Route = { tab: Tab } | { page: 'settings' } | { page: 'lift'; lift: Lift } | { page: 'exercise'; exerciseId: number } | { page: 'planBuilder' } | { page: 'templates'; mode: TrainingMode } | { page: 'checkIn' } | { page: 'guide' }
 
 /** The tabs, in the order the bar shows them. */
 export const TABS: readonly Tab[] = ['today', 'coach', 'progress', 'exercises', 'plan']
@@ -18,6 +18,8 @@ export function parseHash(hash: string): Route {
   if (parts.length === 1 && TABS.includes(head as Tab)) return { tab: head as Tab }
   if (parts.length === 1 && head === 'settings') return { page: 'settings' }
   if (parts.length === 1 && head === 'checkin') return { page: 'checkIn' }
+  // The guide (1.16): full screen, no tab bar. Nothing opens it by itself yet.
+  if (parts.length === 1 && head === 'guide') return { page: 'guide' }
   if (parts.length === 2 && head === 'plan' && arg === 'build') return { page: 'planBuilder' }
   // The templates of one side (1.14): #/plan/templates/powerlifting or #/plan/templates/bodybuilding.
   if (parts.length === 3 && head === 'plan' && arg === 'templates' && (parts[2] === 'powerlifting' || parts[2] === 'bodybuilding'))
@@ -33,6 +35,7 @@ export function routeToHash(route: Route): string {
   if (route.page === 'planBuilder') return '#/plan/build'
   if (route.page === 'templates') return `#/plan/templates/${route.mode === 'BODYBUILDING' ? 'bodybuilding' : 'powerlifting'}`
   if (route.page === 'checkIn') return '#/checkin'
+  if (route.page === 'guide') return '#/guide'
   if (route.page === 'exercise') return `#/exercise/${route.exerciseId}`
   return `#/lift/${route.lift}`
 }

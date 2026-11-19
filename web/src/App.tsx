@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { lazy, memo, Suspense, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { onDbVersionChange, type GritDb } from './db/db'
 import type { SchemaVersion } from './db/schema'
 import { singleTabGuard, type SingleTabGuard, type TabRole } from './platform/singleTab'
@@ -103,8 +103,28 @@ function screenFor(route: Route, db: GritDb, { session, browser, planMessage, se
     )
   if (route.page === 'checkIn') return <CheckInScreen db={db} onLeave={leaveCheckIn} onSeeCoach={() => goBack({ tab: 'coach' })} onDone={leaveCheckIn} />
   if (route.page === 'settings') return <SettingsScreen db={db} onBack={() => goBack({ tab: 'plan' })} />
+  // Drawn by the Shell over everything, in place of the screens and the tab bar.
+  if (route.page === 'guide') return null
   if (route.page === 'exercise') return <ExerciseHistoryScreen db={db} exerciseId={route.exerciseId} onBack={() => goBack({ tab: 'progress' })} />
   return <LiftHistoryScreen db={db} lift={route.lift} onBack={() => goBack({ tab: 'progress' })} />
+}
+
+/** The guide (1.16), a chunk of its own: nothing of it is loaded until it is opened. */
+const GuideScreen = lazy(() => import('./screens/guide/GuideScreen'))
+
+/**
+ * The guide as a route: a replay on the side the app is on. It picks no side and writes nothing; every exit goes back
+ * where it was opened from, or to Today. The first launch and screen 8's plan buttons come with Task 3.
+ */
+function GuideRoute() {
+  const mode = useContext(TrainingModeContext)
+  // Read once: reduced motion and the e2e flag both put data-motion="off" on <html> before the app starts.
+  const [motionOn] = useState(() => document.documentElement.getAttribute('data-motion') !== 'off')
+  return (
+    <Suspense fallback={<BlankScreen />}>
+      <GuideScreen mode={mode} firstLaunch={false} hasPlan={false} motionOn={motionOn} onPickSide={() => {}} onClose={() => leave({ tab: 'today' })} />
+    </Suspense>
+  )
 }
 
 /** Leaving the check-in, saved or not, goes back where it was opened from (Coach or Progress), or to Coach. */
@@ -141,6 +161,8 @@ const Shell = memo(function Shell({ db, rest, registerSW }: { db: GritDb; rest: 
   const dock = useRef<HTMLDivElement>(null)
   // Messages rise by the dock's real height, so they clear its buttons at any text size.
   const dockHeight = useElementHeight(dock, showDock)
+  // The guide covers the whole app: no tab bar, no rest dock.
+  if ('page' in route && route.page === 'guide') return <GuideRoute />
   return (
     <>
       <div className="shell" style={{ '--rest-dock-height': `${dockHeight}px` } as CSSProperties}>

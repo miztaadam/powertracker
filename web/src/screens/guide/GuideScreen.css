@@ -1,0 +1,150 @@
+/* The guide (1.16): full screen over the app, in the tokens of the side shown. */
+.guide {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overflow: hidden;
+}
+
+.guide-top {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-1) var(--space-2);
+}
+
+.guide-pages {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  /* Vertical scrolling of the text stays the browser's; a sideways move is the guide's swipe. */
+  touch-action: pan-y;
+}
+
+.guide-page {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--space-5);
+}
+
+:root:not([data-motion='off']) .guide-page {
+  animation: guide-page-in 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes guide-page-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+/* The text keeps up to 60% of the height, scrolling past it; it wraps and is never cut. */
+.guide-text {
+  flex: none;
+  max-height: 60%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.guide-title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.guide-line {
+  margin: 0;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+/* The picture takes what the text leaves, and shrinks to fit it. */
+.guide-art {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) 0 var(--space-1);
+}
+
+.guide-example {
+  flex: none;
+}
+
+.guide-picture-slot {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.guide-picture {
+  position: relative;
+  /* clip, not hidden: the screen drawn inside may ask to scroll its open card into view, and must not move. */
+  overflow: clip;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+}
+
+.guide-picture-empty {
+  width: 100%;
+  height: 100%;
+}
+
+.guide-phone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  overflow: clip;
+  /* The phone's status bar: the screen's header starts below the frame's rounded corner. */
+  padding-top: 24px;
+  box-sizing: border-box;
+}
+
+.guide-picture-screen {
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.guide-dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+}
+
+.guide-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--hairline);
+}
+
+.guide-dot-current {
+  background: var(--accent);
+}
+
+.guide-controls {
+  display: flex;
+  gap: var(--space-2);
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+.guide-next {
+  flex: 1;
+}

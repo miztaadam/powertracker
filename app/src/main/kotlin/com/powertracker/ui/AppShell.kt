@@ -44,6 +44,7 @@ import com.powertracker.domain.model.TrainingMode
 import kotlinx.coroutines.flow.map
 import com.powertracker.ui.checkin.CheckInScreen
 import com.powertracker.ui.coach.CoachScreen
+import com.powertracker.ui.guide.GuideScreen
 import com.powertracker.ui.library.ExercisesScreen
 import com.powertracker.ui.motion.ModeSwitchHost
 import com.powertracker.ui.plan.PlanScreen
@@ -55,6 +56,7 @@ import com.powertracker.ui.plan.PLAN_SAVED
 import com.powertracker.ui.progress.ExerciseHistoryScreen
 import com.powertracker.ui.progress.LiftHistoryScreen
 import com.powertracker.ui.progress.ProgressScreen
+import com.powertracker.ui.theme.LocalMotion
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.today.TodayScreen
 import com.powertracker.ui.today.rememberRestTimerHooks
@@ -84,6 +86,8 @@ object Routes {
     fun templates(mode: TrainingMode) = "templates/${mode.name}"
     /** The bodybuilding side's check-in (stage 3). */
     const val CHECK_IN = "checkIn"
+    /** The guide (1.16): full screen, no tab bar. Nothing opens it by itself yet. */
+    const val GUIDE = "guide"
 }
 
 @Composable
@@ -213,6 +217,14 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(settings, backup, onBack = { nav.popBackStack() })
+            }
+            composable(Routes.GUIDE) {
+                // A replay: it picks no side and writes nothing; every exit goes back. The first launch and screen 8's
+                // plan buttons come with Task 3.
+                GuideScreen(
+                    mode ?: TrainingMode.POWERLIFTING, firstLaunch = false, hasPlan = false, motionOn = LocalMotion.current,
+                    onPickSide = {}, onClose = { nav.popBackStack() },
+                )
             }
         }
     }

@@ -12,6 +12,7 @@ export {
   JsDraftSession,
   JsExercise,
   JsFormGuide,
+  JsGuideScreen,
   JsHistory,
   JsLibraryExercise,
   JsMuscleFocus,
