@@ -319,4 +319,74 @@ class GuideSampleTest {
             assertEquals(listOf(1L, 2L, 3L, 4L), GuideSample.advice(mode).map { it.id }, "$mode: ids for list keys")
         }
     }
+
+    // ---- screen 4 part-way through a move (Task 2b) ----
+
+    /** The editor at progress 0, a few points between and 1, for each of screen 4's steps. */
+    private fun editors(mode: TrainingMode, step: GuideStep) = (0..20).map { GuideSample.todayEditor(mode, step, it / 20.0) }
+
+    @Test
+    fun todayEditor_onlyShowsValuesTheAppAllows() {
+        val grid = com.powertracker.domain.plates.PlateLoader.step(changePlates = false)
+        for (mode in modes) {
+            val steps = Guide.steps(GuideScreenId.TODAY, mode)
+            for ((i, step) in steps.withIndex()) {
+                val shown = editors(mode, step)
+                val before = if (i == 0) shown.last() else GuideSample.todayEditor(mode, steps[i - 1], 1.0)
+                val after = shown.last()
+                for (e in shown) {
+                    e.weightKg?.let { kg ->
+                        assertEquals(0.0, kg % grid, 1e-9, "$mode $step: $kg kg is off the $grid kg grid")
+                        assertTrue(com.powertracker.domain.plates.PlateLoader.perSide(kg, changePlates = false)!!.isNotEmpty(), "$mode $step: $kg kg puts no plates on")
+                    }
+                    assertEquals(0.0, e.rpe * 2 % 1, 1e-9, "$mode $step: RPE ${e.rpe} is not in halves")
+                }
+                // Each field moves one way only, from where the step before left it to the step's end.
+                fun <T : Comparable<T>> monotonic(values: List<T>, from: T, to: T, what: String) {
+                    val all = listOf(from) + values + listOf(to)
+                    assertTrue(all == all.sorted() || all == all.sortedDescending(), "$mode $step $what: $all")
+                }
+                monotonic(shown.map { it.weightKg ?: 0.0 }, before.weightKg ?: 0.0, after.weightKg ?: 0.0, "weight")
+                monotonic(shown.map { it.reps }, before.reps, after.reps, "reps")
+                monotonic(shown.map { it.rpe }, before.rpe, after.rpe, "RPE")
+                // Once the weight is in, it stays in: no frame of a later step empties it.
+                if (before.weightKg != null) assertTrue(shown.all { it.weightKg != null }, "$mode $step: the weight emptied")
+            }
+        }
+    }
+
+    @Test
+    fun todayEditor_atProgressOne_equalsTheStepsEndState() {
+        for (mode in modes) {
+            val steps = Guide.steps(GuideScreenId.TODAY, mode)
+            val sample = GuideSample.today(mode)
+            val exercises = GuideSample.exercises(mode)
+            val item = GuideSample.todayItems(mode).single { exercises.getValue(it.exerciseId).name == sample.exerciseId }
+            for ((i, step) in steps.withIndex()) {
+                fun at(s: GuideStep) = i >= steps.indexOf(s)
+                val end = GuideEditor(
+                    if (at(GuideStep.TODAY_WEIGHT)) sample.doneWeightKg else null,
+                    if (at(GuideStep.TODAY_REPS)) sample.doneReps else item.reps,
+                    if (at(GuideStep.TODAY_RPE)) sample.doneRpe else item.targetRpe,
+                )
+                assertEquals(end, GuideSample.todayEditor(mode, step, 1.0), "$mode $step")
+            }
+        }
+    }
+
+    /** The weight rolls up through loadable weights rather than jumping; bodybuilding's reps pass through the one between. */
+    @Test
+    fun todayEditor_midMove_showsAValueStrictlyBetween() {
+        for (mode in modes) {
+            val sample = GuideSample.today(mode)
+            val mid = GuideSample.todayEditor(mode, GuideStep.TODAY_WEIGHT, 0.5).weightKg!!
+            assertTrue(mid > 0.0 && mid < sample.doneWeightKg, "$mode: $mid kg")
+            val weights = editors(mode, GuideStep.TODAY_WEIGHT).mapNotNull { it.weightKg }.distinct()
+            assertTrue(weights.size >= 10, "$mode: the weight shows ${weights.size} values on its way")
+        }
+        val bb = TrainingMode.BODYBUILDING
+        val start = GuideSample.todayEditor(bb, GuideStep.TODAY_WEIGHT, 1.0).reps
+        val end = GuideSample.todayEditor(bb, GuideStep.TODAY_REPS, 1.0).reps
+        assertTrue(editors(bb, GuideStep.TODAY_REPS).any { it.reps > minOf(start, end) && it.reps < maxOf(start, end) }, "$start to $end reps")
+    }
 }

@@ -12,6 +12,8 @@ export {
   JsDraftSession,
   JsExercise,
   JsFormGuide,
+  JsGuideEditor,
+  JsGuideFrame,
   JsGuideScreen,
   JsHistory,
   JsLibraryExercise,

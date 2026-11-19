@@ -111,11 +111,19 @@ export declare namespace GritDomain {
             guideScreen(id: string, mode: string): JsGuideScreen;
             guideSteps(id: string, mode: string): Array<string>;
             guideStepMs(): number;
+            guideMoveMs(): number;
+            guideFadeMs(): number;
+            guideStepStartMs(index: number): number;
+            guideSettledMs(index: number): number;
+            guideDoneMs(count: number): number;
+            guideEase(x: number): number;
+            guideFrame(id: string, mode: string, tMs: number): JsGuideFrame;
             guideSampleToday(): string;
             guideSampleTemplate(mode: string): JsPlanTemplate;
             guideSamplePlan(mode: string): Array<JsPlanItem>;
             guideSampleTodayItems(mode: string): Array<JsPlanItem>;
             guideSampleExercises(mode: string): Array<JsExercise>;
+            guideSampleTodayEditor(mode: string, step: string, progress: number): JsGuideEditor;
             guideSampleTodaySet(mode: string): JsGuideTargetStep;
             guideSampleTargets(mode: string): Array<JsGuideTargetStep>;
             guideSampleAdvice(mode: string): Array<JsAdvice>;
@@ -223,6 +231,39 @@ export declare namespace JsGuideProgress {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsGuideProgress;
+    }
+}
+export declare class JsGuideFrame {
+    constructor(stepIndex: number, step: string, progress: number, done: boolean);
+    get stepIndex(): number;
+    get step(): string;
+    get progress(): number;
+    get done(): boolean;
+    copy(stepIndex?: number, step?: string, progress?: number, done?: boolean): JsGuideFrame;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideFrame {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideFrame;
+    }
+}
+export declare class JsGuideEditor {
+    constructor(weightKg: Nullable<number>, reps: number, rpe: number);
+    get weightKg(): Nullable<number>;
+    get reps(): number;
+    get rpe(): number;
+    copy(weightKg?: Nullable<number>, reps?: number, rpe?: number): JsGuideEditor;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideEditor {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideEditor;
     }
 }
 export declare class JsMotionPoint {

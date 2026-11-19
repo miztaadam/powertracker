@@ -221,4 +221,56 @@ class GuideTest {
         assertTrue(returnAfter(Coach.GAP_DAYS), "a gap of Coach.GAP_DAYS is a return")
         assertFalse(returnAfter(Coach.GAP_DAYS - 1), "a day short of Coach.GAP_DAYS is not")
     }
+
+    // ---- time: one definition for both apps (Task 2b) ----
+
+    @Test
+    fun frame_stepsAndProgress_overTime() {
+        val id = GuideScreenId.TODAY
+        for (mode in modes) {
+            val steps = Guide.steps(id, mode)
+            val span = Guide.MOVE_MS + Guide.STEP_MS
+            assertTrue(Guide.MOVE_MS in 280..320, "a move as long as the apps' own: ${Guide.MOVE_MS}")
+            // The first step is simply there: nothing moves into it, and it holds for a step's span.
+            assertEquals(GuideFrame(0, steps[0], 1.0, false), Guide.frame(id, mode, 0))
+            assertEquals(GuideFrame(0, steps[0], 1.0, false), Guide.frame(id, mode, -50))
+            assertEquals(GuideFrame(0, steps[0], 1.0, false), Guide.frame(id, mode, span - 1))
+            for (i in 1 until steps.size) {
+                val start = i * span
+                assertEquals(start, Guide.stepStartMs(i))
+                assertEquals(start + Guide.MOVE_MS, Guide.settledMs(i))
+                // Its move: progress from 0, rising, to 1 at the move's end; then it holds at 1 until the next step.
+                assertEquals(GuideFrame(i, steps[i], 0.0, false), Guide.frame(id, mode, start))
+                val mid = Guide.frame(id, mode, start + Guide.MOVE_MS / 2)
+                assertEquals(i, mid.stepIndex)
+                assertTrue(mid.progress > 0.0 && mid.progress < 1.0, "step $i mid-move: ${mid.progress}")
+                val progress = (0..Guide.MOVE_MS step 10).map { Guide.frame(id, mode, start + it).progress }
+                assertEquals(progress, progress.sorted(), "step $i: progress never goes back")
+                val last = i == steps.lastIndex
+                assertEquals(GuideFrame(i, steps[i], 1.0, last), Guide.frame(id, mode, start + Guide.MOVE_MS))
+                if (!last) assertEquals(GuideFrame(i, steps[i], 1.0, false), Guide.frame(id, mode, start + span - 1))
+            }
+            // The last step holds for good, done.
+            val end = Guide.settledMs(steps.lastIndex)
+            assertEquals(end, Guide.doneMs(steps.size))
+            assertFalse(Guide.frame(id, mode, end - 1).done)
+            for (t in listOf(end, end + 1, end + 60_000)) assertEquals(GuideFrame(steps.lastIndex, steps.last(), 1.0, true), Guide.frame(id, mode, t))
+        }
+        // A picture of one step is done at once.
+        assertEquals(GuideFrame(0, GuideStep.SIDE_LOOP, 1.0, true), Guide.frame(GuideScreenId.SIDE, TrainingMode.POWERLIFTING, 0))
+        assertEquals(0, Guide.doneMs(1))
+    }
+
+    @Test
+    fun ease_isTheWebsMoveCurve_fromZeroToOne() {
+        assertEquals(0.0, Guide.ease(0.0))
+        assertEquals(1.0, Guide.ease(1.0))
+        assertEquals(0.0, Guide.ease(-1.0))
+        assertEquals(1.0, Guide.ease(2.0))
+        val curve = (0..100).map { Guide.ease(it / 100.0) }
+        assertEquals(curve, curve.sorted())
+        // cubic-bezier(0.2, 0.8, 0.2, 1): fast out, slow in. At a quarter of the time it is well over half way.
+        assertTrue(abs(Guide.ease(0.25) - 0.767) < 0.002, "${Guide.ease(0.25)}")
+        assertTrue(abs(Guide.ease(0.5) - 0.946) < 0.002, "${Guide.ease(0.5)}")
+    }
 }

@@ -71,10 +71,71 @@ enum class GuideStep {
     TURN_BUTTONS,
 }
 
-/** The guide: its 8 screens, their copy for each side, and each picture's steps. */
+/**
+ * Where a picture is at one moment: step [stepIndex] ([step]) of its screen, [progress] (0 to 1, eased) through the move
+ * into it, 1 while it holds; [done] once the last step has settled, which it then holds for good.
+ */
+data class GuideFrame(val stepIndex: Int, val step: GuideStep, val progress: Double, val done: Boolean)
+
+/** The guide: its 8 screens, their copy for each side, each picture's steps, and their time. */
 object Guide {
-    /** One picture step, in milliseconds. */
+    /** How long a picture step holds once its move has ended, in milliseconds. */
     const val STEP_MS: Int = 900
+
+    /**
+     * A step's move, in milliseconds: the web's own layout moves (280 ms); Android's move spring settles a card-sized
+     * move in about as long. Each step after the first moves for this long, then holds for [STEP_MS].
+     */
+    const val MOVE_MS: Int = 280
+
+    /** A row that is new in a step fades in (or a row that has gone fades out) this long: the apps' fades. */
+    const val FADE_MS: Int = 150
+
+    /** The move's curve: the web's `cubic-bezier(0.2, 0.8, 0.2, 1)` (its layout moves), as control points. */
+    private const val EASE_X1 = 0.2
+    private const val EASE_Y1 = 0.8
+    private const val EASE_X2 = 0.2
+    private const val EASE_Y2 = 1.0
+
+    private const val SPAN_MS = MOVE_MS + STEP_MS
+
+    /** When step [index] starts: its move, or for the first step the picture itself. */
+    fun stepStartMs(index: Int): Int = index * SPAN_MS
+
+    /** When step [index] has settled: its move over (the first step has none). */
+    fun settledMs(index: Int): Int = if (index <= 0) 0 else stepStartMs(index) + MOVE_MS
+
+    /** When a picture of [count] steps is done: its last step settled. */
+    fun doneMs(count: Int): Int = settledMs(count - 1)
+
+    /** The move's curve at [x], 0 to 1 of its time: how far it has gone, 0 to 1. */
+    fun ease(x: Double): Double {
+        if (x <= 0.0) return 0.0
+        if (x >= 1.0) return 1.0
+        fun bezier(a: Double, b: Double, t: Double): Double {
+            val u = 1 - t
+            return 3 * u * u * t * a + 3 * u * t * t * b + t * t * t
+        }
+        // The curve's x rises with t: find the t whose x is [x] by halving.
+        var lo = 0.0
+        var hi = 1.0
+        repeat(40) {
+            val t = (lo + hi) / 2
+            if (bezier(EASE_X1, EASE_X2, t) < x) lo = t else hi = t
+        }
+        return bezier(EASE_Y1, EASE_Y2, (lo + hi) / 2)
+    }
+
+    /** Where [id]'s picture on [mode]'s side is [tMs] after it started. */
+    fun frame(id: GuideScreenId, mode: TrainingMode, tMs: Int): GuideFrame = frame(steps(id, mode), tMs)
+
+    /** Where a picture of [steps] is [tMs] after it started. */
+    fun frame(steps: List<GuideStep>, tMs: Int): GuideFrame {
+        val t = maxOf(0, tMs)
+        val index = minOf(t / SPAN_MS, steps.lastIndex)
+        val progress = if (index == 0) 1.0 else ease((t - stepStartMs(index)).toDouble() / MOVE_MS)
+        return GuideFrame(index, steps[index], progress, done = index == steps.lastIndex && t >= settledMs(index))
+    }
 
     /** The 8 screens, in order. */
     val SCREENS: List<GuideScreenId> = GuideScreenId.entries.toList()

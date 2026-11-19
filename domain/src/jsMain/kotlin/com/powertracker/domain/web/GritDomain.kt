@@ -15,6 +15,7 @@ import com.powertracker.domain.e1rm.E1rm
 import com.powertracker.domain.guide.Guide
 import com.powertracker.domain.guide.GuideSample
 import com.powertracker.domain.guide.GuideScreenId
+import com.powertracker.domain.guide.GuideStep
 import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.library.BodyArea
 import com.powertracker.domain.library.Equipment
@@ -636,8 +637,30 @@ object GritDomain {
     fun guideSteps(id: String, mode: String): Array<String> =
         Guide.steps(parseEnum<GuideScreenId>("id", id), parseEnum<TrainingMode>("mode", mode)).map { it.name }.toTypedArray()
 
-    /** One picture step, in ms. */
+    /** How long a picture step holds once its move has ended, in ms. */
     fun guideStepMs(): Int = Guide.STEP_MS
+
+    /** A step's move, in ms: the web's layout moves take this long. */
+    fun guideMoveMs(): Int = Guide.MOVE_MS
+
+    /** A row new in a step fades in (one gone fades out) this long, in ms. */
+    fun guideFadeMs(): Int = Guide.FADE_MS
+
+    /** When step [index] of a picture starts, in ms from the picture's start. */
+    fun guideStepStartMs(index: Int): Int = Guide.stepStartMs(index)
+
+    /** When step [index] of a picture has settled (its move over), in ms from the picture's start. */
+    fun guideSettledMs(index: Int): Int = Guide.settledMs(index)
+
+    /** When a picture of [count] steps is done (its last step settled), in ms from its start. */
+    fun guideDoneMs(count: Int): Int = Guide.doneMs(count)
+
+    /** The move's curve at [x] (0 to 1 of its time): how far it has gone, 0 to 1. */
+    fun guideEase(x: Double): Double = Guide.ease(x)
+
+    /** Where screen [id]'s picture on [mode]'s side is [tMs] after it started. */
+    fun guideFrame(id: String, mode: String, tMs: Int): JsGuideFrame =
+        Guide.frame(parseEnum<GuideScreenId>("id", id), parseEnum<TrainingMode>("mode", mode), tMs).toJs()
 
     /** The sample lifter's fixed today (ISO). */
     fun guideSampleToday(): String = GuideSample.TODAY.toString()
@@ -656,6 +679,10 @@ object GritDomain {
     /** The sample's exercises: the ids its plan and advice use. */
     fun guideSampleExercises(mode: String): Array<JsExercise> =
         GuideSample.exercises(parseEnum<TrainingMode>("mode", mode)).values.sortedBy { it.id }.map { it.toJs() }.toTypedArray()
+
+    /** What screen 4's lift editor shows at [progress] (0 to 1) through the move into [step] (a `GuideStep` name). */
+    fun guideSampleTodayEditor(mode: String, step: String, progress: Double): JsGuideEditor =
+        GuideSample.todayEditor(parseEnum<TrainingMode>("mode", mode), parseEnum<GuideStep>("step", step), progress).toJs()
 
     /** The set screen 4 logs: the first of [guideSampleTargets]. */
     fun guideSampleTodaySet(mode: String): JsGuideTargetStep = GuideSample.today(parseEnum<TrainingMode>("mode", mode)).toJs()

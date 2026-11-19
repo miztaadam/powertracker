@@ -23,6 +23,7 @@ import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.plan.PlanTemplate
+import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.domain.plan.PlanTemplates
 import com.powertracker.domain.progress.ProgressMath
 import kotlinx.datetime.DateTimeUnit
@@ -46,6 +47,12 @@ data class GuideTargetStep(
     val nextRepsHigh: Int,
     val note: String?,
 )
+
+/**
+ * What the Today editor of screen 4's lift shows: [weightKg] null while no weight is in (the editor opens empty), the
+ * reps and the RPE.
+ */
+data class GuideEditor(val weightKg: Double?, val reps: Int, val rpe: Double)
 
 /**
  * The sample lifter months on: [points] for the chart, oldest first (powerlifting: the sample lift's weekly e1RM;
@@ -174,6 +181,51 @@ object GuideSample {
      */
     fun todayItems(mode: TrainingMode): List<PlanItem> =
         plan(mode).filter { it.weekday == TODAY.dayOfWeek }.sortedBy { it.order }.take(TODAY_ITEMS)
+
+    /**
+     * What screen 4's lift editor shows at [progress] (0 to 1) through the move into [step]: the weight, reps and RPE roll
+     * from where the step before left them to the step's own, through values the app allows (the weight on the plate
+     * grid, whole reps, RPE in halves). A weight rolling in from empty starts at the lightest with plates on, so what is
+     * drawn under the field (a bar and its plates) is the same kind from the move's first frame. At progress 1 it is the
+     * step's end state: no weight until the weight step, the plan's reps and target RPE until theirs, then the sample's.
+     */
+    fun todayEditor(mode: TrainingMode, step: GuideStep, progress: Double): GuideEditor {
+        val steps = Guide.steps(GuideScreenId.TODAY, mode)
+        val at = steps.indexOf(step)
+        require(at >= 0) { "$step is not a step of the Today picture" }
+        val end = editorAt(mode, steps, at)
+        if (progress >= 1.0 || at == 0) return end
+        val from = editorAt(mode, steps, at - 1)
+        val p = maxOf(0.0, progress)
+        val grid = PlateLoader.step(changePlates = false)
+        val weight = when {
+            from.weightKg == end.weightKg -> end.weightKg
+            end.weightKg == null -> null
+            else -> {
+                val start = from.weightKg ?: ROLL_FROM_KG
+                val steps = kotlin.math.round((end.weightKg - start) * p / grid)
+                start + steps * grid
+            }
+        }
+        val reps = from.reps + kotlin.math.round((end.reps - from.reps) * p).toInt()
+        val rpe = from.rpe + kotlin.math.round((end.rpe - from.rpe) * p * 2) / 2
+        return GuideEditor(weight, reps, rpe)
+    }
+
+    /** The lightest weight with plates on: a weight rolling in from empty starts here. */
+    private val ROLL_FROM_KG = PlateLoader.BAR_KG + PlateLoader.step(changePlates = false)
+
+    /** Screen 4's lift editor once step [index] of [steps] has settled. */
+    private fun editorAt(mode: TrainingMode, steps: List<GuideStep>, index: Int): GuideEditor {
+        fun reached(s: GuideStep) = index >= steps.indexOf(s)
+        val sample = today(mode)
+        val item = todayItems(mode).first { exercises(mode).getValue(it.exerciseId).name == sample.exerciseId }
+        return GuideEditor(
+            if (reached(GuideStep.TODAY_WEIGHT)) sample.doneWeightKg else null,
+            if (reached(GuideStep.TODAY_REPS)) sample.doneReps else item.reps,
+            if (reached(GuideStep.TODAY_RPE)) sample.doneRpe else item.targetRpe,
+        )
+    }
 
     private fun idOf(mode: TrainingMode, name: String): Long = exercises(mode).values.first { it.name == name }.id
 

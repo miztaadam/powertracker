@@ -2,6 +2,8 @@
 
 package com.powertracker.domain.web
 
+import com.powertracker.domain.guide.GuideEditor
+import com.powertracker.domain.guide.GuideFrame
 import com.powertracker.domain.guide.GuideLine
 import com.powertracker.domain.guide.GuideProgress
 import com.powertracker.domain.guide.GuideScreen
@@ -46,6 +48,18 @@ data class JsGuideBest(val exerciseId: String, val kg: Double)
 /** The sample lifter months on ([GuideProgress]). */
 @JsExport
 data class JsGuideProgress(val points: Array<JsGuidePoint>, val bests: Array<JsGuideBest>, val totalKg: Double?, val laggingMuscle: String?)
+
+/** Where a picture is at one moment ([GuideFrame]); [step] is the `GuideStep` name. */
+@JsExport
+data class JsGuideFrame(val stepIndex: Int, val step: String, val progress: Double, val done: Boolean)
+
+/** What screen 4's lift editor shows ([GuideEditor]); [weightKg] null while no weight is in. */
+@JsExport
+data class JsGuideEditor(val weightKg: Double?, val reps: Int, val rpe: Double)
+
+internal fun GuideFrame.toJs() = JsGuideFrame(stepIndex, step.name, progress, done)
+
+internal fun GuideEditor.toJs() = JsGuideEditor(weightKg, reps, rpe)
 
 internal fun GuideLine.toJs() = JsGuideLine(text, constants.toTypedArray())
 
