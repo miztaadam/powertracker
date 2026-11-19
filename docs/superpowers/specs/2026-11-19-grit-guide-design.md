@@ -105,13 +105,24 @@
 
 ## Settled after the builder check (my calls)
 1. **iPhone:** the Home Screen app has its own storage and starts empty, so a lifter who first opens Grit in Safari and then installs it sees the guide once in each. That's accepted: each copy really is a new start. In a browser tab, the guide comes first and the install card after it.
-2. **Coach text:** the text sticks to *what* the coach does, in plain words. It says *why* only where the code holds a sourced reason, and it names no sources (`CoachSources.kt` says citations are never shown in the app). Numbers that are the product's own (owner-approved), such as 5%, 14 days, 28 days and 21 days, may be stated as what the coach does.
+2. **Coach text:** the text sticks to *what* the coach does, in plain words. It says *why* only where the code holds a sourced reason, and it names no sources (`CoachSources.kt` says citations are never shown in the app). Numbers that are the product's own (owner-approved), such as 5%, 14 days, 28 days and 21 days, may be stated as what the coach does, each tied to its own rule (see "Amended while planning").
 3. **Screen 2's picture** is a short, looping, cut-down version of the hammer and the pump, silent and with no vibration. Only the Settings switch plays the full ones.
 4. **Screen 8 on a new install** opens that side's template list (the `templates` route). On bodybuilding it also offers **Build my plan**, below it, as the empty plan does.
 5. **Order:** the guide is planned and built after 1.15, on top of its motion model.
 6. **Where "seen" is kept:**
    - **Android:** its own DataStore key outside `AppSettings`, because a restore replaces the whole `AppSettings`;
    - **web:** a `meta` key, `guide:seen`, which a restore already keeps.
+
+## Amended while planning (2026-11-19, from reading the code)
+1. **The pain hold has no day count.** After a pain skip, that exercise's weight doesn't go up until it is next logged (`SkipCoach.held`). The day counts belong to other rules:
+   - 14 days: easing back in after time off (`Coach.GAP_DAYS`);
+   - 21 days: the wait between deloads (`Coach.DELOAD_COOLDOWN_DAYS`), and how long a bodybuilding exercise is stuck before a swap is suggested (`PhysiqueCoach.STUCK_DAYS`);
+   - 28 days: between check-ins (`PhysiqueCoach.CHECK_IN_DAYS`).
+2. **Each side's screens show only the rules that side's coach runs.** On powerlifting, screen 7 ends on the bests and the total, since check-ins are bodybuilding only.
+3. **How the pictures are drawn:** each app's real screen content (`TodayContent`, `PlanContent`, `CoachContent`, `ProgressContent`) is shown small with sample state, stepped on a clock. Both apps already have these as plain-state components.
+4. **Where "seen" is kept on Android:** its own key in the same settings store, outside `AppSettings`. A restore rewrites only the `AppSettings` keys, so the key survives. (The earlier reason given, that a restore replaces everything, was wrong; the decision stands.)
+5. **Speed:** "as the 1.15 speed checks measure" now means the structural checks are hard (the guide isn't loaded before it opens; no layout reads per step) and frame timing only reports, as the owner chose for 1.15.
+6. **The owner sees one finished picture first** (screen 4, Today, on both apps) before the other seven are built.
 
 ## Left to the builder
 - **The shape of the guide's definition** in the domain, and how each picture is drawn: reusing the real screens' components with sample state where that's clean, or drawn mock-ups.
