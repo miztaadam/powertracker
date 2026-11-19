@@ -120,7 +120,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Recovery export with App lock on: on the recovery screen, an export asks for Face ID first, so the file may be downloaded (Files, Downloads) instead of opening the share sheet. Note which happens, and check the file is there.
 - [ ] Restore: pick that file with the file picker. Confirm. The data matches. App lock is as it was on this phone, and "Restore safety copy" in Settings brings back what the restore replaced.
 - [ ] Two tabs: open Grit in a second tab while a first is suspended. The second asks before taking over.
-- [ ] Bodybuilding mode: turn it on in Settings and back off (the look and label change at once), log a set on each side, then export a backup and restore it on the other platform (Android to iPhone or the reverse); both sides' plans and sessions come through.
+- [ ] Bodybuilding mode: turn it on in Settings and back off (with motion on, the hammer or the pump plays and the new look is revealed; with reduce motion on, the look and label change at once), log a set on each side, then export a backup and restore it on the other platform (Android to iPhone or the reverse); both sides' plans and sessions come through.
 - [ ] Plan builder: on the bodybuilding side, open Plan, tap Build my plan (or Rebuild my plan in the menu), answer the three questions, tap Use this plan, then train its first day from Today.
 - [ ] Check-in: on the bodybuilding side, open Progress and do a check-in (mark a body part lagging), then apply a suggestion from Coach and check the plan changed.
 - [ ] Stretch and squeeze: on the bodybuilding side, read the stretch and squeeze lines on a Today card.
