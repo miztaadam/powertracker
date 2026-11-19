@@ -153,8 +153,8 @@ import {
   until1jbpn0z3f8lbg as until,
   _UInt___init__impl__l7qpdl5ip6p2ldulrs as _UInt___init__impl__l7qpdl,
   _UInt___get_data__impl__f0vqqw30ojw38w2y6td as _UInt___get_data__impl__f0vqqw,
-  modulo3mmbfwxzpcw3a as modulo,
   padStart36w1507hs626a as padStart,
+  modulo3mmbfwxzpcw3a as modulo,
   charArrayOf27f4r3dozbrk1 as charArrayOf,
   trimEndvvzjdhan75g as trimEnd_0,
   StringBuildermazzzhj6kkai as StringBuilder,
@@ -35891,8 +35891,20 @@ function fixed(v, digits) {
   // Inline function 'kotlin.math.abs' call
   // Inline function 'kotlin.math.floor' call
   var x = Math.abs(v) * scale + 0.5;
-  var tmp$ret$3 = Math.floor(x);
-  var n = numberToLong(tmp$ret$3);
+  var m = Math.floor(x);
+  if (m >= 2147483647)
+    return fixedLong(v, m, digits, scale);
+  var n = numberToInt(m);
+  var sign = v < 0 && !(n === 0) ? '-' : '';
+  if (digits === 0)
+    return sign + n;
+  var unit = numberToInt(scale);
+  var frac = (n % unit | 0).toString();
+  return sign + (n / unit | 0) + '.' + (frac.length < digits ? padStart(frac, digits, _Char___init__impl__6a9atx(48)) : frac);
+}
+function fixedLong(v, m, digits, scale) {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  var n = numberToLong(m);
   var sign = v < 0 && !equalsLong(n, new Long(0, 0)) ? '-' : '';
   if (digits === 0)
     return sign + n.toString();

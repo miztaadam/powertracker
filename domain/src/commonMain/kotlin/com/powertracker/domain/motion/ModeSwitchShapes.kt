@@ -29,11 +29,25 @@ internal class MotionRng(seed: Int) {
     }
 }
 
-/** JavaScript's `Number.prototype.toFixed(digits)` for the sizes used here, half away from zero. */
+/**
+ * JavaScript's `Number.prototype.toFixed(digits)` for the sizes used here, half away from zero. Int arithmetic where the
+ * number fits (every shape's does): Kotlin/JS emulates Long, and this runs for every point of every vein.
+ */
 internal fun fixed(v: Double, digits: Int): String {
     var scale = 1.0
     repeat(digits) { scale *= 10 }
-    val n = floor(abs(v) * scale + 0.5).toLong()
+    val m = floor(abs(v) * scale + 0.5)
+    if (m >= Int.MAX_VALUE) return fixedLong(v, m, digits, scale)
+    val n = m.toInt()
+    val sign = if (v < 0 && n != 0) "-" else ""
+    if (digits == 0) return sign + n
+    val unit = scale.toInt()
+    val frac = (n % unit).toString()
+    return sign + (n / unit) + "." + (if (frac.length < digits) frac.padStart(digits, '0') else frac)
+}
+
+private fun fixedLong(v: Double, m: Double, digits: Int, scale: Double): String {
+    val n = m.toLong()
     val sign = if (v < 0 && n != 0L) "-" else ""
     if (digits == 0) return sign + n
     val unit = scale.toLong()
