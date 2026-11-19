@@ -832,7 +832,7 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-mode-switch-animations-design.md`;
 **The web speed work** (`.superpowers/sdd/2026-11-16-grit-look/115-speed-fix-report.md` and `115-gate-hardening-report.md`):
 - **No `<html>` write per frame:** the old side moves on its own picture, a paused animation on `::view-transition-old(root)`, instead of a CSS variable on `<html>` that restyled the whole document every frame.
 - **A shorter moment:** the view transition's update no longer lays out the new side (the blocks are measured and the stamp placed in the next frame), and the shell is not redrawn when the side shown changes. The update went from a median 8.8 ms to 2.2 ms.
-- **Reveal work per frame** went from about 7 ms to about 4 ms (the gate's pooled median: the old build 6.5–8.2, this one 3.9–5.0).
+- **Reveal work per frame** went from about 7 ms to about 4 ms (the gate's pooled median: the old build 6.5–8.2; this one 3.9–5.0 before the release run, and 4.4–5.2 in it).
 - **Deterministic pins,** on the held clock:
   - no `<html>` writes mid-reveal (at most 16 over a whole switch);
   - no `getBoundingClientRect` in the update;
@@ -847,14 +847,14 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-mode-switch-animations-design.md`;
 - **New, Android:** `ModeSwitchOverlayTest`, `ModeSwitchFeedbackTest`, `ModeSwitchShellTest`; in `PlanScreenTest`, a failed Add then Cancel with no frame between, held by Plan and said once (it fails on `PlanScreen.kt` from before `0bb5edc`).
 - **New, web:** `ModeSwitchOverlay.test.tsx`, `modeSwitchFeedback.test.ts`, `e2e/modeSwitch.spec.ts` (the behaviour, the pins, the fallbacks, the offline sounds and the speed gate).
 - **Tightened, `ModeSwitchMotionTest`:** the hammer's 22 shapes and the rune are pinned in full (before, the count and two shapes); the five gradients and every effect colour are pinned, copied from the reference page (before, only the gradients' ids); the light set is pinned; the stamp is exactly .5 at 880 ms; the vein fan's centre must be within 10° of its aim from 24 switch places on 4 screens (before, 20° from one), every vein within 85° of the aim, and the fan wider than 100°.
-- **Existing tests changed:** Android `PlanViewModelTest`'s add-failure test is split (with the form's own `onFailed`, Plan's messages stay empty). The new 1.15 tests were also reworked in the fix round (the skip now cancels and ticks 40 ms on both apps; the shots check the reveal and the light colours; `framesKeepTime` includes the reveal). No other existing test was edited.
+- **Existing tests changed:** Android `PlanViewModelTest`'s add-failure test is split (with the form's own `onFailed`, Plan's messages stay empty), and `PlanScreenTest`'s forced-order Close checks now idle the main looper after Close (`6247996`). The new 1.15 tests were also reworked in the fix round (the skip now cancels and ticks 40 ms on both apps; the shots check the reveal and the light colours; `framesKeepTime` includes the reveal). The held-failure work that landed alongside (Android `PlanScreenTest` and `TestDatabase`, web `PlanScreen.test.tsx`) is described in the held-failure note above, under 1.13.
 
 **The Android vibration note:** the switch's vibration uses `USAGE_MEDIA` on Android 13 and later, so "Vibrate on taps" and touch feedback off don't mute it. It can still be muted by the system's Media vibration switch, the master vibration switch and battery saver. None of this is phone-tested.
 
 **Version:** Android 1.15 (versionCode 25), web 1.15. Settings shots re-shot on both apps.
 
 **Open, owner decision pending:**
-- **Whether the speed gate's lost-frame rule is a hard gate.** The rule fails a run when 2 or more animations of one kind have late frames. On HEAD it failed 2 of 13 quiet runs; the work limits alone separate the old and new builds cleanly. Options: make that rule report-only and keep the work limits hard, loosen the count, or keep it hard.
+- **Whether the speed gate's lost-frame rule is a hard gate.** The rule fails a run when 2 or more animations of one kind have late frames. On `55240dc` it failed 2 of 13 quiet runs, and on the release build 1 of 4 (the full e2e run: pump 2, a 50.0 ms gap; pump 3, a 33.3 ms gap; the CPU check called the machine quiet). The work limits separate the old and new builds cleanly. Options: make that rule report-only and keep the work limits hard, loosen the count, or keep it hard.
 - **Whether one skipped frame at the colour-change moment is acceptable,** and up to one bad animation per kind per run, given the spec says no dropped frames. Chromium draws no frame while the view transition captures the new side, in nearly every pump.
 - Before the merge, the owner sees the light shots (plan, spec "Settled" 1).
 
@@ -864,6 +864,7 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-mode-switch-animations-design.md`;
 
 **Follow-ups:**
 - The 5.5 / 6.0 / 5.5 ms work limits are absolute milliseconds on this container (4 vCPUs, headless Chromium). A faster or slower machine needs them measured again.
+- **The pump's margin is thin:** in the release's full e2e run the pump's reveal work read 5.70 ms against its 6.0 limit (pooled 5.20 against 5.5), on a window the CPU check called quiet. When the limit was frozen, this build's highest was 5.30. The three speed runs after it read pump 4.60–4.70.
 - `1abd100` on its own fails `npx tsc -b` (fixed by `7582ae5`). Skip it when bisecting.
 - No test can tell the `onPseudo` try/catch from the `ready` promise's `.catch`: removing the try/catch keeps every test green.
 - On a slow app with one idle miss, the gate says MACHINE BUSY, which hides the slow app (2 of 5 old-build runs). The run still fails.
