@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -51,6 +50,7 @@ import com.powertracker.ui.components.RestTimerBar
 import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.library.ExercisePickerScreen
+import com.powertracker.ui.library.HeldFailures
 import com.powertracker.ui.library.SAVE_FAILED
 import com.powertracker.ui.theme.LocalMotion
 import com.powertracker.ui.theme.Space
@@ -374,9 +374,10 @@ fun TodayContent(
         )
     }
 
-    // Failed creates from the picker's "Create your own": its form stays open with what was typed, and says so.
-    var createFailures by remember { mutableIntStateOf(0) }
     if (picking) {
+        // Failed creates from the picker's "Create your own": its form stays open with what was typed, and says so. One
+        // per opening: a failure that comes once the picker has gone is said by Today's own snackbar alone.
+        val createFailures = remember { HeldFailures() }
         ExercisePickerScreen(
             title = "Add exercise",
             exercises = state.exercises,
@@ -391,7 +392,7 @@ fun TodayContent(
             },
             // The picker stays until the exercise is made; if making it fails, its create form is still there.
             onCreateCustom = { name, category, parent, muscles ->
-                actions.onCreateExercise(name, category, parent, muscles, { createFailures++ }) { id ->
+                actions.onCreateExercise(name, category, parent, muscles, createFailures::add) { id ->
                     if (!inSessionAlready(id)) haptics.tick()
                     activeId = id
                     picking = false

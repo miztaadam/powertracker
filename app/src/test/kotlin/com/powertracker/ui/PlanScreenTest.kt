@@ -1189,6 +1189,121 @@ class PlanScreenTest {
         assertTrue(!tyreFlipStored())
     }
 
+    // ---- A failed own exercise from Change is held by the add form until it has been said (1.15) ----
+
+    /** The copies of [SAVE_FAILED] in a popup over a dialog, as on the screen now. */
+    private fun popupNodes() = compose.onAllNodes(hasText(SAVE_FAILED) and hasAnyAncestor(androidx.compose.ui.test.isPopup())).fetchSemanticsNodes()
+
+    private fun popupCopies() = popupNodes().size
+
+    /**
+     * What [sayChangeFailure] saw: where the message was just before Close, the copies in each frame after it, and how
+     * many snackbars came on screen after it (a message said again is a new one, even straight after the last).
+     */
+    private class Sayings(val beforeClose: String, val frames: List<Int>, val wrongPlace: List<String>, val appearances: Int)
+
+    /**
+     * Change's picker, its create form cancelled, makes the own exercise; the failure is handled on the main thread
+     * with no frame drawn, then [frames] frames pass and Close is tapped, then the clock steps frame by frame for 6 s
+     * (past a snackbar's 4 s). Each frame with the message on screen must have it over the add form, the picker gone.
+     */
+    private fun sayChangeFailure(frames: Int): Sayings {
+        failExerciseInserts()
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        openCreateForm()
+        compose.fillCustomExercise()
+        val release = database.holdWork()
+        compose.onNode(createInForm).performClick()
+        compose.onNode(cancelInForm).performClick()
+        waitFor { !compose.createFormOpen() && pickerOpen() }
+        val close = click(closePicker)
+        compose.mainClock.autoAdvance = false
+        try {
+            compose.runOnUiThread {
+                release()
+                while (database.inFlight > 0) Thread.sleep(1)
+                // The failure is handled here, on the main thread, with no frame drawn.
+                org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+                if (frames == 0) close()
+            }
+            repeat(frames) { compose.mainClock.advanceTimeByFrame() }
+            val beforeClose = whereTheMessageIs()
+            if (frames > 0) compose.runOnUiThread { close() }
+            val seen = mutableListOf<Int>()
+            val wrongPlace = mutableListOf<String>()
+            val snackbars = mutableSetOf<Int>()
+            repeat(6_000 / 16) { frame ->
+                compose.mainClock.advanceTimeByFrame()
+                val nodes = popupNodes()
+                val copies = nodes.size
+                seen += copies
+                nodes.forEach { snackbars += it.id }
+                if (copies > 0 && (pickerOpen() || !formOpen())) wrongPlace += "frame $frame: ${whereTheMessageIs()}"
+            }
+            println("Close $frames frame(s) after the failure; before Close: $beforeClose; copies per frame after: ${seen.joinToString("")}")
+            return Sayings(beforeClose, seen, wrongPlace, snackbars.size)
+        } finally {
+            compose.mainClock.autoAdvance = true
+        }
+    }
+
+    private fun assertSaidOnceOverTheForm(said: Sayings) {
+        assertEquals("over a dialog only once the picker has gone, over the add form: ${said.wrongPlace}", emptyList<String>(), said.wrongPlace)
+        assertEquals("one copy at a time (before Close: ${said.beforeClose})", 1, said.frames.max())
+        assertEquals("said once over the add form, never twice (before Close: ${said.beforeClose})", 1, said.appearances)
+        assertTrue(!pickerOpen())
+        assertAddForm("Squat")
+        assertTrue(!tyreFlipStored())
+    }
+
+    @Test
+    fun planAdd_changeToOwnExerciseFails_closedInTheSameFrame_theAddFormSaysItOnce() = assertSaidOnceOverTheForm(sayChangeFailure(frames = 0))
+
+    @Test
+    fun planAdd_changeToOwnExerciseFails_closedOneFrameLater_theAddFormSaysItOnce() = assertSaidOnceOverTheForm(sayChangeFailure(frames = 1))
+
+    @Test
+    fun planAdd_changeToOwnExerciseFails_closedTwoFramesLater_theAddFormSaysItOnce() = assertSaidOnceOverTheForm(sayChangeFailure(frames = 2))
+
+    /** The picker was saying it and is closed mid-message: the add form says it, once, as it does for the orders above. */
+    @Test
+    fun planAdd_changeToOwnExerciseFails_closedWhileThePickerSaysIt_theAddFormSaysItOnce() = assertSaidOnceOverTheForm(sayChangeFailure(frames = 60))
+
+    /** The picker stays open and says it through; closed after that, the add form has nothing left to say. */
+    @Test
+    fun planAdd_changeToOwnExerciseFails_thePickerSaidItThrough_theAddFormStaysSilent() {
+        failExerciseInserts()
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat")
+        compose.onNodeWithContentDescription("Change exercise").performClick()
+        openCreateForm()
+        compose.fillCustomExercise()
+        createThen(cancelInForm)
+        waitFor { saidOverTheDialog() }
+        assertTrue(pickerOpen())
+        assertEquals(1, popupCopies())
+        // The picker's message runs its course (4 s) and goes.
+        compose.mainClock.advanceTimeBy(5_000)
+        waitFor { popupCopies() == 0 }
+
+        compose.onNode(closePicker).performClick()
+        waitFor { !pickerOpen() }
+        compose.mainClock.autoAdvance = false
+        try {
+            repeat(6_000 / 16) {
+                compose.mainClock.advanceTimeByFrame()
+                assertEquals("the add form says nothing more", 0, popupCopies())
+            }
+        } finally {
+            compose.mainClock.autoAdvance = true
+        }
+        assertAddForm("Squat")
+    }
+
     @Test
     fun planAdd_rotatedWhileAdding_theFormIsNotRestoredOverTheStoredItem() {
         // The write is held until the test lets it go, as a slow disk would hold it.
