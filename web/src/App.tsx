@@ -168,6 +168,8 @@ function Opened({ dbName, schemaVersions, registerSW }: AppProps) {
   // The rest lives here, above the lock and the screens, so it runs on while the lifter looks at
   // another tab or unlocks. Only its start and end redraw: the countdown redraws inside RestBar.
   const rest = useRest(db)
+  // The side the app is on: its look on the page root, its label on the top-level screens.
+  const mode = useTrainingMode(db)
   // "Vibrate on taps", followed live for the buzz on the main actions (platform/haptics.ts).
   useTapHaptics(db)
   // Null until the browser has been asked.
@@ -199,20 +201,10 @@ function Opened({ dbName, schemaVersions, registerSW }: AppProps) {
     setPrivateMode(false)
   }
   return (
-    <TrainingModeHost db={db}>
+    <TrainingModeContext.Provider value={mode}>
       <LockGateHost db={db}>{privateMode ? <PrivateModeScreen db={db} onContinue={continueAnyway} /> : <Shell db={db} rest={rest} registerSW={registerSW} />}</LockGateHost>
-    </TrainingModeHost>
+    </TrainingModeContext.Provider>
   )
-}
-
-/**
- * The side the app is on: its look on the page root, its label on the top-level screens. Its own component, with the
- * app passed in as `children`, so that a change of the side shown (the mode switch animation's moment) redraws only
- * what reads the side, not the whole app: that redraw runs inside the reveal, where the page cannot draw a frame.
- */
-function TrainingModeHost({ db, children }: { db: GritDb | null; children: ReactNode }) {
-  const mode = useTrainingMode(db)
-  return <TrainingModeContext.Provider value={mode}>{children}</TrainingModeContext.Provider>
 }
 
 /** Lets one tab at a time run Grit; a second one says so and offers to take over. Nothing shows until that is settled. */

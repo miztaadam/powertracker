@@ -425,7 +425,9 @@ export function useWarmModeSwitch(side: TrainingMode | null = null, running = fa
   useEffect(() => {
     if (running) return
     const w = window as IdleWindow
+    // The pending warm: an idle callback, or a timer where there are none (each is cancelled its own way).
     let idleId: number | null = null
+    let idleIsTimer = false
     let timerId: number | null = null
     const warm = () => {
       idleId = null
@@ -437,8 +439,8 @@ export function useWarmModeSwitch(side: TrainingMode | null = null, running = fa
     }
     const whenIdle = () => {
       if (idleId != null) return
-      if (typeof w.requestIdleCallback === 'function') idleId = w.requestIdleCallback(warm, { timeout: 1000 })
-      else idleId = window.setTimeout(warm, 300)
+      idleIsTimer = typeof w.requestIdleCallback !== 'function'
+      idleId = idleIsTimer ? window.setTimeout(warm, 300) : w.requestIdleCallback!(warm, { timeout: 1000 })
     }
     whenIdle()
     // A scroll moves the switch: once it has come to rest, again.
@@ -455,8 +457,8 @@ export function useWarmModeSwitch(side: TrainingMode | null = null, running = fa
       scroller?.removeEventListener('scroll', onScroll)
       if (timerId != null) window.clearTimeout(timerId)
       if (idleId != null) {
-        if (typeof w.cancelIdleCallback === 'function') w.cancelIdleCallback(idleId)
-        window.clearTimeout(idleId)
+        if (idleIsTimer) window.clearTimeout(idleId)
+        else w.cancelIdleCallback?.(idleId)
       }
     }
   }, [side, running])

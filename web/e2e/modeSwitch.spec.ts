@@ -420,7 +420,7 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
 
     const warms = () => page.evaluate(() => performance.getEntriesByName('ms-warm').length)
 
-    async function play(to: 'BODYBUILDING' | 'POWERLIFTING', before?: () => Promise<void>): Promise<Frames> {
+    async function play(to: 'BODYBUILDING' | 'POWERLIFTING', before?: () => Promise<void>, started?: () => Promise<void>): Promise<Frames> {
       await page.evaluate(() => {
         const rec = (window as Window & { __rec?: Rec }).__rec!
         rec.samples = []
@@ -428,9 +428,11 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
         rec.on = true
       })
       if (before != null) await before()
+      const warmsAtTap = await warms()
       await modeSwitch(page).click()
       // Started (the shapes are built in the first frame after the tap), then over.
       await expect.poll(() => drawn(page)).toBe(1)
+      if (started != null) await started()
       await expect.poll(() => drawn(page), { timeout: 5000 }).toBe(0)
       await expect.poll(() => dataMode(page)).toBe(to === 'BODYBUILDING' ? 'bodybuilding' : null)
       const out = await page.evaluate(() => {
@@ -438,27 +440,43 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
         rec.on = false
         return { samples: rec.samples, tap: rec.tap, tapMs: rec.tapMs }
       })
-      // Settings' warm for the new side runs in the pause.
-      await page.waitForTimeout(800)
+      // Settings works the shapes out again for the switch where it now sits, once the animation is over.
+      await expect.poll(warms, { message: `${to}: the shapes worked out again after the side changed` }).toBeGreaterThan(warmsAtTap)
+      await page.waitForTimeout(300)
       return out
     }
 
     const runs: [string, number, Frames][] = []
     runs.push(['pump (warm)', PUMP.end, await play('BODYBUILDING')])
     runs.push(['drop (warm)', DROP.end, await play('POWERLIFTING')])
-    // The cold path: Settings scrolled a little and tapped at once, before the warm that follows a scroll at rest.
+    // The cold path: Settings scrolled a little and tapped at once, before the warm that follows a scroll at rest. The
+    // switch has moved, so the shapes for it are new; no warm came between the scroll and the animation's start.
+    const switchY = () => page.locator('.settings-mode-switch .gr-switch-track').evaluate((el) => el.getBoundingClientRect().top)
     let warmsAtScroll = -1
-    let warmsAtTap = -1
+    let warmsAtStart = -1
+    let movedBy = 0
     runs.push([
       'pump (cold)',
       PUMP.end,
-      await play('BODYBUILDING', async () => {
-        warmsAtScroll = await warms()
-        await page.locator('.shell-main').evaluate((el) => el.scrollBy(0, 9))
-        warmsAtTap = await warms()
-      }),
+      await play(
+        'BODYBUILDING',
+        async () => {
+          const y = await switchY()
+          warmsAtScroll = await warms()
+          await page.locator('.shell-main').evaluate((el) => el.scrollBy(0, 9))
+          movedBy = y - (await switchY())
+        },
+        async () => {
+          warmsAtStart = await warms()
+        },
+      ),
     ])
-    expect(warmsAtTap, 'no warm between the scroll and the tap: the shapes were cold').toBe(warmsAtScroll)
+    expect(movedBy, 'the scroll moved the switch').toBeGreaterThan(4)
+    expect(warmsAtStart, 'no warm between the scroll and the animation: the shapes were cold').toBe(warmsAtScroll)
+    // A scroll that comes to rest works them out again.
+    const beforeRest = await warms()
+    await page.locator('.shell-main').evaluate((el) => el.scrollBy(0, -9))
+    await expect.poll(warms, { message: 'the shapes worked out again after a scroll at rest' }).toBeGreaterThan(beforeRest)
 
     const late: string[] = []
     for (const [name, end, run] of runs) {

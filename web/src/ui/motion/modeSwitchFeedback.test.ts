@@ -181,6 +181,28 @@ describe('the format', () => {
   })
 })
 
+describe('a browser that says Ogg and cannot decode it', () => {
+  it('switchesToTheWavCopy_forTheNextSwitch', async () => {
+    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe')
+    const decode = FakeContext.prototype.decodeAudioData
+    vi.spyOn(FakeContext.prototype, 'decodeAudioData').mockImplementation(function (this: FakeContext, bytes: ArrayBuffer) {
+      // The Ogg files are 190 and 200 bytes here: refused, as a browser that cannot decode Vorbis refuses them.
+      return bytes.byteLength < 1000 ? Promise.reject(new Error('EncodingError')) : decode.call(this, bytes)
+    })
+    fb.unlockSound()
+    fb.playSound('drop', () => 0)
+    await settle()
+    const ctx = FakeContext.made[0]!
+    expect(ctx.started).toHaveLength(0)
+    expect(fb.soundFormats()).toEqual(['wav'])
+    // The next switch: the WAV copy, which plays.
+    fb.playSound('drop', () => 0)
+    await settle()
+    expect(asked.some((u) => u.endsWith('grit_hammer_drop.wav'))).toBe(true)
+    expect(ctx.started).toHaveLength(1)
+  })
+})
+
 describe('nothing breaks', () => {
   it('aContextThatStaysSuspended_playsNothing_andThrowsNothing', async () => {
     FakeContext.resumes = 'stay'
