@@ -9,6 +9,12 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.isFocused
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.input.key.Key
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.ui.Modifier
@@ -291,5 +297,19 @@ class GuideScreenTest {
         assertEquals(GuideStep.TODAY_EMPTY, pictureStep())
         assertOn(GuideScreenId.TODAY)
         assertTrue(exits.isEmpty())
+    }
+    /** The keyboard moves through the guide's own controls only: focus never goes into the picture's fields. */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun guide_pictureTakesNoFocus() {
+        show(startAt = GuideScreenId.TODAY, clock = HeldGuideClock(0))
+        compose.onNodeWithTag("guide-skip").requestFocus()
+        compose.waitForIdle()
+        repeat(12) { i ->
+            compose.onNode(isFocused()).assertExists("move $i: the focused control is one of the guide's")
+            compose.onNode(isFocused()).performKeyInput { pressKey(Key.Tab) }
+            compose.waitForIdle()
+        }
+        compose.onNode(isFocused()).assertExists()
     }
 }

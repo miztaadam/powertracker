@@ -130,6 +130,33 @@ test('guide_pictureIsNotInteractive: taps across the picture change nothing, ope
   await expect(page.getByRole('img', { name: /^Example of the Today screen/ })).toBeVisible()
 })
 
+test('the picture is never painted at full size: from its first frame it sits above the dots', async ({ page }) => {
+  await openGuideOnToday(page, 'BODYBUILDING')
+  await page.getByTestId('guide-back').click()
+  // Every frame from the tap on Next until the picture has been up a while: where its frame ends, and where the dots start.
+  const watching = page.evaluate(
+    () =>
+      new Promise<string[]>((done) => {
+        const seen: string[] = []
+        const started = performance.now()
+        const frame = () => {
+          const picture = document.querySelector<HTMLElement>('[data-testid="guide-picture"][data-step]')
+          const dots = document.querySelector<HTMLElement>('[data-testid="guide-dots"]')
+          if (picture && dots && getComputedStyle(picture).visibility !== 'hidden') {
+            const bottom = picture.getBoundingClientRect().bottom
+            const top = dots.getBoundingClientRect().top
+            if (bottom > top + 0.5) seen.push(`${Math.round(performance.now() - started)} ms: ${bottom} over ${top}`)
+          }
+          if (performance.now() - started < 600) requestAnimationFrame(frame)
+          else done(seen)
+        }
+        requestAnimationFrame(frame)
+      }),
+  )
+  await page.getByTestId('guide-next').click()
+  expect(await watching).toEqual([])
+})
+
 for (const side of SIDES) {
   for (const scheme of ['dark', 'light'] as const) {
     test(`screen 4 at its last step: the ticked set and the skipped line, inside the picture (${sideName(side)}, ${scheme})`, async ({ page }) => {

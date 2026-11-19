@@ -34,20 +34,23 @@ function TodayPicture({ mode, step }: { mode: TrainingMode; step: string }) {
 
 /**
  * The scale that fits a phone `height` tall into the slot: read when the slot's size changes (a resize, a rotation),
- * never per step. Without ResizeObserver (jsdom) it is drawn full size.
+ * never per step. Null until the first measure, so the phone is never painted at full size over the controls; without
+ * ResizeObserver (jsdom) it is drawn full size.
  */
-function useFit(slot: React.RefObject<HTMLDivElement | null>, height: number): number {
+function useFit(slot: React.RefObject<HTMLDivElement | null>, height: number): number | null {
+  const observes = typeof ResizeObserver !== 'undefined'
   const [size, setSize] = useState<{ width: number; height: number } | null>(null)
   useEffect(() => {
     const el = slot.current
-    if (el == null || typeof ResizeObserver === 'undefined') return
+    if (el == null || !observes) return
     const observer = new ResizeObserver(([entry]) => {
       if (entry) setSize({ width: entry.contentRect.width, height: entry.contentRect.height })
     })
     observer.observe(el)
     return () => observer.disconnect()
-  }, [slot])
-  if (size == null) return 1
+  }, [slot, observes])
+  if (!observes) return 1
+  if (size == null) return null
   return Math.max(0, Math.min(size.width / PHONE_WIDTH, size.height / height))
 }
 
@@ -63,7 +66,8 @@ export function GuidePicture({ id, mode, step }: { id: string; mode: TrainingMod
   const slot = useRef<HTMLDivElement>(null)
   const drawn = id === 'TODAY' && step != null
   const height = phoneHeight(mode)
-  const scale = useFit(slot, height)
+  const fit = useFit(slot, height)
+  const scale = fit ?? 0
   let screen: ReactNode = null
   if (drawn) screen = <TodayPicture mode={mode} step={step} />
   return (
@@ -74,7 +78,7 @@ export function GuidePicture({ id, mode, step }: { id: string; mode: TrainingMod
         data-step={step ?? undefined}
         role={drawn ? 'img' : undefined}
         aria-label={drawn ? pictureDescription(id) : undefined}
-        style={drawn ? ({ width: `${PHONE_WIDTH * scale}px`, height: `${height * scale}px` } as CSSProperties) : undefined}
+        style={drawn ? ({ width: `${PHONE_WIDTH * scale}px`, height: `${height * scale}px`, visibility: fit == null ? 'hidden' : undefined } as CSSProperties) : undefined}
       >
         {drawn && (
           <div className="guide-phone" style={{ width: `${PHONE_WIDTH}px`, height: `${height}px`, transform: `scale(${scale})` }}>
