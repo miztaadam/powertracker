@@ -1162,6 +1162,59 @@ class PlanScreenTest {
         assertTrue(plan().isEmpty())
     }
 
+    /**
+     * The order forced: the failed Add is handled on the main thread, then Cancel, with no frame drawn in between, so
+     * the form never gets a frame in which to pick the failure up. Plan holds it from the moment it comes and says it,
+     * once. (Before `0bb5edc` the failure went to the form as a count read on its next frame, and here it was lost:
+     * this test fails with that version of `PlanScreen.kt`, "one copy at a time expected:<1> but was:<0>".)
+     */
+    @Test
+    fun planAdd_addFails_thenCancel_noFrameBetween_planHoldsItAndSaysSoOnce() {
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_plan_insert BEFORE INSERT ON plan_item BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat", stayInTheTapWindow = false)
+        val release = database.holdWork()
+        val looper = org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper())
+        try {
+            addButton().performClick()
+            val cancel = click(hasText("Cancel") and hasAnyAncestor(isDialog()))
+            compose.mainClock.autoAdvance = false
+            compose.runOnUiThread {
+                release()
+                // The failure is handled here, on the main thread, with no frame drawn. The Add's write takes more than
+                // one step on the database's threads, each answered on the main thread, so every step is run before Cancel.
+                do {
+                    while (database.inFlight > 0) Thread.sleep(1)
+                    looper.idle()
+                } while (database.inFlight > 0)
+                cancel()
+                looper.idle()
+            }
+            var appearances = 0
+            var lastIds = emptySet<Int>()
+            var maxCopies = 0
+            repeat(6_000 / 16) {
+                compose.mainClock.advanceTimeByFrame()
+                val nodes = copyNodes()
+                maxCopies = maxOf(maxCopies, nodes.size)
+                val ids = nodes.map { it.id }.toSet()
+                appearances += (ids - lastIds).size
+                lastIds = ids
+                if (nodes.isNotEmpty()) assertTrue("in Plan's own snackbar", nodes.none(::inAPopup))
+            }
+            assertTrue("the form is gone", !exists(isDialog()))
+            assertEquals("one copy at a time", 1, maxCopies)
+            assertEquals("Plan says it once", 1, appearances)
+        } finally {
+            release()
+            compose.mainClock.autoAdvance = true
+        }
+        assertTrue(plan().isEmpty())
+    }
+
     @Test
     fun planEdit_saveFails_formClosed_planSaysSo() {
         val squat = squatId()
