@@ -5,8 +5,13 @@ import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.coach.CoachSources
 import com.powertracker.domain.coach.PhysiqueCoach
 import com.powertracker.domain.coach.ProgressionRule
+import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.model.LoggedSession
+import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.TrainingMode
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
 import kotlin.math.abs
 import kotlin.math.roundToLong
 import kotlin.test.Test
@@ -42,7 +47,8 @@ class GuideTest {
             assertTrue(screen.lines.isNotEmpty(), "$id $mode: no lines")
             assertTrue(screen.lines.all { it.text.isNotBlank() }, "$id $mode: a blank line")
             val count = words(text(screen))
-            assertTrue(count <= 40, "$id $mode: $count words, title included")
+            // "Under about 40": 38 or fewer, so no screen sits at the limit.
+            assertTrue(count <= 38, "$id $mode: $count words, title included")
         }
     }
 
@@ -74,6 +80,8 @@ class GuideTest {
             put(Triple(GuideScreenId.HOLDS_BACK, side, 0), listOf(60.0, 90.0))
             put(Triple(GuideScreenId.HOLDS_BACK, side, 1), listOf(14.0, 85.0))
         }
+        // Stall and weak point share one line and show no number: the stall window is a setting (CoachSettings.stallWeeks).
+        put(Triple(GuideScreenId.HOLDS_BACK, pl, 3), emptyList())
         put(Triple(GuideScreenId.HOLDS_BACK, bb, 3), listOf(21.0))
         put(Triple(GuideScreenId.MONTHS_LATER, bb, 1), listOf(28.0))
     }
@@ -120,7 +128,26 @@ class GuideTest {
         for (word in listOf("swap", "check-in")) assertFalse(word in pl, "powerlifting mentions $word")
         for (word in listOf("stall", "weak")) assertFalse(word in bb, "bodybuilding mentions $word")
         assertTrue("swap" in bb && "check-in" in bb)
-        assertTrue("stall" in pl)
+        // Stall and weak point (a lift lagging the others) share powerlifting's last screen-6 line.
+        assertTrue("stall" in pl && "lagging" in pl)
+    }
+
+    @Test
+    fun stallAndWeakPoint_areSuggestions_notChangesTheCoachMakes() {
+        // Both cards' exercises reach the plan only when the lifter applies the card.
+        val line = Guide.screen(GuideScreenId.HOLDS_BACK, TrainingMode.POWERLIFTING).lines.last().text
+        assertTrue("stalled" in line.lowercase() && "lagging" in line.lowercase() && "suggest" in line, line)
+    }
+
+    @Test
+    fun theDeloadLine_saysAbout_asTheCardDoes() {
+        val deload = AdvicePayload.Deload()
+        val volume = (deload.volumeFactor * 100).roundToLong()
+        val load = (deload.loadFactor * 100).roundToLong()
+        for (mode in modes) {
+            val line = Guide.screen(GuideScreenId.HOLDS_BACK, mode).lines.first().text
+            assertTrue("about $volume% of sets at about $load% of the weight" in line, "$mode: $line")
+        }
     }
 
     @Test
@@ -158,5 +185,40 @@ class GuideTest {
     @Test
     fun theStep_isAPositiveTime() {
         assertTrue(Guide.STEP_MS > 0)
+    }
+
+    @Test
+    fun openingTheGuide_readsNoSample() {
+        for (mode in modes) {
+            val before = GuideSample.reads
+            Guide.screen(GuideScreenId.WELCOME, mode)
+            Guide.steps(GuideScreenId.WELCOME, mode)
+            assertEquals(before, GuideSample.reads, "$mode: screen 1 read the sample")
+        }
+    }
+
+    @Test
+    fun countingSteps_readsNoSample() {
+        for (mode in modes) {
+            val before = GuideSample.reads
+            for (id in Guide.SCREENS) {
+                Guide.screen(id, mode)
+                Guide.steps(id, mode)
+            }
+            assertEquals(before, GuideSample.reads, "$mode: a screen's copy or steps read the sample")
+        }
+    }
+
+    @Test
+    fun theEasingBackDays_areTheGapTheCardFiresAfter() {
+        // The copy's number is Coach.GAP_DAYS; the RE_ENTRY card fires from HistoryStats.returnDateAfterGap.
+        val start = GuideSample.TODAY
+        fun returnAfter(days: Long): Boolean {
+            val back = start.plus(days, DateTimeUnit.DAY)
+            val sessions = listOf(start, back).mapIndexed { i, d -> LoggedSession(i + 1L, d, null, null, emptyList(), TrainingMode.POWERLIFTING) }
+            return HistoryStats(TrainingHistory(sessions, emptyMap(), emptyList())).returnDateAfterGap(back) == back
+        }
+        assertTrue(returnAfter(Coach.GAP_DAYS), "a gap of Coach.GAP_DAYS is a return")
+        assertFalse(returnAfter(Coach.GAP_DAYS - 1), "a day short of Coach.GAP_DAYS is not")
     }
 }

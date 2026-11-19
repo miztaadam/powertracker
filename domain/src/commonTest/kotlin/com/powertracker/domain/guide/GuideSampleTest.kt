@@ -2,14 +2,19 @@ package com.powertracker.domain.guide
 
 import com.powertracker.domain.coach.CoachSettings
 import com.powertracker.domain.coach.Coaching
+import com.powertracker.domain.coach.FatigueRule
 import com.powertracker.domain.coach.ProgressionRule
+import com.powertracker.domain.coach.StallRule
+import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.e1rm.E1rm
+import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingHistory
@@ -200,5 +205,65 @@ class GuideSampleTest {
             GuideSample.plan(TrainingMode.BODYBUILDING), GuideSample.TODAY,
         )
         assertEquals(listOf(lagging), outcome.advice.map { (it.payload as AdvicePayload.MoreWork).group })
+    }
+
+    /**
+     * Every day of the powerlifting progress run, the history up to and including it: the coach reads a day's history
+     * whether or not there is a session on it (a stall counts from the Monday, before that week's session).
+     */
+    private fun everyDayOfThePowerliftingRun(): List<Pair<LocalDate, TrainingHistory>> {
+        val history = GuideSample.progressHistory(TrainingMode.POWERLIFTING)
+        val days = mutableListOf<Pair<LocalDate, TrainingHistory>>()
+        var day = GuideSample.TODAY
+        while (day <= GuideSample.PROGRESS_END) {
+            val until = day
+            days += day to history.copy(sessions = history.sessions.filter { it.date <= until })
+            day = day.plus(1, DateTimeUnit.DAY)
+        }
+        return days
+    }
+
+    @Test
+    fun samplePowerlifter_isNeverFlaggedByTheWeakPointRule() {
+        for ((day, history) in everyDayOfThePowerliftingRun()) {
+            val flagged = WeakPointRule.evaluate(HistoryStats(history), day)
+            assertTrue(flagged.isEmpty(), "$day: ${flagged.map { it.reason }}")
+        }
+    }
+
+    @Test
+    fun samplePowerlifter_isNeverFlaggedByTheStallRule() {
+        val settings = CoachSettings()
+        for ((day, history) in everyDayOfThePowerliftingRun()) {
+            val stats = HistoryStats(history)
+            // No accessory counted as planned, so "already in the plan" can't hide a plateau.
+            for (lift in MainLift.entries) {
+                val stall = StallRule.evaluate(lift, stats, settings, day, emptySet())
+                assertNull(stall, "$day $lift: ${stall?.reason}")
+            }
+        }
+    }
+
+    @Test
+    fun samplePowerlifter_isNeverFlaggedByTheFatigueRule() {
+        for ((day, history) in everyDayOfThePowerliftingRun()) {
+            val deload = FatigueRule.evaluate(HistoryStats(history), history, day)
+            assertNull(deload, "$day: ${deload?.reason}")
+        }
+    }
+
+    @Test
+    fun theStallCard_readsTheWeeksTheRuleFirstFiresAt() {
+        val weeks = CoachSettings().stallWeeks
+        val stall = GuideSample.advice(TrainingMode.POWERLIFTING).single { it.type == AdviceType.STALL }
+        assertTrue("hasn't improved for $weeks weeks." in stall.reason, stall.reason)
+        assertEquals(weeks, stall.severity)
+    }
+
+    @Test
+    fun theSampleCards_haveDistinctIds() {
+        for (mode in modes) {
+            assertEquals(listOf(1L, 2L, 3L, 4L), GuideSample.advice(mode).map { it.id }, "$mode: ids for list keys")
+        }
     }
 }

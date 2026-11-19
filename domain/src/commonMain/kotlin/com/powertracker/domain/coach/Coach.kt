@@ -35,7 +35,8 @@ object Coach {
     private const val RECENT_DAYS = 7L
     private const val RE_ENTRY_SHOW_DAYS = 7L
     private const val STALL_PAUSE_DAYS = 14L
-    internal const val GAP_DAYS = 14L
+    /** The break the coach eases a lifter back from: the same gap [HistoryStats.returnDateAfterGap] finds. */
+    internal const val GAP_DAYS = HistoryStats.GAP_DAYS
 
     /** An OPEN deload or re-entry clamps (and blocks a new one) only this long; then the feed hides it. */
     const val OPEN_ACTIVE_DAYS = 14L

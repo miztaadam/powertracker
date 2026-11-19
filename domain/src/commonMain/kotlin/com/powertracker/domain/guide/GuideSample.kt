@@ -71,6 +71,13 @@ object GuideSample {
 
     private val SETTINGS = CoachSettings()
 
+    /**
+     * How many times the worked-out sample (plan, targets, cards, progress) has been read, for tests: opening the
+     * guide and counting a picture's steps must not read it.
+     */
+    internal var reads: Int = 0
+        private set
+
     /** The days a 3-day template is put on: the templates' own spread. */
     private const val DAYS = 3
 
@@ -89,7 +96,7 @@ object GuideSample {
 
     /** Six months of the main lifts (powerlifting) or the first day's first three exercises (bodybuilding). */
     private const val PROGRESS_WEEKS = 26
-    private val PL_PROGRESS_START = mapOf("Squat" to 100.0, "Bench" to 70.0, "Deadlift" to 120.0)
+    private val PL_PROGRESS_START = mapOf("Squat" to 100.0, "Bench" to 60.0, "Deadlift" to 120.0)
     private val BB_PROGRESS_START = mapOf("Leg press" to 100.0, "DB press" to 26.0, "Lat pulldown" to 50.0)
 
     /** Powerlifting RPEs, by an exercise's session count: one easy session, then three hard ones at the same weight. */
@@ -102,6 +109,9 @@ object GuideSample {
     private const val TIRED = 2
 
     private val BB_LAGGING = MuscleGroup.CALVES
+
+    /** How many cards [advice] has on each side (deload, easing back, pain hold, then stall or swap): one per line. */
+    internal const val ADVICE_CARDS = 4
 
     // ---- the plan ----
 
@@ -133,7 +143,10 @@ object GuideSample {
 
     private val sides: Map<TrainingMode, Lazy<Side>> = TrainingMode.entries.associateWith { lazy { side(it) } }
 
-    private fun sideOf(mode: TrainingMode) = sides.getValue(mode).value
+    private fun sideOf(mode: TrainingMode): Side {
+        reads++
+        return sides.getValue(mode).value
+    }
 
     /** The sample's exercises, by id: the ids [plan], [advice] and the histories use. */
     fun exercises(mode: TrainingMode): Map<Long, Exercise> = sideOf(mode).exercises
@@ -197,7 +210,14 @@ object GuideSample {
     private val targetSteps: Map<TrainingMode, Lazy<List<GuideTargetStep>>> = TrainingMode.entries.associateWith { lazy { buildTargets(it) } }
 
     /** One lift, 5 sessions from [TODAY]: what was done, and the coach's next target. */
-    fun targets(mode: TrainingMode): List<GuideTargetStep> = targetSteps.getValue(mode).value
+    fun targets(mode: TrainingMode): List<GuideTargetStep> {
+        reads++
+        return targetSteps.getValue(mode).value
+    }
+
+    /** How many sessions [targets] has, without working them out: one per session result. */
+    internal fun targetCount(mode: TrainingMode): Int =
+        if (mode == TrainingMode.POWERLIFTING) PL_TARGET_RPES.size else BB_TARGET_REPS.size
 
     /** The set screen 4 logs: the first target step. */
     fun today(mode: TrainingMode): GuideTargetStep = targets(mode).first()
@@ -235,11 +255,13 @@ object GuideSample {
         // The pain hold's card: the lift skipped for pain today.
         val skip = Skip(1, TODAY, mode, id, item.id, SkipReason.PAIN)
         val pain = Coaching.afterSkip(skip, listOf(skip), history(mode), plan(mode), TODAY, emptyList()).single()
-        // Stall (powerlifting): the same top set every week for five weeks, and after the first an extra set missed out
-        // of the hole. Stuck (bodybuilding): the same sets for the stuck window and two sessions past it.
+        // Stall (powerlifting): the same top set every week since the stall window's first week, so the card reads
+        // what a lifter first sees (the rule fires at that many weeks), and after the first an extra set missed out of
+        // the hole. Stuck (bodybuilding): the same sets for the stuck window and two sessions past it.
         val last = if (pl) {
             val missed = LoggedSet(id, kg, reps, null, failed = true, missPoint = MissPoint.FLOOR, isTopSet = false)
-            val weeks = (5 downTo 1).map { daysBefore(7L * it) to (done() + if (it < 5) listOf(missed) else emptyList()) }.toTypedArray()
+            val first = SETTINGS.stallWeeks
+            val weeks = (first downTo 1).map { daysBefore(7L * it) to (done() + if (it < first) listOf(missed) else emptyList()) }.toTypedArray()
             evaluated(mode, history(mode, *weeks), AdviceType.STALL)
         } else {
             val week = 7L
@@ -247,21 +269,37 @@ object GuideSample {
             val sessions = listOf(from + week, from, from - week, from - 2 * week).map { daysBefore(it) to done() }.toTypedArray()
             evaluated(mode, history(mode, *sessions), AdviceType.SWAP)
         }
-        return listOf(deload, reEntry, pain, last)
+        // Distinct ids, as stored cards have, so the apps can key a list by them.
+        return listOf(deload, reEntry, pain, last).mapIndexed { i, card -> card.copy(id = i + 1L) }
     }
 
     private val cards: Map<TrainingMode, Lazy<List<Advice>>> = TrainingMode.entries.associateWith { lazy { buildAdvice(it) } }
 
     /** Screen 6's cards, in the rule table's order, each from the real rule run on a small history built for it. */
-    fun advice(mode: TrainingMode): List<Advice> = cards.getValue(mode).value
+    fun advice(mode: TrainingMode): List<Advice> {
+        reads++
+        return cards.getValue(mode).value
+    }
 
     // ---- screen 7: months later ----
 
-    private fun buildProgress(mode: TrainingMode): GuideProgress {
+    private fun progressStarts(mode: TrainingMode): Map<Long, Double> =
+        (if (mode == TrainingMode.POWERLIFTING) PL_PROGRESS_START else BB_PROGRESS_START).mapKeys { idOf(mode, it.key) }
+
+    /** The last day of the progress run (exclusive): [PROGRESS_WEEKS] from [TODAY]. */
+    internal val PROGRESS_END: LocalDate = TODAY.plus(PROGRESS_WEEKS, DateTimeUnit.WEEK)
+
+    /** The progress run's plan: the plan's items for the run's exercises. */
+    internal fun progressPlan(mode: TrainingMode): List<PlanItem> {
+        val starts = progressStarts(mode)
+        return plan(mode).filter { it.exerciseId in starts }
+    }
+
+    private fun buildProgressHistory(mode: TrainingMode): TrainingHistory {
         val pl = mode == TrainingMode.POWERLIFTING
-        val starts = (if (pl) PL_PROGRESS_START else BB_PROGRESS_START).mapKeys { idOf(mode, it.key) }
-        val plan = plan(mode).filter { it.exerciseId in starts }
-        val end = TODAY.plus(PROGRESS_WEEKS, DateTimeUnit.WEEK)
+        val starts = progressStarts(mode)
+        val plan = progressPlan(mode)
+        val end = PROGRESS_END
         val baselines = baselines(mode, starts.mapValues { (id, kg) -> Triple(kg, plan.first { it.exerciseId == id }.reps, PL_PROGRESS_RPES.first()) }, TODAY)
         val sessions = mutableListOf<LoggedSession>()
         val done = mutableMapOf<Long, Int>()
@@ -292,7 +330,24 @@ object GuideSample {
             }
             date = date.plus(1, DateTimeUnit.DAY)
         }
-        val history = TrainingHistory(sessions.toList(), exercises(mode), baselines)
+        return TrainingHistory(sessions.toList(), exercises(mode), baselines)
+    }
+
+    private val progressHistories: Map<TrainingMode, Lazy<TrainingHistory>> =
+        TrainingMode.entries.associateWith { lazy { buildProgressHistory(it) } }
+
+    /** The six months [progress] is read from, as the real coach saw them session by session. */
+    internal fun progressHistory(mode: TrainingMode): TrainingHistory {
+        reads++
+        return progressHistories.getValue(mode).value
+    }
+
+    private fun buildProgress(mode: TrainingMode): GuideProgress {
+        val pl = mode == TrainingMode.POWERLIFTING
+        val starts = progressStarts(mode)
+        val end = PROGRESS_END
+        val history = progressHistory(mode)
+        val sessions = history.sessions
         val lead = starts.keys.first()
         val name = { id: Long -> exercises(mode).getValue(id).name }
         return if (pl) {
@@ -321,5 +376,8 @@ object GuideSample {
     private val months: Map<TrainingMode, Lazy<GuideProgress>> = TrainingMode.entries.associateWith { lazy { buildProgress(it) } }
 
     /** About six months from [TODAY], worked out week by week with the real coach. */
-    fun progress(mode: TrainingMode): GuideProgress = months.getValue(mode).value
+    fun progress(mode: TrainingMode): GuideProgress {
+        reads++
+        return months.getValue(mode).value
+    }
 }

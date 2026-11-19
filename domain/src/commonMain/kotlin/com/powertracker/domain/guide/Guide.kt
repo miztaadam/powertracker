@@ -22,25 +22,29 @@ import kotlin.math.roundToInt
  * |               |                                                        |              | FAILED_SCALE 0.95: "a little less", no number)    | Never more than 5% at once." / "Harder than planned:  |
  * |               |                                                        |              |                                                  | the same weight, or a little less."                   |
  * | Progression   | BodybuildingCoach.targetsFor (reps first, then weight) | bodybuilding | BodybuildingCoach.INCREASE 0.02                  | 5: "Keep the weight and beat last time's reps." /     |
- * |               |                                                        |              |                                                  | "... the weight goes up about 2%." / "Then the reps   |
- * |               |                                                        |              |                                                  | start again at the bottom."                           |
- * | Deload        | Coach.evaluate -> FatigueRule; the clamp in both       | both         | AdvicePayload.Deload volumeFactor 0.6,           | 6: "Fatigue: a lighter week, 60% of sets at 90% of   |
- * |               | coaches' targetsFor; cooled down by                    |              | loadFactor 0.9; Coach.DELOAD_COOLDOWN_DAYS 21     | the weight." (21 not shown: private, and it only      |
- * |               | Coach.DELOAD_COOLDOWN_DAYS                             |              | (private)                                        | follows an applied deload)                            |
- * | Easing back   | Coach.evaluate -> reEntry; the first-day-back clamp in | both         | Coach.GAP_DAYS 14, AdvicePayload.ReEntry         | 6: "After 14 days off: about 85% of your weights."   |
- * |               | both coaches' targetsFor                               |              | loadFactor 0.85                                  |                                                       |
- * | Pain hold     | SkipCoach.held, read by both coaches' targetsFor; the  | both         | none: until the exercise is next logged          | 6: "Pain skip: no added weight until you do it       |
- * |               | card from Coaching.afterSkip -> SkipCoach.afterSkip    |              |                                                  | again."                                               |
+ * |               |                                                        |              |                                                  | "... the weight goes up about 2%." / "Then reps start |
+ * |               |                                                        |              |                                                  | again at the bottom."                                 |
+ * | Deload        | Coach.evaluate -> FatigueRule; the clamp in both       | both         | AdvicePayload.Deload volumeFactor 0.6,           | 6: "Fatigue: lighter week, about 60% of sets at about |
+ * |               | coaches' targetsFor; cooled down by                    |              | loadFactor 0.9; Coach.DELOAD_COOLDOWN_DAYS 21     | 90% of the weight." ("about", as the card says: sets  |
+ * |               | Coach.DELOAD_COOLDOWN_DAYS                             |              | (private)                                        | round, the weight rounds down to a loadable one; 21   |
+ * |               |                                                        |              |                                                  | not shown: private, it only follows an applied deload)|
+ * | Easing back   | Coach.evaluate -> reEntry (HistoryStats                | both         | Coach.GAP_DAYS 14 (= HistoryStats.GAP_DAYS),     | 6: "14 days off: about 85% of the weight."            |
+ * |               | .returnDateAfterGap); the first-day-back clamp in both |              | AdvicePayload.ReEntry loadFactor 0.85            |                                                       |
+ * |               | coaches' targetsFor                                    |              |                                                  |                                                       |
+ * | Pain hold     | SkipCoach.held, read by both coaches' targetsFor; the  | both         | none: until the exercise is next logged          | 6: "Pain skip: no added weight until done again."     |
+ * |               | card from Coaching.afterSkip -> SkipCoach.afterSkip    |              |                                                  |                                                       |
  * | Skip reasons  | Coaching.afterSkip -> SkipCoach (busy, repeat cards)   | both         | none shown                                       | 4: "The coach uses the reason."                       |
- * | Stall         | Coach.evaluate -> StallRule                            | powerlifting | CoachSettings.stallWeeks (a setting, no number)  | 6: "A stalled lift gets extra exercises."             |
- * | Weak point    | Coach.evaluate -> WeakPointRule                        | powerlifting | WeakPointRule ratios                             | none (screen 6's word budget); no sentence on         |
- * |               |                                                        |              |                                                  | bodybuilding                                          |
+ * | Stall         | Coach.evaluate -> StallRule (AdvicePayload.Accessories:| powerlifting | CoachSettings.stallWeeks (a setting, no number)  | 6, one line for both: "Stalled or lagging lift: extra |
+ * |               | they reach the plan only when the card is applied)     |              |                                                  | exercises suggested." ("suggested": nothing changes   |
+ * | Weak point    | Coach.evaluate -> WeakPointRule (AdvicePayload         | powerlifting | WeakPointRule ratios (not shown)                 | until the lifter applies the card; then both apps add |
+ * |               | .WeakPoint: the apps add its first two accessories,    |              |                                                  | the exercises to the plan); no sentence on            |
+ * |               | not yet planned, when the card is applied)             |              |                                                  | bodybuilding                                          |
  * | Swap (stuck)  | Coaching.evaluate -> PhysiqueCoach.stuck               | bodybuilding | PhysiqueCoach.STUCK_DAYS 21                      | 6: "Stuck for 21 days: swaps to try."                 |
  * | Check-in      | Coaching.checkInDue / afterCheckIn -> PhysiqueCoach    | bodybuilding | PhysiqueCoach.CHECK_IN_DAYS 28                   | 7: "Every 28 days a check-in asks which muscles lag.  |
  * |               |                                                        |              |                                                  | The coach then suggests more work for them."          |
  *
- * Screen 6's lines are in the table's order (deload, easing back, pain hold, then stall or swap), as are
- * GuideSample.advice's cards: one line per card. The copy says what the coach does, not why, and names no source.
+ * Screen 6's lines are in the table's order (deload, easing back, pain hold, then stall and weak point, or swap), as
+ * are GuideSample.advice's cards: one line per card (powerlifting's last card is the stall one). The copy says what the coach does, not why, and names no source.
  */
 
 enum class GuideScreenId { WELCOME, SIDE, PLAN, TODAY, TARGETS, HOLDS_BACK, MONTHS_LATER, YOUR_TURN }
@@ -149,11 +153,11 @@ object Guide {
                     listOf(
                         line("Keep the weight and beat last time's reps."),
                         line(
-                            "When every set reaches the top of the range at or under your target effort, " +
+                            "When every set reaches the top of the range at or under target effort, " +
                                 "the weight goes up about ${percent(BodybuildingCoach.INCREASE)}%.",
                             BB_INCREASE,
                         ),
-                        line("Then the reps start again at the bottom."),
+                        line("Then reps start again at the bottom."),
                     )
                 },
                 example = true,
@@ -162,17 +166,17 @@ object Guide {
                 id, "Holding back",
                 listOf(
                     line(
-                        "Fatigue: a lighter week, ${percent(AdvicePayload.Deload().volumeFactor)}% of sets " +
-                            "at ${percent(AdvicePayload.Deload().loadFactor)}% of the weight.",
+                        "Fatigue: lighter week, about ${percent(AdvicePayload.Deload().volumeFactor)}% of sets " +
+                            "at about ${percent(AdvicePayload.Deload().loadFactor)}% of the weight.",
                         DELOAD_VOLUME, DELOAD_LOAD,
                     ),
                     line(
-                        "After ${Coach.GAP_DAYS} days off: about ${percent(AdvicePayload.ReEntry().loadFactor)}% of your weights.",
+                        "${Coach.GAP_DAYS} days off: about ${percent(AdvicePayload.ReEntry().loadFactor)}% of the weight.",
                         GAP_DAYS, RE_ENTRY_LOAD,
                     ),
-                    line("Pain skip: no added weight until you do it again."),
+                    line("Pain skip: no added weight until done again."),
                     if (pl) {
-                        line("A stalled lift gets extra exercises.")
+                        line("Stalled or lagging lift: extra exercises suggested.")
                     } else {
                         line("Stuck for ${PhysiqueCoach.STUCK_DAYS} days: swaps to try.", STUCK_DAYS)
                     },
@@ -215,8 +219,9 @@ object Guide {
             GuideStep.TODAY_EMPTY, GuideStep.TODAY_WEIGHT, GuideStep.TODAY_REPS, GuideStep.TODAY_RPE, GuideStep.TODAY_TICKED,
             GuideStep.TODAY_SKIP,
         )
-        GuideScreenId.TARGETS -> List(GuideSample.targets(mode).size) { GuideStep.TARGETS_SESSION }
-        GuideScreenId.HOLDS_BACK -> List(GuideSample.advice(mode).size) { GuideStep.HOLDS_CARD }
+        // Counted without working the sample out: that costs a first open (the counts match, by GuideSampleTest).
+        GuideScreenId.TARGETS -> List(GuideSample.targetCount(mode)) { GuideStep.TARGETS_SESSION }
+        GuideScreenId.HOLDS_BACK -> List(GuideSample.ADVICE_CARDS) { GuideStep.HOLDS_CARD }
         GuideScreenId.MONTHS_LATER -> listOf(GuideStep.MONTHS_CHART, GuideStep.MONTHS_BESTS, GuideStep.MONTHS_ENDING)
         GuideScreenId.YOUR_TURN -> listOf(GuideStep.TURN_BUTTONS)
     }
