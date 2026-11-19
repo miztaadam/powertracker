@@ -217,6 +217,8 @@ fun ExercisePickerContent(
     val pick: (PickerEntry) -> Unit = { entry ->
         if (!answered.value) {
             answered.value = true
+            // A pick that works leaves nothing of a failed create to say.
+            createFailures.clear()
             onPick(entry)
         }
     }

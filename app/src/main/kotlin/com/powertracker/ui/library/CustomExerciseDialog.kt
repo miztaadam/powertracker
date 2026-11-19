@@ -15,6 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -24,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -169,23 +172,75 @@ internal fun FormMessage(message: String, showId: Int) {
  * form) until one of them has said it through. Not an event checked against which window is open at one moment: a
  * window that closes before its message has run its course, or that another window comes over, leaves it held, and the
  * window on top then says it. So a failure is said once wherever the lifter is looking, whenever Close lands.
+ *
+ * Kept across a rotation with [Saver]. Once its owner has closed (see [HandOnHeldFailures]), a failure none of its windows
+ * put on screen, and any failure after, goes to the screen behind instead.
  */
 @Stable
-class HeldFailures {
+class HeldFailures internal constructor(count: Int, saidUpTo: Int, shownUpTo: Int) {
+    constructor() : this(0, 0, 0)
+
     /** Every failure so far. */
-    var count by mutableIntStateOf(0)
+    var count by mutableIntStateOf(count)
         private set
-    private var saidUpTo by mutableIntStateOf(0)
+    private var saidUpTo by mutableIntStateOf(saidUpTo)
+
+    // Every failure up to here has been on screen, if only for a moment. Not drawn from, so plain.
+    private var shownUpTo = shownUpTo
+
+    // Set once the owner has gone: whoever says a failure now that none of its windows can.
+    private var gone: (() -> Unit)? = null
 
     /** A failure no window has said through yet. */
     val unsaid: Boolean get() = count > saidUpTo
 
     fun add() {
+        gone?.let { return it() }
         count++
     }
 
     internal fun said(upTo: Int) {
         if (upTo > saidUpTo) saidUpTo = upTo
+    }
+
+    internal fun shown(upTo: Int) {
+        if (upTo > shownUpTo) shownUpTo = upTo
+    }
+
+    /** A later create or pick has worked: what failed before is no longer the lifter's concern, and is not said. */
+    fun clear() {
+        said(count)
+        shown(count)
+    }
+
+    /**
+     * The owner's windows have left the screen. [closed]: closed by the lifter (not taken down to be restored, as on a
+     * rotation, where the saved copy says what is held). Either way a later failure goes to [onGone].
+     */
+    internal fun leave(closed: Boolean, onGone: () -> Unit) {
+        gone = onGone
+        if (closed && count > shownUpTo) onGone()
+    }
+
+    companion object {
+        val Saver: Saver<HeldFailures, Any> = listSaver(
+            save = { listOf(it.count, it.saidUpTo, it.shownUpTo) },
+            restore = { HeldFailures(it[0], it[1], it[2]) },
+        )
+    }
+}
+
+/**
+ * Hands [held] on to [onGone] once its owner has left the screen: a failure none of its windows put on screen, and any that
+ * comes after. One already on screen, even cut short, is not handed on, so the screen behind does not repeat it. [closed]
+ * is read when the owner leaves: false while it is only being taken down to be restored (a rotation).
+ */
+@Composable
+fun HandOnHeldFailures(held: HeldFailures, closed: () -> Boolean, onGone: () -> Unit) {
+    val isClosed by rememberUpdatedState(closed)
+    val sayIt by rememberUpdatedState(onGone)
+    DisposableEffect(held) {
+        onDispose { held.leave(isClosed()) { sayIt() } }
     }
 }
 
@@ -198,14 +253,19 @@ class HeldFailures {
 internal fun FormMessage(message: String, held: HeldFailures, here: Boolean) {
     val host = remember { SnackbarHostState() }
     val due = here && held.unsaid
+    // Which failures the message on screen is for. Not drawn from, so plain.
+    val showing = remember { intArrayOf(0) }
     LaunchedEffect(due, held.count) {
         if (!due) return@LaunchedEffect
         val upTo = held.count
+        showing[0] = upTo
         host.currentSnackbarData?.dismiss()
         // Returns once the message has been on screen for its time (or swiped away); cancelled, it never returns.
         host.showSnackbar(message)
         held.said(upTo)
     }
+    // Put on screen in this commit: should the owner close from here on, the screen behind does not say it again.
+    if (host.currentSnackbarData != null) SideEffect { held.shown(showing[0]) }
     MessagePopup(host)
 }
 

@@ -90,6 +90,7 @@ import com.powertracker.ui.components.Stepper
 import com.powertracker.ui.components.formatRpe
 import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.library.ExercisePickerScreen
+import com.powertracker.ui.library.HandOnHeldFailures
 import com.powertracker.ui.library.HeldFailures
 import com.powertracker.ui.library.FormMessage
 import com.powertracker.ui.library.InfoButton
@@ -267,8 +268,10 @@ fun PlanScreen(
         // the lifter creates here is saved at once, as before, and then opens the same form. The form opens under the
         // finger, so for a moment it ignores taps on Add, Cancel and outside it (ADD_FORM_TAP_WINDOW_MS).
         is PlanDialog.Add -> {
-            // One per opening: a failure that comes once this picker has gone is said by Plan's own snackbar alone.
+            // One per opening. Once this picker has closed, Plan's own snackbar says a failure the picker never put on
+            // screen, and one that comes after; Plan is not told of the rest.
             val createFailures = remember(d) { HeldFailures() }
+            HandOnHeldFailures(createFailures, closed = { dialog != d }, onGone = viewModel::saySaveFailed)
             ExercisePickerScreen(
                 title = "Add to ${dayName(d.day)}",
                 exercises = state.exercises,
@@ -278,6 +281,7 @@ fun PlanScreen(
                 // place. If making it fails, the create form is still there with what was typed, and says so.
                 onCreateCustom = { name, category, parent, muscles ->
                     viewModel.addCustomExercise(name, category, parent, muscles, onFailed = createFailures::add) { entry ->
+                        createFailures.clear()
                         dialog = PlanDialog.AddDetails(d.day, entry, viewModel.draft(d.day, entry))
                     }
                 },
@@ -319,6 +323,8 @@ fun PlanScreen(
                 },
                 onDismiss = { dialog = null },
                 saveFailures = addFailures,
+                closed = { dialog !is PlanDialog.AddDetails },
+                onFailure = viewModel::saySaveFailed,
             )
         }
         is PlanDialog.Edit -> PlanItemDialog(
@@ -332,6 +338,8 @@ fun PlanScreen(
                 dialog = null
             },
             onDismiss = { dialog = null },
+            closed = { dialog != d },
+            onFailure = viewModel::saySaveFailed,
         )
         is PlanDialog.Baseline -> BaselineDialog(
             lift = d.lift,
@@ -566,6 +574,13 @@ private fun PlanItemDialog(
     ignoreTapsForMillis: Long = 0L,
     /** How many of [onSave]'s writes have failed while the form stays open (Add): each one is said over the form. */
     saveFailures: Int = 0,
+    /** Whether the form has been closed, read when it leaves the screen: false while it is only being restored. */
+    closed: () -> Boolean = { true },
+    /**
+     * A failed own exercise from Change that none of the form's windows put on screen before the form closed, or one that
+     * fails after: Plan's snackbar says it. While the form is open it says it, or the picker or its create form does.
+     */
+    onFailure: () -> Unit = {},
 ) {
     // Null until the exercise is changed; saved with the item, not before.
     var changed by rememberSaveable(stateSaver = PickerEntry.Saver) { mutableStateOf(null) }
@@ -578,8 +593,10 @@ private fun PlanItemDialog(
     // Failed creates from Change's picker, and failed Adds, held here until a window has said them through: Change's
     // create form or its picker while either is on top, else this form, whose scrim hides Plan's own snackbar. A picker
     // closed before its message has run its course (Close in the frame the failure lands, or a few frames on) leaves the
-    // failure held, and this form says it.
-    val failures = remember { HeldFailures() }
+    // failure held, and this form says it. Kept across a rotation, as `picking` is. A later pick or create that works
+    // clears it.
+    val failures = rememberSaveable(saver = HeldFailures.Saver) { HeldFailures() }
+    HandOnHeldFailures(failures, closed, onFailure)
     // Failed Adds come as a count from Plan; each new one is held like a failed create.
     var saveFailuresSeen by remember { mutableIntStateOf(saveFailures) }
     LaunchedEffect(saveFailures) {
@@ -624,12 +641,14 @@ private fun PlanItemDialog(
             exercises = state.exercises,
             recentIds = state.recentIds,
             onPick = { entry ->
+                failures.clear()
                 changed = entry
                 picking = false
             },
             // The picker stays until the exercise is made; if making it fails, its create form is still there.
             onCreateCustom = { customName, category, parent, muscles ->
                 onCreateCustom(customName, category, parent, muscles, failures::add) { entry ->
+                    failures.clear()
                     changed = entry
                     picking = false
                 }

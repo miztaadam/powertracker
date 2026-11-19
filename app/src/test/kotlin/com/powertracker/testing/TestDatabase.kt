@@ -42,7 +42,10 @@ class TestDatabase : ExternalResource() {
     @Volatile
     private var gate: java.util.concurrent.CountDownLatch? = null
 
-    /** Work handed over from now on waits, on this rule's threads, until the returned function is called. */
+    /**
+     * Work handed over from now on waits, on this rule's threads, until the returned function is called. Call it in a
+     * `finally`; should a test end without it, [after] lets the work go before waiting for it.
+     */
     fun holdWork(): () -> Unit {
         val latch = java.util.concurrent.CountDownLatch(1)
         gate = latch
@@ -85,6 +88,10 @@ class TestDatabase : ExternalResource() {
 
     override fun after() {
         val threads = executor ?: return
+        // A held test that failed before letting its work go: let it go, or the wait below reports a query still running
+        // instead of the test's own failure.
+        gate?.countDown()
+        gate = null
         threads.shutdown()
         check(threads.awaitTermination(10, TimeUnit.SECONDS)) { "a query was still running 10 s after the test" }
         opened?.close()

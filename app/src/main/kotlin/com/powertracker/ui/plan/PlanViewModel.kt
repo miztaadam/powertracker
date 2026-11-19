@@ -236,10 +236,11 @@ class PlanViewModel(
      * Creates a custom exercise and reports it as a picker entry, ready for the add form or [save]. A name the
      * catalogue knows (a name or an alias, ignoring case) is not made again: the catalogue's entry is
      * reported instead, tied to its oldest live row if it has one, and gets its row like any other
-     * catalogue exercise when it is saved. If the save fails, [onCreated] is not called, [messages] says so and
-     * [onFailed] runs.
+     * catalogue exercise when it is saved. If the save fails, [onCreated] is not called and [onFailed] runs: by default
+     * [messages] says so. A caller whose window says it ([HeldFailures]) passes its own, and Plan's snackbar is then
+     * told only of a failure no window of its own put on screen ([saySaveFailed]).
      */
-    fun addCustomExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onFailed: () -> Unit = {}, onCreated: (PickerEntry) -> Unit) {
+    fun addCustomExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onFailed: () -> Unit = ::saySaveFailed, onCreated: (PickerEntry) -> Unit) {
         val trimmed = name.trim()
         val known = Library.find(trimmed)
         if (known != null) {
@@ -254,12 +255,16 @@ class PlanViewModel(
                 throw e
             } catch (e: Exception) {
                 // A failed write must not crash the app: nothing was saved, no form opens, and the lifter is told.
-                _messages.send(SAVE_FAILED)
                 onFailed()
                 return@launch
             }
             onCreated(PickerEntry(trimmed, muscles, if (category == Category.ACCESSORY) Kind.ACCESSORY else Kind.COMPOUND, library = null, exerciseId = id))
         }
+    }
+
+    /** Says "Couldn't save — try again." in Plan's snackbar: a failure that no window over Plan has put on screen. */
+    fun saySaveFailed() {
+        _messages.trySend(SAVE_FAILED)
     }
 
     /** Ignores values the dialog would not accept (non-finite, 0 or below, above 500 kg). */
