@@ -322,18 +322,41 @@ class ModeSwitchMotionTest {
         val sw = 412.0
         val sh = 915.0
         val s = Point(40.0, 110.0)
-        val aim = atan2(sh / 2 - s.y, sw / 2 - s.x)
         val mains = m.veins(sw, sh, s).filter { it.layer == VeinPath.LAYER_PULSE }
         assertEquals(7, mains.size)
-        val ends = mains.map { numbers(it.d).takeLast(2) }
-        val dirs = ends.map { atan2(it[1] - s.y, it[0] - s.x) }
-        val mean = atan2(dirs.sumOf { kotlin.math.sin(it) }, dirs.sumOf { kotlin.math.cos(it) })
-        assertTrue(abs(mean - aim) < 20 * PI / 180, "fan centre ${mean * 180 / PI} vs aim ${aim * 180 / PI}")
         // every main vein starts at the switch and reaches the screen's edge
         mains.forEach { v -> val n = numbers(v.d); near(s.x, n[0], .051); near(s.y, n[1], .051) }
-        ends.forEach { e ->
+        mains.map { numbers(it.d).takeLast(2) }.forEach { e ->
             val inside = minOf(e[0], sw - e[0], e[1], sh - e[1])
             assertTrue(inside < 40, "a vein stops ${inside} short of the edge at $e")
+        }
+    }
+
+    /** Degrees from [aim] to [a], both in radians, in -180..180. */
+    private fun offDeg(a: Double, aim: Double): Double {
+        var d = (a - aim) * 180 / PI
+        while (d > 180) d -= 360
+        while (d < -180) d += 360
+        return d
+    }
+
+    @Test
+    fun theVeinFanIsCentredOnTheScreensCentre_fromAnywhere() {
+        // Measured on 24 switch places: the main veins' ends average within 7.6 degrees of the aim, each lies within
+        // 77 of it, and the fan spans at least 104 (the prototype's fan is 120 wide, its veins wander).
+        for ((sw, sh) in listOf(412.0 to 915.0, 320.0 to 640.0, 390.0 to 760.0, 800.0 to 1280.0)) {
+            val places = listOf(Point(40.0, 110.0), Point(sw - 40, 110.0), Point(sw / 2, 90.0), Point(40.0, sh - 60), Point(sw - 30, sh / 2), Point(sw / 2, sh - 60))
+            for (s in places) {
+                val aim = atan2(sh / 2 - s.y, sw / 2 - s.x)
+                val ends = m.veins(sw, sh, s).filter { it.layer == VeinPath.LAYER_PULSE }.map { numbers(it.d).takeLast(2) }
+                val dirs = ends.map { atan2(it[1] - s.y, it[0] - s.x) }
+                val mean = atan2(dirs.sumOf { kotlin.math.sin(it) }, dirs.sumOf { kotlin.math.cos(it) })
+                val what = "$sw x $sh from $s"
+                assertTrue(abs(offDeg(mean, aim)) < 10, "$what: fan centre ${offDeg(mean, aim)} degrees off the aim")
+                val offs = dirs.map { offDeg(it, aim) }
+                assertTrue(offs.all { abs(it) < 85 }, "$what: a vein outside the fan: $offs")
+                assertTrue(offs.max() - offs.min() > 100, "$what: the fan is too narrow: $offs")
+            }
         }
     }
 
@@ -376,17 +399,100 @@ class ModeSwitchMotionTest {
         assertEquals(buildDropShapes(hit).cracks, m.cracks(412.0, 915.0, hit))
     }
 
+    /** The two-arc circle the port writes for an SVG `<circle>`, worked out here from the page's attributes. */
+    private fun circle(cx: Double, cy: Double, r: Double): String {
+        fun n(v: Double) = if (v == kotlin.math.floor(v)) v.toLong().toString() else v.toString()
+        return "M${n(cx - r)},${n(cy)} A${n(r)},${n(r)} 0 1,0 ${n(cx + r)},${n(cy)} A${n(r)},${n(r)} 0 1,0 ${n(cx - r)},${n(cy)} Z"
+    }
+
     @Test
     fun theHammerIsTheReferences() {
-        assertEquals(22, m.HAMMER_PATHS.size)
-        val head = m.HAMMER_PATHS[7]
-        assertTrue(head.d.startsWith("M-30,-150 C-70,-150"))
-        assertEquals("url(#gIron)", head.fill)
-        assertEquals("M-9,-116 L-9,-36 M-9,-100 L15,-78 L-9,-56", m.HAMMER_RUNE.d)
-        assertEquals("#FFC98A", m.HAMMER_RUNE.stroke)
+        // Copied from the page's #hammerShape, element by element (circles as cx, cy, r): d, fill, stroke, stroke width,
+        // opacity, line cap, line join. Group attributes are written on each element they apply to.
+        val ink = "#0B0C0E"
+        val bevel = "M-30,-148 C-70,-148 -108,-138 -146,-113 L-144,-104 C-106,-128 -70,-138 -30,-139 L30,-139 C70,-138 106,-128 144,-104 L146,-113 C108,-138 70,-148 30,-148 Z"
+        val border = "M-30,-128 C-66,-127 -98,-120 -130,-100 L-138,-62 Q-78,-46 -28,-22 Q-10,-14 0,-14 Q10,-14 28,-22 Q78,-46 138,-62 L130,-100 C98,-120 66,-127 30,-128 Z"
+        val inner = "M-30,-126 C-66,-125 -98,-118 -129,-98.500 L-136.500,-61 Q-78,-44 -28,-20 Q-10,-12 0,-12 Q10,-12 28,-20 Q78,-44 136.500,-61 L129,-98.500 C98,-118 66,-125 30,-126 Z"
+        val head = "M-30,-150 C-70,-150 -108,-140 -148,-114 L-160,-52 Q-86,-34 -30,-7 Q-12,0 0,0 Q12,0 30,-7 Q86,-34 160,-52 L148,-114 C108,-140 70,-150 30,-150 Z"
+        val expected = listOf(
+            MotionPath(circle(0.0, -306.0, 11.0), null, "url(#gBand)", 6.0, 1.0),
+            MotionPath("M-22,-278 Q-24,-296 0,-296 Q24,-296 22,-278 Z", "url(#gBand)", null, 0.0, 1.0),
+            MotionPath("M-15,-280 L15,-280 L21,-150 L-21,-150 Z", "url(#gWood)", null, 0.0, 1.0),
+            MotionPath("M-6,-276 L-8,-154 M3,-276 L4,-154 M10,-276 L13,-154", null, "#0C0A08", 1.2, .7),
+            MotionPath("M-19,-284 L19,-284 L19.6,-272 L-19.6,-272 Z", "url(#gBand)", null, 0.0, 1.0),
+            MotionPath("M-20,-226 L20,-226 L20.6,-214 L-20.6,-214 Z", "url(#gBand)", null, 0.0, 1.0),
+            MotionPath("M-25,-176 L25,-176 L34,-142 L-34,-142 Z", "url(#gBand)", null, 0.0, 1.0),
+            MotionPath(head, "url(#gIron)", ink, 2.0, 1.0, lineJoin = "round"),
+            MotionPath(bevel, "#C9CED6", null, 0.0, .55),
+            MotionPath("M-148,-114 L-160,-52 L-146,-56 L-137,-108 Z", "#0F1113", null, 0.0, .7),
+            MotionPath("M148,-114 L160,-52 L146,-56 L137,-108 Z", "#9AA1AA", null, 0.0, .35),
+            MotionPath(border, null, ink, 2.4, .75),
+            MotionPath(inner, null, "#B8BEC6", 1.0, .35),
+            MotionPath(circle(-98.0, -84.0, 13.0), null, ink, 2.6, 1.0),
+            MotionPath(circle(98.0, -84.0, 13.0), null, ink, 2.6, 1.0),
+            MotionPath(circle(-58.0, -66.0, 6.0), null, ink, 2.6, 1.0),
+            MotionPath(circle(58.0, -66.0, 6.0), null, ink, 2.6, 1.0),
+            MotionPath(circle(-98.0, -84.0, 4.0), ink, null, 0.0, 1.0),
+            MotionPath(circle(98.0, -84.0, 4.0), ink, null, 0.0, 1.0),
+            MotionPath(circle(-58.0, -66.0, 1.8), ink, null, 0.0, 1.0),
+            MotionPath(circle(58.0, -66.0, 1.8), ink, null, 0.0, 1.0),
+            MotionPath("M-9,-116 L-9,-36 M-9,-100 L15,-78 L-9,-56", null, "#08090A", 8.0, 1.0, lineCap = "square", lineJoin = "miter"),
+        )
+        assertEquals(expected.size, m.HAMMER_PATHS.size)
+        expected.forEachIndexed { i, e -> assertEquals(e, m.HAMMER_PATHS[i], "hammer shape $i") }
+        assertEquals(MotionPath("M-9,-116 L-9,-36 M-9,-100 L15,-78 L-9,-56", null, "#FFC98A", 5.0, 1.0, "square", "miter"), m.HAMMER_RUNE)
         val ids = m.GRADIENTS.map { it.id }.toSet()
-        assertEquals(setOf("gIron", "gBand", "gWood", "gHalo", "gChalk"), ids)
         m.HAMMER_PATHS.flatMap { listOfNotNull(it.fill, it.stroke) }.filter { it.startsWith("url(") }
             .forEach { assertTrue(it.removePrefix("url(#").removeSuffix(")") in ids, it) }
+    }
+
+    @Test
+    fun theGradientsAreTheReferences() {
+        // The page's <defs>: linear ones with their x1 y1 x2 y2, stops as offset, colour, opacity.
+        fun stops(vararg s: Triple<Double, String, Double>) = s.map { GradientStop(it.first, it.second, it.third) }
+        assertEquals(
+            listOf(
+                MotionGradient("gIron", false, 0.0, 0.0, 0.0, 1.0, stops(Triple(0.0, "#7B828B", 1.0), Triple(.38, "#4A5058", 1.0), Triple(1.0, "#1D2024", 1.0))),
+                MotionGradient("gBand", false, 0.0, 0.0, 1.0, 0.0, stops(Triple(0.0, "#2A2E33", 1.0), Triple(.35, "#9AA1AA", 1.0), Triple(1.0, "#23262A", 1.0))),
+                MotionGradient("gWood", false, 0.0, 0.0, 1.0, 0.0, stops(Triple(0.0, "#15110E", 1.0), Triple(.4, "#4A3A2C", 1.0), Triple(1.0, "#120F0C", 1.0))),
+                MotionGradient("gHalo", true, 0.0, 0.0, 0.0, 0.0, stops(Triple(0.0, "#BFD7FF", .75), Triple(.4, "#6FA4FF", .32), Triple(1.0, "#4F8DFF", 0.0))),
+                MotionGradient("gChalk", true, 0.0, 0.0, 0.0, 0.0, stops(Triple(0.0, "#E4E6E2", .9), Triple(.55, "#C9CED6", .45), Triple(1.0, "#C9CED6", 0.0))),
+            ),
+            m.GRADIENTS,
+        )
+    }
+
+    @Test
+    fun theEffectColoursAreTheReferences_andTheLightSetIsPinned() {
+        // The page's effect elements (#fx..., #px...) and the crack builder's strokes.
+        with(ModeSwitchMotion.Colors) {
+            assertEquals(
+                listOf("#000000", "#000000", "#F3F4EF", "#C9CED6", "#F3F4EF", "#F3F4EF", "#93979D", "#FFF6E8", "#FFB36B"),
+                listOf(SHADOW, CRACK_SHADOW, CRACK, CRACK_BRANCH, FLASH, RING1, RING2, BURST, SPARK),
+            )
+            assertEquals(
+                listOf("#4F8DFF", "#8DB8FF", "#DCE9FF", "#8DB8FF", "#4F8DFF", "#8DB8FF", "#EAF2FF", "#FFFFFF", "#DCE9FF"),
+                listOf(TINT, PUMP_RING, EDGE, EDGE_SOFT, VEIN_GLOW, VEIN_CORE, VEIN_HOT, VEIN_PULSE, NODE),
+            )
+        }
+        assertEquals(2.4, m.SPARK_WIDTH)
+        // The light scheme's set (spec "Settled" 1), the one both apps draw.
+        with(ModeSwitchMotion.LightColors) {
+            assertEquals("#2A2E33", FLASH); assertEquals(.5, FLASH_OPACITY_SCALE); assertEquals(.9, CRACK_SHADOW_OPACITY)
+            assertEquals(listOf(GradientStop(0.0, "#E4E6E2", .9), GradientStop(.55, "#8A9098", .5), GradientStop(1.0, "#8A9098", 0.0)), CHALK)
+            assertEquals("#1E3F7A", VEIN_EDGE); assertEquals(.55, VEIN_EDGE_OPACITY)
+            assertEquals("#2A2E33", RING1); assertEquals("#C2570F", SPARK); assertEquals("#2A2E33", BURST_EDGE); assertEquals(1.5, BURST_EDGE_WIDTH)
+        }
+        // The edge is the core's swollen width plus 1.6.
+        near(3.4 * 1.2 + 1.6, m.veinEdgeWidth(3.4, 1.2), 1e-9)
+        assertTrue(m.nodeShown(56.1, 50.0)); assertTrue(!m.nodeShown(56.0, 50.0))
+    }
+
+    @Test
+    fun theStampFadesFromTheLiftToTheEnd() {
+        near(1.0, m.dropFrame(m.DROP.lift, w, h).stampOpacity, 1e-9)
+        near(.5, m.dropFrame(880.0, w, h).stampOpacity, 1e-9)
+        near(.25, m.dropFrame(1000.0, w, h).stampOpacity, 1e-9)
+        near(0.0, m.dropFrame(m.DROP.impact - 1, w, h).stampOpacity, 1e-9)
     }
 }

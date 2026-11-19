@@ -279,6 +279,36 @@ object ModeSwitchMotion {
         const val NODE = "#DCE9FF"
     }
 
+    /**
+     * The light scheme's effects (spec "Settled" 1), one set for both apps. The effects keep [Colors] otherwise.
+     * - The flash is a dark punch: [FLASH] at [FLASH_OPACITY_SCALE] x [DropFrame.flashOpacity].
+     * - The cracks' dark under-strokes ([Colors.CRACK_SHADOW]) are drawn at [CRACK_SHADOW_OPACITY] instead of their own.
+     * - The chalk dust is filled with [CHALK] (bounding box, as gChalk) instead of gChalk: a grey rim round the mote.
+     * - Under the core veins, as one layer at [VEIN_EDGE_OPACITY] below the core layer: each core vein again in
+     *   [VEIN_EDGE], [veinEdgeWidth] wide.
+     * - Ring 1 is [RING1], the sparks [SPARK], and the starburst keeps its fill with a [BURST_EDGE] edge
+     *   [BURST_EDGE_WIDTH] wide (in the burst's own units, scaled with it), so all three still read once the punch
+     *   has faded.
+     */
+    object LightColors {
+        const val FLASH = Colors.FLASH_LIGHT
+        const val FLASH_OPACITY_SCALE = .5
+        const val CRACK_SHADOW_OPACITY = .9
+        val CHALK: List<GradientStop> get() = LIGHT_CHALK
+        const val VEIN_EDGE = "#1E3F7A"
+        const val VEIN_EDGE_EXTRA_WIDTH = 1.6
+        const val VEIN_EDGE_OPACITY = .55
+        const val RING1 = "#2A2E33"
+        const val SPARK = "#C2570F"
+        const val BURST_EDGE = "#2A2E33"
+        const val BURST_EDGE_WIDTH = 1.5
+    }
+
+    private val LIGHT_CHALK = listOf(GradientStop(0.0, "#E4E6E2", .9), GradientStop(.55, "#8A9098", .5), GradientStop(1.0, "#8A9098", 0.0))
+
+    /** The light scheme's edge under a core vein [coreWidth] wide, at the frame's [widthScale] ([PumpFrame.veinWidthScale]). */
+    fun veinEdgeWidth(coreWidth: Double, widthScale: Double): Double = coreWidth * widthScale + LightColors.VEIN_EDGE_EXTRA_WIDTH
+
     const val SHADOW_OPACITY_MAX = .5
     const val SPARK_WIDTH = 2.4
     const val PUMP_RING_FILL = "none"
@@ -575,8 +605,13 @@ object ModeSwitchMotion {
 
     fun veinProgress(front: Double, vein: VeinPath): Double = veinProgress(front, vein.d0, vein.len)
 
+    /** Whether a node that starts at [d0] shows at [front]: once the front has run 6 past it. */
+    fun nodeShown(front: Double, d0: Double): Boolean = front > d0 + NODE_LEAD
+
     /** Whether [node] shows at [front]. */
-    fun nodeShown(front: Double, node: VeinNode): Boolean = front > node.d0 + 6
+    fun nodeShown(front: Double, node: VeinNode): Boolean = nodeShown(front, node.d0)
+
+    private const val NODE_LEAD = 6.0
 
     /** A pulse's opacity on a [len] long vein: [PumpFrame.pulseOpacity], or 0 once [front] has run past its end. */
     fun pulseOpacity(framePulseOpacity: Double, front: Double, len: Double): Double =

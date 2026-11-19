@@ -59,4 +59,19 @@ class ModeSwitchBridgeTest {
         assertEquals(0.0, GritDomain.modeSwitchPulseOpacity(.8, 1100.0, 1000.0))
         assertEquals("#2A2E33", GritDomain.modeSwitchColors().flashLight)
     }
+
+    @Test
+    fun theLightSetAndTheSmallRulesCross() {
+        val light = GritDomain.modeSwitchLightColors()
+        val l = ModeSwitchMotion.LightColors
+        assertEquals(l.VEIN_EDGE, light.veinEdge); assertEquals(l.RING1, light.ring1); assertEquals(l.SPARK, light.spark)
+        assertEquals(l.BURST_EDGE, light.burstEdge); assertEquals(l.BURST_EDGE_WIDTH, light.burstEdgeWidth)
+        assertEquals(l.FLASH, light.flash); assertEquals(l.FLASH_OPACITY_SCALE, light.flashOpacityScale)
+        assertEquals(l.CRACK_SHADOW_OPACITY, light.crackShadowOpacity); assertEquals(l.VEIN_EDGE_OPACITY, light.veinEdgeOpacity)
+        assertEquals(l.CHALK.map { it.color }, light.chalk.map { it.color })
+        assertEquals(ModeSwitchMotion.veinEdgeWidth(2.4, 1.3), GritDomain.modeSwitchVeinEdgeWidth(2.4, 1.3))
+        assertEquals(2.4, GritDomain.modeSwitchSparkWidth())
+        assertTrue(GritDomain.modeSwitchNodeShown(56.5, 50.0))
+        assertEquals(false, GritDomain.modeSwitchNodeShown(56.0, 50.0))
+    }
 }

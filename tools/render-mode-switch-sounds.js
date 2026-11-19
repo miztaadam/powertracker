@@ -1,14 +1,19 @@
 #!/usr/bin/env node
 // Renders the two mode switch sounds from the approved prototype's own Web Audio synthesis
-// (docs/design/motion/mode-switch-sound.html) and writes the same bytes for both apps:
-//   app/src/main/res/raw/grit_hammer_drop.<ext>, grit_pump.<ext>
-//   web/public/sounds/grit_hammer_drop.<ext>,    grit_pump.<ext>
+// (docs/design/motion/mode-switch-sound.html), once, and writes them for both apps:
+//   app/src/main/res/raw/grit_hammer_drop.ogg, grit_pump.ogg   (the same bytes as the web's .ogg)
+//   web/public/sounds/grit_hammer_drop.ogg,    grit_pump.ogg
+//   web/public/sounds/grit_hammer_drop.wav,    grit_pump.wav    (the web's fallback where Ogg Vorbis can't play)
 //
 // The page renders each sound once in headless Chromium with an OfflineAudioContext at 48 kHz, limits it to its
 // ceiling and fades the tail (window.__sound.render(kind)); this script takes those samples as they are.
-// With ffmpeg on the PATH the files are OGG Vorbis (mono, 48 kHz); without it they are 16-bit WAV, as the page's
-// own export writes them. Each written file is decoded again and checked: length 1.9 s (drop) and 2.0 s (pump),
-// peak at most -1 dBFS.
+// With ffmpeg on the PATH the .ogg files are OGG Vorbis (mono, 48 kHz). The .wav files are 16-bit PCM, as the page's
+// own export writes them. Without ffmpeg there is no .ogg: Android gets the WAV instead, and the old .ogg is removed
+// from res/raw and from the web's folder, so no folder holds two grit_* files of one name (in res/raw that would be
+// two resources of one name, and the build would fail).
+//
+// Every file is measured before anything is written (decoded again for the .ogg): length 1.9 s (drop) and 2.0 s
+// (pump), peak at most -1 dBFS. If any is off, nothing is written.
 //
 // Usage, from the repository root:  node tools/render-mode-switch-sounds.js
 // It uses web/'s Playwright and the pre-installed Chromium; it never downloads a browser.
@@ -81,35 +86,59 @@ async function renderAll() {
 
 async function main() {
   const ogg = hasFfmpeg();
-  const ext = ogg ? 'ogg' : 'wav';
   const rendered = await renderAll();
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mode-switch-sounds-'));
+  const [RAW, WEB] = OUT_DIRS;
+  const writes = []; // [dir, file, bytes], made only once every file has been checked
+  const removes = []; // [dir, file]
   let failed = false;
-  for (const s of SOUNDS) {
-    const r = rendered[s.kind];
-    const wav = wavBytes(r.data, r.sr);
-    let bytes = wav, measured = ogg ? null : measureWav(wav, r.sr), quality = null;
-    if (ogg) {
-      const src = path.join(tmp, s.name + '.wav'); fs.writeFileSync(src, wav);
-      for (const q of VORBIS_QUALITY) {
-        const dst = path.join(tmp, `${s.name}.q${q}.ogg`);
-        execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-map_metadata', '-1', '-c:a', 'libvorbis', '-q:a', String(q),
-          '-ac', '1', '-ar', String(r.sr), '-fflags', '+bitexact', '-flags:a', '+bitexact', dst]);
-        measured = measureFile(dst, r.sr); bytes = fs.readFileSync(dst); quality = q;
-        if (dB(measured.peak) <= PEAK_LIMIT_DB) break;
-      }
-    }
-    for (const dir of OUT_DIRS) { fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, `${s.name}.${ext}`), bytes); }
-    const lengthOk = Math.abs(measured.seconds - s.seconds) < 0.005;
+  function check(file, measured, seconds, bytes, extra) {
+    const lengthOk = Math.abs(measured.seconds - seconds) < 0.005;
     const peakOk = dB(measured.peak) <= PEAK_LIMIT_DB;
     if (!lengthOk || !peakOk) failed = true;
-    console.log(`${s.name}.${ext}: ${measured.seconds.toFixed(3)} s (want ${s.seconds}) ${lengthOk ? 'ok' : 'WRONG'}, ` +
+    console.log(`${file}: ${measured.seconds.toFixed(3)} s (want ${seconds}) ${lengthOk ? 'ok' : 'WRONG'}, ` +
       `peak ${dB(measured.peak).toFixed(2)} dBFS (limit ${PEAK_LIMIT_DB}) ${peakOk ? 'ok' : 'TOO LOUD'}, ` +
-      `rendered peak before the limiter ${dB(rendered.rawPeak[s.kind]).toFixed(2)} dBFS, ${r.sr} Hz, ` +
-      `${(bytes.length / 1024).toFixed(1)} kB${quality == null ? '' : `, Vorbis q${quality}`}`);
+      `${(bytes.length / 1024).toFixed(1)} kB${extra}`);
   }
-  fs.rmSync(tmp, { recursive: true, force: true });
-  if (failed) { console.error('A sound is off the reference: see above.'); process.exit(1); }
+  try {
+    for (const s of SOUNDS) {
+      const r = rendered[s.kind];
+      console.log(`${s.name}: rendered peak before the limiter ${dB(rendered.rawPeak[s.kind]).toFixed(2)} dBFS, ${r.sr} Hz`);
+      const wav = wavBytes(r.data, r.sr);
+      check(`${s.name}.wav`, measureWav(wav, r.sr), s.seconds, wav, '');
+      writes.push([WEB, `${s.name}.wav`, wav]);
+      if (ogg) {
+        const src = path.join(tmp, s.name + '.wav'); fs.writeFileSync(src, wav);
+        let bytes = null, measured = null, quality = null;
+        for (const q of VORBIS_QUALITY) {
+          const dst = path.join(tmp, `${s.name}.q${q}.ogg`);
+          execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-map_metadata', '-1', '-c:a', 'libvorbis', '-q:a', String(q),
+            '-ac', '1', '-ar', String(r.sr), '-fflags', '+bitexact', '-flags:a', '+bitexact', dst]);
+          measured = measureFile(dst, r.sr); bytes = fs.readFileSync(dst); quality = q;
+          if (dB(measured.peak) <= PEAK_LIMIT_DB) break;
+        }
+        check(`${s.name}.ogg`, measured, s.seconds, bytes, `, Vorbis q${quality}`);
+        writes.push([RAW, `${s.name}.ogg`, bytes], [WEB, `${s.name}.ogg`, bytes]);
+        removes.push([RAW, `${s.name}.wav`]);
+      } else {
+        writes.push([RAW, `${s.name}.wav`, wav]);
+        removes.push([RAW, `${s.name}.ogg`], [WEB, `${s.name}.ogg`]);
+      }
+    }
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+  if (failed) { console.error('A sound is off the reference: see above. Nothing was written.'); process.exit(1); }
+  for (const [dir, file] of removes) {
+    const at = path.join(dir, file);
+    if (fs.existsSync(at)) { fs.rmSync(at); console.log(`removed ${path.relative(ROOT, at)}`); }
+  }
+  for (const [dir, file, bytes] of writes) {
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, file), bytes);
+    console.log(`wrote ${path.relative(ROOT, path.join(dir, file))}`);
+  }
+  if (!ogg) console.log('No ffmpeg: WAV only. The web plays the WAV wherever it cannot find or play the .ogg.');
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

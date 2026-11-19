@@ -547,6 +547,15 @@ object GritDomain {
     /** The effects' colours. */
     fun modeSwitchColors(): JsModeSwitchColors = modeSwitchColorsJs()
 
+    /** The light scheme's effects, the same set Android draws. */
+    fun modeSwitchLightColors(): JsModeSwitchLightColors = modeSwitchLightColorsJs()
+
+    /** The light scheme's edge under a core vein [coreWidth] wide, at the frame's `veinWidthScale`. */
+    fun modeSwitchVeinEdgeWidth(coreWidth: Double, widthScale: Double): Double = ModeSwitchMotion.veinEdgeWidth(coreWidth, widthScale)
+
+    /** The sparks' stroke width. */
+    fun modeSwitchSparkWidth(): Double = ModeSwitchMotion.SPARK_WIDTH
+
     /** The hammer's shapes, back to front, the striking boss at (0, 0): place them with a frame's pose. */
     fun modeSwitchHammerPaths(): Array<JsMotionPath> = ModeSwitchMotion.HAMMER_PATHS.map { it.toJs() }.toTypedArray()
 
@@ -596,6 +605,9 @@ object GritDomain {
     /** The veins' branch nodes, drawn between the hot veins and the pulses. */
     fun modeSwitchVeinNodes(w: Double, h: Double, srcX: Double, srcY: Double): Array<JsVeinNode> =
         ModeSwitchMotion.veinNodes(w, h, Point(srcX, srcY)).map { it.toJs() }.toTypedArray()
+
+    /** Whether a node that starts at [d0] shows at the frame's `veinFront`. */
+    fun modeSwitchNodeShown(front: Double, d0: Double): Boolean = ModeSwitchMotion.nodeShown(front, d0)
 
     /** How much of a vein starting at [d0], [len] long, is drawn at the frame's `veinFront`: 0..1, hidden at 0. */
     fun modeSwitchVeinProgress(front: Double, d0: Double, len: Double): Double =

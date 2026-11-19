@@ -29,11 +29,6 @@ const NS = 'http://www.w3.org/2000/svg'
 /** The reveal's clip runs linearly from 0 to this radius over as many ms, so its time is its radius in px. */
 const REVEAL_MAX = 100_000
 
-/** mirror of ModeSwitchMotion.SPARK_WIDTH (not exported to JS yet) */
-const SPARK_WIDTH = 2.4
-/** mirror of ModeSwitchMotion.nodeShown: a node shows once the vein front has run 6 px past it (not exported yet) */
-const nodeShown = (front: number, d0: number) => front > d0 + 6
-
 /**
  * Light scheme (spec "Settled" 1): the effects keep the prototype's colours, but the flash is a dark punch at half
  * the opacity, and the cracks, the chalk dust and the veins get a darker edge. These are the web's values; Android
@@ -288,7 +283,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       'g',
       {
         stroke: colors.spark,
-        'stroke-width': SPARK_WIDTH,
+        'stroke-width': grit.modeSwitchSparkWidth(),
         'stroke-linecap': 'round',
       },
       svg,
@@ -575,7 +570,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
         if (v.swell) put(v.n, 'stroke-width', (v.width * f.veinWidthScale).toFixed(2))
       }
       for (const n of p.nodes) {
-        const on = nodeShown(front, n.d0)
+        const on = grit.modeSwitchNodeShown(front, n.d0)
         put(n.n, 'opacity', on ? f.nodeOpacity : 0)
         if (on) put(n.n, 'r', (n.r * f.nodeScale).toFixed(2))
       }

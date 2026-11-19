@@ -211,6 +211,26 @@ data class JsModeSwitchColors(
     val node: String,
 )
 
+/**
+ * The light scheme's effects, the same for both apps (the domain's `ModeSwitchMotion.LightColors`): the flash at
+ * [flashOpacityScale] x its opacity; crack under-strokes at [crackShadowOpacity]; dust filled with [chalk]; under the
+ * core veins one layer at [veinEdgeOpacity] in [veinEdge], each `modeSwitchVeinEdgeWidth` wide; ring 1 in [ring1];
+ * sparks in [spark]; the burst edged in [burstEdge], [burstEdgeWidth] wide in its own units.
+ */
+@JsExport
+data class JsModeSwitchLightColors(
+    val flash: String,
+    val flashOpacityScale: Double,
+    val crackShadowOpacity: Double,
+    val chalk: Array<JsGradientStop>,
+    val veinEdge: String,
+    val veinEdgeOpacity: Double,
+    val ring1: String,
+    val spark: String,
+    val burstEdge: String,
+    val burstEdgeWidth: Double,
+)
+
 internal fun Point.toJs() = JsMotionPoint(x, y)
 internal fun DropTimeline.toJs() = JsDropTimeline(fall, impact, hold, settle, lift, end, hammerScale)
 internal fun PumpTimeline.toJs() = JsPumpTimeline(
@@ -245,5 +265,12 @@ internal fun modeSwitchColorsJs() = with(ModeSwitchMotion.Colors) {
     JsModeSwitchColors(
         SHADOW, CRACK_SHADOW, CRACK, CRACK_BRANCH, FLASH, FLASH_LIGHT, RING1, RING2, BURST, SPARK, TINT, PUMP_RING, EDGE, EDGE_SOFT,
         VEIN_GLOW, VEIN_CORE, VEIN_HOT, VEIN_PULSE, NODE,
+    )
+}
+
+internal fun modeSwitchLightColorsJs() = with(ModeSwitchMotion.LightColors) {
+    JsModeSwitchLightColors(
+        FLASH, FLASH_OPACITY_SCALE, CRACK_SHADOW_OPACITY, CHALK.map { it.toJs() }.toTypedArray(), VEIN_EDGE, VEIN_EDGE_OPACITY,
+        RING1, SPARK, BURST_EDGE, BURST_EDGE_WIDTH,
     )
 }

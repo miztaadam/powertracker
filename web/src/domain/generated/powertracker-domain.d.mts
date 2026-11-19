@@ -86,6 +86,9 @@ export declare namespace GritDomain {
             modeSwitchPumpTimeline(): JsPumpTimeline;
             modeSwitchVibration(): JsModeSwitchVibration;
             modeSwitchColors(): JsModeSwitchColors;
+            modeSwitchLightColors(): JsModeSwitchLightColors;
+            modeSwitchVeinEdgeWidth(coreWidth: number, widthScale: number): number;
+            modeSwitchSparkWidth(): number;
             modeSwitchHammerPaths(): Array<JsMotionPath>;
             modeSwitchHammerRune(): JsMotionPath;
             modeSwitchGradients(): Array<JsMotionGradient>;
@@ -100,6 +103,7 @@ export declare namespace GritDomain {
             modeSwitchBurst(hitX: number, hitY: number): Array<JsMotionPoint>;
             modeSwitchVeins(w: number, h: number, srcX: number, srcY: number): Array<JsVeinPath>;
             modeSwitchVeinNodes(w: number, h: number, srcX: number, srcY: number): Array<JsVeinNode>;
+            modeSwitchNodeShown(front: number, d0: number): boolean;
             modeSwitchVeinProgress(front: number, d0: number, len: number): number;
             modeSwitchPulseOpacity(pulseOpacity: number, front: number, len: number): number;
             modeSwitchPulseStart(front: number, len: number): number;
@@ -484,6 +488,29 @@ export declare namespace JsModeSwitchColors {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsModeSwitchColors;
+    }
+}
+export declare class JsModeSwitchLightColors {
+    constructor(flash: string, flashOpacityScale: number, crackShadowOpacity: number, chalk: Array<JsGradientStop>, veinEdge: string, veinEdgeOpacity: number, ring1: string, spark: string, burstEdge: string, burstEdgeWidth: number);
+    get flash(): string;
+    get flashOpacityScale(): number;
+    get crackShadowOpacity(): number;
+    get chalk(): Array<JsGradientStop>;
+    get veinEdge(): string;
+    get veinEdgeOpacity(): number;
+    get ring1(): string;
+    get spark(): string;
+    get burstEdge(): string;
+    get burstEdgeWidth(): number;
+    copy(flash?: string, flashOpacityScale?: number, crackShadowOpacity?: number, chalk?: Array<JsGradientStop>, veinEdge?: string, veinEdgeOpacity?: number, ring1?: string, spark?: string, burstEdge?: string, burstEdgeWidth?: number): JsModeSwitchLightColors;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsModeSwitchLightColors {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsModeSwitchLightColors;
     }
 }
 export declare class JsExercise {
