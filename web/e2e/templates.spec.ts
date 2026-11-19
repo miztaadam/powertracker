@@ -250,6 +250,39 @@ test('Plan never shows the empty line before a stored plan is read', async ({ pa
   expect(await page.evaluate(() => (window as unknown as { gritSeen: string[] }).gritSeen)).toEqual([])
 })
 
+test('Undo after a template replaced the plan: the old plan and days are back, also after a reload', async ({ page }) => {
+  await openOnWednesday(page, '#/plan')
+  // The first plan: on an empty side, no Undo.
+  await page.getByRole('button', { name: 'Choose a template' }).click()
+  await page.getByRole('button', { name: '3-day powerlifting' }).click()
+  await page.getByRole('button', { name: 'Use this plan' }).click()
+  await expect(page.getByText('Plan set: 3-day powerlifting.')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Undo' })).toHaveCount(0)
+  // The days as the app reads them: a default never changed has no row.
+  const stored = async () => {
+    const { items, trainingDays } = await storedPlan(page)
+    return { items, trainingDays: trainingDays ?? [1, 3, 5] }
+  }
+  const old = await stored()
+  expect(old.items.length).toBeGreaterThan(0)
+
+  // Replaced by another template, then Undo on the snackbar, within its time.
+  await page.getByRole('button', { name: 'Plan options' }).click()
+  await page.getByRole('menuitem', { name: 'Choose a template' }).click()
+  await page.getByRole('button', { name: '5-day powerlifting' }).click()
+  await page.getByRole('button', { name: 'Use this plan' }).click()
+  await page.getByRole('dialog', { name: 'Replace your powerlifting plan?' }).getByRole('button', { name: 'Replace' }).click()
+  await expect(page.getByText('Plan set: 5-day powerlifting.')).toBeVisible()
+  expect(await stored()).not.toEqual(old)
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(page.getByText('Plan set: 5-day powerlifting.')).toHaveCount(0)
+  await expect.poll(stored).toEqual(old)
+
+  await page.reload()
+  await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem', { name: /^Squat/ })).toBeVisible()
+  expect(await stored()).toEqual(old)
+})
+
 test('a failed save says so at the top of the draft, and trying again saves', async ({ page }) => {
   await openOnWednesday(page, '#/plan/templates/powerlifting')
   await page.getByRole('button', { name: '3-day powerlifting' }).click()

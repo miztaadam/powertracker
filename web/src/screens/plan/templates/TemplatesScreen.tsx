@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { GritDb } from '../../../db/db'
+import type { PlanSnapshot } from '../../../db/catalogue'
 import type { TrainingMode } from '../../../db/schema'
 import type { JsDraftExercise, JsLibraryExercise, JsPlanDraft } from '../../../domain'
 import { canSwap, replaceTitle, useTemplates, type PlanTemplate, type TemplatesActions, type TemplatesState } from '../../../state/useTemplates'
@@ -34,8 +35,8 @@ export type TemplatesScreenProps = {
   mode: TrainingMode
   /** Leaves with nothing changed. */
   onLeave: () => void
-  /** After Use this plan has saved, with the template's name for Plan's snackbar. */
-  onSaved: (name: string) => void
+  /** After Use this plan has saved, with the template's name for Plan's snackbar, and what it can Undo when a plan was replaced (1.14.1). */
+  onSaved: (name: string, undo?: PlanSnapshot) => void
 }
 
 /** What the draft's history entry carries, beside what the screen's own entry had (its `gritFrom`). */
@@ -107,8 +108,12 @@ export function TemplatesScreen({ db, mode, onLeave, onSaved }: TemplatesScreenP
   const done = useRef(onSaved)
   done.current = onSaved
   const name = templates.saved ? (templates.chosen?.name ?? null) : null
+  const undo = useRef(templates.undo)
+  undo.current = templates.undo
   useEffect(() => {
-    if (name != null) drop(() => done.current(name))
+    if (name == null) return
+    const replaced = undo.current
+    drop(() => (replaced != null ? done.current(name, replaced) : done.current(name)))
   }, [name, drop])
   const leave = useRef(onLeave)
   leave.current = onLeave

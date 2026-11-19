@@ -429,7 +429,8 @@ describe('saving a template', () => {
 
     await tap('Use this plan')
     await userEvent.click(within(screen.getByRole('dialog', { name: 'Replace your powerlifting plan?' })).getByRole('button', { name: 'Replace' }))
-    await waitFor(() => expect(onSaved).toHaveBeenCalledWith('3-day powerlifting'))
+    // 1.14.1: a plan replaced also hands Plan what its snackbar can Undo.
+    await waitFor(() => expect(onSaved).toHaveBeenCalledWith('3-day powerlifting', expect.objectContaining({ mode: 'POWERLIFTING' })))
     expect(await described('POWERLIFTING')).toEqual(expected('pl-3', [1, 3, 5]))
     const { powerlifting: _pl, skips: oldSkips, days: _days, ...rest } = before
     expect(await keep()).toEqual(rest)

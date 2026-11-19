@@ -1,6 +1,6 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { planFor, replacePlan } from '../db/catalogue'
+import { planFor, planSnapshot, replacePlan, type PlanSnapshot } from '../db/catalogue'
 import { getSettings, updateSettings, type AppSettings, type GritDb } from '../db/db'
 import type { TrainingMode } from '../db/schema'
 import { grit, type JsLibraryExercise, type JsPlanDraft } from '../domain'
@@ -37,6 +37,8 @@ export type TemplatesState = {
   saving: boolean
   /** Stored, plan and days: the screen returns to Plan. */
   saved: boolean
+  /** Once saved over a plan: what Plan's snackbar can Undo (1.14.1). Null when the side had no plan. */
+  undo: PlanSnapshot | null
   /** The save failed; nothing was stored, the draft stays and Use this plan can be tried again. */
   failed: boolean
   /** Exactly the template's number of weekdays is ticked. */
@@ -113,6 +115,7 @@ export function useTemplates(db: GritDb, mode: TrainingMode): TemplatesState & T
     confirming: false,
     saving: false,
     saved: false,
+    undo: null,
     failed: false,
   }))
   const [readError, setReadError] = useState<unknown>(null)
@@ -204,11 +207,14 @@ export function useTemplates(db: GritDb, mode: TrainingMode): TemplatesState & T
     const items = draftItems(draft, [], fixedReps)
     const days = [...s.days].sort((a, b) => a - b)
     // One transaction: the plan and that side's days stand or fall together, so a failure changes nothing.
+    // The plan as it was is read in the same transaction, for Undo: null when the side had none.
     db.transaction('rw', db.exercises, db.planItems, db.skips, db.settings, async () => {
-      await replacePlan(db, mode, items)
+      const before = await planSnapshot(db, mode)
+      const added = await replacePlan(db, mode, items)
       await updateSettings(db, (st) => (mode === 'BODYBUILDING' ? { ...st, bodybuildingTrainingDays: days } : { ...st, trainingDays: days }))
+      return before && { ...before, replacedBy: added }
     }).then(
-      () => update((x) => ({ ...x, saving: false, saved: true })),
+      (undo) => update((x) => ({ ...x, saving: false, saved: true, undo })),
       () => update((x) => ({ ...x, saving: false, failed: true })),
     )
   }, [db, mode, fixedReps, update])

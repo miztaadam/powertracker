@@ -624,6 +624,53 @@ test('the plan builder: four days from three exercises and a priority, a swap, t
   expect(tables.settings.find((s) => s.key === 'bodybuildingTrainingDays')?.value).toEqual([3, 4, 6, 7])
 })
 
+test('Undo after Rebuild my plan: the old bodybuilding plan and days are back, also after a reload', async ({ page }) => {
+  await openOnWednesday(page, '#/settings')
+  await page.getByRole('switch', { name: 'Bodybuilding mode' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+  await tabBar(page).getByRole('link', { name: 'Plan' }).click()
+  const stored = async () => {
+    const tables = (await readAllTables(page)) as { planItems: { mode: string }[]; settings: { key: string; value: unknown }[] }
+    return { items: tables.planItems.filter((p) => p.mode === 'BODYBUILDING'), days: tables.settings.find((s) => s.key === 'bodybuildingTrainingDays')?.value ?? [1, 3, 5] }
+  }
+  const build = async (dayCount?: string) => {
+    if (dayCount) await page.getByText(dayCount, { exact: true }).click()
+    const days = page.getByRole('group', { name: 'Which days?' })
+    if (dayCount === '4 days') await days.getByText('Sat', { exact: true }).click()
+    await page.getByRole('button', { name: 'Next' }).click()
+    // A rebuild starts with the plan's exercises ticked: Next, not Choose for me.
+    await expect(page.getByText('Step 2 of 4')).toBeVisible()
+    await page.getByRole('button', { name: /^(Next|Choose for me)$/ }).click()
+    await expect(page.getByText('Step 3 of 4')).toBeVisible()
+    await page.getByRole('button', { name: /^(Next|Skip)$/ }).click()
+    await page.getByRole('button', { name: 'Use this plan' }).click()
+  }
+
+  // The first plan: "Plan saved.", with no Undo on an empty side.
+  await page.getByRole('button', { name: 'Build my plan' }).click()
+  await build()
+  await expect(page).toHaveURL(/#\/plan$/)
+  await expect(page.getByText('Plan saved.')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Undo' })).toHaveCount(0)
+  const old = await stored()
+  expect(old.items.length).toBeGreaterThan(0)
+
+  // Rebuilt on four days, then Undo within the snackbar's time.
+  await page.getByRole('button', { name: 'Plan options' }).click()
+  await page.getByRole('menuitem', { name: 'Rebuild my plan' }).click()
+  await build('4 days')
+  await page.getByRole('dialog', { name: 'Use this plan?' }).getByRole('button', { name: 'Replace' }).click()
+  await expect(page).toHaveURL(/#\/plan$/)
+  await expect(page.getByText('Plan saved.')).toBeVisible()
+  expect((await stored()).days).toEqual([1, 3, 5, 6])
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect.poll(stored).toEqual(old)
+
+  await page.reload()
+  await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem').first()).toBeVisible()
+  expect(await stored()).toEqual(old)
+})
+
 test('a check-in story: build a plan, train four weeks, check in, apply the coach’s card, see it on Plan and Progress', async ({ page }) => {
   await openOnWednesday(page, '#/settings')
   await page.getByRole('switch', { name: 'Bodybuilding mode' }).click()

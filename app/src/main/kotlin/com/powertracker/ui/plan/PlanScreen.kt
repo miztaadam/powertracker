@@ -32,8 +32,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
@@ -65,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.powertracker.data.PlanSnapshot
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.Category
@@ -98,6 +102,7 @@ import com.powertracker.ui.plan.templates.CHOOSE_A_TEMPLATE
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.today.SlidingColumnItems
+import com.powertracker.ui.today.UNDO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
@@ -208,6 +213,11 @@ fun PlanScreen(
     /** A message for the snackbar once (after a template is saved, "Plan set: …"); [onMessageShown] clears it. */
     message: String? = null,
     onMessageShown: () -> Unit = {},
+    /**
+     * With [message], what its Undo puts back after a template or builder save replaced a plan (1.14.1); null shows the
+     * message alone. Undo is offered for the snackbar's usual time and applies to the snapshot's own side.
+     */
+    undo: PlanSnapshot? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var dialog by rememberSaveable(stateSaver = PlanDialog.Saver) { mutableStateOf(null) }
@@ -221,10 +231,17 @@ fun PlanScreen(
     }
     // Shown in this screen's scope, not the effect's: clearing the message must not take the snackbar down with it.
     val scope = rememberCoroutineScope()
+    val latestUndo by rememberUpdatedState(undo)
     LaunchedEffect(message) {
         if (message != null) {
             snackbar.currentSnackbarData?.dismiss()
-            scope.launch { snackbar.showSnackbar(message) }
+            val snapshot = latestUndo
+            scope.launch {
+                if (snapshot == null) snackbar.showSnackbar(message)
+                else if (snackbar.showSnackbar(message, actionLabel = UNDO, duration = SnackbarDuration.Short) == SnackbarResult.ActionPerformed) {
+                    viewModel.undo(snapshot)
+                }
+            }
             onMessageShown()
         }
     }

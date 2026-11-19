@@ -739,6 +739,51 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-plan-templates-design.md`; plan: `
 
 Not yet tried on a real phone.
 
+## Done: 1.14.1, plan safety nets (both apps)
+Plan: `docs/superpowers/plans/2026-11-19-grit-1-14-1-plan-safety-nets.md`.
+
+**The owner's report:** on the web app, installed from Chrome on Android, the bodybuilding plan was lost around the 1.14 update, after tapping "Update ready". History and settings were kept; only the plan was gone.
+
+**What was checked:**
+- 9 update paths, from 1.12.3 to 1.14 through "Update ready", were reproduced. None lost the plan.
+- No code cause was found. The only code that removes a whole plan is something the lifter does: Build or Rebuild my plan, a template's Use this plan → Replace, or restoring a backup.
+- The cause isn't established. The owner approved two safety nets on 2026-11-19 ("yes, build both").
+
+**Undo after a whole-plan replace (both apps):**
+- After a template's Use this plan, or the builder's Use this plan, over a side that had a plan, Plan's snackbar ("Plan set: <name>." or "Plan saved.") carries **Undo**.
+- Undo puts back that side's old plan items with their ids, days, order and numbers, the skips' links to them, and the side's training days, in one transaction. If it fails, "Couldn't undo. Your new plan is kept." shows and nothing changes.
+- No Undo on a side that had no plan. Undo never touches the other side, or anything made after the save (sessions, sets, advice, check-ins, later skips).
+- Only the latest replace can be undone. An older snackbar's Undo, or Undo after Undo, does nothing.
+- Leaving Plan drops the snackbar, and its Undo with it. An Undo already tapped still finishes.
+- A save that fails and rolls back leaves the earlier save's Undo working (Android review fix; on the web a rolled-back save never changes the ids the Undo checks).
+- **The builder's new "Plan saved.":** the builder had no saved message before; it now shows "Plan saved." after every save, with Undo only over a plan.
+
+**The restore warning (both apps):**
+- Before a backup restore, each side is compared. If a side has plan items now and the backup has none for it, the confirm is "This backup has no powerlifting plan" (or bodybuilding, or "no powerlifting or bodybuilding plan" for both), in place of "Replace all data?".
+- The body: "Restoring it removes your current bodybuilding plan. Your other data is replaced by the backup's too." With both sides: "Restoring it removes your current powerlifting and bodybuilding plans. Your other data is replaced by the backup's too."
+- **Restore anyway** restores; **Cancel** restores nothing. With no side losing its plan, the flow is unchanged. A backup item with no side counts as powerlifting, as on the way in.
+- The backup format, the coach rules and the existing strings are unchanged.
+
+**Where the apps differ (accepted, all Low in the review):**
+- **The stale rule:** Android uses a token (the side's latest snapshot, kept in memory, so lost with the process) plus a check that the side's item ids are still the replace's. The web uses the id check only.
+- **The Undo time:** Android's is `SnackbarDuration.Short`, 4 s, which the phone's accessibility settings can lengthen. The web's is a fixed 4 s.
+- **The warning on safety-copy restores:** only the web has a safety-copy restore ("Restore safety copy"), so only the web warns there.
+- **A failed Undo after leaving Plan:** Android shows the message the next time Plan opens; the web shows nothing.
+- **Editing the plan right after a save:** the review listed this as a difference (on Android any change turns Undo off; on the web, adding or removing an item does). In the code, both apps' Undo checks the same thing besides Android's token: the side's item ids must still be the replace's. So on both, adding or removing an item turns Undo off, and an in-place number edit within the 4 s is reverted by Undo.
+- On the web, Undo stores the side's days as an explicit settings row, even when they were the default; the value is the same.
+
+**Tests:**
+- **New, Android:** `PlanUndoTest` (ids, order, numbers, skip links and days back, the other side untouched; no Undo on an empty side; a stale Undo; never the other side; a logged session kept; a failed Undo; a rolled-back save keeps the earlier Undo; the builder's Undo) and `BackupRestoreWarningTest` (sides per side, both and none; the strings; Cancel; Restore anyway; no warning).
+- **New, web:** `src/db/restorePlan.test.ts`, `src/screens/plan/planUndo.test.tsx` (Undo gone after 4 s) and `src/screens/settings/restoreWarning.test.tsx`; e2e cases in `templates.spec.ts` (template over a plan, Undo, reload, the old plan and days back) and `bodybuilding.spec.ts` (Rebuild my plan, "Plan saved." with Undo, reload, the old plan back).
+- **Existing test changed:** web `TemplatesScreen.test.tsx`, `onSaved` was expected with `('3-day powerlifting')` and is now expected with `('3-day powerlifting', objectContaining({ mode: 'POWERLIFTING' }))`, since a replace now also hands over its Undo. No other existing test was edited.
+
+**Version:** Android 1.14.1 (versionCode 24), web 1.14.1. Settings shots re-shot on both apps. The mode-switch animations move to 1.15 (versionCode 25).
+
+**Open follow-up:**
+- **The cause of the plan loss isn't established.** The safety nets make a replace or a restore recoverable or warned, but don't explain the report. The owner's backup file is pending; look at it when it comes (does it have the bodybuilding plan, and from what date).
+
+Not yet tried on a real phone.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;

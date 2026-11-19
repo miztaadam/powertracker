@@ -532,6 +532,16 @@ export function decodeBackup(text: string, supportedVersion: number = BACKUP_VER
 
 // ---- restore -------------------------------------------------------------------------------------
 
+/**
+ * The sides whose plan restoring `file` would remove (1.14.1): those with plan items now and none in the backup,
+ * powerlifting first. A backup item with no mode is on the powerlifting side, as the restore maps it.
+ */
+export async function plansLostBy(db: Dexie, file: BackupFile): Promise<TrainingMode[]> {
+  const now = new Set(((await db.table('planItems').toArray()) as PlanItemRow[]).map(sideOf))
+  const kept = new Set(file.planItems.map((p) => p.mode ?? 'POWERLIFTING'))
+  return TRAINING_MODES.filter((mode) => now.has(mode) && !kept.has(mode))
+}
+
 const replacedListeners = new Set<() => void>()
 
 /** Calls `cb` each time a restore has replaced the data, so what runs on the old data (a rest) can stop. Returns an unsubscribe. */

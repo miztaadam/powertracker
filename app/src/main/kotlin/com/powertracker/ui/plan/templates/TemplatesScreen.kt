@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.powertracker.data.PlanSnapshot
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.library.LibraryExercise
@@ -112,7 +113,8 @@ data class TemplatesActions(
 
 /**
  * Choosing a plan template for [mode]'s side, over the whole screen. [onClose] leaves with nothing changed; [onSaved]
- * follows Use this plan, with the template's name for Plan's snackbar.
+ * follows Use this plan, with the template's name for Plan's snackbar; just before it, [onSavedUndo] gets what that
+ * snackbar's Undo puts back, or null when the side had no plan (1.14.1).
  */
 @Composable
 fun TemplatesScreen(
@@ -121,12 +123,19 @@ fun TemplatesScreen(
     settings: SettingsRepository,
     onClose: () -> Unit,
     onSaved: (String) -> Unit,
+    onSavedUndo: (PlanSnapshot?) -> Unit = {},
     viewModel: TemplatesViewModel = viewModel(key = "templates-${mode.name}", factory = TemplatesViewModel.factory(mode, training, settings)),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val close by rememberUpdatedState(onClose)
     val saved by rememberUpdatedState(onSaved)
-    LaunchedEffect(state.saved) { if (state.saved) state.chosen?.let { saved(it.name) } }
+    val savedUndo by rememberUpdatedState(onSavedUndo)
+    LaunchedEffect(state.saved) {
+        if (state.saved) state.chosen?.let {
+            savedUndo(state.undo)
+            saved(it.name)
+        }
+    }
     val actions = remember(viewModel) {
         TemplatesActions(
             onChoose = viewModel::choose,

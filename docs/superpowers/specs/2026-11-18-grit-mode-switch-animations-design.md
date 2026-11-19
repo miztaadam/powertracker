@@ -78,7 +78,7 @@
   - nothing is worked out at app start.
 - **Size:** the shapes are vector, a few KB, with no images.
 - **Fixed rules:**
-  - version 1.15 on both apps, Android versionCode 24;
+  - version 1.15 on both apps, Android versionCode 25;
   - no model names in code or commits;
   - new commits only, never amend;
   - e2e with `--trace off`.
@@ -99,7 +99,7 @@
 7. **The content changes too, not just the colours.** For example, Settings shows different rows on each side. On the web, the reveal shows the real new screen: use the existing `web/src/ui/viewTransition.ts` snapshot helper where it fits. Android reveals the new screen the same way, inside a clip.
 8. **Tests:** the web e2e turns motion off on every page (`e2e/motion.spec.ts`), so the animation tests turn it on explicitly.
 9. **The reference** is committed at `docs/design/motion/mode-switch.html`.
-10. **The version** is 1.15 (versionCode 24). It ships after 1.14 (plan templates).
+10. **The version** is 1.15 (versionCode 25). It ships after 1.14 (plan templates).
 
 ## Left to the builder
 - How each app layers the animation over the app (an overlay above the navigation host on Android, a fixed layer on the web), and how the theme change is timed to the impact or the third beat while the setting is stored at the tap.

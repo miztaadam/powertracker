@@ -282,6 +282,9 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
         }
     }
 
+    /** The sides whose plan restoring [file] would remove ([sidesLosingPlanOf]), read from what is stored now. */
+    suspend fun sidesLosingPlan(file: BackupFile): List<TrainingMode> = sidesLosingPlanOf(db.plan().all().map { it.mode }, file)
+
     /**
      * Replaces all data in one transaction; any failure rolls back and leaves existing data untouched. A version-1 file
      * gets the strict press upgrade on the way in, as the database got [com.powertracker.data.db.MIGRATION_1_2]. A
@@ -321,4 +324,13 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
         }
         settings.update { newSettings }
     }
+}
+
+/**
+ * The sides whose plan restoring [file] would remove (1.14.1): those with plan items now ([current], each stored item's
+ * side) and none in the file, powerlifting first. A file's item without a side is a powerlifting item, as on the way in.
+ */
+fun sidesLosingPlanOf(current: Collection<TrainingMode>, file: BackupFile): List<TrainingMode> {
+    val inFile = file.planItems.mapTo(HashSet()) { TrainingMode.valueOf(it.mode) }
+    return TrainingMode.entries.filter { it in current && it !in inFile }
 }
