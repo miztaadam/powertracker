@@ -8,6 +8,10 @@ import { todayFixture } from './test/todayFixture'
 /*
  * The guide (1.16) is drawn in place of the app's screens. The flash that marks a rest's end must not replay when it
  * closes, and a rest that ends while it is up flashes once.
+ *
+ * The rest's end is reached by moving the app's clock (`Date.now`, which the rest timer reads on its ticks), not by
+ * waiting: a rest due a fixed time after it is saved could end before the app and the guide's chunk had loaded, on a
+ * busy machine. Timers run in real time.
  */
 
 let fx: ReturnType<typeof todayFixture>
@@ -15,9 +19,14 @@ let db: GritDb
 /** How many times a flash was put on the page. */
 let flashes: number
 let watcher: MutationObserver
+/** How far the app's clock is ahead of the real one. */
+let aheadMs: number
 
 beforeEach(async () => {
   window.location.hash = ''
+  aheadMs = 0
+  const realNow = Date.now.bind(Date)
+  vi.spyOn(Date, 'now').mockImplementation(() => realNow() + aheadMs)
   fx = todayFixture()
   db = await fx.open()
   // The flash alone: no tone to play.
@@ -35,8 +44,16 @@ afterEach(async () => {
   vi.restoreAllMocks()
 })
 
-/** A rest saved as running, ending `inMs` from now: the app picks it up as it opens. */
-const restEndingIn = (inMs: number) => db.meta.put({ key: REST_TIMER_KEY, value: { endsAtMs: Date.now() + inMs, totalSec: 90 } })
+/** Far enough ahead that no load, however slow, reaches it before the clock is moved there. */
+const REST_MS = 60_000
+
+/** A rest saved as running, ending [REST_MS] from now: the app picks it up as it opens. */
+const restRunning = () => db.meta.put({ key: REST_TIMER_KEY, value: { endsAtMs: Date.now() + REST_MS, totalSec: 90 } })
+
+/** Moves the app's clock just past the rest's end: its next tick (every 200 ms) notices zero, about on time. */
+const restEnds = () => {
+  aheadMs = REST_MS + 50
+}
 
 const flash = () => screen.queryByTestId('rest-flash')
 const flashGone = () => waitFor(() => expect(flash()).toBeNull(), { timeout: 3000 })
@@ -57,10 +74,11 @@ async function closeTheGuide() {
 }
 
 it('aRestThatEndedBeforeTheGuide_doesNotFlashAgainWhenTheGuideCloses', async () => {
-  await restEndingIn(300)
+  await restRunning()
   window.location.hash = '#/today'
   render(<App dbName={fx.name} />)
   await tabBar()
+  restEnds()
   await waitFor(() => expect(flash()).toBeInTheDocument(), { timeout: 3000 })
   await flashGone()
   expect(flashes).toBe(1)
@@ -72,11 +90,12 @@ it('aRestThatEndedBeforeTheGuide_doesNotFlashAgainWhenTheGuideCloses', async () 
 }, 10_000)
 
 it('aRestThatEndsWhileTheGuideIsUp_flashesOnce', async () => {
-  await restEndingIn(1000)
+  await restRunning()
   window.location.hash = '#/guide'
   render(<App dbName={fx.name} />)
   expect(await screen.findByTestId('guide')).toBeInTheDocument()
   expect(flashes).toBe(0)
+  restEnds()
   await waitFor(() => expect(flashes).toBe(1), { timeout: 3000 })
   await flashGone()
   await closeTheGuide()
