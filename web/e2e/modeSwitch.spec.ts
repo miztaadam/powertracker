@@ -335,6 +335,89 @@ test.describe('with motion on', () => {
     expect(parseFloat(flood[1]!)).toBeCloseTo(centre.y, 0)
     await page.clock.runFor(PUMP.end)
   })
+
+  // What made the reveal slow, pinned on the held clock so no timing is involved (1.15 speed fix). Each would show as
+  // dropped frames only some of the time; these show it every time.
+  // - The old side's picture is moved by an animation on its own pseudo-element, not through <html> (a custom property
+  //   on <html> written each frame restyled the whole page): over the reveal, <html>'s attributes change a few times
+  //   (the classes, the circle's centre), never once a frame.
+  // - The view transition's update lays nothing out: the blocks are measured, and the stamp placed, at the next frame.
+  for (const kind of ['pump', 'drop'] as const) {
+    test(`the ${kind}'s reveal: <html> is not written each frame, and its update measures nothing`, async ({ page }) => {
+      await page.addInitScript(() => {
+        const w = window as Window & { __pin?: { starts: number; updates: number; rects: number; inUpdate: boolean; mutations: string[]; revealing: boolean } }
+        const pin = (w.__pin = { starts: 0, updates: 0, rects: 0, inUpdate: false, mutations: [] as string[], revealing: false })
+        const rawRect = Element.prototype.getBoundingClientRect
+        Element.prototype.getBoundingClientRect = function (this: Element) {
+          if (pin.inUpdate) pin.rects++
+          return rawRect.call(this)
+        }
+        const d = document as unknown as { startViewTransition?: (update: () => void) => unknown }
+        const rawStart = d.startViewTransition
+        if (typeof rawStart === 'function')
+          d.startViewTransition = function (this: unknown, update: () => void) {
+            pin.starts++
+            return rawStart.call(this, () => {
+              pin.updates++
+              pin.inUpdate = true
+              try {
+                return update()
+              } finally {
+                pin.inUpdate = false
+              }
+            })
+          }
+      })
+      await openSettings(page)
+      // <html>'s own attributes only, not the page under it.
+      await page.evaluate(() => {
+        const pin = (window as Window & { __pin?: { mutations: string[]; revealing: boolean } }).__pin!
+        new MutationObserver((records) => {
+          for (const r of records) {
+            pin.mutations.push(r.attributeName ?? '')
+            if (r.attributeName === 'class' && document.documentElement.classList.contains('ms-revealing')) pin.revealing = true
+          }
+        }).observe(document.documentElement, { attributes: true })
+      })
+      await hold(page)
+      if (kind === 'drop') {
+        await flip(page, 'BODYBUILDING')
+        await page.clock.runFor(PUMP.end + 100)
+        expect(await dataMode(page)).toBe('bodybuilding')
+      }
+      const pin = () =>
+        page.evaluate(() => {
+          const p = (window as Window & { __pin?: { starts: number; updates: number; rects: number; mutations: string[]; revealing: boolean } }).__pin!
+          const reveal = document.getAnimations().filter((a) => (a.effect as KeyframeEffect | null)?.pseudoElement === '::view-transition-new(root)' && a.playState !== 'finished')
+          return { starts: p.starts, updates: p.updates, rects: p.rects, mutations: p.mutations.length, names: [...p.mutations], revealing: p.revealing, revealLive: reveal.length, className: document.documentElement.className }
+        })
+      const before = await pin()
+      await flip(page, kind === 'pump' ? 'BODYBUILDING' : 'POWERLIFTING')
+      const end = kind === 'pump' ? PUMP.end : DROP.end
+      const moment = kind === 'pump' ? THIRD : DROP.impact
+      // On to the moment and two frames past it: the reveal is under way, its circle a live animation.
+      await page.clock.runFor(moment + FRAME * 2)
+      await expect.poll(() => dataMode(page)).toBe(kind === 'pump' ? 'bodybuilding' : null)
+      await expect.poll(async () => (await pin()).revealLive, { message: 'the reveal is under way' }).toBe(1)
+      const under = await pin()
+      expect(under.className.split(/\s+/), 'the reveal is the view transition one').toContain('ms-revealing')
+      expect(under.starts - before.starts, 'one view transition').toBe(1)
+      expect(under.updates - before.updates, 'its update ran').toBe(1)
+      expect.soft(under.rects - before.rects, 'getBoundingClientRect calls inside the update').toBe(0)
+      // Frame by frame through the reveal, while the content shakes or swells: <html> is not touched.
+      const frames = kind === 'pump' ? 12 : 6
+      for (let i = 0; i < frames; i++) await page.clock.runFor(FRAME)
+      const mid = await pin()
+      expect(mid.revealLive, 'still revealing').toBe(1)
+      expect.soft(mid.names.slice(under.mutations), `<html>'s attributes written over ${frames} frames of the reveal`).toEqual([])
+      // And over the whole switch, a few writes, not one a frame.
+      await page.clock.runFor(end)
+      const after = await pin()
+      expect(after.revealing, 'the reveal ran').toBe(true)
+      expect(after.className).not.toMatch(/\bms-/)
+      expect.soft(after.mutations - before.mutations, `<html>'s attributes written over the whole ${kind} (${after.names.slice(before.mutations).join(', ')})`).toBeLessThanOrEqual(16)
+    })
+  }
 })
 
 test('the service worker keeps both sounds, in both formats, for offline', async ({ page }) => {
