@@ -52,6 +52,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.powertracker.domain.guide.Guide
 import com.powertracker.domain.guide.GuideScreenId
 import com.powertracker.domain.guide.GuideFrame
+import com.powertracker.domain.guide.GuideStep
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.components.Pill
 import com.powertracker.ui.components.PrimaryButton
@@ -82,40 +83,41 @@ fun dotsLabel(index: Int, count: Int) = "Screen ${index + 1} of $count"
 @Stable
 interface GuideClock {
     /**
-     * Milliseconds into a picture of [count] steps, from 0 when this call first composed (a new run of the picture is a
-     * new composition: the guide keys it). While not [playing] it stands still where it is, and it goes on from there.
+     * Milliseconds into a picture of [steps], from 0 when this call first composed (a new run of the picture is a new
+     * composition: the guide keys it). While not [playing] it stands still where it is, and it goes on from there.
      */
     @Composable
-    fun elapsedMs(count: Int, playing: Boolean): Int
+    fun elapsedMs(steps: List<GuideStep>, playing: Boolean): Int
 }
 
 /**
- * Real time, on the frame clock while a step moves (a new value each frame) and idle while it holds (one timer to the
- * next step's start, so nothing is drawn); it stops for good once the last step has settled. It stands still while the
- * guide is not on screen (the lifecycle below STARTED), and goes on from there when it is back.
+ * Real time, on the frame clock while a step moves or a tap ring plays before it (a new value each frame) and idle
+ * while it holds (one timer to the next step's motion, so nothing is drawn); it stops for good once the last step has
+ * settled. It stands still while the guide is not on screen (the lifecycle below STARTED), and goes on from there when
+ * it is back.
  */
 object TickingGuideClock : GuideClock {
     @Composable
-    override fun elapsedMs(count: Int, playing: Boolean): Int {
+    override fun elapsedMs(steps: List<GuideStep>, playing: Boolean): Int {
         var elapsed by remember { mutableIntStateOf(0) }
         val lifecycle = LocalLifecycleOwner.current.lifecycle
-        LaunchedEffect(count, playing, lifecycle) {
+        LaunchedEffect(steps, playing, lifecycle) {
             if (!playing) return@LaunchedEffect
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val done = Guide.doneMs(count)
+                val done = Guide.doneMs(steps.size)
                 while (elapsed < done) {
-                    val index = (count - 1 downTo 0).first { Guide.stepStartMs(it) <= elapsed }
+                    val index = (steps.size - 1 downTo 0).first { Guide.motionStartMs(steps, it) <= elapsed }
                     val settled = Guide.settledMs(index)
                     if (elapsed < settled) {
-                        // A move: one value a frame, from where it stands.
+                        // A move, or a tap ring and the move after it: one value a frame, from where it stands.
                         val base = withFrameMillis { it } - elapsed
                         while (elapsed < settled) {
                             val now = withFrameMillis { it }
                             elapsed = minOf(settled, (now - base).toInt())
                         }
                     } else {
-                        // A hold: nothing changes until the next step starts.
-                        val next = Guide.stepStartMs(index + 1)
+                        // A hold: nothing changes until the next step's motion starts.
+                        val next = Guide.motionStartMs(steps, index + 1)
                         delay((next - elapsed).toLong())
                         elapsed = next
                     }
@@ -136,7 +138,7 @@ class HeldGuideClock(heldMs: Int = 0) : GuideClock {
     }
 
     @Composable
-    override fun elapsedMs(count: Int, playing: Boolean): Int = heldMs.coerceIn(0, Guide.doneMs(count))
+    override fun elapsedMs(steps: List<GuideStep>, playing: Boolean): Int = heldMs.coerceIn(0, Guide.doneMs(steps.size))
 }
 
 @Composable
@@ -204,11 +206,12 @@ fun GuideScreen(
             val steps = remember(id, mode) { Guide.steps(id, mode) }
             key(runs[page] ?: 0) {
                 val playing = motionOn && page == pager.currentPage && !pager.isScrollInProgress
-                val elapsed = clock.elapsedMs(steps.size, playing)
+                val elapsed = clock.elapsedMs(steps, playing)
                 SideEffect { guidePictureCompositions++ }
                 // With motion off: the last step, still.
-                val frame = Guide.frame(steps, if (motionOn) elapsed else Guide.doneMs(steps.size))
-                GuidePage(id, mode, current = page == current, frame = frame)
+                val t = if (motionOn) elapsed else Guide.doneMs(steps.size)
+                val frame = Guide.frame(steps, t)
+                GuidePage(id, mode, current = page == current, frame = frame, elapsedMs = t)
             }
         }
         Dots(current, screens.size, Modifier.align(Alignment.CenterHorizontally).padding(vertical = Space.m))
@@ -234,7 +237,7 @@ fun GuideScreen(
 
 /** One screen: its title and lines from the domain, then its picture, which shrinks to leave the text its room. */
 @Composable
-private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, frame: GuideFrame) {
+private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, frame: GuideFrame, elapsedMs: Int) {
     val screen = remember(id, mode) { Guide.screen(id, mode) }
     BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = Space.gutter)) {
         val textRoom = maxHeight * 0.6f
@@ -258,7 +261,7 @@ private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, f
             ) {
                 // The label sits above the picture, outside its single description.
                 if (screen.example) Pill(EXAMPLE, if (current) Modifier.testTag("guide-example") else Modifier)
-                GuidePicture(id, mode, frame, Modifier.weight(1f, fill = false))
+                GuidePicture(id, mode, frame, Modifier.weight(1f, fill = false), elapsedMs = elapsedMs)
             }
         }
     }

@@ -16,6 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -31,12 +35,19 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.powertracker.domain.guide.Guide
 import com.powertracker.domain.guide.GuideFrame
+import com.powertracker.domain.guide.GuideTap
 import com.powertracker.domain.guide.GuideSample
 import com.powertracker.domain.guide.GuideScreenId
 import com.powertracker.domain.guide.GuideStep
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.theme.PowertrackerTheme
+import com.powertracker.ui.today.EventClock
+import com.powertracker.ui.today.LocalEventClock
+import com.powertracker.ui.today.LocalTapAnchors
+import com.powertracker.ui.today.TapAnchor
+import com.powertracker.ui.today.TapAnchors
 import com.powertracker.ui.today.TodayActions
 import com.powertracker.ui.today.TodayContent
 import kotlin.math.min
@@ -70,12 +81,31 @@ private var SemanticsPropertyReceiver.guidePictureStep by GuidePictureStep
 val GuidePictureFrame = SemanticsPropertyKey<GuideFrame>("GuidePictureFrame")
 private var SemanticsPropertyReceiver.guidePictureFrame by GuidePictureFrame
 
+/** While a tap ring plays: where the control it rings is, in the drawn phone's own space (unscaled px), for tests. */
+val GuideTapBox = SemanticsPropertyKey<Rect>("GuideTapBox")
+private var SemanticsPropertyReceiver.guideTapBox by GuideTapBox
+
+/** The control on the drawn screen that a [GuideTap] rings. */
+private fun anchorOf(tap: GuideTap): TapAnchor = when (tap) {
+    GuideTap.LOG_SET -> TapAnchor.LOG_SET
+}
+
+/*
+ * The tap ring (1.16, the sketch the owner approved): RING_SIZE across with a RING_LINE line at first, growing from
+ * RING_SCALE_FROM to RING_SCALE_TO times that as it fades from RING_OPACITY_FROM to nothing. The web's guide draws the
+ * same.
+ */
+private val RING_SIZE = 14.dp
+private val RING_LINE = 2.dp
+private const val RING_SCALE_FROM = 0.6f
+private const val RING_SCALE_TO = 4.2f
+private const val RING_OPACITY_FROM = 0.9f
+
 /**
  * How many times a picture has been composed with its clock read (each frame of a move is one), for tests: while a
  * step holds, none is.
  */
-var guidePictureCompositions: Int = 0
-    internal set
+internal var guidePictureCompositions: Int = 0
 
 /** Every drag and tap on the picture stops here, unconsumed: the screen drawn under it gets none, the pager still swipes. */
 private val NoTouches = Modifier.pointerInput(Unit) {
@@ -90,11 +120,14 @@ private val NoTouches = Modifier.pointerInput(Unit) {
  * reader. Screens whose picture isn't built yet show the empty frame.
  */
 @Composable
-internal fun GuidePicture(id: GuideScreenId, mode: TrainingMode, frame: GuideFrame?, modifier: Modifier = Modifier) {
+internal fun GuidePicture(id: GuideScreenId, mode: TrainingMode, frame: GuideFrame?, modifier: Modifier = Modifier, elapsedMs: Int = 0) {
     val shape = MaterialTheme.shapes.large
     val description = PICTURE_DESCRIPTIONS[id]
     val step = frame?.step
     val drawn = id == GuideScreenId.TODAY && step != null
+    // Where the drawn screen's controls are, for the tap ring (the screen says, to the guide only).
+    val anchors = remember { TapAnchors() }
+    val ringing = frame?.tap?.let { anchors.boxes[anchorOf(it)] }
     Box(
         modifier
             // A picture not drawn yet is an empty frame, filling its place.
@@ -109,10 +142,23 @@ internal fun GuidePicture(id: GuideScreenId, mode: TrainingMode, frame: GuideFra
                     guidePictureStep = frame.step
                     guidePictureFrame = frame
                 }
+                if (ringing != null) guideTapBox = ringing
             },
         contentAlignment = Alignment.Center,
     ) {
-        if (drawn) Phone(PHONE_HEIGHT) { TodayPicture(mode, step!!, frame.progress) }
+        if (drawn) {
+            Phone(PHONE_HEIGHT) {
+                // The guide's time drives the screen's own one-off motion (a set's tick drawing in, the skipped line
+                // rising): a held clock holds it, a replay replays it.
+                val time = EventClock(nowMs = elapsedMs, stepStartMs = Guide.stepStartMs(frame.stepIndex))
+                CompositionLocalProvider(LocalEventClock provides time, LocalTapAnchors provides anchors) {
+                    Box(Modifier.fillMaxSize().onGloballyPositioned { anchors.placeRoot(it) }) {
+                        TodayPicture(mode, step!!, frame.progress)
+                        TapRing(frame, anchors)
+                    }
+                }
+            }
+        }
         Box(Modifier.matchParentSize().then(NoTouches))
     }
 }
@@ -129,6 +175,31 @@ internal fun TodayPicture(mode: TrainingMode, step: GuideStep, progress: Double 
     val actions = remember { TodayActions() }
     // The phone's status bar: the screen's header starts below the frame's rounded corner.
     Box(Modifier.fillMaxSize().padding(top = PHONE_STATUS_BAR)) { TodayContent(state, actions) }
+}
+
+/**
+ * The tap ring over the drawn screen, in its own space: on the control [frame] rings, while it does, as far through as
+ * its time says. It draws nothing otherwise.
+ */
+@Composable
+private fun TapRing(frame: GuideFrame, anchors: TapAnchors) {
+    val color = MaterialTheme.colorScheme.onBackground
+    val tap = frame.tap
+    val p = frame.tapProgress.toFloat()
+    Box(
+        Modifier.fillMaxSize().drawBehind {
+            val box = tap?.let { anchors.boxes[anchorOf(it)] } ?: return@drawBehind
+            val scale = RING_SCALE_FROM + (RING_SCALE_TO - RING_SCALE_FROM) * p
+            val line = RING_LINE.toPx() * scale
+            val outer = RING_SIZE.toPx() / 2 * scale
+            drawCircle(
+                color.copy(alpha = color.alpha * RING_OPACITY_FROM * (1f - p)),
+                radius = outer - line / 2,
+                center = box.center,
+                style = Stroke(width = line),
+            )
+        },
+    )
 }
 
 /**

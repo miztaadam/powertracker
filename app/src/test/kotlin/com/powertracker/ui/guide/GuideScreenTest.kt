@@ -39,6 +39,8 @@ import com.powertracker.domain.guide.GuideFrame
 import com.powertracker.domain.guide.GuideSample
 import com.powertracker.domain.guide.GuideScreenId
 import com.powertracker.domain.guide.GuideStep
+import com.powertracker.domain.guide.GuideTap
+import androidx.compose.ui.platform.testTag
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.components.formatRpe
@@ -666,23 +668,117 @@ class GuideScreenTest {
         assertTrue("mid-slide: the drawn screen has not changed yet", !mid.contentEquals(before))
     }
 
+    /** The screen as drawn now, in root pixels. */
+    private fun drawnBitmap(): Bitmap {
+        val view = (compose.onRoot().fetchSemanticsNode().root as ViewRootForTest).view
+        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        view.draw(Canvas(bitmap))
+        return bitmap
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun guide_ring_onLogSet_justBeforeTheSetIsLogged_onTheGuidesClock() {
+        val steps = Guide.steps(GuideScreenId.TODAY, TrainingMode.POWERLIFTING)
+        val ticked = stepIndex(GuideStep.TODAY_TICKED)
+        val ringFrom = Guide.motionStartMs(steps, ticked)
+        val clock = HeldGuideClock()
+        clock.holdStep(ticked - 1)
+        // First the screen drawn on its own, its semantics there to be read: where Log set is on the phone. Then the guide.
+        var alone by mutableStateOf(true)
+        compose.setContent {
+            CompositionLocalProvider(LocalMotion provides true) {
+                PowertrackerTheme(mode = TrainingMode.POWERLIFTING, darkTheme = true) {
+                    if (alone) {
+                        Box(Modifier.requiredSize(PHONE_WIDTH, PHONE_HEIGHT).testTag("phone")) { TodayPicture(TrainingMode.POWERLIFTING, steps[ticked - 1]) }
+                    } else {
+                        GuideScreen(TrainingMode.POWERLIFTING, firstLaunch = false, hasPlan = false, motionOn = true, onPickSide = {}, onClose = {}, clock = clock, startAt = GuideScreenId.TODAY)
+                    }
+                }
+            }
+        }
+        compose.waitForIdle()
+        val phone = compose.onNodeWithTag("phone").fetchSemanticsNode().boundsInRoot
+        val button = compose.onNodeWithText("Log set 1").fetchSemanticsNode().boundsInRoot.translate(-phone.left, -phone.top)
+        alone = false
+        compose.waitForIdle()
+        compose.mainClock.autoAdvance = false
+        fun at(ms: Int) {
+            compose.runOnUiThread { clock.heldMs = ms }
+            androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+            compose.mainClock.advanceTimeByFrame()
+            compose.mainClock.advanceTimeByFrame()
+        }
+        fun tapBox() = compose.onNodeWithTag("guide-picture").fetchSemanticsNode().config.getOrNull(GuideTapBox)
+        at(ringFrom - 20)
+        assertNull(pictureFrame().tap)
+        assertNull(tapBox())
+        val before = drawnBitmap()
+        // Half-way through the ring: still the step before; the ring on Log set.
+        at(ringFrom + Guide.TAP_MS / 2)
+        assertEquals(steps[ticked - 1], pictureFrame().step)
+        assertEquals(GuideTap.LOG_SET, pictureFrame().tap)
+        val box = tapBox()!!
+        assertTrue("$box against $button", kotlin.math.abs(box.center.x - button.center.x) < 1.5f && kotlin.math.abs(box.center.y - button.center.y) < 1.5f)
+        val ringing = drawnBitmap()
+        // Drawn: the picture differs from just before, around the button only.
+        val picture = compose.onNodeWithTag("guide-picture").fetchSemanticsNode().boundsInRoot
+        val scale = picture.width / phone.width
+        val cx = picture.left + box.center.x * scale
+        val cy = picture.top + box.center.y * scale
+        // The ring at its largest reaches 7 dp × 4.2 from its centre, shrunk with the phone.
+        val reach = 30f * compose.density.density * scale
+        var changed = 0
+        var far = 0
+        for (y in picture.top.toInt() until picture.bottom.toInt()) for (x in picture.left.toInt() until picture.right.toInt()) {
+            if (before.getPixel(x, y) == ringing.getPixel(x, y)) continue
+            changed++
+            if (kotlin.math.hypot(x - cx, y - cy) > reach) far++
+        }
+        assertTrue("the ring is drawn: $changed", changed > 20)
+        assertEquals("nothing else changes", 0, far)
+        // Held, it holds: the frame clock goes on, the ring does not.
+        compose.mainClock.advanceTimeBy(500)
+        assertTrue(ringing.sameAs(drawnBitmap()))
+        // It ends as the result appears.
+        at(Guide.stepStartMs(ticked))
+        assertEquals(GuideStep.TODAY_TICKED, pictureFrame().step)
+        assertNull(pictureFrame().tap)
+        assertNull(tapBox())
+    }
+
+    @Test
+    fun guide_ring_withMotionOff_isNotThere() {
+        show(motionOn = false, clock = HeldGuideClock(), startAt = GuideScreenId.TODAY)
+        assertNull(pictureFrame().tap)
+        assertNull(compose.onNodeWithTag("guide-picture").fetchSemanticsNode().config.getOrNull(GuideTapBox))
+    }
+
     /**
-     * For the owner (GUIDE_FRAMES=<dir>): powerlifting dark, every 80 ms across the log step and the skip step, from one
-     * live composition, the held guide clock and the frame clock moving together.
+     * For the owner (GUIDE_FRAMES=<dir>): powerlifting dark, every 40 ms (GUIDE_FRAME_MS) from just before the tap ring
+     * across the log step and the skip step, from one live composition, the held guide clock and the frame clock moving
+     * together.
      */
     @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun guide_today_frameStrip() {
         val dir = System.getenv("GUIDE_FRAMES") ?: return
+        // Every this many ms (GUIDE_FRAME_MS; 40 by default: close enough to show the ring and the tick mid-draw).
+        val every = System.getenv("GUIDE_FRAME_MS")?.toInt() ?: 40
         java.io.File(dir).mkdirs()
+        val steps = Guide.steps(GuideScreenId.TODAY, TrainingMode.POWERLIFTING)
         val ticked = stepIndex(GuideStep.TODAY_TICKED)
         val skip = stepIndex(GuideStep.TODAY_SKIP)
         val clock = HeldGuideClock()
-        clock.heldMs = Guide.stepStartMs(ticked) - 80
+        // From just before the ring on Log set.
+        clock.holdStep(ticked - 1)
         show(clock = clock, startAt = GuideScreenId.TODAY)
         compose.mainClock.advanceTimeBy(1000L)
         compose.mainClock.autoAdvance = false
-        var t = clock.heldMs
+        var t = Guide.motionStartMs(steps, ticked) - every
+        compose.runOnUiThread { clock.heldMs = t }
+        androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+        compose.mainClock.advanceTimeBy(every.toLong())
         var n = 0
         val end = Guide.settledMs(skip) + 400
         while (t <= end) {
@@ -693,10 +789,10 @@ class GuideScreenTest {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
             }
             // The steps between the two are skipped over: from the log step's settling to the skip step's start.
-            t = if (t in Guide.settledMs(ticked) + 400 until Guide.stepStartMs(skip) - 80) Guide.stepStartMs(skip) - 80 else t + 80
+            t = if (t in Guide.settledMs(ticked) + 400 until Guide.stepStartMs(skip) - every) Guide.stepStartMs(skip) - every else t + every
             compose.runOnUiThread { clock.heldMs = t }
             androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
-            compose.mainClock.advanceTimeBy(80L)
+            compose.mainClock.advanceTimeBy(every.toLong())
         }
     }
 }

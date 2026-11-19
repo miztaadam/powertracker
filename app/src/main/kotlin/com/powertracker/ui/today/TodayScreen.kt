@@ -21,6 +21,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,7 +29,11 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -248,6 +253,23 @@ fun TodayContent(
     val standInOf = if (motion) state.resolved.entries.associate { (standIn, id) -> id to standIn } else emptyMap()
     fun itemKey(id: Long): Long = standInOf[id] ?: id
 
+    // The "Skipped today" line rises in when it comes with a skip made now (1.16): not when the screen opens with it
+    // there (or is restored), nor on a side switch or another day. A second skip while it shows leaves it where it is.
+    val line = remember { LineMemory() }
+    val lineKey = state.mode to state.date
+    val hasLine = state.skippedToday.isNotEmpty()
+    if (motion && !state.loading && line.key == lineKey && hasLine && !line.had) line.rising = true
+    if (!hasLine || line.key != lineKey) line.rising = false
+    SideEffect {
+        if (!state.loading) {
+            line.key = lineKey
+            line.had = hasLine
+        }
+    }
+    val skippedLine = @Composable {
+        SkippedTodayLine(state.skippedToday, actions.onBringBack, if (line.rising) risingIn { line.rising = false } else Modifier)
+    }
+
     val list = rememberLazyListState()
     // The note and the welcome-back card, when shown, come before the exercises: the first exercise keeps them in view.
     val leading = (if (state.sideNote != null) 1 else 0) + (if (state.welcomeBack) 1 else 0)
@@ -303,7 +325,7 @@ fun TodayContent(
                         )
                     }
                     if (state.skippedToday.isNotEmpty()) {
-                        item(key = "skipped-today") { SkippedTodayLine(state.skippedToday, actions.onBringBack) }
+                        item(key = "skipped-today") { skippedLine() }
                     }
                 }
                 else -> {
@@ -348,7 +370,7 @@ fun TodayContent(
                         SecondaryButton("Add exercise", { picking = true }, slidingListItem(keys).fillMaxWidth(), icon = Icons.Filled.Add)
                     }
                     if (state.skippedToday.isNotEmpty()) {
-                        item(key = "skipped-today") { SkippedTodayLine(state.skippedToday, actions.onBringBack) }
+                        item(key = "skipped-today") { skippedLine() }
                     }
                 }
             }
@@ -403,6 +425,31 @@ fun TodayContent(
         )
     }
 }
+
+/** What Today knows of the "Skipped today" line between draws, to tell a skip made now from one already there. */
+private class LineMemory {
+    /** The side and day last drawn loaded: null until then, so what the screen opens with is simply there. */
+    var key: Any? = null
+    var had = false
+    var rising = false
+}
+
+/** The skipped line rising [riseIn] as it fades in, over the last of its time; [onOver] when done. */
+@Composable
+private fun risingIn(onOver: () -> Unit): Modifier {
+    val progress = eventProgress(EVENT_MOVE_MS, onOver) ?: return Modifier
+    val rise = with(LocalDensity.current) { RISE.toPx() }
+    return Modifier
+        .graphicsLayer {
+            val f = riseFade(progress())
+            alpha = f
+            translationY = rise * (1f - f)
+        }
+        .semantics { riseIn = progress }
+}
+
+/** How far the "Skipped today" line rises as it fades in. */
+private val RISE = 14.dp
 
 /** Planned sets still to do, or an added exercise with nothing logged yet. */
 private fun TodayItem.hasWorkLeft(): Boolean = if (targetSets != null) !isComplete else sets.isEmpty()

@@ -73,6 +73,7 @@ import com.powertracker.ui.components.formatRpe
 import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.library.RpeInfoButton
+import com.powertracker.ui.theme.LocalMotion
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -83,6 +84,18 @@ import com.powertracker.ui.components.pressScale
 /** The sets last shown, kept for drawing the last one as it slides out. */
 private class LastSets {
     var sets: List<StoredSet> = emptyList()
+}
+
+/**
+ * The sets an open card has shown, so a set's tick draws itself in only when it was logged now (1.16): one there when
+ * the card was first drawn (the screen opening, a restore, a row scrolled back, the card opened) is simply there.
+ * Kept by the card, not its exercise id, which a catalogue exercise changes as its first set saves it.
+ */
+private class SeenSets {
+    var shown: Set<Long>? = null
+
+    /** Sets logged while the card was up whose tick has not yet been drawn. */
+    val fresh = HashSet<Long>()
 }
 
 /** Where the primary button leads once an exercise's sets are done: the next exercise, or Finish. */
@@ -237,12 +250,22 @@ private fun ColumnScope.CardContent(
         // With motion on, the last set to be deleted is drawn as it was while it slides out.
         val lastSets = remember(id) { LastSets() }
         if (item.sets.isNotEmpty()) lastSets.sets = item.sets
+        // With motion on, a set new since the card was drawn has its tick drawn in. A side switch starts afresh.
+        val motion = LocalMotion.current
+        val seen = remember(bodybuilding) { SeenSets() }
+        if (motion) {
+            val ids = item.sets.map { it.id }
+            val shown = seen.shown
+            if (shown != null) ids.filterTo(seen.fresh) { it !in shown }
+            SideEffect { seen.shown = (shown ?: emptySet()) + ids }
+        }
         SlidingBlock(item.sets.isNotEmpty()) {
             val sets = item.sets.ifEmpty { lastSets.sets }
             val top = if (bodybuilding) null else topSetIndex(sets.map { it.set })
             Column {
                 SlidingColumnItems(sets, key = { it.id }) { i, stored ->
                     val set = stored.set
+                    val drawIn = if (motion && stored.id in seen.fresh) eventProgress(EVENT_MOVE_MS) { seen.fresh.remove(stored.id) } else null
                     SetRow(
                         index = i + 1,
                         weightKg = set.weightKg,
@@ -251,6 +274,7 @@ private fun ColumnScope.CardContent(
                         state = if (set.failed) SetState.FAILED else SetState.DONE,
                         isTopSet = i == top,
                         onClick = { onSelect(i + 1 to stored) },
+                        drawIn = drawIn,
                     )
                     if (!bodybuilding && (set.failed || (set.rpe ?: 0.0) >= GRIND_RPE)) {
                         MissRow(i + 1, set, item.exercise.mainLift) { actions.onMissPoint(stored.id, it) }
@@ -438,7 +462,7 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
 
     Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
         SecondaryButton("Missed", { log(true) }, enabled = weight != null, icon = Icons.Filled.Close)
-        PrimaryButton("Log set ${item.sets.size + 1}", { log(false) }, Modifier.weight(1f), enabled = weight != null, icon = Icons.Filled.Check)
+        PrimaryButton("Log set ${item.sets.size + 1}", { log(false) }, Modifier.weight(1f).tapAnchor(TapAnchor.LOG_SET), enabled = weight != null, icon = Icons.Filled.Check)
     }
 }
 
