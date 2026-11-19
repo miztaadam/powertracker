@@ -139,9 +139,14 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
     listeners.forEach((l) => l())
   }
 
-  /** Puts `mode` on now: the page's look at once, React's content in the same frame. */
-  function show(mode: TrainingMode | null, kind: ModeSwitchKind | null) {
+  /**
+   * Puts `mode` on now: the page's look at once, React's content in the same frame (`sync`). From inside React's own
+   * effects (the stored side arriving, Settings closing) it is not flushed: React is already committing there, would
+   * warn, and draws it straight after anyway.
+   */
+  function show(mode: TrainingMode | null, kind: ModeSwitchKind | null, sync = true) {
     applyTrainingMode(mode ?? stored ?? 'POWERLIFTING')
+    if (!sync) return set({ kind, shown: mode })
     try {
       flushSync(() => set({ kind, shown: mode }))
     } catch {
@@ -227,7 +232,8 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
     painter?.end()
     // The new side is on from here; the stored side takes over once it says the same (a write may still be on its way).
     const keep = stored === r.to || r.released ? null : r.to
-    show(keep, null)
+    // Settings closing ends it from its effect's clean-up: React is committing then.
+    show(keep, null, reason !== 'leave')
   }
 
   function onPointerDown(event: PointerEvent) {
@@ -320,7 +326,8 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
     finish,
     noteStored(mode) {
       stored = mode
-      if (run == null && snapshot.shown != null && snapshot.shown === mode) show(null, null)
+      // From the roots' effect (useShownMode): React is committing then.
+      if (run == null && snapshot.shown != null && snapshot.shown === mode) show(null, null, false)
     },
     release() {
       if (run != null) run.released = true
@@ -389,6 +396,8 @@ export function switchCentre(source: Element | null): { x: number; y: number } |
  * so that the tap only builds them. The shared model keeps the last set; the first set takes a couple of frames.
  */
 export function warmModeSwitchShapes(source: Element | null): void {
+  // Marked, so the speed check can tell a cold first frame from a warm one.
+  performance.mark?.('ms-warm')
   const { w, h } = screenSize()
   const hit = grit.modeSwitchHitPoint(w, h)
   grit.modeSwitchCracks(w, h, hit.x, hit.y)
@@ -397,27 +406,60 @@ export function warmModeSwitchShapes(source: Element | null): void {
   grit.modeSwitchVeinNodes(w, h, src.x, src.y)
 }
 
+/** How long Settings must have been still after a scroll before the shapes are worked out again. */
+const SCROLL_IDLE_MS = 150
+
+type IdleWindow = Window & {
+  requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number
+  cancelIdleCallback?: (id: number) => void
+}
+
 /**
- * For Settings, which holds the switch: once it is open and the browser is idle (never at app start), the shapes are
- * worked out ahead, so the first tap draws its first frame at once.
+ * For Settings, which holds the switch: the shapes are worked out ahead when the browser is idle (never at app start),
+ * so a tap draws its first frame at once. The shared model keeps one set for the switch where it sits, so they are
+ * worked out again whenever that moves: once Settings is open, after each change of the side shown (its rows, and the
+ * label above the title, move the switch) and once a scroll has come to rest. Never while an animation runs.
+ * `side` is the side shown; `running` is whether an animation is running.
  */
-export function useWarmModeSwitch(): void {
+export function useWarmModeSwitch(side: TrainingMode | null = null, running = false): void {
   useEffect(() => {
+    if (running) return
+    const w = window as IdleWindow
+    let idleId: number | null = null
+    let timerId: number | null = null
     const warm = () => {
+      idleId = null
       try {
         warmModeSwitchShapes(document.querySelector('.settings-mode-switch'))
       } catch {
         // Only a head start: the tap works them out itself.
       }
     }
-    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback
-    if (typeof idle === 'function') {
-      const id = idle.call(window, warm, { timeout: 1000 })
-      return () => window.cancelIdleCallback?.(id)
+    const whenIdle = () => {
+      if (idleId != null) return
+      if (typeof w.requestIdleCallback === 'function') idleId = w.requestIdleCallback(warm, { timeout: 1000 })
+      else idleId = window.setTimeout(warm, 300)
     }
-    const id = window.setTimeout(warm, 300)
-    return () => window.clearTimeout(id)
-  }, [])
+    whenIdle()
+    // A scroll moves the switch: once it has come to rest, again.
+    const scroller = document.querySelector('.shell-main')
+    const onScroll = () => {
+      if (timerId != null) window.clearTimeout(timerId)
+      timerId = window.setTimeout(() => {
+        timerId = null
+        whenIdle()
+      }, SCROLL_IDLE_MS)
+    }
+    scroller?.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      scroller?.removeEventListener('scroll', onScroll)
+      if (timerId != null) window.clearTimeout(timerId)
+      if (idleId != null) {
+        if (typeof w.cancelIdleCallback === 'function') w.cancelIdleCallback(idleId)
+        window.clearTimeout(idleId)
+      }
+    }
+  }, [side, running])
 }
 
 /**

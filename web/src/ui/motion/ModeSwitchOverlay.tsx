@@ -32,23 +32,12 @@ const STAMP_GAP = 2
 /** The reveal's clip runs linearly from 0 to this radius over as many ms, so its time is its radius in px. */
 const REVEAL_MAX = 100_000
 
-/**
- * Light scheme (spec "Settled" 1): the effects keep the prototype's colours, but the flash is a dark punch at half
- * the opacity, and the cracks, the chalk dust and the veins get a darker edge. These are the web's values; Android
- * mirrors them.
+/*
+ * Light scheme (spec "Settled" 1): the effects keep the prototype's colours, except the shared model's light set
+ * (`grit.modeSwitchLightColors()`, the one Android draws too): the flash is a dark punch at half the opacity; the
+ * cracks' under-strokes are stronger; the chalk dust has a grey rim; the core veins have a navy edge (one layer under
+ * them); ring 1, the sparks and the starburst's edge are darker, so they read once the punch has gone.
  */
-export const LIGHT_EDGES = {
-  /** The dark under-stroke of each crack: the model's crack shadow at this opacity instead of .55. */
-  crackShadowOpacity: 0.9,
-  /** The chalk dust's gradient: the model's centre, then a grey rim. */
-  chalk: [
-    { offset: 0, color: '#E4E6E2', opacity: 0.9 },
-    { offset: 0.55, color: '#8A9098', opacity: 0.5 },
-    { offset: 1, color: '#8A9098', opacity: 0 },
-  ],
-  /** Under each core vein: a navy edge this much wider, at this opacity. */
-  veinEdge: { color: '#1E3F7A', extraWidth: 1.6, opacity: 0.55 },
-} as const
 
 /** An SVG element whose attributes are written only when they change. */
 type Node = { el: Element; last: Record<string, string> }
@@ -106,7 +95,8 @@ type Pump = {
   edge: Node
   veinsLayer: Node
   glowLayer: Node
-  veins: { n: Node; d0: number; len: number; width: number; swell: boolean }[]
+  /** `width` is the core's; an `edge` vein is the light scheme's navy edge under it, `modeSwitchVeinEdgeWidth` wide. */
+  veins: { n: Node; d0: number; len: number; width: number; swell: boolean; edge: boolean }[]
   nodes: { n: Node; d0: number; r: number }[]
   pulses: { n: Node; len: number }[]
 }
@@ -117,6 +107,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
   let w = 0
   let h = 0
   let light = false
+  let flashScale = 0.5
   let shell: HTMLElement | null = null
   let blocks: Measured[] = []
   let drop: Drop | null = null
@@ -130,6 +121,8 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
   let capturing = false
   let radius = 0
   let full = false
+  /** Without view transitions: the new side's circle is a clip on the shell, round this centre. */
+  let plainAt: { x: number; y: number } | null = null
 
   function gradients(defs: Element) {
     for (const g of grit.modeSwitchGradients()) {
@@ -147,7 +140,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
     }
     if (light) {
       const chalk = node('radialGradient', { id: 'ms-gChalkLight' }, defs)
-      for (const s of LIGHT_EDGES.chalk)
+      for (const s of grit.modeSwitchLightColors().chalk)
         node(
           'stop',
           {
@@ -162,6 +155,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
 
   function buildDrop(svg: Element): Drop {
     const colors = grit.modeSwitchColors()
+    const lightSet = grit.modeSwitchLightColors()
     const hit = grit.modeSwitchHitPoint(w, h)
     const defs = node('defs', {}, svg).el
     gradients(defs)
@@ -201,7 +195,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
           d: p.d,
           stroke: p.stroke ?? 'none',
           'stroke-width': p.strokeWidth,
-          opacity: shade ? LIGHT_EDGES.crackShadowOpacity : p.opacity,
+          opacity: shade ? lightSet.crackShadowOpacity : p.opacity,
           pathLength: 1,
           'stroke-dasharray': 1,
           'stroke-dashoffset': 1,
@@ -217,7 +211,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
         y: 0,
         width: w,
         height: h,
-        fill: light ? colors.flashLight : colors.flash,
+        fill: light ? lightSet.flash : colors.flash,
         opacity: 0,
       },
       svg,
@@ -229,7 +223,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
         cy: hit.y,
         r: 0,
         fill: 'none',
-        stroke: colors.ring1,
+        stroke: light ? lightSet.ring1 : colors.ring1,
         opacity: 0,
       },
       svg,
@@ -262,7 +256,11 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       .modeSwitchBurst(hit.x, hit.y)
       .map((p) => `${p.x},${p.y}`)
       .join(' ')
-    const burst = node('polygon', { points, fill: colors.burst, opacity: 0 }, svg)
+    const burst = node(
+      'polygon',
+      light ? { points, fill: colors.burst, stroke: lightSet.burstEdge, 'stroke-width': lightSet.burstEdgeWidth, 'stroke-linejoin': 'round', opacity: 0 } : { points, fill: colors.burst, opacity: 0 },
+      svg,
+    )
     const ghostLayer = node('g', {}, svg).el
     const ghosts = [0, 1, 2].map(() => node('use', { href: '#ms-hammer', opacity: 0 }, ghostLayer))
     const hammer = node('g', { opacity: 0 }, svg)
@@ -284,7 +282,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
     const sparkLayer = node(
       'g',
       {
-        stroke: colors.spark,
+        stroke: light ? lightSet.spark : colors.spark,
         'stroke-width': grit.modeSwitchSparkWidth(),
         'stroke-linecap': 'round',
       },
@@ -309,6 +307,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
 
   function buildPump(svg: Element): Pump {
     const colors = grit.modeSwitchColors()
+    const lightSet = grit.modeSwitchLightColors()
     const defs = node('defs', {}, svg).el
     gradients(defs)
     const tint = node('rect', { x: 0, y: 0, width: w, height: h, fill: colors.tint, opacity: 0 }, svg)
@@ -357,8 +356,8 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       layers.edge = node(
         'g',
         {
-          stroke: LIGHT_EDGES.veinEdge.color,
-          opacity: LIGHT_EDGES.veinEdge.opacity,
+          stroke: lightSet.veinEdge,
+          opacity: lightSet.veinEdgeOpacity,
         },
         veinsLayer.el,
       ).el
@@ -388,7 +387,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
         continue
       }
       if (v.layer === 'core' && layers.edge != null) {
-        const width = v.width + LIGHT_EDGES.veinEdge.extraWidth
+        const width = grit.modeSwitchVeinEdgeWidth(v.width, 1)
         veins.push({
           n: node(
             'path',
@@ -405,8 +404,9 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
           ),
           d0: v.d0,
           len: v.len,
-          width,
+          width: v.width,
           swell: v.swell,
+          edge: true,
         })
       }
       const parent = layers[v.layer] ?? layers.core!
@@ -429,6 +429,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
         len: v.len,
         width: v.width,
         swell: v.swell,
+        edge: false,
       })
     }
     const nodes = grit.modeSwitchVeinNodes(w, h, src.x, src.y).map((n) => ({
@@ -477,7 +478,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       if (g.opacity > 0) put(n, 'transform', poseTransform(g.pose))
     })
     put(d.rune, 'opacity', f.runeOpacity)
-    put(d.flash, 'opacity', light ? f.flashOpacity / 2 : f.flashOpacity)
+    put(d.flash, 'opacity', light ? f.flashOpacity * flashScale : f.flashOpacity)
     put(d.burst, 'opacity', f.burstOpacity)
     put(d.burst, 'transform', `translate(${f.hitX} ${f.hitY}) scale(${f.burstScale.toFixed(3)})`)
     for (const [n, c] of [
@@ -569,7 +570,8 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
         }
         put(v.n, 'opacity', 1)
         put(v.n, 'stroke-dashoffset', (1 - progress).toFixed(4))
-        if (v.swell) put(v.n, 'stroke-width', (v.width * f.veinWidthScale).toFixed(2))
+        if (v.edge) put(v.n, 'stroke-width', grit.modeSwitchVeinEdgeWidth(v.width, v.swell ? f.veinWidthScale : 1).toFixed(2))
+        else if (v.swell) put(v.n, 'stroke-width', (v.width * f.veinWidthScale).toFixed(2))
       }
       for (const n of p.nodes) {
         const on = grit.modeSwitchNodeShown(front, n.d0)
@@ -589,6 +591,11 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
   }
 
   function moveClip() {
+    if (plainAt != null && shell != null) {
+      if (full) endReveal()
+      else shell.style.clipPath = `circle(${Math.max(0, radius).toFixed(1)}px at ${plainAt.x}px ${plainAt.y}px)`
+      return
+    }
     if (clip == null) return
     if (full) {
       clip.finish()
@@ -636,10 +643,31 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
     clip = null
     capturing = false
     running?.skipTransition()
+    if (plainAt != null) {
+      plainAt = null
+      if (shell != null) shell.style.clipPath = ''
+      root.classList.remove('ms-revealing-plain')
+      root.style.removeProperty('--ms-old-bg')
+    }
     root.classList.remove('ms-revealing')
     root.style.removeProperty('--ms-old-transform')
     root.style.removeProperty('--ms-x')
     root.style.removeProperty('--ms-y')
+  }
+
+  /**
+   * Browsers without view transitions: the new side is put on and let in through a circle that grows from the hit or
+   * the switch, as the reveal does, instead of all at once. Outside the circle there is no picture of the old side
+   * here, so the page shows the old side's background colour until the circle has covered it.
+   */
+  function plainReveal(center: { x: number; y: number }, update: () => void) {
+    const oldBackground = getComputedStyle(document.body).backgroundColor
+    update()
+    if (shell == null || kind == null || full) return
+    plainAt = { x: center.x, y: center.y }
+    root.style.setProperty('--ms-old-bg', oldBackground)
+    root.classList.add('ms-revealing-plain')
+    moveClip()
   }
 
   return {
@@ -648,6 +676,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       kind = next
       ;({ w, h } = screenSize())
       light = currentScheme() === 'light'
+      flashScale = grit.modeSwitchLightColors().flashOpacityScale
       shell = document.querySelector<HTMLElement>('.shell')
       if (shell != null) shell.style.transform = ''
       blocks = measureBlocks(shell)
@@ -675,7 +704,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       const update = () => {
         if (swap()) afterSwap()
       }
-      if (typeof start !== 'function') return update()
+      if (typeof start !== 'function') return plainReveal(center, update)
       root.style.setProperty('--ms-x', `${center.x}px`)
       root.style.setProperty('--ms-y', `${center.y}px`)
       root.classList.add('ms-revealing')

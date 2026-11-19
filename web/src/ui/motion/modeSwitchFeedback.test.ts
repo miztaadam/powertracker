@@ -151,3 +151,78 @@ describe('the clock', () => {
     expect(FakeContext.made[0]!.started[0]!.offset).toBeCloseTo(0.02, 6)
   })
 })
+
+describe('the format', () => {
+  it('canPlayTypeSaysNothingForOgg_theWavCopy_aFallback', async () => {
+    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('')
+    expect(fb.soundFormats()).toEqual(['wav'])
+    fb.prefetchSounds('drop')
+    await settle()
+    expect(asked.every((u) => u.endsWith('.wav'))).toBe(true)
+  })
+
+  it('canPlayTypeSaysOgg_theOgg_andOnlyThat', async () => {
+    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockImplementation((type) => (type.includes('ogg') ? 'probably' : ''))
+    expect(fb.soundFormats()).toEqual(['ogg', 'wav'])
+    fb.prefetchSounds('drop')
+    await settle()
+    expect(asked.map((u) => u.replace(/^.*\/sounds\//, ''))).toEqual(['grit_hammer_drop.ogg', 'grit_pump.ogg'])
+  })
+
+  it('aMissingOgg_isTriedAsWav', async () => {
+    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe')
+    delete files['grit_pump.ogg']
+    fb.unlockSound()
+    fb.playSound('pump', () => 0)
+    await settle()
+    expect(asked.slice(0, 2).map((u) => u.replace(/^.*\/sounds\//, ''))).toEqual(['grit_pump.ogg', 'grit_pump.wav'])
+    expect(FakeContext.made[0]!.decoded[0]).toBe(2000)
+    expect(FakeContext.made[0]!.started).toHaveLength(1)
+  })
+})
+
+describe('nothing breaks', () => {
+  it('aContextThatStaysSuspended_playsNothing_andThrowsNothing', async () => {
+    FakeContext.resumes = 'stay'
+    expect(() => fb.unlockSound()).not.toThrow()
+    expect(() => fb.playSound('drop', () => 0)).not.toThrow()
+    await settle()
+    expect(FakeContext.made[0]!.started).toHaveLength(0)
+    expect(() => fb.stopSound()).not.toThrow()
+  })
+
+  it('aResumeThatIsRefused_playsNothing_andThrowsNothing', async () => {
+    FakeContext.resumes = 'fail'
+    fb.unlockSound()
+    fb.playSound('pump', null)
+    await settle()
+    expect(FakeContext.made[0]!.started).toHaveLength(0)
+  })
+
+  it('aMissingFile_playsNothing_throwsNothing_andIsAskedForAgainNextTime', async () => {
+    files = {}
+    fb.unlockSound()
+    fb.playSound('drop', () => 0)
+    await settle()
+    const ctx = FakeContext.made[0]!
+    expect(ctx.started).toHaveLength(0)
+    const before = asked.filter((u) => u.includes('grit_hammer_drop')).length
+    expect(before).toBeGreaterThan(0)
+    // The file is there again (back online): the next switch fetches it and plays.
+    files = { 'grit_hammer_drop.wav': 1900, 'grit_pump.wav': 2000 }
+    fb.playSound('drop', () => 0)
+    await settle()
+    expect(asked.filter((u) => u.includes('grit_hammer_drop')).length).toBeGreaterThan(before)
+    expect(ctx.started).toHaveLength(1)
+  })
+
+  it('noWebAudio_atAll_throwsNothing', async () => {
+    vi.stubGlobal('AudioContext', undefined)
+    vi.resetModules()
+    const fresh = await import('./modeSwitchFeedback')
+    expect(() => fresh.unlockSound()).not.toThrow()
+    expect(() => fresh.playSound('drop', () => 0)).not.toThrow()
+    expect(() => fresh.followSound(100)).not.toThrow()
+    expect(() => fresh.stopSound()).not.toThrow()
+  })
+})

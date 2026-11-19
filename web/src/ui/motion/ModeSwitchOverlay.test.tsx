@@ -4,7 +4,7 @@ import { grit } from '../../domain'
 import { SettingsContent } from '../../screens/settings/SettingsScreen'
 import { DEFAULT_SETTINGS } from '../../db/settings'
 import { ModeSwitchOverlay } from './ModeSwitchOverlay'
-import { createModeSwitch, ModeSwitchContext, SKIP_TICK_MS, usePrefetchModeSwitchSounds, type ModeSwitchController, type ModeSwitchFeedback, type ModeSwitchPainter } from './useModeSwitch'
+import { createModeSwitch, ModeSwitchContext, SKIP_TICK_MS, useEndModeSwitchOnLeave, usePrefetchModeSwitchSounds, useShownMode, type ModeSwitchController, type ModeSwitchFeedback, type ModeSwitchPainter } from './useModeSwitch'
 import { buzz, dropBuzzWithoutMotion, pumpBuzzWithoutMotion } from './modeSwitchFeedback'
 
 const DROP = grit.modeSwitchDropTimeline()
@@ -487,11 +487,108 @@ describe('the overlay', () => {
     vi.unstubAllGlobals()
   })
 
+  it('light_drawsTheSharedLightSet', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('light'),
+      addEventListener() {},
+      removeEventListener() {},
+    }))
+    const set = grit.modeSwitchLightColors()
+    const { container } = show()
+    act(() => controller.flip('drop', switchElement()))
+    act(() => clock.frames(DROP.impact + 20))
+    const svg = container.querySelector('.ms-overlay svg')!
+    const circles = [...svg.querySelectorAll(':scope > circle')]
+    expect(circles[0]!.getAttribute('stroke')).toBe(set.ring1)
+    expect(svg.querySelector('polygon')!.getAttribute('stroke')).toBe(set.burstEdge)
+    expect(Number(svg.querySelector('polygon')!.getAttribute('stroke-width'))).toBe(set.burstEdgeWidth)
+    expect(svg.querySelector('line')!.parentElement!.getAttribute('stroke')).toBe(set.spark)
+    act(() => controller.finish('leave'))
+    // The pump: the navy edge under each core vein, the core's swollen width plus 1.6.
+    act(() => controller.flip('pump', switchElement()))
+    act(() => clock.frames(PUMP.beats[2]! + 120))
+    const edgeLayer = container.querySelector(`.ms-overlay g[stroke="${set.veinEdge}"]`)!
+    expect(edgeLayer.getAttribute('opacity')).toBe(String(set.veinEdgeOpacity))
+    const edge = edgeLayer.querySelector('.ms-vein')!
+    expect(Number(edge.getAttribute('stroke-width'))).toBeGreaterThan(1.6)
+    vi.unstubAllGlobals()
+  })
+
+  it('withoutViewTransitions_theNewSideGrowsInACircle_notAllAtOnce', () => {
+    // jsdom has no document.startViewTransition, as some browsers have none.
+    expect('startViewTransition' in document).toBe(false)
+    const { container } = show()
+    const shell = container.querySelector<HTMLElement>('.shell')!
+    act(() => controller.flip('pump', switchElement()))
+    act(() => clock.frames(PUMP.beats[2]! + 60))
+    expect(document.documentElement.dataset.mode).toBe('bodybuilding')
+    const at60 = shell.style.clipPath
+    // Round the switch's centre, where the flood starts.
+    expect(at60).toMatch(/^circle\(\d+(\.\d)?px at 326px 136px\)$/)
+    expect(document.documentElement.classList.contains('ms-revealing-plain')).toBe(true)
+    act(() => clock.frames(100))
+    expect(parseFloat(shell.style.clipPath.slice(7))).toBeGreaterThan(parseFloat(at60.slice(7)))
+    // Covered: the clip goes.
+    act(() => clock.frames(PUMP.flood))
+    expect(shell.style.clipPath).toBe('')
+    expect(document.documentElement.classList.contains('ms-revealing-plain')).toBe(false)
+  })
+
+  it('withoutViewTransitions_aSkipMidReveal_clearsTheCircle', () => {
+    const { container } = show()
+    const shell = container.querySelector<HTMLElement>('.shell')!
+    act(() => controller.flip('drop', switchElement()))
+    act(() => clock.frames(DROP.impact + 40))
+    expect(shell.style.clipPath).toMatch(/^circle\(/)
+    act(() => controller.finish('skip'))
+    expect(shell.style.clipPath).toBe('')
+    expect(document.documentElement.style.getPropertyValue('--ms-old-bg')).toBe('')
+    expect(document.documentElement.classList.contains('ms-revealing-plain')).toBe(false)
+  })
+
   it('reducedMotion_drawsNothing', () => {
     motionOff = true
     const { container } = show()
     act(() => controller.flip('drop', switchElement()))
     expect(container.querySelector('.ms-overlay')!.childElementCount).toBe(0)
+  })
+})
+
+describe('React', () => {
+  it('neitherTheStoredSideArriving_norLeavingSettings_makesReactWarn', () => {
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
+    // The stored side arrives after the animation has ended, through the hook every root uses (an effect).
+    function Root({ stored }: { stored: 'POWERLIFTING' | 'BODYBUILDING' }) {
+      const shown = useShownMode(stored, controller)
+      return <p data-testid="shown">{shown}</p>
+    }
+    function Settings() {
+      useEndModeSwitchOnLeave(controller)
+      return null
+    }
+    const { rerender } = render(
+      <>
+        <Root stored="BODYBUILDING" />
+        <Settings />
+      </>,
+    )
+    act(() => controller.flip('drop', switchElement()))
+    act(() => clock.frames(DROP.end + 50))
+    expect(screen.getByTestId('shown')).toHaveTextContent('POWERLIFTING')
+    rerender(
+      <>
+        <Root stored="POWERLIFTING" />
+        <Settings />
+      </>,
+    )
+    expect(screen.getByTestId('shown')).toHaveTextContent('POWERLIFTING')
+    expect(controller.state().shown).toBeNull()
+    // Settings closes mid-animation: its effect's clean-up ends it.
+    act(() => controller.flip('pump', switchElement()))
+    act(() => clock.frames(100))
+    rerender(<Root stored="BODYBUILDING" />)
+    expect(controller.state().kind).toBeNull()
+    expect(errors.mock.calls.map((c) => String(c[0]))).toEqual([])
   })
 })
 

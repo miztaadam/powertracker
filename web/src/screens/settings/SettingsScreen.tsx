@@ -53,7 +53,9 @@ export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }:
   // the third beat; the switch itself answers the tap. Closing Settings ends a running animation.
   const held = useHeldMode()
   useEndModeSwitchOnLeave()
-  useWarmModeSwitch()
+  // The shapes are worked out again for the switch where it now sits, once each animation is over (an animation holds a
+  // side from the tap until the stored side says the same).
+  useWarmModeSwitch(settings.loading ? null : settings.settings.trainingMode, held != null)
   usePrefetchModeSwitchSounds(settings.loading ? null : settings.settings.trainingMode)
   // The newest message for the snackbar; `id` changes with each one, also when the text repeats.
   const [message, setMessage] = useState<{ id: number; text: string } | null>(null)

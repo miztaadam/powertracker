@@ -81,3 +81,12 @@
 :root.ms-revealing::view-transition-new(ms-fx) {
   animation: none;
 }
+
+/*
+ * Browsers without view transitions: the shell, already the new side, is clipped to the growing circle (set by the
+ * overlay); outside it the page shows the old side's background colour.
+ */
+:root.ms-revealing-plain,
+:root.ms-revealing-plain body {
+  background: var(--ms-old-bg);
+}

@@ -277,6 +277,38 @@ test.describe('with motion on', () => {
     expect(errors).toEqual([])
   })
 
+  test('without view transitions, the new side grows in a circle from the switch, and a skip clears it', async ({ page }) => {
+    await page.addInitScript(() => {
+      delete (Document.prototype as { startViewTransition?: unknown }).startViewTransition
+    })
+    await openSettings(page)
+    expect(await page.evaluate(() => 'startViewTransition' in document)).toBe(false)
+    await hold(page)
+    const box = (await page.locator('.settings-mode-switch .gr-switch-track').boundingBox())!
+    const oldBackground = await page.evaluate(() => getComputedStyle(document.body).backgroundColor)
+    await flipLanding(page, 'BODYBUILDING', THIRD + 120)
+    await page.clock.runFor(THIRD + 120)
+    await expect.poll(() => dataMode(page)).toBe('bodybuilding')
+    const clipPath = () => page.locator('.shell').evaluate((el) => getComputedStyle(el).clipPath)
+    const clip = await clipPath()
+    expect(clip).toMatch(/^circle\(/)
+    // Round the switch, where the flood starts; outside it, the old side's colour.
+    const [, r, x, y] = /circle\(([\d.]+)px at ([\d.]+)px ([\d.]+)px\)/.exec(clip)!.map(Number)
+    expect(x).toBeCloseTo(box.x + box.width / 2, 0)
+    expect(y).toBeCloseTo(box.y + box.height / 2, 0)
+    expect(r).toBeGreaterThan(30)
+    expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe(oldBackground)
+    await shoot(page, 'mode-switch-pump-plain-reveal')
+    // A tap skips, wherever it lands (here outside the circle, where the page shows only the old colour): the circle
+    // and the old colour go at once.
+    const viewport = page.viewportSize()!
+    await page.mouse.click(12, viewport.height - 40)
+    expect(await drawn(page)).toBe(0)
+    expect(await clipPath()).toBe('none')
+    expect(await page.evaluate(() => document.documentElement.className)).not.toMatch(/ms-/)
+    expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).not.toBe(oldBackground)
+  })
+
   test('320 px at 130%, Settings scrolled: the veins and the flood start from the switch', async ({ page }) => {
     await page.setViewportSize({ width: Math.floor(320 / 1.3), height: Math.floor(640 / 1.3) })
     await openSettings(page)
@@ -305,6 +337,12 @@ test.describe('with motion on', () => {
   })
 })
 
+test('the service worker keeps both sounds, in both formats, for offline', async ({ page }) => {
+  await page.goto('/#/settings')
+  const sw = await page.evaluate(() => fetch('/sw.js').then((r) => r.text()))
+  for (const file of ['grit_hammer_drop.ogg', 'grit_pump.ogg', 'grit_hammer_drop.wav', 'grit_pump.wav']) expect(sw).toContain(`sounds/${file}`)
+})
+
 test('with reduced motion: no animation, the side changes at the tap', async ({ page }) => {
   // The default e2e page: motion off, as with the system's reduced motion.
   await page.clock.setFixedTime(WEDNESDAY)
@@ -316,86 +354,135 @@ test('with reduced motion: no animation, the side changes at the tap', async ({ 
 
 // Real frames, the production build, no fake clock (installing Playwright's clock, even a fixed date, replaces
 // requestAnimationFrame). A frame's time is from its rAF timestamp to the end of the frame's callbacks, the animation's
-// drawing among them; each callback is timed by a wrapper put in before the app loads. Every frame of the whole pump
-// and the whole drop, from the first after the tap, must be within 16 ms; so must the tap's own work, from the press
-// to the end of its handler. A bare frame loop is timed first for a second, the same way: if the machine cannot hold
-// 16 ms with nothing animating, the run says so instead of blaming the animation.
+// drawing among them; each callback is timed by a wrapper put in before the app loads. The tap's own work is timed from
+// the press to the end of its click handlers.
+//
+// A bare frame loop is timed first for a second, the same way: it gives the display's frame interval, and if the
+// machine cannot hold 16 ms with nothing animating, the run fails there and says so (rerun on a quiet machine).
+//
+// Then three runs: the pump and the drop with their shapes worked out ahead (Settings' idle warm), and a pump straight
+// after a scroll, before the warm that follows a scroll could run (the cold path: the switch has moved, so the shapes
+// are worked out in the animation's first frames). For each: every frame of the animation is there (none dropped:
+// the count, and no gap between frames over one and a half intervals, so 30 fps fails; the one exception is the frame
+// the browser skips at the moment to capture the reveal's new side), the first within one and a half intervals of the
+// tap, and every frame and the tap within 16 ms.
 test.describe('mode switch speed', { tag: '@speed' }, () => {
   test.use({ storageState: { cookies: [], origins: [] } })
 
-  type Sample = { at: number; ms: number }
-  type Frames = { samples: Sample[]; tap: number }
+  type Sample = { at: number; ts: number; ms: number }
+  type Frames = { samples: Sample[]; tap: number; tapMs: number }
+  type Rec = { on: boolean; tap: number; tapMs: number; samples: Sample[] }
 
-  test('every frame of the pump and the drop is drawn within 16 ms', async ({ page }) => {
+  test('every frame of the pump and the drop is drawn on time, warm and cold', async ({ page }) => {
     await page.addInitScript(() => {
-      const w = window as Window & { __rec?: { on: boolean; tap: number; samples: { at: number; ms: number }[] } }
-      w.__rec = { on: false, tap: 0, samples: [] }
+      const w = window as Window & { __rec?: Rec }
+      w.__rec = { on: false, tap: 0, tapMs: -1, samples: [] }
       const raf = window.requestAnimationFrame.bind(window)
       window.requestAnimationFrame = (cb) =>
         raf((ts) => {
           cb(ts)
           const rec = w.__rec!
-          if (rec.on) rec.samples.push({ at: ts - rec.tap, ms: performance.now() - ts })
+          if (rec.on) rec.samples.push({ at: ts - rec.tap, ts, ms: performance.now() - ts })
         })
       // The tap: from the press going down to the end of the click's handlers (the switch's included).
       document.addEventListener('pointerdown', () => (w.__rec!.tap = performance.now()), { capture: true })
       window.addEventListener('click', () => {
-        if (w.__rec!.on) w.__rec!.samples.push({ at: 0, ms: performance.now() - w.__rec!.tap })
+        if (w.__rec!.on) w.__rec!.tapMs = performance.now() - w.__rec!.tap
       })
     })
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/#/settings')
     await expect(modeSwitch(page)).toBeVisible()
+    // Settings' warm has run (it waits for an idle moment).
+    await expect.poll(() => page.evaluate(() => performance.getEntriesByName('ms-warm').length)).toBeGreaterThan(0)
 
     // The baseline: a bare frame loop, nothing animating.
     const baseline = await page.evaluate(
       () =>
-        new Promise<number[]>((done) => {
-          const out: number[] = []
+        new Promise<{ ms: number[]; ts: number[] }>((done) => {
+          const ms: number[] = []
+          const ts: number[] = []
           const start = performance.now()
-          const loop = (ts: number) => {
-            out.push(performance.now() - ts)
+          const loop = (t: number) => {
+            ms.push(performance.now() - t)
+            ts.push(t)
             if (performance.now() - start < 1000) requestAnimationFrame(loop)
-            else done(out)
+            else done({ ms, ts })
           }
           requestAnimationFrame(loop)
         }),
     )
-    const worstBaseline = Math.max(...baseline)
-    expect(worstBaseline, `the machine itself is over budget with nothing animating (${baseline.length} frames): rerun when it is quiet`).toBeLessThanOrEqual(16)
+    const worstBaseline = Math.max(...baseline.ms)
+    expect(worstBaseline, `the machine itself is over budget with nothing animating (${baseline.ms.length} frames): rerun when it is quiet`).toBeLessThanOrEqual(16)
+    const gaps = baseline.ts.slice(1).map((t, i) => t - baseline.ts[i]!).sort((a, b) => a - b)
+    const interval = gaps[Math.floor(gaps.length / 2)]!
+    expect(interval, 'the display frame interval').toBeGreaterThan(5)
 
-    const runs: Record<string, Frames> = {}
-    for (const [to, kind] of [
-      ['BODYBUILDING', 'pump'],
-      ['POWERLIFTING', 'drop'],
-    ] as const) {
+    const warms = () => page.evaluate(() => performance.getEntriesByName('ms-warm').length)
+
+    async function play(to: 'BODYBUILDING' | 'POWERLIFTING', before?: () => Promise<void>): Promise<Frames> {
       await page.evaluate(() => {
-        const rec = (window as Window & { __rec?: { on: boolean; samples: unknown[] } }).__rec!
+        const rec = (window as Window & { __rec?: Rec }).__rec!
         rec.samples = []
+        rec.tapMs = -1
         rec.on = true
       })
+      if (before != null) await before()
       await modeSwitch(page).click()
       // Started (the shapes are built in the first frame after the tap), then over.
       await expect.poll(() => drawn(page)).toBe(1)
       await expect.poll(() => drawn(page), { timeout: 5000 }).toBe(0)
       await expect.poll(() => dataMode(page)).toBe(to === 'BODYBUILDING' ? 'bodybuilding' : null)
-      runs[kind] = await page.evaluate(() => {
-        const rec = (window as Window & { __rec?: { on: boolean; tap: number; samples: { at: number; ms: number }[] } }).__rec!
+      const out = await page.evaluate(() => {
+        const rec = (window as Window & { __rec?: Rec }).__rec!
         rec.on = false
-        return { samples: rec.samples, tap: rec.tap }
+        return { samples: rec.samples, tap: rec.tap, tapMs: rec.tapMs }
       })
-      await page.waitForTimeout(500)
+      // Settings' warm for the new side runs in the pause.
+      await page.waitForTimeout(800)
+      return out
     }
 
-    const slow: string[] = []
-    for (const kind of ['pump', 'drop'] as const) {
-      const end = kind === 'drop' ? DROP.end : PUMP.end
-      const samples = runs[kind]!.samples.filter((s) => s.at <= end)
-      expect(samples.length, `${kind}: frames drawn`).toBeGreaterThan(end / 16.7 / 2)
-      // The whole animation was timed, to its last frame.
-      expect(Math.max(...samples.map((s) => s.at)), `${kind}: the last frame timed`).toBeGreaterThan(end - 50)
-      for (const s of samples) if (s.ms > 16) slow.push(`${kind}: ${s.ms.toFixed(1)} ms ${s.at === 0 ? 'for the tap' : `at ${Math.round(s.at)} ms`}`)
+    const runs: [string, number, Frames][] = []
+    runs.push(['pump (warm)', PUMP.end, await play('BODYBUILDING')])
+    runs.push(['drop (warm)', DROP.end, await play('POWERLIFTING')])
+    // The cold path: Settings scrolled a little and tapped at once, before the warm that follows a scroll at rest.
+    let warmsAtScroll = -1
+    let warmsAtTap = -1
+    runs.push([
+      'pump (cold)',
+      PUMP.end,
+      await play('BODYBUILDING', async () => {
+        warmsAtScroll = await warms()
+        await page.locator('.shell-main').evaluate((el) => el.scrollBy(0, 9))
+        warmsAtTap = await warms()
+      }),
+    ])
+    expect(warmsAtTap, 'no warm between the scroll and the tap: the shapes were cold').toBe(warmsAtScroll)
+
+    const late: string[] = []
+    for (const [name, end, run] of runs) {
+      const frames = run.samples.filter((s) => s.at > 0 && s.at <= end).sort((a, b) => a.ts - b.ts)
+      expect(run.tapMs, `${name}: the tap was timed`).toBeGreaterThanOrEqual(0)
+      if (run.tapMs > 16) late.push(`${name}: the tap took ${run.tapMs.toFixed(1)} ms`)
+      // Every frame: as many as the animation's length allows, less one at each end.
+      const want = Math.floor(end / interval) - 2
+      expect(frames.length, `${name}: frames drawn (want ${want} at ${interval.toFixed(1)} ms)`).toBeGreaterThanOrEqual(want)
+      expect(frames[0]!.at, `${name}: the first frame after the tap`).toBeLessThanOrEqual(interval * 1.5)
+      expect(Math.max(...frames.map((s) => s.at)), `${name}: the last frame timed`).toBeGreaterThan(end - interval * 2)
+      // One frame may be missing at the moment, and only there: the browser draws no frame while it captures the new
+      // side for the reveal (a view transition does this however short its update is). Any other gap fails.
+      const moment = end === DROP.end ? DROP.impact : THIRD
+      let captureFrame = 0
+      for (let i = 1; i < frames.length; i++) {
+        const gap = frames[i]!.ts - frames[i - 1]!.ts
+        if (gap <= interval * 1.5) continue
+        const atMoment = frames[i - 1]!.at >= moment - interval && frames[i - 1]!.at <= moment + interval * 2 && gap <= interval * 2.5
+        if (atMoment && captureFrame++ === 0) continue
+        late.push(`${name}: a ${gap.toFixed(1)} ms gap before ${Math.round(frames[i]!.at)} ms`)
+      }
+      for (const f of frames) if (f.ms > 16) late.push(`${name}: ${f.ms.toFixed(1)} ms at ${Math.round(f.at)} ms`)
     }
-    expect(slow, `frames over 16 ms (baseline worst ${worstBaseline.toFixed(1)} ms)`).toEqual([])
+    expect(late, `late frames (baseline worst ${worstBaseline.toFixed(1)} ms, interval ${interval.toFixed(1)} ms)`).toEqual([])
   })
 })
