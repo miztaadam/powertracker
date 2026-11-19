@@ -147,6 +147,9 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Templates, weekdays: in a draft, untick a day: Use this plan is off and the cards read "Day 1", "Day 2"… Tick another day: the week moves onto it.
 - [ ] Templates, Swap: a main lift (Squat, Bench, Deadlift) has no Swap; an accessory's Swap lists other exercises and a pick keeps its sets, reps and RPE.
 - [ ] Templates over a plan: from the Plan menu (⋮), Choose a template, then Use this plan asks "Replace your … plan?". Cancel changes nothing; Replace sets the new week, and History and bests are as they were. Back from a draft returns to the list.
+- [ ] Undo after a template: on a side with a plan, choose a template and tap Replace. "Plan set: <name>." shows with Undo. Tap Undo: the old plan and its training days are back, also after closing and reopening Grit. Choosing a template on an empty side shows no Undo.
+- [ ] Undo after Rebuild my plan: on the bodybuilding side with a plan, Rebuild my plan from the menu (⋮) and tap Use this plan. "Plan saved." shows with Undo. Tap Undo: the old plan is back. Let the snackbar go instead: the new plan stays.
+- [ ] Restore warning: export a backup while the bodybuilding side has no plan, then build a bodybuilding plan and restore that backup (Plan, Settings, Restore backup). "This backup has no bodybuilding plan" shows with Restore anyway and Cancel. Cancel: the plan is still there. Restore anyway: the backup's data is in, with no bodybuilding plan. A backup that has the plan shows "Replace all data?" as before.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
@@ -177,6 +180,9 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Templates, weekdays: in a draft, untick a day: Use this plan is off and the cards read "Day 1", "Day 2"… Tick another day: the week moves onto it.
 - [ ] Templates, Swap: a main lift (Squat, Bench, Deadlift) has no Swap; an accessory's Swap lists other exercises and a pick keeps its sets, reps and RPE.
 - [ ] Templates over a plan: from the Plan menu (⋮), Choose a template, then Use this plan asks "Replace your … plan?". Cancel changes nothing; Replace sets the new week, and History and bests are as they were. The browser's back from a draft returns to the list.
+- [ ] Undo after a template: on a side with a plan, choose a template and tap Replace. "Plan set: <name>." shows with Undo. Tap Undo: the old plan and its training days are back, also after closing and reopening Grit. Choosing a template on an empty side shows no Undo.
+- [ ] Undo after Rebuild my plan: on the bodybuilding side with a plan, Rebuild my plan from the menu (⋮) and tap Use this plan. "Plan saved." shows with Undo. Tap Undo: the old plan is back. Let the snackbar go instead: the new plan stays.
+- [ ] Restore warning: export a backup while the bodybuilding side has no plan, then build a bodybuilding plan and restore that backup (Plan, Settings, Restore backup). "This backup has no bodybuilding plan" shows with Restore anyway and Cancel. Cancel: the plan is still there. Restore anyway: the backup's data is in, with no bodybuilding plan. A backup that has the plan shows "Replace all data?" as before.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
@@ -201,6 +207,9 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Templates, weekdays: in a draft, untick a day: Use this plan is off and the cards read "Day 1", "Day 2"… Tick another day: the week moves onto it.
 - [ ] Templates, Swap: a main lift (Squat, Bench, Deadlift) has no Swap; an accessory's Swap lists other exercises and a pick keeps its sets, reps and RPE.
 - [ ] Templates over a plan: from the Plan menu (⋮), Choose a template, then Use this plan asks "Replace your … plan?". Cancel changes nothing; Replace sets the new week, and History and bests are as they were. The phone's back from a draft returns to the list.
+- [ ] Undo after a template: on a side with a plan, choose a template and tap Replace. "Plan set: <name>." shows with Undo. Tap Undo: the old plan and its training days are back, also after closing and reopening Grit. Choosing a template on an empty side shows no Undo.
+- [ ] Undo after Rebuild my plan: on the bodybuilding side with a plan, Rebuild my plan from the menu (⋮) and tap Use this plan. "Plan saved." shows with Undo. Tap Undo: the old plan is back. Let the snackbar go instead: the new plan stays.
+- [ ] Restore warning: export a backup while the bodybuilding side has no plan, then build a bodybuilding plan and restore that backup (Settings, Restore backup). "This backup has no bodybuilding plan" shows with Restore anyway and Cancel. Cancel: the plan is still there. Restore anyway: the backup's data is in, with no bodybuilding plan. A backup that has the plan shows "Replace all data?" as before.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
