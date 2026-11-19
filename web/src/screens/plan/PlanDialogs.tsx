@@ -126,13 +126,16 @@ export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save'
           title="Change exercise"
           exercises={exercises}
           recentIds={recentIds}
+          // A pick or create that works clears a failure still held, before this form is back on top to say it.
           onPick={(entry) => {
+            failures.clear()
             setChanged(entry)
             setPicking(false)
           }}
           // The picker stays until the exercise is made; if making it fails, its create form stays with what was typed.
           onCreateCustom={(exercise) =>
             onCreateCustom(exercise).then((entry) => {
+              failures.clear()
               setChanged(entry)
               setPicking(false)
             })

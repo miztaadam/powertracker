@@ -56,7 +56,11 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
     answered.current = true
     answer(value)
   }
-  const pick = once(onPick)
+  // A pick that works leaves nothing of a failed create to say.
+  const pick = once((entry: PickerEntry) => {
+    held.clear()
+    onPick(entry)
+  })
   const create = (exercise: CustomExercise) => {
     if (answered.current) return
     answered.current = true
@@ -67,7 +71,11 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
     }
     // The form stays open until the exercise is made. If that fails, nothing was answered: Create works again.
     ;(made as PromiseLike<unknown>).then(
-      () => setCreating(false),
+      () => {
+        // Made: what failed before is not said.
+        held.clear()
+        setCreating(false)
+      },
       () => {
         answered.current = false
         // Never silent: the form says it if it is open, else the picker, else (the picker is gone) whoever opened it.

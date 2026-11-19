@@ -17,6 +17,11 @@ export type HeldFailures = {
   said: (upTo: number) => void
   /** Every failure up to `upTo` has been on screen, if only for a moment. */
   drawn: (upTo: number) => void
+  /**
+   * A later create or pick has worked: every failure so far is said and drawn, so no dialog says it and nothing is handed
+   * on to the screen behind.
+   */
+  clear: () => void
 }
 
 /**
@@ -56,6 +61,12 @@ export function useHeldFailures(onGone?: () => void): HeldFailures {
     },
     drawn: (upTo) => {
       if (upTo > drawnUpTo.current) drawnUpTo.current = upTo
+    },
+    clear: () => {
+      drawnUpTo.current = total.current
+      if (saidUpTo.current >= total.current) return
+      saidUpTo.current = total.current
+      rerender()
     },
   }
 }
