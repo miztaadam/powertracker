@@ -15,16 +15,20 @@ export type HeldFailures = {
   add: () => void
   /** Every failure up to `upTo` has been said through. */
   said: (upTo: number) => void
+  /** Every failure up to `upTo` has been on screen, if only for a moment. */
+  drawn: (upTo: number) => void
 }
 
 /**
- * Held failures, for the component that owns them. `onGone` is told of a failure still held when that component unmounts,
- * and of one that comes after: nothing of its own can say it any more.
+ * Held failures, for the component that owns them. `onGone` is told of a failure that no dialog of its own has put on
+ * screen when that component unmounts, and of one that comes after: nothing of its own can say it any more. One already
+ * on screen, even cut short, is not handed on, so the screen behind (Plan's own snackbar) says what it said before.
  */
 export function useHeldFailures(onGone?: () => void): HeldFailures {
   // Kept in refs, so a failure and an unmount in the same moment (before any render) still see each other.
   const total = useRef(0)
   const saidUpTo = useRef(0)
+  const drawnUpTo = useRef(0)
   const mounted = useRef(true)
   const gone = useRef(onGone)
   gone.current = onGone
@@ -33,10 +37,8 @@ export function useHeldFailures(onGone?: () => void): HeldFailures {
     mounted.current = true
     return () => {
       mounted.current = false
-      if (total.current > saidUpTo.current) {
-        saidUpTo.current = total.current
-        gone.current?.()
-      }
+      if (total.current > drawnUpTo.current) gone.current?.()
+      saidUpTo.current = total.current
     }
   }, [])
   return {
@@ -52,6 +54,9 @@ export function useHeldFailures(onGone?: () => void): HeldFailures {
       saidUpTo.current = upTo
       rerender()
     },
+    drawn: (upTo) => {
+      if (upTo > drawnUpTo.current) drawnUpTo.current = upTo
+    },
   }
 }
 
@@ -64,5 +69,10 @@ const SAVE_FAILED = "Couldn't save — try again."
  */
 export function HeldMessage({ failures, here }: { failures: HeldFailures; here: boolean }) {
   const upTo = failures.count
-  return <Snackbar message={here && failures.unsaid ? SAVE_FAILED : null} showId={upTo} onDismiss={() => failures.said(upTo)} />
+  const shown = here && failures.unsaid
+  // After the commit that put it on screen.
+  useEffect(() => {
+    if (shown) failures.drawn(upTo)
+  })
+  return <Snackbar message={shown ? SAVE_FAILED : null} showId={upTo} onDismiss={() => failures.said(upTo)} />
 }

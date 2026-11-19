@@ -688,7 +688,7 @@ describe('PlanScreen add form', () => {
     expect(formOpen()).toBe(true)
   }, 20_000)
 
-  // The add form closed (Cancel) while the failure was held: Plan says it, once.
+  // The add form closed (Cancel) in the same moment, before it had drawn the failure: Plan says it, once.
   it('planAdd_changeToOwnExerciseFails_theAddFormClosedFirst_planSaysSo', async () => {
     show()
     await pickOn('Monday', 'Squat')
@@ -706,12 +706,36 @@ describe('PlanScreen add form', () => {
       fail()
       for (let i = 0; i < 20; i++) await Promise.resolve()
       close.click()
+      cancel.click()
     })
-    await act(async () => cancel.click())
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
     expect(screen.getAllByText("Couldn't save — try again.")).toHaveLength(1)
   })
+
+  // Plan's Add: the create form said it, then Cancel and Close inside its 4 s. Plan's own snackbar does not say it again.
+  it('planAdd_ownExerciseFails_saidByTheCreateForm_thenClosed_planDoesNotRepeatIt', async () => {
+    show()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementation((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    await act(async () => fail())
+    expect(within(createForm()!).getByText("Couldn't save — try again.")).toBeInTheDocument()
+    await act(async () => void vi.advanceTimersByTime(1000))
+    await act(async () => within(createForm()!).getByRole('button', { name: 'Cancel' }).click())
+    expect(screen.getAllByText("Couldn't save — try again.")).toHaveLength(1)
+    await act(async () => screen.getByRole('button', { name: 'Close' }).click())
+    expect(screen.queryByRole('dialog')).toBeNull()
+    for (let ms = 0; ms < 6000; ms += 100) {
+      await act(async () => void vi.advanceTimersByTime(100))
+      expect(screen.queryByText("Couldn't save — try again.")).toBeNull()
+    }
+    vi.useRealTimers()
+  }, 20_000)
 
   it('planAdd_pick_swapsStraightToTheForm_focusInside_andBackToAddOnClose', async () => {
     show()
