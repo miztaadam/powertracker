@@ -1,4 +1,4 @@
-import { Component, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react'
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react'
 import type { TrainingMode } from '../../db/schema'
 import { grit, type JsGuideFrame } from '../../domain'
 import { TodayContent } from '../today/TodayScreen'
@@ -60,9 +60,11 @@ class FlipLayer extends Component<FlipProps> {
       const targets = todayTargets(screen.current)
       const after = readBoxes(targets, phone.current, scale)
       const plan = planFlip(before.boxes, after, new Map(targets.map((t) => [t.key, t.parent])))
-      // A row gone from the step: the node it was drawn with, and where.
+      // A row gone from the step: the node it was drawn with, and where (a part of a gone row goes with it).
       const gone = new Map(
-        before.targets.filter((t) => plan.exits.includes(t.key) && t.parent == null).map((t) => [t.key, { el: t.el, box: before.boxes.get(t.key)! }]),
+        before.targets
+          .filter((t) => plan.exits.includes(t.key) && !(t.parent != null && plan.exits.includes(t.parent)))
+          .map((t) => [t.key, { el: t.el, box: before.boxes.get(t.key)! }]),
       )
       plan.exits = plan.exits.filter((key) => gone.has(key))
       this.run = startFlip(plan, targets, gone, ghosts.current, this.timing)
@@ -120,7 +122,16 @@ export function GuidePicture({ id, mode, frame, moveMs = Number.POSITIVE_INFINIT
   const slot = useRef<HTMLDivElement>(null)
   const phone = useRef<HTMLDivElement>(null)
   const drawnScreen = useRef<HTMLDivElement | null>(null)
-  const ghosts = useRef<HTMLDivElement>(null)
+  const ghosts = useRef<HTMLDivElement | null>(null)
+  // Stable, so React never detaches them for a render: the layout layer reads both while a step change commits.
+  const setScreen = useCallback((el: HTMLDivElement | null) => {
+    drawnScreen.current = el
+    makeInert(el)
+  }, [])
+  const setGhosts = useCallback((el: HTMLDivElement | null) => {
+    ghosts.current = el
+    makeInert(el)
+  }, [])
   const step = frame?.step ?? null
   const drawn = id === 'TODAY' && step != null
   const height = PHONE_HEIGHT
@@ -146,16 +157,17 @@ export function GuidePicture({ id, mode, frame, moveMs = Number.POSITIVE_INFINIT
               <div
                 className="guide-picture-screen"
                 aria-hidden="true"
-                ref={(el) => {
-                  drawnScreen.current = el
-                  makeInert(el)
-                }}
+                ref={setScreen}
               >
                 {screen}
               </div>
             </FlipLayer>
             {/* Rows gone in a step, drawn where they were while they fade (the guide's own; React puts nothing in it). */}
-            <div className="guide-flip-ghosts" aria-hidden="true" ref={ghosts} />
+            <div
+              className="guide-flip-ghosts"
+              aria-hidden="true"
+              ref={setGhosts}
+            />
           </div>
         )}
       </div>

@@ -436,13 +436,15 @@ test.describe('with motion on', () => {
   })
 
   for (const side of SIDES) {
-    test(`the weight rolls in with its plates drawn from its first frame: nothing under the editor moves on the way (${sideName(side)})`, async ({ page }) => {
+    test(`the weight rolls in, its plates cross-fading with the note from its first frame: nothing under the editor moves on the way (${sideName(side)})`, async ({ page }) => {
       const at = await heldToday(page, side)
       const weight = grit.guideSteps('TODAY', side).indexOf('TODAY_WEIGHT')
       const card = picture(page).locator('.guide-picture-screen .today-item').first()
       const seen: { kg: string; plates: string; log: number }[] = []
       for (let into = 1; into <= grit.guideMoveMs(); into += 40) {
         await at(grit.guideStepStartMs(weight) + into)
+        // "No weight yet" fades out where it was as the plates fade in: never a frame with neither.
+        if (into < grit.guideFadeMs()) await expect(picture(page).locator('.guide-flip-ghosts > .gr-plates-note'), `${side} ${into} ms`).toHaveCount(1)
         seen.push(
           await card.evaluate((el) => ({
             kg: el.querySelector<HTMLInputElement>('input[aria-label="Weight, kilograms"], .today-stepper-weight input')?.value ?? '',
@@ -461,7 +463,7 @@ test.describe('with motion on', () => {
 
 // For the owner (GUIDE_VIDEO=<dir>): screen 4 playing in real time with motion on, from its first step until a second
 // after its last has settled, recorded at the e2e phone's full screen (390 × 844). `<name>.json` beside each video says where in it
-// screen 4 opened, to trim from.
+// screen 4 opened (its page's own slide-in takes the next quarter second), to trim from.
 test.describe('for the owner: screen 4 in real time', () => {
   const dir = process.env.GUIDE_VIDEO
   test.skip(dir == null, 'GUIDE_VIDEO is not set')
@@ -482,7 +484,7 @@ test.describe('for the owner: screen 4 in real time', () => {
       await openGuideOnToday(page, side)
       const opened = (Date.now() - started) / 1000
       await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_EMPTY')
-      await page.waitForTimeout(grit.guideDoneMs(grit.guideSteps('TODAY', side).length) + 1000)
+      await page.waitForTimeout(grit.guideDoneMs(grit.guideSteps('TODAY', side).length) + 1500)
       await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_SKIP')
       await page.close()
       await context.close()

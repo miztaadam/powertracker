@@ -55,6 +55,7 @@ describe('guideFlip', () => {
     expect(plan.moves).toEqual([{ key: 'add', dx: 0, dy: 20 }])
     expect(plan.enters).toEqual(['skipped'])
     expect(plan.exits).toEqual(['item:Bench:row'])
+    expect(plan.crossFades).toEqual([])
 
     // On the element: paused, at its old box (translated by old - new), and back to its own box at the move's end.
     const add = placed(document.createElement('div'), { x: 0, y: 380, width: 100, height: 40 })
@@ -89,6 +90,32 @@ describe('guideFlip', () => {
       { key: 'item:A:card', dx: 0, dy: 10 },
       { key: 'item:A:card>log:0', dx: 0, dy: -60 },
     ])
+  })
+
+  it('a new row where a gone one was cross-fades with it, at once (the plates in place of "No weight yet")', () => {
+    const before = new Map([
+      ['item:A:card>plates-note:0', box(0, 200, 100, 48)],
+      ['item:A:card>log:0', box(0, 260)],
+    ])
+    const after = new Map([
+      ['item:A:card>plates:0', box(0, 200, 100, 52)],
+      ['item:A:card>log:0', box(0, 264)],
+    ])
+    const plan = planFlip(before, after, new Map([
+      ['item:A:card>plates:0', null],
+      ['item:A:card>log:0', null],
+    ]))
+    expect(plan.crossFades).toEqual(['item:A:card>plates:0'])
+    const strip = placed(document.createElement('div'), box(0, 200, 100, 52))
+    const log = placed(document.createElement('div'), box(0, 264))
+    const stripCalls = stubAnimate(strip)
+    stubAnimate(log)
+    const targets = [
+      { key: 'item:A:card>plates:0', el: strip, parent: null },
+      { key: 'item:A:card>log:0', el: log, parent: null },
+    ]
+    startFlip(plan, targets, new Map(), null, { moveMs: 280, fadeMs: 150, easing: FLIP_EASING })
+    expect(stripCalls[0]!.options).toMatchObject({ delay: 0 })
   })
 
   it('reads boxes in the phone\'s own space: less the phone\'s place, divided by its scale', () => {
@@ -139,7 +166,7 @@ describe('guideFlip', () => {
       return copy
     })
     const run = startFlip(
-      { moves: [{ key: 'moved', dx: 0, dy: -12 }], enters: ['added'], exits: ['gone'] },
+      { moves: [{ key: 'moved', dx: 0, dy: -12 }], enters: ['added'], exits: ['gone'], crossFades: [] },
       [
         { key: 'moved', el: moved, parent: null },
         { key: 'added', el: added, parent: null },
@@ -158,6 +185,8 @@ describe('guideFlip', () => {
       for (const frame of keyframes) for (const property of Object.keys(frame)) expect(['transform', 'opacity', 'offset', 'easing']).toContain(property)
     }
     expect(addedCalls[0]!.keyframes).toEqual([{ opacity: 0 }, { opacity: 1 }])
+    // Not in a gone row's place, with rows moving: it fades in over the move's last stretch.
+    expect(addedCalls[0]!.options).toMatchObject({ delay: 130, duration: 150 })
     expect(ghostCalls.at(-1)!.keyframes).toEqual([{ opacity: 1 }, { opacity: 0 }])
     run.finish()
     expect(ghosts.children).toHaveLength(0)

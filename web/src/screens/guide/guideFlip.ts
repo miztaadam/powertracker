@@ -13,11 +13,15 @@ export type FlipBox = { x: number; y: number; width: number; height: number }
 /** A row of the picture, by an identity that holds across steps (never its index). */
 export type FlipTarget = { key: string; el: HTMLElement; parent: string | null }
 
-/** What a step change does to each row: moved by (dx, dy), new (faded in), or gone (faded out where it was). */
+/**
+ * What a step change does to each row: moved by (dx, dy), new (faded in), or gone (faded out where it was). A new row
+ * drawn where a gone one was (`crossFades`, a subset of `enters`) fades in as the other fades out.
+ */
 export type FlipPlan = {
   moves: { key: string; dx: number; dy: number }[]
   enters: string[]
   exits: string[]
+  crossFades: string[]
 }
 
 /** A move under this many pixels (in the phone's space) is no move. */
@@ -78,7 +82,7 @@ export function readBoxes(targets: FlipTarget[], phone: HTMLElement, scale: numb
  * already carries it by), a row only after is new, a row only before has gone.
  */
 export function planFlip(before: Map<string, FlipBox>, after: Map<string, FlipBox>, parents: Map<string, string | null>): FlipPlan {
-  const plan: FlipPlan = { moves: [], enters: [], exits: [] }
+  const plan: FlipPlan = { moves: [], enters: [], exits: [], crossFades: [] }
   const delta = (key: string) => {
     const a = before.get(key)
     const b = after.get(key)
@@ -97,6 +101,8 @@ export function planFlip(before: Map<string, FlipBox>, after: Map<string, FlipBo
     if (Math.abs(dx) >= STILL_PX || Math.abs(dy) >= STILL_PX) plan.moves.push({ key, dx, dy })
   }
   for (const key of before.keys()) if (!after.has(key)) plan.exits.push(key)
+  const overlaps = (a: FlipBox, b: FlipBox) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
+  plan.crossFades = plan.enters.filter((key) => plan.exits.some((gone) => overlaps(after.get(key)!, before.get(gone)!)))
   return plan
 }
 
@@ -136,11 +142,11 @@ export function startFlip(
     if (el) add(el, [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], timing.moveMs, timing.easing)
   }
   // A new row fades in as the move ends, once the rows around it have made its room (it would show through them
-  // while they still slide past it); with nothing moving, at once.
+  // while they still slide past it); with nothing moving, or in a gone row's place (a cross-fade), at once.
   const enterDelay = plan.moves.length > 0 ? Math.max(0, timing.moveMs - timing.fadeMs) : 0
   for (const key of plan.enters) {
     const el = byKey.get(key)
-    if (el) add(el, [{ opacity: 0 }, { opacity: 1 }], timing.fadeMs, 'linear', enterDelay)
+    if (el) add(el, [{ opacity: 0 }, { opacity: 1 }], timing.fadeMs, 'linear', plan.crossFades.includes(key) ? 0 : enterDelay)
   }
   if (ghosts != null) {
     for (const key of plan.exits) {
