@@ -856,6 +856,7 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-mode-switch-animations-design.md`;
 **Owner decisions (2026-11-19, "approved"):**
 - **The light shots are approved.**
 - **The lost-frame rule is report-only.** Two or more animations of one kind with late frames now give a loud LATE FRAMES warning, and the run passes. The work limits and the held-clock pins stay hard. Before this, the rule failed 2 of 13 quiet runs on `55240dc`, and 1 of 4 on the release build (the full e2e run: pump 2, a 50.0 ms gap; pump 3, a 33.3 ms gap; the CPU check called the machine quiet).
+- **Each kind's own work limit is report-only** (owner, 2026-11-19, "Ship now"). On the merged release the drop's median read 6.30 ms against 5.5, on a quiet machine with the same tree that had passed. Its median rests on about 34 frames a run; across 25 earlier runs of the fixed build it read 3.7–5.1. A pump or drop over its own limit now gives a SLOW KIND warning. The pooled limit (5.5 ms) and the held-clock pins stay hard.
 - **One skipped frame at the colour-change moment is accepted,** and so are the occasional late frames mid-reveal. Chromium draws no frame while the view transition captures the new side, in nearly every pump.
 
 **Untested:**
@@ -864,6 +865,7 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-mode-switch-animations-design.md`;
 
 **Follow-ups:**
 - The 5.5 / 6.0 / 5.5 ms work limits are absolute milliseconds on this container (4 vCPUs, headless Chromium). A faster or slower machine needs them measured again.
+- **Recalibrate the per-kind work limits.** Give the drop a sample comparable to the pump's (more repeats, or discard the first animation of each kind). Re-derive both limits from `0a8604f` and HEAD and freeze them before the acceptance runs (`0a8604f` fails 10 of 10, the drop-2× mutant 5 of 5, HEAD passes 20 of 20). Then make them hard again. Until then, a drop-only slowdown is caught only by the pooled limit, which catches it weakly.
 - **The pump's margin is thin:** in the release's full e2e run the pump's reveal work read 5.70 ms against its 6.0 limit (pooled 5.20 against 5.5), on a window the CPU check called quiet. When the limit was frozen, this build's highest was 5.30. The three speed runs after it read pump 4.60–4.70.
 - `1abd100` on its own fails `npx tsc -b` (fixed by `7582ae5`). Skip it when bisecting.
 - No test can tell the `onPseudo` try/catch from the `ready` promise's `.catch`: removing the try/catch keeps every test green.

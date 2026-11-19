@@ -691,7 +691,7 @@ test('with reduced motion: no animation, the side changes at the tap', async ({ 
 //    the run; the same fault twice in five is a LATE FRAMES warning.
 // 6. The reveal's work: the median work per frame over every reveal's frames (from three frames after the moment to
 //    the reveal's end), pooled across the eleven animations, over WORK_LIMIT; or either kind's own median over its
-//    WORK_LIMIT_OF. The limit is in milliseconds of this
+//    WORK_LIMIT_OF (each kind's: a SLOW KIND warning, not a failure). The limit is in milliseconds of this
 //    machine (the e2e container): it sits between the build before the 1.15 speed fix and the build after it.
 test.describe('mode switch speed', { tag: '@speed' }, () => {
   /** Over this share of the machine's CPU in use during an idle control, the machine is busy. */
@@ -1108,7 +1108,6 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
     const slowKinds = (['pump', 'drop'] as const).filter((k) => !(median(workOf[k]!) <= WORK_LIMIT_OF[k]))
     const failing = [
       ...(work > WORK_LIMIT ? [`the reveal's work ${work.toFixed(2)} ms a frame`] : []),
-      ...slowKinds.map((k) => `the ${k}'s reveal work ${median(workOf[k]!).toFixed(2)} ms a frame`),
     ]
     // When the app's checks fail: was the CPU the animation needed taken by something else?
     const busyDuring = failing.length === 0 ? [] : runs.filter((r) => r.anim.cpu != null && (r.anim.cpu.other > OTHER_CPU || r.anim.cpu.steal > STEAL_CPU)).map((r) => `${r.name}: ${cpuSaid(r.anim.cpu)}`)
@@ -1135,10 +1134,14 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
       test.info().annotations.push({ type: 'warning', description: said2 })
     }
     expect(work, `THE REVEAL'S FRAMES ARE SLOW: the median work per frame over every reveal is ${work.toFixed(2)} ms, over ${WORK_LIMIT} ms (${said})`).toBeLessThanOrEqual(WORK_LIMIT)
-    expect(
-      slowKinds.map((k) => `the ${k}: ${median(workOf[k]!).toFixed(2)} ms over ${workOf[k]!.length} frames, limit ${WORK_LIMIT_OF[k]} ms`),
-      `THE REVEAL'S FRAMES ARE SLOW, in one kind: the median work per frame over that kind's reveals is over its limit (${said})`,
-    ).toEqual([])
+    // Each kind's own limit is reported, not failed (the owner's call for 1.15): the drop's median rests on about 34
+    // frames a run, and on the fixed build it once read 6.30 against 5.5 on a quiet machine. The pooled limit above
+    // stays hard. Follow-up: give the drop a bigger sample and set its limit again.
+    if (slowKinds.length > 0) {
+      const slow = `SLOW KIND (warning): ${slowKinds.map((k) => `the ${k}: ${median(workOf[k]!).toFixed(2)} ms over ${workOf[k]!.length} frames, limit ${WORK_LIMIT_OF[k]} ms`).join('; ')}`
+      console.warn(`\n!!! ${slow} !!!\n`)
+      test.info().annotations.push({ type: 'warning', description: slow })
+    }
     // The app passed: noise in the idle controls is said, loudly, and the run passes.
     if (busy.length > 0) {
       const noise = `MACHINE NOISE (warning): the app's checks all passed, but the idle controls were not clean: ${busy.join('; ')}. Their CPU: ${runs.map((r) => `${r.name} ${cpuSaid(r.idle.cpu)}`).join('; ')}`
