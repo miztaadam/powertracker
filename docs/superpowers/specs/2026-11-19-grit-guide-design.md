@@ -34,7 +34,7 @@
 - **Video, Lottie or images.** Everything is drawn in code, as for the mode-switch animations.
 
 ## Anti-goals (a failure even if it works)
-- **Touching the lifter's data.** The sample lifter lives only inside the guide's drawings. Nothing is written to the database, the backup or the coach. Replaying the guide changes nothing.
+- **Touching the lifter's data.** The sample lifter lives only inside the guide's drawings. Nothing is written to the database, the backup or the coach. The one exception is screen 2's side choice on a new install, which sets the real training side. Replaying the guide changes nothing.
 - **Claims the coach doesn't make:** every number or rule in the text matches the code. The only exception is the sample lifter's progress, which is clearly an example ("for example").
 - **A trap:**
   - Skip is on every screen;
@@ -47,6 +47,8 @@
 1. **Welcome.** What Grit is: two sides, one log, and a coach that adjusts from what you actually lift.
 2. **Pick your side.**
    - Powerlifting or bodybuilding, animated with a small version of the hammer and the pump from 1.15.
+   - **On a new install it really picks the side** (owner, 2026-11-19, option A): two buttons, **Powerlifting** and **Bodybuilding**, set the real training side, the same setting as the Settings switch, with no animation. On a replay it just shows the side the lifter is on.
+   - **Screens 5 to 8 then describe that side:** its coach rules, its kind of progress and its templates. For example, swap suggestions and check-ins appear only on bodybuilding, and stall and weak-point advice only on powerlifting.
    - You can switch any time in Settings.
 3. **Your plan.** Templates by days a week, the weekday picker, and Swap, shown filling in a sample week.
 4. **Today.** Logging a set: the weight, the reps, the effort (RPE) and the tick, shown in motion. Then **Skip today**, and why telling the app matters.
