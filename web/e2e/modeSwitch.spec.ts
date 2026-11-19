@@ -346,7 +346,7 @@ test.describe('with motion on', () => {
     test(`the ${kind}'s reveal: <html> is not written each frame, and its update measures nothing`, async ({ page }) => {
       await page.addInitScript(() => {
         const w = window as Window & { __pin?: { starts: number; updates: number; rects: number; inUpdate: boolean; mutations: string[]; revealing: boolean } }
-        const pin = (w.__pin = { starts: 0, updates: 0, rects: 0, inUpdate: false, mutations: [] as string[], revealing: false })
+        const pin = (w.__pin = { starts: 0, updates: 0, rects: 0, inUpdate: false as boolean, mutations: [] as string[], revealing: false })
         const rawRect = Element.prototype.getBoundingClientRect
         Element.prototype.getBoundingClientRect = function (this: Element) {
           if (pin.inUpdate) pin.rects++
@@ -418,7 +418,132 @@ test.describe('with motion on', () => {
       expect.soft(after.mutations - before.mutations, `<html>'s attributes written over the whole ${kind} (${after.names.slice(before.mutations).join(', ')})`).toBeLessThanOrEqual(16)
     })
   }
+
+  test('a reveal cut short leaves nothing behind: no animation on its pictures, no class, no transform', async ({ page }) => {
+    await openSettings(page)
+    await hold(page)
+    await settled(page, 'at the start')
+    // A pump cut short by a tap, once the old side's picture is moving.
+    await flip(page, 'BODYBUILDING')
+    await page.clock.runFor(THIRD)
+    await untilOldSideMoves(page, 'the pump')
+    const title = (await page.locator('.gr-screen-title').first().boundingBox())!
+    await page.mouse.click(title.x + 4, title.y + title.height / 2)
+    expect(await dataMode(page)).toBe('bodybuilding')
+    await settled(page, 'the pump, cut short by a tap')
+    await page.clock.runFor(PUMP.end + 100)
+    await settled(page, 'the pump, cut short by a tap, later')
+    // A drop cut short by the next switch, once the old side's picture is moving.
+    await flip(page, 'POWERLIFTING')
+    await page.clock.runFor(DROP.impact)
+    await untilOldSideMoves(page, 'the drop')
+    await flip(page, 'BODYBUILDING')
+    await page.clock.runFor(FRAME)
+    // The pump that follows has started (its own reveal comes at its third beat); nothing of the drop's is left.
+    expect(await page.evaluate(() => document.documentElement.classList.contains('ms-pumping')), 'the pump has started').toBe(true)
+    expect(await revealLeft(page), 'the drop, cut short by the next switch').toEqual({ classes: [], pictures: [] })
+    await page.clock.runFor(PUMP.end + 100)
+    expect(await dataMode(page)).toBe('bodybuilding')
+    await settled(page, 'the drop, cut short by the next switch, and the pump after it')
+    // The next switch, left to run: it reveals as a first one does, and leaves nothing either, its finished circle included.
+    await flip(page, 'POWERLIFTING')
+    await page.clock.runFor(DROP.impact)
+    await untilOldSideMoves(page, 'the drop after')
+    await page.clock.runFor(DROP.end)
+    expect(await dataMode(page)).toBeNull()
+    expect(await drawn(page)).toBe(0)
+    await settled(page, 'a drop run to its end')
+  })
+
+  // Where `animate` cannot hold an animation on a view transition's pseudo-element (it throws, or it ignores the
+  // pseudo-element and would move <html> itself), the switch still completes: without the old side's moving picture,
+  // or, without the circle, the new side at once.
+  for (const [side, how] of [
+    ['old', 'throws'],
+    ['old', 'ignores the pseudo-element'],
+    ['new', 'throws'],
+    ['new', 'ignores the pseudo-element'],
+  ] as const) {
+    test(`where animate ${how} for the ${side} side's picture, the switch completes and leaves nothing moved`, async ({ page }) => {
+      const errors: string[] = []
+      page.on('pageerror', (e) => errors.push(e.message))
+      await page.addInitScript(
+        ([pseudo, throws]) => {
+          const w = window as Window & { __stubbed?: number }
+          w.__stubbed = 0
+          const raw = Element.prototype.animate
+          Element.prototype.animate = function (this: Element, keyframes: Keyframe[] | PropertyIndexedKeyframes | null, options?: number | KeyframeAnimationOptions) {
+            if (typeof options === 'object' && options.pseudoElement === pseudo) {
+              w.__stubbed!++
+              if (throws) throw new DOMException('Not supported', 'NotSupportedError')
+              const { pseudoElement: _, ...rest } = options
+              return raw.call(this, keyframes, rest)
+            }
+            return raw.call(this, keyframes, options)
+          }
+        },
+        [`::view-transition-${side}(root)`, how === 'throws'] as const,
+      )
+      await openSettings(page)
+      await hold(page)
+      await flip(page, 'BODYBUILDING')
+      // Frame by frame through the moment and the reveal: <html> itself is never animated, and the shell moves only by
+      // the swell's own transform.
+      let at = 0
+      while (at < PUMP.end + 100) {
+        await page.clock.runFor(FRAME * 4)
+        at += FRAME * 4
+        expect(await page.evaluate(() => document.getAnimations().filter((a) => (a.effect as KeyframeEffect | null)?.target === document.documentElement && (a.effect as KeyframeEffect).pseudoElement == null).length), `animations on <html> itself at ${at} ms`).toBe(0)
+      }
+      expect(await page.evaluate(() => (window as Window & { __stubbed?: number }).__stubbed), 'the stub was asked').toBe(1)
+      expect(await dataMode(page)).toBe('bodybuilding')
+      expect(await storedMode(page)).toBe('BODYBUILDING')
+      expect(await drawn(page)).toBe(0)
+      await settled(page, 'after the switch')
+      expect(await page.evaluate(() => getComputedStyle(document.documentElement).transform)).toBe('none')
+      expect(errors).toEqual([])
+      // And the next switch works the same way.
+      await flip(page, 'POWERLIFTING')
+      await page.clock.runFor(DROP.end + 100)
+      expect(await dataMode(page)).toBeNull()
+      await settled(page, 'after the next switch')
+      expect(errors).toEqual([])
+    })
+  }
 })
+
+/** What a reveal has left: the overlay's classes on <html>, and any animation on a view transition's pseudo-element. */
+const revealLeft = (page: Page) =>
+  page.evaluate(() => ({
+    classes: [...document.documentElement.classList].filter((c) => c.startsWith('ms-revealing')),
+    pictures: document
+      .getAnimations()
+      .map((a) => ({ a, pseudo: (a.effect as KeyframeEffect | null)?.pseudoElement ?? '' }))
+      .filter(({ pseudo }) => pseudo.startsWith('::view-transition'))
+      .map(({ a, pseudo }) => `${pseudo} ${a.playState}`),
+  }))
+
+/** Nothing of a switch is left: no reveal, no class of the overlay's, the shell and <html> not transformed. */
+async function settled(page: Page, when: string) {
+  expect(await revealLeft(page), when).toEqual({ classes: [], pictures: [] })
+  expect(await page.evaluate(() => [...document.documentElement.classList].filter((c) => c.startsWith('ms-'))), `${when}: the overlay's classes`).toEqual([])
+  expect(await page.locator('.shell').evaluate((el) => (el as HTMLElement).style.transform), `${when}: the shell's transform`).toBe('')
+  expect(await page.locator('.shell').evaluate((el) => getComputedStyle(el).transform), `${when}: the shell's transform`).toBe('none')
+}
+
+/** Steps the held clock a frame at a time until the old side's picture has its moving animation. */
+async function untilOldSideMoves(page: Page, what: string) {
+  await expect
+    .poll(
+      async () => {
+        const moving = await page.evaluate(() => document.getAnimations().some((a) => (a.effect as KeyframeEffect | null)?.pseudoElement === '::view-transition-old(root)'))
+        if (!moving) await page.clock.runFor(FRAME)
+        return moving
+      },
+      { message: `${what}: the old side's picture moves`, intervals: [0] },
+    )
+    .toBe(true)
+}
 
 test('the service worker keeps both sounds, in both formats, for offline', async ({ page }) => {
   await page.goto('/#/settings')

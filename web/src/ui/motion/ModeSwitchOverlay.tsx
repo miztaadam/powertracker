@@ -119,7 +119,10 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
   let settling = false
   // The reveal.
   let transition: ViewTransition | null = null
+  /** The new side's circle, while it still grows. */
   let clip: Animation | null = null
+  /** The same animation, kept once finished too, so the reveal's end cancels it (a finished one would stay on <html>). */
+  let clipHeld: Animation | null = null
   /**
    * The old side's picture moves with the content: a held animation on its own pseudo-element, whose one value is
    * changed each frame, so only the picture is restyled (a custom property on <html> restyled the whole page).
@@ -687,6 +690,8 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
     const running = transition
     transition = null
     clip = null
+    clipHeld?.cancel()
+    clipHeld = null
     oldMove?.cancel()
     oldMove = null
     oldTransform = 'none'
@@ -701,6 +706,23 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
     root.classList.remove('ms-revealing')
     root.style.removeProperty('--ms-x')
     root.style.removeProperty('--ms-y')
+  }
+
+  /**
+   * An animation on one of the reveal's pseudo-elements, or null where the browser cannot hold one there: if `animate`
+   * throws for it, or ignores the pseudo-element and would animate <html> itself (then it is cancelled at once, before
+   * a frame is drawn).
+   */
+  function onPseudo(keyframes: Keyframe[] | PropertyIndexedKeyframes, options: KeyframeAnimationOptions & { pseudoElement: string }): Animation | null {
+    let animation: Animation
+    try {
+      animation = root.animate(keyframes, options)
+    } catch {
+      return null
+    }
+    if ((animation.effect as KeyframeEffect | null)?.pseudoElement === options.pseudoElement) return animation
+    animation.cancel()
+    return null
   }
 
   /**
@@ -776,7 +798,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
           moveContent(wanted)
           if (full) return
           const at = `at ${center.x}px ${center.y}px`
-          clip = root.animate(
+          clip = onPseudo(
             {
               clipPath: [`circle(0px ${at})`, `circle(${REVEAL_MAX}px ${at})`],
             },
@@ -787,13 +809,17 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
               pseudoElement: '::view-transition-new(root)',
             },
           )
+          // No circle: the new side is put on at once, as a switch with no reveal (the animation's effects play on).
+          if (clip == null) return endReveal()
+          clipHeld = clip
           clip.pause()
-          oldMove = root.animate([{ transform: oldTransform }, { transform: oldTransform }], {
+          // No moving picture of the old side: the reveal runs with the old side still.
+          oldMove = onPseudo([{ transform: oldTransform }, { transform: oldTransform }], {
             duration: 1,
             fill: 'both',
             pseudoElement: '::view-transition-old(root)',
           })
-          oldMove.pause()
+          oldMove?.pause()
           moveClip()
         })
         .catch(() => {})
