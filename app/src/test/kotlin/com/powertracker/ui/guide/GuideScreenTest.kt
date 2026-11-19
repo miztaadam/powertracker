@@ -35,6 +35,7 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.onNodeWithText
 import com.powertracker.domain.guide.Guide
+import com.powertracker.domain.guide.GuideFrame
 import com.powertracker.domain.guide.GuideSample
 import com.powertracker.domain.guide.GuideScreenId
 import com.powertracker.domain.guide.GuideStep
@@ -124,6 +125,12 @@ class GuideScreenTest {
 
     private fun pictureStep(): GuideStep? = compose.onNodeWithTag("guide-picture").fetchSemanticsNode().config.getOrNull(GuidePictureStep)
 
+    /** The step screen 4's picture shows, when more than one page is composed (during a drag). */
+    private fun todayStep(): GuideStep? = compose.onAllNodes(hasTestTag("guide-picture")).fetchSemanticsNodes()
+        .mapNotNull { it.config.getOrNull(GuidePictureStep) }.singleOrNull { it in Guide.steps(GuideScreenId.TODAY, TrainingMode.POWERLIFTING) }
+
+    private fun pictureFrame(): GuideFrame = compose.onNodeWithTag("guide-picture").fetchSemanticsNode().config[GuidePictureFrame]
+
     @Test
     fun guide_showsEightDots_andMovesWithNextBackAndSwipe() {
         show()
@@ -188,7 +195,7 @@ class GuideScreenTest {
             assertEquals(GuideStep.TODAY_EMPTY, pictureStep())
             var before: IntArray? = null
             for ((i, step) in steps.withIndex()) {
-                clock.held = i
+                clock.holdStep(i)
                 compose.waitForIdle()
                 assertEquals("$mode step $i", step, pictureStep())
                 // Each step draws something new in the guide's own picture (what it draws is pinned below, step by step).
@@ -364,16 +371,21 @@ class GuideScreenTest {
     }
 
     @Test
-    fun guide_realClock_advancesOneStepEveryStepMs() {
+    fun guide_realClock_movesThenHoldsEachStep_andHoldsTheLast() {
         compose.mainClock.autoAdvance = false
         show(clock = TickingGuideClock, startAt = GuideScreenId.TODAY)
         compose.mainClock.advanceTimeByFrame()
         val steps = Guide.steps(GuideScreenId.TODAY, TrainingMode.POWERLIFTING)
         assertEquals(steps[0], pictureStep())
-        compose.mainClock.advanceTimeBy(Guide.STEP_MS.toLong())
-        assertEquals(steps[1], pictureStep())
-        compose.mainClock.advanceTimeBy(Guide.STEP_MS * 10L)
-        assertEquals("it holds on the last step", steps.last(), pictureStep())
+        // Into step 2's move: past its start, before it settles.
+        compose.mainClock.advanceTimeBy(Guide.stepStartMs(1) + Guide.MOVE_MS / 2L)
+        val moving = pictureFrame()
+        assertEquals(1, moving.stepIndex)
+        assertTrue("mid-move: ${moving.progress}", moving.progress > 0.0 && moving.progress < 1.0)
+        compose.mainClock.advanceTimeBy(Guide.MOVE_MS.toLong())
+        assertEquals(GuideFrame(1, steps[1], 1.0, false), pictureFrame())
+        compose.mainClock.advanceTimeBy(Guide.doneMs(steps.size) * 2L)
+        assertEquals("it holds on the last step", GuideFrame(steps.lastIndex, steps.last(), 1.0, true), pictureFrame())
     }
 
     @Test
@@ -478,5 +490,213 @@ class GuideScreenTest {
         }
         assertOn(GuideScreenId.TODAY)
         assertTrue(GuideSample.reads > before)
+    }
+
+    // ---- the picture moves (Task 2b) ----
+
+    private fun stepIndex(step: GuideStep, mode: TrainingMode = TrainingMode.POWERLIFTING) = Guide.steps(GuideScreenId.TODAY, mode).indexOf(step)
+
+    /** Mid-move the clock's time reaches the picture as a progress between 0 and 1, and the editor draws the domain's in-between weight. */
+    @Test
+    @Config(qualifiers = "w412dp-h2000dp-xhdpi")
+    fun guide_today_numbersRollThroughInBetweenValues() {
+        for (mode in TrainingMode.entries) {
+            val weight = stepIndex(GuideStep.TODAY_WEIGHT, mode)
+            val clock = HeldGuideClock(Guide.stepStartMs(weight) + Guide.MOVE_MS / 2)
+            show(mode, clock = clock, startAt = GuideScreenId.TODAY)
+            val frame = pictureFrame()
+            assertEquals(GuideStep.TODAY_WEIGHT, frame.step)
+            assertTrue("$mode: ${frame.progress}", frame.progress > 0.0 && frame.progress < 1.0)
+            assertEquals(Guide.frame(GuideScreenId.TODAY, mode, clock.heldMs), frame)
+        }
+    }
+
+    /** What a move's progress draws: the real editor field shows the in-between weight, strictly between empty and the set's. */
+    @Test
+    @Config(qualifiers = "w412dp-h2000dp-xhdpi")
+    fun guide_today_numbersRollThroughInBetweenValues_asDrawn() {
+        var progress by mutableStateOf(0.5)
+        var side by mutableStateOf(TrainingMode.POWERLIFTING)
+        compose.setContent {
+            key(side) {
+                PowertrackerTheme(mode = side) {
+                    Box(Modifier.requiredSize(PHONE_WIDTH, TALL)) { TodayPicture(side, GuideStep.TODAY_WEIGHT, progress) }
+                }
+            }
+        }
+        for (m in TrainingMode.entries) {
+            side = m
+            for (p in listOf(0.25, 0.5, 0.75)) {
+                progress = p
+                compose.waitForIdle()
+                val kg = GuideSample.todayEditor(m, GuideStep.TODAY_WEIGHT, p).weightKg!!
+                assertTrue("$m at $p: $kg kg", kg > 0.0 && kg < GuideSample.today(m).doneWeightKg)
+                assertEquals("$m at $p", formatKg(kg), drawnEditor().first)
+            }
+        }
+    }
+
+    /** Between the end of a move and the next step's start the picture is not composed at all: the clock is idle. */
+    @Test
+    fun guide_whileAStepHolds_nothingRenders() {
+        compose.mainClock.autoAdvance = false
+        show(clock = TickingGuideClock, startAt = GuideScreenId.TODAY)
+        compose.mainClock.advanceTimeByFrame()
+        // A frame's slack either side of the clock's own start.
+        val slack = 50L
+        compose.mainClock.advanceTimeBy(Guide.settledMs(1) + slack)
+        assertEquals(GuideFrame(1, Guide.steps(GuideScreenId.TODAY, TrainingMode.POWERLIFTING)[1], 1.0, false), pictureFrame())
+        val held = guidePictureCompositions
+        compose.mainClock.advanceTimeBy(Guide.stepStartMs(2) - Guide.settledMs(1) - 2 * slack)
+        assertEquals("composed while the step held", held, guidePictureCompositions)
+        // And it does compose while a step moves: one per frame.
+        compose.mainClock.advanceTimeBy(2 * slack + Guide.MOVE_MS / 2L)
+        assertTrue("a move draws frames", guidePictureCompositions > held + 3)
+    }
+
+    /**
+     * A drag that starts on screen 4 pauses its picture where it is (it used to snap back to the first step, and so play
+     * backwards); coming back to the page later starts it afresh at its first step, with nothing moving backwards.
+     */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun guide_replayOrPageReturn_restartsWithoutPlayingBackwards() {
+        show(clock = TickingGuideClock, startAt = GuideScreenId.TODAY)
+        compose.mainClock.advanceTimeBy(Guide.doneMs(Guide.steps(GuideScreenId.TODAY, TrainingMode.POWERLIFTING).size) + 500L)
+        assertEquals(GuideStep.TODAY_SKIP, todayStep())
+        compose.mainClock.autoAdvance = false
+        // A drag held part-way: the pager is scrolling, so the clock stands still, on the last step.
+        compose.onNodeWithTag("guide-pages").performTouchInput {
+            down(center)
+            moveBy(androidx.compose.ui.geometry.Offset(-width / 6f, 0f))
+        }
+        repeat(10) { compose.mainClock.advanceTimeByFrame() }
+        assertEquals("a drag leaves the picture where it was", GuideStep.TODAY_SKIP, todayStep())
+        compose.onNodeWithTag("guide-pages").performTouchInput { up() }
+        compose.mainClock.autoAdvance = true
+        compose.waitForIdle()
+        assertOn(GuideScreenId.TODAY)
+        assertEquals(GuideStep.TODAY_SKIP, todayStep())
+        // To screen 5 and back: screen 4 shows its first step at once, and stays still on it.
+        compose.onNodeWithTag("guide-next").performClick()
+        compose.waitForIdle()
+        assertOn(GuideScreenId.TARGETS)
+        compose.onNodeWithTag("guide-back").performClick()
+        compose.mainClock.autoAdvance = false
+        var frames = 0
+        while (compose.onAllNodes(hasTestTag("guide-title") and hasText(title(GuideScreenId.TODAY))).fetchSemanticsNodes().isEmpty() && frames++ < 120) {
+            compose.mainClock.advanceTimeByFrame()
+        }
+        repeat(30) { compose.mainClock.advanceTimeByFrame() }
+        assertOn(GuideScreenId.TODAY)
+        assertEquals(GuideStep.TODAY_EMPTY, todayStep())
+        val first = drawnPixels()
+        repeat(5) { compose.mainClock.advanceTimeByFrame() }
+        assertTrue("nothing moves on the first step", first.contentEquals(drawnPixels()))
+        assertEquals(GuideStep.TODAY_EMPTY, todayStep())
+    }
+
+    /** A lifecycle the test moves by hand. */
+    private class TestLifecycle : androidx.lifecycle.LifecycleOwner {
+        val registry = androidx.lifecycle.LifecycleRegistry.createUnsafe(this).apply { currentState = androidx.lifecycle.Lifecycle.State.RESUMED }
+        override val lifecycle: androidx.lifecycle.Lifecycle get() = registry
+    }
+
+    /** While the guide is not on screen (stopped) its clock stands still; started again, it goes on from where it was. */
+    @Test
+    fun guide_clockStops_whenHiddenOrUnmounted() {
+        val owner = TestLifecycle()
+        var on by mutableStateOf(true)
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            CompositionLocalProvider(LocalMotion provides true, androidx.lifecycle.compose.LocalLifecycleOwner provides owner) {
+                PowertrackerTheme(mode = TrainingMode.POWERLIFTING, darkTheme = true) {
+                    if (on) {
+                        GuideScreen(
+                            TrainingMode.POWERLIFTING, firstLaunch = false, hasPlan = false, motionOn = true,
+                            onPickSide = {}, onClose = {}, clock = TickingGuideClock, startAt = GuideScreenId.TODAY,
+                        )
+                    }
+                }
+            }
+        }
+        compose.mainClock.advanceTimeByFrame()
+        compose.mainClock.advanceTimeBy(Guide.settledMs(1) + 50L)
+        assertEquals(1, pictureFrame().stepIndex)
+        compose.runOnIdle { owner.registry.currentState = androidx.lifecycle.Lifecycle.State.CREATED }
+        compose.mainClock.advanceTimeBy(Guide.STEP_MS * 10L)
+        assertEquals("stopped: it stands still", GuideFrame(1, GuideStep.TODAY_WEIGHT, 1.0, false), pictureFrame())
+        val stopped = guidePictureCompositions
+        compose.runOnIdle { owner.registry.currentState = androidx.lifecycle.Lifecycle.State.RESUMED }
+        compose.mainClock.advanceTimeBy(Guide.stepStartMs(2) - Guide.settledMs(1) + Guide.MOVE_MS + 100L)
+        assertEquals("started again: on from where it was", 2, pictureFrame().stepIndex)
+        assertTrue(guidePictureCompositions > stopped)
+        // Gone: nothing of it is composed again, however long the clock runs.
+        on = false
+        compose.mainClock.advanceTimeByFrame()
+        val gone = guidePictureCompositions
+        compose.mainClock.advanceTimeBy(Guide.STEP_MS * 20L)
+        assertEquals(gone, guidePictureCompositions)
+    }
+
+    /**
+     * The picture is one Today instance through its steps, so the real screen's own motion plays: the frame after the
+     * log step starts, with no fed value changing, the set's block is mid-slide (it differs from both the step before
+     * and the settled step).
+     */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun guide_today_inheritsTheScreensOwnMotion() {
+        val clock = HeldGuideClock()
+        clock.holdStep(stepIndex(GuideStep.TODAY_RPE))
+        show(clock = clock, startAt = GuideScreenId.TODAY)
+        compose.mainClock.advanceTimeBy(1000L)
+        val before = drawnPixels()
+        compose.mainClock.autoAdvance = false
+        // The log step, at its settled time: the editor's values are the step's own from the first frame.
+        compose.runOnUiThread { clock.holdStep(stepIndex(GuideStep.TODAY_TICKED)) }
+        androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+        repeat(3) { compose.mainClock.advanceTimeByFrame() }
+        assertEquals(GuideStep.TODAY_TICKED, pictureStep())
+        val mid = drawnPixels()
+        compose.mainClock.advanceTimeBy(1000L)
+        val settled = drawnPixels()
+        assertTrue("the log step changed nothing", !settled.contentEquals(before))
+        assertTrue("mid-slide on the next frames: the drawn screen is already settled", !mid.contentEquals(settled))
+        assertTrue("mid-slide: the drawn screen has not changed yet", !mid.contentEquals(before))
+    }
+
+    /**
+     * For the owner (GUIDE_FRAMES=<dir>): powerlifting dark, every 80 ms across the log step and the skip step, from one
+     * live composition, the held guide clock and the frame clock moving together.
+     */
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun guide_today_frameStrip() {
+        val dir = System.getenv("GUIDE_FRAMES") ?: return
+        java.io.File(dir).mkdirs()
+        val ticked = stepIndex(GuideStep.TODAY_TICKED)
+        val skip = stepIndex(GuideStep.TODAY_SKIP)
+        val clock = HeldGuideClock()
+        clock.heldMs = Guide.stepStartMs(ticked) - 80
+        show(clock = clock, startAt = GuideScreenId.TODAY)
+        compose.mainClock.advanceTimeBy(1000L)
+        compose.mainClock.autoAdvance = false
+        var t = clock.heldMs
+        var n = 0
+        val end = Guide.settledMs(skip) + 400
+        while (t <= end) {
+            val view = (compose.onRoot().fetchSemanticsNode().root as ViewRootForTest).view
+            val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+            view.draw(Canvas(bitmap))
+            java.io.File(dir, "android-today-powerlifting-dark-%02d-%05dms-%s.png".format(n++, t, pictureStep()!!.name.lowercase())).outputStream().use {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+            }
+            // The steps between the two are skipped over: from the log step's settling to the skip step's start.
+            t = if (t in Guide.settledMs(ticked) + 400 until Guide.stepStartMs(skip) - 80) Guide.stepStartMs(skip) - 80 else t + 80
+            compose.runOnUiThread { clock.heldMs = t }
+            androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+            compose.mainClock.advanceTimeBy(80L)
+        }
     }
 }

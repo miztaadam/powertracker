@@ -26,8 +26,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,9 +46,12 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.powertracker.domain.guide.Guide
 import com.powertracker.domain.guide.GuideScreenId
-import com.powertracker.domain.guide.GuideStep
+import com.powertracker.domain.guide.GuideFrame
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.components.Pill
 import com.powertracker.ui.components.PrimaryButton
@@ -67,37 +75,68 @@ const val EXAMPLE = "Example"
 /** What the row of dots says: the one screen shown of how many. */
 fun dotsLabel(index: Int, count: Int) = "Screen ${index + 1} of $count"
 
-/** Which step a picture shows. Tests hold it ([HeldGuideClock]); the guide runs on [TickingGuideClock]. */
+/**
+ * A picture's time: how many milliseconds into its steps it is ([Guide.frame] turns that into a step and its move's
+ * progress). Tests hold it ([HeldGuideClock]); the guide runs on [TickingGuideClock].
+ */
 @Stable
 interface GuideClock {
-    /** The step, from 0 to [count] - 1, of a picture that started when [playing] last became true; 0 while not playing. */
+    /**
+     * Milliseconds into a picture of [count] steps, from 0 when this call first composed (a new run of the picture is a
+     * new composition: the guide keys it). While not [playing] it stands still where it is, and it goes on from there.
+     */
     @Composable
-    fun step(count: Int, playing: Boolean): Int
+    fun elapsedMs(count: Int, playing: Boolean): Int
 }
 
-/** One step every [Guide.STEP_MS], from the first, holding on the last. */
+/**
+ * Real time, on the frame clock while a step moves (a new value each frame) and idle while it holds (one timer to the
+ * next step's start, so nothing is drawn); it stops for good once the last step has settled. It stands still while the
+ * guide is not on screen (the lifecycle below STARTED), and goes on from there when it is back.
+ */
 object TickingGuideClock : GuideClock {
     @Composable
-    override fun step(count: Int, playing: Boolean): Int {
-        // Started afresh each time the picture comes on screen, and back at 0 at once when it leaves.
-        var step by remember(count, playing) { mutableIntStateOf(0) }
-        LaunchedEffect(count, playing) {
+    override fun elapsedMs(count: Int, playing: Boolean): Int {
+        var elapsed by remember { mutableIntStateOf(0) }
+        val lifecycle = LocalLifecycleOwner.current.lifecycle
+        LaunchedEffect(count, playing, lifecycle) {
             if (!playing) return@LaunchedEffect
-            while (step < count - 1) {
-                delay(Guide.STEP_MS.toLong())
-                step++
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val done = Guide.doneMs(count)
+                while (elapsed < done) {
+                    val index = (count - 1 downTo 0).first { Guide.stepStartMs(it) <= elapsed }
+                    val settled = Guide.settledMs(index)
+                    if (elapsed < settled) {
+                        // A move: one value a frame, from where it stands.
+                        val base = withFrameMillis { it } - elapsed
+                        while (elapsed < settled) {
+                            val now = withFrameMillis { it }
+                            elapsed = minOf(settled, (now - base).toInt())
+                        }
+                    } else {
+                        // A hold: nothing changes until the next step starts.
+                        val next = Guide.stepStartMs(index + 1)
+                        delay((next - elapsed).toLong())
+                        elapsed = next
+                    }
+                }
             }
         }
-        return step
+        return elapsed
     }
 }
 
-/** A clock a test moves by hand: every picture shows step [held] (within its own steps). */
-class HeldGuideClock(held: Int = 0) : GuideClock {
-    var held by mutableIntStateOf(held)
+/** A clock a test moves by hand: every picture is [heldMs] into its steps (held within them). */
+class HeldGuideClock(heldMs: Int = 0) : GuideClock {
+    var heldMs by mutableIntStateOf(heldMs)
+
+    /** Holds every picture at step [index], settled. */
+    fun holdStep(index: Int) {
+        heldMs = Guide.settledMs(index)
+    }
 
     @Composable
-    override fun step(count: Int, playing: Boolean): Int = held.coerceIn(0, count - 1)
+    override fun elapsedMs(count: Int, playing: Boolean): Int = heldMs.coerceIn(0, Guide.doneMs(count))
 }
 
 @Composable
@@ -132,6 +171,19 @@ fun GuideScreen(
         scope.launch { if (motionOn) pager.animateScrollToPage(page) else pager.scrollToPage(page) }
     }
 
+    // Each time a page becomes the one settled on, its picture starts a new run: built afresh at its first step, so it
+    // never plays backwards from where it was left. Pausing (a drag) is not a new run.
+    var runs by remember { mutableStateOf(emptyMap<Int, Int>()) }
+    LaunchedEffect(pager) {
+        var settled = pager.settledPage
+        snapshotFlow { pager.settledPage }.collect { page ->
+            if (page != settled) {
+                settled = page
+                runs = runs + (page to (runs[page] ?: 0) + 1)
+            }
+        }
+    }
+
     val current = pager.currentPage
     val last = current == screens.lastIndex
     // The guide is a pane titled with the screen shown: a page change is a new title, which a screen reader reads out.
@@ -150,10 +202,14 @@ fun GuideScreen(
         HorizontalPager(pager, Modifier.weight(1f).fillMaxWidth().testTag("guide-pages")) { page ->
             val id = screens[page]
             val steps = remember(id, mode) { Guide.steps(id, mode) }
-            val playing = motionOn && page == pager.currentPage && !pager.isScrollInProgress
-            val ticked = clock.step(steps.size, playing)
-            val step = if (motionOn) ticked else steps.lastIndex
-            GuidePage(id, mode, current = page == current, step = steps.getOrNull(step))
+            key(runs[page] ?: 0) {
+                val playing = motionOn && page == pager.currentPage && !pager.isScrollInProgress
+                val elapsed = clock.elapsedMs(steps.size, playing)
+                SideEffect { guidePictureCompositions++ }
+                // With motion off: the last step, still.
+                val frame = Guide.frame(steps, if (motionOn) elapsed else Guide.doneMs(steps.size))
+                GuidePage(id, mode, current = page == current, frame = frame)
+            }
         }
         Dots(current, screens.size, Modifier.align(Alignment.CenterHorizontally).padding(vertical = Space.m))
         Row(
@@ -178,7 +234,7 @@ fun GuideScreen(
 
 /** One screen: its title and lines from the domain, then its picture, which shrinks to leave the text its room. */
 @Composable
-private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, step: GuideStep?) {
+private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, frame: GuideFrame) {
     val screen = remember(id, mode) { Guide.screen(id, mode) }
     BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = Space.gutter)) {
         val textRoom = maxHeight * 0.6f
@@ -202,7 +258,7 @@ private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, s
             ) {
                 // The label sits above the picture, outside its single description.
                 if (screen.example) Pill(EXAMPLE, if (current) Modifier.testTag("guide-example") else Modifier)
-                GuidePicture(id, mode, step, Modifier.weight(1f, fill = false))
+                GuidePicture(id, mode, frame, Modifier.weight(1f, fill = false))
             }
         }
     }

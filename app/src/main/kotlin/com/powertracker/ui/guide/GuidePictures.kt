@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.powertracker.domain.guide.GuideFrame
+import com.powertracker.domain.guide.GuideSample
 import com.powertracker.domain.guide.GuideScreenId
 import com.powertracker.domain.guide.GuideStep
 import com.powertracker.domain.model.TrainingMode
@@ -64,6 +66,17 @@ fun pictureDescription(id: GuideScreenId): String = PICTURE_DESCRIPTIONS.getValu
 val GuidePictureStep = SemanticsPropertyKey<GuideStep>("GuidePictureStep")
 private var SemanticsPropertyReceiver.guidePictureStep by GuidePictureStep
 
+/** Where in its steps a picture is (its step and the move's progress), for tests. */
+val GuidePictureFrame = SemanticsPropertyKey<GuideFrame>("GuidePictureFrame")
+private var SemanticsPropertyReceiver.guidePictureFrame by GuidePictureFrame
+
+/**
+ * How many times a picture has been composed with its clock read (each frame of a move is one), for tests: while a
+ * step holds, none is.
+ */
+var guidePictureCompositions: Int = 0
+    internal set
+
 /** Every drag and tap on the picture stops here, unconsumed: the screen drawn under it gets none, the pager still swipes. */
 private val NoTouches = Modifier.pointerInput(Unit) {
     awaitPointerEventScope {
@@ -77,9 +90,10 @@ private val NoTouches = Modifier.pointerInput(Unit) {
  * reader. Screens whose picture isn't built yet show the empty frame.
  */
 @Composable
-internal fun GuidePicture(id: GuideScreenId, mode: TrainingMode, step: GuideStep?, modifier: Modifier = Modifier) {
+internal fun GuidePicture(id: GuideScreenId, mode: TrainingMode, frame: GuideFrame?, modifier: Modifier = Modifier) {
     val shape = MaterialTheme.shapes.large
     val description = PICTURE_DESCRIPTIONS[id]
+    val step = frame?.step
     val drawn = id == GuideScreenId.TODAY && step != null
     Box(
         modifier
@@ -91,19 +105,27 @@ internal fun GuidePicture(id: GuideScreenId, mode: TrainingMode, step: GuideStep
             .clearAndSetSemantics {
                 testTag = "guide-picture"
                 if (description != null) contentDescription = description
-                if (step != null) guidePictureStep = step
+                if (frame != null) {
+                    guidePictureStep = frame.step
+                    guidePictureFrame = frame
+                }
             },
         contentAlignment = Alignment.Center,
     ) {
-        if (drawn) Phone(PHONE_HEIGHT) { TodayPicture(mode, step) }
+        if (drawn) Phone(PHONE_HEIGHT) { TodayPicture(mode, step!!, frame.progress) }
         Box(Modifier.matchParentSize().then(NoTouches))
     }
 }
 
-/** The Today screen at one step of logging a set (screen 4). */
+/**
+ * The Today screen at one step of logging a set (screen 4), [progress] through the move into it: the lift's editor
+ * shows the domain's in-between values ([GuideSample.todayEditor]). One instance through all the steps, so the real
+ * screen's own motion plays as its state changes (a logged set's block slides open, a skipped row fades out).
+ */
 @Composable
-internal fun TodayPicture(mode: TrainingMode, step: GuideStep) {
-    val state = remember(mode, step) { GuideSampleState.today(mode, step) }
+internal fun TodayPicture(mode: TrainingMode, step: GuideStep, progress: Double = 1.0) {
+    val editor = GuideSample.todayEditor(mode, step, progress)
+    val state = remember(mode, step, editor) { GuideSampleState.today(mode, step, editor) }
     val actions = remember { TodayActions() }
     // The phone's status bar: the screen's header starts below the frame's rounded corner.
     Box(Modifier.fillMaxSize().padding(top = PHONE_STATUS_BAR)) { TodayContent(state, actions) }

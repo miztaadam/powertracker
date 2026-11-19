@@ -2,6 +2,7 @@ package com.powertracker.ui.guide
 
 import com.powertracker.data.StoredSet
 import com.powertracker.domain.guide.Guide
+import com.powertracker.domain.guide.GuideEditor
 import com.powertracker.domain.guide.GuideSample
 import com.powertracker.domain.guide.GuideScreenId
 import com.powertracker.domain.guide.GuideStep
@@ -26,9 +27,10 @@ internal object GuideSampleState {
      * Today on [GuideSample.TODAY], in session, at [step] of screen 4: the sample lift's card with nothing in it, then
      * the weight, the reps and the RPE put in one by one, then the set logged (ticked), then the day's last planned
      * exercise skipped. Each item is built as [com.powertracker.ui.today.TodayViewModel] builds it for a lifter with no
-     * history: no weight yet, the plan's reps and target RPE, the plan's sets, the plates for the weight.
+     * history: no weight yet, the plan's reps and target RPE, the plan's sets, the plates for the weight. The lift's
+     * editor shows [shown]: by default the step's end state, part-way through a move the domain's in-between values.
      */
-    fun today(mode: TrainingMode, step: GuideStep): TodayState {
+    fun today(mode: TrainingMode, step: GuideStep, shown: GuideEditor = GuideSample.todayEditor(mode, step, 1.0)): TodayState {
         val steps = Guide.steps(GuideScreenId.TODAY, mode)
         val at = steps.indexOf(step)
         require(at >= 0) { "$step is not a step of the Today picture" }
@@ -43,11 +45,7 @@ internal object GuideSampleState {
         fun item(plan: PlanItem): TodayItem {
             val lift = plan.exerciseId == liftId
             val editor = if (lift) {
-                SetEditor(
-                    weightKg = if (reached(GuideStep.TODAY_WEIGHT)) sample.doneWeightKg else null,
-                    reps = if (reached(GuideStep.TODAY_REPS)) sample.doneReps else plan.reps,
-                    rpe = if (reached(GuideStep.TODAY_RPE)) sample.doneRpe else plan.targetRpe,
-                )
+                SetEditor(weightKg = shown.weightKg, reps = shown.reps, rpe = shown.rpe)
             } else {
                 SetEditor(null, plan.reps, plan.targetRpe)
             }
