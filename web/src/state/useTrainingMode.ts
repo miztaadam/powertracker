@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { getSettings, type GritDb } from '../db/db'
 import type { TrainingMode } from '../db/schema'
 import { rememberMode, rememberedMode } from '../ui/modeHeadStart'
+import { useShownMode } from '../ui/motion/useModeSwitch'
 import { applyTrainingMode } from '../ui/theme'
 
 /**
@@ -11,6 +12,9 @@ import { applyTrainingMode } from '../ui/theme'
  * remembered at the last visit, the head start public/mode-head-start.js already put on, so a reload does
  * not flash the powerlifting palette. Each read remembers the side for the next visit. Unmounting puts the
  * powerlifting look back.
+ *
+ * What it returns, and puts on, is the side shown: the stored side, except while the mode switch animation holds
+ * the old one until its impact or third beat (ui/motion/useModeSwitch.ts). The setting itself is stored at the tap.
  */
 export function useTrainingMode(db: GritDb | null): TrainingMode {
   const [mode, setMode] = useState<TrainingMode>(rememberedMode)
@@ -26,7 +30,8 @@ export function useTrainingMode(db: GritDb | null): TrainingMode {
     })
     return () => subscription.unsubscribe()
   }, [db])
-  useEffect(() => applyTrainingMode(mode), [mode])
+  const shown = useShownMode(mode)
+  useEffect(() => applyTrainingMode(shown), [shown])
   useEffect(() => () => applyTrainingMode('POWERLIFTING'), [])
-  return mode
+  return shown
 }

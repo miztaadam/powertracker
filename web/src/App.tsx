@@ -36,6 +36,7 @@ import { useTrainingMode } from './state/useTrainingMode'
 import { TrainingModeContext } from './ui/components/ModeLabel'
 import { RestFlash } from './ui/components/RestFlash'
 import { TabBar } from './ui/components/TabBar'
+import { ModeSwitchOverlay } from './ui/motion/ModeSwitchOverlay'
 import { useElementHeight } from './ui/useElementHeight'
 import './ui/shell.css'
 
@@ -138,22 +139,26 @@ function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: 
   // Messages rise by the dock's real height, so they clear its buttons at any text size.
   const dockHeight = useElementHeight(dock, showDock)
   return (
-    <div className="shell" style={{ '--rest-dock-height': `${dockHeight}px` } as CSSProperties}>
-      <main className="shell-main">{screenFor(route, db, { session, browser, planMessage, setPlanMessage })}</main>
-      {showDock && (
-        <div className="shell-rest" ref={dock}>
-          {update.ready && (
-            <button type="button" className="shell-update label-large" onClick={update.refresh}>
-              {UPDATE_READY}
-            </button>
-          )}
-          {showRestBar && <RestBar store={rest.store} />}
-        </div>
-      )}
-      <TabBar current={activeTab} />
-      <RestFlash showId={rest.flashId} />
-      <StorageFullDialog db={db} />
-    </div>
+    <>
+      <div className="shell" style={{ '--rest-dock-height': `${dockHeight}px` } as CSSProperties}>
+        <main className="shell-main">{screenFor(route, db, { session, browser, planMessage, setPlanMessage })}</main>
+        {showDock && (
+          <div className="shell-rest" ref={dock}>
+            {update.ready && (
+              <button type="button" className="shell-update label-large" onClick={update.refresh}>
+                {UPDATE_READY}
+              </button>
+            )}
+            {showRestBar && <RestBar store={rest.store} />}
+          </div>
+        )}
+        <TabBar current={activeTab} />
+        <RestFlash showId={rest.flashId} />
+        <StorageFullDialog db={db} />
+      </div>
+      {/* The mode switch animations (1.15), over the whole app; empty at rest. */}
+      <ModeSwitchOverlay />
+    </>
   )
 }
 
