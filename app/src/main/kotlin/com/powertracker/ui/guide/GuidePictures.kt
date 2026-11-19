@@ -47,9 +47,10 @@ internal val PHONE_WIDTH = 412.dp
 private val PHONE_STATUS_BAR = 24.dp
 
 /**
- * The phone's height for [mode]'s Today picture: tall enough for that side's sample day, so its last step shows the
- * ticked set and the "Skipped today" line at the foot of the list. The mockups' 915 dp holds powerlifting's four
- * exercises; bodybuilding's Monday has seven, so its phone is taller, and drawn smaller.
+ * The phone's height for [mode]'s Today picture: tall enough for that side's screen-4 day
+ * ([com.powertracker.domain.guide.GuideSample.todayItems]), so its last step shows the ticked set and the "Skipped today"
+ * line at the foot of the list. The mockups' 915 dp holds powerlifting's; bodybuilding's lift card is taller (its
+ * stretch and squeeze cues), so its phone is taller, and drawn smaller. One height for both sides is the owner's call.
  */
 internal fun phoneHeight(mode: TrainingMode): Dp = when (mode) {
     TrainingMode.POWERLIFTING -> 915.dp

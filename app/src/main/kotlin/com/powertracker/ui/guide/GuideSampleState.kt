@@ -36,7 +36,8 @@ internal object GuideSampleState {
 
         val sample = GuideSample.today(mode)
         val exercises = GuideSample.exercises(mode)
-        val planned = GuideSample.plan(mode).filter { it.weekday == sample.date.dayOfWeek }.sortedBy { it.order }
+        // Screen 4's day: the domain's few first items of the sample day, short enough to read on one phone.
+        val planned = GuideSample.todayItems(mode)
         val liftId = exercises.values.first { it.name == sample.exerciseId }.id
 
         fun item(plan: PlanItem): TodayItem {

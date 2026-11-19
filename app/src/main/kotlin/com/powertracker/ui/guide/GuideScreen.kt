@@ -36,9 +36,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.powertracker.domain.guide.Guide
@@ -134,11 +134,14 @@ fun GuideScreen(
 
     val current = pager.currentPage
     val last = current == screens.lastIndex
+    // The guide is a pane titled with the screen shown: a page change is a new title, which a screen reader reads out.
+    val shownTitle = remember(screens[current], mode) { Guide.screen(screens[current], mode).title }
     Column(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
+            .semantics { paneTitle = shownTitle }
             .testTag("guide"),
     ) {
         Row(Modifier.fillMaxWidth().padding(horizontal = Space.s, vertical = Space.xs), horizontalArrangement = Arrangement.End) {
@@ -205,17 +208,20 @@ private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, s
     }
 }
 
-/** A dot per screen, the current one in the side's accent; one description for a screen reader. */
+/**
+ * A dot per screen, the current one in the side's accent; one description for a screen reader (the dots merge into
+ * it, and say nothing of their own: each is only tagged, for tests to count).
+ */
 @Composable
 private fun Dots(current: Int, count: Int, modifier: Modifier = Modifier) {
     val pt = PowertrackerTheme.colors
     val label = dotsLabel(current, count)
     Row(
-        modifier.testTag("guide-dots").clearAndSetSemantics { contentDescription = label },
+        modifier.testTag("guide-dots").semantics(mergeDescendants = true) { contentDescription = label },
         horizontalArrangement = Arrangement.spacedBy(Space.s),
     ) {
         for (i in 0 until count) {
-            Box(Modifier.size(8.dp).background(if (i == current) pt.accent else pt.hairline, CircleShape))
+            Box(Modifier.size(8.dp).background(if (i == current) pt.accent else pt.hairline, CircleShape).testTag("guide-dot"))
         }
     }
 }
