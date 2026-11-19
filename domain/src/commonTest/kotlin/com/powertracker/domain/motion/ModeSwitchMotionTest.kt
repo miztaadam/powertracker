@@ -306,6 +306,12 @@ class ModeSwitchMotionTest {
                 }
             }
         }
+        // the hammer leaves the top before it disappears, whatever the screen's height
+        for (sh in listOf(640.0, 760.0, 915.0, 1280.0, 2000.0)) {
+            val last = m.hammerPose(m.DROP.end - 1, m.hitPoint(400.0, sh))
+            assertNotNull(last)
+            assertTrue(last.y < 0, "hammer boss at ${last.y} on a screen $sh tall")
+        }
         // the prototype's screen is unchanged by the scale rule
         near(820.0, m.dropFrame(m.DROP.impact + 170.0, w, h).revealRadius, 1e-9)
         near(872.0, m.pumpFrame(m.PUMP.end - 1, w, h, src).floodRadius, 1e-9)

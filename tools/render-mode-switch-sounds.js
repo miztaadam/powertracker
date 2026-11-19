@@ -28,7 +28,8 @@ const SOUNDS = [
   { kind: 'pump', name: 'grit_pump', seconds: 2.0 },
 ];
 const PEAK_LIMIT_DB = -1;
-const VORBIS_QUALITY = [5, 6, 7, 8]; // tried in turn until the decoded peak stays under the limit
+// q7 keeps the drop's decoded peak about 0.2 dB under the limit (q5 left 0.02 dB); higher ones are tried in turn if not
+const VORBIS_QUALITY = [7, 8, 9];
 const CHROMIUM = '/opt/pw-browsers/chromium'; // as in web/playwright.config.ts
 
 const { chromium } = createRequire(path.join(ROOT, 'web/package.json'))('playwright');

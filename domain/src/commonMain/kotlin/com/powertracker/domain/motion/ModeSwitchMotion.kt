@@ -71,6 +71,7 @@ data class MotionGradient(
  * pulse), its colour and width. It is drawn from its start to [ModeSwitchMotion.veinProgress] of its length;
  * [d0] is how far the vein front has run when it starts, [len] its length in the front's units. [swell] veins
  * widen with the glow ([PumpFrame.veinWidthScale]); a pulse is a bead (6% of the path) riding the front.
+ * Every vein and pulse is stroked with round caps and round joins, and no fill.
  */
 data class VeinPath(
     val d: String,
@@ -214,7 +215,8 @@ data class PumpFrame(
  * bottom edge, centred: the hit is (w / 2, h - 4). The radii that must cover the screen (the reveal, the shock
  * rings, the flood) and the veins' reach scale by the distance to the screen's far corner over the prototype's
  * same distance, which is exactly 1 on the prototype's screen. The pump's vein fan is aimed from the switch to
- * the screen's centre (the prototype aimed it at 228 degrees).
+ * the screen's centre (the prototype aimed it at 228 degrees). The hammer's lift out of frame grows with a screen
+ * taller than the prototype's, so it always leaves the top.
  *
  * Nothing is worked out until it is first used, and the seeded shapes are built once per hit point or switch.
  */
@@ -327,8 +329,11 @@ object ModeSwitchMotion {
         if (t < d.lift) return pose(hit.x, hit.y, 0.0, 1.0, 1.0)
         val q = (t - d.lift) / (d.end - 30 - d.lift)
         val e = q * q * q // wrenched back out of frame
-        return pose(hit.x + 30 * e, hit.y - 960 * e, -14 * e, 1.0, 1.0)
+        return pose(hit.x + 30 * e, hit.y - 960 * liftReach(hit) * e, -14 * e, 1.0, 1.0)
     }
+
+    /** The lift out of frame grows with a screen taller than the prototype's, so the hammer always leaves the top. */
+    private fun liftReach(hit: Point): Double = max(1.0, (hit.y + 4) / REF_H)
 
     private fun pose(x: Double, y: Double, r: Double, sx: Double, sy: Double) =
         Pose(x, y, r, sx * DROP.hammerScale, sy * DROP.hammerScale)

@@ -35244,6 +35244,11 @@ function easeOut($this, p) {
 function smooth01($this, p) {
   return p * p * (3 - 2 * p);
 }
+function liftReach($this, hit) {
+  // Inline function 'kotlin.math.max' call
+  var b = (hit.j31_1 + 4) / 760.0;
+  return Math.max(1.0, b);
+}
 function pose_0($this, x, y, r, sx, sy) {
   return new Pose_0(x, y, r, sx * $this.y36_1.q31_1, sy * $this.y36_1.q31_1);
 }
@@ -35367,7 +35372,7 @@ protoOf(ModeSwitchMotion).x37 = function (t, hit) {
     return pose_0(this, hit.i31_1, hit.j31_1, 0.0, 1.0, 1.0);
   var q_0 = (t - d.o31_1) / (d.p31_1 - 30 - d.o31_1);
   var e = q_0 * q_0 * q_0;
-  return pose_0(this, hit.i31_1 + 30 * e, hit.j31_1 - 960 * e, -14 * e, 1.0, 1.0);
+  return pose_0(this, hit.i31_1 + 30 * e, hit.j31_1 - 960 * liftReach(this, hit) * e, -14 * e, 1.0, 1.0);
 };
 protoOf(ModeSwitchMotion).y37 = function (tMs, w, h) {
   var d = this.y36_1;
