@@ -47,15 +47,11 @@ internal val PHONE_WIDTH = 412.dp
 private val PHONE_STATUS_BAR = 24.dp
 
 /**
- * The phone's height for [mode]'s Today picture: tall enough for that side's screen-4 day
- * ([com.powertracker.domain.guide.GuideSample.todayItems]), so its last step shows the ticked set and the "Skipped today"
- * line at the foot of the list. The mockups' 915 dp holds powerlifting's; bodybuilding's lift card is taller (its
- * stretch and squeeze cues), so its phone is taller, and drawn smaller. One height for both sides is the owner's call.
+ * The phone's height, the same for both sides: the mockups' 915 dp, which holds screen 4's day
+ * ([com.powertracker.domain.guide.GuideSample.todayItems]) on either side, so its last step shows the ticked set and the
+ * "Skipped today" line at the foot of the list.
  */
-internal fun phoneHeight(mode: TrainingMode): Dp = when (mode) {
-    TrainingMode.POWERLIFTING -> 915.dp
-    TrainingMode.BODYBUILDING -> 1180.dp
-}
+internal val PHONE_HEIGHT = 915.dp
 
 /** What a screen reader hears for a picture, the one thing of it in the accessibility tree. Only built pictures have one. */
 private val PICTURE_DESCRIPTIONS = mapOf(
@@ -99,7 +95,7 @@ internal fun GuidePicture(id: GuideScreenId, mode: TrainingMode, step: GuideStep
             },
         contentAlignment = Alignment.Center,
     ) {
-        if (drawn) Phone(phoneHeight(mode)) { TodayPicture(mode, step) }
+        if (drawn) Phone(PHONE_HEIGHT) { TodayPicture(mode, step) }
         Box(Modifier.matchParentSize().then(NoTouches))
     }
 }

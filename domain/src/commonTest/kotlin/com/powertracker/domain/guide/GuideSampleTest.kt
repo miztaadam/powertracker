@@ -130,14 +130,14 @@ class GuideSampleTest {
         }
     }
 
-    /** Screen 4's day: the sample day's first four items, so its picture fits the same phone on both sides. */
+    /** Screen 4's day: the sample day's first three items, so its picture fits one phone height on both sides. */
     @Test
-    fun todayItems_areTheSampleDaysFirstFour_andHoldTheLiftLogged() {
+    fun todayItems_areTheSampleDaysFirstThree_andHoldTheLiftLogged() {
         for (mode in modes) {
             val day = GuideSample.plan(mode).filter { it.weekday == GuideSample.TODAY.dayOfWeek }.sortedBy { it.order }
             val items = GuideSample.todayItems(mode)
-            assertEquals(day.take(4), items, "$mode: the day's first four, in order")
-            assertEquals(4, items.size, "$mode")
+            assertEquals(day.take(3), items, "$mode: the day's first three, in order")
+            assertEquals(3, items.size, "$mode")
             val names = items.map { GuideSample.exercises(mode).getValue(it.exerciseId).name }
             assertTrue(GuideSample.today(mode).exerciseId in names, "$mode: the lift logged is on the day")
         }
@@ -156,6 +156,30 @@ class GuideSampleTest {
             assertNotEquals(item.targetRpe, today.doneRpe, "$mode: RPE")
             assertTrue(today.doneWeightKg > 0.0, "$mode: a weight")
         }
+    }
+
+    /**
+     * Screen 5's powerlifting story reads as its copy says: the first set (screen 4's) is a little easy, 100 kg × 6 @
+     * 7.5; a set on target or up to half an RPE under it earns the usual step, and the weight is held only after a set
+     * above target.
+     */
+    @Test
+    fun powerliftingTargets_readAsScreen5Says() {
+        val mode = TrainingMode.POWERLIFTING
+        val steps = GuideSample.targets(mode)
+        val first = steps.first()
+        assertEquals(Triple(100.0, 6, 7.5), Triple(first.doneWeightKg, first.doneReps, first.doneRpe))
+        val plan = GuideSample.plan(mode)
+        val id = idOf(mode, first.exerciseId)
+        for ((i, step) in steps.withIndex()) {
+            val target = plan.first { it.exerciseId == id && it.weekday == step.date.dayOfWeek }.targetRpe
+            val delta = step.doneRpe - target
+            val change = step.nextWeightKg - step.doneWeightKg
+            if (delta in -0.5..0.0) assertEquals(ProgressionRule.STEP_KG, change, "session ${i + 1} @ ${step.doneRpe}: on target or a little easy")
+            if (change == 0.0) assertTrue(delta > 0.0, "session ${i + 1} @ ${step.doneRpe}: held after a set not above target")
+        }
+        // The same climb as before: up, up, held, up, and a big step after an easy session.
+        assertEquals(listOf(102.5, 105.0, 105.0, 107.5, 112.5), steps.map { it.nextWeightKg })
     }
 
     @Test

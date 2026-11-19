@@ -2,7 +2,7 @@ import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { BACK, DONE, EXAMPLE, NEXT, PHONE_WIDTH, SKIP, phoneHeight, pictureDescription } from '../src/screens/guide/guideLabels'
+import { BACK, DONE, EXAMPLE, NEXT, PHONE_HEIGHT, PHONE_WIDTH, SKIP, pictureDescription } from '../src/screens/guide/guideLabels'
 import { formatKg, formatRpe } from '../src/ui/components/format'
 import { WEDNESDAY, tabBar } from './helpers'
 
@@ -191,9 +191,14 @@ for (const side of SIDES) {
       await expect(skipped).toContainText(exercises.find((e) => e.id === skippedItem.exerciseId)!.name)
       expect(await inside(page, done, picture(page))).toBe(true)
       expect(await inside(page, skipped, picture(page))).toBe(true)
-      // The frame has its phone's shape.
+      // The frame has its phone's shape: one phone for both sides.
       const frame = (await picture(page).boundingBox())!
-      expect(Math.abs(frame.width / frame.height - PHONE_WIDTH / phoneHeight(side))).toBeLessThan(0.01)
+      expect(Math.abs(frame.width / frame.height - PHONE_WIDTH / PHONE_HEIGHT)).toBeLessThan(0.01)
+      // The skipped line ends with a wrapped line of its text to spare above the phone's foot (real fonts, as drawn).
+      const scale = frame.height / PHONE_HEIGHT
+      const line = await skipped.locator('.today-skipped-row').first().evaluate((el) => parseFloat(getComputedStyle(el).lineHeight) || el.getBoundingClientRect().height)
+      const foot = (await skipped.boundingBox())!
+      expect(foot.y + foot.height, `${side}: the skipped line's foot, with a ${line} px line to spare`).toBeLessThanOrEqual(frame.y + frame.height - line * scale + 0.5)
       // Nothing reaches past the phone's edges.
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       await shoot(page, outDir, `guide-today-${sideName(side)}-${scheme}`)

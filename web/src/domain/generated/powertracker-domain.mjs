@@ -7949,12 +7949,12 @@ function GuideSample() {
   this.s1v_1 = 'Leg press';
   this.t1v_1 = 100.0;
   this.u1v_1 = 6;
-  this.v1v_1 = listOf([8.5, 8.0, 8.5, 8.0, 7.0]);
+  this.v1v_1 = listOf([7.5, 7.5, 8.5, 8.0, 7.0]);
   this.w1v_1 = listOf([10, 11, 12, 9, 10]);
   this.x1v_1 = listOf([7.5, 8.0, 8.0, 8.0, 8.0]);
   this.y1v_1 = 8.0;
   this.z1v_1 = 8.0;
-  this.a1w_1 = 4;
+  this.a1w_1 = 3;
   this.b1w_1 = 26;
   this.c1w_1 = mapOf([to('Squat', 100.0), to('Bench', 60.0), to('Deadlift', 120.0)]);
   this.d1w_1 = mapOf([to('Leg press', 100.0), to('DB press', 26.0), to('Lat pulldown', 50.0)]);
@@ -8065,7 +8065,7 @@ protoOf(GuideSample).d1z = function (mode) {
   var tmp = GuideSample$todayItems$lambda;
   var tmp$ret$4 = new sam$kotlin_Comparator$0_5(tmp);
   var tmp$ret$3 = sortedWith(destination, tmp$ret$4);
-  return take(tmp$ret$3, 4);
+  return take(tmp$ret$3, 3);
 };
 protoOf(GuideSample).e1z = function (mode) {
   this.o1v_1 = this.o1v_1 + 1 | 0;

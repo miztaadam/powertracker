@@ -92,10 +92,12 @@ object GuideSample {
     /**
      * Screen 5's sessions, every set at these reps and RPEs. The first is the set screen 4 logs: its reps and RPE
      * differ from the plan's, which the editor opens at, so each of screen 4's steps changes what is drawn. Powerlifting's
-     * later sessions are at the plan's reps.
+     * later sessions are at the plan's reps. Powerlifting's first two are half an RPE easy, so each earns the usual
+     * step: a second session harder than the first, straight after a jump, would be held at the same weight
+     * (`ProgressionRule`'s rising-RPE check), which screen 5's copy keeps for a set harder than planned.
      */
     private const val PL_FIRST_REPS = 6
-    private val PL_TARGET_RPES = listOf(8.5, 8.0, 8.5, 8.0, 7.0)
+    private val PL_TARGET_RPES = listOf(7.5, 7.5, 8.5, 8.0, 7.0)
     private val BB_TARGET_REPS = listOf(10, 11, 12, 9, 10)
     private val BB_TARGET_RPES = listOf(7.5, 8.0, 8.0, 8.0, 8.0)
 
@@ -104,7 +106,7 @@ object GuideSample {
     private const val BB_RPE = 8.0
 
     /** How many of the sample day's items screen 4 shows: few enough that its last step fits one phone on both sides. */
-    private const val TODAY_ITEMS = 4
+    private const val TODAY_ITEMS = 3
 
     /** Six months of the main lifts (powerlifting) or the first day's first three exercises (bodybuilding). */
     private const val PROGRESS_WEEKS = 26

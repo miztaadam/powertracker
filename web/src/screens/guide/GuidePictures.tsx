@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { TrainingMode } from '../../db/schema'
 import { TodayContent } from '../today/TodayScreen'
-import { PHONE_WIDTH, phoneHeight, pictureDescription } from './guideLabels'
+import { PHONE_HEIGHT, PHONE_WIDTH, pictureDescription } from './guideLabels'
 import { NO_TODAY_ACTIONS, guideTodayState } from './guideSampleState'
 
 /** The Today screen at one step of logging a set (screen 4), with no-op actions. */
@@ -43,7 +43,7 @@ const makeInert = (el: HTMLDivElement | null) => el?.setAttribute('inert', '')
 export function GuidePicture({ id, mode, step }: { id: string; mode: TrainingMode; step: string | null }) {
   const slot = useRef<HTMLDivElement>(null)
   const drawn = id === 'TODAY' && step != null
-  const height = phoneHeight(mode)
+  const height = PHONE_HEIGHT
   const fit = useFit(slot, height)
   const scale = fit ?? 0
   let screen: ReactNode = null

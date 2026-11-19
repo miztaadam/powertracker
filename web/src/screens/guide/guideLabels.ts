@@ -1,5 +1,3 @@
-import type { TrainingMode } from '../../db/schema'
-
 /*
  * The guide's own control words and labels, app-side (the screens' copy comes from the domain, `guideScreen`). Kept
  * apart from the components, with no styles, so the e2e reads the same strings the guide draws.
@@ -32,11 +30,7 @@ export function pictureDescription(id: string): string {
 export const PHONE_WIDTH = 390
 
 /**
- * The phone's height for `mode`'s Today picture: tall enough for that side's screen-4 day (`guideSampleTodayItems`), so
- * its last step shows the ticked set and the "Skipped today" line at the foot of the list. 844 px, the e2e iPhone, holds
- * powerlifting's; bodybuilding's lift card is taller (its stretch and squeeze cues), so its phone is taller, and drawn
- * smaller (as on Android). One height for both sides is the owner's call (see the 1.16 Task 2 fix report).
+ * The phone's height, the same for both sides: tall enough for screen 4's day (`guideSampleTodayItems`) on either side,
+ * so its last step shows the ticked set and the "Skipped today" line at the foot of the list, with a line to spare.
  */
-export function phoneHeight(mode: TrainingMode): number {
-  return mode === 'BODYBUILDING' ? 1180 : 844
-}
+export const PHONE_HEIGHT = 920

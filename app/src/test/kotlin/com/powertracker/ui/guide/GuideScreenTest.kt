@@ -346,7 +346,7 @@ class GuideScreenTest {
             compose.onNodeWithText(state.skippedToday.single().name).assertIsDisplayed()
             // Wholly on the phone, with room for one more wrapped line: not cut at its foot.
             val bottom = compose.onNodeWithTag("skipped-today").fetchSemanticsNode().boundsInRoot.bottom
-            val phone = with(compose.density) { (phoneHeight(side) - SPARE).toPx() }
+            val phone = with(compose.density) { (PHONE_HEIGHT - SPARE).toPx() }
             assertTrue("$side: the skipped line ends at $bottom px, the phone (less a line) at $phone px", bottom <= phone)
         }
     }
