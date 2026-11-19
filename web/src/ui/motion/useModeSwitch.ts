@@ -13,9 +13,10 @@ export type { ModeSwitchKind } from './modeSwitchFeedback'
  *
  * States: idle → running (`drop` or `pump`) → idle.
  * - **flip(kind, switch)**, from the switch tap. The setting is stored by the caller straight after, as before.
- *   - Motion off (`data-motion="off"`: reduced motion, and every e2e page): nothing is drawn and the side changes at
- *     once, but the sound plays from its start and the vibration still lands where the animation's would.
- *   - Otherwise the side shown stays the old one (`shown`) and the clock starts at 0, drawn in the tap itself.
+ *   - Motion off (`data-motion="off"`: reduced motion, and every e2e page): nothing is drawn and the side changes
+ *     when the stored side does, as before, but the sound plays from its start and the vibration still lands where
+ *     the animation's would.
+ *   - Otherwise the side shown stays the old one (`shown`) and the clock starts at 0, its first frame drawn in the next frame.
  * - **The moment**: the drop's impact (`T_IMPACT`) or the pump's third beat (`P_BEAT[2]`). The side shown turns to
  *   the new one there, through the overlay's reveal. The drop vibrates there; the pump gives one pulse per beat.
  * - **finish(reason)** ends it at its end state, from anywhere: `end` (the clock ran out), `skip` (a tap anywhere but
@@ -66,7 +67,7 @@ export type ModeSwitchController = {
   finish(reason: FinishReason): void
   /** The side the stored settings hold, as last read. */
   noteStored(mode: TrainingMode): void
-  /** Lets the stored side show again (a write that failed). */
+  /** Lets the stored side show again (a write that failed): at once, or at the end of the animation running now. */
   release(): void
   state(): ModeSwitchState
   subscribe(listener: () => void): () => void
@@ -105,6 +106,10 @@ type Run = {
   /** The switch's row: a press inside it is a flip, not a skip. */
   row: Element | null
   source: Element | null
+  /** The write failed: the stored side shows again at the end. */
+  released: boolean
+  /** The painter has built the shapes (in the first frame). */
+  begun: boolean
 }
 
 const target = (kind: ModeSwitchKind): TrainingMode => (kind === 'drop' ? 'POWERLIFTING' : 'BODYBUILDING')
@@ -122,6 +127,8 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
   /** A press on the switch's row during the reveal, which the browser gives to <html>: its click goes to the switch. */
   let forwardTo: HTMLElement | null = null
   let listening = false
+  /** A sound and buzz started with motion off, which leaving or hiding the page still stops. */
+  let playingFree = false
 
   function set(next: ModeSwitchState) {
     if (next.kind === snapshot.kind && next.shown === snapshot.shown) return
@@ -188,13 +195,25 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
     const now = deps.now()
     r.t += Math.min(MAX_STEP_MS, Math.max(0, now - r.last))
     r.last = now
+    if (!r.begun) {
+      r.begun = true
+      painter?.begin(r.kind, r.source)
+    }
     step(r)
     if (run === r) r.raf = deps.raf(frame)
   }
 
   function finish(reason: FinishReason) {
     const r = run
-    if (r == null) return
+    if (r == null) {
+      // With motion off there is no run, but the sound and the buzz may still be going.
+      if (playingFree && (reason === 'leave' || reason === 'hidden')) {
+        playingFree = false
+        fb.stop(0.04)
+        fb.buzz(0)
+      }
+      return
+    }
     run = null
     deps.caf(r.raf)
     if (reason !== 'end') fb.stop(0.04)
@@ -205,7 +224,7 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
     } else if (reason !== 'end') fb.buzz(0)
     painter?.end()
     // The new side is on from here; the stored side takes over once it says the same (a write may still be on its way).
-    const keep = stored === r.to ? null : r.to
+    const keep = stored === r.to || r.released ? null : r.to
     show(keep, null)
   }
 
@@ -261,12 +280,15 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
     fb.unlock()
     const to = target(kind)
     if (deps.motionOff()) {
-      show(null, null)
-      applyTrainingMode(to)
+      listen()
+      playingFree = true
+      // The look follows the stored side as it always has, once the write lands (a moment later).
+      if (snapshot.shown != null) show(null, null)
       fb.play(kind, null)
       fb.buzz(kind === 'drop' ? dropBuzzWithoutMotion() : pumpBuzzWithoutMotion())
       return
     }
+    playingFree = false
     listen()
     const r: Run = {
       kind,
@@ -279,14 +301,15 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
       beats: [false, false, false],
       row: source?.closest('label, .settings-row') ?? source,
       source,
+      released: false,
+      begun: false,
     }
     run = r
     set({ kind, shown: other(to) })
     applyTrainingMode(other(to))
-    painter?.begin(kind, source)
-    // The first frame is drawn in the tap itself.
-    painter?.paint(0)
     fb.play(kind, () => (run === r ? r.t : null))
+    // The shapes are built and drawn in the very next frame, not in the tap: the tap stays short, and what it
+    // changed shows in that same frame. (Nothing of either animation shows at t = 0 anyway.)
     r.raf = deps.raf(frame)
   }
 
@@ -298,7 +321,8 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
       if (run == null && snapshot.shown != null && snapshot.shown === mode) show(null, null)
     },
     release() {
-      if (run == null && snapshot.shown != null) show(null, null)
+      if (run != null) run.released = true
+      else if (snapshot.shown != null) show(null, null)
     },
     state: () => snapshot,
     subscribe(listener) {

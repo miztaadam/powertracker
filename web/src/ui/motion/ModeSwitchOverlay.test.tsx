@@ -144,6 +144,15 @@ describe('the shown side', () => {
     expect(controller.state().shown).toBeNull()
   })
 
+  it('aWriteThatFailsMidAnimation_letsTheStoredSideBackInAtTheEnd', () => {
+    controller.noteStored('BODYBUILDING')
+    controller.flip('drop', switchElement())
+    clock.frames(20)
+    controller.release()
+    clock.frames(DROP.end + 50)
+    expect(controller.state()).toEqual({ kind: null, shown: null })
+  })
+
   it('aFailedWrite_letsTheStoredSideBackIn', () => {
     controller.noteStored('BODYBUILDING')
     controller.flip('drop', switchElement())
@@ -178,6 +187,17 @@ describe('vibration and sound', () => {
     feedback.calls.length = 0
     controller.flip('pump', switchElement())
     expect(feedback.calls).toEqual(['unlock', 'play pump free', `buzz ${JSON.stringify(pumpBuzzWithoutMotion())}`])
+  })
+
+  it('reducedMotion_leavingStopsTheSoundAndTheBuzz', () => {
+    motionOff = true
+    controller.flip('pump', switchElement())
+    feedback.calls.length = 0
+    controller.finish('leave')
+    expect(feedback.calls).toEqual(['stop', 'buzz 0'])
+    feedback.calls.length = 0
+    controller.finish('leave')
+    expect(feedback.calls).toEqual([])
   })
 
   it('withoutMotion_theBuzzesLandWhereTheyWouldHave', () => {
@@ -342,6 +362,9 @@ describe('the overlay', () => {
     const { container } = show()
     act(() => controller.flip('drop', switchElement()))
     const overlay = container.querySelector('.ms-overlay')!
+    // Built in the first frame after the tap, not in the tap.
+    expect(overlay.childElementCount).toBe(0)
+    act(() => clock.frames(16))
     expect(overlay).toHaveAttribute('aria-hidden', 'true')
     expect(overlay.querySelector('svg')).not.toBeNull()
     expect(overlay.querySelectorAll('.ms-crack').length).toBeGreaterThan(0)
@@ -359,6 +382,7 @@ describe('the overlay', () => {
     const veins = vi.spyOn(grit, 'modeSwitchVeins')
     const { container } = show()
     act(() => controller.flip('pump', switchElement()))
+    act(() => clock.frames(16))
     // The switch's centre, where the veins start.
     expect(veins).toHaveBeenCalledWith(expect.any(Number), expect.any(Number), 326, 136)
     act(() => clock.frames(PUMP.beats[2]! + 120))

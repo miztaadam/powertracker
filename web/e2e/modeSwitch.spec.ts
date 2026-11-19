@@ -105,8 +105,8 @@ test.describe('with motion on', () => {
       await flipLanding(page, 'BODYBUILDING', shot)
       // The shown side lags: still grey, the veins already running from the switch.
       expect(await dataMode(page)).toBeNull()
-      expect(await drawn(page)).toBe(1)
       await page.clock.runFor(THIRD - 5)
+      expect(await drawn(page)).toBe(1)
       expect(await dataMode(page)).toBeNull()
       await expect(page.getByRole('switch', { name: 'Strict press' })).toBeVisible()
       await page.clock.runFor(FRAME)
@@ -142,6 +142,11 @@ test.describe('with motion on', () => {
       await shoot(page, `mode-switch-drop-impact-${scheme}`)
       // The POWERLIFTING stamp is there at the impact, and gone by the end.
       await expect(page.locator('.ms-stamp')).toHaveText('POWERLIFTING')
+      // Once the shake has died down (before the lift), the stamp sits where the label was, on screen.
+      await page.clock.runFor(FRAME * 18)
+      await shoot(page, `mode-switch-drop-stamp-${scheme}`)
+      const stamp = (await page.locator('.ms-stamp').boundingBox())!
+      expect(stamp.y).toBeGreaterThanOrEqual(0)
       await page.clock.runFor(DROP.end)
       expect(await drawn(page)).toBe(0)
       await expect(page.locator('.ms-stamp')).toHaveCount(0)
@@ -190,9 +195,11 @@ test.describe('with motion on', () => {
     await flip(page, 'BODYBUILDING')
     await page.clock.runFor(300)
     await flip(page, 'POWERLIFTING')
+    await page.clock.runFor(FRAME)
     expect(await drawn(page)).toBe(1)
     await page.clock.runFor(300)
     await flip(page, 'BODYBUILDING')
+    await page.clock.runFor(FRAME)
     expect(await drawn(page)).toBe(1)
     await page.clock.runFor(PUMP.end + 100)
     expect(await drawn(page)).toBe(0)
@@ -226,14 +233,20 @@ test.describe('with motion on', () => {
     expect(await dataMode(page)).toBe('bodybuilding')
   })
 
-  test('with no sound files and no vibration, the animation still plays and nothing is thrown', async ({ page }) => {
+  test('with no sound files, no Web Audio and no vibration, the animation still plays and nothing is thrown', async ({ page }) => {
     const errors: string[] = []
     page.on('pageerror', (e) => errors.push(e.message))
     await page.route('**/sounds/*', (route) => route.abort())
-    await page.addInitScript(() => Object.defineProperty(navigator, 'vibrate', { value: undefined, configurable: true }))
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'vibrate', { value: undefined, configurable: true })
+      // No Web Audio at all.
+      Object.defineProperty(window, 'AudioContext', { value: undefined, configurable: true })
+      Object.defineProperty(window, 'webkitAudioContext', { value: undefined, configurable: true })
+    })
     await openSettings(page)
     await hold(page)
     await flip(page, 'BODYBUILDING')
+    await page.clock.runFor(FRAME)
     expect(await drawn(page)).toBe(1)
     await page.clock.runFor(THIRD + 40)
     await expect.poll(() => dataMode(page)).toBe('bodybuilding')
@@ -250,6 +263,7 @@ test.describe('with motion on', () => {
     const box = (await page.locator('.settings-mode-switch .gr-switch-track').boundingBox())!
     const centre = { x: box.x + box.width / 2, y: box.y + box.height / 2 }
     await flip(page, 'BODYBUILDING')
+    await page.clock.runFor(FRAME)
     // The halos and rings are centred on the switch…
     const halo = page.locator('.ms-overlay circle').first()
     expect(Number(await halo.getAttribute('cx'))).toBeCloseTo(centre.x, 0)
@@ -338,6 +352,8 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
         rec.on = true
       })
       await modeSwitch(page).click()
+      // Started (the shapes are built in the first frame after the tap), then over.
+      await expect.poll(() => drawn(page)).toBe(1)
       await expect.poll(() => drawn(page), { timeout: 5000 }).toBe(0)
       await expect.poll(() => dataMode(page)).toBe(to === 'BODYBUILDING' ? 'bodybuilding' : null)
       runs[kind] = await page.evaluate(() => {
@@ -353,6 +369,8 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
       const end = kind === 'drop' ? DROP.end : PUMP.end
       const samples = runs[kind]!.samples.filter((s) => s.at <= end)
       expect(samples.length, `${kind}: frames drawn`).toBeGreaterThan(end / 16.7 / 2)
+      // The whole animation was timed, to its last frame.
+      expect(Math.max(...samples.map((s) => s.at)), `${kind}: the last frame timed`).toBeGreaterThan(end - 50)
       for (const s of samples) if (s.ms > 16) slow.push(`${kind}: ${s.ms.toFixed(1)} ms ${s.at === 0 ? 'for the tap' : `at ${Math.round(s.at)} ms`}`)
     }
     expect(slow, `frames over 16 ms (baseline worst ${worstBaseline.toFixed(1)} ms)`).toEqual([])
