@@ -119,7 +119,7 @@
    - 21 days: the wait between deloads (`Coach.DELOAD_COOLDOWN_DAYS`), and how long a bodybuilding exercise is stuck before a swap is suggested (`PhysiqueCoach.STUCK_DAYS`);
    - 28 days: between check-ins (`PhysiqueCoach.CHECK_IN_DAYS`).
 2. **Each side's screens show only the rules that side's coach runs.** On powerlifting, screen 7 ends on the bests and the total, since check-ins are bodybuilding only.
-3. **How the pictures are drawn:** each app's real screen content (`TodayContent`, `PlanContent`, `CoachContent`, `ProgressContent`) is shown small with sample state, stepped on a clock. Both apps already have these as plain-state components.
+3. **How the pictures are drawn:** each app's real screen content (`TodayContent`, `PlanContent`, `TemplatesContent`, `CoachContent`, `ProgressContent`) is shown small with sample state, stepped on a clock. Both apps already have these as plain-state components. Screen 2 draws with the mode switch's own paint code, moved into a shared file. What each picture shows at each step is defined in the domain.
 4. **Where "seen" is kept on Android:** its own key in the same settings store, outside `AppSettings`. A restore rewrites only the `AppSettings` keys, so the key survives. (The earlier reason given, that a restore replaces everything, was wrong; the decision stands.)
 5. **Speed:** "as the 1.15 speed checks measure" now means the structural checks are hard (the guide isn't loaded before it opens; no layout reads per step) and frame timing only reports, as the owner chose for 1.15.
 6. **The owner sees one finished picture first** (screen 4, Today, on both apps) before the other seven are built.
