@@ -546,6 +546,27 @@ describe('PlanScreen add form', () => {
     expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
   })
 
+  it('planAdd_ownExerciseFails_inTheMomentThePickerCloses_planSaysSo', async () => {
+    show()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementation((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await userEvent.click(within(createForm()!).getByRole('button', { name: 'Cancel' }))
+    const close = screen.getByRole('button', { name: 'Close' })
+    // The failure is handled while the picker is open, then Close, before the picker has drawn it.
+    await act(async () => {
+      fail()
+      for (let i = 0; i < 20; i++) await Promise.resolve()
+      close.click()
+    })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect(screen.getAllByText("Couldn't save — try again.")).toHaveLength(1)
+  })
+
   it('planChange_toOwnExerciseFails_createFormKeepsEverything_saysSoInIt', async () => {
     show()
     await pickOn('Monday', 'Squat')

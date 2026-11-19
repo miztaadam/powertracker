@@ -42,10 +42,16 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
   const creatingNow = useRef(false)
   creatingNow.current = creating
   const mounted = useRef(true)
+  // Failures counted for the create form or the list and not drawn yet. Should the picker close first (Close in the
+  // moment the failure lands), its message would go with it: whoever opened it says them instead.
+  const unsaid = useRef(0)
+  const failedWhileClosed = useRef(onCreateFailedWhileClosed)
+  failedWhileClosed.current = onCreateFailedWhileClosed
   useEffect(() => {
     mounted.current = true
     return () => {
       mounted.current = false
+      if (unsaid.current > 0) failedWhileClosed.current?.()
     }
   }, [])
 
@@ -62,6 +68,9 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
   // Failures that came after the create form had been closed: the picker says them over its list.
   const [listFailures, setListFailures] = useState(0)
   const [listSaid, setListSaid] = useState(0)
+  useEffect(() => {
+    unsaid.current = 0
+  }, [createFailures, listFailures])
   const create = (exercise: CustomExercise) => {
     if (answered.current) return
     answered.current = true
@@ -77,8 +86,11 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
         answered.current = false
         // Never silent: the form says it if it is open, else the picker, else (the picker is gone) whoever opened it.
         if (!mounted.current) onCreateFailedWhileClosed?.()
-        else if (creatingNow.current) setCreateFailures((n) => n + 1)
-        else setListFailures((n) => n + 1)
+        else {
+          unsaid.current += 1
+          if (creatingNow.current) setCreateFailures((n) => n + 1)
+          else setListFailures((n) => n + 1)
+        }
       },
     )
   }
