@@ -199,12 +199,15 @@ class TemplatesViewModel(
     private suspend fun store(items: List<Pair<PlanItem, String?>>, days: Set<DayOfWeek>): PlanSnapshot? {
         val before = settings.settings.first().daysOf(mode)
         try {
-            return training.inTransaction {
-                val old = training.planSnapshot(mode, before)
+            val old = training.inTransaction {
+                val snapshot = training.planSnapshot(mode, before)
                 replacePlan(mode, items)
                 setDays(mode, days)
-                old.takeIf { it.items.isNotEmpty() }?.copy(replacedBy = training.planIds(mode))
+                snapshot.copy(replacedBy = training.planIds(mode))
             }
+            // Only a committed save makes this the side's latest snapshot; a rolled-back one leaves an earlier Undo working.
+            training.saved(old)
+            return old.takeIf { it.items.isNotEmpty() }
         } catch (e: Exception) {
             if (settings.settings.first().daysOf(mode) != before) runCatching { setDays(mode, before) }
             throw e

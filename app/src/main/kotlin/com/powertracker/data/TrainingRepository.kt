@@ -162,16 +162,19 @@ open class TrainingRepository(private val db: AppDatabase) {
 
     /**
      * [mode]'s plan as stored now, with the skips that point at it and [days], ready for [restorePlan]. Call it inside
-     * [inTransaction], just before the replace: it becomes the side's latest snapshot, so any earlier one can no longer
-     * be undone.
+     * [inTransaction], just before the replace, and pass it to [saved] once that transaction has committed: only then
+     * does it become the side's latest snapshot, so a save that rolls back leaves an earlier snapshot's Undo working.
      */
     suspend fun planSnapshot(mode: TrainingMode, days: Set<DayOfWeek>): PlanSnapshot {
         val items = db.plan().all().filter { it.mode == mode }.map { it.toDomain() }
         val ids = items.mapTo(HashSet()) { it.id }
         val links = db.skips().all().mapNotNull { skip -> skip.planItemId?.takeIf { it in ids }?.let { skip.id to it } }.toMap()
-        val token = tokens.incrementAndGet()
-        undoable[mode] = token
-        return PlanSnapshot(mode, items, links, days, token = token)
+        return PlanSnapshot(mode, items, links, days, token = tokens.incrementAndGet())
+    }
+
+    /** The save [snapshot] was taken for has committed: it is now its side's latest, so any earlier one can no longer be undone. */
+    fun saved(snapshot: PlanSnapshot) {
+        undoable[snapshot.mode] = snapshot.token
     }
 
     /** [snapshot] was undone (its transaction committed): it, and every older snapshot of its side, can't be undone again. */

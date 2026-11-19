@@ -282,12 +282,15 @@ class PlanBuilderViewModel(
     private suspend fun store(items: List<Pair<PlanItem, String?>>, days: Set<DayOfWeek>): PlanSnapshot? {
         val before = settings.settings.first().bodybuildingTrainingDays
         try {
-            return training.inTransaction {
-                val old = training.planSnapshot(TrainingMode.BODYBUILDING, before)
+            val old = training.inTransaction {
+                val snapshot = training.planSnapshot(TrainingMode.BODYBUILDING, before)
                 replacePlan(items)
                 setDays(days)
-                old.takeIf { it.items.isNotEmpty() }?.copy(replacedBy = training.planIds(TrainingMode.BODYBUILDING))
+                snapshot.copy(replacedBy = training.planIds(TrainingMode.BODYBUILDING))
             }
+            // Only a committed save makes this the side's latest snapshot; a rolled-back one leaves an earlier Undo working.
+            training.saved(old)
+            return old.takeIf { it.items.isNotEmpty() }
         } catch (e: Exception) {
             if (settings.settings.first().bodybuildingTrainingDays != before) runCatching { setDays(before) }
             throw e

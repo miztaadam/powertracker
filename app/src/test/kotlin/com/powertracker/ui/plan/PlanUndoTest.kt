@@ -195,6 +195,29 @@ class PlanUndoTest {
     }
 
     @Test
+    fun aSaveThatRollsBack_leavesTheEarlierUndoWorking() {
+        val old = oldPowerliftingPlan()
+        val snapshot = useTemplate(POWERLIFTING, "pl-4")!!
+        val newPlan = plan(POWERLIFTING)
+
+        // A second save whose days write fails: its transaction rolls back, so the plan is still the first save's.
+        val failing = TemplatesViewModel(POWERLIFTING, training, settings, setDays = { _, _ -> error("disk full") })
+        viewModels += failing
+        await("loaded") { !failing.state.value.loading }
+        failing.choose("pl-3")
+        failing.use()
+        if (failing.state.value.confirming) failing.confirmReplace()
+        await("failed") { failing.state.value.failed }
+        assertEquals("nothing was changed", newPlan, plan(POWERLIFTING))
+
+        undo(planVm(), snapshot)
+        assertEquals("the first save's Undo still puts the old plan back", old.plan, plan(POWERLIFTING))
+        assertEquals(old.skip, skips().single())
+        assertEquals(old.days, stored())
+        assertTrue(messages.isEmpty())
+    }
+
+    @Test
     fun anUndo_neverAppliesToTheOtherSide() {
         oldPowerliftingPlan()
         val snapshot = useTemplate(POWERLIFTING, "pl-3")!!

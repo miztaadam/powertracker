@@ -282,6 +282,9 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
         }
     }
 
+    /** The sides whose plan restoring [file] would remove ([sidesLosingPlanOf]), read from what is stored now. */
+    suspend fun sidesLosingPlan(file: BackupFile): List<TrainingMode> = sidesLosingPlanOf(db.plan().all().map { it.mode }, file)
+
     /**
      * Replaces all data in one transaction; any failure rolls back and leaves existing data untouched. A version-1 file
      * gets the strict press upgrade on the way in, as the database got [com.powertracker.data.db.MIGRATION_1_2]. A
@@ -289,9 +292,6 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
      * [com.powertracker.data.db.MIGRATION_2_3]. A file before version 4 has no check-ins, and one before version 5 no
      * skips, so none are kept.
      */
-    /** The sides whose plan restoring [file] would remove ([sidesLosingPlanOf]), read from what is stored now. */
-    suspend fun sidesLosingPlan(file: BackupFile): List<TrainingMode> = sidesLosingPlanOf(db.plan().all().map { it.mode }, file)
-
     suspend fun restore(file: BackupFile) {
         // Map everything first so any bad file content fails before a single row is deleted.
         val rows = file.exercises.map { it.toEntity() }
