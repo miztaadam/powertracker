@@ -769,7 +769,7 @@ Plan: `docs/superpowers/plans/2026-11-19-grit-1-14-1-plan-safety-nets.md`.
 - **The Undo time:** Android's is `SnackbarDuration.Short`, 4 s, which the phone's accessibility settings can lengthen. The web's is a fixed 4 s.
 - **The warning on safety-copy restores:** only the web has a safety-copy restore ("Restore safety copy"), so only the web warns there.
 - **A failed Undo after leaving Plan:** Android shows the message the next time Plan opens; the web shows nothing.
-- **Editing the plan right after a save:** on Android, any change to the side's plan ids turns Undo off; on the web, adding or removing an item does. An in-place number edit within the 4 s is reverted by Undo on both.
+- **Editing the plan right after a save:** the review listed this as a difference (on Android any change turns Undo off; on the web, adding or removing an item does). In the code, both apps' Undo checks the same thing besides Android's token: the side's item ids must still be the replace's. So on both, adding or removing an item turns Undo off, and an in-place number edit within the 4 s is reverted by Undo.
 - On the web, Undo stores the side's days as an explicit settings row, even when they were the default; the value is the same.
 
 **Tests:**
