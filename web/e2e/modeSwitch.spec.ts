@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
@@ -560,87 +560,205 @@ test('with reduced motion: no animation, the side changes at the tap', async ({ 
   expect(await drawn(page)).toBe(0)
 })
 
+
 // Real frames, the production build, no fake clock (installing Playwright's clock, even a fixed date, replaces
 // requestAnimationFrame).
 //
 // What is measured, in the page, before the app loads:
 // - **Frames:** a bare frame loop of the test's own (requestAnimationFrame as the browser gives it) notes every frame's
-//   timestamp. It does no work, so a gap between two of its frames is a frame the browser did not draw.
+//   timestamp, and posts itself a message that runs once the frame's rendering is done. It does no work, so a gap
+//   between two of its frames is a frame the browser did not draw; from a frame's timestamp to its message is the
+//   frame's work on the page's thread (the app's script, style, layout, paint), the frame's "work".
 // - **The app's script:** every callback the app gets is wrapped and timed: animation frames, timers, message ports
 //   (React's scheduler), idle callbacks, event listeners, IndexedDB handlers and the view transition's update. A
 //   frame's script is the time those callbacks ran between its timestamp and the next frame's (overlaps counted once).
 //   Promise continuations are not timed.
 // - **The tap:** from the press going down to the end of the click's handlers.
+// - **The reveal:** the calls to startViewTransition, and when <html> has the ms-revealing class.
+// - **The machine's CPU** (Linux): all of it, the share stolen by the host, and the share of the test's own processes
+//   (this worker and the browser it runs), over each window.
 //
-// Windows: an idle control, then an animation, three times: the pump and the drop with their shapes worked out ahead
-// (Settings' idle warm), and a pump straight after a scroll, before the warm that follows a scroll could run (the cold
-// path: the switch has moved, so the shapes are worked out in the animation's first frames). An idle window is the same
-// page, measured the same way for as long, with a tap on the screen's title (which does nothing) in place of the switch.
-// Nothing polls the page inside a window: the test waits in the page for the window to end, and checks what it has to
-// once the window is over.
+// Windows: an idle control, then an animation: the pump and the drop five times each with their shapes worked out
+// ahead (Settings' idle warm), then a pump straight after a scroll, before the warm that follows a scroll could run
+// (the cold path: the switch has moved, so the shapes are worked out in the animation's first frames). An idle window
+// is the same page, measured the same way for as long, with a tap on the screen's title (which does nothing) in place
+// of the switch. Nothing polls the page inside a window: the test waits in the page for the window to end, and checks
+// what it has to once the window is over.
 //
-// The rules, for every frame of every animation, from the tap to its end:
-// (a) the app's script is at most 16 ms;
-// (b) no gap between frames over one and a half intervals, so no frame is skipped, with one exception: at the moment
-//     (the drop's impact, the pump's third beat) the browser may skip one frame, and only one, while it takes the new
-//     side's picture for the reveal;
-// (c) as many frames as the animation's length allows, the first within one and a half intervals of the tap, and the
-//     tap itself within 16 ms.
-// The idle control must itself be clean: every frame there, none of the test's own frames late, and the machine's CPU
-// mostly idle while it runs (an idle page leaves it so; on a machine where something else is using it, the animations
-// starve while the idle page's frames still come on time). If it is not, the machine is busy, and the run fails saying
-// so, whatever the animations did. It never passes on a busy machine.
+// What fails the run, in this order:
+// 1. Motion off (the app's setting or the system's reduced motion): nothing animates, so nothing is measured.
+// 2. The reveal not run, in any animation: startViewTransition not called exactly once, <html> not ms-revealing for
+//    80 ms or more, or far fewer frames than the animation's length. Checked straight after each window, so it fails at the first.
+// 3. The calibration: the display's frame interval (the idle controls' median gap) over 20 ms.
+// 4. MACHINE BUSY: an idle control not clean (a frame missed or late, or the machine's CPU over 30 % in use), or, when
+//    the app's checks below fail, the animation's own windows had the CPU taken by something other than the test's
+//    own processes. It never passes on a busy machine, and it never blames the app for one.
+// 5. Two or more bad animations of one kind (the pump, warm and cold; the drop). An animation is bad when any frame
+//    of it, from the tap to its end, breaks a rule: (a) the app's script over 16 ms; (b) a gap between frames over
+//    one and a half intervals, but for one skip at the moment (the drop's impact, the pump's third beat) of up to two
+//    and a half, while the browser takes the new side's picture; (c) fewer frames than the length allows, the first
+//    over one and a half intervals after the tap, or the tap itself over 16 ms. One stray lost frame does not fail
+//    the run; the same fault twice in five does.
+// 6. The reveal's work: the median work per frame over every reveal's frames (from three frames after the moment to
+//    the reveal's end), pooled across the eleven animations, over WORK_LIMIT. The limit is in milliseconds of this
+//    machine (the e2e container): it sits between the build before the 1.15 speed fix and the build after it.
 test.describe('mode switch speed', { tag: '@speed' }, () => {
   /** Over this share of the machine's CPU in use during an idle control, the machine is busy. */
   const BUSY_CPU = 0.3
-  /** The machine's CPU time so far, all cores, from /proc/stat; null where there is none. */
-  const cpuTimes = () => {
+  /** Over this share of the machine's CPU used, during an animation, by anything but the test's own processes. */
+  const OTHER_CPU = 0.25
+  /** Over this share of the machine's CPU stolen by the host during an animation. */
+  const STEAL_CPU = 0.05
+  /** The warm pumps and drops. */
+  const REPEATS = 5
+  /** Bad animations of one kind that fail the run. */
+  const BAD = 2
+  /** The display's frame interval may be at most this; above, the thresholds would scale to a slow display. */
+  const MAX_INTERVAL = 20
+  /** The shortest reveal, ms (the drop's runs about 170 ms, the pump's about 390). */
+  const MIN_REVEAL = 80
+  /** The pooled median of the reveal's work per frame, ms (see 6 above). */
+  const WORK_LIMIT = 5.5
+
+  /** The machine's CPU time so far, all cores, from /proc/stat, in clock ticks; null where there is none. */
+  const procStat = () => {
     if (!existsSync('/proc/stat')) return null
     const f = readFileSync('/proc/stat', 'utf8').split('\n')[0]!.trim().split(/\s+/).slice(1).map(Number)
-    return { total: f.reduce((a, b) => a + b, 0), idle: f[3]! + (f[4] ?? 0) }
+    return { total: f.reduce((a, b) => a + b, 0), idle: f[3]! + (f[4] ?? 0), steal: f[7] ?? 0 }
   }
+  /** The CPU time, in clock ticks, of this worker and every process under it (the browser and its children). */
+  const ownTicks = () => {
+    const children = new Map<number, number[]>()
+    const ticks = new Map<number, number>()
+    for (const name of readdirSync('/proc')) {
+      if (!/^\d+$/.test(name)) continue
+      let stat: string
+      try {
+        stat = readFileSync(`/proc/${name}/stat`, 'utf8')
+      } catch {
+        continue
+      }
+      // After the command's name, which may hold spaces and brackets: state, ppid, … utime (14th), stime (15th).
+      const f = stat.slice(stat.lastIndexOf(')') + 2).split(' ')
+      const pid = Number(name)
+      const ppid = Number(f[1])
+      ticks.set(pid, Number(f[11]) + Number(f[12]))
+      children.set(ppid, [...(children.get(ppid) ?? []), pid])
+    }
+    let sum = 0
+    const todo = [process.pid]
+    while (todo.length > 0) {
+      const pid = todo.pop()!
+      sum += ticks.get(pid) ?? 0
+      todo.push(...(children.get(pid) ?? []))
+    }
+    return sum
+  }
+  type CpuAt = { total: number; idle: number; steal: number; own: number }
+  const cpuAt = (): CpuAt | null => {
+    const s = procStat()
+    return s == null ? null : { ...s, own: ownTicks() }
+  }
+  /** Shares of the machine's CPU over a window: in use, by the test's own processes, stolen, and by anything else. */
+  type Cpu = { busy: number; own: number; steal: number; other: number }
+  const cpuOver = (a: CpuAt | null, b: CpuAt | null): Cpu | null => {
+    if (a == null || b == null || b.total <= a.total) return null
+    const total = b.total - a.total
+    const busy = total - (b.idle - a.idle)
+    const own = b.own - a.own
+    const steal = b.steal - a.steal
+    return { busy: busy / total, own: own / total, steal: steal / total, other: Math.max(0, busy - own - steal) / total }
+  }
+  const pc = (x: number) => `${Math.round(x * 100)} %`
 
   test.use({ storageState: { cookies: [], origins: [] } })
 
   /** A task the app ran: its kind, start and end (performance.now). */
   type Task = [string, number, number]
-  /** One of the test's own frames: its timestamp, and when its callback ran. */
-  type Frame = { ts: number; cb: number }
-  /** `cpu`: the share of the machine's CPU time used over the window, by anything (Linux; null elsewhere). */
-  type Span = { frames: Frame[]; tasks: Task[]; tap: number; tapMs: number; cpu: number | null }
+  /** One of the test's own frames: its timestamp, when its callback ran, and when its rendering was done (0: not seen). */
+  type Frame = { ts: number; cb: number; after: number }
+  type Measured = {
+    frames: Frame[]
+    tasks: Task[]
+    tap: number
+    tapMs: number
+    /** Calls to startViewTransition. */
+    starts: number
+    /** When <html> took the ms-revealing class, and lost it (performance.now; 0: not seen). */
+    revealOn: number
+    revealOff: number
+  }
+  type Span = Measured & { cpu: Cpu | null }
   type Probe = {
     on: boolean
     tap: number
     tapMs: number
     tasks: Task[]
+    starts: number
+    revealOn: number
+    revealOff: number
     run: Promise<Frame[]> | null
     start: (ms: number) => void
   }
 
   test('every frame of the pump and the drop is drawn on time, warm and cold, against an idle control', async ({ page }) => {
-    test.setTimeout(60_000)
+    test.setTimeout(240_000)
+    const cpuCheck = procStat() != null
+    if (!cpuCheck) {
+      const say = "CPU CHECK UNAVAILABLE: no /proc/stat here, so a busy machine cannot be told from a slow app; this run's MACHINE BUSY checks see only the idle control's frames"
+      console.warn(`\n!!! ${say} !!!\n`)
+      test.info().annotations.push({ type: 'warning', description: say })
+    }
     await page.addInitScript(() => {
       const now = () => performance.now()
       const rawRaf = window.requestAnimationFrame.bind(window)
       const rawTimeout = window.setTimeout.bind(window)
       const rawAdd = EventTarget.prototype.addEventListener
       const rawRemove = EventTarget.prototype.removeEventListener
+      // The probe's own message, made before message ports are wrapped, so it is never timed as the app's.
+      const channel = new MessageChannel()
+      let rendering: Frame | null = null
+      channel.port1.onmessage = () => {
+        if (rendering != null) rendering.after = now()
+        rendering = null
+      }
+      let watching = false
       const P: Probe = {
         on: false,
         tap: 0,
         tapMs: -1,
         tasks: [],
+        starts: 0,
+        revealOn: 0,
+        revealOff: 0,
         run: null,
         start(ms) {
           P.tasks = []
           P.tap = 0
           P.tapMs = -1
+          P.starts = 0
+          P.revealOn = 0
+          P.revealOff = 0
           P.on = true
+          if (!watching) {
+            watching = true
+            // The exact class (the reveal without view transitions has ms-revealing-plain, which is not it).
+            new MutationObserver((records) => {
+              if (!P.on) return
+              const had = records.some((r) => (r.oldValue ?? '').split(/\s+/).includes('ms-revealing'))
+              const has = document.documentElement.classList.contains('ms-revealing')
+              if ((had || has) && P.revealOn === 0) P.revealOn = now()
+              if (!has && P.revealOn > 0 && P.revealOff === 0) P.revealOff = now()
+            }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'], attributeOldValue: true })
+          }
           P.run = new Promise((done) => {
             const frames: Frame[] = []
             const t0 = now()
             const loop = (ts: number) => {
-              frames.push({ ts, cb: now() })
+              const f = { ts, cb: now(), after: 0 }
+              frames.push(f)
+              rendering = f
+              channel.port2.postMessage(0)
               if (now() - t0 < ms) rawRaf(loop)
               // A moment more, so the last frame's tasks are in; then the window is over.
               else
@@ -703,6 +821,7 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
       const rawStart = d.startViewTransition
       if (typeof rawStart === 'function')
         d.startViewTransition = function (this: unknown, update: unknown) {
+          if (P.on) P.starts++
           return rawStart.call(this, typeof update === 'function' ? timed('view transition update', update as () => void) : update)
         }
       // The tap, not timed as the app's: from the press going down to the end of the click's handlers (the switch's
@@ -715,6 +834,9 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/#/settings')
     await expect(modeSwitch(page)).toBeVisible()
+    // 1. Motion on.
+    const motion = await page.evaluate(() => ({ setting: document.documentElement.getAttribute('data-motion'), reduced: matchMedia('(prefers-reduced-motion: reduce)').matches }))
+    expect(motion, `MOTION IS OFF (data-motion ${motion.setting ?? 'not set'}, reduced motion ${motion.reduced ? 'on' : 'off'}): no animation runs, so this run measures nothing`).toEqual({ setting: null, reduced: false })
     const warms = () => page.evaluate(() => performance.getEntriesByName('ms-warm').map((e) => e.startTime))
     // Settings' warm has run (it waits for an idle moment).
     await expect.poll(async () => (await warms()).length).toBeGreaterThan(0)
@@ -722,17 +844,15 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
 
     /** One window: the probe started, the tap at `at`, then nothing until the window has ended in the page. */
     async function measure(ms: number, at: { x: number; y: number }): Promise<Span> {
-      const before = cpuTimes()
+      const before = cpuAt()
       await page.evaluate((length) => (window as Window & { __probe?: Probe }).__probe!.start(length), ms)
       await page.mouse.click(at.x, at.y)
-      const span = await page.evaluate(async () => {
+      const span = await page.evaluate(async (): Promise<Measured> => {
         const p = (window as Window & { __probe?: Probe }).__probe!
         const frames = await p.run!
-        return { frames, tasks: p.tasks, tap: p.tap, tapMs: p.tapMs }
+        return { frames, tasks: p.tasks, tap: p.tap, tapMs: p.tapMs, starts: p.starts, revealOn: p.revealOn, revealOff: p.revealOff }
       })
-      const after = cpuTimes()
-      const cpu = before != null && after != null && after.total > before.total ? 1 - (after.idle - before.idle) / (after.total - before.total) : null
-      return { ...span, cpu }
+      return { ...span, cpu: cpuOver(before, cpuAt()) }
     }
     const centre = async (selector: string) => {
       const box = (await page.locator(selector).first().boundingBox())!
@@ -742,8 +862,12 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
       const box = (await page.locator('.gr-screen-title').first().boundingBox())!
       return { x: box.x + 4, y: box.y + box.height / 2 }
     }
+    const medianGap = (w: Span) => {
+      const gaps = w.frames.slice(1).map((f, i) => f.ts - w.frames[i]!.ts).sort((a, b) => a - b)
+      return gaps[Math.floor(gaps.length / 2)] ?? Infinity
+    }
 
-    type Run = { name: string; end: number; moment: number; idle: Span; anim: Span }
+    type Run = { name: string; kind: 'pump' | 'drop'; end: number; moment: number; idle: Span; anim: Span }
     const runs: Run[] = []
     async function play(name: string, kind: 'pump' | 'drop', before?: () => Promise<void>) {
       const end = kind === 'pump' ? PUMP.end : DROP.end
@@ -753,7 +877,15 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
       const warmsAtTap = (await warms()).length
       if (before != null) await before()
       const anim = await measure(end + 200, at)
-      runs.push({ name, end, moment: kind === 'pump' ? THIRD : DROP.impact, idle, anim })
+      runs.push({ name, kind, end, moment: kind === 'pump' ? THIRD : DROP.impact, idle, anim })
+      // 2. The reveal ran, as a view transition, and the animation drew its frames.
+      expect(anim.starts, `THE REVEAL DID NOT RUN: ${name} called startViewTransition ${anim.starts} times, want once`).toBe(1)
+      expect(anim.revealOn > 0, `THE REVEAL DID NOT RUN: <html> never had the ms-revealing class in ${name}`).toBe(true)
+      const lasted = anim.revealOff > 0 ? anim.revealOff - anim.revealOn : Infinity
+      expect(lasted >= MIN_REVEAL && lasted < Infinity, `THE REVEAL DID NOT RUN: <html> had the ms-revealing class for ${lasted.toFixed(0)} ms in ${name}, want ${MIN_REVEAL} ms or more and over by the window's end`).toBe(true)
+      const inside = anim.frames.filter((f) => f.ts > anim.tap && f.ts - anim.tap <= end).length
+      const roughly = Math.floor((0.8 * end) / Math.min(medianGap(idle), MAX_INTERVAL))
+      expect(inside, `THE ANIMATION DID NOT RUN: ${name} drew ${inside} frames, want about ${end} ms / the idle control's interval, at least ${roughly}`).toBeGreaterThanOrEqual(roughly)
       // Over, on the new side; then Settings works the shapes out again for the switch where it now sits.
       expect(await drawn(page), `${name}: over by the window's end`).toBe(0)
       expect(await dataMode(page), `${name}: the new side`).toBe(kind === 'pump' ? 'bodybuilding' : null)
@@ -762,8 +894,10 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
       return anim
     }
 
-    await play('pump (warm)', 'pump')
-    await play('drop (warm)', 'drop')
+    for (let i = 1; i <= REPEATS; i++) {
+      await play(`pump ${i} (warm)`, 'pump')
+      await play(`drop ${i} (warm)`, 'drop')
+    }
     // The cold path: Settings scrolled a little and tapped at once, before the warm that follows a scroll at rest. The
     // switch has moved, so the shapes for it are new; no warm comes between the scroll and the animation's end (the
     // warm marks are read afterwards, by their times, so nothing polls inside the window).
@@ -786,12 +920,13 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
     await page.locator('.shell-main').evaluate((el) => el.scrollBy(0, -9))
     await expect.poll(async () => (await warms()).length, { message: 'the shapes worked out again after a scroll at rest' }).toBeGreaterThan(beforeRest)
 
-    // The display's frame interval: the idle control's median gap.
+    // 3. The display's frame interval: the idle controls' median gap.
     const idleGaps = runs.flatMap((r) => r.idle.frames.slice(1).map((f, i) => f.ts - r.idle.frames[i]!.ts)).sort((a, b) => a - b)
     const interval = idleGaps[Math.floor(idleGaps.length / 2)]!
     expect(interval, 'the display frame interval').toBeGreaterThan(5)
+    expect(interval, `CALIBRATION: the display's frame interval is ${interval.toFixed(1)} ms, over ${MAX_INTERVAL} ms (60 Hz is 16.7): every threshold here scales with it, so this run would hold the app to a slower display`).toBeLessThanOrEqual(MAX_INTERVAL)
 
-    /** The frames from the tap to the end, each with the app's script in it and the gap after the one before. */
+    /** The frames from the tap to the end, each with the app's script in it, its work, and the gap after the one before. */
     const framesOf = (w: Span, end: number) => {
       const frames = w.frames.filter((f) => f.ts - w.tap > 0 && f.ts - w.tap <= end)
       return frames.map((f, i) => {
@@ -807,40 +942,43 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
           script += e - Math.max(s, to)
           to = e
         }
-        return { at: f.ts - w.tap, script, gap: i === 0 ? 0 : f.ts - frames[i - 1]!.ts, late: f.cb - f.ts }
+        return { ts: f.ts, at: f.ts - w.tap, script, work: f.after > 0 ? f.after - f.ts : null, gap: i === 0 ? 0 : f.ts - frames[i - 1]!.ts, late: f.cb - f.ts }
       })
     }
+    const cpuSaid = (c: Cpu | null) => (c == null ? 'CPU unknown' : `CPU ${pc(c.busy)} (own ${pc(c.own)}, other ${pc(c.other)}, steal ${pc(c.steal)})`)
 
-    // The control first: a busy machine fails the run on its own account, before anything is said about the app.
+    // 4. The control first: a busy machine fails the run on its own account, before anything is said about the app.
     const busy: string[] = []
     const control: string[] = []
     for (const r of runs) {
       const frames = framesOf(r.idle, r.end)
       expect(r.idle.tap, `${r.name}, idle control: the tap was seen`).toBeGreaterThan(0)
-      const cpu = r.idle.cpu == null ? 'unknown' : `${Math.round(r.idle.cpu * 100)} %`
-      control.push(`${r.name} control: ${frames.length} frames, widest gap ${Math.max(...frames.map((f) => f.gap)).toFixed(1)} ms, latest callback ${Math.max(...frames.map((f) => f.late)).toFixed(1)} ms, machine CPU ${cpu}`)
+      control.push(`${r.name}: widest gap ${Math.max(...frames.map((f) => f.gap)).toFixed(1)}, latest callback ${Math.max(...frames.map((f) => f.late)).toFixed(1)}, ${cpuSaid(r.idle.cpu)}`)
       if (frames.length < Math.floor(r.end / interval) - 2) busy.push(`${r.name}, idle control: only ${frames.length} frames`)
       // Something else on the machine using the CPU starves the animation long before it shows in an idle page's
       // frames: an idle page on a quiet machine uses a few per cent.
-      if (r.idle.cpu != null && r.idle.cpu > BUSY_CPU) busy.push(`${r.name}, idle control: the machine's CPU was ${Math.round(r.idle.cpu * 100)} % in use`)
+      if (r.idle.cpu != null && r.idle.cpu.busy > BUSY_CPU) busy.push(`${r.name}, idle control: the machine's CPU was ${pc(r.idle.cpu.busy)} in use`)
       for (const f of frames.slice(1)) if (f.gap > interval * 1.5) busy.push(`${r.name}, idle control: a ${f.gap.toFixed(1)} ms gap before ${Math.round(f.at)} ms`)
       for (const f of frames) if (f.late > 16) busy.push(`${r.name}, idle control: a frame's callback ran ${f.late.toFixed(1)} ms late at ${Math.round(f.at)} ms`)
     }
 
-    const late: string[] = []
+    // 5. Each animation, against the rules; 6. the reveal's frames' work, pooled.
+    const bad = new Map<string, string[]>()
     const summary: string[] = []
+    const revealWork: number[] = []
+    const workOf: Record<string, number[]> = { pump: [], drop: [] }
     for (const r of runs) {
       const frames = framesOf(r.anim, r.end)
-      expect(r.anim.tapMs, `${r.name}: the tap was timed`).toBeGreaterThanOrEqual(0)
-      if (r.anim.tapMs > 16) late.push(`${r.name}: the tap took ${r.anim.tapMs.toFixed(1)} ms`)
+      const why: string[] = []
+      if (r.anim.tapMs < 0) why.push('the tap was not timed')
+      if (r.anim.tapMs > 16) why.push(`the tap took ${r.anim.tapMs.toFixed(1)} ms`)
       // (c) Every frame there: as many as the animation's length allows, less one at each end and the moment's.
       const want = Math.floor(r.end / interval) - 2
-      if (frames.length < want) late.push(`${r.name}: ${frames.length} frames drawn, want ${want}`)
-      if (frames.length === 0) continue
-      if (frames[0]!.at > interval * 1.5) late.push(`${r.name}: the first frame ${frames[0]!.at.toFixed(1)} ms after the tap`)
-      if (frames.at(-1)!.at <= r.end - interval * 2) late.push(`${r.name}: the last frame timed at ${frames.at(-1)!.at.toFixed(1)} ms`)
+      if (frames.length < want) why.push(`${frames.length} frames drawn, want ${want}`)
+      if (frames[0]!.at > interval * 1.5) why.push(`the first frame ${frames[0]!.at.toFixed(1)} ms after the tap`)
+      if (frames.at(-1)!.at <= r.end - interval * 2) why.push(`the last frame timed at ${frames.at(-1)!.at.toFixed(1)} ms`)
       // (a) The app's own script, every frame.
-      for (const f of frames) if (f.script > 16) late.push(`${r.name}: ${f.script.toFixed(1)} ms of the app's script in the frame at ${Math.round(f.at)} ms`)
+      for (const f of frames) if (f.script > 16) why.push(`${f.script.toFixed(1)} ms of the app's script in the frame at ${Math.round(f.at)} ms`)
       // (b) No skipped frame, but for one at the moment.
       let skips = 0
       let momentGap = 0
@@ -853,13 +991,34 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
           momentGap = gap
           continue
         }
-        late.push(`${r.name}: a ${gap.toFixed(1)} ms gap before ${Math.round(frames[i]!.at)} ms`)
+        why.push(`a ${gap.toFixed(1)} ms gap before ${Math.round(frames[i]!.at)} ms`)
       }
-      summary.push(`${r.name}: ${frames.length} frames, script max ${Math.max(...frames.map((f) => f.script)).toFixed(1)} ms, widest gap ${Math.max(...frames.map((f) => f.gap)).toFixed(1)} ms, moment skip ${momentGap.toFixed(1)} ms, tap ${r.anim.tapMs.toFixed(1)} ms`)
+      if (why.length > 0) bad.set(r.name, why)
+      // The reveal's frames: from three intervals after it began to its end.
+      const from = r.anim.revealOn + interval * 3
+      const to = r.anim.revealOff > 0 ? r.anim.revealOff : Infinity
+      const work = frames.filter((f) => f.ts >= from && f.ts < to && f.work != null).map((f) => f.work!)
+      revealWork.push(...work)
+      workOf[r.kind]!.push(...work)
+      summary.push(
+        `${r.name}: ${frames.length} frames, script max ${Math.max(...frames.map((f) => f.script)).toFixed(1)} ms, widest gap ${Math.max(...frames.map((f) => f.gap)).toFixed(1)} ms, moment skip ${momentGap.toFixed(1)} ms, tap ${r.anim.tapMs.toFixed(1)} ms, reveal ${Math.round(r.anim.revealOn - r.anim.tap)}-${Math.round(r.anim.revealOff - r.anim.tap)} ms, reveal work median ${median(work).toFixed(1)} ms over ${work.length} frames, ${cpuSaid(r.anim.cpu)}${why.length > 0 ? `; BAD: ${why.join(', ')}` : ''}`,
+      )
     }
-    const said = `interval ${interval.toFixed(1)} ms; ${summary.join('; ')}; ${control.join('; ')}`
+    const work = median(revealWork)
+    const badOf = (kind: 'pump' | 'drop') => runs.filter((r) => r.kind === kind && bad.has(r.name))
+    const failing = [...(['pump', 'drop'] as const).filter((k) => badOf(k).length >= BAD).map((k) => `${badOf(k).length} bad ${k}s of ${runs.filter((r) => r.kind === k).length}`), ...(work > WORK_LIMIT ? [`the reveal's work ${work.toFixed(2)} ms a frame`] : [])]
+    // When the app's checks fail: was the CPU the animation needed taken by something else?
+    const busyDuring = failing.length === 0 ? [] : runs.filter((r) => r.anim.cpu != null && (r.anim.cpu.other > OTHER_CPU || r.anim.cpu.steal > STEAL_CPU)).map((r) => `${r.name}: ${cpuSaid(r.anim.cpu)}`)
+    const said = `interval ${interval.toFixed(1)} ms; reveal work median ${work.toFixed(2)} ms over ${revealWork.length} frames (pump ${median(workOf.pump!).toFixed(2)}, drop ${median(workOf.drop!).toFixed(2)}), limit ${WORK_LIMIT}; bad animations: pump ${badOf('pump').length}, drop ${badOf('drop').length}; ${summary.join('; ')}; idle controls: ${control.join('; ')}${cpuCheck ? '' : '; CPU CHECK UNAVAILABLE'}`
     console.log(`mode switch speed: ${said}`)
     expect(busy, `MACHINE BUSY: the idle control, with nothing animating, was not clean (below), so this run says nothing about the app; rerun it on a quiet machine (${said})`).toEqual([])
-    expect(late, `late frames (${said})`).toEqual([])
+    expect(busyDuring, `MACHINE BUSY: the app's checks failed (${failing.join(', ')}) while something other than the test's own processes was using the CPU, so this run says nothing about the app; rerun it on a quiet machine (${said})`).toEqual([])
+    expect([...bad].filter(([name]) => badOf(runs.find((r) => r.name === name)!.kind).length >= BAD).map(([name, why]) => `${name}: ${why.join(', ')}`), `late frames, in ${BAD} or more animations of one kind (${said})`).toEqual([])
+    expect(work, `THE REVEAL'S FRAMES ARE SLOW: the median work per frame over every reveal is ${work.toFixed(2)} ms, over ${WORK_LIMIT} ms (${said})`).toBeLessThanOrEqual(WORK_LIMIT)
   })
 })
+
+function median(values: number[]): number {
+  const s = [...values].sort((a, b) => a - b)
+  return s.length === 0 ? NaN : s[Math.floor(s.length / 2)]!
+}
