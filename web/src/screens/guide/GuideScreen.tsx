@@ -5,22 +5,13 @@ import { cx } from '../../ui/components/format'
 import { ArrowBackIcon, ArrowForwardIcon, CheckIcon } from '../../ui/components/icons'
 import { Pill } from '../../ui/components/Pill'
 import { GuidePicture } from './GuidePictures'
+import { BACK, DONE, EXAMPLE, GUIDE_LABEL, NEXT, SKIP, dotsLabel } from './guideLabels'
 import './GuideScreen.css'
 
-export { pictureDescription } from './GuidePictures'
+export { BACK, DONE, EXAMPLE, GUIDE_LABEL, NEXT, SKIP, dotsLabel, pictureDescription } from './guideLabels'
 
 /** How the guide was left. */
 export type GuideExit = 'skipped' | 'done' | 'choose-template' | 'build-plan' | 'see-plan'
-
-/** The guide's own control words and labels: the screens' copy comes from the domain (`guideScreen`). */
-export const SKIP = 'Skip'
-export const BACK = 'Back'
-export const NEXT = 'Next'
-export const DONE = 'Done'
-export const EXAMPLE = 'Example'
-
-/** What the row of dots says: the one screen shown of how many. */
-export const dotsLabel = (index: number, count: number) => `Screen ${index + 1} of ${count}`
 
 /** A horizontal move at least this long, and longer than it is tall, turns the page. */
 const SWIPE_PX = 50
@@ -74,8 +65,18 @@ export type GuideScreenProps = {
 
 /** A button as the app's (ui/components/Button), with the guide's test id. */
 function GuideButton({ text, onClick, kind, icon, enabled = true, testId, className }: { text: string; onClick: () => void; kind: 'primary' | 'secondary' | 'quiet'; icon?: ReactNode; enabled?: boolean; testId: string; className?: string }) {
+  // Never `disabled`: a focused button that became disabled would drop the keyboard focus to the page. Off, it says
+  // so (aria-disabled) and does nothing.
   return (
-    <button type="button" className={cx('gr-btn label-large', `gr-btn-${kind}`, kind === 'quiet' && 'gr-btn-compact', className)} disabled={!enabled} onClick={onClick} data-testid={testId}>
+    <button
+      type="button"
+      className={cx('gr-btn label-large', `gr-btn-${kind}`, kind === 'quiet' && 'gr-btn-compact', 'guide-btn', className)}
+      aria-disabled={!enabled}
+      onClick={() => {
+        if (enabled) onClick()
+      }}
+      data-testid={testId}
+    >
       <span className="gr-btn-face">
         {icon != null && <span className="gr-btn-icon">{icon}</span>}
         <span className="gr-btn-text">{text}</span>
@@ -88,8 +89,14 @@ function GuideButton({ text, onClick, kind, icon, enabled = true, testId, classN
  * One screen: its title and lines from the domain, then its picture, which shrinks to leave the text its room. Keyed by
  * screen, so its picture starts from the first step each time it is shown; its steps are worked out only once shown.
  */
-function GuidePage({ id, mode, motionOn, clock }: { id: string; mode: TrainingMode; motionOn: boolean; clock: GuideClock }) {
+function GuidePage({ id, mode, motionOn, clock, focusTitle }: { id: string; mode: TrainingMode; motionOn: boolean; clock: GuideClock; focusTitle: boolean }) {
   const screen: JsGuideScreen = useMemo(() => grit.guideScreen(id, mode), [id, mode])
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  // The first screen's title takes the focus as the guide opens (what opened it has gone); later screens leave it on
+  // the control that turned the page, and the live region says the new title.
+  useEffect(() => {
+    if (focusTitle) titleRef.current?.focus()
+  }, [focusTitle])
   const steps = useMemo(() => grit.guideSteps(id, mode), [id, mode])
   const ticked = clock.useStep(steps.length, motionOn)
   const step = steps.length === 0 ? null : (motionOn ? steps[ticked] : steps[steps.length - 1]) ?? null
@@ -97,7 +104,7 @@ function GuidePage({ id, mode, motionOn, clock }: { id: string; mode: TrainingMo
     <div className="guide-page">
       {/* The text wraps and is never cut: past its share of the height it scrolls, and the picture takes the rest. */}
       <div className="guide-text">
-        <h1 className="guide-title headline-medium" data-testid="guide-title">
+        <h1 className="guide-title headline-medium" data-testid="guide-title" tabIndex={-1} ref={titleRef}>
           {screen.title}
         </h1>
         {screen.lines.map((line) => (
@@ -131,6 +138,12 @@ export function GuideScreen({ mode, motionOn, onClose, clock = tickingGuideClock
   const [index, setIndex] = useState(() => Math.max(0, screens.indexOf(startAt)))
   const id = screens[index]!
   const last = index === screens.length - 1
+  // Only the screen first shown has its title take the focus, once.
+  const opening = useRef(true)
+  useEffect(() => {
+    opening.current = false
+  }, [])
+  const shownTitle = useMemo(() => grit.guideScreen(id, mode).title, [id, mode])
 
   const close = useRef(onClose)
   close.current = onClose
@@ -146,7 +159,11 @@ export function GuideScreen({ mode, motionOn, onClose, clock = tickingGuideClock
   const start = useRef<{ x: number; y: number } | null>(null)
 
   return (
-    <section className="guide" data-testid="guide" aria-roledescription="guide">
+    <section className="guide" data-testid="guide" aria-label={GUIDE_LABEL}>
+      {/* Outside the keyed page, so a page change is a change of its text: read out politely. */}
+      <p className="sr-only" aria-live="polite" data-testid="guide-announce">
+        {shownTitle}
+      </p>
       <div className="guide-top">
         <GuideButton text={SKIP} kind="quiet" onClick={() => onClose('skipped')} testId="guide-skip" />
       </div>
@@ -168,7 +185,7 @@ export function GuideScreen({ mode, motionOn, onClose, clock = tickingGuideClock
         }}
       >
         {/* Keyed by screen: a new page starts its picture from the first step, and slides in with motion on. */}
-        <GuidePage key={id} id={id} mode={mode} motionOn={motionOn} clock={clock} />
+        <GuidePage key={id} id={id} mode={mode} motionOn={motionOn} clock={clock} focusTitle={opening.current} />
       </div>
       <div className="guide-dots" data-testid="guide-dots" role="img" aria-label={dotsLabel(index, screens.length)}>
         {screens.map((s, i) => (

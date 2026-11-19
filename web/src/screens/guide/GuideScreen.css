@@ -45,10 +45,13 @@
   }
 }
 
-/* The text keeps up to 60% of the height, scrolling past it; it wraps and is never cut. */
+/*
+ * The text comes first: it takes the height it needs, and only past the whole page does it scroll; it wraps and is
+ * never cut. The picture takes what it leaves (none at all with large text on a small phone).
+ */
 .guide-text {
-  flex: none;
-  max-height: 60%;
+  flex: 0 1 auto;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -68,8 +71,9 @@
 
 /* The picture takes what the text leaves, and shrinks to fit it. */
 .guide-art {
-  flex: 1;
+  flex: 1 1 0;
   min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -141,10 +145,40 @@
 
 .guide-controls {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
   padding: 0 var(--space-5) var(--space-5);
 }
 
-.guide-next {
-  flex: 1;
+/*
+ * Never narrower than their words: with large text on a narrow phone, Next goes under Back (each then the full width)
+ * rather than either label being cut or one button running over the other. Side by side, Next takes the rest.
+ */
+.guide-controls .gr-btn {
+  min-width: max-content;
+  flex: 1 0 auto;
+}
+
+.guide-controls .guide-next {
+  flex-grow: 1000;
+}
+
+/* Off (Back on screen 1): the app's disabled look, but still focusable (aria-disabled, not disabled). */
+.guide-btn[aria-disabled='true'] {
+  cursor: default;
+}
+
+.guide-btn[aria-disabled='true']:active .gr-btn-face {
+  filter: none;
+}
+
+.guide-btn.gr-btn-primary[aria-disabled='true'] .gr-btn-face,
+.guide-btn.gr-btn-secondary[aria-disabled='true'] .gr-btn-face {
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+  color: color-mix(in srgb, var(--text) 38%, transparent);
+}
+
+/* Focused only so a screen reader starts at it when the guide opens: not a control, so no ring. */
+.guide-title:focus {
+  outline: none;
 }

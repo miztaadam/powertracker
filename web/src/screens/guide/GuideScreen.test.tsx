@@ -3,9 +3,10 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { TrainingMode } from '../../db/schema'
 import { grit } from '../../domain'
+import { formatKg, formatRpe } from '../../ui/components/format'
 import { setRowLabel } from '../../ui/components/SetRow'
 import { SKIPPED_TODAY } from '../today/SkipToday'
-import { EXAMPLE, GuideScreen, dotsLabel, heldGuideClock, pictureDescription, tickingGuideClock, type GuideClock, type GuideExit } from './GuideScreen'
+import { BACK, EXAMPLE, GUIDE_LABEL, GuideScreen, NEXT, dotsLabel, heldGuideClock, pictureDescription, tickingGuideClock, type GuideClock, type GuideExit } from './GuideScreen'
 import { guideTodayState } from './guideSampleState'
 
 /** The guide's shell and its Today picture (1.16, Task 2), as Android's `GuideScreenTest`. Copy comes from the domain. */
@@ -18,15 +19,15 @@ afterEach(() => {
   cleanup()
 })
 
-type Shown = { exits: GuideExit[]; rerender: (clock: GuideClock) => void }
+type Shown = { exits: GuideExit[]; rerender: (clock: GuideClock) => void; unmount: () => void }
 
 function show({ mode = 'POWERLIFTING' as TrainingMode, motionOn = true, clock = heldGuideClock(0) as GuideClock, startAt = 'WELCOME' } = {}): Shown {
   const exits: GuideExit[] = []
   const ui = (c: GuideClock) => (
     <GuideScreen mode={mode} firstLaunch={false} hasPlan={false} motionOn={motionOn} onPickSide={() => {}} onClose={(exit) => exits.push(exit)} clock={c} startAt={startAt} />
   )
-  const { rerender } = render(ui(clock))
-  return { exits, rerender: (c) => rerender(ui(c)) }
+  const { rerender, unmount } = render(ui(clock))
+  return { exits, rerender: (c) => rerender(ui(c)), unmount }
 }
 
 const title = (id: string, mode: TrainingMode = 'POWERLIFTING') => grit.guideScreen(id, mode).title
@@ -38,6 +39,20 @@ function expectOn(id: string, mode: TrainingMode = 'POWERLIFTING') {
 }
 
 const next = () => userEvent.click(screen.getByTestId('guide-next'))
+
+/** The plan item of the lift screen 4 logs, on the day it draws. */
+function liftItem(mode: TrainingMode) {
+  const sample = grit.guideSampleTodaySet(mode)
+  const lift = grit.guideSampleExercises(mode).find((e) => e.name === sample.exerciseId)!
+  return grit.guideSampleTodayItems(mode).find((p) => p.exerciseId === lift.id)!
+}
+
+/** The lift's editor as the picture draws it: its first card's weight, reps and RPE fields. */
+function drawnEditor() {
+  const inPicture = within(picture())
+  const value = (name: string) => (inPicture.getAllByRole('textbox', { name, hidden: true })[0] as HTMLInputElement).value
+  return { weight: value('Weight, kilograms'), reps: value('Reps'), rpe: value('RPE') }
+}
 
 describe('the guide', () => {
   it('guide_showsEightDots_andMovesWithNextBackAndSwipe', async () => {
@@ -84,22 +99,41 @@ describe('the guide', () => {
       const { rerender } = show({ mode, startAt: 'TODAY' })
       const steps = grit.guideSteps('TODAY', mode)
       const sample = grit.guideSampleTodaySet(mode)
-      const inPicture = within(picture())
-      const weight = () => inPicture.getByRole('textbox', { name: 'Weight, kilograms', hidden: true })
+      const item = liftItem(mode)
       const done = setRowLabel({ index: 1, weightKg: sample.doneWeightKg, reps: sample.doneReps, rpe: sample.doneRpe, state: 'done' })
-      // Step 0: the set row is empty.
-      expect(picture()).toHaveAttribute('data-step', steps[0])
-      expect(weight()).toHaveValue('')
-      expect(inPicture.queryByText(done)).toBeNull()
       for (const [i, step] of steps.entries()) {
         rerender(heldGuideClock(i))
         expect(picture()).toHaveAttribute('data-step', step)
+        // What is drawn at this step: the lift's editor fills field by field, then the set is ticked, then Skip today.
+        const at = (s: string) => i >= steps.indexOf(s)
+        expect(drawnEditor(), `${mode} ${step}`).toEqual({
+          weight: at('TODAY_WEIGHT') ? formatKg(sample.doneWeightKg) : '',
+          reps: String(at('TODAY_REPS') ? sample.doneReps : item.reps),
+          rpe: formatRpe(at('TODAY_RPE') ? sample.doneRpe : item.targetRpe),
+        })
+        const inPicture = within(picture())
+        expect(inPicture.queryByText(done) != null, `${mode} ${step}: the ticked set`).toBe(at('TODAY_TICKED'))
+        expect(inPicture.queryByText(SKIPPED_TODAY) != null, `${mode} ${step}: Skipped today`).toBe(at('TODAY_SKIP'))
       }
-      // By the last step: the weight, reps and RPE in, the set ticked, then Skip today.
-      expect(inPicture.getByText(done)).toBeInTheDocument()
-      expect(inPicture.getByRole('textbox', { name: 'Reps', hidden: true })).toHaveValue(String(sample.doneReps))
-      expect(inPicture.getByRole('textbox', { name: 'RPE', hidden: true })).toHaveValue(String(sample.doneRpe))
-      expect(inPicture.getByText(SKIPPED_TODAY)).toBeInTheDocument()
+      cleanup()
+    }
+  })
+
+  it('guide_screen4_theWeightRepsAndRpeSteps_eachChangeWhatIsDrawn', () => {
+    for (const mode of SIDES) {
+      const { rerender } = show({ mode, startAt: 'TODAY' })
+      const steps = grit.guideSteps('TODAY', mode)
+      const drawnAt = (step: string) => {
+        rerender(heldGuideClock(steps.indexOf(step)))
+        return drawnEditor()
+      }
+      const empty = drawnAt('TODAY_EMPTY')
+      const weight = drawnAt('TODAY_WEIGHT')
+      const reps = drawnAt('TODAY_REPS')
+      const rpe = drawnAt('TODAY_RPE')
+      expect(weight.weight, `${mode}: the weight step`).not.toBe(empty.weight)
+      expect(reps.reps, `${mode}: the reps step`).not.toBe(weight.reps)
+      expect(rpe.rpe, `${mode}: the RPE step`).not.toBe(reps.rpe)
       cleanup()
     }
   })
@@ -171,5 +205,77 @@ describe('the guide', () => {
     await userEvent.click(frame)
     expect(frame).toHaveAttribute('data-step', 'TODAY_EMPTY')
     expectOn('TODAY')
+  })
+
+  it('the Today picture draws the domain\'s day for screen 4 only', () => {
+    for (const mode of SIDES) {
+      const state = guideTodayState(mode, 'TODAY_EMPTY')
+      expect(state.items.map((i) => i.planned!.id)).toEqual(grit.guideSampleTodayItems(mode).map((p) => p.id))
+    }
+  })
+
+  it('no picture timer outlives the guide, or the page it belongs to', () => {
+    // Timeouts only: React's own scheduling (setImmediate) is not the guide's. Counted against what was pending before.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    const idle = vi.getTimerCount()
+    const clockTimers = () => vi.getTimerCount() - idle
+    const { unmount } = show({ clock: tickingGuideClock, startAt: 'TODAY' })
+    expect(clockTimers()).toBe(1)
+    // The next screen's picture starts its own clock; the one before has stopped.
+    fireEvent.click(screen.getByTestId('guide-next'))
+    expect(clockTimers()).toBe(1)
+    // It holds on its last step with nothing pending.
+    act(() => vi.advanceTimersByTime(grit.guideStepMs() * 20))
+    expect(clockTimers()).toBe(0)
+    fireEvent.click(screen.getByTestId('guide-back'))
+    expect(clockTimers()).toBe(1)
+    unmount()
+    expect(clockTimers()).toBe(0)
+  })
+
+  it('opening the guide works out screen 1 only: no other screen\'s steps, and none of the sample', () => {
+    const names = Object.getOwnPropertyNames(Object.getPrototypeOf(grit)).filter((n) => n.startsWith('guideSample'))
+    expect(names.length).toBeGreaterThan(0)
+    const samples = names.map((n) => vi.spyOn(grit as unknown as Record<string, () => unknown>, n))
+    const steps = vi.spyOn(grit, 'guideSteps')
+    show()
+    expect(steps.mock.calls.map(([id]) => id)).not.toHaveLength(0)
+    expect(new Set(steps.mock.calls.map(([id]) => id))).toEqual(new Set(['WELCOME']))
+    for (const spy of samples) expect(spy).not.toHaveBeenCalled()
+    vi.restoreAllMocks()
+  })
+
+  it('the guide is a named region, and its title takes the focus when it opens', () => {
+    show()
+    expect(screen.getByRole('region', { name: GUIDE_LABEL })).toBe(screen.getByTestId('guide'))
+    expect(document.activeElement).toBe(screen.getByTestId('guide-title'))
+  })
+
+  it('a page change is announced: the title is in a polite live region outside the page', async () => {
+    show()
+    const live = screen.getByTestId('guide-announce')
+    expect(live).toHaveAttribute('aria-live', 'polite')
+    expect(screen.getByTestId('guide-pages')).not.toContainElement(live)
+    expect(live).toHaveTextContent(title('WELCOME'))
+    await next()
+    expect(screen.getByTestId('guide-announce')).toBe(live)
+    expect(live).toHaveTextContent(title('SIDE'))
+  })
+
+  it('Back on screen 1 is aria-disabled, not disabled, so a focused Back keeps the focus', async () => {
+    show({ startAt: 'SIDE' })
+    const back = screen.getByTestId('guide-back')
+    expect(back).toHaveAccessibleName(BACK)
+    expect(back).toHaveAttribute('aria-disabled', 'false')
+    back.focus()
+    await userEvent.keyboard('{Enter}')
+    expectOn('WELCOME')
+    expect(back).not.toBeDisabled()
+    expect(back).toHaveAttribute('aria-disabled', 'true')
+    expect(document.activeElement).toBe(back)
+    // Pressed again, it does nothing.
+    await userEvent.keyboard('{Enter}')
+    expectOn('WELCOME')
+    expect(screen.getByTestId('guide-next')).toHaveAccessibleName(NEXT)
   })
 })

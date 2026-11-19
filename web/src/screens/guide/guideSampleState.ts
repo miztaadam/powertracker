@@ -5,7 +5,7 @@ import type { PlannedItem, SetEditor, StoredSet, TodayActions, TodayItem, TodayS
 /*
  * The domain's sample lifter as the real screens' state: what each picture's content component is fed at each step,
  * as Android's GuideSampleState. Nothing here is stored; the ids are the sample's own (guideSampleExercises,
- * guideSamplePlan).
+ * guideSamplePlan, guideSampleTodayItems).
  */
 
 /** The sample session's id: any id, as nothing is stored. */
@@ -23,16 +23,10 @@ const planned = (p: JsPlanItem): PlannedItem => ({
   ...(p.repsHigh != null ? { repsHigh: p.repsHigh } : {}),
 })
 
-/** The ISO weekday (1 = Monday) of a `YYYY-MM-DD` date. */
-const weekdayOf = (iso: string) => {
-  const day = new Date(`${iso}T00:00:00Z`).getUTCDay()
-  return day === 0 ? 7 : day
-}
-
 /**
  * Today on the sample's first day, in session, at `step` of screen 4: the sample lift's card with nothing in it, then
  * the weight, the reps and the RPE put in one by one, then the set logged (ticked), then the day's last planned
- * exercise skipped. Each item is built as `useToday` builds it for a lifter with no history: no weight yet, the plan's
+ * exercise skipped. The day is the domain's for screen 4 (`guideSampleTodayItems`, its first few items). Each item is built as `useToday` builds it for a lifter with no history: no weight yet, the plan's
  * reps and target RPE, the plan's sets, the plates for the weight.
  */
 export function guideTodayState(mode: TrainingMode, step: string): TodayState {
@@ -44,12 +38,7 @@ export function guideTodayState(mode: TrainingMode, step: string): TodayState {
   const sample = grit.guideSampleTodaySet(mode)
   const exercises = grit.guideSampleExercises(mode)
   const byId = new Map(exercises.map((e) => [e.id, e]))
-  const day = weekdayOf(sample.date)
-  const plan = grit
-    .guideSamplePlan(mode)
-    .filter((p) => p.weekday === day)
-    .sort((a, b) => a.order - b.order)
-    .map(planned)
+  const plan = grit.guideSampleTodayItems(mode).map(planned)
   const liftId = exercises.find((e) => e.name === sample.exerciseId)!.id
 
   function item(p: PlannedItem): TodayItem {

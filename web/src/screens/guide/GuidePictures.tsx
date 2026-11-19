@@ -1,30 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { TrainingMode } from '../../db/schema'
 import { TodayContent } from '../today/TodayScreen'
+import { PHONE_WIDTH, phoneHeight, pictureDescription } from './guideLabels'
 import { NO_TODAY_ACTIONS, guideTodayState } from './guideSampleState'
-
-/** The phone a picture's screen is laid out on before it is shrunk into the frame: the iPhone the e2e runs as. */
-export const PHONE_WIDTH = 390
-
-/**
- * The phone's height for `mode`'s Today picture: tall enough for that side's sample day, so its last step shows the
- * ticked set and the "Skipped today" line at the foot of the list. 844 px holds powerlifting's four exercises;
- * bodybuilding's Monday has seven, so its phone is taller, and drawn smaller (as on Android).
- */
-export function phoneHeight(mode: TrainingMode): number {
-  return mode === 'BODYBUILDING' ? 1180 : 844
-}
-
-/** What a screen reader hears for a picture, the one thing of it in the accessibility tree. Only built pictures have one. */
-const PICTURE_DESCRIPTIONS: Partial<Record<string, string>> = {
-  TODAY: 'Example of the Today screen: a set’s weight, reps and effort are put in and the set is ticked, then an exercise is skipped.',
-}
-
-export function pictureDescription(id: string): string {
-  const description = PICTURE_DESCRIPTIONS[id]
-  if (description == null) throw new Error(`No picture for ${id} yet`)
-  return description
-}
 
 /** The Today screen at one step of logging a set (screen 4), with no-op actions. */
 function TodayPicture({ mode, step }: { mode: TrainingMode; step: string }) {

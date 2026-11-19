@@ -2,6 +2,8 @@ import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
+import { BACK, DONE, EXAMPLE, NEXT, PHONE_WIDTH, SKIP, phoneHeight, pictureDescription } from '../src/screens/guide/guideLabels'
+import { formatKg, formatRpe } from '../src/ui/components/format'
 import { WEDNESDAY, tabBar } from './helpers'
 
 // The guide (1.16, Task 2): its route, its lazy chunk, and screen 4's picture on both sides. A normal run writes the
@@ -56,6 +58,14 @@ async function shoot(page: Page, dir: string, name: string) {
   await page.screenshot({ path: resolve(dir, `${name}.png`), animations: 'disabled' })
 }
 
+type Box = { x: number; y: number; width: number; height: number }
+
+/** Whether box `a` lies wholly inside `b` (to within sub-pixel rounding). */
+const within = (a: Box, b: Box) => a.x >= b.x - 0.5 && a.y >= b.y - 0.5 && a.x + a.width <= b.x + b.width + 0.5 && a.y + a.height <= b.y + b.height + 0.5
+
+/** Whether two boxes share any area (touching edges is not overlapping). */
+const overlap = (a: Box, b: Box) => a.x < b.x + b.width - 0.5 && b.x < a.x + a.width - 0.5 && a.y < b.y + b.height - 0.5 && b.y < a.y + a.height - 0.5
+
 /** Whether `inner`'s box lies wholly inside `outer`'s (to within sub-pixel rounding). */
 async function inside(page: Page, inner: ReturnType<Page['locator']>, outer: ReturnType<Page['locator']>) {
   const a = (await inner.boundingBox())!
@@ -82,7 +92,9 @@ test('theGuidesChunk_isNotRequestedBeforeItOpens', async ({ page }) => {
   await expect(tabBar(page)).toHaveCount(0)
 })
 
-test('guide_systemBack_closesWithSkipped: the browser Back leaves the guide, as Escape does', async ({ page }) => {
+// What the exit is (Escape: 'skipped') is pinned by the unit test of that name; here, only that both leave the guide.
+// The browser's Back calls no exit of the guide's yet: Task 3 handles it.
+test('guide_browserBackAndEscape_leaveTheGuide_forTheScreenItWasOpenedFrom', async ({ page }) => {
   await page.clock.setFixedTime(WEDNESDAY)
   await page.goto('/#/today')
   await expect(tabBar(page)).toBeVisible()
@@ -127,7 +139,7 @@ test('guide_pictureIsNotInteractive: taps across the picture change nothing, ope
   await expect(page.getByTestId('guide').getByRole('button', { name: /Log set/ })).toHaveCount(0)
   expect(await page.evaluate(() => document.activeElement?.closest('.guide-picture') == null)).toBe(true)
   expect(await picture(page).evaluate((el) => [el.scrollTop, el.scrollLeft, window.scrollY])).toEqual([0, 0, 0])
-  await expect(page.getByRole('img', { name: /^Example of the Today screen/ })).toBeVisible()
+  await expect(page.getByRole('img', { name: pictureDescription('TODAY') })).toBeVisible()
 })
 
 test('the picture is never painted at full size: from its first frame it sits above the dots', async ({ page }) => {
@@ -164,22 +176,98 @@ for (const side of SIDES) {
       await openGuideOnToday(page, side)
       // Motion off (every e2e page): the last step, still.
       await expect(picture(page)).toHaveAttribute('data-step', grit.guideSteps('TODAY', side).at(-1)!)
-      await expect(page.getByTestId('guide-example')).toHaveText('Example')
+      await expect(page.getByTestId('guide-example')).toHaveText(EXAMPLE)
       const sample = grit.guideSampleTodaySet(side)
       const drawn = picture(page).locator('.guide-picture-screen')
-      // The ticked set, as its row reads: the sample's numbers, done.
-      const done = drawn.locator('.gr-set-done').filter({ hasText: `Set 1: ${sample.doneWeightKg} kg × ${sample.doneReps} at RPE ${sample.doneRpe}, done` })
+      // The ticked set: one done row, with the sample's numbers as the app writes them.
+      const done = drawn.locator('.gr-set-done')
       await expect(done).toHaveCount(1)
-      const skipped = drawn.getByText('Skipped today')
-      await expect(skipped).toBeAttached()
+      for (const part of [formatKg(sample.doneWeightKg), `× ${sample.doneReps}`, formatRpe(sample.doneRpe)]) await expect(done).toContainText(part)
+      // The skipped line names the day's last exercise but the lift (screen 4's day is the domain's).
+      const exercises = grit.guideSampleExercises(side)
+      const liftId = exercises.find((e) => e.name === sample.exerciseId)!.id
+      const skippedItem = grit.guideSampleTodayItems(side).filter((p) => p.exerciseId !== liftId).at(-1)!
+      const skipped = drawn.locator('.today-skipped')
+      await expect(skipped).toContainText(exercises.find((e) => e.id === skippedItem.exerciseId)!.name)
       expect(await inside(page, done, picture(page))).toBe(true)
-      expect(await inside(page, drawn.locator('.today-skipped'), picture(page))).toBe(true)
       expect(await inside(page, skipped, picture(page))).toBe(true)
+      // The frame has its phone's shape.
+      const frame = (await picture(page).boundingBox())!
+      expect(Math.abs(frame.width / frame.height - PHONE_WIDTH / phoneHeight(side))).toBeLessThan(0.01)
       // Nothing reaches past the phone's edges.
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       await shoot(page, outDir, `guide-today-${sideName(side)}-${scheme}`)
     })
   }
+}
+
+// What 200% text does to a phone: everything is laid out in half its width and height (as pictures.spec does). The
+// iPhone the e2e runs as (390 × 664), and the narrowest phones (320 × 568).
+for (const [width, height] of [
+  [390, 664],
+  [320, 568],
+] as const) {
+  // The text box scrolls when it is taller than its share; across, it wraps and is never cut.
+  test(`guide_atTwiceTheTextSize_onA${width}pxPhone_keepsItsControlsWhole_andCutsNoText`, async ({ page }) => {
+    await page.clock.setFixedTime(WEDNESDAY)
+    await page.setViewportSize({ width: Math.floor(width / 2), height: Math.floor(height / 2) })
+    await page.goto('/#/today')
+    await expect(tabBar(page)).toBeVisible()
+    await page.evaluate(() => {
+      window.location.hash = '#/guide'
+    })
+    await expect(page.getByTestId('guide')).toBeVisible()
+    const screens = grit.guideScreens()
+    for (const [i, id] of screens.entries()) {
+      await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen(id, 'POWERLIFTING').title)
+      const controls: [string, string][] = [
+        ['guide-skip', SKIP],
+        ['guide-back', BACK],
+        ['guide-next', i === screens.length - 1 ? DONE : NEXT],
+      ]
+      const viewport = page.viewportSize()!
+      const screenBox = { x: 0, y: 0, width: viewport.width, height: viewport.height }
+      const boxes: Box[] = []
+      for (const [testId, label] of controls) {
+        const control = page.getByTestId(testId)
+        const text = control.locator('.gr-btn-text')
+        // The label reads in full: not cut to "Ba…", and drawn inside its own button, on screen.
+        await expect(text).toHaveText(label)
+        const [scrollWidth, clientWidth] = await text.evaluate((el) => [el.scrollWidth, el.clientWidth])
+        expect(scrollWidth, `${id}: ${label} is cut`).toBeLessThanOrEqual(clientWidth!)
+        const button = (await control.boundingBox())!
+        const words = (await text.boundingBox())!
+        expect(within(words, button), `${id}: ${label} runs out of its button`).toBe(true)
+        expect(within(button, screenBox), `${id}: ${label} is off screen`).toBe(true)
+        boxes.push(button)
+      }
+      // No control covers another.
+      for (const [a, b] of [
+        [0, 1],
+        [0, 2],
+        [1, 2],
+      ] as const)
+        expect(overlap(boxes[a]!, boxes[b]!), `${id}: ${controls[a]![1]} and ${controls[b]![1]} overlap`).toBe(false)
+      // The title and lines wrap: nothing runs past the side of the page.
+      const cut = await page.locator('.guide-title, .guide-line').evaluateAll((els) => els.filter((el) => el.scrollWidth > el.clientWidth + 0.5).map((el) => el.textContent))
+      expect(cut, id).toEqual([])
+      // Down the page, the text comes first: the picture gives up its room before the text has to scroll.
+      const room = await page.evaluate(() => {
+        const text = document.querySelector<HTMLElement>('.guide-text')!
+        const art = document.querySelector<HTMLElement>('.guide-art')!
+        const style = getComputedStyle(art)
+        return {
+          scrolls: text.scrollHeight > text.clientHeight + 1,
+          scrollable: getComputedStyle(text).overflowY === 'auto',
+          art: art.getBoundingClientRect().height - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom),
+        }
+      })
+      expect(room.scrollable, id).toBe(true)
+      if (room.scrolls) expect(room.art, `${id}: the text scrolls while the picture keeps ${room.art} px`).toBeLessThanOrEqual(1)
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      if (i < screens.length - 1) await page.getByTestId('guide-next').click()
+    }
+  })
 }
 
 test.describe('with motion on', () => {
