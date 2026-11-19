@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.ui.motion.ModeSwitchStamp
 import com.powertracker.ui.theme.LocalTrainingMode
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
@@ -72,10 +73,14 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier, action: (@Compos
 /**
  * The small BODYBUILDING pill under a top-level screen's date or overline (bodybuilding mode spec §7.2). Drawn only on
  * the bodybuilding side, so the powerlifting side is unchanged. A screen reader hears it as "Bodybuilding mode".
+ * On the powerlifting side its place holds the hammer drop's POWERLIFTING stamp while that plays (1.15).
  */
 @Composable
 fun ModeLabel(modifier: Modifier = Modifier) {
-    if (LocalTrainingMode.current != TrainingMode.BODYBUILDING) return
+    if (LocalTrainingMode.current != TrainingMode.BODYBUILDING) {
+        ModeSwitchStamp(modifier)
+        return
+    }
     val pt = PowertrackerTheme.colors
     Text(
         "BODYBUILDING",
