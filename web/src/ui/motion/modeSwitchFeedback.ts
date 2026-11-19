@@ -6,10 +6,13 @@ import { grit } from '../../domain'
  * - **Vibration** is always on, whatever "Vibrate on taps" says (owner): it goes straight to `navigator.vibrate`,
  *   never through platform/haptics.ts. iPhones give web apps none; a browser that refuses is simply quiet.
  * - **Sound** follows the phone's media volume and silent mode; there is no setting. The two files
- *   (public/sounds/, rendered from the approved prototype) are fetched and decoded on the first switch, never at app
- *   start. The switch tap creates and resumes the `AudioContext`, the gesture browsers ask for. Each sound is played
- *   from the animation clock's offset, as the prototype does, and started again from the clock if the two drift
- *   apart. Nothing here ever throws: no Web Audio, a blocked context or a missing file only means no sound.
+ *   (public/sounds/, rendered from the approved prototype) are fetched when Settings opens (`prefetchSounds`, the next
+ *   switch's sound first), never at app start, and decoded once the tap has made the `AudioContext`: the tap creates
+ *   and resumes it, the gesture browsers ask for. Each sound is played from the animation clock's offset, as the
+ *   prototype does: one that is ready late joins where the clock is then, and one that drifts apart is started again
+ *   from the clock. Nothing here ever throws: no Web Audio, a blocked context or a missing file only means no sound.
+ * - **Format:** Ogg Vorbis where the browser says it can play it; otherwise (Safari, iPhone among them) the WAV copy
+ *   the same script renders, as a fallback. A file that is missing is tried in the other format.
  */
 export type ModeSwitchKind = 'drop' | 'pump'
 
@@ -41,8 +44,68 @@ export function pumpBuzzWithoutMotion(): number[] {
 }
 
 const FILES: Record<ModeSwitchKind, string> = {
-  drop: 'sounds/grit_hammer_drop.ogg',
-  pump: 'sounds/grit_pump.ogg',
+  drop: 'sounds/grit_hammer_drop',
+  pump: 'sounds/grit_pump',
+}
+
+export type SoundFormat = 'ogg' | 'wav'
+
+let formats: SoundFormat[] | null = null
+
+/**
+ * The formats to try, in order: Ogg Vorbis first where `canPlayType` says anything for it, then the WAV copy; WAV
+ * alone where it says nothing (Safari). Asked once.
+ */
+export function soundFormats(): SoundFormat[] {
+  if (formats != null) return formats
+  let ogg = ''
+  try {
+    ogg = document.createElement('audio').canPlayType('audio/ogg; codecs=vorbis')
+  } catch {
+    // No <audio> here: the WAV copy plays wherever Web Audio does.
+  }
+  formats = ogg !== '' ? ['ogg', 'wav'] : ['wav']
+  return formats
+}
+
+type Bytes = { data: ArrayBuffer; format: SoundFormat }
+const bytes: Partial<Record<ModeSwitchKind, Promise<Bytes | null>>> = {}
+
+const otherKind = (kind: ModeSwitchKind): ModeSwitchKind => (kind === 'drop' ? 'pump' : 'drop')
+
+/** A sound's file, fetched once (and again after a failure), in the first format that answers. */
+function fetchBytes(kind: ModeSwitchKind): Promise<Bytes | null> {
+  const cached = bytes[kind]
+  if (cached != null) return cached
+  const base = typeof import.meta.env?.BASE_URL === 'string' ? import.meta.env.BASE_URL : '/'
+  const loading = (async () => {
+    for (const format of soundFormats()) {
+      try {
+        const response = await fetch(`${base}${FILES[kind]}.${format}`)
+        if (response.ok) return { data: await response.arrayBuffer(), format }
+      } catch {
+        // Offline before the first fetch, or blocked: the next format, then nothing.
+      }
+    }
+    return null
+  })().then((got) => {
+    if (got == null) delete bytes[kind] // tried again on the next switch
+    return got
+  })
+  bytes[kind] = loading
+  return loading
+}
+
+/**
+ * Settings is open: fetches both sounds ahead of the tap, `first` (the one the next switch plays) first. Only the
+ * bytes: they are decoded once the tap has made the `AudioContext`. Never throws.
+ */
+export function prefetchSounds(first: ModeSwitchKind): void {
+  try {
+    void fetchBytes(first).then(() => fetchBytes(otherKind(first)))
+  } catch {
+    // Only a head start.
+  }
 }
 
 type Playing = {
@@ -75,12 +138,23 @@ function load(kind: ModeSwitchKind): Promise<AudioBuffer | null> {
   if (context == null) return Promise.resolve(null)
   const cached = buffers[kind]
   if (cached != null) return cached
-  const base = typeof import.meta.env?.BASE_URL === 'string' ? import.meta.env.BASE_URL : '/'
-  const loading = fetch(`${base}${FILES[kind]}`)
-    .then((response) => (response.ok ? response.arrayBuffer() : Promise.reject(new Error(String(response.status)))))
-    .then((bytes) => context.decodeAudioData(bytes))
+  const loading = fetchBytes(kind)
+    .then((got) => {
+      if (got == null) return Promise.reject(new Error('no file'))
+      // decodeAudioData takes the bytes over: it gets a copy, so a failed decode can be tried again.
+      return context.decodeAudioData(got.data.slice(0)).catch((e: unknown) => {
+        // A browser that said it could play Ogg and cannot: the WAV copy from now on.
+        if (got.format === 'ogg') {
+          formats = ['wav']
+          delete bytes.drop
+          delete bytes.pump
+        }
+        throw e
+      })
+    })
     .catch(() => {
-      // Offline before the first fetch, or a browser that cannot decode it: no sound this time; try again next switch.
+      // Offline before the first fetch, a missing file, or one that cannot be decoded: no sound this time; tried
+      // again on the next switch.
       delete buffers[kind]
       return null
     })
@@ -89,8 +163,7 @@ function load(kind: ModeSwitchKind): Promise<AudioBuffer | null> {
 }
 
 /**
- * From the switch tap only: makes the `AudioContext` (once) and resumes it, inside the gesture, and starts fetching
- * both sounds. Never throws.
+ * From the switch tap only: makes the `AudioContext` (once) and resumes it, inside the gesture. Never throws.
  */
 export function unlockSound(): void {
   try {
@@ -102,8 +175,6 @@ export function unlockSound(): void {
       master.connect(ctx.destination)
     }
     if (ctx.state !== 'running') unlocked = ctx.resume().catch(() => {})
-    void load('drop')
-    void load('pump')
   } catch {
     ctx = null
   }
@@ -138,7 +209,10 @@ export function playSound(kind: ModeSwitchKind, clock: (() => number | null) | n
   const context = ctx
   if (context == null) return
   const mine = token
-  void Promise.all([load(kind), context.state === 'running' ? null : unlocked])
+  const wanted = load(kind)
+  // The other one is decoded once this one is, for the next switch.
+  void wanted.then(() => load(otherKind(kind)))
+  void Promise.all([wanted, context.state === 'running' ? null : unlocked])
     .then(([buffer]) => {
       if (buffer == null || mine !== token || context.state !== 'running' || master == null) return
       const at = clock?.()

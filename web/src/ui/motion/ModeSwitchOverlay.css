@@ -18,12 +18,20 @@
   overflow: hidden;
 }
 
-/* The POWERLIFTING stamp, in the label's own style (ModeLabel.css), where the label was. */
+/*
+ * The POWERLIFTING stamp, in the label's own style (ModeLabel.css), just below the title, inside the header so it hops
+ * with it. It takes no room, and grows from its top edge, away from the title.
+ */
+.ms-stamp-host {
+  position: relative;
+}
+
 .ms-stamp {
   position: absolute;
   z-index: 5;
   pointer-events: none;
-  transform-origin: center;
+  transform-origin: left top;
+  white-space: nowrap;
 }
 
 /* The pump: the switch turns blue at the tap, while the screen around it is still grey (the prototype). */

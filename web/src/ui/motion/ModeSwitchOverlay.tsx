@@ -26,6 +26,9 @@ export function ModeSwitchOverlay() {
 
 const NS = 'http://www.w3.org/2000/svg'
 
+/** The gap between the title's bottom and the stamp, px (Android: Space.xxs). */
+const STAMP_GAP = 2
+
 /** The reveal's clip runs linearly from 0 to this radius over as many ms, so its time is its radius in px. */
 const REVEAL_MAX = 100_000
 
@@ -119,7 +122,6 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
   let drop: Drop | null = null
   let pump: Pump | null = null
   let src = { x: 0, y: 0 }
-  let labelBox: { left: number; top: number } | null = null
   let stamp: HTMLElement | null = null
   let pill: HTMLElement | null = null
   // The reveal.
@@ -594,19 +596,37 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
     } else clip.currentTime = Math.min(REVEAL_MAX - 1, radius)
   }
 
+  /**
+   * The POWERLIFTING stamp, just below the screen's title so it never covers it: inside the header (which hops as one
+   * block), placed from the new side's layout with every transform taken off, and taking no room of its own.
+   */
+  function addStamp() {
+    const header = shell?.querySelector<HTMLElement>('.shell-main > .screen > .gr-screen-header') ?? null
+    const title = header?.querySelector<HTMLElement>('.gr-screen-title') ?? null
+    if (shell == null || header == null || title == null) return
+    const shellTransform = shell.style.transform
+    const headerTransform = header.style.transform
+    shell.style.transform = ''
+    header.style.transform = ''
+    const h = header.getBoundingClientRect()
+    const t = title.getBoundingClientRect()
+    shell.style.transform = shellTransform
+    header.style.transform = headerTransform
+    stamp = document.createElement('span')
+    stamp.className = 'gr-mode-label-pill ms-stamp'
+    stamp.setAttribute('aria-hidden', 'true')
+    stamp.textContent = 'POWERLIFTING'
+    stamp.style.left = `${t.left - h.left}px`
+    stamp.style.top = `${t.bottom - h.top + STAMP_GAP}px`
+    stamp.style.opacity = '0'
+    header.classList.add('ms-stamp-host')
+    header.appendChild(stamp)
+  }
+
   /** Straight after the new side is put on: what hops or swells, and the label, are the new side's. */
   function afterSwap() {
     blocks = measureBlocks(shell)
-    if (kind === 'drop' && shell != null) {
-      stamp = document.createElement('span')
-      stamp.className = 'gr-mode-label-pill ms-stamp'
-      stamp.setAttribute('aria-hidden', 'true')
-      stamp.textContent = 'POWERLIFTING'
-      stamp.style.left = `${labelBox?.left ?? 20}px`
-      stamp.style.top = `${labelBox?.top ?? 20}px`
-      stamp.style.opacity = '0'
-      shell.appendChild(stamp)
-    }
+    if (kind === 'drop') addStamp()
     if (kind === 'pump') pill = shell?.querySelector<HTMLElement>('.gr-mode-label-pill') ?? null
   }
 
@@ -633,9 +653,6 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       blocks = measureBlocks(shell)
       const svg = node('svg', { viewBox: `0 0 ${w} ${h}`, width: w, height: h, focusable: 'false' }, host).el
       if (next === 'drop') {
-        const label = shell?.querySelector('.gr-mode-label-pill') ?? shell?.querySelector('.gr-screen-header-text')
-        const box = label?.getBoundingClientRect()
-        labelBox = box != null ? { left: box.left, top: box.top } : null
         drop = buildDrop(svg)
       } else {
         // From the switch's centre, wherever Settings is scrolled; from the bottom centre if it cannot be found.
@@ -709,6 +726,7 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       if (shell != null) shell.style.transform = ''
       for (const b of blocks) b.el.style.transform = ''
       if (pill != null) pill.style.transform = ''
+      stamp?.parentElement?.classList.remove('ms-stamp-host')
       stamp?.remove()
       root.classList.remove('ms-pumping')
       blocks = []
@@ -716,7 +734,6 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       pump = null
       stamp = null
       pill = null
-      labelBox = null
       kind = null
     },
   }

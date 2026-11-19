@@ -4,7 +4,7 @@ import { grit } from '../../domain'
 import { SettingsContent } from '../../screens/settings/SettingsScreen'
 import { DEFAULT_SETTINGS } from '../../db/settings'
 import { ModeSwitchOverlay } from './ModeSwitchOverlay'
-import { createModeSwitch, ModeSwitchContext, type ModeSwitchController, type ModeSwitchFeedback } from './useModeSwitch'
+import { createModeSwitch, ModeSwitchContext, SKIP_TICK_MS, usePrefetchModeSwitchSounds, type ModeSwitchController, type ModeSwitchFeedback, type ModeSwitchPainter } from './useModeSwitch'
 import { buzz, dropBuzzWithoutMotion, pumpBuzzWithoutMotion } from './modeSwitchFeedback'
 
 const DROP = grit.modeSwitchDropTimeline()
@@ -35,6 +35,10 @@ function fakeClock() {
         for (const f of run) f.cb(now)
       }
       now = until
+    },
+    /** Time passes with no frame (a stalled main thread). */
+    stall(ms: number) {
+      now += ms
     },
     pending: () => queue.length,
   }
@@ -162,6 +166,43 @@ describe('the shown side', () => {
   })
 })
 
+describe('the clock', () => {
+  /** A painter that notes the time of each frame it is asked to draw. */
+  function recordingPainter() {
+    const painted: number[] = []
+    const painter: ModeSwitchPainter = {
+      begin() {},
+      paint: (t) => painted.push(t),
+      reveal: (swap) => void swap(),
+      end() {},
+    }
+    controller.setPainter(painter)
+    return painted
+  }
+
+  it('theFirstFrame_isTheTimeSinceTheTap', () => {
+    const painted = recordingPainter()
+    controller.flip('pump', switchElement())
+    // The first frame comes late: 40 ms of nothing, then the frame 16 ms on. The picture is where the sound and the
+    // vibration are, which started at the tap.
+    clock.stall(40)
+    clock.frames(16)
+    expect(painted).toEqual([56])
+  })
+
+  it('aLateFrame_jumpsAhead_withNoCap', () => {
+    const painted = recordingPainter()
+    controller.flip('drop', switchElement())
+    clock.frames(32)
+    clock.stall(300)
+    clock.frames(16)
+    expect(painted).toEqual([16, 32, 348])
+    // The impact passed in that jump: the new side, and its buzz, are there.
+    expect(controller.state().shown).toBe('POWERLIFTING')
+    expect(feedback.calls).toContain(`buzz ${JSON.stringify(VIBES.dropPattern)}`)
+  })
+})
+
 describe('vibration and sound', () => {
   it('drop_vibratesAtTheImpact_andPlaysItsSoundFromTheTap', () => {
     controller.flip('drop', switchElement())
@@ -198,6 +239,31 @@ describe('vibration and sound', () => {
     feedback.calls.length = 0
     controller.finish('leave')
     expect(feedback.calls).toEqual([])
+  })
+
+  it('reducedMotion_aHiddenPageStopsTheSoundAndTheBuzz', () => {
+    motionOff = true
+    controller.flip('drop', switchElement())
+    feedback.calls.length = 0
+    controller.finish('hidden')
+    expect(feedback.calls).toEqual(['stop', 'buzz 0'])
+  })
+
+  it('settingsPrefetchesTheNextSwitchsSound_once_whenTheStoredSideIsKnown', () => {
+    const prefetch = vi.fn()
+    function Probe({ stored }: { stored: 'POWERLIFTING' | 'BODYBUILDING' | null }) {
+      usePrefetchModeSwitchSounds(stored, prefetch)
+      return null
+    }
+    const { rerender } = render(<Probe stored={null} />)
+    expect(prefetch).not.toHaveBeenCalled()
+    rerender(<Probe stored="BODYBUILDING" />)
+    expect(prefetch).toHaveBeenCalledWith('drop')
+    rerender(<Probe stored="POWERLIFTING" />)
+    expect(prefetch).toHaveBeenCalledTimes(1)
+    cleanup()
+    render(<Probe stored="POWERLIFTING" />)
+    expect(prefetch).toHaveBeenLastCalledWith('pump')
   })
 
   it('withoutMotion_theBuzzesLandWhereTheyWouldHave', () => {
@@ -252,9 +318,9 @@ describe('ending early', () => {
     expect(elsewhere).not.toHaveBeenCalled()
     expect(controller.state().kind).toBeNull()
     expect(document.documentElement.dataset.mode).toBeUndefined()
-    // Before the impact: the short buzz that stands in for the slam, and the sound fades.
-    expect(feedback.calls).toContain('stop')
-    expect(feedback.calls).toContain('buzz 40')
+    // The sound fades, the running vibration is cancelled, and one short tick answers the tap.
+    expect(feedback.calls.slice(-3)).toEqual(['stop', 'buzz 0', `buzz ${SKIP_TICK_MS}`])
+    expect(SKIP_TICK_MS).toBe(40)
     // The next tap is the lifter's again.
     other.click()
     expect(elsewhere).toHaveBeenCalledTimes(1)
@@ -272,7 +338,8 @@ describe('ending early', () => {
     )
     expect(controller.state().kind).toBeNull()
     expect(document.documentElement.dataset.mode).toBe('bodybuilding')
-    expect(feedback.calls).toContain('buzz 30')
+    // The same on the pump: cancelled, then the tick.
+    expect(feedback.calls.slice(-3)).toEqual(['stop', 'buzz 0', `buzz ${SKIP_TICK_MS}`])
   })
 
   it('flippingAgain_skipsTheRunningOne_andPlaysTheNewOne', () => {
@@ -342,7 +409,18 @@ describe('the overlay', () => {
   const show = () =>
     render(
       <ModeSwitchContext.Provider value={controller}>
-        <div className="shell" />
+        <div className="shell">
+          <main className="shell-main">
+            <section className="screen">
+              <header className="gr-screen-header">
+                <div className="gr-screen-header-text">
+                  <h1 className="gr-screen-title">Settings</h1>
+                </div>
+              </header>
+              <div className="screen-body" />
+            </section>
+          </main>
+        </div>
         <ModeSwitchOverlay />
       </ModeSwitchContext.Provider>,
     )
@@ -370,8 +448,11 @@ describe('the overlay', () => {
     expect(overlay.querySelectorAll('.ms-crack').length).toBeGreaterThan(0)
     act(() => clock.frames(DROP.impact + 20))
     expect(Number(overlay.querySelector('.ms-flash')!.getAttribute('opacity'))).toBeGreaterThan(0.8)
-    // The POWERLIFTING stamp appears at the impact.
-    expect(container.querySelector('.ms-stamp')).toHaveTextContent('POWERLIFTING')
+    // The POWERLIFTING stamp appears at the impact, in the header below the title, silent to a screen reader.
+    const stamp = container.querySelector('.ms-stamp')
+    expect(stamp).toHaveTextContent('POWERLIFTING')
+    expect(stamp).toHaveAttribute('aria-hidden', 'true')
+    expect(stamp!.parentElement).toBe(container.querySelector('.gr-screen-header'))
     act(() => clock.frames(DROP.end))
     expect(overlay.childElementCount).toBe(0)
     expect(container.querySelector('.ms-stamp')).toBeNull()

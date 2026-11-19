@@ -78,8 +78,8 @@ import kotlin.math.min
  * Without a [LocalModeSwitch] controller it is just [content].
  *
  * While an animation runs:
- * - one frame clock ([withFrameMillis]) drives the controller on wall time, as the sound and the vibration run from the
- *   tap: a late frame jumps ahead rather than falling behind them;
+ * - one frame clock ([withFrameMillis]) drives the controller from the tap, as the sound and the vibration run from it:
+ *   the first frame catches up to the time since the tap, and a late frame jumps ahead rather than falling behind them;
  * - the content shakes (the drop) or swells (the pump) as one layer;
  * - from just before the moment, the old side is kept as a recorded picture and drawn outside the reveal circle, so
  *   the new side's real screen opens inside it (spec "Settled" 7);
@@ -111,6 +111,7 @@ fun ModeSwitchHost(content: @Composable () -> Unit) {
         val k = controller.kind ?: return@LaunchedEffect
         val g = controller.geometry ?: return@LaunchedEffect
         val src = controller.pumpSource()
+        controller.artBuilds++
         art.value = null
         art.value = withContext(Dispatchers.Default) {
             if (k == ModeSwitchKind.DROP) buildDropArt(g.widthDp, g.heightDp) else buildPumpArt(g.widthDp, g.heightDp, src)
@@ -119,7 +120,11 @@ fun ModeSwitchHost(content: @Composable () -> Unit) {
     }
     LaunchedEffect(run) {
         if (controller.kind == null) return@LaunchedEffect
-        var last = withFrameMillis { it }
+        // The first frame: the picture catches up to the time since the tap, as the sound and the vibration run from it.
+        var last = withFrameMillis { now ->
+            if (controller.run == run) controller.catchUp()
+            now
+        }
         while (controller.kind != null && controller.run == run) {
             withFrameMillis { now ->
                 if (controller.run == run) controller.advanceBy((now - last).coerceAtLeast(0L).toDouble())
@@ -265,8 +270,9 @@ private inline fun androidx.compose.ui.graphics.drawscope.ContentDrawScope.drawR
 // ---- the stamp ----
 
 /**
- * The POWERLIFTING stamp, in [com.powertracker.ui.components.ModeLabel]'s style and place: shown on the powerlifting
- * side from the drop's impact, fading out by its end. It says nothing to a screen reader; the switch says the state.
+ * The POWERLIFTING stamp, in [com.powertracker.ui.components.ModeLabel]'s style, just below the screen's title (so it
+ * never covers it): shown on the powerlifting side from the drop's impact, fading out by its end, scaled from its top
+ * edge so it grows away from the title. It says nothing to a screen reader; the switch says the state.
  */
 @Composable
 fun ModeSwitchStamp(modifier: Modifier = Modifier) {
@@ -286,7 +292,7 @@ fun ModeSwitchStamp(modifier: Modifier = Modifier) {
                 val s = (f?.stampScale ?: 1.0).toFloat()
                 scaleX = s
                 scaleY = s
-                transformOrigin = TransformOrigin(0f, .5f)
+                transformOrigin = TransformOrigin(0f, 0f)
             },
     ) {
         Text(
@@ -407,7 +413,6 @@ private val HAMMER_ART: HammerArt by lazy { HammerArt(ModeSwitchMotion.HAMMER_PA
 private class DropArt(val hammer: HammerArt, val cracks: List<Partial>, val burst: Path, val chalk: Array<Pair<Float, Color>>)
 
 private fun buildDropArt(w: Double, h: Double): DropArt {
-    ModeSwitchProbe.artBuilds++
     val hit = ModeSwitchMotion.hitPoint(w, h)
     val cracks = ModeSwitchMotion.cracks(w, h, hit).map { partialOf(it.d, it.stroke ?: "#000000", it.strokeWidth, it.opacity) }
     val burst = Path().apply {
@@ -423,7 +428,6 @@ private class Vein(val partial: Partial, val layer: String, val swell: Boolean, 
 private class PumpArt(val veins: List<Vein>, val nodes: List<VeinNode>, val halo: Array<Pair<Float, Color>>)
 
 private fun buildPumpArt(w: Double, h: Double, src: Point): PumpArt {
-    ModeSwitchProbe.artBuilds++
     val veins = ModeSwitchMotion.veins(w, h, src).map { v: VeinPath -> Vein(partialOf(v.d, v.color, v.width, 1.0), v.layer, v.swell, v.d0, v.len) }
     val halo = GRADIENT_BY_ID.getValue("gHalo").stops.map { it.offset.toFloat() to hex(it.color).copy(alpha = it.opacity.toFloat()) }.toTypedArray()
     return PumpArt(veins, ModeSwitchMotion.veinNodes(w, h, src), halo)

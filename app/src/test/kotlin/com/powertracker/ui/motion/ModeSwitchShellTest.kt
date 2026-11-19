@@ -54,6 +54,8 @@ class ModeSwitchShellTest {
         override fun stop() {
             stops++
         }
+        override fun skip() = stop()
+        override fun prefetch(next: ModeSwitchKind) = Unit
         override fun release() = Unit
     }
 

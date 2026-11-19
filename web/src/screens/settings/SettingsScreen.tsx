@@ -15,7 +15,7 @@ import { ChoiceChip, SegmentedChoice } from '../../ui/components/SegmentedChoice
 import { Snackbar } from '../../ui/components/Snackbar'
 import { Stepper } from '../../ui/components/StepperField'
 import { Switch } from '../../ui/components/Switch'
-import { modeSwitch, useEndModeSwitchOnLeave, useHeldMode, useWarmModeSwitch } from '../../ui/motion/useModeSwitch'
+import { modeSwitch, useEndModeSwitchOnLeave, useHeldMode, usePrefetchModeSwitchSounds, useWarmModeSwitch } from '../../ui/motion/useModeSwitch'
 import { RpeInfoButton } from '../library/RpeSheet'
 import { LOCK_UNSUPPORTED } from '../lock/LockScreen'
 import { appVersionLine, appVersionSpoken } from './appVersion'
@@ -54,6 +54,7 @@ export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }:
   const held = useHeldMode()
   useEndModeSwitchOnLeave()
   useWarmModeSwitch()
+  usePrefetchModeSwitchSounds(settings.loading ? null : settings.settings.trainingMode)
   // The newest message for the snackbar; `id` changes with each one, also when the text repeats.
   const [message, setMessage] = useState<{ id: number; text: string } | null>(null)
   const say = (text: string) => setMessage((last) => ({ id: (last?.id ?? 0) + 1, text }))

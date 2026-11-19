@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom'
 import type { TrainingMode } from '../../db/schema'
 import { grit } from '../../domain'
 import { applyTrainingMode } from '../theme'
-import { buzz, dropBuzzWithoutMotion, followSound, playSound, pumpBuzzWithoutMotion, stopSound, unlockSound, type ModeSwitchKind } from './modeSwitchFeedback'
+import { buzz, dropBuzzWithoutMotion, followSound, playSound, prefetchSounds, pumpBuzzWithoutMotion, stopSound, unlockSound, type ModeSwitchKind } from './modeSwitchFeedback'
 
 export type { ModeSwitchKind } from './modeSwitchFeedback'
 
@@ -16,11 +16,13 @@ export type { ModeSwitchKind } from './modeSwitchFeedback'
  *   - Motion off (`data-motion="off"`: reduced motion, and every e2e page): nothing is drawn and the side changes
  *     when the stored side does, as before, but the sound plays from its start and the vibration still lands where
  *     the animation's would.
- *   - Otherwise the side shown stays the old one (`shown`) and the clock starts at 0, its first frame drawn in the next frame.
+ *   - Otherwise the side shown stays the old one (`shown`) and the clock starts at the tap: each frame draws the time
+ *     since the tap, the first one included, as the sound and the vibration run from it.
  * - **The moment**: the drop's impact (`T_IMPACT`) or the pump's third beat (`P_BEAT[2]`). The side shown turns to
  *   the new one there, through the overlay's reveal. The drop vibrates there; the pump gives one pulse per beat.
  * - **finish(reason)** ends it at its end state, from anywhere: `end` (the clock ran out), `skip` (a tap anywhere but
- *   the switch: it does nothing else), `flip` (the switch again: the new one starts at once), `leave` (Settings
+ *   the switch: it does nothing else; the vibration is cancelled and one short tick given), `flip` (the switch again:
+ *   the new one starts at once), `leave` (Settings
  *   closed), `hidden` (the page went to the background). The new side is put on if the moment had not come.
  */
 export type ModeSwitchState = {
@@ -74,8 +76,8 @@ export type ModeSwitchController = {
   setPainter(painter: ModeSwitchPainter | null): void
 }
 
-/** The longest step the clock takes in one frame, so a stalled frame never jumps the animation ahead. */
-export const MAX_STEP_MS = 50
+/** The tick a skipping tap gets once the running vibration is cancelled. */
+export const SKIP_TICK_MS = 40
 
 /** How long a skipping tap's click is held back, at most. */
 const SWALLOW_MS = 1000
@@ -98,7 +100,8 @@ type Run = {
   kind: ModeSwitchKind
   to: TrainingMode
   t: number
-  last: number
+  /** When the tap came (`deps.now()`): the clock is the time since, as the sound and the vibration run from it. */
+  tap: number
   raf: number
   swapped: boolean
   moment: boolean
@@ -191,10 +194,9 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
   function frame() {
     const r = run
     if (r == null) return
-    // The clock the tap was read on, not the frame's timestamp: the two can start from different points.
-    const now = deps.now()
-    r.t += Math.min(MAX_STEP_MS, Math.max(0, now - r.last))
-    r.last = now
+    // The time since the tap, on the clock the tap was read on (not the frame's timestamp: the two can start from
+    // different points), with no cap: a late frame jumps ahead, as the sound and the vibration have gone on.
+    r.t = Math.max(r.t, deps.now() - r.tap)
     if (!r.begun) {
       r.begun = true
       painter?.begin(r.kind, r.source)
@@ -218,9 +220,9 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
     deps.caf(r.raf)
     if (reason !== 'end') fb.stop(0.04)
     if (reason === 'skip') {
-      // The prototype's: a short buzz for a drop that had not landed; the pump's last beat replaces any still running.
-      if (r.kind === 'pump') fb.buzz(30)
-      else if (!r.moment) fb.buzz(40)
+      // As the reference: the running vibration is cancelled, then one short tick answers the tap.
+      fb.buzz(0)
+      fb.buzz(SKIP_TICK_MS)
     } else if (reason !== 'end') fb.buzz(0)
     painter?.end()
     // The new side is on from here; the stored side takes over once it says the same (a write may still be on its way).
@@ -294,7 +296,7 @@ export function createModeSwitch(overrides: Partial<ModeSwitchDeps> = {}): ModeS
       kind,
       to,
       t: 0,
-      last: deps.now(),
+      tap: deps.now(),
       raf: 0,
       swapped: false,
       moment: false,
@@ -416,6 +418,20 @@ export function useWarmModeSwitch(): void {
     const id = window.setTimeout(warm, 300)
     return () => window.clearTimeout(id)
   }, [])
+}
+
+/**
+ * For Settings, which holds the switch: once the stored side is known, the sounds are fetched ahead of the tap, the one
+ * the next switch plays first (never at app start). `prefetch` is for tests.
+ */
+export function usePrefetchModeSwitchSounds(stored: TrainingMode | null, prefetch: (first: ModeSwitchKind) => void = prefetchSounds): void {
+  const known = stored != null
+  useEffect(() => {
+    if (stored == null) return
+    prefetch(stored === 'BODYBUILDING' ? 'drop' : 'pump')
+    // Once per opening: what the next switch plays changes with each switch, and both are fetched by then.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [known])
 }
 
 /** For the screen that holds the switch: closing it ends a running animation at its end state. */

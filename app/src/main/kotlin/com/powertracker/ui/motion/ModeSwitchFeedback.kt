@@ -24,6 +24,12 @@ interface ModeSwitchFeedback {
 
     fun stop()
 
+    /** A tap skipped the animation: [stop], then one short tick, as the reference does. */
+    fun skip()
+
+    /** Settings is open: load the sounds ahead of the tap, [next] (the one the next switch plays) first. */
+    fun prefetch(next: ModeSwitchKind)
+
     /** Lets go of the sound player. */
     fun release()
 }
@@ -63,6 +69,9 @@ fun modeSwitchWaveform(kind: ModeSwitchKind, amplitudeControl: Boolean): ModeSwi
     }
     return ModeSwitchWaveform(timings.toLongArray(), if (amplitudeControl) amps.toIntArray() else null)
 }
+
+/** The tick a skipping tap gets once the running vibration is cancelled: 40 ms at once, at the motor's default strength. */
+val MODE_SWITCH_SKIP_TICK = ModeSwitchWaveform(longArrayOf(0, 40), null)
 
 /** The phone's vibrator, as far as the mode switch needs it. */
 interface ModeSwitchVibrator {
@@ -106,14 +115,17 @@ fun defaultSoundPool(): SoundPool = SoundPool.Builder()
  * The real vibration and sound.
  * - **Vibration:** [modeSwitchWaveform] with amplitudes where the vibrator has amplitude control, the plain pattern
  *   otherwise, nothing without a vibrator.
- * - **Sound:** a [SoundPool], made and loaded on the first switch, never at app start. A sound that is not loaded yet
- *   plays once it is, if it is still wanted and not too late to line up with the picture. Silent and vibrate modes
- *   play no sound; otherwise it follows the media volume.
+ * - **Sound:** a [SoundPool], made and loaded when Settings opens ([prefetch]), the next switch's sound first, or on the
+ *   first switch if that comes first; never at app start. A sound that is not loaded yet at the tap plays once it is, if
+ *   it is still wanted and at most [LATE_MS] late: later than that it would no longer line up with the picture, so that
+ *   switch plays none. Silent and vibrate modes play no sound; otherwise it follows the media volume.
  */
 class AndroidModeSwitchFeedback(
     context: Context,
     private val vibrator: () -> ModeSwitchVibrator? = { systemVibrator(context) },
     private val soundPool: () -> SoundPool = ::defaultSoundPool,
+    /** The tap's clock (ms), for the late rule. */
+    private val uptime: () -> Long = SystemClock::uptimeMillis,
 ) : ModeSwitchFeedback {
     private val app = context.applicationContext
     private val main = Handler(Looper.getMainLooper())
@@ -141,6 +153,15 @@ class AndroidModeSwitchFeedback(
         runCatching { stopSound() }
     }
 
+    override fun skip() {
+        stop()
+        runCatching { vibrator()?.takeIf { it.hasVibrator }?.vibrate(MODE_SWITCH_SKIP_TICK) }
+    }
+
+    override fun prefetch(next: ModeSwitchKind) {
+        runCatching { pool(next) }
+    }
+
     override fun release() {
         runCatching {
             fade?.let(main::removeCallbacks)
@@ -157,31 +178,34 @@ class AndroidModeSwitchFeedback(
         return audio.ringerMode != AudioManager.RINGER_MODE_NORMAL
     }
 
+    /** The sound player, made and loading both sounds on first use, [first] first. */
+    private fun pool(first: ModeSwitchKind): SoundPool = pool ?: soundPool().also { made ->
+        pool = made
+        made.setOnLoadCompleteListener { _, id, status ->
+            if (status != 0) return@setOnLoadCompleteListener
+            loaded += id
+            val (want, since) = wanted ?: return@setOnLoadCompleteListener
+            // Late is fine by a beat; later than that it would no longer land with the picture.
+            if (ids[want] == id && uptime() - since <= LATE_MS) {
+                wanted = null
+                stream = made.play(id, 1f, 1f, 1, 0, 1f)
+            }
+        }
+        // The wanted one first: a fresh install is on powerlifting, so its first switch is the pump.
+        val other = if (first == ModeSwitchKind.DROP) ModeSwitchKind.PUMP else ModeSwitchKind.DROP
+        ids[first] = made.load(app, rawOf(first), 1)
+        ids[other] = made.load(app, rawOf(other), 1)
+    }
+
     private fun playSound(kind: ModeSwitchKind) {
         stopSound(fadeMs = 30)
         if (silent()) return
-        val p = pool ?: soundPool().also { made ->
-            pool = made
-            made.setOnLoadCompleteListener { _, id, status ->
-                if (status != 0) return@setOnLoadCompleteListener
-                loaded += id
-                val (want, since) = wanted ?: return@setOnLoadCompleteListener
-                // Late is fine by a beat; later than that it would no longer land with the picture.
-                if (ids[want] == id && SystemClock.uptimeMillis() - since <= LATE_MS) {
-                    wanted = null
-                    stream = made.play(id, 1f, 1f, 1, 0, 1f)
-                }
-            }
-            // The wanted one first: a fresh install is on powerlifting, so its first switch is the pump.
-            val other = if (kind == ModeSwitchKind.DROP) ModeSwitchKind.PUMP else ModeSwitchKind.DROP
-            ids[kind] = made.load(app, rawOf(kind), 1)
-            ids[other] = made.load(app, rawOf(other), 1)
-        }
+        val p = pool(kind)
         val id = ids[kind] ?: return
         if (id in loaded) {
             stream = p.play(id, 1f, 1f, 1, 0, 1f)
         } else {
-            wanted = kind to SystemClock.uptimeMillis()
+            wanted = kind to uptime()
         }
     }
 
@@ -207,9 +231,10 @@ class AndroidModeSwitchFeedback(
         r.run()
     }
 
-    private companion object {
+    companion object {
+        /** The latest a sound may start after the tap, once loaded: more than this and that switch plays none. */
         const val LATE_MS = 150L
 
-        fun rawOf(kind: ModeSwitchKind) = if (kind == ModeSwitchKind.DROP) R.raw.grit_hammer_drop else R.raw.grit_pump
+        private fun rawOf(kind: ModeSwitchKind) = if (kind == ModeSwitchKind.DROP) R.raw.grit_hammer_drop else R.raw.grit_pump
     }
 }

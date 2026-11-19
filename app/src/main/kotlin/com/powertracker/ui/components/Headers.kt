@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.powertracker.domain.model.TrainingMode
@@ -56,6 +57,11 @@ fun ScreenHeader(
                 maxLines = titleMaxLines,
                 modifier = Modifier.semantics { heading() },
             )
+            // The hammer drop's POWERLIFTING stamp (1.15), just below the title so it never covers it. It takes no
+            // height: the header keeps its size, and the stamp is drawn over whatever is below.
+            if (modeLabel && LocalTrainingMode.current != TrainingMode.BODYBUILDING) {
+                ModeSwitchStamp(Modifier.takesNoHeight().padding(top = Space.xxs))
+            }
         }
         actions()
     }
@@ -73,14 +79,10 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier, action: (@Compos
 /**
  * The small BODYBUILDING pill under a top-level screen's date or overline (bodybuilding mode spec §7.2). Drawn only on
  * the bodybuilding side, so the powerlifting side is unchanged. A screen reader hears it as "Bodybuilding mode".
- * On the powerlifting side its place holds the hammer drop's POWERLIFTING stamp while that plays (1.15).
  */
 @Composable
 fun ModeLabel(modifier: Modifier = Modifier) {
-    if (LocalTrainingMode.current != TrainingMode.BODYBUILDING) {
-        ModeSwitchStamp(modifier)
-        return
-    }
+    if (LocalTrainingMode.current != TrainingMode.BODYBUILDING) return
     val pt = PowertrackerTheme.colors
     Text(
         "BODYBUILDING",
@@ -93,4 +95,10 @@ fun ModeLabel(modifier: Modifier = Modifier) {
             .padding(horizontal = Space.s, vertical = 2.dp)
             .semantics { contentDescription = "Bodybuilding mode" },
     )
+}
+
+/** Measured and drawn as it is, but its parent is told it is 0 tall. */
+private fun Modifier.takesNoHeight(): Modifier = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints.copy(minHeight = 0))
+    layout(placeable.width, 0) { placeable.place(0, 0) }
 }

@@ -142,11 +142,28 @@ test.describe('with motion on', () => {
       await shoot(page, `mode-switch-drop-impact-${scheme}`)
       // The POWERLIFTING stamp is there at the impact, and gone by the end.
       await expect(page.locator('.ms-stamp')).toHaveText('POWERLIFTING')
-      // Once the shake has died down (before the lift), the stamp sits where the label was, on screen.
-      await page.clock.runFor(FRAME * 18)
-      await shoot(page, `mode-switch-drop-stamp-${scheme}`)
-      const stamp = (await page.locator('.ms-stamp').boundingBox())!
-      expect(stamp.y).toBeGreaterThanOrEqual(0)
+      // From the impact to the end, the stamp sits just below the title and never covers it. Measured in the header's
+      // own layout (offsets), since the shake moves, turns and scales the header and the stamp alike.
+      const stampAgainstTitle = () =>
+        page.evaluate(() => {
+          const stamp = document.querySelector<HTMLElement>('.ms-stamp')
+          const title = stamp?.parentElement?.querySelector<HTMLElement>('.gr-screen-title')
+          if (stamp == null || title == null) return null
+          return { stampTop: stamp.offsetTop, titleBottom: title.offsetTop + title.offsetHeight, inHeader: stamp.parentElement!.classList.contains('gr-screen-header') }
+        })
+      for (let i = 0; i < 6; i++) {
+        if (i > 0) await page.clock.runFor(FRAME * 9)
+        const at = await stampAgainstTitle()
+        expect(at, `the stamp, ${i} steps after the impact`).not.toBeNull()
+        expect(at!.inHeader).toBe(true)
+        expect(at!.stampTop).toBeGreaterThanOrEqual(at!.titleBottom)
+        if (i === 2) {
+          // Once the shake has died down (before the lift), the stamp is on screen.
+          await shoot(page, `mode-switch-drop-stamp-${scheme}`)
+          const stamp = (await page.locator('.ms-stamp').boundingBox())!
+          expect(stamp.y).toBeGreaterThanOrEqual(0)
+        }
+      }
       await page.clock.runFor(DROP.end)
       expect(await drawn(page)).toBe(0)
       await expect(page.locator('.ms-stamp')).toHaveCount(0)
@@ -154,17 +171,23 @@ test.describe('with motion on', () => {
     })
   }
 
-  test('the overlay is hidden from a screen reader, and the switch says its new state', async ({ page }) => {
+  test('the overlay and the stamp are hidden from a screen reader, and the switch says its new state', async ({ page }) => {
     await openSettings(page)
     await hold(page)
+    // Onto bodybuilding first, with no animation to wait for; then the drop, which has the stamp.
     await flip(page, 'BODYBUILDING')
+    await page.clock.runFor(PUMP.end + 100)
+    await flip(page, 'POWERLIFTING')
     await expect(page.locator('.ms-overlay')).toHaveAttribute('aria-hidden', 'true')
-    await page.clock.runFor(DROP.impact)
+    await page.clock.runFor(DROP.impact + 40)
+    const stamp = page.locator('.ms-stamp')
+    await expect(stamp).toHaveText('POWERLIFTING')
+    await expect(stamp).toHaveAttribute('aria-hidden', 'true')
     const tree = await page.locator('body').ariaSnapshot()
     expect(tree).not.toContain('POWERLIFTING')
     expect(await page.locator('.ms-overlay').ariaSnapshot()).toBe('')
-    // The switch says its new state as soon as the setting is read back, as before, long before the third beat.
-    await expect(modeSwitch(page)).toHaveAttribute('aria-checked', 'true')
+    // The switch says its new state as soon as the setting is read back, as before, long before the end.
+    await expect(modeSwitch(page)).toHaveAttribute('aria-checked', 'false')
   })
 
   test('a tap skips to the end, and does nothing else', async ({ page }) => {

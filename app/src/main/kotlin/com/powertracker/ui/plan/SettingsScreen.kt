@@ -57,6 +57,8 @@ import com.powertracker.data.BackupService
 import com.powertracker.data.RestAlert
 import com.powertracker.data.SettingsRepository
 import com.powertracker.domain.model.TrainingMode
+import kotlinx.coroutines.flow.first
+import androidx.compose.runtime.LaunchedEffect
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.ChoiceChip
 import com.powertracker.ui.components.PrimaryButton
@@ -148,6 +150,11 @@ fun SettingsScreen(
             lifecycle.removeObserver(observer)
             modeSwitch?.finish(ModeSwitchEnd.LEAVE)
         }
+    }
+    // Settings holds the switch: its sounds are loaded now, the one the next switch plays first (never at app start).
+    LaunchedEffect(modeSwitch) {
+        val stored = settingsRepo.settings.first().trainingMode
+        modeSwitch?.prefetch(ModeSwitchKind.into(if (stored == TrainingMode.POWERLIFTING) TrainingMode.BODYBUILDING else TrainingMode.POWERLIFTING))
     }
 
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri: Uri? ->

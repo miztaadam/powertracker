@@ -72,10 +72,12 @@ class ModeSwitchOverlayTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var settings: SettingsRepository
 
-    /** Notes what the controller asked of the vibration and the sound. */
+    /** Notes what the controller asked of the vibration and the sound. A skip is a stop and a tick. */
     private class RecordingFeedback : ModeSwitchFeedback {
         val starts = mutableListOf<ModeSwitchKind>()
+        val prefetches = mutableListOf<ModeSwitchKind>()
         var stops = 0
+        var ticks = 0
         var releases = 0
         override fun start(kind: ModeSwitchKind) {
             starts += kind
@@ -83,13 +85,23 @@ class ModeSwitchOverlayTest {
         override fun stop() {
             stops++
         }
+        override fun skip() {
+            stops++
+            ticks++
+        }
+        override fun prefetch(next: ModeSwitchKind) {
+            prefetches += next
+        }
         override fun release() {
             releases++
         }
     }
 
     private val feedback = RecordingFeedback()
-    private val controller = ModeSwitchController(feedback)
+
+    /** The tap's clock (ms): it stands still unless a test moves it, so the frames alone move the picture. */
+    private var uptime = 0L
+    private val controller = ModeSwitchController(feedback) { uptime }
 
     private var accent = Color.Unspecified
     private var showSettings by mutableStateOf(true)
@@ -229,7 +241,123 @@ class ModeSwitchOverlayTest {
         assertNull(controller.shownMode)
     }
 
+    @Test
+    fun controller_reduceMotion_leavingOrTheBackground_stopsTheSoundAndVibration_once() {
+        controller.motionOn = false
+        controller.noteStored(TrainingMode.BODYBUILDING)
+        controller.start(ModeSwitchKind.DROP)
+        controller.finish(ModeSwitchEnd.LEAVE)
+        assertEquals(1, feedback.stops)
+        controller.finish(ModeSwitchEnd.LEAVE)
+        controller.finish(ModeSwitchEnd.HIDDEN)
+        assertEquals("stopped once", 1, feedback.stops)
+        controller.start(ModeSwitchKind.PUMP)
+        controller.finish(ModeSwitchEnd.HIDDEN)
+        assertEquals(2, feedback.stops)
+        // The clock's end and a skip are not stops of a free sound: there is nothing running to end.
+        controller.start(ModeSwitchKind.DROP)
+        controller.finish(ModeSwitchEnd.END)
+        controller.skip()
+        assertEquals(2, feedback.stops)
+    }
+
+    @Test
+    fun controller_skip_cancelsTheVibration_thenTicks() {
+        controller.start(ModeSwitchKind.DROP)
+        controller.advanceTo(400.0)
+        controller.skip()
+        assertEquals(1, feedback.ticks)
+        controller.start(ModeSwitchKind.PUMP)
+        controller.finish(ModeSwitchEnd.LEAVE)
+        assertEquals("only a skip ticks", 1, feedback.ticks)
+    }
+
     // ---- in the app ----
+
+    @Test
+    fun theFirstFrame_isTheTimeSinceTheTap() {
+        show()
+        compose.mainClock.autoAdvance = false
+        uptime = 10_000
+        flip()
+        assertEquals(0.0, controller.tMs, 0.0)
+        // The frame that composes the overlay starts its clock; the clock's first frame comes 40 ms after the tap (the
+        // frame clock says less): the picture is where the sound and the vibration are, 40 ms in.
+        frame()
+        assertEquals("nothing of either animation shows at 0", 0.0, controller.tMs, 0.0)
+        uptime += 40
+        frame()
+        assertEquals(40.0, controller.tMs, 0.0)
+        // Later frames add their own steps, with no cap.
+        val before = controller.tMs
+        compose.mainClock.advanceTimeBy(100)
+        assertTrue("a late frame jumps ahead: ${controller.tMs}", controller.tMs >= before + 100)
+        compose.mainClock.autoAdvance = true
+    }
+
+    @Test
+    fun theFirstFrame_doesNotOverrideAHold() {
+        show()
+        compose.mainClock.autoAdvance = false
+        uptime = 10_000
+        flip()
+        controller.hold(200.0)
+        uptime += 500
+        frame()
+        frame()
+        assertEquals(200.0, controller.tMs, 0.0)
+        compose.mainClock.autoAdvance = true
+    }
+
+    @Test
+    fun openingSettings_prefetchesTheNextSwitchsSound() {
+        show()
+        compose.waitUntil(5_000) { feedback.prefetches.isNotEmpty() }
+        assertEquals("stored bodybuilding: the next switch is the drop", listOf(ModeSwitchKind.DROP), feedback.prefetches)
+    }
+
+    @Test
+    fun reduceMotion_leavingSettings_stopsTheSoundAndVibration() {
+        show(motion = false)
+        flip()
+        assertEquals(0, feedback.stops)
+        showSettings = false
+        compose.waitForIdle()
+        assertEquals(1, feedback.stops)
+    }
+
+    @Test
+    fun reduceMotion_theBackground_stopsTheSoundAndVibration() {
+        show(motion = false)
+        flip()
+        compose.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
+        assertEquals("stopped once, on pause or stop", 1, feedback.stops)
+        compose.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+    }
+
+    @Test
+    fun theStamp_isBelowTheTitle_fromTheImpactToTheEnd() {
+        show()
+        compose.mainClock.autoAdvance = false
+        flip()
+        waitStored(TrainingMode.POWERLIFTING)
+        var seen = 0
+        for (t in listOf(250.0, 270.0, 330.0, 450.0, 640.0, 880.0, 1100.0)) {
+            controller.hold(t)
+            frame()
+            frame()
+            val title = compose.onNode(androidx.compose.ui.test.hasText("Settings") and androidx.compose.ui.test.isHeading()).fetchSemanticsNode()
+            val stamp = compose.onAllNodes(hasTestTag("mode-stamp"), useUnmergedTree = true).fetchSemanticsNodes().singleOrNull() ?: continue
+            seen++
+            // In the title's own coordinates: the shake moves, turns and scales both alike.
+            val at = title.layoutInfo.coordinates.localPositionOf(stamp.layoutInfo.coordinates, Offset.Zero)
+            val titleHeight = title.layoutInfo.coordinates.size.height
+            assertTrue("at $t the stamp's top ${at.y} is above the title's bottom $titleHeight", at.y >= titleHeight)
+            assertTrue("at $t the stamp starts at the title's left (${at.x})", abs(at.x) < 2f)
+        }
+        assertEquals("the stamp was there each time", 7, seen)
+        compose.mainClock.autoAdvance = true
+    }
 
     @Test
     fun switchOff_storesAtTheTap_theColoursChangeAtTheImpact() {
@@ -290,6 +418,7 @@ class ModeSwitchOverlayTest {
         compose.onNodeWithText("Change plates").performClick()
         assertNull("skipped", controller.kind)
         assertEquals(1, feedback.stops)
+        assertEquals("the skip's tick", 1, feedback.ticks)
         compose.mainClock.autoAdvance = true
         compose.waitForIdle()
         assertEquals("the tap did nothing else", plates, stored().changePlates)
@@ -389,20 +518,30 @@ class ModeSwitchOverlayTest {
     }
 
     @Test
-    fun appStart_worksNothingOut() {
+    fun appStart_worksNothingOut_andSettingsLoadsTheSounds() {
         var pools = 0
         val real = ModeSwitchController(AndroidModeSwitchFeedback(context, vibrator = { null }, soundPool = { pools++; defaultSoundPool() }))
+        var settingsOpen by mutableStateOf(false)
         compose.setContent {
             ModeTheme(settings.settings, darkTheme = true, motion = true, modeSwitch = real) {
-                ModeSwitchHost { SettingsScreen(settings, BackupService(database.db, settings), onBack = {}) }
+                ModeSwitchHost {
+                    if (settingsOpen) SettingsScreen(settings, BackupService(database.db, settings), onBack = {}) else androidx.compose.material3.Text("Plan")
+                }
             }
         }
-        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("bodybuilding-mode")).fetchSemanticsNodes().isNotEmpty() }
         compose.waitForIdle()
+        // At start (any screen but Settings): nothing loaded, worked out or built.
         assertEquals("no sound loaded", 0, pools)
         assertEquals("no frame worked out", 0, ModeSwitchProbe.frames)
-        assertEquals("no shapes built", 0, ModeSwitchProbe.artBuilds)
+        assertEquals("no shapes built", 0, real.artBuilds)
         assertFalse(overlayShown())
+        // Settings opens: the sounds load ahead of the tap, and still nothing is worked out.
+        settingsOpen = true
+        compose.waitUntil(5_000) { compose.onAllNodes(hasTestTag("bodybuilding-mode")).fetchSemanticsNodes().isNotEmpty() && pools == 1 }
+        compose.waitForIdle()
+        assertEquals("loaded once", 1, pools)
+        assertEquals(0, ModeSwitchProbe.frames)
+        assertEquals(0, real.artBuilds)
     }
 
     /**

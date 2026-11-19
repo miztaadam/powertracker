@@ -1,5 +1,6 @@
 package com.powertracker.ui.motion
 
+import android.os.SystemClock
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -62,9 +63,19 @@ data class ModeSwitchGeometry(val origin: Offset, val size: Size, val density: F
  *
  * [shownMode] is null when the theme follows the stored side. The clock is a pure step ([advanceTo]); the overlay's
  * frame loop drives it, and [hold] stops it at a moment for tests and screenshots.
+ *
+ * **The clock starts at the tap**, as the sound and the vibration do: [start] notes the tap's [uptime], and the first
+ * frame catches the picture up to the time since then ([catchUp]); each later frame adds its own step, with no cap.
+ *
+ * With motion off nothing runs, but the sound and the vibration still play: leaving Settings or the app going to the
+ * background stops them too ([finish] with [ModeSwitchEnd.LEAVE] or [ModeSwitchEnd.HIDDEN]).
  */
 @Stable
-class ModeSwitchController(private val feedback: ModeSwitchFeedback) {
+class ModeSwitchController(
+    private val feedback: ModeSwitchFeedback,
+    /** The tap's clock, in ms. */
+    private val uptime: () -> Long = SystemClock::uptimeMillis,
+) {
     /** Motion on: off with the phone's reduce-motion setting. Set by the theme host. */
     var motionOn: Boolean = true
 
@@ -92,6 +103,9 @@ class ModeSwitchController(private val feedback: ModeSwitchFeedback) {
     var artReady by mutableStateOf(false)
         internal set
 
+    /** How many times the overlay has built a run's shapes (tests: none at app start). */
+    internal var artBuilds = 0
+
     /** The overlay's place in the window, set by [ModeSwitchHost]. */
     var geometry: ModeSwitchGeometry? = null
         internal set
@@ -104,6 +118,10 @@ class ModeSwitchController(private val feedback: ModeSwitchFeedback) {
 
     private var stored: TrainingMode? = null
     private var momentPassed = false
+    private var tapAt = 0L
+
+    /** A sound and vibration started with motion off, which leaving or the background still stops. */
+    private var playingFree = false
 
     /** The pump's source in the overlay's dp: the switch, or null if it could not be measured. */
     fun source(): Offset? {
@@ -159,12 +177,15 @@ class ModeSwitchController(private val feedback: ModeSwitchFeedback) {
     /** Starts [kind] from the switch at [switchCenter] (root px), whose row is [switchRow] (a press there is a flip). */
     fun start(kind: ModeSwitchKind, switchCenter: Offset? = null, switchRow: Rect? = null) {
         finish(ModeSwitchEnd.FLIP)
+        tapAt = uptime()
         feedback.start(kind)
         val to = kind.target
         if (!motionOn) {
+            playingFree = true
             shownMode = if (stored == to) null else to
             return
         }
+        playingFree = false
         this.switchCenter = switchCenter
         this.switchRow = switchRow
         clock.doubleValue = 0.0
@@ -187,6 +208,19 @@ class ModeSwitchController(private val feedback: ModeSwitchFeedback) {
         if (t >= k.end) finish(ModeSwitchEnd.END)
     }
 
+    /**
+     * The first frame of a run: the picture catches up to the time since the tap, which the sound and the vibration
+     * started from. Nothing while held.
+     */
+    fun catchUp() {
+        if (held || kind == null) return
+        val since = (uptime() - tapAt).coerceAtLeast(0L).toDouble()
+        if (since > tMs) advanceTo(since)
+    }
+
+    /** Asks for the sound the next switch plays, ahead of the tap: Settings is open (never at app start). */
+    fun prefetch(next: ModeSwitchKind) = feedback.prefetch(next)
+
     /** One frame of [dtMs], from the frame loop; nothing while held. */
     fun advanceBy(dtMs: Double) {
         if (held) return
@@ -203,11 +237,24 @@ class ModeSwitchController(private val feedback: ModeSwitchFeedback) {
     fun skip() = finish(ModeSwitchEnd.SKIP)
 
     fun finish(reason: ModeSwitchEnd) {
-        val k = kind ?: return
+        val k = kind
+        if (k == null) {
+            // With motion off there is no run, but the sound and the vibration may still be going.
+            if (playingFree && (reason == ModeSwitchEnd.LEAVE || reason == ModeSwitchEnd.HIDDEN)) {
+                playingFree = false
+                feedback.stop()
+            }
+            return
+        }
         kind = null
         held = false
         artReady = false
-        if (reason != ModeSwitchEnd.END) feedback.stop()
+        when (reason) {
+            ModeSwitchEnd.END -> Unit
+            // As the reference: the running vibration is cancelled, then one short tick answers the tap.
+            ModeSwitchEnd.SKIP -> feedback.skip()
+            else -> feedback.stop()
+        }
         shownMode = if (stored == k.target) null else k.target
     }
 
@@ -230,12 +277,10 @@ val LocalModeSwitch = staticCompositionLocalOf<ModeSwitchController?> { null }
 /** For tests: counts of work done, and each overlay frame's draw time. */
 internal object ModeSwitchProbe {
     @Volatile var frames = 0
-    @Volatile var artBuilds = 0
     var onDraw: ((Long) -> Unit)? = null
 
     fun reset() {
         frames = 0
-        artBuilds = 0
         onDraw = null
     }
 }

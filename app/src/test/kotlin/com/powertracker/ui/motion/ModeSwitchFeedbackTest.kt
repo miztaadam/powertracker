@@ -209,5 +209,75 @@ class ModeSwitchFeedbackTest {
         }
     }
 
+    @Test
+    fun skip_cancelsTheRunningVibration_thenTicks() {
+        val v = FakeVibrator()
+        val fb = feedback(v)
+        fb.start(ModeSwitchKind.DROP)
+        val cancels = v.cancels
+        fb.skip()
+        assertEquals("cancelled first", cancels + 1, v.cancels)
+        val tick = v.played.last()
+        assertArrayEquals(longArrayOf(0, 40), tick.timings)
+        assertEquals(2, v.played.size)
+        fb.release()
+    }
+
+    /** A sound player that notes the order its sounds were asked for. */
+    @Suppress("DEPRECATION")
+    private class OrderedPool(val order: MutableList<Int>) : SoundPool(2, AudioManager.STREAM_MUSIC, 0) {
+        override fun load(context: Context?, resId: Int, priority: Int): Int {
+            order += resId
+            return super.load(context, resId, priority)
+        }
+    }
+
+    @Test
+    fun prefetch_loadsBothSounds_theNextSwitchsFirst_once() {
+        for ((next, first) in listOf(ModeSwitchKind.PUMP to R.raw.grit_pump, ModeSwitchKind.DROP to R.raw.grit_hammer_drop)) {
+            val order = mutableListOf<Int>()
+            var made = 0
+            val fb = AndroidModeSwitchFeedback(context, vibrator = { null }, soundPool = { made++; OrderedPool(order) })
+            assertEquals("nothing before Settings asks", 0, made)
+            fb.prefetch(next)
+            assertEquals(1, made)
+            assertEquals(first, order.first())
+            assertEquals(setOf(R.raw.grit_pump, R.raw.grit_hammer_drop), order.toSet())
+            fb.prefetch(next)
+            fb.start(next)
+            assertEquals("made and loaded once", 1, made)
+            assertEquals(2, order.size)
+            fb.release()
+        }
+    }
+
+    @Test
+    fun prefetched_theSoundPlaysAtTheTap() {
+        lateinit var pool: SoundPool
+        val fb = AndroidModeSwitchFeedback(context, vibrator = { null }, soundPool = { defaultSoundPool().also { pool = it } })
+        fb.prefetch(ModeSwitchKind.PUMP)
+        shadowOf(pool).notifyResourceLoaded(R.raw.grit_pump, true)
+        ShadowLooper.idleMainLooper()
+        assertFalse(shadowOf(pool).wasResourcePlayed(R.raw.grit_pump))
+        fb.start(ModeSwitchKind.PUMP)
+        assertTrue("at once", shadowOf(pool).wasResourcePlayed(R.raw.grit_pump))
+        fb.release()
+    }
+
+    @Test
+    fun aLateSound_playsUpTo150msAfterTheTap_andNotLater() {
+        for ((late, plays) in listOf(AndroidModeSwitchFeedback.LATE_MS to true, AndroidModeSwitchFeedback.LATE_MS + 1 to false)) {
+            var now = 5_000L
+            lateinit var pool: SoundPool
+            val fb = AndroidModeSwitchFeedback(context, vibrator = { null }, soundPool = { defaultSoundPool().also { pool = it } }, uptime = { now })
+            fb.start(ModeSwitchKind.DROP)
+            now += late
+            shadowOf(pool).notifyResourceLoaded(R.raw.grit_hammer_drop, true)
+            ShadowLooper.idleMainLooper()
+            assertEquals("loaded $late ms after the tap", plays, shadowOf(pool).wasResourcePlayed(R.raw.grit_hammer_drop))
+            fb.release()
+        }
+    }
+
     private fun feedback(v: ModeSwitchVibrator) = AndroidModeSwitchFeedback(context, vibrator = { v }, soundPool = { defaultSoundPool() })
 }
