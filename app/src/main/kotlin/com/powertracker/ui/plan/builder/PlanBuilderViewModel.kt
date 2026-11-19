@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.powertracker.data.PlanSnapshot
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.library.Kind
@@ -73,6 +74,8 @@ data class PlanBuilderState(
     val saved: Boolean = false,
     /** The save failed; nothing was changed. */
     val failed: Boolean = false,
+    /** Set with [saved] when the save replaced a plan: what Plan's snackbar Undo puts back (1.14.1). Null for an empty side. */
+    val undo: PlanSnapshot? = null,
 ) {
     val available: Boolean get() = mode == TrainingMode.BODYBUILDING
     val targetGroups: List<MuscleGroup> get() = PlanBuilder.TARGET_GROUPS
@@ -259,8 +262,8 @@ class PlanBuilderViewModel(
         viewModelScope.launch {
             try {
                 // Not cut short by leaving the screen mid-save: the writes finish, or are undone, together.
-                withContext(NonCancellable) { store(items, days) }
-                _state.update { it.copy(saving = false, saved = true) }
+                val undo = withContext(NonCancellable) { store(items, days) }
+                _state.update { it.copy(saving = false, saved = true, undo = undo) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -274,14 +277,16 @@ class PlanBuilderViewModel(
      * Replaces the bodybuilding plan and sets its days, all or nothing. The days are set last, inside the plan's
      * transaction: a failed days write rolls the plan back, and a failed plan write never reaches the days. If the
      * transaction still fails once the days are stored (a store that wrote and then threw, or a failed commit), the
-     * side's days are put back as they were.
+     * side's days are put back as they were. Returns the side's plan as it was, for Undo, or null when it had none.
      */
-    private suspend fun store(items: List<Pair<PlanItem, String?>>, days: Set<DayOfWeek>) {
+    private suspend fun store(items: List<Pair<PlanItem, String?>>, days: Set<DayOfWeek>): PlanSnapshot? {
         val before = settings.settings.first().bodybuildingTrainingDays
         try {
-            training.inTransaction {
+            return training.inTransaction {
+                val old = training.planSnapshot(TrainingMode.BODYBUILDING, before)
                 replacePlan(items)
                 setDays(days)
+                old.takeIf { it.items.isNotEmpty() }?.copy(replacedBy = training.planIds(TrainingMode.BODYBUILDING))
             }
         } catch (e: Exception) {
             if (settings.settings.first().bodybuildingTrainingDays != before) runCatching { setDays(before) }

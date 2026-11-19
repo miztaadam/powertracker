@@ -37,6 +37,7 @@ import androidx.navigation.compose.rememberNavController
 import com.powertracker.AppContainer
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.BackupService
+import com.powertracker.data.PlanSnapshot
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.TrainingMode
@@ -49,6 +50,7 @@ import com.powertracker.ui.plan.SettingsScreen
 import com.powertracker.ui.plan.builder.PlanBuilderScreen
 import com.powertracker.ui.plan.templates.TemplatesScreen
 import com.powertracker.ui.plan.templates.planSetText
+import com.powertracker.ui.plan.PLAN_SAVED
 import com.powertracker.ui.progress.ExerciseHistoryScreen
 import com.powertracker.ui.progress.LiftHistoryScreen
 import com.powertracker.ui.progress.ProgressScreen
@@ -102,8 +104,10 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
     // "My goals have changed": on the bodybuilding side it runs the plan builder again; on the powerlifting side it opens Plan.
     val mode by remember(settings) { settings.settings.map { it.trainingMode } }.collectAsState(initial = null)
     fun checkIn() = nav.navigate(Routes.CHECK_IN) { launchSingleTop = true }
-    // Plan's snackbar after a template is saved: set here, shown and cleared by Plan.
+    // Plan's snackbar after a template or builder save: set here, shown and cleared by Plan. [planUndo] goes with it,
+    // set on every save (null when the side had no plan, so an older save's Undo never rides on a newer message).
     var planMessage by rememberSaveable { mutableStateOf<String?>(null) }
+    var planUndo by remember { mutableStateOf<PlanSnapshot?>(null) }
     fun goalsChanged() = if (mode == TrainingMode.BODYBUILDING) nav.navigate(Routes.PLAN_BUILDER) { launchSingleTop = true } else openTab(Tab.PLAN)
 
     Scaffold(
@@ -149,7 +153,11 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
                     onOpenBuilder = { nav.navigate(Routes.PLAN_BUILDER) { launchSingleTop = true } },
                     onOpenTemplates = { side -> nav.navigate(Routes.templates(side)) { launchSingleTop = true } },
                     message = planMessage,
-                    onMessageShown = { planMessage = null },
+                    undo = planUndo,
+                    onMessageShown = {
+                        planMessage = null
+                        planUndo = null
+                    },
                 )
             }
             composable(Routes.TEMPLATES) { entry ->
@@ -161,6 +169,7 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
                         side, training, settings,
                         onClose = { nav.popBackStack() },
                         // Back to the Plan tab with the new week, and the snackbar there.
+                        onSavedUndo = { planUndo = it },
                         onSaved = { name ->
                             planMessage = planSetText(name)
                             nav.popBackStack()
@@ -174,7 +183,9 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
                     training, settings,
                     onClose = { nav.popBackStack() },
                     // Back to the Plan tab, wherever the builder was opened from, to see the new plan.
+                    onSavedUndo = { planUndo = it },
                     onSaved = {
+                        planMessage = PLAN_SAVED
                         nav.popBackStack()
                         openTab(Tab.PLAN)
                     },

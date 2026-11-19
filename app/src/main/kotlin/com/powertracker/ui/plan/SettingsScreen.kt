@@ -119,7 +119,7 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
-    var pendingRestore by remember { mutableStateOf<BackupFile?>(null) }
+    var pendingRestore by remember { mutableStateOf<PendingRestore?>(null) }
 
     fun update(f: (AppSettings) -> AppSettings) {
         scope.launch { settingsRepo.update(f) }
@@ -146,7 +146,8 @@ fun SettingsScreen(
             }.getOrNull()
             val check = if (text == null) RestoreCheck.Rejected("This file isn't a valid Grit backup.") else checkBackupText(text)
             when (check) {
-                is RestoreCheck.Ready -> pendingRestore = check.file
+                // Before asking: the sides whose plan this backup would remove get the warning instead (1.14.1).
+                is RestoreCheck.Ready -> pendingRestore = PendingRestore(check.file, runCatching { backup.sidesLosingPlan(check.file) }.getOrDefault(emptyList()))
                 is RestoreCheck.Rejected -> snackbar.showSnackbar(check.message)
             }
         }
@@ -163,27 +164,53 @@ fun SettingsScreen(
         onTrainingMode = { mode -> scope.launch { settingsRepo.setTrainingMode(mode, today()) } },
     )
 
-    pendingRestore?.let { file ->
-        AlertDialog(
-            onDismissRequest = { pendingRestore = null },
-            title = { Text("Replace all data?") },
-            text = { Text("Restoring replaces everything in Grit with the contents of this backup.") },
-            confirmButton = {
-                PrimaryButton(
-                    "Replace",
-                    onClick = {
-                        pendingRestore = null
-                        scope.launch {
-                            val ok = runCatching { backup.restore(file) }.isSuccess
-                            snackbar.showSnackbar(if (ok) "Backup restored." else "Couldn't restore the backup.")
-                        }
-                    },
-                    compact = true,
-                )
+    pendingRestore?.let { pending ->
+        RestoreConfirmDialog(
+            losing = pending.losing,
+            onConfirm = {
+                pendingRestore = null
+                scope.launch {
+                    val ok = runCatching { backup.restore(pending.file) }.isSuccess
+                    snackbar.showSnackbar(if (ok) "Backup restored." else "Couldn't restore the backup.")
+                }
             },
-            dismissButton = { QuietButton("Cancel", { pendingRestore = null }) },
+            onCancel = { pendingRestore = null },
         )
     }
+}
+
+/** A backup file picked to restore, with the sides whose plan restoring it would remove ([BackupService.sidesLosingPlan]). */
+data class PendingRestore(val file: BackupFile, val losing: List<TrainingMode>)
+
+private fun sideNames(sides: List<TrainingMode>, joiner: String): String =
+    sides.joinToString(" $joiner ") { if (it == TrainingMode.BODYBUILDING) "bodybuilding" else "powerlifting" }
+
+/** The warning's title (1.14.1): "This backup has no powerlifting plan", or "no powerlifting or bodybuilding plan" for both. */
+fun restoreWarningTitle(losing: List<TrainingMode>): String = "This backup has no ${sideNames(losing, "or")} plan"
+
+/** The warning's body (1.14.1); with both sides, "your current powerlifting and bodybuilding plans". */
+fun restoreWarningBody(losing: List<TrainingMode>): String {
+    val plans = if (losing.size > 1) "${sideNames(losing, "and")} plans" else "${sideNames(losing, "and")} plan"
+    return "Restoring it removes your current $plans. Your other data is replaced by the backup's too."
+}
+
+const val RESTORE_ANYWAY = "Restore anyway"
+
+/**
+ * The question before a restore. When the backup would remove a side's plan ([losing] is not empty) it is the warning
+ * (1.14.1), with Restore anyway and Cancel; otherwise it is "Replace all data?" as before. [onConfirm] restores; Cancel,
+ * or dismissing, restores nothing.
+ */
+@Composable
+fun RestoreConfirmDialog(losing: List<TrainingMode>, onConfirm: () -> Unit, onCancel: () -> Unit) {
+    val warn = losing.isNotEmpty()
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = { Text(if (warn) restoreWarningTitle(losing) else "Replace all data?") },
+        text = { Text(if (warn) restoreWarningBody(losing) else "Restoring replaces everything in Grit with the contents of this backup.") },
+        confirmButton = { PrimaryButton(if (warn) RESTORE_ANYWAY else "Replace", onClick = onConfirm, compact = true) },
+        dismissButton = { QuietButton("Cancel", onCancel) },
+    )
 }
 
 /** The Settings screen without its repositories or file pickers: grouped cards of rows. */

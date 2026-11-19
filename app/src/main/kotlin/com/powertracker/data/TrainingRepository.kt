@@ -27,6 +27,7 @@ import com.powertracker.domain.model.TrainingMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
@@ -36,6 +37,22 @@ data class Plans(val powerlifting: List<PlanItem>, val bodybuilding: List<PlanIt
     fun of(mode: TrainingMode): List<PlanItem> = if (mode == TrainingMode.BODYBUILDING) bodybuilding else powerlifting
 }
 
+/**
+ * One side's plan as it was just before a whole-plan replace (Use this plan), for Undo (1.14.1): its [items] with their
+ * ids, days, order and numbers; the skips that pointed at them ([skipLinks], skip id to plan item id), which the replace
+ * cleared; and the side's training [days]. [replacedBy] is the ids the replace wrote. Undo runs only while [token] is
+ * the side's latest snapshot, not yet undone, and the side's plan is still exactly those items: an old snackbar's Undo
+ * never puts an older plan over a newer one.
+ */
+data class PlanSnapshot(
+    val mode: TrainingMode,
+    val items: List<PlanItem>,
+    val skipLinks: Map<Long, Long>,
+    val days: Set<DayOfWeek>,
+    val replacedBy: Set<Long> = emptySet(),
+    val token: Long = 0,
+)
+
 /** A logged set together with its row ids, for editing and deleting. */
 data class StoredSet(val id: Long, val sessionId: Long, val set: LoggedSet)
 
@@ -44,6 +61,10 @@ class ExerciseInUseException(val exerciseId: Long) :
 
 open class TrainingRepository(private val db: AppDatabase) {
     private val catalogue = CatalogueResolver(db)
+
+    /** Each side's latest [PlanSnapshot.token], until it is undone: only the latest replace can be undone (1.14.1). */
+    private val undoable = java.util.concurrent.ConcurrentHashMap<TrainingMode, Long>()
+    private val tokens = java.util.concurrent.atomic.AtomicLong()
 
     fun history(): Flow<TrainingHistory> = combine(
         db.sessions().observeAll(),
@@ -137,6 +158,51 @@ open class TrainingRepository(private val db: AppDatabase) {
             val exerciseId = if (catalogueName == null) item.exerciseId else catalogue.resolve(catalogueName)
             db.plan().upsert(PlanItemEntity(0, item.weekday, exerciseId, item.sets, item.reps, item.targetRpe, item.order, mode, item.repsHigh))
         }
+    }
+
+    /**
+     * [mode]'s plan as stored now, with the skips that point at it and [days], ready for [restorePlan]. Call it inside
+     * [inTransaction], just before the replace: it becomes the side's latest snapshot, so any earlier one can no longer
+     * be undone.
+     */
+    suspend fun planSnapshot(mode: TrainingMode, days: Set<DayOfWeek>): PlanSnapshot {
+        val items = db.plan().all().filter { it.mode == mode }.map { it.toDomain() }
+        val ids = items.mapTo(HashSet()) { it.id }
+        val links = db.skips().all().mapNotNull { skip -> skip.planItemId?.takeIf { it in ids }?.let { skip.id to it } }.toMap()
+        val token = tokens.incrementAndGet()
+        undoable[mode] = token
+        return PlanSnapshot(mode, items, links, days, token = token)
+    }
+
+    /** [snapshot] was undone (its transaction committed): it, and every older snapshot of its side, can't be undone again. */
+    fun undone(snapshot: PlanSnapshot) {
+        undoable.remove(snapshot.mode, snapshot.token)
+    }
+
+    /** The ids of [mode]'s stored plan items. */
+    suspend fun planIds(mode: TrainingMode): Set<Long> = db.plan().all().filter { it.mode == mode }.mapTo(HashSet()) { it.id }
+
+    /**
+     * Undo for a whole-plan replace: puts [snapshot]'s items back on [mode], with their ids, and relinks the skips that
+     * pointed at them, in one transaction. It runs only while [snapshot] is [mode]'s latest, not [undone], and [mode]'s
+     * plan is still exactly [PlanSnapshot.replacedBy] (the replace's items, with any edits); otherwise, or for a snapshot
+     * of an empty side or of the other side, it changes nothing and returns false. The caller marks it [undone] once its
+     * transaction has committed. Sessions, sets, advice, check-ins and skips are kept: a skip only gets its plan
+     * item back, and only if it has none now. The training days are the caller's (see [PlanSnapshot.days]).
+     */
+    suspend fun restorePlan(mode: TrainingMode, snapshot: PlanSnapshot): Boolean = db.withTransaction {
+        if (snapshot.mode != mode || snapshot.items.isEmpty() || undoable[mode] != snapshot.token) return@withTransaction false
+        if (planIds(mode) != snapshot.replacedBy) return@withTransaction false
+        db.plan().clearSide(mode)
+        // A plain insert: an id already taken fails the whole undo rather than overwriting that row.
+        db.plan().insertAll(
+            snapshot.items.map { PlanItemEntity(it.id, it.weekday, it.exerciseId, it.sets, it.reps, it.targetRpe, it.order, mode, it.repsHigh) },
+        )
+        for ((skipId, itemId) in snapshot.skipLinks) {
+            val skip = db.skips().byId(skipId) ?: continue
+            if (skip.planItemId == null) db.skips().update(skip.copy(planItemId = itemId))
+        }
+        true
     }
 
     /** Runs [block] in one transaction: the plan items it saves and the catalogue rows it resolves land together or not at all. */

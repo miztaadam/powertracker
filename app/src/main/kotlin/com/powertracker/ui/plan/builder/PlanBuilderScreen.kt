@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.powertracker.data.PlanSnapshot
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.library.LibraryExercise
@@ -162,6 +163,7 @@ data class PlanBuilderActions(
 /**
  * The bodybuilding plan builder, over the whole screen. [onClose] leaves it with nothing changed (back from the first
  * step, or the app is on the powerlifting side, where the builder is not offered); [onSaved] follows "Use this plan".
+ * Just before it, [onSavedUndo] gets what Plan's snackbar Undo puts back, or null when the side had no plan (1.14.1).
  */
 @Composable
 fun PlanBuilderScreen(
@@ -170,13 +172,20 @@ fun PlanBuilderScreen(
     onClose: () -> Unit,
     onSaved: () -> Unit,
     today: () -> LocalDate = ::systemToday,
+    onSavedUndo: (PlanSnapshot?) -> Unit = {},
     viewModel: PlanBuilderViewModel = viewModel(factory = PlanBuilderViewModel.factory(training, settings, today)),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val close by rememberUpdatedState(onClose)
     val saved by rememberUpdatedState(onSaved)
     LaunchedEffect(state.loading, state.available) { if (!state.loading && !state.available) close() }
-    LaunchedEffect(state.saved) { if (state.saved) saved() }
+    val savedUndo by rememberUpdatedState(onSavedUndo)
+    LaunchedEffect(state.saved) {
+        if (state.saved) {
+            savedUndo(state.undo)
+            saved()
+        }
+    }
     val actions = remember(viewModel) {
         PlanBuilderActions(
             onDayCount = viewModel::chooseDayCount,

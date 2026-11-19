@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.powertracker.data.AppSettings
+import com.powertracker.data.PlanSnapshot
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.library.Kind
@@ -23,6 +24,8 @@ import com.powertracker.ui.library.PickerEntry
 import com.powertracker.ui.library.SAVE_FAILED
 import com.powertracker.ui.library.recentExerciseIds
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,6 +81,8 @@ enum class PlanAdd {
 class PlanViewModel(
     private val training: TrainingRepository,
     private val settings: SettingsRepository,
+    /** Undo after a whole-plan replace ([undoPlanReplace]); a test can make it fail. Before [today], which tests pass last. */
+    private val undoReplace: suspend (PlanSnapshot) -> Boolean = { snapshot -> undoPlanReplace(training, settings, snapshot) },
     private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
 
@@ -85,6 +90,18 @@ class PlanViewModel(
 
     /** One-line messages for the screen's snackbar: a save that failed ([SAVE_FAILED]). */
     val messages: Flow<String> = _messages.receiveAsFlow()
+
+    /**
+     * The snackbar's Undo after a template or builder save: puts [snapshot]'s plan, skip links and days back on its own
+     * side, whichever side the app is on now. Not cut short by leaving Plan. A stale Undo does nothing; a failed one
+     * changes nothing and says [UNDO_FAILED].
+     */
+    fun undo(snapshot: PlanSnapshot) {
+        viewModelScope.launch {
+            val ok = withContext(NonCancellable) { runCatching { undoReplace(snapshot) }.isSuccess }
+            if (!ok) _messages.send(UNDO_FAILED)
+        }
+    }
 
     /** True while [addOnce] is saving; further calls are ignored until it has answered. */
     private val adding = MutableStateFlow(false)
@@ -284,6 +301,6 @@ class PlanViewModel(
         const val BODYBUILDING_RPE = 8.0
 
         fun factory(training: TrainingRepository, settings: SettingsRepository, today: () -> LocalDate = ::systemToday): ViewModelProvider.Factory =
-            viewModelFactory { initializer { PlanViewModel(training, settings, today) } }
+            viewModelFactory { initializer { PlanViewModel(training, settings, today = today) } }
     }
 }
