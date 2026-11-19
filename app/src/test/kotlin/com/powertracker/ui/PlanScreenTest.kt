@@ -1245,12 +1245,12 @@ class PlanScreenTest {
             release()
             throw e
         }
-        // Close, its state seen by the next frame, as on a phone, where the tap's writes are applied before that frame.
-        // Here, with the clock stepped by hand, they would wait for the main looper, so the next frame would still draw
+        // Close, then the main looper runs what Close posted (the app's own apply of its writes), as on a phone before the
+        // next frame. With the clock stepped by hand that work would otherwise wait, so the next frame would still draw
         // the picker: a step no phone takes.
         val closeNow = {
             close()
-            androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
+            org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
         }
         compose.mainClock.autoAdvance = false
         try {
