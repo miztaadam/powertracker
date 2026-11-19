@@ -12,6 +12,9 @@ import com.powertracker.domain.model.forSide
 import com.powertracker.domain.progress.MuscleProgress
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.e1rm.E1rm
+import com.powertracker.domain.guide.Guide
+import com.powertracker.domain.guide.GuideSample
+import com.powertracker.domain.guide.GuideScreenId
 import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.library.BodyArea
 import com.powertracker.domain.library.Equipment
@@ -619,6 +622,50 @@ object GritDomain {
 
     /** Where a pulse's bead starts along a [len] long vein, 0..1 of its length; the bead is the next 6%. */
     fun modeSwitchPulseStart(front: Double, len: Double): Double = ModeSwitchMotion.pulseStart(front, len)
+
+    // ---- the guide ----
+
+    /** The guide's 8 screens (`GuideScreenId` names), in order. */
+    fun guideScreens(): Array<String> = Guide.SCREENS.map { it.name }.toTypedArray()
+
+    /** Screen [id] (a `GuideScreenId` name) for [mode]'s side: its title, lines and whether its picture is an example. */
+    fun guideScreen(id: String, mode: String): JsGuideScreen =
+        Guide.screen(parseEnum<GuideScreenId>("id", id), parseEnum<TrainingMode>("mode", mode)).toJs()
+
+    /** What screen [id]'s picture shows, step by step (`GuideStep` names), on [mode]'s side. */
+    fun guideSteps(id: String, mode: String): Array<String> =
+        Guide.steps(parseEnum<GuideScreenId>("id", id), parseEnum<TrainingMode>("mode", mode)).map { it.name }.toTypedArray()
+
+    /** One picture step, in ms. */
+    fun guideStepMs(): Int = Guide.STEP_MS
+
+    /** The sample lifter's fixed today (ISO). */
+    fun guideSampleToday(): String = GuideSample.TODAY.toString()
+
+    /** The 3-day template screen 3 picks for [mode]. */
+    fun guideSampleTemplate(mode: String): JsPlanTemplate = GuideSample.template(parseEnum<TrainingMode>("mode", mode)).toJs()
+
+    /** That template's draft, saved: the sample's plan items, whose exercise ids are [guideSampleExercises]'. */
+    fun guideSamplePlan(mode: String): Array<JsPlanItem> =
+        GuideSample.plan(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** The sample's exercises: the ids its plan and advice use. */
+    fun guideSampleExercises(mode: String): Array<JsExercise> =
+        GuideSample.exercises(parseEnum<TrainingMode>("mode", mode)).values.sortedBy { it.id }.map { it.toJs() }.toTypedArray()
+
+    /** The set screen 4 logs: the first of [guideSampleTargets]. */
+    fun guideSampleTodaySet(mode: String): JsGuideTargetStep = GuideSample.today(parseEnum<TrainingMode>("mode", mode)).toJs()
+
+    /** One lift, 5 sessions: what was done and the coach's next target. */
+    fun guideSampleTargets(mode: String): Array<JsGuideTargetStep> =
+        GuideSample.targets(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** Screen 6's cards, from the real rules, in the rule table's order. */
+    fun guideSampleAdvice(mode: String): Array<JsAdvice> =
+        GuideSample.advice(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** The sample lifter about six months on. */
+    fun guideSampleProgress(mode: String): JsGuideProgress = GuideSample.progress(parseEnum<TrainingMode>("mode", mode)).toJs()
 
     private fun ratioRange(numerator: MainLift, denominator: MainLift, typical: ClosedFloatingPointRange<Double>) =
         JsRatioRange(numerator.name, denominator.name, typical.start, typical.endInclusive)

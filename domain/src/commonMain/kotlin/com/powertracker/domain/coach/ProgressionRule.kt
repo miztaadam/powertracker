@@ -15,7 +15,20 @@ import kotlin.math.floor
 
 /** Next-session load/rep target for one plan item, from the last top set. */
 object ProgressionRule {
-    private const val MAX_INCREASE = 1.05
+    /** A target is never more than this times the last top set's weight. */
+    internal const val MAX_INCREASE = 1.05
+
+    /** A missed top set: the next target is this fraction of its weight. */
+    internal const val FAILED_SCALE = 0.95
+
+    /** A top set 1.5 RPE or more above target: the next target is this fraction of its weight. */
+    internal const val HARD_SCALE = 0.975
+
+    /** The usual increase, in kilograms. */
+    internal const val STEP_KG = 2.5
+
+    /** The increase for a squat or deadlift top set at least 1 RPE under target. */
+    internal const val BIG_STEP_KG = 5.0
     private const val MAX_REPS = 12
     private const val RECENT_JUMP_DAYS = 14L
 
@@ -105,16 +118,16 @@ object ProgressionRule {
         previous: Pair<LocalDate, LoggedSet>?,
         lastDate: LocalDate,
     ): Change {
-        if (last.failed) return Change.Scale(0.95)
+        if (last.failed) return Change.Scale(FAILED_SCALE)
         val delta = (last.rpe ?: targetRpe) - targetRpe
         return when {
-            delta >= 1.5 -> Change.Scale(0.975)
+            delta >= 1.5 -> Change.Scale(HARD_SCALE)
             delta > 0.5 -> Change.Repeat
-            delta >= -0.5 -> if (recentJumpWithRisingRpe(last, previous, lastDate)) Change.Repeat else Change.Add(2.5)
+            delta >= -0.5 -> if (recentJumpWithRisingRpe(last, previous, lastDate)) Change.Repeat else Change.Add(STEP_KG)
             // Bench, strict press and everything else jump 2.5 kg.
             delta <= -1.0 &&
-                (exercise.category == Category.SQUAT || exercise.category == Category.DEADLIFT) -> Change.Add(5.0)
-            else -> Change.Add(2.5)
+                (exercise.category == Category.SQUAT || exercise.category == Category.DEADLIFT) -> Change.Add(BIG_STEP_KG)
+            else -> Change.Add(STEP_KG)
         }
     }
 
