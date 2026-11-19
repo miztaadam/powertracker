@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { planFor, resolveCatalogue, type PlanSnapshot } from '../../db/catalogue'
@@ -6,7 +6,8 @@ import { getSettings, updateSettings, type GritDb } from '../../db/db'
 import type { TrainingMode } from '../../db/schema'
 import { TODAY, logSet, set, todayFixture } from '../../test/todayFixture'
 import { PlanBuilderScreen } from './builder/PlanBuilderScreen'
-import { PLAN_SAVED, PlanScreen, UNDO_FAILED } from './PlanScreen'
+import type { PlanActions, PlanState } from '../../state/usePlan'
+import { PLAN_SAVED, PlanContent, PlanScreen, UNDO_FAILED } from './PlanScreen'
 import { TemplatesScreen } from './templates/TemplatesScreen'
 
 /** 1.14.1: Plan's snackbar after a whole-plan replace offers Undo, which puts back the plan that was there. */
@@ -145,5 +146,24 @@ describe('Undo of a plan replace', () => {
     expect(await screen.findByText('Plan saved.')).toBeInTheDocument()
     await tap('Undo')
     await waitFor(async () => expect(await sorted('BODYBUILDING')).toEqual(first))
+  })
+
+  it('undo_isOnOfferForTheUsualSnackbarTime_only', () => {
+    vi.useFakeTimers()
+    try {
+      const state: PlanState = { loading: false, sections: [], exercises: [], recentIds: [], mainExercises: [], defaultRpe: 8, trainingDays: [], side: 'POWERLIFTING' }
+      const undo = { mode: 'POWERLIFTING', items: [], skipLinks: [], days: [], replacedBy: [] } as PlanSnapshot
+      const onUndoReplace = vi.fn(async () => 'restored' as const)
+      render(<PlanContent state={state} actions={{} as PlanActions} onOpenSettings={() => {}} message={{ text: 'Plan set: 3-day powerlifting.', undo }} onUndoReplace={onUndoReplace} />)
+      expect(screen.getByRole('button', { name: 'Undo' })).toBeInTheDocument()
+      act(() => vi.advanceTimersByTime(3999))
+      expect(screen.getByRole('button', { name: 'Undo' })).toBeInTheDocument()
+      act(() => vi.advanceTimersByTime(1))
+      expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull()
+      expect(screen.queryByText('Plan set: 3-day powerlifting.')).toBeNull()
+      expect(onUndoReplace).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
