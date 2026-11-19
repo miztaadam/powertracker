@@ -120,7 +120,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Recovery export with App lock on: on the recovery screen, an export asks for Face ID first, so the file may be downloaded (Files, Downloads) instead of opening the share sheet. Note which happens, and check the file is there.
 - [ ] Restore: pick that file with the file picker. Confirm. The data matches. App lock is as it was on this phone, and "Restore safety copy" in Settings brings back what the restore replaced.
 - [ ] Two tabs: open Grit in a second tab while a first is suspended. The second asks before taking over.
-- [ ] Bodybuilding mode: turn it on in Settings and back off (the look and label change at once), log a set on each side, then export a backup and restore it on the other platform (Android to iPhone or the reverse); both sides' plans and sessions come through.
+- [ ] Bodybuilding mode: turn it on in Settings and back off (with motion on, the hammer or the pump plays and the new look is revealed; with reduce motion on, the look and label change at once), log a set on each side, then export a backup and restore it on the other platform (Android to iPhone or the reverse); both sides' plans and sessions come through.
 - [ ] Plan builder: on the bodybuilding side, open Plan, tap Build my plan (or Rebuild my plan in the menu), answer the three questions, tap Use this plan, then train its first day from Today.
 - [ ] Check-in: on the bodybuilding side, open Progress and do a check-in (mark a body part lagging), then apply a suggestion from Coach and check the plan changed.
 - [ ] Stretch and squeeze: on the bodybuilding side, read the stretch and squeeze lines on a Today card.
@@ -150,6 +150,13 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Undo after a template: on a side with a plan, choose a template and tap Replace. "Plan set: <name>." shows with Undo. Tap Undo: the old plan and its training days are back, also after closing and reopening Grit. Choosing a template on an empty side shows no Undo.
 - [ ] Undo after Rebuild my plan: on the bodybuilding side with a plan, Rebuild my plan from the menu (⋮) and tap Use this plan. "Plan saved." shows with Undo. Tap Undo: the old plan is back. Let the snackbar go instead: the new plan stays.
 - [ ] Restore warning: export a backup while the bodybuilding side has no plan, then build a bodybuilding plan and restore that backup (Plan, Settings, Restore backup). "This backup has no bodybuilding plan" shows with Restore anyway and Cancel. Cancel: the plan is still there. Restore anyway: the backup's data is in, with no bodybuilding plan. A backup that has the plan shows "Replace all data?" as before.
+- [ ] Mode switch, the pump: on the powerlifting side, open Settings and turn on Bodybuilding mode. Three beats, each bigger, with veins of light from the switch; on the third the blue floods out in a circle from the switch and the BODYBUILDING label swells in.
+- [ ] Mode switch, the hammer: turn Bodybuilding mode off. The small hammer lands hard on the very bottom of the screen, with a flash, cracks and a hard shake; the powerlifting look bursts out from the hit, and POWERLIFTING shows under the title and fades.
+- [ ] Mode switch on the Home Screen app: during each animation, the new screen opens inside the growing circle with the old screen outside it. If Safari can't do that, it should fall back cleanly: the old screen stays still outside the circle, or the new screen shows at once. Either way, afterwards nothing is left moved, shaded or stuck, and the next switch plays normally. Note which you see.
+- [ ] Mode switch sound: with the ringer on, each animation has its own sound, in time with the hits. With the silent switch on, no sound.
+- [ ] Mode switch vibration: iPhones don't let web apps vibrate, so nothing buzzes; the animation plays as normal.
+- [ ] Mode switch with Reduce Motion on: no animation, the look changes at once, and the sound still plays.
+- [ ] Mode switch, skip: during either animation, tap anywhere outside the switch. It jumps to the end and the tap does nothing else. Flip the switch again mid-animation: the running one ends and the other plays, on the side of the last flip.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
@@ -183,6 +190,12 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Undo after a template: on a side with a plan, choose a template and tap Replace. "Plan set: <name>." shows with Undo. Tap Undo: the old plan and its training days are back, also after closing and reopening Grit. Choosing a template on an empty side shows no Undo.
 - [ ] Undo after Rebuild my plan: on the bodybuilding side with a plan, Rebuild my plan from the menu (⋮) and tap Use this plan. "Plan saved." shows with Undo. Tap Undo: the old plan is back. Let the snackbar go instead: the new plan stays.
 - [ ] Restore warning: export a backup while the bodybuilding side has no plan, then build a bodybuilding plan and restore that backup (Plan, Settings, Restore backup). "This backup has no bodybuilding plan" shows with Restore anyway and Cancel. Cancel: the plan is still there. Restore anyway: the backup's data is in, with no bodybuilding plan. A backup that has the plan shows "Replace all data?" as before.
+- [ ] Mode switch, the pump: on the powerlifting side, open Settings and turn on Bodybuilding mode. Three beats, each bigger, with veins of light from the switch; on the third the blue floods out in a circle from the switch and the BODYBUILDING label swells in.
+- [ ] Mode switch, the hammer: turn Bodybuilding mode off. The small hammer lands hard on the very bottom of the screen, with a flash, cracks and a hard shake; the powerlifting look bursts out from the hit, and POWERLIFTING shows under the title and fades.
+- [ ] Mode switch vibration: the hammer's impact buzzes hard, with aftershocks; the pump gives three building beats, in time with the picture. With "Vibrate on taps" off it still buzzes.
+- [ ] Mode switch sound: each animation has its own sound, in time with the hits, at the media volume.
+- [ ] Mode switch with Remove animations on (Settings, Accessibility): no animation, the look changes at once, and the vibration and the sound still play.
+- [ ] Mode switch, skip: during either animation, tap anywhere outside the switch. It jumps to the end and the tap does nothing else. Flip the switch again mid-animation: the running one ends and the other plays, on the side of the last flip.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
@@ -210,6 +223,12 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Undo after a template: on a side with a plan, choose a template and tap Replace. "Plan set: <name>." shows with Undo. Tap Undo: the old plan and its training days are back, also after closing and reopening Grit. Choosing a template on an empty side shows no Undo.
 - [ ] Undo after Rebuild my plan: on the bodybuilding side with a plan, Rebuild my plan from the menu (⋮) and tap Use this plan. "Plan saved." shows with Undo. Tap Undo: the old plan is back. Let the snackbar go instead: the new plan stays.
 - [ ] Restore warning: export a backup while the bodybuilding side has no plan, then build a bodybuilding plan and restore that backup (Settings, Restore backup). "This backup has no bodybuilding plan" shows with Restore anyway and Cancel. Cancel: the plan is still there. Restore anyway: the backup's data is in, with no bodybuilding plan. A backup that has the plan shows "Replace all data?" as before.
+- [ ] Mode switch, the pump: on the powerlifting side, open Settings and turn on Bodybuilding mode. Three beats, each bigger, with veins of light from the switch; on the third the blue floods out in a circle from the switch and the BODYBUILDING label swells in.
+- [ ] Mode switch, the hammer: turn Bodybuilding mode off. The small hammer lands hard on the very bottom of the screen, with a flash, cracks and a hard shake; the powerlifting look bursts out from the hit, and POWERLIFTING shows under the title and fades.
+- [ ] Mode switch vibration: the hammer's impact is the strongest buzz the phone can give, with aftershocks; the pump gives three building beats. With "Vibrate on taps" off it still buzzes, and on Android 13 and later also with the phone's touch feedback off. If it never buzzes, check the phone's Media vibration switch (Sound and vibration, Vibration and haptics), the main vibration switch and battery saver: those can still mute it.
+- [ ] Mode switch sound: each animation has its own sound, in time with the hits, at the media volume. In silent or vibrate mode, no sound. The very first switch after installing (the pump) has its sound too.
+- [ ] Mode switch with Remove animations on (Settings, Accessibility): no animation, the look changes at once, and the vibration and the sound still play.
+- [ ] Mode switch, skip: during either animation, tap anywhere outside the switch. It jumps to the end and the tap does nothing else. Flip the switch again mid-animation: the running one ends and the other plays, on the side of the last flip.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.

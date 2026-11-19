@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { memo, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { onDbVersionChange, type GritDb } from './db/db'
 import type { SchemaVersion } from './db/schema'
 import { singleTabGuard, type SingleTabGuard, type TabRole } from './platform/singleTab'
@@ -36,6 +36,7 @@ import { useTrainingMode } from './state/useTrainingMode'
 import { TrainingModeContext } from './ui/components/ModeLabel'
 import { RestFlash } from './ui/components/RestFlash'
 import { TabBar } from './ui/components/TabBar'
+import { ModeSwitchOverlay } from './ui/motion/ModeSwitchOverlay'
 import { useElementHeight } from './ui/useElementHeight'
 import './ui/shell.css'
 
@@ -112,8 +113,11 @@ const leaveCheckIn = () => leave({ tab: 'coach' })
 /** Leaving the builder unsaved goes back where it was opened from (Plan, Today or Coach), or to Plan. */
 const leaveBuilder = () => leave({ tab: 'plan' })
 
-/** The app itself: the screens, the tab bar and what docks above it. Rendered only while Grit is unlocked. */
-function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: RegisterSW }) {
+/**
+ * The app itself: the screens, the tab bar and what docks above it. Rendered only while Grit is unlocked. Memoised:
+ * a change of the side shown (the mode switch's moment) redraws only what reads it, not every screen's parent.
+ */
+const Shell = memo(function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: RegisterSW }) {
   const route = useRoute()
   const update = useUpdatePrompt(db, registerSW)
   // Kept here, above the screens: the session is the same one on the Today and Exercises tabs, and an
@@ -138,24 +142,28 @@ function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: 
   // Messages rise by the dock's real height, so they clear its buttons at any text size.
   const dockHeight = useElementHeight(dock, showDock)
   return (
-    <div className="shell" style={{ '--rest-dock-height': `${dockHeight}px` } as CSSProperties}>
-      <main className="shell-main">{screenFor(route, db, { session, browser, planMessage, setPlanMessage })}</main>
-      {showDock && (
-        <div className="shell-rest" ref={dock}>
-          {update.ready && (
-            <button type="button" className="shell-update label-large" onClick={update.refresh}>
-              {UPDATE_READY}
-            </button>
-          )}
-          {showRestBar && <RestBar store={rest.store} />}
-        </div>
-      )}
-      <TabBar current={activeTab} />
-      <RestFlash showId={rest.flashId} />
-      <StorageFullDialog db={db} />
-    </div>
+    <>
+      <div className="shell" style={{ '--rest-dock-height': `${dockHeight}px` } as CSSProperties}>
+        <main className="shell-main">{screenFor(route, db, { session, browser, planMessage, setPlanMessage })}</main>
+        {showDock && (
+          <div className="shell-rest" ref={dock}>
+            {update.ready && (
+              <button type="button" className="shell-update label-large" onClick={update.refresh}>
+                {UPDATE_READY}
+              </button>
+            )}
+            {showRestBar && <RestBar store={rest.store} />}
+          </div>
+        )}
+        <TabBar current={activeTab} />
+        <RestFlash showId={rest.flashId} />
+        <StorageFullDialog db={db} />
+      </div>
+      {/* The mode switch animations (1.15), over the whole app; empty at rest. */}
+      <ModeSwitchOverlay />
+    </>
   )
-}
+})
 
 /** Opens the database, then shows the app behind its lock. Nothing of the log is rendered before the lock has had its say. */
 function Opened({ dbName, schemaVersions, registerSW }: AppProps) {

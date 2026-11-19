@@ -15,6 +15,7 @@ import { ChoiceChip, SegmentedChoice } from '../../ui/components/SegmentedChoice
 import { Snackbar } from '../../ui/components/Snackbar'
 import { Stepper } from '../../ui/components/StepperField'
 import { Switch } from '../../ui/components/Switch'
+import { modeSwitch, useEndModeSwitchOnLeave, useHeldMode, usePrefetchModeSwitchSounds, useWarmModeSwitch } from '../../ui/motion/useModeSwitch'
 import { RpeInfoButton } from '../library/RpeSheet'
 import { LOCK_UNSUPPORTED } from '../lock/LockScreen'
 import { appVersionLine, appVersionSpoken } from './appVersion'
@@ -48,6 +49,14 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
 /** Every setting, then backup and restore, then the version line. */
 export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }: SettingsScreenProps) {
   const settings = useSettings(db)
+  // The mode switch animation (1.15): the rows follow the side shown, which lags the stored side until the impact or
+  // the third beat; the switch itself answers the tap. Closing Settings ends a running animation.
+  const held = useHeldMode()
+  useEndModeSwitchOnLeave()
+  // The shapes are worked out again for the switch where it now sits, once each animation is over (an animation holds a
+  // side from the tap until the stored side says the same).
+  useWarmModeSwitch(settings.loading ? null : settings.settings.trainingMode, held != null)
+  usePrefetchModeSwitchSounds(settings.loading ? null : settings.settings.trainingMode)
   // The newest message for the snackbar; `id` changes with each one, also when the text repeats.
   const [message, setMessage] = useState<{ id: number; text: string } | null>(null)
   const say = (text: string) => setMessage((last) => ({ id: (last?.id ?? 0) + 1, text }))
@@ -90,7 +99,15 @@ export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }:
               settings={settings.settings}
               onUpdate={(change) => void settings.update(change).catch(() => say(SAVE_FAILED))}
               onAppLock={setAppLock}
-              onBodybuilding={(on) => void setTrainingMode(db, on ? 'BODYBUILDING' : 'POWERLIFTING', today()).catch(() => say(SAVE_FAILED))}
+              shownMode={held ?? settings.settings.trainingMode}
+              onBodybuilding={(on) => {
+                // The animation starts in the tap (its first frame, and the sound's unlock); the setting is stored at once.
+                modeSwitch.flip(on ? 'pump' : 'drop', document.querySelector('.settings-mode-switch'))
+                void setTrainingMode(db, on ? 'BODYBUILDING' : 'POWERLIFTING', today()).catch(() => {
+                  modeSwitch.release()
+                  say(SAVE_FAILED)
+                })
+              }}
             />
             <SectionHeader title="Backup" />
             <BackupCard db={db} lastBackupAt={settings.settings.lastBackupAt} storageProtected={settings.storageProtected} safetyCopy={settings.safetyCopy} safetyCopyDate={settings.safetyCopyDate} today={today} now={now} onMessage={say} />
@@ -105,6 +122,8 @@ export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }:
 
 export type SettingsContentProps = {
   settings: SettingsState['settings']
+  /** The side whose rows show: the stored side, except while the mode switch animation holds the old one. */
+  shownMode?: SettingsState['settings']['trainingMode']
   onUpdate: (change: Parameters<SettingsActions['update']>[0]) => void
   /** App lock is not just stored: turning it on makes a passkey. */
   onAppLock: (on: boolean) => void
@@ -113,10 +132,10 @@ export type SettingsContentProps = {
 }
 
 /** The settings themselves, as grouped cards of rows. */
-export function SettingsContent({ settings, onUpdate, onAppLock, onBodybuilding }: SettingsContentProps) {
+export function SettingsContent({ settings, shownMode = settings.trainingMode, onUpdate, onAppLock, onBodybuilding }: SettingsContentProps) {
   // The bodybuilding side has no main lifts: it hides the powerlifting rows (planned effort for main lifts, strict
   // press on Progress, main lift rest) and its one rest is every exercise's. Their stored values are kept as they are.
-  const powerlifting = settings.trainingMode !== 'BODYBUILDING'
+  const powerlifting = shownMode !== 'BODYBUILDING'
   const vibrates = canVibrate()
   const restAlerts = vibrates ? REST_ALERTS_WITH_VIBRATION : REST_ALERTS
   // Sound + vibrate restored onto a phone that cannot vibrate is the sound alone.
@@ -125,7 +144,7 @@ export function SettingsContent({ settings, onUpdate, onAppLock, onBodybuilding 
     <>
       <SectionHeader title="Training style" />
       <Group>
-        <SwitchRow label="Bodybuilding mode" supporting="Rep ranges, a physique coach and a blue look. Your powerlifting plan is kept." checked={settings.trainingMode === 'BODYBUILDING'} onChange={onBodybuilding} />
+        <SwitchRow label="Bodybuilding mode" supporting="Rep ranges, a physique coach and a blue look. Your powerlifting plan is kept." checked={settings.trainingMode === 'BODYBUILDING'} onChange={onBodybuilding} switchClassName="settings-mode-switch" />
       </Group>
 
       <SectionHeader title="Loading and targets" />
@@ -254,11 +273,11 @@ function RowLabel({ label, supporting, labelAction }: { label: string; supportin
 }
 
 /** The whole row toggles the switch, as on Android. */
-function SwitchRow({ label, supporting, checked, onChange }: { label: string; supporting: string; checked: boolean; onChange: (checked: boolean) => void }) {
+function SwitchRow({ label, supporting, checked, onChange, switchClassName }: { label: string; supporting: string; checked: boolean; onChange: (checked: boolean) => void; switchClassName?: string }) {
   return (
     <label className="settings-row">
       <RowLabel label={label} supporting={supporting} />
-      <Switch label={label} checked={checked} onChange={onChange} />
+      <Switch label={label} checked={checked} onChange={onChange} className={switchClassName} />
     </label>
   )
 }

@@ -11,7 +11,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -172,7 +171,7 @@ fun ExercisePickerScreen(
     onCreateCustom: (name: String, Category, parentLift: MainLift?, muscles: List<String>) -> Unit,
     onDismiss: () -> Unit,
     /** See [ExercisePickerContent]. */
-    createFailures: Int = 0,
+    createFailures: HeldFailures = remember { HeldFailures() },
 ) {
     // Out here, in the screen's own composition, "Create your own" and what is typed into it survive a rotation
     // (state saved inside the picker's window is not restored).
@@ -201,11 +200,12 @@ fun ExercisePickerContent(
     /** The muscle group it opens on; null opens on the grid. */
     initialMuscle: MuscleGroup? = null,
     /**
-     * How many of [onCreateCustom]'s creates have failed, as counted by whoever opened the picker. "Create your own"
-     * stays open after Create until the picker is closed, so when this goes up the form is still there with everything
-     * typed: it says so, and Create works again.
+     * [onCreateCustom]'s failed creates, held by whoever opened the picker until a window has said them. "Create your
+     * own" stays open after Create until the picker is closed, so when one comes the form is still there with everything
+     * typed: it says so, and Create works again. With the form cancelled, the picker says it over its list. Closed before
+     * either has said it through, the picker leaves it held for whoever opened it.
      */
-    createFailures: Int = 0,
+    createFailures: HeldFailures = remember { HeldFailures() },
     /** "Create your own": whether it is open and what is typed into it. */
     createForm: CustomExerciseForm = rememberCustomExerciseForm(),
 ) {
@@ -217,6 +217,8 @@ fun ExercisePickerContent(
     val pick: (PickerEntry) -> Unit = { entry ->
         if (!answered.value) {
             answered.value = true
+            // A pick that works leaves nothing of a failed create to say.
+            createFailures.clear()
             onPick(entry)
         }
     }
@@ -226,18 +228,11 @@ fun ExercisePickerContent(
             onCreateCustom(name, category, parent, muscles)
         }
     }
-    // Failures counted before this picker opened (or was restored) are not its own.
-    val failuresBefore = remember { createFailures }
-    val failures = (createFailures - failuresBefore).coerceAtLeast(0)
-    // Failures that came once "Create your own" had been cancelled: the picker says them over its list, since the
-    // screen's own snackbar is behind the picker.
-    var listFailures by remember { mutableIntStateOf(0) }
-    LaunchedEffect(failures) {
+    // Failures counted before this picker opened (or was restored) answered nothing of this picker's.
+    val failuresBefore = remember { createFailures.count }
+    LaunchedEffect(createFailures.count) {
         // A failed create has answered nothing: Create may be tapped again.
-        if (failures > 0) {
-            answered.value = false
-            if (!createForm.open) listFailures++
-        }
+        if (createFailures.count > failuresBefore) answered.value = false
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -257,7 +252,9 @@ fun ExercisePickerContent(
         )
     }
 
-    FormMessage(SAVE_FAILED, showId = listFailures)
+    // With "Create your own" cancelled, the picker says a held failure over its list, since the screen's own snackbar is
+    // behind the picker.
+    FormMessage(SAVE_FAILED, createFailures, here = !createForm.open)
 
     guideFor?.let { name -> FormGuideSheet(name, onDismiss = { guideFor = null }) }
 
@@ -267,7 +264,7 @@ fun ExercisePickerContent(
             // The form stays open until the picker closes on the new exercise; if the create fails, it is still here.
             onCreate = createCustom,
             onDismiss = { createForm.open = false },
-            failures = failures,
+            failures = createFailures,
         )
     }
 }

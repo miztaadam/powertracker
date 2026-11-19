@@ -45,6 +45,7 @@ import kotlinx.coroutines.flow.map
 import com.powertracker.ui.checkin.CheckInScreen
 import com.powertracker.ui.coach.CoachScreen
 import com.powertracker.ui.library.ExercisesScreen
+import com.powertracker.ui.motion.ModeSwitchHost
 import com.powertracker.ui.plan.PlanScreen
 import com.powertracker.ui.plan.SettingsScreen
 import com.powertracker.ui.plan.builder.PlanBuilderScreen
@@ -110,6 +111,8 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
     var planUndo by remember { mutableStateOf<PlanSnapshot?>(null) }
     fun goalsChanged() = if (mode == TrainingMode.BODYBUILDING) nav.navigate(Routes.PLAN_BUILDER) { launchSingleTop = true } else openTab(Tab.PLAN)
 
+    // The mode switch animations draw over everything here, tab bar included (1.15).
+    ModeSwitchHost {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
@@ -212,6 +215,7 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
                 SettingsScreen(settings, backup, onBack = { nav.popBackStack() })
             }
         }
+    }
     }
 }
 

@@ -28,6 +28,8 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.motion.ModeSwitchMotion
+import com.powertracker.domain.motion.Point
 import com.powertracker.domain.model.liftLabel as domainLiftLabel
 import com.powertracker.domain.model.missPointLabel as domainMissPointLabel
 import com.powertracker.domain.model.repsText as domainRepsText
@@ -527,6 +529,96 @@ object GritDomain {
         ratioRange(MainLift.SQUAT, MainLift.DEADLIFT, WeakPointRule.SQUAT_TO_DEADLIFT),
         ratioRange(MainLift.BENCH, MainLift.SQUAT, WeakPointRule.BENCH_TO_SQUAT),
     )
+
+    // ---- the mode switch animations (ModeSwitchMotion): ms from the tap, CSS px on a w x h screen ----
+
+    /** The hammer drop's timeline. */
+    fun modeSwitchDropTimeline(): JsDropTimeline = ModeSwitchMotion.DROP.toJs()
+
+    /** The pump's timeline. */
+    fun modeSwitchPumpTimeline(): JsPumpTimeline = ModeSwitchMotion.PUMP.toJs()
+
+    /** The vibration patterns for `navigator.vibrate`, with Android's amplitudes beside them. */
+    fun modeSwitchVibration(): JsModeSwitchVibration = JsModeSwitchVibration(
+        ModeSwitchMotion.DROP_VIBE.map { it.toInt() }.toTypedArray(), ModeSwitchMotion.DROP_AMPLITUDES.toTypedArray(),
+        ModeSwitchMotion.PUMP_VIBE.map { it.toInt() }.toTypedArray(), ModeSwitchMotion.PUMP_AMPLITUDES.toTypedArray(),
+    )
+
+    /** The effects' colours. */
+    fun modeSwitchColors(): JsModeSwitchColors = modeSwitchColorsJs()
+
+    /** The light scheme's effects, the same set Android draws. */
+    fun modeSwitchLightColors(): JsModeSwitchLightColors = modeSwitchLightColorsJs()
+
+    /** The light scheme's edge under a core vein [coreWidth] wide, at the frame's `veinWidthScale`. */
+    fun modeSwitchVeinEdgeWidth(coreWidth: Double, widthScale: Double): Double = ModeSwitchMotion.veinEdgeWidth(coreWidth, widthScale)
+
+    /** The sparks' stroke width. */
+    fun modeSwitchSparkWidth(): Double = ModeSwitchMotion.SPARK_WIDTH
+
+    /** The hammer's shapes, back to front, the striking boss at (0, 0): place them with a frame's pose. */
+    fun modeSwitchHammerPaths(): Array<JsMotionPath> = ModeSwitchMotion.HAMMER_PATHS.map { it.toJs() }.toTypedArray()
+
+    /** The rune's glow, over the hammer at the frame's `runeOpacity`. */
+    fun modeSwitchHammerRune(): JsMotionPath = ModeSwitchMotion.HAMMER_RUNE.toJs()
+
+    /** The gradients the shapes name with `url(#id)`. */
+    fun modeSwitchGradients(): Array<JsMotionGradient> = ModeSwitchMotion.GRADIENTS.map { it.toJs() }.toTypedArray()
+
+    /** Where the hammer lands: the bottom edge, centred. */
+    fun modeSwitchHitPoint(w: Double, h: Double): JsMotionPoint = ModeSwitchMotion.hitPoint(w, h).toJs()
+
+    /** The hammer drop at [tMs]; at or after the end everything is at rest. */
+    fun modeSwitchDropFrame(tMs: Double, w: Double, h: Double): JsDropFrame = ModeSwitchMotion.dropFrame(tMs, w, h).toJs()
+
+    /** The hop (translateY) of an element whose centre is at [elementCenterY], as the shock reaches it. */
+    fun modeSwitchHop(tMs: Double, elementCenterY: Double, hitY: Double): Double = ModeSwitchMotion.hop(tMs, elementCenterY, hitY)
+
+    /** The pump at [tMs] from the switch at ([srcX], [srcY]); at or after the end it is at rest. */
+    fun modeSwitchPumpFrame(tMs: Double, w: Double, h: Double, srcX: Double, srcY: Double): JsPumpFrame =
+        ModeSwitchMotion.pumpFrame(tMs, w, h, Point(srcX, srcY)).toJs()
+
+    /** The swell (scale round its own centre) of an element whose centre is at [elementCenterY]. */
+    fun modeSwitchPumpElementScale(tMs: Double, w: Double, elementCenterY: Double, srcX: Double, srcY: Double): Double =
+        ModeSwitchMotion.pumpElementScale(tMs, w, elementCenterY, Point(srcX, srcY))
+
+    /** The cracks round the hit, seeded. */
+    fun modeSwitchCracks(w: Double, h: Double, hitX: Double, hitY: Double): Array<JsMotionPath> =
+        ModeSwitchMotion.cracks(w, h, Point(hitX, hitY)).map { it.toJs() }.toTypedArray()
+
+    /** The chalk dust, seeded; the frame's `dust` follows it index for index. */
+    fun modeSwitchDust(hitX: Double, hitY: Double): Array<JsMotionParticle> =
+        ModeSwitchMotion.dust(Point(hitX, hitY)).map { it.toJs() }.toTypedArray()
+
+    /** The sparks, seeded; the frame's `sparks` follows it index for index. */
+    fun modeSwitchSparks(hitX: Double, hitY: Double): Array<JsMotionParticle> =
+        ModeSwitchMotion.sparks(Point(hitX, hitY)).map { it.toJs() }.toTypedArray()
+
+    /** The starburst's points round the hit, before the frame's `burstScale`. */
+    fun modeSwitchBurst(hitX: Double, hitY: Double): Array<JsMotionPoint> =
+        ModeSwitchMotion.burst(Point(hitX, hitY)).map { it.toJs() }.toTypedArray()
+
+    /** The veins from the switch, aimed at the screen's centre and reaching its edges, in drawing order. */
+    fun modeSwitchVeins(w: Double, h: Double, srcX: Double, srcY: Double): Array<JsVeinPath> =
+        ModeSwitchMotion.veins(w, h, Point(srcX, srcY)).map { it.toJs() }.toTypedArray()
+
+    /** The veins' branch nodes, drawn between the hot veins and the pulses. */
+    fun modeSwitchVeinNodes(w: Double, h: Double, srcX: Double, srcY: Double): Array<JsVeinNode> =
+        ModeSwitchMotion.veinNodes(w, h, Point(srcX, srcY)).map { it.toJs() }.toTypedArray()
+
+    /** Whether a node that starts at [d0] shows at the frame's `veinFront`. */
+    fun modeSwitchNodeShown(front: Double, d0: Double): Boolean = ModeSwitchMotion.nodeShown(front, d0)
+
+    /** How much of a vein starting at [d0], [len] long, is drawn at the frame's `veinFront`: 0..1, hidden at 0. */
+    fun modeSwitchVeinProgress(front: Double, d0: Double, len: Double): Double =
+        ModeSwitchMotion.veinProgress(front, d0, len)
+
+    /** A pulse's opacity: the frame's `pulseOpacity`, or 0 once the front has run past the end of a [len] long vein. */
+    fun modeSwitchPulseOpacity(pulseOpacity: Double, front: Double, len: Double): Double =
+        ModeSwitchMotion.pulseOpacity(pulseOpacity, front, len)
+
+    /** Where a pulse's bead starts along a [len] long vein, 0..1 of its length; the bead is the next 6%. */
+    fun modeSwitchPulseStart(front: Double, len: Double): Double = ModeSwitchMotion.pulseStart(front, len)
 
     private fun ratioRange(numerator: MainLift, denominator: MainLift, typical: ClosedFloatingPointRange<Double>) =
         JsRatioRange(numerator.name, denominator.name, typical.start, typical.endInclusive)

@@ -15,14 +15,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -85,23 +89,21 @@ fun rememberCustomExerciseForm(): CustomExerciseForm = rememberSaveable(saver = 
 
 /**
  * Name, kind and muscles for an exercise the catalogue does not have, typed into [form] (opened with what was searched
- * for). [failures] counts the creates that failed: each one while the form is open shows "Couldn't save — try again."
- * over it, and the form keeps what was typed.
+ * for). [failures] holds the creates that failed: the form says one it is open for, "Couldn't save — try again." over
+ * it, and keeps what was typed.
  */
 @Composable
 fun CustomExerciseDialog(
     form: CustomExerciseForm,
     onCreate: (name: String, Category, parentLift: MainLift?, muscles: List<String>) -> Unit,
     onDismiss: () -> Unit,
-    failures: Int = 0,
+    failures: HeldFailures = remember { HeldFailures() },
 ) {
     val name = form.name
     val category = form.category
     val parent = form.parent
     val muscles = form.muscles
     val valid = name.isNotBlank() && (category != Category.VARIATION || parent != null)
-    // Failures from before this form opened (a form closed and opened again) are not said again.
-    val failuresBefore = remember { failures }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -111,7 +113,8 @@ fun CustomExerciseDialog(
         modifier = Modifier.padding(horizontal = 16.dp).testTag("custom-exercise-form"),
         title = { Text("Add custom exercise") },
         text = {
-            FormMessage(SAVE_FAILED, showId = failures - failuresBefore)
+            // On top of the picker: it says a held failure; one already said through is not said again.
+            FormMessage(SAVE_FAILED, failures, here = true)
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(name, { form.name = it }, label = { Text("Name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -161,6 +164,113 @@ internal fun FormMessage(message: String, showId: Int) {
             host.showSnackbar(message)
         }
     }
+    MessagePopup(host)
+}
+
+/**
+ * Failed saves, held by whoever opened the windows that can say them (Plan's add form for Change's picker and its create
+ * form) until one of them has said it through. Not an event checked against which window is open at one moment: a
+ * window that closes before its message has run its course, or that another window comes over, leaves it held, and the
+ * window on top then says it. So a failure is said once wherever the lifter is looking, whenever Close lands.
+ *
+ * Kept across a rotation with [Saver]. Once its owner has closed (see [HandOnHeldFailures]), a failure none of its windows
+ * put on screen, and any failure after, goes to the screen behind instead.
+ */
+@Stable
+class HeldFailures internal constructor(count: Int, saidUpTo: Int, shownUpTo: Int) {
+    constructor() : this(0, 0, 0)
+
+    /** Every failure so far. */
+    var count by mutableIntStateOf(count)
+        private set
+    private var saidUpTo by mutableIntStateOf(saidUpTo)
+
+    // Every failure up to here has been on screen, if only for a moment. Not drawn from, so plain.
+    private var shownUpTo = shownUpTo
+
+    // Set once the owner has gone: whoever says a failure now that none of its windows can.
+    private var gone: (() -> Unit)? = null
+
+    /** A failure no window has said through yet. */
+    val unsaid: Boolean get() = count > saidUpTo
+
+    fun add() {
+        gone?.let { return it() }
+        count++
+    }
+
+    internal fun said(upTo: Int) {
+        if (upTo > saidUpTo) saidUpTo = upTo
+    }
+
+    internal fun shown(upTo: Int) {
+        if (upTo > shownUpTo) shownUpTo = upTo
+    }
+
+    /** A later create or pick has worked: what failed before is no longer the lifter's concern, and is not said. */
+    fun clear() {
+        said(count)
+        shown(count)
+    }
+
+    /**
+     * The owner's windows have left the screen. [closed]: closed by the lifter (not taken down to be restored, as on a
+     * rotation, where the saved copy says what is held). Either way a later failure goes to [onGone].
+     */
+    internal fun leave(closed: Boolean, onGone: () -> Unit) {
+        gone = onGone
+        if (closed && count > shownUpTo) onGone()
+    }
+
+    companion object {
+        val Saver: Saver<HeldFailures, Any> = listSaver(
+            save = { listOf(it.count, it.saidUpTo, it.shownUpTo) },
+            restore = { HeldFailures(it[0], it[1], it[2]) },
+        )
+    }
+}
+
+/**
+ * Hands [held] on to [onGone] once its owner has left the screen: a failure none of its windows put on screen, and any that
+ * comes after. One already on screen, even cut short, is not handed on, so the screen behind does not repeat it. [closed]
+ * is read when the owner leaves: false while it is only being taken down to be restored (a rotation).
+ */
+@Composable
+fun HandOnHeldFailures(held: HeldFailures, closed: () -> Boolean, onGone: () -> Unit) {
+    val isClosed by rememberUpdatedState(closed)
+    val sayIt by rememberUpdatedState(onGone)
+    DisposableEffect(held) {
+        onDispose { held.leave(isClosed()) { sayIt() } }
+    }
+}
+
+/**
+ * [FormMessage] for [held]: while [here] (this window is the one on top) and a failure is held, it is said. Once its
+ * message has run its course every failure up to it is said; should this window close first, or [here] turn false, the
+ * message goes with it and the failure stays held for the window on top.
+ */
+@Composable
+internal fun FormMessage(message: String, held: HeldFailures, here: Boolean) {
+    val host = remember { SnackbarHostState() }
+    val due = here && held.unsaid
+    // Which failures the message on screen is for. Not drawn from, so plain.
+    val showing = remember { intArrayOf(0) }
+    LaunchedEffect(due, held.count) {
+        if (!due) return@LaunchedEffect
+        val upTo = held.count
+        showing[0] = upTo
+        host.currentSnackbarData?.dismiss()
+        // Returns once the message has been on screen for its time (or swiped away); cancelled, it never returns.
+        host.showSnackbar(message)
+        held.said(upTo)
+    }
+    // Put on screen in this commit: should the owner close from here on, the screen behind does not say it again.
+    if (host.currentSnackbarData != null) SideEffect { held.shown(showing[0]) }
+    MessagePopup(host)
+}
+
+@Composable
+private fun MessagePopup(host: SnackbarHostState) {
     if (host.currentSnackbarData == null) return
     val width = LocalConfiguration.current.screenWidthDp.dp
     Popup(popupPositionProvider = FootOfTheScreen, properties = PopupProperties(focusable = false)) {

@@ -546,6 +546,27 @@ describe('PlanScreen add form', () => {
     expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
   })
 
+  it('planAdd_ownExerciseFails_inTheMomentThePickerCloses_planSaysSo', async () => {
+    show()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementation((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await userEvent.click(within(createForm()!).getByRole('button', { name: 'Cancel' }))
+    const close = screen.getByRole('button', { name: 'Close' })
+    // The failure is handled while the picker is open, then Close, before the picker has drawn it.
+    await act(async () => {
+      fail()
+      for (let i = 0; i < 20; i++) await Promise.resolve()
+      close.click()
+    })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect(screen.getAllByText("Couldn't save — try again.")).toHaveLength(1)
+  })
+
   it('planChange_toOwnExerciseFails_createFormKeepsEverything_saysSoInIt', async () => {
     show()
     await pickOn('Monday', 'Squat')
@@ -564,6 +585,230 @@ describe('PlanScreen add form', () => {
     expect((await addFormNow()).getByRole('group', { name: 'Exercise' })).toHaveTextContent(OWN_NAME)
     expect(await storedPlan()).toEqual([])
   })
+
+  // ---- A failed own exercise from Change is held by the add form until it has been said (1.15) ----
+
+  /** Where the message is now: inside which dialog, or Plan's own snackbar under them. */
+  const whereTheMessageIs = () => {
+    const copies = screen.queryAllByText("Couldn't save — try again.")
+    const places = copies.map((copy) => copy.closest('[role="dialog"]')?.getAttribute('aria-label') ?? copy.closest('[role="dialog"]')?.textContent?.slice(0, 20) ?? "Plan's snackbar")
+    const open = screen.queryAllByRole('dialog').map((d) => (within(d).queryByRole('group', { name: 'Sets' }) ? 'add form' : within(d).queryByRole('textbox', { name: 'Search exercises' }) ? 'picker' : 'other'))
+    return `message ${places.length === 0 ? 'nowhere' : places.join(', ')}; dialogs open: ${open.join(', ') || 'none'}`
+  }
+
+  /**
+   * Change's picker, its create form cancelled, makes the own exercise; the failure is handled with nothing drawn, then
+   * `frames` moments of 16 ms pass, each drawn (its own act), and Close is tapped; then 6 s pass (past a snackbar's 4 s),
+   * in 16 ms steps for the first 320 ms and 100 ms steps after. Returns the copies seen at each step after Close, how many
+   * snackbars came on screen (a message said again is a new one, even straight after the last), any step with a copy
+   * anywhere but over the add form, and where it was just before Close.
+   */
+  async function sayChangeFailure(frames: number) {
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addForm()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementation((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(form.getByRole('button', { name: 'Change' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await userEvent.click(within(createForm()!).getByRole('button', { name: 'Cancel' }))
+    const close = within(screen.getByRole('dialog', { name: 'Change exercise' })).getByRole('button', { name: 'Close' })
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    const step = () => act(async () => void vi.advanceTimersByTime(16))
+    await act(async () => {
+      fail()
+      for (let i = 0; i < 20; i++) await Promise.resolve()
+      if (frames === 0) close.click()
+    })
+    for (let i = 0; i < frames; i++) await step()
+    const beforeClose = whereTheMessageIs()
+    const pickerBeforeClose = screen.queryByRole('dialog', { name: 'Change exercise' })
+    const copiesBeforeClose = screen.queryAllByText("Couldn't save — try again.")
+    const pickerSaidItBeforeClose = pickerBeforeClose != null && copiesBeforeClose.length === 1 && pickerBeforeClose.contains(copiesBeforeClose[0]!)
+    if (frames > 0) await act(async () => close.click())
+    const seen: number[] = []
+    const wrongPlace: string[] = []
+    const snackbars = new Set<Element>()
+    for (let i = 0, ms = 0; ms < 6000; i++) {
+      const by = ms < 320 ? 16 : 100
+      ms += by
+      await act(async () => void vi.advanceTimersByTime(by))
+      const copies = screen.queryAllByText("Couldn't save — try again.")
+      seen.push(copies.length)
+      copies.forEach((copy) => snackbars.add(copy.closest('.gr-snackbar') ?? copy))
+      const addFormDialog = screen.queryByRole('group', { name: 'Sets' })?.closest('[role="dialog"]')
+      const picker = screen.queryByRole('dialog', { name: 'Change exercise' })
+      if (copies.length > 0 && (picker != null || addFormDialog == null || copies.some((copy) => !addFormDialog.contains(copy)))) wrongPlace.push(`step ${i}: ${whereTheMessageIs()}`)
+    }
+    vi.useRealTimers()
+    return { beforeClose, pickerSaidItBeforeClose, seen, wrongPlace, appearances: snackbars.size, form }
+  }
+
+  async function expectSaidOnceOverTheForm(frames: number) {
+    const said = await sayChangeFailure(frames)
+    if (frames === 60) expect(said.pickerSaidItBeforeClose, `the picker was saying it when Close came; before Close: ${said.beforeClose}`).toBe(true)
+    expect(said.wrongPlace, `before Close: ${said.beforeClose}`).toEqual([])
+    expect(Math.max(...said.seen), `one copy at a time; before Close: ${said.beforeClose}`).toBe(1)
+    expect(said.appearances, `said once over the add form, never twice; before Close: ${said.beforeClose}`).toBe(1)
+    expect(screen.queryByRole('dialog', { name: 'Change exercise' })).toBeNull()
+    expect(said.form.getByRole('group', { name: 'Exercise' })).toHaveTextContent('Squat')
+    expect(await exerciseRowsNamed(OWN_NAME)).toEqual([])
+  }
+
+  it('planAdd_changeToOwnExerciseFails_closedInTheSameMoment_theAddFormSaysItOnce', () => expectSaidOnceOverTheForm(0), 20_000)
+  it('planAdd_changeToOwnExerciseFails_closedOneFrameLater_theAddFormSaysItOnce', () => expectSaidOnceOverTheForm(1), 20_000)
+  it('planAdd_changeToOwnExerciseFails_closedTwoFramesLater_theAddFormSaysItOnce', () => expectSaidOnceOverTheForm(2), 20_000)
+  // The picker was saying it and is closed mid-message: the add form says it, once, as for the orders above.
+  it('planAdd_changeToOwnExerciseFails_closedWhileThePickerSaysIt_theAddFormSaysItOnce', () => expectSaidOnceOverTheForm(60), 20_000)
+
+  /** For 6 s (past a snackbar's 4 s), in 100 ms steps on the faked clock: no copy of the message anywhere, Plan's included. */
+  async function expectNothingSaidFor6s() {
+    for (let ms = 0; ms < 6000; ms += 100) {
+      await act(async () => void vi.advanceTimersByTime(100))
+      expect(screen.queryAllByText("Couldn't save — try again."), `at ${ms} ms: ${whereTheMessageIs()}`).toHaveLength(0)
+    }
+  }
+
+  // Change's create form fails and says so; Create again works within the message's 4 s. Nothing failed is said after.
+  it('planAdd_changeToOwnExerciseFails_thenASecondCreateWorks_theAddFormSaysNothing', async () => {
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addForm()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementationOnce((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(form.getByRole('button', { name: 'Change' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      await act(async () => fail())
+      expect(within(createForm()!).getByText("Couldn't save — try again.")).toBeInTheDocument()
+      await act(async () => void vi.advanceTimersByTime(1000))
+
+      await act(async () => within(createForm()!).getByRole('button', { name: 'Create' }).click())
+      for (let i = 0; i < 50 && screen.queryByRole('dialog', { name: 'Change exercise' }) != null; i++) await act(async () => void (await new Promise((done) => setImmediate(done))))
+      expect(screen.queryByRole('dialog', { name: 'Change exercise' })).toBeNull()
+      expect(form.getByRole('group', { name: 'Exercise' })).toHaveTextContent(OWN_NAME)
+      await expectNothingSaidFor6s()
+    } finally {
+      vi.useRealTimers()
+    }
+    expect(formOpen()).toBe(true)
+  }, 20_000)
+
+  // Change's create form fails and says so; Cancel, then a row of the list is picked within the 4 s. Nothing is said after.
+  it('planAdd_changeToOwnExerciseFails_thenARowIsPicked_theAddFormSaysNothing', async () => {
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addForm()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementationOnce((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(form.getByRole('button', { name: 'Change' }))
+    const picker = screen.getByRole('dialog', { name: 'Change exercise' })
+    await userEvent.type(within(picker).getByRole('textbox', { name: 'Search exercises' }), 'Curl')
+    const curl = within(await within(picker).findByRole('listitem', { name: 'Curl' })).getAllByRole('button')[0]!
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      await act(async () => fail())
+      expect(within(createForm()!).getByText("Couldn't save — try again.")).toBeInTheDocument()
+      await act(async () => void vi.advanceTimersByTime(1000))
+      await act(async () => within(createForm()!).getByRole('button', { name: 'Cancel' }).click())
+      // The picker's list says it now, over itself.
+      expect(within(picker).getByText("Couldn't save — try again.")).toBeInTheDocument()
+
+      await act(async () => curl.click())
+      expect(screen.queryByRole('dialog', { name: 'Change exercise' })).toBeNull()
+      expect(form.getByRole('group', { name: 'Exercise' })).toHaveTextContent('Curl')
+      await expectNothingSaidFor6s()
+    } finally {
+      vi.useRealTimers()
+    }
+    expect(await exerciseRowsNamed(OWN_NAME)).toEqual([])
+  }, 20_000)
+
+  it('planAdd_changeToOwnExerciseFails_thePickerSaidItThrough_theAddFormStaysSilent', async () => {
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addForm()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementation((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(form.getByRole('button', { name: 'Change' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await userEvent.click(within(createForm()!).getByRole('button', { name: 'Cancel' }))
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    await act(async () => fail())
+    const picker = screen.getByRole('dialog', { name: 'Change exercise' })
+    expect(within(picker).getByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect(screen.getAllByText("Couldn't save — try again.")).toHaveLength(1)
+    // The picker's message runs its course (4 s) and goes.
+    await act(async () => void vi.advanceTimersByTime(4100))
+    expect(screen.queryByText("Couldn't save — try again.")).toBeNull()
+
+    await act(async () => within(picker).getByRole('button', { name: 'Close' }).click())
+    for (let ms = 0; ms < 6000; ms += 100) {
+      await act(async () => void vi.advanceTimersByTime(100))
+      expect(screen.queryByText("Couldn't save — try again.")).toBeNull()
+    }
+    vi.useRealTimers()
+    expect(formOpen()).toBe(true)
+  }, 20_000)
+
+  // The add form closed (Cancel) in the same moment, before it had drawn the failure: Plan says it, once.
+  it('planAdd_changeToOwnExerciseFails_theAddFormClosedFirst_planSaysSo', async () => {
+    show()
+    await pickOn('Monday', 'Squat')
+    const form = await addForm()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementation((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(form.getByRole('button', { name: 'Change' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    await userEvent.click(within(createForm()!).getByRole('button', { name: 'Cancel' }))
+    const close = within(screen.getByRole('dialog', { name: 'Change exercise' })).getByRole('button', { name: 'Close' })
+    const cancel = form.getByRole('button', { name: 'Cancel' })
+    await act(async () => {
+      fail()
+      for (let i = 0; i < 20; i++) await Promise.resolve()
+      close.click()
+      cancel.click()
+    })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(await screen.findByText("Couldn't save — try again.")).toBeInTheDocument()
+    expect(screen.getAllByText("Couldn't save — try again.")).toHaveLength(1)
+  })
+
+  // Plan's Add: the create form said it, then Cancel and Close inside its 4 s. Plan's own snackbar does not say it again.
+  it('planAdd_ownExerciseFails_saidByTheCreateForm_thenClosed_planDoesNotRepeatIt', async () => {
+    show()
+    let fail!: () => void
+    vi.spyOn(db.exercises, 'add').mockImplementation((() => new Promise((_, reject) => (fail = () => reject(new Error('disk full'))))) as never)
+    await userEvent.click(within(await day('Monday')).getByRole('button', { name: 'Add' }))
+    await openCreateForm()
+    await fillCustomExercise()
+    await tapCreate()
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    await act(async () => fail())
+    expect(within(createForm()!).getByText("Couldn't save — try again.")).toBeInTheDocument()
+    await act(async () => void vi.advanceTimersByTime(1000))
+    await act(async () => within(createForm()!).getByRole('button', { name: 'Cancel' }).click())
+    expect(screen.getAllByText("Couldn't save — try again.")).toHaveLength(1)
+    await act(async () => screen.getByRole('button', { name: 'Close' }).click())
+    expect(screen.queryByRole('dialog')).toBeNull()
+    for (let ms = 0; ms < 6000; ms += 100) {
+      await act(async () => void vi.advanceTimersByTime(100))
+      expect(screen.queryByText("Couldn't save — try again.")).toBeNull()
+    }
+    vi.useRealTimers()
+  }, 20_000)
 
   it('planAdd_pick_swapsStraightToTheForm_focusInside_andBackToAddOnClose', async () => {
     show()

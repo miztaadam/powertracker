@@ -26,6 +26,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +35,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -51,6 +57,8 @@ import com.powertracker.data.BackupService
 import com.powertracker.data.RestAlert
 import com.powertracker.data.SettingsRepository
 import com.powertracker.domain.model.TrainingMode
+import kotlinx.coroutines.flow.first
+import androidx.compose.runtime.LaunchedEffect
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.ChoiceChip
 import com.powertracker.ui.components.PrimaryButton
@@ -64,8 +72,15 @@ import com.powertracker.ui.components.Stepper
 import com.powertracker.ui.components.formatRpe
 import com.powertracker.ui.components.SoftDivider
 import com.powertracker.ui.library.RpeInfoButton
+import com.powertracker.ui.motion.LocalModeSwitch
+import com.powertracker.ui.motion.ModeSwitchEnd
+import com.powertracker.ui.motion.ModeSwitchKind
+import com.powertracker.ui.motion.modeSwitchElement
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -123,6 +138,23 @@ fun SettingsScreen(
 
     fun update(f: (AppSettings) -> AppSettings) {
         scope.launch { settingsRepo.update(f) }
+    }
+
+    // Leaving Settings, or the app going away, ends a mode switch animation at its end state (1.15).
+    val modeSwitch = LocalModeSwitch.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(modeSwitch, lifecycle) {
+        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_PAUSE) modeSwitch?.finish(ModeSwitchEnd.LEAVE) }
+        lifecycle.addObserver(observer)
+        onDispose {
+            lifecycle.removeObserver(observer)
+            modeSwitch?.finish(ModeSwitchEnd.LEAVE)
+        }
+    }
+    // Settings holds the switch: its sounds are loaded now, the one the next switch plays first (never at app start).
+    LaunchedEffect(modeSwitch) {
+        val stored = settingsRepo.settings.first().trainingMode
+        modeSwitch?.prefetch(ModeSwitchKind.into(if (stored == TrainingMode.POWERLIFTING) TrainingMode.BODYBUILDING else TrainingMode.POWERLIFTING))
     }
 
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri: Uri? ->
@@ -227,11 +259,18 @@ fun SettingsContent(
     onTrainingMode: (TrainingMode) -> Unit = {},
 ) {
     val scheme = MaterialTheme.colorScheme
+    // While a mode switch animation runs, the rows are the side the theme shows (it lags the stored side until the
+    // drop's impact or the pump's third beat); the switch itself says the stored side from the tap.
+    val modeSwitch = LocalModeSwitch.current
+    val side = modeSwitch?.shownMode ?: settings.trainingMode
+    val shown = if (side == settings.trainingMode) settings else settings.copy(trainingMode = side)
+    val switchAt = remember { SwitchPlace() }
     Scaffold(
         containerColor = scheme.background,
         topBar = {
             ScreenHeader(
                 "Settings",
+                Modifier.modeSwitchElement(),
                 modeLabel = true,
                 navigation = { PtIconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
             )
@@ -247,13 +286,19 @@ fun SettingsContent(
                     "Bodybuilding mode",
                     "Rep ranges, a physique coach and a blue look. Your powerlifting plan is kept.",
                     settings.trainingMode == TrainingMode.BODYBUILDING,
-                    Modifier.testTag("bodybuilding-mode"),
-                ) { on -> onTrainingMode(if (on) TrainingMode.BODYBUILDING else TrainingMode.POWERLIFTING) }
+                    Modifier.testTag("bodybuilding-mode").onGloballyPositioned { switchAt.row = it },
+                    switchModifier = Modifier.testTag("bodybuilding-mode-switch").onGloballyPositioned { switchAt.switch = it },
+                ) { on ->
+                    val mode = if (on) TrainingMode.BODYBUILDING else TrainingMode.POWERLIFTING
+                    // The only place an animation starts (1.15): the switch measured now, wherever Settings is scrolled.
+                    modeSwitch?.start(ModeSwitchKind.into(mode), switchAt.centre(), switchAt.rowBounds())
+                    onTrainingMode(mode)
+                }
             }
 
             // The bodybuilding side hides the powerlifting-only rows (main-lift RPE, strict press, main-lift rest);
             // their stored values stay as they are and the rows come back on the powerlifting side.
-            val powerlifting = settings.trainingMode == TrainingMode.POWERLIFTING
+            val powerlifting = side == TrainingMode.POWERLIFTING
             SectionHeader("Loading and targets", Modifier.padding(top = Space.m))
             Group {
                 SwitchRow("Change plates", "Adds 0.5 and 0.25 kg plates, so loads round to 0.5 kg", settings.changePlates) { v ->
@@ -280,13 +325,13 @@ fun SettingsContent(
             }
 
             SectionHeader("Training days", Modifier.padding(top = Space.m))
-            PtCard(contentPadding = PaddingValues(horizontal = Space.s, vertical = Space.s)) {
+            PtCard(Modifier.modeSwitchElement(), contentPadding = PaddingValues(horizontal = Space.s, vertical = Space.s)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.xxs)) {
                     for (day in DayOfWeek.entries) {
                         ChoiceChip(
                             text = day.toJavaDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(3),
                             // The side the app is on keeps its own days (bodybuilding mode spec §6).
-                            selected = day in settings.activeTrainingDays,
+                            selected = day in shown.activeTrainingDays,
                             onClick = {
                                 onUpdate { s ->
                                     val days = s.activeTrainingDays
@@ -337,7 +382,7 @@ fun SettingsContent(
             }
 
             SectionHeader("Backup", Modifier.padding(top = Space.m))
-            PtCard {
+            PtCard(Modifier.modeSwitchElement()) {
                 Text(
                     "Your log lives only on this phone. Export a file now and then so you can restore it.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -363,9 +408,19 @@ fun SettingsContent(
     }
 }
 
+/** Where the Bodybuilding mode switch and its row are, read at the tap. */
+private class SwitchPlace {
+    var switch: LayoutCoordinates? = null
+    var row: LayoutCoordinates? = null
+
+    fun centre(): Offset? = switch?.takeIf { it.isAttached }?.boundsInRoot()?.center
+
+    fun rowBounds(): Rect? = row?.takeIf { it.isAttached }?.boundsInRoot()
+}
+
 @Composable
 private fun Group(content: @Composable ColumnScope.() -> Unit) {
-    PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp, content = content)
+    PtCard(Modifier.modeSwitchElement(), contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp, content = content)
 }
 
 @Composable
@@ -383,7 +438,14 @@ private fun RowLabel(label: String, supporting: String, modifier: Modifier = Mod
 }
 
 @Composable
-private fun SwitchRow(label: String, supporting: String, checked: Boolean, modifier: Modifier = Modifier, onChange: (Boolean) -> Unit) {
+private fun SwitchRow(
+    label: String,
+    supporting: String,
+    checked: Boolean,
+    modifier: Modifier = Modifier,
+    switchModifier: Modifier = Modifier,
+    onChange: (Boolean) -> Unit,
+) {
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
     Row(
@@ -395,6 +457,7 @@ private fun SwitchRow(label: String, supporting: String, checked: Boolean, modif
         Switch(
             checked = checked,
             onCheckedChange = null,
+            modifier = switchModifier,
             colors = SwitchDefaults.colors(
                 checkedTrackColor = pt.accent,
                 checkedThumbColor = pt.onAccent,

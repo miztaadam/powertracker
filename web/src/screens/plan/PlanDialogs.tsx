@@ -10,6 +10,7 @@ import { Eyebrow } from '../../ui/components/NumberDisplay'
 import { Stepper } from '../../ui/components/StepperField'
 import { TextField } from '../../ui/components/TextField'
 import { ExercisePicker } from '../library/ExercisePicker'
+import { HeldMessage, useHeldFailures } from '../library/heldFailures'
 import { RpeInfoButton } from '../library/RpeSheet'
 import './plan.css'
 
@@ -26,7 +27,10 @@ export type PlanItemDialogProps = {
   recentIds: readonly number[]
   /** Creates a custom exercise; resolves to its picker entry, which becomes the item's exercise on Save. */
   onCreateCustom: (exercise: CustomExercise) => Promise<PickerEntry>
-  /** Creating the custom exercise failed after its picker had closed. */
+  /**
+   * Creating the custom exercise failed, and this form closed before saying it (or it failed after): Plan says it. While
+   * the form is open it says it over itself, or the picker or its create form does while on top.
+   */
   onFailure: () => void
   /** `exercise` is null unless the exercise itself was changed. `repsHigh` is given for a range (a bodybuilding item). */
   onSave: (exercise: PickerEntry | null, sets: number, reps: number, rpe: number, repsHigh?: number) => void
@@ -59,6 +63,11 @@ export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save'
   const [repsHigh, setRepsHigh] = useState(item.repsHigh ?? (sideOf(item) === 'BODYBUILDING' ? item.reps : null))
   const [rpe, setRpe] = useState(item.targetRpe)
   const [picking, setPicking] = useState(false)
+  // Failed creates from Change's picker, held here until a dialog has said them through: Change's create form or its
+  // picker while either is on top, else this form, whose scrim hides Plan's own snackbar. A picker closed before its
+  // message has run its course (Close in the moment the failure lands, or a moment on) leaves the failure held, and this
+  // form says it. Should this form close first, Plan says it.
+  const failures = useHeldFailures(onFailure)
   const [openedAt] = useState(eventClock)
   const actionsRef = useRef<HTMLSpanElement>(null)
 
@@ -89,6 +98,8 @@ export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save'
         )}
         <LabeledStepper label="RPE" value={formatRpe(rpe)} canDecrement={rpe > MIN_RPE} canIncrement={rpe < MAX_RPE} onStep={(by) => setRpe(rpe + by * 0.5)} labelAction={<RpeInfoButton />} />
       </div>
+      {/* Inside the form, so it is drawn over the form's scrim (Plan's own is behind it, and inert). */}
+      <HeldMessage failures={failures} here={!picking} />
     </Dialog>
   )
   // A click made by a tap (detail 1 or more) on Add, Cancel or the scrim, too soon after the form opened, stops here.
@@ -115,19 +126,22 @@ export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save'
           title="Change exercise"
           exercises={exercises}
           recentIds={recentIds}
+          // A pick or create that works clears a failure still held, before this form is back on top to say it.
           onPick={(entry) => {
+            failures.clear()
             setChanged(entry)
             setPicking(false)
           }}
           // The picker stays until the exercise is made; if making it fails, its create form stays with what was typed.
           onCreateCustom={(exercise) =>
             onCreateCustom(exercise).then((entry) => {
+              failures.clear()
               setChanged(entry)
               setPicking(false)
             })
           }
           onDismiss={() => setPicking(false)}
-          onCreateFailedWhileClosed={onFailure}
+          failures={failures}
         />
       )}
     </>

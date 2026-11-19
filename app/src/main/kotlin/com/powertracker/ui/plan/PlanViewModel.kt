@@ -143,10 +143,11 @@ class PlanViewModel(
      *
      * The side and the place at the end of the day are read from what is stored, not from [state]: a form restored
      * after the process was killed can be on screen before [state] has its first value. If the write fails, nothing is
-     * stored, [messages] says so and [onFailed] runs instead of [onAdded].
+     * stored and [onFailed] runs instead of [onAdded]: by default [messages] says so ([saySaveFailed]). The add form
+     * passes its own, which says it over the form, and has Plan say it only if the form has gone (as Change does).
      */
-    fun add(day: DayOfWeek, entry: PickerEntry, sets: Int, reps: Int, rpe: Double, repsHigh: Int?, onAdded: () -> Unit = {}, onFailed: () -> Unit = {}) {
-        write(onFailed, onDone = onAdded) {
+    fun add(day: DayOfWeek, entry: PickerEntry, sets: Int, reps: Int, rpe: Double, repsHigh: Int?, onAdded: () -> Unit = {}, onFailed: () -> Unit = ::saySaveFailed) {
+        write(onFailed, onDone = onAdded, say = false) {
             val mode = settings.settings.first().trainingMode
             val order = (training.plan(mode).first().filter { it.weekday == day }.maxOfOrNull { it.order } ?: -1) + 1
             val item = newItem(mode, day, entry, rpe, order)
@@ -236,10 +237,11 @@ class PlanViewModel(
      * Creates a custom exercise and reports it as a picker entry, ready for the add form or [save]. A name the
      * catalogue knows (a name or an alias, ignoring case) is not made again: the catalogue's entry is
      * reported instead, tied to its oldest live row if it has one, and gets its row like any other
-     * catalogue exercise when it is saved. If the save fails, [onCreated] is not called, [messages] says so and
-     * [onFailed] runs.
+     * catalogue exercise when it is saved. If the save fails, [onCreated] is not called and [onFailed] runs: by default
+     * [messages] says so. A caller whose window says it ([HeldFailures]) passes its own, and Plan's snackbar is then
+     * told only of a failure no window of its own put on screen ([saySaveFailed]).
      */
-    fun addCustomExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onFailed: () -> Unit = {}, onCreated: (PickerEntry) -> Unit) {
+    fun addCustomExercise(name: String, category: Category, parentLift: MainLift?, muscles: List<String>, onFailed: () -> Unit = ::saySaveFailed, onCreated: (PickerEntry) -> Unit) {
         val trimmed = name.trim()
         val known = Library.find(trimmed)
         if (known != null) {
@@ -254,12 +256,16 @@ class PlanViewModel(
                 throw e
             } catch (e: Exception) {
                 // A failed write must not crash the app: nothing was saved, no form opens, and the lifter is told.
-                _messages.send(SAVE_FAILED)
                 onFailed()
                 return@launch
             }
             onCreated(PickerEntry(trimmed, muscles, if (category == Category.ACCESSORY) Kind.ACCESSORY else Kind.COMPOUND, library = null, exerciseId = id))
         }
+    }
+
+    /** Says "Couldn't save — try again." in Plan's snackbar: a failure that no window over Plan has put on screen. */
+    fun saySaveFailed() {
+        _messages.trySend(SAVE_FAILED)
     }
 
     /** Ignores values the dialog would not accept (non-finite, 0 or below, above 500 kg). */
@@ -270,10 +276,11 @@ class PlanViewModel(
 
     /**
      * Runs one of Plan's writes ([add], [save], [delete], [move], [setBaseline]). A failure must not crash the app: it is
-     * caught, [messages] says so and [onFailed] runs. Cancelling is passed on. [onDone] runs once the write has worked,
-     * outside the catch: whatever it does after the store can never be told as a failed save.
+     * caught, [messages] says so (unless [say] is false: [onFailed] says it then) and [onFailed] runs. Cancelling is passed
+     * on. [onDone] runs once the write has worked, outside the catch: whatever it does after the store can never be told
+     * as a failed save.
      */
-    private fun write(onFailed: () -> Unit = {}, onDone: () -> Unit = {}, block: suspend () -> Unit) {
+    private fun write(onFailed: () -> Unit = {}, onDone: () -> Unit = {}, say: Boolean = true, block: suspend () -> Unit) {
         viewModelScope.launch {
             val stored = try {
                 block()
@@ -286,7 +293,7 @@ class PlanViewModel(
             if (stored) {
                 onDone()
             } else {
-                _messages.send(SAVE_FAILED)
+                if (say) _messages.send(SAVE_FAILED)
                 onFailed()
             }
         }

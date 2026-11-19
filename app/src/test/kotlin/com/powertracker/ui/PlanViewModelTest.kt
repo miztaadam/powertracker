@@ -102,7 +102,23 @@ class PlanViewModelTest {
     }
 
     @Test
-    fun add_whenTheWriteFails_saysSo_storesNothing_andHearsTheFailure() {
+    fun add_whenTheWriteFails_saysSo_storesNothing() {
+        fail("plan_item", "INSERT")
+        val vm = viewModel()
+        vm.await { it.exercises.isNotEmpty() }
+        var added = 0
+
+        vm.add(DayOfWeek.MONDAY, entry("Squat"), sets = 5, reps = 3, rpe = 7.5, repsHigh = null, onAdded = { added++ })
+        awaitMessages(1)
+
+        assertEquals(listOf(SAVE_FAILED), messages)
+        assertEquals(0, added)
+        assertTrue(stored().isEmpty())
+    }
+
+    /** The add form says a failed Add itself, over the form: Plan's snackbar is not told as well. */
+    @Test
+    fun add_whenTheWriteFails_withTheFormsOwnSaying_hearsTheFailure_andPlanSaysNothing() {
         fail("plan_item", "INSERT")
         val vm = viewModel()
         vm.await { it.exercises.isNotEmpty() }
@@ -110,11 +126,10 @@ class PlanViewModelTest {
         var failed = 0
 
         vm.add(DayOfWeek.MONDAY, entry("Squat"), sets = 5, reps = 3, rpe = 7.5, repsHigh = null, onAdded = { added++ }, onFailed = { failed++ })
-        awaitMessages(1)
+        idleUntil({ "failed $failed" }) { failed == 1 }
 
-        assertEquals(listOf(SAVE_FAILED), messages)
+        assertEquals(emptyList<String>(), messages)
         assertEquals(0, added)
-        assertEquals(1, failed)
         assertTrue(stored().isEmpty())
     }
 

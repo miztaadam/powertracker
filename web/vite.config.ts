@@ -20,7 +20,8 @@ export default defineConfig({
       manifest: false,
       includeAssets: ['icons/*.png', 'licenses/*.txt'],
       workbox: {
-        globPatterns: ['**/*.{js,css,html,woff2,png,webmanifest}'],
+        // The mode switch sounds too (1.15), so they play offline from the first switch: Ogg Vorbis and its WAV fallback.
+        globPatterns: ['**/*.{js,css,html,woff2,png,webmanifest,ogg,wav}'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
       },

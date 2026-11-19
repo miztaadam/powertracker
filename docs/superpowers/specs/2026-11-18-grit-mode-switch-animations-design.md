@@ -68,7 +68,7 @@
 - **Each animation has its own sound,** timed to the clock: the hammer's swing, impact and aftershock; the pump's three beats and the flood.
 - **Made in code:** synthesised with the Web Audio API, with no recordings and no paid service. The apps ship the same sounds, rendered from that synthesis to small audio files, so both apps sound identical.
 - **Volume:** sounds follow the phone's media volume and silent mode. There's no in-app setting *(my call)*.
-- **Designed by Fable** in the prototype; the owner approves the sound before it's built.
+- **Designed by Fable** in the prototype, `docs/design/motion/mode-switch-sound.html`. Approved by the owner on 2026-11-19: "Animations and sounds are perfect".
 
 ## Constraints
 - **Timeline:** match the prototype's numbers. Each app may round them to its frame clock.
