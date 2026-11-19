@@ -118,6 +118,12 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
   // The reveal.
   let transition: ViewTransition | null = null
   let clip: Animation | null = null
+  /**
+   * The old side's picture moves with the content: a held animation on its own pseudo-element, whose one value is
+   * changed each frame, so only the picture is restyled (a custom property on <html> restyled the whole page).
+   */
+  let oldMove: Animation | null = null
+  let oldTransform = 'none'
   let capturing = false
   let radius = 0
   let full = false
@@ -456,7 +462,11 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
     if (shell == null) return
     if (capturing) transform = ''
     shell.style.transform = transform
-    if (transition != null) root.style.setProperty('--ms-old-transform', transform || 'none')
+    if (transition == null) return
+    const next = transform || 'none'
+    if (next === oldTransform) return
+    oldTransform = next
+    ;(oldMove?.effect as KeyframeEffect | null | undefined)?.setKeyframes([{ transform: next }, { transform: next }])
   }
 
   function paintDrop(t: number, d: Drop) {
@@ -598,8 +608,12 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
     }
     if (clip == null) return
     if (full) {
+      // The new side covers the screen: the old side's animation is finished too, so the transition can end. It is
+      // kept (still following the content, as its fill) until the reveal ends, which cancels it: a finished animation
+      // left behind would hold the next reveal's old side.
       clip.finish()
       clip = null
+      oldMove?.finish()
     } else clip.currentTime = Math.min(REVEAL_MAX - 1, radius)
   }
 
@@ -641,6 +655,9 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
     const running = transition
     transition = null
     clip = null
+    oldMove?.cancel()
+    oldMove = null
+    oldTransform = 'none'
     capturing = false
     running?.skipTransition()
     if (plainAt != null) {
@@ -650,7 +667,6 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
       root.style.removeProperty('--ms-old-bg')
     }
     root.classList.remove('ms-revealing')
-    root.style.removeProperty('--ms-old-transform')
     root.style.removeProperty('--ms-x')
     root.style.removeProperty('--ms-y')
   }
@@ -738,6 +754,12 @@ function createPainter(host: HTMLDivElement): ModeSwitchPainter {
             },
           )
           clip.pause()
+          oldMove = root.animate([{ transform: oldTransform }, { transform: oldTransform }], {
+            duration: 1,
+            fill: 'both',
+            pseudoElement: '::view-transition-old(root)',
+          })
+          oldMove.pause()
           moveClip()
         })
         .catch(() => {})

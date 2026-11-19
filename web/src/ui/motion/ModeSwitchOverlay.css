@@ -45,9 +45,10 @@
 }
 
 /*
- * The reveal: a view transition whose update puts the new side on. The old side is its still picture; the new side,
- * live, is let in through a circle (an animation the overlay holds and moves with the clock). The overlay is its own
- * live layer on top, so it is never clipped or frozen. None of vt.css's fades apply.
+ * The reveal: a view transition whose update puts the new side on. The old side is its still picture, shaken or
+ * swollen by an animation the overlay holds on it; the new side, live, is let in through a circle (another such
+ * animation). Both move with the clock. The overlay is its own live layer on top, so it is never clipped or frozen.
+ * None of vt.css's fades apply.
  */
 :root.ms-revealing .ms-overlay {
   view-transition-name: ms-fx;
@@ -63,10 +64,6 @@
 
 :root.ms-revealing::view-transition-new(root) {
   clip-path: circle(0px at var(--ms-x, 50%) var(--ms-y, 100%));
-}
-
-:root.ms-revealing::view-transition-old(root) {
-  transform: var(--ms-old-transform, none);
 }
 
 :root.ms-revealing::view-transition-group(ms-fx) {
