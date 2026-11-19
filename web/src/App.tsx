@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { Component, lazy, memo, Suspense, useCallback, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { onDbVersionChange, type GritDb } from './db/db'
 import type { SchemaVersion } from './db/schema'
 import { singleTabGuard, type SingleTabGuard, type TabRole } from './platform/singleTab'
@@ -120,11 +120,37 @@ function GuideRoute() {
   const mode = useContext(TrainingModeContext)
   // Read once: reduced motion and the e2e flag both put data-motion="off" on <html> before the app starts.
   const [motionOn] = useState(() => document.documentElement.getAttribute('data-motion') !== 'off')
+  // Every exit, a failed load included, goes back where it was opened from, or to Today.
+  const close = useCallback(() => leave({ tab: 'today' }), [])
   return (
-    <Suspense fallback={<BlankScreen />}>
-      <GuideScreen mode={mode} firstLaunch={false} hasPlan={false} motionOn={motionOn} onPickSide={() => {}} onClose={() => leave({ tab: 'today' })} />
-    </Suspense>
+    <GuideChunkBoundary onFailed={close}>
+      <Suspense fallback={<BlankScreen />}>
+        <GuideScreen mode={mode} firstLaunch={false} hasPlan={false} motionOn={motionOn} onPickSide={() => {}} onClose={close} />
+      </Suspense>
+    </GuideChunkBoundary>
   )
+}
+
+/**
+ * Catches the guide failing, its chunk not loading above all (offline before the service worker has it, or a stale
+ * chunk after an update): the guide closes as if skipped, writing nothing, and the app shows as it was. Without it the
+ * failure would reach the root boundary, the recovery screen. (React keeps a failed lazy import, so a second open in
+ * the same page load closes again.)
+ */
+class GuideChunkBoundary extends Component<{ onFailed: () => void; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+
+  componentDidCatch() {
+    this.props.onFailed()
+  }
+
+  render() {
+    return this.state.failed ? <BlankScreen /> : this.props.children
+  }
 }
 
 /** Leaving the check-in, saved or not, goes back where it was opened from (Coach or Progress), or to Coach. */
@@ -162,27 +188,37 @@ const Shell = memo(function Shell({ db, rest, registerSW }: { db: GritDb; rest: 
   // Messages rise by the dock's real height, so they clear its buttons at any text size.
   const dockHeight = useElementHeight(dock, showDock)
   // The guide covers the whole app: no tab bar, no rest dock.
-  if ('page' in route && route.page === 'guide') return <GuideRoute />
+  const guide = 'page' in route && route.page === 'guide'
   return (
     <>
-      <div className="shell" style={{ '--rest-dock-height': `${dockHeight}px` } as CSSProperties}>
-        <main className="shell-main">{screenFor(route, db, { session, browser, planMessage, setPlanMessage })}</main>
-        {showDock && (
-          <div className="shell-rest" ref={dock}>
-            {update.ready && (
-              <button type="button" className="shell-update label-large" onClick={update.refresh}>
-                {UPDATE_READY}
-              </button>
+      {guide ? (
+        <GuideRoute />
+      ) : (
+        <>
+          <div className="shell" style={{ '--rest-dock-height': `${dockHeight}px` } as CSSProperties}>
+            <main className="shell-main">{screenFor(route, db, { session, browser, planMessage, setPlanMessage })}</main>
+            {showDock && (
+              <div className="shell-rest" ref={dock}>
+                {update.ready && (
+                  <button type="button" className="shell-update label-large" onClick={update.refresh}>
+                    {UPDATE_READY}
+                  </button>
+                )}
+                {showRestBar && <RestBar store={rest.store} />}
+              </div>
             )}
-            {showRestBar && <RestBar store={rest.store} />}
+            <TabBar current={activeTab} />
+            <StorageFullDialog db={db} />
           </div>
-        )}
-        <TabBar current={activeTab} />
-        <RestFlash showId={rest.flashId} />
-        <StorageFullDialog db={db} />
-      </div>
-      {/* The mode switch animations (1.15), over the whole app; empty at rest. */}
-      <ModeSwitchOverlay />
+          {/* The mode switch animations (1.15), over the whole app; empty at rest. */}
+          <ModeSwitchOverlay />
+        </>
+      )}
+      {/*
+       * In the same place whether the guide is up or not, so it is never remounted: closing the guide does not replay
+       * an earlier rest's flash, and a rest that ends while the guide is up flashes once, over it.
+       */}
+      <RestFlash showId={rest.flashId} />
     </>
   )
 })
