@@ -676,23 +676,20 @@ test('with reduced motion: no animation, the side changes at the tap', async ({ 
 // 2. The reveal not run, in any animation: startViewTransition not called exactly once, <html> not ms-revealing for
 //    80 ms or more, or far fewer frames than the animation's length. Checked straight after each window, so it fails at the first.
 // 3. The calibration: the display's frame interval (the idle controls' median gap) over 20 ms.
-// 4. MACHINE BUSY, when the app's checks below fail and the machine was not quiet: an idle control not clean (a frame
-//    missed or late, or the machine's CPU over 30 % in use), or the animations' own windows had the CPU taken by
-//    something other than the test's own processes. It never blames the app for a busy machine. Also MACHINE BUSY,
-//    whatever the app did, where noise could have helped the run pass: idle controls not clean while their interval
-//    is off 60 Hz's (it sets every gap threshold), or the cold pump's animation window with its CPU taken (a busy
-//    machine can hold back the warm the cold proof looks for). Idle controls not clean while the app passes: a loud MACHINE NOISE warning,
-//    and the run passes.
-// 5. Reported, not failed: two or more bad animations of one kind (the pump, warm and cold; the drop). An animation is bad when any frame
-//    of it, from the tap to its end, breaks a rule: (a) the app's script over 16 ms; (b) a gap between frames over
-//    one and a half intervals, but for one skip at the moment (the drop's impact, the pump's third beat) of up to two
-//    and a half, while the browser takes the new side's picture; (c) fewer frames than the length allows, the first
-//    over one and a half intervals after the tap, or the tap itself over 16 ms. One stray lost frame does not fail
-//    the run; the same fault twice in five is a LATE FRAMES warning.
-// 6. The reveal's work: the median work per frame over every reveal's frames (from three frames after the moment to
-//    the reveal's end), pooled across the eleven animations, over WORK_LIMIT; or either kind's own median over its
-//    WORK_LIMIT_OF (each kind's: a SLOW KIND warning, not a failure). The limit is in milliseconds of this
-//    machine (the e2e container): it sits between the build before the 1.15 speed fix and the build after it.
+// 4. (Gone for 1.15, by the owner's call: every timing verdict below is a loud warning, not a failure. Their limits
+//    are milliseconds of one machine, and after a restart the same container read both builds about 40 % slower.)
+//
+// Reported as warnings:
+// - LATE FRAMES: two or more bad animations of one kind (the pump, warm and cold; the drop). An animation is bad when
+//   any frame of it, from the tap to its end, breaks a rule: (a) the app's script over 16 ms; (b) a gap between frames
+//   over one and a half intervals, but for one skip at the moment (the drop's impact, the pump's third beat) of up to
+//   two and a half, while the browser takes the new side's picture; (c) fewer frames than the length allows, the first
+//   over one and a half intervals after the tap, or the tap itself over 16 ms.
+// - SLOW REVEAL and SLOW KIND: the median work per frame over every reveal's frames (from three frames after the
+//   moment to the reveal's end), pooled across the eleven animations, over WORK_LIMIT; or either kind's own median
+//   over its WORK_LIMIT_OF. The limits sat between the build before the 1.15 speed fix and the build after it, on the
+//   machine they were measured on.
+// - MACHINE NOISE and MACHINE BUSY: an idle control not clean, or an animation's CPU taken by something else.
 test.describe('mode switch speed', { tag: '@speed' }, () => {
   /** Over this share of the machine's CPU in use during an idle control, the machine is busy. */
   const BUSY_CPU = 0.3
@@ -708,8 +705,6 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
   const MAX_INTERVAL = 20
   /** 60 Hz's frame interval, ms. */
   const HZ60 = 1000 / 60
-  /** Over this, the idle controls' interval is not 60 Hz's; if they were noisy too, the noise may have set it. */
-  const NOT_60HZ = HZ60 + 0.8
   /** The shortest reveal, ms (the drop's runs about 170 ms, the pump's about 390). */
   const MIN_REVEAL = 80
   /** The pooled median of the reveal's work per frame, ms (see 6 above). */
@@ -1106,48 +1101,25 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
     const work = median(revealWork)
     const badOf = (kind: 'pump' | 'drop') => runs.filter((r) => r.kind === kind && bad.has(r.name))
     const slowKinds = (['pump', 'drop'] as const).filter((k) => !(median(workOf[k]!) <= WORK_LIMIT_OF[k]))
-    const failing = [
-      ...(work > WORK_LIMIT ? [`the reveal's work ${work.toFixed(2)} ms a frame`] : []),
-    ]
-    // When the app's checks fail: was the CPU the animation needed taken by something else?
-    const busyDuring = failing.length === 0 ? [] : runs.filter((r) => r.anim.cpu != null && (r.anim.cpu.other > OTHER_CPU || r.anim.cpu.steal > STEAL_CPU)).map((r) => `${r.name}: ${cpuSaid(r.anim.cpu)}`)
     const said = `interval ${interval.toFixed(1)} ms; reveal work median ${work.toFixed(2)} ms over ${revealWork.length} frames (pump ${median(workOf.pump!).toFixed(2)}, drop ${median(workOf.drop!).toFixed(2)}), limits ${WORK_LIMIT} (pump ${WORK_LIMIT_OF.pump}, drop ${WORK_LIMIT_OF.drop}); bad animations: pump ${badOf('pump').length}, drop ${badOf('drop').length}; ${summary.join('; ')}; idle controls: ${control.join('; ')}${cpuCheck ? '' : '; CPU CHECK UNAVAILABLE'}`
     console.log(`mode switch speed: ${said}`)
-    // The app's checks failed: on a noisy or busy machine that says nothing about the app.
-    expect(failing.length > 0 ? [...busy, ...busyDuring] : [], `MACHINE BUSY: the app's checks failed (${failing.join(', ')}) while the machine was not quiet (below), so this run says nothing about the app; rerun it on a quiet machine (${said})`).toEqual([])
-    // Every check of the app's is an upper bound (script, gaps, work, bad animations) or a floor that noise can only
-    // fail, so noise can push a run towards failing, never help a slow app pass. Except where the idle controls feed a
-    // check, and the cold proof:
-    // - the interval: noisy controls can lift their median gap, which widens every gap threshold;
-    expect(interval > NOT_60HZ ? busy : [], `MACHINE BUSY: the idle controls were not clean and their interval reads ${interval.toFixed(1)} ms, not 60 Hz's, so the noise may have loosened every threshold; rerun it on a quiet machine (${said})`).toEqual([])
-    // - the cold proof: a busy machine during the cold pump's own window can hold back the warm that would have come too
-    //   early. (Its idle control comes before the scroll, so noise there cannot; it is a warning like the others.)
-    const coldRun = runs.find((r) => r.name === 'pump (cold)')!
-    const coldNoise = coldRun.anim.cpu != null && (coldRun.anim.cpu.other > OTHER_CPU || coldRun.anim.cpu.steal > STEAL_CPU) ? [`pump (cold): ${cpuSaid(coldRun.anim.cpu)}`] : []
-    expect(coldNoise, `MACHINE BUSY: the cold pump's window was not quiet, so the cold proof (no warm before the animation's end) cannot be trusted; rerun it on a quiet machine (${said})`).toEqual([])
-    // Late frames are reported, not failed (the owner's call for 1.15): on the fixed build they came in about one quiet
-    // run in nine, and the reveal's work below is what tells a slow build from a fixed one.
+    // The timing verdicts are reported, not failed (the owner's call for 1.15). Their limits are milliseconds of one
+    // machine: after a restart the same container read the old build at 9.2-11.5 ms a frame and the fixed one at
+    // 4.8-5.8, so a fixed limit cannot tell a slower machine from a slower app. What still fails a run here: the
+    // reveal did not run, motion was off, the animation drew too few frames, or the shapes were not cold or warm as
+    // the run needs. The held-clock pins (the e2e project) are the hard check on the 1.15 speed fixes.
+    // Follow-up: measure the build before the fix in the same run and fail on the difference.
+    const warn = (what: string) => {
+      console.warn(`\n!!! ${what} !!!\n`)
+      test.info().annotations.push({ type: 'warning', description: what })
+    }
     const late = [...bad].filter(([name]) => badOf(runs.find((r) => r.name === name)!.kind).length >= BAD).map(([name, why]) => `${name}: ${why.join(', ')}`)
-    if (late.length > 0) {
-      const said2 = `LATE FRAMES (warning): ${BAD} or more animations of one kind lost frames: ${late.join('; ')}`
-      console.warn(`\n!!! ${said2} !!!\n`)
-      test.info().annotations.push({ type: 'warning', description: said2 })
-    }
-    expect(work, `THE REVEAL'S FRAMES ARE SLOW: the median work per frame over every reveal is ${work.toFixed(2)} ms, over ${WORK_LIMIT} ms (${said})`).toBeLessThanOrEqual(WORK_LIMIT)
-    // Each kind's own limit is reported, not failed (the owner's call for 1.15): the drop's median rests on about 34
-    // frames a run, and on the fixed build it once read 6.30 against 5.5 on a quiet machine. The pooled limit above
-    // stays hard. Follow-up: give the drop a bigger sample and set its limit again.
-    if (slowKinds.length > 0) {
-      const slow = `SLOW KIND (warning): ${slowKinds.map((k) => `the ${k}: ${median(workOf[k]!).toFixed(2)} ms over ${workOf[k]!.length} frames, limit ${WORK_LIMIT_OF[k]} ms`).join('; ')}`
-      console.warn(`\n!!! ${slow} !!!\n`)
-      test.info().annotations.push({ type: 'warning', description: slow })
-    }
-    // The app passed: noise in the idle controls is said, loudly, and the run passes.
-    if (busy.length > 0) {
-      const noise = `MACHINE NOISE (warning): the app's checks all passed, but the idle controls were not clean: ${busy.join('; ')}. Their CPU: ${runs.map((r) => `${r.name} ${cpuSaid(r.idle.cpu)}`).join('; ')}`
-      console.warn(`\n!!! ${noise} !!!\n`)
-      test.info().annotations.push({ type: 'warning', description: noise })
-    }
+    if (late.length > 0) warn(`LATE FRAMES (warning): ${BAD} or more animations of one kind lost frames: ${late.join('; ')}`)
+    if (work > WORK_LIMIT) warn(`SLOW REVEAL (warning): the median work per frame over every reveal is ${work.toFixed(2)} ms, over ${WORK_LIMIT} ms`)
+    if (slowKinds.length > 0) warn(`SLOW KIND (warning): ${slowKinds.map((k) => `the ${k}: ${median(workOf[k]!).toFixed(2)} ms over ${workOf[k]!.length} frames, limit ${WORK_LIMIT_OF[k]} ms`).join('; ')}`)
+    if (busy.length > 0) warn(`MACHINE NOISE (warning): the idle controls were not clean: ${busy.join('; ')}. Their CPU: ${runs.map((r) => `${r.name} ${cpuSaid(r.idle.cpu)}`).join('; ')}`)
+    const busyDuring = runs.filter((r) => r.anim.cpu != null && (r.anim.cpu.other > OTHER_CPU || r.anim.cpu.steal > STEAL_CPU)).map((r) => `${r.name}: ${cpuSaid(r.anim.cpu)}`)
+    if (busyDuring.length > 0) warn(`MACHINE BUSY (warning): something other than the test's own processes took the CPU during: ${busyDuring.join('; ')}`)
   })
 })
 
