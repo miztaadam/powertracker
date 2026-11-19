@@ -34,6 +34,9 @@ class GuideBridgeTest {
         val plan = GritDomain.guideSamplePlan("POWERLIFTING")
         val exercises = GritDomain.guideSampleExercises("POWERLIFTING").associateBy { it.id }
         assertTrue(plan.all { it.exerciseId in exercises })
+        for (mode in TrainingMode.entries) {
+            assertEquals(GuideSample.todayItems(mode).map { it.id }, GritDomain.guideSampleTodayItems(mode.name).map { it.id.toLong() })
+        }
         val targets = GritDomain.guideSampleTargets("POWERLIFTING")
         assertEquals(GritDomain.guideSampleTodaySet("POWERLIFTING"), targets.first())
         assertEquals(GuideSample.TODAY.toString(), targets.first().date)

@@ -649,6 +649,10 @@ object GritDomain {
     fun guideSamplePlan(mode: String): Array<JsPlanItem> =
         GuideSample.plan(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
 
+    /** Screen 4's day, for the guide only: the first of the plan's items on the sample's today, in order. */
+    fun guideSampleTodayItems(mode: String): Array<JsPlanItem> =
+        GuideSample.todayItems(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
     /** The sample's exercises: the ids its plan and advice use. */
     fun guideSampleExercises(mode: String): Array<JsExercise> =
         GuideSample.exercises(parseEnum<TrainingMode>("mode", mode)).values.sortedBy { it.id }.map { it.toJs() }.toTypedArray()

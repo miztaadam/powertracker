@@ -26,6 +26,7 @@ import kotlinx.datetime.daysUntil
 import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -126,6 +127,34 @@ class GuideSampleTest {
         for (mode in modes) {
             assertEquals(GuideSample.targets(mode).first(), GuideSample.today(mode))
             assertEquals(GuideSample.TODAY, GuideSample.today(mode).date)
+        }
+    }
+
+    /** Screen 4's day: the sample day's first four items, so its picture fits the same phone on both sides. */
+    @Test
+    fun todayItems_areTheSampleDaysFirstFour_andHoldTheLiftLogged() {
+        for (mode in modes) {
+            val day = GuideSample.plan(mode).filter { it.weekday == GuideSample.TODAY.dayOfWeek }.sortedBy { it.order }
+            val items = GuideSample.todayItems(mode)
+            assertEquals(day.take(4), items, "$mode: the day's first four, in order")
+            assertEquals(4, items.size, "$mode")
+            val names = items.map { GuideSample.exercises(mode).getValue(it.exerciseId).name }
+            assertTrue(GuideSample.today(mode).exerciseId in names, "$mode: the lift logged is on the day")
+        }
+    }
+
+    /**
+     * The editor of a lifter with no history opens at the plan's reps and target RPE, with no weight: the set screen 4
+     * logs differs from it in all three, so each of the weight, reps and RPE steps changes what is drawn.
+     */
+    @Test
+    fun today_differsFromWhatTheEditorOpensAt_inRepsAndRpe() {
+        for (mode in modes) {
+            val today = GuideSample.today(mode)
+            val item = GuideSample.todayItems(mode).single { GuideSample.exercises(mode).getValue(it.exerciseId).name == today.exerciseId }
+            assertNotEquals(item.reps, today.doneReps, "$mode: reps")
+            assertNotEquals(item.targetRpe, today.doneRpe, "$mode: RPE")
+            assertTrue(today.doneWeightKg > 0.0, "$mode: a weight")
         }
     }
 

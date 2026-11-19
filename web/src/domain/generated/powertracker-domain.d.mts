@@ -114,6 +114,7 @@ export declare namespace GritDomain {
             guideSampleToday(): string;
             guideSampleTemplate(mode: string): JsPlanTemplate;
             guideSamplePlan(mode: string): Array<JsPlanItem>;
+            guideSampleTodayItems(mode: string): Array<JsPlanItem>;
             guideSampleExercises(mode: string): Array<JsExercise>;
             guideSampleTodaySet(mode: string): JsGuideTargetStep;
             guideSampleTargets(mode: string): Array<JsGuideTargetStep>;

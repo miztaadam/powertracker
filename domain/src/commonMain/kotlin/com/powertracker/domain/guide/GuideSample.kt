@@ -72,10 +72,10 @@ object GuideSample {
     private val SETTINGS = CoachSettings()
 
     /**
-     * How many times the worked-out sample (plan, targets, cards, progress) has been read, for tests: opening the
-     * guide and counting a picture's steps must not read it.
+     * How many times the worked-out sample (plan, targets, cards, progress) has been read, for tests (the domain's and
+     * the apps'): opening the guide and counting a picture's steps must not read it.
      */
-    internal var reads: Int = 0
+    var reads: Int = 0
         private set
 
     /** The days a 3-day template is put on: the templates' own spread. */
@@ -89,10 +89,22 @@ object GuideSample {
     private const val BB_LIFT = "Leg press"
     private const val BB_START_KG = 100.0
 
-    /** Screen 5's sessions: powerlifting reps are the plan's, at these RPEs; bodybuilding's every set at these reps. */
-    private val PL_TARGET_RPES = listOf(8.0, 8.0, 8.5, 8.0, 7.0)
+    /**
+     * Screen 5's sessions, every set at these reps and RPEs. The first is the set screen 4 logs: its reps and RPE
+     * differ from the plan's, which the editor opens at, so each of screen 4's steps changes what is drawn. Powerlifting's
+     * later sessions are at the plan's reps.
+     */
+    private const val PL_FIRST_REPS = 6
+    private val PL_TARGET_RPES = listOf(8.5, 8.0, 8.5, 8.0, 7.0)
     private val BB_TARGET_REPS = listOf(10, 11, 12, 9, 10)
+    private val BB_TARGET_RPES = listOf(7.5, 8.0, 8.0, 8.0, 8.0)
+
+    /** The RPE of the sample's other sets: screen 6's histories, and bodybuilding's months. */
+    private const val PL_RPE = 8.0
     private const val BB_RPE = 8.0
+
+    /** How many of the sample day's items screen 4 shows: few enough that its last step fits one phone on both sides. */
+    private const val TODAY_ITEMS = 4
 
     /** Six months of the main lifts (powerlifting) or the first day's first three exercises (bodybuilding). */
     private const val PROGRESS_WEEKS = 26
@@ -154,6 +166,13 @@ object GuideSample {
     /** That template's draft, saved, on the templates' 3-day spread (Monday, Wednesday, Friday). */
     fun plan(mode: TrainingMode): List<PlanItem> = sideOf(mode).plan
 
+    /**
+     * Screen 4's day, for the guide only: the first [TODAY_ITEMS] of the plan's items on [TODAY], in order. The whole
+     * day is [plan]'s (screen 3); this keeps the Today picture short enough to read.
+     */
+    fun todayItems(mode: TrainingMode): List<PlanItem> =
+        plan(mode).filter { it.weekday == TODAY.dayOfWeek }.sortedBy { it.order }.take(TODAY_ITEMS)
+
     private fun idOf(mode: TrainingMode, name: String): Long = exercises(mode).values.first { it.name == name }.id
 
     // ---- logging and targets ----
@@ -190,8 +209,8 @@ object GuideSample {
         var baselines = emptyList<Baseline>()
         return (0 until count).map { i ->
             val item = plan.first { it.exerciseId == id && it.weekday == date.dayOfWeek }
-            val reps = if (pl) item.reps else BB_TARGET_REPS[i]
-            val rpe = if (pl) PL_TARGET_RPES[i] else BB_RPE
+            val reps = if (pl) (if (i == 0) PL_FIRST_REPS else item.reps) else BB_TARGET_REPS[i]
+            val rpe = if (pl) PL_TARGET_RPES[i] else BB_TARGET_RPES[i]
             if (i == 0) baselines = baselines(mode, mapOf(id to Triple(kg, reps, rpe)), date)
             sessions += LoggedSession(i + 1L, date, null, null, sets(item, kg, reps, rpe), mode)
             val next = nextDay(plan, id, date)
@@ -241,7 +260,7 @@ object GuideSample {
         val item = plan(mode).first { it.exerciseId == id }
         val kg = if (pl) PL_START_KG else BB_START_KG
         val reps = item.reps
-        fun done(failed: Boolean = false) = sets(item, kg, reps, if (pl) PL_TARGET_RPES.first() else BB_RPE, failed)
+        fun done(failed: Boolean = false) = sets(item, kg, reps, if (pl) PL_RPE else BB_RPE, failed)
 
         // Deload: tired, and on powerlifting also missed sets (the powerlifting side needs two signs; bodybuilding's
         // low readiness is enough by itself).
