@@ -149,13 +149,23 @@ import {
   LazyThreadSafetyMode_PUBLICATION_getInstance23f213579at67 as LazyThreadSafetyMode_PUBLICATION_getInstance,
   lazy1261dae0bgscp as lazy_0,
   getKClass3t8tygqu4lcxf as getKClass,
+  longArrayOf1jqne2a8v34i5 as longArrayOf,
+  until1jbpn0z3f8lbg as until,
+  _UInt___init__impl__l7qpdl5ip6p2ldulrs as _UInt___init__impl__l7qpdl,
+  _UInt___get_data__impl__f0vqqw30ojw38w2y6td as _UInt___get_data__impl__f0vqqw,
+  modulo3mmbfwxzpcw3a as modulo,
+  padStart36w1507hs626a as padStart,
+  charArrayOf27f4r3dozbrk1 as charArrayOf,
+  trimEndvvzjdhan75g as trimEnd_0,
+  StringBuildermazzzhj6kkai as StringBuilder,
+  toDouble1kn912gjoizjp as toDouble,
+  arrayListOf1fz8nib0ncbow as arrayListOf,
   contains2gm06f5aa19ov as contains_1,
   removeAll3o43e67jmwdpc as removeAll,
   listOfNotNull1v4ggfackvuny as listOfNotNull_0,
   toList383f556t1dixk as toList,
   toList3jhuyej2anx2q as toList_0,
   sortedDescending1829b1te0xwte as sortedDescending,
-  modulo3mmbfwxzpcw3a as modulo,
   toList2zksu85ukrmi as toList_1,
   sum2ku6kbgxq0lee as sum,
   isFinite2t9l5a275mxm6 as isFinite,
@@ -167,8 +177,9 @@ import {
   IllegalArgumentException_init_$Create$19lulhq0ssfqg as IllegalArgumentException_init_$Create$_0,
   IllegalArgumentException2asla15b5jaob as IllegalArgumentException,
   getKClassFromExpression348iqjl4fnx2f as getKClassFromExpression,
-  contains2c50nlxg7en7o as contains_2,
   convertToIntofdoxh9bstof as convertToInt,
+  toTypedArraywkkadlpgrhtg as toTypedArray,
+  contains2c50nlxg7en7o as contains_2,
 } from './kotlin-kotlin-stdlib.mjs';
 import {
   Companion_getInstance3rf6ssn2f6rf5 as Companion_getInstance,
@@ -524,6 +535,28 @@ initMetadataForClass(Baseline, 'Baseline');
 initMetadataForClass(TrainingHistory, 'TrainingHistory');
 initMetadataForClass(SkipReason, 'SkipReason', VOID, Enum);
 initMetadataForClass(Skip, 'Skip');
+initMetadataForClass(Point_0, 'Point');
+initMetadataForClass(DropTimeline, 'DropTimeline');
+initMetadataForClass(PumpTimeline, 'PumpTimeline');
+initMetadataForClass(MotionPath, 'MotionPath');
+initMetadataForClass(GradientStop, 'GradientStop');
+initMetadataForClass(MotionGradient, 'MotionGradient');
+initMetadataForCompanion(Companion_60);
+initMetadataForClass(VeinPath, 'VeinPath');
+initMetadataForClass(VeinNode, 'VeinNode');
+initMetadataForClass(Particle, 'Particle');
+initMetadataForClass(Pose_0, 'Pose');
+initMetadataForClass(Ghost, 'Ghost');
+initMetadataForClass(MotionCircle, 'MotionCircle');
+initMetadataForClass(DustState, 'DustState');
+initMetadataForClass(SparkState, 'SparkState');
+initMetadataForClass(DropFrame, 'DropFrame');
+initMetadataForClass(PumpFrame, 'PumpFrame');
+initMetadataForObject(Colors, 'Colors');
+initMetadataForObject(ModeSwitchMotion, 'ModeSwitchMotion');
+initMetadataForClass(MotionRng, 'MotionRng');
+initMetadataForClass(DropShapes, 'DropShapes');
+initMetadataForClass(PumpShapes, 'PumpShapes');
 initMetadataForClass(SlotKind, 'SlotKind', VOID, Enum);
 initMetadataForClass(Item, 'Item');
 initMetadataForClass(Slot, 'Slot');
@@ -563,6 +596,24 @@ initMetadataForObject(HighReps, 'HighReps');
 initMetadataForClass(BigJump, 'BigJump');
 initMetadataForObject(InputValidator, 'InputValidator');
 initMetadataForObject(GritDomain, 'GritDomain');
+initMetadataForClass(JsMotionPoint, 'JsMotionPoint');
+initMetadataForClass(JsDropTimeline, 'JsDropTimeline');
+initMetadataForClass(JsPumpTimeline, 'JsPumpTimeline');
+initMetadataForClass(JsModeSwitchVibration, 'JsModeSwitchVibration');
+initMetadataForClass(JsMotionPath, 'JsMotionPath');
+initMetadataForClass(JsGradientStop, 'JsGradientStop');
+initMetadataForClass(JsMotionGradient, 'JsMotionGradient');
+initMetadataForClass(JsVeinPath, 'JsVeinPath');
+initMetadataForClass(JsVeinNode, 'JsVeinNode');
+initMetadataForClass(JsMotionParticle, 'JsMotionParticle');
+initMetadataForClass(JsMotionPose, 'JsMotionPose');
+initMetadataForClass(JsMotionGhost, 'JsMotionGhost');
+initMetadataForClass(JsMotionCircle, 'JsMotionCircle');
+initMetadataForClass(JsDustState, 'JsDustState');
+initMetadataForClass(JsSparkState, 'JsSparkState');
+initMetadataForClass(JsDropFrame, 'JsDropFrame');
+initMetadataForClass(JsPumpFrame, 'JsPumpFrame');
+initMetadataForClass(JsModeSwitchColors, 'JsModeSwitchColors');
 initMetadataForClass(JsExercise, 'JsExercise');
 initMetadataForClass(JsSet, 'JsSet');
 initMetadataForClass(JsSession, 'JsSession');
@@ -34391,6 +34442,1849 @@ function forSide(_this__u8e3s4, mode) {
 function repsText(reps, repsHigh) {
   return repsHigh == null ? '' + reps : '' + reps + '\u2013' + repsHigh;
 }
+function Point_0(x, y) {
+  this.i31_1 = x;
+  this.j31_1 = y;
+}
+protoOf(Point_0).toString = function () {
+  return 'Point(x=' + this.i31_1 + ', y=' + this.j31_1 + ')';
+};
+protoOf(Point_0).hashCode = function () {
+  var result = getNumberHashCode(this.i31_1);
+  result = imul(result, 31) + getNumberHashCode(this.j31_1) | 0;
+  return result;
+};
+protoOf(Point_0).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof Point_0))
+    return false;
+  if (!equals(this.i31_1, other.i31_1))
+    return false;
+  if (!equals(this.j31_1, other.j31_1))
+    return false;
+  return true;
+};
+function DropTimeline(fall, impact, hold, settle, lift, end, hammerScale) {
+  this.k31_1 = fall;
+  this.l31_1 = impact;
+  this.m31_1 = hold;
+  this.n31_1 = settle;
+  this.o31_1 = lift;
+  this.p31_1 = end;
+  this.q31_1 = hammerScale;
+}
+protoOf(DropTimeline).toString = function () {
+  return 'DropTimeline(fall=' + this.k31_1 + ', impact=' + this.l31_1 + ', hold=' + this.m31_1 + ', settle=' + this.n31_1 + ', lift=' + this.o31_1 + ', end=' + this.p31_1 + ', hammerScale=' + this.q31_1 + ')';
+};
+protoOf(DropTimeline).hashCode = function () {
+  var result = getNumberHashCode(this.k31_1);
+  result = imul(result, 31) + getNumberHashCode(this.l31_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.m31_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.n31_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.o31_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.p31_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.q31_1) | 0;
+  return result;
+};
+protoOf(DropTimeline).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof DropTimeline))
+    return false;
+  if (!equals(this.k31_1, other.k31_1))
+    return false;
+  if (!equals(this.l31_1, other.l31_1))
+    return false;
+  if (!equals(this.m31_1, other.m31_1))
+    return false;
+  if (!equals(this.n31_1, other.n31_1))
+    return false;
+  if (!equals(this.o31_1, other.o31_1))
+    return false;
+  if (!equals(this.p31_1, other.p31_1))
+    return false;
+  if (!equals(this.q31_1, other.q31_1))
+    return false;
+  return true;
+};
+function PumpTimeline(beats, amps, rise, fall, reach, surge, flood, end) {
+  this.r31_1 = beats;
+  this.s31_1 = amps;
+  this.t31_1 = rise;
+  this.u31_1 = fall;
+  this.v31_1 = reach;
+  this.w31_1 = surge;
+  this.x31_1 = flood;
+  this.y31_1 = end;
+}
+protoOf(PumpTimeline).toString = function () {
+  return 'PumpTimeline(beats=' + toString(this.r31_1) + ', amps=' + toString(this.s31_1) + ', rise=' + toString(this.t31_1) + ', fall=' + toString(this.u31_1) + ', reach=' + toString(this.v31_1) + ', surge=' + toString(this.w31_1) + ', flood=' + this.x31_1 + ', end=' + this.y31_1 + ')';
+};
+protoOf(PumpTimeline).hashCode = function () {
+  var result = hashCode(this.r31_1);
+  result = imul(result, 31) + hashCode(this.s31_1) | 0;
+  result = imul(result, 31) + hashCode(this.t31_1) | 0;
+  result = imul(result, 31) + hashCode(this.u31_1) | 0;
+  result = imul(result, 31) + hashCode(this.v31_1) | 0;
+  result = imul(result, 31) + hashCode(this.w31_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x31_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y31_1) | 0;
+  return result;
+};
+protoOf(PumpTimeline).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof PumpTimeline))
+    return false;
+  if (!equals(this.r31_1, other.r31_1))
+    return false;
+  if (!equals(this.s31_1, other.s31_1))
+    return false;
+  if (!equals(this.t31_1, other.t31_1))
+    return false;
+  if (!equals(this.u31_1, other.u31_1))
+    return false;
+  if (!equals(this.v31_1, other.v31_1))
+    return false;
+  if (!equals(this.w31_1, other.w31_1))
+    return false;
+  if (!equals(this.x31_1, other.x31_1))
+    return false;
+  if (!equals(this.y31_1, other.y31_1))
+    return false;
+  return true;
+};
+function MotionPath(d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin) {
+  lineCap = lineCap === VOID ? 'butt' : lineCap;
+  lineJoin = lineJoin === VOID ? 'miter' : lineJoin;
+  this.z31_1 = d;
+  this.a32_1 = fill;
+  this.b32_1 = stroke;
+  this.c32_1 = strokeWidth;
+  this.d32_1 = opacity;
+  this.e32_1 = lineCap;
+  this.f32_1 = lineJoin;
+}
+protoOf(MotionPath).toString = function () {
+  return 'MotionPath(d=' + this.z31_1 + ', fill=' + this.a32_1 + ', stroke=' + this.b32_1 + ', strokeWidth=' + this.c32_1 + ', opacity=' + this.d32_1 + ', lineCap=' + this.e32_1 + ', lineJoin=' + this.f32_1 + ')';
+};
+protoOf(MotionPath).hashCode = function () {
+  var result = getStringHashCode(this.z31_1);
+  result = imul(result, 31) + (this.a32_1 == null ? 0 : getStringHashCode(this.a32_1)) | 0;
+  result = imul(result, 31) + (this.b32_1 == null ? 0 : getStringHashCode(this.b32_1)) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.c32_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.d32_1) | 0;
+  result = imul(result, 31) + getStringHashCode(this.e32_1) | 0;
+  result = imul(result, 31) + getStringHashCode(this.f32_1) | 0;
+  return result;
+};
+protoOf(MotionPath).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof MotionPath))
+    return false;
+  if (!(this.z31_1 === other.z31_1))
+    return false;
+  if (!(this.a32_1 == other.a32_1))
+    return false;
+  if (!(this.b32_1 == other.b32_1))
+    return false;
+  if (!equals(this.c32_1, other.c32_1))
+    return false;
+  if (!equals(this.d32_1, other.d32_1))
+    return false;
+  if (!(this.e32_1 === other.e32_1))
+    return false;
+  if (!(this.f32_1 === other.f32_1))
+    return false;
+  return true;
+};
+function GradientStop(offset, color, opacity) {
+  this.g32_1 = offset;
+  this.h32_1 = color;
+  this.i32_1 = opacity;
+}
+protoOf(GradientStop).toString = function () {
+  return 'GradientStop(offset=' + this.g32_1 + ', color=' + this.h32_1 + ', opacity=' + this.i32_1 + ')';
+};
+protoOf(GradientStop).hashCode = function () {
+  var result = getNumberHashCode(this.g32_1);
+  result = imul(result, 31) + getStringHashCode(this.h32_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.i32_1) | 0;
+  return result;
+};
+protoOf(GradientStop).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof GradientStop))
+    return false;
+  if (!equals(this.g32_1, other.g32_1))
+    return false;
+  if (!(this.h32_1 === other.h32_1))
+    return false;
+  if (!equals(this.i32_1, other.i32_1))
+    return false;
+  return true;
+};
+function MotionGradient(id, radial, x1, y1, x2, y2, stops) {
+  this.j32_1 = id;
+  this.k32_1 = radial;
+  this.l32_1 = x1;
+  this.m32_1 = y1;
+  this.n32_1 = x2;
+  this.o32_1 = y2;
+  this.p32_1 = stops;
+}
+protoOf(MotionGradient).toString = function () {
+  return 'MotionGradient(id=' + this.j32_1 + ', radial=' + this.k32_1 + ', x1=' + this.l32_1 + ', y1=' + this.m32_1 + ', x2=' + this.n32_1 + ', y2=' + this.o32_1 + ', stops=' + toString(this.p32_1) + ')';
+};
+protoOf(MotionGradient).hashCode = function () {
+  var result = getStringHashCode(this.j32_1);
+  result = imul(result, 31) + getBooleanHashCode(this.k32_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.l32_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.m32_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.n32_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.o32_1) | 0;
+  result = imul(result, 31) + hashCode(this.p32_1) | 0;
+  return result;
+};
+protoOf(MotionGradient).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof MotionGradient))
+    return false;
+  if (!(this.j32_1 === other.j32_1))
+    return false;
+  if (!(this.k32_1 === other.k32_1))
+    return false;
+  if (!equals(this.l32_1, other.l32_1))
+    return false;
+  if (!equals(this.m32_1, other.m32_1))
+    return false;
+  if (!equals(this.n32_1, other.n32_1))
+    return false;
+  if (!equals(this.o32_1, other.o32_1))
+    return false;
+  if (!equals(this.p32_1, other.p32_1))
+    return false;
+  return true;
+};
+function Companion_60() {
+  this.q32_1 = 'glow';
+  this.r32_1 = 'core';
+  this.s32_1 = 'hot';
+  this.t32_1 = 'pulse';
+}
+protoOf(Companion_60).u32 = function (layer) {
+  switch (layer) {
+    case 'glow':
+      return '#4F8DFF';
+    case 'core':
+      return '#8DB8FF';
+    case 'hot':
+      return '#EAF2FF';
+    default:
+      return '#FFFFFF';
+  }
+};
+var Companion_instance_60;
+function Companion_getInstance_62() {
+  return Companion_instance_60;
+}
+function VeinPath(d, layer, color, width, d0, len, swell) {
+  this.v32_1 = d;
+  this.w32_1 = layer;
+  this.x32_1 = color;
+  this.y32_1 = width;
+  this.z32_1 = d0;
+  this.a33_1 = len;
+  this.b33_1 = swell;
+}
+protoOf(VeinPath).toString = function () {
+  return 'VeinPath(d=' + this.v32_1 + ', layer=' + this.w32_1 + ', color=' + this.x32_1 + ', width=' + this.y32_1 + ', d0=' + this.z32_1 + ', len=' + this.a33_1 + ', swell=' + this.b33_1 + ')';
+};
+protoOf(VeinPath).hashCode = function () {
+  var result = getStringHashCode(this.v32_1);
+  result = imul(result, 31) + getStringHashCode(this.w32_1) | 0;
+  result = imul(result, 31) + getStringHashCode(this.x32_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y32_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.z32_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a33_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.b33_1) | 0;
+  return result;
+};
+protoOf(VeinPath).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof VeinPath))
+    return false;
+  if (!(this.v32_1 === other.v32_1))
+    return false;
+  if (!(this.w32_1 === other.w32_1))
+    return false;
+  if (!(this.x32_1 === other.x32_1))
+    return false;
+  if (!equals(this.y32_1, other.y32_1))
+    return false;
+  if (!equals(this.z32_1, other.z32_1))
+    return false;
+  if (!equals(this.a33_1, other.a33_1))
+    return false;
+  if (!(this.b33_1 === other.b33_1))
+    return false;
+  return true;
+};
+function VeinNode(x, y, r, d0) {
+  this.c33_1 = x;
+  this.d33_1 = y;
+  this.e33_1 = r;
+  this.f33_1 = d0;
+}
+protoOf(VeinNode).toString = function () {
+  return 'VeinNode(x=' + this.c33_1 + ', y=' + this.d33_1 + ', r=' + this.e33_1 + ', d0=' + this.f33_1 + ')';
+};
+protoOf(VeinNode).hashCode = function () {
+  var result = getNumberHashCode(this.c33_1);
+  result = imul(result, 31) + getNumberHashCode(this.d33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.e33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.f33_1) | 0;
+  return result;
+};
+protoOf(VeinNode).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof VeinNode))
+    return false;
+  if (!equals(this.c33_1, other.c33_1))
+    return false;
+  if (!equals(this.d33_1, other.d33_1))
+    return false;
+  if (!equals(this.e33_1, other.e33_1))
+    return false;
+  if (!equals(this.f33_1, other.f33_1))
+    return false;
+  return true;
+};
+function Particle(ox, oy, dx, dy, r0, life, alpha) {
+  this.g33_1 = ox;
+  this.h33_1 = oy;
+  this.i33_1 = dx;
+  this.j33_1 = dy;
+  this.k33_1 = r0;
+  this.l33_1 = life;
+  this.m33_1 = alpha;
+}
+protoOf(Particle).toString = function () {
+  return 'Particle(ox=' + this.g33_1 + ', oy=' + this.h33_1 + ', dx=' + this.i33_1 + ', dy=' + this.j33_1 + ', r0=' + this.k33_1 + ', life=' + this.l33_1 + ', alpha=' + this.m33_1 + ')';
+};
+protoOf(Particle).hashCode = function () {
+  var result = getNumberHashCode(this.g33_1);
+  result = imul(result, 31) + getNumberHashCode(this.h33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.i33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.j33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.l33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.m33_1) | 0;
+  return result;
+};
+protoOf(Particle).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof Particle))
+    return false;
+  if (!equals(this.g33_1, other.g33_1))
+    return false;
+  if (!equals(this.h33_1, other.h33_1))
+    return false;
+  if (!equals(this.i33_1, other.i33_1))
+    return false;
+  if (!equals(this.j33_1, other.j33_1))
+    return false;
+  if (!equals(this.k33_1, other.k33_1))
+    return false;
+  if (!equals(this.l33_1, other.l33_1))
+    return false;
+  if (!equals(this.m33_1, other.m33_1))
+    return false;
+  return true;
+};
+function Pose_0(x, y, rotation, scaleX, scaleY) {
+  this.n33_1 = x;
+  this.o33_1 = y;
+  this.p33_1 = rotation;
+  this.q33_1 = scaleX;
+  this.r33_1 = scaleY;
+}
+protoOf(Pose_0).toString = function () {
+  return 'Pose(x=' + this.n33_1 + ', y=' + this.o33_1 + ', rotation=' + this.p33_1 + ', scaleX=' + this.q33_1 + ', scaleY=' + this.r33_1 + ')';
+};
+protoOf(Pose_0).hashCode = function () {
+  var result = getNumberHashCode(this.n33_1);
+  result = imul(result, 31) + getNumberHashCode(this.o33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.p33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.q33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.r33_1) | 0;
+  return result;
+};
+protoOf(Pose_0).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof Pose_0))
+    return false;
+  if (!equals(this.n33_1, other.n33_1))
+    return false;
+  if (!equals(this.o33_1, other.o33_1))
+    return false;
+  if (!equals(this.p33_1, other.p33_1))
+    return false;
+  if (!equals(this.q33_1, other.q33_1))
+    return false;
+  if (!equals(this.r33_1, other.r33_1))
+    return false;
+  return true;
+};
+function Ghost(opacity, pose) {
+  this.s33_1 = opacity;
+  this.t33_1 = pose;
+}
+protoOf(Ghost).toString = function () {
+  return 'Ghost(opacity=' + this.s33_1 + ', pose=' + this.t33_1.toString() + ')';
+};
+protoOf(Ghost).hashCode = function () {
+  var result = getNumberHashCode(this.s33_1);
+  result = imul(result, 31) + this.t33_1.hashCode() | 0;
+  return result;
+};
+protoOf(Ghost).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof Ghost))
+    return false;
+  if (!equals(this.s33_1, other.s33_1))
+    return false;
+  if (!this.t33_1.equals(other.t33_1))
+    return false;
+  return true;
+};
+function MotionCircle(opacity, radius, strokeWidth) {
+  this.u33_1 = opacity;
+  this.v33_1 = radius;
+  this.w33_1 = strokeWidth;
+}
+protoOf(MotionCircle).toString = function () {
+  return 'MotionCircle(opacity=' + this.u33_1 + ', radius=' + this.v33_1 + ', strokeWidth=' + this.w33_1 + ')';
+};
+protoOf(MotionCircle).hashCode = function () {
+  var result = getNumberHashCode(this.u33_1);
+  result = imul(result, 31) + getNumberHashCode(this.v33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.w33_1) | 0;
+  return result;
+};
+protoOf(MotionCircle).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof MotionCircle))
+    return false;
+  if (!equals(this.u33_1, other.u33_1))
+    return false;
+  if (!equals(this.v33_1, other.v33_1))
+    return false;
+  if (!equals(this.w33_1, other.w33_1))
+    return false;
+  return true;
+};
+function DustState(cx, cy, r, opacity) {
+  this.x33_1 = cx;
+  this.y33_1 = cy;
+  this.z33_1 = r;
+  this.a34_1 = opacity;
+}
+protoOf(DustState).toString = function () {
+  return 'DustState(cx=' + this.x33_1 + ', cy=' + this.y33_1 + ', r=' + this.z33_1 + ', opacity=' + this.a34_1 + ')';
+};
+protoOf(DustState).hashCode = function () {
+  var result = getNumberHashCode(this.x33_1);
+  result = imul(result, 31) + getNumberHashCode(this.y33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.z33_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a34_1) | 0;
+  return result;
+};
+protoOf(DustState).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof DustState))
+    return false;
+  if (!equals(this.x33_1, other.x33_1))
+    return false;
+  if (!equals(this.y33_1, other.y33_1))
+    return false;
+  if (!equals(this.z33_1, other.z33_1))
+    return false;
+  if (!equals(this.a34_1, other.a34_1))
+    return false;
+  return true;
+};
+function SparkState(x1, y1, x2, y2, opacity) {
+  this.b34_1 = x1;
+  this.c34_1 = y1;
+  this.d34_1 = x2;
+  this.e34_1 = y2;
+  this.f34_1 = opacity;
+}
+protoOf(SparkState).toString = function () {
+  return 'SparkState(x1=' + this.b34_1 + ', y1=' + this.c34_1 + ', x2=' + this.d34_1 + ', y2=' + this.e34_1 + ', opacity=' + this.f34_1 + ')';
+};
+protoOf(SparkState).hashCode = function () {
+  var result = getNumberHashCode(this.b34_1);
+  result = imul(result, 31) + getNumberHashCode(this.c34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.d34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.e34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.f34_1) | 0;
+  return result;
+};
+protoOf(SparkState).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof SparkState))
+    return false;
+  if (!equals(this.b34_1, other.b34_1))
+    return false;
+  if (!equals(this.c34_1, other.c34_1))
+    return false;
+  if (!equals(this.d34_1, other.d34_1))
+    return false;
+  if (!equals(this.e34_1, other.e34_1))
+    return false;
+  if (!equals(this.f34_1, other.f34_1))
+    return false;
+  return true;
+};
+function DropFrame(hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks) {
+  this.g34_1 = hitX;
+  this.h34_1 = hitY;
+  this.i34_1 = shadowOpacity;
+  this.j34_1 = shadowRx;
+  this.k34_1 = shadowRy;
+  this.l34_1 = shadowCx;
+  this.m34_1 = shadowCy;
+  this.n34_1 = hammer;
+  this.o34_1 = ghosts;
+  this.p34_1 = runeOpacity;
+  this.q34_1 = revealRadius;
+  this.r34_1 = revealFull;
+  this.s34_1 = shakeX;
+  this.t34_1 = shakeY;
+  this.u34_1 = shakeRotation;
+  this.v34_1 = shakeScale;
+  this.w34_1 = deviceShakeY;
+  this.x34_1 = stampScale;
+  this.y34_1 = stampOpacity;
+  this.z34_1 = flashOpacity;
+  this.a35_1 = burstOpacity;
+  this.b35_1 = burstScale;
+  this.c35_1 = ring1;
+  this.d35_1 = ring2;
+  this.e35_1 = cracksOpacity;
+  this.f35_1 = crackDrawn;
+  this.g35_1 = dust;
+  this.h35_1 = sparks;
+}
+protoOf(DropFrame).toString = function () {
+  return 'DropFrame(hitX=' + this.g34_1 + ', hitY=' + this.h34_1 + ', shadowOpacity=' + this.i34_1 + ', shadowRx=' + this.j34_1 + ', shadowRy=' + this.k34_1 + ', shadowCx=' + this.l34_1 + ', shadowCy=' + this.m34_1 + ', hammer=' + toString_1(this.n34_1) + ', ghosts=' + toString(this.o34_1) + ', runeOpacity=' + this.p34_1 + ', revealRadius=' + this.q34_1 + ', revealFull=' + this.r34_1 + ', shakeX=' + this.s34_1 + ', shakeY=' + this.t34_1 + ', shakeRotation=' + this.u34_1 + ', shakeScale=' + this.v34_1 + ', deviceShakeY=' + this.w34_1 + ', stampScale=' + this.x34_1 + ', stampOpacity=' + this.y34_1 + ', flashOpacity=' + this.z34_1 + ', burstOpacity=' + this.a35_1 + ', burstScale=' + this.b35_1 + ', ring1=' + this.c35_1.toString() + ', ring2=' + this.d35_1.toString() + ', cracksOpacity=' + this.e35_1 + ', crackDrawn=' + this.f35_1 + ', dust=' + toString(this.g35_1) + ', sparks=' + toString(this.h35_1) + ')';
+};
+protoOf(DropFrame).hashCode = function () {
+  var result = getNumberHashCode(this.g34_1);
+  result = imul(result, 31) + getNumberHashCode(this.h34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.i34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.j34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.l34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.m34_1) | 0;
+  result = imul(result, 31) + (this.n34_1 == null ? 0 : this.n34_1.hashCode()) | 0;
+  result = imul(result, 31) + hashCode(this.o34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.p34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.q34_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.r34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.s34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.t34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.u34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.v34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.w34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.z34_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.b35_1) | 0;
+  result = imul(result, 31) + this.c35_1.hashCode() | 0;
+  result = imul(result, 31) + this.d35_1.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.e35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.f35_1) | 0;
+  result = imul(result, 31) + hashCode(this.g35_1) | 0;
+  result = imul(result, 31) + hashCode(this.h35_1) | 0;
+  return result;
+};
+protoOf(DropFrame).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof DropFrame))
+    return false;
+  if (!equals(this.g34_1, other.g34_1))
+    return false;
+  if (!equals(this.h34_1, other.h34_1))
+    return false;
+  if (!equals(this.i34_1, other.i34_1))
+    return false;
+  if (!equals(this.j34_1, other.j34_1))
+    return false;
+  if (!equals(this.k34_1, other.k34_1))
+    return false;
+  if (!equals(this.l34_1, other.l34_1))
+    return false;
+  if (!equals(this.m34_1, other.m34_1))
+    return false;
+  if (!equals(this.n34_1, other.n34_1))
+    return false;
+  if (!equals(this.o34_1, other.o34_1))
+    return false;
+  if (!equals(this.p34_1, other.p34_1))
+    return false;
+  if (!equals(this.q34_1, other.q34_1))
+    return false;
+  if (!(this.r34_1 === other.r34_1))
+    return false;
+  if (!equals(this.s34_1, other.s34_1))
+    return false;
+  if (!equals(this.t34_1, other.t34_1))
+    return false;
+  if (!equals(this.u34_1, other.u34_1))
+    return false;
+  if (!equals(this.v34_1, other.v34_1))
+    return false;
+  if (!equals(this.w34_1, other.w34_1))
+    return false;
+  if (!equals(this.x34_1, other.x34_1))
+    return false;
+  if (!equals(this.y34_1, other.y34_1))
+    return false;
+  if (!equals(this.z34_1, other.z34_1))
+    return false;
+  if (!equals(this.a35_1, other.a35_1))
+    return false;
+  if (!equals(this.b35_1, other.b35_1))
+    return false;
+  if (!this.c35_1.equals(other.c35_1))
+    return false;
+  if (!this.d35_1.equals(other.d35_1))
+    return false;
+  if (!equals(this.e35_1, other.e35_1))
+    return false;
+  if (!equals(this.f35_1, other.f35_1))
+    return false;
+  if (!equals(this.g35_1, other.g35_1))
+    return false;
+  if (!equals(this.h35_1, other.h35_1))
+    return false;
+  return true;
+};
+function PumpFrame(srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale) {
+  this.i35_1 = srcX;
+  this.j35_1 = srcY;
+  this.k35_1 = swell;
+  this.l35_1 = contentScale;
+  this.m35_1 = deviceScale;
+  this.n35_1 = glow;
+  this.o35_1 = tintOpacity;
+  this.p35_1 = halos;
+  this.q35_1 = rings;
+  this.r35_1 = veinsOpacity;
+  this.s35_1 = glowLayerOpacity;
+  this.t35_1 = veinFront;
+  this.u35_1 = veinWidthScale;
+  this.v35_1 = nodeOpacity;
+  this.w35_1 = nodeScale;
+  this.x35_1 = pulseOpacity;
+  this.y35_1 = floodRadius;
+  this.z35_1 = floodFull;
+  this.a36_1 = edgeOpacity;
+  this.b36_1 = edgeWidth;
+  this.c36_1 = edgeSoftOpacity;
+  this.d36_1 = edgeSoftWidth;
+  this.e36_1 = pillScale;
+}
+protoOf(PumpFrame).toString = function () {
+  return 'PumpFrame(srcX=' + this.i35_1 + ', srcY=' + this.j35_1 + ', swell=' + this.k35_1 + ', contentScale=' + this.l35_1 + ', deviceScale=' + this.m35_1 + ', glow=' + this.n35_1 + ', tintOpacity=' + this.o35_1 + ', halos=' + toString(this.p35_1) + ', rings=' + toString(this.q35_1) + ', veinsOpacity=' + this.r35_1 + ', glowLayerOpacity=' + this.s35_1 + ', veinFront=' + this.t35_1 + ', veinWidthScale=' + this.u35_1 + ', nodeOpacity=' + this.v35_1 + ', nodeScale=' + this.w35_1 + ', pulseOpacity=' + this.x35_1 + ', floodRadius=' + this.y35_1 + ', floodFull=' + this.z35_1 + ', edgeOpacity=' + this.a36_1 + ', edgeWidth=' + this.b36_1 + ', edgeSoftOpacity=' + this.c36_1 + ', edgeSoftWidth=' + this.d36_1 + ', pillScale=' + this.e36_1 + ')';
+};
+protoOf(PumpFrame).hashCode = function () {
+  var result = getNumberHashCode(this.i35_1);
+  result = imul(result, 31) + getNumberHashCode(this.j35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.k35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.l35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.m35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.n35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.o35_1) | 0;
+  result = imul(result, 31) + hashCode(this.p35_1) | 0;
+  result = imul(result, 31) + hashCode(this.q35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.r35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.s35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.t35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.u35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.v35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.w35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y35_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.z35_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.a36_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.b36_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.c36_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.d36_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.e36_1) | 0;
+  return result;
+};
+protoOf(PumpFrame).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof PumpFrame))
+    return false;
+  if (!equals(this.i35_1, other.i35_1))
+    return false;
+  if (!equals(this.j35_1, other.j35_1))
+    return false;
+  if (!equals(this.k35_1, other.k35_1))
+    return false;
+  if (!equals(this.l35_1, other.l35_1))
+    return false;
+  if (!equals(this.m35_1, other.m35_1))
+    return false;
+  if (!equals(this.n35_1, other.n35_1))
+    return false;
+  if (!equals(this.o35_1, other.o35_1))
+    return false;
+  if (!equals(this.p35_1, other.p35_1))
+    return false;
+  if (!equals(this.q35_1, other.q35_1))
+    return false;
+  if (!equals(this.r35_1, other.r35_1))
+    return false;
+  if (!equals(this.s35_1, other.s35_1))
+    return false;
+  if (!equals(this.t35_1, other.t35_1))
+    return false;
+  if (!equals(this.u35_1, other.u35_1))
+    return false;
+  if (!equals(this.v35_1, other.v35_1))
+    return false;
+  if (!equals(this.w35_1, other.w35_1))
+    return false;
+  if (!equals(this.x35_1, other.x35_1))
+    return false;
+  if (!equals(this.y35_1, other.y35_1))
+    return false;
+  if (!(this.z35_1 === other.z35_1))
+    return false;
+  if (!equals(this.a36_1, other.a36_1))
+    return false;
+  if (!equals(this.b36_1, other.b36_1))
+    return false;
+  if (!equals(this.c36_1, other.c36_1))
+    return false;
+  if (!equals(this.d36_1, other.d36_1))
+    return false;
+  if (!equals(this.e36_1, other.e36_1))
+    return false;
+  return true;
+};
+function Colors() {
+  this.f36_1 = '#000000';
+  this.g36_1 = '#000000';
+  this.h36_1 = '#F3F4EF';
+  this.i36_1 = '#C9CED6';
+  this.j36_1 = '#F3F4EF';
+  this.k36_1 = '#2A2E33';
+  this.l36_1 = '#F3F4EF';
+  this.m36_1 = '#93979D';
+  this.n36_1 = '#FFF6E8';
+  this.o36_1 = '#FFB36B';
+  this.p36_1 = '#4F8DFF';
+  this.q36_1 = '#8DB8FF';
+  this.r36_1 = '#DCE9FF';
+  this.s36_1 = '#8DB8FF';
+  this.t36_1 = '#4F8DFF';
+  this.u36_1 = '#8DB8FF';
+  this.v36_1 = '#EAF2FF';
+  this.w36_1 = '#FFFFFF';
+  this.x36_1 = '#DCE9FF';
+}
+var Colors_instance;
+function Colors_getInstance() {
+  return Colors_instance;
+}
+function _get_REF_HIT_CORNER__oudu82($this) {
+  var tmp0 = $this.i37_1;
+  var tmp = KProperty1;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('REF_HIT_CORNER', 1, tmp, ModeSwitchMotion$_get_REF_HIT_CORNER_$ref_jo9ybg(), null);
+  return tmp0.v();
+}
+function _get_REF_SRC_CORNER__ew57u9($this) {
+  var tmp0 = $this.j37_1;
+  var tmp = KProperty1;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('REF_SRC_CORNER', 1, tmp, ModeSwitchMotion$_get_REF_SRC_CORNER_$ref_maxctn(), null);
+  return tmp0.v();
+}
+function clamp01($this, v) {
+  return v < 0 ? 0.0 : v > 1 ? 1.0 : v;
+}
+function easeOut($this, p) {
+  // Inline function 'kotlin.math.pow' call
+  var this_0 = 1 - p;
+  return 1 - Math.pow(this_0, 3);
+}
+function smooth01($this, p) {
+  return p * p * (3 - 2 * p);
+}
+function pose_0($this, x, y, r, sx, sy) {
+  return new Pose_0(x, y, r, sx * $this.y36_1.q31_1, sy * $this.y36_1.q31_1);
+}
+function stampOpacity($this, t) {
+  var d = $this.y36_1;
+  return t < d.l31_1 || t >= d.p31_1 ? 0.0 : t < d.o31_1 ? 1.0 : 1 - (t - d.o31_1) / (d.p31_1 - d.o31_1);
+}
+function dropShapes($this, hit) {
+  var tmp0_safe_receiver = $this.k37_1;
+  if (tmp0_safe_receiver == null)
+    null;
+  else {
+    // Inline function 'kotlin.let' call
+    var p = tmp0_safe_receiver.gb();
+    var s = tmp0_safe_receiver.hb();
+    if (p.equals(hit))
+      return s;
+  }
+  // Inline function 'kotlin.also' call
+  var this_0 = buildDropShapes(hit);
+  ModeSwitchMotion_getInstance().k37_1 = to(hit, this_0);
+  return this_0;
+}
+function ModeSwitchMotion$REF_HIT_CORNER$delegate$lambda() {
+  return farCorner(390.0, 760.0, ModeSwitchMotion_getInstance().f37_1);
+}
+function ModeSwitchMotion$_get_REF_HIT_CORNER_$ref_jo9ybg() {
+  return constructCallableReference(function (p0) {
+    return _get_REF_HIT_CORNER__oudu82(p0);
+  }, 1, 0, 335);
+}
+function ModeSwitchMotion$REF_SRC_CORNER$delegate$lambda() {
+  return farCorner(390.0, 760.0, ModeSwitchMotion_getInstance().g37_1);
+}
+function ModeSwitchMotion$_get_REF_SRC_CORNER_$ref_maxctn() {
+  return constructCallableReference(function (p0) {
+    return _get_REF_SRC_CORNER__ew57u9(p0);
+  }, 1, 0, 336);
+}
+function dropFrame$ring(tau, k, dl, dur, sw) {
+  var p = clamp01(ModeSwitchMotion_getInstance(), (tau - dl) / dur);
+  var on = tau >= dl && p < 1;
+  return new MotionCircle(on ? 0.9 * (1 - p) : 0.0, 20 + 780 * k * easeOut(ModeSwitchMotion_getInstance(), p), sw * (1 - p) + 0.5);
+}
+function ModeSwitchMotion() {
+  ModeSwitchMotion_instance = this;
+  this.y36_1 = new DropTimeline(115.0, 250.0, 330.0, 520.0, 640.0, 1120.0, 0.42);
+  this.z36_1 = new PumpTimeline(listOf([90.0, 400.0, 750.0]), listOf([0.36, 0.62, 1.0]), listOf([110.0, 120.0, 180.0]), listOf([190.0, 210.0, 370.0]), listOf([175.0, 390.0, 1000.0]), listOf([200.0, 230.0, 420.0]), 380.0, 1330.0);
+  this.a37_1 = 0.5;
+  this.b37_1 = 2.4;
+  this.c37_1 = 'none';
+  this.d37_1 = 390.0;
+  this.e37_1 = 760.0;
+  this.f37_1 = new Point_0(195.0, 756.0);
+  this.g37_1 = new Point_0(341.0, 715.0);
+  this.h37_1 = 228.0;
+  var tmp = this;
+  tmp.i37_1 = lazy(ModeSwitchMotion$REF_HIT_CORNER$delegate$lambda);
+  var tmp_0 = this;
+  tmp_0.j37_1 = lazy(ModeSwitchMotion$REF_SRC_CORNER$delegate$lambda);
+  this.k37_1 = null;
+  this.l37_1 = null;
+}
+protoOf(ModeSwitchMotion).m37 = function () {
+  // Inline function 'kotlin.longArrayOf' call
+  return longArrayOf([new Long(420, 0), new Long(35, 0), new Long(180, 0), new Long(45, 0), new Long(110, 0), new Long(60, 0), new Long(60, 0), new Long(80, 0), new Long(30, 0)]);
+};
+protoOf(ModeSwitchMotion).n37 = function () {
+  // Inline function 'kotlin.intArrayOf' call
+  return new Int32Array([255, 0, 200, 0, 150, 0, 100, 0, 60]);
+};
+protoOf(ModeSwitchMotion).o37 = function () {
+  // Inline function 'kotlin.longArrayOf' call
+  return longArrayOf([new Long(28, 0), new Long(55, 0), new Long(120, 0)]);
+};
+protoOf(ModeSwitchMotion).p37 = function () {
+  // Inline function 'kotlin.intArrayOf' call
+  return new Int32Array([150, 205, 255]);
+};
+protoOf(ModeSwitchMotion).q37 = function () {
+  return get_HAMMER_0();
+};
+protoOf(ModeSwitchMotion).r37 = function () {
+  return get_HAMMER_RUNE_GLOW();
+};
+protoOf(ModeSwitchMotion).s37 = function () {
+  return get_MOTION_GRADIENTS();
+};
+protoOf(ModeSwitchMotion).t37 = function (w, h) {
+  return new Point_0(w / 2, h - 4);
+};
+protoOf(ModeSwitchMotion).u37 = function (w, h) {
+  return farCorner(w, h, this.t37(w, h)) / _get_REF_HIT_CORNER__oudu82(this);
+};
+protoOf(ModeSwitchMotion).v37 = function (w, h, src) {
+  return farCorner(w, h, src) / _get_REF_SRC_CORNER__ew57u9(this);
+};
+protoOf(ModeSwitchMotion).w37 = function (t, hit) {
+  var d = this.y36_1;
+  var p = clamp01(this, (t - d.k31_1) / (d.l31_1 - d.k31_1));
+  // Inline function 'kotlin.math.pow' call
+  var e = Math.pow(p, 3.4);
+  return pose_0(this, hit.i31_1 + 64 * (1 - e), -70 + (hit.j31_1 + 70) * e, -32 * (1 - e), 1 - 0.04 * e, 1 + 0.1 * e);
+};
+protoOf(ModeSwitchMotion).x37 = function (t, hit) {
+  var d = this.y36_1;
+  if (t < d.k31_1 || t >= d.p31_1)
+    return null;
+  if (t < d.l31_1)
+    return this.w37(t, hit);
+  if (t < d.m31_1)
+    return pose_0(this, hit.i31_1, hit.j31_1 + 4, 0.0, 1.14, 0.8);
+  if (t < d.n31_1) {
+    var q = (t - d.m31_1) / (d.n31_1 - d.m31_1);
+    // Inline function 'kotlin.math.sin' call
+    var x = 3.141592653589793 * q;
+    var b = Math.sin(x) * (1 - q * 0.4);
+    return pose_0(this, hit.i31_1 + 5 * b, hit.j31_1 - 24 * b, 6 * b, 1.0, 1.0);
+  }
+  if (t < d.o31_1)
+    return pose_0(this, hit.i31_1, hit.j31_1, 0.0, 1.0, 1.0);
+  var q_0 = (t - d.o31_1) / (d.p31_1 - 30 - d.o31_1);
+  var e = q_0 * q_0 * q_0;
+  return pose_0(this, hit.i31_1 + 30 * e, hit.j31_1 - 960 * e, -14 * e, 1.0, 1.0);
+};
+protoOf(ModeSwitchMotion).y37 = function (tMs, w, h) {
+  var d = this.y36_1;
+  var t = tMs;
+  var hit = this.t37(w, h);
+  var k = this.u37(w, h);
+  var shapes = dropShapes(this, hit);
+  var tau = t - d.l31_1;
+  var g = clamp01(this, t / d.l31_1);
+  // Inline function 'kotlin.collections.mapIndexed' call
+  var this_0 = listOf([0.32, 0.2, 0.1]);
+  // Inline function 'kotlin.collections.mapIndexedTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var index = 0;
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var _unary__edvuaz = index;
+    index = _unary__edvuaz + 1 | 0;
+    var i = checkIndexOverflow(_unary__edvuaz);
+    var gt = t - imul(i + 1 | 0, 13);
+    var tmp;
+    if (t >= d.k31_1 && t < d.l31_1 + 20 && gt > d.k31_1) {
+      var tmp_0 = ModeSwitchMotion_getInstance();
+      // Inline function 'kotlin.math.min' call
+      var b = d.l31_1;
+      var tmp$ret$3 = Math.min(gt, b);
+      tmp = new Ghost(item, tmp_0.w37(tmp$ret$3, hit));
+    } else {
+      tmp = new Ghost(0.0, ModeSwitchMotion_getInstance().w37(d.l31_1, hit));
+    }
+    var tmp$ret$2 = tmp;
+    destination.i(tmp$ret$2);
+  }
+  var ghosts = destination;
+  var revealRadius;
+  var revealFull;
+  if (tau < 0) {
+    revealRadius = 0.0;
+    revealFull = false;
+  } else if (tau < 170) {
+    revealRadius = 30 + 790 * k * easeOut(this, tau / 170);
+    revealFull = false;
+  } else {
+    revealRadius = 30 + 790 * k;
+    revealFull = true;
+  }
+  var shakeX = 0.0;
+  var shakeY = 0.0;
+  var shakeR = 0.0;
+  var shakeS = 1.0;
+  var deviceY = 0.0;
+  if (tau >= 0 && tau < 620) {
+    // Inline function 'kotlin.math.exp' call
+    var x = -tau / 165;
+    var dk = Math.exp(x);
+    var tmp_1 = 36 * dk;
+    // Inline function 'kotlin.math.cos' call
+    var x_0 = tau * 0.098;
+    shakeY = tmp_1 * Math.cos(x_0);
+    var tmp_2 = 18 * dk;
+    // Inline function 'kotlin.math.sin' call
+    var x_1 = tau * 0.151 + 0.6;
+    shakeX = tmp_2 * Math.sin(x_1);
+    var tmp_3 = 2.4 * dk;
+    // Inline function 'kotlin.math.sin' call
+    var x_2 = tau * 0.12 + 1;
+    shakeR = tmp_3 * Math.sin(x_2);
+    shakeS = 1 + 0.07 * dk;
+    var tmp_4 = 12 * dk;
+    // Inline function 'kotlin.math.cos' call
+    var x_3 = tau * 0.098;
+    deviceY = tmp_4 * Math.cos(x_3);
+  }
+  var bp = clamp01(this, tau / 170);
+  var cp = clamp01(this, tau / 85);
+  // Inline function 'kotlin.collections.map' call
+  var this_1 = shapes.a38_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
+  var _iterator__ex2g4s_0 = this_1.j();
+  while (_iterator__ex2g4s_0.k()) {
+    var item_0 = _iterator__ex2g4s_0.l();
+    var tmp_5;
+    if (tau < 0 || tau > item_0.l33_1) {
+      tmp_5 = new DustState(item_0.g33_1, item_0.h33_1, 0.0, 0.0);
+    } else {
+      // Inline function 'kotlin.math.exp' call
+      var x_4 = -tau / 190;
+      var s = 1 - Math.exp(x_4);
+      tmp_5 = new DustState(item_0.g33_1 + item_0.i33_1 * s, item_0.h33_1 + item_0.j33_1 * s + 1.6E-4 * tau * tau, item_0.k33_1 * (1 + 2.4 * s), item_0.m33_1 * (1 - tau / item_0.l33_1));
+    }
+    var tmp$ret$11 = tmp_5;
+    destination_0.i(tmp$ret$11);
+  }
+  var dust = destination_0;
+  // Inline function 'kotlin.collections.map' call
+  var this_2 = shapes.b38_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_2, 10));
+  var _iterator__ex2g4s_1 = this_2.j();
+  while (_iterator__ex2g4s_1.k()) {
+    var item_1 = _iterator__ex2g4s_1.l();
+    var tmp_6;
+    if (tau < 0 || tau > item_1.l33_1) {
+      tmp_6 = new SparkState(item_1.g33_1, item_1.h33_1, item_1.g33_1, item_1.h33_1, 0.0);
+    } else {
+      // Inline function 'kotlin.math.exp' call
+      var x_5 = -tau / 110;
+      var s_0 = 1 - Math.exp(x_5);
+      // Inline function 'kotlin.math.max' call
+      var b_0 = s_0 - 0.16;
+      var s0 = Math.max(0.0, b_0);
+      var gy = 9.0E-4 * tau * tau;
+      tmp_6 = new SparkState(item_1.g33_1 + item_1.i33_1 * s0, item_1.h33_1 + item_1.j33_1 * s0 + gy, item_1.g33_1 + item_1.i33_1 * s_0, item_1.h33_1 + item_1.j33_1 * s_0 + gy, 1 - tau / item_1.l33_1);
+    }
+    var tmp$ret$15 = tmp_6;
+    destination_1.i(tmp$ret$15);
+  }
+  var sparks = destination_1;
+  var atRest = t >= d.p31_1;
+  var tmp_7 = tau < 0 ? 0.5 * g * g : 0.0;
+  var tmp_8 = 36 + 66 * g;
+  var tmp_9 = 9 + 22 * g;
+  var tmp_10 = hit.j31_1 - 4;
+  var tmp_11 = this.x37(t, hit);
+  var tmp_12 = tau < 0 ? 0.0 : clamp01(this, 1 - tau / 620);
+  var tmp_13 = revealFull || atRest;
+  var tmp_14 = shakeX;
+  var tmp_15 = shakeY;
+  var tmp_16 = shakeR;
+  var tmp_17 = shakeS;
+  var tmp_18 = deviceY;
+  var tmp_19;
+  if (tau >= 0 && tau < 420) {
+    // Inline function 'kotlin.math.exp' call
+    var x_6 = -tau / 80;
+    tmp_19 = 1 + 0.7 * Math.exp(x_6);
+  } else {
+    tmp_19 = 1.0;
+  }
+  return new DropFrame(hit.i31_1, hit.j31_1, tmp_7, tmp_8, tmp_9, hit.i31_1, tmp_10, tmp_11, ghosts, tmp_12, revealRadius, tmp_13, tmp_14, tmp_15, tmp_16, tmp_17, tmp_18, tmp_19, stampOpacity(this, t), tau < 0 ? 0.0 : clamp01(this, 1 - tau / 150), tau < 0 ? 0.0 : 1 - bp, 0.5 + 1.5 * easeOut(this, bp), dropFrame$ring(tau, k, 0.0, 340.0, 26.0), dropFrame$ring(tau, k, 60.0, 460.0, 14.0), tau < 0 ? 0.0 : clamp01(this, 1 - (tau - 380) / 420), easeOut(this, cp), dust, sparks);
+};
+protoOf(ModeSwitchMotion).d38 = function (tMs, elementCenterY, hitY) {
+  // Inline function 'kotlin.math.abs' call
+  var x = elementCenterY - hitY;
+  var dist = Math.abs(x);
+  var delay = dist * 0.22;
+  // Inline function 'kotlin.math.min' call
+  var b = dist * 0.015;
+  var amp = 24 - Math.min(10.0, b);
+  var u = tMs - this.y36_1.l31_1 - delay;
+  var tmp;
+  if (u > 0 && u < 560) {
+    var tmp_0 = -amp;
+    // Inline function 'kotlin.math.exp' call
+    var x_0 = -u / 120;
+    var tmp_1 = tmp_0 * Math.exp(x_0);
+    // Inline function 'kotlin.math.sin' call
+    var x_1 = u * 0.052;
+    tmp = tmp_1 * Math.sin(x_1);
+  } else {
+    tmp = 0.0;
+  }
+  return tmp;
+};
+protoOf(ModeSwitchMotion).e38 = function (u, rise, fall) {
+  if (u <= 0 || u >= rise + fall)
+    return 0.0;
+  if (u < rise) {
+    // Inline function 'kotlin.math.cos' call
+    var x = 3.141592653589793 * u / rise;
+    return 0.5 - 0.5 * Math.cos(x);
+  }
+  var v = (u - rise) / fall;
+  var dip = 0.12;
+  if (v < 0.68) {
+    var tmp = -dip;
+    var tmp_0 = 1 + dip;
+    // Inline function 'kotlin.math.cos' call
+    var x_0 = 3.141592653589793 * v / 0.68;
+    return tmp + tmp_0 * (0.5 + 0.5 * Math.cos(x_0));
+  }
+  var tmp_1 = -dip;
+  // Inline function 'kotlin.math.cos' call
+  var x_1 = 3.141592653589793 * (v - 0.68) / 0.32;
+  return tmp_1 * (0.5 + 0.5 * Math.cos(x_1));
+};
+protoOf(ModeSwitchMotion).f38 = function (t) {
+  var p = this.z36_1;
+  var s = 0.0;
+  var inductionVariable = 0;
+  if (inductionVariable < 3)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      s = s + p.s31_1.n(i) * this.e38(t - p.r31_1.n(i), p.t31_1.n(i), p.u31_1.n(i));
+    }
+     while (inductionVariable < 3);
+  return s;
+};
+protoOf(ModeSwitchMotion).g38 = function (t) {
+  var p = this.z36_1;
+  var f = 0.0;
+  var inductionVariable = 0;
+  if (inductionVariable < 3)
+    $l$loop: do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      var u = t - p.r31_1.n(i);
+      if (u <= 0)
+        break $l$loop;
+      var from = i > 0 ? p.v31_1.n(i - 1 | 0) * 0.93 : 0.0;
+      var q = clamp01(this, u / p.w31_1.n(i));
+      f = from + (p.v31_1.n(i) - from) * (i < 2 ? easeOut(this, q) : smooth01(this, q));
+      if (q >= 1 && i < 2) {
+        f = p.v31_1.n(i) * (1 - 0.07 * smooth01(this, clamp01(this, (u - p.w31_1.n(i)) / (p.r31_1.n(i + 1 | 0) - p.r31_1.n(i) - p.w31_1.n(i)))));
+      }
+    }
+     while (inductionVariable < 3);
+  return f;
+};
+protoOf(ModeSwitchMotion).h38 = function (tMs, w, h, src) {
+  var p = this.z36_1;
+  var t = tMs;
+  var k = this.v37(w, h, src);
+  if (t >= p.y31_1) {
+    var none = new MotionCircle(0.0, 0.0, 0.0);
+    // Inline function 'kotlin.collections.List' call
+    // Inline function 'kotlin.collections.MutableList' call
+    var list = ArrayList_init_$Create$_0(3);
+    // Inline function 'kotlin.repeat' call
+    var inductionVariable = 0;
+    if (inductionVariable < 3)
+      do {
+        var index = inductionVariable;
+        inductionVariable = inductionVariable + 1 | 0;
+        list.i(none);
+      }
+       while (inductionVariable < 3);
+    var tmp = list;
+    // Inline function 'kotlin.collections.List' call
+    // Inline function 'kotlin.collections.MutableList' call
+    var list_0 = ArrayList_init_$Create$_0(2);
+    // Inline function 'kotlin.repeat' call
+    var inductionVariable_0 = 0;
+    if (inductionVariable_0 < 2)
+      do {
+        var index_0 = inductionVariable_0;
+        inductionVariable_0 = inductionVariable_0 + 1 | 0;
+        list_0.i(none);
+      }
+       while (inductionVariable_0 < 2);
+    return new PumpFrame(src.i31_1, src.j31_1, 0.0, 1.0, 1.0, 0.0, 0.0, tmp, list_0, 0.0, 0.0, this.g38(t) * k, 1.0, 0.0, 1.0, 0.0, 12 + 860 * k, true, 0.0, 2.0, 0.0, 50.0, 1.0);
+  }
+  var sw = this.f38(t);
+  var glow = 0.0;
+  var inductionVariable_1 = 0;
+  if (inductionVariable_1 < 3)
+    do {
+      var i = inductionVariable_1;
+      inductionVariable_1 = inductionVariable_1 + 1 | 0;
+      var u = t - p.r31_1.n(i);
+      if (u > 0) {
+        var tmp0 = glow;
+        var tmp_0 = p.s31_1.n(i);
+        // Inline function 'kotlin.math.exp' call
+        var x = -u / 190;
+        // Inline function 'kotlin.math.max' call
+        var b = tmp_0 * Math.exp(x);
+        glow = Math.max(tmp0, b);
+      }
+    }
+     while (inductionVariable_1 < 3);
+  var hr = listOf([70.0, 120.0, 210.0]);
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = until(0, 3);
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var inductionVariable_2 = this_0.y_1;
+  var last = this_0.z_1;
+  if (inductionVariable_2 <= last)
+    do {
+      var item = inductionVariable_2;
+      inductionVariable_2 = inductionVariable_2 + 1 | 0;
+      var i_0 = item;
+      var u_0 = t - p.r31_1.n(i_0);
+      var q = clamp01(ModeSwitchMotion_getInstance(), u_0 / 440);
+      var on = u_0 >= 0 && q < 1;
+      var tmp_1;
+      if (on) {
+        // Inline function 'kotlin.math.sqrt' call
+        var x_0 = p.s31_1.n(i_0);
+        tmp_1 = 0.9 * Math.sqrt(x_0) * (1 - q);
+      } else {
+        tmp_1 = 0.0;
+      }
+      var tmp$ret$14 = new MotionCircle(tmp_1, 26 + hr.n(i_0) * easeOut(ModeSwitchMotion_getInstance(), q), 0.0);
+      destination.i(tmp$ret$14);
+    }
+     while (!(item === last));
+  var halos = destination;
+  // Inline function 'kotlin.collections.map' call
+  var this_1 = until(0, 2);
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
+  var inductionVariable_3 = this_1.y_1;
+  var last_0 = this_1.z_1;
+  if (inductionVariable_3 <= last_0)
+    do {
+      var item_0 = inductionVariable_3;
+      inductionVariable_3 = inductionVariable_3 + 1 | 0;
+      var i_1 = item_0;
+      var u_1 = t - p.r31_1.n(i_1);
+      var q_0 = clamp01(ModeSwitchMotion_getInstance(), u_1 / 460);
+      var on_0 = u_1 >= 0 && q_0 < 1;
+      var tmp$ret$18 = new MotionCircle(on_0 ? 0.32 * (1 - q_0) : 0.0, 20 + p.v31_1.n(i_1) * k * 1.05 * easeOut(ModeSwitchMotion_getInstance(), q_0), 12 * (1 - q_0) + 1);
+      destination_0.i(tmp$ret$18);
+    }
+     while (!(item_0 === last_0));
+  var rings = destination_0;
+  var front = this.g38(t) * k;
+  var bi = -1;
+  var inductionVariable_4 = 0;
+  if (inductionVariable_4 < 3)
+    do {
+      var i_2 = inductionVariable_4;
+      inductionVariable_4 = inductionVariable_4 + 1 | 0;
+      if (t > p.r31_1.n(i_2))
+        bi = i_2;
+    }
+     while (inductionVariable_4 < 3);
+  var pp = bi < 0 ? 1.0 : clamp01(this, (t - p.r31_1.n(bi)) / p.w31_1.n(bi));
+  var u3 = t - p.r31_1.n(2);
+  var fp = clamp01(this, u3 / p.x31_1);
+  var rad = 12 + 860 * k * smooth01(this, fp);
+  var edgeOn = u3 >= 0 && fp < 1;
+  var tmp_2 = 1 + 0.03 * sw;
+  var tmp_3 = 1 + 0.032 * sw;
+  var tmp_4 = glow;
+  var tmp_5 = 0.15 * glow;
+  var tmp_6 = t < p.r31_1.n(0) ? 0.0 : 1 - clamp01(this, (t - (p.r31_1.n(2) + 280)) / 300);
+  var tmp_7 = 0.16 + 0.42 * glow;
+  var tmp_8 = 1 + 0.45 * glow;
+  var tmp_9 = 0.55 + 0.45 * glow;
+  var tmp_10 = 1 + 0.7 * glow;
+  var tmp_11;
+  if (pp >= 1) {
+    tmp_11 = 0.0;
+  } else {
+    // Inline function 'kotlin.math.sin' call
+    var x_1 = 3.141592653589793 * pp;
+    tmp_11 = 0.95 * Math.sin(x_1);
+  }
+  var tmp_12 = tmp_11;
+  var tmp_13 = u3 < 0 ? 0.0 : rad;
+  var tmp_14 = u3 >= 0 && fp >= 1;
+  var tmp_15 = edgeOn ? 0.5 * (1 - fp * fp) : 0.0;
+  var tmp_16 = 2 + 6 * (1 - fp);
+  var tmp_17 = edgeOn ? 0.2 * (1 - fp) : 0.0;
+  // Inline function 'kotlin.math.max' call
+  var b_0 = this.e38(u3 - 230, 120.0, 260.0);
+  var tmp$ret$20 = Math.max(0.0, b_0);
+  return new PumpFrame(src.i31_1, src.j31_1, sw, tmp_2, tmp_3, tmp_4, tmp_5, halos, rings, tmp_6, tmp_7, front, tmp_8, tmp_9, tmp_10, tmp_12, tmp_13, tmp_14, tmp_15, tmp_16, tmp_17, 50.0, 1 + 0.28 * tmp$ret$20);
+};
+protoOf(ModeSwitchMotion).i38 = function (tMs, w, elementCenterY, src) {
+  if (tMs >= this.z36_1.y31_1)
+    return 1.0;
+  var tmp0 = w / 2 - src.i31_1;
+  // Inline function 'kotlin.math.hypot' call
+  var y = elementCenterY - src.j31_1;
+  var delay = hypot(tmp0, y) * 0.16;
+  return 1 + 0.034 * this.f38(tMs - delay);
+};
+protoOf(ModeSwitchMotion).j38 = function (front, d0, len) {
+  return clamp01(this, (front - d0) / len);
+};
+protoOf(ModeSwitchMotion).k38 = function (framePulseOpacity, front, len) {
+  return front / len > 1.02 ? 0.0 : framePulseOpacity;
+};
+protoOf(ModeSwitchMotion).l38 = function (front, len) {
+  // Inline function 'kotlin.math.max' call
+  var b = front / len - 0.06;
+  return Math.max(0.0, b);
+};
+protoOf(ModeSwitchMotion).m38 = function (w, h, src, fanCentreDeg, reach) {
+  var key = listOf([w, h, src.i31_1, src.j31_1, fanCentreDeg, reach]);
+  var tmp0_safe_receiver = this.l37_1;
+  if (tmp0_safe_receiver == null)
+    null;
+  else {
+    // Inline function 'kotlin.let' call
+    var k = tmp0_safe_receiver.gb();
+    var s = tmp0_safe_receiver.hb();
+    if (equals(k, key))
+      return s;
+  }
+  // Inline function 'kotlin.also' call
+  var this_0 = buildPumpShapes(w, h, src, fanCentreDeg, reach);
+  ModeSwitchMotion_getInstance().l37_1 = to(key, this_0);
+  return this_0;
+};
+protoOf(ModeSwitchMotion).n38 = function (w, h, src) {
+  var tmp0 = h / 2 - src.j31_1;
+  // Inline function 'kotlin.math.atan2' call
+  var x = w / 2 - src.i31_1;
+  return Math.atan2(tmp0, x) * 180 / 3.141592653589793;
+};
+protoOf(ModeSwitchMotion).o38 = function (w, h, hit) {
+  return dropShapes(this, hit).z37_1;
+};
+protoOf(ModeSwitchMotion).p38 = function (hit) {
+  return dropShapes(this, hit).a38_1;
+};
+protoOf(ModeSwitchMotion).q38 = function (hit) {
+  return dropShapes(this, hit).b38_1;
+};
+protoOf(ModeSwitchMotion).r38 = function (hit) {
+  return dropShapes(this, hit).c38_1;
+};
+protoOf(ModeSwitchMotion).s38 = function (w, h, src) {
+  return this.m38(w, h, src, this.n38(w, h, src), this.v37(w, h, src)).t38_1;
+};
+protoOf(ModeSwitchMotion).v38 = function (w, h, src) {
+  return this.m38(w, h, src, this.n38(w, h, src), this.v37(w, h, src)).u38_1;
+};
+var ModeSwitchMotion_instance;
+function ModeSwitchMotion_getInstance() {
+  if (ModeSwitchMotion_instance == null)
+    new ModeSwitchMotion();
+  return ModeSwitchMotion_instance;
+}
+function get_VEIN_LAYERS() {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  return VEIN_LAYERS;
+}
+var VEIN_LAYERS;
+function get_HAMMER_0() {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  var tmp0 = HAMMER$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('HAMMER', 0, tmp, _get_HAMMER_$ref_8os8z8(), null);
+  return tmp0.v();
+}
+var HAMMER$delegate;
+function get_HAMMER_RUNE_GLOW() {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  return HAMMER_RUNE_GLOW;
+}
+var HAMMER_RUNE_GLOW;
+function get_MOTION_GRADIENTS() {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  var tmp0 = MOTION_GRADIENTS$delegate;
+  var tmp = KProperty0;
+  // Inline function 'kotlin.getValue' call
+  getPropertyCallableRef('MOTION_GRADIENTS', 0, tmp, _get_MOTION_GRADIENTS_$ref_ckhysg(), null);
+  return tmp0.v();
+}
+var MOTION_GRADIENTS$delegate;
+function MotionRng(seed) {
+  this.w38_1 = seed;
+}
+protoOf(MotionRng).l = function () {
+  this.w38_1 = this.w38_1 + 1831565813 | 0;
+  var t = imul(this.w38_1 ^ (this.w38_1 >>> 15 | 0), 1 | this.w38_1);
+  t = (t + imul(t ^ (t >>> 7 | 0), 61 | t) | 0) ^ t;
+  // Inline function 'kotlin.toUInt' call
+  var this_0 = t ^ (t >>> 14 | 0);
+  // Inline function 'kotlin.UInt.toDouble' call
+  var this_1 = _UInt___init__impl__l7qpdl(this_0);
+  // Inline function 'kotlin.uintToDouble' call
+  return (_UInt___get_data__impl__f0vqqw(this_1) >>> 0) / 4.294967296E9;
+};
+function fixed(v, digits) {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  var scale = 1.0;
+  // Inline function 'kotlin.repeat' call
+  var inductionVariable = 0;
+  if (inductionVariable < digits)
+    do {
+      var index = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      scale = scale * 10;
+    }
+     while (inductionVariable < digits);
+  // Inline function 'kotlin.math.abs' call
+  // Inline function 'kotlin.math.floor' call
+  var x = Math.abs(v) * scale + 0.5;
+  var tmp$ret$3 = Math.floor(x);
+  var n = numberToLong(tmp$ret$3);
+  var sign = v < 0 && !equalsLong(n, new Long(0, 0)) ? '-' : '';
+  if (digits === 0)
+    return sign + n.toString();
+  var unit = numberToLong(scale);
+  return sign + divide(n, unit).toString() + '.' + padStart(modulo(n, unit).toString(), digits, _Char___init__impl__6a9atx(48));
+}
+function jsNumber(v) {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  var tmp;
+  var tmp_0;
+  // Inline function 'kotlin.math.floor' call
+  if (v === Math.floor(v)) {
+    // Inline function 'kotlin.math.abs' call
+    tmp_0 = Math.abs(v) < 1.0E15;
+  } else {
+    tmp_0 = false;
+  }
+  if (tmp_0) {
+    tmp = numberToLong(v).toString();
+  } else {
+    tmp = trimEnd_0(trimEnd_0(fixed(v, 3), charArrayOf([_Char___init__impl__6a9atx(48)])), charArrayOf([_Char___init__impl__6a9atx(46)]));
+  }
+  return tmp;
+}
+function DropShapes(cracks, dust, sparks, burst) {
+  this.z37_1 = cracks;
+  this.a38_1 = dust;
+  this.b38_1 = sparks;
+  this.c38_1 = burst;
+}
+function buildDropShapes(hit) {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  var r = new MotionRng(7);
+  var cracks = ArrayList_init_$Create$();
+  var n = 15;
+  var inductionVariable = 0;
+  if (inductionVariable < n)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      var a = i / n * 3.141592653589793 * 2 + (r.l() - 0.5) * 0.45;
+      var len = 150 + r.l() * 260;
+      var x = hit.i31_1;
+      var y = hit.j31_1;
+      var d = new StringBuilder('M' + jsNumber(x) + ',' + jsNumber(y));
+      var segs = 5 + numberToInt(r.l() * 3) | 0;
+      var bx = 0.0;
+      var by = 0.0;
+      var ba = 0.0;
+      var inductionVariable_0 = 0;
+      if (inductionVariable_0 < segs)
+        do {
+          var s = inductionVariable_0;
+          inductionVariable_0 = inductionVariable_0 + 1 | 0;
+          a = a + (r.l() - 0.5) * 0.7;
+          var tmp = x;
+          // Inline function 'kotlin.math.cos' call
+          var x_0 = a;
+          x = tmp + Math.cos(x_0) * len / segs;
+          var tmp_0 = y;
+          // Inline function 'kotlin.math.sin' call
+          var x_1 = a;
+          y = tmp_0 + Math.sin(x_1) * len / segs;
+          d.a7(' L').a7(fixed(x, 1)).b7(_Char___init__impl__6a9atx(44)).a7(fixed(y, 1));
+          if (s === 2) {
+            bx = x;
+            by = y;
+            ba = a + (r.l() > 0.5 ? 0.8 : -0.8);
+          }
+        }
+         while (inductionVariable_0 < segs);
+      var w = 1.8 + r.l() * 2.2;
+      var path = d.toString();
+      // Inline function 'kotlin.collections.plusAssign' call
+      var element = new MotionPath(path, null, '#000000', w + 2.5, 0.55, 'round', 'round');
+      cracks.i(element);
+      // Inline function 'kotlin.collections.plusAssign' call
+      var element_0 = new MotionPath(path, null, '#F3F4EF', w, 1.0, 'round', 'round');
+      cracks.i(element_0);
+      if ((i % 2 | 0) === 0) {
+        var bl = 40 + r.l() * 70;
+        var tmp_1 = fixed(bx, 1);
+        var tmp_2 = fixed(by, 1);
+        var tmp_3 = bx;
+        // Inline function 'kotlin.math.cos' call
+        var x_2 = ba;
+        var tmp$ret$4 = Math.cos(x_2);
+        var tmp_4 = fixed(tmp_3 + tmp$ret$4 * bl * 0.5, 1);
+        var tmp_5 = by;
+        // Inline function 'kotlin.math.sin' call
+        var x_3 = ba;
+        var tmp$ret$5 = Math.sin(x_3);
+        var tmp_6 = 'M' + tmp_1 + ',' + tmp_2 + ' L' + tmp_4 + ',' + fixed(tmp_5 + tmp$ret$5 * bl * 0.5, 1);
+        var tmp_7 = bx;
+        // Inline function 'kotlin.math.cos' call
+        var x_4 = ba + 0.4;
+        var tmp$ret$6 = Math.cos(x_4);
+        var tmp_8 = fixed(tmp_7 + tmp$ret$6 * bl, 1);
+        var tmp_9 = by;
+        // Inline function 'kotlin.math.sin' call
+        var x_5 = ba + 0.4;
+        var tmp$ret$7 = Math.sin(x_5);
+        var bd = tmp_6 + (' L' + tmp_8 + ',' + fixed(tmp_9 + tmp$ret$7 * bl, 1));
+        // Inline function 'kotlin.collections.plusAssign' call
+        var element_1 = new MotionPath(bd, null, '#C9CED6', 1.0, 1.0, 'round', 'round');
+        cracks.i(element_1);
+      }
+    }
+     while (inductionVariable < n);
+  var s_0 = ModeSwitchMotion_getInstance().y36_1.q31_1;
+  var dust = ArrayList_init_$Create$();
+  var inductionVariable_1 = 0;
+  if (inductionVariable_1 < 30)
+    do {
+      var i_0 = inductionVariable_1;
+      inductionVariable_1 = inductionVariable_1 + 1 | 0;
+      var side = !((i_0 % 2 | 0) === 0) ? 1 : -1;
+      var u = r.l();
+      var ox = hit.i31_1 + side * u * 158 * s_0;
+      var oy = hit.j31_1 - u * 50 * s_0;
+      var ang = -3.141592653589793 / 2 + side * (0.5 + r.l() * 1.0);
+      var sp = 60 + r.l() * 170;
+      var r0 = 9 + r.l() * 14;
+      var life = 380 + r.l() * 340;
+      var alpha = 0.45 + r.l() * 0.4;
+      // Inline function 'kotlin.math.cos' call
+      var tmp_10 = Math.cos(ang) * sp;
+      // Inline function 'kotlin.math.sin' call
+      var tmp$ret$10 = Math.sin(ang);
+      // Inline function 'kotlin.collections.plusAssign' call
+      var element_2 = new Particle(ox, oy, tmp_10, tmp$ret$10 * sp * 0.75, r0, life, alpha);
+      dust.i(element_2);
+    }
+     while (inductionVariable_1 < 30);
+  var sparks = ArrayList_init_$Create$();
+  var inductionVariable_2 = 0;
+  if (inductionVariable_2 < 34)
+    do {
+      var i_1 = inductionVariable_2;
+      inductionVariable_2 = inductionVariable_2 + 1 | 0;
+      var ang_0 = -3.141592653589793 / 2 + (r.l() - 0.5) * 3.4;
+      var sp_0 = 160 + r.l() * 300;
+      var life_0 = 240 + r.l() * 260;
+      var tmp_11 = hit.j31_1 - 6;
+      // Inline function 'kotlin.math.cos' call
+      var tmp_12 = Math.cos(ang_0) * sp_0;
+      // Inline function 'kotlin.math.sin' call
+      var tmp$ret$13 = Math.sin(ang_0);
+      // Inline function 'kotlin.collections.plusAssign' call
+      var element_3 = new Particle(hit.i31_1, tmp_11, tmp_12, tmp$ret$13 * sp_0, 0.0, life_0, 1.0);
+      sparks.i(element_3);
+    }
+     while (inductionVariable_2 < 34);
+  var burst = ArrayList_init_$Create$();
+  var bn = 18;
+  var inductionVariable_3 = 0;
+  var last = imul(bn, 2);
+  if (inductionVariable_3 < last)
+    do {
+      var i_2 = inductionVariable_3;
+      inductionVariable_3 = inductionVariable_3 + 1 | 0;
+      var a_0 = i_2 / imul(bn, 2) * 3.141592653589793 * 2;
+      var rad = !((i_2 % 2 | 0) === 0) ? 16 + r.l() * 10 : 70 + r.l() * 70;
+      // Inline function 'kotlin.math.cos' call
+      var tmp$ret$15 = Math.cos(a_0);
+      var tmp_13 = toDouble(fixed(tmp$ret$15 * rad * 1.5, 1));
+      // Inline function 'kotlin.math.sin' call
+      var tmp$ret$16 = Math.sin(a_0);
+      // Inline function 'kotlin.collections.plusAssign' call
+      var element_4 = new Point_0(tmp_13, toDouble(fixed(tmp$ret$16 * rad * 0.55, 1)));
+      burst.i(element_4);
+    }
+     while (inductionVariable_3 < last);
+  return new DropShapes(cracks, dust, sparks, burst);
+}
+function PumpShapes(veins, nodes) {
+  this.t38_1 = veins;
+  this.u38_1 = nodes;
+}
+function buildPumpShapes(w, h, src, fanCentreDeg, reach) {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  var pr = new MotionRng(23);
+  var veins = ArrayList_init_$Create$();
+  var nodes = ArrayList_init_$Create$();
+  var count = 7;
+  var step = 34;
+  var pulses = ArrayList_init_$Create$();
+  var inductionVariable = 0;
+  if (inductionVariable < count)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      var base = (fanCentreDeg - 60 + imul(i, 120 / (count - 1 | 0) | 0) + (pr.l() - 0.5) * 8) * 3.141592653589793 / 180;
+      // Inline function 'kotlin.math.cos' call
+      var dx = Math.cos(base);
+      // Inline function 'kotlin.math.sin' call
+      var dy = Math.sin(base);
+      var tmp0 = dx < 0 ? src.i31_1 / -dx : (w - src.i31_1) / dx;
+      // Inline function 'kotlin.math.min' call
+      var b = dy < 0 ? src.j31_1 / -dy : (h - src.j31_1) / dy;
+      var toEdge = Math.min(tmp0, b);
+      var tmp0_0 = 840 * reach;
+      // Inline function 'kotlin.math.min' call
+      var b_0 = toEdge + 30;
+      var tmp$ret$3 = Math.min(tmp0_0, b_0);
+      // Inline function 'kotlin.math.max' call
+      var b_1 = roundToInt(tmp$ret$3 / step);
+      var n = Math.max(4, b_1);
+      // Inline function 'kotlin.doubleArrayOf' call
+      var tmp$ret$5 = new Float64Array([0.0, 0.0]);
+      var pts = arrayListOf([tmp$ret$5]);
+      var heads = ArrayList_init_$Create$();
+      var x = 0.0;
+      var y = 0.0;
+      var wander = 0.0;
+      var inductionVariable_0 = 0;
+      if (inductionVariable_0 < n)
+        do {
+          var s = inductionVariable_0;
+          inductionVariable_0 = inductionVariable_0 + 1 | 0;
+          wander = wander * 0.72 + (pr.l() - 0.5) * 0.62;
+          var hd = base + wander;
+          var tmp = x;
+          // Inline function 'kotlin.math.cos' call
+          x = tmp + Math.cos(hd) * step;
+          var tmp_0 = y;
+          // Inline function 'kotlin.math.sin' call
+          y = tmp_0 + Math.sin(hd) * step;
+          // Inline function 'kotlin.doubleArrayOf' call
+          // Inline function 'kotlin.collections.plusAssign' call
+          var element = new Float64Array([x, y]);
+          pts.i(element);
+          // Inline function 'kotlin.collections.plusAssign' call
+          heads.i(hd);
+        }
+         while (inductionVariable_0 < n);
+      var len = imul(n, step);
+      // Inline function 'kotlin.math.max' call
+      var b_2 = roundToInt(n * 0.6);
+      var k1 = Math.max(2, b_2);
+      // Inline function 'kotlin.math.max' call
+      var b_3 = roundToInt(n * 0.28);
+      var k2 = Math.max(2, b_3);
+      buildPumpShapes$vein(veins, src, 'glow', pts, false, 0.0, len, 9.0);
+      buildPumpShapes$vein(veins, src, 'core', pts, false, 0.0, len, 1.5);
+      buildPumpShapes$vein(veins, src, 'core', pts.q1(0, k1 + 1 | 0), true, 0.0, (k1 - 0.5) * step, 2.4);
+      buildPumpShapes$vein(veins, src, 'core', pts.q1(0, k2 + 1 | 0), true, 0.0, (k2 - 0.5) * step, 3.4);
+      buildPumpShapes$vein(veins, src, 'hot', pts.q1(0, k1 + 1 | 0), true, 0.0, (k1 - 0.5) * step, 0.9);
+      // Inline function 'kotlin.collections.plusAssign' call
+      var element_0 = new VeinPath(buildPumpShapes$smoothD(src, pts, false), 'pulse', Companion_instance_60.u32('pulse'), 2.6, 0.0, len, false);
+      pulses.i(element_0);
+      var side = pr.l() > 0.5 ? 1 : -1;
+      var inductionVariable_1 = 2;
+      var last = n - 1 | 0;
+      if (inductionVariable_1 < last)
+        do {
+          var s_0 = inductionVariable_1;
+          inductionVariable_1 = inductionVariable_1 + 1 | 0;
+          if (pr.l() < 0.5) {
+            side = -side | 0;
+            var turn = heads.n(s_0 - 1 | 0) + side * (0.45 + pr.l() * 0.5);
+            var bl = 60 + pr.l() * 130 * (1 - 0.4 * s_0 / n);
+            buildPumpShapes$branch(pr, nodes, src, veins, pts.n(s_0), turn, bl, imul(s_0, step), 1);
+          }
+        }
+         while (inductionVariable_1 < last);
+    }
+     while (inductionVariable < count);
+  // Inline function 'kotlin.collections.flatMap' call
+  var tmp0_1 = get_VEIN_LAYERS();
+  // Inline function 'kotlin.collections.flatMapTo' call
+  var destination = ArrayList_init_$Create$();
+  var _iterator__ex2g4s = tmp0_1.j();
+  while (_iterator__ex2g4s.k()) {
+    var element_1 = _iterator__ex2g4s.l();
+    // Inline function 'kotlin.collections.filter' call
+    var tmp0_2 = plus(veins, pulses);
+    // Inline function 'kotlin.collections.filterTo' call
+    var destination_0 = ArrayList_init_$Create$();
+    var _iterator__ex2g4s_0 = tmp0_2.j();
+    while (_iterator__ex2g4s_0.k()) {
+      var element_2 = _iterator__ex2g4s_0.l();
+      if (element_2.w32_1 === element_1) {
+        destination_0.i(element_2);
+      }
+    }
+    var list = destination_0;
+    addAll(destination, list);
+  }
+  var ordered = destination;
+  return new PumpShapes(ordered, nodes);
+}
+function farCorner(w, h, p) {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  var tmp0 = p.i31_1;
+  // Inline function 'kotlin.math.hypot' call
+  var y = p.j31_1;
+  var tmp0_0 = hypot(tmp0, y);
+  var tmp0_1 = w - p.i31_1;
+  // Inline function 'kotlin.math.hypot' call
+  var y_0 = p.j31_1;
+  // Inline function 'kotlin.math.max' call
+  var b = hypot(tmp0_1, y_0);
+  var tmp0_2 = Math.max(tmp0_0, b);
+  var tmp0_3 = p.i31_1;
+  // Inline function 'kotlin.math.hypot' call
+  var y_1 = h - p.j31_1;
+  var tmp0_4 = hypot(tmp0_3, y_1);
+  var tmp0_5 = w - p.i31_1;
+  // Inline function 'kotlin.math.hypot' call
+  var y_2 = h - p.j31_1;
+  // Inline function 'kotlin.math.max' call
+  var b_0 = hypot(tmp0_5, y_2);
+  // Inline function 'kotlin.math.max' call
+  var b_1 = Math.max(tmp0_4, b_0);
+  return Math.max(tmp0_2, b_1);
+}
+function circleD(cx, cy, r) {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  var a = jsNumber(cx - r);
+  var b = jsNumber(cx + r);
+  var c = jsNumber(cy);
+  var rr = jsNumber(r);
+  return 'M' + a + ',' + c + ' A' + rr + ',' + rr + ' 0 1,0 ' + b + ',' + c + ' A' + rr + ',' + rr + ' 0 1,0 ' + a + ',' + c + ' Z';
+}
+function HAMMER$delegate$lambda() {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  var ink = '#0B0C0E';
+  return listOf([new MotionPath(circleD(0.0, -306.0, 11.0), null, 'url(#gBand)', 6.0, 1.0), new MotionPath('M-22,-278 Q-24,-296 0,-296 Q24,-296 22,-278 Z', 'url(#gBand)', null, 0.0, 1.0), new MotionPath('M-15,-280 L15,-280 L21,-150 L-21,-150 Z', 'url(#gWood)', null, 0.0, 1.0), new MotionPath('M-6,-276 L-8,-154 M3,-276 L4,-154 M10,-276 L13,-154', null, '#0C0A08', 1.2, 0.7), new MotionPath('M-19,-284 L19,-284 L19.6,-272 L-19.6,-272 Z', 'url(#gBand)', null, 0.0, 1.0), new MotionPath('M-20,-226 L20,-226 L20.6,-214 L-20.6,-214 Z', 'url(#gBand)', null, 0.0, 1.0), new MotionPath('M-25,-176 L25,-176 L34,-142 L-34,-142 Z', 'url(#gBand)', null, 0.0, 1.0), new MotionPath('M-30,-150 C-70,-150 -108,-140 -148,-114 L-160,-52 Q-86,-34 -30,-7 Q-12,0 0,0 Q12,0 30,-7 Q86,-34 160,-52 L148,-114 C108,-140 70,-150 30,-150 Z', 'url(#gIron)', ink, 2.0, 1.0, VOID, 'round'), new MotionPath('M-30,-148 C-70,-148 -108,-138 -146,-113 L-144,-104 C-106,-128 -70,-138 -30,-139 L30,-139 C70,-138 106,-128 144,-104 L146,-113 C108,-138 70,-148 30,-148 Z', '#C9CED6', null, 0.0, 0.55), new MotionPath('M-148,-114 L-160,-52 L-146,-56 L-137,-108 Z', '#0F1113', null, 0.0, 0.7), new MotionPath('M148,-114 L160,-52 L146,-56 L137,-108 Z', '#9AA1AA', null, 0.0, 0.35), new MotionPath('M-30,-128 C-66,-127 -98,-120 -130,-100 L-138,-62 Q-78,-46 -28,-22 Q-10,-14 0,-14 Q10,-14 28,-22 Q78,-46 138,-62 L130,-100 C98,-120 66,-127 30,-128 Z', null, ink, 2.4, 0.75), new MotionPath('M-30,-126 C-66,-125 -98,-118 -129,-98.500 L-136.500,-61 Q-78,-44 -28,-20 Q-10,-12 0,-12 Q10,-12 28,-20 Q78,-44 136.500,-61 L129,-98.500 C98,-118 66,-125 30,-126 Z', null, '#B8BEC6', 1.0, 0.35), new MotionPath(circleD(-98.0, -84.0, 13.0), null, ink, 2.6, 1.0), new MotionPath(circleD(98.0, -84.0, 13.0), null, ink, 2.6, 1.0), new MotionPath(circleD(-58.0, -66.0, 6.0), null, ink, 2.6, 1.0), new MotionPath(circleD(58.0, -66.0, 6.0), null, ink, 2.6, 1.0), new MotionPath(circleD(-98.0, -84.0, 4.0), ink, null, 0.0, 1.0), new MotionPath(circleD(98.0, -84.0, 4.0), ink, null, 0.0, 1.0), new MotionPath(circleD(-58.0, -66.0, 1.8), ink, null, 0.0, 1.0), new MotionPath(circleD(58.0, -66.0, 1.8), ink, null, 0.0, 1.0), new MotionPath('M-9,-116 L-9,-36 M-9,-100 L15,-78 L-9,-56', null, '#08090A', 8.0, 1.0, 'square', 'miter')]);
+}
+function _get_HAMMER_$ref_8os8z8() {
+  return constructCallableReference(function () {
+    return get_HAMMER_0();
+  }, 0, 0, 337);
+}
+function MOTION_GRADIENTS$delegate$lambda() {
+  _init_properties_ModeSwitchShapes_kt__wtp92h();
+  return listOf([new MotionGradient('gIron', false, 0.0, 0.0, 0.0, 1.0, listOf([new GradientStop(0.0, '#7B828B', 1.0), new GradientStop(0.38, '#4A5058', 1.0), new GradientStop(1.0, '#1D2024', 1.0)])), new MotionGradient('gBand', false, 0.0, 0.0, 1.0, 0.0, listOf([new GradientStop(0.0, '#2A2E33', 1.0), new GradientStop(0.35, '#9AA1AA', 1.0), new GradientStop(1.0, '#23262A', 1.0)])), new MotionGradient('gWood', false, 0.0, 0.0, 1.0, 0.0, listOf([new GradientStop(0.0, '#15110E', 1.0), new GradientStop(0.4, '#4A3A2C', 1.0), new GradientStop(1.0, '#120F0C', 1.0)])), new MotionGradient('gHalo', true, 0.0, 0.0, 0.0, 0.0, listOf([new GradientStop(0.0, '#BFD7FF', 0.75), new GradientStop(0.4, '#6FA4FF', 0.32), new GradientStop(1.0, '#4F8DFF', 0.0)])), new MotionGradient('gChalk', true, 0.0, 0.0, 0.0, 0.0, listOf([new GradientStop(0.0, '#E4E6E2', 0.9), new GradientStop(0.55, '#C9CED6', 0.45), new GradientStop(1.0, '#C9CED6', 0.0)]))]);
+}
+function _get_MOTION_GRADIENTS_$ref_ckhysg() {
+  return constructCallableReference(function () {
+    return get_MOTION_GRADIENTS();
+  }, 0, 0, 338);
+}
+function buildPumpShapes$f1($src, p) {
+  return fixed(p[0] + $src.i31_1, 1) + ',' + fixed(p[1] + $src.j31_1, 1);
+}
+function buildPumpShapes$midp(a, b) {
+  // Inline function 'kotlin.doubleArrayOf' call
+  return new Float64Array([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]);
+}
+function buildPumpShapes$smoothD($src, pts, toMid) {
+  var d = (new StringBuilder('M')).a7(buildPumpShapes$f1($src, pts.n(0))).a7(' L').a7(buildPumpShapes$f1($src, buildPumpShapes$midp(pts.n(0), pts.n(1))));
+  var inductionVariable = 1;
+  var last = pts.o() - 1 | 0;
+  if (inductionVariable < last)
+    do {
+      var i = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      d.a7(' Q').a7(buildPumpShapes$f1($src, pts.n(i))).b7(_Char___init__impl__6a9atx(32)).a7(buildPumpShapes$f1($src, buildPumpShapes$midp(pts.n(i), pts.n(i + 1 | 0))));
+    }
+     while (inductionVariable < last);
+  if (!toMid) {
+    d.a7(' L').a7(buildPumpShapes$f1($src, pts.n(pts.o() - 1 | 0)));
+  }
+  return d.toString();
+}
+function buildPumpShapes$vein(veins, $src, layer, pts, toMid, d0, len, width) {
+  // Inline function 'kotlin.collections.plusAssign' call
+  var element = new VeinPath(buildPumpShapes$smoothD($src, pts, toMid), layer, Companion_instance_60.u32(layer), width, d0, len, !(layer === 'glow'));
+  veins.i(element);
+}
+function buildPumpShapes$branch(pr, nodes, $src, veins, p0, ang, length, d0, level) {
+  var step = 24;
+  // Inline function 'kotlin.math.max' call
+  var b = roundToInt(length / step);
+  var n = Math.max(2, b);
+  var pts = arrayListOf([p0]);
+  var heads = ArrayList_init_$Create$();
+  var x = p0[0];
+  var y = p0[1];
+  var wander = 0.0;
+  var inductionVariable = 0;
+  if (inductionVariable < n)
+    do {
+      var s = inductionVariable;
+      inductionVariable = inductionVariable + 1 | 0;
+      wander = wander * 0.7 + (pr.l() - 0.5) * 0.8;
+      var hd = ang + wander;
+      var tmp = x;
+      // Inline function 'kotlin.math.cos' call
+      x = tmp + Math.cos(hd) * step;
+      var tmp_0 = y;
+      // Inline function 'kotlin.math.sin' call
+      y = tmp_0 + Math.sin(hd) * step;
+      // Inline function 'kotlin.doubleArrayOf' call
+      // Inline function 'kotlin.collections.plusAssign' call
+      var element = new Float64Array([x, y]);
+      pts.i(element);
+      // Inline function 'kotlin.collections.plusAssign' call
+      heads.i(hd);
+    }
+     while (inductionVariable < n);
+  buildPumpShapes$vein(veins, $src, 'glow', pts, false, d0, imul(n, step), level === 1 ? 6.0 : 4.0);
+  buildPumpShapes$vein(veins, $src, 'core', pts, false, d0, imul(n, step), level === 1 ? 1.3 : 0.9);
+  // Inline function 'kotlin.collections.plusAssign' call
+  var element_0 = new VeinNode(p0[0] + $src.i31_1, p0[1] + $src.j31_1, level === 1 ? 2.6 : 1.7, d0);
+  nodes.i(element_0);
+  if (level === 1 && n > 2 && pr.l() < 0.65) {
+    var k = 1 + numberToInt(pr.l() * (n - 1 | 0)) | 0;
+    var sign = pr.l() > 0.5 ? 1 : -1;
+    var turn = heads.n(k - 1 | 0) + sign * (0.5 + pr.l() * 0.45);
+    var bl = 30 + pr.l() * 55;
+    buildPumpShapes$branch(pr, nodes, $src, veins, pts.n(k), turn, bl, d0 + imul(k, step), 2);
+  }
+}
+var properties_initialized_ModeSwitchShapes_kt_gsv2p7;
+function _init_properties_ModeSwitchShapes_kt__wtp92h() {
+  if (!properties_initialized_ModeSwitchShapes_kt_gsv2p7) {
+    properties_initialized_ModeSwitchShapes_kt_gsv2p7 = true;
+    VEIN_LAYERS = listOf(['glow', 'core', 'hot', 'pulse']);
+    HAMMER$delegate = lazy(HAMMER$delegate$lambda);
+    HAMMER_RUNE_GLOW = new MotionPath('M-9,-116 L-9,-36 M-9,-100 L15,-78 L-9,-56', null, '#FFC98A', 5.0, 1.0, 'square', 'miter');
+    MOTION_GRADIENTS$delegate = lazy(MOTION_GRADIENTS$delegate$lambda);
+  }
+}
 var static_init_called_24;
 function static_init_24() {
   if (static_init_called_24)
@@ -34440,28 +36334,28 @@ function SlotKind(name, ordinal, accepts, upper, defaults) {
   this.q1s_1 = defaults;
 }
 function Item(name, inCatalogue, muscles, compound) {
-  this.i31_1 = name;
-  this.j31_1 = inCatalogue;
-  this.k31_1 = muscles;
-  this.l31_1 = compound;
-  this.m31_1 = Library_getInstance().n1r(this.i31_1);
-  this.n31_1 = PlanBuilder_getInstance().o1q(this.k31_1);
-  this.o31_1 = PlanBuilder_getInstance().j1r(this.i31_1, this.k31_1, this.l31_1, this.j31_1);
+  this.x38_1 = name;
+  this.y38_1 = inCatalogue;
+  this.z38_1 = muscles;
+  this.a39_1 = compound;
+  this.b39_1 = Library_getInstance().n1r(this.x38_1);
+  this.c39_1 = PlanBuilder_getInstance().o1q(this.z38_1);
+  this.d39_1 = PlanBuilder_getInstance().j1r(this.x38_1, this.z38_1, this.a39_1, this.y38_1);
 }
 function Slot(kind, lead, forGroup) {
   forGroup = forGroup === VOID ? null : forGroup;
-  this.p31_1 = kind;
-  this.q31_1 = lead;
-  this.r31_1 = forGroup;
-  this.s31_1 = null;
+  this.e39_1 = kind;
+  this.f39_1 = lead;
+  this.g39_1 = forGroup;
+  this.h39_1 = null;
 }
-protoOf(Slot).t31 = function (item) {
-  return equals(item.o31_1, this.p31_1) && (this.r31_1 == null || MuscleGroups_getInstance().t1p(item.k31_1, this.r31_1));
+protoOf(Slot).i39 = function (item) {
+  return equals(item.d39_1, this.e39_1) && (this.g39_1 == null || MuscleGroups_getInstance().t1p(item.z38_1, this.g39_1));
 };
 function Session(day, title, upper, kinds) {
-  this.u31_1 = day;
-  this.v31_1 = title;
-  this.w31_1 = upper;
+  this.j39_1 = day;
+  this.k39_1 = title;
+  this.l39_1 = upper;
   var tmp = this;
   // Inline function 'kotlin.collections.mapIndexed' call
   // Inline function 'kotlin.collections.mapIndexedTo' call
@@ -34476,12 +36370,12 @@ function Session(day, title, upper, kinds) {
     var tmp$ret$2 = new Slot(item, i === 0);
     destination.i(tmp$ret$2);
   }
-  tmp.x31_1 = toMutableList(destination);
-  this.y31_1 = null;
+  tmp.m39_1 = toMutableList(destination);
+  this.n39_1 = null;
 }
-protoOf(Session).z31 = function (key) {
+protoOf(Session).o39 = function (key) {
   var tmp;
-  var tmp0 = this.x31_1;
+  var tmp0 = this.m39_1;
   var tmp$ret$0;
   $l$block_0: {
     // Inline function 'kotlin.collections.any' call
@@ -34498,8 +36392,8 @@ protoOf(Session).z31 = function (key) {
     var _iterator__ex2g4s = tmp0.j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
-      var tmp0_safe_receiver = element.s31_1;
-      if ((tmp0_safe_receiver == null ? null : tmp0_safe_receiver.m31_1) === key) {
+      var tmp0_safe_receiver = element.h39_1;
+      if ((tmp0_safe_receiver == null ? null : tmp0_safe_receiver.b39_1) === key) {
         tmp$ret$0 = true;
         break $l$block_0;
       }
@@ -34509,20 +36403,20 @@ protoOf(Session).z31 = function (key) {
   if (tmp$ret$0) {
     tmp = true;
   } else {
-    var tmp0_safe_receiver_0 = this.y31_1;
-    tmp = (tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.m31_1) === key;
+    var tmp0_safe_receiver_0 = this.n39_1;
+    tmp = (tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.b39_1) === key;
   }
   return tmp;
 };
-protoOf(Session).a32 = function (pick, added) {
-  var tmp0 = this.x31_1;
+protoOf(Session).p39 = function (pick, added) {
+  var tmp0 = this.m39_1;
   var tmp$ret$0;
   $l$block: {
     // Inline function 'kotlin.collections.firstOrNull' call
     var _iterator__ex2g4s = tmp0.j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
-      if (element.s31_1 == null && !(element.r31_1 == null) === added && element.t31(pick)) {
+      if (element.h39_1 == null && !(element.g39_1 == null) === added && element.i39(pick)) {
         tmp$ret$0 = element;
         break $l$block;
       }
@@ -34531,8 +36425,8 @@ protoOf(Session).a32 = function (pick, added) {
   }
   return tmp$ret$0;
 };
-protoOf(Session).b32 = function (kind) {
-  return this.w31_1 == null || kind == null || this.w31_1 === kind.p1s_1;
+protoOf(Session).q39 = function (kind) {
+  return this.l39_1 == null || kind == null || this.l39_1 === kind.p1s_1;
 };
 function sessions($this, days) {
   // Inline function 'kotlin.collections.sortedBy' call
@@ -34581,7 +36475,7 @@ function equipmentUse($this, picks) {
   var _iterator__ex2g4s = picks.j();
   while (_iterator__ex2g4s.k()) {
     var e = _iterator__ex2g4s.l();
-    var key = Library_getInstance().n1r(e.c32_1);
+    var key = Library_getInstance().n1r(e.r39_1);
     if (set.i(key)) {
       list.i(e);
     }
@@ -34611,7 +36505,7 @@ function equipmentUse($this, picks) {
       var _iterator__ex2g4s_1 = once.j();
       while (_iterator__ex2g4s_1.k()) {
         var element_0 = _iterator__ex2g4s_1.l();
-        if (element_0.f32_1.r(element)) {
+        if (element_0.u39_1.r(element)) {
           count = count + 1 | 0;
           checkCountOverflow(count);
         }
@@ -34674,16 +36568,16 @@ function rotate($this, list, variant) {
   return plus(drop(list, shift), take(list, shift));
 }
 function sam$kotlin_Comparator$0_8(function_0) {
-  this.h32_1 = function_0;
+  this.w39_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_8).ha = function (a, b) {
-  return this.h32_1(a, b);
+  return this.w39_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_8).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_8).g2 = function () {
-  return this.h32_1;
+  return this.w39_1;
 };
 protoOf(sam$kotlin_Comparator$0_8).equals = function (other) {
   var tmp;
@@ -34704,16 +36598,16 @@ protoOf(sam$kotlin_Comparator$0_8).hashCode = function () {
   return hashCode(this.g2());
 };
 function sam$kotlin_Comparator$0_9(function_0) {
-  this.i32_1 = function_0;
+  this.x39_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_9).ha = function (a, b) {
-  return this.i32_1(a, b);
+  return this.x39_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_9).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_9).g2 = function () {
-  return this.i32_1;
+  return this.x39_1;
 };
 protoOf(sam$kotlin_Comparator$0_9).equals = function (other) {
   var tmp;
@@ -34734,16 +36628,16 @@ protoOf(sam$kotlin_Comparator$0_9).hashCode = function () {
   return hashCode(this.g2());
 };
 function sam$kotlin_Comparator$0_10(function_0) {
-  this.j32_1 = function_0;
+  this.y39_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_10).ha = function (a, b) {
-  return this.j32_1(a, b);
+  return this.y39_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_10).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_10).g2 = function () {
-  return this.j32_1;
+  return this.y39_1;
 };
 protoOf(sam$kotlin_Comparator$0_10).equals = function (other) {
   var tmp;
@@ -34783,7 +36677,7 @@ function kindOf$has($name, words) {
 }
 function PlanBuilder$build$lambda($kind) {
   return function (s) {
-    var tmp0 = s.x31_1;
+    var tmp0 = s.m39_1;
     var tmp$ret$0;
     $l$block: {
       // Inline function 'kotlin.collections.count' call
@@ -34801,7 +36695,7 @@ function PlanBuilder$build$lambda($kind) {
       var _iterator__ex2g4s = tmp0.j();
       while (_iterator__ex2g4s.k()) {
         var element = _iterator__ex2g4s.l();
-        if (element.p31_1.equals($kind)) {
+        if (element.e39_1.equals($kind)) {
           count = count + 1 | 0;
           checkCountOverflow(count);
         }
@@ -34812,15 +36706,15 @@ function PlanBuilder$build$lambda($kind) {
   };
 }
 function PlanBuilder$build$lambda_0(it) {
-  return it.x31_1.o();
+  return it.m39_1.o();
 }
 function PlanBuilder$build$lambda_1(it) {
-  var tmp0_safe_receiver = it.o31_1;
+  var tmp0_safe_receiver = it.d39_1;
   var tmp1_elvis_lhs = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.x1_1;
   return tmp1_elvis_lhs == null ? 2147483647 : tmp1_elvis_lhs;
 }
 function PlanBuilder$build$lambda_2(it) {
-  return it.i31_1;
+  return it.x38_1;
 }
 function build$slotFor(pick, among) {
   var tmp$ret$0;
@@ -34829,7 +36723,7 @@ function build$slotFor(pick, among) {
     var _iterator__ex2g4s = among.j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
-      var result = element.a32(pick, false);
+      var result = element.p39(pick, false);
       if (!(result == null)) {
         tmp$ret$0 = result;
         break $l$block;
@@ -34846,7 +36740,7 @@ function build$slotFor(pick, among) {
       var _iterator__ex2g4s_0 = among.j();
       while (_iterator__ex2g4s_0.k()) {
         var element_0 = _iterator__ex2g4s_0.l();
-        var result_0 = element_0.a32(pick, true);
+        var result_0 = element_0.p39(pick, true);
         if (!(result_0 == null)) {
           tmp$ret$2 = result_0;
           break $l$block_0;
@@ -34867,7 +36761,7 @@ function build$weekCount(sessions, key) {
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
     var tmp = sum;
-    var tmp0 = element.x31_1;
+    var tmp0 = element.m39_1;
     var tmp$ret$2;
     $l$block: {
       // Inline function 'kotlin.collections.count' call
@@ -34885,8 +36779,8 @@ function build$weekCount(sessions, key) {
       var _iterator__ex2g4s_0 = tmp0.j();
       while (_iterator__ex2g4s_0.k()) {
         var element_0 = _iterator__ex2g4s_0.l();
-        var tmp0_safe_receiver = element_0.s31_1;
-        if ((tmp0_safe_receiver == null ? null : tmp0_safe_receiver.m31_1) === key) {
+        var tmp0_safe_receiver = element_0.h39_1;
+        if ((tmp0_safe_receiver == null ? null : tmp0_safe_receiver.b39_1) === key) {
           count = count + 1 | 0;
           checkCountOverflow(count);
         }
@@ -34895,8 +36789,8 @@ function build$weekCount(sessions, key) {
     }
     var tmp_1 = tmp$ret$2;
     var tmp_2;
-    var tmp0_safe_receiver_0 = element.y31_1;
-    if ((tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.m31_1) === key) {
+    var tmp0_safe_receiver_0 = element.n39_1;
+    if ((tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.b39_1) === key) {
       tmp_2 = 1;
     } else {
       tmp_2 = 0;
@@ -34906,25 +36800,25 @@ function build$weekCount(sessions, key) {
   return sum;
 }
 function PlanBuilder$build$lambda_3(it) {
-  return it.s31_1 == null;
+  return it.h39_1 == null;
 }
 function build$draft(priorities, item, slot) {
   var tmp;
-  if (contains_1(priorities, item.n31_1)) {
+  if (contains_1(priorities, item.c39_1)) {
     tmp = 4;
   } else {
-    if ((slot == null ? null : slot.q31_1) === true) {
+    if ((slot == null ? null : slot.f39_1) === true) {
       tmp = 4;
     } else {
       tmp = 3;
     }
   }
   var sets = tmp;
-  var tmp_0 = slot == null ? null : slot.p31_1;
-  return new DraftExercise(item.i31_1, item.j31_1, sets, 8, 12, 8.0, item.n31_1, item.k31_1, item.l31_1, tmp_0, (slot == null ? null : slot.q31_1) === true);
+  var tmp_0 = slot == null ? null : slot.e39_1;
+  return new DraftExercise(item.x38_1, item.y38_1, sets, 8, 12, 8.0, item.c39_1, item.z38_1, item.a39_1, tmp_0, (slot == null ? null : slot.f39_1) === true);
 }
 function build$priority(priorities, e) {
-  return contains_1(priorities, e.q32_1);
+  return contains_1(priorities, e.f3a_1);
 }
 function PlanBuilder$sessions$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
@@ -35175,8 +37069,8 @@ protoOf(PlanBuilder).j1r = function (name, muscles, compound, inCatalogue) {
   }
   return tmp_0;
 };
-protoOf(PlanBuilder).v32 = function (answers) {
-  var days = answers.w32_1;
+protoOf(PlanBuilder).k3a = function (answers) {
+  var days = answers.l3a_1;
   // Inline function 'kotlin.require' call
   if (!(days.o() === 3 || days.o() === 4)) {
     var message = 'days: ' + days.o() + ' days; the builder takes 3 or 4';
@@ -35187,7 +37081,7 @@ protoOf(PlanBuilder).v32 = function (answers) {
     var message_0 = 'days: a weekday is repeated';
     throw IllegalArgumentException_init_$Create$(toString(message_0));
   }
-  var priorities = answers.y32_1;
+  var priorities = answers.n3a_1;
   // Inline function 'kotlin.require' call
   if (!(priorities.o() <= 3)) {
     var message_1 = 'priorities: ' + priorities.o() + '; at most 3';
@@ -35237,13 +37131,13 @@ protoOf(PlanBuilder).v32 = function (answers) {
     throw IllegalArgumentException_init_$Create$(toString(message_3));
   }
   // Inline function 'kotlin.collections.filter' call
-  var tmp0 = answers.x32_1;
+  var tmp0 = answers.m3a_1;
   // Inline function 'kotlin.collections.filterTo' call
   var destination_0 = ArrayList_init_$Create$();
   var _iterator__ex2g4s_1 = tmp0.j();
   while (_iterator__ex2g4s_1.k()) {
     var element_1 = _iterator__ex2g4s_1.l();
-    if (element_1.g32_1 && Library_getInstance().y1q(element_1.c32_1) == null) {
+    if (element_1.v39_1 && Library_getInstance().y1q(element_1.r39_1) == null) {
       destination_0.i(element_1);
     }
   }
@@ -35253,7 +37147,7 @@ protoOf(PlanBuilder).v32 = function (answers) {
   var _iterator__ex2g4s_2 = destination_0.j();
   while (_iterator__ex2g4s_2.k()) {
     var item = _iterator__ex2g4s_2.l();
-    var tmp$ret$20 = item.c32_1;
+    var tmp$ret$20 = item.r39_1;
     destination_1.i(tmp$ret$20);
   }
   var unknown = destination_1;
@@ -35273,25 +37167,25 @@ protoOf(PlanBuilder).v32 = function (answers) {
     var _iterator__ex2g4s_4 = sessions_0.j();
     while (_iterator__ex2g4s_4.k()) {
       var element_2 = _iterator__ex2g4s_4.l();
-      if (element_2.b32(kind)) {
+      if (element_2.q39(kind)) {
         destination_2.i(element_2);
       }
     }
     var tmp_0 = destination_2;
     var tmp_1 = PlanBuilder$build$lambda(kind);
-    var tmp0_0 = minWith(tmp_0, compareBy([tmp_1, PlanBuilder$build$lambda_0])).x31_1;
+    var tmp0_0 = minWith(tmp_0, compareBy([tmp_1, PlanBuilder$build$lambda_0])).m39_1;
     // Inline function 'kotlin.collections.plusAssign' call
     var element_3 = new Slot(kind, false, group);
     tmp0_0.i(element_3);
   }
   // Inline function 'kotlin.collections.distinctBy' call
-  var this_0 = answers.x32_1;
+  var this_0 = answers.m3a_1;
   var set = HashSet_init_$Create$();
   var list = ArrayList_init_$Create$();
   var _iterator__ex2g4s_5 = this_0.j();
   while (_iterator__ex2g4s_5.k()) {
     var e = _iterator__ex2g4s_5.l();
-    var key = Library_getInstance().n1r(e.c32_1);
+    var key = Library_getInstance().n1r(e.r39_1);
     if (set.i(key)) {
       list.i(e);
     }
@@ -35302,7 +37196,7 @@ protoOf(PlanBuilder).v32 = function (answers) {
   var _iterator__ex2g4s_6 = list.j();
   while (_iterator__ex2g4s_6.k()) {
     var item_0 = _iterator__ex2g4s_6.l();
-    var tmp$ret$31 = new Item(item_0.c32_1, item_0.g32_1, item_0.d32_1, item_0.e32_1);
+    var tmp$ret$31 = new Item(item_0.r39_1, item_0.v39_1, item_0.s39_1, item_0.t39_1);
     destination_3.i(tmp$ret$31);
   }
   var picks = destination_3;
@@ -35315,12 +37209,12 @@ protoOf(PlanBuilder).v32 = function (answers) {
   var _iterator__ex2g4s_7 = ordered.j();
   while (_iterator__ex2g4s_7.k()) {
     var pick = _iterator__ex2g4s_7.l();
-    var slot = pick.o31_1 == null ? null : build$slotFor(pick, sessions_0);
+    var slot = pick.d39_1 == null ? null : build$slotFor(pick, sessions_0);
     if (slot == null) {
       // Inline function 'kotlin.collections.plusAssign' call
       heldOver.i(pick);
     } else {
-      slot.s31_1 = pick;
+      slot.h39_1 = pick;
       // Inline function 'kotlin.collections.plusAssign' call
       placed.i(pick);
     }
@@ -35334,7 +37228,7 @@ protoOf(PlanBuilder).v32 = function (answers) {
     var _iterator__ex2g4s_9 = sessions_0.j();
     while (_iterator__ex2g4s_9.k()) {
       var element_4 = _iterator__ex2g4s_9.l();
-      if (!element_4.z31(pick_0.m31_1)) {
+      if (!element_4.o39(pick_0.b39_1)) {
         destination_4.i(element_4);
       }
     }
@@ -35342,7 +37236,7 @@ protoOf(PlanBuilder).v32 = function (answers) {
     if (tmp0_safe_receiver == null)
       null;
     else {
-      tmp0_safe_receiver.s31_1 = pick_0;
+      tmp0_safe_receiver.h39_1 = pick_0;
     }
   }
   // Inline function 'kotlin.collections.mutableListOf' call
@@ -35356,7 +37250,7 @@ protoOf(PlanBuilder).v32 = function (answers) {
     var _iterator__ex2g4s_11 = sessions_0.j();
     while (_iterator__ex2g4s_11.k()) {
       var element_5 = _iterator__ex2g4s_11.l();
-      if (element_5.y31_1 == null && element_5.b32(pick_1.o31_1)) {
+      if (element_5.n39_1 == null && element_5.q39(pick_1.d39_1)) {
         destination_5.i(element_5);
       }
     }
@@ -35373,10 +37267,10 @@ protoOf(PlanBuilder).v32 = function (answers) {
         tmp$ret$43 = minElem;
         break $l$block_2;
       }
-      var minValue = minElem.x31_1.o();
+      var minValue = minElem.m39_1.o();
       do {
         var e_0 = iterator.l();
-        var v = e_0.x31_1.o();
+        var v = e_0.m39_1.o();
         if (compareTo(minValue, v) > 0) {
           minElem = e_0;
           minValue = v;
@@ -35388,19 +37282,19 @@ protoOf(PlanBuilder).v32 = function (answers) {
     var target = tmp$ret$43;
     if (target == null) {
       // Inline function 'kotlin.collections.plusAssign' call
-      var element_6 = new LeftOut(pick_1.i31_1, 'No room: every session it fits is full.');
+      var element_6 = new LeftOut(pick_1.x38_1, 'No room: every session it fits is full.');
       leftOut.i(element_6);
     } else
-      target.y31_1 = pick_1;
+      target.n39_1 = pick_1;
   }
-  var equipmentUse_0 = equipmentUse(this, answers.x32_1);
+  var equipmentUse_0 = equipmentUse(this, answers.m3a_1);
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
   var destination_6 = ArrayList_init_$Create$_0(collectionSizeOrDefault(picks, 10));
   var _iterator__ex2g4s_12 = picks.j();
   while (_iterator__ex2g4s_12.k()) {
     var item_1 = _iterator__ex2g4s_12.l();
-    var tmp$ret$49 = item_1.m31_1;
+    var tmp$ret$49 = item_1.b39_1;
     destination_6.i(tmp$ret$49);
   }
   var pickKeys = toSet(destination_6);
@@ -35411,13 +37305,13 @@ protoOf(PlanBuilder).v32 = function (answers) {
     while (_iterator__ex2g4s_14.k()) {
       var s = _iterator__ex2g4s_14.l();
       // Inline function 'kotlin.collections.filter' call
-      var tmp0_1 = s.x31_1;
+      var tmp0_1 = s.m39_1;
       // Inline function 'kotlin.collections.filterTo' call
       var destination_7 = ArrayList_init_$Create$();
       var _iterator__ex2g4s_15 = tmp0_1.j();
       while (_iterator__ex2g4s_15.k()) {
         var element_7 = _iterator__ex2g4s_15.l();
-        if (element_7.s31_1 == null && !(element_7.r31_1 == null) === added) {
+        if (element_7.h39_1 == null && !(element_7.g39_1 == null) === added) {
           destination_7.i(element_7);
         }
       }
@@ -35425,7 +37319,7 @@ protoOf(PlanBuilder).v32 = function (answers) {
       while (_iterator__ex2g4s_16.k()) {
         var slot_0 = _iterator__ex2g4s_16.l();
         var tmp_3;
-        if (equals(slot_0.r31_1, MuscleGroup_GLUTES_getInstance())) {
+        if (equals(slot_0.g39_1, MuscleGroup_GLUTES_getInstance())) {
           // Inline function 'kotlin.collections.map' call
           var this_1 = this.j1q_1;
           // Inline function 'kotlin.collections.mapTo' call
@@ -35436,9 +37330,9 @@ protoOf(PlanBuilder).v32 = function (answers) {
             var tmp$ret$55 = entry(this, item_2);
             destination_8.i(tmp$ret$55);
           }
-          tmp_3 = rotate(this, destination_8, answers.z32_1);
+          tmp_3 = rotate(this, destination_8, answers.o3a_1);
         } else {
-          tmp_3 = defaultsFor(this, slot_0.p31_1, equipmentUse_0, answers.z32_1);
+          tmp_3 = defaultsFor(this, slot_0.e39_1, equipmentUse_0, answers.o3a_1);
         }
         var candidates = tmp_3;
         var tmp$ret$56;
@@ -35448,7 +37342,7 @@ protoOf(PlanBuilder).v32 = function (answers) {
           while (_iterator__ex2g4s_18.k()) {
             var element_8 = _iterator__ex2g4s_18.l();
             var k = Library_getInstance().n1r(element_8.z1q_1);
-            if (!s.z31(k) && (!pickKeys.r(k) || build$weekCount(sessions_0, k) < 2) && (slot_0.r31_1 == null || MuscleGroups_getInstance().t1p(element_8.d1r_1, slot_0.r31_1))) {
+            if (!s.o39(k) && (!pickKeys.r(k) || build$weekCount(sessions_0, k) < 2) && (slot_0.g39_1 == null || MuscleGroups_getInstance().t1p(element_8.d1r_1, slot_0.g39_1))) {
               tmp$ret$56 = element_8;
               break $l$block_3;
             }
@@ -35464,14 +37358,14 @@ protoOf(PlanBuilder).v32 = function (answers) {
           // Inline function 'kotlin.let' call
           tmp_5 = new Item(default_0.z1q_1, true, default_0.d1r_1, default_0.e1r_1.equals(Kind_COMPOUND_getInstance()));
         }
-        tmp_4.s31_1 = tmp_5;
+        tmp_4.h39_1 = tmp_5;
       }
     }
   }
   var _iterator__ex2g4s_19 = sessions_0.j();
   while (_iterator__ex2g4s_19.k()) {
     var s_0 = _iterator__ex2g4s_19.l();
-    removeAll(s_0.x31_1, PlanBuilder$build$lambda_3);
+    removeAll(s_0.m39_1, PlanBuilder$build$lambda_3);
   }
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
@@ -35480,17 +37374,17 @@ protoOf(PlanBuilder).v32 = function (answers) {
   while (_iterator__ex2g4s_20.k()) {
     var item_3 = _iterator__ex2g4s_20.l();
     // Inline function 'kotlin.collections.map' call
-    var this_2 = item_3.x31_1;
+    var this_2 = item_3.m39_1;
     // Inline function 'kotlin.collections.mapTo' call
     var destination_10 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_2, 10));
     var _iterator__ex2g4s_21 = this_2.j();
     while (_iterator__ex2g4s_21.k()) {
       var item_4 = _iterator__ex2g4s_21.l();
-      var tmp$ret$65 = build$draft(priorities, ensureNotNull(item_4.s31_1), item_4);
+      var tmp$ret$65 = build$draft(priorities, ensureNotNull(item_4.h39_1), item_4);
       destination_10.i(tmp$ret$65);
     }
     var inSlots = destination_10;
-    var tmp0_safe_receiver_0 = item_3.y31_1;
+    var tmp0_safe_receiver_0 = item_3.n39_1;
     var tmp_6;
     if (tmp0_safe_receiver_0 == null) {
       tmp_6 = null;
@@ -35543,13 +37437,13 @@ protoOf(PlanBuilder).v32 = function (answers) {
       }
     }
     var exercises = plus(tmp_9, destination_14);
-    var tmp$ret$62 = new DraftSession(item_3.u31_1, item_3.v31_1, exercises);
+    var tmp$ret$62 = new DraftSession(item_3.j39_1, item_3.k39_1, exercises);
     destination_9.i(tmp$ret$62);
   }
   var draftSessions = destination_9;
-  return new PlanDraft(draftSessions, this.a33(draftSessions), leftOut);
+  return new PlanDraft(draftSessions, this.p3a(draftSessions), leftOut);
 };
-protoOf(PlanBuilder).a33 = function (sessions) {
+protoOf(PlanBuilder).p3a = function (sessions) {
   // Inline function 'kotlin.collections.map' call
   var this_0 = this.i1q_1;
   // Inline function 'kotlin.collections.mapTo' call
@@ -35563,13 +37457,13 @@ protoOf(PlanBuilder).a33 = function (sessions) {
     while (_iterator__ex2g4s_0.k()) {
       var s = _iterator__ex2g4s_0.l();
       // Inline function 'kotlin.collections.filter' call
-      var tmp0 = s.d33_1;
+      var tmp0 = s.s3a_1;
       // Inline function 'kotlin.collections.filterTo' call
       var destination_0 = ArrayList_init_$Create$();
       var _iterator__ex2g4s_1 = tmp0.j();
       while (_iterator__ex2g4s_1.k()) {
         var element = _iterator__ex2g4s_1.l();
-        if (MuscleGroups_getInstance().t1p(element.r32_1, item)) {
+        if (MuscleGroups_getInstance().t1p(element.g3a_1, item)) {
           destination_0.i(element);
         }
       }
@@ -35581,7 +37475,7 @@ protoOf(PlanBuilder).a33 = function (sessions) {
       while (_iterator__ex2g4s_2.k()) {
         var element_0 = _iterator__ex2g4s_2.l();
         var tmp_0 = sum;
-        sum = tmp_0 + element_0.m32_1 | 0;
+        sum = tmp_0 + element_0.b3a_1 | 0;
       }
       sets = tmp + sum | 0;
       // Inline function 'kotlin.collections.isNotEmpty' call
@@ -35594,9 +37488,9 @@ protoOf(PlanBuilder).a33 = function (sessions) {
   }
   return destination;
 };
-protoOf(PlanBuilder).e33 = function (name, draft, picks, day) {
+protoOf(PlanBuilder).t3a = function (name, draft, picks, day) {
   var key = Library_getInstance().n1r(name);
-  var tmp0 = draft.f33_1;
+  var tmp0 = draft.u3a_1;
   var tmp$ret$0;
   $l$block_1: {
     // Inline function 'kotlin.collections.firstOrNull' call
@@ -35604,8 +37498,8 @@ protoOf(PlanBuilder).e33 = function (name, draft, picks, day) {
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
       var tmp;
-      if (day == null || element.b33_1.equals(day)) {
-        var tmp0_0 = element.d33_1;
+      if (day == null || element.q3a_1.equals(day)) {
+        var tmp0_0 = element.s3a_1;
         var tmp$ret$2;
         $l$block_0: {
           // Inline function 'kotlin.collections.any' call
@@ -35622,7 +37516,7 @@ protoOf(PlanBuilder).e33 = function (name, draft, picks, day) {
           var _iterator__ex2g4s_0 = tmp0_0.j();
           while (_iterator__ex2g4s_0.k()) {
             var element_0 = _iterator__ex2g4s_0.l();
-            if (Library_getInstance().n1r(element_0.k32_1) === key) {
+            if (Library_getInstance().n1r(element_0.z39_1) === key) {
               tmp$ret$2 = true;
               break $l$block_0;
             }
@@ -35648,14 +37542,14 @@ protoOf(PlanBuilder).e33 = function (name, draft, picks, day) {
     tmp_1 = tmp0_elvis_lhs;
   }
   var session = tmp_1;
-  var tmp0_1 = session.d33_1;
+  var tmp0_1 = session.s3a_1;
   var tmp$ret$4;
   $l$block_2: {
     // Inline function 'kotlin.collections.first' call
     var _iterator__ex2g4s_1 = tmp0_1.j();
     while (_iterator__ex2g4s_1.k()) {
       var element_1 = _iterator__ex2g4s_1.l();
-      if (Library_getInstance().n1r(element_1.k32_1) === key) {
+      if (Library_getInstance().n1r(element_1.z39_1) === key) {
         tmp$ret$4 = element_1;
         break $l$block_2;
       }
@@ -35664,19 +37558,19 @@ protoOf(PlanBuilder).e33 = function (name, draft, picks, day) {
   }
   var exercise = tmp$ret$4;
   // Inline function 'kotlin.collections.map' call
-  var this_0 = session.d33_1;
+  var this_0 = session.s3a_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s_2 = this_0.j();
   while (_iterator__ex2g4s_2.k()) {
     var item = _iterator__ex2g4s_2.l();
-    var tmp$ret$8 = Library_getInstance().n1r(item.k32_1);
+    var tmp$ret$8 = Library_getInstance().n1r(item.z39_1);
     destination.i(tmp$ret$8);
   }
   var inSession = toSet(destination);
-  var kind = exercise.t32_1;
+  var kind = exercise.i3a_1;
   if (kind == null) {
-    var tmp1_elvis_lhs = exercise.q32_1;
+    var tmp1_elvis_lhs = exercise.f3a_1;
     var tmp_2;
     if (tmp1_elvis_lhs == null) {
       return emptyList();
@@ -35732,15 +37626,15 @@ protoOf(PlanBuilder).e33 = function (name, draft, picks, day) {
   }
   return plus(tmp_3, destination_3);
 };
-protoOf(PlanBuilder).i33 = function (draft, day, from, to) {
-  var tmp0 = draft.f33_1;
+protoOf(PlanBuilder).x3a = function (draft, day, from, to) {
+  var tmp0 = draft.u3a_1;
   var tmp$ret$0;
   $l$block: {
     // Inline function 'kotlin.collections.firstOrNull' call
     var _iterator__ex2g4s = tmp0.j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
-      if (element.b33_1.equals(day)) {
+      if (element.q3a_1.equals(day)) {
         tmp$ret$0 = element;
         break $l$block;
       }
@@ -35755,7 +37649,7 @@ protoOf(PlanBuilder).i33 = function (draft, day, from, to) {
     tmp = tmp0_elvis_lhs;
   }
   var session = tmp;
-  var tmp0_0 = session.d33_1;
+  var tmp0_0 = session.s3a_1;
   var tmp$ret$2;
   $l$block_0: {
     // Inline function 'kotlin.collections.indexOfFirst' call
@@ -35763,7 +37657,7 @@ protoOf(PlanBuilder).i33 = function (draft, day, from, to) {
     var _iterator__ex2g4s_0 = tmp0_0.j();
     while (_iterator__ex2g4s_0.k()) {
       var item = _iterator__ex2g4s_0.l();
-      if (Library_getInstance().n1r(item.k32_1) === Library_getInstance().n1r(from)) {
+      if (Library_getInstance().n1r(item.z39_1) === Library_getInstance().n1r(from)) {
         tmp$ret$2 = index;
         break $l$block_0;
       }
@@ -35785,7 +37679,7 @@ protoOf(PlanBuilder).i33 = function (draft, day, from, to) {
     tmp_0 = tmp1_elvis_lhs;
   }
   var entry = tmp_0;
-  var tmp0_1 = session.d33_1;
+  var tmp0_1 = session.s3a_1;
   var tmp$ret$6;
   $l$block_2: {
     // Inline function 'kotlin.collections.none' call
@@ -35802,7 +37696,7 @@ protoOf(PlanBuilder).i33 = function (draft, day, from, to) {
     var _iterator__ex2g4s_1 = tmp0_1.j();
     while (_iterator__ex2g4s_1.k()) {
       var element_0 = _iterator__ex2g4s_1.l();
-      if (Library_getInstance().n1r(element_0.k32_1) === Library_getInstance().n1r(entry.z1q_1)) {
+      if (Library_getInstance().n1r(element_0.z39_1) === Library_getInstance().n1r(entry.z1q_1)) {
         tmp$ret$6 = false;
         break $l$block_2;
       }
@@ -35814,30 +37708,30 @@ protoOf(PlanBuilder).i33 = function (draft, day, from, to) {
     var message_0 = "to: '" + entry.z1q_1 + "' is already on " + day.toString();
     throw IllegalArgumentException_init_$Create$(toString(message_0));
   }
-  var new_0 = session.d33_1.n(index_0).j33(entry.z1q_1, true, VOID, VOID, VOID, VOID, this.o1q(entry.d1r_1), entry.d1r_1, entry.e1r_1.equals(Kind_COMPOUND_getInstance()));
+  var new_0 = session.s3a_1.n(index_0).y3a(entry.z1q_1, true, VOID, VOID, VOID, VOID, this.o1q(entry.d1r_1), entry.d1r_1, entry.e1r_1.equals(Kind_COMPOUND_getInstance()));
   // Inline function 'kotlin.collections.map' call
-  var this_0 = draft.f33_1;
+  var this_0 = draft.u3a_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s_2 = this_0.j();
   while (_iterator__ex2g4s_2.k()) {
     var item_0 = _iterator__ex2g4s_2.l();
     var tmp_2;
-    if (!item_0.b33_1.equals(day)) {
+    if (!item_0.q3a_1.equals(day)) {
       tmp_2 = item_0;
     } else {
       // Inline function 'kotlin.also' call
-      var this_1 = toMutableList(item_0.d33_1);
+      var this_1 = toMutableList(item_0.s3a_1);
       this_1.w2(index_0, new_0);
-      tmp_2 = item_0.k33(VOID, VOID, this_1);
+      tmp_2 = item_0.z3a(VOID, VOID, this_1);
     }
     var tmp$ret$12 = tmp_2;
     destination.i(tmp$ret$12);
   }
   var sessions = destination;
-  return draft.l33(sessions, this.a33(sessions));
+  return draft.a3b(sessions, this.p3a(sessions));
 };
-protoOf(PlanBuilder).m33 = function (history, plans, today) {
+protoOf(PlanBuilder).b3b = function (history, plans, today) {
   var from = minus_1(today, DatePeriod_init_$Create$(VOID, VOID, 28));
   var tmp = PlanBuilder$suggestedPicks$lambda;
   var tmp_0 = PlanBuilder$suggestedPicks$lambda_0;
@@ -35909,21 +37803,21 @@ function PlanBuilder_getInstance() {
   return PlanBuilder_instance;
 }
 function BuilderPick(name, muscles, compound, equipment, inCatalogue) {
-  this.c32_1 = name;
-  this.d32_1 = muscles;
-  this.e32_1 = compound;
-  this.f32_1 = equipment;
-  this.g32_1 = inCatalogue;
+  this.r39_1 = name;
+  this.s39_1 = muscles;
+  this.t39_1 = compound;
+  this.u39_1 = equipment;
+  this.v39_1 = inCatalogue;
 }
 protoOf(BuilderPick).toString = function () {
-  return 'BuilderPick(name=' + this.c32_1 + ', muscles=' + toString(this.d32_1) + ', compound=' + this.e32_1 + ', equipment=' + toString(this.f32_1) + ', inCatalogue=' + this.g32_1 + ')';
+  return 'BuilderPick(name=' + this.r39_1 + ', muscles=' + toString(this.s39_1) + ', compound=' + this.t39_1 + ', equipment=' + toString(this.u39_1) + ', inCatalogue=' + this.v39_1 + ')';
 };
 protoOf(BuilderPick).hashCode = function () {
-  var result = getStringHashCode(this.c32_1);
-  result = imul(result, 31) + hashCode(this.d32_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.e32_1) | 0;
-  result = imul(result, 31) + hashCode(this.f32_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.g32_1) | 0;
+  var result = getStringHashCode(this.r39_1);
+  result = imul(result, 31) + hashCode(this.s39_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.t39_1) | 0;
+  result = imul(result, 31) + hashCode(this.u39_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.v39_1) | 0;
   return result;
 };
 protoOf(BuilderPick).equals = function (other) {
@@ -35931,33 +37825,33 @@ protoOf(BuilderPick).equals = function (other) {
     return true;
   if (!(other instanceof BuilderPick))
     return false;
-  if (!(this.c32_1 === other.c32_1))
+  if (!(this.r39_1 === other.r39_1))
     return false;
-  if (!equals(this.d32_1, other.d32_1))
+  if (!equals(this.s39_1, other.s39_1))
     return false;
-  if (!(this.e32_1 === other.e32_1))
+  if (!(this.t39_1 === other.t39_1))
     return false;
-  if (!equals(this.f32_1, other.f32_1))
+  if (!equals(this.u39_1, other.u39_1))
     return false;
-  if (!(this.g32_1 === other.g32_1))
+  if (!(this.v39_1 === other.v39_1))
     return false;
   return true;
 };
 function BuilderAnswers(days, picks, priorities, variant) {
   variant = variant === VOID ? 0 : variant;
-  this.w32_1 = days;
-  this.x32_1 = picks;
-  this.y32_1 = priorities;
-  this.z32_1 = variant;
+  this.l3a_1 = days;
+  this.m3a_1 = picks;
+  this.n3a_1 = priorities;
+  this.o3a_1 = variant;
 }
 protoOf(BuilderAnswers).toString = function () {
-  return 'BuilderAnswers(days=' + toString(this.w32_1) + ', picks=' + toString(this.x32_1) + ', priorities=' + toString(this.y32_1) + ', variant=' + this.z32_1 + ')';
+  return 'BuilderAnswers(days=' + toString(this.l3a_1) + ', picks=' + toString(this.m3a_1) + ', priorities=' + toString(this.n3a_1) + ', variant=' + this.o3a_1 + ')';
 };
 protoOf(BuilderAnswers).hashCode = function () {
-  var result = hashCode(this.w32_1);
-  result = imul(result, 31) + hashCode(this.x32_1) | 0;
-  result = imul(result, 31) + hashCode(this.y32_1) | 0;
-  result = imul(result, 31) + this.z32_1 | 0;
+  var result = hashCode(this.l3a_1);
+  result = imul(result, 31) + hashCode(this.m3a_1) | 0;
+  result = imul(result, 31) + hashCode(this.n3a_1) | 0;
+  result = imul(result, 31) + this.o3a_1 | 0;
   return result;
 };
 protoOf(BuilderAnswers).equals = function (other) {
@@ -35965,61 +37859,61 @@ protoOf(BuilderAnswers).equals = function (other) {
     return true;
   if (!(other instanceof BuilderAnswers))
     return false;
-  if (!equals(this.w32_1, other.w32_1))
+  if (!equals(this.l3a_1, other.l3a_1))
     return false;
-  if (!equals(this.x32_1, other.x32_1))
+  if (!equals(this.m3a_1, other.m3a_1))
     return false;
-  if (!equals(this.y32_1, other.y32_1))
+  if (!equals(this.n3a_1, other.n3a_1))
     return false;
-  if (!(this.z32_1 === other.z32_1))
+  if (!(this.o3a_1 === other.o3a_1))
     return false;
   return true;
 };
 function DraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
-  this.k32_1 = name;
-  this.l32_1 = inCatalogue;
-  this.m32_1 = sets;
-  this.n32_1 = repsLow;
-  this.o32_1 = repsHigh;
-  this.p32_1 = rpe;
-  this.q32_1 = mainGroup;
-  this.r32_1 = muscles;
-  this.s32_1 = compound;
-  this.t32_1 = slot;
-  this.u32_1 = lead;
+  this.z39_1 = name;
+  this.a3a_1 = inCatalogue;
+  this.b3a_1 = sets;
+  this.c3a_1 = repsLow;
+  this.d3a_1 = repsHigh;
+  this.e3a_1 = rpe;
+  this.f3a_1 = mainGroup;
+  this.g3a_1 = muscles;
+  this.h3a_1 = compound;
+  this.i3a_1 = slot;
+  this.j3a_1 = lead;
 }
-protoOf(DraftExercise).n33 = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
+protoOf(DraftExercise).c3b = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
   return new DraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
-protoOf(DraftExercise).j33 = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead, $super) {
-  name = name === VOID ? this.k32_1 : name;
-  inCatalogue = inCatalogue === VOID ? this.l32_1 : inCatalogue;
-  sets = sets === VOID ? this.m32_1 : sets;
-  repsLow = repsLow === VOID ? this.n32_1 : repsLow;
-  repsHigh = repsHigh === VOID ? this.o32_1 : repsHigh;
-  rpe = rpe === VOID ? this.p32_1 : rpe;
-  mainGroup = mainGroup === VOID ? this.q32_1 : mainGroup;
-  muscles = muscles === VOID ? this.r32_1 : muscles;
-  compound = compound === VOID ? this.s32_1 : compound;
-  slot = slot === VOID ? this.t32_1 : slot;
-  lead = lead === VOID ? this.u32_1 : lead;
-  return $super === VOID ? this.n33(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.n33.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
+protoOf(DraftExercise).y3a = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead, $super) {
+  name = name === VOID ? this.z39_1 : name;
+  inCatalogue = inCatalogue === VOID ? this.a3a_1 : inCatalogue;
+  sets = sets === VOID ? this.b3a_1 : sets;
+  repsLow = repsLow === VOID ? this.c3a_1 : repsLow;
+  repsHigh = repsHigh === VOID ? this.d3a_1 : repsHigh;
+  rpe = rpe === VOID ? this.e3a_1 : rpe;
+  mainGroup = mainGroup === VOID ? this.f3a_1 : mainGroup;
+  muscles = muscles === VOID ? this.g3a_1 : muscles;
+  compound = compound === VOID ? this.h3a_1 : compound;
+  slot = slot === VOID ? this.i3a_1 : slot;
+  lead = lead === VOID ? this.j3a_1 : lead;
+  return $super === VOID ? this.c3b(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.c3b.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
 protoOf(DraftExercise).toString = function () {
-  return 'DraftExercise(name=' + this.k32_1 + ', inCatalogue=' + this.l32_1 + ', sets=' + this.m32_1 + ', repsLow=' + this.n32_1 + ', repsHigh=' + this.o32_1 + ', rpe=' + this.p32_1 + ', mainGroup=' + toString_1(this.q32_1) + ', muscles=' + toString(this.r32_1) + ', compound=' + this.s32_1 + ', slot=' + toString_1(this.t32_1) + ', lead=' + this.u32_1 + ')';
+  return 'DraftExercise(name=' + this.z39_1 + ', inCatalogue=' + this.a3a_1 + ', sets=' + this.b3a_1 + ', repsLow=' + this.c3a_1 + ', repsHigh=' + this.d3a_1 + ', rpe=' + this.e3a_1 + ', mainGroup=' + toString_1(this.f3a_1) + ', muscles=' + toString(this.g3a_1) + ', compound=' + this.h3a_1 + ', slot=' + toString_1(this.i3a_1) + ', lead=' + this.j3a_1 + ')';
 };
 protoOf(DraftExercise).hashCode = function () {
-  var result = getStringHashCode(this.k32_1);
-  result = imul(result, 31) + getBooleanHashCode(this.l32_1) | 0;
-  result = imul(result, 31) + this.m32_1 | 0;
-  result = imul(result, 31) + this.n32_1 | 0;
-  result = imul(result, 31) + this.o32_1 | 0;
-  result = imul(result, 31) + getNumberHashCode(this.p32_1) | 0;
-  result = imul(result, 31) + (this.q32_1 == null ? 0 : this.q32_1.hashCode()) | 0;
-  result = imul(result, 31) + hashCode(this.r32_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.s32_1) | 0;
-  result = imul(result, 31) + (this.t32_1 == null ? 0 : this.t32_1.hashCode()) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.u32_1) | 0;
+  var result = getStringHashCode(this.z39_1);
+  result = imul(result, 31) + getBooleanHashCode(this.a3a_1) | 0;
+  result = imul(result, 31) + this.b3a_1 | 0;
+  result = imul(result, 31) + this.c3a_1 | 0;
+  result = imul(result, 31) + this.d3a_1 | 0;
+  result = imul(result, 31) + getNumberHashCode(this.e3a_1) | 0;
+  result = imul(result, 31) + (this.f3a_1 == null ? 0 : this.f3a_1.hashCode()) | 0;
+  result = imul(result, 31) + hashCode(this.g3a_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.h3a_1) | 0;
+  result = imul(result, 31) + (this.i3a_1 == null ? 0 : this.i3a_1.hashCode()) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.j3a_1) | 0;
   return result;
 };
 protoOf(DraftExercise).equals = function (other) {
@@ -36027,51 +37921,51 @@ protoOf(DraftExercise).equals = function (other) {
     return true;
   if (!(other instanceof DraftExercise))
     return false;
-  if (!(this.k32_1 === other.k32_1))
+  if (!(this.z39_1 === other.z39_1))
     return false;
-  if (!(this.l32_1 === other.l32_1))
+  if (!(this.a3a_1 === other.a3a_1))
     return false;
-  if (!(this.m32_1 === other.m32_1))
+  if (!(this.b3a_1 === other.b3a_1))
     return false;
-  if (!(this.n32_1 === other.n32_1))
+  if (!(this.c3a_1 === other.c3a_1))
     return false;
-  if (!(this.o32_1 === other.o32_1))
+  if (!(this.d3a_1 === other.d3a_1))
     return false;
-  if (!equals(this.p32_1, other.p32_1))
+  if (!equals(this.e3a_1, other.e3a_1))
     return false;
-  if (!equals(this.q32_1, other.q32_1))
+  if (!equals(this.f3a_1, other.f3a_1))
     return false;
-  if (!equals(this.r32_1, other.r32_1))
+  if (!equals(this.g3a_1, other.g3a_1))
     return false;
-  if (!(this.s32_1 === other.s32_1))
+  if (!(this.h3a_1 === other.h3a_1))
     return false;
-  if (!equals(this.t32_1, other.t32_1))
+  if (!equals(this.i3a_1, other.i3a_1))
     return false;
-  if (!(this.u32_1 === other.u32_1))
+  if (!(this.j3a_1 === other.j3a_1))
     return false;
   return true;
 };
 function DraftSession(day, title, exercises) {
-  this.b33_1 = day;
-  this.c33_1 = title;
-  this.d33_1 = exercises;
+  this.q3a_1 = day;
+  this.r3a_1 = title;
+  this.s3a_1 = exercises;
 }
-protoOf(DraftSession).o33 = function (day, title, exercises) {
+protoOf(DraftSession).d3b = function (day, title, exercises) {
   return new DraftSession(day, title, exercises);
 };
-protoOf(DraftSession).k33 = function (day, title, exercises, $super) {
-  day = day === VOID ? this.b33_1 : day;
-  title = title === VOID ? this.c33_1 : title;
-  exercises = exercises === VOID ? this.d33_1 : exercises;
-  return $super === VOID ? this.o33(day, title, exercises) : $super.o33.call(this, day, title, exercises);
+protoOf(DraftSession).z3a = function (day, title, exercises, $super) {
+  day = day === VOID ? this.q3a_1 : day;
+  title = title === VOID ? this.r3a_1 : title;
+  exercises = exercises === VOID ? this.s3a_1 : exercises;
+  return $super === VOID ? this.d3b(day, title, exercises) : $super.d3b.call(this, day, title, exercises);
 };
 protoOf(DraftSession).toString = function () {
-  return 'DraftSession(day=' + this.b33_1.toString() + ', title=' + this.c33_1 + ', exercises=' + toString(this.d33_1) + ')';
+  return 'DraftSession(day=' + this.q3a_1.toString() + ', title=' + this.r3a_1 + ', exercises=' + toString(this.s3a_1) + ')';
 };
 protoOf(DraftSession).hashCode = function () {
-  var result = this.b33_1.hashCode();
-  result = imul(result, 31) + getStringHashCode(this.c33_1) | 0;
-  result = imul(result, 31) + hashCode(this.d33_1) | 0;
+  var result = this.q3a_1.hashCode();
+  result = imul(result, 31) + getStringHashCode(this.r3a_1) | 0;
+  result = imul(result, 31) + hashCode(this.s3a_1) | 0;
   return result;
 };
 protoOf(DraftSession).equals = function (other) {
@@ -36079,28 +37973,28 @@ protoOf(DraftSession).equals = function (other) {
     return true;
   if (!(other instanceof DraftSession))
     return false;
-  if (!this.b33_1.equals(other.b33_1))
+  if (!this.q3a_1.equals(other.q3a_1))
     return false;
-  if (!(this.c33_1 === other.c33_1))
+  if (!(this.r3a_1 === other.r3a_1))
     return false;
-  if (!equals(this.d33_1, other.d33_1))
+  if (!equals(this.s3a_1, other.s3a_1))
     return false;
   return true;
 };
 function GroupVolume(group, weeklySets, days, short) {
-  this.p33_1 = group;
-  this.q33_1 = weeklySets;
-  this.r33_1 = days;
-  this.s33_1 = short;
+  this.e3b_1 = group;
+  this.f3b_1 = weeklySets;
+  this.g3b_1 = days;
+  this.h3b_1 = short;
 }
 protoOf(GroupVolume).toString = function () {
-  return 'GroupVolume(group=' + this.p33_1.toString() + ', weeklySets=' + this.q33_1 + ', days=' + this.r33_1 + ', short=' + this.s33_1 + ')';
+  return 'GroupVolume(group=' + this.e3b_1.toString() + ', weeklySets=' + this.f3b_1 + ', days=' + this.g3b_1 + ', short=' + this.h3b_1 + ')';
 };
 protoOf(GroupVolume).hashCode = function () {
-  var result = this.p33_1.hashCode();
-  result = imul(result, 31) + this.q33_1 | 0;
-  result = imul(result, 31) + this.r33_1 | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.s33_1) | 0;
+  var result = this.e3b_1.hashCode();
+  result = imul(result, 31) + this.f3b_1 | 0;
+  result = imul(result, 31) + this.g3b_1 | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.h3b_1) | 0;
   return result;
 };
 protoOf(GroupVolume).equals = function (other) {
@@ -36108,26 +38002,26 @@ protoOf(GroupVolume).equals = function (other) {
     return true;
   if (!(other instanceof GroupVolume))
     return false;
-  if (!this.p33_1.equals(other.p33_1))
+  if (!this.e3b_1.equals(other.e3b_1))
     return false;
-  if (!(this.q33_1 === other.q33_1))
+  if (!(this.f3b_1 === other.f3b_1))
     return false;
-  if (!(this.r33_1 === other.r33_1))
+  if (!(this.g3b_1 === other.g3b_1))
     return false;
-  if (!(this.s33_1 === other.s33_1))
+  if (!(this.h3b_1 === other.h3b_1))
     return false;
   return true;
 };
 function LeftOut(name, reason) {
-  this.t33_1 = name;
-  this.u33_1 = reason;
+  this.i3b_1 = name;
+  this.j3b_1 = reason;
 }
 protoOf(LeftOut).toString = function () {
-  return 'LeftOut(name=' + this.t33_1 + ', reason=' + this.u33_1 + ')';
+  return 'LeftOut(name=' + this.i3b_1 + ', reason=' + this.j3b_1 + ')';
 };
 protoOf(LeftOut).hashCode = function () {
-  var result = getStringHashCode(this.t33_1);
-  result = imul(result, 31) + getStringHashCode(this.u33_1) | 0;
+  var result = getStringHashCode(this.i3b_1);
+  result = imul(result, 31) + getStringHashCode(this.j3b_1) | 0;
   return result;
 };
 protoOf(LeftOut).equals = function (other) {
@@ -36135,33 +38029,33 @@ protoOf(LeftOut).equals = function (other) {
     return true;
   if (!(other instanceof LeftOut))
     return false;
-  if (!(this.t33_1 === other.t33_1))
+  if (!(this.i3b_1 === other.i3b_1))
     return false;
-  if (!(this.u33_1 === other.u33_1))
+  if (!(this.j3b_1 === other.j3b_1))
     return false;
   return true;
 };
 function PlanDraft(sessions, volume, leftOut) {
-  this.f33_1 = sessions;
-  this.g33_1 = volume;
-  this.h33_1 = leftOut;
+  this.u3a_1 = sessions;
+  this.v3a_1 = volume;
+  this.w3a_1 = leftOut;
 }
-protoOf(PlanDraft).v33 = function (sessions, volume, leftOut) {
+protoOf(PlanDraft).k3b = function (sessions, volume, leftOut) {
   return new PlanDraft(sessions, volume, leftOut);
 };
-protoOf(PlanDraft).l33 = function (sessions, volume, leftOut, $super) {
-  sessions = sessions === VOID ? this.f33_1 : sessions;
-  volume = volume === VOID ? this.g33_1 : volume;
-  leftOut = leftOut === VOID ? this.h33_1 : leftOut;
-  return $super === VOID ? this.v33(sessions, volume, leftOut) : $super.v33.call(this, sessions, volume, leftOut);
+protoOf(PlanDraft).a3b = function (sessions, volume, leftOut, $super) {
+  sessions = sessions === VOID ? this.u3a_1 : sessions;
+  volume = volume === VOID ? this.v3a_1 : volume;
+  leftOut = leftOut === VOID ? this.w3a_1 : leftOut;
+  return $super === VOID ? this.k3b(sessions, volume, leftOut) : $super.k3b.call(this, sessions, volume, leftOut);
 };
 protoOf(PlanDraft).toString = function () {
-  return 'PlanDraft(sessions=' + toString(this.f33_1) + ', volume=' + toString(this.g33_1) + ', leftOut=' + toString(this.h33_1) + ')';
+  return 'PlanDraft(sessions=' + toString(this.u3a_1) + ', volume=' + toString(this.v3a_1) + ', leftOut=' + toString(this.w3a_1) + ')';
 };
 protoOf(PlanDraft).hashCode = function () {
-  var result = hashCode(this.f33_1);
-  result = imul(result, 31) + hashCode(this.g33_1) | 0;
-  result = imul(result, 31) + hashCode(this.h33_1) | 0;
+  var result = hashCode(this.u3a_1);
+  result = imul(result, 31) + hashCode(this.v3a_1) | 0;
+  result = imul(result, 31) + hashCode(this.w3a_1) | 0;
   return result;
 };
 protoOf(PlanDraft).equals = function (other) {
@@ -36169,33 +38063,33 @@ protoOf(PlanDraft).equals = function (other) {
     return true;
   if (!(other instanceof PlanDraft))
     return false;
-  if (!equals(this.f33_1, other.f33_1))
+  if (!equals(this.u3a_1, other.u3a_1))
     return false;
-  if (!equals(this.g33_1, other.g33_1))
+  if (!equals(this.v3a_1, other.v3a_1))
     return false;
-  if (!equals(this.h33_1, other.h33_1))
+  if (!equals(this.w3a_1, other.w3a_1))
     return false;
   return true;
 };
 function TemplateExercise(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) {
   onlyWithStrictPress = onlyWithStrictPress === VOID ? false : onlyWithStrictPress;
-  this.w33_1 = name;
-  this.x33_1 = sets;
-  this.y33_1 = repsLow;
-  this.z33_1 = repsHigh;
-  this.a34_1 = rpe;
-  this.b34_1 = onlyWithStrictPress;
+  this.l3b_1 = name;
+  this.m3b_1 = sets;
+  this.n3b_1 = repsLow;
+  this.o3b_1 = repsHigh;
+  this.p3b_1 = rpe;
+  this.q3b_1 = onlyWithStrictPress;
 }
 protoOf(TemplateExercise).toString = function () {
-  return 'TemplateExercise(name=' + this.w33_1 + ', sets=' + this.x33_1 + ', repsLow=' + this.y33_1 + ', repsHigh=' + this.z33_1 + ', rpe=' + this.a34_1 + ', onlyWithStrictPress=' + this.b34_1 + ')';
+  return 'TemplateExercise(name=' + this.l3b_1 + ', sets=' + this.m3b_1 + ', repsLow=' + this.n3b_1 + ', repsHigh=' + this.o3b_1 + ', rpe=' + this.p3b_1 + ', onlyWithStrictPress=' + this.q3b_1 + ')';
 };
 protoOf(TemplateExercise).hashCode = function () {
-  var result = getStringHashCode(this.w33_1);
-  result = imul(result, 31) + this.x33_1 | 0;
-  result = imul(result, 31) + this.y33_1 | 0;
-  result = imul(result, 31) + (this.z33_1 == null ? 0 : this.z33_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.a34_1) | 0;
-  result = imul(result, 31) + getBooleanHashCode(this.b34_1) | 0;
+  var result = getStringHashCode(this.l3b_1);
+  result = imul(result, 31) + this.m3b_1 | 0;
+  result = imul(result, 31) + this.n3b_1 | 0;
+  result = imul(result, 31) + (this.o3b_1 == null ? 0 : this.o3b_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.p3b_1) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.q3b_1) | 0;
   return result;
 };
 protoOf(TemplateExercise).equals = function (other) {
@@ -36203,30 +38097,30 @@ protoOf(TemplateExercise).equals = function (other) {
     return true;
   if (!(other instanceof TemplateExercise))
     return false;
-  if (!(this.w33_1 === other.w33_1))
+  if (!(this.l3b_1 === other.l3b_1))
     return false;
-  if (!(this.x33_1 === other.x33_1))
+  if (!(this.m3b_1 === other.m3b_1))
     return false;
-  if (!(this.y33_1 === other.y33_1))
+  if (!(this.n3b_1 === other.n3b_1))
     return false;
-  if (!(this.z33_1 == other.z33_1))
+  if (!(this.o3b_1 == other.o3b_1))
     return false;
-  if (!equals(this.a34_1, other.a34_1))
+  if (!equals(this.p3b_1, other.p3b_1))
     return false;
-  if (!(this.b34_1 === other.b34_1))
+  if (!(this.q3b_1 === other.q3b_1))
     return false;
   return true;
 };
 function TemplateSession(title, exercises) {
-  this.c34_1 = title;
-  this.d34_1 = exercises;
+  this.r3b_1 = title;
+  this.s3b_1 = exercises;
 }
 protoOf(TemplateSession).toString = function () {
-  return 'TemplateSession(title=' + this.c34_1 + ', exercises=' + toString(this.d34_1) + ')';
+  return 'TemplateSession(title=' + this.r3b_1 + ', exercises=' + toString(this.s3b_1) + ')';
 };
 protoOf(TemplateSession).hashCode = function () {
-  var result = getStringHashCode(this.c34_1);
-  result = imul(result, 31) + hashCode(this.d34_1) | 0;
+  var result = getStringHashCode(this.r3b_1);
+  result = imul(result, 31) + hashCode(this.s3b_1) | 0;
   return result;
 };
 protoOf(TemplateSession).equals = function (other) {
@@ -36234,31 +38128,31 @@ protoOf(TemplateSession).equals = function (other) {
     return true;
   if (!(other instanceof TemplateSession))
     return false;
-  if (!(this.c34_1 === other.c34_1))
+  if (!(this.r3b_1 === other.r3b_1))
     return false;
-  if (!equals(this.d34_1, other.d34_1))
+  if (!equals(this.s3b_1, other.s3b_1))
     return false;
   return true;
 };
 function PlanTemplate(id, mode, name, suits, sessions) {
-  this.e34_1 = id;
-  this.f34_1 = mode;
-  this.g34_1 = name;
-  this.h34_1 = suits;
-  this.i34_1 = sessions;
+  this.t3b_1 = id;
+  this.u3b_1 = mode;
+  this.v3b_1 = name;
+  this.w3b_1 = suits;
+  this.x3b_1 = sessions;
 }
-protoOf(PlanTemplate).j34 = function () {
-  return this.i34_1.o();
+protoOf(PlanTemplate).y3b = function () {
+  return this.x3b_1.o();
 };
 protoOf(PlanTemplate).toString = function () {
-  return 'PlanTemplate(id=' + this.e34_1 + ', mode=' + this.f34_1.toString() + ', name=' + this.g34_1 + ', suits=' + this.h34_1 + ', sessions=' + toString(this.i34_1) + ')';
+  return 'PlanTemplate(id=' + this.t3b_1 + ', mode=' + this.u3b_1.toString() + ', name=' + this.v3b_1 + ', suits=' + this.w3b_1 + ', sessions=' + toString(this.x3b_1) + ')';
 };
 protoOf(PlanTemplate).hashCode = function () {
-  var result = getStringHashCode(this.e34_1);
-  result = imul(result, 31) + this.f34_1.hashCode() | 0;
-  result = imul(result, 31) + getStringHashCode(this.g34_1) | 0;
-  result = imul(result, 31) + getStringHashCode(this.h34_1) | 0;
-  result = imul(result, 31) + hashCode(this.i34_1) | 0;
+  var result = getStringHashCode(this.t3b_1);
+  result = imul(result, 31) + this.u3b_1.hashCode() | 0;
+  result = imul(result, 31) + getStringHashCode(this.v3b_1) | 0;
+  result = imul(result, 31) + getStringHashCode(this.w3b_1) | 0;
+  result = imul(result, 31) + hashCode(this.x3b_1) | 0;
   return result;
 };
 protoOf(PlanTemplate).equals = function (other) {
@@ -36266,15 +38160,15 @@ protoOf(PlanTemplate).equals = function (other) {
     return true;
   if (!(other instanceof PlanTemplate))
     return false;
-  if (!(this.e34_1 === other.e34_1))
+  if (!(this.t3b_1 === other.t3b_1))
     return false;
-  if (!this.f34_1.equals(other.f34_1))
+  if (!this.u3b_1.equals(other.u3b_1))
     return false;
-  if (!(this.g34_1 === other.g34_1))
+  if (!(this.v3b_1 === other.v3b_1))
     return false;
-  if (!(this.h34_1 === other.h34_1))
+  if (!(this.w3b_1 === other.w3b_1))
     return false;
-  if (!equals(this.i34_1, other.i34_1))
+  if (!equals(this.x3b_1, other.x3b_1))
     return false;
   return true;
 };
@@ -36296,16 +38190,16 @@ function day($this, title, exercises) {
   return new TemplateSession(title, toList(exercises));
 }
 function sam$kotlin_Comparator$0_11(function_0) {
-  this.k34_1 = function_0;
+  this.z3b_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_11).ha = function (a, b) {
-  return this.k34_1(a, b);
+  return this.z3b_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_11).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_11).g2 = function () {
-  return this.k34_1;
+  return this.z3b_1;
 };
 protoOf(sam$kotlin_Comparator$0_11).equals = function (other) {
   var tmp;
@@ -36326,16 +38220,16 @@ protoOf(sam$kotlin_Comparator$0_11).hashCode = function () {
   return hashCode(this.g2());
 };
 function sam$kotlin_Comparator$0_12(function_0) {
-  this.l34_1 = function_0;
+  this.a3c_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_12).ha = function (a, b) {
-  return this.l34_1(a, b);
+  return this.a3c_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_12).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_12).g2 = function () {
-  return this.l34_1;
+  return this.a3c_1;
 };
 protoOf(sam$kotlin_Comparator$0_12).equals = function (other) {
   var tmp;
@@ -36356,16 +38250,16 @@ protoOf(sam$kotlin_Comparator$0_12).hashCode = function () {
   return hashCode(this.g2());
 };
 function sam$kotlin_Comparator$0_13(function_0) {
-  this.m34_1 = function_0;
+  this.b3c_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_13).ha = function (a, b) {
-  return this.m34_1(a, b);
+  return this.b3c_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_13).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_13).g2 = function () {
-  return this.m34_1;
+  return this.b3c_1;
 };
 protoOf(sam$kotlin_Comparator$0_13).equals = function (other) {
   var tmp;
@@ -36399,8 +38293,8 @@ function PL_5$main($this_run, name, sp) {
 }
 function PlanTemplates$forMode$lambda(a, b) {
   // Inline function 'kotlin.comparisons.compareValuesBy' call
-  var tmp = a.j34();
-  var tmp$ret$2 = b.j34();
+  var tmp = a.y3b();
+  var tmp$ret$2 = b.y3b();
   return compareValues(tmp, tmp$ret$2);
 }
 function PlanTemplates$suggestedDays$lambda(a, b) {
@@ -36420,37 +38314,37 @@ function alternatives$free_0(week, e) {
 }
 function PlanTemplates() {
   PlanTemplates_instance = this;
-  this.n34_1 = 8.0;
-  this.o34_1 = 3;
-  this.p34_1 = 10;
-  this.q34_1 = 3;
-  this.r34_1 = 5;
+  this.c3c_1 = 8.0;
+  this.d3c_1 = 3;
+  this.e3c_1 = 10;
+  this.f3c_1 = 3;
+  this.g3c_1 = 5;
   var tmp = this;
   // Inline function 'kotlin.run' call
-  tmp.s34_1 = new PlanTemplate('pl-3', TrainingMode_POWERLIFTING_getInstance(), '3-day powerlifting', 'New to powerlifting: 2\u20133 days a week', listOf([day(this, 'Squat & bench', [PL_3$main(this, 'Squat'), PL_3$main(this, 'Bench'), acc(this, 'Seated cable row'), acc(this, 'Cable crunch')]), day(this, 'Deadlift & bench', [PL_3$main(this, 'Deadlift'), PL_3$main(this, 'Bench'), PL_3$main(this, 'Strict press', true), acc(this, 'Lat pulldown'), acc(this, 'Triceps pushdown')]), day(this, 'Squat & deadlift', [PL_3$main(this, 'Squat'), PL_3$main(this, 'Deadlift'), PL_3$main(this, 'Strict press', true), acc(this, 'Lying leg curl'), acc(this, 'Face pull')])]));
+  tmp.h3c_1 = new PlanTemplate('pl-3', TrainingMode_POWERLIFTING_getInstance(), '3-day powerlifting', 'New to powerlifting: 2\u20133 days a week', listOf([day(this, 'Squat & bench', [PL_3$main(this, 'Squat'), PL_3$main(this, 'Bench'), acc(this, 'Seated cable row'), acc(this, 'Cable crunch')]), day(this, 'Deadlift & bench', [PL_3$main(this, 'Deadlift'), PL_3$main(this, 'Bench'), PL_3$main(this, 'Strict press', true), acc(this, 'Lat pulldown'), acc(this, 'Triceps pushdown')]), day(this, 'Squat & deadlift', [PL_3$main(this, 'Squat'), PL_3$main(this, 'Deadlift'), PL_3$main(this, 'Strict press', true), acc(this, 'Lying leg curl'), acc(this, 'Face pull')])]));
   var tmp_0 = this;
   // Inline function 'kotlin.run' call
-  tmp_0.t34_1 = new PlanTemplate('pl-4', TrainingMode_POWERLIFTING_getInstance(), '4-day powerlifting', 'Some training behind you: 3\u20134 days a week', listOf([day(this, 'Squat & bench', [PL_4$main(this, 'Squat'), PL_4$main(this, 'Bench'), acc(this, 'Seated cable row'), acc(this, 'Cable crunch')]), day(this, 'Deadlift', [PL_4$main(this, 'Deadlift'), PL_4$main(this, 'Strict press', true), variation_0(this, 'Close-grip bench'), acc(this, 'Lat pulldown'), acc(this, 'Lying leg curl')]), day(this, 'Squat & bench', [PL_4$main(this, 'Squat'), PL_4$main(this, 'Bench'), acc(this, 'One-arm DB row'), acc(this, 'Face pull')]), day(this, 'Deadlift', [PL_4$main(this, 'Deadlift'), PL_4$main(this, 'Strict press', true), variation_0(this, 'Pause squat'), acc(this, 'Back extension'), acc(this, 'Triceps pushdown')])]));
+  tmp_0.i3c_1 = new PlanTemplate('pl-4', TrainingMode_POWERLIFTING_getInstance(), '4-day powerlifting', 'Some training behind you: 3\u20134 days a week', listOf([day(this, 'Squat & bench', [PL_4$main(this, 'Squat'), PL_4$main(this, 'Bench'), acc(this, 'Seated cable row'), acc(this, 'Cable crunch')]), day(this, 'Deadlift', [PL_4$main(this, 'Deadlift'), PL_4$main(this, 'Strict press', true), variation_0(this, 'Close-grip bench'), acc(this, 'Lat pulldown'), acc(this, 'Lying leg curl')]), day(this, 'Squat & bench', [PL_4$main(this, 'Squat'), PL_4$main(this, 'Bench'), acc(this, 'One-arm DB row'), acc(this, 'Face pull')]), day(this, 'Deadlift', [PL_4$main(this, 'Deadlift'), PL_4$main(this, 'Strict press', true), variation_0(this, 'Pause squat'), acc(this, 'Back extension'), acc(this, 'Triceps pushdown')])]));
   var tmp_1 = this;
   // Inline function 'kotlin.run' call
-  tmp_1.u34_1 = new PlanTemplate('pl-5', TrainingMode_POWERLIFTING_getInstance(), '5-day powerlifting', 'Experienced, a year or more of training: 4\u20136 days a week', listOf([day(this, 'Squat & bench', [PL_5$main(this, 'Squat'), PL_5$main(this, 'Bench'), acc(this, 'Seated cable row'), acc(this, 'Cable crunch')]), day(this, 'Deadlift', [PL_5$main(this, 'Deadlift'), PL_5$main(this, 'Strict press', true), variation_0(this, 'Close-grip bench'), acc(this, 'Lat pulldown'), acc(this, 'Lying leg curl')]), day(this, 'Variations', [variation_0(this, 'Pause squat'), variation_0(this, 'Spoto press'), acc(this, 'Chest-supported row'), acc(this, 'Face pull'), acc(this, 'Hammer curl')]), day(this, 'Squat & bench', [PL_5$main(this, 'Squat'), PL_5$main(this, 'Bench'), acc(this, 'One-arm DB row'), acc(this, 'Triceps pushdown')]), day(this, 'Deadlift', [PL_5$main(this, 'Deadlift'), PL_5$main(this, 'Strict press', true), variation_0(this, 'Long-pause bench'), acc(this, 'Back extension'), acc(this, 'Cable crunch')])]));
-  this.v34_1 = new PlanTemplate('bb-3', TrainingMode_BODYBUILDING_getInstance(), '3-day full body', 'New to lifting: 2\u20133 days a week, the whole body each day', listOf([day(this, 'Full body A', [bb(this, 'Leg press'), bb(this, 'DB press', 4), bb(this, 'Lat pulldown'), bb(this, 'Seated leg curl'), bb(this, 'Lateral raise'), bb(this, 'DB curl'), bb(this, 'Rope pushdown')]), day(this, 'Full body B', [bb(this, 'DB RDL'), bb(this, 'Incline DB press'), bb(this, 'Seated cable row', 4), bb(this, 'Leg extension'), bb(this, 'Face pull'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')]), day(this, 'Full body C', [bb(this, 'Hack squat', 4), bb(this, 'Machine chest press'), bb(this, 'Chin-up'), bb(this, 'Lying leg curl', 4), bb(this, 'Face pull'), bb(this, 'Triceps pushdown'), bb(this, 'Cable curl')])]));
-  this.w34_1 = new PlanTemplate('bb-4', TrainingMode_BODYBUILDING_getInstance(), '4-day upper/lower', 'Some training behind you: 3\u20134 days a week', listOf([day(this, 'Upper A', [bb(this, 'DB press', 4), bb(this, 'Seated cable row', 4), bb(this, 'DB shoulder press'), bb(this, 'Lat pulldown'), bb(this, 'Lateral raise'), bb(this, 'Face pull'), bb(this, 'DB curl'), bb(this, 'Rope pushdown')]), day(this, 'Lower A', [bb(this, 'Leg press', 4), bb(this, 'RDL'), bb(this, 'Leg extension'), bb(this, 'Seated leg curl'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')]), day(this, 'Upper B', [bb(this, 'Incline DB press', 4), bb(this, 'Machine row'), bb(this, 'Chin-up', 4), bb(this, 'Cable crossover'), bb(this, 'Lateral raise'), bb(this, 'Face pull'), bb(this, 'Cable curl'), bb(this, 'Triceps pushdown')]), day(this, 'Lower B', [bb(this, 'Hack squat', 4), bb(this, 'Hip thrust'), bb(this, 'Lying leg curl', 4), bb(this, 'Bulgarian split squat'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')])]));
-  this.x34_1 = new PlanTemplate('bb-5', TrainingMode_BODYBUILDING_getInstance(), '5-day body-part split', 'Experienced, a year or more of training: 4\u20136 days a week', listOf([day(this, 'Chest & back A', [bb(this, 'Machine chest press'), bb(this, 'Wide-grip cable row'), bb(this, 'Lat pulldown'), bb(this, 'Cable crossover')]), day(this, 'Legs A', [bb(this, 'Leg press', 4), bb(this, 'RDL'), bb(this, 'Leg extension'), bb(this, 'Seated leg curl'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')]), day(this, 'Shoulders & arms', [bb(this, 'Lateral raise', 4), bb(this, 'Cable lateral raise'), bb(this, 'DB curl'), bb(this, 'Rope pushdown'), bb(this, 'Cable curl'), bb(this, 'Triceps pushdown')]), day(this, 'Chest & back B', [bb(this, 'Incline DB press'), bb(this, 'T-bar row'), bb(this, 'Neutral-grip pull-up'), bb(this, 'Pec deck')]), day(this, 'Legs B', [bb(this, 'Hack squat', 4), bb(this, 'Hip thrust'), bb(this, 'Lying leg curl', 4), bb(this, 'Bulgarian split squat'), bb(this, 'Cable crunch')])]));
-  this.y34_1 = listOf([this.s34_1, this.t34_1, this.u34_1, this.v34_1, this.w34_1, this.x34_1]);
-  this.z34_1 = 'Not in the catalogue.';
-  this.a35_1 = mapOf([to(1, listOf_0(DayOfWeek_MONDAY_getInstance())), to(2, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_THURSDAY_getInstance()])), to(3, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_WEDNESDAY_getInstance(), DayOfWeek_FRIDAY_getInstance()])), to(4, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_TUESDAY_getInstance(), DayOfWeek_THURSDAY_getInstance(), DayOfWeek_FRIDAY_getInstance()])), to(5, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_TUESDAY_getInstance(), DayOfWeek_WEDNESDAY_getInstance(), DayOfWeek_FRIDAY_getInstance(), DayOfWeek_SATURDAY_getInstance()])), to(6, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_TUESDAY_getInstance(), DayOfWeek_WEDNESDAY_getInstance(), DayOfWeek_THURSDAY_getInstance(), DayOfWeek_FRIDAY_getInstance(), DayOfWeek_SATURDAY_getInstance()])), to(7, toList_0(get_entries()))]);
-  this.b35_1 = setOf([Category_SQUAT_getInstance(), Category_BENCH_getInstance(), Category_DEADLIFT_getInstance(), Category_STRICT_PRESS_getInstance()]);
+  tmp_1.j3c_1 = new PlanTemplate('pl-5', TrainingMode_POWERLIFTING_getInstance(), '5-day powerlifting', 'Experienced, a year or more of training: 4\u20136 days a week', listOf([day(this, 'Squat & bench', [PL_5$main(this, 'Squat'), PL_5$main(this, 'Bench'), acc(this, 'Seated cable row'), acc(this, 'Cable crunch')]), day(this, 'Deadlift', [PL_5$main(this, 'Deadlift'), PL_5$main(this, 'Strict press', true), variation_0(this, 'Close-grip bench'), acc(this, 'Lat pulldown'), acc(this, 'Lying leg curl')]), day(this, 'Variations', [variation_0(this, 'Pause squat'), variation_0(this, 'Spoto press'), acc(this, 'Chest-supported row'), acc(this, 'Face pull'), acc(this, 'Hammer curl')]), day(this, 'Squat & bench', [PL_5$main(this, 'Squat'), PL_5$main(this, 'Bench'), acc(this, 'One-arm DB row'), acc(this, 'Triceps pushdown')]), day(this, 'Deadlift', [PL_5$main(this, 'Deadlift'), PL_5$main(this, 'Strict press', true), variation_0(this, 'Long-pause bench'), acc(this, 'Back extension'), acc(this, 'Cable crunch')])]));
+  this.k3c_1 = new PlanTemplate('bb-3', TrainingMode_BODYBUILDING_getInstance(), '3-day full body', 'New to lifting: 2\u20133 days a week, the whole body each day', listOf([day(this, 'Full body A', [bb(this, 'Leg press'), bb(this, 'DB press', 4), bb(this, 'Lat pulldown'), bb(this, 'Seated leg curl'), bb(this, 'Lateral raise'), bb(this, 'DB curl'), bb(this, 'Rope pushdown')]), day(this, 'Full body B', [bb(this, 'DB RDL'), bb(this, 'Incline DB press'), bb(this, 'Seated cable row', 4), bb(this, 'Leg extension'), bb(this, 'Face pull'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')]), day(this, 'Full body C', [bb(this, 'Hack squat', 4), bb(this, 'Machine chest press'), bb(this, 'Chin-up'), bb(this, 'Lying leg curl', 4), bb(this, 'Face pull'), bb(this, 'Triceps pushdown'), bb(this, 'Cable curl')])]));
+  this.l3c_1 = new PlanTemplate('bb-4', TrainingMode_BODYBUILDING_getInstance(), '4-day upper/lower', 'Some training behind you: 3\u20134 days a week', listOf([day(this, 'Upper A', [bb(this, 'DB press', 4), bb(this, 'Seated cable row', 4), bb(this, 'DB shoulder press'), bb(this, 'Lat pulldown'), bb(this, 'Lateral raise'), bb(this, 'Face pull'), bb(this, 'DB curl'), bb(this, 'Rope pushdown')]), day(this, 'Lower A', [bb(this, 'Leg press', 4), bb(this, 'RDL'), bb(this, 'Leg extension'), bb(this, 'Seated leg curl'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')]), day(this, 'Upper B', [bb(this, 'Incline DB press', 4), bb(this, 'Machine row'), bb(this, 'Chin-up', 4), bb(this, 'Cable crossover'), bb(this, 'Lateral raise'), bb(this, 'Face pull'), bb(this, 'Cable curl'), bb(this, 'Triceps pushdown')]), day(this, 'Lower B', [bb(this, 'Hack squat', 4), bb(this, 'Hip thrust'), bb(this, 'Lying leg curl', 4), bb(this, 'Bulgarian split squat'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')])]));
+  this.m3c_1 = new PlanTemplate('bb-5', TrainingMode_BODYBUILDING_getInstance(), '5-day body-part split', 'Experienced, a year or more of training: 4\u20136 days a week', listOf([day(this, 'Chest & back A', [bb(this, 'Machine chest press'), bb(this, 'Wide-grip cable row'), bb(this, 'Lat pulldown'), bb(this, 'Cable crossover')]), day(this, 'Legs A', [bb(this, 'Leg press', 4), bb(this, 'RDL'), bb(this, 'Leg extension'), bb(this, 'Seated leg curl'), bb(this, 'Standing calf raise'), bb(this, 'Cable crunch')]), day(this, 'Shoulders & arms', [bb(this, 'Lateral raise', 4), bb(this, 'Cable lateral raise'), bb(this, 'DB curl'), bb(this, 'Rope pushdown'), bb(this, 'Cable curl'), bb(this, 'Triceps pushdown')]), day(this, 'Chest & back B', [bb(this, 'Incline DB press'), bb(this, 'T-bar row'), bb(this, 'Neutral-grip pull-up'), bb(this, 'Pec deck')]), day(this, 'Legs B', [bb(this, 'Hack squat', 4), bb(this, 'Hip thrust'), bb(this, 'Lying leg curl', 4), bb(this, 'Bulgarian split squat'), bb(this, 'Cable crunch')])]));
+  this.n3c_1 = listOf([this.h3c_1, this.i3c_1, this.j3c_1, this.k3c_1, this.l3c_1, this.m3c_1]);
+  this.o3c_1 = 'Not in the catalogue.';
+  this.p3c_1 = mapOf([to(1, listOf_0(DayOfWeek_MONDAY_getInstance())), to(2, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_THURSDAY_getInstance()])), to(3, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_WEDNESDAY_getInstance(), DayOfWeek_FRIDAY_getInstance()])), to(4, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_TUESDAY_getInstance(), DayOfWeek_THURSDAY_getInstance(), DayOfWeek_FRIDAY_getInstance()])), to(5, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_TUESDAY_getInstance(), DayOfWeek_WEDNESDAY_getInstance(), DayOfWeek_FRIDAY_getInstance(), DayOfWeek_SATURDAY_getInstance()])), to(6, listOf([DayOfWeek_MONDAY_getInstance(), DayOfWeek_TUESDAY_getInstance(), DayOfWeek_WEDNESDAY_getInstance(), DayOfWeek_THURSDAY_getInstance(), DayOfWeek_FRIDAY_getInstance(), DayOfWeek_SATURDAY_getInstance()])), to(7, toList_0(get_entries()))]);
+  this.q3c_1 = setOf([Category_SQUAT_getInstance(), Category_BENCH_getInstance(), Category_DEADLIFT_getInstance(), Category_STRICT_PRESS_getInstance()]);
 }
-protoOf(PlanTemplates).c35 = function (mode) {
+protoOf(PlanTemplates).r3c = function (mode) {
   // Inline function 'kotlin.collections.filter' call
-  var tmp0 = this.y34_1;
+  var tmp0 = this.n3c_1;
   // Inline function 'kotlin.collections.filterTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s = tmp0.j();
   while (_iterator__ex2g4s.k()) {
     var element = _iterator__ex2g4s.l();
-    if (element.f34_1.equals(mode)) {
+    if (element.u3b_1.equals(mode)) {
       destination.i(element);
     }
   }
@@ -36460,15 +38354,15 @@ protoOf(PlanTemplates).c35 = function (mode) {
   var tmp$ret$4 = new sam$kotlin_Comparator$0_11(tmp);
   return sortedWith(destination, tmp$ret$4);
 };
-protoOf(PlanTemplates).d35 = function (id) {
-  var tmp0 = this.y34_1;
+protoOf(PlanTemplates).s3c = function (id) {
+  var tmp0 = this.n3c_1;
   var tmp$ret$0;
   $l$block: {
     // Inline function 'kotlin.collections.firstOrNull' call
     var _iterator__ex2g4s = tmp0.j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
-      if (element.e34_1 === id) {
+      if (element.t3b_1 === id) {
         tmp$ret$0 = element;
         break $l$block;
       }
@@ -36477,7 +38371,7 @@ protoOf(PlanTemplates).d35 = function (id) {
   }
   return tmp$ret$0;
 };
-protoOf(PlanTemplates).e35 = function (count, current) {
+protoOf(PlanTemplates).t3c = function (count, current) {
   // Inline function 'kotlin.require' call
   if (!(1 <= count ? count <= 7 : false)) {
     var message = 'count: ' + count + '; 1 to 7 days';
@@ -36491,14 +38385,14 @@ protoOf(PlanTemplates).e35 = function (count, current) {
     var tmp$ret$3 = new sam$kotlin_Comparator$0_12(tmp_0);
     tmp = sortedWith(current, tmp$ret$3);
   } else {
-    tmp = getValue(this.a35_1, count);
+    tmp = getValue(this.p3c_1, count);
   }
   return tmp;
 };
-protoOf(PlanTemplates).f35 = function (template, days, strictPress) {
+protoOf(PlanTemplates).u3c = function (template, days, strictPress) {
   // Inline function 'kotlin.require' call
-  if (!(days.o() === template.j34())) {
-    var message = 'days: ' + days.o() + ' days; ' + template.g34_1 + ' has ' + template.j34();
+  if (!(days.o() === template.y3b())) {
+    var message = 'days: ' + days.o() + ' days; ' + template.v3b_1 + ' has ' + template.y3b();
     throw IllegalArgumentException_init_$Create$(toString(message));
   }
   // Inline function 'kotlin.require' call
@@ -36514,7 +38408,7 @@ protoOf(PlanTemplates).f35 = function (template, days, strictPress) {
   // Inline function 'kotlin.collections.mutableListOf' call
   var leftOut = ArrayList_init_$Create$();
   // Inline function 'kotlin.collections.mapIndexed' call
-  var this_0 = template.i34_1;
+  var this_0 = template.x3b_1;
   // Inline function 'kotlin.collections.mapIndexedTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var index = 0;
@@ -36525,13 +38419,13 @@ protoOf(PlanTemplates).f35 = function (template, days, strictPress) {
     index = _unary__edvuaz + 1 | 0;
     var i = checkIndexOverflow(_unary__edvuaz);
     // Inline function 'kotlin.collections.filter' call
-    var tmp0 = item.d34_1;
+    var tmp0 = item.s3b_1;
     // Inline function 'kotlin.collections.filterTo' call
     var destination_0 = ArrayList_init_$Create$();
     var _iterator__ex2g4s_0 = tmp0.j();
     while (_iterator__ex2g4s_0.k()) {
       var element = _iterator__ex2g4s_0.l();
-      if (strictPress || !element.b34_1) {
+      if (strictPress || !element.q3b_1) {
         destination_0.i(element);
       }
     }
@@ -36542,10 +38436,10 @@ protoOf(PlanTemplates).f35 = function (template, days, strictPress) {
     var _iterator__ex2g4s_1 = destination_0.j();
     while (_iterator__ex2g4s_1.k()) {
       var element_0 = _iterator__ex2g4s_1.l();
-      var entry = Library_getInstance().y1q(element_0.w33_1);
+      var entry = Library_getInstance().y1q(element_0.l3b_1);
       if (entry == null) {
         // Inline function 'kotlin.collections.plusAssign' call
-        var element_1 = new LeftOut(element_0.w33_1, 'Not in the catalogue.');
+        var element_1 = new LeftOut(element_0.l3b_1, 'Not in the catalogue.');
         leftOut.i(element_1);
       }
       var tmp_0;
@@ -36576,32 +38470,32 @@ protoOf(PlanTemplates).f35 = function (template, days, strictPress) {
       var e = item_0.gb();
       var entry_0 = item_0.hb();
       var compound = entry_0.e1r_1.equals(Kind_COMPOUND_getInstance());
-      var tmp0_elvis_lhs = e.z33_1;
-      var tmp$ret$25 = new DraftExercise(entry_0.z1q_1, true, e.x33_1, e.y33_1, tmp0_elvis_lhs == null ? e.y33_1 : tmp0_elvis_lhs, e.a34_1, PlanBuilder_getInstance().o1q(entry_0.d1r_1), entry_0.d1r_1, compound, PlanBuilder_getInstance().j1r(entry_0.z1q_1, entry_0.d1r_1, compound, true), j === 0);
+      var tmp0_elvis_lhs = e.o3b_1;
+      var tmp$ret$25 = new DraftExercise(entry_0.z1q_1, true, e.m3b_1, e.n3b_1, tmp0_elvis_lhs == null ? e.n3b_1 : tmp0_elvis_lhs, e.p3b_1, PlanBuilder_getInstance().o1q(entry_0.d1r_1), entry_0.d1r_1, compound, PlanBuilder_getInstance().j1r(entry_0.z1q_1, entry_0.d1r_1, compound, true), j === 0);
       destination_2.i(tmp$ret$25);
     }
     var exercises = destination_2;
-    var tmp$ret$9 = new DraftSession(week.n(i), item.c34_1, exercises);
+    var tmp$ret$9 = new DraftSession(week.n(i), item.r3b_1, exercises);
     destination.i(tmp$ret$9);
   }
   var sessions = destination;
-  return new PlanDraft(sessions, PlanBuilder_getInstance().a33(sessions), leftOut);
+  return new PlanDraft(sessions, PlanBuilder_getInstance().p3a(sessions), leftOut);
 };
-protoOf(PlanTemplates).g35 = function (template, draft, day, name) {
+protoOf(PlanTemplates).v3c = function (template, draft, day, name) {
   // Inline function 'kotlin.require' call
-  if (!(draft.f33_1.o() === template.j34())) {
-    var message = 'draft: ' + draft.f33_1.o() + ' days; ' + template.g34_1 + ' has ' + template.j34();
+  if (!(draft.u3a_1.o() === template.y3b())) {
+    var message = 'draft: ' + draft.u3a_1.o() + ' days; ' + template.v3b_1 + ' has ' + template.y3b();
     throw IllegalArgumentException_init_$Create$(toString(message));
   }
   var key = Library_getInstance().n1r(name);
-  var tmp0 = draft.f33_1;
+  var tmp0 = draft.u3a_1;
   var tmp$ret$2;
   $l$block: {
     // Inline function 'kotlin.collections.firstOrNull' call
     var _iterator__ex2g4s = tmp0.j();
     while (_iterator__ex2g4s.k()) {
       var element = _iterator__ex2g4s.l();
-      if (element.b33_1.equals(day)) {
+      if (element.q3a_1.equals(day)) {
         tmp$ret$2 = element;
         break $l$block;
       }
@@ -36616,7 +38510,7 @@ protoOf(PlanTemplates).g35 = function (template, draft, day, name) {
     tmp = tmp0_elvis_lhs;
   }
   var session = tmp;
-  var tmp0_0 = session.d33_1;
+  var tmp0_0 = session.s3a_1;
   var tmp$ret$4;
   $l$block_1: {
     // Inline function 'kotlin.collections.none' call
@@ -36633,7 +38527,7 @@ protoOf(PlanTemplates).g35 = function (template, draft, day, name) {
     var _iterator__ex2g4s_0 = tmp0_0.j();
     while (_iterator__ex2g4s_0.k()) {
       var element_0 = _iterator__ex2g4s_0.l();
-      if (Library_getInstance().n1r(element_0.k32_1) === key) {
+      if (Library_getInstance().n1r(element_0.z39_1) === key) {
         tmp$ret$4 = false;
         break $l$block_1;
       }
@@ -36651,20 +38545,20 @@ protoOf(PlanTemplates).g35 = function (template, draft, day, name) {
   }
   var entry = tmp_1;
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0_1 = draft.f33_1;
+  var tmp0_1 = draft.u3a_1;
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s_1 = tmp0_1.j();
   while (_iterator__ex2g4s_1.k()) {
     var element_1 = _iterator__ex2g4s_1.l();
     // Inline function 'kotlin.collections.map' call
-    var this_0 = element_1.d33_1;
+    var this_0 = element_1.s3a_1;
     // Inline function 'kotlin.collections.mapTo' call
     var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
     var _iterator__ex2g4s_2 = this_0.j();
     while (_iterator__ex2g4s_2.k()) {
       var item = _iterator__ex2g4s_2.l();
-      var tmp$ret$11 = Library_getInstance().n1r(item.k32_1);
+      var tmp$ret$11 = Library_getInstance().n1r(item.z39_1);
       destination_0.i(tmp$ret$11);
     }
     var list = destination_0;
@@ -36673,7 +38567,7 @@ protoOf(PlanTemplates).g35 = function (template, draft, day, name) {
   var week = toSet(destination);
   var tmp2_subject = entry.f1r_1;
   var tmp_2;
-  if (this.b35_1.r(tmp2_subject)) {
+  if (this.q3c_1.r(tmp2_subject)) {
     tmp_2 = emptyList();
   } else if (tmp2_subject.equals(Category_VARIATION_getInstance())) {
     // Inline function 'kotlin.collections.filter' call
@@ -36690,7 +38584,7 @@ protoOf(PlanTemplates).g35 = function (template, draft, day, name) {
     tmp_2 = destination_1;
   } else {
     // Inline function 'kotlin.collections.filter' call
-    var tmp0_3 = PlanBuilder_getInstance().e33(name, draft, emptyList(), day);
+    var tmp0_3 = PlanBuilder_getInstance().t3a(name, draft, emptyList(), day);
     // Inline function 'kotlin.collections.filterTo' call
     var destination_2 = ArrayList_init_$Create$();
     var _iterator__ex2g4s_4 = tmp0_3.j();
@@ -36704,8 +38598,8 @@ protoOf(PlanTemplates).g35 = function (template, draft, day, name) {
   }
   return tmp_2;
 };
-protoOf(PlanTemplates).i33 = function (draft, day, from, to) {
-  return PlanBuilder_getInstance().i33(draft, day, from, to);
+protoOf(PlanTemplates).x3a = function (draft, day, from, to) {
+  return PlanBuilder_getInstance().x3a(draft, day, from, to);
 };
 var PlanTemplates_instance;
 function PlanTemplates_getInstance() {
@@ -36728,11 +38622,11 @@ function PlateLoader() {
   this.l1k_1 = 100.0;
   this.m1k_1 = toHundredths(this, 20.0);
 }
-protoOf(PlateLoader).h35 = function (changePlates) {
+protoOf(PlateLoader).w3c = function (changePlates) {
   return changePlates ? sortedDescending(plus(this.i1k_1, this.j1k_1)) : this.i1k_1;
 };
 protoOf(PlateLoader).o1k = function (changePlates) {
-  return 2 * min(this.h35(changePlates));
+  return 2 * min(this.w3c(changePlates));
 };
 protoOf(PlateLoader).n1k = function (kg, changePlates) {
   var step = toHundredths(this, this.o1k(changePlates));
@@ -36789,7 +38683,7 @@ protoOf(PlateLoader).s1t = function (anchor, kg, changePlates) {
   var tmp$ret$3 = compare(tmp0, b) >= 0 ? tmp0 : b;
   return fromHundredths(this, tmp$ret$3);
 };
-protoOf(PlateLoader).i35 = function (totalKg, changePlates) {
+protoOf(PlateLoader).x3c = function (totalKg, changePlates) {
   var beyondBar = subtract(toHundredths(this, totalKg), this.m1k_1);
   if (compare(beyondBar, new Long(0, 0)) < 0 || !equalsLong(modulo(beyondBar, new Long(2, 0)), new Long(0, 0)))
     return null;
@@ -36797,7 +38691,7 @@ protoOf(PlateLoader).i35 = function (totalKg, changePlates) {
   var remaining = divide(beyondBar, fromInt(2));
   // Inline function 'kotlin.collections.mutableListOf' call
   var result = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = this.h35(changePlates).j();
+  var _iterator__ex2g4s = this.w3c(changePlates).j();
   while (_iterator__ex2g4s.k()) {
     var plate = _iterator__ex2g4s.l();
     var p = toHundredths(this, plate);
@@ -36816,19 +38710,19 @@ function PlateLoader_getInstance() {
   return PlateLoader_instance;
 }
 function ExerciseTrend(exerciseId, name, bestSets, goingUp) {
-  this.j35_1 = exerciseId;
-  this.k35_1 = name;
-  this.l35_1 = bestSets;
-  this.m35_1 = goingUp;
+  this.y3c_1 = exerciseId;
+  this.z3c_1 = name;
+  this.a3d_1 = bestSets;
+  this.b3d_1 = goingUp;
 }
 protoOf(ExerciseTrend).toString = function () {
-  return 'ExerciseTrend(exerciseId=' + this.j35_1.toString() + ', name=' + this.k35_1 + ', bestSets=' + toString(this.l35_1) + ', goingUp=' + this.m35_1 + ')';
+  return 'ExerciseTrend(exerciseId=' + this.y3c_1.toString() + ', name=' + this.z3c_1 + ', bestSets=' + toString(this.a3d_1) + ', goingUp=' + this.b3d_1 + ')';
 };
 protoOf(ExerciseTrend).hashCode = function () {
-  var result = this.j35_1.hashCode();
-  result = imul(result, 31) + getStringHashCode(this.k35_1) | 0;
-  result = imul(result, 31) + hashCode(this.l35_1) | 0;
-  result = imul(result, 31) + (this.m35_1 == null ? 0 : getBooleanHashCode(this.m35_1)) | 0;
+  var result = this.y3c_1.hashCode();
+  result = imul(result, 31) + getStringHashCode(this.z3c_1) | 0;
+  result = imul(result, 31) + hashCode(this.a3d_1) | 0;
+  result = imul(result, 31) + (this.b3d_1 == null ? 0 : getBooleanHashCode(this.b3d_1)) | 0;
   return result;
 };
 protoOf(ExerciseTrend).equals = function (other) {
@@ -36836,13 +38730,13 @@ protoOf(ExerciseTrend).equals = function (other) {
     return true;
   if (!(other instanceof ExerciseTrend))
     return false;
-  if (!equalsLong(this.j35_1, other.j35_1))
+  if (!equalsLong(this.y3c_1, other.y3c_1))
     return false;
-  if (!(this.k35_1 === other.k35_1))
+  if (!(this.z3c_1 === other.z3c_1))
     return false;
-  if (!equals(this.l35_1, other.l35_1))
+  if (!equals(this.a3d_1, other.a3d_1))
     return false;
-  if (!(this.m35_1 == other.m35_1))
+  if (!(this.b3d_1 == other.b3d_1))
     return false;
   return true;
 };
@@ -36958,16 +38852,16 @@ function goingUp($this, sessions) {
   return tmp;
 }
 function sam$kotlin_Comparator$0_14(function_0) {
-  this.n35_1 = function_0;
+  this.c3d_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_14).ha = function (a, b) {
-  return this.n35_1(a, b);
+  return this.c3d_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_14).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_14).g2 = function () {
-  return this.n35_1;
+  return this.c3d_1;
 };
 protoOf(sam$kotlin_Comparator$0_14).equals = function (other) {
   var tmp;
@@ -37000,9 +38894,9 @@ function BodybuildingProgress$rows$lambda_1(it) {
   return it.v1h_1;
 }
 function BodybuildingProgress() {
-  this.o35_1 = 4;
+  this.d3d_1 = 4;
 }
-protoOf(BodybuildingProgress).p35 = function (history, plan, today) {
+protoOf(BodybuildingProgress).e3d = function (history, plan, today) {
   // Inline function 'kotlin.collections.filter' call
   var tmp0 = history.o1i_1;
   // Inline function 'kotlin.collections.filterTo' call
@@ -37142,23 +39036,23 @@ function BodybuildingProgress_getInstance() {
   return BodybuildingProgress_instance;
 }
 function MuscleRow(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) {
-  this.q35_1 = group;
-  this.r35_1 = ratings;
-  this.s35_1 = setsDone;
-  this.t35_1 = setsPlanned;
-  this.u35_1 = exercisesUp;
-  this.v35_1 = exercisesTracked;
+  this.f3d_1 = group;
+  this.g3d_1 = ratings;
+  this.h3d_1 = setsDone;
+  this.i3d_1 = setsPlanned;
+  this.j3d_1 = exercisesUp;
+  this.k3d_1 = exercisesTracked;
 }
 protoOf(MuscleRow).toString = function () {
-  return 'MuscleRow(group=' + this.q35_1.toString() + ', ratings=' + toString(this.r35_1) + ', setsDone=' + this.s35_1 + ', setsPlanned=' + this.t35_1 + ', exercisesUp=' + this.u35_1 + ', exercisesTracked=' + this.v35_1 + ')';
+  return 'MuscleRow(group=' + this.f3d_1.toString() + ', ratings=' + toString(this.g3d_1) + ', setsDone=' + this.h3d_1 + ', setsPlanned=' + this.i3d_1 + ', exercisesUp=' + this.j3d_1 + ', exercisesTracked=' + this.k3d_1 + ')';
 };
 protoOf(MuscleRow).hashCode = function () {
-  var result = this.q35_1.hashCode();
-  result = imul(result, 31) + hashCode(this.r35_1) | 0;
-  result = imul(result, 31) + this.s35_1 | 0;
-  result = imul(result, 31) + this.t35_1 | 0;
-  result = imul(result, 31) + this.u35_1 | 0;
-  result = imul(result, 31) + this.v35_1 | 0;
+  var result = this.f3d_1.hashCode();
+  result = imul(result, 31) + hashCode(this.g3d_1) | 0;
+  result = imul(result, 31) + this.h3d_1 | 0;
+  result = imul(result, 31) + this.i3d_1 | 0;
+  result = imul(result, 31) + this.j3d_1 | 0;
+  result = imul(result, 31) + this.k3d_1 | 0;
   return result;
 };
 protoOf(MuscleRow).equals = function (other) {
@@ -37166,31 +39060,31 @@ protoOf(MuscleRow).equals = function (other) {
     return true;
   if (!(other instanceof MuscleRow))
     return false;
-  if (!this.q35_1.equals(other.q35_1))
+  if (!this.f3d_1.equals(other.f3d_1))
     return false;
-  if (!equals(this.r35_1, other.r35_1))
+  if (!equals(this.g3d_1, other.g3d_1))
     return false;
-  if (!(this.s35_1 === other.s35_1))
+  if (!(this.h3d_1 === other.h3d_1))
     return false;
-  if (!(this.t35_1 === other.t35_1))
+  if (!(this.i3d_1 === other.i3d_1))
     return false;
-  if (!(this.u35_1 === other.u35_1))
+  if (!(this.j3d_1 === other.j3d_1))
     return false;
-  if (!(this.v35_1 === other.v35_1))
+  if (!(this.k3d_1 === other.k3d_1))
     return false;
   return true;
 };
 function sam$kotlin_Comparator$0_15(function_0) {
-  this.w35_1 = function_0;
+  this.l3d_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_15).ha = function (a, b) {
-  return this.w35_1(a, b);
+  return this.l3d_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_15).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_15).g2 = function () {
-  return this.w35_1;
+  return this.l3d_1;
 };
 protoOf(sam$kotlin_Comparator$0_15).equals = function (other) {
   var tmp;
@@ -37217,10 +39111,10 @@ function MuscleProgress$rows$lambda(a, b) {
   return compareValues(tmp, tmp$ret$2);
 }
 function MuscleProgress() {
-  this.x35_1 = 4;
-  this.y35_1 = 7;
+  this.m3d_1 = 4;
+  this.n3d_1 = 7;
 }
-protoOf(MuscleProgress).z35 = function (history, plan, checkIns, today) {
+protoOf(MuscleProgress).o3d = function (history, plan, checkIns, today) {
   var items = on_0(plan, TrainingMode_BODYBUILDING_getInstance());
   // Inline function 'kotlin.collections.filter' call
   // Inline function 'kotlin.collections.filterTo' call
@@ -37272,7 +39166,7 @@ protoOf(MuscleProgress).z35 = function (history, plan, checkIns, today) {
     addAll(destination_1, list);
   }
   var doneSets = destination_1;
-  var trends = BodybuildingProgress_instance.p35(history, items, today);
+  var trends = BodybuildingProgress_instance.e3d(history, items, today);
   // Inline function 'kotlin.collections.mapNotNull' call
   var tmp0_1 = get_entries_1();
   // Inline function 'kotlin.collections.mapNotNullTo' call
@@ -37329,7 +39223,7 @@ protoOf(MuscleProgress).z35 = function (history, plan, checkIns, today) {
       while (_iterator__ex2g4s_5.k()) {
         var element_5 = _iterator__ex2g4s_5.l();
         var tmp_2;
-        var tmp0_safe_receiver_0 = history.p1i_1.t1(element_5.j35_1);
+        var tmp0_safe_receiver_0 = history.p1i_1.t1(element_5.y3c_1);
         var tmp_3;
         if (tmp0_safe_receiver_0 == null) {
           tmp_3 = null;
@@ -37338,7 +39232,7 @@ protoOf(MuscleProgress).z35 = function (history, plan, checkIns, today) {
           tmp_3 = PlanBuilder_getInstance().o1q(tmp0_safe_receiver_0.m1j_1);
         }
         if (equals(tmp_3, element_3)) {
-          tmp_2 = !(element_5.m35_1 == null);
+          tmp_2 = !(element_5.b3d_1 == null);
         } else {
           tmp_2 = false;
         }
@@ -37374,7 +39268,7 @@ protoOf(MuscleProgress).z35 = function (history, plan, checkIns, today) {
         var _iterator__ex2g4s_7 = own.j();
         while (_iterator__ex2g4s_7.k()) {
           var element_6 = _iterator__ex2g4s_7.l();
-          if (element_6.m35_1 === true) {
+          if (element_6.b3d_1 === true) {
             count_0 = count_0 + 1 | 0;
             checkCountOverflow(count_0);
           }
@@ -37398,21 +39292,21 @@ function MuscleProgress_getInstance() {
   return MuscleProgress_instance;
 }
 function Pr(date, e1rmKg, weightKg, reps, rpe) {
-  this.a36_1 = date;
-  this.b36_1 = e1rmKg;
-  this.c36_1 = weightKg;
-  this.d36_1 = reps;
-  this.e36_1 = rpe;
+  this.p3d_1 = date;
+  this.q3d_1 = e1rmKg;
+  this.r3d_1 = weightKg;
+  this.s3d_1 = reps;
+  this.t3d_1 = rpe;
 }
 protoOf(Pr).toString = function () {
-  return 'Pr(date=' + this.a36_1.toString() + ', e1rmKg=' + this.b36_1 + ', weightKg=' + this.c36_1 + ', reps=' + this.d36_1 + ', rpe=' + this.e36_1 + ')';
+  return 'Pr(date=' + this.p3d_1.toString() + ', e1rmKg=' + this.q3d_1 + ', weightKg=' + this.r3d_1 + ', reps=' + this.s3d_1 + ', rpe=' + this.t3d_1 + ')';
 };
 protoOf(Pr).hashCode = function () {
-  var result = this.a36_1.hashCode();
-  result = imul(result, 31) + getNumberHashCode(this.b36_1) | 0;
-  result = imul(result, 31) + getNumberHashCode(this.c36_1) | 0;
-  result = imul(result, 31) + this.d36_1 | 0;
-  result = imul(result, 31) + (this.e36_1 == null ? 0 : getNumberHashCode(this.e36_1)) | 0;
+  var result = this.p3d_1.hashCode();
+  result = imul(result, 31) + getNumberHashCode(this.q3d_1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.r3d_1) | 0;
+  result = imul(result, 31) + this.s3d_1 | 0;
+  result = imul(result, 31) + (this.t3d_1 == null ? 0 : getNumberHashCode(this.t3d_1)) | 0;
   return result;
 };
 protoOf(Pr).equals = function (other) {
@@ -37420,15 +39314,15 @@ protoOf(Pr).equals = function (other) {
     return true;
   if (!(other instanceof Pr))
     return false;
-  if (!this.a36_1.equals(other.a36_1))
+  if (!this.p3d_1.equals(other.p3d_1))
     return false;
-  if (!equals(this.b36_1, other.b36_1))
+  if (!equals(this.q3d_1, other.q3d_1))
     return false;
-  if (!equals(this.c36_1, other.c36_1))
+  if (!equals(this.r3d_1, other.r3d_1))
     return false;
-  if (!(this.d36_1 === other.d36_1))
+  if (!(this.s3d_1 === other.s3d_1))
     return false;
-  if (!equals(this.e36_1, other.e36_1))
+  if (!equals(this.t3d_1, other.t3d_1))
     return false;
   return true;
 };
@@ -37436,16 +39330,16 @@ function weekStart(date) {
   return mondayOfWeek(date);
 }
 function sam$kotlin_Comparator$0_16(function_0) {
-  this.f36_1 = function_0;
+  this.u3d_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_16).ha = function (a, b) {
-  return this.f36_1(a, b);
+  return this.u3d_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_16).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_16).g2 = function () {
-  return this.f36_1;
+  return this.u3d_1;
 };
 protoOf(sam$kotlin_Comparator$0_16).equals = function (other) {
   var tmp;
@@ -37466,16 +39360,16 @@ protoOf(sam$kotlin_Comparator$0_16).hashCode = function () {
   return hashCode(this.g2());
 };
 function sam$kotlin_Comparator$0_17(function_0) {
-  this.g36_1 = function_0;
+  this.v3d_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_17).ha = function (a, b) {
-  return this.g36_1(a, b);
+  return this.v3d_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_17).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_17).g2 = function () {
-  return this.g36_1;
+  return this.v3d_1;
 };
 protoOf(sam$kotlin_Comparator$0_17).equals = function (other) {
   var tmp;
@@ -37509,9 +39403,9 @@ function ProgressMath$weeklyVolume$lambda(a, b) {
 }
 function ProgressMath() {
   ProgressMath_instance = this;
-  this.h36_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.w3d_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(ProgressMath).i36 = function (_this__u8e3s4, set, lift) {
+protoOf(ProgressMath).x3d = function (_this__u8e3s4, set, lift) {
   var tmp;
   if (!set.b1j_1) {
     var tmp0_safe_receiver = _this__u8e3s4.p1i_1.t1(set.x1i_1);
@@ -37528,7 +39422,7 @@ protoOf(ProgressMath).i36 = function (_this__u8e3s4, set, lift) {
   }
   return tmp;
 };
-protoOf(ProgressMath).j36 = function (history, lift) {
+protoOf(ProgressMath).y3d = function (history, lift) {
   // Inline function 'kotlin.collections.mutableListOf' call
   var prs = ArrayList_init_$Create$();
   var best = 0.0;
@@ -37543,7 +39437,7 @@ protoOf(ProgressMath).j36 = function (history, lift) {
     var _iterator__ex2g4s_0 = session.v1i_1.j();
     $l$loop: while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (!this.i36(history, set, lift))
+      if (!this.x3d(history, set, lift))
         continue $l$loop;
       var e1rm = E1rm_getInstance().v1j(set.y1i_1, set.z1i_1, set.a1j_1);
       if (e1rm > best) {
@@ -37556,7 +39450,7 @@ protoOf(ProgressMath).j36 = function (history, lift) {
   }
   return prs;
 };
-protoOf(ProgressMath).k36 = function (history, set, date, mode) {
+protoOf(ProgressMath).z3d = function (history, set, date, mode) {
   if (!mode.equals(TrainingMode_POWERLIFTING_getInstance()))
     return false;
   var tmp0_safe_receiver = history.p1i_1.t1(set.x1i_1);
@@ -37582,7 +39476,7 @@ protoOf(ProgressMath).k36 = function (history, set, date, mode) {
     tmp_1 = tmp2_elvis_lhs;
   }
   var lift = tmp_1;
-  if (!this.i36(history, set, lift))
+  if (!this.x3d(history, set, lift))
     return false;
   var sides = on(history, TrainingMode_POWERLIFTING_getInstance());
   // Inline function 'kotlin.collections.filter' call
@@ -37598,9 +39492,9 @@ protoOf(ProgressMath).k36 = function (history, set, date, mode) {
   }
   var before = sides.h31(destination);
   var after = before.h31(plus_2(before.o1i_1, new LoggedSession(new Long(-1, -1), date, null, null, listOf_0(set), TrainingMode_POWERLIFTING_getInstance())));
-  return this.j36(after, lift).o() > this.j36(before, lift).o();
+  return this.y3d(after, lift).o() > this.y3d(before, lift).o();
 };
-protoOf(ProgressMath).l36 = function (history, lift) {
+protoOf(ProgressMath).a3e = function (history, lift) {
   // Inline function 'kotlin.collections.mutableMapOf' call
   var volume = LinkedHashMap_init_$Create$();
   var _iterator__ex2g4s = history.o1i_1.j();
@@ -37609,7 +39503,7 @@ protoOf(ProgressMath).l36 = function (history, lift) {
     var _iterator__ex2g4s_0 = session.v1i_1.j();
     while (_iterator__ex2g4s_0.k()) {
       var set = _iterator__ex2g4s_0.l();
-      if (this.i36(history, set, lift)) {
+      if (this.x3d(history, set, lift)) {
         var week = weekStart(session.s1i_1);
         var tmp0_elvis_lhs = volume.t1(week);
         // Inline function 'kotlin.collections.set' call
@@ -37625,8 +39519,8 @@ protoOf(ProgressMath).l36 = function (history, lift) {
   var tmp$ret$3 = new sam$kotlin_Comparator$0_17(tmp);
   return sortedWith(this_0, tmp$ret$3);
 };
-protoOf(ProgressMath).m36 = function (stats, until, includeStrictPress) {
-  var included = includeStrictPress ? plus_2(this.h36_1, MainLift_STRICT_PRESS_getInstance()) : this.h36_1;
+protoOf(ProgressMath).b3e = function (stats, until, includeStrictPress) {
+  var included = includeStrictPress ? plus_2(this.w3d_1, MainLift_STRICT_PRESS_getInstance()) : this.w3d_1;
   // Inline function 'kotlin.collections.map' call
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(included, 10));
@@ -37664,17 +39558,17 @@ function SeedLibrary$exercises$Acc(heavy, lift, muscles) {
     tmp = muscles;
   }
   muscles = tmp;
-  this.n36_1 = heavy;
-  this.o36_1 = lift;
-  this.p36_1 = muscles;
+  this.c3e_1 = heavy;
+  this.d3e_1 = lift;
+  this.e3e_1 = muscles;
 }
 function SeedLibrary() {
   SeedLibrary_instance = this;
-  this.q36_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.f3e_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(SeedLibrary).r36 = function () {
+protoOf(SeedLibrary).g3e = function () {
   var found = LinkedHashMap_init_$Create$();
-  var _iterator__ex2g4s = this.q36_1.j();
+  var _iterator__ex2g4s = this.f3e_1.j();
   while (_iterator__ex2g4s.k()) {
     var lift = _iterator__ex2g4s.l();
     var _iterator__ex2g4s_0 = get_entries_5().j();
@@ -37696,14 +39590,14 @@ protoOf(SeedLibrary).r36 = function () {
           tmp = value;
         }
         // Inline function 'kotlin.collections.plusAssign' call
-        var this_0 = tmp.p36_1;
+        var this_0 = tmp.e3e_1;
         addAll(this_0, muscles);
       }
     }
   }
   var tmp_0 = found.u1();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = this.q36_1;
+  var tmp0 = this.f3e_1;
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s_2 = tmp0.j();
@@ -37737,7 +39631,7 @@ protoOf(SeedLibrary).r36 = function () {
     var name = item_0.u();
     // Inline function 'kotlin.collections.component2' call
     var acc = item_0.v();
-    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.n36_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.n36_1 ? acc.o36_1 : null, toList_0(acc.p36_1), true);
+    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.c3e_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.c3e_1 ? acc.d3e_1 : null, toList_0(acc.e3e_1), true);
     destination_1.i(tmp$ret$13);
   }
   var mapped = destination_1;
@@ -37786,32 +39680,32 @@ function HighReps_getInstance() {
   return HighReps_instance;
 }
 function BigJump(fromKg) {
-  this.s36_1 = fromKg;
+  this.h3e_1 = fromKg;
 }
 protoOf(BigJump).toString = function () {
-  return 'BigJump(fromKg=' + this.s36_1 + ')';
+  return 'BigJump(fromKg=' + this.h3e_1 + ')';
 };
 protoOf(BigJump).hashCode = function () {
-  return getNumberHashCode(this.s36_1);
+  return getNumberHashCode(this.h3e_1);
 };
 protoOf(BigJump).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BigJump))
     return false;
-  if (!equals(this.s36_1, other.s36_1))
+  if (!equals(this.h3e_1, other.h3e_1))
     return false;
   return true;
 };
 function InputValidator() {
-  this.t36_1 = 12;
-  this.u36_1 = 1.3;
-  this.v36_1 = 500.0;
+  this.i3e_1 = 12;
+  this.j3e_1 = 1.3;
+  this.k3e_1 = 500.0;
 }
-protoOf(InputValidator).w36 = function (kg) {
+protoOf(InputValidator).l3e = function (kg) {
   return isFinite(kg) && kg > 0.0 && kg <= 500.0;
 };
-protoOf(InputValidator).x36 = function (text) {
+protoOf(InputValidator).m3e = function (text) {
   // Inline function 'kotlin.text.trim' call
   var tmp$ret$0 = toString(trim(isCharSequence(text) ? text : THROW_CCE()));
   var tmp0_safe_receiver = toDoubleOrNull(replace_0(tmp$ret$0, _Char___init__impl__6a9atx(44), _Char___init__impl__6a9atx(46)));
@@ -37821,7 +39715,7 @@ protoOf(InputValidator).x36 = function (text) {
   } else {
     // Inline function 'kotlin.takeIf' call
     var tmp_0;
-    if (this.w36(tmp0_safe_receiver)) {
+    if (this.l3e(tmp0_safe_receiver)) {
       tmp_0 = tmp0_safe_receiver;
     } else {
       tmp_0 = null;
@@ -37830,7 +39724,7 @@ protoOf(InputValidator).x36 = function (text) {
   }
   return tmp;
 };
-protoOf(InputValidator).y36 = function (weightKg, reps, lastWeightKg) {
+protoOf(InputValidator).n3e = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
@@ -37848,7 +39742,7 @@ function InputValidator_getInstance() {
   return InputValidator_instance;
 }
 function templateById($this, id) {
-  var tmp0_elvis_lhs = PlanTemplates_getInstance().d35(id);
+  var tmp0_elvis_lhs = PlanTemplates_getInstance().s3c(id);
   var tmp;
   if (tmp0_elvis_lhs == null) {
     throw IllegalArgumentException_init_$Create$("id: no plan template '" + id + "'");
@@ -37926,7 +39820,7 @@ protoOf(GritDomain).estimateE1rm = function (weightKg, reps, rpe) {
   return E1rm_getInstance().v1j(weightKg, reps, rpe);
 };
 protoOf(GritDomain).platesPerSide = function (totalKg, changePlates) {
-  var tmp0_safe_receiver = PlateLoader_getInstance().i35(totalKg, changePlates);
+  var tmp0_safe_receiver = PlateLoader_getInstance().x3c(totalKg, changePlates);
   var tmp;
   if (tmp0_safe_receiver == null) {
     tmp = null;
@@ -37944,7 +39838,7 @@ protoOf(GritDomain).loadStep = function (changePlates) {
 };
 protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = InputValidator_instance.y36(weightKg, reps, lastWeightKg);
+  var this_0 = InputValidator_instance.n3e(weightKg, reps, lastWeightKg);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -37967,7 +39861,7 @@ protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   return copyToArray(destination);
 };
 protoOf(GritDomain).parseBaselineKg = function (text) {
-  return InputValidator_instance.x36(text);
+  return InputValidator_instance.m3e(text);
 };
 protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, today, prior) {
   var tmp = Coach_getInstance();
@@ -38005,7 +39899,7 @@ protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, tod
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_1 = _iterator__ex2g4s.l();
-    var tmp$ret$8 = toJs_4(item_1);
+    var tmp$ret$8 = toJs_20(item_1);
     destination_1.i(tmp$ret$8);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38046,7 +39940,7 @@ protoOf(GritDomain).evaluate = function (history, plan, settings, today, prior) 
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_1 = _iterator__ex2g4s.l();
-    var tmp$ret$8 = toJs_4(item_1);
+    var tmp$ret$8 = toJs_20(item_1);
     destination_1.i(tmp$ret$8);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38116,7 +40010,7 @@ protoOf(GritDomain).coachingTargetsFor = function (mode, weekday, history, plan,
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_1 = _iterator__ex2g4s.l();
-    var tmp$ret$13 = toJs_4(item_1);
+    var tmp$ret$13 = toJs_20(item_1);
     destination_1.i(tmp$ret$13);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38198,7 +40092,7 @@ protoOf(GritDomain).coachingTargetsForWithSkips = function (mode, weekday, histo
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_2 = _iterator__ex2g4s.l();
-    var tmp$ret$16 = toJs_4(item_2);
+    var tmp$ret$16 = toJs_20(item_2);
     destination_2.i(tmp$ret$16);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38251,7 +40145,7 @@ protoOf(GritDomain).coachingAfterSkip = function (skip, skips, history, plan, to
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_2 = _iterator__ex2g4s.l();
-    var tmp$ret$11 = toJs_4(item_2);
+    var tmp$ret$11 = toJs_20(item_2);
     destination_2.i(tmp$ret$11);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38343,7 +40237,7 @@ protoOf(GritDomain).coachingApplySkipSwap = function (payloadJson, choice, mode,
     var tmp$ret$14 = element_0.i1j_1;
     destination_1.t2(tmp$ret$14, element_0);
   }
-  return toJs_2(tmp.w1o(tmp_3, choice, tmp_6, tmp_7, destination_1));
+  return toJs_18(tmp.w1o(tmp_3, choice, tmp_6, tmp_7, destination_1));
 };
 protoOf(GritDomain).coachingEvaluate = function (mode, history, plan, settings, today, prior) {
   var tmp = Coaching_instance;
@@ -38408,7 +40302,7 @@ protoOf(GritDomain).coachingEvaluate = function (mode, history, plan, settings, 
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_1 = _iterator__ex2g4s.l();
-    var tmp$ret$13 = toJs_4(item_1);
+    var tmp$ret$13 = toJs_20(item_1);
     destination_1.i(tmp$ret$13);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38489,7 +40383,7 @@ protoOf(GritDomain).coachingEvaluateWithCheckIns = function (mode, history, plan
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_2 = _iterator__ex2g4s.l();
-    var tmp$ret$16 = toJs_4(item_2);
+    var tmp$ret$16 = toJs_20(item_2);
     destination_2.i(tmp$ret$16);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38551,7 +40445,7 @@ protoOf(GritDomain).physiqueAfterCheckIn = function (checkIn, history, plan, tod
     var tmp$ret$5 = toDomain_8(item_0);
     destination_0.i(tmp$ret$5);
   }
-  return toJs_1(tmp.q1o(tmp_0, tmp_1, tmp_2, tmp_3, destination_0));
+  return toJs_17(tmp.q1o(tmp_0, tmp_1, tmp_2, tmp_3, destination_0));
 };
 protoOf(GritDomain).physiqueStuck = function (history, plan, checkIns, prior, today) {
   var tmp = PhysiqueCoach_getInstance();
@@ -38598,7 +40492,7 @@ protoOf(GritDomain).physiqueStuck = function (history, plan, checkIns, prior, to
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_2 = _iterator__ex2g4s.l();
-    var tmp$ret$11 = toJs_4(item_2);
+    var tmp$ret$11 = toJs_20(item_2);
     destination_2.i(tmp$ret$11);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38662,7 +40556,7 @@ protoOf(GritDomain).physiqueApplyMoreWork = function (payloadJson, plan, exercis
     var tmp$ret$9 = element.i1j_1;
     destination_1.t2(tmp$ret$9, element);
   }
-  return toJs_2(tmp.d1t(tmp_3, tmp_4, destination_1));
+  return toJs_18(tmp.d1t(tmp_3, tmp_4, destination_1));
 };
 protoOf(GritDomain).physiqueApplySwap = function (payloadJson, choice, plan, exercises) {
   var tmp = PhysiqueCoach_getInstance();
@@ -38722,7 +40616,7 @@ protoOf(GritDomain).physiqueApplySwap = function (payloadJson, choice, plan, exe
     var tmp$ret$9 = element.i1j_1;
     destination_1.t2(tmp$ret$9, element);
   }
-  return toJs_2(tmp.j1t(tmp_3, choice, tmp_4, destination_1));
+  return toJs_18(tmp.j1t(tmp_3, choice, tmp_4, destination_1));
 };
 protoOf(GritDomain).physiqueWeeklySets = function (plan, exercises, group) {
   var tmp = PhysiqueCoach_getInstance();
@@ -38817,13 +40711,13 @@ protoOf(GritDomain).muscleProgressRows = function (history, plan, checkIns, toda
     destination_0.i(tmp$ret$5);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.z35(tmp_0, tmp_1, destination_0, parseDate('today', today));
+  var this_0 = tmp.o3d(tmp_0, tmp_1, destination_0, parseDate('today', today));
   // Inline function 'kotlin.collections.mapTo' call
   var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_1 = _iterator__ex2g4s.l();
-    var tmp$ret$8 = toJs_3(item_1);
+    var tmp$ret$8 = toJs_19(item_1);
     destination_1.i(tmp$ret$8);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38876,13 +40770,13 @@ protoOf(GritDomain).bodybuildingProgress = function (history, plan, today) {
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.p35(tmp_0, destination, parseDate('today', today));
+  var this_0 = tmp.e3d(tmp_0, destination, parseDate('today', today));
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_0 = _iterator__ex2g4s.l();
-    var tmp$ret$5 = toJs_5(item_0);
+    var tmp$ret$5 = toJs_21(item_0);
     destination_0.i(tmp$ret$5);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -38953,7 +40847,7 @@ protoOf(GritDomain).planBuilderBuild = function (days, picks, priorities, varian
     var tmp$ret$8 = tmp_2;
     destination_1.i(tmp$ret$8);
   }
-  return toJs_6(tmp.v32(new BuilderAnswers(tmp_0, tmp_1, destination_1, variant)));
+  return toJs_22(tmp.k3a(new BuilderAnswers(tmp_0, tmp_1, destination_1, variant)));
 };
 protoOf(GritDomain).planBuilderAlternatives = function (name, draft, picks, day) {
   var tmp = PlanBuilder_getInstance();
@@ -38978,20 +40872,20 @@ protoOf(GritDomain).planBuilderAlternatives = function (name, draft, picks, day)
     tmp_2 = parseWeekday('day', day);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.e33(name, tmp_0, tmp_1, tmp_2);
+  var this_0 = tmp.t3a(name, tmp_0, tmp_1, tmp_2);
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_0 = _iterator__ex2g4s.l();
-    var tmp$ret$7 = toJs_14(item_0);
+    var tmp$ret$7 = toJs_30(item_0);
     destination_0.i(tmp$ret$7);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination_0);
 };
 protoOf(GritDomain).planBuilderSwap = function (draft, day, from, to) {
-  return toJs_6(PlanBuilder_getInstance().i33(toDomain_10(draft), parseWeekday('day', day), from, to));
+  return toJs_22(PlanBuilder_getInstance().x3a(toDomain_10(draft), parseWeekday('day', day), from, to));
 };
 protoOf(GritDomain).planBuilderSuggestedPicks = function (history, plans, today) {
   var tmp = PlanBuilder_getInstance();
@@ -39008,7 +40902,7 @@ protoOf(GritDomain).planBuilderSuggestedPicks = function (history, plans, today)
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.m33(tmp_0, destination, parseDate('today', today));
+  var this_0 = tmp.b3b(tmp_0, destination, parseDate('today', today));
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -39068,13 +40962,13 @@ protoOf(GritDomain).planTemplatesFor = function (mode) {
   }
   var tmp$ret$0 = tmp_0;
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.c35(tmp$ret$0);
+  var this_0 = tmp.r3c(tmp$ret$0);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$7 = toJs_9(item);
+    var tmp$ret$7 = toJs_25(item);
     destination.i(tmp$ret$7);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -39094,7 +40988,7 @@ protoOf(GritDomain).planTemplateSuggestedDays = function (count, current) {
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.map' call
-  var this_0 = tmp.e35(count, toSet(destination));
+  var this_0 = tmp.t3c(count, toSet(destination));
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -39120,24 +41014,24 @@ protoOf(GritDomain).planTemplateDraft = function (id, days, strictPress) {
     var tmp$ret$2 = parseWeekday('days', item);
     destination.i(tmp$ret$2);
   }
-  return toJs_6(tmp.f35(tmp_0, destination, strictPress));
+  return toJs_22(tmp.u3c(tmp_0, destination, strictPress));
 };
 protoOf(GritDomain).planTemplateAlternatives = function (id, draft, day, name) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = PlanTemplates_getInstance().g35(templateById(this, id), toDomain_10(draft), parseWeekday('day', day), name);
+  var this_0 = PlanTemplates_getInstance().v3c(templateById(this, id), toDomain_10(draft), parseWeekday('day', day), name);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = toJs_14(item);
+    var tmp$ret$2 = toJs_30(item);
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination);
 };
 protoOf(GritDomain).planTemplateSwap = function (draft, day, from, to) {
-  return toJs_6(PlanTemplates_getInstance().i33(toDomain_10(draft), parseWeekday('day', day), from, to));
+  return toJs_22(PlanTemplates_getInstance().x3a(toDomain_10(draft), parseWeekday('day', day), from, to));
 };
 protoOf(GritDomain).weeklyTrend = function (history, lift, until) {
   // Inline function 'kotlin.collections.map' call
@@ -39158,13 +41052,13 @@ protoOf(GritDomain).currentE1rm = function (history, lift, until, days) {
 };
 protoOf(GritDomain).prs = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().j36(toDomain_6(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().y3d(toDomain_6(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = toJs_10(item);
+    var tmp$ret$2 = toJs_26(item);
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -39203,11 +41097,11 @@ protoOf(GritDomain).isNewPr = function (history, set, date, mode) {
     tmp_3 = tmp0_elvis_lhs;
   }
   var tmp$ret$0 = tmp_3;
-  return tmp.k36(tmp_0, tmp_1, tmp_2, tmp$ret$0);
+  return tmp.z3d(tmp_0, tmp_1, tmp_2, tmp$ret$0);
 };
 protoOf(GritDomain).weeklyVolume = function (history, lift) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = ProgressMath_getInstance().l36(toDomain_6(history), parseLift('lift', lift));
+  var this_0 = ProgressMath_getInstance().a3e(toDomain_6(history), parseLift('lift', lift));
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -39265,7 +41159,7 @@ protoOf(GritDomain).accessoryOptions = function (lift, miss) {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$9 = toJs_11(item);
+    var tmp$ret$9 = toJs_27(item);
     destination.i(tmp$ret$9);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -39314,20 +41208,20 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = SeedLibrary_getInstance().r36();
+  var this_0 = SeedLibrary_getInstance().g3e();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = toJs(item);
+    var tmp$ret$2 = toJs_15(item);
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination);
 };
 protoOf(GritDomain).total = function (history, until, includeStrictPress) {
-  return ProgressMath_getInstance().m36(new HistoryStats(toDomain_6(history)), parseDate('until', until), includeStrictPress);
+  return ProgressMath_getInstance().b3e(new HistoryStats(toDomain_6(history)), parseDate('until', until), includeStrictPress);
 };
 protoOf(GritDomain).mainLifts = function () {
   // Inline function 'kotlin.collections.map' call
@@ -39391,7 +41285,7 @@ protoOf(GritDomain).isMainLift = function (exercise) {
 protoOf(GritDomain).lastTopSet = function (history, exerciseId, before) {
   var tmp0_safe_receiver = (new HistoryStats(toDomain_6(history))).b1l(fromInt(exerciseId), parseDate('before', before));
   var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.nb_1;
-  return tmp1_safe_receiver == null ? null : toJs_12(tmp1_safe_receiver);
+  return tmp1_safe_receiver == null ? null : toJs_28(tmp1_safe_receiver);
 };
 protoOf(GritDomain).openAdviceExpired = function (type, createdAt, today) {
   var tmp = Coach_getInstance();
@@ -39436,7 +41330,7 @@ protoOf(GritDomain).library = function () {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = toJs_14(item);
+    var tmp$ret$2 = toJs_30(item);
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -39444,7 +41338,7 @@ protoOf(GritDomain).library = function () {
 };
 protoOf(GritDomain).findInLibrary = function (name) {
   var tmp0_safe_receiver = Library_getInstance().y1q(name);
-  return tmp0_safe_receiver == null ? null : toJs_14(tmp0_safe_receiver);
+  return tmp0_safe_receiver == null ? null : toJs_30(tmp0_safe_receiver);
 };
 protoOf(GritDomain).isStrictPressUpgradeName = function (name) {
   return Library_getInstance().u1u(name);
@@ -39536,7 +41430,7 @@ protoOf(GritDomain).searchLibrary = function (query, areas, equipment) {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_1 = _iterator__ex2g4s.l();
-    var tmp$ret$18 = toJs_14(item_1);
+    var tmp$ret$18 = toJs_30(item_1);
     destination_1.i(tmp$ret$18);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -39666,7 +41560,7 @@ protoOf(GritDomain).exercisesByMuscle = function (group, equipment) {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_0 = _iterator__ex2g4s.l();
-    var tmp$ret$15 = toJs_14(item_0);
+    var tmp$ret$15 = toJs_30(item_0);
     destination_0.i(tmp$ret$15);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -39759,7 +41653,7 @@ protoOf(GritDomain).exercisesByMuscles = function (groups, equipment) {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item_1 = _iterator__ex2g4s.l();
-    var tmp$ret$18 = toJs_14(item_1);
+    var tmp$ret$18 = toJs_30(item_1);
     destination_1.i(tmp$ret$18);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -39768,7 +41662,7 @@ protoOf(GritDomain).exercisesByMuscles = function (groups, equipment) {
 protoOf(GritDomain).formGuide = function (name) {
   var tmp0_safe_receiver = Library_getInstance().y1q(name);
   var tmp1_safe_receiver = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.h1r_1;
-  return tmp1_safe_receiver == null ? null : toJs_13(tmp1_safe_receiver);
+  return tmp1_safe_receiver == null ? null : toJs_29(tmp1_safe_receiver);
 };
 protoOf(GritDomain).figureInfo = function (name) {
   var tmp0_safe_receiver = figure(Library_getInstance(), name);
@@ -39817,7 +41711,7 @@ protoOf(GritDomain).figureShapes = function (name, which) {
     var _iterator__ex2g4s = this_0.j();
     while (_iterator__ex2g4s.k()) {
       var item = _iterator__ex2g4s.l();
-      var tmp$ret$4 = toJs_15(item);
+      var tmp$ret$4 = toJs_31(item);
       destination.i(tmp$ret$4);
     }
     // Inline function 'kotlin.collections.toTypedArray' call
@@ -39859,9 +41753,2308 @@ protoOf(GritDomain).ratioRanges = function () {
   // Inline function 'kotlin.js.asDynamic' call
   return [ratioRange(this, MainLift_SQUAT_getInstance(), MainLift_DEADLIFT_getInstance(), WeakPointRule_getInstance().y1m_1), ratioRange(this, MainLift_BENCH_getInstance(), MainLift_SQUAT_getInstance(), WeakPointRule_getInstance().z1m_1)];
 };
+protoOf(GritDomain).modeSwitchDropTimeline = function () {
+  return toJs_0(ModeSwitchMotion_getInstance().y36_1);
+};
+protoOf(GritDomain).modeSwitchPumpTimeline = function () {
+  return toJs_1(ModeSwitchMotion_getInstance().z36_1);
+};
+protoOf(GritDomain).modeSwitchVibration = function () {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = ModeSwitchMotion_getInstance().m37();
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(this_0.length);
+  var inductionVariable = 0;
+  var last = this_0.length;
+  while (inductionVariable < last) {
+    var item = this_0[inductionVariable];
+    inductionVariable = inductionVariable + 1 | 0;
+    var tmp$ret$2 = convertToInt(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var tmp = copyToArray(destination);
+  var tmp_0 = toTypedArray(ModeSwitchMotion_getInstance().n37());
+  // Inline function 'kotlin.collections.map' call
+  var this_1 = ModeSwitchMotion_getInstance().o37();
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_0 = ArrayList_init_$Create$_0(this_1.length);
+  var inductionVariable_0 = 0;
+  var last_0 = this_1.length;
+  while (inductionVariable_0 < last_0) {
+    var item_0 = this_1[inductionVariable_0];
+    inductionVariable_0 = inductionVariable_0 + 1 | 0;
+    var tmp$ret$6 = convertToInt(item_0);
+    destination_0.i(tmp$ret$6);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var tmp$ret$7 = copyToArray(destination_0);
+  return new JsModeSwitchVibration(tmp, tmp_0, tmp$ret$7, toTypedArray(ModeSwitchMotion_getInstance().p37()));
+};
+protoOf(GritDomain).modeSwitchColors = function () {
+  return modeSwitchColorsJs();
+};
+protoOf(GritDomain).modeSwitchHammerPaths = function () {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = ModeSwitchMotion_getInstance().q37();
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs_2(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
+};
+protoOf(GritDomain).modeSwitchHammerRune = function () {
+  return toJs_2(ModeSwitchMotion_getInstance().r37());
+};
+protoOf(GritDomain).modeSwitchGradients = function () {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = ModeSwitchMotion_getInstance().s37();
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs_4(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
+};
+protoOf(GritDomain).modeSwitchHitPoint = function (w, h) {
+  return toJs(ModeSwitchMotion_getInstance().t37(w, h));
+};
+protoOf(GritDomain).modeSwitchDropFrame = function (tMs, w, h) {
+  return toJs_13(ModeSwitchMotion_getInstance().y37(tMs, w, h));
+};
+protoOf(GritDomain).modeSwitchHop = function (tMs, elementCenterY, hitY) {
+  return ModeSwitchMotion_getInstance().d38(tMs, elementCenterY, hitY);
+};
+protoOf(GritDomain).modeSwitchPumpFrame = function (tMs, w, h, srcX, srcY) {
+  return toJs_14(ModeSwitchMotion_getInstance().h38(tMs, w, h, new Point_0(srcX, srcY)));
+};
+protoOf(GritDomain).modeSwitchPumpElementScale = function (tMs, w, elementCenterY, srcX, srcY) {
+  return ModeSwitchMotion_getInstance().i38(tMs, w, elementCenterY, new Point_0(srcX, srcY));
+};
+protoOf(GritDomain).modeSwitchCracks = function (w, h, hitX, hitY) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = ModeSwitchMotion_getInstance().o38(w, h, new Point_0(hitX, hitY));
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs_2(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
+};
+protoOf(GritDomain).modeSwitchDust = function (hitX, hitY) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = ModeSwitchMotion_getInstance().p38(new Point_0(hitX, hitY));
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs_7(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
+};
+protoOf(GritDomain).modeSwitchSparks = function (hitX, hitY) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = ModeSwitchMotion_getInstance().q38(new Point_0(hitX, hitY));
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs_7(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
+};
+protoOf(GritDomain).modeSwitchBurst = function (hitX, hitY) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = ModeSwitchMotion_getInstance().r38(new Point_0(hitX, hitY));
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
+};
+protoOf(GritDomain).modeSwitchVeins = function (w, h, srcX, srcY) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = ModeSwitchMotion_getInstance().s38(w, h, new Point_0(srcX, srcY));
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs_5(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
+};
+protoOf(GritDomain).modeSwitchVeinNodes = function (w, h, srcX, srcY) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = ModeSwitchMotion_getInstance().v38(w, h, new Point_0(srcX, srcY));
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs_6(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  return copyToArray(destination);
+};
+protoOf(GritDomain).modeSwitchVeinProgress = function (front, d0, len) {
+  return ModeSwitchMotion_getInstance().j38(front, d0, len);
+};
+protoOf(GritDomain).modeSwitchPulseOpacity = function (pulseOpacity, front, len) {
+  return ModeSwitchMotion_getInstance().k38(pulseOpacity, front, len);
+};
+protoOf(GritDomain).modeSwitchPulseStart = function (front, len) {
+  return ModeSwitchMotion_getInstance().l38(front, len);
+};
 var GritDomain_instance;
 function GritDomain_getInstance() {
   return GritDomain_instance;
+}
+function JsMotionPoint(x, y) {
+  this.x = x;
+  this.y = y;
+}
+protoOf(JsMotionPoint).o3e = function () {
+  return this.x;
+};
+protoOf(JsMotionPoint).p3e = function () {
+  return this.y;
+};
+protoOf(JsMotionPoint).gb = function () {
+  return this.x;
+};
+protoOf(JsMotionPoint).hb = function () {
+  return this.y;
+};
+protoOf(JsMotionPoint).q3e = function (x, y) {
+  return new JsMotionPoint(x, y);
+};
+protoOf(JsMotionPoint).copy = function (x, y, $super) {
+  x = x === VOID ? this.x : x;
+  y = y === VOID ? this.y : y;
+  return $super === VOID ? this.q3e(x, y) : $super.q3e.call(this, x, y);
+};
+protoOf(JsMotionPoint).toString = function () {
+  return 'JsMotionPoint(x=' + this.x + ', y=' + this.y + ')';
+};
+protoOf(JsMotionPoint).hashCode = function () {
+  var result = getNumberHashCode(this.x);
+  result = imul(result, 31) + getNumberHashCode(this.y) | 0;
+  return result;
+};
+protoOf(JsMotionPoint).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsMotionPoint))
+    return false;
+  if (!equals(this.x, other.x))
+    return false;
+  if (!equals(this.y, other.y))
+    return false;
+  return true;
+};
+function JsDropTimeline(fall, impact, hold, settle, lift, end, hammerScale) {
+  this.fall = fall;
+  this.impact = impact;
+  this.hold = hold;
+  this.settle = settle;
+  this.lift = lift;
+  this.end = end;
+  this.hammerScale = hammerScale;
+}
+protoOf(JsDropTimeline).r3e = function () {
+  return this.fall;
+};
+protoOf(JsDropTimeline).s3e = function () {
+  return this.impact;
+};
+protoOf(JsDropTimeline).t3e = function () {
+  return this.hold;
+};
+protoOf(JsDropTimeline).u3e = function () {
+  return this.settle;
+};
+protoOf(JsDropTimeline).v3e = function () {
+  return this.lift;
+};
+protoOf(JsDropTimeline).w3e = function () {
+  return this.end;
+};
+protoOf(JsDropTimeline).x3e = function () {
+  return this.hammerScale;
+};
+protoOf(JsDropTimeline).gb = function () {
+  return this.fall;
+};
+protoOf(JsDropTimeline).hb = function () {
+  return this.impact;
+};
+protoOf(JsDropTimeline).tf = function () {
+  return this.hold;
+};
+protoOf(JsDropTimeline).y3e = function () {
+  return this.settle;
+};
+protoOf(JsDropTimeline).z3e = function () {
+  return this.lift;
+};
+protoOf(JsDropTimeline).a3f = function () {
+  return this.end;
+};
+protoOf(JsDropTimeline).b3f = function () {
+  return this.hammerScale;
+};
+protoOf(JsDropTimeline).c3f = function (fall, impact, hold, settle, lift, end, hammerScale) {
+  return new JsDropTimeline(fall, impact, hold, settle, lift, end, hammerScale);
+};
+protoOf(JsDropTimeline).copy = function (fall, impact, hold, settle, lift, end, hammerScale, $super) {
+  fall = fall === VOID ? this.fall : fall;
+  impact = impact === VOID ? this.impact : impact;
+  hold = hold === VOID ? this.hold : hold;
+  settle = settle === VOID ? this.settle : settle;
+  lift = lift === VOID ? this.lift : lift;
+  end = end === VOID ? this.end : end;
+  hammerScale = hammerScale === VOID ? this.hammerScale : hammerScale;
+  return $super === VOID ? this.c3f(fall, impact, hold, settle, lift, end, hammerScale) : $super.c3f.call(this, fall, impact, hold, settle, lift, end, hammerScale);
+};
+protoOf(JsDropTimeline).toString = function () {
+  return 'JsDropTimeline(fall=' + this.fall + ', impact=' + this.impact + ', hold=' + this.hold + ', settle=' + this.settle + ', lift=' + this.lift + ', end=' + this.end + ', hammerScale=' + this.hammerScale + ')';
+};
+protoOf(JsDropTimeline).hashCode = function () {
+  var result = getNumberHashCode(this.fall);
+  result = imul(result, 31) + getNumberHashCode(this.impact) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.hold) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.settle) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.lift) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.end) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.hammerScale) | 0;
+  return result;
+};
+protoOf(JsDropTimeline).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsDropTimeline))
+    return false;
+  if (!equals(this.fall, other.fall))
+    return false;
+  if (!equals(this.impact, other.impact))
+    return false;
+  if (!equals(this.hold, other.hold))
+    return false;
+  if (!equals(this.settle, other.settle))
+    return false;
+  if (!equals(this.lift, other.lift))
+    return false;
+  if (!equals(this.end, other.end))
+    return false;
+  if (!equals(this.hammerScale, other.hammerScale))
+    return false;
+  return true;
+};
+function JsPumpTimeline(beats, amps, rise, fall, reach, surge, flood, end) {
+  this.beats = beats;
+  this.amps = amps;
+  this.rise = rise;
+  this.fall = fall;
+  this.reach = reach;
+  this.surge = surge;
+  this.flood = flood;
+  this.end = end;
+}
+protoOf(JsPumpTimeline).d3f = function () {
+  return this.beats;
+};
+protoOf(JsPumpTimeline).e3f = function () {
+  return this.amps;
+};
+protoOf(JsPumpTimeline).f3f = function () {
+  return this.rise;
+};
+protoOf(JsPumpTimeline).r3e = function () {
+  return this.fall;
+};
+protoOf(JsPumpTimeline).g3f = function () {
+  return this.reach;
+};
+protoOf(JsPumpTimeline).h3f = function () {
+  return this.surge;
+};
+protoOf(JsPumpTimeline).i3f = function () {
+  return this.flood;
+};
+protoOf(JsPumpTimeline).w3e = function () {
+  return this.end;
+};
+protoOf(JsPumpTimeline).gb = function () {
+  return this.beats;
+};
+protoOf(JsPumpTimeline).hb = function () {
+  return this.amps;
+};
+protoOf(JsPumpTimeline).tf = function () {
+  return this.rise;
+};
+protoOf(JsPumpTimeline).y3e = function () {
+  return this.fall;
+};
+protoOf(JsPumpTimeline).z3e = function () {
+  return this.reach;
+};
+protoOf(JsPumpTimeline).a3f = function () {
+  return this.surge;
+};
+protoOf(JsPumpTimeline).b3f = function () {
+  return this.flood;
+};
+protoOf(JsPumpTimeline).j3f = function () {
+  return this.end;
+};
+protoOf(JsPumpTimeline).k3f = function (beats, amps, rise, fall, reach, surge, flood, end) {
+  return new JsPumpTimeline(beats, amps, rise, fall, reach, surge, flood, end);
+};
+protoOf(JsPumpTimeline).copy = function (beats, amps, rise, fall, reach, surge, flood, end, $super) {
+  beats = beats === VOID ? this.beats : beats;
+  amps = amps === VOID ? this.amps : amps;
+  rise = rise === VOID ? this.rise : rise;
+  fall = fall === VOID ? this.fall : fall;
+  reach = reach === VOID ? this.reach : reach;
+  surge = surge === VOID ? this.surge : surge;
+  flood = flood === VOID ? this.flood : flood;
+  end = end === VOID ? this.end : end;
+  return $super === VOID ? this.k3f(beats, amps, rise, fall, reach, surge, flood, end) : $super.k3f.call(this, beats, amps, rise, fall, reach, surge, flood, end);
+};
+protoOf(JsPumpTimeline).toString = function () {
+  return 'JsPumpTimeline(beats=' + toString(this.beats) + ', amps=' + toString(this.amps) + ', rise=' + toString(this.rise) + ', fall=' + toString(this.fall) + ', reach=' + toString(this.reach) + ', surge=' + toString(this.surge) + ', flood=' + this.flood + ', end=' + this.end + ')';
+};
+protoOf(JsPumpTimeline).hashCode = function () {
+  var result = hashCode(this.beats);
+  result = imul(result, 31) + hashCode(this.amps) | 0;
+  result = imul(result, 31) + hashCode(this.rise) | 0;
+  result = imul(result, 31) + hashCode(this.fall) | 0;
+  result = imul(result, 31) + hashCode(this.reach) | 0;
+  result = imul(result, 31) + hashCode(this.surge) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.flood) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.end) | 0;
+  return result;
+};
+protoOf(JsPumpTimeline).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsPumpTimeline))
+    return false;
+  if (!equals(this.beats, other.beats))
+    return false;
+  if (!equals(this.amps, other.amps))
+    return false;
+  if (!equals(this.rise, other.rise))
+    return false;
+  if (!equals(this.fall, other.fall))
+    return false;
+  if (!equals(this.reach, other.reach))
+    return false;
+  if (!equals(this.surge, other.surge))
+    return false;
+  if (!equals(this.flood, other.flood))
+    return false;
+  if (!equals(this.end, other.end))
+    return false;
+  return true;
+};
+function JsModeSwitchVibration(dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes) {
+  this.dropPattern = dropPattern;
+  this.dropAmplitudes = dropAmplitudes;
+  this.pumpPulses = pumpPulses;
+  this.pumpAmplitudes = pumpAmplitudes;
+}
+protoOf(JsModeSwitchVibration).l3f = function () {
+  return this.dropPattern;
+};
+protoOf(JsModeSwitchVibration).m3f = function () {
+  return this.dropAmplitudes;
+};
+protoOf(JsModeSwitchVibration).n3f = function () {
+  return this.pumpPulses;
+};
+protoOf(JsModeSwitchVibration).o3f = function () {
+  return this.pumpAmplitudes;
+};
+protoOf(JsModeSwitchVibration).gb = function () {
+  return this.dropPattern;
+};
+protoOf(JsModeSwitchVibration).hb = function () {
+  return this.dropAmplitudes;
+};
+protoOf(JsModeSwitchVibration).tf = function () {
+  return this.pumpPulses;
+};
+protoOf(JsModeSwitchVibration).y3e = function () {
+  return this.pumpAmplitudes;
+};
+protoOf(JsModeSwitchVibration).p3f = function (dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes) {
+  return new JsModeSwitchVibration(dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes);
+};
+protoOf(JsModeSwitchVibration).copy = function (dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes, $super) {
+  dropPattern = dropPattern === VOID ? this.dropPattern : dropPattern;
+  dropAmplitudes = dropAmplitudes === VOID ? this.dropAmplitudes : dropAmplitudes;
+  pumpPulses = pumpPulses === VOID ? this.pumpPulses : pumpPulses;
+  pumpAmplitudes = pumpAmplitudes === VOID ? this.pumpAmplitudes : pumpAmplitudes;
+  return $super === VOID ? this.p3f(dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes) : $super.p3f.call(this, dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes);
+};
+protoOf(JsModeSwitchVibration).toString = function () {
+  return 'JsModeSwitchVibration(dropPattern=' + toString(this.dropPattern) + ', dropAmplitudes=' + toString(this.dropAmplitudes) + ', pumpPulses=' + toString(this.pumpPulses) + ', pumpAmplitudes=' + toString(this.pumpAmplitudes) + ')';
+};
+protoOf(JsModeSwitchVibration).hashCode = function () {
+  var result = hashCode(this.dropPattern);
+  result = imul(result, 31) + hashCode(this.dropAmplitudes) | 0;
+  result = imul(result, 31) + hashCode(this.pumpPulses) | 0;
+  result = imul(result, 31) + hashCode(this.pumpAmplitudes) | 0;
+  return result;
+};
+protoOf(JsModeSwitchVibration).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsModeSwitchVibration))
+    return false;
+  if (!equals(this.dropPattern, other.dropPattern))
+    return false;
+  if (!equals(this.dropAmplitudes, other.dropAmplitudes))
+    return false;
+  if (!equals(this.pumpPulses, other.pumpPulses))
+    return false;
+  if (!equals(this.pumpAmplitudes, other.pumpAmplitudes))
+    return false;
+  return true;
+};
+function JsMotionPath(d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin) {
+  this.d = d;
+  this.fill = fill;
+  this.stroke = stroke;
+  this.strokeWidth = strokeWidth;
+  this.opacity = opacity;
+  this.lineCap = lineCap;
+  this.lineJoin = lineJoin;
+}
+protoOf(JsMotionPath).q3f = function () {
+  return this.d;
+};
+protoOf(JsMotionPath).r3f = function () {
+  return this.fill;
+};
+protoOf(JsMotionPath).s3f = function () {
+  return this.stroke;
+};
+protoOf(JsMotionPath).t3f = function () {
+  return this.strokeWidth;
+};
+protoOf(JsMotionPath).u3f = function () {
+  return this.opacity;
+};
+protoOf(JsMotionPath).v3f = function () {
+  return this.lineCap;
+};
+protoOf(JsMotionPath).w3f = function () {
+  return this.lineJoin;
+};
+protoOf(JsMotionPath).gb = function () {
+  return this.d;
+};
+protoOf(JsMotionPath).hb = function () {
+  return this.fill;
+};
+protoOf(JsMotionPath).tf = function () {
+  return this.stroke;
+};
+protoOf(JsMotionPath).y3e = function () {
+  return this.strokeWidth;
+};
+protoOf(JsMotionPath).z3e = function () {
+  return this.opacity;
+};
+protoOf(JsMotionPath).a3f = function () {
+  return this.lineCap;
+};
+protoOf(JsMotionPath).b3f = function () {
+  return this.lineJoin;
+};
+protoOf(JsMotionPath).x3f = function (d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin) {
+  return new JsMotionPath(d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin);
+};
+protoOf(JsMotionPath).copy = function (d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin, $super) {
+  d = d === VOID ? this.d : d;
+  fill = fill === VOID ? this.fill : fill;
+  stroke = stroke === VOID ? this.stroke : stroke;
+  strokeWidth = strokeWidth === VOID ? this.strokeWidth : strokeWidth;
+  opacity = opacity === VOID ? this.opacity : opacity;
+  lineCap = lineCap === VOID ? this.lineCap : lineCap;
+  lineJoin = lineJoin === VOID ? this.lineJoin : lineJoin;
+  return $super === VOID ? this.x3f(d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin) : $super.x3f.call(this, d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin);
+};
+protoOf(JsMotionPath).toString = function () {
+  return 'JsMotionPath(d=' + this.d + ', fill=' + this.fill + ', stroke=' + this.stroke + ', strokeWidth=' + this.strokeWidth + ', opacity=' + this.opacity + ', lineCap=' + this.lineCap + ', lineJoin=' + this.lineJoin + ')';
+};
+protoOf(JsMotionPath).hashCode = function () {
+  var result = getStringHashCode(this.d);
+  result = imul(result, 31) + (this.fill == null ? 0 : getStringHashCode(this.fill)) | 0;
+  result = imul(result, 31) + (this.stroke == null ? 0 : getStringHashCode(this.stroke)) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.strokeWidth) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.opacity) | 0;
+  result = imul(result, 31) + getStringHashCode(this.lineCap) | 0;
+  result = imul(result, 31) + getStringHashCode(this.lineJoin) | 0;
+  return result;
+};
+protoOf(JsMotionPath).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsMotionPath))
+    return false;
+  if (!(this.d === other.d))
+    return false;
+  if (!(this.fill == other.fill))
+    return false;
+  if (!(this.stroke == other.stroke))
+    return false;
+  if (!equals(this.strokeWidth, other.strokeWidth))
+    return false;
+  if (!equals(this.opacity, other.opacity))
+    return false;
+  if (!(this.lineCap === other.lineCap))
+    return false;
+  if (!(this.lineJoin === other.lineJoin))
+    return false;
+  return true;
+};
+function JsGradientStop(offset, color, opacity) {
+  this.offset = offset;
+  this.color = color;
+  this.opacity = opacity;
+}
+protoOf(JsGradientStop).y3f = function () {
+  return this.offset;
+};
+protoOf(JsGradientStop).z3f = function () {
+  return this.color;
+};
+protoOf(JsGradientStop).u3f = function () {
+  return this.opacity;
+};
+protoOf(JsGradientStop).gb = function () {
+  return this.offset;
+};
+protoOf(JsGradientStop).hb = function () {
+  return this.color;
+};
+protoOf(JsGradientStop).tf = function () {
+  return this.opacity;
+};
+protoOf(JsGradientStop).a3g = function (offset, color, opacity) {
+  return new JsGradientStop(offset, color, opacity);
+};
+protoOf(JsGradientStop).copy = function (offset, color, opacity, $super) {
+  offset = offset === VOID ? this.offset : offset;
+  color = color === VOID ? this.color : color;
+  opacity = opacity === VOID ? this.opacity : opacity;
+  return $super === VOID ? this.a3g(offset, color, opacity) : $super.a3g.call(this, offset, color, opacity);
+};
+protoOf(JsGradientStop).toString = function () {
+  return 'JsGradientStop(offset=' + this.offset + ', color=' + this.color + ', opacity=' + this.opacity + ')';
+};
+protoOf(JsGradientStop).hashCode = function () {
+  var result = getNumberHashCode(this.offset);
+  result = imul(result, 31) + getStringHashCode(this.color) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.opacity) | 0;
+  return result;
+};
+protoOf(JsGradientStop).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsGradientStop))
+    return false;
+  if (!equals(this.offset, other.offset))
+    return false;
+  if (!(this.color === other.color))
+    return false;
+  if (!equals(this.opacity, other.opacity))
+    return false;
+  return true;
+};
+function JsMotionGradient(id, radial, x1, y1, x2, y2, stops) {
+  this.id = id;
+  this.radial = radial;
+  this.x1 = x1;
+  this.y1 = y1;
+  this.x2 = x2;
+  this.y2 = y2;
+  this.stops = stops;
+}
+protoOf(JsMotionGradient).b3g = function () {
+  return this.id;
+};
+protoOf(JsMotionGradient).c3g = function () {
+  return this.radial;
+};
+protoOf(JsMotionGradient).d3g = function () {
+  return this.x1;
+};
+protoOf(JsMotionGradient).e3g = function () {
+  return this.y1;
+};
+protoOf(JsMotionGradient).f3g = function () {
+  return this.x2;
+};
+protoOf(JsMotionGradient).g3g = function () {
+  return this.y2;
+};
+protoOf(JsMotionGradient).h3g = function () {
+  return this.stops;
+};
+protoOf(JsMotionGradient).gb = function () {
+  return this.id;
+};
+protoOf(JsMotionGradient).hb = function () {
+  return this.radial;
+};
+protoOf(JsMotionGradient).tf = function () {
+  return this.x1;
+};
+protoOf(JsMotionGradient).y3e = function () {
+  return this.y1;
+};
+protoOf(JsMotionGradient).z3e = function () {
+  return this.x2;
+};
+protoOf(JsMotionGradient).a3f = function () {
+  return this.y2;
+};
+protoOf(JsMotionGradient).b3f = function () {
+  return this.stops;
+};
+protoOf(JsMotionGradient).i3g = function (id, radial, x1, y1, x2, y2, stops) {
+  return new JsMotionGradient(id, radial, x1, y1, x2, y2, stops);
+};
+protoOf(JsMotionGradient).copy = function (id, radial, x1, y1, x2, y2, stops, $super) {
+  id = id === VOID ? this.id : id;
+  radial = radial === VOID ? this.radial : radial;
+  x1 = x1 === VOID ? this.x1 : x1;
+  y1 = y1 === VOID ? this.y1 : y1;
+  x2 = x2 === VOID ? this.x2 : x2;
+  y2 = y2 === VOID ? this.y2 : y2;
+  stops = stops === VOID ? this.stops : stops;
+  return $super === VOID ? this.i3g(id, radial, x1, y1, x2, y2, stops) : $super.i3g.call(this, id, radial, x1, y1, x2, y2, stops);
+};
+protoOf(JsMotionGradient).toString = function () {
+  return 'JsMotionGradient(id=' + this.id + ', radial=' + this.radial + ', x1=' + this.x1 + ', y1=' + this.y1 + ', x2=' + this.x2 + ', y2=' + this.y2 + ', stops=' + toString(this.stops) + ')';
+};
+protoOf(JsMotionGradient).hashCode = function () {
+  var result = getStringHashCode(this.id);
+  result = imul(result, 31) + getBooleanHashCode(this.radial) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x2) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y2) | 0;
+  result = imul(result, 31) + hashCode(this.stops) | 0;
+  return result;
+};
+protoOf(JsMotionGradient).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsMotionGradient))
+    return false;
+  if (!(this.id === other.id))
+    return false;
+  if (!(this.radial === other.radial))
+    return false;
+  if (!equals(this.x1, other.x1))
+    return false;
+  if (!equals(this.y1, other.y1))
+    return false;
+  if (!equals(this.x2, other.x2))
+    return false;
+  if (!equals(this.y2, other.y2))
+    return false;
+  if (!equals(this.stops, other.stops))
+    return false;
+  return true;
+};
+function JsVeinPath(d, layer, color, width, d0, len, swell) {
+  this.d = d;
+  this.layer = layer;
+  this.color = color;
+  this.width = width;
+  this.d0 = d0;
+  this.len = len;
+  this.swell = swell;
+}
+protoOf(JsVeinPath).q3f = function () {
+  return this.d;
+};
+protoOf(JsVeinPath).j3g = function () {
+  return this.layer;
+};
+protoOf(JsVeinPath).z3f = function () {
+  return this.color;
+};
+protoOf(JsVeinPath).h2h = function () {
+  return this.width;
+};
+protoOf(JsVeinPath).k3g = function () {
+  return this.d0;
+};
+protoOf(JsVeinPath).l3g = function () {
+  return this.len;
+};
+protoOf(JsVeinPath).m3g = function () {
+  return this.swell;
+};
+protoOf(JsVeinPath).gb = function () {
+  return this.d;
+};
+protoOf(JsVeinPath).hb = function () {
+  return this.layer;
+};
+protoOf(JsVeinPath).tf = function () {
+  return this.color;
+};
+protoOf(JsVeinPath).y3e = function () {
+  return this.width;
+};
+protoOf(JsVeinPath).z3e = function () {
+  return this.d0;
+};
+protoOf(JsVeinPath).a3f = function () {
+  return this.len;
+};
+protoOf(JsVeinPath).b3f = function () {
+  return this.swell;
+};
+protoOf(JsVeinPath).n3g = function (d, layer, color, width, d0, len, swell) {
+  return new JsVeinPath(d, layer, color, width, d0, len, swell);
+};
+protoOf(JsVeinPath).copy = function (d, layer, color, width, d0, len, swell, $super) {
+  d = d === VOID ? this.d : d;
+  layer = layer === VOID ? this.layer : layer;
+  color = color === VOID ? this.color : color;
+  width = width === VOID ? this.width : width;
+  d0 = d0 === VOID ? this.d0 : d0;
+  len = len === VOID ? this.len : len;
+  swell = swell === VOID ? this.swell : swell;
+  return $super === VOID ? this.n3g(d, layer, color, width, d0, len, swell) : $super.n3g.call(this, d, layer, color, width, d0, len, swell);
+};
+protoOf(JsVeinPath).toString = function () {
+  return 'JsVeinPath(d=' + this.d + ', layer=' + this.layer + ', color=' + this.color + ', width=' + this.width + ', d0=' + this.d0 + ', len=' + this.len + ', swell=' + this.swell + ')';
+};
+protoOf(JsVeinPath).hashCode = function () {
+  var result = getStringHashCode(this.d);
+  result = imul(result, 31) + getStringHashCode(this.layer) | 0;
+  result = imul(result, 31) + getStringHashCode(this.color) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.width) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.d0) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.len) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.swell) | 0;
+  return result;
+};
+protoOf(JsVeinPath).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsVeinPath))
+    return false;
+  if (!(this.d === other.d))
+    return false;
+  if (!(this.layer === other.layer))
+    return false;
+  if (!(this.color === other.color))
+    return false;
+  if (!equals(this.width, other.width))
+    return false;
+  if (!equals(this.d0, other.d0))
+    return false;
+  if (!equals(this.len, other.len))
+    return false;
+  if (!(this.swell === other.swell))
+    return false;
+  return true;
+};
+function JsVeinNode(x, y, r, d0) {
+  this.x = x;
+  this.y = y;
+  this.r = r;
+  this.d0 = d0;
+}
+protoOf(JsVeinNode).o3e = function () {
+  return this.x;
+};
+protoOf(JsVeinNode).p3e = function () {
+  return this.y;
+};
+protoOf(JsVeinNode).o3g = function () {
+  return this.r;
+};
+protoOf(JsVeinNode).k3g = function () {
+  return this.d0;
+};
+protoOf(JsVeinNode).gb = function () {
+  return this.x;
+};
+protoOf(JsVeinNode).hb = function () {
+  return this.y;
+};
+protoOf(JsVeinNode).tf = function () {
+  return this.r;
+};
+protoOf(JsVeinNode).y3e = function () {
+  return this.d0;
+};
+protoOf(JsVeinNode).p3g = function (x, y, r, d0) {
+  return new JsVeinNode(x, y, r, d0);
+};
+protoOf(JsVeinNode).copy = function (x, y, r, d0, $super) {
+  x = x === VOID ? this.x : x;
+  y = y === VOID ? this.y : y;
+  r = r === VOID ? this.r : r;
+  d0 = d0 === VOID ? this.d0 : d0;
+  return $super === VOID ? this.p3g(x, y, r, d0) : $super.p3g.call(this, x, y, r, d0);
+};
+protoOf(JsVeinNode).toString = function () {
+  return 'JsVeinNode(x=' + this.x + ', y=' + this.y + ', r=' + this.r + ', d0=' + this.d0 + ')';
+};
+protoOf(JsVeinNode).hashCode = function () {
+  var result = getNumberHashCode(this.x);
+  result = imul(result, 31) + getNumberHashCode(this.y) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.r) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.d0) | 0;
+  return result;
+};
+protoOf(JsVeinNode).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsVeinNode))
+    return false;
+  if (!equals(this.x, other.x))
+    return false;
+  if (!equals(this.y, other.y))
+    return false;
+  if (!equals(this.r, other.r))
+    return false;
+  if (!equals(this.d0, other.d0))
+    return false;
+  return true;
+};
+function JsMotionParticle(ox, oy, dx, dy, r0, life, alpha) {
+  this.ox = ox;
+  this.oy = oy;
+  this.dx = dx;
+  this.dy = dy;
+  this.r0 = r0;
+  this.life = life;
+  this.alpha = alpha;
+}
+protoOf(JsMotionParticle).q3g = function () {
+  return this.ox;
+};
+protoOf(JsMotionParticle).r3g = function () {
+  return this.oy;
+};
+protoOf(JsMotionParticle).s3g = function () {
+  return this.dx;
+};
+protoOf(JsMotionParticle).t3g = function () {
+  return this.dy;
+};
+protoOf(JsMotionParticle).u3g = function () {
+  return this.r0;
+};
+protoOf(JsMotionParticle).v3g = function () {
+  return this.life;
+};
+protoOf(JsMotionParticle).w3g = function () {
+  return this.alpha;
+};
+protoOf(JsMotionParticle).gb = function () {
+  return this.ox;
+};
+protoOf(JsMotionParticle).hb = function () {
+  return this.oy;
+};
+protoOf(JsMotionParticle).tf = function () {
+  return this.dx;
+};
+protoOf(JsMotionParticle).y3e = function () {
+  return this.dy;
+};
+protoOf(JsMotionParticle).z3e = function () {
+  return this.r0;
+};
+protoOf(JsMotionParticle).a3f = function () {
+  return this.life;
+};
+protoOf(JsMotionParticle).b3f = function () {
+  return this.alpha;
+};
+protoOf(JsMotionParticle).c3f = function (ox, oy, dx, dy, r0, life, alpha) {
+  return new JsMotionParticle(ox, oy, dx, dy, r0, life, alpha);
+};
+protoOf(JsMotionParticle).copy = function (ox, oy, dx, dy, r0, life, alpha, $super) {
+  ox = ox === VOID ? this.ox : ox;
+  oy = oy === VOID ? this.oy : oy;
+  dx = dx === VOID ? this.dx : dx;
+  dy = dy === VOID ? this.dy : dy;
+  r0 = r0 === VOID ? this.r0 : r0;
+  life = life === VOID ? this.life : life;
+  alpha = alpha === VOID ? this.alpha : alpha;
+  return $super === VOID ? this.c3f(ox, oy, dx, dy, r0, life, alpha) : $super.c3f.call(this, ox, oy, dx, dy, r0, life, alpha);
+};
+protoOf(JsMotionParticle).toString = function () {
+  return 'JsMotionParticle(ox=' + this.ox + ', oy=' + this.oy + ', dx=' + this.dx + ', dy=' + this.dy + ', r0=' + this.r0 + ', life=' + this.life + ', alpha=' + this.alpha + ')';
+};
+protoOf(JsMotionParticle).hashCode = function () {
+  var result = getNumberHashCode(this.ox);
+  result = imul(result, 31) + getNumberHashCode(this.oy) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.dx) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.dy) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.r0) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.life) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.alpha) | 0;
+  return result;
+};
+protoOf(JsMotionParticle).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsMotionParticle))
+    return false;
+  if (!equals(this.ox, other.ox))
+    return false;
+  if (!equals(this.oy, other.oy))
+    return false;
+  if (!equals(this.dx, other.dx))
+    return false;
+  if (!equals(this.dy, other.dy))
+    return false;
+  if (!equals(this.r0, other.r0))
+    return false;
+  if (!equals(this.life, other.life))
+    return false;
+  if (!equals(this.alpha, other.alpha))
+    return false;
+  return true;
+};
+function JsMotionPose(x, y, rotation, scaleX, scaleY) {
+  this.x = x;
+  this.y = y;
+  this.rotation = rotation;
+  this.scaleX = scaleX;
+  this.scaleY = scaleY;
+}
+protoOf(JsMotionPose).o3e = function () {
+  return this.x;
+};
+protoOf(JsMotionPose).p3e = function () {
+  return this.y;
+};
+protoOf(JsMotionPose).x3g = function () {
+  return this.rotation;
+};
+protoOf(JsMotionPose).y3g = function () {
+  return this.scaleX;
+};
+protoOf(JsMotionPose).z3g = function () {
+  return this.scaleY;
+};
+protoOf(JsMotionPose).gb = function () {
+  return this.x;
+};
+protoOf(JsMotionPose).hb = function () {
+  return this.y;
+};
+protoOf(JsMotionPose).tf = function () {
+  return this.rotation;
+};
+protoOf(JsMotionPose).y3e = function () {
+  return this.scaleX;
+};
+protoOf(JsMotionPose).z3e = function () {
+  return this.scaleY;
+};
+protoOf(JsMotionPose).s2a = function (x, y, rotation, scaleX, scaleY) {
+  return new JsMotionPose(x, y, rotation, scaleX, scaleY);
+};
+protoOf(JsMotionPose).copy = function (x, y, rotation, scaleX, scaleY, $super) {
+  x = x === VOID ? this.x : x;
+  y = y === VOID ? this.y : y;
+  rotation = rotation === VOID ? this.rotation : rotation;
+  scaleX = scaleX === VOID ? this.scaleX : scaleX;
+  scaleY = scaleY === VOID ? this.scaleY : scaleY;
+  return $super === VOID ? this.s2a(x, y, rotation, scaleX, scaleY) : $super.s2a.call(this, x, y, rotation, scaleX, scaleY);
+};
+protoOf(JsMotionPose).toString = function () {
+  return 'JsMotionPose(x=' + this.x + ', y=' + this.y + ', rotation=' + this.rotation + ', scaleX=' + this.scaleX + ', scaleY=' + this.scaleY + ')';
+};
+protoOf(JsMotionPose).hashCode = function () {
+  var result = getNumberHashCode(this.x);
+  result = imul(result, 31) + getNumberHashCode(this.y) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.rotation) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.scaleX) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.scaleY) | 0;
+  return result;
+};
+protoOf(JsMotionPose).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsMotionPose))
+    return false;
+  if (!equals(this.x, other.x))
+    return false;
+  if (!equals(this.y, other.y))
+    return false;
+  if (!equals(this.rotation, other.rotation))
+    return false;
+  if (!equals(this.scaleX, other.scaleX))
+    return false;
+  if (!equals(this.scaleY, other.scaleY))
+    return false;
+  return true;
+};
+function JsMotionGhost(opacity, pose) {
+  this.opacity = opacity;
+  this.pose = pose;
+}
+protoOf(JsMotionGhost).u3f = function () {
+  return this.opacity;
+};
+protoOf(JsMotionGhost).a3h = function () {
+  return this.pose;
+};
+protoOf(JsMotionGhost).gb = function () {
+  return this.opacity;
+};
+protoOf(JsMotionGhost).hb = function () {
+  return this.pose;
+};
+protoOf(JsMotionGhost).b3h = function (opacity, pose) {
+  return new JsMotionGhost(opacity, pose);
+};
+protoOf(JsMotionGhost).copy = function (opacity, pose, $super) {
+  opacity = opacity === VOID ? this.opacity : opacity;
+  pose = pose === VOID ? this.pose : pose;
+  return $super === VOID ? this.b3h(opacity, pose) : $super.b3h.call(this, opacity, pose);
+};
+protoOf(JsMotionGhost).toString = function () {
+  return 'JsMotionGhost(opacity=' + this.opacity + ', pose=' + this.pose.toString() + ')';
+};
+protoOf(JsMotionGhost).hashCode = function () {
+  var result = getNumberHashCode(this.opacity);
+  result = imul(result, 31) + this.pose.hashCode() | 0;
+  return result;
+};
+protoOf(JsMotionGhost).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsMotionGhost))
+    return false;
+  if (!equals(this.opacity, other.opacity))
+    return false;
+  if (!this.pose.equals(other.pose))
+    return false;
+  return true;
+};
+function JsMotionCircle(opacity, radius, strokeWidth) {
+  this.opacity = opacity;
+  this.radius = radius;
+  this.strokeWidth = strokeWidth;
+}
+protoOf(JsMotionCircle).u3f = function () {
+  return this.opacity;
+};
+protoOf(JsMotionCircle).x2r = function () {
+  return this.radius;
+};
+protoOf(JsMotionCircle).t3f = function () {
+  return this.strokeWidth;
+};
+protoOf(JsMotionCircle).gb = function () {
+  return this.opacity;
+};
+protoOf(JsMotionCircle).hb = function () {
+  return this.radius;
+};
+protoOf(JsMotionCircle).tf = function () {
+  return this.strokeWidth;
+};
+protoOf(JsMotionCircle).c3h = function (opacity, radius, strokeWidth) {
+  return new JsMotionCircle(opacity, radius, strokeWidth);
+};
+protoOf(JsMotionCircle).copy = function (opacity, radius, strokeWidth, $super) {
+  opacity = opacity === VOID ? this.opacity : opacity;
+  radius = radius === VOID ? this.radius : radius;
+  strokeWidth = strokeWidth === VOID ? this.strokeWidth : strokeWidth;
+  return $super === VOID ? this.c3h(opacity, radius, strokeWidth) : $super.c3h.call(this, opacity, radius, strokeWidth);
+};
+protoOf(JsMotionCircle).toString = function () {
+  return 'JsMotionCircle(opacity=' + this.opacity + ', radius=' + this.radius + ', strokeWidth=' + this.strokeWidth + ')';
+};
+protoOf(JsMotionCircle).hashCode = function () {
+  var result = getNumberHashCode(this.opacity);
+  result = imul(result, 31) + getNumberHashCode(this.radius) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.strokeWidth) | 0;
+  return result;
+};
+protoOf(JsMotionCircle).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsMotionCircle))
+    return false;
+  if (!equals(this.opacity, other.opacity))
+    return false;
+  if (!equals(this.radius, other.radius))
+    return false;
+  if (!equals(this.strokeWidth, other.strokeWidth))
+    return false;
+  return true;
+};
+function JsDustState(cx, cy, r, opacity) {
+  this.cx = cx;
+  this.cy = cy;
+  this.r = r;
+  this.opacity = opacity;
+}
+protoOf(JsDustState).d3h = function () {
+  return this.cx;
+};
+protoOf(JsDustState).e3h = function () {
+  return this.cy;
+};
+protoOf(JsDustState).o3g = function () {
+  return this.r;
+};
+protoOf(JsDustState).u3f = function () {
+  return this.opacity;
+};
+protoOf(JsDustState).gb = function () {
+  return this.cx;
+};
+protoOf(JsDustState).hb = function () {
+  return this.cy;
+};
+protoOf(JsDustState).tf = function () {
+  return this.r;
+};
+protoOf(JsDustState).y3e = function () {
+  return this.opacity;
+};
+protoOf(JsDustState).p3g = function (cx, cy, r, opacity) {
+  return new JsDustState(cx, cy, r, opacity);
+};
+protoOf(JsDustState).copy = function (cx, cy, r, opacity, $super) {
+  cx = cx === VOID ? this.cx : cx;
+  cy = cy === VOID ? this.cy : cy;
+  r = r === VOID ? this.r : r;
+  opacity = opacity === VOID ? this.opacity : opacity;
+  return $super === VOID ? this.p3g(cx, cy, r, opacity) : $super.p3g.call(this, cx, cy, r, opacity);
+};
+protoOf(JsDustState).toString = function () {
+  return 'JsDustState(cx=' + this.cx + ', cy=' + this.cy + ', r=' + this.r + ', opacity=' + this.opacity + ')';
+};
+protoOf(JsDustState).hashCode = function () {
+  var result = getNumberHashCode(this.cx);
+  result = imul(result, 31) + getNumberHashCode(this.cy) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.r) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.opacity) | 0;
+  return result;
+};
+protoOf(JsDustState).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsDustState))
+    return false;
+  if (!equals(this.cx, other.cx))
+    return false;
+  if (!equals(this.cy, other.cy))
+    return false;
+  if (!equals(this.r, other.r))
+    return false;
+  if (!equals(this.opacity, other.opacity))
+    return false;
+  return true;
+};
+function JsSparkState(x1, y1, x2, y2, opacity) {
+  this.x1 = x1;
+  this.y1 = y1;
+  this.x2 = x2;
+  this.y2 = y2;
+  this.opacity = opacity;
+}
+protoOf(JsSparkState).d3g = function () {
+  return this.x1;
+};
+protoOf(JsSparkState).e3g = function () {
+  return this.y1;
+};
+protoOf(JsSparkState).f3g = function () {
+  return this.x2;
+};
+protoOf(JsSparkState).g3g = function () {
+  return this.y2;
+};
+protoOf(JsSparkState).u3f = function () {
+  return this.opacity;
+};
+protoOf(JsSparkState).gb = function () {
+  return this.x1;
+};
+protoOf(JsSparkState).hb = function () {
+  return this.y1;
+};
+protoOf(JsSparkState).tf = function () {
+  return this.x2;
+};
+protoOf(JsSparkState).y3e = function () {
+  return this.y2;
+};
+protoOf(JsSparkState).z3e = function () {
+  return this.opacity;
+};
+protoOf(JsSparkState).s2a = function (x1, y1, x2, y2, opacity) {
+  return new JsSparkState(x1, y1, x2, y2, opacity);
+};
+protoOf(JsSparkState).copy = function (x1, y1, x2, y2, opacity, $super) {
+  x1 = x1 === VOID ? this.x1 : x1;
+  y1 = y1 === VOID ? this.y1 : y1;
+  x2 = x2 === VOID ? this.x2 : x2;
+  y2 = y2 === VOID ? this.y2 : y2;
+  opacity = opacity === VOID ? this.opacity : opacity;
+  return $super === VOID ? this.s2a(x1, y1, x2, y2, opacity) : $super.s2a.call(this, x1, y1, x2, y2, opacity);
+};
+protoOf(JsSparkState).toString = function () {
+  return 'JsSparkState(x1=' + this.x1 + ', y1=' + this.y1 + ', x2=' + this.x2 + ', y2=' + this.y2 + ', opacity=' + this.opacity + ')';
+};
+protoOf(JsSparkState).hashCode = function () {
+  var result = getNumberHashCode(this.x1);
+  result = imul(result, 31) + getNumberHashCode(this.y1) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.x2) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.y2) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.opacity) | 0;
+  return result;
+};
+protoOf(JsSparkState).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsSparkState))
+    return false;
+  if (!equals(this.x1, other.x1))
+    return false;
+  if (!equals(this.y1, other.y1))
+    return false;
+  if (!equals(this.x2, other.x2))
+    return false;
+  if (!equals(this.y2, other.y2))
+    return false;
+  if (!equals(this.opacity, other.opacity))
+    return false;
+  return true;
+};
+function JsDropFrame(hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks) {
+  this.hitX = hitX;
+  this.hitY = hitY;
+  this.shadowOpacity = shadowOpacity;
+  this.shadowRx = shadowRx;
+  this.shadowRy = shadowRy;
+  this.shadowCx = shadowCx;
+  this.shadowCy = shadowCy;
+  this.hammer = hammer;
+  this.ghosts = ghosts;
+  this.runeOpacity = runeOpacity;
+  this.revealRadius = revealRadius;
+  this.revealFull = revealFull;
+  this.shakeX = shakeX;
+  this.shakeY = shakeY;
+  this.shakeRotation = shakeRotation;
+  this.shakeScale = shakeScale;
+  this.deviceShakeY = deviceShakeY;
+  this.stampScale = stampScale;
+  this.stampOpacity = stampOpacity;
+  this.flashOpacity = flashOpacity;
+  this.burstOpacity = burstOpacity;
+  this.burstScale = burstScale;
+  this.ring1 = ring1;
+  this.ring2 = ring2;
+  this.cracksOpacity = cracksOpacity;
+  this.crackDrawn = crackDrawn;
+  this.dust = dust;
+  this.sparks = sparks;
+}
+protoOf(JsDropFrame).f3h = function () {
+  return this.hitX;
+};
+protoOf(JsDropFrame).g3h = function () {
+  return this.hitY;
+};
+protoOf(JsDropFrame).h3h = function () {
+  return this.shadowOpacity;
+};
+protoOf(JsDropFrame).i3h = function () {
+  return this.shadowRx;
+};
+protoOf(JsDropFrame).j3h = function () {
+  return this.shadowRy;
+};
+protoOf(JsDropFrame).k3h = function () {
+  return this.shadowCx;
+};
+protoOf(JsDropFrame).l3h = function () {
+  return this.shadowCy;
+};
+protoOf(JsDropFrame).m3h = function () {
+  return this.hammer;
+};
+protoOf(JsDropFrame).n3h = function () {
+  return this.ghosts;
+};
+protoOf(JsDropFrame).o3h = function () {
+  return this.runeOpacity;
+};
+protoOf(JsDropFrame).p3h = function () {
+  return this.revealRadius;
+};
+protoOf(JsDropFrame).q3h = function () {
+  return this.revealFull;
+};
+protoOf(JsDropFrame).r3h = function () {
+  return this.shakeX;
+};
+protoOf(JsDropFrame).s3h = function () {
+  return this.shakeY;
+};
+protoOf(JsDropFrame).t3h = function () {
+  return this.shakeRotation;
+};
+protoOf(JsDropFrame).u3h = function () {
+  return this.shakeScale;
+};
+protoOf(JsDropFrame).v3h = function () {
+  return this.deviceShakeY;
+};
+protoOf(JsDropFrame).w3h = function () {
+  return this.stampScale;
+};
+protoOf(JsDropFrame).x3h = function () {
+  return this.stampOpacity;
+};
+protoOf(JsDropFrame).y3h = function () {
+  return this.flashOpacity;
+};
+protoOf(JsDropFrame).z3h = function () {
+  return this.burstOpacity;
+};
+protoOf(JsDropFrame).a3i = function () {
+  return this.burstScale;
+};
+protoOf(JsDropFrame).b3i = function () {
+  return this.ring1;
+};
+protoOf(JsDropFrame).c3i = function () {
+  return this.ring2;
+};
+protoOf(JsDropFrame).d3i = function () {
+  return this.cracksOpacity;
+};
+protoOf(JsDropFrame).e3i = function () {
+  return this.crackDrawn;
+};
+protoOf(JsDropFrame).f3i = function () {
+  return this.dust;
+};
+protoOf(JsDropFrame).g3i = function () {
+  return this.sparks;
+};
+protoOf(JsDropFrame).gb = function () {
+  return this.hitX;
+};
+protoOf(JsDropFrame).hb = function () {
+  return this.hitY;
+};
+protoOf(JsDropFrame).tf = function () {
+  return this.shadowOpacity;
+};
+protoOf(JsDropFrame).y3e = function () {
+  return this.shadowRx;
+};
+protoOf(JsDropFrame).z3e = function () {
+  return this.shadowRy;
+};
+protoOf(JsDropFrame).a3f = function () {
+  return this.shadowCx;
+};
+protoOf(JsDropFrame).b3f = function () {
+  return this.shadowCy;
+};
+protoOf(JsDropFrame).j3f = function () {
+  return this.hammer;
+};
+protoOf(JsDropFrame).h3i = function () {
+  return this.ghosts;
+};
+protoOf(JsDropFrame).i3i = function () {
+  return this.runeOpacity;
+};
+protoOf(JsDropFrame).j3i = function () {
+  return this.revealRadius;
+};
+protoOf(JsDropFrame).k3i = function () {
+  return this.revealFull;
+};
+protoOf(JsDropFrame).l3i = function () {
+  return this.shakeX;
+};
+protoOf(JsDropFrame).m3i = function () {
+  return this.shakeY;
+};
+protoOf(JsDropFrame).n3i = function () {
+  return this.shakeRotation;
+};
+protoOf(JsDropFrame).o3i = function () {
+  return this.shakeScale;
+};
+protoOf(JsDropFrame).p3i = function () {
+  return this.deviceShakeY;
+};
+protoOf(JsDropFrame).q3i = function () {
+  return this.stampScale;
+};
+protoOf(JsDropFrame).r3i = function () {
+  return this.stampOpacity;
+};
+protoOf(JsDropFrame).s3i = function () {
+  return this.flashOpacity;
+};
+protoOf(JsDropFrame).t3i = function () {
+  return this.burstOpacity;
+};
+protoOf(JsDropFrame).u3i = function () {
+  return this.burstScale;
+};
+protoOf(JsDropFrame).v3i = function () {
+  return this.ring1;
+};
+protoOf(JsDropFrame).w3i = function () {
+  return this.ring2;
+};
+protoOf(JsDropFrame).x3i = function () {
+  return this.cracksOpacity;
+};
+protoOf(JsDropFrame).y3i = function () {
+  return this.crackDrawn;
+};
+protoOf(JsDropFrame).z3i = function () {
+  return this.dust;
+};
+protoOf(JsDropFrame).a3j = function () {
+  return this.sparks;
+};
+protoOf(JsDropFrame).b3j = function (hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks) {
+  return new JsDropFrame(hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks);
+};
+protoOf(JsDropFrame).copy = function (hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks, $super) {
+  hitX = hitX === VOID ? this.hitX : hitX;
+  hitY = hitY === VOID ? this.hitY : hitY;
+  shadowOpacity = shadowOpacity === VOID ? this.shadowOpacity : shadowOpacity;
+  shadowRx = shadowRx === VOID ? this.shadowRx : shadowRx;
+  shadowRy = shadowRy === VOID ? this.shadowRy : shadowRy;
+  shadowCx = shadowCx === VOID ? this.shadowCx : shadowCx;
+  shadowCy = shadowCy === VOID ? this.shadowCy : shadowCy;
+  hammer = hammer === VOID ? this.hammer : hammer;
+  ghosts = ghosts === VOID ? this.ghosts : ghosts;
+  runeOpacity = runeOpacity === VOID ? this.runeOpacity : runeOpacity;
+  revealRadius = revealRadius === VOID ? this.revealRadius : revealRadius;
+  revealFull = revealFull === VOID ? this.revealFull : revealFull;
+  shakeX = shakeX === VOID ? this.shakeX : shakeX;
+  shakeY = shakeY === VOID ? this.shakeY : shakeY;
+  shakeRotation = shakeRotation === VOID ? this.shakeRotation : shakeRotation;
+  shakeScale = shakeScale === VOID ? this.shakeScale : shakeScale;
+  deviceShakeY = deviceShakeY === VOID ? this.deviceShakeY : deviceShakeY;
+  stampScale = stampScale === VOID ? this.stampScale : stampScale;
+  stampOpacity = stampOpacity === VOID ? this.stampOpacity : stampOpacity;
+  flashOpacity = flashOpacity === VOID ? this.flashOpacity : flashOpacity;
+  burstOpacity = burstOpacity === VOID ? this.burstOpacity : burstOpacity;
+  burstScale = burstScale === VOID ? this.burstScale : burstScale;
+  ring1 = ring1 === VOID ? this.ring1 : ring1;
+  ring2 = ring2 === VOID ? this.ring2 : ring2;
+  cracksOpacity = cracksOpacity === VOID ? this.cracksOpacity : cracksOpacity;
+  crackDrawn = crackDrawn === VOID ? this.crackDrawn : crackDrawn;
+  dust = dust === VOID ? this.dust : dust;
+  sparks = sparks === VOID ? this.sparks : sparks;
+  return $super === VOID ? this.b3j(hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks) : $super.b3j.call(this, hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks);
+};
+protoOf(JsDropFrame).toString = function () {
+  return 'JsDropFrame(hitX=' + this.hitX + ', hitY=' + this.hitY + ', shadowOpacity=' + this.shadowOpacity + ', shadowRx=' + this.shadowRx + ', shadowRy=' + this.shadowRy + ', shadowCx=' + this.shadowCx + ', shadowCy=' + this.shadowCy + ', hammer=' + toString_1(this.hammer) + ', ghosts=' + toString(this.ghosts) + ', runeOpacity=' + this.runeOpacity + ', revealRadius=' + this.revealRadius + ', revealFull=' + this.revealFull + ', shakeX=' + this.shakeX + ', shakeY=' + this.shakeY + ', shakeRotation=' + this.shakeRotation + ', shakeScale=' + this.shakeScale + ', deviceShakeY=' + this.deviceShakeY + ', stampScale=' + this.stampScale + ', stampOpacity=' + this.stampOpacity + ', flashOpacity=' + this.flashOpacity + ', burstOpacity=' + this.burstOpacity + ', burstScale=' + this.burstScale + ', ring1=' + this.ring1.toString() + ', ring2=' + this.ring2.toString() + ', cracksOpacity=' + this.cracksOpacity + ', crackDrawn=' + this.crackDrawn + ', dust=' + toString(this.dust) + ', sparks=' + toString(this.sparks) + ')';
+};
+protoOf(JsDropFrame).hashCode = function () {
+  var result = getNumberHashCode(this.hitX);
+  result = imul(result, 31) + getNumberHashCode(this.hitY) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.shadowOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.shadowRx) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.shadowRy) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.shadowCx) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.shadowCy) | 0;
+  result = imul(result, 31) + (this.hammer == null ? 0 : this.hammer.hashCode()) | 0;
+  result = imul(result, 31) + hashCode(this.ghosts) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.runeOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.revealRadius) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.revealFull) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.shakeX) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.shakeY) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.shakeRotation) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.shakeScale) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.deviceShakeY) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.stampScale) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.stampOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.flashOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.burstOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.burstScale) | 0;
+  result = imul(result, 31) + this.ring1.hashCode() | 0;
+  result = imul(result, 31) + this.ring2.hashCode() | 0;
+  result = imul(result, 31) + getNumberHashCode(this.cracksOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.crackDrawn) | 0;
+  result = imul(result, 31) + hashCode(this.dust) | 0;
+  result = imul(result, 31) + hashCode(this.sparks) | 0;
+  return result;
+};
+protoOf(JsDropFrame).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsDropFrame))
+    return false;
+  if (!equals(this.hitX, other.hitX))
+    return false;
+  if (!equals(this.hitY, other.hitY))
+    return false;
+  if (!equals(this.shadowOpacity, other.shadowOpacity))
+    return false;
+  if (!equals(this.shadowRx, other.shadowRx))
+    return false;
+  if (!equals(this.shadowRy, other.shadowRy))
+    return false;
+  if (!equals(this.shadowCx, other.shadowCx))
+    return false;
+  if (!equals(this.shadowCy, other.shadowCy))
+    return false;
+  if (!equals(this.hammer, other.hammer))
+    return false;
+  if (!equals(this.ghosts, other.ghosts))
+    return false;
+  if (!equals(this.runeOpacity, other.runeOpacity))
+    return false;
+  if (!equals(this.revealRadius, other.revealRadius))
+    return false;
+  if (!(this.revealFull === other.revealFull))
+    return false;
+  if (!equals(this.shakeX, other.shakeX))
+    return false;
+  if (!equals(this.shakeY, other.shakeY))
+    return false;
+  if (!equals(this.shakeRotation, other.shakeRotation))
+    return false;
+  if (!equals(this.shakeScale, other.shakeScale))
+    return false;
+  if (!equals(this.deviceShakeY, other.deviceShakeY))
+    return false;
+  if (!equals(this.stampScale, other.stampScale))
+    return false;
+  if (!equals(this.stampOpacity, other.stampOpacity))
+    return false;
+  if (!equals(this.flashOpacity, other.flashOpacity))
+    return false;
+  if (!equals(this.burstOpacity, other.burstOpacity))
+    return false;
+  if (!equals(this.burstScale, other.burstScale))
+    return false;
+  if (!this.ring1.equals(other.ring1))
+    return false;
+  if (!this.ring2.equals(other.ring2))
+    return false;
+  if (!equals(this.cracksOpacity, other.cracksOpacity))
+    return false;
+  if (!equals(this.crackDrawn, other.crackDrawn))
+    return false;
+  if (!equals(this.dust, other.dust))
+    return false;
+  if (!equals(this.sparks, other.sparks))
+    return false;
+  return true;
+};
+function JsPumpFrame(srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale) {
+  this.srcX = srcX;
+  this.srcY = srcY;
+  this.swell = swell;
+  this.contentScale = contentScale;
+  this.deviceScale = deviceScale;
+  this.glow = glow;
+  this.tintOpacity = tintOpacity;
+  this.halos = halos;
+  this.rings = rings;
+  this.veinsOpacity = veinsOpacity;
+  this.glowLayerOpacity = glowLayerOpacity;
+  this.veinFront = veinFront;
+  this.veinWidthScale = veinWidthScale;
+  this.nodeOpacity = nodeOpacity;
+  this.nodeScale = nodeScale;
+  this.pulseOpacity = pulseOpacity;
+  this.floodRadius = floodRadius;
+  this.floodFull = floodFull;
+  this.edgeOpacity = edgeOpacity;
+  this.edgeWidth = edgeWidth;
+  this.edgeSoftOpacity = edgeSoftOpacity;
+  this.edgeSoftWidth = edgeSoftWidth;
+  this.pillScale = pillScale;
+}
+protoOf(JsPumpFrame).c3j = function () {
+  return this.srcX;
+};
+protoOf(JsPumpFrame).d3j = function () {
+  return this.srcY;
+};
+protoOf(JsPumpFrame).m3g = function () {
+  return this.swell;
+};
+protoOf(JsPumpFrame).e3j = function () {
+  return this.contentScale;
+};
+protoOf(JsPumpFrame).f3j = function () {
+  return this.deviceScale;
+};
+protoOf(JsPumpFrame).g3j = function () {
+  return this.glow;
+};
+protoOf(JsPumpFrame).h3j = function () {
+  return this.tintOpacity;
+};
+protoOf(JsPumpFrame).i3j = function () {
+  return this.halos;
+};
+protoOf(JsPumpFrame).j3j = function () {
+  return this.rings;
+};
+protoOf(JsPumpFrame).k3j = function () {
+  return this.veinsOpacity;
+};
+protoOf(JsPumpFrame).l3j = function () {
+  return this.glowLayerOpacity;
+};
+protoOf(JsPumpFrame).m3j = function () {
+  return this.veinFront;
+};
+protoOf(JsPumpFrame).n3j = function () {
+  return this.veinWidthScale;
+};
+protoOf(JsPumpFrame).o3j = function () {
+  return this.nodeOpacity;
+};
+protoOf(JsPumpFrame).p3j = function () {
+  return this.nodeScale;
+};
+protoOf(JsPumpFrame).q3j = function () {
+  return this.pulseOpacity;
+};
+protoOf(JsPumpFrame).r3j = function () {
+  return this.floodRadius;
+};
+protoOf(JsPumpFrame).s3j = function () {
+  return this.floodFull;
+};
+protoOf(JsPumpFrame).t3j = function () {
+  return this.edgeOpacity;
+};
+protoOf(JsPumpFrame).u3j = function () {
+  return this.edgeWidth;
+};
+protoOf(JsPumpFrame).v3j = function () {
+  return this.edgeSoftOpacity;
+};
+protoOf(JsPumpFrame).w3j = function () {
+  return this.edgeSoftWidth;
+};
+protoOf(JsPumpFrame).x3j = function () {
+  return this.pillScale;
+};
+protoOf(JsPumpFrame).gb = function () {
+  return this.srcX;
+};
+protoOf(JsPumpFrame).hb = function () {
+  return this.srcY;
+};
+protoOf(JsPumpFrame).tf = function () {
+  return this.swell;
+};
+protoOf(JsPumpFrame).y3e = function () {
+  return this.contentScale;
+};
+protoOf(JsPumpFrame).z3e = function () {
+  return this.deviceScale;
+};
+protoOf(JsPumpFrame).a3f = function () {
+  return this.glow;
+};
+protoOf(JsPumpFrame).b3f = function () {
+  return this.tintOpacity;
+};
+protoOf(JsPumpFrame).j3f = function () {
+  return this.halos;
+};
+protoOf(JsPumpFrame).h3i = function () {
+  return this.rings;
+};
+protoOf(JsPumpFrame).i3i = function () {
+  return this.veinsOpacity;
+};
+protoOf(JsPumpFrame).j3i = function () {
+  return this.glowLayerOpacity;
+};
+protoOf(JsPumpFrame).k3i = function () {
+  return this.veinFront;
+};
+protoOf(JsPumpFrame).l3i = function () {
+  return this.veinWidthScale;
+};
+protoOf(JsPumpFrame).m3i = function () {
+  return this.nodeOpacity;
+};
+protoOf(JsPumpFrame).n3i = function () {
+  return this.nodeScale;
+};
+protoOf(JsPumpFrame).o3i = function () {
+  return this.pulseOpacity;
+};
+protoOf(JsPumpFrame).p3i = function () {
+  return this.floodRadius;
+};
+protoOf(JsPumpFrame).q3i = function () {
+  return this.floodFull;
+};
+protoOf(JsPumpFrame).r3i = function () {
+  return this.edgeOpacity;
+};
+protoOf(JsPumpFrame).s3i = function () {
+  return this.edgeWidth;
+};
+protoOf(JsPumpFrame).t3i = function () {
+  return this.edgeSoftOpacity;
+};
+protoOf(JsPumpFrame).u3i = function () {
+  return this.edgeSoftWidth;
+};
+protoOf(JsPumpFrame).v3i = function () {
+  return this.pillScale;
+};
+protoOf(JsPumpFrame).y3j = function (srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale) {
+  return new JsPumpFrame(srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale);
+};
+protoOf(JsPumpFrame).copy = function (srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale, $super) {
+  srcX = srcX === VOID ? this.srcX : srcX;
+  srcY = srcY === VOID ? this.srcY : srcY;
+  swell = swell === VOID ? this.swell : swell;
+  contentScale = contentScale === VOID ? this.contentScale : contentScale;
+  deviceScale = deviceScale === VOID ? this.deviceScale : deviceScale;
+  glow = glow === VOID ? this.glow : glow;
+  tintOpacity = tintOpacity === VOID ? this.tintOpacity : tintOpacity;
+  halos = halos === VOID ? this.halos : halos;
+  rings = rings === VOID ? this.rings : rings;
+  veinsOpacity = veinsOpacity === VOID ? this.veinsOpacity : veinsOpacity;
+  glowLayerOpacity = glowLayerOpacity === VOID ? this.glowLayerOpacity : glowLayerOpacity;
+  veinFront = veinFront === VOID ? this.veinFront : veinFront;
+  veinWidthScale = veinWidthScale === VOID ? this.veinWidthScale : veinWidthScale;
+  nodeOpacity = nodeOpacity === VOID ? this.nodeOpacity : nodeOpacity;
+  nodeScale = nodeScale === VOID ? this.nodeScale : nodeScale;
+  pulseOpacity = pulseOpacity === VOID ? this.pulseOpacity : pulseOpacity;
+  floodRadius = floodRadius === VOID ? this.floodRadius : floodRadius;
+  floodFull = floodFull === VOID ? this.floodFull : floodFull;
+  edgeOpacity = edgeOpacity === VOID ? this.edgeOpacity : edgeOpacity;
+  edgeWidth = edgeWidth === VOID ? this.edgeWidth : edgeWidth;
+  edgeSoftOpacity = edgeSoftOpacity === VOID ? this.edgeSoftOpacity : edgeSoftOpacity;
+  edgeSoftWidth = edgeSoftWidth === VOID ? this.edgeSoftWidth : edgeSoftWidth;
+  pillScale = pillScale === VOID ? this.pillScale : pillScale;
+  return $super === VOID ? this.y3j(srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale) : $super.y3j.call(this, srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale);
+};
+protoOf(JsPumpFrame).toString = function () {
+  return 'JsPumpFrame(srcX=' + this.srcX + ', srcY=' + this.srcY + ', swell=' + this.swell + ', contentScale=' + this.contentScale + ', deviceScale=' + this.deviceScale + ', glow=' + this.glow + ', tintOpacity=' + this.tintOpacity + ', halos=' + toString(this.halos) + ', rings=' + toString(this.rings) + ', veinsOpacity=' + this.veinsOpacity + ', glowLayerOpacity=' + this.glowLayerOpacity + ', veinFront=' + this.veinFront + ', veinWidthScale=' + this.veinWidthScale + ', nodeOpacity=' + this.nodeOpacity + ', nodeScale=' + this.nodeScale + ', pulseOpacity=' + this.pulseOpacity + ', floodRadius=' + this.floodRadius + ', floodFull=' + this.floodFull + ', edgeOpacity=' + this.edgeOpacity + ', edgeWidth=' + this.edgeWidth + ', edgeSoftOpacity=' + this.edgeSoftOpacity + ', edgeSoftWidth=' + this.edgeSoftWidth + ', pillScale=' + this.pillScale + ')';
+};
+protoOf(JsPumpFrame).hashCode = function () {
+  var result = getNumberHashCode(this.srcX);
+  result = imul(result, 31) + getNumberHashCode(this.srcY) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.swell) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.contentScale) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.deviceScale) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.glow) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.tintOpacity) | 0;
+  result = imul(result, 31) + hashCode(this.halos) | 0;
+  result = imul(result, 31) + hashCode(this.rings) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.veinsOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.glowLayerOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.veinFront) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.veinWidthScale) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.nodeOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.nodeScale) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.pulseOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.floodRadius) | 0;
+  result = imul(result, 31) + getBooleanHashCode(this.floodFull) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.edgeOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.edgeWidth) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.edgeSoftOpacity) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.edgeSoftWidth) | 0;
+  result = imul(result, 31) + getNumberHashCode(this.pillScale) | 0;
+  return result;
+};
+protoOf(JsPumpFrame).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsPumpFrame))
+    return false;
+  if (!equals(this.srcX, other.srcX))
+    return false;
+  if (!equals(this.srcY, other.srcY))
+    return false;
+  if (!equals(this.swell, other.swell))
+    return false;
+  if (!equals(this.contentScale, other.contentScale))
+    return false;
+  if (!equals(this.deviceScale, other.deviceScale))
+    return false;
+  if (!equals(this.glow, other.glow))
+    return false;
+  if (!equals(this.tintOpacity, other.tintOpacity))
+    return false;
+  if (!equals(this.halos, other.halos))
+    return false;
+  if (!equals(this.rings, other.rings))
+    return false;
+  if (!equals(this.veinsOpacity, other.veinsOpacity))
+    return false;
+  if (!equals(this.glowLayerOpacity, other.glowLayerOpacity))
+    return false;
+  if (!equals(this.veinFront, other.veinFront))
+    return false;
+  if (!equals(this.veinWidthScale, other.veinWidthScale))
+    return false;
+  if (!equals(this.nodeOpacity, other.nodeOpacity))
+    return false;
+  if (!equals(this.nodeScale, other.nodeScale))
+    return false;
+  if (!equals(this.pulseOpacity, other.pulseOpacity))
+    return false;
+  if (!equals(this.floodRadius, other.floodRadius))
+    return false;
+  if (!(this.floodFull === other.floodFull))
+    return false;
+  if (!equals(this.edgeOpacity, other.edgeOpacity))
+    return false;
+  if (!equals(this.edgeWidth, other.edgeWidth))
+    return false;
+  if (!equals(this.edgeSoftOpacity, other.edgeSoftOpacity))
+    return false;
+  if (!equals(this.edgeSoftWidth, other.edgeSoftWidth))
+    return false;
+  if (!equals(this.pillScale, other.pillScale))
+    return false;
+  return true;
+};
+function JsModeSwitchColors(shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node) {
+  this.shadow = shadow;
+  this.crackShadow = crackShadow;
+  this.crack = crack;
+  this.crackBranch = crackBranch;
+  this.flash = flash;
+  this.flashLight = flashLight;
+  this.ring1 = ring1;
+  this.ring2 = ring2;
+  this.burst = burst;
+  this.spark = spark;
+  this.tint = tint;
+  this.pumpRing = pumpRing;
+  this.edge = edge;
+  this.edgeSoft = edgeSoft;
+  this.veinGlow = veinGlow;
+  this.veinCore = veinCore;
+  this.veinHot = veinHot;
+  this.veinPulse = veinPulse;
+  this.node = node;
+}
+protoOf(JsModeSwitchColors).z3j = function () {
+  return this.shadow;
+};
+protoOf(JsModeSwitchColors).a3k = function () {
+  return this.crackShadow;
+};
+protoOf(JsModeSwitchColors).b3k = function () {
+  return this.crack;
+};
+protoOf(JsModeSwitchColors).c3k = function () {
+  return this.crackBranch;
+};
+protoOf(JsModeSwitchColors).d3k = function () {
+  return this.flash;
+};
+protoOf(JsModeSwitchColors).e3k = function () {
+  return this.flashLight;
+};
+protoOf(JsModeSwitchColors).b3i = function () {
+  return this.ring1;
+};
+protoOf(JsModeSwitchColors).c3i = function () {
+  return this.ring2;
+};
+protoOf(JsModeSwitchColors).f3k = function () {
+  return this.burst;
+};
+protoOf(JsModeSwitchColors).g3k = function () {
+  return this.spark;
+};
+protoOf(JsModeSwitchColors).h3k = function () {
+  return this.tint;
+};
+protoOf(JsModeSwitchColors).i3k = function () {
+  return this.pumpRing;
+};
+protoOf(JsModeSwitchColors).j3k = function () {
+  return this.edge;
+};
+protoOf(JsModeSwitchColors).k3k = function () {
+  return this.edgeSoft;
+};
+protoOf(JsModeSwitchColors).l3k = function () {
+  return this.veinGlow;
+};
+protoOf(JsModeSwitchColors).m3k = function () {
+  return this.veinCore;
+};
+protoOf(JsModeSwitchColors).n3k = function () {
+  return this.veinHot;
+};
+protoOf(JsModeSwitchColors).o3k = function () {
+  return this.veinPulse;
+};
+protoOf(JsModeSwitchColors).p3k = function () {
+  return this.node;
+};
+protoOf(JsModeSwitchColors).gb = function () {
+  return this.shadow;
+};
+protoOf(JsModeSwitchColors).hb = function () {
+  return this.crackShadow;
+};
+protoOf(JsModeSwitchColors).tf = function () {
+  return this.crack;
+};
+protoOf(JsModeSwitchColors).y3e = function () {
+  return this.crackBranch;
+};
+protoOf(JsModeSwitchColors).z3e = function () {
+  return this.flash;
+};
+protoOf(JsModeSwitchColors).a3f = function () {
+  return this.flashLight;
+};
+protoOf(JsModeSwitchColors).b3f = function () {
+  return this.ring1;
+};
+protoOf(JsModeSwitchColors).j3f = function () {
+  return this.ring2;
+};
+protoOf(JsModeSwitchColors).h3i = function () {
+  return this.burst;
+};
+protoOf(JsModeSwitchColors).i3i = function () {
+  return this.spark;
+};
+protoOf(JsModeSwitchColors).j3i = function () {
+  return this.tint;
+};
+protoOf(JsModeSwitchColors).k3i = function () {
+  return this.pumpRing;
+};
+protoOf(JsModeSwitchColors).l3i = function () {
+  return this.edge;
+};
+protoOf(JsModeSwitchColors).m3i = function () {
+  return this.edgeSoft;
+};
+protoOf(JsModeSwitchColors).n3i = function () {
+  return this.veinGlow;
+};
+protoOf(JsModeSwitchColors).o3i = function () {
+  return this.veinCore;
+};
+protoOf(JsModeSwitchColors).p3i = function () {
+  return this.veinHot;
+};
+protoOf(JsModeSwitchColors).q3i = function () {
+  return this.veinPulse;
+};
+protoOf(JsModeSwitchColors).r3i = function () {
+  return this.node;
+};
+protoOf(JsModeSwitchColors).q3k = function (shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node) {
+  return new JsModeSwitchColors(shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node);
+};
+protoOf(JsModeSwitchColors).copy = function (shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node, $super) {
+  shadow = shadow === VOID ? this.shadow : shadow;
+  crackShadow = crackShadow === VOID ? this.crackShadow : crackShadow;
+  crack = crack === VOID ? this.crack : crack;
+  crackBranch = crackBranch === VOID ? this.crackBranch : crackBranch;
+  flash = flash === VOID ? this.flash : flash;
+  flashLight = flashLight === VOID ? this.flashLight : flashLight;
+  ring1 = ring1 === VOID ? this.ring1 : ring1;
+  ring2 = ring2 === VOID ? this.ring2 : ring2;
+  burst = burst === VOID ? this.burst : burst;
+  spark = spark === VOID ? this.spark : spark;
+  tint = tint === VOID ? this.tint : tint;
+  pumpRing = pumpRing === VOID ? this.pumpRing : pumpRing;
+  edge = edge === VOID ? this.edge : edge;
+  edgeSoft = edgeSoft === VOID ? this.edgeSoft : edgeSoft;
+  veinGlow = veinGlow === VOID ? this.veinGlow : veinGlow;
+  veinCore = veinCore === VOID ? this.veinCore : veinCore;
+  veinHot = veinHot === VOID ? this.veinHot : veinHot;
+  veinPulse = veinPulse === VOID ? this.veinPulse : veinPulse;
+  node = node === VOID ? this.node : node;
+  return $super === VOID ? this.q3k(shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node) : $super.q3k.call(this, shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node);
+};
+protoOf(JsModeSwitchColors).toString = function () {
+  return 'JsModeSwitchColors(shadow=' + this.shadow + ', crackShadow=' + this.crackShadow + ', crack=' + this.crack + ', crackBranch=' + this.crackBranch + ', flash=' + this.flash + ', flashLight=' + this.flashLight + ', ring1=' + this.ring1 + ', ring2=' + this.ring2 + ', burst=' + this.burst + ', spark=' + this.spark + ', tint=' + this.tint + ', pumpRing=' + this.pumpRing + ', edge=' + this.edge + ', edgeSoft=' + this.edgeSoft + ', veinGlow=' + this.veinGlow + ', veinCore=' + this.veinCore + ', veinHot=' + this.veinHot + ', veinPulse=' + this.veinPulse + ', node=' + this.node + ')';
+};
+protoOf(JsModeSwitchColors).hashCode = function () {
+  var result = getStringHashCode(this.shadow);
+  result = imul(result, 31) + getStringHashCode(this.crackShadow) | 0;
+  result = imul(result, 31) + getStringHashCode(this.crack) | 0;
+  result = imul(result, 31) + getStringHashCode(this.crackBranch) | 0;
+  result = imul(result, 31) + getStringHashCode(this.flash) | 0;
+  result = imul(result, 31) + getStringHashCode(this.flashLight) | 0;
+  result = imul(result, 31) + getStringHashCode(this.ring1) | 0;
+  result = imul(result, 31) + getStringHashCode(this.ring2) | 0;
+  result = imul(result, 31) + getStringHashCode(this.burst) | 0;
+  result = imul(result, 31) + getStringHashCode(this.spark) | 0;
+  result = imul(result, 31) + getStringHashCode(this.tint) | 0;
+  result = imul(result, 31) + getStringHashCode(this.pumpRing) | 0;
+  result = imul(result, 31) + getStringHashCode(this.edge) | 0;
+  result = imul(result, 31) + getStringHashCode(this.edgeSoft) | 0;
+  result = imul(result, 31) + getStringHashCode(this.veinGlow) | 0;
+  result = imul(result, 31) + getStringHashCode(this.veinCore) | 0;
+  result = imul(result, 31) + getStringHashCode(this.veinHot) | 0;
+  result = imul(result, 31) + getStringHashCode(this.veinPulse) | 0;
+  result = imul(result, 31) + getStringHashCode(this.node) | 0;
+  return result;
+};
+protoOf(JsModeSwitchColors).equals = function (other) {
+  if (this === other)
+    return true;
+  if (!(other instanceof JsModeSwitchColors))
+    return false;
+  if (!(this.shadow === other.shadow))
+    return false;
+  if (!(this.crackShadow === other.crackShadow))
+    return false;
+  if (!(this.crack === other.crack))
+    return false;
+  if (!(this.crackBranch === other.crackBranch))
+    return false;
+  if (!(this.flash === other.flash))
+    return false;
+  if (!(this.flashLight === other.flashLight))
+    return false;
+  if (!(this.ring1 === other.ring1))
+    return false;
+  if (!(this.ring2 === other.ring2))
+    return false;
+  if (!(this.burst === other.burst))
+    return false;
+  if (!(this.spark === other.spark))
+    return false;
+  if (!(this.tint === other.tint))
+    return false;
+  if (!(this.pumpRing === other.pumpRing))
+    return false;
+  if (!(this.edge === other.edge))
+    return false;
+  if (!(this.edgeSoft === other.edgeSoft))
+    return false;
+  if (!(this.veinGlow === other.veinGlow))
+    return false;
+  if (!(this.veinCore === other.veinCore))
+    return false;
+  if (!(this.veinHot === other.veinHot))
+    return false;
+  if (!(this.veinPulse === other.veinPulse))
+    return false;
+  if (!(this.node === other.node))
+    return false;
+  return true;
+};
+function toJs(_this__u8e3s4) {
+  return new JsMotionPoint(_this__u8e3s4.i31_1, _this__u8e3s4.j31_1);
+}
+function toJs_0(_this__u8e3s4) {
+  return new JsDropTimeline(_this__u8e3s4.k31_1, _this__u8e3s4.l31_1, _this__u8e3s4.m31_1, _this__u8e3s4.n31_1, _this__u8e3s4.o31_1, _this__u8e3s4.p31_1, _this__u8e3s4.q31_1);
+}
+function toJs_1(_this__u8e3s4) {
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var this_0 = _this__u8e3s4.r31_1;
+  var tmp = copyToArray(this_0);
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var this_1 = _this__u8e3s4.s31_1;
+  var tmp_0 = copyToArray(this_1);
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var this_2 = _this__u8e3s4.t31_1;
+  var tmp_1 = copyToArray(this_2);
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var this_3 = _this__u8e3s4.u31_1;
+  var tmp_2 = copyToArray(this_3);
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var this_4 = _this__u8e3s4.v31_1;
+  var tmp_3 = copyToArray(this_4);
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var this_5 = _this__u8e3s4.w31_1;
+  var tmp$ret$5 = copyToArray(this_5);
+  return new JsPumpTimeline(tmp, tmp_0, tmp_1, tmp_2, tmp_3, tmp$ret$5, _this__u8e3s4.x31_1, _this__u8e3s4.y31_1);
+}
+function toJs_2(_this__u8e3s4) {
+  return new JsMotionPath(_this__u8e3s4.z31_1, _this__u8e3s4.a32_1, _this__u8e3s4.b32_1, _this__u8e3s4.c32_1, _this__u8e3s4.d32_1, _this__u8e3s4.e32_1, _this__u8e3s4.f32_1);
+}
+function toJs_3(_this__u8e3s4) {
+  return new JsGradientStop(_this__u8e3s4.g32_1, _this__u8e3s4.h32_1, _this__u8e3s4.i32_1);
+}
+function toJs_4(_this__u8e3s4) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = _this__u8e3s4.p32_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs_3(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var tmp$ret$3 = copyToArray(destination);
+  return new JsMotionGradient(_this__u8e3s4.j32_1, _this__u8e3s4.k32_1, _this__u8e3s4.l32_1, _this__u8e3s4.m32_1, _this__u8e3s4.n32_1, _this__u8e3s4.o32_1, tmp$ret$3);
+}
+function toJs_5(_this__u8e3s4) {
+  return new JsVeinPath(_this__u8e3s4.v32_1, _this__u8e3s4.w32_1, _this__u8e3s4.x32_1, _this__u8e3s4.y32_1, _this__u8e3s4.z32_1, _this__u8e3s4.a33_1, _this__u8e3s4.b33_1);
+}
+function toJs_6(_this__u8e3s4) {
+  return new JsVeinNode(_this__u8e3s4.c33_1, _this__u8e3s4.d33_1, _this__u8e3s4.e33_1, _this__u8e3s4.f33_1);
+}
+function toJs_7(_this__u8e3s4) {
+  return new JsMotionParticle(_this__u8e3s4.g33_1, _this__u8e3s4.h33_1, _this__u8e3s4.i33_1, _this__u8e3s4.j33_1, _this__u8e3s4.k33_1, _this__u8e3s4.l33_1, _this__u8e3s4.m33_1);
+}
+function toJs_8(_this__u8e3s4) {
+  return new JsMotionPose(_this__u8e3s4.n33_1, _this__u8e3s4.o33_1, _this__u8e3s4.p33_1, _this__u8e3s4.q33_1, _this__u8e3s4.r33_1);
+}
+function toJs_9(_this__u8e3s4) {
+  return new JsMotionGhost(_this__u8e3s4.s33_1, toJs_8(_this__u8e3s4.t33_1));
+}
+function toJs_10(_this__u8e3s4) {
+  return new JsMotionCircle(_this__u8e3s4.u33_1, _this__u8e3s4.v33_1, _this__u8e3s4.w33_1);
+}
+function toJs_11(_this__u8e3s4) {
+  return new JsDustState(_this__u8e3s4.x33_1, _this__u8e3s4.y33_1, _this__u8e3s4.z33_1, _this__u8e3s4.a34_1);
+}
+function toJs_12(_this__u8e3s4) {
+  return new JsSparkState(_this__u8e3s4.b34_1, _this__u8e3s4.c34_1, _this__u8e3s4.d34_1, _this__u8e3s4.e34_1, _this__u8e3s4.f34_1);
+}
+function toJs_13(_this__u8e3s4) {
+  var tmp0_safe_receiver = _this__u8e3s4.n34_1;
+  var tmp = tmp0_safe_receiver == null ? null : toJs_8(tmp0_safe_receiver);
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = _this__u8e3s4.o34_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs_9(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var tmp_0 = copyToArray(destination);
+  var tmp_1 = toJs_10(_this__u8e3s4.c35_1);
+  var tmp_2 = toJs_10(_this__u8e3s4.d35_1);
+  // Inline function 'kotlin.collections.map' call
+  var this_1 = _this__u8e3s4.g35_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
+  var _iterator__ex2g4s_0 = this_1.j();
+  while (_iterator__ex2g4s_0.k()) {
+    var item_0 = _iterator__ex2g4s_0.l();
+    var tmp$ret$6 = toJs_11(item_0);
+    destination_0.i(tmp$ret$6);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var tmp_3 = copyToArray(destination_0);
+  // Inline function 'kotlin.collections.map' call
+  var this_2 = _this__u8e3s4.h35_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_2, 10));
+  var _iterator__ex2g4s_1 = this_2.j();
+  while (_iterator__ex2g4s_1.k()) {
+    var item_1 = _iterator__ex2g4s_1.l();
+    var tmp$ret$10 = toJs_12(item_1);
+    destination_1.i(tmp$ret$10);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var tmp$ret$11 = copyToArray(destination_1);
+  return new JsDropFrame(_this__u8e3s4.g34_1, _this__u8e3s4.h34_1, _this__u8e3s4.i34_1, _this__u8e3s4.j34_1, _this__u8e3s4.k34_1, _this__u8e3s4.l34_1, _this__u8e3s4.m34_1, tmp, tmp_0, _this__u8e3s4.p34_1, _this__u8e3s4.q34_1, _this__u8e3s4.r34_1, _this__u8e3s4.s34_1, _this__u8e3s4.t34_1, _this__u8e3s4.u34_1, _this__u8e3s4.v34_1, _this__u8e3s4.w34_1, _this__u8e3s4.x34_1, _this__u8e3s4.y34_1, _this__u8e3s4.z34_1, _this__u8e3s4.a35_1, _this__u8e3s4.b35_1, tmp_1, tmp_2, _this__u8e3s4.e35_1, _this__u8e3s4.f35_1, tmp_3, tmp$ret$11);
+}
+function toJs_14(_this__u8e3s4) {
+  // Inline function 'kotlin.collections.map' call
+  var this_0 = _this__u8e3s4.p35_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
+  var _iterator__ex2g4s = this_0.j();
+  while (_iterator__ex2g4s.k()) {
+    var item = _iterator__ex2g4s.l();
+    var tmp$ret$2 = toJs_10(item);
+    destination.i(tmp$ret$2);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var tmp = copyToArray(destination);
+  // Inline function 'kotlin.collections.map' call
+  var this_1 = _this__u8e3s4.q35_1;
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
+  var _iterator__ex2g4s_0 = this_1.j();
+  while (_iterator__ex2g4s_0.k()) {
+    var item_0 = _iterator__ex2g4s_0.l();
+    var tmp$ret$6 = toJs_10(item_0);
+    destination_0.i(tmp$ret$6);
+  }
+  // Inline function 'kotlin.collections.toTypedArray' call
+  var tmp$ret$7 = copyToArray(destination_0);
+  return new JsPumpFrame(_this__u8e3s4.i35_1, _this__u8e3s4.j35_1, _this__u8e3s4.k35_1, _this__u8e3s4.l35_1, _this__u8e3s4.m35_1, _this__u8e3s4.n35_1, _this__u8e3s4.o35_1, tmp, tmp$ret$7, _this__u8e3s4.r35_1, _this__u8e3s4.s35_1, _this__u8e3s4.t35_1, _this__u8e3s4.u35_1, _this__u8e3s4.v35_1, _this__u8e3s4.w35_1, _this__u8e3s4.x35_1, _this__u8e3s4.y35_1, _this__u8e3s4.z35_1, _this__u8e3s4.a36_1, _this__u8e3s4.b36_1, _this__u8e3s4.c36_1, _this__u8e3s4.d36_1, _this__u8e3s4.e36_1);
+}
+function modeSwitchColorsJs() {
+  // Inline function 'kotlin.with' call
+  return new JsModeSwitchColors('#000000', '#000000', '#F3F4EF', '#C9CED6', '#F3F4EF', '#2A2E33', '#F3F4EF', '#93979D', '#FFF6E8', '#FFB36B', '#4F8DFF', '#8DB8FF', '#DCE9FF', '#8DB8FF', '#4F8DFF', '#8DB8FF', '#EAF2FF', '#FFFFFF', '#DCE9FF');
 }
 function get_androidJson() {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -39877,25 +44070,25 @@ function JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived
   this.isBuiltIn = isBuiltIn;
   this.archived = archived;
 }
-protoOf(JsExercise).z36 = function () {
+protoOf(JsExercise).b3g = function () {
   return this.id;
 };
 protoOf(JsExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsExercise).a37 = function () {
+protoOf(JsExercise).r3k = function () {
   return this.category;
 };
-protoOf(JsExercise).b37 = function () {
+protoOf(JsExercise).s3k = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).c37 = function () {
+protoOf(JsExercise).t3k = function () {
   return this.muscles;
 };
-protoOf(JsExercise).d37 = function () {
+protoOf(JsExercise).u3k = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).e37 = function () {
+protoOf(JsExercise).v3k = function () {
   return this.archived;
 };
 protoOf(JsExercise).gb = function () {
@@ -39907,19 +44100,19 @@ protoOf(JsExercise).hb = function () {
 protoOf(JsExercise).tf = function () {
   return this.category;
 };
-protoOf(JsExercise).f37 = function () {
+protoOf(JsExercise).y3e = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).g37 = function () {
+protoOf(JsExercise).z3e = function () {
   return this.muscles;
 };
-protoOf(JsExercise).h37 = function () {
+protoOf(JsExercise).a3f = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).i37 = function () {
+protoOf(JsExercise).b3f = function () {
   return this.archived;
 };
-protoOf(JsExercise).j37 = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(JsExercise).w3k = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
@@ -39930,7 +44123,7 @@ protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, is
   muscles = muscles === VOID ? this.muscles : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.isBuiltIn : isBuiltIn;
   archived = archived === VOID ? this.archived : archived;
-  return $super === VOID ? this.j37(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.j37.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.w3k(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.w3k.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).toString = function () {
   return 'JsExercise(id=' + this.id + ', name=' + this.name + ', category=' + this.category + ', parentLift=' + this.parentLift + ', muscles=' + toString(this.muscles) + ', isBuiltIn=' + this.isBuiltIn + ', archived=' + this.archived + ')';
@@ -39975,25 +44168,25 @@ function JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   this.missPoint = missPoint;
   this.isTopSet = isTopSet;
 }
-protoOf(JsSet).k37 = function () {
+protoOf(JsSet).x3k = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).l37 = function () {
+protoOf(JsSet).y3k = function () {
   return this.weightKg;
 };
-protoOf(JsSet).m37 = function () {
+protoOf(JsSet).z3k = function () {
   return this.reps;
 };
-protoOf(JsSet).n37 = function () {
+protoOf(JsSet).a3l = function () {
   return this.rpe;
 };
-protoOf(JsSet).o37 = function () {
+protoOf(JsSet).b3l = function () {
   return this.failed;
 };
-protoOf(JsSet).p37 = function () {
+protoOf(JsSet).c3l = function () {
   return this.missPoint;
 };
-protoOf(JsSet).q37 = function () {
+protoOf(JsSet).d3l = function () {
   return this.isTopSet;
 };
 protoOf(JsSet).gb = function () {
@@ -40005,19 +44198,19 @@ protoOf(JsSet).hb = function () {
 protoOf(JsSet).tf = function () {
   return this.reps;
 };
-protoOf(JsSet).f37 = function () {
+protoOf(JsSet).y3e = function () {
   return this.rpe;
 };
-protoOf(JsSet).g37 = function () {
+protoOf(JsSet).z3e = function () {
   return this.failed;
 };
-protoOf(JsSet).h37 = function () {
+protoOf(JsSet).a3f = function () {
   return this.missPoint;
 };
-protoOf(JsSet).i37 = function () {
+protoOf(JsSet).b3f = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).r37 = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
+protoOf(JsSet).e3l = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   return new JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, $super) {
@@ -40028,7 +44221,7 @@ protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoi
   failed = failed === VOID ? this.failed : failed;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   isTopSet = isTopSet === VOID ? this.isTopSet : isTopSet;
-  return $super === VOID ? this.r37(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.r37.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
+  return $super === VOID ? this.e3l(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.e3l.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).toString = function () {
   return 'JsSet(exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', failed=' + this.failed + ', missPoint=' + this.missPoint + ', isTopSet=' + this.isTopSet + ')';
@@ -40073,22 +44266,22 @@ function JsSession(id, date, bodyweightKg, readiness, sets, mode) {
   this.sets = sets;
   this.mode = mode;
 }
-protoOf(JsSession).z36 = function () {
+protoOf(JsSession).b3g = function () {
   return this.id;
 };
-protoOf(JsSession).s37 = function () {
+protoOf(JsSession).f3l = function () {
   return this.date;
 };
-protoOf(JsSession).t37 = function () {
+protoOf(JsSession).g3l = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).u37 = function () {
+protoOf(JsSession).h3l = function () {
   return this.readiness;
 };
-protoOf(JsSession).v37 = function () {
+protoOf(JsSession).i3l = function () {
   return this.sets;
 };
-protoOf(JsSession).w37 = function () {
+protoOf(JsSession).j3l = function () {
   return this.mode;
 };
 protoOf(JsSession).gb = function () {
@@ -40100,16 +44293,16 @@ protoOf(JsSession).hb = function () {
 protoOf(JsSession).tf = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).f37 = function () {
+protoOf(JsSession).y3e = function () {
   return this.readiness;
 };
-protoOf(JsSession).g37 = function () {
+protoOf(JsSession).z3e = function () {
   return this.sets;
 };
-protoOf(JsSession).h37 = function () {
+protoOf(JsSession).a3f = function () {
   return this.mode;
 };
-protoOf(JsSession).x37 = function (id, date, bodyweightKg, readiness, sets, mode) {
+protoOf(JsSession).k3l = function (id, date, bodyweightKg, readiness, sets, mode) {
   return new JsSession(id, date, bodyweightKg, readiness, sets, mode);
 };
 protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, mode, $super) {
@@ -40119,7 +44312,7 @@ protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, mod
   readiness = readiness === VOID ? this.readiness : readiness;
   sets = sets === VOID ? this.sets : sets;
   mode = mode === VOID ? this.mode : mode;
-  return $super === VOID ? this.x37(id, date, bodyweightKg, readiness, sets, mode) : $super.x37.call(this, id, date, bodyweightKg, readiness, sets, mode);
+  return $super === VOID ? this.k3l(id, date, bodyweightKg, readiness, sets, mode) : $super.k3l.call(this, id, date, bodyweightKg, readiness, sets, mode);
 };
 protoOf(JsSession).toString = function () {
   return 'JsSession(id=' + this.id + ', date=' + this.date + ', bodyweightKg=' + this.bodyweightKg + ', readiness=' + this.readiness + ', sets=' + toString(this.sets) + ', mode=' + this.mode + ')';
@@ -40165,31 +44358,31 @@ function JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order, mode,
   this.mode = mode;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPlanItem).z36 = function () {
+protoOf(JsPlanItem).b3g = function () {
   return this.id;
 };
-protoOf(JsPlanItem).y37 = function () {
+protoOf(JsPlanItem).l3l = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).k37 = function () {
+protoOf(JsPlanItem).x3k = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).v37 = function () {
+protoOf(JsPlanItem).i3l = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).m37 = function () {
+protoOf(JsPlanItem).z3k = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).z37 = function () {
+protoOf(JsPlanItem).m3l = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).a38 = function () {
+protoOf(JsPlanItem).n3l = function () {
   return this.order;
 };
-protoOf(JsPlanItem).w37 = function () {
+protoOf(JsPlanItem).j3l = function () {
   return this.mode;
 };
-protoOf(JsPlanItem).b38 = function () {
+protoOf(JsPlanItem).o3l = function () {
   return this.repsHigh;
 };
 protoOf(JsPlanItem).gb = function () {
@@ -40201,25 +44394,25 @@ protoOf(JsPlanItem).hb = function () {
 protoOf(JsPlanItem).tf = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).f37 = function () {
+protoOf(JsPlanItem).y3e = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).g37 = function () {
+protoOf(JsPlanItem).z3e = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).h37 = function () {
+protoOf(JsPlanItem).a3f = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).i37 = function () {
+protoOf(JsPlanItem).b3f = function () {
   return this.order;
 };
-protoOf(JsPlanItem).c38 = function () {
+protoOf(JsPlanItem).j3f = function () {
   return this.mode;
 };
-protoOf(JsPlanItem).d38 = function () {
+protoOf(JsPlanItem).h3i = function () {
   return this.repsHigh;
 };
-protoOf(JsPlanItem).e38 = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) {
+protoOf(JsPlanItem).p3l = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) {
   return new JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
 };
 protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh, $super) {
@@ -40232,7 +44425,7 @@ protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, target
   order = order === VOID ? this.order : order;
   mode = mode === VOID ? this.mode : mode;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.e38(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) : $super.e38.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
+  return $super === VOID ? this.p3l(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) : $super.p3l.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
 };
 protoOf(JsPlanItem).toString = function () {
   return 'JsPlanItem(id=' + this.id + ', weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', sets=' + this.sets + ', reps=' + this.reps + ', targetRpe=' + this.targetRpe + ', order=' + this.order + ', mode=' + this.mode + ', repsHigh=' + this.repsHigh + ')';
@@ -40279,13 +44472,13 @@ function JsBaseline(exerciseId, e1rmKg, date) {
   this.e1rmKg = e1rmKg;
   this.date = date;
 }
-protoOf(JsBaseline).k37 = function () {
+protoOf(JsBaseline).x3k = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).f38 = function () {
+protoOf(JsBaseline).q3l = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).s37 = function () {
+protoOf(JsBaseline).f3l = function () {
   return this.date;
 };
 protoOf(JsBaseline).gb = function () {
@@ -40297,14 +44490,14 @@ protoOf(JsBaseline).hb = function () {
 protoOf(JsBaseline).tf = function () {
   return this.date;
 };
-protoOf(JsBaseline).g38 = function (exerciseId, e1rmKg, date) {
+protoOf(JsBaseline).r3l = function (exerciseId, e1rmKg, date) {
   return new JsBaseline(exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).copy = function (exerciseId, e1rmKg, date, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   e1rmKg = e1rmKg === VOID ? this.e1rmKg : e1rmKg;
   date = date === VOID ? this.date : date;
-  return $super === VOID ? this.g38(exerciseId, e1rmKg, date) : $super.g38.call(this, exerciseId, e1rmKg, date);
+  return $super === VOID ? this.r3l(exerciseId, e1rmKg, date) : $super.r3l.call(this, exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).toString = function () {
   return 'JsBaseline(exerciseId=' + this.exerciseId + ', e1rmKg=' + this.e1rmKg + ', date=' + this.date + ')';
@@ -40340,31 +44533,31 @@ function JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJs
   this.payloadJson = payloadJson;
   this.mode = mode;
 }
-protoOf(JsAdvice).z36 = function () {
+protoOf(JsAdvice).b3g = function () {
   return this.id;
 };
-protoOf(JsAdvice).h38 = function () {
+protoOf(JsAdvice).s3l = function () {
   return this.type;
 };
-protoOf(JsAdvice).i38 = function () {
+protoOf(JsAdvice).v3e = function () {
   return this.lift;
 };
-protoOf(JsAdvice).j38 = function () {
+protoOf(JsAdvice).t3l = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).k38 = function () {
+protoOf(JsAdvice).u3l = function () {
   return this.reason;
 };
-protoOf(JsAdvice).l38 = function () {
+protoOf(JsAdvice).v3l = function () {
   return this.severity;
 };
-protoOf(JsAdvice).m38 = function () {
+protoOf(JsAdvice).w3l = function () {
   return this.status;
 };
-protoOf(JsAdvice).n38 = function () {
+protoOf(JsAdvice).x3l = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).w37 = function () {
+protoOf(JsAdvice).j3l = function () {
   return this.mode;
 };
 protoOf(JsAdvice).gb = function () {
@@ -40376,25 +44569,25 @@ protoOf(JsAdvice).hb = function () {
 protoOf(JsAdvice).tf = function () {
   return this.lift;
 };
-protoOf(JsAdvice).f37 = function () {
+protoOf(JsAdvice).y3e = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).g37 = function () {
+protoOf(JsAdvice).z3e = function () {
   return this.reason;
 };
-protoOf(JsAdvice).h37 = function () {
+protoOf(JsAdvice).a3f = function () {
   return this.severity;
 };
-protoOf(JsAdvice).i37 = function () {
+protoOf(JsAdvice).b3f = function () {
   return this.status;
 };
-protoOf(JsAdvice).c38 = function () {
+protoOf(JsAdvice).j3f = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).d38 = function () {
+protoOf(JsAdvice).h3i = function () {
   return this.mode;
 };
-protoOf(JsAdvice).o38 = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode) {
+protoOf(JsAdvice).y3l = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode) {
   return new JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
 };
 protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode, $super) {
@@ -40407,7 +44600,7 @@ protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, 
   status = status === VOID ? this.status : status;
   payloadJson = payloadJson === VOID ? this.payloadJson : payloadJson;
   mode = mode === VOID ? this.mode : mode;
-  return $super === VOID ? this.o38(id, type, lift, createdAt, reason, severity, status, payloadJson, mode) : $super.o38.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
+  return $super === VOID ? this.y3l(id, type, lift, createdAt, reason, severity, status, payloadJson, mode) : $super.y3l.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
 };
 protoOf(JsAdvice).toString = function () {
   return 'JsAdvice(id=' + this.id + ', type=' + this.type + ', lift=' + this.lift + ', createdAt=' + this.createdAt + ', reason=' + this.reason + ', severity=' + this.severity + ', status=' + this.status + ', payloadJson=' + this.payloadJson + ', mode=' + this.mode + ')';
@@ -40457,22 +44650,22 @@ function JsSkip(id, date, mode, exerciseId, planItemId, reason) {
   this.planItemId = planItemId;
   this.reason = reason;
 }
-protoOf(JsSkip).z36 = function () {
+protoOf(JsSkip).b3g = function () {
   return this.id;
 };
-protoOf(JsSkip).s37 = function () {
+protoOf(JsSkip).f3l = function () {
   return this.date;
 };
-protoOf(JsSkip).w37 = function () {
+protoOf(JsSkip).j3l = function () {
   return this.mode;
 };
-protoOf(JsSkip).k37 = function () {
+protoOf(JsSkip).x3k = function () {
   return this.exerciseId;
 };
-protoOf(JsSkip).p38 = function () {
+protoOf(JsSkip).z3l = function () {
   return this.planItemId;
 };
-protoOf(JsSkip).k38 = function () {
+protoOf(JsSkip).u3l = function () {
   return this.reason;
 };
 protoOf(JsSkip).gb = function () {
@@ -40484,16 +44677,16 @@ protoOf(JsSkip).hb = function () {
 protoOf(JsSkip).tf = function () {
   return this.mode;
 };
-protoOf(JsSkip).f37 = function () {
+protoOf(JsSkip).y3e = function () {
   return this.exerciseId;
 };
-protoOf(JsSkip).g37 = function () {
+protoOf(JsSkip).z3e = function () {
   return this.planItemId;
 };
-protoOf(JsSkip).h37 = function () {
+protoOf(JsSkip).a3f = function () {
   return this.reason;
 };
-protoOf(JsSkip).q38 = function (id, date, mode, exerciseId, planItemId, reason) {
+protoOf(JsSkip).a3m = function (id, date, mode, exerciseId, planItemId, reason) {
   return new JsSkip(id, date, mode, exerciseId, planItemId, reason);
 };
 protoOf(JsSkip).copy = function (id, date, mode, exerciseId, planItemId, reason, $super) {
@@ -40503,7 +44696,7 @@ protoOf(JsSkip).copy = function (id, date, mode, exerciseId, planItemId, reason,
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   planItemId = planItemId === VOID ? this.planItemId : planItemId;
   reason = reason === VOID ? this.reason : reason;
-  return $super === VOID ? this.q38(id, date, mode, exerciseId, planItemId, reason) : $super.q38.call(this, id, date, mode, exerciseId, planItemId, reason);
+  return $super === VOID ? this.a3m(id, date, mode, exerciseId, planItemId, reason) : $super.a3m.call(this, id, date, mode, exerciseId, planItemId, reason);
 };
 protoOf(JsSkip).toString = function () {
   return 'JsSkip(id=' + this.id + ', date=' + this.date + ', mode=' + this.mode + ', exerciseId=' + this.exerciseId + ', planItemId=' + this.planItemId + ', reason=' + this.reason + ')';
@@ -40541,13 +44734,13 @@ function JsHistory(sessions, exercises, baselines) {
   this.exercises = exercises;
   this.baselines = baselines;
 }
-protoOf(JsHistory).r38 = function () {
+protoOf(JsHistory).b3m = function () {
   return this.sessions;
 };
-protoOf(JsHistory).s38 = function () {
+protoOf(JsHistory).c3m = function () {
   return this.exercises;
 };
-protoOf(JsHistory).t38 = function () {
+protoOf(JsHistory).d3m = function () {
   return this.baselines;
 };
 protoOf(JsHistory).gb = function () {
@@ -40559,14 +44752,14 @@ protoOf(JsHistory).hb = function () {
 protoOf(JsHistory).tf = function () {
   return this.baselines;
 };
-protoOf(JsHistory).u38 = function (sessions, exercises, baselines) {
+protoOf(JsHistory).e3m = function (sessions, exercises, baselines) {
   return new JsHistory(sessions, exercises, baselines);
 };
 protoOf(JsHistory).copy = function (sessions, exercises, baselines, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   exercises = exercises === VOID ? this.exercises : exercises;
   baselines = baselines === VOID ? this.baselines : baselines;
-  return $super === VOID ? this.u38(sessions, exercises, baselines) : $super.u38.call(this, sessions, exercises, baselines);
+  return $super === VOID ? this.e3m(sessions, exercises, baselines) : $super.e3m.call(this, sessions, exercises, baselines);
 };
 protoOf(JsHistory).toString = function () {
   return 'JsHistory(sessions=' + toString(this.sessions) + ', exercises=' + toString(this.exercises) + ', baselines=' + toString(this.baselines) + ')';
@@ -40594,10 +44787,10 @@ function JsBestSet(date, set) {
   this.date = date;
   this.set = set;
 }
-protoOf(JsBestSet).s37 = function () {
+protoOf(JsBestSet).f3l = function () {
   return this.date;
 };
-protoOf(JsBestSet).v38 = function () {
+protoOf(JsBestSet).f3m = function () {
   return this.set;
 };
 protoOf(JsBestSet).gb = function () {
@@ -40606,13 +44799,13 @@ protoOf(JsBestSet).gb = function () {
 protoOf(JsBestSet).hb = function () {
   return this.set;
 };
-protoOf(JsBestSet).w38 = function (date, set) {
+protoOf(JsBestSet).g3m = function (date, set) {
   return new JsBestSet(date, set);
 };
 protoOf(JsBestSet).copy = function (date, set, $super) {
   date = date === VOID ? this.date : date;
   set = set === VOID ? this.set : set;
-  return $super === VOID ? this.w38(date, set) : $super.w38.call(this, date, set);
+  return $super === VOID ? this.g3m(date, set) : $super.g3m.call(this, date, set);
 };
 protoOf(JsBestSet).toString = function () {
   return 'JsBestSet(date=' + this.date + ', set=' + this.set.toString() + ')';
@@ -40639,16 +44832,16 @@ function JsExerciseTrend(exerciseId, name, bestSets, goingUp) {
   this.bestSets = bestSets;
   this.goingUp = goingUp;
 }
-protoOf(JsExerciseTrend).k37 = function () {
+protoOf(JsExerciseTrend).x3k = function () {
   return this.exerciseId;
 };
 protoOf(JsExerciseTrend).b14 = function () {
   return this.name;
 };
-protoOf(JsExerciseTrend).x38 = function () {
+protoOf(JsExerciseTrend).h3m = function () {
   return this.bestSets;
 };
-protoOf(JsExerciseTrend).y38 = function () {
+protoOf(JsExerciseTrend).i3m = function () {
   return this.goingUp;
 };
 protoOf(JsExerciseTrend).gb = function () {
@@ -40660,10 +44853,10 @@ protoOf(JsExerciseTrend).hb = function () {
 protoOf(JsExerciseTrend).tf = function () {
   return this.bestSets;
 };
-protoOf(JsExerciseTrend).f37 = function () {
+protoOf(JsExerciseTrend).y3e = function () {
   return this.goingUp;
 };
-protoOf(JsExerciseTrend).z38 = function (exerciseId, name, bestSets, goingUp) {
+protoOf(JsExerciseTrend).j3m = function (exerciseId, name, bestSets, goingUp) {
   return new JsExerciseTrend(exerciseId, name, bestSets, goingUp);
 };
 protoOf(JsExerciseTrend).copy = function (exerciseId, name, bestSets, goingUp, $super) {
@@ -40671,7 +44864,7 @@ protoOf(JsExerciseTrend).copy = function (exerciseId, name, bestSets, goingUp, $
   name = name === VOID ? this.name : name;
   bestSets = bestSets === VOID ? this.bestSets : bestSets;
   goingUp = goingUp === VOID ? this.goingUp : goingUp;
-  return $super === VOID ? this.z38(exerciseId, name, bestSets, goingUp) : $super.z38.call(this, exerciseId, name, bestSets, goingUp);
+  return $super === VOID ? this.j3m(exerciseId, name, bestSets, goingUp) : $super.j3m.call(this, exerciseId, name, bestSets, goingUp);
 };
 protoOf(JsExerciseTrend).toString = function () {
   return 'JsExerciseTrend(exerciseId=' + this.exerciseId + ', name=' + this.name + ', bestSets=' + toString(this.bestSets) + ', goingUp=' + this.goingUp + ')';
@@ -40702,10 +44895,10 @@ function JsCoachSettings(defaultRpe, changePlates) {
   this.defaultRpe = defaultRpe;
   this.changePlates = changePlates;
 }
-protoOf(JsCoachSettings).a39 = function () {
+protoOf(JsCoachSettings).k3m = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).b39 = function () {
+protoOf(JsCoachSettings).l3m = function () {
   return this.changePlates;
 };
 protoOf(JsCoachSettings).gb = function () {
@@ -40714,13 +44907,13 @@ protoOf(JsCoachSettings).gb = function () {
 protoOf(JsCoachSettings).hb = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).c39 = function (defaultRpe, changePlates) {
+protoOf(JsCoachSettings).m3m = function (defaultRpe, changePlates) {
   return new JsCoachSettings(defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).copy = function (defaultRpe, changePlates, $super) {
   defaultRpe = defaultRpe === VOID ? this.defaultRpe : defaultRpe;
   changePlates = changePlates === VOID ? this.changePlates : changePlates;
-  return $super === VOID ? this.c39(defaultRpe, changePlates) : $super.c39.call(this, defaultRpe, changePlates);
+  return $super === VOID ? this.m3m(defaultRpe, changePlates) : $super.m3m.call(this, defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).toString = function () {
   return 'JsCoachSettings(defaultRpe=' + this.defaultRpe + ', changePlates=' + this.changePlates + ')';
@@ -40745,7 +44938,7 @@ function JsWeeklyPoint(weekStart, value) {
   this.weekStart = weekStart;
   this.value = value;
 }
-protoOf(JsWeeklyPoint).d39 = function () {
+protoOf(JsWeeklyPoint).n3m = function () {
   return this.weekStart;
 };
 protoOf(JsWeeklyPoint).v = function () {
@@ -40757,13 +44950,13 @@ protoOf(JsWeeklyPoint).gb = function () {
 protoOf(JsWeeklyPoint).hb = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).e39 = function (weekStart, value) {
+protoOf(JsWeeklyPoint).o3m = function (weekStart, value) {
   return new JsWeeklyPoint(weekStart, value);
 };
 protoOf(JsWeeklyPoint).copy = function (weekStart, value, $super) {
   weekStart = weekStart === VOID ? this.weekStart : weekStart;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.e39(weekStart, value) : $super.e39.call(this, weekStart, value);
+  return $super === VOID ? this.o3m(weekStart, value) : $super.o3m.call(this, weekStart, value);
 };
 protoOf(JsWeeklyPoint).toString = function () {
   return 'JsWeeklyPoint(weekStart=' + this.weekStart + ', value=' + this.value + ')';
@@ -40791,19 +44984,19 @@ function JsPr(date, e1rmKg, weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsPr).s37 = function () {
+protoOf(JsPr).f3l = function () {
   return this.date;
 };
-protoOf(JsPr).f38 = function () {
+protoOf(JsPr).q3l = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).l37 = function () {
+protoOf(JsPr).y3k = function () {
   return this.weightKg;
 };
-protoOf(JsPr).m37 = function () {
+protoOf(JsPr).z3k = function () {
   return this.reps;
 };
-protoOf(JsPr).n37 = function () {
+protoOf(JsPr).a3l = function () {
   return this.rpe;
 };
 protoOf(JsPr).gb = function () {
@@ -40815,13 +45008,13 @@ protoOf(JsPr).hb = function () {
 protoOf(JsPr).tf = function () {
   return this.weightKg;
 };
-protoOf(JsPr).f37 = function () {
+protoOf(JsPr).y3e = function () {
   return this.reps;
 };
-protoOf(JsPr).g37 = function () {
+protoOf(JsPr).z3e = function () {
   return this.rpe;
 };
-protoOf(JsPr).f39 = function (date, e1rmKg, weightKg, reps, rpe) {
+protoOf(JsPr).p3m = function (date, e1rmKg, weightKg, reps, rpe) {
   return new JsPr(date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
@@ -40830,7 +45023,7 @@ protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.f39(date, e1rmKg, weightKg, reps, rpe) : $super.f39.call(this, date, e1rmKg, weightKg, reps, rpe);
+  return $super === VOID ? this.p3m(date, e1rmKg, weightKg, reps, rpe) : $super.p3m.call(this, date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).toString = function () {
   return 'JsPr(date=' + this.date + ', e1rmKg=' + this.e1rmKg + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -40867,7 +45060,7 @@ function JsAccessoryOption(name, heavy) {
 protoOf(JsAccessoryOption).b14 = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).g39 = function () {
+protoOf(JsAccessoryOption).q3m = function () {
   return this.heavy;
 };
 protoOf(JsAccessoryOption).gb = function () {
@@ -40876,13 +45069,13 @@ protoOf(JsAccessoryOption).gb = function () {
 protoOf(JsAccessoryOption).hb = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).h39 = function (name, heavy) {
+protoOf(JsAccessoryOption).r3m = function (name, heavy) {
   return new JsAccessoryOption(name, heavy);
 };
 protoOf(JsAccessoryOption).copy = function (name, heavy, $super) {
   name = name === VOID ? this.name : name;
   heavy = heavy === VOID ? this.heavy : heavy;
-  return $super === VOID ? this.h39(name, heavy) : $super.h39.call(this, name, heavy);
+  return $super === VOID ? this.r3m(name, heavy) : $super.r3m.call(this, name, heavy);
 };
 protoOf(JsAccessoryOption).toString = function () {
   return 'JsAccessoryOption(name=' + this.name + ', heavy=' + this.heavy + ')';
@@ -40909,13 +45102,13 @@ function JsRatioRange(numerator, denominator, low, high) {
   this.low = low;
   this.high = high;
 }
-protoOf(JsRatioRange).i39 = function () {
+protoOf(JsRatioRange).s3m = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).j39 = function () {
+protoOf(JsRatioRange).t3m = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).k39 = function () {
+protoOf(JsRatioRange).u3m = function () {
   return this.low;
 };
 protoOf(JsRatioRange).h2x = function () {
@@ -40930,10 +45123,10 @@ protoOf(JsRatioRange).hb = function () {
 protoOf(JsRatioRange).tf = function () {
   return this.low;
 };
-protoOf(JsRatioRange).f37 = function () {
+protoOf(JsRatioRange).y3e = function () {
   return this.high;
 };
-protoOf(JsRatioRange).l39 = function (numerator, denominator, low, high) {
+protoOf(JsRatioRange).v3m = function (numerator, denominator, low, high) {
   return new JsRatioRange(numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super) {
@@ -40941,7 +45134,7 @@ protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super
   denominator = denominator === VOID ? this.denominator : denominator;
   low = low === VOID ? this.low : low;
   high = high === VOID ? this.high : high;
-  return $super === VOID ? this.l39(numerator, denominator, low, high) : $super.l39.call(this, numerator, denominator, low, high);
+  return $super === VOID ? this.v3m(numerator, denominator, low, high) : $super.v3m.call(this, numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).toString = function () {
   return 'JsRatioRange(numerator=' + this.numerator + ', denominator=' + this.denominator + ', low=' + this.low + ', high=' + this.high + ')';
@@ -40974,16 +45167,16 @@ function JsPrescription(exerciseName, sets, repsLow, repsHigh) {
   this.repsLow = repsLow;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPrescription).m39 = function () {
+protoOf(JsPrescription).w3m = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).v37 = function () {
+protoOf(JsPrescription).i3l = function () {
   return this.sets;
 };
-protoOf(JsPrescription).n39 = function () {
+protoOf(JsPrescription).x3m = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).b38 = function () {
+protoOf(JsPrescription).o3l = function () {
   return this.repsHigh;
 };
 protoOf(JsPrescription).gb = function () {
@@ -40995,10 +45188,10 @@ protoOf(JsPrescription).hb = function () {
 protoOf(JsPrescription).tf = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).f37 = function () {
+protoOf(JsPrescription).y3e = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).o39 = function (exerciseName, sets, repsLow, repsHigh) {
+protoOf(JsPrescription).y3m = function (exerciseName, sets, repsLow, repsHigh) {
   return new JsPrescription(exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, $super) {
@@ -41006,7 +45199,7 @@ protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, 
   sets = sets === VOID ? this.sets : sets;
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.o39(exerciseName, sets, repsLow, repsHigh) : $super.o39.call(this, exerciseName, sets, repsLow, repsHigh);
+  return $super === VOID ? this.y3m(exerciseName, sets, repsLow, repsHigh) : $super.y3m.call(this, exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).toString = function () {
   return 'JsPrescription(exerciseName=' + this.exerciseName + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ')';
@@ -41040,19 +45233,19 @@ function JsSetAddition(weekday, exerciseId, name, fromSets, toSets) {
   this.fromSets = fromSets;
   this.toSets = toSets;
 }
-protoOf(JsSetAddition).y37 = function () {
+protoOf(JsSetAddition).l3l = function () {
   return this.weekday;
 };
-protoOf(JsSetAddition).k37 = function () {
+protoOf(JsSetAddition).x3k = function () {
   return this.exerciseId;
 };
 protoOf(JsSetAddition).b14 = function () {
   return this.name;
 };
-protoOf(JsSetAddition).p39 = function () {
+protoOf(JsSetAddition).z3m = function () {
   return this.fromSets;
 };
-protoOf(JsSetAddition).q39 = function () {
+protoOf(JsSetAddition).a3n = function () {
   return this.toSets;
 };
 protoOf(JsSetAddition).gb = function () {
@@ -41064,13 +45257,13 @@ protoOf(JsSetAddition).hb = function () {
 protoOf(JsSetAddition).tf = function () {
   return this.name;
 };
-protoOf(JsSetAddition).f37 = function () {
+protoOf(JsSetAddition).y3e = function () {
   return this.fromSets;
 };
-protoOf(JsSetAddition).g37 = function () {
+protoOf(JsSetAddition).z3e = function () {
   return this.toSets;
 };
-protoOf(JsSetAddition).r39 = function (weekday, exerciseId, name, fromSets, toSets) {
+protoOf(JsSetAddition).b3n = function (weekday, exerciseId, name, fromSets, toSets) {
   return new JsSetAddition(weekday, exerciseId, name, fromSets, toSets);
 };
 protoOf(JsSetAddition).copy = function (weekday, exerciseId, name, fromSets, toSets, $super) {
@@ -41079,7 +45272,7 @@ protoOf(JsSetAddition).copy = function (weekday, exerciseId, name, fromSets, toS
   name = name === VOID ? this.name : name;
   fromSets = fromSets === VOID ? this.fromSets : fromSets;
   toSets = toSets === VOID ? this.toSets : toSets;
-  return $super === VOID ? this.r39(weekday, exerciseId, name, fromSets, toSets) : $super.r39.call(this, weekday, exerciseId, name, fromSets, toSets);
+  return $super === VOID ? this.b3n(weekday, exerciseId, name, fromSets, toSets) : $super.b3n.call(this, weekday, exerciseId, name, fromSets, toSets);
 };
 protoOf(JsSetAddition).toString = function () {
   return 'JsSetAddition(weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', name=' + this.name + ', fromSets=' + this.fromSets + ', toSets=' + this.toSets + ')';
@@ -41117,22 +45310,22 @@ function JsNewExercise(weekday, name, sets, repsLow, repsHigh, rpe) {
   this.repsHigh = repsHigh;
   this.rpe = rpe;
 }
-protoOf(JsNewExercise).y37 = function () {
+protoOf(JsNewExercise).l3l = function () {
   return this.weekday;
 };
 protoOf(JsNewExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsNewExercise).v37 = function () {
+protoOf(JsNewExercise).i3l = function () {
   return this.sets;
 };
-protoOf(JsNewExercise).n39 = function () {
+protoOf(JsNewExercise).x3m = function () {
   return this.repsLow;
 };
-protoOf(JsNewExercise).b38 = function () {
+protoOf(JsNewExercise).o3l = function () {
   return this.repsHigh;
 };
-protoOf(JsNewExercise).n37 = function () {
+protoOf(JsNewExercise).a3l = function () {
   return this.rpe;
 };
 protoOf(JsNewExercise).gb = function () {
@@ -41144,16 +45337,16 @@ protoOf(JsNewExercise).hb = function () {
 protoOf(JsNewExercise).tf = function () {
   return this.sets;
 };
-protoOf(JsNewExercise).f37 = function () {
+protoOf(JsNewExercise).y3e = function () {
   return this.repsLow;
 };
-protoOf(JsNewExercise).g37 = function () {
+protoOf(JsNewExercise).z3e = function () {
   return this.repsHigh;
 };
-protoOf(JsNewExercise).h37 = function () {
+protoOf(JsNewExercise).a3f = function () {
   return this.rpe;
 };
-protoOf(JsNewExercise).s39 = function (weekday, name, sets, repsLow, repsHigh, rpe) {
+protoOf(JsNewExercise).c3n = function (weekday, name, sets, repsLow, repsHigh, rpe) {
   return new JsNewExercise(weekday, name, sets, repsLow, repsHigh, rpe);
 };
 protoOf(JsNewExercise).copy = function (weekday, name, sets, repsLow, repsHigh, rpe, $super) {
@@ -41163,7 +45356,7 @@ protoOf(JsNewExercise).copy = function (weekday, name, sets, repsLow, repsHigh, 
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.s39(weekday, name, sets, repsLow, repsHigh, rpe) : $super.s39.call(this, weekday, name, sets, repsLow, repsHigh, rpe);
+  return $super === VOID ? this.c3n(weekday, name, sets, repsLow, repsHigh, rpe) : $super.c3n.call(this, weekday, name, sets, repsLow, repsHigh, rpe);
 };
 protoOf(JsNewExercise).toString = function () {
   return 'JsNewExercise(weekday=' + this.weekday + ', name=' + this.name + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ')';
@@ -41265,67 +45458,67 @@ function JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, vol
 protoOf(JsAdvicePayload).yi = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).k37 = function () {
+protoOf(JsAdvicePayload).x3k = function () {
   return this.exerciseId;
 };
-protoOf(JsAdvicePayload).l37 = function () {
+protoOf(JsAdvicePayload).y3k = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).m37 = function () {
+protoOf(JsAdvicePayload).z3k = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).n37 = function () {
+protoOf(JsAdvicePayload).a3l = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).v37 = function () {
+protoOf(JsAdvicePayload).i3l = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).t39 = function () {
+protoOf(JsAdvicePayload).d3n = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).u39 = function () {
+protoOf(JsAdvicePayload).e3n = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).v39 = function () {
+protoOf(JsAdvicePayload).f3n = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).i38 = function () {
+protoOf(JsAdvicePayload).v3e = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).p37 = function () {
+protoOf(JsAdvicePayload).c3l = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).b38 = function () {
+protoOf(JsAdvicePayload).o3l = function () {
   return this.repsHigh;
 };
-protoOf(JsAdvicePayload).w39 = function () {
+protoOf(JsAdvicePayload).g3n = function () {
   return this.group;
 };
-protoOf(JsAdvicePayload).x39 = function () {
+protoOf(JsAdvicePayload).h3n = function () {
   return this.addSets;
 };
-protoOf(JsAdvicePayload).y39 = function () {
+protoOf(JsAdvicePayload).i3n = function () {
   return this.newExercise;
 };
-protoOf(JsAdvicePayload).z39 = function () {
+protoOf(JsAdvicePayload).j3n = function () {
   return this.weeklyBefore;
 };
-protoOf(JsAdvicePayload).a3a = function () {
+protoOf(JsAdvicePayload).k3n = function () {
   return this.weeklyAfter;
 };
 protoOf(JsAdvicePayload).b14 = function () {
   return this.name;
 };
-protoOf(JsAdvicePayload).b3a = function () {
+protoOf(JsAdvicePayload).l3n = function () {
   return this.since;
 };
-protoOf(JsAdvicePayload).c3a = function () {
+protoOf(JsAdvicePayload).m3n = function () {
   return this.alternatives;
 };
-protoOf(JsAdvicePayload).d3a = function () {
+protoOf(JsAdvicePayload).n3n = function () {
   return this.skipId;
 };
-protoOf(JsAdvicePayload).e3a = function () {
+protoOf(JsAdvicePayload).o3n = function () {
   return this.skipReason;
 };
 protoOf(JsAdvicePayload).gb = function () {
@@ -41337,64 +45530,64 @@ protoOf(JsAdvicePayload).hb = function () {
 protoOf(JsAdvicePayload).tf = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).f37 = function () {
+protoOf(JsAdvicePayload).y3e = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).g37 = function () {
+protoOf(JsAdvicePayload).z3e = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).h37 = function () {
+protoOf(JsAdvicePayload).a3f = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).i37 = function () {
+protoOf(JsAdvicePayload).b3f = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).c38 = function () {
+protoOf(JsAdvicePayload).j3f = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).d38 = function () {
+protoOf(JsAdvicePayload).h3i = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).f3a = function () {
+protoOf(JsAdvicePayload).i3i = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).g3a = function () {
+protoOf(JsAdvicePayload).j3i = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).h3a = function () {
+protoOf(JsAdvicePayload).k3i = function () {
   return this.repsHigh;
 };
-protoOf(JsAdvicePayload).i3a = function () {
+protoOf(JsAdvicePayload).l3i = function () {
   return this.group;
 };
-protoOf(JsAdvicePayload).j3a = function () {
+protoOf(JsAdvicePayload).m3i = function () {
   return this.addSets;
 };
-protoOf(JsAdvicePayload).k3a = function () {
+protoOf(JsAdvicePayload).n3i = function () {
   return this.newExercise;
 };
-protoOf(JsAdvicePayload).l3a = function () {
+protoOf(JsAdvicePayload).o3i = function () {
   return this.weeklyBefore;
 };
-protoOf(JsAdvicePayload).m3a = function () {
+protoOf(JsAdvicePayload).p3i = function () {
   return this.weeklyAfter;
 };
-protoOf(JsAdvicePayload).n3a = function () {
+protoOf(JsAdvicePayload).q3i = function () {
   return this.name;
 };
-protoOf(JsAdvicePayload).o3a = function () {
+protoOf(JsAdvicePayload).r3i = function () {
   return this.since;
 };
-protoOf(JsAdvicePayload).p3a = function () {
+protoOf(JsAdvicePayload).s3i = function () {
   return this.alternatives;
 };
-protoOf(JsAdvicePayload).q3a = function () {
+protoOf(JsAdvicePayload).t3i = function () {
   return this.skipId;
 };
-protoOf(JsAdvicePayload).r3a = function () {
+protoOf(JsAdvicePayload).u3i = function () {
   return this.skipReason;
 };
-protoOf(JsAdvicePayload).s3a = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) {
+protoOf(JsAdvicePayload).p3n = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) {
   return new JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason);
 };
 protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason, $super) {
@@ -41420,7 +45613,7 @@ protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe,
   alternatives = alternatives === VOID ? this.alternatives : alternatives;
   skipId = skipId === VOID ? this.skipId : skipId;
   skipReason = skipReason === VOID ? this.skipReason : skipReason;
-  return $super === VOID ? this.s3a(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) : $super.s3a.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason);
+  return $super === VOID ? this.p3n(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) : $super.p3n.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason);
 };
 protoOf(JsAdvicePayload).toString = function () {
   return 'JsAdvicePayload(kind=' + this.kind + ', exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', sets=' + this.sets + ', items=' + toString(this.items) + ', volumeFactor=' + this.volumeFactor + ', loadFactor=' + this.loadFactor + ', lift=' + this.lift + ', missPoint=' + this.missPoint + ', repsHigh=' + this.repsHigh + ', group=' + this.group + ', addSets=' + toString(this.addSets) + ', newExercise=' + toString_1(this.newExercise) + ', weeklyBefore=' + this.weeklyBefore + ', weeklyAfter=' + this.weeklyAfter + ', name=' + this.name + ', since=' + this.since + ', alternatives=' + toString(this.alternatives) + ', skipId=' + this.skipId + ', skipReason=' + this.skipReason + ')';
@@ -41508,16 +45701,16 @@ function JsCheckIn(date, lagging, growingWell, id) {
   this.growingWell = growingWell;
   this.id = id;
 }
-protoOf(JsCheckIn).s37 = function () {
+protoOf(JsCheckIn).f3l = function () {
   return this.date;
 };
-protoOf(JsCheckIn).t3a = function () {
+protoOf(JsCheckIn).q3n = function () {
   return this.lagging;
 };
-protoOf(JsCheckIn).u3a = function () {
+protoOf(JsCheckIn).r3n = function () {
   return this.growingWell;
 };
-protoOf(JsCheckIn).z36 = function () {
+protoOf(JsCheckIn).b3g = function () {
   return this.id;
 };
 protoOf(JsCheckIn).gb = function () {
@@ -41529,10 +45722,10 @@ protoOf(JsCheckIn).hb = function () {
 protoOf(JsCheckIn).tf = function () {
   return this.growingWell;
 };
-protoOf(JsCheckIn).f37 = function () {
+protoOf(JsCheckIn).y3e = function () {
   return this.id;
 };
-protoOf(JsCheckIn).v3a = function (date, lagging, growingWell, id) {
+protoOf(JsCheckIn).s3n = function (date, lagging, growingWell, id) {
   return new JsCheckIn(date, lagging, growingWell, id);
 };
 protoOf(JsCheckIn).copy = function (date, lagging, growingWell, id, $super) {
@@ -41540,7 +45733,7 @@ protoOf(JsCheckIn).copy = function (date, lagging, growingWell, id, $super) {
   lagging = lagging === VOID ? this.lagging : lagging;
   growingWell = growingWell === VOID ? this.growingWell : growingWell;
   id = id === VOID ? this.id : id;
-  return $super === VOID ? this.v3a(date, lagging, growingWell, id) : $super.v3a.call(this, date, lagging, growingWell, id);
+  return $super === VOID ? this.s3n(date, lagging, growingWell, id) : $super.s3n.call(this, date, lagging, growingWell, id);
 };
 protoOf(JsCheckIn).toString = function () {
   return 'JsCheckIn(date=' + this.date + ', lagging=' + toString(this.lagging) + ', growingWell=' + toString(this.growingWell) + ', id=' + this.id + ')';
@@ -41572,13 +45765,13 @@ function JsGroupNote(group, reason, weeklySets) {
   this.reason = reason;
   this.weeklySets = weeklySets;
 }
-protoOf(JsGroupNote).w39 = function () {
+protoOf(JsGroupNote).g3n = function () {
   return this.group;
 };
-protoOf(JsGroupNote).k38 = function () {
+protoOf(JsGroupNote).u3l = function () {
   return this.reason;
 };
-protoOf(JsGroupNote).w3a = function () {
+protoOf(JsGroupNote).t3n = function () {
   return this.weeklySets;
 };
 protoOf(JsGroupNote).gb = function () {
@@ -41590,14 +45783,14 @@ protoOf(JsGroupNote).hb = function () {
 protoOf(JsGroupNote).tf = function () {
   return this.weeklySets;
 };
-protoOf(JsGroupNote).x3a = function (group, reason, weeklySets) {
+protoOf(JsGroupNote).u3n = function (group, reason, weeklySets) {
   return new JsGroupNote(group, reason, weeklySets);
 };
 protoOf(JsGroupNote).copy = function (group, reason, weeklySets, $super) {
   group = group === VOID ? this.group : group;
   reason = reason === VOID ? this.reason : reason;
   weeklySets = weeklySets === VOID ? this.weeklySets : weeklySets;
-  return $super === VOID ? this.x3a(group, reason, weeklySets) : $super.x3a.call(this, group, reason, weeklySets);
+  return $super === VOID ? this.u3n(group, reason, weeklySets) : $super.u3n.call(this, group, reason, weeklySets);
 };
 protoOf(JsGroupNote).toString = function () {
   return 'JsGroupNote(group=' + this.group + ', reason=' + this.reason + ', weeklySets=' + this.weeklySets + ')';
@@ -41626,13 +45819,13 @@ function JsCheckInOutcome(advice, notes, dismissed) {
   this.notes = notes;
   this.dismissed = dismissed;
 }
-protoOf(JsCheckInOutcome).y3a = function () {
+protoOf(JsCheckInOutcome).v3n = function () {
   return this.advice;
 };
-protoOf(JsCheckInOutcome).z3a = function () {
+protoOf(JsCheckInOutcome).w3n = function () {
   return this.notes;
 };
-protoOf(JsCheckInOutcome).a3b = function () {
+protoOf(JsCheckInOutcome).x3n = function () {
   return this.dismissed;
 };
 protoOf(JsCheckInOutcome).gb = function () {
@@ -41644,14 +45837,14 @@ protoOf(JsCheckInOutcome).hb = function () {
 protoOf(JsCheckInOutcome).tf = function () {
   return this.dismissed;
 };
-protoOf(JsCheckInOutcome).b3b = function (advice, notes, dismissed) {
+protoOf(JsCheckInOutcome).y3n = function (advice, notes, dismissed) {
   return new JsCheckInOutcome(advice, notes, dismissed);
 };
 protoOf(JsCheckInOutcome).copy = function (advice, notes, dismissed, $super) {
   advice = advice === VOID ? this.advice : advice;
   notes = notes === VOID ? this.notes : notes;
   dismissed = dismissed === VOID ? this.dismissed : dismissed;
-  return $super === VOID ? this.b3b(advice, notes, dismissed) : $super.b3b.call(this, advice, notes, dismissed);
+  return $super === VOID ? this.y3n(advice, notes, dismissed) : $super.y3n.call(this, advice, notes, dismissed);
 };
 protoOf(JsCheckInOutcome).toString = function () {
   return 'JsCheckInOutcome(advice=' + toString(this.advice) + ', notes=' + toString(this.notes) + ', dismissed=' + toString(this.dismissed) + ')';
@@ -41679,7 +45872,7 @@ function JsAddedPlanItem(item, name) {
   this.item = item;
   this.name = name;
 }
-protoOf(JsAddedPlanItem).c3b = function () {
+protoOf(JsAddedPlanItem).z3n = function () {
   return this.item;
 };
 protoOf(JsAddedPlanItem).b14 = function () {
@@ -41691,13 +45884,13 @@ protoOf(JsAddedPlanItem).gb = function () {
 protoOf(JsAddedPlanItem).hb = function () {
   return this.name;
 };
-protoOf(JsAddedPlanItem).d3b = function (item, name) {
+protoOf(JsAddedPlanItem).a3o = function (item, name) {
   return new JsAddedPlanItem(item, name);
 };
 protoOf(JsAddedPlanItem).copy = function (item, name, $super) {
   item = item === VOID ? this.item : item;
   name = name === VOID ? this.name : name;
-  return $super === VOID ? this.d3b(item, name) : $super.d3b.call(this, item, name);
+  return $super === VOID ? this.a3o(item, name) : $super.a3o.call(this, item, name);
 };
 protoOf(JsAddedPlanItem).toString = function () {
   return 'JsAddedPlanItem(item=' + this.item.toString() + ', name=' + this.name + ')';
@@ -41725,19 +45918,19 @@ function JsPlanChange(updated, removed, added, message, changed) {
   this.message = message;
   this.changed = changed;
 }
-protoOf(JsPlanChange).e3b = function () {
+protoOf(JsPlanChange).b3o = function () {
   return this.updated;
 };
-protoOf(JsPlanChange).f3b = function () {
+protoOf(JsPlanChange).c3o = function () {
   return this.removed;
 };
-protoOf(JsPlanChange).g3b = function () {
+protoOf(JsPlanChange).d3o = function () {
   return this.added;
 };
 protoOf(JsPlanChange).l8 = function () {
   return this.message;
 };
-protoOf(JsPlanChange).h3b = function () {
+protoOf(JsPlanChange).e3o = function () {
   return this.changed;
 };
 protoOf(JsPlanChange).gb = function () {
@@ -41749,13 +45942,13 @@ protoOf(JsPlanChange).hb = function () {
 protoOf(JsPlanChange).tf = function () {
   return this.added;
 };
-protoOf(JsPlanChange).f37 = function () {
+protoOf(JsPlanChange).y3e = function () {
   return this.message;
 };
-protoOf(JsPlanChange).g37 = function () {
+protoOf(JsPlanChange).z3e = function () {
   return this.changed;
 };
-protoOf(JsPlanChange).i3b = function (updated, removed, added, message, changed) {
+protoOf(JsPlanChange).f3o = function (updated, removed, added, message, changed) {
   return new JsPlanChange(updated, removed, added, message, changed);
 };
 protoOf(JsPlanChange).copy = function (updated, removed, added, message, changed, $super) {
@@ -41764,7 +45957,7 @@ protoOf(JsPlanChange).copy = function (updated, removed, added, message, changed
   added = added === VOID ? this.added : added;
   message = message === VOID ? this.message : message;
   changed = changed === VOID ? this.changed : changed;
-  return $super === VOID ? this.i3b(updated, removed, added, message, changed) : $super.i3b.call(this, updated, removed, added, message, changed);
+  return $super === VOID ? this.f3o(updated, removed, added, message, changed) : $super.f3o.call(this, updated, removed, added, message, changed);
 };
 protoOf(JsPlanChange).toString = function () {
   return 'JsPlanChange(updated=' + toString(this.updated) + ', removed=' + toString(this.removed) + ', added=' + toString(this.added) + ', message=' + this.message + ', changed=' + this.changed + ')';
@@ -41798,10 +45991,10 @@ function JsRating(date, rating) {
   this.date = date;
   this.rating = rating;
 }
-protoOf(JsRating).s37 = function () {
+protoOf(JsRating).f3l = function () {
   return this.date;
 };
-protoOf(JsRating).j3b = function () {
+protoOf(JsRating).g3o = function () {
   return this.rating;
 };
 protoOf(JsRating).gb = function () {
@@ -41810,13 +46003,13 @@ protoOf(JsRating).gb = function () {
 protoOf(JsRating).hb = function () {
   return this.rating;
 };
-protoOf(JsRating).k3b = function (date, rating) {
+protoOf(JsRating).h3o = function (date, rating) {
   return new JsRating(date, rating);
 };
 protoOf(JsRating).copy = function (date, rating, $super) {
   date = date === VOID ? this.date : date;
   rating = rating === VOID ? this.rating : rating;
-  return $super === VOID ? this.k3b(date, rating) : $super.k3b.call(this, date, rating);
+  return $super === VOID ? this.h3o(date, rating) : $super.h3o.call(this, date, rating);
 };
 protoOf(JsRating).toString = function () {
   return 'JsRating(date=' + this.date + ', rating=' + this.rating + ')';
@@ -41845,22 +46038,22 @@ function JsMuscleRow(group, ratings, setsDone, setsPlanned, exercisesUp, exercis
   this.exercisesUp = exercisesUp;
   this.exercisesTracked = exercisesTracked;
 }
-protoOf(JsMuscleRow).w39 = function () {
+protoOf(JsMuscleRow).g3n = function () {
   return this.group;
 };
-protoOf(JsMuscleRow).l3b = function () {
+protoOf(JsMuscleRow).i3o = function () {
   return this.ratings;
 };
-protoOf(JsMuscleRow).m3b = function () {
+protoOf(JsMuscleRow).j3o = function () {
   return this.setsDone;
 };
-protoOf(JsMuscleRow).n3b = function () {
+protoOf(JsMuscleRow).k3o = function () {
   return this.setsPlanned;
 };
-protoOf(JsMuscleRow).o3b = function () {
+protoOf(JsMuscleRow).l3o = function () {
   return this.exercisesUp;
 };
-protoOf(JsMuscleRow).p3b = function () {
+protoOf(JsMuscleRow).m3o = function () {
   return this.exercisesTracked;
 };
 protoOf(JsMuscleRow).gb = function () {
@@ -41872,16 +46065,16 @@ protoOf(JsMuscleRow).hb = function () {
 protoOf(JsMuscleRow).tf = function () {
   return this.setsDone;
 };
-protoOf(JsMuscleRow).f37 = function () {
+protoOf(JsMuscleRow).y3e = function () {
   return this.setsPlanned;
 };
-protoOf(JsMuscleRow).g37 = function () {
+protoOf(JsMuscleRow).z3e = function () {
   return this.exercisesUp;
 };
-protoOf(JsMuscleRow).h37 = function () {
+protoOf(JsMuscleRow).a3f = function () {
   return this.exercisesTracked;
 };
-protoOf(JsMuscleRow).q3b = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) {
+protoOf(JsMuscleRow).n3o = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) {
   return new JsMuscleRow(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
 };
 protoOf(JsMuscleRow).copy = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked, $super) {
@@ -41891,7 +46084,7 @@ protoOf(JsMuscleRow).copy = function (group, ratings, setsDone, setsPlanned, exe
   setsPlanned = setsPlanned === VOID ? this.setsPlanned : setsPlanned;
   exercisesUp = exercisesUp === VOID ? this.exercisesUp : exercisesUp;
   exercisesTracked = exercisesTracked === VOID ? this.exercisesTracked : exercisesTracked;
-  return $super === VOID ? this.q3b(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) : $super.q3b.call(this, group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
+  return $super === VOID ? this.n3o(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) : $super.n3o.call(this, group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
 };
 protoOf(JsMuscleRow).toString = function () {
   return 'JsMuscleRow(group=' + this.group + ', ratings=' + toString(this.ratings) + ', setsDone=' + this.setsDone + ', setsPlanned=' + this.setsPlanned + ', exercisesUp=' + this.exercisesUp + ', exercisesTracked=' + this.exercisesTracked + ')';
@@ -41931,19 +46124,19 @@ function JsFormGuide(purpose, setup, steps, cues, mistakes) {
   this.cues = cues;
   this.mistakes = mistakes;
 }
-protoOf(JsFormGuide).r3b = function () {
+protoOf(JsFormGuide).o3o = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).s3b = function () {
+protoOf(JsFormGuide).p3o = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).t3b = function () {
+protoOf(JsFormGuide).q3o = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).u3b = function () {
+protoOf(JsFormGuide).r3o = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).v3b = function () {
+protoOf(JsFormGuide).s3o = function () {
   return this.mistakes;
 };
 protoOf(JsFormGuide).gb = function () {
@@ -41955,13 +46148,13 @@ protoOf(JsFormGuide).hb = function () {
 protoOf(JsFormGuide).tf = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).f37 = function () {
+protoOf(JsFormGuide).y3e = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).g37 = function () {
+protoOf(JsFormGuide).z3e = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).w3b = function (purpose, setup, steps, cues, mistakes) {
+protoOf(JsFormGuide).t3o = function (purpose, setup, steps, cues, mistakes) {
   return new JsFormGuide(purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $super) {
@@ -41970,7 +46163,7 @@ protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $su
   steps = steps === VOID ? this.steps : steps;
   cues = cues === VOID ? this.cues : cues;
   mistakes = mistakes === VOID ? this.mistakes : mistakes;
-  return $super === VOID ? this.w3b(purpose, setup, steps, cues, mistakes) : $super.w3b.call(this, purpose, setup, steps, cues, mistakes);
+  return $super === VOID ? this.t3o(purpose, setup, steps, cues, mistakes) : $super.t3o.call(this, purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).toString = function () {
   return 'JsFormGuide(purpose=' + this.purpose + ', setup=' + toString(this.setup) + ', steps=' + toString(this.steps) + ', cues=' + toString(this.cues) + ', mistakes=' + toString(this.mistakes) + ')';
@@ -42005,13 +46198,13 @@ function JsMuscleFocus(stretch, squeeze, none) {
   this.squeeze = squeeze;
   this.none = none;
 }
-protoOf(JsMuscleFocus).x3b = function () {
+protoOf(JsMuscleFocus).u3o = function () {
   return this.stretch;
 };
-protoOf(JsMuscleFocus).y3b = function () {
+protoOf(JsMuscleFocus).v3o = function () {
   return this.squeeze;
 };
-protoOf(JsMuscleFocus).z3b = function () {
+protoOf(JsMuscleFocus).w3o = function () {
   return this.none;
 };
 protoOf(JsMuscleFocus).gb = function () {
@@ -42023,14 +46216,14 @@ protoOf(JsMuscleFocus).hb = function () {
 protoOf(JsMuscleFocus).tf = function () {
   return this.none;
 };
-protoOf(JsMuscleFocus).a3c = function (stretch, squeeze, none) {
+protoOf(JsMuscleFocus).x3o = function (stretch, squeeze, none) {
   return new JsMuscleFocus(stretch, squeeze, none);
 };
 protoOf(JsMuscleFocus).copy = function (stretch, squeeze, none, $super) {
   stretch = stretch === VOID ? this.stretch : stretch;
   squeeze = squeeze === VOID ? this.squeeze : squeeze;
   none = none === VOID ? this.none : none;
-  return $super === VOID ? this.a3c(stretch, squeeze, none) : $super.a3c.call(this, stretch, squeeze, none);
+  return $super === VOID ? this.x3o(stretch, squeeze, none) : $super.x3o.call(this, stretch, squeeze, none);
 };
 protoOf(JsMuscleFocus).toString = function () {
   return 'JsMuscleFocus(stretch=' + this.stretch + ', squeeze=' + this.squeeze + ', none=' + this.none + ')';
@@ -42058,10 +46251,10 @@ function JsRpeGuide(title, lines) {
   this.title = title;
   this.lines = lines;
 }
-protoOf(JsRpeGuide).b3c = function () {
+protoOf(JsRpeGuide).y3o = function () {
   return this.title;
 };
-protoOf(JsRpeGuide).c3c = function () {
+protoOf(JsRpeGuide).z3o = function () {
   return this.lines;
 };
 protoOf(JsRpeGuide).gb = function () {
@@ -42070,13 +46263,13 @@ protoOf(JsRpeGuide).gb = function () {
 protoOf(JsRpeGuide).hb = function () {
   return this.lines;
 };
-protoOf(JsRpeGuide).d3c = function (title, lines) {
+protoOf(JsRpeGuide).a3p = function (title, lines) {
   return new JsRpeGuide(title, lines);
 };
 protoOf(JsRpeGuide).copy = function (title, lines, $super) {
   title = title === VOID ? this.title : title;
   lines = lines === VOID ? this.lines : lines;
-  return $super === VOID ? this.d3c(title, lines) : $super.d3c.call(this, title, lines);
+  return $super === VOID ? this.a3p(title, lines) : $super.a3p.call(this, title, lines);
 };
 protoOf(JsRpeGuide).toString = function () {
   return 'JsRpeGuide(title=' + this.title + ', lines=' + toString(this.lines) + ')';
@@ -42111,28 +46304,28 @@ function JsLibraryExercise(name, aliases, area, equipment, muscles, kind, catego
 protoOf(JsLibraryExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).e3c = function () {
+protoOf(JsLibraryExercise).b3p = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).f3c = function () {
+protoOf(JsLibraryExercise).c3p = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).g3c = function () {
+protoOf(JsLibraryExercise).d3p = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).c37 = function () {
+protoOf(JsLibraryExercise).t3k = function () {
   return this.muscles;
 };
 protoOf(JsLibraryExercise).yi = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).a37 = function () {
+protoOf(JsLibraryExercise).r3k = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).b37 = function () {
+protoOf(JsLibraryExercise).s3k = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).h3c = function () {
+protoOf(JsLibraryExercise).e3p = function () {
   return this.guide;
 };
 protoOf(JsLibraryExercise).gb = function () {
@@ -42144,25 +46337,25 @@ protoOf(JsLibraryExercise).hb = function () {
 protoOf(JsLibraryExercise).tf = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).f37 = function () {
+protoOf(JsLibraryExercise).y3e = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).g37 = function () {
+protoOf(JsLibraryExercise).z3e = function () {
   return this.muscles;
 };
-protoOf(JsLibraryExercise).h37 = function () {
+protoOf(JsLibraryExercise).a3f = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).i37 = function () {
+protoOf(JsLibraryExercise).b3f = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).c38 = function () {
+protoOf(JsLibraryExercise).j3f = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).d38 = function () {
+protoOf(JsLibraryExercise).h3i = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).i3c = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
+protoOf(JsLibraryExercise).f3p = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
   return new JsLibraryExercise(name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide, $super) {
@@ -42175,7 +46368,7 @@ protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, musc
   category = category === VOID ? this.category : category;
   parentLift = parentLift === VOID ? this.parentLift : parentLift;
   guide = guide === VOID ? this.guide : guide;
-  return $super === VOID ? this.i3c(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.i3c.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
+  return $super === VOID ? this.f3p(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.f3p.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).toString = function () {
   return 'JsLibraryExercise(name=' + this.name + ', aliases=' + toString(this.aliases) + ', area=' + this.area + ', equipment=' + toString(this.equipment) + ', muscles=' + toString(this.muscles) + ', kind=' + this.kind + ', category=' + this.category + ', parentLift=' + this.parentLift + ', guide=' + this.guide.toString() + ')';
@@ -42227,16 +46420,16 @@ function JsBuilderPick(name, muscles, compound, equipment, inCatalogue) {
 protoOf(JsBuilderPick).b14 = function () {
   return this.name;
 };
-protoOf(JsBuilderPick).c37 = function () {
+protoOf(JsBuilderPick).t3k = function () {
   return this.muscles;
 };
-protoOf(JsBuilderPick).j3c = function () {
+protoOf(JsBuilderPick).g3p = function () {
   return this.compound;
 };
-protoOf(JsBuilderPick).g3c = function () {
+protoOf(JsBuilderPick).d3p = function () {
   return this.equipment;
 };
-protoOf(JsBuilderPick).k3c = function () {
+protoOf(JsBuilderPick).h3p = function () {
   return this.inCatalogue;
 };
 protoOf(JsBuilderPick).gb = function () {
@@ -42248,13 +46441,13 @@ protoOf(JsBuilderPick).hb = function () {
 protoOf(JsBuilderPick).tf = function () {
   return this.compound;
 };
-protoOf(JsBuilderPick).f37 = function () {
+protoOf(JsBuilderPick).y3e = function () {
   return this.equipment;
 };
-protoOf(JsBuilderPick).g37 = function () {
+protoOf(JsBuilderPick).z3e = function () {
   return this.inCatalogue;
 };
-protoOf(JsBuilderPick).l3c = function (name, muscles, compound, equipment, inCatalogue) {
+protoOf(JsBuilderPick).i3p = function (name, muscles, compound, equipment, inCatalogue) {
   return new JsBuilderPick(name, muscles, compound, equipment, inCatalogue);
 };
 protoOf(JsBuilderPick).copy = function (name, muscles, compound, equipment, inCatalogue, $super) {
@@ -42263,7 +46456,7 @@ protoOf(JsBuilderPick).copy = function (name, muscles, compound, equipment, inCa
   compound = compound === VOID ? this.compound : compound;
   equipment = equipment === VOID ? this.equipment : equipment;
   inCatalogue = inCatalogue === VOID ? this.inCatalogue : inCatalogue;
-  return $super === VOID ? this.l3c(name, muscles, compound, equipment, inCatalogue) : $super.l3c.call(this, name, muscles, compound, equipment, inCatalogue);
+  return $super === VOID ? this.i3p(name, muscles, compound, equipment, inCatalogue) : $super.i3p.call(this, name, muscles, compound, equipment, inCatalogue);
 };
 protoOf(JsBuilderPick).toString = function () {
   return 'JsBuilderPick(name=' + this.name + ', muscles=' + toString(this.muscles) + ', compound=' + this.compound + ', equipment=' + toString(this.equipment) + ', inCatalogue=' + this.inCatalogue + ')';
@@ -42309,34 +46502,34 @@ function JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGr
 protoOf(JsDraftExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsDraftExercise).k3c = function () {
+protoOf(JsDraftExercise).h3p = function () {
   return this.inCatalogue;
 };
-protoOf(JsDraftExercise).v37 = function () {
+protoOf(JsDraftExercise).i3l = function () {
   return this.sets;
 };
-protoOf(JsDraftExercise).n39 = function () {
+protoOf(JsDraftExercise).x3m = function () {
   return this.repsLow;
 };
-protoOf(JsDraftExercise).b38 = function () {
+protoOf(JsDraftExercise).o3l = function () {
   return this.repsHigh;
 };
-protoOf(JsDraftExercise).n37 = function () {
+protoOf(JsDraftExercise).a3l = function () {
   return this.rpe;
 };
-protoOf(JsDraftExercise).m3c = function () {
+protoOf(JsDraftExercise).j3p = function () {
   return this.mainGroup;
 };
-protoOf(JsDraftExercise).c37 = function () {
+protoOf(JsDraftExercise).t3k = function () {
   return this.muscles;
 };
-protoOf(JsDraftExercise).j3c = function () {
+protoOf(JsDraftExercise).g3p = function () {
   return this.compound;
 };
-protoOf(JsDraftExercise).n3c = function () {
+protoOf(JsDraftExercise).k3p = function () {
   return this.slot;
 };
-protoOf(JsDraftExercise).o3c = function () {
+protoOf(JsDraftExercise).l3p = function () {
   return this.lead;
 };
 protoOf(JsDraftExercise).gb = function () {
@@ -42348,31 +46541,31 @@ protoOf(JsDraftExercise).hb = function () {
 protoOf(JsDraftExercise).tf = function () {
   return this.sets;
 };
-protoOf(JsDraftExercise).f37 = function () {
+protoOf(JsDraftExercise).y3e = function () {
   return this.repsLow;
 };
-protoOf(JsDraftExercise).g37 = function () {
+protoOf(JsDraftExercise).z3e = function () {
   return this.repsHigh;
 };
-protoOf(JsDraftExercise).h37 = function () {
+protoOf(JsDraftExercise).a3f = function () {
   return this.rpe;
 };
-protoOf(JsDraftExercise).i37 = function () {
+protoOf(JsDraftExercise).b3f = function () {
   return this.mainGroup;
 };
-protoOf(JsDraftExercise).c38 = function () {
+protoOf(JsDraftExercise).j3f = function () {
   return this.muscles;
 };
-protoOf(JsDraftExercise).d38 = function () {
+protoOf(JsDraftExercise).h3i = function () {
   return this.compound;
 };
-protoOf(JsDraftExercise).f3a = function () {
+protoOf(JsDraftExercise).i3i = function () {
   return this.slot;
 };
-protoOf(JsDraftExercise).g3a = function () {
+protoOf(JsDraftExercise).j3i = function () {
   return this.lead;
 };
-protoOf(JsDraftExercise).p3c = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
+protoOf(JsDraftExercise).m3p = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
   return new JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
 protoOf(JsDraftExercise).copy = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead, $super) {
@@ -42387,7 +46580,7 @@ protoOf(JsDraftExercise).copy = function (name, inCatalogue, sets, repsLow, reps
   compound = compound === VOID ? this.compound : compound;
   slot = slot === VOID ? this.slot : slot;
   lead = lead === VOID ? this.lead : lead;
-  return $super === VOID ? this.p3c(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.p3c.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
+  return $super === VOID ? this.m3p(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.m3p.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
 protoOf(JsDraftExercise).toString = function () {
   return 'JsDraftExercise(name=' + this.name + ', inCatalogue=' + this.inCatalogue + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ', mainGroup=' + this.mainGroup + ', muscles=' + toString(this.muscles) + ', compound=' + this.compound + ', slot=' + this.slot + ', lead=' + this.lead + ')';
@@ -42443,10 +46636,10 @@ function JsDraftSession(day, title, exercises) {
 protoOf(JsDraftSession).j11 = function () {
   return this.day;
 };
-protoOf(JsDraftSession).b3c = function () {
+protoOf(JsDraftSession).y3o = function () {
   return this.title;
 };
-protoOf(JsDraftSession).s38 = function () {
+protoOf(JsDraftSession).c3m = function () {
   return this.exercises;
 };
 protoOf(JsDraftSession).gb = function () {
@@ -42458,14 +46651,14 @@ protoOf(JsDraftSession).hb = function () {
 protoOf(JsDraftSession).tf = function () {
   return this.exercises;
 };
-protoOf(JsDraftSession).q3c = function (day, title, exercises) {
+protoOf(JsDraftSession).n3p = function (day, title, exercises) {
   return new JsDraftSession(day, title, exercises);
 };
 protoOf(JsDraftSession).copy = function (day, title, exercises, $super) {
   day = day === VOID ? this.day : day;
   title = title === VOID ? this.title : title;
   exercises = exercises === VOID ? this.exercises : exercises;
-  return $super === VOID ? this.q3c(day, title, exercises) : $super.q3c.call(this, day, title, exercises);
+  return $super === VOID ? this.n3p(day, title, exercises) : $super.n3p.call(this, day, title, exercises);
 };
 protoOf(JsDraftSession).toString = function () {
   return 'JsDraftSession(day=' + this.day + ', title=' + this.title + ', exercises=' + toString(this.exercises) + ')';
@@ -42495,16 +46688,16 @@ function JsGroupVolume(group, weeklySets, days, short) {
   this.days = days;
   this.short = short;
 }
-protoOf(JsGroupVolume).w39 = function () {
+protoOf(JsGroupVolume).g3n = function () {
   return this.group;
 };
-protoOf(JsGroupVolume).w3a = function () {
+protoOf(JsGroupVolume).t3n = function () {
   return this.weeklySets;
 };
 protoOf(JsGroupVolume).hy = function () {
   return this.days;
 };
-protoOf(JsGroupVolume).r3c = function () {
+protoOf(JsGroupVolume).o3p = function () {
   return this.short;
 };
 protoOf(JsGroupVolume).gb = function () {
@@ -42516,10 +46709,10 @@ protoOf(JsGroupVolume).hb = function () {
 protoOf(JsGroupVolume).tf = function () {
   return this.days;
 };
-protoOf(JsGroupVolume).f37 = function () {
+protoOf(JsGroupVolume).y3e = function () {
   return this.short;
 };
-protoOf(JsGroupVolume).s3c = function (group, weeklySets, days, short) {
+protoOf(JsGroupVolume).p3p = function (group, weeklySets, days, short) {
   return new JsGroupVolume(group, weeklySets, days, short);
 };
 protoOf(JsGroupVolume).copy = function (group, weeklySets, days, short, $super) {
@@ -42527,7 +46720,7 @@ protoOf(JsGroupVolume).copy = function (group, weeklySets, days, short, $super) 
   weeklySets = weeklySets === VOID ? this.weeklySets : weeklySets;
   days = days === VOID ? this.days : days;
   short = short === VOID ? this.short : short;
-  return $super === VOID ? this.s3c(group, weeklySets, days, short) : $super.s3c.call(this, group, weeklySets, days, short);
+  return $super === VOID ? this.p3p(group, weeklySets, days, short) : $super.p3p.call(this, group, weeklySets, days, short);
 };
 protoOf(JsGroupVolume).toString = function () {
   return 'JsGroupVolume(group=' + this.group + ', weeklySets=' + this.weeklySets + ', days=' + this.days + ', short=' + this.short + ')';
@@ -42561,7 +46754,7 @@ function JsLeftOut(name, reason) {
 protoOf(JsLeftOut).b14 = function () {
   return this.name;
 };
-protoOf(JsLeftOut).k38 = function () {
+protoOf(JsLeftOut).u3l = function () {
   return this.reason;
 };
 protoOf(JsLeftOut).gb = function () {
@@ -42570,13 +46763,13 @@ protoOf(JsLeftOut).gb = function () {
 protoOf(JsLeftOut).hb = function () {
   return this.reason;
 };
-protoOf(JsLeftOut).k3b = function (name, reason) {
+protoOf(JsLeftOut).h3o = function (name, reason) {
   return new JsLeftOut(name, reason);
 };
 protoOf(JsLeftOut).copy = function (name, reason, $super) {
   name = name === VOID ? this.name : name;
   reason = reason === VOID ? this.reason : reason;
-  return $super === VOID ? this.k3b(name, reason) : $super.k3b.call(this, name, reason);
+  return $super === VOID ? this.h3o(name, reason) : $super.h3o.call(this, name, reason);
 };
 protoOf(JsLeftOut).toString = function () {
   return 'JsLeftOut(name=' + this.name + ', reason=' + this.reason + ')';
@@ -42602,13 +46795,13 @@ function JsPlanDraft(sessions, volume, leftOut) {
   this.volume = volume;
   this.leftOut = leftOut;
 }
-protoOf(JsPlanDraft).r38 = function () {
+protoOf(JsPlanDraft).b3m = function () {
   return this.sessions;
 };
-protoOf(JsPlanDraft).t3c = function () {
+protoOf(JsPlanDraft).q3p = function () {
   return this.volume;
 };
-protoOf(JsPlanDraft).u3c = function () {
+protoOf(JsPlanDraft).r3p = function () {
   return this.leftOut;
 };
 protoOf(JsPlanDraft).gb = function () {
@@ -42620,14 +46813,14 @@ protoOf(JsPlanDraft).hb = function () {
 protoOf(JsPlanDraft).tf = function () {
   return this.leftOut;
 };
-protoOf(JsPlanDraft).v3c = function (sessions, volume, leftOut) {
+protoOf(JsPlanDraft).s3p = function (sessions, volume, leftOut) {
   return new JsPlanDraft(sessions, volume, leftOut);
 };
 protoOf(JsPlanDraft).copy = function (sessions, volume, leftOut, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   volume = volume === VOID ? this.volume : volume;
   leftOut = leftOut === VOID ? this.leftOut : leftOut;
-  return $super === VOID ? this.v3c(sessions, volume, leftOut) : $super.v3c.call(this, sessions, volume, leftOut);
+  return $super === VOID ? this.s3p(sessions, volume, leftOut) : $super.s3p.call(this, sessions, volume, leftOut);
 };
 protoOf(JsPlanDraft).toString = function () {
   return 'JsPlanDraft(sessions=' + toString(this.sessions) + ', volume=' + toString(this.volume) + ', leftOut=' + toString(this.leftOut) + ')';
@@ -42662,19 +46855,19 @@ function JsTemplateExercise(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPr
 protoOf(JsTemplateExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsTemplateExercise).v37 = function () {
+protoOf(JsTemplateExercise).i3l = function () {
   return this.sets;
 };
-protoOf(JsTemplateExercise).n39 = function () {
+protoOf(JsTemplateExercise).x3m = function () {
   return this.repsLow;
 };
-protoOf(JsTemplateExercise).b38 = function () {
+protoOf(JsTemplateExercise).o3l = function () {
   return this.repsHigh;
 };
-protoOf(JsTemplateExercise).n37 = function () {
+protoOf(JsTemplateExercise).a3l = function () {
   return this.rpe;
 };
-protoOf(JsTemplateExercise).w3c = function () {
+protoOf(JsTemplateExercise).t3p = function () {
   return this.onlyWithStrictPress;
 };
 protoOf(JsTemplateExercise).gb = function () {
@@ -42686,16 +46879,16 @@ protoOf(JsTemplateExercise).hb = function () {
 protoOf(JsTemplateExercise).tf = function () {
   return this.repsLow;
 };
-protoOf(JsTemplateExercise).f37 = function () {
+protoOf(JsTemplateExercise).y3e = function () {
   return this.repsHigh;
 };
-protoOf(JsTemplateExercise).g37 = function () {
+protoOf(JsTemplateExercise).z3e = function () {
   return this.rpe;
 };
-protoOf(JsTemplateExercise).h37 = function () {
+protoOf(JsTemplateExercise).a3f = function () {
   return this.onlyWithStrictPress;
 };
-protoOf(JsTemplateExercise).x3c = function (name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) {
+protoOf(JsTemplateExercise).u3p = function (name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) {
   return new JsTemplateExercise(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress);
 };
 protoOf(JsTemplateExercise).copy = function (name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress, $super) {
@@ -42705,7 +46898,7 @@ protoOf(JsTemplateExercise).copy = function (name, sets, repsLow, repsHigh, rpe,
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
   rpe = rpe === VOID ? this.rpe : rpe;
   onlyWithStrictPress = onlyWithStrictPress === VOID ? this.onlyWithStrictPress : onlyWithStrictPress;
-  return $super === VOID ? this.x3c(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) : $super.x3c.call(this, name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress);
+  return $super === VOID ? this.u3p(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) : $super.u3p.call(this, name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress);
 };
 protoOf(JsTemplateExercise).toString = function () {
   return 'JsTemplateExercise(name=' + this.name + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ', onlyWithStrictPress=' + this.onlyWithStrictPress + ')';
@@ -42742,10 +46935,10 @@ function JsTemplateSession(title, exercises) {
   this.title = title;
   this.exercises = exercises;
 }
-protoOf(JsTemplateSession).b3c = function () {
+protoOf(JsTemplateSession).y3o = function () {
   return this.title;
 };
-protoOf(JsTemplateSession).s38 = function () {
+protoOf(JsTemplateSession).c3m = function () {
   return this.exercises;
 };
 protoOf(JsTemplateSession).gb = function () {
@@ -42754,13 +46947,13 @@ protoOf(JsTemplateSession).gb = function () {
 protoOf(JsTemplateSession).hb = function () {
   return this.exercises;
 };
-protoOf(JsTemplateSession).y3c = function (title, exercises) {
+protoOf(JsTemplateSession).v3p = function (title, exercises) {
   return new JsTemplateSession(title, exercises);
 };
 protoOf(JsTemplateSession).copy = function (title, exercises, $super) {
   title = title === VOID ? this.title : title;
   exercises = exercises === VOID ? this.exercises : exercises;
-  return $super === VOID ? this.y3c(title, exercises) : $super.y3c.call(this, title, exercises);
+  return $super === VOID ? this.v3p(title, exercises) : $super.v3p.call(this, title, exercises);
 };
 protoOf(JsTemplateSession).toString = function () {
   return 'JsTemplateSession(title=' + this.title + ', exercises=' + toString(this.exercises) + ')';
@@ -42789,22 +46982,22 @@ function JsPlanTemplate(id, mode, name, suits, dayCount, sessions) {
   this.dayCount = dayCount;
   this.sessions = sessions;
 }
-protoOf(JsPlanTemplate).z36 = function () {
+protoOf(JsPlanTemplate).b3g = function () {
   return this.id;
 };
-protoOf(JsPlanTemplate).w37 = function () {
+protoOf(JsPlanTemplate).j3l = function () {
   return this.mode;
 };
 protoOf(JsPlanTemplate).b14 = function () {
   return this.name;
 };
-protoOf(JsPlanTemplate).z3c = function () {
+protoOf(JsPlanTemplate).w3p = function () {
   return this.suits;
 };
-protoOf(JsPlanTemplate).j34 = function () {
+protoOf(JsPlanTemplate).y3b = function () {
   return this.dayCount;
 };
-protoOf(JsPlanTemplate).r38 = function () {
+protoOf(JsPlanTemplate).b3m = function () {
   return this.sessions;
 };
 protoOf(JsPlanTemplate).gb = function () {
@@ -42816,16 +47009,16 @@ protoOf(JsPlanTemplate).hb = function () {
 protoOf(JsPlanTemplate).tf = function () {
   return this.name;
 };
-protoOf(JsPlanTemplate).f37 = function () {
+protoOf(JsPlanTemplate).y3e = function () {
   return this.suits;
 };
-protoOf(JsPlanTemplate).g37 = function () {
+protoOf(JsPlanTemplate).z3e = function () {
   return this.dayCount;
 };
-protoOf(JsPlanTemplate).h37 = function () {
+protoOf(JsPlanTemplate).a3f = function () {
   return this.sessions;
 };
-protoOf(JsPlanTemplate).a3d = function (id, mode, name, suits, dayCount, sessions) {
+protoOf(JsPlanTemplate).x3p = function (id, mode, name, suits, dayCount, sessions) {
   return new JsPlanTemplate(id, mode, name, suits, dayCount, sessions);
 };
 protoOf(JsPlanTemplate).copy = function (id, mode, name, suits, dayCount, sessions, $super) {
@@ -42835,7 +47028,7 @@ protoOf(JsPlanTemplate).copy = function (id, mode, name, suits, dayCount, sessio
   suits = suits === VOID ? this.suits : suits;
   dayCount = dayCount === VOID ? this.dayCount : dayCount;
   sessions = sessions === VOID ? this.sessions : sessions;
-  return $super === VOID ? this.a3d(id, mode, name, suits, dayCount, sessions) : $super.a3d.call(this, id, mode, name, suits, dayCount, sessions);
+  return $super === VOID ? this.x3p(id, mode, name, suits, dayCount, sessions) : $super.x3p.call(this, id, mode, name, suits, dayCount, sessions);
 };
 protoOf(JsPlanTemplate).toString = function () {
   return 'JsPlanTemplate(id=' + this.id + ', mode=' + this.mode + ', name=' + this.name + ', suits=' + this.suits + ', dayCount=' + this.dayCount + ', sessions=' + toString(this.sessions) + ')';
@@ -42874,16 +47067,16 @@ function JsFigureInfo(startCaption, endCaption, thumbnail, viewBox) {
   this.thumbnail = thumbnail;
   this.viewBox = viewBox;
 }
-protoOf(JsFigureInfo).b3d = function () {
+protoOf(JsFigureInfo).y3p = function () {
   return this.startCaption;
 };
-protoOf(JsFigureInfo).c3d = function () {
+protoOf(JsFigureInfo).z3p = function () {
   return this.endCaption;
 };
-protoOf(JsFigureInfo).d3d = function () {
+protoOf(JsFigureInfo).a3q = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).e3d = function () {
+protoOf(JsFigureInfo).b3q = function () {
   return this.viewBox;
 };
 protoOf(JsFigureInfo).gb = function () {
@@ -42895,10 +47088,10 @@ protoOf(JsFigureInfo).hb = function () {
 protoOf(JsFigureInfo).tf = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).f37 = function () {
+protoOf(JsFigureInfo).y3e = function () {
   return this.viewBox;
 };
-protoOf(JsFigureInfo).f3d = function (startCaption, endCaption, thumbnail, viewBox) {
+protoOf(JsFigureInfo).c3q = function (startCaption, endCaption, thumbnail, viewBox) {
   return new JsFigureInfo(startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, viewBox, $super) {
@@ -42906,7 +47099,7 @@ protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, view
   endCaption = endCaption === VOID ? this.endCaption : endCaption;
   thumbnail = thumbnail === VOID ? this.thumbnail : thumbnail;
   viewBox = viewBox === VOID ? this.viewBox : viewBox;
-  return $super === VOID ? this.f3d(startCaption, endCaption, thumbnail, viewBox) : $super.f3d.call(this, startCaption, endCaption, thumbnail, viewBox);
+  return $super === VOID ? this.c3q(startCaption, endCaption, thumbnail, viewBox) : $super.c3q.call(this, startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).toString = function () {
   return 'JsFigureInfo(startCaption=' + this.startCaption + ', endCaption=' + this.endCaption + ', thumbnail=' + this.thumbnail + ', viewBox=' + toString(this.viewBox) + ')';
@@ -42940,7 +47133,7 @@ function JsFigureShape(kind, role) {
 protoOf(JsFigureShape).yi = function () {
   return this.kind;
 };
-protoOf(JsFigureShape).g3d = function () {
+protoOf(JsFigureShape).d3q = function () {
   return this.role;
 };
 function JsFigureCircle(role, cx, cy, r) {
@@ -42949,13 +47142,13 @@ function JsFigureCircle(role, cx, cy, r) {
   this.cy = cy;
   this.r = r;
 }
-protoOf(JsFigureCircle).h3d = function () {
+protoOf(JsFigureCircle).d3h = function () {
   return this.cx;
 };
-protoOf(JsFigureCircle).i3d = function () {
+protoOf(JsFigureCircle).e3h = function () {
   return this.cy;
 };
-protoOf(JsFigureCircle).j3d = function () {
+protoOf(JsFigureCircle).o3g = function () {
   return this.r;
 };
 function JsFigureCapsule(role, x1, y1, x2, y2, width) {
@@ -42966,16 +47159,16 @@ function JsFigureCapsule(role, x1, y1, x2, y2, width) {
   this.y2 = y2;
   this.width = width;
 }
-protoOf(JsFigureCapsule).k3d = function () {
+protoOf(JsFigureCapsule).d3g = function () {
   return this.x1;
 };
-protoOf(JsFigureCapsule).l3d = function () {
+protoOf(JsFigureCapsule).e3g = function () {
   return this.y1;
 };
-protoOf(JsFigureCapsule).m3d = function () {
+protoOf(JsFigureCapsule).f3g = function () {
   return this.x2;
 };
-protoOf(JsFigureCapsule).n3d = function () {
+protoOf(JsFigureCapsule).g3g = function () {
   return this.y2;
 };
 protoOf(JsFigureCapsule).h2h = function () {
@@ -42989,16 +47182,16 @@ function JsFigureRect(role, x, y, w, h, radius) {
   this.h = h;
   this.radius = radius;
 }
-protoOf(JsFigureRect).o3d = function () {
+protoOf(JsFigureRect).o3e = function () {
   return this.x;
 };
-protoOf(JsFigureRect).p3d = function () {
+protoOf(JsFigureRect).p3e = function () {
   return this.y;
 };
-protoOf(JsFigureRect).q3d = function () {
+protoOf(JsFigureRect).e3q = function () {
   return this.w;
 };
-protoOf(JsFigureRect).r3d = function () {
+protoOf(JsFigureRect).f3q = function () {
   return this.h;
 };
 protoOf(JsFigureRect).x2r = function () {
@@ -43008,7 +47201,7 @@ function JsFigurePolygon(role, points) {
   JsFigureShape.call(this, 'polygon', role);
   this.points = points;
 }
-protoOf(JsFigurePolygon).s3d = function () {
+protoOf(JsFigurePolygon).g3q = function () {
   return this.points;
 };
 function toFacadeId(_this__u8e3s4, field) {
@@ -43121,7 +47314,7 @@ function toDomain(_this__u8e3s4) {
   }
   return new Exercise(tmp, _this__u8e3s4.name, tmp_2, tmp_3, toList(_this__u8e3s4.muscles), _this__u8e3s4.isBuiltIn, _this__u8e3s4.archived);
 }
-function toJs(_this__u8e3s4) {
+function toJs_15(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp = toFacadeId(_this__u8e3s4.i1j_1, 'exercise.id');
   var tmp0_safe_receiver = _this__u8e3s4.l1j_1;
@@ -43258,7 +47451,7 @@ function toDomain_2(_this__u8e3s4) {
   var tmp$ret$0 = tmp_2;
   return new PlanItem(tmp, tmp_0, tmp_1, _this__u8e3s4.sets, _this__u8e3s4.reps, _this__u8e3s4.targetRpe, _this__u8e3s4.order, tmp$ret$0, _this__u8e3s4.repsHigh);
 }
-function toJs_0(_this__u8e3s4) {
+function toJs_16(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   return new JsPlanItem(toFacadeId(_this__u8e3s4.p1h_1, 'plan.id'), get_isoDayNumber(_this__u8e3s4.q1h_1), toFacadeId(_this__u8e3s4.r1h_1, 'plan.exerciseId'), _this__u8e3s4.s1h_1, _this__u8e3s4.t1h_1, _this__u8e3s4.u1h_1, _this__u8e3s4.v1h_1, _this__u8e3s4.w1h_1.w1_1, _this__u8e3s4.x1h_1);
 }
@@ -43386,7 +47579,7 @@ function toDomain_3(_this__u8e3s4) {
   }
   return new CheckIn(parseDate('checkIn.date', _this__u8e3s4.date), lagging, growing, fromInt(_this__u8e3s4.id));
 }
-function toJs_1(_this__u8e3s4) {
+function toJs_17(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   // Inline function 'kotlin.collections.map' call
   var this_0 = _this__u8e3s4.r1o_1;
@@ -43395,7 +47588,7 @@ function toJs_1(_this__u8e3s4) {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = toJs_4(item);
+    var tmp$ret$2 = toJs_20(item);
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -43419,14 +47612,14 @@ function toJs_1(_this__u8e3s4) {
   var _iterator__ex2g4s_1 = this_2.j();
   while (_iterator__ex2g4s_1.k()) {
     var item_1 = _iterator__ex2g4s_1.l();
-    var tmp$ret$10 = toJs_4(item_1);
+    var tmp$ret$10 = toJs_20(item_1);
     destination_1.i(tmp$ret$10);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$11 = copyToArray(destination_1);
   return new JsCheckInOutcome(tmp, tmp_0, tmp$ret$11);
 }
-function toJs_2(_this__u8e3s4) {
+function toJs_18(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   // Inline function 'kotlin.collections.map' call
   var this_0 = _this__u8e3s4.i1p_1;
@@ -43435,7 +47628,7 @@ function toJs_2(_this__u8e3s4) {
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = toJs_0(item);
+    var tmp$ret$2 = toJs_16(item);
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -43447,7 +47640,7 @@ function toJs_2(_this__u8e3s4) {
   var _iterator__ex2g4s_0 = this_1.j();
   while (_iterator__ex2g4s_0.k()) {
     var item_0 = _iterator__ex2g4s_0.l();
-    var tmp$ret$6 = toJs_0(item_0);
+    var tmp$ret$6 = toJs_16(item_0);
     destination_0.i(tmp$ret$6);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
@@ -43461,17 +47654,17 @@ function toJs_2(_this__u8e3s4) {
     var item_1 = _iterator__ex2g4s_1.l();
     var item_2 = item_1.gb();
     var name = item_1.hb();
-    var tmp$ret$10 = new JsAddedPlanItem(toJs_0(item_2), name);
+    var tmp$ret$10 = new JsAddedPlanItem(toJs_16(item_2), name);
     destination_1.i(tmp$ret$10);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$11 = copyToArray(destination_1);
   return new JsPlanChange(tmp, tmp_0, tmp$ret$11, _this__u8e3s4.l1p_1, _this__u8e3s4.m1p_1);
 }
-function toJs_3(_this__u8e3s4) {
+function toJs_19(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.r35_1;
+  var this_0 = _this__u8e3s4.g3d_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -43484,7 +47677,7 @@ function toJs_3(_this__u8e3s4) {
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$3 = copyToArray(destination);
-  return new JsMuscleRow(_this__u8e3s4.q35_1.w1_1, tmp$ret$3, _this__u8e3s4.s35_1, _this__u8e3s4.t35_1, _this__u8e3s4.u35_1, _this__u8e3s4.v35_1);
+  return new JsMuscleRow(_this__u8e3s4.f3d_1.w1_1, tmp$ret$3, _this__u8e3s4.h3d_1, _this__u8e3s4.i3d_1, _this__u8e3s4.j3d_1, _this__u8e3s4.k3d_1);
 }
 function toDomain_4(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -43739,17 +47932,17 @@ function toDomain_8(_this__u8e3s4) {
   var tmp$ret$12 = tmp_11;
   return new Advice(tmp_3, tmp_5, tmp_6, _this__u8e3s4.reason, _this__u8e3s4.severity, payload, tmp_9, tmp_10, tmp$ret$12);
 }
-function toJs_4(_this__u8e3s4) {
+function toJs_20(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp = toFacadeId(_this__u8e3s4.f1i_1, 'advice.id');
   var tmp0_safe_receiver = _this__u8e3s4.z1h_1;
   return new JsAdvice(tmp, _this__u8e3s4.y1h_1.w1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.w1_1, _this__u8e3s4.a1i_1.toString(), _this__u8e3s4.b1i_1, _this__u8e3s4.c1i_1, _this__u8e3s4.e1i_1.w1_1, get_androidJson().t16(Companion_instance_59.a31(), _this__u8e3s4.d1i_1), _this__u8e3s4.g1i_1.w1_1);
 }
-function toJs_5(_this__u8e3s4) {
+function toJs_21(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  var tmp = toFacadeId(_this__u8e3s4.j35_1, 'trend.exerciseId');
+  var tmp = toFacadeId(_this__u8e3s4.y3c_1, 'trend.exerciseId');
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.l35_1;
+  var this_0 = _this__u8e3s4.a3d_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -43757,12 +47950,12 @@ function toJs_5(_this__u8e3s4) {
     var item = _iterator__ex2g4s.l();
     var date = item.gb();
     var set = item.hb();
-    var tmp$ret$2 = new JsBestSet(date.toString(), toJs_12(set));
+    var tmp$ret$2 = new JsBestSet(date.toString(), toJs_28(set));
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$3 = copyToArray(destination);
-  return new JsExerciseTrend(tmp, _this__u8e3s4.k35_1, tmp$ret$3, _this__u8e3s4.m35_1);
+  return new JsExerciseTrend(tmp, _this__u8e3s4.z3c_1, tmp$ret$3, _this__u8e3s4.b3d_1);
 }
 function toDomain_9(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -43809,72 +48002,72 @@ function toDomain_9(_this__u8e3s4) {
   }
   return new BuilderPick(_this__u8e3s4.name, tmp, _this__u8e3s4.compound, destination, _this__u8e3s4.inCatalogue);
 }
-function toJs_6(_this__u8e3s4) {
+function toJs_22(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.f33_1;
+  var this_0 = _this__u8e3s4.u3a_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = toJs_7(item);
+    var tmp$ret$2 = toJs_23(item);
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp = copyToArray(destination);
   // Inline function 'kotlin.collections.map' call
-  var this_1 = _this__u8e3s4.g33_1;
+  var this_1 = _this__u8e3s4.v3a_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
   var _iterator__ex2g4s_0 = this_1.j();
   while (_iterator__ex2g4s_0.k()) {
     var item_0 = _iterator__ex2g4s_0.l();
-    var tmp$ret$6 = new JsGroupVolume(item_0.p33_1.w1_1, item_0.q33_1, item_0.r33_1, item_0.s33_1);
+    var tmp$ret$6 = new JsGroupVolume(item_0.e3b_1.w1_1, item_0.f3b_1, item_0.g3b_1, item_0.h3b_1);
     destination_0.i(tmp$ret$6);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp_0 = copyToArray(destination_0);
   // Inline function 'kotlin.collections.map' call
-  var this_2 = _this__u8e3s4.h33_1;
+  var this_2 = _this__u8e3s4.w3a_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination_1 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_2, 10));
   var _iterator__ex2g4s_1 = this_2.j();
   while (_iterator__ex2g4s_1.k()) {
     var item_1 = _iterator__ex2g4s_1.l();
-    var tmp$ret$10 = new JsLeftOut(item_1.t33_1, item_1.u33_1);
+    var tmp$ret$10 = new JsLeftOut(item_1.i3b_1, item_1.j3b_1);
     destination_1.i(tmp$ret$10);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$11 = copyToArray(destination_1);
   return new JsPlanDraft(tmp, tmp_0, tmp$ret$11);
 }
-function toJs_7(_this__u8e3s4) {
+function toJs_23(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  var tmp = get_isoDayNumber(_this__u8e3s4.b33_1);
+  var tmp = get_isoDayNumber(_this__u8e3s4.q3a_1);
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.d33_1;
+  var this_0 = _this__u8e3s4.s3a_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
-    var tmp$ret$2 = toJs_8(item);
+    var tmp$ret$2 = toJs_24(item);
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$3 = copyToArray(destination);
-  return new JsDraftSession(tmp, _this__u8e3s4.c33_1, tmp$ret$3);
+  return new JsDraftSession(tmp, _this__u8e3s4.r3a_1, tmp$ret$3);
 }
-function toJs_8(_this__u8e3s4) {
+function toJs_24(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  var tmp0_safe_receiver = _this__u8e3s4.q32_1;
+  var tmp0_safe_receiver = _this__u8e3s4.f3a_1;
   var tmp = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.w1_1;
   // Inline function 'kotlin.collections.toTypedArray' call
-  var this_0 = _this__u8e3s4.r32_1;
+  var this_0 = _this__u8e3s4.g3a_1;
   var tmp_0 = copyToArray(this_0);
-  var tmp1_safe_receiver = _this__u8e3s4.t32_1;
-  return new JsDraftExercise(_this__u8e3s4.k32_1, _this__u8e3s4.l32_1, _this__u8e3s4.m32_1, _this__u8e3s4.n32_1, _this__u8e3s4.o32_1, _this__u8e3s4.p32_1, tmp, tmp_0, _this__u8e3s4.s32_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.w1_1, _this__u8e3s4.u32_1);
+  var tmp1_safe_receiver = _this__u8e3s4.i3a_1;
+  return new JsDraftExercise(_this__u8e3s4.z39_1, _this__u8e3s4.a3a_1, _this__u8e3s4.b3a_1, _this__u8e3s4.c3a_1, _this__u8e3s4.d3a_1, _this__u8e3s4.e3a_1, tmp, tmp_0, _this__u8e3s4.h3a_1, tmp1_safe_receiver == null ? null : tmp1_safe_receiver.w1_1, _this__u8e3s4.j3a_1);
 }
 function toDomain_10(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
@@ -44035,44 +48228,44 @@ function toDomain_10(_this__u8e3s4) {
   }
   return new PlanDraft(tmp_8, tmp_11, destination_2);
 }
-function toJs_9(_this__u8e3s4) {
+function toJs_25(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  var tmp = _this__u8e3s4.j34();
+  var tmp = _this__u8e3s4.y3b();
   // Inline function 'kotlin.collections.map' call
-  var this_0 = _this__u8e3s4.i34_1;
+  var this_0 = _this__u8e3s4.x3b_1;
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
   while (_iterator__ex2g4s.k()) {
     var item = _iterator__ex2g4s.l();
     // Inline function 'kotlin.collections.map' call
-    var this_1 = item.d34_1;
+    var this_1 = item.s3b_1;
     // Inline function 'kotlin.collections.mapTo' call
     var destination_0 = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_1, 10));
     var _iterator__ex2g4s_0 = this_1.j();
     while (_iterator__ex2g4s_0.k()) {
       var item_0 = _iterator__ex2g4s_0.l();
-      var tmp$ret$5 = new JsTemplateExercise(item_0.w33_1, item_0.x33_1, item_0.y33_1, item_0.z33_1, item_0.a34_1, item_0.b34_1);
+      var tmp$ret$5 = new JsTemplateExercise(item_0.l3b_1, item_0.m3b_1, item_0.n3b_1, item_0.o3b_1, item_0.p3b_1, item_0.q3b_1);
       destination_0.i(tmp$ret$5);
     }
     // Inline function 'kotlin.collections.toTypedArray' call
     var tmp$ret$6 = copyToArray(destination_0);
-    var tmp$ret$2 = new JsTemplateSession(item.c34_1, tmp$ret$6);
+    var tmp$ret$2 = new JsTemplateSession(item.r3b_1, tmp$ret$6);
     destination.i(tmp$ret$2);
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   var tmp$ret$7 = copyToArray(destination);
-  return new JsPlanTemplate(_this__u8e3s4.e34_1, _this__u8e3s4.f34_1.w1_1, _this__u8e3s4.g34_1, _this__u8e3s4.h34_1, tmp, tmp$ret$7);
+  return new JsPlanTemplate(_this__u8e3s4.t3b_1, _this__u8e3s4.u3b_1.w1_1, _this__u8e3s4.v3b_1, _this__u8e3s4.w3b_1, tmp, tmp$ret$7);
 }
-function toJs_10(_this__u8e3s4) {
+function toJs_26(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
-  return new JsPr(_this__u8e3s4.a36_1.toString(), _this__u8e3s4.b36_1, _this__u8e3s4.c36_1, _this__u8e3s4.d36_1, _this__u8e3s4.e36_1);
+  return new JsPr(_this__u8e3s4.p3d_1.toString(), _this__u8e3s4.q3d_1, _this__u8e3s4.r3d_1, _this__u8e3s4.s3d_1, _this__u8e3s4.t3d_1);
 }
-function toJs_11(_this__u8e3s4) {
+function toJs_27(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   return new JsAccessoryOption(_this__u8e3s4.g1h_1, _this__u8e3s4.h1h_1);
 }
-function toJs_12(_this__u8e3s4) {
+function toJs_28(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp = toFacadeId(_this__u8e3s4.x1i_1, 'set.exerciseId');
   var tmp0_safe_receiver = _this__u8e3s4.c1j_1;
@@ -44173,7 +48366,7 @@ function decodePayload(payloadJson) {
   }
   return tmp_1;
 }
-function toJs_13(_this__u8e3s4) {
+function toJs_29(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   // Inline function 'kotlin.collections.toTypedArray' call
   var this_0 = _this__u8e3s4.j1v_1;
@@ -44189,7 +48382,7 @@ function toJs_13(_this__u8e3s4) {
   var tmp$ret$3 = copyToArray(this_3);
   return new JsFormGuide(_this__u8e3s4.i1v_1, tmp, tmp_0, tmp_1, tmp$ret$3);
 }
-function toJs_14(_this__u8e3s4) {
+function toJs_30(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   // Inline function 'kotlin.collections.toTypedArray' call
   var this_0 = _this__u8e3s4.a1r_1;
@@ -44210,9 +48403,9 @@ function toJs_14(_this__u8e3s4) {
   var this_2 = _this__u8e3s4.d1r_1;
   var tmp_1 = copyToArray(this_2);
   var tmp0_safe_receiver = _this__u8e3s4.g1r_1;
-  return new JsLibraryExercise(_this__u8e3s4.z1q_1, tmp, _this__u8e3s4.b1r_1.w1_1, tmp_0, tmp_1, _this__u8e3s4.e1r_1.w1_1, _this__u8e3s4.f1r_1.w1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.w1_1, toJs_13(_this__u8e3s4.h1r_1));
+  return new JsLibraryExercise(_this__u8e3s4.z1q_1, tmp, _this__u8e3s4.b1r_1.w1_1, tmp_0, tmp_1, _this__u8e3s4.e1r_1.w1_1, _this__u8e3s4.f1r_1.w1_1, tmp0_safe_receiver == null ? null : tmp0_safe_receiver.w1_1, toJs_29(_this__u8e3s4.h1r_1));
 }
-function toJs_15(_this__u8e3s4) {
+function toJs_31(_this__u8e3s4) {
   _init_properties_JsTypes_kt__uiuq2m();
   var tmp;
   if (_this__u8e3s4 instanceof Circle) {
@@ -44393,6 +48586,8 @@ Companion_instance_51 = new Companion_51();
 Companion_instance_53 = new Companion_53();
 Companion_instance_55 = new Companion_55();
 Companion_instance_59 = new Companion_59();
+Companion_instance_60 = new Companion_60();
+Colors_instance = new Colors();
 BodybuildingProgress_instance = new BodybuildingProgress();
 MuscleProgress_instance = new MuscleProgress();
 HighReps_instance = new HighReps();
@@ -44403,6 +48598,24 @@ GritDomain_instance = new GritDomain();
 GritDomain.getInstance = GritDomain_getInstance;
 export {
   GritDomain as GritDomain,
+  JsMotionPoint as JsMotionPoint,
+  JsDropTimeline as JsDropTimeline,
+  JsPumpTimeline as JsPumpTimeline,
+  JsModeSwitchVibration as JsModeSwitchVibration,
+  JsMotionPath as JsMotionPath,
+  JsGradientStop as JsGradientStop,
+  JsMotionGradient as JsMotionGradient,
+  JsVeinPath as JsVeinPath,
+  JsVeinNode as JsVeinNode,
+  JsMotionParticle as JsMotionParticle,
+  JsMotionPose as JsMotionPose,
+  JsMotionGhost as JsMotionGhost,
+  JsMotionCircle as JsMotionCircle,
+  JsDustState as JsDustState,
+  JsSparkState as JsSparkState,
+  JsDropFrame as JsDropFrame,
+  JsPumpFrame as JsPumpFrame,
+  JsModeSwitchColors as JsModeSwitchColors,
   JsExercise as JsExercise,
   JsSet as JsSet,
   JsSession as JsSession,

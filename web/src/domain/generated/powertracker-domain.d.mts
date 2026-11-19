@@ -82,8 +82,408 @@ export declare namespace GritDomain {
             safetyLine(): string;
             rpeGuide(): JsRpeGuide;
             ratioRanges(): Array<JsRatioRange>;
+            modeSwitchDropTimeline(): JsDropTimeline;
+            modeSwitchPumpTimeline(): JsPumpTimeline;
+            modeSwitchVibration(): JsModeSwitchVibration;
+            modeSwitchColors(): JsModeSwitchColors;
+            modeSwitchHammerPaths(): Array<JsMotionPath>;
+            modeSwitchHammerRune(): JsMotionPath;
+            modeSwitchGradients(): Array<JsMotionGradient>;
+            modeSwitchHitPoint(w: number, h: number): JsMotionPoint;
+            modeSwitchDropFrame(tMs: number, w: number, h: number): JsDropFrame;
+            modeSwitchHop(tMs: number, elementCenterY: number, hitY: number): number;
+            modeSwitchPumpFrame(tMs: number, w: number, h: number, srcX: number, srcY: number): JsPumpFrame;
+            modeSwitchPumpElementScale(tMs: number, w: number, elementCenterY: number, srcX: number, srcY: number): number;
+            modeSwitchCracks(w: number, h: number, hitX: number, hitY: number): Array<JsMotionPath>;
+            modeSwitchDust(hitX: number, hitY: number): Array<JsMotionParticle>;
+            modeSwitchSparks(hitX: number, hitY: number): Array<JsMotionParticle>;
+            modeSwitchBurst(hitX: number, hitY: number): Array<JsMotionPoint>;
+            modeSwitchVeins(w: number, h: number, srcX: number, srcY: number): Array<JsVeinPath>;
+            modeSwitchVeinNodes(w: number, h: number, srcX: number, srcY: number): Array<JsVeinNode>;
+            modeSwitchVeinProgress(front: number, d0: number, len: number): number;
+            modeSwitchPulseOpacity(pulseOpacity: number, front: number, len: number): number;
+            modeSwitchPulseStart(front: number, len: number): number;
             private constructor();
         }
+    }
+}
+export declare class JsMotionPoint {
+    constructor(x: number, y: number);
+    get x(): number;
+    get y(): number;
+    copy(x?: number, y?: number): JsMotionPoint;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsMotionPoint {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsMotionPoint;
+    }
+}
+export declare class JsDropTimeline {
+    constructor(fall: number, impact: number, hold: number, settle: number, lift: number, end: number, hammerScale: number);
+    get fall(): number;
+    get impact(): number;
+    get hold(): number;
+    get settle(): number;
+    get lift(): number;
+    get end(): number;
+    get hammerScale(): number;
+    copy(fall?: number, impact?: number, hold?: number, settle?: number, lift?: number, end?: number, hammerScale?: number): JsDropTimeline;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsDropTimeline {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsDropTimeline;
+    }
+}
+export declare class JsPumpTimeline {
+    constructor(beats: Array<number>, amps: Array<number>, rise: Array<number>, fall: Array<number>, reach: Array<number>, surge: Array<number>, flood: number, end: number);
+    get beats(): Array<number>;
+    get amps(): Array<number>;
+    get rise(): Array<number>;
+    get fall(): Array<number>;
+    get reach(): Array<number>;
+    get surge(): Array<number>;
+    get flood(): number;
+    get end(): number;
+    copy(beats?: Array<number>, amps?: Array<number>, rise?: Array<number>, fall?: Array<number>, reach?: Array<number>, surge?: Array<number>, flood?: number, end?: number): JsPumpTimeline;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsPumpTimeline {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsPumpTimeline;
+    }
+}
+export declare class JsModeSwitchVibration {
+    constructor(dropPattern: Array<number>, dropAmplitudes: Array<number>, pumpPulses: Array<number>, pumpAmplitudes: Array<number>);
+    get dropPattern(): Array<number>;
+    get dropAmplitudes(): Array<number>;
+    get pumpPulses(): Array<number>;
+    get pumpAmplitudes(): Array<number>;
+    copy(dropPattern?: Array<number>, dropAmplitudes?: Array<number>, pumpPulses?: Array<number>, pumpAmplitudes?: Array<number>): JsModeSwitchVibration;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsModeSwitchVibration {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsModeSwitchVibration;
+    }
+}
+export declare class JsMotionPath {
+    constructor(d: string, fill: Nullable<string>, stroke: Nullable<string>, strokeWidth: number, opacity: number, lineCap: string, lineJoin: string);
+    get d(): string;
+    get fill(): Nullable<string>;
+    get stroke(): Nullable<string>;
+    get strokeWidth(): number;
+    get opacity(): number;
+    get lineCap(): string;
+    get lineJoin(): string;
+    copy(d?: string, fill?: Nullable<string>, stroke?: Nullable<string>, strokeWidth?: number, opacity?: number, lineCap?: string, lineJoin?: string): JsMotionPath;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsMotionPath {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsMotionPath;
+    }
+}
+export declare class JsGradientStop {
+    constructor(offset: number, color: string, opacity: number);
+    get offset(): number;
+    get color(): string;
+    get opacity(): number;
+    copy(offset?: number, color?: string, opacity?: number): JsGradientStop;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGradientStop {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGradientStop;
+    }
+}
+export declare class JsMotionGradient {
+    constructor(id: string, radial: boolean, x1: number, y1: number, x2: number, y2: number, stops: Array<JsGradientStop>);
+    get id(): string;
+    get radial(): boolean;
+    get x1(): number;
+    get y1(): number;
+    get x2(): number;
+    get y2(): number;
+    get stops(): Array<JsGradientStop>;
+    copy(id?: string, radial?: boolean, x1?: number, y1?: number, x2?: number, y2?: number, stops?: Array<JsGradientStop>): JsMotionGradient;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsMotionGradient {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsMotionGradient;
+    }
+}
+export declare class JsVeinPath {
+    constructor(d: string, layer: string, color: string, width: number, d0: number, len: number, swell: boolean);
+    get d(): string;
+    get layer(): string;
+    get color(): string;
+    get width(): number;
+    get d0(): number;
+    get len(): number;
+    get swell(): boolean;
+    copy(d?: string, layer?: string, color?: string, width?: number, d0?: number, len?: number, swell?: boolean): JsVeinPath;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsVeinPath {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsVeinPath;
+    }
+}
+export declare class JsVeinNode {
+    constructor(x: number, y: number, r: number, d0: number);
+    get x(): number;
+    get y(): number;
+    get r(): number;
+    get d0(): number;
+    copy(x?: number, y?: number, r?: number, d0?: number): JsVeinNode;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsVeinNode {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsVeinNode;
+    }
+}
+export declare class JsMotionParticle {
+    constructor(ox: number, oy: number, dx: number, dy: number, r0: number, life: number, alpha: number);
+    get ox(): number;
+    get oy(): number;
+    get dx(): number;
+    get dy(): number;
+    get r0(): number;
+    get life(): number;
+    get alpha(): number;
+    copy(ox?: number, oy?: number, dx?: number, dy?: number, r0?: number, life?: number, alpha?: number): JsMotionParticle;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsMotionParticle {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsMotionParticle;
+    }
+}
+export declare class JsMotionPose {
+    constructor(x: number, y: number, rotation: number, scaleX: number, scaleY: number);
+    get x(): number;
+    get y(): number;
+    get rotation(): number;
+    get scaleX(): number;
+    get scaleY(): number;
+    copy(x?: number, y?: number, rotation?: number, scaleX?: number, scaleY?: number): JsMotionPose;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsMotionPose {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsMotionPose;
+    }
+}
+export declare class JsMotionGhost {
+    constructor(opacity: number, pose: JsMotionPose);
+    get opacity(): number;
+    get pose(): JsMotionPose;
+    copy(opacity?: number, pose?: JsMotionPose): JsMotionGhost;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsMotionGhost {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsMotionGhost;
+    }
+}
+export declare class JsMotionCircle {
+    constructor(opacity: number, radius: number, strokeWidth: number);
+    get opacity(): number;
+    get radius(): number;
+    get strokeWidth(): number;
+    copy(opacity?: number, radius?: number, strokeWidth?: number): JsMotionCircle;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsMotionCircle {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsMotionCircle;
+    }
+}
+export declare class JsDustState {
+    constructor(cx: number, cy: number, r: number, opacity: number);
+    get cx(): number;
+    get cy(): number;
+    get r(): number;
+    get opacity(): number;
+    copy(cx?: number, cy?: number, r?: number, opacity?: number): JsDustState;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsDustState {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsDustState;
+    }
+}
+export declare class JsSparkState {
+    constructor(x1: number, y1: number, x2: number, y2: number, opacity: number);
+    get x1(): number;
+    get y1(): number;
+    get x2(): number;
+    get y2(): number;
+    get opacity(): number;
+    copy(x1?: number, y1?: number, x2?: number, y2?: number, opacity?: number): JsSparkState;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsSparkState {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsSparkState;
+    }
+}
+export declare class JsDropFrame {
+    constructor(hitX: number, hitY: number, shadowOpacity: number, shadowRx: number, shadowRy: number, shadowCx: number, shadowCy: number, hammer: Nullable<JsMotionPose>, ghosts: Array<JsMotionGhost>, runeOpacity: number, revealRadius: number, revealFull: boolean, shakeX: number, shakeY: number, shakeRotation: number, shakeScale: number, deviceShakeY: number, stampScale: number, stampOpacity: number, flashOpacity: number, burstOpacity: number, burstScale: number, ring1: JsMotionCircle, ring2: JsMotionCircle, cracksOpacity: number, crackDrawn: number, dust: Array<JsDustState>, sparks: Array<JsSparkState>);
+    get hitX(): number;
+    get hitY(): number;
+    get shadowOpacity(): number;
+    get shadowRx(): number;
+    get shadowRy(): number;
+    get shadowCx(): number;
+    get shadowCy(): number;
+    get hammer(): Nullable<JsMotionPose>;
+    get ghosts(): Array<JsMotionGhost>;
+    get runeOpacity(): number;
+    get revealRadius(): number;
+    get revealFull(): boolean;
+    get shakeX(): number;
+    get shakeY(): number;
+    get shakeRotation(): number;
+    get shakeScale(): number;
+    get deviceShakeY(): number;
+    get stampScale(): number;
+    get stampOpacity(): number;
+    get flashOpacity(): number;
+    get burstOpacity(): number;
+    get burstScale(): number;
+    get ring1(): JsMotionCircle;
+    get ring2(): JsMotionCircle;
+    get cracksOpacity(): number;
+    get crackDrawn(): number;
+    get dust(): Array<JsDustState>;
+    get sparks(): Array<JsSparkState>;
+    copy(hitX?: number, hitY?: number, shadowOpacity?: number, shadowRx?: number, shadowRy?: number, shadowCx?: number, shadowCy?: number, hammer?: Nullable<JsMotionPose>, ghosts?: Array<JsMotionGhost>, runeOpacity?: number, revealRadius?: number, revealFull?: boolean, shakeX?: number, shakeY?: number, shakeRotation?: number, shakeScale?: number, deviceShakeY?: number, stampScale?: number, stampOpacity?: number, flashOpacity?: number, burstOpacity?: number, burstScale?: number, ring1?: JsMotionCircle, ring2?: JsMotionCircle, cracksOpacity?: number, crackDrawn?: number, dust?: Array<JsDustState>, sparks?: Array<JsSparkState>): JsDropFrame;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsDropFrame {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsDropFrame;
+    }
+}
+export declare class JsPumpFrame {
+    constructor(srcX: number, srcY: number, swell: number, contentScale: number, deviceScale: number, glow: number, tintOpacity: number, halos: Array<JsMotionCircle>, rings: Array<JsMotionCircle>, veinsOpacity: number, glowLayerOpacity: number, veinFront: number, veinWidthScale: number, nodeOpacity: number, nodeScale: number, pulseOpacity: number, floodRadius: number, floodFull: boolean, edgeOpacity: number, edgeWidth: number, edgeSoftOpacity: number, edgeSoftWidth: number, pillScale: number);
+    get srcX(): number;
+    get srcY(): number;
+    get swell(): number;
+    get contentScale(): number;
+    get deviceScale(): number;
+    get glow(): number;
+    get tintOpacity(): number;
+    get halos(): Array<JsMotionCircle>;
+    get rings(): Array<JsMotionCircle>;
+    get veinsOpacity(): number;
+    get glowLayerOpacity(): number;
+    get veinFront(): number;
+    get veinWidthScale(): number;
+    get nodeOpacity(): number;
+    get nodeScale(): number;
+    get pulseOpacity(): number;
+    get floodRadius(): number;
+    get floodFull(): boolean;
+    get edgeOpacity(): number;
+    get edgeWidth(): number;
+    get edgeSoftOpacity(): number;
+    get edgeSoftWidth(): number;
+    get pillScale(): number;
+    copy(srcX?: number, srcY?: number, swell?: number, contentScale?: number, deviceScale?: number, glow?: number, tintOpacity?: number, halos?: Array<JsMotionCircle>, rings?: Array<JsMotionCircle>, veinsOpacity?: number, glowLayerOpacity?: number, veinFront?: number, veinWidthScale?: number, nodeOpacity?: number, nodeScale?: number, pulseOpacity?: number, floodRadius?: number, floodFull?: boolean, edgeOpacity?: number, edgeWidth?: number, edgeSoftOpacity?: number, edgeSoftWidth?: number, pillScale?: number): JsPumpFrame;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsPumpFrame {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsPumpFrame;
+    }
+}
+export declare class JsModeSwitchColors {
+    constructor(shadow: string, crackShadow: string, crack: string, crackBranch: string, flash: string, flashLight: string, ring1: string, ring2: string, burst: string, spark: string, tint: string, pumpRing: string, edge: string, edgeSoft: string, veinGlow: string, veinCore: string, veinHot: string, veinPulse: string, node: string);
+    get shadow(): string;
+    get crackShadow(): string;
+    get crack(): string;
+    get crackBranch(): string;
+    get flash(): string;
+    get flashLight(): string;
+    get ring1(): string;
+    get ring2(): string;
+    get burst(): string;
+    get spark(): string;
+    get tint(): string;
+    get pumpRing(): string;
+    get edge(): string;
+    get edgeSoft(): string;
+    get veinGlow(): string;
+    get veinCore(): string;
+    get veinHot(): string;
+    get veinPulse(): string;
+    get node(): string;
+    copy(shadow?: string, crackShadow?: string, crack?: string, crackBranch?: string, flash?: string, flashLight?: string, ring1?: string, ring2?: string, burst?: string, spark?: string, tint?: string, pumpRing?: string, edge?: string, edgeSoft?: string, veinGlow?: string, veinCore?: string, veinHot?: string, veinPulse?: string, node?: string): JsModeSwitchColors;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsModeSwitchColors {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsModeSwitchColors;
     }
 }
 export declare class JsExercise {
