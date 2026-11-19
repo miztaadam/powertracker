@@ -1120,6 +1120,48 @@ class PlanScreenTest {
         assertTrue(plan().isEmpty())
     }
 
+    /** The failure lands and Cancel comes in the same frame: the form never put it on screen, so Plan says it, once. */
+    @Test
+    fun planAdd_addFails_andCancelInTheSameFrame_planSaysSoOnce() {
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_plan_insert BEFORE INSERT ON plan_item BEGIN SELECT RAISE(ABORT, 'disk full'); END",
+        )
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        pickOnMonday("Squat")
+        assertAddForm("Squat", stayInTheTapWindow = false)
+        val release = database.holdWork()
+        try {
+            addButton().performClick()
+            val cancel = click(hasText("Cancel") and hasAnyAncestor(isDialog()))
+            compose.runOnUiThread {
+                release()
+                while (database.inFlight > 0) Thread.sleep(1)
+                org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+                cancel()
+            }
+        } finally {
+            release()
+        }
+        waitFor { !exists(isDialog()) && copies() == 1 }
+        val node = copyNodes().single()
+        assertTrue("in Plan's own snackbar", !inAPopup(node))
+        compose.mainClock.autoAdvance = false
+        try {
+            var appearances = 1
+            var lastIds = setOf(node.id)
+            repeat(6_000 / 16) {
+                compose.mainClock.advanceTimeByFrame()
+                val ids = copyNodes().map { it.id }.toSet()
+                appearances += (ids - lastIds).size
+                lastIds = ids
+            }
+            assertEquals("Plan says it once", 1, appearances)
+        } finally {
+            compose.mainClock.autoAdvance = true
+        }
+        assertTrue(plan().isEmpty())
+    }
+
     @Test
     fun planEdit_saveFails_formClosed_planSaysSo() {
         val squat = squatId()

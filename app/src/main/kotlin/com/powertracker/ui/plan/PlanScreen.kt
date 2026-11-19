@@ -41,7 +41,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -291,8 +290,9 @@ fun PlanScreen(
         }
         is PlanDialog.AddDetails -> {
             // Failed Adds: the form says each one over itself, since Plan's snackbar is under its scrim, and Plan does not
-            // say it too. One that comes once the form has gone (Cancel while it was saving) is Plan's to say.
-            var addFailures by remember { mutableIntStateOf(0) }
+            // say it too. Held here, above the form, so a failure is held the moment it comes, even if Cancel lands in the
+            // same frame: one the form never put on screen, or one that comes once it has gone, is Plan's to say.
+            val addFailures = rememberSaveable(saver = HeldFailures.Saver) { HeldFailures() }
             PlanItemDialog(
                 title = "Add to ${dayName(d.day)}",
                 state = state,
@@ -316,18 +316,14 @@ fun PlanScreen(
                                 haptics.tick()
                             },
                             onFailed = {
-                                if (dialog == saving) {
-                                    dialog = open
-                                    addFailures++
-                                } else {
-                                    viewModel.saySaveFailed()
-                                }
+                                if (dialog == saving) dialog = open
+                                addFailures.add()
                             },
                         )
                     }
                 },
                 onDismiss = { dialog = null },
-                saveFailures = addFailures,
+                heldFailures = addFailures,
                 closed = { dialog !is PlanDialog.AddDetails },
                 onFailure = viewModel::saySaveFailed,
             )
@@ -577,8 +573,11 @@ private fun PlanItemDialog(
      * actions are not held; neither are the steppers and Change. 0 (Edit) holds nothing.
      */
     ignoreTapsForMillis: Long = 0L,
-    /** How many of [onSave]'s writes have failed while the form stays open (Add): each one is said over the form. */
-    saveFailures: Int = 0,
+    /**
+     * Where failures are held (Add passes its own, which its failed writes go into): failed creates from Change's picker,
+     * and failed Adds. Its own otherwise.
+     */
+    heldFailures: HeldFailures? = null,
     /** Whether the form has been closed, read when it leaves the screen: false while it is only being restored. */
     closed: () -> Boolean = { true },
     /**
@@ -600,16 +599,9 @@ private fun PlanItemDialog(
     // closed before its message has run its course (Close in the frame the failure lands, or a few frames on) leaves the
     // failure held, and this form says it. Kept across a rotation, as `picking` is. A later pick or create that works
     // clears it.
-    val failures = rememberSaveable(saver = HeldFailures.Saver) { HeldFailures() }
+    val own = rememberSaveable(saver = HeldFailures.Saver) { HeldFailures() }
+    val failures = heldFailures ?: own
     HandOnHeldFailures(failures, closed, onFailure)
-    // Failed Adds come as a count from Plan; each new one is held like a failed create.
-    var saveFailuresSeen by remember { mutableIntStateOf(saveFailures) }
-    LaunchedEffect(saveFailures) {
-        while (saveFailuresSeen < saveFailures) {
-            saveFailuresSeen++
-            failures.add()
-        }
-    }
     val name = changed?.name ?: exerciseName ?: state.exercises.firstOrNull { it.id == item.exerciseId }?.name ?: "Unknown exercise"
     // Not kept across recreation: a restored form holds taps for a moment again, which does no harm.
     val tapsLive = remember { mutableStateOf(ignoreTapsForMillis <= 0L) }
