@@ -290,8 +290,20 @@ test.describe('with motion on', () => {
       const steps = grit.guideSteps('TODAY', side)
       const stepMs = grit.guideStepMs()
       const frames = process.env.GUIDE_FRAMES
+      const sample = grit.guideSampleTodaySet(side)
+      const liftId = grit.guideSampleExercises(side).find((e) => e.name === sample.exerciseId)!.id
+      const item = grit.guideSampleTodayItems(side).find((p) => p.exerciseId === liftId)!
+      const drawn = picture(page).locator('.guide-picture-screen')
+      const field = (name: string) => drawn.getByRole('textbox', { name, includeHidden: true }).first()
       for (const [i, step] of steps.entries()) {
         await expect(picture(page)).toHaveAttribute('data-step', step)
+        // What is drawn: the lift's editor fills field by field, then the set is ticked, then Skip today.
+        const at = (s: string) => i >= steps.indexOf(s)
+        await expect(field('Weight, kilograms')).toHaveValue(at('TODAY_WEIGHT') ? formatKg(sample.doneWeightKg) : '')
+        await expect(field('Reps')).toHaveValue(String(at('TODAY_REPS') ? sample.doneReps : item.reps))
+        await expect(field('RPE')).toHaveValue(formatRpe(at('TODAY_RPE') ? sample.doneRpe : item.targetRpe))
+        await expect(drawn.locator('.gr-set-done')).toHaveCount(at('TODAY_TICKED') ? 1 : 0)
+        await expect(drawn.locator('.today-skipped')).toHaveCount(at('TODAY_SKIP') ? 1 : 0)
         // The page's slide-in has run its course: the frame shows the picture, not the move.
         await page.clock.runFor(300)
         if (frames) await shoot(page, frames, `web-today-${sideName(side)}-${scheme}-step${i + 1}`)
