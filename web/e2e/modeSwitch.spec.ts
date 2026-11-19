@@ -1,4 +1,4 @@
-import { mkdirSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
@@ -353,154 +353,305 @@ test('with reduced motion: no animation, the side changes at the tap', async ({ 
 })
 
 // Real frames, the production build, no fake clock (installing Playwright's clock, even a fixed date, replaces
-// requestAnimationFrame). A frame's time is from its rAF timestamp to the end of the frame's callbacks, the animation's
-// drawing among them; each callback is timed by a wrapper put in before the app loads. The tap's own work is timed from
-// the press to the end of its click handlers.
+// requestAnimationFrame).
 //
-// A bare frame loop is timed first for a second, the same way: it gives the display's frame interval, and if the
-// machine cannot hold 16 ms with nothing animating, the run fails there and says so (rerun on a quiet machine).
+// What is measured, in the page, before the app loads:
+// - **Frames:** a bare frame loop of the test's own (requestAnimationFrame as the browser gives it) notes every frame's
+//   timestamp. It does no work, so a gap between two of its frames is a frame the browser did not draw.
+// - **The app's script:** every callback the app gets is wrapped and timed: animation frames, timers, message ports
+//   (React's scheduler), idle callbacks, event listeners, IndexedDB handlers and the view transition's update. A
+//   frame's script is the time those callbacks ran between its timestamp and the next frame's (overlaps counted once).
+//   Promise continuations are not timed.
+// - **The tap:** from the press going down to the end of the click's handlers.
 //
-// Then three runs: the pump and the drop with their shapes worked out ahead (Settings' idle warm), and a pump straight
-// after a scroll, before the warm that follows a scroll could run (the cold path: the switch has moved, so the shapes
-// are worked out in the animation's first frames). For each: every frame of the animation is there (none dropped:
-// the count, and no gap between frames over one and a half intervals, so 30 fps fails; the one exception is the frame
-// the browser skips at the moment to capture the reveal's new side), the first within one and a half intervals of the
-// tap, and every frame and the tap within 16 ms.
+// Windows: an idle control, then an animation, three times: the pump and the drop with their shapes worked out ahead
+// (Settings' idle warm), and a pump straight after a scroll, before the warm that follows a scroll could run (the cold
+// path: the switch has moved, so the shapes are worked out in the animation's first frames). An idle window is the same
+// page, measured the same way for as long, with a tap on the screen's title (which does nothing) in place of the switch.
+// Nothing polls the page inside a window: the test waits in the page for the window to end, and checks what it has to
+// once the window is over.
+//
+// The rules, for every frame of every animation, from the tap to its end:
+// (a) the app's script is at most 16 ms;
+// (b) no gap between frames over one and a half intervals, so no frame is skipped, with one exception: at the moment
+//     (the drop's impact, the pump's third beat) the browser may skip one frame, and only one, while it takes the new
+//     side's picture for the reveal;
+// (c) as many frames as the animation's length allows, the first within one and a half intervals of the tap, and the
+//     tap itself within 16 ms.
+// The idle control must itself be clean: every frame there, none of the test's own frames late, and the machine's CPU
+// mostly idle while it runs (an idle page leaves it so; on a machine where something else is using it, the animations
+// starve while the idle page's frames still come on time). If it is not, the machine is busy, and the run fails saying
+// so, whatever the animations did. It never passes on a busy machine.
 test.describe('mode switch speed', { tag: '@speed' }, () => {
+  /** Over this share of the machine's CPU in use during an idle control, the machine is busy. */
+  const BUSY_CPU = 0.3
+  /** The machine's CPU time so far, all cores, from /proc/stat; null where there is none. */
+  const cpuTimes = () => {
+    if (!existsSync('/proc/stat')) return null
+    const f = readFileSync('/proc/stat', 'utf8').split('\n')[0]!.trim().split(/\s+/).slice(1).map(Number)
+    return { total: f.reduce((a, b) => a + b, 0), idle: f[3]! + (f[4] ?? 0) }
+  }
+
   test.use({ storageState: { cookies: [], origins: [] } })
 
-  type Sample = { at: number; ts: number; ms: number }
-  type Frames = { samples: Sample[]; tap: number; tapMs: number }
-  type Rec = { on: boolean; tap: number; tapMs: number; samples: Sample[] }
+  /** A task the app ran: its kind, start and end (performance.now). */
+  type Task = [string, number, number]
+  /** One of the test's own frames: its timestamp, and when its callback ran. */
+  type Frame = { ts: number; cb: number }
+  /** `cpu`: the share of the machine's CPU time used over the window, by anything (Linux; null elsewhere). */
+  type Span = { frames: Frame[]; tasks: Task[]; tap: number; tapMs: number; cpu: number | null }
+  type Probe = {
+    on: boolean
+    tap: number
+    tapMs: number
+    tasks: Task[]
+    run: Promise<Frame[]> | null
+    start: (ms: number) => void
+  }
 
-  test('every frame of the pump and the drop is drawn on time, warm and cold', async ({ page }) => {
+  test('every frame of the pump and the drop is drawn on time, warm and cold, against an idle control', async ({ page }) => {
+    test.setTimeout(60_000)
     await page.addInitScript(() => {
-      const w = window as Window & { __rec?: Rec }
-      w.__rec = { on: false, tap: 0, tapMs: -1, samples: [] }
-      const raf = window.requestAnimationFrame.bind(window)
-      window.requestAnimationFrame = (cb) =>
-        raf((ts) => {
-          cb(ts)
-          const rec = w.__rec!
-          if (rec.on) rec.samples.push({ at: ts - rec.tap, ts, ms: performance.now() - ts })
+      const now = () => performance.now()
+      const rawRaf = window.requestAnimationFrame.bind(window)
+      const rawTimeout = window.setTimeout.bind(window)
+      const rawAdd = EventTarget.prototype.addEventListener
+      const rawRemove = EventTarget.prototype.removeEventListener
+      const P: Probe = {
+        on: false,
+        tap: 0,
+        tapMs: -1,
+        tasks: [],
+        run: null,
+        start(ms) {
+          P.tasks = []
+          P.tap = 0
+          P.tapMs = -1
+          P.on = true
+          P.run = new Promise((done) => {
+            const frames: Frame[] = []
+            const t0 = now()
+            const loop = (ts: number) => {
+              frames.push({ ts, cb: now() })
+              if (now() - t0 < ms) rawRaf(loop)
+              // A moment more, so the last frame's tasks are in; then the window is over.
+              else
+                rawTimeout(() => {
+                  P.on = false
+                  done(frames)
+                }, 50)
+            }
+            rawRaf(loop)
+          })
+        },
+      }
+      ;(window as Window & { __probe?: Probe }).__probe = P
+      const timed = <F extends (...a: never[]) => unknown>(kind: string, fn: F): F =>
+        function (this: unknown, ...a: never[]) {
+          const s = now()
+          try {
+            return fn.apply(this, a)
+          } finally {
+            if (P.on) P.tasks.push([kind, s, now()])
+          }
+        } as F
+      window.requestAnimationFrame = (cb) => rawRaf(timed('frame', cb))
+      window.setTimeout = ((fn: unknown, delay?: number, ...a: unknown[]) =>
+        rawTimeout(typeof fn === 'function' ? timed('timer', fn as () => void) : (fn as string), delay, ...a)) as typeof window.setTimeout
+      const w = window as Window & { requestIdleCallback?: (cb: IdleRequestCallback, o?: IdleRequestOptions) => number }
+      if (typeof w.requestIdleCallback === 'function') {
+        const rawIdle = w.requestIdleCallback.bind(window)
+        w.requestIdleCallback = (cb, o) => rawIdle(timed('idle', cb), o)
+      }
+      const handler = (proto: object, prop: string, kind: string) => {
+        const d = Object.getOwnPropertyDescriptor(proto, prop)
+        if (d?.set == null) return
+        Object.defineProperty(proto, prop, {
+          ...d,
+          set(fn: unknown) {
+            d.set!.call(this, typeof fn === 'function' ? timed(kind, fn as () => void) : fn)
+          },
         })
-      // The tap: from the press going down to the end of the click's handlers (the switch's included).
-      document.addEventListener('pointerdown', () => (w.__rec!.tap = performance.now()), { capture: true })
-      window.addEventListener('click', () => {
-        if (w.__rec!.on) w.__rec!.tapMs = performance.now() - w.__rec!.tap
+      }
+      handler(MessagePort.prototype, 'onmessage', 'message')
+      handler(IDBRequest.prototype, 'onsuccess', 'idb')
+      handler(IDBRequest.prototype, 'onerror', 'idb')
+      handler(IDBTransaction.prototype, 'oncomplete', 'idb')
+      handler(IDBOpenDBRequest.prototype, 'onupgradeneeded', 'idb')
+      const wrapped = new WeakMap<object, EventListener>()
+      EventTarget.prototype.addEventListener = function (type: string, fn: EventListenerOrEventListenerObject | null, o?: boolean | AddEventListenerOptions) {
+        if (typeof fn !== 'function') return rawAdd.call(this, type, fn, o)
+        let t = wrapped.get(fn)
+        if (t == null) {
+          t = timed(`event:${type}`, fn)
+          wrapped.set(fn, t)
+        }
+        return rawAdd.call(this, type, t, o)
+      }
+      EventTarget.prototype.removeEventListener = function (type: string, fn: EventListenerOrEventListenerObject | null, o?: boolean | EventListenerOptions) {
+        return rawRemove.call(this, type, (typeof fn === 'function' && wrapped.get(fn)) || fn, o)
+      }
+      const d = document as unknown as { startViewTransition?: (update: unknown) => unknown }
+      const rawStart = d.startViewTransition
+      if (typeof rawStart === 'function')
+        d.startViewTransition = function (this: unknown, update: unknown) {
+          return rawStart.call(this, typeof update === 'function' ? timed('view transition update', update as () => void) : update)
+        }
+      // The tap, not timed as the app's: from the press going down to the end of the click's handlers (the switch's
+      // included; this listener is the last on the way back up).
+      rawAdd.call(document, 'pointerdown', () => (P.tap = now()), { capture: true })
+      rawAdd.call(window, 'click', () => {
+        if (P.on && P.tap > 0) P.tapMs = now() - P.tap
       })
     })
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/#/settings')
     await expect(modeSwitch(page)).toBeVisible()
+    const warms = () => page.evaluate(() => performance.getEntriesByName('ms-warm').map((e) => e.startTime))
     // Settings' warm has run (it waits for an idle moment).
-    await expect.poll(() => page.evaluate(() => performance.getEntriesByName('ms-warm').length)).toBeGreaterThan(0)
+    await expect.poll(async () => (await warms()).length).toBeGreaterThan(0)
+    await page.waitForTimeout(500)
 
-    // The baseline: a bare frame loop, nothing animating.
-    const baseline = await page.evaluate(
-      () =>
-        new Promise<{ ms: number[]; ts: number[] }>((done) => {
-          const ms: number[] = []
-          const ts: number[] = []
-          const start = performance.now()
-          const loop = (t: number) => {
-            ms.push(performance.now() - t)
-            ts.push(t)
-            if (performance.now() - start < 1000) requestAnimationFrame(loop)
-            else done({ ms, ts })
-          }
-          requestAnimationFrame(loop)
-        }),
-    )
-    const worstBaseline = Math.max(...baseline.ms)
-    expect(worstBaseline, `the machine itself is over budget with nothing animating (${baseline.ms.length} frames): rerun when it is quiet`).toBeLessThanOrEqual(16)
-    const gaps = baseline.ts.slice(1).map((t, i) => t - baseline.ts[i]!).sort((a, b) => a - b)
-    const interval = gaps[Math.floor(gaps.length / 2)]!
+    /** One window: the probe started, the tap at `at`, then nothing until the window has ended in the page. */
+    async function measure(ms: number, at: { x: number; y: number }): Promise<Span> {
+      const before = cpuTimes()
+      await page.evaluate((length) => (window as Window & { __probe?: Probe }).__probe!.start(length), ms)
+      await page.mouse.click(at.x, at.y)
+      const span = await page.evaluate(async () => {
+        const p = (window as Window & { __probe?: Probe }).__probe!
+        const frames = await p.run!
+        return { frames, tasks: p.tasks, tap: p.tap, tapMs: p.tapMs }
+      })
+      const after = cpuTimes()
+      const cpu = before != null && after != null && after.total > before.total ? 1 - (after.idle - before.idle) / (after.total - before.total) : null
+      return { ...span, cpu }
+    }
+    const centre = async (selector: string) => {
+      const box = (await page.locator(selector).first().boundingBox())!
+      return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+    }
+    const title = async () => {
+      const box = (await page.locator('.gr-screen-title').first().boundingBox())!
+      return { x: box.x + 4, y: box.y + box.height / 2 }
+    }
+
+    type Run = { name: string; end: number; moment: number; idle: Span; anim: Span }
+    const runs: Run[] = []
+    async function play(name: string, kind: 'pump' | 'drop', before?: () => Promise<void>) {
+      const end = kind === 'pump' ? PUMP.end : DROP.end
+      const idle = await measure(end + 200, await title())
+      await page.waitForTimeout(400)
+      const at = await centre('.settings-mode-switch .gr-switch-track')
+      const warmsAtTap = (await warms()).length
+      if (before != null) await before()
+      const anim = await measure(end + 200, at)
+      runs.push({ name, end, moment: kind === 'pump' ? THIRD : DROP.impact, idle, anim })
+      // Over, on the new side; then Settings works the shapes out again for the switch where it now sits.
+      expect(await drawn(page), `${name}: over by the window's end`).toBe(0)
+      expect(await dataMode(page), `${name}: the new side`).toBe(kind === 'pump' ? 'bodybuilding' : null)
+      await expect.poll(async () => (await warms()).length, { message: `${name}: the shapes worked out again after the side changed` }).toBeGreaterThan(warmsAtTap)
+      await page.waitForTimeout(400)
+      return anim
+    }
+
+    await play('pump (warm)', 'pump')
+    await play('drop (warm)', 'drop')
+    // The cold path: Settings scrolled a little and tapped at once, before the warm that follows a scroll at rest. The
+    // switch has moved, so the shapes for it are new; no warm comes between the scroll and the animation's end (the
+    // warm marks are read afterwards, by their times, so nothing polls inside the window).
+    const switchY = () => page.locator('.settings-mode-switch .gr-switch-track').evaluate((el) => el.getBoundingClientRect().top)
+    let movedBy = 0
+    let scrolledAt = 0
+    const cold = await play('pump (cold)', 'pump', async () => {
+      const y = await switchY()
+      scrolledAt = await page.locator('.shell-main').evaluate((el) => {
+        el.scrollBy(0, 9)
+        return performance.now()
+      })
+      movedBy = y - (await switchY())
+    })
+    expect(movedBy, 'the scroll moved the switch').toBeGreaterThan(4)
+    const coldWarms = (await warms()).filter((t) => t > scrolledAt && t < cold.tap + PUMP.end)
+    expect(coldWarms, 'no warm between the scroll and the animation: the shapes were cold').toEqual([])
+    // A scroll that comes to rest works them out again.
+    const beforeRest = (await warms()).length
+    await page.locator('.shell-main').evaluate((el) => el.scrollBy(0, -9))
+    await expect.poll(async () => (await warms()).length, { message: 'the shapes worked out again after a scroll at rest' }).toBeGreaterThan(beforeRest)
+
+    // The display's frame interval: the idle control's median gap.
+    const idleGaps = runs.flatMap((r) => r.idle.frames.slice(1).map((f, i) => f.ts - r.idle.frames[i]!.ts)).sort((a, b) => a - b)
+    const interval = idleGaps[Math.floor(idleGaps.length / 2)]!
     expect(interval, 'the display frame interval').toBeGreaterThan(5)
 
-    const warms = () => page.evaluate(() => performance.getEntriesByName('ms-warm').length)
-
-    async function play(to: 'BODYBUILDING' | 'POWERLIFTING', before?: () => Promise<void>, started?: () => Promise<void>): Promise<Frames> {
-      await page.evaluate(() => {
-        const rec = (window as Window & { __rec?: Rec }).__rec!
-        rec.samples = []
-        rec.tapMs = -1
-        rec.on = true
+    /** The frames from the tap to the end, each with the app's script in it and the gap after the one before. */
+    const framesOf = (w: Span, end: number) => {
+      const frames = w.frames.filter((f) => f.ts - w.tap > 0 && f.ts - w.tap <= end)
+      return frames.map((f, i) => {
+        const next = frames[i + 1]?.ts ?? f.ts + interval
+        const spans = w.tasks
+          .map(([, s, e]) => [Math.max(s, f.ts), Math.min(e, next)] as const)
+          .filter(([s, e]) => e > s)
+          .sort((a, b) => a[0] - b[0])
+        let script = 0
+        let to = -Infinity
+        for (const [s, e] of spans) {
+          if (e <= to) continue
+          script += e - Math.max(s, to)
+          to = e
+        }
+        return { at: f.ts - w.tap, script, gap: i === 0 ? 0 : f.ts - frames[i - 1]!.ts, late: f.cb - f.ts }
       })
-      if (before != null) await before()
-      const warmsAtTap = await warms()
-      await modeSwitch(page).click()
-      // Started (the shapes are built in the first frame after the tap), then over.
-      await expect.poll(() => drawn(page)).toBe(1)
-      if (started != null) await started()
-      await expect.poll(() => drawn(page), { timeout: 5000 }).toBe(0)
-      await expect.poll(() => dataMode(page)).toBe(to === 'BODYBUILDING' ? 'bodybuilding' : null)
-      const out = await page.evaluate(() => {
-        const rec = (window as Window & { __rec?: Rec }).__rec!
-        rec.on = false
-        return { samples: rec.samples, tap: rec.tap, tapMs: rec.tapMs }
-      })
-      // Settings works the shapes out again for the switch where it now sits, once the animation is over.
-      await expect.poll(warms, { message: `${to}: the shapes worked out again after the side changed` }).toBeGreaterThan(warmsAtTap)
-      await page.waitForTimeout(300)
-      return out
     }
 
-    const runs: [string, number, Frames][] = []
-    runs.push(['pump (warm)', PUMP.end, await play('BODYBUILDING')])
-    runs.push(['drop (warm)', DROP.end, await play('POWERLIFTING')])
-    // The cold path: Settings scrolled a little and tapped at once, before the warm that follows a scroll at rest. The
-    // switch has moved, so the shapes for it are new; no warm came between the scroll and the animation's start.
-    const switchY = () => page.locator('.settings-mode-switch .gr-switch-track').evaluate((el) => el.getBoundingClientRect().top)
-    let warmsAtScroll = -1
-    let warmsAtStart = -1
-    let movedBy = 0
-    runs.push([
-      'pump (cold)',
-      PUMP.end,
-      await play(
-        'BODYBUILDING',
-        async () => {
-          const y = await switchY()
-          warmsAtScroll = await warms()
-          await page.locator('.shell-main').evaluate((el) => el.scrollBy(0, 9))
-          movedBy = y - (await switchY())
-        },
-        async () => {
-          warmsAtStart = await warms()
-        },
-      ),
-    ])
-    expect(movedBy, 'the scroll moved the switch').toBeGreaterThan(4)
-    expect(warmsAtStart, 'no warm between the scroll and the animation: the shapes were cold').toBe(warmsAtScroll)
-    // A scroll that comes to rest works them out again.
-    const beforeRest = await warms()
-    await page.locator('.shell-main').evaluate((el) => el.scrollBy(0, -9))
-    await expect.poll(warms, { message: 'the shapes worked out again after a scroll at rest' }).toBeGreaterThan(beforeRest)
+    // The control first: a busy machine fails the run on its own account, before anything is said about the app.
+    const busy: string[] = []
+    const control: string[] = []
+    for (const r of runs) {
+      const frames = framesOf(r.idle, r.end)
+      expect(r.idle.tap, `${r.name}, idle control: the tap was seen`).toBeGreaterThan(0)
+      const cpu = r.idle.cpu == null ? 'unknown' : `${Math.round(r.idle.cpu * 100)} %`
+      control.push(`${r.name} control: ${frames.length} frames, widest gap ${Math.max(...frames.map((f) => f.gap)).toFixed(1)} ms, latest callback ${Math.max(...frames.map((f) => f.late)).toFixed(1)} ms, machine CPU ${cpu}`)
+      if (frames.length < Math.floor(r.end / interval) - 2) busy.push(`${r.name}, idle control: only ${frames.length} frames`)
+      // Something else on the machine using the CPU starves the animation long before it shows in an idle page's
+      // frames: an idle page on a quiet machine uses a few per cent.
+      if (r.idle.cpu != null && r.idle.cpu > BUSY_CPU) busy.push(`${r.name}, idle control: the machine's CPU was ${Math.round(r.idle.cpu * 100)} % in use`)
+      for (const f of frames.slice(1)) if (f.gap > interval * 1.5) busy.push(`${r.name}, idle control: a ${f.gap.toFixed(1)} ms gap before ${Math.round(f.at)} ms`)
+      for (const f of frames) if (f.late > 16) busy.push(`${r.name}, idle control: a frame's callback ran ${f.late.toFixed(1)} ms late at ${Math.round(f.at)} ms`)
+    }
 
     const late: string[] = []
-    for (const [name, end, run] of runs) {
-      const frames = run.samples.filter((s) => s.at > 0 && s.at <= end).sort((a, b) => a.ts - b.ts)
-      expect(run.tapMs, `${name}: the tap was timed`).toBeGreaterThanOrEqual(0)
-      if (run.tapMs > 16) late.push(`${name}: the tap took ${run.tapMs.toFixed(1)} ms`)
-      // Every frame: as many as the animation's length allows, less one at each end.
-      const want = Math.floor(end / interval) - 2
-      expect(frames.length, `${name}: frames drawn (want ${want} at ${interval.toFixed(1)} ms)`).toBeGreaterThanOrEqual(want)
-      expect(frames[0]!.at, `${name}: the first frame after the tap`).toBeLessThanOrEqual(interval * 1.5)
-      expect(Math.max(...frames.map((s) => s.at)), `${name}: the last frame timed`).toBeGreaterThan(end - interval * 2)
-      // One frame may be missing at the moment, and only there: the browser draws no frame while it captures the new
-      // side for the reveal (a view transition does this however short its update is). Any other gap fails.
-      const moment = end === DROP.end ? DROP.impact : THIRD
-      let captureFrame = 0
+    const summary: string[] = []
+    for (const r of runs) {
+      const frames = framesOf(r.anim, r.end)
+      expect(r.anim.tapMs, `${r.name}: the tap was timed`).toBeGreaterThanOrEqual(0)
+      if (r.anim.tapMs > 16) late.push(`${r.name}: the tap took ${r.anim.tapMs.toFixed(1)} ms`)
+      // (c) Every frame there: as many as the animation's length allows, less one at each end and the moment's.
+      const want = Math.floor(r.end / interval) - 2
+      if (frames.length < want) late.push(`${r.name}: ${frames.length} frames drawn, want ${want}`)
+      if (frames.length === 0) continue
+      if (frames[0]!.at > interval * 1.5) late.push(`${r.name}: the first frame ${frames[0]!.at.toFixed(1)} ms after the tap`)
+      if (frames.at(-1)!.at <= r.end - interval * 2) late.push(`${r.name}: the last frame timed at ${frames.at(-1)!.at.toFixed(1)} ms`)
+      // (a) The app's own script, every frame.
+      for (const f of frames) if (f.script > 16) late.push(`${r.name}: ${f.script.toFixed(1)} ms of the app's script in the frame at ${Math.round(f.at)} ms`)
+      // (b) No skipped frame, but for one at the moment.
+      let skips = 0
+      let momentGap = 0
       for (let i = 1; i < frames.length; i++) {
-        const gap = frames[i]!.ts - frames[i - 1]!.ts
+        const { gap } = frames[i]!
         if (gap <= interval * 1.5) continue
-        const atMoment = frames[i - 1]!.at >= moment - interval && frames[i - 1]!.at <= moment + interval * 2 && gap <= interval * 2.5
-        if (atMoment && captureFrame++ === 0) continue
-        late.push(`${name}: a ${gap.toFixed(1)} ms gap before ${Math.round(frames[i]!.at)} ms`)
+        const from = frames[i - 1]!.at
+        const atMoment = from >= r.moment - interval && from <= r.moment + interval * 2 && gap <= interval * 2.5
+        if (atMoment && skips++ === 0) {
+          momentGap = gap
+          continue
+        }
+        late.push(`${r.name}: a ${gap.toFixed(1)} ms gap before ${Math.round(frames[i]!.at)} ms`)
       }
-      for (const f of frames) if (f.ms > 16) late.push(`${name}: ${f.ms.toFixed(1)} ms at ${Math.round(f.at)} ms`)
+      summary.push(`${r.name}: ${frames.length} frames, script max ${Math.max(...frames.map((f) => f.script)).toFixed(1)} ms, widest gap ${Math.max(...frames.map((f) => f.gap)).toFixed(1)} ms, moment skip ${momentGap.toFixed(1)} ms, tap ${r.anim.tapMs.toFixed(1)} ms`)
     }
-    expect(late, `late frames (baseline worst ${worstBaseline.toFixed(1)} ms, interval ${interval.toFixed(1)} ms)`).toEqual([])
+    const said = `interval ${interval.toFixed(1)} ms; ${summary.join('; ')}; ${control.join('; ')}`
+    console.log(`mode switch speed: ${said}`)
+    expect(busy, `MACHINE BUSY: the idle control, with nothing animating, was not clean (below), so this run says nothing about the app; rerun it on a quiet machine (${said})`).toEqual([])
+    expect(late, `late frames (${said})`).toEqual([])
   })
 })
