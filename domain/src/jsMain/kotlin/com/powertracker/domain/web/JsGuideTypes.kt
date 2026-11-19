@@ -49,15 +49,15 @@ data class JsGuideBest(val exerciseId: String, val kg: Double)
 @JsExport
 data class JsGuideProgress(val points: Array<JsGuidePoint>, val bests: Array<JsGuideBest>, val totalKg: Double?, val laggingMuscle: String?)
 
-/** Where a picture is at one moment ([GuideFrame]); [step] is the `GuideStep` name. */
+/** Where a picture is at one moment ([GuideFrame]); [step] is the `GuideStep` name, [tap] the `GuideTap` name or null. */
 @JsExport
-data class JsGuideFrame(val stepIndex: Int, val step: String, val progress: Double, val done: Boolean)
+data class JsGuideFrame(val stepIndex: Int, val step: String, val progress: Double, val done: Boolean, val tap: String?, val tapProgress: Double)
 
 /** What screen 4's lift editor shows ([GuideEditor]); [weightKg] null while no weight is in. */
 @JsExport
 data class JsGuideEditor(val weightKg: Double?, val reps: Int, val rpe: Double)
 
-internal fun GuideFrame.toJs() = JsGuideFrame(stepIndex, step.name, progress, done)
+internal fun GuideFrame.toJs() = JsGuideFrame(stepIndex, step.name, progress, done, tap?.name, tapProgress)
 
 internal fun GuideEditor.toJs() = JsGuideEditor(weightKg, reps, rpe)
 

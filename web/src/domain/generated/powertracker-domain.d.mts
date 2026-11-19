@@ -117,6 +117,9 @@ export declare namespace GritDomain {
             guideSettledMs(index: number): number;
             guideDoneMs(count: number): number;
             guideEase(x: number): number;
+            guideTapMs(): number;
+            guideTap(step: string): Nullable<string>;
+            guideMotionStartMs(steps: Array<string>, index: number): number;
             guideFrame(id: string, mode: string, tMs: number): JsGuideFrame;
             guideSampleToday(): string;
             guideSampleTemplate(mode: string): JsPlanTemplate;
@@ -234,12 +237,14 @@ export declare namespace JsGuideProgress {
     }
 }
 export declare class JsGuideFrame {
-    constructor(stepIndex: number, step: string, progress: number, done: boolean);
+    constructor(stepIndex: number, step: string, progress: number, done: boolean, tap: Nullable<string>, tapProgress: number);
     get stepIndex(): number;
     get step(): string;
     get progress(): number;
     get done(): boolean;
-    copy(stepIndex?: number, step?: string, progress?: number, done?: boolean): JsGuideFrame;
+    get tap(): Nullable<string>;
+    get tapProgress(): number;
+    copy(stepIndex?: number, step?: string, progress?: number, done?: boolean, tap?: Nullable<string>, tapProgress?: number): JsGuideFrame;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;

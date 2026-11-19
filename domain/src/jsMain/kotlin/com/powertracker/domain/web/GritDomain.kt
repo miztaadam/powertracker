@@ -658,6 +658,19 @@ object GritDomain {
     /** The move's curve at [x] (0 to 1 of its time): how far it has gone, 0 to 1. */
     fun guideEase(x: Double): Double = Guide.ease(x)
 
+    /** The tap ring's time, in ms: the last of the hold before a step that stands for a tap. */
+    fun guideTapMs(): Int = Guide.TAP_MS
+
+    /** The control (a `GuideTap` name) that [step] (a `GuideStep` name) stands for pressing, or null. */
+    fun guideTap(step: String): String? = Guide.tap(parseEnum<GuideStep>("step", step))?.name
+
+    /**
+     * When the motion into step [index] of [steps] (`GuideStep` names, as [guideSteps] gives them) starts, in ms from
+     * the picture's start: its tap ring for a step that stands for a tap, else its move.
+     */
+    fun guideMotionStartMs(steps: Array<String>, index: Int): Int =
+        Guide.motionStartMs(steps.map { parseEnum<GuideStep>("step", it) }, index)
+
     /** Where screen [id]'s picture on [mode]'s side is [tMs] after it started. */
     fun guideFrame(id: String, mode: String, tMs: Int): JsGuideFrame =
         Guide.frame(parseEnum<GuideScreenId>("id", id), parseEnum<TrainingMode>("mode", mode), tMs).toJs()

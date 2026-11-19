@@ -248,7 +248,8 @@ class GuideTest {
                 assertEquals(progress, progress.sorted(), "step $i: progress never goes back")
                 val last = i == steps.lastIndex
                 assertEquals(GuideFrame(i, steps[i], 1.0, last), Guide.frame(id, mode, start + Guide.MOVE_MS))
-                if (!last) assertEquals(GuideFrame(i, steps[i], 1.0, false), Guide.frame(id, mode, start + span - 1))
+                // (A step that stands for a tap has the ring in its last moments: frame_aTapStep_ringsInTheHoldBeforeIt.)
+                if (!last) assertEquals(GuideFrame(i, steps[i], 1.0, false), Guide.frame(id, mode, start + span - 1).copy(tap = null, tapProgress = 0.0))
             }
             // The last step holds for good, done.
             val end = Guide.settledMs(steps.lastIndex)
@@ -272,5 +273,52 @@ class GuideTest {
         // cubic-bezier(0.2, 0.8, 0.2, 1): fast out, slow in. At a quarter of the time it is well over half way.
         assertTrue(abs(Guide.ease(0.25) - 0.767) < 0.002, "${Guide.ease(0.25)}")
         assertTrue(abs(Guide.ease(0.5) - 0.946) < 0.002, "${Guide.ease(0.5)}")
+    }
+
+    @Test
+    fun screen4_tapsLogSet_only_onBothSides() {
+        for (mode in modes) {
+            val taps = Guide.steps(GuideScreenId.TODAY, mode).associateWith { Guide.tap(it) }.filterValues { it != null }
+            assertEquals(mapOf(GuideStep.TODAY_TICKED to GuideTap.LOG_SET), taps, "$mode")
+        }
+        // The ring is as long as the sketch's tick window, which is the step's move; it fits in the hold before it.
+        assertEquals(Guide.MOVE_MS, Guide.TAP_MS)
+        assertTrue(Guide.TAP_MS in Guide.FADE_MS..Guide.MOVE_MS)
+        assertTrue(Guide.TAP_MS <= Guide.STEP_MS)
+    }
+
+    @Test
+    fun frame_aTapStep_ringsInTheHoldBeforeIt() {
+        for (mode in modes) {
+            val steps = Guide.steps(GuideScreenId.TODAY, mode)
+            val ticked = steps.indexOf(GuideStep.TODAY_TICKED)
+            val start = Guide.stepStartMs(ticked)
+            val ringFrom = start - Guide.TAP_MS
+            // When the motion into each step starts: its ring for a tap step, else its move. Step times are unchanged.
+            for (i in steps.indices) {
+                val expected = if (i == 0) 0 else if (i == ticked) ringFrom else Guide.stepStartMs(i)
+                assertEquals(expected, Guide.motionStartMs(steps, i), "$mode step $i")
+            }
+            val before = steps[ticked - 1]
+            // Up to the ring, the step before holds still, with no ring.
+            assertEquals(GuideFrame(ticked - 1, before, 1.0, false), Guide.frame(steps, ringFrom - 1))
+            // The ring: still on the step before (its result not shown yet), going from 0 towards 1 as the tap step nears.
+            assertEquals(GuideFrame(ticked - 1, before, 1.0, false, GuideTap.LOG_SET, 0.0), Guide.frame(steps, ringFrom))
+            val mid = Guide.frame(steps, ringFrom + Guide.TAP_MS / 2)
+            assertEquals(ticked - 1, mid.stepIndex)
+            assertEquals(GuideTap.LOG_SET, mid.tap)
+            assertTrue(abs(mid.tapProgress - 0.5) < 1e-9, "linear: ${mid.tapProgress}")
+            val ring = (0 until Guide.TAP_MS step 10).map { Guide.frame(steps, ringFrom + it).tapProgress }
+            assertEquals(ring, ring.sorted(), "the ring never goes back")
+            assertTrue(Guide.frame(steps, start - 1).tapProgress < 1.0)
+            // It ends as the result appears: the tap step's move, with no ring.
+            assertEquals(GuideFrame(ticked, GuideStep.TODAY_TICKED, 0.0, false), Guide.frame(steps, start))
+            // No other step's hold has a ring.
+            for (i in steps.indices) {
+                if (i == ticked - 1) continue
+                val holdEnd = if (i == steps.lastIndex) Guide.doneMs(steps.size) + 5_000 else Guide.stepStartMs(i + 1) - 1
+                for (t in Guide.settledMs(i)..holdEnd step 20) assertEquals(null, Guide.frame(steps, t).tap, "$mode step $i at $t")
+            }
+        }
     }
 }

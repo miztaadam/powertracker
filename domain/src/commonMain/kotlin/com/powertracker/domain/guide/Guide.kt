@@ -72,10 +72,28 @@ enum class GuideStep {
 }
 
 /**
- * Where a picture is at one moment: step [stepIndex] ([step]) of its screen, [progress] (0 to 1, eased) through the move
- * into it, 1 while it holds; [done] once the last step has settled, which it then holds for good.
+ * A control a picture's step stands for pressing (1.16, the owner's tap ring): just before the step's result appears, a
+ * ring pulses once on it. Each app finds the control in its own drawing of the screen.
  */
-data class GuideFrame(val stepIndex: Int, val step: GuideStep, val progress: Double, val done: Boolean)
+enum class GuideTap {
+    /** Today's "Log set" button, on the open card. */
+    LOG_SET,
+}
+
+/**
+ * Where a picture is at one moment: step [stepIndex] ([step]) of its screen, [progress] (0 to 1, eased) through the move
+ * into it, 1 while it holds; [done] once the last step has settled, which it then holds for good. In the last
+ * [Guide.TAP_MS] of a hold before a step that stands for a tap, [tap] is that control and [tapProgress] goes from 0
+ * towards 1 (linear) as the next step nears; otherwise [tap] is null.
+ */
+data class GuideFrame(
+    val stepIndex: Int,
+    val step: GuideStep,
+    val progress: Double,
+    val done: Boolean,
+    val tap: GuideTap? = null,
+    val tapProgress: Double = 0.0,
+)
 
 /** The guide: its 8 screens, their copy for each side, each picture's steps, and their time. */
 object Guide {
@@ -97,7 +115,29 @@ object Guide {
     private const val EASE_X2 = 0.2
     private const val EASE_Y2 = 1.0
 
+    /**
+     * The tap ring's time, in milliseconds: it ends as the tapped step's result appears, so it is the last of the hold
+     * before that step. As long as a move: the sketch the owner approved draws the ring for as long as the tick that
+     * follows it, and the tick takes the move.
+     */
+    const val TAP_MS: Int = MOVE_MS
+
     private const val SPAN_MS = MOVE_MS + STEP_MS
+
+    /** The control [step] stands for pressing, ringed just before it: only screen 4's logged set, on "Log set". */
+    fun tap(step: GuideStep): GuideTap? = when (step) {
+        GuideStep.TODAY_TICKED -> GuideTap.LOG_SET
+        else -> null
+    }
+
+    /**
+     * When the motion into step [index] of [steps] starts: its tap ring ([TAP_MS] before the step) for a step that
+     * stands for a tap, else its move. Between a step's settling and the next one's motion, nothing moves.
+     */
+    fun motionStartMs(steps: List<GuideStep>, index: Int): Int {
+        if (index <= 0) return 0
+        return stepStartMs(index) - if (tap(steps[index]) != null) TAP_MS else 0
+    }
 
     /** When step [index] starts: its move, or for the first step the picture itself. */
     fun stepStartMs(index: Int): Int = index * SPAN_MS
@@ -134,7 +174,15 @@ object Guide {
         val t = maxOf(0, tMs)
         val index = minOf(t / SPAN_MS, steps.lastIndex)
         val progress = if (index == 0) 1.0 else ease((t - stepStartMs(index)).toDouble() / MOVE_MS)
-        return GuideFrame(index, steps[index], progress, done = index == steps.lastIndex && t >= settledMs(index))
+        val done = index == steps.lastIndex && t >= settledMs(index)
+        // The last of the hold before a tapped step: the ring, still on this step.
+        if (index < steps.lastIndex) {
+            val next = index + 1
+            val tap = tap(steps[next])
+            val ringFrom = motionStartMs(steps, next)
+            if (tap != null && t >= ringFrom) return GuideFrame(index, steps[index], progress, done, tap, (t - ringFrom).toDouble() / TAP_MS)
+        }
+        return GuideFrame(index, steps[index], progress, done)
     }
 
     /** The 8 screens, in order. */
