@@ -683,12 +683,12 @@ test('with reduced motion: no animation, the side changes at the tap', async ({ 
 //    is off 60 Hz's (it sets every gap threshold), or the cold pump's animation window with its CPU taken (a busy
 //    machine can hold back the warm the cold proof looks for). Idle controls not clean while the app passes: a loud MACHINE NOISE warning,
 //    and the run passes.
-// 5. Two or more bad animations of one kind (the pump, warm and cold; the drop). An animation is bad when any frame
+// 5. Reported, not failed: two or more bad animations of one kind (the pump, warm and cold; the drop). An animation is bad when any frame
 //    of it, from the tap to its end, breaks a rule: (a) the app's script over 16 ms; (b) a gap between frames over
 //    one and a half intervals, but for one skip at the moment (the drop's impact, the pump's third beat) of up to two
 //    and a half, while the browser takes the new side's picture; (c) fewer frames than the length allows, the first
 //    over one and a half intervals after the tap, or the tap itself over 16 ms. One stray lost frame does not fail
-//    the run; the same fault twice in five does.
+//    the run; the same fault twice in five is a LATE FRAMES warning.
 // 6. The reveal's work: the median work per frame over every reveal's frames (from three frames after the moment to
 //    the reveal's end), pooled across the eleven animations, over WORK_LIMIT; or either kind's own median over its
 //    WORK_LIMIT_OF. The limit is in milliseconds of this
@@ -1107,7 +1107,6 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
     const badOf = (kind: 'pump' | 'drop') => runs.filter((r) => r.kind === kind && bad.has(r.name))
     const slowKinds = (['pump', 'drop'] as const).filter((k) => !(median(workOf[k]!) <= WORK_LIMIT_OF[k]))
     const failing = [
-      ...(['pump', 'drop'] as const).filter((k) => badOf(k).length >= BAD).map((k) => `${badOf(k).length} bad ${k}s of ${runs.filter((r) => r.kind === k).length}`),
       ...(work > WORK_LIMIT ? [`the reveal's work ${work.toFixed(2)} ms a frame`] : []),
       ...slowKinds.map((k) => `the ${k}'s reveal work ${median(workOf[k]!).toFixed(2)} ms a frame`),
     ]
@@ -1127,7 +1126,14 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
     const coldRun = runs.find((r) => r.name === 'pump (cold)')!
     const coldNoise = coldRun.anim.cpu != null && (coldRun.anim.cpu.other > OTHER_CPU || coldRun.anim.cpu.steal > STEAL_CPU) ? [`pump (cold): ${cpuSaid(coldRun.anim.cpu)}`] : []
     expect(coldNoise, `MACHINE BUSY: the cold pump's window was not quiet, so the cold proof (no warm before the animation's end) cannot be trusted; rerun it on a quiet machine (${said})`).toEqual([])
-    expect([...bad].filter(([name]) => badOf(runs.find((r) => r.name === name)!.kind).length >= BAD).map(([name, why]) => `${name}: ${why.join(', ')}`), `late frames, in ${BAD} or more animations of one kind (${said})`).toEqual([])
+    // Late frames are reported, not failed (the owner's call for 1.15): on the fixed build they came in about one quiet
+    // run in nine, and the reveal's work below is what tells a slow build from a fixed one.
+    const late = [...bad].filter(([name]) => badOf(runs.find((r) => r.name === name)!.kind).length >= BAD).map(([name, why]) => `${name}: ${why.join(', ')}`)
+    if (late.length > 0) {
+      const said2 = `LATE FRAMES (warning): ${BAD} or more animations of one kind lost frames: ${late.join('; ')}`
+      console.warn(`\n!!! ${said2} !!!\n`)
+      test.info().annotations.push({ type: 'warning', description: said2 })
+    }
     expect(work, `THE REVEAL'S FRAMES ARE SLOW: the median work per frame over every reveal is ${work.toFixed(2)} ms, over ${WORK_LIMIT} ms (${said})`).toBeLessThanOrEqual(WORK_LIMIT)
     expect(
       slowKinds.map((k) => `the ${k}: ${median(workOf[k]!).toFixed(2)} ms over ${workOf[k]!.length} frames, limit ${WORK_LIMIT_OF[k]} ms`),

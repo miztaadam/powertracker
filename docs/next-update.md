@@ -853,10 +853,10 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-mode-switch-animations-design.md`;
 
 **Version:** Android 1.15 (versionCode 25), web 1.15. Settings shots re-shot on both apps.
 
-**Open, owner decision pending:**
-- **Whether the speed gate's lost-frame rule is a hard gate.** The rule fails a run when 2 or more animations of one kind have late frames. On `55240dc` it failed 2 of 13 quiet runs, and on the release build 1 of 4 (the full e2e run: pump 2, a 50.0 ms gap; pump 3, a 33.3 ms gap; the CPU check called the machine quiet). The work limits separate the old and new builds cleanly. Options: make that rule report-only and keep the work limits hard, loosen the count, or keep it hard.
-- **Whether one skipped frame at the colour-change moment is acceptable,** and up to one bad animation per kind per run, given the spec says no dropped frames. Chromium draws no frame while the view transition captures the new side, in nearly every pump.
-- Before the merge, the owner sees the light shots (plan, spec "Settled" 1).
+**Owner decisions (2026-11-19, "approved"):**
+- **The light shots are approved.**
+- **The lost-frame rule is report-only.** Two or more animations of one kind with late frames now give a loud LATE FRAMES warning, and the run passes. The work limits and the held-clock pins stay hard. Before this, the rule failed 2 of 13 quiet runs on `55240dc`, and 1 of 4 on the release build (the full e2e run: pump 2, a 50.0 ms gap; pump 3, a 33.3 ms gap; the CPU check called the machine quiet).
+- **One skipped frame at the colour-change moment is accepted,** and so are the occasional late frames mid-reveal. Chromium draws no frame while the view transition captures the new side, in nearly every pump.
 
 **Untested:**
 - **Safari/WebKit and Firefox.** Only Chromium was available. Where a browser can't animate the reveal's pictures, the fallback applies: the old side stays still, or the new side shows at once.
