@@ -20,6 +20,9 @@ const GUIDE_CHUNK = /\/assets\/GuideScreen-[^/]*\.js$/
 
 const picture = (page: Page) => page.getByTestId('guide-picture')
 
+/** A frame of the page's clock (requestAnimationFrame), in ms: the guide's clock moves by one while something moves. */
+const FRAME_MS = 17
+
 /** Opens Grit on the sample Wednesday, on `side`, then the guide on screen 4 through Next (nothing else opens it yet). */
 async function openGuideOnToday(page: Page, side: Side) {
   await page.clock.setFixedTime(WEDNESDAY)
@@ -140,6 +143,34 @@ test('guide_pictureIsNotInteractive: taps across the picture change nothing, ope
   expect(await page.evaluate(() => document.activeElement?.closest('.guide-picture') == null)).toBe(true)
   expect(await picture(page).evaluate((el) => [el.scrollTop, el.scrollLeft, window.scrollY])).toEqual([0, 0, 0])
   await expect(page.getByRole('img', { name: pictureDescription('TODAY') })).toBeVisible()
+})
+
+test('with motion off (the app\'s setting): no tick drawing in, no tap ring, no rise; the picture is its last step, still', async ({ page }) => {
+  await page.clock.install({ time: WEDNESDAY })
+  await openGuideOnToday(page, 'POWERLIFTING')
+  await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_SKIP')
+  const steps = grit.guideSteps('TODAY', 'POWERLIFTING')
+  for (let t = 0; t <= grit.guideDoneMs(steps.length); t += 200) {
+    await page.clock.runFor(200)
+    await expect(picture(page).locator('.guide-flip-ghosts > *')).toHaveCount(0)
+    expect(await picture(page).evaluate((el) => el.getAnimations({ subtree: true }).filter((a) => !(a instanceof CSSAnimation || a instanceof CSSTransition)).length)).toBe(0)
+  }
+  await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_SKIP')
+})
+
+test('with the system asking for reduced motion: the same', async ({ browser, baseURL }) => {
+  // No stored "off": only the system's setting turns the motion off.
+  const context = await browser.newContext({ baseURL, storageState: { cookies: [], origins: [] }, reducedMotion: 'reduce' })
+  const page = await context.newPage()
+  await page.clock.install({ time: WEDNESDAY })
+  await openGuideOnToday(page, 'POWERLIFTING')
+  await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_SKIP')
+  const steps = grit.guideSteps('TODAY', 'POWERLIFTING')
+  for (let t = 0; t <= grit.guideDoneMs(steps.length); t += 200) {
+    await page.clock.runFor(200)
+    await expect(picture(page).locator('.guide-flip-ghosts > *')).toHaveCount(0)
+  }
+  await context.close()
 })
 
 test('the picture is never painted at full size: from its first frame it sits above the dots', async ({ page }) => {
@@ -369,7 +400,8 @@ test.describe('with motion on', () => {
     expect(motion.add[0]!.time).toBeGreaterThan(0)
     expect(motion.add[0]!.time).toBeLessThan(motion.add[0]!.duration)
     expect(motion.add[0]!.duration).toBe(grit.guideMoveMs())
-    expect(motion.skipped.map((a) => a.properties)).toEqual([['opacity', 'opacity']])
+    // The line fades in as it did, and now rises as it does (Task 2c): one animation, opacity and transform.
+    expect(motion.skipped.map((a) => a.properties)).toEqual([['opacity', 'transform', 'opacity', 'transform']])
     const exercises = grit.guideSampleExercises(side)
     const liftId = exercises.find((e) => e.name === grit.guideSampleTodaySet(side).exerciseId)!.id
     const skippedName = exercises.find((e) => e.id === grit.guideSampleTodayItems(side).filter((p) => p.exerciseId !== liftId).at(-1)!.exerciseId)!.name
@@ -387,6 +419,127 @@ test.describe('with motion on', () => {
     // Settled: no motion left, no ghost.
     expect(await picture(page).evaluate((el) => el.getAnimations({ subtree: true }).filter((a) => !(a instanceof CSSAnimation || a instanceof CSSTransition)).length)).toBe(0)
     await expect(picture(page).locator('.guide-flip-ghosts > *')).toHaveCount(0)
+  })
+
+  /** The guide's own animations on the picture (not CSS ones), with their time, length and what they move. */
+  const ownAnimations = (page: Page, selector: string) =>
+    page.evaluate((selector) => {
+      return [...document.querySelectorAll(selector)].flatMap((el) =>
+        el.getAnimations().filter((a) => !(a instanceof CSSAnimation || a instanceof CSSTransition)).map((a) => ({
+          time: Number(a.currentTime),
+          delay: Number(a.effect!.getTiming().delay),
+          duration: Number(a.effect!.getTiming().duration),
+          properties: [...new Set((a.effect as KeyframeEffect).getKeyframes().flatMap((k) => Object.keys(k).filter((p) => !['offset', 'easing', 'composite', 'computedOffset'].includes(p))))],
+        })),
+      )
+    }, selector)
+
+  test('guide_ring_pulsesOnLogSet_justBeforeTheSetIsLogged, on the guide\'s clock, reading no layout while it plays', async ({ page }) => {
+    await page.addInitScript(() => {
+      const read = Element.prototype.getBoundingClientRect
+      const w = window as unknown as { __guideReads: number }
+      w.__guideReads = 0
+      Element.prototype.getBoundingClientRect = function (this: Element) {
+        if (this.closest('.guide-phone') != null) w.__guideReads += 1
+        return read.call(this)
+      }
+    })
+    const reads = () => page.evaluate(() => (window as unknown as { __guideReads: number }).__guideReads)
+    const side = 'POWERLIFTING'
+    const at = await heldToday(page, side)
+    const steps = grit.guideSteps('TODAY', side)
+    const ticked = steps.indexOf('TODAY_TICKED')
+    const ringFrom = grit.guideMotionStartMs(steps, ticked)
+    const ring = picture(page).locator('.guide-flip-ghosts > .guide-tap-ring')
+    await at(ringFrom - 20)
+    await expect(picture(page)).toHaveAttribute('data-step', steps[ticked - 1]!)
+    await expect(ring).toHaveCount(0)
+    const held = await reads()
+    // Half-way through the ring: one ring, centred on Log set, growing as it fades; the set is not logged yet.
+    await at(ringFrom + grit.guideTapMs() / 2)
+    await expect(picture(page)).toHaveAttribute('data-step', steps[ticked - 1]!)
+    await expect(ring).toHaveCount(1)
+    await expect(picture(page).locator('.guide-picture-screen .gr-set-done')).toHaveCount(0)
+    const button = (await picture(page).locator('.guide-picture-screen .today-log .gr-btn-primary').boundingBox())!
+    const drawn = (await ring.boundingBox())!
+    expect(Math.abs(drawn.x + drawn.width / 2 - (button.x + button.width / 2))).toBeLessThan(1)
+    expect(Math.abs(drawn.y + drawn.height / 2 - (button.y + button.height / 2))).toBeLessThan(1)
+    const motion = await ownAnimations(page, '.guide-tap-ring')
+    expect(motion).toHaveLength(1)
+    expect(new Set(motion[0]!.properties)).toEqual(new Set(['opacity', 'transform']))
+    expect(motion[0]!.duration).toBe(grit.guideTapMs())
+    // On the clock's time, which moves a frame at a time.
+    expect(Math.abs(motion[0]!.time - grit.guideTapMs() / 2)).toBeLessThanOrEqual(FRAME_MS)
+    const half = await ring.evaluate((el) => Number(getComputedStyle(el).opacity))
+    // The clock moves it on: fainter, larger.
+    await at(ringFrom + grit.guideTapMs() - 20)
+    expect(await ring.evaluate((el) => Number(getComputedStyle(el).opacity))).toBeLessThan(half)
+    expect((await ring.boundingBox())!.width).toBeGreaterThan(drawn.width)
+    expect((await reads()) - held, 'no layout read while the ring plays').toBe(0)
+    // It ends as the result appears: the set's step, no ring.
+    await at(grit.guideStepStartMs(ticked) + FRAME_MS)
+    await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_TICKED')
+    await expect(ring).toHaveCount(0)
+  })
+
+  test('guide_tick_popsAndDrawsItsLine_asTheLoggedSetComesIn, on the guide\'s clock; nothing of it left once settled', async ({ page }) => {
+    const side = 'POWERLIFTING'
+    const at = await heldToday(page, side)
+    const steps = grit.guideSteps('TODAY', side)
+    const ticked = steps.indexOf('TODAY_TICKED')
+    const start = grit.guideStepStartMs(ticked)
+    const rowIn = grit.guideMoveMs() - grit.guideFadeMs()
+    const stand = picture(page).locator('.guide-flip-ghosts > .gr-set-dot-done')
+    const dot = picture(page).locator('.guide-picture-screen .gr-set-done .gr-set-dot-done')
+    await at(start + rowIn + grit.guideFadeMs() / 2)
+    await expect(picture(page)).toHaveAttribute('data-step', 'TODAY_TICKED')
+    // Mid-draw: a stand-in over the real dot (hidden meanwhile), its circle and its line on the clock's time.
+    await expect(stand).toHaveCount(1)
+    const motion = await ownAnimations(page, '.guide-flip-ghosts > .gr-set-dot-done, .guide-flip-ghosts > .gr-set-dot-done path')
+    expect(motion.map((m) => m.properties.sort())).toEqual([['opacity', 'transform'], ['strokeDashoffset']])
+    for (const m of motion) {
+      expect(m.delay + m.duration).toBe(grit.guideMoveMs())
+      expect(Math.abs(m.time - (rowIn + grit.guideFadeMs() / 2))).toBeLessThanOrEqual(FRAME_MS)
+    }
+    const real = (await dot.boundingBox())!
+    const drawn = await stand.evaluate((el) => ({ left: el.style.left, top: el.style.top, offset: parseFloat(getComputedStyle(el.querySelector("path")!).strokeDashoffset) }))
+    expect(drawn.offset, 'part-drawn').toBeGreaterThan(0)
+    expect(drawn.offset).toBeLessThan(1)
+    expect(await dot.evaluate((el) => Number(getComputedStyle(el).opacity))).toBe(0)
+    const standBox = (await stand.boundingBox())!
+    expect(Math.abs(standBox.x + standBox.width / 2 - (real.x + real.width / 2))).toBeLessThan(1)
+    expect(Math.abs(standBox.y + standBox.height / 2 - (real.y + real.height / 2))).toBeLessThan(1)
+    // Held, it holds.
+    await page.waitForTimeout(200)
+    expect(await stand.evaluate((el) => parseFloat(getComputedStyle(el.querySelector("path")!).strokeDashoffset))).toBe(drawn.offset)
+    // Settled: the real tick, no stand-in, no motion.
+    await at(grit.guideSettledMs(ticked) + 20)
+    await expect(stand).toHaveCount(0)
+    expect(await dot.evaluate((el) => Number(getComputedStyle(el).opacity))).toBe(1)
+    expect(await ownAnimations(page, '.guide-picture *')).toEqual([])
+  })
+
+  test('guide_skippedLine_risesWhileFadingIn', async ({ page }) => {
+    const side = 'POWERLIFTING'
+    const at = await heldToday(page, side)
+    const steps = grit.guideSteps('TODAY', side)
+    const skip = steps.indexOf('TODAY_SKIP')
+    const line = picture(page).locator('.guide-picture-screen .today-skipped')
+    const fadeFrom = grit.guideStepStartMs(skip) + grit.guideMoveMs() - grit.guideFadeMs()
+    await at(fadeFrom + grit.guideFadeMs() / 2)
+    const mid = (await line.boundingBox())!
+    const midOpacity = await line.evaluate((el) => Number(getComputedStyle(el).opacity))
+    // How far into its fade it is, by its own time (the guide's clock moves a frame at a time).
+    const [motion] = await ownAnimations(page, '.guide-picture-screen .today-skipped')
+    const into = (motion!.time - motion!.delay) / motion!.duration
+    expect(into).toBeGreaterThan(0.2)
+    expect(into).toBeLessThan(0.8)
+    await at(grit.guideSettledMs(skip) + 20)
+    const settled = (await line.boundingBox())!
+    // Part-way: as far faded in, and that far up its 14 px towards where it settles (in the phone's space, at its scale).
+    const scale = await picture(page).evaluate((el, width) => el.getBoundingClientRect().width / width, PHONE_WIDTH)
+    expect(Math.abs(midOpacity - into)).toBeLessThan(0.02)
+    expect(Math.abs((mid.y - settled.y) / scale - 14 * (1 - into))).toBeLessThan(0.75)
   })
 
   test('guide_replayOrPageReturn_restartsWithoutPlayingBackwards', async ({ page }) => {
@@ -421,8 +574,9 @@ test.describe('with motion on', () => {
     for (let i = 1; i < steps.length; i++) {
       await at(grit.guideStepStartMs(i) - 30)
       const held = await reads()
-      // The step change: its boxes read before and after the commit, once each.
-      await at(grit.guideStepStartMs(i) + 1)
+      // The step change: its boxes read before and after the commit, once each. (A step after a tap ring comes on the
+      // first frame past its start, the ring running on frames: a frame's time is allowed.)
+      await at(grit.guideStepStartMs(i) + FRAME_MS)
       await expect(picture(page)).toHaveAttribute('data-step', steps[i]!)
       const change = (await reads()) - held
       expect(change, `${steps[i]}: reads at the step change`).toBeGreaterThan(0)

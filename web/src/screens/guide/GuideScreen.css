@@ -126,6 +126,15 @@
   pointer-events: none;
 }
 
+/* The tap ring (1.16): a thin circle on the control pressed, placed and sized where it is made; it grows as it fades. */
+.guide-tap-ring {
+  position: absolute;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: var(--text);
+  border-radius: 50%;
+}
+
 .guide-picture-screen {
   height: 100%;
   pointer-events: none;

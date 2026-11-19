@@ -21,29 +21,33 @@ const SWIPE_PX = 50
  * progress). Tests hold it (`heldGuideClock`); the guide runs on `tickingGuideClock`.
  */
 export type GuideClock = {
-  /** A hook: milliseconds into a picture of `count` steps, from 0 when it mounted; standing still while not `playing`. */
-  useElapsed: (count: number, playing: boolean) => number
+  /**
+   * A hook: milliseconds into a picture of `steps` (`guideSteps` names, the same array while they are the same), from 0
+   * when it mounted; standing still while not `playing`.
+   */
+  useElapsed: (steps: readonly string[], playing: boolean) => number
 }
 
-/** The step a picture of `count` steps is on at `t` ms. */
-const stepAt = (count: number, t: number) => {
+/** The step whose motion (its tap ring, then its move) a picture is in or past at `t` ms; `starts` from `guideMotionStartMs`. */
+const motionAt = (starts: readonly number[], t: number) => {
   let index = 0
-  while (index < count - 1 && grit.guideStepStartMs(index + 1) <= t) index += 1
+  while (index < starts.length - 1 && starts[index + 1]! <= t) index += 1
   return index
 }
 
 /**
- * Real time, one value a frame while a step moves (requestAnimationFrame) and one timer while it holds, so nothing is
- * rendered; nothing at all once the last step has settled. It stands still while the page is hidden and goes on from
- * there when it is shown again.
+ * Real time, one value a frame while a step moves or a tap ring plays before it (requestAnimationFrame) and one timer
+ * while it holds, so nothing is rendered; nothing at all once the last step has settled. It stands still while the page
+ * is hidden and goes on from there when it is shown again.
  */
 export const tickingGuideClock: GuideClock = {
-  useElapsed(count, playing) {
+  useElapsed(steps, playing) {
     const [shown, setShown] = useState(0)
     const at = useRef(0)
+    const starts = useMemo(() => steps.map((_, i) => grit.guideMotionStartMs([...steps], i)), [steps])
     useEffect(() => {
       if (!playing) return
-      const done = grit.guideDoneMs(count)
+      const done = grit.guideDoneMs(starts.length)
       let frame: number | undefined
       let timer: ReturnType<typeof setTimeout> | undefined
       const set = (t: number) => {
@@ -61,10 +65,10 @@ export const tickingGuideClock: GuideClock = {
       const run = () => {
         const t = at.current
         if (t >= done) return
-        const index = stepAt(count, t)
+        const index = motionAt(starts, t)
         const settled = grit.guideSettledMs(index)
         if (t < settled) {
-          // A move: one value a frame.
+          // A move, or a tap ring and the move after it: one value a frame.
           const tick = () => {
             const now = Math.min(settled, performance.now() - base)
             set(now)
@@ -73,8 +77,8 @@ export const tickingGuideClock: GuideClock = {
           }
           frame = requestAnimationFrame(tick)
         } else {
-          // A hold: nothing changes until the next step starts.
-          const next = grit.guideStepStartMs(index + 1)
+          // A hold: nothing changes until the next step's motion starts.
+          const next = starts[index + 1]!
           timer = setTimeout(
             () => {
               set(next)
@@ -98,14 +102,14 @@ export const tickingGuideClock: GuideClock = {
         stop()
         document.removeEventListener('visibilitychange', onVisibility)
       }
-    }, [count, playing])
+    }, [starts, playing])
     return shown
   },
 }
 
 /** A clock a test moves by hand: every picture is `ms` into its steps (held within them). */
 export function heldGuideClock(ms: number): GuideClock {
-  return { useElapsed: (count) => Math.max(0, Math.min(ms, grit.guideDoneMs(count))) }
+  return { useElapsed: (steps) => Math.max(0, Math.min(ms, grit.guideDoneMs(steps.length))) }
 }
 
 /** A held clock with every picture at step `index`, settled. */
@@ -158,10 +162,13 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle }: { id: string; mode
     if (focusTitle) titleRef.current?.focus()
   }, [focusTitle])
   const steps = useMemo(() => grit.guideSteps(id, mode), [id, mode])
-  const elapsed = clock.useElapsed(steps.length, motionOn)
+  const elapsed = clock.useElapsed(steps, motionOn)
   // With motion off: the last step, still.
   const t = motionOn ? Math.floor(elapsed) : grit.guideDoneMs(steps.length)
   const frame = useMemo(() => (steps.length === 0 ? null : grit.guideFrame(id, mode, t)), [id, mode, t, steps.length])
+  // The control the next step stands for pressing, if any: its place is read as this step comes in, for its ring.
+  const next = frame == null ? undefined : steps[frame.stepIndex + 1]
+  const nextTap = next == null ? null : (grit.guideTap(next) ?? null)
   return (
     <div className="guide-page">
       {/* The text wraps and is never cut: past its share of the height it scrolls, and the picture takes the rest. */}
@@ -181,7 +188,7 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle }: { id: string; mode
             <Pill text={EXAMPLE} />
           </span>
         )}
-        <GuidePicture id={id} mode={mode} frame={frame} moveMs={frame == null ? 0 : t - grit.guideStepStartMs(frame.stepIndex)} motionOn={motionOn} />
+        <GuidePicture id={id} mode={mode} frame={frame} moveMs={frame == null ? 0 : t - grit.guideStepStartMs(frame.stepIndex)} motionOn={motionOn} nextTap={nextTap} />
       </div>
     </div>
   )

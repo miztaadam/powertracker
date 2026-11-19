@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { FLIP_EASING, planFlip, readBoxes, startFlip, todayTargets, type FlipBox } from './guideFlip'
+import { CHECK_LINE, FLIP_EASING, RING, RISE_PX, TICK, planFlip, readBoxes, startFlip, startRing, tapTarget, tickDots, todayTargets, type FlipBox } from './guideFlip'
 
 /** The guide's layout motion (1.16, Task 2b), on boxes stubbed in: jsdom lays nothing out. */
 
@@ -149,22 +149,18 @@ describe('guideFlip', () => {
     ])
   })
 
-  it('guideFlip_usesOnlyTransformAndOpacity: moves, fades in and fades out', () => {
+  it('guideFlip_usesOnlyTransformAndOpacity: moves, fades in and fades out; only the tick\'s line draws by its dash', () => {
     const moved = placed(document.createElement('div'), box(0, 0))
     const added = placed(document.createElement('div'), box(0, 60))
     const gone = document.createElement('div')
     const ghosts = document.createElement('div')
-    document.body.append(moved, added, ghosts)
+    const { row, dot } = setRow()
+    document.body.append(moved, added, ghosts, row)
     const calls = stubAnimate(moved)
     const addedCalls = stubAnimate(added)
-    // The ghost is a copy of the gone row, made inside: the copy gets the stub as it is made.
-    const ghostCalls: Call[] = []
-    const clone = HTMLElement.prototype.cloneNode
-    vi.spyOn(HTMLElement.prototype, 'cloneNode').mockImplementation(function (this: HTMLElement, deep?: boolean) {
-      const copy = clone.call(this, deep) as HTMLElement
-      stubAnimate(copy, ghostCalls)
-      return copy
-    })
+    const dotCalls = stubAnimate(dot)
+    // The ghost (a copy of the gone row) and the tick's stand-in are made inside: each copy gets the stub as it is made.
+    const made = stubClones()
     const run = startFlip(
       { moves: [{ key: 'moved', dx: 0, dy: -12 }], enters: ['added'], exits: ['gone'], crossFades: [] },
       [
@@ -174,21 +170,180 @@ describe('guideFlip', () => {
       new Map([['gone', { el: gone, box: box(0, 120) }]]),
       ghosts,
       { moveMs: 280, fadeMs: 150, easing: FLIP_EASING },
+      [{ row: 'added', dot, box: box(300, 60, 24, 24) }],
     )
     // The gone row is drawn again where it was, over the screen, and fades.
-    expect(ghosts.children).toHaveLength(1)
-    const ghost = ghosts.firstElementChild as HTMLElement
-    expect([ghost.style.position, ghost.style.top]).toEqual(['absolute', '120px'])
-    const all = [...calls, ...addedCalls, ...ghostCalls]
-    expect(all).toHaveLength(3)
+    expect(ghosts.children).toHaveLength(2)
+    const [ghost, stand] = [...ghosts.children].sort((a) => ((a as HTMLElement).style.top === '120px' ? -1 : 1)) as HTMLElement[]
+    expect([ghost!.style.position, ghost!.style.top]).toEqual(['absolute', '120px'])
+    const ghostCalls = made.find((m) => m.el === ghost)!.calls
+    const tickCalls = made.find((m) => m.el === stand)!.calls
+    const all = [...calls, ...addedCalls, ...ghostCalls, ...dotCalls, ...tickCalls]
+    expect(all).toHaveLength(6)
     for (const { keyframes } of all) {
-      for (const frame of keyframes) for (const property of Object.keys(frame)) expect(['transform', 'opacity', 'offset', 'easing']).toContain(property)
+      const properties = keyframes.flatMap((frame) => Object.keys(frame).filter((p) => !['offset', 'easing'].includes(p)))
+      // The one exception: the check's line, drawn by its dash and nothing else.
+      if (properties.includes('strokeDashoffset')) expect(new Set(properties)).toEqual(new Set(['strokeDashoffset']))
+      else for (const property of properties) expect(['transform', 'opacity']).toContain(property)
     }
+    expect(all.filter((c) => c.keyframes.some((k) => 'strokeDashoffset' in k))).toHaveLength(1)
     expect(addedCalls[0]!.keyframes).toEqual([{ opacity: 0 }, { opacity: 1 }])
     // Not in a gone row's place, with rows moving: it fades in over the move's last stretch.
     expect(addedCalls[0]!.options).toMatchObject({ delay: 130, duration: 150 })
     expect(ghostCalls.at(-1)!.keyframes).toEqual([{ opacity: 1 }, { opacity: 0 }])
     run.finish()
     expect(ghosts.children).toHaveLength(0)
+  })
+
+  /** A logged set's row as SetRow draws it: the dot with its filled check. */
+  function setRow() {
+    const row = document.createElement('div')
+    row.className = 'gr-set gr-set-done'
+    row.innerHTML = '<span class="gr-set-dot gr-set-dot-done"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg></span>'
+    return { row, dot: row.querySelector<HTMLElement>('.gr-set-dot-done')! }
+  }
+
+  /** Every element made by cloning, stubbed for animation as it is made; and the calls on each. */
+  function stubClones() {
+    const made: { el: HTMLElement; calls: Call[] }[] = []
+    const clone = Node.prototype.cloneNode
+    vi.spyOn(Node.prototype, 'cloneNode').mockImplementation(function (this: Node, deep?: boolean) {
+      const copy = clone.call(this, deep) as HTMLElement
+      const calls: Call[] = []
+      stubAnimate(copy, calls)
+      copy.querySelectorAll?.('*').forEach((el) => stubAnimate(el as HTMLElement, calls))
+      made.push({ el: copy, calls })
+      return copy
+    })
+    return made
+  }
+
+  it('guideFlip_tick_popsItsCircleAndDrawsItsLine_asItsRowComesIn', () => {
+    const { row, dot } = setRow()
+    const ghosts = document.createElement('div')
+    document.body.append(row, ghosts)
+    const rowCalls = stubAnimate(row)
+    const dotCalls = stubAnimate(dot)
+    const made = stubClones()
+    const timing = { moveMs: 280, fadeMs: 150, easing: FLIP_EASING }
+    const run = startFlip(
+      { moves: [{ key: 'item:Squat:card>steppers:0', dx: 0, dy: -48 }], enters: ['set'], exits: [], crossFades: [] },
+      [{ key: 'set', el: row, parent: null }],
+      new Map(),
+      ghosts,
+      timing,
+      [{ row: 'set', dot, box: box(300, 200, 24, 24) }],
+    )
+    // A stand-in over the real dot, where it is, at its size: the real one is hidden while it draws.
+    expect(ghosts.children).toHaveLength(1)
+    const stand = ghosts.firstElementChild as HTMLElement
+    expect(stand.classList.contains('gr-set-dot-done')).toBe(true)
+    expect([stand.style.position, stand.style.left, stand.style.top, stand.style.width, stand.style.height]).toEqual(['absolute', '300px', '200px', '24px', '24px'])
+    expect(dotCalls.map((c) => c.keyframes)).toEqual([[{ opacity: 0 }, { opacity: 0 }]])
+    expect(dotCalls[0]!.options).toMatchObject({ duration: 280, fill: 'both' })
+    // The row fades in over the move's last stretch; the tick plays as it does, and is over when the move is.
+    expect(rowCalls[0]!.options).toMatchObject({ delay: 130, duration: 150 })
+    const own = made.find((m) => m.el === stand)!.calls
+    const circle = own.find((c) => c.keyframes.some((k) => 'transform' in k))!
+    expect(circle.keyframes).toEqual([
+      { opacity: 0, transform: `scale(${TICK.scaleFrom})`, offset: 0 },
+      { opacity: 1, transform: `scale(${TICK.scalePeak})`, offset: TICK.peakAt },
+      { opacity: 1, transform: 'none', offset: TICK.settleAt },
+      { opacity: 1, transform: 'none', offset: 1 },
+    ])
+    expect(circle.options).toMatchObject({ delay: 130, duration: 150, fill: 'both' })
+    // The check is the same line, stroked: drawn from its start to its end.
+    const path = stand.querySelector('path')!
+    expect(path.getAttribute('d')).toBe(CHECK_LINE)
+    expect([path.getAttribute('fill'), path.getAttribute('stroke'), path.getAttribute('pathLength'), path.getAttribute('stroke-dasharray')]).toEqual(['none', 'currentColor', '1', '1'])
+    const line = own.find((c) => c.keyframes.some((k) => 'strokeDashoffset' in k))!
+    expect(line.keyframes).toEqual([
+      { strokeDashoffset: 1, offset: 0 },
+      { strokeDashoffset: 1, offset: TICK.drawFrom },
+      { strokeDashoffset: 0, offset: 1 },
+    ])
+    expect(line.options).toMatchObject({ delay: 130, duration: 150 })
+    for (const c of [...own, ...dotCalls]) expect(c.animation.paused).toBe(true)
+    // The guide's clock moves it all.
+    run.seek(200)
+    for (const c of [...own, ...dotCalls]) expect(c.animation.currentTime).toBe(200)
+    // Settled: the stand-in gone, the real dot as it was.
+    run.finish()
+    expect(ghosts.children).toHaveLength(0)
+    expect(dotCalls[0]!.animation.cancelled).toBe(true)
+  })
+
+  it('the stroked check covers what the filled one does: the same arms, as wide', () => {
+    // The filled check's arms are 2 units across (its edges 1.41 apart along both axes); its centre line runs between.
+    expect(CHECK_LINE).toBe('M4.12 12.705L9 17.585L20.295 6.295')
+    expect(TICK.lineWidth).toBe(2)
+  })
+
+  it('tickDots: the done dot of each new set row, never one already there', () => {
+    const { row, dot } = setRow()
+    const old = setRow()
+    placed(dot, { x: 330, y: 230, width: 24, height: 24 })
+    const phone = placed(document.createElement('div'), box(30, 30, 412, 920))
+    const targets = [
+      { key: 'item:Squat:card>set:0', el: old.row, parent: 'item:Squat:card' },
+      { key: 'item:Squat:card>set:1', el: row, parent: 'item:Squat:card' },
+    ]
+    expect(tickDots(['item:Squat:card>set:1'], targets, phone, 1)).toEqual([{ row: 'item:Squat:card>set:1', dot, box: box(300, 200, 24, 24) }])
+    expect(tickDots([], targets, phone, 1)).toEqual([])
+  })
+
+  it('guideFlip_skippedLine_risesWhileFadingIn', () => {
+    const skipped = placed(document.createElement('div'), box(0, 600))
+    const calls = stubAnimate(skipped)
+    startFlip({ moves: [{ key: 'add', dx: 0, dy: 60 }], enters: ['skipped'], exits: [], crossFades: [] }, [{ key: 'skipped', el: skipped, parent: null }], new Map(), null, { moveMs: 280, fadeMs: 150, easing: FLIP_EASING })
+    expect(RISE_PX).toBe(14)
+    expect(calls.map((c) => c.keyframes)).toEqual([[{ opacity: 0, transform: `translateY(${RISE_PX}px)` }, { opacity: 1, transform: 'none' }]])
+    // The fade it had: over the move's last stretch, once the rows around it have made its room.
+    expect(calls[0]!.options).toMatchObject({ delay: 130, duration: 150, easing: 'linear' })
+  })
+
+  it('guideRing: one ring on the button, growing as it fades, on the guide\'s time; gone when finished', () => {
+    const ghosts = document.createElement('div')
+    const made: Call[] = []
+    const create = document.createElement.bind(document)
+    vi.spyOn(document, 'createElement').mockImplementation(((tag: string) => {
+      const el = create(tag)
+      stubAnimate(el, made)
+      return el
+    }) as typeof document.createElement)
+    const ring = startRing(ghosts, box(200, 700, 160, 48), 280)!
+    expect(ghosts.children).toHaveLength(1)
+    const el = ghosts.firstElementChild as HTMLElement
+    expect(el.className).toBe('guide-tap-ring')
+    // Centred on the button.
+    expect([el.style.left, el.style.top, el.style.width, el.style.height]).toEqual([`${280 - RING.sizePx / 2}px`, `${724 - RING.sizePx / 2}px`, `${RING.sizePx}px`, `${RING.sizePx}px`])
+    expect(el.style.borderWidth).toBe(`${RING.linePx}px`)
+    expect(made).toHaveLength(1)
+    expect(made[0]!.keyframes).toEqual([
+      { opacity: RING.opacityFrom, transform: `scale(${RING.scaleFrom})` },
+      { opacity: 0, transform: `scale(${RING.scaleTo})` },
+    ])
+    expect(made[0]!.options).toMatchObject({ duration: 280, easing: 'linear', fill: 'both' })
+    expect(made[0]!.animation.paused).toBe(true)
+    ring.seek(140)
+    expect(made[0]!.animation.currentTime).toBe(140)
+    ring.finish()
+    expect(ghosts.children).toHaveLength(0)
+    expect(made[0]!.animation.cancelled).toBe(true)
+  })
+
+  it('guideRing: nothing is drawn where the page cannot animate it (it would sit there, still)', () => {
+    const ghosts = document.createElement('div')
+    expect(startRing(ghosts, box(0, 0), 280)).toBeNull()
+    expect(ghosts.children).toHaveLength(0)
+  })
+
+  it('tapTarget: Log set on the open card, in the phone\'s space', () => {
+    const screen = document.createElement('div')
+    screen.innerHTML = '<div class="today-item"><div class="today-card-head"></div><div class="today-log"><button class="gr-btn gr-btn-secondary"></button><button class="gr-btn gr-btn-primary today-grow"></button></div></div>'
+    placed(screen.querySelector<HTMLElement>('.gr-btn-primary')!, { x: 230, y: 730, width: 160, height: 48 })
+    const phone = placed(document.createElement('div'), box(30, 30, 412, 920))
+    expect(tapTarget('LOG_SET', screen, phone, 1)).toEqual(box(200, 700, 160, 48))
+    expect(tapTarget('LOG_SET', document.createElement('div'), phone, 1)).toBeNull()
   })
 })

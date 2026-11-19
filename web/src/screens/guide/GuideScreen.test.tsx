@@ -207,6 +207,10 @@ describe('the guide', () => {
     const drawn = frame.querySelector('.guide-picture-screen')!
     expect(drawn).toHaveAttribute('aria-hidden', 'true')
     expect(drawn).toHaveAttribute('inert')
+    // So is the guide's own layer over it, where a gone row's copy (with its buttons), the tick and the ring are drawn.
+    const ghosts = frame.querySelector('.guide-flip-ghosts')!
+    expect(ghosts).toHaveAttribute('aria-hidden', 'true')
+    expect(ghosts).toHaveAttribute('inert')
     expect(within(screen.getByTestId('guide')).queryByRole('button', { name: /Log set/ })).toBeNull()
     expect(within(screen.getByTestId('guide')).queryByRole('textbox')).toBeNull()
     await userEvent.click(frame)
@@ -266,6 +270,37 @@ describe('the guide', () => {
     // A move renders, a frame at a time.
     run(2 * slack + grit.guideMoveMs() / 2)
     expect(renders).toBeGreaterThan(held + 3)
+  })
+
+  it('guide_aTapRing_playsInTheLastOfTheHoldBeforeItsStep: frames for the ring, none before it', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
+    let renders = 0
+    render(
+      <Profiler id="guide" onRender={() => (renders += 1)}>
+        <GuideScreen mode="POWERLIFTING" firstLaunch={false} hasPlan={false} motionOn onPickSide={() => {}} onClose={() => {}} clock={tickingGuideClock} startAt="TODAY" />
+      </Profiler>,
+    )
+    const steps = grit.guideSteps('TODAY', 'POWERLIFTING')
+    const ticked = steps.indexOf('TODAY_TICKED')
+    const ringFrom = grit.guideMotionStartMs(steps, ticked)
+    expect(ringFrom).toBe(grit.guideStepStartMs(ticked) - grit.guideTapMs())
+    const run = (ms: number) => {
+      for (let t = 0; t < ms; t += 16) act(() => vi.advanceTimersByTime(Math.min(16, ms - t)))
+    }
+    const slack = 50
+    run(grit.guideSettledMs(ticked - 1) + slack)
+    expect(picture()).toHaveAttribute('data-step', steps[ticked - 1])
+    // The hold, up to the ring: nothing renders.
+    const held = renders
+    run(ringFrom - grit.guideSettledMs(ticked - 1) - 2 * slack)
+    expect(renders, 'rendered while the step held').toBe(held)
+    // The ring: still on the step before, a frame at a time.
+    run(slack + grit.guideTapMs() / 2)
+    expect(picture()).toHaveAttribute('data-step', steps[ticked - 1])
+    expect(renders).toBeGreaterThan(held + 3)
+    // And on into the logged set's move without a pause.
+    run(grit.guideTapMs())
+    expect(picture()).toHaveAttribute('data-step', 'TODAY_TICKED')
   })
 
   it('guide_clockStops_whenHiddenOrUnmounted: a hidden page stands the clock still; shown again, it goes on', () => {

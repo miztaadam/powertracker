@@ -106,6 +106,98 @@ export function planFlip(before: Map<string, FlipBox>, after: Map<string, FlipBo
   return plan
 }
 
+/*
+ * The owner's three extras (1.16, Task 2c), as the sketch they approved draws them (its 400 ms window is the guide's
+ * move here): the tick of a set logged in the step pops and draws its line, a ring pulses on the button pressed just
+ * before a step's result, and the "Skipped today" line rises as it fades in. The guide's own: the real screens are
+ * untouched. Transform and opacity only, except the check's line, which draws by `stroke-dashoffset`.
+ */
+
+/**
+ * The tick: its circle grows from `scaleFrom` past full size (`scalePeak`, at `peakAt` of its time) and settles (at
+ * `settleAt`) as it fades in; its line is drawn from `drawFrom` to the end. `lineWidth`: the check's arms, in its 24
+ * units.
+ */
+export const TICK = { scaleFrom: 0.4, scalePeak: 1.12, peakAt: 0.4, settleAt: 0.7, drawFrom: 0.2, lineWidth: 2 }
+
+/**
+ * The filled check's (CheckIcon's) centre line, on its 24-unit grid: stroked `TICK.lineWidth` wide with square ends and
+ * a mitred corner, it covers what the filled check does, so the drawn line ends as the real tick.
+ */
+export const CHECK_LINE = 'M4.12 12.705L9 17.585L20.295 6.295'
+
+/** The tap ring: `sizePx` across with a `linePx` line, growing from `scaleFrom` to `scaleTo` as it fades from `opacityFrom`. */
+export const RING = { sizePx: 14, linePx: 2, scaleFrom: 0.6, scaleTo: 4.2, opacityFrom: 0.9 }
+
+/** How far the "Skipped today" line rises as it fades in. */
+export const RISE_PX = 14
+
+/** A set logged in the step: the key of its row, its done dot, and the dot's box. */
+export type FlipTick = { row: string; dot: HTMLElement; box: FlipBox }
+
+/** The done dots of the set rows new in a step (`enters`): one read each, in the step change's read pass. */
+export function tickDots(enters: string[], targets: FlipTarget[], phone: HTMLElement, scale: number): FlipTick[] {
+  const ticks: FlipTick[] = []
+  for (const t of targets) {
+    if (!enters.includes(t.key) || !/>set:\d+$/.test(t.key)) continue
+    const dot = t.el.querySelector<HTMLElement>('.gr-set-dot-done')
+    if (dot == null) continue
+    const box = readBoxes([{ key: t.key, el: dot, parent: null }], phone, scale).get(t.key)!
+    ticks.push({ row: t.key, dot, box })
+  }
+  return ticks
+}
+
+/** Where each control a step can stand for pressing is drawn (the domain's `GuideTap` names). */
+const TAP_SELECTORS: Record<string, string> = {
+  LOG_SET: '.today-item .today-log .gr-btn-primary',
+}
+
+/** The box of the control `tap` in the picture drawn in `screen`, in `phone`'s space: one read. Null if not drawn. */
+export function tapTarget(tap: string, screen: HTMLElement, phone: HTMLElement, scale: number): FlipBox | null {
+  const selector = TAP_SELECTORS[tap]
+  const el = selector == null ? null : screen.querySelector<HTMLElement>(selector)
+  if (el == null) return null
+  return readBoxes([{ key: tap, el, parent: null }], phone, scale).get(tap)!
+}
+
+/** A ring on the go: `seek` moves it to a time into the ring, `finish` takes it away. */
+export type RingRun = { seek: (ms: number) => void; finish: () => void }
+
+/**
+ * Starts the tap ring on a control drawn at `box`, paused at its start, in `ghosts` (over the screen, taking nothing).
+ * Null where the page cannot animate (it would only sit there).
+ */
+export function startRing(ghosts: HTMLElement, box: FlipBox, tapMs: number): RingRun | null {
+  const ring = document.createElement('div')
+  if (typeof ring.animate !== 'function') return null
+  ring.className = 'guide-tap-ring'
+  ring.style.left = `${box.x + box.width / 2 - RING.sizePx / 2}px`
+  ring.style.top = `${box.y + box.height / 2 - RING.sizePx / 2}px`
+  ring.style.width = `${RING.sizePx}px`
+  ring.style.height = `${RING.sizePx}px`
+  ring.style.borderWidth = `${RING.linePx}px`
+  ghosts.appendChild(ring)
+  const animation = ring.animate(
+    [
+      { opacity: RING.opacityFrom, transform: `scale(${RING.scaleFrom})` },
+      { opacity: 0, transform: `scale(${RING.scaleTo})` },
+    ],
+    { duration: tapMs, easing: 'linear', fill: 'both' },
+  )
+  animation.pause()
+  animation.currentTime = 0
+  return {
+    seek(ms) {
+      animation.currentTime = Math.max(0, ms)
+    },
+    finish() {
+      animation.cancel()
+      ring.remove()
+    },
+  }
+}
+
 /** The timing of one step change's motion: the domain's move and fade, on the web's move curve. */
 export type FlipTiming = { moveMs: number; fadeMs: number; easing: string }
 
@@ -125,11 +217,12 @@ export function startFlip(
   gone: Map<string, { el: HTMLElement; box: FlipBox }>,
   ghosts: HTMLElement | null,
   timing: FlipTiming,
+  ticks: FlipTick[] = [],
 ): FlipRun {
   const byKey = new Map(after.map((t) => [t.key, t.el]))
   const animations: Animation[] = []
   const placed: HTMLElement[] = []
-  const add = (el: HTMLElement, keyframes: Keyframe[], duration: number, easing: string, delay = 0) => {
+  const add = (el: HTMLElement | SVGElement, keyframes: Keyframe[], duration: number, easing: string, delay = 0) => {
     // No Web Animations (jsdom): the rows simply are where they are.
     if (typeof el.animate !== 'function') return
     const animation = el.animate(keyframes, { duration, delay, easing, fill: 'both' })
@@ -144,9 +237,65 @@ export function startFlip(
   // A new row fades in as the move ends, once the rows around it have made its room (it would show through them
   // while they still slide past it); with nothing moving, or in a gone row's place (a cross-fade), at once.
   const enterDelay = plan.moves.length > 0 ? Math.max(0, timing.moveMs - timing.fadeMs) : 0
+  const delayOf = (key: string) => (plan.crossFades.includes(key) ? 0 : enterDelay)
   for (const key of plan.enters) {
     const el = byKey.get(key)
-    if (el) add(el, [{ opacity: 0 }, { opacity: 1 }], timing.fadeMs, 'linear', plan.crossFades.includes(key) ? 0 : enterDelay)
+    // The "Skipped today" line rises as it fades in.
+    const frames: Keyframe[] = key === 'skipped' ? [{ opacity: 0, transform: `translateY(${RISE_PX}px)` }, { opacity: 1, transform: 'none' }] : [{ opacity: 0 }, { opacity: 1 }]
+    if (el) add(el, frames, timing.fadeMs, 'linear', delayOf(key))
+  }
+  // A set logged in the step: its tick plays as its row comes in, and is over when the move is. A stand-in draws it
+  // over the real dot, which is hidden meanwhile: the real check is a filled shape, the stand-in's a line drawn in.
+  if (ghosts != null) {
+    for (const tick of ticks) {
+      if (typeof tick.dot.animate !== 'function') continue
+      const delay = delayOf(tick.row)
+      const duration = Math.max(1, timing.moveMs - delay)
+      const stand = tick.dot.cloneNode(true) as HTMLElement
+      stand.style.position = 'absolute'
+      stand.style.left = `${tick.box.x}px`
+      stand.style.top = `${tick.box.y}px`
+      stand.style.width = `${tick.box.width}px`
+      stand.style.height = `${tick.box.height}px`
+      stand.style.margin = '0'
+      const path = stand.querySelector('path')
+      ghosts.appendChild(stand)
+      placed.push(stand)
+      add(tick.dot, [{ opacity: 0 }, { opacity: 0 }], timing.moveMs, 'linear')
+      add(
+        stand,
+        [
+          { opacity: 0, transform: `scale(${TICK.scaleFrom})`, offset: 0 },
+          { opacity: 1, transform: `scale(${TICK.scalePeak})`, offset: TICK.peakAt },
+          { opacity: 1, transform: 'none', offset: TICK.settleAt },
+          { opacity: 1, transform: 'none', offset: 1 },
+        ],
+        duration,
+        'linear',
+        delay,
+      )
+      if (path != null) {
+        path.setAttribute('d', CHECK_LINE)
+        path.setAttribute('fill', 'none')
+        path.setAttribute('stroke', 'currentColor')
+        path.setAttribute('stroke-width', String(TICK.lineWidth))
+        path.setAttribute('stroke-linecap', 'butt')
+        path.setAttribute('stroke-linejoin', 'miter')
+        path.setAttribute('pathLength', '1')
+        path.setAttribute('stroke-dasharray', '1')
+        add(
+          path,
+          [
+            { strokeDashoffset: 1, offset: 0 },
+            { strokeDashoffset: 1, offset: TICK.drawFrom },
+            { strokeDashoffset: 0, offset: 1 },
+          ],
+          duration,
+          'linear',
+          delay,
+        )
+      }
+    }
   }
   if (ghosts != null) {
     for (const key of plan.exits) {

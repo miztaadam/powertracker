@@ -2,7 +2,7 @@ import { Component, useCallback, useEffect, useMemo, useRef, useState, type CSSP
 import type { TrainingMode } from '../../db/schema'
 import { grit, type JsGuideFrame } from '../../domain'
 import { TodayContent } from '../today/TodayScreen'
-import { FLIP_EASING, planFlip, readBoxes, startFlip, todayTargets, type FlipBox, type FlipRun, type FlipTarget } from './guideFlip'
+import { FLIP_EASING, planFlip, readBoxes, startFlip, startRing, tapTarget, tickDots, todayTargets, type FlipBox, type FlipRun, type FlipTarget, type RingRun } from './guideFlip'
 import { PHONE_HEIGHT, PHONE_WIDTH, pictureDescription } from './guideLabels'
 import { NO_TODAY_ACTIONS, guideTodayState } from './guideSampleState'
 
@@ -29,6 +29,11 @@ type FlipProps = {
   phone: RefObject<HTMLDivElement | null>
   screen: RefObject<HTMLDivElement | null>
   ghosts: RefObject<HTMLDivElement | null>
+  /** The control the next step stands for pressing (a `GuideTap` name), read as this step comes in; null if none. */
+  nextTap: string | null
+  /** The ring on it, in the last of this step's hold: the control, and how far into the ring the clock is, in ms. */
+  tap: string | null
+  tapMs: number
   children: ReactNode
 }
 
@@ -42,12 +47,22 @@ type Before = { boxes: Map<string, FlipBox>; targets: FlipTarget[] }
 class FlipLayer extends Component<FlipProps> {
   private run: FlipRun | null = null
 
+  /** The next step's tap ring: where its control is (read as this step came in), and the ring once it plays. */
+  private tapBox: FlipBox | null = null
+  private ring: RingRun | null = null
+
   private readonly timing = { moveMs: grit.guideMoveMs(), fadeMs: grit.guideFadeMs(), easing: FLIP_EASING }
+
+  componentDidMount() {
+    this.readTap()
+    this.moveRing()
+  }
 
   getSnapshotBeforeUpdate(prev: FlipProps): Before | null {
     if (prev.stepIndex === this.props.stepIndex) return null
-    // A move still under way ends where it was going, so the boxes read are the rows' own.
+    // A move still under way ends where it was going, so the boxes read are the rows' own; a ring under way ends.
     this.end()
+    this.endRing()
     const { on, scale, phone, screen } = this.props
     if (!on || scale <= 0 || phone.current == null || screen.current == null) return null
     const targets = todayTargets(screen.current)
@@ -67,8 +82,12 @@ class FlipLayer extends Component<FlipProps> {
           .map((t) => [t.key, { el: t.el, box: before.boxes.get(t.key)! }]),
       )
       plan.exits = plan.exits.filter((key) => gone.has(key))
-      this.run = startFlip(plan, targets, gone, ghosts.current, this.timing)
+      // In the same read pass: the dots of sets logged in this step, and the control the next step will press.
+      const ticks = tickDots(plan.enters, targets, phone.current, scale)
+      this.readTap()
+      this.run = startFlip(plan, targets, gone, ghosts.current, this.timing, ticks)
     }
+    this.moveRing()
     if (this.run == null) return
     if (moveMs >= this.timing.moveMs) this.end()
     else this.run.seek(moveMs)
@@ -76,11 +95,34 @@ class FlipLayer extends Component<FlipProps> {
 
   componentWillUnmount() {
     this.end()
+    this.endRing()
   }
 
   private end() {
     this.run?.finish()
     this.run = null
+  }
+
+  /** Where the next step's control is: one read, as a step comes in (never while the ring plays). */
+  private readTap() {
+    const { on, scale, phone, screen, nextTap } = this.props
+    this.tapBox = on && nextTap != null && scale > 0 && phone.current != null && screen.current != null ? tapTarget(nextTap, screen.current, phone.current, scale) : null
+  }
+
+  /** The ring follows the guide's clock while the frame says it plays; otherwise there is none. */
+  private moveRing() {
+    const { on, tap, tapMs, ghosts } = this.props
+    if (!on || tap == null || this.tapBox == null || ghosts.current == null) {
+      this.endRing()
+      return
+    }
+    this.ring ??= startRing(ghosts.current, this.tapBox, grit.guideTapMs())
+    this.ring?.seek(tapMs)
+  }
+
+  private endRing() {
+    this.ring?.finish()
+    this.ring = null
   }
 
   render() {
@@ -118,7 +160,7 @@ const makeInert = (el: HTMLDivElement | null) => el?.setAttribute('inert', '')
  * phone and shrunk to fit, with no-op actions. What is drawn is inert and hidden from the accessibility tree; the frame
  * says one description. Screens whose picture isn't built yet show the empty frame.
  */
-export function GuidePicture({ id, mode, frame, moveMs = Number.POSITIVE_INFINITY, motionOn = false }: { id: string; mode: TrainingMode; frame: JsGuideFrame | null; moveMs?: number; motionOn?: boolean }) {
+export function GuidePicture({ id, mode, frame, moveMs = Number.POSITIVE_INFINITY, motionOn = false, nextTap = null }: { id: string; mode: TrainingMode; frame: JsGuideFrame | null; moveMs?: number; motionOn?: boolean; nextTap?: string | null }) {
   const slot = useRef<HTMLDivElement>(null)
   const phone = useRef<HTMLDivElement>(null)
   const drawnScreen = useRef<HTMLDivElement | null>(null)
@@ -152,7 +194,18 @@ export function GuidePicture({ id, mode, frame, moveMs = Number.POSITIVE_INFINIT
       >
         {drawn && (
           <div className="guide-phone" ref={phone} style={{ width: `${PHONE_WIDTH}px`, height: `${height}px`, transform: `scale(${scale})` }}>
-            <FlipLayer stepIndex={frame!.stepIndex} moveMs={moveMs} on={motionOn} scale={scale} phone={phone} screen={drawnScreen} ghosts={ghosts}>
+            <FlipLayer
+              stepIndex={frame!.stepIndex}
+              moveMs={moveMs}
+              on={motionOn}
+              scale={scale}
+              phone={phone}
+              screen={drawnScreen}
+              ghosts={ghosts}
+              nextTap={nextTap}
+              tap={frame!.tap ?? null}
+              tapMs={frame!.tapProgress * grit.guideTapMs()}
+            >
               {/* Inert: no taps, no focus, no find-in-page; aria-hidden: one description for the whole picture. */}
               <div
                 className="guide-picture-screen"
@@ -162,7 +215,7 @@ export function GuidePicture({ id, mode, frame, moveMs = Number.POSITIVE_INFINIT
                 {screen}
               </div>
             </FlipLayer>
-            {/* Rows gone in a step, drawn where they were while they fade (the guide's own; React puts nothing in it). */}
+            {/* Rows gone in a step, drawn where they were while they fade, and the guide's tick and tap ring (its own; React puts nothing in it). */}
             <div
               className="guide-flip-ghosts"
               aria-hidden="true"
