@@ -124,6 +124,8 @@
 5. **Speed:** "as the 1.15 speed checks measure" now means the structural checks are hard (the guide isn't loaded before it opens; no layout reads per step) and frame timing only reports, as the owner chose for 1.15.
 6. **The owner sees one finished picture first** (screen 4, Today, on both apps) before the other seven are built.
 
+7. **Smoother motion (owner, 2026-11-19: "Plan for the smoother motion now").** The pictures flow between steps instead of snapping. Android's real screens already animate when their state changes, so the guide inherits that. The web's real screens animate only from taps, so the guide adds its own small layout animation there. On both apps the guide feeds in-between values (a weight counting up, a chart drawing in). No real screen is changed. Effects that would need one changed (the tick drawing in, a tap ring) are not built unless the owner asks. The owner sees a clip of screen 4 before the other pictures are built.
+
 ## Left to the builder
 - **The shape of the guide's definition** in the domain, and how each picture is drawn: reusing the real screens' components with sample state where that's clean, or drawn mock-ups.
 - **The exact wording,** within the screen outlines above. Plain words, and each screen's text under about 40 words.

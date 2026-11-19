@@ -161,6 +161,50 @@ export type GuideExit = 'skipped' | 'done' | 'choose-template' | 'build-plan' | 
 - [ ] **Step 7: Run** the Android unit tests, `npm test`, `npx tsc -b`, `npx playwright test e2e/guide.spec.ts --trace off`. Commit `feat: the guide's shell and its Today picture (both apps)`.
 - [ ] **Step 8: Stop. The owner sees the screen-4 shots** (and a short screen recording or frame strip of the steps) before the other pictures are built.
 
+### Task 2b: The Today picture moves, then the owner's clip
+
+The owner asked for smoother motion than a slideshow (2026-11-19). An inventory of the real screens found:
+- **Android already animates from state** (`LayoutMotion.kt`, `Charts.kt`): a logged set's block slides open, a skipped exercise fades out and the rest close up, the current card advances with `SlidingSwap`, coach cards fade and slide, charts draw in. Numbers, the tick and the "Skipped today" line are instant.
+- **The web animates only from actions** (view transitions started by its hooks), so a picture fed props shows no motion at all.
+- Neither app can be changed inside its real screens (spec non-goal), and the guide may not use View Transitions.
+
+**So the guide's motion has three parts, the same on every picture:**
+1. **Inherited (Android):** the picture keeps one mounted instance, so the real screen's own motion plays. Nothing to build, but nothing may break it.
+2. **Fed (both apps):** during a step's move, the guide feeds in-between sample values the app could really show: the weight in loadable steps, whole reps, RPE in halves, chart points one at a time.
+3. **The guide's own layout motion (web):** a small FLIP layer in the guide. Before a step change it records the boxes of the picture's rows; after the render it moves them from the old box to the new with the Web Animations API (transform and opacity only), and fades in what is new. One layout read per step change, none per frame. This gives the web the slides Android inherits.
+
+**Files:** domain `guide/Guide.kt`, `GuideSample.kt` (+ tests, JS bridge, `syncWebDomain`); Android `ui/guide/GuideScreen.kt`, `GuidePictures.kt`; web `screens/guide/GuideScreen.tsx`, `GuidePictures.tsx`, new `screens/guide/guideFlip.ts`.
+
+**Interfaces — Produces:**
+
+```kotlin
+// in Guide: one definition of time, as ModeSwitchMotion.dropFrame is for the switch
+const val MOVE_MS: Int = 320            // a step's move; then it holds for STEP_MS
+data class GuideFrame(val stepIndex: Int, val step: GuideStep, val progress: Double, val done: Boolean)  // progress 0..1 eased within the move; 1 while holding
+fun frame(id: GuideScreenId, mode: TrainingMode, tMs: Int): GuideFrame   // each step lasts MOVE_MS + STEP_MS; the last step holds for good (done)
+// in GuideSample: what the Today editor shows part-way through a move
+data class GuideEditor(val weightKg: Double, val reps: Int, val rpe: Double)
+fun todayEditor(mode: TrainingMode, step: GuideStep, progress: Double): GuideEditor  // snaps to values the app allows; equals the step's end value at progress 1
+```
+
+`GuideClock` on both apps now gives elapsed milliseconds (frame-driven while a move runs, idle while a step holds); the apps call `Guide.frame`. They invent no durations: web FLIP moves take `MOVE_MS`; Android keeps its own springs for inherited motion.
+
+- [ ] **Step 1: Failing domain tests:** `frame_stepsAndProgress_overTime` (boundaries, the last step holds, `done`); `todayEditor_onlyShowsValuesTheAppAllows` (weight on the 2.5 kg grid, whole reps, RPE in halves, monotonic from the step's start to its end); `todayEditor_atProgressOne_equalsTheStepsEndState`.
+- [ ] **Step 2: Failing app tests** (both apps, held clock):
+  - `guide_today_numbersRollThroughInBetweenValues`: mid-move the editor shows a value strictly between the step's start and end.
+  - `guide_whileAStepHolds_nothingRenders`: no recomposition / no React render of the picture between the end of a move and the next step.
+  - `guide_replayOrPageReturn_restartsWithoutPlayingBackwards`: returning to the page shows step 1 at once, with no reverse animation (Android: key the picture on a run counter).
+  - `guide_clockStops_whenHiddenOrUnmounted` (Android lifecycle `STOPPED`; web `visibilitychange`), and no timers after unmount.
+  - `guide_reduceMotion_showsTheLastStepStill` stays as it is.
+  - Web: `guideFlip_movesARowFromItsOldBoxToItsNew` (unit, with stubbed boxes); `guideFlip_readsLayoutOncePerStepChange_neverPerFrame` (held-clock e2e counting `getBoundingClientRect`); `guideFlip_usesOnlyTransformAndOpacity`; e2e `guide_today_skippedRow_slidesAndTheRestCloseUp` asserting a running animation on the rows after the skip step (via `getAnimations()`).
+  - Android: `guide_today_inheritsTheScreensOwnMotion`: with motion on, after the log step the set block is mid-slide on the next frame (the real screen's `SlidingBlock`), proving the instance wasn't rebuilt.
+- [ ] **Step 3: Implement,** domain first (`syncWebDomain`), then the apps.
+- [ ] **Step 4: Shots stay at settled states.** Record for the owner: a web video of screen 4 on each side (Playwright `recordVideo`, motion on, real time), and an Android frame strip (every 80 ms across the log and skip steps) from the held clock.
+- [ ] **Step 5: Run** the domain, app and web suites and the full e2e. Commit `feat: the guide's Today picture moves (both apps)`.
+- [ ] **Step 6: Stop. The owner sees the clip** before the other seven pictures are built.
+
+**Not built without the owner's say** (each needs a real screen changed, so it would also change the real app): the tick drawing in; the "Skipped today" line sliding in on Android; a tap ring showing where a finger would press (Android gives the guide no way to find a control inside the picture).
+
 ### Task 3: Opening it: first launch, "seen", the side pick, screen 8, the Settings row
 
 **Files:** Android `data/GuideSeen.kt`, `data/db/Daos.kt`, `ui/AppShell.kt`, `ui/plan/SettingsScreen.kt`; web `screens/guide/guideSeen.ts`, `App.tsx`, `screens/settings/SettingsScreen.tsx`, `screens/install/InstallCard.tsx` (order only). Tests beside each, plus `web/e2e/guide.spec.ts`.
@@ -219,6 +263,8 @@ export const GUIDE_KEY = 'grit:guide'                            // localStorage
 **Files:** `GuidePictures.kt`, `GuideSampleState.kt`; `GuidePictures.tsx`, `guideSampleState.ts`; tests and shots as in Task 2.
 
 **Interfaces — Consumes:** Task 1's sample data, Task 2's `GuideClock` and frame.
+
+Every picture moves as Task 2b defines: one mounted instance (Android inherits the real screen's motion), fed in-between values, and the web's FLIP layer. Per picture: screen 3's rows slide in as the week fills; screen 5's weight and reps roll between sessions; screen 6's cards fade and slide from one to the next; screen 7's chart draws in (remount it under a new key so the real draw-in plays) and its bests count up through fed values. Add `GuideSample` in-between functions as needed, with the same "only values the app allows" test.
 
 Pictures, each a short list of steps on the clock:
 1. **WELCOME:** the app's mark and the two sides' colours; no numbers.
