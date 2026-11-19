@@ -455,6 +455,44 @@ test.describe('with motion on', () => {
     await settled(page, 'a drop run to its end')
   })
 
+  // The reveal's circle, on the held clock: from the moment it grows frame by frame, and it reaches the whole screen
+  // (the reveal ends) before the animation does.
+  for (const kind of ['pump', 'drop'] as const) {
+    test(`the ${kind}'s reveal circle grows, frame by frame, to the whole screen`, async ({ page }) => {
+      await openSettings(page)
+      await hold(page)
+      if (kind === 'drop') {
+        await flip(page, 'BODYBUILDING')
+        await page.clock.runFor(PUMP.end + 100)
+      }
+      await flip(page, kind === 'pump' ? 'BODYBUILDING' : 'POWERLIFTING')
+      const end = kind === 'pump' ? PUMP.end : DROP.end
+      const moment = kind === 'pump' ? THIRD : DROP.impact
+      await page.clock.runFor(moment)
+      await untilOldSideMoves(page, `the ${kind}`)
+      const radii = await circleGrowth(page, Math.ceil(end / FRAME))
+      // A circle on screen for several frames, growing every one of them.
+      expect(radii.length, `frames the circle was drawn (${radii.join(', ')})`).toBeGreaterThanOrEqual(kind === 'pump' ? 10 : 4)
+      for (let i = 1; i < radii.length; i++) expect(radii[i]!, `the circle's radius at frame ${i} (${radii.join(', ')})`).toBeGreaterThan(radii[i - 1]!)
+      expect(radii.at(-1)!, 'the radius it had reached').toBeGreaterThan(200)
+      // Then whole: the reveal is over (the browser ends the transition on its next frame), its circle gone, before the
+      // animation ends.
+      await expect
+        .poll(
+          async () => {
+            const left = await revealLeft(page)
+            if (left.classes.length + left.pictures.length > 0) await page.clock.runFor(FRAME)
+            return left
+          },
+          { message: 'the reveal, once the circle is whole', intervals: [0] },
+        )
+        .toEqual({ classes: [], pictures: [] })
+      expect(await drawn(page), 'the animation is still running when the reveal is over').toBe(1)
+      await page.clock.runFor(end)
+      expect(await drawn(page)).toBe(0)
+    })
+  }
+
   // Where `animate` cannot hold an animation on a view transition's pseudo-element (it throws, or it ignores the
   // pseudo-element and would move <html> itself), the switch still completes: without the old side's moving picture,
   // or, without the circle, the new side at once.
@@ -469,8 +507,24 @@ test.describe('with motion on', () => {
       page.on('pageerror', (e) => errors.push(e.message))
       await page.addInitScript(
         ([pseudo, throws]) => {
-          const w = window as Window & { __stubbed?: number }
+          const w = window as Window & { __stubbed?: number; __atReady?: { revealing: boolean; circles: number } }
           w.__stubbed = 0
+          // Just after the app has had the reveal's `ready` (its handler is queued after this one).
+          const rawStart = Document.prototype.startViewTransition
+          Document.prototype.startViewTransition = function (this: Document, update?: ViewTransitionUpdateCallback | StartViewTransitionOptions) {
+            const transition = rawStart.call(this, update as ViewTransitionUpdateCallback)
+            transition.ready
+              .then(() =>
+                Promise.resolve().then(() => {
+                  w.__atReady = {
+                    revealing: document.documentElement.classList.contains('ms-revealing'),
+                    circles: document.getAnimations().filter((a) => (a.effect as KeyframeEffect | null)?.pseudoElement === '::view-transition-new(root)').length,
+                  }
+                }),
+              )
+              .catch(() => {})
+            return transition
+          }
           const raw = Element.prototype.animate
           Element.prototype.animate = function (this: Element, keyframes: Keyframe[] | PropertyIndexedKeyframes | null, options?: number | KeyframeAnimationOptions) {
             if (typeof options === 'object' && options.pseudoElement === pseudo) {
@@ -487,6 +541,20 @@ test.describe('with motion on', () => {
       await openSettings(page)
       await hold(page)
       await flip(page, 'BODYBUILDING')
+      const atReady = () => page.evaluate(() => (window as Window & { __atReady?: { revealing: boolean; circles: number } }).__atReady ?? null)
+      if (side === 'old') {
+        // Without the old side's moving picture, the circle still runs: the reveal is held, and it grows.
+        await page.clock.runFor(THIRD)
+        await expect.poll(async () => (await atReady()) ?? (await page.clock.runFor(FRAME), null), { intervals: [0] }).toEqual({ revealing: true, circles: 1 })
+        const radii = await circleGrowth(page, 6)
+        expect(radii.length, `frames the circle was drawn (${radii.join(', ')})`).toBe(6)
+        for (let i = 1; i < radii.length; i++) expect(radii[i]!, `the circle's radius at frame ${i} (${radii.join(', ')})`).toBeGreaterThan(radii[i - 1]!)
+      } else {
+        // Without the circle, the reveal ends at its `ready`: no class left, no circle, the new side on, at once.
+        await page.clock.runFor(THIRD)
+        await expect.poll(async () => (await atReady()) ?? (await page.clock.runFor(FRAME), null), { intervals: [0] }).toEqual({ revealing: false, circles: 0 })
+        expect(await dataMode(page)).toBe('bodybuilding')
+      }
       // Frame by frame through the moment and the reveal: <html> itself is never animated, and the shell moves only by
       // the swell's own transform.
       let at = 0
@@ -529,6 +597,24 @@ async function settled(page: Page, when: string) {
   expect(await page.evaluate(() => [...document.documentElement.classList].filter((c) => c.startsWith('ms-'))), `${when}: the overlay's classes`).toEqual([])
   expect(await page.locator('.shell').evaluate((el) => (el as HTMLElement).style.transform), `${when}: the shell's transform`).toBe('')
   expect(await page.locator('.shell').evaluate((el) => getComputedStyle(el).transform), `${when}: the shell's transform`).toBe('none')
+}
+
+/**
+ * The new side's circle, a frame at a time on the held clock, for at most `frames` frames or until it is gone or whole:
+ * its radius at each (the clip animation's time is its radius in px).
+ */
+async function circleGrowth(page: Page, frames: number): Promise<number[]> {
+  const radii: number[] = []
+  for (let i = 0; i < frames; i++) {
+    const r = await page.evaluate(() => {
+      const a = document.getAnimations().find((x) => (x.effect as KeyframeEffect | null)?.pseudoElement === '::view-transition-new(root)')
+      return a == null || a.playState === 'finished' ? null : Number(a.currentTime)
+    })
+    if (r == null) break
+    radii.push(r)
+    if (i < frames - 1) await page.clock.runFor(FRAME)
+  }
+  return radii
 }
 
 /** Steps the held clock a frame at a time until the old side's picture has its moving animation. */
@@ -594,8 +680,8 @@ test('with reduced motion: no animation, the side changes at the tap', async ({ 
 //    missed or late, or the machine's CPU over 30 % in use), or the animations' own windows had the CPU taken by
 //    something other than the test's own processes. It never blames the app for a busy machine. Also MACHINE BUSY,
 //    whatever the app did, where noise could have helped the run pass: idle controls not clean while their interval
-//    is off 60 Hz's (it sets every gap threshold), or the cold pump's windows not quiet (a busy machine can hold back
-//    the warm the cold proof looks for). Idle controls not clean while the app passes: a loud MACHINE NOISE warning,
+//    is off 60 Hz's (it sets every gap threshold), or the cold pump's animation window with its CPU taken (a busy
+//    machine can hold back the warm the cold proof looks for). Idle controls not clean while the app passes: a loud MACHINE NOISE warning,
 //    and the run passes.
 // 5. Two or more bad animations of one kind (the pump, warm and cold; the drop). An animation is bad when any frame
 //    of it, from the tap to its end, breaks a rule: (a) the app's script over 16 ms; (b) a gap between frames over
@@ -604,7 +690,8 @@ test('with reduced motion: no animation, the side changes at the tap', async ({ 
 //    over one and a half intervals after the tap, or the tap itself over 16 ms. One stray lost frame does not fail
 //    the run; the same fault twice in five does.
 // 6. The reveal's work: the median work per frame over every reveal's frames (from three frames after the moment to
-//    the reveal's end), pooled across the eleven animations, over WORK_LIMIT. The limit is in milliseconds of this
+//    the reveal's end), pooled across the eleven animations, over WORK_LIMIT; or either kind's own median over its
+//    WORK_LIMIT_OF. The limit is in milliseconds of this
 //    machine (the e2e container): it sits between the build before the 1.15 speed fix and the build after it.
 test.describe('mode switch speed', { tag: '@speed' }, () => {
   /** Over this share of the machine's CPU in use during an idle control, the machine is busy. */
@@ -627,6 +714,12 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
   const MIN_REVEAL = 80
   /** The pooled median of the reveal's work per frame, ms (see 6 above). */
   const WORK_LIMIT = 5.5
+  /**
+   * Each kind's own median, ms, so a regression in one kind is not diluted by the other (the drop is about a quarter
+   * of the pool). Midway between the speed fix's worst median here (pump 5.3, drop 4.9) and the build before it's best
+   * (6.6, 6.2).
+   */
+  const WORK_LIMIT_OF = { pump: 6.0, drop: 5.5 }
 
   /** The machine's CPU time so far, all cores, from /proc/stat, in clock ticks; null where there is none. */
   const procStat = () => {
@@ -1012,10 +1105,15 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
     }
     const work = median(revealWork)
     const badOf = (kind: 'pump' | 'drop') => runs.filter((r) => r.kind === kind && bad.has(r.name))
-    const failing = [...(['pump', 'drop'] as const).filter((k) => badOf(k).length >= BAD).map((k) => `${badOf(k).length} bad ${k}s of ${runs.filter((r) => r.kind === k).length}`), ...(work > WORK_LIMIT ? [`the reveal's work ${work.toFixed(2)} ms a frame`] : [])]
+    const slowKinds = (['pump', 'drop'] as const).filter((k) => !(median(workOf[k]!) <= WORK_LIMIT_OF[k]))
+    const failing = [
+      ...(['pump', 'drop'] as const).filter((k) => badOf(k).length >= BAD).map((k) => `${badOf(k).length} bad ${k}s of ${runs.filter((r) => r.kind === k).length}`),
+      ...(work > WORK_LIMIT ? [`the reveal's work ${work.toFixed(2)} ms a frame`] : []),
+      ...slowKinds.map((k) => `the ${k}'s reveal work ${median(workOf[k]!).toFixed(2)} ms a frame`),
+    ]
     // When the app's checks fail: was the CPU the animation needed taken by something else?
     const busyDuring = failing.length === 0 ? [] : runs.filter((r) => r.anim.cpu != null && (r.anim.cpu.other > OTHER_CPU || r.anim.cpu.steal > STEAL_CPU)).map((r) => `${r.name}: ${cpuSaid(r.anim.cpu)}`)
-    const said = `interval ${interval.toFixed(1)} ms; reveal work median ${work.toFixed(2)} ms over ${revealWork.length} frames (pump ${median(workOf.pump!).toFixed(2)}, drop ${median(workOf.drop!).toFixed(2)}), limit ${WORK_LIMIT}; bad animations: pump ${badOf('pump').length}, drop ${badOf('drop').length}; ${summary.join('; ')}; idle controls: ${control.join('; ')}${cpuCheck ? '' : '; CPU CHECK UNAVAILABLE'}`
+    const said = `interval ${interval.toFixed(1)} ms; reveal work median ${work.toFixed(2)} ms over ${revealWork.length} frames (pump ${median(workOf.pump!).toFixed(2)}, drop ${median(workOf.drop!).toFixed(2)}), limits ${WORK_LIMIT} (pump ${WORK_LIMIT_OF.pump}, drop ${WORK_LIMIT_OF.drop}); bad animations: pump ${badOf('pump').length}, drop ${badOf('drop').length}; ${summary.join('; ')}; idle controls: ${control.join('; ')}${cpuCheck ? '' : '; CPU CHECK UNAVAILABLE'}`
     console.log(`mode switch speed: ${said}`)
     // The app's checks failed: on a noisy or busy machine that says nothing about the app.
     expect(failing.length > 0 ? [...busy, ...busyDuring] : [], `MACHINE BUSY: the app's checks failed (${failing.join(', ')}) while the machine was not quiet (below), so this run says nothing about the app; rerun it on a quiet machine (${said})`).toEqual([])
@@ -1024,12 +1122,17 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
     // check, and the cold proof:
     // - the interval: noisy controls can lift their median gap, which widens every gap threshold;
     expect(interval > NOT_60HZ ? busy : [], `MACHINE BUSY: the idle controls were not clean and their interval reads ${interval.toFixed(1)} ms, not 60 Hz's, so the noise may have loosened every threshold; rerun it on a quiet machine (${said})`).toEqual([])
-    // - the cold proof: a busy machine can hold back the warm that would have come too early.
+    // - the cold proof: a busy machine during the cold pump's own window can hold back the warm that would have come too
+    //   early. (Its idle control comes before the scroll, so noise there cannot; it is a warning like the others.)
     const coldRun = runs.find((r) => r.name === 'pump (cold)')!
-    const coldNoise = [...busy.filter((b) => b.startsWith('pump (cold),')), ...(coldRun.anim.cpu != null && (coldRun.anim.cpu.other > OTHER_CPU || coldRun.anim.cpu.steal > STEAL_CPU) ? [`pump (cold): ${cpuSaid(coldRun.anim.cpu)}`] : [])]
-    expect(coldNoise, `MACHINE BUSY: the cold pump's windows were not quiet, so the cold proof (no warm before the animation's end) cannot be trusted; rerun it on a quiet machine (${said})`).toEqual([])
+    const coldNoise = coldRun.anim.cpu != null && (coldRun.anim.cpu.other > OTHER_CPU || coldRun.anim.cpu.steal > STEAL_CPU) ? [`pump (cold): ${cpuSaid(coldRun.anim.cpu)}`] : []
+    expect(coldNoise, `MACHINE BUSY: the cold pump's window was not quiet, so the cold proof (no warm before the animation's end) cannot be trusted; rerun it on a quiet machine (${said})`).toEqual([])
     expect([...bad].filter(([name]) => badOf(runs.find((r) => r.name === name)!.kind).length >= BAD).map(([name, why]) => `${name}: ${why.join(', ')}`), `late frames, in ${BAD} or more animations of one kind (${said})`).toEqual([])
     expect(work, `THE REVEAL'S FRAMES ARE SLOW: the median work per frame over every reveal is ${work.toFixed(2)} ms, over ${WORK_LIMIT} ms (${said})`).toBeLessThanOrEqual(WORK_LIMIT)
+    expect(
+      slowKinds.map((k) => `the ${k}: ${median(workOf[k]!).toFixed(2)} ms over ${workOf[k]!.length} frames, limit ${WORK_LIMIT_OF[k]} ms`),
+      `THE REVEAL'S FRAMES ARE SLOW, in one kind: the median work per frame over that kind's reveals is over its limit (${said})`,
+    ).toEqual([])
     // The app passed: noise in the idle controls is said, loudly, and the run passes.
     if (busy.length > 0) {
       const noise = `MACHINE NOISE (warning): the app's checks all passed, but the idle controls were not clean: ${busy.join('; ')}. Their CPU: ${runs.map((r) => `${r.name} ${cpuSaid(r.idle.cpu)}`).join('; ')}`
