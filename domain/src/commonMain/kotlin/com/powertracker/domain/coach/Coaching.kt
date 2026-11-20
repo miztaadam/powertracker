@@ -47,7 +47,8 @@ object Coaching {
      * New advice to store for [mode]'s side. On the bodybuilding side in this stage only the advice that belongs to
      * the lifter: easing back in after a break and the fatigue deload (the same rule and the same one-at-a-time
      * rails as on the powerlifting side). The deload's other signals read only powerlifting sessions, so on the
-     * bodybuilding side low readiness (over every session, as the rule reads it) is enough by itself.
+     * bodybuilding side low readiness (over every session, as the rule reads it) is enough by itself. Easing back in
+     * is made only for a side trained before the session that ended the break, on either side (1.16).
      *
      * From stage 3 the bodybuilding side also gets [PhysiqueCoach.stuck]'s SWAP advice, reading [checkIns] for the
      * growing-well groups; a deload or easing-back-in made in this same call counts as one created today. The
@@ -65,6 +66,7 @@ object Coaching {
         val advice = Coach.evaluate(
             history, plan.on(mode), settings, today, priorAdvice.forSide(mode),
             readinessAloneDeloads = mode == TrainingMode.BODYBUILDING,
+            side = mode,
         )
         val kept = when (mode) {
             TrainingMode.POWERLIFTING -> advice

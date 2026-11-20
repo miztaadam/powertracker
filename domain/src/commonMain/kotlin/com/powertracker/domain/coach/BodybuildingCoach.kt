@@ -70,12 +70,12 @@ object BodybuildingCoach {
         val deload = Coach.activeAdvice(AdviceType.DELOAD, priorAdvice, today)
         val lastSession = all.lastSessionDate(today)
         val firstDayBack = lastSession != null && lastSession.daysUntil(today) >= Coach.GAP_DAYS
-        // A side with no session before today was never trained: a break eases nothing back on it (1.16).
-        val trained = history.sessions.any { it.mode == TrainingMode.BODYBUILDING && it.date < today }
-        val reEntry = if (!trained) null else (
-            Coach.activeAdvice(AdviceType.RE_ENTRY, priorAdvice, today)
-                ?: if (firstDayBack) Advice(AdviceType.RE_ENTRY, null, today, "", 0, AdvicePayload.ReEntry()) else null
-            )
+        // A side with no session before today was never trained: a break eases nothing back on it (1.16). Nor does a
+        // stored easing back in from a break this side had not been trained before.
+        val trained = Coach.trainedBefore(TrainingMode.BODYBUILDING, history, today)
+        val reEntry = Coach.activeAdvice(AdviceType.RE_ENTRY, priorAdvice, today)
+            ?.takeIf { Coach.easesBackIn(it, TrainingMode.BODYBUILDING, history, all) }
+            ?: if (trained && firstDayBack) Advice(AdviceType.RE_ENTRY, null, today, "", 0, AdvicePayload.ReEntry()) else null
         return plan
             .filter { it.weekday == day && it.mode == TrainingMode.BODYBUILDING }
             .sortedBy { it.order }

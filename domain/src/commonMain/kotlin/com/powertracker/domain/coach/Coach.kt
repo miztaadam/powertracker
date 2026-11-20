@@ -28,7 +28,8 @@ import kotlin.math.roundToLong
  *
  * The powerlifting side's coach. Callers pass the whole log; progression, minimum history, stalls, weak points and
  * fatigue's top-set signals read only its powerlifting sessions, while the 14-day gap, re-entry and readiness read
- * every session. A deload or re-entry in the prior advice counts whichever side it was made on.
+ * every session. A deload in the prior advice counts whichever side it was made on; so does a re-entry, but only on a
+ * side trained before the session that ended its break ([easesBackIn]).
  */
 object Coach {
     private const val MIN_SESSIONS = 3
@@ -61,8 +62,9 @@ object Coach {
     ): List<Advice> = evaluate(history, plan, settings, today, priorAdvice, readinessAloneDeloads = false)
 
     /**
-     * As [evaluate]; with [readinessAloneDeloads] (the bodybuilding side) low readiness by itself raises the
-     * fatigue deload, under the same rails.
+     * As [evaluate], for [side]: with [readinessAloneDeloads] (the bodybuilding side) low readiness by itself raises
+     * the fatigue deload, under the same rails. The re-entry is made only when [side] has a session before the one
+     * that ended the break (1.16): a side first trained on the return has nothing to come back to.
      */
     internal fun evaluate(
         history: TrainingHistory,
@@ -71,13 +73,14 @@ object Coach {
         today: LocalDate,
         priorAdvice: List<Advice>,
         readinessAloneDeloads: Boolean,
+        side: TrainingMode = TrainingMode.POWERLIFTING,
     ): List<Advice> {
         val all = HistoryStats(history)
         val stats = powerliftingStats(history, all)
         val candidates = mutableListOf<Advice>()
 
         val returnDate = all.returnDateAfterGap(today)
-        if (returnDate != null) reEntry(all, returnDate, today, priorAdvice)?.let(candidates::add)
+        if (returnDate != null) if (trainedBefore(side, history, returnDate)) reEntry(all, returnDate, today, priorAdvice)?.let(candidates::add)
 
         if (!deloadBlocked(priorAdvice, today)) FatigueRule.evaluate(all, history, today, readinessAloneDeloads)?.let(candidates::add)
 
@@ -107,7 +110,8 @@ object Coach {
      * Skips items whose exercise is missing or archived, and main-lift/variation items whose lift lacks
      * minimum history. While a DELOAD or RE_ENTRY is OPEN (for 14 days) or APPLIED within the last 7 days,
      * loads are capped against the top set from before that advice (and, for a deload, sets reduced). On the
-     * first day back after a gap of 14 days or more, re-entry applies even before any RE_ENTRY advice exists.
+     * first day back after a gap of 14 days or more, re-entry applies even before any RE_ENTRY advice exists. A
+     * stored RE_ENTRY clamps only when this side was trained before its break ended ([easesBackIn]).
      * After time on the bodybuilding side, [ReturnRule] eases each exercise's first target back first.
      * An exercise held by a pain skip in [skips] ([SkipCoach.held]) gets no increase: where progression would add
      * weight, or a rep at the same weight, the target repeats its latest top set instead ([ProgressionRule.held]); a
@@ -130,6 +134,7 @@ object Coach {
         val lastSession = all.lastSessionDate(today)
         val firstDayBack = lastSession != null && lastSession.daysUntil(today) >= GAP_DAYS
         val reEntry = activeAdvice(AdviceType.RE_ENTRY, priorAdvice, today)
+            ?.takeIf { easesBackIn(it, TrainingMode.POWERLIFTING, history, all) }
             ?: if (firstDayBack) Advice(AdviceType.RE_ENTRY, null, today, "", 0, AdvicePayload.ReEntry()) else null
         return plan.filter { it.weekday == day }.sortedBy { it.order }.mapNotNull { item ->
             val exercise = history.exercises[item.exerciseId]?.takeUnless { it.archived } ?: return@mapNotNull null
@@ -146,6 +151,18 @@ object Coach {
     private fun powerliftingStats(history: TrainingHistory, all: HistoryStats): HistoryStats =
         if (history.sessions.all { it.mode == TrainingMode.POWERLIFTING }) all
         else HistoryStats(history.on(TrainingMode.POWERLIFTING))
+
+    /** Whether [side] has a session in [history] dated before [date]. */
+    internal fun trainedBefore(side: TrainingMode, history: TrainingHistory, date: LocalDate): Boolean =
+        history.sessions.any { it.mode == side && it.date < date }
+
+    /**
+     * Whether a stored [reEntry] eases [side]'s targets: only when [side] was trained before the session that ended
+     * the break ([all]'s return date as of the advice), so a card stored by an older version on a side first trained
+     * on the return eases nothing (1.16).
+     */
+    internal fun easesBackIn(reEntry: Advice, side: TrainingMode, history: TrainingHistory, all: HistoryStats): Boolean =
+        trainedBefore(side, history, all.returnDateAfterGap(reEntry.createdAt) ?: reEntry.createdAt)
 
     private fun reEntry(stats: HistoryStats, returnDate: LocalDate, today: LocalDate, prior: List<Advice>): Advice? {
         if (today > returnDate.plus(RE_ENTRY_SHOW_DAYS, DateTimeUnit.DAY)) return null
