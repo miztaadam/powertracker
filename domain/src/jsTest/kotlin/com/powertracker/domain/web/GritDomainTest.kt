@@ -182,6 +182,9 @@ class GritDomainTest {
         assertNull(GritDomain.total(history, "2025-01-01", false))
         // The golden scenario has no strict press, so a total that includes it is not known yet.
         assertNull(GritDomain.total(history, "2026-03-16", true))
+        // Plan's "Best e1RM": with no typed best, the lift's last record.
+        assertEquals(prs.last().e1rmKg, GritDomain.knownBest(history, "BENCH"))
+        assertNull(GritDomain.knownBest(history, "STRICT_PRESS"))
     }
 
     @Test

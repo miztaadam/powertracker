@@ -51,6 +51,7 @@ export declare namespace GritDomain {
             weeklyTrend(history: JsHistory, lift: string, until: string): Array<JsWeeklyPoint>;
             currentE1rm(history: JsHistory, lift: string, until: string, days: number): Nullable<number>;
             prs(history: JsHistory, lift: string): Array<JsPr>;
+            knownBest(history: JsHistory, lift: string): Nullable<number>;
             isNewPr(history: JsHistory, set: JsSet, date: string, mode: string): boolean;
             weeklyVolume(history: JsHistory, lift: string): Array<JsWeeklyPoint>;
             accessoryOptions(lift: string, miss: Nullable<string>): Array<JsAccessoryOption>;

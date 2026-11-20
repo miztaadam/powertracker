@@ -27,8 +27,8 @@ import {
   AbstractEncoder2gxtu3xmy3f8j as AbstractEncoder,
   OBJECT_getInstancerq52wx6ymebx as OBJECT_getInstance,
   SerializationStrategyh6ouydnm6hci as SerializationStrategy,
-  Encoderqvmrpqtq8hnu as Encoder,
   CompositeEncoderknecpkexzn3v as CompositeEncoder,
+  Encoderqvmrpqtq8hnu as Encoder,
   serializer3ikrxnm8b29d6 as serializer_0,
   serializer2lw83vwvpnyms as serializer_1,
   serializer36584sjyg5661 as serializer_2,
@@ -200,7 +200,7 @@ initMetadataForClass(DescriptorSchemaCache, 'DescriptorSchemaCache', DescriptorS
 initMetadataForClass(DiscriminatorHolder, 'DiscriminatorHolder');
 initMetadataForClass(StreamingJsonDecoder, 'StreamingJsonDecoder', VOID, AbstractDecoder, [Decoder, CompositeDecoder]);
 initMetadataForClass(JsonDecoderForUnsignedTypes, 'JsonDecoderForUnsignedTypes', VOID, AbstractDecoder);
-initMetadataForClass(StreamingJsonEncoder, 'StreamingJsonEncoder', VOID, AbstractEncoder, [Encoder, CompositeEncoder]);
+initMetadataForClass(StreamingJsonEncoder, 'StreamingJsonEncoder', VOID, AbstractEncoder, [CompositeEncoder, Encoder]);
 initMetadataForClass(AbstractJsonTreeDecoder, 'AbstractJsonTreeDecoder', VOID, NamedValueDecoder, [Decoder, CompositeDecoder]);
 initMetadataForClass(JsonTreeDecoder, 'JsonTreeDecoder', VOID, AbstractJsonTreeDecoder);
 initMetadataForClass(JsonTreeListDecoder, 'JsonTreeListDecoder', VOID, AbstractJsonTreeDecoder);

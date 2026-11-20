@@ -178,4 +178,74 @@ class ProgressMathTest {
         assertNull(ProgressMath.total(HistoryStats(twoLifts), until, includeStrictPress = false))
         assertEquals(540.0, ProgressMath.total(HistoryStats(allThree), until, includeStrictPress = false)!!, 1e-9)
     }
+
+    // ---- knownBest (1.16.1): Plan's "Best e1RM" line, the higher of the typed best and the best logged ----
+
+    @Test
+    fun knownBest_isNull_withNoBaselineAndNoSets() {
+        assertNull(ProgressMath.knownBest(history(), MainLift.SQUAT))
+    }
+
+    @Test
+    fun knownBest_isTheTypedBest_withNoSets() {
+        val history = history(baselines = listOf(Baseline(squat.id, 182.5, monday)))
+        assertEquals(182.5, ProgressMath.knownBest(history, MainLift.SQUAT))
+        assertNull(ProgressMath.knownBest(history, MainLift.BENCH))
+    }
+
+    @Test
+    fun knownBest_liftedBeatsTyped() {
+        val history = history(monday.plus(7, DateTimeUnit.DAY) to listOf(set(squat, 190.0)), baselines = listOf(Baseline(squat.id, 180.0, monday)))
+        assertEquals(190.0, ProgressMath.knownBest(history, MainLift.SQUAT))
+    }
+
+    @Test
+    fun knownBest_typedBeatsLifted() {
+        val history = history(monday to listOf(set(squat, 170.0)), baselines = listOf(Baseline(squat.id, 200.0, monday.plus(7, DateTimeUnit.DAY))))
+        assertEquals(200.0, ProgressMath.knownBest(history, MainLift.SQUAT))
+    }
+
+    @Test
+    fun knownBest_isTheAllTimeRecord_asProgressRecordsShowIt() {
+        // A heavier set long ago still counts: the same number as the lift's last record.
+        val history = history(
+            monday to listOf(set(squat, 180.0)),
+            monday.plus(70, DateTimeUnit.DAY) to listOf(set(squat, 150.0)),
+        )
+        assertEquals(ProgressMath.prs(history, MainLift.SQUAT).last().e1rmKg, ProgressMath.knownBest(history, MainLift.SQUAT))
+        assertEquals(180.0, ProgressMath.knownBest(history, MainLift.SQUAT))
+    }
+
+    @Test
+    fun knownBest_ignoresFailedSetsVariationsAndBodybuildingSessions() {
+        val history = TrainingHistory(
+            listOf(
+                LoggedSession(1, monday, null, null, listOf(set(squat, 300.0, failed = true), set(pauseSquat, 250.0), set(squat, 100.0))),
+                LoggedSession(2, monday.plus(1, DateTimeUnit.DAY), null, null, listOf(set(squat, 220.0)), TrainingMode.BODYBUILDING),
+            ),
+            exercises,
+            emptyList(),
+        )
+        assertEquals(100.0, ProgressMath.knownBest(history, MainLift.SQUAT))
+    }
+
+    @Test
+    fun knownBest_takesTheLatestTypedBest_ofTheLiftsOwnExercises() {
+        val press = Exercise(5, "Strict press", Category.STRICT_PRESS, null, emptyList(), isBuiltIn = true)
+        val ohp = Exercise(6, "OHP", Category.STRICT_PRESS, null, emptyList(), isBuiltIn = false)
+        val history = TrainingHistory(
+            emptyList(),
+            exercises + listOf(press, ohp).associateBy { it.id },
+            listOf(
+                Baseline(press.id, 70.0, monday),
+                Baseline(ohp.id, 65.0, monday.plus(7, DateTimeUnit.DAY)),
+                Baseline(pauseSquat.id, 400.0, monday),
+                Baseline(bench.id, 120.0, monday),
+            ),
+        )
+        // The latest typed best of the lift counts, as Progress's fallback picks it, not the highest.
+        assertEquals(65.0, ProgressMath.knownBest(history, MainLift.STRICT_PRESS))
+        // A baseline stored on a variation is no squat best.
+        assertNull(ProgressMath.knownBest(history, MainLift.SQUAT))
+    }
 }

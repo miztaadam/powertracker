@@ -76,6 +76,20 @@ object ProgressMath {
         return volume.toList().sortedBy { it.first }
     }
 
+    /**
+     * A lift's known best, as Plan's Known bests shows it (1.16.1): the higher of the latest typed baseline of the lift's
+     * own exercises and its best logged e1RM ever, the last of [prs], which Progress's Records shows. Only the
+     * powerlifting side's sessions count, as on Progress. Null when there is neither.
+     */
+    fun knownBest(history: TrainingHistory, lift: MainLift): Double? {
+        val typed = history.baselines
+            .filter { b -> history.exercises[b.exerciseId]?.let { it.isMainLift && it.mainLift == lift } == true }
+            .maxByOrNull { it.date }
+            ?.e1rmKg
+        val lifted = prs(history.on(TrainingMode.POWERLIFTING), lift).lastOrNull()?.e1rmKg
+        return listOfNotNull(typed, lifted).maxOrNull()
+    }
+
     private val SBD = listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT)
 
     /**
