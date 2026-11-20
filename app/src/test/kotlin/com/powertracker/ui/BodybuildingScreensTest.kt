@@ -46,6 +46,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -314,6 +315,8 @@ class BodybuildingScreensTest {
     @Test
     fun today_welcomeBack_after31DaysAway_untilAnswered_notOnFirstEntry() {
         save(bbItem(curl))
+        // Trained on the bodybuilding side before it was left.
+        session(today.minus(45, DateTimeUnit.DAY), BODYBUILDING, set(curl, 12.0, 10))
         onSide(BODYBUILDING, leftOn = today.minus(31, DateTimeUnit.DAY))
         val vm = todayVm()
         await("state") { !vm.state.value.loading }
@@ -340,6 +343,80 @@ class BodybuildingScreensTest {
         assertFalse(third.state.value.welcomeBack)
     }
 
+    // The welcome back needs a side trained before it was left (1.16).
+
+    private fun topSet(exercise: Exercise, kg: Double, reps: Int) =
+        LoggedSet(exercise.id, kg, reps, 8.0, failed = false, missPoint = null, isTopSet = true)
+
+    /** Curls on the bodybuilding side 20, 13 and 7 days before today. */
+    private fun recentBodybuilding() {
+        for (d in listOf(20, 13, 7)) session(today.minus(d, DateTimeUnit.DAY), BODYBUILDING, set(curl, 12.0, 10))
+    }
+
+    private fun Iterable<String>.noneEasing() = none { it.contains("Easing back in") }
+
+    @Test
+    fun today_noWelcomeBack_toAPowerliftingSideLeftInSettingsBeforeEverTrainingIt() {
+        // Settings, 40 days ago: powerlifting to bodybuilding before any powerlifting session (the switch dates the
+        // side it leaves). Bodybuilding since; today back to powerlifting, and a powerlifting plan.
+        runBlocking { settings.setTrainingMode(BODYBUILDING, today.minus(40, DateTimeUnit.DAY)) }
+        recentBodybuilding()
+        runBlocking { settings.setTrainingMode(POWERLIFTING, today) }
+        save(plItem(squat), plItem(curl, order = 1))
+        assertEquals(today.minus(40, DateTimeUnit.DAY), runBlocking { settings.settings.first() }.powerliftingLeftOn)
+
+        var date = today
+        val vm = TodayViewModel(training, advice, settings) { date }.also { v -> viewModels += v; collectors.launch { v.state.collect {} } }
+        await("coach pass") { vm.coachPasses.value >= 1 && !vm.state.value.loading && vm.state.value.items.size == 2 }
+        assertFalse(vm.state.value.welcomeBack)
+        assertFalse(coachVm().await { true }.welcomeBack)
+        // Nothing is eased back on it either.
+        assertTrue(vm.state.value.items.mapNotNull { it.suggestion?.reason }.noneEasing())
+
+        // Its first session today, the left date still set: no card tomorrow either.
+        session(today, POWERLIFTING, topSet(squat, 100.0, 5))
+        date = today.plus(1, DateTimeUnit.DAY)
+        val tomorrow = TodayViewModel(training, advice, settings) { date }.also { v -> viewModels += v; collectors.launch { v.state.collect {} } }
+        await("tomorrow") { !tomorrow.state.value.loading }
+        Thread.sleep(50)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertFalse(tomorrow.state.value.welcomeBack)
+    }
+
+    @Test
+    fun today_welcomeBack_andEasing_toAPowerliftingSideTrainedBeforeItWasLeft() {
+        // Squat 60, 53 and 46 days ago, then the same switch and the same bodybuilding as above.
+        for (d in listOf(60, 53, 46)) session(today.minus(d, DateTimeUnit.DAY), POWERLIFTING, topSet(squat, 140.0, 5))
+        runBlocking { settings.setTrainingMode(BODYBUILDING, today.minus(40, DateTimeUnit.DAY)) }
+        recentBodybuilding()
+        runBlocking { settings.setTrainingMode(POWERLIFTING, today) }
+        save(plItem(squat))
+
+        val vm = todayVm()
+        await("welcome") { vm.state.value.welcomeBack }
+        await("suggestion") { vm.state.value.items.firstOrNull()?.suggestion != null }
+        val suggestion = vm.state.value.items.single().suggestion!!
+        assertTrue(suggestion.reason, suggestion.reason.endsWith("Easing back in: lighter load."))
+        assertTrue((suggestion.payload as AdvicePayload.Target).weightKg < 140.0)
+        assertTrue(coachVm().await { it.welcomeBack }.welcomeBack)
+
+        // Answering it still clears it.
+        vm.answerWelcomeBack()
+        await("answered") { !vm.state.value.welcomeBack }
+        assertNull(runBlocking { settings.settings.first() }.powerliftingLeftOn)
+    }
+
+    @Test
+    fun today_neverSwitching_noWelcomeBack_andNoEasing() {
+        for (d in listOf(14, 7)) session(today.minus(d, DateTimeUnit.DAY), POWERLIFTING, topSet(squat, 140.0, 5))
+        session(today.minus(2, DateTimeUnit.DAY), POWERLIFTING, topSet(squat, 140.0, 5))
+        save(plItem(squat))
+        val vm = todayVm()
+        await("suggestion") { vm.state.value.items.firstOrNull()?.suggestion != null }
+        assertFalse(vm.state.value.welcomeBack)
+        assertTrue(listOf(vm.state.value.items.single().suggestion!!.reason).noneEasing())
+    }
+
     // Coach
 
     @Test
@@ -361,6 +438,7 @@ class BodybuildingScreensTest {
 
     @Test
     fun coach_welcomeBack_whenTheSideHasAPlanAndWasLeftMoreThan30DaysAgo() {
+        session(today.minus(45, DateTimeUnit.DAY), BODYBUILDING, set(curl, 12.0, 10))
         onSide(BODYBUILDING, leftOn = today.minus(31, DateTimeUnit.DAY))
         val vm = coachVm()
         assertFalse("no plan, no card", vm.await { true }.welcomeBack)
@@ -374,6 +452,7 @@ class BodybuildingScreensTest {
     @Test
     fun coach_powerliftingSideWelcomeBack_too() {
         save(plItem(squat))
+        session(today.minus(50, DateTimeUnit.DAY), POWERLIFTING, set(squat, 100.0, 5))
         onSide(POWERLIFTING, leftOn = today.minus(40, DateTimeUnit.DAY))
         coachVm().await { it.welcomeBack }
     }

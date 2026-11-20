@@ -454,6 +454,8 @@ class PlanBuilderScreenTest {
         val curl = training.exercises().first().first { it.name == "Curl" }
         training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, curl.id, 3, 8, 8.0, 0, mode, if (mode == BODYBUILDING) 12 else null))
         val left = systemToday().minus(42, DateTimeUnit.DAY)
+        // Trained on that side before it was left: a side never trained gets no welcome back.
+        training.startSession(left.minus(7, DateTimeUnit.DAY), null, null, mode)
         settings.update {
             if (mode == BODYBUILDING) it.copy(trainingMode = BODYBUILDING, bodybuildingLeftOn = left) else it.copy(trainingMode = POWERLIFTING, powerliftingLeftOn = left)
         }
