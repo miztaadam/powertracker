@@ -52,7 +52,8 @@ object Coaching {
      * is made only for a side trained before the session that ended the break, on either side (1.16).
      *
      * From stage 3 the bodybuilding side also gets [PhysiqueCoach.stuck]'s SWAP advice, reading [checkIns] for the
-     * growing-well groups; a deload or easing-back-in made in this same call counts as one created today. The
+     * growing-well groups; a deload or easing-back-in made in this same call counts as one created today. A stored
+     * easing back in holds the SWAP back only where it counts on this side ([feedFor]), as it eases only there. The
      * powerlifting side ignores [checkIns].
      */
     fun evaluate(
@@ -75,7 +76,8 @@ object Coaching {
         }.map { it.copy(mode = mode) }
         return when (mode) {
             TrainingMode.POWERLIFTING -> kept
-            TrainingMode.BODYBUILDING -> kept + PhysiqueCoach.stuck(history, plan.on(mode), checkIns, priorAdvice.forSide(mode) + kept, today)
+            // An easing back in that does not count on this side (made on the other side) holds no SWAP back.
+            TrainingMode.BODYBUILDING -> kept + PhysiqueCoach.stuck(history, plan.on(mode), checkIns, feedFor(priorAdvice, mode, history) + kept, today)
         }
     }
 
