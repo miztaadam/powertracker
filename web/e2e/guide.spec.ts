@@ -1414,16 +1414,39 @@ test.describe('the seven other pictures, with the system asking for reduced moti
   })
 })
 
-test('the outline: one size on every screen with a phone, on both sides; WELCOME and SIDE draw none', async ({ page }) => {
+/** What screen 8's second button takes from the pages: its height and the controls' gap above it. */
+async function secondButtonRoom(page: Page) {
+  const button = (await page.getByTestId('guide-last-secondary').boundingBox())!
+  const gap = await page.locator('.guide-controls').evaluate((el) => parseFloat(getComputedStyle(el).rowGap) || 0)
+  return button.height + gap
+}
+
+/** Screen 8 with its second button: its phone is never larger than the shared one, and smaller by that button only. */
+async function expectSmallerBySecondButton(page: Page, last: Box, shared: Box, what: string) {
+  const room = await secondButtonRoom(page)
+  expect(last.width, what).toBeLessThanOrEqual(shared.width + 0.5)
+  expect(Math.abs(shared.height - last.height - room), `${what}: ${shared.height - last.height} px less, the button takes ${room}`).toBeLessThan(1.5)
+}
+
+test('the outline: one size on the five screens with a phone before the last, on both sides; screen 8 that size or smaller by its second button; WELCOME and SIDE draw none', async ({ page }) => {
   const boxes: string[] = []
+  const lasts = new Map<Side, Box>()
+  let shared: Box | null = null
   for (const side of SIDES) {
     await openGuideOn(page, side, 'WELCOME')
     for (const id of grit.guideScreens()) {
       await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen(id, side).title)
       await expect(picture(page)).toBeVisible()
       const box = (await picture(page).boundingBox())!
-      if (OUTLINED.includes(id)) {
+      if (id === 'YOUR_TURN') {
         await expect(picture(page)).toHaveAttribute('data-outlined', 'true')
+        lasts.set(side, box)
+        // An empty database: bodybuilding has Build my plan under the buttons, powerlifting has one row.
+        if (side === 'BODYBUILDING') await expectSmallerBySecondButton(page, box, shared!, `${side}: screen 8`)
+        else await expect(page.getByTestId('guide-last-secondary')).toHaveCount(0)
+      } else if (OUTLINED.includes(id)) {
+        await expect(picture(page)).toHaveAttribute('data-outlined', 'true')
+        shared ??= box
         boxes.push(`${Math.round(box.width * 2) / 2} x ${Math.round(box.height * 2) / 2}`)
       } else {
         await expect(picture(page)).toHaveAttribute('data-outlined', 'false')
@@ -1434,12 +1457,16 @@ test('the outline: one size on every screen with a phone, on both sides; WELCOME
     }
     await page.goto('/#/today')
   }
-  expect(boxes).toHaveLength(12)
+  expect(boxes).toHaveLength(10)
   expect(new Set(boxes), boxes.join(', ')).toEqual(new Set([boxes[0]]))
   expect(parseFloat(boxes[0]!)).toBeGreaterThan(0)
+  // Powerlifting's screen 8, with one row of buttons, is the shared size.
+  const plLast = lasts.get('POWERLIFTING')!
+  expect(Math.abs(plLast.width - shared!.width)).toBeLessThan(0.6)
+  expect(Math.abs(plLast.height - shared!.height)).toBeLessThan(0.6)
 })
 
-test('the outline keeps its size with a plan too (screen 8 then has See my plan under its buttons)', async ({ page }) => {
+test('the outline keeps its size with a plan too; screen 8 then has See my plan under its buttons and gives up only its room', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('grit:guide', 'off'))
   await openOnWednesday(page)
   await page.goto('/#/settings')
@@ -1455,10 +1482,14 @@ test('the outline keeps its size with a plan too (screen 8 then has See my plan 
   await nextTo(page, 'YOUR_TURN')
   await expect(page.getByTestId('guide-last-secondary')).toBeVisible()
   const last = (await picture(page).boundingBox())!
-  for (const b of [planned, last]) {
-    expect(Math.abs(b.width - empty.width)).toBeLessThan(0.6)
-    expect(Math.abs(b.height - empty.height)).toBeLessThan(0.6)
-  }
+  expect(Math.abs(planned.width - empty.width)).toBeLessThan(0.6)
+  expect(Math.abs(planned.height - empty.height)).toBeLessThan(0.6)
+  await expectSmallerBySecondButton(page, last, empty, 'screen 8 with a plan')
+  // Back to screen 7: the shared size again, See my plan gone.
+  await page.getByTestId('guide-back').click()
+  await expect(page.getByTestId('guide-last-secondary')).toHaveCount(0)
+  const back = (await picture(page).boundingBox())!
+  expect(Math.abs(back.height - empty.height)).toBeLessThan(0.6)
 })
 
 test("WELCOME's side colours are plain panels, not buttons: nothing in the picture can be pressed or focused", async ({ page }) => {

@@ -29,6 +29,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import com.powertracker.domain.guide.Guide
@@ -434,10 +435,27 @@ class GuidePicturesTest {
 
     private fun picture() = compose.onNodeWithTag("guide-picture").fetchSemanticsNode()
 
+    /** The outlined screens before screen 8: one phone size on all of them (spec point 11). */
+    private val shared = OUTLINED - GuideScreenId.YOUR_TURN
+
+    /** The shared phone size: TODAY on powerlifting with no plan. */
+    private fun sharedSize(): androidx.compose.ui.unit.IntSize {
+        show(GuideScreenId.TODAY, pl)
+        return picture().size
+    }
+
+    /** Screen 8 with a second button: its phone gives up only that button's height, never more, and is never larger. */
+    private fun assertSmallerByTheSecondButton(what: String, shared: androidx.compose.ui.unit.IntSize) {
+        val button = compose.onNodeWithTag("guide-last-secondary").assertIsDisplayed().fetchSemanticsNode().size.height
+        val size = picture().size
+        assertTrue("$what: $size vs $shared", size.width <= shared.width && size.height < shared.height)
+        assertTrue("$what: ${shared.height - size.height} px less, the button is $button px", kotlin.math.abs(shared.height - size.height - button) <= 2)
+    }
+
     @Test
-    fun guide_outline_isOneSize_onEveryScreenWithAPhone_onBothSides() {
+    fun guide_outline_isOneSize_onTheFiveScreensBeforeTheLast_onBothSides() {
         val sizes = TrainingMode.entries.flatMap { mode ->
-            OUTLINED.map { id ->
+            shared.map { id ->
                 show(id, mode)
                 assertOn(id, mode)
                 assertTrue("$id on $mode is outlined", picture().config[GuidePictureOutlined])
@@ -445,21 +463,65 @@ class GuidePicturesTest {
             }
         }
         assertEquals(6, OUTLINED.size)
+        assertEquals(10, sizes.size)
         assertTrue("$sizes", sizes.first().second.width > 0 && sizes.first().second.height > 0)
         assertEquals("$sizes", 1, sizes.map { it.second }.toSet().size)
     }
 
+    /** Screen 8 with one row of buttons (powerlifting, no plan) is the shared size; with a second button, smaller by it. */
+    @Test
+    fun guide_outline_onTheLastScreen_isTheSharedSize_orSmallerByItsSecondButton() {
+        val size = sharedSize()
+        show(GuideScreenId.YOUR_TURN, pl)
+        assertOn(GuideScreenId.YOUR_TURN, pl)
+        assertTrue(picture().config[GuidePictureOutlined])
+        compose.onNodeWithTag("guide-last-secondary").assertDoesNotExist()
+        assertEquals("YOUR_TURN on $pl with no plan", size, picture().size)
+        // Bodybuilding with no plan: Build my plan under the buttons.
+        show(GuideScreenId.YOUR_TURN, bb)
+        assertOn(GuideScreenId.YOUR_TURN, bb)
+        assertTrue(picture().config[GuidePictureOutlined])
+        assertSmallerByTheSecondButton("YOUR_TURN on $bb with no plan", size)
+    }
+
     /** A replay by a lifter with a plan: screen 8 then has See my plan under its buttons, on both sides. */
     @Test
-    fun guide_outline_isTheSameSize_withAPlan() {
-        show(GuideScreenId.TODAY, pl)
-        val size = picture().size
-        for (mode in TrainingMode.entries) for (id in listOf(GuideScreenId.TODAY, GuideScreenId.YOUR_TURN)) {
-            show(id, mode, hasPlan = true)
-            assertOn(id, mode)
-            if (id == GuideScreenId.YOUR_TURN) compose.onNodeWithTag("guide-last-secondary").assertIsDisplayed()
-            assertEquals("$id on $mode with a plan", size, picture().size)
+    fun guide_outline_withAPlan_isTheSharedSize_andTheLastScreenSmallerBySeeMyPlan() {
+        val size = sharedSize()
+        for (mode in TrainingMode.entries) {
+            show(GuideScreenId.TODAY, mode, hasPlan = true)
+            assertOn(GuideScreenId.TODAY, mode)
+            assertEquals("TODAY on $mode with a plan", size, picture().size)
+            show(GuideScreenId.YOUR_TURN, mode, hasPlan = true)
+            assertOn(GuideScreenId.YOUR_TURN, mode)
+            assertSmallerByTheSecondButton("YOUR_TURN on $mode with a plan", size)
         }
+    }
+
+    /**
+     * Mid-swipe from screen 7 to screen 8 with a plan: past halfway screen 8 is the one current and See my plan shows,
+     * while screen 7's phone, still half on screen, keeps the shared size (its size is its page's, not the current one's).
+     */
+    @Test
+    fun guide_outline_midSwipeToTheLastScreen_keepsTheOutgoingPhonesSize() {
+        val size = sharedSize()
+        show(GuideScreenId.MONTHS_LATER, pl, hasPlan = true)
+        assertEquals(size, picture().size)
+        compose.mainClock.autoAdvance = false
+        compose.onNodeWithTag("guide-pages").performTouchInput {
+            down(center)
+            moveBy(androidx.compose.ui.geometry.Offset(-width * 0.2f, 0f))
+            moveBy(androidx.compose.ui.geometry.Offset(-width * 0.2f, 0f))
+            moveBy(androidx.compose.ui.geometry.Offset(-width * 0.2f, 0f))
+        }
+        repeat(3) { compose.mainClock.advanceTimeByFrame() }
+        compose.onNodeWithTag("guide-last-secondary").assertExists()
+        val pictures = compose.onAllNodes(hasTestTag("guide-picture")).fetchSemanticsNodes().sortedBy { it.boundsInRoot.left }
+        assertEquals("both pages on screen", 2, pictures.size)
+        assertEquals("screen 7's phone, mid-swipe", size, pictures.first().size)
+        compose.onNodeWithTag("guide-pages").performTouchInput { up() }
+        compose.mainClock.autoAdvance = true
+        compose.waitForIdle()
     }
 
     @Test

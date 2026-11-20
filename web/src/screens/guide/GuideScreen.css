@@ -241,8 +241,9 @@
 }
 
 /*
- * One phone size on every outlined screen (spec point 11). Unseen copies of those screens' texts, and of the second
- * button under the controls, are laid out here as the pages lay them out, each from the top, for one measure.
+ * One phone size on the outlined screens (spec point 11; screen 8 alone gives up its second button's room). Unseen
+ * copies of those screens' texts, and of the second button under the controls, are laid out here as the pages lay them
+ * out, each from the top, for one measure.
  */
 .guide-pages {
   position: relative;

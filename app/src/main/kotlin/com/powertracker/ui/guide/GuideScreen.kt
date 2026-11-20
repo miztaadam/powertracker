@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -216,9 +217,11 @@ fun GuideScreen(
     val current = pager.currentPage
     val last = current == screens.lastIndex
     val buttons = remember(mode, hasPlan) { lastButtons(mode, hasPlan) }
-    // A second button under Back and the first (screen 8's See my plan, or Build my plan) takes room from the page while
-    // it shows: measured once, every other page keeps that room out of its picture, so the phone is one size on all.
+    // A second button under Back and the first (screen 8's See my plan, or Build my plan) takes room from the pages while
+    // it shows. Measured whether shown or not, so each page's phone is its own size whichever page is current: screen 8
+    // alone gives that room up (spec point 11), and while it is current the other pages are drawn as if it were not.
     var secondRoom by remember { mutableStateOf(0.dp) }
+    val secondShown = last && buttons.secondary != null
     // The guide is a pane titled with the screen shown: a page change is a new title, which a screen reader reads out.
     val shownTitle = remember(screens[current], mode) { Guide.screen(screens[current], mode).title }
     Column(
@@ -242,7 +245,11 @@ fun GuideScreen(
                 // With motion off: the last step, still.
                 val t = if (motionOn) elapsed else Guide.doneMs(steps.size)
                 val frame = Guide.frame(steps, t)
-                GuidePage(id, mode, current = page == current, frame = frame, elapsedMs = t, reserve = if (last && buttons.secondary != null) 0.dp else secondRoom) {
+                val reserve = when {
+                    id == GuideScreenId.YOUR_TURN && buttons.secondary != null -> if (secondShown) 0.dp else secondRoom
+                    else -> if (secondShown) -secondRoom else 0.dp
+                }
+                GuidePage(id, mode, current = page == current, frame = frame, elapsedMs = t, reserve = reserve) {
                     if (firstLaunch && id == GuideScreenId.SIDE) SideButtons(mode) { if (it != mode) pick(it) }
                 }
             }
@@ -267,13 +274,19 @@ fun GuideScreen(
             }
             // Below it: Build my plan (bodybuilding, no plan), or See my plan.
             val secondary = buttons.secondary
-            if (last && secondary != null) {
-                SecondaryButton(secondary.first, { close(secondary.second) }, Modifier.fillMaxWidth().testTag("guide-last-secondary"))
+            val density = LocalDensity.current
+            if (secondShown && secondary != null) {
+                SecondaryButton(
+                    secondary.first, { close(secondary.second) },
+                    Modifier.fillMaxWidth().testTag("guide-last-secondary").onSizeChanged {
+                        val room = with(density) { it.height.toDp() }
+                        if (room != secondRoom) secondRoom = room
+                    },
+                )
             } else {
                 // Measured, not drawn: the room a second button takes (one is on screen 8 with a plan, and on
-                // bodybuilding's without). Every page keeps it out of its picture, on both sides, so the phone is one
-                // size everywhere. Its gap above is already taken here (the column spaces this empty child too).
-                val density = LocalDensity.current
+                // bodybuilding's without), which screen 8 alone gives up. Its gap above is already taken here (the
+                // column spaces this empty child too), so the other pages' phones are the same size while it shows.
                 Layout({ SecondaryButton(secondary?.first ?: SEE_MY_PLAN, {}, Modifier.fillMaxWidth().clearAndSetSemantics {}) }) { measurables, constraints ->
                     val height = measurables.single().measure(constraints.copy(minHeight = 0)).height
                     val room = with(density) { height.toDp() }
@@ -300,7 +313,10 @@ private fun SideButtons(mode: TrainingMode, onPick: (TrainingMode) -> Unit) {
     }
 }
 
-/** The screens whose picture is a drawn phone, in its outline: one size on all of them (spec point 11). */
+/**
+ * The screens whose picture is a drawn phone, in its outline: one size on all of them (spec point 11), but for screen 8,
+ * which gives up the room of its second button while it has one.
+ */
 internal val OUTLINED: Set<GuideScreenId> = setOf(
     GuideScreenId.PLAN, GuideScreenId.TODAY, GuideScreenId.TARGETS, GuideScreenId.HOLDS_BACK, GuideScreenId.MONTHS_LATER, GuideScreenId.YOUR_TURN,
 )
@@ -329,8 +345,10 @@ private fun outlinedTextRoom(width: Dp): Dp {
 
 /**
  * One screen: its title and lines from the domain, then its picture. On the outlined screens the picture has the same
- * room on every one ([outlinedTextRoom]): at a larger font the text scrolls, and the phone keeps its size. WELCOME and
- * SIDE draw no phone: their art takes what the text leaves.
+ * room on every one ([outlinedTextRoom]): at a larger font the text scrolls, and the phone keeps its size. [reserve] is
+ * room the picture gives up beyond that: screen 8's second button while it is not shown; or, while it shows (the pages
+ * one button shorter), less than none on the other pages, whose text then gives that room for the moment instead. WELCOME
+ * and SIDE draw no phone: their art takes what the text leaves.
  */
 @Composable
 private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, frame: GuideFrame, elapsedMs: Int, reserve: Dp = 0.dp, below: @Composable () -> Unit = {}) {
