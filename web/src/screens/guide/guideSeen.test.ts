@@ -83,8 +83,8 @@ describe('the first-launch pick', () => {
     const s = await setTrainingMode(db, 'POWERLIFTING', '2026-12-21')
     expect(s.powerliftingLeftOn).toBeNull()
     expect(s.bodybuildingLeftOn).toBe('2026-12-21')
-    // What useWelcomeBack asks, for the side on, with a plan there: no card.
-    expect(grit.welcomeBack(s.powerliftingLeftOn, '2026-12-21', true)).toBe(false)
+    // What useWelcomeBack asks, for the side on, with a plan there and no session ever on it: no card.
+    expect(grit.welcomeBack(s.powerliftingLeftOn, '2026-12-21', true, null)).toBe(false)
   })
 })
 

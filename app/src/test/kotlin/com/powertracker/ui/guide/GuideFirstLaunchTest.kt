@@ -339,16 +339,16 @@ class GuideFirstLaunchTest {
     }
 
     /**
-     * Not the guide's, and not changed by it (the owner decides): a new lifter who switches to bodybuilding in Settings,
-     * then back 40 days later and makes a powerlifting plan, is greeted as returning.
+     * Not the guide's: a new lifter who switches to bodybuilding in Settings, then back 40 days later and makes a
+     * powerlifting plan, is not greeted as returning, since powerlifting was never trained before it was left (spec point 10).
      */
     @Test
-    fun theSettingsSwitch_alone_reachesTheSameGreeting() {
+    fun theSettingsSwitch_alone_showsNoWelcomeBack() {
         runBlocking { settings.setTrainingMode(TrainingMode.BODYBUILDING, day) }
         val later = day.plus(DatePeriod(days = 40))
         runBlocking { settings.setTrainingMode(TrainingMode.POWERLIFTING, later) }
         planItem(TrainingMode.POWERLIFTING)
-        assertTrue(todayOn(later).welcomeBack)
+        assertFalse(todayOn(later).welcomeBack)
     }
 
     @Test
