@@ -184,7 +184,8 @@ class KnownBestsViewModelTest {
         runBlocking { settings.update { it.copy(showStrictPress = false) } }
 
         // Today's rule stays: a strict press that exists keeps its row whatever the switch says (the coach uses its best).
-        val state = vm.await { !runBlocking { settings.settings.first() }.showStrictPress && it.bests.isNotEmpty() }
+        // A view model made after the switch went off reads it fresh.
+        val state = viewModel().await { it.mainExercises.isNotEmpty() && it.bests.isNotEmpty() }
         assertEquals(listOf(press), pressRows(state))
         assertEquals(70.0, state.bests[press.id])
     }

@@ -247,5 +247,10 @@ class ProgressMathTest {
         assertEquals(65.0, ProgressMath.knownBest(history, MainLift.STRICT_PRESS))
         // A baseline stored on a variation is no squat best.
         assertNull(ProgressMath.knownBest(history, MainLift.SQUAT))
+        // Two typed on the same day: the higher.
+        val sameDay = history.copy(baselines = listOf(Baseline(press.id, 70.0, monday), Baseline(ohp.id, 75.0, monday)))
+        assertEquals(75.0, ProgressMath.knownBest(sameDay, MainLift.STRICT_PRESS))
+        val sameDayOtherOrder = history.copy(baselines = sameDay.baselines.reversed())
+        assertEquals(75.0, ProgressMath.knownBest(sameDayOtherOrder, MainLift.STRICT_PRESS))
     }
 }

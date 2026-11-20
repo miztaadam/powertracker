@@ -41756,6 +41756,12 @@ function ProgressMath$weeklyVolume$lambda(a, b) {
   var tmp$ret$2 = b.mb_1;
   return compareValues(tmp, tmp$ret$2);
 }
+function ProgressMath$knownBest$lambda(it) {
+  return it.s1j_1;
+}
+function ProgressMath$knownBest$lambda_0(it) {
+  return it.r1j_1;
+}
 function ProgressMath() {
   ProgressMath_instance = this;
   this.e22_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
@@ -41894,43 +41900,20 @@ protoOf(ProgressMath).o3k = function (history, lift) {
       destination.i(element);
     }
   }
-  var tmp$ret$5;
-  $l$block_0: {
-    // Inline function 'kotlin.collections.maxByOrNull' call
-    var iterator = destination.j();
-    if (!iterator.k()) {
-      tmp$ret$5 = null;
-      break $l$block_0;
-    }
-    var maxElem = iterator.l();
-    if (!iterator.k()) {
-      tmp$ret$5 = maxElem;
-      break $l$block_0;
-    }
-    var maxValue = maxElem.s1j_1;
-    do {
-      var e = iterator.l();
-      var v = e.s1j_1;
-      if (compareTo(maxValue, v) < 0) {
-        maxElem = e;
-        maxValue = v;
-      }
-    }
-     while (iterator.k());
-    tmp$ret$5 = maxElem;
-  }
-  var tmp0_safe_receiver_0 = tmp$ret$5;
+  var tmp_0 = destination;
+  var tmp_1 = ProgressMath$knownBest$lambda;
+  var tmp0_safe_receiver_0 = maxWithOrNull(tmp_0, compareBy([tmp_1, ProgressMath$knownBest$lambda_0]));
   var typed = tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.r1j_1;
   var tmp1_safe_receiver = lastOrNull(this.l3k(on(history, TrainingMode_POWERLIFTING_getInstance()), lift));
   var lifted = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.e3k_1;
-  var tmp_0;
+  var tmp_2;
   if (typed == null || lifted == null) {
-    tmp_0 = typed == null ? lifted : typed;
+    tmp_2 = typed == null ? lifted : typed;
   } else {
     // Inline function 'kotlin.comparisons.maxOf' call
-    tmp_0 = Math.max(typed, lifted);
+    tmp_2 = Math.max(typed, lifted);
   }
-  return tmp_0;
+  return tmp_2;
 };
 protoOf(ProgressMath).f22 = function (stats, until, includeStrictPress) {
   var included = includeStrictPress ? plus_2(this.e22_1, MainLift_STRICT_PRESS_getInstance()) : this.e22_1;

@@ -84,7 +84,8 @@ object ProgressMath {
     fun knownBest(history: TrainingHistory, lift: MainLift): Double? {
         val typed = history.baselines
             .filter { b -> history.exercises[b.exerciseId]?.let { it.isMainLift && it.mainLift == lift } == true }
-            .maxByOrNull { it.date }
+            // The latest; of two typed on one day (two rows of the lift), the higher.
+            .maxWithOrNull(compareBy({ it.date }, { it.e1rmKg }))
             ?.e1rmKg
         val lifted = prs(history.on(TrainingMode.POWERLIFTING), lift).lastOrNull()?.e1rmKg
         return if (typed == null || lifted == null) typed ?: lifted else maxOf(typed, lifted)
