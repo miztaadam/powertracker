@@ -2,9 +2,10 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { devices, expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { BACK, DONE, EXAMPLE, NEXT, PHONE_HEIGHT, PHONE_WIDTH, SKIP, pictureDescription } from '../src/screens/guide/guideLabels'
+import { BACK, EXAMPLE, GUIDE_ROW, GUIDE_ROW_SUPPORTING, NEXT, PHONE_HEIGHT, PHONE_WIDTH, SKIP, lastButtons, pictureDescription } from '../src/screens/guide/guideLabels'
+import { MOTION_ON, NEW_DEVICE } from './storage'
 import { formatKg, formatRpe } from '../src/ui/components/format'
-import { WEDNESDAY, tabBar } from './helpers'
+import { WEDNESDAY, openOnWednesday, seedFlatBench, tabBar } from './helpers'
 
 // The guide (1.16, Task 2): its route, its lazy chunk, and screen 4's picture on both sides. A normal run writes the
 // screenshots to test-results/; UPDATE_SCREENSHOTS=1 rewrites the committed PNGs in docs/design/web/screens/.
@@ -160,7 +161,7 @@ test('with motion off (the app\'s setting): no tick drawing in, no tap ring, no 
 
 test('with the system asking for reduced motion: the same', async ({ browser, baseURL }) => {
   // No stored "off": only the system's setting turns the motion off.
-  const context = await browser.newContext({ baseURL, storageState: { cookies: [], origins: [] }, reducedMotion: 'reduce' })
+  const context = await browser.newContext({ baseURL, storageState: MOTION_ON, reducedMotion: 'reduce' })
   const page = await context.newPage()
   await page.clock.install({ time: WEDNESDAY })
   await openGuideOnToday(page, 'POWERLIFTING')
@@ -262,7 +263,8 @@ for (const [width, height] of [
       const controls: [string, string][] = [
         ['guide-skip', SKIP],
         ['guide-back', BACK],
-        ['guide-next', i === screens.length - 1 ? DONE : NEXT],
+        // An empty database: screen 8 has no plan to show, so its first button is Choose a template.
+        ['guide-next', i === screens.length - 1 ? lastButtons('POWERLIFTING', false).primary[0] : NEXT],
       ]
       const viewport = page.viewportSize()!
       const screenBox = { x: 0, y: 0, width: viewport.width, height: viewport.height }
@@ -277,7 +279,7 @@ for (const [width, height] of [
         const button = (await control.boundingBox())!
         const words = (await text.boundingBox())!
         expect(within(words, button), `${id}: ${label} runs out of its button`).toBe(true)
-        expect(within(button, screenBox), `${id}: ${label} is off screen`).toBe(true)
+        expect(within(button, screenBox), `${id}: ${label} is off screen: ${JSON.stringify(button)} in ${JSON.stringify(screenBox)}`).toBe(true)
         boxes.push(button)
       }
       // No control covers another.
@@ -310,7 +312,7 @@ for (const [width, height] of [
 }
 
 test.describe('with motion on', () => {
-  test.use({ storageState: { cookies: [], origins: [] } })
+  test.use({ storageState: MOTION_ON })
 
   /**
    * Opens screen 4 on a held clock, its picture starting afresh at time 0 (Back and Next again, the clock paused), and
@@ -726,7 +728,7 @@ test.describe('for the owner: screen 4 in real time', () => {
       // as large as on the phone itself; motion on (no stored "off").
       const { defaultBrowserType: _, ...phone } = devices['iPhone 13']
       const size = { width: 390, height: 844 }
-      const context = await browser.newContext({ ...phone, viewport: size, baseURL, storageState: { cookies: [], origins: [] }, recordVideo: { dir: resolve(dir!, 'raw'), size } })
+      const context = await browser.newContext({ ...phone, viewport: size, baseURL, storageState: MOTION_ON, recordVideo: { dir: resolve(dir!, 'raw'), size } })
       const page = await context.newPage()
       const started = Date.now()
       await page.emulateMedia({ colorScheme: scheme })
@@ -744,3 +746,361 @@ test.describe('for the owner: screen 4 in real time', () => {
     })
   }
 })
+
+// ---- Opening it (1.16, Task 3): the first launch, "seen", the side pick, screen 8, the Settings row ----
+
+/** Every store of the database, every row, sorted by store: what "writes nothing" compares. */
+function everyStore(page: Page) {
+  return page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((done, fail) => {
+      const request = indexedDB.open('grit')
+      request.onsuccess = () => done(request.result)
+      request.onerror = () => fail(request.error)
+    })
+    const out: Record<string, unknown[]> = {}
+    for (const name of [...db.objectStoreNames].sort()) {
+      out[name] = await new Promise<unknown[]>((done, fail) => {
+        const all = db.transaction(name).objectStore(name).getAll()
+        all.onsuccess = () => done(all.result)
+        all.onerror = () => fail(all.error)
+      })
+    }
+    db.close()
+    return out
+  })
+}
+
+/** Whether this device has seen the guide (`guide:seen` in `meta`). */
+async function seen(page: Page) {
+  const stores = await everyStore(page)
+  return (stores.meta as { key: string; value: unknown }[]).some((row) => row.key === 'guide:seen' && row.value === true)
+}
+
+/** Adds a row to `store` straight into IndexedDB. */
+function addRow(page: Page, store: string, row: Record<string, unknown>) {
+  return page.evaluate(
+    async ({ store, row }) => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      await new Promise<void>((done, fail) => {
+        const tx = db.transaction(store, 'readwrite')
+        tx.objectStore(store).add(row)
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      db.close()
+    },
+    { store, row },
+  )
+}
+
+const guide = (page: Page) => page.getByTestId('guide')
+const titleOf = (id: string, side: Side = 'POWERLIFTING') => grit.guideScreen(id, side).title
+
+async function nextTo(page: Page, id: string, side: Side = 'POWERLIFTING') {
+  const screens = grit.guideScreens()
+  for (;;) {
+    const shown = await page.getByTestId('guide-title').textContent()
+    if (shown === titleOf(id, side)) return
+    const at = screens.findIndex((s) => titleOf(s, side) === shown)
+    expect(at, `${shown} is a screen before ${id}`).toBeLessThan(screens.indexOf(id))
+    await page.getByTestId('guide-next').click()
+    await expect(page.getByTestId('guide-title')).not.toHaveText(shown!)
+  }
+}
+
+test.describe('the first launch', () => {
+  // A new device: the gate open. (Motion off, for steady checks.)
+  test.use({ storageState: NEW_DEVICE })
+
+  test('guide_seam: every spec keeps the gate shut, through e2e/storage.ts; only this block opens it', async () => {
+    const { readdirSync, readFileSync } = await import('node:fs')
+    const dir = resolve(process.cwd(), 'e2e')
+    for (const file of readdirSync(dir).filter((f) => f.endsWith('.spec.ts'))) {
+      const text = readFileSync(resolve(dir, file), 'utf8')
+      // No storage state written out by hand: each comes from e2e/storage.ts.
+      expect(text.match(/storageState:\s*\{/g) ?? [], file).toEqual([])
+      if (file !== 'guide.spec.ts') expect(text, file).not.toMatch(/NEW_DEVICE/)
+    }
+  })
+
+  test('inABrowserTab_theGuideComesFirst_thenTheInstallCard', async ({ page }) => {
+    await page.clock.setFixedTime(WEDNESDAY)
+    await page.goto('/')
+    await expect(guide(page)).toBeVisible()
+    await expect(page.getByTestId('guide-title')).toHaveText(titleOf('WELCOME'))
+    await expect(page.locator('.install-card')).toHaveCount(0)
+    await expect(tabBar(page)).toHaveCount(0)
+    await page.getByTestId('guide-skip').click()
+    await expect(guide(page)).toHaveCount(0)
+    await expect(page.locator('.install-card')).toBeVisible()
+  })
+
+  test('firstLaunch_withNoData_opensTheGuideOnce', async ({ page }) => {
+    await page.clock.setFixedTime(WEDNESDAY)
+    await page.goto('/')
+    await expect(guide(page)).toBeVisible()
+    expect(await seen(page), 'not seen while it is open').toBe(false)
+    await page.getByTestId('guide-skip').click()
+    await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible()
+    await expect.poll(() => seen(page)).toBe(true)
+    await page.reload()
+    await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible()
+    await expect(guide(page)).toHaveCount(0)
+  })
+
+  test("the browser's Back leaves it as Skip does: seen, and it stays shut", async ({ page }) => {
+    await page.clock.setFixedTime(WEDNESDAY)
+    await page.goto('/')
+    await expect(guide(page)).toBeVisible()
+    await page.goBack()
+    await expect(guide(page)).toHaveCount(0)
+    await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible()
+    await expect.poll(() => seen(page)).toBe(true)
+    // Forward again: the same page now has the guide as a replay (no side buttons), not the first launch.
+    await page.goForward()
+    await expect(guide(page)).toBeVisible()
+    await nextTo(page, 'SIDE')
+    await expect(page.getByTestId('guide-side-powerlifting')).toHaveCount(0)
+  })
+
+  for (const [name, store, row] of [
+    ['a powerlifting session', 'sessions', { date: '2026-11-04', bodyweightKg: null, readiness: null, mode: 'POWERLIFTING' }],
+    ['a bodybuilding session', 'sessions', { date: '2026-11-04', bodyweightKg: null, readiness: null, mode: 'BODYBUILDING' }],
+    ['a powerlifting plan item', 'planItems', { weekday: 3, exerciseId: 1, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: 'POWERLIFTING' }],
+    ['a bodybuilding plan item', 'planItems', { weekday: 3, exerciseId: 1, sets: 3, reps: 10, targetRpe: 8, order: 0, mode: 'BODYBUILDING', repsHigh: 12 }],
+  ] as const) {
+    test(`firstLaunch_withASessionOrAPlanItemOnEitherSide_neverOpensIt: ${name}`, async ({ page }) => {
+      await page.clock.setFixedTime(WEDNESDAY)
+      // Opened once with the gate shut, to have a database to write to; then as a new device would start.
+      await page.addInitScript(() => {
+        if (sessionStorage.getItem('opened') == null) {
+          sessionStorage.setItem('opened', '1')
+          localStorage.setItem('grit:guide', 'off')
+        } else localStorage.removeItem('grit:guide')
+      })
+      await page.goto('/#/today')
+      await expect(tabBar(page)).toBeVisible()
+      await addRow(page, store, row)
+      await page.reload()
+      await expect(tabBar(page)).toBeVisible()
+      await expect(guide(page)).toHaveCount(0)
+      expect(await seen(page)).toBe(false)
+    })
+  }
+
+  test('seenIsReadFirst_soASeenDeviceRunsNoDataQuery', async ({ page }) => {
+    await page.clock.setFixedTime(WEDNESDAY)
+    // Each count of sessions or plan items, and whether the app's shell was up yet: the gate asks before it is.
+    await page.addInitScript(() => {
+      const count = IDBObjectStore.prototype.count
+      const w = window as unknown as { __counts: string[] }
+      w.__counts = []
+      IDBObjectStore.prototype.count = function (this: IDBObjectStore, ...args: Parameters<IDBObjectStore['count']>) {
+        if (this.name === 'sessions' || this.name === 'planItems') w.__counts.push(`${this.name} ${document.querySelector('.shell, .guide') == null ? 'before' : 'after'}`)
+        return count.apply(this, args)
+      }
+    })
+    const gateCounts = () => page.evaluate(() => (window as unknown as { __counts: string[] }).__counts.filter((c) => c.endsWith('before')))
+    await page.goto('/')
+    await expect(guide(page)).toBeVisible()
+    expect(await gateCounts(), 'not seen: the gate asks').toEqual(['sessions before', 'planItems before'])
+    await page.getByTestId('guide-skip').click()
+    await expect.poll(() => seen(page)).toBe(true)
+    await page.reload()
+    await expect(tabBar(page)).toBeVisible()
+    expect(await gateCounts(), 'seen: the gate asks nothing').toEqual([])
+  })
+
+  test('screen2_onFirstLaunch_setsTheRealSide_withNoAnimationSoundOrVibration, dating no side', async ({ page }) => {
+    await page.clock.setFixedTime(WEDNESDAY)
+    // Every buzz, and every sound started: the app's own silent unlock on the first tap (one sample, for the rest timer)
+    // is allowed; nothing longer, and no mode-switch sound file asked for.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __buzz: number; __sounds: number[] }
+      w.__buzz = 0
+      w.__sounds = []
+      Object.defineProperty(navigator, 'vibrate', { configurable: true, value: () => ((w.__buzz += 1), true) })
+      const start = AudioBufferSourceNode.prototype.start
+      AudioBufferSourceNode.prototype.start = function (this: AudioBufferSourceNode, ...args: Parameters<AudioBufferSourceNode['start']>) {
+        w.__sounds.push(this.buffer?.length ?? 0)
+        return start.apply(this, args)
+      }
+    })
+    const soundFiles: string[] = []
+    page.on('request', (request) => {
+      if (/\/sounds\//.test(new URL(request.url()).pathname)) soundFiles.push(request.url())
+    })
+    await page.goto('/')
+    await nextTo(page, 'SIDE')
+    await expect(page.getByTestId('guide-side-powerlifting')).toHaveAttribute('aria-pressed', 'true')
+    await page.getByTestId('guide-side-bodybuilding').click()
+    await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+    await expect(page.getByTestId('guide-side-bodybuilding')).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByTestId('guide-title')).toHaveText(titleOf('SIDE', 'BODYBUILDING'))
+    const settings = Object.fromEntries(((await everyStore(page)).settings as { key: string; value: unknown }[]).map((r) => [r.key, r.value]))
+    expect(settings.trainingMode).toBe('BODYBUILDING')
+    expect(settings.powerliftingLeftOn ?? null).toBeNull()
+    expect(settings.bodybuildingLeftOn ?? null).toBeNull()
+    const heard = await page.evaluate(() => {
+      const w = window as unknown as { __buzz: number; __sounds: number[] }
+      return { buzz: w.__buzz, sounds: w.__sounds.filter((length) => length > 1) }
+    })
+    expect(heard).toEqual({ buzz: 0, sounds: [] })
+    expect(soundFiles).toEqual([])
+    await expect(page.locator('.ms-overlay > *')).toHaveCount(0)
+    expect(await page.evaluate(() => document.getAnimations().filter((a) => !(a instanceof CSSAnimation || a instanceof CSSTransition)).length)).toBe(0)
+    expect(await seen(page)).toBe(false)
+  })
+
+  test('pickingTheDefaultSide_writesNothingBeyondSeen', async ({ page }) => {
+    await page.clock.setFixedTime(WEDNESDAY)
+    await page.goto('/')
+    await expect(guide(page)).toBeVisible()
+    const before = await everyStore(page)
+    await nextTo(page, 'SIDE')
+    await page.getByTestId('guide-side-powerlifting').click()
+    expect(await everyStore(page), 'the side already on: nothing').toEqual(before)
+    await page.getByTestId('guide-skip').click()
+    await expect.poll(() => seen(page)).toBe(true)
+    const after = await everyStore(page)
+    expect({ ...after, meta: (after.meta as { key: string }[]).filter((r) => r.key !== 'guide:seen') }).toEqual(before)
+  })
+
+  test('killedAfterTheSidePick_reopensOnScreen1_withTheSideKept', async ({ page }) => {
+    await page.clock.setFixedTime(WEDNESDAY)
+    await page.goto('/')
+    await expect(guide(page)).toBeVisible()
+    const before = await everyStore(page)
+    await nextTo(page, 'SIDE')
+    await page.getByTestId('guide-side-bodybuilding').click()
+    await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+    // Killed: a new page load, nothing of the old one kept but storage.
+    await page.goto('about:blank')
+    await page.goto('/')
+    await expect(guide(page)).toBeVisible()
+    await expect(page.getByTestId('guide-title')).toHaveText(titleOf('WELCOME', 'BODYBUILDING'))
+    await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+    expect(await seen(page)).toBe(false)
+    const after = await everyStore(page)
+    const settingsOf = (s: Record<string, unknown[]>) => (s.settings as { key: string }[]).filter((r) => r.key !== 'trainingMode' && r.key !== 'bodybuildingTrainingDays')
+    expect({ ...after, settings: settingsOf(after) }, 'nothing else written').toEqual({ ...before, settings: settingsOf(before) })
+  })
+
+  test('screen8_withNoPlan_opensThatSidesTemplateList; backFromTheTemplateList_landsOnPlan_andTheGuideStaysClosed', async ({ page }) => {
+    await page.clock.setFixedTime(WEDNESDAY)
+    await page.goto('/')
+    await nextTo(page, 'YOUR_TURN')
+    await expect(page.getByTestId('guide-next')).toHaveText(lastButtons('POWERLIFTING', false).primary[0])
+    await expect(page.getByTestId('guide-last-secondary')).toHaveCount(0)
+    await page.getByTestId('guide-next').click()
+    await expect(page).toHaveURL(/#\/plan\/templates\/powerlifting$/)
+    await expect(guide(page)).toHaveCount(0)
+    await expect.poll(() => seen(page)).toBe(true)
+    await page.goBack()
+    await expect(page).toHaveURL(/#\/plan$/)
+    await expect(guide(page)).toHaveCount(0)
+    await expect(tabBar(page)).toBeVisible()
+    await page.reload()
+    await expect(tabBar(page)).toBeVisible()
+    await expect(guide(page)).toHaveCount(0)
+  })
+
+  test('buildMyPlan_opensTheBuilder (bodybuilding)', async ({ page }) => {
+    await page.clock.setFixedTime(WEDNESDAY)
+    await page.goto('/')
+    await nextTo(page, 'SIDE')
+    await page.getByTestId('guide-side-bodybuilding').click()
+    await expect(page.getByTestId('guide-title')).toHaveText(titleOf('SIDE', 'BODYBUILDING'))
+    await nextTo(page, 'YOUR_TURN', 'BODYBUILDING')
+    await expect(page.getByTestId('guide-last-secondary')).toHaveText(lastButtons('BODYBUILDING', false).secondary![0])
+    await page.getByTestId('guide-last-secondary').click()
+    await expect(page).toHaveURL(/#\/plan\/build$/)
+    await expect(guide(page)).toHaveCount(0)
+    await expect.poll(() => seen(page)).toBe(true)
+    await page.goBack()
+    await expect(page).toHaveURL(/#\/plan$/)
+  })
+})
+
+test.describe('the replay, from Settings', () => {
+  test('settings_hasAGuideRow_thatOpensTheGuideAsAReplay; screen2_onAReplay_showsNoButtons', async ({ page }) => {
+    await openOnWednesday(page, '#/plan')
+    await page.goto('/#/settings')
+    await expect(page.getByTestId('settings-guide')).toContainText(GUIDE_ROW)
+    await expect(page.getByTestId('settings-guide')).toContainText(GUIDE_ROW_SUPPORTING)
+    await page.getByTestId('settings-guide').click()
+    await expect(guide(page)).toBeVisible()
+    await expect(page.getByTestId('guide-title')).toHaveText(titleOf('WELCOME'))
+    await nextTo(page, 'SIDE')
+    await expect(page.getByTestId('guide-side-powerlifting')).toHaveCount(0)
+    await expect(page.getByTestId('guide-side-bodybuilding')).toHaveCount(0)
+    await page.getByTestId('guide-skip').click()
+    await expect(page.getByTestId('settings-guide')).toBeVisible()
+    expect(await seen(page), 'a replay writes no seen').toBe(false)
+  })
+
+  test('screen8_withAPlan_offersDoneAndSeeMyPlan_andReplacesNothing; replay_writesNothing', async ({ page }) => {
+    await openOnWednesday(page)
+    await seedFlatBench(page)
+    await page.goto('/#/settings')
+    const before = await everyStore(page)
+    const storage = await page.evaluate(() => JSON.stringify(Object.entries(localStorage).sort()))
+    await page.getByTestId('settings-guide').click()
+    await nextTo(page, 'YOUR_TURN')
+    await expect(page.getByTestId('guide-next')).toHaveText(lastButtons('POWERLIFTING', true).primary[0])
+    await expect(page.getByTestId('guide-last-secondary')).toHaveText(lastButtons('POWERLIFTING', true).secondary![0])
+    await page.getByTestId('guide-last-secondary').click()
+    await expect(page).toHaveURL(/#\/plan$/)
+    await expect(guide(page)).toHaveCount(0)
+    expect(await everyStore(page)).toEqual(before)
+    // Again, ending on Done: back where it was opened from, and still nothing written.
+    await page.goto('/#/settings')
+    await page.getByTestId('settings-guide').click()
+    await nextTo(page, 'YOUR_TURN')
+    await page.getByTestId('guide-next').click()
+    await expect(page.getByTestId('settings-guide')).toBeVisible()
+    expect(await everyStore(page)).toEqual(before)
+    expect(await page.evaluate(() => JSON.stringify(Object.entries(localStorage).sort()))).toBe(storage)
+  })
+})
+
+// Shots of the Task 3 states (`guide-side-first-launch-*`, `guide-your-turn-*`), dark and light, through the real gate.
+for (const scheme of ['dark', 'light'] as const) {
+  test.describe(`the guide's opening states, shot (${scheme})`, () => {
+    test.use({ storageState: NEW_DEVICE, colorScheme: scheme })
+
+    for (const side of SIDES) {
+      test(`screen 2 on a first launch, and screen 8 with no plan (${sideName(side)})`, async ({ page }) => {
+        await page.clock.setFixedTime(WEDNESDAY)
+        await page.goto('/')
+        await nextTo(page, 'SIDE')
+        if (side === 'BODYBUILDING') {
+          await page.getByTestId('guide-side-bodybuilding').click()
+          await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+        }
+        await expect(page.getByTestId(`guide-side-${sideName(side)}`)).toHaveAttribute('aria-pressed', 'true')
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+        await shoot(page, outDir, `guide-side-first-launch-${sideName(side)}-${scheme}`)
+        await nextTo(page, 'YOUR_TURN', side)
+        await expect(page.getByTestId('guide-next')).toHaveText(lastButtons(side, false).primary[0])
+        await shoot(page, outDir, `guide-your-turn-no-plan-${sideName(side)}-${scheme}`)
+      })
+    }
+
+    test('screen 8 with a plan (powerlifting)', async ({ page }) => {
+
+      await page.addInitScript(() => localStorage.setItem('grit:guide', 'off'))
+      await openOnWednesday(page)
+      await seedFlatBench(page)
+      await page.goto('/#/settings')
+      await page.getByTestId('settings-guide').click()
+      await nextTo(page, 'YOUR_TURN')
+      await expect(page.getByTestId('guide-next')).toHaveText(lastButtons('POWERLIFTING', true).primary[0])
+      await shoot(page, outDir, `guide-your-turn-with-plan-powerlifting-${scheme}`)
+    })
+  })
+}

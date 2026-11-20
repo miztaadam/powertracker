@@ -174,12 +174,36 @@
  * rather than either label being cut or one button running over the other. Side by side, Next takes the rest.
  */
 .guide-controls .gr-btn {
-  min-width: max-content;
-  flex: 1 0 auto;
+  min-width: min(max-content, 100%);
+  flex: 1 1 auto;
+}
+
+/* Screen 8's longer words ("Choose a template") wrap inside their button rather than run off a narrow phone. */
+.guide-controls .gr-btn-text {
+  white-space: normal;
+  text-align: center;
 }
 
 .guide-controls .guide-next {
   flex-grow: 1000;
+}
+
+/* Screen 8's second button: on a line of its own, under Back and the first. */
+.guide-controls .guide-wide {
+  flex-basis: 100%;
+}
+
+/* Screen 2 on a first launch: the two sides, side by side, each never narrower than its word. */
+.guide-sides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.guide-sides .gr-btn {
+  flex: 1 0 auto;
+  min-width: max-content;
 }
 
 /* Off (Back on screen 1): the app's disabled look, but still focusable (aria-disabled, not disabled). */

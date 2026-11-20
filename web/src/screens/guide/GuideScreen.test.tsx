@@ -396,3 +396,58 @@ describe('the guide', () => {
     expect(screen.getByTestId('guide-next')).toHaveAccessibleName(NEXT)
   })
 })
+
+describe('screens 2 and 8 (Task 3)', () => {
+  function showAt(startAt: string, { mode = 'POWERLIFTING' as TrainingMode, firstLaunch = true, hasPlan = false } = {}) {
+    const picks: TrainingMode[] = []
+    const exits: GuideExit[] = []
+    render(
+      <GuideScreen mode={mode} firstLaunch={firstLaunch} hasPlan={hasPlan} motionOn={false} onPickSide={(m) => picks.push(m)} onClose={(e) => exits.push(e)} clock={heldGuideClock(0)} startAt={startAt} />,
+    )
+    return { picks, exits }
+  }
+
+  it('screen2_onFirstLaunch_offersBothSides_andPicksTheOtherOne_only', () => {
+    const { picks } = showAt('SIDE')
+    expect(screen.getByTestId('guide-side-powerlifting')).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByTestId('guide-side-bodybuilding')).toHaveAttribute('aria-pressed', 'false')
+    fireEvent.click(screen.getByTestId('guide-side-powerlifting'))
+    expect(picks, 'the side already on: nothing').toEqual([])
+    fireEvent.click(screen.getByTestId('guide-side-bodybuilding'))
+    expect(picks).toEqual(['BODYBUILDING'])
+  })
+
+  it('screen2_onAReplay_showsNoButtons', () => {
+    showAt('SIDE', { firstLaunch: false })
+    expect(screen.queryByTestId('guide-side-powerlifting')).toBeNull()
+    expect(screen.queryByTestId('guide-side-bodybuilding')).toBeNull()
+  })
+
+  it('screen 2 shows no side buttons on any other screen', () => {
+    for (const id of SCREENS.filter((s) => s !== 'SIDE')) {
+      cleanup()
+      showAt(id)
+      expect(screen.queryByTestId('guide-side-powerlifting'), id).toBeNull()
+    }
+  })
+
+  it('screen8: Choose a template, with Build my plan on bodybuilding; Done and See my plan with a plan', () => {
+    const pl = showAt('YOUR_TURN')
+    expect(screen.getByTestId('guide-next')).toHaveTextContent('Choose a template')
+    expect(screen.queryByTestId('guide-last-secondary')).toBeNull()
+    fireEvent.click(screen.getByTestId('guide-next'))
+    expect(pl.exits).toEqual(['choose-template'])
+    cleanup()
+    const bb = showAt('YOUR_TURN', { mode: 'BODYBUILDING' })
+    fireEvent.click(screen.getByTestId('guide-last-secondary'))
+    expect(screen.getByTestId('guide-last-secondary')).toHaveTextContent('Build my plan')
+    expect(bb.exits).toEqual(['build-plan'])
+    cleanup()
+    const has = showAt('YOUR_TURN', { hasPlan: true, firstLaunch: false })
+    expect(screen.getByTestId('guide-next')).toHaveTextContent('Done')
+    expect(screen.getByTestId('guide-last-secondary')).toHaveTextContent('See my plan')
+    fireEvent.click(screen.getByTestId('guide-last-secondary'))
+    fireEvent.click(screen.getByTestId('guide-next'))
+    expect(has.exits).toEqual(['see-plan', 'done'])
+  })
+})

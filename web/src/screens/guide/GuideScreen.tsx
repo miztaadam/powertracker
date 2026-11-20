@@ -5,7 +5,7 @@ import { cx } from '../../ui/components/format'
 import { ArrowBackIcon, ArrowForwardIcon, CheckIcon } from '../../ui/components/icons'
 import { Pill } from '../../ui/components/Pill'
 import { GuidePicture } from './GuidePictures'
-import { BACK, DONE, EXAMPLE, GUIDE_LABEL, NEXT, SKIP, dotsLabel } from './guideLabels'
+import { BACK, EXAMPLE, GUIDE_LABEL, NEXT, SKIP, dotsLabel, lastButtons, sideName } from './guideLabels'
 import './GuideScreen.css'
 
 export { BACK, DONE, EXAMPLE, GUIDE_LABEL, NEXT, SKIP, dotsLabel, pictureDescription } from './guideLabels'
@@ -149,11 +149,38 @@ function GuideButton({ text, onClick, kind, icon, enabled = true, testId, classN
   )
 }
 
+/** Screen 2 on a first launch: the two sides, the one on drawn as chosen. A tap sets the real side (the caller's). */
+function SideButtons({ mode, onPick }: { mode: TrainingMode; onPick: (mode: TrainingMode) => void }) {
+  return (
+    <div className="guide-sides" role="group" aria-label="Your side">
+      {(['POWERLIFTING', 'BODYBUILDING'] as const).map((side) => (
+        <button
+          key={side}
+          type="button"
+          className={cx('gr-btn label-large', side === mode ? 'gr-btn-primary' : 'gr-btn-secondary', 'guide-btn guide-side')}
+          aria-pressed={side === mode}
+          onClick={() => onPick(side)}
+          data-testid={`guide-side-${side.toLowerCase()}`}
+        >
+          <span className="gr-btn-face">
+            {side === mode && (
+              <span className="gr-btn-icon">
+                <CheckIcon />
+              </span>
+            )}
+            <span className="gr-btn-text">{sideName(side)}</span>
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 /**
  * One screen: its title and lines from the domain, then its picture, which shrinks to leave the text its room. Keyed by
  * screen, so its picture starts from the first step each time it is shown; its steps are worked out only once shown.
  */
-function GuidePage({ id, mode, motionOn, clock, focusTitle }: { id: string; mode: TrainingMode; motionOn: boolean; clock: GuideClock; focusTitle: boolean }) {
+function GuidePage({ id, mode, motionOn, clock, focusTitle, below }: { id: string; mode: TrainingMode; motionOn: boolean; clock: GuideClock; focusTitle: boolean; below?: ReactNode }) {
   const screen: JsGuideScreen = useMemo(() => grit.guideScreen(id, mode), [id, mode])
   const titleRef = useRef<HTMLHeadingElement>(null)
   // The first screen's title takes the focus as the guide opens (what opened it has gone); later screens leave it on
@@ -189,6 +216,7 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle }: { id: string; mode
           </span>
         )}
         <GuidePicture id={id} mode={mode} frame={frame} moveMs={frame == null ? 0 : t - grit.guideStepStartMs(frame.stepIndex)} motionOn={motionOn} nextTap={nextTap} />
+        {below}
       </div>
     </div>
   )
@@ -197,11 +225,12 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle }: { id: string; mode
 /**
  * The guide (1.16): the domain's screens one at a time, a row of dots, Skip at the top right, Back and Next at the
  * bottom; a swipe or Escape (the browser's Back leaves the route) works too. `mode` is the side whose copy and colours
- * it shows. With `motionOn` false every picture shows its last step, still. Writes nothing: what an exit does is the
- * caller's (`onClose`). `firstLaunch`, `hasPlan` and `onPickSide` are for screens 2 and 8 (Task 3). Only the screen
- * shown is worked out: the sample's numbers for a later screen are computed when it is reached.
+ * it shows. With `motionOn` false every picture shows its last step, still. Writes nothing: what an exit and a side pick
+ * do is the caller's (`onClose`, `onPickSide`). Only on a `firstLaunch` does screen 2 offer the two sides; picking the
+ * side already on calls nothing. Screen 8 offers what `lastButtons` gives for `hasPlan`. Only the screen shown is worked
+ * out: the sample's numbers for a later screen are computed when it is reached.
  */
-export function GuideScreen({ mode, motionOn, onClose, clock = tickingGuideClock, startAt = 'WELCOME' }: GuideScreenProps) {
+export function GuideScreen({ mode, firstLaunch, hasPlan, motionOn, onPickSide, onClose, clock = tickingGuideClock, startAt = 'WELCOME' }: GuideScreenProps) {
   const screens = useMemo(() => grit.guideScreens(), [])
   // Kept across a resize or rotation: the page is state, not layout.
   const [index, setIndex] = useState(() => Math.max(0, screens.indexOf(startAt)))
@@ -224,6 +253,7 @@ export function GuideScreen({ mode, motionOn, onClose, clock = tickingGuideClock
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  const buttons = lastButtons(mode, hasPlan)
   const go = (to: number) => setIndex(Math.max(0, Math.min(screens.length - 1, to)))
   const start = useRef<{ x: number; y: number } | null>(null)
 
@@ -254,7 +284,15 @@ export function GuideScreen({ mode, motionOn, onClose, clock = tickingGuideClock
         }}
       >
         {/* Keyed by screen: a new page starts its picture from the first step, and slides in with motion on. */}
-        <GuidePage key={id} id={id} mode={mode} motionOn={motionOn} clock={clock} focusTitle={opening.current} />
+        <GuidePage
+          key={id}
+          id={id}
+          mode={mode}
+          motionOn={motionOn}
+          clock={clock}
+          focusTitle={opening.current}
+          below={firstLaunch && id === 'SIDE' ? <SideButtons mode={mode} onPick={(side) => side !== mode && onPickSide(side)} /> : undefined}
+        />
       </div>
       <div className="guide-dots" data-testid="guide-dots" role="img" aria-label={dotsLabel(index, screens.length)}>
         {screens.map((s, i) => (
@@ -263,15 +301,19 @@ export function GuideScreen({ mode, motionOn, onClose, clock = tickingGuideClock
       </div>
       <div className="guide-controls">
         <GuideButton text={BACK} kind="secondary" icon={<ArrowBackIcon />} onClick={() => go(index - 1)} enabled={index > 0} testId="guide-back" />
-        {/* Screen 8's own buttons come with the first launch (Task 3); until then its Next is Done. */}
+        {/* On screen 8, Next becomes its first button: Choose a template, or Done with a plan. */}
         <GuideButton
-          text={last ? DONE : NEXT}
+          text={last ? buttons.primary[0] : NEXT}
           kind="primary"
           icon={last ? <CheckIcon /> : <ArrowForwardIcon />}
-          onClick={() => (last ? onClose('done') : go(index + 1))}
+          onClick={() => (last ? onClose(buttons.primary[1]) : go(index + 1))}
           testId="guide-next"
           className="guide-next"
         />
+        {/* Below them, the full width: Build my plan (bodybuilding, no plan), or See my plan. */}
+        {last && buttons.secondary != null && (
+          <GuideButton text={buttons.secondary[0]} kind="secondary" onClick={() => onClose(buttons.secondary![1])} testId="guide-last-secondary" className="guide-wide" />
+        )}
       </div>
     </section>
   )

@@ -4,7 +4,12 @@ import type { SchemaVersion } from './db/schema'
 import { singleTabGuard, type SingleTabGuard, type TabRole } from './platform/singleTab'
 import { acceptPrivateMode, detectPrivateMode, privateModeAccepted, requestPersistence } from './platform/storage'
 import { UPDATE_READY, useUpdatePrompt, type RegisterSW } from './platform/update'
-import { goBack, leave, navigate, useRoute, type Route } from './router'
+import { goBack, leave, navigate, routeToHash, useRoute, type Route } from './router'
+import { liveQuery } from 'dexie'
+import { pickFirstSide } from './db/db'
+import type { TrainingMode } from './db/schema'
+import type { GuideExit } from './screens/guide/GuideScreen'
+import { guideGateOff, guideSeen, isNewUser, markGuideSeen } from './screens/guide/guideSeen'
 import { CheckInScreen } from './screens/checkin/CheckInScreen'
 import { CoachScreen } from './screens/coach/CoachScreen'
 import { InstallCard } from './screens/install/InstallCard'
@@ -102,7 +107,7 @@ function screenFor(route: Route, db: GritDb, { session, browser, planMessage, se
       />
     )
   if (route.page === 'checkIn') return <CheckInScreen db={db} onLeave={leaveCheckIn} onSeeCoach={() => goBack({ tab: 'coach' })} onDone={leaveCheckIn} />
-  if (route.page === 'settings') return <SettingsScreen db={db} onBack={() => goBack({ tab: 'plan' })} />
+  if (route.page === 'settings') return <SettingsScreen db={db} onBack={() => goBack({ tab: 'plan' })} onOpenGuide={() => navigate({ page: 'guide' })} />
   // Drawn by the Shell over everything, in place of the screens and the tab bar.
   if (route.page === 'guide') return null
   if (route.page === 'exercise') return <ExerciseHistoryScreen db={db} exerciseId={route.exerciseId} onBack={() => goBack({ tab: 'progress' })} />
@@ -112,20 +117,49 @@ function screenFor(route: Route, db: GritDb, { session, browser, planMessage, se
 /** The guide (1.16), a chunk of its own: nothing of it is loaded until it is opened. */
 const GuideScreen = lazy(() => import('./screens/guide/GuideScreen'))
 
+/** Whether `mode`'s side has a plan item, followed live; null until read. */
+function useHasPlan(db: GritDb, mode: TrainingMode): boolean | null {
+  const [has, setHas] = useState<boolean | null>(null)
+  useEffect(() => {
+    const subscription = liveQuery(() => db.planItems.filter((p) => p.mode === mode).count()).subscribe({ next: (n) => setHas(n > 0), error: () => setHas(false) })
+    return () => subscription.unsubscribe()
+  }, [db, mode])
+  return has
+}
+
 /**
- * The guide as a route: a replay on the side the app is on. It picks no side and writes nothing; every exit goes back
- * where it was opened from, or to Today. The first launch and screen 8's plan buttons come with Task 3.
+ * The guide as a route, on the side the app is on: opened by the first launch (`firstLaunch`), or from Settings as a
+ * replay. Only the first launch's screen 2 picks the side (with no animation and no side dated as left), and "seen" is
+ * written by the gate's owner when the route leaves the guide, whichever way; a replay writes nothing. Skip and Done
+ * go back where it was opened from, or to Today; a plan button leaves the guide for Plan, then opens the template list
+ * or the builder over it, so the browser's Back from either lands on Plan, never on the guide.
  */
-function GuideRoute() {
+function GuideRoute({ db, firstLaunch }: { db: GritDb; firstLaunch: boolean }) {
   const mode = useContext(TrainingModeContext)
+  const hasPlan = useHasPlan(db, mode)
   // Read once: reduced motion and the e2e flag both put data-motion="off" on <html> before the app starts.
   const [motionOn] = useState(() => document.documentElement.getAttribute('data-motion') !== 'off')
   // Every exit, a failed load included, goes back where it was opened from, or to Today.
   const close = useCallback(() => leave({ tab: 'today' }), [])
+  const onClose = useCallback(
+    (exit: GuideExit) => {
+      if (exit === 'skipped' || exit === 'done') return close()
+      // In place of the guide's entry: Plan, then what was asked for over it.
+      window.location.replace(routeToHash({ tab: 'plan' }))
+      if (exit === 'choose-template') navigate({ page: 'templates', mode })
+      else if (exit === 'build-plan') navigate({ page: 'planBuilder' })
+    },
+    [close, mode],
+  )
+  const onPickSide = useCallback((side: TrainingMode) => {
+    if (firstLaunch) void pickFirstSide(db, side).catch(() => {})
+  }, [db, firstLaunch])
+  // Screen 8 waits for the plan to be read, so its buttons never change under a finger.
+  if (hasPlan == null) return <BlankScreen />
   return (
     <GuideChunkBoundary onFailed={close}>
       <Suspense fallback={<BlankScreen />}>
-        <GuideScreen mode={mode} firstLaunch={false} hasPlan={false} motionOn={motionOn} onPickSide={() => {}} onClose={close} />
+        <GuideScreen mode={mode} firstLaunch={firstLaunch} hasPlan={hasPlan} motionOn={motionOn} onPickSide={onPickSide} onClose={onClose} />
       </Suspense>
     </GuideChunkBoundary>
   )
@@ -163,7 +197,7 @@ const leaveBuilder = () => leave({ tab: 'plan' })
  * The app itself: the screens, the tab bar and what docks above it. Rendered only while Grit is unlocked. Memoised:
  * a change of the side shown (the mode switch's moment) redraws only what reads it, not every screen's parent.
  */
-const Shell = memo(function Shell({ db, rest, registerSW }: { db: GritDb; rest: Rest; registerSW?: RegisterSW }) {
+const Shell = memo(function Shell({ db, rest, registerSW, firstLaunchGuide }: { db: GritDb; rest: Rest; registerSW?: RegisterSW; firstLaunchGuide: boolean }) {
   const route = useRoute()
   const update = useUpdatePrompt(db, registerSW)
   // Kept here, above the screens: the session is the same one on the Today and Exercises tabs, and an
@@ -192,7 +226,7 @@ const Shell = memo(function Shell({ db, rest, registerSW }: { db: GritDb; rest: 
   return (
     <>
       {guide ? (
-        <GuideRoute />
+        <GuideRoute db={db} firstLaunch={firstLaunchGuide} />
       ) : (
         <>
           <div className="shell" style={{ '--rest-dock-height': `${dockHeight}px` } as CSSProperties}>
@@ -252,18 +286,51 @@ function Opened({ dbName, schemaVersions, registerSW }: AppProps) {
       stale = true
     }
   }, [])
+  // The guide's first-launch gate (1.16), kept here above the lock, so a re-lock while it is up neither closes it nor
+  // writes "seen". Shut at once by the tests' seam, with no query; else "seen" is read first, then whether this is a
+  // new user (no session, no plan item). Open, it is the `#/guide` route; when the route leaves the guide by any way
+  // (Skip, Done, a plan button, the browser's Back), "seen" is written, once, and it stays shut for this page.
+  const [gate, setGate] = useState<'deciding' | 'open' | 'shut'>(() => (guideGateOff() ? 'shut' : 'deciding'))
+  const route = useRoute()
+  const onGuide = 'page' in route && route.page === 'guide'
+  const gateEntered = useRef(false)
+  useEffect(() => {
+    if (db == null || gate !== 'deciding') return
+    let stale = false
+    ;(async () => (await guideSeen(db)) ? false : await isNewUser(db))()
+      .catch(() => false)
+      .then((open) => {
+        if (stale) return
+        if (open) navigate({ page: 'guide' })
+        setGate(open ? 'open' : 'shut')
+      })
+      .catch(() => {})
+    return () => {
+      stale = true
+    }
+  }, [db, gate])
+  useEffect(() => {
+    if (db == null || gate !== 'open') return
+    if (onGuide) {
+      gateEntered.current = true
+      return
+    }
+    if (!gateEntered.current) return
+    setGate('shut')
+    void markGuideSeen(db).catch(() => {})
+  }, [db, gate, onGuide])
   // Another tab opened the database with a newer schema: this page's connection is closed for good.
   useEffect(() => onDbVersionChange(() => setOutdated(true)), [])
 
   if (outdated) return <ReloadScreen />
-  if (db == null || privateMode == null) return <BlankScreen />
+  if (db == null || privateMode == null || gate === 'deciding' || (gate === 'open' && !onGuide && !gateEntered.current)) return <BlankScreen />
   const continueAnyway = () => {
     acceptPrivateMode()
     setPrivateMode(false)
   }
   return (
     <TrainingModeContext.Provider value={mode}>
-      <LockGateHost db={db}>{privateMode ? <PrivateModeScreen db={db} onContinue={continueAnyway} /> : <Shell db={db} rest={rest} registerSW={registerSW} />}</LockGateHost>
+      <LockGateHost db={db}>{privateMode ? <PrivateModeScreen db={db} onContinue={continueAnyway} /> : <Shell db={db} rest={rest} registerSW={registerSW} firstLaunchGuide={gate === 'open'} />}</LockGateHost>
     </TrainingModeContext.Provider>
   )
 }
