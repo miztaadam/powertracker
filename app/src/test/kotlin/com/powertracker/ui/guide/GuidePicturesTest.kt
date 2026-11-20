@@ -97,11 +97,12 @@ class GuidePicturesTest {
         motionOn: Boolean = true,
         clock: GuideClock = HeldGuideClock(),
         fontScale: Float = 1f,
+        hasPlan: Boolean = false,
     ) = setOnce {
         val density = LocalDensity.current
         CompositionLocalProvider(LocalMotion provides motionOn, LocalDensity provides Density(density.density, fontScale)) {
             PowertrackerTheme(mode = mode, darkTheme = true) {
-                GuideScreen(mode, firstLaunch = false, hasPlan = false, motionOn = motionOn, onPickSide = {}, onClose = {}, clock = clock, startAt = startAt)
+                GuideScreen(mode, firstLaunch = false, hasPlan = hasPlan, motionOn = motionOn, onPickSide = {}, onClose = {}, clock = clock, startAt = startAt)
             }
         }
     }
@@ -446,6 +447,19 @@ class GuidePicturesTest {
         assertEquals(6, OUTLINED.size)
         assertTrue("$sizes", sizes.first().second.width > 0 && sizes.first().second.height > 0)
         assertEquals("$sizes", 1, sizes.map { it.second }.toSet().size)
+    }
+
+    /** A replay by a lifter with a plan: screen 8 then has See my plan under its buttons, on both sides. */
+    @Test
+    fun guide_outline_isTheSameSize_withAPlan() {
+        show(GuideScreenId.TODAY, pl)
+        val size = picture().size
+        for (mode in TrainingMode.entries) for (id in listOf(GuideScreenId.TODAY, GuideScreenId.YOUR_TURN)) {
+            show(id, mode, hasPlan = true)
+            assertOn(id, mode)
+            if (id == GuideScreenId.YOUR_TURN) compose.onNodeWithTag("guide-last-secondary").assertIsDisplayed()
+            assertEquals("$id on $mode with a plan", size, picture().size)
+        }
     }
 
     @Test
