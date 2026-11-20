@@ -71,7 +71,7 @@
 - **Not for custom variations** (see open question 1), nor `SMITH` exercises (a bar loaded with plates in kg).
 - **"Anywhere in the list"** *(my call)*: T-bar row is `MACHINE, BARBELL`, glute-ham raise and reverse hyper are `MACHINE, BODYWEIGHT`. Each is offered; the lifter decides.
 - **The library can't tell a pin stack from a plate-loaded machine.** Leg press, single-leg leg press, hack squat, lever squat, T-bar rows, sled push and the calf machines are often plate-loaded. They are offered like the rest; non-goal 3 rests on the lifter not choosing plates there.
-- **Assisted pull-up, assisted chin-up and assisted dip** (all `MACHINE`): see open question 3.
+- **Assisted pull-up, assisted chin-up and assisted dip** (all `MACHINE`): left out unless the owner says otherwise; see open question 3.
 - **One setting per exercise, on both sides.** Exercise rows are shared by the two sides, so the setting is too *(my call; per-gym and per-side profiles are non-goals)*.
 
 ## The design as decided
@@ -131,7 +131,7 @@
 - **Lighter weeks (decided):** after a 14-day break (re-entry, 0.85) and in a deload week (0.9), the factor applies to the plate number, rounds down to the step, goes **at least one step down**, and never below plate 1.
   - **The step down is measured from the same fixed top set** the kg clamp measures from (`capFor` in `Coach` and `BodybuildingCoach`: the top set from before the advice). So a lighter week of several sessions doesn't lose a plate each time.
   - **A deload and easing back in together** take the lower of the two caps, as kg does: not two steps.
-  - **Examples:** plate 7 in a deload: 6.3, so plate 6. Plate 7 easing back in: 5.95, so plate 5 (5½ with half steps). Plate 2 in a deload: 1.8, so plate 1. Plate 1: stays plate 1 (the deload still cuts the sets).
+  - **Examples:** plate 7 in a deload: 6.3, so plate 6. Plate 7 easing back in: 5.95, so plate 5 (5½ with half steps). Plate 2 in a deload: 1.8, so plate 1 (1½ with half steps). Plate 1: stays plate 1 (the deload still cuts the sets).
 - **Pain skips, stalls, swaps, check-ins:** unchanged in logic. Any text that prints a weight prints plates.
 
 ## How each affected area behaves
@@ -182,14 +182,14 @@ Paths are relative to `domain/src/commonMain/kotlin/com/powertracker/domain/` un
 ## Data and migration
 - **Each set records its unit:** kg or plates, kg by default. The number stays in the set's one weight field and means "plate number" when the unit is plates.
   - **Invariant:** no code reads a set's number without its unit. Every e1RM, sum, volume, record and kg rule takes kg sets only, and no plate set ever reaches them as 0 kg or as kg.
-  - **Naming is the builder's.** Renaming the domain field (for example to a weight with a unit) is suggested, so the compiler finds every place this document lists.
+  - **Naming is the builder's, with one rule for the tests.** The domain's `LoggedSet` gains the unit as a **last field with a kg default**, so the 78 test fixtures that build a `LoggedSet` (domain and Android tests) and the guide's sample (`domain/src/commonMain/kotlin/com/powertracker/domain/guide/GuideSample.kt`) compile and behave as they are *(my call)*. To find every use, the builder greps for `weightKg` (the list in "How each affected area behaves" is the starting point) rather than renaming the field. The web's test fixtures (`web/src/test/`) write rows without the field, which reads as kg.
 - **Each exercise records its setting:** off (kg), whole plates, or half steps. Off by default.
 - **Android, Room version 5 to 6:** `MIGRATION_5_6` only adds two columns, each with a default (a unit on `logged_set`, kg; the setting on `exercise`, off), as `MIGRATION_2_3` added `mode`. Nothing stored changes. Schema `6.json` is exported.
 - **Web, Dexie version 5 to 6:** stamps every set as kg and every exercise as off, as version 3 stamped `mode`. A row without the field reads as kg or off. No new index. `openGritDb` already writes the safety copy before an upgrade.
 - **Backup version 6, both apps:**
   - sets gain the unit; absent means kg;
   - exercises gain the setting; absent means off;
-  - TARGET payloads may carry a unit; absent means kg.
+  - TARGET payloads may carry a unit; absent means kg. Both backups carry a payload as an opaque string, so neither decoder changes for it.
   - **Versions 1 to 5 still restore,** every set in kg and every exercise off.
   - **A version 6 file in an older app** (1.16 or before) is turned away as too new, with the message both apps already show; nothing is changed.
   - The doc comments listing versions (`Backup`, `format.ts`) gain a line for 6.
@@ -209,6 +209,7 @@ Paths are relative to `domain/src/commonMain/kotlin/com/powertracker/domain/` un
 - **Restoring a version 6 backup into an older app:** turned away as too new; the data on the phone is untouched.
 - **First ever set, no history:** no target, as for any new exercise. The field is empty with a PLATE placeholder; + gives plate 1. On the bodybuilding side the reps aim is the bottom of the range.
 - **Assisted machines** (assisted pull-up, chin-up, dip): more plates is easier, so "one step up" would make it easier. See open question 3.
+- **Switching back to kg:** the coach picks the old kg sets up again, as if plates had been a break from the exercise. Kg targets come from the last kg top set, and the 14-day break and lighter-week rules apply to it as they would to any old top set.
 - **The same exercise on both sides:** one setting for both.
 - **Archived and restored exercises:** the setting is kept with the row.
 - **Change plates (0.5 and 0.25 kg):** ignored by plate-counted exercises.
@@ -236,6 +237,6 @@ Paths are relative to `domain/src/commonMain/kotlin/com/powertracker/domain/` un
 2. **The exercise chart.** Decision 6 says the exercise's chart plots the plate number, but neither app has a chart for a single machine or cable exercise. Progress charts are main lifts only, and the bodybuilding rows and exercise history are text. Should 1.17 add an exercise chart?
    **My recommendation: no chart in 1.17.** The rule stands for any chart added later.
 3. **Assisted machines** (assisted pull-up, assisted chin-up, assisted dip). On these, more weight is easier, so "one step up" would make the exercise easier. Should they be offered plate counting?
-   **My recommendation: not in 1.17; they stay in kg.** The kg coach already moves these the wrong way (it adds weight as if it were harder), which is a separate fix worth its own decision.
+   **My recommendation: not in 1.17; they stay in kg.** If there is no answer, the builder leaves them out, since a wrong-way target is worse than none. In kg the coach also adds weight on these as if it were harder. That matters only if lifters log the assistance as the weight; nothing in the code says which they log. That is a separate question for its own release.
 4. **The powerlifting side's plate progression** (my proposal above): one more rep at the same plate, up to 12, then one step up and back to the planned reps; a step down after a missed or much-too-hard top set. Is that right?
    **My recommendation: yes.** It is what the kg rule already does when a machine's jump is too big, carried through to the step.
